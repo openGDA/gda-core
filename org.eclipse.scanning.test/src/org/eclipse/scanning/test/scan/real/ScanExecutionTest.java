@@ -39,16 +39,18 @@ import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * This class is an object which can be started by sprig on the GDA server.
+ * This class is an object which can be started by spring on the GDA server.
  *
  * It receives commands and runs a simple test scan.
  *
  * @author fri44821
  *
  */
+@Ignore("DAQ-2088 Invalid constructor for JUnit")
 public class ScanExecutionTest extends BrokerTest {
 
 	private static IEventService     eventService;

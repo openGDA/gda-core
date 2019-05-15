@@ -28,9 +28,11 @@ import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCCombo;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+@Ignore("DAQ-2088 These tests time out and fail")
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class MonitorViewerTest extends ShellTest {
 

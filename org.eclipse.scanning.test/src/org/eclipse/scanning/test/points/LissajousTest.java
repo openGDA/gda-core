@@ -22,8 +22,10 @@ import org.eclipse.scanning.api.points.models.LissajousModel;
 import org.eclipse.scanning.points.LissajousGenerator;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore("DAQ-2088 Tests have not been implemented")
 public class LissajousTest {
 
 	private LissajousGenerator generator;

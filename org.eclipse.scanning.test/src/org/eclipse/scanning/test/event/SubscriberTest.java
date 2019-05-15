@@ -24,8 +24,10 @@ import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.test.BrokerTest;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore("DAQ-2088 Tests have not been implemented")
 public class SubscriberTest extends BrokerTest {
 
 	private IPublisher<StatusBean> publisher;

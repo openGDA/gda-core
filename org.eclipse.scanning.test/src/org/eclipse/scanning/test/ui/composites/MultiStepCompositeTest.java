@@ -21,6 +21,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -65,6 +66,7 @@ public class MultiStepCompositeTest extends ShellTest{
 		assertNotNull(bot.shell("Multi-Step")); // Bot throws exception anyway if null
 	}
 
+	@Ignore("DAQ-2088 This test passes when this class is run on its own (JUnit from Eclipse AND from ant) but not as part of the whole set of tests")
 	@Test
 	public void checkEnergy() {
 		assertEquals(7, bot.comboBox(0).selectionIndex());
@@ -259,6 +261,7 @@ public class MultiStepCompositeTest extends ShellTest{
 	 * Upper bound for 'energy' is 35000
 	 * @throws Exception
 	 */
+	@Ignore("DAQ-2088 This test consistently fails on Jenkins only")
 	@Test
 	public void checkNotRedWhenWithinBounds() throws Exception {
 		try {

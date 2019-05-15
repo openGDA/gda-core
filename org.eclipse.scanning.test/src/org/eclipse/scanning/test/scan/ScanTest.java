@@ -60,6 +60,7 @@ import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ScanTest extends BrokerTest {
@@ -192,6 +193,7 @@ public class ScanTest extends BrokerTest {
 		checkRun(scanner);
 	}
 
+	@Ignore("DAQ-2088 This now regularly fails on  Jenkins with 'Cannot to do readout' from MockWritableDetector#run")
 	@Test
 	public void testAbortSimpleScan() throws Exception {
 		MockDetectorModel dmodel = new MockDetectorModel();

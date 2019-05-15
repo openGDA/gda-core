@@ -14,8 +14,11 @@
 		 ==================================================================== -->
 
 	<import file="${workspace.git.loc}/gda-core.git/diamond.releng.tools.gda/ant-headless/test-common.ant" />
-	<target name="junit-tests" depends="set-test-base-GDA">
-		<junit-call description="${ant.project.name} Java JUnit tests" timeout="1800000"> <!-- 30 mins timeout -->
+
+	<target name="junit-tests" depends="set-test-base-GDA, Xvfb_start, _junit-tests, Xvfb_stop" />
+
+	<target name="_junit-tests" >
+		<junit-call description="${ant.project.name} Java JUnit tests" Xvfb-display-name="${Xvfb-display-name}" Xvfb-display-number="${Xvfb-display-number}" timeout="1800000"> <!-- 30 mins timeout -->
 			<jvmarg value="-Dgda.install.workspace.loc=${workspace.loc}" />
 			<jvmarg value="-Dgda.install.git.loc=${workspace.git.loc}" />
 			<sysproperty key="basedir" value="${plugin.basedir}" />
@@ -33,12 +36,19 @@
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.nexus/bin" />
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.json/bin" />
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.remotedataset.test/bin" />
+				<pathelement location="${workspace.git.loc}/richbeans.git/org.eclipse.richbeans.annot/bin" />
+				<pathelement location="${workspace.git.loc}/richbeans.git/org.eclipse.richbeans.api/bin" />
+				<pathelement location="${workspace.git.loc}/richbeans.git/org.eclipse.richbeans.binding/bin" />
+				<pathelement location="${workspace.git.loc}/richbeans.git/org.eclipse.richbeans.test/bin"/>
+				<pathelement location="${workspace.git.loc}/richbeans.git/org.eclipse.richbeans.widgets/bin" />
+				<pathelement location="${workspace.git.loc}/richbeans.git/org.eclipse.richbeans.widgets.file/bin" />
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.api/bin"/>
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.command/bin"/>
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.connector.activemq/bin"/>
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.connector.epics/target/classes"/>
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.connector.epics/jars/*"/>
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.device/bin"/>
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.device.ui/bin"/>
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.event/bin"/>
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.example/bin"/>
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.example.xcen/bin"/>
@@ -51,37 +61,20 @@
 				<path refid="tp.slf4j.path" />  <!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
 				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->
 				<path refid="tp.hamcrest.path" />  <!-- ensure that latest version appears first in classpath -->
+				<path refid="tp.swt.path" />
+				<path refid="tp.swtbot.path" />
 				<path refid="tp.path" />  <!-- target platform -->
 			</classpath>
 			<batchtest todir="@{report.dir}">
 				<fileset dir="${plugin.basedir}/src">
 
-
 					<include name="**/*Test.java" />
 
 					<exclude name="**/Abstract*Test.java" />
 
-					<exclude name="org/eclipse/scanning/test/scan/legacy/LegacyDeviceSupportScanTest.java" />
 					<exclude name="org/eclipse/scanning/test/BrokerTest.java" />
 					<exclude name="org/eclipse/scanning/test/TmpTest.java" />
-					<exclude name="org/eclipse/scanning/test/event/SubscriberTest.java" />
-					<exclude name="org/eclipse/scanning/test/scan/real/ScanExecutionTest.java" />
-					<exclude name="org/eclipse/scanning/test/ui/AxisConfigurationTest.java" />
-					<exclude name="org/eclipse/scanning/test/ui/BoundingBoxTest.java" />
-					<exclude name="org/eclipse/scanning/test/ui/ControlTreeViewerTest.java" />
-					<exclude name="org/eclipse/scanning/test/ui/KnownModelsTest.java" />
-					<exclude name="org/eclipse/scanning/test/ui/MonitorViewerTest.java" />
-					<exclude name="org/eclipse/scanning/test/ui/SampleInformationTest.java" />
-					<exclude name="org/eclipse/scanning/test/ui/composites/MultiStepCompositeTest.java" />
-					<exclude name="org/eclipse/scanning/test/command/ScanRequestTest.java" />
-					<exclude name="org/eclipse/scanning/test/event/ProcessManagementQueuedBeansTest.java" />
-					<exclude name="org/eclipse/scanning/test/points/LissajousTest.java" />
-					<exclude name="org/eclipse/scanning/test/remote/GetDeviceInformationTest.java" />
-					<exclude name="org/eclipse/scanning/test/scan/nexus/CompositeNexusScannableTest.java" />
 					<exclude name="org/eclipse/scanning/test/scan/nexus/NexusTest.java" />
-					<exclude name="org/eclipse/scanning/test/scan/nexus/PosDetectorScanTest.java" />
-					<exclude name="org/eclipse/scanning/test/scan/nexus/ScanWithNoNexusFileTest.java" />
-					<exclude name="org/eclipse/scanning/test/scan/servlet/DefaultConfigurationPreprocessorTest.java" />
 
 				</fileset>
 			</batchtest>
