@@ -31,34 +31,40 @@ public class BeforeAfterScannable extends ScannableMotionUnitsBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(BeforeAfterScannable.class);
 
-	protected Scannable delegate;
-	protected Scannable beforeAfter;
-	protected Object before;
-	protected Object after;
+	private Scannable delegate;
+	private Scannable beforeAfter;
+	private Object before;
+	private Object after;
+
+	public BeforeAfterScannable() {
+
+	}
 
 	public BeforeAfterScannable(ScannableMotionUnits delegate,
 			Scannable beforeAfter, Object before, Object after) {
-		this.delegate = delegate;
-		this.beforeAfter = beforeAfter;
-		this.before = before;
-		this.after = after;
+		this.setDelegate(delegate);
+		this.setBeforeAfter(beforeAfter);
+		this.setBefore(before);
+		this.setAfter(after);
 	}
 
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 
-		logger.trace("moving {} to {} before", beforeAfter.getName(), before);
-		beforeAfter.moveTo(before); // moveTo internally calls waitWhileBusy
-
+		if (getBefore() != null) {
+			logger.trace("moving {} to {} before", getBeforeAfter().getName(), getBefore());
+			getBeforeAfter().moveTo(getBefore()); // moveTo internally calls waitWhileBusy
+		}
 		try {
 			// in case beforeAfter.waitWhileBusy returns before finished moving
 			Thread.sleep(delayBeforeMovingDelegate);
 
-			logger.trace("moving {} to {}", delegate.getName(), position);
-			delegate.moveTo(position);
-
-			logger.trace("moving {} to {} after", beforeAfter.getName(), after);
-			beforeAfter.moveTo(after);
+			logger.trace("moving {} to {}", getDelegate().getName(), position);
+			getDelegate().moveTo(position);
+			if (getAfter()!=null) {
+				logger.trace("moving {} to {} after", getBeforeAfter().getName(), getAfter());
+				getBeforeAfter().moveTo(getAfter());
+			}
 		}
 		catch (InterruptedException e) {
 			// Restore the interrupted status
@@ -72,12 +78,12 @@ public class BeforeAfterScannable extends ScannableMotionUnitsBase {
 
 	@Override
 	public Object rawGetPosition() throws DeviceException {
-		return delegate.getPosition();
+		return getDelegate().getPosition();
 	}
 
 	@Override
 	public boolean isBusy() throws DeviceException {
-		return delegate.isBusy() || beforeAfter.isBusy();
+		return getDelegate().isBusy() || getBeforeAfter().isBusy();
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -94,6 +100,38 @@ public class BeforeAfterScannable extends ScannableMotionUnitsBase {
 	public void setDelayBeforeMovingDelegate(long milliseconds) {
 		checkArgument(milliseconds >= 0, "milliseconds must be a positive integer");
 		delayBeforeMovingDelegate = milliseconds;
+	}
+
+	public Scannable getDelegate() {
+		return delegate;
+	}
+
+	public void setDelegate(Scannable delegate) {
+		this.delegate = delegate;
+	}
+
+	public Scannable getBeforeAfter() {
+		return beforeAfter;
+	}
+
+	public void setBeforeAfter(Scannable beforeAfter) {
+		this.beforeAfter = beforeAfter;
+	}
+
+	public Object getBefore() {
+		return before;
+	}
+
+	public void setBefore(Object before) {
+		this.before = before;
+	}
+
+	public Object getAfter() {
+		return after;
+	}
+
+	public void setAfter(Object after) {
+		this.after = after;
 	}
 
 }
