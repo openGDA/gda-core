@@ -18,23 +18,8 @@ import org.eclipse.scanning.server.application.PseudoSpringParser;
 import org.eclipse.scanning.server.servlet.DeviceServlet;
 import org.eclipse.scanning.test.BrokerDelegate;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.eclipse.scanning.test.ui.composites.MultiStepCompositeTest;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite.SuiteClasses;
 
-@RunWith(org.junit.runners.Suite.class)
-@SuiteClasses({
-	ScannableUIPreferencesTest.class,
-	SampleInformationTest.class,
-	AxisConfigurationTest.class,
-	KnownModelsTest.class,
-	BoundingBoxTest.class,
-	MonitorViewerTest.class,
-	MultiStepCompositeTest.class,
-	ControlTreeViewerTest.class // Must be last!
-
-})
-public class UISuite {
+public class UITestServicesSetup {
 
 	private static DeviceServlet dservlet;
 	private static BrokerDelegate delegate;

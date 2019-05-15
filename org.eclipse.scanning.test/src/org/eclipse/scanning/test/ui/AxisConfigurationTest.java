@@ -44,13 +44,13 @@ public class AxisConfigurationTest extends ShellTest{
 	@BeforeClass
 	public static void createServices() throws Exception {
 		interfaceService = new InterfaceService(); // Just for testing! This comes from OSGi really.
-		UISuite.createTestServices(false);
+		UITestServicesSetup.createTestServices(false);
 	}
 
 	@AfterClass
 	public static void disposeServices() throws Exception {
 		interfaceService = null;
-		UISuite.disposeTestServices();
+		UITestServicesSetup.disposeTestServices();
 	}
 
 	private AxisConfiguration    config;

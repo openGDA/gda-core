@@ -44,12 +44,12 @@ public class ControlTreeViewerTest extends ShellTest {
 
 	@BeforeClass
 	public static void createServices() throws Exception {
-		UISuite.createTestServices(true);
+		UITestServicesSetup.createTestServices(true);
 	}
 
 	@AfterClass
 	public static void disposeServices() throws Exception {
-		UISuite.disposeTestServices();
+		UITestServicesSetup.disposeTestServices();
 	}
 
 	private ControlTree controlTree;
