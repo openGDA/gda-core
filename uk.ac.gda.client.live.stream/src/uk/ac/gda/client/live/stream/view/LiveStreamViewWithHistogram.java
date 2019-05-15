@@ -44,7 +44,10 @@ import org.eclipse.dawnsci.plotting.api.trace.TraceEvent;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -329,10 +332,6 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 			}
 		});
 
-		Button bu = new Button(histoGroup, SWT.PUSH);
-		bu.setLayoutData(GridDataFactory.swtDefaults().create());
-		bu.setText("Use Default");
-
 		HistoDefaultRange[] defaults = new HistoDefaultRange[] { new HistoDefaultRange(0, 1600),
 				new HistoDefaultRange(0, 16000) };
 
@@ -341,21 +340,19 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 		defaultViewer.setLabelProvider(new LabelProvider());
 		defaultViewer.setInput(defaults);
 		defaultViewer.getCombo().select(0);
-
-		bu.addSelectionListener(new SelectionAdapter() {
+		defaultViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if (defaultViewer.getSelection() instanceof StructuredSelection
-						&& ((StructuredSelection) defaultViewer.getSelection())
-								.getFirstElement() instanceof HistoDefaultRange) {
-					HistoDefaultRange r = (HistoDefaultRange) ((StructuredSelection) defaultViewer.getSelection())
-							.getFirstElement();
-					histogramViewer.getHistogramPlot().getSelectedXAxis().setRange(r.getLower(), r.getUpper());
+			public void selectionChanged(SelectionChangedEvent event) {
+				ISelection selection = event.getSelection();
+				if (selection instanceof StructuredSelection && ((StructuredSelection) selection)
+						.getFirstElement() instanceof HistoDefaultRange) {
+					HistoDefaultRange firstElement = (HistoDefaultRange)((StructuredSelection)selection).getFirstElement();
+					histogramViewer.getHistogramPlot().getSelectedXAxis().setRange(firstElement.getLower(), firstElement.getUpper());
 				}
 			}
-
 		});
+
 		Button log = new Button(histoGroup, SWT.CHECK);
 		log.setText("Log Y Axis");
 		log.setSelection(histogramViewer.getHistogramPlot().getSelectedYAxis().isLog10());
