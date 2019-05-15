@@ -25,6 +25,8 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.eclipse.core.expressions.Expression;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.ui.IWorkbenchPage;
@@ -138,7 +140,8 @@ public class LiveStreamMenuContribution extends ExtensionContributionFactory {
 				logger.debug("Opening {} {} stream", cameraConfig.getKey(), streamType.displayName);
 				String viewId=LiveStreamView.ID;
 				if (cameraConfig.getValue().isWithHistogram()) {
-					viewId=LiveStreamViewWithHistogram.ID;
+					//get view ID from extension registry to make the menu action work with customised widgets
+					viewId=getViewID(cameraConfig.getKey());
 				}
 
 				try {
@@ -151,6 +154,16 @@ public class LiveStreamMenuContribution extends ExtensionContributionFactory {
 				}
 			}
 		};
+	}
+
+	private String getViewID(String key) {
+		IConfigurationElement[] elements = Platform.getExtensionRegistry().getConfigurationElementsFor("org.eclipse.ui.views");
+		for (IConfigurationElement each : elements) {
+			if (each.getAttribute("id").contains(key)) {
+				return each.getAttribute("id");
+			}
+		}
+		return null;
 	}
 
 }
