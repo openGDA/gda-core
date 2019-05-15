@@ -169,6 +169,13 @@ public class DummyMotor extends MotorBase {
 			logger.debug("DummyMotor {} randomly throwing exception", getName());
 			throw new MotorException(MotorStatus.FAULT, "Random dummy motor fault");
 		}
+		if (status == MotorStatus.BUSY) {
+			throw new MotorException(status, "moveTo() aborted because previous move not yet completed");
+		}
+		if (status == MotorStatus.FAULT) {
+			throw new MotorException(status,
+					"moveTo() aborted because EPICS Motor is at Fault status. Please check EPICS Screen.");
+		}
 
 		double positionChange = requestedPosition - currentPosition;
 		if (positionChange != 0.0) {
