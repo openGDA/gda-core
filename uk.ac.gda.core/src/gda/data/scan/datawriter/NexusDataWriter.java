@@ -1930,8 +1930,8 @@ public class NexusDataWriter extends DataWriterBase {
 			for (int i = 0; i < inputNames.length; i++) {
 				NexusUtils.writeDouble(file, g, inputNames[i], positions[i]);
 			}
-			for (int i = 0; i < extraNames.length; i++) { // TODO check if position index is correct here
-				NexusUtils.writeDouble(file, g, extraNames[i], positions[i]);
+			for (int i = 0; i < extraNames.length; i++) {
+				NexusUtils.writeDouble(file, g, extraNames[i], positions[inputNames.length + i]);
 			}
 		}
 	}
