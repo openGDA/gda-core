@@ -18,14 +18,14 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import java.util.Optional;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Button;
@@ -37,9 +37,16 @@ import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 
 /**
  * A section containing:<ul>
- * <li>a button to submit a scan to the queue;</li>
- * <li>a button to save a scan to disk;</li>
- * <li>a button to load a scan from disk.</li>
+ * <li>a section for submitting scans containing:</li>
+ * <ul>
+ * <li>a button to submit a scan to the queue</li>
+ * </ul>
+ * <li>a section to handle the corresponding mscan command containing:</li>
+ * <ul>
+ * <li>a button to copy a scan to the clipboard</li>
+ * <li>a button to save a scan to disk</li>
+ * <li>a button to load a scan from disk</li>
+ * </ul>
  * </ul>
  */
 public class SubmitScanSection extends AbstractMappingSection {
@@ -68,64 +75,68 @@ public class SubmitScanSection extends AbstractMappingSection {
 		smController = getService(ScanManagementController.class);
 		smController.initialise();
 		super.createControls(parent);
+
+		createMainComposite(parent);
+		createSubmitSection();
+		createMscanSection();
+	}
+
+	private void createMainComposite(Composite parent) {
 		composite = new Composite(parent, SWT.NONE);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BOTTOM).applyTo(composite);
-		GridLayoutFactory.swtDefaults().numColumns(5).applyTo(composite);
+		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(composite);
+	}
 
+	protected void createSubmitSection() {
+		final Composite submitComposite = new Composite(composite, SWT.NONE);
+		GridDataFactory.swtDefaults().applyTo(submitComposite);
+		GridLayoutFactory.swtDefaults().applyTo(submitComposite);
+		createSubmitButton(submitComposite);
+	}
+
+	protected void createSubmitButton(Composite parent) {
 		// Button to submit a scan to the queue
-		submitScanButton = new Button(composite, SWT.PUSH);
+		submitScanButton = new Button(parent, SWT.PUSH);
 		submitScanButton.setText(buttonText);
 		if (buttonColour != null) {
 			submitScanButton.setBackground(new Color(Display.getDefault(), buttonColour));
 		}
 		GridDataFactory.swtDefaults().applyTo(submitScanButton);
-		submitScanButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				submitScan();
-			}
-		});
+		submitScanButton.addSelectionListener(widgetSelectedAdapter(e -> submitScan()));
+	}
+
+	private void createMscanSection() {
+		final Composite mscanComposite = new Composite(composite, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.RIGHT, SWT.CENTER).applyTo(mscanComposite);
+		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(mscanComposite);
 
 		// Button to copy a scan to the clipboard
-		final Button copyScanCommandButton = new Button(composite, SWT.PUSH);
+		final Button copyScanCommandButton = new Button(mscanComposite, SWT.PUSH);
 		copyScanCommandButton.setImage(MappingExperimentUtils.getImage("icons/copy.png"));
 		copyScanCommandButton.setToolTipText("Copy the scan command to the system clipboard");
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.RIGHT, SWT.CENTER).applyTo(copyScanCommandButton);
-		copyScanCommandButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				smController.copyScanToClipboard();
-			}
-		});
+		GridDataFactory.swtDefaults().applyTo(copyScanCommandButton);
+		copyScanCommandButton.addSelectionListener(widgetSelectedAdapter(e -> smController.copyScanToClipboard()));
 
 		// Button to load a scan from disk
-		final Button loadButton = new Button(composite, SWT.PUSH);
+		final Button loadButton = new Button(mscanComposite, SWT.PUSH);
 		loadButton.setImage(MappingExperimentUtils.getImage("icons/open.png"));
 		loadButton.setToolTipText("Load a scan from the file system");
 		GridDataFactory.swtDefaults().applyTo(loadButton);
-		loadButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				Optional<IMappingExperimentBean> bean = smController.loadScan(chooseFileName(SWT.OPEN));
-				if (bean.isPresent()) {
-					getMappingView().setMappingBean(bean.get());
-					smController.updateGridModelIndex();
-					getMappingView().updateControls();
-				}
+		loadButton.addSelectionListener(widgetSelectedAdapter(e -> {
+			final Optional<IMappingExperimentBean> bean = smController.loadScan(chooseFileName(SWT.OPEN));
+			if (bean.isPresent()) {
+				getMappingView().setMappingBean(bean.get());
+				smController.updateGridModelIndex();
+				getMappingView().updateControls();
 			}
-		});
+		}));
 
 		// Button to save a scan to disk
-		Button saveButton = new Button(composite, SWT.PUSH);
+		final Button saveButton = new Button(mscanComposite, SWT.PUSH);
 		saveButton.setImage(MappingExperimentUtils.getImage("icons/save.png"));
 		saveButton.setToolTipText("Save a scan to the file system");
 		GridDataFactory.swtDefaults().applyTo(saveButton);
-		saveButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				smController.saveScan(chooseFileName(SWT.SAVE));
-			}
-		});
+		saveButton.addSelectionListener(widgetSelectedAdapter(e -> smController.saveScan(chooseFileName(SWT.SAVE))));
 	}
 
 	protected void submitScan() {
@@ -167,7 +178,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 	 *
 	 * @return the section composite
 	 */
-	Composite getComposite() {
+	protected Composite getComposite() {
 		return composite;
 	}
 
