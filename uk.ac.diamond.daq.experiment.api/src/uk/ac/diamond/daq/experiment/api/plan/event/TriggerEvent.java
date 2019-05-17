@@ -7,9 +7,10 @@ public class TriggerEvent implements Serializable {
 
 	private static final long serialVersionUID = 5876166459318061316L;
 
+	private String id;
 	private long timestamp;
 	private double triggeringSignal;
-	private Boolean success;
+	private boolean failed;
 
 	public TriggerEvent(double triggeringSignal) {
 		timestamp = Instant.now().toEpochMilli();
@@ -17,6 +18,14 @@ public class TriggerEvent implements Serializable {
 	}
 
 	public TriggerEvent() {}
+
+	public void setId(String uniqueId) {
+		this.id = uniqueId;
+	}
+
+	public String getId() {
+		return id;
+	}
 
 	public long getTimestamp() {
 		return timestamp;
@@ -34,30 +43,16 @@ public class TriggerEvent implements Serializable {
 		this.triggeringSignal = triggeringSignal;
 	}
 
-	/**
-	 * {@code null} if triggered job is ongoing
-	 */
-	public Boolean isSuccessful() {
-		return success;
-	}
-
-	public void setSuccessful(boolean success) {
-		this.success = success;
-	}
-
 	@Override
 	public String toString() {
-
-		String successMessage = success == null ? "ongoing..." : "success="	+ success;
-		return "TriggerEvent [timestamp=" + timestamp + ", triggeringSignal=" + triggeringSignal + ", "
-				+ successMessage + "]";
+		return "TriggerEvent [timestamp=" + timestamp + ", triggeringSignal=" + triggeringSignal + "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((success == null) ? 0 : success.hashCode());
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + (int) (timestamp ^ (timestamp >>> 32));
 		long temp;
 		temp = Double.doubleToLongBits(triggeringSignal);
@@ -69,21 +64,29 @@ public class TriggerEvent implements Serializable {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (!super.equals(obj))
+		if (obj == null)
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
 		TriggerEvent other = (TriggerEvent) obj;
-		if (success == null) {
-			if (other.success != null)
+		if (id == null) {
+			if (other.id != null)
 				return false;
-		} else if (!success.equals(other.success))
+		} else if (!id.equals(other.id))
 			return false;
 		if (timestamp != other.timestamp)
 			return false;
 		if (Double.doubleToLongBits(triggeringSignal) != Double.doubleToLongBits(other.triggeringSignal))
 			return false;
 		return true;
+	}
+
+	public boolean isFailed() {
+		return failed;
+	}
+
+	public void setFailed(boolean failed) {
+		this.failed = failed;
 	}
 
 }

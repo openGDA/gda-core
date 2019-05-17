@@ -26,8 +26,9 @@ public class TriggerTest {
 			reset(target);
 		}
 
-		public void eventTriggered() {
+		public Object eventTriggered() {
 			countdown.countDown();
+			return null;
 		}
 
 		public boolean await() throws InterruptedException {
@@ -153,14 +154,14 @@ public class TriggerTest {
 
 	@Test
 	public void enabledTriggerShouldIgnoreEnableCall() {
-		ITrigger trigger = new RepeatingTrigger(ep, getDummySEV(0), ()-> {}, 9);
+		ITrigger trigger = new RepeatingTrigger(ep, getDummySEV(0), ()-> null, 9);
 		trigger.setEnabled(true);
 		trigger.setEnabled(true);
 	}
 
 	@Test
 	public void disabledTriggerShouldIgnoreDisableCall() {
-		ITrigger trigger = new RepeatingTrigger(ep, null, ()->{}, 1);
+		ITrigger trigger = new RepeatingTrigger(ep, null, ()->null, 1);
 		trigger.setEnabled(false);
 	}
 

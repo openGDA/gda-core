@@ -1,6 +1,7 @@
 package uk.ac.diamond.daq.experiment.plan;
 
 import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.event.IdBean;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 
@@ -21,7 +22,7 @@ public class TriggerableScan implements Triggerable {
 	}
 
 	@Override
-	public void trigger() {
+	public IdBean trigger() {
 		try {
 			final ScanBean scanBean = new ScanBean(scanRequest);
 			if (important) {
@@ -29,6 +30,7 @@ public class TriggerableScan implements Triggerable {
 			} else {
 				scanSubmitter.submitScan(scanBean);
 			}
+			return scanBean;
 		} catch (Exception e) {
 			throw new ExperimentPlanException(e);
 		}

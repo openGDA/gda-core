@@ -14,7 +14,7 @@ import uk.ac.diamond.daq.experiment.api.plan.event.TriggerEvent;
 class DummySEVTrigger extends TriggerBase {
 
 	public DummySEVTrigger(String name, IPlanRegistrar registrar, double positionInterval, ISampleEnvironmentVariable sev) {
-		super(registrar, () -> {}, sev);
+		super(registrar, () -> null, sev);
 		setName(name);
 		this.thesev = sev;
 		this.positionInterval = positionInterval;
