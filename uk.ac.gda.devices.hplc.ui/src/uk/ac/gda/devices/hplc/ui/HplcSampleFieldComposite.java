@@ -266,7 +266,7 @@ public class HplcSampleFieldComposite extends FieldComposite {
 					overrides.put("visit", visit);
 					String visitPath = PathConstructor.createFromProperty(LocalProperties.GDA_VISIT_DIR, overrides);
 					File visitDir = new File(visitPath);
-					return visitDir.exists() && visitDir.isDirectory() && visitDir.canWrite();
+					return visitDir.exists() && visitDir.isDirectory();
 				}
 				@Override
 				public String getRealValue(HplcBean element) {
