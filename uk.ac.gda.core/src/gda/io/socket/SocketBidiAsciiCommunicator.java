@@ -97,6 +97,13 @@ public class SocketBidiAsciiCommunicator implements BidiAsciiCommunicator, Initi
 		}
 	}
 
+	public boolean isClosed() {
+		if (socket != null) {
+			return socket.isClosed();
+		}
+		return true;
+	}
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (!StringUtils.hasText(address))
