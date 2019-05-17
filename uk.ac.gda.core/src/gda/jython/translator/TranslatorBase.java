@@ -30,9 +30,13 @@ import java.util.regex.Pattern;
  */
 public abstract class TranslatorBase implements Translator {
 
+	private static final Pattern NOT_A_NEW_LINE_PATTERN = Pattern.compile("([^\n;]+)");
+	private static final Pattern NEW_LINE_SEMI_COLON_PATTERN = Pattern.compile("\\n;");
+
 	protected Collection<String> aliases = new CopyOnWriteArraySet<>();
 
 	protected Collection<String> varargAliases = new CopyOnWriteArraySet<>();
+
 	/**
 	 * The public function to perform the translation. This translates a complete instruction for the interpreter,
 	 * including multi-line or multi-command strings.
@@ -60,14 +64,13 @@ public abstract class TranslatorBase implements Translator {
 		// take a copy. This will be returned in case of any errors.
 		String full_command = original_command;
 		try {
-			// use regex to identify parts of the string between
-			// tabs and line breaks. These parts will be translated
+			// Use regex to identify parts of the string between line breaks. These parts will be translated
 			// individually and then replaced into the command string.
-			Matcher m = Pattern.compile("([^\n;]+)").matcher(full_command.subSequence(0, full_command.length()));
-			// for ticket #1675 a \t was removed from the above RE
+			// TODO Not sure multi-line strings can actually get here so this might be redundant
+			Matcher m = NOT_A_NEW_LINE_PATTERN.matcher(full_command);
 
 			int endOfPreviousGroup = 0;
-			String newCommand = new String();
+			StringBuilder newCommandBuilder = new StringBuilder();
 			boolean ignoreRestOfLine=false;
 			while (m.find() && !ignoreRestOfLine) {
 				String thisGroup = m.group(1);
@@ -78,32 +81,30 @@ public abstract class TranslatorBase implements Translator {
 				ignoreRestOfLine = ignoreRestOfLine(thisGroup);
 				thisGroup = translateGroup(thisGroup);
 				if( ignoreRestOfLine){
-					newCommand += thisGroup;
+					newCommandBuilder.append(thisGroup);
 					endOfPreviousGroup = full_command.length();
 				} else {
 					// rebuild
 					if (startOfGroup == endOfPreviousGroup) {
-						newCommand += thisGroup;
+						newCommandBuilder.append(thisGroup);
 					} else {
-						newCommand += full_command.substring(endOfPreviousGroup, startOfGroup) + thisGroup;
+						newCommandBuilder.append(full_command.substring(endOfPreviousGroup, startOfGroup));
+						newCommandBuilder.append(thisGroup);
 					}
 					endOfPreviousGroup = endOfGroup;
 				}
 			}
 			if (endOfPreviousGroup != full_command.length()) {
-				newCommand += full_command.substring(endOfPreviousGroup);
+				newCommandBuilder.append(full_command.substring(endOfPreviousGroup));
 			}
 
-			// the translate group methods may have added extra lines,
-			// rather than
-			// making a simple translation of a single line. So the \n and
-			// ;'s may
-			// get confused. Tidy up any problem here.
+			String newCommand = newCommandBuilder.toString();
 
-			// make sure that there are no ;'s at the beginning of a line
-			Pattern slashNSemiColon = Pattern.compile("\\n;");
-			Matcher slashNSemiColonMatchToNewCommand = slashNSemiColon.matcher(newCommand.subSequence(0, newCommand
-					.length()));
+			// The translate group methods may have added extra lines, rather than making a simple translation of a
+			// single line. So the \n and ;'s may get confused. Tidy up any problem here. Make sure that there are no
+			// ;'s at the beginning of a line
+			Matcher slashNSemiColonMatchToNewCommand = NEW_LINE_SEMI_COLON_PATTERN
+					.matcher(newCommand);
 			newCommand = slashNSemiColonMatchToNewCommand.replaceAll("\n");
 
 			// remove all multi ;'s
