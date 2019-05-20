@@ -18,26 +18,24 @@
 
 package uk.ac.gda.epics.client.views.model.impl;
 
-import gda.device.detector.areadetector.v17.NDROI;
-import gda.epics.interfaces.NDROIType;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBR_Int;
-import gov.aps.jca.event.MonitorEvent;
-import gov.aps.jca.event.MonitorListener;
-
 import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.detector.areadetector.v17.NDROI;
+import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DBR_Int;
+import gov.aps.jca.event.MonitorEvent;
+import gov.aps.jca.event.MonitorListener;
 import uk.ac.gda.epics.client.views.controllers.INDROIModelViewController;
 import uk.ac.gda.epics.client.views.model.NdRoiModel;
 
 /**
  *
  */
-public class NDROIModelImpl extends EPICSBaseModel<NDROIType> implements NdRoiModel {
+public class NDROIModelImpl extends EPICSBaseModel implements NdRoiModel {
 
 	private final static Logger logger = LoggerFactory.getLogger(NDROIModelImpl.class);
 
@@ -66,11 +64,6 @@ public class NDROIModelImpl extends EPICSBaseModel<NDROIType> implements NdRoiMo
 	}
 
 	@Override
-	protected Class<NDROIType> getConfigClassType() {
-		return NDROIType.class;
-	}
-
-	@Override
 	protected Logger getLogger() {
 		return logger;
 	}
@@ -87,10 +80,9 @@ public class NDROIModelImpl extends EPICSBaseModel<NDROIType> implements NdRoiMo
 
 	@Override
 	protected void doCheckAfterPropertiesSet() throws Exception {
-		if (deviceName != null && pluginBase == null) {
+		if (pluginBase == null) {
 			throw new IllegalArgumentException("'pluginBase' needs to be declared");
 		}
-
 	}
 
 	private class StartXMonitorListener implements MonitorListener {
@@ -132,9 +124,6 @@ public class NDROIModelImpl extends EPICSBaseModel<NDROIType> implements NdRoiMo
 	@Override
 	public int getMinX() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getMinX().getPv(), startXMonitorListener));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NDROI.MinX, startXMonitorListener));
 		} catch (Exception ex) {
 			throw ex;
@@ -156,9 +145,6 @@ public class NDROIModelImpl extends EPICSBaseModel<NDROIType> implements NdRoiMo
 	@Override
 	public int getMinY() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getMinY().getPv(), startYMonitorListener));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NDROI.MinY, startYMonitorListener));
 		} catch (Exception ex) {
 			throw ex;
@@ -180,9 +166,6 @@ public class NDROIModelImpl extends EPICSBaseModel<NDROIType> implements NdRoiMo
 	@Override
 	public int getSizeX() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getSizeX().getPv(), sizeXMonitorListener));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NDROI.SizeX, sizeXMonitorListener));
 		} catch (Exception ex) {
 			throw ex;
@@ -204,9 +187,6 @@ public class NDROIModelImpl extends EPICSBaseModel<NDROIType> implements NdRoiMo
 	@Override
 	public int getSizeY() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getSizeY().getPv(), sizeYMonitorListener));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NDROI.SizeY, sizeYMonitorListener));
 		} catch (Exception ex) {
 			throw ex;
@@ -216,11 +196,7 @@ public class NDROIModelImpl extends EPICSBaseModel<NDROIType> implements NdRoiMo
 	@Override
 	public void setSizeX(int sizeX) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getSizeX().getPv(), sizeXMonitorListener), sizeX);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(NDROI.SizeX, sizeXMonitorListener), sizeX);
-			}
+			EPICS_CONTROLLER.caput(getChannel(NDROI.SizeX, sizeXMonitorListener), sizeX);
 		} catch (Exception ex) {
 			throw ex;
 		}
@@ -229,11 +205,7 @@ public class NDROIModelImpl extends EPICSBaseModel<NDROIType> implements NdRoiMo
 	@Override
 	public void setSizeY(int sizeY) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getSizeY().getPv(), sizeYMonitorListener), sizeY);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(NDROI.SizeY, sizeYMonitorListener), sizeY);
-			}
+			EPICS_CONTROLLER.caput(getChannel(NDROI.SizeY, sizeYMonitorListener), sizeY);
 		} catch (Exception ex) {
 			throw ex;
 		}
@@ -242,11 +214,7 @@ public class NDROIModelImpl extends EPICSBaseModel<NDROIType> implements NdRoiMo
 	@Override
 	public void setStartX(int startX) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getMinX().getPv(), startXMonitorListener), startX);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(NDROI.MinX, startXMonitorListener), startX);
-			}
+			EPICS_CONTROLLER.caput(getChannel(NDROI.MinX, startXMonitorListener), startX);
 		} catch (Exception ex) {
 			throw ex;
 		}
@@ -255,11 +223,7 @@ public class NDROIModelImpl extends EPICSBaseModel<NDROIType> implements NdRoiMo
 	@Override
 	public void setStartY(int startY) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getMinY().getPv(), startYMonitorListener), startY);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(NDROI.MinY, startYMonitorListener), startY);
-			}
+			EPICS_CONTROLLER.caput(getChannel(NDROI.MinY, startYMonitorListener), startY);
 		} catch (Exception ex) {
 			throw ex;
 		}
@@ -268,9 +232,6 @@ public class NDROIModelImpl extends EPICSBaseModel<NDROIType> implements NdRoiMo
 	@Override
 	public int getBinX() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getBinX().getPv(), binXMonitorListener));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NDROI.BinX, binXMonitorListener));
 		} catch (Exception ex) {
 			throw ex;
@@ -280,9 +241,6 @@ public class NDROIModelImpl extends EPICSBaseModel<NDROIType> implements NdRoiMo
 	@Override
 	public int getBinY() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getBinY().getPv(), binYMonitorListener));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NDROI.BinY, binYMonitorListener));
 		} catch (Exception ex) {
 			throw ex;
@@ -292,11 +250,7 @@ public class NDROIModelImpl extends EPICSBaseModel<NDROIType> implements NdRoiMo
 	@Override
 	public void setBinX(int binX) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getBinX().getPv(), binXMonitorListener), binX);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(NDROI.BinX, binXMonitorListener), binX);
-			}
+			EPICS_CONTROLLER.caput(getChannel(NDROI.BinX, binXMonitorListener), binX);
 		} catch (Exception ex) {
 			throw ex;
 		}
@@ -305,11 +259,7 @@ public class NDROIModelImpl extends EPICSBaseModel<NDROIType> implements NdRoiMo
 	@Override
 	public void setBinY(int binY) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getBinY().getPv(), binYMonitorListener), binY);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(NDROI.MinY, binYMonitorListener), binY);
-			}
+			EPICS_CONTROLLER.caput(getChannel(NDROI.MinY, binYMonitorListener), binY);
 		} catch (Exception ex) {
 			throw ex;
 		}

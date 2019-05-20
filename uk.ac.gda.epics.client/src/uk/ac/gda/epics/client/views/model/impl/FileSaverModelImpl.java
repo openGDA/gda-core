@@ -18,29 +18,27 @@
 
 package uk.ac.gda.epics.client.views.model.impl;
 
-import gda.device.detector.areadetector.v17.NDFile;
-import gda.device.detector.areadetector.v17.NDPluginBase;
-import gda.epics.interfaces.NDFileType;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBR_Double;
-import gov.aps.jca.dbr.DBR_Enum;
-import gov.aps.jca.dbr.DBR_Int;
-import gov.aps.jca.event.MonitorEvent;
-import gov.aps.jca.event.MonitorListener;
-
 import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.detector.areadetector.v17.NDFile;
+import gda.device.detector.areadetector.v17.NDPluginBase;
+import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DBR_Double;
+import gov.aps.jca.dbr.DBR_Enum;
+import gov.aps.jca.dbr.DBR_Int;
+import gov.aps.jca.event.MonitorEvent;
+import gov.aps.jca.event.MonitorListener;
 import uk.ac.gda.epics.client.views.controllers.IFileSaverViewController;
 import uk.ac.gda.epics.client.views.model.FileSaverModel;
 
 /**
  *
  */
-public class FileSaverModelImpl extends EPICSBaseModel<NDFileType> implements FileSaverModel {
+public class FileSaverModelImpl extends EPICSBaseModel implements FileSaverModel {
 	static final Logger logger = LoggerFactory.getLogger(FileSaverModelImpl.class);
 
 	private Set<IFileSaverViewController> fileSaverViewController = new HashSet<IFileSaverViewController>();
@@ -94,10 +92,6 @@ public class FileSaverModelImpl extends EPICSBaseModel<NDFileType> implements Fi
 	@Override
 	public int getDim0Size() throws Exception {
 		try {
-			if (getPluginBaseTypeConfig() != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(getPluginBaseTypeConfig().getArraySize0_RBV().getPv(),
-						dim0SizeMonitorListener));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NDPluginBase.ArraySize0_RBV, dim0SizeMonitorListener));
 		} catch (Exception ex) {
 			throw ex;
@@ -119,10 +113,6 @@ public class FileSaverModelImpl extends EPICSBaseModel<NDFileType> implements Fi
 	@Override
 	public int getDim1Size() throws Exception {
 		try {
-			if (getPluginBaseTypeConfig() != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(getPluginBaseTypeConfig().getArraySize1_RBV().getPv(),
-						dim1SizeMonitorListener));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NDPluginBase.ArraySize1_RBV, dim1SizeMonitorListener));
 		} catch (Exception ex) {
 			throw ex;
@@ -144,10 +134,6 @@ public class FileSaverModelImpl extends EPICSBaseModel<NDFileType> implements Fi
 	@Override
 	public double getTimeStamp() throws Exception {
 		try {
-			if (getPluginBaseTypeConfig() != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(getPluginBaseTypeConfig().getTimeStamp_RBV().getPv(),
-						timestampMonitorListener));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(NDPluginBase.TimeStamp_RBV, timestampMonitorListener));
 		} catch (Exception ex) {
 			throw ex;
@@ -155,13 +141,8 @@ public class FileSaverModelImpl extends EPICSBaseModel<NDFileType> implements Fi
 	}
 
 	@Override
-	protected Class<NDFileType> getConfigClassType() {
-		return NDFileType.class;
-	}
-
-	@Override
 	protected void doCheckAfterPropertiesSet() throws Exception {
-		if (deviceName != null && pluginBase == null) {
+		if (pluginBase == null) {
 			throw new IllegalArgumentException("'pluginBase' needs to be declared");
 		}
 	}
@@ -174,10 +155,6 @@ public class FileSaverModelImpl extends EPICSBaseModel<NDFileType> implements Fi
 	@Override
 	public short getCaptureState() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getCapture_RBV().getPv(),
-						captureStateMonitorListener));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(NDFile.Capture_RBV, captureStateMonitorListener));
 		} catch (Exception ex) {
 			throw ex;
