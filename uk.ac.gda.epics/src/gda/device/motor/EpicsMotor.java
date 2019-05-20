@@ -26,9 +26,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
-import gda.configuration.epics.EpicsConfiguration;
 import gda.device.MotorException;
 import gda.device.MotorProperties.MotorEvent;
 import gda.device.MotorProperties.MotorProperty;
@@ -41,11 +38,7 @@ import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
 import gda.epics.connection.STSHandler;
 import gda.epics.connection.TIMEHandler;
-import gda.epics.interfaceSpec.GDAEpicsInterfaceReader;
-import gda.epics.interfaceSpec.InterfaceException;
-import gda.epics.interfaces.SimpleMotorType;
 import gda.epics.util.EpicsGlobals;
-import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.jython.JythonServerFacade;
@@ -225,20 +218,6 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	private Status status = Status.NO_ALARM;
 	private Severity severity = Severity.NO_ALARM;
 	private TimeStamp timestamp = null;
-	/**
-	 * Name of the EPICS record object
-	 */
-	private String epicsRecordName = null;
-
-	/**
-	 * EPICS record object
-	 */
-	private EpicsRecord epicsRecord = null;
-
-	/**
-	 * GDA device Name
-	 */
-	private String deviceName = null;
 
 	protected String pvName;
 
@@ -316,19 +295,6 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		return pvName;
 	}
 
-	protected EpicsConfiguration epicsConfiguration;
-
-
-	/**
-	 * Sets the EpicsConfiguration to use when looking up PV from deviceName.
-	 *
-	 * @param epicsConfiguration
-	 *            the EpicsConfiguration
-	 */
-	public void setEpicsConfiguration(EpicsConfiguration epicsConfiguration) {
-		this.epicsConfiguration = epicsConfiguration;
-	}
-
 	/**
 	 * Sets the access control object used by this motor.
 	 *
@@ -347,40 +313,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		if (!isConfigured()) {
 
 			if (pvName == null) {
-
-				// Original implementation of EPICS interface
-				if (getEpicsRecordName() != null) {
-					if ((epicsRecord = Finder.getInstance().find(epicsRecordName)) != null) {
-						pvName = epicsRecord.getFullRecordName();
-					} else {
-						throw new FactoryException("Epics Record " + epicsRecordName + " not found");
-					}
-				}
-
-				// EPICS interface version 2 for phase II beamlines.
-				else if (getDeviceName() != null) {
-					SimpleMotorType motorConfig;
-					try {
-						if (epicsConfiguration != null) {
-							motorConfig = epicsConfiguration.getConfiguration(getDeviceName(), SimpleMotorType.class);
-						} else {
-							motorConfig = Configurator.getConfiguration(getDeviceName(), SimpleMotorType.class);
-						}
-						pvName = motorConfig.getRECORD().getPv();
-					} catch (ConfigurationNotFoundException e) {
-						// Try to read from unchecked xml
-						try {
-							pvName = getPV();
-						} catch (Exception ex) {
-							throw new FactoryException("Can NOT find EPICS configuration for motor " + getDeviceName(), e);
-						}
-					}
-				}
-
-				// Nothing specified in Server XML file
-				else {
-					throw new FactoryException("Missing EPICS interface configuration for the motor " + getName());
-				}
+				throw new IllegalStateException("pvName is required to configure EpicsMotor");
 			}
 
 			createChannelAccess();
@@ -1607,22 +1540,6 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	}
 
 	/**
-	 * gets the short or EPICS-GDA shared name of the device
-	 *
-	 * @return device name
-	 */
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	/**
-	 * sets the short or EPICS-GDA shared name for this device
-	 */
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
-	}
-
-	/**
 	 * gets EPICS access control name.
 	 *
 	 * @return name of the access control.
@@ -1678,30 +1595,12 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		return getClass().getSimpleName() + "-" + getName();
 	}
 
-	/**
-	 * Sets the Epics Record Name, used by CASTOR.
-	 */
-	public void setEpicsRecordName(String epicsRecordName1) {
-		this.epicsRecordName = epicsRecordName1;
-	}
-
-	/**
-	 * Gets the Epics Record Name.
-	 */
-	public String getEpicsRecordName() {
-		return epicsRecordName;
-	}
-
 	public boolean isCallbackWait() {
 		return callbackWait;
 	}
 
 	public void setCallbackWait(boolean callbackDelay) {
 		this.callbackWait = callbackDelay;
-	}
-
-	public String getPV() throws InterfaceException {
-		return GDAEpicsInterfaceReader.getPVFromSimpleMotor(getDeviceName());
 	}
 
 	public void setAssertHomedBeforeMoving(boolean assertHomedBeforeMoving) {
