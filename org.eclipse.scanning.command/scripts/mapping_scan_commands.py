@@ -148,6 +148,8 @@ def submit(request, now=False, block=True, broker_uri=None, name=None):
     else:
         submitter.submit(scan_bean)
 
+    submitter.disconnect()
+
 def getScanningBrokerUri():
 
     uri = System.getProperty("org.eclipse.scanning.broker.uri")
