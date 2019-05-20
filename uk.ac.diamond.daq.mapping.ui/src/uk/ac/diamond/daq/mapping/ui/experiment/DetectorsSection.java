@@ -111,7 +111,10 @@ public class DetectorsSection extends AbstractMappingSection {
 			// this will only be null if loadState() has not been called, i.e. on a workspace reset
 			// in this case show all available detectors
 			updateDetectorParameters(); // update the detectors in the bean based on the available malcolm devices
-			visibleDetectors = getMappingBean().getDetectorParameters();
+			visibleDetectors = getMappingBean().getDetectorParameters().stream()
+					.map(DetectorModelWrapper.class::cast)
+					.filter(DetectorModelWrapper::isShownByDefault)
+					.collect(Collectors.toList());
 		}
 		createDetectorControls(visibleDetectors);
 	}

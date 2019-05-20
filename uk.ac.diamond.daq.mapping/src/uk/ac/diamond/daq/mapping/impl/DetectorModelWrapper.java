@@ -27,12 +27,51 @@ import org.eclipse.scanning.api.device.models.IDetectorModel;
  */
 public class DetectorModelWrapper extends ScanModelWrapper<IDetectorModel> {
 
+	/**
+	 * Indicates whether the detector should be shown by default (i.e. after a client reset) in the detectors section of
+	 * the mapping experiment view,
+	 */
+	private boolean shownByDefault = true;
+
 	public DetectorModelWrapper() {
 		// no-arg constructor for json serialization
 	}
 
 	public DetectorModelWrapper(String name, IDetectorModel model, boolean includeInScan) {
 		super(name, model, includeInScan);
+	}
+
+	public boolean isShownByDefault() {
+		return shownByDefault;
+	}
+
+	public void setShownByDefault(boolean shownByDefault) {
+		this.shownByDefault = shownByDefault;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + (shownByDefault ? 1231 : 1237);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		final DetectorModelWrapper other = (DetectorModelWrapper) obj;
+		return shownByDefault == other.shownByDefault;
+	}
+
+	@Override
+	public String toString() {
+		return "DetectorModelWrapper [shownByDefault=" + shownByDefault + ", " + super.toString() + "]";
 	}
 
 }
