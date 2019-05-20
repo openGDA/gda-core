@@ -18,22 +18,6 @@
 
 package gda.device.detector.areadetector.v17.impl;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
-import gda.device.detector.areadetector.AreaDetectorROI;
-import gda.device.detector.areadetector.IPVProvider;
-import gda.device.detector.areadetector.impl.AreaDetectorROIImpl;
-import gda.device.detector.areadetector.v17.NDPluginBase;
-import gda.device.detector.areadetector.v17.NDROI;
-import gda.epics.LazyPVFactory;
-import gda.epics.connection.EpicsController;
-import gda.epics.interfaces.NDROIType;
-import gda.factory.FactoryException;
-import gda.observable.Observable;
-import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
-import gov.aps.jca.TimeoutException;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,19 +25,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import gda.device.detector.areadetector.AreaDetectorROI;
+import gda.device.detector.areadetector.impl.AreaDetectorROIImpl;
+import gda.device.detector.areadetector.v17.NDPluginBase;
+import gda.device.detector.areadetector.v17.NDROI;
+import gda.epics.LazyPVFactory;
+import gda.epics.connection.EpicsController;
+import gda.observable.Observable;
+import gov.aps.jca.CAException;
+import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
+
 public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 
 	private final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 
 	private String basePVName;
 
-	private IPVProvider pvProvider;
 	/**
 	 * Map that stores the channel against the PV name
 	 */
 	private Map<String, Channel> channelMap = new HashMap<String, Channel>();
-	private NDROIType config;
-	private String deviceName;
 
 	// Setup the logging facilities
 	static final Logger logger = LoggerFactory.getLogger(NDROIImpl.class);
@@ -82,35 +74,12 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 
 	private boolean initialEnableZ;
 
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	public void setDeviceName(String deviceName) throws FactoryException {
-		this.deviceName = deviceName;
-		initializeConfig();
-	}
-
-	private void initializeConfig() throws FactoryException {
-		if (deviceName != null) {
-			try {
-				config = Configurator.getConfiguration(getDeviceName(), NDROIType.class);
-			} catch (ConfigurationNotFoundException e) {
-				logger.error("EPICS configuration for device {} not found", getDeviceName());
-				throw new FactoryException("EPICS configuration for device " + getDeviceName() + " not found.", e);
-			}
-		}
-	}
-
 	/**
 	*
 	*/
 	@Override
 	public String getLabel() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.caget(createChannel(config.getLabel().getPv()));
-			}
 			return EPICS_CONTROLLER.caget(getChannel(Label));
 		} catch (Exception ex) {
 			logger.warn("Cannot getLabel", ex);
@@ -124,11 +93,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public void setLabel(String label) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getLabel().getPv()), label);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(Label), label);
-			}
+			EPICS_CONTROLLER.caput(getChannel(Label), label);
 		} catch (Exception ex) {
 			logger.warn("Cannot setLabel", ex);
 			throw ex;
@@ -141,9 +106,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public String getLabel_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.caget(createChannel(config.getLabel_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.caget(getChannel(Label_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getLabel_RBV", ex);
@@ -157,9 +119,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getBinX() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getBinX().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(BinX));
 		} catch (Exception ex) {
 			logger.warn("Cannot getBinX", ex);
@@ -173,11 +132,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public void setBinX(int binx) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getBinX().getPv()), binx);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(BinX), binx);
-			}
+			EPICS_CONTROLLER.caput(getChannel(BinX), binx);
 		} catch (Exception ex) {
 			logger.warn("Cannot setBinX", ex);
 			throw ex;
@@ -190,9 +145,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getBinX_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getBinX_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(BinX_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getBinX_RBV", ex);
@@ -206,9 +158,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getBinY() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getBinY().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(BinY));
 		} catch (Exception ex) {
 			logger.warn("Cannot getBinY", ex);
@@ -222,11 +171,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public void setBinY(int biny) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getBinY().getPv()), biny);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(BinY), biny);
-			}
+			EPICS_CONTROLLER.caput(getChannel(BinY), biny);
 		} catch (Exception ex) {
 			logger.warn("Cannot setBinY", ex);
 			throw ex;
@@ -239,9 +184,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getBinY_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getBinY_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(BinY_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getBinY_RBV", ex);
@@ -255,9 +197,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getBinZ() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getBinZ().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(BinZ));
 		} catch (Exception ex) {
 			logger.warn("Cannot getBinZ", ex);
@@ -271,11 +210,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public void setBinZ(int binz) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getBinZ().getPv()), binz);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(BinZ), binz);
-			}
+			EPICS_CONTROLLER.caput(getChannel(BinZ), binz);
 		} catch (Exception ex) {
 			logger.warn("Cannot setBinZ", ex);
 			throw ex;
@@ -288,9 +223,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getBinZ_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getBinZ_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(BinZ_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getBinZ_RBV", ex);
@@ -304,9 +236,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getMinX() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getMinX().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MinX));
 		} catch (Exception ex) {
 			logger.warn("Cannot getMinX", ex);
@@ -320,11 +249,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public void setMinX(int minx) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getMinX().getPv()), minx);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(MinX), minx);
-			}
+			EPICS_CONTROLLER.caput(getChannel(MinX), minx);
 		} catch (Exception ex) {
 			logger.warn("Cannot setMinX", ex);
 			throw ex;
@@ -337,9 +262,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getMinX_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getMinX_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MinX_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getMinX_RBV", ex);
@@ -353,9 +275,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getMinY() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getMinY().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MinY));
 		} catch (Exception ex) {
 			logger.warn("Cannot getMinY", ex);
@@ -369,11 +288,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public void setMinY(int miny) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getMinY().getPv()), miny);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(MinY), miny);
-			}
+			EPICS_CONTROLLER.caput(getChannel(MinY), miny);
 		} catch (Exception ex) {
 			logger.warn("Cannot setMinY", ex);
 			throw ex;
@@ -386,9 +301,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getMinY_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getMinY_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MinY_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getMinY_RBV", ex);
@@ -402,9 +314,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getMinZ() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getMinZ().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MinZ));
 		} catch (Exception ex) {
 			logger.warn("Cannot getMinZ", ex);
@@ -418,11 +327,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public void setMinZ(int minz) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getMinZ().getPv()), minz);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(MinZ), minz);
-			}
+			EPICS_CONTROLLER.caput(getChannel(MinZ), minz);
 		} catch (Exception ex) {
 			logger.warn("Cannot setMinZ", ex);
 			throw ex;
@@ -435,9 +340,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getMinZ_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getMinZ_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MinZ_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getMinZ_RBV", ex);
@@ -451,9 +353,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getSizeX() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getSizeX().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX));
 		} catch (Exception ex) {
 			logger.warn("Cannot getSizeX", ex);
@@ -467,11 +366,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public void setSizeX(int sizex) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getSizeX().getPv()), sizex);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(SizeX), sizex);
-			}
+			EPICS_CONTROLLER.caput(getChannel(SizeX), sizex);
 		} catch (Exception ex) {
 			logger.warn("Cannot setSizeX", ex);
 			throw ex;
@@ -484,9 +379,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getSizeX_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getSizeX_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getSizeX_RBV", ex);
@@ -500,9 +392,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getSizeY() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getSizeY().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY));
 		} catch (Exception ex) {
 			logger.warn("Cannot getSizeY", ex);
@@ -516,11 +405,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public void setSizeY(int sizey) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getSizeY().getPv()), sizey);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(SizeY), sizey);
-			}
+			EPICS_CONTROLLER.caput(getChannel(SizeY), sizey);
 		} catch (Exception ex) {
 			logger.warn("Cannot setSizeY", ex);
 			throw ex;
@@ -533,9 +418,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getSizeY_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getSizeY_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getSizeY_RBV", ex);
@@ -549,9 +431,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getSizeZ() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getSizeZ().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeZ));
 		} catch (Exception ex) {
 			logger.warn("Cannot getSizeZ", ex);
@@ -565,11 +444,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public void setSizeZ(int sizez) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getSizeZ().getPv()), sizez);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(SizeZ), sizez);
-			}
+			EPICS_CONTROLLER.caput(getChannel(SizeZ), sizez);
 		} catch (Exception ex) {
 			logger.warn("Cannot setSizeZ", ex);
 			throw ex;
@@ -582,9 +457,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getSizeZ_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getSizeZ_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeZ_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getSizeZ_RBV", ex);
@@ -598,9 +470,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getMaxSizeX_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getMaxSizeX_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MaxSizeX_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getMaxSizeX_RBV", ex);
@@ -614,9 +483,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getMaxSizeY_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getMaxSizeY_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MaxSizeY_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getMaxSizeY_RBV", ex);
@@ -630,9 +496,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getMaxSizeZ_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getMaxSizeZ_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MaxSizeZ_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getMaxSizeZ_RBV", ex);
@@ -646,9 +509,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public short getReverseX() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getReverseX().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReverseX));
 		} catch (Exception ex) {
 			logger.warn("Cannot getReverseX", ex);
@@ -662,11 +522,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public void setReverseX(int reversex) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getReverseX().getPv()), reversex);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ReverseX), reversex);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ReverseX), reversex);
 		} catch (Exception ex) {
 			logger.warn("Cannot setReverseX", ex);
 			throw ex;
@@ -679,9 +535,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public short getReverseX_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getReverseX_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReverseX_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getReverseX_RBV", ex);
@@ -695,9 +548,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public short getReverseY() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getReverseY().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReverseY));
 		} catch (Exception ex) {
 			logger.warn("Cannot getReverseY", ex);
@@ -711,11 +561,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public void setReverseY(int reversey) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getReverseY().getPv()), reversey);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ReverseY), reversey);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ReverseY), reversey);
 		} catch (Exception ex) {
 			logger.warn("Cannot setReverseY", ex);
 			throw ex;
@@ -728,9 +574,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public short getReverseY_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getReverseY_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReverseY_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getReverseY_RBV", ex);
@@ -744,9 +587,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public short getReverseZ() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getReverseZ().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReverseZ));
 		} catch (Exception ex) {
 			logger.warn("Cannot getReverseZ", ex);
@@ -760,11 +600,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public void setReverseZ(int reversez) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getReverseZ().getPv()), reversez);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ReverseZ), reversez);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ReverseZ), reversez);
 		} catch (Exception ex) {
 			logger.warn("Cannot setReverseZ", ex);
 			throw ex;
@@ -777,9 +613,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public short getReverseZ_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getReverseZ_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReverseZ_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getReverseZ_RBV", ex);
@@ -793,9 +626,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getArraySizeX_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getArraySizeX_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArraySizeX_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getArraySizeX_RBV", ex);
@@ -809,9 +639,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getArraySizeY_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getArraySizeY_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArraySizeY_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getArraySizeY_RBV", ex);
@@ -825,9 +652,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public int getArraySizeZ_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getArraySizeZ_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArraySizeZ_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getArraySizeZ_RBV", ex);
@@ -852,20 +676,12 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	*/
 	@Override
 	public void enableScaling() throws Exception {
-		if (config != null) {
-			EPICS_CONTROLLER.caput(createChannel(config.getEnableScale().getPv()), 1);
-		} else {
-			EPICS_CONTROLLER.caput(getChannel(EnableScale), 1);
-		}
+		EPICS_CONTROLLER.caput(getChannel(EnableScale), 1);
 	}
 
 	@Override
 	public void disableScaling() throws Exception {
-		if (config != null) {
-			EPICS_CONTROLLER.caput(createChannel(config.getEnableScale().getPv()), 0);
-		} else {
-			EPICS_CONTROLLER.caput(getChannel(EnableScale), 0);
-		}
+		EPICS_CONTROLLER.caput(getChannel(EnableScale), 0);
 	}
 
 	/**
@@ -874,9 +690,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public short isScalingEnabled_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getEnableScale_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(EnableScale_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getEnableScale_RBV", ex);
@@ -890,9 +703,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public double getScale() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getScale().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(Scale));
 		} catch (Exception ex) {
 			logger.warn("Cannot getScale", ex);
@@ -906,11 +716,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public void setScale(double scale) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getScale().getPv()), scale);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(Scale), scale);
-			}
+			EPICS_CONTROLLER.caput(getChannel(Scale), scale);
 		} catch (Exception ex) {
 			logger.warn("Cannot setScale", ex);
 			throw ex;
@@ -923,9 +729,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public double getScale_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getScale_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(Scale_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getScale_RBV", ex);
@@ -939,9 +742,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public short getDataTypeOut() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getDataTypeOut().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DataTypeOut));
 		} catch (Exception ex) {
 			logger.warn("Cannot getDataTypeOut", ex);
@@ -955,11 +755,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public void setDataTypeOut(int datatypeout) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getDataTypeOut().getPv()), datatypeout);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(DataTypeOut), datatypeout);
-			}
+			EPICS_CONTROLLER.caput(getChannel(DataTypeOut), datatypeout);
 		} catch (Exception ex) {
 			logger.warn("Cannot setDataTypeOut", ex);
 			throw ex;
@@ -972,9 +768,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public short getDataTypeOut_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getDataTypeOut_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DataTypeOut_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getDataTypeOut_RBV", ex);
@@ -991,8 +784,8 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (deviceName == null && basePVName == null && pvProvider == null) {
-			throw new IllegalArgumentException("'deviceName','basePVName' or 'pvProvider' needs to be declared");
+		if (basePVName == null) {
+			throw new IllegalArgumentException("'basePVName' needs to be declared");
 		}
 		/*
 		 * Previously a check was made on the initialBinX/Y, initialMinX/Y, initialSizeX/Y However there is already a
@@ -1027,13 +820,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 				pvPostFix = pvElementName;
 			}
 
-			String fullPvName;
-			if (pvProvider != null) {
-				fullPvName = pvProvider.getPV(pvElementName);
-			} else {
-				fullPvName = basePVName + pvPostFix;
-			}
-			return createChannel(fullPvName);
+			return createChannel(basePVName + pvPostFix);
 		} catch (Exception exception) {
 			logger.warn("Problem getting channel", exception);
 			throw exception;
@@ -1056,21 +843,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			channelMap.put(fullPvName, channel);
 		}
 		return channel;
-	}
-
-	/**
-	 * @return Returns the pvProvider.
-	 */
-	public IPVProvider getPvProvider() {
-		return pvProvider;
-	}
-
-	/**
-	 * @param pvProvider
-	 *            The pvProvider to set.
-	 */
-	public void setPvProvider(IPVProvider pvProvider) {
-		this.pvProvider = pvProvider;
 	}
 
 	@Override
@@ -1257,57 +1029,23 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 
 	@Override
 	public boolean isEnableX() throws Exception {
-		short shortVal = 0;
-		try {
-			if (config != null) {
-				shortVal = EPICS_CONTROLLER.cagetShort(createChannel(config.getEnableX().getPv()));
-			} else {
-				shortVal = EPICS_CONTROLLER.cagetShort(getChannel(EnableX));
-			}
-		} catch (Exception ex) {
-			throw ex;
-		}
-		return shortVal == 1 ? true : false;
+		return EPICS_CONTROLLER.cagetShort(getChannel(EnableX)) == 1 ? true : false;
 	}
 
 	@Override
 	public boolean isEnableY() throws Exception {
-		short shortVal = 0;
-		try {
-			if (config != null) {
-				shortVal = EPICS_CONTROLLER.cagetShort(createChannel(config.getEnableY().getPv()));
-			} else {
-				shortVal = EPICS_CONTROLLER.cagetShort(getChannel(EnableY));
-			}
-		} catch (Exception ex) {
-			throw ex;
-		}
-		return shortVal == 1 ? true : false;
+		return EPICS_CONTROLLER.cagetShort(getChannel(EnableY)) == 1 ? true : false;
 	}
 
 	@Override
 	public boolean isEnableZ() throws Exception {
-		short shortVal = 0;
-		try {
-			if (config != null) {
-				shortVal = EPICS_CONTROLLER.cagetShort(createChannel(config.getEnableZ().getPv()));
-			} else {
-				shortVal = EPICS_CONTROLLER.cagetShort(getChannel(EnableZ));
-			}
-		} catch (Exception ex) {
-			throw ex;
-		}
-		return shortVal == 1 ? true : false;
+		return EPICS_CONTROLLER.cagetShort(getChannel(EnableZ)) == 1 ? true : false;
 	}
 
 	@Override
 	public void enableX() throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getEnableX().getPv()), 1);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(EnableX), 1);
-			}
+			EPICS_CONTROLLER.caput(getChannel(EnableX), 1);
 		} catch (Exception ex) {
 			throw ex;
 		}
@@ -1316,11 +1054,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public void disableX() throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getEnableX().getPv()), 0);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(EnableX), 0);
-			}
+			EPICS_CONTROLLER.caput(getChannel(EnableX), 0);
 		} catch (Exception ex) {
 			throw ex;
 		}
@@ -1329,11 +1063,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public void enableY() throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getEnableY().getPv()), 1);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(EnableY), 1);
-			}
+			EPICS_CONTROLLER.caput(getChannel(EnableY), 1);
 		} catch (Exception ex) {
 			throw ex;
 		}
@@ -1342,11 +1072,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public void disableY() throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getEnableY().getPv()), 0);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(EnableY), 0);
-			}
+			EPICS_CONTROLLER.caput(getChannel(EnableY), 0);
 		} catch (Exception ex) {
 			throw ex;
 		}
@@ -1355,11 +1081,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public void enableZ() throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getEnableZ().getPv()), 1);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(EnableZ), 1);
-			}
+			EPICS_CONTROLLER.caput(getChannel(EnableZ), 1);
 		} catch (Exception ex) {
 			throw ex;
 		}
@@ -1368,18 +1090,14 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	@Override
 	public void disableZ() throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getEnableZ().getPv()), 0);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(EnableZ), 0);
-			}
+			EPICS_CONTROLLER.caput(getChannel(EnableZ), 0);
 		} catch (Exception ex) {
 			throw ex;
 		}
 	}
 
 
-	private String getChannelName(String pvElementName, String... args)throws Exception{
+	private String getChannelName(String pvElementName, String... args) {
 		String pvPostFix = null;
 		if (args.length > 0) {
 			// PV element name is different from the pvPostFix
@@ -1388,13 +1106,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 			pvPostFix = pvElementName;
 		}
 
-		String fullPvName;
-		if (pvProvider != null) {
-			fullPvName = pvProvider.getPV(pvElementName);
-		} else {
-			fullPvName = basePVName + pvPostFix;
-		}
-		return fullPvName;
+		return basePVName + pvPostFix;
 	}
 
 

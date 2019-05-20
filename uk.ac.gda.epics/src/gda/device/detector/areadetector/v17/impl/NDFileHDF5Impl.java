@@ -26,14 +26,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
-import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDFileHDF5;
 import gda.epics.connection.EpicsController;
-import gda.epics.interfaces.NDFileHDF5Type;
-import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -45,20 +40,12 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 
 	private String basePVName;
 
-	private IPVProvider pvProvider;
-
 	/**
 	 * Map that stores the channel against the PV name
 	 */
 	private Map<String, Channel> channelMap = new HashMap<String, Channel>();
 
 	private NDFile file;
-
-	/**
-	 * List all the PVs
-	 */
-	private NDFileHDF5Type config;
-	private String deviceName;
 
 	private Vector<String> compressionTypes = new Vector<String>();
 
@@ -83,29 +70,6 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	private Integer initialZCompressLevel = null;
 	// Setup the logging facilities
 	static final Logger logger = LoggerFactory.getLogger(NDFileHDF5Impl.class);
-
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	public void setDeviceName(String deviceName) throws FactoryException {
-		this.deviceName = deviceName;
-		initializeConfig();
-	}
-
-	private void initializeConfig() throws FactoryException {
-		if (deviceName != null) {
-			try {
-				config = Configurator.getConfiguration(deviceName, NDFileHDF5Type.class);
-			} catch (ConfigurationNotFoundException e) {
-				logger.error("EPICS configuration for device {} not found", getDeviceName());
-				throw new FactoryException("EPICS configuration for device " + getDeviceName() + " not found.", e);
-			} catch (Exception ex) {
-				logger.error("EPICS configuration for device {} not found", getDeviceName());
-				throw new FactoryException("EPICS configuration for device " + getDeviceName() + " not found.", ex);
-			}
-		}
-	}
 
 	private static final String NumRowChunks = "NumRowChunks";
 
@@ -183,9 +147,6 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public int getNumRowChunks() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumRowChunks_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumRowChunks_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getNumRowChunks", ex);
@@ -196,11 +157,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public void setNumRowChunks(int value) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getNumRowChunks().getPv()), value);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(NumRowChunks), value);
-			}
+			EPICS_CONTROLLER.caput(getChannel(NumRowChunks), value);
 		} catch (Exception ex) {
 			logger.warn("Cannot setNumRowChunks", ex);
 			throw ex;
@@ -210,9 +167,6 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public int getNumExtraDims() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumExtraDims_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumExtraDims_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getNumExtraDims", ex);
@@ -223,11 +177,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public void setNumExtraDims(int value) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getNumExtraDims().getPv()), value);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(NumExtraDims), value);
-			}
+			EPICS_CONTROLLER.caput(getChannel(NumExtraDims), value);
 		} catch (Exception ex) {
 			logger.warn("Cannot setNumExtraDims", ex);
 			throw ex;
@@ -237,9 +187,6 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public int getExtraDimSizeN() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getExtraDimSizeN_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ExtraDimSizeN_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getExtraDimSizeN", ex);
@@ -250,11 +197,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public void setExtraDimSizeN(int value) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getExtraDimSizeN().getPv()), value);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ExtraDimSizeN), value);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ExtraDimSizeN), value);
 		} catch (Exception ex) {
 			logger.warn("Cannot setExtraDimSizeN", ex);
 			throw ex;
@@ -264,9 +207,6 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public int getExtraDimSizeX() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getExtraDimSizeX_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ExtraDimSizeX_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getExtraDimSizeX", ex);
@@ -277,11 +217,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public void setExtraDimSizeX(int value) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getExtraDimSizeX().getPv()), value);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ExtraDimSizeX), value);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ExtraDimSizeX), value);
 		} catch (Exception ex) {
 			logger.warn("Cannot setExtraDimSizeX", ex);
 			throw ex;
@@ -291,9 +227,6 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public int getExtraDimSizeY() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getExtraDimSizeY_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ExtraDimSizeY_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getExtraDimSizeY", ex);
@@ -304,11 +237,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public void setExtraDimSizeY(int value) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getExtraDimSizeY().getPv()), value);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ExtraDimSizeY), value);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ExtraDimSizeY), value);
 		} catch (Exception ex) {
 			logger.warn("Cannot setExtraDimSizeY", ex);
 			throw ex;
@@ -318,9 +247,6 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public double getRuntime() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getRuntime().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(runtime));
 		} catch (Exception ex) {
 			logger.warn("Cannot getRuntime", ex);
@@ -331,9 +257,6 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public double getIOSpeed() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getIOSpeed().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(IOSpeed));
 		} catch (Exception ex) {
 			logger.warn("Cannot getIOSpeed", ex);
@@ -349,11 +272,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	private void getCompressionTypes(double timeout) throws Exception {
 		String[] compressionTypes = new String[] {};
 
-		if (config != null) {
-			compressionTypes = EPICS_CONTROLLER.cagetLabels(createChannel(config.getCompression().getPv()), timeout);
-		} else {
-			compressionTypes = EPICS_CONTROLLER.cagetLabels(getChannel(Compression), timeout);
-		}
+		compressionTypes = EPICS_CONTROLLER.cagetLabels(getChannel(Compression), timeout);
 		for (String type : compressionTypes) {
 			this.compressionTypes.add(type);
 		}
@@ -365,11 +284,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 		if (this.compressionTypes.isEmpty())
 			getCompressionTypes(10);
 		try {
-			if (config != null) {
-				type = EPICS_CONTROLLER.cagetEnum(createChannel(config.getCompression_RBV().getPv()));
-			} else {
-				type = EPICS_CONTROLLER.cagetEnum(getChannel(Compression_RBV));
-			}
+			type = EPICS_CONTROLLER.cagetEnum(getChannel(Compression_RBV));
 			return this.compressionTypes.get(type);
 		} catch (Exception ex) {
 			logger.warn("Cannot getCompression", ex);
@@ -388,11 +303,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 			throw new IllegalArgumentException("Requested Compression Type " + type + " not supported.");
 		}
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getCompression().getPv()), value);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(Compression), value);
-			}
+			EPICS_CONTROLLER.caput(getChannel(Compression), value);
 		} catch (Exception ex) {
 			logger.warn("Cannot setCompression", ex);
 			throw ex;
@@ -402,9 +313,6 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public int getNumBitPrecision() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumBitPrecision_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumBitPrecision_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getNumBitPrecision", ex);
@@ -415,11 +323,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public void setNumBitPrecision(int value) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getNumBitPrecision().getPv()), value);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(NumBitPrecision), value);
-			}
+			EPICS_CONTROLLER.caput(getChannel(NumBitPrecision), value);
 		} catch (Exception ex) {
 			logger.warn("Cannot setNumBitPrecision", ex);
 			throw ex;
@@ -429,9 +333,6 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public int getNumBitOffset() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumBitOffset_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumBitOffset_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getNumBitOffset", ex);
@@ -442,11 +343,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public void setNumBitOffset(int value) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getNumBitOffset().getPv()), value);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(NumBitOffset), value);
-			}
+			EPICS_CONTROLLER.caput(getChannel(NumBitOffset), value);
 		} catch (Exception ex) {
 			logger.warn("Cannot setNumBitOffset", ex);
 			throw ex;
@@ -456,9 +353,6 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public int getSzipNumPixels() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getSzipNumPixels_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(szipNumPixels_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getSzipNumPixels", ex);
@@ -469,11 +363,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public void setSzipNumPixels(int value) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getSzipNumPixels().getPv()), value);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(szipNumPixels), value);
-			}
+			EPICS_CONTROLLER.caput(getChannel(szipNumPixels), value);
 		} catch (Exception ex) {
 			logger.warn("Cannot setSzipNumPixels", ex);
 			throw ex;
@@ -483,9 +373,6 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public int getZCompressLevel() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getZCompressLevel_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ZCompressLevel_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getZCompressLevel", ex);
@@ -496,11 +383,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public void setZCompressLevel(int value) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getZCompressLevel().getPv()), value);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ZCompressLevel), value);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ZCompressLevel), value);
 		} catch (Exception ex) {
 			logger.warn("Cannot setZCompressLevel", ex);
 			throw ex;
@@ -653,8 +536,8 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (deviceName == null && basePVName == null && pvProvider == null) {
-			throw new IllegalArgumentException("'deviceName','basePVName' or 'pvProvider' needs to be declared");
+		if (basePVName == null) {
+			throw new IllegalArgumentException("'basePVName' needs to be declared");
 		}
 		if (file == null) {
 			throw new IllegalArgumentException("'file' needs to be declared");
@@ -687,13 +570,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 				pvPostFix = pvElementName;
 			}
 
-			String fullPvName;
-			if (pvProvider != null) {
-				fullPvName = pvProvider.getPV(pvElementName);
-			} else {
-				fullPvName = basePVName + pvPostFix;
-			}
-			return createChannel(fullPvName);
+			return createChannel(basePVName + pvPostFix);
 		} catch (Exception exception) {
 			logger.warn("Problem getting channel", exception);
 			throw exception;
@@ -716,21 +593,6 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 			channelMap.put(fullPvName, channel);
 		}
 		return channel;
-	}
-
-	/**
-	 * @return Returns the pvProvider.
-	 */
-	public IPVProvider getPvProvider() {
-		return pvProvider;
-	}
-
-	/**
-	 * @param pvProvider
-	 *            The pvProvider to set.
-	 */
-	public void setPvProvider(IPVProvider pvProvider) {
-		this.pvProvider = pvProvider;
 	}
 
 	@Override
@@ -919,9 +781,6 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public int getNumColChunks() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumColChunks_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumColChunks_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getNumColChunks", ex);
@@ -933,11 +792,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public void setNumColChunks(int value) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getNumColChunks().getPv()), value);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(NumColChunks), value);
-			}
+			EPICS_CONTROLLER.caput(getChannel(NumColChunks), value);
 		} catch (Exception ex) {
 			logger.warn("Cannot setNumColChunks", ex);
 			throw ex;
@@ -947,9 +802,6 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public int getNumFramesChunks() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumFramesChunks_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumFramesChunks_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getNumFramesChunks", ex);
@@ -960,11 +812,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public void setNumFramesChunks(int value) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getNumFramesChunks().getPv()), value);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(NumFramesChunks), value);
-			}
+			EPICS_CONTROLLER.caput(getChannel(NumFramesChunks), value);
 		} catch (Exception ex) {
 			logger.warn("Cannot setNumFramesChunks", ex);
 			throw ex;
@@ -975,9 +823,6 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public int getNumFramesFlush() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumFramesFlush_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumFramesFlush_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getNumFramesFlush", ex);
@@ -988,11 +833,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	@Override
 	public void setNumFramesFlush(int value) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getNumFramesFlush().getPv()), value);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(NumFramesFlush), value);
-			}
+			EPICS_CONTROLLER.caput(getChannel(NumFramesFlush), value);
 		} catch (Exception ex) {
 			logger.warn("Cannot setNumFramesFlush", ex);
 			throw ex;
@@ -1002,60 +843,34 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 
 	@Override
 	public void setLazyOpen(boolean open) throws Exception {
-		if (config != null) {
-			throw new IllegalArgumentException("LazyOpen not yet in the interface file");
-		}
 		EPICS_CONTROLLER.caputWait(getChannel(LazyOpen), open ? 1:0);
 	}
 
 	@Override
 	public boolean isLazyOpen() throws Exception {
-		if (config != null) {
-			throw new IllegalArgumentException("LazyOpen not yet in the interface file");
-		}
 		return EPICS_CONTROLLER.cagetInt(getChannel(LazyOpen_RBV))==1;
 	}
 
 	@Override
 	public void setBoundaryAlign(int boundaryAlign) throws Exception {
-		if (config != null) {
-			throw new IllegalArgumentException("BoundaryAlign not yet in the interface file");
-		}
 		EPICS_CONTROLLER.caputWait(getChannel(BoundaryAlign), boundaryAlign);
 
 	}
 
 	@Override
 	public int getBoundaryAlign() throws Exception {
-		if (config != null) {
-			throw new IllegalArgumentException("BoundaryAlign not yet in the interface file");
-		}
 		return EPICS_CONTROLLER.cagetInt(getChannel(BoundaryAlign_RBV));
 	}
 
+	@Deprecated // now there is only one way to configure this class, identifier is no longer needed
 	private String getIdentifier() {
-		// Since this can be configured with either a deviceName, pvProvider or basePVname, return an identifier based on
-		// whichever is currently in use. If multiple are available, return in this order, which matches usage in the class.
-		String id = getDeviceName();
-		if (id == null && pvProvider != null)
-			try {
-				id = pvProvider.getPV("");
-			} catch (Exception e) {
-				logger.error("pvProvider.getPV('') threw exception: ", e);
-			}
-		if (id == null) id = basePVName;
-		return id;
+		return basePVName;
 	}
 
 	@Override
 	public boolean isStoreAttributesByDimension() throws Exception {
 		try {
-			int value = EPICS_CONTROLLER.cagetInt(getChannel(AttrByDim_RBV));
-			if (value == 1) {
-				return true;
-			} else {
-				return false;
-			}
+			return EPICS_CONTROLLER.cagetInt(getChannel(AttrByDim_RBV)) == 1;
 		} catch (Exception ex) {
 			logger.warn("Cannot getAttrByDim", ex);
 			throw ex;

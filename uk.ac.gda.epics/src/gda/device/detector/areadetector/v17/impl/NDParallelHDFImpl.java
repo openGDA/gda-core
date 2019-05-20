@@ -59,13 +59,7 @@ public class NDParallelHDFImpl extends NDFileImpl implements NDParallelHDF {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (getPvProvider() == null )
-			throw new Exception("pvProvider is not set");
-		String prefix = getPvProvider().getPV("");
-		if( prefix == null || prefix.isEmpty())
-			throw new Exception("pvProvider.getPv('') returns an null or empty string");
-		dev = new CachedLazyPVFactory(prefix);
-
+		dev = new CachedLazyPVFactory(getBasePVName());
 	}
 
 

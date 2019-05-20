@@ -24,17 +24,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.ADDriverPilatus;
 import gda.epics.LazyPVFactory;
 import gda.epics.NoCallbackPV;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
-import gda.epics.interfaces.ADPilatusType;
 import gda.epics.interfaces.ElementType;
 import gda.factory.FactoryException;
 import gda.observable.Predicate;
@@ -63,12 +59,6 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 	static final Logger logger = LoggerFactory.getLogger(ADDriverPilatusImpl.class);
 
 	private String basePVName;
-
-	private IPVProvider pvProvider;
-
-	private ADPilatusType config;
-
-	private String deviceName;
 
 	private volatile int softTriggerStatus = Detector.IDLE;
 
@@ -106,36 +96,8 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 
 	private SoftTriggerCallbackListener softTriggerCallbackListener = new SoftTriggerCallbackListener();
 
-	public void setDeviceName(String deviceName) throws FactoryException {
-		this.deviceName = deviceName;
-		initializeConfig();
-	}
-
-	private void initializeConfig() throws FactoryException {
-		if (deviceName != null) {
-			try {
-				config = Configurator.getConfiguration(getDeviceName(), ADPilatusType.class);
-			} catch (ConfigurationNotFoundException e) {
-				logger.error("EPICS configuration for device {} not found", getDeviceName());
-				throw new FactoryException("EPICS configuration for device " + getDeviceName() + " not found.", e);
-			}
-		}
-	}
-
-	public void setPvProvider(IPVProvider pvProvider) {
-		this.pvProvider = pvProvider;
-	}
-
 	public void setBasePVName(String basePVName) {
 		this.basePVName = basePVName;
-	}
-
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	public IPVProvider getPvProvider() {
-		return pvProvider;
 	}
 
 	public String getBasePVName() {
@@ -144,8 +106,8 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (deviceName == null && basePVName == null && pvProvider == null) {
-			throw new IllegalArgumentException("'deviceName','basePVName' or 'pvProvider' needs to be declared");
+		if (basePVName == null) {
+			throw new IllegalArgumentException("basePVName needs to be declared");
 		}
 		try {
 			createLazyPvs();
@@ -154,51 +116,37 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 		}
 	}
 
-	private void createLazyPvs() throws Exception {
+	private void createLazyPvs() {
 
-		pvArmed = LazyPVFactory.newReadOnlyBooleanFromIntegerPV((config == null) ?
-				fullname("Armed") : getPvName(config.getArmed()));
+		pvArmed = LazyPVFactory.newReadOnlyBooleanFromIntegerPV(fullname("Armed"));
 
-		pvDelayTime = LazyPVFactory.newFloatPV((config == null) ?
-				fullname("DelayTime") : getPvName(config.getDelayTime()));
+		pvDelayTime = LazyPVFactory.newFloatPV(fullname("DelayTime"));
 
-		pvDelayTime_RBV = LazyPVFactory.newReadOnlyFloatPV((config == null) ?
-				fullname("DelayTime_RBV") : getRoPvName(config.getDelayTime_RBV()));
+		pvDelayTime_RBV = LazyPVFactory.newReadOnlyFloatPV(fullname("DelayTime_RBV"));
 
-		pvThresholdEnergy = LazyPVFactory.newFloatPV((config == null) ?
-				fullname("ThresholdEnergy") : getPvName(config.getThresholdEnergy()));
+		pvThresholdEnergy = LazyPVFactory.newFloatPV(fullname("ThresholdEnergy"));
 
-		pvThresholdEnergy_RBV = LazyPVFactory.newReadOnlyFloatPV((config == null) ?
-				fullname("ThresholdEnergy_RBV") : getRoPvName(config.getThresholdEnergy_RBV()));
+		pvThresholdEnergy_RBV = LazyPVFactory.newReadOnlyFloatPV(fullname("ThresholdEnergy_RBV"));
 
-		pvGain = LazyPVFactory.newEnumPV((config == null) ?
-				fullname("GainMenu") : getPvName(config.getGain()), Gain.class);
+		pvGain = LazyPVFactory.newEnumPV(fullname("GainMenu"), Gain.class);
 
-		pvImageFileTmot = LazyPVFactory.newFloatPV((config == null) ?
-				fullname("ImageFileTmot") : getPvName(config.getImageFileTmot()));
+		pvImageFileTmot = LazyPVFactory.newFloatPV(fullname("ImageFileTmot"));
 
-		pvBadPixelFile = LazyPVFactory.newStringFromWaveformPV((config == null) ?
-				fullname("BadPixelFile") : getPvName(config.getBadPixelFile()));
+		pvBadPixelFile = LazyPVFactory.newStringFromWaveformPV(fullname("BadPixelFile"));
 
-		pvNumBadPixels = LazyPVFactory.newReadOnlyIntegerPV((config == null) ?
-				fullname("NumBadPixels") : getRoPvName(config.getNumBadPixels()));
+		pvNumBadPixels = LazyPVFactory.newReadOnlyIntegerPV(fullname("NumBadPixels"));
 
-		pvFlatFieldFile = LazyPVFactory.newStringFromWaveformPV((config == null) ?
-				fullname("FlatFieldFile") : getPvName(config.getFlatFieldFile()));
+		pvFlatFieldFile = LazyPVFactory.newStringFromWaveformPV(fullname("FlatFieldFile"));
 
-		pvMinFlatField = LazyPVFactory.newIntegerPV((config == null) ?
-				fullname("MinFlatField") : getPvName(config.getMinFlatField()));
+		pvMinFlatField = LazyPVFactory.newIntegerPV(fullname("MinFlatField"));
 
-		pvMinFlatField_RBV = LazyPVFactory.newReadOnlyIntegerPV((config == null) ?
-				fullname("MinFlatField_RBV") : getRoPvName(config.getMinFlatField_RBV()));
+		pvMinFlatField_RBV = LazyPVFactory.newReadOnlyIntegerPV(fullname("MinFlatField_RBV"));
 
-		pvFlatFieldValid = LazyPVFactory.newReadOnlyBooleanFromIntegerPV((config == null) ?
-				fullname("FlatFieldValid"): getRoPvName(config.getFlatFieldValid()));
+		pvFlatFieldValid = LazyPVFactory.newReadOnlyBooleanFromIntegerPV(fullname("FlatFieldValid"));
 
 		//TODO: handle ADPilatusType (the config the other pvs use)
 		pvSoftTrigger = LazyPVFactory.newIntegerPV(fullname(SoftTrigger));
 	}
-
 
 	private String getRoPvName(ElementType elementType) {
 		if (elementType.getRo() != true) {
@@ -214,12 +162,9 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 		return elementType.getPv();
 	}
 
-	private String fullname(String pvElementName, String... args) throws Exception {
+	private String fullname(String pvElementName, String... args) {
 		// untried - RobW
-		if (pvProvider == null) {
-			return basePVName + ((args.length > 0) ? args[0] : pvElementName);
-		}
-		return pvProvider.getPV(pvElementName);
+		return basePVName + ((args.length > 0) ? args[0] : pvElementName);
 	}
 
 	@Override

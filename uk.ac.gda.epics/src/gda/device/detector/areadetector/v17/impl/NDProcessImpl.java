@@ -18,19 +18,6 @@
 
 package gda.device.detector.areadetector.v17.impl;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
-import gda.device.detector.areadetector.IPVProvider;
-import gda.device.detector.areadetector.v17.NDProcess;
-import gda.epics.LazyPVFactory;
-import gda.epics.connection.EpicsController;
-import gda.epics.interfaces.NDProcessType;
-import gda.factory.FactoryException;
-import gda.observable.Observable;
-import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
-import gov.aps.jca.TimeoutException;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,13 +25,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import gda.device.detector.areadetector.v17.NDProcess;
+import gda.epics.LazyPVFactory;
+import gda.epics.connection.EpicsController;
+import gda.observable.Observable;
+import gov.aps.jca.CAException;
+import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
+
 public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDProcess {
 
 	private final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 
 	private String basePVName;
 
-	private IPVProvider pvProvider;
 	private Integer initialEnableBackground;
 
 	public int getInitialEnableBackground() {
@@ -102,31 +96,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 		this.initialEnableFlatField = initialEnableFlatField;
 	}
 
-	private NDProcessType config;
-
-	private String deviceName;
-
 	static final Logger logger = LoggerFactory.getLogger(NDProcessImpl.class);
-
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	public void setDeviceName(String deviceName) throws FactoryException {
-		this.deviceName = deviceName;
-		initializeConfig();
-	}
-
-	private void initializeConfig() throws FactoryException {
-		if (deviceName != null) {
-			try {
-				config = Configurator.getConfiguration(getDeviceName(), NDProcessType.class);
-			} catch (ConfigurationNotFoundException e) {
-				logger.error("EPICS configuration for device {} not found", getDeviceName());
-				throw new FactoryException("EPICS configuration for device " + getDeviceName() + " not found.", e);
-			}
-		}
-	}
 
 	/**
 	 * Map that stores the channel against the PV name
@@ -139,9 +109,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getDataTypeOut() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getDataTypeOut().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DataTypeOut));
 		} catch (Exception ex) {
 			logger.warn("Cannot getDataTypeOut", ex);
@@ -155,11 +122,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setDataTypeOut(int datatypeout) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getDataTypeOut().getPv()), datatypeout);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(DataTypeOut), datatypeout);
-			}
+			EPICS_CONTROLLER.caput(getChannel(DataTypeOut), datatypeout);
 		} catch (Exception ex) {
 			logger.warn("Cannot setDataTypeOut", ex);
 			throw ex;
@@ -172,9 +135,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getDataTypeOut_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getDataTypeOut_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DataTypeOut_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getDataTypeOut_RBV", ex);
@@ -188,9 +148,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getSaveBackground() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getSaveBackground().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(SaveBackground));
 		} catch (Exception ex) {
 			logger.warn("Cannot getSaveBackground", ex);
@@ -204,11 +161,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setSaveBackground(int savebackground) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getSaveBackground().getPv()), savebackground);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(SaveBackground), savebackground);
-			}
+			EPICS_CONTROLLER.caput(getChannel(SaveBackground), savebackground);
 		} catch (Exception ex) {
 			logger.warn("Cannot setSaveBackground", ex);
 			throw ex;
@@ -221,9 +174,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getSaveBackground_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getSaveBackground_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(SaveBackground_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getSaveBackground_RBV", ex);
@@ -237,9 +187,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getEnableBackground() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getEnableBackground().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(EnableBackground));
 		} catch (Exception ex) {
 			logger.warn("Cannot getEnableBackground", ex);
@@ -253,11 +200,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setEnableBackground(int enablebackground) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getEnableBackground().getPv()), enablebackground);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(EnableBackground), enablebackground);
-			}
+			EPICS_CONTROLLER.caput(getChannel(EnableBackground), enablebackground);
 		} catch (Exception ex) {
 			logger.warn("Cannot setEnableBackground", ex);
 			throw ex;
@@ -270,9 +213,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getEnableBackground_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getEnableBackground_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(EnableBackground_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getEnableBackground_RBV", ex);
@@ -286,9 +226,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getValidBackground_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getValidBackground_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ValidBackground_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getValidBackground_RBV", ex);
@@ -302,9 +239,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getSaveFlatField() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getSaveFlatField().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(SaveFlatField));
 		} catch (Exception ex) {
 			logger.warn("Cannot getSaveFlatField", ex);
@@ -318,11 +252,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setSaveFlatField(int saveflatfield) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getSaveFlatField().getPv()), saveflatfield);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(SaveFlatField), saveflatfield);
-			}
+			EPICS_CONTROLLER.caput(getChannel(SaveFlatField), saveflatfield);
 		} catch (Exception ex) {
 			logger.warn("Cannot setSaveFlatField", ex);
 			throw ex;
@@ -335,9 +265,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getSaveFlatField_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getSaveFlatField_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(SaveFlatField_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getSaveFlatField_RBV", ex);
@@ -351,9 +278,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getEnableFlatField() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getEnableFlatField().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(EnableFlatField));
 		} catch (Exception ex) {
 			logger.warn("Cannot getEnableFlatField", ex);
@@ -367,11 +291,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setEnableFlatField(int enableflatfield) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getEnableFlatField().getPv()), enableflatfield);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(EnableFlatField), enableflatfield);
-			}
+			EPICS_CONTROLLER.caput(getChannel(EnableFlatField), enableflatfield);
 		} catch (Exception ex) {
 			logger.warn("Cannot setEnableFlatField", ex);
 			throw ex;
@@ -384,9 +304,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getEnableFlatField_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getEnableFlatField_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(EnableFlatField_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getEnableFlatField_RBV", ex);
@@ -400,9 +317,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getValidFlatField_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getValidFlatField_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ValidFlatField_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getValidFlatField_RBV", ex);
@@ -416,9 +330,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getScaleFlatField() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getScaleFlatField().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(ScaleFlatField));
 		} catch (Exception ex) {
 			logger.warn("Cannot getScaleFlatField", ex);
@@ -432,11 +343,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setScaleFlatField(double scaleflatfield) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getScaleFlatField().getPv()), scaleflatfield);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ScaleFlatField), scaleflatfield);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ScaleFlatField), scaleflatfield);
 		} catch (Exception ex) {
 			logger.warn("Cannot setScaleFlatField", ex);
 			throw ex;
@@ -449,9 +356,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getScaleFlatField_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getScaleFlatField_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(ScaleFlatField_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getScaleFlatField_RBV", ex);
@@ -462,9 +366,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getAutoOffsetScale() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getAutoOffsetScale().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(AutoOffsetScale));
 		} catch (Exception ex) {
 			logger.warn("Cannot getAutoOffsetScale", ex);
@@ -478,11 +379,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setAutoOffsetScale(int autooffsetscale) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getAutoOffsetScale().getPv()), autooffsetscale);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(AutoOffsetScale), autooffsetscale);
-			}
+			EPICS_CONTROLLER.caput(getChannel(AutoOffsetScale), autooffsetscale);
 		} catch (Exception ex) {
 			logger.warn("Cannot setAutoOffsetScale", ex);
 			throw ex;
@@ -495,9 +392,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getEnableOffsetScale() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getEnableOffsetScale().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(EnableOffsetScale));
 		} catch (Exception ex) {
 			logger.warn("Cannot getEnableOffsetScale", ex);
@@ -511,11 +405,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setEnableOffsetScale(int enableoffsetscale) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getEnableOffsetScale().getPv()), enableoffsetscale);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(EnableOffsetScale), enableoffsetscale);
-			}
+			EPICS_CONTROLLER.caput(getChannel(EnableOffsetScale), enableoffsetscale);
 		} catch (Exception ex) {
 			logger.warn("Cannot setEnableOffsetScale", ex);
 			throw ex;
@@ -528,9 +418,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getEnableOffsetScale_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getEnableOffsetScale_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(EnableOffsetScale_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getEnableOffsetScale_RBV", ex);
@@ -544,9 +431,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getOffset() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getOffset().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(Offset));
 		} catch (Exception ex) {
 			logger.warn("Cannot getOffset", ex);
@@ -560,11 +444,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setOffset(double offset) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getOffset().getPv()), offset);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(Offset), offset);
-			}
+			EPICS_CONTROLLER.caput(getChannel(Offset), offset);
 		} catch (Exception ex) {
 			logger.warn("Cannot setOffset", ex);
 			throw ex;
@@ -577,9 +457,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getOffset_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getOffset_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Offset_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getOffset_RBV", ex);
@@ -593,9 +470,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getScale() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getScale().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(Scale));
 		} catch (Exception ex) {
 			logger.warn("Cannot getScale", ex);
@@ -609,11 +483,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setScale(double scale) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getScale().getPv()), scale);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(Scale), scale);
-			}
+			EPICS_CONTROLLER.caput(getChannel(Scale), scale);
 		} catch (Exception ex) {
 			logger.warn("Cannot setScale", ex);
 			throw ex;
@@ -626,9 +496,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getScale_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getScale_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(Scale_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getScale_RBV", ex);
@@ -642,9 +509,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getEnableLowClip() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getEnableLowClip().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(EnableLowClip));
 		} catch (Exception ex) {
 			logger.warn("Cannot getEnableLowClip", ex);
@@ -658,11 +522,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setEnableLowClip(int enablelowclip) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getEnableLowClip().getPv()), enablelowclip);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(EnableLowClip), enablelowclip);
-			}
+			EPICS_CONTROLLER.caput(getChannel(EnableLowClip), enablelowclip);
 		} catch (Exception ex) {
 			logger.warn("Cannot setEnableLowClip", ex);
 			throw ex;
@@ -675,9 +535,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getEnableLowClip_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getEnableLowClip_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(EnableLowClip_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getEnableLowClip_RBV", ex);
@@ -691,9 +548,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getLowClip() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getLowClip().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(LowClip));
 		} catch (Exception ex) {
 			logger.warn("Cannot getLowClip", ex);
@@ -707,11 +561,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setLowClip(double lowclip) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getLowClip().getPv()), lowclip);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(LowClip), lowclip);
-			}
+			EPICS_CONTROLLER.caput(getChannel(LowClip), lowclip);
 		} catch (Exception ex) {
 			logger.warn("Cannot setLowClip", ex);
 			throw ex;
@@ -724,9 +574,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getLowClip_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getLowClip_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(LowClip_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getLowClip_RBV", ex);
@@ -740,9 +587,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getEnableHighClip() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getEnableHighClip().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(EnableHighClip));
 		} catch (Exception ex) {
 			logger.warn("Cannot getEnableHighClip", ex);
@@ -756,11 +600,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setEnableHighClip(int enablehighclip) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getEnableHighClip().getPv()), enablehighclip);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(EnableHighClip), enablehighclip);
-			}
+			EPICS_CONTROLLER.caput(getChannel(EnableHighClip), enablehighclip);
 		} catch (Exception ex) {
 			logger.warn("Cannot setEnableHighClip", ex);
 			throw ex;
@@ -773,9 +613,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getEnableHighClip_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getEnableHighClip_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(EnableHighClip_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getEnableHighClip_RBV", ex);
@@ -789,9 +626,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getHighClip() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getHighClip().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(HighClip));
 		} catch (Exception ex) {
 			logger.warn("Cannot getHighClip", ex);
@@ -805,11 +639,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setHighClip(double highclip) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getHighClip().getPv()), highclip);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(HighClip), highclip);
-			}
+			EPICS_CONTROLLER.caput(getChannel(HighClip), highclip);
 		} catch (Exception ex) {
 			logger.warn("Cannot setHighClip", ex);
 			throw ex;
@@ -822,9 +652,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getHighClip_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getHighClip_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(HighClip_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getHighClip_RBV", ex);
@@ -838,9 +665,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getEnableFilter() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getEnableFilter().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(EnableFilter));
 		} catch (Exception ex) {
 			logger.warn("Cannot getEnableFilter", ex);
@@ -854,11 +678,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setEnableFilter(int enablefilter) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getEnableFilter().getPv()), enablefilter);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(EnableFilter), enablefilter);
-			}
+			EPICS_CONTROLLER.caput(getChannel(EnableFilter), enablefilter);
 		} catch (Exception ex) {
 			logger.warn("Cannot setEnableFilter", ex);
 			throw ex;
@@ -871,9 +691,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getEnableFilter_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getEnableFilter_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(EnableFilter_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getEnableFilter_RBV", ex);
@@ -887,9 +704,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getResetFilter() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getResetFilter().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ResetFilter));
 		} catch (Exception ex) {
 			logger.warn("Cannot getResetFilter", ex);
@@ -903,11 +717,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setResetFilter(int resetfilter) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getResetFilter().getPv()), resetfilter);
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(ResetFilter), resetfilter);
-			}
+			EPICS_CONTROLLER.caputWait(getChannel(ResetFilter), resetfilter);
 		} catch (Exception ex) {
 			logger.warn("Cannot setResetFilter", ex);
 			throw ex;
@@ -920,9 +730,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getResetFilter_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getResetFilter_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ResetFilter_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getResetFilter_RBV", ex);
@@ -936,9 +743,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public int getNumFilter() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getNumFilter().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(NumFilter));
 		} catch (Exception ex) {
 			logger.warn("Cannot getNumFilter", ex);
@@ -952,11 +756,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setNumFilter(int numfilter) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getNumFilter().getPv()), numfilter);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(NumFilter), numfilter);
-			}
+			EPICS_CONTROLLER.caput(getChannel(NumFilter), numfilter);
 		} catch (Exception ex) {
 			logger.warn("Cannot setNumFilter", ex);
 			throw ex;
@@ -969,9 +769,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public int getNumFilter_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumFilter_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumFilter_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getNumFilter_RBV", ex);
@@ -985,9 +782,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public int getNumFilterRecip() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumFilterRecip().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumFilterRecip));
 		} catch (Exception ex) {
 			logger.warn("Cannot getNumFilterRecip", ex);
@@ -1001,11 +795,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setNumFilterRecip(int numfilterrecip) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getNumFilterRecip().getPv()), numfilterrecip);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(NumFilterRecip), numfilterrecip);
-			}
+			EPICS_CONTROLLER.caput(getChannel(NumFilterRecip), numfilterrecip);
 		} catch (Exception ex) {
 			logger.warn("Cannot setNumFilterRecip", ex);
 			throw ex;
@@ -1018,9 +808,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public int getNumFiltered_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumFiltered_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumFiltered_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getNumFiltered_RBV", ex);
@@ -1034,9 +821,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getOOffset() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getOOffset().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(OOffset));
 		} catch (Exception ex) {
 			logger.warn("Cannot getOOffset", ex);
@@ -1050,11 +834,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setOOffset(double ooffset) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getOOffset().getPv()), ooffset);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(OOffset), ooffset);
-			}
+			EPICS_CONTROLLER.caput(getChannel(OOffset), ooffset);
 		} catch (Exception ex) {
 			logger.warn("Cannot setOOffset", ex);
 			throw ex;
@@ -1067,9 +847,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getOOffset_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getOOffset_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(OOffset_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getOOffset_RBV", ex);
@@ -1083,9 +860,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getOScale() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getOScale().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(OScale));
 		} catch (Exception ex) {
 			logger.warn("Cannot getOScale", ex);
@@ -1099,11 +873,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setOScale(double oscale) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getOScale().getPv()), oscale);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(OScale), oscale);
-			}
+			EPICS_CONTROLLER.caput(getChannel(OScale), oscale);
 		} catch (Exception ex) {
 			logger.warn("Cannot setOScale", ex);
 			throw ex;
@@ -1116,9 +886,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getOScale_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getOScale_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(OScale_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getOScale_RBV", ex);
@@ -1132,9 +899,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getOC1() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getOC1().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(OC1));
 		} catch (Exception ex) {
 			logger.warn("Cannot getOC1", ex);
@@ -1148,11 +912,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setOC1(double oc1) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getOC1().getPv()), oc1);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(OC1), oc1);
-			}
+			EPICS_CONTROLLER.caput(getChannel(OC1), oc1);
 		} catch (Exception ex) {
 			logger.warn("Cannot setOC1", ex);
 			throw ex;
@@ -1165,9 +925,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getOC1_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getOC1_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(OC1_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getOC1_RBV", ex);
@@ -1181,9 +938,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getOC2() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getOC2().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(OC2));
 		} catch (Exception ex) {
 			logger.warn("Cannot getOC2", ex);
@@ -1197,11 +951,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setOC2(double oc2) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getOC2().getPv()), oc2);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(OC2), oc2);
-			}
+			EPICS_CONTROLLER.caput(getChannel(OC2), oc2);
 		} catch (Exception ex) {
 			logger.warn("Cannot setOC2", ex);
 			throw ex;
@@ -1214,9 +964,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getOC2_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getOC2_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(OC2_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getOC2_RBV", ex);
@@ -1230,9 +977,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getOC3() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getOC3().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(OC3));
 		} catch (Exception ex) {
 			logger.warn("Cannot getOC3", ex);
@@ -1246,11 +990,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setOC3(double oc3) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getOC3().getPv()), oc3);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(OC3), oc3);
-			}
+			EPICS_CONTROLLER.caput(getChannel(OC3), oc3);
 		} catch (Exception ex) {
 			logger.warn("Cannot setOC3", ex);
 			throw ex;
@@ -1263,9 +1003,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getOC3_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getOC3_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(OC3_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getOC3_RBV", ex);
@@ -1279,9 +1016,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getOC4() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getOC4().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(OC4));
 		} catch (Exception ex) {
 			logger.warn("Cannot getOC4", ex);
@@ -1295,11 +1029,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setOC4(double oc4) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getOC4().getPv()), oc4);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(OC4), oc4);
-			}
+			EPICS_CONTROLLER.caput(getChannel(OC4), oc4);
 		} catch (Exception ex) {
 			logger.warn("Cannot setOC4", ex);
 			throw ex;
@@ -1312,9 +1042,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getOC4_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getOC4_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(OC4_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getOC4_RBV", ex);
@@ -1328,9 +1055,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getFOffset() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getFOffset().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(FOffset));
 		} catch (Exception ex) {
 			logger.warn("Cannot getFOffset", ex);
@@ -1344,11 +1068,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setFOffset(double foffset) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getFOffset().getPv()), foffset);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(FOffset), foffset);
-			}
+			EPICS_CONTROLLER.caput(getChannel(FOffset), foffset);
 		} catch (Exception ex) {
 			logger.warn("Cannot setFOffset", ex);
 			throw ex;
@@ -1361,9 +1081,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getFOffset_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getFOffset_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(FOffset_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getFOffset_RBV", ex);
@@ -1377,9 +1094,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getFScale() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getFScale().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(FScale));
 		} catch (Exception ex) {
 			logger.warn("Cannot getFScale", ex);
@@ -1393,11 +1107,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setFScale(double fscale) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getFScale().getPv()), fscale);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(FScale), fscale);
-			}
+			EPICS_CONTROLLER.caput(getChannel(FScale), fscale);
 		} catch (Exception ex) {
 			logger.warn("Cannot setFScale", ex);
 			throw ex;
@@ -1410,9 +1120,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getFScale_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getFScale_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(FScale_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getFScale_RBV", ex);
@@ -1426,9 +1133,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getFC1() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getFC1().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(FC1));
 		} catch (Exception ex) {
 			logger.warn("Cannot getFC1", ex);
@@ -1442,11 +1146,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setFC1(double fc1) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getFC1().getPv()), fc1);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(FC1), fc1);
-			}
+			EPICS_CONTROLLER.caput(getChannel(FC1), fc1);
 		} catch (Exception ex) {
 			logger.warn("Cannot setFC1", ex);
 			throw ex;
@@ -1459,9 +1159,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getFC1_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getFC1_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(FC1_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getFC1_RBV", ex);
@@ -1475,9 +1172,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getFC2() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getFC2().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(FC2));
 		} catch (Exception ex) {
 			logger.warn("Cannot getFC2", ex);
@@ -1491,11 +1185,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setFC2(double fc2) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getFC2().getPv()), fc2);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(FC2), fc2);
-			}
+			EPICS_CONTROLLER.caput(getChannel(FC2), fc2);
 		} catch (Exception ex) {
 			logger.warn("Cannot setFC2", ex);
 			throw ex;
@@ -1508,9 +1198,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getFC2_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getFC2_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(FC2_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getFC2_RBV", ex);
@@ -1524,9 +1211,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getFC3() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getFC3().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(FC3));
 		} catch (Exception ex) {
 			logger.warn("Cannot getFC3", ex);
@@ -1540,11 +1224,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setFC3(double fc3) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getFC3().getPv()), fc3);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(FC3), fc3);
-			}
+			EPICS_CONTROLLER.caput(getChannel(FC3), fc3);
 		} catch (Exception ex) {
 			logger.warn("Cannot setFC3", ex);
 			throw ex;
@@ -1557,9 +1237,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getFC3_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getFC3_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(FC3_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getFC3_RBV", ex);
@@ -1573,9 +1250,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getFC4() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getFC4().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(FC4));
 		} catch (Exception ex) {
 			logger.warn("Cannot getFC4", ex);
@@ -1589,11 +1263,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setFC4(double fc4) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getFC4().getPv()), fc4);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(FC4), fc4);
-			}
+			EPICS_CONTROLLER.caput(getChannel(FC4), fc4);
 		} catch (Exception ex) {
 			logger.warn("Cannot setFC4", ex);
 			throw ex;
@@ -1606,9 +1276,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getFC4_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getFC4_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(FC4_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getFC4_RBV", ex);
@@ -1622,9 +1289,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getROffset() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getROffset().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(ROffset));
 		} catch (Exception ex) {
 			logger.warn("Cannot getROffset", ex);
@@ -1638,11 +1302,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setROffset(double roffset) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getROffset().getPv()), roffset);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ROffset), roffset);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ROffset), roffset);
 		} catch (Exception ex) {
 			logger.warn("Cannot setROffset", ex);
 			throw ex;
@@ -1655,9 +1315,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getROffset_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getROffset_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(ROffset_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getROffset_RBV", ex);
@@ -1671,9 +1328,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getRC1() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getRC1().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(RC1));
 		} catch (Exception ex) {
 			logger.warn("Cannot getRC1", ex);
@@ -1687,11 +1341,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setRC1(double rc1) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getRC1().getPv()), rc1);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(RC1), rc1);
-			}
+			EPICS_CONTROLLER.caput(getChannel(RC1), rc1);
 		} catch (Exception ex) {
 			logger.warn("Cannot setRC1", ex);
 			throw ex;
@@ -1704,9 +1354,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getRC1_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getRC1_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(RC1_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getRC1_RBV", ex);
@@ -1720,9 +1367,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getRC2() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getRC2().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(RC2));
 		} catch (Exception ex) {
 			logger.warn("Cannot getRC2", ex);
@@ -1736,11 +1380,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setRC2(double rc2) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getRC2().getPv()), rc2);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(RC2), rc2);
-			}
+			EPICS_CONTROLLER.caput(getChannel(RC2), rc2);
 		} catch (Exception ex) {
 			logger.warn("Cannot setRC2", ex);
 			throw ex;
@@ -1753,9 +1393,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public double getRC2_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getRC2_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(RC2_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getRC2_RBV", ex);
@@ -1769,9 +1406,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public short getFilterType() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getFilterType().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(FilterType));
 		} catch (Exception ex) {
 			logger.warn("Cannot getFilterType", ex);
@@ -1785,11 +1419,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setFilterType(int filtertype) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getFilterType().getPv()), filtertype);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(FilterType), filtertype);
-			}
+			EPICS_CONTROLLER.caput(getChannel(FilterType), filtertype);
 		} catch (Exception ex) {
 			logger.warn("Cannot setFilterType", ex);
 			throw ex;
@@ -1802,9 +1432,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public int getFilterTypeSeq() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getFilterTypeSeq().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(FilterTypeSeq));
 		} catch (Exception ex) {
 			logger.warn("Cannot getFilterTypeSeq", ex);
@@ -1818,11 +1445,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setFilterTypeSeq(int filtertypeseq) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getFilterTypeSeq().getPv()), filtertypeseq);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(FilterTypeSeq), filtertypeseq);
-			}
+			EPICS_CONTROLLER.caput(getChannel(FilterTypeSeq), filtertypeseq);
 		} catch (Exception ex) {
 			logger.warn("Cannot setFilterTypeSeq", ex);
 			throw ex;
@@ -1835,9 +1458,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public int getRecursiveAveSeq() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getRecursiveAveSeq().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(RecursiveAveSeq));
 		} catch (Exception ex) {
 			logger.warn("Cannot getRecursiveAveSeq", ex);
@@ -1851,11 +1471,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setRecursiveAveSeq(int recursiveaveseq) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getRecursiveAveSeq().getPv()), recursiveaveseq);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(RecursiveAveSeq), recursiveaveseq);
-			}
+			EPICS_CONTROLLER.caput(getChannel(RecursiveAveSeq), recursiveaveseq);
 		} catch (Exception ex) {
 			logger.warn("Cannot setRecursiveAveSeq", ex);
 			throw ex;
@@ -1868,9 +1484,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public int getRecursiveSumSeq() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getRecursiveSumSeq().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(RecursiveSumSeq));
 		} catch (Exception ex) {
 			logger.warn("Cannot getRecursiveSumSeq", ex);
@@ -1884,11 +1497,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setRecursiveSumSeq(int recursivesumseq) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getRecursiveSumSeq().getPv()), recursivesumseq);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(RecursiveSumSeq), recursivesumseq);
-			}
+			EPICS_CONTROLLER.caput(getChannel(RecursiveSumSeq), recursivesumseq);
 		} catch (Exception ex) {
 			logger.warn("Cannot setRecursiveSumSeq", ex);
 			throw ex;
@@ -1901,9 +1510,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public int getDifferenceSeq() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getDifferenceSeq().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(DifferenceSeq));
 		} catch (Exception ex) {
 			logger.warn("Cannot getDifferenceSeq", ex);
@@ -1917,11 +1523,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setDifferenceSeq(int differenceseq) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getDifferenceSeq().getPv()), differenceseq);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(DifferenceSeq), differenceseq);
-			}
+			EPICS_CONTROLLER.caput(getChannel(DifferenceSeq), differenceseq);
 		} catch (Exception ex) {
 			logger.warn("Cannot setDifferenceSeq", ex);
 			throw ex;
@@ -1934,9 +1536,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public int getRecursiveAveDiffSeq() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getRecursiveAveDiffSeq().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(RecursiveAveDiffSeq));
 		} catch (Exception ex) {
 			logger.warn("Cannot getRecursiveAveDiffSeq", ex);
@@ -1950,11 +1549,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setRecursiveAveDiffSeq(int recursiveavediffseq) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getRecursiveAveDiffSeq().getPv()), recursiveavediffseq);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(RecursiveAveDiffSeq), recursiveavediffseq);
-			}
+			EPICS_CONTROLLER.caput(getChannel(RecursiveAveDiffSeq), recursiveavediffseq);
 		} catch (Exception ex) {
 			logger.warn("Cannot setRecursiveAveDiffSeq", ex);
 			throw ex;
@@ -1967,9 +1562,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public int getCopyToFilterSeq() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getCopyToFilterSeq().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(CopyToFilterSeq));
 		} catch (Exception ex) {
 			logger.warn("Cannot getCopyToFilterSeq", ex);
@@ -1983,11 +1575,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	@Override
 	public void setCopyToFilterSeq(int copytofilterseq) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getCopyToFilterSeq().getPv()), copytofilterseq);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(CopyToFilterSeq), copytofilterseq);
-			}
+			EPICS_CONTROLLER.caput(getChannel(CopyToFilterSeq), copytofilterseq);
 		} catch (Exception ex) {
 			logger.warn("Cannot setCopyToFilterSeq", ex);
 			throw ex;
@@ -2003,8 +1591,8 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (deviceName == null && basePVName == null && pvProvider == null) {
-			throw new IllegalArgumentException("'deviceName','basePVName' or 'pvProvider' needs to be declared");
+		if (basePVName == null) {
+			throw new IllegalArgumentException("'basePVName' needs to be declared");
 		}
 	}
 
@@ -2034,13 +1622,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 				pvPostFix = pvElementName;
 			}
 
-			String fullPvName;
-			if (pvProvider != null) {
-				fullPvName = pvProvider.getPV(pvElementName);
-			} else {
-				fullPvName = basePVName + pvPostFix;
-			}
-			return createChannel(fullPvName);
+			return createChannel(basePVName + pvPostFix);
 		} catch (Exception exception) {
 			logger.warn("Problem getting channel", exception);
 			throw exception;
@@ -2063,21 +1645,6 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 			channelMap.put(fullPvName, channel);
 		}
 		return channel;
-	}
-
-	/**
-	 * @return Returns the pvProvider.
-	 */
-	public IPVProvider getPvProvider() {
-		return pvProvider;
-	}
-
-	/**
-	 * @param pvProvider
-	 *            The pvProvider to set.
-	 */
-	public void setPvProvider(IPVProvider pvProvider) {
-		this.pvProvider = pvProvider;
 	}
 
 	@Override
@@ -2123,7 +1690,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 		return EPICS_CONTROLLER.cagetInt(getChannel(AutoResetFilter_RBV));
 	}
 
-	private String getChannelName(String pvElementName, String... args)throws Exception{
+	private String getChannelName(String pvElementName, String... args) {
 		String pvPostFix = null;
 		if (args.length > 0) {
 			// PV element name is different from the pvPostFix
@@ -2132,13 +1699,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 			pvPostFix = pvElementName;
 		}
 
-		String fullPvName;
-		if (pvProvider != null) {
-			fullPvName = pvProvider.getPV(pvElementName);
-		} else {
-			fullPvName = basePVName + pvPostFix;
-		}
-		return fullPvName;
+		return basePVName + pvPostFix;
 	}
 
 	@Override

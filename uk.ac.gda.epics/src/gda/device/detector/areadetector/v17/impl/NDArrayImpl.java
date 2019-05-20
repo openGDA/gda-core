@@ -25,14 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
-import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDPluginBase.DataType;
 import gda.epics.connection.EpicsController;
-import gda.epics.interfaces.NDStdArraysType;
-import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -47,36 +42,13 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 	private Map<String, Channel> channelMap = new HashMap<String, Channel>();
 
 	private String basePVName;
-	private IPVProvider pvProvider;
-	private NDStdArraysType config;
-	private String deviceName;
 
 	static final Logger logger = LoggerFactory.getLogger(NDArrayImpl.class);
-
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	public void setDeviceName(String deviceName) throws FactoryException {
-		this.deviceName = deviceName;
-		initializeConfig();
-	}
-
-	private void initializeConfig() throws FactoryException {
-		if (deviceName != null) {
-			try {
-				config = Configurator.getConfiguration(getDeviceName(), NDStdArraysType.class);
-			} catch (ConfigurationNotFoundException e) {
-				logger.error("EPICS configuration for device {} not found", getDeviceName());
-				throw new FactoryException("EPICS configuration for device " + getDeviceName() + " not found.", e);
-			}
-		}
-	}
 
 	@Override
 	public byte[] getByteArrayData() throws Exception {
 		try {
-			Channel ch = (config != null) ? createChannel(config.getArrayData().getPv()) : getChannel(ARRAY_DATA);
+			Channel ch = getChannel(ARRAY_DATA);
 			return EPICS_CONTROLLER.cagetByteArray(ch);
 		} catch (Exception ex) {
 			logger.warn("problem with getByteArrayData()", ex);
@@ -87,9 +59,6 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 	@Override
 	public float[] getFloatArrayData() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetFloatArray(createChannel(config.getArrayData().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetFloatArray(getChannel(ARRAY_DATA));
 		} catch (Exception ex) {
 			logger.warn("problem in getFloatArrayData()", ex);
@@ -104,11 +73,7 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 	 */
 	public void setArrayData(int[] arrayData) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getArrayData().getPv()), arrayData);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ARRAY_DATA), arrayData);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ARRAY_DATA), arrayData);
 		} catch (Exception ex) {
 			logger.warn("problem with getArrayData()", ex);
 			throw ex;
@@ -118,28 +83,13 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (deviceName == null && basePVName == null && pvProvider == null) {
+		if (basePVName == null) {
 			throw new IllegalArgumentException("'deviceName','basePVName' or 'pvProvider' needs to be declared");
 		}
 		if (getPluginBase() == null) {
 			throw new IllegalArgumentException("'pluginBase' needs to be declared");
 		}
 
-	}
-
-	/**
-	 * @return Returns the pvProvider. getPvProvider
-	 */
-	public IPVProvider getPvProvider() {
-		return pvProvider;
-	}
-
-	/**
-	 * @param pvProvider
-	 *            The pvProvider to set.
-	 */
-	public void setPvProvider(IPVProvider pvProvider) {
-		this.pvProvider = pvProvider;
 	}
 
 	/**
@@ -175,13 +125,7 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 				pvPostFix = pvElementName;
 			}
 
-			String fullPvName;
-			if (pvProvider != null) {
-				fullPvName = pvProvider.getPV(pvElementName);
-			} else {
-				fullPvName = basePVName + pvPostFix;
-			}
-			return createChannel(fullPvName);
+			return createChannel(basePVName + pvPostFix);
 		} catch (Exception exception) {
 			logger.warn("Problem getting channel", exception);
 			throw exception;
@@ -214,9 +158,6 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 	@Override
 	public byte[] getByteArrayData(int numberOfElements) throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetByteArray(createChannel(config.getArrayData().getPv()), numberOfElements);
-			}
 			return EPICS_CONTROLLER.cagetByteArray(getChannel(ARRAY_DATA), numberOfElements);
 		} catch (Exception ex) {
 			logger.warn("problem with getByteArrayData()", ex);
@@ -227,9 +168,6 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 	@Override
 	public short[] getShortArrayData(int numberOfElements) throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetShortArray(createChannel(config.getArrayData().getPv()), numberOfElements);
-			}
 			return EPICS_CONTROLLER.cagetShortArray(getChannel(ARRAY_DATA), numberOfElements);
 		} catch (Exception ex) {
 			logger.warn("problem with cagetShortArray()", ex);
@@ -240,9 +178,6 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 	@Override
 	public int[] getIntArrayData(int numberOfElements) throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetIntArray(createChannel(config.getArrayData().getPv()), numberOfElements);
-			}
 			return EPICS_CONTROLLER.cagetIntArray(getChannel(ARRAY_DATA), numberOfElements);
 		} catch (Exception ex) {
 			logger.warn("problem with cagetIntArray()", ex);
@@ -253,32 +188,11 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 	@Override
 	public float[] getFloatArrayData(int numberOfElements) throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetFloatArray(createChannel(config.getArrayData().getPv()), numberOfElements);
-			}
 			return EPICS_CONTROLLER.cagetFloatArray(getChannel(ARRAY_DATA), numberOfElements);
 		} catch (Exception ex) {
 			logger.warn("problem with cagetFloatArray()", ex);
 			throw ex;
 		}
-	}
-
-	private String getChannelName(String pvElementName, String... args)throws Exception{
-		String pvPostFix = null;
-		if (args.length > 0) {
-			// PV element name is different from the pvPostFix
-			pvPostFix = args[0];
-		} else {
-			pvPostFix = pvElementName;
-		}
-
-		String fullPvName;
-		if (pvProvider != null) {
-			fullPvName = pvProvider.getPV(pvElementName);
-		} else {
-			fullPvName = basePVName + pvPostFix;
-		}
-		return fullPvName;
 	}
 
 	@Override
@@ -290,9 +204,6 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 	@Override
 	public double[] getDoubleArrayData(int numberOfElements) throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDoubleArray(createChannel(config.getArrayData().getPv()), numberOfElements);
-			}
 			return EPICS_CONTROLLER.cagetDoubleArray(getChannel(ARRAY_DATA), numberOfElements);
 		} catch (Exception ex) {
 			logger.warn("problem with cagetDoubleArray()", ex);
@@ -303,9 +214,6 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 	@Override
 	public double[] getDoubleArrayData() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDoubleArray(createChannel(config.getArrayData().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDoubleArray(getChannel(ARRAY_DATA));
 		} catch (Exception ex) {
 			logger.warn("problem in getFloatArrayData()", ex);

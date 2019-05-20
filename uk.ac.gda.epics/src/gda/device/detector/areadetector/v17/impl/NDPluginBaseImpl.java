@@ -18,15 +18,17 @@
 
 package gda.device.detector.areadetector.v17.impl;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.device.DeviceException;
-import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.epics.LazyPVFactory;
 import gda.epics.connection.EpicsController;
-import gda.epics.interfaces.NDPluginBaseType;
-import gda.factory.FactoryException;
 import gda.observable.Observable;
 import gda.observable.ObservableUtil;
 import gda.observable.Observer;
@@ -36,13 +38,6 @@ import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.event.ConnectionEvent;
 import gov.aps.jca.event.ConnectionListener;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 
@@ -58,32 +53,8 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 
 	private String basePVName;
 
-	private IPVProvider pvProvider;
-
-	private NDPluginBaseType config;
-	private String deviceName;
 	// Setup the logging facilities
 	static final Logger logger = LoggerFactory.getLogger(NDPluginBaseImpl.class);
-
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	public void setDeviceName(String deviceName) throws FactoryException {
-		this.deviceName = deviceName;
-		initializeConfig();
-	}
-
-	private void initializeConfig() throws FactoryException {
-		if (deviceName != null) {
-			try {
-				config = Configurator.getConfiguration(getDeviceName(), NDPluginBaseType.class);
-			} catch (ConfigurationNotFoundException e) {
-				logger.error("EPICS configuration for device {} not found", getDeviceName());
-				throw new FactoryException("EPICS configuration for device " + getDeviceName() + " not found.", e);
-			}
-		}
-	}
 
 	/**
 	 * Map that stores the channel against the PV name
@@ -91,18 +62,11 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	private Map<String, Channel> channelMap = new HashMap<String, Channel>();
 
 	/**
-	 * List all the PVs
-	 */
-
-	/**
 	*
 	*/
 	@Override
 	public String getPortName_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.caget(createChannel(config.getPortName_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.caget(getChannel(PortName_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getPortName_RBV", ex);
@@ -116,9 +80,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public String getPluginType_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.caget(createChannel(config.getPluginType_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.caget(getChannel(PluginType_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getPluginType_RBV", ex);
@@ -132,9 +93,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public String getNDArrayPort() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.caget(createChannel(config.getNDArrayPort().getPv()));
-			}
 			return EPICS_CONTROLLER.caget(getChannel(NDArrayPort));
 		} catch (Exception ex) {
 			logger.warn("Cannot getNDArrayPort", ex);
@@ -148,11 +106,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public void setNDArrayPort(String ndarrayport) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getNDArrayPort().getPv()), ndarrayport);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(NDArrayPort), ndarrayport);
-			}
+			EPICS_CONTROLLER.caput(getChannel(NDArrayPort), ndarrayport);
 		} catch (Exception ex) {
 			logger.warn("Cannot setNDArrayPort", ex);
 			throw ex;
@@ -165,9 +119,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public String getNDArrayPort_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.caget(createChannel(config.getNDArrayPort_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.caget(getChannel(NDArrayPort_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getNDArrayPort_RBV", ex);
@@ -181,9 +132,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public int getNDArrayAddress() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNDArrayAddress().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NDArrayAddress));
 		} catch (Exception ex) {
 			logger.warn("Cannot getNDArrayAddress", ex);
@@ -197,11 +145,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public void setNDArrayAddress(int ndarrayaddress) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getNDArrayAddress().getPv()), ndarrayaddress);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(NDArrayAddress), ndarrayaddress);
-			}
+			EPICS_CONTROLLER.caput(getChannel(NDArrayAddress), ndarrayaddress);
 		} catch (Exception ex) {
 			logger.warn("Cannot setNDArrayAddress", ex);
 			throw ex;
@@ -214,9 +158,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public int getNDArrayAddress_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNDArrayAddress_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NDArrayAddress_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getNDArrayAddress_RBV", ex);
@@ -229,16 +170,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	*/
 	@Override
 	public boolean isCallbackEnabled() throws Exception {
-		int callback = 0;
-		if (config != null) {
-			callback = EPICS_CONTROLLER.cagetInt(createChannel(config.getEnableCallbacks().getPv()));
-		} else {
-			callback = EPICS_CONTROLLER.cagetInt(getChannel(EnableCallbacks));
-		}
-		if (callback == 1) {
-			return true;
-		}
-		return false;
+		return EPICS_CONTROLLER.cagetInt(getChannel(EnableCallbacks)) == 1;
 	}
 
 	/**
@@ -246,20 +178,12 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	*/
 	@Override
 	public void enableCallbacks() throws Exception {
-		if (config != null) {
-			EPICS_CONTROLLER.caputWait(createChannel(config.getEnableCallbacks().getPv()), 1);
-		} else {
-			EPICS_CONTROLLER.caputWait(getChannel(EnableCallbacks), 1);
-		}
+		EPICS_CONTROLLER.caputWait(getChannel(EnableCallbacks), 1);
 	}
 
 	@Override
 	public void disableCallbacks() throws Exception {
-		if (config != null) {
-			EPICS_CONTROLLER.caputWait(createChannel(config.getEnableCallbacks().getPv()), 0);
-		} else {
-			EPICS_CONTROLLER.caputWait(getChannel(EnableCallbacks), 0);
-		}
+		EPICS_CONTROLLER.caputWait(getChannel(EnableCallbacks), 0);
 	}
 
 	/**
@@ -267,16 +191,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	*/
 	@Override
 	public boolean isCallbacksEnabled_RBV() throws Exception {
-		int callback = 0;
-		if (config != null) {
-			callback = EPICS_CONTROLLER.cagetInt(createChannel(config.getEnableCallbacks_RBV().getPv()));
-		} else {
-			callback = EPICS_CONTROLLER.cagetInt(getChannel(EnableCallbacks_RBV));
-		}
-		if (callback == 1) {
-			return true;
-		}
-		return false;
+		return EPICS_CONTROLLER.cagetInt(getChannel(EnableCallbacks_RBV)) == 1;
 	}
 
 	/**
@@ -285,9 +200,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public double getMinCallbackTime() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getMinCallbackTime().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(MinCallbackTime));
 		} catch (Exception ex) {
 			logger.warn("Cannot getMinCallbackTime", ex);
@@ -301,11 +213,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public void setMinCallbackTime(double mincallbacktime) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getMinCallbackTime().getPv()), mincallbacktime);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(MinCallbackTime), mincallbacktime);
-			}
+			EPICS_CONTROLLER.caput(getChannel(MinCallbackTime), mincallbacktime);
 		} catch (Exception ex) {
 			logger.warn("Cannot setMinCallbackTime", ex);
 			throw ex;
@@ -318,9 +226,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public double getMinCallbackTime_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getMinCallbackTime_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(MinCallbackTime_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getMinCallbackTime_RBV", ex);
@@ -334,9 +239,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public short getBlockingCallbacks() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getBlockingCallbacks().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(BlockingCallbacks));
 		} catch (Exception ex) {
 			logger.warn("Cannot getBlockingCallbacks", ex);
@@ -350,11 +252,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public void setBlockingCallbacks(int blockingcallbacks) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getBlockingCallbacks().getPv()), blockingcallbacks);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(BlockingCallbacks), blockingcallbacks);
-			}
+			EPICS_CONTROLLER.caput(getChannel(BlockingCallbacks), blockingcallbacks);
 		} catch (Exception ex) {
 			logger.warn("Cannot setBlockingCallbacks", ex);
 			throw ex;
@@ -367,9 +265,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public short getBlockingCallbacks_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getBlockingCallbacks_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(BlockingCallbacks_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getBlockingCallbacks_RBV", ex);
@@ -383,9 +278,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public int getArrayCounter() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getArrayCounter().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArrayCounter));
 		} catch (Exception ex) {
 			logger.warn("Cannot getArrayCounter", ex);
@@ -399,11 +291,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public void setArrayCounter(int arraycounter) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getArrayCounter().getPv()), arraycounter);
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(ArrayCounter), arraycounter);
-			}
+			EPICS_CONTROLLER.caputWait(getChannel(ArrayCounter), arraycounter);
 		} catch (Exception ex) {
 			logger.warn("Cannot setArrayCounter", ex);
 			throw ex;
@@ -416,9 +304,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public int getArrayCounter_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getArrayCounter_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArrayCounter_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getArrayCounter_RBV", ex);
@@ -432,9 +317,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public double getArrayRate_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getArrayRate_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(ArrayRate_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getArrayRate_RBV", ex);
@@ -448,9 +330,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public int getDroppedArrays() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getDroppedArrays().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(DroppedArrays));
 		} catch (Exception ex) {
 			logger.warn("Cannot getDroppedArrays", ex);
@@ -463,11 +342,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	*/
 	@Override
 	public void setDroppedArrays(int droppedarrays) throws Exception {
-		if (config != null) {
-			EPICS_CONTROLLER.caputWait(createChannel(config.getDroppedArrays().getPv()), droppedarrays);
-		} else {
-			EPICS_CONTROLLER.caputWait(getChannel(DroppedArrays), droppedarrays);
-		}
+		EPICS_CONTROLLER.caputWait(getChannel(DroppedArrays), droppedarrays);
 
 	}
 
@@ -477,9 +352,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public int getDroppedArrays_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getDroppedArrays_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(DroppedArrays_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getDroppedArrays_RBV", ex);
@@ -493,9 +365,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public int getNDimensions_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNDimensions_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NDimensions_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getNDimensions_RBV", ex);
@@ -509,9 +378,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public int getArraySize0_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getArraySize0_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArraySize0_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getArraySize0_RBV", ex);
@@ -525,9 +391,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public int getArraySize1_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getArraySize1_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArraySize1_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getArraySize1_RBV", ex);
@@ -541,9 +404,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public int getArraySize2_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getArraySize2_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArraySize2_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getArraySize2_RBV", ex);
@@ -557,9 +417,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public short getDataType_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getDataType_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DataType_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getDataType_RBV", ex);
@@ -573,9 +430,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public short getColorMode_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getColorMode_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ColorMode_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getColorMode_RBV", ex);
@@ -589,9 +443,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public short getBayerPattern_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getBayerPattern_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(BayerPattern_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getBayerPattern_RBV", ex);
@@ -605,9 +456,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public int getUniqueId_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getUniqueId_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(UniqueId_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getUniqueId_RBV", ex);
@@ -621,9 +469,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public double getTimeStamp_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getTimeStamp_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(TimeStamp_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getTimeStamp_RBV", ex);
@@ -637,9 +482,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public String getNDAttributesFile() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.caget(createChannel(config.getNDAttributesFile().getPv()));
-			}
 			return EPICS_CONTROLLER.caget(getChannel(NDAttributesFile));
 		} catch (Exception ex) {
 			logger.warn("Cannot getNDAttributesFile", ex);
@@ -653,14 +495,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 	@Override
 	public void setNDAttributesFile(String ndattributesfile) throws Exception {
 		try {
-
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getNDAttributesFile().getPv()),
-						(ndattributesfile + '\0').getBytes());
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(NDAttributesFile), (ndattributesfile + '\0').getBytes());
-			}
-
+			EPICS_CONTROLLER.caput(getChannel(NDAttributesFile), (ndattributesfile + '\0').getBytes());
 		} catch (Exception ex) {
 			logger.warn("Cannot setNDAttributesFile", ex);
 			throw ex;
@@ -676,8 +511,8 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (deviceName == null && basePVName == null && pvProvider == null) {
-			throw new IllegalArgumentException("'deviceName','basePVName' or 'pvProvider' needs to be declared");
+		if (basePVName == null) {
+			throw new IllegalArgumentException("'basePVName' needs to be declared");
 		}
 	}
 
@@ -707,13 +542,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 				pvPostFix = pvElementName;
 			}
 
-			String fullPvName;
-			if (pvProvider != null) {
-				fullPvName = pvProvider.getPV(pvElementName);
-			} else {
-				fullPvName = basePVName + pvPostFix;
-			}
-			return createChannel(fullPvName);
+			return createChannel(basePVName + pvPostFix);
 		} catch (Exception exception) {
 			logger.warn("Problem getting channel", exception);
 			throw exception;
@@ -736,21 +565,6 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			channelMap.put(fullPvName, channel);
 		}
 		return channel;
-	}
-
-	/**
-	 * @return Returns the pvProvider.
-	 */
-	public IPVProvider getPvProvider() {
-		return pvProvider;
-	}
-
-	/**
-	 * @param pvProvider
-	 *            The pvProvider to set.
-	 */
-	public void setPvProvider(IPVProvider pvProvider) {
-		this.pvProvider = pvProvider;
 	}
 
 	@Override
@@ -837,7 +651,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 		return initialEnableCallbacks;
 	}
 
-	private String getChannelName(String pvElementName, String... args)throws Exception{
+	private String getChannelName(String pvElementName, String... args) {
 		String pvPostFix = null;
 		if (args.length > 0) {
 			// PV element name is different from the pvPostFix
@@ -846,13 +660,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			pvPostFix = pvElementName;
 		}
 
-		String fullPvName;
-		if (pvProvider != null) {
-			fullPvName = pvProvider.getPV(pvElementName);
-		} else {
-			fullPvName = basePVName + pvPostFix;
-		}
-		return fullPvName;
+		return basePVName + pvPostFix;
 	}
 
 	@Override
