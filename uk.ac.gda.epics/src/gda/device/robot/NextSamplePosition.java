@@ -21,14 +21,11 @@ package gda.device.robot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaces.SimplePvType;
 import gda.factory.FactoryException;
 import gov.aps.jca.Channel;
 
@@ -52,10 +49,6 @@ public class NextSamplePosition extends DeviceBase implements InitializationList
 	 * EPICS Channel Manager
 	 */
 	private EpicsChannelManager channelManager;
-	/**
-	 * phase II interface GDA-EPICS link parameter
-	 */
-	private String deviceName;
 
 	private String pvName;
 
@@ -70,22 +63,11 @@ public class NextSamplePosition extends DeviceBase implements InitializationList
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
-			if (getDeviceName() != null) {
-				// phase II beamlines interface using GDA's deviceName.
-				SimplePvType config;
-				try {
-					config = Configurator.getConfiguration(getDeviceName(), gda.epics.interfaces.SimplePvType.class);
-					createChannelAccess(config.getRECORD().getPv());
-				} catch (ConfigurationNotFoundException e) {
-					logger.error("Can NOT find EPICS configuration for Carousel sample position " + getDeviceName(), e);
-					throw new FactoryException("Epics Carousel sample position " + getDeviceName() + " not found");
-				}
-			} else if (getPvName() != null) {
-				createChannelAccess(getPvName());
-			} else { // Nothing specified in Server XML file
-				logger.error("Missing EPICS configuration for Carousel sample position {}", getName());
-				throw new FactoryException("Missing EPICS configuration for Carousel sample position " + getName());
+			if (getPvName() == null) { // Nothing specified in Server XML file
+				logger.error("Missing PV for Carousel sample position {}", getName());
+				throw new FactoryException("Missing PV for Carousel sample position " + getName());
 			}
+			createChannelAccess(getPvName());
 			channelManager.tryInitialize(100);
 			setConfigured(true);
 		}
@@ -140,20 +122,6 @@ public class NextSamplePosition extends DeviceBase implements InitializationList
 
 		logger.info("Carousel Sample position number is initialised.");
 
-	}
-
-	/**
-	 * @return device name
-	 */
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	/**
-	 * @param deviceName
-	 */
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
 	}
 
 	public String getPvName() {

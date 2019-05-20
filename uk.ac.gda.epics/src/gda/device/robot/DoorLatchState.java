@@ -21,14 +21,11 @@ package gda.device.robot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaces.SimplePvType;
 import gda.factory.FactoryException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.DBR;
@@ -63,11 +60,6 @@ public class DoorLatchState extends DeviceBase implements InitializationListener
 
 	private volatile boolean hasOpened=false;
 
-	/**
-	 * phase II interface GDA-EPICS link parameter
-	 */
-	private String deviceName;
-
 	private String pvName;
 
 	/**
@@ -82,21 +74,11 @@ public class DoorLatchState extends DeviceBase implements InitializationListener
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
-			if (getDeviceName() != null) {
-				SimplePvType config;
-				try {
-					config = Configurator.getConfiguration(getDeviceName(), gda.epics.interfaces.SimplePvType.class);
-					createChannelAccess(config.getRECORD().getPv());
-				} catch (ConfigurationNotFoundException e) {
-					logger.error("Can NOT find EPICS configuration for Experiment Door Latch State " + getDeviceName(), e);
-					throw new FactoryException("Epics Robot State " + getDeviceName() + " not found");
-				}
-			} else if (getPvName() != null) {
-				createChannelAccess(getPvName());
-			} else { // Nothing specified in Server XML file
-				logger.error("Missing EPICS configuration for  Experiment Door Latch State {}", getName());
-				throw new FactoryException("Missing EPICS configuration for  Experiment Door Latch State " + getName());
+			if (getPvName() == null) { // Nothing specified in Server XML file
+				logger.error("Missing PV for Experiment Door Latch State {}", getName());
+				throw new FactoryException("Missing PV for Experiment Door Latch State " + getName());
 			}
+			createChannelAccess(getPvName());
 			channelManager.tryInitialize(100);
 			setConfigured(true);
 		}
@@ -174,20 +156,6 @@ public class DoorLatchState extends DeviceBase implements InitializationListener
 
 		}
 
-	}
-
-	/**
-	 * @return device name
-	 */
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	/**
-	 * @param deviceName
-	 */
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
 	}
 
 	public String getPvName() {

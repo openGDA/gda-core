@@ -30,14 +30,11 @@ import java.util.StringTokenizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaces.Nx100Type;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
@@ -157,10 +154,6 @@ public class RobotNX100Controller extends DeviceBase implements InitializationLi
 	 * EPICS Channel Manager
 	 */
 	private EpicsChannelManager channelManager;
-	/**
-	 * phase II interface GDA-EPICS link parameter
-	 */
-	private String deviceName;
 
 	private ErrorListener errls;
 	private String errorString;
@@ -186,22 +179,11 @@ public class RobotNX100Controller extends DeviceBase implements InitializationLi
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
-			if (getDeviceName() != null) {
-				// phase II beamlines interface using GDA's deviceName.
-				Nx100Type nxConfig;
-				try {
-					nxConfig = Configurator.getConfiguration(getDeviceName(), Nx100Type.class);
-					createChannelAccess(nxConfig);
-				} catch (ConfigurationNotFoundException e) {
-					logger.error("Can NOT find EPICS configuration for Robot Controller " + getDeviceName(), e);
-					throw new FactoryException("Epics Robot Controller " + getDeviceName() + " not found");
-				}
-			} else if (getPvName() != null) {
-				createChannelAccess(getPvName());
-			} else { // Nothing specified in Server XML file
-				logger.error("Missing EPICS configuration for Robot Control {}", getName());
-				throw new FactoryException("Missing EPICS configuration for Robot Control " + getName());
+			if (getPvName() == null) { // Nothing specified in Server XML file
+				logger.error("Missing PV for Robot Control {}", getName());
+				throw new FactoryException("Missing PV for Robot Control " + getName());
 			}
+			createChannelAccess(getPvName());
 			channelManager.tryInitialize(100);
 			readTheFile();
 			setConfigured(true);
@@ -285,27 +267,6 @@ public class RobotNX100Controller extends DeviceBase implements InitializationLi
 	 */
 	public HashMap<String, String> getErrorMap() {
 		return errorMap;
-	}
-
-	/**
-	 * creates all required channels
-	 *
-	 * @param config
-	 * @throws FactoryException
-	 */
-	private void createChannelAccess(Nx100Type config) throws FactoryException {
-		try {
-			jobChannel = channelManager.createChannel(config.getJOB().getPv(), false);
-			startChannel = channelManager.createChannel(config.getSTART().getPv(), false);
-			holdChannel = channelManager.createChannel(config.getHOLD().getPv(), false);
-			svonChannel = channelManager.createChannel(config.getSVON().getPv(), false);
-			errChannel = channelManager.createChannel(config.getERR().getPv(), errls, false);
-
-			// acknowledge that creation phase is completed
-			channelManager.creationPhaseCompleted();
-		} catch (Throwable th) {
-			throw new FactoryException("failed to create all channels", th);
-		}
 	}
 
 	/**
@@ -532,24 +493,6 @@ public class RobotNX100Controller extends DeviceBase implements InitializationLi
 			notifyIObservers(this, errorString);
 
 		}
-	}
-
-	/**
-	 * get device name
-	 *
-	 * @return device name
-	 */
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	/**
-	 * set device name
-	 *
-	 * @param deviceName
-	 */
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
 	}
 
 	// /**
