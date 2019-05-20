@@ -18,7 +18,6 @@
 
 package gda.spring;
 
-import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.impl.NDProcessImpl;
@@ -28,10 +27,10 @@ import gda.device.detector.areadetector.v17.impl.NDProcessImpl;
 public class V17NDProcessFactoryBean extends V17PluginFactoryBeanBase<NDProcess>{
 
 	@Override
-	protected NDProcess createObject(NDPluginBase pluginBase, IPVProvider pvProvider) throws Exception {
+	protected NDProcess createObject(NDPluginBase pluginBase, String basePv) throws Exception {
 		NDProcessImpl plugin = new NDProcessImpl();
 		plugin.setPluginBase(pluginBase);
-		plugin.setPvProvider(pvProvider);
+		plugin.setBasePVName(basePv);
 		plugin.afterPropertiesSet();
 		return plugin;
 	}

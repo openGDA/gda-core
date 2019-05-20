@@ -18,7 +18,6 @@
 
 package gda.spring;
 
-import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDROI;
 import gda.device.detector.areadetector.v17.impl.NDROIImpl;
@@ -29,10 +28,10 @@ import gda.device.detector.areadetector.v17.impl.NDROIImpl;
 public class V17NDROIFactoryBean extends V17PluginFactoryBeanBase<NDROI>{
 
 	@Override
-	protected NDROI createObject(NDPluginBase pluginBase, IPVProvider pvProvider) throws Exception {
+	protected NDROI createObject(NDPluginBase pluginBase, String basePv) throws Exception {
 		NDROIImpl plugin = new NDROIImpl();
 		plugin.setPluginBase(pluginBase);
-		plugin.setPvProvider(pvProvider);
+		plugin.setBasePVName(basePv);
 		plugin.afterPropertiesSet();
 		return plugin;
 	}

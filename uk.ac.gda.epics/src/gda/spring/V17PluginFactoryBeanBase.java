@@ -18,11 +18,9 @@
 
 package gda.spring;
 
-import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.ADCommon;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.impl.NDPluginBaseImpl;
-import gda.device.detector.areadetector.v17.impl.SimplePVProvider;
 
 /**
  * Base FactoryBean to make the creation of an bean that implements an areaDetector plugin interface easier
@@ -39,17 +37,14 @@ abstract public  class  V17PluginFactoryBeanBase <T> extends V17FactoryBeanBase<
 		this.input = input;
 	}
 
-	abstract protected T createObject(NDPluginBase pluginBase, IPVProvider pvProvider) throws Exception;
+	abstract protected T createObject(NDPluginBase pluginBase, String basePv) throws Exception;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		NDPluginBaseImpl pluginBase = new NDPluginBaseImpl();
-		SimplePVProvider simplePVProvider = new SimplePVProvider();
-		simplePVProvider.setPrefix(getPrefix());
-		simplePVProvider.afterPropertiesSet();
-		pluginBase.setPvProvider(simplePVProvider);
+		pluginBase.setBasePVName(getPrefix());
 		pluginBase.afterPropertiesSet();
-		bean = createObject( pluginBase, simplePVProvider);
+		bean = createObject(pluginBase, getPrefix());
 	}
 
 	@Override

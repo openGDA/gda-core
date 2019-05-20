@@ -20,7 +20,6 @@ package gda.spring;
 
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.impl.ADBaseImpl;
-import gda.device.detector.areadetector.v17.impl.SimplePVProvider;
 /**
  * FactoryBean to make the creation of an bean that implements NDFileHDF5 easier
  */
@@ -29,12 +28,9 @@ public class V17ADBaseFactoryBean extends V17FactoryBeanBase<ADBase>{
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		ADBaseImpl plugin = new ADBaseImpl();
-		SimplePVProvider simplePVProvider = new SimplePVProvider();
-		simplePVProvider.setPrefix(getPrefix());
-		simplePVProvider.afterPropertiesSet();
-		plugin.setPvProvider(simplePVProvider);
+		plugin.setBasePVName(getPrefix());
 		plugin.afterPropertiesSet();
-		bean  = plugin;
+		bean = plugin;
 	}
 
 

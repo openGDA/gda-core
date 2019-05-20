@@ -18,7 +18,6 @@
 
 package gda.spring;
 
-import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.impl.NDFileCopy;
@@ -34,11 +33,11 @@ public class V17NDFileCopyFactoryBean extends V17NDFileFactoryBean {
 		this.copyPluginPrefix = copyPluginPrefix;
 	}
 	@Override
-	protected NDFile createObject(NDPluginBase pluginBase, IPVProvider pvProvider) throws Exception {
+	protected NDFile createObject(NDPluginBase pluginBase, String basePv) throws Exception {
 		NDFileCopy plugin = new NDFileCopy();
 		plugin.setCopyPluginPrefix(copyPluginPrefix);
 		plugin.setPluginBase(pluginBase);
-		plugin.setPvProvider(pvProvider);
+		plugin.setBasePVName(basePv);
 		plugin.setResetToInitialValues(resetToInitialValues);
 		plugin.setFilePathConverter(filePathConverter);
 		plugin.afterPropertiesSet();

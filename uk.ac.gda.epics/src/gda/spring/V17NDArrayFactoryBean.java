@@ -18,7 +18,6 @@
 
 package gda.spring;
 
-import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.impl.NDArrayImpl;
@@ -28,12 +27,11 @@ import gda.device.detector.areadetector.v17.impl.NDArrayImpl;
 public class V17NDArrayFactoryBean extends V17PluginFactoryBeanBase<NDArray>{
 
 	@Override
-	protected NDArray createObject(NDPluginBase pluginBase, IPVProvider pvProvider) throws Exception {
+	protected NDArray createObject(NDPluginBase pluginBase, String basePv) throws Exception {
 		NDArrayImpl ndArray = new NDArrayImpl();
 		ndArray.setPluginBase(pluginBase);
-		ndArray.setPvProvider(pvProvider);
+		ndArray.setBasePVName(basePv);
 		ndArray.afterPropertiesSet();
 		return ndArray;
 	}
-
 }
