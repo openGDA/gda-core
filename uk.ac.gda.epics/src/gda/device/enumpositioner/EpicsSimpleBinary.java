@@ -25,8 +25,6 @@ import org.python.core.PyString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
 import gda.device.EditableEnumPositioner;
 import gda.device.EnumPositioner;
@@ -34,7 +32,6 @@ import gda.device.EnumPositionerStatus;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.EpicsController.MonitorType;
-import gda.epics.interfaces.SimpleBinaryType;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
@@ -56,10 +53,6 @@ import uk.ac.gda.api.remoting.ServiceInterface;
 public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnumPositioner {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsSimpleBinary.class);
-
-	private String epicsRecordName;
-
-	private String deviceName;
 
 	private EpicsController controller;
 
@@ -94,29 +87,10 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
-			if (pvName != null) {
-				createChannelAccess(pvName);
-			} else if (epicsRecordName != null) {
-				try {
-					// remove any final :
-					if (epicsRecordName.endsWith(":")) {
-						epicsRecordName = epicsRecordName.substring(0, epicsRecordName.lastIndexOf(':'));
-					}
-
-					createChannelAccess(epicsRecordName);
-				} catch (Exception e) {
-					final String message = String.format("Error while trying to configure: %s", getName());
-					logger.error(message, e);
-					throw new FactoryException(message, e);
-				}
-			} else if (deviceName != null) {
-				try {
-					final SimpleBinaryType simpleBinaryConfig = Configurator.getConfiguration(deviceName, SimpleBinaryType.class);
-					createChannelAccess(simpleBinaryConfig.getRECORD().getPv());
-				} catch (ConfigurationNotFoundException e) {
-					logger.error("Can NOT find EPICS configuration for motor {}", deviceName, e);
-				}
+			if (pvName == null) {
+				throw new FactoryException("No PV configured for EpicsSimpleBinary " + getName());
 			}
+			createChannelAccess(pvName);
 
 			this.inputNames = new String[] { getName() };
 			this.outputFormat = new String[] { "%s" };
@@ -155,7 +129,7 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 			final int dmovValue = ((DBR_STS_Enum) dbr).getEnumValue()[0];
 			this.notifyIObservers(this, dmovValue);
 		} else {
-			logger.error("Error in MonitorEvent from {}: should return ENUM type value.", epicsRecordName);
+			logger.error("Error in MonitorEvent from {}: should return ENUM type value.", pvName);
 		}
 	}
 
@@ -254,24 +228,12 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 	}
 
 	/**
-	 * @param epicsRecordName
-	 *            the templateName to set
-	 */
-	public void setEpicsRecordName(String epicsRecordName) {
-		this.epicsRecordName = epicsRecordName;
-	}
-
-	/**
 	 * Set to true to prevent attempts to change the pv through this class
 	 *
 	 * @param readonly
 	 */
 	public void setReadonly(boolean readonly) {
 		this.readonly = readonly;
-	}
-
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
 	}
 
 	private void putCompleted(PutEvent ev) {

@@ -24,8 +24,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
@@ -33,9 +31,7 @@ import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
 import gda.epics.interfaces.PositionerType;
-import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
@@ -69,10 +65,6 @@ public class EpicsPositioner extends EnumPositionerBase implements Initializatio
 	private boolean allowPositionValueReads = false;
 
 	private boolean acceptNewMoveToPositionWhileMoving;
-
-	private String epicsRecordName;
-
-	private String deviceName;
 
 	protected EpicsController controller;
 
@@ -142,6 +134,7 @@ public class EpicsPositioner extends EnumPositionerBase implements Initializatio
 	 */
 	public void setRecordName(String recordName) {
 		this.recordName = recordName;
+		setRecordNamesUsingBasePv(recordName);
 	}
 
 	/**
@@ -155,44 +148,10 @@ public class EpicsPositioner extends EnumPositionerBase implements Initializatio
 	public void configure() throws FactoryException {
 		this.setInputNames(new String[]{getName()});
 		this.setExtraNames(new String[0]);
+
 		if (!isConfigured()) {
-
-			if (recordName != null) {
-				setRecordNamesUsingBasePv(recordName);
-			}
-
-			else if (configuration != null) {
-				setRecordNamesUsingEpicsConfiguration(configuration);
-			}
-
-			// EPICS interface version 2 for phase I beamlines + I22
-			else if (getEpicsRecordName() != null) {
-				EpicsRecord epicsRecord;
-
-				if ((epicsRecord = Finder.getInstance().find(epicsRecordName)) != null) {
-					final String fullRecordName = epicsRecord.getFullRecordName();
-					setRecordNamesUsingBasePv(fullRecordName);
-				} else {
-					final String message = String.format("Epics Record %s not found", epicsRecordName);
-					logger.error(message);
-					throw new FactoryException(message);
-				}
-			}
-
-			// EPICS interface version 3 for phase II beamlines (excluding I22).
-			else if (getDeviceName() != null) {
-				PositionerType pnrConfig;
-				try {
-					pnrConfig = Configurator.getConfiguration(getDeviceName(), PositionerType.class);
-					setRecordNamesUsingEpicsConfiguration(pnrConfig);
-				} catch (ConfigurationNotFoundException e) {
-					logger.error("Can NOT find EPICS configuration for motor {}", getDeviceName(), e);
-				}
-			}
-
-			// Nothing specified in Server XML file
-			else {
-				final String message = String.format("Missing EPICS interface configuration for the motor %s", getName());
+			if (recordName == null) {
+				final String message = "Missing PV configuration for the motor " + getName();
 				logger.error(message);
 				throw new FactoryException(message);
 			}
@@ -205,17 +164,6 @@ public class EpicsPositioner extends EnumPositionerBase implements Initializatio
 
 			setConfigured(true);
 		}
-	}
-
-	/**
-	 * Retrieves the five PVs for this {@link EpicsPositioner} from the specified {@link PositionerType} object.
-	 */
-	private void setRecordNamesUsingEpicsConfiguration(PositionerType config) {
-		selectRecordName = config.getSELECT().getPv();
-		inPosRecordName = config.getINPOS().getPv();
-		dMovRecordName = config.getDMOV().getPv();
-		stopRecordName = config.getSTOP().getPv();
-		errorRecordName = config.getERROR().getPv();
 	}
 
 	/**
@@ -344,10 +292,6 @@ public class EpicsPositioner extends EnumPositionerBase implements Initializatio
 		if (allowPositionValueReads) {
 			// establish position value channels
 			String basePV = recordName;
-			if (recordName == null && epicsRecordName != null) {
-				final EpicsRecord epicsRecord = Finder.getInstance().find(epicsRecordName);
-				basePV = epicsRecord.getFullRecordName();
-			}
 			if (basePV != null) {
 				final String positionValueChannelNamePrefix = basePV.substring(0, basePV.lastIndexOf(':')) + ":P:VAL";
 				final CharSequence positionValueChannelNameSuffixes = "ABCDEFGHIJKLMNOP";
@@ -358,8 +302,7 @@ public class EpicsPositioner extends EnumPositionerBase implements Initializatio
 						final Channel positionValueChannel = channelManager.createChannel(positionValueChannelName, false);
 						Thread.sleep(100);
 						positionValueChannels.put(getPosition(i), positionValueChannel);
-					}
-					catch (CAException e) {
+					} catch (CAException e) {
 						logger.error("could not create channel {}", positionValueChannelName);
 
 						logger.info("destroying any position value channels that were created");
@@ -370,8 +313,7 @@ public class EpicsPositioner extends EnumPositionerBase implements Initializatio
 						throw new DeviceException(e);
 					}
 				}
-			}
-			else {
+			} else {
 				logger.warn(COULD_NOT_ESTABLISH_VALUE_CHANNEL_NAMES_WARNING);
 			}
 		}
@@ -494,34 +436,6 @@ public class EpicsPositioner extends EnumPositionerBase implements Initializatio
 
 	private void sendUpdate() {
 		notifyIObservers(this, getPositionerStatus());
-	}
-
-	/**
-	 * @return epicsRecordName
-	 */
-	public String getEpicsRecordName() {
-		return epicsRecordName;
-	}
-
-	/**
-	 * @param epicsRecordName
-	 */
-	public void setEpicsRecordName(String epicsRecordName) {
-		this.epicsRecordName = epicsRecordName;
-	}
-
-	/**
-	 * @return deviceName
-	 */
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	/**
-	 * @param deviceName
-	 */
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
 	}
 
 	private class PutCallbackListener implements PutListener {

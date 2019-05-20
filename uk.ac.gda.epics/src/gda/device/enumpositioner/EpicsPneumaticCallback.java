@@ -23,8 +23,6 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
@@ -32,12 +30,7 @@ import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaceSpec.GDAEpicsInterfaceReader;
-import gda.epics.interfaceSpec.Xml;
-import gda.epics.interfaces.PneumaticCallbackType;
-import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
@@ -57,13 +50,11 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements Initia
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsPneumaticCallback.class);
 
-	private String epicsRecordName;
-
-	private String deviceName;
-
 	private EpicsController controller;
 
 	private EpicsChannelManager channelManager;
+
+	private String basePV;
 
 	private String controlPv;
 
@@ -115,21 +106,6 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements Initia
 		setAllPVsSet(true);
 	}
 
-	public void setPvNames(PneumaticCallbackType config) {
-		controlPv = config.getCONTROL().getPv();
-		statusPv = config.getSTA().getPv();
-		setAllPVsSet(true);
-	}
-
-	// method supporting EpicsDevice interface
-	private void setPvNames(gda.epics.interfaceSpec.Device device) {
-		controlPv = device.getField("CONTROL").getPV();
-		statusPv = device.getField("STA").getPV();
-		setAllPVsSet(true);
-	}
-
-	private String basePV;
-
 	public String getPvBase() {
 		return basePV;
 	}
@@ -173,43 +149,8 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements Initia
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
 			if (!isAllPVsSet()) {
-				// EPICS interface version 2 for phase I beamlines + I22
-				if (getEpicsRecordName() != null) {
-					EpicsRecord epicsRecord;
-
-					if ((epicsRecord = (EpicsRecord) Finder.getInstance().find(epicsRecordName)) != null) {
-						String recordName = epicsRecord.getEpicsDeviceName();
-						setPvNames(recordName);
-					} else {
-						logger.error("Epics Record " + epicsRecordName + " not found");
-						throw new FactoryException("Epics Record " + epicsRecordName + " not found");
-					}
-				}
-				// EPICS interface version 3 for phase II beamlines (excluding I22).
-				else if (getDeviceName() != null) {
-					PneumaticCallbackType pneuConfig;
-					try {
-						pneuConfig = Configurator.getConfiguration(getDeviceName(),
-								gda.epics.interfaces.PneumaticCallbackType.class);
-						setPvNames(pneuConfig);
-					} catch (ConfigurationNotFoundException e) {
-						/* Try to read from unchecked xml */
-						try {
-							gda.epics.interfaceSpec.Device device = GDAEpicsInterfaceReader.getDeviceFromType(
-									Xml.pneumaticCallback_type_name, deviceName);
-							setPvNames(device);
-						} catch (Exception ex) {
-							logger.error("Can NOT find EPICS configuration for scaler " + getDeviceName() + "."
-											+ e.getMessage(), ex);
-						}
-					}
-
-				}
-				// Nothing specified in Server XML file
-				else {
-					logger.error("Missing EPICS interface configuration for the motor {} ", getName());
-					throw new FactoryException("Missing EPICS interface configuration for the motor " + getName());
-				}
+				logger.error("Missing PV configuration for the motor {} ", getName());
+				throw new FactoryException("Missing PV configuration for the motor " + getName());
 			}
 
 			try {
@@ -398,42 +339,6 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements Initia
 				logger.error("Error in putCompleted for {}", getName(), ex);
 			}
 		}
-	}
-
-	/**
-	 * gets Epics record name
-	 *
-	 * @return String
-	 */
-	public String getEpicsRecordName() {
-		return epicsRecordName;
-	}
-
-	/**
-	 * sets EPICS record name
-	 *
-	 * @param epicsRecordName
-	 */
-	public void setEpicsRecordName(String epicsRecordName) {
-		this.epicsRecordName = epicsRecordName;
-	}
-
-	/**
-	 * gets the short device name
-	 *
-	 * @return String
-	 */
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	/**
-	 * sets the short device name
-	 *
-	 * @param deviceName
-	 */
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
 	}
 
 	public boolean isAllPVsSet() {
