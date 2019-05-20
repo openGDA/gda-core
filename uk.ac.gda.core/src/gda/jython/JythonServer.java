@@ -976,6 +976,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 		Thread current = Thread.currentThread();
 		for (Thread thread : threads) {
 			if (thread.getState() != TERMINATED && thread != current) {
+				logger.info("Interrupting thread: {}", thread.getName());
 				thread.interrupt();
 			}
 		}
