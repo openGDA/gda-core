@@ -21,8 +21,6 @@ package gda.device.simplearray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
 import gda.device.SimpleArray;
 import gda.device.scannable.ScannableBase;
@@ -52,8 +50,6 @@ public class EpicsSimpleArray extends ScannableBase implements SimpleArray, Init
 
 	private Channel theChannel;
 
-	private String deviceName;
-
 	protected EpicsChannelManager channelManager;
 
 	protected EpicsController controller;
@@ -75,26 +71,14 @@ public class EpicsSimpleArray extends ScannableBase implements SimpleArray, Init
 		this.inputNames = new String[]{getName()};
 
 		if (!isConfigured()) {
-			if (getDeviceName() != null) {
-				try {
-					gda.epics.interfaces.SimpleArrayType simpleArray = Configurator.getConfiguration(getDeviceName(), gda.epics.interfaces.SimpleArrayType.class);
-					pvName = simpleArray.getRECORD().getPv();
-					theChannel = channelManager.createChannel(pvName, valueMonitor, false);
-
-				} catch (CAException e) {
-					throw new FactoryException("Failed to create channel for SimpleArray " + getName(), e);
-				} catch (ConfigurationNotFoundException e) {
-					throw new FactoryException("No confiuration for SimpleArray " + getName(), e);
-				}
-			} else if (getPvName() != null) {
-				try {
-					theChannel = channelManager.createChannel(getPvName(), valueMonitor, false);
-				} catch (CAException e) {
-					throw new FactoryException("Failed to create channel for SimpleArray " + getName(), e);
-				}
-			} else {
+			if (getPvName() == null) {
 				logger.error("Control point not properly specified", getName());
 				throw new FactoryException("Control point not properly specified for the control point " + getName());
+			}
+			try {
+				theChannel = channelManager.createChannel(getPvName(), valueMonitor, false);
+			} catch (CAException e) {
+				throw new FactoryException("Failed to create channel for SimpleArray " + getName(), e);
 			}
 		}
 		channelManager.creationPhaseCompleted();
@@ -148,24 +132,6 @@ public class EpicsSimpleArray extends ScannableBase implements SimpleArray, Init
 
 	public void setPvName(String pvName) {
 		this.pvName = pvName;
-	}
-
-	/**
-	 * gets the short or EPICS-GDA shared name of the device
-	 *
-	 * @return device name
-	 */
-	public String getDeviceName(){
-		return deviceName;
-	}
-
-	/**
-	 * sets the short or EPICS-GDA shared name for this device
-	 *
-	 * @param deviceName
-	 */
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
 	}
 
 	@Override

@@ -18,29 +18,27 @@
 
 package gda.spring;
 
+import org.springframework.beans.factory.FactoryBean;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.device.enumpositioner.EpicsPneumaticCallback;
-import gda.epics.interfaces.PneumaticCallbackType;
-
-import org.springframework.beans.factory.FactoryBean;
 
 /**
  * A {@link FactoryBean} for creating {@link EpicsPneumaticCallback} objects.
  */
 public class EpicsPneumaticFactoryBean extends EpicsConfigurationFactoryBeanBase<EpicsPneumaticCallback> {
 
-	private String deviceName;
+	private String pvName;
 	private boolean statusPvIndicatesPositionOnly=false;
 
 
 	/**
-	 * Sets the EPICS device name which will be used to obtain the PV record
-	 * name.
+	 * Sets the EPICS PV which will be used.
 	 *
-	 * @param deviceName the EPICS device name
+	 * @param pvName the EPICS PV
 	 */
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
+	public void setPvName(String pvName) {
+		this.pvName = pvName;
 	}
 
 	@Override
@@ -52,11 +50,10 @@ public class EpicsPneumaticFactoryBean extends EpicsConfigurationFactoryBeanBase
 
 	@Override
 	protected void createObject() throws ConfigurationNotFoundException {
-		PneumaticCallbackType config = getEpicsConfiguration().getConfiguration(deviceName, PneumaticCallbackType.class);
 		epicsPneumaticCallback = new EpicsPneumaticCallback();
 		epicsPneumaticCallback.setName(name);
 		epicsPneumaticCallback.setStatusPvIndicatesPositionOnly(statusPvIndicatesPositionOnly);
-		epicsPneumaticCallback.setPvNames(config);
+		epicsPneumaticCallback.setPvBase(pvName);
 	}
 
 	@Override

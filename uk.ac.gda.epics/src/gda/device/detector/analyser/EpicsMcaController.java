@@ -21,18 +21,13 @@ package gda.device.detector.analyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.MCAStatus;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaces.SimpleMcaType;
-import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
@@ -376,24 +371,9 @@ public class EpicsMcaController extends DeviceBase implements InitializationList
 	private EpicsChannelManager channelManager;
 
 	/**
-	 * phase I interface GDA-EPICS link name
-	 */
-	private String epicsMcaRecordName;
-
-	/**
-	 * phase I interface GDA-EPICS link object
-	 */
-	private EpicsRecord epicsMcaRecord;
-
-	/**
 	 * EPICS record name for a MCA - the long name e.g.BL11I-....
 	 */
 	private String mcaRecordName;
-
-	/**
-	 * phase II interface GDA-EPICS link parameter
-	 */
-	private String deviceName;
 
 	/**
 	 * Region-of-interest listener
@@ -508,38 +488,12 @@ public class EpicsMcaController extends DeviceBase implements InitializationList
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
-			if (getEpicsMcaRecordName() != null) {
-				// phase I beamlines interface using GDA's epicsRecordName
-				if ((epicsMcaRecord = (EpicsRecord) Finder.getInstance().find(epicsMcaRecordName)) != null) {
-					mcaRecordName = epicsMcaRecord.getFullRecordName();
-					createChannelAccess(mcaRecordName);
-					channelManager.tryInitialize(100);
-				} else {
-					logger.error("Epics Record " + epicsMcaRecordName + " not found");
-					throw new FactoryException("Epics Record " + epicsMcaRecordName + " not found");
-				}
-			} else if (getDeviceName() != null) {
-				// phase II beamlines interface using GDA's deviceName.
-				SimpleMcaType mcaConfig;
-				try {
-					mcaConfig = Configurator.getConfiguration(getDeviceName(), gda.epics.interfaces.SimpleMcaType.class);
-					mcaRecordName = mcaConfig.getRECORD().getPv();
-					createChannelAccess(mcaRecordName);
-					channelManager.tryInitialize(100);
-				} catch (ConfigurationNotFoundException e) {
-					logger.error("Can NOT find EPICS configuration for motor " + getDeviceName(), e);
-					throw new FactoryException("Epics MCA " + getDeviceName() + " not found");
-				}
-			} else if (getMcaRecordName() != null) {
-				// allow directly set EPICS's record name for MCA
-				createChannelAccess(mcaRecordName);
-				channelManager.tryInitialize(100);
-			}
-			// Nothing specified in Server XML file
-			else {
+			if (getMcaRecordName() == null) {
 				logger.error("Missing EPICS configuration for MCA {}", getName());
 				throw new FactoryException("Missing EPICS configuration for MCA " + getName());
 			}
+			createChannelAccess(mcaRecordName);
+			channelManager.tryInitialize(100);
 			setConfigured(true);
 		}
 	}
@@ -1907,42 +1861,6 @@ public class EpicsMcaController extends DeviceBase implements InitializationList
 		} catch (DeviceException e) {
 			logger.error("EpicsMCA failed to initialise elapsed and roi values", e);
 		}
-	}
-
-	/**
-	 * Gets the MCA record name - shared name between GDA and EPICS for phase I beamlines.
-	 *
-	 * @return the Epics MCA record name.
-	 */
-	public String getEpicsMcaRecordName() {
-		return epicsMcaRecordName;
-	}
-
-	/**
-	 * Sets the MCA record name - shared name between GDA and EPICS for phase I beamlines.
-	 *
-	 * @param epicsMcaRecordName
-	 */
-	public void setEpicsMcaRecordName(String epicsMcaRecordName) {
-		this.epicsMcaRecordName = epicsMcaRecordName;
-	}
-
-	/**
-	 * gets the device name shared by GDA and EPICS
-	 *
-	 * @return device name
-	 */
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	/**
-	 * sets the device name which is shared by GDA and EPICS
-	 *
-	 * @param deviceName
-	 */
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
 	}
 
 	/**

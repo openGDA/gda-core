@@ -21,16 +21,11 @@ package gda.device.detector.etldetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.DeviceBase;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaces.ETLdetectorType;
-import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -71,21 +66,11 @@ public class EpicsETLController extends DeviceBase implements InitializationList
 
 	private Channel hvadc = null; // HV actual output
 
-	private EpicsRecord epicsRecord = null;
-
-	private String epicsRecordName = null;
-
-	private String deviceName = null;
-
 	private EpicsChannelManager channelManager;
 
 	private EpicsController controller;
 
 	private String pvRoot;
-
-	public String getPvRoot() {
-		return pvRoot;
-	}
 
 	/**
 	 * The Constructor.
@@ -98,39 +83,13 @@ public class EpicsETLController extends DeviceBase implements InitializationList
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
-			// EPICS interface verion 2 for phase I beamlines + I22
-			if (getEpicsRecordName() != null) {
-				if ((epicsRecord = (EpicsRecord) Finder.getInstance().find(epicsRecordName)) != null) {
-					String recordName = epicsRecord.getFullRecordName();
-					createChannelAccess(recordName);
-					channelManager.tryInitialize(100);
-				} else {
-					logger.error("Epics Record " + epicsRecordName + " not found");
-					throw new FactoryException("Epics Record " + epicsRecordName + " not found");
-				}
-			}
-			// EPICS interface version 3 for phase II beamlines (excluding I22).
-			else if (getDeviceName() != null) {
-				try {
-					ETLdetectorType etlConfig = Configurator.getConfiguration(getDeviceName(),
-							gda.epics.interfaces.ETLdetectorType.class);
-					createChannelAccess(etlConfig);
-					channelManager.tryInitialize(100);
-				} catch (ConfigurationNotFoundException e) {
-					logger.error("Can NOT find EPICS configuration for device: " + getDeviceName(), e);
-				}
-
-			} else if (getPvRoot() != null) {
-					createChannelAccess(getPvRoot());
-					channelManager.tryInitialize(100);
-			}
-			// Nothing specified in Server XML file
-			else {
+			if (getPvRoot() == null) {
 				logger.error("Missing EPICS interface configuration for the ETL sintillator detector " + getName());
 				throw new FactoryException("Missing EPICS interface configuration for the ETL sintillator detectorr "
 						+ getName());
 			}
-
+			createChannelAccess(getPvRoot());
+			channelManager.tryInitialize(100);
 		}// end of if (!configured)
 	}
 
@@ -154,29 +113,6 @@ public class EpicsETLController extends DeviceBase implements InitializationList
 			setConfigured(true);
 		} catch (Throwable th) {
 			throw new FactoryException("failed to create all channels", th);
-		}
-	}
-
-	/**
-	 * create channel access implementing phase II beamline EPICS interfaces.
-	 *
-	 * @param etlConfig
-	 * @throws FactoryException
-	 */
-	private void createChannelAccess(ETLdetectorType etlConfig) throws FactoryException {
-		try {
-			ctrl = channelManager.createChannel(etlConfig.getHV().getPv(), false);
-			ctrlrbv = channelManager.createChannel(etlConfig.getHVRBV().getPv(), false);
-			hvadc = channelManager.createChannel(etlConfig.getHVADC().getPv(), false);
-			ulim = channelManager.createChannel(etlConfig.getULIM().getPv(), false);
-			ulimrbv = channelManager.createChannel(etlConfig.getULIMRBV().getPv(), false);
-			llim = channelManager.createChannel(etlConfig.getLLIM().getPv(), false);
-			llimrbv = channelManager.createChannel(etlConfig.getLLIMRBV().getPv(), false);
-			// acknowledge that creation phase is completed
-			channelManager.creationPhaseCompleted();
-			setConfigured(true);
-		} catch (Exception ex) {
-			throw new FactoryException("failed to create all channels", ex);
 		}
 	}
 
@@ -276,36 +212,6 @@ public class EpicsETLController extends DeviceBase implements InitializationList
 		logger.info("ETL detector controller - " + getName() + " initialised.");
 	}
 
-	/**
-	 * @return EPICS record name
-	 */
-	public String getEpicsRecordName() {
-		return epicsRecordName;
-	}
-
-	/**
-	 * @param epicsRecordName
-	 */
-	public void setEpicsRecordName(String epicsRecordName) {
-		this.epicsRecordName = epicsRecordName;
-	}
-
-	/**
-	 * gets the EPICS short name
-	 * @return device name
-	 */
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	/**
-	 * sets the EPICS short name
-	 * @param deviceName
-	 */
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
-	}
-
 	@Override
 	public String getName() {
 		return name;
@@ -319,7 +225,11 @@ public class EpicsETLController extends DeviceBase implements InitializationList
 
 	public void setPvRoot(String pv) {
 		this.pvRoot=pv;
+	
+	}
 
+	public String getPvRoot() {
+		return pvRoot;
 	}
 
 }

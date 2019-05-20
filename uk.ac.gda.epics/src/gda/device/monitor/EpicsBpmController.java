@@ -21,15 +21,12 @@ package gda.device.monitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
 import gda.device.Monitor;
 import gda.device.scannable.ScannableBase;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaces.BpmType;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
@@ -71,11 +68,6 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 	private String xposPvName;
 	private String yposPvName;
 
-	/**
-	 * GDA device Name
-	 */
-	private String deviceName = null;
-
 	private EpicsChannelManager channelManager;
 	private EpicsController controller;
 
@@ -108,48 +100,19 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 
 	@Override
 	public void configure() throws FactoryException {
-		String intensityRec = null, xPosRec = null, yPosRec = null;
 		if (!isConfigured()) {
-			if (getDeviceName() != null) {
-				BpmType bpmConfig;
-				try {
-					bpmConfig = Configurator.getConfiguration(getDeviceName(), gda.epics.interfaces.BpmType.class);
-					intensityRec = bpmConfig.getINTENSITY().getPv();
-					xPosRec = bpmConfig.getXPOS().getPv();
-					yPosRec = bpmConfig.getYPOS().getPv();
-					createChannelAccess(intensityRec, xPosRec, yPosRec);
-					channelManager.tryInitialize(100);
-				} catch (ConfigurationNotFoundException e) {
-					logger.error("Can NOT find EPICS configuration for BPM " + getDeviceName(), e);
-				}
-			} else if (getIntensityPvName() != null && getXposPvName() != null && getYposPvName() != null) {
+			if (getIntensityPvName() != null && getXposPvName() != null && getYposPvName() != null) {
 				createChannelAccess(getIntensityPvName(), getXposPvName(), getYposPvName());
 				channelManager.tryInitialize(100);
 			} else if (getPvName()!=null) {
 				createChannelAccess(getPvName());
 				channelManager.tryInitialize(100);
-
 			} else {
-				logger.error("Missing EPICS interface configuration for the BPM " + getName());
-				throw new FactoryException("Missing EPICS interface configuration for the BPM " + getName());
+				logger.error("Missing PV configuration for the BPM " + getName());
+				throw new FactoryException("Missing PV configuration for the BPM " + getName());
 			}
 			setConfigured(true);
 		}// end of if (!configured)
-	}
-
-
-	/**
-	 * @return device name
-	 */
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	/**
-	 * @param name
-	 */
-	public void setDeviceName(String name) {
-		this.deviceName = name;
 	}
 
 	private void createChannelAccess(String pvName) throws FactoryException {

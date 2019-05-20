@@ -54,19 +54,9 @@ public class EpicsMCA2 extends DetectorBase implements IObserver {
 	private EpicsMcaController controller;
 
 	/**
-	 * phase I interface GDA-EPICS link name
-	 */
-	private String epicsMcaRecordName;
-
-	/**
 	 * EPICS record name for a MCA - the long name e.g.BL11I-....
 	 */
 	private String mcaRecordName;
-
-	/**
-	 * phase II interface GDA-EPICS link parameter
-	 */
-	private String deviceName;
 
 	private Object timeLock;
 
@@ -116,16 +106,11 @@ public class EpicsMCA2 extends DetectorBase implements IObserver {
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
-			if (getEpicsMcaRecordName() != null) {
-				controller.setEpicsMcaRecordName(epicsMcaRecordName);
-			} else if (getDeviceName() != null) {
-				controller.setDeviceName(deviceName);
-			} else if (getMcaRecordName() != null) {
-				controller.setMcaRecordName(mcaRecordName);
-			} else {
+			if (getMcaRecordName() == null) {
 				logger.error("Missing EPICS configuration for MCA {}", getName());
 				throw new FactoryException("Missing EPICS configuration for MCA " + getName());
 			}
+			controller.setMcaRecordName(mcaRecordName);
 
 			controller.configure();
 			controller.addIObserver(this);
@@ -516,42 +501,6 @@ public class EpicsMCA2 extends DetectorBase implements IObserver {
 			throw new DeviceException("failed get regions of interest", th);
 		}
 
-	}
-
-	/**
-	 * Gets the MCA record name - shared name between GDA and EPICS for phase I beamlines.
-	 *
-	 * @return the Epics MCA record name.
-	 */
-	public String getEpicsMcaRecordName() {
-		return epicsMcaRecordName;
-	}
-
-	/**
-	 * Sets the MCA record name - shared name between GDA and EPICS for phase I beamlines.
-	 *
-	 * @param epicsMcaRecordName
-	 */
-	public void setEpicsMcaRecordName(String epicsMcaRecordName) {
-		this.epicsMcaRecordName = epicsMcaRecordName;
-	}
-
-	/**
-	 * gets the device name shared by GDA and EPICS
-	 *
-	 * @return device name
-	 */
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	/**
-	 * sets the device name which is shared by GDA and EPICS
-	 *
-	 * @param deviceName
-	 */
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
 	}
 
 	/**

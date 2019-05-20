@@ -21,20 +21,13 @@ package gda.device.adc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.Adc;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaceSpec.GDAEpicsInterfaceReader;
-import gda.epics.interfaceSpec.InterfaceException;
-import gda.epics.interfaces.SimpleScalerType;
-import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -75,13 +68,7 @@ public class EpicsADC extends DeviceBase implements Adc, InitializationListener 
 
 	private String scanModePv;
 
-	private String epicsAdcRecordName;
-
-	private EpicsRecord epicsAdcRecord;
-
 	private String adcRecordName;
-
-	private String deviceName;
 
 	private EpicsController controller;
 
@@ -227,63 +214,13 @@ public class EpicsADC extends DeviceBase implements Adc, InitializationListener 
 		return adcRecordName;
 	}
 
-	/**
-	 * @return The Epics record name for the ADC.
-	 */
-	public String getEpicsAdcRecordName() {
-		return epicsAdcRecordName;
-	}
-
-	/**
-	 * @param epicsAdcRecordName
-	 */
-	public void setEpicsAdcRecordName(String epicsAdcRecordName) {
-		this.epicsAdcRecordName = epicsAdcRecordName;
-	}
-
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
-			// EPICS interface verion 2 for phase I beamlines + I22
-			if (getEpicsAdcRecordName() != null) {
-				if ((epicsAdcRecord = (EpicsRecord) Finder.getInstance().find(epicsAdcRecordName)) != null) {
-
-					adcRecordName = epicsAdcRecord.getFullRecordName();
-					createChannelAccess(adcRecordName);
-				} else {
-					logger.error("Epics Record " + epicsAdcRecordName + " not found");
-					throw new FactoryException("Epics Record " + epicsAdcRecordName + " not found");
-				}
+			if (adcRecordName == null) {
+				throw new IllegalStateException("No adcRecordName defined for EpicsADC '" + getName() + "'");
 			}
-			// EPICS interface version 3 for phase II beamlines (excluding I22).
-			else if (getDeviceName() != null) {
-				SimpleScalerType scalerConfig;
-				try {
-					scalerConfig = Configurator.getConfiguration(getDeviceName(),
-							gda.epics.interfaces.SimpleScalerType.class);
-					adcRecordName = scalerConfig.getRECORD().getPv();
-					createChannelAccess(adcRecordName);
-				} catch (ConfigurationNotFoundException e) {
-					/* Try to read from unchecked xml */
-					try {
-						createChannelAccess(getPV());
-					} catch (Exception ex) {
-						logger.error("Can NOT find EPICS configuration for scaler " + getDeviceName() + "."
-								+ e.getMessage(), ex);
-					}
-				}
-
-			}
-
-			else if (adcRecordName != null) {
-				createChannelAccess(adcRecordName);
-			}
-
-			// Nothing specified in Server XML file
-			else {
-				logger.error("Missing EPICS interface configuration for the motor " + getName());
-				throw new FactoryException("Missing EPICS interface configuration for the motor " + getName());
-			}
+			createChannelAccess(adcRecordName);
 			setConfigured(true);
 		}
 
@@ -705,27 +642,5 @@ public class EpicsADC extends DeviceBase implements Adc, InitializationListener 
 		}
 
 		return mode;
-	}
-
-	/**
-	 * @return device name
-	 */
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	/**
-	 * @param deviceName
-	 */
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
-	}
-
-	/**
-	 * @return String PV
-	 * @throws InterfaceException
-	 */
-	public String getPV() throws InterfaceException {
-		return GDAEpicsInterfaceReader.getPVFromSimplePVType(getDeviceName());
 	}
 }

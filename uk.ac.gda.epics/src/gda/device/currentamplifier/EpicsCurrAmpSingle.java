@@ -23,14 +23,11 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaces.CurrAmpSingleType;
 import gda.factory.FactoryException;
 import gda.jython.JythonServerFacade;
 import gov.aps.jca.CAException;
@@ -50,7 +47,6 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsCurrAmpSingle.class);
 
-	private String deviceName = null;
 	private String pvName = null;
 	private EpicsChannelManager channelManager;
 
@@ -100,24 +96,13 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
-			if (getDeviceName() != null) {
-				CurrAmpSingleType currAmpConfig;
-				try {
-					currAmpConfig = Configurator.getConfiguration(getDeviceName(),
-							gda.epics.interfaces.CurrAmpSingleType.class);
-					createChannelAccess(currAmpConfig);
-					channelManager.tryInitialize(100);
-				} catch (ConfigurationNotFoundException e) {
-					logger.error("Can NOT find EPICS configuration for current amplifier " + getDeviceName(), e);
-				}
-			} else if (getPvName() != null) {
-				createChannelAccess(getPvName());
-				channelManager.tryInitialize(100);
-			} else {
+			if (getPvName() == null) {
 				logger.error("Missing EPICS interface configuration for the current amplifier " + getName());
 				throw new FactoryException("Missing EPICS interface configuration for the current amplifier "
 						+ getName());
 			}
+			createChannelAccess(getPvName());
+			channelManager.tryInitialize(100);
 			// to get scandatapoint haeder correctly named, for a single valued scannable, set input name to its
 			// scannable name
 			this.inputNames[0] = getName();
@@ -272,46 +257,6 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 		} catch (Exception e) {
 			logger.warn("{}: exception while getting position. ", getName(), e);
 			return getName();
-		}
-	}
-
-	/**
-	 * gets device name.
-	 *
-	 * @return device name
-	 */
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	/**
-	 * sets device name.
-	 *
-	 * @param name
-	 */
-	public void setDeviceName(String name) {
-		this.deviceName = name;
-	}
-
-	/**
-	 * creates channel access to amplifier
-	 *
-	 * @param currAmpConfig
-	 * @throws FactoryException
-	 */
-	private void createChannelAccess(CurrAmpSingleType currAmpConfig) throws FactoryException {
-		try {
-			Ic = channelManager.createChannel(currAmpConfig.getI().getPv(), false);
-			setGain = channelManager.createChannel(currAmpConfig.getSETGAIN().getPv(), gainMonitor, MonitorType.CTRL,
-					false);
-			if (acdcAvailable) {
-				setAcDc = channelManager.createChannel(currAmpConfig.getSETACDC().getPv(), modeMonitor, MonitorType.CTRL,
-					false);
-			}
-			channelManager.creationPhaseCompleted();
-
-		} catch (Throwable th) {
-			throw new FactoryException("failed to connect to all channels", th);
 		}
 	}
 

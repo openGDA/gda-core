@@ -23,14 +23,11 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaces.PilatusType;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
@@ -101,7 +98,6 @@ public class EpicsPilatus extends DetectorBase implements
 
 	private Vector<String> modeNames= new Vector<String>();
 	private Vector<String> gainNames = new Vector<String>();
-	private String deviceName;
 	private String pvName;
 
 	private EpicsChannelManager channelManager;
@@ -156,28 +152,9 @@ public class EpicsPilatus extends DetectorBase implements
 		cached_exptime = 0.;
 		cached_expperiod = 0;
 		if (!isConfigured()) {
-				if (getDeviceName() != null) {
-					PilatusType pvConfig;
-					try {
-						pvConfig = Configurator.getConfiguration(getDeviceName(),
-								PilatusType.class);
-						setRecordNames(pvConfig);
-					} catch (ConfigurationNotFoundException e) {
-						logger.error("Can NOT find EPICS configuration for motor "
-								+ getDeviceName(), e);
-					}
-				} else if (getPvName() != null) {
-					setRecordNamesPvName();
-				}
-
-			// Nothing specified in Server XML file
-			else {
-				logger
-						.error("Missing EPICS interface configuration for the Pilatus detector "
-								+ getName());
-				throw new FactoryException(
-						"Missing EPICS interface configuration for the Pilatus detector "
-								+ getName());
+			if (getPvName() == null) {
+				logger.error("Missing PV configuration for the Pilatus detector " + getName());
+				throw new FactoryException("Missing PV configuration for the Pilatus detector " + getName());
 			}
 			createChannelAccess();
 			channelManager.tryInitialize(100);
@@ -591,23 +568,6 @@ public class EpicsPilatus extends DetectorBase implements
 			throw new DeviceException("getDelayTime exception", th);
 		}
 	}
-	/**
-	 * gets the name of the device.
-	 *
-	 * @return String name
-	 */
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	/**
-	 * sets the name of the device.
-	 *
-	 * @param deviceName
-	 */
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
-	}
 
 	public String getPvName() {
 		return pvName;
@@ -615,51 +575,29 @@ public class EpicsPilatus extends DetectorBase implements
 
 	public void setPvName(String pvName) {
 		this.pvName = pvName;
+		modeRecordName = pvName + ":AcquireMode";
+		gainRecordName = pvName + ":Gain";
+		thresholdRecordName = pvName + ":ThresholdEnergy";
+		startRecordName = pvName + ":Acquire";
+		abortRecordName = pvName + ":Abort";
+		exp_tRecordName = pvName + ":ExposureTime";
+		nimagesRecordName = pvName + ":NImages";
+		exp_pRecordName = pvName + ":ExposurePeriod";
+//		nexpimagesRecordName = pvName + ":NExposures";
+		delayRecordName = pvName + ":DelayTime";
+		pathRecordName = pvName + ":FilePath";
+		filenameRecordName = pvName + ":Filename";
+		fileformatRecordName = pvName + ":FileFormat";
+		headerRecordName = pvName + ":Header";
+		filenumberRecordName = pvName + ":FileNumber";
+		/*
+		autoincrementRecordName = pvName + ":AutoIncrement";
+		timeoutRecordName = pvName + ":ReadTiffTimeout";
+		*/
+		generalBoxPv = pvName + ":GEN";
+		generalBoxSendPv = pvName + ":GEN:SEND";
 	}
 
-	private void setRecordNames(PilatusType config) {
-		modeRecordName = config.getMODE().getPv();
-		gainRecordName = config.getGAIN().getPv();
-		thresholdRecordName = config.getTHRESHOLD().getPv();
-		startRecordName = config.getSTART().getPv();
-		abortRecordName = config.getABORT().getPv();
-		exp_tRecordName = config.getEXP_T().getPv();
-		nimagesRecordName = config.getNIMAGES().getPv();
-		exp_pRecordName = config.getEXP_P().getPv();
-//		nexpimagesRecordName = config.getNEXPIMAGES().getPv();
-		delayRecordName = config.getDELAY().getPv();
-		pathRecordName = config.getPATH().getPv();
-		filenameRecordName = config.getFILENAME().getPv();
-		fileformatRecordName = config.getFILEFORMAT().getPv();
-		filenumberRecordName = config.getFILENUMBER().getPv();
-/*		autoincrementRecordName = config.getAUTOINCREMENT().getPv();
-		timeoutRecordName = config.getTIMEOUT().getPv();
-*///		bpnameRecordName = config.getBPNAME().getPv();
-//		ffnameRecordName = config.getFFNAME().getPv();
-//		headerRecordName = config.getHEADER().getPv();
-	}
-
-	private void setRecordNamesPvName() {
-		modeRecordName = getPvName() + ":AcquireMode";
-		gainRecordName = getPvName() + ":Gain";
-		thresholdRecordName = getPvName() + ":ThresholdEnergy";
-		startRecordName = getPvName() + ":Acquire";
-		abortRecordName = getPvName() + ":Abort";
-		exp_tRecordName = getPvName() + ":ExposureTime";
-		nimagesRecordName = getPvName() + ":NImages";
-		exp_pRecordName = getPvName() + ":ExposurePeriod";
-//		nexpimagesRecordName = getPvName() + ":NExposures";
-		delayRecordName = getPvName() + ":DelayTime";
-		pathRecordName = getPvName() + ":FilePath";
-		filenameRecordName = getPvName() + ":Filename";
-		fileformatRecordName = getPvName() + ":FileFormat";
-		headerRecordName = getPvName() + ":Header";
-		filenumberRecordName = getPvName() + ":FileNumber";
-/*		autoincrementRecordName = getPvName() + ":AutoIncrement";
-		timeoutRecordName = getPvName() + ":ReadTiffTimeout";
-*/		generalBoxPv = getPvName() + ":GEN";
-		generalBoxSendPv = getPvName() + ":GEN:SEND";
-	}
 	@Override
 	public String getDescription() throws DeviceException {
 		// TODO Auto-generated method stub

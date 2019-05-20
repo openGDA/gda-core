@@ -26,15 +26,12 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.MCAStatus;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaces.McaGroupType;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
@@ -117,9 +114,6 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 	/** EPICS Channel Manager */
 	private EpicsChannelManager channelManager;
 
-	/** Phase II interface GDA-EPICS link parameter */
-	private String deviceName;
-
 	/** EPICS record name */
 	private String recordName;
 
@@ -151,89 +145,14 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
-			if (getDeviceName() != null) {
-				// phase II beamlines interface using GDA's deviceName.
-				McaGroupType mcsConfig;
-				try {
-					mcsConfig = Configurator
-							.getConfiguration(getDeviceName(), gda.epics.interfaces.McaGroupType.class);
-					createChannelAccess(mcsConfig);
-				} catch (ConfigurationNotFoundException e) {
-					logger.error("Can NOT find EPICS configuration for EpicsDlsMcs3820Controller {}", getDeviceName(), e);
-					throw new FactoryException("Epics DlsMcs3820Controller " + getDeviceName() + " not found");
-				}
-			} else if (getRecordName() != null) {
-				createChannelAccess(getRecordName());
-			} else { // Nothing specified in Server XML file
+			if (getRecordName() == null) { // Nothing specified in Server XML file
 				logger.error("Missing EPICS configuration for EpicsDlsMcs3820Controller {}", getName());
 				throw new FactoryException("Missing EPICS configuration for EpicsDlsMcs3820Controller " + getName());
 			}
+			createChannelAccess(getRecordName());
 			channelManager.tryInitialize(100);
 			setConfigured(true);
 		}
-	}
-
-	/**
-	 * @param config
-	 * @throws FactoryException
-	 */
-	private void createChannelAccess(McaGroupType config) throws FactoryException {
-		try {
-			eraseStartChannel = channelManager.createChannel(config.getERASESTART().getPv(), false);
-			eraseChannel = channelManager.createChannel(config.getERASE().getPv(), false);
-			startChannel = channelManager.createChannel(config.getSTART().getPv(), false);
-			stopChannel = channelManager.createChannel(config.getSTOP().getPv(), false);
-			nbinsChannel = channelManager.createChannel(config.getNBINS().getPv(), false);
-			readrateChannel = channelManager.createChannel(config.getREADRATE().getPv(), false);
-			trealChannel = channelManager.createChannel(config.getTREAL().getPv(), rtimelistener, false);
-			acqChannel = channelManager.createChannel(config.getACQ().getPv(), acqlistener, false);
-			tacqChannel = channelManager.createChannel(config.getTACQ().getPv(), false);
-			tdwellChannel = channelManager.createChannel(config.getTDWELL().getPv(), false);
-			binadvChannel = channelManager.createChannel(config.getBINADV().getPv(), false);
-			extpreChannel = channelManager.createChannel(config.getEXTPRE().getPv(), false);
-
-			data[0] = channelManager.createChannel(config.getSIG1().getPv(), false);
-			data[1] = channelManager.createChannel(config.getSIG2().getPv(), false);
-			data[2] = channelManager.createChannel(config.getSIG3().getPv(), false);
-			data[3] = channelManager.createChannel(config.getSIG4().getPv(), false);
-			data[4] = channelManager.createChannel(config.getSIG5().getPv(), false);
-			data[5] = channelManager.createChannel(config.getSIG6().getPv(), false);
-			data[6] = channelManager.createChannel(config.getSIG7().getPv(), false);
-			data[7] = channelManager.createChannel(config.getSIG8().getPv(), false);
-			data[8] = channelManager.createChannel(config.getSIG9().getPv(), false);
-			data[9] = channelManager.createChannel(config.getSIG10().getPv(), false);
-			data[10] = channelManager.createChannel(config.getSIG11().getPv(), false);
-			data[11] = channelManager.createChannel(config.getSIG12().getPv(), false);
-			data[12] = channelManager.createChannel(config.getSIG13().getPv(), false);
-			data[13] = channelManager.createChannel(config.getSIG14().getPv(), false);
-			data[14] = channelManager.createChannel(config.getSIG15().getPv(), false);
-			data[15] = channelManager.createChannel(config.getSIG16().getPv(), false);
-			data[16] = channelManager.createChannel(config.getSIG17().getPv(), false);
-			data[17] = channelManager.createChannel(config.getSIG18().getPv(), false);
-			data[18] = channelManager.createChannel(config.getSIG19().getPv(), false);
-			data[19] = channelManager.createChannel(config.getSIG20().getPv(), false);
-			data[20] = channelManager.createChannel(config.getSIG21().getPv(), false);
-			data[21] = channelManager.createChannel(config.getSIG22().getPv(), false);
-			data[22] = channelManager.createChannel(config.getSIG23().getPv(), false);
-			data[23] = channelManager.createChannel(config.getSIG24().getPv(), false);
-			data[24] = channelManager.createChannel(config.getSIG25().getPv(), false);
-			data[25] = channelManager.createChannel(config.getSIG26().getPv(), false);
-			data[26] = channelManager.createChannel(config.getSIG27().getPv(), false);
-			data[27] = channelManager.createChannel(config.getSIG28().getPv(), false);
-			data[28] = channelManager.createChannel(config.getSIG29().getPv(), false);
-			data[29] = channelManager.createChannel(config.getSIG30().getPv(), false);
-			data[30] = channelManager.createChannel(config.getSIG31().getPv(), false);
-			data[31] = channelManager.createChannel(config.getSIG32().getPv(), false);
-			for (int i = 0; i < MAXIMUM_NUMBER_OF_MCA; i++) {
-				channelIndexMap.put(i, data[i]);
-			}
-			// acknowledge that creation phase is completed
-			channelManager.creationPhaseCompleted();
-			setConfigured(true);
-		} catch (Exception ex) {
-			throw new FactoryException("Failed to create all channels", ex);
-		}
-
 	}
 
 	/**
@@ -739,24 +658,6 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 				notifyIObservers(source, data);
 			}
 		}
-	}
-
-	/**
-	 * Gets device name - EPICS-GDA shared name
-	 *
-	 * @return device name
-	 */
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	/**
-	 * Sets the device name
-	 *
-	 * @param deviceName
-	 */
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
 	}
 
 	/**

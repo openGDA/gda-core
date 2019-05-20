@@ -24,20 +24,12 @@ import org.python.core.PySequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
-import gda.configuration.epics.EpicsConfiguration;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaceSpec.GDAEpicsInterfaceReader;
-import gda.epics.interfaceSpec.InterfaceException;
-import gda.epics.interfaces.SimpleScalerType;
-import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
@@ -68,19 +60,11 @@ public class EpicsScaler extends DetectorBase implements InitializationListener 
 
 	private String pvName;
 
-	private EpicsConfiguration epicsConfiguration;
-
 	private Channel[] presetValues = null;
 
 	private Channel[] scalerValues = null;
 
 	private Channel[] scalerNames = null;
-
-	private String epicsRecordName;
-
-	private EpicsRecord epicsRecord;
-
-	private String deviceName;
 
 	private EpicsController controller;
 
@@ -121,50 +105,11 @@ public class EpicsScaler extends DetectorBase implements InitializationListener 
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
-
 			if (pvName == null) {
-
-				// EPICS interface verion 2 for phase I beamlines + I22
-				if (getEpicsRecordName() != null) {
-					if ((epicsRecord = (EpicsRecord) Finder.getInstance().find(epicsRecordName)) != null) {
-						pvName = epicsRecord.getFullRecordName();
-					} else {
-						logger.error("Epics Record " + epicsRecordName + " not found");
-						throw new FactoryException("Epics Record " + epicsRecordName + " not found");
-					}
-				}
-				// EPICS interface version 3 for phase II beamlines (excluding I22).
-				else if (getDeviceName() != null) {
-					SimpleScalerType scalerConfig;
-					try {
-						if (epicsConfiguration != null) {
-							scalerConfig = epicsConfiguration.getConfiguration(getDeviceName(),
-									gda.epics.interfaces.SimpleScalerType.class);
-						} else {
-							scalerConfig = Configurator.getConfiguration(getDeviceName(),
-									gda.epics.interfaces.SimpleScalerType.class);
-						}
-						pvName = scalerConfig.getRECORD().getPv();
-					} catch (ConfigurationNotFoundException e) {
-						/* Try to read from unchecked xml */
-						try {
-							pvName = getPV();
-						} catch (Exception ex) {
-							logger.error("Can NOT find EPICS configuration for scaler " + getDeviceName() + "."
-									+ e.getMessage(), ex);
-						}
-					}
-
-				}
-				// Nothing specified in Server XML file
-				else {
-					logger.error("Missing EPICS interface configuration for the motor " + getName());
-					throw new FactoryException("Missing EPICS interface configuration for the motor " + getName());
-				}
+				throw new IllegalStateException("No pvName configured for EpicsScaler '" + getName() + "'");
 			}
 
 			createChannelAccess();
-
 			setConfigured(true);
 		}
 	}
@@ -599,20 +544,6 @@ public class EpicsScaler extends DetectorBase implements InitializationListener 
 	}
 
 	/**
-	 * @return epics record name
-	 */
-	public String getEpicsRecordName() {
-		return epicsRecordName;
-	}
-
-	/**
-	 * @param epicsRecordName
-	 */
-	public void setEpicsRecordName(String epicsRecordName) {
-		this.epicsRecordName = epicsRecordName;
-	}
-
-	/**
 	 * @param pvName
 	 */
 	public void setPvName(String pvName) {
@@ -624,38 +555,6 @@ public class EpicsScaler extends DetectorBase implements InitializationListener 
 	 */
 	public String getPvName() {
 		return pvName;
-	}
-
-	/**
-	 * Sets the EpicsConfiguration to use when looking up PV from deviceName.
-	 *
-	 * @param epicsConfiguration
-	 *            the EpicsConfiguration
-	 */
-	public void setEpicsConfiguration(EpicsConfiguration epicsConfiguration) {
-		this.epicsConfiguration = epicsConfiguration;
-	}
-
-	/**
-	 * @return device name
-	 */
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	/**
-	 * @param deviceName
-	 */
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
-	}
-
-	/**
-	 * @return pv
-	 * @throws InterfaceException
-	 */
-	public String getPV() throws InterfaceException {
-		return GDAEpicsInterfaceReader.getPVFromSimpleScaler(getDeviceName());
 	}
 
 	@Override

@@ -23,16 +23,12 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
 import gda.device.ISpin;
 import gda.device.scannable.ScannableBase;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaces.SimpleBinaryType;
-import gda.epics.interfaces.SimplePvType;
 import gda.factory.FactoryException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.DBR;
@@ -69,13 +65,6 @@ public class Spin extends ScannableBase implements ISpin, InitializationListener
 	 */
 	private EpicsChannelManager channelManager;
 
-	/**
-	 * phase II interface GDA-EPICS link parameter
-	 */
-	private String enableName;
-
-	private String speedName;
-
 	private String enablePV;
 
 	private String speedPV;
@@ -100,29 +89,11 @@ public class Spin extends ScannableBase implements ISpin, InitializationListener
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
-			SimplePvType speed;
-			SimpleBinaryType enable;
-			if (getSpeedName() != null && getEnableName()!=null) {
-				try {
-					speed = Configurator.getConfiguration(getSpeedName(), gda.epics.interfaces.SimplePvType.class);
-				} catch (ConfigurationNotFoundException e) {
-					logger.error("Can NOT find EPICS configuration for sample spin " + getSpeedName(), e);
-					throw new FactoryException("Epics sample spin " + getSpeedName() + " not found");
-				}
-				try {
-					enable = Configurator.getConfiguration(getEnableName(), gda.epics.interfaces.SimpleBinaryType.class);
-
-				} catch (ConfigurationNotFoundException e) {
-					logger.error("Can NOT find EPICS configuration for sample spin " + getEnableName(), e);
-					throw new FactoryException("Epics sample spin " + getEnableName() + " not found");
-				}
-				createChannelAccess(speed, enable);
-			} else if (getSpeedPV()!=null && getEnablePV()!=null) {
-				createChannelAccess(getSpeedPV(), getEnablePV());
-			}	else {
-				logger.error("Missing EPICS configuration for sample spin {}", getName());
-				throw new FactoryException("Missing EPICS configuration for sample spin " + getName());
+			if (getSpeedPV() == null || getEnablePV() == null) {
+				logger.error("Missing PV for sample spin {}", getName());
+				throw new FactoryException("Missing PV for sample spin " + getName());
 			}
+			createChannelAccess(getSpeedPV(), getEnablePV());
 			setConfigured(true);
 		}
 	}
@@ -131,25 +102,6 @@ public class Spin extends ScannableBase implements ISpin, InitializationListener
 		try {
 			enableChannel = channelManager.createChannel(enablePV2, sml, false);
 			speedChannel = channelManager.createChannel(speedPV2, false);
-			// acknowledge that creation phase is completed
-			channelManager.tryInitialize(100);
-			channelManager.creationPhaseCompleted();
-		} catch (Throwable th) {
-			throw new FactoryException("failed to create all channels", th);
-		}
-	}
-
-	/**
-	 * creates all required channels
-	 *
-	 * @param speed
-	 *            config2
-	 * @throws FactoryException
-	 */
-	private void createChannelAccess(SimplePvType speed, SimpleBinaryType enable) throws FactoryException {
-		try {
-			enableChannel = channelManager.createChannel(enable.getRECORD().getPv(), sml, false);
-			speedChannel = channelManager.createChannel(speed.getRECORD().getPv(), false);
 			// acknowledge that creation phase is completed
 			channelManager.tryInitialize(100);
 			channelManager.creationPhaseCompleted();
@@ -310,22 +262,6 @@ public class Spin extends ScannableBase implements ISpin, InitializationListener
 			Spin.this.notifyIObservers(this, position);
 			logger.info("{}: notify sent.", getName());
 		}
-	}
-
-	public String getEnableName() {
-		return enableName;
-	}
-
-	public void setEnableName(String enableName) {
-		this.enableName = enableName;
-	}
-
-	public String getSpeedName() {
-		return speedName;
-	}
-
-	public void setSpeedName(String speedName) {
-		this.speedName = speedName;
 	}
 
 	public String getEnablePV() {

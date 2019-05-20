@@ -21,8 +21,6 @@ package gda.device.controlpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.ControlPoint;
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableMotionBase;
@@ -30,10 +28,7 @@ import gda.device.scannable.ScannableUtils;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaces.SimplePvType;
-import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.DBR;
@@ -52,14 +47,6 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 	private double sensitivity = 0.0;
 
-	private String epicsRecordNameSetPoint;
-
-	private String epicsRecordNameGetPoint;
-
-	private String pvNameSetPoint;
-
-	private String pvNameGetPoint;
-
 	private String pvName;
 
 	private double latestValue;
@@ -68,18 +55,9 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 	private Channel theChannelGet;
 
-	private EpicsRecord epicsRecordSetPoint;
+	private String pvNameSetPoint;
 
-	private EpicsRecord epicsRecordGetPoint;
-
-	private String recordNameSetPoint;
-
-	private String recordNameGetPoint;
-
-	private String deviceNameSetPoint;
-	private String deviceNameGetPoint;
-
-	private String deviceName;
+	private String pvNameGetPoint;
 
 	protected EpicsChannelManager channelManager;
 
@@ -102,101 +80,13 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 		this.inputNames = new String[]{getName()};
 
 		if (!isConfigured()) {
-			// Original implementation of EPICS interface
-			if ((getEpicsRecordNameSetPoint() != null) && (getEpicsRecordNameGetPoint() != null)) {
-
-				if (getEpicsRecordNameSetPoint().equals(getEpicsRecordNameGetPoint())) {
-					logger.warn("The EPICS record name set/set points may not be the same");
-				}
-
-				// Set point
-				epicsRecordSetPoint = (EpicsRecord) Finder.getInstance().find(epicsRecordNameSetPoint);
-				if (epicsRecordSetPoint != null) {
-					recordNameSetPoint = epicsRecordSetPoint.getFullRecordName();
-					try {
-						theChannelSet = channelManager.createChannel(recordNameSetPoint, getMonitorListener(),
-								false);
-						// acknowledge that creation phase is completed
-						channelManager.creationPhaseCompleted();
-					} catch (Throwable th) {
-						throw new FactoryException("failed to create Channel for Control Point Set", th);
-					}
-				}
-
-				// Get point
-				epicsRecordGetPoint = (EpicsRecord) Finder.getInstance().find(epicsRecordNameGetPoint);
-				if (epicsRecordGetPoint != null) {
-					recordNameGetPoint = epicsRecordGetPoint.getFullRecordName();
-					try {
-						theChannelGet = channelManager.createChannel(recordNameGetPoint, getMonitorListener(),
-								false);
-						// acknowledge that creation phase is completed
-						channelManager.creationPhaseCompleted();
-					} catch (Throwable th) {
-						throw new FactoryException("failed to create Channel for Control Point Get", th);
-					}
-				}
-			}
-
-			// EPICS interface version 2 for phase II beamlines.
-			// Single deviceName is used for both get and set point
-			else if (getDeviceName() != null) {
-
-				// Set point
+			if (getPvName() != null) {
 				try {
-					SimplePvType simplePv = Configurator.getConfiguration(getDeviceName(), gda.epics.interfaces.SimplePvType.class);
-					recordNameSetPoint = simplePv.getRECORD().getPv();
-					theChannelSet = channelManager.createChannel(recordNameSetPoint, getMonitorListener(), false);
-
-					recordNameGetPoint = recordNameSetPoint;
-					theChannelGet = theChannelSet;
-
-					channelManager.creationPhaseCompleted();
-				} catch (CAException e) {
-					throw new FactoryException("failed to create Channel for Control Point", e);
-				} catch (ConfigurationNotFoundException e) {
-					throw new FactoryException("No SimplePv for Control Point", e);
-				}
-			}
-			// Two different deviceNames are used for get and set point respectively
-			else if ((getDeviceNameSetPoint() != null) && (getDeviceNameGetPoint() != null)) {
-
-				if (getDeviceNameSetPoint().equals(getDeviceNameGetPoint())) {
-					logger.warn("The device name set point and device name get point may not be the same");
-				}
-
-				// Set point
-				try {
-					SimplePvType simplePvSet = Configurator.getConfiguration(getDeviceNameSetPoint(),
-							gda.epics.interfaces.SimplePvType.class);
-					recordNameSetPoint = simplePvSet.getRECORD().getPv();
-					theChannelSet = channelManager.createChannel(recordNameSetPoint, getMonitorListener(), false);
-					channelManager.creationPhaseCompleted();
-				} catch (CAException e) {
-					throw new FactoryException("failed to create Channel for Control Point Get", e);
-				} catch (ConfigurationNotFoundException e) {
-					throw new FactoryException("No SimplePv for Control Point Get", e);
-				}
-
-				// Get point
-				try {
-					SimplePvType simplePvGet = Configurator.getConfiguration(getDeviceNameGetPoint(),
-							gda.epics.interfaces.SimplePvType.class);
-					recordNameGetPoint = simplePvGet.getRECORD().getPv();
-					theChannelGet = channelManager.createChannel(recordNameGetPoint, getMonitorListener() , false);
-					channelManager.creationPhaseCompleted();
-				} catch (CAException e) {
-					throw new FactoryException("failed to create Channel for Control Point Get", e);
-				} catch (ConfigurationNotFoundException e) {
-					throw new FactoryException("No SimplePv for Control Point Get", e);
-				}
-			} else if (getPvName() != null) {
-				try {
-					recordNameSetPoint = getPvName();
-					theChannelSet = channelManager.createChannel(recordNameSetPoint, getMonitorListener(), false);
+					pvNameSetPoint = getPvName();
+					theChannelSet = channelManager.createChannel(pvNameSetPoint, getMonitorListener(), false);
 					channelManager.creationPhaseCompleted();
 
-					recordNameGetPoint = recordNameSetPoint;
+					pvNameGetPoint = pvNameSetPoint;
 					theChannelGet = theChannelSet;
 				} catch (CAException e) {
 					throw new FactoryException("failed to create Channel for Control Point Set", e);
@@ -208,19 +98,16 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 				}
 
 				try {
-					recordNameSetPoint = getPvNameSetPoint();
-					theChannelSet = channelManager.createChannel(recordNameSetPoint, getMonitorListener(), false);
-					channelManager.creationPhaseCompleted();
+					theChannelSet = channelManager.createChannel(pvNameSetPoint, getMonitorListener(), false);
 				} catch (CAException e) {
 					throw new FactoryException("failed to create Channel for Control Point Set", e);
 				}
 				try {
-					recordNameGetPoint = getPvNameGetPoint();
-					theChannelGet = channelManager.createChannel(recordNameGetPoint, getMonitorListener(), false);
-					channelManager.creationPhaseCompleted();
+					theChannelGet = channelManager.createChannel(pvNameGetPoint, getMonitorListener(), false);
 				} catch (CAException e) {
 					throw new FactoryException("failed to create Channel for Control Point Get", e);
 				}
+				channelManager.creationPhaseCompleted();
 			} else {
 				logger.error("Control point not properly specified", getName());
 				throw new FactoryException("Control point not properly specified for the control point " + getName());
@@ -317,98 +204,6 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 	 */
 	public void setSensitivity(double sensitivity) {
 		this.sensitivity = sensitivity;
-	}
-
-	/**
-	 * Gets the epics record name set point.
-	 *
-	 * @return The epics record name set point
-	 */
-	public String getEpicsRecordNameSetPoint() {
-		return epicsRecordNameSetPoint;
-	}
-
-	/**
-	 * Sets the epics record name set point.
-	 *
-	 * @param epicsRecordNameSetPoint
-	 *            The epics record name set point
-	 */
-	public void setEpicsRecordNameSetPoint(String epicsRecordNameSetPoint) {
-		this.epicsRecordNameSetPoint = epicsRecordNameSetPoint;
-	}
-
-	/**
-	 * gets the short or EPICS-GDA shared name of the device
-	 *
-	 * @return device name
-	 */
-	public String getDeviceName(){
-		return deviceName;
-	}
-
-	/**
-	 * sets the short or EPICS-GDA shared name for this device
-	 *
-	 * @param deviceName
-	 */
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
-	}
-
-	/**
-	 * gets the short or EPICS-GDA shared name of the device
-	 *
-	 * @return device name
-	 */
-	public String getDeviceNameSetPoint() {
-		return deviceNameSetPoint;
-	}
-
-	/**
-	 * sets the short or EPICS-GDA shared name for this device
-	 *
-	 * @param deviceName
-	 */
-	public void setDeviceNameSetPoint(String deviceName) {
-		this.deviceNameSetPoint = deviceName;
-	}
-
-	/**
-	 * Gets the epics record name get point.
-	 *
-	 * @return The epics record name get point
-	 */
-	public String getEpicsRecordNameGetPoint() {
-		return epicsRecordNameGetPoint;
-	}
-
-	/**
-	 * Sets the epics record name get point.
-	 *
-	 * @param epicsRecordNameGetPoint
-	 *            The epics record name get point
-	 */
-	public void setEpicsRecordNameGetPoint(String epicsRecordNameGetPoint) {
-		this.epicsRecordNameGetPoint = epicsRecordNameGetPoint;
-	}
-
-	/**
-	 * gets the short or EPICS-GDA shared name of the device
-	 *
-	 * @return device name
-	 */
-	public String getDeviceNameGetPoint() {
-		return deviceNameGetPoint;
-	}
-
-	/**
-	 * sets the short or EPICS-GDA shared name for this device
-	 *
-	 * @param deviceName
-	 */
-	public void setDeviceNameGetPoint(String deviceName) {
-		this.deviceNameGetPoint = deviceName;
 	}
 
 	// Implementation of InitializationListener

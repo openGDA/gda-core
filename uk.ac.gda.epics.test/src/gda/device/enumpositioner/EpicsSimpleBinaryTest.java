@@ -30,7 +30,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
@@ -48,6 +47,7 @@ import gda.device.EnumPositionerStatus;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.EpicsController.MonitorType;
+import gda.factory.FactoryException;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
@@ -110,14 +110,9 @@ public class EpicsSimpleBinaryTest {
 		channelManagerField.set(positioner, channelManager);
 	}
 
-	@Test
+	@Test(expected = FactoryException.class)
 	public void testConfigureNoEpicsInfoSet() throws Exception {
-		// The positioner will initialise the channel manager, even if no PV/Epics record is set.
-		// Not sure whether this is correct behaviour, but that's what it does.
 		positioner.configure();
-		verify(channelManager).tryInitialize(100);
-		verifyNoMoreInteractions(channelManager);
-		checkPositionerConfigured();
 	}
 
 	@Test
@@ -127,17 +122,6 @@ public class EpicsSimpleBinaryTest {
 
 		// If PV name is set, configure() preserves trailing colon
 		verify(channelManager).createChannel(eq(PV_NAME_WITH_COLON), any(MonitorListener.class), eq(MonitorType.STS), eq(false));
-		verify(channelManager).tryInitialize(100);
-		checkPositionerConfigured();
-	}
-
-	@Test
-	public void testConfigureWithEpicsRecordName() throws Exception {
-		positioner.setEpicsRecordName(PV_NAME_WITH_COLON);
-		positioner.configure();
-
-		// If epicsRecordName is set, configure() removes trailing colon
-		verify(channelManager).createChannel(eq(PV_NAME), any(MonitorListener.class), eq(MonitorType.STS), eq(false));
 		verify(channelManager).tryInitialize(100);
 		checkPositionerConfigured();
 	}
