@@ -25,11 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
 import gda.device.detector.IPCOControllerV17;
-import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.FfmpegStream;
 import gda.device.detector.areadetector.v17.ImageMode;
@@ -42,8 +39,6 @@ import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.NDROI;
 import gda.device.detector.areadetector.v17.NDStats;
 import gda.epics.connection.EpicsController;
-import gda.epics.interfaces.PcocamType;
-import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
@@ -120,10 +115,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	private NDFileHDF5 hdf;
 
 	private String name;
-	private String deviceName;
 	private String basePVName;
-	private IPVProvider pvProvider;
-	private PcocamType config;
 
 	/**
 	 * detector's trigger mode - auto, soft, Ext + Soft, Ext Pulse. used to switch detcetor operation mode.
@@ -265,9 +257,6 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	@Override
 	public int getADCMode() throws TimeoutException, CAException, InterruptedException, Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getADC_MODE_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel("ADC_MODE_RBV", ADC_MODE_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getADCMode", ex);
@@ -283,11 +272,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 		}
 
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getADC_MODE().getPv()), value);
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel("ADC_MODE", ADC_MODE), value);
-			}
+			EPICS_CONTROLLER.caputWait(getChannel("ADC_MODE", ADC_MODE), value);
 		} catch (Exception ex) {
 			logger.warn("Cannot setADCMode", ex);
 			logger.error("{} : {}", getName(), areaDetector.getStatusMessage_RBV());
@@ -298,9 +283,6 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	@Override
 	public int getPixRate() throws TimeoutException, CAException, InterruptedException, Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getPIX_RATE_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel("PIX_RATE_RBV", PIX_RATE_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getPixRate", ex);
@@ -311,11 +293,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	@Override
 	public void setPixRate(int value) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getPIX_RATE().getPv()), value);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel("PIX_RATE", PIX_RATE), value);
-			}
+			EPICS_CONTROLLER.caput(getChannel("PIX_RATE", PIX_RATE), value);
 		} catch (Exception ex) {
 			logger.warn("Cannot setPixRate", ex);
 			logger.error("{} : {}", getName(), areaDetector.getStatusMessage_RBV());
@@ -326,9 +304,6 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	@Override
 	public double getCamRamUsage() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getCAM_RAM_USE_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel("CAM_RAM_USE_RBV", CAM_RAM_USE_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getCamRamUsage", ex);
@@ -339,9 +314,6 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	@Override
 	public double getElectronicTemperature() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getELEC_TEMP_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel("ELEC_TEMP_RBV", ELEC_TEMP_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getElectronicTemperature", ex);
@@ -352,9 +324,6 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	@Override
 	public double getPowerSupplyTemperature() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getPOWER_TEMP_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel("POWER_TEMP_RBV", POWER_TEMP_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getPowerSupplyTemperature", ex);
@@ -365,9 +334,6 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	@Override
 	public int getStorageMode() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getSTORAGE_MODE_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel("STORAGE_MODE_RBV", STORAGE_MODE_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getStorageMode", ex);
@@ -382,11 +348,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 					+ ": Input must be 0 for 'Recorder' mode or 1 for 'FIFO buffer' mode");
 		}
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getSTORAGE_MODE().getPv()), value);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel("STORAGE_MODE", STORAGE_MODE), value);
-			}
+			EPICS_CONTROLLER.caput(getChannel("STORAGE_MODE", STORAGE_MODE), value);
 		} catch (Exception ex) {
 			logger.warn("Cannot setStorageMode", ex);
 			logger.error("{} : {}", getName(), areaDetector.getStatusMessage_RBV());
@@ -397,9 +359,6 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	@Override
 	public int getRecorderMode() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getRECORDER_MODE_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel("RECORDER_MODE_RBV", RECORDER_MODE_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getRecorderMode", ex);
@@ -414,11 +373,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 					+ ": Input must be 0 for 'Sequence' mode or 1 for 'Ring buffer' mode");
 		}
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getRECORDER_MODE().getPv()), value);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel("RECORDER_MODE", RECORDER_MODE), value);
-			}
+			EPICS_CONTROLLER.caput(getChannel("RECORDER_MODE", RECORDER_MODE), value);
 		} catch (Exception ex) {
 			logger.warn("Cannot setRecorderMode", ex);
 			logger.error("{} : {}", getName(), areaDetector.getStatusMessage_RBV());
@@ -429,9 +384,6 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	@Override
 	public int getTimestampMode() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getTIMESTAMP_MODE_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel("TIMESTAMP_MODE_RBV", TIMESTAMP_MODE_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getTimestampMode", ex);
@@ -446,11 +398,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 					+ ": Input must be 0 - None, 1 - BCD, 2 - BCD+ASCII, and 3 - ASCII");
 		}
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getTIMESTAMP_MODE().getPv()), value);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel("TIMESTAMP_MODE", TIMESTAMP_MODE), value);
-			}
+			EPICS_CONTROLLER.caput(getChannel("TIMESTAMP_MODE", TIMESTAMP_MODE), value);
 		} catch (Exception ex) {
 			logger.warn("Cannot setTimestampMode", ex);
 			logger.error("{} : {}", getName(), areaDetector.getStatusMessage_RBV());
@@ -461,9 +409,6 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	@Override
 	public int getAcquireMode() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getACQUIRE_MODE_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel("ACQUIRE_MODE_RBV", ACQUIRE_MODE_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getAcquireMode", ex);
@@ -483,11 +428,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 					+ ": Input must be 0 - Auto, 1 - Ext. enable, and 2 - Ext. trigger");
 		}
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getACQUIRE_MODE().getPv()), value);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ACQUIRE_MODE, ACQUIRE_MODE), value);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ACQUIRE_MODE, ACQUIRE_MODE), value);
 		} catch (Exception ex) {
 			logger.warn("Cannot setAcquireMode", ex);
 			logger.error("{} : {}", getName(), areaDetector.getStatusMessage_RBV());
@@ -498,9 +439,6 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	@Override
 	public int getArmMode() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getARM_MODE_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ARM_MODE_RBV, ARM_MODE_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getArmMode", ex);
@@ -528,11 +466,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 			throw new IllegalArgumentException(getName() + ": Input must be 0 - Disarmed, 1 - Armed");
 		}
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getARM_MODE().getPv()), value);
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(ARM_MODE, ARM_MODE), value);
-			}
+			EPICS_CONTROLLER.caputWait(getChannel(ARM_MODE, ARM_MODE), value);
 		} catch (Exception ex) {
 			logger.warn("Cannot setArmMode", ex);
 			logger.error("{} : {}", getName(), areaDetector.getStatusMessage_RBV());
@@ -543,9 +477,6 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	@Override
 	public double getDelayTime() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getDELAY_TIME_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(DELAY_TIME_RBV, DELAY_TIME_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getDelayTime", ex);
@@ -556,11 +487,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	@Override
 	public void setDelayTime(double value) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getDELAY_TIME().getPv()), value);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(DELAY_TIME, DELAY_TIME), value);
-			}
+			EPICS_CONTROLLER.caput(getChannel(DELAY_TIME, DELAY_TIME), value);
 		} catch (Exception ex) {
 			logger.warn("Cannot setDelayTime", ex);
 			logger.error("{} : {}", getName(), areaDetector.getStatusMessage_RBV());
@@ -824,12 +751,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 				pvPostFix = pvElementName;
 			}
 
-			String fullPvName;
-			if (pvProvider != null) {
-				fullPvName = pvProvider.getPV(pvElementName);
-			} else {
-				fullPvName = basePVName + pvPostFix;
-			}
+			String fullPvName = basePVName + pvPostFix;
 			return createChannel(fullPvName);
 		} catch (Exception exception) {
 			logger.warn("Problem getting channel", exception);
@@ -857,8 +779,8 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (getDeviceName() == null && basePVName == null && pvProvider == null) {
-			throw new IllegalArgumentException("''deviceName','basePVName' or pvProvider needs to be declared");
+		if (basePVName == null) {
+			throw new IllegalArgumentException("'basePVName' needs to be declared");
 		}
 		if (areaDetector == null) {
 			throw new IllegalArgumentException("'areaDetector' needs to be declared");
@@ -965,29 +887,6 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 		return triggerPV;
 	}
 
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	public void setDeviceName(String deviceName) throws FactoryException {
-		this.deviceName = deviceName;
-		initializeConfig();
-	}
-
-	private void initializeConfig() throws FactoryException {
-		if (deviceName != null) {
-			try {
-				config = Configurator.getConfiguration(deviceName, PcocamType.class);
-			} catch (ConfigurationNotFoundException e) {
-				logger.error("EPICS configuration for device {} not found", getDeviceName());
-				throw new FactoryException("EPICS configuration for device " + getDeviceName() + " not found.", e);
-			} catch (Exception ex) {
-				logger.error("EPICS configuration for device {} not found", getDeviceName());
-				throw new FactoryException("EPICS configuration for device " + getDeviceName() + " not found.", ex);
-			}
-		}
-	}
-
 	@Override
 	public String getBasePVName() {
 		return basePVName;
@@ -995,14 +894,6 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 
 	public void setBasePVName(String basePVName) {
 		this.basePVName = basePVName;
-	}
-
-	public void setPvProvider(IPVProvider pvProvider) {
-		this.pvProvider = pvProvider;
-	}
-
-	public IPVProvider getPvProvider() {
-		return pvProvider;
 	}
 
 	@Override

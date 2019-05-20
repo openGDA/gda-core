@@ -18,12 +18,17 @@
 
 package gda.device.detector.pixium;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.AreaDetectorROI;
-import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.FfmpegStream;
 import gda.device.detector.areadetector.v17.NDArray;
@@ -36,22 +41,12 @@ import gda.device.detector.areadetector.v17.NDROI;
 import gda.device.detector.areadetector.v17.NDStats;
 import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.PixiumType;
-import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Vector;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-
 import uk.ac.gda.devices.pixium.IPixiumController;
 
 public class PixiumControllerv17 implements IPixiumController, InitializingBean {
@@ -117,8 +112,6 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 
 	private String basePVName = null;
 
-	private IPVProvider pvProvider;
-
 	private NDROI roi1;
 
 	private NDProcess proc;
@@ -126,7 +119,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 	private NDStats stat;
 
 	private NDOverlay draw;
-	
+
 	private NDArray arr;
 
 	private NDFileNexus nxs;
@@ -134,8 +127,6 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 	private FfmpegStream mjpeg;
 
 	private NDFileHDF5 hdf;
-
-	private String deviceName;
 
 	private PixiumType config;
 
@@ -230,29 +221,6 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 		this.basePVName = basePVName;
 	}
 
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	public void setDeviceName(String deviceName) throws FactoryException {
-		this.deviceName = deviceName;
-		initializeConfig();
-	}
-
-	private void initializeConfig() throws FactoryException {
-		if (deviceName != null) {
-			try {
-				config = Configurator.getConfiguration(deviceName, PixiumType.class);
-			} catch (ConfigurationNotFoundException e) {
-				logger.error("EPICS configuration for device {} not found", getDeviceName());
-				throw new FactoryException("EPICS configuration for device " + getDeviceName() + " not found.", e);
-			} catch (Exception ex) {
-				logger.error("EPICS configuration for device {} not found", getDeviceName());
-				throw new FactoryException("EPICS configuration for device " + getDeviceName() + " not found.", ex);
-			}
-		}
-	}
-
 	// Values internal to the object for Channel Access
 	private final EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 	/**
@@ -268,7 +236,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 	private ChangeModePutListener changeModeCallback = new ChangeModePutListener();
 
 	private ApplyOffsetReferencePutListener applyOffsetReferenceCallback = new ApplyOffsetReferencePutListener();
-	
+
 	private class CalibrationPutListener implements PutListener {
 
 		@Override
@@ -343,7 +311,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 		areaDetector.setImageMode((short) 1);
 	}
 	/**
-	 * set up continuing acquiring ready for file capture 
+	 * set up continuing acquiring ready for file capture
 	 */
 	@Override
 	public void resetAndStartFilesRecording() throws Exception {
@@ -380,7 +348,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 		if (mjpeg != null) mjpeg.reset();
 		hdf.setNumRowChunks(areaDetector.getArraySizeY_RBV());
 		if (areaDetector.getAcquireState() == 1) {
-			areaDetector.stopAcquiring(); // force stop any active camera acquisition 
+			areaDetector.stopAcquiring(); // force stop any active camera acquisition
 		}
 		setSensibleDetectorParametersForAcquisition(); // initialise area detector ready for acquisition
 		initialisePluginsArrayDimensions();
@@ -405,7 +373,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 
 	/**
 	 * hdf5 plugin only allows up to two added dimensions
-	 * 
+	 *
 	 * @param dimensions
 	 * @throws Exception
 	 */
@@ -651,7 +619,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 			throw ex;
 		}
 	}
-	
+
 	@Override
 	public void startOffsetCalibration() throws Exception {
 		try {
@@ -950,7 +918,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 			setStatus(Detector.BUSY);
 			if (config != null) {
 				EPICS_CONTROLLER.caput(createChannel(config.getMODE_CONTROL_DEFINE().getPv()), 1, new PutListener() {
-					
+
 					@Override
 					public void putCompleted(PutEvent event) {
 						if (event.getStatus() != CAStatus.NORMAL) {
@@ -964,7 +932,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 				});
 			} else {
 				EPICS_CONTROLLER.caput(getChannel("MODE_CONTROL_DEFINE", MODE_CONTROL_DEFINE), 1, new PutListener() {
-					
+
 					@Override
 					public void putCompleted(PutEvent event) {
 						if (event.getStatus() != CAStatus.NORMAL) {
@@ -1007,7 +975,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 			setStatus(Detector.BUSY);
 			if (config != null) {
 				EPICS_CONTROLLER.caput(createChannel(config.getMODE_CONTROL_DELETE().getPv()), 1, new PutListener() {
-					
+
 					@Override
 					public void putCompleted(PutEvent event) {
 						if (event.getStatus() != CAStatus.NORMAL) {
@@ -1021,7 +989,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 				});
 			} else {
 				EPICS_CONTROLLER.caput(getChannel("MODE_CONTROL_DELETE", MODE_CONTROL_DELETE), 1, new PutListener() {
-					
+
 					@Override
 					public void putCompleted(PutEvent event) {
 						if (event.getStatus() != CAStatus.NORMAL) {
@@ -1064,7 +1032,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 			setStatus(Detector.BUSY);
 			if (config != null) {
 				EPICS_CONTROLLER.caput(createChannel(config.getMODE_CONTROL_LOAD().getPv()), 1, new PutListener() {
-					
+
 					@Override
 					public void putCompleted(PutEvent event) {
 						if (event.getStatus() != CAStatus.NORMAL) {
@@ -1078,7 +1046,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 				});
 			} else {
 				EPICS_CONTROLLER.caput(getChannel("MODE_CONTROL_LOAD", MODE_CONTROL_LOAD), 1, new PutListener() {
-					
+
 					@Override
 					public void putCompleted(PutEvent event) {
 						if (event.getStatus() != CAStatus.NORMAL) {
@@ -1121,7 +1089,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 			setStatus(Detector.BUSY);
 			if (config != null) {
 				EPICS_CONTROLLER.caput(createChannel(config.getMODE_CONTROL_UNLOAD().getPv()), 1, new PutListener() {
-					
+
 					@Override
 					public void putCompleted(PutEvent event) {
 						if (event.getStatus() != CAStatus.NORMAL) {
@@ -1135,7 +1103,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 				});
 			} else {
 				EPICS_CONTROLLER.caput(getChannel("MODE_CONTROL_UNLOAD", MODE_CONTROL_UNLOAD), 1, new PutListener() {
-					
+
 					@Override
 					public void putCompleted(PutEvent event) {
 						if (event.getStatus() != CAStatus.NORMAL) {
@@ -1178,7 +1146,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 			setStatus(Detector.BUSY);
 			if (config != null) {
 				EPICS_CONTROLLER.caput(createChannel(config.getMODE_CONTROL_ACTIVATE().getPv()), 1, new PutListener() {
-					
+
 					@Override
 					public void putCompleted(PutEvent event) {
 						if (event.getStatus() != CAStatus.NORMAL) {
@@ -1192,7 +1160,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 				});
 			} else {
 				EPICS_CONTROLLER.caput(getChannel("MODE_CONTROL_ACTIVATE", MODE_CONTROL_ACTIVATE), 1, new PutListener() {
-					
+
 					@Override
 					public void putCompleted(PutEvent event) {
 						if (event.getStatus() != CAStatus.NORMAL) {
@@ -1235,7 +1203,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 			setStatus(Detector.BUSY);
 			if (config != null) {
 				EPICS_CONTROLLER.caput(createChannel(config.getMODE_CONTROL_DEACTIVATE().getPv()), 1, new PutListener() {
-					
+
 					@Override
 					public void putCompleted(PutEvent event) {
 						if (event.getStatus() != CAStatus.NORMAL) {
@@ -1249,7 +1217,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 				});
 			} else {
 				EPICS_CONTROLLER.caput(getChannel("MODE_CONTROL_DEACTIVATE", MODE_CONTROL_DEACTIVATE), 1, new PutListener() {
-					
+
 					@Override
 					public void putCompleted(PutEvent event) {
 						if (event.getStatus() != CAStatus.NORMAL) {
@@ -1402,7 +1370,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 	}
 
 	private int getFrequency() throws Exception {
-		//TODO complex query of logical mode data 
+		//TODO complex query of logical mode data
 		EPICS_CONTROLLER.caput(getChannel(OFFSET_REFERENCE),
 				EPICS_CONTROLLER.cagetInt(getChannel(OFFSET_REFERENCE_NUMBER)));
 		return EPICS_CONTROLLER.cagetInt(getChannel(FRAME_RATE_RBV));
@@ -1418,7 +1386,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 	}
 	/**
 	 * This method allows to toggle between the method in which the PV is acquired.
-	 * 
+	 *
 	 * @param pvElementName
 	 * @param args
 	 * @return {@link Channel} to talk to the relevant PV.
@@ -1434,12 +1402,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 				pvPostFix = pvElementName;
 			}
 
-			String fullPvName;
-			if (pvProvider != null) {
-				fullPvName = pvProvider.getPV(pvElementName);
-			} else {
-				fullPvName = basePVName + pvPostFix;
-			}
+			String fullPvName = basePVName + pvPostFix;
 			return createChannel(fullPvName);
 		} catch (Exception exception) {
 			logger.warn("Problem getting channel", exception);
@@ -1465,18 +1428,10 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 		return channel;
 	}
 
-	public IPVProvider getPvProvider() {
-		return pvProvider;
-	}
-
-	public void setPvProvider(IPVProvider pvProvider) {
-		this.pvProvider = pvProvider;
-	}
-
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (deviceName == null && basePVName == null && pvProvider == null) {
-			throw new IllegalArgumentException("''deviceName','basePVName' or pvProvider needs to be declared");
+		if (basePVName == null) {
+			throw new IllegalArgumentException("'basePVName' needs to be declared");
 		}
 
 		if (areaDetector == null) {
@@ -1648,7 +1603,7 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 	public NDArray getArr() {
 		return arr;
 	}
-	
+
 	@Override
 	public void stop() throws Exception {
 		areaDetector.stopAcquiring();
