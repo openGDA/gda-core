@@ -20,12 +20,10 @@ package uk.ac.diamond.daq.mapping.impl;
 
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 
-import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
-
 /**
  * A wrapper for an {@link IScanPathModel} for use in the mapping UI
  */
-public class ScanPathModelWrapper extends ScanModelWrapper<IScanPathModel> implements IScanModelWrapper<IScanPathModel> {
+public class ScanPathModelWrapper extends ScanModelWrapper<IScanPathModel> {
 
 	public ScanPathModelWrapper() {
 		// no-arg constructor for json deserialization
