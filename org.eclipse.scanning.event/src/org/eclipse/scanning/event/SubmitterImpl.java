@@ -48,6 +48,7 @@ class SubmitterImpl<T extends StatusBean> extends AbstractConnection implements 
 
 	SubmitterImpl(URI uri, String submitQueue, IEventConnectorService service, IEventService eventService) {
 		super(uri, submitQueue, service);
+		logger.info("Submitter created for URI {}", uri);
 		this.eventService = eventService;
 	}
 
@@ -125,6 +126,7 @@ class SubmitterImpl<T extends StatusBean> extends AbstractConnection implements 
 		}
 
 		super.disconnect();
+		logger.info("Submitter disconnected for URI {}", uri);
 	}
 
 	/**
