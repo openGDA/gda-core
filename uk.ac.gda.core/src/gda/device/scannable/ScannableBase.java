@@ -19,6 +19,7 @@
 package gda.device.scannable;
 
 import static java.lang.String.format;
+import static java.util.Arrays.stream;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,15 +27,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.python.core.Py;
-import org.python.core.PyArray;
 import org.python.core.PyException;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
 import org.python.core.PyList;
-import org.python.core.PyLong;
 import org.python.core.PyObject;
 import org.python.core.PySlice;
 import org.python.core.PyString;
+import org.python.core.PyTuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -645,56 +645,12 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 		// if no input or extra names
 		if (position == null) {
 			return null;
-		}
-
-		// convert internal value into a PyObject
-		if (position instanceof Double) {
-			return new PyFloat((Double) position);
-		} else if (position instanceof Integer) {
-			return new PyInteger((Integer) position);
-		} else if (position instanceof Short) {
-			return new PyInteger((Short) position);
-		} else if (position instanceof Float) {
-			return new PyFloat((Float) position);
-		} else if (position instanceof Long) {
-			return new PyLong((Long) position);
-		} else if (position instanceof String) {
-			return new PyString((String) position);
-		} else if (position instanceof PyObject) {
-
-			return (PyObject) (position);
-		}
-		// if its an array, return an array of floats or strings
-		else if (position.getClass().isArray()) {
-			try {
-				if (position instanceof String[]) {
-					double[] currentPosition = ScannableUtils.positionToArray(position, this);
-					PyArray pycurrentPosition = new PyArray(PyString.class, currentPosition.length);
-
-					for (double element : currentPosition) {
-						pycurrentPosition.__add__(new PyFloat(element));
-					}
-
-					return pycurrentPosition;
-
-				}
-				// else
-				double[] currentPosition = ScannableUtils.positionToArray(position, this);
-				PyArray pycurrentPosition = new PyArray(PyFloat.class, currentPosition.length);
-
-				for (int i = 0; i < currentPosition.length; i++) {
-					pycurrentPosition.__setitem__(i, new PyFloat(currentPosition[i]));
-				}
-
-				return pycurrentPosition;
-			} catch (Exception e) {
-				logger.info("{}: exception while converting array of positions ({}) to a string. ", getName(), position, e);
-				return this.__str__();
-			}
-		}
-		// at the very least, create a String and return that
-		else {
-			return this.__str__();
+		} else if (position.getClass().isArray()) {
+			return new PyTuple(stream((Object[])position)
+					.map(Py::java2py)
+					.toArray(PyObject[]::new));
+		} else {
+			return Py.java2py(position);
 		}
 	}
 
