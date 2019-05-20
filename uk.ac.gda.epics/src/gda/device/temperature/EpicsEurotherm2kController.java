@@ -21,14 +21,11 @@ package gda.device.temperature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaces.Eurotherm2kType;
 import gda.factory.FactoryException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.DBR;
@@ -124,10 +121,6 @@ public class EpicsEurotherm2kController extends DeviceBase implements Initializa
 	private double currtemp;
 
 	/**
-	 * GDA device Name
-	 */
-	private String deviceName = null;
-	/**
 	 * EPICS controller
 	 */
 	private EpicsController controller;
@@ -163,34 +156,14 @@ public class EpicsEurotherm2kController extends DeviceBase implements Initializa
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
-			// EPICS interface version 2 for phase II beamlines.
-			if (getDeviceName() != null) {
-				Eurotherm2kType config;
-				try {
-					config = Configurator.getConfiguration(getDeviceName(), gda.epics.interfaces.Eurotherm2kType.class);
-					try {
-						createChannelAccess(config);
-						channelManager.tryInitialize(100);
-					} catch (FactoryException e) {
-						logger.warn("{}: this device is not available on startup and need to be configured later before use.", e.getMessage());
-						throw new FactoryException(e.getMessage() + ": This device is not available on startup and need to be configured later before use.");
-					}
-				} catch (ConfigurationNotFoundException e) {
-					logger.error("Can NOT find EPICS XML configuration for EpicsEurotherm2kController " + getDeviceName(), e);
-					throw new FactoryException("Missing EPICS XML configuration for EpicsEurotherm2kController :  "
-							+ getDeviceName());
-				}
-			} else if (getBasePVName()!=null) {
-				createChannelAccess(getBasePVName());
-				channelManager.tryInitialize(100);
+			if (getBasePVName() == null) {
+				logger.error("Missing PV for {}", getName());
+				throw new FactoryException("Missing PV for EpicsEurotherm2kController " + getName());
 			}
-			// Nothing specified in Server XML file
-			else {
-				logger.error("Missing EPICS configuration for {}", getName());
-				throw new FactoryException("Missing EPICS configuration for EpicsEurotherm2kController " + getName());
-			}
+			createChannelAccess(getBasePVName());
+			channelManager.tryInitialize(100);
 			try {
-				connState=getDisable();
+				connState = getDisable();
 			} catch (DeviceException e) {
 				logger.warn("Failed to get Hardware connection state in {} configure().", getName());
 			}
@@ -202,37 +175,6 @@ public class EpicsEurotherm2kController extends DeviceBase implements Initializa
 	public void reconfigure() throws FactoryException {
 		if (!isConfigured())
 			configure();
-	}
-	/**
-	 * create channel access implementing phase II beamline EPICS interfaces.
-	 *
-	 * @param config
-	 * @throws FactoryException
-	 */
-	private void createChannelAccess(Eurotherm2kType config) throws FactoryException {
-		try {
-			setpoint = channelManager.createChannel(config.getSP().getPv(), false);
-			setpointrbv = channelManager.createChannel(config.getSPRBV().getPv(), false);
-			ramprate = channelManager.createChannel(config.getRR().getPv(), null, false);
-			rampraterbv = channelManager.createChannel(config.getRRRBV().getPv(), false);
-			output = channelManager.createChannel(config.getO().getPv(), false);
-			outputrbv = channelManager.createChannel(config.getORBV().getPv(), false);
-			temp = channelManager.createChannel(config.getPVRBV().getPv(), ctl, false);
-			p = channelManager.createChannel(config.getP().getPv(), null, false);
-			prbv = channelManager.createChannel(config.getPRBV().getPv(), false);
-			i = channelManager.createChannel(config.getI().getPv(), null, false);
-			irbv = channelManager.createChannel(config.getIRBV().getPv(), false);
-			d = channelManager.createChannel(config.getD().getPv(), null, false);
-			drbv = channelManager.createChannel(config.getDRBV().getPv(), false);
-			error = channelManager.createChannel(config.getERR().getPv(), el, true);
-			disable=channelManager.createChannel(config.getDISABLE().getPv(), cl, true);
-
-			// acknowledge that creation phase is completed
-			channelManager.creationPhaseCompleted();
-		} catch (Exception ex) {
-			setConfigured(false);
-			throw new FactoryException("failed to create reuqired connections for " + getName(), ex);
-		}
 	}
 
 	/**
@@ -549,19 +491,6 @@ public class EpicsEurotherm2kController extends DeviceBase implements Initializa
 				notifyIObservers(this, connState);
 			}
 		}
-	}
-	/**
-	 * @return deviceName
-	 */
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	/**
-	 * @param deviceName
-	 */
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
 	}
 
 	/**

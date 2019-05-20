@@ -21,15 +21,11 @@ package gda.device.temperature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
-import gda.configuration.epics.EpicsConfiguration;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaces.Lakeshore340Type;
 import gda.factory.FactoryException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.DBR;
@@ -98,10 +94,6 @@ public class EpicsLakeshore340Controller extends DeviceBase implements ILakeshor
 	private ConnectionListener connlist;
 	private double currtemp;
 	private String connState = "Disabled";
-	/**
-	 * GDA device Name
-	 */
-	private String deviceName = null;
 	private String pvName;
 	/**
 	 * EPICS controller
@@ -134,42 +126,12 @@ public class EpicsLakeshore340Controller extends DeviceBase implements ILakeshor
 			if (readbackChannel < 0 || readbackChannel > 3) {
 				throw new FactoryException("Readback channel must be between 0 and 3 inclusive.");
 			}
-			// EPICS interface version 2 for phase II beamlines.
-			if (getDeviceName() != null) {
-				Lakeshore340Type config;
-				try {
-					if (epicsConfiguration != null) {
-						logger.warn("EpicsLakeshore340Controller:configure:configure:epicsConfiguration != null {}", epicsConfiguration.toString());
-						config = epicsConfiguration.getConfiguration(getDeviceName(), gda.epics.interfaces.Lakeshore340Type.class);
-					} else {
-						config = Configurator.getConfiguration(getDeviceName(), gda.epics.interfaces.Lakeshore340Type.class);
-						logger.warn("EpicsLakeshore340Controller:configure:epicsConfiguration == null");
-					}
-					try {
-						createChannelAccess(config);
-						channelManager.tryInitialize(100);
-					} catch (FactoryException e) {
-						logger
-								.warn(
-										"{}: this device is not available on startup and need to be configured later before use.",
-										e.getMessage());
-						throw new FactoryException(
-								e.getMessage()
-										+ ": This device is not available on startup and need to be configured later before use.");
-					}
-				} catch (ConfigurationNotFoundException e) {
-					logger.error("Can NOT find EPICS configuration for CryoController " + getDeviceName(), e);
-					throw new FactoryException("Missing EPICS XML configuration for CryoController " + getDeviceName());
-				}
-			} else if (getPvName()!=null) {
-				createChannelAccess(getPvName());
-				channelManager.tryInitialize(100);
+			if (getPvName() == null) {
+				logger.error("Missing PV for {}", getName());
+				throw new FactoryException("Missing PV for CryoController " + getName());
 			}
-			// Nothing specified in Server XML file
-			else {
-				logger.error("Missing EPICS configuration for {}", getName());
-				throw new FactoryException("Missing EPICS interface configuration for CryoController " + getName());
-			}
+			createChannelAccess(getPvName());
+			channelManager.tryInitialize(100);
 			try {
 				connState=getDisable();
 			} catch (DeviceException e) {
@@ -197,27 +159,6 @@ public class EpicsLakeshore340Controller extends DeviceBase implements ILakeshor
 		disable = channelManager.createChannel(pvName+"DISABLE", connlist, false);
 		// acknowledge that creation phase is completed
 		channelManager.creationPhaseCompleted();
-		} catch (Throwable th) {
-			throw new FactoryException("failed to create reuqired channels for " + getName(), th);
-		}
-	}
-
-	/**
-	 * create channel access implementing phase II beamline EPICS interfaces.
-	 *
-	 * @param config
-	 * @throws FactoryException
-	 */
-	private void createChannelAccess(Lakeshore340Type config) throws FactoryException {
-		try {
-			targettemp = channelManager.createChannel(config.getSETP_S().getPv(), false);
-			krdg0 = channelManager.createChannel(config.getKRDG0().getPv(), readbackChannel == 0 ? ctl : null, false);
-			krdg1 = channelManager.createChannel(config.getKRDG1().getPv(), readbackChannel == 1 ? ctl : null, false);
-			krdg2 = channelManager.createChannel(config.getKRDG2().getPv(), readbackChannel == 2 ? ctl : null, false);
-			krdg3 = channelManager.createChannel(config.getKRDG3().getPv(), readbackChannel == 3 ? ctl : null, false);
-			disable = channelManager.createChannel(config.getDISABLE().getPv(), connlist, false);
-			// acknowledge that creation phase is completed
-			channelManager.creationPhaseCompleted();
 		} catch (Throwable th) {
 			throw new FactoryException("failed to create reuqired channels for " + getName(), th);
 		}
@@ -438,30 +379,6 @@ public class EpicsLakeshore340Controller extends DeviceBase implements ILakeshor
 		return connState;
 	}
 
-	protected EpicsConfiguration epicsConfiguration;
-
-	/**
-	 * Sets the EpicsConfiguration to use when looking up PV from deviceName.
-	 *
-	 * @param epicsConfiguration the EpicsConfiguration
-	 */
-	public void setEpicsConfiguration(EpicsConfiguration epicsConfiguration) {
-		this.epicsConfiguration = epicsConfiguration;
-	}
-
-	/**
-	 * @return deviceName
-	 */
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	/**
-	 * @param deviceName
-	 */
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
-	}
 	/**
 	 * check if the hardware is connected in EPICS
 	 * @return True or False
