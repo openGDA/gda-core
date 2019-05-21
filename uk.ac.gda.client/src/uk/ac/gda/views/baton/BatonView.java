@@ -18,13 +18,6 @@
 
 package uk.ac.gda.views.baton;
 
-import gda.configuration.properties.LocalProperties;
-import gda.jython.InterfaceProvider;
-import gda.jython.batoncontrol.BatonChanged;
-import gda.jython.batoncontrol.ClientDetails;
-import gda.observable.IObserver;
-import gda.rcp.GDAClientActivator;
-
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
@@ -48,9 +41,15 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.preferences.PreferenceConstants;
-
 import com.swtdesigner.SWTResourceManager;
+
+import gda.configuration.properties.LocalProperties;
+import gda.jython.InterfaceProvider;
+import gda.jython.batoncontrol.BatonChanged;
+import gda.jython.batoncontrol.ClientDetails;
+import gda.observable.IObserver;
+import gda.rcp.GDAClientActivator;
+import uk.ac.gda.preferences.PreferenceConstants;
 
 public class BatonView extends ViewPart implements IObserver{
 
@@ -60,8 +59,8 @@ public class BatonView extends ViewPart implements IObserver{
 
 	protected TableViewer userTable;
 
-	private static enum columnType {CLIENT_NUMBER, USER, NAME, HOSTNAME, VISIT, HOLDING_BATON, AUTH_LEVEL}
-	private static String[] columnToolTip = {"Client\nNumber", "User", "Name", "Hostname", "Visit", "Holding\nBaton", "Authorisation\nLevel"};
+	private static enum columnType {USER, NAME, VISIT, CLIENT_NUMBER, HOSTNAME}
+	private static String[] columnToolTip = {"User", "Name", "Visit", "Client #", "Hostname"};
 
 	public BatonView() {
 		try {
@@ -158,47 +157,35 @@ public class BatonView extends ViewPart implements IObserver{
 
 		ColumnViewerToolTipSupport.enableFor(userTable,ToolTip.NO_RECREATE);
 
-		int first = columnType.CLIENT_NUMBER.ordinal();
-		final TableViewerColumn number = new TableViewerColumn(userTable, SWT.NONE, first);
-		number.getColumn().setText(columnToolTip[first]);
-		number.getColumn().setWidth(100);
-		number.setLabelProvider(new BatonColumnLabelProvider(first));
+		int user = columnType.USER.ordinal();
+		final TableViewerColumn userColumn = new TableViewerColumn(userTable, SWT.NONE, user);
+		userColumn.getColumn().setText(columnToolTip[user]);
+		userColumn.getColumn().setWidth(120);
+		userColumn.setLabelProvider(new BatonColumnLabelProvider(user));
 
-		int second = columnType.USER.ordinal();
-		final TableViewerColumn userName = new TableViewerColumn(userTable, SWT.NONE, second);
-		userName.getColumn().setText(columnToolTip[second]);
-		userName.getColumn().setWidth(150);
-		userName.setLabelProvider(new BatonColumnLabelProvider(second));
-
-		int nameIndex = columnType.NAME.ordinal();
-		final TableViewerColumn nameColumn = new TableViewerColumn(userTable, SWT.NONE, nameIndex);
-		nameColumn.getColumn().setText(columnToolTip[nameIndex]);
+		int name = columnType.NAME.ordinal();
+		final TableViewerColumn nameColumn = new TableViewerColumn(userTable, SWT.NONE, name);
+		nameColumn.getColumn().setText(columnToolTip[name]);
 		nameColumn.getColumn().setWidth(200);
-		nameColumn.setLabelProvider(new BatonColumnLabelProvider(nameIndex));
+		nameColumn.setLabelProvider(new BatonColumnLabelProvider(name));
 
-		int third = columnType.HOSTNAME.ordinal();
-		final TableViewerColumn hostName = new TableViewerColumn(userTable, SWT.NONE, third);
-		hostName.getColumn().setText(columnToolTip[third]);
-		hostName.getColumn().setWidth(200);
-		hostName.setLabelProvider(new BatonColumnLabelProvider(third));
+		int visit = columnType.VISIT.ordinal();
+		final TableViewerColumn visitColumn = new TableViewerColumn(userTable, SWT.NONE, visit);
+		visitColumn.getColumn().setText(columnToolTip[visit]);
+		visitColumn.getColumn().setWidth(90);
+		visitColumn.setLabelProvider(new BatonColumnLabelProvider(visit));
 
-		int fourth = columnType.VISIT.ordinal();
-		final TableViewerColumn visitName = new TableViewerColumn(userTable, SWT.NONE, fourth);
-		visitName.getColumn().setText(columnToolTip[fourth]);
-		visitName.getColumn().setWidth(150);
-		visitName.setLabelProvider(new BatonColumnLabelProvider(fourth));
+		int clientNumber = columnType.CLIENT_NUMBER.ordinal();
+		final TableViewerColumn clientNumberColumn = new TableViewerColumn(userTable, SWT.NONE, clientNumber);
+		clientNumberColumn.getColumn().setText(columnToolTip[clientNumber]);
+		clientNumberColumn.getColumn().setWidth(70);
+		clientNumberColumn.setLabelProvider(new BatonColumnLabelProvider(clientNumber));
 
-		int fifth = columnType.HOLDING_BATON.ordinal();
-		final TableViewerColumn hasBaton = new TableViewerColumn(userTable, SWT.NONE, fifth);
-		hasBaton.getColumn().setText(columnToolTip[fifth]);
-		hasBaton.getColumn().setWidth(100);
-		hasBaton.setLabelProvider(new BatonColumnLabelProvider(fifth));
-
-		int sixth = columnType.AUTH_LEVEL.ordinal();
-		final TableViewerColumn authLevel = new TableViewerColumn(userTable, SWT.NONE, sixth);
-		authLevel.getColumn().setText(columnToolTip[sixth]);
-		authLevel.getColumn().setWidth(150);
-		authLevel.setLabelProvider(new BatonColumnLabelProvider(sixth));
+		int hostname = columnType.HOSTNAME.ordinal();
+		final TableViewerColumn hostnameColumn = new TableViewerColumn(userTable, SWT.NONE, hostname);
+		hostnameColumn.getColumn().setText(columnToolTip[hostname]);
+		hostnameColumn.getColumn().setWidth(175);
+		hostnameColumn.setLabelProvider(new BatonColumnLabelProvider(hostname));
 	}
 
 	private class BatonColumnLabelProvider extends ColumnLabelProvider {
@@ -213,7 +200,7 @@ public class BatonView extends ViewPart implements IObserver{
 	    @Override
 		public Image getImage(Object element) {
 			if (!(element instanceof ClientDetails)) return super.getImage(element);
-			if (columnIndex!=columnType.HOLDING_BATON.ordinal()) return null;
+			if (columnIndex!=columnType.USER.ordinal()) return null;
 			final ClientDetails detail = (ClientDetails)element;
 			if (detail.isHasBaton()) {
 				return flagGreen;
@@ -228,21 +215,19 @@ public class BatonView extends ViewPart implements IObserver{
 			if (columnIndex==columnType.CLIENT_NUMBER.ordinal()) {
 				return detail.getIndex()+"";
 			} else if (columnIndex==columnType.USER.ordinal()) {
+				String user = detail.getUserID();
 				final ClientDetails me = InterfaceProvider.getBatonStateProvider().getMyDetails();
 				if (me.getIndex()==detail.getIndex()) {
-					return detail.getUserID()+"*";
+					user += "*";
 				}
-				return detail.getUserID();
+				user += " (" + Integer.toString(detail.getAuthorisationLevel()) + ")";
+				return user;
 			} else if (columnIndex == columnType.NAME.ordinal()) {
 				return detail.getFullName();
 			} else if (columnIndex==columnType.HOSTNAME.ordinal()) {
 				return detail.getHostname();
 			} else if (columnIndex==columnType.VISIT.ordinal()) {
 				return detail.getVisitID();
-			} else if (columnIndex==columnType.HOLDING_BATON.ordinal()) {
-				return "";
-			} else if (columnIndex == columnType.AUTH_LEVEL.ordinal()) {
-				return Integer.toString(detail.getAuthorisationLevel());
 			}
 			return null;
 		}
@@ -254,19 +239,23 @@ public class BatonView extends ViewPart implements IObserver{
 			if (columnIndex==columnType.CLIENT_NUMBER.ordinal()) {
 				return null;
 			} else if (columnIndex==columnType.USER.ordinal()) {
+				String userMessage;
 				final ClientDetails me = InterfaceProvider.getBatonStateProvider().getMyDetails();
 				if (me.getUserID().equals(detail.getUserID())) {
-					return "You are currently logged on as '"+detail.getUserID()+"'.";
+					userMessage = "You are currently logged on as '" + detail.getUserID() + "'";
+				} else {
+					userMessage = "The user '" + detail.getUserID() + "'";
 				}
-				return "The user '"+detail.getUserID()+"'.";
+				userMessage += " - authorisation level " + detail.getAuthorisationLevel();
+				final ClientDetails batonHolder = InterfaceProvider.getBatonStateProvider().getBatonHolder();
+				if (batonHolder.getUserID().equals(detail.getUserID())) {
+					userMessage +=  " (baton holder)";
+				}
+				return userMessage;
 			} else if (columnIndex==columnType.HOSTNAME.ordinal()) {
 				return "The hostname of this user.";
 			} else if (columnIndex==columnType.VISIT.ordinal()) {
 				return "The visit in current use.";
-			} else if (columnIndex==columnType.HOLDING_BATON.ordinal()) {
-				return "A green flag represents ownership of the baton.";
-			} else if (columnIndex == columnType.AUTH_LEVEL.ordinal()) {
-				return "Authorisation level of this client.";
 			}
 			return null;
 		}
