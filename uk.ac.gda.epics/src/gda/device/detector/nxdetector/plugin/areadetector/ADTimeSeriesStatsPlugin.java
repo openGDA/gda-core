@@ -43,9 +43,9 @@ import gda.scan.ScanInformation;
 
 public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin, FrameCountingNXPlugin {
 
-	public static ADTimeSeriesStatsPlugin createFromBasePVName(String pluginName, String basePVName, RectangularROIProvider<Integer> roiProvider) {
-		NDStatsPVs statsPVs = NDStatsPVsImpl.createFromBasePVName(basePVName);
-		return new ADTimeSeriesStatsPlugin(statsPVs, pluginName, roiProvider);
+	public static ADTimeSeriesStatsPlugin createFromBasePVName(String pluginName, String basePVName, RectangularROIProvider<Integer> roiProvider, boolean legacyTSpvs) {
+		NDStatsPVs statsPVs = NDStatsPVsImpl.createFromBasePVName(basePVName, legacyTSpvs);
+		return new ADTimeSeriesStatsPlugin(statsPVs, pluginName, roiProvider, legacyTSpvs);
 	}
 
 	private final NDStatsPVs pvs;
@@ -71,10 +71,15 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin, FrameCountin
 
 	private boolean enabled;
 
-	public ADTimeSeriesStatsPlugin(NDStatsPVs statsPVs, String name, RectangularROIProvider<Integer> roiProvider) {
+	private int numberImagesPerCollection;
+
+	private boolean legacyTSpvs = true;
+
+	public ADTimeSeriesStatsPlugin(NDStatsPVs statsPVs, String name, RectangularROIProvider<Integer> roiProvider, boolean legacyTSpvs) {
 		this.pvs = statsPVs;
 		this.name = name;
 		this.roiProvider = roiProvider;
+		this.legacyTSpvs =legacyTSpvs;
 	}
 
 	public boolean isEnabled() {
@@ -182,6 +187,7 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin, FrameCountin
 
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
+		this.numberImagesPerCollection=numberImagesPerCollection;
 		if (scanInfo == null) {
 			throw new NullPointerException("scanInfo is required");
 		}
@@ -254,16 +260,16 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin, FrameCountin
 		}
 		int numPointsToCollect;
 		if (isOneTimeSeriesCollectionPerLine()) {
-			numPointsToCollect = getNumPointsInLine();
+			numPointsToCollect = getNumPointsInLine()*numberImagesPerCollection;
 		} else {
-			numPointsToCollect = getNumPointsInScan();
+			numPointsToCollect = getNumPointsInScan()*numberImagesPerCollection;
 
 		}
 		List<ReadOnlyPV<Double[]>> tsArrayPVList = new ArrayList<ReadOnlyPV<Double[]>>();
 		for (Stat stat: getEnabledStats()) {
 			tsArrayPVList.add(pvs.getTSArrayPV(stat));
 		}
-		timeSeriesCollection = new TimeSeriesInputStreamCollection(pvs.getTSControlPV(), pvs.getTSNumPointsPV(), pvs.getTSCurrentPointPV(), tsArrayPVList , numPointsToCollect);
+		timeSeriesCollection = new TimeSeriesInputStreamCollection(pvs.getTSControlPV(), pvs.getTSAcquirePV(), pvs.getTSReadPV(), pvs.getTSNumPointsPV(), pvs.getTSCurrentPointPV(), tsArrayPVList , numPointsToCollect, legacyTSpvs);
 	}
 
 	private int getNumPointsInLine() {

@@ -22,23 +22,9 @@ import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import gda.device.detector.areadetector.v17.NDPluginBasePVs;
-import gda.device.detector.areadetector.v18.NDStatsPVs;
-import gda.device.detector.areadetector.v18.NDStatsPVs.BasicStat;
-import gda.device.detector.areadetector.v18.NDStatsPVs.CentroidStat;
-import gda.device.detector.areadetector.v18.NDStatsPVs.Stat;
-import gda.device.detector.areadetector.v18.NDStatsPVs.TSControlCommands;
-import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
-import gda.device.detector.nxdata.NXDetectorDataNullAppender;
-import gda.device.detector.nxdetector.roi.RectangularROIProvider;
-import gda.device.detector.nxdetector.roi.SimpleRectangularROIProvider;
-import gda.epics.PV;
-import gda.epics.ReadOnlyPV;
-import gda.epics.predicate.GreaterThanOrEqualTo;
-import gda.scan.ScanInformation;
 
 import java.util.List;
 import java.util.Map;
@@ -54,6 +40,22 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import gda.device.detector.areadetector.v17.NDPluginBasePVs;
+import gda.device.detector.areadetector.v18.NDStatsPVs;
+import gda.device.detector.areadetector.v18.NDStatsPVs.BasicStat;
+import gda.device.detector.areadetector.v18.NDStatsPVs.CentroidStat;
+import gda.device.detector.areadetector.v18.NDStatsPVs.Stat;
+import gda.device.detector.areadetector.v18.NDStatsPVs.TSControlCommands;
+import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
+import gda.device.detector.nxdata.NXDetectorDataNullAppender;
+import gda.device.detector.nxdetector.roi.RectangularROI;
+import gda.device.detector.nxdetector.roi.RectangularROIProvider;
+import gda.epics.PV;
+import gda.epics.ReadOnlyPV;
+import gda.epics.predicate.GreaterThanOrEqualTo;
+import gda.scan.ScanInformation;
+
 @RunWith(MockitoJUnitRunner.class)
 public class ADTimeSeriesStatsPluginTest {
 
@@ -62,6 +64,9 @@ public class ADTimeSeriesStatsPluginTest {
 
 	@Mock
 	private PV<Integer> tsNumPointsPV;
+
+	@Mock
+	private PV<Integer> tsReadScanPV;
 
 	@Mock
 	private PV<Boolean> enableCallbacksPV;
@@ -96,12 +101,16 @@ public class ADTimeSeriesStatsPluginTest {
 	@Mock
 	private PV<Boolean> computeCentroidPV;
 
+	@Mock
+	private RectangularROI<Integer> roi;
+
 	private ADTimeSeriesStatsPlugin plugin;
 
-	private RectangularROIProvider<Integer> roiProvider = new SimpleRectangularROIProvider();
+	@Mock
+	private RectangularROIProvider<Integer> roiProvider;
 
 	@Before
-	public void setUp() {
+	public void setUp() throws Exception {
 		when(pvs.getComputeStatistsicsPVPair()).thenReturn(computeStatisticsPV);
 		when(pvs.getComputeCentroidPVPair()).thenReturn(computeCentroidPV);
 		when(pvs.getTSArrayPV(BasicStat.MaxValue)).thenReturn(maxArrayPV);
@@ -109,9 +118,12 @@ public class ADTimeSeriesStatsPluginTest {
 		when(pvs.getTSControlPV()).thenReturn(tsControlPV);
 		when(pvs.getTSCurrentPointPV()).thenReturn(tsCurrentPointPV);
 		when(pvs.getTSNumPointsPV()).thenReturn(tsNumPointsPV);
+		when(pvs.getTSReadScanPV()).thenReturn(tsReadScanPV);
 		when(pvs.getPluginBasePVs()).thenReturn(pluginBasePVs);
+		when(roiProvider.getRoi()).thenReturn(roi);
+		when(roi.getName()).thenReturn("testRoi");
 		when(pluginBasePVs.getEnableCallbacksPVPair()).thenReturn(enableCallbacksPV);
-		plugin = new ADTimeSeriesStatsPlugin(pvs, "name", roiProvider);
+		plugin = new ADTimeSeriesStatsPlugin(pvs, "name", roiProvider, true);
 	}
 
 	@Test
@@ -122,26 +134,29 @@ public class ADTimeSeriesStatsPluginTest {
 	}
 
 	@Test
-	public void testGetInputStreamNamesBasicStatsOnly() {
+	public void testGetInputStreamNamesBasicStatsOnly() throws Exception {
 		plugin.setEnabledBasicStats(asList(BasicStat.MaxX, BasicStat.Total));
-		assertEquals(asList("maxx", "total"), plugin.getInputStreamNames());
+		plugin.prepareForCollection(1, scanInfo);
+		assertEquals(asList("testRoi_maxx", "testRoi_total"), plugin.getInputStreamNames());
 		assertEquals(asList("%f", "%f"), plugin.getInputStreamFormats());
 		assertEquals(true, plugin.willRequireCallbacks());
 	}
 
 	@Test
-	public void testGetInputStreamNamesCentroidStatsOnly() {
+	public void testGetInputStreamNamesCentroidStatsOnly() throws Exception {
 		plugin.setEnabledCentroidStats(asList(CentroidStat.CentroidX));
-		assertEquals(asList("centroidx"), plugin.getInputStreamNames());
+		plugin.prepareForCollection(1, scanInfo);
+		assertEquals(asList("testRoi_centroidx"), plugin.getInputStreamNames());
 		assertEquals(asList("%f"), plugin.getInputStreamFormats());
 		assertEquals(true, plugin.willRequireCallbacks());
 	}
 
 	@Test
-	public void testGetInputStreamNamesBasicAndCentroidStats() {
+	public void testGetInputStreamNamesBasicAndCentroidStats() throws Exception {
 		plugin.setEnabledBasicStats(asList(BasicStat.MaxX, BasicStat.Total));
 		plugin.setEnabledCentroidStats(asList(CentroidStat.CentroidX));
-		assertEquals(asList("maxx", "total", "centroidx"), plugin.getInputStreamNames());
+		plugin.prepareForCollection(1, scanInfo);
+		assertEquals(asList("testRoi_maxx", "testRoi_total", "testRoi_centroidx"), plugin.getInputStreamNames());
 		assertEquals(asList("%f", "%f", "%f"), plugin.getInputStreamFormats());
 		assertEquals(true, plugin.willRequireCallbacks());
 	}
@@ -230,7 +245,7 @@ public class ADTimeSeriesStatsPluginTest {
 	public void testReadWhileDisabled() throws Exception {
 		testPrepareForLineWhileDisabled();
 		NXDetectorDataAppender nullAppender = new NXDetectorDataNullAppender();
-		assertEquals(asList(nullAppender, nullAppender, nullAppender), plugin.read(1000));
+		assertEquals(asList(nullAppender), plugin.read(1000));
 	}
 
 	@Test
@@ -242,7 +257,7 @@ public class ADTimeSeriesStatsPluginTest {
 		testPrepareForLine();
 		when(tsCurrentPointPV.waitForValue(new GreaterThanOrEqualTo(1), -1)).thenReturn(1);
 		when(tsCurrentPointPV.waitForValue(new GreaterThanOrEqualTo(2), -1)).thenReturn(3);
-		List<String> names = asList("maxvalue", "centroidx");
+		List<String> names = asList("testRoi_maxvalue", "testRoi_centroidx");
 		NXDetectorDataDoubleAppender appender1 = new NXDetectorDataDoubleAppender(names, asList(0., 10.));
 		NXDetectorDataDoubleAppender appender2 = new NXDetectorDataDoubleAppender(names, asList(1., 11.));
 		NXDetectorDataDoubleAppender appender3 = new NXDetectorDataDoubleAppender(names, asList(2., 12.));
@@ -260,7 +275,7 @@ public class ADTimeSeriesStatsPluginTest {
 	public void  testCompleteLineStopsMonitoring() throws Exception {
 		testReadWhileEnabled();
 		plugin.completeLine();
-		verify(tsNumPointsPV).setValueMonitoring(false);
+		verify(tsNumPointsPV, times(2)).setValueMonitoring(false);
 	}
 
 	@Test
@@ -272,7 +287,7 @@ public class ADTimeSeriesStatsPluginTest {
 		testPrepareForLine();
 		when(tsCurrentPointPV.waitForValue(new GreaterThanOrEqualTo(1), -1)).thenReturn(1);
 		when(tsCurrentPointPV.waitForValue(new GreaterThanOrEqualTo(2), -1)).thenReturn(3);
-		List<String> names = asList("maxvalue", "centroidx");
+		List<String> names = asList("testRoi_maxvalue", "testRoi_centroidx");
 		final NXDetectorDataDoubleAppender appender1 = new NXDetectorDataDoubleAppender(names, asList(0., 10.));
 		final NXDetectorDataDoubleAppender appender2 = new NXDetectorDataDoubleAppender(names, asList(1., 11.));
 		final NXDetectorDataDoubleAppender appender3 = new NXDetectorDataDoubleAppender(names, asList(2., 12.));

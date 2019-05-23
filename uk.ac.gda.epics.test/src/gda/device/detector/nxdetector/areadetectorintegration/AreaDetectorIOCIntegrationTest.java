@@ -21,6 +21,18 @@ package gda.device.detector.nxdetector.areadetectorintegration;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.Callable;
+
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.detector.NXDetector;
 import gda.device.detector.addetector.triggering.SingleExposureStandard;
@@ -42,17 +54,6 @@ import gda.epics.PV;
 import gda.jython.ICurrentScanInformationHolder;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.Callable;
-
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 public class AreaDetectorIOCIntegrationTest {
 
@@ -132,7 +133,7 @@ public class AreaDetectorIOCIntegrationTest {
 		roi1PVs.afterPropertiesSet();
 
 		collectionStrategy = new SingleExposureStandard(adBase, 0);
-		adTimeSeriesStatsPlugin = new ADTimeSeriesStatsPlugin(stat1PVs, "stat1", roiProvider);
+		adTimeSeriesStatsPlugin = new ADTimeSeriesStatsPlugin(stat1PVs, "stat1", roiProvider, true);
 		adRoiPlugin = new ADRectangularROIPlugin(roi1PVs, "roi1", roiProvider);
 		adStatsROIPair = new ADRoiStatsPair("pair1", adRoiPlugin, adTimeSeriesStatsPlugin, null, roiProvider);
 

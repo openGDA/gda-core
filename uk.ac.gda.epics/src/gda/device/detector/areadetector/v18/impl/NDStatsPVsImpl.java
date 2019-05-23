@@ -18,6 +18,14 @@
 
 package gda.device.detector.areadetector.v18.impl;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.device.detector.areadetector.v17.NDPluginBasePVs;
 import gda.device.detector.areadetector.v17.impl.ADDriverPilatusImpl;
 import gda.device.detector.areadetector.v17.impl.NDPluginBasePVsImpl;
@@ -27,24 +35,17 @@ import gda.epics.PV;
 import gda.epics.PVWithSeparateReadback;
 import gda.epics.ReadOnlyPV;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-
 public class NDStatsPVsImpl implements InitializingBean, NDStatsPVs {
 
 	static final Logger logger = LoggerFactory.getLogger(ADDriverPilatusImpl.class);
 
-	public static NDStatsPVsImpl createFromBasePVName(String basePVName) {
+	public static NDStatsPVsImpl createFromBasePVName(String basePVName, boolean legacyTSpvs) {
 		NDPluginBasePVsImpl pluginBasePVs =  NDPluginBasePVsImpl.createFromBasePVName(basePVName);
 
 		NDStatsPVsImpl statsPVsImpl = new NDStatsPVsImpl();
 		statsPVsImpl.setBasePVName(basePVName);
 		statsPVsImpl.setPluginBasePVs(pluginBasePVs);
+		statsPVsImpl.setLegacyTSpvs(legacyTSpvs);
 		try {
 			statsPVsImpl.afterPropertiesSet();
 		} catch (Exception e) {
@@ -59,6 +60,7 @@ public class NDStatsPVsImpl implements InitializingBean, NDStatsPVs {
 	 */
 	private enum PVNames {
 		ComputeCentroid, ComputeCentroid_RBV, ComputeStatistics, ComputeStatistics_RBV, TSControl, TSNumPoints, TSCurrentPoint // also TSRead.SCAN
+		, TSAcquire, TSRead // PV name changed in new version of EPICS file:///dls_sw/prod/R3.14.12.7/support/ADCore/3-4dls1/documentation/NDPluginTimeSeries.html
 	}
 
 	private String basePVName;
@@ -80,6 +82,12 @@ public class NDStatsPVsImpl implements InitializingBean, NDStatsPVs {
 	private Map<Stat, ReadOnlyPV<Double[]>> tsArrayPVMap;
 
 	private PV<Integer> tsReadScanPV;
+
+	private boolean legacyTSpvs=true;
+
+	private PV<TSAcquireCommands> tsAcquirePV;
+
+	private PV<TSReadCommands> tsReadPV;
 
 	public void setBasePVName(String basePVName) {
 		this.basePVName = basePVName;
@@ -116,13 +124,19 @@ public class NDStatsPVsImpl implements InitializingBean, NDStatsPVs {
 				LazyPVFactory.newBooleanFromEnumPV(fullname(PVNames.ComputeCentroid.name())),
 				LazyPVFactory.newReadOnlyBooleanFromEnumPV(fullname(PVNames.ComputeCentroid_RBV.name())));
 
-		tsControlPV = LazyPVFactory.newEnumPV(fullname(PVNames.TSControl.name()), TSControlCommands.class);
-
-		tsNumPointsPV = LazyPVFactory.newIntegerPV(fullname(PVNames.TSNumPoints.name()));
-
-		tsCurrentPointPV = LazyPVFactory.newReadOnlyIntegerPV(fullname(PVNames.TSCurrentPoint.name()));
-
-		tsReadScanPV = LazyPVFactory.newIntegerPV(fullname("TSRead.SCAN"));
+		if (!isLegacyTSpvs()) {
+			tsAcquirePV = LazyPVFactory.newEnumPV(fullname("TS:"+PVNames.TSAcquire.name()), TSAcquireCommands.class);
+			tsReadPV = LazyPVFactory.newEnumPV(fullname("TS:"+PVNames.TSRead.name()), TSReadCommands.class);
+			tsNumPointsPV = LazyPVFactory.newIntegerPV(fullname("TS:"+PVNames.TSNumPoints.name()));
+			tsCurrentPointPV = LazyPVFactory.newReadOnlyIntegerPV(fullname("TS:"+PVNames.TSCurrentPoint.name()));
+			tsReadScanPV = LazyPVFactory.newIntegerPV(fullname("TS:TSRead.SCAN"));
+		} else {
+			logger.warn("{} is configured to use legacy Time Series PVs, set 'legacyTSpvs' property to false once EPICS Area Detector is pdated!", getBasePVName());
+			tsControlPV = LazyPVFactory.newEnumPV(fullname(PVNames.TSControl.name()), TSControlCommands.class);
+			tsNumPointsPV = LazyPVFactory.newIntegerPV(fullname(PVNames.TSNumPoints.name()));
+			tsCurrentPointPV = LazyPVFactory.newReadOnlyIntegerPV(fullname(PVNames.TSCurrentPoint.name()));
+			tsReadScanPV = LazyPVFactory.newIntegerPV(fullname("TSRead.SCAN"));
+		}
 
 		tsArrayPVMap = new HashMap<NDStatsPVs.Stat, ReadOnlyPV<Double[]>>();
 
@@ -173,6 +187,24 @@ public class NDStatsPVsImpl implements InitializingBean, NDStatsPVs {
 	@Override
 	public PV<Integer> getTSReadScanPV() {
 		return tsReadScanPV;
+	}
+
+	@Override
+	public PV<TSAcquireCommands> getTSAcquirePV() {
+		return tsAcquirePV;
+	}
+
+	@Override
+	public PV<TSReadCommands> getTSReadPV() {
+		return tsReadPV;
+	}
+
+	public boolean isLegacyTSpvs() {
+		return legacyTSpvs;
+	}
+
+	public void setLegacyTSpvs(boolean legacyTSpvs) {
+		this.legacyTSpvs = legacyTSpvs;
 	}
 
 }

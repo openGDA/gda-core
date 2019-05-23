@@ -40,8 +40,8 @@ import gda.device.scannable.PositionInputStreamCombiner;
 import gda.scan.ScanInformation;
 
 /**
- * Enabled if any stats are enabled. If stats are enabled an ROI must have been set. The names of the specidfied roi and
- * stats plugins are ignored in favour of this plugins name (could be revisited--RobW Feb2013).
+ * Enabled if any stats are enabled. If stats are enabled an ROI must have been set. The names of the specified roi and
+ * stats plugins are ignored in favour of this plugins name.
  */
 public class ADRoiStatsPair implements NXPlugin, RectangularROIProvider<Integer>, FrameCountingNXPlugin {
 
@@ -161,12 +161,6 @@ public class ADRoiStatsPair implements NXPlugin, RectangularROIProvider<Integer>
 
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
-//		if (!getEnabledStats().isEmpty() && (getRoi()==null)) {
-//			throw new IllegalStateException("Stats where enabled, but no ROI configured");
-//		}
-//		if (!getEnabledStats().isEmpty() && (getRoi()!=null)) {
-//			throw new IllegalStateException("An ROI was configured, but no stats enabled");
-//		}
 
 		boolean enabled = (!getEnabledStats().isEmpty() && (getRoi()!=null));
 
