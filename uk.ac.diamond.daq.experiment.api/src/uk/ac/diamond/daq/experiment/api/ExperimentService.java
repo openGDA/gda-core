@@ -6,7 +6,7 @@ import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 
 import gda.factory.Findable;
-import uk.ac.diamond.daq.experiment.api.driver.ExperimentDriverModel;
+import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 
 /**
  * This service allows us to save and retrieve configurations (e.g. defined scans)
@@ -33,10 +33,13 @@ public interface ExperimentService extends Findable {
 	Set<String> getScanNames(String experimentId);
 
 
-	void saveDriverProfile(ExperimentDriverModel profile, String profileName, String driverName, String experimentId);
+	void saveDriverProfile(DriverModel profile, String driverName, String experimentId);
 
 
-	ExperimentDriverModel getDriverProfile(String driverName, String profileName, String experimentId);
+	void deleteDriverProfile(DriverModel profile, String driverName, String experimentId);
+
+
+	DriverModel getDriverProfile(String driverName, String profileName, String experimentId);
 
 
 	Set<String> getDriverProfileNames(String driverName, String experimentId);

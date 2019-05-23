@@ -15,6 +15,7 @@ import org.junit.Test;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.experiment.api.driver.DriverState;
+import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
 import uk.ac.diamond.daq.experiment.api.plan.ISegment;
 import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 import uk.ac.diamond.daq.experiment.driver.NoImplDriver;
@@ -198,6 +199,7 @@ public class PlanTest {
 		// should also start the driver.
 
 		NoImplDriver experimentDriver = new NoImplDriver();
+		experimentDriver.setModel(new SingleAxisLinearSeries());
 		assertThat(experimentDriver.getState(), is(DriverState.IDLE));
 		plan.setDriver(experimentDriver);
 		plan.addSegment(SEGMENT1_NAME, sev -> false);

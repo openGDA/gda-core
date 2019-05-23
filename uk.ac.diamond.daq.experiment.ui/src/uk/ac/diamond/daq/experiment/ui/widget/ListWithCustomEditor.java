@@ -5,6 +5,9 @@ import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.function.Consumer;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -43,6 +46,9 @@ public class ListWithCustomEditor {
 	private Button delete;
 	private Button moveUp;
 	private Button moveDown;
+	
+	private Set<Consumer<EditableWithListWidget>> addHooks = new CopyOnWriteArraySet<>();
+	private Set<Consumer<EditableWithListWidget>> deleteHooks = new CopyOnWriteArraySet<>();
 	
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -195,6 +201,8 @@ public class ListWithCustomEditor {
 		viewer.refresh();
 		viewer.getTable().setSelection(selectionIndex+1);
 		listChanged();
+		
+		addHooks.forEach(hook -> hook.accept(bean));
 	}
 	
 	private void delete() {
@@ -208,6 +216,8 @@ public class ListWithCustomEditor {
 			viewer.getTable().setSelection(list.size()-1);
 		}
 		listChanged();
+		
+		deleteHooks.forEach(hook -> hook.accept(bean));
 	}
 	
 	private void moveUp() {
@@ -215,7 +225,7 @@ public class ListWithCustomEditor {
 		EditableWithListWidget bean = list.remove(currentIndex);
 		list.add(currentIndex - 1, bean);
 		viewer.refresh();
-		updateButtons();
+		listChanged();
 	}
 	
 	private void moveDown() {
@@ -223,7 +233,7 @@ public class ListWithCustomEditor {
 		EditableWithListWidget bean = list.remove(currentIndex);
 		list.add(currentIndex+1, bean);
 		viewer.refresh();
-		updateButtons();
+		listChanged();
 	}
 
 	private void updateButtons() {
@@ -248,6 +258,14 @@ public class ListWithCustomEditor {
 	
 	public void addListListener(PropertyChangeListener listener) {
 		pcs.addPropertyChangeListener(listener);
+	}
+	
+	public void addAddHook(Consumer<EditableWithListWidget> hook) {
+		addHooks.add(hook);
+	}
+	
+	public void addDeleteHook(Consumer<EditableWithListWidget> hook) {
+		deleteHooks.add(hook);
 	}
 
 	public void refresh() {

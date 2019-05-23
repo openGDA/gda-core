@@ -46,8 +46,10 @@ import gda.device.Scannable;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
+import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.DriverProfileSection;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
+import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
 import uk.ac.diamond.daq.experiment.api.plan.event.PlanStatusBean;
 import uk.ac.diamond.daq.experiment.api.plan.event.SegmentRecord;
 import uk.ac.diamond.daq.experiment.api.plan.event.TriggerEvent;
@@ -188,7 +190,7 @@ public class PlanProgressPlotView extends ViewPart {
 	}
 	
 	private void initialiseAllThePlottingStuff() {
-		IExperimentDriver driver = Finder.getInstance().find(activePlan.getDriverName());
+		IExperimentDriver<? extends DriverModel> driver = Finder.getInstance().find(activePlan.getDriverName());
 		signalSource = Finder.getInstance().find(driver.getMainReadoutName());
 		trajectory = new DynamicTraceMaintainer("actual trajectory", true);
 		triggerPlots = new HashMap<>();
@@ -200,9 +202,9 @@ public class PlanProgressPlotView extends ViewPart {
 		trajectory.updateTrace();
 	}
 	
-	private void plotDriverProfile() {
-		List<DriverProfileSection> sections = experimentService.getDriverProfile(activePlan.getDriverName(),
-										activePlan.getDriverProfile(), activePlan.getName()).getProfile();
+	private void plotDriverProfile() { // FIXME either DriverModel should plot itself, or we need plotter per DriverModel impl
+		List<DriverProfileSection> sections = ((SingleAxisLinearSeries) experimentService.getDriverProfile(activePlan.getDriverName(),
+										activePlan.getDriverProfile(), activePlan.getName())).getProfile();
 		if (sections.isEmpty()) return;
 		
 		double[] x = new double[sections.size()+1];

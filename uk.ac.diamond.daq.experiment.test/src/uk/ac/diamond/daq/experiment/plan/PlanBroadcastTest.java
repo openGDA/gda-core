@@ -31,7 +31,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import gda.TestHelpers;
+import gda.device.DeviceException;
+import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
+import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
 import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 import uk.ac.diamond.daq.experiment.api.plan.event.PlanStatusBean;
 import uk.ac.diamond.daq.experiment.api.plan.event.SegmentRecord;
@@ -136,10 +139,12 @@ public class PlanBroadcastTest {
 	}
 
 	@Test
-	public void experimentDriverNameAndProfile() {
-		IExperimentDriver driver = new NoImplDriver();
+	public void experimentDriverNameAndProfile() throws DeviceException {
+		IExperimentDriver<DriverModel> driver = new NoImplDriver();
 		driver.setName(DRIVER_NAME);
-		driver.getModel().setName(DRIVER_PROFILE_NAME);
+		DriverModel model = new SingleAxisLinearSeries();
+		model.setName(DRIVER_PROFILE_NAME);
+		driver.setModel(model);
 		plan.setDriver(driver);
 
 		plan.addSegment(FIRST_SEGMENT_NAME, x -> true);

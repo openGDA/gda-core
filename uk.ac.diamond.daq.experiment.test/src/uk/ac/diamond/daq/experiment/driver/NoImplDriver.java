@@ -1,12 +1,13 @@
 package uk.ac.diamond.daq.experiment.driver;
 
+import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.DriverState;
 
 /**
  * Implementation for tests which only Base logic
  * e.g. state transitions
  */
-public class NoImplDriver extends ExperimentDriverBase {
+public class NoImplDriver extends ExperimentDriverBase<DriverModel> {
 
 	private boolean hasRun = false;
 
