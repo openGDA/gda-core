@@ -18,20 +18,20 @@
 
 package gda.scan;
 
+import java.util.List;
+import java.util.Vector;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
-
-import java.util.List;
-import java.util.Vector;
 
 /**
  * Interface for ScanDataPoint - the data for a single point in a scan.
  * <p>
  * These are created by Scan objects and distributed via the Command Server (Jython Server) to Data Writers and the UI.
- * 
+ *
  * @author rjw82
- * 
+ *
  */
 public interface IScanDataPoint {
 
@@ -40,7 +40,7 @@ public interface IScanDataPoint {
 	 * addScannable,addScannablePosition,addDetector,addDetectorData.
 	 * <p>
 	 * Note this makes calls to getPosition() in the scannables and readout() in the detectors.
-	 * 
+	 *
 	 * @param allScannables
 	 * @param allDetectors
 	 * @throws DeviceException
@@ -49,8 +49,8 @@ public interface IScanDataPoint {
 			throws DeviceException;
 
 	/**
-	 * Gets a Scannables position and adds it to the data point. Does not ass the Scannable itself.
-	 * 
+	 * Gets a Scannables position and adds it to the data point. Does not add the Scannable itself.
+	 *
 	 * @param scannable
 	 * @throws DeviceException
 	 */
@@ -58,7 +58,7 @@ public interface IScanDataPoint {
 
 	/**
 	 * Reads data from a detector and adds it to the point. Does not add the detector itself.
-	 * 
+	 *
 	 * @param detector
 	 * @throws DeviceException
 	 */
@@ -66,7 +66,7 @@ public interface IScanDataPoint {
 
 	/**
 	 * Adds a Scannable with its current data(/position/value) and the format that the data should be presented in.
-	 * 
+	 *
 	 * @param scannable
 	 * @param position
 	 * @param format
@@ -77,7 +77,7 @@ public interface IScanDataPoint {
 	 * Add a piece of data to this object. Calls to this method must be made in the same order as calls to addDetector
 	 * to associate the data with the detector.
 	 * <p>
-	 * 
+	 *
 	 * @param data
 	 */
 	public void addDetectorData(Object data, String[] format);
@@ -87,18 +87,18 @@ public interface IScanDataPoint {
 	 * addScannable to associate the array of numbers with the scannable.
 	 * <p>
 	 * It is recommended to call setScannables instead.
-	 * 
+	 *
 	 * @param data
 	 */
 	public void addScannablePosition(Object data, String[] format);
 
 	/**
 	 * Add a detector to the list of detectors this object holds data from. This stores the name in the detectorHeader
-	 * array and detectorNames array. If its a countertimer is stored in the boolean array. The contents of the
+	 * array and detectorNames array. If it's a countertimer then it is stored in the boolean array. The contents of the
 	 * detectorHeader and detectorNames arrays will be different if the detector is a countertimer.
 	 * <p>
 	 * Note this does not readout the detector! Data must be added by using the addData method.
-	 * 
+	 *
 	 * @param det
 	 */
 	public void addDetector(Detector det);
@@ -107,7 +107,7 @@ public interface IScanDataPoint {
 	 * Add a scannable to the list of scannables this object holds data on.
 	 * <p>
 	 * Note that this does not read the current position of the scannable.
-	 * 
+	 *
 	 * @param scannable
 	 */
 	public void addScannable(Scannable scannable);
@@ -129,14 +129,14 @@ public interface IScanDataPoint {
 
 	/**
 	 * Return the vector of detector data which this object is a carrier of.
-	 * 
+	 *
 	 * @return Vector<Object>
 	 */
 	public Vector<Object> getDetectorData();
 
 	/**
 	 * Returns the values held by this ScanDataPoint of Scannables, Monitors and Detectors.
-	 * 
+	 *
 	 * @return an array of Double of length getMonitorHeader().size() + getPositionHeader().size() +
 	 *         getDetectorHeader().size() if the conversion of a field to Double is not possible then the element of the
 	 *         array will be null
@@ -149,48 +149,48 @@ public interface IScanDataPoint {
 
 	/**
 	 * Just returns array of detector data.
-	 * 
+	 *
 	 * @return all detector data.
 	 */
 	public Double[] getDetectorDataAsDoubles();
 
 	/**
 	 * returns a vector of expanded detector header string for each data point.
-	 * 
+	 *
 	 * @return a vector of expanded detector header string for each data point.
 	 */
 	public Vector<String> getDetectorHeader();
 
 	/**
 	 * Return the list of names of detectors which this object holds data from.
-	 * 
+	 *
 	 * @return Vector<String>
 	 */
 	public Vector<String> getDetectorNames();
 
 	/**
 	 * The list of detectors this object refers to.
-	 * 
+	 *
 	 * @return list of detectors this object refers to.
 	 */
 	public Vector<Detector> getDetectors();
 
 	/**
-	 * @return hasChild - true if the current scan has a nexted child scan
+	 * @return hasChild - true if the current scan has a nested child scan
 	 */
 	public boolean getHasChild();
 
 	/**
 	 * Returns a string whose elements are separated by a mixture of tabs and spaces so that the columns are aligned
 	 * with the output from toString()
-	 * 
+	 *
 	 * @return String - which could be used in an ascii print out of all the scan points from the same scan
 	 */
 	public String getHeaderString();
 
 	/**
 	 * @param dataPointFormatter
-	 * @return String - the header String formatted used the given Formmatter object
+	 * @return String - the header String formatted used the given Formatter object
 	 */
 	public String getHeaderString(ScanDataPointFormatter dataPointFormatter);
 
@@ -210,7 +210,7 @@ public interface IScanDataPoint {
 	public Vector<String> getNames();
 
 	/**
-	 * @return int - number of nested innner (child) scans
+	 * @return int - number of nested inner (child) scans
 	 */
 	public int getNumberOfChildScans();
 
@@ -241,7 +241,7 @@ public interface IScanDataPoint {
 
 	/**
 	 * Just returns array of positions. Strings will be an empty element.
-	 * 
+	 *
 	 * @return all scannable positions.
 	 */
 	public Double[] getPositionsAsDoubles();
@@ -268,7 +268,7 @@ public interface IScanDataPoint {
 	 * Returns a string whose elements are separated by a mixture of tabs and spaces so that the columns are aligned
 	 * with the output from getHeaderString().
 	 * <p>
-	 * To be used to create an ascii version of the data held by this object for priting to terminals or to ascii files.
+	 * To be used to create an ascii version of the data held by this object for printing to terminals or to ascii files.
 	 */
 	public String toFormattedString();
 
@@ -276,7 +276,7 @@ public interface IScanDataPoint {
 
 	/**
 	 * Returns a string of the information held by this object delimited by the static variable.
-	 * 
+	 *
 	 * @return String
 	 */
 	public String toDelimitedString();
@@ -328,7 +328,7 @@ public interface IScanDataPoint {
 
 	/**
 	 * Searches the scannables for one of a given name. Used to avoid searches being in many places.
-	 * 
+	 *
 	 * @param name
 	 * @return Scannable if it exists or null
 	 */
@@ -337,7 +337,7 @@ public interface IScanDataPoint {
 	/**
 	 * Searches the scannables for one of a given name. Works for scannables where name is declared and the actual
 	 * scannable is not sent over.
-	 * 
+	 *
 	 * @param name
 	 * @return true if it exists or false
 	 */
@@ -345,7 +345,7 @@ public interface IScanDataPoint {
 
 	/**
 	 * Searches the detectors for one of a given name. Used to avoid searches being in many places.
-	 * 
+	 *
 	 * @param name
 	 * @return Detector if it exists or null
 	 */
@@ -354,7 +354,7 @@ public interface IScanDataPoint {
 	/**
 	 * Searches the detectors for one of a given name. Works for detectors where name is declared and the actual
 	 * detector is not sent over.
-	 * 
+	 *
 	 * @param name
 	 * @return true if it exists or false
 	 */
