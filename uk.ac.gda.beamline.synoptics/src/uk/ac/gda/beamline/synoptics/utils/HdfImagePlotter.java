@@ -18,18 +18,13 @@
 
 package uk.ac.gda.beamline.synoptics.utils;
 
-import java.io.File;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 import org.eclipse.january.dataset.IDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
-import uk.ac.gda.beamline.synoptics.api.DetectorFileHandler;
 import uk.ac.gda.beamline.synoptics.views.DetectorFilePlotView;
 
 /**
@@ -38,11 +33,10 @@ import uk.ac.gda.beamline.synoptics.views.DetectorFilePlotView;
  * Filters can be added to only handle certain files based on file name and the
  * path to the data is configurable.
  */
-public class HdfImagePlotter implements DetectorFileHandler {
 
+public class HdfImagePlotter extends FileNameFilteringFileHandler {
 	private static final Logger logger = LoggerFactory.getLogger(HdfImagePlotter.class);
 	private String dataPath;
-	private Predicate<String> filter = s -> true;
 
 	@Override
 	public boolean plot(String filename, DetectorFilePlotView plotView, boolean newPlot) {
@@ -60,22 +54,7 @@ public class HdfImagePlotter implements DetectorFileHandler {
 		return false;
 	}
 
-	@Override
-	public boolean canHandle(String filename) {
-		logger.trace("Checking file '{}'", filename);
-		String name = new File(filename).getName();
-		return (name.endsWith(".hdf") || name.endsWith(".nxs")) && filter.test(name);
-	}
-
 	public void setDataPath(String dataPath) {
 		this.dataPath = dataPath;
-	}
-
-	/** Set regex file filters. If a file matches <em>any</em> of the patterns, it is accepted */
-	public void setFilter(String... filters) {
-		// If any filter matches, accept the file
-		filter = Arrays.stream(filters)
-				.map(f -> Pattern.compile(f).asPredicate())
-				.reduce((a, b) -> a.or(b)).orElse(s -> true);
 	}
 }
