@@ -23,7 +23,7 @@ import uk.ac.gda.beamline.synoptics.views.DetectorFilePlotView;
 /**
  * An interface for file handlers that can extract data to display on a {@link DetectorFilePlotView}.
  */
-public interface DetetectorFileHandler {
+public interface DetectorFileHandler {
 
 	/** Check if this handler can deal with the given filename */
 	boolean canHandle(String filename);

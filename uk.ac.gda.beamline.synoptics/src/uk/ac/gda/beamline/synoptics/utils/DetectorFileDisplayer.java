@@ -29,7 +29,7 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beamline.synoptics.api.DetetectorFileHandler;
+import uk.ac.gda.beamline.synoptics.api.DetectorFileHandler;
 import uk.ac.gda.beamline.synoptics.api.PlottingFileProcessor;
 import uk.ac.gda.beamline.synoptics.views.DetectorFilePlotView;
 
@@ -41,7 +41,7 @@ public class DetectorFileDisplayer implements PlottingFileProcessor {
 
 	private static final Logger logger = LoggerFactory.getLogger(DetectorFileDisplayer.class);
 
-	private Collection<DetetectorFileHandler> fileHandlers;
+	private Collection<DetectorFileHandler> fileHandlers;
 	private String viewId;
 	private PlotType plotType;
 	private boolean newPlot;
@@ -51,7 +51,7 @@ public class DetectorFileDisplayer implements PlottingFileProcessor {
 	public void processFile(String filename) {
 		logger.trace("Processing file {}", filename);
 		openView();
-		for (DetetectorFileHandler handler: fileHandlers) {
+		for (DetectorFileHandler handler: fileHandlers) {
 			if (handler.canHandle(filename)) {
 				if (handler.plot(filename, plotView, newPlot)) {
 					return;
@@ -104,7 +104,7 @@ public class DetectorFileDisplayer implements PlottingFileProcessor {
 		this.viewId = viewId;
 	}
 
-	public void setFileHandlers(Collection<DetetectorFileHandler> fileHandlers) {
+	public void setFileHandlers(Collection<DetectorFileHandler> fileHandlers) {
 		this.fileHandlers = fileHandlers;
 	}
 
