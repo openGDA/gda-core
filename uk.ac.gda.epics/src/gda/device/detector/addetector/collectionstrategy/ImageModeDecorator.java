@@ -118,7 +118,7 @@ public class ImageModeDecorator extends AbstractADCollectionStrategyDecorator {
 		super.afterPropertiesSet();
 	}
 
-	public boolean getRestoreNumImagesAndImageMode() {
+	public boolean isRestoreNumImagesAndImageMode() {
 		return restoreNumImagesAndImageMode;
 	}
 
