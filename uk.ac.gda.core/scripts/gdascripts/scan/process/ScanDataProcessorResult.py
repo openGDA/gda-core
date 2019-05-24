@@ -40,7 +40,10 @@ def getDatasetFromLoadedFile(loadedFile, fieldName, scanDataPointCache=None):
 
 	# If we have a scanDataPointCache use it for performance
 	if(scanDataPointCache):
-		return  dnp.asarray(scanDataPointCache.getPositionsFor(strippedFieldName))
+		positionsDataset = scanDataPointCache.getPositionsFor(strippedFieldName)
+		if None in positionsDataset:
+			raise KeyError("positionsDataset for field {} contains None/null entries".format(strippedFieldName))
+		return dnp.asarray(positionsDataset)
 
 	# Check if its a NeXus file
 	if isinstance(loadedFile, NXroot):
