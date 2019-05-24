@@ -209,8 +209,9 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			return createScanModel(pointGenerator);
 		} catch (Exception e) {
 			// throw an exception when something goes wrong preparing the scan
-			updateBean(Status.FAILED, "Could not run scan");
-			throw new EventException("Could not run scan ", e);
+			final String errorMessage = "Could not run scan: " + e.getMessage();
+			updateBean(Status.FAILED, errorMessage);
+			throw new EventException(errorMessage, e);
 		}
 	}
 
