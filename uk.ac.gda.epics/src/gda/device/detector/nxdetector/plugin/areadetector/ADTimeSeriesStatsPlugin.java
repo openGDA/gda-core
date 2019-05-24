@@ -323,11 +323,16 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin, FrameCountin
 
 	@Override
 	public void stop() throws Exception {
-		if (timeSeriesCollection != null) {
-			timeSeriesCollection.stop();
+		try {
+			if (timeSeriesCollection != null) {
+				timeSeriesCollection.stop();
+			}
+		} finally {
+			//on exception the timeSeriesCollection must be set to null, otherwise next collection will be blocked
+			//see startNewTimeSeriesCollectionIfRequested() you will understand why this is required
+			scanInfo = null;
+			timeSeriesCollection = null;
 		}
-		scanInfo = null;
-		timeSeriesCollection = null;
 	}
 
 	@Override
