@@ -138,4 +138,10 @@ public class ScannableUIPreferences implements INameable {
 		this.stepModelStep = stepModelStep;
 	}
 
+	@Override
+	public String toString() {
+		return "ScannableUIPreferences [name=" + name + ", nudgeValue=" + nudgeValue + ", stepModelStart="
+				+ stepModelStart + ", stepModelWidth=" + stepModelWidth + ", stepModelStep=" + stepModelStep + "]";
+	}
+
 }
