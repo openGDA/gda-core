@@ -47,7 +47,9 @@ import gda.factory.FactoryException;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 import uk.ac.gda.server.ncd.meta.INcdMetaProvider;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
+@ServiceInterface(INcdSubDetector.class)
 public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 
 	private static final String SCALING_FACTOR = "scaling_factor";
