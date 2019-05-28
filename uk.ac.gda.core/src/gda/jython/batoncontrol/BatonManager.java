@@ -356,7 +356,7 @@ public class BatonManager implements IBatonManager {
 				}
 				// then ensure that the information fetched from the icat database is refreshed for the new user
 				if (isDisableControlOverVisitMetadataEntry()) {
-					logger.info("Ingoring client request to change visit to: '{}'", visitID);
+					logger.info("Ignoring client request to change visit to: '{}'", visitID);
 				} else {
 					if (metadataContainsKey(metadata, "visit")) {
 						metadata.setMetadataValue("visit", visitID);
