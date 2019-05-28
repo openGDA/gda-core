@@ -18,25 +18,45 @@
 
 package uk.ac.diamond.daq.mapping.xanes.ui;
 
+import static gda.jython.JythonStatus.RUNNING;
+import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_SCAN_REQUEST_JSON;
+import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_XANES_EDGE_PARAMS_JSON;
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
+import java.net.URI;
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.scanning.api.event.EventConstants;
+import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.event.status.Status;
+import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.script.IScriptService;
-import org.eclipse.scanning.api.script.ScriptLanguage;
-import org.eclipse.scanning.api.script.ScriptRequest;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.jython.JythonServerFacade;
+import gda.rcp.GDAClientActivator;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters;
+import uk.ac.diamond.daq.mapping.ui.experiment.MappingExperimentView;
 import uk.ac.diamond.daq.mapping.ui.experiment.OuterScannablesSection;
 import uk.ac.diamond.daq.mapping.ui.experiment.SubmitScanSection;
 
@@ -54,10 +74,45 @@ public class XanesSubmitScanSection extends SubmitScanSection {
 	private static final String SCRIPT_FILE = "scanning/submit_xanes_scan.py";
 	private String energyScannable;
 
+	private IConsumer<StatusBean> consumerProxy;
+
+	@Override
+	public void initialize(MappingExperimentView mappingView) {
+		super.initialize(mappingView);
+
+		final IEventService eventService = getService(IEventService.class);
+		try {
+			final URI activeMQUri = new URI(LocalProperties.getActiveMQBrokerURI());
+			consumerProxy = eventService.createConsumerProxy(activeMQUri, EventConstants.SUBMISSION_QUEUE,
+					EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
+		} catch (Exception e) {
+			logger.error("Error creating consumer proxy", e);
+		}
+	}
+
 	@Override
 	public void createControls(Composite parent) {
 		setButtonColour(new RGB(179, 204, 255));
 		super.createControls(parent);
+	}
+
+	@Override
+	protected void createSubmitSection() {
+		final Composite submitComposite = new Composite(getComposite(), SWT.NONE);
+		GridDataFactory.swtDefaults().applyTo(submitComposite);
+		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(submitComposite);
+		createSubmitButton(submitComposite);
+		createStopButton(submitComposite);
+	}
+
+	private void createStopButton(Composite parent) {
+		final Button stopButton = new Button(parent, SWT.PUSH);
+		stopButton.setText("Stop");
+		stopButton.setToolTipText("Stop all scripts and pause queue");
+		final ImageDescriptor stopImage = GDAClientActivator.getImageDescriptor("icons/stop.png");
+		Objects.requireNonNull(stopImage, "Missing image for stop button");
+		stopButton.setImage(stopImage.createImage());
+		stopButton.addSelectionListener(widgetSelectedAdapter(e -> stopScan()));
 	}
 
 	@Override
@@ -66,12 +121,11 @@ public class XanesSubmitScanSection extends SubmitScanSection {
 		final ScanRequest<IROI> scanRequest = getScanRequest(getMappingBean());
 		final XanesEdgeParametersSection paramsSection = getMappingView().getSection(XanesEdgeParametersSection.class);
 		final XanesEdgeParameters xanesEdgeParameters = paramsSection.getScanParameters();
-		final ScriptRequest scriptRequest = new ScriptRequest(SCRIPT_FILE, ScriptLanguage.SPEC_PASTICHE);
 
 		try {
 			final IMarshallerService marshallerService = getService(IMarshallerService.class);
-			scriptService.setNamedValue(IScriptService.VAR_NAME_SCAN_REQUEST_JSON, marshallerService.marshal(scanRequest));
-			scriptService.setNamedValue(IScriptService.VAR_NAME_XANES_EDGE_PARAMS_JSON, marshallerService.marshal(xanesEdgeParameters));
+			scriptService.setNamedValue(VAR_NAME_SCAN_REQUEST_JSON, marshallerService.marshal(scanRequest));
+			scriptService.setNamedValue(VAR_NAME_XANES_EDGE_PARAMS_JSON, marshallerService.marshal(xanesEdgeParameters));
 		} catch (Exception e) {
 			logger.error("Scan submission failed", e);
 			MessageDialog.openError(getShell(), "Error Submitting Scan", "The scan could not be submitted. See the error log for more details.");
@@ -79,15 +133,42 @@ public class XanesSubmitScanSection extends SubmitScanSection {
 		}
 
 		Async.execute(() -> {
+			// Run the script, disabling the submit button while it is running
+			final JythonServerFacade jythonServerFacade = JythonServerFacade.getInstance();
 			try {
 				setButtonEnabled(false);
-				scriptService.execute(scriptRequest);
+				logger.info("Running XANES scanning script: {}", SCRIPT_FILE);
+				jythonServerFacade.runScript(SCRIPT_FILE);
+				while (jythonServerFacade.getScriptStatus() == RUNNING) {
+					Thread.sleep(500);
+				}
+				logger.info("Finished running XANES scanning script");
 			} catch (Exception e) {
 				logger.error("Error running XANES scanning script", e);
 			} finally {
 				setButtonEnabled(true);
 			}
 		});
+	}
+
+	private void stopScan() {
+		logger.info("Stopping XANES script & job");
+
+		// Stop the XANES script
+		final JythonServerFacade jythonServerFacade = JythonServerFacade.getInstance();
+		jythonServerFacade.abortCommands();
+
+		try {
+			// Stop the currently-running job
+			final List<StatusBean> currentJobs = consumerProxy.getRunningAndCompleted();
+			for (StatusBean job : currentJobs) {
+				if (job.getStatus() == Status.RUNNING) {
+					consumerProxy.terminateJob(job);
+				}
+			}
+		} catch (EventException e) {
+			logger.error("Error accessing queue", e);
+		}
 	}
 
 	private void setButtonEnabled(boolean enabled) {
