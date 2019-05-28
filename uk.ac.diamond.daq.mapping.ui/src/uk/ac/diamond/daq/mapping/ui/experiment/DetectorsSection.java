@@ -313,7 +313,11 @@ public class DetectorsSection extends AbstractMappingSection {
 	private Map<String, IScanModelWrapper<IDetectorModel>> updateDetectorParameters() {
 		// a function to convert DeviceInformations to IDetectorModelWrappers
 		final Function<DeviceInformation<?>, IScanModelWrapper<IDetectorModel>> malcolmInfoToWrapper =
-				info -> new DetectorModelWrapper(info.getLabel(), (IDetectorModel) info.getModel(), false);
+				info -> {
+					final DetectorModelWrapper wrapper = new DetectorModelWrapper(info.getLabel(), (IDetectorModel) info.getModel(), false);
+					wrapper.setShownByDefault(info.isShownByDefault());
+					return wrapper;
+				};
 
 		// get the DeviceInformation objects for the malcolm devices and apply the function
 		// above to create DetectorModelWrappers for them.
