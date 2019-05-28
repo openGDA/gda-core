@@ -67,6 +67,7 @@ public class NcdEpicsEiger implements NcdEigerController, Configurable {
 	private PV<String> imageMode;
 	private PV<String> triggerMode;
 	private PV<String> timeoutDataWriter;
+	private PV<Integer> timeoutDataWriterPeriod;
 	private PV<String> dataType;
 	private PV<Integer> imageHeight;
 	private PV<Integer> imageWidth;
@@ -94,6 +95,9 @@ public class NcdEpicsEiger implements NcdEigerController, Configurable {
 
 	/** Data directory used for data writing */
 	private String directoryPath;
+
+	/** Timeout period used by the timeout/stop on the datawriter */
+	private int fileWritingTimeout = 2000;
 
 	private boolean reshaped;
 
@@ -179,6 +183,9 @@ public class NcdEpicsEiger implements NcdEigerController, Configurable {
 			startDataWriter = LazyPVFactory.newEnumPV(basePv + "OD:Capture", Integer.class);
 
 			timeoutDataWriter = LazyPVFactory.newEnumPV(basePv + "OD:StartTimeout", String.class);
+			timeoutDataWriterPeriod = new PVWithSeparateReadback<Integer>(
+					LazyPVFactory.newIntegerPV(basePv + "OD:CloseFileTimeout"),
+					LazyPVFactory.newReadOnlyIntegerPV(basePv + "OD:CloseFileTimeout_RBV"));
 			dataType = LazyPVFactory.newEnumPV(basePv + "OD:DataType", String.class);
 			captured = LazyPVFactory.newReadOnlyIntegerPV(basePv + "OD:NumCaptured_RBV");
 			errorState = LazyPVFactory.newReadOnlyStringFromWaveformPV(basePv + "OD1:FPErrorMessage_RBV");
@@ -276,6 +283,7 @@ public class NcdEpicsEiger implements NcdEigerController, Configurable {
 			if (startDataWriter.get() == 1) {
 				throw new DeviceException("DataWriter already recording");
 			}
+			timeoutDataWriterPeriod.putWait(fileWritingTimeout, ODIN_TIMEOUT);
 			startDataWriter.putNoWait(1);
 			odinInitialised.waitForValue(s -> ACTIVE.equals(s), ODIN_TIMEOUT);
 		} catch (IOException e) {
@@ -401,6 +409,10 @@ public class NcdEpicsEiger implements NcdEigerController, Configurable {
 
 	public void setReshapeCommand(String reshapeCommand) {
 		this.reshapeCommand = reshapeCommand;
+	}
+
+	public void setFileWritingTimeout(int ms) {
+		fileWritingTimeout = ms;
 	}
 
 	private void waitForReshapedFile(String filepath) throws InterruptedException {
