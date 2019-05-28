@@ -136,6 +136,12 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 
 	private boolean isNewMalcolm;
 
+	/**
+	 * Indicates whether the detector should be shown by default (i.e. after a client reset) in the detectors section of
+	 * the mapping experiment view,
+	 */
+	private boolean shownByDefault = true;
+
 	public DeviceInformation() {
 
 	}
@@ -232,25 +238,26 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + (activated ? 1231 : 1237);
+		result = prime * result + (alive ? 1231 : 1237);
+		result = prime * result + ((availableAxes == null) ? 0 : availableAxes.hashCode());
 		result = prime * result + (busy ? 1231 : 1237);
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((deviceRole == null) ? 0 : deviceRole.hashCode());
+		result = prime * result + ((health == null) ? 0 : health.hashCode());
 		result = prime * result + ((icon == null) ? 0 : icon.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + (isNewMalcolm ? 1231 : 1237);
 		result = prime * result + ((label == null) ? 0 : label.hashCode());
 		result = prime * result + level;
 		result = prime * result + ((lower == null) ? 0 : lower.hashCode());
 		result = prime * result + ((model == null) ? 0 : model.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + Arrays.hashCode(permittedValues);
+		result = prime * result + (shownByDefault ? 1231 : 1237);
 		result = prime * result + ((state == null) ? 0 : state.hashCode());
-		result = prime * result + ((health == null) ? 0 : health.hashCode());
 		result = prime * result + ((supportedScanModes == null) ? 0 : supportedScanModes.hashCode());
 		result = prime * result + ((unit == null) ? 0 : unit.hashCode());
 		result = prime * result + ((upper == null) ? 0 : upper.hashCode());
-		result = prime * result + ((availableAxes == null ? 0 : availableAxes.hashCode()));
-		result = prime * result + (isNewMalcolm ? 1231 : 1237);
-
 		return result;
 	}
 
@@ -265,6 +272,13 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 		DeviceInformation<?> other = (DeviceInformation<?>) obj;
 		if (activated != other.activated)
 			return false;
+		if (alive != other.alive)
+			return false;
+		if (availableAxes == null) {
+			if (other.availableAxes != null)
+				return false;
+		} else if (!availableAxes.equals(other.availableAxes))
+			return false;
 		if (busy != other.busy)
 			return false;
 		if (description == null) {
@@ -273,6 +287,11 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 		} else if (!description.equals(other.description))
 			return false;
 		if (deviceRole != other.deviceRole)
+			return false;
+		if (health == null) {
+			if (other.health != null)
+				return false;
+		} else if (!health.equals(other.health))
 			return false;
 		if (icon == null) {
 			if (other.icon != null)
@@ -283,6 +302,8 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 			if (other.id != null)
 				return false;
 		} else if (!id.equals(other.id))
+			return false;
+		if (isNewMalcolm != other.isNewMalcolm)
 			return false;
 		if (label == null) {
 			if (other.label != null)
@@ -308,12 +329,9 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 			return false;
 		if (!Arrays.equals(permittedValues, other.permittedValues))
 			return false;
-		if (state != other.state)
+		if (shownByDefault != other.shownByDefault)
 			return false;
-		if (health == null) {
-			if (other.health != null)
-				return false;
-		} else if (!health.equals(other.health))
+		if (state != other.state)
 			return false;
 		if (supportedScanModes == null) {
 			if (other.supportedScanModes != null)
@@ -329,13 +347,6 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 			if (other.upper != null)
 				return false;
 		} else if (!upper.equals(other.upper))
-			return false;
-		if (availableAxes == null) {
-			if (other.availableAxes != null)
-				return false;
-		} else if (!availableAxes.equals(other.availableAxes))
-			return false;
-		if (isNewMalcolm != other.isNewMalcolm)
 			return false;
 		return true;
 	}
@@ -452,6 +463,14 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 
 	public void setNewMalcolm(boolean isNewMalcolm) {
 		this.isNewMalcolm = isNewMalcolm;
+	}
+
+	public boolean isShownByDefault() {
+		return shownByDefault;
+	}
+
+	public void setShownByDefault(boolean shownByDefault) {
+		this.shownByDefault = shownByDefault;
 	}
 
 }
