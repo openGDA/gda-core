@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Standards scanning"
+            id="uk.ac.diamond.daq.mapping.standards">
+      </category>
+      <e4view
+            allowMultiple="false"
+            category="uk.ac.diamond.daq.mapping.standards"
+            class="uk.ac.diamond.daq.mapping.standards.ui.StandardsScanView"
+            icon="platform:/plugin/uk.ac.diamond.daq.mapping.standards.ui/icons/gridscan.png"
+            id="uk.ac.diamond.daq.mapping.standards.ui.StandardsScanView"
+            name="Standards scan"
+            restorable="true">
+      </e4view>
+    </extension>
+    <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="uk.ac.diamond.daq.mapping.ui.experiment.MappingPerspective">
+         <view
+               id="uk.ac.diamond.daq.mapping.standards.ui.StandardsScanView"
+               minimized="false"
+               closeable="false"
+               relationship="stack"
+               relative="uk.ac.diamond.daq.mapping.ui.experiment.mappingExperimentView">
+         </view>
+      </perspectiveExtension>
+   </extension>
+</plugin>
