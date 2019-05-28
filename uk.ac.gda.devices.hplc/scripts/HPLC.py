@@ -84,6 +84,16 @@ class HPLC(object):
         if status in statuses.keys():
             gdaStatus(statuses[status])
 
+    def getGdaStatus(self):
+        statuses = {0: 'Idle', 1: 'HPLC', 2: 'BSSC', 3: 'Manual', 4: 'Other'}
+        position = 4
+        try:
+            position = gdaStatus.getPosition()
+        except:
+            gdaStatus = SingleEpicsPositionerClass('fv1', 'BL21B-CS-IOC-01:GDASTATUS', 'BL21B-CS-IOC-01:GDASTATUS', 'BL21B-VA-FVALV-01:CON', 'BL21B-VA-FVALV-01:CON', 'mm', '%d')
+            position = gdaStatus.getPosition()
+        return statuses[position]
+
     def armFastValve(self):
         try:
             fv1.getPosition()
@@ -322,6 +332,6 @@ class HPLC(object):
             self.setGdaStatus('Idle')
             self.logger.error('SCRIPT TERMINATED IN ERROR')
         finally:
-            self.setGdaStatus('Idle')
-            self.logger.error('SCRIPT TERMINATED')
+            if not self.getGdaStatus() == 'Idle':
+                self.logger.error('SCRIPT TERMINATED IN ERROR')
 
