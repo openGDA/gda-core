@@ -23,12 +23,15 @@ import static gda.jscience.physics.units.NonSIext.ANGSTROM_STRING;
 import static gda.jscience.physics.units.NonSIext.ANGSTROM_SYMBOL;
 import static gda.jscience.physics.units.NonSIext.ANG_STRING;
 import static gda.jscience.physics.units.NonSIext.CENTIGRADE_STRING;
+import static gda.jscience.physics.units.NonSIext.COUNT;
 import static gda.jscience.physics.units.NonSIext.COUNT_STRING;
 import static gda.jscience.physics.units.NonSIext.DEGREES_ANGLE_STRING;
+import static gda.jscience.physics.units.NonSIext.DEG_ANGLE;
 import static gda.jscience.physics.units.NonSIext.DEG_ANGLE_LOWERCASE_STRING;
 import static gda.jscience.physics.units.NonSIext.DEG_ANGLE_STRING;
 import static gda.jscience.physics.units.NonSIext.DEG_ANGLE_SYMBOL;
 import static gda.jscience.physics.units.NonSIext.GIGAELECTRONVOLT_STRING;
+import static gda.jscience.physics.units.NonSIext.KILOCOUNT;
 import static gda.jscience.physics.units.NonSIext.KILOCOUNT_STRING;
 import static gda.jscience.physics.units.NonSIext.KILOELECTRONVOLT_STRING;
 import static gda.jscience.physics.units.NonSIext.MICROAMPERE_STRING;
@@ -61,6 +64,7 @@ import static javax.measure.unit.SI.VOLT;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.measure.quantity.Angle;
 import javax.measure.quantity.Dimensionless;
@@ -79,6 +83,8 @@ import javax.measure.unit.Unit;
 import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableMap;
 
 import gda.device.DeviceException;
 import gda.device.scannable.PositionConvertorFunctions;
@@ -116,6 +122,16 @@ public class UnitsComponent implements PositionConvertor {
 	private boolean hardwareUnitHasBeenExplicitlySet;
 
 	/**
+	 * For some units, the output of <code>Unit.toString()</code> is not very easy to read, for example the degree
+	 * symbol or <code>(1/m)*1000.0</code> for kilocounts.<br>
+	 * This table overrides string to be printed for these cases.
+	 */
+	private static final Map<Unit<? extends Quantity>, String> unitStrings = ImmutableMap.of(
+			DEG_ANGLE, DEG_ANGLE_LOWERCASE_STRING,
+			COUNT, COUNT_STRING,
+			KILOCOUNT, KILOCOUNT_STRING);
+
+	/**
 	 * Constructor. Sets the hardware and user unit to the dimensionless ONE.
 	 */
 	public UnitsComponent() {
@@ -135,7 +151,7 @@ public class UnitsComponent implements PositionConvertor {
 	 * @return Returns the reportingUnitsString.
 	 */
 	public String getUserUnitString() {
-		return getUserUnit().toString();
+		return getUnitString(userUnit);
 	}
 
 	public boolean unitHasBeenSet() {
@@ -199,7 +215,7 @@ public class UnitsComponent implements PositionConvertor {
 	 * @return Returns the hardwareUnitString.
 	 */
 	public String getHardwareUnitString() {
-		return hardwareUnit.toString();
+		return getUnitString(hardwareUnit);
 	}
 
 	/**
@@ -365,6 +381,10 @@ public class UnitsComponent implements PositionConvertor {
 	 */
 	private void setCompatibleUnits() {
 		acceptableUnits = generateCompatibleUnits(this.hardwareUnit);
+	}
+
+	private String getUnitString(Unit<? extends Quantity> unit) {
+		return unitStrings.getOrDefault(unit, unit.toString());
 	}
 
 	/*

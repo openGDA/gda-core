@@ -365,4 +365,30 @@ public class UnitsComponentTest {
 		// deg not added, because it is incompatible, so we just get back the usual length units
 		assertEquals(LENGTH_UNITS, acceptableUnits);
 	}
+
+	@Test
+	public void testGetHardwareUnitStringOverridden() throws DeviceException {
+		// Units whose default string value is overridden in UnitsComponent
+		uc.setHardwareUnitString("°");
+		assertEquals("deg", uc.getHardwareUnitString());
+
+		uc.setHardwareUnitString("cts");
+		assertEquals("cts", uc.getHardwareUnitString());
+
+		uc.setHardwareUnitString("kcts");
+		assertEquals("kcts", uc.getHardwareUnitString());
+	}
+
+	@Test
+	public void testGetUserUnitStringOverridden() throws DeviceException {
+		// Units whose default string value is overridden in UnitsComponent
+		uc.setUserUnits("°");
+		assertEquals("deg", uc.getUserUnitString());
+
+		uc.setUserUnits("cts");
+		assertEquals("cts", uc.getUserUnitString());
+
+		uc.setUserUnits("kcts");
+		assertEquals("kcts", uc.getUserUnitString());
+	}
 }
