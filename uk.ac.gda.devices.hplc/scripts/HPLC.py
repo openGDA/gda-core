@@ -301,7 +301,7 @@ class HPLC(object):
                     sleep(0.1)
                 if not found_signal:
                     self.logger.info('Did not find the inject signal, will proceed anyway.')
-                
+                    self.sendSms(str(i+1)+' of '+str(len(self.bean.measurements))+': missed the injection signal')
                 #Start the data collection
                 self.logger.info('Starting data collection')
                 for index,run in enumerate(number_of_images):
