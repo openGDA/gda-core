@@ -68,6 +68,10 @@ public class QueuePersistenceTest extends AbstractNewConsumerTest {
 
 		assertThat(consumer.getSubmissionQueue(), is(equalTo(queued)));
 		assertThat(consumer.getRunningAndCompleted(), is(equalTo(runningAndCompleted)));
+
+		// let's add some more jobs to the queue to be extra sure
+		beans2.addAll(createAndSubmitBeans("seven", "eight"));
+		assertThat(consumer.getSubmissionQueue(), is(equalTo(beans2)));
 	}
 
 }

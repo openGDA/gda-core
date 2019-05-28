@@ -23,11 +23,13 @@ import static java.util.stream.Collectors.toList;
 import java.nio.ByteBuffer;
 import java.util.AbstractCollection;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Queue;
+import java.util.Set;
 
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IdBean;
@@ -41,11 +43,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A persistent thread-safe modifiable {@link Queue}.
- * In addition to implementing {@link Queue} in a thread-safe wasy, this class also
- * implements {@link IModifiableIdQueue} to add method to reorder and replace items in
+ * In addition to implementing {@link Queue} in a thread-safe way, this class also
+ * implements {@link IModifiableIdQueue} to add methods to reorder and replace items in
  * the queue.
  * <p>
- * The beans in the queue must be {@link IdBean}s (or some sublass), and this class uses
+ * The beans in the queue must be {@link IdBean}s (or some subclass), and this class uses
  * the bean's unique id (as returned by {@link IdBean#getUniqueId()} rather than
  * object equality. Note: it is the responsibility of client code to ensure does not
  * contain multiple beans with the same unique id. If this requirement is not upheld
@@ -145,7 +147,7 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 	private final MVMap<String, E> beansById;
 	private final MVMap<Integer, String> idsByQueuePosition;
 
-	private int nextQueuePosition = 1;
+ 	private int nextQueuePosition = 1;
 
 	public SynchronizedModifiableIdQueue(IEventConnectorService eventConnectorService,
 			String dbStoreFilename, String queueName) {
@@ -163,6 +165,11 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 
 		beansById = store.openMap(queueName, mapBuilder);
 		idsByQueuePosition = store.openMap(queueName + "-posmap");
+
+		final Set<Integer> queuePositions = idsByQueuePosition.keySet();
+		if (!queuePositions.isEmpty()) {
+			nextQueuePosition = Collections.max(queuePositions) + 1;
+		}
 	}
 
 	@Override

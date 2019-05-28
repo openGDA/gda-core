@@ -80,13 +80,17 @@ public class SynchronizedModifiableIdQueueTest {
 
 	@Before
 	public void setUp() {
-		queue = new SynchronizedModifiableIdQueue<>(eventConnectorService, storeFilename, QUEUE_NAME);
+		createQueue();
 		List<String> beanNames = Arrays.asList("one", "two", "three", "four", "five");
 		List<StatusBean> beans = beanNames.stream()
 				.map(name -> createBean(name))
 				.collect(toList());
 		queue.addAll(beans);
 		beanCopies = Collections.unmodifiableList(beans.stream().map(b -> new StatusBean(b)).collect(toList()));
+	}
+
+	private void createQueue() {
+		queue = new SynchronizedModifiableIdQueue<>(eventConnectorService, storeFilename, QUEUE_NAME);
 	}
 
 	private StatusBean createBean(String name) {
@@ -335,6 +339,19 @@ public class SynchronizedModifiableIdQueueTest {
 	public void testPersistenceScanBean() throws Exception {
 		queue.clear();
 
+		ScanBean scan1 = getScanBean();
+
+		queue.add(scan1);
+		queue.close(); // forces a commit
+
+		createQueue();
+
+		ScanBean scan2 = getScanBean();
+		queue.add(scan2);
+		assertThat(queue.getElements(), is(equalTo(Arrays.asList(scan1, scan2))));
+	}
+
+	private ScanBean getScanBean() {
 		StepModel stepModel = new StepModel("energy", 10, 20, 2);
 		GridModel gridModel = new GridModel("x", "y", 10, 20);
 		gridModel.setBoundingBox(new BoundingBox(0, 0, 7.5, 12.2));
@@ -343,12 +360,7 @@ public class SynchronizedModifiableIdQueueTest {
 		request.setCompoundModel(model);
 		ScanBean bean = new ScanBean();
 		bean.setScanRequest(request);
-
-		queue.add(bean);
-		queue.close(); // forces a commit
-
-		queue = new SynchronizedModifiableIdQueue<StatusBean>(eventConnectorService, storeFilename, QUEUE_NAME);
-		assertThat(queue.getElements(), is(equalTo(Arrays.asList(bean))));
+		return bean;
 	}
 
 }
