@@ -310,15 +310,6 @@ public class DetectorsSection extends AbstractMappingSection {
 		return ((IMalcolmDevice<?>) runnableDevice).getAvailableAxes();
 	}
 
-	private boolean isNewMalcolmVersion(final String malcolmDeviceName) throws ScanningException, EventException {
-		IRunnableDevice<?> runnableDevice = getRunnableDeviceService().getRunnableDevice(malcolmDeviceName);
-		if (!(runnableDevice instanceof IMalcolmDevice)) {
-			throw new ScanningException("Device " + malcolmDeviceName + " is not a malcolm device");
-		}
-
-		return ((IMalcolmDevice<?>) runnableDevice).isNewMalcolmVersion();
-	}
-
 	private Map<String, IScanModelWrapper<IDetectorModel>> updateDetectorParameters() {
 		// a function to convert DeviceInformations to IDetectorModelWrappers
 		final Function<DeviceInformation<?>, IScanModelWrapper<IDetectorModel>> malcolmInfoToWrapper =
