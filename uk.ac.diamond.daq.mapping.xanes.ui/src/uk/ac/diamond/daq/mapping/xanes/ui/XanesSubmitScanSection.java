@@ -108,7 +108,7 @@ public class XanesSubmitScanSection extends SubmitScanSection {
 	private void createStopButton(Composite parent) {
 		final Button stopButton = new Button(parent, SWT.PUSH);
 		stopButton.setText("Stop");
-		stopButton.setToolTipText("Stop all scripts and pause queue");
+		stopButton.setToolTipText("Stop all scripts and the current scan");
 		final ImageDescriptor stopImage = GDAClientActivator.getImageDescriptor("icons/stop.png");
 		Objects.requireNonNull(stopImage, "Missing image for stop button");
 		stopButton.setImage(stopImage.createImage());

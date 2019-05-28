@@ -126,7 +126,7 @@ public class StandardsScanView {
 
 		final Button stopButton = new Button(submitComposite, SWT.PUSH);
 		stopButton.setText("Stop");
-		stopButton.setToolTipText("Stop all scripts and pause queue");
+		stopButton.setToolTipText("Stop all scripts and the current scan");
 		final ImageDescriptor stopImage = GDAClientActivator.getImageDescriptor("icons/stop.png");
 		Objects.requireNonNull(stopImage, "Missing image for stop button");
 		stopButton.setImage(stopImage.createImage());
