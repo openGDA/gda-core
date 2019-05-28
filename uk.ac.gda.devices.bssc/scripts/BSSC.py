@@ -231,8 +231,8 @@ class BSSCRun:
                     try:
                         # eg
                         # delay: 3
-                        # will delay for 3 minutes between loading and exposing the sample
-                        delay = 60 * int(delay_match.groups()[0])
+                        # will delay for 3 seconds between loading and exposing the sample
+                        delay = int(delay_match.groups()[0])
                         self.reportProgress('Delaying collection for {}s'.format(delay))
                         time.sleep(delay)
                     except Exception as e:
