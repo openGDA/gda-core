@@ -320,11 +320,14 @@ class BSSCRun:
 
     def setSampleVolume(self, volume):
         try:
-            if 10 < float(volume) <= 250:
-                self.samplevolume = float(volume)
+            if float(volume) < 10:
+                self.samplevolume = 10
+                print 'ERROR: cannot load less than 10ul, set volume to 10ul'
+            elif float(volume) > 100:
+                self.samplevolume = 100
+                print 'ERROR: cannot load more than 100ul, set volume to 100ul'
             else:
-                self.samplevolume = 35
-                print 'ERROR: sample volume should be between 10 and 250 ul, set to 35.'
+                self.samplevolume = float(volume)
         except:
             self.samplevolume = 35
             print 'ERROR: sample volume must be a number, set to 35 ul'
