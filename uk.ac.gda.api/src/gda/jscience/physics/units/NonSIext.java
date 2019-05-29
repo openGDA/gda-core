@@ -39,7 +39,7 @@ import gda.jscience.physics.quantities.Vector;
  * <p>
  * In jscience 4, you can no longer create alternate forms non-standard units, so this class now just creates aliases.
  * Thus, for example {@link #MICRON} and {@link #MICRON_UM} refer to the same underlying unit and will both be displayed
- * as <code>μm</code>
+ * as <code>µm</code>
  * <p>
  * The <code>Unit</code> objects are set in a static initialiser. This is necessary because we need to control the
  * order: the aliases must be defined to JScience before being used to create the objects.
@@ -50,29 +50,36 @@ public final class NonSIext {
 	public static final String DEG_ANGLE_LOWERCASE_STRING = "deg";
 	public static final String DEGREES_ANGLE_STRING = "degrees";
 	public static final String DEG_ANGLE_SYMBOL = "°";
-	public static final String mDEG_ANGLE_STRING = "mDeg";
-	public static final String mDEG_ANGLE_LOWERCASE_STRING = "mdeg";
-	public static final String μDEG_ANGLE_STRING = "μDeg";
-	public static final String uDEG_ANGLE_STRING = "uDeg";
+	public static final String MILLI_DEG_ANGLE_STRING = "mDeg";
+	public static final String MILLI_DEG_ANGLE_LOWERCASE_STRING = "mdeg";
+	public static final String MICRO_DEG_ANGLE_STRING = "\u00b5Deg";
+	public static final String MICRO_DEG_MU_ANGLE_STRING = "\u03bcDeg";
+	public static final String MICRO_DEG_U_ANGLE_STRING = "uDeg";
 
-	public static final String mRADIAN_ANGLE_STRING = "mRad";
-	public static final String mRADIAN_ANGLE_LC_STRING = "mrad";
-	public static final String μRADIAN_ANGLE_STRING = "μRad";
-	public static final String uRADIAN_ANGLE_STRING = "uRad";
-	public static final String uRADIAN_ANGLE_LC_STRING = "urad";
+	public static final String MILLI_RADIAN_ANGLE_STRING = "mRad";
+	public static final String MILLI_RADIAN_ANGLE_LOWERCASE_STRING = "mrad";
+	public static final String MICRO_RADIAN_ANGLE_STRING = "\u00b5Rad";
+	public static final String MICRO_RADIAN_MU_ANGLE_STRING = "\u03bcRad";
+	public static final String MICRO_RADIAN_U_ANGLE_STRING = "uRad";
+	public static final String MICRO_RADIAN_U_ANGLE_LOWERCASE_STRING = "urad";
 
 	public static final String MICRON_STRING = "micron";
 	public static final String MICRONS_STRING = "microns";
 	public static final String MICRON_UM_STRING = "um";
+	public static final String MICRON_MU_STRING = "\u03bcm";
+	public static final String MICRON_SYMBOL_STRING = "\u00b5m";
 
-	public static final String MICROSECOND_STRING = "uS";
-	public static final String MICROSECOND_MU_STRING = "μS";
-	public static final String MICROSECOND_LC_STRING = "us";
-	public static final String MICROSECOND_MU_LC_STRING = "μs";
+	public static final String MICROSECOND_STRING = "\u00b5S";
+	public static final String MICROSECOND_U_STRING = "uS";
+	public static final String MICROSECOND_MU_STRING = "\u03bcS";
+	public static final String MICROSECOND_LOWERCASE_STRING = "\u00b5s";
+	public static final String MICROSECOND_U_LOWERCASE_STRING = "us";
+	public static final String MICROSECOND_MU_LOWERCASE_STRING = "\u03bcs";
 
 	public static final String ANG_STRING = "Ang";
 	public static final String ANGSTROM_STRING = "Angstrom";
-	public static final String ANGSTROM_SYMBOL = "Å";
+	public static final String ANGSTROM_SYMBOL = "\u00c5";
+	public static final String ANGSTROM_SYMBOL_ALTERNATIVE = "\u212b";
 	public static final String PER_ANGSTROM_STRING = "Per_Angstrom";
 
 	public static final String CENTIGRADE_STRING = "centigrade";
@@ -80,8 +87,9 @@ public final class NonSIext {
 	public static final String KILOELECTRONVOLT_STRING = "keV";
 	public static final String GIGAELECTRONVOLT_STRING = "GeV";
 
-	public static final String uAMPERE_STRING = "uA";
-	public static final String MICROAMPERE_STRING = "μA";
+	public static final String MICROAMPERE_STRING = "\u00b5A";
+	public static final String MICROAMPERE_U_STRING = "uA";
+	public static final String MICROAMPERE_MU_STRING = "\u03bcA";
 
 	public static final String COUNT_STRING = "cts";
 	public static final String KILOCOUNT_STRING = "kcts";
@@ -100,31 +108,31 @@ public final class NonSIext {
 	public static final Unit<Angle> DEGREES_ANGLE;
 
 	/** A unit of angle equal to one thousandth of one degree (alternative name <code>mDeg</code>). */
-	public static final Unit<Angle> mDEG_ANGLE;
+	public static final Unit<Angle> MILLI_DEG_ANGLE;
 
 	/** A unit of angle equal to one thousandth of one degree (alternative name <code>mDeg</code>). */
-	public static final Unit<Angle> mDEG_ANGLE_LOWERCASE;
+	public static final Unit<Angle> MILLI_DEG_ANGLE_LOWERCASE;
 
-	/** A unit of angle equal to one thousandth of one milli-degree (alternative name <code>μDeg</code>). */
-	public static final Unit<Angle> μDEG_ANGLE;
+	/** A unit of angle equal to one thousandth of one milli-degree (alternative name <code>µDeg</code>). */
+	public static final Unit<Angle> MICRO_DEG_ANGLE;
 
-	/** A unit of angle equal to one thousandth of one milli-degree (alternative name <code>μDeg</code>). */
-	public static final Unit<Angle> uDEG_ANGLE;
-
-	/** A unit of plane angle equal to one thousandth of one RADIAN (alternative name <code>mRad</code>). */
-	public static final Unit<Angle> mRADIAN_ANGLE;
+	/** A unit of angle equal to one thousandth of one milli-degree (alternative name <code>µDeg</code>). */
+	public static final Unit<Angle> MICRO_DEG_U_ANGLE;
 
 	/** A unit of plane angle equal to one thousandth of one RADIAN (alternative name <code>mRad</code>). */
-	public static final Unit<Angle> mRADIAN_ANGLE_LC;
+	public static final Unit<Angle> MILLI_RADIAN_ANGLE;
 
-	/** A unit of plane angle equal to one thousandth of one MILLI_RADIAN (alternative name <code>μRad</code>). */
-	public static final Unit<Angle> μRADIAN_ANGLE;
+	/** A unit of plane angle equal to one thousandth of one RADIAN (alternative name <code>mRad</code>). */
+	public static final Unit<Angle> MILLI_RADIAN_ANGLE_LOWERCASE;
 
-	/** A unit of plane angle equal to one thousandth of one MILLI_RADIAN (alternative name <code>μRad</code>). */
-	public static final Unit<Angle> uRADIAN_ANGLE;
+	/** A unit of plane angle equal to one thousandth of one MILLI_RADIAN (alternative name <code>µRad</code>). */
+	public static final Unit<Angle> MICRO_RADIAN_ANGLE;
 
-	/** A unit of plane angle equal to one thousandth of one MILLI_RADIAN (alternative name <code>μRad</code>). */
-	public static final Unit<Angle> uRADIAN_ANGLE_LC;
+	/** A unit of plane angle equal to one thousandth of one MILLI_RADIAN (alternative name <code>µRad</code>). */
+	public static final Unit<Angle> MICRO_RADIAN_U_ANGLE;
+
+	/** A unit of plane angle equal to one thousandth of one MILLI_RADIAN (alternative name <code>µRad</code>). */
+	public static final Unit<Angle> MICRO_RADIAN_U_ANGLE_LOWERCASE;
 
 	/** A unit of length equal to one millionth of one meter (alternative name <code>micron</code>). */
 	public static final Unit<Length> MICRON;
@@ -138,14 +146,14 @@ public final class NonSIext {
 	/** A unit of length equal to one millionth of one second (alternative name <code>uS</code>). */
 	public static final Unit<Duration> MICROSECOND;
 
-	/** A unit of length equal to one millionth of one second (alternative name <code>μS</code>). */
+	/** A unit of length equal to one millionth of one second (alternative name <code>µS</code>). */
 	public static final Unit<Duration> MICROSECOND_MU;
 
 	/** A unit of length equal to one millionth of one second (alternative name <code>us</code>). */
-	public static final Unit<Duration> MICROSECOND_LC;
+	public static final Unit<Duration> MICROSECOND_LOWERCASE;
 
-	/** A unit of length equal to one millionth of one second (alternative name <code>μs</code>). */
-	public static final Unit<Duration> MICROSECOND_MU_LC;
+	/** A unit of length equal to one millionth of one second (alternative name <code>µs</code>). */
+	public static final Unit<Duration> MICROSECOND_MU_LOWERCASE;
 
 	/** An alternative unit name for ANGSTROM (alternative name <code>Ang</code>). */
 	public static final Unit<Length> ANG;
@@ -166,10 +174,10 @@ public final class NonSIext {
 	public static final Unit<Energy> GIGAELECTRONVOLT;
 
 	/** microAmp (uA) */
-	public static final Unit<ElectricCurrent> uAMPERE;
+	public static final Unit<ElectricCurrent> MICRO_AMPERE_U;
 
-	/** microAmp (μA) */
-	public static final Unit<ElectricCurrent> MICROAMPERE;
+	/** microAmp (µA) */
+	public static final Unit<ElectricCurrent> MICRO_AMPERE;
 
 	/** A unit of counts or motor steps. */
 	public static final Unit<Count> COUNT;
@@ -184,35 +192,44 @@ public final class NonSIext {
 		unitFormat.alias(NonSI.DEGREE_ANGLE, DEG_ANGLE_STRING);
 		unitFormat.alias(NonSI.DEGREE_ANGLE, DEG_ANGLE_LOWERCASE_STRING);
 		unitFormat.alias(NonSI.DEGREE_ANGLE, DEGREES_ANGLE_STRING);
-		unitFormat.alias(NonSI.DEGREE_ANGLE.times(1e-3), mDEG_ANGLE_STRING);
-		unitFormat.alias(NonSI.DEGREE_ANGLE.times(1e-3), mDEG_ANGLE_LOWERCASE_STRING);
-		unitFormat.alias(NonSI.DEGREE_ANGLE.times(1e-6), μDEG_ANGLE_STRING);
-		unitFormat.alias(NonSI.DEGREE_ANGLE.times(1e-6), uDEG_ANGLE_STRING);
+		unitFormat.alias(NonSI.DEGREE_ANGLE.times(1e-3), MILLI_DEG_ANGLE_STRING);
+		unitFormat.alias(NonSI.DEGREE_ANGLE.times(1e-3), MILLI_DEG_ANGLE_LOWERCASE_STRING);
+		unitFormat.alias(NonSI.DEGREE_ANGLE.times(1e-6), MICRO_DEG_ANGLE_STRING);
+		unitFormat.alias(NonSI.DEGREE_ANGLE.times(1e-6), MICRO_DEG_MU_ANGLE_STRING);
+		unitFormat.alias(NonSI.DEGREE_ANGLE.times(1e-6), MICRO_DEG_U_ANGLE_STRING);
 
-		unitFormat.alias(SI.RADIAN.times(1e-3), mRADIAN_ANGLE_STRING);
-		unitFormat.alias(SI.RADIAN.times(1e-3), mRADIAN_ANGLE_LC_STRING);
-		unitFormat.alias(SI.MICRO(SI.RADIAN), μRADIAN_ANGLE_STRING);
-		unitFormat.alias(SI.MICRO(SI.RADIAN), uRADIAN_ANGLE_STRING);
-		unitFormat.alias(SI.MICRO(SI.RADIAN), uRADIAN_ANGLE_LC_STRING);
+		unitFormat.alias(SI.RADIAN.times(1e-3), MILLI_RADIAN_ANGLE_STRING);
+		unitFormat.alias(SI.RADIAN.times(1e-3), MILLI_RADIAN_ANGLE_LOWERCASE_STRING);
+		unitFormat.alias(SI.MICRO(SI.RADIAN), MICRO_RADIAN_ANGLE_STRING);
+		unitFormat.alias(SI.MICRO(SI.RADIAN), MICRO_RADIAN_MU_ANGLE_STRING);
+		unitFormat.alias(SI.MICRO(SI.RADIAN), MICRO_RADIAN_U_ANGLE_STRING);
+		unitFormat.alias(SI.MICRO(SI.RADIAN), MICRO_RADIAN_U_ANGLE_LOWERCASE_STRING);
 
 		unitFormat.alias(SI.METER.times(1e-6), MICRON_STRING);
 		unitFormat.alias(SI.METER.times(1e-6), MICRONS_STRING);
 		unitFormat.alias(SI.METER.times(1e-6), MICRON_UM_STRING);
+		unitFormat.alias(SI.METER.times(1e-6), MICRON_MU_STRING);
+		unitFormat.alias(SI.METER.times(1e-6), MICRON_SYMBOL_STRING);
 
 		unitFormat.alias(SI.SECOND.times(1e-6), MICROSECOND_STRING);
+		unitFormat.alias(SI.SECOND.times(1e-6), MICROSECOND_U_STRING);
 		unitFormat.alias(SI.SECOND.times(1e-6), MICROSECOND_MU_STRING);
-		unitFormat.alias(SI.SECOND.times(1e-6), MICROSECOND_LC_STRING);
-		unitFormat.alias(SI.SECOND.times(1e-6), MICROSECOND_MU_LC_STRING);
+		unitFormat.alias(SI.SECOND.times(1e-6), MICROSECOND_LOWERCASE_STRING);
+		unitFormat.alias(SI.SECOND.times(1e-6), MICROSECOND_U_LOWERCASE_STRING);
+		unitFormat.alias(SI.SECOND.times(1e-6), MICROSECOND_MU_LOWERCASE_STRING);
 
 		unitFormat.alias(SI.METER.times(1e-10), ANG_STRING);
 		unitFormat.alias(SI.METER.times(1e-10), ANGSTROM_STRING);
+		unitFormat.alias(SI.METER.times(1e-10), ANGSTROM_SYMBOL);
+		unitFormat.alias(SI.METER.times(1e-10), ANGSTROM_SYMBOL_ALTERNATIVE);
 		unitFormat.alias(SI.METER.times(1e-10).inverse(), PER_ANGSTROM_STRING);
 
 		unitFormat.alias(SI.KELVIN.plus(-273.15), CENTIGRADE_STRING);
 		unitFormat.alias(NonSI.ELECTRON_VOLT.times(1e3), KILOELECTRONVOLT_STRING);
 		unitFormat.alias(NonSI.ELECTRON_VOLT.times(1e9), GIGAELECTRONVOLT_STRING);
 
-		unitFormat.alias(SI.AMPERE.times(1e-6), uAMPERE_STRING);
+		unitFormat.alias(SI.AMPERE.times(1e-6), MICROAMPERE_U_STRING);
+		unitFormat.alias(SI.AMPERE.times(1e-6), MICROAMPERE_MU_STRING);
 		unitFormat.alias(SI.AMPERE.times(1e-6), MICROAMPERE_STRING);
 
 		unitFormat.alias(SI.METER.inverse(), COUNT_STRING);
@@ -221,16 +238,16 @@ public final class NonSIext {
 		DEG_ANGLE = (Unit<Angle>) Unit.valueOf(DEG_ANGLE_STRING);
 		DEG_ANGLE_LOWERCASE = (Unit<Angle>) Unit.valueOf(DEG_ANGLE_LOWERCASE_STRING);
 		DEGREES_ANGLE = (Unit<Angle>) Unit.valueOf(DEGREES_ANGLE_STRING);
-		mDEG_ANGLE = (Unit<Angle>) Unit.valueOf(mDEG_ANGLE_STRING);
-		mDEG_ANGLE_LOWERCASE = (Unit<Angle>) Unit.valueOf(mDEG_ANGLE_LOWERCASE_STRING);
-		μDEG_ANGLE = (Unit<Angle>) Unit.valueOf(μDEG_ANGLE_STRING);
-		uDEG_ANGLE = (Unit<Angle>) Unit.valueOf(uDEG_ANGLE_STRING);
+		MILLI_DEG_ANGLE = (Unit<Angle>) Unit.valueOf(MILLI_DEG_ANGLE_STRING);
+		MILLI_DEG_ANGLE_LOWERCASE = (Unit<Angle>) Unit.valueOf(MILLI_DEG_ANGLE_LOWERCASE_STRING);
+		MICRO_DEG_ANGLE = (Unit<Angle>) Unit.valueOf(MICRO_DEG_MU_ANGLE_STRING);
+		MICRO_DEG_U_ANGLE = (Unit<Angle>) Unit.valueOf(MICRO_DEG_U_ANGLE_STRING);
 
-		mRADIAN_ANGLE = (Unit<Angle>) Unit.valueOf(mRADIAN_ANGLE_STRING);
-		mRADIAN_ANGLE_LC = (Unit<Angle>) Unit.valueOf(mRADIAN_ANGLE_LC_STRING);
-		μRADIAN_ANGLE = (Unit<Angle>) Unit.valueOf(μRADIAN_ANGLE_STRING);
-		uRADIAN_ANGLE = (Unit<Angle>) Unit.valueOf(uRADIAN_ANGLE_STRING);
-		uRADIAN_ANGLE_LC = (Unit<Angle>) Unit.valueOf(uRADIAN_ANGLE_LC_STRING);
+		MILLI_RADIAN_ANGLE = (Unit<Angle>) Unit.valueOf(MILLI_RADIAN_ANGLE_STRING);
+		MILLI_RADIAN_ANGLE_LOWERCASE = (Unit<Angle>) Unit.valueOf(MILLI_RADIAN_ANGLE_LOWERCASE_STRING);
+		MICRO_RADIAN_ANGLE = (Unit<Angle>) Unit.valueOf(MICRO_RADIAN_ANGLE_STRING);
+		MICRO_RADIAN_U_ANGLE = (Unit<Angle>) Unit.valueOf(MICRO_RADIAN_U_ANGLE_STRING);
+		MICRO_RADIAN_U_ANGLE_LOWERCASE = (Unit<Angle>) Unit.valueOf(MICRO_RADIAN_U_ANGLE_LOWERCASE_STRING);
 
 		MICRON = (Unit<Length>) Unit.valueOf(MICRON_STRING);
 		MICRONS = (Unit<Length>) Unit.valueOf(MICRONS_STRING);
@@ -238,8 +255,8 @@ public final class NonSIext {
 
 		MICROSECOND = (Unit<Duration>) Unit.valueOf(MICROSECOND_STRING);
 		MICROSECOND_MU = (Unit<Duration>) Unit.valueOf(MICROSECOND_MU_STRING);
-		MICROSECOND_LC = (Unit<Duration>) Unit.valueOf(MICROSECOND_LC_STRING);
-		MICROSECOND_MU_LC = (Unit<Duration>) Unit.valueOf(MICROSECOND_MU_LC_STRING);
+		MICROSECOND_LOWERCASE = (Unit<Duration>) Unit.valueOf(MICROSECOND_LOWERCASE_STRING);
+		MICROSECOND_MU_LOWERCASE = (Unit<Duration>) Unit.valueOf(MICROSECOND_MU_LOWERCASE_STRING);
 
 		ANG = (Unit<Length>) Unit.valueOf(ANG_STRING);
 		ANGSTROM = (Unit<Length>) Unit.valueOf(ANGSTROM_STRING);
@@ -249,8 +266,8 @@ public final class NonSIext {
 		KILOELECTRONVOLT = (Unit<Energy>) Unit.valueOf(KILOELECTRONVOLT_STRING);
 		GIGAELECTRONVOLT = (Unit<Energy>) Unit.valueOf(GIGAELECTRONVOLT_STRING);
 
-		uAMPERE = (Unit<ElectricCurrent>) Unit.valueOf(uAMPERE_STRING);
-		MICROAMPERE = (Unit<ElectricCurrent>) Unit.valueOf(MICROAMPERE_STRING);
+		MICRO_AMPERE_U = (Unit<ElectricCurrent>) Unit.valueOf(MICROAMPERE_U_STRING);
+		MICRO_AMPERE = (Unit<ElectricCurrent>) Unit.valueOf(MICROAMPERE_STRING);
 
 		COUNT = (Unit<Count>) Unit.valueOf(COUNT_STRING);
 		KILOCOUNT = (Unit<Count>) Unit.valueOf(KILOCOUNT_STRING);

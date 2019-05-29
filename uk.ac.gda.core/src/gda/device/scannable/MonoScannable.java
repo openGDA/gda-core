@@ -83,7 +83,7 @@ public class MonoScannable extends ScannableMotionUnitsBase {
 				userUnits = QuantityFactory.createUnitFromString(initialUserUnits);
 			}
 
-			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, NonSIext.mDEG_ANGLE);
+			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, NonSIext.MILLI_DEG_ANGLE);
 			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, NonSIext.DEG_ANGLE);
 			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, NonSI.ANGSTROM);
 			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, SI.NANO(SI.METER));

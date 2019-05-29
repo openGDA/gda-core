@@ -20,7 +20,7 @@ package gda.device.scannable;
 
 import static gda.jscience.physics.units.NonSIext.DEG_ANGLE;
 import static gda.jscience.physics.units.NonSIext.DEG_ANGLE_LOWERCASE_STRING;
-import static gda.jscience.physics.units.NonSIext.mDEG_ANGLE;
+import static gda.jscience.physics.units.NonSIext.MILLI_DEG_ANGLE;
 import static javax.measure.unit.SI.METER;
 import static javax.measure.unit.SI.MILLI;
 import static javax.measure.unit.SI.NANO;
@@ -59,10 +59,12 @@ public class UnitsComponentTest {
 	private static final Amount<Length> q3000mm = Amount.valueOf(3000, MILLI(METER));
 
 	private static final List<String> LENGTH_UNITS = Arrays.asList(
-			"m", "nm", "mm", "µm", "micron", "um", "Ang", "Angstrom", "Å", "microns");
+			"m", "nm", "mm", "\u00b5m", "\u03bcm", "micron", "um", "Ang", "Angstrom", "\u212b", "\u00c5", "microns");
 
 	private static final List<String> ANGLE_UNITS = Arrays.asList(
-			"rad", "Deg", "degrees", "mDeg", "deg", "mdeg", "mRad", "mrad", "uDeg", "uRad", "urad", "°");
+			"rad", "Deg", "degrees", "°",
+			"mDeg", "deg", "mdeg", "mRad", "mrad",
+			"uDeg", "\u00b5Deg", "\u03bcDeg", "uRad", "urad", "\u00b5Rad", "\u03bcRad");
 
 	private static final List<String> TEMPERATURE_UNITS = Arrays.asList("centigrade", "K");
 	private static final List<String> FORCE_UNITS = Arrays.asList("N");
@@ -70,7 +72,7 @@ public class UnitsComponentTest {
 	private static final List<String> COUNT_UNITS = Arrays.asList("cts", "kcts");
 	private static final List<String> ENERGY_UNITS = Arrays.asList("keV", "eV", "GeV");
 	private static final List<String> DIMENSIONLESS_UNITS = Arrays.asList(Unit.ONE.toString());
-	private static final List<String> ELECTRIC_CURRENT_UNITS = Arrays.asList("A", "μA", "uA", "mA");
+	private static final List<String> ELECTRIC_CURRENT_UNITS = Arrays.asList("A", "\u00b5A", "\u03bcA", "uA", "mA");
 	private static final List<String> DURATION_UNITS = Arrays.asList("s", "ms");
 	private static final List<String> VOLUME_UNITS = Arrays.asList("L", "m³");
 	private static final List<String> VOLUMETRIC_DENSITY_UNITS = Arrays.asList("mg/mL");
@@ -337,7 +339,7 @@ public class UnitsComponentTest {
 		assertEquals(DEG_ANGLE_LOWERCASE_STRING, uc.getHardwareUnitString());
 		assertEquals(DEG_ANGLE, uc.getHardwareUnit());
 		assertEquals("rad*1.7453292519943296E-5", uc.getUserUnitString());
-		assertEquals(mDEG_ANGLE, uc.getUserUnit());
+		assertEquals(MILLI_DEG_ANGLE, uc.getUserUnit());
 	}
 
 	@Test(expected = DeviceException.class)
