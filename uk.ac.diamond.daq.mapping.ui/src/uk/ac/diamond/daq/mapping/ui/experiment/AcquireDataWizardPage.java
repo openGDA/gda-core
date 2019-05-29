@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
@@ -53,8 +55,6 @@ import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StackLayout;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -114,15 +114,15 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 	public void createControl(Composite parent) {
 		initializeDialogUnits(parent);
 
-		SashForm sashForm = new SashForm(parent, SWT.HORIZONTAL);
+		final SashForm sashForm = new SashForm(parent, SWT.HORIZONTAL);
 
-		Composite detectorAndButtonsComposite = new Composite(sashForm, SWT.NONE);
+		final Composite detectorAndButtonsComposite = new Composite(sashForm, SWT.NONE);
 		GridLayoutFactory.fillDefaults().applyTo(detectorAndButtonsComposite);
 
-		Control detectorConfigComposite = createDetectorControl(detectorAndButtonsComposite);
+		final Control detectorConfigComposite = createDetectorControl(detectorAndButtonsComposite);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(detectorConfigComposite);
 
-		Control buttonRow = createButtonRow(detectorAndButtonsComposite);
+		final Control buttonRow = createButtonRow(detectorAndButtonsComposite);
 		GridDataFactory.fillDefaults().align(SWT.END, SWT.CENTER).applyTo(buttonRow);
 
 		createDataPlotControl(sashForm);
@@ -133,28 +133,18 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 	}
 
 	private Control createButtonRow(Composite parent) {
-		Composite rowComposite = new Composite(parent, SWT.NONE);
+		final Composite rowComposite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(rowComposite);
 
-		Button acquireButton = new Button(rowComposite, SWT.PUSH);
+		final Button acquireButton = new Button(rowComposite, SWT.PUSH);
 		acquireButton.setText("Acquire");
 		setButtonLayoutData(acquireButton);
-		acquireButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				acquireData();
-			}
-		});
+		acquireButton.addSelectionListener(widgetSelectedAdapter(e -> acquireData()));
 
-		Button loadFromFileButton = new Button(rowComposite, SWT.PUSH);
+		final Button loadFromFileButton = new Button(rowComposite, SWT.PUSH);
 		loadFromFileButton.setText("Load from file...");
 		setButtonLayoutData(loadFromFileButton);
-		loadFromFileButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				loadDataFromFile();
-			}
-		});
+		loadFromFileButton.addSelectionListener(widgetSelectedAdapter(e -> loadDataFromFile()));
 
 		return rowComposite;
 	}
@@ -165,7 +155,7 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 		// to prevent AcquireRequest interrupting a running scan,
 		// we'll check that no running/submitted scans are currently in the queue
 		if (!new SubmissionQueueReporter().isQueueEmpty()) {
-			String msg = "Cannot take snapshot while there are submitted or running scans.";
+			final String msg = "Cannot take snapshot while there are submitted or running scans.";
 			logger.warn("{}\nAcquireRequest aborted",msg);
 			MessageDialog.openInformation(getShell(), "Snapshot", msg);
 			return;
@@ -193,10 +183,10 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 	}
 
 	private void loadDataFromFile() {
-		FileSelectionDialog dialog = new FileSelectionDialog(getShell());
+		final FileSelectionDialog dialog = new FileSelectionDialog(getShell());
 		dialog.setFolderSelector(false);
-		dialog.setExtensions(new String[] { MappingUIConstants.NEXUS_FILE_EXTENSION, "*.*" });
-		dialog.setFiles(new String[] { "Nexus files", "All Files" });
+		dialog.setExtensions(MappingUIConstants.NEXUS_FILE_EXTENSION, "*.*");
+		dialog.setFiles("Nexus files", "All Files");
 		dialog.setHasResourceButton(false);
 		dialog.setNewFile(false);
 		if (lastFilePath != null) {
@@ -221,11 +211,11 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					try {
-						// the file may not be visable yet as it is on lustre
+						// the file may not be visible yet as it is on lustre
 						// TODO: it may be better to use the remote dataset service. If so, Jacob
 						// would need add to the remote dataset service the ability to read the
 						// axes, which is already implemented in the loader service
-						File file = new File(filePath);
+						final File file = new File(filePath);
 						int count = 0;
 						while (!file.exists() && count < 10) {
 							Thread.sleep(200);
@@ -235,20 +225,20 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 							throw new FileNotFoundException("The file " + filePath + " could not be found.");
 						}
 
-						ILoaderService loaderService = context.get(ILoaderService.class);
+						final ILoaderService loaderService = context.get(ILoaderService.class);
 						final IDataset dataset = loaderService.getDataset(filePath, datasetPath, new ProgressMonitorWrapper(monitor)).squeeze();
 						update(dataset);
 						final Display display = getShell().getDisplay();
 						// in the UI thread, execute setPageComplete to be called in 100ms
 						// this is required as wizard page resets buttons when this runnable is finished
-						display.asyncExec(() -> { display.timerExec(100, () -> { setPageComplete(true); }); });
+						display.asyncExec(() -> display.timerExec(100, () -> setPageComplete(true)));
 					} catch (Exception e) {
 						throw new InvocationTargetException(e);
 					}
 				}
 			});
 		} catch (InvocationTargetException | InterruptedException e) {
-			String errorMessage = MessageFormat.format("Could not load data for detector {0} from file {1}.",
+			final String errorMessage = MessageFormat.format("Could not load data for detector {0} from file {1}.",
 					acquireDetectorModel.getName(), filePath);
 			handleException(errorMessage, e);
 		}
@@ -272,23 +262,18 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 		final SliceInformation s = MappingExperimentUtils.getDatasetSlice(dataset);
 		final SourceInformation source = MappingExperimentUtils.getSourceInformation(detectorDataGroupName, dataset);
 
-		SliceFromSeriesMetadata m = new SliceFromSeriesMetadata(source,s);
+		final SliceFromSeriesMetadata m = new SliceFromSeriesMetadata(source,s);
 		dataset.setMetadata(m);
 
 		if (update == null) {
 			update = new Job("calculate...") {
-
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
-					Display.getDefault().syncExec(new Runnable() {
-
-						@Override
-						public void run() {
-							try {
-								MetadataPlotUtils.plotDataWithMetadata(dataset, plottingSystem);
-							} catch (Exception e) {
-								logger.warn("Could not plot data", e);
-							}
+					Display.getDefault().syncExec(() -> {
+						try {
+							MetadataPlotUtils.plotDataWithMetadata(dataset, plottingSystem);
+						} catch (Exception e) {
+							logger.warn("Could not plot data", e);
 						}
 					});
 					return org.eclipse.core.runtime.Status.OK_STATUS;
@@ -307,7 +292,7 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 		detectorComposite.setLayout(detectorAreaStackLayout);
 
 		// The detector model may not have been set yet, so just create a placeholder
-		Label detectorPlaceholder = new Label(detectorComposite, SWT.NONE);
+		final Label detectorPlaceholder = new Label(detectorComposite, SWT.NONE);
 		detectorPlaceholder.setText("No detector selected");
 		detectorAreaStackLayout.topControl = detectorPlaceholder;
 
@@ -355,8 +340,8 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 	}
 
 	private void createDetectorUIControls(IDetectorModel detectorModel) {
-		IGuiGeneratorService guiGenerator = context.get(IGuiGeneratorService.class);
-		Control detectorControl = guiGenerator.generateGui(detectorModel, detectorComposite);
+		final IGuiGeneratorService guiGenerator = context.get(IGuiGeneratorService.class);
+		final Control detectorControl = guiGenerator.generateGui(detectorModel, detectorComposite);
 		detectorAreaStackLayout.topControl = detectorControl;
 		detectorComposite.layout();
 	}
