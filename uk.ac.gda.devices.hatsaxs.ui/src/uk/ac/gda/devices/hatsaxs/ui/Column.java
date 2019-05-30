@@ -77,6 +77,12 @@ public abstract class Column<T,V> {
 			public <E> CellEditor getCellEditor(Composite parent, @SuppressWarnings("unchecked") E... options) {
 				return new EditableComboBox<E>(parent, options);
 			}
+		},
+		READ_ONLY {
+			@Override
+			public <E> CellEditor getCellEditor(Composite parent, E... options) {
+				return null;
+			}
 		};
 		public abstract <E> CellEditor getCellEditor(Composite parent, @SuppressWarnings("unchecked") E... options);
 	}

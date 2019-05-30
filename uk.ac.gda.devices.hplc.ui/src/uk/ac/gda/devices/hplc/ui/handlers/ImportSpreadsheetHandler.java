@@ -43,8 +43,6 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class ImportSpreadsheetHandler implements IHandler {
 	private Logger logger = LoggerFactory.getLogger(ImportSpreadsheetHandler.class);
-	private static final int ROW_COL = 0;
-	private static final int COLUMN_COL = 1;
 	private static final int SAMPLE_NAME_COL = 2;
 	private static final int CONCENTRATION_COL = 3;
 	private static final int MOLECULAR_WEIGHT_COL = 4;
@@ -53,8 +51,6 @@ public class ImportSpreadsheetHandler implements IHandler {
 	private static final int COMMENT_COL = 7;
 	private static final int VISIT_COL = 8;
 	private static final int USERNAME_COL = 9;
-
-	private static final int DEFAULT_PLATE = 1;
 	
 	@Override
 	public void addHandlerListener(IHandlerListener handlerListener) {
@@ -89,10 +85,6 @@ public class ImportSpreadsheetHandler implements IHandler {
 					Row row = sheet.getRow(i);
 					HplcBean hb = new HplcBean();
 	
-					LocationBean location = locationFromCells(DEFAULT_PLATE, row.getCell(ROW_COL), row.getCell(COLUMN_COL));
-					if (!location.isValid())
-						throw new Exception("invalid sample location");
-					hb.setLocation(String.format("%c%d", location.getRow() + location.getColumn()));
 					hb.setSampleName(row.getCell(SAMPLE_NAME_COL).getStringCellValue());
 					hb.setBuffers(row.getCell(BUFFERS_COL).getStringCellValue());
 					hb.setComment(row.getCell(COMMENT_COL).getStringCellValue());

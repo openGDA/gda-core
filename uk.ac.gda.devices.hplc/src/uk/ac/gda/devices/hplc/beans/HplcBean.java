@@ -15,7 +15,6 @@ public class HplcBean implements XMLRichBean {
 	public static void setModes(Map<String, Boolean> modes) {
 		MODES = modes;
 	}
-	private String location = "A1";
 	private String sampleName = "Sample";
 	private double concentration;
 	private double molecularWeight;
@@ -34,12 +33,6 @@ public class HplcBean implements XMLRichBean {
 		this.visit = myDetails.getVisitID();
 		this.username = myDetails.getUserID();
 		this.isStaff = myDetails.getAuthorisationLevel() >= 3;
-	}
-	public String getLocation() {
-		return location;
-	}
-	public void setLocation(String location) {
-		this.location = location;
 	}
 	public String getSampleName() {
 		return sampleName;

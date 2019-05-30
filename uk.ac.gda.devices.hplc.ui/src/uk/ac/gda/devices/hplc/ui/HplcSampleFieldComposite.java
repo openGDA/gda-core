@@ -153,14 +153,13 @@ public class HplcSampleFieldComposite extends FieldComposite {
 
 
 		columns = new LinkedHashMap<>();
-		columns.put("Location", new Column<HplcBean, String>(70, tableViewer, rbeditor, TEXT) {
+		columns.put("Index", new Column<HplcBean, Integer>(30, tableViewer, rbeditor, READ_ONLY) {
 			@Override
-			public String getRealValue(HplcBean element) {
-				return element.getLocation();
+			public Integer getRealValue(HplcBean element) {
+				return getList().indexOf(element) + 1;
 			}
 			@Override
 			public void setNewValue(HplcBean element, String value) {
-				element.setLocation(value);
 			}
 		});
 		columns.put("Sample Name",new Column<HplcBean, String>(100, tableViewer, rbeditor, TEXT) {
