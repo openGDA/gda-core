@@ -6,8 +6,10 @@ import java.util.stream.Collectors;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 
+import gda.device.DeviceException;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
+import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.plan.IPlan;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
@@ -22,14 +24,14 @@ public class PlanRequestParser {
 	private final ExperimentService experimentService;
 	
 	private IPlan plan;
-	private IExperimentDriver driver;
+	private IExperimentDriver<DriverModel> driver;
 	
 	public PlanRequestParser(ExperimentService experimentService) {
 		Objects.requireNonNull(experimentService);
 		this.experimentService = experimentService;
 	}
 
-	public IPlan parsePlanRequest(PlanRequest planRequest) {
+	public IPlan parsePlanRequest(PlanRequest planRequest) throws DeviceException {
 		plan = new Plan(planRequest.getPlanName());
 		
 		if (planRequest.getExperimentDriverName() != null) {

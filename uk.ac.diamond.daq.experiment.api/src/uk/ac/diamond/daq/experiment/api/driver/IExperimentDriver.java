@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.Findable;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
@@ -28,10 +29,14 @@ import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
  *
  * @author Douglas Winter
  */
-public interface IExperimentDriver extends Findable {
+public interface IExperimentDriver<T extends DriverModel> extends Findable {
 
-	void setModel(ExperimentDriverModel model);
-	ExperimentDriverModel getModel();
+	void setModel(T model) throws DeviceException;
+	T getModel();
+
+	String getQuantityName();
+
+	String getQuantityUnits();
 
 	/**
 	 * @return signals which respond to the profile

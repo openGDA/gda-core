@@ -13,7 +13,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
+import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
+import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 
 
@@ -66,9 +68,9 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 		return nameAndDescriptionSection.validSelection() && driverAndProfileSection.validSelection();
 	}
 	
-	private Map<IExperimentDriver, Set<String>> experimentDriverConfigurations;
+	private Map<IExperimentDriver<? extends DriverModel>, Set<String>> experimentDriverConfigurations;
 	
-	public void setExperimentDriverConfigurations(Map<IExperimentDriver, Set<String>> driverConfigs) {
+	public void setExperimentDriverConfigurations(Map<IExperimentDriver<? extends DriverModel>, Set<String>> driverConfigs) {
 		experimentDriverConfigurations = driverConfigs;
 	}
 	
@@ -81,7 +83,7 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 				.findFirst().orElseThrow(()->new IllegalArgumentException("No driver named " + planBean.getExperimentDriverName() + " found"))
 				.getReadoutNames();
 			nextPage.setSevs(readouts);
-			nextPage.plotProfile(experimentService.getDriverProfile(planBean.getExperimentDriverName(), planBean.getExperimentDriverProfile(), experimentId).getProfile());
+			nextPage.plotProfile(((SingleAxisLinearSeries) experimentService.getDriverProfile(planBean.getExperimentDriverName(), planBean.getExperimentDriverProfile(), experimentId)).getProfile());
 		} else {
 			nextPage.setSevs(Collections.emptySet());
 		}

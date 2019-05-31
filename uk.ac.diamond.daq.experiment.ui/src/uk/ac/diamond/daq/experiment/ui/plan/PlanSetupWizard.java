@@ -10,6 +10,7 @@ import org.eclipse.jface.wizard.Wizard;
 
 import gda.factory.Finder;
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
+import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 
@@ -43,14 +44,16 @@ public class PlanSetupWizard extends Wizard {
 		this.planBean = planBean;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void addPages() {
 		setWindowTitle("Setup experiment plan");
 		
+		@SuppressWarnings("rawtypes")
 		Map<String, IExperimentDriver> drivers = Finder.getInstance().getFindablesOfType(IExperimentDriver.class);
 		
-		Map<IExperimentDriver, Set<String>> driverConfigs = new HashMap<>();
-		for (Map.Entry<String, IExperimentDriver> driver : drivers.entrySet()) {
+		Map<IExperimentDriver<? extends DriverModel>, Set<String>> driverConfigs = new HashMap<>();
+		for (@SuppressWarnings("rawtypes") Map.Entry<String, IExperimentDriver> driver : drivers.entrySet()) {
 			driverConfigs.put(driver.getValue(), experimentService.getDriverProfileNames(driver.getKey(), experimentId));
 		}
 		

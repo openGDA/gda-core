@@ -11,18 +11,17 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import gda.device.Scannable;
-import uk.ac.diamond.daq.experiment.api.driver.AbortCondition;
+import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.DriverState;
-import uk.ac.diamond.daq.experiment.api.driver.ExperimentDriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 
-public abstract class ExperimentDriverBase implements IExperimentDriver {
+public abstract class ExperimentDriverBase<T extends DriverModel> implements IExperimentDriver<T> {
 	
 	private String name;
 	
 	private Map<String, Scannable> readouts;
 	private String mainReadoutName;
-	private ExperimentDriverModel model = new ExperimentDriverModel();
+	private T model;
 	
 	// Should this be org.eclipse.scanning.api.event.scan.DeviceState?
 	protected DriverState state = IDLE;
@@ -38,12 +37,12 @@ public abstract class ExperimentDriverBase implements IExperimentDriver {
 	}
 
 	@Override
-	public void setModel(ExperimentDriverModel model) {
+	public void setModel(T model) {
 		this.model = model;
 	}
 
 	@Override
-	public ExperimentDriverModel getModel() {
+	public T getModel() {
 		return model;
 	}
 	
@@ -78,8 +77,6 @@ public abstract class ExperimentDriverBase implements IExperimentDriver {
 	@Override
 	public void start() {
 		checkValidState("start", IDLE);
-		
-		getModel().getAbortConditions().forEach(AbortCondition::activate);
 		state = RUNNING;
 		doStart();
 		state = IDLE;
@@ -102,9 +99,6 @@ public abstract class ExperimentDriverBase implements IExperimentDriver {
 	@Override
 	public void abort() {
 		checkValidState("abort", RUNNING, PAUSED);
-		
-		getModel().getAbortConditions().forEach(AbortCondition::deactivate);
-		
 		doAbort();
 		state = IDLE;
 	}
@@ -125,6 +119,16 @@ public abstract class ExperimentDriverBase implements IExperimentDriver {
 		if (validStates.contains(state)) return;
 		final String states = validStates.stream().map(Object::toString).collect(Collectors.joining(", "));
 		throw new IllegalStateException("Method " + methodName + " can only be called from: " + states);
+	}
+	
+	@Override
+	public String getQuantityName() {
+		return "Unknown";
+	}
+	
+	@Override
+	public String getQuantityUnits() {
+		return "a. u.";
 	}
 
 }

@@ -8,25 +8,30 @@ import gda.device.IScannableMotor;
 import uk.ac.diamond.daq.experiment.api.driver.DriverProfileSection;
 import uk.ac.diamond.daq.experiment.api.driver.DriverState;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
+import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Software-triggered {@link IExperimentDriver} which controls a {@link IScannableMotor}.
  */
 @ServiceInterface(IExperimentDriver.class)
-public class GdaScannableDriver extends ExperimentDriverBase {
+public class GdaScannableDriver extends ExperimentDriverBase<SingleAxisLinearSeries> {
 
 	private static final Logger logger = LoggerFactory.getLogger(GdaScannableDriver.class);
 
 	private final IScannableMotor scannableMotor;
 	private double tolerance = 0.005;
-
-	public GdaScannableDriver(IScannableMotor scannableMotor) {
+	private final String quantityName;
+	private final String quantityUnits;
+	
+	public GdaScannableDriver(IScannableMotor scannableMotor, String quantityName, String quantityUnits) {
 		this.scannableMotor = scannableMotor;
 		double demandPositionTolerance = scannableMotor.getDemandPositionTolerance();
 		if (!Double.isNaN(demandPositionTolerance)) {
 			this.tolerance = demandPositionTolerance;
 		}
+		this.quantityName = quantityName;
+		this.quantityUnits = quantityUnits;
 	}
 
 	@Override
@@ -61,8 +66,11 @@ public class GdaScannableDriver extends ExperimentDriverBase {
 			}
 
 			scannableMotor.setSpeed(originalSpeed);
-		} catch (DeviceException | InterruptedException e) {
-			logger.error("Error running driver profile", e);
+		} catch (DeviceException deviceException) {
+			logger.error("Error running driver profile", deviceException);
+		} catch (InterruptedException interruptedException) {
+			logger.error("Execution interrupted!", interruptedException);
+			Thread.currentThread().interrupt();
 		}
 	}
 
@@ -100,6 +108,16 @@ public class GdaScannableDriver extends ExperimentDriverBase {
 		}
 	}
 
+	@Override
+	public String getQuantityName() {
+		return quantityName != null ? quantityName : super.getQuantityName();
+	}
+	
+	@Override
+	public String getQuantityUnits() {
+		return quantityUnits != null ? quantityUnits : super.getQuantityUnits();
+	}
+	
 	@Override
 	public String toString() {
 		return "GdaScannableDriver [scannableMotor=" + scannableMotor + "]";

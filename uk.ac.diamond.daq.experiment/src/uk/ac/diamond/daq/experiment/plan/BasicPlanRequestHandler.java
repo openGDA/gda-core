@@ -1,5 +1,6 @@
 package uk.ac.diamond.daq.experiment.plan;
 
+import gda.device.DeviceException;
 import gda.factory.FindableBase;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
@@ -14,7 +15,7 @@ public class BasicPlanRequestHandler extends FindableBase implements PlanRequest
 	private ExperimentService experimentService;
 
 	@Override
-	public void submit(PlanRequest planRequest) {
+	public void submit(PlanRequest planRequest) throws DeviceException {
 		PlanRequestParser planRequestParser = new PlanRequestParser(experimentService);
 		IPlan plan = planRequestParser.parsePlanRequest(planRequest);
 		Async.submit(plan::start);
