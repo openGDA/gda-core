@@ -19,14 +19,12 @@
 package uk.ac.diamond.daq.mapping.ui.experiment.file;
 
 import java.io.File;
-import java.io.FilenameFilter;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
-import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
@@ -48,7 +46,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 /**
  * Composite for use with {@link DescriptiveFilenameFactory}. Will display filenames encoded using this in 3 columns
  * showing the name, shape and shape/path parameters in a sortable searchable tree view. Filenames without the
- * descriptor section will just show in the name column. Double clicking and entry loads the file in question.
+ * descriptor section will just show in the name column. Double clicking an entry loads the file in question.
  *
  * @since GDA 9.13
  */
@@ -58,13 +56,10 @@ public class DescriptiveFilenameBrowserComposite extends Composite {
 	private static final int SHAPE_WIDTH = 70;
 	private static final int DETAIL_WIDTH = 200;
 
-	private final PatternFilter filter;
-	private final FilteredTree tree;
-	private TreeViewer viewer;
-	private Button saveButton;
+	private final TreeViewer viewer;
+	private final IComparableStyledLabelProvider nameLabelProvider;
+
 	private String scanFilesDir;
-	private Consumer<String> load;
-	private Consumer<String> save;
 
 
 	/**
@@ -72,61 +67,71 @@ public class DescriptiveFilenameBrowserComposite extends Composite {
 	 */
 	public DescriptiveFilenameBrowserComposite(final Composite parent, final int style) {
 		super (parent, style);
-		filter = new PatternFilter();
-		tree = new FilteredTree(this, SWT.V_SCROLL, filter, true);
+		FilteredTree tree = new FilteredTree(this, SWT.V_SCROLL, new PatternFilter(), true);
 		GridDataFactory.fillDefaults().grab(true, true).hint(SWT.DEFAULT, FOUR_ROWS).applyTo(tree);
 		viewer = tree.getViewer();
 		viewer.getTree().setHeaderVisible(true);
 		viewer.setContentProvider(new SavedScansContentProvider());
+		nameLabelProvider = new SavedScanNameLabelProvider();
 	}
 
 	/**
 	 * Initialises fields with supplied parameters, builds the controls and adds listeners.
 	 *
-	 * @param filesDir	The directory to/from which the files can be saved/loaded
-	 * @param loader	The function which will carry out the file loading
-	 * @param saver		The function which will carry out file saving
+	 * @param filesDir			The directory to/from which the files can be saved/loaded
+	 * @param optionalLoader	The function which will carry out the file loading
+	 * @param optionalSaver		The function which will carry out file saving
 	 */
-	public void populate(final String filesDir, final Consumer<String> loader, final Consumer<String> saver) {
+	public void populate(final String filesDir, final Optional<Consumer<String>> optionalLoader, final Optional<Consumer<String>> optionalSaver) {
 		scanFilesDir = filesDir;
-		load = loader;
-		save = saver;
 
 		viewer.setInput(getFileList());
-		viewer.addDoubleClickListener(new IDoubleClickListener(){
 
-			@Override
-			public void doubleClick(DoubleClickEvent event) {
+		optionalLoader.ifPresent(loader ->
+			viewer.addDoubleClickListener(event -> {
 				String filename = ((TreeSelection)event.getSelection()).getFirstElement().toString();
-				load.accept(getFilePath(filename));
-			}
-		});
-		addColumn("Name", NAME_WIDTH, new SavedScanNameLabelProvider()).getColumn().notifyListeners(SWT.Selection, null);
+				loader.accept(getFilePath(filename));
+			})
+		);
+
+		addColumn("Name", NAME_WIDTH, nameLabelProvider).getColumn().notifyListeners(SWT.Selection, null);
 		addColumn("Shape", SHAPE_WIDTH, new SavedScanShapeLabelProvider());
 		addColumn("Detail", DETAIL_WIDTH, new SavedScanDetailsLabelProvider());
 		viewer.refresh();
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL));
 
-		final Composite buttonsComposite = new Composite(this, SWT.NONE);
-		buttonsComposite.setLayout(new GridLayout(3, false));
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(buttonsComposite);
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(new Label(buttonsComposite,SWT.NONE));
+		optionalSaver.ifPresent(saver -> {
 
-		saveButton = new Button(buttonsComposite, SWT.PUSH);
-		saveButton.setImage(AbstractUIPlugin.imageDescriptorFromPlugin(
-				"uk.ac.diamond.daq.mapping.ui", "icons/save.png").createImage());
-		saveButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-		        InputDialog dlg = new InputDialog(Display.getCurrent().getActiveShell(),
-		                "Save Scan Definition", "Please enter a name for the current Scan Definition", "", null);
+			GridDataFactory.fillDefaults().grab(true, false).applyTo(new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL));
+
+			final Composite buttonsComposite = new Composite(this, SWT.NONE);
+			buttonsComposite.setLayout(new GridLayout(3, false));
+			GridDataFactory.fillDefaults().grab(true, true).applyTo(buttonsComposite);
+			GridDataFactory.fillDefaults().grab(true, true).applyTo(new Label(buttonsComposite,SWT.NONE));
+
+			Button saveButton = new Button(buttonsComposite, SWT.PUSH);
+			saveButton.setImage(AbstractUIPlugin.imageDescriptorFromPlugin(
+					"uk.ac.diamond.daq.mapping.ui", "icons/save.png").createImage());
+			saveButton.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent event) {
+			        InputDialog dlg = new InputDialog(Display.getCurrent().getActiveShell(),
+			                "Save Scan Definition", "Please enter a name for the current Scan Definition", "", null);
 		            if (dlg.open() == Window.OK) {
-		              save.accept(getFilePath(dlg.getValue()));
+		              saver.accept(getFilePath(dlg.getValue()));
 		              viewer.setInput(getFileList());
 		              viewer.refresh();
 		            }
-			}
+				}
+			});
 		});
+
+	}
+
+	/**
+	 * @return the string in the Name column for the selected entry
+	 */
+	public String getSelectedName() {
+		return nameLabelProvider.getStyledText(viewer.getStructuredSelection().getFirstElement()).toString();
 	}
 
 	/**
@@ -135,7 +140,7 @@ public class DescriptiveFilenameBrowserComposite extends Composite {
 	 *
 	 * @param name		The displayed name of the column
 	 * @param width		The preferred width of the column
-	 * @param provider	The provider of formatted contenet for cells in the column
+	 * @param provider	The provider of formatted content for cells in the column
 	 * @return			The constructed {@link TreeViewerColumn}
 	 */
 	private TreeViewerColumn addColumn(final String name, final int width, final IComparableStyledLabelProvider provider) {
@@ -172,12 +177,7 @@ public class DescriptiveFilenameBrowserComposite extends Composite {
 	 * @return	A list of files with the .map extension
 	 */
 	private String[] getFileList() {
-		return new File(scanFilesDir).list(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				return name.endsWith(".map");
-			}
-		});
+		return new File(scanFilesDir).list((dir, name) -> name.endsWith(".map"));
 	}
 
 	/**
