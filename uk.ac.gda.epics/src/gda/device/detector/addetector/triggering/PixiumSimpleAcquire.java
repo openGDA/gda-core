@@ -233,10 +233,7 @@ public class PixiumSimpleAcquire extends SimpleAcquire {
 
 	@Override
 	public void completeCollection() throws Exception {
-		// stopAcquiring is unwanted on i12
-		//getAdBase().stopAcquiring();
-		//getAdBase().setImageMode(ImageMode.CONTINUOUS.ordinal());
-		//getAdBase().startAcquiring();
+		super.completeCollection();
 		restoreBackupValues();
 	}
 
