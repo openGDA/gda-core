@@ -91,6 +91,7 @@ public class NcdTetrammDetector extends NcdSubDetector {
 	@Override
 	public void atScanStart(ScanInformation info) throws DeviceException {
 		if (inactive()) return;
+		super.atScanStart(info);
 		logger.debug("{} - Starting scan {}", getName(), info.getScanNumber());
 		setFilePath(info);
 		controller.setAveragingTime(frameLengthS);
@@ -125,6 +126,7 @@ public class NcdTetrammDetector extends NcdSubDetector {
 		} catch (DeviceException e) {
 			throw new DeviceException(getName() + " - Could not stop detector at the end of scan", e);
 		}
+		super.atScanEnd();
 	}
 
 	@Override

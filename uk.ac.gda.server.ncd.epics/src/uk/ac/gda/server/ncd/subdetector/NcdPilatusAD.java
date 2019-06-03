@@ -304,6 +304,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 	@Override
 	public void atScanStart(ScanInformation info) throws DeviceException {
 		logger.debug("{} - scan start", getName());
+		super.atScanStart(info);
 		if (tfgMisconfigurationException != null)
 			throw tfgMisconfigurationException;
 
@@ -331,6 +332,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 	@Override
 	public void atScanEnd() throws DeviceException {
 		logger.debug("{} - scan end", getName());
+		super.atScanEnd();
 		try {
 			controller.stopAcquiringWithTimeout();
 			controller.endRecording();
