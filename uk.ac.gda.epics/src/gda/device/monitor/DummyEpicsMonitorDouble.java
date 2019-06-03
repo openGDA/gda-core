@@ -23,8 +23,8 @@ import gda.device.Monitor;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
- * A dummy for EpicsMonitor returning a single double value. Optionally, the value can be set to vary on each call to getPosition(): the increment/decrement on
- * each call, and the bounds on the value, are configurable.
+ * A dummy for EpicsMonitor returning a single double value.<br>
+ * Optionally, the value can be set to vary on each call to getPosition(): the increment/decrement on each call, and the bounds on the value, are configurable.
  */
 @ServiceInterface(Monitor.class)
 public class DummyEpicsMonitorDouble extends DummyEpicsMonitor {
@@ -34,7 +34,7 @@ public class DummyEpicsMonitorDouble extends DummyEpicsMonitor {
 	private double increment = 0.0;
 
 	public DummyEpicsMonitorDouble() {
-		super.setValue(new Double(0));
+		super.setValue(0.0);
 	}
 
 	public void setLowerLimit(final Double lowerLim) {
@@ -47,6 +47,25 @@ public class DummyEpicsMonitorDouble extends DummyEpicsMonitor {
 
 	public void setIncrement(final Double increment) {
 		this.increment = increment;
+	}
+
+	@Override
+	public void setValue(Object newVal) {
+		if (newVal instanceof Number) {
+			super.setValue(((Number) newVal).doubleValue());
+		} else if (newVal instanceof String) {
+			try {
+				super.setValue(Double.parseDouble((String) newVal));
+			} catch (NumberFormatException ex) {
+				handleIllegalValue(newVal);
+			}
+		} else {
+			handleIllegalValue(newVal);
+		}
+	}
+
+	private void handleIllegalValue(Object value) {
+		throw new IllegalArgumentException("Value '" + value + "' is not valid for " + this.getClass().getSimpleName());
 	}
 
 	@Override
