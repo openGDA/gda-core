@@ -54,6 +54,21 @@ public interface NDStatsPVs {
 		 */
 		READ
 	}
+	/**
+	 * from June 25 2018, The prefix and record name macro for the time-series plugin records from NDTimeSeries.template is $(P)$(R)TS:.
+	 * see - https://cars9.uchicago.edu/software/epics/NDPluginStats.html
+	 */
+	public enum TSAcquireCommands {
+
+		DONE,
+		ACQUIRE
+	}
+
+	public enum TSReadCommands {
+
+		DONE,
+		READ
+	}
 
 	public interface Stat {
 	}
@@ -100,5 +115,9 @@ public interface NDStatsPVs {
 	public ReadOnlyPV<Double[]> getTSArrayPV(Stat stat);
 
 	public PV<Integer> getTSReadScanPV();
+
+	public PV<TSAcquireCommands> getTSAcquirePV();
+
+	public PV<TSReadCommands> getTSReadPV();
 
 }

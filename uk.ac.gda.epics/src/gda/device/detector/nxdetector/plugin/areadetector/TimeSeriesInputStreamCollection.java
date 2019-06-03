@@ -1,18 +1,20 @@
 package gda.device.detector.nxdetector.plugin.areadetector;
 
-import gda.device.DeviceException;
-import gda.device.detector.areadetector.v18.NDStatsPVs.TSControlCommands;
-import gda.device.scannable.PositionInputStream;
-import gda.epics.PV;
-import gda.epics.ReadOnlyPV;
-import gda.epics.predicate.GreaterThanOrEqualTo;
-
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+
+import gda.device.DeviceException;
+import gda.device.detector.areadetector.v18.NDStatsPVs.TSAcquireCommands;
+import gda.device.detector.areadetector.v18.NDStatsPVs.TSControlCommands;
+import gda.device.detector.areadetector.v18.NDStatsPVs.TSReadCommands;
+import gda.device.scannable.PositionInputStream;
+import gda.epics.PV;
+import gda.epics.ReadOnlyPV;
+import gda.epics.predicate.GreaterThanOrEqualTo;
 
 /**
  * Represents a single one-off collection from an Epics time series array, or arrays that hang off the same
@@ -21,6 +23,10 @@ import java.util.NoSuchElementException;
 class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double>> {
 
 	private final PV<TSControlCommands> tsControlPV;
+
+	private final PV<TSAcquireCommands> tsAcquirePV;
+
+	private final PV<TSReadCommands> tsReadPV;
 
 	private final PV<Integer> tsNumPointsPV;
 
@@ -36,6 +42,8 @@ class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double
 
 	private boolean complete = false;
 
+	private boolean legacyTSpvs = true;
+
 	/**
 	 * Create and start a time series collection.
 	 *
@@ -46,17 +54,20 @@ class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double
 	 * @param numPointsToCollect
 	 * @throws IOException
 	 */
-	public TimeSeriesInputStreamCollection(PV<TSControlCommands> tsControlPV, PV<Integer> tsNumPointsPV,
-			ReadOnlyPV<Integer> tsCurrentPointPV, List<ReadOnlyPV<Double[]>> tsArrayPVList, int numPointsToCollect)
+	public TimeSeriesInputStreamCollection(PV<TSControlCommands> tsControlPV, PV<TSAcquireCommands> tsAcquirePV, PV<TSReadCommands> tsReadPV,
+			PV<Integer> tsNumPointsPV, ReadOnlyPV<Integer> tsCurrentPointPV, List<ReadOnlyPV<Double[]>> tsArrayPVList, int numPointsToCollect, boolean legacyTSpvs)
 			throws IOException {
 		if (tsArrayPVList.isEmpty()) {
 			throw new IllegalArgumentException("No stats to collect");
 		}
 		this.tsControlPV = tsControlPV;
+		this.tsAcquirePV=tsAcquirePV;
+		this.tsReadPV=tsReadPV;
 		this.tsNumPointsPV = tsNumPointsPV;
 		this.tsCurrentPointPV = tsCurrentPointPV;
 		this.tsArrayPVList = tsArrayPVList;
 		this.numPointsToCollect = numPointsToCollect;
+		this.legacyTSpvs =legacyTSpvs;
 		start();
 	}
 
@@ -70,7 +81,16 @@ class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double
 							.format("The number of points requested ({0}) exceeds the maximum configured for this EPICS installation ({1}).",
 									numPointsToCollect, configuredNumPoints));
 		}
-		tsControlPV.putWait(TSControlCommands.ERASE_AND_START);
+		//The PV names for Time Series Stat in EPICS changed in  release https://cars9.uchicago.edu/software/epics/NDPluginStats.html June 25, 2018
+		//following changes are made to support both OLD PVs and NEW PVs in transition period when DLS EPICS area detector updates across beamlines
+		if (legacyTSpvs) {
+			//keep to support legacy STAT Time Series in which TSControl does not implement BUSY record in EPICS
+			tsControlPV.putWait(TSControlCommands.ERASE_AND_START);
+		} else {
+			//see I06-639 for reasons of EPICS changes, see I06-683 for reasons of GDA changes
+			//new Time Series TSAcquire PV implements BUSY record i.e. caput callback in EPICS
+			tsAcquirePV.putNoWait(TSAcquireCommands.ACQUIRE);
+		}
 	}
 
 	public void waitForCompletion() throws InterruptedException {
@@ -98,8 +118,17 @@ class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double
 	}
 
 	public void stop() throws IOException {
-		tsControlPV.putWait(TSControlCommands.STOP);
-		tidyup();
+		try {
+			if (legacyTSpvs) {
+				//keep to support existing STAT Time Series
+				tsControlPV.putWait(TSControlCommands.STOP);
+			} else {
+				//see I06-639 for reasons of EPICS changes, see I06-683 for reasons of GDA changes
+				tsAcquirePV.putNoWait(TSAcquireCommands.DONE);
+			}
+		} finally {
+			tidyup();
+		}
 	}
 
 	private void tidyup() throws IOException {
@@ -123,9 +152,14 @@ class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double
 		}
 
 		try {
-			// Jon Thompson and Giles Knap have discovered that this works around pushing 1 to the TSRead not updating
-			// the arrays.
-			tsControlPV.putWait(TSControlCommands.READ);
+			if (legacyTSpvs) {
+				// Jon Thompson and Giles Knap have discovered that this works around pushing 1 to the TSRead not updating
+				// the arrays.
+				tsControlPV.putWait(TSControlCommands.READ);
+			} else {
+				//see I06-639 for reasons of EPICS changes, see I06-683 for reasons of GDA changes
+				tsReadPV.putWait(TSReadCommands.READ);
+			}
 		} catch (IOException e1) {
 			throw new DeviceException("Problem asking EPICS to read data up into PVs: " + desiredPoint, e1);
 		}

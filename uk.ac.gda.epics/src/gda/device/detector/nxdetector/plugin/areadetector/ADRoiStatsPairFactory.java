@@ -18,16 +18,41 @@
 
 package gda.device.detector.nxdetector.plugin.areadetector;
 
-import gda.device.detector.areadetector.v18.NDStatsPVs.BasicStat;
-import gda.device.detector.areadetector.v18.NDStatsPVs.CentroidStat;
-import gda.device.detector.nxdetector.roi.RectangularROIProvider;
-import gda.device.detector.nxdetector.roi.SimpleRectangularROIProvider;
-
 import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.FactoryBean;
 
+import gda.device.detector.areadetector.v18.NDStatsPVs.BasicStat;
+import gda.device.detector.areadetector.v18.NDStatsPVs.CentroidStat;
+import gda.device.detector.nxdetector.roi.RectangularROIProvider;
+import gda.device.detector.nxdetector.roi.SimpleRectangularROIProvider;
+/**
+ * create a ROI and STAT pair to support region of interest acquisition using EPICS Time Series plug-in.
+ *
+ * example Spring configuration:
+ * <pre>
+ * {@code
+ * 	<bean id="medipix_RoiStats1" class="gda.device.detector.nxdetector.plugin.areadetector.ADRoiStatsPairFactory">
+		<property name="pluginName" value="medipix_RoiStats1" />
+		<property name="baseRoiPVName" value="BL06I-EA-DET-02:ROI1:" />
+		<property name="baseStatsPVName" value="BL06I-EA-DET-02:STAT1:" />
+		<property name="legacyTSpvs" value="false"/>
+		<property name="roiInputNdArrayPort" value="mpx.CAM" />
+		<property name="enabledBasicStats" value="MeanValue" />
+		<property name="oneTimeSeriesCollectionPerLine" value="false" />
+		<property name="roiProvider">
+			<bean class="gda.device.detector.nxdetector.roi.LiveStreamRoiIndexer">
+				<property name="liveStreamRoiProvider" ref="medipix_roi" />
+				<property name="index" value="0" /> <!-- Zero based indexing i.e. Region 1 = index 0 -->
+			</bean>
+		</property>
+	</bean>
+ * }
+ * </pre>
+ *
+ * @since 9.14 added property 'legacyTSpvs' to handle EPICS Time Series PVs change, default to true so existing or legacy configuration still works without modification.
+ */
 public class ADRoiStatsPairFactory implements FactoryBean<ADRoiStatsPair> {
 
 	private String pluginName;
@@ -35,6 +60,8 @@ public class ADRoiStatsPairFactory implements FactoryBean<ADRoiStatsPair> {
 	private String baseRoiPVName;
 
 	private String baseStatsPVName;
+
+	private boolean legacyTSpvs=true;
 
 	private RectangularROIProvider<Integer> roiProvider = new SimpleRectangularROIProvider();
 
@@ -95,7 +122,7 @@ public class ADRoiStatsPairFactory implements FactoryBean<ADRoiStatsPair> {
 	public ADRoiStatsPair getObject() throws Exception {
 		ADRectangularROIPlugin roiPlugin = ADRectangularROIPlugin.createFromBasePVName(pluginName + "_roi", baseRoiPVName, roiProvider);
 		roiPlugin.setEnablePVPairSupported(EnableROIPVPairSupported);
-		ADTimeSeriesStatsPlugin statsPlugin = ADTimeSeriesStatsPlugin.createFromBasePVName(pluginName + "_stats", baseStatsPVName, roiProvider);
+		ADTimeSeriesStatsPlugin statsPlugin = ADTimeSeriesStatsPlugin.createFromBasePVName(pluginName + "_stats", baseStatsPVName, roiProvider, isLegacyTSpvs());
 		if (oneTimeSeriesCollectionPerLine != null) { // else use the plugin's default
 			statsPlugin.setOneTimeSeriesCollectionPerLine(oneTimeSeriesCollectionPerLine);
 		}
@@ -121,6 +148,14 @@ public class ADRoiStatsPairFactory implements FactoryBean<ADRoiStatsPair> {
 	@Override
 	public boolean isSingleton() {
 		return false;
+	}
+
+	public boolean isLegacyTSpvs() {
+		return legacyTSpvs;
+	}
+
+	public void setLegacyTSpvs(boolean legacyTSpvs) {
+		this.legacyTSpvs = legacyTSpvs;
 	}
 
 }
