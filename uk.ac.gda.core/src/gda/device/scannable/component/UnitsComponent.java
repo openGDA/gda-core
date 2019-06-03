@@ -232,14 +232,11 @@ public class UnitsComponent implements PositionConvertor {
 	 * @throws DeviceException
 	 */
 	public void setHardwareUnitString(String hardwareUnitString) throws DeviceException {
-		if (userUnitHasBeenExplicitlySet) {
-			// Check the new hardware unit is compatible
-			final List<String> compatibleUnits = generateCompatibleUnits(Unit.valueOf(hardwareUnitString));
-			if (!compatibleUnits.contains(userUnit.toString())) {
-				throw new DeviceException("The hardware unit could not be set to '" + hardwareUnitString
-						+ "' because this is incompatible" + " with the explicitely set user unit '"
-						+ userUnit.toString() + "'");
-			}
+		// If user unit has been set, check the new hardware unit is compatible
+		if (userUnitHasBeenExplicitlySet && !acceptableUnits.contains(hardwareUnitString)) {
+			throw new DeviceException(
+					"The hardware unit could not be set to '" + hardwareUnitString + "' because this is incompatible"
+							+ " with the explicitly set user unit '" + userUnit.toString() + "'");
 		}
 
 		actuallySetHardwareUnitString(hardwareUnitString);
