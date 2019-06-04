@@ -160,6 +160,8 @@ public class DummyValve extends EnumPositionerBase {
 			final String message = String.format("%s: exception in wait()", getName());
 			logger.warn(message, e);
 			Thread.currentThread().interrupt();
+			setPositionerStatus(EnumPositionerStatus.ERROR);
+			setStatus(ValveStatus.RESET);
 			throw new DeviceException(message, e);
 		}
 		setStatus(finalStatus);
