@@ -24,6 +24,7 @@ import static java.util.Objects.requireNonNull;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.concurrent.Future;
 
 import javax.activation.CommandMap;
@@ -56,9 +57,9 @@ import uk.ac.diamond.daq.concurrent.Async;
 public class Email {
 	private static final Logger logger = LoggerFactory.getLogger(Email.class);
 
-	private Collection<String> to = new ArrayList<>();
-	private Collection<String> cc = new ArrayList<>();
-	private Collection<String> bcc = new ArrayList<>();
+	private Collection<String> to = new HashSet<>();
+	private Collection<String> cc = new HashSet<>();
+	private Collection<String> bcc = new HashSet<>();
 	private String from;
 	private String subject;
 	private String message;
