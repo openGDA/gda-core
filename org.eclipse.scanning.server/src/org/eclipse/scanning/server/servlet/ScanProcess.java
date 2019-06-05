@@ -28,6 +28,7 @@ import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
 import org.eclipse.scanning.api.annotation.scan.PostConfigure;
 import org.eclipse.scanning.api.annotation.scan.PreConfigure;
+import org.eclipse.scanning.api.annotation.scan.PrepareScan;
 import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IPausableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
@@ -176,6 +177,8 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 			// Run a script, if any has been requested
 			runScript(bean.getScanRequest().getBeforeScript(), scanModel, false);
 
+			createAnnotationManager(scanModel).invoke(PrepareScan.class, scanModel);
+
 			// Run the actual scan. If this process is blocking, also runs after script and moves to end position, if set
 			runScan(scanModel);
 
@@ -192,6 +195,15 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		}
 	}
 
+	private AnnotationManager createAnnotationManager(ScanModel scanModel) {
+		AnnotationManager manager = new AnnotationManager(Activator.createResolver());
+		manager.addDevices(scanModel.getScannables());
+		manager.addDevices(scanModel.getMonitorsPerPoint());
+		manager.addDevices(scanModel.getMonitorsPerScan());
+		manager.addDevices(scanModel.getDetectors());
+		manager.addDevices(scanModel.getAnnotationParticipants());
+		return manager;
+	}
 	private void handleException(Exception e) throws EventException {
 		if (e instanceof InterruptedException && terminated) {
 			// Scan was aborted by user - ok to swallow InterrutpedException as execute() immediately returns

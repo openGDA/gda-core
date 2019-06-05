@@ -93,6 +93,7 @@ public class DeviceAnnotations {
 		tmp.add(ScanStart.class);
 		tmp.add(FileDeclared.class);
 		tmp.add(PreConfigure.class);
+		tmp.add(PrepareScan.class);
 		tmp.add(PostConfigure.class);
 
 		annotations = Collections.unmodifiableSet(tmp);
