@@ -172,7 +172,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 	 * @throws Exception
 	 */
 	protected void acquirePoint(boolean start, boolean collectDetectors) throws Exception {
-
+		waitIfPaused();
 		TreeMap<Integer, Scannable[]> devicesToMoveByLevel;
 		if(collectDetectors) {
 			devicesToMoveByLevel = generateDevicesToMoveByLevel(scannableLevels, allDetectors);
