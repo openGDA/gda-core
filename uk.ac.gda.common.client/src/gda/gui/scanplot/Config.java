@@ -19,6 +19,7 @@
 package gda.gui.scanplot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -49,9 +50,22 @@ class Config {
 		return id.equals(pt.getUniqueName());
 	}
 
+	/**
+	 * Compares various attributes of this current {@link Config} with prevConfig to decide whether to use
+	 * the settings from the previous plot in the gui. If this returns true then the scanPlotSettings
+	 * properties for the new scan (YAxesShown etc.) will not take effect and plotting will use
+	 * namesOfVisibleLinesInPreviousScan and namesOfInVisibleLinesInPreviousScan only.
+	 *
+	 * @param prevConfig
+	 * @param xAxisIndex
+	 * @param point
+	 * @param namesOfVisibleLinesInPreviousScan
+	 * @param namesOfInVisibleLinesInPreviousScan
+	 * @return true to use previous setting
+	 */
 	private boolean usePreviousScanLineSetting(Config prevConfig, int xAxisIndex, IScanDataPoint point,
 			List<String> namesOfVisibleLinesInPreviousScan, List<String> namesOfInVisibleLinesInPreviousScan) {
-		if( scanPlotSettings != null && !scanPlotSettings.isAllowUseOfPreviousScanSettings())
+		if (scanPlotSettings != null && !scanPlotSettings.isAllowUseOfPreviousScanSettings())
 			return false;
 		if (namesOfVisibleLinesInPreviousScan == null || namesOfVisibleLinesInPreviousScan.isEmpty()
 				|| namesOfInVisibleLinesInPreviousScan == null) {
@@ -76,6 +90,15 @@ class Config {
 				return false;
 			}
 		}
+		// This is 'else if' because these conditions are checked in scanPlotSettings#equals
+		else if (scanPlotSettings != null) {
+			if (!Arrays.equals(prevConfig.scanPlotSettings.getYAxesNotShown(), scanPlotSettings.getYAxesNotShown()))
+				return false;
+			if (!Arrays.equals(prevConfig.scanPlotSettings.getYAxesShown(), scanPlotSettings.getYAxesShown()))
+				return false;
+		}
+
+
 		Set<String> previousScan = new HashSet<>(namesOfVisibleLinesInPreviousScan);
 		previousScan.addAll(namesOfInVisibleLinesInPreviousScan);
 		Set<String> currentScan = new HashSet<>(point.getPositionHeader());
@@ -126,6 +149,7 @@ class Config {
 			for (String s : namesOfInVisibleLinesInPreviousScan) {
 				axesNotToShow.add(s);
 			}
+			// Now add any other lines from the scanPlotSettings to axesNotToShow unless they were shown in the previous plot
 			if (scanPlotSettings != null) {
 				if (scanPlotSettings.getYAxesNotShown() != null) {
 					for (String name : scanPlotSettings.getYAxesNotShown()) {
