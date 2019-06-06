@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.eclipse.scanning.api.device.models.IDetectorModel;
+
 import uk.ac.diamond.daq.osgi.OsgiService;
 
 /**
@@ -94,6 +95,12 @@ public class FocusScanBean {
 	 * {@link MappingExperimentBean}
 	 */
 	private List<String> focusScanDevices = Collections.emptyList();
+
+	/**
+	 * The device to be selected by default in the list of available devices.<br>
+	 * This can be null, in which case the first device in the list is selected.
+	 */
+	private String defaultFocusScanDevice;
 
 	private EnergyFocusBean energyFocusBean;
 
@@ -170,12 +177,21 @@ public class FocusScanBean {
 		this.energyFocusBean = energyFocusBean;
 	}
 
+	public String getDefaultFocusScanDevice() {
+		return defaultFocusScanDevice;
+	}
+
+	public void setDefaultFocusScanDevice(String defaultFocusScanDevice) {
+		this.defaultFocusScanDevice = defaultFocusScanDevice;
+	}
+
 	@Override
 	public String toString() {
 		return "FocusScanBean [focusScannableName=" + focusScannableName + ", focusCentre=" + focusCentre
 				+ ", focusRange=" + focusRange + ", numberOfFocusSteps=" + numberOfFocusSteps + ", lineRegion="
 				+ lineRegion + ", numberOfLinePoints=" + numberOfLinePoints + ", detector=" + detector
-				+ ", focusScanDevices=" + focusScanDevices + ", energyFocusBean=" + energyFocusBean + "]";
+				+ ", focusScanDevices=" + focusScanDevices + ", defaultFocusScanDevice=" + defaultFocusScanDevice
+				+ ", energyFocusBean=" + energyFocusBean + "]";
 	}
 
 }
