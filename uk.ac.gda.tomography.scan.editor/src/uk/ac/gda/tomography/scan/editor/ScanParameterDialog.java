@@ -52,6 +52,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
 import gda.jython.InterfaceProvider;
 import uk.ac.gda.client.CommandQueueViewFactory;
+import uk.ac.gda.tomography.controller.ITomographyConfigurationController;
 import uk.ac.gda.tomography.scan.TomoScanParameters;
 import uk.ac.gda.tomography.scan.presentation.ParametersComposite;
 
@@ -67,10 +68,28 @@ public class ScanParameterDialog extends Dialog {
 
 	private TomoScanParameters model;
 	private DataBindingContext ctx;
+	private final ITomographyConfigurationController<TomoScanParameters> controller;
 
 	public ScanParameterDialog(Shell parentShell) {
 		super(parentShell);
-		model = getModel();
+		this.controller = new ITomographyConfigurationController<TomoScanParameters>() {
+
+			@Override
+			public void saveData() {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public TomoScanParameters getData() {
+				return getModel();
+			}
+		};
+		model = controller.getData();
+	}
+
+	public ScanParameterDialog(Shell parentShell, ITomographyConfigurationController<TomoScanParameters> controller) {
+		super(parentShell);
+		this.controller = controller;
 	}
 
 	@Override
@@ -235,5 +254,6 @@ public class ScanParameterDialog extends Dialog {
 		}
 		return new TomoScanParameters();
 	}
+
 
 }

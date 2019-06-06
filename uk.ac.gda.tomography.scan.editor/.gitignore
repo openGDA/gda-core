@@ -42,3 +42,5 @@ passwords
 Thumbs.db
 $RECYCLE.BIN/
 .Trash-*
+/ConfigurationController.png
+/ConfigurationController.ucls
