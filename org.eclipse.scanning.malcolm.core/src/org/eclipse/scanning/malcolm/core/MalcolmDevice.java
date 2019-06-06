@@ -711,7 +711,9 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	 */
 	@ScanFinally
 	public void closeFile() throws MalcolmDeviceException {
-		reset();
+		if (getDeviceState() == DeviceState.FINISHED) { // TODO remove check when all beamlines are on Malcolm 4+
+			reset();
+		}
 	}
 
 	/**
