@@ -107,6 +107,8 @@ public class DummyXmapEpicsDevice extends ConfigurableBase implements IFindableE
 			numberOfBins = (int) val;
 		} else if (record.equals("SETPRESETVALUE")) {
 			acquisitionTime = (double) val;
+		} else if (record.startsWith("SETPREAMPGAIN")) {
+			preampGain = (double) val;
 		} else if (record.startsWith("SCALOWLIMITS") || record.startsWith("SCAHIGHLIMITS")) {
 			if (val instanceof double[]) {
 				numberOfROIs = ((double[]) val).length;
