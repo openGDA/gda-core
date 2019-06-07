@@ -25,6 +25,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -479,42 +480,23 @@ class FocusScanSetupPage extends WizardPage {
 		final List<String> focusScannableDevices = focusScanBean.getFocusScanDevices();
 		final List<IScanModelWrapper<IDetectorModel>> availableFocusDetectors = mappingDetectors.stream()
 				.filter(wrapper -> focusScannableDevices.contains(wrapper.getName()))
+				.sorted(Comparator.comparing(IScanModelWrapper::getName))
 				.collect(Collectors.toCollection(ArrayList::new));
 
 		comboViewer.setInput(availableFocusDetectors);
 
 		// The detector to be selected by default in the combo box
-		Optional<IScanModelWrapper<IDetectorModel>> selectedDetector;
-
-		// First, try to get a Malcolm device selected in the mapping bean
-		selectedDetector = availableFocusDetectors.stream()
-				.filter(IScanModelWrapper<IDetectorModel>::isIncludeInScan)
-				.filter(wrapper -> wrapper.getModel() instanceof IMalcolmModel)
+		// If unspecified or invalid, use the first one in the list
+		Optional<IScanModelWrapper<IDetectorModel>> selectedDetector = Optional.empty();
+		final String defaultFocusScanDevice = focusScanBean.getDefaultFocusScanDevice();
+		if (defaultFocusScanDevice != null && !defaultFocusScanDevice.isEmpty()) {
+			selectedDetector = availableFocusDetectors.stream()
+				.filter(wrapper -> wrapper.getName().equals(defaultFocusScanDevice))
 				.findFirst();
-
-		// If there is no selected Malcolm detector, look for a selected non-Malcolm device
-		if (!selectedDetector.isPresent()) {
-			selectedDetector = availableFocusDetectors.stream()
-					.filter(IScanModelWrapper<IDetectorModel>::isIncludeInScan)
-					.findFirst();
 		}
 
-		// If there are no selected devices, try to get the first (unselected) Malcolm device
-		if (!selectedDetector.isPresent()) {
-			selectedDetector = availableFocusDetectors.stream()
-					.filter(wrapper -> wrapper.getModel() instanceof IMalcolmModel)
-					.findFirst();
-		}
-
-		// If this fails, get look for the first device of any type
-		if (!selectedDetector.isPresent()) {
-			selectedDetector = availableFocusDetectors.stream().findFirst();
-		}
-
-		// If we have found something, set this as the default selection in the combo box
-		if (selectedDetector.isPresent()) {
-			comboViewer.setSelection(new StructuredSelection(selectedDetector.get()));
-		}
+		final IScanModelWrapper<IDetectorModel> selection = selectedDetector.isPresent() ? selectedDetector.get() : availableFocusDetectors.get(0);
+		comboViewer.setSelection(new StructuredSelection(selection));
 	}
 
 	private void checkFocusScanAxis(IDetectorModel model) {
