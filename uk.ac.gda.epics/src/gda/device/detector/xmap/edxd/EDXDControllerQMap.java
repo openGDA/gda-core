@@ -69,9 +69,12 @@ public class EDXDControllerQMap extends EDXDController implements NexusDetector 
 
 	@Override
 	public void configure() throws FactoryException {
-		super.configure();
-		inputNames = new String[] {};
-		extraNamesSet = new HashSet<>(Arrays.asList(extraNames));
+		if (!isConfigured()) {
+			super.configure();
+			inputNames = new String[] {};
+			extraNamesSet = new HashSet<>(Arrays.asList(extraNames));
+			setConfigured(true);
+		}
 	}
 
 	@Override
