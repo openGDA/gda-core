@@ -35,6 +35,11 @@ public class EnergyFocusBean {
 	 */
 	private ILinearFunction energyFocusFunction;
 
+	/**
+	 * Number of decimal places to show in the "Change interception" pop-up message
+	 */
+	private int changeInterceptionDecimalPlaces = 2;
+
 	public String getEnergyFocusConfigPath() {
 		return energyFocusConfigPath;
 	}
@@ -47,10 +52,17 @@ public class EnergyFocusBean {
 	public void setEnergyFocusFunction(ILinearFunction energyFocusFunction) {
 		this.energyFocusFunction = energyFocusFunction;
 	}
+	public int getChangeInterceptionDecimalPlaces() {
+		return changeInterceptionDecimalPlaces;
+	}
+	public void setChangeInterceptionDecimalPlaces(int changeInterceptionDecimalPlaces) {
+		this.changeInterceptionDecimalPlaces = changeInterceptionDecimalPlaces;
+	}
 
 	@Override
 	public String toString() {
 		return "EnergyFocusBean [energyFocusConfigPath=" + energyFocusConfigPath + ", energyFocusFunction="
-				+ energyFocusFunction + "]";
+				+ energyFocusFunction + ", changeInterceptionDecimalPlaces=" + changeInterceptionDecimalPlaces + "]";
 	}
+
 }
