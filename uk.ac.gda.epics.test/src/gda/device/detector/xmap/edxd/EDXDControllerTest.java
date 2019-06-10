@@ -30,7 +30,9 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import org.junit.Before;
@@ -41,6 +43,7 @@ import gda.device.detector.xmap.edxd.EDXDController.PRESET_TYPES;
 import gda.device.epicsdevice.FindableEpicsDevice;
 import gda.device.epicsdevice.IEpicsChannel;
 import gda.device.epicsdevice.ReturnType;
+import gda.factory.FactoryException;
 import gda.observable.IObserver;
 
 /**
@@ -83,10 +86,30 @@ public class EDXDControllerTest {
 	}
 
 	@Test
+	public void testUnconfigured() {
+		verifyZeroInteractions(xmapDevice);
+		verifyZeroInteractions(statusChannel);
+		assertNull(controller.getSubDetector(0));
+	}
+
+	@Test
 	public void testConfigure() throws Exception {
 		controller.configure();
 		verify(xmapDevice).createEpicsChannel(ReturnType.DBR_NATIVE, "ACQUIRING", "");
 		verify(statusChannel).addIObserver(any(IObserver.class));
+		// Check that subdetectors have been added
+		assertNotNull(controller.getSubDetector(NUM_ELEMENTS - 1));
+	}
+
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void testConfigureCalledTwice() throws FactoryException {
+		controller.configure();
+		// Second call to configure() should have no effect
+		controller.configure();
+		verify(xmapDevice, times(1)).createEpicsChannel(ReturnType.DBR_NATIVE, "ACQUIRING", "");
+		verify(statusChannel, times(1)).addIObserver(any(IObserver.class));
+		// Check that only one set of subdetectors has been added
+		controller.getSubDetector(NUM_ELEMENTS);
 	}
 
 	@Test

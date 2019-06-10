@@ -33,7 +33,6 @@ import gda.device.epicsdevice.IFindableEpicsDevice;
 import gda.device.epicsdevice.ReturnType;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
-import gda.observable.IObserver;
 import gov.aps.jca.dbr.DBR_Enum;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalDatabase.LocalDatabaseException;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalObjectShelf;
@@ -79,33 +78,33 @@ public class EDXDController extends DetectorBase {
 
 	@Override
 	public void configure() throws FactoryException {
-		if (xmap == null) {
-			throw new FactoryException(String.format("No XMAP device set in %s", getName()));
-		}
-		statusChannel = xmap.createEpicsChannel(ReturnType.DBR_NATIVE, ACQUIRING , "");
-		statusChannel.addIObserver(new IObserver(){
-
-			@Override
-			public void update(Object source, Object arg) {
-				logger.debug("the status update from xmap is {}", arg);
-				if(arg instanceof EpicsMonitorEvent){
-					EpicsMonitorEvent evt = (EpicsMonitorEvent) arg;
-					isBusy = ((DBR_Enum)evt.epicsDbr).getEnumValue()[0] == 1;
-				}
-				else {
-					isBusy = false;
-				}
-				try {
-					notifyIObservers(this, getStatus());
-					logger.debug("acquisition status updated to {}", getStatus());
-				} catch (DeviceException e) {
-					logger.error("ln351 : AcqStatusListener , error ", e);
-				}
-
+		if (!isConfigured()) {
+			if (xmap == null) {
+				throw new FactoryException(String.format("No XMAP device set in %s", getName()));
 			}
-		});
 
-		addElements();
+			statusChannel = xmap.createEpicsChannel(ReturnType.DBR_NATIVE, ACQUIRING , "");
+			statusChannel.addIObserver(this::handleStatusUpdate);
+
+			addElements();
+			setConfigured(true);
+		}
+	}
+
+	private void handleStatusUpdate(@SuppressWarnings("unused") Object source, Object arg) {
+		logger.debug("the status update from xmap is {}", arg);
+		if (arg instanceof EpicsMonitorEvent) {
+			EpicsMonitorEvent evt = (EpicsMonitorEvent) arg;
+			isBusy = ((DBR_Enum) evt.epicsDbr).getEnumValue()[0] == 1;
+		} else {
+			isBusy = false;
+		}
+		try {
+			notifyIObservers(this, getStatus());
+			logger.debug("acquisition status updated to {}", getStatus());
+		} catch (DeviceException e) {
+			logger.error("ln351 : AcqStatusListener , error ", e);
+		}
 	}
 
 	protected void addElements() {
