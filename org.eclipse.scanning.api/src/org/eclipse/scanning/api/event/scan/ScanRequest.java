@@ -43,9 +43,6 @@ import org.slf4j.LoggerFactory;
 public class ScanRequest<T> implements Serializable {
 	private static Logger logger = LoggerFactory.getLogger(ScanRequest.class);
 
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = 456095444930240261L;
 
 	/**
@@ -104,6 +101,12 @@ public class ScanRequest<T> implements Serializable {
 	 * The script run after the data collection but before the end position has been set.
 	 */
 	private ScriptRequest afterScript;
+
+	/**
+	 * If <code>true</code>, the script defined in {@link #afterScript} will always be run, even if there is an error in
+	 * the scan
+	 */
+	private boolean alwaysRunAfterScript;
 
 	/**
 	 * Set to ignore processing of this request if the request has been
@@ -171,13 +174,16 @@ public class ScanRequest<T> implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((afterScript == null) ? 0 : afterScript.hashCode());
+		result = prime * result + (alwaysRunAfterScript ? 1231 : 1237);
 		result = prime * result + ((beforeScript == null) ? 0 : beforeScript.hashCode());
+		result = prime * result + ((compoundModel == null) ? 0 : compoundModel.hashCode());
 		result = prime * result + ((detectors == null) ? 0 : detectors.hashCode());
 		result = prime * result + ((endPosition == null) ? 0 : endPosition.hashCode());
 		result = prime * result + ((filePath == null) ? 0 : filePath.hashCode());
 		result = prime * result + (ignorePreprocess ? 1231 : 1237);
 		result = prime * result + ((monitorNamesPerPoint == null) ? 0 : monitorNamesPerPoint.hashCode());
 		result = prime * result + ((monitorNamesPerScan == null) ? 0 : monitorNamesPerScan.hashCode());
+		result = prime * result + ((sampleData == null) ? 0 : sampleData.hashCode());
 		result = prime * result + ((scanMetadata == null) ? 0 : scanMetadata.hashCode());
 		result = prime * result + ((startPosition == null) ? 0 : startPosition.hashCode());
 		return result;
@@ -197,10 +203,17 @@ public class ScanRequest<T> implements Serializable {
 				return false;
 		} else if (!afterScript.equals(other.afterScript))
 			return false;
+		if (alwaysRunAfterScript != other.alwaysRunAfterScript)
+			return false;
 		if (beforeScript == null) {
 			if (other.beforeScript != null)
 				return false;
 		} else if (!beforeScript.equals(other.beforeScript))
+			return false;
+		if (compoundModel == null) {
+			if (other.compoundModel != null)
+				return false;
+		} else if (!compoundModel.equals(other.compoundModel))
 			return false;
 		if (detectors == null) {
 			if (other.detectors != null)
@@ -229,6 +242,11 @@ public class ScanRequest<T> implements Serializable {
 				return false;
 		} else if (!monitorNamesPerScan.equals(other.monitorNamesPerScan))
 			return false;
+		if (sampleData == null) {
+			if (other.sampleData != null)
+				return false;
+		} else if (!sampleData.equals(other.sampleData))
+			return false;
 		if (scanMetadata == null) {
 			if (other.scanMetadata != null)
 				return false;
@@ -244,10 +262,11 @@ public class ScanRequest<T> implements Serializable {
 
 	@Override
 	public String toString() {
-		return "ScanRequest [model=" + compoundModel + ", detectors=" + detectors +
-				", monitorNamesPerPoint=" + monitorNamesPerPoint +
-				", monitorNamesPerScan=" + monitorNamesPerScan +
-				", filePath=" + filePath + ", startPosition=" + startPosition + ", endPosition=" + endPosition + "]";
+		return "ScanRequest [compoundModel=" + compoundModel + ", detectors=" + detectors + ", monitorNamesPerPoint="
+				+ monitorNamesPerPoint + ", monitorNamesPerScan=" + monitorNamesPerScan + ", sampleData=" + sampleData
+				+ ", scanMetadata=" + scanMetadata + ", filePath=" + filePath + ", startPosition=" + startPosition
+				+ ", beforeScript=" + beforeScript + ", endPosition=" + endPosition + ", afterScript=" + afterScript
+				+ ", alwaysRunAfterScript=" + alwaysRunAfterScript + ", ignorePreprocess=" + ignorePreprocess + "]";
 	}
 
 	public Map<String, Object> getDetectors() {
@@ -325,6 +344,14 @@ public class ScanRequest<T> implements Serializable {
 
 	public void setCompoundModel(CompoundModel<T> model) {
 		this.compoundModel = model;
+	}
+
+	public boolean isAlwaysRunAfterScript() {
+		return alwaysRunAfterScript;
+	}
+
+	public void setAlwaysRunAfterScript(boolean alwaysRunAfterScript) {
+		this.alwaysRunAfterScript = alwaysRunAfterScript;
 	}
 
 }

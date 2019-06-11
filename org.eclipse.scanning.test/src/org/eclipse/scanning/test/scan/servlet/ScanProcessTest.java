@@ -370,10 +370,28 @@ public class ScanProcessTest {
 	}
 
 	@Test
-	public void testTerminateScan() throws Exception {
+	public void testTerminateScanAfterScriptRun() throws Exception {
+		testTerminateScan(true);
+	}
+
+	@Test
+	public void testTerminateScanAfterScriptNotRun() throws Exception {
+		testTerminateScan(false);
+	}
+
+	/**
+	 * Test the case where the scan is terminated by the user
+	 *
+	 * @param alwaysRunAfterScript
+	 *            if <code>true</code>, we would expect the "after scan" script to be run, if <code>false</code>, we
+	 *            would expect it not to be run<br>
+	 * @throws Exception
+	 */
+	private void testTerminateScan(boolean alwaysRunAfterScript) throws Exception {
 		// Arrange
 		final ScanBean scanBean = createScanBean();
 		final ScanRequest<?> scanRequest = scanBean.getScanRequest();
+		scanRequest.setAlwaysRunAfterScript(alwaysRunAfterScript);
 
 		final Mocks mocks = setupMocks();
 
@@ -398,16 +416,38 @@ public class ScanProcessTest {
 		runScanWaitingAnswer.resume(); // resume the answer to allow deviceController.run and then scanProcess.execute to finish
 		task.awaitCompletion(); // wait for end of scan
 
-		verify(mocks.get(IScriptService.class), never()).execute(scanRequest.getAfterScript()); // after script not called
+		if (alwaysRunAfterScript) {
+			verify(mocks.get(IScriptService.class), times(1)).execute(scanRequest.getAfterScript()); // after script always called
+		} else {
+			verify(mocks.get(IScriptService.class), never()).execute(scanRequest.getAfterScript()); // after script not called
+		}
 		verify(mocks.get(IPositioner.class), never()).setPosition(scanRequest.getEndPosition()); // end position not moved to
 		assertThat(scanBean.getStatus(), is(Status.TERMINATED));
 	}
 
 	@Test
-	public void testScanFails() throws Exception {
+	public void testScanFailsAfterScriptRun() throws Exception {
+		testScanFails(true);
+	}
+
+	@Test
+	public void testScanFailsAfterScriptNotRun() throws Exception {
+		testScanFails(false);
+	}
+
+	/**
+	 * Test the case where the scan fails
+	 *
+	 * @param alwaysRunAfterScript
+	 *            if <code>true</code>, we would expect the "after scan" script to be run, if <code>false</code>, we
+	 *            would expect it not to be run<br>
+	 * @throws Exception
+	 */
+	private void testScanFails(boolean alwaysRunAfterScript) throws Exception {
 		// Arrange
 		final ScanBean scanBean = createScanBean();
 		final ScanRequest<?> scanRequest = scanBean.getScanRequest();
+		scanRequest.setAlwaysRunAfterScript(alwaysRunAfterScript);
 
 		final Mocks mocks = setupMocks();
 
@@ -422,7 +462,12 @@ public class ScanProcessTest {
 		verify(mocks.get(IScriptService.class)).execute(scanRequest.getBeforeScript()); // before script was called
 		verify(mocks.get(IPausableDevice.class)).run(null); // scan was run
 
-		verify(mocks.get(IScriptService.class), never()).execute(scanRequest.getAfterScript()); // after script not called
+		if (alwaysRunAfterScript) {
+			verify(mocks.get(IScriptService.class), times(1)).execute(scanRequest.getAfterScript()); // after script alwats called
+		} else {
+			verify(mocks.get(IScriptService.class), never()).execute(scanRequest.getAfterScript()); // after script not called
+		}
+
 		verify(mocks.get(IPositioner.class), never()).setPosition(scanRequest.getEndPosition()); // end position not moved to
 		assertThat(scanBean.getStatus(), is(Status.FAILED));
 	}

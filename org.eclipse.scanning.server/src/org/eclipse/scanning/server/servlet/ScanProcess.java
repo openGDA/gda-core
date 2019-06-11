@@ -173,7 +173,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			setPosition(bean.getScanRequest().getStartPosition(), "start");
 
 			// Run a script, if any has been requested
-			runScript(bean.getScanRequest().getBeforeScript(), scanModel);
+			runScript(bean.getScanRequest().getBeforeScript(), scanModel, false);
 
 			// Run the actual scan. If this process is blocking, also runs after script and moves to end position, if set
 			runScan(scanModel);
@@ -264,20 +264,26 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		logger.debug("Running blocking scan {}", scanModel.getFilePath());
 		updateBean(Status.RUNNING, "Starting scan");
 		sendJsonScanStartMessage(scanModel);
+		final ScanRequest<?> scanRequest = bean.getScanRequest();
+		boolean afterScriptRun = false;
 
 		try {
 			controller.getDevice().run(null); // Runs until done
 
-			if (bean.getScanRequest().getAfterScript() != null || bean.getScanRequest().getEndPosition() != null) {
+			if (scanRequest.getAfterScript() != null || scanRequest.getEndPosition() != null) {
 				updateBean(Status.FINISHING, null);
 				// Run a script, if any has been requested
-				runScript(bean.getScanRequest().getAfterScript(), scanModel);
+				runScript(scanRequest.getAfterScript(), scanModel, false);
+				afterScriptRun = true;
 				// move to the end position, if one is set
-				setPosition(bean.getScanRequest().getEndPosition(), "end");
+				setPosition(scanRequest.getEndPosition(), "end");
 			}
 
 			sendJsonScanEndedMessage(scanModel);
 		} finally {
+			if (!afterScriptRun && scanRequest.isAlwaysRunAfterScript()) {
+				runScript(scanRequest.getAfterScript(), scanModel, true);
+			}
 			logger.debug("Finished running blocking scan {}", scanModel.getFilePath());
 		}
 	}
@@ -390,14 +396,16 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		logger.debug("Nexus file path set to {}", bean.getFilePath());
 	}
 
-	private void runScript(ScriptRequest req, ScanModel scanModel) throws UnsupportedLanguageException, ScriptExecutionException, EventException, InterruptedException {
+	private void runScript(ScriptRequest req, ScanModel scanModel, boolean runEvenIfScanTerminated) throws UnsupportedLanguageException, ScriptExecutionException, EventException, InterruptedException {
 		if (req == null) {
 			return; // Nothing to do
 		}
 		if (scriptService == null) {
 			throw new ScriptExecutionException("No script service is available, cannot run script request " + req);
 		}
-		checkTerminated();
+		if (!runEvenIfScanTerminated) {
+			checkTerminated();
+		}
 
 		final String scriptName = new File(req.getFile()).getName();
 		updateBean(null, String.format("Running script %s", scriptName));
