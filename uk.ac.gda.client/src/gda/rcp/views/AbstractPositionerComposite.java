@@ -104,13 +104,7 @@ public abstract class AbstractPositionerComposite extends Composite {
 
 		// Stop button
 		stopButton = new Button(this, SWT.NONE);
-		stopButton.addSelectionListener(widgetSelectedAdapter(e -> {
-			try {
-				scannable.stop();
-			} catch (DeviceException ex) {
-				logger.error("Error while stopping " + scannableName, ex);
-			}
-		}));
+		stopButton.addSelectionListener(widgetSelectedAdapter(e -> Async.execute(this::stopScannable)));
 		stopButtonRowData = new RowData();
 		stopButton.setLayoutData(stopButtonRowData);
 		stopButton.setText("Stop");
@@ -120,6 +114,14 @@ public abstract class AbstractPositionerComposite extends Composite {
 
 		// At this time the control is built but no scannable is set so disable it.
 		disable();
+	}
+
+	private void stopScannable() {
+		try {
+			scannable.stop();
+		} catch (DeviceException ex) {
+			logger.error("Error while stopping " + scannableName, ex);
+		}
 	}
 
 	/**

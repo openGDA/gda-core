@@ -46,8 +46,9 @@ import uk.ac.gda.client.UIHelper;
  * A class which provides a GUI composite to allow easy control of a scannable
  * <p>
  * It provides the current position which can be edited and moved (unless READ_ONLY is specified) and buttons to allow
- * incremental moves. It also provides a stop button to abort moves. Tapping the up and down arrows while in the
- * position box will nudge the position by the increment.
+ * incremental moves.<br>
+ * A stop button to abort moves is provided by the base class {@link AbstractPositionerComposite}.<br>
+ * Tapping the up and down arrows while in the position box will nudge the position by the increment.
  * <p>
  * The format of the displayed number will be specified by the scannable output format.
  * <p>
