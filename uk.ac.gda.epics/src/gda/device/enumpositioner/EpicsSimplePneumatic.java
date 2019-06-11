@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
@@ -40,10 +41,12 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * This class maps onto the EPICS PneumaticCallback template.
  */
+@ServiceInterface(EnumPositioner.class)
 public class EpicsSimplePneumatic extends EnumPositionerBase implements InitializationListener {
 	private static final Logger logger = LoggerFactory.getLogger(EpicsSimplePneumatic.class);
 
