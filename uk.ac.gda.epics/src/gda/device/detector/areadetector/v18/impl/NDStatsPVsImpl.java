@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.device.detector.areadetector.v17.NDPluginBasePVs;
-import gda.device.detector.areadetector.v17.impl.ADDriverPilatusImpl;
 import gda.device.detector.areadetector.v17.impl.NDPluginBasePVsImpl;
 import gda.device.detector.areadetector.v18.NDStatsPVs;
 import gda.epics.LazyPVFactory;
@@ -37,7 +36,7 @@ import gda.epics.ReadOnlyPV;
 
 public class NDStatsPVsImpl implements InitializingBean, NDStatsPVs {
 
-	static final Logger logger = LoggerFactory.getLogger(ADDriverPilatusImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(NDStatsPVsImpl.class);
 
 	public static NDStatsPVsImpl createFromBasePVName(String basePVName, boolean legacyTSpvs) {
 		NDPluginBasePVsImpl pluginBasePVs =  NDPluginBasePVsImpl.createFromBasePVName(basePVName);
