@@ -75,10 +75,11 @@ public class ScriptFilesSection extends AbstractMappingSection {
 
 	private void openDialog() {
 		IScriptFiles scripts = getMappingBean().getScriptFiles();
-		ScriptsSelectionDialog dialog = new ScriptsSelectionDialog(getShell(), scripts.getBeforeScanScript(), scripts.getAfterScanScript());
+		ScriptsSelectionDialog dialog = new ScriptsSelectionDialog(getShell(), scripts);
 		if (dialog.open() == Window.OK) {
 			scripts.setBeforeScanScript(dialog.getBeforeScanScript());
 			scripts.setAfterScanScript(dialog.getAfterScanScript());
+			scripts.setAlwaysRunAfterScript(dialog.getAlwaysRunAfterScript());
 			updateSummaryText();
 		}
 	}
@@ -95,6 +96,9 @@ public class ScriptFilesSection extends AbstractMappingSection {
 		}
 		if (afterSet) {
 			summary.append("after scan: " + getScriptName(scripts.getAfterScanScript()));
+			if (scripts.isAlwaysRunAfterScript()) {
+				summary.append("(*)");
+			}
 		}
 
 		summaryText.setText(summary.toString());

@@ -180,6 +180,7 @@ public class ScanRequestConverter {
 			final IScriptFiles scriptFiles = mappingBean.getScriptFiles();
 			scanRequest.setBeforeScript(createScriptRequest(scriptFiles.getBeforeScanScript()));
 			scanRequest.setAfterScript(createScriptRequest(scriptFiles.getAfterScanScript()));
+			scanRequest.setAlwaysRunAfterScript(scriptFiles.isAlwaysRunAfterScript());
 		}
 
 		// add the sample metadata
@@ -313,6 +314,7 @@ public class ScanRequestConverter {
 			if (scanRequest.getAfterScript() != null) {
 				scriptFiles.setAfterScanScript(scanRequest.getAfterScript().getFile());
 			}
+			scriptFiles.setAlwaysRunAfterScript(scanRequest.isAlwaysRunAfterScript());
 			mappingBean.setScriptFiles(scriptFiles);
 		}
 

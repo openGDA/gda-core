@@ -29,6 +29,8 @@ public class ScriptFiles implements IScriptFiles {
 
 	private String afterScanScript;
 
+	private boolean alwaysRunAfterScript;
+
 	@Override
 	public String getBeforeScanScript() {
 		return beforeScanScript;
@@ -50,10 +52,21 @@ public class ScriptFiles implements IScriptFiles {
 	}
 
 	@Override
+	public boolean isAlwaysRunAfterScript() {
+		return alwaysRunAfterScript;
+	}
+
+	@Override
+	public void setAlwaysRunAfterScript(boolean alwaysRunAfterScript) {
+		this.alwaysRunAfterScript = alwaysRunAfterScript;
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((afterScanScript == null) ? 0 : afterScanScript.hashCode());
+		result = prime * result + (alwaysRunAfterScript ? 1231 : 1237);
 		result = prime * result + ((beforeScanScript == null) ? 0 : beforeScanScript.hashCode());
 		return result;
 	}
@@ -72,6 +85,8 @@ public class ScriptFiles implements IScriptFiles {
 				return false;
 		} else if (!afterScanScript.equals(other.afterScanScript))
 			return false;
+		if (alwaysRunAfterScript != other.alwaysRunAfterScript)
+			return false;
 		if (beforeScanScript == null) {
 			if (other.beforeScanScript != null)
 				return false;
@@ -82,7 +97,7 @@ public class ScriptFiles implements IScriptFiles {
 
 	@Override
 	public String toString() {
-		return "ScriptFiles [beforeScanScript=" + beforeScanScript + ", afterScanScript=" + afterScanScript + "]";
+		return "ScriptFiles [beforeScanScript=" + beforeScanScript + ", afterScanScript=" + afterScanScript
+				+ ", alwaysRunAfterScript=" + alwaysRunAfterScript + "]";
 	}
-
 }

@@ -307,6 +307,7 @@ public class MappingUISerializationTest {
 		ScriptFiles scriptFiles = new ScriptFiles();
 		scriptFiles.setBeforeScanScript("/path/to/before.py");
 		scriptFiles.setAfterScanScript("/path/to/after.py");
+		scriptFiles.setAlwaysRunAfterScript(true);
 
 		String json = service.marshal(scriptFiles);
 		ScriptFiles newScriptFiles = service.unmarshal(json, ScriptFiles.class);

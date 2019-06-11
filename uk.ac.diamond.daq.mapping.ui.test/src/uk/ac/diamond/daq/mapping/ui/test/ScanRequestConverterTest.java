@@ -329,6 +329,7 @@ public class ScanRequestConverterTest {
 		mappingBean.setScriptFiles(scriptFiles);
 		scriptFiles.setBeforeScanScript(beforeScanScript);
 		scriptFiles.setAfterScanScript(afterScanScript);
+		scriptFiles.setAlwaysRunAfterScript(true);
 
 		// Act - covert mapping bean to scan request
 		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
@@ -342,6 +343,8 @@ public class ScanRequestConverterTest {
 		assertThat(afterScriptReq, is(notNullValue()));
 		assertThat(afterScriptReq.getLanguage(), is(SPEC_PASTICHE));
 		assertThat(afterScriptReq.getFile(), is(equalTo(afterScanScript)));
+
+		assertThat(scanRequest.isAlwaysRunAfterScript(), is(true));
 
 		// Act again - convert the scan request back to a mapping bean
 		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);

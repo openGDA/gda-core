@@ -37,6 +37,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import gda.configuration.properties.LocalProperties;
+import uk.ac.diamond.daq.mapping.api.IScriptFiles;
 
 /**
  * Simple dialog for choosing scripts to run before and/or after a scan.
@@ -54,19 +55,17 @@ public class ScriptsSelectionDialog extends Dialog {
 
 	private String beforeScript;
 	private String afterScript;
+	private boolean alwaysRunAfterScript;
 
 	private Supplier<String> beforeScriptSupplier;
 	private Supplier<String> afterScriptSupplier;
+	private Supplier<Boolean> alwaysRunAfterScriptSupplier;
 
-	/**
-	 * @param parentShell
-	 * @param beforeScript - current selection (can be {@code null})
-	 * @param afterScript - current selection (can be {@code null})
-	 */
-	public ScriptsSelectionDialog(Shell parentShell, String beforeScript, String afterScript) {
+	public ScriptsSelectionDialog(Shell parentShell, IScriptFiles scripts) {
 		super(parentShell);
-		this.beforeScript = beforeScript;
-		this.afterScript = afterScript;
+		this.beforeScript = scripts.getBeforeScanScript();
+		this.afterScript = scripts.getAfterScanScript();
+		this.alwaysRunAfterScript = scripts.isAlwaysRunAfterScript();
 	}
 
 	/**
@@ -83,6 +82,14 @@ public class ScriptsSelectionDialog extends Dialog {
 		return afterScript != null ? afterScript : "";
 	}
 
+	/**
+	 * @return <code>true</code> if "after scan" script should always be run (even in case of error/cancellation),
+	 *         <code>false</code> if it should be run only if scan completes successfully
+	 */
+	public boolean getAlwaysRunAfterScript() {
+		return alwaysRunAfterScript;
+	}
+
 	@Override
 	protected Control createDialogArea(Composite parent) {
 		final Composite composite = (Composite) super.createDialogArea(parent);
@@ -90,6 +97,7 @@ public class ScriptsSelectionDialog extends Dialog {
 
 		beforeScriptSupplier = createControlsRow(composite, "Before", getBeforeScanScript());
 		afterScriptSupplier  = createControlsRow(composite, "After", getAfterScanScript());
+		alwaysRunAfterScriptSupplier = createAlwaysRunRow(composite, alwaysRunAfterScript);
 
 		return composite;
 	}
@@ -129,10 +137,21 @@ public class ScriptsSelectionDialog extends Dialog {
 		return scriptPath != null ? scriptPath : "";
 	}
 
+	private Supplier<Boolean> createAlwaysRunRow(Composite parent, boolean alwaysRunAfterScript) {
+		final Label spacer = new Label(parent, SWT.NULL);
+		spacer.setVisible(false);
+		final Button alwaysRunCheckbox = new Button(parent, SWT.CHECK);
+		GridDataFactory.swtDefaults().applyTo(alwaysRunCheckbox);
+		alwaysRunCheckbox.setText("Always run script after scan");
+		alwaysRunCheckbox.setSelection(alwaysRunAfterScript);
+		return alwaysRunCheckbox::getSelection;
+	}
+
 	@Override
 	protected void okPressed() {
 		beforeScript = beforeScriptSupplier.get();
 		afterScript = afterScriptSupplier.get();
+		alwaysRunAfterScript = alwaysRunAfterScriptSupplier.get();
 		super.okPressed();
 	}
 

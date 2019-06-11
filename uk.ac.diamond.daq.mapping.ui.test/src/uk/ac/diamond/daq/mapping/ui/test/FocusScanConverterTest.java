@@ -147,6 +147,7 @@ public class FocusScanConverterTest {
 
 		assertThat(scanRequest.getAfterScript(), is(nullValue()));
 		assertThat(scanRequest.getBeforeScript(), is(nullValue()));
+		assertThat(scanRequest.isAlwaysRunAfterScript(), is(false));
 
 		assertThat(scanRequest.getStartPosition(), is(nullValue()));
 		assertThat(scanRequest.getEndPosition(), is(nullValue()));

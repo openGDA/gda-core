@@ -43,4 +43,11 @@ public interface IScriptFiles {
 	@UiComesAfter("beforeScanScript")
 	public String getAfterScanScript();
 
+	public void setAlwaysRunAfterScript(boolean alwaysRunAfterScript);
+
+	/**
+	 * @return true if the "after scan" script should always be run, even if there is an error
+	 */
+	public boolean isAlwaysRunAfterScript();
+
 }
