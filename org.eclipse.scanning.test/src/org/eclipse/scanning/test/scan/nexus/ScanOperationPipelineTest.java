@@ -57,6 +57,7 @@ import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.sequencer.ServiceHolder;
+import org.eclipse.scanning.test.ScanningTestUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -70,7 +71,7 @@ public class ScanOperationPipelineTest extends NexusTest {
 
 	private void testScan(int... shape) throws Exception {
 
-		clearTmp();
+		ScanningTestUtils.clearTmp();
 		IRunnableDevice<ScanModel> scanner = createGridScan(shape); // Outer scan of another scannable, for instance temp.
 		NexusAssert.assertScanNotFinished(getNexusRoot(scanner).getEntry());
 		scanner.run(null);

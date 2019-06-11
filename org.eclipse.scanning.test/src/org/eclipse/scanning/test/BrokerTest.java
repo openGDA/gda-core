@@ -29,7 +29,7 @@ import org.junit.BeforeClass;
  * @author Matthew Gerring.
  *
  */
-public abstract class BrokerTest extends TmpTest {
+public abstract class BrokerTest {
 
 	protected static URI uri;
 
@@ -49,7 +49,8 @@ public abstract class BrokerTest extends TmpTest {
 	public final static void startBroker() throws Exception {
 		delegate = new BrokerDelegate();
 		delegate.start();
-		uri      = delegate.getUri();
+		uri = delegate.getUri();
+		ScanningTestUtils.clearTmp();
 	}
 
 	@Before

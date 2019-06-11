@@ -15,11 +15,12 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.BeforeClass;
+public class ScanningTestUtils {
 
-public class TmpTest {
+	private ScanningTestUtils() {
+		// prevent instantiation
+	}
 
-	@BeforeClass
 	public static void clearTmp() {
 		if ("true".equals(System.getenv().get("CLEAR_TMP"))) {
 			System.out.println("Clearing /tmp of old nexus files.");
@@ -28,12 +29,8 @@ public class TmpTest {
 			recursiveDelete(tmp, "nxs", "h5");
 		}
 	}
-	/**
-	 * @param parent
-	 * @return boolean
-	 */
-	static public final boolean recursiveDelete(File parent, String... ext) {
 
+	private static boolean recursiveDelete(File parent, String... ext) {
 		List<String> extensions = Arrays.asList(ext);
 		if (parent.exists()) {
 			if (parent.isDirectory()) {
@@ -56,7 +53,7 @@ public class TmpTest {
 		return file.isDirectory() || extensions.contains(getFileExtension(file));
 	}
 
-	public static String getFileExtension(File file) {
+	private static String getFileExtension(File file) {
 		final String fileName = file.getName();
 		int posExt = fileName.lastIndexOf(".");
 		// No File Extension

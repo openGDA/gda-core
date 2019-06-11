@@ -65,8 +65,8 @@ import org.eclipse.scanning.api.points.models.StepModel;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
+import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.eclipse.scanning.test.TmpTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -81,7 +81,7 @@ import org.slf4j.LoggerFactory;
  * @author Matthew Gerring
  *
  */
-public abstract class NexusTest extends TmpTest {
+public abstract class NexusTest {
 
 	private static Logger logger = LoggerFactory.getLogger(NexusTest.class);
 
@@ -101,7 +101,7 @@ public abstract class NexusTest extends TmpTest {
 		fileFactory = ServiceTestHelper.getNexusFileFactory();
 		connector = ServiceTestHelper.getScannableDeviceService();
 
-	    clearTmp();
+	    ScanningTestUtils.clearTmp();
 	}
 
 
