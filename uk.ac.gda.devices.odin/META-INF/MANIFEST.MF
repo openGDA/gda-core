@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Odin
+Bundle-SymbolicName: uk.ac.gda.devices.odin
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: uk.ac.gda.devices.odin
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
+Import-Package: gda.device,
+ gda.device.detector,
+ gda.epics,
+ gda.factory,
+ org.slf4j;version="[1.7.2,2.0.0)",
+ org.springframework.beans.factory
+Export-Package: uk.ac.gda.devices.odin
+Require-Bundle: uk.ac.gda.core,
+ uk.ac.gda.epics,
+ uk.ac.gda.nexus,
+ uk.ac.gda.api,
+ org.eclipse.january;bundle-version="2.3.0",
+ uk.ac.gda.analysis
+
