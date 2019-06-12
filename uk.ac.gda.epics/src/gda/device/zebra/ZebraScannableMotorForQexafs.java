@@ -29,7 +29,6 @@ import javax.measure.unit.NonSI;
 import javax.measure.unit.Unit;
 
 import org.jscience.physics.amount.Amount;
-import org.springframework.beans.factory.InitializingBean;
 
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.ContinuousMoveController;
@@ -46,7 +45,7 @@ import gda.util.converters.JEPConverterHolder;
  * this information for the scannableMotor in order to configure Zebra
  */
 public class ZebraScannableMotorForQexafs extends ScannableMotor implements ContinuouslyScannableViaController,
-		ZebraMotorInfoProvider, PositionCallableProvider<Double>, InitializingBean {
+		ZebraMotorInfoProvider, PositionCallableProvider<Double> {
 
 	// zebraScannableMotor is Energy but this PV will move the DCM perpendicular motor and Bragg angle
 	private ZebraConstantVelocityMoveControllerForQexafs continuousMoveController;
@@ -91,13 +90,11 @@ public class ZebraScannableMotorForQexafs extends ScannableMotor implements Cont
 
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
-		// TODO: Used during step scan ---ad converter
 		zebraScannableMotor.asynchronousMoveTo(position);
 	}
 
 	@Override
 	public Object getPosition() throws DeviceException {
-		// TODO: Used during step scan ---add converter
 		return zebraScannableMotor.getPosition();
 	}
 
@@ -111,7 +108,6 @@ public class ZebraScannableMotorForQexafs extends ScannableMotor implements Cont
 
 	@Override
 	public double distanceToAccToVelocity(double requiredSpeed) {
-		// TODO: Does this need converting from energy to angle?
 		return zebraScannableMotor.distanceToAccToVelocity(requiredSpeed);
 	}
 
@@ -137,18 +133,12 @@ public class ZebraScannableMotorForQexafs extends ScannableMotor implements Cont
 
 	@Override
 	public void setOperatingContinuously(boolean b) throws DeviceException {
-		// TODO Do we not need to set this too - at least for the generic case.
-
+		// do nothing i guess
 	}
 
 	@Override
 	public boolean isOperatingContinously() {
 		return zebraScannableMotor.isOperatingContinously();
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		//zebraScannableMotor.afterPropertiesSet();
 	}
 
 
@@ -161,7 +151,7 @@ public class ZebraScannableMotorForQexafs extends ScannableMotor implements Cont
 	public double convertEnergyToBraggAngle(double energy) throws Exception{
 		Amount<Energy> energyEV = Amount.valueOf(energy, NonSI.ELECTRON_VOLT);
 		Amount<Angle> angle = converter.toTarget(energyEV).to(Angle.UNIT);
-		return (-1*(angle.getEstimatedValue())/1000);
+		return angle.getEstimatedValue()/1000;
 	}
 
 	public double convertBraggAngleToEnergy(double angledeg) throws Exception{
@@ -173,7 +163,7 @@ public class ZebraScannableMotorForQexafs extends ScannableMotor implements Cont
 
 	@Override
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
-		return;
+		// never busy
 	}
 
 	@Override
@@ -215,10 +205,8 @@ public class ZebraScannableMotorForQexafs extends ScannableMotor implements Cont
 		}
 		@Override
 		public Double call() throws Exception{
-			double energy;
 			// needs to convert Bragg angle into energy
-			energy = convertBraggAngleToEnergy(braggAngleCallable.call().doubleValue()*1000);
-			return new Double(energy);
+			return convertBraggAngleToEnergy(braggAngleCallable.call().doubleValue()*1000);
 		}
 	}
 
