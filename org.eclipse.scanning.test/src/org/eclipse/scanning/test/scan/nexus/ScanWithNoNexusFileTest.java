@@ -49,7 +49,7 @@ public class ScanWithNoNexusFileTest extends NexusTest {
 	public void before() throws Exception {
 
 		MandelbrotModel model = createMandelbrotModel();
-		detector = (IWritableDetector<MandelbrotModel>)dservice.createRunnableDevice(model);
+		detector = (IWritableDetector<MandelbrotModel>)runnableDeviceService.createRunnableDevice(model);
 		assertNotNull(detector);
 	}
 
@@ -69,7 +69,7 @@ public class ScanWithNoNexusFileTest extends NexusTest {
 		gmodel.setSlowAxisPoints(size[size.length-2]);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		IPointGenerator<?> gen = gservice.createGenerator(gmodel);
+		IPointGenerator<?> gen = pointGenService.createGenerator(gmodel);
 
 		IPointGenerator<?>[] gens = new IPointGenerator<?>[size.length - 1];
 		// We add the outer scans, if any
@@ -81,13 +81,13 @@ public class ScanWithNoNexusFileTest extends NexusTest {
 				} else {
 					model = new StepModel("neXusScannable"+(dim+1), 10,20,30); // Will generate one value at 10
 				}
-				final IPointGenerator<?> step = gservice.createGenerator(model);
+				final IPointGenerator<?> step = pointGenService.createGenerator(model);
 				gens[dim] = step;
 			}
 		}
 		gens[size.length - 2] = gen;
 
-		gen = gservice.createCompoundGenerator(gens);
+		gen = pointGenService.createCompoundGenerator(gens);
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
@@ -99,7 +99,7 @@ public class ScanWithNoNexusFileTest extends NexusTest {
 		System.out.println("File writing is not set, so no NeXus file is created.");
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(smodel, null);
+		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(smodel, null);
 
 		final IPointGenerator<?> fgen = gen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {

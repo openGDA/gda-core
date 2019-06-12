@@ -34,17 +34,13 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
-import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
-import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
-import org.eclipse.dawnsci.nexus.NexusUtils;
-import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.IDataset;
@@ -73,21 +69,20 @@ import org.junit.Test;
 
 public class AttributeTest extends NexusTest{
 
-	protected IEventService               eservice;
+	protected IEventService eventService;
+
 	private IWritableDetector<MandelbrotModel> detector;
 
 	@Before
 	public void before() throws ScanningException {
-
 		MandelbrotModel model = createMandelbrotModel();
 
-		detector = (IWritableDetector<MandelbrotModel>)dservice.createRunnableDevice(model);
+		detector = (IWritableDetector<MandelbrotModel>)runnableDeviceService.createRunnableDevice(model);
 		assertNotNull(detector);
 	}
 
 	@Test
 	public void testName() throws Exception {
-
 		// All scannables should have their name set ok
 		IRunnableDevice<ScanModel> scanner = createGridScan(detector, 2, 2);
 		scanner.run(null);
@@ -98,7 +93,6 @@ public class AttributeTest extends NexusTest{
 
 	@Test
 	public void testDescription() throws Exception {
-
 		IScannable<?> x = connector.getScannable("xNex");
 		if (!(x instanceof IScanAttributeContainer)) throw new Exception("xNex is not "+IScanAttributeContainer.class.getSimpleName());
 		IScanAttributeContainer xc = (IScanAttributeContainer)x;
@@ -113,7 +107,6 @@ public class AttributeTest extends NexusTest{
 
 	@Test
 	public void testFred() throws Exception {
-
 		IScannable<?> x = connector.getScannable("xNex");
 		if (!(x instanceof IScanAttributeContainer)) throw new Exception("xNex is not "+IScanAttributeContainer.class.getSimpleName());
 		IScanAttributeContainer xc = (IScanAttributeContainer)x;
@@ -128,7 +121,6 @@ public class AttributeTest extends NexusTest{
 
 	@Test
 	public void testSetMultipleAttributes() throws Exception {
-
 		IScannable<?> x = connector.getScannable("xNex");
 		if (!(x instanceof IScanAttributeContainer)) throw new Exception("xNex is not "+IScanAttributeContainer.class.getSimpleName());
 		IScanAttributeContainer xc = (IScanAttributeContainer)x;
@@ -168,7 +160,6 @@ public class AttributeTest extends NexusTest{
 	}
 
 	private void checkAttribute(IRunnableDevice<ScanModel> scanner, String sName, String attrName) throws Exception {
-
 		IScannable<?> s = connector.getScannable(sName);
 		if (!(s instanceof IScanAttributeContainer)) throw new Exception(sName+" is not "+IScanAttributeContainer.class.getSimpleName());
 
@@ -192,18 +183,11 @@ public class AttributeTest extends NexusTest{
 
 	}
 
-	private void checkNexusFile(IRunnableDevice<ScanModel> scanner,
-			                    int... sizes) throws NexusException, ScanningException, DatasetException {
-
+	private void checkNexusFile(IRunnableDevice<ScanModel> scanner, int... sizes) throws Exception {
 		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
 		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
 
-		String filePath = ((AbstractRunnableDevice<ScanModel>) scanner).getModel().getFilePath();
-		NexusFile nf = fileFactory.newNexusFile(filePath);
-		nf.openToRead();
-
-		TreeFile nexusTree = NexusUtils.loadNexusTree(nf);
-		NXroot rootNode = (NXroot) nexusTree.getGroupNode();
+		NXroot rootNode = getNexusRoot(scanner);
 		NXentry entry = rootNode.getEntry();
 		NXinstrument instrument = entry.getInstrument();
 
@@ -296,8 +280,6 @@ public class AttributeTest extends NexusTest{
 								+ NXpositioner.NX_VALUE);
 			}
 		}
-
-		nf.close();
 	}
 
 	private IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<?> detector, int... size) throws Exception {
@@ -310,7 +292,7 @@ public class AttributeTest extends NexusTest{
 		gmodel.setSlowAxisPoints(size[size.length-2]);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		IPointGenerator<?> gen = gservice.createGenerator(gmodel);
+		IPointGenerator<?> gen = pointGenService.createGenerator(gmodel);
 
 		// We add the outer scans, if any
 		if (size.length > 2) {
@@ -321,8 +303,8 @@ public class AttributeTest extends NexusTest{
 				} else {
 					model = new StepModel("neXusScannable"+(dim+1), 10,20,30); // Will generate one value at 10
 				}
-				final IPointGenerator<?> step = gservice.createGenerator(model);
-				gen = gservice.createCompoundGenerator(step, gen);
+				final IPointGenerator<?> step = pointGenService.createGenerator(model);
+				gen = pointGenService.createCompoundGenerator(step, gen);
 			}
 		}
 
@@ -336,7 +318,7 @@ public class AttributeTest extends NexusTest{
 		System.out.println("File writing to "+smodel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(smodel, null);
+		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(smodel, null);
 
 		final IPointGenerator<?> fgen = gen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {

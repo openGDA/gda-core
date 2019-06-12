@@ -119,11 +119,13 @@ public class AcquireRequestTest extends BrokerTest {
 		String filePath = request.getFilePath();
 
 		INexusFileFactory fileFactory = org.eclipse.dawnsci.nexus.ServiceHolder.getNexusFileFactory();
-		NexusFile nf = fileFactory.newNexusFile(filePath);
-		nf.openToRead();
+		NXroot rootNode = null;
+		try (NexusFile nf =  fileFactory.newNexusFile(filePath)) {
+			nf.openToRead();
+			TreeFile nexusTree = NexusUtils.loadNexusTree(nf);
+			rootNode = (NXroot) nexusTree.getGroupNode();
+		}
 
-		TreeFile nexusTree = NexusUtils.loadNexusTree(nf);
-		NXroot rootNode = (NXroot) nexusTree.getGroupNode();
 		NXentry entry = rootNode.getEntry();
 		NXinstrument instrument = entry.getInstrument();
 

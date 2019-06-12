@@ -51,23 +51,22 @@ import org.junit.Test;
 
 public class LinearScanTest extends BrokerTest{
 
-	private IRunnableDeviceService      dservice;
-	private IPointGeneratorService      gservice;
-	private ILoaderService              lservice;
+	private IRunnableDeviceService runnableDeviceService;
+	private IPointGeneratorService pointGenService;
+	private ILoaderService loaderService;
 
-	private IPublisher<ScanBean>          publisher;
-	private ISubscriber<EventListener>    subscriber;
+	private IPublisher<ScanBean> publisher;
+	private ISubscriber<EventListener> subscriber;
 	private File tmp;
 
 	@Before
 	public void setup() throws Exception {
-
 		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
 
-		dservice = ServiceTestHelper.getRunnableDeviceService();
-		gservice = ServiceTestHelper.getPointGeneratorService();
-		lservice = ServiceTestHelper.getLoaderService();
+		runnableDeviceService = ServiceTestHelper.getRunnableDeviceService();
+		pointGenService = ServiceTestHelper.getPointGeneratorService();
+		loaderService = ServiceTestHelper.getLoaderService();
 
 		this.publisher = ServiceTestHelper.getEventService().createPublisher(uri, EventConstants.STATUS_TOPIC);
 		this.subscriber = ServiceTestHelper.getEventService().createSubscriber(uri, EventConstants.STATUS_TOPIC);
@@ -85,22 +84,18 @@ public class LinearScanTest extends BrokerTest{
 
 	@Test
 	public void testSimpleLineScan() throws Exception {
-
 		LinearROI roi = new LinearROI(new double[]{0,0}, new double[]{3,3});
 		doScan(roi, 1, new int[]{10,64,64}, create1DModel(10));
-
 	}
 
 	@Test
 	public void testWrappedLineScan() throws Exception {
-
 		LinearROI roi = new LinearROI(new double[]{0,0}, new double[]{3,3});
 		doScan(roi, 2, new int[]{4,10,64,64}, new StepModel("T", 290, 300, 3), create1DModel(10));
 	}
 
 	@Test
 	public void testBigWrappedLineScan() throws Exception {
-
 		LinearROI roi = new LinearROI(new double[]{0,0}, new double[]{3,3});
 		doScan(roi, 5, new int[]{2,2,2,2,3,64,64}, new StepModel("T1", 290, 291, 1),
 				                                   new StepModel("T2", 290, 291, 1),
@@ -110,7 +105,6 @@ public class LinearScanTest extends BrokerTest{
 	}
 
 	private IScanPathModel create1DModel(int size) {
-
         OneDEqualSpacingModel model = new OneDEqualSpacingModel();
         model.setPoints(size);
         model.setFastAxisName("xNex");
@@ -126,13 +120,11 @@ public class LinearScanTest extends BrokerTest{
 
 	@Test
 	public void testWrappedGridScan() throws Exception {
-
 		doScan(null, 3, new int[]{4,5,5,64,64}, new StepModel("T", 290, 300, 3), createGridModel());
 	}
 
 	@Test
 	public void testBigWrappedGridScan() throws Exception {
-
 		doScan(null,6, new int[]{2,2,2,2,2,2,64,64}, new StepModel("T1", 290, 291, 1),
 										             new StepModel("T2", 290, 291, 1),
 										             new StepModel("T3", 290, 291, 1),
@@ -141,7 +133,6 @@ public class LinearScanTest extends BrokerTest{
 	}
 
 	private GridModel createGridModel(int... size) {
-
 		if (size==null)    size = new int[]{5,5};
 		if (size.length<2) size = new int[]{5,5};
 		if (size.length>2) throw new IllegalArgumentException("Two values or no values should be provided!");
@@ -162,9 +153,7 @@ public class LinearScanTest extends BrokerTest{
 	}
 
 	private void doScan(LinearROI roi, int scanRank, int[]dshape, IScanPathModel... models) throws Exception {
-
 		IRunnableDevice<ScanModel> scanner = createTestScanner(roi, models);
-
 		final List<IPosition> positions = new ArrayList<>();
 		subscriber.addListener(new IScanListener() {
 			@Override
@@ -184,14 +173,13 @@ public class LinearScanTest extends BrokerTest{
 			assertEquals(scanRank, iPosition.getScanRank());
 		}
 
-		final IDataHolder holder = lservice.getData(scanner.getModel().getFilePath(), null);
+		final IDataHolder holder = loaderService.getData(scanner.getModel().getFilePath(), null);
 		final ILazyDataset mdata = holder.getLazyDataset("/entry/instrument/detector/data");
 		assertTrue(mdata!=null);
 		assertArrayEquals(dshape, mdata.getShape());
 	}
 
 	private IRunnableDevice<ScanModel> createTestScanner(IROI roi,  IScanPathModel... models) throws Exception {
-
 		// Configure a detector with a collection time.
 		MandelbrotModel dmodel = new MandelbrotModel();
 		dmodel.setExposureTime(0.01);
@@ -201,19 +189,19 @@ public class LinearScanTest extends BrokerTest{
 		dmodel.setRealAxisName("xNex");
 		dmodel.setImaginaryAxisName("yNex");
 
-		IRunnableDevice<MandelbrotModel>	detector = dservice.createRunnableDevice(dmodel);
+		IRunnableDevice<MandelbrotModel>	detector = runnableDeviceService.createRunnableDevice(dmodel);
 
 		// Generate the last model using the roi then work back up creating compounds
 		final IPointGenerator<?>[] gens = new IPointGenerator[models.length];
 		for (int i = 0; i < models.length; i++)  {
 			if (i==models.length-1) { // Last one uses roi
-				gens[i] = roi!=null ? gservice.createGenerator(models[i], roi) : gservice.createGenerator(models[i]);
+				gens[i] = roi!=null ? pointGenService.createGenerator(models[i], roi) : pointGenService.createGenerator(models[i]);
 			} else {
-				gens[i] = gservice.createGenerator(models[i]);
+				gens[i] = pointGenService.createGenerator(models[i]);
 			}
 		}
 
-		IPointGenerator<?> gen = gservice.createCompoundGenerator(gens);
+		IPointGenerator<?> gen = pointGenService.createCompoundGenerator(gens);
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
@@ -223,10 +211,9 @@ public class LinearScanTest extends BrokerTest{
 		smodel.setFilePath(tmp.getAbsolutePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(smodel, publisher);
+		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(smodel, publisher);
 
 		return scanner;
 	}
-
 
 }

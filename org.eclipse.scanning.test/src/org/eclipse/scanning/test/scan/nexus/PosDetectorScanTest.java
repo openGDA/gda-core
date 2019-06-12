@@ -31,7 +31,6 @@ import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
-import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.january.dataset.IDataset;
@@ -60,7 +59,7 @@ public class PosDetectorScanTest extends NexusTest {
 	@Before
 	public void before() throws Exception {
 		PosDetectorModel model = new PosDetectorModel(3);
-		detector = (IWritableDetector<PosDetectorModel>) dservice.createRunnableDevice(model);
+		detector = (IWritableDetector<PosDetectorModel>) runnableDeviceService.createRunnableDevice(model);
 		assertNotNull(detector);
 	}
 
@@ -112,12 +111,10 @@ public class PosDetectorScanTest extends NexusTest {
 		}
 
 		private IDataset getUniqueKeysDataset() throws ScanningException {
-			NexusFile nf = null;
-			try {
-				ILazyDataset uniqueKeysDataset = null;
-				nf = fileFactory.newNexusFile(filePath);
+			try (NexusFile nf = fileFactory.newNexusFile(filePath)) {
 				nf.openToRead();
 
+				ILazyDataset uniqueKeysDataset = null;
 				TreeFile nexusTree = NexusUtils.loadNexusTree(nf);
 				NXroot root = (NXroot) nexusTree.getGroupNode();
 				NXentry entry = root.getEntry();
@@ -131,12 +128,6 @@ public class PosDetectorScanTest extends NexusTest {
 				return uniqueKeysDataset.getSlice(); // it's only a small dataset, so this is ok
 			} catch (Exception e) {
 				throw new RuntimeException(e);
-			} finally {
-				try {
-					nf.close();
-				} catch (NexusException e) {
-					throw new ScanningException(e);
-				}
 			}
 		}
 

@@ -288,11 +288,11 @@ public class PerScanMonitorTest extends NexusTest {
 			} else {
 				model = new StepModel("neXusScannable"+(dim+1), 10,20,30); // Will generate one value at 10
 			}
-			final IPointGenerator<?> step = gservice.createGenerator(model);
+			final IPointGenerator<?> step = pointGenService.createGenerator(model);
 			gens[dim] = step;
 		}
 
-		IPointGenerator<?> gen = gservice.createCompoundGenerator(gens);
+		IPointGenerator<?> gen = pointGenService.createCompoundGenerator(gens);
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
@@ -308,7 +308,7 @@ public class PerScanMonitorTest extends NexusTest {
 		System.out.println("File writing to " + smodel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(smodel, null);
+		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(smodel, null);
 
 		final IPointGenerator<?> fgen = gen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {

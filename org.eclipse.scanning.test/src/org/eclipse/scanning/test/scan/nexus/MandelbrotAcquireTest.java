@@ -60,7 +60,7 @@ public class MandelbrotAcquireTest extends NexusTest {
 	@Before
 	public void before() throws Exception {
 		MandelbrotModel model = createMandelbrotModel();
-		detector = (IWritableDetector<MandelbrotModel>)dservice.createRunnableDevice(model);
+		detector = (IWritableDetector<MandelbrotModel>)runnableDeviceService.createRunnableDevice(model);
 		assertNotNull(detector);
 	}
 
@@ -140,7 +140,7 @@ public class MandelbrotAcquireTest extends NexusTest {
 
 	private IRunnableDevice<ScanModel> createAcquireScan(final IRunnableDevice<?> detector, File file) throws Exception {
 		StaticModel emptyModel = new StaticModel();
-		IPointGenerator<?> gen = gservice.createGenerator(emptyModel);
+		IPointGenerator<?> gen = pointGenService.createGenerator(emptyModel);
 //		gen = gservice.createCompoundGenerator(gen); // not required for this test, fails as EmptyGenerator not implemented in Jython
 
 		// Create the model for an acquire scan
@@ -153,7 +153,7 @@ public class MandelbrotAcquireTest extends NexusTest {
 		System.out.println("File writing to "+smodel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(smodel, null);
+		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(smodel, null);
 
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
 			@Override

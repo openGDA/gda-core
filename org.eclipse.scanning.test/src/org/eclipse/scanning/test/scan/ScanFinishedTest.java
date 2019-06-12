@@ -202,12 +202,13 @@ public class ScanFinishedTest {
 
 	private NXentry getNexusEntry(IRunnableDevice<ScanModel> scanner) throws Exception {
 		String filePath = ((AbstractRunnableDevice<ScanModel>) scanner).getModel().getFilePath();
-		NexusFile nf = org.eclipse.dawnsci.nexus.ServiceHolder.getNexusFileFactory().newNexusFile(filePath);
-		nf.openToRead();
+		try (NexusFile nf = org.eclipse.dawnsci.nexus.ServiceHolder.getNexusFileFactory().newNexusFile(filePath)) {
+			nf.openToRead();
 
-		TreeFile nexusTree = NexusUtils.loadNexusTree(nf);
-		NXroot nxRoot = (NXroot) nexusTree.getGroupNode();
-		return nxRoot.getEntry();
+			TreeFile nexusTree = NexusUtils.loadNexusTree(nf);
+			NXroot root = (NXroot) nexusTree.getGroupNode();
+			return root.getEntry();
+		}
 	}
 
 	private ScanModel createStepModel(int... size) throws Exception {

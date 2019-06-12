@@ -86,8 +86,8 @@ public abstract class NexusTest {
 	private static Logger logger = LoggerFactory.getLogger(NexusTest.class);
 
 	protected static IScannableDeviceService connector;
-	protected static IScanService            dservice;
-	protected static IPointGeneratorService  gservice;
+	protected static IScanService            runnableDeviceService;
+	protected static IPointGeneratorService  pointGenService;
 	protected static INexusFileFactory       fileFactory;
 
 
@@ -96,8 +96,8 @@ public abstract class NexusTest {
 		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
 
-		dservice = ServiceTestHelper.getScanService();
-		gservice = ServiceTestHelper.getPointGeneratorService();
+		runnableDeviceService = ServiceTestHelper.getScanService();
+		pointGenService = ServiceTestHelper.getPointGeneratorService();
 		fileFactory = ServiceTestHelper.getNexusFileFactory();
 		connector = ServiceTestHelper.getScannableDeviceService();
 
@@ -276,7 +276,7 @@ public abstract class NexusTest {
 		ScanModel smodel = createGridScanModel(detector, file, snake, size);
 
 		// Create a scan and run it without publishing events
-		return dservice.createRunnableDevice(smodel, null);
+		return runnableDeviceService.createRunnableDevice(smodel, null);
 	}
 
 	protected IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<?> detector, File file, IROI region, boolean snake, int... size) throws Exception {
@@ -284,7 +284,7 @@ public abstract class NexusTest {
 		ScanModel smodel = createGridScanModel(detector, file, region, snake, size);
 
 		// Create a scan and run it without publishing events
-		return dservice.createRunnableDevice(smodel, null);
+		return runnableDeviceService.createRunnableDevice(smodel, null);
 	}
 
 	protected ScanModel createGridScanModel(final IRunnableDevice<?> detector, File file, boolean snake, int... size) throws Exception {
@@ -301,7 +301,7 @@ public abstract class NexusTest {
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 		gmodel.setSnake(snake);
 
-		IPointGenerator<?> gen = gservice.createGenerator(gmodel,
+		IPointGenerator<?> gen = pointGenService.createGenerator(gmodel,
 				region == null ? Collections.emptyList() : Arrays.asList(region));
 
 		IPointGenerator<?>[] gens = new IPointGenerator<?>[size.length - 1];
@@ -314,13 +314,13 @@ public abstract class NexusTest {
 				} else {
 					model = new StepModel("neXusScannable"+(dim+1), 10,20,30); // Will generate one value at 10
 				}
-				final IPointGenerator<?> step = gservice.createGenerator(model);
+				final IPointGenerator<?> step = pointGenService.createGenerator(model);
 				gens[dim] = step;
 			}
 		}
 		gens[size.length - 2] = gen;
 
-		gen = gservice.createCompoundGenerator(gens);
+		gen = pointGenService.createCompoundGenerator(gens);
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
@@ -337,7 +337,7 @@ public abstract class NexusTest {
 	protected IRunnableDevice<ScanModel> createSpiralScan(final IRunnableDevice<?> detector, File file) throws Exception {
 		ScanModel smodel = createSpiralScanModel(detector, file);
 		// Create a scan and run it without publishing events
-		return dservice.createRunnableDevice(smodel, null);
+		return runnableDeviceService.createRunnableDevice(smodel, null);
 	}
 
 	protected ScanModel createSpiralScanModel(final IRunnableDevice<?> detector, File file) throws Exception {
@@ -345,12 +345,12 @@ public abstract class NexusTest {
 		spmodel.setScale(2.0);
 		spmodel.setBoundingBox(new BoundingBox(0,0,1,1));
 
-		IPointGenerator<?> gen = gservice.createGenerator(spmodel);
+		IPointGenerator<?> gen = pointGenService.createGenerator(spmodel);
 
 		final StepModel  model = new StepModel("neXusScannable1", 0,3,1);
-		final IPointGenerator<?> step = gservice.createGenerator(model);
+		final IPointGenerator<?> step = pointGenService.createGenerator(model);
 
-		gen = gservice.createCompoundGenerator(new IPointGenerator<?>[]{step,gen});
+		gen = pointGenService.createCompoundGenerator(new IPointGenerator<?>[]{step,gen});
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();

@@ -23,7 +23,7 @@ public class ScanTimeoutTest  extends NexusTest {
 	public void before() throws ScanningException {
 		final RandomLineModel rlModel = new RandomLineModel();
 		rlModel.setTimeout(10);
-		linedetector = (RandomLineDevice)dservice.createRunnableDevice(rlModel);
+		linedetector = (RandomLineDevice)runnableDeviceService.createRunnableDevice(rlModel);
 		assertNotNull(linedetector);
 	}
 
@@ -97,7 +97,7 @@ public class ScanTimeoutTest  extends NexusTest {
 	private IRunnableDevice<ScanModel> createScanner(IRunnableDevice<?> device, int... shape) throws Exception {
 
 		ScanModel smodel = createGridScanModel(device, output, true, shape);
-		return dservice.createRunnableDevice(smodel, null);
+		return runnableDeviceService.createRunnableDevice(smodel, null);
 	}
 
 	private IRunnableDevice<ScanModel> createMultiStepScanner(IRunnableDevice<?> device) throws Exception {
@@ -108,7 +108,7 @@ public class ScanTimeoutTest  extends NexusTest {
 		model.addRange(25, 50, 5);  // Te = 0.002
 		model.addRange(100, 500, 50);  // Te = 0.003
 
-		IPointGenerator<?> gen = gservice.createGenerator(model);
+		IPointGenerator<?> gen = pointGenService.createGenerator(model);
 		assertEquals(21, gen.size());
 
 		ScanModel smodel = new ScanModel();
@@ -116,7 +116,7 @@ public class ScanTimeoutTest  extends NexusTest {
 		smodel.setDetectors(device);
 		smodel.setFilePath(output.getCanonicalPath());
 
-		return dservice.createRunnableDevice(smodel, null);
+		return runnableDeviceService.createRunnableDevice(smodel, null);
 	}
 
 }

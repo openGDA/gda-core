@@ -92,18 +92,14 @@ public class MandelbrotRemoteTest extends NexusTest {
 
 	private static IRemoteDatasetService   dataService;
 
-
 	private static IWritableDetector<MandelbrotModel> detector;
 
 	private static DataServer server;
-
 
 	private MandelbrotModel model;
 
 	@Before
 	public void before() throws Exception {
-
-
         // Start the DataServer
 		int port   = getFreePort(8080);
 		server = new DataServer();
@@ -115,7 +111,7 @@ public class MandelbrotRemoteTest extends NexusTest {
 		this.model = createMandelbrotModel();
 		model.setExposureTime(0.1);
 
-		detector = (IWritableDetector<MandelbrotModel>)dservice.createRunnableDevice(model);
+		detector = (IWritableDetector<MandelbrotModel>)runnableDeviceService.createRunnableDevice(model);
 		assertNotNull(detector);
 		detector.addRunListener(new IRunListener() {
 			@Override
@@ -149,7 +145,6 @@ public class MandelbrotRemoteTest extends NexusTest {
 	}
 
 	private void testScan(int... shape) throws Exception {
-
 		IRunnableDevice<ScanModel> scanner = createGridScan(detector, shape); // Outer scan of another scannable, for instance temp.
 		((AbstractRunnableDevice<ScanModel>)scanner).start(null); // Does the scan in a thread.
 
@@ -175,7 +170,6 @@ public class MandelbrotRemoteTest extends NexusTest {
 					events.add(evt);
 				}
 			});
-
 
 			// Wait until the scan end.
 			final CountDownLatch latch = new CountDownLatch(1);
@@ -207,7 +201,6 @@ public class MandelbrotRemoteTest extends NexusTest {
 	}
 
 	private void checkNexusFile(IRunnableDevice<ScanModel> scanner, int... sizes) throws NexusException, ScanningException, DatasetException {
-
 		final ScanModel mod = ((AbstractRunnableDevice<ScanModel>)scanner).getModel();
 		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
 
@@ -309,7 +302,6 @@ public class MandelbrotRemoteTest extends NexusTest {
 	}
 
 	private IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<?> detector, int... size) throws Exception {
-
 		// Create scan points for a grid and make a generator
 		GridModel gmodel = new GridModel();
 		gmodel.setFastAxisName("xNex");
@@ -318,7 +310,7 @@ public class MandelbrotRemoteTest extends NexusTest {
 		gmodel.setSlowAxisPoints(size[size.length-2]);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		IPointGenerator<?> gen = gservice.createGenerator(gmodel);
+		IPointGenerator<?> gen = pointGenService.createGenerator(gmodel);
 
 		// We add the outer scans, if any
 		if (size.length > 2) {
@@ -329,8 +321,8 @@ public class MandelbrotRemoteTest extends NexusTest {
 				} else {
 					model = new StepModel("neXusScannable"+(dim+1), 10,20,30); // Will generate one value at 10
 				}
-				final IPointGenerator<?> step = gservice.createGenerator(model);
-				gen = gservice.createCompoundGenerator(step, gen);
+				final IPointGenerator<?> step = pointGenService.createGenerator(model);
+				gen = pointGenService.createCompoundGenerator(step, gen);
 			}
 		}
 
@@ -344,7 +336,7 @@ public class MandelbrotRemoteTest extends NexusTest {
 		System.out.println("File writing to "+smodel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(smodel, null);
+		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(smodel, null);
 
 		final IPointGenerator<?> fgen = gen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
@@ -371,21 +363,17 @@ public class MandelbrotRemoteTest extends NexusTest {
 	}
 
 	public static int getFreePort(final int startPort) {
-
 	    int port = startPort;
 	    while(!isPortFree(port)) port++;
 
 	    return port;
 	}
-
-
 	/**
 	 * Checks if a port is free.
 	 * @param port
 	 * @return
 	 */
 	public static boolean isPortFree(int port) {
-
 	    ServerSocket ss = null;
 	    DatagramSocket ds = null;
 	    try {

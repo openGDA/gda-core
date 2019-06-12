@@ -101,7 +101,7 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 		gmodel.setSlowAxisPoints(size[size.length - 2]);
 		gmodel.setBoundingBox(new BoundingBox(0, 0, 3, 3));
 
-		IPointGenerator<?> gen = gservice.createGenerator(gmodel);
+		IPointGenerator<?> gen = pointGenService.createGenerator(gmodel);
 
 		IPointGenerator<?>[] gens = new IPointGenerator<?>[size.length - 1];
 		// We add the outer scans, if any
@@ -115,13 +115,13 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 					// Will generate one value at 10
 					model = new StepModel("neXusScannable" + (dim + 1), 10, 20, 30);
 				}
-				final IPointGenerator<?> step = gservice.createGenerator(model);
+				final IPointGenerator<?> step = pointGenService.createGenerator(model);
 				gens[dim] = step;
 			}
 		}
 		gens[size.length - 2] = gen;
 
-		gen = gservice.createCompoundGenerator(gens);
+		gen = pointGenService.createCompoundGenerator(gens);
 
 		return gen;
 	}
@@ -148,7 +148,7 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 	@Test
 	public void testDummyMalcolmNexusFiles() throws Exception {
 		DummyMalcolmModel model = createModel();
-		IRunnableDevice<DummyMalcolmModel> malcolmDevice = dservice.createRunnableDevice(model, false);
+		IRunnableDevice<DummyMalcolmModel> malcolmDevice = runnableDeviceService.createRunnableDevice(model, false);
 		// Cannot set the generator from @PreConfigure in this unit test.
 		((AbstractMalcolmDevice<?>)malcolmDevice).setPointGenerator(getGenerator(2, 2));// Generator isn't actually used by the test malcolm device
 		((AbstractMalcolmDevice<?>)malcolmDevice).setOutputDir(malcolmOutputDir.getAbsolutePath());
@@ -165,7 +165,7 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 	@Test
 	public void testMalcolmNexusObjects() throws Exception {
 		DummyMalcolmModel model = createModel();
-		IRunnableDevice<DummyMalcolmModel> malcolmDevice = dservice.createRunnableDevice(model, false);
+		IRunnableDevice<DummyMalcolmModel> malcolmDevice = runnableDeviceService.createRunnableDevice(model, false);
 		int scanRank = 3;
 		// Cannot set the generator from @PreConfigure in this unit test.
 		((AbstractMalcolmDevice<?>) malcolmDevice).setPointGenerator(getGenerator(2, 2, 2));// Generator isn't actually used by the test malcolm device
@@ -182,12 +182,12 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 	private NXentry getNexusEntry(String filePath) throws Exception {
 		INexusFileFactory fileFactory = org.eclipse.dawnsci.nexus.ServiceHolder
 				.getNexusFileFactory();
-		NexusFile nf = fileFactory.newNexusFile(filePath);
-		nf.openToRead();
-
-		TreeFile nexusTree = NexusUtils.loadNexusTree(nf);
-		NXroot root = (NXroot) nexusTree.getGroupNode();
-		return root.getEntry();
+		try (NexusFile nf = fileFactory.newNexusFile(filePath)) {
+				nf.openToRead();
+			TreeFile nexusTree = NexusUtils.loadNexusTree(nf);
+			NXroot root = (NXroot) nexusTree.getGroupNode();
+			return root.getEntry();
+		}
 	}
 
 	private void checkMalcolmNexusFiles(IMalcolmDevice<DummyMalcolmModel> malcolmDevice,

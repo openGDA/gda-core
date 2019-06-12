@@ -36,13 +36,13 @@ public class ScanAverageTest extends NexusTest {
 	public void before() throws ScanningException {
 
 		MandelbrotModel model = createMandelbrotModel();
-		imagedetector = dservice.createRunnableDevice(model);
+		imagedetector = runnableDeviceService.createRunnableDevice(model);
 		assertNotNull(imagedetector);
 
-		linedetector = dservice.createRunnableDevice(new RandomLineModel());
+		linedetector = runnableDeviceService.createRunnableDevice(new RandomLineModel());
 		assertNotNull(linedetector);
 
-		RunnableDeviceServiceImpl impl = (RunnableDeviceServiceImpl)dservice;
+		RunnableDeviceServiceImpl impl = (RunnableDeviceServiceImpl)runnableDeviceService;
 		impl._register(SlicingModel.class, AveragingSlicingDevice.class);
 
 	}
@@ -113,12 +113,12 @@ public class ScanAverageTest extends NexusTest {
 			model.setDetectorName(device.getName());
 			model.setTimeout(1);
 			model.setDataRank(dataRank);
-			IRunnableDevice<SlicingModel> averager =  dservice.createRunnableDevice(model, null);
+			IRunnableDevice<SlicingModel> averager =  runnableDeviceService.createRunnableDevice(model, null);
 			final List<IRunnableDevice<?>> detectors = new ArrayList<>(smodel.getDetectors());
 			detectors.add(averager);
 			smodel.setDetectors(detectors);
 		}
-		return dservice.createRunnableDevice(smodel, null);
+		return runnableDeviceService.createRunnableDevice(smodel, null);
 	}
 
 	private void checkAveraging(IRunnableDevice<ScanModel> scanner, int... scanShape) throws Exception {

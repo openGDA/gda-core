@@ -92,7 +92,7 @@ public class MalcolmGridScanTest extends AbstractMalcolmScanTest {
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 		gmodel.setSnake(snake);
 
-		IPointGenerator<?> gen = gservice.createGenerator(gmodel);
+		IPointGenerator<?> gen = pointGenService.createGenerator(gmodel);
 
 		IPointGenerator<?>[] gens = new IPointGenerator<?>[size.length - 1];
 		if (size.length > 2) {
@@ -103,13 +103,13 @@ public class MalcolmGridScanTest extends AbstractMalcolmScanTest {
 				} else {
 					model = new StepModel("neXusScannable"+(dim+1), 10,20,30);
 				}
-				final IPointGenerator<?> step = gservice.createGenerator(model);
+				final IPointGenerator<?> step = pointGenService.createGenerator(model);
 				gens[dim] = step;
 			}
 		}
 		gens[size.length - 2] = gen;
 
-		gen = gservice.createCompoundGenerator(gens);
+		gen = pointGenService.createCompoundGenerator(gens);
 
 		// Create the model for a scan.
 		final ScanModel smodel = new ScanModel();
@@ -123,7 +123,7 @@ public class MalcolmGridScanTest extends AbstractMalcolmScanTest {
 		System.out.println("File writing to " + smodel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(smodel, null);
+		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(smodel, null);
 
 		final IPointGenerator<?> fgen = gen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {

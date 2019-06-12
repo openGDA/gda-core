@@ -209,12 +209,12 @@ public class ScanClusterProcessingChecker {
 	}
 
 	public NXroot getNexusRoot() throws Exception {
+		try (NexusFile nf = factory.newNexusFile(filePath)) {
+			nf.openToRead();
 
-		NexusFile nf = factory.newNexusFile(filePath);
-		nf.openToRead();
-
-		TreeFile nexusTree = NexusUtils.loadNexusTree(nf);
-		return (NXroot) nexusTree.getGroupNode();
+			TreeFile nexusTree = NexusUtils.loadNexusTree(nf);
+			return (NXroot) nexusTree.getGroupNode();
+		}
 	}
 
 	public List<String> getScannableNames() {

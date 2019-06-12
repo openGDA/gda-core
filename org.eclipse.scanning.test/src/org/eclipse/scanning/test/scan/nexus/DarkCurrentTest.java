@@ -14,8 +14,8 @@ package org.eclipse.scanning.test.scan.nexus;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertAxes;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertIndices;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertScanNotFinished;
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertSolsticeScanGroup;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertSignal;
+import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertSolsticeScanGroup;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertTarget;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
@@ -43,8 +42,6 @@ import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusException;
-import org.eclipse.dawnsci.nexus.NexusFile;
-import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.PositionIterator;
@@ -69,24 +66,18 @@ import org.junit.Test;
 
 public class DarkCurrentTest extends NexusTest {
 
-
-
 	private IWritableDetector<MandelbrotModel> detector;
 	private IWritableDetector<DarkImageModel>  dark;
 
 	@Before
 	public void before() throws Exception {
-
-
 		MandelbrotModel model = createMandelbrotModel();
-
-		detector = (IWritableDetector<MandelbrotModel>)dservice.createRunnableDevice(model);
+		detector = (IWritableDetector<MandelbrotModel>)runnableDeviceService.createRunnableDevice(model);
 		assertNotNull(detector);
 
 		DarkImageModel dmodel = new DarkImageModel();
-		dark =  (IWritableDetector<DarkImageModel>)dservice.createRunnableDevice(dmodel);
+		dark =  (IWritableDetector<DarkImageModel>)runnableDeviceService.createRunnableDevice(dmodel);
 		assertNotNull(dark);
-
 	}
 
 	/**
@@ -96,7 +87,6 @@ public class DarkCurrentTest extends NexusTest {
 	 */
 	@Test
 	public void testDarkImage() throws Exception {
-
 		// Tell configure detector to write 1 image into a 2D scan
 		IRunnableDevice<ScanModel> scanner = createGridScan(8, 5);
 		assertScanNotFinished(getNexusRoot(scanner).getEntry());
@@ -105,15 +95,11 @@ public class DarkCurrentTest extends NexusTest {
 		checkNexusFile(scanner, 8, 5);
 	}
 
-	private void checkNexusFile(IRunnableDevice<ScanModel> scanner, int... sizes) throws NexusException, ScanningException, DatasetException {
+	private void checkNexusFile(IRunnableDevice<ScanModel> scanner, int... sizes) throws Exception {
 		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
 		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
 
-		String filePath = ((AbstractRunnableDevice<ScanModel>) scanner).getModel().getFilePath();
-		NexusFile nf = fileFactory.newNexusFile(filePath);
-		nf.openToRead();
-		TreeFile nexusTree = NexusUtils.loadNexusTree(nf);
-		NXroot rootNode = (NXroot) nexusTree.getGroupNode();
+		NXroot rootNode = getNexusRoot(scanner);
 
 		// check that the scan points have been written correctly
 		assertSolsticeScanGroup(rootNode.getEntry(), false, false, sizes);
@@ -267,7 +253,7 @@ public class DarkCurrentTest extends NexusTest {
 		gmodel.setSlowAxisPoints(size[size.length-2]);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		IPointGenerator<?> gen = gservice.createGenerator(gmodel);
+		IPointGenerator<?> gen = pointGenService.createGenerator(gmodel);
 
 		// We add the outer scans, if any
 		if (size.length > 2) {
@@ -278,8 +264,8 @@ public class DarkCurrentTest extends NexusTest {
 				} else {
 					model = new StepModel("neXusScannable"+(dim+1), 10,20,30); // Will generate one value at 10
 				}
-				final IPointGenerator<?> step = gservice.createGenerator(model);
-				gen = gservice.createCompoundGenerator(step, gen);
+				final IPointGenerator<?> step = pointGenService.createGenerator(model);
+				gen = pointGenService.createCompoundGenerator(step, gen);
 			}
 		}
 
@@ -293,7 +279,7 @@ public class DarkCurrentTest extends NexusTest {
 		System.out.println("File writing to "+smodel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(smodel, null);
+		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(smodel, null);
 
 		final IPointGenerator<?> fgen = gen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {

@@ -102,7 +102,7 @@ public class ScanClusterProcessingTest extends NexusTest {
 		gmodel.setSlowAxisPoints(size[size.length-2]);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		IPointGenerator<?> gen = gservice.createGenerator(gmodel);
+		IPointGenerator<?> gen = pointGenService.createGenerator(gmodel);
 		IPointGenerator<?>[] gens = new IPointGenerator<?>[size.length - 1];
 		// We add the outer scans, if any
 		if (size.length > 2) {
@@ -113,13 +113,13 @@ public class ScanClusterProcessingTest extends NexusTest {
 				} else {
 					model = new StepModel("neXusScannable"+(dim+1), 10,20,30); // Will generate one value at 10
 				}
-				final IPointGenerator<?> step = gservice.createGenerator(model);
+				final IPointGenerator<?> step = pointGenService.createGenerator(model);
 				gens[dim] = step;
 			}
 		}
 		gens[size.length - 2 ] = gen;
 
-		gen = gservice.createCompoundGenerator(gens);
+		gen = pointGenService.createCompoundGenerator(gens);
 
 		// Create the model for a scan
 		final ScanModel smodel = new ScanModel();
@@ -132,7 +132,7 @@ public class ScanClusterProcessingTest extends NexusTest {
 		// Set up the Mandelbrot
 		MandelbrotModel model = createMandelbrotModel();
 		IWritableDetector<MandelbrotModel> detector =
-				(IWritableDetector<MandelbrotModel>) dservice.createRunnableDevice(model);
+				(IWritableDetector<MandelbrotModel>) runnableDeviceService.createRunnableDevice(model);
 		assertNotNull(detector);
 		detector.addRunListener(new IRunListener() {
 			@Override
@@ -147,10 +147,10 @@ public class ScanClusterProcessingTest extends NexusTest {
 		pmodel.setProcessingFilePath("/tmp/sum.nxs");
 		pmodel.setName("sum");
 
-		final IRunnableDevice<ClusterProcessingModel> processor = dservice.createRunnableDevice(pmodel);
+		final IRunnableDevice<ClusterProcessingModel> processor = runnableDeviceService.createRunnableDevice(pmodel);
 		smodel.setDetectors(detector, processor);
 
-		final IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(smodel, null);
+		final IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(smodel, null);
 
 		final IPointGenerator<?> fgen = gen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {

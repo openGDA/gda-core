@@ -42,15 +42,13 @@ public class MandelbrotExampleTest extends NexusTest {
 
 	@BeforeClass
 	public static void before() throws Exception {
-
 		MandelbrotModel model = createMandelbrotModel();
-		detector = (IWritableDetector<MandelbrotModel>)dservice.createRunnableDevice(model);
+		detector = (IWritableDetector<MandelbrotModel>)runnableDeviceService.createRunnableDevice(model);
 		assertNotNull(detector);
 	}
 
 	@Test
 	public void test2ConsecutiveSmallScans() throws Exception {
-
 		IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, false, 2, 2);
 		scanner.run(null);
 
@@ -234,7 +232,6 @@ public class MandelbrotExampleTest extends NexusTest {
 	}
 
 	private void testGridScan(boolean snake, int... shape) throws Exception {
-
 		IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, snake, shape); // Outer scan of another scannable, for instance temp.
 		assertScanNotFinished(getNexusRoot(scanner).getEntry());
 		scanner.run(null);

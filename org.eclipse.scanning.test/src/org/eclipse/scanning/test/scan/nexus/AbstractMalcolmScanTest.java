@@ -76,7 +76,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		malcolmOutputDir = org.eclipse.scanning.sequencer.ServiceHolder.getFilePathService().createFolderForLinkedFiles(output.getName());
 		final DummyMalcolmModel model = createMalcolmModel();
 
-		malcolmDevice = dservice.createRunnableDevice(model);
+		malcolmDevice = runnableDeviceService.createRunnableDevice(model);
 		((IMalcolmDevice<?>) malcolmDevice).setOutputDir(malcolmOutputDir);
 		assertNotNull(malcolmDevice);
 		((AbstractMalcolmDevice<?>) malcolmDevice).addRunListener(new IRunListener() {
@@ -86,7 +86,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 			}
 		});
 		participant = new MockScanParticpiant();
-		dservice.addScanParticipant(participant);
+		runnableDeviceService.addScanParticipant(participant);
 	}
 
 	@After

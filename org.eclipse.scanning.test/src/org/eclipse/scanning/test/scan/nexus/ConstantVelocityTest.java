@@ -67,7 +67,7 @@ public class ConstantVelocityTest extends NexusTest {
 		ConstantVelocityModel model = new ConstantVelocityModel("cv scan", 100, 200, 25);
 		model.setName("cv device");
 
-		detector = (IWritableDetector<ConstantVelocityModel>)dservice.createRunnableDevice(model);
+		detector = (IWritableDetector<ConstantVelocityModel>)runnableDeviceService.createRunnableDevice(model);
 		assertNotNull(detector);
 
 		detector.addRunListener(new IRunListener() {
@@ -195,7 +195,7 @@ public class ConstantVelocityTest extends NexusTest {
 			smodel = new StepModel("yNex", 10,20,30); // Will generate one value at 10
 		}
 
-		IPointGenerator<?> stepGen = gservice.createGenerator(smodel);
+		IPointGenerator<?> stepGen = pointGenService.createGenerator(smodel);
 		assertEquals(ySize, stepGen.size());
 
 		IPointGenerator<?>[] gens = new IPointGenerator<?>[size.length];
@@ -208,13 +208,13 @@ public class ConstantVelocityTest extends NexusTest {
 				} else {
 					model = new StepModel("neXusScannable"+(dim+1), 10,20,30); // Will generate one value at 10
 				}
-				final IPointGenerator<?> step = gservice.createGenerator(model);
+				final IPointGenerator<?> step = pointGenService.createGenerator(model);
 				gens[dim] = step;
 			}
 		}
 
 		gens[size.length - 1] = stepGen;
-		IPointGenerator<?> gen = gservice.createCompoundGenerator(gens);
+		IPointGenerator<?> gen = pointGenService.createCompoundGenerator(gens);
 
 		// Create the model for a scan.
 		final ScanModel  scanModel = new ScanModel();
@@ -226,7 +226,7 @@ public class ConstantVelocityTest extends NexusTest {
 		System.out.println("File writing to "+scanModel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(scanModel, null);
+		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(scanModel, null);
 
 		final IPointGenerator<?> fgen = gen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {

@@ -82,7 +82,7 @@ public class ScanMetadataTest extends NexusTest {
 
 		MandelbrotModel model = createMandelbrotModel();
 
-		detector = (IWritableDetector<MandelbrotModel>)dservice.createRunnableDevice(model);
+		detector = (IWritableDetector<MandelbrotModel>)runnableDeviceService.createRunnableDevice(model);
 		assertNotNull(detector);
 		detector.addRunListener(new IRunListener() {
 			@Override
@@ -136,7 +136,7 @@ public class ScanMetadataTest extends NexusTest {
 		gmodel.setSlowAxisPoints(size[size.length-2]);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		IPointGenerator<?> gen = gservice.createGenerator(gmodel);
+		IPointGenerator<?> gen = pointGenService.createGenerator(gmodel);
 
 		// We add the outer scans, if any
 		if (size.length > 2) {
@@ -147,8 +147,8 @@ public class ScanMetadataTest extends NexusTest {
 				} else {
 					model = new StepModel("neXusScannable"+(dim+1), 10,20,30); // Will generate one value at 10
 				}
-				final IPointGenerator<?> step = gservice.createGenerator(model);
-				gen = gservice.createCompoundGenerator(step, gen);
+				final IPointGenerator<?> step = pointGenService.createGenerator(model);
+				gen = pointGenService.createCompoundGenerator(step, gen);
 			}
 		}
 
@@ -163,7 +163,7 @@ public class ScanMetadataTest extends NexusTest {
 		System.out.println("File writing to "+smodel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(smodel, null);
+		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(smodel, null);
 
 		final IPointGenerator<?> fgen = gen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {

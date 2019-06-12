@@ -66,7 +66,7 @@ public class MalcolmStaticScanTest extends AbstractMalcolmScanTest {
 		final IPointGenerator<?> pointGenerator;
 		if (size.length == 0) {
 			// Static generator for the Malcolm device
-			pointGenerator = gservice.createGenerator(new StaticModel());
+			pointGenerator = pointGenService.createGenerator(new StaticModel());
 		} else {
 			// Step scan generators for any other dimensions
 			final IPointGenerator<?>[] stepGenerators = new IPointGenerator<?>[size.length];
@@ -78,11 +78,11 @@ public class MalcolmStaticScanTest extends AbstractMalcolmScanTest {
 					} else {
 						model = new StepModel("neXusScannable" + (dim + 1), 10, 20, 30);
 					}
-					final IPointGenerator<?> stepGenerator = gservice.createGenerator(model);
+					final IPointGenerator<?> stepGenerator = pointGenService.createGenerator(model);
 					stepGenerators[dim] = stepGenerator;
 				}
 			}
-			pointGenerator = gservice.createCompoundGenerator(stepGenerators);
+			pointGenerator = pointGenService.createCompoundGenerator(stepGenerators);
 		}
 
 		// Create the model for a scan.
@@ -97,7 +97,7 @@ public class MalcolmStaticScanTest extends AbstractMalcolmScanTest {
 		System.out.println("File writing to " + scanModel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		final IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(scanModel, null);
+		final IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(scanModel, null);
 		((IRunnableEventDevice<ScanModel>) scanner).addRunListener(new IRunListener() {
 			@Override
 			public void runWillPerform(RunEvent evt) throws ScanningException {

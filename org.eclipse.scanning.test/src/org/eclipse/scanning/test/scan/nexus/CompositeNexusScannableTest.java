@@ -145,7 +145,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		MandelbrotModel model = createMandelbrotModel();
-		detector = (IWritableDetector<?>) dservice.createRunnableDevice(model);
+		detector = (IWritableDetector<?>) runnableDeviceService.createRunnableDevice(model);
 		assertNotNull(detector);
 
 		beam = new BeamPerScanMonitor();
@@ -340,7 +340,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 		gmodel.setBoundingBox(new BoundingBox(0, 0, 3, 3));
 		gmodel.setSnake(false);
 
-		IPointGenerator<?> gen = gservice.createGenerator(gmodel);
+		IPointGenerator<?> gen = pointGenService.createGenerator(gmodel);
 
 		// Create the model for a scan.
 		final ScanModel smodel = new ScanModel();
@@ -357,7 +357,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 		System.out.println("File writing to " + smodel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(smodel, null);
+		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(smodel, null);
 
 		final IPointGenerator<?> fgen = gen;
 		((IRunnableEventDevice<ScanModel>) scanner).addRunListener(new IRunListener() {

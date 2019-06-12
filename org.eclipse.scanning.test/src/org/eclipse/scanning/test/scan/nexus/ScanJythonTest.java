@@ -37,13 +37,13 @@ public class ScanJythonTest extends NexusTest {
 	public void before() throws ScanningException {
 
 		MandelbrotModel model = createMandelbrotModel();
-		imagedetector = dservice.createRunnableDevice(model);
+		imagedetector = runnableDeviceService.createRunnableDevice(model);
 		assertNotNull(imagedetector);
 
-		linedetector = dservice.createRunnableDevice(new RandomLineModel());
+		linedetector = runnableDeviceService.createRunnableDevice(new RandomLineModel());
 		assertNotNull(linedetector);
 
-		RunnableDeviceServiceImpl impl = (RunnableDeviceServiceImpl)dservice;
+		RunnableDeviceServiceImpl impl = (RunnableDeviceServiceImpl)runnableDeviceService;
 		impl._register(SlicingModel.class, AveragingSlicingDevice.class);
 
 	}
@@ -118,12 +118,12 @@ public class ScanJythonTest extends NexusTest {
 			model.setClassName("MaxFunction");
 			model.setOutputRank(1);
 
-			IRunnableDevice<SlicingModel> script =  dservice.createRunnableDevice(model, null);
+			IRunnableDevice<SlicingModel> script =  runnableDeviceService.createRunnableDevice(model, null);
 			final List<IRunnableDevice<?>> detectors = new ArrayList<>(smodel.getDetectors());
 			detectors.add(script);
 			smodel.setDetectors(detectors);
 		}
-		return dservice.createRunnableDevice(smodel, null);
+		return runnableDeviceService.createRunnableDevice(smodel, null);
 	}
 
 	private void checkMax(IRunnableDevice<ScanModel> scanner, int... scanShape) throws Exception {
