@@ -68,7 +68,7 @@ public class DummySwtVideoReceiver extends DummyVideoReceiverBase<ImageData>{
 	@Override
 	protected ImageData updateImage() {
 
-		if (!gc.isDisposed()) {
+		if (!gc.isDisposed() && !backgroundColour.isDisposed()) {
 			// erase old circle
 			gc.setBackground(backgroundColour);
 			gc.fillOval(circleX-2, circleY-2, CIRCLE_SIZE+4, CIRCLE_SIZE+4);
