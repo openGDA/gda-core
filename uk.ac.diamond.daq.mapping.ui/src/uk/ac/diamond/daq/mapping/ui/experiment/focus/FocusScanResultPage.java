@@ -28,6 +28,7 @@ import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.saveC
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Optional;
@@ -605,13 +606,25 @@ public class FocusScanResultPage extends WizardPage {
 			logger.debug("Old focus position: {}, new focus position: {}, difference: {}", oldFocusPosition, newFocusPosition, difference);
 			logger.debug("Old interception: {}, new interception: {}", oldInterception, newInterception);
 
+			final int decimalPlaces = energyFocusBean.getChangeInterceptionDecimalPlaces();
+
+			// Always show at least 1 decimal place
+			final StringBuilder stringBuilder = new StringBuilder("0.0");
+			for (int i = 0; i < decimalPlaces - 1; i++) {
+				stringBuilder.append("#");
+			}
+			final DecimalFormat decimalFormat = new DecimalFormat(stringBuilder.toString());
 			final String message = String.format("Do you want to change the interception from %s to %s?",
-					oldInterception, newInterception);
+					formatAmount(oldInterception, decimalFormat), formatAmount(newInterception, decimalFormat));
 			if (displayYesNoMessage("Change interception", message)) {
 				energyFocusFunction.setInterception(newInterception);
 				saveConfig(energyFocusFunction, energyFocusBean.getEnergyFocusConfigPath(), logger);
 			}
 		}
+	}
+
+	private static String formatAmount(Amount<? extends Quantity> amount, DecimalFormat df) {
+		return df.format(amount.getEstimatedValue()) + " " + amount.getUnit();
 	}
 
 	/**

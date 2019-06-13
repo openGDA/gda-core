@@ -21,6 +21,7 @@ package gda.device.scannable.component;
 
 import static gda.jscience.physics.units.NonSIext.ANGSTROM_STRING;
 import static gda.jscience.physics.units.NonSIext.ANGSTROM_SYMBOL;
+import static gda.jscience.physics.units.NonSIext.ANGSTROM_SYMBOL_ALTERNATIVE;
 import static gda.jscience.physics.units.NonSIext.ANG_STRING;
 import static gda.jscience.physics.units.NonSIext.CENTIGRADE_STRING;
 import static gda.jscience.physics.units.NonSIext.COUNT;
@@ -34,18 +35,24 @@ import static gda.jscience.physics.units.NonSIext.GIGAELECTRONVOLT_STRING;
 import static gda.jscience.physics.units.NonSIext.KILOCOUNT;
 import static gda.jscience.physics.units.NonSIext.KILOCOUNT_STRING;
 import static gda.jscience.physics.units.NonSIext.KILOELECTRONVOLT_STRING;
+import static gda.jscience.physics.units.NonSIext.MICROAMPERE_MU_STRING;
 import static gda.jscience.physics.units.NonSIext.MICROAMPERE_STRING;
+import static gda.jscience.physics.units.NonSIext.MICROAMPERE_U_STRING;
 import static gda.jscience.physics.units.NonSIext.MICRONS_STRING;
+import static gda.jscience.physics.units.NonSIext.MICRON_MU_STRING;
 import static gda.jscience.physics.units.NonSIext.MICRON_STRING;
 import static gda.jscience.physics.units.NonSIext.MICRON_UM_STRING;
-import static gda.jscience.physics.units.NonSIext.mDEG_ANGLE_LOWERCASE_STRING;
-import static gda.jscience.physics.units.NonSIext.mDEG_ANGLE_STRING;
-import static gda.jscience.physics.units.NonSIext.mRADIAN_ANGLE_LC_STRING;
-import static gda.jscience.physics.units.NonSIext.mRADIAN_ANGLE_STRING;
-import static gda.jscience.physics.units.NonSIext.uAMPERE_STRING;
-import static gda.jscience.physics.units.NonSIext.uDEG_ANGLE_STRING;
-import static gda.jscience.physics.units.NonSIext.uRADIAN_ANGLE_LC_STRING;
-import static gda.jscience.physics.units.NonSIext.uRADIAN_ANGLE_STRING;
+import static gda.jscience.physics.units.NonSIext.MICRO_DEG_ANGLE_STRING;
+import static gda.jscience.physics.units.NonSIext.MICRO_DEG_MU_ANGLE_STRING;
+import static gda.jscience.physics.units.NonSIext.MICRO_DEG_U_ANGLE_STRING;
+import static gda.jscience.physics.units.NonSIext.MICRO_RADIAN_ANGLE_STRING;
+import static gda.jscience.physics.units.NonSIext.MICRO_RADIAN_MU_ANGLE_STRING;
+import static gda.jscience.physics.units.NonSIext.MICRO_RADIAN_U_ANGLE_LOWERCASE_STRING;
+import static gda.jscience.physics.units.NonSIext.MICRO_RADIAN_U_ANGLE_STRING;
+import static gda.jscience.physics.units.NonSIext.MILLI_DEG_ANGLE_LOWERCASE_STRING;
+import static gda.jscience.physics.units.NonSIext.MILLI_DEG_ANGLE_STRING;
+import static gda.jscience.physics.units.NonSIext.MILLI_RADIAN_ANGLE_LOWERCASE_STRING;
+import static gda.jscience.physics.units.NonSIext.MILLI_RADIAN_ANGLE_STRING;
 import static javax.measure.unit.NonSI.ELECTRON_VOLT;
 import static javax.measure.unit.NonSI.LITER;
 import static javax.measure.unit.SI.AMPERE;
@@ -295,10 +302,12 @@ public class UnitsComponent implements PositionConvertor {
 			unitList.add(MICRO(METER).toString());
 			unitList.add(MICRON_STRING);
 			unitList.add(MICRON_UM_STRING);
+			unitList.add(MICRON_MU_STRING);
 			unitList.add(MICRONS_STRING);
 			unitList.add(ANG_STRING);
 			unitList.add(ANGSTROM_STRING);
 			unitList.add(ANGSTROM_SYMBOL);
+			unitList.add(ANGSTROM_SYMBOL_ALTERNATIVE);
 		}
 		// angular motions
 		else if (unit.isCompatible(Angle.UNIT)) {
@@ -306,14 +315,18 @@ public class UnitsComponent implements PositionConvertor {
 			unitList.add(DEG_ANGLE_STRING);
 			unitList.add(DEGREES_ANGLE_STRING);
 			unitList.add(DEG_ANGLE_SYMBOL);
-			unitList.add(mDEG_ANGLE_STRING);
+			unitList.add(MILLI_DEG_ANGLE_STRING);
 			unitList.add(DEG_ANGLE_LOWERCASE_STRING);
-			unitList.add(mDEG_ANGLE_LOWERCASE_STRING);
-			unitList.add(mRADIAN_ANGLE_STRING);
-			unitList.add(mRADIAN_ANGLE_LC_STRING);
-			unitList.add(uDEG_ANGLE_STRING);
-			unitList.add(uRADIAN_ANGLE_STRING);
-			unitList.add(uRADIAN_ANGLE_LC_STRING);
+			unitList.add(MILLI_DEG_ANGLE_LOWERCASE_STRING);
+			unitList.add(MILLI_RADIAN_ANGLE_STRING);
+			unitList.add(MILLI_RADIAN_ANGLE_LOWERCASE_STRING);
+			unitList.add(MICRO_DEG_ANGLE_STRING);
+			unitList.add(MICRO_DEG_MU_ANGLE_STRING);
+			unitList.add(MICRO_DEG_U_ANGLE_STRING);
+			unitList.add(MICRO_RADIAN_ANGLE_STRING);
+			unitList.add(MICRO_RADIAN_U_ANGLE_STRING);
+			unitList.add(MICRO_RADIAN_MU_ANGLE_STRING);
+			unitList.add(MICRO_RADIAN_U_ANGLE_LOWERCASE_STRING);
 		}
 
 		// // temperature
@@ -347,7 +360,8 @@ public class UnitsComponent implements PositionConvertor {
 		else if (unit.isCompatible(ElectricCurrent.UNIT)) {
 			unitList.add(AMPERE.toString());
 			unitList.add(MICROAMPERE_STRING);
-			unitList.add(uAMPERE_STRING);
+			unitList.add(MICROAMPERE_MU_STRING);
+			unitList.add(MICROAMPERE_U_STRING);
 			unitList.add(MILLI(AMPERE).toString());
 		}
 

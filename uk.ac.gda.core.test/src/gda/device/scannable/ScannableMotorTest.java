@@ -126,7 +126,9 @@ public class ScannableMotorTest {
 			sm.setUserUnits("eV");
 			org.junit.Assert.fail("DeviceException expected");
 		} catch (DeviceException e) {
-			assertEquals("User unit eV is not acceptable. Try one of [m, nm, mm, µm, micron, um, microns, Ang, Angstrom, Å]", e.getMessage());
+			assertEquals(
+					"User unit eV is not acceptable. Try one of [m, nm, mm, \u00b5m, micron, um, \u03bcm, microns, Ang, Angstrom, \u00c5, \u212b]",
+					e.getMessage());
 		}
 	}
 
