@@ -114,42 +114,43 @@ public class ScanProcessTest {
 		connector = ServiceTestHelper.getScannableDeviceService();
 		dservice = ServiceTestHelper.getRunnableDeviceService();
 
-		((RunnableDeviceServiceImpl) dservice)._register(MockDetectorModel.class, MockWritableDetector.class);
-		((RunnableDeviceServiceImpl) dservice)._register(MockWritingMandlebrotModel.class, MockWritingMandelbrotDetector.class);
-		((RunnableDeviceServiceImpl) dservice)._register(MandelbrotModel.class, MandelbrotDetector.class);
-		((RunnableDeviceServiceImpl) dservice)._register(DummyMalcolmModel.class, DummyMalcolmDevice.class);
+		final RunnableDeviceServiceImpl dserviceImpl = (RunnableDeviceServiceImpl) dservice;
+		dserviceImpl._register(MockDetectorModel.class, MockWritableDetector.class);
+		dserviceImpl._register(MockWritingMandlebrotModel.class, MockWritingMandelbrotDetector.class);
+		dserviceImpl._register(MandelbrotModel.class, MandelbrotDetector.class);
+		dserviceImpl._register(DummyMalcolmModel.class, DummyMalcolmDevice.class);
 
-		MandelbrotModel model = new MandelbrotModel("p", "q");
+		final MandelbrotModel model = new MandelbrotModel("p", "q");
 		model.setName("mandelbrot");
 		model.setExposureTime(0.00001);
-		((RunnableDeviceServiceImpl) dservice).createRunnableDevice(model);
+		dserviceImpl.createRunnableDevice(model);
 	}
 
 	@Test
 	public void testScriptFilesRun() throws Exception {
 		// Arrange
-		ScanBean scanBean = new ScanBean();
-		ScanRequest<?> scanRequest = new ScanRequest<>();
+		final ScanBean scanBean = new ScanBean();
+		final ScanRequest<IROI> scanRequest = new ScanRequest<>();
 		scanRequest.setCompoundModel(new CompoundModel<>(new StepModel("xNex", 0, 9, 1)));
 
-		ScriptRequest before = new ScriptRequest();
+		final ScriptRequest before = new ScriptRequest();
 		before.setFile("/path/to/before.py");
 		before.setLanguage(ScriptLanguage.PYTHON);
 		scanRequest.setBeforeScript(before);
 
-		ScriptRequest after = new ScriptRequest();
+		final ScriptRequest after = new ScriptRequest();
 		after.setFile("/path/to/after.py");
 		after.setLanguage(ScriptLanguage.PYTHON);
 		scanRequest.setAfterScript(after);
 
 		scanBean.setScanRequest(scanRequest);
-		ScanProcess process = new ScanProcess(scanBean, null, true);
+		final ScanProcess process = new ScanProcess(scanBean, null, true);
 
 		// Act
 		process.execute();
 
 		// Assert
-		List<ScriptRequest> scriptRequests = (sservice).getScriptRequests();
+		final List<ScriptRequest> scriptRequests = (sservice).getScriptRequests();
 		assertThat(scriptRequests.size(), is(2));
 		assertThat(scriptRequests, hasItems(before, after));
 		assertThat(sservice.getNamedValue(IScriptService.VAR_NAME_SCAN_BEAN), is(equalTo(scanBean)));
@@ -161,15 +162,15 @@ public class ScanProcessTest {
 	@Test
 	public void testSimpleNest() throws Exception {
 		// Arrange
-		ScanBean scanBean = new ScanBean();
-		ScanRequest<?> scanRequest = new ScanRequest<>();
+		final ScanBean scanBean = new ScanBean();
+		final ScanRequest<IROI> scanRequest = new ScanRequest<>();
 
-		CompoundModel cmodel = new CompoundModel<>(Arrays.asList(new StepModel("T", 290, 291, 2), new GridModel("xNex", "yNex",2,2)));
+		final CompoundModel<IROI> cmodel = new CompoundModel<>(Arrays.asList(new StepModel("T", 290, 291, 2), new GridModel("xNex", "yNex", 2, 2)));
 		cmodel.setRegions(Arrays.asList(new ScanRegion<IROI>(new RectangularROI(0, 0, 3, 3, 0), "xNex", "yNex")));
 		scanRequest.setCompoundModel(cmodel);
 
 		final Map<String, Object> dmodels = new HashMap<String, Object>(3);
-		MandelbrotModel model = new MandelbrotModel("xNex", "yNex");
+		final MandelbrotModel model = new MandelbrotModel("xNex", "yNex");
 		model.setName("mandelbrot");
 		model.setExposureTime(0.001);
 		dmodels.put("mandelbrot", model);
@@ -180,17 +181,14 @@ public class ScanProcessTest {
 		scanRequest.setFilePath(tmp.getAbsolutePath()); // TODO This will really come from the scan file service which is not written.
 
 		scanBean.setScanRequest(scanRequest);
-		ScanProcess process = new ScanProcess(scanBean, null, true);
+		final ScanProcess process = new ScanProcess(scanBean, null, true);
 
 		// Act
 		process.execute();
-
-		// Assert
-
 	}
 
 	/**
-	 * A simple class wrapping a map from classes to the Mockito mock instance of that class.
+	 * A simple class wrapping a map from classes to the Mockito mock instance of that class.<br>
 	 * Wrapping the map in a such a class like this allows the get method to by type safe, removing the need for casts.
 	 */
 	private static class Mocks {
@@ -207,12 +205,10 @@ public class ScanProcessTest {
 		public <T> T get(Class<T> klass) {
 			return (T) map.get(klass);
 		}
-
 	}
 
 	/**
-	 * A simple wrapper around running a {@link ScanProcess} is another thread and
-	 * waiting for it to finish
+	 * A simple wrapper around running a {@link ScanProcess} is another thread and waiting for it to finish
 	 */
 	private static class ScanTask {
 
@@ -225,7 +221,7 @@ public class ScanProcessTest {
 		}
 
 		private void start() {
-			Runnable r = () -> {
+			final Runnable r = () -> {
 				try {
 					process.execute();
 				} catch (EventException e) {
@@ -237,30 +233,30 @@ public class ScanProcessTest {
 
 		public void awaitCompletion() throws Exception {
 			executor.shutdown();
-			boolean terminated = executor.awaitTermination(5, TimeUnit.SECONDS);
+			final boolean terminated = executor.awaitTermination(5, TimeUnit.SECONDS);
 			assertThat("Timed out waiting for ScanProcess.execute", terminated, is(true));
 			if (exception != null) {
 				throw exception;
 			}
 		}
-
 	}
 
 	@SuppressWarnings("unchecked")
 	private Mocks setupMocks() throws Exception {
 		// only used for the newer mockito based test methods in this class
-		Mocks mocks = new Mocks(IDeviceWatchdogService.class, IDeviceController.class,
-				IRunnableDeviceService.class, IPausableDevice.class,
-				IPointGeneratorService.class, IPointGenerator.class, ScanPointIterator.class,
-				IPositioner.class, ScanModel.class, IScriptService.class);
+		final Mocks mocks = new Mocks(IDeviceWatchdogService.class, IDeviceController.class,
+				IRunnableDeviceService.class, IPausableDevice.class, IPointGeneratorService.class,
+				IPointGenerator.class, ScanPointIterator.class, IPositioner.class, ScanModel.class,
+				IScriptService.class);
 
 		// assign the mocks used more than once to local variables for ease of reading
-		IDeviceController mockDeviceController = mocks.get(IDeviceController.class);
+		final IDeviceController mockDeviceController = mocks.get(IDeviceController.class);
 		@SuppressWarnings("rawtypes")
-		IPausableDevice mockDevice = mocks.get(IPausableDevice.class);
-		IRunnableDeviceService mockRunnableDeviceService = mocks.get(IRunnableDeviceService.class);
-		IPointGenerator mockPointGen = mocks.get(IPointGenerator.class);
-		ScanPointIterator mockScanPointIterator = mocks.get(ScanPointIterator.class);
+		final IPausableDevice mockDevice = mocks.get(IPausableDevice.class);
+		final IRunnableDeviceService mockRunnableDeviceService = mocks.get(IRunnableDeviceService.class);
+		@SuppressWarnings("rawtypes")
+		final IPointGenerator mockPointGen = mocks.get(IPointGenerator.class);
+		final ScanPointIterator mockScanPointIterator = mocks.get(ScanPointIterator.class);
 
 		when(mockDeviceController.getDevice()).thenReturn(mockDevice);
 		when(mockDevice.getModel()).thenReturn(mocks.get(ScanModel.class)); // prevents an NPE in ScanProcess.runScript
@@ -270,12 +266,12 @@ public class ScanProcessTest {
 		when(mockRunnableDeviceService.createPositioner(ScanProcess.class.getSimpleName())).thenReturn(mocks.get(IPositioner.class));
 		when(mocks.get(IPointGeneratorService.class).createCompoundGenerator(any(CompoundModel.class))).thenReturn(mockPointGen);
 		when(mockPointGen.size()).thenReturn(100); // these three lines required by ScanEstimator constructor
-		IPosition firstPoint = new Scalar<>("xNex", 0, 0);
+		final IPosition firstPoint = new Scalar<>("xNex", 0, 0);
 		when(mockPointGen.getFirstPoint()).thenReturn(firstPoint);
 		when(mockPointGen.iterator()).thenReturn(mockScanPointIterator);
 		when(mockScanPointIterator.next()).thenReturn(firstPoint);
 
-		Services services = new Services(); // the set methods of Services actually set a static field
+		final Services services = new Services(); // the set methods of Services actually set a static field
 		services.setWatchdogService(mocks.get(IDeviceWatchdogService.class));
 		services.setRunnableDeviceService(mockRunnableDeviceService);
 		services.setScriptService(mocks.get(IScriptService.class));
@@ -286,17 +282,17 @@ public class ScanProcessTest {
 
 	private ScanBean createScanBean() {
 		// only used for the newer mockito based test methods in this class
-		ScanBean scanBean = new ScanBean();
-		ScanRequest<?> scanRequest = new ScanRequest<>();
+		final ScanBean scanBean = new ScanBean();
+		final ScanRequest<IROI> scanRequest = new ScanRequest<>();
 		scanBean.setScanRequest(scanRequest);
-		scanRequest.setCompoundModel(new CompoundModel<>(new StepModel("xNex", 0, 9, 1)));
+		scanRequest.setCompoundModel(new CompoundModel<IROI>(new StepModel("xNex", 0, 9, 1)));
 
-		ScriptRequest beforeScript = new ScriptRequest();
+		final ScriptRequest beforeScript = new ScriptRequest();
 		beforeScript.setFile("/path/to/before.py");
 		beforeScript.setLanguage(ScriptLanguage.PYTHON);
 		scanRequest.setBeforeScript(beforeScript);
 
-		ScriptRequest afterScript = new ScriptRequest();
+		final ScriptRequest afterScript = new ScriptRequest();
 		afterScript.setFile("/path/to/after.py");
 		afterScript.setLanguage(ScriptLanguage.PYTHON);
 		scanRequest.setAfterScript(afterScript);
@@ -315,17 +311,17 @@ public class ScanProcessTest {
 	@Test
 	public void testTerminateMovingPosition() throws Exception {
 		// Arrange
-		ScanBean scanBean = createScanBean();
-		ScanRequest<?> scanRequest = scanBean.getScanRequest();
+		final ScanBean scanBean = createScanBean();
+		final ScanRequest<?> scanRequest = scanBean.getScanRequest();
 
-		Mocks mocks = setupMocks();
-		IPositioner mockPositioner = mocks.get(IPositioner.class);
-		WaitingAnswer<Boolean> startPositionAnswer = new WaitingAnswer<>(true);
+		final Mocks mocks = setupMocks();
+		final IPositioner mockPositioner = mocks.get(IPositioner.class);
+		final WaitingAnswer<Boolean> startPositionAnswer = new WaitingAnswer<>(true);
 		when(mockPositioner.setPosition(scanRequest.getStartPosition())).thenAnswer(startPositionAnswer);
 
 		// Act
-		ScanProcess scanProcess = new ScanProcess(scanBean, null, true);
-		ScanTask task = new ScanTask(scanProcess);
+		final ScanProcess scanProcess = new ScanProcess(scanBean, null, true);
+		final ScanTask task = new ScanTask(scanProcess);
 		task.start();
 		startPositionAnswer.waitUntilCalled();
 		verify(mocks.get(IPositioner.class)).setPosition(scanRequest.getStartPosition());
@@ -344,18 +340,18 @@ public class ScanProcessTest {
 	@Test
 	public void testTerminateScript() throws Exception {
 		// Arrange
-		ScanBean scanBean = createScanBean();
-		ScanRequest<?> scanRequest = scanBean.getScanRequest();
+		final ScanBean scanBean = createScanBean();
+		final ScanRequest<?> scanRequest = scanBean.getScanRequest();
 
-		Mocks mocks = setupMocks();
-		WaitingAnswer<Void> waitingAnswer = new WaitingAnswer<>(null);
-		IScriptService mockScriptService = mocks.get(IScriptService.class);
+		final Mocks mocks = setupMocks();
+		final WaitingAnswer<Void> waitingAnswer = new WaitingAnswer<>(null);
+		final IScriptService mockScriptService = mocks.get(IScriptService.class);
 		doAnswer(waitingAnswer).when(mockScriptService).execute(scanRequest.getBeforeScript());
 
 		// Act
 		// we need to run the scanProcess in another thread, so that we can call terminate in this thread
-		ScanProcess process = new ScanProcess(scanBean, null, true);
-		ScanTask task = new ScanTask(process);
+		final ScanProcess process = new ScanProcess(scanBean, null, true);
+		final ScanTask task = new ScanTask(process);
 		task.start();
 		waitingAnswer.waitUntilCalled();
 
@@ -376,19 +372,19 @@ public class ScanProcessTest {
 	@Test
 	public void testTerminateScan() throws Exception {
 		// Arrange
-		ScanBean scanBean = createScanBean();
-		ScanRequest<?> scanRequest = scanBean.getScanRequest();
+		final ScanBean scanBean = createScanBean();
+		final ScanRequest<?> scanRequest = scanBean.getScanRequest();
 
-		Mocks mocks = setupMocks();
+		final Mocks mocks = setupMocks();
 
 		// set up a WaitingAnswer as the answer to mockDevice.run(), so we can call scanProcess.terminate
-		WaitingAnswer<Void> runScanWaitingAnswer = new WaitingAnswer<>(null);
+		final WaitingAnswer<Void> runScanWaitingAnswer = new WaitingAnswer<>(null);
 		doAnswer(runScanWaitingAnswer).when(mocks.get(IPausableDevice.class)).run(null);
 
 		// Act
 		// we need to run the scanProcess execute method in another thread, so that we can call terminate in this thread
-		ScanProcess scanProcess = new ScanProcess(scanBean, null, true);
-		ScanTask task = new ScanTask(scanProcess);
+		final ScanProcess scanProcess = new ScanProcess(scanBean, null, true);
+		final ScanTask task = new ScanTask(scanProcess);
 		task.start();
 		runScanWaitingAnswer.waitUntilCalled();
 
@@ -410,16 +406,16 @@ public class ScanProcessTest {
 	@Test
 	public void testScanFails() throws Exception {
 		// Arrange
-		ScanBean scanBean = createScanBean();
-		ScanRequest<?> scanRequest = scanBean.getScanRequest();
+		final ScanBean scanBean = createScanBean();
+		final ScanRequest<?> scanRequest = scanBean.getScanRequest();
 
-		Mocks mocks = setupMocks();
+		final Mocks mocks = setupMocks();
 
-		ScanningException e = new ScanningException("Something went wrong.");
+		final ScanningException e = new ScanningException("Something went wrong.");
 		doThrow(e).when(mocks.get(IPausableDevice.class)).run(null);
 
 		// Act
-		ScanProcess process = new ScanProcess(scanBean, null, true);
+		final ScanProcess process = new ScanProcess(scanBean, null, true);
 		process.execute();
 
 		verify(mocks.get(IPositioner.class)).setPosition(scanRequest.getStartPosition()); // start position was moved to
@@ -432,43 +428,46 @@ public class ScanProcessTest {
 	}
 
 	/**
-	 * Tests that ScanProcess.execute changes the state of
+	 * Tests that ScanProcess.execute changes the state of the scan bean
+	 *
 	 * @throws Exception
 	 */
 	@Test
 	public void testStateChanges() throws Exception {
 		// Arrange
 		final ScanBean scanBean = createScanBean();
-		final ScanRequest scanRequest = scanBean.getScanRequest();
+		final ScanRequest<?> scanRequest = scanBean.getScanRequest();
 
 		// the waiting answers for before/after script, start/stop position and running the scan
 		// allow us to verify the state of the scan being at each point in the scan
-		Mocks mocks = setupMocks();
-		WaitingAnswer<Void> beforeScriptAnswer = new WaitingAnswer<>(null);
-		WaitingAnswer<Boolean> startPositionAnswer = new WaitingAnswer<>(true);
-		WaitingAnswer<Void> runScanAnswer = new WaitingAnswer<>(null);
-		WaitingAnswer<Void> afterScriptAnswer = new WaitingAnswer<>(null);
-		WaitingAnswer<Boolean> endPositionAnswer = new WaitingAnswer<>(true);
+		final Mocks mocks = setupMocks();
+		final WaitingAnswer<Void> beforeScriptAnswer = new WaitingAnswer<>(null);
+		final WaitingAnswer<Boolean> startPositionAnswer = new WaitingAnswer<>(true);
+		final WaitingAnswer<Void> runScanAnswer = new WaitingAnswer<>(null);
+		final WaitingAnswer<Void> afterScriptAnswer = new WaitingAnswer<>(null);
+		final WaitingAnswer<Boolean> endPositionAnswer = new WaitingAnswer<>(true);
 
-		IScriptService mockScriptService = mocks.get(IScriptService.class);
-		IPositioner mockPositioner = mocks.get(IPositioner.class);
-		IPausableDevice<ScanModel> mockDevice = mocks.get(IPausableDevice.class);
-		IPublisher<ScanBean> mockPublisher = mock(IPublisher.class);
+		final IScriptService mockScriptService = mocks.get(IScriptService.class);
+		final IPositioner mockPositioner = mocks.get(IPositioner.class);
+		@SuppressWarnings("unchecked")
+		final IPausableDevice<ScanModel> mockDevice = mocks.get(IPausableDevice.class);
+		@SuppressWarnings("unchecked")
+		final IPublisher<ScanBean> mockPublisher = mock(IPublisher.class);
 		when(mockPositioner.setPosition(scanRequest.getStartPosition())).thenAnswer(startPositionAnswer);
 		when(mockPositioner.setPosition(scanRequest.getEndPosition())).thenAnswer(endPositionAnswer);
 		doAnswer(beforeScriptAnswer).when(mockScriptService).execute(scanRequest.getBeforeScript());
 		doAnswer(afterScriptAnswer).when(mockScriptService).execute(scanRequest.getAfterScript());
 		doAnswer(runScanAnswer).when(mocks.get(IPausableDevice.class)).run(null);
-		InOrder inOrder = inOrder(mockPositioner, mockScriptService, mockDevice);
+		final InOrder inOrder = inOrder(mockPositioner, mockScriptService, mockDevice);
 
 		// Act
-		ScanProcess process = new ScanProcess(scanBean, mockPublisher, true); // Create the ScanProcess
+		final ScanProcess process = new ScanProcess(scanBean, mockPublisher, true); // Create the ScanProcess
 		verify(mockPublisher).broadcast(scanBean); // verify the bean was broadcast with status PREPARING
 		assertThat(scanBean.getStatus(), is(Status.PREPARING));
 		assertThat(scanBean.getMessage(), is(nullValue()));
 
 		// run the scan in another thread
-		ScanTask scanTask = new ScanTask(process);
+		final ScanTask scanTask = new ScanTask(process);
 		scanTask.start();
 
 		// checks while moving to start position
@@ -523,15 +522,15 @@ public class ScanProcessTest {
 	@Test
 	public void testScannableAndMonitor() throws Exception {
 		// Arrange
-		ScanBean scanBean = new ScanBean();
-		ScanRequest<?> scanRequest = new ScanRequest<>();
+		final ScanBean scanBean = new ScanBean();
+		final ScanRequest<IROI> scanRequest = new ScanRequest<>();
 
-		CompoundModel cmodel = new CompoundModel<>(Arrays.asList(new StepModel("T", 290, 300, 2), new GridModel("xNex", "yNex",2,2)));
+		final CompoundModel<IROI> cmodel = new CompoundModel<>(Arrays.asList(new StepModel("T", 290, 300, 2), new GridModel("xNex", "yNex", 2, 2)));
 		cmodel.setRegions(Arrays.asList(new ScanRegion<IROI>(new RectangularROI(0, 0, 3, 3, 0), "xNex", "yNex")));
 		scanRequest.setCompoundModel(cmodel);
 
 		final Map<String, Object> dmodels = new HashMap<String, Object>(3);
-		MandelbrotModel model = new MandelbrotModel("xNex", "yNex");
+		final MandelbrotModel model = new MandelbrotModel("xNex", "yNex");
 		model.setName("mandelbrot");
 		model.setExposureTime(0.001);
 		dmodels.put("mandelbrot", model);
@@ -543,7 +542,7 @@ public class ScanProcessTest {
 		scanRequest.setFilePath(tmp.getAbsolutePath()); // TODO This will really come from the scan file service which is not written.
 
 		scanBean.setScanRequest(scanRequest);
-		ScanProcess process = new ScanProcess(scanBean, null, true);
+		final ScanProcess process = new ScanProcess(scanBean, null, true);
 
 		// Act
 		process.execute();
@@ -552,17 +551,17 @@ public class ScanProcessTest {
 		try (NexusFile nf = fileFactory.newNexusFile(tmp.getAbsolutePath())) {
 			nf.openToRead();
 
-			TreeFile nexusTree = NexusUtils.loadNexusTree(nf);
+			final TreeFile nexusTree = NexusUtils.loadNexusTree(nf);
 			nf.close();
-			NXroot root = (NXroot) nexusTree.getGroupNode();
-			NXentry entry = root.getEntry();
-			NXinstrument instrument = entry.getInstrument();
-			NXpositioner tPos = instrument.getPositioner("T");
-			IDataset tempDataset = tPos.getValue();
+			final NXroot root = (NXroot) nexusTree.getGroupNode();
+			final NXentry entry = root.getEntry();
+			final NXinstrument instrument = entry.getInstrument();
+			final NXpositioner tPos = instrument.getPositioner("T");
+			final IDataset tempDataset = tPos.getValue();
 			assertThat(tempDataset, is(notNullValue()));
 			assertThat(tempDataset.getShape(), is(equalTo(new int[] { 6, 2, 2 })));
 
-			NXdata mandelbrot = entry.getData("mandelbrot");
+			final NXdata mandelbrot = entry.getData("mandelbrot");
 			assertThat(mandelbrot, is(notNullValue()));
 			assertThat(mandelbrot.getDataNode("T"), is(nullValue()));
 		}
@@ -571,8 +570,8 @@ public class ScanProcessTest {
 	@Test
 	public void testStartAndEndPos() throws Exception {
 		// Arrange
-		ScanBean scanBean = new ScanBean();
-		ScanRequest<?> scanRequest = new ScanRequest<>();
+		final ScanBean scanBean = new ScanBean();
+		final ScanRequest<IROI> scanRequest = new ScanRequest<>();
 		scanRequest.setCompoundModel(new CompoundModel<>(new StepModel("xNex", 0, 9, 1)));
 
 		final MapPosition start = new MapPosition();
@@ -588,7 +587,7 @@ public class ScanProcessTest {
 		scanRequest.setEnd(end);
 
 		scanBean.setScanRequest(scanRequest);
-		ScanProcess process = new ScanProcess(scanBean, null, true);
+		final ScanProcess process = new ScanProcess(scanBean, null, true);
 
 		// Act
 		process.execute();
@@ -598,8 +597,8 @@ public class ScanProcessTest {
 			final Number startPos = start.getValue(scannableName);
 			final Number endPos = end.getValue(scannableName);
 
-			IScannable<Number> scannable = connector.getScannable(scannableName);
-			MockScannable mockScannable = (MockScannable) scannable;
+			final IScannable<Number> scannable = connector.getScannable(scannableName);
+			final MockScannable mockScannable = (MockScannable) scannable;
 
 			mockScannable.verify(start.getValue(scannableName), start);
 			mockScannable.verify(end.getValue(scannableName), end);
@@ -622,33 +621,33 @@ public class ScanProcessTest {
 
 	public void testMalcolmValidation(boolean valid) throws Exception {
 		// Arrange
-		GridModel gmodel = new GridModel();
+		final GridModel gmodel = new GridModel();
 		gmodel.setFastAxisName("stage_x");
 		gmodel.setFastAxisPoints(5);
 		gmodel.setSlowAxisName("stage_y");
 		gmodel.setSlowAxisPoints(5);
-		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
+		gmodel.setBoundingBox(new BoundingBox(0, 0, 3, 3));
 
-		DummyMalcolmModel dmodel = new DummyMalcolmModel();
+		final DummyMalcolmModel dmodel = new DummyMalcolmModel();
 		dmodel.setName("malcolm");
 		dmodel.setExposureTime(valid ? 0.1 : -0.1); // use an negative exposure time for fail validation
 		dservice.createRunnableDevice(dmodel);
 
-		ScanBean scanBean = new ScanBean();
-		ScanRequest<?> scanRequest = new ScanRequest<>();
+		final ScanBean scanBean = new ScanBean();
+		final ScanRequest<IROI> scanRequest = new ScanRequest<>();
 		scanRequest.setCompoundModel(new CompoundModel<>(gmodel));
 		scanRequest.putDetector("malcolm", dmodel);
 
 		scanBean.setScanRequest(scanRequest);
-		ScanProcess process = new ScanProcess(scanBean, null, true);
+		final ScanProcess process = new ScanProcess(scanBean, null, true);
 
 		// Act
 		process.execute();
 
 		// process.execute doesn't throw an exception if there's a problem with the
 		// scan, instead it sets the status of the scan bean to FAILED
-		Status expectedStatus = valid ? Status.COMPLETE : Status.FAILED;
-		String expectedMessage = valid ? "Scan Complete" : "The exposure time for 'malcolm' must be non-zero!";
+		final Status expectedStatus = valid ? Status.COMPLETE : Status.FAILED;
+		final String expectedMessage = valid ? "Scan Complete" : "The exposure time for 'malcolm' must be non-zero!";
 		assertThat(process.getBean().getStatus(), is(expectedStatus));
 		assertThat(process.getBean().getMessage(), is(equalTo(expectedMessage)));
 	}
