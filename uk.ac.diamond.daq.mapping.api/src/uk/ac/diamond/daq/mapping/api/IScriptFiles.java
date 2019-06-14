@@ -18,9 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.api;
 
-import org.eclipse.scanning.api.annotation.UiComesAfter;
-import org.eclipse.scanning.api.annotation.UiFilename;
-
 /**
  * Defines the script files to be run before and/or after a scan.
  */
@@ -31,7 +28,6 @@ public interface IScriptFiles {
 	/**
 	 * @return the script to run before a scan
 	 */
-	@UiFilename
 	public String getBeforeScanScript();
 
 	public void setAfterScanScript(String afterScanScript);
@@ -39,8 +35,6 @@ public interface IScriptFiles {
 	/**
 	 * @return the script to run after a scan
 	 */
-	@UiFilename
-	@UiComesAfter("beforeScanScript")
 	public String getAfterScanScript();
 
 	public void setAlwaysRunAfterScript(boolean alwaysRunAfterScript);
