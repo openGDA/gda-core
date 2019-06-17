@@ -121,7 +121,8 @@ public class LiveStreamConnectionManager implements ILiveStreamConnectionService
 		if (!defaultConfigName.isEmpty()) {
 			CameraConfiguration config = Finder.getInstance().find(defaultConfigName);
 			if (null != config) {
-				LiveStreamConnection connection = getSharedLiveStreamConnection(config, StreamType.EPICS_ARRAY);
+				StreamType streamType = config.getArrayPv() != null ? StreamType.EPICS_ARRAY : StreamType.MJPEG;
+				LiveStreamConnection connection = getSharedLiveStreamConnection(config, streamType);
 				source = Optional.of(getLiveStreamMapObjectUsingConnection(connection));
 			}
 		}
