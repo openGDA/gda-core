@@ -13,11 +13,7 @@ public interface IGDAConfigurationService {
 
 	String[] getProfiles();
 
-	SubProcessCommand getNameServerCommand();
-
 	SubProcessCommand getLogServerCommand();
-
-	SubProcessCommand getEventServerCommand();
 
 	List<ObjectServerCommand> getObjectServerCommands();
 
@@ -25,9 +21,4 @@ public interface IGDAConfigurationService {
 
 	String getInstanceConfigRoot();
 
-	public enum ServerType {
-		NAME,
-		LOG,
-		EVENT;
-	}
 }
