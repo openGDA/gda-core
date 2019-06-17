@@ -60,13 +60,6 @@
             id="uk.ac.gda.client.microfocus.category"
             name="Data Acquisition - MicroFocus">
       </category>
-      <view
-            category="uk.ac.gda.client.microfocus.category"
-            class="uk.ac.gda.client.microfocus.views.CameraFocusZoomControlView"
-            id="uk.ac.gda.client.microfocus.CameraFocusZoomControlView"
-            name="Camera Focus and Zoom"
-            restorable="true">
-      </view>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
