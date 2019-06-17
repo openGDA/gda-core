@@ -21,6 +21,10 @@
          id="uk.ac.diamond.daq.thirdparty.epicsv4.feature"
          version="0.0.0"/>
 
+   <includes
+         id="org.eclipse.dawnsci.nexus.template.feature"
+         version="0.0.0"/>
+
    <plugin
          id="org.eclipse.scanning.api"
          download-size="0"
