@@ -29,6 +29,10 @@ import org.eclipse.scanning.server.servlet.ScanServlet;
 import org.eclipse.scanning.server.servlet.Services;
 import org.junit.Test;
 
+/**
+ * Note: if the test methods in this class time out ensure that LD_LIBRARY_PATH is set to
+ * ${project_loc:hdf.hdf5lib}/lib/${target.os}-${target.arch}
+ */
 public class ScanServletTest extends AbstractServletTest {
 
 	@Override
@@ -53,7 +57,7 @@ public class ScanServletTest extends AbstractServletTest {
 	public void testStepScan() throws Exception {
 
 		ScanBean bean = createStepScan();
-		runAndCheck(bean, 60);
+		runAndCheck(bean, 10);
 	}
 
 	/**
@@ -67,7 +71,7 @@ public class ScanServletTest extends AbstractServletTest {
 		System.setProperty("org.eclipse.scanning.api.preprocessor.name", "example");
 		try {
 			ScanBean bean = createStepScan();
-			List<ScanBean> beans = runAndCheck(bean, 20);
+			List<ScanBean> beans = runAndCheck(bean, 10);
 			// We now check that they all had xfred set.
 			for (ScanBean scanBean : beans) {
 				ScanRequest<?> req = scanBean.getScanRequest();
@@ -86,7 +90,7 @@ public class ScanServletTest extends AbstractServletTest {
 	public void testGridScan() throws Exception {
 
 		ScanBean bean = createGridScan();
-		runAndCheck(bean, 20);
+		runAndCheck(bean, 10);
 
 	}
 
@@ -94,14 +98,14 @@ public class ScanServletTest extends AbstractServletTest {
 	public void testStepGridScanNested1() throws Exception {
 
 		ScanBean bean = createStepGridScan(1);
-		runAndCheck(bean, 100);
+		runAndCheck(bean, 10);
 	}
 
 	@Test
 	public void testStepGridScanNested5() throws Exception {
 
 		ScanBean bean = createStepGridScan(5);
-		runAndCheck(bean, 500);
+		runAndCheck(bean, 20);
 	}
 
 	private static class MockPreprocessor implements IPreprocessor {
@@ -128,21 +132,21 @@ public class ScanServletTest extends AbstractServletTest {
 	@Test
 	public void testPreprocessor() throws Exception {
 		MockPreprocessor preprocessor = new MockPreprocessor();
-		Services.addPreprocessor(preprocessor);
+		new Services().addPreprocessor(preprocessor);
 
 		ScanBean bean = createStepScan();
-		runAndCheck(bean, 60);
+		runAndCheck(bean, 10);
 		assertTrue(preprocessor.wasExecuted());
 	}
 
 	@Test
 	public void testPreprocessor_setIgnorePreprocess() throws Exception {
 		MockPreprocessor preprocessor = new MockPreprocessor();
-		Services.addPreprocessor(preprocessor);
+		new Services().addPreprocessor(preprocessor);
 
 		ScanBean bean = createStepScan();
 		bean.getScanRequest().setIgnorePreprocess(true);
-		runAndCheck(bean, 60);
+		runAndCheck(bean, 10);
 		assertFalse(preprocessor.wasExecuted());
 	}
 

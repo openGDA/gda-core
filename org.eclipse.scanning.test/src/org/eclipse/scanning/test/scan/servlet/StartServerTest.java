@@ -18,6 +18,9 @@ import org.junit.Test;
  * <li>If there are things in the queue it should pause;</li>
  * <li>If the queue is empty it should not pause.</li>
  *
+ * Note: if the test methods in this class time out ensure that LD_LIBRARY_PATH is set to
+ * ${project_loc:hdf.hdf5lib}/lib/${target.os}-${target.arch}
+ *
  * @author Matthew Gerring
  */
 public class StartServerTest extends AbstractServletTest {

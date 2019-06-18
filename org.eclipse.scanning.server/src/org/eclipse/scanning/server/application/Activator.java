@@ -63,5 +63,11 @@ public class Activator implements BundleActivator {
 		};
 	}
 
+	public static <T> T getService(Class<T> clazz) {
+		if (context==null) return null;
+		ServiceReference<T> ref = context.getServiceReference(clazz);
+		if (ref == null) return null;
+		return context.getService(ref);
+	}
 
 }

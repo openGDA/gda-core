@@ -100,11 +100,11 @@ public class Services {
 		Services.scriptService = scriptService;
 	}
 
-	public static synchronized void addPreprocessor(IPreprocessor preprocessor) {
+	public synchronized void addPreprocessor(IPreprocessor preprocessor) {
 		preprocessors.add(preprocessor);
 	}
 
-	public static synchronized void removePreprocessor(IPreprocessor preprocessor) {
+	public synchronized void removePreprocessor(IPreprocessor preprocessor) {
 		preprocessors.remove(preprocessor);
 	}
 

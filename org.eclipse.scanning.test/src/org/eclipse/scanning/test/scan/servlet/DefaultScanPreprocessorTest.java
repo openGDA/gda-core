@@ -32,7 +32,7 @@ import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
 import org.junit.Before;
 import org.junit.Test;
 
-public class DefaultConfigurationPreprocessorTest {
+public class DefaultScanPreprocessorTest {
 
 	private DefaultScanPreprocessor preprocessor;
 

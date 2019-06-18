@@ -23,9 +23,12 @@ import java.util.Set;
 
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 
+import uk.ac.diamond.daq.osgi.OsgiService;
+
 /**
  * Defines scan defaults to are merged with a {@link ScanRequest} on the server.
  */
+@OsgiService(DefaultScanConfiguration.class)
 public class DefaultScanConfiguration {
 
 	private Set<String> defaultPerScanMonitorNames = Collections.emptySet();

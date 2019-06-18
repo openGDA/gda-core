@@ -24,6 +24,7 @@ import java.util.Set;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.scan.process.IPreprocessor;
 import org.eclipse.scanning.api.scan.process.ProcessingException;
+import org.eclipse.scanning.server.application.Activator;
 
 /**
  * This pre-processor merges the monitors defined in its {@link DefaultScanConfiguration} into a {@link ScanRequest}.
@@ -47,6 +48,11 @@ public class DefaultScanPreprocessor implements IPreprocessor {
 
 	@Override
 	public <T> ScanRequest<T> preprocess(ScanRequest<T> scanRequest) throws ProcessingException {
+		if (defaultScanConfiguration == null) {
+			// try getting the configuration object from the OSGi bundle context
+			defaultScanConfiguration = Activator.getService(DefaultScanConfiguration.class);
+		}
+
 		if (defaultScanConfiguration != null) {
 			// add default per point monitor names to the scan request
 			final Set<String> perPointMonitorNames = new HashSet<>(defaultScanConfiguration.getDefaultPerPointMonitorNames());

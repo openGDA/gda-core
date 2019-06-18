@@ -24,8 +24,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
-import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.ISubmitter;
+import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.scan.IScanListener;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -39,7 +38,6 @@ import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.StepModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.server.servlet.AbstractConsumerServlet;
-import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
@@ -194,12 +192,9 @@ public abstract class AbstractServletTest extends BrokerTest {
 		return bean;
 	}
 
-	protected List<ScanBean> runAndCheck(ScanBean bean, long maxScanTimeS) throws Exception {
-
-		final IEventService eservice = Services.getEventService();
-
+	protected List<ScanBean> runAndCheck(ScanBean bean, long timeoutSeconds) throws Exception {
 		// Let's listen to the scan and see if things happen when we run it
-		final ISubscriber<IScanListener> subscriber = eservice.createSubscriber(new URI(servlet.getBroker()), servlet.getStatusTopic());
+		final ISubscriber<IScanListener> subscriber = ServiceTestHelper.getEventService().createSubscriber(new URI(servlet.getBroker()), servlet.getStatusTopic());
 
 		try {
 			final List<ScanBean> beans       = new ArrayList<>(13);
@@ -231,7 +226,7 @@ public abstract class AbstractServletTest extends BrokerTest {
 			// Ok done that, now we sent it off...
 			submit(servlet, bean);
 
-			boolean ok = latch.await(maxScanTimeS, TimeUnit.SECONDS);
+			boolean ok = latch.await(timeoutSeconds, TimeUnit.SECONDS);
 			if (!ok) throw new Exception("The latch broke before the scan finished!");
 
 			assertEquals(1, startEvents.size());
@@ -245,11 +240,10 @@ public abstract class AbstractServletTest extends BrokerTest {
 	}
 
 	protected void submit(AbstractConsumerServlet<?> servlet, ScanBean bean) throws Exception {
-
 		// Ok done that, now we sent it off...
-		final ISubmitter<ScanBean> submitter  = ServiceTestHelper.getEventService().createSubmitter(new URI(servlet.getBroker()),  servlet.getSubmitQueue());
-		submitter.submit(bean);
-		submitter.disconnect();
+		try (IConsumer<ScanBean> consumerProxy = ServiceTestHelper.getEventService().createConsumerProxy(new URI(servlet.getBroker()), servlet.getSubmitQueue())) {
+			consumerProxy.submit(bean);
+		}
 	}
 
 }

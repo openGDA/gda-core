@@ -48,8 +48,6 @@ public class ScanServlet extends AbstractConsumerServlet<ScanBean> {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanServlet.class);
 
-	private DefaultScanConfiguration defaultScanConfiguration;
-
 	public ScanServlet() {
 		setPauseOnStart(true);
 	}
@@ -61,7 +59,6 @@ public class ScanServlet extends AbstractConsumerServlet<ScanBean> {
 
 	@Override
 	public ScanProcess createProcess(ScanBean scanBean, IPublisher<ScanBean> response) throws EventException {
-
 		if (scanBean.getScanRequest()==null) throw new EventException("The scan must include a request to run something!");
 
 		debug("Accepting bean", scanBean, response);
@@ -71,16 +68,7 @@ public class ScanServlet extends AbstractConsumerServlet<ScanBean> {
 		return new ScanProcess(scanBean, response, isBlocking());
 	}
 
-	public void setDefaultScanConfiguration(DefaultScanConfiguration defaultScanConfiguration) {
-		this.defaultScanConfiguration = defaultScanConfiguration;
-	}
-
-	public DefaultScanConfiguration getDefaultScanConfiguration() {
-		return defaultScanConfiguration;
-	}
-
 	private void debug(String message, ScanBean scanBean, IPublisher<ScanBean> response) {
-
 		if (!logger.isDebugEnabled()) return;
 
 		logger.debug("{} : {}", message, scanBean);
