@@ -12,6 +12,7 @@ import gda.device.Timer;
 import gda.device.detector.DAServer;
 import gda.device.detector.countertimer.TfgScaler;
 import gda.device.detector.xspress.Xspress2Detector;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
@@ -20,7 +21,7 @@ import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 
-public class Xspress2DAServerController implements Xspress2Controller {
+public class Xspress2DAServerController extends ConfigurableBase implements Xspress2Controller {
 
 	private static final Logger logger = LoggerFactory.getLogger(Xspress2DAServerController.class);
 
@@ -43,8 +44,6 @@ public class Xspress2DAServerController implements Xspress2Controller {
 	private int scalerHandle = -1;
 	private int maxNumberOfFrames;
 
-	private boolean configured;
-
 	public Xspress2DAServerController() {
 	}
 
@@ -66,7 +65,7 @@ public class Xspress2DAServerController implements Xspress2Controller {
 			} catch (DeviceException e) {
 				throw new FactoryException(e.getMessage(), e);
 			}
-			configured = true;
+			setConfigured(true);
 		}
 	}
 
@@ -194,7 +193,7 @@ public class Xspress2DAServerController implements Xspress2Controller {
 	@Override
 	public void setResolutionGrade(String resGrade, int numberOfBits) throws DeviceException {
 		settings.getParameters().setResGrade(resGrade);
-		if (configured) {
+		if (isConfigured()) {
 			close();
 			doFormatRunCommand(numberOfBits);
 			open();
@@ -224,7 +223,7 @@ public class Xspress2DAServerController implements Xspress2Controller {
 
 	@Override
 	public void setFullMCABits(int fullMCABits) throws DeviceException {
-		if (configured) {
+		if (isConfigured()) {
 			settings.setFullMCABits(fullMCABits);
 			close();
 			doFormatRunCommand(determineNumberOfBits());
@@ -479,7 +478,7 @@ public class Xspress2DAServerController implements Xspress2Controller {
 
 	public int getNumberFramesFromTFGStatus() throws DeviceException {
 		String[] cmds = new String[] { "status show-armed", "progress", "status", "full", "lap", "frame" };
-		HashMap<String, String> currentVals = new HashMap<String, String>();
+		HashMap<String, String> currentVals = new HashMap<>();
 		for (String cmd : cmds) {
 			currentVals.put(cmd, runDAServerCommand("tfg read " + cmd).toString());
 			logger.info("tfg read " + cmd + ": " + currentVals.get(cmd));
