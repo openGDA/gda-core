@@ -208,6 +208,7 @@ public class LiveStreamView extends ViewPart {
 
 		if (camConfig == null) {
 			displayAndLogError(logger, parent, "Camera configuration could not be found for camera ID " + cameraId);
+			logger.info("Check that 'client.xml' contains a '<bean class=\"gda.spring.FindableNameSetterPostProcessor\" />' line");
 			return;
 		}
 
