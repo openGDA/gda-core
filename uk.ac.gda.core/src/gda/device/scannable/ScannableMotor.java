@@ -142,7 +142,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 			// get the hardware units for the underlying motor
 			// perhaps hardware units should be in the motor interface?
 			final String motorUnit = motor.getUnitString();
-			if (motorUnit != null && motorUnit.length() > 0) {
+			if (motorUnit != null && motorUnit.trim().length() > 0) {
 				// try to work out the units the motor works in
 				unitsComponent.setHardwareUnitString(motorUnit);
 			} else if (getHardwareUnitString() == null) {
