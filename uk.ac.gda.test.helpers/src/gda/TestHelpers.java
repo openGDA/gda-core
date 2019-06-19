@@ -368,10 +368,6 @@ class SimpleScannable extends ConfigurableBase implements Scannable, INeXusInfoW
 	}
 
 	@Override
-	public void reconfigure() throws FactoryException {
-	}
-
-	@Override
 	public String getName() {
 		return name;
 	}
@@ -665,10 +661,6 @@ class SimpleDetector extends ConfigurableBase implements Detector {
 	}
 
 	@Override
-	public void reconfigure() throws FactoryException {
-	}
-
-	@Override
 	public String getName() {
 		return name;
 	}
@@ -922,6 +914,11 @@ class TestFactory implements Factory {
 	@Override
 	public void configure() throws FactoryException {
 		throw new FactoryException("TestFactory does not support configuration");
+	}
+
+	@Override
+	public void reconfigure() throws FactoryException {
+		throw new FactoryException("TestFactory does not support reconfiguration");
 	}
 
 	@Override
