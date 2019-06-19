@@ -42,4 +42,15 @@ public interface Configurable {
 	 * @return return <code>true</code> if configured <code>false</code> otherwise
 	 */
 	boolean isConfigured();
+
+	/**
+	 * Re-initialisation of values and states.
+	 * <p>
+	 * Moved from Reconfigurable which has been deleted
+	 *
+	 * @since GDA 9.14
+	 *
+	 * @throws FactoryException
+	 */
+	void reconfigure() throws FactoryException;
 }

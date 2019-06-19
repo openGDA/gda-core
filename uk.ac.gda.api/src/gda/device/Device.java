@@ -21,7 +21,6 @@ package gda.device;
 
 import gda.factory.Configurable;
 import gda.factory.Findable;
-import gda.factory.Reconfigurable;
 import gda.jython.accesscontrol.MethodAccessProtected;
 import gda.observable.IObservable;
 
@@ -29,7 +28,7 @@ import gda.observable.IObservable;
  * Interface to be implemented by all hardware and communication channels. A Device controls a specific type of hardware
  * for example a Motor controls a motor, a Serial controls a serial port.
  */
-public interface Device extends Findable, IObservable, Configurable, Reconfigurable {
+public interface Device extends Findable, IObservable, Configurable {
 	/**
 	 * Set any attribute the implementing classes may provide
 	 *

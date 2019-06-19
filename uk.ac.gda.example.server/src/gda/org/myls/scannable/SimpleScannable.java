@@ -20,7 +20,6 @@ package gda.org.myls.scannable;
 
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableBase;
-import gda.factory.FactoryException;
 import gda.observable.IObserver;
 
 public class SimpleScannable extends ScannableBase {
@@ -373,15 +372,6 @@ public class SimpleScannable extends ScannableBase {
 	 */
 	@Override
 	public void deleteIObservers() {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @see gda.factory.Reconfigurable#reconfigure()
-	 */
-	@Override
-	public void reconfigure() throws FactoryException {
 	}
 
 	/**

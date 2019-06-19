@@ -41,6 +41,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.factory.Configurable;
+import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.observable.IObserver;
@@ -157,6 +158,11 @@ public class ShutterPanel extends JPanel implements IObserver, Runnable,Configur
 			logger.warn("exception configuring {}: {}", shutter.getName(), e);
 		}
 		configured = true;
+	}
+
+	@Override
+	public void reconfigure() throws FactoryException {
+		logger.debug("Empty reconfigure() called");
 	}
 
 	@Override

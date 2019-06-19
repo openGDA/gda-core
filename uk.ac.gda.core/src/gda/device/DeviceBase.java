@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.factory.ConditionallyConfigurable;
 import gda.factory.ConfigurableBase;
-import gda.factory.FactoryException;
 import gda.jython.accesscontrol.MethodAccessProtected;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -100,11 +99,6 @@ public abstract class DeviceBase extends ConfigurableBase implements Device, Con
 	 */
 	public void setConfigureAtStartup(boolean configureAtStartup) {
 		this.configureAtStartup = configureAtStartup;
-	}
-
-	@Override
-	public void reconfigure() throws FactoryException {
-		// do nothing. its up to the sub-classes
 	}
 
 	@Override

@@ -67,7 +67,7 @@ import gda.util.SpringObjectServer;
 public class LoadAdditionalBeansToObjectServer extends ApplicationObjectSupport implements Configurable, Findable {
 	private static final ITerminalPrinter TERMINAL_PRINTER = InterfaceProvider.getTerminalPrinter();
 	private static final IJythonNamespace JYTHON_NAMESPACE = InterfaceProvider.getJythonNamespace();
-	private static final Logger logger = LoggerFactory.getLogger(LoadAdditionalBeansToObjectServer.class);
+	private static final Logger gdaLogger = LoggerFactory.getLogger(LoadAdditionalBeansToObjectServer.class);
 	private boolean allowExceptionInConfigure = LocalProperties.check(FactoryBase.GDA_FACTORY_ALLOW_EXCEPTION_IN_CONFIGURE);
 	private GenericApplicationContext createdContext;
 	private String name;
@@ -82,7 +82,7 @@ public class LoadAdditionalBeansToObjectServer extends ApplicationObjectSupport 
 				InputSource r = new InputSource(new FileReader(filepath));
 				reader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_XSD);
 				int i = reader.loadBeanDefinitions(r);
-				logger.debug("{} beans are added to Object Server from file: {}", i, filepath);
+				gdaLogger.debug("{} beans are added to Object Server from file: {}", i, filepath);
 			}
 			createdContext.getEnvironment().getPropertySources().addFirst(new LocalPropertiesPropertySource());
 			createdContext.setAllowBeanDefinitionOverriding(false);
@@ -92,10 +92,10 @@ public class LoadAdditionalBeansToObjectServer extends ApplicationObjectSupport 
 			placeInJythonNamescape();
 		} catch (FileNotFoundException e) {
 			TERMINAL_PRINTER.print(e.getMessage());
-			logger.error("Could not find file", e);
+			gdaLogger.error("Could not find file", e);
 		} catch (FactoryException e) {
 			TERMINAL_PRINTER.print(e.getMessage());
-			logger.error("Error configuring new beans", e);
+			gdaLogger.error("Error configuring new beans", e);
 		}
 
 	}
@@ -141,17 +141,17 @@ public class LoadAdditionalBeansToObjectServer extends ApplicationObjectSupport 
 			}
 
 			if (willConfigure) {
-				logger.info("Configuring " + name);
+				gdaLogger.info("Configuring " + name);
 				try {
 					obj.configure();
 				} catch (Exception e) {
 					if (!allowExceptionInConfigure) {
 						throw new FactoryException("Error in configure for " + name, e);
 					}
-					logger.error("Error in configure for " + name, e);
+					gdaLogger.error("Error in configure for " + name, e);
 				}
 			} else {
-				logger.info("Not configuring " + name);
+				gdaLogger.info("Not configuring " + name);
 			}
 		}
 	}
@@ -167,6 +167,10 @@ public class LoadAdditionalBeansToObjectServer extends ApplicationObjectSupport 
 		configured = true;
 	}
 
+	@Override
+	public void reconfigure() throws FactoryException {
+		gdaLogger.debug("Empty reconfigure() called");
+	}
 	@Override
 	public boolean isConfigured() {
 		return configured;

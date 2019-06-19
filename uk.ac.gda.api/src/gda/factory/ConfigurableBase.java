@@ -18,6 +18,9 @@
 
 package gda.factory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Class giving a default implementation of the functions in {@link gda.factory.Configurable}
  * <p>
@@ -28,6 +31,7 @@ package gda.factory;
  * @since GDA 9.8
  */
 public abstract class ConfigurableBase implements Configurable {
+	private static final Logger logger = LoggerFactory.getLogger(ConfigurableBase.class);
 
 	private boolean configured = false;
 
@@ -58,6 +62,11 @@ public abstract class ConfigurableBase implements Configurable {
 	@Override
 	public boolean isConfigured() {
 		return configured;
+	}
+
+	@Override
+	public void reconfigure() throws FactoryException {
+		logger.debug("Empty reconfigure() called");
 	}
 
 }

@@ -23,8 +23,11 @@ import javax.measure.quantity.Quantity;
 import javax.measure.unit.Unit;
 
 import org.jscience.physics.amount.Amount;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.factory.Configurable;
+import gda.factory.FactoryException;
 import gda.factory.Finder;
 
 /**
@@ -32,6 +35,8 @@ import gda.factory.Finder;
  * Comments
  */
 public class InterpolationFunction extends FindableFunction implements Configurable {
+	private static final Logger logger = LoggerFactory.getLogger(InterpolationFunction.class);
+
 	private double[] xValues;
 
 	private int numberOfXValues;
@@ -123,6 +128,11 @@ public class InterpolationFunction extends FindableFunction implements Configura
 			yPlaces = cdf.getColumnDecimalPlaces(yColumn);
 			configured = true;
 		}
+	}
+
+	@Override
+	public void reconfigure() throws FactoryException {
+		logger.debug("Empty reconfigure() called");
 	}
 
 	@Override

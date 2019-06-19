@@ -19,8 +19,8 @@
 
 package gda.jython.scriptcontroller;
 
+import gda.factory.Configurable;
 import gda.factory.Findable;
-import gda.factory.Reconfigurable;
 import gda.observable.IObservable;
 
 /**
@@ -41,7 +41,7 @@ import gda.observable.IObservable;
  * The import command is the command to run when this object is configured so that the script that this object controls
  * is loaded into the Jython namespace
  */
-public interface Scriptcontroller extends IObservable, Findable, Reconfigurable {
+public interface Scriptcontroller extends IObservable, Findable, Configurable {
 
 	public static final String SCRIPT_RUNNER_START_MARKER = "ScriptRunner started";
 	public static final String SCRIPT_RUNNER_RUNNING_MARKER = "ScriptRunner running";

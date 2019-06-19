@@ -74,6 +74,11 @@ public class ScanListDataWriterExtender extends DataWriterExtenderBase implement
 	}
 
 	@Override
+	public void reconfigure() throws FactoryException {
+		logger.debug("Empty reconfigure() called");
+	}
+
+	@Override
 	public boolean isConfigured() {
 		return configured;
 	}
