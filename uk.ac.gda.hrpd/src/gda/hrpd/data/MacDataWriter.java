@@ -49,6 +49,7 @@ import gda.device.Temperature;
 import gda.device.detector.multichannelscaler.EpicsMultiChannelScaler;
 import gda.device.detector.multichannelscaler.Mca;
 import gda.factory.Configurable;
+import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.hrpd.SampleInfo;
@@ -162,6 +163,11 @@ public class MacDataWriter extends DataWriterBase implements Findable, Configura
 		}
 		configured = true;
 
+	}
+
+	@Override
+	public void reconfigure() throws FactoryException {
+		logger.debug("Empty reconfigure() called");
 	}
 
 	@Override
