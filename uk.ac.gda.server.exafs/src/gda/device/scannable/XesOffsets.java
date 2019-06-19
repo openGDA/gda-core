@@ -39,9 +39,8 @@ import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.exafs.xes.IXesOffsets;
 import gda.exafs.xes.XesUtils;
 import gda.exafs.xes.XesUtils.XesMaterial;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.factory.FindableBase;
+import gda.factory.FindableConfigurableBase;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.beamline.i20.scannable.XESEnergyScannable;
@@ -52,7 +51,7 @@ import uk.ac.gda.beamline.i20.scannable.XesSpectrometerScannable;
  *
  */
 @ServiceInterface(IXesOffsets.class)
-public class XesOffsets extends FindableBase implements IXesOffsets, Configurable {
+public class XesOffsets extends FindableConfigurableBase implements IXesOffsets {
 	private static final Logger logger = LoggerFactory.getLogger(XesOffsets.class);
 
 	private String currentOffsetFile = "";
@@ -64,8 +63,6 @@ public class XesOffsets extends FindableBase implements IXesOffsets, Configurabl
 	private ScannableGroup spectrometerGroup;
 
 	private XESEnergyScannable xesEnergyScannable;
-
-	private boolean isConfigured = false;
 
 	public XesOffsets() {
 		storeDirectory = LocalProperties.getVarDir() +"xes_offsets/";
@@ -79,12 +76,7 @@ public class XesOffsets extends FindableBase implements IXesOffsets, Configurabl
 		if (xesEnergyScannable == null) {
 			throw new FactoryException("xesEnergyScannable has not been set for XesOffset object");
 		}
-		isConfigured = true;
-	}
-
-	@Override
-	public boolean isConfigured() {
-		return isConfigured;
+		setConfigured(true);
 	}
 
     /**
