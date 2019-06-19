@@ -48,8 +48,7 @@ public class UserOptionsManager extends FindableConfigurableBase implements User
 	public static final String DEFAULT_OPTIONS_FILENAME = "GDAUserOptions";
 
 	private String templateConfigDir = null; // typically ${gda.config}/xml
-
-	private String templateConfigName = null;
+	private String templateConfigName = null; // set via configure() or setter
 
 	private FileConfiguration clearConfiguration(FileConfiguration config, String title)
 			throws ConfigurationException {
@@ -115,6 +114,14 @@ public class UserOptionsManager extends FindableConfigurableBase implements User
 		return getOptionsMapFromConfig(optionsDirectory, optionsFilename);
 	}
 
+	/**
+	 * Read template for defaults then update with values from file specified
+	 * @param configDir folder for options file
+	 * @param configName filename of options file
+	 * @return an options map
+	 * @throws ConfigurationException
+	 * @throws IOException
+	 */
 	public UserOptionsMap getOptionsMapFromConfig(String configDir, String configName) throws ConfigurationException, IOException {
 		FileConfiguration template = LocalParameters.getXMLConfiguration(templateConfigDir, templateConfigName, false, true);
 		FileConfiguration config = LocalParameters.getXMLConfiguration(configDir, configName, true, true);
@@ -160,6 +167,9 @@ public class UserOptionsManager extends FindableConfigurableBase implements User
 	public UserOptionsMap saveOptionsCurrent(UserOptionsMap options) throws ConfigurationException, IOException {
 		String optionsDirectory = PathConstructor.getClientVisitDirectory();
 		String optionsFilename = LocalProperties.get(PROP_OPTIONS_FILENAME);
+		// Save current options values for visit-neutral retrieval by GDA server
+		saveOptionsMapValuesToConfig(LocalProperties.getVarDir(), optionsFilename, options);
+		// Save and return current options values for visit
 		return saveOptionsMapValuesToConfig(optionsDirectory, optionsFilename, options);
 	}
 
