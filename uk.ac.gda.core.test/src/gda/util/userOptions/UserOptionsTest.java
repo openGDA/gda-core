@@ -41,7 +41,7 @@ public class UserOptionsTest {
 	public void testLoadConfig() throws Exception {
 		String testScratchDirectoryName = TestUtils.setUpTest(UserOptionsTest.class, "testLoadConfig", true);
 
-		UserOptionsManager manager = new UserOptionsManager();
+		UserOptionsManagerForTest manager = new UserOptionsManagerForTest();
 		manager.setTemplateConfigDir(testScratchDirectoryName);
 		manager.setTemplateConfigName(TEMPLATE_NAME);
 		manager.setConfigured(true);
@@ -71,5 +71,15 @@ public class UserOptionsTest {
 
 		UserOptionsMap cleared = manager.resetOptions(testScratchDirectoryName, OPTIONS_NAME);
 		assertEquals(cleared, template);
+	}
+
+	/**
+	 * Minimal extension of UserOptionsManager to allow access to setConfigured()
+	 */
+	private static class UserOptionsManagerForTest extends UserOptionsManager {
+		@Override
+		protected void setConfigured(boolean configured) {
+			super.setConfigured(configured);
+		}
 	}
 }

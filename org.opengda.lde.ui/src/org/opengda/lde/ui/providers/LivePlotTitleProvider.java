@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gov.aps.jca.event.MonitorEvent;
 
@@ -37,7 +37,7 @@ import gov.aps.jca.event.MonitorEvent;
  * If a file is being written when a title is requested, use that else return a configurable
  * default title.
  */
-public class LivePlotTitleProvider implements Supplier<String>, Configurable {
+public class LivePlotTitleProvider extends ConfigurableBase implements Supplier<String> {
 	private static final Logger logger = LoggerFactory.getLogger(LivePlotTitleProvider.class);
 
 	private String capturePV;
@@ -60,8 +60,6 @@ public class LivePlotTitleProvider implements Supplier<String>, Configurable {
 	private PV<String> fullFilename;
 	/** The PV to provide the current file writing state */
 	private PV<Boolean> capture;
-
-	private boolean configured;
 
 	/** The title to use if file is not being a written or PVs are not readable */
 	private String defaultTitle;
@@ -95,7 +93,7 @@ public class LivePlotTitleProvider implements Supplier<String>, Configurable {
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (capturePV == null) throw new FactoryException("capturePV is required");
 			if (fullFilenamePV == null) throw new FactoryException("fullFilenamePV is required");
 			if (arrayIdPV == null) throw new FactoryException("arrayIdPV is required");
@@ -125,7 +123,7 @@ public class LivePlotTitleProvider implements Supplier<String>, Configurable {
 				logger.error("Could not monitor PVs", e);
 			}
 
-			configured = true;
+			setConfigured(true);
 		}
 	}
 
@@ -176,11 +174,6 @@ public class LivePlotTitleProvider implements Supplier<String>, Configurable {
 
 	private void updateNextNumber(MonitorEvent me) {
 		currentNextNumber = nextNumber.extractValueFromDbr(me.getDBR());
-	}
-
-	@Override
-	public boolean isConfigured() {
-		return configured;
 	}
 
 	public String getCapturePV() {

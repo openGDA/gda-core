@@ -35,12 +35,12 @@ import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.PVWithSeparateReadback;
 import gda.epics.ReadOnlyPV;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.util.OSCommandRunner;
 import uk.ac.gda.server.ncd.subdetector.eiger.NcdEigerController;
 
-public class NcdEpicsEiger implements NcdEigerController, Configurable {
+public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerController {
 	private static final String ACTIVE = "Active";
 
 	private static final Logger logger = LoggerFactory.getLogger(NcdEpicsEiger.class);
@@ -51,8 +51,6 @@ public class NcdEpicsEiger implements NcdEigerController, Configurable {
 	private static final String TRIGGER_MODE = "External Enable";
 
 	private static final int ODIN_TIMEOUT = 5;
-
-	private boolean configured;
 
 	private String basePv;
 
@@ -151,7 +149,7 @@ public class NcdEpicsEiger implements NcdEigerController, Configurable {
 		if (basePv == null) {
 			throw new IllegalStateException("Cannot configure eiger detector with out base PV");
 		}
-		if (!configured) {
+		if (!isConfigured()) {
 
 			// CAMERA PVs
 			acquireTime = new PVWithSeparateReadback<Double>(
@@ -193,12 +191,7 @@ public class NcdEpicsEiger implements NcdEigerController, Configurable {
 			odinInitialised = LazyPVFactory.newEnumPV(basePv + "OD:META:AcquisitionActive_RBV", String.class);
 			odinReady = LazyPVFactory.newEnumPV(basePv + "OD:FAN:StateReady_RBV", Integer.class);
 		}
-		configured = true;
-	}
-
-	@Override
-	public boolean isConfigured() {
-		return configured;
+		setConfigured(true);
 	}
 
 	@Override

@@ -19,13 +19,14 @@
 
 package gda.util.findableHashtable;
 
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import gda.factory.FindableConfigurableBase;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
-@SuppressWarnings({ "unchecked", "rawtypes" })
 @ServiceInterface(Hashtable.class)
-public class FindableHashtable extends java.util.Hashtable implements Hashtable, Configurable {
+public class FindableHashtable extends FindableConfigurableBase implements Hashtable {
 
 	/**
 	 * Flag indicating whether to store metadata to nexus file
@@ -37,99 +38,75 @@ public class FindableHashtable extends java.util.Hashtable implements Hashtable,
 	 */
 	public static final String SRB_STORE = "srbStore";
 
-	private String name = "";
+	private Map<Object, Object> hashTable = new ConcurrentHashMap<>();
 
 	@Override
 	public void putBoolean(String key, boolean value) {
-		super.put(key, value);
+		hashTable.put(key, value);
 	}
 
 	@Override
 	public boolean getBoolean(String key) {
-		return (Boolean) super.get(key);
+		return (Boolean) hashTable.get(key);
 	}
 
 	@Override
 	public void putInt(String key, int value) {
-		super.put(key, new Integer(value));
+		hashTable.put(key, value);
 	}
 
 	@Override
 	public int getInt(String key) {
-		return ((Integer) super.get(key));
+		return (Integer) hashTable.get(key);
 	}
 
 	@Override
 	public void putLong(String key, long value) {
-		super.put(key, new Long(value));
+		hashTable.put(key, value);
 	}
 
 	@Override
 	public long getLong(String key) {
-		return ((Long) super.get(key));
+		return (Long) hashTable.get(key);
 	}
 
 	@Override
 	public void putFloat(String key, float value) {
-		super.put(key, new Float(value));
+		hashTable.put(key, value);
 	}
 
 	@Override
 	public float getFloat(String key) {
-		return ((Float) super.get(key));
+		return (Float) hashTable.get(key);
 	}
 
 	@Override
 	public void putDouble(String key, double value) {
-		super.put(key, new Double(value));
+		hashTable.put(key, value);
 	}
 
 	@Override
 	public double getDouble(String key) {
-		return ((Double) super.get(key));
+		return (Double) hashTable.get(key);
 	}
 
 	@Override
 	public void putString(String key, String value) {
-		super.put(key, value);
+		hashTable.put(key, value);
 	}
 
 	@Override
 	public String getString(String key) {
-		return ((String) super.get(key));
+		return (String) hashTable.get(key);
 	}
 
 	@Override
 	public void put(String key, Object value) {
-		super.put(key, value);
+		hashTable.put(key, value);
 	}
 
 	@Override
 	public Object get(String key) {
-		return (super.get(key));
+		return hashTable.get(key);
 	}
-
-	// Implement Findable interface.
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	// Implements Configurable interface.
-
-	@Override
-	public void configure() throws FactoryException {
-	}
-
-	@Override
-	public boolean isConfigured() {
-		return true;
-	}
-
 }

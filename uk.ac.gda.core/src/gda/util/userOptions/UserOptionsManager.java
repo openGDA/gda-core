@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 import uk.ac.gda.api.remoting.ServiceInterface;
@@ -40,13 +41,12 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  */
 @SuppressWarnings("rawtypes")
 @ServiceInterface(UserOptionsService.class)
-public class UserOptionsManager implements UserOptionsService {
+public class UserOptionsManager extends ConfigurableBase implements UserOptionsService {
 
 	private static final Logger logger = LoggerFactory.getLogger(UserOptionsManager.class);
 
 	public static final String DEFAULT_OPTIONS_FILENAME = "GDAUserOptions";
 
-	private boolean isConfigured = false;
 	private String name;
 	private String templateConfigDir = null; // typically ${gda.config}/xml
 
@@ -89,7 +89,7 @@ public class UserOptionsManager implements UserOptionsService {
 			logger.warn(warning);
 		}
 		templateConfigName = templateName + "Template";
-		isConfigured = true;
+		setConfigured(true);
 	}
 
 	@Override
@@ -144,11 +144,6 @@ public class UserOptionsManager implements UserOptionsService {
 			isOk = template.exists();
 		}
 		return isOk;
-	}
-
-	@Override
-	public boolean isConfigured() {
-		return this.isConfigured;
 	}
 
 	@Override
@@ -221,10 +216,6 @@ public class UserOptionsManager implements UserOptionsService {
 		}
 		config.save();
 		return getOptionsMapFromConfig(configDir, configName);
-	}
-
-	public void setConfigured(boolean flag) {
-		isConfigured = flag;
 	}
 
 	@Override

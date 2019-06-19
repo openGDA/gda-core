@@ -20,8 +20,7 @@ package gda.scan;
 
 import java.util.List;
 
-import gda.factory.Configurable;
-import gda.factory.FindableBase;
+import gda.factory.FindableConfigurableBase;
 import gda.jython.IScanDataPointObserver;
 import gda.jython.IScanDataPointProvider;
 import gda.jython.InterfaceProvider;
@@ -30,9 +29,7 @@ import gda.jython.InterfaceProvider;
  * Base class for IScanDataPoint caches. Initialises at the start of each scan and then
  * adds each point in turn.
  */
-public abstract class DataPointCache extends FindableBase implements IScanDataPointObserver, Configurable {
-	private boolean configured;
-
+public abstract class DataPointCache extends FindableConfigurableBase implements IScanDataPointObserver {
 	/**
 	 * Extract a list of values for the given field name from the cached data.
 	 *
@@ -70,11 +67,6 @@ public abstract class DataPointCache extends FindableBase implements IScanDataPo
 	@Override
 	public void configure() {
 		InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(this);
-		configured = true;
-	}
-
-	@Override
-	public boolean isConfigured() {
-		return configured;
+		setConfigured(true);
 	}
 }

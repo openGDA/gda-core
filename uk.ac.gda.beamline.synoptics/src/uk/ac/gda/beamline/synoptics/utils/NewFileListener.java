@@ -47,7 +47,7 @@ import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.IMetadataEntry;
 import gda.data.metadata.Metadata;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.observable.IObservable;
@@ -57,7 +57,7 @@ import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.beamline.synoptics.events.DirectoryChangeEvent;
 import uk.ac.gda.beamline.synoptics.events.LatestFilenameEvent;
 
-public class NewFileListener implements DataDirectoryMonitor, IObserver, Configurable {
+public class NewFileListener extends ConfigurableBase implements DataDirectoryMonitor, IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(NewFileListener.class);
 
@@ -92,8 +92,6 @@ public class NewFileListener implements DataDirectoryMonitor, IObserver, Configu
 	private Set<Predicate<String>> ignoredFiles = new HashSet<>();
 
 	private String fileProviderName;
-
-	private boolean configured;
 
 	@Override
 	public List<Path> getDataFilesCollected() {
@@ -163,7 +161,7 @@ public class NewFileListener implements DataDirectoryMonitor, IObserver, Configu
 
 		// Listen for visit changes
 		GDAMetadataProvider.getInstance().addIObserver(this);
-		configured = true;
+		setConfigured(true);
 	}
 
 	/**
@@ -213,11 +211,6 @@ public class NewFileListener implements DataDirectoryMonitor, IObserver, Configu
 	@Override
 	public void deleteIObservers() {
 		obsComp.deleteIObservers();
-	}
-
-	@Override
-	public boolean isConfigured() {
-		return configured;
 	}
 
 	/** Get the file creation time of a file */

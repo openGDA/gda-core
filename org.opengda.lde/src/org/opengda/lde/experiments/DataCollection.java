@@ -34,9 +34,6 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.DummyScannable;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
@@ -51,7 +48,7 @@ import gda.scan.ScanEvent;
 import gda.scan.ScanEvent.EventType;
 import gda.scan.ScanInformation;
 
-public class DataCollection extends ScriptBase implements IObserver, InitializingBean, Findable, Configurable {
+public class DataCollection extends ScriptBase implements IObserver, InitializingBean {
 	private static final Logger logger = LoggerFactory.getLogger(DataCollection.class);
 	private Map<String, SampleStage> sampleStages = new HashMap<>();
 	private Map<String, Stage> stages=new HashMap<>();
@@ -66,8 +63,6 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 	private Scannable calibrantNameScannable;
 	private Scannable datareduction;
 	private Detector pixium;
-	private String name;
-	private boolean configured;
 	private int numActiveSamples;
 	private int currentSampleNumber;
 	private String currentSampleName="";
@@ -690,7 +685,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		Double x_step = sample.getSample_x_step();
 
 		if (x_start==Double.NaN || x_step==Double.NaN || x_stop==Double.NaN) {
-			message="Missing parameters: Sample '"+name+"' must have X motor positions being provided for start, stop, and step.";
+			message = "Missing parameters: Sample '" + getName() + "' must have X motor positions being provided for start, stop, and step.";
 			updateMessage(null, message);
 			// stop as scan will fail
 			throw new IllegalArgumentException(message);
@@ -741,7 +736,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 				((ScriptControllerBase)eventAdmin).update(eventAdmin, new DataFileEvent(sample.getSampleID(), false, InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getFilename()));
 			}
 		} catch (Exception e) {
-			message="Scan failed during sample '"+name+"' diffraction collection: "+e.getMessage();
+			message = "Scan failed during sample '" + getName() + "' diffraction collection: " + e.getMessage();
 			updateMessage(e, message);
 			status=STATUS.ERROR;
 		} finally {
@@ -881,27 +876,5 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		if (pixium==null) {
 			throw new IllegalStateException("Detector 'pixium' is missing.");
 		}
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name=name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void configure() throws FactoryException {
-		if (!configured) {
-			configured=true;
-		}
-	}
-
-	@Override
-	public boolean isConfigured() {
-		return configured;
 	}
 }

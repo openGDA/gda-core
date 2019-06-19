@@ -22,12 +22,13 @@ package gda.jython;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.factory.FindableConfigurableBase;
 import gda.jython.JythonServer.JythonServerThread;
 
 /**
  * This class supplies a namespace for volatile variables which scripts may want to refer to while running.
  */
-public abstract class ScriptBase {
+public abstract class ScriptBase extends FindableConfigurableBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScriptBase.class);
 
