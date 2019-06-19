@@ -24,24 +24,20 @@ import gda.device.detector.nxdetector.xmap.controller.XmapModes.CollectionModeEn
 import gda.device.detector.nxdetector.xmap.controller.XmapModes.PresetMode;
 
 public class DummyXmapAcquisitionBaseEpicsLayer implements XmapAcquisitionBaseEpicsLayer {
-
-
-	// This class defines the acquisition mode: step scan uses MCA SPECTRA while raster scan uses MCA_MAPPING
-	private CollectionMode collectionMode;
+	private XmapMappingModeEpicsLayer xmapMapping;
 	private String basePVName;
 	private boolean acquiring;
 
-
 	// Map <AcqControlPVname,PV<Boolean>> acqControlPV = new EnumMap<AcqControlPVname,PV<Boolean>>(AcqControlPVname.class);
 
-	public DummyXmapAcquisitionBaseEpicsLayer(String basePVname, CollectionMode collectMode) {
+	public DummyXmapAcquisitionBaseEpicsLayer(String basePVname, XmapMappingModeEpicsLayer xmapMapping) {
 		this.basePVName = basePVname;
-		this.collectionMode = collectMode;
+		this.xmapMapping = xmapMapping;
 		if (basePVName == null) {
 			throw new IllegalArgumentException("'basePVName' needs to be declared");
 		}
-		if (collectMode == null) {
-			throw new NullPointerException("Collection Mode needs to be declared");
+		if (xmapMapping == null) {
+			throw new NullPointerException("XMAP mapping needs to be declared");
 		}
 		createAcquisitionControlLazyPVs();
 		createAcquisitionConfigurationLazyPVs();
@@ -186,8 +182,8 @@ public class DummyXmapAcquisitionBaseEpicsLayer implements XmapAcquisitionBaseEp
 	}
 
 	@Override
-	public CollectionMode getCollectionMode() {
-		return collectionMode;
+	public XmapMappingModeEpicsLayer getXmapMapping() {
+		return xmapMapping;
 	}
 
 	// For now include the getData for Xmap subdetector here! Just used for experimental setup otherwise
@@ -204,7 +200,7 @@ public class DummyXmapAcquisitionBaseEpicsLayer implements XmapAcquisitionBaseEp
 
 	@Override
 	public boolean isXmapMappingModeInstance(String message) {
-		if (!(collectionMode instanceof DummyXmapMappingModeEpicsLayer))
+		if (!(xmapMapping instanceof DummyXmapMappingModeEpicsLayer))
 			throw new ClassCastException("For " + message + " CollectionMode object should be of type " + "XmapMappingModeEpicsLayer.");
 		else
 			return true;

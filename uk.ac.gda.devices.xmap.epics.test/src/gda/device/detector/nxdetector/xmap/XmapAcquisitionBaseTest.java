@@ -28,58 +28,39 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import gda.device.detector.nxdetector.xmap.controller.CollectionMode;
 import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer;
 import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayerImpl;
 import gda.device.detector.nxdetector.xmap.controller.XmapMappingModeEpicsLayer;
 import gda.device.detector.nxdetector.xmap.controller.XmapMappingModeEpicsLayerImpl;
 
-/**
- *
- */
-
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({XmapAcquisitionBaseEpicsLayer.class})
-
 public class XmapAcquisitionBaseTest {
-
-	/**
-	 */
 	private String basePVname;
-	private XmapAcquisitionBaseEpicsLayer xmapAcquisitionEpicsLayer;
-	private XmapMappingModeEpicsLayer mappingMode;
-	private CollectionMode mcaMode;
+	private XmapMappingModeEpicsLayer xmapAcquisitionEpicsLayer;
 	private XmapAcquisitionBaseEpicsLayer xmapAcquisitionEpicsLayerwithMapping;
 
 	@Before
 	public void setUp() {
 		basePVname = "basePV:";
-		CollectionMode mcaMode = PowerMockito.mock(CollectionMode.class);
-		mappingMode = PowerMockito.mock(XmapMappingModeEpicsLayerImpl.class);
-		xmapAcquisitionEpicsLayer = new XmapAcquisitionBaseEpicsLayerImpl(basePVname, mcaMode);
-		xmapAcquisitionEpicsLayerwithMapping = new XmapAcquisitionBaseEpicsLayerImpl(basePVname, (CollectionMode) mappingMode);
+		xmapAcquisitionEpicsLayer = PowerMockito.mock(XmapMappingModeEpicsLayerImpl.class);
+		xmapAcquisitionEpicsLayerwithMapping = new XmapAcquisitionBaseEpicsLayerImpl(basePVname, xmapAcquisitionEpicsLayer);
 
 	}
 
 	@Test
 	public void testFullPVname() {
-		assertEquals("Check fullPVname", "basePV:Suffix", xmapAcquisitionEpicsLayer.fullPVname("Suffix"));
+		assertEquals("Check fullPVname", "basePV:Suffix", xmapAcquisitionEpicsLayerwithMapping.fullPVname("Suffix"));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testBasePVnameInConstructorExceptionIsThrown() {
-		XmapAcquisitionBaseEpicsLayer xmapAcquisitionEpicsLayerException = new XmapAcquisitionBaseEpicsLayerImpl(null, mcaMode);
+		new XmapAcquisitionBaseEpicsLayerImpl(null, xmapAcquisitionEpicsLayer);
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void testCollectionModeInConstructorExceptionIsThrown() {
-		XmapAcquisitionBaseEpicsLayer xmapAcquisitionEpicsLayerException = new XmapAcquisitionBaseEpicsLayerImpl(basePVname, null);
-	}
-
-
-	@Test(expected = ClassCastException.class)
-	public void testIsXmapMappingModeInstanceExceptionIsThrown() {
-		xmapAcquisitionEpicsLayer.isXmapMappingModeInstance("Test");
+		new XmapAcquisitionBaseEpicsLayerImpl(basePVname, null);
 	}
 
 	@Test

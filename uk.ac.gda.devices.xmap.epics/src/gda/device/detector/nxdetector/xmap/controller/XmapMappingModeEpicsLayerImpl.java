@@ -21,7 +21,7 @@ import gda.factory.FactoryException;
  * @author dfq16044
  *
  */
-public class XmapMappingModeEpicsLayerImpl extends CollectionMode implements XmapMappingModeEpicsLayer, Configurable {
+public class XmapMappingModeEpicsLayerImpl implements XmapMappingModeEpicsLayer, Configurable {
 
 	private static final Logger logger = LoggerFactory.getLogger(XmapMappingModeEpicsLayerImpl.class);
 

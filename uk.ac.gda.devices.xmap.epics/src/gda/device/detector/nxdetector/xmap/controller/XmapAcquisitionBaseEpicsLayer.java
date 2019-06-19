@@ -18,10 +18,10 @@
 
 package gda.device.detector.nxdetector.xmap.controller;
 
+import java.io.IOException;
+
 import gda.device.detector.nxdetector.xmap.controller.XmapModes.CollectionModeEnum;
 import gda.device.detector.nxdetector.xmap.controller.XmapModes.PresetMode;
-
-import java.io.IOException;
 
 public interface XmapAcquisitionBaseEpicsLayer {
 
@@ -74,7 +74,7 @@ public interface XmapAcquisitionBaseEpicsLayer {
 
 	double getAquisitionTime() throws Exception;
 
-	CollectionMode getCollectionMode();
+	XmapMappingModeEpicsLayer getXmapMapping();
 
 	boolean isXmapMappingModeInstance(String message);
 

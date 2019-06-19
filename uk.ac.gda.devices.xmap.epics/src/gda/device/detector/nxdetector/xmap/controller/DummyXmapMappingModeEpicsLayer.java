@@ -18,13 +18,13 @@
 
 package gda.device.detector.nxdetector.xmap.controller;
 
+import java.io.IOException;
+
 import gda.device.detector.nxdetector.xmap.controller.XmapModes.CollectionModeEnum;
 import gda.device.detector.nxdetector.xmap.controller.XmapModes.ListMode;
 import gda.device.detector.nxdetector.xmap.controller.XmapModes.PixelAdvanceMode;
 
-import java.io.IOException;
-
-public class DummyXmapMappingModeEpicsLayer extends CollectionMode implements XmapMappingModeEpicsLayer {
+public class DummyXmapMappingModeEpicsLayer implements XmapMappingModeEpicsLayer {
 
 	private String basePVName;
 	CollectionModeEnum collectMode;

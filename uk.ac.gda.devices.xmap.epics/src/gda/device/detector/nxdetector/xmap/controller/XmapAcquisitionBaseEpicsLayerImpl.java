@@ -17,8 +17,7 @@ import gda.epics.ReadOnlyPV;
  */
 public class XmapAcquisitionBaseEpicsLayerImpl implements XmapAcquisitionBaseEpicsLayer {
 
-	// This class defines the acquisition mode: step scan uses MCA SPECTRA while raster scan uses MCA_MAPPING
-	private CollectionMode collectionMode;
+	private XmapMappingModeEpicsLayer xmapMapping;
 
 	 // PV names corresponding to the EPICs Acquisition Control panel
 
@@ -64,13 +63,13 @@ public class XmapAcquisitionBaseEpicsLayerImpl implements XmapAcquisitionBaseEpi
 	private PV<Double> presetValuePV;
 	private ReadOnlyPV<Integer[]> latestMCA; // [channel]
 
-	public XmapAcquisitionBaseEpicsLayerImpl(String basePVname,CollectionMode collectMode) {
+	public XmapAcquisitionBaseEpicsLayerImpl(String basePVname, XmapMappingModeEpicsLayer xmapMapping) {
 		this.basePVName= basePVname;
-		this.collectionMode = collectMode;
+		this.xmapMapping = xmapMapping;
 		if (basePVName == null) {
 			throw new IllegalArgumentException("'basePVName' needs to be declared");
 		}
-		if (collectMode == null) {
+		if (xmapMapping == null) {
 			throw new NullPointerException("Collection Mode needs to be declared");
 		}
 		createAcquisitionControlLazyPVs();
@@ -240,16 +239,13 @@ public class XmapAcquisitionBaseEpicsLayerImpl implements XmapAcquisitionBaseEpi
 	}
 
 	@Override
-	public CollectionMode getCollectionMode(){
-		return collectionMode;
+	public XmapMappingModeEpicsLayer getXmapMapping(){
+		return xmapMapping;
 	}
 
 	@Override
 	public boolean isXmapMappingModeInstance(String message){
-		if (!(collectionMode instanceof XmapMappingModeEpicsLayer))
-			throw new ClassCastException("For "+ message + " CollectionMode object should be of type "
-					+ "XmapMappingModeEpicsLayer.");
-		else return true;
+		return true;
 	}
 
 	@Override

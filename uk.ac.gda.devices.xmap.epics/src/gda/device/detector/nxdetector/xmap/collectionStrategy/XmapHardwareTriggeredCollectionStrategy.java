@@ -18,20 +18,19 @@
 
 package gda.device.detector.nxdetector.xmap.collectionStrategy;
 
-import gda.device.DeviceException;
-import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
-import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer;
-import gda.device.detector.nxdetector.xmap.controller.XmapMappingModeEpicsLayer;
-import gda.device.detector.nxdetector.xmap.controller.XmapModes.CollectionModeEnum;
-import gda.device.detector.nxdetector.xmap.controller.XmapModes.PixelAdvanceMode;
-import gda.device.detector.nxdetector.xmap.controller.XmapModes.PresetMode;
-import gda.scan.ScanInformation;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
+
+import gda.device.DeviceException;
+import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
+import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer;
+import gda.device.detector.nxdetector.xmap.controller.XmapModes.CollectionModeEnum;
+import gda.device.detector.nxdetector.xmap.controller.XmapModes.PixelAdvanceMode;
+import gda.device.detector.nxdetector.xmap.controller.XmapModes.PresetMode;
+import gda.scan.ScanInformation;
 
 /**
  * Drive the XIA Xmap card using hardware triggers in Constant Velocity scans.
@@ -52,10 +51,10 @@ public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 		getXmap().setCollectMode(CollectionModeEnum.MCA_MAPPING);
 		getXmap().setPresetMode(PresetMode.NO_PRESET);
 		if (getXmap().isXmapMappingModeInstance("prepareForCollection in Hardware triggered Collection Strategy")){
-			((XmapMappingModeEpicsLayer)getXmap().getCollectionMode()).setPixelAdvanceMode(PixelAdvanceMode.Gate);
-			((XmapMappingModeEpicsLayer)getXmap().getCollectionMode()).setIgnoreGate(false);
-			((XmapMappingModeEpicsLayer)getXmap().getCollectionMode()).setPixelsPerRun(numImages);
-			((XmapMappingModeEpicsLayer)getXmap().getCollectionMode()).setAutoPixelsPerBuffer(false);
+			getXmap().getXmapMapping().setPixelAdvanceMode(PixelAdvanceMode.Gate);
+			getXmap().getXmapMapping().setIgnoreGate(false);
+			getXmap().getXmapMapping().setPixelsPerRun(numImages);
+			getXmap().getXmapMapping().setAutoPixelsPerBuffer(false);
 		}
 	}
 
@@ -72,7 +71,7 @@ public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 
 	@Override
 	public List<String> getInputStreamNames() {
-		List<String> fieldNames = new ArrayList<String>();
+		List<String> fieldNames = new ArrayList<>();
 
 			fieldNames.add("count_time");
 
@@ -83,7 +82,7 @@ public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 
 	@Override
 	public List<String> getInputStreamFormats() {
-		List<String> formats = new ArrayList<String>();
+		List<String> formats = new ArrayList<>();
 
 			formats.add("%.2f");
 
@@ -100,7 +99,7 @@ public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 			output.add(new NXDetectorDataNullAppender()) ;
 		//}
 		return output;*/
-		List<Double> times = new ArrayList<Double>();
+		List<Double> times = new ArrayList<>();
 
 		try {
 				times.add(0.0);
@@ -108,7 +107,7 @@ public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 				throw new DeviceException(e);
 		}
 
-		Vector<NXDetectorDataAppender> vector = new Vector<NXDetectorDataAppender>();
+		Vector<NXDetectorDataAppender> vector = new Vector<>();
 		vector.add(new NXDetectorDataDoubleAppender(getInputStreamNames(), times));
 		return vector;
 	}

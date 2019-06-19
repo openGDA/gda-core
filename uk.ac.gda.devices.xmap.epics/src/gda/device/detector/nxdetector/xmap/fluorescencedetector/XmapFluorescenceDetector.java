@@ -95,7 +95,7 @@ public class XmapFluorescenceDetector implements FluorescenceDetector, Initializ
 			MCAdata = new double[numberOfElements][xmapCollectionStrategy.getXmap().getNbins()];
 			// follow this logic due to a bug in EPICs
 			xmapCollectionStrategy.getXmap().setCollectMode(CollectionModeEnum.MCA_MAPPING);
-			XmapMappingModeEpicsLayer mappingXmap = (XmapMappingModeEpicsLayer) (xmapCollectionStrategy.getXmap().getCollectionMode());
+			XmapMappingModeEpicsLayer mappingXmap = xmapCollectionStrategy.getXmap().getXmapMapping();
 			mappingXmap.setIgnoreGate(true);
 			xmapCollectionStrategy.getXmap().setCollectMode(CollectionModeEnum.MCA_SPECTRA);
 			xmapCollectionStrategy.getXmap().setPresetMode(PresetMode.REAL_TIME);
