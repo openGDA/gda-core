@@ -19,10 +19,11 @@
 
 package gda.jython.scriptcontroller;
 
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.jython.ICommandRunner;
 import gda.jython.InterfaceProvider;
+import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
@@ -31,29 +32,22 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * that this class should not need to be sub-classed.
  */
 @ServiceInterface(Scriptcontroller.class)
-public class ScriptControllerBase extends ObservableComponent implements Scriptcontroller, Configurable {
+public class ScriptControllerBase extends ConfigurableBase implements Scriptcontroller {
 
-	String name;
+	private String name;
 
-	String commandName;
+	private String commandName;
 
-	String parametersName;
+	private String parametersName;
 
-	String importCommand;
+	private String importCommand;
 
-	ICommandRunner server;
-
-	private boolean configured = false;
+	private final ObservableComponent observable = new ObservableComponent();
 
 	@Override
 	public void configure() throws FactoryException {
 		doImport();
-		configured = true;
-	}
-
-	@Override
-	public boolean isConfigured() {
-		return configured;
+		setConfigured(true);
 	}
 
 	@Override
@@ -62,10 +56,9 @@ public class ScriptControllerBase extends ObservableComponent implements Scriptc
 	}
 
 	private void doImport() {
-		server = InterfaceProvider.getCommandRunner();
-
 		// load the script into the namespace
 		if (importCommand != null && !importCommand.equals("")) {
+			final ICommandRunner server = InterfaceProvider.getCommandRunner();
 			server.runCommand(importCommand);
 		}
 	}
@@ -100,15 +93,10 @@ public class ScriptControllerBase extends ObservableComponent implements Scriptc
 		this.name = name;
 	}
 
-	/**
-	 * Updates observers by distributing arg to them.
-	 *
-	 * @param o
-	 * @param arg
-	 */
+	@Override
 	public void update(@SuppressWarnings("unused") Object o, Object arg) {
 		// suppress tag as this method used in Jython scripts
-		notifyIObservers(this, arg);
+		observable.notifyIObservers(this, arg);
 	}
 
 	@Override
@@ -121,4 +109,23 @@ public class ScriptControllerBase extends ObservableComponent implements Scriptc
 		this.importCommand = command;
 	}
 
+	@Override
+	public void addIObserver(IObserver observer) {
+		observable.addIObserver(observer);
+	}
+
+	@Override
+	public void deleteIObserver(IObserver observer) {
+		observable.deleteIObserver(observer);
+	}
+
+	@Override
+	public void deleteIObservers() {
+		observable.deleteIObservers();
+	}
+
+	@Override
+	public void notifyIObservers(Object source, Object event) {
+		observable.notifyIObservers(source, event);
+	}
 }

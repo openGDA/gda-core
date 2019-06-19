@@ -42,30 +42,30 @@ import gda.observable.IObservable;
  * is loaded into the Jython namespace
  */
 public interface Scriptcontroller extends IObservable, Findable, Reconfigurable {
-	
+
 	public static final String SCRIPT_RUNNER_START_MARKER = "ScriptRunner started";
 	public static final String SCRIPT_RUNNER_RUNNING_MARKER = "ScriptRunner running";
 	public static final String SCRIPT_RUNNER_END_MARKER = "ScriptRunner ended";
 	public static final String SCRIPT_RUNNER_ERROR_MARKER = "ScriptRunner error";
-	
+
 	/**
 	 * Returns the command that would be run by the runScript command. This should be a function in a Jython file placed
 	 * in one of the directories defined by the command server's script_paths bean.
-	 * 
+	 *
 	 * @return a Jython command which starts the script this object represents
 	 */
 	public String getCommand();
 
 	/**
 	 * Sets the command which would be run by the runScript command.
-	 * 
+	 *
 	 * @param scriptName
 	 */
 	public void setCommand(String scriptName);
 
 	/**
 	 * Returns the name of the object which is used to pass parameters to the script.
-	 * 
+	 *
 	 * @return the name of an object in the Jython namespace
 	 */
 	public String getParametersName();
@@ -75,22 +75,42 @@ public interface Scriptcontroller extends IObservable, Findable, Reconfigurable 
 	 * parameters to the script.
 	 * <p>
 	 * This object must be serializable.
-	 * 
+	 *
 	 * @param parametersName
 	 */
 	public void setParametersName(String parametersName);
 
 	/**
 	 * Returns the command which should be run to load the script into the Jython namespace.
-	 * 
+	 *
 	 * @return the command to load the script
 	 */
 	public String getImportCommand();
 
 	/**
 	 * Sets the import command.
-	 * 
+	 *
 	 * @param command
 	 */
 	public void setImportCommand(String command);
+
+	/**
+	 * Notify all observers on the list of the requested change
+	 *
+	 * @param source
+	 *            the observed component
+	 * @param event
+	 *            the data to be sent to the observer.
+	 */
+	void notifyIObservers(Object source, Object event);
+
+	/**
+	 * Updates observers by distributing arg to them.
+	 *
+	 * @param o
+	 *            the observed component
+	 * @param arg
+	 *            the data to be sent to the observer.
+	 */
+	void update(Object o, Object arg);
 }
