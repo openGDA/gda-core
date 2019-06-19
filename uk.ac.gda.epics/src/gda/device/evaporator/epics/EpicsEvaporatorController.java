@@ -34,9 +34,8 @@ import gda.device.evaporator.EvaporatorController;
 import gda.device.evaporator.EvaporatorPocket;
 import gda.device.scannable.MultiPVScannable;
 import gda.epics.connection.EpicsController;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
+import gda.factory.FindableConfigurableBase;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -58,7 +57,7 @@ import gov.aps.jca.TimeoutException;
  * }
  * </pre>
  */
-public class EpicsEvaporatorController implements EvaporatorController, Configurable, Findable {
+public class EpicsEvaporatorController extends FindableConfigurableBase implements EvaporatorController {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsEvaporatorController.class);
 
@@ -74,9 +73,7 @@ public class EpicsEvaporatorController implements EvaporatorController, Configur
 	private Channel clearError;
 
 	private int numberOfPockets;
-	private boolean configured;
 	private String pvBase;
-	private String name;
 
 	@Override
 	public void setEnabled(boolean enable) throws DeviceException {
@@ -166,6 +163,8 @@ public class EpicsEvaporatorController implements EvaporatorController, Configur
 	@Override
 	public void configure() throws FactoryException {
 		requireNonNull(pvBase, "pvBase must be set");
+		final String name = getName();
+
 		enabled = new EpicsSimpleBinary();
 		enabled.setName(name + "_enabled");
 		enabled.setPvName(pvBase + ":DISABLE");
@@ -207,21 +206,6 @@ public class EpicsEvaporatorController implements EvaporatorController, Configur
 			logger.error("Could not create CLEAR_ERROR chanel", e);
 			throw new FactoryException("Could not create error channel", e);
 		}
-	}
-
-	@Override
-	public boolean isConfigured() {
-		return configured;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	@Override
