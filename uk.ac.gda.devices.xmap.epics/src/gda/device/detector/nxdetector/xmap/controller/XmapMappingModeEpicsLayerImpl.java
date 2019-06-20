@@ -1,6 +1,3 @@
-/**
- *
- */
 package gda.device.detector.nxdetector.xmap.controller;
 
 import java.io.IOException;
@@ -14,14 +11,14 @@ import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.PVWithSeparateReadback;
 import gda.epics.ReadOnlyPV;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 
 /**
  * @author dfq16044
  *
  */
-public class XmapMappingModeEpicsLayerImpl implements XmapMappingModeEpicsLayer, Configurable {
+public class XmapMappingModeEpicsLayerImpl extends ConfigurableBase implements XmapMappingModeEpicsLayer {
 
 	private static final Logger logger = LoggerFactory.getLogger(XmapMappingModeEpicsLayerImpl.class);
 
@@ -62,7 +59,6 @@ public class XmapMappingModeEpicsLayerImpl implements XmapMappingModeEpicsLayer,
 	private ReadOnlyPV<Integer> CurrentPixelPV;
 
 	private String basePVName;
-	private boolean configured = false;
 
 	/**
 	 * Initial setting of pixels per buffer<br>
@@ -93,12 +89,7 @@ public class XmapMappingModeEpicsLayerImpl implements XmapMappingModeEpicsLayer,
 			logger.error(message, e);
 			throw new FactoryException(message, e);
 		}
-		configured = true;
-	}
-
-	@Override
-	public boolean isConfigured() {
-		return configured;
+		setConfigured(true);
 	}
 
 	@Override
