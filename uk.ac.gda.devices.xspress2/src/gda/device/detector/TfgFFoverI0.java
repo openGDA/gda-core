@@ -39,6 +39,7 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 	private TfgScaler ct = null;
 	private String ctName;
 	private int i0_channel = 0;
+	private String outputName = "FFI0";
 
 	public TfgFFoverI0() {
 	}
@@ -53,12 +54,12 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 			if ((ct = (TfgScaler) Finder.getInstance().find(ctName)) == null)
 				logger.error("Scaler " + ctName + " not found");
 		}
-
-		this.setExtraNames(new String[] { "FFI0" });
+		this.setExtraNames(new String[] { outputName });
 		this.setInputNames(new String[0]);
 		if (outputFormat == null || outputFormat.length != 1)
 			this.setOutputFormat(new String[] { "%.9f" });
 	}
+
 
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
@@ -69,8 +70,8 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 		double ffio = ff / i0;
 		if (i0 == 0.0 || ff == 0.0 || i0.isInfinite() || i0.isNaN() || ff.isInfinite() || ff.isNaN())
 			ffio = 0.0;
-		NXDetectorData.addData(detTree, "FFI0", new NexusGroupData(ffio), "counts", 1);
-		thisFrame.setPlottableValue("FFI0", ffio);
+		NXDetectorData.addData(detTree, outputName, new NexusGroupData(ffio), "counts", 1);
+		thisFrame.setPlottableValue(outputName, ffio);
 		return thisFrame;
 	}
 
@@ -92,6 +93,17 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 		// assume that this is a TFv2 behind where the first column is always the live time, so the next channel will be
 		// the I0
 		Object out = ct.readout();
+		double[] data = (double[]) out;
+
+		// Determine data channel dynamically - assume data is first one not called 'time'
+		if (i0_channel == -1) {
+			String[] extraNames = ct.getExtraNames();
+			for(int i=0; i<extraNames.length; i++) {
+				if (!extraNames[i].equalsIgnoreCase("time")) {
+					return data[i];
+				}
+			}
+		}
 		return ((double[]) out)[i0_channel];
 	}
 
@@ -163,5 +175,13 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 
 	public int getI0_channel() {
 		return i0_channel;
+	}
+
+	public String getOutputName() {
+		return outputName;
+	}
+
+	public void setOutputName(String outputName) {
+		this.outputName = outputName;
 	}
 }
