@@ -254,7 +254,11 @@ public class SegmentEditor implements ElementEditor {
 	}
 	
 	private void populateSevCombo() {
-		sevCombo.setItems(sevs.toArray(new String[0]));
+		if (sevs != null) { 
+			// FIXME sevs is populated from MetadataAndExperimentDriverPage::getNextPage
+			// and we don't hit that method when loading a plan
+			sevCombo.setItems(sevs.toArray(new String[0]));
+		}
 	}
 
 	public void setSevNames(Set<String> sevs) {

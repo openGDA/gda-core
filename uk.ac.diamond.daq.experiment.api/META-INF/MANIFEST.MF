@@ -4,6 +4,8 @@ Bundle-Name: Experiment API
 Bundle-SymbolicName: uk.ac.diamond.daq.experiment.api;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Activator: uk.ac.diamond.daq.experiment.api.Activator
+Bundle-ActivationPolicy: lazy
 Export-Package: uk.ac.diamond.daq.experiment.api,
  uk.ac.diamond.daq.experiment.api.driver,
  uk.ac.diamond.daq.experiment.api.plan,
@@ -13,6 +15,9 @@ Export-Package: uk.ac.diamond.daq.experiment.api,
 Require-Bundle: uk.ac.gda.api,
  org.eclipse.scanning.api,
  org.eclipse.dawnsci.analysis.api,
- org.eclipse.dawnsci.analysis.dataset
+ org.eclipse.dawnsci.analysis.dataset,
+ org.eclipse.core.runtime;bundle-version="3.7.0",
+ org.apache.commons.io
 Bundle-Vendor: Diamond Light Source
+Service-Component: OSGI-INF/*.xml
 Automatic-Module-Name: uk.ac.diamond.daq.experiment.api

@@ -62,7 +62,6 @@ public class ProfileManagerPage extends WizardPage {
 		this.experimentId = experimentId;
 		setTitle("Manage and load driver profiles");
 		setDescription("A selected profile can be edited in the next page");
-		profilesViewer = new ListWithCustomEditor();
 	}
 	
 	@Override
@@ -78,6 +77,7 @@ public class ProfileManagerPage extends WizardPage {
 		
 		profilesViewer = new ListWithCustomEditor();
 		profilesViewer.setListHeight(300);
+		profilesViewer.setTemplate(new SingleAxisLinearSeries().createDefault());
 		profilesViewer.create(profileListComposite);
 		profilesViewer.setElementEditor(new PretendElementEditor());
 		profilesViewer.addDeleteHook(this::deleteProfile);
@@ -167,6 +167,7 @@ public class ProfileManagerPage extends WizardPage {
 	}
 
 	public void setDriverName(String driverName) {
+		this.driverName = driverName;
 		profilesViewer.setList(getProfilesForDriver(driverName));
 		profilesViewer.refresh();
 		initiateColourState();
