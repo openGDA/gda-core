@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.nexus.IMultipleNexusDevice;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXdata;
@@ -48,6 +49,8 @@ import org.eclipse.dawnsci.nexus.builder.data.DataDeviceBuilder;
 import org.eclipse.dawnsci.nexus.builder.data.NexusDataBuilder;
 import org.eclipse.dawnsci.nexus.builder.data.PrimaryDataDevice;
 import org.eclipse.dawnsci.nexus.builder.impl.MapBasedMetadataProvider;
+import org.eclipse.dawnsci.nexus.template.NexusTemplate;
+import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
@@ -166,6 +169,7 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 		fileBuilder = ServiceHolder.getFactory().newNexusFileBuilder(model.getFilePath());
 		try {
 			createEntry(fileBuilder);
+			applyTemplates(fileBuilder.getNexusTree());
 			// create the file from the builder and open it
 			nexusScanFile = fileBuilder.createFile(async);
 			nexusScanFile.openToWrite();
@@ -205,6 +209,14 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 			throw new ScanningException("Could not close nexus file", e);
 		} finally {
 			scanDevice.removePositionListener(this);
+		}
+	}
+
+	private void applyTemplates(Tree tree) throws NexusException {
+		NexusTemplateService templateService = ServiceHolder.getTemplateService();
+		for (String templateFilePath : model.getTemplateFilePath()) {
+			final NexusTemplate template = templateService.loadTemplate(templateFilePath);
+			template.apply(tree);
 		}
 	}
 

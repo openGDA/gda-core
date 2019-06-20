@@ -21,6 +21,7 @@ import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NXpositioner;
+import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NXslit;
 import org.eclipse.dawnsci.nexus.NXtransformations;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
@@ -220,7 +221,8 @@ public class CompositeNexusScannableTest extends NexusTest {
 		((MockScannableConnector) connector).register(primarySlit);
 
 		// Act: run the scan
-		NXentry entry = createAndRunScan(primarySlit);
+		NXroot root = createAndRunScan(primarySlit);
+		NXentry entry = root.getEntry();
 
 		// Assert: check the nexus file
 		assertEquals(7, entry.getNumberOfGroupNodes());
@@ -294,7 +296,8 @@ public class CompositeNexusScannableTest extends NexusTest {
 		composite.setChildNodes(childNodes);
 		((MockScannableConnector) connector).register(composite);
 
-		NXentry entry = createAndRunScan(composite);
+		NXroot root = createAndRunScan(composite);
+		NXentry entry = root.getEntry();
 		assertEquals(8, entry.getNumberOfGroupNodes()); // NXinstrument, NXdata groups, etc
 		NXinstrument instrument = entry.getInstrument();
 		assertEquals(3, instrument.getNumberOfGroupNodes()); // mandelbrot, xNex, yNex
@@ -323,7 +326,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 		}
 	}
 
-	private NXentry createAndRunScan(CompositeNexusScannable<?> compositeScannable) throws Exception {
+	private NXroot createAndRunScan(CompositeNexusScannable<?> compositeScannable) throws Exception {
 		IRunnableDevice<ScanModel> scanner = createGridScan(compositeScannable);
 		assertScanNotFinished(getNexusRoot(scanner).getEntry());
 		scanner.run(null);

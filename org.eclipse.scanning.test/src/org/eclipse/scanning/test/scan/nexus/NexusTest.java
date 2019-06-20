@@ -145,7 +145,7 @@ public abstract class NexusTest {
 		}
 	}
 
-	protected NXentry checkNexusFile(IRunnableDevice<ScanModel> scanner, boolean snake, int... sizes) throws Exception {
+	protected NXroot checkNexusFile(IRunnableDevice<ScanModel> scanner, boolean snake, int... sizes) throws Exception {
 		return checkNexusFile(scanner, snake, false, sizes);
 	}
 
@@ -154,7 +154,7 @@ public abstract class NexusTest {
      * dimensions are flattened into one. In this case the sizes array passed in should be
      * the expected dataset size.
 	 */
-	protected NXentry checkNexusFile(IRunnableDevice<ScanModel> scanner, boolean snake,
+	protected NXroot checkNexusFile(IRunnableDevice<ScanModel> scanner, boolean snake,
 			boolean foldedGrid, int[] sizes) throws Exception {
 		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
 		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
@@ -268,7 +268,7 @@ public abstract class NexusTest {
 			}
 		}
 
-		return entry;
+		return rootNode;
 	}
 
 	protected IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<?> detector, File file, boolean snake, int... size) throws Exception {

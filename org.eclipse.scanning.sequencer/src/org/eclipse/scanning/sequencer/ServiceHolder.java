@@ -16,6 +16,7 @@ import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.analysis.api.persistence.IPersistenceService;
 import org.eclipse.dawnsci.analysis.api.processing.IOperationService;
 import org.eclipse.dawnsci.nexus.builder.NexusBuilderFactory;
+import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.IEventService;
@@ -97,6 +98,16 @@ public class ServiceHolder {
 
 	public void setFilePathService(IFilePathService filePathService) {
 		ServiceHolder.filePathService = filePathService;
+	}
+
+	private static NexusTemplateService templateService;
+
+	public static NexusTemplateService getTemplateService() {
+		return templateService;
+	}
+
+	public void setTemplateService(NexusTemplateService templateService) {
+		ServiceHolder.templateService = templateService;
 	}
 
 	private static IRunnableDeviceService runnableDeviceService;

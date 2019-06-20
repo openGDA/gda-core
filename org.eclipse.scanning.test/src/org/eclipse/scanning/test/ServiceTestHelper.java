@@ -27,6 +27,8 @@ import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.json.MarshallerService;
 import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
+import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
+import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
 import org.eclipse.dawnsci.remotedataset.test.mock.LoaderServiceMock;
 import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
@@ -110,6 +112,7 @@ public final class ServiceTestHelper {
 	private static IDeviceWatchdogService watchdogService;
 	private static INexusFileFactory nexusFileFactory;
 	private static IFilePathService filePathService;
+	private static NexusTemplateService templateService;
 	private static IParserService parserService;
 	private static IOperationService operationService;
 
@@ -141,6 +144,7 @@ public final class ServiceTestHelper {
 		loaderService = new LoaderServiceMock();
 		watchdogService = new DeviceWatchdogService();
 		nexusFileFactory = new NexusFileFactoryHDF5();
+		templateService = new NexusTemplateServiceImpl();
 		parserService = createParserService();
 		operationService = new MockOperationService();
 
@@ -205,6 +209,7 @@ public final class ServiceTestHelper {
 		serviceHolder.setOperationService(operationService);
 		serviceHolder.setParserService(parserService);
 		serviceHolder.setRunnableDeviceService(runnableDeviceServiceImpl);
+		serviceHolder.setTemplateService(templateService);
 		serviceHolder.setWatchdogService(watchdogService);
 	}
 

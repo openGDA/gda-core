@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IRunnableDevice;
@@ -98,6 +99,12 @@ public class ScanModel {
 	 */
 	private List<?> annotationParticipants;
 
+	/**
+	 * A set of template file to apply to the scan output.
+	 * TODO: this adds a nexus concept to the ScanModel, which is a bit nasty? Can/should we avoid this?
+	 */
+	private Set<String> templateFilePaths;
+
 	private ScanInformation scanInformation = null;
 
 	public ScanModel() {
@@ -123,6 +130,8 @@ public class ScanModel {
 				+ ((detectors == null) ? 0 : detectors.hashCode());
 		result = prime * result
 				+ ((filePath == null) ? 0 : filePath.hashCode());
+		result = prime * result
+				+ ((templateFilePaths == null) ? 0 : templateFilePaths.hashCode());
 		result = prime * result
 				+ ((monitorsPerPoint == null) ? 0 : monitorsPerPoint.hashCode());
 		result = prime * result
@@ -159,6 +168,11 @@ public class ScanModel {
 				return false;
 		} else if (!filePath.equals(other.filePath))
 			return false;
+		if (templateFilePaths == null) {
+			if (other.templateFilePaths != null)
+				return false;
+		} else if (!templateFilePaths.equals(other.templateFilePaths))
+			return false;
 		if (monitorsPerPoint == null) {
 			if (other.monitorsPerPoint != null)
 				return false;
@@ -181,13 +195,14 @@ public class ScanModel {
 			return false;
 		return true;
 	}
+
 	public ScanBean getBean() {
 		return bean;
 	}
+
 	public void setBean(ScanBean bean) {
 		this.bean = bean;
 	}
-
 
 	public IPointGenerator<?> getPointGenerator() {
 		return pointGenerator;
@@ -268,6 +283,17 @@ public class ScanModel {
 		this.filePath = filePath;
 	}
 
+	public Set<String> getTemplateFilePath() {
+		if (templateFilePaths == null) {
+			return Collections.emptySet();
+		}
+		return templateFilePaths;
+	}
+
+	public void setTemplateFilePath(Set<String> templateFilePath) {
+		this.templateFilePaths = templateFilePath;
+	}
+
 	public List<ScanMetadata> getScanMetadata() {
 		if (scanMetadata == null) {
 			return Collections.emptyList();
@@ -308,9 +334,11 @@ public class ScanModel {
 	@Override
 	public String toString() {
 		return "ScanModel [filePath=" + filePath + ", pointGenerator=" + pointGenerator + ", detectors=" + detectors
-				+ ", bean=" + bean + ", scannables=" + scannables + ", monitorsPerPoint=" + monitorsPerPoint
-				+ ", monitorsPerScan=" + monitorsPerScan + ", scanMetadata=" + scanMetadata +
-				", annotationParticipants=" + annotationParticipants + ", scanInformation=" + scanInformation + "]";
+				+ ", scannables=" + scannables + ", monitorsPerPoint=" + monitorsPerPoint
+				+ ", monitorsPerScan=" + monitorsPerScan + ", scanMetadata=" + scanMetadata
+				+ ", annotationParticipants=" + annotationParticipants + ", templateFilePaths=" + templateFilePaths
+				+ ", scanInformation=" + scanInformation
+				+ ", bean=" + bean + "]";
 	}
 
 }
