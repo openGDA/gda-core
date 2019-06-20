@@ -26,7 +26,7 @@ public interface IBeanClassListener<T> extends EventListener {
 	 *
 	 * @return
 	 */
-	default Class<T> getBeanClass() {
-		return null;
+	default Class<?> getBeanClass() {
+		return Object.class;
 	}
 }
