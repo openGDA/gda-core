@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
@@ -80,6 +81,8 @@ public class ScanRequest<T> implements Serializable {
 	 * Part or all of the file path to be used for this scan.
 	 */
 	private String filePath;
+
+	private Set<String> templateFilePaths;
 
 	/**
 	 * The start position or null if there is no start position to move to.
@@ -178,6 +181,14 @@ public class ScanRequest<T> implements Serializable {
 
 	public void setFilePath(String filePath) {
 		this.filePath = filePath;
+	}
+
+	public Set<String> getTemplateFilePaths() {
+		return templateFilePaths;
+	}
+
+	public void setTemplateFilePaths(Set<String> templateFilePaths) {
+		this.templateFilePaths = templateFilePaths;
 	}
 
 	@Override

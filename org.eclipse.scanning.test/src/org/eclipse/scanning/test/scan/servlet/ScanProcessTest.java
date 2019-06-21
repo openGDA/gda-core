@@ -34,6 +34,7 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -41,6 +42,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.nexus.INexusFileFactory;
@@ -51,6 +53,8 @@ import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
+import org.eclipse.dawnsci.nexus.template.NexusTemplate;
+import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IDeviceController;
@@ -86,6 +90,7 @@ import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
+import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.server.servlet.ScanProcess;
 import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.ServiceTestHelper;
@@ -651,6 +656,37 @@ public class ScanProcessTest {
 			final List<Number> values = mockScannable.getValues();
 			assertThat(values.get(0), is(equalTo(startPos)));
 			assertThat(values.get(values.size() - 1), is(equalTo(endPos)));
+		}
+	}
+
+	@Test
+	public void testTemplates() throws Exception {
+		// Arrange
+		final String[] templateFilePaths = { "one.yaml", "two.yaml", "three.yaml" };
+
+		ScanBean scanBean = new ScanBean();
+		ScanRequest<?> scanRequest = new ScanRequest<>();
+		scanRequest.setCompoundModel(new CompoundModel<>(new StepModel("xNex", 0, 9, 1)));
+		scanRequest.setTemplateFilePaths(new HashSet<>(Arrays.asList(templateFilePaths)));
+
+		scanBean.setScanRequest(scanRequest);
+		ScanProcess process = new ScanProcess(scanBean, null, true);
+
+		NexusTemplateService mockTemplateService = mock(NexusTemplateService.class);
+		new ServiceHolder().setTemplateService(mockTemplateService);
+		NexusTemplate[] mockTemplates = new NexusTemplate[templateFilePaths.length];
+		for (int i = 0; i < templateFilePaths.length; i++) {
+			mockTemplates[i] = mock(NexusTemplate.class);
+			when(mockTemplateService.loadTemplate(templateFilePaths[i])).thenReturn(mockTemplates[i]);
+		}
+		new ServiceHolder().setTemplateService(mockTemplateService);
+
+		// Act
+		process.execute();
+
+		for (int i = 0; i < templateFilePaths.length; i++) {
+			verify(mockTemplateService).loadTemplate(templateFilePaths[i]);
+			verify(mockTemplates[i]).apply(any(Tree.class));
 		}
 	}
 
