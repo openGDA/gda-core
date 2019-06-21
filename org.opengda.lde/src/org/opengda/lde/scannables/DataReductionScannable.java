@@ -26,7 +26,6 @@ import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.device.scannable.SimpleUDPServerScannable;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
-import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gda.util.OSCommandRunner;
@@ -243,19 +242,19 @@ public class DataReductionScannable extends DummyScannable implements IObserver 
 					String reducedFilename = fields[1];
 					FileRegistrarHelper.registerFile(reducedFilename);
 					if (getEventAdmin() != null) {
-						((ScriptControllerBase)eventAdmin).update(getEventAdmin(), new NewDataFileEvent(sampleid, reducedFilename));
+						eventAdmin.update(getEventAdmin(), new NewDataFileEvent(sampleid, reducedFilename));
 					}
 				} else if (fields[0].equalsIgnoreCase("FAIL")) {
 					InterfaceProvider.getTerminalPrinter().print("Data reduction failed: "+fields[1]);
 					logger.warn("Data reduction failed: {}",fields[1]);
 					if (getEventAdmin() != null) {
-						((ScriptControllerBase)eventAdmin).update(getEventAdmin(), new DataReductionFailedEvent(sampleid, fields[1]));
+						eventAdmin.update(getEventAdmin(), new DataReductionFailedEvent(sampleid, fields[1]));
 					}
 				} else if(fields[0].equalsIgnoreCase("WARN")) {
 					InterfaceProvider.getTerminalPrinter().print("Data reduction returns WARN on file: "+fields[1]+"; Cause: "+fields[2]);
 					logger.warn("Data reduction returns on file: {}; Cause: {}",fields[1], fields[2]);
 					if (getEventAdmin() != null) {
-						((ScriptControllerBase)eventAdmin).update(getEventAdmin(), new DataReductionWarnEvent(sampleid, fields[1], fields[2]));
+						eventAdmin.update(getEventAdmin(), new DataReductionWarnEvent(sampleid, fields[1], fields[2]));
 					}
 				}
 				if (map.containsKey(baseName)) {

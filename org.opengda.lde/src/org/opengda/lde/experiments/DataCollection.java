@@ -40,7 +40,6 @@ import gda.jython.JythonServerFacade;
 import gda.jython.JythonStatus;
 import gda.jython.ScriptBase;
 import gda.jython.commands.ScannableCommands;
-import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gda.scan.Scan.ScanStatus;
@@ -170,7 +169,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		InterfaceProvider.getCurrentScanController().pauseCurrentScan();
 //		InterfaceProvider.getScriptController().pauseCurrentScript();
 		if (eventAdmin!=null && (currentSample!=null || currentCell!=null)) {
-			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleStatusEvent(currentSample.getSampleID(), STATUS.PAUSED));
+			eventAdmin.update(eventAdmin, new SampleStatusEvent(currentSample.getSampleID(), STATUS.PAUSED));
 		}
 	}
 	/**
@@ -184,7 +183,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		InterfaceProvider.getCurrentScanController().resumeCurrentScan();
 //		InterfaceProvider.getScriptController().resumeCurrentScript();
 		if (eventAdmin!=null && (currentSample!=null || currentCell!=null)) {
-			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleStatusEvent(currentSample.getSampleID(), STATUS.RUNNING));
+			eventAdmin.update(eventAdmin, new SampleStatusEvent(currentSample.getSampleID(), STATUS.RUNNING));
 		}
 	}
 	/**
@@ -254,7 +253,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 					cellActiveSamplesMap.put(sample.getCell(), sample);
 					numActiveSamples++;
 					if (eventAdmin!=null) {
-						((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleStatusEvent(sample.getSampleID(), STATUS.READY));
+						eventAdmin.update(eventAdmin, new SampleStatusEvent(sample.getSampleID(), STATUS.READY));
 					}
 				}
 			}
@@ -278,7 +277,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		checkForPauseAndInterruption();
 
 		if (eventAdmin!=null) {
-			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleProcessingEvent(currentSampleName, currentSampleNumber, currentCalibrationNumber, numActiveSamples, numCalibrations));
+			eventAdmin.update(eventAdmin, new SampleProcessingEvent(currentSampleName, currentSampleNumber, currentCalibrationNumber, numActiveSamples, numCalibrations));
 		}
 		for (SampleStage stage : getStages().values()) {
 			try {
@@ -367,7 +366,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 			//TODO this is where I left off - to be continued after Fajin is back
 			EList<Cell> cells2 = stages.get(stage.getName()).getCell();
 			if (eventAdmin!=null) {
-				((ScriptControllerBase)eventAdmin).update(eventAdmin, new StageChangedEvent(stage.getName(), cells2.size()));
+				eventAdmin.update(eventAdmin, new StageChangedEvent(stage.getName(), cells2.size()));
 			}
 			if (!cells2.isEmpty()) {
 				processStage(stage);
@@ -376,14 +375,14 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 					List<Sample> samples2 = cellActiveSamplesMap.get(cell);
 					if (!samples2.isEmpty()) {
 						if (eventAdmin != null) {
-							((ScriptControllerBase) eventAdmin).update(eventAdmin,new CellChangedEvent(cell.getName(), samples2.size()));
+							eventAdmin.update(eventAdmin,new CellChangedEvent(cell.getName(), samples2.size()));
 						}
 						processCell(cell);
 						checkForPauseAndInterruption();
 						for (Sample sample : samples2) {
 							if (eventAdmin != null) {
-								((ScriptControllerBase) eventAdmin).update(eventAdmin,new SampleChangedEvent(sample.getSampleID()));
-								((ScriptControllerBase) eventAdmin).update(eventAdmin,new SampleStatusEvent(sample.getSampleID(), STATUS.RUNNING));
+								eventAdmin.update(eventAdmin,new SampleChangedEvent(sample.getSampleID()));
+								eventAdmin.update(eventAdmin,new SampleStatusEvent(sample.getSampleID(), STATUS.RUNNING));
 							}
 							processSample(sample);
 							checkForPauseAndInterruption();
@@ -556,7 +555,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		checkForPauseAndInterruption();
 		currentCalibrationNumber++;
 		if (eventAdmin!=null) {
-			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleProcessingEvent(calibrant, currentSampleNumber, currentCalibrationNumber, numActiveSamples, numCalibrations));
+			eventAdmin.update(eventAdmin, new SampleProcessingEvent(calibrant, currentSampleNumber, currentCalibrationNumber, numActiveSamples, numCalibrations));
 		}
 
 		//move calibrant into beam
@@ -601,7 +600,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 			}
 			cell.setCalibrated(true);
 			if (eventAdmin!=null) {
-				((ScriptControllerBase)eventAdmin).update(eventAdmin, new DataFileEvent(cell.getCellID(), true, InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getFilename()));
+				eventAdmin.update(eventAdmin, new DataFileEvent(cell.getCellID(), true, InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getFilename()));
 			}
 		} catch (Exception e) {
 			message="Scan failed during calibrant diffraction collection: "+e.getMessage();
@@ -674,8 +673,8 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 			}
 		}
 		if (eventAdmin!=null) {
-			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleProcessingEvent(currentSampleName, currentSampleNumber, currentCalibrationNumber, numActiveSamples, numCalibrations));
-			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleChangedEvent(sample.getSampleID()));
+			eventAdmin.update(eventAdmin, new SampleProcessingEvent(currentSampleName, currentSampleNumber, currentCalibrationNumber, numActiveSamples, numCalibrations));
+			eventAdmin.update(eventAdmin, new SampleChangedEvent(sample.getSampleID()));
 		}
 		checkForPauseAndInterruption();
 
@@ -728,12 +727,12 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		STATUS status = sample.getStatus();
 		InterfaceProvider.getJSFObserver().addIObserver(this);
 		if (eventAdmin!=null) {
-			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleStatusEvent(sample.getSampleID(), status=STATUS.RUNNING));
+			eventAdmin.update(eventAdmin, new SampleStatusEvent(sample.getSampleID(), status=STATUS.RUNNING));
 		}
 		try {
 			ScannableCommands.scan(scanparameters);
 			if (eventAdmin!=null) {
-				((ScriptControllerBase)eventAdmin).update(eventAdmin, new DataFileEvent(sample.getSampleID(), false, InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getFilename()));
+				eventAdmin.update(eventAdmin, new DataFileEvent(sample.getSampleID(), false, InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getFilename()));
 			}
 		} catch (Exception e) {
 			message = "Scan failed during sample '" + getName() + "' diffraction collection: " + e.getMessage();
@@ -748,7 +747,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 				status=STATUS.COMPLETED;
 			}
 		if (eventAdmin!=null) {
-			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleStatusEvent(sample.getSampleID(), status));
+			eventAdmin.update(eventAdmin, new SampleStatusEvent(sample.getSampleID(), status));
 		}
 			InterfaceProvider.getJSFObserver().deleteIObserver(this);
 		}
@@ -761,7 +760,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 			logger.info(message);
 		print(message);
 		if (eventAdmin != null) {
-			((ScriptControllerBase) eventAdmin).update(eventAdmin,new ProcessMessage(message));
+			eventAdmin.update(eventAdmin,new ProcessMessage(message));
 		}
 	}
 
