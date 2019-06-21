@@ -10,6 +10,10 @@ public class ExperimentPlanException extends RuntimeException {
 		super(message, cause);
 	}
 
+	public ExperimentPlanException(String message) {
+		super(message);
+	}
+
 	private static final long serialVersionUID = -6595362754972853437L;
 
 }

@@ -1,5 +1,9 @@
 package uk.ac.diamond.daq.experiment.ui.widget;
 
+import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.MINUS_ICON;
+import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.PLUS_ICON;
+import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.getImage;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
@@ -116,13 +120,13 @@ public class ListWithCustomEditor {
 		GridLayoutFactory.fillDefaults().numColumns(4).equalWidth(true).applyTo(buttonsComposite);
 		
 		add = new Button(buttonsComposite, SWT.PUSH);
-		add.setImage(new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/plus-circle.png")));
+		add.setImage(getImage(PLUS_ICON));
 		add.setText("Add");
 		GridDataFactory.fillDefaults().applyTo(add);
 		add.addListener(SWT.Selection, e -> add());
 		
 		delete = new Button(buttonsComposite, SWT.PUSH);
-		delete.setImage(new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/minus-circle.png")));
+		delete.setImage(getImage(MINUS_ICON));
 		delete.setText("Delete");
 		GridDataFactory.fillDefaults().applyTo(delete);
 		delete.addListener(SWT.Selection, e -> delete());
