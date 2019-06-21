@@ -29,7 +29,6 @@ import org.springframework.beans.factory.InitializingBean;
 
 import gda.data.PathConstructor;
 import gda.device.detector.mythen.data.MythenProcessedDataset;
-import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.gda.devices.mythen.event.PlotDataFileEvent;
@@ -78,7 +77,7 @@ public class RCPPlotLastPointTask implements AtPointEndTask, InitializingBean {
 			}
 
 			String fullPathName = Paths.get(PathConstructor.createFromDefaultProperty(),filename).toString();
-			((ScriptControllerBase)getEventAdmin()).update(this, new PlotDataFileEvent(fullPathName, true));
+			getEventAdmin().update(this, new PlotDataFileEvent(fullPathName, true));
 		}
 
 	}
@@ -109,7 +108,7 @@ public class RCPPlotLastPointTask implements AtPointEndTask, InitializingBean {
 		} else {
 			//send event to client to do data plot
 			String fullPathName=Paths.get(PathConstructor.createFromDefaultProperty(),filename).toString();
-			((ScriptControllerBase)getEventAdmin()).update(this, new PlotDataFileEvent(fullPathName, clearFirst));
+			getEventAdmin().update(this, new PlotDataFileEvent(fullPathName, clearFirst));
 		}
 	}
 

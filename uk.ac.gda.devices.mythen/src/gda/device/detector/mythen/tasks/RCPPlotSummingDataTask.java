@@ -37,7 +37,6 @@ import gda.device.detector.mythen.data.MythenDataFileUtils;
 import gda.device.detector.mythen.data.MythenDataFileUtils.FileType;
 import gda.device.detector.mythen.data.MythenSum;
 import gda.jython.InterfaceProvider;
-import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
@@ -156,7 +155,7 @@ public class RCPPlotSummingDataTask implements DataProcessingTask, InitializingB
 			}
 		} else {
 			if (getEventAdmin()!=null) {
-				((ScriptControllerBase)getEventAdmin()).update(this, new PlotDataFileEvent(summedDataFile.getAbsolutePath(), true));
+				getEventAdmin().update(this, new PlotDataFileEvent(summedDataFile.getAbsolutePath(), true));
 			}
 		}
 	}

@@ -157,7 +157,7 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 		final String beamline=LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME);
 		final String scanFilename=dataDir+String.format("%s-%d", beamline,scannumber) + ".nxs";
 		if (getEventAdmin()!=null && getEventAdmin() instanceof ScriptControllerBase) {
-			((ScriptControllerBase)getEventAdmin()).update(getEventAdmin(), new ScanStartEvent(scannumber,numberOfPoints,scanFilename));
+			getEventAdmin().update(getEventAdmin(), new ScanStartEvent(scannumber,numberOfPoints,scanFilename));
 		}
 		currentPointNumber=0;
 		super.atScanStart();
@@ -167,7 +167,7 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 	public void atPointStart() throws DeviceException {
 		currentPointNumber++;
 		if (getEventAdmin()!=null && getEventAdmin() instanceof ScriptControllerBase) {
-			((ScriptControllerBase)getEventAdmin()).update(getEventAdmin(), new ScanPointStartEvent(currentPointNumber));
+			getEventAdmin().update(getEventAdmin(), new ScanPointStartEvent(currentPointNumber));
 		}
 		super.atPointStart();
 		if (fastshutter!=null) {
@@ -186,7 +186,7 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 	@Override
 	public void atScanEnd() throws DeviceException {
 		if (getEventAdmin()!=null && getEventAdmin() instanceof ScriptControllerBase) {
-			((ScriptControllerBase)getEventAdmin()).update(getEventAdmin(), new ScanEndEvent());
+			getEventAdmin().update(getEventAdmin(), new ScanEndEvent());
 		}
 		super.atScanEnd();
 	}
