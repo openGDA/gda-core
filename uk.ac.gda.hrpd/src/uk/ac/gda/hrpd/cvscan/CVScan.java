@@ -118,9 +118,8 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	 * send data filename to observers in client from the server.
 	 */
 	private void fireNewDataFile() {
-		if (getScriptController() != null && getScriptController() instanceof ScriptControllerBase) {
-			((ScriptControllerBase) getScriptController()).update(this, new FileNumberEvent(getDataWriter()
-					.getCurrentFileName(), collectionNumber));
+		if (getScriptController() instanceof ScriptControllerBase) {
+			getScriptController().update(this, new FileNumberEvent(getDataWriter().getCurrentFileName(), collectionNumber));
 		}
 	}
 
