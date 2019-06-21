@@ -663,6 +663,10 @@ public class ScanProcessTest {
 	public void testTemplates() throws Exception {
 		// Arrange
 		final String[] templateFilePaths = { "one.yaml", "two.yaml", "three.yaml" };
+		final String templateRoot = ServiceHolder.getFilePathService().getPersistenceDir();
+		final String[] resolvedFilePaths = Arrays.stream(templateFilePaths)
+				.map(filePath -> templateRoot + File.separator + filePath)
+				.toArray(String[]::new);
 
 		ScanBean scanBean = new ScanBean();
 		ScanRequest<?> scanRequest = new ScanRequest<>();
@@ -677,15 +681,14 @@ public class ScanProcessTest {
 		NexusTemplate[] mockTemplates = new NexusTemplate[templateFilePaths.length];
 		for (int i = 0; i < templateFilePaths.length; i++) {
 			mockTemplates[i] = mock(NexusTemplate.class);
-			when(mockTemplateService.loadTemplate(templateFilePaths[i])).thenReturn(mockTemplates[i]);
+			when(mockTemplateService.loadTemplate(resolvedFilePaths[i])).thenReturn(mockTemplates[i]);
 		}
-		new ServiceHolder().setTemplateService(mockTemplateService);
 
 		// Act
 		process.execute();
 
 		for (int i = 0; i < templateFilePaths.length; i++) {
-			verify(mockTemplateService).loadTemplate(templateFilePaths[i]);
+			verify(mockTemplateService).loadTemplate(resolvedFilePaths[i]);
 			verify(mockTemplates[i]).apply(any(Tree.class));
 		}
 	}

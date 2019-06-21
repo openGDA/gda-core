@@ -25,6 +25,9 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -36,6 +39,7 @@ import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -54,13 +58,34 @@ public class TemplateScanTest extends NexusTest {
 
 	@Test
 	public void testTemplateScan() throws Exception {
-		final IRunnableDevice<ScanModel> scanner = createAndRunTemplateScan(TEMPLATE_FILE_PATH);
+		final String templateFileAbsolutePath =
+				Paths.get("testfiles/test-template.yaml").toAbsolutePath().toString();
+		final IRunnableDevice<ScanModel> scanner = createAndRunTemplateScan(templateFileAbsolutePath);
 		checkNexusFile(scanner);
 	}
 
 	@Test(expected = ScanningException.class)
 	public void testTemplateScanNonExistantFile() throws Exception {
 		createAndRunTemplateScan("testfiles/nonExist.yaml");
+	}
+
+	@Test
+	public void testTemplateRelativeFilePath() throws Exception {
+		// create a temporary file path within the persistence dir (/tmp/var here, gda.var in GDA)
+		final String persistenceDir = ServiceTestHelper.getFilePathService().getPersistenceDir();
+		final Path templateFilePath = Files.createTempFile(Paths.get(persistenceDir), "test-template", ".yaml");
+		templateFilePath.toFile().delete();
+
+		// copy the template file to that path
+		final Path existingTemplateFilePath = Paths.get(TEMPLATE_FILE_PATH);
+		assertThat(existingTemplateFilePath.toFile().exists(), is(true));
+		Files.copy(existingTemplateFilePath, templateFilePath);
+		assertThat(templateFilePath.toFile().exists(), is(true));
+		templateFilePath.toFile().deleteOnExit();
+
+		// run the template with the
+		String templateFileName = templateFilePath.getFileName().toString();
+		createAndRunTemplateScan(templateFileName);
 	}
 
 	private IRunnableDevice<ScanModel> createAndRunTemplateScan(String templateFile) throws Exception {

@@ -25,6 +25,7 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.models.ScanMetadata;
 import org.eclipse.scanning.api.script.ScriptRequest;
 import org.slf4j.Logger;
@@ -82,6 +83,10 @@ public class ScanRequest<T> implements Serializable {
 	 */
 	private String filePath;
 
+	/**
+	 * The file paths to nexus template files. If the file path is relative it will be resolved
+	 * relative to {@link IFilePathService#getPersistenceDir()}
+	 */
 	private Set<String> templateFilePaths;
 
 	/**
