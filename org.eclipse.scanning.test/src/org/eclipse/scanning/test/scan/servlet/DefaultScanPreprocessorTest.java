@@ -39,8 +39,9 @@ public class DefaultScanPreprocessorTest {
 	@Before
 	public void setUp() {
 		DefaultScanConfiguration defaultScanConfig = new DefaultScanConfiguration();
-		defaultScanConfig.setDefaultPerPointMonitorNames(new HashSet<>(Arrays.asList("defpp1", "defpp2", "defpp3")));
-		defaultScanConfig.setDefaultPerScanMonitorNames(new HashSet<>(Arrays.asList("defaultps1", "defaultps2")));
+		defaultScanConfig.setPerPointMonitorNames(new HashSet<>(Arrays.asList("defpp1", "defpp2", "defpp3")));
+		defaultScanConfig.setPerScanMonitorNames(new HashSet<>(Arrays.asList("defaultps1", "defaultps2")));
+		defaultScanConfig.setTemplateFilePaths(new HashSet<>(Arrays.asList("foo.yaml", "bar.yaml")));
 
 		preprocessor = new DefaultScanPreprocessor();
 		preprocessor.setDefaultScanConfiguration(defaultScanConfig);
@@ -63,6 +64,7 @@ public class DefaultScanPreprocessorTest {
 		ScanRequest<?> scanRequest = createStepScan();
 		scanRequest.setMonitorNamesPerPoint(Arrays.asList("pp1", "pp2"));
 		scanRequest.setMonitorNamesPerScan(Arrays.asList("ps1", "ps2", "ps3"));
+		scanRequest.setTemplateFilePaths(new HashSet<>(Arrays.asList("fred.yaml")));
 
 		preprocessor.preprocess(scanRequest);
 
@@ -70,10 +72,12 @@ public class DefaultScanPreprocessorTest {
 				scanRequest.getMonitorNamesPerPoint());
 		assertEquals(new HashSet<>(Arrays.asList("ps1", "ps2", "ps3", "defaultps1", "defaultps2")),
 				scanRequest.getMonitorNamesPerScan());
+		assertEquals(new HashSet<>(Arrays.asList("foo.yaml", "bar.yaml", "fred.yaml")),
+				scanRequest.getTemplateFilePaths());
 	}
 
 	@Test
-	public void testPreprocess_scanProcessNullMonitors() throws Exception {
+	public void testPreprocessEmptyScanRequest() throws Exception {
 		ScanRequest<?> scanRequest = createStepScan();
 		preprocessor.preprocess(scanRequest);
 
@@ -81,15 +85,18 @@ public class DefaultScanPreprocessorTest {
 				scanRequest.getMonitorNamesPerPoint());
 		assertEquals(new HashSet<>(Arrays.asList("defaultps1", "defaultps2")),
 				scanRequest.getMonitorNamesPerScan());
+		assertEquals(new HashSet<>(Arrays.asList("foo.yaml", "bar.yaml")),
+				scanRequest.getTemplateFilePaths());
 	}
 
 	@Test
-	public void testPreprocess_noDefaultMonitors() throws Exception {
+	public void testPreprocessEmptyDefaultScanConfiguration() throws Exception {
 		preprocessor.setDefaultScanConfiguration(new DefaultScanConfiguration());
 
 		ScanRequest<?> scanRequest = createStepScan();
 		scanRequest.setMonitorNamesPerPoint(Arrays.asList("pp1", "pp2"));
 		scanRequest.setMonitorNamesPerScan(Arrays.asList("ps1", "ps2", "ps3"));
+		scanRequest.setTemplateFilePaths(new HashSet<>(Arrays.asList("fred.yaml")));
 
 		preprocessor.preprocess(scanRequest);
 
@@ -97,6 +104,8 @@ public class DefaultScanPreprocessorTest {
 				scanRequest.getMonitorNamesPerPoint());
 		assertEquals(new HashSet<>(Arrays.asList("ps1", "ps2", "ps3")),
 				scanRequest.getMonitorNamesPerScan());
+		assertEquals(new HashSet<>(Arrays.asList("fred.yaml")),
+				scanRequest.getTemplateFilePaths());
 	}
 
 }

@@ -26,29 +26,39 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 import uk.ac.diamond.daq.osgi.OsgiService;
 
 /**
- * Defines scan defaults to are merged with a {@link ScanRequest} on the server.
+ * Defines scan defaults to be merged with a {@link ScanRequest} on the server.
  */
 @OsgiService(DefaultScanConfiguration.class)
 public class DefaultScanConfiguration {
 
-	private Set<String> defaultPerScanMonitorNames = Collections.emptySet();
+	private Set<String> perScanMonitorNames = Collections.emptySet();
 
-	private Set<String> defaultPerPointMonitorNames = Collections.emptySet();
+	private Set<String> perPointMonitorNames = Collections.emptySet();
 
-	public Set<String> getDefaultPerScanMonitorNames() {
-		return defaultPerScanMonitorNames;
+	private Set<String> templateFilePaths = Collections.emptySet();
+
+	public Set<String> getPerScanMonitorNames() {
+		return perScanMonitorNames;
 	}
 
-	public void setDefaultPerScanMonitorNames(Set<String> defaultPerScanMonitorNames) {
-		this.defaultPerScanMonitorNames = defaultPerScanMonitorNames;
+	public void setPerScanMonitorNames(Set<String> perScanMonitorNames) {
+		this.perScanMonitorNames = perScanMonitorNames;
 	}
 
-	public Set<String> getDefaultPerPointMonitorNames() {
-		return defaultPerPointMonitorNames;
+	public Set<String> getPerPointMonitorNames() {
+		return perPointMonitorNames;
 	}
 
-	public void setDefaultPerPointMonitorNames(Set<String> defaultPerPointMonitorNames) {
-		this.defaultPerPointMonitorNames = defaultPerPointMonitorNames;
+	public void setPerPointMonitorNames(Set<String> perPointMonitorNames) {
+		this.perPointMonitorNames = perPointMonitorNames;
+	}
+
+	public Set<String> getTemplateFilePaths() {
+		return templateFilePaths;
+	}
+
+	public void setTemplateFilePaths(Set<String> templateFilePaths) {
+		this.templateFilePaths = templateFilePaths;
 	}
 
 }

@@ -19,6 +19,7 @@
 package org.eclipse.scanning.server.servlet;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.eclipse.scanning.api.event.scan.ScanRequest;
@@ -55,18 +56,18 @@ public class DefaultScanPreprocessor implements IPreprocessor {
 
 		if (defaultScanConfiguration != null) {
 			// add default per point monitor names to the scan request
-			final Set<String> perPointMonitorNames = new HashSet<>(defaultScanConfiguration.getDefaultPerPointMonitorNames());
-			if (scanRequest.getMonitorNamesPerPoint() != null) {
-				perPointMonitorNames.addAll(scanRequest.getMonitorNamesPerPoint());
-			}
+			final Set<String> perPointMonitorNames = new HashSet<>(defaultScanConfiguration.getPerPointMonitorNames());
+			Optional.ofNullable(scanRequest.getMonitorNamesPerPoint()).ifPresent(perPointMonitorNames::addAll);
 			scanRequest.setMonitorNamesPerPoint(perPointMonitorNames);
 
 			// add default per scan monitor names to the scan request
-			final Set<String> perScanMonitorNames = new HashSet<>(defaultScanConfiguration.getDefaultPerScanMonitorNames());
-			if (scanRequest.getMonitorNamesPerScan() != null) {
-				perScanMonitorNames.addAll(scanRequest.getMonitorNamesPerScan());
-			}
+			final Set<String> perScanMonitorNames = new HashSet<>(defaultScanConfiguration.getPerScanMonitorNames());
+			Optional.ofNullable(scanRequest.getMonitorNamesPerScan()).ifPresent(perScanMonitorNames::addAll);
 			scanRequest.setMonitorNamesPerScan(perScanMonitorNames);
+
+			final Set<String> templateFilePaths = new HashSet<>(defaultScanConfiguration.getTemplateFilePaths());
+			Optional.ofNullable(scanRequest.getTemplateFilePaths()).ifPresent(templateFilePaths::addAll);
+			scanRequest.setTemplateFilePaths(templateFilePaths);
 		}
 
 		return scanRequest;
