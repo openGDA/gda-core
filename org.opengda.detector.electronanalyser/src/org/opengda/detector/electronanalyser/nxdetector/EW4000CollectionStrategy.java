@@ -1,23 +1,5 @@
 package org.opengda.detector.electronanalyser.nxdetector;
 
-import gda.data.nexus.tree.INexusTree;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.detector.areadetector.v17.ADBase;
-import gda.device.detector.areadetector.v17.ImageMode;
-import gda.device.detector.areadetector.v17.NDPluginBase;
-import gda.device.detector.areadetector.v17.NDStats;
-import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
-import gda.device.detector.nxdetector.NXFileWriterPlugin;
-import gda.jython.scriptcontroller.ScriptControllerBase;
-import gda.jython.scriptcontroller.Scriptcontroller;
-import gda.observable.IObservable;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
-import gda.scan.ScanInformation;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,14 +22,32 @@ import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.nexus.tree.INexusTree;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.detector.areadetector.v17.ADBase;
+import gda.device.detector.areadetector.v17.ImageMode;
+import gda.device.detector.areadetector.v17.NDPluginBase;
+import gda.device.detector.areadetector.v17.NDStats;
+import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
+import gda.device.detector.nxdetector.NXFileWriterPlugin;
+import gda.jython.scriptcontroller.ScriptControllerBase;
+import gda.jython.scriptcontroller.Scriptcontroller;
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
+import gda.scan.ScanInformation;
+
 public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXFileWriterPlugin,IObservable{
 	private static final Logger logger = LoggerFactory.getLogger(EW4000CollectionStrategy.class);
 	private ObservableComponent oc = new ObservableComponent();
 	private AtomicBoolean busy = new AtomicBoolean(false);
 	private NexusDataWriterExtension nexusDataWriter;
-	private Vector<String> activeRegionNames=new Vector<String>();
+	private Vector<String> activeRegionNames=new Vector<>();
 	private Thread collectionThread;
-	private Vector<String> extraValues=new Vector<String>();
+	private Vector<String> extraValues=new Vector<>();
 	private Scannable softXRayFastShutter;
 	private Scannable hardXRayFastShutter;
 	public Vector<String> getExtraValues() {
@@ -112,8 +112,8 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 		}
 	}
 
-	Vector<INexusTree> regionDataList= new Vector<INexusTree>();
-	private Vector<Double> totalIntensity=new Vector<Double>();
+	Vector<INexusTree> regionDataList= new Vector<>();
+	private Vector<Double> totalIntensity=new Vector<>();
 
 	private boolean stillHaveDataToWrite=false;
 
@@ -165,8 +165,8 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 									hardXRayFastShutter.moveTo("Out");
 								}
 							}
-							if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
-								((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new RegionStatusEvent(region.getRegionId(), STATUS.RUNNING,i));
+							if (getScriptcontroller() instanceof ScriptControllerBase) {
+								getScriptcontroller().update(getScriptcontroller(), new RegionStatusEvent(region.getRegionId(), STATUS.RUNNING, i));
 							}
 							getAnalyser().collectData();
 							Thread.sleep(1000);
@@ -183,8 +183,8 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 									totalIntensity.add(getAnalyser().getTotalIntensity());
 								}
 							}
-							if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
-								((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new RegionStatusEvent(region.getRegionId(), STATUS.COMPLETED,i));
+							if (getScriptcontroller() instanceof ScriptControllerBase) {
+								getScriptcontroller().update(getScriptcontroller(), new RegionStatusEvent(region.getRegionId(), STATUS.COMPLETED, i));
 							}
 
 						} catch (InterruptedException e) {
@@ -202,20 +202,20 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 							} catch (DeviceException e1) {
 								logger.error("failed to stop the analyser acquisition on interrupt.", e1);
 							}
-							if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
-								((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new RegionStatusEvent(region.getRegionId(), STATUS.ABORTED,i));
+							if (getScriptcontroller() instanceof ScriptControllerBase) {
+								getScriptcontroller().update(getScriptcontroller(), new RegionStatusEvent(region.getRegionId(), STATUS.ABORTED, i));
 							}
 						}catch (DeviceException e) {
 							logger.error("failed to collectdata or waitWhileBusy from the analyser.", e);
-							if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
-								((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new RegionStatusEvent(region.getRegionId(), STATUS.INVALID,i));
+							if (getScriptcontroller() instanceof ScriptControllerBase) {
+								getScriptcontroller().update(getScriptcontroller(), new RegionStatusEvent(region.getRegionId(), STATUS.INVALID, i));
 							}
 							break;
 						}
 						catch (Exception e) {
 							logger.error("Set new region to detector failed", e);
-							if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
-								((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new RegionStatusEvent(region.getRegionId(), STATUS.INVALID,i));
+							if (getScriptcontroller() instanceof ScriptControllerBase) {
+								getScriptcontroller().update(getScriptcontroller(), new RegionStatusEvent(region.getRegionId(), STATUS.INVALID, i));
 							}
 							break;
 						}
@@ -235,16 +235,16 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 	ArrayList<INexusTree> lastRegionDataList;
 	ArrayList<Double> lastTotalIntensityList;
 	private void afterCollectData(){
-		lastRegionDataList = new ArrayList<INexusTree>();
+		lastRegionDataList = new ArrayList<>();
 		for (INexusTree item : regionDataList) {
 			lastRegionDataList.add(item);
 		}
-		copyofregiondatalist=Collections.synchronizedList(new ArrayList<INexusTree>(lastRegionDataList));
-		lastTotalIntensityList= new ArrayList<Double>();
+		copyofregiondatalist=Collections.synchronizedList(new ArrayList<>(lastRegionDataList));
+		lastTotalIntensityList= new ArrayList<>();
 		for (Double item : totalIntensity) {
 			lastTotalIntensityList.add(item);
 		}
-		copyoftotalintensity=Collections.synchronizedList(new ArrayList<Double>(lastTotalIntensityList));
+		copyoftotalintensity=Collections.synchronizedList(new ArrayList<>(lastTotalIntensityList));
 	}
 
 	@Override
@@ -296,7 +296,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 		return getRegionNames();
 	}
 	public Vector<String> getRegionNames() {
-		Vector<String> extraNames = new Vector<String>();
+		Vector<String> extraNames = new Vector<>();
 		for (Region region : sequence.getRegion()) {
 			if (region.isEnabled()) {
 				extraNames.add(region.getName());
@@ -307,7 +307,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 
 	@Override
 	public List<String> getInputStreamFormats() {
-		List<String> formats = new ArrayList<String>();
+		List<String> formats = new ArrayList<>();
 		for (Region region : sequence.getRegion()) {
 			if (region.isEnabled()) {
 				formats.add("%f");
@@ -319,7 +319,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 	@Override
 	public List<NXDetectorDataAppender> read(int maxToRead)	throws NoSuchElementException, InterruptedException,
 			DeviceException {
-		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
+		Vector<NXDetectorDataAppender> appenders = new Vector<>();
 		if (!isSingleDataFile()) {
 			if (getRegionNames().size() != extraValues.size()) {
 				throw new DeviceException(getName()+" : Names size = "+getRegionNames().size()+" and values size = "+extraValues.size()+" are different.");
@@ -548,8 +548,8 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 		} catch (Exception e) {
 			throw e;
 		}
-		if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
-			((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new RegionChangeEvent(region.getRegionId(), region.getName()));
+		if (getScriptcontroller() instanceof ScriptControllerBase) {
+			getScriptcontroller().update(getScriptcontroller(), new RegionChangeEvent(region.getRegionId(), region.getName()));
 		}
 	}
 	@Override

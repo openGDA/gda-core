@@ -169,8 +169,8 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	}
 	@Override
 	public void stop() throws DeviceException {
-		if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
-			((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new ScanEndEvent());
+		if (getScriptcontroller() instanceof ScriptControllerBase) {
+			getScriptcontroller().update(getScriptcontroller(), new ScanEndEvent());
 		}
 
 		super.stop();
@@ -195,8 +195,8 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 		}
 		String beamline=LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME);
 		String scanFilename=dataDir+String.format("%s-%d", beamline,scannumber) + ".nxs";
-		if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
-			((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new ScanStartEvent(scannumber,numberOfPoints,scanFilename));
+		if (getScriptcontroller() instanceof ScriptControllerBase) {
+			getScriptcontroller().update(getScriptcontroller(), new ScanStartEvent(scannumber, numberOfPoints, scanFilename));
 		}
 		print("Scan data will write to : "+ scanFilename);
 		Sequence sequence = loadSequenceData(getSequenceFilename());
@@ -209,8 +209,8 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	@Override
 	public void atPointStart() throws DeviceException {
 		currentPointNumber++;
-		if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
-			((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new ScanPointStartEvent(currentPointNumber));
+		if (getScriptcontroller() instanceof ScriptControllerBase) {
+			getScriptcontroller().update(getScriptcontroller(), new ScanPointStartEvent(currentPointNumber));
 		}
 		super.atPointStart();
 	}
@@ -220,8 +220,8 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	}
 	@Override
 	public void atScanEnd() throws DeviceException {
-		if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
-			((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new ScanEndEvent());
+		if (getScriptcontroller() instanceof ScriptControllerBase) {
+			getScriptcontroller().update(getScriptcontroller(), new ScanEndEvent());
 		}
 		super.atScanEnd();
 	}

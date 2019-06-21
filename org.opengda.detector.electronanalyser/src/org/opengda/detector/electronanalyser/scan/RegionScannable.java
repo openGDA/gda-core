@@ -199,16 +199,16 @@ public class RegionScannable extends ScannableBase implements Scannable {
 		} finally {
 			busy = false;
 		}
-		 if (getScriptController()!=null && getScriptController() instanceof ScriptControllerBase) {
-		 ((ScriptControllerBase)getScriptController()).update(getScriptController(), new RegionChangeEvent(region.getRegionId(), region.getName()));
-		 }
-//		oc.notifyIObservers(this, new RegionChangeEvent(region.getRegionId(), region.getName()));
+		if (getScriptController() instanceof ScriptControllerBase) {
+			getScriptController().update(getScriptController(), new RegionChangeEvent(region.getRegionId(), region.getName()));
+		}
+		//		oc.notifyIObservers(this, new RegionChangeEvent(region.getRegionId(), region.getName()));
 	}
-@Override
-public void atScanStart() throws DeviceException {
-	firstInScan=true;
-	super.atScanStart();
-}
+	@Override
+	public void atScanStart() throws DeviceException {
+		firstInScan = true;
+		super.atScanStart();
+	}
 	@Override
 	public void atScanLineStart() throws DeviceException {
 		count.set(0);
