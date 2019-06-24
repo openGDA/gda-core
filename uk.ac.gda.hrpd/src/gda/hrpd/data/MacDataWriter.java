@@ -175,6 +175,10 @@ public class MacDataWriter extends DataWriterBase implements Findable, Configura
 		return configured;
 	}
 
+	@Override
+	public boolean isConfigureAtStartup() {
+		return true;
+	}
 
 	@Override
 	public void addData(IScanDataPoint dataPoint) {
