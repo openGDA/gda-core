@@ -56,6 +56,11 @@ public class PassthroughDetectorWrapper implements Detector {
 	}
 
 	@Override
+	public boolean isConfigureAtStartup() {
+		return getDelegate().isConfigureAtStartup();
+	}
+
+	@Override
 	public Object getPosition() throws DeviceException {
 		return getDelegate().getPosition();
 	}

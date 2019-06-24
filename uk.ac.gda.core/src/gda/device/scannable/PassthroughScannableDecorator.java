@@ -56,6 +56,11 @@ public class PassthroughScannableDecorator implements Scannable {
 	}
 
 	@Override
+	public boolean isConfigureAtStartup() {
+		return getDelegate().isConfigureAtStartup();
+	}
+
+	@Override
 	public Object getPosition() throws DeviceException {
 		return getDelegate().getPosition();
 	}

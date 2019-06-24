@@ -67,7 +67,7 @@ public class QueuedScriptDrivenScannableMotionUnits implements ScannableMotionUn
 	private String commandFormat;
 	private Queue queue;
 
-	ObservableComponent obsComp = new ObservableComponent();
+	private final ObservableComponent obsComp = new ObservableComponent();
 	private IObserver observer;
 
 
@@ -119,6 +119,11 @@ public class QueuedScriptDrivenScannableMotionUnits implements ScannableMotionUn
 	@Override
 	public void reconfigure() throws FactoryException {
 		scannable.reconfigure();
+	}
+
+	@Override
+	public boolean isConfigureAtStartup() {
+		return scannable.isConfigureAtStartup();
 	}
 
 	@Override

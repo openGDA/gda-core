@@ -60,6 +60,11 @@ public class PassthroughScannableMotionUnitsDecorator implements ScannableMotion
 	}
 
 	@Override
+	public boolean isConfigureAtStartup() {
+		return delegate.isConfigureAtStartup();
+	}
+
+	@Override
 	public Object getPosition() throws DeviceException {
 		return delegate.getPosition();
 	}

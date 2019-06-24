@@ -25,7 +25,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.factory.ConditionallyConfigurable;
 import gda.factory.FindableConfigurableBase;
 import gda.jython.accesscontrol.MethodAccessProtected;
 import gda.observable.IObserver;
@@ -34,7 +33,7 @@ import gda.observable.ObservableComponent;
 /**
  * A base implementation for all devices
  */
-public abstract class DeviceBase extends FindableConfigurableBase implements Device, ConditionallyConfigurable {
+public abstract class DeviceBase extends FindableConfigurableBase implements Device {
 
 	private static final Logger logger = LoggerFactory.getLogger(DeviceBase.class);
 

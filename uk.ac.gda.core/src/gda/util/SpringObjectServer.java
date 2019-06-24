@@ -51,7 +51,6 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 
 import gda.configuration.properties.LocalProperties;
-import gda.factory.ConditionallyConfigurable;
 import gda.factory.Configurable;
 import gda.factory.Factory;
 import gda.factory.FactoryBase;
@@ -355,16 +354,11 @@ public class SpringObjectServer extends ObjectServer {
 			String name = entry.getKey();
 			Configurable obj = entry.getValue();
 
-			boolean willConfigure = true;
+			boolean willConfigure = obj.isConfigureAtStartup();
 
 			// If the object is an RMI proxy, do not call its configure() method
 			if (obj instanceof RmiProxyMarker) {
 				willConfigure = false;
-			}
-
-			if (willConfigure && (obj instanceof ConditionallyConfigurable)) {
-				final ConditionallyConfigurable cc = (ConditionallyConfigurable) obj;
-				willConfigure = cc.isConfigureAtStartup();
 			}
 
 			if (willConfigure) {

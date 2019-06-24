@@ -84,6 +84,11 @@ public class ScanListDataWriterExtender extends DataWriterExtenderBase implement
 	}
 
 	@Override
+	public boolean isConfigureAtStartup() {
+		return true;
+	}
+
+	@Override
 	public void addData(IDataWriterExtender parent, IScanDataPoint dataPoint) throws Exception {
 		if (lastScanDataPoint == null) {
 			lastScanDataPoint = dataPoint;

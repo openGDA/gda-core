@@ -69,4 +69,9 @@ public abstract class ConfigurableBase implements Configurable {
 		logger.debug("Empty reconfigure() called");
 	}
 
+	@Override
+	public boolean isConfigureAtStartup() {
+		return true;
+	}
+
 }

@@ -140,6 +140,11 @@ public class InterpolationFunction extends FindableFunction implements Configura
 		return configured;
 	}
 
+	@Override
+	public boolean isConfigureAtStartup() {
+		return true;
+	}
+
 	/**
 	 * @return Returns the cdf.
 	 */

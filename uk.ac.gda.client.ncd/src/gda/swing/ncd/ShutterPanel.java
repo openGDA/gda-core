@@ -170,6 +170,11 @@ public class ShutterPanel extends JPanel implements IObserver, Runnable,Configur
 		return configured;
 	}
 
+	@Override
+	public boolean isConfigureAtStartup() {
+		return true;
+	}
+
 	private class TimerListener implements ActionListener {
 		private JLabel label;
 		private Color backGround;

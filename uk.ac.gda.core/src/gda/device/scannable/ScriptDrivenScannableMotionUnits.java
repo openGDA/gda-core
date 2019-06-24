@@ -67,7 +67,7 @@ public class ScriptDrivenScannableMotionUnits implements ScannableMotionUnits, I
 	private ICommandRunner commandRunner;
 	private String commandFormat;
 
-	ObservableComponent obsComp = new ObservableComponent();
+	private final ObservableComponent obsComp = new ObservableComponent();
 	private IObserver observer;
 
 
@@ -117,6 +117,11 @@ public class ScriptDrivenScannableMotionUnits implements ScannableMotionUnits, I
 	@Override
 	public void reconfigure() throws FactoryException {
 		scannable.reconfigure();
+	}
+
+	@Override
+	public boolean isConfigureAtStartup() {
+		return scannable.isConfigureAtStartup();
 	}
 
 	@Override

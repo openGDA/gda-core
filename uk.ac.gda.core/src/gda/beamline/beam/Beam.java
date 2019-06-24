@@ -166,6 +166,7 @@ public class Beam extends FindableConfigurableBase implements BeamInfo {
 	 *
 	 * @return true if configuration is required at startup.
 	 */
+	@Override
 	public boolean isConfigureAtStartup() {
 		return configureAtStartup;
 	}

@@ -35,7 +35,6 @@ import org.xml.sax.InputSource;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.Scannable;
-import gda.factory.ConditionallyConfigurable;
 import gda.factory.Configurable;
 import gda.factory.Factory;
 import gda.factory.FactoryBase;
@@ -137,14 +136,7 @@ public class LoadAdditionalBeansToObjectServer extends FindableConfigurableBase 
 			String name = entry.getKey();
 			Configurable obj = entry.getValue();
 
-			boolean willConfigure = true;
-
-			if (obj instanceof ConditionallyConfigurable) {
-				final ConditionallyConfigurable cc = (ConditionallyConfigurable) obj;
-				willConfigure = cc.isConfigureAtStartup();
-			}
-
-			if (willConfigure) {
+			if (obj.isConfigureAtStartup()) {
 				gdaLogger.info("Configuring " + name);
 				try {
 					obj.configure();

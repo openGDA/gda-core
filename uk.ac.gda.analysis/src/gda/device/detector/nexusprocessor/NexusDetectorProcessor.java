@@ -131,6 +131,11 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 	}
 
 	@Override
+	public boolean isConfigureAtStartup() {
+		return detector.isConfigureAtStartup();
+	}
+
+	@Override
 	public Object getPosition() throws DeviceException {
 		try {
 			return getPositionCallable().call();

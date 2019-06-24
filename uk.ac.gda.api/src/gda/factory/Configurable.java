@@ -53,4 +53,14 @@ public interface Configurable {
 	 * @throws FactoryException
 	 */
 	void reconfigure() throws FactoryException;
+
+	/**
+	 * Indicates whether this object should be configured at startup.
+	 * <p>
+	 * Moved from ConditionallyConfigurable which has been deleted
+	 *
+	 * @since GDA 9.14
+	 */
+	boolean isConfigureAtStartup();
+
 }
