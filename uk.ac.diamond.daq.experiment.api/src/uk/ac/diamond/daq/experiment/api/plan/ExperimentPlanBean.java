@@ -42,7 +42,7 @@ public class ExperimentPlanBean implements PlanRequest {
 		return description;
 	}
 
-	public void setDescription(String description) {
+	public void setPlanDescription(String description) {
 		String oldDescription = this.description;
 		this.description = description;
 		pcs.firePropertyChange("description", oldDescription, description);
