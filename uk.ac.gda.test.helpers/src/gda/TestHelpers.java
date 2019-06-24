@@ -915,4 +915,9 @@ class TestFactory implements Factory {
 	public boolean isConfigured() {
 		return true;
 	}
+
+	@Override
+	public boolean isConfigureAtStartup() {
+		return true;
+	}
 }
