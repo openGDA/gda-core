@@ -52,6 +52,11 @@ public class ContinuousScannable implements ContinuouslyScannableViaController {
 	}
 
 	@Override
+	public boolean isConfigureAtStartup() {
+		return delegate.isConfigureAtStartup();
+	}
+
+	@Override
 	public Object getPosition() throws DeviceException {
 		return posAtScanStart;
 	}

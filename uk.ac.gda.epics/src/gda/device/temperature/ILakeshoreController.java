@@ -19,11 +19,11 @@
 package gda.device.temperature;
 
 import gda.device.DeviceException;
-import gda.factory.ConditionallyConfigurable;
+import gda.factory.Configurable;
 import gda.factory.Findable;
 import gda.observable.IObservable;
 
-public interface ILakeshoreController extends Findable, ConditionallyConfigurable, IObservable {
+public interface ILakeshoreController extends Findable, Configurable, IObservable {
 
 
 	public final double MAX_RAMP_RATE = 2.0; // Kevin/min
