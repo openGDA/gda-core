@@ -181,6 +181,21 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	@Override
+	public void configure() throws FactoryException {
+		xspress3Detector.configure();
+	}
+
+	@Override
+	public boolean isConfigured() {
+		return xspress3Detector.isConfigured();
+	}
+
+	@Override
+	public boolean isConfigureAtStartup() {
+		return xspress3Detector.isConfigureAtStartup();
+	}
+
+	@Override
 	public void reconfigure() throws FactoryException {
 		xspress3Detector.reconfigure();
 	}
