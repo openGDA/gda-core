@@ -65,7 +65,7 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 
 	private ScanRequest<IROI> getTomographyScan() {
 		IScanPathModel model = new StepModel("tr6_rot", 0, 180, 5);
-		return new ScanRequest<>(model, null, null, null);
+		return new ScanRequest<>(model, null, (String)null, null, null);
 	}
 
 	private ScanRequest<IROI> getDiffractionSpotScan() {

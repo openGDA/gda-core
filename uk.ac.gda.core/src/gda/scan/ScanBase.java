@@ -687,7 +687,8 @@ public abstract class ScanBase implements NestableScan {
 				info.getDimensions(),
 				Arrays.asList(info.getScannableNames()),
 				Arrays.asList(info.getDetectorNames()),
-				(100.0 * (currentPointCount + 1)) / info.getNumberOfPoints()); // Progress in %
+				(100.0 * (currentPointCount + 1)) / info.getNumberOfPoints(),// Progress in %
+				null);
 
 		// If the optional is missing probably running in a unit test
 		Optional<MessagingService> optionalJms = GDACoreActivator.getService(MessagingService.class);
