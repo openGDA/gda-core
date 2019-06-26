@@ -4,16 +4,16 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 
+import gda.factory.FindableBase;
+
 /**
  * This base class is essentially a {@link Serializable} version of FindableBase with {@link PropertyChangeSupport}
  */
-public abstract class DriverModelBase implements DriverModel {
+public abstract class DriverModelBase extends FindableBase implements DriverModel {
 
 	private static final long serialVersionUID = -5230839380845124567L;
 
 	final PropertyChangeSupport pcs;
-
-	private String name;
 
 	public DriverModelBase() {
 		pcs = new PropertyChangeSupport(this);
@@ -25,14 +25,9 @@ public abstract class DriverModelBase implements DriverModel {
 	}
 
 	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
 	public void setName(String name) {
-		String oldName = this.name;
-		this.name = name;
+		String oldName = getName();
+		super.setName(name);
 		pcs.firePropertyChange("name", oldName, name);
 	}
 

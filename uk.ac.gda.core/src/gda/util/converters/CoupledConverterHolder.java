@@ -26,6 +26,7 @@ import javax.measure.quantity.Quantity;
 import org.jscience.physics.amount.Amount;
 
 import gda.factory.Findable;
+import gda.factory.FindableBase;
 import gda.factory.Finder;
 
 /**
@@ -58,12 +59,8 @@ import gda.factory.Finder;
  * <p>
  * The object implements IQuantitiesConverter so that the object can be referenced by CombinedDOF.
  */
-public final class CoupledConverterHolder implements IReloadableQuantitiesConverter, IQuantityConverter
-
-{
+public final class CoupledConverterHolder extends FindableBase implements IReloadableQuantitiesConverter, IQuantityConverter {
 	private String sourceConverterName, targetConverterName;
-
-	private final String name;
 
 	private IQuantitiesConverter converter = null;
 
@@ -80,7 +77,7 @@ public final class CoupledConverterHolder implements IReloadableQuantitiesConver
 	 *            intermediate quantity and the Target.
 	 */
 	public CoupledConverterHolder(String name, String sourceConverterName, String targetConverterName) {
-		this.name = name;
+		super.setName(name);
 		this.sourceConverterName = sourceConverterName;
 		this.targetConverterName = targetConverterName;
 	}
@@ -93,15 +90,9 @@ public final class CoupledConverterHolder implements IReloadableQuantitiesConver
 	 * @param targetConverter the target converter
 	 */
 	public CoupledConverterHolder(String name, IReloadableQuantitiesConverter sourceConverter, IReloadableQuantitiesConverter targetConverter) {
-		this.name = name;
+		super.setName(name);
 		this.sourceConverter = sourceConverter;
 		this.targetConverter = targetConverter;
-	}
-
-	// Castor functions
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	/**

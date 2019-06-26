@@ -18,24 +18,14 @@
 
 package uk.ac.gda.server.ncd.actions;
 
-public abstract class BaseNcdAction implements NcdAction {
+import gda.factory.FindableBase;
 
-	private String name;
+public abstract class BaseNcdAction extends FindableBase implements NcdAction {
 
 	/**
 	 * Allow convenient running from Jython
 	 */
 	public void __call__() {
 		run();
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 }

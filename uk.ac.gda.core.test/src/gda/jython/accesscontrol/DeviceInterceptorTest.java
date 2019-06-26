@@ -27,8 +27,8 @@ import org.junit.Test;
 import gda.device.Device;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
+import gda.factory.FindableConfigurableBase;
 import gda.jython.GDAJythonInterpreter;
 import gda.jython.JythonServer.JythonServerThread;
 import gda.observable.IObserver;
@@ -169,9 +169,8 @@ public class DeviceInterceptorTest {
 	}
 }
 
-class SimpleDevice extends ConfigurableBase implements Device{
+class SimpleDevice extends FindableConfigurableBase implements Device{
 
-	String name="";
 	int protectionLevel=1;
 	@Override
 	public void close() throws DeviceException {
@@ -221,16 +220,6 @@ class SimpleDevice extends ConfigurableBase implements Device{
 	}
 
 	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
 	public void reconfigure() throws FactoryException {
 		// TODO Auto-generated method stub
 
@@ -244,18 +233,21 @@ class SimpleDevice extends ConfigurableBase implements Device{
 			return false;
 		}
 		SimpleDevice other = (SimpleDevice)obj;
-		if(name == null || other.name == null)
+		final String name = getName();
+		if(name == null || other.getName() == null)
 			return false;
-		return name.equals(other.name);
+		return name.equals(other.getName());
 	}
 
 	@Override
 	public String toString() {
+		final String name = getName();
 		return name == null ? "unknown" : name.toString();
 	}
 
 	@Override
 	public int hashCode() {
+		final String name = getName();
 		return name == null ? 42 : name.hashCode();
 	}
 

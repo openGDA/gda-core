@@ -3,6 +3,7 @@ package uk.ac.diamond.daq.stage.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import gda.factory.FindableBase;
 import uk.ac.diamond.daq.stage.StageException;
 import uk.ac.diamond.daq.stage.StageGroup;
 import uk.ac.diamond.daq.stage.StageGroupListener;
@@ -11,8 +12,7 @@ import uk.ac.diamond.daq.stage.event.StageGroupEvent;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 @ServiceInterface(StageGroupService.class)
-public class DefaultStageGroupService implements StageGroupService {
-	private String name;
+public class DefaultStageGroupService extends FindableBase implements StageGroupService {
 	private List<StageGroupListener> listeners = new ArrayList<>();
 	private StageGroup currentStageGroup;
 	private List<StageGroup> stageGroups;
@@ -23,16 +23,6 @@ public class DefaultStageGroupService implements StageGroupService {
 		}
 		this.currentStageGroup = stageGroups.get(0);
 		this.stageGroups = stageGroups;
-	}
-	
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	@Override

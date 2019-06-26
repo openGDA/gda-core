@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.Scannable;
+import gda.factory.FindableBase;
 import gda.factory.Finder;
 import gda.rcp.views.InputTextComposite;
 /**
@@ -31,27 +32,16 @@ import gda.rcp.views.InputTextComposite;
  * It just has 3 parts: a display name, a group name, and input data unit if exist which must be
  * respected as there is no unit conversion built in.
  */
-public class ScannableValueControl implements LiveControl {
+public class ScannableValueControl extends FindableBase implements LiveControl {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableValueControl.class);
 
 	// Use the wrapper classes to allow null i.e. default if not set.
-	private String name; // id
 	private String displayName;
 	private String group;
 	private String scannableName; // Used by the finder to get the scannable
 	private String userUnits; // Use to override the scannable units (if required)
 	private Integer textWidth; // If set, passed down to InputTextComposite
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
 
 	public String getDisplayName() {
 		return displayName;
@@ -101,7 +91,7 @@ public class ScannableValueControl implements LiveControl {
 		result = prime * result + ((displayName == null) ? 0 : displayName.hashCode());
 		result = prime * result + ((group == null) ? 0 : group.hashCode());
 		result = prime * result + ((textWidth == null) ? 0 : textWidth.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
 		result = prime * result + ((scannableName == null) ? 0 : scannableName.hashCode());
 		result = prime * result + ((userUnits == null) ? 0 : userUnits.hashCode());
 		return result;
@@ -131,10 +121,10 @@ public class ScannableValueControl implements LiveControl {
 				return false;
 		} else if (!textWidth.equals(other.textWidth))
 			return false;
-		if (name == null) {
-			if (other.name != null)
+		if (getName() == null) {
+			if (other.getName() != null)
 				return false;
-		} else if (!name.equals(other.name))
+		} else if (!getName().equals(other.getName()))
 			return false;
 		if (scannableName == null) {
 			if (other.scannableName != null)
@@ -175,7 +165,7 @@ public class ScannableValueControl implements LiveControl {
 
 	@Override
 	public String toString() {
-		return "ScannablePositionerControl [name=" + name + ", displayName=" + displayName + ", group=" + group
+		return "ScannablePositionerControl [name=" + getName() + ", displayName=" + displayName + ", group=" + group
 				+ ", scannableName=" + scannableName + ", userUnits=" + userUnits
 				+ ", textWidth=" + textWidth + "]";
 	}

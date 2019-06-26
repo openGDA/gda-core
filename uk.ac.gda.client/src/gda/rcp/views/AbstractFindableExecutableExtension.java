@@ -22,21 +22,9 @@ package gda.rcp.views;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 
-public abstract class AbstractFindableExecutableExtension implements FindableExecutableExtension{
+import gda.factory.FindableBase;
 
-
-	private String name;
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
+public abstract class AbstractFindableExecutableExtension extends FindableBase implements FindableExecutableExtension{
 
 	@Override
 	public void setInitializationData(IConfigurationElement config, String propertyName, Object data)

@@ -38,9 +38,8 @@ import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.TimerStatus;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
+import gda.factory.FindableConfigurableBase;
 import gda.jython.IScanDataPointObserver;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanDataPoint;
@@ -57,7 +56,7 @@ import uk.ac.gda.server.ncd.subdetector.NcdWireDetector;
  * This listens to SDPs and the NcdDetectorSystem Timer to send updates to the client with either live raw data, stored
  * raw data or processed (reduced) data from the SDP.
  */
-public class ListenerDispatcher extends ConfigurableBase implements Findable, IScanDataPointObserver {
+public class ListenerDispatcher extends FindableConfigurableBase implements IScanDataPointObserver {
 
 	private class RequestObject {
 		public RequestObject(String type, String entity) {
@@ -72,7 +71,6 @@ public class ListenerDispatcher extends ConfigurableBase implements Findable, IS
 	private static final Logger logger = LoggerFactory.getLogger(ListenerDispatcher.class);
 	private static final float MINIMUM_COLLECTION_TIME_FOR_RATE = 0.3f;
 	private NcdDetectorSystem det;
-	private String name;
 	private INexusTree savedTree;
 	private int lastFrame = 0;
 	private int currentFrame = 0;
@@ -321,16 +319,6 @@ public class ListenerDispatcher extends ConfigurableBase implements Findable, IS
 
 	public NcdDetectorSystem getNcdDetector() {
 		return det;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public void monitorSDP(String panelName, String detectorName) {

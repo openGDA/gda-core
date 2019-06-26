@@ -18,9 +18,6 @@
 
 package uk.ac.gda.epics.dxp.client.views;
 
-import gda.images.camera.ImageListener;
-import gda.images.camera.MotionJpegOverHttpReceiverSwt;
-
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
@@ -44,6 +41,9 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.factory.FindableBase;
+import gda.images.camera.ImageListener;
+import gda.images.camera.MotionJpegOverHttpReceiverSwt;
 import uk.ac.gda.client.tomo.composites.FixedImageViewerComposite;
 import uk.ac.gda.client.tomo.composites.FullImageComposite;
 import uk.ac.gda.edxd.common.IEdxdAlignment;
@@ -102,7 +102,7 @@ public class FrontEndCameraView extends ViewPart {
 
 		imgViewerComposite = new FullImageComposite(rootComposite, SWT.None);
 		imgViewerComposite.setBackground(ColorConstants.white);
-		
+
 		imgViewerComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		imgVideoReceiver = new MotionJpegOverHttpReceiverSwt();
@@ -211,22 +211,11 @@ public class FrontEndCameraView extends ViewPart {
 	/**
 	 * VideoListener class to listen to image updates from the MotionMJPegreceiver.
 	 */
-	private final class VideoListener implements ImageListener<ImageData> {
-		private String name;
+	private final class VideoListener extends FindableBase implements ImageListener<ImageData> {
 		private final FixedImageViewerComposite imgViewer;
 
 		public VideoListener(FixedImageViewerComposite imageViewer) {
 			imgViewer = imageViewer;
-		}
-
-		@Override
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public String getName() {
-			return name;
 		}
 
 		@Override

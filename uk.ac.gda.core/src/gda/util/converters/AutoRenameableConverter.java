@@ -26,14 +26,13 @@ import javax.measure.quantity.Quantity;
 
 import org.jscience.physics.amount.Amount;
 
+import gda.factory.FindableBase;
 import gda.util.converters.util.ConverterNameProvider;
 
 /**
  * AutoRenameableConverter Class
  */
-public class AutoRenameableConverter implements IReloadableQuantitiesConverter, IQuantityConverter {
-
-	private String name = null;
+public class AutoRenameableConverter extends FindableBase implements IReloadableQuantitiesConverter, IQuantityConverter {
 
 	private IReloadableQuantitiesConverter converter = null;
 
@@ -44,7 +43,7 @@ public class AutoRenameableConverter implements IReloadableQuantitiesConverter, 
 	public AutoRenameableConverter(String name, ConverterNameProvider provider, boolean autoConversion) {
 		Objects.requireNonNull(name);
 		Objects.requireNonNull(provider);
-		this.name = name;
+		super.setName(name);
 		this.provider = provider;
 		this.autoConversion = autoConversion;
 	}
@@ -66,11 +65,6 @@ public class AutoRenameableConverter implements IReloadableQuantitiesConverter, 
 	}
 
 	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
 	public void setName(String name) {
 		// I need to support the function but will not do anything with the name
 		// as I do not want to allow the name to be changed after construction
@@ -82,7 +76,7 @@ public class AutoRenameableConverter implements IReloadableQuantitiesConverter, 
 	}
 
 	public void setConverterName(String converterName) {
-		if (name.equals(converterName)) {
+		if (getName().equals(converterName)) {
 			throw new IllegalArgumentException("RenameableConverter. name and converterName cannot be the same");
 		}
 		IReloadableQuantitiesConverter newConverter = CoupledConverterHolder

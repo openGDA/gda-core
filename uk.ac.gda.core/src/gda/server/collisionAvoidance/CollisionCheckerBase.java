@@ -22,10 +22,12 @@ package gda.server.collisionAvoidance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.factory.FindableBase;
+
 /**
  *
  */
-public abstract class CollisionCheckerBase implements CollisionChecker {
+public abstract class CollisionCheckerBase extends FindableBase implements CollisionChecker {
 	private static final Logger logger = LoggerFactory.getLogger(CollisionCheckerBase.class);
 
 	int nParam;
@@ -37,10 +39,6 @@ public abstract class CollisionCheckerBase implements CollisionChecker {
 	String[] paramNames; // List of names corresponding to each parameter in the
 	// above arrays
 	// These will be set by the CAC controller when
-	/**
-	 * The name of this Scannable
-	 */
-	protected String name = "";
 
 	@Override
 	public String[] checkMove(final Double[] _currentRangeStart, final Double[] _currentRangeEnd,
@@ -98,7 +96,7 @@ public abstract class CollisionCheckerBase implements CollisionChecker {
 		Double[] rangeEndSlice;
 		String[] result;
 
-		logger.debug(name + ".applyTestAtEndpoints(" + ArrayToString.get(rangeStart) + ", "
+		logger.debug(getName() + ".applyTestAtEndpoints(" + ArrayToString.get(rangeStart) + ", "
 				+ ArrayToString.get(rangeEnd) + ", " + startI + ") entered");
 		// Move through range arrays from startI onwards.
 		for (int i = startI; i < nParam; i++) {
@@ -148,7 +146,7 @@ public abstract class CollisionCheckerBase implements CollisionChecker {
 		Double[] rangeEndSlice;
 		String[] result;
 
-		logger.debug(name + ".applyTestOverRange(" + ArrayToString.get(rangeStart) + ", " + ArrayToString.get(rangeEnd)
+		logger.debug(getName() + ".applyTestOverRange(" + ArrayToString.get(rangeStart) + ", " + ArrayToString.get(rangeEnd)
 				+ ", " + startI + ") entered");
 		// Move through range arrays
 		for (int i = startI; i < nParam; i++) {
@@ -194,11 +192,6 @@ public abstract class CollisionCheckerBase implements CollisionChecker {
 
 	}
 
-	@Override
-	public String getName() {
-		return name;
-	}
-
 	/**
 	 * @return the sample size
 	 */
@@ -233,11 +226,6 @@ public abstract class CollisionCheckerBase implements CollisionChecker {
 	public void setParamNames(final String[] paramNames) {
 		this.paramNames = paramNames;
 		this.nParam = paramNames.length;
-	}
-
-	@Override
-	public void setName(String newName) {
-		this.name = newName;
 	}
 
 	// public void display()

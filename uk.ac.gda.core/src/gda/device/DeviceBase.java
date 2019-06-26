@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.factory.ConditionallyConfigurable;
-import gda.factory.ConfigurableBase;
+import gda.factory.FindableConfigurableBase;
 import gda.jython.accesscontrol.MethodAccessProtected;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -34,11 +34,9 @@ import gda.observable.ObservableComponent;
 /**
  * A base implementation for all devices
  */
-public abstract class DeviceBase extends ConfigurableBase implements Device, ConditionallyConfigurable {
+public abstract class DeviceBase extends FindableConfigurableBase implements Device, ConditionallyConfigurable {
 
 	private static final Logger logger = LoggerFactory.getLogger(DeviceBase.class);
-
-	private String name;
 
 	private int protectionLevel = 1;
 
@@ -58,6 +56,7 @@ public abstract class DeviceBase extends ConfigurableBase implements Device, Con
 	 */
 	@Override
 	public String getName() {
+		final String name = super.getName();
 		if (isConfigured() && (name == null || name.isEmpty())){
 			logger.warn("getName() called on a device when the name has not been set. This may cause problems in the system and should be fixed.");
 		}
@@ -73,7 +72,7 @@ public abstract class DeviceBase extends ConfigurableBase implements Device, Con
 	@Override
 	@MethodAccessProtected(isProtected=true)
 	public void setName(String name) {
-		this.name = name;
+		super.setName(name);
 	}
 
 	@Override

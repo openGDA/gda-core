@@ -24,12 +24,12 @@ import javax.measure.quantity.Quantity;
 
 import org.jscience.physics.amount.Amount;
 
+import gda.factory.FindableBase;
+
 /**
  * RenameableConverter Class
  */
-public class RenameableConverter implements IReloadableQuantitiesConverter, IQuantityConverter {
-	private String name = null;
-
+public class RenameableConverter extends FindableBase implements IReloadableQuantitiesConverter, IQuantityConverter {
 	private String converterName = "";
 
 	private IReloadableQuantitiesConverter converter = null;
@@ -45,7 +45,7 @@ public class RenameableConverter implements IReloadableQuantitiesConverter, IQua
 		if (name.equals(converterName)) {
 			throw new IllegalArgumentException("RenameableConverter. name and converterName cannot be the same");
 		}
-		this.name = name;
+		super.setName(name);
 		this.converterName = converterName;
 	}
 
@@ -59,11 +59,6 @@ public class RenameableConverter implements IReloadableQuantitiesConverter, IQua
 			converter = CoupledConverterHolder.FindReloadableQuantitiesConverter(converterName);
 		}
 		return converter;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	/**
@@ -88,7 +83,7 @@ public class RenameableConverter implements IReloadableQuantitiesConverter, IQua
 	 * @param converterName
 	 */
 	public void setConverterName(String converterName) {
-		if (name.equals(converterName)) {
+		if (getName().equals(converterName)) {
 			throw new IllegalArgumentException("RenameableConverter. name and converterName cannot be the same");
 		}
 		IReloadableQuantitiesConverter newConverter = CoupledConverterHolder

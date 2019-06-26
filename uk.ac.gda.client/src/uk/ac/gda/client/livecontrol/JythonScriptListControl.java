@@ -35,6 +35,7 @@ import org.eclipse.swt.widgets.Display;
 
 import com.swtdesigner.SWTResourceManager;
 
+import gda.factory.FindableBase;
 import gda.jython.InterfaceProvider;
 import uk.ac.gda.client.viewer.ThreeStateDisplay;
 
@@ -60,10 +61,9 @@ import uk.ac.gda.client.viewer.ThreeStateDisplay;
  * {@literal		</bean>}
  * </pre>
  */
-public class JythonScriptListControl implements LiveControl {
+public class JythonScriptListControl extends FindableBase implements LiveControl {
 
 	private Map<String, String> scripts;
-	private String name;
 	private String group;
 	private String jobTitle;
 	private Combo scriptsCombo;
@@ -171,16 +171,6 @@ public class JythonScriptListControl implements LiveControl {
 
 	public void setJobTitle(String title) {
 		jobTitle = title;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 }

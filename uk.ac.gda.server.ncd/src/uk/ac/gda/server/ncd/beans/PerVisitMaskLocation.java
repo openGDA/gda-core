@@ -32,14 +32,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.data.PathConstructor;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
+import gda.factory.FindableConfigurableBase;
 import gda.jython.InterfaceProvider;
 import gda.jython.batoncontrol.BatonChanged;
 import gda.observable.IObserver;
 import uk.ac.gda.util.io.FileUtils;
 
-public class PerVisitMaskLocation extends ConfigurableBase implements StoredDetectorInfo, IObserver {
+public class PerVisitMaskLocation extends FindableConfigurableBase implements StoredDetectorInfo, IObserver {
 
 	private static final String VISIT_DIRECTORY_PROPERTY = "gda.data.visitdirectory";
 
@@ -60,7 +60,6 @@ public class PerVisitMaskLocation extends ConfigurableBase implements StoredDete
 		public void clear() { heldFile = null; }
 	}
 
-	private String name;
 	private File maskDirectory;
 	private FileHolder detectorInfoFile = new FileHolder();
 	private FileHolder dataReductionFile = new FileHolder();
@@ -77,16 +76,6 @@ public class PerVisitMaskLocation extends ConfigurableBase implements StoredDete
 		}
 		InterfaceProvider.getBatonStateProvider().addBatonChangedObserver(this);
 		setConfigured(true);
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	private void setNewFile(FileHolder fh, String path, String prefix) throws IOException {

@@ -28,8 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
+import gda.factory.FindableConfigurableBase;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import uk.ac.gda.api.remoting.ServiceInterface;
@@ -39,9 +39,8 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * and provides access to those objects and their contents. Metadata can be added programatically or configured via XML.
  */
 @ServiceInterface(Metadata.class)
-public class GdaMetadata extends ConfigurableBase implements Metadata, IObserver {
+public class GdaMetadata extends FindableConfigurableBase implements Metadata, IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(GdaMetadata.class);
-	private String name;
 
 	private final Map<String, IMetadataEntry> metadataEntries = new LinkedHashMap<>();
 	private final ObservableComponent observableComponent = new ObservableComponent();
@@ -136,13 +135,8 @@ public class GdaMetadata extends ConfigurableBase implements Metadata, IObserver
 	}
 
 	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
 	public void setName(String name) {
-		this.name = name;
+		super.setName(name);
 		if (!name.equals(GDAMetadataProvider.GDAMETADATANAME)) {
 			logger.warn("GdaMetadata should be named " + GDAMetadataProvider.GDAMETADATANAME);
 		}

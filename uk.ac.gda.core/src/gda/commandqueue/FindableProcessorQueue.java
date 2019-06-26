@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import gda.factory.FindableBase;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import uk.ac.gda.api.remoting.ServiceInterface;
@@ -38,8 +39,8 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  *
  */
 @ServiceInterface(IFindableQueueProcessor.class)
-public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable, IObserver, InitializingBean {
-	ObservableComponent obsComp = new ObservableComponent();
+public class FindableProcessorQueue extends FindableBase implements IFindableQueueProcessor, Runnable, IObserver, InitializingBean {
+	private final ObservableComponent obsComp = new ObservableComponent();
 
 	private static final Logger logger = LoggerFactory.getLogger(FindableProcessorQueue.class);
 
@@ -399,18 +400,6 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 		return false;
 	}
 
-	public String name;
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public CommandId addToTail(Command command) throws Exception {
 		return queue.addToTail(command);
@@ -459,7 +448,7 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 
 	@Override
 	public String toString() {
-		return "SimpleProcessor [name=" + name + ", state=" + state + "]";
+		return "SimpleProcessor [name=" + getName() + ", state=" + state + "]";
 	}
 
 	@Override

@@ -28,8 +28,8 @@ import gda.beamline.BeamlineInfo;
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
+import gda.factory.FindableConfigurableBase;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 
@@ -39,7 +39,7 @@ import gda.observable.ObservableComponent;
  *
  */
 @SuppressWarnings("serial")
-public class Beamline extends ConfigurableBase implements BeamlineInfo {
+public class Beamline extends FindableConfigurableBase implements BeamlineInfo {
 	private static final Logger logger = LoggerFactory.getLogger(Beamline.class);
 	private final String FILE_PREFIX = "gda.data.file.prefix";
 	private final String FILE_SUFFIX = "gda.data.file.suffix";
@@ -47,7 +47,7 @@ public class Beamline extends ConfigurableBase implements BeamlineInfo {
 	private final String PROJECT = "gda.data.project";
 	private final String EXPERIMENT = "gda.data.experiment";
 
-	private String name = "beamline";
+	private static final String NAME = "beamline";
 	private String filePrefix;
 	private String fileSuffix;
 	private String fileExtension;
@@ -63,7 +63,7 @@ public class Beamline extends ConfigurableBase implements BeamlineInfo {
 	 * constructor
 	 */
 	public Beamline() {
-
+		setName(NAME);
 	}
 
 	@Override
@@ -83,16 +83,6 @@ public class Beamline extends ConfigurableBase implements BeamlineInfo {
 			setConfigured(true);
 		}
 
-	}
-
-	@Override
-	public String getName() {
-		return this.name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	@Override

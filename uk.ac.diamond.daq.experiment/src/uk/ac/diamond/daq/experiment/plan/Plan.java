@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.device.Scannable;
 import gda.factory.Findable;
+import gda.factory.FindableBase;
 import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.plan.ConveniencePlanFactory;
@@ -31,11 +32,10 @@ import uk.ac.diamond.daq.experiment.api.plan.LimitCondition;
 import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 import uk.ac.diamond.daq.experiment.api.plan.event.TriggerEvent;
 
-public class Plan implements IPlan, IPlanRegistrar, ConveniencePlanFactory {
+public class Plan extends FindableBase implements IPlan, IPlanRegistrar, ConveniencePlanFactory {
 	
 	private static final Logger logger = LoggerFactory.getLogger(Plan.class);
 	
-	private String name;
 	private final List<ISegment> segments = new LinkedList<>();
 	private Optional<IExperimentDriver> experimentDriver = Optional.empty();
 	
@@ -50,18 +50,8 @@ public class Plan implements IPlan, IPlanRegistrar, ConveniencePlanFactory {
 	private String experimentDataDir;
 	
 	public Plan(String name) {
-		this.name = name;
+		super.setName(name);
 		setFactory(new PlanFactory());
-	}
-	
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	@Override
-	public String getName() {
-		return name;
 	}
 	
 	@Override
@@ -73,7 +63,7 @@ public class Plan implements IPlan, IPlanRegistrar, ConveniencePlanFactory {
 		experimentDataDir = Paths.get(dataDirBeforeExperiment, validName(getName())).toString();
 		LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, experimentDataDir);
 		
-		record = new ExperimentRecord(name);
+		record = new ExperimentRecord(getName());
 		record.start();
 		
 		logger.info("Plan '{}' execution started", getName());
@@ -253,7 +243,7 @@ public class Plan implements IPlan, IPlanRegistrar, ConveniencePlanFactory {
 
 	@Override
 	public String toString() {
-		return "Plan [name=" + name + ", segments=" + segments + "]";
+		return "Plan [name=" + getName() + ", segments=" + segments + "]";
 	}
 
 	@Override

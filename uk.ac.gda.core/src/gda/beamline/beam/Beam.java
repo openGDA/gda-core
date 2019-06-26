@@ -31,8 +31,8 @@ import gda.device.DeviceException;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableMotor;
 import gda.device.scannable.scannablegroup.ScannableGroup;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
+import gda.factory.FindableConfigurableBase;
 import gda.factory.Finder;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -47,9 +47,9 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  *
  */
 @ServiceInterface(BeamInfo.class)
-public class Beam extends ConfigurableBase implements BeamInfo {
+public class Beam extends FindableConfigurableBase implements BeamInfo {
 	private static final Logger logger = LoggerFactory.getLogger(Beam.class);
-	private String name = "beam";
+	private static final String NAME = "beam";
 	private double energy = Double.NaN;
 	private double wavelength = Double.NaN;
 
@@ -62,6 +62,7 @@ public class Beam extends ConfigurableBase implements BeamInfo {
 	 * default constructor
 	 */
 	public Beam() {
+		setName(NAME);
 	}
 
 	@Override
@@ -158,16 +159,6 @@ public class Beam extends ConfigurableBase implements BeamInfo {
 	@Override
 	public double getWavelength() {
 		return this.wavelength;
-	}
-
-	@Override
-	public String getName() {
-		return this.name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	/**

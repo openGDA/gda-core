@@ -18,8 +18,6 @@
 
 package org.opengda.lde.ui.viewfactories;
 
-import gda.rcp.views.FindableExecutableExtension;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.lde.ui.views.ChildrenTableView;
@@ -27,14 +25,16 @@ import org.opengda.lde.utils.LDEResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.factory.FindableBase;
+import gda.rcp.views.FindableExecutableExtension;
+
 /**
  * Factory method that create the View object
  */
-public class ChildrenTableViewFactory implements FindableExecutableExtension {
+public class ChildrenTableViewFactory extends FindableBase implements FindableExecutableExtension {
 
 	private final Logger logger = LoggerFactory.getLogger(ChildrenTableViewFactory.class);
 	private String viewPartName;
-	private String name;
 	private LDEResourceUtil resUtil;
 
 	public String getViewPartName() {
@@ -43,16 +43,6 @@ public class ChildrenTableViewFactory implements FindableExecutableExtension {
 
 	public void setViewPartName(String viewPartName) {
 		this.viewPartName = viewPartName;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return this.name;
 	}
 
 	@Override

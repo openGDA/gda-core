@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import gda.factory.FindableBase;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import uk.ac.diamond.daq.stage.MultipleStagePositioningService;
@@ -19,11 +20,10 @@ import uk.ac.diamond.daq.stage.event.StageGroupEvent;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 @ServiceInterface(MultipleStagePositioningService.class)
-public class DefaultMultipleStagePositioningService
+public class DefaultMultipleStagePositioningService extends FindableBase
 		implements MultipleStagePositioningService, StageGroupListener {
 	private static final Logger log = LoggerFactory.getLogger(DefaultMultipleStagePositioningService.class);
 
-	private String name;
 	private ObservableComponent observableComponent = new ObservableComponent();
 
 	private StageGroup currentStageGroup;
@@ -60,16 +60,6 @@ public class DefaultMultipleStagePositioningService
 		if (stageGroupEvent != null) {
 			observableComponent.notifyIObservers(this, stageGroupEvent);
 		}
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	@Override

@@ -26,8 +26,8 @@ import gda.device.DeviceException;
 import gda.device.Motor;
 import gda.device.MotorException;
 import gda.device.MotorStatus;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
+import gda.factory.FindableConfigurableBase;
 import gda.jython.accesscontrol.MethodAccessProtected;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -35,7 +35,7 @@ import gda.observable.ObservableComponent;
 /**
  * part of
  */
-public class SimpleMotor extends ConfigurableBase implements Motor, InitializingBean{
+public class SimpleMotor extends FindableConfigurableBase implements Motor, InitializingBean{
 
 	private static final long POLL_TIME_MILLIS = LocalProperties.getAsInt(LocalProperties.GDA_SCANNABLEBASE_POLLTIME, 100);
 
@@ -69,17 +69,6 @@ public class SimpleMotor extends ConfigurableBase implements Motor, Initializing
 		return 0;
 	}
 
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	String name="";
-	@Override
-	public String getName() {
-		return name;
-	}
-
 	private ObservableComponent observableComponent = new ObservableComponent();
 	@Override
 	public void addIObserver(IObserver observer) {
@@ -109,7 +98,7 @@ public class SimpleMotor extends ConfigurableBase implements Motor, Initializing
 			targetRangeCheck(targetPosition);
 			moveTo(targetPosition);
 		} catch (Throwable ex) {
-			throw new MotorException(getStatus(), "Motor " + name + "failed to moveBy " + increment, ex);
+			throw new MotorException(getStatus(), "Motor " + getName() + "failed to moveBy " + increment, ex);
 		}
 	}
 
@@ -119,12 +108,12 @@ public class SimpleMotor extends ConfigurableBase implements Motor, Initializing
 		final double upperLimit = getMaxPosition();
 
 		if (requestedPosition < lowerLimit) {
-			throw (new MotorException(MotorStatus.LOWER_LIMIT, "Motor " + name + " " + requestedPosition + " outside lower hardware limit of "
+			throw (new MotorException(MotorStatus.LOWER_LIMIT, "Motor " + getName() + " " + requestedPosition + " outside lower hardware limit of "
 					+ lowerLimit));
 		}
 
 		else if (requestedPosition > upperLimit) {
-			throw (new MotorException(MotorStatus.UPPER_LIMIT, "Motor " + name + " " + requestedPosition + " outside upper hardware limit of "
+			throw (new MotorException(MotorStatus.UPPER_LIMIT, "Motor " + getName() + " " + requestedPosition + " outside upper hardware limit of "
 					+ upperLimit));
 		}
 	}
@@ -134,11 +123,11 @@ public class SimpleMotor extends ConfigurableBase implements Motor, Initializing
 	public void moveTo(double position) throws MotorException {
 		targetRangeCheck(position);
 		if (getStatus() == MotorStatus.BUSY)
-			throw new MotorException(getStatus(), "Motor " + name + " moveTo aborted because previous move not yet completed");
+			throw new MotorException(getStatus(), "Motor " + getName() + " moveTo aborted because previous move not yet completed");
 		try {
 			smc.moveTo(position);
 		} catch (DeviceException e) {
-			throw new MotorException(MotorStatus.FAULT,"Motor " + name + " error moving motor to position " + position,e);
+			throw new MotorException(MotorStatus.FAULT,"Motor " + getName() + " error moving motor to position " + position,e);
 		}
 	}
 
@@ -159,7 +148,7 @@ public class SimpleMotor extends ConfigurableBase implements Motor, Initializing
 		try {
 			return smc.getMotorPosition();
 		} catch (DeviceException e) {
-			throw new MotorException(MotorStatus.FAULT,"Motor " + name + " error reading motor position",e);
+			throw new MotorException(MotorStatus.FAULT,"Motor " + getName() + " error reading motor position",e);
 		}
 	}
 
@@ -168,7 +157,7 @@ public class SimpleMotor extends ConfigurableBase implements Motor, Initializing
 		try {
 			smc.setSpeed(speed);
 		} catch (Exception e) {
-			throw new MotorException(MotorStatus.FAULT,"Motor " + name + " error setting motor speed",e);
+			throw new MotorException(MotorStatus.FAULT,"Motor " + getName() + " error setting motor speed",e);
 		}
 	}
 
@@ -182,7 +171,7 @@ public class SimpleMotor extends ConfigurableBase implements Motor, Initializing
 		try {
 			return smc.getSpeed();
 		} catch (DeviceException e) {
-			throw new MotorException(MotorStatus.FAULT,"Motor " + name + " error reading motor speed",e);
+			throw new MotorException(MotorStatus.FAULT,"Motor " + getName() + " error reading motor speed",e);
 		}
 	}
 
@@ -202,7 +191,7 @@ public class SimpleMotor extends ConfigurableBase implements Motor, Initializing
 		try {
 			smc.stop();
 		} catch (DeviceException e) {
-			throw new MotorException(MotorStatus.FAULT,"Motor " + name + " error stopping motor",e);
+			throw new MotorException(MotorStatus.FAULT,"Motor " + getName() + " error stopping motor",e);
 		}
 	}
 
@@ -216,7 +205,7 @@ public class SimpleMotor extends ConfigurableBase implements Motor, Initializing
 		try {
 			return smc.isBusy() ? MotorStatus.BUSY : MotorStatus.READY;
 		} catch (DeviceException e) {
-			throw new MotorException(MotorStatus.FAULT,"Error getting status from motor " + name,e);
+			throw new MotorException(MotorStatus.FAULT,"Error getting status from motor " + getName(),e);
 		}
 	}
 
@@ -313,7 +302,7 @@ public class SimpleMotor extends ConfigurableBase implements Motor, Initializing
 	public void afterPropertiesSet() throws Exception {
 		if( smc == null)
 			throw new Exception("smc is null");
-		if( !StringUtils.hasText(name))
+		if( !StringUtils.hasText(getName()))
 			throw new Exception("name is not set");
 
 	}

@@ -11,13 +11,12 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import gda.device.Scannable;
+import gda.factory.FindableBase;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.DriverState;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 
-public abstract class ExperimentDriverBase<T extends DriverModel> implements IExperimentDriver<T> {
-	
-	private String name;
+public abstract class ExperimentDriverBase<T extends DriverModel> extends FindableBase implements IExperimentDriver<T> {
 	
 	private Map<String, Scannable> readouts;
 	private String mainReadoutName;
@@ -25,16 +24,6 @@ public abstract class ExperimentDriverBase<T extends DriverModel> implements IEx
 	
 	// Should this be org.eclipse.scanning.api.event.scan.DeviceState?
 	protected DriverState state = IDLE;
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
 
 	@Override
 	public void setModel(T model) {

@@ -25,6 +25,8 @@ import javax.measure.quantity.Quantity;
 
 import org.jscience.physics.amount.Amount;
 
+import gda.factory.FindableBase;
+
 /**
  * Class that can be used to create a converter made up of two other converters in such a way that one converter is used
  * to convert from Source to Target and another used to convert from Target to Source. An occasion where this is useful
@@ -55,13 +57,9 @@ import org.jscience.physics.amount.Amount;
  * <p>
  * The object implements IQuantitiesConverter so that the object can be referenced by CombinedDOF.
  */
-public final class SplitConverterHolder implements IReloadableQuantitiesConverter, IQuantityConverter
-
-{
+public final class SplitConverterHolder extends FindableBase implements IReloadableQuantitiesConverter, IQuantityConverter {
 
 	private final String toSourceConverterName, calculateMoveablesConverterName;
-
-	private final String name;
 
 	private IQuantitiesConverter converter = null;
 
@@ -78,14 +76,9 @@ public final class SplitConverterHolder implements IReloadableQuantitiesConverte
 	 *            to Target.
 	 */
 	public SplitConverterHolder(String name, String toSourceConverterName, String calculateMoveablesConverterName) {
-		this.name = name;
+		super.setName(name);
 		this.toSourceConverterName = toSourceConverterName;
 		this.calculateMoveablesConverterName = calculateMoveablesConverterName;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	public String getToSourceConverterName() {

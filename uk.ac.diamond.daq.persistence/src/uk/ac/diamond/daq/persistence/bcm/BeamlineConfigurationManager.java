@@ -40,9 +40,8 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
+import gda.factory.FindableConfigurableBase;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -64,12 +63,11 @@ import uk.ac.diamond.daq.persistence.jythonshelf.ObjectShelfException;
  * <p>
  * Can only be instantiated using server.xml file.
  */
-public class BeamlineConfigurationManager extends ConfigurableBase implements Findable, IObservable {
+public class BeamlineConfigurationManager extends FindableConfigurableBase implements IObservable {
 	private static final Logger logger = LoggerFactory.getLogger(BeamlineConfigurationManager.class);
 
 	private static EntityManager em;
 
-	private String name = "";
 	private Map<String, Mode> activeModes = new HashMap<>();
 	private LocalObjectShelf bcmShelve;
 	private ObservableComponent observableComponent = new ObservableComponent();
@@ -584,16 +582,6 @@ public class BeamlineConfigurationManager extends ConfigurableBase implements Fi
 	@Override
 	public void deleteIObservers() {
 		observableComponent.deleteIObservers();
-	}
-
-	// Implement Findable interface.
-	@Override
-	public String getName() {
-		return name;
-	}
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	private final class NullModeBCMException extends BcmException {

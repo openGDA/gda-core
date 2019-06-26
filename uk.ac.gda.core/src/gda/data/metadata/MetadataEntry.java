@@ -22,8 +22,8 @@ package gda.data.metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
+import gda.factory.FindableConfigurableBase;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 
@@ -35,13 +35,11 @@ import gda.observable.ObservableComponent;
  * @see Metadata
  * @see GdaMetadata
  */
-public abstract class MetadataEntry extends ConfigurableBase implements IMetadataEntry {
+public abstract class MetadataEntry extends FindableConfigurableBase implements IMetadataEntry {
 
 	private static final Logger logger = LoggerFactory.getLogger(MetadataEntry.class);
 
 	private transient Metadata metadata;
-
-	private String name = "";
 
 	private String defEntryName = "";
 
@@ -71,11 +69,11 @@ public abstract class MetadataEntry extends ConfigurableBase implements IMetadat
 			try {
 				if (defEntryName == null || defEntryName.isEmpty())
 					throw e;
-				logger.warn("Error getting value for " + name + "; falling back to default entry " + defEntryName);
+				logger.warn("Error getting value for " + getName() + "; falling back to default entry " + defEntryName);
 				value = metadata.getMetadataValue(defEntryName);
 
 			} catch (Exception e2) {
-				logger.error( "Error getting value for " + name, e2);
+				logger.error( "Error getting value for " + getName(), e2);
 			}
 		}
 
@@ -93,16 +91,6 @@ public abstract class MetadataEntry extends ConfigurableBase implements IMetadat
 	 * @throws Exception if the value cannot be retrieved
 	 */
 	protected abstract String readActualValue() throws Exception;
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
 
 	@Override
 	public String getDefEntryName() {

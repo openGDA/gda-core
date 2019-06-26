@@ -31,20 +31,20 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 
 import gda.device.DeviceException;
+import gda.factory.FindableBase;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.server.ncd.timing.data.SimpleTimerConfiguration;
 
 @ServiceInterface(TimerController.class)
-public class DefaultTimerController implements TimerController {
+public class DefaultTimerController extends FindableBase implements TimerController {
 	private static final Logger log = LoggerFactory.getLogger(DefaultTimerController.class);
 
 	private ObservableComponent observableComponent = new ObservableComponent();
 
 	private Gson gson = new Gson ();
 
-	private String name;
 	private SimpleTimerConfiguration lastUsedConfiguration;
 	private HardwareTimer hardwareTimer;
 
@@ -56,16 +56,6 @@ public class DefaultTimerController implements TimerController {
 		lastUsedConfiguration.setNumberOfFrames (numberOfFrames);
 		lastUsedConfiguration.setDelay (delay);
 		lastUsedConfiguration.setDelayTime (delayTime);
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	@Override

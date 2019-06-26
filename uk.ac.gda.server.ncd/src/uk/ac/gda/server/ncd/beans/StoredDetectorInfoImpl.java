@@ -28,22 +28,21 @@ import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
-import gda.data.metadata.MetadataBlaster;
-import gda.observable.IObserver;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.PathConstructor;
+import gda.data.metadata.MetadataBlaster;
+import gda.factory.FindableBase;
+import gda.observable.IObserver;
 import uk.ac.gda.util.io.FileUtils;
 
-public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
+public class StoredDetectorInfoImpl extends FindableBase implements StoredDetectorInfo, IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(StoredDetectorInfoImpl.class);
 	private static final String DETECTOR_MASK_STORAGE = LocalProperties.getVarDir() + "detectorInfoFileLocation";
 	private static final String REDUCTION_SETUP_STORAGE = LocalProperties.getVarDir() + "reductionSetupFileLocation";
-	private String name;
-	
+
 	private MetadataBlaster currentDataDirectoryUpdater;
 
 	private File saxsDetectorInfo;
@@ -52,7 +51,7 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 	public StoredDetectorInfoImpl() {
 		loadFileLocations();
 	}
-	
+
 	public void setCurrentDataDirectoryUpdater(MetadataBlaster currentDataDirectoryUpdater) {
 		if (this.currentDataDirectoryUpdater != null) {
 			this.currentDataDirectoryUpdater.deleteIObserver(this);
@@ -60,12 +59,12 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 		this.currentDataDirectoryUpdater = currentDataDirectoryUpdater;
 		this.currentDataDirectoryUpdater.addIObserver(this);
 	}
-	
+
 	private void loadFileLocations() {
 		saxsDetectorInfo = createFileFromLocation(DETECTOR_MASK_STORAGE);
 		dataCalibrationReductionSetup = createFileFromLocation(REDUCTION_SETUP_STORAGE);
 	}
-	
+
 	private File createFileFromLocation(String filePath) {
 		logger.debug("Loading file location from {}", filePath);
 		FileInputStream fileIn = null;
@@ -102,7 +101,7 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 		logger.debug("Subdirectory changed. New directory: {}", arg);
 		updateFilePaths();
 	}
-	
+
 	private void updateFilePaths() {
 		updateSaxsDetectorInfo();
 		updateDataCalibrationReductionSetup();
@@ -138,7 +137,7 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 	private String getNewFilePath(File currentFile) {
 		return PathConstructor.createFromDefaultProperty() + "/" + currentFile.getName();
 	}
-	
+
 	private void copyFile(File source, File target) {
 		try {
 			FileUtils.copy(source, target);
@@ -168,7 +167,7 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 			}
 		}
 	}
-	
+
 	@Override
 	public String getSaxsDetectorInfoPath() {
 		return saxsDetectorInfo == null ? "" : saxsDetectorInfo.getPath();
@@ -216,17 +215,7 @@ public class StoredDetectorInfoImpl implements StoredDetectorInfo, IObserver {
 		logger.debug("dataCalibrationReductionSetupPath is: {}", filePath);
 		storeFileLocation(dataCalibrationReductionSetup, REDUCTION_SETUP_STORAGE);
 	}
-	
-	@Override
-	public String getName() {
-		return name;
-	}
-	
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-	
+
 	private String timeStamped(String toStamp) {
 		Date now = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("-yyyyMMdd-HHmmss");

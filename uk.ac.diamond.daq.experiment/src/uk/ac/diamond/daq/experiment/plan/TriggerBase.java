@@ -7,17 +7,17 @@ import org.eclipse.scanning.api.event.IdBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.factory.FindableBase;
 import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 import uk.ac.diamond.daq.experiment.api.plan.event.TriggerEvent;
 
-public abstract class TriggerBase implements ITrigger {
+public abstract class TriggerBase extends FindableBase implements ITrigger {
 	
 	private static final Logger logger = LoggerFactory.getLogger(TriggerBase.class);
 	
-	private String name;
 	private final Triggerable triggerable;
 	private final ISampleEnvironmentVariable sev;	
 	private final IPlanRegistrar registrar;
@@ -30,16 +30,6 @@ public abstract class TriggerBase implements ITrigger {
 		this.registrar = registrar;
 		this.triggerable = triggerable;
 		this.sev = sev;
-	}
-	
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 	
 	@Override

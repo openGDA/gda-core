@@ -19,8 +19,8 @@
 
 package gda.jython.scriptcontroller;
 
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
+import gda.factory.FindableConfigurableBase;
 import gda.jython.ICommandRunner;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
@@ -32,9 +32,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * that this class should not need to be sub-classed.
  */
 @ServiceInterface(Scriptcontroller.class)
-public class ScriptControllerBase extends ConfigurableBase implements Scriptcontroller {
-
-	private String name;
+public class ScriptControllerBase extends FindableConfigurableBase implements Scriptcontroller {
 
 	private String commandName;
 
@@ -81,16 +79,6 @@ public class ScriptControllerBase extends ConfigurableBase implements Scriptcont
 	@Override
 	public void setParametersName(String parametersName) {
 		this.parametersName = parametersName;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	@Override

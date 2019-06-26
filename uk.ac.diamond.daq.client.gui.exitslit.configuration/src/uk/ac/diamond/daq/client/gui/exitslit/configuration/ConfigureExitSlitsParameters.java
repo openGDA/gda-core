@@ -25,9 +25,8 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 
 import gda.device.IScannableMotor;
 import gda.device.Scannable;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
+import gda.factory.FindableConfigurableBase;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 
@@ -37,7 +36,7 @@ import uk.ac.gda.client.live.stream.view.CameraConfiguration;
  * In order to make the dialogue as general as possible, the motors to be moved are configured in Spring, and other
  * parameters are set in a properties file (whose path is also set in Spring) which can be edited by beamline staff.
  */
-public class ConfigureExitSlitsParameters extends ConfigurableBase implements Findable {
+public class ConfigureExitSlitsParameters extends FindableConfigurableBase {
 	// These properties must be defined in file specified in propertyFilePath
 	private static final String GDA_PITCH_TWEAK_AMOUNT = "gda.pitch.tweak.amount";
 	private static final String GDA_SLIT_POSITION_TWEAK_AMOUNT = "gda.slit.position.tweak.amount";
@@ -63,9 +62,6 @@ public class ConfigureExitSlitsParameters extends ConfigurableBase implements Fi
 	private Double slitPositionTweakAmount;
 	private Double apertureArrayInPosition;
 	private Double apertureArrayOutPosition;
-
-	// Findable interface support
-	private String name;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -187,15 +183,5 @@ public class ConfigureExitSlitsParameters extends ConfigurableBase implements Fi
 
 	public double getSlitPositionTweakAmount() {
 		return slitPositionTweakAmount;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 }

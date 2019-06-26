@@ -8,12 +8,12 @@ import org.opengda.lde.ui.views.LiveImageView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.factory.FindableBase;
 import gda.rcp.views.FindableExecutableExtension;
 
-public class LiveImageViewFactory implements FindableExecutableExtension {
+public class LiveImageViewFactory extends FindableBase implements FindableExecutableExtension {
 	private static final Logger logger=LoggerFactory.getLogger(LiveImageViewFactory.class);
 	private String viewPartName;
-	private String name;
 	private String arrayPV;
 	private String arrayEnablePV;
 	private int xDimension;
@@ -38,19 +38,9 @@ public class LiveImageViewFactory implements FindableExecutableExtension {
 	}
 
 	@Override
-	public void setName(String name) {
-		this.name=name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
 	public void setInitializationData(IConfigurationElement config,
 			String propertyName, Object data) throws CoreException {
-		
+
 	}
 
 	@Override
@@ -67,7 +57,7 @@ public class LiveImageViewFactory implements FindableExecutableExtension {
 		if (yDimension == 0 ) {
 			throw new IllegalArgumentException("'yDimension' of a image cannot be 0.");
 		}
-		
+
 	}
 
 	public String getViewPartName() {

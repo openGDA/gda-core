@@ -25,8 +25,10 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.context.support.GenericApplicationContext;
 import org.xml.sax.InputSource;
@@ -38,7 +40,7 @@ import gda.factory.Configurable;
 import gda.factory.Factory;
 import gda.factory.FactoryBase;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
+import gda.factory.FindableConfigurableBase;
 import gda.factory.Finder;
 import gda.jython.IJythonNamespace;
 import gda.jython.ITerminalPrinter;
@@ -64,19 +66,21 @@ import gda.util.SpringObjectServer;
  * </ol>
  * Note: the implementation uses a new Child Spring {@link GenericApplicationContext} to create new beans.
  */
-public class LoadAdditionalBeansToObjectServer extends ApplicationObjectSupport implements Configurable, Findable {
+public class LoadAdditionalBeansToObjectServer extends FindableConfigurableBase implements ApplicationContextAware {
 	private static final ITerminalPrinter TERMINAL_PRINTER = InterfaceProvider.getTerminalPrinter();
 	private static final IJythonNamespace JYTHON_NAMESPACE = InterfaceProvider.getJythonNamespace();
 	private static final Logger gdaLogger = LoggerFactory.getLogger(LoadAdditionalBeansToObjectServer.class);
 	private boolean allowExceptionInConfigure = LocalProperties.check(FactoryBase.GDA_FACTORY_ALLOW_EXCEPTION_IN_CONFIGURE);
 	private GenericApplicationContext createdContext;
-	private String name;
-	private boolean configured = false;
+
+	private final ApplicationObjectSupport applicationObjectSupport = new ApplicationObjectSupport() {
+		// no additional functionality required
+	};
 
 	public void loadAdditionalBeans(List<String> filepaths) {
 
 		try {
-			createdContext = new GenericApplicationContext(getApplicationContext());
+			createdContext = new GenericApplicationContext(applicationObjectSupport.getApplicationContext());
 			XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(createdContext);
 			for (String filepath : filepaths) {
 				InputSource r = new InputSource(new FileReader(filepath));
@@ -164,26 +168,17 @@ public class LoadAdditionalBeansToObjectServer extends ApplicationObjectSupport 
 	@Override
 	public void configure() throws FactoryException {
 		JYTHON_NAMESPACE.placeInJythonNamespace(getName(), this);
-		configured = true;
+		setConfigured(true);
 	}
 
 	@Override
 	public void reconfigure() throws FactoryException {
 		gdaLogger.debug("Empty reconfigure() called");
 	}
-	@Override
-	public boolean isConfigured() {
-		return configured;
-	}
 
 	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		applicationObjectSupport.setApplicationContext(applicationContext);
 	}
 
 }

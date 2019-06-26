@@ -27,17 +27,17 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.EnumPositioner;
 import gda.device.Scannable;
+import gda.factory.FindableBase;
 import gda.factory.Finder;
 import gda.rcp.views.AbstractPositionerComposite;
 import gda.rcp.views.EnumPositionerComposite;
 import gda.rcp.views.NudgePositionerComposite;
 
-public class ScannablePositionerControl implements LiveControl {
+public class ScannablePositionerControl extends FindableBase implements LiveControl {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannablePositionerControl.class);
 
 	// Use the wrapper classes to allow null ie default if not set.
-	private String name; // id
 	private String displayName;
 	private String group;
 	private String scannableName; // Used by the finder to get the scannable
@@ -45,16 +45,6 @@ public class ScannablePositionerControl implements LiveControl {
 	private String userUnits; // Use to override the scannable units (if required)
 	private Double increment; // The increment to set when then control is created Double allows null i.e. default
 	private int incrementTextWidth = 60; // Passed down to NudgePositionerComposite
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
 
 	public String getDisplayName() {
 		return displayName;
@@ -120,7 +110,7 @@ public class ScannablePositionerControl implements LiveControl {
 		result = prime * result + ((displayName == null) ? 0 : displayName.hashCode());
 		result = prime * result + ((group == null) ? 0 : group.hashCode());
 		result = prime * result + ((increment == null) ? 0 : increment.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
 		result = prime * result + ((scannableName == null) ? 0 : scannableName.hashCode());
 		result = prime * result + ((showStop == null) ? 0 : showStop.hashCode());
 		result = prime * result + ((userUnits == null) ? 0 : userUnits.hashCode());
@@ -154,10 +144,10 @@ public class ScannablePositionerControl implements LiveControl {
 		if (incrementTextWidth != other.incrementTextWidth) {
 			return false;
 		}
-		if (name == null) {
-			if (other.name != null)
+		if (getName() == null) {
+			if (other.getName() != null)
 				return false;
-		} else if (!name.equals(other.name))
+		} else if (!getName().equals(other.getName()))
 			return false;
 		if (scannableName == null) {
 			if (other.scannableName != null)
@@ -216,7 +206,7 @@ public class ScannablePositionerControl implements LiveControl {
 
 	@Override
 	public String toString() {
-		return "ScannablePositionerControl [name=" + name + ", displayName=" + displayName + ", group=" + group
+		return "ScannablePositionerControl [name=" + getName() + ", displayName=" + displayName + ", group=" + group
 				+ ", scannableName=" + scannableName + ", showStop=" + showStop + ", userUnits=" + userUnits
 				+ ", increment=" + increment + ", incrementTextWidth=" + incrementTextWidth + "]";
 	}

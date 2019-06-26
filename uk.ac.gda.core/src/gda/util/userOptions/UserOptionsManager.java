@@ -30,8 +30,8 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
+import gda.factory.FindableConfigurableBase;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
@@ -41,13 +41,12 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  */
 @SuppressWarnings("rawtypes")
 @ServiceInterface(UserOptionsService.class)
-public class UserOptionsManager extends ConfigurableBase implements UserOptionsService {
+public class UserOptionsManager extends FindableConfigurableBase implements UserOptionsService {
 
 	private static final Logger logger = LoggerFactory.getLogger(UserOptionsManager.class);
 
 	public static final String DEFAULT_OPTIONS_FILENAME = "GDAUserOptions";
 
-	private String name;
 	private String templateConfigDir = null; // typically ${gda.config}/xml
 
 	private String templateConfigName = null;
@@ -99,11 +98,6 @@ public class UserOptionsManager extends ConfigurableBase implements UserOptionsS
 		templateOptions.setTitle(template.getString(UserOptionsMap.propTitle));
 		templateOptions.setIsDefault(true);
 		return this.setOptionsMapFromConfig(templateOptions, template, template);
-	}
-
-	@Override
-	public String getName() {
-		return this.name;
 	}
 
 	@Override
@@ -216,11 +210,6 @@ public class UserOptionsManager extends ConfigurableBase implements UserOptionsS
 		}
 		config.save();
 		return getOptionsMapFromConfig(configDir, configName);
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	private UserOptionsMap setOptionsMapFromConfig(UserOptionsMap options, FileConfiguration template, FileConfiguration config)

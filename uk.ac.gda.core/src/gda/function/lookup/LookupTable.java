@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
-import gda.factory.ConfigurableBase;
+import gda.factory.FindableConfigurableBase;
 import gda.function.Lookup;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -62,15 +62,11 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * it uses a MultiValuedMap object to store the lookup table.
  */
 @ServiceInterface(Lookup.class)
-public class LookupTable extends ConfigurableBase implements Lookup {
+public class LookupTable extends FindableConfigurableBase implements Lookup {
 	/**
 	 * the logger instance
 	 */
 	private static final Logger logger = LoggerFactory.getLogger(LookupTable.class);
-	/**
-	 * the name of this object
-	 */
-	private String name;
 	/**
 	 * total number of rows in the lookup table
 	 */
@@ -392,16 +388,6 @@ public class LookupTable extends ConfigurableBase implements Lookup {
 	@Override
 	public int getNumberOfRows() {
 		return numberOfRows;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	@Override

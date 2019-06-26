@@ -32,21 +32,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import gda.configuration.properties.LocalProperties;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
+import gda.factory.FindableConfigurableBase;
 
 /**
  * Reads a file which contains columnar data and allows access to the columns. The file format is: # Any line beginning
  * with # is ignored xvalue1 yonevalue1 ytwovalue1 ythreevalue1... xvalue2 yonevalue2 ytwovalue2 ythreevalue2... xvalue3
  * yonevalue3 ytwovalue3 ythreevalue3... ... ...
  */
-public class ColumnDataFile extends ConfigurableBase implements Findable {
+public class ColumnDataFile extends FindableConfigurableBase {
 	public static final String GDA_FUNCTION_COLUMN_DATA_FILE_LOOKUP_DIR = "gda.function.columnDataFile.lookupDir";
 
 	private static final Logger logger = LoggerFactory.getLogger(ColumnDataFile.class);
-
-	String name;
 
 	int numberOfXValues;
 
@@ -73,25 +70,6 @@ public class ColumnDataFile extends ConfigurableBase implements Findable {
 	 */
 	public String getFilename() {
 		return filename;
-	}
-
-	/**
-	 * Returns the name of this instance
-	 *
-	 * @return the name.
-	 */
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	/**
-	 * @param name
-	 *            The name to set.
-	 */
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	/**

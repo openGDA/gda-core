@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 
 /**
  * GDA user facing device to control a multi-pocket evaporator
@@ -43,11 +43,10 @@ import gda.factory.Findable;
  * </bean>}
  * </pre>
  */
-public class Evaporator implements Findable {
+public class Evaporator extends FindableBase {
 	private static final Logger logger = LoggerFactory.getLogger(Evaporator.class);
 
 	private EvaporatorController controller;
-	private String name;
 
 	public void enable() throws DeviceException {
 		controller.setEnabled(true);
@@ -225,18 +224,8 @@ public class Evaporator implements Findable {
 					+ (isHvEnabled() ? "On" : "Off")
 					+ ")";
 		} catch (DeviceException e) {
-			logger.warn("{}: Couldn't get information for toString", name, e);
+			logger.warn("{}: Couldn't get information for toString", getName(), e);
 			return "Evaporator(UNKNOWN STATE)";
 		}
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 }

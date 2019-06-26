@@ -26,25 +26,15 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.swtdesigner.SWTResourceManager;
 
+import gda.factory.FindableBase;
 import gda.jython.ICommandRunner;
 import gda.jython.InterfaceProvider;
 
-public class JythonCommandControl implements LiveControl {
+public class JythonCommandControl extends FindableBase implements LiveControl {
 
-	private String name;
 	private String group;
 	private String buttonText;
 	private String jythonCommand;
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
 
 	@Override
 	public String getGroup() {
@@ -97,7 +87,7 @@ public class JythonCommandControl implements LiveControl {
 		result = prime * result + ((buttonText == null) ? 0 : buttonText.hashCode());
 		result = prime * result + ((group == null) ? 0 : group.hashCode());
 		result = prime * result + ((jythonCommand == null) ? 0 : jythonCommand.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
 		return result;
 	}
 
@@ -125,17 +115,17 @@ public class JythonCommandControl implements LiveControl {
 				return false;
 		} else if (!jythonCommand.equals(other.jythonCommand))
 			return false;
-		if (name == null) {
-			if (other.name != null)
+		if (getName() == null) {
+			if (other.getName() != null)
 				return false;
-		} else if (!name.equals(other.name))
+		} else if (!getName().equals(other.getName()))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "JythonCommandControl [name=" + name + ", group=" + group + ", buttonText=" + buttonText
+		return "JythonCommandControl [name=" + getName() + ", group=" + group + ", buttonText=" + buttonText
 				+ ", jythonCommand=" + jythonCommand + "]";
 	}
 

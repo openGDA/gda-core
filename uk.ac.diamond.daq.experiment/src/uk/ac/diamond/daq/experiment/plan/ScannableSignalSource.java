@@ -7,12 +7,11 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 
-public class ScannableSignalSource implements DoubleSupplier, Findable {
+public class ScannableSignalSource extends FindableBase implements DoubleSupplier {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ScannableSignalSource.class);
-	private String name;
 	private Scannable scannable;
 
 	@Override
@@ -27,16 +26,6 @@ public class ScannableSignalSource implements DoubleSupplier, Findable {
 	
 	public void setScannable(Scannable scannable) {
 		this.scannable = scannable;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 }

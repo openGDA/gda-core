@@ -18,17 +18,8 @@
 
 package uk.ac.gda.server.ncd.meta;
 
-import gda.factory.ConfigurableBase;
+import gda.factory.FindableConfigurableBase;
 
-public abstract class NcdMetaBaseProvider extends ConfigurableBase implements INcdMetaProvider {
-	private String name;
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
+public abstract class NcdMetaBaseProvider extends FindableConfigurableBase implements INcdMetaProvider {
 
-	@Override
-	public String getName() {
-		return name;
-	}
 }

@@ -28,15 +28,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import gda.configuration.properties.LocalProperties;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
+import gda.factory.FindableConfigurableBase;
 import gda.factory.Finder;
 
-public class DefaultDataWriterFactory extends ConfigurableBase implements DataWriterFactory {
+public class DefaultDataWriterFactory extends FindableConfigurableBase implements DataWriterFactory {
 	private static final Logger logger = LoggerFactory.getLogger(DefaultDataWriterFactory.class);
 
-
-	private String name;
 	private Map<String, IDataWriterExtender> dataWriterExtenders = new LinkedHashMap<String, IDataWriterExtender>();
 
 	@Override
@@ -76,11 +74,6 @@ public class DefaultDataWriterFactory extends ConfigurableBase implements DataWr
 		return dw;
 	}
 
-	@Override
-	public String getName() {
-		return name;
-	}
-
 	/**
 	 * This method added in to make the system work with Spring properly
 	 * @param dataWriterExtenders
@@ -90,11 +83,6 @@ public class DefaultDataWriterFactory extends ConfigurableBase implements DataWr
 		for(IDataWriterExtender extender: dataWriterExtenders) {
 			addDataWriterExtender(extender);
 		}
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	/**GDA_DATA_SCAN_DATAWRITER_DATAFORMAT
