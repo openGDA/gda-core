@@ -26,9 +26,8 @@ import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
+import gda.factory.FindableConfigurableBase;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -49,11 +48,10 @@ import gov.aps.jca.event.MonitorListener;
  * <li>The default mode is monitoring on.</li>
  *
  */
-public abstract class EpicsPVListener extends ConfigurableBase implements MonitorListener, InitializationListener, InitializingBean, Findable, IObservable {
+public abstract class EpicsPVListener extends FindableConfigurableBase implements MonitorListener, InitializationListener, InitializingBean, IObservable {
 
 	private Logger logger = LoggerFactory.getLogger(EpicsPVListener.class);
 	protected boolean first=true;
-	protected String name;
 	protected ObservableComponent observers=new ObservableComponent();
 
 	protected Channel pvchannel;
@@ -124,16 +122,6 @@ public abstract class EpicsPVListener extends ConfigurableBase implements Monito
 
 	public void dispose() {
 		pvchannel.dispose();
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name=name;
-	}
-
-	@Override
-	public String getName() {
-		return this.name;
 	}
 
 	public boolean isPoll() {

@@ -26,9 +26,8 @@ import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
+import gda.factory.FindableConfigurableBase;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
@@ -48,12 +47,11 @@ import gov.aps.jca.event.MonitorListener;
  * <li>The default mode is monitoring on.</li>
  *
  */
-public class EpicsDoubleDataArrayListenerFullImpl extends ConfigurableBase implements MonitorListener, InitializationListener, InitializingBean, Findable {
+public class EpicsDoubleDataArrayListenerFullImpl extends FindableConfigurableBase implements MonitorListener, InitializationListener, InitializingBean {
 
 	protected double[] value;
 	private Logger logger = LoggerFactory.getLogger(EpicsDoubleDataArrayListenerFullImpl.class);
 	private boolean first=true;
-	private String name;
 
 	private Channel pvchannel;
 	private String pvName;
@@ -156,16 +154,6 @@ public class EpicsDoubleDataArrayListenerFullImpl extends ConfigurableBase imple
 
 	public void dispose() {
 		pvchannel.dispose();
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name=name;
-	}
-
-	@Override
-	public String getName() {
-		return this.name;
 	}
 
 	public boolean isPoll() {

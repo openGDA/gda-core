@@ -48,8 +48,7 @@ import gda.device.Scannable;
 import gda.device.Temperature;
 import gda.device.detector.multichannelscaler.EpicsMultiChannelScaler;
 import gda.device.detector.multichannelscaler.Mca;
-import gda.factory.ConfigurableBase;
-import gda.factory.Findable;
+import gda.factory.FindableConfigurableBase;
 import gda.hrpd.SampleInfo;
 import gda.jython.JythonServerFacade;
 import gda.scan.IScanDataPoint;
@@ -58,12 +57,11 @@ import gda.scan.IScanDataPoint;
  * This class writes files of tabulated data from Multiple Analyser Crystal Detectors, along with a header and footer if
  * needed, in ASCII format. The files created use names which are an increment from the last name.
  */
-public class EpicsCVscanDataWriter extends ConfigurableBase implements DataWriter, Findable {
+public class EpicsCVscanDataWriter extends FindableConfigurableBase implements DataWriter {
 	/**
 	 * logging instance
 	 */
 	private static final Logger logger = LoggerFactory.getLogger(EpicsCVscanDataWriter.class);
-	private String name;
 	/**
 	 * the current file number being written to, which is managed by the NumTracker Class
 	 */
@@ -605,15 +603,6 @@ public class EpicsCVscanDataWriter extends ConfigurableBase implements DataWrite
 
 	public void setComment(String comment) {
 		this.header.add(comment);
-	}
-	@Override
-	public String getName() {
-		return this.name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	@Override

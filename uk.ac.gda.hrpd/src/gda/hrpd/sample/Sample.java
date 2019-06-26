@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
+import gda.factory.FindableConfigurableBase;
 import gda.hrpd.SampleInfo;
 import gda.hrpd.data.ExcelWorkbook;
 import gda.jython.JythonServerFacade;
@@ -45,7 +45,7 @@ import gda.observable.ObservableComponent;
  * should be user's home directory.
  */
 @SuppressWarnings("serial")
-public class Sample extends ConfigurableBase implements SampleInfo {
+public class Sample extends FindableConfigurableBase implements SampleInfo {
 	private static final Logger logger = LoggerFactory.getLogger(Sample.class);
 
 	private String carouselNo;
@@ -74,7 +74,7 @@ public class Sample extends ConfigurableBase implements SampleInfo {
 
 	private int rowOffset = 0;
 
-	private String name = "Sample";
+	private static final String NAME = "Sample";
 
 	private boolean saveExperimentSummary = false;
 
@@ -89,6 +89,7 @@ public class Sample extends ConfigurableBase implements SampleInfo {
 	/**
 	 */
 	public Sample() {
+		super.setName(NAME);
 	}
 
 	@Override
@@ -429,17 +430,6 @@ public class Sample extends ConfigurableBase implements SampleInfo {
 		}
 		setConfigured(false);
 		configure();
-	}
-
-	@Override
-	public String getName() {
-		return this.name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-
 	}
 
 	/**
