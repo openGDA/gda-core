@@ -18,9 +18,8 @@
 
 package uk.ac.gda.tomography.scan.presentation;
 
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
+import gda.factory.FindableConfigurableBase;
 
 /**
  * <p>
@@ -32,24 +31,13 @@ import gda.factory.Findable;
  * </p>
  */
 
-public class TomographyOptions extends ConfigurableBase implements Findable {
+public class TomographyOptions extends FindableConfigurableBase {
 
-	private String name;
 	private String[] rotationStages;
 	private String[] linearStages;
 	private String[] detectorToSampleDistanceUnits;
 	private String[] xPixelSizeUnits;
 	private String[] yPixelSizeUnits;
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
 
 	@Override
 	public void configure() throws FactoryException {
