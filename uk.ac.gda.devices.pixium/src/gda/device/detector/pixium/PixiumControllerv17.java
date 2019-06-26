@@ -41,6 +41,7 @@ import gda.device.detector.areadetector.v17.NDROI;
 import gda.device.detector.areadetector.v17.NDStats;
 import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.PixiumType;
+import gda.factory.FindableBase;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
@@ -49,7 +50,7 @@ import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
 import uk.ac.gda.devices.pixium.IPixiumController;
 
-public class PixiumControllerv17 implements IPixiumController, InitializingBean {
+public class PixiumControllerv17 extends FindableBase implements IPixiumController, InitializingBean {
 
 	static final Logger logger = LoggerFactory.getLogger(PixiumControllerv17.class);
 
@@ -226,8 +227,6 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 	/**
 	 * set up capturing ready for detector exposure/acquire
 	 */
-	private String name;
-
 	private CalibrationPutListener offsetCalCallback = new CalibrationPutListener();
 	private volatile int status = Detector.IDLE;
 
@@ -1575,16 +1574,6 @@ public class PixiumControllerv17 implements IPixiumController, InitializingBean 
 	@Override
 	public void stopHdfCapture() throws Exception {
 		hdf.stopCapture();
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name=name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	public void setStatus(int status) {

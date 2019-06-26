@@ -39,6 +39,7 @@ import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.NDROI;
 import gda.device.detector.areadetector.v17.NDStats;
 import gda.epics.connection.EpicsController;
+import gda.factory.FindableBase;
 import gda.jython.InterfaceProvider;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
@@ -51,7 +52,7 @@ import uk.ac.gda.devices.pco.LiveModeUtil;
  *
  * @author rsr31645
  */
-public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
+public class PCOControllerV17 extends FindableBase implements IPCOControllerV17, InitializingBean {
 	private static final Logger logger = LoggerFactory.getLogger(PCOControllerV17.class);
 	// PCO specific EPICS interface element and PV fields
 	private static final String PIX_RATE = "PIX_RATE";
@@ -114,7 +115,6 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	private NDFileNexus nxs;
 	private NDFileHDF5 hdf;
 
-	private String name;
 	private String basePVName;
 
 	/**
@@ -930,16 +930,6 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 
 	public void setReadout2ADC8Mhz(int readout2adc8Mhz) {
 		readout2ADC8Mhz = readout2adc8Mhz;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	@Override
