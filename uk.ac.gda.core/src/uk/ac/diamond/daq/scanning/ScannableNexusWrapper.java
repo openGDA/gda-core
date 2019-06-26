@@ -582,7 +582,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 
 			// position is already an object array
 			return (Object[]) position;
-		} catch (DeviceException e) {
+		} catch (DeviceException | NullPointerException e) {
 			throw new NexusException("Could not get position of device: " + getName(), e);
 		}
 	}
