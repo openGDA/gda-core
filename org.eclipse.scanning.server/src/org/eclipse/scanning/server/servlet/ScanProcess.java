@@ -300,12 +300,19 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		try {
 			final int[] scanShape = scanModel.getPointGenerator().getShape();
 
+			Map<String, Object> processingRequest = null;
+
+			if (bean.getScanRequest().getProcessingRequest() != null) {
+				processingRequest = bean.getScanRequest().getProcessingRequest().getRequest();
+			}
+
 			// Build the message object
 			final ScanMessage message = new ScanMessage(status, bean.getFilePath(), true, // SWMR is always active once the scan starts
 					bean.getScanNumber(), scanShape,
 					scanModel.getScannables().stream().map(IScannable::getName).collect(toList()),
 					scanModel.getDetectors().stream().map(IRunnableDevice::getName).collect(toList()),
-					bean.getPercentComplete()); // Progress in %
+					bean.getPercentComplete(), // Progress in %
+					processingRequest);
 
 			// Send the message
 			final MessagingService jms = Services.getGdaMessagingService();

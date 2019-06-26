@@ -64,11 +64,13 @@ from org.eclipse.scanning.command.Services import (
 from org.eclipse.scanning.api.scan.models import ScanMetadata
 import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType as MetadataType
 
+from org.eclipse.scanning.api.event.scan import ProcessingRequest
+
 
 # Grepping for 'mscan' in a GDA workspace shows up nothing, so it seems that
 # mscan is a free name.
 def mscan(path=None, monitorsPerPoint=None, monitorsPerScan=None, det=None, metadata=None, now=False, block=True,
-          allow_preprocess=False, broker_uri=None):
+          allow_preprocess=False, broker_uri=None, proc=None):
     """Create a ScanRequest and submit it to the GDA server.
 
     A simple usage of this function is as follows:
@@ -110,7 +112,7 @@ def mscan(path=None, monitorsPerPoint=None, monitorsPerScan=None, det=None, meta
     if (broker_uri is None):
         broker_uri = getScanningBrokerUri()
 
-    submit(request=scan_request(path=path, monitorsPerPoint=monitorsPerPoint, monitorsPerScan=monitorsPerScan, det=det, metadata=metadata, allow_preprocess=allow_preprocess),
+    submit(request=scan_request(path=path, monitorsPerPoint=monitorsPerPoint, monitorsPerScan=monitorsPerScan, det=det, metadata=metadata, allow_preprocess=allow_preprocess, proc=proc),
            now=now, block=block, broker_uri=broker_uri)
 
 def getScannable(name):
@@ -118,7 +120,7 @@ def getScannable(name):
     return getScannableDeviceService().getScannable(name)
 
 
-def submit(request, now=False, block=True, broker_uri=None, name=None):
+def submit(request, now=False, block=True, broker_uri=None, name=None, proc=None):
 
     if (broker_uri is None):
         broker_uri = getScanningBrokerUri()
@@ -163,7 +165,7 @@ def getScanningBrokerUri():
     return uri;
 
 
-def scan_request(path=None, monitorsPerPoint=None, monitorsPerScan=None, det=None, metadata=None, file=None, allow_preprocess=False):
+def scan_request(path=None, monitorsPerPoint=None, monitorsPerScan=None, det=None, metadata=None, file=None, allow_preprocess=False, proc=None):
     """Create a ScanRequest object with the given configuration.
 
     See the mscan() docstring for usage.
@@ -185,6 +187,17 @@ def scan_request(path=None, monitorsPerPoint=None, monitorsPerScan=None, det=Non
     metadata_list = ArrayList(_listify(metadata))
     (scan_path_models, _) = zip(*scan_paths)  # zip(* == unzip(
 
+    #Add a processing request
+    procReq = ProcessingRequest()
+    if proc is not None:
+        proc_dict = {}
+        for p in proc:
+            proc_dict.setdefault(p[0],[]).append(p[1])
+        procMap = HashMap()
+        for (name, patharr) in proc_dict.iteritems():
+            procMap[name] = ArrayList(patharr)
+        procReq.setRequest(procMap)
+
     # ScanRequest expects CompoundModel
     cmodel = CompoundModel()
     for (model, rois) in scan_paths:
@@ -202,7 +215,8 @@ def scan_request(path=None, monitorsPerPoint=None, monitorsPerScan=None, det=Non
                          'monitorNamesPerScan': monitorNamesPerScan,
                          'detectors': detector_map,
                          'scanMetadata' : metadata_list,
-                         'ignorePreprocess': not allow_preprocess})
+                         'ignorePreprocess': not allow_preprocess,
+                         'processingRequest' : procReq})
 
 
 """
@@ -244,7 +258,7 @@ def sample(**kwargs):
     for key, value in kwargs.iteritems():
         md.addField(key,value)
     return md
-    
+
 def step(axis=None, start=None, stop=None, step=None, **kwargs):
     """Define a step scan path to be passed to mscan().
 

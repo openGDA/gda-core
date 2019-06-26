@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -877,13 +878,20 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		try {
 			int[] scanShape = scanModel.getPointGenerator().getShape();
 
+			Map<String, Object> processingRequest = null;
+
+			if (scanBean.getScanRequest().getProcessingRequest() != null) {
+				processingRequest = scanBean.getScanRequest().getProcessingRequest().getRequest();
+			}
+
 			// Build the message object
 			ScanMessage message = new ScanMessage(status, scanBean.getFilePath(), true, // SWMR is always active once the
 																					// scan starts
 					scanBean.getScanNumber(), scanShape,
 					scanModel.getScannables().stream().map(IScannable::getName).collect(toList()),
 					scanModel.getDetectors().stream().map(IRunnableDevice::getName).collect(toList()),
-					scanBean.getPercentComplete()); // Progress in %
+					scanBean.getPercentComplete(), // Progress in %
+					processingRequest);
 
 			// Send the message
 			MessagingService jms = ServiceHolder.getMessagingService();

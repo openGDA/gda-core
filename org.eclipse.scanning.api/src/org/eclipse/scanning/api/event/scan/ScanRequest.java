@@ -118,20 +118,31 @@ public class ScanRequest<T> implements Serializable {
 	 */
 	private boolean ignorePreprocess;
 
+	private ProcessingRequest processingRequest;
+
 	public ScanRequest() {
 
 	}
 
-	public ScanRequest(IScanPathModel m, String filePath, List<String> monitorNamesPerPoint, List<String> monitorNamesPerScan) {
+	public ScanRequest(IScanPathModel m, String filePath, List<String> monitorNamesPerPoint, List<String> monitorNamesPerScan, ProcessingRequest processing) {
 		super();
 		this.compoundModel = new CompoundModel<T>(m);
 		this.monitorNamesPerPoint = monitorNamesPerPoint;
 		this.monitorNamesPerScan = monitorNamesPerScan;
 		this.filePath = filePath;
+		this.processingRequest = processing;
+	}
+
+	public ProcessingRequest getProcessingRequest() {
+		return processingRequest;
+	}
+
+	public void setProcessingRequest(ProcessingRequest processingRequest) {
+		this.processingRequest = processingRequest;
 	}
 
 	public ScanRequest(IScanPathModel m, T region, String filePath, List<String> monitorNamesPerPoint, List<String> monitorNamesPerScan) {
-		this(m, filePath, monitorNamesPerPoint, monitorNamesPerScan);
+		this(m, filePath, monitorNamesPerPoint, monitorNamesPerScan, null);
 		compoundModel.setRegions(Arrays.asList(new ScanRegion<T>(region, m.getScannableNames())));
 	}
 
