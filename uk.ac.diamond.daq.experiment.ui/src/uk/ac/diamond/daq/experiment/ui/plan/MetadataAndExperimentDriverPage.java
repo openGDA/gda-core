@@ -15,7 +15,6 @@ import org.eclipse.swt.widgets.Composite;
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
-import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 
 
@@ -83,7 +82,6 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 				.findFirst().orElseThrow(()->new IllegalArgumentException("No driver named " + planBean.getExperimentDriverName() + " found"))
 				.getReadoutNames();
 			nextPage.setSevs(readouts);
-			nextPage.plotProfile(((SingleAxisLinearSeries) experimentService.getDriverProfile(planBean.getExperimentDriverName(), planBean.getExperimentDriverProfile(), experimentId)).getProfile());
 		} else {
 			nextPage.setSevs(Collections.emptySet());
 		}

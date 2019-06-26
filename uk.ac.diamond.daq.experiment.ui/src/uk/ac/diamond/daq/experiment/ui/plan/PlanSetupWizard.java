@@ -65,7 +65,7 @@ public class PlanSetupWizard extends Wizard {
 		segmentsAndTriggersPage = new SegmentsAndTriggersPage(experimentService, experimentId, planBean);
 		addPage(segmentsAndTriggersPage);
 		
-		planSummaryPage = new PlanSummaryPage();
+		planSummaryPage = new PlanSummaryPage(experimentService, experimentId, planBean);
 		addPage(planSummaryPage);
 	}
 	
