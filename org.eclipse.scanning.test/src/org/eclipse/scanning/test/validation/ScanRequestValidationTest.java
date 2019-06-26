@@ -72,7 +72,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		GridModel gmodel = new GridModel("stage_x", "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
-		validator.validate(new ScanRequest<>(gmodel, null, null, null));
+		validator.validate(new ScanRequest<>(gmodel, null, (String)null, null, null));
 	}
 
 	@Test
@@ -86,7 +86,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		GridModel gmodel = new GridModel("stage_x", "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
-		ScanRequest<?> req = new ScanRequest<>(gmodel, null, null, null);
+		ScanRequest<?> req = new ScanRequest<>(gmodel, null, (String)null, null, null);
 		req.setDetectors(Collections.emptyMap());
 		validator.validate(req);
 	}
@@ -97,7 +97,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		GridModel gmodel = new GridModel("stage_x", "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
-		ScanRequest<?> req = new ScanRequest<>(gmodel, null, null, null);
+		ScanRequest<?> req = new ScanRequest<>(gmodel, null, (String)null, null, null);
 		req.putDetector("mandelbrot", new MandelbrotModel());
 		validator.validate(req);
 	}
@@ -107,7 +107,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		GridModel gmodel = new GridModel(null, "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
-		ScanRequest<?> req = new ScanRequest<>(gmodel, null, null, null);
+		ScanRequest<?> req = new ScanRequest<>(gmodel, null, (String)null, null, null);
 		req.putDetector("mandelbrot", new MandelbrotModel());
 		validator.validate(req);
 	}
