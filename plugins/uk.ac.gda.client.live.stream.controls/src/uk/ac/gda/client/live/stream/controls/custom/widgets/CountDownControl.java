@@ -23,6 +23,7 @@ import java.util.Observable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
+import gda.factory.FindableBase;
 import uk.ac.gda.client.livecontrol.LiveControl;
 import uk.ac.gda.client.livecontrol.LiveControlsView;
 /**
@@ -30,25 +31,14 @@ import uk.ac.gda.client.livecontrol.LiveControlsView;
  * It has 5 properties: a group name, a display name, an {@link Observable} to providing count down time, a time unit, and text width.
  * Among these, only the {@link Observable} instance is essential.
  */
-public class CountDownControl implements LiveControl {
+public class CountDownControl extends FindableBase implements LiveControl {
 
 	// Use the wrapper classes to allow null i.e. default if not set.
-	private String name; // id
 	private String group;
 	private String displayName;
 	private Observable observable; // this observable providing count down time data
 	private String userUnits; // the unit for the displayed data.
 	private Integer textWidth; // If set, passed down to CountDawnComposite
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
 
 	public String getDisplayName() {
 		return displayName;
@@ -90,7 +80,7 @@ public class CountDownControl implements LiveControl {
 		result = prime * result + ((displayName == null) ? 0 : displayName.hashCode());
 		result = prime * result + ((group == null) ? 0 : group.hashCode());
 		result = prime * result + ((textWidth == null) ? 0 : textWidth.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
 		result = prime * result + ((getObservable() == null) ? 0 : getObservable().hashCode());
 		result = prime * result + ((userUnits == null) ? 0 : userUnits.hashCode());
 		return result;
@@ -120,10 +110,10 @@ public class CountDownControl implements LiveControl {
 				return false;
 		} else if (!textWidth.equals(other.textWidth))
 			return false;
-		if (name == null) {
-			if (other.name != null)
+		if (getName() == null) {
+			if (other.getName() != null)
 				return false;
-		} else if (!name.equals(other.name))
+		} else if (!getName().equals(other.getName()))
 			return false;
 		if (getObservable() == null) {
 			if (other.getObservable() != null)
@@ -163,7 +153,7 @@ public class CountDownControl implements LiveControl {
 	
 	@Override
 	public String toString() {
-		return "ScannablePositionerControl [name=" + name + ", displayName=" + displayName + ", group=" + group
+		return "ScannablePositionerControl [name=" + getName() + ", displayName=" + displayName + ", group=" + group
 				+ ", observable=" + getObservable().toString() + ", userUnits=" + userUnits
 				+ ", textWidth=" + textWidth + "]";
 	}
