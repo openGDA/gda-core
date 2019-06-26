@@ -70,7 +70,7 @@ public class FocusScanWizard extends Wizard {
 	}
 
 	public Point getPreferredPageSize() {
-		return new Point(1500, 750);
+		return new Point(1700, 750);
 	}
 
 }

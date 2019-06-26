@@ -37,8 +37,11 @@ import org.dawnsci.mapping.ui.api.IMapFileController;
 import org.dawnsci.mapping.ui.datamodel.PlottableMapObject;
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.beans.PojoProperties;
+import org.eclipse.core.databinding.conversion.Converter;
+import org.eclipse.core.databinding.conversion.NumberToStringConverter;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -72,7 +75,9 @@ import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -83,6 +88,8 @@ import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.ibm.icu.text.DecimalFormat;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.EnergyFocusBean;
@@ -128,7 +135,26 @@ class FocusScanSetupPage extends WizardPage {
 
 	private OneDEqualSpacingModel linePathModel;
 
-	private Label linePathLabel;
+	/**
+	 * Instructions for drawing a line over the desired feature
+	 */
+	private CLabel linePathLabel;
+
+	/**
+	 * Text boxes showing the end points of the current line
+	 */
+	private Composite linePathEndPointsComposite;
+
+	/**
+	 * Stack composite that shows either {@link #linePathLabel} or {@link #linePathEndPointsComposite} depending on
+	 * whether the user has drawn a line
+	 */
+	private Composite linePathStackComposite;
+
+	/**
+	 * Layout for {@link #linePathStackComposite}
+	 */
+	private StackLayout linePathStackLayout;
 
 	private PathInfoCalculatorJob pathCalculationJob;
 
@@ -143,6 +169,8 @@ class FocusScanSetupPage extends WizardPage {
 	private Binding exposureTimeBinding;
 
 	private EnergyFocusEditor energyFocusEditor;
+
+	private UpdateValueStrategy endPointTextUpdateStrategy;
 
 	FocusScanSetupPage() {
 		super(FocusScanSetupPage.class.getSimpleName());
@@ -166,12 +194,18 @@ class FocusScanSetupPage extends WizardPage {
 		linePathModel.addPropertyChangeListener(pathBeanPropertyChangeListener);
 
 		pathCalculationJob = createPathCalculationJob();
-	}
+
+		endPointTextUpdateStrategy = new UpdateValueStrategy();
+		endPointTextUpdateStrategy.setConverter(new EndPointNumberConverter());
+}
 
 	private void updateLineRegion() {
 		plottingController.updatePlotRegionFrom(focusScanBean.getLineRegion());
 		updatePoints();
-		updateLinePathLabel();
+
+		// Show the end point text boxes
+		linePathStackLayout.topControl = linePathEndPointsComposite;
+		linePathStackComposite.layout();
 
 		// once a line has been drawn the page is complete
 		setPageComplete(true);
@@ -243,7 +277,7 @@ class FocusScanSetupPage extends WizardPage {
 			}
 		}
 
-		sashForm.setWeights(new int[] { 9, 5 });
+		sashForm.setWeights(new int[] { 20, 15 });
 		setControl(sashForm);
 		setPageComplete(false);
 	}
@@ -369,12 +403,10 @@ class FocusScanSetupPage extends WizardPage {
 		GridDataFactory.swtDefaults().applyTo(label);
 
 		final Composite linePathComposite = new Composite(parent, SWT.NONE);
-		GridDataFactory.swtDefaults().applyTo(linePathComposite);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(linePathComposite);
 		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(linePathComposite);
 
-		linePathLabel = new Label(linePathComposite, SWT.SINGLE);
-		linePathLabel.setText("Draw a line over the feature to focus on");
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(label);
+		createLineComposite(linePathComposite);
 
 		final Button drawLineButton = new Button(linePathComposite, SWT.NONE);
 		drawLineButton.setImage(new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/map--pencil.png")));
@@ -393,18 +425,73 @@ class FocusScanSetupPage extends WizardPage {
 		bindControlToProperty(numPointsSpinner, "numberOfLinePoints", focusScanBean);
 	}
 
+	/**
+	 * Creates a {@link Composite} with a {@link StackLayout}<br>
+	 * This initially shows a message to the user, but when a line is drawn, it shows the x & y coordinates of the ends
+	 * of the line.
+	 */
+	private void createLineComposite(Composite parent) {
+		linePathStackComposite = new Composite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(linePathStackComposite);
+		linePathStackLayout = new StackLayout();
+		linePathStackComposite.setLayout(linePathStackLayout);
+
+		// Initial message
+		linePathLabel = new CLabel(linePathStackComposite, SWT.CENTER);
+		linePathLabel.setAlignment(SWT.LEFT);
+		GridDataFactory.swtDefaults().align(SWT.LEFT, SWT.CENTER).applyTo(linePathLabel);
+		linePathLabel.setText("Draw a line over the feature to focus on");
+
+		// x & y coordinates of the line
+		linePathEndPointsComposite = new Composite(linePathStackComposite, SWT.NONE);
+		GridLayoutFactory.swtDefaults().numColumns(6).applyTo(linePathEndPointsComposite);
+
+		createEndPointLabel(linePathEndPointsComposite, "From:");
+		final Text xStartText = createEndPointText(linePathEndPointsComposite);
+		final Text yStartText = createEndPointText(linePathEndPointsComposite);
+		createEndPointLabel(linePathEndPointsComposite, "to:");
+		final Text xStopText = createEndPointText(linePathEndPointsComposite);
+		final Text yStopText = createEndPointText(linePathEndPointsComposite);
+
+		// Bind the end point text boxes to the FocusScanBean, and thereby to the line plot
+		final ILineMappingRegion lineMappingRegion = focusScanBean.getLineRegion();
+		bindEndPointTextToProperty(xStartText, "xStart", lineMappingRegion);
+		bindEndPointTextToProperty(yStartText, "yStart", lineMappingRegion);
+		bindEndPointTextToProperty(xStopText, "xStop", lineMappingRegion);
+		bindEndPointTextToProperty(yStopText, "yStop", lineMappingRegion);
+
+		// Initially show the instructions for drawing the line
+		linePathStackLayout.topControl = linePathLabel;
+	}
+
+	@SuppressWarnings("unchecked")
+	private void bindEndPointTextToProperty(Text control, String propertyName, Object bean) {
+		final IObservableValue<?> model = BeanProperties.value(propertyName).observe(bean);
+		final IObservableValue<?> target = WidgetProperties.text(SWT.Modify).observe(control);
+		bindingContext.bindValue(target, model, null, endPointTextUpdateStrategy);
+	}
+
+	private static void createEndPointLabel(Composite parent, String text) {
+		final Label label = new Label(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(label);
+		label.setText(text);
+	}
+
+	private static Text createEndPointText(Composite parent) {
+		final Text text = new Text(parent, SWT.BORDER);
+		GridDataFactory.fillDefaults().hint(85, SWT.DEFAULT).applyTo(text);
+		return text;
+	}
+
 	private void drawLine() {
 		linePathModel.setBoundingLine(null);
 		plottingController.createNewPlotRegion(focusScanBean.getLineRegion());
 
-		updatePoints();
-	}
+		// Restore the instructions for drawing the line
+		linePathStackLayout.topControl = linePathLabel;
+		linePathStackComposite.layout();
 
-	private void updateLinePathLabel() {
-		final ILineMappingRegion lineRegion = focusScanBean.getLineRegion();
-		final String labelText = String.format("%.3f, %.3f  ->  %.3f, %.3f",
-				lineRegion.getxStart(), lineRegion.getyStart(), lineRegion.getxStop(), lineRegion.getyStop());
-		linePathLabel.setText(labelText);
+		updatePoints();
 	}
 
 	private void updatePoints() {
@@ -555,6 +642,36 @@ class FocusScanSetupPage extends WizardPage {
 			target = WidgetProperties.selection().observe(control);
 		}
 		bindingContext.bindValue(target, model);
+	}
+
+	/**
+	 * Convert the x or y value of a focus line end point to a string for display
+	 * <p>
+	 * This uses the same formats that {@link NumberAndUnitsComposite} uses for the mapping scan setup
+	 */
+	private static class EndPointNumberConverter extends Converter {
+
+		/** Use scientific format when the absolute number in the current units is <=1e-3 or >=1e3 */
+		private final DecimalFormat scientificFormat = new DecimalFormat("0.#####E0");
+		private final Converter scientificConverter = NumberToStringConverter.fromDouble(scientificFormat, false);
+
+		/** Use decimal when the absolute number in the current units is 1e-3< number <1e3 */
+		private final DecimalFormat decimalFormat = new DecimalFormat("0.#####");
+		private final Converter decimalConverter = NumberToStringConverter.fromDouble(decimalFormat, false);
+
+		public EndPointNumberConverter() {
+			super(Double.class, String.class);
+		}
+
+		@Override
+		public Object convert(Object fromObject) {
+			final double value = (double) fromObject;
+			if (value != 0.0 && (value <= 1e-3 || value >= 1e3)) {
+				return scientificConverter.convert(fromObject);
+			} else {
+				return decimalConverter.convert(fromObject);
+			}
+		}
 	}
 
 }

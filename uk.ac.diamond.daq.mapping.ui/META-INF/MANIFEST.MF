@@ -40,7 +40,8 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.gda.client.live.stream
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Import-Package: org.eclipse.e4.core.contexts,
+Import-Package: com.ibm.icu.text,
+ org.eclipse.e4.core.contexts,
  org.eclipse.e4.core.di,
  org.eclipse.e4.core.di.annotations,
  org.eclipse.e4.core.services.events,
