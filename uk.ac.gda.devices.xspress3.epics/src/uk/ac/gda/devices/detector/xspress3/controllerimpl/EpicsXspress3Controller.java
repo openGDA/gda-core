@@ -30,8 +30,8 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.zebra.GreaterThanOrEqualTo;
 import gda.epics.ReadOnlyPV;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
+import gda.factory.FindableConfigurableBase;
 import uk.ac.gda.devices.detector.xspress3.CAPTURE_MODE;
 import uk.ac.gda.devices.detector.xspress3.ReadyForNextRow;
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
@@ -47,7 +47,7 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
  * @author rjw82
  *
  */
-public class EpicsXspress3Controller extends ConfigurableBase implements Xspress3Controller {
+public class EpicsXspress3Controller extends FindableConfigurableBase implements Xspress3Controller {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsXspress3Controller.class);
 
@@ -59,8 +59,6 @@ public class EpicsXspress3Controller extends ConfigurableBase implements Xspress
 	private String epicsTemplate;
 
 	private EpicsXspress3ControllerPvProvider pvProvider;
-
-	private String name;
 
 	private int numRoiToRead = 1;
 
@@ -671,16 +669,6 @@ public class EpicsXspress3Controller extends ConfigurableBase implements Xspress
 
 	public void setEpicsTemplate(String epicsTemplate) {
 		this.epicsTemplate = epicsTemplate;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	private Double[][] readDoubleWaveform(ReadOnlyPV<Double[]>[] pvs, int startFrame, int finalFrame, int startChannel,

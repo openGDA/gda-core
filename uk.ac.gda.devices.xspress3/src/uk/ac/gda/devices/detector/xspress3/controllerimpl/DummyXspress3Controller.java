@@ -29,8 +29,8 @@ import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.detector.DummyDAServer;
 import gda.device.timer.Tfg;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
+import gda.factory.FindableConfigurableBase;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.devices.detector.xspress3.CAPTURE_MODE;
 import uk.ac.gda.devices.detector.xspress3.ReadyForNextRow;
@@ -51,7 +51,7 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
  * @author rjw82
  *
  */
-public class DummyXspress3Controller extends ConfigurableBase implements Xspress3Controller {
+public class DummyXspress3Controller extends FindableConfigurableBase implements Xspress3Controller {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyXspress3Controller.class);
 
@@ -64,7 +64,6 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 	// have access to Xspress3 hardware which has no frame times
 	private Tfg tfg;
 	private DummyDAServer daServer;
-	private String name = "not set";
 	private String xspressSystemName = "'xs3'";
 	private String mcaOpenCommand = "xspress2 open-mca " + xspressSystemName;
 	private String scalerOpenCommand = "xspress2 open-scalers " + xspressSystemName;
@@ -85,6 +84,7 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 
 	public DummyXspress3Controller(Tfg tfg, DummyDAServer daServer) {
 		super();
+		super.setName("not set");
 		this.tfg = tfg;
 		this.daServer = daServer;
 	}
@@ -473,16 +473,6 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 
 	public void setDaServer(DummyDAServer daServer) {
 		this.daServer = daServer;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	@Override
