@@ -18,9 +18,6 @@
 
 package uk.ac.gda.epics.adviewer.composites;
 
-import gda.images.camera.ImageListener;
-import gda.images.camera.VideoReceiver;
-
 import org.dawnsci.plotting.services.util.SWTImageUtils;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.january.dataset.Dataset;
@@ -39,6 +36,9 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.factory.FindableBase;
+import gda.images.camera.ImageListener;
+import gda.images.camera.VideoReceiver;
 import uk.ac.gda.client.viewer.ImageViewer;
 import uk.ac.gda.epics.adviewer.composites.imageviewer.NewImageListener;
 
@@ -121,24 +121,12 @@ public class CameraComposite extends Composite {
 	}
 
 	ImageData lastImage;
-	private final class VideoListener implements ImageListener<ImageData> {
-		private String name;
-
-		@Override
-		public void setName(String name) {
-			this.name = name;
-		}
+	private final class VideoListener extends FindableBase implements ImageListener<ImageData> {
 
 		@SuppressWarnings("unused")
 		public void clear() {
 			viewer.showDefaultImage();
 		}
-
-		@Override
-		public String getName() {
-			return name;
-		}
-
 
 		NewImageHandler latestUpdater = null;
 		@Override

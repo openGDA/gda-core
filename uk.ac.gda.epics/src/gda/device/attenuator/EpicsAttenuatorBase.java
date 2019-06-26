@@ -28,12 +28,12 @@ import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.factory.ConfigurableBase;
+import gda.factory.FindableConfigurableBase;
 import gov.aps.jca.Channel;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
-public abstract class EpicsAttenuatorBase extends ConfigurableBase implements Attenuator, MonitorListener, InitializationListener{
+public abstract class EpicsAttenuatorBase extends FindableConfigurableBase implements Attenuator, MonitorListener, InitializationListener{
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsAttenuatorBase.class);
 
@@ -50,18 +50,6 @@ public abstract class EpicsAttenuatorBase extends ConfigurableBase implements At
 		controller = EpicsController.getInstance();
 		channelManager = new EpicsChannelManager(this);
 
-	}
-
-	private String name;
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	@Override

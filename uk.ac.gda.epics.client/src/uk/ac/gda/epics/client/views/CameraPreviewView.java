@@ -62,6 +62,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.device.DeviceException;
+import gda.factory.FindableBase;
 import gda.images.camera.ImageListener;
 import gda.images.camera.MotionJpegOverHttpReceiverSwt;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
@@ -859,18 +860,7 @@ public class CameraPreviewView extends ViewPart implements InitializingBean {
 		return cameraViewController;
 	}
 
-	private final class VideoListener implements ImageListener<ImageData> {
-		private String name;
-
-		@Override
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public String getName() {
-			return name;
-		}
+	private final class VideoListener extends FindableBase implements ImageListener<ImageData> {
 
 		@Override
 		public void processImage(final ImageData image) {

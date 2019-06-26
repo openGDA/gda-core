@@ -24,8 +24,8 @@ import org.slf4j.LoggerFactory;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
+import gda.factory.FindableConfigurableBase;
 import gda.jython.JythonServerFacade;
 import gda.jython.JythonStatus;
 import gda.observable.IObservable;
@@ -121,9 +121,7 @@ import gov.aps.jca.event.MonitorListener;
  * element. And also add {@code <field name="accessControlName" type="string">} to the mapping.xml.
  * </p>
  */
-public class AccessControl extends ConfigurableBase implements IAccessControl, IObservable, InitializationListener {
-
-	private String name;
+public class AccessControl extends FindableConfigurableBase implements IAccessControl, IObservable, InitializationListener {
 
 	private ObservableComponent observableComponent = new ObservableComponent();
 
@@ -317,17 +315,6 @@ public class AccessControl extends ConfigurableBase implements IAccessControl, I
 	private void notifyObservers(Status lastAccessControlStatus, Status acStatus) {
 		if (lastAccessControlStatus != acStatus)
 			notifyIObservers(this, acStatus);
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-
 	}
 
 	/**
