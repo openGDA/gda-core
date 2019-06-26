@@ -22,7 +22,6 @@ import gda.observable.ObservableComponent;
 public class RegionScannable extends ScannableBase implements Scannable {
 	private ObservableComponent oc = new ObservableComponent();
 	private Region region;
-	private String name;
 	private VGScientaAnalyser analyser;
 	private ADArrayPlugin adArray;
 	private PVArrayPlugin pvArray;
@@ -267,16 +266,6 @@ public class RegionScannable extends ScannableBase implements Scannable {
 
 	public void setAnalyser(VGScientaAnalyser analyser) {
 		this.analyser = analyser;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	@Override

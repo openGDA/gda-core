@@ -26,18 +26,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.epics.connection.EpicsController;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
+import gda.factory.FindableConfigurableBase;
 import gov.aps.jca.event.MonitorEvent;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 
-class AnalyserLiveDataDispatcher extends ConfigurableBase implements Findable {
+class AnalyserLiveDataDispatcher extends FindableConfigurableBase {
 	private static final Logger logger = LoggerFactory.getLogger(AnalyserLiveDataDispatcher.class);
 
 	private String plotName;
 	private VGScientaAnalyser analyser;
-	private String name;
 	private String arrayPV;
 
 	@Override
@@ -65,16 +63,6 @@ class AnalyserLiveDataDispatcher extends ConfigurableBase implements Findable {
 
 	public void setAnalyser(VGScientaAnalyser analyser) {
 		this.analyser = analyser;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	private void onMonitorChanged(MonitorEvent arg0) {

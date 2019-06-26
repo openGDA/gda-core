@@ -35,19 +35,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.epics.connection.EpicsController;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
+import gda.factory.FindableConfigurableBase;
 import gov.aps.jca.Channel;
 import gov.aps.jca.event.MonitorEvent;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 
-class AnalyserLiveDataDispatcher extends ConfigurableBase implements Findable {
+class AnalyserLiveDataDispatcher extends FindableConfigurableBase {
 	private static final Logger logger = LoggerFactory.getLogger(AnalyserLiveDataDispatcher.class);
 
 	private String plotName;
 	private IVGScientaAnalyserRMI analyser;
-	private String name;
 	private final  EpicsController epicsController = EpicsController.getInstance();
 	private String arrayPV;
 	private String frameNumberPV;
@@ -175,16 +173,6 @@ class AnalyserLiveDataDispatcher extends ConfigurableBase implements Findable {
 
 	public void setAnalyser(IVGScientaAnalyserRMI analyser) {
 		this.analyser = analyser;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public String getArrayPV() {
