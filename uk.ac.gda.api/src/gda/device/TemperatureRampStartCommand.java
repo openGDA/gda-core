@@ -25,14 +25,20 @@ import java.io.Serializable;
  */
 public class TemperatureRampStartCommand implements Serializable {
 
+	private String deviceName; // Identify target device/controller
 	private double target;
 	private double rate;
 	private double dwellTime;
 
-	public TemperatureRampStartCommand(double target, double rate, double dwellTime) {
+	public TemperatureRampStartCommand(String deviceName, double target, double rate, double dwellTime) {
+		this.deviceName = deviceName;
 		this.target = target;
 		this.rate = rate;
 		this.dwellTime = dwellTime;
+	}
+
+	public TemperatureRampStartCommand(double target, double rate, double dwellTime) {
+		this("", target, rate, dwellTime);
 	}
 
 	public double getTarget() {
@@ -47,4 +53,11 @@ public class TemperatureRampStartCommand implements Serializable {
 		return dwellTime;
 	}
 
+	public String getDeviceName() {
+		return deviceName;
+	}
+
+	public void setDeviceName(String deviceName) {
+		this.deviceName = deviceName;
+	}
 }

@@ -25,6 +25,20 @@ import java.io.Serializable;
  */
 public class TemperatureRampStopCommand implements Serializable {
 
+	private String deviceName = ""; // Identify target device/controller
+
+	public TemperatureRampStopCommand(String deviceName) {
+		this.deviceName = deviceName;
+	}
+
 	public TemperatureRampStopCommand() { }
+
+	public String getDeviceName() {
+		return deviceName;
+	}
+
+	public void setDeviceName(String deviceName) {
+		this.deviceName = deviceName;
+	}
 
 }
