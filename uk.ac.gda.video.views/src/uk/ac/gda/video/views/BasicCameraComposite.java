@@ -18,16 +18,17 @@
 
 package uk.ac.gda.video.views;
 
-import gda.factory.FactoryException;
-import gda.images.camera.ImageListener;
-import gda.images.camera.MotionJpegOverHttpReceiverSwt;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.factory.FactoryException;
+import gda.factory.FindableBase;
+import gda.images.camera.ImageListener;
+import gda.images.camera.MotionJpegOverHttpReceiverSwt;
 
 public class BasicCameraComposite extends Composite {
 	private static final Logger logger = LoggerFactory.getLogger(BasicCameraComposite.class);
@@ -38,23 +39,23 @@ public class BasicCameraComposite extends Composite {
 
 	public BasicCameraComposite(Composite parent, int style) {
 		this(parent, style, null);
-	}	
-	
+	}
+
 	public BasicCameraComposite(Composite parent, int style, ImageListener<ImageData> listener) {
 		super(parent, style);
-		
+
 		setLayout(new GridLayout(1, false));
-		
-		viewer = new uk.ac.gda.client.viewer.ImageViewer(parent, style|SWT.DOUBLE_BUFFERED); 
+
+		viewer = new uk.ac.gda.client.viewer.ImageViewer(parent, style|SWT.DOUBLE_BUFFERED);
 		viewer.showDefaultImage();
 		videoReceiver = new MotionJpegOverHttpReceiverSwt();
-		if (listener == null) 
+		if (listener == null)
 			listener = new VideoListener();
 		this.listener = listener;
 		videoReceiver.addImageListener(listener);
 		pack();
 	}
-	
+
 	void closeDownVideo(boolean full){
 		if (listener != null)
 			videoReceiver.removeImageListener(listener);
@@ -63,18 +64,18 @@ public class BasicCameraComposite extends Composite {
 			videoReceiver = null;
 		}
 	}
-	
+
 	@Override
 	public boolean setFocus() {
 		return viewer != null ? viewer.setFocus() : false;
 	}
-	
+
 	@Override
 	public void dispose() {
 		super.dispose();
 		closeDownVideo(true);
 	}
-	
+
 	public void resetView() {
 		if (viewer != null)
 			viewer.resetView();
@@ -84,13 +85,13 @@ public class BasicCameraComposite extends Composite {
 		if (viewer != null)
 			viewer.zoomFit();
 	}
-	
+
 	public void playURL(String URL) throws FactoryException {
 		videoReceiver.setUrl(URL);
 		if (listener != null)
 			videoReceiver.addImageListener(listener);
 		videoReceiver.configure();
-		videoReceiver.start();	
+		videoReceiver.start();
 	}
 
 	public void loadImage(ImageData lastImage) {
@@ -104,23 +105,12 @@ public class BasicCameraComposite extends Composite {
 	public void showDefaultImage() {
 		viewer.showDefaultImage();
 	}
-	
-	private final class VideoListener implements ImageListener<ImageData> {
-		private String name;
 
-		@Override
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public String getName() {
-			return name;
-		}
+	private final class VideoListener extends FindableBase implements ImageListener<ImageData> {
 
 		boolean processingImage=false;
 		private ImageData imageToProcess;
-		
+
 		@Override
 		public void processImage(final ImageData image) {
 			if (image == null)

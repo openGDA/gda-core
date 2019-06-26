@@ -30,8 +30,8 @@ import javax.swing.SwingUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
+import gda.factory.FindableConfigurableBase;
 import gda.images.camera.ImageListener;
 import gda.images.camera.VideoReceiver;
 
@@ -39,7 +39,7 @@ import gda.images.camera.VideoReceiver;
  * Window that receives video from a {@link VideoReceiver} and updates the display at (approximately) the desired
  * frame rate.
  */
-public class ImageListenerWindow extends ConfigurableBase implements ImageListener<Image>, Runnable {
+public class ImageListenerWindow extends FindableConfigurableBase implements ImageListener<Image>, Runnable {
 
 	private static final Logger logger = LoggerFactory.getLogger(ImageListenerWindow.class);
 
@@ -56,18 +56,6 @@ public class ImageListenerWindow extends ConfigurableBase implements ImageListen
 	private JFrame frame;
 
 	private JLabel label;
-
-	protected String name;
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
 
 	protected VideoReceiver<Image> videoReceiver;
 
