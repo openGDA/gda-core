@@ -55,6 +55,7 @@ import gda.factory.ConfigurableBase;
 import gda.factory.Factory;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
+import gda.factory.FindableConfigurableBase;
 import gda.jython.InterfaceProvider;
 import gda.jython.MockJythonServerFacade;
 import gda.observable.IObserver;
@@ -188,21 +189,20 @@ public class TestHelpers {
 	}
 }
 
-class SimpleScannable extends ConfigurableBase implements Scannable, INeXusInfoWriteable {
+class SimpleScannable extends FindableConfigurableBase implements Scannable, INeXusInfoWriteable {
 
 	private static final Logger logger = LoggerFactory.getLogger(SimpleScannable.class);
 
-	String name;
-	Object position;
-	String[] extraNames;
-	String[] inputNames;
-	int level;
-	String[] outputFormat;
-	String[] units;
+	private Object position;
+	private String[] extraNames;
+	private String[] inputNames;
+	private int level;
+	private String[] outputFormat;
+	private String[] units;
 
 	SimpleScannable(String name, Object position, String[] extraNames, String[] inputNames, int level,
 			String[] outputFormat, String[] units) {
-		this.name = name;
+		super.setName(name);
 		this.position = position;
 		this.extraNames = extraNames;
 		this.inputNames = inputNames;
@@ -368,16 +368,6 @@ class SimpleScannable extends ConfigurableBase implements Scannable, INeXusInfoW
 	}
 
 	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
 	public String toString() {
 		return "SimpleScannable:" + getName();
 	}
@@ -402,7 +392,7 @@ class SimpleScannable extends ConfigurableBase implements Scannable, INeXusInfoW
 
 	@Override
 	public String toFormattedString() {
-		return name + " : " + position.toString();
+		return getName() + " : " + position.toString();
 	}
 }
 
