@@ -21,6 +21,7 @@ import gda.factory.FindableBase;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.DriverProfileSection;
 import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
+import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
@@ -175,6 +176,31 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 	@Override
 	public Set<String> getDriverProfileNames(String driverName, String experimentId) {
 		return new HashSet<>(driverModels.get(driverName).keySet());
+	}
+
+	private Map<String, ExperimentPlanBean> plans = new HashMap<>();
+
+	@Override
+	public Set<String> getExperimentPlanNames() {
+		return new HashSet<>(plans.keySet());
+	}
+
+	@Override
+	public ExperimentPlanBean getExperimentPlan(String planName) {
+		return plans.get(planName);
+	}
+
+	@Override
+	public void saveExperimentPlan(ExperimentPlanBean plan) {
+		if (plans.containsKey(plan.getPlanName())) {
+			plans.remove(plan.getPlanName());
+		}
+		plans.put(plan.getPlanName(), plan);
+	}
+
+	@Override
+	public void deleteExperimentPlan(String planName) {
+		plans.remove(planName);
 	}
 
 }

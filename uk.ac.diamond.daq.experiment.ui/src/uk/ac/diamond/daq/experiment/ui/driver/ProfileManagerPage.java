@@ -1,5 +1,7 @@
 package uk.ac.diamond.daq.experiment.ui.driver;
 
+import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.CONFIGURE_ICON;
+import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.RUN_ICON;
 import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.STRETCH;
 
 import java.util.List;
@@ -12,7 +14,6 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -28,6 +29,7 @@ import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
 import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
+import uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils;
 import uk.ac.diamond.daq.experiment.ui.widget.ElementEditor;
 import uk.ac.diamond.daq.experiment.ui.widget.ListWithCustomEditor;
 import uk.ac.gda.client.viewer.ThreeStateDisplay;
@@ -38,9 +40,6 @@ import uk.ac.gda.client.viewer.ThreeStateDisplay;
 public class ProfileManagerPage extends WizardPage {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ProfileManagerPage.class);
-	
-	private static final String CONFIGURE_ICON = "/icons/gear--arrow.png";
-	private static final String RUN_ICON = "/icons/navigation.png";
 	
 	private final String experimentId;
 	private final ExperimentService experimentService;
@@ -62,7 +61,6 @@ public class ProfileManagerPage extends WizardPage {
 		this.experimentId = experimentId;
 		setTitle("Manage and load driver profiles");
 		setDescription("A selected profile can be edited in the next page");
-		profilesViewer = new ListWithCustomEditor();
 	}
 	
 	@Override
@@ -78,6 +76,7 @@ public class ProfileManagerPage extends WizardPage {
 		
 		profilesViewer = new ListWithCustomEditor();
 		profilesViewer.setListHeight(300);
+		profilesViewer.setTemplate(new SingleAxisLinearSeries().createDefault());
 		profilesViewer.create(profileListComposite);
 		profilesViewer.setElementEditor(new PretendElementEditor());
 		profilesViewer.addDeleteHook(this::deleteProfile);
@@ -90,14 +89,14 @@ public class ProfileManagerPage extends WizardPage {
 		
 		loadButton = new Button(rightPart, SWT.NONE);
 		loadButton.setText("Send profile to driver");
-		loadButton.setImage(getIcon(CONFIGURE_ICON));
+		loadButton.setImage(ExperimentUiUtils.getImage(CONFIGURE_ICON));
 		loadButton.setEnabled(false);
 		loadButton.addListener(SWT.Selection, e -> sendProfileToDriver());
 		fatButtonGridData.applyTo(loadButton);
 		
 		startButton = new Button(rightPart, SWT.NONE);
 		startButton.setText("Run driver profile");
-		startButton.setImage(getIcon(RUN_ICON));
+		startButton.setImage(ExperimentUiUtils.getImage(RUN_ICON));
 		startButton.setEnabled(false);
 		startButton.addListener(SWT.Selection, e -> sendProfileAndStart());
 		fatButtonGridData.applyTo(startButton);
@@ -167,6 +166,7 @@ public class ProfileManagerPage extends WizardPage {
 	}
 
 	public void setDriverName(String driverName) {
+		this.driverName = driverName;
 		profilesViewer.setList(getProfilesForDriver(driverName));
 		profilesViewer.refresh();
 		initiateColourState();
@@ -248,10 +248,6 @@ public class ProfileManagerPage extends WizardPage {
 			startButton.setEnabled(true);
 			setPageComplete(false);
 		}
-	}
-	
-	private Image getIcon(String path) {
-		return new Image(Display.getCurrent(), getClass().getResourceAsStream(path));
 	}
 
 }

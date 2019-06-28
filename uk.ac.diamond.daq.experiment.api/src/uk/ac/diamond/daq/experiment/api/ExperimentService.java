@@ -7,6 +7,7 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 
 import gda.factory.Findable;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
+import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 
 /**
  * This service allows us to save and retrieve configurations (e.g. defined scans)
@@ -43,4 +44,15 @@ public interface ExperimentService extends Findable {
 
 
 	Set<String> getDriverProfileNames(String driverName, String experimentId);
+
+
+	/* Experiment Plans */
+
+	Set<String> getExperimentPlanNames();
+
+	ExperimentPlanBean getExperimentPlan(String planName);
+
+	void saveExperimentPlan(ExperimentPlanBean plan);
+
+	void deleteExperimentPlan(String planName);
 }
