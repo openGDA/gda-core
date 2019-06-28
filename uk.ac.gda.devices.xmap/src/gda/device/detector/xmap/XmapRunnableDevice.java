@@ -110,7 +110,6 @@ public class XmapRunnableDevice extends XmapRunnableDeviceBase {
 		// Extract frame of data from INexusTree :
 		final String datasetName = node.getName();
 		final Dataset dset = node.getData().toDataset();
-		final int dataType = dset.getDType();
 		final int[] dataShape = dset.getShape();
 
 		// Set max shape of lazy dataset : i.e. scan shape + detector frame data shape
@@ -127,7 +126,7 @@ public class XmapRunnableDevice extends XmapRunnableDeviceBase {
 		final int[] shapeForLazy = maxShape.clone();
 		Arrays.fill(shapeForLazy, 0, scanRank, 0);
 
-		return NexusUtils.createLazyWriteableDataset(datasetName, dataType, shapeForLazy, maxShape, null);
+		return NexusUtils.createLazyWriteableDataset(datasetName, dset.getElementClass(), shapeForLazy, maxShape, null);
 	}
 
 	private List<INexusTree> getDetectorDataNodes() throws DeviceException {

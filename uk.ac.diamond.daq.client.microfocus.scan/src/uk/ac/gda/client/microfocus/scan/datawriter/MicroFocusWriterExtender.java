@@ -523,7 +523,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				} catch (Exception ignore) {
 					// absorb the exception here as if the MCA does not exist then it will probably be because the row
 					// has not completed so the MCA are not available yet.
-					slice = DatasetFactory.zeros(new int[] { 4096 }, Dataset.ARRAYINT64);
+					slice = DatasetFactory.zeros(4096);
 				}
 			}
 

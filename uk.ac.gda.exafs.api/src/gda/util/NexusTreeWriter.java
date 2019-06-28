@@ -81,7 +81,7 @@ public class NexusTreeWriter {
 	/** List of dataset maps; each call to {@link #addData(NexusTreeProvider[])} appends a new map with datasets extracted from the NexusTreeProvider array */
 	private List< Map<String, Dataset> > dataToWrite = new ArrayList<>();
 
-	/** Names of datasets that will be added to Nexus file - set in call to {@#addData(NexusTreeProvider[])} **/
+	/** Names of datasets that will be added to Nexus file - set in call to {@link #addData(NexusTreeProvider[])} **/
 	private List<String> datasetNames = new ArrayList<>();
 
 	/** Datasets extracted from nexus tree and used to put the data in Nexus file */
@@ -158,7 +158,7 @@ public class NexusTreeWriter {
 			int[] chunking = NexusUtils.estimateChunking(dataset.getShape(), dataset.getItemBytes());
 			maxShape[0] = ILazyWriteableDataset.UNLIMITED;
 
-			ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(dataset.getName(), dataset.getDType(), shapeForLazy, maxShape, null);
+			ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(dataset.getName(), dataset.getElementClass(), shapeForLazy, maxShape, null);
 			lazy.setChunking(chunking);
 			lazyDatasets.add(lazy);
 			logger.debug("   dataset {} : max shape {}, chunking = {}", lazy.getName(), Arrays.toString(lazy.getMaxShape()), Arrays.toString(lazy.getChunking()));
