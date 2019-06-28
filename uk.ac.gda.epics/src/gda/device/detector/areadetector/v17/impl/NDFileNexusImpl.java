@@ -18,18 +18,6 @@
 
 package gda.device.detector.areadetector.v17.impl;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
-import gda.device.detector.areadetector.IPVProvider;
-import gda.device.detector.areadetector.v17.NDFile;
-import gda.device.detector.areadetector.v17.NDFileNexus;
-import gda.epics.connection.EpicsController;
-import gda.epics.interfaces.NDFileNexusType;
-import gda.factory.FactoryException;
-import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
-import gov.aps.jca.TimeoutException;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,13 +25,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import gda.device.detector.areadetector.v17.NDFile;
+import gda.device.detector.areadetector.v17.NDFileNexus;
+import gda.epics.connection.EpicsController;
+import gov.aps.jca.CAException;
+import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
+
 public class NDFileNexusImpl implements InitializingBean, NDFileNexus {
 
 	private final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 
 	private String basePVName;
-
-	private IPVProvider pvProvider;
 
 	/**
 	 * Map that stores the channel against the PV name
@@ -52,40 +45,14 @@ public class NDFileNexusImpl implements InitializingBean, NDFileNexus {
 
 	private NDFile file;
 
-	/**
+	/*
 	 * List all the PVs
 	 */
-	private NDFileNexusType config;
-	private String deviceName;
-
 	private String initialTemplateFileName;
 
 	private String initialTemplateFilePath;
 	// Setup the logging facilities
 	static final Logger logger = LoggerFactory.getLogger(NDFileNexusImpl.class);
-
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	public void setDeviceName(String deviceName) throws FactoryException {
-		this.deviceName = deviceName;
-		initializeConfig();
-	}
-
-	private void initializeConfig() throws FactoryException {
-		if (deviceName != null) {
-			try {
-				config = Configurator.getConfiguration(deviceName, NDFileNexusType.class);
-			} catch (ConfigurationNotFoundException e) {
-				logger.error("EPICS configuration for device {} not found", getDeviceName());
-				throw new FactoryException("EPICS configuration for device " + getDeviceName() + " not found.", e);
-			} catch (Exception ex) {
-				logger.error("EPICS configuration for device {} not found", getDeviceName());
-				throw new FactoryException("EPICS configuration for device " + getDeviceName() + " not found.", ex);
-			}
-		}
-	}
 
 	private static final String TemplateFilePath = "TemplateFilePath";
 
@@ -103,10 +70,6 @@ public class NDFileNexusImpl implements InitializingBean, NDFileNexus {
 	@Override
 	public String getTemplateFilePath() throws Exception {
 		try {
-			if (config != null) {
-				return new String(EPICS_CONTROLLER.cagetByteArray(createChannel(config.getTemplateFilePath().getPv())))
-						.trim();
-			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(TemplateFilePath))).trim();
 		} catch (Exception ex) {
 			logger.warn("Cannot getTemplateFilePath", ex);
@@ -120,12 +83,7 @@ public class NDFileNexusImpl implements InitializingBean, NDFileNexus {
 	@Override
 	public void setTemplateFilePath(String templatefilepath) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getTemplateFilePath().getPv()),
-						(templatefilepath + '\0').getBytes());
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(TemplateFilePath), (templatefilepath + '\0').getBytes());
-			}
+			EPICS_CONTROLLER.caput(getChannel(TemplateFilePath), (templatefilepath + '\0').getBytes());
 		} catch (Exception ex) {
 			logger.warn("Cannot setTemplateFilePath", ex);
 			throw ex;
@@ -138,10 +96,6 @@ public class NDFileNexusImpl implements InitializingBean, NDFileNexus {
 	@Override
 	public String getTemplateFilePath_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return new String(EPICS_CONTROLLER.cagetByteArray(createChannel(config.getTemplateFilePath_RBV()
-						.getPv()))).trim();
-			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(TemplateFilePath_RBV))).trim();
 		} catch (Exception ex) {
 			logger.warn("Cannot getTemplateFilePath_RBV", ex);
@@ -155,10 +109,6 @@ public class NDFileNexusImpl implements InitializingBean, NDFileNexus {
 	@Override
 	public String getTemplateFileName() throws Exception {
 		try {
-			if (config != null) {
-				return new String(EPICS_CONTROLLER.cagetByteArray(createChannel(config.getTemplateFileName().getPv())))
-						.trim();
-			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(TemplateFileName))).trim();
 		} catch (Exception ex) {
 			logger.warn("Cannot getTemplateFileName", ex);
@@ -172,12 +122,7 @@ public class NDFileNexusImpl implements InitializingBean, NDFileNexus {
 	@Override
 	public void setTemplateFileName(String templatefilename) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getTemplateFileName().getPv()),
-						(templatefilename + '\0').getBytes());
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(TemplateFileName), (templatefilename + '\0').getBytes());
-			}
+			EPICS_CONTROLLER.caput(getChannel(TemplateFileName), (templatefilename + '\0').getBytes());
 		} catch (Exception ex) {
 			logger.warn("Cannot setTemplateFileName", ex);
 			throw ex;
@@ -190,10 +135,6 @@ public class NDFileNexusImpl implements InitializingBean, NDFileNexus {
 	@Override
 	public String getTemplateFileName_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return new String(EPICS_CONTROLLER.cagetByteArray(createChannel(config.getTemplateFileName_RBV()
-						.getPv()))).trim();
-			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(TemplateFileName_RBV))).trim();
 		} catch (Exception ex) {
 			logger.warn("Cannot getTemplateFileName_RBV", ex);
@@ -207,9 +148,6 @@ public class NDFileNexusImpl implements InitializingBean, NDFileNexus {
 	@Override
 	public short getFileTemplateValid() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getFileTemplateValid().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(FileTemplateValid));
 		} catch (Exception ex) {
 			logger.warn("Cannot getFileTemplateValid", ex);
@@ -223,11 +161,7 @@ public class NDFileNexusImpl implements InitializingBean, NDFileNexus {
 	@Override
 	public void setFileTemplateValid(int filetemplatevalid) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getFileTemplateValid().getPv()), filetemplatevalid);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(FileTemplateValid), filetemplatevalid);
-			}
+			EPICS_CONTROLLER.caput(getChannel(FileTemplateValid), filetemplatevalid);
 		} catch (Exception ex) {
 			logger.warn("Cannot setFileTemplateValid", ex);
 			throw ex;
@@ -255,8 +189,8 @@ public class NDFileNexusImpl implements InitializingBean, NDFileNexus {
 	}
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (deviceName == null && basePVName == null && pvProvider == null) {
-			throw new IllegalArgumentException("'deviceName','basePVName' or 'pvProvider' needs to be declared");
+		if (basePVName == null) {
+			throw new IllegalArgumentException("'basePVName' needs to be declared");
 		}
 	}
 
@@ -286,13 +220,7 @@ public class NDFileNexusImpl implements InitializingBean, NDFileNexus {
 				pvPostFix = pvElementName;
 			}
 
-			String fullPvName;
-			if (pvProvider != null) {
-				fullPvName = pvProvider.getPV(pvElementName);
-			} else {
-				fullPvName = basePVName + pvPostFix;
-			}
-			return createChannel(fullPvName);
+			return createChannel(basePVName + pvPostFix);
 		} catch (Exception exception) {
 			logger.warn("Problem getting channel", exception);
 			throw exception;
@@ -315,21 +243,6 @@ public class NDFileNexusImpl implements InitializingBean, NDFileNexus {
 			channelMap.put(fullPvName, channel);
 		}
 		return channel;
-	}
-
-	/**
-	 * @return Returns the pvProvider.
-	 */
-	public IPVProvider getPvProvider() {
-		return pvProvider;
-	}
-
-	/**
-	 * @param pvProvider
-	 *            The pvProvider to set.
-	 */
-	public void setPvProvider(IPVProvider pvProvider) {
-		this.pvProvider = pvProvider;
 	}
 
 	@Override

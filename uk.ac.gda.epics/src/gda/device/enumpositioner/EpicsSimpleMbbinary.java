@@ -23,8 +23,6 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
@@ -33,13 +31,7 @@ import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaceSpec.GDAEpicsInterfaceReader;
-import gda.epics.interfaceSpec.InterfaceException;
-import gda.epics.interfaceSpec.Xml;
-import gda.epics.interfaces.SimpleMbbinaryType;
-import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 import gda.jython.JythonServerFacade;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
@@ -59,8 +51,6 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements Initializ
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsSimpleMbbinary.class);
 
-	private String deviceName;
-
 	private EpicsController controller;
 
 	private EpicsChannelManager channelManager;
@@ -70,8 +60,6 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements Initializ
 	private PvMonitorListener pvMonitor;
 
 	private PutCallbackListener pcbl;
-
-	private String epicsRecordName;
 
 	private boolean readOnly = true;
 
@@ -103,70 +91,12 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements Initializ
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
-			if (recordName != null) {
-				createChannelAccess(recordName);
-				channelManager.tryInitialize(100);
+			if (recordName == null) {
+				throw new IllegalStateException("No recordName set for EpicsSimpleMbbinary + '" + getName() + "'");
 			}
-
-			// EPICS interface verion 2 for phase I beamlines + I22
-			else if (getEpicsRecordName() != null) {
-				EpicsRecord epicsRecord;
-
-				if ((epicsRecord = (EpicsRecord) Finder.getInstance().find(epicsRecordName)) != null) {
-					recordName = epicsRecord.getFullRecordName();
-					createChannelAccess(recordName);
-					channelManager.tryInitialize(100);
-				} else {
-					logger.error("Epics Record " + epicsRecordName + " not found");
-					throw new FactoryException("Epics Record " + epicsRecordName + " not found");
-				}
-			}
-			// EPICS interface version 3 for phase II beamlines (excluding I22).
-			else if (getDeviceName() != null) {
-				SimpleMbbinaryType pnrConfig;
-				try {
-					pnrConfig = Configurator.getConfiguration(getDeviceName(),
-							gda.epics.interfaces.SimpleMbbinaryType.class);
-					createChannelAccess(pnrConfig);
-					channelManager.tryInitialize(100);
-				} catch (ConfigurationNotFoundException e) {
-					try {
-						gda.epics.interfaceSpec.Device device = GDAEpicsInterfaceReader.getDeviceFromType(
-								Xml.simpleMbbinary_type_name, getDeviceName());
-						createChannelAccess(device);
-						channelManager.tryInitialize(100);
-					} catch (InterfaceException ex) {
-						throw new FactoryException("Error initialising device " + getDeviceName());
-					}
-				}
-			}
+			createChannelAccess(recordName);
+			channelManager.tryInitialize(100);
 			setConfigured(true);
-		}
-	}
-
-	private void createChannelAccess(gda.epics.interfaceSpec.Device device) throws FactoryException {
-		try {
-			pv = channelManager.createChannel(device.getField("RECORD").getPV(), pvMonitor, MonitorType.NATIVE, false);
-			readOnly = device.getField("RECORD").isReadOnly();
-			// acknowledge that creation phase is completed
-			channelManager.creationPhaseCompleted();
-
-		} catch (Exception e) {
-			// TODO take care of destruction
-			throw new FactoryException("failed to connect to all channels", e);
-		}
-	}
-
-	private void createChannelAccess(SimpleMbbinaryType config) throws FactoryException {
-		try {
-			pv = channelManager.createChannel(config.getRECORD().getPv(), pvMonitor, MonitorType.NATIVE, false);
-			readOnly = config.getRECORD().getRo();
-			// acknowledge that creation phase is completed
-			channelManager.creationPhaseCompleted();
-
-		} catch (Exception e) {
-			// TODO take care of destruction
-			throw new FactoryException("failed to connect to all channels", e);
 		}
 	}
 
@@ -302,34 +232,6 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements Initializ
 
 	}
 
-	/**
-	 * @return epicsRecordName
-	 */
-	public String getEpicsRecordName() {
-		return epicsRecordName;
-	}
-
-	/**
-	 * @param epicsRecordName
-	 */
-	public void setEpicsRecordName(String epicsRecordName) {
-		this.epicsRecordName = epicsRecordName;
-	}
-
-	/**
-	 * @return deviceName
-	 */
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	/**
-	 * @param deviceName
-	 */
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
-	}
-
 	public boolean isReadOnly() {
 		return readOnly;
 	}
@@ -337,7 +239,7 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements Initializ
 	public void setReadOnly(boolean readOnly) {
 		if (recordName == null) {
 			// readOnly is set by createChannelAccess
-			throw new IllegalStateException("readOnly may only be set when recordName is used to configure device: " + deviceName);
+			throw new IllegalStateException("readOnly may only be set when recordName is used to configure device: " + getName());
 		}
 		this.readOnly = readOnly;
 	}

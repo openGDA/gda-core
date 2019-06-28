@@ -25,18 +25,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
-import gda.configuration.epics.EpicsConfiguration;
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.epics.LazyPVFactory;
 import gda.epics.connection.EpicsController;
-import gda.epics.interfaces.NDFileType;
-import gda.factory.FactoryException;
 import gda.observable.Observable;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
@@ -68,15 +62,12 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 
 	private String basePVName;
 
-	private IPVProvider pvProvider;
-
-
 	/**
 	 * Map that stores the channel against the PV name
 	 */
 	private Map<String, Channel> channelMap = new HashMap<String, Channel>();
 
-	/**
+	/*
 	 * List all the PVs
 	 */
 
@@ -141,49 +132,11 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	private String initialFileTemplate;
 	private Integer initialFileNumber;
 
-	private NDFileType config;
-	private String deviceName;
-
 	private StartPutListener startCallback = new StartPutListener();
 
 	private FilePathConverter filePathConverter;
 	// Setup the logging facilities
 	static final Logger logger = LoggerFactory.getLogger(NDFileImpl.class);
-
-	protected EpicsConfiguration epicsConfiguration;
-
-	/**
-	 * Sets the EpicsConfiguration to use when looking up PV from deviceName.
-	 *
-	 * @param epicsConfiguration the EpicsConfiguration
-	 */
-	public void setEpicsConfiguration(EpicsConfiguration epicsConfiguration) {
-		this.epicsConfiguration = epicsConfiguration;
-	}
-
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	public void setDeviceName(String deviceName) throws FactoryException {
-		this.deviceName = deviceName;
-		initializeConfig();
-	}
-
-	private void initializeConfig() throws FactoryException {
-		if (deviceName != null) {
-			try {
-				if (epicsConfiguration != null) {
-					config = epicsConfiguration.getConfiguration(getDeviceName(), NDFileType.class);
-				} else {
-					config = Configurator.getConfiguration(getDeviceName(), NDFileType.class);
-				}
-			} catch (ConfigurationNotFoundException e) {
-				logger.error("EPICS configuration for device {} not found", getDeviceName());
-				throw new FactoryException("EPICS configuration for device " + getDeviceName() + " not found.", e);
-			}
-		}
-	}
 
 	/**
 	*
@@ -191,9 +144,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public String getFilePath() throws Exception {
 		try {
-			if (config != null) {
-				return new String(EPICS_CONTROLLER.cagetByteArray(createChannel(config.getFilePath().getPv()))).trim();
-			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(FilePath))).trim();
 		} catch (Exception ex) {
 			logger.error("Cannot getFilePath", ex);
@@ -210,7 +160,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public void setFilePath(String filepath) throws Exception {
 		try {
-			Channel channel = config != null ? createChannel(config.getFilePath().getPv()) : getChannel(FilePath);
+			Channel channel = getChannel(FilePath);
 			byte[] bytes = (getInternalPath(filepath) + '\0').getBytes();
 			EPICS_CONTROLLER.caputWait(channel, bytes);
 		} catch (Exception ex) {
@@ -225,7 +175,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public String getFilePath_RBV() throws Exception {
 		try {
-				Channel channel = config != null ? createChannel(config.getFilePath_RBV().getPv()) : getChannel(FilePath_RBV);
+				Channel channel = getChannel(FilePath_RBV);
 				String filepath = new String(EPICS_CONTROLLER.cagetByteArray(channel)).trim();
 				return filePathConverter != null ? filePathConverter.converttoExternal(filepath)  : filepath;
 		} catch (Exception ex) {
@@ -240,9 +190,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public String getFileName() throws Exception {
 		try {
-			if (config != null) {
-				return new String(EPICS_CONTROLLER.cagetByteArray(createChannel(config.getFileName().getPv()))).trim();
-			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(FileName))).trim();
 		} catch (Exception ex) {
 			logger.error("Cannot getFileName", ex);
@@ -256,11 +203,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public void setFileName(String filename) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getFileName().getPv()), (filename + '\0').getBytes());
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(FileName), (filename + '\0').getBytes());
-			}
+			EPICS_CONTROLLER.caputWait(getChannel(FileName), (filename + '\0').getBytes());
 		} catch (Exception ex) {
 			logger.error("Cannot setFileName", ex);
 			throw ex;
@@ -273,10 +216,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public String getFileName_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return new String(EPICS_CONTROLLER.cagetByteArray(createChannel(config.getFileName_RBV().getPv())))
-						.trim();
-			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(FileName_RBV))).trim();
 		} catch (Exception ex) {
 			logger.error("Cannot getFileName_RBV", ex);
@@ -290,9 +229,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public int getFileNumber() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getFileNumber().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(FileNumber));
 		} catch (Exception ex) {
 			logger.error("Cannot getFileNumber", ex);
@@ -306,11 +242,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public void setFileNumber(int filenumber) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getFileNumber().getPv()), filenumber);
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(FileNumber), filenumber);
-			}
+			EPICS_CONTROLLER.caputWait(getChannel(FileNumber), filenumber);
 		} catch (Exception ex) {
 			logger.error("Cannot setFileNumber", ex);
 			throw ex;
@@ -323,9 +255,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public int getFileNumber_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getFileNumber_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(FileNumber_RBV));
 		} catch (Exception ex) {
 			logger.error("Cannot getFileNumber_RBV", ex);
@@ -339,9 +268,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public short getAutoIncrement() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getAutoIncrement().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(AutoIncrement));
 		} catch (Exception ex) {
 			logger.error("Cannot getAutoIncrement", ex);
@@ -355,11 +281,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public void setAutoIncrement(int autoincrement) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getAutoIncrement().getPv()), autoincrement);
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(AutoIncrement), autoincrement);
-			}
+			EPICS_CONTROLLER.caputWait(getChannel(AutoIncrement), autoincrement);
 		} catch (Exception ex) {
 			logger.error("Cannot setAutoIncrement", ex);
 			throw ex;
@@ -372,9 +294,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public short getAutoIncrement_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getAutoIncrement_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(AutoIncrement_RBV));
 		} catch (Exception ex) {
 			logger.error("Cannot getAutoIncrement_RBV", ex);
@@ -388,10 +307,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public String getFileTemplate() throws Exception {
 		try {
-			if (config != null) {
-				return new String(EPICS_CONTROLLER.cagetByteArray(createChannel(config.getFileTemplate().getPv())))
-						.trim();
-			}
 			return new String(EPICS_CONTROLLER.cagetByteArray((getChannel(FileTemplate)))).trim();
 		} catch (Exception ex) {
 			logger.error("Cannot getFileTemplate", ex);
@@ -405,12 +320,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public void setFileTemplate(String filetemplate) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getFileTemplate().getPv()),
-						(filetemplate + '\0').getBytes());
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(FileTemplate), (filetemplate + '\0').getBytes());
-			}
+			EPICS_CONTROLLER.caputWait(getChannel(FileTemplate), (filetemplate + '\0').getBytes());
 		} catch (Exception ex) {
 			logger.error("Cannot setFileTemplate", ex);
 			throw ex;
@@ -423,10 +333,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public String getFileTemplate_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return new String(EPICS_CONTROLLER.cagetByteArray(createChannel(config.getFileTemplate_RBV().getPv())))
-						.trim();
-			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(FileTemplate_RBV))).trim();
 		} catch (Exception ex) {
 			logger.error("Cannot getFileTemplate_RBV", ex);
@@ -440,7 +346,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public String getFullFileName_RBV() throws Exception {
 		try {
-			Channel channel = config != null ? createChannel(config.getFullFileName_RBV().getPv()) : getChannel(FullFileName_RBV);
+			Channel channel = getChannel(FullFileName_RBV);
 			String filepath = new String(EPICS_CONTROLLER.cagetByteArray(channel)).trim();
 			return filePathConverter != null ? filePathConverter.converttoExternal(filepath)  : filepath;
 		} catch (Exception ex) {
@@ -455,9 +361,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public short getAutoSave() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getAutoSave().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(AutoSave));
 		} catch (Exception ex) {
 			logger.error("Cannot getAutoSave", ex);
@@ -471,11 +374,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public void setAutoSave(int autosave) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getAutoSave().getPv()), autosave);
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(AutoSave), autosave);
-			}
+			EPICS_CONTROLLER.caputWait(getChannel(AutoSave), autosave);
 		} catch (Exception ex) {
 			logger.error("Cannot setAutoSave", ex);
 			throw ex;
@@ -488,9 +387,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public short getAutoSave_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getAutoSave_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(AutoSave_RBV));
 		} catch (Exception ex) {
 			logger.error("Cannot getAutoSave_RBV", ex);
@@ -504,9 +400,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public short getWriteFile() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getWriteFile().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(WriteFile));
 		} catch (Exception ex) {
 			logger.error("Cannot getWriteFile", ex);
@@ -520,11 +413,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public void setWriteFile(int writefile) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getWriteFile().getPv()), writefile);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(WriteFile), writefile);
-			}
+			EPICS_CONTROLLER.caput(getChannel(WriteFile), writefile);
 		} catch (Exception ex) {
 			logger.error("Cannot setWriteFile", ex);
 			throw ex;
@@ -537,9 +426,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public short getWriteFile_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getWriteFile_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(WriteFile_RBV));
 		} catch (Exception ex) {
 			logger.error("Cannot getWriteFile_RBV", ex);
@@ -553,9 +439,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public short getReadFile() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getReadFile().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReadFile));
 		} catch (Exception ex) {
 			logger.error("Cannot getReadFile", ex);
@@ -569,11 +452,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public void setReadFile(int readfile) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getReadFile().getPv()), readfile);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ReadFile), readfile);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ReadFile), readfile);
 		} catch (Exception ex) {
 			logger.error("Cannot setReadFile", ex);
 			throw ex;
@@ -586,9 +465,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public short getReadFile_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getReadFile_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReadFile_RBV));
 		} catch (Exception ex) {
 			logger.error("Cannot getReadFile_RBV", ex);
@@ -602,9 +478,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public short getFileFormat() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getFileFormat().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(FileFormat));
 		} catch (Exception ex) {
 			logger.error("Cannot getFileFormat", ex);
@@ -618,11 +491,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public void setFileFormat(int fileformat) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getFileFormat().getPv()), fileformat);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(FileFormat), fileformat);
-			}
+			EPICS_CONTROLLER.caput(getChannel(FileFormat), fileformat);
 		} catch (Exception ex) {
 			logger.error("Cannot setFileFormat", ex);
 			throw ex;
@@ -635,9 +504,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public short getFileFormat_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getFileFormat_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(FileFormat_RBV));
 		} catch (Exception ex) {
 			logger.error("Cannot getFileFormat_RBV", ex);
@@ -651,9 +517,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public short getFileWriteMode() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getFileWriteMode().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(FileWriteMode));
 		} catch (Exception ex) {
 			logger.error("Cannot getFileWriteMode", ex);
@@ -670,11 +533,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	public void setFileWriteMode(int filewritemode) throws Exception {
 		logger.info("Setting file-write-mode to: " + filewritemode);
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getFileWriteMode().getPv()), filewritemode);
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(FileWriteMode), filewritemode);
-			}
+			EPICS_CONTROLLER.caputWait(getChannel(FileWriteMode), filewritemode);
 		} catch (Exception ex) {
 			logger.error("Cannot setFileWriteMode", ex);
 			throw ex;
@@ -687,9 +546,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public short getFileWriteMode_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getFileWriteMode_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(FileWriteMode_RBV));
 		} catch (Exception ex) {
 			logger.error("Cannot getFileWriteMode_RBV", ex);
@@ -703,9 +559,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public short getCapture() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getCapture().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Capture));
 		} catch (Exception ex) {
 			logger.error("Cannot getCapture", ex);
@@ -723,11 +576,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 				return; // File capture already waiting, so it will not respond to another caput callback.
 			}
 			setStatus(Detector.BUSY);
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getCapture().getPv()), 1, startCallback);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(Capture), 1, startCallback);
-			}
+			EPICS_CONTROLLER.caput(getChannel(Capture), 1, startCallback);
 			if (LocalProperties.check("gda.epics.detector.need.checking.again.after.caput", true)){
 				int counter=0;
 				while(getCapture_RBV() != 1) {
@@ -755,11 +604,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public void stopCapture() throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getCapture().getPv()), 0);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(Capture), 0);
-			}
+			EPICS_CONTROLLER.caput(getChannel(Capture), 0);
 			// If the acquisition state is busy then wait for it to complete.
 			while (getCapture() == 1) {
 				logger.info("sleeping for 25");
@@ -778,9 +623,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public short getCapture_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getCapture_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(Capture_RBV));
 		} catch (Exception ex) {
 			logger.error("Cannot getCapture_RBV", ex);
@@ -794,9 +636,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public int getNumCapture() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumCapture().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumCapture));
 		} catch (Exception ex) {
 			logger.error("Cannot getNumCapture", ex);
@@ -810,11 +649,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public void setNumCapture(int numcapture) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getNumCapture().getPv()), numcapture);
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(NumCapture), numcapture);
-			}
+			EPICS_CONTROLLER.caputWait(getChannel(NumCapture), numcapture);
 		} catch (Exception ex) {
 			logger.error("Cannot setNumCapture", ex);
 			throw ex;
@@ -827,9 +662,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public int getNumCapture_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumCapture_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumCapture_RBV));
 		} catch (Exception ex) {
 			logger.error("Cannot getNumCapture_RBV", ex);
@@ -843,9 +675,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	@Override
 	public int getNumCaptured_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumCaptured_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumCaptured_RBV));
 		} catch (Exception ex) {
 			logger.error("Cannot getNumCaptured_RBV", ex);
@@ -862,8 +691,8 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (deviceName == null && basePVName == null && pvProvider == null) {
-			throw new IllegalArgumentException("'deviceName','basePVName' or 'pvProvider' needs to be declared");
+		if (basePVName == null) {
+			throw new IllegalArgumentException("'basePVName' needs to be declared");
 		}
 		if (getPluginBase() == null) {
 			logger.warn(getIdentifier() + " : 'ndPluginBase' not declared");
@@ -896,21 +725,6 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	 */
 	public void setBasePVName(String basePVName) {
 		this.basePVName = basePVName;
-	}
-
-	/**
-	 * @return Returns the pvProvider.
-	 */
-	public IPVProvider getPvProvider() {
-		return pvProvider;
-	}
-
-	/**
-	 * @param pvProvider
-	 *            The pvProvider to set.
-	 */
-	public void setPvProvider(IPVProvider pvProvider) {
-		this.pvProvider = pvProvider;
 	}
 
 	/**
@@ -1033,7 +847,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 		this.initialFileTemplate = initialFileTemplate;
 	}
 
-	private String getChannelName(String pvElementName, String... args)throws Exception{
+	private String getChannelName(String pvElementName, String... args) {
 		String pvPostFix = null;
 		if (args.length > 0) {
 			// PV element name is different from the pvPostFix
@@ -1042,13 +856,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 			pvPostFix = pvElementName;
 		}
 
-		String fullPvName;
-		if (pvProvider != null) {
-			fullPvName = pvProvider.getPV(pvElementName);
-		} else {
-			fullPvName = basePVName + pvPostFix;
-		}
-		return fullPvName;
+		return basePVName + pvPostFix;
 	}
 	/**
 	 * This method allows to toggle between the method in which the PV is acquired.
@@ -1130,7 +938,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 
 	@Override
 	public Boolean filePathExists() throws Exception {
-		Channel channel = config != null ? createChannel(config.getFilePathExists().getPv()) : getChannel(FilePathExists_RBV);
+		Channel channel = getChannel(FilePathExists_RBV);
 		return EPICS_CONTROLLER.cagetInt(channel)!=0;
 	}
 
@@ -1146,27 +954,18 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 
 	@Override
 	public String getWriteMessage() throws Exception {
-		Channel channel = config != null ? createChannel(config.getWriteMessage().getPv()) : getChannel(WriteMessage);
+		Channel channel = getChannel(WriteMessage);
 		return new String(EPICS_CONTROLLER.cagetByteArray(channel)).trim();
 	}
 
 	@Override
 	public Boolean isWriteStatusErr() throws Exception {
-		Channel channel = config != null ? createChannel(config.getWriteStatus().getPv()) : getChannel(WriteStatus);
+		Channel channel = getChannel(WriteStatus);
 		return EPICS_CONTROLLER.cagetShort(channel)!=0;
 	}
 
+	@Deprecated // now there is only one way to configure this class, identifier is no longer needed
 	private String getIdentifier() {
-		// Since this can be configured with either a deviceName, pvProvider or basePVname, return an identifier based on
-		// whichever is currently in use. If multiple are available, return in this order, which matches usage in the class.
-		String id = getDeviceName();
-		if (id == null && pvProvider != null)
-			try {
-				id = pvProvider.getPV("");
-			} catch (Exception e) {
-				logger.error("pvProvider.getPV('') threw exception: ", e);
-			}
-		if (id == null) id = basePVName;
-		return id;
+		return basePVName;
 	}
 }

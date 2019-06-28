@@ -18,28 +18,26 @@
 
 package uk.ac.gda.epics.client.views.model.impl;
 
-import gda.device.detector.areadetector.v17.NDProcess;
-import gda.epics.interfaces.NDProcessType;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBR_Double;
-import gov.aps.jca.dbr.DBR_Enum;
-import gov.aps.jca.dbr.DBR_Int;
-import gov.aps.jca.event.MonitorEvent;
-import gov.aps.jca.event.MonitorListener;
-
 import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.detector.areadetector.v17.NDProcess;
+import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DBR_Double;
+import gov.aps.jca.dbr.DBR_Enum;
+import gov.aps.jca.dbr.DBR_Int;
+import gov.aps.jca.event.MonitorEvent;
+import gov.aps.jca.event.MonitorListener;
 import uk.ac.gda.epics.client.views.controllers.INDProcViewController;
 import uk.ac.gda.epics.client.views.model.NdProcModel;
 
 /**
  *
  */
-public class NDProcModelImpl extends EPICSBaseModel<NDProcessType> implements NdProcModel {
+public class NDProcModelImpl extends EPICSBaseModel implements NdProcModel {
 	private final static Logger logger = LoggerFactory.getLogger(NDProcModelImpl.class);
 	private ScaleMonitorListener scaleMonitorListener;
 	private OffsetMonitorListener offsetMonitorListener;
@@ -62,11 +60,6 @@ public class NDProcModelImpl extends EPICSBaseModel<NDProcessType> implements Nd
 		offsetMonitorListener = new OffsetMonitorListener();
 		enableFlatFieldListener = new EnableFlatFieldListener();
 		numFilteredListener = new NumFilteredListener();
-	}
-
-	@Override
-	protected Class<NDProcessType> getConfigClassType() {
-		return NDProcessType.class;
 	}
 
 	@Override
@@ -113,9 +106,6 @@ public class NDProcModelImpl extends EPICSBaseModel<NDProcessType> implements Nd
 	@Override
 	public double getProcScale() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getScale_RBV().getPv(), scaleMonitorListener));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(NDProcess.Scale_RBV, scaleMonitorListener));
 		} catch (Exception ex) {
 			throw ex;
@@ -125,10 +115,6 @@ public class NDProcModelImpl extends EPICSBaseModel<NDProcessType> implements Nd
 	@Override
 	public int getNumFiltered() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER
-						.cagetInt(createChannel(config.getNumFiltered_RBV().getPv(), numFilteredListener));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NDProcess.NumFiltered_RBV, numFilteredListener));
 		} catch (Exception ex) {
 			throw ex;
@@ -150,10 +136,6 @@ public class NDProcModelImpl extends EPICSBaseModel<NDProcessType> implements Nd
 	@Override
 	public double getProcOffset() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER
-						.cagetDouble(createChannel(config.getOffset_RBV().getPv(), offsetMonitorListener));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(NDProcess.Offset_RBV, offsetMonitorListener));
 		} catch (Exception ex) {
 			throw ex;
@@ -163,10 +145,6 @@ public class NDProcModelImpl extends EPICSBaseModel<NDProcessType> implements Nd
 	@Override
 	public short getEnableFlatField() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getEnableFlatField().getPv(),
-						enableFlatFieldListener));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(NDProcess.EnableFlatField, enableFlatFieldListener));
 		} catch (Exception ex) {
 			throw ex;
@@ -175,7 +153,7 @@ public class NDProcModelImpl extends EPICSBaseModel<NDProcessType> implements Nd
 
 	@Override
 	protected void doCheckAfterPropertiesSet() throws Exception {
-		if (deviceName != null && pluginBase == null) {
+		if (pluginBase == null) {
 			throw new IllegalArgumentException("'pluginBase' needs to be declared");
 		}
 
@@ -190,11 +168,7 @@ public class NDProcModelImpl extends EPICSBaseModel<NDProcessType> implements Nd
 	@Override
 	public void setOffset(double offsetValue) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getOffset().getPv(), offsetMonitorListener), offsetValue);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(NDProcess.Offset, offsetMonitorListener), offsetValue);
-			}
+			EPICS_CONTROLLER.caput(getChannel(NDProcess.Offset, offsetMonitorListener), offsetValue);
 		} catch (Exception ex) {
 			throw ex;
 		}
@@ -204,14 +178,9 @@ public class NDProcModelImpl extends EPICSBaseModel<NDProcessType> implements Nd
 	@Override
 	public void setScale(double scaleValue) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getScale().getPv(), scaleMonitorListener), scaleValue);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(NDProcess.Scale, scaleMonitorListener), scaleValue);
-			}
+			EPICS_CONTROLLER.caput(getChannel(NDProcess.Scale, scaleMonitorListener), scaleValue);
 		} catch (Exception ex) {
 			throw ex;
 		}
 	}
-
 }

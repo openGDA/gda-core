@@ -18,24 +18,17 @@
 
 package uk.ac.gda.epics.client.views.model.impl;
 
-import gda.device.detector.areadetector.v17.NDArray;
-import gda.epics.interfaces.NDStdArraysType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.detector.areadetector.v17.NDArray;
 import uk.ac.gda.epics.client.views.model.NdArrayModel;
 
 /**
  *
  */
-public class NDArrayModelImpl extends EPICSBaseModel<NDStdArraysType> implements NdArrayModel {
+public class NDArrayModelImpl extends EPICSBaseModel implements NdArrayModel {
 	private final static Logger logger = LoggerFactory.getLogger(NDArrayModelImpl.class);
-
-	@Override
-	protected Class<NDStdArraysType> getConfigClassType() {
-		return NDStdArraysType.class;
-	}
 
 	@Override
 	protected Logger getLogger() {
@@ -44,7 +37,7 @@ public class NDArrayModelImpl extends EPICSBaseModel<NDStdArraysType> implements
 
 	@Override
 	protected void doCheckAfterPropertiesSet() throws Exception {
-		if (deviceName != null && pluginBase == null) {
+		if (pluginBase == null) {
 			throw new IllegalArgumentException("'pluginBase' needs to be declared");
 		}
 	}
@@ -52,9 +45,6 @@ public class NDArrayModelImpl extends EPICSBaseModel<NDStdArraysType> implements
 	@Override
 	public int[] getArrayData() throws Exception {
 		try {
-			if (getConfig() != null) {
-				return EPICS_CONTROLLER.cagetIntArray(createChannel(getConfig().getArrayData().getPv(), null));
-			}
 			return EPICS_CONTROLLER.cagetIntArray(getChannel(NDArray.ARRAY_DATA, null));
 		} catch (Exception ex) {
 			logger.warn("problem with g.d.d.a.v.i.NDArrayImpl ->getArrayData()", ex);
@@ -65,10 +55,6 @@ public class NDArrayModelImpl extends EPICSBaseModel<NDStdArraysType> implements
 	@Override
 	public int[] getArrayData(int numberOfElements) throws Exception {
 		try {
-			if (getConfig() != null) {
-				return EPICS_CONTROLLER.cagetIntArray(createChannel(getConfig().getArrayData().getPv(), null),
-						numberOfElements);
-			}
 			return EPICS_CONTROLLER.cagetIntArray(getChannel(NDArray.ARRAY_DATA, null), numberOfElements);
 		} catch (Exception ex) {
 			logger.warn("problem with g.d.d.a.v.i.NDArrayImpl ->getArrayData(int numberOfElements)", ex);
@@ -79,10 +65,6 @@ public class NDArrayModelImpl extends EPICSBaseModel<NDStdArraysType> implements
 	@Override
 	public byte[] getByteArrayData(int numberOfElements) throws Exception {
 		try {
-			if (getConfig() != null) {
-				return EPICS_CONTROLLER.cagetByteArray(createChannel(getConfig().getArrayData().getPv(), null),
-						numberOfElements);
-			}
 			return EPICS_CONTROLLER.cagetByteArray(getChannel(NDArray.ARRAY_DATA, null), numberOfElements);
 		} catch (Exception ex) {
 			logger.warn("problem with g.d.d.a.v.i.NDArrayImpl ->getByteArrayData()", ex);
@@ -93,10 +75,6 @@ public class NDArrayModelImpl extends EPICSBaseModel<NDStdArraysType> implements
 	@Override
 	public short[] getShortArray(int numberOfElements) throws Exception {
 		try {
-			if (getConfig() != null) {
-				return EPICS_CONTROLLER.cagetShortArray(createChannel(getConfig().getArrayData().getPv(), null),
-						numberOfElements);
-			}
 			return EPICS_CONTROLLER.cagetShortArray(getChannel(NDArray.ARRAY_DATA, null), numberOfElements);
 		} catch (Exception ex) {
 			logger.warn("problem with g.d.d.a.v.i.NDArrayImpl ->getByteArrayData()", ex);
@@ -107,9 +85,6 @@ public class NDArrayModelImpl extends EPICSBaseModel<NDStdArraysType> implements
 	@Override
 	public short[] getShortArray() throws Exception {
 		try {
-			if (getConfig() != null) {
-				return EPICS_CONTROLLER.cagetShortArray(createChannel(getConfig().getArrayData().getPv(), null));
-			}
 			return EPICS_CONTROLLER.cagetShortArray(getChannel(NDArray.ARRAY_DATA, null));
 		} catch (Exception ex) {
 			logger.warn("problem with g.d.d.a.v.i.NDArrayImpl ->getByteArrayData()", ex);

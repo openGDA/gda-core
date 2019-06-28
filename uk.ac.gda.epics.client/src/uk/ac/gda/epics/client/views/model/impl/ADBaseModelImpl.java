@@ -18,20 +18,6 @@
 
 package uk.ac.gda.epics.client.views.model.impl;
 
-import gda.device.detector.areadetector.v17.ADBase;
-import gda.epics.interfaces.ADBaseType;
-import gda.epics.interfaces.NDPluginBaseType;
-import gda.factory.FactoryException;
-import gov.aps.jca.CAException;
-import gov.aps.jca.TimeoutException;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBR_Double;
-import gov.aps.jca.dbr.DBR_Enum;
-import gov.aps.jca.dbr.DBR_Int;
-import gov.aps.jca.dbr.DBR_Short;
-import gov.aps.jca.event.MonitorEvent;
-import gov.aps.jca.event.MonitorListener;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -41,20 +27,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import gda.device.detector.areadetector.v17.ADBase;
+import gov.aps.jca.CAException;
+import gov.aps.jca.TimeoutException;
+import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DBR_Double;
+import gov.aps.jca.dbr.DBR_Enum;
+import gov.aps.jca.dbr.DBR_Int;
+import gov.aps.jca.dbr.DBR_Short;
+import gov.aps.jca.event.MonitorEvent;
+import gov.aps.jca.event.MonitorListener;
 import uk.ac.gda.epics.client.views.controllers.IAdBaseViewController;
 import uk.ac.gda.epics.client.views.model.AdBaseModel;
 
 /**
  *
  */
-public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements InitializingBean, AdBaseModel {
+public class ADBaseModelImpl extends EPICSBaseModel implements InitializingBean, AdBaseModel {
 	static final Logger logger = LoggerFactory.getLogger(ADBaseModelImpl.class);
 	private static List<String> detectorDataTypes;
-
-	@Override
-	protected Class<ADBaseType> getConfigClassType() {
-		return ADBaseType.class;
-	}
 
 	@Override
 	protected Logger getLogger() {
@@ -258,10 +249,6 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 	@Override
 	public short getDetectorState_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getDetectorState_RBV().getPv(),
-						detectorStateMonitorListener));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ADBase.DetectorState_RBV, detectorStateMonitorListener));
 		} catch (Exception ex) {
 			throw ex;
@@ -271,10 +258,6 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 	@Override
 	public int getArrayCounter_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getArrayCounter_RBV().getPv(),
-						arrayCounterMonitorListener));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ADBase.ArrayCounter_RBV, arrayCounterMonitorListener));
 		} catch (Exception ex) {
 			throw ex;
@@ -287,10 +270,6 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 	@Override
 	public double getTimeRemaining_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getTimeRemaining_RBV().getPv(),
-						timeRemainingMonitorListener));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(ADBase.TimeRemaining_RBV, timeRemainingMonitorListener));
 		} catch (Exception ex) {
 			throw ex;
@@ -303,10 +282,6 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 	@Override
 	public double getArrayRate_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getArrayRate_RBV().getPv(),
-						arrayRateMonitorListener));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(ADBase.ArrayRate_RBV, arrayRateMonitorListener));
 		} catch (Exception ex) {
 			throw ex;
@@ -319,10 +294,6 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 	@Override
 	public int getNumExposuresCounter_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumExposuresCounter_RBV().getPv(),
-						numExposuresCounterMonitorListener));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ADBase.NumExposuresCounter_RBV,
 					numExposuresCounterMonitorListener));
 		} catch (Exception ex) {
@@ -336,10 +307,6 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 	@Override
 	public int getNumImagesCounter_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumImagesCounter_RBV().getPv(),
-						numImagesCounterMonitorListener));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ADBase.NumImagesCounter_RBV, numImagesCounterMonitorListener));
 		} catch (Exception ex) {
 			throw ex;
@@ -398,17 +365,8 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 	}
 
 	@Override
-	protected NDPluginBaseType getPluginBaseTypeConfig() throws FactoryException {
-		throw new FactoryException("No base plugin for ADBase");
-	}
-
-	@Override
 	public double getAcqExposureRBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getAcquireTime_RBV().getPv(),
-						acqExposureMonitorListener));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(ADBase.AcquireTime_RBV, acqExposureMonitorListener));
 		} catch (Exception ex) {
 			throw ex;
@@ -424,9 +382,6 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 	@Override
 	public void setAcqExposure(double exposureTime) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getAcquireTime().getPv(),null),exposureTime);
-			}
 			EPICS_CONTROLLER.caput(getChannel(ADBase.AcquireTime, null), exposureTime);
 		} catch (Exception ex) {
 			throw ex;
@@ -437,10 +392,6 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 	@Override
 	public double getAcqPeriodRBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getAcquirePeriod_RBV().getPv(),
-						acqPeriodMonitorListener));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(ADBase.AcquirePeriod_RBV, acqPeriodMonitorListener));
 		} catch (Exception ex) {
 			throw ex;
@@ -449,9 +400,6 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 	@Override
 	public void setAcqPeriod(double periodTime) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getAcquirePeriod().getPv(),	null), periodTime);
-			}
 			EPICS_CONTROLLER.caput(getChannel(ADBase.AcquirePeriod, null), periodTime);
 		} catch (Exception ex) {
 			throw ex;
@@ -461,9 +409,6 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 	@Override
 	public short getAcquireState() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getAcquire().getPv(), acquireStateListener));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ADBase.Acquire, acquireStateListener));
 		} catch (Exception ex) {
 			throw ex;
@@ -473,10 +418,6 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 	@Override
 	public String getDatatype() throws Exception {
 		try {
-			if (config != null) {
-				return getDataTypeList().get(
-						EPICS_CONTROLLER.cagetEnum(createChannel(config.getDataType().getPv(), dataTypeListener)));
-			}
 			return getDataTypeList().get(EPICS_CONTROLLER.cagetEnum(getChannel(ADBase.DataType, dataTypeListener)));
 		} catch (Exception ex) {
 			throw ex;
@@ -485,13 +426,7 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 
 	private List<String> getDataTypeList() throws Exception {
 		if (detectorDataTypes == null) {
-			String[] labels = null;
-			if (config != null) {
-				labels = EPICS_CONTROLLER.cagetLabels(createChannel(config.getDataType().getPv(), dataTypeListener));
-			} else {
-				labels = EPICS_CONTROLLER.cagetLabels(getChannel(ADBase.DataType, dataTypeListener));
-			}
-			detectorDataTypes = Arrays.asList(labels);
+			detectorDataTypes = Arrays.asList(EPICS_CONTROLLER.cagetLabels(getChannel(ADBase.DataType, dataTypeListener)));
 		}
 		return detectorDataTypes;
 	}
@@ -499,9 +434,6 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 	@Override
 	public String getPortName() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetString(createChannel(config.getPortName_RBV().getPv(), null));
-			}
 			return EPICS_CONTROLLER.cagetString(getChannel(ADBase.PortName_RBV, null));
 		} catch (Exception ex) {
 			throw ex;
@@ -511,9 +443,6 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 	@Override
 	public int getNumberOfExposuresPerImage_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumExposures_RBV().getPv(),numExposuresPerImageMonitorListener));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ADBase.NumExposures_RBV,
 					numExposuresPerImageMonitorListener));
 		} catch (Exception ex) {
@@ -524,9 +453,6 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 	@Override
 	public int getNumberOfImages_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumImages_RBV().getPv(),numImagesMonitorListener));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ADBase.NumImages_RBV,
 					numImagesMonitorListener));
 		} catch (Exception ex) {

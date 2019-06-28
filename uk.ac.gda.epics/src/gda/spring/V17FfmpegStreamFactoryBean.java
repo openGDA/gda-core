@@ -18,7 +18,6 @@
 
 package gda.spring;
 
-import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.FfmpegStream;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.impl.FfmpegStreamImpl;
@@ -28,10 +27,10 @@ import gda.device.detector.areadetector.v17.impl.FfmpegStreamImpl;
 public class V17FfmpegStreamFactoryBean extends V17PluginFactoryBeanBase<FfmpegStream>{
 
 	@Override
-	protected FfmpegStream createObject(NDPluginBase pluginBase, IPVProvider pvProvider) throws Exception {
+	protected FfmpegStream createObject(NDPluginBase pluginBase, String basePVName) throws Exception {
 		FfmpegStreamImpl plugin = new FfmpegStreamImpl();
 		plugin.setPluginBase(pluginBase);
-		plugin.setPvProvider(pvProvider);
+		plugin.setBasePVName(basePVName);
 		plugin.afterPropertiesSet();
 		return plugin;
 	}

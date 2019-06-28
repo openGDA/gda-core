@@ -24,14 +24,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
-import gda.device.detector.areadetector.IPVProvider;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaces.NDPluginBaseType;
-import gda.factory.FactoryException;
 import gda.factory.FindableBase;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
@@ -44,16 +39,12 @@ import gov.aps.jca.event.MonitorListener;
  *
  * @author rsr31645
  */
-public abstract class EPICSBaseModel<T> extends FindableBase implements InitializingBean, InitializationListener {
+public abstract class EPICSBaseModel extends FindableBase implements InitializingBean, InitializationListener {
 	protected final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 	protected Map<String, Channel> channelMap;
 
-	protected String deviceName;
 	protected String pluginBase;
 	protected String basePVName;
-	protected IPVProvider pvProvider;
-
-	protected T config;
 
 	public EPICSBaseModel() {
 		channelMap = new HashMap<String, Channel>();
@@ -62,62 +53,7 @@ public abstract class EPICSBaseModel<T> extends FindableBase implements Initiali
 	@Override
 	public void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException {
 		getLogger().info("{} is initialised.", getName());
-
 	}
-
-	/**
-	 * @return Returns the deviceName.
-	 */
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	/**
-	 * @param deviceName
-	 *            The deviceName to set.
-	 * @throws FactoryException
-	 */
-	public void setDeviceName(String deviceName) throws FactoryException {
-		this.deviceName = deviceName;
-		initializeConfig();
-	}
-
-	/**
-	 * The plugins composites the NDPluginBaseType, the device name is the same
-	 *
-	 * @return {@link NDPluginBaseType}
-	 * @throws FactoryException
-	 */
-	protected NDPluginBaseType getPluginBaseTypeConfig() throws FactoryException {
-
-		NDPluginBaseType pluginBaseTypeConfiguration = null;
-		if (pluginBase != null) {
-			try {
-				pluginBaseTypeConfiguration = Configurator.getConfiguration(getPluginBase(), NDPluginBaseType.class);
-			} catch (ConfigurationNotFoundException e) {
-				getLogger().error("EPICS configuration for device {} not found", getPluginBase());
-				throw new FactoryException("EPICS configuration for device " + getPluginBase() + " not found.", e);
-			}
-		}
-		return pluginBaseTypeConfiguration;
-	}
-
-	private void initializeConfig() throws FactoryException {
-		if (deviceName != null) {
-			try {
-				config = Configurator.getConfiguration(getDeviceName(), getConfigClassType());
-			} catch (ConfigurationNotFoundException e) {
-				getLogger().error("EPICS configuration for device {} not found", getDeviceName());
-				throw new FactoryException("EPICS configuration for device " + getDeviceName() + " not found.", e);
-			}
-		}
-	}
-
-	public T getConfig() {
-		return config;
-	}
-
-	protected abstract Class<T> getConfigClassType();
 
 	protected Channel getChannel(String pvElementName, MonitorListener ml, String... args) throws Exception {
 		try {
@@ -129,13 +65,7 @@ public abstract class EPICSBaseModel<T> extends FindableBase implements Initiali
 				pvPostFix = pvElementName;
 			}
 
-			String fullPvName;
-			if (pvProvider != null) {
-				fullPvName = pvProvider.getPV(pvElementName);
-			} else {
-				fullPvName = getBasePVName() + pvPostFix;
-			}
-			return createChannel(fullPvName, ml);
+			return createChannel(getBasePVName() + pvPostFix, ml);
 		} catch (Exception exception) {
 			getLogger().warn("Problem getting channel", exception);
 			throw exception;
@@ -183,7 +113,7 @@ public abstract class EPICSBaseModel<T> extends FindableBase implements Initiali
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (deviceName == null && getBasePVName() == null && pvProvider == null) {
+		if (getBasePVName() == null) {
 			throw new IllegalArgumentException("'deviceName','basePVName' or 'pvProvider' needs to be declared");
 		}
 

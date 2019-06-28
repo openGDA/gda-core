@@ -26,13 +26,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.StringUtils;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
-import gda.configuration.epics.EpicsConfiguration;
 import gda.device.Detector;
 import gda.device.detector.areadetector.AreaDetectorBin;
 import gda.device.detector.areadetector.AreaDetectorROI;
-import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.impl.AreaDetectorBinImpl;
 import gda.device.detector.areadetector.impl.AreaDetectorROIImpl;
 import gda.device.detector.areadetector.v17.ADBase;
@@ -42,8 +38,6 @@ import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
 import gda.epics.connection.EpicsController;
-import gda.epics.interfaces.ADBaseType;
-import gda.factory.FactoryException;
 import gda.observable.Observable;
 import gda.observable.Predicate;
 import gov.aps.jca.CAException;
@@ -76,8 +70,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 
 	private String basePVName;
 
-	private IPVProvider pvProvider;
-
 	/**
 	 * Map that stores the channel against the PV name
 	 */
@@ -96,9 +88,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	private Integer initialBinX;
 
 	private Integer initialBinY;
-
-	private ADBaseType config;
-	private String deviceName;
 
 	private String initialNDAttributesFile;
 
@@ -122,9 +111,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public String getPortName_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetString(createChannel(config.getPortName_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.caget(getChannel(PortName_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getPortName_RBV", ex);
@@ -138,9 +124,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public String getManufacturer_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetString(createChannel(config.getManufacturer_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.caget(getChannel(Manufacturer_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getManufacturer_RBV", ex);
@@ -154,9 +137,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public String getModel_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetString(createChannel(config.getModel_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.caget(getChannel(Model_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getModel_RBV", ex);
@@ -170,9 +150,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getMaxSizeX_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getMaxSizeX_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MaxSizeX_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getMaxSizeX_RBV", ex);
@@ -186,9 +163,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getMaxSizeY_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getMaxSizeY_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MaxSizeY_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getMaxSizeY_RBV", ex);
@@ -202,9 +176,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getDataType() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getDataType().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DataType));
 		} catch (Exception ex) {
 			logger.warn("Cannot getDataType", ex);
@@ -218,11 +189,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setDataType(String datatype) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getDataType().getPv()), datatype);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(DataType), datatype);
-			}
+			EPICS_CONTROLLER.caput(getChannel(DataType), datatype);
 		} catch (Exception ex) {
 			logger.warn("Cannot setDataType", ex);
 			throw ex;
@@ -235,9 +202,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getDataType_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getDataType_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DataType_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getDataType_RBV", ex);
@@ -251,14 +215,9 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public NDPluginBase.DataType getDataType_RBV2() throws Exception {
 		try {
-			Channel channel;
-			if (config != null) {
-				channel = createChannel(config.getDataType_RBV().getPv());
-			} else{
-				channel = getChannel(DataType_RBV);
-			}
-			short val=EPICS_CONTROLLER.cagetEnum(channel);
-			if( dataTypeRBV_Map == null){
+			Channel channel = getChannel(DataType_RBV);
+			short val = EPICS_CONTROLLER.cagetEnum(channel);
+			if (dataTypeRBV_Map == null) {
 				dataTypeRBV_Map = createDataTypeMap(channel);
 			}
 			return dataTypeRBV_Map.get(val);
@@ -314,9 +273,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getColorMode() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getColorMode().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ColorMode));
 		} catch (Exception ex) {
 			logger.warn("Cannot getColorMode", ex);
@@ -330,11 +286,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setColorMode(int colormode) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getColorMode().getPv()), colormode);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ColorMode), colormode);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ColorMode), colormode);
 		} catch (Exception ex) {
 			logger.warn("Cannot setColorMode", ex);
 			throw ex;
@@ -347,9 +299,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getColorMode_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getColorMode_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ColorMode_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getColorMode_RBV", ex);
@@ -363,9 +312,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getBinX() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getBinX().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(BinX));
 		} catch (Exception ex) {
 			logger.warn("Cannot getBinX", ex);
@@ -379,11 +325,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setBinX(int binx) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getBinX().getPv()), binx);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(BinX), binx);
-			}
+			EPICS_CONTROLLER.caput(getChannel(BinX), binx);
 		} catch (Exception ex) {
 			logger.warn("Cannot setBinX", ex);
 			throw ex;
@@ -396,9 +338,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getBinX_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getBinX_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(BinX_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getBinX_RBV", ex);
@@ -412,9 +351,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getBinY() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getBinY().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(BinY));
 		} catch (Exception ex) {
 			logger.warn("Cannot getBinY", ex);
@@ -428,11 +364,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setBinY(int biny) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getBinY().getPv()), biny);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(BinY), biny);
-			}
+			EPICS_CONTROLLER.caput(getChannel(BinY), biny);
 		} catch (Exception ex) {
 			logger.warn("Cannot setBinY", ex);
 			throw ex;
@@ -445,9 +377,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getBinY_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getBinY_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(BinY_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getBinY_RBV", ex);
@@ -461,9 +390,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getMinX() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getMinX().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MinX));
 		} catch (Exception ex) {
 			logger.warn("Cannot getMinX", ex);
@@ -477,11 +403,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setMinX(int minx) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getMinX().getPv()), minx);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(MinX), minx);
-			}
+			EPICS_CONTROLLER.caput(getChannel(MinX), minx);
 		} catch (Exception ex) {
 			logger.warn("Cannot setMinX", ex);
 			throw ex;
@@ -491,11 +413,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setMinXWait(int minx, double timeout) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getMinX().getPv()), minx, timeout);
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(MinX), minx, timeout);
-			}
+			EPICS_CONTROLLER.caputWait(getChannel(MinX), minx, timeout);
 		} catch (Exception ex) {
 			logger.warn("Cannot setMinX", ex);
 			throw ex;
@@ -508,9 +426,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getMinX_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getMinX_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MinX_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getMinX_RBV", ex);
@@ -524,9 +439,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getMinY() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getMinY().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MinY));
 		} catch (Exception ex) {
 			logger.warn("Cannot getMinY", ex);
@@ -540,11 +452,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setMinY(int miny) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getMinY().getPv()), miny);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(MinY), miny);
-			}
+			EPICS_CONTROLLER.caput(getChannel(MinY), miny);
 		} catch (Exception ex) {
 			logger.warn("Cannot setMinY", ex);
 			throw ex;
@@ -553,11 +461,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setMinYWait(int miny, double timeout) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getMinY().getPv()), miny, timeout);
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(MinY), miny,timeout);
-			}
+			EPICS_CONTROLLER.caputWait(getChannel(MinY), miny,timeout);
 		} catch (Exception ex) {
 			logger.warn("Cannot setMinY", ex);
 			throw ex;
@@ -570,9 +474,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getMinY_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getMinY_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(MinY_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getMinY_RBV", ex);
@@ -586,9 +487,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getSizeX() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getSizeX().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX));
 		} catch (Exception ex) {
 			logger.warn("Cannot getSizeX", ex);
@@ -602,11 +500,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setSizeX(int sizex) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getSizeX().getPv()), sizex);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(SizeX), sizex);
-			}
+			EPICS_CONTROLLER.caput(getChannel(SizeX), sizex);
 		} catch (Exception ex) {
 			logger.warn("Cannot setSizeX", ex);
 			throw ex;
@@ -618,11 +512,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setSizeXWait(int sizex, double timeout) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getSizeX().getPv()), sizex, timeout);
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(SizeX), sizex, timeout);
-			}
+			EPICS_CONTROLLER.caputWait(getChannel(SizeX), sizex, timeout);
 		} catch (Exception ex) {
 			logger.warn("Cannot setSizeX", ex);
 			throw ex;
@@ -635,9 +525,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getSizeX_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getSizeX_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeX_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getSizeX_RBV", ex);
@@ -651,9 +538,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getSizeY() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getSizeY().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY));
 		} catch (Exception ex) {
 			logger.warn("Cannot getSizeY", ex);
@@ -667,11 +551,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setSizeY(int sizey) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getSizeY().getPv()), sizey);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(SizeY), sizey);
-			}
+			EPICS_CONTROLLER.caput(getChannel(SizeY), sizey);
 		} catch (Exception ex) {
 			logger.warn("Cannot setSizeY", ex);
 			throw ex;
@@ -683,11 +563,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setSizeYWait(int sizey, double timeout) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getSizeY().getPv()), sizey, timeout);
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(SizeY), sizey, timeout);
-			}
+			EPICS_CONTROLLER.caputWait(getChannel(SizeY), sizey, timeout);
 		} catch (Exception ex) {
 			logger.warn("Cannot setSizeY", ex);
 			throw ex;
@@ -700,9 +576,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getSizeY_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getSizeY_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(SizeY_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getSizeY_RBV", ex);
@@ -716,9 +589,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getReverseX() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getReverseX().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReverseX));
 		} catch (Exception ex) {
 			logger.warn("Cannot getReverseX", ex);
@@ -732,11 +602,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setReverseX(int reversex) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getReverseX().getPv()), reversex);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ReverseX), reversex);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ReverseX), reversex);
 		} catch (Exception ex) {
 			logger.warn("Cannot setReverseX", ex);
 			throw ex;
@@ -749,9 +615,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getReverseX_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getReverseX_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReverseX_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getReverseX_RBV", ex);
@@ -765,9 +628,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getReverseY() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getReverseY().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReverseY));
 		} catch (Exception ex) {
 			logger.warn("Cannot getReverseY", ex);
@@ -781,11 +641,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setReverseY(int reversey) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getReverseY().getPv()), reversey);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ReverseY), reversey);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ReverseY), reversey);
 		} catch (Exception ex) {
 			logger.warn("Cannot setReverseY", ex);
 			throw ex;
@@ -798,9 +654,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getReverseY_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getReverseY_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReverseY_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getReverseY_RBV", ex);
@@ -814,9 +667,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getArraySizeX_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getArraySizeX_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArraySizeX_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getArraySizeX_RBV", ex);
@@ -830,9 +680,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getArraySizeY_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getArraySizeY_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArraySizeY_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getArraySizeY_RBV", ex);
@@ -846,9 +693,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getArraySizeZ_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getArraySizeZ_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArraySizeZ_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getArraySizeZ_RBV", ex);
@@ -862,9 +706,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getArraySize_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getArraySize_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArraySize_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getArraySize_RBV", ex);
@@ -878,9 +719,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public double getAcquireTime() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getAcquireTime().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(AcquireTime));
 		} catch (Exception ex) {
 			logger.warn("Cannot getAcquireTime", ex);
@@ -896,11 +734,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		logger.debug("Setting Acquire time to {} (for '{}')", acquiretime, Acquire);
 
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getAcquireTime().getPv()), acquiretime);
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(AcquireTime), acquiretime);
-			}
+			EPICS_CONTROLLER.caputWait(getChannel(AcquireTime), acquiretime);
 		} catch (Exception ex) {
 			logger.warn("Cannot setAcquireTime", ex);
 			throw ex;
@@ -913,9 +747,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public double getAcquireTime_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getAcquireTime_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(AcquireTime_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getAcquireTime_RBV", ex);
@@ -929,9 +760,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public double getAcquirePeriod() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getAcquirePeriod().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(AcquirePeriod));
 		} catch (Exception ex) {
 			logger.warn("Cannot getAcquirePeriod", ex);
@@ -946,11 +774,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	public void setAcquirePeriod(double acquireperiod) throws Exception {
 		logger.debug("Setting Acquire period to {} (for '{}')", acquireperiod, Acquire);
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getAcquirePeriod().getPv()), acquireperiod);
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(AcquirePeriod), acquireperiod);
-			}
+			EPICS_CONTROLLER.caputWait(getChannel(AcquirePeriod), acquireperiod);
 		} catch (Exception ex) {
 			logger.warn("Cannot setAcquirePeriod", ex);
 			throw ex;
@@ -963,9 +787,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public double getAcquirePeriod_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getAcquirePeriod_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(AcquirePeriod_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getAcquirePeriod_RBV", ex);
@@ -979,9 +800,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public double getTimeRemaining_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getTimeRemaining_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(TimeRemaining_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getTimeRemaining_RBV", ex);
@@ -995,9 +813,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public double getGain() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getGain().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(Gain));
 		} catch (Exception ex) {
 			logger.warn("Cannot getGain", ex);
@@ -1011,11 +826,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setGain(double gain) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getGain().getPv()), gain);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(Gain), gain);
-			}
+			EPICS_CONTROLLER.caput(getChannel(Gain), gain);
 		} catch (Exception ex) {
 			logger.warn("Cannot setGain", ex);
 			throw ex;
@@ -1028,9 +839,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public double getGain_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getGain_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(Gain_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getGain_RBV", ex);
@@ -1044,9 +852,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getFrameType() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getFrameType().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(FrameType));
 		} catch (Exception ex) {
 			logger.warn("Cannot getFrameType", ex);
@@ -1060,11 +865,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setFrameType(int frametype) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getFrameType().getPv()), frametype);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(FrameType), frametype);
-			}
+			EPICS_CONTROLLER.caput(getChannel(FrameType), frametype);
 		} catch (Exception ex) {
 			logger.warn("Cannot setFrameType", ex);
 			throw ex;
@@ -1077,9 +878,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getFrameType_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getFrameType_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(FrameType_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getFrameType_RBV", ex);
@@ -1093,9 +891,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getImageMode() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getImageMode().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ImageMode));
 		} catch (Exception ex) {
 			logger.warn("Cannot getImageMode", ex);
@@ -1109,11 +904,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setImageMode(int imagemode) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getImageMode().getPv()), imagemode);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ImageMode), imagemode);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ImageMode), imagemode);
 		} catch (Exception ex) {
 			logger.warn("Cannot setImageMode", ex);
 			throw ex;
@@ -1123,11 +914,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setImageModeWait(ImageMode imagemode) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getImageMode().getPv()), imagemode.ordinal());
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(ImageMode), imagemode.ordinal());
-			}
+			EPICS_CONTROLLER.caputWait(getChannel(ImageMode), imagemode.ordinal());
 		} catch (Exception ex) {
 			logger.warn("Cannot setImageMode", ex);
 			throw ex;
@@ -1140,9 +927,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getImageMode_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getImageMode_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ImageMode_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getImageMode_RBV", ex);
@@ -1156,9 +940,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getTriggerMode() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getTriggerMode().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(TriggerMode));
 		} catch (Exception ex) {
 			logger.warn("Cannot getTriggerMode", ex);
@@ -1172,11 +953,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setTriggerMode(int triggermode) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getTriggerMode().getPv()), triggermode);
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(TriggerMode), triggermode);
-			}
+			EPICS_CONTROLLER.caputWait(getChannel(TriggerMode), triggermode);
 		} catch (Exception ex) {
 			logger.warn("Cannot setTriggerMode", ex);
 			throw ex;
@@ -1189,9 +966,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getTriggerMode_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getTriggerMode_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(TriggerMode_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getTriggerMode_RBV", ex);
@@ -1205,9 +979,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getNumExposures() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumExposures().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumExposures));
 		} catch (Exception ex) {
 			logger.warn("Cannot getNumExposures", ex);
@@ -1221,11 +992,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setNumExposures(int numexposures) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getNumExposures().getPv()), numexposures);
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(NumExposures), numexposures);
-			}
+			EPICS_CONTROLLER.caputWait(getChannel(NumExposures), numexposures);
 		} catch (Exception ex) {
 			logger.warn("Cannot setNumExposures", ex);
 			throw ex;
@@ -1238,11 +1005,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setNumExposures(int numexposures, double timeout) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getNumExposures().getPv()), numexposures, timeout);
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(NumExposures), numexposures, timeout);
-			}
+			EPICS_CONTROLLER.caputWait(getChannel(NumExposures), numexposures, timeout);
 		} catch (Exception ex) {
 			logger.warn("Cannot setNumExposures", ex);
 			throw ex;
@@ -1254,9 +1017,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getNumExposures_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumExposures_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumExposures_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getNumExposures_RBV", ex);
@@ -1270,9 +1030,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getNumExposuresCounter_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumExposuresCounter_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumExposuresCounter_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getNumExposuresCounter_RBV", ex);
@@ -1286,9 +1043,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getNumImages() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumImages().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumImages));
 		} catch (Exception ex) {
 			logger.warn("Cannot getNumImages", ex);
@@ -1302,11 +1056,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setNumImages(int numimages) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getNumImages().getPv()), numimages);
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(NumImages), numimages);
-			}
+			EPICS_CONTROLLER.caputWait(getChannel(NumImages), numimages);
 		} catch (Exception ex) {
 			logger.warn("Cannot setNumImages", ex);
 			throw ex;
@@ -1319,9 +1069,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getNumImages_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumImages_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumImages_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getNumImages_RBV", ex);
@@ -1335,9 +1082,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getNumImagesCounter_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumImagesCounter_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(NumImagesCounter_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getNumImagesCounter_RBV", ex);
@@ -1351,9 +1095,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getAcquireState() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getAcquire().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(Acquire));
 		} catch (Exception ex) {
 			logger.warn("Cannot getAcquireState", ex);
@@ -1370,11 +1111,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 						// callback at all in this case.
 			}
 			setStatus(Detector.BUSY);
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getAcquire().getPv()), 1, startputlistener);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(Acquire), 1, startputlistener);
-			}
+			EPICS_CONTROLLER.caput(getChannel(Acquire), 1, startputlistener);
 		} catch (Exception e) {
 			setStatus(Detector.IDLE);
 			logger.error("Exception on start Acquirig", e);
@@ -1412,11 +1149,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void stopAcquiring() throws Exception {
 		try {
-				if (config != null) {
-					EPICS_CONTROLLER.caput(createChannel(config.getAcquire().getPv()), 0);
-				} else {
-					EPICS_CONTROLLER.caput(getChannel(Acquire), 0);
-				}
+			EPICS_CONTROLLER.caput(getChannel(Acquire), 0);
 		} catch (Exception e) {
 			logger.error("Exception on stop Acquiring", e);
 			throw e;
@@ -1436,9 +1169,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public String getAcquire_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.caget(createChannel(config.getAcquire_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.caget(getChannel(Acquire_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getAcquire_RBV", ex);
@@ -1452,9 +1182,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getArrayCounter() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getArrayCounter().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArrayCounter));
 		} catch (Exception ex) {
 			logger.warn("Cannot getArrayCounter", ex);
@@ -1468,11 +1195,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setArrayCounter(int arraycounter) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getArrayCounter().getPv()), arraycounter);
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(ArrayCounter), arraycounter);
-			}
+			EPICS_CONTROLLER.caputWait(getChannel(ArrayCounter), arraycounter);
 		} catch (Exception ex) {
 			logger.warn("Cannot setArrayCounter", ex);
 			throw ex;
@@ -1485,9 +1208,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public int getArrayCounter_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetInt(createChannel(config.getArrayCounter_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetInt(getChannel(ArrayCounter_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getArrayCounter_RBV", ex);
@@ -1501,9 +1221,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public double getArrayRate_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getArrayRate_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(ArrayRate_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getArrayRate_RBV", ex);
@@ -1519,9 +1236,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getDetectorState_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getDetectorState_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(DetectorState_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getDetectorState_RBV", ex);
@@ -1532,7 +1246,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getDetectorStateLastMonitoredValue() throws Exception {
 		if (detectorStatePV == null) {
-			final String fullPVName = (config == null) ? genenerateFullPvName(DetectorState_RBV) : config.getDetectorState_RBV().getPv();
+			final String fullPVName = genenerateFullPvName(DetectorState_RBV);
 			detectorStatePV = LazyPVFactory.newReadOnlyShortPV(fullPVName);
 			detectorStatePV.setValueMonitoring(true);
 		}
@@ -1545,9 +1259,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getArrayCallbacks() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getArrayCallbacks().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ArrayCallbacks));
 		} catch (Exception ex) {
 			logger.warn("Cannot getArrayCallbacks", ex);
@@ -1561,11 +1272,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setArrayCallbacks(int arraycallbacks) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caputWait(createChannel(config.getArrayCallbacks().getPv()), arraycallbacks);
-			} else {
-				EPICS_CONTROLLER.caputWait(getChannel(ArrayCallbacks), arraycallbacks);
-			}
+			EPICS_CONTROLLER.caputWait(getChannel(ArrayCallbacks), arraycallbacks);
 		} catch (Exception ex) {
 			logger.warn("Cannot setArrayCallbacks", ex);
 			throw ex;
@@ -1578,9 +1285,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getArrayCallbacks_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getArrayCallbacks_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ArrayCallbacks_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getArrayCallbacks_RBV", ex);
@@ -1594,10 +1298,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public String getNDAttributesFile() throws Exception {
 		try {
-			if (config != null) {
-				return new String(EPICS_CONTROLLER.cagetByteArray(createChannel(config.getNDAttributesFile().getPv())))
-						.trim();
-			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(NDAttributesFile))).trim();
 		} catch (Exception ex) {
 			logger.warn("Cannot getNDAttributesFile", ex);
@@ -1611,12 +1311,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setNDAttributesFile(String ndattributesfile) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getNDAttributesFile().getPv()),
-						(ndattributesfile + '\0').getBytes());
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(NDAttributesFile), (ndattributesfile + '\0').getBytes());
-			}
+			EPICS_CONTROLLER.caput(getChannel(NDAttributesFile), (ndattributesfile + '\0').getBytes());
 		} catch (Exception ex) {
 			logger.warn("Cannot setNDAttributesFile", ex);
 			throw ex;
@@ -1629,10 +1324,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public String getStatusMessage_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return new String(EPICS_CONTROLLER.cagetByteArray(createChannel(config.getStatusMessage_RBV().getPv())))
-						.trim();
-			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(StatusMessage_RBV))).trim();
 		} catch (Exception ex) {
 			logger.warn("Cannot getStatusMessage_RBV", ex);
@@ -1646,10 +1337,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public String getStringToServer_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return new String(
-						EPICS_CONTROLLER.cagetByteArray(createChannel(config.getStringToServer_RBV().getPv()))).trim();
-			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(StringToServer_RBV))).trim();
 		} catch (Exception ex) {
 			logger.warn("Cannot getStringToServer_RBV", ex);
@@ -1663,10 +1350,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public String getStringFromServer_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return new String(EPICS_CONTROLLER.cagetByteArray(createChannel(config.getStringFromServer_RBV()
-						.getPv()))).trim();
-			}
 			return new String(EPICS_CONTROLLER.cagetByteArray(getChannel(StringFromServer_RBV))).trim();
 		} catch (Exception ex) {
 			logger.warn("Cannot getStringFromServer_RBV", ex);
@@ -1680,9 +1363,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getReadStatus() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getReadStatus().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ReadStatus));
 		} catch (Exception ex) {
 			logger.warn("Cannot getReadStatus", ex);
@@ -1696,11 +1376,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setReadStatus(int readstatus) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getReadStatus().getPv()), readstatus);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ReadStatus), readstatus);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ReadStatus), readstatus);
 		} catch (Exception ex) {
 			logger.warn("Cannot setReadStatus", ex);
 			throw ex;
@@ -1713,9 +1389,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getShutterMode() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getShutterMode().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ShutterMode));
 		} catch (Exception ex) {
 			logger.warn("Cannot getShutterMode", ex);
@@ -1729,11 +1402,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setShutterMode(int shuttermode) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getShutterMode().getPv()), shuttermode);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ShutterMode), shuttermode);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ShutterMode), shuttermode);
 		} catch (Exception ex) {
 			logger.warn("Cannot setShutterMode", ex);
 			throw ex;
@@ -1746,9 +1415,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getShutterMode_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getShutterMode_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ShutterMode_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getShutterMode_RBV", ex);
@@ -1762,9 +1428,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getShutterControl() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getShutterControl().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ShutterControl));
 		} catch (Exception ex) {
 			logger.warn("Cannot getShutterControl", ex);
@@ -1778,11 +1441,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setShutterControl(int shuttercontrol) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getShutterControl().getPv()), shuttercontrol);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ShutterControl), shuttercontrol);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ShutterControl), shuttercontrol);
 		} catch (Exception ex) {
 			logger.warn("Cannot setShutterControl", ex);
 			throw ex;
@@ -1795,9 +1454,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getShutterControl_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getShutterControl_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ShutterControl_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getShutterControl_RBV", ex);
@@ -1811,9 +1467,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getShutterStatus_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getShutterStatus_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ShutterStatus_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getShutterStatus_RBV", ex);
@@ -1827,9 +1480,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public double getShutterOpenDelay() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getShutterOpenDelay().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(ShutterOpenDelay));
 		} catch (Exception ex) {
 			logger.warn("Cannot getShutterOpenDelay", ex);
@@ -1843,11 +1493,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setShutterOpenDelay(double shutteropendelay) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getShutterOpenDelay().getPv()), shutteropendelay);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ShutterOpenDelay), shutteropendelay);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ShutterOpenDelay), shutteropendelay);
 		} catch (Exception ex) {
 			logger.warn("Cannot setShutterOpenDelay", ex);
 			throw ex;
@@ -1860,9 +1506,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public double getShutterOpenDelay_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getShutterOpenDelay_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(ShutterOpenDelay_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getShutterOpenDelay_RBV", ex);
@@ -1876,9 +1519,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public double getShutterCloseDelay() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getShutterCloseDelay().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(ShutterCloseDelay));
 		} catch (Exception ex) {
 			logger.warn("Cannot getShutterCloseDelay", ex);
@@ -1892,11 +1532,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setShutterCloseDelay(double shutterclosedelay) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getShutterCloseDelay().getPv()), shutterclosedelay);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ShutterCloseDelay), shutterclosedelay);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ShutterCloseDelay), shutterclosedelay);
 		} catch (Exception ex) {
 			logger.warn("Cannot setShutterCloseDelay", ex);
 			throw ex;
@@ -1909,9 +1545,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public double getShutterCloseDelay_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getShutterCloseDelay_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(ShutterCloseDelay_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getShutterCloseDelay_RBV", ex);
@@ -1925,9 +1558,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public String getShutterOpenEPICSPV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.caget(createChannel(config.getShutterOpenEPICSPV().getPv()));
-			}
 			return EPICS_CONTROLLER.caget(getChannel(ShutterOpenEPICSPV_ELEMENTNAME, ShutterOpenEPICSPV_PVPOSTFIX));
 		} catch (Exception ex) {
 			logger.warn("Cannot getShutterOpenEPICSPV", ex);
@@ -1942,12 +1572,8 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	public void setShutterOpenEPICSPV(String shutteropenepicspv) throws Exception {
 		logger.warn("Problem with PV Name - ShutterOpenEPICSPV -> ShutterOpenEPICS.OUT");
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getShutterOpenEPICSPV().getPv()), shutteropenepicspv);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ShutterOpenEPICSPV_ELEMENTNAME, ShutterOpenEPICSPV_PVPOSTFIX),
-						shutteropenepicspv);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ShutterOpenEPICSPV_ELEMENTNAME, ShutterOpenEPICSPV_PVPOSTFIX),
+					shutteropenepicspv);
 		} catch (Exception ex) {
 			logger.warn("Cannot setShutterOpenEPICSPV", ex);
 			throw ex;
@@ -1960,9 +1586,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public String getShutterOpenEPICSCmd() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.caget(createChannel(config.getShutterOpenEPICSCmd().getPv()));
-			}
 			return EPICS_CONTROLLER.caget(getChannel(ShutterOpenEPICSCmd_ElEMENTNAME, ShutterOpenEPICSCmd_PVPOSTFIX));
 		} catch (Exception ex) {
 			logger.warn("Cannot getShutterOpenEPICSCmd", ex);
@@ -1977,12 +1600,8 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	public void setShutterOpenEPICSCmd(String shutteropenepicscmd) throws Exception {
 		logger.warn("Problem with PV Name - ShutterOpenEPICSCmd -> ShutterOpenEPICSCmd.OCAL");
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getShutterOpenEPICSCmd().getPv()), shutteropenepicscmd);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ShutterOpenEPICSCmd_ElEMENTNAME, ShutterOpenEPICSCmd_PVPOSTFIX),
-						shutteropenepicscmd);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ShutterOpenEPICSCmd_ElEMENTNAME, ShutterOpenEPICSCmd_PVPOSTFIX),
+					shutteropenepicscmd);
 		} catch (Exception ex) {
 			logger.warn("Cannot setShutterOpenEPICSCmd", ex);
 			throw ex;
@@ -1995,9 +1614,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public String getShutterCloseEPICSPV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.caget(createChannel(config.getShutterCloseEPICSPV().getPv()));
-			}
 			return EPICS_CONTROLLER.caget(getChannel(ShutterCloseEPICSPV_ELEMENTNAME, ShutterCloseEPICSPV_PVPOSTFIX));
 		} catch (Exception ex) {
 			logger.warn("Cannot getShutterCloseEPICSPV", ex);
@@ -2011,12 +1627,8 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setShutterCloseEPICSPV(String shuttercloseepicspv) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getShutterCloseEPICSPV().getPv()), shuttercloseepicspv);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ShutterCloseEPICSPV_ELEMENTNAME, ShutterCloseEPICSPV_PVPOSTFIX),
-						shuttercloseepicspv);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ShutterCloseEPICSPV_ELEMENTNAME, ShutterCloseEPICSPV_PVPOSTFIX),
+					shuttercloseepicspv);
 		} catch (Exception ex) {
 			logger.warn("Cannot setShutterCloseEPICSPV", ex);
 			throw ex;
@@ -2029,9 +1641,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public String getShutterCloseEPICSCmd() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.caget(createChannel(config.getShutterCloseEPICSCmd().getPv()));
-			}
 			return EPICS_CONTROLLER.caget(getChannel(ShutterCloseEPICSCmd_ELEMENTNAME, ShutterCloseEPICSCmd_PVPOSTFIX));
 		} catch (Exception ex) {
 			logger.warn("Cannot getShutterCloseEPICSCmd", ex);
@@ -2045,12 +1654,8 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setShutterCloseEPICSCmd(String shuttercloseepicscmd) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getShutterCloseEPICSCmd().getPv()), shuttercloseepicscmd);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ShutterCloseEPICSCmd_ELEMENTNAME, ShutterCloseEPICSCmd_PVPOSTFIX),
-						shuttercloseepicscmd);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ShutterCloseEPICSCmd_ELEMENTNAME, ShutterCloseEPICSCmd_PVPOSTFIX),
+					shuttercloseepicscmd);
 		} catch (Exception ex) {
 			logger.warn("Cannot setShutterCloseEPICSCmd", ex);
 			throw ex;
@@ -2063,9 +1668,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public short getShutterStatusEPICS_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getShutterStatusEPICS_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetEnum(getChannel(ShutterStatusEPICS_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getShutterStatusEPICS_RBV", ex);
@@ -2079,9 +1681,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public String getShutterStatusEPICSPV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.caget(createChannel(config.getShutterStatusEPICSPV().getPv()));
-			}
 			return EPICS_CONTROLLER.caget(getChannel(ShutterStatusEPICSPV_ELEMENTNAME, ShutterStatusEPICSPV_PVPOSTFIX));
 		} catch (Exception ex) {
 			logger.warn("Cannot getShutterStatusEPICSPV", ex);
@@ -2095,9 +1694,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public String getShutterStatusEPICSCloseVal() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.caget(createChannel(config.getShutterStatusEPICSCloseVal().getPv()));
-			}
 			return EPICS_CONTROLLER.caget(getChannel(ShutterStatusEPICSCloseVal_ELEMENTNAME,
 					ShutterStatusEPICSCloseVal_PVPOSTFIX));
 		} catch (Exception ex) {
@@ -2112,9 +1708,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public String getShutterStatusEPICSOpenVal() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.caget(createChannel(config.getShutterStatusEPICSOpenVal().getPv()));
-			}
 			return EPICS_CONTROLLER.caget(getChannel(ShutterStatusEPICSOpenVal_ELEMENTNAME,
 					ShutterStatusEPICSOpenVal_PVPOSTFIX));
 		} catch (Exception ex) {
@@ -2129,9 +1722,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public double getTemperature() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getTemperature().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(Temperature));
 		} catch (Exception ex) {
 			logger.warn("Cannot getTemperature", ex);
@@ -2145,11 +1735,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setTemperature(double temperature) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getTemperature().getPv()), temperature);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(Temperature), temperature);
-			}
+			EPICS_CONTROLLER.caput(getChannel(Temperature), temperature);
 		} catch (Exception ex) {
 			logger.warn("Cannot setTemperature", ex);
 			throw ex;
@@ -2162,9 +1748,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public double getTemperature_RBV() throws Exception {
 		try {
-			if (config != null) {
-				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getTemperature_RBV().getPv()));
-			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(Temperature_RBV));
 		} catch (Exception ex) {
 			logger.warn("Cannot getTemperature_RBV", ex);
@@ -2174,15 +1757,12 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (deviceName == null && basePVName == null && pvProvider == null) {
-			throw new IllegalArgumentException("'deviceName','basePVName' or 'pvProvider' needs to be declared");
+		if (basePVName == null) {
+			throw new IllegalArgumentException("'basePVName' needs to be declared");
 		}
 
-		pvArrayCounter_RBV = LazyPVFactory.newIntegerPV((config == null) ? genenerateFullPvName(ArrayCounter_RBV)
-				: config.getArrayCounter_RBV().getPv());
-
-		pvDetectorState_RBV = LazyPVFactory.newIntegerPV((config == null) ? genenerateFullPvName(DetectorState_RBV)
-				: config.getDetectorState_RBV().getPv());
+		pvArrayCounter_RBV = LazyPVFactory.newIntegerPV(genenerateFullPvName(ArrayCounter_RBV));
+		pvDetectorState_RBV = LazyPVFactory.newIntegerPV(genenerateFullPvName(DetectorState_RBV));
 	}
 
 	/**
@@ -2218,7 +1798,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		}
 	}
 
-	protected String genenerateFullPvName(String pvElementName, String... args) throws Exception {
+	protected String genenerateFullPvName(String pvElementName, String... args) {
 		String pvPostFix = null;
 		if (args.length > 0) {
 			// PV element name is different from the pvPostFix
@@ -2227,13 +1807,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			pvPostFix = pvElementName;
 		}
 
-		String fullPvName;
-		if (pvProvider != null) {
-			fullPvName = pvProvider.getPV(pvElementName);
-		} else {
-			fullPvName = basePVName + pvPostFix;
-		}
-		return fullPvName;
+		return basePVName + pvPostFix;
 	}
 
 	public Channel createChannel(String fullPvName) throws CAException, TimeoutException {
@@ -2252,21 +1826,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			channelMap.put(fullPvName, channel);
 		}
 		return channel;
-	}
-
-	/**
-	 * @return Returns the pvProvider.
-	 */
-	public IPVProvider getPvProvider() {
-		return pvProvider;
-	}
-
-	/**
-	 * @param pvProvider
-	 *            The pvProvider to set.
-	 */
-	public void setPvProvider(IPVProvider pvProvider) {
-		this.pvProvider = pvProvider;
 	}
 
 	@Override
@@ -2410,50 +1969,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		this.initialBinY = initialBinY;
 	}
 
-	protected EpicsConfiguration epicsConfiguration;
-
-	/**
-	 * Sets the EpicsConfiguration to use when looking up PV from deviceName.
-	 *
-	 * @param epicsConfiguration
-	 *            the EpicsConfiguration
-	 */
-	public void setEpicsConfiguration(EpicsConfiguration epicsConfiguration) {
-		this.epicsConfiguration = epicsConfiguration;
-	}
-
-	/**
-	 * @return Returns the deviceName.
-	 */
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	/**
-	 * @param deviceName
-	 *            The deviceName to set.
-	 * @throws FactoryException
-	 */
-	public void setDeviceName(String deviceName) throws FactoryException {
-		this.deviceName = deviceName;
-		initializeConfig();
-	}
-
-	private void initializeConfig() throws FactoryException {
-		if (deviceName != null) {
-			try {
-				if (epicsConfiguration != null) {
-					config = epicsConfiguration.getConfiguration(getDeviceName(), ADBaseType.class);
-				} else {
-					config = Configurator.getConfiguration(getDeviceName(), ADBaseType.class);
-				}
-			} catch (ConfigurationNotFoundException e) {
-				logger.error("EPICS configuration for device {} not found", getDeviceName());
-				throw new FactoryException("EPICS configuration for device " + getDeviceName() + " not found.", e);
-			}
-		}
-	}
-
 	@Override
 	public void setStatus(int status) {
 		synchronized (statusMonitor) {
@@ -2529,9 +2044,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		}, timeoutS);
 	}
 
-
-
-	private String getChannelName(String pvElementName, String... args)throws Exception{
+	private String getChannelName(String pvElementName, String... args) {
 		return genenerateFullPvName(pvElementName, args);
 	}
 
@@ -2548,11 +2061,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setImageMode(ImageMode imagemode) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getImageMode().getPv()), imagemode.ordinal());
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ImageMode), imagemode.ordinal());
-			}
+			EPICS_CONTROLLER.caput(getChannel(ImageMode), imagemode.ordinal());
 		} catch (Exception ex) {
 			logger.warn("Cannot setImageMode", ex);
 			throw ex;
@@ -2562,11 +2071,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void setImageModeWait(ImageMode imagemode, double timeout) throws Exception {
 		try {
-			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getImageMode().getPv()), imagemode.ordinal(), timeout);
-			} else {
-				EPICS_CONTROLLER.caput(getChannel(ImageMode), imagemode.ordinal(), timeout);
-			}
+			EPICS_CONTROLLER.caput(getChannel(ImageMode), imagemode.ordinal(), timeout);
 		} catch (Exception ex) {
 			logger.warn("Cannot setImageMode", ex);
 			throw ex;

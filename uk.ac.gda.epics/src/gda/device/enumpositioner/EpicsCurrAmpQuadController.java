@@ -21,8 +21,6 @@ package gda.device.enumpositioner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
 import gda.device.EnumPositionerStatus;
 import gda.device.Monitor;
@@ -31,8 +29,6 @@ import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaces.CurrAmpQuadType;
-import gda.epics.interfaces.ElementType;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
@@ -57,8 +53,6 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 	private String current4Pv;
 	private String rangePv;
 	private String rangeRbvPv;
-
-	private String deviceName = null;
 
 	private EpicsChannelManager channelManager;
 
@@ -132,32 +126,14 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 
 	@Override
 	public void configure() throws FactoryException {
-		//String rangeRec = null;
 		if (!isConfigured()) {
-			if (getDeviceName() != null) {
-				//Configures the class with the PV information from the gda-interface.xml file.
-				//Vendor and model are available through EPICS but are currently not supported in GDA.
-				CurrAmpQuadType currAmpConfig;
-				try {
-					currAmpConfig = Configurator.getConfiguration(getDeviceName(),
-							gda.epics.interfaces.CurrAmpQuadType.class);
-					logger.debug("Configure using EPISC device name '{},", getDeviceName());
-					createChannelAccess(currAmpConfig);
-					channelManager.tryInitialize(100);
-				} catch (ConfigurationNotFoundException e) {
-					logger.error("Can NOT find EPICS configuration for current amplifier quad " + getDeviceName(), e);
-				}
-			} else if (getRangePv()!=null && getCurrent1Pv()!=null && getCurrent2Pv()!=null && getCurrent3Pv()!=null && getCurrent4Pv()!=null){
-				//configure the object using individual PV names directly.
-				logger.debug("Configure using individual PVs explicitly");
-				createChannelAccess();
-				channelManager.tryInitialize(100);
-
-			} else {
+			if (getRangePv() == null || getCurrent1Pv() == null || getCurrent2Pv() == null || getCurrent3Pv() == null || getCurrent4Pv() == null) {
 				logger.error("Missing EPICS interface configuration for the current amplifier quad " + getName());
 				throw new FactoryException("Missing EPICS interface configuration for the current amplifier quad "
 						+ getName());
 			}
+			createChannelAccess();
+			channelManager.tryInitialize(100);
 			setConfigured(true);
 		}// end of if (!configured)
 	}
@@ -177,39 +153,6 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 			channelManager.creationPhaseCompleted();
 
 		} catch (Exception e) {
-			throw new FactoryException("failed to connect to all channels", e);
-		}
-	}
-
-	/**
-	 * @return device name
-	 */
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	/**
-	 * @param name
-	 */
-	public void setDeviceName(String name) {
-		this.deviceName = name;
-	}
-
-	private void createChannelAccess(CurrAmpQuadType currAmpConfig) throws FactoryException {
-		try {
-			range = channelManager.createChannel(currAmpConfig.getRANGE().getPv(), rangeMonitor, MonitorType.CTRL, false);
-			ElementType rangeReadback = currAmpConfig.getRANGE_READBACK();
-			if ((rangeReadback != null) && rangeReadback.getPv().isEmpty()) {
-				range_rbv = channelManager.createChannel(currAmpConfig.getRANGE_READBACK().getPv(), rangeMonitor, MonitorType.CTRL, true);
-			}
-			current1Ch = channelManager.createChannel(currAmpConfig.getI1().getPv(), false);
-			current2Ch = channelManager.createChannel(currAmpConfig.getI2().getPv(), false);
-			current3Ch = channelManager.createChannel(currAmpConfig.getI3().getPv(), false);
-			current4Ch = channelManager.createChannel(currAmpConfig.getI4().getPv(), false);
-			channelManager.creationPhaseCompleted();
-
-		} catch (Exception e) {
-			// TODO take care of destruction
 			throw new FactoryException("failed to connect to all channels", e);
 		}
 	}
