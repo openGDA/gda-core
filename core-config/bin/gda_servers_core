@@ -128,7 +128,12 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
         # And remove the numeric IP address of the server, if it has an entry
         ssh-keygen-remove ${CONTROL_MACHINE_IP}
       fi
-      
+      if [ ! -d ~/.ssh ]]; then
+      	bashlog debug "gda_servers_core" "~/.ssh directory does not already exist - creating it and new known_hosts file"
+      	mkdir -m700 ~/.ssh
+      	touch ~/.ssh/known_hosts
+      	chmod 644 ~/.ssh/known_hosts
+      fi
       bashlog debug "gda_servers_core" "adding new public key for ${CONTROL_MACHINE_NAME} in ~/.ssh/known_hosts"
       # If the ssh option "HashKnownHosts" is enabled, ssh will hash host names and addresses when they are added to
       # known_hosts - but manually adding plaintext entries to known_hosts (as done below) when HashKnownHosts is
