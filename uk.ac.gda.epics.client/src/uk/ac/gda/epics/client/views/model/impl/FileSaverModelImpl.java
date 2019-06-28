@@ -142,9 +142,7 @@ public class FileSaverModelImpl extends EPICSBaseModel implements FileSaverModel
 
 	@Override
 	protected void doCheckAfterPropertiesSet() throws Exception {
-		if (pluginBase == null) {
-			throw new IllegalArgumentException("'pluginBase' needs to be declared");
-		}
+		// nothing to do
 	}
 
 	@Override

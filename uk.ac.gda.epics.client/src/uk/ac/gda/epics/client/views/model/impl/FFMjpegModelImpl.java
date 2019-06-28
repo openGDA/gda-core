@@ -189,38 +189,7 @@ public class FFMjpegModelImpl extends EPICSBaseModel implements FfMpegModel {
 
 	@Override
 	protected void doCheckAfterPropertiesSet() throws Exception {
-		if (pluginBase == null) {
-			throw new IllegalArgumentException("'pluginBase' needs to be declared");
-		}
-
-		// if (statusViewController != null) {
-		// try {
-		// int dataType = getDataType();
-		// statusViewController.updateMJpegDataType(dataType);
-		// } catch (TimeoutException tme) {
-		// logger.error("Cannot get datatype - Either the PV is incorrect or the IOC is not in function");
-		// }
-		// try {
-		// int timeStamp = getTimeStamp();
-		// statusViewController.updateMJpegTimeStamp(timeStamp);
-		// } catch (TimeoutException tme) {
-		// logger.error("Cannot getTimeStamp - Either the PV is incorrect or IOC is not in function");
-		// }
-		//
-		// try {
-		// int dim0Size = getDim0Size();
-		// statusViewController.updateMJpegX(dim0Size);
-		// } catch (TimeoutException tme) {
-		// logger.error("Cannot getDim0Size -Either the PV is incorrect or  IOC is not in function");
-		// }
-		//
-		// try {
-		// int dim1Size = getDim1Size();
-		// statusViewController.updateMJpegY(dim1Size);
-		// } catch (TimeoutException tme) {
-		// logger.error("Cannot getDim1Size - Either the PV is incorrect or IOC is not in function");
-		// }
-		// }
+		// nothing to do
 	}
 
 	@Override

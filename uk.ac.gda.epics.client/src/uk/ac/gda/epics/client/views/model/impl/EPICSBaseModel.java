@@ -43,7 +43,6 @@ public abstract class EPICSBaseModel extends FindableBase implements Initializin
 	protected final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 	protected Map<String, Channel> channelMap;
 
-	protected String pluginBase;
 	protected String basePVName;
 
 	public EPICSBaseModel() {
@@ -123,14 +122,6 @@ public abstract class EPICSBaseModel extends FindableBase implements Initializin
 	protected abstract Logger getLogger();
 
 	protected abstract void doCheckAfterPropertiesSet() throws Exception;
-
-	public void setPluginBase(String pluginBase) {
-		this.pluginBase = pluginBase;
-	}
-
-	public String getPluginBase() {
-		return pluginBase;
-	}
 
 	public void dispose() {
 		getLogger().info("Disposing:");
