@@ -61,7 +61,6 @@ import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
-import org.eclipse.january.dataset.LazyDataset;
 import org.eclipse.january.dataset.SliceND;
 import org.eclipse.january.io.ILazySaver;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
@@ -338,7 +337,7 @@ public class SolsticeScanMonitorTest {
 			assertTrue(uniqueKeysDataNode.getDataset()!=null && uniqueKeysDataNode.getDataset() instanceof ILazyWriteableDataset);
 			ILazyWriteableDataset uniqueKeysDataset = (ILazyWriteableDataset) uniqueKeysDataNode.getDataset();
 			assertTrue(uniqueKeysDataset.getRank()==scanRank);
-			assertTrue(((LazyDataset) uniqueKeysDataset).getDType()==Dataset.INT32);
+			assertTrue(uniqueKeysDataset.getElementClass().equals(Integer.class));
 			assertTrue(Arrays.equals(uniqueKeysDataset.getChunking(), expectedChunking));
 			MockLazySaver uniqueKeysSaver = new MockLazySaver();
 			uniqueKeysDataset.setSaver(uniqueKeysSaver);

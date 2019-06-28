@@ -21,7 +21,6 @@ import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.january.IMonitor;
-import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
@@ -94,7 +93,7 @@ public class MockWritingMandelbrotDetector extends AbstractRunnableDevice<MockWr
 			*/
 			NexusFile file = model.getFile();
 			GroupNode par = file.getGroup("/entry1/instrument/detector", true); // DO NOT COPY!
-			writer = new LazyWriteableDataset(model.getName(), Dataset.FLOAT, shape, shape, shape, null); // DO NOT COPY!
+			writer = new LazyWriteableDataset(model.getName(), Double.class, shape, shape, shape, null); // DO NOT COPY!
 
 			file.createData(par, writer); // DO NOT COPY!
 

@@ -34,7 +34,6 @@ import org.eclipse.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace.PointStyle;
-import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.Random;
@@ -302,9 +301,9 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 		int fsize = image.getShape()[1];
 		int ssize = image.getShape()[0];
 
-		IDataset x = DatasetFactory.createRange(conf.getXAxisStart(), conf.getXAxisEnd(), (conf.getXAxisEnd()-conf.getXAxisStart())/fsize, Dataset.FLOAT);
+		IDataset x = DatasetFactory.createRange(conf.getXAxisStart(), conf.getXAxisEnd(), (conf.getXAxisEnd()-conf.getXAxisStart())/fsize);
 		x.setName(conf.getXAxisName());
-		IDataset y = DatasetFactory.createRange(conf.getYAxisStart(), conf.getYAxisEnd(), (conf.getYAxisEnd()-conf.getYAxisStart())/ssize, Dataset.FLOAT);
+		IDataset y = DatasetFactory.createRange(conf.getYAxisStart(), conf.getYAxisEnd(), (conf.getYAxisEnd()-conf.getYAxisStart())/ssize);
 		y.setName(conf.getYAxisName());
 
 		IImageTrace it = system.getTrace("image")!=null
