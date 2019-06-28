@@ -23,14 +23,11 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaces.OXCS700Type;
 import gda.factory.FactoryException;
 import gda.jython.JythonServerFacade;
 import gov.aps.jca.Channel;
@@ -119,7 +116,6 @@ public class CryoController extends DeviceBase implements InitializationListener
 	private String alarmStatus ="No Alarm";
 	private double currtemp;
 	private String connState = "Disabled";
-	private String deviceName = null;
 	private String pvRoot = null;
 	private EpicsController controller;
 	private EpicsChannelManager channelManager;
@@ -140,32 +136,12 @@ public class CryoController extends DeviceBase implements InitializationListener
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
-			// EPICS interface version 2 for phase II beamlines.
-			if (getDeviceName() != null) {
-				OXCS700Type Config;
-				try {
-					Config = Configurator.getConfiguration(getDeviceName(), gda.epics.interfaces.OXCS700Type.class);
-					try {
-						createChannelAccess(Config);
-						channelManager.tryInitialize(100);
-					} catch (FactoryException e) {
-						logger.warn("{}: this device is not available on startup and need to be configured later before use.", e.getMessage());
-						throw new FactoryException(e.getMessage() + ": This device is not available on startup and need to be configured later before use.");
-					}
-				} catch (ConfigurationNotFoundException e) {
-					logger.error("Can NOT find EPICS configuration for CryoController " + getDeviceName(), e);
-					throw new FactoryException("Missing EPICS XML configuration for CryoController "
-							+ getDeviceName());
-				}
-			} else if (getPvRoot() != null) {
-				createChannelAccess(getPvRoot());
-				channelManager.tryInitialize(100);
+			if (getPvRoot() == null) {
+				logger.error("Missing PV for {}", getName());
+				throw new FactoryException("Missing PV for CryoController " + getName());
 			}
-			// Nothing specified in Server XML file
-			else {
-				logger.error("Missing EPICS configuration for {}", getName());
-				throw new FactoryException("Missing EPICS interface configuration for CryoController " + getName());
-			}
+			createChannelAccess(getPvRoot());
+			channelManager.tryInitialize(100);
 			try {
 				connState=getDisable();
 			} catch (DeviceException e) {
@@ -174,54 +150,6 @@ public class CryoController extends DeviceBase implements InitializationListener
 			setConfigured(true);
 		}// end of if (!configured)
 
-	}
-
-	/**
-	 * create channel access implementing phase II beamline EPICS interfaces.
-	 *
-	 * @param config
-	 * @throws FactoryException
-	 */
-	private void createChannelAccess(OXCS700Type config) throws FactoryException {
-		try {
-			restart = channelManager.createChannel(config.getRESTART().getPv(), false);
-			resume = channelManager.createChannel(config.getRESUME().getPv(), false);
-			pause = channelManager.createChannel(config.getPAUSE().getPv(), false);
-			stop = channelManager.createChannel(config.getSTOP().getPv(), false);
-			ctemp = channelManager.createChannel(config.getCTEMP().getPv(), false);
-			cool = channelManager.createChannel(config.getCOOL().getPv(), false);
-			hold = channelManager.createChannel(config.getHOLD().getPv(), false);
-			purge = channelManager.createChannel(config.getPURGE().getPv(), false);
-			ramp = channelManager.createChannel(config.getRAMP().getPv(), false);
-			rrate = channelManager.createChannel(config.getRRATE().getPv(), false);
-			rtemp = channelManager.createChannel(config.getRTEMP().getPv(), false);
-			plat = channelManager.createChannel(config.getPLAT().getPv(), false);
-			ptime = channelManager.createChannel(config.getPTIME().getPv(), false);
-			phase = channelManager.createChannel(config.getPHASE().getPv(), false);
-			runmode = channelManager.createChannel(config.getRUNMODE().getPv(), false);
-			ramprate = channelManager.createChannel(config.getRAMPRATE().getPv(), false);
-			targettemp = channelManager.createChannel(config.getTARGETTEMP().getPv(), false);
-			remaining = channelManager.createChannel(config.getREMAINING().getPv(), false);
-			runtime = channelManager.createChannel(config.getRUNTIME().getPv(), false);
-			temp = channelManager.createChannel(config.getTEMP().getPv(), ctl, false);
-			alarm = channelManager.createChannel(config.getALARM().getPv(), al, false);
-			try {
-				if (config.getEND().getPv() != null) {
-					end = channelManager.createChannel(config.getEND().getPv(), false);
-				}
-			} catch (RuntimeException e) {
-				if (e instanceof NullPointerException) {
-					// do nothing - phenix stat do not have this channel.
-				} else {
-					throw e;
-				}
-			}
-			disable=channelManager.createChannel(config.getDISABLE().getPv(), connlist, false);
-			// acknowledge that creation phase is completed
-			channelManager.creationPhaseCompleted();
-		} catch (Exception ex) {
-			throw new FactoryException("failed to create required channels for " + getName(), ex);
-		}
 	}
 
 	private void createChannelAccess(String pvRoot) throws FactoryException {
@@ -256,6 +184,7 @@ public class CryoController extends DeviceBase implements InitializationListener
 			throw new FactoryException("failed to create required channels for " + getName() + " using " + pvRoot, ex);
 		}
 	}
+
 	/**
 	 * switches the Cryostream on, executing the start-up phase or current Phase Table. It is also used to re-start the
 	 * control program after it has been halted.
@@ -648,19 +577,6 @@ public class CryoController extends DeviceBase implements InitializationListener
 	 */
 	public String getConnectionState(){
 		return connState;
-	}
-	/**
-	 * @return deviceName
-	 */
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	/**
-	 * @param deviceName
-	 */
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
 	}
 
 	public String getPvRoot() {
