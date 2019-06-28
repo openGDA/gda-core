@@ -34,6 +34,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -72,6 +73,7 @@ public class CommandProcessorComposite extends Composite {
 	private Processor processor;
 	private Label txtCurrentDescription;
 	ProgressBar progressBar;
+	private int progressBarHeight = 30;
 	String progressBarText = "";
 	private Label txtState;
 	private Action btnSkip;
@@ -202,9 +204,16 @@ public class CommandProcessorComposite extends Composite {
 
 		progressBar.setMinimum(0);
 		progressBar.setMaximum(2000);
+
 		progressBar.addPaintListener(new PaintListener() {
 			@Override
 			public void paintControl(PaintEvent e) {
+				// Set the progress bar bounds to increase the height.
+				Rectangle area = progressBar.getParent().getClientArea();
+				progressBar.setBounds(area.x, area.y, area.width, progressBarHeight);
+				if (progressBarText.isEmpty()) {
+					return;
+				}
 				Point point = progressBar.getSize();
 				FontMetrics fontMetrics = e.gc.getFontMetrics();
 				int width = fontMetrics.getAverageCharWidth() * progressBarText.length();
