@@ -20,7 +20,6 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import static java.util.stream.Collectors.toCollection;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,8 +41,8 @@ import org.eclipse.dawnsci.analysis.dataset.roi.PointROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
-import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.event.scan.ProcessingRequest;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.MapPosition;
@@ -60,6 +59,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.ScannableMotionUnits;
 import gda.factory.Finder;
+import uk.ac.diamond.daq.mapping.api.ConfigWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
@@ -67,7 +67,6 @@ import uk.ac.diamond.daq.mapping.api.ISampleMetadata;
 import uk.ac.diamond.daq.mapping.api.IScanDefinition;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScriptFiles;
-import uk.ac.diamond.daq.mapping.impl.ClusterProcessingModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
@@ -159,19 +158,6 @@ public class ScanRequestConverter {
 			}
 		}
 
-		// add the required cluster processing steps
-		if (mappingBean.getClusterProcessingConfiguration() != null) {
-			for (IScanModelWrapper<ClusterProcessingModel> processingWrapper : mappingBean.getClusterProcessingConfiguration()) {
-				if (processingWrapper.isIncludeInScan()) {
-					String name = processingWrapper.getName();
-					if (scanRequest.getDetectors() != null && scanRequest.getDetectors().containsKey(name)) {
-						throw new IllegalArgumentException(MessageFormat.format("A device or processing step with the name {0} is already included in the scan", name));
-					}
-					scanRequest.putDetector(processingWrapper.getName(), processingWrapper.getModel());
-				}
-			}
-		}
-
 		// set the per-scan and per-point monitors according to the mapping bean
 		configureMonitors(mappingBean, scanRequest);
 
@@ -187,6 +173,12 @@ public class ScanRequestConverter {
 		if (mappingBean.getSampleMetadata() != null) {
 			setSampleMetadata(mappingBean, scanRequest);
 		}
+
+		//Add required processing
+		Map<String, Object> processingRequest = mappingBean.getProcessingRequest();
+		ProcessingRequest r = new ProcessingRequest();
+		r.setRequest(processingRequest);
+		scanRequest.setProcessingRequest(r);
 
 		return scanRequest;
 	}
@@ -320,6 +312,56 @@ public class ScanRequestConverter {
 
 		// recreate the sample metadata from the metadata in the scan request
 		mergeSampleMetadata(scanRequest, mappingBean);
+
+		mergeProcessingRequest(scanRequest, mappingBean);
+	}
+
+	private void mergeProcessingRequest(ScanRequest<IROI> scanRequest, IMappingExperimentBean mappingBean) {
+
+		List<ConfigWrapper> pc = mappingBean.getProcessingConfigs();
+
+		//disable all current
+		for (ConfigWrapper w : pc) {
+			w.setActive(false);
+		}
+
+		Map<String, Object> pr = scanRequest.getProcessingRequest().getRequest();
+
+		List<ConfigWrapper> newWrappers = new ArrayList<>();
+
+		for (String k : pr.keySet()) {
+
+			Object object = pr.get(k);
+
+			if (object instanceof List<?>) {
+
+				for(Object o :  (List<?>)object) {
+					if (!found(pc,k,o.toString())) {
+						ConfigWrapper w = new ConfigWrapper();
+						w.setAppName(k);
+						w.setPathToConfig(o.toString());
+						w.setActive(true);
+						newWrappers.add(w);
+					}
+				}
+			}
+		}
+
+		if (!newWrappers.isEmpty()) {
+			for (ConfigWrapper w : newWrappers) {
+				mappingBean.addProcessingRequest(w);
+			}
+		}
+	}
+
+	private boolean found(List<ConfigWrapper> wrappers, String app, String path) {
+		for (ConfigWrapper w : wrappers) {
+			if (w.getAppName().contentEquals(app) && w.getPathToConfig().contentEquals(path)) {
+				w.setActive(true);
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private IMapPathModel checkMapModelAndUpdateMappingStage(final CompoundModel<IROI> compoundModel) {
@@ -413,19 +455,6 @@ public class ScanRequestConverter {
 			}
 		}
 
-		// disable all the existing processing steps
-		final Map<String, IScanModelWrapper<ClusterProcessingModel>> processingWrappers;
-		if (mappingBean.getClusterProcessingConfiguration() == null) {
-			processingWrappers = Collections.emptyMap();
-		} else {
-			processingWrappers = new HashMap<>(mappingBean.getClusterProcessingConfiguration().size());
-			for (IScanModelWrapper<ClusterProcessingModel> processingWrapper : mappingBean.getClusterProcessingConfiguration()) {
-				((ClusterProcessingModelWrapper) processingWrapper).setIncludeInScan(false);
-				processingWrappers.put(processingWrapper.getModel().getName(),
-						processingWrapper);
-			}
-		}
-
 		// merge in the detectors and processing from the scan request. If there already is
 		// a detector or processor with that name it is enabled and the model is replaced
 		// with the model in the ScanRequest
@@ -449,24 +478,6 @@ public class ScanRequestConverter {
 					} else {
 						// The scan includes an unknown detector. This can only occur if the mapping bean has changed in spring
 						throw new IllegalArgumentException("Unknown detector " + name);
-					}
-				} else if (model instanceof ClusterProcessingModel) {
-					List<IScanModelWrapper<ClusterProcessingModel>> processingConfigList = mappingBean.getClusterProcessingConfiguration();
-					if (processingConfigList == null) { // create the list of processing configs if not present
-						processingConfigList = new ArrayList<>(4);
-						mappingBean.setClusterProcessingConfiguration(processingConfigList);
-					}
-
-					if (processingWrappers.containsKey(name)) {
-						// The mapping bean already contains a processing config with this name
-						// set it to be included in the scan an overwrite the model with the model
-						// in the scan request
-						ClusterProcessingModelWrapper wrapper = (ClusterProcessingModelWrapper) processingWrappers.get(name);
-						wrapper.setIncludeInScan(true);
-						wrapper.setModel((ClusterProcessingModel) model);
-					} else {
-						// A new processing step. Add it to the mapping bean at the end (the order doesn't matter)
-						processingConfigList.add(new ClusterProcessingModelWrapper(name, (ClusterProcessingModel) model, true));
 					}
 				}
 			}

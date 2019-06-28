@@ -1,14 +1,17 @@
 package uk.ac.diamond.daq.mapping.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.dawnsci.analysis.api.processing.model.IOperationModel;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.ui.IStageScanConfiguration;
 
+import uk.ac.diamond.daq.mapping.api.ConfigWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.ISampleMetadata;
 import uk.ac.diamond.daq.mapping.api.IScanDefinition;
@@ -26,10 +29,12 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	private Set<String> perScanMonitorNames = null;
 	private Set<String> perPointMonitorNames = null;
 	private MappingStageInfo stageInfoSnapshot;
+	private List<ConfigWrapper> processingConfigs;
 
 	public MappingExperimentBean() {
 		sampleMetadata = new SimpleSampleMetadata();
 		scanDefinition = new MappingScanDefinition();
+		processingConfigs = new ArrayList<ConfigWrapper>();
 	}
 
 	@Override
@@ -93,27 +98,6 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	}
 
 	@Override
-	public List<IScanModelWrapper<ClusterProcessingModel>> getClusterProcessingConfiguration() {
-		return clusterProcessingConfiguration;
-	}
-
-	@Override
-	public void setClusterProcessingConfiguration(List<IScanModelWrapper<ClusterProcessingModel>> clusterProcessingConfiguration) {
-		this.clusterProcessingConfiguration = clusterProcessingConfiguration;
-	}
-
-	@Override
-	public List<IOperationModel> getPostProcessingConfiguration() {
-		// TODO not yet implemented - remove this method?
-		return null;
-	}
-
-	@Override
-	public void setPostProcessingConfiguration(List<IOperationModel> postProcessingConfiguration) {
-		// TODO not yet implemented - remove this method
-	}
-
-	@Override
 	public IScriptFiles getScriptFiles() {
 		return scriptFiles;
 	}
@@ -129,6 +113,26 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 			stageInfoSnapshot = new MappingStageInfo();
 		}
 		return stageInfoSnapshot;
+	}
+
+	@Override
+	public Map<String,Object> getProcessingRequest() {
+
+		Map<String,Object> request = new HashMap<String, Object>();
+
+		for (ConfigWrapper w : processingConfigs) {
+
+			if (!w.isActive()) continue;
+
+			if (request.containsKey(w.getAppName())) {
+				((List<String>)request.get(w.getAppName())).add(w.getPathToConfig());
+			} else {
+				List<String> l = new ArrayList<String>(Arrays.asList(w.getPathToConfig()));
+				request.put(w.getAppName(), l);
+			}
+		}
+
+		return request;
 	}
 
 	@Override
@@ -233,5 +237,21 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 				+ beamlineConfiguration + ", scanDefinition=" + scanDefinition + ", scriptFiles=" + scriptFiles
 				+ ", perScanMonitorNames=" + perScanMonitorNames + ", perPointMonitorNames=" + perPointMonitorNames
 				+ "]";
+	}
+
+	@Override
+	public List<ConfigWrapper> getProcessingConfigs() {
+		return processingConfigs;
+	}
+
+	@Override
+	public void setProcessingConfigs(List<ConfigWrapper> processingConfigs) {
+		this.processingConfigs =processingConfigs;
+	}
+
+	@Override
+	public void addProcessingRequest(ConfigWrapper wrapper) {
+		if (wrapper == null) return;
+		processingConfigs.add(wrapper);
 	}
 }

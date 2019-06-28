@@ -45,8 +45,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
-import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.event.scan.ProcessingRequest;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.GridModel;
@@ -65,11 +65,11 @@ import org.junit.Test;
 import gda.device.ScannableMotionUnits;
 import gda.factory.Factory;
 import gda.factory.Finder;
+import uk.ac.diamond.daq.mapping.api.ConfigWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScriptFiles;
-import uk.ac.diamond.daq.mapping.impl.ClusterProcessingModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
@@ -460,38 +460,41 @@ public class ScanRequestConverterTest {
 	}
 
 	@Test
-	public void testClusterProcessingIncludedCorrectly() throws Exception {
-		// Arrange
-		final String includedProcessingChainName = "sum";
-		final ClusterProcessingModel clusterProcessingModel = new ClusterProcessingModel();
-		clusterProcessingModel.setName(includedProcessingChainName);
-		clusterProcessingModel.setDetectorName("mandelbrot");
-		clusterProcessingModel.setProcessingFilePath("/tmp/sum.nxs");
-		final ClusterProcessingModelWrapper includedProcessingWrapper = new ClusterProcessingModelWrapper(
-				includedProcessingChainName, clusterProcessingModel, true);
+	public void testProcessingRequestIncludedCorrectly() throws Exception {
 
-		final String excludedProcessingChainName = "excluded";
-		final ClusterProcessingModelWrapper excludedProcessingWrapper = new ClusterProcessingModelWrapper(
-				excludedProcessingChainName, new ClusterProcessingModel(), false);
+		ConfigWrapper wrapper = new ConfigWrapper();
+		String appName = "test";
+		String pathToConfig = "/path/to/config";
+		wrapper.setAppName(appName);
+		wrapper.setPathToConfig(pathToConfig);
+		wrapper.setActive(true);
 
-		mappingBean.setClusterProcessingConfiguration(Arrays.asList(includedProcessingWrapper, excludedProcessingWrapper));
+		mappingBean.addProcessingRequest(wrapper);
 
 		// Act - convert mapping bean to scan request
 		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert
-		assertThat(scanRequest.getDetectors().get(includedProcessingChainName), is(equalTo(clusterProcessingModel)));
+		ProcessingRequest processingRequest = scanRequest.getProcessingRequest();
+		testProcessingRequest(appName,pathToConfig,processingRequest);
 
 		// Act again - merge scan request into new mapping bean
 		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
 
 		// Assert again - check the new mapping bean is the same as the old one
-		List<IScanModelWrapper<ClusterProcessingModel>> newClusterProcessingList = newMappingBean.getClusterProcessingConfiguration();
-		assertThat(newClusterProcessingList.size(), is(1));
-		IScanModelWrapper<ClusterProcessingModel> clusterProcessingWrapper = newClusterProcessingList.get(0);
-		assertThat(clusterProcessingWrapper.getName(), is(equalTo(includedProcessingWrapper.getName())));
-		assertThat(clusterProcessingWrapper.getModel(), is(equalTo(clusterProcessingModel)));
-		assertFalse(newClusterProcessingList.contains(excludedProcessingWrapper));
+		ProcessingRequest r= new ProcessingRequest();
+		r.setRequest(newMappingBean.getProcessingRequest());
+		testProcessingRequest(appName,pathToConfig,r);
+	}
+
+	private void testProcessingRequest(String appName, String pathToConfig, ProcessingRequest processingRequest) {
+		assertTrue(processingRequest.getRequest().containsKey(appName));
+		Object object = processingRequest.getRequest().get(appName);
+		assertTrue(processingRequest.getRequest().get(appName) instanceof List);
+
+		@SuppressWarnings("unchecked")
+		List<String> paths = (List<String>)object;
+		assertEquals(pathToConfig, paths.get(0));
 	}
 
 	@Test

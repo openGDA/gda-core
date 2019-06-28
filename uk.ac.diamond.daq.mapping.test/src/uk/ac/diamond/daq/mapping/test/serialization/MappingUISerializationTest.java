@@ -40,6 +40,7 @@ import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.ac.diamond.daq.mapping.api.ConfigWrapper;
 import uk.ac.diamond.daq.mapping.api.ILineMappingRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IScanDefinition;
@@ -330,11 +331,6 @@ public class MappingUISerializationTest {
 		DetectorModelWrapper mandelbrotWrapper = new DetectorModelWrapper(
 				"Mandelbrot Detector", model, true);
 
-		ClusterProcessingModel clusterProcessingModel = new ClusterProcessingModel(
-				"processing", "mandelbrot", "/path/to/processing_file.nxs");
-		ClusterProcessingModelWrapper processingWrapper = new ClusterProcessingModelWrapper(
-				"processing", clusterProcessingModel, true);
-
 		SimpleSampleMetadata sampleMetadata = new SimpleSampleMetadata();
 		sampleMetadata.setSampleName("SampleName");
 		sampleMetadata.setDescription("Description of sample");
@@ -345,9 +341,14 @@ public class MappingUISerializationTest {
 		mappingBean.setScriptFiles(scriptFiles);
 		mappingBean.setBeamlineConfiguration(beamlineConfiguration);
 		mappingBean.setDetectorParameters(Arrays.asList(mandelbrotWrapper));
-		mappingBean.setClusterProcessingConfiguration(Arrays.asList(processingWrapper));
 		mappingBean.setSampleMetadata(sampleMetadata);
 		mappingBean.setScanDefinition(scanDefinition);
+
+		ConfigWrapper w = new ConfigWrapper();
+		w.setAppName("dawn");
+		w.setPathToConfig("/path/to/config.json");
+
+		mappingBean.addProcessingRequest(w);
 
 		String json = service.marshal(mappingBean);
 		MappingExperimentBean newMappingBean = service.unmarshal(json, MappingExperimentBean.class);

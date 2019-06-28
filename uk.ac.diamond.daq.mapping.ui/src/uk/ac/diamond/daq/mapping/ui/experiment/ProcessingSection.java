@@ -18,46 +18,52 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.function.Supplier;
 
-import org.dawnsci.processing.ui.ServiceHolder;
 import org.dawnsci.processing.ui.api.IOperationModelWizard;
 import org.dawnsci.processing.ui.api.IOperationSetupWizardPage;
+import org.dawnsci.processing.ui.api.IOperationUIService;
 import org.dawnsci.processing.ui.model.OperationModelWizardDialog;
-import org.eclipse.core.databinding.Binding;
-import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.beans.PojoProperties;
-import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.jface.viewers.CheckboxCellEditor;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ColumnViewer;
+import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
+import org.eclipse.jface.viewers.EditingSupport;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.window.Window;
-import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
-import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Menu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
-import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
-import uk.ac.diamond.daq.mapping.impl.ClusterProcessingModelWrapper;
+import uk.ac.diamond.daq.mapping.api.ConfigWrapper;
 import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
 
 /**
@@ -69,23 +75,23 @@ public class ProcessingSection extends AbstractMappingSection {
 
 	private static final File[] NO_TEMPLATE_FILES = new File[0];
 
-	private static final int TEMPLATE_ROW_NUM_COLUMNS = 3;
 
 	private Composite processingChainsComposite;
 
-	private Map<String, Control[]> rowControlsMap;
-	private Map<String, Binding> includeCheckboxBindings;
+	private TableViewer viewer;
+
+	private static final Image ticked = MappingExperimentUtils.getImage("icons/ticked.png");
+	private static final Image unticked = MappingExperimentUtils.getImage("icons/unticked.gif");
 
 	@Override
 	public void createControls(Composite parent) {
 		super.createControls(parent);
-		dataBindingContext = new DataBindingContext();
 		Composite processingComposite = new Composite(parent, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(processingComposite);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(processingComposite);
 		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(processingComposite);
 
 		createTitleAndAddProcessingRow(processingComposite);
-		createProcessingModelRows(processingComposite);
+		createProcessingTable(processingComposite);
 	}
 
 	@Override
@@ -116,120 +122,148 @@ public class ProcessingSection extends AbstractMappingSection {
 		});
 	}
 
-	private void createProcessingModelRows(Composite parent) {
+	private void createProcessingTable(Composite parent) {
 		processingChainsComposite = new Composite(parent, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(processingChainsComposite);
-		GridLayoutFactory.swtDefaults().numColumns(TEMPLATE_ROW_NUM_COLUMNS).applyTo(processingChainsComposite);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(processingChainsComposite);
+		GridLayoutFactory.fillDefaults().applyTo(processingChainsComposite);
 
-		rowControlsMap = new HashMap<>();
-		includeCheckboxBindings = new HashMap<>();
-		final List<IScanModelWrapper<ClusterProcessingModel>> clusterProcessingChains =
-			getMappingBean().getClusterProcessingConfiguration();
-		if (clusterProcessingChains != null) {
-			for (IScanModelWrapper<ClusterProcessingModel> clusterProcessingChain : clusterProcessingChains) {
-				addProcessingModelRow(processingChainsComposite, clusterProcessingChain);
-			}
-		}
-	}
+		viewer = new TableViewer(processingChainsComposite, SWT.MULTI |SWT.FULL_SELECTION | SWT.BORDER);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(viewer.getTable());
+		viewer.getTable().setHeaderVisible(true);
+		ColumnViewerToolTipSupport.enableFor(viewer);
 
-	private void addProcessingModelRow(Composite parent,
-			IScanModelWrapper<ClusterProcessingModel> clusterProcessingChain) {
-		String processingChainName = clusterProcessingChain.getName();
-		Control[] rowControls = new Control[TEMPLATE_ROW_NUM_COLUMNS];
-		int controlIndex = 0;
+		viewer.setContentProvider(new ArrayContentProvider());
 
-		// Include in scan checkbox
-		Button checkBox = new Button(parent, SWT.CHECK);
-		rowControls[controlIndex++] = checkBox;
-		String name = clusterProcessingChain.getName();
-		checkBox.setText(name == null ? "(Unnamed)" : name);
-		GridDataFactory fillDefaultGridData = GridDataFactory.fillDefaults().grab(true, false);
-		fillDefaultGridData.applyTo(checkBox);
-		IObservableValue checkBoxValue = WidgetProperties.selection().observe(checkBox);
-		IObservableValue activeValue = PojoProperties.value("includeInScan").observe(clusterProcessingChain);
-		Binding includeInScanBinding = dataBindingContext.bindValue(checkBoxValue, activeValue);
-		includeCheckboxBindings.put(processingChainName, includeInScanBinding);
-
-		// Button to configure a processing chain
-		Button configureButton = new Button(parent, SWT.PUSH);
-		rowControls[controlIndex++] = configureButton;
-		configureButton.setText("Configure...");
-		GridDataFactory swtDefaultGridData = GridDataFactory.swtDefaults();
-		swtDefaultGridData.applyTo(configureButton);
-		configureButton.addSelectionListener(new SelectionAdapter() {
+		TableViewerColumn check   = new TableViewerColumn(viewer, SWT.CENTER, 0);
+		check.setEditingSupport(new CheckBoxEditSupport(viewer));
+		check.setLabelProvider(new ColumnLabelProvider() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				configureProcessingModel(clusterProcessingChain);
+			public String getText(Object element) {
+				return "";
+			}
+
+			@Override
+			public Image getImage(Object element) {
+				return ((ConfigWrapper)element).isActive() ? ticked : unticked;
+			}
+
+		});
+
+		check.getColumn().setWidth(28);
+
+		TableViewerColumn app = new TableViewerColumn(viewer, SWT.LEFT);
+		app.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+
+				return ((ConfigWrapper)element).getAppName();
 			}
 		});
 
-		// Button to delete a processing chain
-		Button deleteButton = new Button(parent, SWT.PUSH);
-		rowControls[controlIndex++] = deleteButton;
-		deleteButton.setText("Delete");
-		swtDefaultGridData.applyTo(deleteButton);
-		deleteButton.addSelectionListener(new SelectionAdapter() {
+		app.getColumn().setText("App");
+		app.getColumn().setWidth(100);
+
+		TableViewerColumn name = new TableViewerColumn(viewer, SWT.LEFT);
+		name.setLabelProvider(new ColumnLabelProvider() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				deleteProcessingModel(clusterProcessingChain);
+			public String getText(Object element) {
+
+				return ((ConfigWrapper)element).getName();
+			}
+
+			@Override
+			public String getToolTipText(Object element) {
+				return ((ConfigWrapper) element).getPathToConfig();
 			}
 		});
 
-		rowControlsMap.put(processingChainName, rowControls);
+		name.getColumn().setText("Name");
+		name.getColumn().setWidth(200);
+
+		MenuManager menuMgr = new MenuManager();
+
+		menuMgr.add(new Action("Remove") {
+			@Override
+			public void run() {
+				ISelection s = viewer.getSelection();
+				if (s instanceof StructuredSelection) {
+					List<ConfigWrapper> w = new ArrayList<>();
+					@SuppressWarnings("rawtypes")
+					Iterator iterator = ((StructuredSelection)s).iterator();
+					while (iterator.hasNext()) {
+						Object next = iterator.next();
+						if (next instanceof ConfigWrapper) {
+							w.add((ConfigWrapper)next);
+						}
+					}
+					if (!w.isEmpty()) {
+						getMappingBean().getProcessingConfigs().removeAll(w);
+					}
+
+					viewer.setInput(getMappingBean().getProcessingConfigs());
+				}
+			}
+		});
+
+		Menu menu = menuMgr.createContextMenu(viewer.getControl());
+		viewer.getTable().setMenu(menu);
+
+		List<ConfigWrapper> configs = getMappingBean().getProcessingConfigs();
+		viewer.setInput(configs.toArray());
+
 	}
 
-	private IScanModelWrapper<ClusterProcessingModel> configureProcessingModel(IScanModelWrapper<ClusterProcessingModel> processingModelWrapper) {
+	private ConfigWrapper configureProcessingModel() {
 		final List<IOperationSetupWizardPage> startPages = new ArrayList<>(2);
 
 		final AcquireDataWizardPage acquirePage = new AcquireDataWizardPage(getEclipseContext());
-		final Supplier<Boolean> useExisting;
-		if (processingModelWrapper == null) {
-			final ClusterProcessingModel model = new ClusterProcessingModel();
-			processingModelWrapper = new ClusterProcessingModelWrapper(null, model, true);
 
-			final ProcessingSelectionWizardPage selectionPage = new ProcessingSelectionWizardPage(getEclipseContext(),
-					processingModelWrapper, getMappingBean().getDetectorParameters());
-			startPages.add(selectionPage);
-			useExisting = selectionPage::useExisting;
-		} else {
-			// get the IDetectorModel for the detector name as set in the processing model
-			String detectorName = processingModelWrapper.getModel().getDetectorName();
-			String malcolmDeviceName = processingModelWrapper.getModel().getMalcolmDeviceName();
-			// if the malcolm device name is set, we use that as the detetor in the acquire scan instead
-			String acquireDetectorName = malcolmDeviceName == null ? detectorName : malcolmDeviceName;
 
-			final Optional<IDetectorModel> detectorWrapper =
-					getMappingBean().getDetectorParameters().stream().
-					map(IScanModelWrapper<IDetectorModel>::getModel).
-					filter(model -> model.getName().equals(acquireDetectorName)).
-					findFirst();
-			if (!detectorWrapper.isPresent()) {
-				logger.error("Could not get detector from mapping bean {}", acquireDetectorName);
-				return null;
-			}
-			acquirePage.setAcquireDetectorModel(detectorWrapper.get());
-			acquirePage.setDetectorDataGroupName(detectorName);
-			useExisting = () -> false;
-		}
+		DawnConfigBean	processingConfig = new DawnConfigBean();
+		ConfigWrapper w = new ConfigWrapper();
+
+		final ProcessingSelectionWizardPage selectionPage = new ProcessingSelectionWizardPage(getEclipseContext(),
+				processingConfig,w, getMappingBean().getDetectorParameters());
+		startPages.add(selectionPage);
+
+		final Supplier<ProcessingSelectionWizardPage.ProcessingMode> selectedMode;
+
+		selectedMode = selectionPage::selectedMode;
+
 		startPages.add(acquirePage);
 
 		try {
-			IOperationModelWizard wizard = ServiceHolder.getOperationUIService().getWizard(null,
+			IOperationModelWizard wizard = getEclipseContext().get(IOperationUIService.class).getWizard(null,
 					startPages, (String) null, null);
 
 			OperationModelWizardDialog dialog = new OperationModelWizardDialog(getShell(), wizard);
 			dialog.setTitle("Setup Processing");
 			if (dialog.open() == Window.OK) {
-				if (!useExisting.get()) {
+
+				if (ProcessingSelectionWizardPage.ProcessingMode.NEW_DAWN.equals(selectedMode.get())) {
 					try {
-						final Path processingFilePath = Paths.get(processingModelWrapper.getModel().getProcessingFilePath());
+						final Path processingFilePath = Paths.get(processingConfig.getProcessingFile());
 						Files.createDirectories(processingFilePath.getParent());
 						wizard.saveOutputFile(processingFilePath.toString());
 					} catch (Exception e) {
 						logger.error("Could not save template file!", e);
 					}
 				}
-				return processingModelWrapper;
+
+				if (!ProcessingSelectionWizardPage.ProcessingMode.OTHER.equals(selectedMode.get())) {
+					IMarshallerService ms = getEclipseContext().get(IMarshallerService.class);
+
+					String json = ms.marshal(processingConfig, false);
+
+					try (BufferedWriter wr = new BufferedWriter(new FileWriter(w.getPathToConfig()))) {
+						wr.write(json);
+					} catch (Exception e) {
+						// TODO: dialog!
+					}
+
+				}
+
+				return w;
 			}
 		} catch (Exception e) {
 			logger.error("Could not open operation wizard", e);
@@ -237,41 +271,14 @@ public class ProcessingSection extends AbstractMappingSection {
 		return null;
 	}
 
-	private void deleteProcessingModel(IScanModelWrapper<ClusterProcessingModel> processingChain) {
-		// remove the processing chain from the mapping bean
-		getMappingBean().getClusterProcessingConfiguration().remove(processingChain);
-
-		// remove and dispose of the binding for the checkbox of the processing chain
-		String processingChainName = processingChain.getName();
-		Binding includeCheckboxBinding = includeCheckboxBindings.remove(processingChainName);
-		dataBindingContext.removeBinding(includeCheckboxBinding);
-		includeCheckboxBinding.dispose();
-
-		// dispose of all the controls on the row for the mapping chain
-		Control[] rowControls = rowControlsMap.remove(processingChainName);
-		for (Control control : rowControls) {
-			control.dispose();
-		}
-
-		// the size of the processing section has changed, so re-layout the whole view
-		relayoutMappingView();
-	}
-
 	private void addProcessingModel() {
-		IScanModelWrapper<ClusterProcessingModel> modelWrapper = configureProcessingModel(null);
-		if (modelWrapper != null) {
-			// if the configure wizard wasn't cancelled, add the new processing model
-			// to the list of models and create the new row for it in the UI
-			IMappingExperimentBean mappingBean = getMappingBean();
-			List<IScanModelWrapper<ClusterProcessingModel>> processingModels = mappingBean.getClusterProcessingConfiguration();
-			if (processingModels == null) {
-				processingModels = new ArrayList<>();
-				mappingBean.setClusterProcessingConfiguration(processingModels);
-			}
-			processingModels.add(modelWrapper);
-			addProcessingModelRow(processingChainsComposite, modelWrapper);
-			relayoutMappingView();
-		}
+
+		ConfigWrapper config = configureProcessingModel();
+		getMappingBean().addProcessingRequest(config);
+
+		viewer.setInput(getMappingBean().getProcessingConfigs().toArray());
+		viewer.refresh();
+
 	}
 
 	private File[] getTemplateFiles() {
@@ -287,19 +294,47 @@ public class ProcessingSection extends AbstractMappingSection {
 
 	@Override
 	public void updateControls() {
-		// Update the section controls to reflect the new bean
-		// Any additional processing chains in the scan request are added at the end of the list
-		// No existing processing chains are deleted, instead they are just deselected
-		List<IScanModelWrapper<ClusterProcessingModel>> processingChains = getMappingBean().getClusterProcessingConfiguration();
-		if (processingChains != null) {
-			for (IScanModelWrapper<ClusterProcessingModel> processingChain : processingChains) {
-				if (!rowControlsMap.containsKey(processingChain.getName())) {
-					addProcessingModelRow(processingChainsComposite, processingChain);
-				}
-			}
+
+		List<ConfigWrapper> configs = getMappingBean().getProcessingConfigs();
+		if (configs != null) {
+			viewer.setInput(configs);
+			viewer.refresh();
+		}
+	}
+
+	private class CheckBoxEditSupport extends EditingSupport {
+
+		public CheckBoxEditSupport(ColumnViewer viewer) {
+			super(viewer);
 		}
 
-		dataBindingContext.updateTargets();
+		@Override
+		protected CellEditor getCellEditor(Object element) {
+			CheckboxCellEditor edit = new CheckboxCellEditor(viewer.getTable());
+			edit.setValue(((ConfigWrapper)element).isActive());
+			return edit;
+		}
+
+		@Override
+		protected boolean canEdit(Object element) {
+			return true;
+		}
+
+		@Override
+		protected Object getValue(Object element) {
+			if (element instanceof ConfigWrapper) return ((ConfigWrapper)element).isActive();
+			return null;
+		}
+
+		@Override
+		protected void setValue(Object element, Object value) {
+			if (element instanceof ConfigWrapper && value instanceof Boolean){
+				((ConfigWrapper)element).setActive((Boolean)value);
+			}
+
+			getViewer().refresh();
+		}
+
 	}
 
 }

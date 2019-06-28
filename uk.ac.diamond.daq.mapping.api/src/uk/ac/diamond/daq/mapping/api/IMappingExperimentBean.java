@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.dawnsci.analysis.api.processing.model.IOperationModel;
-import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.ui.IStageScanConfiguration;
 
@@ -107,36 +105,6 @@ public interface IMappingExperimentBean {
 	public void setBeamlineConfiguration(Map<String, Object> beamlineConfiguration);
 
 	/**
-	 * Gets the post processing steps to be run live as part of the mapping scan (online analysis). A <code>List</code> to allow multiple processing steps to be
-	 * defined. Can be null indicating no processing should be performed.
-	 *
-	 * @return postProcessingConfiguration
-	 */
-	public List<IOperationModel> getPostProcessingConfiguration();
-
-	/**
-	 * Sets the post processing steps to be run live as part of the mapping scan (online analysis). A <code>List</code> to allow multiple processing steps to be
-	 * defined. Can be null indicating no processing should be performed.
-	 *
-	 * @param postProcessingConfiguration
-	 */
-	public void setPostProcessingConfiguration(List<IOperationModel> postProcessingConfiguration);
-
-	/**
-	 * Gets the processing steps to be run on the cluster. Can be <code>null</code> indicating
-	 * no processing should be performed
-	 * @return cluster processing configuration
-	 */
-	public List<IScanModelWrapper<ClusterProcessingModel>> getClusterProcessingConfiguration();
-
-	/**
-	 * Sets the processing steps to be run on the cluster. Can be <code>null</code> indicating
-	 * no processing should be performed
-	 * @param clusterProcessingConfiguration cluster processing configuration
-	 */
-	public void setClusterProcessingConfiguration(List<IScanModelWrapper<ClusterProcessingModel>> clusterProcessingConfiguration);
-
-	/**
 	 * Gets the script files to run before and after the mapping scan. Can be <code>null</code>
 	 * to indicate no scripts should be run.
 	 * @return script files
@@ -156,5 +124,13 @@ public interface IMappingExperimentBean {
 	 * @return a snapshot of the stage axes selection taken at the point the bean was saved
 	 */
 	IStageScanConfiguration getStageInfoSnapshot();
+
+	List<ConfigWrapper> getProcessingConfigs();
+
+	void setProcessingConfigs(List<ConfigWrapper> processingConfigs);
+
+	void addProcessingRequest(ConfigWrapper wrapper);
+
+	Map<String,Object> getProcessingRequest();
 
 }

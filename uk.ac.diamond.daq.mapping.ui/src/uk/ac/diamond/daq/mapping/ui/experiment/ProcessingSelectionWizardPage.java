@@ -24,8 +24,10 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +56,6 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.richbeans.widgets.file.FileSelectionDialog;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
-import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.EventException;
@@ -67,6 +68,8 @@ import org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
@@ -80,9 +83,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import uk.ac.diamond.daq.mapping.api.ConfigWrapper;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.ProcessingSetupConfiguration;
-import uk.ac.diamond.daq.mapping.impl.ClusterProcessingModelWrapper;
 
 /**
  * A wizard page to setup which the dataset to be processed and the
@@ -96,15 +99,22 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 		private Button radioButton;
 		private List<Control> controls;
+		private ProcessingMode handlerMode;
 
 
-		public RadioButtonHandler(Button radioButton, List<Control> controls) {
+		public RadioButtonHandler(Button radioButton, List<Control> controls, ProcessingMode m) {
 			this.radioButton = radioButton;
 			this.controls = controls;
+			this.handlerMode = m;
 		}
 
 		@Override
 		public void widgetSelected(SelectionEvent e) {
+
+			if (radioButton.getSelection()) {
+				mode = handlerMode;
+			}
+
 			setControlsEnabled(radioButton.getSelection());
 			updateButtons();
 		}
@@ -117,6 +127,10 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 	}
 
+	public enum ProcessingMode {
+		NEW_DAWN, EXISTING_DAWN, OTHER;
+	}
+
 	public static final String PROPERTY_NAME_MALCOLM_ACQUIRE_SUPPORT = "org.eclipse.scanning.malcolm.supports.acquire";
 
 	private static final String NEXUS_FILE_EXTENSION = "nxs";
@@ -124,14 +138,18 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 	private static final Logger logger = LoggerFactory.getLogger(ProcessingSelectionWizardPage.class);
 
 	private static String lastFilePath = null;
+	private static String lastConfigPath = null;
 
 	private final IEclipseContext context;
 
-	private final IScanModelWrapper<ClusterProcessingModel> processingModelWrapper;
+	private final DawnConfigBean processingConfig;
+	private final ConfigWrapper configWrapper;
 
 	private final List<IScanModelWrapper<IDetectorModel>> detectors;
 
 	private Text existingFileText;
+	private Text existingConfigText;
+	private Text appText;
 
 	private ComboViewer templatesComboViewer;
 
@@ -141,9 +159,13 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 	private Button useExistingButton;
 
+	private Button useOtherButton;
+
 	private IRunnableDeviceService runnableDeviceService = null;
 
 	private ProcessingSetupConfiguration processingSetupConfiguration = null;
+
+	private ProcessingMode mode = ProcessingMode.EXISTING_DAWN;
 
 	/**
 	 * A map from the name of a malcolm device to the name of the main primary dataset for that malcolm device.
@@ -151,14 +173,16 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 	private Map<String, String> malcolmDetectorDatasetNames = null;
 
 	protected ProcessingSelectionWizardPage(IEclipseContext context,
-			IScanModelWrapper<ClusterProcessingModel> processingModelWrapper,
+			DawnConfigBean processingConfig,
+			ConfigWrapper configWrapper,
 			List<IScanModelWrapper<IDetectorModel>> detectors) {
 		super(ProcessingSelectionWizardPage.class.getName());
 		setTitle("Processing Template and Detector Selection");
 		setDescription("Select the processing template file to use and the detector to apply it to.");
 
 		this.context = context;
-		this.processingModelWrapper = processingModelWrapper;
+		this.processingConfig = processingConfig;
+		this.configWrapper = configWrapper;
 		this.processingSetupConfiguration = PlatformUI.getWorkbench().getService(ProcessingSetupConfiguration.class);
 
 		this.detectors = detectors.stream().
@@ -189,7 +213,7 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 		GridDataFactory.swtDefaults().applyTo(createNewButton);
 
 		List<Control> selectTemplateControls = createSelectTemplateControls(composite);
-		createNewButton.addSelectionListener(new RadioButtonHandler(createNewButton, selectTemplateControls));
+		createNewButton.addSelectionListener(new RadioButtonHandler(createNewButton, selectTemplateControls, ProcessingMode.NEW_DAWN));
 		createNewButton.setSelection(true);
 
 		useExistingButton = new Button(composite, SWT.RADIO);
@@ -198,10 +222,20 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 		List<Control> useExistingControls = createExistingFileControls(composite);
 		RadioButtonHandler existingControlsButtonHandler =
-				new RadioButtonHandler(useExistingButton, useExistingControls);
+				new RadioButtonHandler(useExistingButton, useExistingControls, ProcessingMode.EXISTING_DAWN);
 		useExistingButton.addSelectionListener(existingControlsButtonHandler);
 		useExistingButton.setSelection(false);
 		existingControlsButtonHandler.setControlsEnabled(false);
+
+		useOtherButton = new Button(composite, SWT.RADIO);
+		useOtherButton.setText("Specify application and config. file:");
+		GridDataFactory.swtDefaults().span(2, 1).applyTo(useOtherButton);
+		List<Control> otherControls = createOtherApplicationControls(composite);
+		RadioButtonHandler existingOtherButtonHandler =
+				new RadioButtonHandler(useOtherButton, otherControls, ProcessingMode.OTHER);
+		useOtherButton.addSelectionListener(existingOtherButtonHandler);
+		useOtherButton.setSelection(false);
+		existingOtherButtonHandler.setControlsEnabled(false);
 	}
 
 	private void createDetectorSelectionControls(Composite parent) {
@@ -393,27 +427,46 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 	private File getNewProcessingFile(String templateFileName, String detectorName) {
 		// TODO: move this to a service?
-		String fileExtn = "";
-		int dotIndex = templateFileName.lastIndexOf('.');
-		if (dotIndex != -1) {
-			fileExtn = templateFileName.substring(dotIndex); // includes the dot
-			templateFileName = templateFileName.substring(0, dotIndex);
-		}
+		String[] fex = getNameAndExtension(templateFileName);
 
 		final IFilePathService filePathService = context.get(IFilePathService.class);
 		final String tempDir = filePathService.getTempDir();
-		final String prefix = templateFileName + "-" + detectorName;
+		final String prefix = fex[0] + "-" + detectorName;
 
 		// find a unique filename
 		File file = null;
 		int i = 0;
 		do {
-			String filename = prefix + (i == 0 ? "" : i) + fileExtn;
+			String filename = prefix + (i == 0 ? "" : i) + fex[1];
 			file = new File(tempDir, filename);
 			i++;
 		} while (file.exists());
 
 		return file;
+	}
+
+	private String[] getNameAndExtension(String fileName) {
+		int dotIndex = fileName.lastIndexOf('.');
+		if (dotIndex != -1) {
+			return new String[] {fileName.substring(0, dotIndex),fileName.substring(dotIndex)};
+		} else {
+			return new String[] {fileName, ""};
+		}
+	}
+
+	private File getNewConfigFile(File processingFile) {
+
+		final IFilePathService filePathService = context.get(IFilePathService.class);
+		final String tempDir = filePathService.getTempDir();
+
+		String[] fex = getNameAndExtension(processingFile.getName());
+
+		Date date = new Date() ;
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyMMdd_HHmmss") ;
+		String timeStamp = "_" +dateFormat.format(date);
+
+
+		return new File(tempDir, fex[0] + timeStamp + ".json");
 	}
 
 	private List<Control> createExistingFileControls(Composite parent) {
@@ -444,6 +497,71 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 		return Arrays.asList(label, existingFileText, browseButton);
 	}
 
+	private List<Control> createOtherApplicationControls(Composite parent) {
+		Composite composite = new Composite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().indent(20, 0).applyTo(composite);
+		GridLayoutFactory.fillDefaults().numColumns(3).applyTo(composite);
+
+		Label labelName = new Label(composite, SWT.NONE);
+		labelName.setText("App Name:");
+		GridDataFactory.swtDefaults().applyTo(labelName);
+
+		appText = new Text(composite, SWT.BORDER | SWT.SINGLE);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(appText);
+		appText.addFocusListener(new FocusAdapter()  {
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				updateButtons();
+
+			}
+		});
+
+		GridDataFactory.swtDefaults().applyTo(new Label(composite, SWT.NONE));
+
+		Label label = new Label(composite, SWT.NONE);
+		label.setText("Config File:");
+		GridDataFactory.swtDefaults().applyTo(label);
+
+		existingConfigText = new Text(composite, SWT.BORDER | SWT.SINGLE);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(existingConfigText);
+		existingConfigText.addModifyListener(e -> updateButtons());
+
+		Button browseButton = new Button(composite, SWT.PUSH);
+		browseButton.setText("Browse...");
+		GridDataFactory.swtDefaults().applyTo(browseButton);
+		browseButton.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				chooseExistingConfigFile();
+			}
+
+		});
+
+		return Arrays.asList(label, existingConfigText, browseButton, labelName, appText);
+	}
+
+	private void chooseExistingConfigFile() {
+		FileSelectionDialog dialog = new FileSelectionDialog(getShell());
+		dialog.setFolderSelector(false);
+		dialog.setFiles(new String[] { "Config files" });
+		dialog.setHasResourceButton(false);
+		dialog.setNewFile(false);
+		if (lastFilePath != null) {
+			dialog.setPath(lastConfigPath);
+		}
+
+		dialog.create();
+		if (dialog.open() != Window.OK) {
+			return;
+		}
+
+		String filePath = dialog.getPath();
+		existingConfigText.setText(filePath);
+		lastConfigPath = filePath;
+	}
+
 	private void chooseExistingProcessingFile() {
 		FileSelectionDialog dialog = new FileSelectionDialog(getShell());
 		dialog.setFolderSelector(false);
@@ -467,14 +585,26 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 	private void updateButtons() {
 		boolean pageComplete = false;
-		if (createNewButton.getSelection()) {
+
+		switch (mode) {
+		case NEW_DAWN:
 			pageComplete = true;
-		} else {
+			break;
+		case EXISTING_DAWN:
 			final String filePath = existingFileText.getText();
 			if (!filePath.isEmpty()) {
 				final File file = new File(filePath);
 				pageComplete = file.exists() && file.isFile();
 			}
+			break;
+		case OTHER:
+			final String conf = existingConfigText.getText();
+			final String app = appText.getText();
+			if (!conf.isEmpty() && !app.isEmpty()) {
+				final File file = new File(conf);
+				pageComplete = file.exists() && file.isFile();
+			}
+			break;
 		}
 
 		setPageComplete(pageComplete);
@@ -484,7 +614,7 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 	@Override
 	public boolean shouldSkipRemainingPages() {
 		// if we're using an existing processing file we skip the rest of the wizard
-		return useExistingButton.getSelection();
+		return ProcessingMode.EXISTING_DAWN.equals(mode) || ProcessingMode.OTHER.equals(mode);
 	}
 
 	@Override
@@ -496,7 +626,7 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 	@Override
 	public void wizardTerminatingButtonPressed(int buttonId) {
-		if (buttonId == Window.OK && useExistingButton.getSelection()) {
+		if (buttonId == Window.OK && (ProcessingMode.EXISTING_DAWN.equals(mode) || ProcessingMode.OTHER.equals(mode))) {
 			// when we're using an existing processing file, this method
 			// gets called instead of finishPage being called directly by the wizard
 			finishPage();
@@ -514,6 +644,16 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 	}
 
 	private void configureProcessingModel(IDetectorModel acquireDetectorModel, Optional<String> malcolmDetectorDatasetName) {
+
+		if (ProcessingMode.OTHER.equals(mode)) {
+			String path = existingConfigText.getText();
+			configWrapper.setAppName(appText.getText());
+			configWrapper.setName(new File(path).getName());
+			configWrapper.setPathToConfig(path);
+			return;
+		}
+
+
 		final File processingFile;
 		if (createNewButton.getSelection()) {
 			final String templateFileName = getSelectedTemplateFile().getName();
@@ -522,14 +662,12 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 			processingFile = new File(existingFileText.getText().trim());
 		}
 
-		((ClusterProcessingModelWrapper) processingModelWrapper).setName(processingFile.getName());
-		ClusterProcessingModel processingModel = processingModelWrapper.getModel();
-		processingModel.setName(processingFile.getName());
-		processingModel.setProcessingFilePath(processingFile.getAbsolutePath());
-		processingModel.setDetectorName(malcolmDetectorDatasetName.orElse(acquireDetectorModel.getName()));
-		if (acquireDetectorModel instanceof IMalcolmModel) {
-			processingModel.setMalcolmDeviceName(acquireDetectorModel.getName());
-		}
+		configWrapper.setAppName(DawnConfigBean.getAppname());
+		configWrapper.setName(processingFile.getName());
+		configWrapper.setPathToConfig(getNewConfigFile(processingFile).getAbsolutePath());
+		processingConfig.setProcessingFile(processingFile.getAbsolutePath());
+		processingConfig.setDetectorName(malcolmDetectorDatasetName.orElse(acquireDetectorModel.getName()));
+
 	}
 
 	/**
@@ -594,17 +732,8 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 	private boolean useExisting = false;
 
-	/**
-	 * Returns <code>true</code> if an existing processing file is to be used,
-	 * <code>false</code> to create a new processing file from a template.
-	 * @return whether to use an existing processing file
-	 */
-	protected boolean useExisting() {
-		if (useExistingButton != null && !useExistingButton.isDisposed()) {
-			return useExistingButton.getSelection();
-		}
-
-		return useExisting;
+	protected ProcessingMode selectedMode() {
+		return mode;
 	}
 
 	@Override
