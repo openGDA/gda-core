@@ -22,8 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-import gda.epics.interfaces.NDPluginBaseType;
-import gda.factory.FactoryException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_Enum;
@@ -32,7 +30,7 @@ import gov.aps.jca.event.MonitorListener;
 import uk.ac.gda.epics.client.views.model.impl.EPICSBaseModel;
 import uk.ac.gda.epics.dxp.client.views.StatusViewController;
 
-public class DXPModel extends EPICSBaseModel<Object> implements InitializingBean, IDXPModel {
+public class DXPModel extends EPICSBaseModel implements InitializingBean, IDXPModel {
 	private static final Logger logger = LoggerFactory.getLogger(DXPModel.class);
 
 	private StatusViewController statusViewController;
@@ -120,16 +118,6 @@ public class DXPModel extends EPICSBaseModel<Object> implements InitializingBean
 	@Override
 	public void doCheckAfterPropertiesSet() throws Exception {
 		// nothing to do
-	}
-
-	@Override
-	protected NDPluginBaseType getPluginBaseTypeConfig() throws FactoryException {
-		throw new FactoryException("No base plugin for ADBase");
-	}
-
-	@Override
-	protected Class<Object> getConfigClassType() {
-		return Object.class;
 	}
 
 	@Override
