@@ -246,7 +246,7 @@ public class TransferFunctionView extends HistogramView implements Overlay1DCons
 	{
 		IDataset histogram = histograms.get(0);
 		xAxis.clear();
-		xAxis.setValues(DatasetFactory.createRange(histogram.getSize(), Dataset.FLOAT64));
+		xAxis.setValues(DatasetFactory.createRange(histogram.getSize()));
 		histogramPlotter.clearZoomHistory();
 		histogramPlotter.setXAxisValues(xAxis, 1);
 		updateChannelGraphs();
@@ -264,7 +264,7 @@ public class TransferFunctionView extends HistogramView implements Overlay1DCons
 		histograms.clear();
 		Dataset newHisto = data.getSlice(new int[]{startPos},new int[]{endPos}, new int[]{1});
 		xAxis.clear();
-		xAxis.setValues(DatasetFactory.createRange(newHisto.getSize(), Dataset.ARRAYFLOAT64));
+		xAxis.setValues(DatasetFactory.createRange(newHisto.getSize()));
 		histograms.add(newHisto);
 		histogramPlotter.setXAxisValues(xAxis,1);
 

@@ -50,6 +50,7 @@ import org.eclipse.dawnsci.plotting.api.trace.PaletteEvent;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.IntegerDataset;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
@@ -460,14 +461,14 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 			final IDataset displayData = newData.getSlice(startPos, endPos, step);
 			if (inXAxis == null || inXAxis.size() == 0)
 			{
-				xAxis.setValues(DatasetFactory.createRange(0, xSize, xSamplingRate, Dataset.INT32));
+				xAxis.setValues(DatasetFactory.createRange(IntegerDataset.class, 0, xSize, xSamplingRate));
 				inXAxis = xAxis;
 			} else {
 				xAxis.setValues(inXAxis.subset(0, xSize, xSamplingRate).toDataset());
 			}
 			if (inYAxis == null || inYAxis.size() == 0)
 			{
-				yAxis.setValues(DatasetFactory.createRange(0, ySize, ySamplingRate, Dataset.INT32));
+				yAxis.setValues(DatasetFactory.createRange(IntegerDataset.class, 0, ySize, ySamplingRate));
 				inYAxis = yAxis;
 			} else {
 				yAxis.setValues(inYAxis.subset(0, ySize, ySamplingRate).toDataset());

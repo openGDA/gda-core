@@ -43,6 +43,7 @@ import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.IntegerDataset;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridLayout;
@@ -330,7 +331,7 @@ public class DiffractionViewerSpotFit extends Composite implements Overlay1DCons
 		if (currentDataSet == null || currentDataSet.getSize() < 1)
 			return null;
 		length = currentDataSet.getSize();
-		return Generic1DFitter.findPeaks(DatasetFactory.createRange(length, Dataset.INT), currentDataSet, (int) (length *0.1));
+		return Generic1DFitter.findPeaks(DatasetFactory.createRange(IntegerDataset.class, length), currentDataSet, (int) (length *0.1));
 
 	}
 
