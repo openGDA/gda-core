@@ -29,7 +29,6 @@ public class V17NDFileHDF5FactoryBean extends V17FactoryBeanBase<NDFileHDF5>{
 	private NDFileImpl ndFileImpl;
 	private String initialCompression = null;
 	private Integer initialZCompressLevel = null;
-	private String basePVName;
 
 	public NDFileImpl getNdFileImpl() {
 		return ndFileImpl;
@@ -59,7 +58,7 @@ public class V17NDFileHDF5FactoryBean extends V17FactoryBeanBase<NDFileHDF5>{
 	public void afterPropertiesSet() throws Exception {
 		NDFileHDF5Impl plugin = new NDFileHDF5Impl();
 		plugin.setFile(ndFileImpl);
-		plugin.setBasePVName(getBasePVName());
+		plugin.setBasePVName(ndFileImpl.getBasePVName());
 		plugin.afterPropertiesSet();
 		if (initialCompression != null) {
 			plugin.setInitialCompression(initialCompression);
@@ -83,14 +82,6 @@ public class V17NDFileHDF5FactoryBean extends V17FactoryBeanBase<NDFileHDF5>{
 	@Override
 	public NDFileHDF5 getObject() throws Exception {
 		return bean;
-	}
-
-	public String getBasePVName() {
-		return basePVName;
-	}
-
-	public void setBasePVName(String basePVName) {
-		this.basePVName = basePVName;
 	}
 
 }
