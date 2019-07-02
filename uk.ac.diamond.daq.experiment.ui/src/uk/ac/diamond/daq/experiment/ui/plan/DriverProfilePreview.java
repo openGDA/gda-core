@@ -56,6 +56,7 @@ public class DriverProfilePreview {
 		plottingSystem.clearAnnotations();
 		plottingSystem.setTitle("");
 		plottingSystem.setShowLegend(false);
+		
 	}
 	
 
