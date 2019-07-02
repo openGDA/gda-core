@@ -306,8 +306,14 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 				processingRequest = bean.getScanRequest().getProcessingRequest().getRequest();
 			}
 
+			final IFilePathService fservice = Services.getFilePathService();
+			String visitDir = null;
+			if (fservice != null) {
+				visitDir = fservice.getVisitDir();
+			}
+
 			// Build the message object
-			final ScanMessage message = new ScanMessage(status, bean.getFilePath(), true, // SWMR is always active once the scan starts
+			final ScanMessage message = new ScanMessage(status, bean.getFilePath(), visitDir, true, // SWMR is always active once the scan starts
 					bean.getScanNumber(), scanShape,
 					scanModel.getScannables().stream().map(IScannable::getName).collect(toList()),
 					scanModel.getDetectors().stream().map(IRunnableDevice::getName).collect(toList()),

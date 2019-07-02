@@ -64,6 +64,7 @@ import org.eclipse.scanning.api.malcolm.event.MalcolmEvent.MalcolmEventType;
 import org.eclipse.scanning.api.malcolm.event.MalcolmStepsCompletedEvent;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanInformation;
@@ -884,8 +885,14 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 				processingRequest = scanBean.getScanRequest().getProcessingRequest().getRequest();
 			}
 
+			final IFilePathService fservice = ServiceHolder.getFilePathService();
+			String visitDir = null;
+			if (fservice != null) {
+				visitDir = fservice.getVisitDir();
+			}
+
 			// Build the message object
-			ScanMessage message = new ScanMessage(status, scanBean.getFilePath(), true, // SWMR is always active once the
+			ScanMessage message = new ScanMessage(status, scanBean.getFilePath(), visitDir, true, // SWMR is always active once the
 																					// scan starts
 					scanBean.getScanNumber(), scanShape,
 					scanModel.getScannables().stream().map(IScannable::getName).collect(toList()),

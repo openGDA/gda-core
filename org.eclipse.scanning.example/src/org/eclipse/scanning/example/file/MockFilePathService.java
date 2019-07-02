@@ -12,8 +12,6 @@
 package org.eclipse.scanning.example.file;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 
 import org.eclipse.scanning.api.scan.IFilePathService;
 
@@ -98,6 +96,11 @@ public class MockFilePathService implements IFilePathService {
 	public String getMostRecentPath() throws IllegalStateException {
 		if (mostRecentPath == null) throw new IllegalStateException("Must call getNextPath() first");
 		return mostRecentPath;
+	}
+
+	@Override
+	public String getVisitDir() {
+		return dir.toString();
 	}
 
 	@Override

@@ -73,6 +73,13 @@ public interface IFilePathService {
 	String getMostRecentPath() throws IllegalStateException;
 
 	/**
+	 * Returns the full path to the visit directory
+	 *
+	 * @return full path to the visit directory
+	 */
+	String getVisitDir();
+
+	/**
 	 * Returns the location of the directory to use for temporary files for the current visit.
 	 * In GDA this is mapped to the {@code tmp} subdirectory of the current visit directory, the
 	 * contents of which are deleted every 2 days.
