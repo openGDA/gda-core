@@ -118,6 +118,11 @@ public class FilePathService implements IFilePathService {
 	}
 
 	@Override
+	public String getVisitDir() {
+		return PathConstructor.getVisitDirectory();
+	}
+
+	@Override
 	public String getTempDir() {
 		// Get the current visit directory and append /tmp.
 		return PathConstructor.getVisitSubdirectory(VISIT_TEMP_DIR_NAME);

@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
+import gda.data.PathConstructor;
 import gda.data.scan.datawriter.DataWriter;
 import gda.data.scan.datawriter.DefaultDataWriterFactory;
 import gda.data.scan.datawriter.NexusDataWriter;
@@ -679,9 +680,20 @@ public abstract class ScanBase implements NestableScan {
 		}
 		final ScanInformation info = getScanInformation();
 
+		//In some cases (unit tests) the visit directory may not be set,
+		//this field is not critical in the scan message so we should not fail on it
+		String visit = null;
+
+		try {
+			visit = PathConstructor.getVisitDirectory();
+		} catch (IllegalArgumentException e) {
+			logger.warn("Visit directory not accessible from PathConstructor");
+		}
+
 		// Build the message object
 		ScanMessage message = new ScanMessage(status,
 				info.getFilename(),
+				visit,
 				isSwmrActive(),
 				info.getScanNumber(),
 				info.getDimensions(),

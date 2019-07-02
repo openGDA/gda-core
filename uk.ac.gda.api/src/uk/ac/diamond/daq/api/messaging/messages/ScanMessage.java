@@ -47,6 +47,7 @@ public class ScanMessage implements Message {
 
 	private final ScanStatus status;
 	private final String filePath;
+	private final String visitDirectory;
 	private final boolean swmrActive;
 	private final int scanNumber;
 	private final int[] scanDimensions;
@@ -57,6 +58,7 @@ public class ScanMessage implements Message {
 
 	public ScanMessage(ScanStatus status,
 			String filePath,
+			String visitDirectory,
 			boolean swmrActive,
 			int scanNumber,
 			int[] scanDimensions,
@@ -67,6 +69,7 @@ public class ScanMessage implements Message {
 
 		this.status = status;
 		this.filePath = filePath;
+		this.visitDirectory = visitDirectory;
 		this.swmrActive = swmrActive;
 		this.scanNumber = scanNumber;
 		this.scanDimensions = scanDimensions;
@@ -82,6 +85,10 @@ public class ScanMessage implements Message {
 
 	public String getFilePath() {
 		return filePath;
+	}
+
+	public String getVisitDirectory() {
+		return visitDirectory;
 	}
 
 	public boolean isSwmrActive() {

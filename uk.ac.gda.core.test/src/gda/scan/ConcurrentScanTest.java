@@ -242,6 +242,7 @@ public class ConcurrentScanTest {
 	protected void setLocalProperties() {
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "DummyDataWriter");
 		LocalProperties.set(LocalProperties.GDA_SCAN_CONCURRENTSCAN_READOUT_CONCURRENTLY, "false"); // default as interpreted by ConcurrentScan
+		LocalProperties.set(LocalProperties.GDA_VISIT_DIR, "/scratch/test/"); //should just be used for messaging
 	}
 
 	protected void verifyBigScanAtScanStart(InOrder inOrder) throws DeviceException {
