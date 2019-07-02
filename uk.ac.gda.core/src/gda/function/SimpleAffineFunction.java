@@ -1,6 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
- * Facilities Council Daresbury Laboratory
+ * Copyright © 2019 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -20,34 +19,37 @@
 package gda.function;
 
 import javax.measure.quantity.Quantity;
+import javax.measure.unit.Unit;
 
 import org.jscience.physics.amount.Amount;
 
-import gda.util.QuantityFactory;
+/** A linear function that assumes the calculated amount uses the same units as the original */
+public class SimpleAffineFunction extends FindableFunction {
 
-/**
- * Similar to the IdentityFunction, but holds an offset.
- */
-public class OffsetFunction extends FindableFunction {
-
-	private double offset = 0.0;
-
-	@Override
-	public Amount<? extends Quantity> apply(Amount<? extends Quantity> value) {
-		return value.plus(QuantityFactory.createFromObject(offset, value.getUnit()));
-	}
+	private double scaler = 1;
+	private double offset = 0;
 
 	/**
-	 * @return Returns the offset.
+	 * Calculate scaler * amount + offset
 	 */
+	@Override
+	public Amount<? extends Quantity> apply(Amount<? extends Quantity> amount) {
+		Unit<? extends Quantity> unit = amount.getUnit();
+		return amount.times(scaler).plus(Amount.valueOf(offset, unit));
+	}
+
+	public double getScaler() {
+		return scaler;
+	}
+
+	public void setScaler(double scaler) {
+		this.scaler = scaler;
+	}
+
 	public double getOffset() {
 		return offset;
 	}
 
-	/**
-	 * @param offset
-	 *            The offset to set.
-	 */
 	public void setOffset(double offset) {
 		this.offset = offset;
 	}
