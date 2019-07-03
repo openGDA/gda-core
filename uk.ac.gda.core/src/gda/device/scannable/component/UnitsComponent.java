@@ -24,7 +24,8 @@ import static gda.jscience.physics.units.NonSIext.ANGSTROM_SYMBOL;
 import static gda.jscience.physics.units.NonSIext.ANGSTROM_SYMBOL_ALTERNATIVE;
 import static gda.jscience.physics.units.NonSIext.ANG_STRING;
 import static gda.jscience.physics.units.NonSIext.CENTIGRADE_STRING;
-import static gda.jscience.physics.units.NonSIext.COUNT;
+import static gda.jscience.physics.units.NonSIext.COUNTS;
+import static gda.jscience.physics.units.NonSIext.COUNTS_STRING;
 import static gda.jscience.physics.units.NonSIext.COUNT_STRING;
 import static gda.jscience.physics.units.NonSIext.DEGREES_ANGLE_STRING;
 import static gda.jscience.physics.units.NonSIext.DEG_ANGLE;
@@ -32,7 +33,8 @@ import static gda.jscience.physics.units.NonSIext.DEG_ANGLE_LOWERCASE_STRING;
 import static gda.jscience.physics.units.NonSIext.DEG_ANGLE_STRING;
 import static gda.jscience.physics.units.NonSIext.DEG_ANGLE_SYMBOL;
 import static gda.jscience.physics.units.NonSIext.GIGAELECTRONVOLT_STRING;
-import static gda.jscience.physics.units.NonSIext.KILOCOUNT;
+import static gda.jscience.physics.units.NonSIext.KILOCOUNTS;
+import static gda.jscience.physics.units.NonSIext.KILOCOUNTS_STRING;
 import static gda.jscience.physics.units.NonSIext.KILOCOUNT_STRING;
 import static gda.jscience.physics.units.NonSIext.KILOELECTRONVOLT_STRING;
 import static gda.jscience.physics.units.NonSIext.MICROAMPERE_MU_STRING;
@@ -139,8 +141,8 @@ public class UnitsComponent implements PositionConvertor {
 	 */
 	private static final Map<Unit<? extends Quantity>, String> unitStrings = ImmutableMap.of(
 			DEG_ANGLE, DEG_ANGLE_LOWERCASE_STRING,
-			COUNT, COUNT_STRING,
-			KILOCOUNT, KILOCOUNT_STRING);
+			COUNTS, COUNTS_STRING,
+			KILOCOUNTS, KILOCOUNTS_STRING);
 
 	/**
 	 * Constructor. Sets the hardware and user unit to the dimensionless ONE.
@@ -351,7 +353,9 @@ public class UnitsComponent implements PositionConvertor {
 		// Count
 		else if (unit.isCompatible(Count.UNIT)) {
 			unitList.add(COUNT_STRING);
+			unitList.add(COUNTS_STRING);
 			unitList.add(KILOCOUNT_STRING);
+			unitList.add(KILOCOUNTS_STRING);
 		}
 
 		// also want energy here

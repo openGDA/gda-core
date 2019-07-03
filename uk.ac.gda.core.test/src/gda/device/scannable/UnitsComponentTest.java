@@ -69,7 +69,7 @@ public class UnitsComponentTest {
 	private static final List<String> TEMPERATURE_UNITS = Arrays.asList("centigrade", "K");
 	private static final List<String> FORCE_UNITS = Arrays.asList("N");
 	private static final List<String> ELECTRICAL_POTENTIAL_UNITS = Arrays.asList("V");
-	private static final List<String> COUNT_UNITS = Arrays.asList("cts", "kcts");
+	private static final List<String> COUNT_UNITS = Arrays.asList("ct", "cts", "kct", "kcts");
 	private static final List<String> ENERGY_UNITS = Arrays.asList("keV", "eV", "GeV");
 	private static final List<String> DIMENSIONLESS_UNITS = Arrays.asList(Unit.ONE.toString());
 	private static final List<String> ELECTRIC_CURRENT_UNITS = Arrays.asList("A", "\u00b5A", "\u03bcA", "uA", "mA");
@@ -396,8 +396,14 @@ public class UnitsComponentTest {
 		uc.setHardwareUnitString("°");
 		assertEquals("deg", uc.getHardwareUnitString());
 
+		uc.setHardwareUnitString("ct");
+		assertEquals("cts", uc.getHardwareUnitString());
+
 		uc.setHardwareUnitString("cts");
 		assertEquals("cts", uc.getHardwareUnitString());
+
+		uc.setHardwareUnitString("kct");
+		assertEquals("kcts", uc.getHardwareUnitString());
 
 		uc.setHardwareUnitString("kcts");
 		assertEquals("kcts", uc.getHardwareUnitString());

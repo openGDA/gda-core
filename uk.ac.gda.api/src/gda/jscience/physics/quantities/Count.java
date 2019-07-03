@@ -30,7 +30,7 @@ public class Count implements Quantity {
 	/**
      * Holds the associated unit.
      */
-	public static final Unit<Count> UNIT = NonSIext.COUNT;
+	public static final Unit<Count> UNIT = NonSIext.COUNTS;
 
 	/**
 	 * Represents a {@link Count} amounting to nothing.

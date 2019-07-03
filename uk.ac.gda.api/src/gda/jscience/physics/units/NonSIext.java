@@ -91,8 +91,10 @@ public final class NonSIext {
 	public static final String MICROAMPERE_U_STRING = "uA";
 	public static final String MICROAMPERE_MU_STRING = "\u03bcA";
 
-	public static final String COUNT_STRING = "cts";
-	public static final String KILOCOUNT_STRING = "kcts";
+	public static final String COUNT_STRING = "ct";
+	public static final String COUNTS_STRING = "cts";
+	public static final String KILOCOUNT_STRING = "kct";
+	public static final String KILOCOUNTS_STRING = "kcts";
 
 	/**
 	 * A unit of angle equal to <code>1/360</code> REVOLUTION (standard name <code>°</code>, alternative name defined
@@ -180,10 +182,10 @@ public final class NonSIext {
 	public static final Unit<ElectricCurrent> MICRO_AMPERE;
 
 	/** A unit of counts or motor steps. */
-	public static final Unit<Count> COUNT;
+	public static final Unit<Count> COUNTS;
 
 	/** A unit of counts or motor steps. */
-	public static final Unit<Count> KILOCOUNT;
+	public static final Unit<Count> KILOCOUNTS;
 
 	/** Static initialiser: see explanation at top of class */
 	static {
@@ -233,7 +235,9 @@ public final class NonSIext {
 		unitFormat.alias(SI.AMPERE.times(1e-6), MICROAMPERE_STRING);
 
 		unitFormat.alias(SI.METER.inverse(), COUNT_STRING);
+		unitFormat.alias(SI.METER.inverse(), COUNTS_STRING);
 		unitFormat.alias(SI.METER.inverse().times(1e3), KILOCOUNT_STRING);
+		unitFormat.alias(SI.METER.inverse().times(1e3), KILOCOUNTS_STRING);
 
 		DEG_ANGLE = (Unit<Angle>) Unit.valueOf(DEG_ANGLE_STRING);
 		DEG_ANGLE_LOWERCASE = (Unit<Angle>) Unit.valueOf(DEG_ANGLE_LOWERCASE_STRING);
@@ -269,8 +273,8 @@ public final class NonSIext {
 		MICRO_AMPERE_U = (Unit<ElectricCurrent>) Unit.valueOf(MICROAMPERE_U_STRING);
 		MICRO_AMPERE = (Unit<ElectricCurrent>) Unit.valueOf(MICROAMPERE_STRING);
 
-		COUNT = (Unit<Count>) Unit.valueOf(COUNT_STRING);
-		KILOCOUNT = (Unit<Count>) Unit.valueOf(KILOCOUNT_STRING);
+		COUNTS = (Unit<Count>) Unit.valueOf(COUNTS_STRING);
+		KILOCOUNTS = (Unit<Count>) Unit.valueOf(KILOCOUNTS_STRING);
 }
 
 	/** Default constructor (prevents this class from being instantiated). */
