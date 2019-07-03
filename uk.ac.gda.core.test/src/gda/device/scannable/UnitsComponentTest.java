@@ -49,7 +49,7 @@ import gda.device.DeviceException;
 import gda.device.scannable.component.UnitsComponent;
 
 /**
- * Note: this is largely tested through ScannableMotionUnitsBaseTeast
+ * Note: the tests in {@link ScannableMotionUnitsBaseTest} also test this class indirectly
  */
 public class UnitsComponentTest {
 	private UnitsComponent uc;
@@ -76,6 +76,7 @@ public class UnitsComponentTest {
 	private static final List<String> DURATION_UNITS = Arrays.asList("s", "ms");
 	private static final List<String> VOLUME_UNITS = Arrays.asList("L", "m³");
 	private static final List<String> VOLUMETRIC_DENSITY_UNITS = Arrays.asList("mg/mL");
+	private static final List<String> PRESSURE_UNITS = Arrays.asList("Pa", "mPa", "kPa", "MPa");
 
 	@BeforeClass
 	public static void setUpClass() {
@@ -91,6 +92,7 @@ public class UnitsComponentTest {
 		Collections.sort(DURATION_UNITS);
 		Collections.sort(VOLUME_UNITS);
 		Collections.sort(VOLUMETRIC_DENSITY_UNITS);
+		Collections.sort(PRESSURE_UNITS);
 	}
 
 	@Before
@@ -277,6 +279,13 @@ public class UnitsComponentTest {
 	public void testGetAcceptableUnitsVolumetricDensity() throws DeviceException {
 		for (String unit : VOLUMETRIC_DENSITY_UNITS) {
 			testGetAcceptableUnits(unit, VOLUMETRIC_DENSITY_UNITS);
+		}
+	}
+
+	@Test
+	public void testGetAcceptableUnitsPressure() throws DeviceException {
+		for (String unit : PRESSURE_UNITS) {
+			testGetAcceptableUnits(unit, PRESSURE_UNITS);
 		}
 	}
 

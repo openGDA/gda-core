@@ -58,12 +58,15 @@ import static javax.measure.unit.NonSI.LITER;
 import static javax.measure.unit.SI.AMPERE;
 import static javax.measure.unit.SI.CUBIC_METRE;
 import static javax.measure.unit.SI.KELVIN;
+import static javax.measure.unit.SI.KILO;
 import static javax.measure.unit.SI.KILOGRAM;
+import static javax.measure.unit.SI.MEGA;
 import static javax.measure.unit.SI.METER;
 import static javax.measure.unit.SI.MICRO;
 import static javax.measure.unit.SI.MILLI;
 import static javax.measure.unit.SI.NANO;
 import static javax.measure.unit.SI.NEWTON;
+import static javax.measure.unit.SI.PASCAL;
 import static javax.measure.unit.SI.RADIAN;
 import static javax.measure.unit.SI.SECOND;
 import static javax.measure.unit.SI.VOLT;
@@ -81,6 +84,7 @@ import javax.measure.quantity.ElectricPotential;
 import javax.measure.quantity.Energy;
 import javax.measure.quantity.Force;
 import javax.measure.quantity.Length;
+import javax.measure.quantity.Pressure;
 import javax.measure.quantity.Quantity;
 import javax.measure.quantity.Temperature;
 import javax.measure.quantity.Volume;
@@ -378,6 +382,13 @@ public class UnitsComponent implements PositionConvertor {
 		else if (unit.isCompatible(VolumetricDensity.UNIT)) {
 			// mg/mL
 			unitList.add(MICRO(KILOGRAM).divide(MILLI(LITER)).toString());
+		}
+
+		else if (unit.isCompatible(Pressure.UNIT)) {
+			unitList.add(PASCAL.toString());
+			unitList.add(MILLI(PASCAL).toString());
+			unitList.add(KILO(PASCAL).toString());
+			unitList.add(MEGA(PASCAL).toString());
 		}
 
 		else {
