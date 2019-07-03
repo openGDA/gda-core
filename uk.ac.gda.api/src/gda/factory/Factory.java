@@ -79,15 +79,6 @@ public interface Factory extends Configurable {
 	 */
 	public <T extends Findable> Map<String, T> getFindablesOfType(Class<T> clazz);
 
-
-	/**
-	 * Indicates whether this factory contains objects that should be made
-	 * remotely accessible.
-	 *
-	 * @return whether objects in this factory should be remotely accessible
-	 */
-	public boolean containsExportableObjects();
-
 	/**
 	 * Indicates whether this factory contains objects that have been
 	 * instantiated locally.

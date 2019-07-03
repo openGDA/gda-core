@@ -90,11 +90,6 @@ public class SpringApplicationContextBasedObjectFactory extends FactoryBase {
 	}
 
 	@Override
-	public boolean containsExportableObjects() {
-		return true;
-	}
-
-	@Override
 	public boolean isLocal() {
 		return true;
 	}

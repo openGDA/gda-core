@@ -269,13 +269,6 @@ public class RmiProxyFactoryTest {
 	}
 
 	@Test
-	public void testContainsExportableObjectsReturnsFalse() throws Exception {
-		assertThat(rmiProxyFactory.containsExportableObjects(), is(equalTo(false)));
-
-		verifyNoMoreInteractions(mockRemoteObjectProvider);
-	}
-
-	@Test
 	public void testIsLocalReturnsFalse() throws Exception {
 		assertThat(rmiProxyFactory.isLocal(), is(equalTo(false)));
 
