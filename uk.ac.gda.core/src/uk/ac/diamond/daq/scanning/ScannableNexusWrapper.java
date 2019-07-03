@@ -498,6 +498,11 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		for (int i = 0; i < outputFieldNames.size(); i++) {
 			final String inputFieldName = inputFieldNames.get(i);
 			final String outputFieldName = outputFieldNames.get(i);
+			if (i >= positionArray.length) {
+				logger.warn("Field {} from scannable '{}' ({}/{}) missing from positionArray {}",
+						i, getScannable().getName(), inputFieldName, outputFieldName, positionArray);
+				continue;
+			}
 			final Object value = positionArray[i];
 			if (nexusRole == NexusRole.PER_SCAN) {
 				// simply set the field to the current value
@@ -565,6 +570,10 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		try {
 			if (position==null) position = getScannable().getPosition();
 
+			if (position instanceof List) {
+				final List positionList = (List)position;
+				return positionList.toArray();
+			}
 			if (!position.getClass().isArray()) {
 				// position is not an array (i.e. is a double) return array with position as single element
 				return new Object[] { position };
@@ -765,6 +774,6 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 
 	@Override
 	public String toString() {
-		return "ScannableNexusWrapper [scannable=" + scannable + "]";
+		return "ScannableNexusWrapper [scannable=" + getScannable() + "]";
 	}
 }
