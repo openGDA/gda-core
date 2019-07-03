@@ -109,28 +109,14 @@ public abstract class ObjectServer {
 	 *
 	 * @param xmlFile
 	 *            fully qualified fileName to specifying in XML the objects to be created.
-	 * @param mappingFile
-	 *            the mapping file
 	 * @return the instance of the object server.
 	 * @throws FactoryException
 	 */
-	public static ObjectServer createServerImpl(String xmlFile, String mappingFile) throws FactoryException {
-		ObjectServer objectServer = createObjectServer(xmlFile, mappingFile, true, false);
+	public static ObjectServer createServerImpl(String xmlFile) throws FactoryException {
+		ObjectServer objectServer = createObjectServer(xmlFile, true, false);
 		objectServer.configure();
 		logger.info("Server initialisation complete. xmlFile = {}", xmlFile);
 		return objectServer;
-	}
-
-	/**
-	 * Convenience method for constructing server side objects using the specified XML file.
-	 *
-	 * @param xmlFile
-	 *            the XML configuration file
-	 * @return the object server
-	 * @throws FactoryException
-	 */
-	public static ObjectServer createServerImpl(String xmlFile) throws FactoryException {
-		return ObjectServer.createServerImpl(xmlFile, null);
 	}
 
 	/**
@@ -165,7 +151,7 @@ public abstract class ObjectServer {
 			throw new IllegalArgumentException(String.format(msg, LocalProperties.GDA_GUI_XML));
 		}
 
-		ObjectServer objectServer = createObjectServer(xmlFile, null, false, isLocal());
+		ObjectServer objectServer = createObjectServer(xmlFile, false, isLocal());
 		objectServer.configure();
 		logger.info("Client initialisation complete");
 		return objectServer;
@@ -180,14 +166,13 @@ public abstract class ObjectServer {
 	 * @throws FactoryException
 	 */
 	public static ObjectServer createLocalImpl(String xmlFile) throws FactoryException {
-		ObjectServer objectServer = createObjectServer(xmlFile, null, false, true);
+		ObjectServer objectServer = createObjectServer(xmlFile, false, true);
 		objectServer.configure();
 		logger.info("Local Objects initialisation complete");
 		return objectServer;
 	}
 
-	@SuppressWarnings("unused")
-	private static ObjectServer createObjectServer(String xmlFile, String mappingFile, boolean serverSide, boolean localObjectsOnly) throws FactoryException {
+	private static ObjectServer createObjectServer(String xmlFile, boolean serverSide, boolean localObjectsOnly) throws FactoryException {
 		File file = getAbsoluteFilePath(xmlFile);
 		logger.info("Starting ObjectServer using file {}", xmlFile);
 
@@ -299,7 +284,7 @@ public abstract class ObjectServer {
 	}
 
 	/**
-	 * Parse command-line arguments; may alter the xmlFile and/or mappingFile options.
+	 * Parse command-line arguments; may alter the xmlFile and/or profileName options.
 	 *
 	 * @param args
 	 *            command-line arguments
@@ -310,8 +295,6 @@ public abstract class ObjectServer {
 		while (argno < argc) {
 			if (args[argno].equals("-f") && (argno + 1 < argc)) {
 				commandLineXmlFile = args[++argno];
-			} else if (args[argno].equals("-m") && (argno + 1 < argc)) {
-				commandLineMappingFile = args[++argno];
 			} else if (args[argno].equals("-h") || args[argno].equals("--help")) {
 				usage();
 			} else if (args[argno].equals("-p") && (argno + 1 < argc)) {
@@ -329,7 +312,6 @@ public abstract class ObjectServer {
 		logger.debug("Usage: ObjectServer [options]");
 		logger.debug("Options:");
 		logger.debug("-f <xml filename>");
-		logger.debug("-m <mapping filename>");
 		logger.debug("-p <profile name>");
 		logger.debug("-h, --help  Display this help message.");
 		System.exit(0);
@@ -345,8 +327,6 @@ public abstract class ObjectServer {
 	}
 
 	private static String commandLineXmlFile;
-
-	private static String commandLineMappingFile;
 
 	private static String profileName;
 
@@ -398,7 +378,7 @@ public abstract class ObjectServer {
 			}
 			oos = null;
 
-			server = createServerImpl(commandLineXmlFile, commandLineMappingFile);
+			server = createServerImpl(commandLineXmlFile);
 
 		} catch (Exception e) {
 			final String msg = "Unable to start ObjectServer";
