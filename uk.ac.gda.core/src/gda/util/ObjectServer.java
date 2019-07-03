@@ -44,7 +44,7 @@ import gda.util.logging.LogbackUtils;
 /**
  * A utility class which creates objects for local or remote access.
  */
-public abstract class ObjectServer implements Runnable {
+public abstract class ObjectServer {
 
 	/**
 	 * The java property which defines where 'initialisation complete' files are to be stored.
@@ -296,23 +296,6 @@ public abstract class ObjectServer implements Runnable {
 			}
 		}
 		return objectNames;
-	}
-
-	/**
-	 * Starts a new thread that runs this {@code ObjectServer} instance. The
-	 * thread continues to run until the ORB shuts down.
-	 */
-	protected void startOrbRunThread() {
-		Thread t = new Thread(this, getClass().getName());
-		t.start();
-	}
-
-	/**
-	 * Initiates the server loop for remote objects. This method never returns.
-	 */
-	@Override
-	public void run() {
-		// FIXME what to do here?
 	}
 
 	/**
