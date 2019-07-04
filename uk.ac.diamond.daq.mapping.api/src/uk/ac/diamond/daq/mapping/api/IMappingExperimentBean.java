@@ -133,4 +133,14 @@ public interface IMappingExperimentBean {
 
 	Map<String,Object> getProcessingRequest();
 
+	/**
+	 * Returns the file paths of NeXus template files to be applied to the NeXus file produced
+	 * by the mapping scan defined by this bean. Note that this can be <code>null</code>.
+	 *
+	 * @return the template file paths, or <code>null</code>
+	 */
+	List<String> getTemplateFilePaths();
+
+	void setTemplateFilePaths(List<String> templateFilePaths);
+
 }

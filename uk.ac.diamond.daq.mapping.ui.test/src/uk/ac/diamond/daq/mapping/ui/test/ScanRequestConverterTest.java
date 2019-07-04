@@ -526,6 +526,26 @@ public class ScanRequestConverterTest {
 	}
 
 	@Test
+	public void testTemplateFilesAdded() throws Exception {
+		// Arrange
+		final String[] templateFilePaths = { "first.yaml", "second.yaml" };
+		mappingBean.setTemplateFilePaths(Arrays.asList(templateFilePaths));
+
+		// Act
+		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+
+		// Assert
+		assertThat(scanRequest.getTemplateFilePaths(), contains(templateFilePaths));
+
+		// Arrange again - to convert back to mapping bean
+		mappingBean.setTemplateFilePaths(null);
+		assertThat(mappingBean.getTemplateFilePaths(), is(nullValue()));
+
+		scanRequestConverter.mergeIntoMappingBean(scanRequest, mappingBean);
+		assertThat(mappingBean.getTemplateFilePaths(), contains(templateFilePaths));
+	}
+
+	@Test
 	public void testMonitorNameSetCorrectly() throws Exception {
 		// Arrange
 		final Set<String> perPointMonitorNames = mappingBean.getPerPointMonitorNames();

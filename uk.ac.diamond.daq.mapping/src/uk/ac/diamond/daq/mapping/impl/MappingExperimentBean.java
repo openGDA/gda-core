@@ -30,6 +30,7 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	private Set<String> perPointMonitorNames = null;
 	private MappingStageInfo stageInfoSnapshot;
 	private List<ConfigWrapper> processingConfigs;
+	private List<String> templateFilePaths;
 
 	public MappingExperimentBean() {
 		sampleMetadata = new SimpleSampleMetadata();
@@ -136,6 +137,16 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	}
 
 	@Override
+	public List<String> getTemplateFilePaths() {
+		return templateFilePaths;
+	}
+
+	@Override
+	public void setTemplateFilePaths(List<String> templateFilePaths) {
+		this.templateFilePaths = templateFilePaths;
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -148,6 +159,7 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 		result = prime * result + ((sampleMetadata == null) ? 0 : sampleMetadata.hashCode());
 		result = prime * result + ((scanDefinition == null) ? 0 : scanDefinition.hashCode());
 		result = prime * result + ((scriptFiles == null) ? 0 : scriptFiles.hashCode());
+		result = prime * result + ((templateFilePaths == null) ? 0 : templateFilePaths.hashCode());
 		result = prime * result + ((stageInfoSnapshot == null) ? 0 : stageInfoSnapshot.hashCode());
 		return result;
 	}
@@ -220,6 +232,13 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 		} else if (!scriptFiles.equals(other.scriptFiles)) {
 			return false;
 		}
+		if (templateFilePaths == null) {
+			if (other.templateFilePaths != null) {
+				return false;
+			}
+		} else if (!templateFilePaths.equals(other.templateFilePaths)) {
+			return false;
+		}
 		if (stageInfoSnapshot == null) {
 			if (other.stageInfoSnapshot != null) {
 				return false;
@@ -235,8 +254,8 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 		return "MappingExperimentBean [sampleMetadata=" + sampleMetadata + ", detectorParameters=" + detectorParameters
 				+ ", clusterProcessingConfiguration=" + clusterProcessingConfiguration + ", beamlineConfiguration="
 				+ beamlineConfiguration + ", scanDefinition=" + scanDefinition + ", scriptFiles=" + scriptFiles
-				+ ", perScanMonitorNames=" + perScanMonitorNames + ", perPointMonitorNames=" + perPointMonitorNames
-				+ "]";
+				+ ", templateFilePaths=" + templateFilePaths + ", perScanMonitorNames=" + perScanMonitorNames +
+				", perPointMonitorNames=" + perPointMonitorNames + "]";
 	}
 
 	@Override

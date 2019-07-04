@@ -18,6 +18,7 @@
 				<bean class="uk.ac.diamond.daq.mapping.ui.experiment.RegionAndPathSection" />
 				<bean class="uk.ac.diamond.daq.mapping.ui.experiment.ScanMetadataSection" />
 				<bean class="uk.ac.diamond.daq.mapping.ui.experiment.ProcessingSection" />
+				<bean class="uk.ac.diamond.daq.mapping.ui.experiment.NexusTemplatesSection" />
 			</list>
 		</property>
 		<property name="unscrolledSections">

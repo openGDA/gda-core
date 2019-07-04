@@ -180,6 +180,18 @@ public class ScanRequestConverter {
 		r.setRequest(processingRequest);
 		scanRequest.setProcessingRequest(r);
 
+		// Add template files
+		List<String> templateFilePaths = mappingBean.getTemplateFilePaths();
+		if (templateFilePaths != null && !templateFilePaths.isEmpty()) {
+			Set<String> existingTemplateFilePaths = scanRequest.getTemplateFilePaths();
+			final Set<String> allTemplateFilePaths = new TreeSet<>();
+			Optional.ofNullable(existingTemplateFilePaths).ifPresent(allTemplateFilePaths::addAll);
+			allTemplateFilePaths.addAll(templateFilePaths);
+			scanRequest.setTemplateFilePaths(allTemplateFilePaths);
+		}
+
+		scanRequest.getTemplateFilePaths();
+
 		return scanRequest;
 	}
 
@@ -312,6 +324,10 @@ public class ScanRequestConverter {
 
 		// recreate the sample metadata from the metadata in the scan request
 		mergeSampleMetadata(scanRequest, mappingBean);
+
+		final Set<String> templateFilePaths = scanRequest.getTemplateFilePaths();
+		mappingBean.setTemplateFilePaths(templateFilePaths == null ? null :
+				new ArrayList<>(scanRequest.getTemplateFilePaths()));
 
 		mergeProcessingRequest(scanRequest, mappingBean);
 	}
