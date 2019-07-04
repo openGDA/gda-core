@@ -77,7 +77,6 @@ import org.eclipse.scanning.sequencer.nexus.NexusScanFileManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.api.messaging.MessagingService;
 import uk.ac.diamond.daq.api.messaging.messages.ScanMessage;
 import uk.ac.diamond.daq.api.messaging.messages.ScanMessage.ScanStatus;
 
@@ -877,6 +876,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 
 	private void buildAndSendJsonScanMessage(final ScanMessage.ScanStatus status, ScanModel scanModel) {
 		try {
+			if (ServiceHolder.getMessagingService() == null) return; // probably running a unit test
+
 			int[] scanShape = scanModel.getPointGenerator().getShape();
 
 			Map<String, Object> processingRequest = null;
@@ -901,11 +902,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 					processingRequest);
 
 			// Send the message
-			MessagingService jms = ServiceHolder.getMessagingService();
-			if (jms == null)
-				return; // Probably running in a unit test
-			jms.sendMessage(message);
-
+			ServiceHolder.getMessagingService().sendMessage(message);
 		} catch (Exception e) {
 			logger.error("Failed to send JSON scan message", e);
 		}
