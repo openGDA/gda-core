@@ -30,23 +30,21 @@ import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gov.aps.jca.event.MonitorEvent;
-import gov.aps.jca.event.MonitorListener;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 
-class AnalyserLiveDataDispatcher extends ConfigurableBase implements MonitorListener, Findable {
+class AnalyserLiveDataDispatcher extends ConfigurableBase implements Findable {
 	private static final Logger logger = LoggerFactory.getLogger(AnalyserLiveDataDispatcher.class);
 
 	private String plotName;
 	private VGScientaAnalyser analyser;
 	private String name;
-	private EpicsController epicsController;
 	private String arrayPV;
 
 	@Override
 	public void configure() throws FactoryException {
-		epicsController = EpicsController.getInstance();
+		final EpicsController epicsController = EpicsController.getInstance();
 		try {
-			epicsController.setMonitor(epicsController.createChannel(arrayPV), this);
+			epicsController.setMonitor(epicsController.createChannel(arrayPV), this::onMonitorChanged);
 		} catch (Exception e) {
 			throw new FactoryException("Cannot set up monitoring of arrays", e);
 		}
@@ -79,8 +77,7 @@ class AnalyserLiveDataDispatcher extends ConfigurableBase implements MonitorList
 		this.name = name;
 	}
 
-	@Override
-	public void monitorChanged(MonitorEvent arg0) {
+	private void onMonitorChanged(MonitorEvent arg0) {
 		try {
 			logger.debug("sending some thing from "+arg0.toString()+" to plot "+plotName+" with axes from "+analyser.getName());
 			double[] value = (double[]) arg0.getDBR().getValue();
@@ -98,9 +95,9 @@ class AnalyserLiveDataDispatcher extends ConfigurableBase implements MonitorList
 			xAxis.setName("energies (eV)");
 			if ("Transmission".equalsIgnoreCase(analyser.getLensMode())) {
 				yAxis.setName("location (mm)");
-			} else
-			yAxis.setName("angles (deg)");
-
+			} else {
+				yAxis.setName("angles (deg)");
+			}
 			SDAPlotter.imagePlot(plotName, xAxis, yAxis, ds);
 		} catch (Exception e) {
 			logger.error("exception caught preparing analyser live plot", e);
