@@ -26,19 +26,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.epics.connection.EpicsController;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
+import gda.factory.FindableConfigurableBase;
 import gov.aps.jca.event.MonitorEvent;
-import gov.aps.jca.event.MonitorListener;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 
-class AnalyserSweptLiveDataDispatcher extends ConfigurableBase implements MonitorListener, Findable {
+class AnalyserSweptLiveDataDispatcher extends FindableConfigurableBase {
 	private static final Logger logger = LoggerFactory.getLogger(AnalyserSweptLiveDataDispatcher.class);
 
 	private String plotName;
 	private VGScientaAnalyser analyser;
-	private String name;
 	private EpicsController epicsController;
 	private String arrayPV;
 
@@ -46,7 +43,7 @@ class AnalyserSweptLiveDataDispatcher extends ConfigurableBase implements Monito
 	public void configure() throws FactoryException {
 		epicsController = EpicsController.getInstance();
 		try {
-			epicsController.setMonitor(epicsController.createChannel(arrayPV), this);
+			epicsController.setMonitor(epicsController.createChannel(arrayPV), this::onMonitorChanged);
 		} catch (Exception e) {
 			throw new FactoryException("Cannot set up monitoring of arrays", e);
 		}
@@ -69,18 +66,7 @@ class AnalyserSweptLiveDataDispatcher extends ConfigurableBase implements Monito
 		this.analyser = analyser;
 	}
 
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public void monitorChanged(MonitorEvent arg0) {
+	private void onMonitorChanged(MonitorEvent arg0) {
 		try {
 			logger.debug("sending some thing from "+arg0.toString()+" to plot "+plotName+" with axes from "+analyser.getName());
 			double[] value = (double[]) arg0.getDBR().getValue();
@@ -98,8 +84,9 @@ class AnalyserSweptLiveDataDispatcher extends ConfigurableBase implements Monito
 			xAxis.setName("energies (eV)");
 			if ("Transmission".equalsIgnoreCase(analyser.getLensMode())) {
 				yAxis.setName("location (mm)");
-			} else
-			yAxis.setName("angles (deg)");
+			} else {
+				yAxis.setName("angles (deg)");
+			}
 
 			SDAPlotter.imagePlot(plotName, xAxis, yAxis, ds);
 		} catch (Exception e) {
