@@ -41,7 +41,7 @@ public class SwitchUserAction extends AbstractHandler {
 		    return RefreshBatonAction.refresh();
 		}
 
-		return Boolean.FALSE;
+		return null;
 	}
 
 }
