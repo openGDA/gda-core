@@ -128,7 +128,7 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
         # And remove the numeric IP address of the server, if it has an entry
         ssh-keygen-remove ${CONTROL_MACHINE_IP}
       fi
-      if [ ! -d ~/.ssh ]]; then
+      if [[ ! -d ~/.ssh ]]; then
       	bashlog debug "gda_servers_core" "~/.ssh directory does not already exist - creating it and new known_hosts file"
       	mkdir -m700 ~/.ssh
       	touch ~/.ssh/known_hosts
