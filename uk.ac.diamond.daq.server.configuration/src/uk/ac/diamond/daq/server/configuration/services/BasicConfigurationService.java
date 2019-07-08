@@ -7,11 +7,12 @@ import java.util.List;
 import org.osgi.service.component.ComponentContext;
 
 import uk.ac.diamond.daq.server.configuration.IGDAConfigurationService;
-import uk.ac.diamond.daq.server.configuration.commands.ObjectServerCommand;
+import uk.ac.diamond.daq.server.configuration.commands.ObjectFactoryCommand;
+import uk.ac.diamond.daq.server.configuration.commands.ServerCommand;
 
 
 public class BasicConfigurationService implements IGDAConfigurationService {
-	private final List<ObjectServerCommand> objectServerCommands = new ArrayList<ObjectServerCommand>();
+	private final List<ServerCommand> objectServerCommands = new ArrayList<>();
 	private String instanceConfigRoot;
 
 	@Override
@@ -22,7 +23,7 @@ public class BasicConfigurationService implements IGDAConfigurationService {
 		// check they're both the same length
 
 		for (int i = 0; i < profiles.length; i++) {
-			objectServerCommands.add(new ObjectServerCommand(profiles[i], springPathsStrings[i]));
+			objectServerCommands.add(new ObjectFactoryCommand(springPathsStrings[i]));
 		}
 		// Jonathan's change (gerrit 1251)_ should in future load the properties through Spring making them available through the environment
 		// of the individual object servers. Currently they are loaded statically when the object server initialises its logging.
@@ -40,7 +41,7 @@ public class BasicConfigurationService implements IGDAConfigurationService {
 	}
 
 	@Override
-	public List<ObjectServerCommand> getObjectServerCommands() {
+	public List<ServerCommand> getObjectServerCommands() {
 		return objectServerCommands;
 	}
 

@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.server;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -25,9 +27,9 @@ import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 
@@ -44,13 +46,14 @@ import gda.beamline.health.BeamlineHealthState;
 import gda.factory.Finder;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
-import gda.util.ObjectServer;
-import gda.util.SpringObjectServer;
 import gda.util.Version;
+import gda.util.logging.LogbackUtils;
+import uk.ac.diamond.daq.api.messaging.MessagingService;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.server.configuration.IGDAConfigurationService;
-import uk.ac.diamond.daq.server.configuration.commands.ObjectServerCommand;
+import uk.ac.diamond.daq.server.configuration.commands.ServerCommand;
 import uk.ac.diamond.daq.services.PropertyService;
+import uk.ac.gda.core.GDACoreActivator;
 
 /**
  * This class controls all aspects of the application's execution
@@ -62,7 +65,6 @@ public class GDAServerApplication implements IApplication {
 	private static IGDAConfigurationService configurationService;
 
 	private final CountDownLatch shutdownLatch = new CountDownLatch(1);
-	private final Map<String, ObjectServer> objectServers = new HashMap<>();
 
 	private ServerSocket statusPort;
 	private BeamlineHealthMonitor beamlineHealthMonitor;
@@ -74,9 +76,11 @@ public class GDAServerApplication implements IApplication {
 	 * to be supplied; in this case it will default to the example-config values for all other things that the scripts pass in.
 	 */
 	@Override
-	public Object start(IApplicationContext context) throws Exception
-	{
-		// Log some info for debugging - this only goes to stdout as logging is not setup yet
+	public Object start(IApplicationContext context) throws Exception {
+		LogbackUtils.configureLoggingForServerProcess("server", getPropertyService().get(LogbackUtils.GDA_SERVER_LOGGING_XML));
+		// DAQ-2994 Ensure that the server's Logback executor is operating sufficiently
+		Async.scheduleAtFixedRate(LogbackUtils::monitorAndAdjustLogbackExecutor, 1, 10, SECONDS, "monitor-logback");
+
 		logger.info("Starting GDA server application {}", Version.getRelease());
 		logger.info("Java version: {}", System.getProperty("java.version"));
 		logger.info("JVM arguments: {}", ManagementFactory.getRuntimeMXBean().getInputArguments());
@@ -85,30 +89,42 @@ public class GDAServerApplication implements IApplication {
 		configurationService.loadConfiguration();
 
 		try {
-
-			for (ObjectServerCommand command : configurationService.getObjectServerCommands()) {
-				ObjectServer server = command.execute();
-				objectServers.put(command.getProfile(), server);
-				logger.info("{} object server started", command.getProfile());
-				// Also make it obvious in the IDE Console.
-				final String hline_80char = "================================================================================";
-				System.out.println(hline_80char + "\n" + command.getProfile() + " object server started\n" + hline_80char);
+			checkActiveMq();
+			for (ServerCommand command : configurationService.getObjectServerCommands()) {
+				command.execute();
+				logger.info("Server started");
 			}
+			// Also make it obvious in the IDE Console.
+			System.out.println("================================================================================");
+			System.out.println("Server started");
+			System.out.println("================================================================================");
+			openStatusPort();
+			awaitShutdown();
+			logger.info("GDA server application ended");
 		} catch (Exception ex) {
 			logger.error("GDA server startup failure", ex);
 			ex.printStackTrace();
 			clearUp();
+			writeStartupErrorFile(ex);
 		}
 
-		beamlineHealthMonitor = Finder.findOptionalSingleton(BeamlineHealthMonitor.class).orElse(null);
-
-		if (!objectServers.isEmpty()) {
-			// Once we are here all the servers have started
-			openStatusPort();
-			awaitShutdown();
-			logger.info("GDA server application ended");
-		}
 		return IApplication.EXIT_OK;
+	}
+
+	private void checkActiveMq() {
+		if (GDACoreActivator.getService(MessagingService.class).isEmpty()) {
+			throw new IllegalStateException("No MessagingService is available - is ActiveMQ running?");
+		}
+	}
+
+	private void writeStartupErrorFile(Exception ex) {
+		String startupFile = System.getenv().getOrDefault("OBJECT_SERVER_STARTUP_FILE", "/tmp/object_server_startup_server_main");
+		try {
+			Files.write(Paths.get(startupFile), ex.getMessage().getBytes());
+			logger.info("Wrote error file to {}", startupFile);
+		} catch (IOException e) {
+			logger.error("Failed to write startup file to {}", startupFile, e);
+		}
 	}
 
 	/**
@@ -119,8 +135,9 @@ public class GDAServerApplication implements IApplication {
 	 * @Since GDA 9.7
 	 */
 	private void openStatusPort() {
+		beamlineHealthMonitor = Finder.findOptionalSingleton(BeamlineHealthMonitor.class).orElse(null);
 		// TODO Here use the PropertyService for now but once backed by sys properties will not be needed.
-		final int serverPort = getPropertyService().getAsInt("gda.server.statusPort", 19999);
+		var serverPort = getPropertyService().getAsInt("gda.server.statusPort", 19999);
 		try {
 			statusPort = new ServerSocket(serverPort);
 			Executors.newSingleThreadExecutor().execute(this::acceptStatusPortConnections);
@@ -190,17 +207,6 @@ public class GDAServerApplication implements IApplication {
 	 */
 	private void clearUp() {
 		closeStatusPort();
-
-		if (objectServers.size() > 0) {
-
-			// Shutdown using the SpringObjectServer shutdown
-			// TODO: Refactor command class so we can lose the cast
-			for (Map.Entry<String, ObjectServer> entry : objectServers.entrySet()) {
-				((SpringObjectServer)entry.getValue()).shutdown();
-			}
-			objectServers.clear();
-		}
-
 		shutdownLatch.countDown();
 	}
 
