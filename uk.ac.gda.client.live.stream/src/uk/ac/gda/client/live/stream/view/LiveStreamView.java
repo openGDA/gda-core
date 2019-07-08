@@ -360,11 +360,13 @@ public class LiveStreamView extends ViewPart {
 
 	@Override
 	public void dispose() {
-		if (camConfig.getTopUi() !=  null) {
-			camConfig.getTopUi().dispose();
-		}
-		if (camConfig.getBottomUi() !=  null) {
-			camConfig.getBottomUi().dispose();
+		if (camConfig != null) {
+			if (camConfig.getTopUi() !=  null) {
+				camConfig.getTopUi().dispose();
+			}
+			if (camConfig.getBottomUi() !=  null) {
+				camConfig.getBottomUi().dispose();
+			}
 		}
 
 		if (plottingComposite != null) {
