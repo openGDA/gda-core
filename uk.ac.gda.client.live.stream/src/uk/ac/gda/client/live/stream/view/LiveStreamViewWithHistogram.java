@@ -246,11 +246,13 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 	}
 
 	@Override
-	protected void reopenViewWithSecondaryId(final String secondaryId) {
+	protected void openViewWithSecondaryId(final String secondaryId, boolean closeExistingView) {
 		final IWorkbenchPage page = getSite().getPage();
 		//get the ID of this view which contains custom widgets injected using IViewFactory
 		String id2 = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePartReference().getId();
-		page.hideView(this);
+		if (closeExistingView) {
+			page.hideView(this);
+		}
 		try {
 			page.showView(id2, secondaryId, IWorkbenchPage.VIEW_ACTIVATE);
 		} catch (PartInitException e) {

@@ -143,8 +143,8 @@ public class LiveStreamView extends ViewPart {
 			cameraSelector.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseDoubleClick(MouseEvent e) {
-					reopenViewWithSecondaryId(
-							cameraMap.get(cameraSelector.getItem(cameraSelector.getSelectionIndex())).getName());
+					openViewWithSecondaryId(
+							cameraMap.get(cameraSelector.getItem(cameraSelector.getSelectionIndex())).getName(), false);
 				}
 			});
 
@@ -155,8 +155,20 @@ public class LiveStreamView extends ViewPart {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					// Get the cameras ID for the secondary ID
-					reopenViewWithSecondaryId(
-							cameraMap.get(cameraSelector.getItem(cameraSelector.getSelectionIndex())).getName());
+					openViewWithSecondaryId(
+							cameraMap.get(cameraSelector.getItem(cameraSelector.getSelectionIndex())).getName(), false);
+				}
+			});
+
+			final Button connectCloseButton = new Button(parent, SWT.NONE);
+			connectCloseButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.TOP, false, false));
+			connectCloseButton.setText("Connect and close");
+			connectCloseButton.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					// Get the cameras ID for the secondary ID
+					openViewWithSecondaryId(
+							cameraMap.get(cameraSelector.getItem(cameraSelector.getSelectionIndex())).getName(), true);
 				}
 			});
 
@@ -322,7 +334,7 @@ public class LiveStreamView extends ViewPart {
 		toolBarManager.insertBefore(toolBarManager.getItems()[0].getId(), new Action() {
 			@Override
 			public void run() {
-				reopenViewWithSecondaryId(getViewSite().getSecondaryId());
+				openViewWithSecondaryId(getViewSite().getSecondaryId(), true);
 			}
 			@Override
 			public  ImageDescriptor getImageDescriptor() {
@@ -383,11 +395,16 @@ public class LiveStreamView extends ViewPart {
 	}
 
 	/**
-	 * Close this view and open again with the secondary ID specified
+	 * Open a live stream view with the secondary ID specified
+	 *
+	 * @param secondaryId
+	 * @param closeExistingView close the existing view first
 	 */
-	protected void reopenViewWithSecondaryId(final String secondaryId) {
+	protected void openViewWithSecondaryId(final String secondaryId, boolean closeExistingView) {
 		final IWorkbenchPage page = getSite().getPage();
-		page.hideView(this);
+		if (closeExistingView) {
+			page.hideView(this);
+		}
 		try {
 			page.showView(LiveStreamView.ID, secondaryId, IWorkbenchPage.VIEW_ACTIVATE);
 		} catch (PartInitException e) {
