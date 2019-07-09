@@ -109,10 +109,10 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 
 	/**
 	 * The GDA8 scannable being wrapped.
-	 * NOTE: always use {@link #getScannable()} to get the scannable rather than
-	 * access this field directly.
+	 * <BR><BR>NOTE: <b>always use {@link #getScannable()}</b> rather than
+	 * accessing this field directly as subclasses override it.
 	 */
-	private Scannable scannable;
+	private Scannable scannable_only_use_via_getScannable;
 
 	/**
 	 * The writable datasets, ordered by field name with same iteration order as
@@ -165,28 +165,28 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	 * @throws IllegalStateException if the scannable is already set
 	 */
 	public void setScannable(Scannable scannable) {
-		if (this.scannable != null) {
+		if (this.scannable_only_use_via_getScannable != null) {
 			throw new IllegalStateException("The wrapped scannable has already been set");
 		}
 
-		this.scannable = scannable;
+		this.scannable_only_use_via_getScannable = scannable;
 		if (canReadPosition()) {
 			try {
 				this.previousPosition = scannable.getPosition();
 			} catch (DeviceException e) {
 				logger.error("Could not get position of scannable ''{}''", scannable.getName(), e);
 			}
-			this.scannable.addIObserver(this::update);
+			this.scannable_only_use_via_getScannable.addIObserver(this::update);
 		}
+	}
+
+	public Scannable getScannable() {
+		return scannable_only_use_via_getScannable;
 	}
 
 	public boolean canReadPosition() {
 		// don't read the positions of scannable groups or detectors
-		return !(scannable instanceof ScannableGroup || scannable instanceof Detector);
-	}
-
-	public Scannable getScannable() {
-		return scannable;
+		return !(getScannable() instanceof ScannableGroup || getScannable() instanceof Detector);
 	}
 
 	protected void calculateFieldNames() {
@@ -732,7 +732,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 				newPosition = arg;
 			} else {
 				try { // just get the new position from the scannable
-					newPosition = scannable.getPosition();
+					newPosition = getScannable().getPosition();
 				} catch (Exception e) {
 					logger.error("Could not get current position of scannable {}", getName());
 				}
