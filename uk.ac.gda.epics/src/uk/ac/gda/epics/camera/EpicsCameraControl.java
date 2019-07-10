@@ -23,6 +23,7 @@ import static uk.ac.gda.api.camera.CameraState.IDLE;
 
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
+import gda.device.detector.areadetector.v17.NDOverlaySimple;
 import gda.device.detector.areadetector.v17.NDROI;
 import gda.factory.FindableBase;
 import gda.observable.IObserver;
@@ -39,6 +40,7 @@ public class EpicsCameraControl extends FindableBase implements CameraControl {
 	private final ObservableComponent observableComponent = new ObservableComponent();
 	private final ADBase adBase;
 	private final NDROI ndRoi;
+	private NDOverlaySimple ndOverlay;
 
 	public EpicsCameraControl(ADBase adBase, NDROI ndRoi) {
 		this.adBase = adBase;
@@ -174,5 +176,31 @@ public class EpicsCameraControl extends FindableBase implements CameraControl {
 	public void clearRoi() throws DeviceException {
 		int[] frameSize = getFrameSize();
 		setRoi(0, 0, frameSize[0], frameSize[1]);
+	}
+
+	public void setNdOverlay(NDOverlaySimple ndOverlay) {
+		this.ndOverlay = ndOverlay;
+	}
+
+	public NDOverlaySimple getNdOverlay() {
+		return ndOverlay;
+	}
+
+	@Override
+	public int getOverlayCentreX() throws DeviceException {
+		try {
+			return ndOverlay.getCentreX();
+		} catch (Exception e) {
+			throw new DeviceException("Unable to get overlay X co-ordinate.", e);
+		}
+	}
+
+	@Override
+	public int getOverlayCentreY() throws DeviceException {
+		try {
+			return ndOverlay.getCentreY();
+		} catch (Exception e) {
+			throw new DeviceException("Unable to get overlay Y co=ordinate.", e);
+		}
 	}
 }
