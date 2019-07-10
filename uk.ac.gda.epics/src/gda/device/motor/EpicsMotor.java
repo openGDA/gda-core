@@ -69,7 +69,7 @@ import gov.aps.jca.event.PutListener;
 public class EpicsMotor extends MotorBase implements InitializationListener, IObserver {
 
 	/** Possible actions to take when a motor does not reach its target during a move */
-	private enum MissedTargetLevel {
+	public enum MissedTargetLevel {
 		/** Positions are not checked at the end of moves */
 		IGNORE,
 		/** Positions are checked at the end of each move and a warning is logged if target is missed */
