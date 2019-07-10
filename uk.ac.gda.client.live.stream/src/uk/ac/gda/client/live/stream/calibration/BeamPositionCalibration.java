@@ -18,6 +18,10 @@
 
 package uk.ac.gda.client.live.stream.calibration;
 
+import java.io.IOException;
+
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.XMLConfiguration;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
@@ -26,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 
 /**
  * Creates axes datasets for a data stream calibrated to x and y scannables given pixel size and pixel coordinates of the beam
@@ -35,6 +40,10 @@ import gda.device.Scannable;
 public class BeamPositionCalibration extends AbstractCalibratedAxesProvider {
 
 	protected static final Logger logger = LoggerFactory.getLogger(BeamPositionCalibration.class);
+
+	private static final String BEAM_POSITION_CONFIG_NAME = "beam_calibration";
+	private static final String CONFIG_X_POSITION_KEY = "beam_position.x";
+	private static final String CONFIG_Y_POSITION_KEY = "beam_position.y";
 
 	/** The X pixel position of the beam in the camera feed **/
 	private int xAxisBeamPositionInPixels;
@@ -56,13 +65,22 @@ public class BeamPositionCalibration extends AbstractCalibratedAxesProvider {
 	 * @param yAxisBeamPositionInPixels The Y pixel position of the beam in the camera feed
 	 */
 	public BeamPositionCalibration(Scannable xAxisScannable, double xAxisPixelScaling, int xAxisBeamPositionInPixels,
-			Scannable yAxisScannable, double yAxisPixelScaling, int yAxisBeamPositionInPixels) {
+			Scannable yAxisScannable, double yAxisPixelScaling, int yAxisBeamPositionInPixels, boolean attemptToLoadLocalParameters) {
 		super(xAxisScannable, xAxisPixelScaling, yAxisScannable, yAxisPixelScaling);
 
 		this.xAxisBeamPositionInPixels = xAxisBeamPositionInPixels;
 		this.yAxisBeamPositionInPixels = yAxisBeamPositionInPixels;
 
+		if (attemptToLoadLocalParameters) {
+			try {
+				loadCalibrationValues();
+			} catch (ConfigurationException | IOException e) {
+				logger.error("Unable to load calibration values from XML.", e);
+			}
+		}
+
 		createAxesUpdaters();
+		updateDatasets();
 	}
 
 	@Override
@@ -74,21 +92,38 @@ public class BeamPositionCalibration extends AbstractCalibratedAxesProvider {
 		this.yAxisUpdater = yBeamPositionUpdater;
 	}
 
-	public void setXAxisBeamPositionInPixels(int xAxisBeamPositionInPixels) {
+	public void setBeamPosition(int xAxisBeamPositionInPixels, int yAxisBeamPositionInPixels, boolean saveCalibrationValues) {
 		this.xAxisBeamPositionInPixels = xAxisBeamPositionInPixels;
 		xBeamPositionUpdater.setBeamPosition(xAxisBeamPositionInPixels);
-		updateDatasets();
-	}
 
-	public void setYAxisBeamPositionInPixels(int yAxisBeamPositionInPixels) {
 		this.yAxisBeamPositionInPixels = yAxisBeamPositionInPixels;
 		yBeamPositionUpdater.setBeamPosition(yAxisBeamPositionInPixels);
+
 		updateDatasets();
+
+		if (saveCalibrationValues) {
+			try {
+				saveCalibrationValues();
+			} catch (ConfigurationException | IOException exception) {
+				logger.error("Unable to save calibration values.", exception);
+			}
+		}
 	}
 
-	public void setBeamPosition(int xAxisBeamPositionInPixels, int yAxisBeamPositionInPixels) {
-		setXAxisBeamPositionInPixels(xAxisBeamPositionInPixels);
-		setYAxisBeamPositionInPixels(yAxisBeamPositionInPixels);
+	private void saveCalibrationValues() throws ConfigurationException, IOException {
+		XMLConfiguration configuration = LocalParameters.getXMLConfiguration(BEAM_POSITION_CONFIG_NAME);
+
+		configuration.setProperty(CONFIG_X_POSITION_KEY, xAxisBeamPositionInPixels);
+		configuration.setProperty(CONFIG_Y_POSITION_KEY, yAxisBeamPositionInPixels);
+
+		configuration.save();
+	}
+
+	private void loadCalibrationValues() throws ConfigurationException, IOException {
+		XMLConfiguration configuration = LocalParameters.getXMLConfiguration(BEAM_POSITION_CONFIG_NAME);
+
+		this.xAxisBeamPositionInPixels = configuration.getInteger(CONFIG_X_POSITION_KEY, xAxisBeamPositionInPixels);
+		this.yAxisBeamPositionInPixels= configuration.getInteger(CONFIG_Y_POSITION_KEY, yAxisBeamPositionInPixels);
 	}
 
 	private class BeamPositionAxisDatasetUpdater extends AbstractCalibratedAxesDatasetUpdater {

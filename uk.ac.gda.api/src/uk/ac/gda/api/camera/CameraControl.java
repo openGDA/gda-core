@@ -111,4 +111,18 @@ public interface CameraControl extends Findable, IObservable {
 	 * @throws DeviceException
 	 */
 	void clearRoi () throws DeviceException;
+
+	/**
+	 * Gets the X-coordinate of the overlay
+	 *
+	 * @return The X-coordinate of the overlay
+	 */
+	int getOverlayCentreX() throws DeviceException;
+
+	/**
+	 * Gets the Y-coordinate of the overlay
+	 *
+	 * @return The Y-coordinate of the overlay
+	 */
+	int getOverlayCentreY() throws DeviceException;
 }

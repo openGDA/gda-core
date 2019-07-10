@@ -218,7 +218,7 @@ public class LivePlottingComposite extends Composite {
 
 			// Add the axes to the trace
 			final List<IDataset> axes = liveStreamConnection.getAxes();
-			if (axes != null && axes.size() == 2) {
+			if (liveStreamConnection.hasAxesProvider() || (axes != null && axes.size() == 2)) {
 				iTrace.setAxes(liveStreamConnection.getAxes(), false);
 				liveStreamConnection.addAxisMoveListener(axisChangeListener);
 			}

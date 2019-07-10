@@ -7,6 +7,7 @@ Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: gda.rcp.views,
+ org.apache.commons.configuration;version="1.10.0",
  org.slf4j;version="1.7.22",
  org.springframework.beans.factory;version="4.0.6.RELEASE",
  uk.ac.diamond.scisoft.analysis.plotclient
@@ -27,7 +28,9 @@ Require-Bundle: uk.ac.gda.api,
  org.dawnsci.mapping.ui,
  org.dawnsci.plotting.histogram;bundle-version="1.1.0",
  org.apache.commons.lang3;bundle-version="3.1.0",
- uk.ac.gda.client
+ uk.ac.gda.client,
+ uk.ac.diamond.daq.persistence,
+ org.apache.commons.lang;bundle-version="2.6.0"
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Export-Package: uk.ac.gda.client.live.stream,
  uk.ac.gda.client.live.stream.api,
