@@ -154,8 +154,6 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 
 	private final int sshPort = LocalProperties.getAsInt(SSH_PORT_PROPERTY, -1);
 
-	private String gdaStationScript;
-
 	private TextCompleter jythonCompleter;
 
 	private Collection<Runnable> resetHooks = new ArrayList<>();
@@ -175,13 +173,6 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 	}
 
 	/**
-	 * @return full path of the station startupscript
-	 */
-	public String getGdaStationScript() {
-		return gdaStationScript;
-	}
-
-	/**
 	 * Get the jython script folder object.
 	 *
 	 * @return This object's jython script path finder.
@@ -198,16 +189,6 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 	 */
 	public void setJythonScriptPaths(ScriptPaths jythonScriptPaths) {
 		this.jythonScriptPaths = jythonScriptPaths;
-	}
-
-	/**
-	 * Sets the station startup script used by this Jython server.
-	 *
-	 * @param gdaStationScript
-	 *            the station script
-	 */
-	public void setGdaStationScript(String gdaStationScript) {
-		this.gdaStationScript = gdaStationScript;
 	}
 
 	/**
