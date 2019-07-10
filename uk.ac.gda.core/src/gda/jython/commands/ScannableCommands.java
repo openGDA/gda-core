@@ -313,10 +313,20 @@ public class ScannableCommands {
 	}
 
 	/**
+	 * Name of Property read by LocalPropties.check. If True then the pos command doesn't loop over every scannable
+	 */
+	public static final String GDA_POS_OVER_ALL_DISABLE = "gda.pos.over.all.disable";
+
+	/**
 	 * prints to console all the scannables and their current position in the system
 	 * @throws DeviceException
 	 */
 	public static void pos() throws DeviceException {
+		if (LocalProperties.check(GDA_POS_OVER_ALL_DISABLE)) {
+			InterfaceProvider.getTerminalPrinter().print("'pos' with no args is disabled by " + GDA_POS_OVER_ALL_DISABLE);
+			logger.debug("'pos' with no args is disabled by '{}'", GDA_POS_OVER_ALL_DISABLE);
+			return;
+		}
 		logger.debug("Called 'pos' with no args");
 		posCommandIsInTheProcessOfListingAllScannables = true;
 		try {
