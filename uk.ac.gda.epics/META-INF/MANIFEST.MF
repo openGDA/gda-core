@@ -21,7 +21,10 @@ Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.diamond.daq.jython.api;bundle-version="1.0.0",
  uk.ac.diamond.daq.persistence;bundle-version="1.0.0",
  org.epics.jca;bundle-version="2.4.1";visibility:=reexport,
- com.springsource.org.castor;bundle-version="1.2.0"
+ com.springsource.org.castor;bundle-version="1.2.0",
+ org.epics.pvaclient,
+ org.epics.pvaccess,
+ org.epics.pvdata
 Export-Package: gda.configuration.epics,
  gda.data.metadata,
  gda.device,
