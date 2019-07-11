@@ -42,6 +42,10 @@ public class CameraConfiguration extends FindableBase {
 	private String url;
 	/** The PV of the array plugin to use for the EPICS stream e.g. "ws141-AD-SIM-01:ARR"*/
 	private String arrayPv;
+	/** The PV name for the PV Access plugin to use for the EPICS PVA stream e.g. "BL07I-EA-EXCBR-01:PVA:Image"*/
+	private String pvAccessPv;
+
+
 	/** If true the camera will be treated as RBG not grayscale (Only for MJPEG) */
 	private boolean rgb;
 	/** Some delay time (Only for MJPEG)*/
@@ -101,6 +105,13 @@ public class CameraConfiguration extends FindableBase {
 	}
 	public void setArrayPv(String arrayPv) {
 		this.arrayPv = arrayPv;
+	}
+
+	public String getPvAccessPv() {
+		return pvAccessPv;
+	}
+	public void setPvAccessPv(String pvAccessPv) {
+		this.pvAccessPv = pvAccessPv;
 	}
 
 	public RemoteRectangularROIsProvider getRoiProvider() {

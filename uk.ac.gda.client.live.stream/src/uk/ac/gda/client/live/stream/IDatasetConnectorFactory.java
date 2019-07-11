@@ -28,6 +28,7 @@ import org.eclipse.january.dataset.IDatasetConnector;
 import org.eclipse.ui.PlatformUI;
 
 import uk.ac.diamond.daq.epics.connector.EpicsV3DynamicDatasetConnector;
+import uk.ac.diamond.daq.epics.connector.EpicsV4DynamicDatasetConnector;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
 
@@ -76,6 +77,9 @@ class IDatasetConnectorFactory {
 				throw new LiveStreamException(
 						"EPICS stream requested but no array PV defined for " + cameraConfiguration.getName());
 			}
+			if (streamType == StreamType.EPICS_PVA && cameraConfiguration.getPvAccessPv() == null) {
+				throw new LiveStreamException("EPICS PVA stream requested but no PVA PV defined for " + cameraConfiguration.getName());
+			}
 		}
 
 		public IDatasetConnector createDatasetConnector() throws LiveStreamException {
@@ -87,6 +91,9 @@ class IDatasetConnectorFactory {
 			case EPICS_ARRAY:
 				newStream = createEpicsArrayStream();
 				break;
+			case EPICS_PVA:
+				newStream = createEpicsPvaStream();
+				break;
 			default:
 				throw new LiveStreamException("Stream type '" + streamType + "' not supported");
 			}
@@ -96,6 +103,10 @@ class IDatasetConnectorFactory {
 
 		private IDatasetConnector createEpicsArrayStream() {
 			return new EpicsV3DynamicDatasetConnector(cameraConfiguration.getArrayPv());
+		}
+
+		private IDatasetConnector createEpicsPvaStream() {
+			return new EpicsV4DynamicDatasetConnector(cameraConfiguration.getPvAccessPv());
 		}
 
 		private IDatasetConnector createMpegStream() throws LiveStreamException {

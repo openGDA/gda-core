@@ -184,6 +184,8 @@ public class LiveStreamView extends ViewPart {
 			return secondaryId.substring(0, secondaryId.lastIndexOf(StreamType.MJPEG.secondaryIdSuffix()));
 		} else if (secondaryId.endsWith(StreamType.EPICS_ARRAY.secondaryIdSuffix())) {
 			return secondaryId.substring(0, secondaryId.lastIndexOf(StreamType.EPICS_ARRAY.secondaryIdSuffix()));
+		} else if (secondaryId.endsWith(StreamType.EPICS_PVA.secondaryIdSuffix())) {
+			return secondaryId.substring(0, secondaryId.lastIndexOf(StreamType.EPICS_PVA.secondaryIdSuffix()));
 		} else {
 			return secondaryId;
 		}
@@ -194,13 +196,15 @@ public class LiveStreamView extends ViewPart {
 			return StreamType.MJPEG;
 		} else if (secondaryId.endsWith(StreamType.EPICS_ARRAY.secondaryIdSuffix())) {
 			return StreamType.EPICS_ARRAY;
+		} else if (secondaryId.endsWith(StreamType.EPICS_PVA.secondaryIdSuffix())) {
+			return StreamType.EPICS_PVA;
 		} else {
 			return null;
 		}
 	}
 
 	/**
-	 * This is the method that actually creates a MJPEG stream and sets up the plotting composite.
+	 * This is the method that actually creates a live stream and sets up the plotting composite.
 	 * <p>
 	 * To get here the secondary id of the view need to be set (hopefully to a valid camera id)
 	 * <p>
@@ -227,7 +231,16 @@ public class LiveStreamView extends ViewPart {
 		}
 
 		if (streamType == null) {
-			streamType = camConfig.getUrl() == null ? StreamType.EPICS_ARRAY : StreamType.MJPEG;
+			// If no type specifed from the view id then default to MJPEG (and then Epics Array) if defined
+			if (camConfig.getUrl() != null) {
+				streamType = StreamType.MJPEG;
+			}
+			else if (camConfig.getArrayPv() != null) {
+				streamType = StreamType.EPICS_ARRAY;
+			}
+			else {
+				streamType = StreamType.EPICS_PVA;
+			}
 		}
 
 		// Use camera ID (, i.e. camera device name) and stream type for the tab text, to keep it short

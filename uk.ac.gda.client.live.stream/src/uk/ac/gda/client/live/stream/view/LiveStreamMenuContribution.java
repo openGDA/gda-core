@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.factory.Finder;
 import uk.ac.diamond.daq.epics.connector.EpicsV3DynamicDatasetConnector;
+import uk.ac.diamond.daq.epics.connector.EpicsV4DynamicDatasetConnector;
 
 /**
  * This processes {@link CameraConfiguration}s in the client Spring and generates the menu items to allow them to be
@@ -74,9 +75,10 @@ public class LiveStreamMenuContribution extends ExtensionContributionFactory {
 		// We have some cameras
 		logger.debug("Found {} cameras", cameras.size());
 
-		// Build 2 maps for MJPEG and EPICS streams
+		// Build a map for each stream type
 		final Map<String, CameraConfiguration> mjpegCameras = new TreeMap<>();
 		final Map<String, CameraConfiguration> epicsCameras = new TreeMap<>();
+		final Map<String, CameraConfiguration> pvaCameras = new TreeMap<>();
 
 		for (Entry<String, CameraConfiguration> cam : cameraMap.entrySet()) {
 			// If a URL is set add to MJPEG map
@@ -86,6 +88,10 @@ public class LiveStreamMenuContribution extends ExtensionContributionFactory {
 			// If PV is set add to EPICS map
 			if (cam.getValue().getArrayPv() != null) {
 				epicsCameras.put(cam.getKey(), cam.getValue());
+			}
+			// If PVA PV is set add to PVA map
+			if (cam.getValue().getPvAccessPv() != null) {
+				pvaCameras.put(cam.getKey(), cam.getValue());
 			}
 		}
 
@@ -101,7 +107,7 @@ public class LiveStreamMenuContribution extends ExtensionContributionFactory {
 			additions.addContributionItem(mjpegMenu, Expression.TRUE);
 		}
 
-		// Now EPICS streams
+		// Now EPICS Array streams
 		if (!epicsCameras.isEmpty()) {
 			// Check if EPICS streams can work, i.e. id uk.ac.gda.epics bundle is available
 			try {
@@ -120,6 +126,28 @@ public class LiveStreamMenuContribution extends ExtensionContributionFactory {
 			}
 			catch (NoClassDefFoundError e) {
 				logger.error("Camera configurations including EPICS PVs were found but EPICS bundle (uk.ac.gda.epics) is not avaliable", e);
+			}
+		}
+
+		// PV Access streams
+		if (!pvaCameras.isEmpty()) {
+			// Check if EPICS streams can work, i.e. id uk.ac.gda.epics bundle is available
+			try {
+				// Make the class load if not available will throw
+				EpicsV4DynamicDatasetConnector.class.getName();
+
+				// Only build the menu if EPICS streams can work
+				final MenuManager pvaMenu = new MenuManager("PV Access Streams");
+
+				for (Entry<String, CameraConfiguration> cam : pvaCameras.entrySet()) {
+					pvaMenu.add(createMenuAction(cam, StreamType.EPICS_PVA));
+				}
+
+				// Add to the window menu always shown
+				additions.addContributionItem(pvaMenu, Expression.TRUE);
+			}
+			catch (NoClassDefFoundError e) {
+				logger.error("Camera configurations including PVA PVs were found but EPICS bundle (uk.ac.gda.epics) is not avaliable", e);
 			}
 		}
 
