@@ -23,7 +23,10 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.databinding,
  org.eclipse.core.databinding.property,
  org.eclipse.core.databinding.beans,
- org.eclipse.jface.databinding
+ org.eclipse.jface.databinding,
+ org.dawnsci.datavis.model,
+ org.dawnsci.january.model,
+ com.google.guava
 Export-Package: uk.ac.diamond.daq.experiment.ui.driver,
  uk.ac.diamond.daq.experiment.ui.plan,
  uk.ac.diamond.daq.experiment.ui.plan.preview
