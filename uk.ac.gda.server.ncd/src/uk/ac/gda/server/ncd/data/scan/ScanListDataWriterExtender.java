@@ -28,6 +28,7 @@ import java.io.Writer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Optional;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
@@ -155,8 +156,10 @@ public class ScanListDataWriterExtender extends DataWriterExtenderBase implement
 		} catch (DeviceException e) {
 			logger.error("Could not get title or visit from metadata", e);
 		}
-		ClientDetails cd = InterfaceProvider.getBatonStateProvider().getBatonHolder();
-		String user = cd.getUserID();
+
+		// If the baton was released after the scan/script was started, there's no easy way to know who started it
+		Optional<ClientDetails> cd = Optional.ofNullable(InterfaceProvider.getBatonStateProvider().getBatonHolder());
+		String user = cd.map(ClientDetails::getUserID).orElse("");
 
 		String outLine = String.format("%s,%s,%s,%s,%s,%s\n", date, command, title, scanFile, user, visit);
 		return outLine;
