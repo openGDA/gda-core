@@ -390,7 +390,7 @@ public abstract class ObjectServer {
 			} catch (Exception e1) {
 				logger.error("Unable to write exception message to startup file on failed start.", e1);
 			}
-			throw new IllegalStateException(e.getMessage());
+			throw new IllegalStateException(e.getMessage(), e);
 		}
 		return server;
 	}
