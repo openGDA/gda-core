@@ -40,14 +40,13 @@ import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionStreamIndexer;
 import gda.device.zebra.controller.Zebra;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
+import gda.factory.FindableConfigurableBase;
 import gda.observable.IObserver;
 
-public class ZebraConstantVelocityMoveControllerForQexafs extends ConfigurableBase implements ConstantVelocityMoveController2,
+public class ZebraConstantVelocityMoveControllerForQexafs extends FindableConfigurableBase implements ConstantVelocityMoveController2,
 		PositionCallableProvider<Double>, ContinuouslyScannableViaController {
 
-	private String name;
 	private ZebraConstantVelocityMoveController zebraController;
 	private double minimumBraggAccelerationDistance;
 	private double minimumScannableMotorAccelerationDistance;
@@ -488,8 +487,18 @@ public class ZebraConstantVelocityMoveControllerForQexafs extends ConfigurableBa
 	}
 
 	@Override
-	public void setName(String name) {
-		this.name = name;
+	public void configure() throws FactoryException {
+		zebraController.configure();
+	}
+
+	@Override
+	public boolean isConfigured() {
+		return zebraController.isConfigured();
+	}
+
+	@Override
+	public boolean isConfigureAtStartup() {
+		return zebraController.isConfigureAtStartup();
 	}
 
 	@Override
@@ -500,11 +509,6 @@ public class ZebraConstantVelocityMoveControllerForQexafs extends ConfigurableBa
 	@Override
 	public Object getPosition() throws DeviceException {
 		return zebraController.getPosition();
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	@Override
