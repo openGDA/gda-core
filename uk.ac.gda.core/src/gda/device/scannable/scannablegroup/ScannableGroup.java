@@ -36,7 +36,6 @@ import gda.device.Scannable;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableUtils;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.observable.IObserver;
@@ -100,9 +99,7 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 
 		// configure all members
 		for (Scannable scannable : groupMembers) {
-			if (scannable instanceof Configurable) {
-				((Configurable) scannable).configure();
-			}
+			scannable.configure();
 			scannable.addIObserver(this);
 		}
 
