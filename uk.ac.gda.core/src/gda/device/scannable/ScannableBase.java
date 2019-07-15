@@ -43,7 +43,6 @@ import gda.device.Device;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.factory.FactoryException;
 import gda.jython.accesscontrol.MethodAccessProtected;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
@@ -148,19 +147,6 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	 * subclasses may wish to override getScanAttributeValue() to return additional values other than the ones
 	 */
 	private final Map<String, Object> scanMetadataAttributes = new HashMap<>();
-
-	/**
-	 * Empty default implementation for Scannables.
-	 * <p>
-	 * This implementation is provided so authors of Scannables do not have to write this method - it is not always
-	 * required for Scannables.
-	 * @throws FactoryException
-	 *
-	 * @see gda.factory.Configurable#configure()
-	 */
-	@Override
-	public void configure() throws FactoryException {
-	}
 
 	/**
 	 * {@inheritDoc} Converts the external (user) position to an internal position and passes this to
