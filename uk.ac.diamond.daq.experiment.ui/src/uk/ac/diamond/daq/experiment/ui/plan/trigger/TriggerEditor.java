@@ -1,5 +1,6 @@
 package uk.ac.diamond.daq.experiment.ui.plan.trigger;
 
+import static uk.ac.diamond.daq.experiment.api.Services.getExperimentService;
 import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.STRETCH;
 import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.addSpace;
 
@@ -26,7 +27,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.plan.TriggerDescriptor;
 import uk.ac.diamond.daq.experiment.api.remote.ExecutionPolicy;
 import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
@@ -47,7 +47,6 @@ public class TriggerEditor implements ElementEditor {
 	// data
 	private TriggerDescriptor model;
 	private Set<String> sevs;
-	private final ExperimentService experimentService;
 	private final String experimentId;
 	
 	// ui (static)
@@ -76,8 +75,7 @@ public class TriggerEditor implements ElementEditor {
 	 * Instantiate with experiment service and experiment ID
 	 * so that I can retrieve saved scans
 	 */
-	public TriggerEditor(ExperimentService experimentService, String experimentId) {
-		this.experimentService = experimentService;
+	public TriggerEditor(String experimentId) {
 		this.experimentId = experimentId;
 		dbc = new DataBindingContext();
 		mainBindings = new ArrayList<>();
@@ -263,9 +261,9 @@ public class TriggerEditor implements ElementEditor {
 	}
 	
 	private void populateScanCombo() {
-		scanCombo.setItems(experimentService.getScanNames(experimentId).toArray(new String[0]));
+		scanCombo.setItems(getExperimentService().getScanNames(experimentId).toArray(new String[0]));
 	}
-	
+
 	private void populateSevCombo() {
 		sevCombo.setItems(sevs.toArray(new String[0]));
 	}

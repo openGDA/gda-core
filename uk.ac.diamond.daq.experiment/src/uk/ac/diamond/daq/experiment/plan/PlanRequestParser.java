@@ -1,6 +1,7 @@
 package uk.ac.diamond.daq.experiment.plan;
 
-import java.util.Objects;
+import static uk.ac.diamond.daq.experiment.api.Services.getExperimentService;
+
 import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
@@ -8,7 +9,6 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 
 import gda.device.DeviceException;
 import gda.factory.Finder;
-import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.plan.IPlan;
@@ -21,22 +21,15 @@ import uk.ac.diamond.daq.experiment.api.remote.TriggerRequest;
 
 public class PlanRequestParser {
 	
-	private final ExperimentService experimentService;
-	
 	private IPlan plan;
 	private IExperimentDriver<DriverModel> driver;
-	
-	public PlanRequestParser(ExperimentService experimentService) {
-		Objects.requireNonNull(experimentService);
-		this.experimentService = experimentService;
-	}
 
 	public IPlan parsePlanRequest(PlanRequest planRequest) throws DeviceException {
 		plan = new Plan(planRequest.getPlanName());
 		
 		if (planRequest.getExperimentDriverName() != null) {
 			driver = Finder.getInstance().find(planRequest.getExperimentDriverName());
-			driver.setModel(experimentService.getDriverProfile(driver.getName(), planRequest.getExperimentDriverProfile(), planRequest.getPlanName()));
+			driver.setModel(getExperimentService().getDriverProfile(driver.getName(), planRequest.getExperimentDriverProfile(), planRequest.getPlanName()));
 			plan.setDriver(driver);
 		}
 		
@@ -65,7 +58,7 @@ public class PlanRequestParser {
 	
 	private ITrigger convertToTrigger(TriggerRequest request) {
 		
-		ScanRequest<IROI> scanRequest = experimentService.getScan(request.getScanName(), plan.getName());
+		ScanRequest<IROI> scanRequest = getExperimentService().getScan(request.getScanName(), plan.getName());
 		ISampleEnvironmentVariable sev;
 		
 		switch (request.getSignalSource()) {

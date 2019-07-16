@@ -28,7 +28,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.plan.SegmentDescriptor;
 import uk.ac.diamond.daq.experiment.api.remote.Inequality;
 import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
@@ -63,8 +62,8 @@ public class SegmentEditor implements ElementEditor {
 	private ISideEffect limitControlSwitch;
 	private Set<String> sevs;
 	
-	public SegmentEditor(ExperimentService experimentService, String experimentId) {
-		triggers = new TriggerListEditor(experimentService, experimentId);
+	public SegmentEditor(String experimentId) {
+		triggers = new TriggerListEditor(experimentId);
 		dbc = new DataBindingContext();
 		segmentDescriptorBindings = new ArrayList<>();
 		limitControlBindings = new ArrayList<>();

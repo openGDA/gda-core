@@ -1,7 +1,10 @@
 package uk.ac.diamond.daq.experiment.ui.plan;
 
+import static uk.ac.diamond.daq.experiment.api.Services.getExperimentService;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,7 +30,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 
-import uk.ac.diamond.daq.experiment.api.ExperimentService;
+import gda.factory.Finder;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.DriverProfileSection;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
@@ -36,9 +39,8 @@ import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 
 public class DriverAndProfileSelectionSection {
 	
-	private final Map<IExperimentDriver<? extends DriverModel>, Set<String>> driversToProfiles;
+	private Map<IExperimentDriver<? extends DriverModel>, Set<String>> driversToProfiles;
 	private final ExperimentPlanBean planBean;
-	private final ExperimentService experimentService;
 	private final String experimentId;
 	
 	private Button useDriver;
@@ -47,11 +49,8 @@ public class DriverAndProfileSelectionSection {
 	
 	private DriverProfilePreview profilePlot;
 	
-	public DriverAndProfileSelectionSection(ExperimentPlanBean planBean, Map<IExperimentDriver<? extends DriverModel>, Set<String>> driversToProfiles,
-											ExperimentService experimentService, String experimentId) {
+	public DriverAndProfileSelectionSection(ExperimentPlanBean planBean, String experimentId) {
 		this.planBean = planBean;
-		this.driversToProfiles = driversToProfiles;
-		this.experimentService = experimentService;
 		this.experimentId = experimentId;
 	}
 	
@@ -72,7 +71,7 @@ public class DriverAndProfileSelectionSection {
 		new Label(controls, SWT.NONE); // space
 		
 		driverButtons = new ArrayList<>();
-		for (Map.Entry<IExperimentDriver<? extends DriverModel>,Set<String>> experimentDriver : driversToProfiles.entrySet()) {
+		for (Map.Entry<IExperimentDriver<? extends DriverModel>,Set<String>> experimentDriver : getDriversToProfiles().entrySet()) {
 			Button button = new Button(controls, SWT.RADIO);
 			String driverName = experimentDriver.getKey().getName();
 			button.setText(driverName);
@@ -150,19 +149,35 @@ public class DriverAndProfileSelectionSection {
 	}
 	
 	private Set<String> getProfilesForNamedDriver(String driverName) {
-		return driversToProfiles.entrySet().stream()
+		return getDriversToProfiles().entrySet().stream()
 				.filter(entry -> entry.getKey().getName().equals(driverName))
 				.map(Map.Entry::getValue)
 				.findFirst().orElse(Collections.emptySet());	
 	}
 	
+	@SuppressWarnings("unchecked")
+	private Map<IExperimentDriver<? extends DriverModel>, Set<String>> getDriversToProfiles() {
+		if (driversToProfiles == null) {
+			driversToProfiles = new HashMap<>();
+			for (@SuppressWarnings("rawtypes") Map.Entry<String, IExperimentDriver> driver : getDrivers().entrySet()) {
+				driversToProfiles.put(driver.getValue(), getExperimentService().getDriverProfileNames(driver.getKey(), experimentId));
+			}
+		}
+		return driversToProfiles;
+	}
+
+	@SuppressWarnings("rawtypes")
+	private Map<String, IExperimentDriver> getDrivers() {
+		return Finder.getInstance().getFindablesOfType(IExperimentDriver.class);
+	}
+
 	private void plot(String profileName) {
 		List<DriverProfileSection> profile;
 		if (!planBean.isDriverUsed() || profileName == null || profileName.isEmpty()) {
 			profile = Collections.emptyList();
 		} else {
 			try {
-				profile = ((SingleAxisLinearSeries) experimentService.getDriverProfile(planBean.getExperimentDriverName(),
+				profile = ((SingleAxisLinearSeries) getExperimentService().getDriverProfile(planBean.getExperimentDriverName(),
 															profileName, experimentId)).getProfile();
 			} catch (Exception e) {
 				profile = Collections.emptyList();
@@ -176,7 +191,7 @@ public class DriverAndProfileSelectionSection {
 				// otherwise driver name and driver profile must exist and map to something useful
 				(planBean.getExperimentDriverName() != null &&
 				planBean.getExperimentDriverProfile() != null && 
-				experimentService.getDriverProfile(planBean.getExperimentDriverName(),
+				getExperimentService().getDriverProfile(planBean.getExperimentDriverName(),
 						planBean.getExperimentDriverProfile(), experimentId) != null);
 	}
 }

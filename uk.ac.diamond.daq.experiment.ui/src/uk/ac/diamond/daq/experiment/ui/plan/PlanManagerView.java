@@ -184,7 +184,7 @@ public class PlanManagerView extends ViewPart {
 	}
 	
 	private boolean openWizard(ExperimentPlanBean planBean) {
-		PlanSetupWizard planWizard = new PlanSetupWizard(experimentService, "", planBean); // TODO should be the experimentId
+		PlanSetupWizard planWizard = new PlanSetupWizard("", planBean); // TODO should be the experimentId
 		WizardDialog wizardDialog = new WizardDialog(base.getShell(), planWizard);
 		return wizardDialog.open() == Window.OK;
 	}

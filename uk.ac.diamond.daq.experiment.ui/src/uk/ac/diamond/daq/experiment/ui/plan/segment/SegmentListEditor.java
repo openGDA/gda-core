@@ -10,7 +10,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 import uk.ac.diamond.daq.experiment.api.plan.SegmentDescriptor;
 import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
@@ -23,8 +22,8 @@ public class SegmentListEditor {
 	
 	private final ExperimentPlanBean planBean;
 	
-	public SegmentListEditor(ExperimentService experimentService, String experimentId, ExperimentPlanBean planBean) {
-		segmentEditor = new SegmentEditor(experimentService, experimentId);
+	public SegmentListEditor(String experimentId, ExperimentPlanBean planBean) {
+		segmentEditor = new SegmentEditor(experimentId);
 		this.planBean = planBean;
 	}
 	

@@ -1,17 +1,10 @@
 package uk.ac.diamond.daq.experiment.ui.plan;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.jface.wizard.Wizard;
 
-import gda.factory.Finder;
-import uk.ac.diamond.daq.experiment.api.ExperimentService;
-import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
-import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 
 public class PlanSetupWizard extends Wizard {
@@ -23,49 +16,37 @@ public class PlanSetupWizard extends Wizard {
 	private SegmentsAndTriggersPage segmentsAndTriggersPage;
 	private PlanSummaryPage planSummaryPage;
 	
-	private final ExperimentService experimentService;
 	private final String experimentId;
 	
 
 	/**
 	 * This constructor should be used to create a new experiment plan
 	 */
-	public PlanSetupWizard(ExperimentService experimentService, String experimentId) {
-		this(experimentService, experimentId, new ExperimentPlanBean());
+	public PlanSetupWizard(String experimentId) {
+		this(experimentId, new ExperimentPlanBean());
 	}
 	
 	/**
 	 * This constructor should be used to edit a previously defined experiment plan
 	 */
-	public PlanSetupWizard(ExperimentService experimentService, String experimentId, ExperimentPlanBean planBean) {
-		this.experimentService = experimentService;
+	public PlanSetupWizard(String experimentId, ExperimentPlanBean planBean) {
 		this.experimentId = experimentId;
 		Objects.requireNonNull(planBean);
 		this.planBean = planBean;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void addPages() {
 		setWindowTitle("Setup experiment plan");
 		
-		@SuppressWarnings("rawtypes")
-		Map<String, IExperimentDriver> drivers = Finder.getInstance().getFindablesOfType(IExperimentDriver.class);
-		
-		Map<IExperimentDriver<? extends DriverModel>, Set<String>> driverConfigs = new HashMap<>();
-		for (@SuppressWarnings("rawtypes") Map.Entry<String, IExperimentDriver> driver : drivers.entrySet()) {
-			driverConfigs.put(driver.getValue(), experimentService.getDriverProfileNames(driver.getKey(), experimentId));
-		}
-		
-		metadataAndDriverPage = new MetadataAndExperimentDriverPage(experimentService, experimentId, planBean);
-		metadataAndDriverPage.setExperimentDriverConfigurations(driverConfigs);
+		metadataAndDriverPage = new MetadataAndExperimentDriverPage(experimentId, planBean);
 		
 		addPage(metadataAndDriverPage);
 		
-		segmentsAndTriggersPage = new SegmentsAndTriggersPage(experimentService, experimentId, planBean);
+		segmentsAndTriggersPage = new SegmentsAndTriggersPage(experimentId, planBean);
 		addPage(segmentsAndTriggersPage);
 		
-		planSummaryPage = new PlanSummaryPage(experimentService, experimentId, planBean);
+		planSummaryPage = new PlanSummaryPage(experimentId, planBean);
 		addPage(planSummaryPage);
 	}
 	

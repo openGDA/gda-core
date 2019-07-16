@@ -17,17 +17,23 @@ import static uk.ac.diamond.daq.experiment.api.remote.Inequality.LESS_THAN;
 import static uk.ac.diamond.daq.experiment.api.remote.SignalSource.POSITION;
 import static uk.ac.diamond.daq.experiment.api.remote.SignalSource.TIME;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DoubleDataset;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import gda.factory.Factory;
+import gda.factory.Finder;
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
@@ -55,8 +61,7 @@ public class PlanPreviewerTest {
 	@Mock
 	private PlotController plotController;
 
-	@Mock
-	private ExperimentService experimentService;
+	private static ExperimentService experimentService;
 
 	// for trigger tests
 	private ArgumentCaptor<Object> xCoordinates = ArgumentCaptor.forClass(Object.class);
@@ -65,6 +70,24 @@ public class PlanPreviewerTest {
     @Before
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
+    }
+
+    @BeforeClass
+    public static void prepareFinder() {
+    	experimentService = mock(ExperimentService.class);
+
+    	Map<String, ExperimentService> map = new HashMap<>();
+    	map.put("experimentService", experimentService);
+
+    	Factory testFactory = mock(Factory.class);
+    	when(testFactory.getFindablesOfType(ExperimentService.class)).thenReturn(map);
+
+    	Finder.getInstance().addFactory(testFactory);
+    }
+
+    @AfterClass
+    public static void cleanupFinder() {
+    	Finder.getInstance().removeAllFactories();
     }
 
     /* SEGMENT TESTS */
@@ -500,7 +523,7 @@ public class PlanPreviewerTest {
 	}
 
 	private PlanPreviewer getPlanPreview(boolean useDriver, SegmentDescriptor... segments) {
-		return new PlanPreviewer(getPlanBean(useDriver, segments), experimentService, plotController);
+		return new PlanPreviewer(getPlanBean(useDriver, segments), plotController);
 	}
 
 

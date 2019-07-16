@@ -9,23 +9,20 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
-import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 import uk.ac.diamond.daq.experiment.ui.plan.preview.PlanPreviewer;
 import uk.ac.diamond.daq.experiment.ui.plan.preview.PlotControllerImpl;
 
 public class PlanSummaryPage  extends WizardPage {
 	
-	private ExperimentService experimentService;
 	private ExperimentPlanBean bean;
 	
-	protected PlanSummaryPage(ExperimentService experimentService, String experimentId, ExperimentPlanBean bean) {
+	protected PlanSummaryPage(String experimentId, ExperimentPlanBean bean) {
 		super(PlanSummaryPage.class.getSimpleName());
 		
 		setTitle("Plan Summary");
 		setDescription("Defined Segments and Triggers");
 		
-		this.experimentService = experimentService;
 		this.bean = bean;
 	}
 
@@ -35,7 +32,7 @@ public class PlanSummaryPage  extends WizardPage {
 		GridLayoutFactory.fillDefaults().applyTo(composite);
 		GridDataFactory.fillDefaults().applyTo(composite);
 		
-		PlanPreviewer preview = new PlanPreviewer(bean, experimentService, new PlotControllerImpl(composite));
+		PlanPreviewer preview = new PlanPreviewer(bean, new PlotControllerImpl(composite));
 		// TODO remove this temporary button once PlanPreviewer can listen for changes in the bean
 		Button update = new Button(composite, SWT.NONE);
 		STRETCH.applyTo(update);

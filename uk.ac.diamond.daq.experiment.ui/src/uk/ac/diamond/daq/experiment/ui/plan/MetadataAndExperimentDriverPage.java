@@ -2,8 +2,6 @@ package uk.ac.diamond.daq.experiment.ui.plan;
 
 import java.beans.PropertyChangeListener;
 import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -12,15 +10,13 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
-import uk.ac.diamond.daq.experiment.api.ExperimentService;
-import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
+import gda.factory.Finder;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 
 
 public class MetadataAndExperimentDriverPage extends WizardPage {
 	
-	private ExperimentService experimentService;
 	private String experimentId;
 	private ExperimentPlanBean planBean;
 	
@@ -29,12 +25,11 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 	private DriverAndProfileSelectionSection driverAndProfileSection;
 	private NameAndDescriptionSection nameAndDescriptionSection;
 	
-	MetadataAndExperimentDriverPage(ExperimentService experimentService, String experimentId, ExperimentPlanBean planBean) {
+	MetadataAndExperimentDriverPage(String experimentId, ExperimentPlanBean planBean) {
 		super(MetadataAndExperimentDriverPage.class.getSimpleName());
 		setTitle("Metadata and experiment driver");
 		setDescription("Add a title and description to your plan, and select experiment driver configuration if required");
 		
-		this.experimentService = experimentService;
 		this.experimentId = experimentId;
 		this.planBean = planBean;
 		
@@ -52,7 +47,7 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 		nameAndDescriptionSection = new NameAndDescriptionSection(planBean);
 		nameAndDescriptionSection.createSection(composite);
 		
-		driverAndProfileSection = new DriverAndProfileSelectionSection(planBean, experimentDriverConfigurations, experimentService, experimentId);
+		driverAndProfileSection = new DriverAndProfileSelectionSection(planBean, experimentId);
 		driverAndProfileSection.createSection(composite);
 		
 		setPageComplete(isPageComplete());
@@ -67,21 +62,12 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 		return nameAndDescriptionSection.validSelection() && driverAndProfileSection.validSelection();
 	}
 	
-	private Map<IExperimentDriver<? extends DriverModel>, Set<String>> experimentDriverConfigurations;
-	
-	public void setExperimentDriverConfigurations(Map<IExperimentDriver<? extends DriverModel>, Set<String>> driverConfigs) {
-		experimentDriverConfigurations = driverConfigs;
-	}
-	
 	@Override
 	public IWizardPage getNextPage() {
 		SegmentsAndTriggersPage nextPage = (SegmentsAndTriggersPage) super.getNextPage();
 		if (planBean.isDriverUsed()) {
-			Set<String> readouts = experimentDriverConfigurations.keySet().stream()
-				.filter(driver -> driver.getName().equals(planBean.getExperimentDriverName()))
-				.findFirst().orElseThrow(()->new IllegalArgumentException("No driver named " + planBean.getExperimentDriverName() + " found"))
-				.getReadoutNames();
-			nextPage.setSevs(readouts);
+			IExperimentDriver<?> driver = Finder.getInstance().find(planBean.getExperimentDriverName());
+			nextPage.setSevs(driver.getReadoutNames());
 		} else {
 			nextPage.setSevs(Collections.emptySet());
 		}

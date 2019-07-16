@@ -1,5 +1,7 @@
 package uk.ac.diamond.daq.experiment.ui.plan.preview;
 
+import static uk.ac.diamond.daq.experiment.api.Services.getExperimentService;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -9,7 +11,6 @@ import org.eclipse.january.dataset.DatasetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 import uk.ac.diamond.daq.experiment.api.plan.LimitCondition;
@@ -35,7 +36,6 @@ public class PlanPreviewer {
 	
 	private PlotController plotController;
 	private ExperimentPlanBean planBean;
-	private ExperimentService experimentService;
 	
 	private Dataset timeDataset;
 	private Dataset yDataset;
@@ -43,10 +43,9 @@ public class PlanPreviewer {
 	
 	private TriggerLocatorFactory triggerLocatorFactory;
 	
-	public PlanPreviewer(ExperimentPlanBean planBean, ExperimentService experimentService, PlotController plotter) {
+	public PlanPreviewer(ExperimentPlanBean planBean, PlotController plotter) {
 		this.plotController = plotter;
 		this.planBean = planBean;
-		this.experimentService = experimentService;
 	}
 	
 	public void update() {
@@ -84,8 +83,7 @@ public class PlanPreviewer {
 	}
 	
 	private void plotDriverModel() {
-		DriverModel model = experimentService.getDriverProfile(planBean.getExperimentDriverName(), planBean.getExperimentDriverProfile(), "");
-		
+		DriverModel model = getExperimentService().getDriverProfile(planBean.getExperimentDriverName(), planBean.getExperimentDriverProfile(), "");
 		List<Dataset> data = model.getPlottableDatasets();
 		plotBaseDatasets(data.get(0), data.get(1));
 	}

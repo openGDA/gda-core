@@ -13,7 +13,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
-import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 import uk.ac.diamond.daq.experiment.api.plan.SegmentDescriptor;
 import uk.ac.diamond.daq.experiment.ui.plan.preview.PlanPreviewer;
@@ -25,17 +24,15 @@ public class SegmentsAndTriggersPage extends WizardPage {
 	
 	private SegmentListEditor segments;
 	
-	private final ExperimentService experimentService;
 	private final ExperimentPlanBean planBean;
 
-	SegmentsAndTriggersPage(ExperimentService experimentService, String experimentId, ExperimentPlanBean planBean) {
+	SegmentsAndTriggersPage(String experimentId, ExperimentPlanBean planBean) {
 		super(SegmentsAndTriggersPage.class.getSimpleName());
 		setTitle("Segments and Triggers");
 		setDescription("Automate the execution of defined measurements");
 		
-		segments = new SegmentListEditor(experimentService, experimentId, planBean);
+		segments = new SegmentListEditor(experimentId, planBean);
 		
-		this.experimentService = experimentService;
 		this.planBean = planBean;
 	}
 
@@ -48,7 +45,7 @@ public class SegmentsAndTriggersPage extends WizardPage {
 		segments.createEditorPart(composite);
 		
 		PlotController plotController = new PlotControllerImpl(composite);
-		PlanPreviewer preview = new PlanPreviewer(planBean, experimentService, plotController);
+		PlanPreviewer preview = new PlanPreviewer(planBean, plotController);
 		preview.update();
 		
 		// TODO remove this temporary button once PlanPreviewer can listen for changes in the bean
