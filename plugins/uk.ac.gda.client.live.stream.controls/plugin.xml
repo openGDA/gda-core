@@ -18,6 +18,39 @@
             id="uk.ac.gda.client.live.stream.controls.freezecommand"
             name="Freeze">
       </command>
+      <command
+            description="Crosshair"
+            id="uk.ac.gda.client.live.stream.controls.crosshair"
+            name="Crosshair">
+         <commandParameter
+               id="uk.ac.gda.client.live.stream.controls.crosshairParameter"
+               name="CrosshairParameter"
+               optional="false">
+            <values
+                  class="org.eclipse.ui.commands.ExtensionParameterValues">
+               <parameter
+                     name="uk.ac.gda.client.live.stream.controls.crosshair.add"
+                     value="Add">
+               </parameter>
+               <parameter
+                     name="uk.ac.gda.client.live.stream.controls.crosshair.remove"
+                     value="Remove">
+               </parameter>
+               <parameter
+                     name="uk.ac.gda.client.live.stream.controls.crosshair.save"
+                     value="Save">
+               </parameter>
+               <parameter
+                     name="uk.ac.gda.client.live.stream.controls.crosshair.visible"
+                     value="Visible">
+               </parameter>
+               <parameter
+                     name="uk.ac.gda.client.live.stream.controls.crosshair.movable"
+                     value="Moveable">
+               </parameter>
+            </values>
+         </commandParameter>
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.services">
@@ -42,6 +75,10 @@
       <handler
             class="uk.ac.gda.client.live.stream.controls.handlers.EpicsFreezeLiveStreamDiaplayUpdateHandler"
             commandId="uk.ac.gda.client.live.stream.controls.freezecommand">
+      </handler>
+      <handler
+            class="uk.ac.gda.client.live.stream.controls.handlers.CrossHairHandler"
+            commandId="uk.ac.gda.client.live.stream.controls.crosshair">
       </handler>
    </extension>
 

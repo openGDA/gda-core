@@ -13,16 +13,27 @@ Require-Bundle: uk.ac.gda.api,
  uk.ac.gda.epics,
  org.eclipse.ui;bundle-version="3.109.0",
  org.eclipse.osgi,
- uk.ac.gda.client.live.stream
+ uk.ac.gda.client.live.stream,
+ org.eclipse.dawnsci.plotting.api,
+ org.apache.commons.collections4;bundle-version="4.1.0",
+ org.apache.commons.beanutils;bundle-version="1.9.3"
 Bundle-ActivationPolicy: lazy
 Export-Package: uk.ac.gda.client.live.stream.controls,
  uk.ac.gda.client.live.stream.controls.camera.state,
  uk.ac.gda.client.live.stream.controls.custom.widgets,
  uk.ac.gda.client.live.stream.controls.handlers
 Import-Package: com.swtdesigner,
+ gda.configuration.properties,
+ org.eclipse.dawnsci.analysis.api.roi,
+ org.eclipse.dawnsci.analysis.dataset.roi,
+ org.eclipse.dawnsci.plotting.api.region,
+ org.eclipse.january.dataset;version="2.2.2",
  org.slf4j,
  org.springframework.beans.factory;version="4.0.6.RELEASE",
  uk.ac.gda.client.livecontrol
 Bundle-Vendor: Diamond Light Source
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-Activator: uk.ac.gda.client.live.stream.controls.Activator
+Bundle-ClassPath: libs/opencsv-4.6.jar,
+ .,
+ libs/commons-lang3-3.8.1.jar
