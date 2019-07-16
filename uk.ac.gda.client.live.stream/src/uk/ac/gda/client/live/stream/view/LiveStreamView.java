@@ -500,7 +500,7 @@ public class LiveStreamView extends ViewPart {
 		return snapshotData;
 	}
 
-	protected IPlottingSystem<Composite> getPlottingSystem() {
+	public IPlottingSystem<Composite> getPlottingSystem() {
 		if (plottingComposite == null) {
 			return null;
 		}
