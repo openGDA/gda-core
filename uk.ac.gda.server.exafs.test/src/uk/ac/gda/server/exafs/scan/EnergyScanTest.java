@@ -259,7 +259,7 @@ public class EnergyScanTest {
 			inorder.verify(detectorPreparer).beforeEachRepetition();
 			inorder.verify(outputPreparer).beforeEachRepetition();
 
-			inorder.verify(outputParams).getSignalList();
+			inorder.verify(outputPreparer).getScannablesToBeAddedAsColumnInDataFile();
 			inorder.verify(outputPreparer).getPlotSettings();
 
 			// as the scan is not really run but mocked, instead check that the args given to the scan are as expected.
@@ -346,7 +346,7 @@ public class EnergyScanTest {
 				Mockito.verify(outputPreparer, Mockito.times(3)).beforeEachRepetition();
 				Mockito.verify(outputPreparer, Mockito.times(3)).getPlotSettings();
 
-				Mockito.verify(outputParams, Mockito.times(3)).getSignalList();
+				Mockito.verify(outputPreparer, Mockito.times(3)).getScannablesToBeAddedAsColumnInDataFile();
 
 				Mockito.verify(outputParams, Mockito.times(3)).getAfterScriptName();
 			}
@@ -407,7 +407,7 @@ public class EnergyScanTest {
 					Mockito.verify(outputPreparer, Mockito.times(6)).beforeEachRepetition();
 					Mockito.verify(outputPreparer, Mockito.times(6)).getPlotSettings();
 
-					Mockito.verify(outputParams, Mockito.times(6)).getSignalList();
+					Mockito.verify(outputPreparer, Mockito.times(6)).getScannablesToBeAddedAsColumnInDataFile();
 
 					Mockito.verify(outputParams, Mockito.times(6)).getAfterScriptName();
 				}

@@ -191,7 +191,7 @@ public abstract class OutputPreparerBase implements OutputPreparer, Initializing
 		String dataFormat;
 		scannablesToBeAddedAsColumnInDataFile.clear();
 		for (SignalParameters signal:signalList){
-			dataFormat = "%6." + signal.getDecimalPlaces() + "g";
+			dataFormat = "%6." + signal.getDecimalPlaces() + "f";
 			// check that the scannable exists
 			Object scannable = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(
 					signal.getScannableName());
