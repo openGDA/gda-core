@@ -30,12 +30,14 @@ import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import javax.jms.Topic;
 
+import org.python.core.PyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.events.EventReceiver;
 import gda.events.EventSubscriber;
+import gda.jython.logging.PythonException;
 import gda.util.Serializer;
 
 /**
@@ -144,6 +146,9 @@ public class JmsEventReceiver extends JmsClient implements EventReceiver {
 				messageObject = Serializer.toObject((byte[]) serializedObject);
 			} catch (ClassNotFoundException | IOException e) {
 				logger.error("Error deserializing received message: '{}' on topic '{}'", message, topic, e);
+				return; // We can't handle this case
+			} catch (PyException pe) {
+				logger.error("Error deserializing received message: '{}' on topic '{}'", message, topic, PythonException.from(pe));
 				return; // We can't handle this case
 			}
 
