@@ -127,6 +127,10 @@ public class ScanPathEditor extends Composite implements IObservable {
 
 	private void updateCurrentValue() {
 		Display.getDefault().asyncExec(() -> {
+			if (currentValueLabel.isDisposed()) {
+				logger.warn("Attempt to update current value label when disposed");
+				return;
+			}
 			try {
 				final ScannableGetPosition wrapper = new ScannableGetPositionWrapper(scannable.getPosition(), scannable.getOutputFormat());
 				final String position = wrapper.getStringFormattedValues()[0];
