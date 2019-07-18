@@ -624,7 +624,7 @@ public class StatusQueueView extends EventConnectionView {
 				if (!ok) continue;
 
 				consumerProxy.terminateJob(bean);
-
+				refresh();
 				logger.info("Requesting termination of {} submitted on {}", bean.getName(), submissionTime);
 			} catch (Exception e) {
 				ErrorDialog.openError(getViewSite().getShell(), "Cannot terminate "+bean.getName(), "Cannot terminate "+bean.getName()+"\n\nPlease contact your support representative.",
