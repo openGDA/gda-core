@@ -105,7 +105,55 @@ CLASS_MAPPING = {
     "gda.device.controlpoint.EpicsControlPoint":
         {"outer_tag": "simplePv", "inner_tag": "RECORD",
          "replace_prop": "pvName"
-        } 
+        },
+    "gda.device.detector.etldetector.EpicsETLController":
+        {"outer_tag": "ETLdetector", "inner_tag": "HV",
+        "replace_prop": "pvRoot", "snip_pv": True
+        },
+    "gda.device.detector.EpicsScaler":
+        {"outer_tag": "simpleScaler", "inner_tag": "RECORD",
+        "replace_prop": "pvName"
+        },
+    "gda.device.monitor.EpicsBpmController":
+        {"outer_tag": "bpm", "inner_tag": "INTENSITY",
+        "replace_prop": "pvName", "snip_pv": True
+        },
+    "gda.device.temperature.EpicsLakeshore340Controller":
+        {"outer_tag": "lakeshore340", "inner_tag": "DISABLE",
+        "replace_prop": "pvName", "snip_pv": True, "append_colon": True
+        },
+    "gda.device.temperature.EpicsEurotherm2kController":
+        {"outer_tag": "eurotherm2k", "inner_tag": "SP",
+        "replace_prop": "basePvName", "snip_pv": True
+        },
+    "gda.device.robot.CurrentSamplePosition":
+        {"outer_tag": "simplePv", "inner_tag": "RECORD",
+        "replace_prop": "pvName"
+        },
+    "gda.device.robot.NextSamplePosition":
+        {"outer_tag": "simplePv", "inner_tag": "RECORD",
+        "replace_prop": "pvName"
+        },
+    "gda.device.robot.DoorLatchState":
+        {"outer_tag": "simplePv", "inner_tag": "RECORD",
+        "replace_prop": "pvName"
+        },
+    "gda.device.robot.RobotSampleState":
+        {"outer_tag": "simplePv", "inner_tag": "RECORD",
+        "replace_prop": "pvName"
+        },
+    "gda.device.robot.RobotNX100Controller":
+        {"outer_tag": "nx100", "inner_tag": "START",
+        "replace_prop": "pvName", "snip_pv": True
+        },
+    "gda.device.detector.multichannelscaler.EpicsDlsMcsSis3820Controller":
+        {"outer_tag": "mcaGroup", "inner_tag": "START",
+        "replace_prop": "recordName", "snip_pv": True
+        },
+    "gda.device.temperature.CryoController":
+        {"outer_tag": "OXCS700", "inner_tag": "TEMP",
+        "replace_prop": "pvName", "snip_pv": True
+        },
     }
 
 #--------------------------------------------------------------------
@@ -233,6 +281,8 @@ class EpicsInterfaceFile(object):
                         if action_dict.get("snip_pv"):
                             # Return the pv up to the final colon
                             pv_name = pv_name.rsplit(':', 1)[0]
+                        if action_dict.get("append_colon"):
+                            pv_name = pv_name + ":"
                         replace_prop = action_dict.get("replace_prop")
                         replace_bean = action_dict.get("new_class_name", bean_class)
                         print ("{0}: {1} -> {2} {3}: {4}"
