@@ -45,6 +45,7 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 	private double[][] framesRead;
 	private int numCycles = 1;
 	private boolean useInternalTriggeredFrames = false;
+	private double frameDeadTime = 1e-6; // Frame dead time (seconds)
 
 	public BufferedScaler(){
 		try {
@@ -135,9 +136,9 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		double timePerPoint = parameters.getTotalTime() / parameters.getNumberDataPoints();
 		logger.debug("Setting da.server to generate {} time frames with {} sec per point", parameters.getNumberDataPoints(), timePerPoint);
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("tfg setup-groups cycles 1\n");
-		buffer.append(parameters.getNumberDataPoints() + " 0.000001 " + timePerPoint + " 0 0 0 0\n");
+		buffer.append(parameters.getNumberDataPoints() + " " + frameDeadTime +" " + timePerPoint + " 0 0 0 0\n");
 		buffer.append("-1 0 0 0 0 0 0");
 
 		daserver.sendCommand(buffer.toString());
@@ -154,9 +155,9 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		switchOnExtTrigger();
 
 		//Send as a single command. Otherwise DAServer reply timeouts are seen and the 3 commands take about 10s!
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("tfg setup-groups ext-start cycles "+numCycles+"\n");
-		buffer.append(parameters.getNumberDataPoints() + " 0.000001 0.00000001 0 0 0 " + (ttlSocket + 8)+"\n");
+		buffer.append(parameters.getNumberDataPoints() + " " + frameDeadTime + " 0.00000001 0 0 0 " + (ttlSocket + 8)+"\n");
 		buffer.append("-1 0 0 0 0 0 0");
 		// FIXME RJW on qexafs that fail, especially where # points < previous scan, why are # frames incorrect?
 		logger.debug("Setting da.server to arm itself for " + parameters.getNumberDataPoints() + " time frames");
@@ -369,6 +370,19 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 	 */
 	public void setUseInternalTriggeredFrames(boolean useInternalTriggeredFrames) {
 		this.useInternalTriggeredFrames = useInternalTriggeredFrames;
+	}
+
+	public double getFrameDeadTime() {
+		return frameDeadTime;
+	}
+
+	/**
+	 * Set the dead frame time. This is the gap to use between adjacent timeframes in sequence of externally
+	 * or internally triggered frames.
+	 * @param frameDeadTime
+	 */
+	public void setFrameDeadTime(double frameDeadTime) {
+		this.frameDeadTime = frameDeadTime;
 	}
 }
 
