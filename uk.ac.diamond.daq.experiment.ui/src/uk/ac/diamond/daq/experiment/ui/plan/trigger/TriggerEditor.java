@@ -16,8 +16,12 @@ import org.eclipse.core.databinding.observable.sideeffect.ISideEffect;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.SelectObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.databinding.viewers.IViewerObservableValue;
+import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
@@ -52,7 +56,7 @@ public class TriggerEditor implements ElementEditor {
 	// ui (static)
 	private Composite composite;
 	private Text nameText;
-	private Combo scanCombo;
+	private ComboViewer scanCombo;
 	private Button sevSourceButton;
 	private Button timeSourceButton;
 	private Button oneShotButton;
@@ -101,9 +105,10 @@ public class TriggerEditor implements ElementEditor {
 		
 		new Label(composite, SWT.NONE).setText("Measurement");
 		
-		scanCombo = new Combo(composite, SWT.DROP_DOWN | SWT.READ_ONLY);
-		populateScanCombo();
-		STRETCH.copy().applyTo(scanCombo);
+		scanCombo = new ComboViewer(composite, SWT.DROP_DOWN | SWT.READ_ONLY);
+		scanCombo.setContentProvider(ArrayContentProvider.getInstance());
+		scanCombo.setInput(getExperimentService().getScanNames(experimentId));
+		STRETCH.copy().applyTo(scanCombo.getControl());
 		
 		addSpace(composite);
 		
@@ -259,10 +264,6 @@ public class TriggerEditor implements ElementEditor {
 			throw new IllegalArgumentException("Unsupported execution policy: '" + model.getExecutionPolicy() + "'");			
 		}
 	}
-	
-	private void populateScanCombo() {
-		scanCombo.setItems(getExperimentService().getScanNames(experimentId).toArray(new String[0]));
-	}
 
 	private void populateSevCombo() {
 		sevCombo.setItems(sevs.toArray(new String[0]));
@@ -321,7 +322,7 @@ public class TriggerEditor implements ElementEditor {
 		mainBindings.add(nameBinding);
 		
 		// scan
-		IObservableValue<String> scanInWidget = WidgetProperties.selection().observe(scanCombo);
+		IViewerObservableValue scanInWidget = ViewerProperties.singleSelection().observe(scanCombo);
 		IObservableValue<String> scanInModel = BeanProperties.value("scanName").observe(model);
 		
 		Binding scanBinding = dbc.bindValue(scanInWidget, scanInModel);
@@ -375,7 +376,7 @@ public class TriggerEditor implements ElementEditor {
 	
 	private void setEnabled(boolean enabled) {
 		nameText.setEnabled(enabled);
-		scanCombo.setEnabled(enabled);
+		scanCombo.getControl().setEnabled(enabled);
 		sevSourceButton.setEnabled(enabled);
 		timeSourceButton.setEnabled(enabled);
 		oneShotButton.setEnabled(enabled);
