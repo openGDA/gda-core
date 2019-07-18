@@ -206,7 +206,6 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 	@Override
 	public void configure() throws FactoryException {
 		logger.trace("configure called");
-		super.configure();
 
 		// Check if we are already configured
 		if (isConfigured()) {
