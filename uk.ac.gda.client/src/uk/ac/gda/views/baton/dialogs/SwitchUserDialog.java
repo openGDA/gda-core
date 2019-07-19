@@ -18,17 +18,12 @@
 
 package uk.ac.gda.views.baton.dialogs;
 
-import gda.jython.InterfaceProvider;
-
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -39,9 +34,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
-/**
- *
- */
+import gda.jython.InterfaceProvider;
+
 public class SwitchUserDialog extends Dialog {
 
 	private String  username;
@@ -58,59 +52,40 @@ public class SwitchUserDialog extends Dialog {
 		setShellStyle(SWT.RESIZE | SWT.TITLE);
 	}
 
-	/**
-	 * @return authenticated
-	 */
+	@Override
+	protected void configureShell(Shell newShell) {
+		super.configureShell(newShell);
+		newShell.setText("Switch User");
+	}
+
 	public boolean isAuthenticated() {
 		return authenticated;
 	}
 
-	/**
-	 * @return user name
-	 */
 	public String getUserName() {
 		return username;
 	}
 
-	/**
-	 * Create contents of the dialog.
-	 *
-	 * @param parent
-	 */
 	@Override
 	protected Control createDialogArea(Composite parent) {
 
 		Composite container = (Composite) super.createDialogArea(parent);
 		container.setLayout(new GridLayout(2, false));
-		{
-			Label lblUsername = new Label(container, SWT.NONE);
-			lblUsername.setText("User name");
-		}
-		{
-			final Text uname = new Text(container, SWT.BORDER);
-			uname.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-			uname.addModifyListener(new ModifyListener() {
-				@Override
-				public void modifyText(ModifyEvent e) {
-					username = uname.getText();
-				}
-			});
-		}
-		{
-			Label lblPassword = new Label(container, SWT.NONE);
-			lblPassword.setText("Password");
-		}
-		{
-			final Text pswd = new Text(container, SWT.BORDER);
-			pswd.setEchoChar('*');
-			pswd.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-			pswd.addModifyListener(new ModifyListener() {
-				@Override
-				public void modifyText(ModifyEvent e) {
-					password = pswd.getText();
-				}
-			});
-		}
+
+		final Label lblUsername = new Label(container, SWT.NONE);
+		lblUsername.setText("User name");
+
+		final Text uname = new Text(container, SWT.BORDER);
+		uname.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		uname.addModifyListener(e -> username = uname.getText());
+
+		final Label lblPassword = new Label(container, SWT.NONE);
+		lblPassword.setText("Password");
+
+		final Text pswd = new Text(container, SWT.BORDER);
+		pswd.setEchoChar('*');
+		pswd.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		pswd.addModifyListener(e -> password = pswd.getText());
 
 		return container;
 	}
@@ -122,33 +97,25 @@ public class SwitchUserDialog extends Dialog {
 	 */
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
-		Button button = createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
-		button.addSelectionListener(new SelectionAdapter() {
+		Button okButton = createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
+		okButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				do_button_widgetSelected(e);
+				handleOkSelected(e);
 			}
 		});
-		Button button_1 = createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
-		button_1.addSelectionListener(new SelectionAdapter() {
+		Button cancelButton = createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
+		cancelButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				do_button_1_widgetSelected(e);
+				handleCancelSelected(e);
 			}
 		});
 	}
 
-	/**
-	 * Return the initial size of the dialog.
-	 */
-	@Override
-	protected Point getInitialSize() {
-		return new Point(357, 163);
-	}
+	protected void handleOkSelected(@SuppressWarnings("unused") SelectionEvent e) {
 
-	protected void do_button_widgetSelected(@SuppressWarnings("unused") SelectionEvent e) {
-
-		if (username==null||password==null) {
+		if (username == null || password == null) {
 			authenticated = false;
 		} else {
 		    authenticated = InterfaceProvider.getBatonStateProvider().switchUser(username, password);
@@ -161,7 +128,7 @@ public class SwitchUserDialog extends Dialog {
 		}
 	}
 
-	protected void do_button_1_widgetSelected(@SuppressWarnings("unused") SelectionEvent e) {
+	protected void handleCancelSelected(@SuppressWarnings("unused") SelectionEvent e) {
 		authenticated = false;
 	}
 }
