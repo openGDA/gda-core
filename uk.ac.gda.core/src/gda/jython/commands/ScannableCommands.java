@@ -936,15 +936,17 @@ public class ScannableCommands {
 	public static void add_default(Object... args) {
 		logger.debug("Called 'add_default' with args: {}", Arrays.asList(args));
 
+		JythonServer server = Finder.getInstance().findSingleton(JythonServer.class);
 		for (Object arg : args) {
 			if (arg instanceof Scannable) {
 				Scannable scannable = (Scannable) arg;
-				Finder.getInstance().findSingleton(JythonServer.class).addDefault(scannable);
-				JythonServerFacade
-						.getInstance()
-						.print(scannable.getName()
-								+ " added to the list of default Scannables. Remove from the list by using command: remove_default "
-								+ scannable.getName());
+				if (server.addDefault(scannable)) {
+					JythonServerFacade
+							.getInstance()
+							.print(scannable.getName()
+									+ " added to the list of default Scannables. Remove from the list by using command: remove_default "
+									+ scannable.getName());
+				}
 			}
 		}
 	}
@@ -954,15 +956,17 @@ public class ScannableCommands {
 	 */
 	public static void remove_default(Object... args) {
 		logger.debug("Called 'remove_default' with args: {}", Arrays.asList(args));
+		JythonServer server = Finder.getInstance().findSingleton(JythonServer.class);
 		for (Object arg : args) {
 			if (arg instanceof Scannable) {
 				Scannable scannable = (Scannable) arg;
-				Finder.getInstance().findSingleton(JythonServer.class).removeDefault(scannable);
-				JythonServerFacade
-						.getInstance()
-						.print(scannable.getName()
-								+ " removed from list of default Scannables. Add back to the list by using command: add_default "
-								+ scannable.getName());
+				if (server.removeDefault(scannable)) {
+					JythonServerFacade
+							.getInstance()
+							.print(scannable.getName()
+									+ " removed from list of default Scannables. Add back to the list by using command: add_default "
+									+ scannable.getName());
+				}
 			}
 		}
 	}

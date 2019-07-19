@@ -196,8 +196,8 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 	 *
 	 * @param scannable
 	 */
-	public void removeDefault(Scannable scannable) {
-		defaultScannables.remove(scannable);
+	public boolean removeDefault(Scannable scannable) {
+		return defaultScannables.remove(scannable);
 	}
 
 	/**
@@ -205,8 +205,8 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 	 *
 	 * @param scannable
 	 */
-	public void addDefault(Scannable scannable) {
-		defaultScannables.add(scannable);
+	public boolean addDefault(Scannable scannable) {
+		return defaultScannables.add(scannable);
 	}
 
 	// to fulfil the Findable interface
