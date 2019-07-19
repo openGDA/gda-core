@@ -25,7 +25,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.databinding.beans,
  org.eclipse.jface.databinding
 Export-Package: uk.ac.diamond.daq.experiment.ui.driver,
- uk.ac.diamond.daq.experiment.ui.plan
+ uk.ac.diamond.daq.experiment.ui.plan,
+ uk.ac.diamond.daq.experiment.ui.plan.preview
 Bundle-Vendor: Diamond Light Source
 Service-Component: OSGI-INF/*.xml
 Automatic-Module-Name: uk.ac.diamond.daq.experiment.ui
