@@ -223,6 +223,10 @@ public class LiveStreamConnection {
 		return connected;
 	}
 
+	public boolean hasAxesProvider() {
+		return cameraConfig.getCalibratedAxesProvider() != null;
+	}
+
 	class AxesUpdater implements IDataListener {
 
 		private int[] streamDataShape;

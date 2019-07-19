@@ -50,7 +50,8 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 
 	private static final String ICON_PLUGIN = "uk.ac.gda.client.live.stream";
 
-	private CameraControl cameraControl;
+	protected CameraControl cameraControl;
+	protected Composite mainComposite;
 
 	/**
 	 * Scannable to reset camera - the actual camera, not GDA's connection to it (optional)
@@ -64,7 +65,7 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 
 	@Override
 	public void createUi(Composite composite) {
-		final Composite mainComposite = new Composite(composite, SWT.NONE);
+		mainComposite = new Composite(composite, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns(4).applyTo(mainComposite);
 
 		// Exposure control
