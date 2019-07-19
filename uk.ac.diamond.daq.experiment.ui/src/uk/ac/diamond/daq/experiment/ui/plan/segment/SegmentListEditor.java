@@ -1,7 +1,7 @@
 package uk.ac.diamond.daq.experiment.ui.plan.segment;
 
+import java.beans.PropertyChangeListener;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -10,6 +10,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import gda.factory.Finder;
+import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 import uk.ac.diamond.daq.experiment.api.plan.SegmentDescriptor;
 import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
@@ -49,11 +51,25 @@ public class SegmentListEditor {
 		
 		listEditor.create(composite);
 		
+		PropertyChangeListener driverChangeListener = change -> {
+			if (change.getPropertyName().equals(ExperimentPlanBean.DRIVER_NAME_PROPERTY)) {
+				updateReadouts(change.getNewValue().toString());
+			}
+		};
+		
+		planBean.addPropertyChangeListener(driverChangeListener);
+		composite.addDisposeListener(dispose -> planBean.removePropertyChangeListener(driverChangeListener));
+		
+		if (planBean.isDriverUsed()) {
+			updateReadouts(planBean.getExperimentDriverName());
+		}
+		
 		return composite;
 	}
 	
-	public void setSevs(Set<String> sevs) {
-		segmentEditor.setSevNames(sevs);
+	private void updateReadouts(String string) {
+		IExperimentDriver<?> driver = Finder.getInstance().find(string);
+		segmentEditor.setReadouts(driver.getReadoutNames());
 	}
 	
 	public List<SegmentDescriptor> getSegments() {

@@ -10,6 +10,8 @@ import uk.ac.diamond.daq.experiment.api.remote.SegmentRequest;
 
 public class ExperimentPlanBean implements PlanRequest {
 
+	public static final String DRIVER_NAME_PROPERTY = "experimentDriverName";
+
 	private static final long serialVersionUID = 2836310522704078875L;
 	private String name;
 	private String description;
@@ -67,7 +69,7 @@ public class ExperimentPlanBean implements PlanRequest {
 	public void setExperimentDriverName(String experimentDriverName) {
 		String old = this.experimentDriverName;
 		this.experimentDriverName = experimentDriverName;
-		pcs.firePropertyChange("experimentDriverName", old, experimentDriverName);
+		pcs.firePropertyChange(DRIVER_NAME_PROPERTY, old, experimentDriverName);
 	}
 
 	@Override

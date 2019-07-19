@@ -50,7 +50,7 @@ public class TriggerEditor implements ElementEditor {
 	
 	// data
 	private TriggerDescriptor model;
-	private Set<String> sevs;
+	private Set<String> readouts;
 	private final String experimentId;
 	
 	// ui (static)
@@ -64,7 +64,7 @@ public class TriggerEditor implements ElementEditor {
 
 	// ui (dynamic)
 	private Composite detailComposite;
-	private Combo sevCombo;
+	private Combo readoutsCombo;
 	private Text interval;
 	private Text target;
 	private Text tolerance;
@@ -229,13 +229,13 @@ public class TriggerEditor implements ElementEditor {
 	private void createPositionBasedTriggerControl(Composite controlComposite) {
 		
 		new Label(controlComposite, SWT.NONE).setText("Environment variable");
-		sevCombo = new Combo(controlComposite, SWT.READ_ONLY);
-		if (sevs != null) {
+		readoutsCombo = new Combo(controlComposite, SWT.READ_ONLY);
+		if (readouts != null) {
 			populateSevCombo();
 			bindSev();
 		}
 		
-		STRETCH.applyTo(sevCombo);
+		STRETCH.applyTo(readoutsCombo);
 		
 		switch (model.getExecutionPolicy()) {
 		case REPEATING:
@@ -266,7 +266,7 @@ public class TriggerEditor implements ElementEditor {
 	}
 
 	private void populateSevCombo() {
-		sevCombo.setItems(sevs.toArray(new String[0]));
+		readoutsCombo.setItems(readouts.toArray(new String[0]));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -298,7 +298,7 @@ public class TriggerEditor implements ElementEditor {
 	
 	@SuppressWarnings("unchecked")
 	private void bindSev() {
-		IObservableValue<String> inWidget = WidgetProperties.selection().observe(sevCombo);
+		IObservableValue<String> inWidget = WidgetProperties.selection().observe(readoutsCombo);
 		IObservableValue<String> inModel = BeanProperties.value("sampleEnvironmentVariableName").observe(model);
 		
 		Binding sevBinding = dbc.bindValue(inWidget, inModel);
@@ -306,7 +306,7 @@ public class TriggerEditor implements ElementEditor {
 		
 		// if there is no sev in model, let's select first option
 		if (model.getSampleEnvironmentVariableName() == null) {
-			sevCombo.select(0);
+			readoutsCombo.select(0);
 		}
 	}
 
@@ -382,16 +382,16 @@ public class TriggerEditor implements ElementEditor {
 		oneShotButton.setEnabled(enabled);
 		periodicButton.setEnabled(enabled);
 		
-		for (Control control : Arrays.asList(sevCombo, target, tolerance, interval)) {
+		for (Control control : Arrays.asList(readoutsCombo, target, tolerance, interval)) {
 			if (control != null && !control.isDisposed()) {
 				control.setEnabled(enabled);
 			}
 		}
 	}
 
-	void setSevNames(Set<String> sevs) {
-		this.sevs = sevs;
-		if (sevCombo != null && !sevCombo.isDisposed()) {
+	void setReadouts(Set<String> readouts) {
+		this.readouts = readouts;
+		if (readoutsCombo != null && !readoutsCombo.isDisposed()) {
 			populateSevCombo();
 		}
 	}

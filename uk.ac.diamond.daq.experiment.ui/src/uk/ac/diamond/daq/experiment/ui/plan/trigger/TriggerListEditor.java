@@ -42,8 +42,8 @@ public class TriggerListEditor {
 		return composite;
 	}
 	
-	public void setSevs(Set<String> sevs) {
-		triggerEditor.setSevNames(sevs);
+	public void setReadouts(Set<String> sevs) {
+		triggerEditor.setReadouts(sevs);
 	}
 	
 	public void addListListener(PropertyChangeListener listener) {

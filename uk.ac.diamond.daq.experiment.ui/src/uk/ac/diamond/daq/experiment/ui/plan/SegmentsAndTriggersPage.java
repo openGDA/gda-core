@@ -4,7 +4,6 @@ import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.STRETCH;
 import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.addSpace;
 
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -59,10 +58,6 @@ public class SegmentsAndTriggersPage extends WizardPage {
 		setControl(composite);
 	}
 	
-	public void setSevs(Set<String> sevs) {
-		segments.setSevs(sevs);
-	}
-
 	public List<SegmentDescriptor> getSegments() {
 		return segments.getSegments();
 	}
