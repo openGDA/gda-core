@@ -50,6 +50,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 	private Vector<String> extraValues=new Vector<>();
 	private Scannable softXRayFastShutter;
 	private Scannable hardXRayFastShutter;
+	private Scannable topup;
 	public Vector<String> getExtraValues() {
 		return extraValues;
 	}
@@ -117,7 +118,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 
 	private boolean stillHaveDataToWrite=false;
 
-	protected void beforeCollectData() throws InterruptedException {
+	protected void beforeCollectData() throws InterruptedException, DeviceException {
 		busy.getAndSet(true);
 		scanDatapoint.incrementAndGet();
 		while (!called){
@@ -127,6 +128,10 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 		if (!regionDataList.isEmpty()) {
 			regionDataList.clear();
 			totalIntensity.clear();
+		}
+		//check top-up
+		if (topup != null) {
+			topup.atPointStart(); //block and wait for top-up injection to finish + topup.tolerance time.
 		}
 	}
 	@Override
@@ -644,6 +649,14 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 
 	public void setHardXRayFastShutter(Scannable hardXRayFastShutter) {
 		this.hardXRayFastShutter = hardXRayFastShutter;
+	}
+
+	public Scannable getTopup() {
+		return topup;
+	}
+
+	public void setTopup(Scannable topup) {
+		this.topup = topup;
 	}
 
 }
