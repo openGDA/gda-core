@@ -34,19 +34,21 @@ public class AnalyserProgressDispatcher extends FindableConfigurableBase impleme
 
 	@Override
 	public void configure() throws FactoryException {
-		try {
-			controller.setMonitor(channelManager.createChannel(currentPointPv),	this::onCurrentPointChanged);
-		} catch (Exception e) {
-			logger.error("Cannot set up monitor of : " + currentPointPv, e);
-			throw new FactoryException("Cannot set up monitor of " + currentPointPv, e);
+		if (!isConfigured()) {
+			try {
+				controller.setMonitor(channelManager.createChannel(currentPointPv), this::onCurrentPointChanged);
+			} catch (Exception e) {
+				logger.error("Cannot set up monitor of : " + currentPointPv, e);
+				throw new FactoryException("Cannot set up monitor of " + currentPointPv, e);
+			}
+			try {
+				controller.setMonitor(channelManager.createChannel(totalPointsPv), this::onTotalPointsChanged);
+			} catch (Exception e) {
+				logger.error("Cannot set up monitor of : " + totalPointsPv, e);
+				throw new FactoryException("Cannot set up monitor of " + totalPointsPv, e);
+			}
+			setConfigured(true);
 		}
-		try {
-			controller.setMonitor(channelManager.createChannel(totalPointsPv), this::onTotalPointsChanged);
-		} catch (Exception e) {
-			logger.error("Cannot set up monitor of : " + totalPointsPv, e);
-			throw new FactoryException("Cannot set up monitor of " + totalPointsPv, e);
-		}
-		setConfigured(true);
 	}
 
 	private void onCurrentPointChanged(MonitorEvent arg0) {

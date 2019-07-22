@@ -65,9 +65,9 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 				collectionStrategy.setSourceSelectable(regionDefinitionResourceUtil.isSourceSelectable());
 				collectionStrategy.setXRaySourceEnergyLimit(regionDefinitionResourceUtil.getXRaySourceEnergyLimit());
 			}
+			super.configure();
 			setConfigured(true);
 		}
-		super.configure();
 	}
 
 	@Override

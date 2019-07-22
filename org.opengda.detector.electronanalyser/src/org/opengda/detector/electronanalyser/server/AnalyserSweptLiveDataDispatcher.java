@@ -41,13 +41,15 @@ class AnalyserSweptLiveDataDispatcher extends FindableConfigurableBase {
 
 	@Override
 	public void configure() throws FactoryException {
-		epicsController = EpicsController.getInstance();
-		try {
-			epicsController.setMonitor(epicsController.createChannel(arrayPV), this::onMonitorChanged);
-		} catch (Exception e) {
-			throw new FactoryException("Cannot set up monitoring of arrays", e);
+		if (!isConfigured()) {
+			epicsController = EpicsController.getInstance();
+			try {
+				epicsController.setMonitor(epicsController.createChannel(arrayPV), this::onMonitorChanged);
+			} catch (Exception e) {
+				throw new FactoryException("Cannot set up monitoring of arrays", e);
+			}
+			setConfigured(true);
 		}
-		setConfigured(true);
 	}
 
 	public String getPlotName() {
