@@ -103,6 +103,18 @@ public class RepeatingPositionBasedTriggerLocatorTest {
 		assertThat(locator.getY().isPresent(), is(false));
 	}
 
+	@Test
+	public void noCalculationForZeroInterval() {
+		Dataset xData = data(0.0, 1.0);
+		double interval = 0.0;
+
+		TriggerLocator<List<Double>> locator = new RepeatingPositionBasedTriggerLocator(getTrigger(interval), xData, xData);
+		locator.search(0.0, 1.0);
+
+		assertThat(locator.getX().isPresent(), is(false));
+		assertThat(locator.getY().isPresent(), is(false));
+	}
+
 	private void test(Dataset xData, Dataset yData, double interval, List<Double> expectedX, List<Double> expectedY) {
 		test(xData, yData, interval, xData.getElementDoubleAbs(0), xData.getElementDoubleAbs(xData.getSize()-1), expectedX, expectedY);
 	}

@@ -69,6 +69,20 @@ public class RepeatingTimeBasedTriggerLocatorTest {
 		assertThat(locator.getY().isPresent(), is(false));
 	}
 
+	@Test
+	public void noCalculationForZeroInterval() {
+		Dataset xData = data(0.0, 0.5);
+		Dataset yData = data(0.0, 0.5);
+
+		double interval = 0;
+
+		TriggerLocator<List<Double>> locator = getLocator(interval, xData, yData);
+		locator.search(0.0, 0.5);
+
+		assertThat(locator.getX().isPresent(), is(false));
+		assertThat(locator.getY().isPresent(), is(false));
+	}
+
 	private TriggerLocator<List<Double>> getLocator(double interval, Dataset xData, Dataset yData) {
 		TriggerDescriptor trigger = new TriggerDescriptor();
 		trigger.setSignalSource(SignalSource.TIME);
