@@ -77,4 +77,8 @@ public class JythonScannableNexusWrapper<N extends NXobject> extends ScannableNe
 		throw new UnsupportedOperationException("Cannot rename a jython scannable: " + scannableName);
 	}
 
+	@Override
+	public String toString() {
+		return "JythonScannableNexusWrapper [scannableName=" + scannableName + "]";
+	}
 }
