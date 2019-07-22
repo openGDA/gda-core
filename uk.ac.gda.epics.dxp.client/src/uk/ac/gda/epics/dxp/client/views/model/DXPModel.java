@@ -116,11 +116,6 @@ public class DXPModel extends EPICSBaseModel implements InitializingBean, IDXPMo
 	}
 
 	@Override
-	public void doCheckAfterPropertiesSet() throws Exception {
-		// nothing to do
-	}
-
-	@Override
 	protected Logger getLogger() {
 		return logger;
 	}
