@@ -148,9 +148,5 @@ public class PixiumModelImpl extends EPICSBaseModel implements InitializingBean,
 	protected Logger getLogger() {
 		return logger;
 	}
-	@Override
-	protected void doCheckAfterPropertiesSet() throws Exception {
-		// initializeStatusViewValues();
-	}
 
 }
