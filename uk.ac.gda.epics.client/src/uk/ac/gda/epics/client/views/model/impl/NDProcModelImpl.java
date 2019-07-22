@@ -151,11 +151,6 @@ public class NDProcModelImpl extends EPICSBaseModel implements NdProcModel {
 		}
 	}
 
-	@Override
-	protected void doCheckAfterPropertiesSet() throws Exception {
-		// nothing to do
-	}
-
 	/**
 	 * Sets the offset value in EPICS
 	 *

@@ -113,15 +113,11 @@ public abstract class EPICSBaseModel extends FindableBase implements Initializin
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (getBasePVName() == null) {
-			throw new IllegalArgumentException("'deviceName','basePVName' or 'pvProvider' needs to be declared");
+			throw new IllegalArgumentException("'basePVName' needs to be declared");
 		}
-
-		doCheckAfterPropertiesSet();
 	}
 
 	protected abstract Logger getLogger();
-
-	protected abstract void doCheckAfterPropertiesSet() throws Exception;
 
 	public void dispose() {
 		getLogger().info("Disposing:");

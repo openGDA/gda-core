@@ -313,12 +313,6 @@ public class ADBaseModelImpl extends EPICSBaseModel implements InitializingBean,
 		}
 	}
 
-	@Override
-	public void doCheckAfterPropertiesSet() throws Exception {
-		// initializeStatusViewValues();
-
-	}
-
 	public void initializeStatusViewValues() throws Exception {
 		for (IAdBaseViewController controller : adBaseViewControllers) {
 			try {

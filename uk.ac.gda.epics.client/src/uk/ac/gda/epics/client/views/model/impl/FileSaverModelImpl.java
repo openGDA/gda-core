@@ -141,11 +141,6 @@ public class FileSaverModelImpl extends EPICSBaseModel implements FileSaverModel
 	}
 
 	@Override
-	protected void doCheckAfterPropertiesSet() throws Exception {
-		// nothing to do
-	}
-
-	@Override
 	protected Logger getLogger() {
 		return logger;
 	}

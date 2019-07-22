@@ -78,11 +78,6 @@ public class NDROIModelImpl extends EPICSBaseModel implements NdRoiModel {
 		binYMonitorListener = new BinYMonitorListener();
 	}
 
-	@Override
-	protected void doCheckAfterPropertiesSet() throws Exception {
-		// nothing to do
-	}
-
 	private class StartXMonitorListener implements MonitorListener {
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {

@@ -36,11 +36,6 @@ public class NDArrayModelImpl extends EPICSBaseModel implements NdArrayModel {
 	}
 
 	@Override
-	protected void doCheckAfterPropertiesSet() throws Exception {
-		// nothing to do
-	}
-
-	@Override
 	public int[] getArrayData() throws Exception {
 		try {
 			return EPICS_CONTROLLER.cagetIntArray(getChannel(NDArray.ARRAY_DATA, null));

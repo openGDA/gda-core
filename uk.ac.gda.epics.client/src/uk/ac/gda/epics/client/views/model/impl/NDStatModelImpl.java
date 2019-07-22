@@ -150,11 +150,6 @@ public class NDStatModelImpl extends EPICSBaseModel implements NdStatModel {
 	}
 
 	@Override
-	protected void doCheckAfterPropertiesSet() throws Exception {
-		// nothing to do
-	}
-
-	@Override
 	public double[] getHistogram() throws Exception {
 		try {
 			return EPICS_CONTROLLER.cagetDoubleArray(getChannel(NDStats.Histogram_RBV, null));
