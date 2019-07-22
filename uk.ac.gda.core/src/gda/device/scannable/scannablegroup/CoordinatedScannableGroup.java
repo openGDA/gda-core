@@ -703,6 +703,21 @@ class CoordinatedChildScannable extends ScannableBase implements ICoordinatedSca
 	}
 
 	@Override
+	public void configure() throws FactoryException {
+		delegate.configure();
+	}
+
+	@Override
+	public boolean isConfigured() {
+		return delegate.isConfigured();
+	}
+
+	@Override
+	public boolean isConfigureAtStartup() {
+		return delegate.isConfigureAtStartup();
+	}
+
+	@Override
 	public void reconfigure() throws FactoryException {
 		delegate.reconfigure();
 	}
