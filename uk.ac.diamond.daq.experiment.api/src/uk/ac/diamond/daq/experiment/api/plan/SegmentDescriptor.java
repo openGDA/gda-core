@@ -1,5 +1,6 @@
 package uk.ac.diamond.daq.experiment.api.plan;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
@@ -12,7 +13,15 @@ import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
 import uk.ac.diamond.daq.experiment.api.remote.TriggerRequest;
 import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
 
-public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest {
+public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest, PropertyChangeListener {
+
+	public static final String NAME_PROPERTY = "name";
+	public static final String SOURCE_PROPERTY = "signalSource";
+	public static final String DURATION_PROPERTY = "duration";
+	public static final String SEV_PROPERTY = "sampleEnvironmentVariableName";
+	public static final String INEQUALITY_PROPERTY = "inequality";
+	public static final String INEQUALITY_REFERENCE_PROPERTY = "inequalityArgument";
+	public static final String TRIGGERS_PROPERTY = "triggers";
 
 	private static final long serialVersionUID = 4022241468104721756L;
 	private String name;
@@ -26,7 +35,11 @@ public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest
 
 	private List<TriggerDescriptor> triggers = new ArrayList<>();
 
-	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+	private final PropertyChangeSupport pcs;
+
+	public SegmentDescriptor() {
+		pcs = new PropertyChangeSupport(this);
+	}
 
 	@Override
 	public String getName() {
@@ -36,7 +49,8 @@ public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest
 	public void setName(String name) {
 		String oldName = this.name;
 		this.name = name;
-		pcs.firePropertyChange("name", oldName, this.name);
+		pcs.firePropertyChange(NAME_PROPERTY, oldName, this.name);
+		pcs.firePropertyChange(REFRESH_PROPERTY, oldName, this.name);
 	}
 
 	@Override
@@ -45,7 +59,9 @@ public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest
 	}
 
 	public void setSampleEnvironmentVariableName(String sevName) {
+		String old = this.sevName;
 		this.sevName = sevName;
+		pcs.firePropertyChange(SEV_PROPERTY, old, sevName);
 	}
 
 	@Override
@@ -54,7 +70,9 @@ public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest
 	}
 
 	public void setInequality(Inequality ineq) {
+		Inequality old = this.ineq;
 		this.ineq = ineq;
+		pcs.firePropertyChange(INEQUALITY_PROPERTY, old, ineq);
 	}
 
 	@Override
@@ -63,7 +81,9 @@ public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest
 	}
 
 	public void setInequalityArgument(double ineqRef) {
+		double old = this.ineqRef;
 		this.ineqRef = ineqRef;
+		pcs.firePropertyChange(INEQUALITY_REFERENCE_PROPERTY, old, ineqRef);
 	}
 
 	@Override
@@ -72,7 +92,9 @@ public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest
 	}
 
 	public void setDuration(double duration) {
+		double old = this.duration;
 		this.duration = duration;
+		pcs.firePropertyChange(DURATION_PROPERTY, old, duration);
 	}
 
 	@Override
@@ -81,7 +103,9 @@ public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest
 	}
 
 	public void setSignalSource(SignalSource source) {
+		SignalSource old = this.source;
 		this.source = source;
+		pcs.firePropertyChange(SEV_PROPERTY, old, source);
 	}
 
 	public List<TriggerDescriptor> getTriggers() {
@@ -96,7 +120,13 @@ public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest
 	}
 
 	public void setTriggers(List<TriggerDescriptor> triggers) {
+		List<TriggerDescriptor> old = this.triggers;
+		if (old != null) {
+			old.forEach(trigger -> trigger.removePropertyChangeListener(this));
+		}
+		triggers.forEach(trigger -> trigger.addPropertyChangeListener(this));
 		this.triggers = triggers;
+		pcs.firePropertyChange(TRIGGERS_PROPERTY, old, triggers);
 	}
 
 	@Override
@@ -121,5 +151,11 @@ public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest
 	@Override
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
 		pcs.removePropertyChangeListener(listener);
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent event) {
+		// when triggers change, I want my listeners to know about it
+		pcs.firePropertyChange(event);
 	}
 }

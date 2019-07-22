@@ -84,7 +84,6 @@ public class PlanPreviewer {
 	
 	private void plotDriverModel() {
 		DriverModel model = getExperimentService().getDriverProfile(planBean.getDriverBean().getDriver(), planBean.getDriverBean().getProfile(), "");
-		
 		List<Dataset> data = model.getPlottableDatasets();
 		plotBaseDatasets(data.get(0), data.get(1));
 	}

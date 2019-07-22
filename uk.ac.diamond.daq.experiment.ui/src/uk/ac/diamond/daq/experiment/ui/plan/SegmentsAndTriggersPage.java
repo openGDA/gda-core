@@ -1,15 +1,12 @@
 package uk.ac.diamond.daq.experiment.ui.plan;
 
-import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.STRETCH;
-import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.addSpace;
-
+import java.beans.PropertyChangeListener;
 import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
@@ -47,13 +44,11 @@ public class SegmentsAndTriggersPage extends WizardPage {
 		PlanPreviewer preview = new PlanPreviewer(planBean, plotController);
 		preview.update();
 		
-		// TODO remove this temporary button once PlanPreviewer can listen for changes in the bean
-		addSpace(composite);
-		addSpace(composite);
-		Button updateButton = new Button(composite, SWT.NONE);
-		STRETCH.applyTo(updateButton);
-		updateButton.setText("Recalculate...");
-		updateButton.addListener(SWT.Selection, event -> preview.update());
+		final PropertyChangeListener beanListener = change -> preview.update();
+		
+		planBean.addPropertyChangeListener(beanListener);
+		
+		composite.addDisposeListener(dispose -> planBean.removePropertyChangeListener(beanListener));
 		
 		setControl(composite);
 	}
