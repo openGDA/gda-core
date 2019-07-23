@@ -247,8 +247,7 @@ public class BatonView extends ViewPart implements IObserver{
 					userMessage = "The user '" + detail.getUserID() + "'";
 				}
 				userMessage += " - authorisation level " + detail.getAuthorisationLevel();
-				final ClientDetails batonHolder = InterfaceProvider.getBatonStateProvider().getBatonHolder();
-				if (batonHolder.getUserID().equals(detail.getUserID())) {
+				if (detail.isHasBaton()) {
 					userMessage +=  " (baton holder)";
 				}
 				return userMessage;
