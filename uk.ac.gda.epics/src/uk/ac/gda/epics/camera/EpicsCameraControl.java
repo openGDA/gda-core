@@ -41,10 +41,33 @@ public class EpicsCameraControl extends FindableBase implements CameraControl {
 	private final ADBase adBase;
 	private final NDROI ndRoi;
 	private NDOverlaySimple ndOverlay;
+	private boolean iocHasOverlayCentrePvs;
 
 	public EpicsCameraControl(ADBase adBase, NDROI ndRoi) {
 		this.adBase = adBase;
 		this.ndRoi = ndRoi;
+	}
+
+	/**
+	 * Camera IOCs report their overlay positions differently. Some use PositionX and PositionY for top-left and
+	 * CentreX and CentreY for centre, others do not have CentreX and CentreY, and for these, PositionX and PositionY
+	 * report the centre position. This flag determines which PVs should be used by EpicsCameraControl to get the
+	 * centre position.
+	 *
+	 * @param iocHasOverlayCentrePvs
+	 */
+	public void setIocHasOverlayCentrePvs(boolean iocHasOverlayCentrePvs) {
+		this.iocHasOverlayCentrePvs = iocHasOverlayCentrePvs;
+	}
+
+	/**
+	 * Camera IOCs report their overlay positions differently. Some use PositionX and PositionY for top-left and
+	 * CentreX and CentreY for centre, others do not have CentreX and CentreY, and for these, PositionX and PositionY
+	 * report the centre position. This flag determines which PVs should be used by EpicsCameraControl to get the
+	 * centre position.
+	 */
+	public boolean getIocHasOverlayCentrePvs() {
+		return iocHasOverlayCentrePvs;
 	}
 
 	private void notifyObservers () throws DeviceException {
@@ -189,18 +212,26 @@ public class EpicsCameraControl extends FindableBase implements CameraControl {
 	@Override
 	public int getOverlayCentreX() throws DeviceException {
 		try {
-			return ndOverlay.getCentreX();
+			if (iocHasOverlayCentrePvs) {
+				return ndOverlay.getCentreX();
+			} else {
+				return ndOverlay.getPositionX();
+			}
 		} catch (Exception e) {
-			throw new DeviceException("Unable to get overlay X co-ordinate.", e);
+			throw new DeviceException("Unable to get overlay X centre co-ordinate.", e);
 		}
 	}
 
 	@Override
 	public int getOverlayCentreY() throws DeviceException {
 		try {
-			return ndOverlay.getCentreY();
+			if (iocHasOverlayCentrePvs) {
+				return ndOverlay.getCentreY();
+			} else {
+				return ndOverlay.getPositionY();
+			}
 		} catch (Exception e) {
-			throw new DeviceException("Unable to get overlay Y co=ordinate.", e);
+			throw new DeviceException("Unable to get overlay Y centre co-ordinate.", e);
 		}
 	}
 }
