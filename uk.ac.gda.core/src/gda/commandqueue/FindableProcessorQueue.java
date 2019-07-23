@@ -448,7 +448,7 @@ public class FindableProcessorQueue extends FindableBase implements IFindableQue
 
 	@Override
 	public String toString() {
-		return "SimpleProcessor [name=" + getName() + ", state=" + state + "]";
+		return "FindableProcessorQueue [name=" + getName() + ", state=" + state + "]";
 	}
 
 	@Override
