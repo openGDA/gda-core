@@ -88,6 +88,7 @@ import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 import gda.scan.Scan;
 import gda.util.QuantityFactory;
+import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
 
 /**
  * DataWriter that outputs NeXus files and optionally a SRS/Text file as well.
@@ -249,6 +250,10 @@ public class NexusDataWriter extends DataWriterBase {
 		}
 
 		createSrsFile = LocalProperties.check(GDA_NEXUS_CREATE_SRS, CREATE_SRS_FILE_BY_DEFAULT);
+
+		if (LocalProperties.check(GDA_NEXUS_SWMR, false)) {
+			swmrStatus = SwmrStatus.ENABLED;
+		}
 	}
 
 	/**
@@ -426,8 +431,8 @@ public class NexusDataWriter extends DataWriterBase {
 	/** Performance instrumentation logging the total time spent writing */
 	private long totalWritingTime;
 
-	/** Flag to indicate if SWMR is active */
-	private boolean swmrActive = false;
+	/** Flag to indicate if SWMR is disabled, enabled or active */
+	private SwmrStatus swmrStatus = SwmrStatus.DISABLED;
 
 	@Override
 	public void addData(IScanDataPoint dataPoint) throws Exception {
@@ -465,7 +470,7 @@ public class NexusDataWriter extends DataWriterBase {
 				this.prepareFileAndStructure();
 				if (file instanceof NexusFileHDF5 && LocalProperties.check(GDA_NEXUS_SWMR, false)) {
 					((NexusFileHDF5) file).activateSwmrMode();
-					swmrActive  = true;
+					swmrStatus  = SwmrStatus.ACTIVE;
 				}
 			}
 		} finally {
@@ -2111,8 +2116,8 @@ public class NexusDataWriter extends DataWriterBase {
 		}
 	}
 
-	public boolean isSwmrActive() {
-		return swmrActive;
+	public SwmrStatus getSwmrStatus() {
+		return swmrStatus;
 	}
 
 }

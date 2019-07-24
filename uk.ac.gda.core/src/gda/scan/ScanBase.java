@@ -66,6 +66,7 @@ import gda.util.OSCommandRunner;
 import gda.util.ScannableLevelComparator;
 import uk.ac.diamond.daq.api.messaging.MessagingService;
 import uk.ac.diamond.daq.api.messaging.messages.ScanMessage;
+import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.core.GDACoreActivator;
 
@@ -694,7 +695,7 @@ public abstract class ScanBase implements NestableScan {
 		ScanMessage message = new ScanMessage(status,
 				info.getFilename(),
 				visit,
-				isSwmrActive(),
+				getSwmrStatus(),
 				info.getScanNumber(),
 				info.getDimensions(),
 				Arrays.asList(info.getScannableNames()),
@@ -707,17 +708,17 @@ public abstract class ScanBase implements NestableScan {
 		optionalJms.ifPresent(jms -> jms.sendMessage(message));
 	}
 
-	private boolean isSwmrActive() {
+	private SwmrStatus getSwmrStatus() {
 		if (isDataWriterAvaliable()) {
 			DataWriter dataWriter = getDataWriter();
 			if (dataWriter instanceof NexusDataWriter) {
 				NexusDataWriter ndw = (NexusDataWriter) dataWriter;
-				return ndw.isSwmrActive();
+				return ndw.getSwmrStatus();
 			} else {
-				return false;
+				return SwmrStatus.DISABLED;
 			}
 		} else {
-			return false;
+			return SwmrStatus.DISABLED;
 		}
 	}
 
