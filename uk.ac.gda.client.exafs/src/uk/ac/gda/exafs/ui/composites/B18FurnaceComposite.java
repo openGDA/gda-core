@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 import gda.jython.JythonServerFacade;
 
 public class B18FurnaceComposite extends FieldBeanComposite {
-	private final Logger logger = LoggerFactory.getLogger(B18FurnaceComposite.class);
+	private static final Logger logger = LoggerFactory.getLogger(B18FurnaceComposite.class);
 	private ScaleBox temperature;
 	private ScaleBox tolerance;
 	private ScaleBox time;
@@ -53,7 +53,6 @@ public class B18FurnaceComposite extends FieldBeanComposite {
 		super(parent, style);
 		setLayout(new GridLayout(2, false));
 
-		final Logger logger = LoggerFactory.getLogger(XYThetaStageComposite.class);
 		Label lblTemperature = new Label(this, SWT.NONE);
 		lblTemperature.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblTemperature.setText("Temperature");

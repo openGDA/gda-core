@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.jython.JythonServerFacade;
-
 import java.io.InputStream;
 
 import org.eclipse.richbeans.api.event.ValueAdapter;
@@ -48,6 +46,7 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.JythonServerFacade;
 import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
 
 /**
@@ -55,7 +54,7 @@ import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
  */
 public class LN2CryoStageComposite extends FieldBeanComposite {
 
-	private static final Logger logger = LoggerFactory.getLogger(XYThetaStageComposite.class);
+	private static final Logger logger = LoggerFactory.getLogger(LN2CryoStageComposite.class);
 
 	private BooleanWrapper manual;
 	boolean showManual;

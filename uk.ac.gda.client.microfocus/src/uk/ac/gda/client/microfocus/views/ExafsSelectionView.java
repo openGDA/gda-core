@@ -37,12 +37,11 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
-import uk.ac.gda.client.microfocus.views.scan.MicroFocusElementListView;
 
 public class ExafsSelectionView extends ViewPart {
 
 	public static final String ID = "uk.ac.gda.client.microfocus.SelectExafsView";
-	private static final Logger logger = LoggerFactory.getLogger(MicroFocusElementListView.class);
+	private static final Logger logger = LoggerFactory.getLogger(ExafsSelectionView.class);
 
 	private List exafsScanList;
 	private List selectedScanList;

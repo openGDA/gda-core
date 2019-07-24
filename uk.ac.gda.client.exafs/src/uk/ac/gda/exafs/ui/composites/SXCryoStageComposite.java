@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.jython.JythonServerFacade;
-
 import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.richbeans.api.event.ValueListener;
 import org.eclipse.richbeans.widgets.FieldBeanComposite;
@@ -38,6 +36,7 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.JythonServerFacade;
 import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
 
 /**
@@ -45,7 +44,7 @@ import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
  */
 public class SXCryoStageComposite extends FieldBeanComposite {
 
-	private static final Logger logger = LoggerFactory.getLogger(XYThetaStageComposite.class);
+	private static final Logger logger = LoggerFactory.getLogger(SXCryoStageComposite.class);
 	boolean showManual;
 	private BooleanWrapper manual;
 	private ScaleBox height;

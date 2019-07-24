@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.jython.JythonServerFacade;
-
 import org.eclipse.richbeans.widgets.FieldBeanComposite;
 import org.eclipse.richbeans.widgets.FieldComposite;
 import org.eclipse.richbeans.widgets.scalebox.RangeBox;
@@ -34,9 +32,11 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.JythonServerFacade;
+
 public class CryoStageComposite extends FieldBeanComposite {
 
-	private static final Logger logger = LoggerFactory.getLogger(XYThetaStageComposite.class);
+	private static final Logger logger = LoggerFactory.getLogger(CryoStageComposite.class);
 
 	private RangeBox x;
 	private RangeBox rot;

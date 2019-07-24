@@ -53,7 +53,7 @@ public class XmapFluorescenceDetector implements FluorescenceDetector, Initializ
 	private final int numberOfElements;
 	private final List<ADRoiStatsPair> nxdetectorROI;
 	private String name;
-	private static final Logger logger = LoggerFactory.getLogger(NexusXmap.class);
+	private static final Logger logger = LoggerFactory.getLogger(XmapFluorescenceDetector.class);
 	// Hardcoded as I08 TwoDScanPlotter does not work properly when the roi name changes
 	private final List<String> roiNameList;
 
