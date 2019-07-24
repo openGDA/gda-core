@@ -46,7 +46,7 @@ public class CommandClient implements IObservable, IObserver {
 	private BufferedReader reader = null;
 	private LinkedList<IObserver> observerList = null;
 	private final static int TOTALNUMTRIES = 15;
-	private Logger logger = LoggerFactory.getLogger(ImageStreamReader.class);
+	private static final Logger logger = LoggerFactory.getLogger(CommandClient.class);
 	
 	/**
 	 * @param hostname
