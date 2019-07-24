@@ -34,7 +34,7 @@ import uk.ac.gda.tomography.model.ITomographyScanParameters;
 public abstract class TomographyCompositeTemplate<T extends ITomographyScanParameters> extends Composite {
 
 	@SuppressWarnings("unused")
-	private static final Logger logger = LoggerFactory.getLogger(TomographyConfigurationComposite.class);
+	private static final Logger logger = LoggerFactory.getLogger(TomographyCompositeTemplate.class);
 	/**
 	 * The tomography scan data
 	 */
