@@ -38,7 +38,6 @@ import gda.observable.IObserver;
  * setCmdTemplate can be set
  */
 public abstract class MapperBasedEnumPositionerBase<T> extends EnumPositionerBase implements InitializingBean {
-	// private static final Logger logger = LoggerFactory.getLogger(EpicsMappedPositioner.class);
 
 	EnumValueMapper<T> mapper;
 	Scannable monitor;

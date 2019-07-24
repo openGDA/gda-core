@@ -45,7 +45,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
 @ServiceInterface(EnumPositioner.class)
 public class DummyPersistentEnumScannable extends ScannableBase implements EditableEnumPositioner {
 
-	private static final Logger mylogger = LoggerFactory.getLogger(DummyPersistentScannable.class);
+	private static final Logger mylogger = LoggerFactory.getLogger(DummyPersistentEnumScannable.class);
 
 	private FileConfiguration configuration;
 	private String[] acceptableStrings = new String[0];

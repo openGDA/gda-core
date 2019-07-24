@@ -34,13 +34,13 @@ import gda.scan.Scan.ScanStatus;
 //Keep title as stored in metadata in sync with title input in NcdButtonPanel
 //and sample thickness
 public class NcdButtonPanelUpdater implements IObserver {
-	
-	private static final Logger logger = LoggerFactory.getLogger(NcdStatusUpdater.class);
+
+	private static final Logger logger = LoggerFactory.getLogger(NcdButtonPanelUpdater.class);
 	private NcdButtonPanelView client;
 	private String title;
 	private Metadata metadata;
 	private Device blaster;
-	
+
 	public NcdButtonPanelUpdater(final NcdButtonPanelView client) {
 		this.client = client;
 		try {
@@ -54,7 +54,7 @@ public class NcdButtonPanelUpdater implements IObserver {
 			logger.error("Could not read metadata (scan title)", e);
 		}
 	}
-	
+
 	@Override
 	public void update(Object source, final Object arg) {
 		updateTitle();
@@ -85,13 +85,13 @@ public class NcdButtonPanelUpdater implements IObserver {
 			}
 		}
 	}
-		
+
 	public void updateTitle() {
 		if (client.titleEntry.isDisposed()) {
 			blaster.deleteIObserver(this);
 			return;
 		}
-		
+
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -108,7 +108,7 @@ public class NcdButtonPanelUpdater implements IObserver {
 				}
 			}
 		});
-		
+
 	}
 
 }

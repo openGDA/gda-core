@@ -33,7 +33,7 @@ import gda.device.scannable.PositionConvertorFunctions;
 
 public class ConstantVelocityScanLine extends AbstractContinuousScanLine {
 
-	private static final Logger logger = LoggerFactory.getLogger(AbstractContinuousScanLine.class);
+	private static final Logger logger = LoggerFactory.getLogger(ConstantVelocityScanLine.class);
 	protected Double start;
 	protected Double stop;
 	protected Double step;

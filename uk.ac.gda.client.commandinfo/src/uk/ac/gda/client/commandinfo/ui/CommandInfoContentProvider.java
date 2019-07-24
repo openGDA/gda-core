@@ -18,18 +18,17 @@
 
 package uk.ac.gda.client.commandinfo.ui;
 
-import gda.jython.commandinfo.ICommandThreadInfo;
-
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.commandinfo.ICommandThreadInfo;
 import uk.ac.gda.client.commandinfo.CommandInfoModel;
 
 public class CommandInfoContentProvider implements IStructuredContentProvider {
 
-	private static final Logger logger = LoggerFactory.getLogger(CommandInfoComposite.class);
+	private static final Logger logger = LoggerFactory.getLogger(CommandInfoContentProvider.class);
 
 	@Override
 	public void dispose() {}

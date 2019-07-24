@@ -48,8 +48,6 @@ import gov.aps.jca.event.MonitorListener;
 
 public class BeamStopStatusCompositeFactory implements CompositeFactory {
 
-	static final Logger logger = LoggerFactory.getLogger(BeamStopStatusCompositeFactory.class);
-
 	private String label;
 	private String pvName;
 

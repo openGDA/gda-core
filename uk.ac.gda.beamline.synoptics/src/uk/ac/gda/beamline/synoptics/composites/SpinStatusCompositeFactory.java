@@ -47,9 +47,7 @@ import gda.observable.IObserver;
 import gda.rcp.views.CompositeFactory;
 
 public class SpinStatusCompositeFactory implements CompositeFactory {
-	
-	static final Logger logger = LoggerFactory.getLogger(SpinStatusCompositeFactory.class);
-	
+
 	private String label;
 	private ISpin spin;
 
@@ -78,16 +76,16 @@ public class SpinStatusCompositeFactory implements CompositeFactory {
 
 class SpinStatusComposite extends Composite {
 	private static final Logger logger = LoggerFactory.getLogger(SpinStatusComposite.class);
-	
+
 	private final Color SPIN_ON_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_GREEN);
 	private final Color SPIN_OFF_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_RED);
 	private final String SPIN_ON_TOOL_TIP="Spin ON!\nRight click - spin control";
 	private final String SPIN_OFF_TOOL_TIP="Spin OFF!\nRight click - spin control";
-	
+
 	private Display display;
 	private Color currentColor;
 	private Canvas canvas;
-	
+
 	private MenuItem spinOn;
 	private MenuItem spinOff;
 	private ISpin spin;
@@ -98,7 +96,7 @@ class SpinStatusComposite extends Composite {
 
 		GridDataFactory.fillDefaults().applyTo(this);
 		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(this);
-		
+
 		Group grp = new Group(this, style);
 		GridDataFactory.fillDefaults().applyTo(grp);
 		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(grp);
@@ -108,11 +106,11 @@ class SpinStatusComposite extends Composite {
 		this.display = display;
 		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(this);
 		GridDataFactory.fillDefaults().applyTo(this);
-		
+
 		this.spin=spin;
-		
+
 		currentColor = SPIN_OFF_COLOR;
-		
+
 		try {
 			if (spin.getState().equalsIgnoreCase("enabled")) {
 				currentColor=SPIN_ON_COLOR;
@@ -156,7 +154,7 @@ class SpinStatusComposite extends Composite {
 		} catch (DeviceException e1) {
 			logger.error("Failed to get spin status", e1);
 		}
-						
+
 		final IObserver spinObserver = new IObserver() {
 			@Override
 			public void update(final Object theObserved, final Object changeCode) {
@@ -189,7 +187,7 @@ class SpinStatusComposite extends Composite {
 
 	private void updateBatonCanvas() {
 		display.asyncExec(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				canvas.redraw();
@@ -197,10 +195,10 @@ class SpinStatusComposite extends Composite {
 			}
 		});
 	}
-	
+
 	private Menu createPopup(Composite parent) {
 		Menu menu = new Menu(parent.getShell(), SWT.POP_UP);
-		
+
 		spinOn = new MenuItem(menu, SWT.RADIO);
 		spinOn.setText("Spin ON");
 		spinOn.addSelectionListener(popupSelectionListener);
@@ -209,18 +207,18 @@ class SpinStatusComposite extends Composite {
 		spinOff.addSelectionListener(popupSelectionListener);
 		return menu;
 	}
-	
+
 	private SelectionListener popupSelectionListener = new SelectionAdapter() {
 		@Override
 		public void widgetSelected(SelectionEvent event) {
 			MenuItem selected = null;
-			
+
 			if (event.widget instanceof MenuItem) {
 				selected = (MenuItem) event.widget;
 			}
-			else 
+			else
 				return;
-			
+
 			try {
 				if (selected.equals(spinOn)) {
 					spin.on();

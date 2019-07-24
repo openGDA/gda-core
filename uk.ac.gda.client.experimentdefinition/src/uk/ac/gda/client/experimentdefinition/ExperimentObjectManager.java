@@ -56,7 +56,7 @@ import uk.ac.gda.common.rcp.util.EclipseUtils;
  */
 public abstract class ExperimentObjectManager implements IExperimentObjectManager {
 
-	private static final Logger logger = LoggerFactory.getLogger(ExperimentObject.class);
+	private static final Logger logger = LoggerFactory.getLogger(ExperimentObjectManager.class);
 	private static final Pattern UNIQUE_PATTERN = Pattern.compile("(.+)(\\d+)", Pattern.CASE_INSENSITIVE);
 
 	protected transient IFile file;  // the .scan file to persist the list of xml files which make up the scan

@@ -44,7 +44,7 @@ import gda.util.Version;
  */
 public class NeXusUtils {
 
-	private static final Logger logger = LoggerFactory.getLogger(NexusUtils.class);
+	private static final Logger logger = LoggerFactory.getLogger(NeXusUtils.class);
 
 	private final static String DEFAULT_NUMBER_VALUE = "-1.0";
 

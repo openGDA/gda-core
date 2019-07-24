@@ -18,8 +18,6 @@
 
 package gda.rcp.ncd.views;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,18 +45,19 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.server.ncd.beans.FrameSetParameters;
 import uk.ac.gda.server.ncd.beans.NcdParameters;
 import uk.ac.gda.server.ncd.beans.TimeProfileParameters;
 
 public class NcdTimeFrameConfigure extends ViewPart {
 	public static final String ID = "gda.rcp.ncd.views.NcdTimeFrameConfigure"; //$NON-NLS-1$
-	private static final Logger logger = LoggerFactory.getLogger(NcdTfgConfigure.class);
+	private static final Logger logger = LoggerFactory.getLogger(NcdTimeFrameConfigure.class);
 	private static int duplicateNumber = 1;
 	private TabFolder tabFolder;
 	private ScrolledComposite container;
 	private Composite composite;
-	
+
 	@Override
 	public void createPartControl(Composite parent) {
 
@@ -85,7 +84,7 @@ public class NcdTimeFrameConfigure extends ViewPart {
 			}
 		});
 	}
-	
+
 	private void createDefaultProfile() {
 		List<TimeProfileParameters> timeProfileParameters = TimeFrameProfile.getHardwareConfig();
 		if (timeProfileParameters == null) {

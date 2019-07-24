@@ -18,17 +18,16 @@
 
 package gda.rcp.client.propertyTesters;
 
-import gda.jython.authenticator.UserAuthentication;
-import gda.jython.authoriser.AuthoriserProvider;
-import gda.rcp.Application;
-
 import org.eclipse.core.expressions.PropertyTester;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.authenticator.UserAuthentication;
+import gda.jython.authoriser.AuthoriserProvider;
+
 public class IsStaffPropertyTester extends PropertyTester {
 
-	private static final Logger logger = LoggerFactory.getLogger(Application.class);
+	private static final Logger logger = LoggerFactory.getLogger(IsStaffPropertyTester.class);
 
 	public IsStaffPropertyTester() {
 	}

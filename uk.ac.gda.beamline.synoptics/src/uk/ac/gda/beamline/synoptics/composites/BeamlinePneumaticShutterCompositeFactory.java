@@ -50,8 +50,6 @@ import gda.rcp.views.CompositeFactory;
 
 public class BeamlinePneumaticShutterCompositeFactory implements CompositeFactory {
 
-	static final Logger logger = LoggerFactory.getLogger(BeamlinePneumaticShutterCompositeFactory.class);
-
 	private String label;
 	private EnumPositioner shutter;
 	private boolean controlPermitted = false;

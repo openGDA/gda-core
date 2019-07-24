@@ -44,7 +44,6 @@ import uk.ac.gda.ui.components.NumberEditorControl;
  * http://www.vogella.com/articles/EclipseDataBinding/article.html for a great introduction to JFace Data Binding
  */
 public class MVCExampleView extends ViewPart {
-	// private static final Logger logger = LoggerFactory.getLogger(MvcExampleView.class);
 
 	public static final String ID = "uk.ac.gda.example.mvcexample.MvcExampleView"; //$NON-NLS-1$
 	private FormToolkit toolkit;

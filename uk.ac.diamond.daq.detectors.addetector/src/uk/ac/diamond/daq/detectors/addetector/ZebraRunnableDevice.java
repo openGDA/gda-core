@@ -18,7 +18,6 @@
 
 package uk.ac.diamond.daq.detectors.addetector;
 
-import org.eclipse.dawnsci.analysis.api.AbstractClientProvider;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusException;
@@ -56,7 +55,7 @@ import uk.ac.diamond.daq.detectors.addetector.api.ZebraModel;
  */
 public class ZebraRunnableDevice extends AbstractRunnableDevice<ZebraModel> implements IWritableDetector<ZebraModel>, INexusDevice<NXdetector> {
 
-	private static final Logger logger = LoggerFactory.getLogger(AbstractClientProvider.class);
+	private static final Logger logger = LoggerFactory.getLogger(ZebraRunnableDevice.class);
 	private static final EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 
 	private String basePv;

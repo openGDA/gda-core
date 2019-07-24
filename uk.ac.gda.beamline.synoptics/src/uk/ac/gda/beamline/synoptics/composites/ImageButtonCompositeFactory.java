@@ -43,8 +43,6 @@ import uk.ac.gda.common.rcp.util.EclipseWidgetUtils;
 
 public class ImageButtonCompositeFactory implements CompositeFactory, InitializingBean {
 
-	static final Logger logger = LoggerFactory.getLogger(ImageButtonCompositeFactory.class);
-
 	private String label;
 	private String tooltipText;
 	private String imagePath;

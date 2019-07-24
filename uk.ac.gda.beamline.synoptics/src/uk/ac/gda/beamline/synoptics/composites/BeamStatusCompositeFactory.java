@@ -48,9 +48,7 @@ import gda.observable.IObserver;
 import gda.rcp.views.CompositeFactory;
 
 public class BeamStatusCompositeFactory implements CompositeFactory {
-	
-	static final Logger logger = LoggerFactory.getLogger(BeamStatusCompositeFactory.class);
-	
+
 	private String label;
 	private IBeamMonitor beamMonitor;
 
@@ -78,16 +76,16 @@ public class BeamStatusCompositeFactory implements CompositeFactory {
 
 class BeamStatusComposite extends Composite {
 	private static final Logger logger = LoggerFactory.getLogger(BeamStatusComposite.class);
-	
+
 	private final Color BEAM_ON_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_GREEN);
 	private final Color BEAM_OFF_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_RED);
 	private final String BEAM_ON_TOOL_TIP="X-ray ON!\nRight click - monitor control";
 	private final String BEAM_OFF_TOOL_TIP="X-ray OFF!\nRight click - monitor control";
-	
+
 	private Display display;
 	private Color currentColor;
 	private Canvas beamCanvas;
-	
+
 	private MenuItem switchOnMonitor;
 	private MenuItem switchOffMonitor;
 	private IBeamMonitor bm;
@@ -98,7 +96,7 @@ class BeamStatusComposite extends Composite {
 
 		GridDataFactory.fillDefaults().applyTo(this);
 		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(this);
-		
+
 		Group grp = new Group(this, style);
 		GridDataFactory.fillDefaults().applyTo(grp);
 		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(grp);
@@ -108,11 +106,11 @@ class BeamStatusComposite extends Composite {
 		this.display = display;
 		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(this);
 		GridDataFactory.fillDefaults().applyTo(this);
-		
+
 		this.bm=bm;
-		
+
 		currentColor = BEAM_OFF_COLOR;
-		
+
 		if (bm.isBeamOn()) {
 			currentColor=BEAM_ON_COLOR;
 		} else {
@@ -146,7 +144,7 @@ class BeamStatusComposite extends Composite {
 		} else {
 			beamCanvas.setToolTipText(BEAM_OFF_TOOL_TIP);
 		}
-						
+
 		final IObserver beamObserver = new IObserver() {
 			@Override
 			public void update(final Object theObserved, final Object changeCode) {
@@ -176,7 +174,7 @@ class BeamStatusComposite extends Composite {
 
 	private void updateBatonCanvas() {
 		display.asyncExec(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				beamCanvas.redraw();
@@ -184,7 +182,7 @@ class BeamStatusComposite extends Composite {
 			}
 		});
 	}
-	
+
 	private Menu createPopup(Composite parent) {
 		Menu menu = new Menu(parent.getShell(), SWT.POP_UP);
 		menu.addMenuListener(new MenuAdapter() {
@@ -205,12 +203,12 @@ class BeamStatusComposite extends Composite {
 		switchOffMonitor.addSelectionListener(popupSelectionListener);
 		return menu;
 	}
-	
+
 	private SelectionListener popupSelectionListener = new SelectionAdapter() {
 		@Override
 		public void widgetSelected(SelectionEvent event) {
 			MenuItem selected = null;
-			
+
 			if (event.widget instanceof MenuItem) {
 				selected = (MenuItem) event.widget;
 			} else {

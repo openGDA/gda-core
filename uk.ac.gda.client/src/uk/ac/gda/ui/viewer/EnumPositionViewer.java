@@ -50,7 +50,7 @@ import uk.ac.gda.ui.internal.viewer.EnumPositionerSource;
  * @see MotorPositionViewer
  */
 public class EnumPositionViewer {
-	private static final Logger logger = LoggerFactory.getLogger(MotorPositionViewer.class);
+	private static final Logger logger = LoggerFactory.getLogger(EnumPositionViewer.class);
 
 	private EnumPositionerSource motor;
 

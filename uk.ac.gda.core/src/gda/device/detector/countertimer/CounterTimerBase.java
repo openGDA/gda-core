@@ -31,7 +31,7 @@ import gda.factory.Finder;
 
 public abstract class CounterTimerBase extends DetectorBase implements CounterTimer {
 
-	private static final Logger logger = LoggerFactory.getLogger(TFGCounterTimer.class);
+	private static final Logger logger = LoggerFactory.getLogger(CounterTimerBase.class);
 
 	protected boolean slave = false;
 

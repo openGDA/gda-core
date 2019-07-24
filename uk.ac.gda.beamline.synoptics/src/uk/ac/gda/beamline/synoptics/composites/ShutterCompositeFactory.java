@@ -1,5 +1,3 @@
-package uk.ac.gda.beamline.synoptics.composites;
-
 /*-
  * Copyright © 2011 Diamond Light Source Ltd.
  *
@@ -18,11 +16,7 @@ package uk.ac.gda.beamline.synoptics.composites;
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import gda.device.DeviceException;
-import gda.device.EnumPositioner;
-import gda.device.scannable.ScannablePositionChangeEvent;
-import gda.observable.IObserver;
-import gda.rcp.views.CompositeFactory;
+package uk.ac.gda.beamline.synoptics.composites;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -46,9 +40,13 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ShutterCompositeFactory implements CompositeFactory {
+import gda.device.DeviceException;
+import gda.device.EnumPositioner;
+import gda.device.scannable.ScannablePositionChangeEvent;
+import gda.observable.IObserver;
+import gda.rcp.views.CompositeFactory;
 
-	static final Logger logger = LoggerFactory.getLogger(ShutterCompositeFactory.class);
+public class ShutterCompositeFactory implements CompositeFactory {
 
 	private String label;
 	private EnumPositioner shutter;
