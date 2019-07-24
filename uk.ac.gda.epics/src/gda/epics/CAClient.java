@@ -1176,6 +1176,16 @@ public class CAClient extends EpicsBase implements MonitorListener, ConnectionLi
 	}
 
 	/**
+	 * Gets an array of all available positions from an Enum typed PV
+	 * @return array of available positions
+	 * @throws TimeoutException
+	 * @throws CAException
+	 * @throws InterruptedException
+	 */
+	public String[] cagetLables() throws TimeoutException, CAException, InterruptedException {
+		return controller.cagetLabels(theChannel);
+	}
+	/**
 	 * Sets the value to the PV on EPICS server.
 	 *
 	 * @param value
