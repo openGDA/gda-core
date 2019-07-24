@@ -27,9 +27,9 @@ public class PlanRequestParser {
 	public IPlan parsePlanRequest(PlanRequest planRequest) throws DeviceException {
 		plan = new Plan(planRequest.getPlanName());
 		
-		if (planRequest.getExperimentDriverName() != null) {
-			driver = Finder.getInstance().find(planRequest.getExperimentDriverName());
-			driver.setModel(getExperimentService().getDriverProfile(driver.getName(), planRequest.getExperimentDriverProfile(), planRequest.getPlanName()));
+		if (planRequest.isDriverUsed()) {
+			driver = Finder.getInstance().find(planRequest.getDriverBean().getDriver());
+			driver.setModel(getExperimentService().getDriverProfile(driver.getName(), planRequest.getDriverBean().getProfile(), planRequest.getPlanName()));
 			plan.setDriver(driver);
 		}
 		

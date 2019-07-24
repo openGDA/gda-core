@@ -30,7 +30,7 @@ public class DriverProfilePreview {
 	
 	public void plot(DriverModel profile) {
 		
-		plottingSystem.clear();
+		clear();
 		
 		List<Dataset> datasets = profile.getPlottableDatasets();
 		
@@ -38,6 +38,10 @@ public class DriverProfilePreview {
 		plottingSystem.clearAnnotations();
 		plottingSystem.setTitle("");
 		plottingSystem.setShowLegend(false);
+	}
+
+	public void clear() {
+		plottingSystem.clear();
 	}
 	
 

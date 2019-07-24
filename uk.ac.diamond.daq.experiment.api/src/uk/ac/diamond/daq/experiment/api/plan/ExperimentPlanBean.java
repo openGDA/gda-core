@@ -10,15 +10,13 @@ import uk.ac.diamond.daq.experiment.api.remote.SegmentRequest;
 
 public class ExperimentPlanBean implements PlanRequest {
 
-	public static final String DRIVER_NAME_PROPERTY = "experimentDriverName";
+	public static final String DRIVER_PROPERTY = "driver";
 
 	private static final long serialVersionUID = 2836310522704078875L;
 	private String name;
 	private String description;
 
-	private boolean driverUsed;
-	private String experimentDriverName;
-	private String experimentDriverProfile;
+	private DriverBean driverBean;
 
 	private List<SegmentDescriptor> segments;
 
@@ -51,37 +49,16 @@ public class ExperimentPlanBean implements PlanRequest {
 	}
 
 	@Override
-	public boolean isDriverUsed() {
-		return driverUsed;
+	public DriverBean getDriverBean() {
+		return driverBean;
 	}
 
-	public void setDriverUsed(boolean driverUsed) {
-		boolean old = this.driverUsed;
-		this.driverUsed = driverUsed;
-		pcs.firePropertyChange("driverUsed", old, driverUsed);
+	public void setDriverBean(DriverBean driverBean) {
+		DriverBean old = this.driverBean;
+		this.driverBean = driverBean;
+		pcs.firePropertyChange(DRIVER_PROPERTY, old, driverBean);
 	}
 
-	@Override
-	public String getExperimentDriverName() {
-		return experimentDriverName;
-	}
-
-	public void setExperimentDriverName(String experimentDriverName) {
-		String old = this.experimentDriverName;
-		this.experimentDriverName = experimentDriverName;
-		pcs.firePropertyChange(DRIVER_NAME_PROPERTY, old, experimentDriverName);
-	}
-
-	@Override
-	public String getExperimentDriverProfile() {
-		return experimentDriverProfile;
-	}
-
-	public void setExperimentDriverProfile(String experimentDriverProfile) {
-		String old = this.experimentDriverProfile;
-		this.experimentDriverProfile = experimentDriverProfile;
-		pcs.firePropertyChange("experimentDriverProfile", old, experimentDriverProfile);
-	}
 	public List<SegmentDescriptor> getSegments() {
 		return segments;
 	}

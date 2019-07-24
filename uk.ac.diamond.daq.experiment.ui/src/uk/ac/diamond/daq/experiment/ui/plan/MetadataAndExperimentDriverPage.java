@@ -1,6 +1,7 @@
 package uk.ac.diamond.daq.experiment.ui.plan;
 
-import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -11,15 +12,12 @@ import org.eclipse.swt.widgets.Composite;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 
 
-public class MetadataAndExperimentDriverPage extends WizardPage {
+public class MetadataAndExperimentDriverPage extends WizardPage implements ValidationListener {
 	
 	private String experimentId;
 	private ExperimentPlanBean planBean;
 	
-	private final PropertyChangeListener planBeanListener;
-	
-	private DriverAndProfileSelectionSection driverAndProfileSection;
-	private NameAndDescriptionSection nameAndDescriptionSection;
+	private List<ValidatablePart> sections;
 	
 	MetadataAndExperimentDriverPage(String experimentId, ExperimentPlanBean planBean) {
 		super(MetadataAndExperimentDriverPage.class.getSimpleName());
@@ -29,9 +27,6 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 		this.experimentId = experimentId;
 		this.planBean = planBean;
 		
-		this.planBeanListener = event -> setPageComplete(isPageComplete());
-		this.planBean.addPropertyChangeListener(planBeanListener);
-		
 	}
 
 	@Override
@@ -40,38 +35,28 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 		GridDataFactory.swtDefaults().applyTo(composite);
 		GridLayoutFactory.swtDefaults().applyTo(composite);
 		
-		nameAndDescriptionSection = new NameAndDescriptionSection(planBean);
-		nameAndDescriptionSection.createSection(composite);
+		sections = new ArrayList<>();
+		sections.add(new NameAndDescriptionSection(planBean));
+		sections.add(new DriverAndProfileSelectionSection(planBean, experimentId));
 		
-		driverAndProfileSection = new DriverAndProfileSelectionSection(planBean, experimentId);
-		driverAndProfileSection.createSection(composite);
+		sections.forEach(section -> {
+			section.createPart(composite);
+			section.addValidationListener(this);
+		});
 		
 		setPageComplete(isPageComplete());
-		
-		composite.addDisposeListener(e -> planBean.removePropertyChangeListener(planBeanListener));
 		
 		setControl(composite);
 	}
 	
 	@Override
 	public boolean isPageComplete() {
-		return nameAndDescriptionSection.validSelection() && driverAndProfileSection.validSelection();
+		return sections.stream().allMatch(ValidatablePart::isValidSelection);
 	}
 
-	public String getPlanName() {
-		return planBean.getPlanName();
-	}
-	
-	public String getPlanDescription() {
-		return planBean.getPlanDescription();
-	}
-	
-	public String getExperimentDriverName() {
-		return planBean.getExperimentDriverName();
-	}
-
-	public String getExperimentDriverProfile() {
-		return planBean.getExperimentDriverProfile();
+	@Override
+	public void handle(boolean valid) {
+		setPageComplete(valid ? isPageComplete() : valid);
 	}
 
 }

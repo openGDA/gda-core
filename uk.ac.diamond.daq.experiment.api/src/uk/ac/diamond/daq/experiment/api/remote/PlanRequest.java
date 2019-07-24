@@ -3,6 +3,8 @@ package uk.ac.diamond.daq.experiment.api.remote;
 import java.io.Serializable;
 import java.util.List;
 
+import uk.ac.diamond.daq.experiment.api.plan.DriverBean;
+
 public interface PlanRequest extends Serializable {
 
 
@@ -11,14 +13,14 @@ public interface PlanRequest extends Serializable {
 
 	String getPlanDescription();
 
-	boolean isDriverUsed();
 
-	String getExperimentDriverName();
+	DriverBean getDriverBean();
 
 
-	String getExperimentDriverProfile();
+	default boolean isDriverUsed() {
+		return getDriverBean() != null;
+	}
 
 
 	List<SegmentRequest> getSegmentRequests();
-
 }

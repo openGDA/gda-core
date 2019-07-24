@@ -1,6 +1,7 @@
 package uk.ac.diamond.daq.experiment.ui.plan.segment;
 
 import java.beans.PropertyChangeListener;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,6 +13,7 @@ import org.eclipse.swt.widgets.Label;
 
 import gda.factory.Finder;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
+import uk.ac.diamond.daq.experiment.api.plan.DriverBean;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 import uk.ac.diamond.daq.experiment.api.plan.SegmentDescriptor;
 import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
@@ -52,8 +54,9 @@ public class SegmentListEditor {
 		listEditor.create(composite);
 		
 		PropertyChangeListener driverChangeListener = change -> {
-			if (change.getPropertyName().equals(ExperimentPlanBean.DRIVER_NAME_PROPERTY)) {
-				updateReadouts(change.getNewValue().toString());
+			if (change.getPropertyName().equals(ExperimentPlanBean.DRIVER_PROPERTY)) {
+				DriverBean driverBean = (DriverBean) change.getNewValue();
+				updateReadouts(driverBean != null ? driverBean.getDriver() : null);
 			}
 		};
 		
@@ -61,15 +64,19 @@ public class SegmentListEditor {
 		composite.addDisposeListener(dispose -> planBean.removePropertyChangeListener(driverChangeListener));
 		
 		if (planBean.isDriverUsed()) {
-			updateReadouts(planBean.getExperimentDriverName());
+			updateReadouts(planBean.getDriverBean().getDriver());
 		}
 		
 		return composite;
 	}
 	
-	private void updateReadouts(String string) {
-		IExperimentDriver<?> driver = Finder.getInstance().find(string);
-		segmentEditor.setReadouts(driver.getReadoutNames());
+	private void updateReadouts(String driverName) {
+		if (driverName != null) {
+			IExperimentDriver<?> driver = Finder.getInstance().find(driverName);
+			segmentEditor.setReadouts(driver.getReadoutNames());
+		} else {
+			segmentEditor.setReadouts(Collections.emptySet());
+		}
 	}
 	
 	public List<SegmentDescriptor> getSegments() {
