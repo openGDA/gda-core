@@ -30,7 +30,6 @@ import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADBase.StandardTriggerMode;
 import gda.device.detector.areadetector.v17.ImageMode;
-import gda.device.detector.areadetector.v17.impl.ADBaseImpl;
 import gda.epics.connection.EpicsController;
 import gda.scan.ScanInformation;
 import gov.aps.jca.CAException;
@@ -39,6 +38,9 @@ import gov.aps.jca.TimeoutException;
 import uk.ac.diamond.daq.concurrent.Async;
 
 public class SingleExposureEpicsShutter extends SimpleAcquire {
+
+	// Setup the logging facilities
+	private static final Logger logger = LoggerFactory.getLogger(SingleExposureEpicsShutter.class);
 
 	public SingleExposureEpicsShutter(ADBase adBase, double readoutTime,
 			String shutterPV, String shutterOpenValue, double shutterOpenDelay,
@@ -50,9 +52,6 @@ public class SingleExposureEpicsShutter extends SimpleAcquire {
 		setShutterCloseValue(shutterCloseValue);
 		setShutterCloseDelay(shutterCloseDelay);
 	}
-
-	// Setup the logging facilities
-	static final Logger logger = LoggerFactory.getLogger(ADBaseImpl.class);
 
 	private final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 

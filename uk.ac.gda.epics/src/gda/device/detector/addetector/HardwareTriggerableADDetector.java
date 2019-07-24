@@ -39,7 +39,7 @@ import gda.jython.InterfaceProvider;
 
 public class HardwareTriggerableADDetector extends ADDetector implements HardwareTriggerableDetector {
 
-	private static Logger logger = LoggerFactory.getLogger(ADDetector.class);
+	private static final Logger logger = LoggerFactory.getLogger(HardwareTriggerableADDetector.class);
 
 	private static int SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES = 5;
 

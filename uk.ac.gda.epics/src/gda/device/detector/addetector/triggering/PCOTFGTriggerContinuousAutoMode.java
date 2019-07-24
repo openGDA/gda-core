@@ -18,6 +18,9 @@
 
 package gda.device.detector.addetector.triggering;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.areadetector.v17.ADBase;
@@ -32,9 +35,6 @@ import gda.scan.ScanInformation;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /*
  * Class of detector  to drive the PCO4000 camera using a TFG2
@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PCOTFGTriggerContinuousAutoMode extends SimpleAcquire {
 	private String shutterPVName = "BL13I-EA-FSHTR-01:CONTROL";
-	private static Logger logger = LoggerFactory.getLogger(PCOTFGTrigger.class);
+	private static final Logger logger = LoggerFactory.getLogger(PCOTFGTriggerContinuousAutoMode.class);
 	private final ADDriverPco adDriverPco;
 	private final Etfg etfg;
 	private double collectionTime = 0.;
