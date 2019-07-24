@@ -18,18 +18,18 @@
 
 package uk.ac.gda.devices.excalibur.impl;
 
-import gda.device.detector.areadetector.IPVProvider;
-import gda.epics.connection.EpicsController;
-import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
-import gov.aps.jca.TimeoutException;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+
+import gda.device.detector.areadetector.IPVProvider;
+import gda.epics.connection.EpicsController;
+import gov.aps.jca.CAException;
+import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
 
 /**
  *
@@ -42,7 +42,7 @@ public abstract class BasePvProvidingImpl implements InitializingBean {
 
 	protected final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 
-	private static final Logger logger = LoggerFactory.getLogger(GapImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(BasePvProvidingImpl.class);
 
 	private IPVProvider pvProvider;
 
