@@ -197,7 +197,7 @@ public abstract class AbstractKeithley2600Series extends ScannableBase {
 
 	protected abstract double getActualVoltage() throws DeviceException;
 
-	private double getDemand() throws DeviceException {
+	protected double getDemand() throws DeviceException {
 		SourceMode sourceMode = getSourceMode();
 		switch (sourceMode) {
 		case VOLTAGE:

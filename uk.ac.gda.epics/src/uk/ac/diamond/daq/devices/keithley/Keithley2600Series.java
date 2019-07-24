@@ -47,7 +47,7 @@ public class Keithley2600Series extends AbstractKeithley2600Series {
 	private static final Logger logger = LoggerFactory.getLogger(Keithley2600Series.class);
 
 	// Values internal to the object for Channel Access
-	private final EpicsController epicsController = EpicsController.getInstance();
+	protected final EpicsController epicsController = EpicsController.getInstance();
 
 	// Map that stores the channel against the PV name
 	private final Map<String, Channel> channelMap = new HashMap<>();
@@ -110,11 +110,11 @@ public class Keithley2600Series extends AbstractKeithley2600Series {
 	/**
 	 * Lazy initialise channels and store them in a map for retrieval later
 	 *
-	 * @param pvPostFix
+	 * @param pvSuffix
 	 *            the suffix of the pv
 	 * @return The EPICS channel object
 	 */
-	private Channel getChannel(String pvSuffix) {
+	protected Channel getChannel(String pvSuffix) {
 		return channelMap.computeIfAbsent(pvSuffix, pvSuffix2 -> {
 			final String fullPvName = basePVName + pvSuffix2;
 			try {
