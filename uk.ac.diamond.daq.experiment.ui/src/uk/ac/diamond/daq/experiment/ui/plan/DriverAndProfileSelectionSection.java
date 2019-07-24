@@ -32,9 +32,7 @@ import org.eclipse.swt.widgets.Label;
 
 import gda.factory.Finder;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
-import uk.ac.diamond.daq.experiment.api.driver.DriverProfileSection;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
-import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 
 public class DriverAndProfileSelectionSection {
@@ -138,13 +136,13 @@ public class DriverAndProfileSelectionSection {
 		
 		// plot driver profile:
 		// 1) on selection of a different profile
-		ISideEffect.create(() -> (String) selectedProfile.getValue(), this::plot);
+		ISideEffect.create(selectedProfile::getValue, profile -> plot());
 		
 		// 2) on use-driver check box toggle
-		ISideEffect.create(driverUsedCheck::getValue, driverUsed -> this.plot(planBean.getExperimentDriverProfile()));
+		ISideEffect.create(driverUsedCheck::getValue, driverUsed -> this.plot());
 		
 		// 3) on changing drivers
-		ISideEffect.create(driverNameInBean::getValue, driverName -> this.plot(planBean.getExperimentDriverProfile()));
+		ISideEffect.create(driverNameInBean::getValue, driverName -> this.plot());
 		
 	}
 	
@@ -171,18 +169,8 @@ public class DriverAndProfileSelectionSection {
 		return Finder.getInstance().getFindablesOfType(IExperimentDriver.class);
 	}
 
-	private void plot(String profileName) {
-		List<DriverProfileSection> profile;
-		if (!planBean.isDriverUsed() || profileName == null || profileName.isEmpty()) {
-			profile = Collections.emptyList();
-		} else {
-			try {
-				profile = ((SingleAxisLinearSeries) getExperimentService().getDriverProfile(planBean.getExperimentDriverName(),
-															profileName, experimentId)).getProfile();
-			} catch (Exception e) {
-				profile = Collections.emptyList();
-			}
-		}
+	private void plot() {
+		DriverModel profile = getExperimentService().getDriverProfile(planBean.getExperimentDriverName(), planBean.getExperimentDriverProfile(), experimentId);
 		profilePlot.plot(profile);
 	}
 	
