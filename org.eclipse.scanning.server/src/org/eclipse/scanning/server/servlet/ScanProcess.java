@@ -59,6 +59,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.api.messaging.MessagingService;
 import uk.ac.diamond.daq.api.messaging.messages.ScanMessage;
+import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
 
 /**
  * Object for running a scan.
@@ -313,7 +314,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			}
 
 			// Build the message object
-			final ScanMessage message = new ScanMessage(status, bean.getFilePath(), visitDir, true, // SWMR is always active once the scan starts
+			final ScanMessage message = new ScanMessage(status, bean.getFilePath(), visitDir, SwmrStatus.ACTIVE, // SWMR is always active once the scan starts
 					bean.getScanNumber(), scanShape,
 					scanModel.getScannables().stream().map(IScannable::getName).collect(toList()),
 					scanModel.getDetectors().stream().map(IRunnableDevice::getName).collect(toList()),

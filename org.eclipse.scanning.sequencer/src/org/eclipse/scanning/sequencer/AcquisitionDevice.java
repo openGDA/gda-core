@@ -79,6 +79,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.api.messaging.messages.ScanMessage;
 import uk.ac.diamond.daq.api.messaging.messages.ScanMessage.ScanStatus;
+import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
 
 /**
  * This device does a standard GDA scan at each point. If a given point is a
@@ -893,7 +894,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 			}
 
 			// Build the message object
-			ScanMessage message = new ScanMessage(status, scanBean.getFilePath(), visitDir, true, // SWMR is always active once the
+			ScanMessage message = new ScanMessage(status, scanBean.getFilePath(), visitDir, SwmrStatus.ACTIVE, // SWMR is always active once the
 																					// scan starts
 					scanBean.getScanNumber(), scanShape,
 					scanModel.getScannables().stream().map(IScannable::getName).collect(toList()),
