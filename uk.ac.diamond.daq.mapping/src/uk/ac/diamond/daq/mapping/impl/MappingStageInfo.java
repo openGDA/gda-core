@@ -47,38 +47,38 @@ public class MappingStageInfo implements IStageScanConfiguration {
 		this.pcs.removePropertyChangeListener(listener);
 	}
 
-	private String activeFastScanAxis;
-	private String activeSlowScanAxis;
+	private String plotXAxisName;
+	private String plotYAxisName;
 	private String associatedAxis;
 	private String beamSize;
 
 	public void merge(MappingStageInfo other) {
-		setActiveFastScanAxis(other.getActiveFastScanAxis());
-		setActiveSlowScanAxis(other.getActiveSlowScanAxis());
+		setPlotXAxisName(other.getPlotXAxisName());
+		setPlotYAxisName(other.getPlotYAxisName());
 		setAssociatedAxis(other.getAssociatedAxis());
 		setBeamSize(other.getBeamSize());
 	}
 
 	@Override
-	public String getActiveFastScanAxis() {
-		return activeFastScanAxis;
+	public String getPlotXAxisName() {
+		return plotXAxisName;
 	}
 
-	public void setActiveFastScanAxis(String newValue) {
-		String oldValue = this.activeFastScanAxis;
-		this.activeFastScanAxis = newValue;
-		this.pcs.firePropertyChange("activeFastScanAxis", oldValue, newValue);
+	public void setPlotXAxisName(String newValue) {
+		String oldValue = this.plotXAxisName;
+		this.plotXAxisName = newValue;
+		this.pcs.firePropertyChange("plotXAxisName", oldValue, newValue);
 	}
 
 	@Override
-	public String getActiveSlowScanAxis() {
-		return activeSlowScanAxis;
+	public String getPlotYAxisName() {
+		return plotYAxisName;
 	}
 
-	public void setActiveSlowScanAxis(String newValue) {
-		String oldValue = this.activeSlowScanAxis;
-		this.activeSlowScanAxis = newValue;
-		this.pcs.firePropertyChange("activeSlowScanAxis", oldValue, newValue);
+	public void setPlotYAxisName(String newValue) {
+		String oldValue = this.plotYAxisName;
+		this.plotYAxisName = newValue;
+		this.pcs.firePropertyChange("plotYAxisName", oldValue, newValue);
 	}
 
 	@Override
@@ -115,16 +115,16 @@ public class MappingStageInfo implements IStageScanConfiguration {
 
 	@Override
 	public String toString() {
-		return "MappingStageInfo [activeFastScanAxis=" + activeFastScanAxis + ", activeSlowScanAxis="
-				+ activeSlowScanAxis + ", associatedAxis=" + associatedAxis + ", beamSize=" + beamSize + "]";
+		return "MappingStageInfo [plotXAxisName=" + plotXAxisName + ", plotYAxisName="
+				+ plotYAxisName + ", associatedAxis=" + associatedAxis + ", beamSize=" + beamSize + "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((activeFastScanAxis == null) ? 0 : activeFastScanAxis.hashCode());
-		result = prime * result + ((activeSlowScanAxis == null) ? 0 : activeSlowScanAxis.hashCode());
+		result = prime * result + ((plotXAxisName == null) ? 0 : plotXAxisName.hashCode());
+		result = prime * result + ((plotYAxisName == null) ? 0 : plotYAxisName.hashCode());
 		result = prime * result + ((associatedAxis == null) ? 0 : associatedAxis.hashCode());
 		result = prime * result + ((beamSize == null) ? 0 : beamSize.hashCode());
 		return result;
@@ -139,15 +139,15 @@ public class MappingStageInfo implements IStageScanConfiguration {
 		if (getClass() != obj.getClass())
 			return false;
 		MappingStageInfo other = (MappingStageInfo) obj;
-		if (activeFastScanAxis == null) {
-			if (other.activeFastScanAxis != null)
+		if (plotXAxisName == null) {
+			if (other.plotXAxisName != null)
 				return false;
-		} else if (!activeFastScanAxis.equals(other.activeFastScanAxis))
+		} else if (!plotXAxisName.equals(other.plotXAxisName))
 			return false;
-		if (activeSlowScanAxis == null) {
-			if (other.activeSlowScanAxis != null)
+		if (plotYAxisName == null) {
+			if (other.plotYAxisName != null)
 				return false;
-		} else if (!activeSlowScanAxis.equals(other.activeSlowScanAxis))
+		} else if (!plotYAxisName.equals(other.plotYAxisName))
 			return false;
 		if (associatedAxis == null) {
 			if (other.associatedAxis != null)

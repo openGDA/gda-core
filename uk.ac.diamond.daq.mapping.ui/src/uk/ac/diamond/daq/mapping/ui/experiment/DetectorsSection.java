@@ -260,10 +260,10 @@ public class DetectorsSection extends AbstractMappingSection {
 			// is already set correctly for the malcolm device, no update is required
 			// note if new (2018) malcolm, malcolmAxes will contain all
 			boolean updatedFastAndSlowAxes = false;
-			if (!malcolmAxes.contains(stageInfo.getActiveFastScanAxis()) || !malcolmAxes.contains(stageInfo.getActiveSlowScanAxis())) {
+			if (!malcolmAxes.contains(stageInfo.getPlotXAxisName()) || !malcolmAxes.contains(stageInfo.getPlotYAxisName())) {
 				// we assume the order is fast-axis, slow-axes. Malcolm devices must be configured to have this order
-				stageInfo.setActiveFastScanAxis(malcolmAxes.get(0));
-				stageInfo.setActiveSlowScanAxis(malcolmAxes.get(1));
+				stageInfo.setPlotXAxisName(malcolmAxes.get(0));
+				stageInfo.setPlotYAxisName(malcolmAxes.get(1));
 				updatedFastAndSlowAxes = true;
 			}
 
@@ -281,7 +281,7 @@ public class DetectorsSection extends AbstractMappingSection {
 					String message = "";
 					if (updatedFastAndSlowAxes) {
 						message += MessageFormat.format("The active fast scan axis for mapping scans has been updated to ''{0}'' and the active slow scan axis to ''{1}''.",
-							stageInfo.getActiveFastScanAxis(), stageInfo.getActiveSlowScanAxis());
+							stageInfo.getPlotXAxisName(), stageInfo.getPlotYAxisName());
 					}
 					if (updatedAssociatedAxes) {
 						message += MessageFormat.format(" The associated axis has been updated to ''{0}''.", stageInfo.getAssociatedAxis());

@@ -161,14 +161,14 @@ public abstract class AbstractModelEditor<T> {
 	 * @return scannable name if IStageScanConfiguration is configured, otherwise the literal "Fast axis"
 	 */
 	protected String getFastAxisName() {
-		return Objects.nonNull(mappingStageInfo) ? mappingStageInfo.getActiveFastScanAxis() : "Fast axis";
+		return Objects.nonNull(mappingStageInfo) ? mappingStageInfo.getPlotXAxisName() : "Fast axis";
 	}
 
 	/**
 	 * @return scannable name if IStageScanConfiguration is configured, otherwise the literal "Slow axis"
 	 */
 	protected String getSlowAxisName() {
-		return Objects.nonNull(mappingStageInfo) ? mappingStageInfo.getActiveSlowScanAxis() : "Slow axis";
+		return Objects.nonNull(mappingStageInfo) ? mappingStageInfo.getPlotYAxisName() : "Slow axis";
 	}
 
 	protected IScannableDeviceService getScannableDeviceService() throws EventException {

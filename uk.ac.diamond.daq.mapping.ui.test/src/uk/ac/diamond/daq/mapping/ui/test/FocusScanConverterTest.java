@@ -58,8 +58,8 @@ public class FocusScanConverterTest {
 	@Before
 	public void setUp() throws Exception {
 		mappingStageInfo = new MappingStageInfo();
-		mappingStageInfo.setActiveFastScanAxis("testing_x_axis");
-		mappingStageInfo.setActiveSlowScanAxis("testing_y_axis");
+		mappingStageInfo.setPlotXAxisName("testing_x_axis");
+		mappingStageInfo.setPlotYAxisName("testing_y_axis");
 		mappingStageInfo.setAssociatedAxis("zone_plate_axis");
 
 		focusScanConverter = new FocusScanConverter();
@@ -111,8 +111,8 @@ public class FocusScanConverterTest {
 		assertThat(models.get(1), is(instanceOf(OneDEqualSpacingModel.class)));
 		final OneDEqualSpacingModel lineModel = (OneDEqualSpacingModel) models.get(1);
 		assertEquals(2, lineModel.getScannableNames().size());
-		assertEquals(mappingStageInfo.getActiveSlowScanAxis(), lineModel.getScannableNames().get(1));
-		assertEquals(mappingStageInfo.getActiveFastScanAxis(), lineModel.getScannableNames().get(0));
+		assertEquals(mappingStageInfo.getPlotYAxisName(), lineModel.getScannableNames().get(1));
+		assertEquals(mappingStageInfo.getPlotXAxisName(), lineModel.getScannableNames().get(0));
 		assertEquals(focusScanBean.getNumberOfLinePoints(), lineModel.getPoints());
 		final BoundingLine boundingLine = lineModel.getBoundingLine();
 		assertNotNull(boundingLine);
@@ -126,8 +126,8 @@ public class FocusScanConverterTest {
 		assertEquals(1, compoundModel.getRegions().size());
 		final ScanRegion<?> scanRegion = compoundModel.getRegions().iterator().next();
 		assertEquals(2, scanRegion.getScannables().size());
-		assertEquals(mappingStageInfo.getActiveSlowScanAxis(), scanRegion.getScannables().get(0));
-		assertEquals(mappingStageInfo.getActiveFastScanAxis(), scanRegion.getScannables().get(1));
+		assertEquals(mappingStageInfo.getPlotYAxisName(), scanRegion.getScannables().get(0));
+		assertEquals(mappingStageInfo.getPlotXAxisName(), scanRegion.getScannables().get(1));
 		assertThat(scanRegion.getRoi(), is(instanceOf(LinearROI.class)));
 		assertEquals(expectedRegion, scanRegion.getRoi());
 

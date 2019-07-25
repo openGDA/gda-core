@@ -120,11 +120,11 @@ public class BeamPositionPlotter implements IObserver, PropertyChangeListener {
 
 			beamMarkerColour = new Color(null, 127, 127, 255); // light blue
 
-			xAxisScannable = Finder.getInstance().find(mappingStageInfo.getActiveFastScanAxis());
+			xAxisScannable = Finder.getInstance().find(mappingStageInfo.getPlotXAxisName());
 			xAxisScannable.addIObserver(this);
 			lastXCoordinate = (double) xAxisScannable.getPosition();
 
-			yAxisScannable = Finder.getInstance().find(mappingStageInfo.getActiveSlowScanAxis());
+			yAxisScannable = Finder.getInstance().find(mappingStageInfo.getPlotYAxisName());
 			yAxisScannable.addIObserver(this);
 			lastYCoordinate = (double) yAxisScannable.getPosition();
 
