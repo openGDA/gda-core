@@ -107,8 +107,7 @@ public class PtychographyGridPathEditor extends AbstractPathEditor {
 		grabHorizontalSpace.applyTo(offsetText);
 		binder.bind(offsetText, "randomOffset", getModel());
 
-		makeSnakeControl(composite, getModel());
-		makeContinuousControl(composite, getModel());
+		makeContinuousControl(composite);
 
 		return composite;
 	}

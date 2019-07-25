@@ -36,7 +36,7 @@ public class OneDEqualSpacingPathEditor extends AbstractPathEditor {
 		grabHorizontalSpace.applyTo(points);
 		binder.bind(points, "points", getModel());
 
-		makeContinuousControl(composite, getModel());
+		makeContinuousControl(composite);
 
 		return composite;
 	}
