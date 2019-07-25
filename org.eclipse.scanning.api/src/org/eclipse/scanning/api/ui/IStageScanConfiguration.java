@@ -22,16 +22,16 @@ import java.beans.PropertyChangeListener;
 public interface IStageScanConfiguration {
 
 	/**
-	 * Return the name of the fast scan axis
+	 * Return the name of the x-axis (as plotted).
 	 * @return fast axis name
 	 */
-	String getActiveFastScanAxis();
+	String getPlotXAxisName();
 
 	/**
-	 * Return the name of the fast scan axis
+	 * Return the name of the y-axis (as plotted).
 	 * @return slow axis name
 	 */
-	String getActiveSlowScanAxis();
+	String getPlotYAxisName();
 
 	/**
 	 * Returns the name of the associated axis. This may be the z-axis, for example.
@@ -59,8 +59,5 @@ public interface IStageScanConfiguration {
 	 * @return the name of the camera configuration to be used as the default one (if set) or empty {@link String}
 	 */
 	String getDefaultStreamSourceConfig();
-
-
-
 
 }
