@@ -87,6 +87,9 @@ public class ImageListenerWindow extends FindableConfigurableBase implements Ima
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		videoReceiver.addImageListener(this);
 		setConfigured(true);
 	}

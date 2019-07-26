@@ -109,6 +109,9 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		createConnection();
 		setConfigured(true);
 	}

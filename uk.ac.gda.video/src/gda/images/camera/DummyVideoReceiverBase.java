@@ -75,6 +75,9 @@ public abstract class DummyVideoReceiverBase<T> extends ConfigurableBase impleme
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		createConnection();
 		setConfigured(true);
 	}

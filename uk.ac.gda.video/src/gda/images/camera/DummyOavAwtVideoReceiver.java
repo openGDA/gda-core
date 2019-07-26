@@ -61,6 +61,9 @@ public class DummyOavAwtVideoReceiver extends ConfigurableBase implements VideoR
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		createConnection();
 		setConfigured(true);
 	}
