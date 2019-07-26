@@ -60,7 +60,7 @@ public class XesSpectrometerScannableTest {
 		return scnMotor;
 	}
 
-	private EnumPositioner createBooleanPositioner(String name) throws DeviceException {
+	private EnumPositioner createBooleanPositioner(String name) throws DeviceException, FactoryException {
 		DummyEnumPositioner positioner = new DummyEnumPositioner();
 		positioner.setName(name);
 		positioner.setPositions(Arrays.asList(Boolean.TRUE.toString(), Boolean.FALSE.toString()));
