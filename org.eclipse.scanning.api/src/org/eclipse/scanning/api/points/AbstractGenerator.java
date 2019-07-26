@@ -94,9 +94,9 @@ public abstract class AbstractGenerator<T> implements IPointGenerator<T> {
 			// and this flips the slow and/or fast point order.
 			if (bmodel.getBoundingBox() == null)
 				throw new ModelValidationException("The model must have a Bounding Box!", model, "boundingBox");
-	        if (bmodel.getBoundingBox().getFastAxisLength()==0)
+	        if (bmodel.getBoundingBox().getXAxisLength()==0)
 	        	throw new ModelValidationException("The length must not be 0!", bmodel, "boundingBox");
-	        if (bmodel.getBoundingBox().getSlowAxisLength()==0)
+	        if (bmodel.getBoundingBox().getYAxisLength()==0)
 	        	throw new ModelValidationException("The length must not be 0!", bmodel, "boundingBox");
 		}
 	}

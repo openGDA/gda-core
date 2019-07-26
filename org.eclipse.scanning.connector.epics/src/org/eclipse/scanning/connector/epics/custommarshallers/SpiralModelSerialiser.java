@@ -52,9 +52,9 @@ public class SpiralModelSerialiser implements IPVStructureSerialiser<SpiralModel
 		PVString name = pvStructure.getSubField(PVString.class, "name");
 		name.put(model.getName());
 		PVString fastAxisName = pvStructure.getSubField(PVString.class, "fastAxisName");
-		fastAxisName.put(model.getFastAxisName());
+		fastAxisName.put(model.getXAxisName());
 		PVString slowAxisName = pvStructure.getSubField(PVString.class, "slowAxisName");
-		slowAxisName.put(model.getSlowAxisName());
+		slowAxisName.put(model.getYAxisName());
 		PVDouble scale = pvStructure.getSubField(PVDouble.class, "scale");
 		scale.put(model.getScale());
 		PVStructure bbStructure = pvStructure.getStructureField("boundingBox");

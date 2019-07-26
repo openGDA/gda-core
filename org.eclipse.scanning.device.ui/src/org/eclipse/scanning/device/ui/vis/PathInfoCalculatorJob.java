@@ -89,8 +89,8 @@ class PathInfoCalculatorJob extends Job {
 			return Status.CANCEL_STATUS;// No path to draw.
 		}
 		IBoundingBoxModel boxModel = (IBoundingBoxModel) scanPathModel;
-		String xAxisName = boxModel.getFastAxisName();
-		String yAxisName = boxModel.getSlowAxisName();
+		String xAxisName = boxModel.getXAxisName();
+		String yAxisName = boxModel.getYAxisName();
 		try {
 			vservice.validate(scanPathModel); // Throws exception if invalid.
 

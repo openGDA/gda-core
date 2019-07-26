@@ -98,8 +98,8 @@ public class RunnableDeviceServiceConfigureTest {
 
 		// If none passed, create scan points for a grid.
 		GridModel pmodel = new GridModel("x", "y");
-		pmodel.setSlowAxisPoints(5);
-		pmodel.setFastAxisPoints(5);
+		pmodel.setYAxisPoints(5);
+		pmodel.setXAxisPoints(5);
 		pmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
 		IPointGenerator<?> gen = gservice.createGenerator(pmodel);

@@ -440,10 +440,10 @@ def grid(axes=None, start=None, stop=None, step=None, count=None, snake=True,
 
         model = _instantiate(
                     GridModel,
-                    {'fastAxisName': xName,
-                     'slowAxisName': yName,
-                     'fastAxisPoints': rows,
-                     'slowAxisPoints': cols,
+                    {'xAxisName': xName,
+                     'yAxisName': yName,
+                     'xAxisPoints': rows,
+                     'yAxisPoints': cols,
                      'snake': snake,
                      'continuous' : continuous,
                      'boundingBox': bbox})
@@ -456,10 +456,10 @@ def grid(axes=None, start=None, stop=None, step=None, count=None, snake=True,
 
         model = _instantiate(
                     RasterModel,
-                    {'fastAxisName': xName,
-                     'slowAxisName': yName,
-                     'fastAxisStep': xStep,
-                     'slowAxisStep': yStep,
+                    {'xAxisName': xName,
+                     'yAxisName': yName,
+                     'xAxisStep': xStep,
+                     'yAxisStep': yStep,
                      'snake': snake,
                      'continuous' : continuous,
                      'boundingBox': bbox})
@@ -490,10 +490,10 @@ def random_offset_grid(axes=None, start=None, stop=None, count=None, snake=True,
 
     model = _instantiate(
                 RandomOffsetGridModel,
-                {'fastAxisName': xName,
-                 'slowAxisName': yName,
-                 'fastAxisPoints': rows,
-                 'slowAxisPoints': cols,
+                {'xAxisName': xName,
+                 'yAxisName': yName,
+                 'xAxisPoints': rows,
+                 'yAxisPoints': cols,
                  'snake': snake,
                  'boundingBox': bbox,
                  'seed': seed,
@@ -519,8 +519,8 @@ def spiral(axes=None, start=None, stop=None, scale=1, continuous=True, roi=None)
 
     model = _instantiate(
                 SpiralModel,
-                {'fastAxisName': xName,
-                 'slowAxisName': yName,
+                {'xAxisName': xName,
+                 'yAxisName': yName,
                  'boundingBox': bbox,
                  'scale': scale,
                  'continuous': continuous})
@@ -543,8 +543,8 @@ def lissajous(axes=None, start=None, stop=None, a=1.0, b=0.25, delta=0.0, theta=
     
     model = _instantiate(
                 LissajousModel,
-                {'fastAxisName': xName,
-                 'slowAxisName': yName,
+                {'xAxisName': xName,
+                 'yAxisName': yName,
                  'boundingBox': bbox,
                  'a': a,
                  'b': b,
@@ -816,7 +816,7 @@ def _makeBoundingBox(start, stop):
         raise ValueError('`stop` must be a pair of values (w, h).')
     
     return _instantiate(BoundingBox,
-                    {'fastAxisStart': xStart,
-                     'slowAxisStart': yStart,
-                     'fastAxisLength': xStop - xStart,
-                     'slowAxisLength': yStop - yStart})
+                    {'xAxisStart': xStart,
+                     'yAxisStart': yStart,
+                     'xAxisLength': xStop - xStart,
+                     'yAxisLength': yStop - yStart})

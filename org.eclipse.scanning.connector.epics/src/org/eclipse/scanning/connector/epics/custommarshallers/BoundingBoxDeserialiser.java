@@ -28,10 +28,10 @@ public class BoundingBoxDeserialiser implements IPVStructureDeserialiser {
 	@Override
 	public Object fromPVStructure(Deserialiser deserialiser, PVStructure pvStructure) throws Exception {
 		BoundingBox boundingBox = new BoundingBox();
-		boundingBox.setFastAxisStart(pvStructure.getSubField(PVDouble.class, "fastAxisStart").get());
-		boundingBox.setSlowAxisStart(pvStructure.getSubField(PVDouble.class, "slowAxisStart").get());
-		boundingBox.setFastAxisLength(pvStructure.getSubField(PVDouble.class, "fastAxisLength").get());
-		boundingBox.setSlowAxisLength(pvStructure.getSubField(PVDouble.class, "slowAxisLength").get());
+		boundingBox.setXAxisStart(pvStructure.getSubField(PVDouble.class, "fastAxisStart").get());
+		boundingBox.setYAxisStart(pvStructure.getSubField(PVDouble.class, "slowAxisStart").get());
+		boundingBox.setXAxisLength(pvStructure.getSubField(PVDouble.class, "fastAxisLength").get());
+		boundingBox.setYAxisLength(pvStructure.getSubField(PVDouble.class, "slowAxisLength").get());
 		return boundingBox;
 	}
 }

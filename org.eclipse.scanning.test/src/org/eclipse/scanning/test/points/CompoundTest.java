@@ -53,14 +53,14 @@ public class CompoundTest {
 		IPointGenerator<StepModel> pos = service.createGenerator(new StepModel("Position", 1, 4, 0.6));
 
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(0);
-		box.setSlowAxisStart(0);
-		box.setFastAxisLength(3);
-		box.setSlowAxisLength(3);
+		box.setXAxisStart(0);
+		box.setYAxisStart(0);
+		box.setXAxisLength(3);
+		box.setYAxisLength(3);
 
 		GridModel model = new GridModel();
-		model.setSlowAxisPoints(20);
-		model.setFastAxisPoints(20);
+		model.setYAxisPoints(20);
+		model.setXAxisPoints(20);
 		model.setBoundingBox(box);
 
 		IPointGenerator<GridModel> gen = service.createGenerator(model);
@@ -214,14 +214,14 @@ public class CompoundTest {
 		assertArrayEquals(new int[] { 11 }, temp.getShape());
 
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(0);
-		box.setSlowAxisStart(0);
-		box.setFastAxisLength(3);
-		box.setSlowAxisLength(3);
+		box.setXAxisStart(0);
+		box.setYAxisStart(0);
+		box.setXAxisLength(3);
+		box.setYAxisLength(3);
 
 		GridModel model = new GridModel("x", "y");
-		model.setSlowAxisPoints(20);
-		model.setFastAxisPoints(20);
+		model.setYAxisPoints(20);
+		model.setXAxisPoints(20);
 		model.setBoundingBox(box);
 		model.setContinuous(false);
 
@@ -311,14 +311,14 @@ public class CompoundTest {
 		assertArrayEquals(new int[] { 11 }, temp.getShape());
 
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(0);
-		box.setSlowAxisStart(0);
-		box.setFastAxisLength(3);
-		box.setSlowAxisLength(3);
+		box.setXAxisStart(0);
+		box.setYAxisStart(0);
+		box.setXAxisLength(3);
+		box.setYAxisLength(3);
 
 		GridModel model = new GridModel("x", "y");
-		model.setSlowAxisPoints(20);
-		model.setFastAxisPoints(20);
+		model.setYAxisPoints(20);
+		model.setXAxisPoints(20);
 		model.setBoundingBox(box);
 
 		IPointGenerator<GridModel> grid = service.createGenerator(model);
@@ -360,14 +360,14 @@ public class CompoundTest {
 		assertArrayEquals(new int[] { expectedOuterSize }, temp.getShape());
 
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(0);
-		box.setSlowAxisStart(0);
-		box.setFastAxisLength(3);
-		box.setSlowAxisLength(3);
+		box.setXAxisStart(0);
+		box.setYAxisStart(0);
+		box.setXAxisLength(3);
+		box.setYAxisLength(3);
 
 		GridModel model = new GridModel("x", "y");
-		model.setSlowAxisPoints(20);
-		model.setFastAxisPoints(20);
+		model.setYAxisPoints(20);
+		model.setXAxisPoints(20);
 		model.setBoundingBox(box);
 
 		IROI region = new CircularROI(2, 1, 1);
@@ -404,17 +404,17 @@ public class CompoundTest {
 	public void testGridCompoundGrid() throws Exception {
 
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(0);
-		box.setSlowAxisStart(0);
-		box.setFastAxisLength(3);
-		box.setSlowAxisLength(3);
+		box.setXAxisStart(0);
+		box.setYAxisStart(0);
+		box.setXAxisLength(3);
+		box.setYAxisLength(3);
 
 		GridModel model1 = new GridModel();
-		model1.setSlowAxisPoints(5);
-		model1.setFastAxisPoints(5);
+		model1.setYAxisPoints(5);
+		model1.setXAxisPoints(5);
 		model1.setBoundingBox(box);
-		model1.setFastAxisName("x");
-		model1.setSlowAxisName("y");
+		model1.setXAxisName("x");
+		model1.setYAxisName("y");
 
 		IPointGenerator<GridModel> grid1 = service.createGenerator(model1);
 		assertEquals(25, grid1.size());
@@ -422,11 +422,11 @@ public class CompoundTest {
 		assertArrayEquals(new int[] { 5, 5 }, grid1.getShape());
 
 		GridModel model2 = new GridModel();
-		model2.setSlowAxisPoints(5);
-		model2.setFastAxisPoints(5);
+		model2.setYAxisPoints(5);
+		model2.setXAxisPoints(5);
 		model2.setBoundingBox(box);
-		model2.setFastAxisName("x2");
-		model2.setSlowAxisName("y2");
+		model2.setXAxisName("x2");
+		model2.setYAxisName("y2");
 
 		IPointGenerator<GridModel> grid2 = service.createGenerator(model2);
 		assertEquals(25, grid2.size());
@@ -467,10 +467,10 @@ public class CompoundTest {
 
 		// Create scan points for a grid and make a generator
 		GridModel gmodel = new GridModel();
-		gmodel.setFastAxisName("xNex");
-		gmodel.setFastAxisPoints(size[size.length-2]);
-		gmodel.setSlowAxisName("yNex");
-		gmodel.setSlowAxisPoints(size[size.length-1]);
+		gmodel.setXAxisName("xNex");
+		gmodel.setXAxisPoints(size[size.length-2]);
+		gmodel.setYAxisName("yNex");
+		gmodel.setYAxisPoints(size[size.length-1]);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
 		IPointGenerator<?> gen = service.createGenerator(gmodel);

@@ -34,20 +34,20 @@ public class LissajousGenerator extends AbstractGenerator<LissajousModel> {
 
 	@Override
 	public ScanPointIterator iteratorFromValidModel() {
-		final String xName = model.getFastAxisName();
-		final String xUnits = model.getFastAxisUnits();
-		final String yName = model.getSlowAxisName();
-		final String yUnits = model.getSlowAxisUnits();
-		final double width = model.getBoundingBox().getFastAxisLength();
-		final double height = model.getBoundingBox().getSlowAxisLength();
+		final String xName = model.getXAxisName();
+		final String xUnits = model.getXAxisUnits();
+		final String yName = model.getYAxisName();
+		final String yUnits = model.getYAxisUnits();
+		final double width = model.getBoundingBox().getXAxisLength();
+		final double height = model.getBoundingBox().getYAxisLength();
 
         final JythonObjectFactory<ScanPointIterator> lissajousGeneratorFactory = ScanPointGeneratorFactory.JLissajousGeneratorFactory();
 
         final PyDictionary box = new PyDictionary();
         box.put("width", width);
         box.put("height", height);
-        box.put("centre", new double[] {model.getBoundingBox().getFastAxisStart() + width / 2,
-									model.getBoundingBox().getSlowAxisStart() + height / 2});
+        box.put("centre", new double[] {model.getBoundingBox().getXAxisStart() + width / 2,
+									model.getBoundingBox().getYAxisStart() + height / 2});
 
         final PyList names =  new PyList(Arrays.asList(xName, yName));
         final PyList units = new PyList(Arrays.asList(xUnits, yUnits));
@@ -64,8 +64,8 @@ public class LissajousGenerator extends AbstractGenerator<LissajousModel> {
 	@Override
 	protected void validateModel() {
 		if (model.getPoints() < 1) throw new ModelValidationException("Must have one or more points in model!", model, "points");
-		if (model.getFastAxisName()==null) throw new ModelValidationException("The model must have a fast axis!\nIt is the motor name used for this axis.", model, "fastAxisName");
-		if (model.getSlowAxisName()==null) throw new ModelValidationException("The model must have a slow axis!\nIt is the motor name used for this axis.", model, "slowAxisName");
+		if (model.getXAxisName()==null) throw new ModelValidationException("The model must have an x-axis!\nIt is the motor name used for this axis.", model, "xAxisName");
+		if (model.getYAxisName()==null) throw new ModelValidationException("The model must have a y-axix!\nIt is the motor name used for this axis.", model, "yAxisName");
 	}
 
 }

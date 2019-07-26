@@ -30,10 +30,10 @@ public class GridModelDeserialiser implements IPVStructureDeserialiser {
 	public Object fromPVStructure(Deserialiser deserialiser, PVStructure pvStructure) throws Exception {
 		GridModel gridModel = new GridModel();
 		gridModel.setName(pvStructure.getSubField(PVString.class, "name").get());
-		gridModel.setFastAxisName(pvStructure.getSubField(PVString.class, "fastAxisName").get());
-		gridModel.setSlowAxisName(pvStructure.getSubField(PVString.class, "slowAxisName").get());
-		gridModel.setFastAxisPoints(pvStructure.getSubField(PVInt.class, "fastAxisPoints").get());
-		gridModel.setSlowAxisPoints(pvStructure.getSubField(PVInt.class, "slowAxisPoints").get());
+		gridModel.setXAxisName(pvStructure.getSubField(PVString.class, "fastAxisName").get());
+		gridModel.setYAxisName(pvStructure.getSubField(PVString.class, "slowAxisName").get());
+		gridModel.setXAxisPoints(pvStructure.getSubField(PVInt.class, "fastAxisPoints").get());
+		gridModel.setYAxisPoints(pvStructure.getSubField(PVInt.class, "slowAxisPoints").get());
 		gridModel.setSnake(pvStructure.getBooleanField("snake").get());
 		return gridModel;
 	}

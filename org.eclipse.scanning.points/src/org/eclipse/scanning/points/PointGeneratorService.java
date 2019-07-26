@@ -134,17 +134,17 @@ public class PointGeneratorService implements IPointGeneratorService {
 		if (model instanceof IBoundingBoxModel) {
 			IBoundingBoxModel bbm = (IBoundingBoxModel) model;
 			if (bbm.getBoundingBox() != null) {
-				IRectangularROI modelsROI = new RectangularROI(bbm.getBoundingBox().getFastAxisStart(),
-						bbm.getBoundingBox().getSlowAxisStart(), bbm.getBoundingBox().getFastAxisLength(),
-						bbm.getBoundingBox().getSlowAxisLength(), 0);
+				IRectangularROI modelsROI = new RectangularROI(bbm.getBoundingBox().getXAxisStart(),
+						bbm.getBoundingBox().getYAxisStart(), bbm.getBoundingBox().getXAxisLength(),
+						bbm.getBoundingBox().getYAxisLength(), 0);
 
 				rect = rect.bounds(modelsROI);
 			}
 			BoundingBox box = new BoundingBox();
-			box.setFastAxisStart(rect.getPoint()[0]);
-			box.setSlowAxisStart(rect.getPoint()[1]);
-			box.setFastAxisLength(rect.getLength(0));
-			box.setSlowAxisLength(rect.getLength(1));
+			box.setXAxisStart(rect.getPoint()[0]);
+			box.setYAxisStart(rect.getPoint()[1]);
+			box.setXAxisLength(rect.getLength(0));
+			box.setYAxisLength(rect.getLength(1));
 			bbm.setBoundingBox(box);
 		} else if (model instanceof IBoundingLineModel) {
 			BoundingLine line = new BoundingLine();

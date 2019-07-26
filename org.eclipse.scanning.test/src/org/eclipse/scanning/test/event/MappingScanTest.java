@@ -102,14 +102,14 @@ public class MappingScanTest extends BrokerTest{
 		int ipoint = 0;
 
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(10);
-		box.setSlowAxisStart(10);
-		box.setFastAxisLength(5);
-		box.setSlowAxisLength(2);
+		box.setXAxisStart(10);
+		box.setYAxisStart(10);
+		box.setXAxisLength(5);
+		box.setYAxisLength(2);
 
 		final GridModel model = new GridModel("x", "y");
-		model.setSlowAxisPoints(2);
-		model.setFastAxisPoints(5);
+		model.setYAxisPoints(2);
+		model.setXAxisPoints(5);
 		model.setBoundingBox(box);
 
 		IPointGenerator<GridModel> gen = gservice.createGenerator(model);

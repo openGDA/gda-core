@@ -33,21 +33,21 @@ public class RandomOffsetGridModelExpresser extends PyModelExpresser<RandomOffse
 
 		// axes
 		sb.append(verbose?"axes=":"");
-		sb.append("('"+model.getFastAxisName()+"', '");
-		sb.append(model.getSlowAxisName()+"'), ");
+		sb.append("('"+model.getXAxisName()+"', '");
+		sb.append(model.getYAxisName()+"'), ");
 
 		// start
 		sb.append(verbose?"start=":"");
-		sb.append("("+formatValue(model.getBoundingBox().getFastAxisStart())+", "+formatValue(model.getBoundingBox().getSlowAxisStart())+"), ");
+		sb.append("("+formatValue(model.getBoundingBox().getXAxisStart())+", "+formatValue(model.getBoundingBox().getYAxisStart())+"), ");
 
 		// stop
 		sb.append(verbose?"stop=":"");
-		sb.append("("+formatValue(model.getBoundingBox().getFastAxisEnd())+", "+formatValue(model.getBoundingBox().getSlowAxisEnd())+"), ");
+		sb.append("("+formatValue(model.getBoundingBox().getXAxisEnd())+", "+formatValue(model.getBoundingBox().getYAxisEnd())+"), ");
 
 		// points
 		sb.append(verbose?"count=":"");
-		sb.append("("+model.getFastAxisPoints()+", ");
-		sb.append(model.getSlowAxisPoints()+"), ");
+		sb.append("("+model.getXAxisPoints()+", ");
+		sb.append(model.getYAxisPoints()+"), ");
 
 		// snake
 		sb.append(isSnake(model, verbose));

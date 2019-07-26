@@ -55,8 +55,8 @@ public class SubscanModeratorTest {
 		CompoundModel cmodel = new CompoundModel<>();
 
 		GridModel gmodel = new GridModel("x", "y");
-		gmodel.setSlowAxisPoints(5);
-		gmodel.setFastAxisPoints(5);
+		gmodel.setYAxisPoints(5);
+		gmodel.setXAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
 		cmodel.setModels(Arrays.asList(new StepModel("T", 290, 300, 2), gmodel));
@@ -86,8 +86,8 @@ public class SubscanModeratorTest {
 		CompoundModel cmodel = new CompoundModel<>();
 
 		GridModel gmodel = new GridModel("x", "y");
-		gmodel.setSlowAxisPoints(5);
-		gmodel.setFastAxisPoints(5);
+		gmodel.setYAxisPoints(5);
+		gmodel.setXAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
 		cmodel.setModels(Arrays.asList(gmodel, new StepModel("T", 290, 300, 2)));
@@ -129,8 +129,8 @@ public class SubscanModeratorTest {
 		CompoundModel cmodel = new CompoundModel<>();
 
 		GridModel gmodel = new GridModel("x", "y");
-		gmodel.setSlowAxisPoints(5);
-		gmodel.setFastAxisPoints(5);
+		gmodel.setYAxisPoints(5);
+		gmodel.setXAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
 		cmodel.setModels(Arrays.asList(gmodel));
@@ -153,8 +153,8 @@ public class SubscanModeratorTest {
 		CompoundModel cmodel = new CompoundModel<>();
 
 		GridModel gmodel = new GridModel("x", "y");
-		gmodel.setSlowAxisPoints(5);
-		gmodel.setFastAxisPoints(5);
+		gmodel.setYAxisPoints(5);
+		gmodel.setXAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
 		cmodel.setModels(Arrays.asList(gmodel));
@@ -176,8 +176,8 @@ public class SubscanModeratorTest {
 		CompoundModel cmodel = new CompoundModel<>();
 
 		GridModel gmodel = new GridModel("x", "y");
-		gmodel.setSlowAxisPoints(5);
-		gmodel.setFastAxisPoints(5);
+		gmodel.setYAxisPoints(5);
+		gmodel.setXAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
 		cmodel.setModels(Arrays.asList(new StepModel("T", 290, 300, 2), gmodel));
@@ -201,8 +201,8 @@ public class SubscanModeratorTest {
 		CompoundModel cmodel = new CompoundModel<>();
 
 		GridModel gmodel = new GridModel("x", "y");
-		gmodel.setSlowAxisPoints(5);
-		gmodel.setFastAxisPoints(5);
+		gmodel.setYAxisPoints(5);
+		gmodel.setXAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
 		cmodel.setModels(Arrays.asList(gmodel));
@@ -235,8 +235,8 @@ public class SubscanModeratorTest {
 		CompoundModel cmodel = new CompoundModel<>();
 
 		GridModel gmodel = new GridModel("x", "y");
-		gmodel.setSlowAxisPoints(5);
-		gmodel.setFastAxisPoints(5);
+		gmodel.setYAxisPoints(5);
+		gmodel.setXAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
 		cmodel.setModels(Arrays.asList(new StepModel("T", 290, 300, 2), gmodel));
@@ -260,8 +260,8 @@ public class SubscanModeratorTest {
 		CompoundModel cmodel = new CompoundModel<>();
 
 		GridModel gmodel = new GridModel("x", "y");
-		gmodel.setSlowAxisPoints(5);
-		gmodel.setFastAxisPoints(5);
+		gmodel.setYAxisPoints(5);
+		gmodel.setXAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
 		cmodel.setModels(Arrays.asList(new StepModel("T", 290, 300, 2), gmodel));
@@ -285,8 +285,8 @@ public class SubscanModeratorTest {
 		CompoundModel cmodel = new CompoundModel<>();
 
 		GridModel gmodel = new GridModel("p", "y");
-		gmodel.setSlowAxisPoints(5);
-		gmodel.setFastAxisPoints(5);
+		gmodel.setYAxisPoints(5);
+		gmodel.setXAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
 		cmodel.setModels(Arrays.asList(new StepModel("T", 290, 300, 2), gmodel));
@@ -310,8 +310,8 @@ public class SubscanModeratorTest {
 		CompoundModel cmodel = new CompoundModel<>();
 
 		GridModel gmodel = new GridModel("p", "y");
-		gmodel.setSlowAxisPoints(5);
-		gmodel.setFastAxisPoints(5);
+		gmodel.setYAxisPoints(5);
+		gmodel.setXAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
 		cmodel.setModels(Arrays.asList(new StepModel("p", 290, 300, 2), gmodel));

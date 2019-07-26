@@ -34,8 +34,8 @@ public class SinglePointGenerator extends AbstractGenerator<SinglePointModel> {
 	protected Iterator<IPosition> iteratorFromValidModel() {
 		final SinglePointModel model = getModel();
 
-		final PyList names =  new PyList(Arrays.asList(model.getFastAxisName(), model.getSlowAxisName()));
-		final PyList units = new PyList(Arrays.asList(model.getFastAxisUnits(), model.getSlowAxisUnits()));
+		final PyList names =  new PyList(Arrays.asList(model.getXAxisName(), model.getYAxisName()));
+		final PyList units = new PyList(Arrays.asList(model.getXAxisUnits(), model.getYAxisUnits()));
 		final double[] position = new double[] {model.getX(), model.getY()};
 
 		// ArrayGenerator might be better suited for a single point, but it only supports a single dimension.

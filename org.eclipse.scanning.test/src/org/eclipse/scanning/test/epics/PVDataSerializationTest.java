@@ -150,8 +150,8 @@ public class PVDataSerializationTest {
 		IPointGeneratorService pgService = new PointGeneratorService();
 		GridModel gm = new GridModel("stage_x", "stage_y");
 		gm.setSnake(true);
-		gm.setSlowAxisPoints(5);
-		gm.setFastAxisPoints(10);
+		gm.setYAxisPoints(5);
+		gm.setXAxisPoints(10);
 
 		IPointGenerator<GridModel> temp = pgService.createGenerator(gm, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
@@ -232,8 +232,8 @@ public class PVDataSerializationTest {
 		IPointGeneratorService pgService = new PointGeneratorService();
 		GridModel gm = new GridModel("stage_x", "stage_y");
 		gm.setSnake(true);
-		gm.setSlowAxisPoints(5);
-		gm.setFastAxisPoints(10);
+		gm.setYAxisPoints(5);
+		gm.setXAxisPoints(10);
 
 		IPointGenerator<GridModel> temp = pgService.createGenerator(gm, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
@@ -317,8 +317,8 @@ public class PVDataSerializationTest {
 		IPointGeneratorService pgService = new PointGeneratorService();
 		GridModel gm = new GridModel("stage_x", "stage_y");
 		gm.setSnake(true);
-		gm.setSlowAxisPoints(5);
-		gm.setFastAxisPoints(10);
+		gm.setYAxisPoints(5);
+		gm.setXAxisPoints(10);
 
 		IPointGenerator<GridModel> temp = pgService.createGenerator(gm, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
@@ -360,8 +360,8 @@ public class PVDataSerializationTest {
 		IPointGeneratorService pgService = new PointGeneratorService();
 		GridModel gm = new GridModel("stage_x", "stage_y");
 		gm.setSnake(true);
-		gm.setSlowAxisPoints(5);
-		gm.setFastAxisPoints(10);
+		gm.setYAxisPoints(5);
+		gm.setXAxisPoints(10);
 
 		IPointGenerator<GridModel> temp = pgService.createGenerator(gm, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
@@ -459,8 +459,8 @@ public class PVDataSerializationTest {
 		IPointGeneratorService pgService = new PointGeneratorService();
 		GridModel gm = new GridModel("stage_x", "stage_y");
 		gm.setSnake(true);
-		gm.setSlowAxisPoints(5);
-		gm.setFastAxisPoints(10);
+		gm.setYAxisPoints(5);
+		gm.setXAxisPoints(10);
 
 		IPointGenerator<GridModel> temp = pgService.createGenerator(gm, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
@@ -542,8 +542,8 @@ public class PVDataSerializationTest {
 		IPointGeneratorService pgService = new PointGeneratorService();
 		GridModel gm = new GridModel("stage_x", "stage_y");
 		gm.setSnake(true);
-		gm.setSlowAxisPoints(5);
-		gm.setFastAxisPoints(10);
+		gm.setYAxisPoints(5);
+		gm.setXAxisPoints(10);
 
 		IPointGenerator<GridModel> temp = pgService.createGenerator(gm, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
@@ -629,8 +629,8 @@ public class PVDataSerializationTest {
 		IPointGeneratorService pgService = new PointGeneratorService();
 		GridModel gm = new GridModel("stage_x", "stage_y");
 		gm.setSnake(true);
-		gm.setSlowAxisPoints(5);
-		gm.setFastAxisPoints(10);
+		gm.setYAxisPoints(5);
+		gm.setXAxisPoints(10);
 
 		IPointGenerator<GridModel> temp = pgService.createGenerator(gm, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
@@ -722,8 +722,8 @@ public class PVDataSerializationTest {
 		IPointGeneratorService pgService = new PointGeneratorService();
 		GridModel gm = new GridModel("stage_x", "stage_y");
 		gm.setSnake(true);
-		gm.setSlowAxisPoints(5);
-		gm.setFastAxisPoints(10);
+		gm.setYAxisPoints(5);
+		gm.setXAxisPoints(10);
 
 		IPointGenerator<GridModel> temp = pgService.createGenerator(gm, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
@@ -863,8 +863,8 @@ public class PVDataSerializationTest {
 		LissajousModel lissajousModel = new LissajousModel();
 		lissajousModel.setBoundingBox(new BoundingBox(0, -5, 10, 6));
 		lissajousModel.setPoints(20);
-		lissajousModel.setSlowAxisName("san");
-		lissajousModel.setFastAxisName("fan");
+		lissajousModel.setYAxisName("san");
+		lissajousModel.setXAxisName("fan");
 		IPointGenerator<LissajousModel> temp = pgService.createGenerator(lissajousModel);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
@@ -1106,8 +1106,8 @@ public class PVDataSerializationTest {
 		IPointGeneratorService pgService = new PointGeneratorService();
 		GridModel gm = new GridModel("stage_x", "stage_y");
 		gm.setSnake(true);
-		gm.setSlowAxisPoints(5);
-		gm.setFastAxisPoints(10);
+		gm.setYAxisPoints(5);
+		gm.setXAxisPoints(10);
 
 		IPointGenerator<GridModel> temp = pgService.createGenerator(gm, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);

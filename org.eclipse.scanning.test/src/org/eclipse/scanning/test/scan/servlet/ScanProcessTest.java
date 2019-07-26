@@ -706,10 +706,10 @@ public class ScanProcessTest {
 	public void testMalcolmValidation(boolean valid) throws Exception {
 		// Arrange
 		final GridModel gmodel = new GridModel();
-		gmodel.setFastAxisName("stage_x");
-		gmodel.setFastAxisPoints(5);
-		gmodel.setSlowAxisName("stage_y");
-		gmodel.setSlowAxisPoints(5);
+		gmodel.setXAxisName("stage_x");
+		gmodel.setXAxisPoints(5);
+		gmodel.setYAxisName("stage_y");
+		gmodel.setYAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0, 0, 3, 3));
 
 		final DummyMalcolmModel dmodel = new DummyMalcolmModel();

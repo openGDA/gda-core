@@ -39,14 +39,14 @@ public class GridTest extends AbstractGeneratorTest {
 
 		// Create a grid scan model
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(0);
-		box.setSlowAxisStart(0);
-		box.setFastAxisLength(3);
-		box.setSlowAxisLength(3);
+		box.setXAxisStart(0);
+		box.setYAxisStart(0);
+		box.setXAxisLength(3);
+		box.setYAxisLength(3);
 
 		GridModel model = new GridModel("x", "y");
-		model.setSlowAxisPoints(20);
-		model.setFastAxisPoints(20);
+		model.setYAxisPoints(20);
+		model.setXAxisPoints(20);
 		model.setBoundingBox(box);
 
 		// Get the point list
@@ -66,14 +66,14 @@ public class GridTest extends AbstractGeneratorTest {
 	public void testNegativeRowCount() throws Exception {
 
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(0);
-		box.setSlowAxisStart(0);
-		box.setFastAxisLength(3);
-		box.setSlowAxisLength(3);
+		box.setXAxisStart(0);
+		box.setYAxisStart(0);
+		box.setXAxisLength(3);
+		box.setYAxisLength(3);
 
 		GridModel model = new GridModel("x", "y");
-		model.setSlowAxisPoints(-20);  // An unsigned integer type would solve this problem...
-		model.setFastAxisPoints(20);
+		model.setYAxisPoints(-20);  // An unsigned integer type would solve this problem...
+		model.setXAxisPoints(20);
 		model.setBoundingBox(box);
 
 		IPointGenerator<GridModel> gen = service.createGenerator(model);
@@ -87,14 +87,14 @@ public class GridTest extends AbstractGeneratorTest {
 	public void testSimpleBox() throws Exception {
 
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(-0.5);
-		box.setSlowAxisStart(-0.5);
-		box.setFastAxisLength(5);
-		box.setSlowAxisLength(5);
+		box.setXAxisStart(-0.5);
+		box.setYAxisStart(-0.5);
+		box.setXAxisLength(5);
+		box.setYAxisLength(5);
 
 		GridModel model = new GridModel("x", "y");
-		model.setSlowAxisPoints(5);
-		model.setFastAxisPoints(5);
+		model.setYAxisPoints(5);
+		model.setXAxisPoints(5);
 		model.setBoundingBox(box);
 
 		IPointGenerator<GridModel> gen = service.createGenerator(model);
@@ -122,14 +122,14 @@ public class GridTest extends AbstractGeneratorTest {
 	public void testSimpleBoxSnake() throws Exception {
 
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(-0.5);
-		box.setSlowAxisStart(-0.5);
-		box.setFastAxisLength(5);
-		box.setSlowAxisLength(5);
+		box.setXAxisStart(-0.5);
+		box.setYAxisStart(-0.5);
+		box.setXAxisLength(5);
+		box.setYAxisLength(5);
 
 		GridModel model = new GridModel("x", "y");
-		model.setSlowAxisPoints(5);
-		model.setFastAxisPoints(5);
+		model.setYAxisPoints(5);
+		model.setXAxisPoints(5);
 		model.setSnake(true);
 		model.setBoundingBox(box);
 
@@ -158,14 +158,14 @@ public class GridTest extends AbstractGeneratorTest {
 	public void testBackwardsBox() throws Exception {
 
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(4.5);
-		box.setSlowAxisStart(-0.5);
-		box.setFastAxisLength(-5);
-		box.setSlowAxisLength(5);
+		box.setXAxisStart(4.5);
+		box.setYAxisStart(-0.5);
+		box.setXAxisLength(-5);
+		box.setYAxisLength(5);
 
 		GridModel model = new GridModel("x", "y");
-		model.setSlowAxisPoints(5);
-		model.setFastAxisPoints(5);
+		model.setYAxisPoints(5);
+		model.setXAxisPoints(5);
 		model.setBoundingBox(box);
 
 		IPointGenerator<GridModel> gen = service.createGenerator(model);
@@ -193,14 +193,14 @@ public class GridTest extends AbstractGeneratorTest {
 	public void testBackwardsBoxSnake() throws Exception {
 
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(4.5);
-		box.setSlowAxisStart(-0.5);
-		box.setFastAxisLength(-5);
-		box.setSlowAxisLength(5);
+		box.setXAxisStart(4.5);
+		box.setYAxisStart(-0.5);
+		box.setXAxisLength(-5);
+		box.setYAxisLength(5);
 
 		GridModel model = new GridModel("x", "y");
-		model.setSlowAxisPoints(5);
-		model.setFastAxisPoints(5);
+		model.setYAxisPoints(5);
+		model.setXAxisPoints(5);
 		model.setSnake(true);
 		model.setBoundingBox(box);
 
@@ -229,14 +229,14 @@ public class GridTest extends AbstractGeneratorTest {
 	public void testDoublyBackwardsBox() throws Exception {
 
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(4.5);
-		box.setSlowAxisStart(4.5);
-		box.setFastAxisLength(-5);
-		box.setSlowAxisLength(-5);
+		box.setXAxisStart(4.5);
+		box.setYAxisStart(4.5);
+		box.setXAxisLength(-5);
+		box.setYAxisLength(-5);
 
 		GridModel model = new GridModel("x", "y");
-		model.setSlowAxisPoints(5);
-		model.setFastAxisPoints(5);
+		model.setYAxisPoints(5);
+		model.setXAxisPoints(5);
 		model.setBoundingBox(box);
 
 		IPointGenerator<GridModel> gen = service.createGenerator(model);
@@ -264,14 +264,14 @@ public class GridTest extends AbstractGeneratorTest {
 	public void testDoublyBackwardsBoxSnake() throws Exception {
 
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(4.5);
-		box.setSlowAxisStart(4.5);
-		box.setFastAxisLength(-5);
-		box.setSlowAxisLength(-5);
+		box.setXAxisStart(4.5);
+		box.setYAxisStart(4.5);
+		box.setXAxisLength(-5);
+		box.setYAxisLength(-5);
 
 		GridModel model = new GridModel("x", "y");
-		model.setSlowAxisPoints(5);
-		model.setFastAxisPoints(5);
+		model.setYAxisPoints(5);
+		model.setXAxisPoints(5);
 		model.setSnake(true);
 		model.setBoundingBox(box);
 
@@ -304,10 +304,10 @@ public class GridTest extends AbstractGeneratorTest {
 
 		// Create a raster scan path
 		GridModel model = new GridModel("x", "y");
-		model.setSlowAxisPoints(20);
-		model.setFastAxisPoints(20);
-		model.setSlowAxisName("y");
-		model.setFastAxisName("x");
+		model.setYAxisPoints(20);
+		model.setXAxisPoints(20);
+		model.setYAxisName("y");
+		model.setXAxisName("x");
 
 		// Get the point list
 		IPointGenerator<GridModel> gen = service.createGenerator(model, roi);
@@ -333,10 +333,10 @@ public class GridTest extends AbstractGeneratorTest {
 
 		// Create a raster scan path
 		GridModel model = new GridModel("x", "y");
-		model.setSlowAxisPoints(20);
-		model.setFastAxisPoints(20);
-		model.setSlowAxisName("y");
-		model.setFastAxisName("x");
+		model.setYAxisPoints(20);
+		model.setXAxisPoints(20);
+		model.setYAxisName("y");
+		model.setXAxisName("x");
 
 		checkWrtCompound(model, roi, 400);
 	}
@@ -349,10 +349,10 @@ public class GridTest extends AbstractGeneratorTest {
 
 		// Create a raster scan path
 		GridModel model = new GridModel("x", "y");
-		model.setSlowAxisPoints(20);
-		model.setFastAxisPoints(20);
-		model.setSlowAxisName("y");
-		model.setFastAxisName("x");
+		model.setYAxisPoints(20);
+		model.setXAxisPoints(20);
+		model.setYAxisName("y");
+		model.setXAxisName("x");
 
 		// Get the point list
 		IPointGenerator<GridModel> gen = service.createGenerator(model, roi);
@@ -378,10 +378,10 @@ public class GridTest extends AbstractGeneratorTest {
 
 		// Create a raster scan path
 		GridModel gridScanPath = new GridModel("x", "y");
-		gridScanPath.setSlowAxisPoints(20);
-		gridScanPath.setFastAxisPoints(20);
-		gridScanPath.setSlowAxisName("y");
-		gridScanPath.setFastAxisName("x");
+		gridScanPath.setYAxisPoints(20);
+		gridScanPath.setXAxisPoints(20);
+		gridScanPath.setYAxisName("y");
+		gridScanPath.setXAxisName("x");
 
 		// Get the point list
 		IPointGenerator<GridModel> gen = service.createGenerator(gridScanPath, circle);
@@ -403,8 +403,8 @@ public class GridTest extends AbstractGeneratorTest {
 
 		// Create a raster scan path
 		GridModel gridScanPath = new GridModel("x", "y");
-		gridScanPath.setSlowAxisPoints(20);
-		gridScanPath.setFastAxisPoints(200);
+		gridScanPath.setYAxisPoints(20);
+		gridScanPath.setXAxisPoints(200);
 
 		// Get the point list
 		IPointGenerator<GridModel> gen = service.createGenerator(gridScanPath, circle);
@@ -443,14 +443,14 @@ public class GridTest extends AbstractGeneratorTest {
 		diamond.insertPoint(new double[] { 0, 1.5 });
 
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(0);
-		box.setSlowAxisStart(0);
-		box.setFastAxisLength(3);
-		box.setSlowAxisLength(3);
+		box.setXAxisStart(0);
+		box.setYAxisStart(0);
+		box.setXAxisLength(3);
+		box.setYAxisLength(3);
 
 		GridModel model = new GridModel("x", "y");
-		model.setSlowAxisPoints(20);
-		model.setFastAxisPoints(20);
+		model.setYAxisPoints(20);
+		model.setXAxisPoints(20);
 		model.setBoundingBox(box);
 
 		// Get the point list
@@ -503,10 +503,10 @@ public class GridTest extends AbstractGeneratorTest {
 
 		// Create a grid scan path
 		GridModel model = new GridModel("x", "y");
-		model.setSlowAxisPoints(3);
-		model.setFastAxisPoints(3);
-		model.setSlowAxisName("y");
-		model.setFastAxisName("x");
+		model.setYAxisPoints(3);
+		model.setXAxisPoints(3);
+		model.setYAxisName("y");
+		model.setXAxisName("x");
 
 		// Get the point list
 		IPointGenerator<GridModel> gen = service.createGenerator(model, roi);
@@ -530,8 +530,8 @@ public class GridTest extends AbstractGeneratorTest {
 
 		// Create a grid scan path
 		GridModel model = new GridModel("x", "y");
-		model.setSlowAxisPoints(3);
-		model.setFastAxisPoints(3);
+		model.setYAxisPoints(3);
+		model.setXAxisPoints(3);
 		model.setSnake(true);
 
 		// Get the point list
