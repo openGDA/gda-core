@@ -34,7 +34,6 @@ import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetectorBase;
 import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.device.scannable.PositionStreamIndexer;
-import gda.factory.FactoryException;
 
 public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorBase implements
 		HardwareTriggeredNexusXmap {
@@ -78,7 +77,12 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 	}
 
 	@Override
-	public void configure() throws FactoryException {
+	public void configure(){
+		if (isConfigured()) {
+			return;
+		}
+		// put any code required to configure device here
+		setConfigured(true);
 	}
 
 	@Override
@@ -378,8 +382,7 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 			logger.error("Error occurred arming the xmap detector", e);
 			throw new DeviceException("Error occurred arming the xmap detector", e);
 		}
-		this.indexer = new PositionStreamIndexer<NexusTreeProvider>(new XmapPositionInputStream(this,
-				this.xmap.isSumAllElementData()));
+		this.indexer = new PositionStreamIndexer<>(new XmapPositionInputStream(this, xmap.isSumAllElementData()));
 	}
 
 	@Override

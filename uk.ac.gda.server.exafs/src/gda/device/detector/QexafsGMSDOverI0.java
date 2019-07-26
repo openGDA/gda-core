@@ -38,9 +38,13 @@ public class QexafsGMSDOverI0 extends DetectorBase implements BufferedDetector {
 
 	@Override
 	public void configure() {
+		if (isConfigured()) {
+			return;
+		}
 		this.setExtraNames(new String[] { "QexafsGMSDI0" });
 		this.setInputNames(new String[0]);
 		this.setOutputFormat(new String[] { "%.4f" });
+		setConfigured(true);
 	}
 
 	@Override

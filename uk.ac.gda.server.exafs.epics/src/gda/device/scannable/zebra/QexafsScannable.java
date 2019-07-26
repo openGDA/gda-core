@@ -92,6 +92,9 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		try {
 			controller = EpicsController.getInstance();
 			channelManager = new EpicsChannelManager(this);
@@ -107,6 +110,7 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 		}
 
 		super.configure();
+		setConfigured(true);
 	}
 
 	protected double energyToDegrees(double energy) {

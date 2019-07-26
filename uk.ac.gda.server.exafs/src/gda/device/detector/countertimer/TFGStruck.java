@@ -39,10 +39,14 @@ public class TFGStruck extends TFGCounterTimer {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		// don't call super.configure()
 		setInputNames(new String[]{"time"});
 		setExtraNames(new String[]{"gmsd0","gmsd1","gmsd2","gmsd3","gmsd4","gmsd5","gmsd6","gmsd7"});
 		setOutputFormat(new String[]{"%.2f","%.5g","%.5g","%.5g","%.5g","%.5g","%.5g","%.5g","%.5g"});
+		setConfigured(true);
 	}
 
 	@Override

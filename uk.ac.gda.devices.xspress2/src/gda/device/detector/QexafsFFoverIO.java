@@ -63,9 +63,13 @@ public class QexafsFFoverIO extends DetectorBase implements BufferedDetector{
 
 	@Override
 	public void configure() {
+		if (isConfigured()) {
+			return;
+		}
 		setExtraNames(new String[] { "QexafsFFI0" });
 		setInputNames(new String[0]);
 		setOutputFormat(new String[] { "%.9f" });
+		setConfigured(true);
 	}
 
 	@Override

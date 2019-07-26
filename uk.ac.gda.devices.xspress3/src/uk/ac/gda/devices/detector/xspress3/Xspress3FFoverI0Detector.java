@@ -41,12 +41,15 @@ public class Xspress3FFoverI0Detector extends DetectorBase {
 
 	@Override
 	public void configure() {
+		if (isConfigured()) {
+			return;
+		}
 		if (getExtraNames().length == 0)
 			this.setExtraNames(new String[] { "FFI0" });
 		this.setInputNames(new String[0]);
 		if (outputFormat == null || outputFormat.length != 1)
 			this.setOutputFormat(new String[] { "%.6f" });
-
+		setConfigured(true);
 	}
 
 	@Override
@@ -54,7 +57,7 @@ public class Xspress3FFoverI0Detector extends DetectorBase {
 		Double i0 = getI0();
 		Double ff = xspress3.readoutFF();
 		Double ffio = ff / i0;
-		if (i0 == 0.0 || i0.isNaN() || i0.isInfinite()){ 
+		if (i0 == 0.0 || i0.isNaN() || i0.isInfinite()){
 			logger.info("Problem with I0, so set FF/I0 to 0.0");
 			ffio = 0.0;
 		} else if (ff == 0.0 || ff.isInfinite() || ff.isNaN()){

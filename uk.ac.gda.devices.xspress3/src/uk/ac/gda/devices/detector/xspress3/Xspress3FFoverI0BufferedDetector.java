@@ -47,9 +47,13 @@ public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements Bu
 
 	@Override
 	public void configure() {
+		if (isConfigured()) {
+			return;
+		}
 		setExtraNames(new String[] { "FFI0" });
 		setInputNames(new String[0]);
 		setOutputFormat(new String[] { "%.9f" });
+		setConfigured(true);
 	}
 
 	@Override

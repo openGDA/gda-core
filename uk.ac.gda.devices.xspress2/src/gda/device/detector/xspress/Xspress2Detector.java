@@ -92,6 +92,9 @@ public class Xspress2Detector extends XspressSystem implements XspressFluorescen
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		xspress2SystemData = new Xspress2NexusTreeProvider(getName(),settings);
 		// A real system needs a connection to a real da.server via a DAServer object.
 		try {

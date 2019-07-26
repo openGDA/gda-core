@@ -65,9 +65,13 @@ public class VortexQexafsFFIO extends DetectorBase implements BufferedDetector{
 
 	@Override
 	public void configure() {
+		if (isConfigured()) {
+			return;
+		}
 		this.setExtraNames(new String[] { "VortexQexafsFFI0" });
 		this.setInputNames(new String[0]);
 		this.setOutputFormat(new String[] { "%.9f" });
+		setConfigured(true);
 	}
 
 	@Override

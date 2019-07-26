@@ -49,6 +49,9 @@ public class Xspress2DAServerController extends ConfigurableBase implements Xspr
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		// If everything has been found send the format, region of interest,
 		// windows & open commands.
 

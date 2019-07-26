@@ -32,7 +32,6 @@ import gda.device.EnumPositioner;
 import gda.device.scannable.ScannableBase;
 import gda.epics.LazyPVFactory;
 import gda.epics.ReadOnlyPV;
-import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 
 /**
@@ -53,7 +52,12 @@ public class ShutterChecker extends ScannableBase {
 	}
 
 	@Override
-	public void configure() throws FactoryException {
+	public void configure(){
+		if (isConfigured()) {
+			return;
+		}
+		// put any code required to configure device here
+		setConfigured(true);
 	}
 
 	@Override

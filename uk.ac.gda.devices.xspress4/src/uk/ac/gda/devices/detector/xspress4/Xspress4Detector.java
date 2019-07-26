@@ -101,6 +101,9 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		inputNames = new String[] {};
 		filePrefix = getName();

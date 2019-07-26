@@ -91,6 +91,9 @@ public class DummyXspress3Controller extends FindableConfigurableBase implements
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		try {
 			if (scalerHandle < 0) {
 				close();

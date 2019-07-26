@@ -37,11 +37,15 @@ public class PowerSupplyScannable extends ScannableBase {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		// to make sure the column is correct in data files
 		if (getInputNames().length == 1 && getInputNames()[0].equals(ScannableBase.DEFAULT_INPUT_NAME)) {
 			setInputNames(new String[] { getName() });
 		}
+		setConfigured(true);
 	}
 
 	@Override

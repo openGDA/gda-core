@@ -46,6 +46,9 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 
 	@Override
 	public void configure() {
+		if (isConfigured()) {
+			return;
+		}
 		if (xspress == null)
 			if ((xspress = (NexusDetector) Finder.getInstance().find(xspressSystemName)) == null)
 				logger.error("XspressSystem " + xspressSystemName + " not found");
@@ -58,6 +61,7 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 		this.setInputNames(new String[0]);
 		if (outputFormat == null || outputFormat.length != 1)
 			this.setOutputFormat(new String[] { "%.9f" });
+		setConfigured(true);
 	}
 
 

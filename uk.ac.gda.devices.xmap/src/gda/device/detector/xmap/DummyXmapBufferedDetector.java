@@ -18,6 +18,13 @@
 
 package gda.device.detector.xmap;
 
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -30,15 +37,6 @@ import gda.device.detector.DetectorBase;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.device.detector.xmap.util.XmapNexusFileLoader;
-import gda.factory.FactoryException;
-
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.util.CorrectionUtils;
@@ -98,8 +96,13 @@ public class DummyXmapBufferedDetector extends DetectorBase implements BufferedD
 	}
 
 	@Override
-	public void configure() throws FactoryException {
+	public void configure(){
+		if (isConfigured()) {
+			return;
+		}
+		// put any code required to configure device here
 		// A real system needs a connection to a real da.server via a DAServer object.
+		setConfigured(true);
 	}
 
 	// returns the current frame number

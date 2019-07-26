@@ -73,6 +73,9 @@ public class XmapMappingModeEpicsLayerImpl extends ConfigurableBase implements X
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		logger.debug("Configuring XMAP mapping");
 		if (basePVName == null) {
 			throw new FactoryException("'basePVName' needs to be declared");

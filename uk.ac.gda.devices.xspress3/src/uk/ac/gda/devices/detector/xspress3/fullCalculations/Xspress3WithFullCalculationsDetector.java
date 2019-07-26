@@ -23,6 +23,7 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.NXDetectorData;
+import gda.factory.FactoryException;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
@@ -57,9 +58,13 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	}
 
 	@Override
-	public void configure() throws gda.factory.FactoryException {
+	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		scanOperations = new Xspress3ScanOperations(controller, getName());
 		dataOperations = new Xspress3DataOperations(controller, firstChannelToRead);
+		setConfigured(true);
 	}
 
 	@Override

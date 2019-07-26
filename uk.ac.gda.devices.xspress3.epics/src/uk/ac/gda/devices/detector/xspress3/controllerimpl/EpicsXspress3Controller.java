@@ -72,6 +72,9 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (epicsTemplate == null || epicsTemplate.isEmpty()) {
 			throw new FactoryException("Epics template has not been set!");
 		}

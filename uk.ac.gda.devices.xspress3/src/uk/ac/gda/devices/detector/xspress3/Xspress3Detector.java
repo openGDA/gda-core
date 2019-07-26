@@ -95,6 +95,9 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		controller.configure();
 		super.configure();
 		if (numTracker == null) {
@@ -104,6 +107,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 			filePrefix = getName();
 		}
 		inputNames = new String[] {};
+		setConfigured(true);
 	}
 
 	private void createNumTracker() {

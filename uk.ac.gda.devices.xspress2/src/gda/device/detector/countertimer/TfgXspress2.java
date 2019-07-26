@@ -46,6 +46,9 @@ public class TfgXspress2 extends TFGCounterTimer {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (xspress == null) {
 			if ((xspress = (XspressDetector) Finder.getInstance().find(xspressSystemName)) == null) {
 				logger.error("XspressSystem " + xspressSystemName + " not found");
@@ -53,6 +56,7 @@ public class TfgXspress2 extends TFGCounterTimer {
 		}
 		super.configure();
 		isTFGv2 = true;
+		setConfigured(true);
 	}
 
 	/**

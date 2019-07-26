@@ -68,12 +68,16 @@ public class ZebraQexafsScannable extends QexafsScannable {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		if (zebraDevice==null) {
 			throw new FactoryException("Zebra device has not been set");
 		}
 		pvFactory = new CachedLazyPVFactory(zebraDevice.getZebraPrefix());
 		channelManager.creationPhaseCompleted();
+		setConfigured(true);
 	}
 
 	@Override

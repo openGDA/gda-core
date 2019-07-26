@@ -51,6 +51,9 @@ public class TfgXMapFFoverI0 extends DetectorBase implements NexusDetector {
 
 	@Override
 	public void configure() {
+		if (isConfigured()) {
+			return;
+		}
 		if (xmap == null) {
 			if ((xmap = (XmapDetector) Finder.getInstance().find(xmapSystemName)) == null)
 				logger.error("XspressSystem " + xmapSystemName + " not found");
@@ -66,7 +69,7 @@ public class TfgXMapFFoverI0 extends DetectorBase implements NexusDetector {
 		this.setInputNames(new String[0]);
 		if (outputFormat == null || outputFormat.length != 1)
 			this.setOutputFormat(new String[] { "%.9f" });
-
+		setConfigured(true);
 	}
 
 	@Override

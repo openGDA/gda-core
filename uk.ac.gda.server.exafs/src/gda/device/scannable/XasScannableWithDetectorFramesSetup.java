@@ -48,7 +48,11 @@ public class XasScannableWithDetectorFramesSetup extends XasScannable {
 
 	@Override
 	public void configure(){
+		if (isConfigured()) {
+			return;
+		}
 		energyHarmonicConverter = Finder.getInstance().find(harmonicConverterName);
+		setConfigured(true);
 	}
 
 	@Override
