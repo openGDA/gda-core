@@ -38,7 +38,9 @@ public class TangoMetadataEntry extends MetadataEntry {
 		} catch (Exception e) {
 			System.out.println(e);
 			System.out.println(e.getMessage());
+			throw new FactoryException("Error configuring metadata", e);
 		}
+		setConfigured(true);
 	}
 
 	public TangoDeviceProxy getTangoDeviceProxy() {

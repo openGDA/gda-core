@@ -18,15 +18,15 @@
 
 package gda.device.scannable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.TangoApi.DeviceAttribute;
 import fr.esrf.TangoDs.TangoConst;
 import gda.device.DeviceException;
 import gda.device.TangoDeviceProxy;
 import gda.factory.FactoryException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class to create a scannable from any Tango attribute.
@@ -43,8 +43,9 @@ public class TangoScannable extends ScannableBase {
 		try {
 			deviceProxy.isAvailable();
 		} catch (Exception e) {
-			throw new FactoryException(e.getMessage());
+			throw new FactoryException("Error configuring device", e);
 		}
+		setConfigured(true);
 	}
 
 	/**

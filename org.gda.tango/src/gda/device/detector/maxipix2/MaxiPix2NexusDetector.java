@@ -82,7 +82,8 @@ public class MaxiPix2NexusDetector extends DetectorBase implements NexusDetector
 		setOutputFormat(new String[]{"%d"});
 		this.setInputNames(new String[0]);
 		if (getMaxiPix2MultiFrameDetector() == null)
-			throw new IllegalStateException("maxiPix2ContinuosScanDetector is not set");
+			throw new FactoryException("maxiPix2ContinuosScanDetector is not set");
+		setConfigured(true);
 	}
 
 	@Override

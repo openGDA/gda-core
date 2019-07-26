@@ -18,6 +18,11 @@
 
 package gda.device.detector.ccd;
 
+import java.util.ArrayList;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.esrf.Tango.DevEncoded;
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.Tango.DevState;
@@ -28,11 +33,6 @@ import gda.device.DeviceException;
 import gda.device.TangoDeviceProxy;
 import gda.device.detector.DetectorBase;
 import gda.factory.FactoryException;
-
-import java.util.ArrayList;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TangoCcd extends DetectorBase {
 	private static final Logger logger = LoggerFactory.getLogger(TangoCcd.class);
@@ -45,7 +45,7 @@ public class TangoCcd extends DetectorBase {
 		try {
 			deviceProxy.isAvailable();
 		} catch (DeviceException e) {
-			logger.error(e.getMessage());
+			throw new FactoryException("Error configuring device", e);
 		}
 		setConfigured(true);
 	}
@@ -96,7 +96,7 @@ public class TangoCcd extends DetectorBase {
 			throw new DeviceException("failed to stop data collection " + e.errors[0].desc);
 		}
 	}
-	
+
 	@Override
 	public int[] getDataDimensions() throws DeviceException {
 		int[] dims = new int[2];
@@ -158,7 +158,7 @@ public class TangoCcd extends DetectorBase {
 //		String fileName = s[0] + "/" + s[1] + imageNos + "." + s[3];
 //		return fileName;
 	}
-	
+
 	@Override
 	public void setCollectionTime(double time) {
 		try {
@@ -171,7 +171,7 @@ public class TangoCcd extends DetectorBase {
 			logger.error(e.getMessage());
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void setAttribute(String attributeName, Object value) throws DeviceException {
@@ -263,7 +263,7 @@ public class TangoCcd extends DetectorBase {
 		}
 		return null;
 	}
-	
+
 	public void writeFile()
 	{
 		try {
@@ -272,9 +272,9 @@ public class TangoCcd extends DetectorBase {
 			logger.error(e.errors[0].desc);
 		}
 	}
-	
+
 	public byte[] read() throws DeviceException {
-		byte[] byteData = null;	
+		byte[] byteData = null;
 		try {
 			deviceProxy.isAvailable();
 			DeviceAttribute attr = deviceProxy.read_attribute("Image");
@@ -288,6 +288,6 @@ public class TangoCcd extends DetectorBase {
 			logger.error("TangoCcd.readout failed " + e.errors[0].desc);
 			throw new DeviceException(e.errors[0].desc);
 		}
-		return byteData;		
+		return byteData;
 	}
 }

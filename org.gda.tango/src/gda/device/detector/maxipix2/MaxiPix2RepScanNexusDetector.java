@@ -91,7 +91,8 @@ public class MaxiPix2RepScanNexusDetector extends DetectorBase implements Positi
 		setExtraNames(new String[] { "imageNumber" });
 		this.setInputNames(new String[0]);
 		if (getMaxiPix2MultiFrameDetector() == null)
-			throw new IllegalStateException("maxiPix2ContinuosScanDetector is not set");
+			throw new FactoryException("maxiPix2ContinuosScanDetector is not set");
+		setConfigured(true);
 	}
 
 	INexusTree makeNexusTreeNode(String label, double data) {

@@ -65,10 +65,10 @@ public class TangoMotor extends MotorBase {
 			isAvailable();
 			motorStatus = MotorStatus.READY;
 		} catch (Exception e) {
-			logger.error("TangoMotor configure: {}", e);
-			logger.error("TangoMotor configure {}", e.getMessage());
 			motorStatus = MotorStatus.FAULT;
+			throw new FactoryException("Error configuring device", e);
 		}
+		setConfigured(true);
 	}
 
 	/**

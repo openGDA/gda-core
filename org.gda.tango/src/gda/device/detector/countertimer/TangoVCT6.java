@@ -43,8 +43,9 @@ public class TangoVCT6 extends gda.device.detector.DetectorBase {
 		try {
 			deviceProxy.isAvailable();
 		} catch (Exception e) {
-			// Do nothing for now
+			throw new FactoryException("Error configuring device", e);
 		}
+		setConfigured(true);
 	}
 
 	public void reset() throws DevFailed {

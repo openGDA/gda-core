@@ -120,9 +120,10 @@ public class MaxiPix2MultiFrameDetector extends DetectorBase implements Position
 	public void configure() throws FactoryException {
 		super.configure();
 		if (getMaxiPix2() == null)
-			throw new IllegalStateException("maxiPix2 is not set");
+			throw new FactoryException("maxiPix2 is not set");
 		if (getLimaCCD() == null)
-			throw new IllegalStateException("limaCCD is not set");
+			throw new FactoryException("limaCCD is not set");
+		setConfigured(true);
 	}
 
 	private PositionInputStream<Integer> lastImageNumberPositionInputStream = null;

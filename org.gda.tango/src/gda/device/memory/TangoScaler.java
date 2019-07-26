@@ -50,7 +50,8 @@ public class TangoScaler extends DeviceBase implements Memory, InitializingBean{
 		} catch(DeviceException e) {
 			throw new FactoryException(e.getMessage(), e);
 		}
-	}
+		setConfigured(true);
+}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -197,7 +198,6 @@ public class TangoScaler extends DeviceBase implements Memory, InitializingBean{
 	@Override
 	public void write(double[] data, int x, int y, int t, int dx, int dy, int dt) throws DeviceException {
 		// not implemented
-		
 	}
 
 	@Override

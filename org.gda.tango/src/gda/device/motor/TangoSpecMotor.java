@@ -50,10 +50,10 @@ public class TangoSpecMotor extends MotorBase {
 			motorStatus = MotorStatus.READY;
 			state = tangoDeviceProxy.state();
 		} catch (Exception e) {
-			logger.error("TangoMotor configure: {}", e);
-			logger.error("TangoMotor configure {}", e.getMessage());
 			motorStatus = MotorStatus.FAULT;
+			throw new FactoryException("Error configuring device", e);
 		}
+		setConfigured(true);
 	}
 
 	public TangoDeviceProxy getTangoDeviceProxy() {

@@ -18,6 +18,10 @@
 
 package gda.device.detector.xmap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.Tango.DevState;
 import fr.esrf.TangoApi.DeviceData;
@@ -26,10 +30,6 @@ import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.TangoDeviceProxy;
 import gda.factory.FactoryException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 public class TangoXmapController extends DeviceBase implements XmapController, InitializingBean {
 
@@ -78,7 +78,7 @@ public class TangoXmapController extends DeviceBase implements XmapController, I
 
 			setConfigured(true);
 		} catch (DeviceException e) {
-			logger.error("xmap device server is not available", e.getMessage());
+			logger.error("xmap device server is not available", e);
 			setConfigured(false);
 		} catch (DevFailed e) {
 			logger.error(e.errors[0].desc);
