@@ -116,18 +116,26 @@ public abstract class MotorIocDecorator extends MotorBase implements Initializin
 						}
 					});
 				}
+				reportMonitorChanged("IOC " + getIocPv().split(":")[0] + " is running.");
 			} else {
 				setIocRunning(false);
 				if (value==1) {
-					InterfaceProvider.getTerminalPrinter().print("IOC " + getIocPv().split(":")[0] + " is shutdown.");
-					logger.info("IOC {} is shutdown", getIocPv().split(":")[0]);
+					reportMonitorChanged("IOC " + getIocPv().split(":")[0] + " is shutdown.");
 				} else if (value==2) {
-					InterfaceProvider.getTerminalPrinter().print("procServ for IOC " + getIocPv().split(":")[0] + " is stopped.");
-					logger.info("procServ for IOC {} is stopped", getIocPv().split(":")[0]);
+					reportMonitorChanged("procServ for IOC " + getIocPv().split(":")[0] + " is stopped.");
 				}
 			}
 		}
 
+		private void reportMonitorChanged(String out) {
+			// This may be called before the logging system or Jython terminal is available, so log to stdout if unavailable.
+			if (InterfaceProvider.getTerminalPrinter() != null) {
+				InterfaceProvider.getTerminalPrinter().print(out);
+			} else {
+				System.out.println(out);
+			}
+			logger.info(out);
+		}
 	}
 
 	public Motor getDecoratedMotor() {
