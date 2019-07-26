@@ -251,16 +251,16 @@ public class ScanRequestConverterTest {
 	@Test
 	public void testStageNamesAreSetCorrectly() throws Exception {
 		// Initially the scan path doesn't have the correct axis names
-		assertThat(scanPath.getFastAxisName(), is(not(equalTo(X_AXIS_NAME))));
-		assertThat(scanPath.getSlowAxisName(), is(not(equalTo(Y_AXIS_NAME))));
+		assertThat(scanPath.getXAxisName(), is(not(equalTo(X_AXIS_NAME))));
+		assertThat(scanPath.getYAxisName(), is(not(equalTo(Y_AXIS_NAME))));
 
 		// Act - they're set according to the MappingStageInfo when the mapping bean is
 		// converted to a scan request
 		ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert - the axis names are now set to the names of the stage
-		assertThat(scanPath.getFastAxisName(), is(equalTo(X_AXIS_NAME)));
-		assertThat(scanPath.getSlowAxisName(), is(equalTo(Y_AXIS_NAME)));
+		assertThat(scanPath.getXAxisName(), is(equalTo(X_AXIS_NAME)));
+		assertThat(scanPath.getYAxisName(), is(equalTo(Y_AXIS_NAME)));
 
 		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
 	}
@@ -269,23 +269,23 @@ public class ScanRequestConverterTest {
 	public void testStageUnitsAreSetCorrectly() throws Exception {
 		scanRequestConverter.convertToScanRequest(mappingBean);
 
-		assertThat(scanPath.getFastAxisUnits(), is(equalTo(X_AXIS_UNITS)));
-		assertThat(scanPath.getSlowAxisUnits(), is(equalTo(Y_AXIS_UNITS)));
+		assertThat(scanPath.getXAxisUnits(), is(equalTo(X_AXIS_UNITS)));
+		assertThat(scanPath.getYAxisUnits(), is(equalTo(Y_AXIS_UNITS)));
 	}
 
 	@Test
 	public void testStageNamesChanged() throws Exception {
 		// Initially the scan path doesn't have the correct axis names
-		assertThat(scanPath.getFastAxisName(), is(not(equalTo(X_AXIS_NAME))));
-		assertThat(scanPath.getSlowAxisName(), is(not(equalTo(Y_AXIS_NAME))));
+		assertThat(scanPath.getXAxisName(), is(not(equalTo(X_AXIS_NAME))));
+		assertThat(scanPath.getYAxisName(), is(not(equalTo(Y_AXIS_NAME))));
 
 		// Act - they're set according to the MappingStageInfo when the mapping bean is
 		// converted to a scan request
 		ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert - the axis names are now set to the names of the stage
-		assertThat(scanPath.getFastAxisName(), is(equalTo(X_AXIS_NAME)));
-		assertThat(scanPath.getSlowAxisName(), is(equalTo(Y_AXIS_NAME)));
+		assertThat(scanPath.getXAxisName(), is(equalTo(X_AXIS_NAME)));
+		assertThat(scanPath.getYAxisName(), is(equalTo(Y_AXIS_NAME)));
 
 		// change the mapping stage axis names
 		mappingStageInfo.setPlotXAxisName("new_x_axis");
@@ -301,8 +301,8 @@ public class ScanRequestConverterTest {
 		// check that the new mapping bean has the correct stage names
 		assertThat(newRegion.getScanPath(), is(instanceOf(GridModel.class)));
 		GridModel newScanPath = (GridModel) newRegion.getScanPath();
-		assertThat(newScanPath.getFastAxisName(), is(equalTo(X_AXIS_NAME)));
-		assertThat(newScanPath.getSlowAxisName(), is(equalTo(Y_AXIS_NAME)));
+		assertThat(newScanPath.getXAxisName(), is(equalTo(X_AXIS_NAME)));
+		assertThat(newScanPath.getYAxisName(), is(equalTo(Y_AXIS_NAME)));
 
 		// check that the mapping stage info has been updated with the stage names from the scan request
 		assertThat(mappingStageInfo.getPlotXAxisName(), is(equalTo(X_AXIS_NAME)));

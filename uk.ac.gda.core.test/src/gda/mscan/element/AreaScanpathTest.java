@@ -232,13 +232,13 @@ public class AreaScanpathTest {
 		assertThat(model, is(instanceOf(GridModel.class)));
 		GridModel gModel = (GridModel)model;
 		assertThat(gModel.getScannableNames(), contains("name1", "name2"));
-		assertThat(gModel.getBoundingBox().getFastAxisStart(), is(1.0));
-		assertThat(gModel.getBoundingBox().getSlowAxisStart(), is(2.0));
-		assertThat(gModel.getBoundingBox().getFastAxisLength(), is(3.0));
-		assertThat(gModel.getBoundingBox().getSlowAxisLength(), is(4.0));
-		assertThat(gModel.getFastAxisPoints(), is(5));
-		assertThat(gModel.getSlowAxisPoints(), is(6));
-		assertThat(gModel.getBoundingBox().getSlowAxisStart(), is(2.0));
+		assertThat(gModel.getBoundingBox().getXAxisStart(), is(1.0));
+		assertThat(gModel.getBoundingBox().getYAxisStart(), is(2.0));
+		assertThat(gModel.getBoundingBox().getXAxisLength(), is(3.0));
+		assertThat(gModel.getBoundingBox().getYAxisLength(), is(4.0));
+		assertThat(gModel.getXAxisPoints(), is(5));
+		assertThat(gModel.getYAxisPoints(), is(6));
+		assertThat(gModel.getBoundingBox().getYAxisStart(), is(2.0));
 		assertThat(gModel.isSnake(), is(false));
 	}
 
@@ -250,13 +250,13 @@ public class AreaScanpathTest {
 		assertThat(model, is(instanceOf(RandomOffsetGridModel.class)));
 		RandomOffsetGridModel gModel = (RandomOffsetGridModel)model;
 		assertThat(gModel.getScannableNames(), contains("name1", "name2"));
-		assertThat(gModel.getBoundingBox().getFastAxisStart(), is(1.0));
-		assertThat(gModel.getBoundingBox().getSlowAxisStart(), is(2.0));
-		assertThat(gModel.getBoundingBox().getFastAxisLength(), is(3.0));
-		assertThat(gModel.getBoundingBox().getSlowAxisLength(), is(4.0));
-		assertThat(gModel.getFastAxisPoints(), is(5));
-		assertThat(gModel.getSlowAxisPoints(), is(6));
-		assertThat(gModel.getBoundingBox().getSlowAxisStart(), is(2.0));
+		assertThat(gModel.getBoundingBox().getXAxisStart(), is(1.0));
+		assertThat(gModel.getBoundingBox().getYAxisStart(), is(2.0));
+		assertThat(gModel.getBoundingBox().getXAxisLength(), is(3.0));
+		assertThat(gModel.getBoundingBox().getYAxisLength(), is(4.0));
+		assertThat(gModel.getXAxisPoints(), is(5));
+		assertThat(gModel.getYAxisPoints(), is(6));
+		assertThat(gModel.getBoundingBox().getYAxisStart(), is(2.0));
 		assertThat(gModel.getOffset(), is(20.0));
 		assertThat(gModel.getSeed(), is(2));
 		assertThat(gModel.isSnake(), is(false));
@@ -309,13 +309,13 @@ public class AreaScanpathTest {
 		assertThat(model, is(instanceOf(RasterModel.class)));
 		RasterModel rModel = (RasterModel)model;
 		assertThat(rModel.getScannableNames(), contains("name1", "name2"));
-		assertThat(rModel.getBoundingBox().getFastAxisStart(), is(1.0));
-		assertThat(rModel.getBoundingBox().getSlowAxisStart(), is(2.0));
-		assertThat(rModel.getBoundingBox().getFastAxisLength(), is(3.0));
-		assertThat(rModel.getBoundingBox().getSlowAxisLength(), is(4.0));
-		assertThat(rModel.getFastAxisStep(), is(0.5));
-		assertThat(rModel.getSlowAxisStep(), is(6.5));
-		assertThat(rModel.getBoundingBox().getSlowAxisStart(), is(2.0));
+		assertThat(rModel.getBoundingBox().getXAxisStart(), is(1.0));
+		assertThat(rModel.getBoundingBox().getYAxisStart(), is(2.0));
+		assertThat(rModel.getBoundingBox().getXAxisLength(), is(3.0));
+		assertThat(rModel.getBoundingBox().getYAxisLength(), is(4.0));
+		assertThat(rModel.getXAxisStep(), is(0.5));
+		assertThat(rModel.getYAxisStep(), is(6.5));
+		assertThat(rModel.getBoundingBox().getYAxisStart(), is(2.0));
 		assertThat(rModel.isSnake(), is(true));
 	}
 
@@ -340,12 +340,12 @@ public class AreaScanpathTest {
 		assertThat(model, is(instanceOf(SpiralModel.class)));
 		SpiralModel sModel = (SpiralModel)model;
 		assertThat(sModel.getScannableNames(), contains("name1", "name2"));
-		assertThat(sModel.getBoundingBox().getFastAxisStart(), is(1.0));
-		assertThat(sModel.getBoundingBox().getSlowAxisStart(), is(2.0));
-		assertThat(sModel.getBoundingBox().getFastAxisLength(), is(3.0));
-		assertThat(sModel.getBoundingBox().getSlowAxisLength(), is(4.0));
+		assertThat(sModel.getBoundingBox().getXAxisStart(), is(1.0));
+		assertThat(sModel.getBoundingBox().getYAxisStart(), is(2.0));
+		assertThat(sModel.getBoundingBox().getXAxisLength(), is(3.0));
+		assertThat(sModel.getBoundingBox().getYAxisLength(), is(4.0));
 		assertThat(sModel.getScale(), is(5.0));
-		assertThat(sModel.getBoundingBox().getSlowAxisStart(), is(2.0));
+		assertThat(sModel.getBoundingBox().getYAxisStart(), is(2.0));
 	}
 
 	@Test
@@ -373,16 +373,16 @@ public class AreaScanpathTest {
 		assertThat(model, is(instanceOf(LissajousModel.class)));
 		LissajousModel lModel = (LissajousModel)model;
 		assertThat(lModel.getScannableNames(), contains("name1", "name2"));
-		assertThat(lModel.getBoundingBox().getFastAxisStart(), is(1.0));
-		assertThat(lModel.getBoundingBox().getSlowAxisStart(), is(2.0));
-		assertThat(lModel.getBoundingBox().getFastAxisLength(), is(3.0));
-		assertThat(lModel.getBoundingBox().getSlowAxisLength(), is(4.0));
+		assertThat(lModel.getBoundingBox().getXAxisStart(), is(1.0));
+		assertThat(lModel.getBoundingBox().getYAxisStart(), is(2.0));
+		assertThat(lModel.getBoundingBox().getXAxisLength(), is(3.0));
+		assertThat(lModel.getBoundingBox().getYAxisLength(), is(4.0));
 		assertThat(lModel.getA(), is(5.0));
 		assertThat(lModel.getB(), is(6.0));
 		assertThat(lModel.getDelta(), is(7.0));
 		assertThat(lModel.getThetaStep(), is(8.0));
 		assertThat(lModel.getPoints(), is(9));
-		assertThat(lModel.getBoundingBox().getSlowAxisStart(), is(2.0));
+		assertThat(lModel.getBoundingBox().getYAxisStart(), is(2.0));
 	}
 
 	@Test

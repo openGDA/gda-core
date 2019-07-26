@@ -86,8 +86,8 @@ public class PathInfoCalculatorJob extends Job {
 
 		if (scanPathModel instanceof IMapPathModel) {
 			IMapPathModel mapPathModel = (IMapPathModel) scanPathModel;
-			xAxisName = mapPathModel.getFastAxisName();
-			yAxisName = mapPathModel.getSlowAxisName();
+			xAxisName = mapPathModel.getXAxisName();
+			yAxisName = mapPathModel.getYAxisName();
 
 			if (scanRegion != null && scanRegion.toROI() != null) {
 				if (scanPathModel instanceof IBoundingBoxModel) {
@@ -101,10 +101,10 @@ public class PathInfoCalculatorJob extends Job {
 							box = new BoundingBox();
 							boxModel.setBoundingBox(box);
 						}
-						box.setFastAxisStart(roi.getPointX());
-						box.setSlowAxisStart(roi.getPointY());
-						box.setFastAxisLength(roi.getLength(0));
-						box.setSlowAxisLength(roi.getLength(1));
+						box.setXAxisStart(roi.getPointX());
+						box.setYAxisStart(roi.getPointY());
+						box.setXAxisLength(roi.getLength(0));
+						box.setYAxisLength(roi.getLength(1));
 					}
 				} else if (scanPathModel instanceof IBoundingLineModel) {
 					IBoundingLineModel lineModel = (IBoundingLineModel) scanPathModel;

@@ -250,10 +250,10 @@ public class MappingUISerializationTest {
 		IMappingScanRegion scanRegion = new MappingScanRegion();
 
 		GridModel gmodel = new GridModel();
-		gmodel.setFastAxisName("xNex");
-		gmodel.setFastAxisPoints(50);
-		gmodel.setSlowAxisName("yNex");
-		gmodel.setSlowAxisPoints(20);
+		gmodel.setXAxisName("xNex");
+		gmodel.setXAxisPoints(50);
+		gmodel.setYAxisName("yNex");
+		gmodel.setYAxisPoints(20);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
 		RectangularMappingRegion region = new RectangularMappingRegion();

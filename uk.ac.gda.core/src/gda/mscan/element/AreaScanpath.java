@@ -170,8 +170,8 @@ public enum AreaScanpath implements IMScanElementEnum {
 	 */
 	private static class Factory {
 		// Constants to reference the axes of the various models via the supplied {@link List} of {@link Scannables}
-		private static final int FAST = 0;
-		private static final int SLOW = 1;
+		private static final int X_AXIS_INDEX = 0;
+		private static final int Y_AXIS_INDEX = 1;
 
 		// Constants to reference the available parameters for a {@link RandomOffsetGridModel}
 		private static final int OFFSET = 0;
@@ -179,10 +179,10 @@ public enum AreaScanpath implements IMScanElementEnum {
 
 		// Constants to reference the bounding box coordinates via the supplied {@link List} of {@link Number}s
 		// (bboxParameters)
-		private static final int FAST_START = 0;
-		private static final int SLOW_START = 1;
-		private static final int FAST_LENGTH = 2;
-		private static final int SLOW_LENGTH = 3;
+		private static final int X_START_PARAM_INDEX = 0;
+		private static final int Y_START_PARAM_INDEX = 1;
+		private static final int X_LENGTH_PARAM_INDEX = 2;
+		private static final int Y_LENGTH_PARAM_INDEX = 3;
 
 		// Constant to reference the available parameter of a {@link SpiralModel}
 		private static final int SCALE = 0;
@@ -231,8 +231,8 @@ public enum AreaScanpath implements IMScanElementEnum {
 			} else {
 				model = initBoxBasedModel(new GridModel(), scannables, bboxParameters);
 			}
-			model.setFastAxisPoints(scanParameters.get(FAST).intValue());
-			model.setSlowAxisPoints(scanParameters.get(SLOW).intValue());
+			model.setXAxisPoints(scanParameters.get(X_AXIS_INDEX).intValue());
+			model.setYAxisPoints(scanParameters.get(Y_AXIS_INDEX).intValue());
 
 			if (mutatorUses.containsKey(Mutator.SNAKE)) {
 				model.setSnake(true);
@@ -263,8 +263,8 @@ public enum AreaScanpath implements IMScanElementEnum {
 				}
 			}
 			RasterModel model = initBoxBasedModel(new RasterModel(), scannables, bboxParameters);
-			model.setFastAxisStep(scanParameters.get(FAST).doubleValue());
-			model.setSlowAxisStep(scanParameters.get(SLOW).doubleValue());
+			model.setXAxisStep(scanParameters.get(X_AXIS_INDEX).doubleValue());
+			model.setYAxisStep(scanParameters.get(Y_AXIS_INDEX).doubleValue());
 
 			if (mutatorUses.containsKey(Mutator.SNAKE)) {
 				model.setSnake(true);
@@ -405,8 +405,8 @@ public enum AreaScanpath implements IMScanElementEnum {
 				  																final List<Scannable> scannables,
 				  																final List<Number> bBoxParameters) {
 			model.setBoundingBox(new BoundingBox(
-					bBoxParameters.get(FAST_START).doubleValue(), bBoxParameters.get(SLOW_START).doubleValue(),
-					bBoxParameters.get(FAST_LENGTH).doubleValue(), bBoxParameters.get(SLOW_LENGTH).doubleValue()));
+					bBoxParameters.get(X_START_PARAM_INDEX).doubleValue(), bBoxParameters.get(Y_START_PARAM_INDEX).doubleValue(),
+					bBoxParameters.get(X_LENGTH_PARAM_INDEX).doubleValue(), bBoxParameters.get(Y_LENGTH_PARAM_INDEX).doubleValue()));
 			setAxisNames(model, scannables);
 			return model;
 		}
@@ -415,7 +415,7 @@ public enum AreaScanpath implements IMScanElementEnum {
 		 * Initialises the  bounds of models based on {@link AbstractBoundingLineModel}
 		 *
 		 * @param model				The model to be initialised
-		 * @param scannables		The scannables associated with the model in the order: fastScannable, slowScannable
+		 * @param scannables		The scannables associated with the model in the order: xScannable, yScannable
 		 * @param bBoxParameters	The parameters of the bounding line in the order x1, y1, x2, y2
 		 * @return					The initalised model object
 		 */
@@ -423,8 +423,8 @@ public enum AreaScanpath implements IMScanElementEnum {
 																				  final List<Scannable> scannables,
 																				  final List<Number> blineParameters) {
 			model.setBoundingLine(new BoundingLine(
-					blineParameters.get(FAST_START).doubleValue(), blineParameters.get(SLOW_START).doubleValue(),
-					blineParameters.get(FAST_LENGTH).doubleValue(), blineParameters.get(SLOW_LENGTH).doubleValue()));
+					blineParameters.get(X_START_PARAM_INDEX).doubleValue(), blineParameters.get(Y_START_PARAM_INDEX).doubleValue(),
+					blineParameters.get(X_LENGTH_PARAM_INDEX).doubleValue(), blineParameters.get(Y_LENGTH_PARAM_INDEX).doubleValue()));
 			setAxisNames(model, scannables);
 			return model;
 		}
@@ -437,8 +437,8 @@ public enum AreaScanpath implements IMScanElementEnum {
 		 * 						slowScannable.
 		 */
 		private static void setAxisNames(final AbstractMapModel model, final List<Scannable> scannables) {
-			model.setFastAxisName(scannables.get(FAST).getName());
-			model.setSlowAxisName(scannables.get(SLOW).getName());
+			model.setXAxisName(scannables.get(X_AXIS_INDEX).getName());
+			model.setYAxisName(scannables.get(Y_AXIS_INDEX).getName());
 		}
 	}
 }

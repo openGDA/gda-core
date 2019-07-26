@@ -58,7 +58,7 @@ public class FocusScanConverter {
 		final IMapPathModel lineModel = createLineModel(focusScanBean);
 		final ILineMappingRegion lineRegion = focusScanBean.getLineRegion();
 		final ScanRegion<IROI> scanRegion = new ScanRegion<>(lineRegion.toROI(),
-				lineModel.getSlowAxisName(), lineModel.getFastAxisName());
+				lineModel.getYAxisName(), lineModel.getXAxisName());
 		final IScanPathModel focusModel = createFocusPathModel(focusScanBean);
 
 		final CompoundModel<IROI> compoundModel = new CompoundModel<>(Arrays.asList(focusModel, lineModel));
@@ -94,8 +94,8 @@ public class FocusScanConverter {
 		lineModel.setPoints(numPoints);
 		lineModel.setContinuous(true); // continuous if possible (i.e. malcolm)
 		if (mappingStageInfo != null) {
-			lineModel.setFastAxisName(mappingStageInfo.getPlotXAxisName());
-			lineModel.setSlowAxisName(mappingStageInfo.getPlotYAxisName());
+			lineModel.setXAxisName(mappingStageInfo.getPlotXAxisName());
+			lineModel.setYAxisName(mappingStageInfo.getPlotYAxisName());
 		}
 
 		// DO we need to do this, as we set the region in the scan request?
