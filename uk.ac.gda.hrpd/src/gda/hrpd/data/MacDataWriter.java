@@ -142,6 +142,9 @@ public class MacDataWriter extends DataWriterBase implements Findable, Configura
 
 	@Override
 	public void configure() {
+		if (configured) {
+			return;
+		}
 		if ((metadata = GDAMetadataProvider.getInstance(false)) == null) {
 			logger.warn("Can not find 'GDAMetadata' object.");
 		}

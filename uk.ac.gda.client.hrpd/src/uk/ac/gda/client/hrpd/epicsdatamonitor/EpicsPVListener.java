@@ -68,6 +68,9 @@ public abstract class EpicsPVListener extends FindableConfigurableBase implement
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (getPvName()!=null) {
 			try {
 				pvchannel=channelManager.createChannel(getPvName(), false);

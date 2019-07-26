@@ -154,6 +154,9 @@ public class EpicsCVscanDataWriter extends FindableConfigurableBase implements D
 
 	@Override
 	public void configure() {
+		if (isConfigured()) {
+			return;
+		}
 		if (metadata == null) {
 			logger.warn("{}: Can not find 'GDAMetadata' object.", getName());
 			//throw new FactoryException(getName()+": Can not find 'GDAMetadata' object.");
