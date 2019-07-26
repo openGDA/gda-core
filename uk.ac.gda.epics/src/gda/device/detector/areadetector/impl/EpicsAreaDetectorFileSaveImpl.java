@@ -173,6 +173,9 @@ public class EpicsAreaDetectorFileSaveImpl extends ConfigurableBase implements E
 	// Methods for the configurable interface and the reset method
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		try {
 			channelEnable = ecl.createChannel(basePVName+"EnableCallbacks");
 			channelFilePath = ecl.createChannel(basePVName+"FilePath");

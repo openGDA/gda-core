@@ -67,7 +67,9 @@ public class EpicsSimpleArray extends ScannableBase implements SimpleArray, Init
 
 	@Override
 	public void configure() throws FactoryException {
-
+		if (isConfigured()) {
+			return;
+		}
 		this.inputNames = new String[]{getName()};
 
 		if (!isConfigured()) {

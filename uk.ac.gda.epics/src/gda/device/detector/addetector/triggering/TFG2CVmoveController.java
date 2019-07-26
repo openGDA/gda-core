@@ -21,7 +21,6 @@ package gda.device.detector.addetector.triggering;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.ConstantVelocityMoveController;
-import gda.factory.FactoryException;
 
 public class TFG2CVmoveController extends DeviceBase implements ConstantVelocityMoveController {
 
@@ -51,12 +50,6 @@ public class TFG2CVmoveController extends DeviceBase implements ConstantVelocity
 
 	@Override
 	public void stopAndReset() throws DeviceException, InterruptedException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void configure() throws FactoryException {
 		// TODO Auto-generated method stub
 
 	}

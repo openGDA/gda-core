@@ -18,13 +18,13 @@
 
 package gda.device.scannable.scannablegroup;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.controlpoint.EpicsControlPoint;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Controls a collection of Motors so that they moved via the Epics deferred move mechanism.
@@ -46,10 +46,14 @@ public class EpicsDeferredScannableGroup extends CoordinatedScannableGroup {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (deferredControlPoint == null) {
-			deferredControlPoint = (EpicsControlPoint) Finder.getInstance().find(deferredControlPointName);
+			deferredControlPoint = Finder.getInstance().find(deferredControlPointName);
 		}
 		super.configure();
+		setConfigured(true);
 	}
 
 	/**

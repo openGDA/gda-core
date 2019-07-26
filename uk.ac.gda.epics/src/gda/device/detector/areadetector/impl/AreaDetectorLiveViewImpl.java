@@ -18,19 +18,18 @@
 
 package gda.device.detector.areadetector.impl;
 
+import org.eclipse.january.dataset.DoubleDataset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.analysis.RCPPlotter;
 import gda.device.DeviceBase;
 import gda.device.detector.areadetector.AreaDetectorBin;
 import gda.device.detector.areadetector.AreaDetectorLiveView;
 import gda.device.detector.areadetector.EPICSAreaDetectorImage;
 import gda.device.detector.areadetector.EpicsAreaDetectorROIElement;
-import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
-
-import org.eclipse.january.dataset.DoubleDataset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AreaDetectorLiveViewImpl extends DeviceBase implements AreaDetectorLiveView{
 
@@ -78,17 +77,6 @@ public class AreaDetectorLiveViewImpl extends DeviceBase implements AreaDetector
 	public void setImageROI(EpicsAreaDetectorROIElement imageROI) {
 		this.imageROI = imageROI;
 	}
-
-	@Override
-	public void configure() throws FactoryException {
-		// start the thread
-		try {
-			//this.start();
-		} catch (Exception e) {
-			throw new FactoryException("Failed to start polling thread in configure", e);
-		}
-	}
-
 
 	@Override
 	public void start() throws CAException, TimeoutException, InterruptedException {

@@ -51,6 +51,9 @@ public class GapControlCheckingEnergyController extends ScannableMotionUnitsBase
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (gapControlDisabledEnergyController == null || gapControlEnabledEnergyController == null) {
 			throw new FactoryException(String.format("Energy Controllers not set for %s.", this.getName()));
 		}

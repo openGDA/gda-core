@@ -55,6 +55,9 @@ public class EpicsAreaDetectorROIImpl extends ConfigurableBase implements EpicsA
 	// methods for configurable interface and reset method
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		try {
 			channelEnable = ecl.createChannel(basePVName+"EnableCallbacks");
 

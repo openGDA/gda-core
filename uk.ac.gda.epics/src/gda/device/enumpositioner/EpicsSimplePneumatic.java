@@ -83,10 +83,10 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements Initiali
 
 	@Override
 	public void configure() throws FactoryException {
-		this.inputNames = new String[] { getName() };
-		this.outputFormat = new String[]{"%s"};
 		try {
 			if (!isConfigured()) {
+				this.inputNames = new String[] { getName() };
+				this.outputFormat = new String[]{"%s"};
 
 //				control = channelManager.createChannel(pvName, false);
 				control = channelManager.createChannel(pvName, statusMonitor, false);

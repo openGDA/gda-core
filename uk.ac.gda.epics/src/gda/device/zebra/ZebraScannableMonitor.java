@@ -116,10 +116,14 @@ public class ZebraScannableMonitor extends ScannableBase implements Continuously
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		setInputNames(new String[]{});
 		setExtraNames(new String[]{getName()});
 		setOutputFormat(new String[]{"%5.5g"});
 		super.configure();
+		setConfigured(true);
 	}
 
 	@Override

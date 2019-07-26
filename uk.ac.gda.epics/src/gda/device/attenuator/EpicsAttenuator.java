@@ -18,9 +18,6 @@
 
 package gda.device.attenuator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
@@ -34,8 +31,6 @@ import gov.aps.jca.Channel;
  */
 public class EpicsAttenuator extends EpicsAttenuatorBase {
 
-	private static final Logger logger = LoggerFactory.getLogger(EpicsAttenuator.class);
-
 	private String deviceName;
 	private XiaArrayType xiaConfig;
 	private Channel[] actualPositions = new Channel[8];
@@ -44,15 +39,17 @@ public class EpicsAttenuator extends EpicsAttenuatorBase {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (getDeviceName() != null) {
 
 			try {
-				xiaConfig = Configurator.getConfiguration(getDeviceName(), gda.epics.interfaces.XiaArrayType.class);
+				xiaConfig = Configurator.getConfiguration(getDeviceName(), XiaArrayType.class);
 				createChannelAccess();
 				channelManager.tryInitialize(100);
 			} catch (ConfigurationNotFoundException e) {
-				logger.error(
-						"Can NOT find EPICS configuration for xiaArray " + getDeviceName() + ". " + e.getMessage(), e);
+				throw new FactoryException("Cannot find EPICS configuration for xiaArray " + getDeviceName(), e);
 			}
 
 		}

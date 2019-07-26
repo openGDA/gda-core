@@ -96,6 +96,9 @@ public class AsynEpicsScaler extends DetectorBase implements MonitorListener, Co
 	 */
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		// debug the Thread
 		monitorInstalledSet = new HashSet<Channel>();
 		epicsRecord = (EpicsRecord) Finder.getInstance().find(epicsRecordName);

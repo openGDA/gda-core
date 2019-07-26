@@ -31,7 +31,6 @@ import gda.device.scannable.scannablegroup.ScannableMotionWithScannableFieldsBas
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.PVWithSeparateReadback;
-import gda.factory.FactoryException;
 import gda.jython.JythonServerFacade;
 import gda.scan.ConstantVelocityRasterScan;
 
@@ -350,11 +349,6 @@ public class PIE725ConstantVelocityRasterScannable extends ScannableMotionWithSc
 
 		private void log(String msg) {
 			logger.info(getName() + msg);
-		}
-
-		@Override
-		public void configure() throws FactoryException {
-			// do nothing
 		}
 
 		private double toInternalY(double startExternal) {

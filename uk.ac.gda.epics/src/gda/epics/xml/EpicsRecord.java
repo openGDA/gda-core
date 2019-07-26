@@ -81,6 +81,9 @@ public class EpicsRecord extends ConfigurableBase implements Findable, Serializa
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		logger.warn("You've used and EPICS Interface file to retrieve information on {}."
 				+ "EPICS interface files are now deprecated and will removed in GDA 9.11", deviceName);
 		dp = DevicesParser.createDevicesParser();

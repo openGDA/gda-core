@@ -44,9 +44,13 @@ public class DummyEpicsMonitor extends EpicsMonitor {
 	}
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		// this only represents a single value which should be the same string as its name
 		this.setInputNames(new String[0]);
 		this.setExtraNames(new String[] { getName() });
+		setConfigured(true);
 	}
 
 	@Override

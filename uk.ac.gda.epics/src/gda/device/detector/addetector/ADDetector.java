@@ -415,6 +415,9 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		if (!afterPropertiesSetCalled)
 			throw new FactoryException("afterPropertiesSet not yet called");
@@ -428,8 +431,9 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			checkPythonPlugin();
 			reset();
 		} catch (Exception e) {
-			logger.error("Configuring {} failed! Device may not work as expected", getName(), e);
+			throw new FactoryException(String.format("Configuring %s failed! Device may not work as expected", getName()), e);
 		}
+		setConfigured(true);
 	}
 
 	public void reset() throws Exception {

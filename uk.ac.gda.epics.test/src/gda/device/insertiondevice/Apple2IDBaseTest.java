@@ -26,7 +26,6 @@ import java.util.List;
 import org.junit.Test;
 
 import gda.device.DeviceException;
-import gda.factory.FactoryException;
 
 public class Apple2IDBaseTest {
 
@@ -54,10 +53,6 @@ public class Apple2IDBaseTest {
 		@Override
 		public boolean isEnabled() throws DeviceException {
 			return enabled;
-		}
-
-		@Override
-		public void configure() throws FactoryException {
 		}
 
 		@Override

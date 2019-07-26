@@ -32,8 +32,12 @@ public class EpicsXmapControllerROI extends EpicsXmapController {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		controlRois = new double[numberOfElements][][];
+		setConfigured(true);
 	}
 
 	@Override

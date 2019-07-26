@@ -76,7 +76,9 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 	@Override
 	public void configure() throws FactoryException {
-
+		if (isConfigured()) {
+			return;
+		}
 		this.inputNames = new String[]{getName()};
 
 		if (!isConfigured()) {

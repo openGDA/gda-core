@@ -23,13 +23,7 @@ import gda.factory.FactoryException;
  * This motor does not monitor the readback PV as it is continously updating even it had reached the target and stopped.
  */
 public class FeedbackControlledEpicsMotor extends EpicsMotor {
-	public FeedbackControlledEpicsMotor() {
-		super();
-	}
-	@Override
-	public void configure() throws FactoryException {
-		super.configure();
-	}
+
 	@Override
 	protected void createChannelAccess() throws FactoryException {
 		try {

@@ -66,8 +66,12 @@ public class EpicsMetadataEntry extends MetadataEntry {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		controller = EpicsController.getInstance();
+		setConfigured(true);
 	}
 
 	@Override

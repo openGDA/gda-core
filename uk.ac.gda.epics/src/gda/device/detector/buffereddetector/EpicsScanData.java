@@ -18,6 +18,9 @@
 
 package gda.device.detector.buffereddetector;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.ContinuousParameters;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -30,9 +33,6 @@ import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Untested on hardware! This is simply coded against the information in the Controls group wiki for the moment...
@@ -69,6 +69,9 @@ public class EpicsScanData extends DetectorBase implements BufferedDetector, Ini
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (templateName == null || templateName.isEmpty()) {
 			throw new FactoryException(getName() + " cannot configure as Epics template not defined!");
 		}
@@ -84,6 +87,7 @@ public class EpicsScanData extends DetectorBase implements BufferedDetector, Ini
 		} catch (CAException e) {
 			throw new FactoryException(e.getMessage(), e);
 		}
+		setConfigured(true);
 	}
 
 	@Override

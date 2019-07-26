@@ -61,6 +61,9 @@ public class TfgEpicsMCACounterTimer extends TFGCounterTimer {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		for (int i = 0; i < epicsMcaNameList.size(); i++) {
 			epicsMcaList.add((IEpicsMCASimple) Finder.getInstance().find(epicsMcaNameList.get(i)));
 		}
@@ -71,6 +74,7 @@ public class TfgEpicsMCACounterTimer extends TFGCounterTimer {
 		}
 
 		super.configure();
+		setConfigured(true);
 	}
 
 	public void countAsync(double time) throws DeviceException {

@@ -47,6 +47,9 @@ public abstract class Apple2IDScannableBase extends ScannableBase implements Ini
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		controller.configure();
 		controller.addIObserver(new IObserver() {
@@ -55,6 +58,7 @@ public abstract class Apple2IDScannableBase extends ScannableBase implements Ini
 				notifyIObservers(source, arg);
 			}
 		});
+		setConfigured(true);
 	}
 
 	@Override

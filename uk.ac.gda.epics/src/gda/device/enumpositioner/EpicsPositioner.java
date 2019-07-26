@@ -146,10 +146,10 @@ public class EpicsPositioner extends EnumPositionerBase implements Initializatio
 
 	@Override
 	public void configure() throws FactoryException {
-		this.setInputNames(new String[]{getName()});
-		this.setExtraNames(new String[0]);
-
 		if (!isConfigured()) {
+			this.setInputNames(new String[]{getName()});
+			this.setExtraNames(new String[0]);
+
 			if (recordName == null) {
 				final String message = "Missing PV configuration for the motor " + getName();
 				logger.error(message);

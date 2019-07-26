@@ -120,10 +120,14 @@ public class EpicsLakeshore336 extends ScannableBase {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (basePVName == null) {
 			throw new FactoryException("basePVName must not be null");
 		}
 		super.configure();
+		setConfigured(true);
 	}
 
 

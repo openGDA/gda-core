@@ -61,6 +61,9 @@ public class GainWithScalingAndOffset extends ScannableBase implements ScalingAn
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 
 		ec = EpicsController.getInstance();
@@ -72,6 +75,7 @@ public class GainWithScalingAndOffset extends ScannableBase implements ScalingAn
 		} catch (Exception e) {
 			throw new FactoryException("error connecting to "+getName(), e);
 		}
+		setConfigured(true);
 	}
 
 	@Override

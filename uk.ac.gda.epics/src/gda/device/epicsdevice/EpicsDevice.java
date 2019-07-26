@@ -95,12 +95,6 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 	private final Map<String, DummyChannel> dummyChannels = new HashMap<>();
 	private final Map<String, Object> fields = new HashMap<>();
 
-
-	@Override
-	public void configure(){
-		// no configuration required
-	}
-
 	/**
 	 * @return docString
 	 */

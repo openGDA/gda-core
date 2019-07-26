@@ -61,6 +61,9 @@ public class Apple2IDDummy extends Apple2IDBase {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		gapMotor = new DummyMotor();
 		topOuterMotor = new DummyMotor();
 		topInnerMotor = new DummyMotor();
@@ -88,6 +91,7 @@ public class Apple2IDDummy extends Apple2IDBase {
 			motor.configure();
 		}
 
+		setConfigured(true);
 		logger.info("Motors configured");
 	}
 

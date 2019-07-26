@@ -161,7 +161,9 @@ public class EpicsAreaDetectorROIElementImpl extends ConfigurableBase implements
 	// Methods for the Configurable interface and teh reset method
 	@Override
 	public void configure() throws FactoryException {
-
+		if (isConfigured()) {
+			return;
+		}
 		try {
 
 			configureChannelUse();

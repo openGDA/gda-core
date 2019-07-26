@@ -199,6 +199,9 @@ public class EpicsTca extends DeviceBase implements InitializationListener {
 	 * @throws CAException
 	 */
 	private void configure(String fullPVName) throws CAException {
+		if (isConfigured()) {
+			return;
+		}
 		tcaRecordName = fullPVName;
 		scaler1HighChannel = channelManager.createChannel(getTcaRecordName() + "SCA1_HI", false);
 		scaler1LowChannel = channelManager.createChannel(getTcaRecordName() + "SCA1_LOW", false);
@@ -247,6 +250,7 @@ public class EpicsTca extends DeviceBase implements InitializationListener {
 				throw new FactoryException("Error initialising device " + getDeviceName(), e);
 			}
 		}
+		setConfigured(true);
 	}
 
 	private String getTcaRecordName() {

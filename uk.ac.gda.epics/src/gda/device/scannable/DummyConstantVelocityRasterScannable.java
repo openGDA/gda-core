@@ -27,7 +27,6 @@ import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.ConstantVelocityRasterMoveController;
 import gda.device.scannable.scannablegroup.ScannableMotionWithScannableFieldsBase;
-import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.scan.ConstantVelocityRasterScan;
 
@@ -244,12 +243,6 @@ public class DummyConstantVelocityRasterScannable extends ScannableMotionWithSca
 		private void log(String msg) {
 			logger.info(getName() + msg);
 		}
-
-		@Override
-		public void configure() throws FactoryException {
-			// do nothing
-		}
-
 	}
 
 }

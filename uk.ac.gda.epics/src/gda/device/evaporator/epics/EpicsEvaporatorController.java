@@ -162,6 +162,9 @@ public class EpicsEvaporatorController extends FindableConfigurableBase implemen
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		requireNonNull(pvBase, "pvBase must be set");
 		final String name = getName();
 
@@ -206,6 +209,7 @@ public class EpicsEvaporatorController extends FindableConfigurableBase implemen
 			logger.error("Could not create CLEAR_ERROR chanel", e);
 			throw new FactoryException("Could not create error channel", e);
 		}
+		setConfigured(true);
 	}
 
 	@Override

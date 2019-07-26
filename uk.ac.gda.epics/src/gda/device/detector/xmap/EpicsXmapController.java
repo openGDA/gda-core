@@ -37,10 +37,14 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (edxdController == null) {
 			throw new FactoryException(String.format("EDXD controller not set in %s", getName()));
 		}
 		numberOfElements = edxdController.getNumberOfElements();
+		setConfigured(true);
 	}
 
 	@Override

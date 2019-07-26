@@ -162,6 +162,9 @@ public class EpicsAreaDetectorImpl extends ConfigurableBase implements EpicsArea
 	// Methods for the configurable interface, and reset method
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		try {
 			// Set up all the CA channels
 			channelPortName_RBV = ecl.createChannel(basePVName + "PortName_RBV");

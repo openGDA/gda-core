@@ -68,7 +68,6 @@ public class EpicsSyringePumpController extends DeviceBase implements SyringePum
 	private static final String TVOLUME = "TVOLUME";
 
 	String pvPrefix;
-	private String name;
 	private EpicsController controller;
 	private EpicsChannelManager channelManager;
 	private double volume;
@@ -103,8 +102,6 @@ public class EpicsSyringePumpController extends DeviceBase implements SyringePum
 	private Channel irun;
 	private Channel clearInfused;
 	private Channel clearWithdrawn;
-
-	private boolean configured;
 
 	private void createChannelAccess() throws CAException, InterruptedException {
 		channelManager = new EpicsChannelManager();
@@ -186,7 +183,7 @@ public class EpicsSyringePumpController extends DeviceBase implements SyringePum
 	private void checkState() {
 		if (!isEnabled()) {
 			throw new IllegalStateException(getName() + " - is not enabled");
-		} else if (!configured) {
+		} else if (!isConfigured()) {
 			throw new IllegalStateException(getName() + " - is not configured");
 		} else if (volume < 0 || volume > capacity) {
 			throw new IllegalStateException(getName() + " - Volume must be between 0 and capacity of syringe");
@@ -318,7 +315,7 @@ public class EpicsSyringePumpController extends DeviceBase implements SyringePum
 
 	@Override
 	public void configure() throws FactoryException {
-		if (configured) {
+		if (isConfigured()) {
 			return;
 		}
 		if (getName() == null) {
@@ -332,17 +329,7 @@ public class EpicsSyringePumpController extends DeviceBase implements SyringePum
 		} catch (CAException | InterruptedException e) {
 			throw new FactoryException(getName() + " - Could not create channel access", e);
 		}
-		configured = true;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
+		setConfigured(true);
 	}
 
 	private double getDouble(Channel channel, String fieldname) throws DeviceException {

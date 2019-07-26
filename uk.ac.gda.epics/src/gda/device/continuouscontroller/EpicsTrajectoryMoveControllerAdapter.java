@@ -19,16 +19,6 @@
 package gda.device.continuouscontroller;
 
 import static java.text.MessageFormat.format;
-import gda.device.DeviceBase;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.ScannableMotion;
-import gda.device.scannable.ContinuouslyScannableViaController;
-import gda.device.scannable.scannablegroup.ScannableGroup;
-import gda.factory.FactoryException;
-import gda.util.OutOfRangeException;
-import gov.aps.jca.CAException;
-import gov.aps.jca.TimeoutException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,6 +29,16 @@ import java.util.concurrent.FutureTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceBase;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.ScannableMotion;
+import gda.device.scannable.ContinuouslyScannableViaController;
+import gda.device.scannable.scannablegroup.ScannableGroup;
+import gda.util.OutOfRangeException;
+import gov.aps.jca.CAException;
+import gov.aps.jca.TimeoutException;
 
 public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements TrajectoryMoveController {
 
@@ -485,10 +485,6 @@ public class EpicsTrajectoryMoveControllerAdapter extends DeviceBase implements 
 	@Override
 	public double getTotalTime() throws DeviceException {
 		return (getNumberTriggers() == 0) ? 0 : triggerPeriod * (getNumberTriggers() -1);
-	}
-
-	@Override
-	public void configure() throws FactoryException {
 	}
 
 	/**

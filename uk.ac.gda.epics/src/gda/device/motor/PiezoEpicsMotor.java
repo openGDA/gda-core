@@ -20,16 +20,10 @@ package gda.device.motor;
 
 import gda.factory.FactoryException;
 /**
- * This motor does not monitor the readback PV as it is continously updating even it had reached the target and stopped.
+ * This motor does not monitor the readback PV as it is continuously updating even it had reached the target and stopped.
  */
 public class PiezoEpicsMotor extends EpicsMotor {
-	public PiezoEpicsMotor() {
-		super();
-	}
-	@Override
-	public void configure() throws FactoryException {
-		super.configure();
-	}
+
 	@Override
 	protected void createChannelAccess() throws FactoryException {
 		try {

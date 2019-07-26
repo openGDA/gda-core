@@ -58,6 +58,9 @@ public class ZebraScannableMotorForQexafs extends ScannableMotor implements Cont
 		// Overriding ScannableMotor#configure() since we don't actually have a motor to wrap
 		// (Does this class actually need to extend ScannableMotor or could it extend something else which is not intended
 		// to wrap a single physical motor?)
+		if (isConfigured()) {
+			return;
+		}
 		this.setInputNames(new String[] { "Energy" });
 		setConfigured(true);
 	}

@@ -45,6 +45,9 @@ public class MultiPVScannable extends ScannableMotionUnitsBase {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (readPVname != null && !readPVname.isEmpty()) {
 			pvRead = LazyPVFactory.newReadOnlyDoublePV(readPVname);
 		} else {
@@ -55,6 +58,7 @@ public class MultiPVScannable extends ScannableMotionUnitsBase {
 		} else {
 			throw new FactoryException("writePV is not set for" + this.getName());
 		}
+		setConfigured(true);
 	}
 
 	@Override

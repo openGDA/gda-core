@@ -50,6 +50,9 @@ public class DummyXmapControllerAreaDetector extends DummyXmapControllerBase {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (adDetector == null) {
 			final String message = "adDetector not set";
 			logger.error(message);

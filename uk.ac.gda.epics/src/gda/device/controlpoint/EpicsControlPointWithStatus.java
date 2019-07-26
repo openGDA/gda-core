@@ -37,6 +37,9 @@ public class EpicsControlPointWithStatus extends EpicsControlPoint {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 
 		if (!statusPVName.isEmpty()) {
@@ -47,6 +50,7 @@ public class EpicsControlPointWithStatus extends EpicsControlPoint {
 				throw new FactoryException("failed to create Channel for Control Point Status PV", e);
 			}
 		}
+		setConfigured(true);
 	}
 
 	/**

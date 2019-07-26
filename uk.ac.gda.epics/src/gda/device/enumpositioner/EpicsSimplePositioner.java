@@ -75,14 +75,11 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 	}
 	@Override
 	public void configure() throws FactoryException {
-
-		// cf. ScannableMotor.configure
-		this.inputNames = new String[] { getName() };
-
-		this.outputFormat = new String[]{"%s"};
-
 		try {
 			if (!isConfigured()) {
+				// cf. ScannableMotor.configure
+				this.inputNames = new String[] { getName() };
+				this.outputFormat = new String[]{"%s"};
 				monitorInstalledSet = new HashSet<Channel>(3);
 
 				currentPositionChnl = controller.createChannel(pvName, this);

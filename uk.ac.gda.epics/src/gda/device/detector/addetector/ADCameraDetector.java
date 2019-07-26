@@ -75,11 +75,15 @@ public class ADCameraDetector extends DetectorBase implements InitializingBean, 
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		try {
 			array.getPluginBase().enableCallbacks();
 		} catch (Exception e) {
-//			throw new FactoryException("enabling array callbacks", e);
+			throw new FactoryException("Error enabling array callbacks", e);
 		}
+		setConfigured(true);
 	}
 
 	// Getters and Setters for Spring

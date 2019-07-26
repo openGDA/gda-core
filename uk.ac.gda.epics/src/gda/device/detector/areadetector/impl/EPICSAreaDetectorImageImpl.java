@@ -86,6 +86,9 @@ public class EPICSAreaDetectorImageImpl extends ConfigurableBase implements EPIC
 	// Methods for the Configurable interface and the reset method
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		try {
 			channelEnable = ecl.createChannel(basePVName + "EnableCallbacks");
 			channelArrayPort = ecl.createChannel(basePVName + "NDArrayPort");

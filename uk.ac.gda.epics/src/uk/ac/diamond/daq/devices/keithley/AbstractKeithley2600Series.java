@@ -124,7 +124,11 @@ public abstract class AbstractKeithley2600Series extends ScannableBase {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		setupNamesAndFormat();
+		setConfigured(true);
 	}
 
 	public Set<SourceMode> getSourceModes() {

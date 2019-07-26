@@ -42,6 +42,9 @@ public class EpicsMCACounterTimer extends DetectorBase {
 
 	@Override
 	public void configure() {
+		if (isConfigured()) {
+			return;
+		}
 		//if an epicsMcaList exists (set directly in Spring), then do not
 		//use the name list. If only nameList, find the EpicsMCASimple objects.
 		if (epicsMcaList.isEmpty() && !epicsMcaNameList.isEmpty()) {
@@ -49,6 +52,7 @@ public class EpicsMCACounterTimer extends DetectorBase {
 				epicsMcaList.add((IEpicsMCASimple) Finder.getInstance().find(epicsMcaNameList.get(i)));
 			}
 		}
+		setConfigured(true);
 	}
 
 	public void countAsync(double time) throws DeviceException {
