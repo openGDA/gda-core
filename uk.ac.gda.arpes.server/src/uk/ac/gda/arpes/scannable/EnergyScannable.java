@@ -41,10 +41,15 @@ public class EnergyScannable extends ScannableBase {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 
 		// Make this device observe the PGM so it will fire events when the PGM starts moving.
 		pgm.addIObserver(this::notifyIObservers);
+		
+		setConfigured(true);
 	}
 
 	@Override

@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsController;
 import gda.factory.ConfigurableBase;
+import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -217,10 +218,13 @@ public class VGScientaController extends ConfigurableBase {
 	}
 
 	@Override
-	public void configure() {
+	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (basePVName == null) {
 			logger.error("Configure called with no basePVName. Check spring configuration!");
-			throw new IllegalStateException("Configure called with no basePVName. Check spring configuration!");
+			throw new FactoryException("Configure called with no basePVName. Check spring configuration!");
 		}
 		logger.info("Configuring analyser with base PV: {}", basePVName);
 
@@ -251,7 +255,7 @@ public class VGScientaController extends ConfigurableBase {
 			logger.debug("Detected SES sensor size as: {} x {} (Energy x Y)", sensorXSize, sensorYSize);
 
 		} catch (Exception e) {
-			logger.error("Configuring the analyser failed", e);
+			throw new FactoryException("Configuring the analyser failed", e);
 		}
 
 		logger.info("Finished configuring analyser");

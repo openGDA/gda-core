@@ -58,6 +58,9 @@ class AnalyserLiveDataDispatcher extends FindableConfigurableBase {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		try {
 			arrayChannel = epicsController.createChannel(arrayPV);
 

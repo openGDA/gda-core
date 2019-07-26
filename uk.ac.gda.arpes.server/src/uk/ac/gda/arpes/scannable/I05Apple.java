@@ -222,6 +222,9 @@ public class I05Apple extends ScannableBase {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		epicsController = EpicsController.getInstance();
 		try {
@@ -234,6 +237,7 @@ public class I05Apple extends ScannableBase {
 		} catch (TimeoutException e) {
 			throw new FactoryException("timeout connecting to phase demand pvs", e);
 		}
+		setConfigured(true);
 	}
 
 	/**

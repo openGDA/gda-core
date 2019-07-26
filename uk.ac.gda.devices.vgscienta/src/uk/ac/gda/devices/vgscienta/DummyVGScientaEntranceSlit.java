@@ -77,6 +77,9 @@ public class DummyVGScientaEntranceSlit extends ConfigurableBase implements Entr
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		// Check the prerequisites for this to work
 		if (slits == null || slits.isEmpty()) {
 			throw new FactoryException("slits must be set");

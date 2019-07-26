@@ -48,6 +48,9 @@ public class SweepUpdater extends DeviceBase {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		epicsController = EpicsController.getInstance();
 
 		try {
@@ -101,6 +104,7 @@ public class SweepUpdater extends DeviceBase {
 		} catch (Exception e) {
 			throw new FactoryException("Cannot set up monitoring of arrays", e);
 		}
+		setConfigured(true);
 	}
 
 	public void dispatch() {

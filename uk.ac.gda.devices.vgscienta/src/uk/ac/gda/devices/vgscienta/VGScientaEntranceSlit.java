@@ -72,6 +72,9 @@ public class VGScientaEntranceSlit extends ConfigurableBase implements EntranceS
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		// Check the prerequisites for this to work
 		if (basePv == null) {
 			throw new FactoryException("basePv must be set");

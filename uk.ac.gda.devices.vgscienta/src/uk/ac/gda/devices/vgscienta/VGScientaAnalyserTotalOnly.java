@@ -44,10 +44,14 @@ public class VGScientaAnalyserTotalOnly extends DetectorBase implements NexusDet
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		// No input names its read-only
 		setInputNames(new String[] {});
 		setExtraNames(new String[] { getName() });
+		setConfigured(true);
 	}
 
 	@Override

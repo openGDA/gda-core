@@ -74,18 +74,19 @@ public class VGScientaOverExposureProtector extends ConfigurableBase implements 
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		logger.info("Configuring over-exposure protection");
 
 		if (basePv == null) {
-			logger.error("The basePv must be set for the over exposure protection to work. It will NOT be enabled");
 			// return here we wont be able to set this up usefully
-			return;
+			throw new FactoryException("The basePv must be set for the over exposure protection to work. It will NOT be enabled");
 		}
 
 		if (delayTime <= 0) {
-			logger.error("The delayTime must be set");
 			// return here we wont be able to set this up usefully
-			return;
+			throw new FactoryException("The delayTime must be set");
 		}
 
 		if (alarmActionCommand == null) {
@@ -103,7 +104,7 @@ public class VGScientaOverExposureProtector extends ConfigurableBase implements 
 			logger.debug("Added monitor to analyser over-exposure value channel");
 
 		} catch (Exception e) {
-			logger.error("Failed to configure analyser over-exposure protection", e);
+			throw new FactoryException("Failed to configure analyser over-exposure protection", e);
 		}
 
 		logger.info("Finsihed configuring analyser over-exposure protection");

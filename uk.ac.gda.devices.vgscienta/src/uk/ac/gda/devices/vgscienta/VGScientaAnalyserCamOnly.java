@@ -157,6 +157,9 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		setExtraNames(new String[] {"cps"});
 
@@ -165,7 +168,7 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 			sensorXSize = controller.getSensorXSize();
 			sensorYSize = controller.getSensorYSize();
 		} catch (Exception e1) {
-			logger.error("Could not retrieve data from controller", e1);
+			throw new FactoryException("Could not retrieve data from controller", e1);
 		}
 		validateRegions();
 		try {
@@ -175,8 +178,9 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 		epicsController.setMonitor(epicsController.createChannel(((ADBaseImpl) getAdBase()).getBasePVName() + ADBase.Acquire_RBV), this);
 		}
 		catch (Exception e) {
-			logger.error("Error setting up EPICS monitors", e);
+			throw new FactoryException("Error setting up EPICS monitors", e);
 		}
+		setConfigured(true);
 	}
 
 	private void validateRegions() {
