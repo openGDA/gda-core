@@ -118,6 +118,10 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	@Override
 	public void configure() throws FactoryException {
 		logger.trace("configure called");
+		if (isConfigured()) {
+			return;
+		}
+
 		super.configure();
 
 		// Pass through the events from the controller
@@ -145,6 +149,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		else {
 			logger.debug("No prelens valve is configured");
 		}
+		setConfigured(true);
 	}
 
 	@Override

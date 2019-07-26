@@ -183,6 +183,9 @@ public class SpecsPhoibosController extends ConfigurableBase implements IObserva
 	 */
 	@Override
 	public void configure() {
+		if (isConfigured()) {
+			return;
+		}
 		if (basePVName == null) {
 			logger.error("Configure called with no basePVName. Check spring configuration!");
 			throw new IllegalStateException("Configure called with no basePVName. Check spring configuration!");
