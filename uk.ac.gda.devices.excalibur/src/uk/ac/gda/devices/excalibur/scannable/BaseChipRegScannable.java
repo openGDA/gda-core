@@ -18,13 +18,12 @@
 
 package uk.ac.gda.devices.excalibur.scannable;
 
+import java.util.List;
+
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableUtils;
 import gda.factory.FactoryException;
-
-import java.util.List;
-
 import uk.ac.gda.devices.excalibur.ExcaliburReadoutNodeFem;
 import uk.ac.gda.devices.excalibur.MpxiiiChipReg;
 
@@ -37,16 +36,16 @@ public abstract class BaseChipRegScannable extends ScannableBase {
 	public BaseChipRegScannable(List<ExcaliburReadoutNodeFem> fems) {
 		this.fems = fems;
 	}
-	
-	
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		setInputNames(new String[]{getName()});
 		super.configure();
+		setConfigured(true);
 	}
-
-
 
 	@Override
 	public boolean isBusy() throws DeviceException {
@@ -61,14 +60,14 @@ public abstract class BaseChipRegScannable extends ScannableBase {
 			throw new DeviceException(e);
 		}
 	}
-	
+
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		Double[] positionArray = ScannableUtils.objectToArray(position);
 		Double pos = positionArray[0];
 
 		for (ExcaliburReadoutNodeFem fem : fems) {
-			for (int chipNum = 0; chipNum < 8; chipNum++) { 
+			for (int chipNum = 0; chipNum < 8; chipNum++) {
 				MpxiiiChipReg chipReg = fem.getIndexedMpxiiiChipReg(chipNum);
 				try {
 					doAsynchronousMoveTo(chipReg, pos.intValue());

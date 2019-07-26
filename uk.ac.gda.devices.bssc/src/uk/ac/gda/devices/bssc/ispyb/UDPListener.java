@@ -44,8 +44,13 @@ public class UDPListener extends DeviceBase {
 
 	@Override
 	public void configure() throws FactoryException {
-		if(isRunning())
+		if (isConfigured()) {
+			return;
+		}
+		if (isRunning()) {
 			startReading();
+		}
+		setConfigured(true);
 	}
 
 	/**

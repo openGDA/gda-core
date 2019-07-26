@@ -110,6 +110,9 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		try {
 			if (LocalProperties.isScanSetsScanNumber()) {
@@ -127,7 +130,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 //		} catch (DeviceException e) {
 //			logger.error("MythenDetectorImpl caught DeviceException during instantiation: ", e);
 //		}
-
+		setConfigured(true);
 	}
 
 	public void addScannableForHeader(Scannable scn) {

@@ -10,8 +10,6 @@ import org.embl.net.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.factory.FactoryException;
-
 public class DummyBioSAXSSampleChanger extends BioSAXSSampleChanger {
 	private static final Logger logger = LoggerFactory.getLogger(DummyBioSAXSSampleChanger.class);
 
@@ -37,10 +35,6 @@ public class DummyBioSAXSSampleChanger extends BioSAXSSampleChanger {
 	@Override
 	public void setHostname(String hostname) {
 		this.hostname = hostname;
-	}
-
-	@Override
-	public void configure() throws FactoryException {
 	}
 
 	@Override

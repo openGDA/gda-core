@@ -77,6 +77,9 @@ public class BSSCScannable extends ScannableBase {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		try {
 			setInputNames(new String[] {});
@@ -93,6 +96,7 @@ public class BSSCScannable extends ScannableBase {
 			poller = new Thread(new Poller(), getName() + " polling thread");
 			poller.start();
 		}
+		setConfigured(true);
 	}
 
 	@Override
