@@ -95,6 +95,9 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		minusCrystal = new ScannableGroupAllowedToMove("minusCrystal",	Arrays.asList(xtalxs[0], xtalys[0], xtaltilts[0], xtalbraggs[0]));
 		minusCrystal.configure();
 
