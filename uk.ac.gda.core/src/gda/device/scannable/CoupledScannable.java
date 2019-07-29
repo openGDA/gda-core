@@ -72,7 +72,9 @@ public class CoupledScannable extends ScannableMotionUnitsBase {
 	 */
 	@Override
 	public void configure() throws FactoryException {
-
+		if (isConfigured()) {
+			return;
+		}
 		// fill the array of Scannables
 		final Finder finder = Finder.getInstance();
 		if (scannableNames != null && !scannableNames.isEmpty()) {

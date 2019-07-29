@@ -18,6 +18,11 @@
 
 package uk.ac.gda.server.ncd.subdetector;
 
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -27,12 +32,6 @@ import gda.device.detector.xmap.EpicsXmapController;
 import gda.device.detector.xmap.XmapController;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 
@@ -82,13 +81,13 @@ public class NcdXmapDetector extends NcdSubDetector  {
 	public void start() throws DeviceException {
 		if (clear)
 			xmapcontroller.clearAndStart();
-		else 
+		else
 			xmapcontroller.start();
 		clear = false;
-		
+
 		int count = 0;
 		while (xmapcontroller.getStatus() != Detector.BUSY) {
-			if (count > 20) 
+			if (count > 20)
 				throw new DeviceException(getName() + " - detector does not act on start request");
 			try {
 				Thread.sleep(50);
@@ -107,7 +106,7 @@ public class NcdXmapDetector extends NcdSubDetector  {
 	public void writeout(int frames, NXDetectorData dataTree) throws DeviceException {
 		xmapcontroller.stop();
 		int[][] detectorData = xmapcontroller.getData();
-		
+
 		NexusGroupData ngd = new NexusGroupData(detectorData[0]);
 		ngd.isDetectorEntryData = true;
 		dataTree.addData(getTreeName(), ngd, "counts", 1);
@@ -118,12 +117,15 @@ public class NcdXmapDetector extends NcdSubDetector  {
 			NexusGroupData angd = new NexusGroupData(energyaxis);
 			dataTree.addAxis(getTreeName(), "energy", angd, 1, 1, "keV", false);
 		}
-		
+
 		addMetadata(dataTree);
 	}
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (xmapControllerName == null) throw new FactoryException("no controller defined");
 		if (xmapcontroller == null) {
 			if ((xmapcontroller = (XmapController) Finder.getInstance().find(xmapControllerName)) != null)
@@ -133,6 +135,7 @@ public class NcdXmapDetector extends NcdSubDetector  {
 				throw new FactoryException("EpicsXmapController " + xmapControllerName + " not found");
 			}
 		}
+		setConfigured(true);
 	}
 
 	public String getXmapControllerName() {
@@ -142,7 +145,7 @@ public class NcdXmapDetector extends NcdSubDetector  {
 	public void setXmapControllerName(String xmapControllerName) {
 		this.xmapControllerName = xmapControllerName;
 	}
-	
+
 	public XmapController getXmapController() {
 		return xmapcontroller;
 	}

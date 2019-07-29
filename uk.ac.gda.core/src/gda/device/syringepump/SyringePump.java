@@ -46,6 +46,9 @@ public class SyringePump extends DeviceBase implements Syringe {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (controller != null && getName() != null) {
 			controller.configure();
 			controller.addIObserver(this);

@@ -31,9 +31,12 @@ public class MetadataBlaster extends DeviceBase implements IObserver {
 
 	@Override
 	public void configure() throws FactoryException {
-
+		if (isConfigured()) {
+			return;
+		}
 		if (sme != null)
 			sme.addIObserver(this);
+		setConfigured(true);
 	}
 
 	public void setStoredMetadataEntry(MetadataEntry sme) {

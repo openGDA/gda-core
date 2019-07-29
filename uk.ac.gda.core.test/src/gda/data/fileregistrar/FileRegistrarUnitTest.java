@@ -55,10 +55,6 @@ public class FileRegistrarUnitTest {
 		private CountDownLatch latch = new CountDownLatch(1);
 
 		@Override
-		public void configure() throws FactoryException {
-			// nothing to do
-		}
-		@Override
 		public void notifyIObservers(Object source, Object arg) {
 			latch.countDown();
 		}

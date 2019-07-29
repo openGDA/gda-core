@@ -18,13 +18,12 @@
 
 package gda.device.motor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableMotor;
-import gda.factory.FactoryException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * TODO need to better document how the different parameters from MXCameraForDummy are rolled into parameters here
@@ -56,10 +55,6 @@ public class ShutteredScannableMotor extends DeviceBase implements ShutteredMoto
 	private double shutterIsOpenPosition;
 
 	private double shutterOpenTime;
-
-	@Override
-	public void configure() throws FactoryException {
-	}
 
 	/**
 	 * The fudge factor is for making sure we start outside of the open range

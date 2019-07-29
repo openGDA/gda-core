@@ -18,6 +18,10 @@
 
 package gda.device.scannable.scannablegroup;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotion;
@@ -28,10 +32,6 @@ import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableMotor;
 import gda.factory.FactoryException;
-
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup implements
 		ContinuouslyScannableViaController {
@@ -65,12 +65,16 @@ public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup 
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		assertGroupMembersAllHaveOnlyOneInputField();
 		if (controller == null) {
 			throw new FactoryException(getName() + " has no controller set.");
 		}
 		assertControllerHasCorrectNumberOfAxes();
 		super.configure();
+		setConfigured(true);
 	}
 
 	@Override

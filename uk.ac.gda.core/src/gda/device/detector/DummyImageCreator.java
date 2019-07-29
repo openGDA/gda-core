@@ -68,7 +68,11 @@ public class DummyImageCreator extends DetectorBase {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		initialiseRunNumber();
+		setConfigured(true);
 	}
 
 	@Override

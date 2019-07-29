@@ -62,12 +62,6 @@ public class DummyUnitsScannable extends ScannableMotionUnitsBase {
 	}
 
 	@Override
-	public void configure() {
-		// everything done in setters
-		setConfigured(true);
-	}
-
-	@Override
 	public void asynchronousMoveTo(Object externalPosition) throws DeviceException {
 		final Amount<? extends Quantity> targetInUserUnits = QuantityFactory.createFromObject(externalPosition, Unit.valueOf(getUserUnits()));
 		final double targetInHardwareUnits = targetInUserUnits.to(Unit.valueOf(getHardwareUnitString())).getEstimatedValue();

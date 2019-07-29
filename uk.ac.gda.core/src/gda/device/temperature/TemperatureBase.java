@@ -73,6 +73,9 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 	@Override
 	public void configure() throws FactoryException{
+		if (isConfigured()) {
+			return;
+		}
 		this.setInputNames(new String[] {"temperature"});
 		this.setOutputFormat(new String[] {"%5.2f"});
 
@@ -87,9 +90,10 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 			try {
 				dataWriter = DefaultDataWriterFactory.createDataWriterFromFactory();
 			} catch (Exception e) {
-				logger.error(getName() + " Error creating datawriter", e);
+				throw new FactoryException(getName() + " Error creating datawriter", e);
 			}
 		}
+		setConfigured(true);
 	}
 
 	/**

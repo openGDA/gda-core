@@ -52,6 +52,9 @@ public abstract class MetadataEntry extends FindableConfigurableBase implements 
 	 */
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		metadata = GDAMetadataProvider.getInstance();
 		setConfigured(true);
 	}

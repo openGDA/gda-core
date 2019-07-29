@@ -92,19 +92,16 @@ public abstract class MapperBasedEnumPositionerBase<T> extends EnumPositionerBas
 
 	@Override
 	public void configure() throws FactoryException {
-
-		this.inputNames = new String[] { getName() };
-
-		this.outputFormat = new String[] { "%s" };
-
-		// try {
 		if (!isConfigured()) {
+			this.inputNames = new String[] { getName() };
+			this.outputFormat = new String[] { "%s" };
+
 			monitor.addIObserver(new IObserver() {
 
 				@Override
 				public void update(Object source, Object arg) {
 					ScannablePositionChangeEvent event = getScannablePositionChangeEvent(source, arg);
-					if(event != null)
+					if (event != null)
 						notifyIObservers(MapperBasedEnumPositionerBase.this, event);
 				}
 			});

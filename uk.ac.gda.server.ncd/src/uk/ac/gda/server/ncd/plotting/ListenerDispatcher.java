@@ -84,6 +84,9 @@ public class ListenerDispatcher extends FindableConfigurableBase implements ISca
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(this);
 		setConfigured(true);
 	}

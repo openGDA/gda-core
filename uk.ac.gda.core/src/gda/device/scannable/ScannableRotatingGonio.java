@@ -53,6 +53,9 @@ public class ScannableRotatingGonio extends ScannableMotionUnitsBase implements 
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		try {
 			motorObserver = new IObserver() {
 
@@ -69,6 +72,7 @@ public class ScannableRotatingGonio extends ScannableMotionUnitsBase implements 
 		} catch (Exception e) {
 			throw new FactoryException("Error configuring " + getName(), e);
 		}
+		setConfigured(true);
 	}
 
 	@Override

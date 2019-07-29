@@ -37,8 +37,12 @@ public class IntransparentLogFilePathProvider extends MetadataBlaster implements
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		InterfaceProvider.getBatonStateProvider().addBatonChangedObserver(this);
+		setConfigured(true);
 	}
 
 	public void setPathTemplate(String pathTemplate) {

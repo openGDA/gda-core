@@ -19,11 +19,11 @@
 
 package gda.device.adc;
 
+import java.util.Random;
+
 import gda.device.Adc;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
-
-import java.util.Random;
 
 /**
  * Dummy implementation of the Adc class
@@ -53,11 +53,6 @@ public class DummyAdc extends DeviceBase implements Adc {
 			_polarity[i] = BIPOLAR;
 			_range[i] = ranges[0];
 		}
-	}
-
-	@Override
-	public void configure(){
-		// no configuration required
 	}
 
 	@Override

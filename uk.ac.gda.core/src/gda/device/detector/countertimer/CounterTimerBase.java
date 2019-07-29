@@ -41,6 +41,9 @@ public abstract class CounterTimerBase extends DetectorBase implements CounterTi
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (timer == null) {
 			logger.debug("Finding: " + timerName);
 			if ((timer = (gda.device.Timer) Finder.getInstance().find(timerName)) == null) {

@@ -97,6 +97,9 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		logger.debug("Finding: {}", serialDeviceName);
 		if ((serial = Finder.getInstance().find(serialDeviceName)) == null) {

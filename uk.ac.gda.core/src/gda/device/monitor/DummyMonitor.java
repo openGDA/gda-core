@@ -39,9 +39,13 @@ public class DummyMonitor extends MonitorBase {
 
 	@Override
 	public void configure() {
+		if (isConfigured()) {
+			return;
+		}
 		this.inputNames = new String[]{};
 		this.extraNames = new String[]{this.getName()};
 		Async.scheduleAtFixedRate(this::updateValue, 0, updateInterval, MILLISECONDS, "%s (%s)", getClass().getName(), getName());
+		setConfigured(true);
 	}
 
 	private void updateValue() {

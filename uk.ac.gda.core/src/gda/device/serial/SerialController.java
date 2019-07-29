@@ -19,13 +19,14 @@
 
 package gda.device.serial;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.Serial;
+import gda.factory.FactoryException;
 import gda.factory.Finder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A Distributed Controller class for Serial devices
@@ -62,7 +63,10 @@ public class SerialController extends DeviceBase {
 	private String flowControl = Serial.FLOWCONTROL_NONE;
 
 	@Override
-	public void configure() {
+	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		logger.debug("SerialController: Finding: " + serialDeviceName);
 		if ((serial = (Serial) Finder.getInstance().find(serialDeviceName)) == null) {
 			logger.error("Serial Device " + serialDeviceName + " not found");
@@ -81,9 +85,10 @@ public class SerialController extends DeviceBase {
 				reader.stringProps.setTerminator(replyTerminator);
 				writer.stringProps.setTerminator(commandTerminator);
 			} catch (DeviceException de) {
-				logger.error("Exception while connecting the Serial Port" + de);
+				throw new FactoryException("Exception while connecting the Serial Port" + de);
 			}
 		}
+		setConfigured(true);
 	}
 
 	/**

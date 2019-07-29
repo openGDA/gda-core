@@ -103,6 +103,9 @@ public class DummyCounterTimer extends TFGCounterTimer implements Runnable, IObs
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 
 		runner = new Thread(this, getClass().getName() + " " + getName());
@@ -133,6 +136,7 @@ public class DummyCounterTimer extends TFGCounterTimer implements Runnable, IObs
 		data = new double[totalChans];
 		frameSets = new ArrayList<FrameSet>();
 
+		setConfigured(true);
 	}
 
 	@Override

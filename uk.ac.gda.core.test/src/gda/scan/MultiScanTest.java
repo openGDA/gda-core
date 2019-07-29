@@ -336,11 +336,6 @@ public class MultiScanTest {
 		}
 
 		@Override
-		public void configure(){
-			// no configuration required
-		}
-
-		@Override
 		public void moveBy(double steps) throws MotorException {
 			moving = true;
 			posn += steps;

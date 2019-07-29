@@ -48,6 +48,9 @@ public abstract class FactoryBase extends ConfigurableBase implements Factory {
 	 */
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		List<Findable> findables = getFindables();
 		for (Findable findable : findables) {
 			if (findable instanceof Configurable) {

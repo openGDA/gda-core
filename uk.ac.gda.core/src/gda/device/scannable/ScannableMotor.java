@@ -124,6 +124,9 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (motor == null) {
 			if (motorName == null || motorName.length() == 0) {
 				throw new FactoryException("No motor configured and no motor name set");

@@ -84,6 +84,9 @@ public class NcdDetectorSystem extends DetectorBase implements NcdDetector, Posi
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		for (INcdSubDetector det : subDetectors) {
 			try {
 				if (det != null && det.getDetectorType().equals(CALIBRATION_DETECTOR)) {
@@ -95,6 +98,7 @@ public class NcdDetectorSystem extends DetectorBase implements NcdDetector, Posi
 				e.printStackTrace();
 			}
 		}
+		setConfigured(true);
 	}
 
 	@Override

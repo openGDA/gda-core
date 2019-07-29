@@ -33,9 +33,7 @@ public class DummySyringePumpController extends DeviceBase implements SyringePum
 	private double infuseRate;
 	private double withdrawRate;
 
-	private boolean configured;
 	private boolean enabled;
-
 
 	private DummyMotor syringe; // use dummy motor to simulate slow moves
 	private ScannableMotor syringeScannable;
@@ -44,7 +42,7 @@ public class DummySyringePumpController extends DeviceBase implements SyringePum
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!enabled || configured) {
+		if (!enabled || isConfigured()) {
 			return;
 		}
 		syringe = new DummyMotor();
@@ -55,7 +53,7 @@ public class DummySyringePumpController extends DeviceBase implements SyringePum
 		syringeScannable.setName(getName() + "syringeDummyMotor");
 		syringeScannable.configure();
 		syringe.addIObserver(this);
-		configured = true;
+		setConfigured(true);
 	}
 
 	private void checkEnabled() throws DeviceException {

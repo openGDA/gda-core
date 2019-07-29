@@ -75,6 +75,9 @@ public class ServerFileListener extends ConfigurableBase implements IObserver {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		findDataProject();
 		if (clientFileAnnouncer == null) {
 			clientFileAnnouncer = Finder.getInstance().find(clientFileAnnouncerName);

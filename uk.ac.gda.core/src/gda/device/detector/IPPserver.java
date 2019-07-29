@@ -316,6 +316,9 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 
 	@Override
 	public void configure() {
+		if (isConfigured()) {
+			return;
+		}
 		logger.debug("IPPserver.configure");
 
 		ippServerSocket = new ClientSocketHandlerAdapter();
@@ -324,6 +327,7 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 
 			logger.debug("IPPserver configured ok");
 		}
+		setConfigured(true);
 	}
 
 	/**

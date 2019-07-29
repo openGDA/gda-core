@@ -19,13 +19,13 @@
 
 package gda.device.detector.countertimer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Memory;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Represents a Tfg and HY8513 Incremental Encoder Counter Industry Pack combination. Since the Tfg will generally also
@@ -41,11 +41,15 @@ public class TfgEncoderCounter extends TFGCounterTimer {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		logger.debug("Finding: " + encoderCounterName);
 		if ((encoderCounter = (Memory) Finder.getInstance().find(encoderCounterName)) == null) {
 			logger.error("encoderCounter " + encoderCounterName + " not found");
 		}
 		super.configure();
+		setConfigured(true);
 	}
 
 	/**

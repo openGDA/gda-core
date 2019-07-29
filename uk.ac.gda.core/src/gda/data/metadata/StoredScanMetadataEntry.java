@@ -18,13 +18,13 @@
 
 package gda.data.metadata;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 import gda.scan.Scan.ScanStatus;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The content of this metadata item is reset after each scan.
@@ -38,8 +38,12 @@ public class StoredScanMetadataEntry extends StoredMetadataEntry implements IObs
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		InterfaceProvider.getJSFObserver().addIObserver(this);
+		setConfigured(true);
 	}
 
 	@Override

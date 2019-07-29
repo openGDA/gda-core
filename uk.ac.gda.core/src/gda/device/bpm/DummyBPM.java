@@ -23,9 +23,6 @@ package gda.device.bpm;
  * A dummy beam position monitor.
  */
 public class DummyBPM extends BPMBase {
-	@Override
-	public void configure() {
-	}
 
 	@Override
 	public double getX() {

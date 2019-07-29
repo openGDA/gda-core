@@ -101,6 +101,9 @@ public class ShutterPanel extends JPanel implements IObserver, Runnable,Configur
 	 */
 	@Override
 	public void configure() {
+		if (configured) {
+			return;
+		}
 		if (shutter == null) {
 			if (shutterName == null)
 				return;

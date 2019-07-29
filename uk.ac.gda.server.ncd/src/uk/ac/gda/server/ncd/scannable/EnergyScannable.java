@@ -49,8 +49,12 @@ public class EnergyScannable extends ScannableBase implements IObserver {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		setInputNames(new String[] {getName()});
 		setupExtraNames();
+		setConfigured(true);
 	}
 
 	private void setupExtraNames() {

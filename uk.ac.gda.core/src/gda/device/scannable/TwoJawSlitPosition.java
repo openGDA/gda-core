@@ -59,14 +59,16 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		// use the finder to get the Scannable objects
-
 		if (firstJaw == null) {
-			firstJaw = (ScannableMotionUnits) Finder.getInstance().find(firstJawName);
+			firstJaw = Finder.getInstance().find(firstJawName);
 		}
 
 		if (secondJaw == null) {
-			secondJaw = (ScannableMotionUnits) Finder.getInstance().find(secondJawName);
+			secondJaw = Finder.getInstance().find(secondJawName);
 		}
 
 		firstJaw.addIObserver(this);
@@ -85,6 +87,8 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 
 		//calculate the limits and give them to the limits component
 		calculateLimits();
+
+		setConfigured(true);
 	}
 
 	/**

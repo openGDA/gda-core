@@ -96,7 +96,9 @@ public class Tfg extends DeviceBase implements Timer {
 
 	@Override
 	public void configure() {
-
+		if (isConfigured()) {
+			return;
+		}
 		// find daserver if not set
 		if (daServer == null) {
 			logger.debug("Finding: {}", daServerName);

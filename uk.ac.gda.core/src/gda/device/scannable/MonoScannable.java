@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import gda.device.DeviceException;
+import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.jscience.physics.quantities.BraggAngle;
 import gda.jscience.physics.quantities.PhotonEnergy;
@@ -68,7 +69,10 @@ public class MonoScannable extends ScannableMotionUnitsBase {
 	private String initialUserUnits = null;
 
 	@Override
-	public void configure() {
+	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		theMotor = Finder.getInstance().find(motorName);
 
 		if (this.inputNames.length == 1 && this.inputNames[0].equals("value")) {
@@ -92,10 +96,7 @@ public class MonoScannable extends ScannableMotionUnitsBase {
 
 			setConfigured(true);
 		} catch (Exception e) {
-			// do not throw an error as this would stop ObjectFactory from
-			// completing its initialisation
-			logger.error(
-					"Exception during configure of " + getName() + " (motor=" + StringUtils.quote(motorName) + ")", e);
+			throw new FactoryException("Exception during configure of " + getName() + " (motor=" + StringUtils.quote(motorName) + ")", e);
 		}
 	}
 

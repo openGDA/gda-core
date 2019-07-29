@@ -23,7 +23,6 @@ import java.lang.reflect.InvocationTargetException;
 import gda.device.Device;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
-import gda.factory.FactoryException;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
@@ -41,10 +40,6 @@ public class FindableSimpleServlet extends DeviceBase {
 	 * Constructor
 	 */
 	public FindableSimpleServlet() {
-	}
-
-	@Override
-	public void configure() throws FactoryException {
 	}
 
 	@Override

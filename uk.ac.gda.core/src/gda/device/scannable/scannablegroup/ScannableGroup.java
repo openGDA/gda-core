@@ -72,6 +72,9 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		// add all membernames to the list of members
 		Set<String> namesOfGroupMembers = setOfGroupMemberNames(groupMembers);
 		for (String name : groupMemberNames) {

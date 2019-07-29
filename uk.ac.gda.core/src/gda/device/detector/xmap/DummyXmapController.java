@@ -22,18 +22,11 @@ package gda.device.detector.xmap;
 import java.util.Random;
 
 import gda.device.DeviceException;
-import gda.factory.FactoryException;
 
 /**
  * Dummy Xmap controller for use when GDA is writing data
  */
 public class DummyXmapController extends DummyXmapControllerBase {
-
-	@Override
-	public void configure() throws FactoryException {
-		// no specific configuration required
-		setConfigured(true);
-	}
 
 	@Override
 	public int[] getData(int mcaNumber) throws DeviceException {

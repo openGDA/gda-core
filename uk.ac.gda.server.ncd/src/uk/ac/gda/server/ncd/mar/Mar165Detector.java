@@ -73,6 +73,9 @@ public class Mar165Detector extends DetectorBase {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (mc != null) {
 			try {
 				mc.close();

@@ -97,6 +97,9 @@ public class CameraXYScannable extends ScannableBase implements InitializingBean
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		setInputNames(new String[] { "X", "Y" });
 		try {
@@ -119,7 +122,7 @@ public class CameraXYScannable extends ScannableBase implements InitializingBean
 		} catch (Exception e) {
 			throw new FactoryException("Error in configure for " + getName(), e);
 		}
-
+		setConfigured(true);
 	}
 
 	private int getRotationAxisX() throws DeviceException {

@@ -79,6 +79,9 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		longPollTime = 2000;
 		super.configure();
 		try {

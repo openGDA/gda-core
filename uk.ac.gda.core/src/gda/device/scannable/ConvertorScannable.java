@@ -60,6 +60,9 @@ public class ConvertorScannable extends ScannableMotionUnitsBase implements IObs
 
 	@Override
 	public void configure() {
+		if (isConfigured()) {
+			return;
+		}
 		// find the scannable objects
 		if (theScannable == null) {
 			theScannable = Finder.getInstance().find(theScannableName);

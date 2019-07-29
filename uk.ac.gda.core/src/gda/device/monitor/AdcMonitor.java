@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.Adc;
 import gda.device.DeviceException;
+import gda.factory.FactoryException;
 import gda.factory.Finder;
 
 /**
@@ -53,14 +54,18 @@ public class AdcMonitor extends MonitorBase {
 	}
 
 	@Override
-	public void configure() {
+	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		this.setInputNames(new String[]{adcName});
 		logger.debug("Finding: " + adcName);
 		if ((adc = (Adc) Finder.getInstance().find(adcName)) == null) {
-			logger.error("Adc " + adcName + " not found");
+			throw new FactoryException("Adc " + adcName + " not found");
 		} else {
 			new Thread(this::run, getClass().getName()).start();
 		}
+		setConfigured(true);
 	}
 
 	/**

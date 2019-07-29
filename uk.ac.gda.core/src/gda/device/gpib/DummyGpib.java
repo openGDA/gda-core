@@ -30,11 +30,6 @@ public class DummyGpib extends GpibBase {
 	String deviceName = "";
 
 	@Override
-	public void configure(){
-		// no configuration required
-	}
-
-	@Override
 	public int findDevice(String deviceName) throws DeviceException {
 		this.deviceName = deviceName;
 		return 1;

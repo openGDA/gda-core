@@ -19,7 +19,6 @@
 package gda.data;
 
 import gda.device.DeviceBase;
-import gda.factory.FactoryException;
 
 public class SimpleObservablePathProvider extends DeviceBase implements ObservablePathProvider {
 
@@ -33,11 +32,5 @@ public class SimpleObservablePathProvider extends DeviceBase implements Observab
 	@Override
 	public String getPath() {
 		return path ;
-	}
-
-
-	@Override
-	public void configure() throws FactoryException {
-		//pass
 	}
 }

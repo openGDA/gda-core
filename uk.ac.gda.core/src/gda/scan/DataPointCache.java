@@ -66,6 +66,9 @@ public abstract class DataPointCache extends FindableConfigurableBase implements
 
 	@Override
 	public void configure() {
+		if (isConfigured()) {
+			return;
+		}
 		InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(this);
 		setConfigured(true);
 	}

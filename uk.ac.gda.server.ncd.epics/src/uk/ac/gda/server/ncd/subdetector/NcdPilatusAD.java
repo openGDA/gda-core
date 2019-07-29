@@ -73,6 +73,9 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		try {
 			controller.configure();
 			controller.setImageMode(1); // multiple image
@@ -81,6 +84,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		} catch (Exception e) {
 			throw new FactoryException(getName() + " - error setting up area detector", e);
 		}
+		setConfigured(true);
 	}
 
 	/**

@@ -29,7 +29,6 @@ import java.util.concurrent.Future;
 
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
-import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.concurrent.Async;
 
@@ -58,12 +57,6 @@ public class DummyTrajectoryMoveController extends DeviceBase implements Traject
 
 	public DummyTrajectoryMoveController() {
 		stopAndReset();
-	}
-
-
-	@Override
-	public void configure() throws FactoryException {
-
 	}
 
 	@Override

@@ -42,7 +42,11 @@ public class DummyPersistentUnitsScannable extends DummyPersistentScannable impl
 
 	@Override
 	public void configure() {
+		if (isConfigured()) {
+			return;
+		}
 		this.inputNames = new String[] { getName() };
+		setConfigured(true);
 	}
 	@Override
 	public void addAcceptableUnit(String newUnit) throws DeviceException {

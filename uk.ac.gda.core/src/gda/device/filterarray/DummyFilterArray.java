@@ -30,11 +30,6 @@ public class DummyFilterArray extends FilterArrayBase {
 	private double currentEnergy = 1.0;
 
 	@Override
-	public void configure(){
-		// no configuration required
-	}
-
-	@Override
 	public double getAbsorption() throws DeviceException {
 		return currentAbsorption;
 	}

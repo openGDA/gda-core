@@ -60,8 +60,12 @@ public class ObservablePathConstructor extends DeviceBase implements ObservableP
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		extractReferedMetadataEntries();
 		registerWithReferedMetadataEntries();
+		setConfigured(true);
 	}
 
 	private void extractReferedMetadataEntries() {

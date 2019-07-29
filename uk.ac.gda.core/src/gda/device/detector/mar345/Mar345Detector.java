@@ -60,8 +60,12 @@ public class Mar345Detector extends DetectorBase implements Mar345 {
 	 */
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		m345 = new Mar345Controller();//taken from constructor because of problems detecting when the mar345 is idle.
 		defaultMarDirectory = PathConstructor.createFromDefaultProperty();
+		setConfigured(true);
 	}
 	/**
 	 * Initialize the detector passing mar log directory

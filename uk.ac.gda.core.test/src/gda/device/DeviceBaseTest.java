@@ -65,12 +65,10 @@ public class DeviceBaseTest implements IObserver {
 		assertEquals("name should be " + name, dummyAdc.getName(), name);
 	}
 
-	/**
-	 */
 	@Test
-	public void testConfigure() {
-		// should do nothing
+	public void testConfigure() throws FactoryException {
 		dummyAdc.configure();
+		assertTrue(dummyAdc.isConfigured());
 	}
 
 	/**

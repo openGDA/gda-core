@@ -168,6 +168,9 @@ public class LogServer extends ConfigurableBase implements BeanNameAware {
 	 */
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		try {
 			configureAndStartLogServer();
 		} catch (JoranException e) {

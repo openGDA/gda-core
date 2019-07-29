@@ -20,15 +20,10 @@ package gda.data.fileregistrar;
 
 import gda.device.Device;
 import gda.device.DeviceBase;
-import gda.factory.FactoryException;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 @ServiceInterface(Device.class)
 public class ClientFileAnnouncer extends DeviceBase {
-	@Override
-	public void configure() throws FactoryException {
-		// no configuration required
-	}
 
 	/**
 	 * Notify observers (usually the project explorer) that files have been created

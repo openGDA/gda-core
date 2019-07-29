@@ -158,6 +158,9 @@ public class DefaultDataWriterFactory extends FindableConfigurableBase implement
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		for (String dweName : dataWriterExtenders.keySet()) {
 			if (dataWriterExtenders.get(dweName) == null) {
 

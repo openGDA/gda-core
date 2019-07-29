@@ -96,7 +96,9 @@ public class BeamlineConfigurationManager extends FindableConfigurableBase imple
 	 */
 	@Override
 	public void configure() throws FactoryException {
-
+		if (isConfigured()) {
+			return;
+		}
 		try {
 			em = LocalPersistence.createPersistenceEntityManagerFactory("BcmPersistenceUnit").createEntityManager();
 		} catch (LocalDatabaseException e) {

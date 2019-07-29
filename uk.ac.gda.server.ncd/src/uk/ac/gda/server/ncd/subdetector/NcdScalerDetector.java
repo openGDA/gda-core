@@ -46,16 +46,21 @@ public class NcdScalerDetector extends NcdSubDetector {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (memory != null) {
 			memory.reconfigure();
 		} else {
 			throw new FactoryException("no memory configured!");
 		}
+		setConfigured(true);
 	}
 
 	@Override
 	public void reconfigure() throws FactoryException {
 		logger.debug("NcdDetector reconfiguring " + getName());
+		setConfigured(false);
 		configure();
 	}
 

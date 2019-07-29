@@ -43,8 +43,11 @@ public class TimedRunnableInvoker extends DeviceBase {
 
 	@Override
 	public void configure() throws FactoryException {
-		setConfigured(true);
+		if (isConfigured()) {
+			return;
+		}
 		start();
+		setConfigured(true);
 	}
 
 	void start() {

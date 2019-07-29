@@ -18,14 +18,14 @@
 
 package gda.device.scannable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.ControlPoint;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DeferredScannable extends ScannableMotionUnitsBase {
 	private static final Logger logger = LoggerFactory.getLogger(DeferredScannable.class);
@@ -51,6 +51,9 @@ public class DeferredScannable extends ScannableMotionUnitsBase {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (deferredControlPoint == null) {
 			deferredControlPoint = (ControlPoint) Finder.getInstance().find(deferredControlPointName);
 		}
@@ -59,6 +62,7 @@ public class DeferredScannable extends ScannableMotionUnitsBase {
 		}
 		this.inputNames = new String[] { getName() };
 		super.configure();
+		setConfigured(true);
 	}
 
 	public String getControlPointScannableName() {

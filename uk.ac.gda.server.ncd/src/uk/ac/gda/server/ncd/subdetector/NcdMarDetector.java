@@ -30,7 +30,6 @@ import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNode;
-import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.DataDimension;
 import gda.device.detector.NXDetectorData;
@@ -46,8 +45,12 @@ public class NcdMarDetector extends NcdSubDetector implements LastImageProvider 
 
 	@Override
 	public void configure(){
+		if (isConfigured()) {
+			return;
+		}
 		if (detector == null && marName != null)
-			detector = (Detector) Finder.getInstance().find(marName);
+			detector = Finder.getInstance().find(marName);
+		setConfigured(true);
 	}
 
 

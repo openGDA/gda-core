@@ -102,12 +102,16 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		try {
 			createDatabase();
 		} catch (Exception e) {
 			throw new FactoryException("Exception while configuring script controller" + getName(), e);
 		}
+		setConfigured(true);
 	}
 
 	@Override

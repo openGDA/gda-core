@@ -55,6 +55,9 @@ public class NcdWireDetector extends NcdSubDetector {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (memory != null) {
 			memory.reconfigure();
 		} else {
@@ -65,6 +68,7 @@ public class NcdWireDetector extends NcdSubDetector {
 	@Override
 	public void reconfigure() throws FactoryException {
 		logger.debug("NcdDetector reconfiguring " + getName());
+		setConfigured(false);
 		configure();
 	}
 

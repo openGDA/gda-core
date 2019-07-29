@@ -111,6 +111,9 @@ public class DummyDAServer extends DAServer {
 
 	@Override
 	public void configure() {
+		if (isConfigured()) {
+			return;
+		}
 		connect();
 		doStartupScript();
 		setConfigured(true);

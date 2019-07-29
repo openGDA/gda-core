@@ -148,6 +148,9 @@ public class NewFileListener extends ConfigurableBase implements DataDirectoryMo
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (newFileProvider != null) {
 			newFileProvider.deleteIObserver(this);
 		}

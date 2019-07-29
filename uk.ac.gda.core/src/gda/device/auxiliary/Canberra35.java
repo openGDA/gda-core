@@ -19,6 +19,11 @@
 
 package gda.device.auxiliary;
 
+import java.text.DecimalFormat;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.MCAException;
@@ -27,11 +32,6 @@ import gda.device.Serial;
 import gda.device.serial.StringReader;
 import gda.device.serial.StringWriter;
 import gda.factory.Finder;
-
-import java.text.DecimalFormat;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class to control the Canberra35 MCA
@@ -91,6 +91,9 @@ public class Canberra35 extends DeviceBase {
 
 	@Override
 	public void configure() {
+		if (isConfigured()) {
+			return;
+		}
 		logger.debug("Finding: " + serialDeviceName);
 		if ((serial = (Serial) Finder.getInstance().find(serialDeviceName)) == null) {
 			logger.error("Serial Device " + serialDeviceName + " not found");
@@ -126,6 +129,7 @@ public class Canberra35 extends DeviceBase {
 				// initialising Canberra35");
 			}
 		}
+		setConfigured(true);
 	}
 
 	/**

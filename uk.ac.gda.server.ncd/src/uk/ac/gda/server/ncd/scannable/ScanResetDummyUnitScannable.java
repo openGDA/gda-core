@@ -25,6 +25,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.DummyUnitsScannable;
 import gda.device.scannable.ScannablePositionChangeEvent;
+import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 import gda.scan.Scan.ScanStatus;
@@ -42,7 +43,10 @@ public class ScanResetDummyUnitScannable extends DummyUnitsScannable  implements
 	}
 
 	@Override
-	public void configure() {
+	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		try {
 			moveTo(resetValue);
@@ -51,6 +55,7 @@ public class ScanResetDummyUnitScannable extends DummyUnitsScannable  implements
 			logger.error("Could not set initial value for {}", getName(), de);
 		}
 		InterfaceProvider.getJSFObserver().addIObserver(this);
+		setConfigured(true);
 	}
 
 	@Override

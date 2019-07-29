@@ -159,6 +159,9 @@ public class LoadAdditionalBeansToObjectServer extends FindableConfigurableBase 
 	 */
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		JYTHON_NAMESPACE.placeInJythonNamespace(getName(), this);
 		setConfigured(true);
 	}

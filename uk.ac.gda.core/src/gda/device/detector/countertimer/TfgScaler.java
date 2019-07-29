@@ -19,17 +19,17 @@
 
 package gda.device.detector.countertimer;
 
-import gda.device.DeviceException;
-import gda.device.Memory;
-import gda.device.timer.FrameSet;
-import gda.factory.FactoryException;
-import gda.factory.Finder;
-
 import java.util.ArrayList;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.Memory;
+import gda.device.timer.FrameSet;
+import gda.factory.FactoryException;
+import gda.factory.Finder;
 
 /**
  * A distributed counter/timer class implemented using DA.Server at present on OS-9 systems using VME Time Frame
@@ -78,6 +78,9 @@ public class TfgScaler extends TFGCounterTimer {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (scaler == null) {
 			logger.debug("Finding: " + scalerName);
 			if ((scaler = (Memory) Finder.getInstance().find(scalerName)) == null) {
@@ -88,6 +91,7 @@ public class TfgScaler extends TFGCounterTimer {
 		frameSets = new ArrayList<FrameSet>();
 		super.configure();
 		setSlave(false);
+		setConfigured(true);
 	}
 
 	/**

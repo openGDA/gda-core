@@ -19,8 +19,6 @@
 
 package gda.device.serial;
 
-import gda.device.DeviceException;
-
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,6 +32,8 @@ import javax.swing.JTextField;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
 
 /**
  * Allows you to pretend to be a serial device
@@ -82,11 +82,6 @@ public class DummySerialDevice extends SerialBase implements ActionListener, Key
 		jframe.getContentPane().add(jpanel);
 		jframe.pack();
 		jframe.setVisible(true);
-	}
-
-	@Override
-	public void configure(){
-		// no configuration required
 	}
 
 	@Override

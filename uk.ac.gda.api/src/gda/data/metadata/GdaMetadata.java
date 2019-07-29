@@ -54,6 +54,9 @@ public class GdaMetadata extends FindableConfigurableBase implements Metadata, I
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		for (IMetadataEntry me : metadataEntries.values()) {
 			me.configure();
 		}

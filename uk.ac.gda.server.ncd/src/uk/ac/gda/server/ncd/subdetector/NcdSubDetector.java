@@ -45,9 +45,9 @@ import gda.device.detector.DataDimension;
 import gda.device.detector.NXDetectorData;
 import gda.factory.FactoryException;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
+import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 import uk.ac.gda.server.ncd.meta.INcdMetaProvider;
-import uk.ac.gda.api.remoting.ServiceInterface;
 
 @ServiceInterface(INcdSubDetector.class)
 public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
@@ -124,9 +124,12 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (detector != null) {
 			detector.reconfigure();
-			setConfigured(((DeviceBase) detector).isConfigured());
+			setConfigured(detector.isConfigured());
 		} else {
 			setConfigured(false);
 			throw new FactoryException("no detector configured!");

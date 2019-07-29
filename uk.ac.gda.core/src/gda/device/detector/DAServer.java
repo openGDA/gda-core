@@ -145,6 +145,9 @@ public class DAServer extends DeviceBase {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		lock();
 		try {
 			logger.debug("connecting.");

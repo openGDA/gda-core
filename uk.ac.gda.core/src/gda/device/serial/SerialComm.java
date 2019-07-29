@@ -76,7 +76,10 @@ public class SerialComm extends SerialBase {
 	}
 
 	@Override
-	public void configure() {
+	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		try {
 			openSerialPort(portName);
 			if (opened) {
@@ -90,7 +93,7 @@ public class SerialComm extends SerialBase {
 			}
 			setConfigured(true);
 		} catch (UnsupportedCommOperationException e) {
-			logger.debug("Comm error " + e.toString());
+			throw new FactoryException("Comm error ", e);
 		}
 	}
 

@@ -58,6 +58,9 @@ public abstract class PerVisitExternalNcdMetadata extends NcdMetaBaseProvider im
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		msg = new NcdMsgFactory(detectorType, metaType);
 		try {
 			config = LocalParameters.getXMLConfiguration(configFileName);

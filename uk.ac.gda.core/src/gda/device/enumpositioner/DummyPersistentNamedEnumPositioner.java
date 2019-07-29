@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import gda.factory.FactoryException;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 
 public class DummyPersistentNamedEnumPositioner extends DummyNamedEnumPositioner {
@@ -42,15 +43,19 @@ public class DummyPersistentNamedEnumPositioner extends DummyNamedEnumPositioner
 	}
 
 	@Override
-	public void configure() {
-			super.configure();
+	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
+		super.configure();
 		try {
 			configuration = LocalParameters.getThreadSafeXmlConfiguration(getConfigurationName());
 		} catch (ConfigurationException e) {
-			mylogger.error("Configuration exception in constructor for DummyPersistentNamedEnumPositioner",e);
+			throw new FactoryException("Configuration exception in constructor for DummyPersistentNamedEnumPositioner",e);
 		} catch (IOException e) {
-			mylogger.error("IO exception for DummyPersistentNamedEnumPositioner", e);
+			throw new FactoryException("IO exception for DummyPersistentNamedEnumPositioner", e);
 		}
+		setConfigured(true);
 	}
 
 	@Override

@@ -74,6 +74,9 @@ public class CombinedManipulator extends ScannableBase implements IObserver {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		setInputNames(new String[] {getName()});
 		setupExtraNames();
 
@@ -83,6 +86,7 @@ public class CombinedManipulator extends ScannableBase implements IObserver {
 		for (Scannable s : scannables) {
 			s.addIObserver(iobserver);
 		}
+		setConfigured(true);
 	}
 
 	private void setupExtraNames() {

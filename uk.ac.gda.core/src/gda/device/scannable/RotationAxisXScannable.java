@@ -84,6 +84,9 @@ public class RotationAxisXScannable extends ScannableBase implements Initializin
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		try {
 			configuration = LocalParameters.getThreadSafeXmlConfiguration(getConfigurationName());
@@ -106,7 +109,7 @@ public class RotationAxisXScannable extends ScannableBase implements Initializin
 		} catch (Exception e) {
 			throw new FactoryException("Error in configure for " + getName(), e);
 		}
-
+		setConfigured(true);
 	}
 
 	/**

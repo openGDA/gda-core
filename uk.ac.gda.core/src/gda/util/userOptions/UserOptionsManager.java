@@ -72,6 +72,9 @@ public class UserOptionsManager extends FindableConfigurableBase implements User
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		templateConfigDir = LocalProperties.get(PROP_TEMPLATE_DIRECTORY);
 		if (templateConfigDir == null) { // use default ${gda.config}/xml
 			String gdaConfig = LocalProperties.get(LocalProperties.GDA_CONFIG);

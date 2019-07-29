@@ -44,6 +44,9 @@ public class ScriptControllerBase extends FindableConfigurableBase implements Sc
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		doImport();
 		setConfigured(true);
 	}

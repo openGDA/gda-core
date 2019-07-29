@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.TemperatureStatus;
-import gda.factory.FactoryException;
 import gda.util.PollerEvent;
 
 /**
@@ -34,11 +33,6 @@ import gda.util.PollerEvent;
 public class DummyTemperature extends TemperatureBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyTemperature.class);
-
-	@Override
-	public void configure() throws FactoryException {
-		super.configure();
-	}
 
 	@Override
 	public double getCurrentTemperature() throws DeviceException {

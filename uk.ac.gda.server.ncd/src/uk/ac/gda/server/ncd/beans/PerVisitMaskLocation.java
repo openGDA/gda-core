@@ -69,6 +69,9 @@ public class PerVisitMaskLocation extends FindableConfigurableBase implements St
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		try {
 			maskDirectory = getMaskDirectory();
 		} catch (IOException e) {

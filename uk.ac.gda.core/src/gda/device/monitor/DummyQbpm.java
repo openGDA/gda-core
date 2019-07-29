@@ -26,7 +26,6 @@ import java.util.Set;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.Qbpm;
-import gda.factory.FactoryException;
 
 public class DummyQbpm extends DeviceBase implements Qbpm {
 
@@ -129,10 +128,5 @@ public class DummyQbpm extends DeviceBase implements Qbpm {
 
 	public void setYPosition(double y) {
 		yPosition = y;
-	}
-
-	@Override
-	public void configure() throws FactoryException {
-
 	}
 }

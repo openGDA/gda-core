@@ -47,6 +47,9 @@ public class ScaledScannable extends ScannableBase {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		scannable.addIObserver(new IObserver() {
 			@Override
 			public void update(Object source, Object arg) {
@@ -59,6 +62,7 @@ public class ScaledScannable extends ScannableBase {
 				}
 			}
 		});
+		setConfigured(true);
 	}
 
 	@Override

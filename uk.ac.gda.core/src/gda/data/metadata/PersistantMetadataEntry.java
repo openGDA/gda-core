@@ -38,14 +38,17 @@ public class PersistantMetadataEntry extends MetadataEntry {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		try {
 			openConfig();
-		} catch (ConfigurationException e) {
-			throw new FactoryException("problem creating PersistantMetadataEntry " + getName() + " :", e);
-		} catch (IOException e) {
+		} catch (Exception e) {
+			setConfigured(false);
 			throw new FactoryException("problem creating PersistantMetadataEntry " + getName() + " :", e);
 		}
+		setConfigured(true);
 	}
 
 	synchronized private FileConfiguration openConfig() throws ConfigurationException, IOException {

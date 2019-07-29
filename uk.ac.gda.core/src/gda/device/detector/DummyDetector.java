@@ -91,12 +91,16 @@ public class DummyDetector extends DetectorBase {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		// If extra names are not set
 		if(getExtraNames() == null || getExtraNames().length == 0) {
 			setExtraNames(new String[]{getName()}); // Set extra name as device name
 		}
 
 		status = Detector.IDLE;
+		setConfigured(true);
 	}
 
 	@Override

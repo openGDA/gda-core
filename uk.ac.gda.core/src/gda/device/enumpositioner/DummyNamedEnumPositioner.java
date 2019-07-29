@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.NamedEnumPositioner;
 import gda.device.scannable.ScannablePositionChangeEvent;
+import gda.factory.FactoryException;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
@@ -46,7 +47,10 @@ public class DummyNamedEnumPositioner extends DummyEnumPositioner implements Nam
 	protected HashMap<String, Object> positionsMap = new HashMap<String, Object>();
 
 	@Override
-	public void configure() {
+	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		this.inputNames = new String[]{getName()};
 		if ((positionsMap.size() > 0) & (startPositionName!= null)) {
 			assert(positionsMap.containsKey(startPositionName));
@@ -55,6 +59,7 @@ public class DummyNamedEnumPositioner extends DummyEnumPositioner implements Nam
 		else if (startPositionName == null) {
 			logger.error("Start position name should be defined");
 		}
+		setConfigured(true);
 	}
 
 	public List<String> getPositionNamesList() {

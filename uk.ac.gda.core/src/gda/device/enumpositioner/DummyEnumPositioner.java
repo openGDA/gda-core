@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
+import gda.factory.FactoryException;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
@@ -57,7 +58,10 @@ public class DummyEnumPositioner extends EditableEnumPositionerBase {
 	private volatile boolean stopRequested = false;
 
 	@Override
-	public void configure() {
+	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		this.inputNames = new String[] { getName() };
 		setConfigured(true);
 	}

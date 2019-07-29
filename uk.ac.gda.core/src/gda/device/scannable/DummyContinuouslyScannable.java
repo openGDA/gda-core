@@ -42,10 +42,14 @@ public class DummyContinuouslyScannable extends ScannableMotionUnitsBase impleme
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		inputNames = new String[]{getName()};
 		extraNames = new String[]{};
 		outputFormat = new String[]{"%.2f"};
+		setConfigured(true);
 	}
 
 	@Override

@@ -259,11 +259,6 @@ class SimpleDeviceBase extends DeviceBase{
 	}
 
 	@Override
-	public void configure(){
-		// no configuration required
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		if( obj == null)
 			return false;

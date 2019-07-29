@@ -115,16 +115,6 @@ public class ODCCDController extends DetectorBase implements ODCCD {
 	}
 
 	/**
-	 * Called by the object server after instantiation to setup the object.
-	 */
-	@Override
-	public void configure() {
-
-		// System.err.println(((Findable)this).getName() + ":" +
-		// Finder.getInstance().find("stnBase.ODCCD"));
-	}
-
-	/**
 	 * Connect to the IS software on remote host.
 	 *
 	 * @param host

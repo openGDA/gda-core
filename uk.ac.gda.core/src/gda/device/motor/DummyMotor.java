@@ -109,6 +109,9 @@ public class DummyMotor extends MotorBase {
 
 	@Override
 	public void configure() {
+		if (isConfigured()) {
+			return;
+		}
 		runner = new Thread(this::runMotor, getClass().getName());
 		runner.start();
 
@@ -144,6 +147,7 @@ public class DummyMotor extends MotorBase {
 		}
 
 		this.isInitialised = true;
+		setConfigured(true);
 	}
 
 	/**

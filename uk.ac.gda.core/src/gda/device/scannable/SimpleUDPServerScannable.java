@@ -18,15 +18,15 @@
 
 package gda.device.scannable;
 
-import gda.device.DeviceException;
-import gda.factory.FactoryException;
-import gda.observable.IObserver;
-
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.factory.FactoryException;
+import gda.observable.IObserver;
 
 /**
 Scannable to receive UDP datagrams containing a string of format prefix:message.
@@ -42,11 +42,15 @@ public class SimpleUDPServerScannable extends ScannableBase {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		setInputNames(new String[]{});
 		setExtraNames(new String[]{getName()});
 		if(isRunning())
 			startReading();
+		setConfigured(true);
 	}
 
 	@Override

@@ -50,10 +50,14 @@ public class DeferredScannableGroup extends CoordinatedScannableGroup {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (deferredControlPoint == null) {
-			deferredControlPoint = (ControlPoint) Finder.getInstance().find(deferredControlPointName);
+			deferredControlPoint = Finder.getInstance().find(deferredControlPointName);
 		}
 		super.configure();
+		setConfigured(true);
 	}
 
 	/**

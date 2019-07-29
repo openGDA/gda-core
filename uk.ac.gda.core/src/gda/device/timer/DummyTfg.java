@@ -81,6 +81,9 @@ public class DummyTfg extends DeviceBase implements Timer {
 
 	@Override
 	public void configure() {
+		if (isConfigured()) {
+			return;
+		}
 		timeFrameGenerator = new TimeFrameGenerator();
 		runner = new Thread(this::runTfg, getClass().getName());
 		runner.start();

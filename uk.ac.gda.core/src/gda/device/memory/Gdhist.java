@@ -78,6 +78,9 @@ public class Gdhist extends DeviceBase implements Memory {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (daServer == null) {
 			if ((daServer = (DAServer) Finder.getInstance().find(daServerName)) == null) {
 				throw new FactoryException("DAServer " + daServerName + " not found");
@@ -91,6 +94,7 @@ public class Gdhist extends DeviceBase implements Memory {
 		} catch (DeviceException e) {
 			throw new FactoryException("Error configuring " + getDaServerName(), e);
 		}
+		setConfigured(true);
 	}
 
 	@Override

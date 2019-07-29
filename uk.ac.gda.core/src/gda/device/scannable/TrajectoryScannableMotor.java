@@ -33,10 +33,14 @@ public class TrajectoryScannableMotor extends ScannableMotor implements Continuo
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		if (controller == null) {
 			throw new FactoryException(getName() + " has no controller set.");
 		}
+		setConfigured(true);
 	}
 
 	// Continuous

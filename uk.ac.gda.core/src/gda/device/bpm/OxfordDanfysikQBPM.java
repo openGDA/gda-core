@@ -19,15 +19,15 @@
 
 package gda.device.bpm;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Serial;
 import gda.device.serial.StringReader;
 import gda.device.serial.StringWriter;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * OxfordDanfysik QBPM.
@@ -54,6 +54,9 @@ public class OxfordDanfysikQBPM extends BPMBase {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if ((serial = (Serial) Finder.getInstance().find(serialDeviceName)) == null) {
 			logger.error("Serial Device " + serialDeviceName + " not found");
 		} else {
@@ -76,6 +79,7 @@ public class OxfordDanfysikQBPM extends BPMBase {
 			Thread.currentThread().interrupt();
 			throw new FactoryException("Interrupted while initialisating", e);
 		}
+		setConfigured(true);
 	}
 
 	private boolean sendCommand(String command, boolean waitForAcknowledgement) throws InterruptedException {

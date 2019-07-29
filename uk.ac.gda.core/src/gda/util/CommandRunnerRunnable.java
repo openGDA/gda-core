@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceBase;
-import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 
 /**
@@ -35,10 +34,6 @@ public class CommandRunnerRunnable extends DeviceBase implements Runnable {
 
 	String command;
 
-	@Override
-	public void configure() throws FactoryException {
-		setConfigured(true);
-	}
 	/**
 	 * @return command that is sent to InterfaceProvider.getCommandRunner().runCommand()
 	 */

@@ -75,7 +75,11 @@ public class CoboldTDC extends DetectorBase implements CoboldDetector, AlarmList
 
 	@Override
 	public void configure() {
+		if (isConfigured()) {
+			return;
+		}
 		createNewAcquisitionCommand();
+		setConfigured(true);
 	}
 
 	/**

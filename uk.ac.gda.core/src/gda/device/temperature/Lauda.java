@@ -75,6 +75,9 @@ public class Lauda extends TemperatureBase {
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		logger.debug("Finding: {}", serialDeviceName);
 		if ((serial = Finder.getInstance().find(serialDeviceName)) == null) {
@@ -96,9 +99,10 @@ public class Lauda extends TemperatureBase {
 				startPoller();
 				setConfigured(true);
 			} catch (DeviceException de) {
-				logger.error("Error configuring {}", serialDeviceName, de);
+				throw new FactoryException("Error configuring " + serialDeviceName, de);
 			}
 		}
+		setConfigured(true);
 	}
 
 	@Override

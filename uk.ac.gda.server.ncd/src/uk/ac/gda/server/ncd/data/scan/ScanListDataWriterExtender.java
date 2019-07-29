@@ -64,6 +64,9 @@ public class ScanListDataWriterExtender extends DataWriterExtenderBase implement
 
 	@Override
 	public void configure() throws FactoryException {
+		if (configured) {
+			return;
+		}
 		if (filename != null && !filename.isEmpty()) {
 			String path = PathConstructor.getVisitDirectory();
 			this.file = new File(path, filename);

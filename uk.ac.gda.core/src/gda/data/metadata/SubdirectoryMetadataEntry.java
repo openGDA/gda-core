@@ -41,6 +41,9 @@ public class SubdirectoryMetadataEntry extends PersistantMetadataEntry implement
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		super.configure();
 		try {
 			IMetadataEntry visit = null;
@@ -55,8 +58,10 @@ public class SubdirectoryMetadataEntry extends PersistantMetadataEntry implement
 			if (visit != null)
 				visit.addIObserver(this);
 		} catch (DeviceException e) {
+			setConfigured(false);
 			throw new FactoryException("error locating visit", e);
 		}
+		setConfigured(true);
 	}
 
 	@Override
