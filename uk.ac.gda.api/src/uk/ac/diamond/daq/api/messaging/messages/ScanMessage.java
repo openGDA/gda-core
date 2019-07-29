@@ -48,7 +48,7 @@ public class ScanMessage implements Message {
 	private final ScanStatus status;
 	private final String filePath;
 	private final String visitDirectory;
-	private final boolean swmrActive;
+	private final SwmrStatus swmrStatus;
 	private final int scanNumber;
 	private final int[] scanDimensions;
 	private final List<String> scannables;
@@ -59,7 +59,7 @@ public class ScanMessage implements Message {
 	public ScanMessage(ScanStatus status,
 			String filePath,
 			String visitDirectory,
-			boolean swmrActive,
+			SwmrStatus swmrStatus,
 			int scanNumber,
 			int[] scanDimensions,
 			List<String> scannables,
@@ -70,7 +70,7 @@ public class ScanMessage implements Message {
 		this.status = status;
 		this.filePath = filePath;
 		this.visitDirectory = visitDirectory;
-		this.swmrActive = swmrActive;
+		this.swmrStatus = swmrStatus;
 		this.scanNumber = scanNumber;
 		this.scanDimensions = scanDimensions;
 		this.scannables = scannables;
@@ -91,8 +91,8 @@ public class ScanMessage implements Message {
 		return visitDirectory;
 	}
 
-	public boolean isSwmrActive() {
-		return swmrActive;
+	public SwmrStatus getSwmrStatus() {
+		return swmrStatus;
 	}
 
 	public int getScanNumber() {
@@ -121,7 +121,7 @@ public class ScanMessage implements Message {
 
 	@Override
 	public String toString() {
-		return "ScanMessage [status=" + status + ", filePath=" + filePath + ", swmrActive=" + swmrActive
+		return "ScanMessage [status=" + status + ", filePath=" + filePath + ", swmrStatus=" + swmrStatus
 				+ ", scanNumber=" + scanNumber + ", scanDimensions=" + Arrays.toString(scanDimensions) + ", scannables="
 				+ scannables + ", detectors=" + detectors + ", percentageComplete=" + percentageComplete + "]";
 	}
