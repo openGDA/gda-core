@@ -220,8 +220,8 @@ public class ScriptProjectCreator {
 		if (JythonServerFacade.getInstance().projectIsCoreType(path)) {
 			return store.getBoolean(PreferenceConstants.SHOW_GDA_SCRIPTS);
 		}
-		throw new RuntimeException("Unknown type of Jython Script Project: " + path + " = "
-				+ JythonServerFacade.getInstance().getProjectNameForPath(path));
+
+		return false;
 	}
 
 	/**

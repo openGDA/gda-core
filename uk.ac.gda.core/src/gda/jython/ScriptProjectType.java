@@ -37,5 +37,10 @@ public enum ScriptProjectType {
 	 * Use CORE rather than plugin specific values
 	 */
 	@Deprecated
-	EPICS
+	EPICS,
+
+	/** Scripts that should not be shown in the PyDev Project Explorer, such as gdaserver.py
+	 * which is used to provide imports/autocomplete, but should not be seen or edited.
+	 */
+	HIDDEN
 }

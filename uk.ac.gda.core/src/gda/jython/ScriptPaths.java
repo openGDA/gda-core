@@ -150,7 +150,7 @@ public class ScriptPaths {
 	 *
 	 * @param scriptProject
 	 */
-	void addProject(final ScriptProject scriptProject) {
+	public void addProject(final ScriptProject scriptProject) {
 		if (!projects.contains(scriptProject)) {
 			projects.add(scriptProject);
 		}

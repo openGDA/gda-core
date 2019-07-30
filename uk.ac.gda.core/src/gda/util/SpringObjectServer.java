@@ -41,6 +41,7 @@ import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
@@ -57,6 +58,10 @@ import gda.factory.FactoryBase;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
+import gda.jython.JythonServer;
+import gda.jython.ScriptPaths;
+import gda.jython.ScriptProject;
+import gda.jython.ScriptProjectType;
 import gda.spring.OsgiServiceBeanHandler;
 import gda.spring.SpringApplicationContextBasedObjectFactory;
 import uk.ac.gda.remoting.client.RmiProxyMarker;
@@ -199,9 +204,10 @@ public class SpringObjectServer extends ObjectServer {
 			return;
 		}
 		final String moduleName = LocalProperties.get(GDA_JYTHON_FINDABLES_MODULE_NAME, "gdaserver");
-		final String moduleDir = LocalProperties.get(GDA_JYTHON_FINDABLES_MODULE_DIR, LocalProperties.getConfigDir() + File.separator + "scripts");
+		final String moduleDir = LocalProperties.get(GDA_JYTHON_FINDABLES_MODULE_DIR, LocalProperties.getVarDir() + File.separator + "scripts");
 		final File moduleFile = new File(moduleDir, moduleName + ".py");
 		final String modulePath = moduleFile.getAbsolutePath();
+
 		logger.info("Writing '{}' Jython module: {}", moduleName, modulePath);
 
 		final String[] names = applicationContext.getBeanNamesForType(Findable.class).clone();
@@ -221,6 +227,7 @@ public class SpringObjectServer extends ObjectServer {
 			beanTypes.put(name, type);
 		}
 
+		moduleFile.getParentFile().mkdirs();
 		// with-resource
 		try (final PrintWriter writer = new PrintWriter(new FileWriter(moduleFile));) {
 
@@ -305,9 +312,22 @@ public class SpringObjectServer extends ObjectServer {
 			writer.println("del get");
 		}
 		catch (IOException e) {
-			logger.error("Could not write '{}' Jython module: {}", moduleName, modulePath, e);
 			throw new FactoryException("Could not write " + moduleName + ".py module", e);
 		}
+
+		// Having written the file, create a ScriptProject for it
+		ScriptPaths scriptPaths;
+		try {
+			scriptPaths = applicationContext.getBean(JythonServer.class).getJythonScriptPaths();
+		} catch (BeansException exception) {
+			throw new FactoryException("Unable to get Jython Server, cannot add " + moduleName + ".py to script projects.", exception);
+		}
+
+		if (scriptPaths == null) {
+			throw new FactoryException("ScriptPaths not found, unable to add " + moduleName + ".py");
+		}
+
+		scriptPaths.addProject(new ScriptProject(moduleDir, "Scripts: " + moduleName, ScriptProjectType.HIDDEN));
 	}
 
 	@Override
