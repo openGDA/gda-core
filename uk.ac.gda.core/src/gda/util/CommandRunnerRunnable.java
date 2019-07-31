@@ -21,18 +21,34 @@ package gda.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.DeviceBase;
+import gda.factory.FindableConfigurableBase;
+import gda.jython.ICommandRunner;
 import gda.jython.InterfaceProvider;
+import gda.jython.commands.GeneralCommands;
 
 /**
- * Findable implementer of Runnable whose run method calls InterfaceProvider.getCommandRunner().runCommand()
- * with the command property set by setCommand
- * Simple set the command to null or empty for the pollDone method to do nothing
+ * Findable implementation of Runnable whose run method calls {@link ICommandRunner#runCommand}
+ * with the command property set by setCommand.
+ * <p>
+ * Any initial setup (importing modules etc) can be done by setting the initialSetup field.
+ * This setup will be run when this runner is configured and each time the namespace is reset.
+ * <p>
+ * Set the command to null or empty for the run method to do nothing
  */
-public class CommandRunnerRunnable extends DeviceBase implements Runnable {
+public class CommandRunnerRunnable extends FindableConfigurableBase implements Runnable {
 	private static final Logger logger = LoggerFactory.getLogger(CommandRunnerRunnable.class);
 
-	String command;
+	private String command;
+	private String initialSetup;
+
+	@Override
+	public void configure() {
+		if (initialSetup != null) {
+			InterfaceProvider.getCommandRunner().evaluateCommand(initialSetup);
+			GeneralCommands.add_reset_hook(() -> setConfigured(false));
+		}
+		setConfigured(true);
+	}
 
 	/**
 	 * @return command that is sent to InterfaceProvider.getCommandRunner().runCommand()
@@ -50,19 +66,19 @@ public class CommandRunnerRunnable extends DeviceBase implements Runnable {
 
 	@Override
 	public void run() {
-		if(!isConfigured()){
-			logger.error(getName() + "- pollDone called before configure");
-		} else {
-			if( command != null && !command.isEmpty())
-			{
-				try{
-					//use evaluate otherwise a new thread is started each time
-					InterfaceProvider.getCommandRunner().evaluateCommand(command);
-				} catch (Throwable ex){
-					logger.error(getName() + " - error executing command "+command, ex);
-				}
+		if (!isConfigured()) {
+			configure();
+		}
+		if (isConfigured() && command != null && !command.isEmpty()) {
+			try{
+				InterfaceProvider.getCommandRunner().runCommand(command);
+			} catch (Exception ex){
+				logger.error("{} - error executing command '{}'", getName(), command, ex);
 			}
 		}
 	}
 
+	public void setInitialSetup(String initialSetup) {
+		this.initialSetup = initialSetup;
+	}
 }
