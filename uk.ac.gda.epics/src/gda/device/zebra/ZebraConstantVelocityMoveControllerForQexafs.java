@@ -53,7 +53,7 @@ public class ZebraConstantVelocityMoveControllerForQexafs extends FindableConfig
 	private double pcGateStartScannableMotor;
 
 	//For now hardcoded value as VMAX PV not available in ScannableMotor object
-	private static final double MAX_BRAGG_SPEED = 0.25;
+	private static final double MAX_BRAGG_SPEED = 0.25; // keV/s
 
 	private EnumPositioner sampleShutter;
 
@@ -373,7 +373,7 @@ public class ZebraConstantVelocityMoveControllerForQexafs extends FindableConfig
 			double braggMotorEnd;
 			// in zebraConstantMoveController set the end position of the energy and so all the threads will be executed by this object
 			braggMotorEnd = getZebra().getPCGateStart()+ getZebra().getPCGateWidthRBV() * (getStep() > 0 ? -1 : 1);
-			stepWidthScannableMotorToMove = ((ZebraScannableMotorForQexafs) getZebraMotorInfoProvider()).convertBraggAngleToEnergy(braggMotorEnd*1000)-pcGateStartScannableMotor;
+			stepWidthScannableMotorToMove = ((ZebraScannableMotorForQexafs) getZebraMotorInfoProvider()).convertBraggAngleToEnergy(braggMotorEnd)-pcGateStartScannableMotor;
 			scannableMotorEndPosition = pcGateStartScannableMotor/1000 + ((getStep()>0 ? 1.0 : -1.0)*stepWidthScannableMotorToMove/1000 +
 					(getStep()>0 ? 1.0 : -1.0)* accelerationDistanceScannableMotor);
 			getZebraConstantVelocityMoveController().setScannableMotorEndPosition(scannableMotorEndPosition);
