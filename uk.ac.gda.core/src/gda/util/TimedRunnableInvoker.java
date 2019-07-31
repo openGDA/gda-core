@@ -51,8 +51,6 @@ public class TimedRunnableInvoker extends DeviceBase {
 	}
 
 	void start() {
-		if (!isConfigured())
-			return;
 		if (t == null && runnables != null && !runnables.isEmpty() && isRunning()) {
 			t = new Thread(new Runnable() {
 				@Override
