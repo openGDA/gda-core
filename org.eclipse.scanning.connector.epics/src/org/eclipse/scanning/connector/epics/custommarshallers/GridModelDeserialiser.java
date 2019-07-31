@@ -21,6 +21,7 @@ import org.epics.pvmarshaller.marshaller.deserialisers.Deserialiser;
 /**
  * Custom deserialiser for Grid model.
  * TODO - make this non 'test' and finalise custom serialisation strategy for models
+ * TODO: DAQ-2324 This class is almost certainly not used. It should be deleted.
  * @author Matt Taylor
  *
  */
@@ -30,11 +31,13 @@ public class GridModelDeserialiser implements IPVStructureDeserialiser {
 	public Object fromPVStructure(Deserialiser deserialiser, PVStructure pvStructure) throws Exception {
 		GridModel gridModel = new GridModel();
 		gridModel.setName(pvStructure.getSubField(PVString.class, "name").get());
-		gridModel.setXAxisName(pvStructure.getSubField(PVString.class, "fastAxisName").get());
-		gridModel.setYAxisName(pvStructure.getSubField(PVString.class, "slowAxisName").get());
-		gridModel.setXAxisPoints(pvStructure.getSubField(PVInt.class, "fastAxisPoints").get());
-		gridModel.setYAxisPoints(pvStructure.getSubField(PVInt.class, "slowAxisPoints").get());
+		gridModel.setXAxisName(pvStructure.getSubField(PVString.class, "xAxisName").get());
+		gridModel.setYAxisName(pvStructure.getSubField(PVString.class, "yAxisName").get());
+		gridModel.setXAxisPoints(pvStructure.getSubField(PVInt.class, "xAxisPoints").get());
+		gridModel.setYAxisPoints(pvStructure.getSubField(PVInt.class, "yAxisPoints").get());
 		gridModel.setSnake(pvStructure.getBooleanField("snake").get());
+		gridModel.setContinuous(pvStructure.getBooleanField("continuous").get());
+		gridModel.setVerticalOrientation(pvStructure.getBooleanField("verticalOrientation").get());
 		return gridModel;
 	}
 }
