@@ -23,6 +23,7 @@ import static java.lang.Thread.State.TERMINATED;
 import static java.text.MessageFormat.format;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.IOException;
@@ -51,6 +52,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.python.core.Py;
 import org.python.core.PyException;
@@ -62,6 +64,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import com.google.common.base.Stopwatch;
+
 import gda.commandqueue.IFindableQueueProcessor;
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
@@ -69,6 +73,7 @@ import gda.device.DeviceException;
 import gda.device.Motor;
 import gda.device.Scannable;
 import gda.device.Stoppable;
+import gda.factory.ConfigurableAware;
 import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
@@ -113,7 +118,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * ICurrentScanHolder, IJythonServerNotifer, and IDefaultScannableProvider interfaces.
  */
 @ServiceInterface(Jython.class)
-public class JythonServer extends ConfigurableBase implements LocalJython, ITerminalInputProvider, TextCompleter {
+public class JythonServer extends ConfigurableBase implements LocalJython, ITerminalInputProvider, TextCompleter, ConfigurableAware {
 
 	private static final Logger logger = LoggerFactory.getLogger(JythonServer.class);
 
@@ -123,8 +128,6 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 
 	private static final SimpleDateFormat THREAD_NAME_DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
-	private boolean atStartup = true;
-
 	/** Time in seconds to wait for reset hooks to run */
 	private static final int RESET_HOOK_TIMEOUT = 10;
 
@@ -133,11 +136,8 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 
 	private final ObservableComponent observableComponent = new ObservableComponent();
 
-	// whether interpreter initialization has completed
-	private boolean initialized = false;
-
 	// store any output from during setup to be displayed by terminals
-	private boolean runningLocalStation = false;
+	private volatile boolean runningLocalStation = false;
 
 	private StringBuilder bufferedLocalStationOutput = new StringBuilder();
 
@@ -238,68 +238,69 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 		this.messageHandler = messageHandler;
 	}
 
-	// to fulfil the Configurable interface
-
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
-			// force garbage collect (useful if doing a restart)
-			System.gc();
-
-			resetHooks.clear();
-
 			if (messageHandler == null) {
 				final InMemoryMessageHandler memoryMessageHandler = new InMemoryMessageHandler();
 				memoryMessageHandler.setMaxMessagesPerVisit(10);
 				setMessageHandler(memoryMessageHandler);
 			}
-
-			// reset the defaultScannables array
-			defaultScannables.clear();
-
 			try {
-				// create the objects references in the interpreter namespace
 				interp = new GDAJythonInterpreter(jythonScriptPaths);
-				interp.configure();
+				interp.configure(terminalWriter);
+				interp.placeInJythonNamespace(Jython.SERVER_NAME, this);
+				jythonCompleter = new JythonCompleter(this);
+				syntaxChecker = new JythonSyntaxChecker();
+				syntaxChecker.setTranslator(GDAJythonInterpreter.getTranslator()::translate);
 			} catch (Exception e) {
 				throw new FactoryException("Could not create interpreter", e);
 			}
-
-			interp.placeInJythonNamespace(Jython.SERVER_NAME, this);
-			runningLocalStation = true;
-			try {
-				interp.initialise(this);
-				initialized = true;
-			} catch (Exception e) {
-				throw new FactoryException("Could not initialise interpreter", e);
-			} finally {
-				runningLocalStation = false;
-			}
-
-			// open a socket for communication, if a port has been defined - not during reset_namespace
-			if (atStartup) {
-				if (sshPort != -1) {
-					Runnable shutdown = GdaSshServer.runServer(sshPort);
-					Runtime.getRuntime().addShutdownHook(new Thread(shutdown));
-				}
-				atStartup = false;
-			}
-
-			syntaxChecker = new JythonSyntaxChecker();
-			syntaxChecker.setTranslator(GDAJythonInterpreter.getTranslator()::translate);
-			jythonCompleter = new JythonCompleter(this);
-
 			setConfigured(true);
 		}
 	}
 
-	public boolean isInitialized() {
-		return initialized;
+	@Override
+	public void postConfigure() {
+		runStartupScript();
+
+		// open a socket for communication, if a port has been defined - not during reset_namespace
+		if (sshPort != -1) {
+			Runnable runServer = GdaSshServer.runServer(sshPort);
+			Runtime.getRuntime().addShutdownHook(new Thread(runServer));
+		}
+	}
+
+	private void runStartupScript() {
+		String startupScript = jythonScriptPaths.getStartupScript();
+		if (startupScript != null) {
+			logger.info("Running startupScript: {}", startupScript);
+			String command;
+			try (Stream<String> lines = Files.lines(Paths.get(startupScript))){
+				command = lines.collect(joining("\n"));
+			} catch (IOException e) {
+				logger.error("Error reading startup script: {}", startupScript, e);
+				return;
+			}
+			final Stopwatch localStationStopwatch = Stopwatch.createStarted();
+			try {
+				runningLocalStation = true;
+				interp.exec(command);
+				logger.info("Completed startupScript. Took {} seconds", localStationStopwatch.elapsed(SECONDS));
+			} catch (PyException pe) {
+				logger.error("Error running startup script. Failed after {}",
+						localStationStopwatch.elapsed(SECONDS), PythonException.from(pe));
+			} finally {
+				runningLocalStation = false;
+			}
+		} else {
+			logger.info("No startup script configured");
+		}
 	}
 
 	void checkStateForRunCommand() {
 		// only allow if configured or initialised or runningLocalStation
-		if (!(isConfigured() || isInitialized() || runningLocalStation)) {
+		if (!isConfigured()) {
 			throw new IllegalStateException("JythonServer is not configured yet.");
 		}
 	}
@@ -674,17 +675,16 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 		updateIObservers(data);
 	}
 
-	/**
-	 * Allows a restart of the command server while keeping the same object reference to this object.
-	 */
 	public void restart() {
 		setConfigured(false);
 		interruptThreads();
 		callResetHooks();
+		defaultScannables.clear();
 
 		try {
 			bufferedLocalStationOutput = new StringBuilder();
 			configure();
+			runStartupScript();
 		} catch (FactoryException e) {
 			logger.error("Error while restarting the Jython interpreter. Fix the problem and then restart GDA immediately", e);
 		}
@@ -692,15 +692,16 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 
 	/** Call registered shutdown tasks */
 	private void callResetHooks() {
-		Future<?> hooks = null;
+		Future<?> hooks = Async.executeAll(resetHooks);
 		try {
 			logger.info("Running {} reset hooks", resetHooks.size());
-			hooks = Async.executeAll(resetHooks);
 			hooks.get(RESET_HOOK_TIMEOUT, SECONDS);
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
 			logger.error("Failed to run all reset hooks within {}s timeout", RESET_HOOK_TIMEOUT, e);
 			hooks.cancel(true);
+			Thread.currentThread().interrupt();
 		}
+		resetHooks.clear();
 	}
 
 	/**
@@ -1494,10 +1495,6 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 	@Override
 	public void exec(String s) {
 		interp.getInterp().exec(s);
-	}
-
-	public final boolean isAtStartup() {
-		return atStartup;
 	}
 
 	@Override
