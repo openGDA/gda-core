@@ -18,6 +18,11 @@ public class MScanTest extends AbstractScanCommandsTest {
 	}
 
 	@Test
+	public void testGridScanVerticalOrientation() {
+		pi.exec("mscan(grid(axes=('xNex', 'yNex'), start=(0, 0), stop=(10, 10), count=(2, 2), snake=True, verticalOrientation=True), det=detector('mandelbrot', 0.001))");
+	}
+
+	@Test
 	public void testGridScanNoDetector() {
 		pi.exec("mscan(grid(axes=('xNex', 'yNex'), start=(0, 0), stop=(10, 10), count=(2, 2), snake=True))");
 	}

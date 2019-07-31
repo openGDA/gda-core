@@ -16,11 +16,11 @@ import java.util.Collection;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.models.GridModel;
 
-class GridModelExpresser extends PyModelExpresser<GridModel> {
+class GridModelExpresser extends AbstractGridModelExpresser<GridModel> {
 
 	@Override
 	public String pyExpress(GridModel model, Collection<IROI> rois, boolean verbose) throws Exception {
-		return new StringBuilder("grid(")
+		final StringBuilder sb = new StringBuilder("grid(")
 				.append(verbose?"axes=":"")
 				.append("('"+model.getXAxisName()+"'"+", ")
 				.append("'"+model.getYAxisName()+"'"+"), ")
@@ -32,12 +32,11 @@ class GridModelExpresser extends PyModelExpresser<GridModel> {
 				.append(formatValue(model.getBoundingBox().getYAxisEnd())+"), ")
 				.append("count=(")
 				.append(model.getXAxisPoints()+", ")
-				.append(model.getYAxisPoints()+")")
-				.append(", "+getBooleanPyExpression("snake", model.isSnake(), verbose)+", ")
-				.append(getBooleanPyExpression("continuous", model.isContinuous(), verbose))
-				.append(getROIPyExpression(rois, verbose))
-				.append(")")
-				.toString();
+				.append(model.getYAxisPoints()+"), ");
+				appendCommonGridProperties(sb, model, verbose);
+				sb.append(getROIPyExpression(rois, verbose));
+				sb.append(")");
+				return sb.toString();
 	}
 
 }
