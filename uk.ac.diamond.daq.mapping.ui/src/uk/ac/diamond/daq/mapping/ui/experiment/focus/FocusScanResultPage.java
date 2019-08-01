@@ -74,7 +74,7 @@ import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
-import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
@@ -458,7 +458,7 @@ public class FocusScanResultPage extends WizardPage {
 	private void stopFocusScan() {
 		if (statusBean != null && statusBean.getStatus().isActive()) {
 			logger.debug("attempting to stopFocusScan, current scan state: {}", statusBean.getStatus());
-			try (IConsumer<StatusBean> consumerProxy = eventService.createConsumerProxy(getActiveMqUri(),
+			try (IJobQueue<StatusBean> consumerProxy = eventService.createJobQueueProxy(getActiveMqUri(),
 					EventConstants.SUBMISSION_QUEUE, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC)) {
 				consumerProxy.terminateJob(statusBean);
 			} catch (Exception e) {

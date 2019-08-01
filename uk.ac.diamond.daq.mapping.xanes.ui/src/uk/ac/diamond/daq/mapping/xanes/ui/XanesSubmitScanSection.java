@@ -36,7 +36,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
@@ -74,7 +74,7 @@ public class XanesSubmitScanSection extends SubmitScanSection {
 	private static final String SCRIPT_FILE = "scanning/submit_xanes_scan.py";
 	private String energyScannable;
 
-	private IConsumer<StatusBean> consumerProxy;
+	private IJobQueue<StatusBean> jobQueueProxy;
 
 	@Override
 	public void initialize(MappingExperimentView mappingView) {
@@ -83,7 +83,7 @@ public class XanesSubmitScanSection extends SubmitScanSection {
 		final IEventService eventService = getService(IEventService.class);
 		try {
 			final URI activeMQUri = new URI(LocalProperties.getActiveMQBrokerURI());
-			consumerProxy = eventService.createConsumerProxy(activeMQUri, EventConstants.SUBMISSION_QUEUE,
+			jobQueueProxy = eventService.createJobQueueProxy(activeMQUri, EventConstants.SUBMISSION_QUEUE,
 					EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		} catch (Exception e) {
 			logger.error("Error creating consumer proxy", e);
@@ -160,10 +160,10 @@ public class XanesSubmitScanSection extends SubmitScanSection {
 
 		try {
 			// Stop the currently-running job
-			final List<StatusBean> currentJobs = consumerProxy.getRunningAndCompleted();
+			final List<StatusBean> currentJobs = jobQueueProxy.getRunningAndCompleted();
 			for (StatusBean job : currentJobs) {
 				if (job.getStatus() == Status.RUNNING) {
-					consumerProxy.terminateJob(job);
+					jobQueueProxy.terminateJob(job);
 				}
 			}
 		} catch (EventException e) {

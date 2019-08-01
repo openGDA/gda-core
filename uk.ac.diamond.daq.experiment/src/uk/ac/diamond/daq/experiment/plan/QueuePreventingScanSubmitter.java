@@ -9,7 +9,7 @@ import java.util.Optional;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.status.Status;
@@ -47,7 +47,7 @@ public class QueuePreventingScanSubmitter {
 	
 	private IEventService eventService;
 	
-	private IConsumer<ScanBean> consumer;
+	private IJobQueue<ScanBean> jobQueue;
 	private ISubmitter<ScanBean> submitter;
 	
 	
@@ -90,13 +90,13 @@ public class QueuePreventingScanSubmitter {
 
 	private void abortRunningScanAndClearQueue() throws EventException {
 		// first request termination on submitted scans
-		for (ScanBean submittedJob : getConsumer().getSubmissionQueue()) {
-			getConsumer().terminateJob(submittedJob);
+		for (ScanBean submittedJob : getJobQueue().getSubmissionQueue()) {
+			getJobQueue().terminateJob(submittedJob);
 		}
 		// now for the one that is running (if any)
-		Optional<ScanBean> running = getConsumer().getRunningAndCompleted().stream()
+		Optional<ScanBean> running = getJobQueue().getRunningAndCompleted().stream()
 					.filter(bean -> bean.getStatus() == Status.RUNNING || bean.getStatus() == Status.PAUSED).findAny();
-		if (running.isPresent()) getConsumer().terminateJob(running.get());
+		if (running.isPresent()) getJobQueue().terminateJob(running.get());
 		
 	}
 	
@@ -110,11 +110,11 @@ public class QueuePreventingScanSubmitter {
 	}
 	
 	private boolean submissionQueueIsEmpty() throws EventException {
-		return getConsumer().getSubmissionQueue().isEmpty();
+		return getJobQueue().getSubmissionQueue().isEmpty();
 	}
 	
 	private boolean runningOrCompletedAllFinal() throws EventException {
-		return getConsumer().getRunningAndCompleted().stream()
+		return getJobQueue().getRunningAndCompleted().stream()
 				.map(StatusBean::getStatus).allMatch(Status::isFinal);
 	}
 	
@@ -132,12 +132,12 @@ public class QueuePreventingScanSubmitter {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private IConsumer<ScanBean> getConsumer() throws EventException {
-		if (consumer == null) { 
+	private IJobQueue<ScanBean> getJobQueue() throws EventException {
+		if (jobQueue == null) { 
 			Objects.requireNonNull(eventService, "Event service is not set - check OSGi settings");
-			consumer = (IConsumer<ScanBean>) eventService.getConsumer(EventConstants.SUBMISSION_QUEUE);
+			jobQueue = (IJobQueue<ScanBean>) eventService.getJobQueue(EventConstants.SUBMISSION_QUEUE);
 		}
-		return consumer;
+		return jobQueue;
 	}
 	
 	/**

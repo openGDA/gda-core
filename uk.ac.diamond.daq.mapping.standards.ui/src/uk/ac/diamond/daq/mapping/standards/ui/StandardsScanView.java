@@ -37,7 +37,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
@@ -73,7 +73,7 @@ public class StandardsScanView {
 	private ScanPathEditor scanPathEditor;
 	private Button submitButton;
 
-	private IConsumer<StatusBean> consumerProxy;
+	private IJobQueue<StatusBean> jobQueueProxy;
 
 	@PostConstruct
 	public void createView(Composite parent) {
@@ -86,10 +86,10 @@ public class StandardsScanView {
 		final IEventService eventService = injectionContext.get(IEventService.class);
 		try {
 			final URI activeMQUri = new URI(LocalProperties.getActiveMQBrokerURI());
-			consumerProxy = eventService.createConsumerProxy(activeMQUri, EventConstants.SUBMISSION_QUEUE,
+			jobQueueProxy = eventService.createJobQueueProxy(activeMQUri, EventConstants.SUBMISSION_QUEUE,
 					EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		} catch (Exception e) {
-			logger.error("Error creating consumer proxy", e);
+			logger.error("Error creating job queue proxy", e);
 		}
 	}
 
@@ -174,10 +174,10 @@ public class StandardsScanView {
 
 		try {
 			// Stop the currently-running job
-			final List<StatusBean> currentJobs = consumerProxy.getRunningAndCompleted();
+			final List<StatusBean> currentJobs = jobQueueProxy.getRunningAndCompleted();
 			for (StatusBean job : currentJobs) {
 				if (job.getStatus() == Status.RUNNING) {
-					consumerProxy.terminateJob(job);
+					jobQueueProxy.terminateJob(job);
 				}
 			}
 		} catch (EventException e) {

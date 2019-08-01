@@ -19,14 +19,14 @@
 package gda.commandqueue;
 
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.core.IConsumerProcess;
+import org.eclipse.scanning.api.event.core.IBeanProcess;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.scan.process.IPreprocessor;
 import org.eclipse.scanning.api.scan.process.ProcessingException;
-import org.eclipse.scanning.server.servlet.AbstractConsumerServlet;
+import org.eclipse.scanning.server.servlet.AbstractJobQueueServlet;
 import org.eclipse.scanning.server.servlet.ScanProcess;
 import org.eclipse.scanning.server.servlet.ScanServlet;
 import org.eclipse.scanning.server.servlet.Services;
@@ -35,7 +35,7 @@ import org.eclipse.scanning.server.servlet.Services;
  * A scan servlet, based on {@link ScanServlet}, but which can run GDA8 scans based
  * on {@link Command}  as well as GD9 {@link ScanBean}s.
  */
-public class HeterogeneousScanServlet extends AbstractConsumerServlet<StatusBean> {
+public class HeterogeneousScanServlet extends AbstractJobQueueServlet<StatusBean> {
 
 	@Override
 	protected String getName() {
@@ -44,16 +44,16 @@ public class HeterogeneousScanServlet extends AbstractConsumerServlet<StatusBean
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public IConsumerProcess<StatusBean> createProcess(StatusBean bean, IPublisher<StatusBean> response)
+	public IBeanProcess<StatusBean> createProcess(StatusBean bean, IPublisher<StatusBean> response)
 			throws EventException {
 		if (bean instanceof ScanBean) {
 			// scan beans are handled just as by ScanServlet (new scanning framework)
-			return (IConsumerProcess) createScanProcess((ScanBean) bean, (IPublisher) response);
+			return (IBeanProcess) createScanProcess((ScanBean) bean, (IPublisher) response);
 		}
 
 		if (bean instanceof CommandBean) {
 			// create a process for the command bean containing the legacy command
-			return (IConsumerProcess) new CommandProcess((CommandBean) bean, (IPublisher) response);
+			return (IBeanProcess) new CommandProcess((CommandBean) bean, (IPublisher) response);
 		}
 
 		// only ScanBean and CommandBean are supported

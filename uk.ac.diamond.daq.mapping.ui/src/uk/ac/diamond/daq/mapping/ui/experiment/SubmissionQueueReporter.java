@@ -25,7 +25,7 @@ import java.util.List;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.osgi.framework.BundleContext;
@@ -47,13 +47,13 @@ public class SubmissionQueueReporter {
 	 * @return <code>true</code> if there are no running or submitted scans, <code>false</code> otherwise
 	 */
 	public boolean isQueueEmpty() {
-		try (IConsumer<StatusBean> consumerProxy = createConsumerProxy()) {
+		try (IJobQueue<StatusBean> jobQueueProxy = createJobQueueProxy()) {
 			// first check whether there are submitted scans which haven't been run yet
-			final boolean noSubmittedScans = consumerProxy.getSubmissionQueue().isEmpty();
+			final boolean noSubmittedScans = jobQueueProxy.getSubmissionQueue().isEmpty();
 			boolean queueClear = noSubmittedScans;
 			if (noSubmittedScans) {
 				// if not check whether any scans that have been run are complete (or some other final state)
-				List<StatusBean> runningOrCompletedScans = consumerProxy.getRunningAndCompleted();
+				List<StatusBean> runningOrCompletedScans = jobQueueProxy.getRunningAndCompleted();
 				queueClear = runningOrCompletedScans.stream().map(StatusBean::getStatus).allMatch(Status::isFinal);
 			}
 			return queueClear;
@@ -63,11 +63,11 @@ public class SubmissionQueueReporter {
 		}
 	}
 
-	private IConsumer<StatusBean> createConsumerProxy() throws EventException, URISyntaxException {
+	private IJobQueue<StatusBean> createJobQueueProxy() throws EventException, URISyntaxException {
 		final BundleContext context = FrameworkUtil.getBundle(SubmissionQueueReporter.class).getBundleContext();
 		final IEventService eventService = context.getService(context.getServiceReference(IEventService.class));
 		final URI queueUri = new URI(LocalProperties.getActiveMQBrokerURI());
-		return eventService.createConsumerProxy(queueUri, EventConstants.SUBMISSION_QUEUE);
+		return eventService.createJobQueueProxy(queueUri, EventConstants.SUBMISSION_QUEUE);
 	}
 
 }

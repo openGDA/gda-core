@@ -15,7 +15,7 @@ import java.util.List;
 
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
@@ -44,7 +44,7 @@ public class QueuePreventingScanSubmitterTest {
 	@Mock
 	private ISubmitter<StatusBean> submitter;
 	@Mock
-	private IConsumer<ScanBean> consumer;
+	private IJobQueue<ScanBean> consumer;
 	
 	@Rule
 	public final ExpectedException exception = ExpectedException.none();
@@ -59,7 +59,7 @@ public class QueuePreventingScanSubmitterTest {
 		
 		when(consumer.getSubmissionQueue()).thenReturn(submissionQueue);
 		when(consumer.getRunningAndCompleted()).thenReturn(runningAndCompleted);
-		doReturn(consumer).when(eventService).getConsumer(anyString());
+		doReturn(consumer).when(eventService).getJobQueue(anyString());
 		
 		scanSubmitter = new QueuePreventingScanSubmitter();
 		scanSubmitter.setEventService(eventService);
