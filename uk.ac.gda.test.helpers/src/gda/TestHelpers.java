@@ -868,11 +868,6 @@ class TestFactory implements Factory {
 	}
 
 	@Override
-	public boolean containsExportableObjects() {
-		return false;
-	}
-
-	@Override
 	@SuppressWarnings("unchecked")
 	public <T extends Findable> T getFindable(String name) throws FactoryException {
 		return (T) findables.get(name);
