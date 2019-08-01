@@ -140,8 +140,8 @@ public class LiveStreamMenuContribution extends ExtensionContributionFactory {
 				logger.debug("Opening {} {} stream", cameraConfig.getKey(), streamType.displayName);
 				String viewId=LiveStreamView.ID;
 				if (cameraConfig.getValue().isWithHistogram()) {
-					//get view ID from extension registry to make the menu action work with customised widgets
-					viewId=getViewID(cameraConfig.getKey());
+					//get view ID at runtime from extension registry from configured camera name or id
+					viewId=getViewID(cameraConfig.getValue().getName());
 				}
 
 				try {
