@@ -24,9 +24,10 @@ import java.nio.file.Path;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.swt.widgets.Display;
 
-import uk.ac.gda.tomography.controller.ITomographyConfigurationController;
-import uk.ac.gda.tomography.controller.TomographyControllerException;
-import uk.ac.gda.tomography.model.ITomographyScanParameters;
+import uk.ac.gda.tomography.controller.AcquisitionController;
+import uk.ac.gda.tomography.controller.AcquisitionControllerException;
+import uk.ac.gda.tomography.model.Acquisition;
+import uk.ac.gda.tomography.model.AcquisitionConfiguration;
 
 /**
  * Describes the operations to control a tomography related element.
@@ -34,53 +35,54 @@ import uk.ac.gda.tomography.model.ITomographyScanParameters;
  *
  * @author Maurizio Nagni
  */
-public interface ITomographyEditorController<T extends ITomographyScanParameters> extends ITomographyConfigurationController<T> {
+public interface AcquisitionEditorController<T extends Acquisition<? extends AcquisitionConfiguration>> extends AcquisitionController<T> {
 
 	/**
 	 * Shows the tomography configuration dialog
 	 * @param display
+	 * @return the dialog return code
 	 */
-	void showConfigurationDialog(Display display);
+	int showConfigurationDialog(Display display);
 
 	/**
 	 * Loads the tomography scan parameters from a file
 	 * @param data a json document file
-	 * @throws TomographyControllerException if the object cannot be loaded or assigned	 *
+	 * @throws AcquisitionControllerException if the object cannot be loaded or assigned	 *
 	 */
-	void loadData(File data) throws TomographyControllerException;
+	void loadData(File data) throws AcquisitionControllerException;
 
 	/**
 	 * Loads the tomography scan parameters as jsonDocument
 	 * @param data a json document string
-	 * @throws TomographyControllerException if the object cannot be loaded or assigned
+	 * @throws AcquisitionControllerException if the object cannot be loaded or assigned
 	 */
-	void loadData(String data) throws TomographyControllerException;
+	void loadData(String data) throws AcquisitionControllerException;
 
 	/**
 	 * Loads the tomography scan parameters from a {@link IDialogSettings} key/value element.
 	 * @param dialogSettings an instance defining key/value for load tomography scan parameters
-	 * @throws TomographyControllerException if the object cannot be loaded or assigned
+	 * @throws AcquisitionControllerException if the object cannot be loaded or assigned
 	 */
-	void loadData(IDialogSettings dialogSettings) throws TomographyControllerException;
+	void loadData(IDialogSettings dialogSettings) throws AcquisitionControllerException;
 
 	/**
 	 * Creates a new tomography scan parameters and assigns it to this controller
 	 */
-	void createNewData() throws TomographyControllerException;
+	void createNewData() throws AcquisitionControllerException;
 
 	/** Execute a tomography acquisition
 	 */
-	void runAcquisition() throws TomographyControllerException;
+	void runAcquisition() throws AcquisitionControllerException;
 
 	/**
-	 * Takes a falt image
+	 * Takes a flat image
 	 * @return the acquired image as file
 	 */
-	Path takeFlatImage() throws TomographyControllerException;
+	Path takeFlatImage() throws AcquisitionControllerException;
 
 	/**
 	 * Takes a dark image
 	 * @return the acquired image as file
 	 */
-	Path takeDarkImage() throws TomographyControllerException;
+	Path takeDarkImage() throws AcquisitionControllerException;
 }

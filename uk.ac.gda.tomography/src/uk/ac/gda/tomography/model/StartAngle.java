@@ -30,7 +30,6 @@ public class StartAngle {
 	 */
 	public StartAngle() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 	/**
 	 * @param start
@@ -44,6 +43,13 @@ public class StartAngle {
 		this.currentAngle = currentAngle;
 	}
 
+	/**
+	 * Deep clones an existing instance
+	 * @param startAngle
+	 */
+	public StartAngle(StartAngle startAngle) {
+		this(startAngle.getStart(), startAngle.isUseCurrentAngle(), startAngle.getCurrentAngle());
+	}
 
 	/**
 	 * The angle from where the rotation starts

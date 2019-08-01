@@ -1,11 +1,11 @@
 package uk.ac.gda.tomography.model;
 
 /**
- * The base class for tomography scan parameter data.
+ * The base class for describe a tomography acquisition.
  *
  *  @author Maurzio Nagni
  */
-public class TomographyScanParameters implements ITomographyScanParameters {
+public class TomographyConfiguration implements AcquisitionConfiguration {
 	private String name;
 
 	private ScanType scanType;
@@ -17,6 +17,21 @@ public class TomographyScanParameters implements ITomographyScanParameters {
 	private ImageCalibration imageCalibration;
 
 	private MultipleScans multipleScans;
+
+	public TomographyConfiguration() {
+		super();
+	}
+
+	public TomographyConfiguration(TomographyConfiguration configuration) {
+		super();
+		this.name = configuration.getName();
+		this.scanType = configuration.getScanType();
+		this.start = new StartAngle(configuration.getStart());
+		this.end = new EndAngle(configuration.getEnd());
+		this.projections = new Projections(configuration.getProjections());
+		this.imageCalibration = new ImageCalibration(configuration.getImageCalibration());
+		this.multipleScans = new MultipleScans(configuration.getMultipleScans());
+	}
 
 	public String getName() {
 		return name;

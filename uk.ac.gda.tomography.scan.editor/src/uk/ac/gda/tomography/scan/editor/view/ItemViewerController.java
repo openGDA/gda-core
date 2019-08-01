@@ -16,27 +16,18 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.controller;
-
-import uk.ac.gda.tomography.model.ITomographyScanParameters;
+package uk.ac.gda.tomography.scan.editor.view;
 
 /**
- * A set of methods to load and save {@link ITomographyScanParameters}
  *
  * @param <T>
- *
  * @author Maurizio Nagni
  */
-public interface ITomographyConfigurationController<T extends ITomographyScanParameters> {
+public interface ItemViewerController<T extends Object> {
 
-	/**
-	 * @return the tomography scan parameters object associated with this controller, otherwise <code>null</code>
-	 */
-	T getData();
+	public T createItem();
+	public T editItem(T item);
+	public T deleteItem(T item);
+	public String getItemName(T item);
 
-	/**
-	 * Saves the tomography scan parameters object associated with this controller
-	 * @throws TomographyControllerException if the object cannot be saved
-	 */
-	void saveData() throws TomographyControllerException;
 }

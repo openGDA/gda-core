@@ -35,6 +35,10 @@ import uk.ac.gda.tomography.service.TomographyService;
 import uk.ac.gda.tomography.service.TomographyServiceException;
 import uk.ac.gda.tomography.service.message.TomographyRunMessage;
 
+/**
+ *
+ *  @author Maurizio Nagni
+ */
 public class TomographyServiceImpl implements TomographyService {
 	private static final Logger logger = LoggerFactory.getLogger(TomographyServiceImpl.class);
 

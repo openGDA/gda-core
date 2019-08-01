@@ -23,14 +23,13 @@ package uk.ac.gda.tomography.controller;
  *
  * @author Maurizio Nagni
  */
-public class TomographyControllerException extends Exception {
+public class AcquisitionControllerException extends Exception {
 
 	/**
 	 *
 	 */
-	public TomographyControllerException() {
+	public AcquisitionControllerException() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -39,34 +38,29 @@ public class TomographyControllerException extends Exception {
 	 * @param enableSuppression
 	 * @param writableStackTrace
 	 */
-	public TomographyControllerException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+	public AcquisitionControllerException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
 	 * @param message
 	 * @param cause
 	 */
-	public TomographyControllerException(String message, Throwable cause) {
+	public AcquisitionControllerException(String message, Throwable cause) {
 		super(message, cause);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
 	 * @param message
 	 */
-	public TomographyControllerException(String message) {
+	public AcquisitionControllerException(String message) {
 		super(message);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
 	 * @param cause
 	 */
-	public TomographyControllerException(Throwable cause) {
+	public AcquisitionControllerException(Throwable cause) {
 		super(cause);
-		// TODO Auto-generated constructor stub
 	}
-
 }

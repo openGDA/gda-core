@@ -25,6 +25,10 @@ public class Projections {
 		this.anglarStep = anglarStep;
 	}
 
+	public Projections(Projections projections) {
+		this(projections.getTotalProjections(), projections.getAnglarStep());
+	}
+
 	/**
 	 * The absolute total number of projections
 	 */

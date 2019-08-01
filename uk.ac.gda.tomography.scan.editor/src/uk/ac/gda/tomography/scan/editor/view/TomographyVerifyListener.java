@@ -29,25 +29,42 @@ public final class TomographyVerifyListener {
 	private TomographyVerifyListener() {
 	}
 
-	public static final VerifyListener verifyOnlyDigitText = e -> {
-		Text widget = Text.class.cast(e.widget);
-		String currentText = widget.getText();
-		String newText = (currentText.substring(0, e.start) + e.text + currentText.substring(e.end));
-		if (stringIsNumber(newText)) {
-			widget.setToolTipText("");
-			WidgetUtilities.hideDecorator(widget);
-			return;
-		}
-		widget.setToolTipText(TomographyMessagesUtility.getMessage(TomographyMessages.ONLY_NUMBERS_ALLOWED));
-		WidgetUtilities.addErrorDecorator(widget,
-				TomographyMessagesUtility.getMessage(TomographyMessages.ONLY_NUMBERS_ALLOWED)).show();
-		e.doit = false;
-	};
+	public static final VerifyListener verifyOnlyIntegerText = verifyDigitText(true);
+	public static final VerifyListener verifyOnlyDoubleText = verifyDigitText(false);
 
-	public static final boolean stringIsNumber(String text) {
+
+	private static VerifyListener verifyDigitText(boolean integerOnly) {
+		return e -> {
+			Text widget = Text.class.cast(e.widget);
+			String currentText = widget.getText().trim();
+			String newText = (currentText.substring(0, e.start) + e.text + currentText.substring(e.end));
+			if (stringIsNumber(newText.trim(), integerOnly)) {
+				if (newText.trim().isEmpty()) {
+					widget.setText("0");
+				}
+				WidgetUtilities.hideDecorator(widget);
+				return;
+			}
+//			widget.setToolTipText(TomographyMessagesUtility.getMessage(TomographyMessages.ONLY_NUMBERS_ALLOWED));
+//			WidgetUtilities.addErrorDecorator(widget,
+//					TomographyMessagesUtility.getMessage(TomographyMessages.ONLY_NUMBERS_ALLOWED)).show();
+			e.doit = false;
+		};
+	}
+
+	private static final boolean stringIsNumber(String text, boolean integerOnly) {
 		if (text == null) {
 			return false;
 		}
-		return (text.isEmpty() || text.matches("\\d*\\.\\d*") || text.matches("\\d*"));
+		boolean isNumber = integerOnly ? stringIsIntegerNumber(text) : stringIsDoubleNumber(text);
+		return text.isEmpty() || isNumber;
+	}
+
+	public static final boolean stringIsDoubleNumber(String text) {
+		return text.matches("\\d*\\.\\d*") || stringIsIntegerNumber(text);
+	}
+
+	private static final boolean stringIsIntegerNumber(String text) {
+		return text.matches("\\d+");
 	}
 }

@@ -36,7 +36,6 @@ import org.eclipse.swt.widgets.Text;
 public final class TomographyBindingElements {
 
 	private TomographyBindingElements() {
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -73,5 +72,4 @@ public final class TomographyBindingElements {
 		UpdateValueStrategy iModelToTargetStrategy = new UpdateValueStrategy();
 		dbc.bindValue(iTarget, iModel, iTargetToModelStrategy, iModelToTargetStrategy);
 	}
-
 }

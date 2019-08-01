@@ -33,17 +33,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import uk.ac.gda.tomography.controller.TomographyControllerException;
+import uk.ac.gda.tomography.controller.AcquisitionControllerException;
 import uk.ac.gda.tomography.model.RangeType;
 import uk.ac.gda.tomography.model.ScanType;
-import uk.ac.gda.tomography.model.TomographyScanParameters;
-import uk.ac.gda.tomography.scan.editor.TomographyConfigurationController;
+import uk.ac.gda.tomography.model.TomographyConfiguration;
+import uk.ac.gda.tomography.scan.editor.TomographyAcquisitionController;
 import uk.ac.gda.tomography.service.TomographyService;
 import uk.ac.gda.tomography.service.TomographyServiceException;
 
 public class TomographyConfigurationControllerTest {
 
-	private TomographyConfigurationController controller;
+	private TomographyAcquisitionController controller;
 	private TomographyService service;
 	private String jsonData;
 	private File tempFile;
@@ -52,7 +52,7 @@ public class TomographyConfigurationControllerTest {
 	public void before() throws TomographyServiceException {
 		// Mockito would be better but now I do not want to import packages here
 		service = Mockito.mock(TomographyService.class);
-		controller = new TomographyConfigurationController(service);
+		controller = new TomographyAcquisitionController(TomographyAcquisitionController.createNewAcquisition());
 	}
 
 	@After
@@ -63,20 +63,20 @@ public class TomographyConfigurationControllerTest {
 	}
 
 	@Test
-	public void loadConfigurationFromString() throws TomographyControllerException {
+	public void loadConfigurationFromString() throws AcquisitionControllerException {
 		String jsonData = getResourceAsString("/resources/simpleTomographyConfiguration.json");
 		controller.loadData(jsonData);
-		testPojo(controller.getData());
+		testPojo(controller.getAcquisition().getConfiguration());
 	}
 
 	@Test
-	public void loadConfigurationFromFile() throws TomographyControllerException {
+	public void loadConfigurationFromFile() throws AcquisitionControllerException {
 		File jsonData = getResourceAsFile("/resources/simpleTomographyConfiguration.json");
 		controller.loadData(jsonData);
-		testPojo(controller.getData());
+		testPojo(controller.getAcquisition().getConfiguration());
 	}
 
-	private void testPojo(TomographyScanParameters data) {
+	private void testPojo(TomographyConfiguration data) {
 		Assert.assertEquals("tomoTest", data.getName());
 		Assert.assertEquals(ScanType.FLY, data.getScanType());
 		Assert.assertEquals(2.3, data.getStart().getStart(), 0.0);
@@ -88,21 +88,21 @@ public class TomographyConfigurationControllerTest {
 	}
 
 	@Test
-	public void loadConfigurationFromIDialogSettings() throws TomographyControllerException {
+	public void loadConfigurationFromIDialogSettings() throws AcquisitionControllerException {
 		// TBD
 	}
 
 	@Test
-	public void saveConfigurationToString() throws TomographyControllerException {
+	public void saveConfigurationToString() throws AcquisitionControllerException {
 	}
 
 	@Test
-	public void saveConfigurationToFile() throws TomographyControllerException {
+	public void saveConfigurationToFile() throws AcquisitionControllerException {
 		// TBD
 	}
 
 	@Test
-	public void saveConfigurationToIDialogSettings() throws TomographyControllerException {
+	public void saveConfigurationToIDialogSettings() throws AcquisitionControllerException {
 		// TBD
 	}
 

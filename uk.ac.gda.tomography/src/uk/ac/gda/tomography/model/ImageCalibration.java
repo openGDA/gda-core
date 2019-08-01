@@ -11,6 +11,16 @@ public class ImageCalibration {
 	private boolean beforeAcquisition;
 	private boolean afterAcquisition;
 
+	public ImageCalibration() {
+	}
+
+	public ImageCalibration(ImageCalibration imageCalibration) {
+		this.numberDark = imageCalibration.getNumberDark();
+		this.numberFlat = imageCalibration.getNumberFlat();
+		this.beforeAcquisition = imageCalibration.isBeforeAcquisition();
+		this.afterAcquisition = imageCalibration.isAfterAcquisition();
+	}
+
 	public int getNumberDark() {
 		return numberDark;
 	}

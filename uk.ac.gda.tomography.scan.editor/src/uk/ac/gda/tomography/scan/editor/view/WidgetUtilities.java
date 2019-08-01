@@ -49,6 +49,9 @@ public class WidgetUtilities {
 	 * @return ControlDecoration
 	 */
 	public static ControlDecoration addErrorDecorator(final Control control, final String message) {
+		if (decoratorMap.containsKey(control.hashCode())) {
+			return decoratorMap.get(control.hashCode());
+		}
 		ControlDecoration txtDecorator = new ControlDecoration(control, SWT.BOTTOM | SWT.TOP);
 		FieldDecoration fieldDecoration = FieldDecorationRegistry.getDefault().getFieldDecoration(FieldDecorationRegistry.DEC_ERROR);
 		txtDecorator.setImage(fieldDecoration.getImage());
@@ -63,7 +66,7 @@ public class WidgetUtilities {
 		if (control == null || !decoratorMap.containsKey(control.hashCode())) {
 			return;
 		}
-		decoratorMap.remove(control.hashCode()).dispose();
-		control.update();
+		decoratorMap.remove(control.hashCode()).hide();
+		control.pack();
 	}
 }

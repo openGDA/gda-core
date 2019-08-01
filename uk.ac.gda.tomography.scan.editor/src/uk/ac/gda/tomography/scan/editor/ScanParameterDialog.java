@@ -20,6 +20,7 @@ package uk.ac.gda.tomography.scan.editor;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
@@ -52,7 +53,8 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
 import gda.jython.InterfaceProvider;
 import uk.ac.gda.client.CommandQueueViewFactory;
-import uk.ac.gda.tomography.controller.ITomographyConfigurationController;
+import uk.ac.gda.tomography.controller.AcquisitionController;
+import uk.ac.gda.tomography.model.Acquisition;
 import uk.ac.gda.tomography.scan.TomoScanParameters;
 import uk.ac.gda.tomography.scan.presentation.ParametersComposite;
 
@@ -68,27 +70,18 @@ public class ScanParameterDialog extends Dialog {
 
 	private TomoScanParameters model;
 	private DataBindingContext ctx;
-	private final ITomographyConfigurationController<TomoScanParameters> controller;
+	private AcquisitionController<Acquisition<TomoScanParameters>> controller;
 
+	/**
+	 * This constructor assumes 1) no controller 2) the model is stored in IDialogSettings
+	 * @param parentShell
+	 */
 	public ScanParameterDialog(Shell parentShell) {
 		super(parentShell);
-		this.controller = new ITomographyConfigurationController<TomoScanParameters>() {
-
-			@Override
-			public void saveData() {
-				// TODO Auto-generated method stub
-			}
-
-			@Override
-			public TomoScanParameters getData() {
-				return getModel();
-			}
-		};
-		model = controller.getData();
 	}
 
-	public ScanParameterDialog(Shell parentShell, ITomographyConfigurationController<TomoScanParameters> controller) {
-		super(parentShell);
+	public ScanParameterDialog(Shell parentShell, AcquisitionController<Acquisition<TomoScanParameters>> controller) {
+		this(parentShell);
 		this.controller = controller;
 	}
 
@@ -101,12 +94,16 @@ public class ScanParameterDialog extends Dialog {
 	@Override
 	public Control createDialogArea(Composite parent) {
 		Composite comp = new Composite(parent, SWT.NONE);
+		if (Objects.isNull(getModel())) {
+			logger.error("No data model available: cannot create dialog");
+			return comp;
+		}
+
 		GridDataFactory.fillDefaults().applyTo(comp);
 		comp.setLayout(new GridLayout());
 
 		ParametersComposite editor = new ParametersComposite(comp, SWT.NONE);
 		editor.setLayoutData(new GridData());
-
 		createBindings(editor);
 
 		editor.getSendDataToTempDirectory().addListener(SWT.Selection, event ->	updateOutputPath(editor));
@@ -170,12 +167,12 @@ public class ScanParameterDialog extends Dialog {
 
 	private void bindCombo(Combo combo, String property) {
 		ctx.bindValue(WidgetProperties.selection().observe(combo),
-				PojoProperties.value(property).observe(model));
+				PojoProperties.value(property).observe(getModel()));
 	}
 
 	private void bindButton(Button button, String property) {
 		ctx.bindValue(WidgetProperties.selection().observe(button),
-				PojoProperties.value(property).observe(model));
+				PojoProperties.value(property).observe(getModel()));
 	}
 
 	private void bindText(Text text, String property) {
@@ -185,7 +182,7 @@ public class ScanParameterDialog extends Dialog {
 		IConverter modelToTargetConverter = NumberToStringConverter.fromDouble(fourDecimalPlacesFormat, true);
 		ctx.bindValue(
 				WidgetProperties.text(SWT.Modify).observe(text),
-				PojoProperties.value(property).observe(model),
+				PojoProperties.value(property).observe(getModel()),
 				new UpdateValueStrategy().setConverter(targetToModelConverter),
 				new UpdateValueStrategy().setConverter(modelToTargetConverter));
 	}
@@ -198,7 +195,7 @@ public class ScanParameterDialog extends Dialog {
 	private void bindSimpleText(Text text, String property) {
 		ctx.bindValue(
 				WidgetProperties.text(SWT.Modify).observe(text),
-				PojoProperties.value(property).observe(model)
+				PojoProperties.value(property).observe(getModel())
 				);
 	}
 
@@ -221,7 +218,7 @@ public class ScanParameterDialog extends Dialog {
 		final IDialogSettings dialogSettings = Activator.getDefault().getDialogSettings();
 		final String modelFilePath = getModelFilePath();
 		try {
-			final String modelJson = ServiceHolder.getMarshallerService().marshal(model);
+			final String modelJson = ServiceHolder.getMarshallerService().marshal(getModel());
 			dialogSettings.put(DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL, modelJson);
 			Files.write(Paths.get(getModelFilePath()), modelJson.getBytes());
 		} catch (Exception e) {
@@ -242,18 +239,32 @@ public class ScanParameterDialog extends Dialog {
 		super.okPressed();
 	}
 
-	private TomoScanParameters getModel() {
-		final IDialogSettings dialogSettings = Activator.getDefault().getDialogSettings();
-		final String modelJson = dialogSettings.get(DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL);
-		if (modelJson != null) {
-			try {
-				return ServiceHolder.getMarshallerService().unmarshal(modelJson, TomoScanParameters.class);
-			} catch (Exception e) {
-				logger.warn("Cannot retrieve saved parameters; using defaults", e);
-			}
-		}
-		return new TomoScanParameters();
+	private AcquisitionController<Acquisition<TomoScanParameters>> getController() {
+		return this.controller;
 	}
 
+	private TomoScanParameters getModel() {
+		if (Objects.isNull(this.model)) {
+			try {
+				this.model = getIDialogModel();
+			} catch (Exception e) {
+				logger.info(String.format("No model in %s", DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL), e);
+			}
+			if (Objects.nonNull(getController()) && Objects.nonNull(getController().getAcquisition())) {
+				this.model = getController().getAcquisition().getConfiguration();
+			}
+		}
+		return this.model;
+	}
 
+	/**
+	 * This approach is used typically by I13
+	 * @return
+	 * @throws Exception
+	 */
+	private TomoScanParameters getIDialogModel() throws Exception {
+		final IDialogSettings dialogSettings = Activator.getDefault().getDialogSettings();
+		final String modelJson = dialogSettings.get(DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL);
+		return ServiceHolder.getMarshallerService().unmarshal(modelJson, TomoScanParameters.class);
+	}
 }

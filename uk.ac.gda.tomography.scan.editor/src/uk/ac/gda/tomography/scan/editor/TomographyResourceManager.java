@@ -55,23 +55,31 @@ public class TomographyResourceManager {
 
 	public synchronized Font getTextDefaultFont() {
 		if (textFont == null) {
-			groupFont = getResourceManager().createFont(FontDescriptor.createFrom(FONT, 10, SWT.BOLD));
+			groupFont = getFont(FontDescriptor.createFrom(FONT, 10, SWT.NORMAL));
 		}
 		return textFont;
 	}
 
+	public synchronized Font getFont(final FontDescriptor fontDescriptor) {
+		return getResourceManager().createFont(fontDescriptor);
+	}
+
 	public Font getLabelDefaultFont() {
 		if (labelFont == null) {
-			labelFont = getResourceManager().createFont(FontDescriptor.createFrom(FONT, 9, SWT.NORMAL));
+			labelFont = getFont(FontDescriptor.createFrom(FONT, 10, SWT.BOLD));
 		}
 		return labelFont;
 	}
 
 	public Font getGroupDefaultFont() {
 		if (groupFont == null) {
-			groupFont = getResourceManager().createFont(FontDescriptor.createFrom(FONT, 10, SWT.BOLD));
+			groupFont = getFont(FontDescriptor.createFrom(FONT, 10, SWT.BOLD));
 		}
 		return groupFont;
+	}
+
+	public static String getDefaultFont() {
+		return FONT;
 	}
 
 }

@@ -23,6 +23,6 @@ package uk.ac.gda.tomography.model;
  *
  * @author Maurizio Nagni
  */
-public interface ITomographyScanParameters {
+public interface AcquisitionConfiguration {
 
 }

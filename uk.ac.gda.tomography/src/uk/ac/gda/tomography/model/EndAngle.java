@@ -41,6 +41,11 @@ public class EndAngle {
 		this.numberRotation = numberRotation;
 		this.customAngle = customAngle;
 	}
+
+	public EndAngle(EndAngle endAngle) {
+		this(endAngle.getRangeType(), endAngle.getNumberRotation(), endAngle.getCustomAngle());
+	}
+
 	private RangeType rangeType;
 
 	/**

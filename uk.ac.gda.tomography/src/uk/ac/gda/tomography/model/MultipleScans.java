@@ -8,29 +8,6 @@ package uk.ac.gda.tomography.model;
 public class MultipleScans {
 
 	private MultipleScansType multipleScansType;
-
-
-
-	/**
-	 *
-	 */
-	public MultipleScans() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
-	 * @param multipleScansType
-	 * @param numberRepetitions
-	 * @param waitingTime
-	 */
-	public MultipleScans(MultipleScansType multipleScansType, int numberRepetitions, int waitingTime) {
-		super();
-		this.multipleScansType = multipleScansType;
-		this.numberRepetitions = numberRepetitions;
-		this.waitingTime = waitingTime;
-	}
-
 	/**
 	 * The number of time scan has to be repeated
 	 */
@@ -39,6 +16,26 @@ public class MultipleScans {
 	 * The time, in milliseconds, to wait between each scan
 	 */
 	private int waitingTime;
+
+	/**
+	 * Explicitly enable this configuration. In other words, avoids to set {@link #numberRepetitions} to 0 in order to disable this configuration.
+	 */
+	private boolean enabled;
+
+	/**
+	 *
+	 */
+	public MultipleScans() {
+		super();
+	}
+
+	public MultipleScans(MultipleScans multipleScans) {
+		super();
+		this.multipleScansType = multipleScans.getMultipleScansType();
+		this.numberRepetitions = multipleScans.getNumberRepetitions();
+		this.waitingTime = multipleScans.getWaitingTime();
+		this.enabled = multipleScans.isEnabled();
+	}
 
 	public int getNumberRepetitions() {
 		return numberRepetitions;
@@ -62,5 +59,13 @@ public class MultipleScans {
 
 	public void setMultipleScansType(MultipleScansType multipleScansType) {
 		this.multipleScansType = multipleScansType;
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 }
