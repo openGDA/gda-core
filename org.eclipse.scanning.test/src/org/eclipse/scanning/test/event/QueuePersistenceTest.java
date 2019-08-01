@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.junit.Test;
 
-public class QueuePersistenceTest extends AbstractNewConsumerTest {
+public class QueuePersistenceTest extends AbstractJobQueueTest {
 
 	@Test
 	public void testQueuePersistence() throws Exception {
@@ -41,37 +41,37 @@ public class QueuePersistenceTest extends AbstractNewConsumerTest {
 		setMockProcessTime(1000);
 		CountDownLatch latch = new CountDownLatch(beans.size());
 		setupMockProcesses(beans, latch);
-		startConsumer();
+		startJobQueue();
 
 		boolean success = latch.await(getMockProcessTime() * (beans.size() + 1), TimeUnit.SECONDS);
 		assertThat(success, is(true));
 
-		final List<StatusBean> runningAndCompleted = consumer.getRunningAndCompleted();
-		assertThat(consumer.getSubmissionQueue(), is(empty()));
+		final List<StatusBean> runningAndCompleted = jobQueue.getRunningAndCompleted();
+		assertThat(jobQueue.getSubmissionQueue(), is(empty()));
 		assertThat(runningAndCompleted, is(equalTo(beans)));
 
-		// stop the consumer
-		consumer.stop();
-		consumer.awaitStop();
-		assertThat(consumer.isActive(), is(false));
+		// stop the consumer thread
+		jobQueue.stop();
+		jobQueue.awaitStop();
+		assertThat(jobQueue.isActive(), is(false));
 
 		// create and submit the beans for the submission queue
 		final List<StatusBean> beans2 = createAndSubmitBeans("four", "five", "six");
-		final List<StatusBean> queued = consumer.getSubmissionQueue();
+		final List<StatusBean> queued = jobQueue.getSubmissionQueue();
 		assertThat(queued, is(equalTo(beans2)));
 
-		consumer.close();
-		consumer = null;
+		jobQueue.close();
+		jobQueue = null;
 
 		// create a new consumer and check the queues are read correctly
-		createConsumer();
+		createJobQueue();
 
-		assertThat(consumer.getSubmissionQueue(), is(equalTo(queued)));
-		assertThat(consumer.getRunningAndCompleted(), is(equalTo(runningAndCompleted)));
+		assertThat(jobQueue.getSubmissionQueue(), is(equalTo(queued)));
+		assertThat(jobQueue.getRunningAndCompleted(), is(equalTo(runningAndCompleted)));
 
 		// let's add some more jobs to the queue to be extra sure
 		beans2.addAll(createAndSubmitBeans("seven", "eight"));
-		assertThat(consumer.getSubmissionQueue(), is(equalTo(beans2)));
+		assertThat(jobQueue.getSubmissionQueue(), is(equalTo(beans2)));
 	}
 
 }

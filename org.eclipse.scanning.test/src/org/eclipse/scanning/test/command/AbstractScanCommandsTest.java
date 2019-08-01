@@ -16,7 +16,7 @@ import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.scan.IScanListener;
@@ -44,14 +44,14 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 	protected static ScanServlet servlet;
 
 	/**
-	 * Fake processing consumer or null if no processing
+	 * Fake processing job queue or null if no processing
 	 */
-	protected static IConsumer<StatusBean>       pconsumer;
+	protected static IJobQueue<StatusBean>       pjobQueue;
 
 
 	@BeforeClass
 	public static void init() {
-		pconsumer = null;
+		pjobQueue = null;
 		ScanPointGeneratorFactory.init();
 	}
 
@@ -75,7 +75,7 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 		// Create an object for the servlet
 		/**
 		 *  This would be done by spring on the GDA Server
-		 *  @see org.eclipse.scanning.server.servlet.AbstractConsumerServlet
+		 *  @see org.eclipse.scanning.server.servlet.AbstractJobQueueServlet
 		 *  In spring we have something like:
 
 		    {@literal <bean id="scanner" class="org.eclipse.scanning.server.servlet.ScanServlet">}
@@ -94,8 +94,8 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 	@AfterClass
 	public static void disconnect()  throws Exception {
 		try {
-			servlet.getConsumer().clearQueue();
-			servlet.getConsumer().clearRunningAndCompleted();
+			servlet.getJobQueue().clearQueue();
+			servlet.getJobQueue().clearRunningAndCompleted();
 		} catch (Exception ignored) {
 			// Not fatal if cannot clean them
 		}
@@ -118,12 +118,12 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 			path = output.getAbsolutePath().replace("\\\\", "\\").replace('\\', '/');
 		}
 
-		servlet.getConsumer().clearQueue();
-		servlet.getConsumer().clearRunningAndCompleted();
+		servlet.getJobQueue().clearQueue();
+		servlet.getJobQueue().clearRunningAndCompleted();
 
-		if (pconsumer!=null) {
-			pconsumer.clearQueue();
-			pconsumer.clearRunningAndCompleted();
+		if (pjobQueue!=null) {
+			pjobQueue.clearQueue();
+			pjobQueue.clearRunningAndCompleted();
 		}
 	}
 
@@ -236,7 +236,7 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 			Thread.sleep(100);
 
 			// Do Some checking
-			ScanClusterProcessingChecker checker = new ScanClusterProcessingChecker(fileFactory, pconsumer);
+			ScanClusterProcessingChecker checker = new ScanClusterProcessingChecker(fileFactory, pjobQueue);
 			checker.setDetectorName(mainDetectorName);
 			checker.setProcessingName(processingDetectorName);
 			checker.setScannableNames(Arrays.asList("xNex", "yNex"));

@@ -18,8 +18,8 @@ import java.util.concurrent.BlockingQueue;
 
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.AbstractLockingPausableProcess;
-import org.eclipse.scanning.api.event.core.IConsumer;
-import org.eclipse.scanning.api.event.core.IConsumerProcess;
+import org.eclipse.scanning.api.event.core.IJobQueue;
+import org.eclipse.scanning.api.event.core.IBeanProcess;
 import org.eclipse.scanning.api.event.core.IJmsQueueReader;
 import org.eclipse.scanning.api.event.core.IProcessCreator;
 import org.eclipse.scanning.api.event.core.IPublisher;
@@ -34,7 +34,7 @@ import org.junit.Test;
 
 public class SubmissionTest extends AbstractJythonTest {
 
-	private static IConsumer<ScanBean> consumer;
+	private static IJobQueue<ScanBean> jobQueue;
 	private static IJmsQueueReader<ScanBean> jmsQueueReader;
 
 	private static BlockingQueue<String> testLog;
@@ -47,11 +47,11 @@ public class SubmissionTest extends AbstractJythonTest {
 	public static void start() throws Exception {
 		ServiceTestHelper.setupServices();
 
-		consumer = ServiceTestHelper.getEventService().createConsumer(uri);
+		jobQueue = ServiceTestHelper.getEventService().createJobQueue(uri);
 
-		consumer.setRunner(new IProcessCreator<ScanBean>() {
+		jobQueue.setRunner(new IProcessCreator<ScanBean>() {
 			@Override
-			public IConsumerProcess<ScanBean> createProcess(
+			public IBeanProcess<ScanBean> createProcess(
 					ScanBean bean, IPublisher<ScanBean> statusNotifier) throws EventException {
 				return new AbstractLockingPausableProcess<ScanBean>(bean, statusNotifier) {
 
@@ -70,9 +70,9 @@ public class SubmissionTest extends AbstractJythonTest {
 				};
 			}
 		});
-		consumer.start();
+		jobQueue.start();
 
-		jmsQueueReader = ServiceTestHelper.getEventService().createJmsQueueReader(uri, consumer.getSubmitQueueName());
+		jmsQueueReader = ServiceTestHelper.getEventService().createJmsQueueReader(uri, jobQueue.getSubmitQueueName());
 		jmsQueueReader.start();
 
 		// Put any old ScanRequest in the Python namespace.
@@ -84,13 +84,13 @@ public class SubmissionTest extends AbstractJythonTest {
 
 	@After
 	public void stop() throws EventException {
-		consumer.clearQueue();
-		consumer.clearRunningAndCompleted();
+		jobQueue.clearQueue();
+		jobQueue.clearRunningAndCompleted();
 	}
 
 	@AfterClass
 	public static void disconnect() throws EventException {
-		consumer.disconnect();
+		jobQueue.disconnect();
 		jmsQueueReader.disconnect();
 	}
 

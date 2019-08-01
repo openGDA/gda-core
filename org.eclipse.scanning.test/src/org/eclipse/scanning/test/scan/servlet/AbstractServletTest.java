@@ -24,7 +24,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
-import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.scan.IScanListener;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -37,7 +37,7 @@ import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.StepModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
-import org.eclipse.scanning.server.servlet.AbstractConsumerServlet;
+import org.eclipse.scanning.server.servlet.AbstractJobQueueServlet;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
@@ -56,29 +56,29 @@ public abstract class AbstractServletTest extends BrokerTest {
 	/**
 	 * The servlet started in createServlet() if any.
 	 */
-	protected static AbstractConsumerServlet<?> servlet;
+	protected static AbstractJobQueueServlet<?> servlet;
 
     /**
      *
      * @return
      * @throws Exception
      */
-	protected abstract <T extends StatusBean> AbstractConsumerServlet<T> createServlet() throws Exception;
+	protected abstract <T extends StatusBean> AbstractJobQueueServlet<T> createServlet() throws Exception;
 
 	@Before
 	public void before() throws Exception {
 		servlet = createServlet();
 		if (servlet!=null) {
-			servlet.getConsumer().clearQueue();
-			servlet.getConsumer().clearRunningAndCompleted();
+			servlet.getJobQueue().clearQueue();
+			servlet.getJobQueue().clearRunningAndCompleted();
 		}
 	}
 
 	@After
 	public void disconnect()  throws Exception {
 		if (servlet!=null) {
-			servlet.getConsumer().clearQueue();
-			servlet.getConsumer().clearRunningAndCompleted();
+			servlet.getJobQueue().clearQueue();
+			servlet.getJobQueue().clearRunningAndCompleted();
 			servlet.disconnect();
 		}
 	}
@@ -239,9 +239,9 @@ public abstract class AbstractServletTest extends BrokerTest {
 		}
 	}
 
-	protected void submit(AbstractConsumerServlet<?> servlet, ScanBean bean) throws Exception {
+	protected void submit(AbstractJobQueueServlet<?> servlet, ScanBean bean) throws Exception {
 		// Ok done that, now we sent it off...
-		try (IConsumer<ScanBean> consumerProxy = ServiceTestHelper.getEventService().createConsumerProxy(new URI(servlet.getBroker()), servlet.getSubmitQueue())) {
+		try (IJobQueue<ScanBean> consumerProxy = ServiceTestHelper.getEventService().createJobQueueProxy(new URI(servlet.getBroker()), servlet.getSubmitQueue())) {
 			consumerProxy.submit(bean);
 		}
 	}

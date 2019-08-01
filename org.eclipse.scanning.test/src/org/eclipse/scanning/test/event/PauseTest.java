@@ -30,10 +30,10 @@ public class PauseTest extends AbstractPauseTest {
 
 		submitter  = eservice.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE);
 
-		consumer = eservice.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_TOPIC);
-		consumer.setName("Test Consumer");
-		consumer.clearQueue();
-		consumer.clearRunningAndCompleted();
+		jobQueue = eservice.createJobQueue(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_TOPIC);
+		jobQueue.setName("Test Queue");
+		jobQueue.clearQueue();
+		jobQueue.clearRunningAndCompleted();
 
 		jmsQueueReader = eservice.createJmsQueueReader(uri, EventConstants.SUBMISSION_QUEUE);
 		jmsQueueReader.start();

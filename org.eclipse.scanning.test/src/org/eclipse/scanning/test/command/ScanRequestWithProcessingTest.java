@@ -33,21 +33,21 @@ public class ScanRequestWithProcessingTest extends AbstractScanCommandsTest {
 	}
 
 	@BeforeClass
-	public static void createProcessingConsumer() throws EventException {
+	public static void createProcessingQueue() throws EventException {
 
-		pconsumer = eservice.createConsumer(uri, PROCESSING_QUEUE_NAME, "scisoft.operation.STATUS_TOPIC");
+		pjobQueue = eservice.createJobQueue(uri, PROCESSING_QUEUE_NAME, "scisoft.operation.STATUS_TOPIC");
 		// we need a runner, but it doesn't have to do anything
-		pconsumer.setRunner(new DryRunProcessCreator(0, 1, 1, 10, false));
-		pconsumer.start();
+		pjobQueue.setRunner(new DryRunProcessCreator(0, 1, 1, 10, false));
+		pjobQueue.start();
 	}
 
 	@AfterClass
 	public static void disconnect()  throws Exception {
-		pconsumer.clearQueue();
-		pconsumer.clearRunningAndCompleted();
-		pconsumer.disconnect();
-		servlet.getConsumer().clearQueue();
-		servlet.getConsumer().clearRunningAndCompleted();
+		pjobQueue.clearQueue();
+		pjobQueue.clearRunningAndCompleted();
+		pjobQueue.disconnect();
+		servlet.getJobQueue().clearQueue();
+		servlet.getJobQueue().clearRunningAndCompleted();
 		servlet.disconnect();
 	}
 

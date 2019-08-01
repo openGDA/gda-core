@@ -41,30 +41,30 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.consumer.ConsumerStatus;
-import org.eclipse.scanning.api.event.consumer.QueueCommandBean;
-import org.eclipse.scanning.api.event.consumer.QueueCommandBean.Command;
-import org.eclipse.scanning.api.event.core.IConsumerProcess;
+import org.eclipse.scanning.api.event.core.IBeanProcess;
 import org.eclipse.scanning.api.event.core.IPublisher;
+import org.eclipse.scanning.api.event.queue.QueueCommandBean;
+import org.eclipse.scanning.api.event.queue.QueueStatus;
+import org.eclipse.scanning.api.event.queue.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class SimpleConsumerTest extends AbstractNewConsumerTest {
+public class SimpleJobQueueTest extends AbstractJobQueueTest {
 
 	@Test
 	public void testConsumerInitialized() {
-		assertThat(consumer, is(notNullValue()));
-		assertThat(consumer.getSubmitQueueName(), is(EventConstants.SUBMISSION_QUEUE));
-		assertThat(consumer.getStatusTopicName(), is(EventConstants.STATUS_TOPIC));
-		assertThat(consumer.getCommandTopicName(), is(EventConstants.CMD_TOPIC));
-		assertThat(consumer.getConsumerStatusTopicName(), is(EventConstants.CONSUMER_STATUS_TOPIC));
-		assertThat(consumer.getName(), is(equalTo("Test Consumer")));
-		assertThat(consumer.getConsumerId(), is(any(UUID.class)));
-		assertThat(consumer.getConsumerStatus(), is(ConsumerStatus.STOPPED));
-		assertThat(consumer.isActive(), is(false));
+		assertThat(jobQueue, is(notNullValue()));
+		assertThat(jobQueue.getSubmitQueueName(), is(EventConstants.SUBMISSION_QUEUE));
+		assertThat(jobQueue.getStatusTopicName(), is(EventConstants.STATUS_TOPIC));
+		assertThat(jobQueue.getCommandTopicName(), is(EventConstants.CMD_TOPIC));
+		assertThat(jobQueue.getQueueStatusTopicName(), is(EventConstants.QUEUE_STATUS_TOPIC));
+		assertThat(jobQueue.getName(), is(equalTo("Test Consumer")));
+		assertThat(jobQueue.getJobQueueId(), is(any(UUID.class)));
+		assertThat(jobQueue.getQueueStatus(), is(QueueStatus.STOPPED));
+		assertThat(jobQueue.isActive(), is(false));
 
 		// verify the connections made in the connect() method
 		verify(eventService).createPublisher(uri, EventConstants.STATUS_TOPIC);
@@ -73,9 +73,9 @@ public class SimpleConsumerTest extends AbstractNewConsumerTest {
 
 	@Test
 	public void testStart() throws Exception {
-		startConsumer();
-		assertThat(consumer.isActive(), is(true));
-		assertThat(consumer.getConsumerStatus(), is(ConsumerStatus.RUNNING));
+		startJobQueue();
+		assertThat(jobQueue.isActive(), is(true));
+		assertThat(jobQueue.getQueueStatus(), is(QueueStatus.RUNNING));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -96,12 +96,12 @@ public class SimpleConsumerTest extends AbstractNewConsumerTest {
 		Mockito.<IPublisher<QueueCommandBean>>when(eventService.createPublisher(uri, EventConstants.CMD_TOPIC)).thenReturn(
 				commandPublisher);
 
-		startConsumer();
+		startJobQueue();
 
 		Thread.sleep(500); // need to wait for the consumer thread to get to the pause (how to do this without a sleep?)
 
-		assertThat(consumer.getConsumerStatus(), is(ConsumerStatus.PAUSED));
-		assertThat(consumer.isActive(), is(false));
+		assertThat(jobQueue.getQueueStatus(), is(QueueStatus.PAUSED));
+		assertThat(jobQueue.isActive(), is(false));
 
 		// check that a pause bean was broadcast
 		verify(commandPublisher).broadcast(new QueueCommandBean(EventConstants.SUBMISSION_QUEUE, Command.PAUSE_QUEUE));
@@ -109,38 +109,38 @@ public class SimpleConsumerTest extends AbstractNewConsumerTest {
 		verifyNoMoreInteractions(commandPublisher);
 	}
 
-	private IConsumerProcess<StatusBean> submitBeanAndSetupMockProcess(StatusBean statusBean) throws Exception {
-		IConsumerProcess<StatusBean> process = mock(IConsumerProcess.class);
+	private IBeanProcess<StatusBean> submitBeanAndSetupMockProcess(StatusBean statusBean) throws Exception {
+		IBeanProcess<StatusBean> process = mock(IBeanProcess.class);
 		when(runner.createProcess(statusBean, statusTopicPublisher)).thenReturn(process);
 		when(process.getBean()).thenReturn(statusBean);
 		doAnswer(invocation -> { process.getBean().setStatus(Status.COMPLETE); return null; }).when(process).start();
 
-		consumer.submit(statusBean);
+		jobQueue.submit(statusBean);
 		return process;
 	}
 
 	@Test
 	public void testConsumingBean() throws Exception {
 		StatusBean statusBean = new StatusBean("bean");
-		IConsumerProcess<StatusBean> process = submitBeanAndSetupMockProcess(statusBean);
+		IBeanProcess<StatusBean> process = submitBeanAndSetupMockProcess(statusBean);
 
-		startConsumer();
+		startJobQueue();
 
 		// verify that the consumer created and started a process for the bean
 		verify(runner, timeout(1000)).createProcess(statusBean, statusTopicPublisher);
 		verify(process, timeout(1000)).start();
 
 		// check that the bean is in the set of running and completed jobs
-		assertThat(consumer.getRunningAndCompleted(), contains(statusBean));
+		assertThat(jobQueue.getRunningAndCompleted(), contains(statusBean));
 	}
 
 	@Test
 	public void testConsumeBeanRequestTerminate() throws Exception {
 		StatusBean statusBean = new StatusBean("requestTerminate");
 		statusBean.setStatus(Status.REQUEST_TERMINATE);
-		IConsumerProcess<StatusBean> process = submitBeanAndSetupMockProcess(statusBean);
+		IBeanProcess<StatusBean> process = submitBeanAndSetupMockProcess(statusBean);
 
-		startConsumer();
+		startJobQueue();
 
 		// verify that the bean's status was set to TERMINATED and it was broadcast on the status topic
 		// and that there was no attempt to create or run a process for it
@@ -149,15 +149,15 @@ public class SimpleConsumerTest extends AbstractNewConsumerTest {
 		verifyZeroInteractions(runner, process);
 
 		// check that the bean is in the set of running and completed jobs
-		assertThat(consumer.getRunningAndCompleted(), contains(statusBean));
+		assertThat(jobQueue.getRunningAndCompleted(), contains(statusBean));
 	}
 
 	private void testConsumeBeanThrowException(Exception exceptionToThrow, Status expectedStatus) throws Exception {
 		StatusBean statusBean = new StatusBean("bean");
-		IConsumerProcess<StatusBean> process = submitBeanAndSetupMockProcess(statusBean);
+		IBeanProcess<StatusBean> process = submitBeanAndSetupMockProcess(statusBean);
 		doThrow(exceptionToThrow).when(process).start();
 
-		startConsumer();
+		startJobQueue();
 
 		// verify that the consumer created and started a process for the bean
 		verify(runner, timeout(1000)).createProcess(statusBean, statusTopicPublisher);
@@ -168,7 +168,7 @@ public class SimpleConsumerTest extends AbstractNewConsumerTest {
 		assertThat(statusBean.getStatus(), is(expectedStatus));
 		assertThat(statusBean.getMessage(), is(exceptionToThrow.getMessage()));
 
-		assertThat(consumer.getRunningAndCompleted(), contains(statusBean));
+		assertThat(jobQueue.getRunningAndCompleted(), contains(statusBean));
 	}
 
 	@Test
@@ -185,9 +185,9 @@ public class SimpleConsumerTest extends AbstractNewConsumerTest {
 	public void testConsumingMultipleBeans() throws Exception {
 		List<StatusBean> beans = createAndSubmitBeans();
 		CountDownLatch latch = new CountDownLatch(beans.size());
-		List<IConsumerProcess<StatusBean>> processes = setupMockProcesses(beans, latch);
+		List<IBeanProcess<StatusBean>> processes = setupMockProcesses(beans, latch);
 
-		startConsumer();
+		startJobQueue();
 
 		boolean reachedZero = latch.await(10, TimeUnit.SECONDS); // reached zero i.e.
 		assertThat(reachedZero, is(true));

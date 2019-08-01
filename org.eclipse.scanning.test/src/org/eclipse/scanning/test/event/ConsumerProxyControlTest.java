@@ -30,27 +30,27 @@ import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IdBean;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
-import org.eclipse.scanning.api.event.consumer.ConsumerStatusBean;
-import org.eclipse.scanning.api.event.consumer.ConsumerStatusBeanEvent;
-import org.eclipse.scanning.api.event.consumer.IConsumerStatusBeanListener;
-import org.eclipse.scanning.api.event.consumer.QueueCommandBean;
-import org.eclipse.scanning.api.event.core.IConsumer;
-import org.eclipse.scanning.api.event.core.IConsumer.IConsumerStatusListener;
+import org.eclipse.scanning.api.event.core.IJobQueue;
+import org.eclipse.scanning.api.event.core.IJobQueue.IQueueStatusListener;
 import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.core.ISubscriber;
+import org.eclipse.scanning.api.event.queue.IQueueStatusBeanListener;
+import org.eclipse.scanning.api.event.queue.QueueCommandBean;
+import org.eclipse.scanning.api.event.queue.QueueStatusBean;
+import org.eclipse.scanning.api.event.queue.QueueStatusBeanEvent;
 import org.eclipse.scanning.api.event.status.StatusBean;
-import org.eclipse.scanning.event.ConsumerProxy;
+import org.eclipse.scanning.event.JobQueueProxy;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 /**
- * Tests controlling a consumer using {@link ConsumerProxy}.
+ * Tests controlling a queue using {@link JobQueueProxy}.
  */
-public class ConsumerProxyControlTest extends ConsumerControlTest {
+public class ConsumerProxyControlTest extends QueueControlTest {
 
-	private IConsumer<StatusBean> consumerProxy;
+	private IJobQueue<StatusBean> jobQueueProxy;
 
 	private IBeanListener<QueueCommandBean> commandTopicListener;
 
@@ -58,19 +58,19 @@ public class ConsumerProxyControlTest extends ConsumerControlTest {
 	private IRequester<QueueCommandBean> commandRequester;
 
 	@Override
-	protected IConsumer<StatusBean> getConsumer() {
-		return consumerProxy;
+	protected IJobQueue<StatusBean> getConsumer() {
+		return jobQueueProxy;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void setUp() throws Exception {
-		// set up the mock consumer status topic subscriber used by the consumer proxy
-		ISubscriber<IConsumerStatusBeanListener> consumerStatusTopicSubscriber = mock(ISubscriber.class);
-		when(eventService.createSubscriber(uri, EventConstants.CONSUMER_STATUS_TOPIC)).thenReturn(
-				(ISubscriber<EventListener>) (ISubscriber<?>) consumerStatusTopicSubscriber);
+		// set up the mock queue status topic subscriber used by the consumer proxy
+		ISubscriber<IQueueStatusBeanListener> queueStatusTopicSubscriber = mock(ISubscriber.class);
+		when(eventService.createSubscriber(uri, EventConstants.QUEUE_STATUS_TOPIC)).thenReturn(
+				(ISubscriber<EventListener>) (ISubscriber<?>) queueStatusTopicSubscriber);
 
-		// setup the mock command requester used by the consumer proxy to invoke the consumers topic listener directly
+		// setup the mock command requester used by the job queue proxy to invoke the consumers topic listener directly
 		// with the bean passed to it (this would normally happen over JMS, which this test mocks out)
 		when(eventService.createRequestor(uri, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC)).thenReturn(
 				(IRequester<IdBean>) (IRequester<?>) commandRequester);
@@ -83,32 +83,32 @@ public class ConsumerProxyControlTest extends ConsumerControlTest {
 			}
 		});
 
-		// create the consumer proxy
-		consumerProxy = new ConsumerProxy<>(uri, EventConstants.SUBMISSION_QUEUE,
+		// create the job queue proxy
+		jobQueueProxy = new JobQueueProxy<>(uri, EventConstants.SUBMISSION_QUEUE,
 				EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC, eventConnectorService, eventService);
 
-		// capture the consumer proxy's listener to consumer status events
-		verify(eventService).createSubscriber(uri, EventConstants.CONSUMER_STATUS_TOPIC);
-		ArgumentCaptor<IConsumerStatusBeanListener> consumerStatusBeanListenerCaptor =
-				(ArgumentCaptor<IConsumerStatusBeanListener>) (ArgumentCaptor<?>) ArgumentCaptor.forClass(IConsumerStatusBeanListener.class);
-		verify(consumerStatusTopicSubscriber).addListener(consumerStatusBeanListenerCaptor.capture());
-		IConsumerStatusBeanListener heartbeatListener = consumerStatusBeanListenerCaptor.getValue();
+		// capture the job queue proxy's listener to queue status events
+		verify(eventService).createSubscriber(uri, EventConstants.QUEUE_STATUS_TOPIC);
+		ArgumentCaptor<IQueueStatusBeanListener> queueStatusBeanListenerCaptor =
+				(ArgumentCaptor<IQueueStatusBeanListener>) (ArgumentCaptor<?>) ArgumentCaptor.forClass(IQueueStatusBeanListener.class);
+		verify(queueStatusTopicSubscriber).addListener(queueStatusBeanListenerCaptor.capture());
+		IQueueStatusBeanListener heartbeatListener = queueStatusBeanListenerCaptor.getValue();
 
 		doAnswer(new Answer<Void>() {
 			@Override
 			public Void answer(InvocationOnMock invocation) throws Throwable {
-				ConsumerStatusBean bean = invocation.getArgumentAt(0, ConsumerStatusBean.class);
-				heartbeatListener.consumerStatusChanged(new ConsumerStatusBeanEvent(bean));
+				QueueStatusBean bean = invocation.getArgumentAt(0, QueueStatusBean.class);
+				heartbeatListener.queueStatusChanged(new QueueStatusBeanEvent(bean));
 				return null;
 			}
-		}).when(consumerStatusTopicPublisher).broadcast(any(ConsumerStatusBean.class));
+		}).when(queueStatusTopicPublisher).broadcast(any(QueueStatusBean.class));
 
 		super.setUp();
 
-		// Overwrite the status listener in the superclass with one added to the consumer proxy
+		// Overwrite the status listener in the superclass with one added to the job queue proxy
 		// so that we can verify it is called at the appropriate times
-		consumerStatusListener = mock(IConsumerStatusListener.class);
-		consumerProxy.addConsumerStatusListener(consumerStatusListener);
+		queueStatusListener = mock(IQueueStatusListener.class);
+		jobQueueProxy.addQueueStatusListener(queueStatusListener);
 
 		// capture the consumer's listener to the command topic
 		ArgumentCaptor<IBeanListener<QueueCommandBean>> commandTopicSubscriberCaptor =

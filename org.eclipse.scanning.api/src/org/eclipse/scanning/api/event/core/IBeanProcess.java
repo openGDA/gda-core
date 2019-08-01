@@ -12,16 +12,18 @@
 package org.eclipse.scanning.api.event.core;
 
 import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.scan.ScanBean;
 
 
 /**
- * A consumer process is the process run when a consumer starts a job.
- * ProgressibleProcess in the DAWN command server plugin is the inspiration for this plugin.
+ * A bean process is a process that can be created from a bean which defines it. For example
+ * a {@link ScanBean} defines a scan process.
  *
+ * @param <T> the type of bean this process is for
  * @author Matthew Gerring
  *
  */
-public interface IConsumerProcess<T> extends IPublishable<T>{
+public interface IBeanProcess<T> extends IPublishable<T>{
 
 
 	/**
@@ -29,9 +31,8 @@ public interface IConsumerProcess<T> extends IPublishable<T>{
 	 * failed and the message is the message of the exception.
 	 *
 	 * This is the blocking method to run the process.
-	 * The start method will be called by the consumer running the process
-	 * and by default terminate is called in the same thread. If blocking is
-	 * set to
+	 * The start method will be called by the {@link IJobQueue}'s consumer thread
+	 * running the process and by default terminate is called in the same thread.
 	 *
 	 * @throws Exception
 	 */
@@ -76,7 +77,7 @@ public interface IConsumerProcess<T> extends IPublishable<T>{
 	 * If the process has a stop file, write it now; if it needs to be killed,
 	 * get its pid and kill it; if it is running on a cluster, use the qdel or dramaa api.
 	 *
-	 * @throws Exception
+	 * @throws EventException
 	 */
 	void terminate() throws EventException;
 

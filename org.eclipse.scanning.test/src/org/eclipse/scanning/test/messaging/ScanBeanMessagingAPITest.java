@@ -83,9 +83,9 @@ public class ScanBeanMessagingAPITest extends BrokerTest {
 	@After
 	public void stop() throws EventException {
 		if (scanServlet != null) {
-			scanServlet.getConsumer().clearQueue();
-			scanServlet.getConsumer().clearRunningAndCompleted();
-			scanServlet.getConsumer().close();
+			scanServlet.getJobQueue().clearQueue();
+			scanServlet.getJobQueue().clearRunningAndCompleted();
+			scanServlet.getJobQueue().close();
 		}
 
 		disconnect(scanServlet);

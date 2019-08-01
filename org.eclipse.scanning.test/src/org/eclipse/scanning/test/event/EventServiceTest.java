@@ -25,7 +25,7 @@ import static org.junit.Assert.assertThat;
 import org.eclipse.dawnsci.json.MarshallerService;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
@@ -57,51 +57,51 @@ public class EventServiceTest extends BrokerTest {
 
 	@After
 	public void tearDown() throws Exception {
-		eventService.disposeConsumers();
+		eventService.disposeJobQueue();
 	}
 
 	@Test
-	public void enforceOneConsumerPerQueue() throws EventException {
+	public void testTwoQueuesWithSameQueueName() throws EventException {
 		exception.expect(EventException.class);
-		exception.expectMessage("A consumer for queue '" + QUEUE_NAME + "' has already been created!");
-		createTestConsumer(); // create the first one
-		createTestConsumer(); // attempting to create a second consumer for the same queue should throw
+		exception.expectMessage("A job queue for the queue name '" + QUEUE_NAME + "' has already been created!");
+		createTestJobQueue(); // create the first one
+		createTestJobQueue(); // attempting to create a second job queue with the same queue name should throw
 	}
 
 	@Test
-	public void createdConsumerCanBeRetrievedLater() throws EventException {
-		IConsumer<ScanBean> originalConsumer = createTestConsumer();
-		IConsumer<? extends StatusBean> retrievedConsumer = eventService.getConsumer(QUEUE_NAME);
-		assertThat(retrievedConsumer, is(equalTo(originalConsumer)));
+	public void createdQueueCanBeRetrievedLater() throws EventException {
+		IJobQueue<ScanBean> originalJobQueue = createTestJobQueue();
+		IJobQueue<? extends StatusBean> retrievedJobQueue = eventService.getJobQueue(QUEUE_NAME);
+		assertThat(retrievedJobQueue, is(equalTo(originalJobQueue)));
 	}
 
 	@Test
-	public void getConsumerThrowsIfNoConsumerFound() throws EventException {
+	public void getJobQueueThrowsIfNoJobQueueFound() throws EventException {
 		exception.expect(EventException.class);
-		eventService.getConsumer(QUEUE_NAME);
+		eventService.getJobQueue(QUEUE_NAME);
 	}
 
 	@Test
-	public void disposeConsumersDisconnectsThem() throws EventException {
-		IConsumer<ScanBean> consumer = createTestConsumer();
+	public void disposeJobQueueDisconnectsThem() throws EventException {
+		IJobQueue<ScanBean> consumer = createTestJobQueue();
 		assertThat(consumer.isConnected(), is(true));
-		eventService.disposeConsumers();
+		eventService.disposeJobQueue();
 		assertThat(consumer.isConnected(), is(false));
 	}
 
 	@Test
-	public void disposeConsumersUnregistersThem() throws Exception {
-		createTestConsumer();
-		eventService.disposeConsumers();
+	public void disposeJobQueusUnregistersThem() throws Exception {
+		createTestJobQueue();
+		eventService.disposeJobQueue();
 
-		// This should throw since consumer has been unregistered
+		// This should throw since job queue has been unregistered
 		exception.expect(EventException.class);
-		exception.expectMessage("No consumer exists for queue '" + QUEUE_NAME + "'");
-		eventService.getConsumer(QUEUE_NAME);
+		exception.expectMessage("No job queue exists for queue '" + QUEUE_NAME + "'");
+		eventService.getJobQueue(QUEUE_NAME);
 	}
 
-	private IConsumer<ScanBean> createTestConsumer() throws EventException {
-		return eventService.createConsumer(uri, QUEUE_NAME, "dont care");
+	private IJobQueue<ScanBean> createTestJobQueue() throws EventException {
+		return eventService.createJobQueue(uri, QUEUE_NAME, "dont care");
 	}
 
 }

@@ -39,8 +39,8 @@ import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.AbstractLockingPausableProcess;
-import org.eclipse.scanning.api.event.core.IConsumer;
-import org.eclipse.scanning.api.event.core.IConsumerProcess;
+import org.eclipse.scanning.api.event.core.IBeanProcess;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.IProcessCreator;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.dry.DryRunProcess;
@@ -83,7 +83,7 @@ public class QueueManagementTest extends BrokerTest {
 		private final WaitingRunnable waitingRunnable = new WaitingRunnable();
 
 		@Override
-		public IConsumerProcess<StatusBean> createProcess(StatusBean bean, IPublisher<StatusBean> publisher)
+		public IBeanProcess<StatusBean> createProcess(StatusBean bean, IPublisher<StatusBean> publisher)
 				throws EventException {
 			if (bean.getName().equals("initial")) {
 				// return the initial process that waits to be told to resume
@@ -105,15 +105,15 @@ public class QueueManagementTest extends BrokerTest {
 	}
 
 	private IEventService eservice;
-	private IConsumer<StatusBean> consumer;
-	private IConsumer<StatusBean> consumerProxy;
+	private IJobQueue<StatusBean> jobQueue;
+	private IJobQueue<StatusBean> jobQueueProxy;
 
 	private TestProcessCreator processFactory;
 
 	private final boolean useProxy;
-	private final boolean startConsumer;
+	private final boolean startConsumerThread;
 
-	@Parameters(name="useProxy = {0}, startConsumer = {1}")
+	@Parameters(name="useProxy = {0}, startConsumerThread = {1}")
 	public static Iterable<Object[]> data() {
 		return Arrays.asList(new Object[][] {
 			{ false, false },
@@ -123,9 +123,9 @@ public class QueueManagementTest extends BrokerTest {
 		});
 	}
 
-	public QueueManagementTest(boolean useProxy, boolean startConsumer) {
+	public QueueManagementTest(boolean useProxy, boolean startConsumerThread) {
 		this.useProxy = useProxy;
-		this.startConsumer = startConsumer;
+		this.startConsumerThread = startConsumerThread;
 	}
 
 	@Before
@@ -134,16 +134,16 @@ public class QueueManagementTest extends BrokerTest {
 
 		eservice = ServiceTestHelper.getEventService();
 
-		consumer = eservice.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_TOPIC, EventConstants.CONSUMER_STATUS_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
-		consumer.setName("Test Consumer");
-		consumer.clearQueue();
-		consumer.clearRunningAndCompleted();
+		jobQueue = eservice.createJobQueue(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_TOPIC, EventConstants.QUEUE_STATUS_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
+		jobQueue.setName("Test Queue");
+		jobQueue.clearQueue();
+		jobQueue.clearRunningAndCompleted();
 
 		if (useProxy) {
-			consumerProxy = eservice.createConsumerProxy(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
+			jobQueueProxy = eservice.createJobQueueProxy(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		}
-		if (startConsumer) {
-			startConsumer(true);
+		if (startConsumerThread) {
+			startConsumerThread(true);
 		}
 	}
 
@@ -153,45 +153,45 @@ public class QueueManagementTest extends BrokerTest {
 			processFactory.releaseInitialProcess();
 		}
 
-		consumer.clearQueue();
-		consumer.clearRunningAndCompleted();
+		jobQueue.clearQueue();
+		jobQueue.clearRunningAndCompleted();
 
-		if (startConsumer) {
-			consumer.stop();
-			consumer.awaitStop();
+		if (startConsumerThread) {
+			jobQueue.stop();
+			jobQueue.awaitStop();
 		}
-		consumer.disconnect();
-		consumer = null;
+		jobQueue.disconnect();
+		jobQueue = null;
 	}
 
 	/**
-	 * Starts the consumer and submits an initial task that waits, so that we add beans
+	 * Starts the job queue's consumer thread and submits an initial task that waits, so that we add beans
 	 * to the queue and rearrange them without them getting run
 	 * @throws EventException
 	 * @throws InterruptedException
 	 */
-	private void startConsumer(boolean submitInitialBean) throws EventException, InterruptedException {
-		// starts the consumer and sets it going with an initial task
+	private void startConsumerThread(boolean submitInitialBean) throws EventException, InterruptedException {
+		// starts the consumer thread  and sets it going with an initial task
 
 		processFactory = new TestProcessCreator();
-		consumer.setRunner(processFactory);
+		jobQueue.setRunner(processFactory);
 
 		// start the consumer and wait until its fully started
-		consumer.start();
-		consumer.awaitStart();
+		jobQueue.start();
+		jobQueue.awaitStart();
 
 		if (submitInitialBean) {
 			// create and submit the initial bean and wait for the process for it to start
-			consumer.submit(createBean("initial"));
+			jobQueue.submit(createBean("initial"));
 			processFactory.waitForInitialProcessToStart();
 		}
 	}
 
-	private IConsumer<StatusBean> getConsumer() {
+	private IJobQueue<StatusBean> getJobQueue() {
 		if (useProxy) {
-			return consumerProxy;
+			return jobQueueProxy;
 		}
-		return consumer;
+		return jobQueue;
 	}
 
 	private List<StatusBean> createAndSubmitBeans() throws EventException {
@@ -200,13 +200,13 @@ public class QueueManagementTest extends BrokerTest {
 		submitBeans(beans);
 
 		// check they've been submitted properly (check names for easier to read error message)
-		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
+		assertThat(getNames(jobQueue.getSubmissionQueue()), is(equalTo(getNames(beans))));
 		return beans;
 	}
 
 	private void submitBeans(final List<StatusBean> beans) throws EventException {
 		for (StatusBean bean : beans) {
-			consumer.submit(bean);
+			jobQueue.submit(bean);
 		}
 	}
 
@@ -217,35 +217,35 @@ public class QueueManagementTest extends BrokerTest {
 	}
 
 	private void runBeans(List<StatusBean> beans) throws Exception {
-		if (startConsumer) {
+		if (startConsumerThread) {
 			processFactory.releaseInitialProcess(); // the consumer is already started
 		} else {
-			startConsumer(false); // start the consumer just to consume the submitted beans
+			startConsumerThread(false); // start the consumer thread just to consume the submitted beans
 		}
 
 		// wait for all beans to be set to COMPLETED
 		// note, this normally takes around 100-200ms, but sometimes can take over 2 seconds
-		final int numExpected = beans.size() + (startConsumer ? 1 : 0); // the extra bean is the initial bean
+		final int numExpected = beans.size() + (startConsumerThread ? 1 : 0); // the extra bean is the initial bean
 		boolean allCompleted = false;
 		List<StatusBean> statusSet;
 		final long startTime = System.currentTimeMillis();
 		final long timeout = startTime + 5000;
 		do {
 			Thread.sleep(100);
-			statusSet = consumer.getRunningAndCompleted();
+			statusSet = jobQueue.getRunningAndCompleted();
 			allCompleted = statusSet.size() == numExpected &&
 					statusSet.stream().allMatch(bean -> bean.getStatus() == Status.COMPLETE);
 		} while (!allCompleted && (System.currentTimeMillis() < timeout));
 
 		assertThat(allCompleted, is(true));
 
-		List<String> beanNames = getNames(consumer.getRunningAndCompleted());
+		List<String> beanNames = getNames(jobQueue.getRunningAndCompleted());
 		beanNames.removeIf(name -> name.equals("initial"));
 		assertThat(beanNames, is(equalTo(getNames(beans))));
 
-		if (!startConsumer) {
-			consumer.stop(); // stop the consumer so that it is not running for the main test
-			consumer.awaitStop();
+		if (!startConsumerThread) {
+			jobQueue.stop(); // stop the consumer so that it is not running for the main test
+			jobQueue.awaitStop();
 		}
 	}
 
@@ -261,9 +261,9 @@ public class QueueManagementTest extends BrokerTest {
 		List<StatusBean> beans = createAndSubmitBeans();
 
 		StatusBean newBean = new StatusBean("new");
-		getConsumer().submit(newBean);
+		getJobQueue().submit(newBean);
 
-		List<StatusBean> submissionQueue = consumer.getSubmissionQueue();
+		List<StatusBean> submissionQueue = jobQueue.getSubmissionQueue();
 		List<String> expectedNames = getNames(beans);
 		expectedNames.add(newBean.getName());
 		assertThat(getNames(submissionQueue), is(equalTo(expectedNames)));
@@ -277,15 +277,15 @@ public class QueueManagementTest extends BrokerTest {
 		// Act: remove the third bean
 		StatusBean beanThree = beans.get(2);
 		assertThat(beanThree.getName(), is(equalTo("three")));
-		getConsumer().remove(beanThree);
+		getJobQueue().remove(beanThree);
 
 		// Assert, check the bean has been remove from the submission queue
-		assertThat(consumer.getSubmissionQueue(), is(equalTo(
+		assertThat(jobQueue.getSubmissionQueue(), is(equalTo(
 				beans.stream().filter(bean -> !bean.getName().equals("three")).collect(toList()))));
 	}
 
 	private void doReplace(StatusBean bean) throws Exception {
-		consumer.replace(bean);
+		jobQueue.replace(bean);
 	}
 
 	@Test
@@ -301,7 +301,7 @@ public class QueueManagementTest extends BrokerTest {
 		doReplace(beanThree);
 
 		// Assert: check that the bean has bean updated in the submission queue (as it has in the beans list)
-		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
+		assertThat(getNames(jobQueue.getSubmissionQueue()), is(equalTo(getNames(beans))));
 	}
 
 	public List<String> getNames(List<StatusBean> beans) {
@@ -318,12 +318,12 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(beanThree.getName(), is(equalTo("three")));
 
 		// Act: reorder the bean towards the start of the queue
-		getConsumer().moveForward(beanThree);
+		getJobQueue().moveForward(beanThree);
 
 		// Assert: first update the beans list so we can use it as the expected answer
 		beans.remove(beanThree);
 		beans.add(1, beanThree);
-		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
+		assertThat(getNames(jobQueue.getSubmissionQueue()), is(equalTo(getNames(beans))));
 	}
 
 	@Test
@@ -336,12 +336,12 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(beanThree.getName(), is(equalTo("three")));
 
 		// Act: reorder the bean towards the end of the queue
-		getConsumer().moveBackward(beanThree);
+		getJobQueue().moveBackward(beanThree);
 
 		// Assert: first update the beans list so we can use it as the expected answer
 		beans.remove(beanThree);
 		beans.add(3, beanThree);
-		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
+		assertThat(getNames(jobQueue.getSubmissionQueue()), is(equalTo(getNames(beans))));
 	}
 
 	@Test
@@ -356,20 +356,20 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(beanThree.getName(), is(equalTo("three")));
 
 		// Act: reorder the bean the first time
-		getConsumer().moveForward(beanThree);
+		getJobQueue().moveForward(beanThree);
 
 		// Assert: first update the beans list so we can use it as the expected answer
 		beans.remove(beanThree);
 		beans.add(1, beanThree);
-		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
+		assertThat(getNames(jobQueue.getSubmissionQueue()), is(equalTo(getNames(beans))));
 
 		// Act: reorder the bean a second time
-		getConsumer().moveForward(beanThree);
+		getJobQueue().moveForward(beanThree);
 
 		// Assert:
 		beans.remove(beanThree);
 		beans.add(0, beanThree);
-		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
+		assertThat(getNames(jobQueue.getSubmissionQueue()), is(equalTo(getNames(beans))));
 	}
 
 	@Test
@@ -386,7 +386,7 @@ public class QueueManagementTest extends BrokerTest {
 		doReplace(beanThree);
 
 		// Assert: check that the bean has bean updated in the submission queue (as it has in the beans list)
-		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
+		assertThat(getNames(jobQueue.getSubmissionQueue()), is(equalTo(getNames(beans))));
 
 		// Arrange: change the name again
 		beanThree.setName("bar");
@@ -395,16 +395,16 @@ public class QueueManagementTest extends BrokerTest {
 		doReplace(beanThree);
 
 		// Assert: check that the bean has bean updated in the submission queue (as it has in the beans list)
-		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
+		assertThat(getNames(jobQueue.getSubmissionQueue()), is(equalTo(getNames(beans))));
 	}
 
 	@Test
 	public void testClearQueue() throws Exception {
 		createAndSubmitBeans();
 
-		getConsumer().clearQueue();
+		getJobQueue().clearQueue();
 
-		assertThat(consumer.getSubmissionQueue(), is(empty()));
+		assertThat(jobQueue.getSubmissionQueue(), is(empty()));
 	}
 
 	@Test
@@ -412,14 +412,14 @@ public class QueueManagementTest extends BrokerTest {
 		List<StatusBean> beans = createAndSubmitBeans();
 
 		// check that getting the queue works when using a consumer proxy
-		assertThat(getConsumer().getSubmissionQueue(), is(equalTo(beans)));
+		assertThat(getJobQueue().getSubmissionQueue(), is(equalTo(beans)));
 	}
 
 	@Test
 	public void testGetRunningAndCompleted() throws Exception {
 		List<StatusBean> beans = createSubmitAndRunBeans();
 
-		List<StatusBean> completed = getConsumer().getRunningAndCompleted();
+		List<StatusBean> completed = getJobQueue().getRunningAndCompleted();
 		completed.removeIf(b -> b.getName().equals("initial"));
 
 		assertThat(getNames(completed), is(equalTo(getNames(beans))));
@@ -429,9 +429,9 @@ public class QueueManagementTest extends BrokerTest {
 	public void testClearCompleted() throws Exception {
 		createSubmitAndRunBeans();
 
-		getConsumer().clearRunningAndCompleted();
+		getJobQueue().clearRunningAndCompleted();
 
-		assertThat(consumer.getRunningAndCompleted(), is(empty()));
+		assertThat(jobQueue.getRunningAndCompleted(), is(empty()));
 	}
 
 	private StatusBean createBean(String name, Status status, Duration age) {
@@ -462,7 +462,7 @@ public class QueueManagementTest extends BrokerTest {
 		runBeans(beansToSubmit);
 
 		// check they've been submitted properly (check names for easier to read error message)
-		List<StatusBean> completedBeans = consumer.getRunningAndCompleted();
+		List<StatusBean> completedBeans = jobQueue.getRunningAndCompleted();
 		completedBeans.removeIf(bean -> bean.getName().equals("initial"));
 		final List<String> names = getNames(completedBeans);
 		assertThat(names, containsInAnyOrder(getNames(setupBeans).toArray(new String[setupBeans.size()])));
@@ -472,8 +472,8 @@ public class QueueManagementTest extends BrokerTest {
 		completedBeans.stream().forEach(b -> b.merge(beansByName.get(b.getName())));
 
 		// Act - call the method under test
-		consumer.cleanUpCompleted();
-		final List<StatusBean> remainingBeans = consumer.getRunningAndCompleted();
+		jobQueue.cleanUpCompleted();
+		final List<StatusBean> remainingBeans = jobQueue.getRunningAndCompleted();
 		final Map<String, StatusBean> remainingBeansByName = remainingBeans.stream().collect(toMap(b -> b.getName(), identity()));
 		assertThat(remainingBeansByName.keySet(), containsInAnyOrder("newRunning", "newCompleted", "notStarted", "paused"));
 
@@ -490,11 +490,11 @@ public class QueueManagementTest extends BrokerTest {
 		// Act: remove the third bean
 		StatusBean beanThree = beans.get(2);
 		assertThat(beanThree.getName(), is(equalTo("three")));
-		getConsumer().removeCompleted(beanThree);
+		getJobQueue().removeCompleted(beanThree);
 
 		List<String> expectedNames = getNames(beans);
 		expectedNames.remove("three");
-		List<String> actualNames = getNames(consumer.getRunningAndCompleted());
+		List<String> actualNames = getNames(jobQueue.getRunningAndCompleted());
 		actualNames.remove("initial");
 
 		// Assert: check the bean has been removed from the status set

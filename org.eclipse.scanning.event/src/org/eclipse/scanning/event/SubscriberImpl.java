@@ -42,10 +42,10 @@ import org.eclipse.scanning.api.event.IdBean;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanClassListener;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
-import org.eclipse.scanning.api.event.consumer.ConsumerStatusBean;
-import org.eclipse.scanning.api.event.consumer.ConsumerStatusBeanEvent;
-import org.eclipse.scanning.api.event.consumer.IConsumerStatusBeanListener;
 import org.eclipse.scanning.api.event.core.ISubscriber;
+import org.eclipse.scanning.api.event.queue.IQueueStatusBeanListener;
+import org.eclipse.scanning.api.event.queue.QueueStatusBean;
+import org.eclipse.scanning.api.event.queue.QueueStatusBeanEvent;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.IScanListener;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -118,8 +118,8 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 			return ((IBeanClassListener) listener).getBeanClass();
 		} else if (listener instanceof IScanListener) {
 			return ScanBean.class;
-		} else if (listener instanceof IConsumerStatusBeanListener) {
-			return ConsumerStatusBean.class;
+		} else if (listener instanceof IQueueStatusBeanListener) {
+			return QueueStatusBean.class;
 		} else if (listener instanceof ILocationListener) {
 			return Location.class;
 		} else {
@@ -232,8 +232,8 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 
 		ret.put(IScanListener.class, (bean, listener) ->
 				invokeScanListener((IScanListener) listener, (ScanBean) bean));
-		ret.put(IConsumerStatusBeanListener.class, (bean, listener) ->
-				((IConsumerStatusBeanListener) listener).consumerStatusChanged(new ConsumerStatusBeanEvent((ConsumerStatusBean) bean)));
+		ret.put(IQueueStatusBeanListener.class, (bean, listener) ->
+				((IQueueStatusBeanListener) listener).queueStatusChanged(new QueueStatusBeanEvent((QueueStatusBean) bean)));
 		ret.put(IBeanListener.class, (bean, listener) ->
 				((IBeanListener<Object>) listener).beanChangePerformed(new BeanEvent<Object>(bean)));
 		ret.put(ILocationListener.class, (bean, listener) ->

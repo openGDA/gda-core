@@ -14,8 +14,8 @@ package org.eclipse.scanning.api.event;
 import java.net.URI;
 import java.util.EventListener;
 
-import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.IJmsQueueReader;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.core.IResponder;
@@ -29,16 +29,31 @@ import org.eclipse.scanning.api.event.status.StatusBean;
  * and broadcast events. It may be backed by the EventBus or
  * plain JMS queues and topics depending on the service implementor.
  *
- * <pre>
- * <b>
- * o publisher/subscriber used for broadcasting to multiple clients.
- * o submitter/consumer used for processing queues
- * o request/response used for get/post synchronous interaction
- *   (the uuid is used to ensure that the request and response match)
- *
- * </b>
- * </pre>
- *
+ * <ul>
+ *   <li>{@link IJobQueue} encapsulates a queue that beans can be submitted to,
+ *     and a consumer thread that removes items from the head of the queue and creates and runs
+ *     a process for them. It also published bean updates to a status topic and can be controlled
+ *     via a command topic;</li>
+ *   <li>{@link ISubmitter} to submit to a JMS queue.</li>
+ *   <li>{@link IJmsQueueReader} to read a JMS queue and submit any items found immediately to the {@link IJobQueue}.
+ *   <li>{@link IPublisher} can be used to publish to a JMS topic. For example the {@link IJobQueue}
+ *   implementation uses one to pubilsh bean update to the status topic;</li>
+ *   <li>{@link ISubscriber} can be used to subscribe to a JMS topic. For example this can be used to listen
+ *     to bean updates from an {@link IJobQueue} as the process for a job is run;</li>
+ *   <li>{@link IRequester} to post a request to a topic and listen for a response. </li>
+ *   <li>{@link IResponder} to listen for requests on a topic and post a response. This</li>
+ * </ul>
+ *<p>
+ * Note that {@link ISubmitter} and {@link IJmsQueueReader} are legacy interface and should not be used
+ * by new code. {@link IJobQueue} replaced IConsumer, which used to consume beans from the head of a JMS queue,
+ * it did not have its own submit method. An {@link ISubmitter} was required to submit beans to the tail of the
+ * queue. This is no longer necessary as {@link IJobQueue} contains a queue in memory and does have its own
+ * {@link IJobQueue#submit(Object)} method - on the client an proxy should be used by calling
+ * {@link IEventService#createJobQueueProxy(URI, String)}. Due to existing code still using submitters,
+ * or other mechanisms to submit a bean to a JMS queue to run a job, {@link IJmsQueueReader} was developed
+ * as a temporary measure. This works by running a loop consuming items from a JMS queue and immediately
+ * submitting them to the {@link IJobQueue} with the same submission queue name.
+ *<p>
  * <pre>
  * <code>
  *   IEventService service = ... // OSGi
@@ -95,46 +110,45 @@ public interface IEventService {
 	 */
 	public <U> IPublisher<U> createPublisher(URI uri, String topicName);
 
-
 	/**
 	 * Create a submitter for adding a bean of type U onto the queue.
 	 * @param uri
 	 * @param queueName
-	 * @return
+	 * @return the new submitter
 	 */
 	public <U extends StatusBean> ISubmitter<U> createSubmitter(URI uri, String queueName);
 
 
 	/**
-	 * Create a consumer with the default, status topic, submission queue, status queue and command topic.
+	 * Create an {@link IJobQueue} with the default submission queue, status topic and command topic names
 	 * @param uri
-	 * @return
+	 * @return the new job queue
 	 */
-	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri) throws EventException;
+	public <U extends StatusBean> IJobQueue<U> createJobQueue(URI uri) throws EventException;
 
 	/**
-	 * Create a consumer with the submission queue, status queue, and status topic passed in.
+	 * Create a consumer with the given submission queue, and status topic names.
 	 *
 	 * @param uri
-	 * @param submissionQueueName
+	 * @param submissionQueueName name of the submission queue
 	 * @param statusTopicName
-	 * @return
+	 * @return the new job queue
 	 */
-	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri, String submissionQueueName,
+	public <U extends StatusBean> IJobQueue<U> createJobQueue(URI uri, String submissionQueueName,
 						                                        String statusTopicName) throws EventException;
 
 	/**
-	 * Create a consumer with the submission queue, status queue, status topic, consumer status topic,
-	 * command topic and command acknowledgement topic passed in.
+	 * Create a job queue with the given submission queue, status queue, status topic, consumer status topic,
+	 * command topic and command acknowledgement topic names.
 	 *
 	 * @param uri the uri of the message
 	 * @param submissionQueueName
 	 * @param statusTopicName
 	 * @param commandTopicName
 	 * @param commandAckTopicName
-	 * @return
+	 * @return the new job queue
 	 */
-	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri, String submissionQueueName,
+	public <U extends StatusBean> IJobQueue<U> createJobQueue(URI uri, String submissionQueueName,
 						                                        String statusTopicName,
 						                                        String consumerStatusTopicName,
 						                                        String commandTopicName,
@@ -142,54 +156,54 @@ public interface IEventService {
 
 	/**
 	 * Create a Jms queue reader. This will read messages from the JMS (ActiveMq) queue with the given name
-	 * and add it to the in-memory queue of the consumer with the same name.
+	 * and add it to the submission queue of the {@link IJobQueue} with the same name.
 	 * @param uri
 	 * @param submissionQueueName
-	 * @return
+	 * @return the JMS queue reader
 	 * @throws EventException
 	 */
 	public <U extends StatusBean> IJmsQueueReader<U> createJmsQueueReader(URI uri, String submissionQueueName) throws EventException;
 
-
 	/**
-	 * <em>For server-side code only! Client-side code should use {@link #createConsumerProxy(URI, String)}.</em>
+	 * Returns the job queue for the given submission queue name.
+	 * <em>For server-side code only! Client-side code should use {@link #createJobQueueProxy(URI, String)}.</em>
 	 *
-	 * @param queueName
+	 * @param submissionQueueName
 	 * @return the consumer for the given queue name
-	 * @throws EventException thrown if no consumer exists for the given queue name.
+	 * @throws EventException thrown if no job queue exists for the given queue name.
 	 */
-	public IConsumer<? extends StatusBean> getConsumer(String queueName) throws EventException;
+	public IJobQueue<? extends StatusBean> getJobQueue(String submissionQueueName) throws EventException;
 
 	/**
-	 * Create a proxy for the consumer for the given submission queue, using the default
+	 * Create a proxy for the {@link IJobQueue} for the given submission queue name, using the default
 	 * command and command acknowledgement topics.
 	 *
 	 * @param uri
 	 * @param submissionQueueName
-	 * @return a proxy to the consumer for the given queue name
+	 * @return a proxy to the job queue for the given queue name
 	 * @throws EventException
 	 */
-	public <U extends StatusBean> IConsumer<U> createConsumerProxy(URI uri, String submissionQueueName) throws EventException;
+	public <U extends StatusBean> IJobQueue<U> createJobQueueProxy(URI uri, String submissionQueueName) throws EventException;
 
 	/**
-	 * Create a proxy for the consumer for the given submission queue. The given command topic and
-	 * command acknowledgement topic names are used to communicate with the consumer.
+	 * Create a proxy for the {@link IJobQueue} for the given submission queue. The given command topic and
+	 * command acknowledgement topic names are used to communicate with the job queue.
 	 *
 	 * @param uri
 	 * @param submissionQueueName
 	 * @param commandTopicName
 	 * @param commandAckTopicName
-	 * @return a proxy to the consumer for the given queue name
+	 * @return a proxy to the job queue for the given queue name
 	 * @throws EventException
 	 */
-	public <U extends StatusBean> IConsumer<U> createConsumerProxy(URI uri, String submissionQueueName,
+	public <U extends StatusBean> IJobQueue<U> createJobQueueProxy(URI uri, String submissionQueueName,
 			String commandTopicName, String commandAckTopicName) throws EventException;
 
 	/**
-	 * Disconnect all consumers and unregister them from this service
+	 * Disconnect all JMS resource used by all {@link IJobQueue}s and unregister them from this service.
 	 * @throws EventException
 	 */
-	public void disposeConsumers() throws EventException;
+	public void disposeJobQueue() throws EventException;
 
 	/**
 	 * A poster encapsulates sending and receiving a reply. For instance request a list of

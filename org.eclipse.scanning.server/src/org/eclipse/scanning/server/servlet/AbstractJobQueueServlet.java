@@ -20,9 +20,9 @@ import javax.annotation.PreDestroy;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.IJmsQueueReader;
-import org.eclipse.scanning.api.event.servlet.IConsumerServlet;
+import org.eclipse.scanning.api.event.core.IJobQueue;
+import org.eclipse.scanning.api.event.servlet.IJobQueueServlet;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,9 +51,9 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T> the type of bean consumed by this servlet
  */
-public abstract class AbstractConsumerServlet<T extends StatusBean> implements IConsumerServlet<T> {
+public abstract class AbstractJobQueueServlet<T extends StatusBean> implements IJobQueueServlet<T> {
 
-	private static final Logger logger = LoggerFactory.getLogger(AbstractConsumerServlet.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractJobQueueServlet.class);
 
 	protected IEventService eventService;
 	protected String broker;
@@ -67,20 +67,20 @@ public abstract class AbstractConsumerServlet<T extends StatusBean> implements I
 	protected String submitQueue = EventConstants.SUBMISSION_QUEUE;
 	protected String statusTopic = EventConstants.STATUS_TOPIC;
 
-	// Recommended not to change these because easier for UI to inspect consumer created
-	protected String consumerStatusTopic = EventConstants.CONSUMER_STATUS_TOPIC;
+	// Recommended not to change these because easier for UI to inspect job queue created
+	protected String queueStatusTopic = EventConstants.QUEUE_STATUS_TOPIC;
 	protected String commandTopic   = EventConstants.CMD_TOPIC;
 	protected String commandAckTopic = EventConstants.ACK_TOPIC;
 
-	protected IConsumer<T> consumer;
+	protected IJobQueue<T> jobQueue;
 	private IJmsQueueReader<T> jmsQueueReader;
 	private boolean isConnected;
 
-	protected AbstractConsumerServlet() {
+	protected AbstractJobQueueServlet() {
 		this.eventService = Services.getEventService();
 	}
 
-	protected AbstractConsumerServlet(String submitQueue, String statusTopic) {
+	protected AbstractJobQueueServlet(String submitQueue, String statusTopic) {
 		this();
 		this.submitQueue = submitQueue;
 		this.statusTopic = statusTopic;
@@ -89,23 +89,20 @@ public abstract class AbstractConsumerServlet<T extends StatusBean> implements I
 	@Override
 	@PostConstruct // Requires spring 3 or better
 	public void connect() throws EventException, URISyntaxException {
-		consumer = eventService.createConsumer(new URI(getBroker()), getSubmitQueue(), getStatusTopic(),
-				getConsumerStatusTopic(), getCommandTopic(), getCommandAckTopic());
-		consumer.setName(getName());
-		consumer.setRunner(AbstractConsumerServlet.this::createProcess);
-		consumer.setPauseOnStart(pauseOnStart);
+		jobQueue = eventService.createJobQueue(new URI(getBroker()), getSubmitQueue(), getStatusTopic(),
+				getQueueStatusTopic(), getCommandTopic(), getCommandAckTopic());
+		jobQueue.setName(getName());
+		jobQueue.setRunner(AbstractJobQueueServlet.this::createProcess);
+		jobQueue.setPauseOnStart(pauseOnStart);
 
-		// Purge old jobs, we wouldn't want those running.
-		// This suggests that DAQ should have one
-		// AbstractConsumerServlet for each queue or when
-		// another one starts, it might purge the old one.
-		// Use setPurgeQueue(false) to stop it.
+		// Clean up the queue
 		if (isPurgeQueue())
-			consumer.cleanUpCompleted();
+			jobQueue.cleanUpCompleted();
 
-		consumer.start();
+		jobQueue.start();
 
-		// start a queue reader for
+		// start a queue reader for the queue for beans that are still submitted to the JMS queue.
+		// This reads the beans from the JMS queue and submits them to the IJobQueue.
 		jmsQueueReader = eventService.createJmsQueueReader(new URI(getBroker()), getSubmitQueue());
 		jmsQueueReader.start();
 
@@ -120,12 +117,12 @@ public abstract class AbstractConsumerServlet<T extends StatusBean> implements I
 	public void disconnect() throws EventException {
 		if (!isConnected)
 			return; // Nothing to disconnect
-		eventService.disposeConsumers();
+		eventService.disposeJobQueue();
 		jmsQueueReader.disconnect();
 	}
 
-	public IConsumer<T> getConsumer() {
-		return consumer;
+	public IJobQueue<T> getJobQueue() {
+		return jobQueue;
 	}
 
 	public String getBroker() {
@@ -152,12 +149,12 @@ public abstract class AbstractConsumerServlet<T extends StatusBean> implements I
 		this.statusTopic = statusTopic;
 	}
 
-	public String getConsumerStatusTopic() {
-		return consumerStatusTopic;
+	public String getQueueStatusTopic() {
+		return queueStatusTopic;
 	}
 
-	public void setConsumerStatusTopic(String consumerStatusTopic) {
-		this.consumerStatusTopic = consumerStatusTopic;
+	public void setQueueStatusTopic(String queueStatusTopic) {
+		this.queueStatusTopic = queueStatusTopic;
 	}
 
 	public String getCommandTopic() {
@@ -184,7 +181,7 @@ public abstract class AbstractConsumerServlet<T extends StatusBean> implements I
 
 	@Override
 	public boolean isConnected() {
-		return isConnected && (consumer!=null ? consumer.isConnected() : true);
+		return isConnected && (jobQueue!=null ? jobQueue.isConnected() : true);
 	}
 
 	public boolean isPurgeQueue() {
@@ -195,8 +192,8 @@ public abstract class AbstractConsumerServlet<T extends StatusBean> implements I
 		this.purgeQueue = purgeQueue;
 	}
 
-	public void setConsumer(IConsumer<T> consumer) {
-		this.consumer = consumer;
+	public void setConsumer(IJobQueue<T> jobQueue) {
+		this.jobQueue = jobQueue;
 	}
 
 	public boolean isPauseOnStart() {

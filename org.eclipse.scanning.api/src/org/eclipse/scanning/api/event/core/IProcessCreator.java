@@ -14,8 +14,8 @@ package org.eclipse.scanning.api.event.core;
 import org.eclipse.scanning.api.event.EventException;
 
 /**
- * The interface provided to an IConsumer which defines the work done after
- * each item is taken from the queue.
+ * The interface provided to an {@link IJobQueue} which defines the process to run
+ * for a bean that has been removed from the queue.
  *
  * @author Matthew Gerring
  *
@@ -24,5 +24,5 @@ import org.eclipse.scanning.api.event.EventException;
 @FunctionalInterface
 public interface IProcessCreator<T> {
 
-	IConsumerProcess<T> createProcess(T bean, IPublisher<T> statusNotifier) throws EventException;
+	IBeanProcess<T> createProcess(T bean, IPublisher<T> statusNotifier) throws EventException;
 }

@@ -25,9 +25,9 @@ import static org.mockito.Mockito.when;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
-import org.eclipse.scanning.api.event.consumer.QueueCommandBean;
-import org.eclipse.scanning.api.event.consumer.QueueCommandBean.Command;
-import org.eclipse.scanning.api.event.core.IConsumerProcess;
+import org.eclipse.scanning.api.event.core.IBeanProcess;
+import org.eclipse.scanning.api.event.queue.QueueCommandBean;
+import org.eclipse.scanning.api.event.queue.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.junit.After;
@@ -41,7 +41,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 @RunWith(value = Parameterized.class)
-public class ProcessManagementTest extends AbstractNewConsumerTest {
+public class ProcessManagementTest extends AbstractJobQueueTest {
 
 	@Parameters(name="{index}: useCommandBean = {0}")
 	public static Object[] data() {
@@ -53,7 +53,7 @@ public class ProcessManagementTest extends AbstractNewConsumerTest {
 	private IBeanListener<QueueCommandBean> commandTopicListener;
 
 	@Mock
-	private IConsumerProcess<StatusBean> process;
+	private IBeanProcess<StatusBean> process;
 
 	private StatusBean bean;
 
@@ -78,7 +78,7 @@ public class ProcessManagementTest extends AbstractNewConsumerTest {
 		waitingAnswer = new WaitingAnswer<>(null);
 		doAnswer(waitingAnswer).when(process).start();
 
-		startConsumer();
+		startJobQueue();
 
 		// capture the command topic listener
 		ArgumentCaptor<IBeanListener<QueueCommandBean>> commandTopicListenerCaptor =
@@ -98,7 +98,7 @@ public class ProcessManagementTest extends AbstractNewConsumerTest {
 	}
 
 	private void sendCommandBean(Command command) {
-		final QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), command);
+		final QueueCommandBean pauseBean = new QueueCommandBean(jobQueue.getSubmitQueueName(), command);
 		pauseBean.setJobBean(bean);
 		commandTopicListener.beanChangePerformed(new BeanEvent<>(pauseBean));
 	}
@@ -107,7 +107,7 @@ public class ProcessManagementTest extends AbstractNewConsumerTest {
 		if (useCommandBean) {
 			sendCommandBean(Command.PAUSE_JOB);
 		} else {
-			consumer.pauseJob(bean);
+			jobQueue.pauseJob(bean);
 		}
 	}
 
@@ -115,7 +115,7 @@ public class ProcessManagementTest extends AbstractNewConsumerTest {
 		if (useCommandBean) {
 			sendCommandBean(Command.RESUME_JOB);
 		} else {
-			consumer.resumeJob(bean);
+			jobQueue.resumeJob(bean);
 		}
 	}
 
@@ -123,7 +123,7 @@ public class ProcessManagementTest extends AbstractNewConsumerTest {
 		if (useCommandBean) {
 			sendCommandBean(Command.TERMINATE_JOB);
 		} else {
-			consumer.terminateJob(bean);
+			jobQueue.terminateJob(bean);
 		}
 	}
 

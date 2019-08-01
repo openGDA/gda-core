@@ -5,9 +5,9 @@ import static org.junit.Assert.assertEquals;
 import java.net.URISyntaxException;
 
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.consumer.ConsumerStatus;
+import org.eclipse.scanning.api.event.queue.QueueStatus;
 import org.eclipse.scanning.api.event.scan.ScanBean;
-import org.eclipse.scanning.server.servlet.AbstractConsumerServlet;
+import org.eclipse.scanning.server.servlet.AbstractJobQueueServlet;
 import org.eclipse.scanning.server.servlet.ScanServlet;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -26,7 +26,7 @@ import org.junit.Test;
 public class StartServerTest extends AbstractServletTest {
 
 	@Override
-	protected AbstractConsumerServlet<ScanBean> createServlet() throws EventException, URISyntaxException {
+	protected AbstractJobQueueServlet<ScanBean> createServlet() throws EventException, URISyntaxException {
 		// We don't create the sevlet here as one tests requires a bean to be submitted before connect is called
 		return null;
 	}
@@ -36,9 +36,9 @@ public class StartServerTest extends AbstractServletTest {
 		servlet = new ScanServlet();
 		servlet.setBroker(uri.toString());
 		servlet.connect(); // Gets called by Spring automatically
-		servlet.getConsumer().awaitStart();
+		servlet.getJobQueue().awaitStart();
 
-		assertEquals(ConsumerStatus.RUNNING, servlet.getConsumer().getConsumerStatus());
+		assertEquals(QueueStatus.RUNNING, servlet.getJobQueue().getQueueStatus());
 	}
 
 	@Test
@@ -52,11 +52,11 @@ public class StartServerTest extends AbstractServletTest {
 		submit(servlet, createGridScan());
 
 		servlet.connect(); // Gets called by Spring automatically
-		servlet.getConsumer().awaitStart();
+		servlet.getJobQueue().awaitStart();
 
-		assertEquals(ConsumerStatus.PAUSED, servlet.getConsumer().getConsumerStatus());
-		servlet.getConsumer().clearQueue();
-		servlet.getConsumer().clearRunningAndCompleted();
+		assertEquals(QueueStatus.PAUSED, servlet.getJobQueue().getQueueStatus());
+		servlet.getJobQueue().clearQueue();
+		servlet.getJobQueue().clearRunningAndCompleted();
 		servlet.disconnect();
 	}
 

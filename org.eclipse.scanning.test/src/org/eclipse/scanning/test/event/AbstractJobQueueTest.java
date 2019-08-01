@@ -47,19 +47,19 @@ import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
-import org.eclipse.scanning.api.event.consumer.ConsumerStatus;
-import org.eclipse.scanning.api.event.consumer.ConsumerStatusBean;
-import org.eclipse.scanning.api.event.consumer.QueueCommandBean;
-import org.eclipse.scanning.api.event.core.IConsumer;
-import org.eclipse.scanning.api.event.core.IConsumer.IConsumerStatusListener;
-import org.eclipse.scanning.api.event.core.IConsumerProcess;
+import org.eclipse.scanning.api.event.core.IBeanProcess;
+import org.eclipse.scanning.api.event.core.IJobQueue;
+import org.eclipse.scanning.api.event.core.IJobQueue.IQueueStatusListener;
 import org.eclipse.scanning.api.event.core.IProcessCreator;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
+import org.eclipse.scanning.api.event.queue.QueueCommandBean;
+import org.eclipse.scanning.api.event.queue.QueueStatus;
+import org.eclipse.scanning.api.event.queue.QueueStatusBean;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
-import org.eclipse.scanning.event.ConsumerImpl;
+import org.eclipse.scanning.event.JobQueueImpl;
 import org.eclipse.scanning.event.ScanningEventsClassRegistry;
 import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
 import org.eclipse.scanning.test.util.WaitingAnswer;
@@ -74,16 +74,16 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 /**
- * Abstract superclass for new mockito-based unit tests for {@link ConsumerImpl}.
+ * Abstract superclass for new mockito-based unit tests for {@link JobQueueImpl}.
  */
 @RunWith(MockitoJUnitRunner.class)
-public abstract class AbstractNewConsumerTest {
+public abstract class AbstractJobQueueTest {
 
 	protected static final long DEFAULT_MOCK_PROCESS_TIME_MS = 100;
 
 	protected static URI uri;
 
-	protected IConsumer<StatusBean>  consumer;
+	protected IJobQueue<StatusBean> jobQueue;
 
 	@Mock
 	protected IEventConnectorService eventConnectorService;
@@ -101,7 +101,7 @@ public abstract class AbstractNewConsumerTest {
 	protected IPublisher<StatusBean> statusTopicPublisher;
 
 	@Mock
-	protected IPublisher<ConsumerStatusBean> consumerStatusTopicPublisher;
+	protected IPublisher<QueueStatusBean> queueStatusTopicPublisher;
 
 	@Mock
 	protected ISubscriber<IBeanListener<StatusBean>> statusTopicSubscriber;
@@ -113,7 +113,7 @@ public abstract class AbstractNewConsumerTest {
 	protected ISubscriber<IBeanListener<QueueCommandBean>> commandTopicSubscriber;
 
 	@Mock
-	protected IConsumerStatusListener consumerStatusListener;
+	protected IQueueStatusListener queueStatusListener;
 
 	@Mock
 	protected IPublisher<QueueCommandBean> commandAckTopicPublisher;
@@ -131,8 +131,8 @@ public abstract class AbstractNewConsumerTest {
 
 		when(eventService.createPublisher(uri, EventConstants.STATUS_TOPIC)).thenReturn(
 				(IPublisher<Object>) (IPublisher<?>) statusTopicPublisher);
-		when(eventService.createPublisher(uri, EventConstants.CONSUMER_STATUS_TOPIC)).thenReturn(
-				(IPublisher<Object>) (IPublisher<?>) consumerStatusTopicPublisher);
+		when(eventService.createPublisher(uri, EventConstants.QUEUE_STATUS_TOPIC)).thenReturn(
+				(IPublisher<Object>) (IPublisher<?>) queueStatusTopicPublisher);
 		when(eventService.createSubscriber(uri, EventConstants.CMD_TOPIC)).thenReturn(
 				(ISubscriber<EventListener>) (ISubscriber<?>) commandTopicSubscriber);
 		when(eventService.createSubscriber(uri, EventConstants.STATUS_TOPIC)).thenReturn(
@@ -153,19 +153,19 @@ public abstract class AbstractNewConsumerTest {
 				invocation -> marshallerService.unmarshal(invocation.getArgumentAt(0, String.class),
 						invocation.getArgumentAt(1, Class.class)));
 
-		createConsumer();
+		createJobQueue();
 	}
 
-	protected void createConsumer() throws EventException {
-		consumer = new ConsumerImpl<>(uri, EventConstants.SUBMISSION_QUEUE,
-				EventConstants.STATUS_TOPIC, EventConstants.CONSUMER_STATUS_TOPIC,
+	protected void createJobQueue() throws EventException {
+		jobQueue = new JobQueueImpl<>(uri, EventConstants.SUBMISSION_QUEUE,
+				EventConstants.STATUS_TOPIC, EventConstants.QUEUE_STATUS_TOPIC,
 				EventConstants.CMD_TOPIC,
 				EventConstants.ACK_TOPIC, eventConnectorService, eventService);
-		consumer.setName("Test Consumer");
-		consumer.setBeanClass(StatusBean.class);
-		consumer.addConsumerStatusListener(consumerStatusListener);
-		consumer.setRunner(runner);
-		assertThat(consumer.getRunner(), is(runner));
+		jobQueue.setName("Test Consumer");
+		jobQueue.setBeanClass(StatusBean.class);
+		jobQueue.addQueueStatusListener(queueStatusListener);
+		jobQueue.setRunner(runner);
+		assertThat(jobQueue.getRunner(), is(runner));
 
 		if (statusTopicListener == null) {
 			// only capture the status listener of the first consumer
@@ -179,28 +179,28 @@ public abstract class AbstractNewConsumerTest {
 
 	@After
 	public void tearDown() throws Exception {
-		if (consumer.isActive()) {
-			consumer.stop();
+		if (jobQueue.isActive()) {
+			jobQueue.stop();
 		}
 
-		consumer.clearQueue();
-		consumer.clearRunningAndCompleted();
+		jobQueue.clearQueue();
+		jobQueue.clearRunningAndCompleted();
 
-		consumer.close();
+		jobQueue.close();
 
-		consumer = null;
+		jobQueue = null;
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void startConsumer() throws Exception {
+	protected void startJobQueue() throws Exception {
 		// configure the event service to create the status topic subscriber, this is only done when the consumer starts
 		when(eventService.createSubscriber(uri, EventConstants.STATUS_TOPIC)).thenReturn(
 				(ISubscriber<EventListener>) (ISubscriber<?>) statusTopicSubscriber);
 
-		assertThat(consumer.isActive(), is(false));
-		assertThat(consumer.getConsumerStatus(), is(ConsumerStatus.STOPPED));
-		consumer.start();
-		consumer.awaitStart();
+		assertThat(jobQueue.isActive(), is(false));
+		assertThat(jobQueue.getQueueStatus(), is(QueueStatus.STOPPED));
+		jobQueue.start();
+		jobQueue.awaitStart();
 	}
 
 	protected List<StatusBean> createAndSubmitBeans() throws Exception {
@@ -210,13 +210,13 @@ public abstract class AbstractNewConsumerTest {
 	protected List<StatusBean> createAndSubmitBeans(String... names) throws Exception {
 		final List<StatusBean> beans = Arrays.stream(names).map(StatusBean::new).collect(toList());
 		for (StatusBean bean : beans) {
-			consumer.submit(bean);
+			jobQueue.submit(bean);
 		}
 
 		return beans;
 	}
 
-	protected List<IConsumerProcess<StatusBean>> setupMockProcesses(
+	protected List<IBeanProcess<StatusBean>> setupMockProcesses(
 			List<StatusBean> beans, CountDownLatch latch) throws Exception {
 		return setupMockProcesses(beans, latch, -1, null);
 	}
@@ -257,14 +257,14 @@ public abstract class AbstractNewConsumerTest {
 		this.mockProcessTime = mockProcessTime;
 	}
 
-	protected List<IConsumerProcess<StatusBean>> setupMockProcesses(
+	protected List<IBeanProcess<StatusBean>> setupMockProcesses(
 			List<StatusBean> beans, CountDownLatch latch, int waitingProcessNum,
 				WaitingAnswer<Void> waitingAnswer) throws Exception {
-		final List<IConsumerProcess<StatusBean>> mockProcesses = new ArrayList<>(beans.size());
+		final List<IBeanProcess<StatusBean>> mockProcesses = new ArrayList<>(beans.size());
 		for (int i = 0; i < beans.size(); i++) {
 			StatusBean bean = beans.get(i);
 			@SuppressWarnings("unchecked")
-			IConsumerProcess<StatusBean> process = mock(IConsumerProcess.class);
+			IBeanProcess<StatusBean> process = mock(IBeanProcess.class);
 			when(process.getBean()).thenReturn(bean);
 			mockProcesses.add(process);
 			when(runner.createProcess(bean, statusTopicPublisher)).thenReturn(process);

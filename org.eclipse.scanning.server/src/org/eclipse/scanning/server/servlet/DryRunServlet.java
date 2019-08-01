@@ -12,7 +12,7 @@
 package org.eclipse.scanning.server.servlet;
 
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.core.IConsumerProcess;
+import org.eclipse.scanning.api.event.core.IBeanProcess;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.dry.DryRunProcess;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -41,7 +41,7 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
  * @author Matthew Gerring
  *
  */
-public class DryRunServlet extends AbstractConsumerServlet<ScanBean> {
+public class DryRunServlet extends AbstractJobQueueServlet<ScanBean> {
 
 	@Override
 	public String getName() {
@@ -49,7 +49,7 @@ public class DryRunServlet extends AbstractConsumerServlet<ScanBean> {
 	}
 
 	@Override
-	public IConsumerProcess<ScanBean> createProcess(ScanBean scanBean, IPublisher<ScanBean> response) throws EventException {
+	public IBeanProcess<ScanBean> createProcess(ScanBean scanBean, IPublisher<ScanBean> response) throws EventException {
 		return new DryRunProcess<ScanBean>(scanBean, response, true);
 	}
 }

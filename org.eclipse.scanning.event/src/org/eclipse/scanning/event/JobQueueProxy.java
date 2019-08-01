@@ -29,53 +29,53 @@ import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.consumer.ConsumerStatus;
-import org.eclipse.scanning.api.event.consumer.ConsumerStatusBean;
-import org.eclipse.scanning.api.event.consumer.IConsumerStatusBeanListener;
-import org.eclipse.scanning.api.event.consumer.QueueCommandBean;
-import org.eclipse.scanning.api.event.consumer.QueueCommandBean.Command;
-import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.IProcessCreator;
 import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.core.ISubscriber;
+import org.eclipse.scanning.api.event.queue.IQueueStatusBeanListener;
+import org.eclipse.scanning.api.event.queue.QueueCommandBean;
+import org.eclipse.scanning.api.event.queue.QueueStatus;
+import org.eclipse.scanning.api.event.queue.QueueStatusBean;
+import org.eclipse.scanning.api.event.queue.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.status.StatusBean;
 
-public final class ConsumerProxy<U extends StatusBean> extends AbstractConnection implements IConsumer<U> {
+public final class JobQueueProxy<U extends StatusBean> extends AbstractConnection implements IJobQueue<U> {
 
 	private final String commandTopicName;
 	private final String commandAckTopicName;
 
-	private final Set<IConsumerStatusListener> statusListeners = new CopyOnWriteArraySet<>();
+	private final Set<IQueueStatusListener> queueStatusListeners = new CopyOnWriteArraySet<>();
 
 	private final IEventService eventService;
 
 	private IRequester<QueueCommandBean> queueCommandRequestor;
 
-	private ISubscriber<IConsumerStatusBeanListener> consumerStatusTopicSubscriber;
+	private ISubscriber<IQueueStatusBeanListener> queueStatusTopicSubscriber;
 
-	public ConsumerProxy(URI uri, String submissionQueueName, String commandTopicName, String commandAckTopicName, IEventConnectorService connectorService, IEventService eventService) throws EventException {
+	public JobQueueProxy(URI uri, String submissionQueueName, String commandTopicName, String commandAckTopicName, IEventConnectorService connectorService, IEventService eventService) throws EventException {
 		super(uri, submissionQueueName, connectorService);
 		this.commandTopicName = commandTopicName;
 		this.commandAckTopicName = commandAckTopicName;
 		this.eventService = eventService;
 
-		subscribeToConsumerStatusTopic();
+		subscribeToQueueStatusTopic();
 	}
 
-	private void subscribeToConsumerStatusTopic() throws EventException {
-		consumerStatusTopicSubscriber = eventService.createSubscriber(uri, EventConstants.CONSUMER_STATUS_TOPIC);
-		consumerStatusTopicSubscriber.addListener(evt -> fireStatusChangeListeners(evt.getBean().getConsumerStatus()));
+	private void subscribeToQueueStatusTopic() throws EventException {
+		queueStatusTopicSubscriber = eventService.createSubscriber(uri, EventConstants.QUEUE_STATUS_TOPIC);
+		queueStatusTopicSubscriber.addListener(evt -> fireStatusChangeListeners(evt.getBean().getJobQueueStatus()));
 	}
 
-	private void fireStatusChangeListeners(ConsumerStatus status) {
-		for (IConsumerStatusListener listener : statusListeners) {
-			listener.consumerStatusChanged(status);
+	private void fireStatusChangeListeners(QueueStatus status) {
+		for (IQueueStatusListener listener : queueStatusListeners) {
+			listener.queueStatusChanged(status);
 		}
 	}
 
-	private ConsumerStatusBean getConsumerInfo() {
+	private QueueStatusBean getConsumerInfo() {
 		try {
-			return (ConsumerStatusBean) sendCommand(Command.GET_INFO);
+			return (QueueStatusBean) sendCommand(Command.GET_INFO);
 		} catch (EventException e) {
 			throw new RuntimeException("Could not get consumer info", e);
 		}
@@ -128,7 +128,7 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 	public synchronized void disconnect() throws EventException {
 		super.disconnect();
 		queueCommandRequestor.disconnect();
-		consumerStatusTopicSubscriber.disconnect();
+		queueStatusTopicSubscriber.disconnect();
 	}
 
 	@Override
@@ -215,7 +215,7 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 
 	@Override
 	public boolean isPaused() {
-		return getConsumerStatus() == ConsumerStatus.PAUSED;
+		return getQueueStatus() == QueueStatus.PAUSED;
 	}
 
 	@Override
@@ -256,33 +256,33 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 	}
 
 	@Override
-	public String getConsumerStatusTopicName() {
-		return consumerStatusTopicSubscriber.getTopicName();
+	public String getQueueStatusTopicName() {
+		return queueStatusTopicSubscriber.getTopicName();
 	}
 
 	@Override
-	public UUID getConsumerId() {
-		return getConsumerInfo().getConsumerId();
+	public UUID getJobQueueId() {
+		return getConsumerInfo().getQueueId();
 	}
 
 	@Override
-	public ConsumerStatus getConsumerStatus() {
-		return getConsumerInfo().getConsumerStatus();
+	public QueueStatus getQueueStatus() {
+		return getConsumerInfo().getJobQueueStatus();
 	}
 
 	@Override
-	public void addConsumerStatusListener(IConsumerStatusListener listener) {
-		statusListeners.add(listener);
+	public void addQueueStatusListener(IQueueStatusListener listener) {
+		queueStatusListeners.add(listener);
 	}
 
 	@Override
-	public void removeConsumerStatusListener(IConsumerStatusListener listener) {
-		statusListeners.remove(listener);
+	public void removeQueueStatusListener(IQueueStatusListener listener) {
+		queueStatusListeners.remove(listener);
 	}
 
 	@Override
 	public String getName() {
-		return getConsumerInfo().getConsumerName();
+		return getConsumerInfo().getJobQueueName();
 	}
 
 	@Override
@@ -292,7 +292,7 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 
 	@Override
 	public boolean isActive() {
-		return getConsumerStatus() != ConsumerStatus.STOPPED;
+		return getQueueStatus() != QueueStatus.STOPPED;
 	}
 
 	// TODO, move configuration methods to an interface that the proxy doesn't implement?

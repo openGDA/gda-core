@@ -24,8 +24,8 @@ import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IClassRegistry;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
-import org.eclipse.scanning.api.event.consumer.ConsumerStatusBean;
-import org.eclipse.scanning.api.event.consumer.QueueCommandBean;
+import org.eclipse.scanning.api.event.queue.QueueCommandBean;
+import org.eclipse.scanning.api.event.queue.QueueStatusBean;
 import org.eclipse.scanning.api.event.status.AdministratorMessage;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
@@ -48,8 +48,8 @@ public class ScanningEventsClassRegistry implements IClassRegistry {
 	static {
 		Map<String, Class<?>> tmp = new HashMap<>();
 
-		// event.consumer
-		registerClass(tmp, ConsumerStatusBean.class);
+		// event.queue
+		registerClass(tmp, QueueStatusBean.class);
 		registerClass(tmp, QueueCommandBean.class);
 
 		// event.status

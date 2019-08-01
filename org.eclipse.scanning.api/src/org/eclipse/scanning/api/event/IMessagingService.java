@@ -21,7 +21,7 @@ import java.net.URI;
  * debugging the server. It might also mean that activemq can be run in the
  * Acqusition Server, however this is not usually desirable because the point
  * of the messaging service it that it exists in a separate process which
- * keeps state of queues even when consumers are restarted.
+ * keeps state of queues even when job queue's consumer threads are restarted.
  *
  * @author Matthew Gerring
  *

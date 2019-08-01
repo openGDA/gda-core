@@ -45,7 +45,7 @@ public interface ISubmitter<T> extends IURIConnection {
 	void blockingSubmit(T bean) throws EventException, InterruptedException, IllegalStateException;
 
 	/**
-	 * The status topic, if any, that after submission, the consumer will publish events from.
+	 * The status topic, if any, that after submission, the job queue will publish events from.
 	 * May be left unset.
 	 *
 	 * @return
@@ -53,7 +53,7 @@ public interface ISubmitter<T> extends IURIConnection {
 	String getStatusTopicName();
 
 	/**
-	 * The status topic, if any, that after submission, the consumer will publish events from.
+	 * The status topic, if any, that after submission, the job queue will publish events from.
 	 * May be left unset.
      *
 	 * @param name

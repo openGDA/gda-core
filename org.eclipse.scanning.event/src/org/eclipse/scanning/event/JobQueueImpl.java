@@ -41,15 +41,15 @@ import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
-import org.eclipse.scanning.api.event.consumer.ConsumerStatus;
-import org.eclipse.scanning.api.event.consumer.ConsumerStatusBean;
-import org.eclipse.scanning.api.event.consumer.QueueCommandBean;
-import org.eclipse.scanning.api.event.consumer.QueueCommandBean.Command;
-import org.eclipse.scanning.api.event.core.IConsumer;
-import org.eclipse.scanning.api.event.core.IConsumerProcess;
+import org.eclipse.scanning.api.event.core.IBeanProcess;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.IProcessCreator;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubscriber;
+import org.eclipse.scanning.api.event.queue.QueueCommandBean;
+import org.eclipse.scanning.api.event.queue.QueueCommandBean.Command;
+import org.eclipse.scanning.api.event.queue.QueueStatus;
+import org.eclipse.scanning.api.event.queue.QueueStatusBean;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.event.queue.IPersistentModifiableIdQueue;
@@ -58,18 +58,18 @@ import org.h2.mvstore.MVStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection implements IConsumer<U> {
+public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection implements IJobQueue<U> {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ConsumerImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(JobQueueImpl.class);
 
 	private static final String QUEUE_NAME_SUBMISSION_QUEUE = "queued";
 	private static final String QUEUE_NAME_STARTED_BEANS = "started"; // aka running and completed
 
 	private String name;
-	private UUID consumerId;
+	private UUID queueId;
 	private IEventService eventService;
 	private IPublisher<U> statusTopicPublisher; // a publisher to the status topic
-	private IPublisher<ConsumerStatusBean> consumerStatusPublisher;
+	private IPublisher<QueueStatusBean> queueStatusPublisher;
 	private ISubscriber<IBeanListener<U>> statusTopicSubscriber; // a subscriber to the status topic
 	private ISubscriber<IBeanListener<QueueCommandBean>> commandTopicSubscriber; // a subscriber to the command topic
 	private IPublisher<QueueCommandBean> commandAckTopicPublisher; // a publisher to the command acknowledgement topic
@@ -87,16 +87,16 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	 * how to pause and resume a collection cycle using Reentrant locks.
 	 * Design requires these three fields.
 	 */
-	private ReentrantLock consumerStateChangeLock;
+	private ReentrantLock queueStateChangeLock;
 	private Condition shouldResumeCondition;
 
 	/**
-	 * A flag to indicate that the consumer should pause before consuming the next bean from the queue.
+	 * A flag to indicate that the consumer thread should pause before consuming the next bean from the queue.
 	 */
 	private volatile boolean awaitPaused;
 
 	/**
-	 * A flag to indicate if the consumer thread (the thread that consumes items from the queue and runs them)
+	 * A flag to indicate if the consumer thread (the thread that consumes items from the submission queue and runs them)
 	 * is running, irrespective of whether it is paused.
 	 */
 	private volatile boolean consumerThreadRunning = false;
@@ -105,15 +105,15 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 	private final String commandTopicName;
 	private final String commandAckTopicName;
-	private final String consumerStatusTopicName;
+	private final String queueStatusTopicName;
 	private final String persistentStorePath;
 	private final IPersistentModifiableIdQueue<U> submissionQueue;
 	private final IPersistentModifiableIdQueue<U> statusQueue;
 
-	private final Set<IConsumerStatusListener> consumerStatusListeners = new CopyOnWriteArraySet<>();
-	private ConsumerStatusBean consumerStatusBean;
+	private final Set<IQueueStatusListener> queueStatusListeners = new CopyOnWriteArraySet<>();
+	private QueueStatusBean queueStatusBean;
 
-	public ConsumerImpl(URI uri, String submitQueueName, String statusTopicName, String consumerStatusTopicName,
+	public JobQueueImpl(URI uri, String submitQueueName, String statusTopicName, String queueStatusTopicName,
 			String commandTopicName, String commandAckTopicName, IEventConnectorService connectorService,
 			IEventService eventService)
 			throws EventException {
@@ -121,14 +121,14 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		this.eventService = eventService;
 
 		this.awaitPaused = false;
-		this.consumerStateChangeLock = new ReentrantLock();
-		this.shouldResumeCondition = consumerStateChangeLock.newCondition();
+		this.queueStateChangeLock = new ReentrantLock();
+		this.shouldResumeCondition = queueStateChangeLock.newCondition();
 
-		consumerId = UUID.randomUUID();
-		name = "Consumer " + consumerId; // This will hopefully be changed to something meaningful...
+		queueId = UUID.randomUUID();
+		name = "JobQueue " + queueId;
 		this.commandTopicName = commandTopicName;
 		this.commandAckTopicName = commandAckTopicName;
-		this.consumerStatusTopicName = consumerStatusTopicName;
+		this.queueStatusTopicName = queueStatusTopicName;
 
 		final String dbDir = connectorService.getPersistenceDir();
 		persistentStorePath = Paths.get(dbDir, submitQueueName + ".db").toString();
@@ -144,32 +144,32 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	}
 
 	@Override
-	public void addConsumerStatusListener(IConsumerStatusListener listener) {
-		consumerStatusListeners.add(listener);
+	public void addQueueStatusListener(IQueueStatusListener listener) {
+		queueStatusListeners.add(listener);
 	}
 
 	@Override
-	public void removeConsumerStatusListener(IConsumerStatusListener listener) {
-		consumerStatusListeners.remove(listener);
+	public void removeQueueStatusListener(IQueueStatusListener listener) {
+		queueStatusListeners.remove(listener);
 	}
 
 	private void notifyStatusChanged() {
-		if (consumerStatusBean != null && consumerStatusPublisher != null) {
-			publishConsumerStatusBean();
+		if (queueStatusBean != null && queueStatusPublisher != null) {
+			publishQueueStatusBean();
 		}
 
-		final ConsumerStatus status = getConsumerStatus();
-		for (IConsumerStatusListener listener : consumerStatusListeners) {
-			listener.consumerStatusChanged(status);
+		final QueueStatus status = getQueueStatus();
+		for (IQueueStatusListener listener : queueStatusListeners) {
+			listener.queueStatusChanged(status);
 		}
 	}
 
 	private void connect() throws EventException {
 		statusTopicPublisher = eventService.createPublisher(uri, getStatusTopicName());
 
-		if (consumerStatusTopicName!=null) {
-			consumerStatusPublisher = eventService.createPublisher(uri, consumerStatusTopicName);
-			consumerStatusBean = createConsumerStatusBean();
+		if (queueStatusTopicName!=null) {
+			queueStatusPublisher = eventService.createPublisher(uri, queueStatusTopicName);
+			queueStatusBean = createQueueStatusBean();
 		}
 
 		if (getCommandTopicName()!=null) {
@@ -192,11 +192,11 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		statusQueue.replace(bean);
 	}
 
-	private ConsumerStatusBean createConsumerStatusBean() {
-		ConsumerStatusBean bean = new ConsumerStatusBean();
-		bean.setConsumerId(getConsumerId());
-		bean.setConsumerName(getName());
-		bean.setConsumerStatus(getConsumerStatus());
+	private QueueStatusBean createQueueStatusBean() {
+		QueueStatusBean bean = new QueueStatusBean();
+		bean.setQueueId(getJobQueueId());
+		bean.setJobQueueName(getName());
+		bean.setQueueStatus(getQueueStatus());
 		bean.setQueueName(getSubmitQueueName());
 		bean.setBeamline(System.getenv("BEAMLINE"));
 
@@ -209,13 +209,13 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		return bean;
 	}
 
-	public void publishConsumerStatusBean() {
-		consumerStatusBean.setPublishTime(System.currentTimeMillis());
-		consumerStatusBean.setConsumerStatus(getConsumerStatus());
+	public void publishQueueStatusBean() {
+		queueStatusBean.setPublishTime(System.currentTimeMillis());
+		queueStatusBean.setQueueStatus(getQueueStatus());
 		try {
-			consumerStatusPublisher.broadcast(consumerStatusBean);
+			queueStatusPublisher.broadcast(queueStatusBean);
 		} catch (EventException e) {
-			LOGGER.error("Could not publish consumer status bean", e);
+			LOGGER.error("Could not publish queue status bean", e);
 		}
 	}
 
@@ -227,9 +227,9 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 			statusTopicPublisher.disconnect();
 			statusTopicPublisher = null;
 		}
-		if (consumerStatusPublisher != null) {
-			consumerStatusPublisher.disconnect();
-			consumerStatusPublisher = null;
+		if (queueStatusPublisher != null) {
+			queueStatusPublisher.disconnect();
+			queueStatusPublisher = null;
 		}
 		if (commandTopicSubscriber != null)  {
 			commandTopicSubscriber.disconnect();
@@ -247,13 +247,13 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		try {
 			submissionQueue.close();
 		} catch (Exception e) {
-			LOGGER.error("An error occurred closing the submission queue for consumer {}", getName(), e);
+			LOGGER.error("An error occurred closing the submission queue for job queue {}", getName(), e);
 		}
 
 		try {
 			statusQueue.close();
 		} catch (Exception e) {
-			LOGGER.error("An error occurred closing the status queue for consumer {}", getName(), e);
+			LOGGER.error("An error occurred closing the status queue for job queue {}", getName(), e);
 
 		}
 
@@ -270,17 +270,17 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		}
 
 		protected boolean isCommandForMe(QueueCommandBean bean) {
-			return bean.getConsumerId()!=null && bean.getConsumerId().equals(getConsumerId())
+			return bean.getJobQueueId()!=null && bean.getJobQueueId().equals(getJobQueueId())
 					|| bean.getQueueName()!=null && bean.getQueueName().equals(getSubmitQueueName());
 		}
 	}
 
 	/**
-	 * Processes a command for this consumer from the command topic.
+	 * Processes a command for this queue from the command topic.
 	 * @param commandBean
 	 */
 	protected void processQueueCommand(QueueCommandBean commandBean) {
-		LOGGER.debug("Consumer for queue {} received command bean {}", getSubmitQueueName(), commandBean);
+		LOGGER.debug("Job queue {} received command bean {}", getSubmitQueueName(), commandBean);
 		final Command command = commandBean.getCommand();
 		Object result = null;
 		try {
@@ -331,7 +331,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 					result = getRunningAndCompleted();
 					break;
 				case GET_INFO:
-					result = consumerStatusBean;
+					result = queueStatusBean;
 					break;
 				default:
 					throw new IllegalArgumentException("Unknown command " + commandBean.getCommand());
@@ -340,17 +340,17 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 			commandBean.setErrorMessage(MessageFormat.format("Could not process {0} command for queue {1}: {2}",
 					command, getSubmitQueueName(), e.getMessage()));
 			if (command == Command.PAUSE_QUEUE || command == Command.RESUME_QUEUE) {
-				// for pause and resume commands, we stop and disconnect the consumer
-				LOGGER.error("Unable to process {} command on consumer for queue '{}'. Consumer will stop.",
+				// for pause and resume commands, we stop and disconnect any jms connection
+				LOGGER.error("Unable to process {} command on consumer thread for queue '{}'. Consumer thread will stop.",
 						commandBean.getCommand(), getSubmitQueueName(), e);
 				try {
 					stop();
 					disconnect();
 				} catch (EventException ee) {
-					LOGGER.error("An internal error occurred trying to terminate the consumer "+getName()+" "+getConsumerId());
+					LOGGER.error("An internal error occurred trying to terminate the consumer thread"+getName()+" "+getJobQueueId());
 				}
 			} else {
-				LOGGER.error("Unable to process {} command on consumer for queue '{}'.",
+				LOGGER.error("Unable to process {} command on for queue '{}'.",
 						commandBean.getCommand(), getSubmitQueueName(), e);
 			}
 		} finally {
@@ -364,7 +364,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	}
 
 	@Override
-	public List<U> getSubmissionQueue() throws EventException {
+	public List<U> getSubmissionQueue() {
 		synchronized (submissionQueue) {
 			return new ArrayList<>(submissionQueue);
 		}
@@ -456,13 +456,13 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 	@Override
 	public void setRunner(IProcessCreator<U> runner) throws EventException {
-		if (isActive()) throw new IllegalStateException("Cannot set runner while the consumer is active");
+		if (isActive()) throw new IllegalStateException("Cannot set runner while the job queue is active");
 		this.runner = runner;
 	}
 
 	@Override
 	public synchronized void start() throws EventException {
-		if (isActive()) throw new IllegalStateException("Consumer for queue " + getSubmitQueueName() + " is already running");
+		if (isActive()) throw new IllegalStateException("Consumer thread for queue " + getSubmitQueueName() + " is already running");
 
 		latchStart = new CountDownLatch(1);
 		latchStop = new CountDownLatch(1);
@@ -494,7 +494,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 	@Override
 	public synchronized void stop() throws EventException {
-		if (!isActive()) throw new IllegalStateException("Consumer for queue " + getSubmitQueueName() + " is not running");
+		if (!isActive()) throw new IllegalStateException("Consumer thread for queue " + getSubmitQueueName() + " is not running");
 
 		setActive(false); // Stops consume loop
 
@@ -507,11 +507,11 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	/**
 	 * The process manager is a listener for bean changes that handles
 	 * the status of a bean being set to a request state, e.g. {@link Status#REQUEST_PAUSE}
-	 * and performs the appropriate action
+	 * and performs the appropriate action.
 	 */
 	protected class ProcessManager {
 
-		private volatile Map<String, WeakReference<IConsumerProcess<U>>> processMap = new ConcurrentHashMap<>();
+		private volatile Map<String, WeakReference<IBeanProcess<U>>> processMap = new ConcurrentHashMap<>();
 
 		// TODO make this a constant
 		private final Map<Command, Status> commandToStatusMap;
@@ -528,8 +528,8 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 			return processMap.containsKey(bean.getUniqueId());
 		}
 
-		public void registerProcess(U bean, IConsumerProcess<U> process) {
-			processMap.put(bean.getUniqueId(), new WeakReference<IConsumerProcess<U>>(process));
+		public void registerProcess(U bean, IBeanProcess<U> process) {
+			processMap.put(bean.getUniqueId(), new WeakReference<IBeanProcess<U>>(process));
 		}
 
 		public void processJobCommand(QueueCommandBean commandBean) throws EventException {
@@ -545,7 +545,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 			if (optBean.isPresent()) {
 				updateStatusAndPublish(optBean.get(), command);
-				final WeakReference<IConsumerProcess<U>> ref = processMap.get(uniqueId);
+				final WeakReference<IBeanProcess<U>> ref = processMap.get(uniqueId);
 				if (ref != null) {
 					manageProcess(ref.get(), command);
 				} else {
@@ -555,7 +555,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		}
 
 		private Optional<U> findBean(String uniqueId) throws EventException {
-			final WeakReference<IConsumerProcess<U>> ref = processMap.get(uniqueId);
+			final WeakReference<IBeanProcess<U>> ref = processMap.get(uniqueId);
 			if (ref == null) {
 				return findBeanWithId(getSubmissionQueue(), uniqueId);
 			} else if (ref.get() != null) {
@@ -564,7 +564,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 			return Optional.empty();
 		}
 
-		private void manageProcess(IConsumerProcess<U> process, Command command) throws EventException {
+		private void manageProcess(IBeanProcess<U> process, Command command) throws EventException {
 			switch (command) {
 				case PAUSE_JOB:
 					process.pause();
@@ -590,10 +590,10 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 		public void shutdown() {
 			@SuppressWarnings("unchecked")
-			final WeakReference<IConsumerProcess<U>>[] wra = processMap.values()
+			final WeakReference<IBeanProcess<U>>[] wra = processMap.values()
 					.toArray(new WeakReference[processMap.size()]);
-			for (WeakReference<IConsumerProcess<U>> wr : wra) {
-				IConsumerProcess<U> process = wr.get();
+			for (WeakReference<IBeanProcess<U>> wr : wra) {
+				IBeanProcess<U> process = wr.get();
 				if (process != null && !process.getBean().getStatus().isFinal()) {
 					try {
 						process.terminate();
@@ -617,11 +617,11 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 			run();
 		} catch (Exception e) {
 			// only exceptions rethrown by processException are caught here
-			LOGGER.error("Internal error running consumer {}", getName(), e);
+			LOGGER.error("Internal error running consumer thread for queue {}", getSubmitQueueName(), e);
 			try {
-				ConsumerImpl.this.stop();
+				JobQueueImpl.this.stop();
 			} catch (EventException e1) {
-				LOGGER.error("Cannot stop consumer", e1);
+				LOGGER.error("Cannot stop consumer thread for queue {}", getSubmitQueueName(), e1);
 			}
 		}
 
@@ -629,9 +629,9 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	}
 
 	/**
-	 * The main consume method for a consumer. When the consumer is running, one thread will be running this
-	 * method (typically a thread created by calling the {@link #start()} method, while the consumer is
-	 * controlled by calling methods such as {@link #pause()} or {@link #resume()} in other threads.
+	 * The main consume method for the {@link IJobQueue}'s consumer thread. When the consumer thread is running,
+	 * (typically a thread created by calling the {@link #start()} method), it will be executing this method.
+	 * It can be controlled by calling methods such as {@link #pause()} or {@link #resume()} from other threads.
 	 */
 	@Override
 	public void run() throws EventException {
@@ -645,15 +645,15 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 				consume();
 			}
 		} catch (Exception e) {
-			LOGGER.warn("Consumer {} exiting run() method with exception", getName(), e);
+			LOGGER.warn("Consumer thread for queue {} exiting run() method with exception", getSubmitQueueName(), e);
 			throw e;
 		}
-		LOGGER.info("Consumer for queue {} exiting run() method normally", getName());
+		LOGGER.info("Consumer thread for queue {} exiting run() method normally", getSubmitQueueName());
 	}
 
 	/**
 	 * This method performs all the tasks required in one iteration of the main loop of the {@link #run()} method, namely:<ol>
-	 * <li>Checks if the consumer should pause, and if so does until it is notified to resume (see {@link #checkPaused()};</li>
+	 * <li>Checks if the consumer thread should pause, and if so does until it is notified to resume (see {@link #checkPaused()};</li>
 	 * <li>Consumes the next message (see {@link #consume()});</li>
 	 * <li>Handles any exception thrown by consuming the message, see {@link #processException(Exception)}.</li>
 	 * </ol>
@@ -688,11 +688,9 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 		setActive(true);
 
-		// We should pause if there are things in the queue
-		// This is because on a server restart the user will
+		// We should pause if there are things in the queue. This is because on a server restart the user will
 		// need to choose the visit again and get the baton.
-		// NOTE: Not all consumers check the submit queue and
-		// pause before they start.
+		// NOTE: Not all job queues check the submit queue and  pause before they start.
 		checkStartPaused();
 
 		// We're now fully initialized and about to start running the main loop that consumes and runs beans,
@@ -709,10 +707,10 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	 * @throws EventException
 	 */
 	private boolean processException(Exception e) {
-		LOGGER.debug("Processing exception in consumer", e);
+		LOGGER.debug("Processing exception in consumer thread for queue: {}", getSubmitQueueName(), e);
 
 		if (e instanceof InterruptedException) {
-			LOGGER.error("Consumer was interrupted", e);
+			LOGGER.error("Consumer thread was interrupted for queue: {}", getSubmitQueueName(), e);
 			return false;
 		}
 
@@ -721,7 +719,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	}
 
 	/**
-	 * Called by {@link #init()} when the consumer starts. If {@link #isPauseOnStart()} is set,
+	 * Called by {@link #init()} when the consumer thread starts. If {@link #isPauseOnStart()} is set,
 	 * and the queue is not empty, we set the {@link #awaitPaused} flag and publish a
 	 * a PauseBean to the command topic.
 	 * @throws EventException
@@ -732,7 +730,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		}
 
 		if (!submissionQueue.isEmpty()) {
-			LOGGER.debug("Pausing consumer {} on start ", getName());
+			LOGGER.debug("Pausing consumer thread on start for queue: {}", getSubmitQueueName());
 			pause(); // note, sets the awaitPause flag, this thread continues
 
 			try (IPublisher<QueueCommandBean> publisher = eventService.createPublisher(getUri(), getCommandTopicName())) {
@@ -748,24 +746,24 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	 */
 	private void checkPaused() throws Exception {
 		if (!isActive())
-			throw new EventException("The consumer is not active and cannot be paused!");
+			throw new EventException("The consumer thread is not running and cannot be paused!");
 
 		// Check the locking using a condition
-		if (!consumerStateChangeLock.tryLock(1, TimeUnit.SECONDS)) {
+		if (!queueStateChangeLock.tryLock(1, TimeUnit.SECONDS)) {
 			throw new EventException("Internal Error - Could not obtain lock to run device!");
 		}
 		try {
 			if (isActive() && awaitPaused) {
 				setActive(false);
-				LOGGER.info("Consumer pausing {}", getName());
+				LOGGER.info("Consumer thread pausing for queue: {}", getName());
 				while (awaitPaused) {
 					shouldResumeCondition.await(); // Until unpaused
 				}
-				LOGGER.info("Consumer resuming {}", getName());
+				LOGGER.info("Consumer thread resuming for queue: {}", getName());
 				setActive(true);
 			}
 		} finally {
-			consumerStateChangeLock.unlock();
+			queueStateChangeLock.unlock();
 		}
 	}
 
@@ -777,7 +775,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	@Override
 	public void pause() throws EventException {
 		awaitPaused = true;
-		LOGGER.info("Consumer signalled to pause {}", getName());
+		LOGGER.info("Consumer thread signalled to pause {}", getName());
 		notifyStatusChanged();
 	}
 
@@ -786,16 +784,16 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		// No need to do anything if we're not paused or awaiting pause
 		if (!awaitPaused) return;
 		try {
-			consumerStateChangeLock.lockInterruptibly();
+			queueStateChangeLock.lockInterruptibly();
 
 			awaitPaused = false;
 			shouldResumeCondition.signalAll();
-			LOGGER.info("Consumer signalled to resume {}", getName());
+			LOGGER.info("Consumer thread signalled to resume {}", getName());
 			notifyStatusChanged();
 		} catch (Exception ne) {
 			throw new EventException(ne);
 		} finally {
-			consumerStateChangeLock.unlock();
+			queueStateChangeLock.unlock();
 		}
 	}
 
@@ -829,9 +827,9 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	}
 
 	@Override
-	public ConsumerStatus getConsumerStatus() {
-		if (!consumerThreadRunning || !isConnected()) return ConsumerStatus.STOPPED;
-		return awaitPaused ? ConsumerStatus.PAUSED : ConsumerStatus.RUNNING;
+	public QueueStatus getQueueStatus() {
+		if (!consumerThreadRunning || !isConnected()) return QueueStatus.STOPPED;
+		return awaitPaused ? QueueStatus.PAUSED : QueueStatus.RUNNING;
 	}
 
 	private void executeBean(U bean) throws EventException, InterruptedException {
@@ -867,7 +865,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		}
 
 		try {
-			IConsumerProcess<U> process = runner.createProcess(bean, statusTopicPublisher);
+			IBeanProcess<U> process = runner.createProcess(bean, statusTopicPublisher);
 
 			timeNow = Instant.now();
 			if (Duration.between(startTime, timeNow).toMillis() > 100) { LOGGER.warn("executeBean() took {}ms to runner.createProcess complete", Duration.between(startTime, timeNow).toMillis()); }
@@ -915,8 +913,8 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	}
 
 	@Override
-	public UUID getConsumerId() {
-		return consumerId;
+	public UUID getJobQueueId() {
+		return queueId;
 	}
 
 	@Override
@@ -955,8 +953,8 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	}
 
 	@Override
-	public String getConsumerStatusTopicName() {
-		return consumerStatusTopicName;
+	public String getQueueStatusTopicName() {
+		return queueStatusTopicName;
 	}
 
 	@Override

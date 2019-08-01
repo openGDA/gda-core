@@ -9,19 +9,19 @@
  * Contributors:
  *    Matthew Gerring - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.scanning.api.event.consumer;
+package org.eclipse.scanning.api.event.queue;
 
 import java.util.EventObject;
 
-public class ConsumerStatusBeanEvent extends EventObject {
+public class QueueStatusBeanEvent extends EventObject {
 
 	private static final long serialVersionUID = -120191399800024906L;
 
-	public ConsumerStatusBeanEvent(ConsumerStatusBean source) {
+	public QueueStatusBeanEvent(QueueStatusBean source) {
 		super(source);
 	}
 
-	public ConsumerStatusBean getBean() {
-		return (ConsumerStatusBean)getSource();
+	public QueueStatusBean getBean() {
+		return (QueueStatusBean)getSource();
 	}
 }

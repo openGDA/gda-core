@@ -12,7 +12,7 @@
 package org.eclipse.scanning.api.event.servlet;
 
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.core.IConsumerProcess;
+import org.eclipse.scanning.api.event.core.IBeanProcess;
 import org.eclipse.scanning.api.event.core.IPublisher;
 
 /**
@@ -22,7 +22,7 @@ import org.eclipse.scanning.api.event.core.IPublisher;
  *
  * @param <T>
  */
-public interface IConsumerServlet<T> extends IConnectable {
+public interface IJobQueueServlet<T> extends IConnectable {
 
 
 	/**
@@ -32,5 +32,5 @@ public interface IConsumerServlet<T> extends IConnectable {
 	 * @param response
 	 * @return
 	 */
-	public IConsumerProcess<T> createProcess(T bean, IPublisher<T> response) throws EventException;
+	public IBeanProcess<T> createProcess(T bean, IPublisher<T> response) throws EventException;
 }

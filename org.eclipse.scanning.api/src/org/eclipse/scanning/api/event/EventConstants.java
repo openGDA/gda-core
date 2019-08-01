@@ -37,34 +37,33 @@ public class EventConstants {
 	public static final String STATUS_TOPIC      = "org.eclipse.scanning.status.topic";
 
 	/**
-	 * The default topic used for consumer status events.
+	 * The default topic used for queue status events.
      * It is usually better to use your own topic rather than the default.
 	 */
-	public static final String CONSUMER_STATUS_TOPIC = "org.eclipse.scanning.consumer.status.topic";
+	public static final String QUEUE_STATUS_TOPIC = "org.eclipse.scanning.queue.status.topic";
 
 	/**
-	 * The default topic used for to send command to a consumer, e.g. pause/terminate
+	 * The default topic used for to send command to a job queue, e.g. pause/terminate
 	 * or to reorder or remove beans from the queue. This topic is generally used internally.
 	 */
 	public static final String CMD_TOPIC = "org.eclipse.scanning.command.topic";
 
 	/**
-	 * The default topic used for acknowledgements from the consumer to commands sent on the
+	 * The default topic used for acknowledgements from the job quue to commands sent on the
 	 * command topic. This topic is generally used internally.
 	 */
 	public static final String ACK_TOPIC = "org.eclipse.scanning.ack.topic";
 
 	/**
 	 * The default queue used for submitting things (like ScanRequests) to a queue.
-	 * Ordered by submission.
 	 */
 	public static final String SUBMISSION_QUEUE = "org.eclipse.scanning.submission.queue";
 
 	/**
-	 * Topic used to tell UI users that a give consumer will be going down.
+	 * Topic used to tell UI users that a given job queue will be going down.
      * It is usually better to use your own topic rather than the default.
 	 */
-	public static final String ADMIN_MESSAGE_TOPIC = "org.eclipse.scanning.consumer.administratorMessage";
+	public static final String ADMIN_MESSAGE_TOPIC = "org.eclipse.scanning.queue.administratorMessage";
 
     /**
      * The topic used for requests for device information.

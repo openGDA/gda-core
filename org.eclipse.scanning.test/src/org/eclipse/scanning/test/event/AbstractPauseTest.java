@@ -27,14 +27,14 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
-import org.eclipse.scanning.api.event.consumer.QueueCommandBean;
-import org.eclipse.scanning.api.event.consumer.QueueCommandBean.Command;
-import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.IJmsQueueReader;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.dry.DryRunProcessCreator;
+import org.eclipse.scanning.api.event.queue.QueueCommandBean;
+import org.eclipse.scanning.api.event.queue.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.test.BrokerTest;
@@ -48,50 +48,50 @@ public class AbstractPauseTest extends BrokerTest {
 	protected IEventService eservice;
 	protected ISubmitter<StatusBean> submitter;
 	protected IJmsQueueReader<StatusBean> jmsQueueReader;
-	protected IConsumer<StatusBean> consumer;
+	protected IJobQueue<StatusBean> jobQueue;
 
 
 	@After
 	public void dispose() throws EventException {
 		submitter.disconnect();
 		jmsQueueReader.disconnect();
-		consumer.clearQueue();
-		consumer.clearRunningAndCompleted();
-		consumer.disconnect();
+		jobQueue.clearQueue();
+		jobQueue.clearRunningAndCompleted();
+		jobQueue.disconnect();
 	}
 
 	@Test
 	public void testPausingAConsumerByID() throws Exception {
 
-		consumer.setRunner(new DryRunProcessCreator<StatusBean>(100,false));
-		consumer.start();
+		jobQueue.setRunner(new DryRunProcessCreator<StatusBean>(100,false));
+		jobQueue.start();
 
 		StatusBean bean = doSubmit();
 
 		Thread.sleep(200);
 
 		IPublisher<QueueCommandBean> publisher = eservice.createPublisher(uri, EventConstants.CMD_TOPIC);
-		QueueCommandBean pauseBean = new QueueCommandBean(consumer.getConsumerId(), Command.PAUSE_QUEUE);
+		QueueCommandBean pauseBean = new QueueCommandBean(jobQueue.getJobQueueId(), Command.PAUSE_QUEUE);
 		publisher.broadcast(pauseBean);
 
 		Thread.sleep(200);
 
-		assertTrue(!consumer.isActive());
+		assertTrue(!jobQueue.isActive());
 
-		QueueCommandBean resumeBean = new QueueCommandBean(consumer.getConsumerId(), Command.RESUME_QUEUE);
+		QueueCommandBean resumeBean = new QueueCommandBean(jobQueue.getJobQueueId(), Command.RESUME_QUEUE);
 		publisher.broadcast(resumeBean);
 
 		Thread.sleep(100);
 
-		assertTrue(consumer.isActive());
+		assertTrue(jobQueue.isActive());
 	}
 
 
 	@Test
-	public void testPausingAConsumerByQueueName() throws Exception {
+	public void testPausingQueueByQueueName() throws Exception {
 
-		consumer.setRunner(new DryRunProcessCreator<StatusBean>(100,false));
-		consumer.start();
+		jobQueue.setRunner(new DryRunProcessCreator<StatusBean>(100,false));
+		jobQueue.start();
 
 		StatusBean bean = doSubmit();
 
@@ -99,27 +99,27 @@ public class AbstractPauseTest extends BrokerTest {
 
 		IPublisher<QueueCommandBean> publisher = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
 
-		QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.PAUSE_QUEUE);
+		QueueCommandBean pauseBean = new QueueCommandBean(jobQueue.getSubmitQueueName(), Command.PAUSE_QUEUE);
 		publisher.broadcast(pauseBean);
 
 		Thread.sleep(200);
 
-		assertTrue(!consumer.isActive());
+		assertTrue(!jobQueue.isActive());
 
-		QueueCommandBean resumeBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.RESUME_QUEUE);
+		QueueCommandBean resumeBean = new QueueCommandBean(jobQueue.getSubmitQueueName(), Command.RESUME_QUEUE);
 		publisher.broadcast(resumeBean);
 
 		Thread.sleep(100);
 
-		assertTrue(consumer.isActive());
+		assertTrue(jobQueue.isActive());
 	}
 
 	@Ignore("TODO Find out why this does not work, it is supposed to...")
 	@Test
 	public void testReorderingAPausedQueue() throws Exception {
 
-		consumer.setRunner(new DryRunProcessCreator<StatusBean>(0,100,10,100, true));
-		consumer.start();
+		jobQueue.setRunner(new DryRunProcessCreator<StatusBean>(0,100,10,100, true));
+		jobQueue.start();
 
 		// Bung ten things on there.
 		for (int i = 0; i < 5; i++) {
@@ -135,22 +135,22 @@ public class AbstractPauseTest extends BrokerTest {
 
 		IPublisher<QueueCommandBean> publisher = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
 
-		QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.PAUSE_QUEUE);
+		QueueCommandBean pauseBean = new QueueCommandBean(jobQueue.getSubmitQueueName(), Command.PAUSE_QUEUE);
 		publisher.broadcast(pauseBean);
 
 		// Now we are paused. Read the submission queue
 		Thread.sleep(200);
-		List<StatusBean> submitQ = consumer.getSubmissionQueue();
+		List<StatusBean> submitQ = jobQueue.getSubmissionQueue();
 		assertTrue(submitQ.size()>=4);
 
 		Thread.sleep(1000); // Wait for a while and check again that nothing else is
 
-		submitQ = consumer.getSubmissionQueue();
+		submitQ = jobQueue.getSubmissionQueue();
 		assertTrue(submitQ.size()>=4);
 
 		// Right then we will reorder it.
-		consumer.clearQueue();
-		consumer.clearQueue();
+		jobQueue.clearQueue();
+		jobQueue.clearQueue();
 
 		// Reverse sort
 		Collections.sort(submitQ, new Comparator<StatusBean>() {
@@ -162,8 +162,8 @@ public class AbstractPauseTest extends BrokerTest {
 			}
 		});
 
-		// Start the consumer again
-		QueueCommandBean resumeBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.RESUME_QUEUE);
+		// Start the queue again
+		QueueCommandBean resumeBean = new QueueCommandBean(jobQueue.getSubmitQueueName(), Command.RESUME_QUEUE);
 		publisher.broadcast(resumeBean);
 
 		// Resubmit in new order 4-1
@@ -175,7 +175,7 @@ public class AbstractPauseTest extends BrokerTest {
 		}
 
 		final List<String> run = new ArrayList<>(4); // Order important
-		ISubscriber<EventListener> sub = eservice.createSubscriber(uri, consumer.getStatusTopicName());
+		ISubscriber<EventListener> sub = eservice.createSubscriber(uri, jobQueue.getStatusTopicName());
 		sub.addListener(new IBeanListener<StatusBean>() {
 			@Override
 			public void beanChangePerformed(BeanEvent<StatusBean> evt) {
@@ -185,7 +185,7 @@ public class AbstractPauseTest extends BrokerTest {
 			}
 		});
 
-		while(!consumer.getSubmissionQueue().isEmpty()) Thread.sleep(100); // Wait for all to run
+		while(!jobQueue.getSubmissionQueue().isEmpty()) Thread.sleep(100); // Wait for all to run
 
 		Thread.sleep(500); // ensure last one is in the status set
 
@@ -199,17 +199,17 @@ public class AbstractPauseTest extends BrokerTest {
 	@Test
 	public void testReorderedScans() throws Exception {
 		// see JIRA bug DAQ-342
-		consumer.setRunner(new DryRunProcessCreator<StatusBean>(0,100,10,100, true));
-		consumer.start();
+		jobQueue.setRunner(new DryRunProcessCreator<StatusBean>(0,100,10,100, true));
+		jobQueue.start();
 
 		Thread.sleep(500);
 		IPublisher<QueueCommandBean> publisher = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
 
-		QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.PAUSE_QUEUE);
+		QueueCommandBean pauseBean = new QueueCommandBean(jobQueue.getSubmitQueueName(), Command.PAUSE_QUEUE);
 		publisher.broadcast(pauseBean);
 
 		Thread.sleep(500);
-		assertTrue(!consumer.isActive());
+		assertTrue(!jobQueue.isActive());
 
 		// Submit two things.
 		StatusBean statusBean = null;
@@ -226,24 +226,24 @@ public class AbstractPauseTest extends BrokerTest {
 
 		Thread.sleep(500);
 
-		consumer.moveForward(statusBean);
+		jobQueue.moveForward(statusBean);
 
 		Thread.sleep(500);
-		assertTrue(!consumer.isActive());
-		assertEquals(2, consumer.getSubmissionQueue().size());
+		assertTrue(!jobQueue.isActive());
+		assertEquals(2, jobQueue.getSubmissionQueue().size());
 
-		QueueCommandBean resumeBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.RESUME_QUEUE);
+		QueueCommandBean resumeBean = new QueueCommandBean(jobQueue.getSubmitQueueName(), Command.RESUME_QUEUE);
 		publisher.broadcast(resumeBean);
 
 		Thread.sleep(500);
-		assertTrue(consumer.isActive());
+		assertTrue(jobQueue.isActive());
 
 	}
 
 	@Test
 	public void testPauseResumeWhenScanRunning() throws Exception {
-		consumer.setRunner(new DryRunProcessCreator<>(0, 100, 10, 100, true)); // each scan takes 1 second
-		consumer.start();
+		jobQueue.setRunner(new DryRunProcessCreator<>(0, 100, 10, 100, true)); // each scan takes 1 second
+		jobQueue.start();
 
 		// Submit two beans
 		StatusBean bean = null;
@@ -263,14 +263,14 @@ public class AbstractPauseTest extends BrokerTest {
 		// pause the queue and immediately resume it
 		IPublisher<QueueCommandBean> commandPublisher = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
 
-		QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.PAUSE_QUEUE);
+		QueueCommandBean pauseBean = new QueueCommandBean(jobQueue.getSubmitQueueName(), Command.PAUSE_QUEUE);
 		commandPublisher.broadcast(pauseBean);
-		QueueCommandBean resumeBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.RESUME_QUEUE);
+		QueueCommandBean resumeBean = new QueueCommandBean(jobQueue.getSubmitQueueName(), Command.RESUME_QUEUE);
 		commandPublisher.broadcast(resumeBean);
 
 		Thread.sleep(1200); // wait long enough for the first scan to finish
 
-		assertTrue(consumer.isActive()); // check the consumer has been resumed
+		assertTrue(jobQueue.isActive()); // check the job queue has been resumed
 	}
 
 	private StatusBean doSubmit() throws Exception {

@@ -37,7 +37,7 @@ import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.event.JmsQueueReader;
@@ -55,7 +55,7 @@ public class JmsQueueReaderTest extends BrokerTest {
 	private JmsQueueReader<StatusBean> jmsQueueReader;
 
 	@Mock
-	private IConsumer<StatusBean> mockConsumer;
+	private IJobQueue<StatusBean> mockJobQueue;
 
 	@Before
 	public void setUp() throws Exception {
@@ -65,7 +65,7 @@ public class JmsQueueReaderTest extends BrokerTest {
 		eventService = ServiceTestHelper.getEventService();
 		submitter = eventService.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE);
 		IEventService eventServiceSpy = spy(eventService);
-		doReturn(mockConsumer).when(eventServiceSpy).getConsumer(EventConstants.SUBMISSION_QUEUE);
+		doReturn(mockJobQueue).when(eventServiceSpy).getJobQueue(EventConstants.SUBMISSION_QUEUE);
 		jmsQueueReader = new JmsQueueReader<>(uri, eventServiceSpy, EventConstants.SUBMISSION_QUEUE);
 		jmsQueueReader.start();
 	}
@@ -94,8 +94,8 @@ public class JmsQueueReaderTest extends BrokerTest {
 		StatusBean statusBean = new StatusBean("fred");
 		submitter.submit(statusBean);
 
-		verify(mockConsumer, timeout(100)).submit(statusBean);
-		verifyNoMoreInteractions(mockConsumer);
+		verify(mockJobQueue, timeout(100)).submit(statusBean);
+		verifyNoMoreInteractions(mockJobQueue);
 	}
 
 	@Test
@@ -109,9 +109,9 @@ public class JmsQueueReaderTest extends BrokerTest {
 		}
 
 		for (StatusBean bean : beans) {
-			verify(mockConsumer, timeout(100)).submit(bean);
+			verify(mockJobQueue, timeout(100)).submit(bean);
 		}
-		verifyNoMoreInteractions(mockConsumer);
+		verifyNoMoreInteractions(mockJobQueue);
 	}
 
 	@Test
@@ -119,7 +119,7 @@ public class JmsQueueReaderTest extends BrokerTest {
 		StatusBean statusBean = new StatusBean("fred");
 		submitter.submit(statusBean);
 
-		verify(mockConsumer, timeout(100)).submit(statusBean);
+		verify(mockJobQueue, timeout(100)).submit(statusBean);
 
 		jmsQueueReader.stop();
 		Thread.sleep(500);
@@ -127,7 +127,7 @@ public class JmsQueueReaderTest extends BrokerTest {
 		StatusBean never = new StatusBean("never");
 		submitter.submit(never);
 
-		verify(mockConsumer, after(100).never()).submit(never);
+		verify(mockJobQueue, after(100).never()).submit(never);
 	}
 
 }

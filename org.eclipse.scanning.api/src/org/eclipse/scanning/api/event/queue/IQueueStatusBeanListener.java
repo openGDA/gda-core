@@ -9,33 +9,17 @@
  * Contributors:
  *    Matthew Gerring - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.scanning.api.event.queues;
+package org.eclipse.scanning.api.event.queue;
 
-/**
- * Current state of a queue managed within the {@link IQueueService}.
- *
- * @author Michael Wharmby
- *
- */
-public enum QueueStatus {
-	INITIALISED, STARTED, STOPPING, STOPPED, KILLED, DISPOSED;
+import org.eclipse.scanning.api.event.bean.IBeanClassListener;
 
-	/**
-	 * Return whether the queue is running
-	 *
-	 * @return true if running.
-	 */
-	public boolean isActive() {
-		return this == STARTED;
-	}
+public interface IQueueStatusBeanListener extends IBeanClassListener<QueueStatusBean> {
 
-	/**
-	 * Return whether the queue is in a startable state
-	 *
-	 * @return true if can be started.
-	 */
-	public boolean isStartable() {
-		return this == INITIALISED || this == STOPPED;
+	public void queueStatusChanged(QueueStatusBeanEvent evt);
+
+	@Override
+	default Class<QueueStatusBean> getBeanClass() {
+		return QueueStatusBean.class;
 	}
 
 }

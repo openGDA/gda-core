@@ -22,8 +22,8 @@ import javax.jms.Topic;
 
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
-import org.eclipse.scanning.api.event.consumer.QueueCommandBean;
 import org.eclipse.scanning.api.event.core.IPublisher;
+import org.eclipse.scanning.api.event.queue.QueueCommandBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

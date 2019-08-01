@@ -32,12 +32,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.consumer.ConsumerStatus;
-import org.eclipse.scanning.api.event.consumer.QueueCommandBean;
-import org.eclipse.scanning.api.event.core.IConsumer;
-import org.eclipse.scanning.api.event.core.IConsumerProcess;
+import org.eclipse.scanning.api.event.core.IBeanProcess;
+import org.eclipse.scanning.api.event.core.IJobQueue;
+import org.eclipse.scanning.api.event.queue.QueueCommandBean;
+import org.eclipse.scanning.api.event.queue.QueueStatus;
 import org.eclipse.scanning.api.event.status.StatusBean;
-import org.eclipse.scanning.event.ConsumerProxy;
+import org.eclipse.scanning.event.JobQueueProxy;
 import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -46,23 +46,23 @@ import org.mockito.Mockito;
 /**
  * Test for controlling the consumer. The consumer can be
  * controlled directly if it is in the same VM by calling methods such as
- * {@link IConsumer#pause()} and {@link IConsumer#resume()} or from another
+ * {@link IJobQueue#pause()} and {@link IJobQueue#resume()} or from another
  * VM by sending {@link QueueCommandBean}s on the command topic.
  * {@link ConsumerProxyControlTest} overrides to
- * control the consumer using a {@link ConsumerProxy} which sends {@link QueueCommandBean}s
+ * control the consumer using a {@link JobQueueProxy} which sends {@link QueueCommandBean}s
  * to the consumer.
  */
-public class ConsumerControlTest extends AbstractNewConsumerTest {
+public class QueueControlTest extends AbstractJobQueueTest {
 
-	protected IConsumer<StatusBean> getConsumer() {
-		return consumer;
+	protected IJobQueue<StatusBean> getConsumer() {
+		return jobQueue;
 	}
 
-	protected void doPauseConsumer() throws Exception {
+	protected void doPauseQueue() throws Exception {
 		getConsumer().pause();
 	}
 
-	protected void doResumeConsumer() throws Exception {
+	protected void doResumeQueue() throws Exception {
 		getConsumer().resume();
 	}
 
@@ -70,7 +70,7 @@ public class ConsumerControlTest extends AbstractNewConsumerTest {
 		getConsumer().stop();
 	}
 
-	private void verifyJobsBefore(InOrder inOrder, List<StatusBean> beans, List<IConsumerProcess<StatusBean>> processes,
+	private void verifyJobsBefore(InOrder inOrder, List<StatusBean> beans, List<IBeanProcess<StatusBean>> processes,
 			final int waitingProcessNum) throws EventException, InterruptedException {
 		for (int i = 0; i < beans.size(); i++) {
 			if (i <= waitingProcessNum) {
@@ -83,7 +83,7 @@ public class ConsumerControlTest extends AbstractNewConsumerTest {
 	}
 
 	private void verifyJobsAfter(InOrder inOrder, List<StatusBean> beans,
-			List<IConsumerProcess<StatusBean>> processes, final int waitingProcessNum) throws EventException, InterruptedException {
+			List<IBeanProcess<StatusBean>> processes, final int waitingProcessNum) throws EventException, InterruptedException {
 		for (int i = waitingProcessNum + 1; i < beans.size(); i++) {
 			if (i <= waitingProcessNum) {
 				verifyNoMoreInteractions(processes.get(i));
@@ -103,35 +103,35 @@ public class ConsumerControlTest extends AbstractNewConsumerTest {
 
 		CountDownLatch latch = new CountDownLatch(beans.size() - 1);
 		WaitingAnswer<Void> waitingAnswer = new WaitingAnswer<>(null);
-		List<IConsumerProcess<StatusBean>> processes = setupMockProcesses(beans, latch, waitingProcessNum, waitingAnswer);
-		startConsumer();
+		List<IBeanProcess<StatusBean>> processes = setupMockProcesses(beans, latch, waitingProcessNum, waitingAnswer);
+		startJobQueue();
 
 		// the waiting answer of the third job will be blocked at this point, waiting to resume
-		// this allows us to pause the consumer without a race condition
+		// this allows us to pause the queue without a race condition
 		waitingAnswer.waitUntilCalled();
-		doPauseConsumer(); // pause the consumer
-		assertThat(consumer.isActive(), is(true)); // The consumer is still running the blocking method process.start, so it's not actually paused yet
-		assertThat(consumer.getConsumerStatus(), is(ConsumerStatus.PAUSED)); // but the awaitPause flag is set
+		doPauseQueue(); // pause the job queue's consumer thread
+		assertThat(jobQueue.isActive(), is(true)); // The consumer thread is still running the blocking method process.start, so it's not actually paused yet
+		assertThat(jobQueue.getQueueStatus(), is(QueueStatus.PAUSED)); // but the awaitPause flag is set
 
 		// allow the process to finish and wait for it to finish
-		waitingAnswer.resume(); // resumes the current process, once finished the consumer should pause
+		waitingAnswer.resume(); // resumes the current process, once finished the consumer thread should pause
 
 		Thread.sleep(getMockProcessTime() * (processes.size() + 1 - waitingProcessNum));
-		assertThat(consumer.isActive(), is(false));
-		assertThat(consumer.getConsumerStatus(), is(ConsumerStatus.PAUSED));
+		assertThat(jobQueue.isActive(), is(false));
+		assertThat(jobQueue.getQueueStatus(), is(QueueStatus.PAUSED));
 
 		// verify that the first three jobs were run, but no more
-		InOrder inOrder = inOrder(runner, processes, consumerStatusListener);
-		inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.RUNNING);
+		InOrder inOrder = inOrder(runner, processes, queueStatusListener);
+		inOrder.verify(queueStatusListener).queueStatusChanged(QueueStatus.RUNNING);
 		verifyJobsBefore(inOrder, beans, processes, waitingProcessNum);
-		inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.PAUSED);
-		verifyNoMoreInteractions(runner, consumerStatusListener);
+		inOrder.verify(queueStatusListener).queueStatusChanged(QueueStatus.PAUSED);
+		verifyNoMoreInteractions(runner, queueStatusListener);
 
-		doResumeConsumer();
+		doResumeQueue();
 
 		boolean processesCompleted = latch.await(2, TimeUnit.SECONDS); // wait for the processes to finish
 		assertThat(processesCompleted, is(true));
-		inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.RUNNING);
+		inOrder.verify(queueStatusListener).queueStatusChanged(QueueStatus.RUNNING);
 		verifyJobsAfter(inOrder, beans, processes, waitingProcessNum);
 	}
 
@@ -142,8 +142,8 @@ public class ConsumerControlTest extends AbstractNewConsumerTest {
 
 		CountDownLatch latch = new CountDownLatch(beans.size() - 1);
 		WaitingAnswer<Void> waitingAnswer = new WaitingAnswer<>(null);
-		List<IConsumerProcess<StatusBean>> processes = setupMockProcesses(beans, latch, waitingProcessNum, waitingAnswer);
-		startConsumer();
+		List<IBeanProcess<StatusBean>> processes = setupMockProcesses(beans, latch, waitingProcessNum, waitingAnswer);
+		startJobQueue();
 
 		// the waiting answer of the third job will be blocked at this point, waiting to resume
 		// this allows us to pause the consumer without a race condition
@@ -151,17 +151,17 @@ public class ConsumerControlTest extends AbstractNewConsumerTest {
 		doStopConsumer();
 		waitingAnswer.resume(); // allow the process to finish
 
-		assertThat(consumer.isActive(), is(false));
+		assertThat(jobQueue.isActive(), is(false));
 		verify(processes.get(waitingProcessNum)).terminate();
 
 		boolean processCompleted = latch.await(getMockProcessTime() * (processes.size() - waitingProcessNum), TimeUnit.MILLISECONDS);
 		assertThat(processCompleted, is(false)); // we shouldn't have run the last couple of processes
 
-		InOrder inOrder = inOrder(runner, processes, consumerStatusListener);
-		inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.RUNNING);
+		InOrder inOrder = inOrder(runner, processes, queueStatusListener);
+		inOrder.verify(queueStatusListener).queueStatusChanged(QueueStatus.RUNNING);
 		verifyJobsBefore(inOrder, beans, processes, waitingProcessNum);
-		inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.STOPPED);
-		verifyNoMoreInteractions(runner, consumerStatusListener);
+		inOrder.verify(queueStatusListener).queueStatusChanged(QueueStatus.STOPPED);
+		verifyNoMoreInteractions(runner, queueStatusListener);
 	}
 
 	private InOrder inOrder(Object... objs) {

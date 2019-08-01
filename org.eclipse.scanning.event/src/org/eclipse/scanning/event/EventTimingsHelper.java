@@ -13,6 +13,8 @@ package org.eclipse.scanning.event;
 
 import java.time.Duration;
 
+import org.eclipse.scanning.api.event.core.IJobQueue;
+
 /**
  * A helper class for getting interval and timeout preferences for the queueing and events system.
  */
@@ -27,7 +29,7 @@ public final class EventTimingsHelper {
 	}
 
 	/**
-	 * The time the consumer should wait after an error reading from the JMS queue before trying again.
+	 * The time to wait after an error reading from the JMS queue before trying again.
 	 */
 	private static long connectionRetryInterval = Duration.ofSeconds(2).toMillis();
 
@@ -41,7 +43,7 @@ public final class EventTimingsHelper {
 	}
 
 	/**
-	 * The timeout to use for consumer.receive() in ms. A higher rate might be better for some applications.
+	 * The timeout to use for jobQueue.receive() in ms. A higher rate might be better for some applications.
 	 * @return timeout
 	 */
 	public static final int getReceiveTimeout() {
@@ -54,30 +56,30 @@ public final class EventTimingsHelper {
 
 	/**
 	 * Defines the time in ms that a job may be in the running state
-	 * before the consumer might consider it for deletion. If a consumer
+	 * before the {@link IJobQueue} might consider it for deletion. If an {@link IJobQueue}
 	 * is restarted it will normally delete old running jobs older than
 	 * this age.
 	 *
 	 * @return
 	 */
 	public static long getMaximumRunningAgeMs() {
-		if (System.getProperty("org.eclipse.scanning.event.consumer.maximumRunningAge")!=null) {
-			return Long.parseLong(System.getProperty("org.eclipse.scanning.event.consumer.maximumRunningAge"));
+		if (System.getProperty("org.eclipse.scanning.event.queue.maximumRunningAge")!=null) {
+			return Long.parseLong(System.getProperty("org.eclipse.scanning.event.queue.maximumRunningAge"));
 		}
 		return DEFAULT_MAXIMUM_RUNNING_AGE.toMillis();
 	}
 
 	/**
 	 * Defines the time in ms that a job may be in the complete (or other final) state
-	 * before the consumer might consider it for deletion. If a consumer
+	 * before the queue might consider it for deletion. If a queue
 	 * is restarted it will normally delete old complete jobs older than
 	 * this age.
 	 *
 	 * @return
 	 */
 	public static long getMaximumCompleteAgeMs() {
-		if (System.getProperty("org.eclipse.scanning.event.consumer.maximumCompleteAge")!=null) {
-			return Long.parseLong(System.getProperty("org.eclipse.scanning.event.consumer.maximumCompleteAge"));
+		if (System.getProperty("org.eclipse.scanning.event.queue.maximumCompleteAge")!=null) {
+			return Long.parseLong(System.getProperty("org.eclipse.scanning.event.queue.maximumCompleteAge"));
 		}
 		return DEFAULT_MAXIMUM_COMPLETE_AGE.toMillis();
 	}

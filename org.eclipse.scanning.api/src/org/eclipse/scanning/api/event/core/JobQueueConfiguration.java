@@ -20,18 +20,18 @@ import java.net.URI;
  * @author Matthew Gerring
  *
  */
-public class ConsumerConfiguration {
+public class JobQueueConfiguration {
 
 	private URI    uri;
 	private String submissionQueue;
 	private String statusTopic;
 	private String statusSet;
 
-	public ConsumerConfiguration() {
+	public JobQueueConfiguration() {
 
 	}
 
-	public ConsumerConfiguration(URI uri, String submissionQueue, String statusTopic, String statusSet) {
+	public JobQueueConfiguration(URI uri, String submissionQueue, String statusTopic, String statusSet) {
 		super();
 		this.uri = uri;
 		this.submissionQueue = submissionQueue;
@@ -81,7 +81,7 @@ public class ConsumerConfiguration {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ConsumerConfiguration other = (ConsumerConfiguration) obj;
+		JobQueueConfiguration other = (JobQueueConfiguration) obj;
 		if (statusSet == null) {
 			if (other.statusSet != null)
 				return false;

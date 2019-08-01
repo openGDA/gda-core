@@ -13,7 +13,7 @@ package org.eclipse.scanning.event;
 
 import static org.eclipse.scanning.api.event.EventConstants.ACK_TOPIC;
 import static org.eclipse.scanning.api.event.EventConstants.CMD_TOPIC;
-import static org.eclipse.scanning.api.event.EventConstants.CONSUMER_STATUS_TOPIC;
+import static org.eclipse.scanning.api.event.EventConstants.QUEUE_STATUS_TOPIC;
 import static org.eclipse.scanning.api.event.EventConstants.STATUS_TOPIC;
 import static org.eclipse.scanning.api.event.EventConstants.SUBMISSION_QUEUE;
 
@@ -30,8 +30,8 @@ import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.IdBean;
 import org.eclipse.scanning.api.event.core.IConnection;
-import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.IJmsQueueReader;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.core.IResponder;
@@ -48,7 +48,7 @@ public class EventServiceImpl implements IEventService {
 
 	private static IEventConnectorService eventConnectorService;
 
-	private final Map<String, IConsumer<? extends StatusBean>> consumers = new HashMap<>();
+	private final Map<String, IJobQueue<? extends StatusBean>> jobQueues = new HashMap<>();
 
 	public EventServiceImpl() {
 		System.out.println("Started "+IEventService.class.getSimpleName());
@@ -87,36 +87,36 @@ public class EventServiceImpl implements IEventService {
 	}
 
 	@Override
-	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri) throws EventException {
-		return createConsumer(uri, SUBMISSION_QUEUE, STATUS_TOPIC, CONSUMER_STATUS_TOPIC, CMD_TOPIC, ACK_TOPIC);
+	public <U extends StatusBean> IJobQueue<U> createJobQueue(URI uri) throws EventException {
+		return createJobQueue(uri, SUBMISSION_QUEUE, STATUS_TOPIC, QUEUE_STATUS_TOPIC, CMD_TOPIC, ACK_TOPIC);
 	}
 
 	@Override
-	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri, String submissionQueueName,
+	public <U extends StatusBean> IJobQueue<U> createJobQueue(URI uri, String submissionQueueName,
 			String statusTopicName) throws EventException {
-		return createConsumer(uri, submissionQueueName, statusTopicName, CONSUMER_STATUS_TOPIC, CMD_TOPIC, ACK_TOPIC);
+		return createJobQueue(uri, submissionQueueName, statusTopicName, QUEUE_STATUS_TOPIC, CMD_TOPIC, ACK_TOPIC);
 	}
 
 
 	@Override
-	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri, String submissionQName,
-			String statusTopicName, String consumerStatusTopicName, String commandTopicName, String commandAckTopicName) throws EventException {
-		logger.trace("createConsumer({}, {}, {}, {}, {}, {}) using {} and {}", uri, submissionQName, statusTopicName,
-				consumerStatusTopicName, commandTopicName, commandAckTopicName, eventConnectorService, this);
-		if (consumers.containsKey(submissionQName)) {
-			throw new EventException("A consumer for queue '" + submissionQName + "' has already been created!");
+	public <U extends StatusBean> IJobQueue<U> createJobQueue(URI uri, String submissionQName,
+			String statusTopicName, String queueStatusTopicName, String commandTopicName, String commandAckTopicName) throws EventException {
+		logger.trace("createJobQueue({}, {}, {}, {}, {}, {}) using {} and {}", uri, submissionQName, statusTopicName,
+				queueStatusTopicName, commandTopicName, commandAckTopicName, eventConnectorService, this);
+		if (jobQueues.containsKey(submissionQName)) {
+			throw new EventException("A job queue for the queue name '" + submissionQName + "' has already been created!");
 		}
-		final IConsumer<U> consumer = new ConsumerImpl<>(uri, submissionQName, statusTopicName, consumerStatusTopicName, commandTopicName,
+		final IJobQueue<U> jobQueue = new JobQueueImpl<>(uri, submissionQName, statusTopicName, queueStatusTopicName, commandTopicName,
 				commandAckTopicName, eventConnectorService, this);
-		consumers.put(submissionQName, consumer);
-		return consumer;
+		jobQueues.put(submissionQName, jobQueue);
+		return jobQueue;
 	}
 
 	@Override
-	public IConsumer<? extends StatusBean> getConsumer(String queueName) throws EventException {
-		IConsumer<? extends StatusBean> consumer = consumers.get(queueName);
-		if (consumer == null) throw new EventException("No consumer exists for queue '" + queueName + "'");
-		return consumer;
+	public IJobQueue<? extends StatusBean> getJobQueue(String queueName) throws EventException {
+		IJobQueue<? extends StatusBean> jobQueue = jobQueues.get(queueName);
+		if (jobQueue == null) throw new EventException("No job queue exists for queue '" + queueName + "'");
+		return jobQueue;
 	}
 
 	@Override
@@ -125,25 +125,25 @@ public class EventServiceImpl implements IEventService {
 	}
 
 	@Override
-	public <U extends StatusBean> IConsumer<U> createConsumerProxy(URI uri, String submissionQueueName)
+	public <U extends StatusBean> IJobQueue<U> createJobQueueProxy(URI uri, String submissionQueueName)
 			throws EventException {
-		return createConsumerProxy(uri, submissionQueueName, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
+		return createJobQueueProxy(uri, submissionQueueName, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 	}
 
 	@Override
-	public <U extends StatusBean> IConsumer<U> createConsumerProxy(URI uri, String submissionQueueName,
+	public <U extends StatusBean> IJobQueue<U> createJobQueueProxy(URI uri, String submissionQueueName,
 			String commandTopicName, String commandAckTopicName) throws EventException {
-		logger.trace("createConsumerProxy({}, {}, {}, {}) using {} and {}", uri, submissionQueueName,
+		logger.trace("createJobQueueProxy({}, {}, {}, {}) using {} and {}", uri, submissionQueueName,
 				commandTopicName, commandAckTopicName, eventConnectorService, this);
-		return new ConsumerProxy<>(uri, submissionQueueName, commandTopicName, commandAckTopicName, eventConnectorService, this);
+		return new JobQueueProxy<>(uri, submissionQueueName, commandTopicName, commandAckTopicName, eventConnectorService, this);
 	}
 
 	@Override
-	public void disposeConsumers() throws EventException {
-		for (IConsumer<? extends StatusBean> consumer : consumers.values()) {
-			consumer.disconnect();
+	public void disposeJobQueue() throws EventException {
+		for (IJobQueue<? extends StatusBean> jobQueue : jobQueues.values()) {
+			jobQueue.disconnect();
 		}
-		consumers.clear();
+		jobQueues.clear();
 	}
 
 	@Override

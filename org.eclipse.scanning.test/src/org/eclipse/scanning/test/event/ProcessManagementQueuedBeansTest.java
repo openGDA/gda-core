@@ -31,8 +31,8 @@ import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.AbstractLockingPausableProcess;
-import org.eclipse.scanning.api.event.core.IConsumer;
-import org.eclipse.scanning.api.event.core.IConsumerProcess;
+import org.eclipse.scanning.api.event.core.IBeanProcess;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.IProcessCreator;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubmitter;
@@ -82,7 +82,7 @@ public class ProcessManagementQueuedBeansTest extends BrokerTest {
 		private final WaitingRunnable waitingRunnable = new WaitingRunnable();
 
 		@Override
-		public IConsumerProcess<StatusBean> createProcess(StatusBean bean, IPublisher<StatusBean> publisher)
+		public IBeanProcess<StatusBean> createProcess(StatusBean bean, IPublisher<StatusBean> publisher)
 				throws EventException {
 			if (bean.getName().equals("initial")) {
 				// return the initial process that waits to be told to resume
@@ -105,7 +105,7 @@ public class ProcessManagementQueuedBeansTest extends BrokerTest {
 
 	private IEventService eservice;
 	private ISubmitter<StatusBean> submitter;
-	private IConsumer<StatusBean> consumer;
+	private IJobQueue<StatusBean> jobQueue;
 	private IPublisher<StatusBean> publisher;
 
 	private TestProcessCreator processFactory;
@@ -118,23 +118,23 @@ public class ProcessManagementQueuedBeansTest extends BrokerTest {
 		submitter = eservice.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE);
 		publisher = eservice.createPublisher(uri, EventConstants.STATUS_TOPIC);
 
-		consumer = eservice.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_TOPIC, EventConstants.CONSUMER_STATUS_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
-		consumer.setName("Test Consumer");
-		consumer.clearQueue();
-		consumer.clearRunningAndCompleted();
+		jobQueue = eservice.createJobQueue(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_TOPIC, EventConstants.QUEUE_STATUS_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
+		jobQueue.setName("Test Queue");
+		jobQueue.clearQueue();
+		jobQueue.clearRunningAndCompleted();
 
-		startConsumer();
+		startJobQueue();
 	}
 
 	@After
 	public void tearDown() throws Exception {
 		processFactory.releaseInitialProcess();
 
-		consumer.clearQueue();
-		consumer.clearRunningAndCompleted();
+		jobQueue.clearQueue();
+		jobQueue.clearRunningAndCompleted();
 
 		submitter.disconnect();
-		consumer.disconnect();
+		jobQueue.disconnect();
 	}
 
 	/**
@@ -143,15 +143,15 @@ public class ProcessManagementQueuedBeansTest extends BrokerTest {
 	 * @throws EventException
 	 * @throws InterruptedException
 	 */
-	private void startConsumer() throws EventException, InterruptedException {
+	private void startJobQueue() throws EventException, InterruptedException {
 		// starts the consumer and sets it going with an initial task
 
 		processFactory = new TestProcessCreator();
-		consumer.setRunner(processFactory);
+		jobQueue.setRunner(processFactory);
 
 		// start the consumer and wait until its fully started
-		consumer.start();
-		consumer.awaitStart();
+		jobQueue.start();
+		jobQueue.awaitStart();
 
 		// create and submit the initial bean and wait for the process for it to start
 		submitter.submit(createBean("initial"));
@@ -208,7 +208,7 @@ public class ProcessManagementQueuedBeansTest extends BrokerTest {
 		// TODO remove this old test - it uses the status topic to broadcast the event
 		createAndSubmitBeans();
 
-		List<StatusBean> queue = consumer.getSubmissionQueue();
+		List<StatusBean> queue = jobQueue.getSubmissionQueue();
 		assertThat(queue, hasSize(3));
 
 		StatusBean beanTwo = queue.get(1);
@@ -216,14 +216,14 @@ public class ProcessManagementQueuedBeansTest extends BrokerTest {
 		publisher.broadcast(beanTwo);
 
 		Thread.sleep(200); // allow some time for the update to be processed
-		queue = consumer.getSubmissionQueue();
+		queue = jobQueue.getSubmissionQueue();
 		assertThat(queue.get(1), is(equalTo(beanTwo)));
 	}
 
 	private void testUpdateQueuedBeanStatus(Status newStatus) throws Exception {
 		createAndSubmitBeans();
 
-		List<StatusBean> queue = consumer.getSubmissionQueue();
+		List<StatusBean> queue = jobQueue.getSubmissionQueue();
 		assertThat(queue, hasSize(3));
 
 		StatusBean beanTwo = queue.get(1);
@@ -231,7 +231,7 @@ public class ProcessManagementQueuedBeansTest extends BrokerTest {
 		publisher.broadcast(beanTwo);
 
 		Thread.sleep(200); // allow some time for the update to be processed
-		queue = consumer.getSubmissionQueue();
+		queue = jobQueue.getSubmissionQueue();
 		assertThat(queue.get(1), is(equalTo(beanTwo)));
 	}
 

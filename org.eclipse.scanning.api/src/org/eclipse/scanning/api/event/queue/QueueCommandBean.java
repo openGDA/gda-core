@@ -9,43 +9,61 @@
  * Contributors:
  *    Matthew Gerring - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.scanning.api.event.consumer;
+package org.eclipse.scanning.api.event.queue;
 
 import java.util.UUID;
 
+import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.IdBean;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.status.StatusBean;
 
 /**
- * This bean is designed to send commands to consumers such as terminate and
- * pause. The command may either be directed at a specific consumer, in which
- * case the user sets the consumerId, an example of this is terminating a consumer
- * from the 'Active Consumers' UI, or the user may set the queue name. If the
- * queue name is set all consumers looking a a given queue will respond to the
- * command.
- *  *
+ * A {@link QueueCommandBean} can be used to control an {@link IJobQueue}. It can be sent
+ * to the {@link IJobQueue}s command topic (as returned by {@link IJobQueue#getCommandTopicName()}).
+ * A proxy to the {@link IJobQueue} created by calling {@link IEventService#createJobQueueProxy(java.net.URI, String)}
+ * controls the real job queue on the server by sending {@link QueueCommandBean}s.
+ * <p>
+ * The action to be taken by the job queue is determined by the command, as set by calling
+ * {@link QueueCommandBean#setCommand(Command)}. The command available can by split into three
+ * categories:<ul>
+ * <li>Some command, such as {@link Command#PAUSE_QUEUE} and {@link Command#RESUME_QUEUE}, affect the
+ * job queue's consumer thread;</li>
+ * <li>others, such as {@link Command#MOVE_FORWARD}, {@link Command#MOVE_BACKWARD},
+ * {@link Command#REMOVE_FROM_QUEUE} and {@link Command#CLEAR_QUEUE}, affect the submission queue,
+ * most of these methods require the bean to be set;</li>
+ * <li>the remaining commands such as {@link Command#REMOVE_COMPLETED} and {@value Command#CLEAR_COMPLETED}
+ * affect the set of running and completed jobs (the status set)</li>
+ *</ul>
+ * <p>
+ * The {@link IJobQueue} can be identified either by calling {@link #setJobQueueId(UUID)} with the
+ * UUID of the job queue, or by calling {@link #setQueueName(String)} with the name of the job
+ * queue's submission queue.
+ * <p>
+ *
  * @author Matthew Gerring
+ * @author Matthew Dickie
  *
  */
 public class QueueCommandBean  extends IdBean {
 
 	/**
-	 * An enumeration of the commands that a queue consumer can perform.
+	 * An enumeration of the commands that an {@link IJobQueue} can perform.
 	 */
 	public enum Command {
 
 		/**
-		 * A command to pause the consumer if it is running.
+		 * A command to pause the {@link IJobQueue}'s consumer thread if it is running.
 		 */
 		PAUSE_QUEUE,
 
 		/**
-		 * A command to resume the consumer if it paused.
+		 * A command to resume the {@link IJobQueue}'s consumer thread if it paused.
 		 */
 		RESUME_QUEUE,
 
 		/**
-		 * A command to stop the consumer. It is not possible to restart a consumer
+		 * A command to stop {@link IJobQueue}'s consumer thread. It is not possible to restart a consumer thread
 		 * that has been stopped.
 		 */
 		STOP_QUEUE,
@@ -113,21 +131,21 @@ public class QueueCommandBean  extends IdBean {
 		GET_RUNNING_AND_COMPLETED,
 
 		/**
-		 * A command to get the current state of the consumer.
+		 * A command to get the current state of the {@link IJobQueue}.
 		 */
 		GET_INFO;
 
 	}
 
 	/**
-	 * The unique id of the consumer the message is intended for.
+	 * The unique id of the {@link IJobQueue} the message is intended for.
 	 * May be <code>null</code> if {@link #queueName} is set.
 	 */
-	private UUID consumerId;
+	private UUID jobQueueId;
 
 	/**
-	 * The name of the submission queue of the consumer the message is intended for.
-	 * May be set instead of {@link #consumerId}
+	 * The name of the submission queue of the {@link IJobQueue} the message is intended for.
+	 * May be set instead of {@link #jobQueueId}
 	 */
 	private String queueName;
 
@@ -162,7 +180,7 @@ public class QueueCommandBean  extends IdBean {
 
 	public QueueCommandBean(UUID consumerId, Command command) {
 		super(); // make sure a unique id is set
-		this.consumerId = consumerId;
+		this.jobQueueId = consumerId;
 		this.command = command;
 	}
 
@@ -177,12 +195,12 @@ public class QueueCommandBean  extends IdBean {
 		this.jobBean = jobBean;
 	}
 
-	public UUID getConsumerId() {
-		return consumerId;
+	public UUID getJobQueueId() {
+		return jobQueueId;
 	}
 
-	public void setConsumerId(UUID consumerId) {
-		this.consumerId = consumerId;
+	public void setJobQueueId(UUID consumerId) {
+		this.jobQueueId = consumerId;
 	}
 
 	public String getMessage() {
@@ -238,7 +256,7 @@ public class QueueCommandBean  extends IdBean {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((command == null) ? 0 : command.hashCode());
-		result = prime * result + ((consumerId == null) ? 0 : consumerId.hashCode());
+		result = prime * result + ((jobQueueId == null) ? 0 : jobQueueId.hashCode());
 		result = prime * result + ((errorMessage == null) ? 0 : errorMessage.hashCode());
 		result = prime * result + ((jobBean == null) ? 0 : jobBean.hashCode());
 		result = prime * result + ((message == null) ? 0 : message.hashCode());
@@ -258,10 +276,10 @@ public class QueueCommandBean  extends IdBean {
 		QueueCommandBean other = (QueueCommandBean) obj;
 		if (command != other.command)
 			return false;
-		if (consumerId == null) {
-			if (other.consumerId != null)
+		if (jobQueueId == null) {
+			if (other.jobQueueId != null)
 				return false;
-		} else if (!consumerId.equals(other.consumerId))
+		} else if (!jobQueueId.equals(other.jobQueueId))
 			return false;
 		if (errorMessage == null) {
 			if (other.errorMessage != null)
@@ -293,7 +311,7 @@ public class QueueCommandBean  extends IdBean {
 
 	@Override
 	public String toString() {
-		return "QueueCommandBean [consumerId=" + consumerId + ", queueName=" + queueName + ", message=" + message
+		return "QueueCommandBean [jobQueueId=" + jobQueueId + ", queueName=" + queueName + ", message=" + message
 				+ ", command=" + command + ", jobBean=" + jobBean + ", errorMessage=" + errorMessage + ", result="
 				+ result + "]";
 	}

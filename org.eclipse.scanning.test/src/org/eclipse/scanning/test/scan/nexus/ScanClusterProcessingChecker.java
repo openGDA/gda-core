@@ -46,7 +46,7 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.PositionIterator;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
-import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.points.IPosition;
@@ -56,15 +56,15 @@ import org.eclipse.scanning.test.scan.mock.DummyOperationBean;
 public class ScanClusterProcessingChecker {
 
 	private INexusFileFactory factory;
-	private IConsumer<StatusBean> consumer;
+	private IJobQueue<StatusBean> jobQueue;
 	private List<String> scannableNames;
 	private String filePath;
 	private String detectorName;
 	private String processingName = "sum";
 
-	public ScanClusterProcessingChecker(INexusFileFactory factory, IConsumer<StatusBean> consumer) {
+	public ScanClusterProcessingChecker(INexusFileFactory factory, IJobQueue<StatusBean> jobQueue) {
 		this.factory = factory;
-		this.consumer= consumer;
+		this.jobQueue = jobQueue;
 	}
 
 	public void setDevice(IRunnableDevice<ScanModel> scanner) throws Exception {
@@ -182,7 +182,7 @@ public class ScanClusterProcessingChecker {
 
 	public void checkSubmittedBean(boolean allowEmpty) throws Exception {
 
-		List<StatusBean> statusSet = consumer.getRunningAndCompleted();
+		List<StatusBean> statusSet = jobQueue.getRunningAndCompleted();
 		if (allowEmpty && statusSet.isEmpty()) return;
 
 		assertThat(statusSet.get(0), is(instanceOf(DummyOperationBean.class)));

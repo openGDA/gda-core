@@ -53,9 +53,9 @@ import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
-import org.eclipse.scanning.api.event.consumer.ConsumerStatus;
-import org.eclipse.scanning.api.event.core.ConsumerConfiguration;
-import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.JobQueueConfiguration;
+import org.eclipse.scanning.api.event.queue.QueueStatus;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.queues.QueueViews;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -134,7 +134,7 @@ public class StatusQueueView extends EventConnectionView {
 
 	private ISubscriber<IBeanListener<StatusBean>> statusTopicSubscriber;
 	private ISubscriber<IBeanListener<AdministratorMessage>> adminTopicSubscriber;
-	private IConsumer<StatusBean> consumerProxy;
+	private IJobQueue<StatusBean> jobQueueProxy;
 
 	private Action openResultsAction;
 	private Action rerunAction;
@@ -172,7 +172,7 @@ public class StatusQueueView extends EventConnectionView {
 		viewer.setContentProvider(createContentProvider());
 
 		try {
-			consumerProxy = service.createConsumerProxy(getUri(), getSubmissionQueueName(), EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
+			jobQueueProxy = service.createJobQueueProxy(getUri(), getSubmissionQueueName(), EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		} catch (Exception e) {
 			logger.error("Cannot create proxy to queue {}", getSubmissionQueueName(), e);
 		}
@@ -302,7 +302,7 @@ public class StatusQueueView extends EventConnectionView {
 			logger.warn("Problem stopping topic listening for "+getTopicName(), ne);
 		}
 		try {
-			if (consumerProxy != null) consumerProxy.disconnect();
+			if (jobQueueProxy != null) jobQueueProxy.disconnect();
 		} catch (Exception e) {
 			logger.warn("Problem disconnecting publisher from command topic", e);
 		}
@@ -361,9 +361,9 @@ public class StatusQueueView extends EventConnectionView {
 		stopAction = stopActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, stopAction);
 
-		final Action pauseConsumerAction = pauseConsumerActionCreate();
-		addActionTo(toolMan, menuMan, dropDown, pauseConsumerAction);
-		consumerProxy.addConsumerStatusListener(status -> pauseConsumerAction.setChecked(status == ConsumerStatus.PAUSED));
+		final Action pauseQueueAction = pauseQueueActionCreate();
+		addActionTo(toolMan, menuMan, dropDown, pauseQueueAction);
+		jobQueueProxy.addQueueStatusListener(status -> pauseQueueAction.setChecked(status == QueueStatus.PAUSED));
 
 		removeAction = removeActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, removeAction);
@@ -424,7 +424,7 @@ public class StatusQueueView extends EventConnectionView {
 				for(StatusBean bean : getSelection()) {
 					try {
 						if (bean.getStatus() == org.eclipse.scanning.api.event.status.Status.SUBMITTED) {
-							consumerProxy.moveBackward(bean);
+							jobQueueProxy.moveBackward(bean);
 						} else {
 							logger.info("Cannot move {} up as it's status ({}) is not SUBMITTED", bean.getName(), bean.getStatus());
 						}
@@ -457,7 +457,7 @@ public class StatusQueueView extends EventConnectionView {
 				for (StatusBean bean : selection) {
 					try {
 						if (bean.getStatus() == org.eclipse.scanning.api.event.status.Status.SUBMITTED) {
-							consumerProxy.moveForward(bean);
+							jobQueueProxy.moveForward(bean);
 						} else {
 							logger.info("Cannot move {} down as it's status ({}) is not SUBMITTED", bean.getName(), bean.getStatus());
 						}
@@ -474,35 +474,35 @@ public class StatusQueueView extends EventConnectionView {
 		return action;
 	}
 
-	private Action pauseConsumerActionCreate() {
+	private Action pauseQueueActionCreate() {
 		Action action = new Action("Pause "+getPartName()+". Does not pause running job.", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
-				pauseConsumerActionRun(this);
+				pauseQueueActionRun(this);
 			}
 		};
 		action.setImageDescriptor(Activator.getImageDescriptor("icons/control-pause-red.png"));
-		action.setChecked(consumerProxy.isPaused());
+		action.setChecked(jobQueueProxy.isPaused());
 		return action;
 	}
 
-	private void pauseConsumerActionRun(IAction pauseConsumer) {
+	private void pauseQueueActionRun(IAction pauseQueue) {
 
 		// The button can get out of sync if two clients are used.
-		final boolean queuePaused = consumerProxy.isPaused();
+		final boolean queuePaused = jobQueueProxy.isPaused();
 		try {
-			pauseConsumer.setChecked(!queuePaused); // We are toggling it.
+			pauseQueue.setChecked(!queuePaused); // We are toggling it.
 			if (queuePaused) {
-				consumerProxy.resume();
+				jobQueueProxy.resume();
 			} else {
-				consumerProxy.pause();
+				jobQueueProxy.pause();
 			}
 		} catch (Exception e) {
 			ErrorDialog.openError(getViewSite().getShell(), "Cannot pause queue "+getSubmissionQueueName(),
 				"Cannot pause queue "+getSubmissionQueueName()+"\n\nPlease contact your support representative.",
 				new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()));
 		}
-		pauseConsumer.setChecked(consumerProxy.isPaused());
+		pauseQueue.setChecked(jobQueueProxy.isPaused());
 	}
 
 	private void pauseActionUpdate(boolean anyRunning, boolean anyPaused, boolean anySelectedSubmitted) {
@@ -537,9 +537,9 @@ public class StatusQueueView extends EventConnectionView {
 			try {
 				pauseAction.setEnabled(false);
 				if (bean.getStatus().isPaused()) {
-					consumerProxy.resumeJob(bean);
+					jobQueueProxy.resumeJob(bean);
 				} else {
-					consumerProxy.pauseJob(bean);
+					jobQueueProxy.pauseJob(bean);
 				}
 			} catch (Exception e) {
 				ErrorDialog.openError(getViewSite().getShell(), "Cannot pause "+bean.getName(),
@@ -576,13 +576,13 @@ public class StatusQueueView extends EventConnectionView {
 				try {
 					if (bean.getStatus() == org.eclipse.scanning.api.event.status.Status.SUBMITTED) {
 						// It is submitted and not running. We can probably delete it.
-						consumerProxy.remove(bean);
+						jobQueueProxy.remove(bean);
 					} else {
 						// only ask the user to confirm is the queue is in the status set not the submit queue
 						boolean ok = MessageDialog.openQuestion(getSite().getShell(), "Confirm Remove '"+bean.getName()+"'",
 							"Are you sure you would like to remove '"+bean.getName()+"'?");
 						if (ok) {
-							consumerProxy.removeCompleted(bean);
+							jobQueueProxy.removeCompleted(bean);
 						}
 					}
 					refresh();
@@ -623,7 +623,7 @@ public class StatusQueueView extends EventConnectionView {
 
 				if (!ok) continue;
 
-				consumerProxy.terminateJob(bean);
+				jobQueueProxy.terminateJob(bean);
 				refresh();
 				logger.info("Requesting termination of {} submitted on {}", bean.getName(), submissionTime);
 			} catch (Exception e) {
@@ -662,8 +662,8 @@ public class StatusQueueView extends EventConnectionView {
 			getSubmissionQueueName()+"?\n\nThis could abort or disconnect runs of other users.");
 		if (!ok) return;
 
-		consumerProxy.clearQueue();
-		consumerProxy.clearRunningAndCompleted();
+		jobQueueProxy.clearQueue();
+		jobQueueProxy.clearRunningAndCompleted();
 
 		reconnect();
 	}
@@ -677,7 +677,7 @@ public class StatusQueueView extends EventConnectionView {
 				try {
 					@SuppressWarnings("unchecked")
 					final IResultHandler<StatusBean> handler = (IResultHandler<StatusBean>) configElement.createExecutableExtension("class");
-					handler.init(service, createConsumerConfiguration());
+					handler.init(service, createJobQueueConfiguration());
 					handlers.add(handler);
 				} catch (Exception e) {
 					ErrorDialog.openError(getSite().getShell(), "Internal Error",
@@ -810,7 +810,7 @@ public class StatusQueueView extends EventConnectionView {
 					for (IConfigurationElement i : c) {
 						@SuppressWarnings("unchecked")
 						final IModifyHandler<StatusBean> handler = (IModifyHandler<StatusBean>) i.createExecutableExtension("class");
-						handler.init(service, createConsumerConfiguration());
+						handler.init(service, createJobQueueConfiguration());
 						if (handler.isHandled(bean)) {
 							edited = handler.modify(bean);
 							break;
@@ -852,7 +852,7 @@ public class StatusQueueView extends EventConnectionView {
 				for (IConfigurationElement i : c) {
 					@SuppressWarnings("unchecked")
 					final IRerunHandler<StatusBean> handler = (IRerunHandler<StatusBean>) i.createExecutableExtension("class");
-					handler.init(service, createConsumerConfiguration());
+					handler.init(service, createJobQueueConfiguration());
 					if (handler.isHandled(bean)) {
 						final StatusBean copy = bean.getClass().newInstance();
 						copy.merge(bean);
@@ -876,8 +876,8 @@ public class StatusQueueView extends EventConnectionView {
 		}
 	}
 
-	private ConsumerConfiguration createConsumerConfiguration() throws Exception {
-		return new ConsumerConfiguration(getUri(), getSubmissionQueueName(), getTopicName(), getQueueName());
+	private JobQueueConfiguration createJobQueueConfiguration() throws Exception {
+		return new JobQueueConfiguration(getUri(), getSubmissionQueueName(), getTopicName(), getQueueName());
 	}
 
 	private void rerun(StatusBean bean) {
@@ -897,7 +897,7 @@ public class StatusQueueView extends EventConnectionView {
 			copy.setPercentComplete(0.0);
 			copy.setSubmissionTime(System.currentTimeMillis());
 
-			consumerProxy.submit(copy);
+			jobQueueProxy.submit(copy);
 
 			reconnect();
 
@@ -1029,10 +1029,10 @@ public class StatusQueueView extends EventConnectionView {
 					monitor.beginTask("Connect to command server", 10);
 					updateProgress(jobStartTime, monitor, "Queue connection set");
 
-					runList = consumerProxy.getRunningAndCompleted();
+					runList = jobQueueProxy.getRunningAndCompleted();
 					updateProgress(jobStartTime, monitor, "List of running and completed jobs retrieved");
 
-					submittedList = consumerProxy.getSubmissionQueue();
+					submittedList = jobQueueProxy.getSubmissionQueue();
 					updateProgress(jobStartTime, monitor, "List of submitted jobs retrieved");
 
 					// We leave the list in reverse order so we can insert entries at the start by adding to the end

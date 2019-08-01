@@ -21,7 +21,7 @@ import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
-import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.dry.DryRunProcessCreator;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.points.GeneratorException;
@@ -45,7 +45,7 @@ import org.junit.Test;
 @Ignore("This test occasionally hangs on travis.")
 public class ScanClusterProcessingTest extends NexusTest {
 
-	private static IConsumer<StatusBean> consumer;
+	private static IJobQueue<StatusBean> jobQueue;
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
@@ -54,18 +54,18 @@ public class ScanClusterProcessingTest extends NexusTest {
 		BrokerTest.startBroker();
 
 		URI uri = URI.create(CommandConstants.getScanningBrokerUri());
-		consumer = ServiceTestHelper.getEventService().createConsumer(uri, PROCESSING_QUEUE_NAME,
+		jobQueue = ServiceTestHelper.getEventService().createJobQueue(uri, PROCESSING_QUEUE_NAME,
 				"scisoft.operation.STATUS_TOPIC");
 		// we need a runner, but it doesn't have to do anything
-		consumer.setRunner(new DryRunProcessCreator(0, 1, 1, 10, false));
-		consumer.start();
+		jobQueue.setRunner(new DryRunProcessCreator(0, 1, 1, 10, false));
+		jobQueue.start();
 	}
 
 	@AfterClass
 	public static void afterClass() throws Exception {
-		consumer.clearQueue();
-		consumer.clearQueue();
-		consumer.disconnect();
+		jobQueue.clearQueue();
+		jobQueue.clearQueue();
+		jobQueue.disconnect();
 		BrokerTest.stopBroker();
 	}
 
@@ -76,7 +76,7 @@ public class ScanClusterProcessingTest extends NexusTest {
 
 	private void testScan(int... shape) throws Exception {
 
-		ScanClusterProcessingChecker checker = new ScanClusterProcessingChecker(fileFactory, consumer);
+		ScanClusterProcessingChecker checker = new ScanClusterProcessingChecker(fileFactory, jobQueue);
 
 		IRunnableDevice<ScanModel> scanner = createGridScan(shape);
 		checker.setDevice(scanner);

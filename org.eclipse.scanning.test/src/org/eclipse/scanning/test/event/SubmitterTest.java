@@ -29,7 +29,7 @@ import java.util.List;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
-import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.IJmsQueueReader;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
@@ -46,7 +46,7 @@ public class SubmitterTest extends BrokerTest {
 	private IEventService eventService;
 	private ISubmitter<StatusBean> submitter;
 	private ISubscriber<IBeanListener<StatusBean>> subscriber;
-	private IConsumer<StatusBean> consumer;
+	private IJobQueue<StatusBean> jobQueue;
 	private IJmsQueueReader<StatusBean> jmsQueueReader;
 
 	@Before
@@ -58,8 +58,8 @@ public class SubmitterTest extends BrokerTest {
 		// In production we would normally
 		submitter = eventService.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE);
 		submitter.setStatusTopicName(null);
-		consumer = eventService.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_TOPIC);
-		consumer.clearQueue();
+		jobQueue = eventService.createJobQueue(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_TOPIC);
+		jobQueue.clearQueue();
 
 		jmsQueueReader = eventService.createJmsQueueReader(uri, EventConstants.SUBMISSION_QUEUE);
 		jmsQueueReader.start();
@@ -79,8 +79,8 @@ public class SubmitterTest extends BrokerTest {
 		subscriber.disconnect();
 		jmsQueueReader.disconnect();
 
-		consumer.clearQueue();
-		consumer.close();
+		jobQueue.clearQueue();
+		jobQueue.close();
 	}
 
 	private StatusBean createStatusBean() {
@@ -96,7 +96,7 @@ public class SubmitterTest extends BrokerTest {
 		submitter.submit(bean);
 		Thread.sleep(100);
 
-		List<StatusBean> beans = consumer.getSubmissionQueue();
+		List<StatusBean> beans = jobQueue.getSubmissionQueue();
 		assertThat(beans, hasSize(1));
 		assertThat(beans.get(0), is(equalTo(bean)));
 	}
@@ -120,7 +120,7 @@ public class SubmitterTest extends BrokerTest {
 		submitter.submit(bean);
 		Thread.sleep(100);
 
-		List<StatusBean> beans = consumer.getSubmissionQueue();
+		List<StatusBean> beans = jobQueue.getSubmissionQueue();
 		assertThat(beans, hasSize(1));
 		assertThat(beans.get(0), is(equalTo(bean)));
 

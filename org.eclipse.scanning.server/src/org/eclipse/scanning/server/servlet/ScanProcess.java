@@ -34,7 +34,7 @@ import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.core.IConsumerProcess;
+import org.eclipse.scanning.api.event.core.IBeanProcess;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -70,7 +70,7 @@ import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
  * @author Matthew Gerring
  *
  */
-public class ScanProcess implements IConsumerProcess<ScanBean> {
+public class ScanProcess implements IBeanProcess<ScanBean> {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanProcess.class);
 	private final ScanBean bean;

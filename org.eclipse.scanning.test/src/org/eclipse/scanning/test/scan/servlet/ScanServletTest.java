@@ -24,7 +24,7 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.StepModel;
 import org.eclipse.scanning.api.scan.process.IPreprocessor;
 import org.eclipse.scanning.api.scan.process.ProcessingException;
-import org.eclipse.scanning.server.servlet.AbstractConsumerServlet;
+import org.eclipse.scanning.server.servlet.AbstractJobQueueServlet;
 import org.eclipse.scanning.server.servlet.ScanServlet;
 import org.eclipse.scanning.server.servlet.Services;
 import org.junit.Test;
@@ -36,7 +36,7 @@ import org.junit.Test;
 public class ScanServletTest extends AbstractServletTest {
 
 	@Override
-	protected AbstractConsumerServlet<ScanBean> createServlet() throws EventException, URISyntaxException {
+	protected AbstractJobQueueServlet<ScanBean> createServlet() throws EventException, URISyntaxException {
 
 		ScanServlet servlet = new ScanServlet();
 		servlet.setBroker(uri.toString());

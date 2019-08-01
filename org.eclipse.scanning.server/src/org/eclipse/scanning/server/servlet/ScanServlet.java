@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * @author Matthew Gerring
  *
  */
-public class ScanServlet extends AbstractConsumerServlet<ScanBean> {
+public class ScanServlet extends AbstractJobQueueServlet<ScanBean> {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanServlet.class);
 

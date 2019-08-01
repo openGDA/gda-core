@@ -9,21 +9,21 @@
  * Contributors:
  *    Matthew Gerring - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.scanning.api.event.consumer;
+package org.eclipse.scanning.api.event.queue;
 
 import java.util.UUID;
 
-public class ConsumerStatusBean {
+public class QueueStatusBean {
 
 	/**
-	 * The id of the consumer.
+	 * The unique id of the job queue.
 	 */
-	private UUID consumerId;
+	private UUID queueId;
 
 	/**
-	 * The name of the queue read by the consumer.
+	 * The name of the queue.
 	 */
-	private String queueName;
+	private String submissionQueueName;
 
 	/**
 	 * Beamline that the acquisition server is controlling
@@ -31,44 +31,44 @@ public class ConsumerStatusBean {
 	private String beamline;
 
 	/**
-	 * Time that the bean was published by the consumer.
+	 * Time that the bean was published.
 	 */
 	private long publishTime;
 
 	/**
-	 * Time that the consumer started.
+	 * Time that the job queue's consumer thread started.
 	 */
 	private long startTime;
 
 	/**
-	 * Provides the consumer name, may be null.
+	 * Provides the job queue name, may be null.
 	 */
-	private String consumerName;
+	private String jobQueueName;
 
 	/**
-	 * The status of the consumer, a {@link ConsumerStatus} enum value.
+	 * The status of the queue, a {@link QueueStatus} enum value.
 	 */
-	private ConsumerStatus consumerStatus;
+	private QueueStatus queueStatus;
 
 	/**
 	 * The name of the machine that the consumer is running on.
 	 */
 	private String hostName;
 
-	public UUID getConsumerId() {
-		return consumerId;
+	public UUID getQueueId() {
+		return queueId;
 	}
 
-	public void setConsumerId(UUID consumerId) {
-		this.consumerId = consumerId;
+	public void setQueueId(UUID queueId) {
+		this.queueId = queueId;
 	}
 
 	public String getQueueName() {
-		return queueName;
+		return submissionQueueName;
 	}
 
 	public void setQueueName(String queueName) {
-		this.queueName = queueName;
+		this.submissionQueueName = queueName;
 	}
 
 	public long getStartTime() {
@@ -95,20 +95,20 @@ public class ConsumerStatusBean {
 		this.beamline = beamline;
 	}
 
-	public String getConsumerName() {
-		return consumerName;
+	public String getJobQueueName() {
+		return jobQueueName;
 	}
 
-	public void setConsumerName(String consumerName) {
-		this.consumerName = consumerName;
+	public void setJobQueueName(String jobQueueName) {
+		this.jobQueueName = jobQueueName;
 	}
 
-	public ConsumerStatus getConsumerStatus() {
-		return consumerStatus;
+	public QueueStatus getJobQueueStatus() {
+		return queueStatus;
 	}
 
-	public void setConsumerStatus(ConsumerStatus consumerStatus) {
-		this.consumerStatus = consumerStatus;
+	public void setQueueStatus(QueueStatus queueStatus) {
+		this.queueStatus = queueStatus;
 	}
 
 	public String getHostName() {
@@ -121,10 +121,10 @@ public class ConsumerStatusBean {
 
 	@Override
 	public String toString() {
-		return "ConsumerStatusBean [" + "queueName=" + queueName +
+		return "QueueStatusBean [" + "queueName=" + submissionQueueName +
 				"beamline=" + beamline + ", publishTime=" + publishTime +
-				", conceptionTime=" + startTime + ", consumerId=" + consumerId +
-				", consumerStatus=" + consumerStatus + "]";
+				", conceptionTime=" + startTime + ", consumerId=" + queueId +
+				", queueStatus=" + queueStatus + "]";
 	}
 
 	@Override
@@ -133,12 +133,12 @@ public class ConsumerStatusBean {
 		int result = 1;
 		result = prime * result + ((beamline == null) ? 0 : beamline.hashCode());
 		result = prime * result + (int) (startTime ^ (startTime >>> 32));
-		result = prime * result + ((consumerId == null) ? 0 : consumerId.hashCode());
-		result = prime * result + ((consumerName == null) ? 0 : consumerName.hashCode());
-		result = prime * result + ((consumerStatus == null) ? 0 : consumerStatus.hashCode());
+		result = prime * result + ((queueId == null) ? 0 : queueId.hashCode());
+		result = prime * result + ((jobQueueName == null) ? 0 : jobQueueName.hashCode());
+		result = prime * result + ((queueStatus == null) ? 0 : queueStatus.hashCode());
 		result = prime * result + ((hostName == null) ? 0 : hostName.hashCode());
 		result = prime * result + (int) (publishTime ^ (publishTime >>> 32));
-		result = prime * result + ((queueName == null) ? 0 : queueName.hashCode());
+		result = prime * result + ((submissionQueueName == null) ? 0 : submissionQueueName.hashCode());
 		return result;
 	}
 
@@ -150,7 +150,7 @@ public class ConsumerStatusBean {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ConsumerStatusBean other = (ConsumerStatusBean) obj;
+		QueueStatusBean other = (QueueStatusBean) obj;
 		if (beamline == null) {
 			if (other.beamline != null)
 				return false;
@@ -158,17 +158,17 @@ public class ConsumerStatusBean {
 			return false;
 		if (startTime != other.startTime)
 			return false;
-		if (consumerId == null) {
-			if (other.consumerId != null)
+		if (queueId == null) {
+			if (other.queueId != null)
 				return false;
-		} else if (!consumerId.equals(other.consumerId))
+		} else if (!queueId.equals(other.queueId))
 			return false;
-		if (consumerName == null) {
-			if (other.consumerName != null)
+		if (jobQueueName == null) {
+			if (other.jobQueueName != null)
 				return false;
-		} else if (!consumerName.equals(other.consumerName))
+		} else if (!jobQueueName.equals(other.jobQueueName))
 			return false;
-		if (consumerStatus != other.consumerStatus)
+		if (queueStatus != other.queueStatus)
 			return false;
 		if (hostName == null) {
 			if (other.hostName != null)
@@ -177,10 +177,10 @@ public class ConsumerStatusBean {
 			return false;
 		if (publishTime != other.publishTime)
 			return false;
-		if (queueName == null) {
-			if (other.queueName != null)
+		if (submissionQueueName == null) {
+			if (other.submissionQueueName != null)
 				return false;
-		} else if (!queueName.equals(other.queueName))
+		} else if (!submissionQueueName.equals(other.submissionQueueName))
 			return false;
 		return true;
 	}

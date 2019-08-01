@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.ui.CommandConstants;
@@ -65,15 +65,15 @@ public final class MscanUtils {
 	private static final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 	private static final IEventService service = ServiceHolder.getEventService();
 
-	private static IConsumer<StatusBean> consumerProxy;
+	private static IJobQueue<StatusBean> jobQueueProxy;
 
-	private static IConsumer<StatusBean> getConsumerProxy() throws EventException, URISyntaxException {
-		if (MscanUtils.consumerProxy == null) {
-			MscanUtils.consumerProxy = service.createConsumerProxy(
+	private static IJobQueue<StatusBean> getJobQueueProxy() throws EventException, URISyntaxException {
+		if (MscanUtils.jobQueueProxy == null) {
+			MscanUtils.jobQueueProxy = service.createJobQueueProxy(
 				new URI(CommandConstants.getScanningBrokerUri()),
 				EventConstants.SUBMISSION_QUEUE);
 		}
-		return MscanUtils.consumerProxy;
+		return MscanUtils.jobQueueProxy;
 	}
 
 	// Public methods
@@ -93,7 +93,7 @@ public final class MscanUtils {
 	 */
 	public static void cleanUpCompleted() {
 		try {
-			getConsumerProxy().cleanUpCompleted();
+			getJobQueueProxy().cleanUpCompleted();
 		} catch (EventException | URISyntaxException e) {
 			logger.error("Error cleaning up completed jobs", e);
 		}
@@ -105,19 +105,19 @@ public final class MscanUtils {
 	 */
 	public static void clearQueue() {
 		try {
-			getConsumerProxy().clearQueue();
+			getJobQueueProxy().clearQueue();
 		} catch (EventException | URISyntaxException e) {
 			logger.error("Error clearing submission queue", e);
 		}
 	}
 
-	/** Removes all completed jobs from the consumer's status set.
+	/** Removes all completed jobs from the {@link IJobQueue}'s status set.
 	 *
 	 * @see org.eclipse.scanning.api.event.core.IQueueConnection#clearRunningAndCompleted
 	 */
 	public static void clearRunningAndCompleted() {
 		try {
-			getConsumerProxy().clearRunningAndCompleted();
+			getJobQueueProxy().clearRunningAndCompleted();
 		} catch (EventException | URISyntaxException e) {
 			logger.error("Error clearing running and completed jobs", e);
 		}
@@ -137,7 +137,7 @@ public final class MscanUtils {
 	 * @throws URISyntaxException
 	 */
 	public static List<StatusBean> getRunningAndCompleted() throws EventException, URISyntaxException {
-		return getConsumerProxy().getRunningAndCompleted();
+		return getJobQueueProxy().getRunningAndCompleted();
 	}
 
 	/** See {@linkplain org.eclipse.scanning.api.event.status.Status#isActive}
@@ -155,7 +155,7 @@ public final class MscanUtils {
 	 * @throws URISyntaxException
 	 */
 	public static List<StatusBean> getSubmitted() throws EventException, URISyntaxException {
-		return getConsumerProxy().getSubmissionQueue();
+		return getJobQueueProxy().getSubmissionQueue();
 	}
 
 	/**
@@ -163,13 +163,13 @@ public final class MscanUtils {
 	 */
 	public static void stopAll() {
 		try {
-			logger.trace("stopAll() called, service={}, consumerProxy={}", service, getConsumerProxy());
+			logger.trace("stopAll() called, service={}, jobQueueProxy={}", service, getJobQueueProxy());
 			List<StatusBean> runningAndCompleted = getRunningAndCompleted();
 			List<StatusBean> running = getRunningFrom(runningAndCompleted);
 			logger.trace("Selected {} from {}", running, runningAndCompleted);
 			for(StatusBean bean : running) {
 				try {
-					getConsumerProxy().terminateJob(bean);
+					getJobQueueProxy().terminateJob(bean);
 					logger.info("Requesting termination of {}", bean.getName());
 				} catch (Exception e) {
 					logger.error("Error requesting termination of {}", bean.getName(), e);

@@ -31,8 +31,8 @@ import javax.jms.TextMessage;
 
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.IJmsQueueReader;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public class JmsQueueReader<U extends StatusBean> extends AbstractConnection imp
 
 	private static final Logger logger = LoggerFactory.getLogger(JmsQueueReader.class);
 
-	private final IConsumer<U> consumer;
+	private final IJobQueue<U> jobQueue;
 	private final String queueName;
 	private MessageConsumer messageConsumer;
 
@@ -54,8 +54,8 @@ public class JmsQueueReader<U extends StatusBean> extends AbstractConnection imp
 		this.queueName = queueName;
 
 		@SuppressWarnings("unchecked")
-		IConsumer<U> consumer = (IConsumer<U>) eventService.getConsumer(queueName);
-		this.consumer = consumer;
+		IJobQueue<U> jobQueue = (IJobQueue<U>) eventService.getJobQueue(queueName);
+		this.jobQueue = jobQueue;
 	}
 
 	@Override
@@ -101,7 +101,7 @@ public class JmsQueueReader<U extends StatusBean> extends AbstractConnection imp
 		} catch (JMSException e) {
 			throw new EventException("Could not connect to activemq queue: " + queueName, e);
 		}
-		logger.info("Consumer for jms queue '{}' successfully created", queueName);
+		logger.info("Reader for JMS queue '{}' successfully created", queueName);
 	}
 
 	@Override
@@ -125,7 +125,7 @@ public class JmsQueueReader<U extends StatusBean> extends AbstractConnection imp
 			TextMessage textMessage = (TextMessage) jmsMessage;
 			final String jsonMessage = textMessage.getText();
 			final U bean = getConnectorService().unmarshal(jsonMessage, null);
-			consumer.submit(bean);
+			jobQueue.submit(bean);
 		}
 	}
 

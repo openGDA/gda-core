@@ -12,12 +12,12 @@
 package org.eclipse.scanning.api.ui;
 
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.ConsumerConfiguration;
+import org.eclipse.scanning.api.event.core.JobQueueConfiguration;
 import org.eclipse.scanning.api.event.status.StatusBean;
 
 public interface IHandler<T extends StatusBean> {
 
-	default void init(IEventService eventService, ConsumerConfiguration conf) {
+	default void init(IEventService eventService, JobQueueConfiguration conf) {
 
 	}
 
