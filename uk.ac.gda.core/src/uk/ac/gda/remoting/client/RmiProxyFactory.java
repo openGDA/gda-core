@@ -190,12 +190,6 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory {
 	}
 
 	@Override
-	public boolean containsExportableObjects() {
-		// false because this provides imported objects which should not be re-exported
-		return false;
-	}
-
-	@Override
 	public boolean isLocal() {
 		// false because its function is to provide remote objects
 		return false;
