@@ -270,8 +270,9 @@ public abstract class XasScanBase implements XasScan {
 		XasProgressUpdater loggingbean = new XasProgressUpdater(loggingScriptController, logmsg, timeRepetitionsStarted);
 		scanArgs = ArrayUtils.add(scanArgs, loggingbean);
 		Set<Scannable> scannablesToBeAddedAsColumnInDataFile = outputPreparer.getScannablesToBeAddedAsColumnInDataFile();
-		if (!scannablesToBeAddedAsColumnInDataFile.isEmpty())
+		if (!scannablesToBeAddedAsColumnInDataFile.isEmpty()) {
 			scanArgs = ArrayUtils.addAll(scanArgs, scannablesToBeAddedAsColumnInDataFile.toArray());
+		}
 		ConcurrentScan theScan = ScannableCommands.createConcurrentScan(scanArgs);
 		setUpDataWriter(theScan, sampleName, descriptions);
 
