@@ -42,6 +42,7 @@ public class ScannableValueControl extends FindableBase implements LiveControl {
 	private String scannableName; // Used by the finder to get the scannable
 	private String userUnits; // Use to override the scannable units (if required)
 	private Integer textWidth; // If set, passed down to InputTextComposite
+	private Boolean readOnly=false;
 
 	public String getDisplayName() {
 		return displayName;
@@ -94,6 +95,8 @@ public class ScannableValueControl extends FindableBase implements LiveControl {
 		result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
 		result = prime * result + ((scannableName == null) ? 0 : scannableName.hashCode());
 		result = prime * result + ((userUnits == null) ? 0 : userUnits.hashCode());
+		result = prime * result + ((readOnly == null) ? 0 : readOnly.hashCode());
+
 		return result;
 	}
 
@@ -136,6 +139,11 @@ public class ScannableValueControl extends FindableBase implements LiveControl {
 				return false;
 		} else if (!userUnits.equals(other.userUnits))
 			return false;
+		if (readOnly == null) {
+			if (other.readOnly != null)
+				return false;
+		} else if (!readOnly.equals(other.readOnly))
+			return false;
 		return true;
 	}
 
@@ -150,6 +158,9 @@ public class ScannableValueControl extends FindableBase implements LiveControl {
 
 		// Create the InputTextComposite and set the scannable
 		final InputTextComposite itc = new InputTextComposite(composite, SWT.NONE);
+		if (readOnly != null) { // must be set before setScannable as this is called by it
+			itc.setReadOnly(readOnly.booleanValue());
+		}
 		itc.setScannable(scannable);
 
 		if (getDisplayName() != null) {
@@ -168,6 +179,14 @@ public class ScannableValueControl extends FindableBase implements LiveControl {
 		return "ScannablePositionerControl [name=" + getName() + ", displayName=" + displayName + ", group=" + group
 				+ ", scannableName=" + scannableName + ", userUnits=" + userUnits
 				+ ", textWidth=" + textWidth + "]";
+	}
+
+	public boolean isReadOnly() {
+		return readOnly;
+	}
+
+	public void setReadOnly(boolean readOnly) {
+		this.readOnly = readOnly;
 	}
 
 }
