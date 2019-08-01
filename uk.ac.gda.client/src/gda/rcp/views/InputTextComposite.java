@@ -66,7 +66,7 @@ public class InputTextComposite extends Composite {
 	private Label unitLabel;
 	private boolean textInput;
 	private String currentPosition;
-
+	private boolean readOnly;
 	/**
 	 * Constructor
 	 *
@@ -245,7 +245,11 @@ public class InputTextComposite extends Composite {
 		}
 		// Disable the controls
 		displayNameLabel.setEnabled(enabled);
-		positionText.setEnabled(enabled);
+		if (isReadOnly()) {
+			positionText.setEnabled(false);
+		} else {
+			positionText.setEnabled(enabled);
+		}
 		unitLabel.setEnabled(enabled);
 
 		this.redraw();
@@ -405,5 +409,13 @@ public class InputTextComposite extends Composite {
 	public void setTextWidth(int textWidth) {
 		this.textWidth = textWidth;
 		((GridData) positionText.getLayoutData()).widthHint = textWidth;
+	}
+
+	public boolean isReadOnly() {
+		return readOnly;
+	}
+
+	public void setReadOnly(boolean readOnly) {
+		this.readOnly = readOnly;
 	}
 }
