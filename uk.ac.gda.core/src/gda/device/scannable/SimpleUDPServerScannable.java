@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
-import gda.observable.IObserver;
 
 /**
 Scannable to receive UDP datagrams containing a string of format prefix:message.
@@ -141,17 +140,14 @@ public class SimpleUDPServerScannable extends ScannableBase {
 		simpleUDPServer.setPort(9877);
 		simpleUDPServer.setPrefix("simpleUDPServer");
 		simpleUDPServer.configure();
-		simpleUDPServer.addIObserver(new SimpleUDPReceiver());
+		simpleUDPServer.addIObserver(SimpleUDPServerScannable::onUpdate);
 	}
-}
 
-class SimpleUDPReceiver implements IObserver {
-	@Override
-	public void update(Object theObserved, Object changeCode) {
-		if(changeCode instanceof ScannablePositionChangeEvent){
-			Object pos = ((ScannablePositionChangeEvent)changeCode).newPosition;
-			if( pos instanceof String){
-				System.out.println((String)pos);
+	private static void onUpdate(@SuppressWarnings("unused") Object theObserved, Object changeCode) {
+		if (changeCode instanceof ScannablePositionChangeEvent) {
+			Object pos = ((ScannablePositionChangeEvent) changeCode).newPosition;
+			if (pos instanceof String) {
+				System.out.println((String) pos);
 			}
 		}
 	}
