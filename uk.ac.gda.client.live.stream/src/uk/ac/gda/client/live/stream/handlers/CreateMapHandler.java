@@ -81,7 +81,7 @@ public class CreateMapHandler extends AbstractHandler {
 			// create a persistent file and add the data and axis.
 			final IPersistentFile persistentFile = persistenceService.createPersistentFile(filePath);
 			persistentFile.setData(snapshot.getDataset(), new IDataset[] {snapshot.getyAxis(), snapshot.getxAxis()}); // handles null for axes
-
+            persistentFile.close();
 			// send an event to update the Mapped Data view
 			updateMappedDataView(filePath);
 		} catch (Exception e) {
