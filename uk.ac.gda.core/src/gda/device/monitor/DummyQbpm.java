@@ -18,36 +18,31 @@
 
 package gda.device.monitor;
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
 
-import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.Qbpm;
+import gda.device.enumpositioner.DummyEnumPositioner;
 
-public class DummyQbpm extends DeviceBase implements Qbpm {
+public class DummyQbpm extends DummyEnumPositioner implements Qbpm {
 
 	private String bpmName;
 	private String currAmpQuadName;
-	private Random rng = new Random();
+	private final Random rng = new Random();
 	private double intensity;
-	private String rangeValue;
-	private Set<String> rangeValues = new HashSet<>();
 	private double xPosition;
 	private double yPosition;
 
-	{
-		rangeValues.add("Auto");
-		rangeValues.add("1mA");
-		rangeValues.add("100uA");
-		rangeValues.add("10uA");
-		rangeValues.add("1uA");
-		rangeValues.add("100nA");
-		rangeValues.add("10nA");
-		rangeValues.add("1nA");
-		rangeValues.add("100pA");
+	public DummyQbpm() {
+		addPosition("Auto");
+		addPosition("1mA");
+		addPosition("100uA");
+		addPosition("10uA");
+		addPosition("1uA");
+		addPosition("100nA");
+		addPosition("10nA");
+		addPosition("1nA");
+		addPosition("100pA");
 	}
 
 	@Override
@@ -72,19 +67,7 @@ public class DummyQbpm extends DeviceBase implements Qbpm {
 
 	@Override
 	public String getRangeValue() throws DeviceException {
-		return rangeValue;
-	}
-
-	public void setRangeValue(String rv) {
-		if (rangeValues.contains(rv)) {
-			rangeValue = rv;
-		} else {
-			throw new IllegalArgumentException(rv + ": is not a valid range value");
-		}
-	}
-
-	public void setRangeValues(Collection<String> ranges) {
-		rangeValues = new HashSet<>(ranges);
+		return getPosition();
 	}
 
 	@Override
