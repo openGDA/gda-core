@@ -151,16 +151,16 @@ public class ZebraScannableMotorForQexafs extends ScannableMotor implements Cont
 		return new EnergyCallable(zebraPositionCallable);
 	}
 
-	public double convertEnergyToBraggAngle(double energy) throws Exception{
+	protected double convertEnergyToBraggAngle(double energy) throws Exception{
 		Amount<Energy> energyEV = Amount.valueOf(energy, NonSI.ELECTRON_VOLT);
-		Amount<Angle> angle = converter.toTarget(energyEV).to(Angle.UNIT);
-		return angle.getEstimatedValue()/1000;
+		Amount<Angle> angle = converter.toTarget(energyEV).to(NonSI.DEGREE_ANGLE);
+		return angle.getEstimatedValue();
 	}
 
-	public double convertBraggAngleToEnergy(double angledeg) throws Exception{
-		Unit<?> mDegree = Unit.valueOf("mDeg");
-		Amount<? extends Quantity> anglemDegree = Amount.valueOf(Math.abs(angledeg),mDegree);
-		Amount<Energy> energyEV = converter.toSource(anglemDegree).to(ELECTRON_VOLT);
+	protected double convertBraggAngleToEnergy(double angle) throws Exception{
+		Unit<?> degrees = Unit.valueOf("deg");
+		Amount<? extends Quantity> angleDegree = Amount.valueOf(Math.abs(angle),degrees);
+		Amount<Energy> energyEV = converter.toSource(angleDegree).to(ELECTRON_VOLT);
 		return energyEV.getEstimatedValue();
 	}
 
@@ -209,7 +209,7 @@ public class ZebraScannableMotorForQexafs extends ScannableMotor implements Cont
 		@Override
 		public Double call() throws Exception{
 			// needs to convert Bragg angle into energy
-			return convertBraggAngleToEnergy(braggAngleCallable.call().doubleValue()*1000);
+			return convertBraggAngleToEnergy(braggAngleCallable.call().doubleValue());
 		}
 	}
 
