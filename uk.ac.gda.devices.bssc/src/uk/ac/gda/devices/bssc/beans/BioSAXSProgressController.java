@@ -47,23 +47,25 @@ import uk.ac.gda.devices.bssc.ispyb.ISpyBStatusInfo;
 public class BioSAXSProgressController extends ConfigurableBase implements IObservable {
 	private static final Logger logger = LoggerFactory.getLogger(BioSAXSProgressController.class);
 	private BioSAXSISPyB bioSAXSISPyB;
-	private IObservableList bioSAXSProgressModel;
-	private String visit;
+	private IObservableList<ISAXSProgress> bioSAXSProgressModel;
 	private long blSessionId;
 	private List<ISAXSDataCollection> saxsDataCollections;
 	private Device simpleUDPServer;
-	ObservableComponent obsComp = new ObservableComponent();
+	private final ObservableComponent obsComp = new ObservableComponent();
 	private String udpListenerName;
 
 	@Override
 	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
 		if (udpListenerName != null && simpleUDPServer == null) {
 			simpleUDPServer = Finder.getInstance().find(udpListenerName);
 			simpleUDPServer.addIObserver(new SimpleUDPReceiver(this));
 		}
 		try {
 			IBatonStateProvider bsp = InterfaceProvider.getBatonStateProvider();
-			visit = bsp.getMyDetails().getVisitID();
+			String visit = bsp.getMyDetails().getVisitID();
 			if (visit.equals("")) {
 				visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
 			}
@@ -234,26 +236,26 @@ public class BioSAXSProgressController extends ConfigurableBase implements IObse
 			logger.error("Error disconnecting from ISpyB", e);
 		}
 	}
-}
 
-class SimpleUDPReceiver implements IObserver {
-	private BioSAXSProgressController controller;
+	private static class SimpleUDPReceiver implements IObserver {
+		private BioSAXSProgressController controller;
 
-	public SimpleUDPReceiver(BioSAXSProgressController controller) {
-		this.controller = controller;
-	}
+		public SimpleUDPReceiver(BioSAXSProgressController controller) {
+			this.controller = controller;
+		}
 
-	@Override
-	public void update(Object theObserved, Object dataCollectionId) {
-		final long saxsDataCollectionId = Long.valueOf((String) dataCollectionId);
-		System.out.println("UDP update recieved for Sample : " + saxsDataCollectionId);
+		@Override
+		public void update(Object theObserved, Object dataCollectionId) {
+			final long saxsDataCollectionId = Long.valueOf((String) dataCollectionId);
+			System.out.println("UDP update recieved for Sample : " + saxsDataCollectionId);
 
-//		Display.getDefault().asyncExec(new Runnable() {
-//			@Override
-//			public void run() {
-//				controller.updateStatusInfoFromISpyB(saxsDataCollectionId);
-//			}
-//		});
+//			Display.getDefault().asyncExec(new Runnable() {
+//				@Override
+//				public void run() {
+//					controller.updateStatusInfoFromISpyB(saxsDataCollectionId);
+//				}
+//			});
 
+		}
 	}
 }
