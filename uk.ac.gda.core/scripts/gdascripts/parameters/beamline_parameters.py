@@ -175,6 +175,6 @@ class Parameters:
     def saveToFile(self, filePath):
         f = open(filePath,"w")
         for key,item in self.parameters.items():
-            f.write(key + "=" + item + "\n")
+            f.write(key + "=" + str(item) + "\n")
         f.close()
 
