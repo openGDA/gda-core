@@ -52,6 +52,11 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * }
  * </pre>
  *
+ * <b><font color="green"> This is the PREFERRED method for exporting objects over RMI. For more details on usage see
+ * <a href="https://alfred.diamond.ac.uk/documentation/manuals/GDA_Developer_Guide/trunk/remoting.html#automated-rmi-exporting"> here.
+ * </a></font></b>
+ * <p>
+ *
  * @author James Mudd
  * @since GDA 9.7
  * @since GDA 9.12 - Converted to be dynamic (DAQ-1264)
