@@ -5,11 +5,10 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 	http://www.springframework.org/schema/beans/spring-beans.xsd
 	http://www.diamond.ac.uk/schema/gda/gda
-	http://www.diamond.ac.uk/schema/gda/gda/gda-gda-1.1.xsd">
+	http://www.diamond.ac.uk/schema/gda/gda/gda-gda-1.2.xsd">
 
-	<gda:rmi-import
-		id="plot_server"
-		serviceUrl="${gda.rmi.prefix}plotserver"
+	<gda:import
+		service="plot_server"
 		serviceInterface="uk.ac.diamond.scisoft.analysis.PlotServer" />
 
 	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">

@@ -26,6 +26,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.remoting.rmi.RmiServiceExporter;
 
+import gda.configuration.properties.LocalProperties;
 import gda.factory.Findable;
 import gda.observable.IObservable;
 import uk.ac.gda.api.remoting.ServiceInterface;
@@ -36,10 +37,10 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * is both Findable and Observable..
  */
 public class GdaRmiServiceExporter implements InitializingBean {
+	private static final Logger logger = LoggerFactory.getLogger(GdaRmiServiceExporter.class);
+	public static final String RMI_PREFIX = LocalProperties.get("gda.rmi.serviceprefix", "gda");
 
 	// TODO allow manipulation of parameters/return value/exceptions, to retain CORBA impl class behaviour
-
-	private static final Logger logger = LoggerFactory.getLogger(GdaRmiServiceExporter.class);
 
 	private Class<?> serviceInterface;
 
@@ -84,7 +85,7 @@ public class GdaRmiServiceExporter implements InitializingBean {
 			if (getService() instanceof Findable) {
 				final Findable findable = (Findable) getService();
 				final String findableName = findable.getName();
-				final String serviceName = "gda/" + findableName;
+				final String serviceName = RMI_PREFIX + "/" + findableName;
 				logger.debug("'serviceName' property was not set; using automatically-generated name '{}'", serviceName);
 				setServiceName(serviceName);
 			} else {

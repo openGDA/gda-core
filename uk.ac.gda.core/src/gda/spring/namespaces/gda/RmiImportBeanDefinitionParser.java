@@ -18,10 +18,13 @@
 
 package gda.spring.namespaces.gda;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.core.io.Resource;
 import org.springframework.remoting.rmi.RmiProxyFactoryBean;
 import org.w3c.dom.Element;
 
@@ -31,6 +34,7 @@ import uk.ac.gda.remoting.client.GdaRmiProxyFactoryBean;
  * Spring {@link BeanDefinitionParser} for the {@code rmi-import} element.
  */
 public class RmiImportBeanDefinitionParser implements BeanDefinitionParser {
+	private static final Logger logger = LoggerFactory.getLogger(RmiImportBeanDefinitionParser.class);
 
 	@Override
 	public AbstractBeanDefinition parse(Element element, ParserContext parserContext) {
@@ -39,6 +43,10 @@ public class RmiImportBeanDefinitionParser implements BeanDefinitionParser {
 		final String serviceUrl = element.getAttribute("serviceUrl");
 		final String serviceInterface = element.getAttribute("serviceInterface");
 
+		logger.warn("Using deprecated rmi-export tag for {} in file {}. Use export instead - see DAQ-2301",
+				id,
+				getSource(parserContext));
+
 		boolean events = true;
 		if (element.hasAttribute("events")) {
 			final String eventsAttr = element.getAttribute("events");
@@ -46,7 +54,7 @@ public class RmiImportBeanDefinitionParser implements BeanDefinitionParser {
 		}
 
 		AbstractBeanDefinition beanDef = new GenericBeanDefinition();
-		beanDef.setResource(parserContext.getReaderContext().getResource());
+		beanDef.setResource(getSource(parserContext));
 		beanDef.setBeanClass(events ? GdaRmiProxyFactoryBean.class : RmiProxyFactoryBean.class);
 		beanDef.getPropertyValues().addPropertyValue("serviceUrl", serviceUrl);
 		beanDef.getPropertyValues().addPropertyValue("serviceInterface", serviceInterface);
@@ -55,6 +63,9 @@ public class RmiImportBeanDefinitionParser implements BeanDefinitionParser {
 		parserContext.getRegistry().registerBeanDefinition(id, beanDef);
 
 		return null;
+	}
+	private Resource getSource(ParserContext parserContext) {
+		return parserContext.getReaderContext().getResource();
 	}
 
 }
