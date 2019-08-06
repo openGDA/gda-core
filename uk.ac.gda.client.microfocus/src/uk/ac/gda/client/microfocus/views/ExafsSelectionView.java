@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,6 +132,10 @@ public class ExafsSelectionView extends ViewPart {
 		gridData.grabExcessHorizontalSpace = true;
 		gridData.grabExcessVerticalSpace = true;
 		selectedScanList.setLayoutData(gridData);
+
+		final ISelectionListener experimentListener = (part, selection) -> refresh();
+		controller.addSelectionListener(experimentListener);
+		exafsRunComp.addDisposeListener(dispose -> controller.removeSelectionListener(experimentListener));
 	}
 
 	private void populateExafsScanList() {
