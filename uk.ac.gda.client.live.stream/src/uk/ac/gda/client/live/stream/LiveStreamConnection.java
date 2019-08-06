@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.dawnsci.analysis.api.io.IRemoteDatasetService;
 import org.eclipse.january.DatasetException;
@@ -72,14 +73,17 @@ public class LiveStreamConnection {
 
 	private final Set<IAxisChangeListener> axisChangeListeners = new HashSet<>(4);
 
+	private AtomicInteger connectionCount = new AtomicInteger(0);
+
 	public LiveStreamConnection(CameraConfiguration cameraConfig, StreamType streamType) {
 		this.cameraConfig = cameraConfig;
 		this.streamType = streamType;
 	}
 
-	public IDatasetConnector connect() throws LiveStreamException {
+	public synchronized IDatasetConnector connect() throws LiveStreamException {
 		if (stream != null) {
-			throw new LiveStreamException("Stream is already connected");
+			increaseConnectionCount();
+			return stream;
 		}
 
 		if (streamType == StreamType.MJPEG && cameraConfig.getUrl() == null) {
@@ -103,15 +107,9 @@ public class LiveStreamConnection {
 		}
 
 		setupAxes();
-
 		connected = true;
-		return stream;
-	}
+		increaseConnectionCount();
 
-	public IDatasetConnector getStream() throws LiveStreamException {
-		if (!connected) {
-			connect();
-		}
 		return stream;
 	}
 
@@ -119,26 +117,29 @@ public class LiveStreamConnection {
 		return cameraConfig;
 	}
 
-	public void disconnect() throws LiveStreamException {
-		// Disconnect the existing stream
-		if (stream != null) { // Will be null the first time
-			try {
-				CalibratedAxesProvider calibratedAxesProvider = cameraConfig.getCalibratedAxesProvider();
-				if (calibratedAxesProvider != null) {
-					calibratedAxesProvider.disconnect();
-					stream.removeDataListener(axesUpdater);
-				}
-				stream.disconnect();
-			} catch (Exception e) {
-				throw new LiveStreamException("Error disconnecting from live stream", e);
-			} finally {
-				stream = null;
-			}
-		}
+	public synchronized void disconnect() throws LiveStreamException {
+		decreaseConnectionCount();
 
-		xAxisDataset = null;
-		yAxisDataset = null;
-		connected = false;
+		if (getConnectionCount() == 0) {
+			if (stream != null) { // Will be null the first time
+				try {
+					CalibratedAxesProvider calibratedAxesProvider = cameraConfig.getCalibratedAxesProvider();
+					if (calibratedAxesProvider != null) {
+						calibratedAxesProvider.disconnect();
+						stream.removeDataListener(axesUpdater);
+					}
+					stream.disconnect();
+				} catch (Exception e) {
+					throw new LiveStreamException("Error disconnecting from live stream", e);
+				} finally {
+					stream = null;
+				}
+			}
+
+			xAxisDataset = null;
+			yAxisDataset = null;
+			connected = false;
+		}
 	}
 
 	public void addAxisMoveListener(IAxisChangeListener axisMoveListener) {
@@ -147,6 +148,22 @@ public class LiveStreamConnection {
 
 	public void removeAxisMoveListener(IAxisChangeListener axisMoveListener) {
 		axisChangeListeners.remove(axisMoveListener);
+	}
+
+	public void addDataListenerToStream(IDataListener listener) throws LiveStreamException {
+		if (stream == null) {
+			throw new LiveStreamException("Stream is not connected.");
+		}
+
+		stream.addDataListener(listener);
+	}
+
+	public void removeDataListenerFromStream(IDataListener listener) throws LiveStreamException {
+		if (stream == null) {
+			throw new LiveStreamException("Stream is not connected.");
+		}
+
+		stream.removeDataListener(listener);
 	}
 
 	private IDatasetConnector setupEpicsArrayStream() throws LiveStreamException {
@@ -225,6 +242,20 @@ public class LiveStreamConnection {
 
 	public boolean hasAxesProvider() {
 		return cameraConfig.getCalibratedAxesProvider() != null;
+	}
+
+	public int getConnectionCount() {
+		return connectionCount.get();
+	}
+
+	private void increaseConnectionCount() {
+		connectionCount.incrementAndGet();
+	}
+
+	private void decreaseConnectionCount() {
+		if (getConnectionCount() > 0) {
+			connectionCount.decrementAndGet();
+		}
 	}
 
 	class AxesUpdater implements IDataListener {

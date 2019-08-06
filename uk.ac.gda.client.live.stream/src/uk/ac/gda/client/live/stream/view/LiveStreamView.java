@@ -66,6 +66,7 @@ import gda.device.detector.nxdetector.roi.ImutableRectangularIntegerROI;
 import gda.factory.Finder;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
 import uk.ac.gda.client.live.stream.LiveStreamException;
+import uk.ac.gda.client.live.stream.api.ILiveStreamConnectionService;
 import uk.ac.gda.client.live.stream.handlers.SnapshotData;
 import uk.ac.gda.client.live.stream.view.customui.LiveStreamViewCustomUi;
 
@@ -101,6 +102,11 @@ public class LiveStreamView extends ViewPart {
 
 		if (PlatformUI.getWorkbench().getService(IPlottingService.class) == null) {
 			displayAndLogError(logger, parent, "Cannot create Live Stream: no plotting service is available");
+			return;
+		}
+
+		if (PlatformUI.getWorkbench().getService(ILiveStreamConnectionService.class) == null) {
+			displayAndLogError(logger, parent, "Cannot create Live Stream: no connection service is available");
 			return;
 		}
 
@@ -237,7 +243,8 @@ public class LiveStreamView extends ViewPart {
 
 		// Create the plotting view
 		try {
-			liveStreamConnection = new LiveStreamConnection(camConfig, streamType);
+			ILiveStreamConnectionService connectionService = PlatformUI.getWorkbench().getService(ILiveStreamConnectionService.class);
+			liveStreamConnection = connectionService.getSharedLiveStreamConnection(camConfig, streamType);
 			plottingComposite = new LivePlottingComposite(parent, SWT.NONE, getPartName(), liveStreamConnection, actionBars, this);
 			plottingComposite.setShowAxes(camConfig.getCalibratedAxesProvider() != null);
 			plottingComposite.setShowTitle(true);
