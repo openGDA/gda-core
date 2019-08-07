@@ -79,12 +79,6 @@ public class SoundToggleHandler extends AbstractHandler implements IElementUpdat
 		return null;
 	}
 
-	@Override
-	public void dispose() {
-		JythonServerFacade.getInstance().deleteScanEventObserver(soundToggleObserver);
-		super.dispose();
-	}
-
 	// IElementUpdater
 
 	@Override
