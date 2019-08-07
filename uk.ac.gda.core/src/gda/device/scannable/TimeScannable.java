@@ -19,10 +19,10 @@
 
 package gda.device.scannable;
 
-import gda.device.DeviceException;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import gda.device.DeviceException;
 
 /**
  * Returns the current date/time
@@ -31,7 +31,8 @@ import java.util.Date;
  */
 public class TimeScannable extends ScannableBase {
 
-	String dateformat = "EEE, d MMM yyyy HH:mm:ss z";
+	private String dateformat = "EEE, d MMM yyyy HH:mm:ss z";
+	private boolean useUtcMillis = false;
 
 	/**
 	 *
@@ -57,13 +58,30 @@ public class TimeScannable extends ScannableBase {
 
 	@Override
 	public Object getPosition() throws DeviceException {
-		SimpleDateFormat formatter = new SimpleDateFormat(dateformat);
-		Date now = new Date();
-		return formatter.format(now);
+		if (useUtcMillis) {
+			return System.currentTimeMillis();
+		} else {
+			Date now = new Date();
+			SimpleDateFormat formatter = new SimpleDateFormat(dateformat);
+			return formatter.format(now);
+		}
 	}
 
 	@Override
 	public boolean isBusy() throws DeviceException {
 		return false;
+	}
+
+	public boolean isUseUtcMillis() {
+		return useUtcMillis;
+	}
+
+	public void setUseUtcMillis(boolean useUtcMillis) {
+		if (useUtcMillis) {
+			outputFormat = new String[] {"%d"};
+		} else {
+			outputFormat = new String[] {"%s"};
+		}
+		this.useUtcMillis = useUtcMillis;
 	}
 }
