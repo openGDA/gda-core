@@ -24,8 +24,13 @@ import java.util.Set;
 
 import org.dawnsci.mapping.ui.MappingUtils;
 import org.dawnsci.mapping.ui.datamodel.LiveStreamMapObject;
+import org.eclipse.january.DatasetException;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.IDynamicShape;
+import org.eclipse.january.metadata.AxesMetadata;
+import org.eclipse.january.metadata.MetadataFactory;
 
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
 import uk.ac.gda.client.live.stream.LiveStreamConnection.IAxisChangeListener;
@@ -88,7 +93,19 @@ public class LiveStreamPlottable implements LiveStreamMapObject {
 
 	@Override
 	public IDataset getMap() {
-		return null;
+		//used to save stream in a similar fashion to registered jpgs
+		if (cachedDataset == null) return null;
+		try {
+			List<IDataset> axes = getAxes();
+			Dataset d = DatasetUtils.sliceAndConvertLazyDataset(cachedDataset.getDataset());
+			AxesMetadata md = MetadataFactory.createMetadata(AxesMetadata.class, d.getRank());
+			md.setAxis(1, axes.get(0));
+			md.setAxis(0, axes.get(1));
+			d.setMetadata(md);
+			return d;
+		} catch (DatasetException e) {
+			return null;
+		}
 	}
 
 	@Override
