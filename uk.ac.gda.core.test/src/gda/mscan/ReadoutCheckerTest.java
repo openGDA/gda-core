@@ -33,7 +33,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import gda.mscan.element.AreaScanpath;
-import gda.mscan.element.Roi;
+import gda.mscan.element.RegionShape;
 import gda.mscan.processor.IClauseElementProcessor;
 
 @RunWith(Parameterized.class)
@@ -64,7 +64,7 @@ public class ReadoutCheckerTest extends ResolutionTestsBase {
 		m1Proc = mockMonitorProc(m1, "MonitorOne");
 		num1Proc = mockNumberProc(1);
 		gridProc = mockAreaScanpathProc(AreaScanpath.GRID);
-		rectProc = mockRoiProc(Roi.RECTANGLE);
+		rectProc = mockRoiProc(RegionShape.RECTANGLE);
 		return Arrays.asList(new Object[][] {
 			// single scannables as the last entry that aren't detectors or monitors match
 			{"singleScannableAtEndMatches",

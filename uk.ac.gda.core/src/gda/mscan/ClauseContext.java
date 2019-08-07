@@ -18,6 +18,20 @@
 
 package gda.mscan;
 
+import static gda.mscan.element.AreaScanpath.GRID;
+import static gda.mscan.element.AreaScanpath.LISSAJOUS;
+import static gda.mscan.element.AreaScanpath.ONEDEQUAL;
+import static gda.mscan.element.AreaScanpath.ONEDSTEP;
+import static gda.mscan.element.AreaScanpath.RASTER;
+import static gda.mscan.element.AreaScanpath.SINGLEPOINT;
+import static gda.mscan.element.AreaScanpath.SPIRAL;
+import static gda.mscan.element.RegionShape.CENTRED_RECTANGLE;
+import static gda.mscan.element.RegionShape.CIRCLE;
+import static gda.mscan.element.RegionShape.LINE;
+import static gda.mscan.element.RegionShape.POINT;
+import static gda.mscan.element.RegionShape.POLYGON;
+import static gda.mscan.element.RegionShape.RECTANGLE;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,6 +43,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.math.util.MathUtils;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 
 import com.google.common.collect.ImmutableMap;
@@ -38,7 +53,7 @@ import gda.device.Monitor;
 import gda.device.Scannable;
 import gda.mscan.element.AreaScanpath;
 import gda.mscan.element.Mutator;
-import gda.mscan.element.Roi;
+import gda.mscan.element.RegionShape;
 import gda.mscan.processor.IClauseElementProcessor;
 
 /**
@@ -53,11 +68,20 @@ public class ClauseContext {
 
 	// The grammar of allowed next types used to validate the scan clause keyed on the type of the current element
 	private static final ImmutableMap<Class<?>, List<Class<?>>> grammar = ImmutableMap.of(
-			Scannable.class,    Arrays.asList(Scannable.class, Roi.class, Number.class),
-			Roi.class,          Arrays.asList(Number.class),
+			Scannable.class,    Arrays.asList(Scannable.class, RegionShape.class, Number.class),
+			RegionShape.class,  Arrays.asList(Number.class),
 			AreaScanpath.class, Arrays.asList(Number.class),
 			Number.class,       Arrays.asList(Number.class, AreaScanpath.class, Mutator.class),
 			Mutator.class,      Arrays.asList(Number.class, Mutator.class));
+
+	private static final ImmutableMap<RegionShape, List<AreaScanpath>> VALID_COMBINATIONS =
+			new ImmutableMap.Builder<RegionShape, List<AreaScanpath>>()
+			.put(RECTANGLE,         Arrays.asList(GRID, RASTER ,SPIRAL, LISSAJOUS))
+			.put(CENTRED_RECTANGLE, Arrays.asList(GRID, RASTER ,SPIRAL, LISSAJOUS))
+			.put(CIRCLE,            Arrays.asList(GRID, RASTER ,SPIRAL, LISSAJOUS))
+			.put(POLYGON,           Arrays.asList(GRID, RASTER ,SPIRAL, LISSAJOUS))
+			.put(LINE,              Arrays.asList(ONEDEQUAL, ONEDSTEP))
+			.put(POINT,             Arrays.asList(SINGLEPOINT)).build();
 
 	private static final int REQUIRED_SCANNABLES_FOR_AREA = 2;
 	private static final List<Class<?>> INVALID_SCANNABLE_SUBTYPES = Arrays.asList(Detector.class, Monitor.class);
@@ -65,7 +89,7 @@ public class ClauseContext {
 	// 'Output' lists which will be read in by the ScanRequest constructor
 	private final List<Scannable> scannables = new ArrayList<>();
 	private final List<Number> pathParams = new ArrayList<>();
-	private final List<Number> roiParams = new ArrayList<>();
+	private final List<Number> shapeParams = new ArrayList<>();
 
 	/**
 	 * Map of {@link Mutator} to its {@link List} of parameters (which may be empty)
@@ -76,15 +100,15 @@ public class ClauseContext {
 
 	// Metadata with default values in case their corresponding typed element is never processed
 	private int requiredParamCount = 0;
-	private Optional<Roi> roi = Optional.empty();
-	private boolean roiDefaulted = false;
+	private Optional<RegionShape> regionShape = Optional.empty();
+	private boolean regionShapeDefaulted = false;
 	private Optional<AreaScanpath> areaScanpath = Optional.empty();
 	private boolean areaScanpathDefaulted = false;
 	private boolean paramNullCheckValid = true;
 	protected boolean validated = false;
 
-	private List<Number> paramsToFill;  // Re-pointable reference used to select whether Roi or Scanpath parameters are
-										// being stored
+	private List<Number> paramsToFill;  // Re-pointable reference used to select whether RegionShape or Scanpath
+										// parameters are being stored
 
 	// Update methods that fill in the context. Each of these will (at least) set the previousType field to the type
 	// associated with them to be used as the grammar key next time round. They will also either reset or adjust
@@ -103,9 +127,9 @@ public class ClauseContext {
 			throw new UnsupportedOperationException(String.format(
 					"Too many scannables in scan clause, maximum amount is %d", REQUIRED_SCANNABLES_FOR_AREA));
 		}
-		// Scannables must be added before roi and scanpath
+		// Scannables must be added before regionshape and scanpath
 		rejectIfAlreadySet(areaScanpathDefaulted, areaScanpath);
-		rejectIfAlreadySet(roiDefaulted, roi);
+		rejectIfAlreadySet(regionShapeDefaulted, regionShape);
 		rejectIfAnyParamsWritten(Scannable.class.getSimpleName());
 
 		nullCheck(supplied, Scannable.class.getSimpleName());
@@ -118,29 +142,29 @@ public class ClauseContext {
 	}
 
 	/**
-	 * Store the selected {@link Roi} and switch the filler reference to the corresponding param list. Also initialise
-	 * other {@link Roi} related metadata. The {@link Roi} class is used for scans bounded in 2 axes, consequently there
+	 * Store the selected {@link RegionShape} and switch the filler reference to the corresponding param list. Also initialise
+	 * other {@link RegionShape} related metadata. The {@link RegionShape} class is used for scans bounded in 2 axes, consequently there
 	 * must be 2 {@Scannables} defined for the call to be valid. As {@Scannables} are the first entries in the clause,
-	 * these must therefore have already been set. Checks are also made that the {@link Roi} selection hasn't already
+	 * these must therefore have already been set. Checks are also made that the {@link RegionShape} selection hasn't already
 	 * been defaulted or explicitly set.
 	 *
-	 * N.B. Rois without a fixed value count will never be 'full' but if the scanpath is defaulted, this will be
+	 * N.B. RegionShapes without a fixed value count will never be 'full' but if the scanpath is defaulted, this will be
 	 * picked up in the validateAndAdjust method
 	 *
-	 * @param supplied		The {@link Roi} instance to be stored
+	 * @param supplied		The {@link RegionShape} instance to be stored
 	 */
-	public void setRoi(final Roi supplied) {
-		// Roi must be set before scanpath
+	public void setRegionShape(final RegionShape supplied) {
+		// RegionShape must be set before scanpath
 		rejectIfAlreadySet(areaScanpathDefaulted, areaScanpath);
-		rejectIfAnyParamsWritten(Roi.class.getSimpleName());
-		// If the default roi has already been set or defaulted the reject the supplied one
-		rejectIfAlreadySet(roiDefaulted, roi);
-		rejectIncorrectNumberOfScannables(Roi.class.getSimpleName());
-		nullCheck(supplied, Roi.class.getSimpleName());
-		roi = Optional.of(supplied);
-		paramsToFill = roiParams;
+		rejectIfAnyParamsWritten(RegionShape.class.getSimpleName());
+		// If the default regionShape has already been set or defaulted the reject the supplied one
+		rejectIfAlreadySet(regionShapeDefaulted, regionShape);
+		rejectIncorrectNumberOfScannables(RegionShape.class.getSimpleName());
+		nullCheck(supplied, RegionShape.class.getSimpleName());
+		regionShape = Optional.of(supplied);
+		paramsToFill = shapeParams;
 		requiredParamCount = supplied.valueCount();
-		previousType = Roi.class;
+		previousType = RegionShape.class;
 		resetParamList();
 	}
 
@@ -153,14 +177,15 @@ public class ClauseContext {
 	public void setAreaScanpath(final AreaScanpath supplied) {
 		if (!pathParams.isEmpty()) {
 			throw new IllegalStateException(
-					"AreaScanpath must be the specified before its parameters");
+					"AreaScanpath must be specified before its parameters");
 		}
 		rejectIncorrectNumberOfScannables(AreaScanpath.class.getSimpleName());
 
 		// If the default scanpath has already been set or defaulted the reject the supplied one
 		rejectIfAlreadySet(areaScanpathDefaulted, areaScanpath);
-		rejectIfNoRoiOrNotEnoughRoiParams();
+		rejectIfNoRegionShapeOrNotEnoughRegionShapeParams();
 		nullCheck(supplied, AreaScanpath.class.getSimpleName());
+		rejectIfInvalidCombintationOfShapeAndPath(supplied);
 		areaScanpath = Optional.of(supplied);
 		paramsToFill = pathParams;
 		requiredParamCount = supplied.valueCount();
@@ -175,10 +200,10 @@ public class ClauseContext {
 	 * @param supplied		The {@link Mutator} to be added to the context
 	 */
 	public void addMutator(final Mutator supplied) {
-		areaScanMustHaveRoiPlusAreaScanpath();
+		areaScanMustHaveRegionShapePlusAreaScanpath();
 		nullCheck(supplied, Mutator.class.getSimpleName());
 		if (Mutator.RANDOM_OFFSET == supplied) {
-			if (AreaScanpath.GRID != areaScanpath.get()) {
+			if (GRID != areaScanpath.get()) {
 				throw new UnsupportedOperationException("Random offsets may only be applied to Grid paths");
 			}
 			paramNullCheckValid = true;
@@ -195,10 +220,10 @@ public class ClauseContext {
 	}
 
 	/**
-	 * Add the supplied number to the param list that has been selected by the setting of a {@link Roi}, {@link Mutator}
-	 * or {@link AreaScanpath}. If either or both of {@link Roi} or {@link AreaScanpath} has not been set,  the default
-	 * value is used and the list selection is  made based on the order ({@link Roi} is the first thing that can have
-	 * parameters in the clause). If too many params are supplied this will also be rejected for all {@link Roi}s and
+	 * Add the supplied number to the param list that has been selected by the setting of a {@link RegionShape}, {@link Mutator}
+	 * or {@link AreaScanpath}. If either or both of {@link RegionShape} or {@link AreaScanpath} has not been set,  the default
+	 * value is used and the list selection is  made based on the order ({@link RegionShape} is the first thing that can have
+	 * parameters in the clause). If too many params are supplied this will also be rejected for all {@link RegionShape}s and
 	 * bounded {@link AreaScanpath}s. Multiple {@link Mutator}s may be specified, so contextual validation of their
 	 * parameters is done for each.
 	 *
@@ -216,18 +241,18 @@ public class ClauseContext {
 		}
 		nullCheck(supplied, Number.class.getSimpleName());
 		/**
-		 * The required order for a scan clause is <scannable(s)><roi (if required)><roi params> so if this method is
-		 * called which two scannables but no roi that mans the default roi is required. In the old style SPEC case,
-		 * there would be no roi but only one scannable would be specified.
+		 * The required order for a scan clause is <scannable(s)><regionShape (if required)><regionShape params> so if
+		 * this method is called with two scannables but no regionShape that mans the default regionShape is required.
+		 * In the old style SPEC case, there would be no regionShape but only one scannable would be specified.
 		 */
-		if (!roi.isPresent() && REQUIRED_SCANNABLES_FOR_AREA == scannables.size()) {
-			// we are doing a 2D map scan with a bounding box with the default Roi so set this for future comparisons
-			roi = Optional.of(Roi.defaultValue());
-			roiDefaulted = true;
-			paramsToFill = roiParams;
-			requiredParamCount = roi.get().valueCount();
+		if (!regionShape.isPresent() && REQUIRED_SCANNABLES_FOR_AREA == scannables.size()) {
+			// we are doing a 2D map scan with a bounding box with the default RegionShape so set this for future comparisons
+			regionShape = Optional.of(RegionShape.defaultValue());
+			regionShapeDefaulted = true;
+			paramsToFill = shapeParams;
+			requiredParamCount = regionShape.get().valueCount();
 			resetParamList();
-		} else if (paramsToFill == roiParams && paramsFull() && !areaScanpath.isPresent()) {
+		} else if (paramsToFill == shapeParams && paramsFull() && !areaScanpath.isPresent()) {
 			// we are doing a 2D map scan with a bounding box with the default path so set this for future comparisons
 			areaScanpath = Optional.of(AreaScanpath.defaultValue());
 			areaScanpathDefaulted = true;
@@ -253,7 +278,7 @@ public class ClauseContext {
 		}
 		if (paramsToFill == null && paramNullCheckValid) {
 			throw new IllegalStateException(
-					"Parameters may not be added until either a Roi or a Scanpath has been specified");
+					"Parameters may not be added until either a RegionShape or a Scanpath has been specified");
 		}
 		// Because of defaulting behaviour, this next condition can only be true for AreaScanpathss
 		if (paramsFull()) {
@@ -275,8 +300,8 @@ public class ClauseContext {
 
 	/**
 	 * Indicates whether the currently pointed to parameter list contains the required valueCount
-	 * of parameters for {@link Roi} or {@link AreaScanpath}, or more (more should not be possible).
-	 * N.B.parameter lists for unbounded {@link Roi}s e.g. polygons can never be full.
+	 * of parameters for {@link RegionShape} or {@link AreaScanpath}, or more (more should not be possible).
+	 * N.B.parameter lists for unbounded {@link RegionShape}s e.g. polygons can never be full.
 	 *
 	 * @return true if the currently reference param list has the required count of params or more
 	 */
@@ -284,7 +309,7 @@ public class ClauseContext {
 		if (paramsToFill == null) {
 			return false;
 		}
-		boolean isBounded = (paramsToFill == roiParams) ? roi.get().hasFixedValueCount() : true;
+		boolean isBounded = (paramsToFill == shapeParams) ? regionShape.get().hasFixedValueCount() : true;
 		return (isBounded && paramsToFill.size() >= requiredParamCount);
 	}
 
@@ -295,8 +320,9 @@ public class ClauseContext {
 		if (scannables.isEmpty() || scannables.size() > REQUIRED_SCANNABLES_FOR_AREA) {
 			throw new IllegalStateException("Invalid Scan clause: scan must have the required number of Scannables");
 		}
-		areaScanMustHaveRoiPlusAreaScanpath();
-		areaScanMustHaveCorrectNumberOfParametersForRoiAndAreaScanpath();
+		areaScanMustHaveRegionShapePlusAreaScanpath();
+		areaScanMustHaveCorrectNumberOfParametersForRegionShapeAndAreaScanpath();
+		forPointRegionShapeScanpathMustBePointAlsoAndParamsMustMatch();
 		checkRequiredMutatorParameters();
 
 		//post validate the default case
@@ -333,9 +359,9 @@ public class ClauseContext {
 	/**
 	 * @throws	NoSuchElementException if the {@link ClauseContext} is not complete and valid.
 	 */
-	public List<Number> getRoiParams() {
+	public List<Number> getShapeParams() {
 		throwIfNotValidated();
-		return Collections.unmodifiableList(roiParams);
+		return Collections.unmodifiableList(shapeParams);
 	}
 
 	/**
@@ -349,13 +375,13 @@ public class ClauseContext {
 	}
 
 	/**
-	 * @return	The specified {@link Roi} if set or defaulted, throwing otherwise
+	 * @return	The specified {@link RegionShape} if set or defaulted, throwing otherwise
 	 *
 	 * @throws	NoSuchElementException if the  {@link ClauseContext} is not complete and valid.
 	 */
-	public Roi getRoi() {
+	public RegionShape getRegionShape() {
 		throwIfNotValidated();
-		return roi.get();
+		return regionShape.get();
 	}
 
 	// Status values to be used during completion of the context
@@ -369,7 +395,7 @@ public class ClauseContext {
 
 	/**
 	 * @return  The number of entries required for the current parameter list to be full or
-	 * 			in the case of unbounded {@link Roi}s the minimum required number
+	 * 			in the case of unbounded {@link RegionShape}s the minimum required number
 	 */
 	public int getRequiredParamCount() {
 		return requiredParamCount;
@@ -396,6 +422,8 @@ public class ClauseContext {
 	 *
 	 * @param obj	The object instance to be checked
 	 * @param name	The type name to be used in the exception message
+	 *
+	 * @throws IllegalArgumentException if the supplied object is null
 	 */
 	private void nullCheck(final Object obj, final String name) {
 		if (obj == null) {
@@ -404,30 +432,56 @@ public class ClauseContext {
 	}
 
 	/**
-	 *Checks that both Roi and AreaScanpath asre set for an area based scan
+	 *Checks that both {@link RegionShape} and {@link AreaScanpath} are set for an area based scan
+	 *
+	 *@throws IllegalStateException if either {@link AreaScanpath} or {@link RegionShape} are not set
 	 */
-	private void areaScanMustHaveRoiPlusAreaScanpath() {
-		if (scannables.size() == REQUIRED_SCANNABLES_FOR_AREA && (!roi.isPresent() || !areaScanpath.isPresent())) {
-			throw new IllegalStateException("Invalid Scan clause: area scan must have both Roi and AreaScanpath");
+	private void areaScanMustHaveRegionShapePlusAreaScanpath() {
+		if (scannables.size() == REQUIRED_SCANNABLES_FOR_AREA && (!regionShape.isPresent() || !areaScanpath.isPresent())) {
+			throw new IllegalStateException("Invalid Scan clause: area scan must have both RegionShape and AreaScanpath");
 		}
 	}
 
 	/**
 	 * Checks that the correct number of parameters have been set for the specified {@link AreaScanpath}
-	 * and {@link Roi} whether bounded or not.
+	 * and {@link RegionShape} whether bounded or not.
+	 *
+	 * @throws  IllegalStateException if and incorrect number of parameters has be supplied for either the
+	 * 			{@link AreaScanpath} or {@link RegionShape}
 	 */
-	private void areaScanMustHaveCorrectNumberOfParametersForRoiAndAreaScanpath() {
-		if (scannables.size() == REQUIRED_SCANNABLES_FOR_AREA && roi.isPresent() && areaScanpath.isPresent()) {
-			if (roi.get().hasFixedValueCount()) {
-				if (roi.get().valueCount() != roiParams.size() || areaScanpath.get().valueCount() != pathParams.size()) {
+	private void areaScanMustHaveCorrectNumberOfParametersForRegionShapeAndAreaScanpath() {
+		if (scannables.size() == REQUIRED_SCANNABLES_FOR_AREA && regionShape.isPresent() && areaScanpath.isPresent()) {
+			if (regionShape.get().hasFixedValueCount()) {
+				if (regionShape.get().valueCount() != shapeParams.size() || areaScanpath.get().valueCount() != pathParams.size()) {
 					throw new IllegalStateException(
-							"Invalid Scan clause: clause must have correct no of params for Roi and Scanpath");
+							"Invalid Scan clause: clause must have correct no of params for RegionShape and Scanpath");
 				}
-			} else if (roi.get().valueCount() > roiParams.size() || areaScanpath.get().valueCount() != pathParams.size()) {
+			} else if (regionShape.get().valueCount() > shapeParams.size() || areaScanpath.get().valueCount() != pathParams.size()) {
 				throw new IllegalStateException(
-						"Invalid Scan clause: clause must have correct no of params for Roi and Scanpath");
-			} else if (roi.get() == Roi.POLYGON && (roiParams.size() & 1) > 0) {
+						"Invalid Scan clause: clause must have correct no of params for RegionShape and Scanpath");
+			} else if (regionShape.get() == POLYGON && (shapeParams.size() & 1) > 0) {
 				throw new IllegalStateException("Invalid Scan clause: Polygon requires an even number of params");
+			}
+		}
+	}
+
+	/**
+	 * Checks that the parameter values of the {@link AreaScanpath} and {@link RegiomShape} match and that they both
+	 * specify POINT if a point scan has been selected.
+	 *
+	 * @throws IllegalStateException if there is inconsistency between the @link AreaScanpath} and {@link RegiomShape}
+	 * 								 specifications
+	 */
+	private void forPointRegionShapeScanpathMustBePointAlsoAndParamsMustMatch() {
+		if (regionShape.get().equals(POINT)) {
+			if (!areaScanpath.get().equals(SINGLEPOINT)) {
+				throw new IllegalStateException(
+						"Invalid Scan clause: POINT RegionShape can only be used with POINT Scanpath");
+			}
+			if (!MathUtils.equals(shapeParams.get(0).doubleValue(), pathParams.get(0).doubleValue(), 1e-10)
+					|| !MathUtils.equals(shapeParams.get(1).doubleValue(), pathParams.get(1).doubleValue(), 1e-10)) {
+				throw new IllegalStateException(
+						"Invalid Scan clause: for POINT scan RegionShape and Scanpath parameters must match");
 			}
 		}
 	}
@@ -449,6 +503,8 @@ public class ClauseContext {
 
 	/**
 	 * Checks that {@link ClauseContext#validateAndAdjust()} has been successfully called
+	 *
+	 * @throws UnsupportedOperationException if an attempt is made to read the claus ebefore it has been validated
 	 */
 	private void throwIfNotValidated() {
 		if(!validated) {
@@ -461,6 +517,7 @@ public class ClauseContext {
 	 * Prevents {@link Detector}s and {@link Monitor}s being specified in scan clauses
 	 *
 	 * @param supplied	The {@link Scannable} interface of the object being set
+	 * @throws UnsupportedOperationException if {@link Detector}s or {@link Monitor}s have been specified
 	 */
 	private void rejectInvalidSubTypes(final Scannable supplied) {
 		for (Class<?> cls : INVALID_SCANNABLE_SUBTYPES) {
@@ -475,6 +532,7 @@ public class ClauseContext {
 	 * {@link Scannable}s for the scan clause have not already been set
 	 *
 	 * @param elementName	The type name of element currently being set
+	 * @throws UnsupportedOperationException if not enough {@link SCannable}s have been specified to set the element
 	 */
 	private void rejectIncorrectNumberOfScannables(final String elementName) {
 		if (scannables.size() != REQUIRED_SCANNABLES_FOR_AREA) {
@@ -484,19 +542,21 @@ public class ClauseContext {
 	}
 
 	/**
-	 * Prevents a {@link Roi} or {@link AreaScanpath} being set when this has already happened in this clause
+	 * Prevents a {@link RegionShape} or {@link AreaScanpath} being set when this has already happened in this clause
 	 *
-	 * @param defaulted		Indicates the element being tessted has beeen set by defaulting
-	 * @param element		An {@link Optional} of the {@link Roi} or {@link Area Scanpath} being set
+	 * @param defaulted		Indicates the element being tested has been set by defaulting
+	 * @param element		An {@link Optional} of the {@link RegionShape} or {@link Area Scanpath} being set
+	 * @throws UnsupportedOperationException if an attempt to set {@link RegionShape} or {@link AreaScanpath} happens
+	 * 						when these have already been set for this clause
 	 */
 	private void rejectIfAlreadySet(final boolean defaulted, final Optional<?> element) {
 		if (defaulted || element.isPresent()) {
 			String elementName = element.get().getClass().getSimpleName();
 			String setMessage = String.format("set; Scan clause can only specify one %s", elementName);
 			String defaultedMessage = String.format(
-					"defaulted, it must be specified straight after the %s", ("Roi".equals(elementName))
+					"defaulted, it must be specified straight after the %s", ("RegionShape".equals(elementName))
 							? "Scannables"
-							: "Roi parameters (do you have too many for your specified Roi?");
+							: "RegionShape parameters (do you have too many for your specified RegionShape?");
 
 			throw new UnsupportedOperationException(String.format(
 					"Invalid Scan clause: %s already %s", elementName, (defaulted) ? defaultedMessage : setMessage));
@@ -507,23 +567,39 @@ public class ClauseContext {
 	 * Prevents out of order specification of a elements when some parameters have already been set
 	 *
 	 * @param elementName	The type name of the element being set
+	 * @throws IllegalStateException if the supplied element is not valid once params have been specified
 	 */
 	private void rejectIfAnyParamsWritten(final String elementName) {
-		if (paramsToFill != null || !roiParams.isEmpty() || !pathParams.isEmpty()) {
+		if (paramsToFill != null || !shapeParams.isEmpty() || !pathParams.isEmpty()) {
 			throw new IllegalStateException(String.format("%s must be the specified before any parameters", elementName));
 		}
 	}
 
 	/**
-	 * Prevents further elements being set if the {@link Roi} and its parameters have not already been
+	 * Prevents further elements being set if the {@link RegionShape} and its parameters have not already been
+	 *
+	 * @throws UnsupportedOperationException if the {@link RegionShape} specification is insufficient
 	 */
-	private void rejectIfNoRoiOrNotEnoughRoiParams() {
-		if (!roi.isPresent()) {
-			throw new UnsupportedOperationException("Invalid Scan clause: Roi must be set before AreaScanpath");
+	private void rejectIfNoRegionShapeOrNotEnoughRegionShapeParams() {
+		if (!regionShape.isPresent()) {
+			throw new UnsupportedOperationException("Invalid Scan clause: RegionShape must be set before AreaScanpath");
 		}
-		// At this point the roi params should have been filled in so check this is the case
-		if ((roi.get().hasFixedValueCount() && !paramsFull()) || roiParams.size() < roi.get().valueCount()) {
-			throw new UnsupportedOperationException("Invalid Scan clause: not enough parameters for the Roi");
+		// At this point the regionShape params should have been filled in so check this is the case
+		if ((regionShape.get().hasFixedValueCount() && !paramsFull()) || shapeParams.size() < regionShape.get().valueCount()) {
+			throw new UnsupportedOperationException("Invalid Scan clause: not enough parameters for the RegionShape");
+		}
+	}
+
+	/**
+	 * Prevents further elements being set if the specified {@link RegionShape} and {@link AreaScanpath} are incompatible
+	 *
+	 * @param supplied	the {@link AreaScanpath} to be stored
+	 * @throws IllegalStateException for incompatible combinations of {@link RegionShape} and {@link AreaScanpath}
+	 */
+	private void rejectIfInvalidCombintationOfShapeAndPath(final AreaScanpath supplied) {
+		if (!VALID_COMBINATIONS.get(regionShape.get()).contains(supplied)) {
+			throw new IllegalStateException(String.format(
+					"Invalid Scan clause: %s cannot be combined with %s", regionShape.get(), supplied));
 		}
 	}
 

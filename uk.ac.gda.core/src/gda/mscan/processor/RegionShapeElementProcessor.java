@@ -19,20 +19,20 @@
 package gda.mscan.processor;
 
 import gda.mscan.ClauseContext;
-import gda.mscan.element.Roi;
+import gda.mscan.element.RegionShape;
 
 /**
- * A Clause Element Processor for {@link Roi} elements
+ * A Clause Element Processor for {@link RegionShape} elements
  */
-public class RoiElementProcessor extends ElementProcessorBase<Roi> {
+public class RegionShapeElementProcessor extends ElementProcessorBase<RegionShape> {
 
-	public RoiElementProcessor(final Roi source) {
+	public RegionShapeElementProcessor(final RegionShape source) {
 		super(source);
 	}
 
 	/**
-	 * Confirm that a {@link Roi} is allowed as the next type to be processed in the MScan clause grammar
-	 * and if so, set the {@link Roi} used in construction on the context object provided this is not the
+	 * Confirm that a {@link RegionShape} is allowed as the next type to be processed in the MScan clause grammar
+	 * and if so, set the {@link RegionShape} used in construction on the context object provided this is not the
 	 * first element in the clause.
 	 *
 	 * @param context	The {@link ClauseContext} object being completed for the current MSCan clause
@@ -46,7 +46,7 @@ public class RoiElementProcessor extends ElementProcessorBase<Roi> {
 	public void process(final ClauseContext context, final int index) {
 		rejectIfFirstElement(index);
 		if(isValidElement(context, this.getClass().getName())) {
-			context.setRoi(enclosed);
+			context.setRegionShape(enclosed);
 		}
 	}
 
@@ -56,9 +56,9 @@ public class RoiElementProcessor extends ElementProcessorBase<Roi> {
 	}
 
 	/**
-	 * Retrieve the name of the enclosed {@link Roi}
+	 * Retrieve the name of the enclosed {@link RegionShape}
 	 *
-	 * @return the name of the enclosed {@link Roi}
+	 * @return the name of the enclosed {@link RegionShape}
 	 */
 	@Override
 	public String getElementValue() {

@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
-import gda.mscan.element.Roi;
+import gda.mscan.element.RegionShape;
 import gda.mscan.processor.IClauseElementProcessor;
 
 /**
@@ -41,7 +41,7 @@ import gda.mscan.processor.IClauseElementProcessor;
 public class ScanClausesResolver {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanClausesResolver.class);
-	private static final int MIN_MSCAN_NON_SCANNABLE_TERMS = 6;
+	private static final int MIN_MSCAN_NON_SCANNABLE_TERMS = 5;
 
 	private final int nArgs;
 	private final List<IClauseElementProcessor> processors;
@@ -55,7 +55,7 @@ public class ScanClausesResolver {
 
 	/**
 	 * Iterates over the list of {@link IClauseElementProcessor}s used to construct this object detecting a new scan
-	 * Clause at the appropriate boundaries marked by the occurrence of a new {@link Scannable} under certain conditions.
+	 * clause at the appropriate boundaries marked by the occurrence of a new {@link Scannable} under certain conditions.
 	 * Not every new {@link Scannable} is a boundary as now the "mscan scannable1 scannable2......." form must be
 	 * supported for mapping scans. This produces a {@link List} of {@link List}s of {@link IClauseElementProcessor}s
 	 * that can then be individually handled. The class does not attempt to parse the contents of the clauses, just
@@ -110,7 +110,7 @@ public class ScanClausesResolver {
 	}
 
 	/**
-	 * If the next element is not a {@link Scannable} and not a {@link Roi}, (two of the three possibilities
+	 * If the next element is not a {@link Scannable} and not a {@link RegionShape}, (two of the three possibilities
 	 * allowed by the clause grammar), then we have something of the form ...S1 Number..... This is potentially
 	 * an old style SPEC scan clause covering e.g. S1 start stop step etc.: It is if its the first element in the
 	 * array, otherwise it is if the previous element is not a {@link Scannable}.
@@ -134,7 +134,7 @@ public class ScanClausesResolver {
 	 * This method is to be evaluated after isSPECScanBoundary() so the possibility of an old style boundary
 	 * will have been eliminated at this point.
 	 * There are two main possible syntax cases for a mscan boundary: a {@link Scannable} followed by another
-	 * followed by a {@link Roi} (or a {@link Number} in the default case) or a {@link ScannableGroup} followed by a {@link Roi}
+	 * followed by a {@link RegionShape} (or a {@link Number} in the default case) or a {@link ScannableGroup} followed by a {@link RegionShape}
 	 * (or a {@link Number} in the default case - will in fact be caught by Spec Scan boundary detection as they're equivalent).
 	 * Either will return true. The method also evaluates if the remaining array length is less than the minimum possible length
 	 * for an mscan clauses throwing if so.
@@ -155,8 +155,11 @@ public class ScanClausesResolver {
 						"The scan command is incorrect - MScan path definition can't contain more than two Scannables");
 				}
 			}
-			boolean detected = processors.get(adjustedIndex).hasScannable() &&
-					(processors.get(adjustedIndex + 1).hasRoi() || processors.get(adjustedIndex + 1).hasNumber());
+			// first test for default arrangement: (mscan) S1 S1 Region.......
+			IClauseElementProcessor nextProcessor = processors.get(adjustedIndex);
+			IClauseElementProcessor nextButOneProcessor = processors.get(adjustedIndex + 1);
+			boolean detected = nextProcessor.hasScannable() &&
+												(nextButOneProcessor.hasRoi() || nextButOneProcessor.hasNumber());
 			if (detected) {
 				logger.debug("MScan boundary detected at position {}", index);
 			}

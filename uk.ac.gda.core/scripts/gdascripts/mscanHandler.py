@@ -13,17 +13,17 @@ A friendly interface to mapping scans.
 
 Basic Syntax is of the form:
 
-mscan <axes> <Roi> <Roi Params> <AreaScanpath> <AreaScanpath Params> <Detectors/Monitors>
+mscan <axes> <RegionShape> <RegionShape Params> <AreaScanpath> <AreaScanpath Params> <Detectors/Monitors>
 
 where:
 
 <axes> can be two Scannables or two element ScannableGroup
-<Roi> can be rect (rectangle)
+<RegionShape> can be rect (rectangle)
              crec (centred_rectangle)
              circ (circle)
              poly (polygon)
     N.B. the full name or abbreviation can be used
-<Roi Params> are the numeric parameters for the specified Roi
+<RegionShape Params> are the numeric parameters for the specified RegionShape
 <AreaScanpath> can be grid (grid)
                       rast (raster)
                       spir (spiral)
@@ -36,7 +36,7 @@ N.B. At the moment IRunnableDevice detectors are not supported natively and must
 have an accompanying Scannable based Detector in the beamline config with a
 matching name to be used.
 
-The default Roi and AreaScanpath are rectangle and raster and these will be
+The default RegionShape and AreaScanpath are rectangle and raster and these will be
 selected if none are specified in the command e.g.
 
 mscan sc1 sc2 0,0 5,5 0.5,0.5 d1
@@ -58,7 +58,7 @@ from your localstation.py or any other scripts
 
 import sys
 import gda.mscan.element.AreaScanpath as AreaScanpath
-import gda.mscan.element.Roi as Roi
+import gda.mscan.element.RegionShape as RegionShape
 import gda.mscan.element.Mutator as Mutator
 
 from gda.jython.commands.GeneralCommands import alias
@@ -73,6 +73,9 @@ grid = (lambda:AreaScanpath.GRID)()
 rast = raster = (lambda:AreaScanpath.RASTER)()
 spir = spiral = (lambda:AreaScanpath.SPIRAL)()
 liss = lissajous = (lambda:AreaScanpath.LISSAJOUS)()
+step = angl = angle = (lambda:AreaScanpath.ONEDSTEP)()
+equa = equal = eq = proj = projections = (lambda:AreaScanpath.ONEDEQUAL)()
+
 
 # Register the commands with the Translator
 alias('grid')
@@ -82,15 +85,23 @@ alias('spir')
 alias('spiral')
 alias('liss')
 alias('lissajous')
+alias('step')
+alias('angl')
+alias('angle')
+alias('equa')
+alias('equal')
 
-# Set up functions that return the Roi Enum instances and assign them to
+
+# Set up functions that return the RegionShape Enum instances and assign them to
 # the corresponding names and standard 4 character abbreviations so that
 # they can be protected using alias()
 
-rect = rectangle = (lambda:Roi.RECTANGLE)()
-crec = centred_rectangle = (lambda:Roi.CENTRED_RECTANGLE)()
-circ = circle = (lambda:Roi.CIRCLE)()
-poly = polygon = (lambda:Roi.POLYGON)()
+rect = rectangle = (lambda:RegionShape.RECTANGLE)()
+crec = centred_rectangle = (lambda:RegionShape.CENTRED_RECTANGLE)()
+circ = circle = (lambda:RegionShape.CIRCLE)()
+poly = polygon = (lambda:RegionShape.POLYGON)()
+line = (lambda:RegionShape.LINE)()
+poin = point = pt = (lambda:RegionShape.POINT)()
 
 # Register the commands with the Translator
 alias('rect')
@@ -101,6 +112,12 @@ alias('circ')
 alias('circle')
 alias('poly')
 alias('polygon')
+alias('line')
+alias('poin')
+alias('point')
+alias('pt')
+
+
 
 # Set up functions that return Mutator Enum instances and assign them to
 # the corresponding names and standard 4 character abbreviations so that

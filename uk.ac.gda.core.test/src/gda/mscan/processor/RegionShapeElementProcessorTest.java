@@ -32,21 +32,21 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import gda.device.Scannable;
 import gda.mscan.ClauseContext;
-import gda.mscan.element.Roi;
+import gda.mscan.element.RegionShape;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RoiElementProcessorTest {
+public class RegionShapeElementProcessorTest {
 
-	private RoiElementProcessor processor;
+	private RegionShapeElementProcessor processor;
 
-	private Roi roi = Roi.CIRCLE;
+	private RegionShape shape = RegionShape.CIRCLE;
 
 	@Mock
 	private ClauseContext context;
 
 	@Before
 	public void setUp() throws Exception {
-		processor = new RoiElementProcessor(roi);
+		processor = new RegionShapeElementProcessor(shape);
 		when(context.grammar()).thenCallRealMethod();
 	}
 
@@ -72,7 +72,7 @@ public class RoiElementProcessorTest {
 	public void processSetsValidSuccessorAsContextRoi() throws Exception {
 		doReturn(Scannable.class).when(context).getPreviousType();
 		processor.process(context, 1);
-		verify(context).setRoi(roi);
+		verify(context).setRegionShape(shape);
 	}
 
 	@Test
@@ -82,6 +82,6 @@ public class RoiElementProcessorTest {
 
 	@Test
 	public void getSource() throws Exception {
-		assertThat(processor.getElement(), is(roi));
+		assertThat(processor.getElement(), is(shape));
 	}
 }

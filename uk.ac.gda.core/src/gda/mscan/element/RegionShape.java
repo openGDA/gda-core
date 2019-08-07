@@ -27,6 +27,7 @@ import java.util.List;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
+import org.eclipse.dawnsci.analysis.dataset.roi.PointROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 
@@ -38,12 +39,13 @@ import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
  *
  * @since GDA 9.9
  */
-public enum Roi implements IMScanElementEnum {
+public enum RegionShape implements IMScanElementEnum {
 	RECTANGLE("rect", 4, true, RectangularROI.class, Factory::createRectangularROI),
 	CENTRED_RECTANGLE("crec", 4, true, RectangularROI.class, Factory::createCenteredRectangularROI),
 	CIRCLE("circ", 3, true, CircularROI.class, Factory::createCircularROI),
 	POLYGON("poly", 6, false, PolygonalROI.class, Factory::createPolygonalROI),
-	LINE("line", 4, true, LinearROI.class, Factory::createLinearROI);
+	LINE("line", 4, true, LinearROI.class, Factory::createLinearROI),
+	POINT("poin", 2, true, PointROI.class, Factory::createPointROI);
 
 	private static final String PREFIX = "Invalid Scan clause: ";
 
@@ -53,7 +55,7 @@ public enum Roi implements IMScanElementEnum {
 	private final Class<? extends IROI> roiType;
 	private final RoiFactoryFunction factory;
 
-	private Roi(final String text, final int valueCount, final boolean hasFixedValueCount,
+	private RegionShape(final String text, final int valueCount, final boolean hasFixedValueCount,
 				final Class<? extends IROI> roiType, final RoiFactoryFunction factoryFunction) {
 		this.text = text;
 		this.valueCount = valueCount;
@@ -67,7 +69,7 @@ public enum Roi implements IMScanElementEnum {
 	 *
 	 * @return	The {@link #RECTANGLE} instance
 	 */
-	public static Roi defaultValue() {
+	public static RegionShape defaultValue() {
 		return RECTANGLE;
 	}
 
@@ -256,6 +258,16 @@ public enum Roi implements IMScanElementEnum {
 			return new LinearROI(
 					new double[] {params.get(0).doubleValue(), params.get(1).doubleValue()},
 					new double[] {params.get(2).doubleValue(), params.get(3).doubleValue()});
+		}
+
+		/**
+		 * Creates a {@link PointROI} using the supplied params.
+		 *
+		 * @param params	The coordinates of the point as a {@link List} in the order xstart, ystart
+		 * @return			An {@link IROI} of the requested shape and dimensions
+		 */
+		private static IROI createPointROI(final List<Number> params) {
+			return new PointROI(params.get(0).doubleValue(), params.get(1).doubleValue());
 		}
 	}
 }

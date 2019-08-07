@@ -36,7 +36,7 @@ import gda.device.Scannable;
 import gda.device.scannable.ScannableMotor;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.mscan.ClauseContext;
-import gda.mscan.element.Roi;
+import gda.mscan.element.RegionShape;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -68,7 +68,7 @@ public class ScannableGroupElementProcessorTest {
 	 */
 	@Test(expected = UnsupportedOperationException.class)
 	public void processLookUpTrapsIncorrectGrammar() throws Exception {
-		doReturn(Roi.class).when(context).getPreviousType();
+		doReturn(RegionShape.class).when(context).getPreviousType();
 		processor.process(context, 1);
 	}
 

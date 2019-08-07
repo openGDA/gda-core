@@ -55,13 +55,13 @@ import gda.device.scannable.ScannableMotor;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.mscan.element.AreaScanpath;
 import gda.mscan.element.Mutator;
-import gda.mscan.element.Roi;
+import gda.mscan.element.RegionShape;
 import gda.mscan.processor.AreaScanpathElementProcessor;
 import gda.mscan.processor.IClauseElementProcessor;
 import gda.mscan.processor.IRunnableDeviceDetectorElementProcessor;
 import gda.mscan.processor.MutatorElementProcessor;
 import gda.mscan.processor.NumberElementProcessor;
-import gda.mscan.processor.RoiElementProcessor;
+import gda.mscan.processor.RegionShapeElementProcessor;
 import gda.mscan.processor.ScannableElementProcessor;
 import gda.mscan.processor.ScannableGroupElementProcessor;
 
@@ -75,6 +75,8 @@ public class MScanSubmitterTest {
 	private ScanClausesResolver resolver;
 	@Mock
 	private ScannableMotor scannable;
+	@Mock
+	private ScannableMotor anotherScannable;
 	@Mock
 	private ScannableGroup scannableGrp;
 	@Mock
@@ -276,7 +278,7 @@ public class MScanSubmitterTest {
 
 	@Test
 	public void canMakeRoiProcessors() throws Exception {
-		Object[] arr = {scannable, Roi.CIRCLE};
+		Object[] arr = {scannable, RegionShape.CIRCLE};
 		when(resolver.resolveScanClauses()).thenThrow(new IllegalArgumentException());
 		exception.expect(IllegalArgumentException.class);
 		try {
@@ -286,8 +288,8 @@ public class MScanSubmitterTest {
 			assertThat(processors.size(), is(2));
 			assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
 			assertThat(processors.get(0).getElement(), is(scannable));
-			assertThat(processors.get(1), instanceOf(RoiElementProcessor.class));
-			assertThat(processors.get(1).getElement(), is(Roi.CIRCLE));
+			assertThat(processors.get(1), instanceOf(RegionShapeElementProcessor.class));
+			assertThat(processors.get(1).getElement(), is(RegionShape.CIRCLE));
 			throw e;
 		}
 	}
@@ -356,12 +358,12 @@ public class MScanSubmitterTest {
 
 	@Test
 	public void createsCorrectProcessorListForPlausibleScan() throws Exception {
-		Object[] arr = {scannable, scannable, Roi.CIRCLE, 2, 3, 5.5, AreaScanpath.GRID, 1, 1,
+		Object[] arr = {scannable, anotherScannable, RegionShape.CIRCLE, 2, 3, 5.5, AreaScanpath.GRID, 1, 1,
 										detector,monitor, detectorRunnableDevice, 0.5, scannable};
 		when(resolver.resolveScanClauses()).thenReturn(
 				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
-											new ScannableElementProcessor(scannable),
-											new RoiElementProcessor(Roi.CIRCLE),
+											new ScannableElementProcessor(anotherScannable),
+											new RegionShapeElementProcessor(RegionShape.CIRCLE),
 											new NumberElementProcessor(2),
 											new NumberElementProcessor(3),
 											new NumberElementProcessor(5.5),
@@ -379,9 +381,9 @@ public class MScanSubmitterTest {
 		assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
 		assertThat(processors.get(0).getElement(), is(scannable));
 		assertThat(processors.get(1), instanceOf(ScannableElementProcessor.class));
-		assertThat(processors.get(1).getElement(), is(scannable));
-		assertThat(processors.get(2), instanceOf(RoiElementProcessor.class));
-		assertThat(processors.get(2).getElement(), is(Roi.CIRCLE));
+		assertThat(processors.get(1).getElement(), is(anotherScannable));
+		assertThat(processors.get(2), instanceOf(RegionShapeElementProcessor.class));
+		assertThat(processors.get(2).getElement(), is(RegionShape.CIRCLE));
 		assertThat(processors.get(3), instanceOf(NumberElementProcessor.class));
 		assertThat(processors.get(3).getElement(), is(2));
 		assertThat(processors.get(4), instanceOf(NumberElementProcessor.class));
@@ -406,15 +408,86 @@ public class MScanSubmitterTest {
 		assertThat(processors.get(13).getElement(), is(scannable));
 	}
 
+	@Test
+	public void createsCorrectProcessorListForPointScanWithShorthandSyntax() throws Exception {
+		Object[] arr = {scannable, anotherScannable, RegionShape.POINT, 2, 3, detectorRunnableDevice};
+		when(resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
+											new ScannableElementProcessor(anotherScannable),
+											new RegionShapeElementProcessor(RegionShape.POINT),
+											new NumberElementProcessor(2),
+											new NumberElementProcessor(3),
+											new AreaScanpathElementProcessor(AreaScanpath.SINGLEPOINT),
+											new NumberElementProcessor(2),
+											new NumberElementProcessor(3)),
+							  Arrays.asList(new IRunnableDeviceDetectorElementProcessor(detectorRunnableDevice))));
+		builder.buildAndSubmitBlockingScanRequest(arr);
+		List<IClauseElementProcessor> processors = captor.getValue();
+		assertThat(processors.size(), is(9));
+		assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(0).getElement(), is(scannable));
+		assertThat(processors.get(1), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(1).getElement(), is(anotherScannable));
+		assertThat(processors.get(2), instanceOf(RegionShapeElementProcessor.class));
+		assertThat(processors.get(2).getElement(), is(RegionShape.POINT));
+		assertThat(processors.get(3), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(3).getElement(), is(2));
+		assertThat(processors.get(4), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(4).getElement(), is(3));
+		assertThat(processors.get(5), instanceOf(AreaScanpathElementProcessor.class));
+		assertThat(processors.get(5).getElement(), is(AreaScanpath.SINGLEPOINT));
+		assertThat(processors.get(6), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(6).getElement(), is(2));
+		assertThat(processors.get(7), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(7).getElement(), is(3));
+		assertThat(processors.get(8), instanceOf(IRunnableDeviceDetectorElementProcessor.class));
+		assertThat(processors.get(8).getElement(), is(detectorRunnableDevice));
+	}
+
+	@Test
+	public void createsCorrectProcessorListForPointScanWithFullSyntax() throws Exception {
+		Object[] arr = {scannable, anotherScannable, RegionShape.POINT, 2, 3, RegionShape.POINT, 2, 3, detectorRunnableDevice};
+		when(resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
+											new ScannableElementProcessor(anotherScannable),
+											new RegionShapeElementProcessor(RegionShape.POINT),
+											new NumberElementProcessor(2),
+											new NumberElementProcessor(3),
+											new AreaScanpathElementProcessor(AreaScanpath.SINGLEPOINT),
+											new NumberElementProcessor(2),
+											new NumberElementProcessor(3)),
+							  Arrays.asList(new IRunnableDeviceDetectorElementProcessor(detectorRunnableDevice))));
+		builder.buildAndSubmitBlockingScanRequest(arr);
+		List<IClauseElementProcessor> processors = captor.getValue();
+		assertThat(processors.size(), is(9));
+		assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(0).getElement(), is(scannable));
+		assertThat(processors.get(1), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(1).getElement(), is(anotherScannable));
+		assertThat(processors.get(2), instanceOf(RegionShapeElementProcessor.class));
+		assertThat(processors.get(2).getElement(), is(RegionShape.POINT));
+		assertThat(processors.get(3), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(3).getElement(), is(2));
+		assertThat(processors.get(4), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(4).getElement(), is(3));
+		assertThat(processors.get(5), instanceOf(AreaScanpathElementProcessor.class));
+		assertThat(processors.get(5).getElement(), is(AreaScanpath.SINGLEPOINT));
+		assertThat(processors.get(6), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(6).getElement(), is(2));
+		assertThat(processors.get(7), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(7).getElement(), is(3));
+		assertThat(processors.get(8), instanceOf(IRunnableDeviceDetectorElementProcessor.class));
+		assertThat(processors.get(8).getElement(), is(detectorRunnableDevice));
+	}
 
 	@Test
 	public void willFailWithoutRunnableDeviceMatchingDetector() throws Exception {
 		when(runnableDeviceService.getRunnableDevice("Detector")).thenReturn(null);
-		Object[] arr = {scannable, scannable, Roi.CIRCLE, 2, 3, 5.5, AreaScanpath.GRID, 1, 1, detector, 0.5};
+		Object[] arr = {scannable, anotherScannable, RegionShape.CIRCLE, 2, 3, 5.5, AreaScanpath.GRID, 1, 1, detector, 0.5};
 		when(resolver.resolveScanClauses()).thenReturn(
 				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
-											new ScannableElementProcessor(scannable),
-											new RoiElementProcessor(Roi.CIRCLE),
+											new ScannableElementProcessor(anotherScannable),
+											new RegionShapeElementProcessor(RegionShape.CIRCLE),
 											new NumberElementProcessor(2),
 											new NumberElementProcessor(3),
 											new NumberElementProcessor(5.5),
@@ -430,11 +503,11 @@ public class MScanSubmitterTest {
 
 	@Test
 	public void willFailWithTooManyDetectorParameters() throws Exception {
-		Object[] arr = {scannable, scannable, Roi.CIRCLE, 2, 3, 5.5, AreaScanpath.GRID, 1, 1, detector, 0.5, 1.7};
+		Object[] arr = {scannable, anotherScannable, RegionShape.CIRCLE, 2, 3, 5.5, AreaScanpath.GRID, 1, 1, detector, 0.5, 1.7};
 		when(resolver.resolveScanClauses()).thenReturn(
 				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
-											new ScannableElementProcessor(scannable),
-											new RoiElementProcessor(Roi.CIRCLE),
+											new ScannableElementProcessor(anotherScannable),
+											new RegionShapeElementProcessor(RegionShape.CIRCLE),
 											new NumberElementProcessor(2),
 											new NumberElementProcessor(3),
 											new NumberElementProcessor(5.5),
@@ -451,11 +524,11 @@ public class MScanSubmitterTest {
 
 	@Test
 	public void willFailWithWrongTypeOfDetectorParameters() throws Exception {
-		Object[] arr = {scannable, scannable, Roi.CIRCLE, 2, 3, 5.5, AreaScanpath.GRID, 1, 1, detector, AreaScanpath.GRID};
+		Object[] arr = {scannable, anotherScannable, RegionShape.CIRCLE, 2, 3, 5.5, AreaScanpath.GRID, 1, 1, detector, AreaScanpath.GRID};
 		when(resolver.resolveScanClauses()).thenReturn(
 				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
-											new ScannableElementProcessor(scannable),
-											new RoiElementProcessor(Roi.CIRCLE),
+											new ScannableElementProcessor(anotherScannable),
+											new RegionShapeElementProcessor(RegionShape.CIRCLE),
 											new NumberElementProcessor(2),
 											new NumberElementProcessor(3),
 											new NumberElementProcessor(5.5),
@@ -471,11 +544,11 @@ public class MScanSubmitterTest {
 
 	@Test
 	public void willFailWithMonitorParameters() throws Exception {
-		Object[] arr = {scannable, scannable, Roi.CIRCLE, 2, 3, 5.5, AreaScanpath.GRID, 1, 1, monitor, 0.5};
+		Object[] arr = {scannable, anotherScannable, RegionShape.CIRCLE, 2, 3, 5.5, AreaScanpath.GRID, 1, 1, monitor, 0.5};
 		when(resolver.resolveScanClauses()).thenReturn(
 				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
-											new ScannableElementProcessor(scannable),
-											new RoiElementProcessor(Roi.CIRCLE),
+											new ScannableElementProcessor(anotherScannable),
+											new RegionShapeElementProcessor(RegionShape.CIRCLE),
 											new NumberElementProcessor(2),
 											new NumberElementProcessor(3),
 											new NumberElementProcessor(5.5),

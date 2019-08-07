@@ -42,7 +42,7 @@ import gda.device.monitor.DummyMonitor;
 import gda.device.scannable.ScannableMotor;
 import gda.mscan.element.AreaScanpath;
 import gda.mscan.element.Mutator;
-import gda.mscan.element.Roi;
+import gda.mscan.element.RegionShape;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -116,52 +116,52 @@ public class ClauseContextTest {
 	}
 
 	/**
-	 * Test methods for {@link gda.mscan.ClauseContext#setRoi(gda.mscan.element.Roi)}.
+	 * Test methods for {@link gda.mscan.ClauseContext#setRegionShape(gda.mscan.element.RegionShape)}.
 	 */
 
 	@Test
-	public void roiToSetMustNotBeNull() {
-		expectIllegalArgumentWithMessageContents("The supplied Roi was null");
-		prepareForRoiTest(clauseContext);
-		clauseContext.setRoi(null);
+	public void regionShapeToSetMustNotBeNull() {
+		expectIllegalArgumentWithMessageContents("The supplied RegionShape was null");
+		prepareForRegionShapeTest(clauseContext);
+		clauseContext.setRegionShape(null);
 	}
 
 	@Test
-	public void roiCannotBeSetIfNoScannables() {
+	public void regionShaperegionShapeCannotBeSetIfNoScannables() {
 		expectUnsupportedOperationWithMessageContents("requires 2 scannables");
-		clauseContext.setRoi(Roi.RECTANGLE);
+		clauseContext.setRegionShape(RegionShape.RECTANGLE);
 	}
 
 	@Test
-	public void roiCannotBeSetIfOnlyOneScannable() {
+	public void regionShapeCannotBeSetIfOnlyOneScannable() {
 		expectUnsupportedOperationWithMessageContents("requires 2 scannables");
 		clauseContext.addScannable(scannable);
-		clauseContext.setRoi(null);
+		clauseContext.setRegionShape(null);
 	}
 
 	@Test
-	public void roiCannotBeSetTwiceBecauseRoiParamsWillHaveBeenInitialised() {
-		expectIllegalStateWithMessageContents("Roi must be the specified before any parameters");
-		prepareForRoiTest(clauseContext);
-		clauseContext.setRoi(Roi.RECTANGLE);
-		clauseContext.setRoi(Roi.CIRCLE);
+	public void regionShapeCannotBeSetTwiceBecauseRegionShapeParamsWillHaveBeenInitialised() {
+		expectIllegalStateWithMessageContents("RegionShape must be the specified before any parameters");
+		prepareForRegionShapeTest(clauseContext);
+		clauseContext.setRegionShape(RegionShape.RECTANGLE);
+		clauseContext.setRegionShape(RegionShape.CIRCLE);
 	}
 
 	@Test
-	public void roiCannotBeSetIfAreaScanpathAlreadyHasBeen() {
-		expectUnsupportedOperationWithMessageContents("Roi must be set before AreaScanpath");
-		prepareForRoiTest(clauseContext);
+	public void regionShapeCannotBeSetIfAreaScanpathAlreadyHasBeen() {
+		expectUnsupportedOperationWithMessageContents("RegionShape must be set before AreaScanpath");
+		prepareForRegionShapeTest(clauseContext);
 		clauseContext.setAreaScanpath(AreaScanpath.GRID);
-		clauseContext.setRoi(Roi.CIRCLE);
+		clauseContext.setRegionShape(RegionShape.CIRCLE);
 	}
 
 	@Test
-	public void setRoiSetsMetadataAndRoiIfScannablesCorrectlySet() throws Exception {
-		prepareForRoiTest(unvalidatedClauseContext);
-		unvalidatedClauseContext.setRoi(Roi.CIRCLE);
-		assertThat(unvalidatedClauseContext.getRoi(), is(Roi.CIRCLE));
-		assertThat(unvalidatedClauseContext.getPreviousType().getTypeName(), is("gda.mscan.element.Roi"));
-		assertThat(unvalidatedClauseContext.paramsToFill(), is(unvalidatedClauseContext.getRoiParams()));
+	public void setRegionShapeSetsMetadataAndRegionShapeIfScannablesCorrectlySet() throws Exception {
+		prepareForRegionShapeTest(unvalidatedClauseContext);
+		unvalidatedClauseContext.setRegionShape(RegionShape.CIRCLE);
+		assertThat(unvalidatedClauseContext.getRegionShape(), is(RegionShape.CIRCLE));
+		assertThat(unvalidatedClauseContext.getPreviousType().getTypeName(), is("gda.mscan.element.RegionShape"));
+		assertThat(unvalidatedClauseContext.paramsToFill(), is(unvalidatedClauseContext.getShapeParams()));
 		assertThat(unvalidatedClauseContext.getRequiredParamCount(), is(3));
 		assertThat(unvalidatedClauseContext.paramsFull(), is(false));
 		assertThat(unvalidatedClauseContext.getParamCount(), is(0));
@@ -200,7 +200,7 @@ public class ClauseContextTest {
 	}
 
 	@Test
-	public void setAreaScanpathSetsMetadataAndStoresScanpathIfScannablesAndRoiCorrectlySet() throws Exception {
+	public void setAreaScanpathSetsMetadataAndStoresScanpathIfScannablesAndRegionShapeCorrectlySet() throws Exception {
 		prepareForAreaScanpathTest(unvalidatedClauseContext);
 		unvalidatedClauseContext.setAreaScanpath(AreaScanpath.SPIRAL);
 		assertThat(unvalidatedClauseContext.getAreaScanpath(), is(AreaScanpath.SPIRAL));
@@ -345,7 +345,7 @@ public class ClauseContextTest {
 
 	@Test
 	public void paramToAddMustNotBeNull() {
-		prepareForNumericParamTest(clauseContext, Roi.CENTRED_RECTANGLE);
+		prepareForNumericParamTest(clauseContext, RegionShape.CENTRED_RECTANGLE);
 		expectIllegalArgumentWithMessageContents("The supplied Number was null");
 		clauseContext.addParam(null);
 	}
@@ -357,18 +357,18 @@ public class ClauseContextTest {
 	}
 
 	@Test
-	public void roiIsBeDefaultedIfAddParamsWhenNoRoiSetButScannablesAdded() throws Exception {
-		prepareForRoiTest(unvalidatedClauseContext);
+	public void regionShapeIsBeDefaultedIfAddParamsWhenNoRegionShapeSetButScannablesAdded() throws Exception {
+		prepareForRegionShapeTest(unvalidatedClauseContext);
 		assertThat(unvalidatedClauseContext.addParam(2), is(true));
-		assertThat(unvalidatedClauseContext.getRoi(), is(Roi.defaultValue()));
-		assertThat(unvalidatedClauseContext.getRoiParams(), contains(2));
+		assertThat(unvalidatedClauseContext.getRegionShape(), is(RegionShape.defaultValue()));
+		assertThat(unvalidatedClauseContext.getShapeParams(), contains(2));
 		assertThat(unvalidatedClauseContext.getParamCount(), is(1));
 		assertThat(unvalidatedClauseContext.paramsFull(), is(false));
 		assertThat(unvalidatedClauseContext.getPreviousType().getTypeName(), is("java.lang.Number"));
 	}
 
 	@Test
-	public void areaScanpathIsDefaultedIfAddParamsWhenRoiAndItsParamsSetAndScannablesAdded() throws Exception {
+	public void areaScanpathIsDefaultedIfAddParamsWhenRegionShapeAndItsParamsSetAndScannablesAdded() throws Exception {
 		prepareForAreaScanpathTest(unvalidatedClauseContext);
 		assertThat(unvalidatedClauseContext.addParam(2), is(true));
 		assertThat(unvalidatedClauseContext.getAreaScanpath(), is(AreaScanpath.defaultValue()));
@@ -388,9 +388,9 @@ public class ClauseContextTest {
 
 	@Test
 	public void addParamUpdatesMetadataAndStoresParam() throws Exception {
-		prepareForNumericParamTest(unvalidatedClauseContext, Roi.RECTANGLE);
+		prepareForNumericParamTest(unvalidatedClauseContext, RegionShape.RECTANGLE);
 		assertThat(unvalidatedClauseContext.addParam(5), is(true));
-		assertThat(unvalidatedClauseContext.getRoiParams(), contains(5));
+		assertThat(unvalidatedClauseContext.getShapeParams(), contains(5));
 		assertThat(unvalidatedClauseContext.getParamCount(), is(1));
 		assertThat(unvalidatedClauseContext.paramsFull(), is(false));
 		assertThat(unvalidatedClauseContext.getPreviousType().getTypeName(), is("java.lang.Number"));
@@ -400,8 +400,8 @@ public class ClauseContextTest {
 	 * Test method for {@link gda.mscan.ClauseContext#paramsFull()}.+
 	 */
 	@Test
-	public void boundedRoiParamsListCannotBeOverfilledBecauseWillDefaultAreaScanpath() throws Exception {
-		prepareForNumericParamTest(unvalidatedClauseContext, Roi.CIRCLE);
+	public void boundedRegionShapeParamsListCannotBeOverfilledBecauseWillDefaultAreaScanpath() throws Exception {
+		prepareForNumericParamTest(unvalidatedClauseContext, RegionShape.CIRCLE);
 		assertThat(unvalidatedClauseContext.getRequiredParamCount(), is(3));
 		assertThat(unvalidatedClauseContext.addParam(0), is(true));
 		assertThat(unvalidatedClauseContext.paramsFull(), is(false));
@@ -417,8 +417,8 @@ public class ClauseContextTest {
 	}
 
 	@Test(expected = NoSuchElementException.class)
-	public void unboundedRoiParamsListCannotBeOverfilled() throws Exception {
-		prepareForNumericParamTest(unvalidatedClauseContext, Roi.POLYGON);
+	public void unboundedRegionShapeParamsListCannotBeOverfilled() throws Exception {
+		prepareForNumericParamTest(unvalidatedClauseContext, RegionShape.POLYGON);
 		assertThat(unvalidatedClauseContext.getRequiredParamCount(), is(6));
 		assertThat(unvalidatedClauseContext.addParam(0), is(true));
 		assertThat(unvalidatedClauseContext.paramsFull(), is(false));
@@ -478,9 +478,39 @@ public class ClauseContextTest {
 	}
 
 	@Test
-	public void validateRejectsContextsWithoutBothRoiAndAreaScanpath() throws Exception {
-		expectIllegalStateWithMessageContents("both Roi and AreaScanpath");
+	public void validateRejectsContextsWithoutBothRegionShapeAndAreaScanpath() throws Exception {
+		expectIllegalStateWithMessageContents("both RegionShape and AreaScanpath");
 		prepareForAreaScanpathTest(clauseContext);
+		clauseContext.validateAndAdjust();
+	}
+
+	@Test
+	public void validateRejectsContextsWithIncompatibleRegionShapeAndAreaScanpathFor2DShape() throws Exception {
+		expectIllegalStateWithMessageContents("cannot be combined with");
+		prepareForAreaScanpathTest(clauseContext);
+		clauseContext.setAreaScanpath(AreaScanpath.ONEDEQUAL);
+		clauseContext.validateAndAdjust();
+	}
+
+	@Test
+	public void validateRejectsContextsWithIncompatibleRegionShapeAndAreaScanpathForLine() throws Exception {
+		expectIllegalStateWithMessageContents("cannot be combined with");
+		prepareForNumericParamTest(clauseContext, RegionShape.LINE);
+		clauseContext.addParam(3);
+		clauseContext.addParam(4);
+		clauseContext.addParam(5);
+		clauseContext.addParam(6);
+		clauseContext.setAreaScanpath(AreaScanpath.GRID);
+		clauseContext.validateAndAdjust();
+	}
+
+	@Test
+	public void validateRejectsContextsWithIncompatibleRegionShapeAndAreaScanpathForPoint() throws Exception {
+		expectIllegalStateWithMessageContents("cannot be combined with");
+		prepareForNumericParamTest(clauseContext, RegionShape.POINT);
+		clauseContext.addParam(3);
+		clauseContext.addParam(4);
+		clauseContext.setAreaScanpath(AreaScanpath.ONEDEQUAL);
 		clauseContext.validateAndAdjust();
 	}
 
@@ -493,9 +523,9 @@ public class ClauseContextTest {
 	}
 
 	@Test
-	public void validateRejectsContextsWithTooFewAreaScanpathParamsForUnboundedRoi() throws Exception {
+	public void validateRejectsContextsWithTooFewAreaScanpathParamsForUnboundedRegionShape() throws Exception {
 		expectIllegalStateWithMessageContents("correct no of params");
-		prepareForNumericParamTest(clauseContext, Roi.POLYGON);
+		prepareForNumericParamTest(clauseContext, RegionShape.POLYGON);
 		clauseContext.addParam(3);
 		clauseContext.addParam(4);
 		clauseContext.addParam(5);
@@ -508,9 +538,21 @@ public class ClauseContextTest {
 	}
 
 	@Test
-	public void validateRejectsOddNumberOfParamsForPolygonalRoi() throws Exception {
+	public void validateRejectsContextsWithTooFewAreaScanpathParamsForLineRegionShape() throws Exception {
+		expectIllegalStateWithMessageContents("correct no of params");
+		prepareForNumericParamTest(clauseContext, RegionShape.LINE);
+		clauseContext.addParam(3);
+		clauseContext.addParam(4);
+		clauseContext.addParam(5);
+		clauseContext.addParam(6);
+		clauseContext.setAreaScanpath(AreaScanpath.ONEDSTEP);
+		clauseContext.validateAndAdjust();
+	}
+
+	@Test
+	public void validateRejectsOddNumberOfParamsForPolygonalRegionShape() throws Exception {
 		expectIllegalStateWithMessageContents("even number of params");
-		prepareForNumericParamTest(clauseContext, Roi.POLYGON);
+		prepareForNumericParamTest(clauseContext, RegionShape.POLYGON);
 		clauseContext.addParam(3);
 		clauseContext.addParam(4);
 		clauseContext.addParam(5);
@@ -525,7 +567,7 @@ public class ClauseContextTest {
 	}
 
 	@Test
-	public void correctlyFullyCompletedContextWithBoundedRoiValidates() {
+	public void correctlyFullyCompletedContextWithBoundedRegionShapeValidates() {
 		prepareForAreaScanpathTest(clauseContext);
 		clauseContext.setAreaScanpath(AreaScanpath.GRID);
 		clauseContext.addParam(3);
@@ -534,8 +576,8 @@ public class ClauseContextTest {
 	}
 
 	@Test
-	public void correctlyFullyCompletedContextWithUnboundedRoiValidates() {
-		prepareForNumericParamTest(clauseContext, Roi.POLYGON);
+	public void correctlyFullyCompletedContextWithUnboundedRegionShapeValidates() {
+		prepareForNumericParamTest(clauseContext, RegionShape.POLYGON);
 		clauseContext.addParam(3);
 		clauseContext.addParam(3);
 		clauseContext.addParam(4);
@@ -552,8 +594,30 @@ public class ClauseContextTest {
 	}
 
 	@Test
-	public void correctlyCompletedContextWithDefaultedRoiValidates() {
-		prepareForRoiTest(clauseContext);
+	public void correctlyFullyCompletedContextWithLineRegionShapeValidates() {
+		prepareForNumericParamTest(clauseContext, RegionShape.LINE);
+		clauseContext.addParam(3);
+		clauseContext.addParam(3);
+		clauseContext.addParam(4);
+		clauseContext.addParam(4);
+		clauseContext.setAreaScanpath(AreaScanpath.ONEDEQUAL);
+		clauseContext.addParam(13);
+		assertThat(clauseContext.validateAndAdjust(), is(true));
+	}
+	@Test
+	public void correctlyFullyCompletedContextWithPointRegionShapeValidates() {
+		prepareForNumericParamTest(clauseContext, RegionShape.POINT);
+		clauseContext.addParam(3);
+		clauseContext.addParam(3);
+		clauseContext.setAreaScanpath(AreaScanpath.SINGLEPOINT);
+		clauseContext.addParam(3);
+		clauseContext.addParam(3);
+		assertThat(clauseContext.validateAndAdjust(), is(true));
+	}
+
+	@Test
+	public void correctlyCompletedContextWithDefaultedRegionShapeValidates() {
+		prepareForRegionShapeTest(clauseContext);
 		clauseContext.addParam(3);
 		clauseContext.addParam(3);
 		clauseContext.addParam(4);
@@ -573,8 +637,8 @@ public class ClauseContextTest {
 	}
 
 	@Test
-	public void correctlyCompletedContextWithDefaultedRoiAndAreaScanpathValidates() {
-		prepareForRoiTest(clauseContext);
+	public void correctlyCompletedContextWithDefaultedRegionShapeAndAreaScanpathValidates() {
+		prepareForRegionShapeTest(clauseContext);
 		clauseContext.addParam(3);
 		clauseContext.addParam(3);
 		clauseContext.addParam(4);
@@ -585,9 +649,9 @@ public class ClauseContextTest {
 	}
 
 	@Test
-	public void defaultingOfAreaScanpathCannotBeDetectedWithUnboundedRoi() {
-		expectIllegalStateWithMessageContents("both Roi and AreaScanpath");
-		prepareForNumericParamTest(clauseContext, Roi.POLYGON);
+	public void defaultingOfAreaScanpathCannotBeDetectedWithUnboundedRegionShape() {
+		expectIllegalStateWithMessageContents("both RegionShape and AreaScanpath");
+		prepareForNumericParamTest(clauseContext, RegionShape.POLYGON);
 		clauseContext.addParam(3);
 		clauseContext.addParam(3);
 		clauseContext.addParam(4);
@@ -615,21 +679,21 @@ public class ClauseContextTest {
 	}
 
 	private void prepareForAreaScanpathTest(final ClauseContext context) {
-		prepareForRoiTest(context);
-		context.setRoi(Roi.CIRCLE);
+		prepareForRegionShapeTest(context);
+		context.setRegionShape(RegionShape.CIRCLE);
 		context.addParam(3);
 		context.addParam(3);
 		context.addParam(3);
 	}
 
-	private void prepareForRoiTest(final ClauseContext context) {
+	private void prepareForRegionShapeTest(final ClauseContext context) {
 		context.addScannable(scannable);
 		context.addScannable(scannable);
 	}
 
-	private void prepareForNumericParamTest(final ClauseContext context, Roi roi) {
-		prepareForRoiTest(context);
-		context.setRoi(roi);
+	private void prepareForNumericParamTest(final ClauseContext context, RegionShape regionShape) {
+		prepareForRegionShapeTest(context);
+		context.setRegionShape(regionShape);
 	}
 
 	private void expectUnsupportedOperationWithMessageContents(final String... substrings) {

@@ -52,13 +52,13 @@ import gda.factory.Findable;
 import gda.mscan.element.AreaScanpath;
 import gda.mscan.element.IMScanElementEnum;
 import gda.mscan.element.Mutator;
-import gda.mscan.element.Roi;
+import gda.mscan.element.RegionShape;
 import gda.mscan.processor.AreaScanpathElementProcessor;
 import gda.mscan.processor.IClauseElementProcessor;
 import gda.mscan.processor.IRunnableDeviceDetectorElementProcessor;
 import gda.mscan.processor.MutatorElementProcessor;
 import gda.mscan.processor.NumberElementProcessor;
-import gda.mscan.processor.RoiElementProcessor;
+import gda.mscan.processor.RegionShapeElementProcessor;
 import gda.mscan.processor.ScannableElementProcessor;
 import gda.mscan.processor.ScannableGroupElementProcessor;
 
@@ -83,7 +83,7 @@ public class MScanSubmitter {
 		.put(Scannable.class, arg -> new ScannableElementProcessor((Scannable)arg))
 		.put (ScannableGroup.class, arg -> new ScannableGroupElementProcessor((ScannableGroup)arg))
 		.put(AreaScanpath.class, arg -> new AreaScanpathElementProcessor((AreaScanpath)arg))
-		.put(Roi.class, arg -> new RoiElementProcessor((Roi)arg))
+		.put(RegionShape.class, arg -> new RegionShapeElementProcessor((RegionShape)arg))
 		.put(Mutator.class, arg -> new MutatorElementProcessor((Mutator)arg))
 		.put(Integer.class, arg -> new NumberElementProcessor((Number)arg))
 		.put(Double.class, arg -> new NumberElementProcessor((Number)arg))
@@ -246,7 +246,7 @@ public class MScanSubmitter {
 			logger.debug("Valid scan definition clause detected and added");
 			ArrayList<Number> boundingBoxParams = new ArrayList<>();
 
-			IROI roi = context.getRoi().createIROI(context.getRoiParams());
+			IROI roi = context.getRegionShape().createIROI(context.getShapeParams());
 			IRectangularROI boundingRoi = roi.getBounds();
 			boundingBoxParams.add(boundingRoi.getPointX());
 			boundingBoxParams.add(boundingRoi.getPointY());
@@ -316,18 +316,32 @@ public class MScanSubmitter {
 			"You must specify at least one argument in your mscan command and your first argument must be a Scannable");
 		}
 
+		// Adjust for point scan syntax which doesn't require both region and scanpath
+		List<Object> params = new ArrayList<>();
+		for (int i = 0; i < args.length; i++) {
+			params.add(args[i]);
+			if (args[i].equals(RegionShape.POINT) && args[i + 1] instanceof Number && args[i + 2] instanceof Number) {
+				params.add(args[i + 1]);
+				params.add(args[i + 2]);
+				params.add(AreaScanpath.SINGLEPOINT);
+				if ((args.length >= i + 6) && (args[i + 3].equals(RegionShape.POINT))) {
+					i += 3;
+				}
+			}
+		}
+
 		// Iterate over the command args looking for Scannable and Scannable groups. Can't just use the returned class
 		// as many classes implement Scannable
-		for (int i = 0; i < args.length ; i++) {
-			Class<?> type = args[i].getClass();
-			if (args[i] instanceof Scannable) {
-				if (args[i] instanceof ScannableGroup) {
+		for (int i = 0; i < params.size() ; i++) {
+			Class<?> type = params.get(i).getClass();
+			if (params.get(i) instanceof Scannable) {
+				if (params.get(i) instanceof ScannableGroup) {
 					type = ScannableGroup.class;
 				} else {
 					type = Scannable.class;
 				}
 			}
-			else if (args[i] instanceof IRunnableDevice<?>) {
+			else if (params.get(i) instanceof IRunnableDevice<?>) {
 				type = IRunnableDevice.class;
 			}
 			// Check the processorBuilders map can construct a processor for the required type and if so
@@ -336,7 +350,7 @@ public class MScanSubmitter {
 				throw new IllegalArgumentException(String.format(
 						"Your command contains an invalid argument at position %d", i));
 			}
-			processors.add(processorBuilders.get(type).apply(args[i]));
+			processors.add(processorBuilders.get(type).apply(params.get(i)));
 		}
 		return resolverFactory.getResolver(processors);
 	}
