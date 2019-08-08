@@ -15,6 +15,7 @@ import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.addSpace;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.eclipse.core.databinding.Binding;
@@ -393,11 +394,9 @@ public class TriggerEditor implements ElementEditor {
 		
 		List<Control> controls = new ArrayList<>(Arrays.asList(target, tolerance, interval));
 		if (readoutsCombo != null) controls.add(readoutsCombo.getControl());
-		for (Control control : controls) {
-			if (control != null && !control.isDisposed()) {
-				control.setEnabled(enabled);
-			}
-		}
+		controls.stream()
+			.filter(Objects::nonNull).filter(control -> !control.isDisposed())
+			.forEach(control -> control.setEnabled(enabled));
 	}
 
 	void setReadouts(Set<String> readouts) {
