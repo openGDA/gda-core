@@ -617,6 +617,8 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 				logger.error("Could not get editor for {}", ref, e);
 			}
 		}
+
+		notifySelectionListeners();
 	}
 
 	@Override
@@ -873,6 +875,7 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 		if (getViewer() == null)
 			return;
 		getViewer().refreshTree();
+		notifySelectionListeners();
 	}
 
 	@Override
