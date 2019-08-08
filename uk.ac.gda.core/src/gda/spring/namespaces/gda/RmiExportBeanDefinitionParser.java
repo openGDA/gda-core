@@ -18,12 +18,15 @@
 
 package gda.spring.namespaces.gda;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.core.io.Resource;
 import org.springframework.remoting.rmi.RmiServiceExporter;
 import org.w3c.dom.Element;
 
@@ -38,13 +41,17 @@ import uk.ac.gda.remoting.server.GdaRmiServiceExporter;
  *
  */
 public class RmiExportBeanDefinitionParser implements BeanDefinitionParser {
+	private static final Logger logger = LoggerFactory.getLogger(RmiExportBeanDefinitionParser.class);
 
 	@Override
 	public AbstractBeanDefinition parse(Element element, ParserContext parserContext) {
-
 		final String service = element.getAttribute("service");
 		final String serviceName = element.getAttribute("serviceName");
 		final String serviceInterface = element.getAttribute("serviceInterface");
+
+		logger.warn("Using deprecated rmi-export tag for {} in file {}. Use export instead - see DAQ-2301",
+				service,
+				getSource(parserContext));
 
 		boolean events = true;
 		if (element.hasAttribute("events")) {
@@ -53,7 +60,7 @@ public class RmiExportBeanDefinitionParser implements BeanDefinitionParser {
 		}
 
 		AbstractBeanDefinition beanDef = new GenericBeanDefinition();
-		beanDef.setResource(parserContext.getReaderContext().getResource());
+		beanDef.setResource(getSource(parserContext));
 		beanDef.setBeanClass(GdaRmiServiceExporter.class);
 		beanDef.getPropertyValues().addPropertyValue("service", new RuntimeBeanReference(service));
 		beanDef.getPropertyValues().addPropertyValue("serviceName", serviceName);
@@ -72,6 +79,10 @@ public class RmiExportBeanDefinitionParser implements BeanDefinitionParser {
 		parserContext.getRegistry().registerBeanDefinition(beanName, beanDef);
 
 		return null;
+	}
+
+	private Resource getSource(ParserContext parserContext) {
+		return parserContext.getReaderContext().getResource();
 	}
 
 }

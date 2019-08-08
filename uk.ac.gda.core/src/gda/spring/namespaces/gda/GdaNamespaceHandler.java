@@ -29,8 +29,13 @@ public class GdaNamespaceHandler extends NamespaceHandlerSupport {
 	@Override
 	public void init() {
 		registerBeanDefinitionParser("rbac", new RbacBeanDefinitionParser());
+
 		registerBeanDefinitionParser("rmi-export", new RmiExportBeanDefinitionParser());
 		registerBeanDefinitionParser("rmi-import", new RmiImportBeanDefinitionParser());
+
+		RmiBeanDefinitionParser remoting = new RmiBeanDefinitionParser();
+		registerBeanDefinitionParser("export", remoting::exportBean);
+		registerBeanDefinitionParser("import", remoting::importBean);
 	}
 
 }

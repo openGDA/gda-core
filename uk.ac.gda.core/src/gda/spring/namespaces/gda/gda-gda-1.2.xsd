@@ -1,0 +1,37 @@
+<xsd:schema targetNamespace="http://www.diamond.ac.uk/schema/gda/gda"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns="http://www.diamond.ac.uk/schema/gda/gda"
+            attributeFormDefault="unqualified">
+	
+	<xsd:complexType name="rbacType" />
+	
+	<xsd:element name="rbac" type="rbacType" />
+
+	<xsd:complexType name="remoteType">
+		<xsd:attribute name="service" type="xsd:string" use="required" />
+		<xsd:attribute name="serviceInterface" type="xsd:string" use="required" />
+	</xsd:complexType>
+
+	<xsd:element name="export" type="remoteType" />
+	<xsd:element name="import" type="remoteType" />
+
+	<!-- Deprecated import/export tags -->
+	<xsd:complexType name="rmiExportType">
+		<xsd:attribute name="service" type="xsd:string" use="required" />
+		<xsd:attribute name="serviceName" type="xsd:string" use="required" />
+		<xsd:attribute name="serviceInterface" type="xsd:string" use="required" />
+		<xsd:attribute name="events" type="xsd:boolean" />
+	</xsd:complexType>
+
+	<xsd:element name="rmi-export" type="rmiExportType" />
+
+	<xsd:complexType name="rmiImportType">
+		<xsd:attribute name="id" type="xsd:string" use="required" />
+		<xsd:attribute name="serviceUrl" type="xsd:string" use="required" />
+		<xsd:attribute name="serviceInterface" type="xsd:string" use="required" />
+		<xsd:attribute name="events" type="xsd:boolean" />
+	</xsd:complexType>
+
+	<xsd:element name="rmi-import" type="rmiImportType" />
+
+</xsd:schema>

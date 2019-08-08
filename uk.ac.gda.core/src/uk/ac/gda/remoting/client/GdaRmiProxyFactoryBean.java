@@ -18,6 +18,8 @@
 
 package uk.ac.gda.remoting.client;
 
+import java.util.function.Consumer;
+
 import org.aopalliance.intercept.MethodInterceptor;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.BeanNameAware;
@@ -67,9 +69,6 @@ public class GdaRmiProxyFactoryBean extends RmiClientInterceptor implements Bean
 			throw new IllegalArgumentException("Property 'serviceInterface' is required");
 		}
 
-		// This is our custom interceptor, which handles calls to methods in the IObservable interface
-		ClientSideIObservableMethodInterceptor interceptor = new ClientSideIObservableMethodInterceptor();
-
 		// Create the proxy. It will implement all the methods on the service interface (that the object itself
 		// implements).
 		ProxyFactory pf = new ProxyFactory();
@@ -78,27 +77,34 @@ public class GdaRmiProxyFactoryBean extends RmiClientInterceptor implements Bean
 		// Allows SpringObjectServer to determine that an object is an RMI proxy
 		pf.addInterface(RmiProxyMarker.class);
 
-		// Custom interceptor runs first, to deal with the IObservable methods
-		pf.addAdvice(interceptor);
+		Consumer<Object> postProcessor = o -> {};
+		if (remoteObjectIsObservable()) {
+			// This is our custom interceptor, which handles calls to methods in the IObservable interface
+			ClientSideIObservableMethodInterceptor interceptor = new ClientSideIObservableMethodInterceptor();
+			// Custom interceptor runs first, to deal with the IObservable methods
+			pf.addAdvice(interceptor);
+			// If the remote object is observable, create an event receiver object that will receive events relating to
+			// the remote object.
+			postProcessor = proxy -> {
+				try {
+					ClientSideEventReceiver receiver = new ClientSideEventReceiver();
+					receiver.setObjectName(objectName);
+					receiver.setProxy(proxy);
+					receiver.setObservableComponent(interceptor.getObservableComponent());
+					receiver.afterPropertiesSet();
+				} catch (Exception e) {
+					throw new RuntimeException("Unable to receive events for remote object", e);
+				}
+			};
+		}
 
 		// Then the RMI interceptor runs, doing a RMI for all other method calls
 		pf.addAdvice(this);
 
 		this.serviceProxy = pf.getProxy(getBeanClassLoader());
 
-		// If the remote object is observable, create an event receiver object that will receive events relating to
-		// the remote object.
-		if (remoteObjectIsObservable()) {
-			try {
-				ClientSideEventReceiver receiver = new ClientSideEventReceiver();
-				receiver.setObjectName(objectName);
-				receiver.setProxy(serviceProxy);
-				receiver.setObservableComponent(interceptor.getObservableComponent());
-				receiver.afterPropertiesSet();
-			} catch (Exception e) {
-				throw new RuntimeException("Unable to receive events for remote object", e);
-			}
-		}
+		// If this proxy was observable, create the event receiver here
+		postProcessor.accept(serviceProxy);
 
 		// If the remote object is Findable, check the name used for the RMI proxy matches the name of the remote
 		// object. If they don't match the creation of the RMI proxy can cause the remote object's name to change!

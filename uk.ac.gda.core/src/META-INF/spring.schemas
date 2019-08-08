@@ -2,3 +2,4 @@ http\://www.diamond.ac.uk/schema/gda/corba/gda-corba-1.0.xsd=gda/spring/namespac
 http\://www.diamond.ac.uk/schema/gda/corba/gda-corba-1.1.xsd=gda/spring/namespaces/corba/gda-corba-1.1.xsd
 http\://www.diamond.ac.uk/schema/gda/gda/gda-gda-1.0.xsd=gda/spring/namespaces/gda/gda-gda-1.0.xsd
 http\://www.diamond.ac.uk/schema/gda/gda/gda-gda-1.1.xsd=gda/spring/namespaces/gda/gda-gda-1.1.xsd
+http\://www.diamond.ac.uk/schema/gda/gda/gda-gda-1.2.xsd=gda/spring/namespaces/gda/gda-gda-1.2.xsd
