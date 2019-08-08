@@ -1,7 +1,8 @@
 package uk.ac.diamond.daq.experiment.ui.plan.segment;
 
+import java.beans.PropertyChangeListener;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -10,7 +11,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import uk.ac.diamond.daq.experiment.api.ExperimentService;
+import gda.factory.Finder;
+import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
+import uk.ac.diamond.daq.experiment.api.plan.DriverBean;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 import uk.ac.diamond.daq.experiment.api.plan.SegmentDescriptor;
 import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
@@ -23,8 +26,8 @@ public class SegmentListEditor {
 	
 	private final ExperimentPlanBean planBean;
 	
-	public SegmentListEditor(ExperimentService experimentService, String experimentId, ExperimentPlanBean planBean) {
-		segmentEditor = new SegmentEditor(experimentService, experimentId);
+	public SegmentListEditor(String experimentId, ExperimentPlanBean planBean) {
+		segmentEditor = new SegmentEditor(experimentId);
 		this.planBean = planBean;
 	}
 	
@@ -50,11 +53,30 @@ public class SegmentListEditor {
 		
 		listEditor.create(composite);
 		
+		PropertyChangeListener driverChangeListener = change -> {
+			if (change.getPropertyName().equals(ExperimentPlanBean.DRIVER_PROPERTY)) {
+				DriverBean driverBean = (DriverBean) change.getNewValue();
+				updateReadouts(driverBean != null ? driverBean.getDriver() : null);
+			}
+		};
+		
+		planBean.addPropertyChangeListener(driverChangeListener);
+		composite.addDisposeListener(dispose -> planBean.removePropertyChangeListener(driverChangeListener));
+		
+		if (planBean.isDriverUsed()) {
+			updateReadouts(planBean.getDriverBean().getDriver());
+		}
+		
 		return composite;
 	}
 	
-	public void setSevs(Set<String> sevs) {
-		segmentEditor.setSevNames(sevs);
+	private void updateReadouts(String driverName) {
+		if (driverName != null) {
+			IExperimentDriver<?> driver = Finder.getInstance().find(driverName);
+			segmentEditor.setReadouts(driver.getReadoutNames());
+		} else {
+			segmentEditor.setReadouts(Collections.emptySet());
+		}
 	}
 	
 	public List<SegmentDescriptor> getSegments() {

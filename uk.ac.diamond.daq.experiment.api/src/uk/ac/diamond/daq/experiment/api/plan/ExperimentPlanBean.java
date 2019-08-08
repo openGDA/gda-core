@@ -1,5 +1,6 @@
 package uk.ac.diamond.daq.experiment.api.plan;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.List;
@@ -8,15 +9,23 @@ import java.util.stream.Collectors;
 import uk.ac.diamond.daq.experiment.api.remote.PlanRequest;
 import uk.ac.diamond.daq.experiment.api.remote.SegmentRequest;
 
-public class ExperimentPlanBean implements PlanRequest {
+public class ExperimentPlanBean implements PlanRequest, PropertyChangeListener {
+
+	public static final String DRIVER_PROPERTY = "driver";
+	public static final String NAME_PROPERTY = "name";
+	public static final String DESCRIPTION_PROPERTY = "description";
+
+	public static final String DRIVER_USED_PROPERTY = "driverUsed";
+	public static final String DRIVER_NAME_PROPERTY = "experimentDriverName";
+	public static final String DRIVER_PROFILE_PROPERTY = "experimentDriverProfile";
+
+	public static final String SEGMENTS_PROPERTY = "segments";
 
 	private static final long serialVersionUID = 2836310522704078875L;
 	private String name;
 	private String description;
 
-	private boolean driverUsed;
-	private String experimentDriverName;
-	private String experimentDriverProfile;
+	private DriverBean driverBean;
 
 	private List<SegmentDescriptor> segments;
 
@@ -34,7 +43,7 @@ public class ExperimentPlanBean implements PlanRequest {
 	public void setPlanName(String name) {
 		String oldName = this.name;
 		this.name = name;
-		pcs.firePropertyChange("name", oldName, name);
+		pcs.firePropertyChange(NAME_PROPERTY, oldName, name);
 	}
 
 	@Override
@@ -45,43 +54,18 @@ public class ExperimentPlanBean implements PlanRequest {
 	public void setPlanDescription(String description) {
 		String oldDescription = this.description;
 		this.description = description;
-		pcs.firePropertyChange("description", oldDescription, description);
+		pcs.firePropertyChange(DESCRIPTION_PROPERTY, oldDescription, description);
 	}
 
 	@Override
-	public boolean isDriverUsed() {
-		return driverUsed;
+	public DriverBean getDriverBean() {
+		return driverBean;
 	}
 
-	public void setDriverUsed(boolean driverUsed) {
-		boolean old = this.driverUsed;
-		this.driverUsed = driverUsed;
-		pcs.firePropertyChange("driverUsed", old, driverUsed);
-	}
-
-	@Override
-	public String getExperimentDriverName() {
-		return experimentDriverName;
-	}
-
-	public void setExperimentDriverName(String experimentDriverName) {
-		String old = this.experimentDriverName;
-		this.experimentDriverName = experimentDriverName;
-		pcs.firePropertyChange("experimentDriverName", old, experimentDriverName);
-	}
-
-	@Override
-	public String getExperimentDriverProfile() {
-		return experimentDriverProfile;
-	}
-
-	public void setExperimentDriverProfile(String experimentDriverProfile) {
-		String old = this.experimentDriverProfile;
-		this.experimentDriverProfile = experimentDriverProfile;
-		pcs.firePropertyChange("experimentDriverProfile", old, experimentDriverProfile);
-	}
-	public List<SegmentDescriptor> getSegments() {
-		return segments;
+	public void setDriverBean(DriverBean driverBean) {
+		DriverBean old = this.driverBean;
+		this.driverBean = driverBean;
+		pcs.firePropertyChange(DRIVER_PROPERTY, old, driverBean);
 	}
 
 	@Override
@@ -91,10 +75,18 @@ public class ExperimentPlanBean implements PlanRequest {
 				.collect(Collectors.toList());
 	}
 
+	public List<SegmentDescriptor> getSegments() {
+		return segments;
+	}
+
 	public void setSegments(List<SegmentDescriptor> segments) {
 		List<SegmentDescriptor> old = this.segments;
+		if (old != null) {
+			old.forEach(segment -> segment.removePropertyChangeListener(this));
+		}
+		segments.forEach(segment -> segment.addPropertyChangeListener(this));
 		this.segments = segments;
-		pcs.firePropertyChange("segments", old, segments);
+		pcs.firePropertyChange(SEGMENTS_PROPERTY, old, segments);
 	}
 
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -103,5 +95,11 @@ public class ExperimentPlanBean implements PlanRequest {
 
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
 		this.pcs.removePropertyChangeListener(listener);
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent event) {
+		// when a segment changes, I want my listeners to know about it
+		pcs.firePropertyChange(event);
 	}
 }

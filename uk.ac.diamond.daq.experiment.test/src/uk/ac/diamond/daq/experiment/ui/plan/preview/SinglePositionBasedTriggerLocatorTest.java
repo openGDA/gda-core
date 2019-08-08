@@ -160,6 +160,30 @@ public class SinglePositionBasedTriggerLocatorTest {
 		test(xData, yData, target, tolerance, segmentStart, segmentEnd, expectedX, expectedY);
 	}
 
+	@Test
+	public void targetPreciselyAtSearchStart() {
+		Dataset xData = data(0.0, 0.2);
+		Dataset yData = data(0.0, 1);
+
+		double target = 0.0;
+		double tolerance = 0.5; // huge unambiguous tolerance
+
+		// We should find the point at y = target, not at y = tolerance
+		test(xData, yData, target, tolerance, 0.0, 0.0);
+	}
+
+	@Test
+	public void onlyMagnitudeOfToleranceImportant() {
+		Dataset xData = data(0.0, 1.0);
+
+		double target = 0.1;
+		double tolerance = -0.01;
+
+		double expected = target - Math.abs(tolerance);
+
+		test(xData, xData, target, tolerance, expected, expected);
+	}
+
 	private void test(Dataset xData, Dataset yData, double target, double tolerance, double expectedX, double expectedY) {
 		test(xData, yData, target, tolerance, xData.getElementDoubleAbs(0), xData.getElementDoubleAbs(xData.getSize()-1), expectedX, expectedY);
 	}

@@ -17,7 +17,7 @@ public abstract class SingleTriggerLocator extends AbstractTriggerLocator<Double
 	public SingleTriggerLocator(TriggerRequest trigger, Dataset xDataset, Dataset yDataset) {
 		super(trigger, xDataset, yDataset);
 		this.target = trigger.getTarget();
-		this.tolerance = trigger.getTolerance();
+		this.tolerance = Math.abs(trigger.getTolerance());
 	}
 
 	@Override

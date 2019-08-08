@@ -2,6 +2,7 @@ package uk.ac.diamond.daq.experiment.ui.plan;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.core.databinding.observable.sideeffect.ISideEffect;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -14,7 +15,7 @@ import org.eclipse.swt.widgets.Text;
 
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 
-public class NameAndDescriptionSection {
+public class NameAndDescriptionSection extends ValidatablePart {
 	
 	private final ExperimentPlanBean planBean;
 	
@@ -25,7 +26,8 @@ public class NameAndDescriptionSection {
 		this.planBean = planBean;
 	}
 	
-	public void createSection(Composite parent) {
+	@Override
+	public void createPart(Composite parent) {
 		Group composite = new Group(parent, SWT.NONE);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(composite);
 		GridLayoutFactory.swtDefaults().margins(20, 20).applyTo(composite);
@@ -57,13 +59,16 @@ public class NameAndDescriptionSection {
 		
 		dbc.bindValue(nameTextObservable, nameModelObservable);
 		
+		ISideEffect.create(nameTextObservable::getValue, name -> notifyValidationListener());
+		
 		IObservableValue<String> descriptionTextObservable = WidgetProperties.text(SWT.Modify).observe(planDescriptionText);
 		IObservableValue<String> descriptionModelObservable = BeanProperties.value("planDescription").observe(planBean);
 		
 		dbc.bindValue(descriptionTextObservable, descriptionModelObservable);
 	}
 	
-	public boolean validSelection() {
+	@Override
+	public boolean isValidSelection() {
 		return planBean.getPlanName() != null && !planBean.getPlanName().isEmpty();
 	}
 }

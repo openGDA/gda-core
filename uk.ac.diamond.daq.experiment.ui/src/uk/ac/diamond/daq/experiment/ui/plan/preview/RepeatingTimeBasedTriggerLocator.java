@@ -13,6 +13,8 @@ public class RepeatingTimeBasedTriggerLocator extends RepeatingTriggerLocator {
 	@Override
 	public void search(double xStart, double xEnd) {
 		
+		if (interval == 0.0) return; 
+		
 		x.clear();
 		y.clear();
 		

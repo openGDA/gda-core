@@ -58,17 +58,21 @@ public class SinglePositionBasedTriggerLocator extends SingleTriggerLocator {
 		boolean isInThisSection;
 		
 		if (yStart < yEnd) {
-			if (target > yStart) {
+			if (yStart > target + tolerance) {
+				return false;
+			} else if (yStart < target - tolerance) {
 				reference = target - tolerance;
 			} else {
-				reference = target + tolerance;
+				reference = yStart;
 			}
 			isInThisSection = yStart <= reference && reference <= yEnd;
 		} else {
-			if (target < yStart ) {
+			if (yStart < target - tolerance) {
+				return false;
+			} else if (yStart > target + tolerance) {
 				reference = target + tolerance;
 			} else {
-				reference = target - tolerance;
+				reference = yStart;
 			}
 			isInThisSection = yStart >= reference && reference >= yEnd;
 		}

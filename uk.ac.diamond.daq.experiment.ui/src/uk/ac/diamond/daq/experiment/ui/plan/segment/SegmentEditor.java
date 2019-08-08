@@ -21,14 +21,13 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.plan.SegmentDescriptor;
 import uk.ac.diamond.daq.experiment.api.remote.Inequality;
 import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
@@ -46,7 +45,7 @@ public class SegmentEditor implements ElementEditor {
 	private Button timeSource;
 	
 	// sev-based segment
-	private Combo sevCombo;
+	private ComboViewer readoutsCombo;
 	private ComboViewer inequality;
 	private Text predicateArgument;
 		
@@ -61,10 +60,10 @@ public class SegmentEditor implements ElementEditor {
 	private final List<Binding> segmentDescriptorBindings;
 	private final List<Binding> limitControlBindings;
 	private ISideEffect limitControlSwitch;
-	private Set<String> sevs;
+	private Set<String> readouts;
 	
-	public SegmentEditor(ExperimentService experimentService, String experimentId) {
-		triggers = new TriggerListEditor(experimentService, experimentId);
+	public SegmentEditor(String experimentId) {
+		triggers = new TriggerListEditor(experimentId);
 		dbc = new DataBindingContext();
 		segmentDescriptorBindings = new ArrayList<>();
 		limitControlBindings = new ArrayList<>();
@@ -151,10 +150,10 @@ public class SegmentEditor implements ElementEditor {
 	
 	private void createPositionControls() {
 		GridLayoutFactory.fillDefaults().numColumns(3).applyTo(limitComposite);
-		sevCombo = new Combo(limitComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
-		populateSevCombo();
-		
-		STRETCH.applyTo(sevCombo);
+		readoutsCombo = new ComboViewer(limitComposite);
+		readoutsCombo.setContentProvider(ArrayContentProvider.getInstance());
+		STRETCH.applyTo(readoutsCombo.getControl());
+		populateReadoutsCombo();
 		
 		inequality = new ComboViewer(limitComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
 		inequality.setContentProvider(ArrayContentProvider.getInstance());
@@ -207,14 +206,14 @@ public class SegmentEditor implements ElementEditor {
 		
 		switch (signalSource) {
 		case POSITION:
-			IObservableValue<String> sevControlObservable = WidgetProperties.selection().observe(sevCombo);
+			IViewerObservableValue sevControlObservable = ViewerProperties.singleSelection().observe(readoutsCombo);
 			IObservableValue<String> sevInModelObservable = BeanProperties.value("sampleEnvironmentVariableName").observe(segment);
 			Binding sevBinding = dbc.bindValue(sevControlObservable, sevInModelObservable);
 			limitControlBindings.add(sevBinding);
 			
 			// if sevName is not set, choose first option
 			if (segment.getSampleEnvironmentVariableName() == null) {
-				sevCombo.select(0);
+				readoutsCombo.setSelection(new StructuredSelection(readoutsCombo.getElementAt(0)), true);
 			}
 			
 			IViewerObservableValue selectedInequalityObservable = ViewerProperties.singleSelection().observe(inequality);
@@ -253,16 +252,18 @@ public class SegmentEditor implements ElementEditor {
 		segmentDescriptorBindings.clear();
 	}
 	
-	private void populateSevCombo() {
-		if (sevs != null) { 
-			// FIXME sevs is populated from MetadataAndExperimentDriverPage::getNextPage
-			// and we don't hit that method when loading a plan
-			sevCombo.setItems(sevs.toArray(new String[0]));
+	private void populateReadoutsCombo() {
+		if (readoutsCombo != null && readouts != null) { 
+			readoutsCombo.setInput(readouts);
+			if (segment != null && readouts.contains(segment.getSampleEnvironmentVariableName())) {
+				readoutsCombo.setSelection(new StructuredSelection(segment.getSampleEnvironmentVariableName()));
+			}
 		}
 	}
 
-	public void setSevNames(Set<String> sevs) {
-		this.sevs = sevs;
-		triggers.setSevs(sevs);
+	public void setReadouts(Set<String> readouts) {
+		this.readouts = readouts;
+		populateReadoutsCombo();
+		triggers.setReadouts(readouts);
 	}
 }

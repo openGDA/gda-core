@@ -1,5 +1,14 @@
 package uk.ac.diamond.daq.experiment.ui.plan.trigger;
 
+import static uk.ac.diamond.daq.experiment.api.Services.getExperimentService;
+import static uk.ac.diamond.daq.experiment.api.plan.TriggerDescriptor.EXECUTION_POLICY_PROPERTY;
+import static uk.ac.diamond.daq.experiment.api.plan.TriggerDescriptor.INTERVAL_PROPERTY;
+import static uk.ac.diamond.daq.experiment.api.plan.TriggerDescriptor.NAME_PROPERTY;
+import static uk.ac.diamond.daq.experiment.api.plan.TriggerDescriptor.SCAN_PROPERTY;
+import static uk.ac.diamond.daq.experiment.api.plan.TriggerDescriptor.SEV_PROPERTY;
+import static uk.ac.diamond.daq.experiment.api.plan.TriggerDescriptor.SOURCE_PROPERTY;
+import static uk.ac.diamond.daq.experiment.api.plan.TriggerDescriptor.TARGET_PROPERTY;
+import static uk.ac.diamond.daq.experiment.api.plan.TriggerDescriptor.TOLERANCE_PROPERTY;
 import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.STRETCH;
 import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.addSpace;
 
@@ -15,18 +24,21 @@ import org.eclipse.core.databinding.observable.sideeffect.ISideEffect;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.SelectObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.databinding.viewers.IViewerObservableValue;
+import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.plan.TriggerDescriptor;
 import uk.ac.diamond.daq.experiment.api.remote.ExecutionPolicy;
 import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
@@ -46,14 +58,13 @@ public class TriggerEditor implements ElementEditor {
 	
 	// data
 	private TriggerDescriptor model;
-	private Set<String> sevs;
-	private final ExperimentService experimentService;
+	private Set<String> readouts;
 	private final String experimentId;
 	
 	// ui (static)
 	private Composite composite;
 	private Text nameText;
-	private Combo scanCombo;
+	private ComboViewer scanCombo;
 	private Button sevSourceButton;
 	private Button timeSourceButton;
 	private Button oneShotButton;
@@ -61,7 +72,7 @@ public class TriggerEditor implements ElementEditor {
 
 	// ui (dynamic)
 	private Composite detailComposite;
-	private Combo sevCombo;
+	private ComboViewer readoutsCombo;
 	private Text interval;
 	private Text target;
 	private Text tolerance;
@@ -76,8 +87,7 @@ public class TriggerEditor implements ElementEditor {
 	 * Instantiate with experiment service and experiment ID
 	 * so that I can retrieve saved scans
 	 */
-	public TriggerEditor(ExperimentService experimentService, String experimentId) {
-		this.experimentService = experimentService;
+	public TriggerEditor(String experimentId) {
 		this.experimentId = experimentId;
 		dbc = new DataBindingContext();
 		mainBindings = new ArrayList<>();
@@ -103,9 +113,10 @@ public class TriggerEditor implements ElementEditor {
 		
 		new Label(composite, SWT.NONE).setText("Measurement");
 		
-		scanCombo = new Combo(composite, SWT.DROP_DOWN | SWT.READ_ONLY);
-		populateScanCombo();
-		STRETCH.copy().applyTo(scanCombo);
+		scanCombo = new ComboViewer(composite, SWT.DROP_DOWN | SWT.READ_ONLY);
+		scanCombo.setContentProvider(ArrayContentProvider.getInstance());
+		scanCombo.setInput(getExperimentService().getScanNames(experimentId));
+		STRETCH.copy().applyTo(scanCombo.getControl());
 		
 		addSpace(composite);
 		
@@ -226,13 +237,14 @@ public class TriggerEditor implements ElementEditor {
 	private void createPositionBasedTriggerControl(Composite controlComposite) {
 		
 		new Label(controlComposite, SWT.NONE).setText("Environment variable");
-		sevCombo = new Combo(controlComposite, SWT.READ_ONLY);
-		if (sevs != null) {
+		readoutsCombo = new ComboViewer(controlComposite);
+		readoutsCombo.setContentProvider(ArrayContentProvider.getInstance());
+		if (readouts != null) {
 			populateSevCombo();
 			bindSev();
 		}
 		
-		STRETCH.applyTo(sevCombo);
+		STRETCH.applyTo(readoutsCombo.getControl());
 		
 		switch (model.getExecutionPolicy()) {
 		case REPEATING:
@@ -261,19 +273,15 @@ public class TriggerEditor implements ElementEditor {
 			throw new IllegalArgumentException("Unsupported execution policy: '" + model.getExecutionPolicy() + "'");			
 		}
 	}
-	
-	private void populateScanCombo() {
-		scanCombo.setItems(experimentService.getScanNames(experimentId).toArray(new String[0]));
-	}
-	
+
 	private void populateSevCombo() {
-		sevCombo.setItems(sevs.toArray(new String[0]));
+		readoutsCombo.setInput(readouts);
 	}
 	
 	@SuppressWarnings("unchecked")
 	private void bindTarget() {
 		IObservableValue<Double> targetInText = WidgetProperties.text(SWT.Modify).observe(target);
-		IObservableValue<Double> targetInModel = BeanProperties.value("target").observe(model);
+		IObservableValue<Double> targetInModel = BeanProperties.value(TARGET_PROPERTY).observe(model);
 		
 		Binding targetBinding = dbc.bindValue(targetInText, targetInModel);
 		detailBindings.add(targetBinding);
@@ -282,7 +290,7 @@ public class TriggerEditor implements ElementEditor {
 	@SuppressWarnings("unchecked")
 	private void bindPeriod() {
 		IObservableValue<Double> intervalText = WidgetProperties.text(SWT.Modify).observe(interval);
-		IObservableValue<Double> intervalInModel = BeanProperties.value("interval").observe(model);
+		IObservableValue<Double> intervalInModel = BeanProperties.value(INTERVAL_PROPERTY).observe(model);
 		
 		Binding intervalBinding = dbc.bindValue(intervalText, intervalInModel);
 		detailBindings.add(intervalBinding);
@@ -291,7 +299,7 @@ public class TriggerEditor implements ElementEditor {
 	@SuppressWarnings("unchecked")
 	private void bindTolerance() {
 		IObservableValue<Double> inWidget = WidgetProperties.text(SWT.Modify).observe(tolerance);
-		IObservableValue<Double> inModel = BeanProperties.value("tolerance").observe(model);
+		IObservableValue<Double> inModel = BeanProperties.value(TOLERANCE_PROPERTY).observe(model);
 		
 		Binding toleranceBinding = dbc.bindValue(inWidget, inModel);
 		detailBindings.add(toleranceBinding);
@@ -299,15 +307,15 @@ public class TriggerEditor implements ElementEditor {
 	
 	@SuppressWarnings("unchecked")
 	private void bindSev() {
-		IObservableValue<String> inWidget = WidgetProperties.selection().observe(sevCombo);
-		IObservableValue<String> inModel = BeanProperties.value("sampleEnvironmentVariableName").observe(model);
+		IViewerObservableValue inWidget = ViewerProperties.singleSelection().observe(readoutsCombo);
+		IObservableValue<String> inModel = BeanProperties.value(SEV_PROPERTY).observe(model);
 		
 		Binding sevBinding = dbc.bindValue(inWidget, inModel);
 		detailBindings.add(sevBinding);
 		
 		// if there is no sev in model, let's select first option
 		if (model.getSampleEnvironmentVariableName() == null) {
-			sevCombo.select(0);
+			readoutsCombo.setSelection(new StructuredSelection(readoutsCombo.getElementAt(0)), true);
 		}
 	}
 
@@ -317,20 +325,20 @@ public class TriggerEditor implements ElementEditor {
 		
 		// name
 		IObservableValue<String> nameTextObservable = WidgetProperties.text(SWT.Modify).observe(nameText);
-		IObservableValue<String> nameInModelObservable = BeanProperties.value("name").observe(model);
+		IObservableValue<String> nameInModelObservable = BeanProperties.value(NAME_PROPERTY).observe(model);
 		
 		Binding nameBinding = dbc.bindValue(nameTextObservable, nameInModelObservable);
 		mainBindings.add(nameBinding);
 		
 		// scan
-		IObservableValue<String> scanInWidget = WidgetProperties.selection().observe(scanCombo);
-		IObservableValue<String> scanInModel = BeanProperties.value("scanName").observe(model);
+		IViewerObservableValue scanInWidget = ViewerProperties.singleSelection().observe(scanCombo);
+		IObservableValue<String> scanInModel = BeanProperties.value(SCAN_PROPERTY).observe(model);
 		
 		Binding scanBinding = dbc.bindValue(scanInWidget, scanInModel);
 		mainBindings.add(scanBinding);
 		
 		// trigger source
-		IObservableValue<SignalSource> sourceInModelObservable = BeanProperties.value("signalSource").observe(model);
+		IObservableValue<SignalSource> sourceInModelObservable = BeanProperties.value(SOURCE_PROPERTY).observe(model);
 		
 		SelectObservableValue<SignalSource> sourceSelection = new SelectObservableValue<>();
 		sourceSelection.addOption(SignalSource.POSITION, WidgetProperties.selection().observe(sevSourceButton));
@@ -340,7 +348,7 @@ public class TriggerEditor implements ElementEditor {
 		mainBindings.add(sourceBinding);
 		
 		// trigger mode
-		IObservableValue<ExecutionPolicy> modeInModelObservable = BeanProperties.value("executionPolicy").observe(model);
+		IObservableValue<ExecutionPolicy> modeInModelObservable = BeanProperties.value(EXECUTION_POLICY_PROPERTY).observe(model);
 		
 		SelectObservableValue<ExecutionPolicy> modeSelection = new SelectObservableValue<>();
 		modeSelection.addOption(ExecutionPolicy.SINGLE, WidgetProperties.selection().observe(oneShotButton));
@@ -377,22 +385,24 @@ public class TriggerEditor implements ElementEditor {
 	
 	private void setEnabled(boolean enabled) {
 		nameText.setEnabled(enabled);
-		scanCombo.setEnabled(enabled);
+		scanCombo.getControl().setEnabled(enabled);
 		sevSourceButton.setEnabled(enabled);
 		timeSourceButton.setEnabled(enabled);
 		oneShotButton.setEnabled(enabled);
 		periodicButton.setEnabled(enabled);
 		
-		for (Control control : Arrays.asList(sevCombo, target, tolerance, interval)) {
+		List<Control> controls = new ArrayList<>(Arrays.asList(target, tolerance, interval));
+		if (readoutsCombo != null) controls.add(readoutsCombo.getControl());
+		for (Control control : controls) {
 			if (control != null && !control.isDisposed()) {
 				control.setEnabled(enabled);
 			}
 		}
 	}
 
-	void setSevNames(Set<String> sevs) {
-		this.sevs = sevs;
-		if (sevCombo != null && !sevCombo.isDisposed()) {
+	void setReadouts(Set<String> readouts) {
+		this.readouts = readouts;
+		if (readoutsCombo != null && !readoutsCombo.getControl().isDisposed()) {
 			populateSevCombo();
 		}
 	}

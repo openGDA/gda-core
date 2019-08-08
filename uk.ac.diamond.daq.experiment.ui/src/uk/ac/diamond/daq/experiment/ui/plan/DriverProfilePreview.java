@@ -7,13 +7,12 @@ import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.january.dataset.Dataset;
-import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import uk.ac.diamond.daq.experiment.api.driver.DriverProfileSection;
+import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 
 public class DriverProfilePreview {
 	
@@ -29,34 +28,20 @@ public class DriverProfilePreview {
 		}
 	}
 	
-	public void plot(List<DriverProfileSection> profile) {
+	public void plot(DriverModel profile) {
 		
-		plottingSystem.clear();
+		clear();
 		
-		// create dataset from model
-		if (profile.isEmpty()) return;
+		List<Dataset> datasets = profile.getPlottableDatasets();
 		
-		double[] x = new double[profile.size()+1];
-		double[] y = new double[profile.size()+1];
-		
-		x[0] = 0;
-		y[0] = profile.get(0).getStart();
-		
-		for (int i = 0; i < profile.size(); i++) {
-			x[i+1] = profile.get(i).getDuration() + x[i];
-			y[i+1] = profile.get(i).getStop();
-		}
-		
-		final Dataset xDataset = DatasetFactory.createFromObject(x);
-		final Dataset yDataset = DatasetFactory.createFromObject(y);
-		
-		xDataset.setName("Time (min)");
-		
-		plottingSystem.createPlot1D(xDataset, Arrays.asList(yDataset), null);
+		plottingSystem.createPlot1D(datasets.get(0), Arrays.asList(datasets.get(1)), null);
 		plottingSystem.clearAnnotations();
 		plottingSystem.setTitle("");
 		plottingSystem.setShowLegend(false);
-		
+	}
+
+	public void clear() {
+		plottingSystem.clear();
 	}
 	
 
