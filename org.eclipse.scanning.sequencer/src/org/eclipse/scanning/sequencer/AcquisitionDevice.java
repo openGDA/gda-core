@@ -840,6 +840,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 				logger.warn("An error occurred publishing percent complete event ", e);
 			}
 		}
+
+		buildAndSendJsonScanMessage(ScanMessage.ScanStatus.UPDATED, model);
 	}
 
 	private List<String> getScannableNames(Iterable<IPosition> gen) {
