@@ -33,6 +33,16 @@ public class BoundingLine  {
 	private double angle;
 	private double length;
 
+	public BoundingLine() {
+	}
+
+	public BoundingLine(double xStart, double yStart, double xLength, double yLength) {
+		this.xStart = xStart;
+		this.yStart = yStart;
+		this.angle = Math.atan2(yLength, xLength);
+		this.length = Math.sqrt(Math.pow(xLength, 2) + Math.pow(yLength, 2));
+	}
+
 	public double getxStart() {
 		return xStart;
 	}
