@@ -56,7 +56,7 @@ public class LissajousCurvePathEditor extends AbstractPathEditor {
 		grabHorizontalSpace.applyTo(thetaTxt);
 		binder.bind(thetaTxt, "thetaStep", getModel());
 
-		makeContinuousControl(composite, getModel());
+		makeContinuousControl(composite);
 
 		return composite;
 	}
