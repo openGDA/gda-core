@@ -19,15 +19,15 @@
 package gda.mscan.processor;
 
 import gda.mscan.ClauseContext;
-import gda.mscan.element.Roi;
+import gda.mscan.element.RegionShape;
 
 /**
  * An interface to be implemented by all MScan Clause ElementProcessors. These are responsible for
  * triggering the filling in of the {@link ClauseContext} for the MScan clause being parsed based on the
  * type that was used to create them. Each implementing class must  override the process method to
  * cause the filling in of the relevant bits of the context associated with the type of element
- * being processed. For instance for {@link Roi} elements it should call the method(s) on the context that
- * set up the state associated with the specified {@link Roi}.
+ * being processed. For instance for {@link RegionShape} elements it should call the method(s) on the context that
+ * set up the state associated with the specified {@link RegionShape}.
  */
 public interface IClauseElementProcessor {
 

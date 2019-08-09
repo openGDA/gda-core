@@ -29,7 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import gda.mscan.element.AreaScanpath;
-import gda.mscan.element.Roi;
+import gda.mscan.element.RegionShape;
 import gda.mscan.processor.IClauseElementProcessor;
 
 public class ScanClausesResolverTest extends ResolutionTestsBase {
@@ -53,7 +53,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 		numPoint3Proc = mockNumberProc(0.3);
 		numPoint5Proc = mockNumberProc(0.5);
 		spiralProc = mockAreaScanpathProc(AreaScanpath.SPIRAL);
-		polyProc = mockRoiProc(Roi.POLYGON);
+		polyProc = mockRoiProc(RegionShape.POLYGON);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

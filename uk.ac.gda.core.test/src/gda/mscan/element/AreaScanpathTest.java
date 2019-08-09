@@ -21,7 +21,10 @@ package gda.mscan.element;
 
 import static gda.mscan.element.AreaScanpath.GRID;
 import static gda.mscan.element.AreaScanpath.LISSAJOUS;
+import static gda.mscan.element.AreaScanpath.ONEDEQUAL;
+import static gda.mscan.element.AreaScanpath.ONEDSTEP;
 import static gda.mscan.element.AreaScanpath.RASTER;
+import static gda.mscan.element.AreaScanpath.SINGLEPOINT;
 import static gda.mscan.element.AreaScanpath.SPIRAL;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -40,8 +43,11 @@ import java.util.Map;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.LissajousModel;
+import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
+import org.eclipse.scanning.api.points.models.OneDStepModel;
 import org.eclipse.scanning.api.points.models.RandomOffsetGridModel;
 import org.eclipse.scanning.api.points.models.RasterModel;
+import org.eclipse.scanning.api.points.models.SinglePointModel;
 import org.eclipse.scanning.api.points.models.SpiralModel;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -67,6 +73,7 @@ public class AreaScanpathTest {
 	private List<Scannable> scannables;
 	private List<Number> pathParams;
 	private List<Number> bboxParams;
+	private List<Number> blineParams;
 	private Map<Mutator, List<Number>> mutators;
 
 	@Mock
@@ -84,6 +91,9 @@ public class AreaScanpathTest {
 		correctLengthPathData.put(RASTER, new Double[] {4.0, 4.0});
 		correctLengthPathData.put(SPIRAL, new Double[] {5.0});
 		correctLengthPathData.put(LISSAJOUS, new Double[] {6.0, 6.0, 6.0, 6.0, 6.0});
+		correctLengthPathData.put(ONEDEQUAL, new Double[] {6.0});
+		correctLengthPathData.put(ONEDSTEP, new Double[] {6.0});
+		correctLengthPathData.put(SINGLEPOINT, new Double[] {6.0, 6.0});
 	}
 
 	@Before
@@ -94,6 +104,7 @@ public class AreaScanpathTest {
 		scannables = Arrays.asList(scannable1, scannable2);
 		pathParams = new ArrayList<>();
 		bboxParams = Arrays.asList(1.0, 2.0, 3.0, 4.0);
+		blineParams = Arrays.asList(1.0, 2.0, 3.0, 4.0);
 		mutators = new EnumMap<>(Mutator.class);
 	}
 
@@ -103,6 +114,9 @@ public class AreaScanpathTest {
 		assertThat(RASTER.valueCount(), is(2));
 		assertThat(SPIRAL.valueCount(), is(1));
 		assertThat(LISSAJOUS.valueCount(), is(5));
+		assertThat(ONEDEQUAL.valueCount(), is(1));
+		assertThat(ONEDSTEP.valueCount(), is(1));
+		assertThat(SINGLEPOINT.valueCount(), is(2));
 	}
 
 	@Test
@@ -111,6 +125,9 @@ public class AreaScanpathTest {
 		assertTrue(RASTER.modelType().equals(RasterModel.class));
 		assertTrue(SPIRAL.modelType().equals(SpiralModel.class));
 		assertTrue(LISSAJOUS.modelType().equals(LissajousModel.class));
+		assertTrue(ONEDEQUAL.modelType().equals(OneDEqualSpacingModel.class));
+		assertTrue(ONEDSTEP.modelType().equals(OneDStepModel.class));
+		assertTrue(SINGLEPOINT.modelType().equals(SinglePointModel.class));
 	}
 
 	@Test
@@ -132,6 +149,9 @@ public class AreaScanpathTest {
 		tooMany.put(RASTER, new Double[] {4.0, 4.0, 4.0});
 		tooMany.put(SPIRAL, new Double[] {5.0, 5.0});
 		tooMany.put(LISSAJOUS, new Double[] {6.0, 6.0, 6.0, 6.0, 6.0, 6.0});
+		tooMany.put(ONEDEQUAL, new Double[] {3.0, 3.0});
+		tooMany.put(ONEDSTEP, new Double[] {3.0, 3.0});
+		tooMany.put(SINGLEPOINT, new Double[] {6.0, 6.0, 6.0});
 
 		assertCreatingAllInstancesFailsIfWrongNoOfParams(tooMany, blankArray);
 	}
@@ -143,18 +163,21 @@ public class AreaScanpathTest {
 		tooFew.put(RASTER, new Double[] {4.0});
 		tooFew.put(SPIRAL, new Double[] {});
 		tooFew.put(LISSAJOUS, new Double[] {6.0, 6.0, 6.0, 6.0});
+		tooFew.put(ONEDEQUAL, new Double[] {});
+		tooFew.put(ONEDSTEP, new Double[] {});
+		tooFew.put(SINGLEPOINT, new Double[] {6.0});
 
 		assertCreatingAllInstancesFailsIfWrongNoOfParams(tooFew, blankArray);
 	}
 
 	@Test
-	public void createModelRejectsTooManyBBoxParamsForAllInstances() throws Exception {
-		Double[] bboxData = new Double[] {1.0, 2.0, 3.0, 4.0, 5.0};          // Too many path params for rectangle (4)
+	public void createModelRejectsTooManyBoundingParamsForAllInstances() throws Exception {
+		Double[] bboxData = new Double[] {1.0, 2.0, 3.0, 4.0, 5.0};  // Too many path params for rectangle/line (4)
 		assertCreatingAllInstancesFailsIfWrongNoOfParams(correctLengthPathData, bboxData);
 	}
 
 	@Test
-	public void createModelRejectsTooFewBBoxParamsForAllInstances() throws Exception {
+	public void createModelRejectsTooFewBoundingParamsForAllInstances() throws Exception {
 		assertCreatingAllInstancesFailsIfWrongNoOfParams(correctLengthPathData, blankArray);
 	}
 
@@ -179,11 +202,27 @@ public class AreaScanpathTest {
 	}
 
 	@Test
+	public void createModelRejectsNegativeNoOfPointsForOneDEqualSpacing() throws Exception {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("OneDEqualSpacing requires all positive parameters");
+		pathParams = Arrays.asList(-5);
+		ONEDEQUAL.createModel(scannables, pathParams, bboxParams, mutators);
+	}
+
+	@Test
 	public void createModelRejectsNonIntegerNoOfPointsForGrid() throws Exception {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Grid requires integer parameters");
 		pathParams = Arrays.asList(5, 6.2);
 		GRID.createModel(scannables, pathParams, bboxParams, mutators);
+	}
+
+	@Test
+	public void createModelRejectsNonIntegerNoOfPointsForOneDEqualSpacing() throws Exception {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("OneDEqualSpacing requires integer parameters");
+		pathParams = Arrays.asList(6.2);
+		ONEDEQUAL.createModel(scannables, pathParams, bboxParams, mutators);
 	}
 
 	@Test
@@ -224,11 +263,33 @@ public class AreaScanpathTest {
 	}
 
 	@Test
+	public void createModelCreatesCorrectModelForOneDEqualSpacing() throws Exception {
+		pathParams = Arrays.asList(5);
+		IScanPathModel model = ONEDEQUAL.createModel(scannables, pathParams, bboxParams, mutators);
+		assertThat(model, is(instanceOf(OneDEqualSpacingModel.class)));
+		OneDEqualSpacingModel eModel = (OneDEqualSpacingModel)model;
+		assertThat(eModel.getScannableNames(), contains("name1", "name2"));
+		assertThat(eModel.getBoundingLine().getxStart(), is(1.0));
+		assertThat(eModel.getBoundingLine().getyStart(), is(2.0));
+		assertThat(eModel.getBoundingLine().getLength(), is(5.0));
+		assertThat(Math.rint(Math.toDegrees(eModel.getBoundingLine().getAngle())), is(53.0));
+		assertThat(eModel.getPoints(), is(5));
+	}
+
+	@Test
 	public void createModelRejectsNegativeNoOfPointsForRaster() throws Exception {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Raster requires all positive parameters");
 		pathParams = Arrays.asList(-5.2, 6.1);
 		RASTER.createModel(scannables, pathParams, bboxParams, mutators);
+	}
+
+	@Test
+	public void createModelRejectsNegativeNoOfPointsForOneDStep() throws Exception {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("OneDStep requires all positive parameters");
+		pathParams = Arrays.asList(-5.2);
+		ONEDSTEP.createModel(scannables, pathParams, bboxParams, mutators);
 	}
 
 	@Test
@@ -256,6 +317,20 @@ public class AreaScanpathTest {
 		assertThat(rModel.getSlowAxisStep(), is(6.5));
 		assertThat(rModel.getBoundingBox().getSlowAxisStart(), is(2.0));
 		assertThat(rModel.isSnake(), is(true));
+	}
+
+	@Test
+	public void createModelCreatesCorrectModelForOneDStep() throws Exception {
+		pathParams = Arrays.asList(0.5);
+		IScanPathModel model = ONEDSTEP.createModel(scannables, pathParams, blineParams, mutators);
+		assertThat(model, is(instanceOf(OneDStepModel.class)));
+		OneDStepModel sModel = (OneDStepModel)model;
+		assertThat(sModel.getScannableNames(), contains("name1", "name2"));
+		assertThat(sModel.getBoundingLine().getxStart(), is(1.0));
+		assertThat(sModel.getBoundingLine().getyStart(), is(2.0));
+		assertThat(sModel.getBoundingLine().getLength(), is(5.0));
+		assertThat(Math.rint(Math.toDegrees(sModel.getBoundingLine().getAngle())), is(53.0));
+		assertThat(sModel.getStep(), is(0.5));
 	}
 
 	@Test
@@ -326,5 +401,16 @@ public class AreaScanpathTest {
 		pathParams = Arrays.asList(5.0, 6.0, 7.0, 8.0, 9);
 		mutators.put(Mutator.SNAKE, new ArrayList<>());
 		LISSAJOUS.createModel(scannables, pathParams, bboxParams, mutators);
+	}
+
+	@Test
+	public void createModelCreatesCorrectModelForSinglePoint() throws Exception {
+		pathParams = Arrays.asList(5.1, 6.2);
+		IScanPathModel model = SINGLEPOINT.createModel(scannables, pathParams, bboxParams, mutators);
+		assertThat(model, is(instanceOf(SinglePointModel.class)));
+		SinglePointModel eModel = (SinglePointModel)model;
+		assertThat(eModel.getScannableNames(), contains("name1", "name2"));
+		assertThat(eModel.getX(), is(5.1));
+		assertThat(eModel.getY(), is(6.2));
 	}
 }

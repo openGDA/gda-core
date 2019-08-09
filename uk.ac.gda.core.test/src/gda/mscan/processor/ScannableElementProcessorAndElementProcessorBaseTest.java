@@ -33,7 +33,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableMotor;
 import gda.mscan.ClauseContext;
-import gda.mscan.element.Roi;
+import gda.mscan.element.RegionShape;
 
 /**
  * Tests the ScannableElementProcessor and it's abstract base ElementProcessorBase as this
@@ -87,7 +87,7 @@ public class ScannableElementProcessorAndElementProcessorBaseTest {
 	 */
 	@Test(expected = UnsupportedOperationException.class)
 	public void processLookUpTrapsIncorrectGrammar() throws Exception {
-		doReturn(Roi.class).when(context).getPreviousType();
+		doReturn(RegionShape.class).when(context).getPreviousType();
 		processor.process(context, 1);
 	}
 

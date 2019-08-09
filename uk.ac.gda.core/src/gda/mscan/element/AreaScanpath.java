@@ -25,12 +25,18 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.scanning.api.points.models.AbstractBoundingBoxModel;
+import org.eclipse.scanning.api.points.models.AbstractBoundingLineModel;
+import org.eclipse.scanning.api.points.models.AbstractMapModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
+import org.eclipse.scanning.api.points.models.BoundingLine;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.LissajousModel;
+import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
+import org.eclipse.scanning.api.points.models.OneDStepModel;
 import org.eclipse.scanning.api.points.models.RandomOffsetGridModel;
 import org.eclipse.scanning.api.points.models.RasterModel;
+import org.eclipse.scanning.api.points.models.SinglePointModel;
 import org.eclipse.scanning.api.points.models.SpiralModel;
 
 import com.google.common.collect.ImmutableMap;
@@ -49,7 +55,10 @@ public enum AreaScanpath implements IMScanElementEnum {
 	GRID("grid", 2, GridModel.class, Factory::createGridModel),
 	RASTER("rast", 2, RasterModel.class, Factory::createRasterModel),
 	SPIRAL("spir", 1, SpiralModel.class, Factory::createSpiralModel),
-	LISSAJOUS("liss", 5, LissajousModel.class, Factory::createLissajousModel);
+	LISSAJOUS("liss", 5, LissajousModel.class, Factory::createLissajousModel),
+	ONEDSTEP("step", 1, OneDStepModel.class, Factory::createOneDStepModel),
+	ONEDEQUAL("equa", 1, OneDEqualSpacingModel.class, Factory::createOneDEqualSpacingModel),
+	SINGLEPOINT("poin", 2, SinglePointModel.class, Factory::createSinglePointModel);
 
 	private static final int NUMBER_OF_AXES = 2;
 	private static final int BBOX_REQUIRED_PARAMS = 4;
@@ -58,11 +67,11 @@ public enum AreaScanpath implements IMScanElementEnum {
 	private final String text;
 	/** The number of parameters required to generate the path **/
 	private final int valueCount;
-	private final Class<? extends AbstractBoundingBoxModel> modelType;
+	private final Class<? extends AbstractMapModel> modelType;
 	private final AreaScanpathModelFactoryFunction factory;
 
 	private AreaScanpath(final String text, final int valueCount,
-						final Class<? extends AbstractBoundingBoxModel> type,
+						final Class<? extends AbstractMapModel> type,
 						final AreaScanpathModelFactoryFunction factoryFunction) {
 		this.text = text;
 		this.valueCount = valueCount;
@@ -102,7 +111,7 @@ public enum AreaScanpath implements IMScanElementEnum {
 	 *
 	 * @return		The {@link AbstractBoundingBoxModel} based model type associated with the instance.
 	 */
-	public Class<? extends AbstractBoundingBoxModel> modelType() {
+	public Class<? extends AbstractMapModel> modelType() {
 		return modelType;
 	}
 
@@ -178,6 +187,12 @@ public enum AreaScanpath implements IMScanElementEnum {
 		// Constant to reference the available parameter of a {@link SpiralModel}
 		private static final int SCALE = 0;
 
+		// Constant to reference the available parameter of a {@link OneDStepModel}
+		private static final int STEP = 0;
+
+		// Constant to reference the available parameter of a {@link OneDStepModel}
+		private static final int POINTS = 0;
+
 		/**
 		 * Creates a {@link GridModel} using the supplied params. If the RandomOffset {@link Mutator} is specified, a
 		 * {@link RandomOffsetGridModel} is created instead.
@@ -206,11 +221,7 @@ public enum AreaScanpath implements IMScanElementEnum {
 			}
 			GridModel model;
 			if (mutatorUses.containsKey(Mutator.RANDOM_OFFSET)) {
-				RandomOffsetGridModel roModel = new RandomOffsetGridModel(
-					scannables.get(FAST).getName(),
-					scannables.get(SLOW).getName());
-				roModel.setFastAxisPoints(scanParameters.get(FAST).intValue());
-				roModel.setSlowAxisPoints(scanParameters.get(SLOW).intValue());
+				RandomOffsetGridModel roModel = initBoxBasedModel(new RandomOffsetGridModel(), scannables, bboxParameters);
 				List<Number> params = mutatorUses.get(Mutator.RANDOM_OFFSET);
 				roModel.setOffset(params.get(OFFSET).doubleValue());
 				if (params.size() > 1) {
@@ -218,15 +229,10 @@ public enum AreaScanpath implements IMScanElementEnum {
 				}
 				model = roModel;
 			} else {
-				model = new GridModel(
-						scannables.get(FAST).getName(),
-						scannables.get(SLOW).getName(),
-						scanParameters.get(FAST).intValue(),
-						scanParameters.get(SLOW).intValue());
+				model = initBoxBasedModel(new GridModel(), scannables, bboxParameters);
 			}
-			model.setBoundingBox(new BoundingBox(
-					bboxParameters.get(FAST_START).doubleValue(), bboxParameters.get(SLOW_START).doubleValue(),
-					bboxParameters.get(FAST_LENGTH).doubleValue(), bboxParameters.get(SLOW_LENGTH).doubleValue()));
+			model.setFastAxisPoints(scanParameters.get(FAST).intValue());
+			model.setSlowAxisPoints(scanParameters.get(SLOW).intValue());
 
 			if (mutatorUses.containsKey(Mutator.SNAKE)) {
 				model.setSnake(true);
@@ -256,12 +262,9 @@ public enum AreaScanpath implements IMScanElementEnum {
 					throw new IllegalArgumentException(PREFIX + "Raster requires all positive parameters");
 				}
 			}
-			RasterModel model = new RasterModel(scannables.get(FAST).getName(),scannables.get(SLOW).getName());
+			RasterModel model = initBoxBasedModel(new RasterModel(), scannables, bboxParameters);
 			model.setFastAxisStep(scanParameters.get(FAST).doubleValue());
 			model.setSlowAxisStep(scanParameters.get(SLOW).doubleValue());
-			model.setBoundingBox(new BoundingBox(
-					bboxParameters.get(FAST_START).doubleValue(), bboxParameters.get(SLOW_START).doubleValue(),
-					bboxParameters.get(FAST_LENGTH).doubleValue(), bboxParameters.get(SLOW_LENGTH).doubleValue()));
 
 			if (mutatorUses.containsKey(Mutator.SNAKE)) {
 				model.setSnake(true);
@@ -285,13 +288,11 @@ public enum AreaScanpath implements IMScanElementEnum {
 														 final List<Number> bboxParameters,
 														 final Map<Mutator, List<Number>> mutatorUses) {
 
-			SpiralModel model = new SpiralModel(scannables.get(FAST).getName(), scannables.get(SLOW).getName());
+			SpiralModel model = initBoxBasedModel(new SpiralModel(), scannables, bboxParameters);
 			model.setScale(scanParameters.get(SCALE).doubleValue());
-			model.setBoundingBox(new BoundingBox(
-					bboxParameters.get(FAST_START).doubleValue(), bboxParameters.get(SLOW_START).doubleValue(),
-					bboxParameters.get(FAST_LENGTH).doubleValue(), bboxParameters.get(SLOW_LENGTH).doubleValue()));
 			return model;
 		}
+
 		/**
 		 * Creates a {@link LissajousModel} using the supplied params.
 		 *
@@ -309,18 +310,135 @@ public enum AreaScanpath implements IMScanElementEnum {
 															final List<Number> bboxParameters,
 															final Map<Mutator, List<Number>> mutatorUses) {
 
-			LissajousModel model = new LissajousModel();
-			model.setFastAxisName(scannables.get(FAST).getName());
-			model.setSlowAxisName(scannables.get(SLOW).getName());
+			LissajousModel model = initBoxBasedModel(new LissajousModel(), scannables, bboxParameters);
 			model.setA(scanParameters.get(0).doubleValue());
 			model.setB(scanParameters.get(1).doubleValue());
 			model.setDelta(scanParameters.get(2).doubleValue());
 			model.setThetaStep(scanParameters.get(3).doubleValue());
 			model.setPoints(scanParameters.get(4).intValue());
-			model.setBoundingBox(new BoundingBox(
-					bboxParameters.get(FAST_START).doubleValue(), bboxParameters.get(SLOW_START).doubleValue(),
-					bboxParameters.get(FAST_LENGTH).doubleValue(), bboxParameters.get(SLOW_LENGTH).doubleValue()));
 			return model;
+		}
+
+		/**
+		 * Creates a {@link OneDStepModel} using the supplied params.
+		 *
+		 * @param scannables		The {@link Scannable}s that relate to the axes of the step path as a {@link List} in
+		 * 							the order: fastScannable, slowScannable
+		 * @param scanParameters	The parameter that defines the step size as a single element {@link List}.
+		 * @param blineParameters	The coordinates of the start and end points of the bounding line that
+		 * 							encloses the step path as a {@link List} in the order x1, y1, x2, y2
+		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
+		 * @return					An {@link IScanPathModel} of the requested path and features
+		 */
+		private static IScanPathModel createOneDStepModel (final List<Scannable> scannables,
+														   final List<Number> scanParameters,
+														   final List<Number> blineParameters,
+														   final Map<Mutator, List<Number>> mutatorUses) {
+			for (Number param : scanParameters) {
+				if (param.doubleValue() < 0) {
+					throw new IllegalArgumentException(PREFIX + "OneDStep requires all positive parameters");
+				}
+			}
+			OneDStepModel model = initLineBasedModel(new OneDStepModel(), scannables, blineParameters);
+			model.setStep(scanParameters.get(STEP).doubleValue());
+			return model;
+		}
+
+		/**
+		 * Creates a {@link OneDEqualSpacingModel} using the supplied params.
+		 *
+		 * @param scannables		The {@link Scannable}s that relate to the axes of the path as a {@link List} in
+		 * 							the order: fastScannable, slowScannable
+		 * @param scanParameters	The parameter that defines the numberof points as a single element {@link List}.
+		 * @param blineParameters	The coordinates of the start and end points of the bounding line that
+		 * 							encloses the step path as a {@link List} in the order x1, y1, x2, y2
+		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
+		 * @return					An {@link IScanPathModel} of the requested path and features
+		 */
+		private static IScanPathModel createOneDEqualSpacingModel (final List<Scannable> scannables,
+				   													final List<Number> scanParameters,
+				   													final List<Number> blineParameters,
+				   													final Map<Mutator, List<Number>> mutatorUses) {
+			for (Number param : scanParameters) {
+				if (param.doubleValue() < 0) {
+					throw new IllegalArgumentException(PREFIX + "OneDEqualSpacing requires all positive parameters");
+				}
+				if (!(param instanceof Integer)) {
+					throw new IllegalArgumentException(PREFIX + "OneDEqualSpacing requires integer parameters");
+				}
+			}
+			OneDEqualSpacingModel model = initLineBasedModel(new OneDEqualSpacingModel(), scannables, blineParameters);
+			model.setPoints(scanParameters.get(POINTS).intValue());
+		return model;
+		}
+
+		/**
+		 * Creates a {@link PointModel} using the supplied params.
+		 *
+		 * @param scannables		The {@link Scannable}s that relate to the axes of the point as a {@link List} in
+		 * 							the order: fastScannable, slowScannable
+		 * @param scanParameters	The parameters that define the point location as a single element {@link List}.
+		 * @param notUsed			An empty {@link List} not used for this path
+		 * @param notUsedMap		An empty {@link Map} not used for this path
+		 * @return					An {@link IScanPathModel} of the requested path and features
+		 */
+		private static IScanPathModel createSinglePointModel (final List<Scannable> scannables,
+																final List<Number> scanParameters,
+																final List<Number> notUsed,
+																final Map<Mutator, List<Number>> notUsedMap) {
+			SinglePointModel model = new SinglePointModel();
+			setAxisNames(model, scannables);
+			model.setX(scanParameters.get(0).doubleValue());
+			model.setY(scanParameters.get(1).doubleValue());
+			return model;
+		}
+
+		/**
+		 * Initialises the  bounds of models based on {@link AbstractBoundingBoxModel}
+		 *
+		 * @param model				The model to be initialised
+		 * @param scannables		The scannables associated with the model in the order: fastScannable, slowScannable
+		 * @param bBoxParameters	The parameters of the bounding box in the order x1, y1, x2, y2
+		 * @return					The initalised model object
+		 */
+		private static <T extends AbstractBoundingBoxModel> T initBoxBasedModel(final T model,
+				  																final List<Scannable> scannables,
+				  																final List<Number> bBoxParameters) {
+			model.setBoundingBox(new BoundingBox(
+					bBoxParameters.get(FAST_START).doubleValue(), bBoxParameters.get(SLOW_START).doubleValue(),
+					bBoxParameters.get(FAST_LENGTH).doubleValue(), bBoxParameters.get(SLOW_LENGTH).doubleValue()));
+			setAxisNames(model, scannables);
+			return model;
+		}
+
+		/**
+		 * Initialises the  bounds of models based on {@link AbstractBoundingLineModel}
+		 *
+		 * @param model				The model to be initialised
+		 * @param scannables		The scannables associated with the model in the order: fastScannable, slowScannable
+		 * @param bBoxParameters	The parameters of the bounding line in the order x1, y1, x2, y2
+		 * @return					The initalised model object
+		 */
+		private static <T extends AbstractBoundingLineModel> T initLineBasedModel(final T model,
+																				  final List<Scannable> scannables,
+																				  final List<Number> blineParameters) {
+			model.setBoundingLine(new BoundingLine(
+					blineParameters.get(FAST_START).doubleValue(), blineParameters.get(SLOW_START).doubleValue(),
+					blineParameters.get(FAST_LENGTH).doubleValue(), blineParameters.get(SLOW_LENGTH).doubleValue()));
+			setAxisNames(model, scannables);
+			return model;
+		}
+
+		/**
+		 * Sets the names of the axes on the model from the names of the supplied {@link Scannable}s
+		 *
+		 * @param model			The model to be initialised
+		 * @param scannables	The {@link Scannable}s from which the names will be derived in the order: fastScannable,
+		 * 						slowScannable.
+		 */
+		private static void setAxisNames(final AbstractMapModel model, final List<Scannable> scannables) {
+			model.setFastAxisName(scannables.get(FAST).getName());
+			model.setSlowAxisName(scannables.get(SLOW).getName());
 		}
 	}
 }

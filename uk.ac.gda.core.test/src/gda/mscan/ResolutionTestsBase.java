@@ -30,11 +30,11 @@ import gda.device.Scannable;
 import gda.device.scannable.ScannableMotor;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.mscan.element.AreaScanpath;
-import gda.mscan.element.Roi;
+import gda.mscan.element.RegionShape;
 import gda.mscan.processor.AreaScanpathElementProcessor;
 import gda.mscan.processor.IClauseElementProcessor;
 import gda.mscan.processor.NumberElementProcessor;
-import gda.mscan.processor.RoiElementProcessor;
+import gda.mscan.processor.RegionShapeElementProcessor;
 import gda.mscan.processor.ScannableElementProcessor;
 import gda.mscan.processor.ScannableGroupElementProcessor;
 
@@ -58,7 +58,7 @@ public class ResolutionTestsBase {
 	protected static IClauseElementProcessor m2Proc = mockMonitorProc(m2, "MonitorTwo");
 	protected static IClauseElementProcessor num1Proc = mockNumberProc(1);
 	protected static IClauseElementProcessor gridProc = mockAreaScanpathProc(AreaScanpath.GRID);
-	protected static IClauseElementProcessor rectProc = mockRoiProc(Roi.RECTANGLE);
+	protected static IClauseElementProcessor rectProc = mockRoiProc(RegionShape.RECTANGLE);
 
 	protected static IClauseElementProcessor mockScannableProc(Scannable scannable, final String name) {
 		IClauseElementProcessor proc = baseScannableProcSetup(scannable, name);
@@ -136,8 +136,8 @@ public class ResolutionTestsBase {
 		return proc;
 	}
 
-	protected static IClauseElementProcessor mockRoiProc(Roi roi) {
-		IClauseElementProcessor proc = mock(RoiElementProcessor.class);
+	protected static IClauseElementProcessor mockRoiProc(RegionShape roi) {
+		IClauseElementProcessor proc = mock(RegionShapeElementProcessor.class);
 		when(proc.getElement()).thenReturn(roi);
 		when(proc.hasScannable()).thenReturn(false);
 		when(proc.hasRoi()).thenReturn(true);
