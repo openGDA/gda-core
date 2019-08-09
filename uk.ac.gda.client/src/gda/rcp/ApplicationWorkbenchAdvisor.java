@@ -401,7 +401,6 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 					}
 				}
 			}
-			workbenchWindow.getActivePage().savePerspective();
 			workbenchWindow.getActivePage().resetPerspective();
 		}
 	}
