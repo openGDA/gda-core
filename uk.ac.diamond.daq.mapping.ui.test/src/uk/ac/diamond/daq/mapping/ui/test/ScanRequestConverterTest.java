@@ -100,8 +100,8 @@ public class ScanRequestConverterTest {
 		// We wire things together without OSGi here
 		// DO NOT COPY THIS IN NON-TEST CODE!
 		mappingStageInfo = new MappingStageInfo();
-		mappingStageInfo.setActiveFastScanAxis(X_AXIS_NAME);
-		mappingStageInfo.setActiveSlowScanAxis(Y_AXIS_NAME);
+		mappingStageInfo.setPlotXAxisName(X_AXIS_NAME);
+		mappingStageInfo.setPlotYAxisName(Y_AXIS_NAME);
 		mappingStageInfo.setBeamSize(BEAM_SIZE_NAME);
 
 
@@ -288,8 +288,8 @@ public class ScanRequestConverterTest {
 		assertThat(scanPath.getSlowAxisName(), is(equalTo(Y_AXIS_NAME)));
 
 		// change the mapping stage axis names
-		mappingStageInfo.setActiveFastScanAxis("new_x_axis");
-		mappingStageInfo.setActiveSlowScanAxis("new_y_axis");
+		mappingStageInfo.setPlotXAxisName("new_x_axis");
+		mappingStageInfo.setPlotYAxisName("new_y_axis");
 
 		// the new mapping bean hasn't been set up with a scan path at this stage
 		IMappingScanRegion newRegion = newMappingBean.getScanDefinition().getMappingScanRegion();
@@ -305,8 +305,8 @@ public class ScanRequestConverterTest {
 		assertThat(newScanPath.getSlowAxisName(), is(equalTo(Y_AXIS_NAME)));
 
 		// check that the mapping stage info has been updated with the stage names from the scan request
-		assertThat(mappingStageInfo.getActiveFastScanAxis(), is(equalTo(X_AXIS_NAME)));
-		assertThat(mappingStageInfo.getActiveSlowScanAxis(), is(equalTo(Y_AXIS_NAME)));
+		assertThat(mappingStageInfo.getPlotXAxisName(), is(equalTo(X_AXIS_NAME)));
+		assertThat(mappingStageInfo.getPlotYAxisName(), is(equalTo(Y_AXIS_NAME)));
 	}
 
 	@Test

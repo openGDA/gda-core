@@ -277,8 +277,8 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		try {
 			final MappingStageInfo savedStage = marshaller.unmarshal(json, MappingStageInfo.class);
 			final MappingStageInfo mappingStage = getService(MappingStageInfo.class);
-			mappingStage.setActiveFastScanAxis(savedStage.getActiveFastScanAxis());
-			mappingStage.setActiveSlowScanAxis(savedStage.getActiveSlowScanAxis());
+			mappingStage.setPlotXAxisName(savedStage.getPlotXAxisName());
+			mappingStage.setPlotYAxisName(savedStage.getPlotYAxisName());
 			mappingStage.setAssociatedAxis(savedStage.getAssociatedAxis());
 		} catch (Exception e) {
 			logger.error("Error restoring mapping stage axes selection", e);
