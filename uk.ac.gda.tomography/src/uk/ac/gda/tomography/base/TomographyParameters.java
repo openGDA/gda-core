@@ -1,11 +1,19 @@
-package uk.ac.gda.tomography.model;
+package uk.ac.gda.tomography.base;
+
+import uk.ac.gda.tomography.model.AcquisitionParameters;
+import uk.ac.gda.tomography.model.EndAngle;
+import uk.ac.gda.tomography.model.ImageCalibration;
+import uk.ac.gda.tomography.model.MultipleScans;
+import uk.ac.gda.tomography.model.Projections;
+import uk.ac.gda.tomography.model.ScanType;
+import uk.ac.gda.tomography.model.StartAngle;
 
 /**
  * The base class for describe a tomography acquisition.
  *
  *  @author Maurzio Nagni
  */
-public class TomographyConfiguration implements AcquisitionConfiguration {
+public class TomographyParameters implements AcquisitionParameters {
 	private String name;
 
 	private ScanType scanType;
@@ -18,11 +26,11 @@ public class TomographyConfiguration implements AcquisitionConfiguration {
 
 	private MultipleScans multipleScans;
 
-	public TomographyConfiguration() {
+	public TomographyParameters() {
 		super();
 	}
 
-	public TomographyConfiguration(TomographyConfiguration configuration) {
+	public TomographyParameters(TomographyParameters configuration) {
 		super();
 		this.name = configuration.getName();
 		this.scanType = configuration.getScanType();

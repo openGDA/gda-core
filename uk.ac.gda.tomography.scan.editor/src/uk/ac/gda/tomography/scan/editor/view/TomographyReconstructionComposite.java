@@ -18,31 +18,33 @@
 
 package uk.ac.gda.tomography.scan.editor.view;
 
+import java.util.Map;
+
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import uk.ac.gda.tomography.model.TomographyReconstruction;
-import uk.ac.gda.tomography.scan.editor.TomographyBindingElements;
-import uk.ac.gda.tomography.scan.editor.TomographySWTElements;
+import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
+import uk.ac.gda.tomography.ui.tool.TomographyBindingElements;
+import uk.ac.gda.tomography.ui.tool.TomographySWTElements;
 
 /**
  * @author Maurizio Nagni
  */
-public class TomographyReconstructionComposite extends CompositeTemplate<TomographyReconstruction> {
+public class TomographyReconstructionComposite extends CompositeTemplate<TomographyParametersAcquisitionController> {
 
 	/** Pixel size **/
 	private Text pixelSizeX;
 	private Text pixelSizeY;
 
-	public TomographyReconstructionComposite(Composite parent, TomographyReconstruction tomographyData) {
-		this(parent, SWT.NONE, tomographyData);
+	public TomographyReconstructionComposite(Composite parent, TomographyParametersAcquisitionController controller) {
+		this(parent, SWT.NONE, controller);
 	}
 
-	public TomographyReconstructionComposite(Composite parent, int style, TomographyReconstruction tomographyData) {
-		super(parent, style, tomographyData);
+	public TomographyReconstructionComposite(Composite parent, int style, TomographyParametersAcquisitionController controller) {
+		super(parent, style, controller);
 	}
 
 	@Override
@@ -69,5 +71,9 @@ public class TomographyReconstructionComposite extends CompositeTemplate<Tomogra
 	@Override
 	protected void initialiseElements() {
 
+	}
+
+	private Map<String, String> getTemplateData() {
+		return getController().getAcquisition().getAcquisitionConfiguration().getMetadata();
 	}
 }

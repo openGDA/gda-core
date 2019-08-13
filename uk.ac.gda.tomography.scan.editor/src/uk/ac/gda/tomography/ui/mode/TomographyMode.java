@@ -16,23 +16,17 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.model;
+package uk.ac.gda.tomography.ui.mode;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
-public class MementoCaretaker<T> {
+import gda.device.IScannableMotor;
 
-	private List<TomographyMemento<T>> mementoList = new ArrayList<>();
+public interface TomographyMode {
 
-	public void saveState(TomographyMemento<T> instance) {
-		mementoList.add(instance);
+	public enum ModeDevices {
+		STAGE_MOTOR_X, STAGE_MOTOR_Y, STAGE_MOTOR_Z, STAGE_ROT_Y, CAMERA_Z;
 	}
 
-	public TomographyMemento<T> undoState() {
-		if (mementoList.size() == 1) {
-			return mementoList.get(0);
-		}
-		return mementoList.isEmpty() ? null : mementoList.remove(mementoList.size() - 1);
-	}
+	public Map<ModeDevices, IScannableMotor> getMotors() throws IncompleteModeException;
 }

@@ -40,6 +40,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import uk.ac.gda.tomography.base.TomographyParameters;
 import uk.ac.gda.tomography.controller.AcquisitionControllerException;
 import uk.ac.gda.tomography.model.EndAngle;
 import uk.ac.gda.tomography.model.ImageCalibration;
@@ -48,10 +49,9 @@ import uk.ac.gda.tomography.model.MultipleScansType;
 import uk.ac.gda.tomography.model.RangeType;
 import uk.ac.gda.tomography.model.ScanType;
 import uk.ac.gda.tomography.model.StartAngle;
-import uk.ac.gda.tomography.model.TomographyConfiguration;
 import uk.ac.gda.tomography.service.TomographyServiceException;
 
-public class TomographyScanParametersTest {
+public class TomographyParametersTest {
 
 	private File tempFile;
 	private ObjectMapper mapper;
@@ -67,9 +67,9 @@ public class TomographyScanParametersTest {
 	}
 
 	@Test
-	public void basicTomographyConfigurationDeserialization() throws JsonParseException, JsonMappingException, IOException {
-		String jsonData = getResourceAsString("/resources/simpleTomographyConfiguration.json");
-		TomographyConfiguration configuration = mapper.readValue(jsonData, TomographyConfiguration.class);
+	public void basicDeserialization() throws JsonParseException, JsonMappingException, IOException {
+		String jsonData = getResourceAsString("/resources/simpleTomographyParameters.json");
+		TomographyParameters configuration = mapper.readValue(jsonData, TomographyParameters.class);
 
 		Assert.assertEquals(false, configuration.getStart().isUseCurrentAngle());
 		Assert.assertEquals(RangeType.RANGE_360, configuration.getEnd().getRangeType());
@@ -83,8 +83,8 @@ public class TomographyScanParametersTest {
 	 * @throws JsonProcessingException
 	 */
 	@Test
-	public void basicTomographyConfigurationSerialization() throws AcquisitionControllerException, JsonProcessingException {
-		TomographyConfiguration conf = new TomographyConfiguration();
+	public void basicSerialization() throws AcquisitionControllerException, JsonProcessingException {
+		TomographyParameters conf = new TomographyParameters();
 		conf.setScanType(ScanType.FLY);
 
 		StartAngle startAngle = new StartAngle();

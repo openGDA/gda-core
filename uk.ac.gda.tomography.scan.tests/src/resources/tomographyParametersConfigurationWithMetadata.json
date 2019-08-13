@@ -1,0 +1,34 @@
+{
+	"devices": [],
+	"acquisitionParameters": {
+		"name": "tomoTest",
+		"scanType": "FLY",
+		"start": {
+			"start": 2.3,
+			"useCurrentAngle": false,
+			"currentAngle": 0.0
+		},
+		"end": {
+			"rangeType": "RANGE_360",
+			"numberRotation": 3,
+			"customAngle": 25.2
+		},
+		"imageCalibration": {
+			"numberDark": 2,
+			"numberFlat": 2,
+			"beforeAcquisition": false,
+			"afterAcquisition": true
+		},
+		"multipleScans": {
+			"multipleScansType": "SWITCHBACK_SCAN",
+			"numberRepetitions": 3,
+			"waitingTime": 1000
+		}
+	},
+	"metadata": {
+		"one": "uno",
+		"two": "due"
+	}
+}
+
+

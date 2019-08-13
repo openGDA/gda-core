@@ -29,11 +29,11 @@ import org.eclipse.swt.widgets.TabItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.tomography.model.TomographyAcquisition;
 import uk.ac.gda.tomography.scan.editor.view.TomographyConfigurationComposite;
 import uk.ac.gda.tomography.scan.editor.view.TomographyMessages;
-import uk.ac.gda.tomography.scan.editor.view.TomographyMessagesUtility;
 import uk.ac.gda.tomography.scan.editor.view.TomographyReconstructionComposite;
+import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
+import uk.ac.gda.tomography.ui.tool.TomographyMessagesUtility;
 
 /**
  * Allows the user to create/edit tomography scan parameter configuration. This dialog has been created primarily for k11 however has been developed to allow
@@ -45,14 +45,15 @@ public class TomographyAcquisitionTabsDialog extends Dialog {
 
 	public static final int CANCEL = 0;
 	public static final int SAVE = 1;
+	public static final int RUN = 3;
 
 	private static final Logger logger = LoggerFactory.getLogger(TomographyAcquisitionTabsDialog.class);
 
-	private final TomographyAcquisition acquisition;
+	private final TomographyParametersAcquisitionController controller;
 
-	public TomographyAcquisitionTabsDialog(Shell parentShell, TomographyAcquisition acquisition) {
+	public TomographyAcquisitionTabsDialog(Shell parentShell, TomographyParametersAcquisitionController controller) {
 		super(parentShell);
-		this.acquisition = acquisition;
+		this.controller = controller;
 	}
 
 	@Override
@@ -68,18 +69,19 @@ public class TomographyAcquisitionTabsDialog extends Dialog {
 		//Composite container = (Composite) super.createDialogArea(parent);
 		TabItem item = new TabItem (tabFolder, SWT.NONE);
 		item.setText(TomographyMessagesUtility.getMessage(TomographyMessages.ACQUISITION));
-		Composite comp = new TomographyConfigurationComposite(tabFolder, this.acquisition.getConfiguration());
+		Composite comp = new TomographyConfigurationComposite(tabFolder, controller);
 		item.setControl(comp);
 
 		item = new TabItem (tabFolder, SWT.NONE);
 		item.setText(TomographyMessagesUtility.getMessage(TomographyMessages.RECONSTRUCTION));
-		comp = new TomographyReconstructionComposite(tabFolder, this.acquisition.getReconstruction());
+		comp = new TomographyReconstructionComposite(tabFolder, controller);
 		item.setControl(comp);
 		return parent;
 	}
 
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
+		createButton(parent, RUN, TomographyMessagesUtility.getMessage(TomographyMessages.RUN), false);
 		createButton(parent, SAVE, TomographyMessagesUtility.getMessage(TomographyMessages.SAVE), false);
 		createButton(parent, CANCEL, TomographyMessagesUtility.getMessage(TomographyMessages.CANCEL), false);
 	}

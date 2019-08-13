@@ -18,33 +18,44 @@
 
 package uk.ac.gda.tomography.controller;
 
+import java.net.URL;
+
+import org.eclipse.jface.dialogs.IDialogSettings;
+
 import uk.ac.gda.tomography.model.Acquisition;
 import uk.ac.gda.tomography.model.AcquisitionConfiguration;
+import uk.ac.gda.tomography.model.AcquisitionParameters;
 
 /**
  * A set of methods to load and save {@link AcquisitionConfiguration}
  *
  * @param <T>
- *
  * @author Maurizio Nagni
  */
-public interface AcquisitionController<T extends Acquisition<? extends AcquisitionConfiguration>> {
+public interface AcquisitionController<T extends Acquisition<? extends AcquisitionConfiguration<? extends AcquisitionParameters>>> {
 
-	/**
-	 * @return the tomography scan parameters object associated with this controller, otherwise <code>null</code>
-	 */
-	T getAcquisition();
+	public T getAcquisition();
 
 	/**
 	 * Saves the tomography scan parameters object associated with this controller
-	 * @throws AcquisitionControllerException if the object cannot be saved
+	 *
+	 * @throws AcquisitionControllerException
+	 *             if the object cannot be saved
 	 */
-	void saveAcquisition() throws AcquisitionControllerException;
+	void saveAcquisitionAsFile(T acquisition, URL destination) throws AcquisitionControllerException;
+	void saveAcquisitionAsIDialogSettings(T acquisition, IDialogSettings destination, String key) throws AcquisitionControllerException;
+	void runAcquisition(T acquisition) throws AcquisitionControllerException;
+
+	public void loadData(T data) throws AcquisitionControllerException;
+	public void loadData(URL data) throws AcquisitionControllerException;
+	public void loadData(String data) throws AcquisitionControllerException;
+	public void loadData(IDialogSettings dialogSettings, String key) throws AcquisitionControllerException;
 
 	/**
 	 * Deletes the tomography scan parameters object associated with this controller
-	 * @throws AcquisitionControllerException if the object cannot be saved
+	 *
+	 * @throws AcquisitionControllerException
+	 *             if the object cannot be saved
 	 */
-	void deleteAcquisition() throws AcquisitionControllerException;
-
+	void deleteAcquisition(T acquisition) throws AcquisitionControllerException;
 }

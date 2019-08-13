@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.scan.editor.view;
+package uk.ac.gda.tomography.ui.tool;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,6 +28,8 @@ import java.util.ResourceBundle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.gda.tomography.scan.editor.view.TomographyMessages;
 
 /**
  * @author Maurizio Nagni

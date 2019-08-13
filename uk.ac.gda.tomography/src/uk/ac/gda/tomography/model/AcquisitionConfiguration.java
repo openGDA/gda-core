@@ -18,11 +18,36 @@
 
 package uk.ac.gda.tomography.model;
 
+import java.util.Map;
+import java.util.Set;
+
+import gda.device.Device;
+
 /**
- * A marker interface for tomography scan parameter data instances
+ * An acquisition includes three components.
+ * <ol>
+ * <li>a set of devices involved in the execution, i.e. cameras, motors, beam</li>
+ * <li>a class containing the parameters necessary to the required acquisition</li>
+ * <li>a map of key, values which are not required for the acquisition process but are useful to be stored</li>
+ * </ol>
  *
  * @author Maurizio Nagni
  */
-public interface AcquisitionConfiguration {
+public interface AcquisitionConfiguration<T extends AcquisitionParameters> {
+
+	/**
+	 * @return the devices involved in this acquisition
+	 */
+	public Set<Device> getDevices();
+
+	/**
+	 * @return the parameters defining the acquisition execution
+	 */
+	public T getAcquisitionParameters();
+
+	/**
+	 * @return a dictionary of text data
+	 */
+	public Map<String, String> getMetadata();
 
 }

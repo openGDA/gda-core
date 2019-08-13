@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.scan.editor;
+package uk.ac.gda.tomography.ui.tool;
 
 import java.util.Objects;
 
@@ -38,8 +38,8 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
+import uk.ac.gda.tomography.scan.editor.TomographyResourceManager;
 import uk.ac.gda.tomography.scan.editor.view.TomographyMessages;
-import uk.ac.gda.tomography.scan.editor.view.TomographyMessagesUtility;
 
 /**
  * Utility class for create SWT Tomography standard SWT elements. GridLayout is the default layout for all the elements
@@ -222,6 +222,12 @@ public final class TomographySWTElements {
 	public static void changeHIndent(Control control, int hIndent) {
 		if (GridData.class.isInstance(control.getLayoutData())) {
 			GridData.class.cast(control.getLayoutData()).horizontalIndent = hIndent;
+		}
+	}
+
+	public static void changeVerticalAlign(Control control, int vAlignement) {
+		if (GridData.class.isInstance(control.getLayoutData())) {
+			GridData.class.cast(control.getLayoutData()).verticalAlignment = vAlignement;
 		}
 	}
 

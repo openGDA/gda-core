@@ -16,18 +16,12 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.scan.editor.view;
+package uk.ac.gda.tomography.model;
 
-/**
- *
- * @param <T>
- * @author Maurizio Nagni
+/*
+ * A marker to identify classes defining an acquisition procedure.
+ * An acquisition procedure may defines, i.e., an angular range between which acquire a tomography or simply a move a motor.
  */
-public interface ItemViewerController<T extends Object> {
-
-	public T createItem();
-	public T editItem(T item);
-	public T deleteItem(T item);
-	public String getItemName(T item);
+public interface AcquisitionParameters {
 
 }

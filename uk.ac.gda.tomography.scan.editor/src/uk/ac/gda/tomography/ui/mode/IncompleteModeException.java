@@ -16,20 +16,30 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.model;
+package uk.ac.gda.tomography.ui.mode;
 
-public class TomographyMementoImpl<T> implements TomographyMemento<T> {
+import uk.ac.gda.tomography.controller.AcquisitionControllerException;
 
-	private final T memento;
+public class IncompleteModeException extends AcquisitionControllerException {
 
-	public TomographyMementoImpl(T memento) {
+	public IncompleteModeException() {
 		super();
-		this.memento = memento;
 	}
 
-	@Override
-	public T getMemento() {
-		return memento;
+	public IncompleteModeException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+		super(message, cause, enableSuppression, writableStackTrace);
+	}
+
+	public IncompleteModeException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public IncompleteModeException(String message) {
+		super(message);
+	}
+
+	public IncompleteModeException(Throwable cause) {
+		super(cause);
 	}
 
 }

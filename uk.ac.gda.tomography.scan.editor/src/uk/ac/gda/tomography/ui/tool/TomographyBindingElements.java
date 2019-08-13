@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.scan.editor;
+package uk.ac.gda.tomography.ui.tool;
 
 import java.util.Map;
 
@@ -31,7 +31,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Text;
 
 /**
- *@author Maurizio Nagni
+ * @author Maurizio Nagni
  */
 public final class TomographyBindingElements {
 
@@ -39,24 +39,25 @@ public final class TomographyBindingElements {
 	}
 
 	/**
-	 * @param dbc           the binding context
-	 * @param enumClass     the enum to map
-	 * @param modelProperty the property name to bind
-	 * @param model         the model containing the property
-	 * @param enumRadioMap  the map between enum elements and their Widget
-	 *                      counterpart
+	 * @param dbc
+	 *            the binding context
+	 * @param enumClass
+	 *            the enum to map
+	 * @param modelProperty
+	 *            the property name to bind
+	 * @param model
+	 *            the model containing the property
+	 * @param enumRadioMap
+	 *            the map between enum elements and their Widget counterpart
 	 */
-	public static final <T> void bindEnumToRadio(final DataBindingContext dbc, final Class<T> enumClass,
-			String modelProperty, final Object model, final Map<T, Object> enumRadioMap) {
+	public static final <T> void bindEnumToRadio(final DataBindingContext dbc, final Class<T> enumClass, String modelProperty, final Object model,
+			final Map<T, Object> enumRadioMap) {
 		SelectObservableValue<T> enumObservable = new SelectObservableValue<>(enumClass);
-		enumRadioMap.keySet().stream().forEach(k -> {
-			enumObservable.addOption(k, WidgetProperties.selection().observe(enumRadioMap.get(k)));
-		});
+		enumRadioMap.keySet().stream().forEach(k -> enumObservable.addOption(k, WidgetProperties.selection().observe(enumRadioMap.get(k))));
 		dbc.bindValue(enumObservable, PojoProperties.value(modelProperty).observe(model));
 	}
 
-	public static final <T> void bindText(DataBindingContext dbc, Text target, Class<T> clazz, String modelProperty,
-			final Object model) {
+	public static final <T> void bindText(DataBindingContext dbc, Text target, Class<T> clazz, String modelProperty, final Object model) {
 		IObservableValue<Text> iTarget = WidgetProperties.text(SWT.Modify).observe(target);
 		IObservableValue<Integer> iModel = PojoProperties.value(modelProperty, clazz).observe(model);
 		UpdateValueStrategy iTargetToModelStrategy = new UpdateValueStrategy();
@@ -64,8 +65,7 @@ public final class TomographyBindingElements {
 		dbc.bindValue(iTarget, iModel, iTargetToModelStrategy, iModelToTargetStrategy);
 	}
 
-	public static final void bindCheckBox(DataBindingContext dbc, Button target, String modelProperty,
-			final Object model) {
+	public static final void bindCheckBox(DataBindingContext dbc, Button target, String modelProperty, final Object model) {
 		IObservableValue<Button> iTarget = WidgetProperties.selection().observe(target);
 		IObservableValue<Boolean> iModel = PojoProperties.value(modelProperty, Boolean.class).observe(model);
 		UpdateValueStrategy iTargetToModelStrategy = new UpdateValueStrategy();

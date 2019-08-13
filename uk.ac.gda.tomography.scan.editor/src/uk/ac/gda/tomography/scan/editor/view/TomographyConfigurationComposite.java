@@ -39,18 +39,19 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import uk.ac.gda.tomography.base.TomographyParameters;
 import uk.ac.gda.tomography.model.MultipleScansType;
 import uk.ac.gda.tomography.model.RangeType;
 import uk.ac.gda.tomography.model.ScanType;
-import uk.ac.gda.tomography.model.TomographyConfiguration;
-import uk.ac.gda.tomography.scan.editor.TomographyBindingElements;
-import uk.ac.gda.tomography.scan.editor.TomographySWTElements;
+import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
+import uk.ac.gda.tomography.ui.tool.TomographyBindingElements;
+import uk.ac.gda.tomography.ui.tool.TomographySWTElements;
 
 /**
- * This Composite allows to edit a {@link TomographyConfiguration} object.
+ * This Composite allows to edit a {@link TomographyParameters} object.
  * @author Maurizio Nagni
  */
-public class TomographyConfigurationComposite extends CompositeTemplate<TomographyConfiguration> {
+public class TomographyConfigurationComposite extends CompositeTemplate<TomographyParametersAcquisitionController> {
 
 	/** Scan prefix **/
 	private Text name;
@@ -91,12 +92,12 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 	private Button repeateMultipleScansType;
 	private Button switchbackMultipleScansType;
 
-	public TomographyConfigurationComposite(Composite parent, TomographyConfiguration tomographyData) {
-		this(parent, SWT.NONE, tomographyData);
+	public TomographyConfigurationComposite(Composite parent, TomographyParametersAcquisitionController controller) {
+		this(parent, SWT.NONE, controller);
 	}
 
-	public TomographyConfigurationComposite(Composite parent, int style, TomographyConfiguration tomographyData) {
-		super(parent, style, tomographyData);
+	public TomographyConfigurationComposite(Composite parent, int style, TomographyParametersAcquisitionController controller) {
+		super(parent, style, controller);
 	}
 
 	@Override
@@ -435,5 +436,9 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 		bar.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		bar.setVisible(false);
 		return bar;
+	}
+
+	private TomographyParameters getTemplateData() {
+		return getController().getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
 	}
 }

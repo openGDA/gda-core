@@ -23,13 +23,11 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.tomography.model.TomographyConfiguration;
 import uk.ac.gda.tomography.scan.editor.view.TomographyConfigurationComposite;
 import uk.ac.gda.tomography.scan.editor.view.TomographyMessages;
-import uk.ac.gda.tomography.scan.editor.view.TomographyMessagesUtility;
+import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
+import uk.ac.gda.tomography.ui.tool.TomographyMessagesUtility;
 
 /**
  * Allows the user to create/edit tomography scan parameter configuration. This dialog has been created primarily for k11 however has been developed to allow
@@ -41,15 +39,13 @@ public class TomographyScanParameterDialog extends Dialog {
 
 	public static final int CANCEL = 0;
 	public static final int SAVE = 1;
+	public static final int RUN = 3;
 
-	private static final Logger logger = LoggerFactory.getLogger(TomographyScanParameterDialog.class);
+	private final TomographyParametersAcquisitionController controller;
 
-	// private final AcquisitionController<TomographyAcquisition> controller;
-	private final TomographyConfiguration configuration;
-
-	public TomographyScanParameterDialog(Shell parentShell, TomographyConfiguration configuration) {
+	public TomographyScanParameterDialog(Shell parentShell, TomographyParametersAcquisitionController controller) {
 		super(parentShell);
-		this.configuration = configuration;
+		this.controller = controller;
 	}
 
 	@Override
@@ -62,13 +58,14 @@ public class TomographyScanParameterDialog extends Dialog {
 	@Override
 	public Control createDialogArea(Composite parent) {
 		Composite container = (Composite) super.createDialogArea(parent);
-		new TomographyConfigurationComposite(container, this.configuration);
+		new TomographyConfigurationComposite(container, this.controller);
 		customiseDialogArea(container);
 		return parent;
 	}
 
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
+		createButton(parent, RUN, TomographyMessagesUtility.getMessage(TomographyMessages.RUN), false);
 		createButton(parent, SAVE, TomographyMessagesUtility.getMessage(TomographyMessages.SAVE), false);
 		createButton(parent, CANCEL, TomographyMessagesUtility.getMessage(TomographyMessages.CANCEL), false);
 	}

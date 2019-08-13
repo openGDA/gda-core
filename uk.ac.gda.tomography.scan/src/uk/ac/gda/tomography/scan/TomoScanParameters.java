@@ -18,9 +18,9 @@
 
 package uk.ac.gda.tomography.scan;
 
-import uk.ac.gda.tomography.model.AcquisitionConfiguration;
+import uk.ac.gda.tomography.model.AcquisitionParameters;
 
-public class TomoScanParameters implements AcquisitionConfiguration {
+public class TomoScanParameters implements AcquisitionParameters {
 
 	// Scan parameters
 

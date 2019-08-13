@@ -53,10 +53,9 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
 import gda.jython.InterfaceProvider;
 import uk.ac.gda.client.CommandQueueViewFactory;
-import uk.ac.gda.tomography.controller.AcquisitionController;
-import uk.ac.gda.tomography.model.Acquisition;
 import uk.ac.gda.tomography.scan.TomoScanParameters;
 import uk.ac.gda.tomography.scan.presentation.ParametersComposite;
+import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
 
 public class ScanParameterDialog extends Dialog {
 
@@ -70,7 +69,7 @@ public class ScanParameterDialog extends Dialog {
 
 	private TomoScanParameters model;
 	private DataBindingContext ctx;
-	private AcquisitionController<Acquisition<TomoScanParameters>> controller;
+	private TomographyParametersAcquisitionController controller;
 
 	/**
 	 * This constructor assumes 1) no controller 2) the model is stored in IDialogSettings
@@ -80,7 +79,7 @@ public class ScanParameterDialog extends Dialog {
 		super(parentShell);
 	}
 
-	public ScanParameterDialog(Shell parentShell, AcquisitionController<Acquisition<TomoScanParameters>> controller) {
+	public ScanParameterDialog(Shell parentShell, TomographyParametersAcquisitionController controller) {
 		this(parentShell);
 		this.controller = controller;
 	}
@@ -239,7 +238,7 @@ public class ScanParameterDialog extends Dialog {
 		super.okPressed();
 	}
 
-	private AcquisitionController<Acquisition<TomoScanParameters>> getController() {
+	private TomographyParametersAcquisitionController getController() {
 		return this.controller;
 	}
 
@@ -250,9 +249,10 @@ public class ScanParameterDialog extends Dialog {
 			} catch (Exception e) {
 				logger.info(String.format("No model in %s", DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL), e);
 			}
-			if (Objects.nonNull(getController()) && Objects.nonNull(getController().getAcquisition())) {
-				this.model = getController().getAcquisition().getConfiguration();
-			}
+//			if (Objects.nonNull(getController()) && Objects.nonNull(getController().getAcquisition())) {
+//				// --TBD --//
+//				//this.model = getController().getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
+//			}
 		}
 		return this.model;
 	}

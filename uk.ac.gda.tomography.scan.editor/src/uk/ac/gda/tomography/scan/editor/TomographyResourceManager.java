@@ -55,7 +55,7 @@ public class TomographyResourceManager {
 
 	public synchronized Font getTextDefaultFont() {
 		if (textFont == null) {
-			groupFont = getFont(FontDescriptor.createFrom(FONT, 10, SWT.NORMAL));
+			textFont = getFont(FontDescriptor.createFrom(FONT, 10, SWT.NORMAL));
 		}
 		return textFont;
 	}

@@ -16,10 +16,11 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.model;
+package uk.ac.gda.tomography.base;
 
-public interface TomographyMemento<T> {
+import uk.ac.gda.tomography.model.AcquisitionConfigurationBase;
 
-	public T getMemento();
+public class TomographyConfiguration extends AcquisitionConfigurationBase<TomographyParameters> {
+
 
 }

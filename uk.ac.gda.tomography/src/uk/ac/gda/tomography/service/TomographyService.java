@@ -19,7 +19,7 @@
 package uk.ac.gda.tomography.service;
 
 import java.io.File;
-import java.nio.file.Path;
+import java.net.URL;
 
 import uk.ac.gda.tomography.service.message.TomographyRunMessage;
 
@@ -46,9 +46,9 @@ public interface TomographyService {
 	void runAcquisition(TomographyRunMessage message, File script, File onError, File onSuccess)
 			throws TomographyServiceException;
 
-	Path takeDarkImage(TomographyRunMessage message, File script)
+	URL takeDarkImage(TomographyRunMessage message, File script)
 			throws TomographyServiceException;
 
-	Path takeFlatImage(TomographyRunMessage message, File script)
+	URL takeFlatImage(TomographyRunMessage message, File script)
 			throws TomographyServiceException;
 }

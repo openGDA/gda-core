@@ -27,7 +27,8 @@ import org.eclipse.swt.widgets.ExpandItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.tomography.scan.editor.TomographySWTElements;
+import uk.ac.gda.tomography.ui.tool.TomographyMessagesUtility;
+import uk.ac.gda.tomography.ui.tool.TomographySWTElements;
 
 /**
  * Helps to build an ExpandBar. Once instantiated, {@link #getInternalArea()} provides the {@link Composite} where build the content. Calling

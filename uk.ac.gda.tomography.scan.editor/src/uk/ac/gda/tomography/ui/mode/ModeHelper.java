@@ -16,17 +16,28 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.model;
+package uk.ac.gda.tomography.ui.mode;
 
-import java.util.List;
+import java.util.Objects;
+
+import gda.device.IScannableMotor;
+import gda.factory.Finder;
 
 /**
- * An Experiments aggregates a set of acquisitions
+ * Finds devices being aware of the expected type.
+ * This class should helps the caller instance to parametrise the required findable object
+ *
+ * @author Maurizio Nagni
  */
-public interface Experiment<T extends Acquisition<? extends AcquisitionConfiguration>> {
+public final class ModeHelper {
 
-	public String getName();
-	public List<ActionLog> getLogs();
-	public List<T> getAcquisitions();
+	private ModeHelper() {}
 
+	public static IScannableMotor getMotor(String beanId) throws IncompleteModeException {
+		IScannableMotor sm = Finder.getInstance().find(beanId);
+		if (Objects.isNull(sm)) {
+			throw new IncompleteModeException(String.format("Cannot find any beanId:%s", beanId));
+		}
+		return sm;
+	}
 }

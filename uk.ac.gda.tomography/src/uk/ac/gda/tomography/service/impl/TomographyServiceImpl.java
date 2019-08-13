@@ -22,8 +22,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,22 +65,22 @@ public class TomographyServiceImpl implements TomographyService {
 	}
 
 	@Override
-	public Path takeDarkImage(TomographyRunMessage message, File script) throws TomographyServiceException {
+	public URL takeDarkImage(TomographyRunMessage message, File script) throws TomographyServiceException {
 		CommandThreadEvent event = runScript(message, script, "doDark");
 		try {
 			// do something with the event (?)
-			return Files.createTempFile("", ""); //TBD
+			return Files.createTempFile("", "").toUri().toURL(); //TBD
 		} catch (IOException e) {
 			throw new TomographyServiceException("Error", e);
 		}
 	}
 
 	@Override
-	public Path takeFlatImage(TomographyRunMessage message, File script) throws TomographyServiceException {
+	public URL takeFlatImage(TomographyRunMessage message, File script) throws TomographyServiceException {
 		CommandThreadEvent event = runScript(message, script, "doFlat");
 		try {
 			// do something with the event (?)
-			return Files.createTempFile("", ""); //TBD
+			return Files.createTempFile("", "").toUri().toURL(); //TBD
 		} catch (IOException e) {
 			throw new TomographyServiceException("Error", e);
 		}

@@ -18,303 +18,140 @@
 
 package uk.ac.gda.tomography.scan.editor.view;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.IntStream;
-
-import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.resource.FontDescriptor;
-import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.dialogs.SelectionDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.tomography.controller.AcquisitionControllerException;
-import uk.ac.gda.tomography.model.ActionLog;
-import uk.ac.gda.tomography.model.TomographyAcquisition;
-import uk.ac.gda.tomography.model.TomographyConfiguration;
-import uk.ac.gda.tomography.scan.editor.TomographyAcquisitionController;
+import gda.configuration.properties.LocalProperties;
+import gda.device.DeviceException;
+import gda.factory.Finder;
+import uk.ac.diamond.daq.client.gui.camera.CameraConfigurationDialog;
+import uk.ac.gda.client.live.stream.LiveStreamConnection;
+import uk.ac.gda.client.live.stream.view.CameraConfiguration;
+import uk.ac.gda.client.live.stream.view.StreamType;
+import uk.ac.gda.tomography.scan.editor.Activator;
+import uk.ac.gda.tomography.scan.editor.StagesComposite;
 import uk.ac.gda.tomography.scan.editor.TomographyAcquisitionTabsDialog;
-import uk.ac.gda.tomography.scan.editor.TomographyBindingElements;
 import uk.ac.gda.tomography.scan.editor.TomographyResourceManager;
-import uk.ac.gda.tomography.scan.editor.TomographySWTElements;
 import uk.ac.gda.tomography.scan.editor.TomographyScanParameterDialog;
-import uk.ac.gda.tomography.scan.editor.TomographySelectionDialog;
+import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
+import uk.ac.gda.tomography.ui.tool.TomographyMessagesUtility;
+import uk.ac.gda.tomography.ui.tool.TomographySWTElements;
 
 /**
  * Allows editing of TomographyAcquisition objects.
  *
  * @author Maurizio Nagni
  */
-public class TomographyAcquisitionComposite extends CompositeTemplate<TomographyAcquisition> {
+public class TomographyAcquisitionComposite extends CompositeTemplate<TomographyParametersAcquisitionController> {
 
+	private static final String DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL = "tomographyScanModel";
 	private static final Logger logger = LoggerFactory.getLogger(TomographyAcquisitionComposite.class);
 
-	// Acquisition UI
-	private Text name;
-	private Text configuration;
-	private Label createConfiguration;
-	private Label editConfiguration;
-	private Label changeConfiguration;
-	private Text script;
-	private Label changeScript;
-	private ItemsViewer<ActionLog> acquistionLogs;
+	private Group source;
+	private Label energyIcon;
+	private Label energy;
+	private Label energyValue;
+	private Button shutter;
+	private Label shutterLabel;
+	private Label shutterValue;
 
-	private Label saveAcquisition;
-	private Label deleteAcquisition;
-	private Label undoAcquisition;
-	private Label runAcquisition;
+	private Label configuration;
+	private Label camera;
 
-	private final TomographyAcquisitionController controller;
-
-	public TomographyAcquisitionComposite(final Composite parent, final TomographyAcquisitionController controller) {
-		super(parent, SWT.NONE, controller.getAcquisition());
-		this.controller = controller;
+	public TomographyAcquisitionComposite(final Composite parent, final TomographyParametersAcquisitionController controller) {
+		super(parent, SWT.NONE, controller);
 	}
 
 	@Override
 	protected void createElements(int labelStyle, int textStyle) {
-		Composite conf = TomographySWTElements.createComposite(this, labelStyle, 5);
-		TomographySWTElements.createLabel(conf, SWT.NONE, TomographyMessages.ACQUISITION, null,
-				FontDescriptor.createFrom(TomographyResourceManager.getDefaultFont(), 14, SWT.BOLD));
-
-		saveAcquisition = TomographySWTElements.createLabel(conf, labelStyle);
-		saveAcquisition.setImage(TomographySWTElements.getImage(getPluginId(), "icons/disk-16.png"));
-		TomographySWTElements.setTooltip(saveAcquisition, TomographyMessages.SAVE_ACQUISITION_TP);
-		TomographySWTElements.changeVAlignement(saveAcquisition, SWT.CENTER);
-		TomographySWTElements.changeHIndent(saveAcquisition, 50);
-
-		deleteAcquisition = TomographySWTElements.createLabel(conf, labelStyle);
-		deleteAcquisition.setImage(TomographySWTElements.getImage(getPluginId(), "icons/cross.png"));
-		TomographySWTElements.setTooltip(deleteAcquisition, TomographyMessages.DELETE_ACQUISITION_TP);
-
-		undoAcquisition = TomographySWTElements.createLabel(conf, labelStyle);
-		undoAcquisition.setImage(TomographySWTElements.getImage(getPluginId(), "icons/undo-16.png"));
-		TomographySWTElements.setTooltip(undoAcquisition, TomographyMessages.UNDO_ACQUISITION_TP);
-
-		runAcquisition = TomographySWTElements.createLabel(conf, labelStyle);
-		runAcquisition.setImage(TomographySWTElements.getImage(getPluginId(), "icons/run-16.png"));
-		TomographySWTElements.setTooltip(runAcquisition, TomographyMessages.RUN_ACQUISITION_TP);
-		TomographySWTElements.changeHIndent(runAcquisition, 50);
-
-		createAcquisitionContent(this, labelStyle, textStyle);
+		headerElements(TomographySWTElements.createComposite(this, SWT.NONE, 3), labelStyle, textStyle);
+		stageCompose(TomographySWTElements.createComposite(this, SWT.NONE, 1), labelStyle, textStyle);
 	}
 
-	private void createAcquisitionContent(Composite parent, int labelStyle, int textStyle) {
+	private void headerElements(Composite parent, int labelStyle, int textStyle) {
+		createSource(TomographySWTElements.createGroup(parent, 3, TomographyMessages.SOURCE), labelStyle, textStyle);
 
-		// --- Name field ---//
-		TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.NAME);
-		name = TomographySWTElements.createText(parent, textStyle, null, null, TomographyMessages.ACQUISITION_NAME_TP, new Point(500, SWT.DEFAULT));
+		configuration = TomographySWTElements.createLabel(parent, labelStyle);
+		configuration.setImage(TomographySWTElements.getImage(getPluginId(), "icons/sinogram-50.png"));
+		configuration.setToolTipText(TomographyMessagesUtility.getMessage(TomographyMessages.EDIT_CONFIGURATION_TP));
+		TomographySWTElements.changeHIndent(configuration, 50);
 
-		// --- Configuration field ---//
-		TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.CONFIGURATIONS);
-		Composite conf = TomographySWTElements.createComposite(parent, labelStyle, 5);
-		configuration = TomographySWTElements.createText(conf, textStyle, null, null, TomographyMessages.EMPTY_MESSAGE);
-		configuration.setEnabled(false);
+		camera = TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.CAMERA);
+		camera.setImage(TomographySWTElements.getImage(getPluginId(), "icons/camera-50.png"));
+		camera.setToolTipText(TomographyMessagesUtility.getMessage(TomographyMessages.CAMERA_TP));
+		TomographySWTElements.changeHIndent(camera, 50);
+	}
 
-		createConfiguration = TomographySWTElements.createLabel(conf, labelStyle);
-		createConfiguration.setImage(TomographySWTElements.getImage(getPluginId(), "icons/plus.png"));
-		TomographySWTElements.setTooltip(createConfiguration, TomographyMessages.CREATE_CONFIGURATION_TP);
-		TomographySWTElements.changeVAlignement(createConfiguration, SWT.CENTER);
-		TomographySWTElements.changeHIndent(createConfiguration, 50);
+	private void stageCompose(Composite parent, int labelStyle, int textStyle) {
+		StagesComposite.buildModeComposite(parent, controller);
+	}
 
-		editConfiguration = TomographySWTElements.createLabel(conf, labelStyle);
-		editConfiguration.setImage(TomographySWTElements.getImage(getPluginId(), "icons/pencil.png"));
-		TomographySWTElements.setTooltip(editConfiguration, TomographyMessages.EDIT_CONFIGURATION_TP);
-		TomographySWTElements.changeVAlignement(editConfiguration, SWT.CENTER);
+	private void createSource(Composite parent, int labelStyle, int textStyle) {
+		energyIcon = TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.ENERGY_KEV);
+		energyIcon.setImage(TomographySWTElements.getImage(getPluginId(), "icons/beam-16.png"));
+		energy = TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.ENERGY_KEV);
+		energyValue = TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.NOT_AVAILABLE, null,
+				FontDescriptor.createFrom(TomographyResourceManager.getInstance().getTextDefaultFont()));
 
-		changeConfiguration = TomographySWTElements.createLabel(conf, labelStyle);
-		changeConfiguration.setImage(TomographySWTElements.getImage(getPluginId(), "icons/change-16.png"));
-		TomographySWTElements.setTooltip(changeConfiguration, TomographyMessages.CHANGE_CONFIGURATION_TP);
-		TomographySWTElements.changeVAlignement(changeConfiguration, SWT.CENTER);
-
-		// --- Script field ---//
-		TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.SCRIPTS);
-		Composite scriptComp = TomographySWTElements.createComposite(parent, labelStyle, 4);
-		script = TomographySWTElements.createText(scriptComp, textStyle, null, null, TomographyMessages.EMPTY_MESSAGE, new Point(500, SWT.DEFAULT));
-		script.setEnabled(false);
-
-		changeScript = TomographySWTElements.createLabel(scriptComp, labelStyle);
-		changeScript.setImage(TomographySWTElements.getImage(getPluginId(), "icons/change-16.png"));
-		TomographySWTElements.setTooltip(changeScript, TomographyMessages.CHANGE_SCRIPT_TP);
-		TomographySWTElements.changeVAlignement(changeScript, SWT.CENTER);
-
-		ExpandBarBuilder customBarHelper = new ExpandBarBuilder(parent, TomographyMessages.NOTES);
-		acquistionLogs = LogsViewer.createLogsViewer(customBarHelper.getInternalArea(), textStyle, new ArrayList<ActionLog>(),
-				getController().getAcquistionLogsController());
-		customBarHelper.buildExpBar();
+		shutter = TomographySWTElements.createButton(parent, SWT.CHECK, TomographyMessages.EMPTY_MESSAGE, TomographyMessages.SHUTTER_TP);
+		shutterLabel = TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.SHUTTER);
+		shutterValue = TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.NOT_AVAILABLE, null,
+				FontDescriptor.createFrom(TomographyResourceManager.getInstance().getTextDefaultFont()));
 	}
 
 	@Override
 	protected void bindElements() {
-		bindFields();
-
-		editConfiguration.addListener(SWT.Selection, this::getaddOrEditConfigurationListener);
-		createConfiguration.addListener(SWT.Selection, this::getaddOrEditConfigurationListener);
-		changeConfiguration.addListener(SWT.Selection, this::changeConfigurationListener);
-
-		changeScript.addListener(SWT.Selection, this::changeScriptListener);
-
-		saveAcquisition.addListener(SWT.Selection, this::saveAcquisitionListener);
-		deleteAcquisition.addListener(SWT.Selection, this::deleteAcquisitionListener);
-		undoAcquisition.addListener(SWT.Selection, this::undoAcquisitionListener);
-		runAcquisition.addListener(SWT.Selection, this::runAcquisitionListener);
+		configuration.addListener(SWT.FOCUSED, this::getaddOrEditConfigurationListener);
+		camera.addListener(SWT.FOCUSED, this::cameraListener);
 	}
 
-	private void saveAcquisitionListener(Event event) {
+	private void cameraListener(Event event) {
 		try {
-			controller.saveAcquisition();
-		} catch (AcquisitionControllerException e) {
-			logger.error("TODO put description of error here", e);
+			CameraConfigurationDialog.show(Display.getDefault(), getLiveStreamConnection());
+		} catch (DeviceException e) {
+			logger.error("Error handling configuration Dialog", e);
 		}
-		this.dispose();
 	}
 
-	private void deleteAcquisitionListener(Event event) {
-		try {
-			controller.deleteAcquisition();
-		} catch (AcquisitionControllerException e) {
-			logger.error("TODO put description of error here", e);
-		}
-		this.dispose();
+	private LiveStreamConnection getLiveStreamConnection() {
+		return new LiveStreamConnection(getCameraConfiguration(), StreamType.EPICS_ARRAY);
 	}
 
-	private void undoAcquisitionListener(Event event) {
-		controller.undoAcquisitionState();
-		updateComposite();
-	}
-
-	private void runAcquisitionListener(Event event) {
-		controller.runAcquisition();
+	private CameraConfiguration getCameraConfiguration() {
+		String cameraName = LocalProperties.get("imaging.camera.name");
+		return Finder.getInstance().find(cameraName);
 	}
 
 	private void getaddOrEditConfigurationListener(Event event) {
-		TomographyAcquisition acquisition = TomographyAcquisitionController.createNewAcquisition();
 		try {
-			if (event.widget.equals(editConfiguration)) {
-				acquisition = new TomographyAcquisition(getTemplateData());
-			}
-			Dialog dialog = new TomographyAcquisitionTabsDialog(Display.getDefault().getActiveShell(), acquisition);
+			Dialog dialog = new TomographyAcquisitionTabsDialog(Display.getDefault().getActiveShell(), controller);
 			dialog.open();
 			if (dialog.getReturnCode() == TomographyScanParameterDialog.SAVE) {
-				updateAcquisition(acquisition.getConfiguration());
+				controller.saveAcquisitionAsIDialogSettings(getController().getAcquisition(), Activator.getDefault().getDialogSettings(), DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL);
+			}
+			if (dialog.getReturnCode() == TomographyScanParameterDialog.RUN) {
+				controller.saveAcquisitionAsIDialogSettings(getController().getAcquisition(), Activator.getDefault().getDialogSettings(), DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL);
+				controller.runAcquisition(getController().getAcquisition());
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error("TODO put description of error here", e);
+			logger.error("Error handling configuration Dialog", e);
 		}
-	}
-
-	private void changeConfigurationListener(Event event) {
-		Map<String, TomographyConfiguration> toSelect = getConfigurations();
-		SelectionDialog sd = new TomographySelectionDialog(getShell(), toSelect.keySet().toArray(new String[0]), TomographyMessages.SELECT_CONFIGURATION);
-		try {
-			sd.open();
-			if (sd.getReturnCode() != Window.OK || Objects.isNull(sd.getResult()) || sd.getResult().length == 0) {
-				return;
-			}
-			Arrays.stream(sd.getResult()).findFirst().map(toSelect::get).ifPresent(this::updateAcquisition);
-		} catch (Exception e) {
-			logger.error("TODO put description of error here", e);
-		}
-	}
-
-	private void changeScriptListener(Event event) {
-		Map<String, URL> toSelect = getScripts();
-		SelectionDialog sd = new TomographySelectionDialog(getShell(), toSelect.keySet().toArray(new String[0]), TomographyMessages.SELECT_CONFIGURATION);
-		try {
-			sd.open();
-			if (sd.getReturnCode() != Window.OK || Objects.isNull(sd.getResult()) || sd.getResult().length == 0) {
-				return;
-			}
-			Arrays.stream(sd.getResult()).findFirst().map(toSelect::get).ifPresent(this::updateAcquisition);
-		} catch (Exception e) {
-			logger.error("TODO put description of error here", e);
-		}
-	}
-
-	private void updateAcquisition(TomographyConfiguration configuration) {
-		saveState();
-		getTemplateData().setConfiguration(configuration);
-		updateComposite();
-	}
-
-	private void updateAcquisition(URL script) {
-		saveState();
-		getTemplateData().setScript(script);
-		updateComposite();
-	}
-
-	private void updateComposite() {
-		bindFields();
-		layout(true);
-	}
-
-	private void saveState() {
-		controller.saveAcquisitionState(getTemplateData());
 	}
 
 	@Override
 	protected void initialiseElements() {
-		// if (Objects.nonNull(getTemplateData().getConfiguration())) {
-		// configuration.setText(getTemplateData().getConfiguration().getName());
-		// }
-	}
-
-	private void bindFields() {
-		DataBindingContext dbc = new DataBindingContext();
-
-		TomographyBindingElements.bindText(dbc, name, String.class, "name", getTemplateData());
-		TomographyBindingElements.bindText(dbc, configuration, String.class, "name", getTemplateData().getConfiguration());
-		if (Objects.nonNull(getTemplateData().getScript())) {
-			TomographyBindingElements.bindText(dbc, script, String.class, "path", getTemplateData().getScript());
-		}
-
 	}
 
 	private String getPluginId() {
 		return "uk.ac.diamond.daq.beamline.k11";
-	}
-
-	private Map<String, TomographyConfiguration> getConfigurations() {
-		Map<String, TomographyConfiguration> configurationsMap = new HashMap<>();
-		IntStream.rangeClosed(0, 2).forEach(i -> {
-			TomographyAcquisition acq = TomographyAcquisitionController.createNewAcquisition();
-			TomographyConfiguration item = acq.getConfiguration();
-			item.setName("Configuration " + Integer.toString(i));
-			configurationsMap.put(item.getName(), item);
-		});
-		return configurationsMap;
-	}
-
-	private Map<String, URL> getScripts() {
-		Map<String, URL> scriptsMap = new HashMap<>();
-		IntStream.rangeClosed(0, 2).forEach(i -> {
-			try {
-				URL item = new URL("file://somePath/myFile" + Integer.toString(i));
-				scriptsMap.put(item.getPath(), item);
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				logger.error("TODO put description of error here", e);
-			}
-		});
-		return scriptsMap;
-	}
-
-	private TomographyAcquisitionController getController() {
-		return this.controller;
 	}
 }

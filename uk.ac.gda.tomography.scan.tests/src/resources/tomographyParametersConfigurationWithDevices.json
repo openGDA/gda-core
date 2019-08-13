@@ -1,0 +1,100 @@
+{
+	"devices": [
+		{
+			"configured": false,
+			"name": "MotorTwo",
+			"protectionLevel": 1,
+			"configureAtStartup": true,
+			"backlashSteps": 0.0,
+			"limitsSettable": false,
+			"minPosition": "NaN",
+			"maxPosition": "NaN",
+			"status": null,
+			"speed": 0.0,
+			"maxSpeed": 1.7976931348623157E308,
+			"timeToVelocity": 0.1,
+			"targetPosition": 0.0,
+			"unitString": "",
+			"randomPositionVariation": false,
+			"randomPositionVariationAmount": 0.0,
+			"randomLimitTriggerLevel": 10.0,
+			"lowerHardLimit": -1.7976931348623157E308,
+			"upperHardLimit": 1.7976931348623157E308,
+			"randomlyProduceExceptions": false,
+			"randomExceptionTriggerLevel": 10.0,
+			"homed": false,
+			"homeable": false,
+			"position": 0.0,
+			"moving": false,
+			"userOffset": 0.0,
+			"initialised": false,
+			"slowSpeed": 0.0,
+			"fastSpeed": 0.0,
+			"mediumSpeed": 0.0,
+			"retryDeadband": "NaN",
+			"motorResolution": "NaN"
+		},
+		{
+			"configured": false,
+			"name": "MotorOne",
+			"protectionLevel": 1,
+			"configureAtStartup": true,
+			"backlashSteps": 0.0,
+			"limitsSettable": false,
+			"minPosition": "NaN",
+			"maxPosition": "NaN",
+			"status": null,
+			"speed": 0.0,
+			"maxSpeed": 1.7976931348623157E308,
+			"timeToVelocity": 0.1,
+			"targetPosition": 0.0,
+			"unitString": "",
+			"randomPositionVariation": false,
+			"randomPositionVariationAmount": 0.0,
+			"randomLimitTriggerLevel": 10.0,
+			"lowerHardLimit": -1.7976931348623157E308,
+			"upperHardLimit": 1.7976931348623157E308,
+			"randomlyProduceExceptions": false,
+			"randomExceptionTriggerLevel": 10.0,
+			"homed": false,
+			"homeable": false,
+			"position": 0.0,
+			"moving": false,
+			"userOffset": 0.0,
+			"initialised": false,
+			"slowSpeed": 0.0,
+			"fastSpeed": 0.0,
+			"mediumSpeed": 0.0,
+			"retryDeadband": "NaN",
+			"motorResolution": "NaN"
+		}
+	],
+	"acquisitionParameters": {
+		"name": null,
+		"scanType": "FLY",
+		"start": {
+			"start": 2.3,
+			"useCurrentAngle": false,
+			"currentAngle": 0.0
+		},
+		"end": {
+			"rangeType": "RANGE_360",
+			"numberRotation": 3,
+			"customAngle": 25.2
+		},
+		"projections": null,
+		"imageCalibration": {
+			"numberDark": 2,
+			"numberFlat": 2,
+			"beforeAcquisition": false,
+			"afterAcquisition": true
+		},
+		"multipleScans": {
+			"multipleScansType": "SWITCHBACK_SCAN",
+			"numberRepetitions": 3,
+			"waitingTime": 1000,
+			"enabled": false
+		}
+	},
+	"metadata": null
+}
