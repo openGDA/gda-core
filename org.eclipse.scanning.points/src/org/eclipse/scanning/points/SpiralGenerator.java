@@ -36,15 +36,15 @@ class SpiralGenerator extends AbstractGenerator<SpiralModel> {
 	@Override
 	public ScanPointIterator iteratorFromValidModel() {
 		final SpiralModel model = getModel();
-		final String xName = model.getXAxisName();
-		final String xUnits = model.getXAxisUnits();
-		final String yName = model.getYAxisName();
-		final String yUnits = model.getYAxisUnits();
+		final String xName = model.getFastAxisName();
+		final String xUnits = model.getFastAxisUnits();
+		final String yName = model.getSlowAxisName();
+		final String yUnits = model.getSlowAxisUnits();
 
-		final double radiusX = model.getBoundingBox().getXAxisLength() / 2;
-		final double radiusY = model.getBoundingBox().getYAxisLength() / 2;
-		final double xCentre = model.getBoundingBox().getXAxisStart() + radiusX;
-		final double yCentre = model.getBoundingBox().getYAxisStart() + radiusY;
+		final double radiusX = model.getBoundingBox().getFastAxisLength() / 2;
+		final double radiusY = model.getBoundingBox().getSlowAxisLength() / 2;
+		final double xCentre = model.getBoundingBox().getFastAxisStart() + radiusX;
+		final double yCentre = model.getBoundingBox().getSlowAxisStart() + radiusY;
 		final double maxRadius = Math.sqrt(radiusX * radiusX + radiusY * radiusY);
 
         final JythonObjectFactory<ScanPointIterator> spiralGeneratorFactory = ScanPointGeneratorFactory.JSpiralGeneratorFactory();

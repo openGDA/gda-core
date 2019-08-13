@@ -32,12 +32,12 @@ public class LissajousModelExpresser extends PyModelExpresser<LissajousModel> {
 
 		sb.append("lissajous(");
 		sb.append(verbose?"axes=":"");
-		sb.append("('"+model.getXAxisName()+"', '");
-		sb.append(model.getYAxisName()+"'), ");
+		sb.append("('"+model.getFastAxisName()+"', '");
+		sb.append(model.getSlowAxisName()+"'), ");
 		sb.append(verbose?"start=":"");
-		sb.append("("+formatValue(model.getBoundingBox().getXAxisStart())+", "+formatValue(model.getBoundingBox().getYAxisStart())+"), ");
+		sb.append("("+formatValue(model.getBoundingBox().getFastAxisStart())+", "+formatValue(model.getBoundingBox().getSlowAxisStart())+"), ");
 		sb.append(verbose?"stop=":"");
-		sb.append("("+formatValue(model.getBoundingBox().getXAxisEnd())+", "+formatValue(model.getBoundingBox().getYAxisEnd())+"), ");
+		sb.append("("+formatValue(model.getBoundingBox().getFastAxisEnd())+", "+formatValue(model.getBoundingBox().getSlowAxisEnd())+"), ");
 		sb.append(verbose?"a=":"");
 		sb.append(model.getA()+", ");
 		sb.append(verbose?"b=":"");

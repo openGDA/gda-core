@@ -63,8 +63,8 @@ public class PreprocessTest {
 		assertNotNull(req);
 
 		GridModel grid = (GridModel)req.getCompoundModel().getModels().toArray()[0];
-		assertTrue(grid.getXAxisName().equals("xfred"));
-		assertTrue(grid.getYAxisName().equals("yfred"));
+		assertTrue(grid.getFastAxisName().equals("xfred"));
+		assertTrue(grid.getSlowAxisName().equals("yfred"));
 	}
 
 	@Test
@@ -97,17 +97,17 @@ public class PreprocessTest {
 		final ScanRequest<?> req = new ScanRequest<IROI>();
 		// Create a grid scan model
 		BoundingBox box = new BoundingBox();
-		box.setXAxisStart(0);
-		box.setYAxisStart(0);
-		box.setXAxisLength(3);
-		box.setYAxisLength(3);
+		box.setFastAxisStart(0);
+		box.setSlowAxisStart(0);
+		box.setFastAxisLength(3);
+		box.setSlowAxisLength(3);
 
 		GridModel gmodel = new GridModel();
-		gmodel.setYAxisPoints(5);
-		gmodel.setXAxisPoints(5);
+		gmodel.setSlowAxisPoints(5);
+		gmodel.setFastAxisPoints(5);
 		gmodel.setBoundingBox(box);
-		gmodel.setXAxisName("xNex");
-		gmodel.setYAxisName("yNex");
+		gmodel.setFastAxisName("xNex");
+		gmodel.setSlowAxisName("yNex");
 
 		// 2 models
 		List<IScanPathModel> models = new ArrayList<>(outerScanNum+1);
@@ -143,17 +143,17 @@ public class PreprocessTest {
 		final ScanRequest<?> req = new ScanRequest<IROI>();
 		// Create a grid scan model
 		BoundingBox box = new BoundingBox();
-		box.setXAxisStart(0);
-		box.setYAxisStart(0);
-		box.setXAxisLength(3);
-		box.setYAxisLength(3);
+		box.setFastAxisStart(0);
+		box.setSlowAxisStart(0);
+		box.setFastAxisLength(3);
+		box.setSlowAxisLength(3);
 
 		GridModel gmodel = new GridModel();
-		gmodel.setYAxisPoints(5);
-		gmodel.setXAxisPoints(5);
+		gmodel.setSlowAxisPoints(5);
+		gmodel.setFastAxisPoints(5);
 		gmodel.setBoundingBox(box);
-		gmodel.setXAxisName("xNex");
-		gmodel.setYAxisName("yNex");
+		gmodel.setFastAxisName("xNex");
+		gmodel.setSlowAxisName("yNex");
 
 		req.setCompoundModel(new CompoundModel(gmodel));
 		req.setMonitorNamesPerPoint(Arrays.asList("monitor"));

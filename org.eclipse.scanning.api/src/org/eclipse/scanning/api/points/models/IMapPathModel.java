@@ -16,17 +16,17 @@ package org.eclipse.scanning.api.points.models;
  */
 public interface IMapPathModel extends IScanPathModel {
 
-	public String getXAxisName();
-	public void setXAxisName(String newValue);
+	public String getFastAxisName();
+	public void setFastAxisName(String newValue);
 
-	public String getYAxisName();
-	public void setYAxisName(String newValue);
+	public String getSlowAxisName();
+	public void setSlowAxisName(String newValue);
 
-	public String getXAxisUnits();
-	public void setXAxisUnits(String units);
+	public String getFastAxisUnits();
+	public void setFastAxisUnits(String units);
 
-	public String getYAxisUnits();
-	public void setYAxisUnits(String units);
+	public String getSlowAxisUnits();
+	public void setSlowAxisUnits(String units);
 
 	public boolean isContinuous();
 	public void setContinuous(boolean continuous);

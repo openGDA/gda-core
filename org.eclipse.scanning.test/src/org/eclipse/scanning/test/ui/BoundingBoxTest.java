@@ -59,12 +59,12 @@ public class BoundingBoxTest extends ShellTest{
 	protected Shell createShell(Display display) throws Exception {
 
 		this.bbox = new BoundingBox();
-		bbox.setXAxisName("stage_x");
-		bbox.setYAxisName("T");
-	    bbox.setXAxisStart(0);
-		bbox.setYAxisStart(1);
-		bbox.setXAxisLength(10);
-		bbox.setYAxisLength(11);
+		bbox.setFastAxisName("stage_x");
+		bbox.setSlowAxisName("T");
+	    bbox.setFastAxisStart(0);
+		bbox.setSlowAxisStart(1);
+		bbox.setFastAxisLength(10);
+		bbox.setSlowAxisLength(11);
 		bbox.setRegionName("fred");
 
 		this.viewer = interfaceService.createModelViewer();
@@ -114,12 +114,12 @@ public class BoundingBoxTest extends ShellTest{
 	public void checkInitialValues() throws Exception {
 
 		// stage_x is mm and T is K. This tests picking up the units from the scannable!
-		assertEquals(bbox.getXAxisName(),             bot.table(0).cell(0, 1));
-		assertEquals(bbox.getXAxisStart()+" mm",      bot.table(0).cell(1, 1));
-		assertEquals(bbox.getXAxisLength()+" mm",     bot.table(0).cell(2, 1));
-		assertEquals(bbox.getYAxisName(),             bot.table(0).cell(3, 1));
-		assertEquals(bbox.getYAxisStart()+" K",       bot.table(0).cell(4, 1));
-		assertEquals(bbox.getYAxisLength()+" K",      bot.table(0).cell(5, 1));
+		assertEquals(bbox.getFastAxisName(),             bot.table(0).cell(0, 1));
+		assertEquals(bbox.getFastAxisStart()+" mm",      bot.table(0).cell(1, 1));
+		assertEquals(bbox.getFastAxisLength()+" mm",     bot.table(0).cell(2, 1));
+		assertEquals(bbox.getSlowAxisName(),             bot.table(0).cell(3, 1));
+		assertEquals(bbox.getSlowAxisStart()+" K",       bot.table(0).cell(4, 1));
+		assertEquals(bbox.getSlowAxisLength()+" K",      bot.table(0).cell(5, 1));
 
 	}
 
@@ -127,7 +127,7 @@ public class BoundingBoxTest extends ShellTest{
 	public void checkNameIneditable() throws Exception {
 
 		// stage_x is mm and T is K. This tests picking up the units from the scannable!
-		assertEquals(bbox.getXAxisName(),             bot.table(0).cell(0, 1));
+		assertEquals(bbox.getFastAxisName(),             bot.table(0).cell(0, 1));
 		bot.table(0).click(0, 1); // Make the file editor
 
 		// This does pass if fast axis name is editable, I checked by doing that in BoundingBox.
@@ -141,7 +141,7 @@ public class BoundingBoxTest extends ShellTest{
 	public void checkSettingFastValue() throws Exception {
 
 		// stage_x is mm and T is K. This tests picking up the units from the scannable!
-		assertEquals(bbox.getXAxisStart()+" mm",      bot.table(0).cell(1, 1));
+		assertEquals(bbox.getFastAxisStart()+" mm",      bot.table(0).cell(1, 1));
 		bot.table(0).click(1, 1); // Make the file editor
 
 		SWTBotText text = bot.text(0);
@@ -150,7 +150,7 @@ public class BoundingBoxTest extends ShellTest{
 		text.setText("10");
 		text.display.syncExec(()->viewer.applyEditorValue());
 
-		assertEquals("10.0 mm", bbox.getXAxisStart()+" mm");
+		assertEquals("10.0 mm", bbox.getFastAxisStart()+" mm");
 	}
 
 }

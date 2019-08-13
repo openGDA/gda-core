@@ -42,8 +42,8 @@ public class SinglePointTest extends AbstractGeneratorTest {
 	public void onlyOnePointGenerated() throws GeneratorException {
 
 		final SinglePointModel model = new SinglePointModel();
-		model.setXAxisName(FAST_NAME);
-		model.setYAxisName(SLOW_NAME);
+		model.setFastAxisName(FAST_NAME);
+		model.setSlowAxisName(SLOW_NAME);
 		model.setX(FAST_COORDINATE);
 		model.setY(SLOW_COORDINATE);
 
@@ -69,8 +69,8 @@ public class SinglePointTest extends AbstractGeneratorTest {
 
 		final PointROI roi = new PointROI(FAST_COORDINATE, SLOW_COORDINATE);
 		final SinglePointModel model = new SinglePointModel();
-		model.setXAxisName(FAST_NAME);
-		model.setYAxisName(SLOW_NAME);
+		model.setFastAxisName(FAST_NAME);
+		model.setSlowAxisName(SLOW_NAME);
 
 		// note that we are not setting x and y on model
 

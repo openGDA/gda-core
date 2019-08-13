@@ -117,10 +117,10 @@ public class ScanExecutionTest extends BrokerTest {
 
 		// Create scan points for a grid and make a generator
 		GridModel gmodel = new GridModel();
-		gmodel.setXAxisName("smx");
-		gmodel.setXAxisPoints(size[size.length-2]);
-		gmodel.setYAxisName("smy");
-		gmodel.setYAxisPoints(size[size.length-1]);
+		gmodel.setFastAxisName("smx");
+		gmodel.setFastAxisPoints(size[size.length-2]);
+		gmodel.setSlowAxisName("smy");
+		gmodel.setSlowAxisPoints(size[size.length-1]);
 		gmodel.setBoundingBox(new BoundingBox(0,0,2,2));
 
 		IPointGenerator<?> gen = generatorService.createGenerator(gmodel);

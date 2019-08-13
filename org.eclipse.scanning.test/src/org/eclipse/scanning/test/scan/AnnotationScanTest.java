@@ -258,10 +258,10 @@ public class AnnotationScanTest extends NexusTest {
 	private IRunnableDevice<ScanModel> createGridScan(IRunnableDevice<?> detector,
 			IScannable<?> monitorsPerPoint, IScannable<?> monitorsPerScan, int... size) throws Exception {
 		GridModel gmodel = new GridModel();
-		gmodel.setXAxisName("xNex");
-		gmodel.setXAxisPoints(size[size.length-1]);
-		gmodel.setYAxisName("yNex");
-		gmodel.setYAxisPoints(size[size.length-2]);
+		gmodel.setFastAxisName("xNex");
+		gmodel.setFastAxisPoints(size[size.length-1]);
+		gmodel.setSlowAxisName("yNex");
+		gmodel.setSlowAxisPoints(size[size.length-2]);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
 		IPointGenerator<?> gen = pointGenService.createGenerator(gmodel);

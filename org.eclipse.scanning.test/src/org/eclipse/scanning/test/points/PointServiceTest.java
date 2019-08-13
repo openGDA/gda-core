@@ -48,8 +48,8 @@ public class PointServiceTest {
 		IRectangularROI roi1 = new RectangularROI(0,0,5,5,0);
 
 		GridModel model = new GridModel("x", "y");
-		model.setYAxisPoints(5);
-		model.setXAxisPoints(5);
+		model.setSlowAxisPoints(5);
+		model.setFastAxisPoints(5);
 
 		pservice.createGenerator(model, roi1); // Sets the bounding box
 
@@ -67,9 +67,9 @@ public class PointServiceTest {
 	}
 
 	private void checkSame(BoundingBox box, IRectangularROI roi) throws Exception {
-		assertEquals(box.getXAxisStart(), roi.getPointX(), 0.00001);
-		assertEquals(box.getYAxisStart(), roi.getPointY(), 0.00001);
-		assertEquals(box.getXAxisLength(), roi.getLength(0), 0.00001);
-		assertEquals(box.getYAxisLength(), roi.getLength(1), 0.00001);
+		assertEquals(box.getFastAxisStart(), roi.getPointX(), 0.00001);
+		assertEquals(box.getSlowAxisStart(), roi.getPointY(), 0.00001);
+		assertEquals(box.getFastAxisLength(), roi.getLength(0), 0.00001);
+		assertEquals(box.getSlowAxisLength(), roi.getLength(1), 0.00001);
 	}
 }

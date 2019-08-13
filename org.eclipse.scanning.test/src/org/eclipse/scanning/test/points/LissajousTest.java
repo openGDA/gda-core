@@ -34,10 +34,10 @@ public class LissajousTest {
 	public void before() throws Exception {
 
 		BoundingBox box = new BoundingBox();
-		box.setXAxisStart(-10);
-		box.setYAxisStart(5);
-		box.setXAxisLength(3);
-		box.setYAxisLength(4);
+		box.setFastAxisStart(-10);
+		box.setSlowAxisStart(5);
+		box.setFastAxisLength(3);
+		box.setSlowAxisLength(4);
 
 		LissajousModel model = new LissajousModel();
 		model.setBoundingBox(box);

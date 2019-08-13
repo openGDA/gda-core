@@ -40,23 +40,23 @@ public class RandomOffsetGridTest {
 	public void testSimpleBox() throws Exception {
 
 		BoundingBox box = new BoundingBox();
-		box.setXAxisStart(-0.5);
-		box.setYAxisStart(-1.0);
-		box.setXAxisLength(5);
-		box.setYAxisLength(10);
+		box.setFastAxisStart(-0.5);
+		box.setSlowAxisStart(-1.0);
+		box.setFastAxisLength(5);
+		box.setSlowAxisLength(10);
 
 		final double offsetScale = 0.25;
 
 		RandomOffsetGridModel rm = new RandomOffsetGridModel("x", "y");
-		rm.setYAxisPoints(5);
-		rm.setXAxisPoints(5);
+		rm.setSlowAxisPoints(5);
+		rm.setFastAxisPoints(5);
 		rm.setBoundingBox(box);
 		rm.setSeed(10);
 		rm.setOffset(offsetScale * 100);
 
 		GridModel gm = new GridModel("x", "y");
-		gm.setYAxisPoints(5);
-		gm.setXAxisPoints(5);
+		gm.setSlowAxisPoints(5);
+		gm.setFastAxisPoints(5);
 		gm.setBoundingBox(box);
 
 		IPointGenerator<RandomOffsetGridModel> r = service.createGenerator(rm);

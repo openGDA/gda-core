@@ -25,57 +25,57 @@ import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 public class GridModel extends AbstractGridModel {
 
 
-	@FieldDescriptor(label="X Axis Count",
+	@FieldDescriptor(label="Fast Axis Count",
 			         maximum=100000,
 			         minimum=1,
-			         hint="The number of points that the grid should run over in the direction of the x-axis, as plotted.")
-	private int xAxisPoints = 5;
+			         hint="The number of points that the grid should run over in the fast direction.")
+	private int fastAxisPoints = 5;
 
-	@FieldDescriptor(label="Y Axis Count",
+	@FieldDescriptor(label="Slow Axis Count",
 			         maximum=100000,
 			         minimum=1,
-			         hint="The number of points that the grid should run over in the direction of the y-axis, as plotted")
-	private int yAxisPoints = 5;
+			         hint="The number of points that the grid should run over in the slow direction.")
+	private int slowAxisPoints = 5;
 
 	public GridModel() {
 		setName("Grid");
 	}
 
-	public GridModel(String xName, String yName) {
+	public GridModel(String fastName, String slowName) {
 		this();
-		setXAxisName(xName);
-		setYAxisName(yName);
+		setFastAxisName(fastName);
+		setSlowAxisName(slowName);
 	}
-	public GridModel(String xName, String yName, int xPoints, int yPoints) {
-		this(xName, yName);
-		setXAxisPoints(xPoints);
-		setYAxisPoints(yPoints);
+	public GridModel(String fastName, String slowName, int fastCount, int slowCount) {
+		this(fastName, slowName);
+		setFastAxisPoints(fastCount);
+		setSlowAxisPoints(slowCount);
 	}
 
 	@MinimumValue("1")
-	public int getXAxisPoints() {
-		return xAxisPoints;
+	public int getFastAxisPoints() {
+		return fastAxisPoints;
 	}
-	public void setXAxisPoints(int newValue) {
-		int oldValue = this.xAxisPoints;
-		this.xAxisPoints = newValue;
-		this.pcs.firePropertyChange("xAxisPoints", oldValue, newValue);
+	public void setFastAxisPoints(int newValue) {
+		int oldValue = this.fastAxisPoints;
+		this.fastAxisPoints = newValue;
+		this.pcs.firePropertyChange("fastAxisPoints", oldValue, newValue);
 	}
 	@MinimumValue("1")
-	public int getYAxisPoints() {
-		return yAxisPoints;
+	public int getSlowAxisPoints() {
+		return slowAxisPoints;
 	}
-	public void setYAxisPoints(int newValue) {
-		int oldValue = this.yAxisPoints;
-		this.yAxisPoints = newValue;
-		this.pcs.firePropertyChange("yAxisPoints", oldValue, newValue);
+	public void setSlowAxisPoints(int newValue) {
+		int oldValue = this.slowAxisPoints;
+		this.slowAxisPoints = newValue;
+		this.pcs.firePropertyChange("slowAxisPoints", oldValue, newValue);
 	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + xAxisPoints;
-		result = prime * result + yAxisPoints;
+		result = prime * result + fastAxisPoints;
+		result = prime * result + slowAxisPoints;
 		return result;
 	}
 
@@ -88,15 +88,15 @@ public class GridModel extends AbstractGridModel {
 		if (getClass() != obj.getClass())
 			return false;
 		GridModel other = (GridModel) obj;
-		if (xAxisPoints != other.xAxisPoints)
+		if (fastAxisPoints != other.fastAxisPoints)
 			return false;
-		if (yAxisPoints != other.yAxisPoints)
+		if (slowAxisPoints != other.slowAxisPoints)
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "GridModel [xAxisPoints=" + xAxisPoints + ", yAxisPoints=" + yAxisPoints + ", " + super.toString() + "]";
+		return "GridModel [fastAxisPoints=" + fastAxisPoints + ", slowAxisPoints=" + slowAxisPoints + ", " + super.toString() + "]";
 	}
 }
