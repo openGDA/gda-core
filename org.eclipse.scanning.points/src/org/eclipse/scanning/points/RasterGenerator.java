@@ -61,15 +61,12 @@ class RasterGenerator extends AbstractGenerator<RasterModel> {
 
 		final JythonObjectFactory<ScanPointIterator> lineGeneratorFactory = ScanPointGeneratorFactory.JLineGenerator1DFactory();
 
-		final ScanPointIterator yLine = lineGeneratorFactory.createObject(
+		final ScanPointIterator outerLine = lineGeneratorFactory.createObject(
 				yName, yUnits, minY, minY + (rows - 1) * yStep, rows);
-		final ScanPointIterator xLine = lineGeneratorFactory.createObject(
+		final ScanPointIterator innerLine = lineGeneratorFactory.createObject(
 				xName, xUnits, minX, minX + (columns - 1) * xStep, columns, model.isSnake());
 
-		final Iterator<?>[] generators = new Iterator<?>[2];
-		generators[0] = model.isVerticalOrientation() ? xLine : yLine;
-		generators[1] = model.isVerticalOrientation() ? yLine : xLine;
-
+        final Iterator<?>[] generators = {outerLine, innerLine};
         final String[] axisNames = new String[] { xName, yName };
 
 		final ScanPointIterator pyIterator = CompoundSpgIteratorFactory.createSpgCompoundGenerator(
