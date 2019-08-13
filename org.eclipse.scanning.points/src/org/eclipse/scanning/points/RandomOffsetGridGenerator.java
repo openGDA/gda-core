@@ -68,9 +68,9 @@ public class RandomOffsetGridGenerator extends GridGenerator {
 
         final JythonObjectFactory<ScanPointIterator> lineGeneratorFactory = ScanPointGeneratorFactory.JLineGenerator1DFactory();
 
-		final ScanPointIterator yLine = lineGeneratorFactory.createObject(
+		final ScanPointIterator outerLine = lineGeneratorFactory.createObject(
 				yName, "mm", minY, minY + (rows - 1) * yStep, rows);
-		final ScanPointIterator xLine = lineGeneratorFactory.createObject(
+		final ScanPointIterator innerLine = lineGeneratorFactory.createObject(
 				xName, "mm", minX, minX + (columns - 1) * xStep, columns, model.isSnake());
 
         final JythonObjectFactory<PyObject> randomOffsetMutatorFactory = ScanPointGeneratorFactory.JRandomOffsetMutatorFactory();
@@ -85,9 +85,7 @@ public class RandomOffsetGridGenerator extends GridGenerator {
         final PyList axes = new PyList(Arrays.asList(yName, xName));
 		final PyObject randomOffset = randomOffsetMutatorFactory.createObject(seed, axes, maxOffset);
 
-		final Iterator<?>[] generators = new Iterator<?>[2];
-		generators[0] = model.isVerticalOrientation() ? xLine : yLine;
-		generators[1] = model.isVerticalOrientation() ? yLine : xLine;
+        final Iterator<?>[] generators = { outerLine, innerLine };
         final PyObject[] mutators = { randomOffset };
 
         final String[] axisNames = new String[] { xName, yName };

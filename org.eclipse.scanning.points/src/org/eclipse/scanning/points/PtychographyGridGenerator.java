@@ -69,14 +69,14 @@ public class PtychographyGridGenerator extends AbstractGenerator<PtychographyGri
 
 		JythonObjectFactory<ScanPointIterator> lineGeneratorFactory = ScanPointGeneratorFactory.JLineGenerator1DFactory();
 
-		ScanPointIterator yLine = lineGeneratorFactory.createObject(
+		ScanPointIterator outerLine = lineGeneratorFactory.createObject(
 				yName, yUnits,
 				model.getBoundingBox().getSlowAxisStart(),
 				model.getBoundingBox().getSlowAxisStart() + (yPoints - 1) * yStep,
 				yPoints,
 				model.isSnake());
 
-		ScanPointIterator xLine = lineGeneratorFactory.createObject(
+		ScanPointIterator innerLine = lineGeneratorFactory.createObject(
 				xName, xUnits,
 				model.getBoundingBox().getFastAxisStart(),
 				model.getBoundingBox().getFastAxisStart() + (xPoints - 1) * xStep,
@@ -95,9 +95,7 @@ public class PtychographyGridGenerator extends AbstractGenerator<PtychographyGri
         final PyList axes = new PyList(Arrays.asList(yName, xName));
 		final PyObject randomOffset = randomOffsetMutatorFactory.createObject(seed, axes, maxOffset);
 
-		final Iterator<?>[] generators = new Iterator<?>[2];
-		generators[0] = model.isVerticalOrientation() ? xLine : yLine;
-		generators[1] = model.isVerticalOrientation() ? yLine : xLine;
+        final Iterator<?>[] generators = { outerLine, innerLine };
         final PyObject[] mutators = { randomOffset };
 
         final String[] axisNames = new String[] { xName, yName };

@@ -28,25 +28,21 @@ public abstract class AbstractGridModel extends AbstractBoundingBoxModel {
 	@FieldDescriptor(label="Snake")
 	private boolean snake = false;
 
-	@FieldDescriptor(label="Vertical Orientation")
-	private boolean verticalOrientation = false;
-
 	/**
-	 * A snake scan is a scan where each line of the scan is performed in the opposite direction
-	 * to the previous one as show below:
 	 * <pre>
+	 * snake = true
 	 * -------------------->
+	 *                     |
 	 * <--------------------
-	 * -------------------->
-     * </pre>
-     * Otherwise all lines of the scan are performed in the same direction
-     * <pre>
+	 * |
+	 * --------------------> etc.
+     *
+     * snake = false
      * -------------------->
      * -------------------->
      * -------------------->
      * </pre>
-     * @return <code>true</code> if the scan is a snake scan, <code>false</code> otherwise
- 	 */
+	**/
 	public boolean isSnake() {
 		return snake;
 	}
@@ -57,29 +53,11 @@ public abstract class AbstractGridModel extends AbstractBoundingBoxModel {
 		this.pcs.firePropertyChange("snake", oldValue, snake);
 	}
 
-	/**
-	 * By default the horizontal axis is the scanned first, i.e. is the fast axis. If this
-	 * property is set the vertical axis is the scanned first.
-	 *
-	 * @return <code>true</code> if the vertical axis is scanned first, <code>false</code> if
-	 * the horizontal axis is scanned first.
-	 */
-	public boolean isVerticalOrientation() {
-		return verticalOrientation;
-	}
-
-	public void setVerticalOrientation(boolean verticalOrientation) {
-		boolean oldValue = this.verticalOrientation;
-		this.verticalOrientation = verticalOrientation;
-		this.pcs.firePropertyChange("verticalOrientation", oldValue, verticalOrientation);
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + (snake ? 1231 : 1237);
-		result = prime * result + (verticalOrientation ? 1231 : 1237);
 		return result;
 	}
 
@@ -94,15 +72,12 @@ public abstract class AbstractGridModel extends AbstractBoundingBoxModel {
 		AbstractGridModel other = (AbstractGridModel) obj;
 		if (snake != other.snake)
 			return false;
-		if (verticalOrientation != other.verticalOrientation)
-			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "AbstractGridModel [snake=" + snake + ", verticalOrientation=" + verticalOrientation
-				+ ", " + super.toString() + "]";
+		return "AbstractGridModel [snake=" + snake + ", " + super.toString() + "]";
 	}
 
 }
