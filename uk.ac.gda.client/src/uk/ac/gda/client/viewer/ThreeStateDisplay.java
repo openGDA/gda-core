@@ -100,6 +100,20 @@ public class ThreeStateDisplay {
 		setMessage(messageRed);
 	}
 
+	/**
+	 * Display a tool tip when mouse hovers over icon or text
+	 * <p>
+	 * Note that this tool tip is independent of the state, so the caller will have to change it (if required) in
+	 * addition to changing the state.
+	 *
+	 * @param message
+	 *            the tool tip to show
+	 */
+	public void setToolTipText(String message) {
+		icon.setToolTipText(message);
+		text.setToolTipText(message);
+	}
+
 	private void setMessage(String message) {
 		// there may be a use case for this to be made API
 		// to e.g. stay in one state but change the message
