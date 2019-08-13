@@ -20,9 +20,9 @@ import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
  * A model defining a box in two dimensional space, which can be used to confine and give scale to a {@link
  * IBoundingBoxModel}.
  * <p>
- * The two axes of the box are abstracted as "x" and "y" as they represent the horizontal and vertical axes of a plot.
- * Often these will be the X and Y stage motors, but other axes could be used depending on the beamline configuration
- * or the required experiment. The axis names to be used are defined in AbstractBoundingBoxModel.
+ * The two axes of the box are abstracted as "fast" and "slow". Often these will be the X and Y stage motors, but other
+ * axes could be used depending on the beamline configuration or the required experiment. The axis names to be used are
+ * defined in AbstractBoundingBoxModel.
  *
  * Important difference between BoundingBox and IRectangularROI - rois are in data coordinates and bounding boxes are
  * in axis coordinates i.e. locations of the motors rather than the selection of the data.
@@ -40,22 +40,22 @@ public class BoundingBox  implements Serializable {
 	private static final long serialVersionUID = 3775847793520017725L;
 
 	@FieldDescriptor(editable=false, fieldPosition=0)
-	private String xAxisName="stage_x";
+	private String fastAxisName="stage_x";
 
-	@FieldDescriptor(scannable="xAxisName", fieldPosition=1)
-	private double xAxisStart;
+	@FieldDescriptor(scannable="fastAxisName", fieldPosition=1)
+	private double fastAxisStart;
 
-	@FieldDescriptor(scannable="xAxisName", validif="xAxisLength!=0", fieldPosition=2)
-	private double xAxisLength;
+	@FieldDescriptor(scannable="fastAxisName", validif="fastAxisLength!=0", fieldPosition=2)
+	private double fastAxisLength;
 
 	@FieldDescriptor(editable=false, fieldPosition=3)
-	private String yAxisName="stage_y";
+	private String slowAxisName="stage_y";
 
-	@FieldDescriptor(scannable="yAxisName", fieldPosition=4)
-	private double yAxisStart;
+	@FieldDescriptor(scannable="slowAxisName", fieldPosition=4)
+	private double slowAxisStart;
 
-	@FieldDescriptor(scannable="yAxisName", validif="yAxisLength!=0", fieldPosition=5)
-	private double yAxisLength;
+	@FieldDescriptor(scannable="slowAxisName", validif="slowAxisLength!=0", fieldPosition=5)
+	private double slowAxisLength;
 
 	@FieldDescriptor(visible=false, hint="Provides information about the visible region we are linked to.")
 	private String regionName;
@@ -65,23 +65,23 @@ public class BoundingBox  implements Serializable {
 
 	}
 
-	public BoundingBox(String xName, String yName) {
-		this.xAxisName = xName;
-		this.yAxisName = yName;
+	public BoundingBox(String fName, String sName) {
+		this.fastAxisName = fName;
+		this.slowAxisName = sName;
 	}
 
-	public BoundingBox(double xAxisStart, double yAxisStart, double xAxisLength, double yAxisLength) {
+	public BoundingBox(double fastAxisStart, double slowAxisStart, double fastAxisLength, double slowAxisLength) {
 		super();
-		this.xAxisStart = xAxisStart;
-		this.yAxisStart = yAxisStart;
-		this.xAxisLength = xAxisLength;
-		this.yAxisLength = yAxisLength;
+		this.fastAxisStart = fastAxisStart;
+		this.slowAxisStart = slowAxisStart;
+		this.fastAxisLength = fastAxisLength;
+		this.slowAxisLength = slowAxisLength;
 	}
 
 	/**
 	 *
-	 * @param spt [xStart, yStart]
-	 * @param ept [xEnd, yEnd]
+	 * @param spt [fastStart, slowStart]
+	 * @param ept [fastEnd, slowEnd]
 	 */
 	public BoundingBox(double[] spt, double[] ept) {
 
@@ -112,48 +112,48 @@ public class BoundingBox  implements Serializable {
 			}
 		}
 
-		xAxisStart  = spt[0];
-		xAxisLength = len[0];
-		yAxisStart  = spt[1];
-		yAxisLength = len[1];
+		fastAxisStart  = spt[0];
+		fastAxisLength = len[0];
+		slowAxisStart  = spt[1];
+		slowAxisLength = len[1];
 	}
 
-	public double getXAxisStart() {
-		return xAxisStart;
+	public double getFastAxisStart() {
+		return fastAxisStart;
 	}
-	public void setXAxisStart(double xAxisStart) {
-		this.xAxisStart = xAxisStart;
+	public void setFastAxisStart(double fastAxisStart) {
+		this.fastAxisStart = fastAxisStart;
 	}
-	public double getYAxisStart() {
-		return yAxisStart;
+	public double getSlowAxisStart() {
+		return slowAxisStart;
 	}
-	public void setYAxisStart(double yAxisStart) {
-		this.yAxisStart = yAxisStart;
+	public void setSlowAxisStart(double yStart) {
+		this.slowAxisStart = yStart;
 	}
-	public double getXAxisLength() {
-		return xAxisLength;
+	public double getFastAxisLength() {
+		return fastAxisLength;
 	}
-	public void setXAxisLength(double xAxisLength) {
-		this.xAxisLength = xAxisLength;
+	public void setFastAxisLength(double fastAxisLength) {
+		this.fastAxisLength = fastAxisLength;
 	}
-	public double getYAxisLength() {
-		return yAxisLength;
+	public double getSlowAxisLength() {
+		return slowAxisLength;
 	}
-	public void setYAxisLength(double yAxisLength) {
-		this.yAxisLength = yAxisLength;
+	public void setSlowAxisLength(double slowAxisLength) {
+		this.slowAxisLength = slowAxisLength;
 	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		long temp;
-		temp = Double.doubleToLongBits(yAxisLength);
+		temp = Double.doubleToLongBits(slowAxisLength);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(xAxisLength);
+		temp = Double.doubleToLongBits(fastAxisLength);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(xAxisStart);
+		temp = Double.doubleToLongBits(fastAxisStart);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(yAxisStart);
+		temp = Double.doubleToLongBits(slowAxisStart);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
@@ -166,35 +166,35 @@ public class BoundingBox  implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		BoundingBox other = (BoundingBox) obj;
-		if (Double.doubleToLongBits(yAxisLength) != Double
-				.doubleToLongBits(other.yAxisLength))
+		if (Double.doubleToLongBits(slowAxisLength) != Double
+				.doubleToLongBits(other.slowAxisLength))
 			return false;
-		if (Double.doubleToLongBits(xAxisLength) != Double
-				.doubleToLongBits(other.xAxisLength))
+		if (Double.doubleToLongBits(fastAxisLength) != Double
+				.doubleToLongBits(other.fastAxisLength))
 			return false;
-		if (Double.doubleToLongBits(xAxisStart) != Double
-				.doubleToLongBits(other.xAxisStart))
+		if (Double.doubleToLongBits(fastAxisStart) != Double
+				.doubleToLongBits(other.fastAxisStart))
 			return false;
-		if (Double.doubleToLongBits(yAxisStart) != Double
-				.doubleToLongBits(other.yAxisStart))
+		if (Double.doubleToLongBits(slowAxisStart) != Double
+				.doubleToLongBits(other.slowAxisStart))
 			return false;
 		return true;
 	}
 
-	public String getXAxisName() {
-		return xAxisName;
+	public String getFastAxisName() {
+		return fastAxisName;
 	}
 
-	public void setXAxisName(String xAxisName) {
-		this.xAxisName = xAxisName;
+	public void setFastAxisName(String fastAxisName) {
+		this.fastAxisName = fastAxisName;
 	}
 
-	public String getYAxisName() {
-		return yAxisName;
+	public String getSlowAxisName() {
+		return slowAxisName;
 	}
 
-	public void setYAxisName(String yAxisName) {
-		this.yAxisName = yAxisName;
+	public void setSlowAxisName(String slowAxisName) {
+		this.slowAxisName = slowAxisName;
 	}
 
 	public String getRegionName() {
@@ -205,12 +205,12 @@ public class BoundingBox  implements Serializable {
 		this.regionName = regionName;
 	}
 
-	public double getYAxisEnd() {
-		return getYAxisStart()+getYAxisLength();
+	public double getSlowAxisEnd() {
+		return getSlowAxisStart()+getSlowAxisLength();
 	}
 
-	public double getXAxisEnd() {
-		return getXAxisStart()+getXAxisLength();
+	public double getFastAxisEnd() {
+		return getFastAxisStart()+getFastAxisLength();
 	}
 
 	@Override
@@ -219,10 +219,10 @@ public class BoundingBox  implements Serializable {
 	}
 
 	private double[] getStart() {
-		return new double[]{xAxisStart, yAxisStart};
+		return new double[]{fastAxisStart, slowAxisStart};
 	}
 	private double[] getLength() {
-		return new double[]{xAxisLength, yAxisLength};
+		return new double[]{fastAxisLength, slowAxisLength};
 	}
 
     private String toString(double[] a) {
@@ -243,9 +243,8 @@ public class BoundingBox  implements Serializable {
     }
 
     private DecimalFormat format = new DecimalFormat("##########0.0###");
-
     public void setNumberFormat(String sformat) {
-    	format = new DecimalFormat(sformat);
+	format = new DecimalFormat(sformat);
     }
 
 }

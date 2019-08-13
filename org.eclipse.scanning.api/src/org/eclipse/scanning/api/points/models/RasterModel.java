@@ -24,51 +24,51 @@ import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
  */
 public class RasterModel extends AbstractGridModel {
 
-	@FieldDescriptor(label="X Step",
-			         scannable="xAxisName",
+	@FieldDescriptor(label="Fast Step",
+			         scannable="fastAxisName",
 				     maximum=100000,
 					 minimum=1,
-			         hint="The step in the fast direction to take in the units of the x-axis, as plotted.")
-	private double xAxisStep = 1;
+			         hint="The step in the fast direction to take in the units of the fast scannable.")
+	private double fastAxisStep = 1;
 
-	@FieldDescriptor(label="Y Step",
-			         scannable="yAxisName",
+	@FieldDescriptor(label="Slow Step",
+			         scannable="slowAxisName",
 					 maximum=100000,
 					 minimum=1,
-			         hint="The step in the slow direction to take in the units of the y-axis, as plotted.")
-	private double yAxisStep = 1;
+			         hint="The step in the slow direction to take in the units of the slow scannable.")
+	private double slowAxisStep = 1;
 
 	public RasterModel() {
-		setName("Raster");
+		setName( "Raster" );
 	}
-	public RasterModel(String xAxisName, String yAxisName) {
-		setXAxisName(xAxisName);
-		setYAxisName(yAxisName);
+	public RasterModel(String f, String s) {
+		setFastAxisName(f);
+		setSlowAxisName(s);
 	}
-	public double getXAxisStep() {
-		return xAxisStep;
+	public double getFastAxisStep() {
+		return fastAxisStep;
 	}
-	public void setXAxisStep(double newValue) {
-		double oldValue = this.xAxisStep;
-		this.xAxisStep = newValue;
-		this.pcs.firePropertyChange("xAxisStep", oldValue, newValue);
+	public void setFastAxisStep(double newValue) {
+		double oldValue = this.fastAxisStep;
+		this.fastAxisStep = newValue;
+		this.pcs.firePropertyChange("fastAxisStep", oldValue, newValue);
 	}
-	public double getYAxisStep() {
-		return yAxisStep;
+	public double getSlowAxisStep() {
+		return slowAxisStep;
 	}
-	public void setYAxisStep(double newValue) {
-		double oldValue = this.yAxisStep;
-		this.yAxisStep = newValue;
-		this.pcs.firePropertyChange("yAxisStep", oldValue, newValue);
+	public void setSlowAxisStep(double newValue) {
+		double oldValue = this.slowAxisStep;
+		this.slowAxisStep = newValue;
+		this.pcs.firePropertyChange("slowAxisStep", oldValue, newValue);
 	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
 		long temp;
-		temp = Double.doubleToLongBits(xAxisStep);
+		temp = Double.doubleToLongBits(fastAxisStep);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(yAxisStep);
+		temp = Double.doubleToLongBits(slowAxisStep);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
@@ -81,17 +81,17 @@ public class RasterModel extends AbstractGridModel {
 		if (getClass() != obj.getClass())
 			return false;
 		RasterModel other = (RasterModel) obj;
-		if (Double.doubleToLongBits(xAxisStep) != Double
-				.doubleToLongBits(other.xAxisStep))
+		if (Double.doubleToLongBits(fastAxisStep) != Double
+				.doubleToLongBits(other.fastAxisStep))
 			return false;
-		if (Double.doubleToLongBits(yAxisStep) != Double
-				.doubleToLongBits(other.yAxisStep))
+		if (Double.doubleToLongBits(slowAxisStep) != Double
+				.doubleToLongBits(other.slowAxisStep))
 			return false;
 		return true;
 	}
 	@Override
 	public String toString() {
-		return "RasterModel [xAxisStep=" + xAxisStep + ", yAxisStep=" + yAxisStep
+		return "RasterModel [fastAxisStep=" + fastAxisStep + ", slowAxisStep=" + slowAxisStep
 				+ ", " + super.toString() + "]";
 	}
 

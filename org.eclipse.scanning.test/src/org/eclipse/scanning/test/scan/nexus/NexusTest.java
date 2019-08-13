@@ -294,10 +294,10 @@ public abstract class NexusTest {
 	protected ScanModel createGridScanModel(final IRunnableDevice<?> detector, File file, IROI region, boolean snake, int... size) throws Exception {
 		// Create scan points for a grid and make a generator
 		GridModel gmodel = new GridModel();
-		gmodel.setXAxisName("xNex");
-		gmodel.setXAxisPoints(size[size.length-1]);
-		gmodel.setYAxisName("yNex");
-		gmodel.setYAxisPoints(size[size.length-2]);
+		gmodel.setFastAxisName("xNex");
+		gmodel.setFastAxisPoints(size[size.length-1]);
+		gmodel.setSlowAxisName("yNex");
+		gmodel.setSlowAxisPoints(size[size.length-2]);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 		gmodel.setSnake(snake);
 

@@ -32,32 +32,32 @@ class RasterGenerator extends AbstractGenerator<RasterModel> {
 	@Override
 	protected void validateModel() {
 		super.validateModel();
-		if (model.getXAxisStep() == 0) throw new ModelValidationException("Model x-axis step size must be nonzero!", model, "xAxisStep");
-		if (model.getYAxisStep() == 0) throw new ModelValidationException("Model y-axis step size must be nonzero!", model, "yAxisStep");
+		if (model.getFastAxisStep() == 0) throw new ModelValidationException("Model fast axis step size must be nonzero!", model, "fastAxisStep");
+		if (model.getSlowAxisStep() == 0) throw new ModelValidationException("Model slow axis step size must be nonzero!", model, "slowAxisStep");
 
 		// Technically the following two throws are not required
 		// (The generator could simply produce an empty list.)
 		// but we throw errors to avoid potential confusion.
 		// Plus, this is consistent with the StepGenerator behaviour.
-		if (model.getXAxisStep()/model.getBoundingBox().getXAxisLength() < 0)
-			throw new ModelValidationException("Model x-axis step is directed so as to produce no points!", model, "xAxisStep");
-		if (model.getYAxisStep()/model.getBoundingBox().getYAxisLength() < 0)
-			throw new ModelValidationException("Model y-axis step is directed so as to produce no points!", model, "yAxisStep");
+		if (model.getFastAxisStep()/model.getBoundingBox().getFastAxisLength() < 0)
+			throw new ModelValidationException("Model fast axis step is directed so as to produce no points!", model, "fastAxisStep");
+		if (model.getSlowAxisStep()/model.getBoundingBox().getSlowAxisLength() < 0)
+			throw new ModelValidationException("Model slow axis step is directed so as to produce no points!", model, "slowAxisStep");
 	}
 
 	@Override
 	public ScanPointIterator iteratorFromValidModel() {
 		final RasterModel model = getModel();
-		final double xStep = model.getXAxisStep();
-		final double yStep = model.getYAxisStep();
-		final String xName = model.getXAxisName();
-		final String xUnits = model.getXAxisUnits();
-		final String yName = model.getYAxisName();
-		final String yUnits = model.getYAxisUnits();
-		final double minX = model.getBoundingBox().getXAxisStart();
-		final double minY = model.getBoundingBox().getYAxisStart();
-		final int columns = (int) Math.floor(model.getBoundingBox().getXAxisLength() / xStep + 1);
-		final int rows = (int) Math.floor(model.getBoundingBox().getYAxisLength() / yStep + 1);
+		final double xStep = model.getFastAxisStep();
+		final double yStep = model.getSlowAxisStep();
+		final String xName = model.getFastAxisName();
+		final String xUnits = model.getFastAxisUnits();
+		final String yName = model.getSlowAxisName();
+		final String yUnits = model.getSlowAxisUnits();
+		final double minX = model.getBoundingBox().getFastAxisStart();
+		final double minY = model.getBoundingBox().getSlowAxisStart();
+		final int columns = (int) Math.floor(model.getBoundingBox().getFastAxisLength() / xStep + 1);
+		final int rows = (int) Math.floor(model.getBoundingBox().getSlowAxisLength() / yStep + 1);
 
 		final JythonObjectFactory<ScanPointIterator> lineGeneratorFactory = ScanPointGeneratorFactory.JLineGenerator1DFactory();
 

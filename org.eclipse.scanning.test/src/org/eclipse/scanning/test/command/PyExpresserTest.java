@@ -85,17 +85,17 @@ public class PyExpresserTest {
 	public void testGridModelWithPolygonalROI() throws Exception {
 
 		BoundingBox bbox = new BoundingBox();
-		bbox.setXAxisStart(0);
-		bbox.setYAxisStart(1);
-		bbox.setXAxisLength(10);
-		bbox.setYAxisLength(11);
+		bbox.setFastAxisStart(0);
+		bbox.setSlowAxisStart(1);
+		bbox.setFastAxisLength(10);
+		bbox.setSlowAxisLength(11);
 
 		GridModel gmodel = new GridModel();
-		gmodel.setXAxisName("myFast");
-		gmodel.setYAxisName("mySlow");
+		gmodel.setFastAxisName("myFast");
+		gmodel.setSlowAxisName("mySlow");
 		gmodel.setBoundingBox(bbox);
-		gmodel.setXAxisPoints(3);
-		gmodel.setYAxisPoints(4);
+		gmodel.setFastAxisPoints(3);
+		gmodel.setSlowAxisPoints(4);
 		gmodel.setSnake(true);
 		gmodel.setContinuous(true);
 
@@ -116,17 +116,17 @@ public class PyExpresserTest {
 	@Test
 	public void testRandomOffsetGridModel() throws Exception {
 		BoundingBox bbox = new BoundingBox();
-		bbox.setXAxisStart(0);
-		bbox.setYAxisStart(1);
-		bbox.setXAxisLength(10);
-		bbox.setYAxisLength(11);
+		bbox.setFastAxisStart(0);
+		bbox.setSlowAxisStart(1);
+		bbox.setFastAxisLength(10);
+		bbox.setSlowAxisLength(11);
 
 		RandomOffsetGridModel model = new RandomOffsetGridModel();
-		model.setXAxisName("myFast");
-		model.setYAxisName("mySlow");
+		model.setFastAxisName("myFast");
+		model.setSlowAxisName("mySlow");
 		model.setBoundingBox(bbox);
-		model.setXAxisPoints(3);
-		model.setYAxisPoints(4);
+		model.setFastAxisPoints(3);
+		model.setSlowAxisPoints(4);
 		model.setSnake(true);
 		model.setContinuous(true);
 		model.setSeed(5);
@@ -141,14 +141,14 @@ public class PyExpresserTest {
 	@Test
 	public void testSpiralModel() throws Exception {
 		BoundingBox bbox = new BoundingBox();
-		bbox.setXAxisStart(0);
-		bbox.setYAxisStart(1);
-		bbox.setXAxisLength(10);
-		bbox.setYAxisLength(11);
+		bbox.setFastAxisStart(0);
+		bbox.setSlowAxisStart(1);
+		bbox.setFastAxisLength(10);
+		bbox.setSlowAxisLength(11);
 
 		SpiralModel model = new SpiralModel();
-		model.setXAxisName("myFast");
-		model.setYAxisName("mySlow");
+		model.setFastAxisName("myFast");
+		model.setSlowAxisName("mySlow");
 		model.setBoundingBox(bbox);
 		model.setScale(1.5);
 		model.setContinuous(false);
@@ -170,14 +170,14 @@ public class PyExpresserTest {
 	@Test
 	public void testLissajousModel() throws Exception {
 		BoundingBox bbox = new BoundingBox();
-		bbox.setXAxisStart(0);
-		bbox.setYAxisStart(1);
-		bbox.setXAxisLength(10);
-		bbox.setYAxisLength(11);
+		bbox.setFastAxisStart(0);
+		bbox.setSlowAxisStart(1);
+		bbox.setFastAxisLength(10);
+		bbox.setSlowAxisLength(11);
 
 		LissajousModel model = new LissajousModel();
-		model.setXAxisName("myFast");
-		model.setYAxisName("mySlow");
+		model.setFastAxisName("myFast");
+		model.setSlowAxisName("mySlow");
 		model.setBoundingBox(bbox);
 		model.setA(1);
 		model.setB(0.25);
@@ -222,17 +222,17 @@ public class PyExpresserTest {
 			throws Exception {
 
 		BoundingBox bbox = new BoundingBox();
-		bbox.setXAxisStart(0);
-		bbox.setYAxisStart(1);
-		bbox.setXAxisLength(10);
-		bbox.setYAxisLength(11);
+		bbox.setFastAxisStart(0);
+		bbox.setSlowAxisStart(1);
+		bbox.setFastAxisLength(10);
+		bbox.setSlowAxisLength(11);
 
 		GridModel gmodel = new GridModel();
-		gmodel.setXAxisName("myFast");
-		gmodel.setYAxisName("mySlow");
+		gmodel.setFastAxisName("myFast");
+		gmodel.setSlowAxisName("mySlow");
 		gmodel.setBoundingBox(bbox);
-		gmodel.setXAxisPoints(3);
-		gmodel.setYAxisPoints(4);
+		gmodel.setFastAxisPoints(3);
+		gmodel.setSlowAxisPoints(4);
 		gmodel.setSnake(false);
 		gmodel.setContinuous(true);
 
@@ -363,17 +363,17 @@ public class PyExpresserTest {
 	public void testGridModel() throws Exception {
 
 		BoundingBox bbox = new BoundingBox();
-		bbox.setXAxisStart(0);
-		bbox.setYAxisStart(1);
-		bbox.setXAxisLength(10);
-		bbox.setYAxisLength(11);
+		bbox.setFastAxisStart(0);
+		bbox.setSlowAxisStart(1);
+		bbox.setFastAxisLength(10);
+		bbox.setSlowAxisLength(11);
 
 		GridModel gmodel = new GridModel();
-		gmodel.setXAxisName("myFast");
-		gmodel.setYAxisName("mySlow");
+		gmodel.setFastAxisName("myFast");
+		gmodel.setSlowAxisName("mySlow");
 		gmodel.setBoundingBox(bbox);
-		gmodel.setXAxisPoints(3);
-		gmodel.setYAxisPoints(4);
+		gmodel.setFastAxisPoints(3);
+		gmodel.setSlowAxisPoints(4);
 		gmodel.setSnake(true);
 		gmodel.setContinuous(true);
 
@@ -389,17 +389,17 @@ public class PyExpresserTest {
 	public void testScanRequestWithProcessing() throws Exception {
 
 		BoundingBox bbox = new BoundingBox();
-		bbox.setXAxisStart(0);
-		bbox.setYAxisStart(1);
-		bbox.setXAxisLength(10);
-		bbox.setYAxisLength(11);
+		bbox.setFastAxisStart(0);
+		bbox.setSlowAxisStart(1);
+		bbox.setFastAxisLength(10);
+		bbox.setSlowAxisLength(11);
 
 		GridModel gmodel = new GridModel();
-		gmodel.setXAxisName("p");
-		gmodel.setYAxisName("q");
+		gmodel.setFastAxisName("p");
+		gmodel.setSlowAxisName("q");
 		gmodel.setBoundingBox(bbox);
-		gmodel.setXAxisPoints(2);
-		gmodel.setYAxisPoints(2);
+		gmodel.setFastAxisPoints(2);
+		gmodel.setSlowAxisPoints(2);
 		gmodel.setContinuous(false);
 		gmodel.setSnake(false);
 
@@ -457,17 +457,17 @@ public class PyExpresserTest {
 	public void testRasterModel() throws Exception {
 
 		BoundingBox bbox = new BoundingBox();
-		bbox.setXAxisStart(0);
-		bbox.setYAxisStart(1);
-		bbox.setXAxisLength(10);
-		bbox.setYAxisLength(11);
+		bbox.setFastAxisStart(0);
+		bbox.setSlowAxisStart(1);
+		bbox.setFastAxisLength(10);
+		bbox.setSlowAxisLength(11);
 
 		RasterModel rmodel = new RasterModel();
-		rmodel.setXAxisName("myFast");
-		rmodel.setYAxisName("mySlow");
+		rmodel.setFastAxisName("myFast");
+		rmodel.setSlowAxisName("mySlow");
 		rmodel.setBoundingBox(bbox);
-		rmodel.setXAxisStep(3);
-		rmodel.setYAxisStep(4);
+		rmodel.setFastAxisStep(3);
+		rmodel.setSlowAxisStep(4);
 		rmodel.setSnake(true);
 		rmodel.setContinuous(true);
 

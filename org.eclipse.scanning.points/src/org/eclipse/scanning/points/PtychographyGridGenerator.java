@@ -56,30 +56,30 @@ public class PtychographyGridGenerator extends AbstractGenerator<PtychographyGri
 		double xStep = (1 - overlap) * xBeamDim;
 		double yStep = (1 - overlap) * yBeamDim;
 
-		double xLength = model.getBoundingBox().getXAxisLength();
-		double yLength = model.getBoundingBox().getYAxisLength();
+		double xLength = model.getBoundingBox().getFastAxisLength();
+		double yLength = model.getBoundingBox().getSlowAxisLength();
 
 		int yPoints = (int) Math.floor(yLength/yStep + 1);
 		int xPoints = (int) Math.floor(xLength/xStep + 1);
 
-		String xName = model.getXAxisName();
-		String xUnits = model.getXAxisUnits();
-		String yName = model.getYAxisName();
-		String yUnits = model.getYAxisUnits();
+		String xName = model.getFastAxisName();
+		String xUnits = model.getFastAxisUnits();
+		String yName = model.getSlowAxisName();
+		String yUnits = model.getSlowAxisUnits();
 
 		JythonObjectFactory<ScanPointIterator> lineGeneratorFactory = ScanPointGeneratorFactory.JLineGenerator1DFactory();
 
 		ScanPointIterator yLine = lineGeneratorFactory.createObject(
 				yName, yUnits,
-				model.getBoundingBox().getYAxisStart(),
-				model.getBoundingBox().getYAxisStart() + (yPoints - 1) * yStep,
+				model.getBoundingBox().getSlowAxisStart(),
+				model.getBoundingBox().getSlowAxisStart() + (yPoints - 1) * yStep,
 				yPoints,
 				model.isSnake());
 
 		ScanPointIterator xLine = lineGeneratorFactory.createObject(
 				xName, xUnits,
-				model.getBoundingBox().getXAxisStart(),
-				model.getBoundingBox().getXAxisStart() + (xPoints - 1) * xStep,
+				model.getBoundingBox().getFastAxisStart(),
+				model.getBoundingBox().getFastAxisStart() + (xPoints - 1) * xStep,
 				xPoints,
 				model.isSnake());
 

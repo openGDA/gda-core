@@ -237,17 +237,17 @@ public class SerializationTest {
 		final ScanRequest<IROI> req = new ScanRequest<IROI>();
 		// Create a grid scan model
 		BoundingBox box = new BoundingBox();
-		box.setXAxisStart(0);
-		box.setYAxisStart(0);
-		box.setXAxisLength(3);
-		box.setYAxisLength(3);
+		box.setFastAxisStart(0);
+		box.setSlowAxisStart(0);
+		box.setFastAxisLength(3);
+		box.setSlowAxisLength(3);
 
 		GridModel gmodel = new GridModel();
-		gmodel.setYAxisPoints(5);
-		gmodel.setXAxisPoints(5);
+		gmodel.setSlowAxisPoints(5);
+		gmodel.setFastAxisPoints(5);
 		gmodel.setBoundingBox(box);
-		gmodel.setXAxisName("xNex");
-		gmodel.setYAxisName("yNex");
+		gmodel.setFastAxisName("xNex");
+		gmodel.setSlowAxisName("yNex");
 
 		IROI roi = new RectangularROI(0, 0, 3, 3, 0);
 		req.setCompoundModel(new CompoundModel(gmodel, roi));
@@ -419,7 +419,7 @@ public class SerializationTest {
 		 "\"percentComplete\":0.0,\"userName\":\"fcp94556\",\"hostName\":\"DIAMRL5606\",\"submissionTime\":1474893775913,"+
 		 "\"scanRequest\":{\"@type\":\"ScanRequest\","+
 		     "\"compoundModel\":{\"@type\":\"CompoundModel\","+
-		         "\"models\":[{\"@type\":\"GridModel\",\"name\":\"Grid\",\"boundingBox\":{\"@type\":\"BoundingBox\",\"xAxisName\":\"x\",\"yAxisName\":\"y\",\"xAxisStart\":-84.13637953036218,\"xAxisLength\":43.356972243563845,\"yAxisStart\":123.33760426169476,\"yAxisLength\":42.80505395362201},\"xAxisName\":\"x\",\"yAxisName\":\"y\",\"xAxisPoints\":5,\"yAxisPoints\":5,\"snake\":false}]},"+
+		         "\"models\":[{\"@type\":\"GridModel\",\"name\":\"Grid\",\"boundingBox\":{\"@type\":\"BoundingBox\",\"fastAxisName\":\"x\",\"slowAxisName\":\"y\",\"fastAxisStart\":-84.13637953036218,\"fastAxisLength\":43.356972243563845,\"slowAxisStart\":123.33760426169476,\"slowAxisLength\":42.80505395362201},\"fastAxisName\":\"x\",\"slowAxisName\":\"y\",\"fastAxisPoints\":5,\"slowAxisPoints\":5,\"snake\":false}]},"+
 		     "\"detectors\":{\"mandelbrot\":{\"@type\":\"MandelbrotModel\",\"maxIterations\":500,\"escapeRadius\":10.0,\"columns\":301,\"rows\":241,\"points\":1000,\"maxRealCoordinate\":1.5,\"maxImaginaryCoordinate\":1.2,\"realAxisName\":\"x\",\"imaginaryAxisName\":\"y\",\"name\":\"mandelbrot\",\"exposureTime\":0.1,\"timeout\":-1}},"+
 		     "\"ignorePreprocess\":false},"+
 		  "\"point\":0,\"size\":0,\"scanNumber\":0}";
@@ -461,7 +461,7 @@ public class SerializationTest {
 		 "\"percentComplete\":0.0,\"userName\":\"fcp94556\",\"hostName\":\"DIAMRL5606\",\"submissionTime\":1474893775913,"+
 		 "\"scanRequest\":{\"@type\":\"ScanRequest\","+
 		     "\"compoundModel\":{\"@type\":\"CompoundModel\","+
-		         "\"models\":[{\"@type\":\"GridModel\",\"name\":\"Grid\",\"boundingBox\":{\"@type\":\"BoundingBox\",\"xAxisName\":\"x\",\"yAxisName\":\"y\",\"xAxisStart\":-84.13637953036218,\"xAxisLength\":43.356972243563845,\"yAxisStart\":123.33760426169476,\"yAxisLength\":42.80505395362201},\"xAxisName\":\"x\",\"yAxisName\":\"y\",\"xAxisPoints\":5,\"yAxisPoints\":5,\"snake\":false}]},"+
+		         "\"models\":[{\"@type\":\"GridModel\",\"name\":\"Grid\",\"boundingBox\":{\"@type\":\"BoundingBox\",\"fastAxisName\":\"x\",\"slowAxisName\":\"y\",\"fastAxisStart\":-84.13637953036218,\"fastAxisLength\":43.356972243563845,\"slowAxisStart\":123.33760426169476,\"slowAxisLength\":42.80505395362201},\"fastAxisName\":\"x\",\"slowAxisName\":\"y\",\"fastAxisPoints\":5,\"slowAxisPoints\":5,\"snake\":false}]},"+
 		     "\"detectors\":{\"mandelbrot\":{\"@type\":\"MandelbrotModel\",\"maxIterations\":500,\"escapeRadius\":10.0,\"columns\":301,\"rows\":241,\"points\":1000,\"maxRealCoordinate\":1.5,\"maxImaginaryCoordinate\":1.2,\"realAxisName\":\"x\",\"imaginaryAxisName\":\"y\",\"name\":\"mandelbrot\",\"exposureTime\":0.1,\"timeout\":-1}},"+
 		     "\"ignorePreprocess\":false},"+
 		  "\"point\":0,\"size\":0,\"scanNumber\":0}";

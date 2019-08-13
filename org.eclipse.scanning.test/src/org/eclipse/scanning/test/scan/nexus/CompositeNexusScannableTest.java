@@ -336,10 +336,10 @@ public class CompositeNexusScannableTest extends NexusTest {
 
 	private IRunnableDevice<ScanModel> createGridScan(IScannable<?> perScanMonitor) throws Exception {
 		GridModel gmodel = new GridModel();
-		gmodel.setXAxisName("xNex");
-		gmodel.setXAxisPoints(SCAN_SIZE[1]);
-		gmodel.setYAxisName("yNex");
-		gmodel.setYAxisPoints(SCAN_SIZE[0]);
+		gmodel.setFastAxisName("xNex");
+		gmodel.setFastAxisPoints(SCAN_SIZE[1]);
+		gmodel.setSlowAxisName("yNex");
+		gmodel.setSlowAxisPoints(SCAN_SIZE[0]);
 		gmodel.setBoundingBox(new BoundingBox(0, 0, 3, 3));
 		gmodel.setSnake(false);
 

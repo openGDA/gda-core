@@ -52,13 +52,13 @@ public class GridModelSerialiser implements IPVStructureSerialiser<GridModel> {
 		PVString name = pvStructure.getStringField("name");
 		name.put(model.getName());
 		PVString fastAxisName = pvStructure.getSubField(PVString.class, "fastAxisName");
-		fastAxisName.put(model.getXAxisName());
+		fastAxisName.put(model.getFastAxisName());
 		PVString slowAxisName = pvStructure.getSubField(PVString.class, "slowAxisName");
-		slowAxisName.put(model.getYAxisName());
+		slowAxisName.put(model.getSlowAxisName());
 		PVInt fastAxisPoints = pvStructure.getSubField(PVInt.class, "fastAxisPoints");
-		fastAxisPoints.put(model.getXAxisPoints());
+		fastAxisPoints.put(model.getFastAxisPoints());
 		PVInt slowAxisPoints = pvStructure.getSubField(PVInt.class, "slowAxisPoints");
-		slowAxisPoints.put(model.getYAxisPoints());
+		slowAxisPoints.put(model.getSlowAxisPoints());
 		PVBoolean snake = pvStructure.getSubField(PVBoolean.class, "snake");
 		snake.put(model.isSnake());
 	}

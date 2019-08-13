@@ -126,8 +126,8 @@ public abstract class AbstractAcquisitionTest {
 		// Create scan points for a grid and make a generator
 		if (axisNames==null) axisNames = Arrays.asList("x", "y");
 		GridModel gmodel = new GridModel(axisNames.get(0), axisNames.get(1));
-		gmodel.setYAxisPoints(5);
-		gmodel.setXAxisPoints(5);
+		gmodel.setSlowAxisPoints(5);
+		gmodel.setFastAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 		models.add(gmodel);
 

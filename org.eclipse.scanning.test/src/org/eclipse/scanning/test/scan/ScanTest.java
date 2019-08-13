@@ -469,15 +469,15 @@ public class ScanTest extends BrokerTest {
 		// If none passed, create scan points for a grid.
 		if (pmodel == null) {
 			pmodel = new GridModel("x", "y");
-			((GridModel) pmodel).setYAxisPoints(5);
-			((GridModel) pmodel).setXAxisPoints(5);
+			((GridModel) pmodel).setSlowAxisPoints(5);
+			((GridModel) pmodel).setFastAxisPoints(5);
 			((GridModel) pmodel).setBoundingBox(new BoundingBox(0,0,3,3));
 		}
 
 		if (axes!=null && pmodel instanceof IBoundingBoxModel) {
 			IBoundingBoxModel bmodel = (IBoundingBoxModel)pmodel;
-			bmodel.setXAxisName(axes[0]);
-			bmodel.setYAxisName(axes[1]);
+			bmodel.setFastAxisName(axes[0]);
+			bmodel.setSlowAxisName(axes[1]);
 		}
 
 		IPointGenerator<?> gen = pointGenService.createGenerator(pmodel);
