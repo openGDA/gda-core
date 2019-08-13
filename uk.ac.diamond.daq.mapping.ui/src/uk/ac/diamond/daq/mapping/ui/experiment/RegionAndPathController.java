@@ -385,8 +385,8 @@ public class RegionAndPathController extends AbstractMappingController {
 	public void createDefaultRegionAtStagePosition() {
 		checkInitialised();
 		final MappingStageInfo mappingStage = getService(MappingStageInfo.class);
-		final double xAxisPosition = getAxisPosition(mappingStage.getPlotXAxisName());
-		final double yAxisPosition = getAxisPosition(mappingStage.getPlotYAxisName());
+		final double xAxisPosition = getAxisPosition(mappingStage.getActiveFastScanAxis());
+		final double yAxisPosition = getAxisPosition(mappingStage.getActiveSlowScanAxis());
 
 		scanRegionShape = mappingRegionManager.getTemplateRegion(scanRegionShape.getClass());
 		scanRegionShape.centre(xAxisPosition, yAxisPosition);

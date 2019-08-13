@@ -54,8 +54,8 @@ public class FindBeamInPlot extends AbstractHandler {
 	}
 
 	private void centrePlotAroundBeam() {
-		Scannable xAxis = Finder.getInstance().find(mappingStageInfo.getPlotXAxisName());
-		Scannable yAxis = Finder.getInstance().find(mappingStageInfo.getPlotYAxisName());
+		Scannable xAxis = Finder.getInstance().find(mappingStageInfo.getActiveFastScanAxis());
+		Scannable yAxis = Finder.getInstance().find(mappingStageInfo.getActiveSlowScanAxis());
 		try {
 			plotter.centrePlotAroundPoint((double) xAxis.getPosition(), (double) yAxis.getPosition());
 		} catch (DeviceException de) {
