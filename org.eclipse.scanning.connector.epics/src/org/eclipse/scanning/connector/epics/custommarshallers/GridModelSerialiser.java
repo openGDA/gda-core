@@ -26,7 +26,6 @@ import org.epics.pvmarshaller.marshaller.serialisers.Serialiser;
 /**
  * Custom serialiser for Grid model.
  * TODO - make this non 'test' and finalise custom serialisation strategy for models
- * TODO: DAQ-2324 This class is almost certainly not used. It should be deleted.
  * @author Matt Taylor
  *
  */
@@ -38,13 +37,11 @@ public class GridModelSerialiser implements IPVStructureSerialiser<GridModel> {
 
 		Structure structure = fieldCreate.createFieldBuilder().
 			add("name", ScalarType.pvString).
-			add("xAxisName", ScalarType.pvString).
-			add("yAxisName", ScalarType.pvString).
-			add("xAxisPoints", ScalarType.pvInt).
-			add("yAxisPoints", ScalarType.pvInt).
+			add("fastAxisName", ScalarType.pvString).
+			add("slowAxisName", ScalarType.pvString).
+			add("fastAxisPoints", ScalarType.pvInt).
+			add("slowAxisPoints", ScalarType.pvInt).
 			add("snake", ScalarType.pvBoolean).
-			add("continuous", ScalarType.pvBoolean).
-			add("verticalOrientation", ScalarType.pvBoolean).
 			setId("GridModel").
 			createStructure();
 		return structure;
@@ -64,10 +61,6 @@ public class GridModelSerialiser implements IPVStructureSerialiser<GridModel> {
 		slowAxisPoints.put(model.getYAxisPoints());
 		PVBoolean snake = pvStructure.getSubField(PVBoolean.class, "snake");
 		snake.put(model.isSnake());
-		PVBoolean continuous = pvStructure.getSubField(PVBoolean.class, "continuous");
-		continuous.put(model.isContinuous());
-		PVBoolean verticalOrientation = pvStructure.getSubField(PVBoolean.class, "verticalOrientation");
-		verticalOrientation.put(model.isVerticalOrientation());
 	}
 
 }
