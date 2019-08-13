@@ -389,7 +389,7 @@ def repeat(axis=None, count=None, value=None, sleep=None, **kwargs):
     return model, _listify(roi)
 
 def grid(axes=None, start=None, stop=None, step=None, count=None, snake=True,
-         continuous=False, verticalOrientation=False, roi=None, **kwargs):
+         continuous=False, roi=None, **kwargs):
     """Define a grid scan path to be passed to mscan().
 
     Required keyword arguments:
@@ -446,7 +446,6 @@ def grid(axes=None, start=None, stop=None, step=None, count=None, snake=True,
                      'yAxisPoints': cols,
                      'snake': snake,
                      'continuous' : continuous,
-                     'verticalOrientation' : verticalOrientation,
                      'boundingBox': bbox})
 
     else:
@@ -463,7 +462,6 @@ def grid(axes=None, start=None, stop=None, step=None, count=None, snake=True,
                      'yAxisStep': yStep,
                      'snake': snake,
                      'continuous' : continuous,
-                     'verticalOrientation' : verticalOrientation,
                      'boundingBox': bbox})
 
     # We _listify() the ROI inputs, so users can type either
@@ -471,7 +469,7 @@ def grid(axes=None, start=None, stop=None, step=None, count=None, snake=True,
     return model, _listify(roi)
 
 def random_offset_grid(axes=None, start=None, stop=None, count=None, snake=True,
-         continuous=False, verticalOrientation=False, roi=None, seed=0, offset=0):
+         continuous=False, roi=None, seed=0, offset=0):
     try:
         assert None not in (axes, start, stop, count)
     except AssertionError:
@@ -500,7 +498,6 @@ def random_offset_grid(axes=None, start=None, stop=None, count=None, snake=True,
                  'boundingBox': bbox,
                  'seed': seed,
                  'continuous': continuous,
-                 'verticalOrientation': verticalOrientation,
                  'offset': offset})
     
     return model, _listify(roi)
