@@ -78,9 +78,9 @@ public class ExafsSelectionHandler implements EventHandler {
 	private void updateExafsSelectionView(Double xLocation, Double yLocation, Double zLocation) {
 		final Double[] locationArray = new Double[] { xLocation, yLocation, zLocation };
 
-		final String sampleStagePrefix = stageConfigurationService.getPlotXAxisName().substring(0, 2);
-		boolean validPrefix = Arrays.asList(stageConfigurationService.getPlotXAxisName(),
-											stageConfigurationService.getPlotYAxisName(),
+		final String sampleStagePrefix = stageConfigurationService.getActiveFastScanAxis().substring(0, 2);
+		boolean validPrefix = Arrays.asList(stageConfigurationService.getActiveFastScanAxis(),
+											stageConfigurationService.getActiveSlowScanAxis(),
 											stageConfigurationService.getAssociatedAxis()).stream()
 											.allMatch(axis -> axis.startsWith(sampleStagePrefix));
 
