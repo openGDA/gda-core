@@ -71,8 +71,8 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 
 	private ScanRequest<IROI> getDiffractionSpotScan() {
 		SinglePointModel model = new SinglePointModel();
-		model.setXAxisName("beam_x");
-		model.setYAxisName("beam_y");
+		model.setFastAxisName("beam_x");
+		model.setSlowAxisName("beam_y");
 		model.setX(12.5);
 		model.setY(0.38);
 		IROI roi = new PointROI(new double[] {12.5, 0.38});

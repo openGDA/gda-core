@@ -41,17 +41,17 @@ public class RandomOffsetGridPathEditor extends AbstractGridPathEditor {
 		grabHorizontalSpace.applyTo(seed);
 		binder.bind(seed, "seed", getModel());
 
-		new Label(composite, SWT.NONE).setText(getXAxisName() + " Points");
+		new Label(composite, SWT.NONE).setText(getFastAxisName() + " Points");
 		Spinner fastPoints = new Spinner(composite, SWT.BORDER);
 		fastPoints.setMinimum(1);
 		grabHorizontalSpace.applyTo(fastPoints);
-		binder.bind(fastPoints, "xAxisPoints", getModel());
+		binder.bind(fastPoints, "fastAxisPoints", getModel());
 
-		new Label(composite, SWT.NONE).setText(getYAxisName() + " Points");
+		new Label(composite, SWT.NONE).setText(getSlowAxisName() + " Points");
 		Spinner slowPoints = new Spinner(composite, SWT.BORDER);
 		slowPoints.setMinimum(1);
 		grabHorizontalSpace.applyTo(slowPoints);
-		binder.bind(slowPoints, "yAxisPoints", getModel());
+		binder.bind(slowPoints, "slowAxisPoints", getModel());
 
 		makeCommonGridOptionsControls(composite);
 

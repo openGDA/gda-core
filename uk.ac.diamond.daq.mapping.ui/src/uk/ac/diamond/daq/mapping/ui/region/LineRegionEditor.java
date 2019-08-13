@@ -40,19 +40,19 @@ public class LineRegionEditor extends AbstractRegionEditor {
 
 		final Composite composite = super.createEditorPart(parent);
 
-		new Label(composite, SWT.NONE).setText(getXAxisName() + " Start");
+		new Label(composite, SWT.NONE).setText(getFastAxisName() + " Start");
 		NumberAndUnitsComposite<Length> xStart = createNumberAndUnitsLengthComposite(composite, X_START);
 		grabHorizontalSpace.applyTo(xStart);
 
-		new Label(composite, SWT.NONE).setText(getYAxisName() + " Start");
+		new Label(composite, SWT.NONE).setText(getSlowAxisName() + " Start");
 		NumberAndUnitsComposite<Length> yStart = createNumberAndUnitsLengthComposite(composite, Y_START);
 		grabHorizontalSpace.applyTo(yStart);
 
-		new Label(composite, SWT.NONE).setText(getXAxisName() + " Stop");
+		new Label(composite, SWT.NONE).setText(getFastAxisName() + " Stop");
 		NumberAndUnitsComposite<Length> xStop = createNumberAndUnitsLengthComposite(composite, X_STOP);
 		grabHorizontalSpace.applyTo(xStop);
 
-		new Label(composite, SWT.NONE).setText(getYAxisName() + " Stop");
+		new Label(composite, SWT.NONE).setText(getSlowAxisName() + " Stop");
 		NumberAndUnitsComposite<Length> yStop = createNumberAndUnitsLengthComposite(composite, Y_STOP);
 		grabHorizontalSpace.applyTo(yStop);
 
@@ -70,10 +70,10 @@ public class LineRegionEditor extends AbstractRegionEditor {
 		binder.bind(xStop,  X_STOP,  getModel());
 		binder.bind(yStop,  Y_STOP,  getModel());
 
-		ControlDecorationSupport.create(createLimitsValidator(getXAxisName(), xStart), SWT.LEFT);
-		ControlDecorationSupport.create(createLimitsValidator(getXAxisName(), xStop), SWT.LEFT);
-		ControlDecorationSupport.create(createLimitsValidator(getYAxisName(), yStart), SWT.LEFT);
-		ControlDecorationSupport.create(createLimitsValidator(getYAxisName(), yStop), SWT.LEFT);
+		ControlDecorationSupport.create(createLimitsValidator(getFastAxisName(), xStart), SWT.LEFT);
+		ControlDecorationSupport.create(createLimitsValidator(getFastAxisName(), xStop), SWT.LEFT);
+		ControlDecorationSupport.create(createLimitsValidator(getSlowAxisName(), yStart), SWT.LEFT);
+		ControlDecorationSupport.create(createLimitsValidator(getSlowAxisName(), yStop), SWT.LEFT);
 
 		IObservableValue targetXStart = binder.getObservableValue(xStart);
 		IObservableValue targetXStop  = binder.getObservableValue(xStop);

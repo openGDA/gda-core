@@ -34,8 +34,8 @@ public class InitialLengthUnitsTest {
 	private Map<String, String> unitsMap = ImmutableMap.of(
 		"xStart", "μm",
 		"yStart", "μm",
-		"xAxisStep", "nm",
-		"yAxisStep", "nm"
+		"fastAxisStep", "nm",
+		"slowAxisStep", "nm"
 	);
 
 	@SuppressWarnings("unused")
@@ -49,8 +49,8 @@ public class InitialLengthUnitsTest {
 		final InitialLengthUnits lengthUnits = new InitialLengthUnits(unitsMap);
 		assertEquals("μm", lengthUnits.getDefaultUnit("xStart"));
 		assertEquals("μm", lengthUnits.getDefaultUnit("yStart"));
-		assertEquals("nm", lengthUnits.getDefaultUnit("xAxisStep"));
-		assertEquals("nm", lengthUnits.getDefaultUnit("yAxisStep"));
+		assertEquals("nm", lengthUnits.getDefaultUnit("fastAxisStep"));
+		assertEquals("nm", lengthUnits.getDefaultUnit("slowAxisStep"));
 	}
 
 	@Test

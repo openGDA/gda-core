@@ -38,24 +38,24 @@ public class RectangleRegionEditor extends AbstractRegionEditor {
 
 		Composite composite = super.createEditorPart(parent);
 
-		new Label(composite, SWT.NONE).setText(getXAxisName() + " Start");
+		new Label(composite, SWT.NONE).setText(getFastAxisName() + " Start");
 		NumberAndUnitsComposite<Length> xStart = createNumberAndUnitsLengthComposite(composite, X_START);
 		grabHorizontalSpace.applyTo(xStart);
 
-		new Label(composite, SWT.NONE).setText(getXAxisName() + " Stop");
+		new Label(composite, SWT.NONE).setText(getFastAxisName() + " Stop");
 		NumberAndUnitsComposite<Length> xStop = createNumberAndUnitsLengthComposite(composite, X_STOP);
 		grabHorizontalSpace.applyTo(xStop);
 
-		new Label(composite, SWT.NONE).setText(getYAxisName() + " Start");
+		new Label(composite, SWT.NONE).setText(getSlowAxisName() + " Start");
 		NumberAndUnitsComposite<Length> yStart = createNumberAndUnitsLengthComposite(composite, Y_START);
 		grabHorizontalSpace.applyTo(yStart);
 
-		new Label(composite, SWT.NONE).setText(getYAxisName() + " Stop");
+		new Label(composite, SWT.NONE).setText(getSlowAxisName() + " Stop");
 		NumberAndUnitsComposite<Length> yStop = createNumberAndUnitsLengthComposite(composite, Y_STOP);
 		grabHorizontalSpace.applyTo(yStop);
 
-		bind(getXAxisName(), xStart, X_START, xStop, X_STOP);
-		bind(getYAxisName(), yStart, Y_START, yStop, Y_STOP);
+		bind(getFastAxisName(), xStart, X_START, xStop, X_STOP);
+		bind(getSlowAxisName(), yStart, Y_START, yStop, Y_STOP);
 
 		return composite;
 	}
