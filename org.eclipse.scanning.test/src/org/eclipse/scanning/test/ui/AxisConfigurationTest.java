@@ -62,12 +62,12 @@ public class AxisConfigurationTest extends ShellTest{
 		this.config = new AxisConfiguration();
 		config.setApplyModels(true);
 		config.setApplyRegions(true);
-		config.setXAxisName("stage_x");
-		config.setXAxisStart(0);
-		config.setXAxisEnd(100);
-		config.setYAxisName("stage_y");
-		config.setYAxisStart(-100);
-		config.setYAxisEnd(-200);
+		config.setFastAxisName("stage_x");
+		config.setFastAxisStart(0);
+		config.setFastAxisEnd(100);
+		config.setSlowAxisName("stage_y");
+		config.setSlowAxisStart(-100);
+		config.setSlowAxisEnd(-200);
 		config.setMicroscopeImage("C:/tmp/fred.png");
 
 
@@ -117,13 +117,13 @@ public class AxisConfigurationTest extends ShellTest{
 
 		assertEquals(config.getMicroscopeImage(),                 bot.table(0).cell(0, 1));
 
-		assertEquals(config.getXAxisName(),                    bot.table(0).cell(2, 1));
-		assertEquals(String.valueOf(config.getXAxisStart())+" mm",   bot.table(0).cell(3, 1));
-		assertEquals(String.valueOf(config.getXAxisEnd())+" mm",     bot.table(0).cell(4, 1));
+		assertEquals(config.getFastAxisName(),                    bot.table(0).cell(2, 1));
+		assertEquals(String.valueOf(config.getFastAxisStart())+" mm",   bot.table(0).cell(3, 1));
+		assertEquals(String.valueOf(config.getFastAxisEnd())+" mm",     bot.table(0).cell(4, 1));
 
-		assertEquals(config.getYAxisName(),                    bot.table(0).cell(5, 1));
-		assertEquals(String.valueOf(config.getYAxisStart())+" mm",   bot.table(0).cell(6, 1));
-		assertEquals(String.valueOf(config.getYAxisEnd())+" mm",     bot.table(0).cell(7, 1));
+		assertEquals(config.getSlowAxisName(),                    bot.table(0).cell(5, 1));
+		assertEquals(String.valueOf(config.getSlowAxisStart())+" mm",   bot.table(0).cell(6, 1));
+		assertEquals(String.valueOf(config.getSlowAxisEnd())+" mm",     bot.table(0).cell(7, 1));
 
 	}
 
@@ -158,13 +158,13 @@ public class AxisConfigurationTest extends ShellTest{
 	@Test
 	public void checkFastStart() throws Exception {
 
-		assertEquals(String.valueOf(config.getXAxisStart())+" mm", bot.table(0).cell(3, 1));
+		assertEquals(String.valueOf(config.getFastAxisStart())+" mm", bot.table(0).cell(3, 1));
 
 		bot.table(0).click(3, 1); // Make the file editor
 
 		SWTBotText text = bot.text(0);
 		assertNotNull(text);
-		assertEquals(String.valueOf(config.getXAxisStart()), text.getText());
+		assertEquals(String.valueOf(config.getFastAxisStart()), text.getText());
 
 		Color red = new Color(bot.getDisplay(), 255, 0, 0, 255);
 		Color black = new Color(bot.getDisplay(), 0, 0, 0, 255);

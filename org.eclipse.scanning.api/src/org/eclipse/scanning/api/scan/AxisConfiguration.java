@@ -44,23 +44,23 @@ public class AxisConfiguration implements Serializable {
 	public void setMicroscopeImage(String microscopeImage) {
 		this.microscopeImage = microscopeImage;
 	}
-	@FieldDescriptor(device=DeviceType.SCANNABLE, hint="The name of the scannable to be plotted as the x-axis, e.g. the x motor of the sample stage.", fieldPosition=0)
-	private String xAxisName;
+	@FieldDescriptor(device=DeviceType.SCANNABLE, hint="The name of a fast motor, for instance that used for the x-stage.", fieldPosition=0)
+	private String fastAxisName;
 
-	@FieldDescriptor(scannable="xAxisName", fieldPosition=1)
-	private double xAxisStart;
+	@FieldDescriptor(scannable="fastAxisName", fieldPosition=1)
+	private double fastAxisStart;
 
-	@FieldDescriptor(scannable="xAxisName", fieldPosition=2)
-	private double xAxisEnd;
+	@FieldDescriptor(scannable="fastAxisName", fieldPosition=2)
+	private double fastAxisEnd;
 
-	@FieldDescriptor(device=DeviceType.SCANNABLE, hint="The name of the scannable to be plotted as the y-axis, e.g. the x motor of the sample stage.", fieldPosition=3)
-	private String yAxisName;
+	@FieldDescriptor(device=DeviceType.SCANNABLE, hint="The name of a slow or other motor, for instance that used for the y-stage.", fieldPosition=3)
+	private String slowAxisName;
 
-	@FieldDescriptor(scannable="yAxisName", fieldPosition=4)
-	private double yAxisStart;
+	@FieldDescriptor(scannable="slowAxisName", fieldPosition=4)
+	private double slowAxisStart;
 
-	@FieldDescriptor(scannable="yAxisName", fieldPosition=5)
-	private double yAxisEnd;
+	@FieldDescriptor(scannable="slowAxisName", fieldPosition=5)
+	private double slowAxisEnd;
 
 	@FieldDescriptor(label="Apply to Regions", hint="Find any scan regions and set their axis names to those on this form.", fieldPosition=6)
 	private boolean applyRegions = false;
@@ -75,17 +75,17 @@ public class AxisConfiguration implements Serializable {
 		result = prime * result + (applyModels ? 1231 : 1237);
 		result = prime * result + (applyRegions ? 1231 : 1237);
 		long temp;
-		temp = Double.doubleToLongBits(xAxisEnd);
+		temp = Double.doubleToLongBits(fastAxisEnd);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + ((xAxisName == null) ? 0 : xAxisName.hashCode());
-		temp = Double.doubleToLongBits(xAxisStart);
+		result = prime * result + ((fastAxisName == null) ? 0 : fastAxisName.hashCode());
+		temp = Double.doubleToLongBits(fastAxisStart);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((microscopeImage == null) ? 0 : microscopeImage.hashCode());
 		result = prime * result + (randomNoise ? 1231 : 1237);
-		temp = Double.doubleToLongBits(yAxisEnd);
+		temp = Double.doubleToLongBits(slowAxisEnd);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + ((yAxisName == null) ? 0 : yAxisName.hashCode());
-		temp = Double.doubleToLongBits(yAxisStart);
+		result = prime * result + ((slowAxisName == null) ? 0 : slowAxisName.hashCode());
+		temp = Double.doubleToLongBits(slowAxisStart);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
@@ -102,14 +102,14 @@ public class AxisConfiguration implements Serializable {
 			return false;
 		if (applyRegions != other.applyRegions)
 			return false;
-		if (Double.doubleToLongBits(xAxisEnd) != Double.doubleToLongBits(other.xAxisEnd))
+		if (Double.doubleToLongBits(fastAxisEnd) != Double.doubleToLongBits(other.fastAxisEnd))
 			return false;
-		if (xAxisName == null) {
-			if (other.xAxisName != null)
+		if (fastAxisName == null) {
+			if (other.fastAxisName != null)
 				return false;
-		} else if (!xAxisName.equals(other.xAxisName))
+		} else if (!fastAxisName.equals(other.fastAxisName))
 			return false;
-		if (Double.doubleToLongBits(xAxisStart) != Double.doubleToLongBits(other.xAxisStart))
+		if (Double.doubleToLongBits(fastAxisStart) != Double.doubleToLongBits(other.fastAxisStart))
 			return false;
 		if (microscopeImage == null) {
 			if (other.microscopeImage != null)
@@ -118,52 +118,52 @@ public class AxisConfiguration implements Serializable {
 			return false;
 		if (randomNoise != other.randomNoise)
 			return false;
-		if (Double.doubleToLongBits(yAxisEnd) != Double.doubleToLongBits(other.yAxisEnd))
+		if (Double.doubleToLongBits(slowAxisEnd) != Double.doubleToLongBits(other.slowAxisEnd))
 			return false;
-		if (yAxisName == null) {
-			if (other.yAxisName != null)
+		if (slowAxisName == null) {
+			if (other.slowAxisName != null)
 				return false;
-		} else if (!yAxisName.equals(other.yAxisName))
+		} else if (!slowAxisName.equals(other.slowAxisName))
 			return false;
-		if (Double.doubleToLongBits(yAxisStart) != Double.doubleToLongBits(other.yAxisStart))
+		if (Double.doubleToLongBits(slowAxisStart) != Double.doubleToLongBits(other.slowAxisStart))
 			return false;
 		return true;
 	}
-	public String getXAxisName() {
-		return xAxisName;
+	public String getFastAxisName() {
+		return fastAxisName;
 	}
-	public void setXAxisName(String xAxisName) {
-		this.xAxisName = xAxisName;
+	public void setFastAxisName(String fastAxisName) {
+		this.fastAxisName = fastAxisName;
 	}
-	public double getXAxisStart() {
-		return xAxisStart;
+	public double getFastAxisStart() {
+		return fastAxisStart;
 	}
-	public void setXAxisStart(double xAxisStart) {
-		this.xAxisStart = xAxisStart;
+	public void setFastAxisStart(double fastAxisStart) {
+		this.fastAxisStart = fastAxisStart;
 	}
-	public double getXAxisEnd() {
-		return xAxisEnd;
+	public double getFastAxisEnd() {
+		return fastAxisEnd;
 	}
-	public void setXAxisEnd(double xAxisEnd) {
-		this.xAxisEnd = xAxisEnd;
+	public void setFastAxisEnd(double fastAxisEnd) {
+		this.fastAxisEnd = fastAxisEnd;
 	}
-	public String getYAxisName() {
-		return yAxisName;
+	public String getSlowAxisName() {
+		return slowAxisName;
 	}
-	public void setYAxisName(String yAxisName) {
-		this.yAxisName = yAxisName;
+	public void setSlowAxisName(String slowAxisName) {
+		this.slowAxisName = slowAxisName;
 	}
-	public double getYAxisStart() {
-		return yAxisStart;
+	public double getSlowAxisStart() {
+		return slowAxisStart;
 	}
-	public void setYAxisStart(double yAxisStart) {
-		this.yAxisStart = yAxisStart;
+	public void setSlowAxisStart(double slowAxisStart) {
+		this.slowAxisStart = slowAxisStart;
 	}
-	public double getYAxisEnd() {
-		return yAxisEnd;
+	public double getSlowAxisEnd() {
+		return slowAxisEnd;
 	}
-	public void setYAxisEnd(double yAxisEnd) {
-		this.yAxisEnd = yAxisEnd;
+	public void setSlowAxisEnd(double slowAxisEnd) {
+		this.slowAxisEnd = slowAxisEnd;
 	}
 
 	public boolean isApplyRegions() {
