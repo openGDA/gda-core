@@ -94,8 +94,8 @@ public class FocusScanConverter {
 		lineModel.setPoints(numPoints);
 		lineModel.setContinuous(true); // continuous if possible (i.e. malcolm)
 		if (mappingStageInfo != null) {
-			lineModel.setFastAxisName(mappingStageInfo.getPlotXAxisName());
-			lineModel.setSlowAxisName(mappingStageInfo.getPlotYAxisName());
+			lineModel.setFastAxisName(mappingStageInfo.getActiveFastScanAxis());
+			lineModel.setSlowAxisName(mappingStageInfo.getActiveSlowScanAxis());
 		}
 
 		// DO we need to do this, as we set the region in the scan request?

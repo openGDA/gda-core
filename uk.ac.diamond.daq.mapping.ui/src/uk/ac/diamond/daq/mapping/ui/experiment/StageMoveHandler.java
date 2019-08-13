@@ -84,8 +84,8 @@ public class StageMoveHandler implements EventHandler {
 
 	private void moveTo(final double xLocation, final double yLocation, final Double associatedLocation) {
 
-		String fastName = stageConfiguration.getPlotXAxisName();
-		String slowName = stageConfiguration.getPlotYAxisName();
+		String fastName = stageConfiguration.getActiveFastScanAxis();
+		String slowName = stageConfiguration.getActiveSlowScanAxis();
 		String associatedName = stageConfiguration.getAssociatedAxis();
 
 		String moveSummary = "Please confirm the following move:\n"

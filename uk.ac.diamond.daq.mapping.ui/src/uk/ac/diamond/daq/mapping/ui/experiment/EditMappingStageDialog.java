@@ -108,8 +108,8 @@ public class EditMappingStageDialog extends Dialog {
 	 */
 	@Override
 	protected void okPressed() {
-		stageInfo.setPlotXAxisName(stageManagerControl.getFastAxisName());
-		stageInfo.setPlotYAxisName(stageManagerControl.getSlowAxisName());
+		stageInfo.setActiveFastScanAxis(stageManagerControl.getFastAxisName());
+		stageInfo.setActiveSlowScanAxis(stageManagerControl.getSlowAxisName());
 		stageInfo.setAssociatedAxis(stageManagerControl.getAssociatedAxisName());
 		super.okPressed();
 	}
@@ -145,13 +145,13 @@ public class EditMappingStageDialog extends Dialog {
 			new Label(mainComposite, SWT.NONE).setText("Fast axis");
 			fastAxis = new Combo(mainComposite, SWT.READ_ONLY);
 			fastAxis.setItems(options.getFastAxes().toArray(new String[0]));
-			fastAxis.select(options.getFastAxes().indexOf(stageInfo.getPlotXAxisName()));
+			fastAxis.select(options.getFastAxes().indexOf(stageInfo.getActiveFastScanAxis()));
 			horizGrab.applyTo(fastAxis);
 
 			new Label(mainComposite, SWT.NONE).setText("Slow axis");
 			slowAxis = new Combo(mainComposite, SWT.READ_ONLY);
 			slowAxis.setItems(options.getSlowAxes().toArray(new String[0]));
-			slowAxis.select(options.getSlowAxes().indexOf(stageInfo.getPlotYAxisName()));
+			slowAxis.select(options.getSlowAxes().indexOf(stageInfo.getActiveSlowScanAxis()));
 			horizGrab.applyTo(slowAxis);
 
 			if (Objects.nonNull(options.getAssociatedAxes())) {
@@ -201,12 +201,12 @@ public class EditMappingStageDialog extends Dialog {
 
 			new Label(mainComposite, SWT.NONE).setText("Fast axis");
 			fastAxis = new Text(mainComposite, SWT.BORDER);
-			fastAxis.setText(stageInfo.getPlotXAxisName());
+			fastAxis.setText(stageInfo.getActiveFastScanAxis());
 			horizGrab.applyTo(fastAxis);
 
 			new Label(mainComposite, SWT.NONE).setText("Slow axis");
 			slowAxis = new Text(mainComposite, SWT.BORDER);
-			slowAxis.setText(stageInfo.getPlotYAxisName());
+			slowAxis.setText(stageInfo.getActiveSlowScanAxis());
 			horizGrab.applyTo(slowAxis);
 
 			new Label(mainComposite, SWT.NONE).setText("Associated axis");
