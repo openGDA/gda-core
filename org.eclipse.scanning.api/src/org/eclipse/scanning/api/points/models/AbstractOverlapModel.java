@@ -20,14 +20,8 @@ package org.eclipse.scanning.api.points.models;
 
 /**
  * Base class for path models which require knowledge of beam size
- * <p>
- * Note: this class extends {@link AbstractGridModel} as its only subclass is a type
- * of grid model. This prevents having to duplicate properties as Java does not
- * support multiple inheritance. If this were to change then this class should
- * extend {@link AbstractBoundingBoxModel} directly and duplication of
- * {@link AbstractGridModel} properties would be unavoidable.
  */
-public abstract class AbstractOverlapModel extends AbstractGridModel {
+public abstract class AbstractOverlapModel extends AbstractBoundingBoxModel {
 
 	private double overlap;
 

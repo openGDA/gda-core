@@ -30,6 +30,16 @@ public class PtychographyGridModel extends AbstractOverlapModel {
 		setOverlap(0.5);
 	}
 
+	private boolean snake = true;
+	public boolean isSnake() {
+		return snake;
+	}
+	public void setSnake(boolean snake) {
+		boolean oldValue = this.snake;
+		this.snake = snake;
+		this.pcs.firePropertyChange("snake", oldValue, snake);
+	}
+
 	/**
 	 * @return maximum offset as percentage of step size
 	 */
@@ -46,37 +56,4 @@ public class PtychographyGridModel extends AbstractOverlapModel {
 	public int getSeed() {
 		return seed;
 	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		long temp;
-		temp = Double.doubleToLongBits(randomOffset);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + seed;
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		PtychographyGridModel other = (PtychographyGridModel) obj;
-		if (Double.doubleToLongBits(randomOffset) != Double.doubleToLongBits(other.randomOffset))
-			return false;
-		if (seed != other.seed)
-			return false;
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		return "PtychographyGridModel [seed=" + seed + ", randomOffset=" + randomOffset + "]";
-	}
-
 }
