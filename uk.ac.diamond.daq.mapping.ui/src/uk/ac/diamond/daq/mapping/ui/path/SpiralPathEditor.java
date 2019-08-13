@@ -38,7 +38,7 @@ public class SpiralPathEditor extends AbstractPathEditor {
 		binder.bind(scaleText, "scale", getModel(),
 				val -> ((double) val == 0.0) ? ValidationStatus.error("Scale cannot be zero!") : ValidationStatus.ok());
 
-		makeContinuousControl(composite);
+		makeContinuousControl(composite, getModel());
 
 		String scaleDescription = "This parameter gives approximately both "
 				+ "the distance between arcs and the arclength between consecutive points.";

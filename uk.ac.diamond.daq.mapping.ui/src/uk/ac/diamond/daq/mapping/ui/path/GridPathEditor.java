@@ -23,7 +23,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 
-public class GridPathEditor extends AbstractGridPathEditor {
+public class GridPathEditor extends AbstractPathEditor {
 
 	@Override
 	public Composite createEditorPart(Composite parent) {
@@ -44,7 +44,8 @@ public class GridPathEditor extends AbstractGridPathEditor {
 		grabHorizontalSpace.applyTo(slowPoints);
 		binder.bind(slowPoints, "slowAxisPoints", getModel());
 
-		makeCommonGridOptionsControls(composite);
+		makeSnakeControl(composite, getModel());
+		makeContinuousControl(composite, getModel());
 
 		return composite;
 	}
