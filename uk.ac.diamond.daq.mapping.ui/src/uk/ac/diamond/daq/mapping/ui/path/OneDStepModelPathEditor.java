@@ -34,7 +34,7 @@ public class OneDStepModelPathEditor extends AbstractPathEditor {
 		Text step = new Text(composite, SWT.BORDER);
 		grabHorizontalSpace.applyTo(step);
 		binder.bind(step, "step", getModel(), GREATER_THAN_ZERO);
-		makeContinuousControl(composite);
+		makeContinuousControl(composite, getModel());
 		return composite;
 	}
 

@@ -42,14 +42,27 @@ public abstract class AbstractPathEditor extends AbstractModelEditor<IScanPathMo
 	private Binding continousBinding;
 
 	/**
+	 * If the path edited by this editor is snakeable, this method will draw the controls for consistency.
+	 * @param parent composite to draw control on
+	 * @param path to bind to snake control
+	 */
+	protected void makeSnakeControl(Composite parent, IScanPathModel path) {
+		Label snakeLabel = new Label(parent, SWT.NONE);
+		snakeLabel.setText("Snake");
+		Button snake = new Button(parent, SWT.CHECK);
+		binder.bind(snake, "snake", path);
+	}
+
+	/**
 	 * If the path edited by this editor can be continuous (Malcolm-driven), this method will draw the controls for consistency.
 	 * @param parent composite to draw control on
+	 * @param path to bind to snake control
 	 */
-	protected void makeContinuousControl(Composite parent) {
+	protected void makeContinuousControl(Composite parent, IScanPathModel path) {
 		continuousLabel = new Label(parent, SWT.NONE);
 		continuousLabel.setText("Continuous");
 		continuous = new Button(parent, SWT.CHECK);
-		continousBinding = binder.bind(continuous, "continuous", getModel());
+		continousBinding = binder.bind(continuous, "continuous", path);
 	}
 
 	/**
