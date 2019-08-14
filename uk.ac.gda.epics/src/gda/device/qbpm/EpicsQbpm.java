@@ -134,8 +134,14 @@ public class EpicsQbpm extends EnumPositionerBase implements Monitor, Initializa
 		return this.currAmpController.getStatus();
 	}
 
-	public void moveTo(String position) throws DeviceException {
-		this.currAmpController.moveTo(position);
+	@Override
+	public void moveTo(Object position) throws DeviceException {
+		currAmpController.moveTo(position);
+	}
+
+	@Override
+	public void rawAsynchronousMoveTo(Object externalPosition) throws DeviceException {
+		currAmpController.moveTo(externalPosition);
 	}
 
 	@Override
