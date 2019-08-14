@@ -16,11 +16,11 @@ import java.util.Collection;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.models.RasterModel;
 
-class RasterModelExpresser extends PyModelExpresser<RasterModel> {
+class RasterModelExpresser extends AbstractGridModelExpresser<RasterModel> {
 
 	@Override
 	String pyExpress(RasterModel model, Collection<IROI> rois, boolean verbose) throws Exception {
-		return new StringBuilder("grid(")
+		final StringBuilder sb = new StringBuilder("grid(")
 				.append((verbose?"axes=":"")+"(")
 				.append("'"+model.getxAxisName()+"'"+", ")
 				.append("'"+model.getyAxisName()+"'"+"), ")
@@ -32,12 +32,11 @@ class RasterModelExpresser extends PyModelExpresser<RasterModel> {
 				.append(formatValue(model.getBoundingBox().getyAxisEnd())+"), ")
 				.append((verbose?"step=":"")+"(")
 				.append(model.getxAxisStep()+", ")
-				.append(model.getyAxisStep()+")")
-				.append(", "+getBooleanPyExpression("snake", model.isSnake(), verbose))
-				.append(", "+getBooleanPyExpression("continuous", model.isContinuous(), verbose))
-				.append(getROIPyExpression(rois, verbose))
-				.append(")")
-				.toString();
+				.append(model.getyAxisStep()+"), ");
+				appendCommonGridProperties(sb, model, verbose);
+				sb.append(getROIPyExpression(rois, verbose))
+				.append(")");
+				return sb.toString();
 	}
 
 }

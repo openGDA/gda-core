@@ -24,7 +24,7 @@ import java.util.Objects;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.models.RandomOffsetGridModel;
 
-public class RandomOffsetGridModelExpresser extends PyModelExpresser<RandomOffsetGridModel> {
+public class RandomOffsetGridModelExpresser extends AbstractGridModelExpresser<RandomOffsetGridModel> {
 
 	@Override
 	String pyExpress(RandomOffsetGridModel model, Collection<IROI> rois, boolean verbose) throws Exception {
@@ -49,12 +49,8 @@ public class RandomOffsetGridModelExpresser extends PyModelExpresser<RandomOffse
 		sb.append("("+model.getxAxisPoints()+", ");
 		sb.append(model.getyAxisPoints()+"), ");
 
-		// snake
-		sb.append(isSnake(model, verbose));
-		sb.append(", ");
-
-		// continuous
-		sb.append(isContinuous(model, verbose));
+		// common grid properties (snake, continous, vertical orientation)
+		appendCommonGridProperties(sb, model, verbose);
 
 		// rois
 		if (Objects.nonNull(rois) && !rois.isEmpty()) {
