@@ -43,14 +43,14 @@ public class GDAMetawidgetInspectorPluginTest extends SWTTestBase {
 	public void setUp() throws Exception {
 
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(-4.0);
-		box.setSlowAxisStart(2.5);
-		box.setFastAxisLength(6.0);
-		box.setSlowAxisLength(5.1);
+		box.setxAxisStart(-4.0);
+		box.setyAxisStart(2.5);
+		box.setxAxisLength(6.0);
+		box.setyAxisLength(5.1);
 
 		gridModel = new GridModel();
-		gridModel.setSlowAxisPoints(5);
-		gridModel.setFastAxisPoints(6);
+		gridModel.setyAxisPoints(5);
+		gridModel.setxAxisPoints(6);
 		gridModel.setBoundingBox(box);
 
 		metawidget = guiGenerator.generateGui(gridModel, shell);
@@ -89,7 +89,7 @@ public class GDAMetawidgetInspectorPluginTest extends SWTTestBase {
 	@Test
 	public void testFastAxisPointsFieldInitialValue() throws Exception {
 		Control control = getControl("fastAxisPoints");
-		assertThat(((Spinner) control).getSelection(), is(equalTo(gridModel.getFastAxisPoints())));
+		assertThat(((Spinner) control).getSelection(), is(equalTo(gridModel.getxAxisPoints())));
 	}
 
 	@Test
