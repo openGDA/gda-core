@@ -22,7 +22,7 @@ import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
  * @author Colin Palmer
  *
  */
-public class GridModel extends AbstractBoundingBoxModel {
+public class GridModel extends AbstractGridModel {
 
 
 	@FieldDescriptor(label="Fast Axis Count",
@@ -36,9 +36,6 @@ public class GridModel extends AbstractBoundingBoxModel {
 			         minimum=1,
 			         hint="The number of points that the grid should run over in the slow direction.")
 	private int slowAxisPoints = 5;
-
-	@FieldDescriptor(label="Snake")
-	private boolean snake = false;
 
 	public GridModel() {
 		setName("Grid");
@@ -73,38 +70,15 @@ public class GridModel extends AbstractBoundingBoxModel {
 		this.slowAxisPoints = newValue;
 		this.pcs.firePropertyChange("slowAxisPoints", oldValue, newValue);
 	}
-	/**
-	 * <pre>
-	 * snake = true
-	 * -------------------->
-	 *                     |
-	 * <--------------------
-	 * |
-	 * --------------------> etc.
-     *
-     * snake = false
-     * -------------------->
-     * -------------------->
-     * -------------------->
-     * </pre>
-	**/
-	public boolean isSnake() {
-		return snake;
-	}
-	public void setSnake(boolean snake) {
-		boolean oldValue = this.snake;
-		this.snake = snake;
-		this.pcs.firePropertyChange("snake", oldValue, snake);
-	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + fastAxisPoints;
 		result = prime * result + slowAxisPoints;
-		result = prime * result + (snake ? 1231 : 1237);
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -118,14 +92,11 @@ public class GridModel extends AbstractBoundingBoxModel {
 			return false;
 		if (slowAxisPoints != other.slowAxisPoints)
 			return false;
-		if (snake != other.snake)
-			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "GridModel [fastAxisPoints=" + fastAxisPoints + ", slowAxisPoints=" + slowAxisPoints + ", snake=" + snake
-				+ ", " + super.toString() + "]";
+		return "GridModel [fastAxisPoints=" + fastAxisPoints + ", slowAxisPoints=" + slowAxisPoints + ", " + super.toString() + "]";
 	}
 }

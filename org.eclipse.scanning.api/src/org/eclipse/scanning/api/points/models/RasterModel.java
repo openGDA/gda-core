@@ -22,7 +22,7 @@ import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
  * @author Colin Palmer
  *
  */
-public class RasterModel extends AbstractBoundingBoxModel {
+public class RasterModel extends AbstractGridModel {
 
 	@FieldDescriptor(label="Fast Step",
 			         scannable="fastAxisName",
@@ -37,10 +37,6 @@ public class RasterModel extends AbstractBoundingBoxModel {
 					 minimum=1,
 			         hint="The step in the slow direction to take in the units of the slow scannable.")
 	private double slowAxisStep = 1;
-
-	@FieldDescriptor(label="Snake",
-			         hint="Snake: left->right->left etc. Nonsnake left->right, repeat")
-	private boolean snake = false;
 
 	public RasterModel() {
 		setName( "Raster" );
@@ -65,34 +61,10 @@ public class RasterModel extends AbstractBoundingBoxModel {
 		this.slowAxisStep = newValue;
 		this.pcs.firePropertyChange("slowAxisStep", oldValue, newValue);
 	}
-	/**
-	 * <pre>
-	 * snake = true
-	 * -------------------->
-	 *                     |
-	 * <--------------------
-	 * |
-	 * --------------------> etc.
-     *
-     * snake = false
-     * -------------------->
-     * -------------------->
-     * -------------------->
-     * </pre>
-	**/
-	public boolean isSnake() {
-		return snake;
-	}
-	public void setSnake(boolean newValue) {
-		boolean oldValue = this.snake;
-		this.snake = newValue;
-		this.pcs.firePropertyChange("snake", oldValue, newValue);
-	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + (snake ? 1231 : 1237);
 		long temp;
 		temp = Double.doubleToLongBits(fastAxisStep);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -109,8 +81,6 @@ public class RasterModel extends AbstractBoundingBoxModel {
 		if (getClass() != obj.getClass())
 			return false;
 		RasterModel other = (RasterModel) obj;
-		if (snake != other.snake)
-			return false;
 		if (Double.doubleToLongBits(fastAxisStep) != Double
 				.doubleToLongBits(other.fastAxisStep))
 			return false;
@@ -121,7 +91,7 @@ public class RasterModel extends AbstractBoundingBoxModel {
 	}
 	@Override
 	public String toString() {
-		return "RasterModel [fastAxisStep=" + fastAxisStep + ", slowAxisStep=" + slowAxisStep + ", snake=" + snake
+		return "RasterModel [fastAxisStep=" + fastAxisStep + ", slowAxisStep=" + slowAxisStep
 				+ ", " + super.toString() + "]";
 	}
 
