@@ -47,8 +47,8 @@ public class RasterTest {
 
 		// Create a raster scan path
 		RasterModel model = new RasterModel("x", "y");
-		model.setFastAxisStep(1);
-		model.setSlowAxisStep(1);
+		model.setxAxisStep(1);
+		model.setyAxisStep(1);
 
 		// Get the point list
 		IPointGenerator<RasterModel> gen = service.createGenerator(model, boundingRectangle);
@@ -82,14 +82,14 @@ public class RasterTest {
 	public void testSimpleBox() throws Exception {
 
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(0);
-		box.setSlowAxisStart(0);
-		box.setFastAxisLength(5);
-		box.setSlowAxisLength(5);
+		box.setxAxisStart(0);
+		box.setyAxisStart(0);
+		box.setxAxisLength(5);
+		box.setyAxisLength(5);
 
 		RasterModel model = new RasterModel("x", "y");
-		model.setFastAxisStep(1);
-		model.setSlowAxisStep(1);
+		model.setxAxisStep(1);
+		model.setyAxisStep(1);
 		model.setBoundingBox(box);
 
 
@@ -110,18 +110,18 @@ public class RasterTest {
 	public void testNegativeStep() throws Exception {
 
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(5);
-		box.setSlowAxisStart(0);
-		box.setFastAxisLength(-5);
-		box.setSlowAxisLength(5);
+		box.setxAxisStart(5);
+		box.setyAxisStart(0);
+		box.setxAxisLength(-5);
+		box.setyAxisLength(5);
 
 		RasterModel model = new RasterModel("x", "y");
 
-		model.setFastAxisStep(-1);
+		model.setxAxisStep(-1);
 		// Okay to do this here because there is "negative width"
 		// for the points to protrude into.
 
-		model.setSlowAxisStep(1);
+		model.setyAxisStep(1);
 		model.setBoundingBox(box);
 
 		IPointGenerator<RasterModel> gen = service.createGenerator(model);
@@ -140,18 +140,18 @@ public class RasterTest {
 	public void testBackwardsStep() throws Exception {
 
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(0);
-		box.setSlowAxisStart(0);
-		box.setFastAxisLength(5);
-		box.setSlowAxisLength(5);
+		box.setxAxisStart(0);
+		box.setyAxisStart(0);
+		box.setxAxisLength(5);
+		box.setyAxisLength(5);
 
 		RasterModel model = new RasterModel("x", "y");
 
-		model.setFastAxisStep(-1);
+		model.setxAxisStep(-1);
 		// Not okay to do this here because there is no "negative width"
 		// for the points to protrude into.
 
-		model.setSlowAxisStep(1);
+		model.setyAxisStep(1);
 		model.setBoundingBox(box);
 
 		IPointGenerator<RasterModel> gen = service.createGenerator(model);
@@ -175,8 +175,8 @@ public class RasterTest {
 
 
 		RasterModel model = new RasterModel("x", "y");
-		model.setFastAxisStep(xStep);
-		model.setSlowAxisStep(yStep);
+		model.setxAxisStep(xStep);
+		model.setyAxisStep(yStep);
 
 		// Get the point list
 		IPointGenerator<RasterModel> gen = service.createGenerator(model, roi);
@@ -213,8 +213,8 @@ public class RasterTest {
 		roi.setRadius(radius);
 
 		RasterModel model = new RasterModel("x", "y");
-		model.setFastAxisStep(1);
-		model.setSlowAxisStep(1);
+		model.setxAxisStep(1);
+		model.setyAxisStep(1);
 
 		// Get the point list
 		IPointGenerator<RasterModel> gen = service.createGenerator(model, roi);
@@ -245,10 +245,10 @@ public class RasterTest {
 
 		// Create scan points for a grid and make a generator
 		RasterModel rmodel = new RasterModel("x", "y");
-		rmodel.setFastAxisName("xNex");
-		rmodel.setFastAxisStep(3d/sizes[1]);
-		rmodel.setSlowAxisName("yNex");
-		rmodel.setSlowAxisStep(3d/sizes[0]);
+		rmodel.setxAxisName("xNex");
+		rmodel.setxAxisStep(3d/sizes[1]);
+		rmodel.setyAxisName("yNex");
+		rmodel.setyAxisStep(3d/sizes[0]);
 		rmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
 		final int[] expectedShape = new int[] { sizes[0] + 1, sizes[1] + 1 };
@@ -278,8 +278,8 @@ public class RasterTest {
 
 		// Create a raster scan path
 		RasterModel model = new RasterModel("x", "y");
-		model.setFastAxisStep(1);
-		model.setSlowAxisStep(1);
+		model.setxAxisStep(1);
+		model.setyAxisStep(1);
 
 		// Get the point list
 		IPointGenerator<RasterModel> gen = service.createGenerator(model, roi);
@@ -306,8 +306,8 @@ public class RasterTest {
 
 		// Create a raster scan path
 		RasterModel model = new RasterModel("x", "y");
-		model.setFastAxisStep(1);
-		model.setSlowAxisStep(1);
+		model.setxAxisStep(1);
+		model.setyAxisStep(1);
 		model.setSnake(true);
 
 		// Get the point list

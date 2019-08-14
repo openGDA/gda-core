@@ -81,10 +81,10 @@ public class ScanInformationTest {
 
 	private CompoundModel createCompoundModel() {
 		GridModel gridModel = new GridModel();
-		gridModel.setFastAxisName("xNex");
-		gridModel.setFastAxisPoints(8);
-		gridModel.setSlowAxisName("yNex");
-		gridModel.setSlowAxisPoints(5);
+		gridModel.setxAxisName("xNex");
+		gridModel.setxAxisPoints(8);
+		gridModel.setyAxisName("yNex");
+		gridModel.setyAxisPoints(5);
 		gridModel.setBoundingBox(new BoundingBox(0, 0, 5, 5));
 		StepModel stepModel = new StepModel("T", 0, 25, 5);
 		CompoundModel compoundModel = new CompoundModel<>(stepModel, gridModel);

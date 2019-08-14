@@ -50,15 +50,15 @@ public abstract class AbstractBoundingBoxModel extends AbstractMapModel implemen
 	}
 
 	@Override
-	public void setFastAxisName(String newValue) {
-		if (boundingBox!=null) boundingBox.setFastAxisName(getFastAxisName());
-		super.setFastAxisName(newValue);
+	public void setxAxisName(String newValue) {
+		if (boundingBox!=null) boundingBox.setxAxisName(getxAxisName());
+		super.setxAxisName(newValue);
 	}
 
 	@Override
-	public void setSlowAxisName(String newValue) {
-		if (boundingBox!=null) boundingBox.setSlowAxisName(getSlowAxisName());
-		super.setSlowAxisName(newValue);
+	public void setyAxisName(String newValue) {
+		if (boundingBox!=null) boundingBox.setyAxisName(getyAxisName());
+		super.setyAxisName(newValue);
 	}
 
 	@Override

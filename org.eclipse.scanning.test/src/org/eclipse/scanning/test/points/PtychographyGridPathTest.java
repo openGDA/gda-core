@@ -123,14 +123,14 @@ public class PtychographyGridPathTest extends AbstractGeneratorTest {
 	@Test(expected=ModelValidationException.class)
 	public void zeroXBeamSizeThrows() throws Exception {
 		PtychographyGridModel model = createTestModel();
-		model.setXBeamSize(0);
+		model.setxBeamSize(0);
 		service.createGenerator(model).validate(model);
 	}
 
 	@Test(expected=ModelValidationException.class)
 	public void zeroYBeamSizeThrows() throws Exception {
 		PtychographyGridModel model = createTestModel();
-		model.setYBeamSize(0);
+		model.setyBeamSize(0);
 		service.createGenerator(model).validate(model);
 	}
 

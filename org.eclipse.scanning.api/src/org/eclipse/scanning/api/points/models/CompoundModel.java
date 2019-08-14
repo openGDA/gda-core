@@ -40,8 +40,8 @@ import org.eclipse.scanning.api.points.IMutator;
  * CompoundModel {
  *     models : [
  *         {type: SpiralModel
- *          fastAxisName: x
- *          slowAxisName: y
+ *          xAxisName: x
+ *          yAxisName: y
  *          ...
  *         }
  *     ]

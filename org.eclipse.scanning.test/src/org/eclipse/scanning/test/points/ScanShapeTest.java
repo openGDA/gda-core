@@ -125,10 +125,10 @@ public class ScanShapeTest {
 	@Test
 	public void testShapeSpiral() throws Exception {
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(0);
-		box.setSlowAxisStart(0);
-		box.setFastAxisLength(3);
-		box.setSlowAxisLength(3);
+		box.setxAxisStart(0);
+		box.setyAxisStart(0);
+		box.setxAxisLength(3);
+		box.setyAxisLength(3);
 
 		SpiralModel spiralModel = new SpiralModel("x", "y");
 		spiralModel.setBoundingBox(box);
@@ -162,8 +162,8 @@ public class ScanShapeTest {
 		// scan estimator doesn't have it at present
 		OneDEqualSpacingModel lineModel = new OneDEqualSpacingModel();
 		lineModel.setPoints(10);
-		lineModel.setFastAxisName("x");
-		lineModel.setSlowAxisName("y");
+		lineModel.setxAxisName("x");
+		lineModel.setyAxisName("y");
 
 		Object[] models = new Object[nestCount + 1];
 		for (int i = 0; i < nestCount; i++) {
@@ -207,14 +207,14 @@ public class ScanShapeTest {
 
 	private ScanRequest<Object> createGridScanRequest(int nestCount, boolean snake) {
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(0);
-		box.setSlowAxisStart(0);
-		box.setFastAxisLength(3);
-		box.setSlowAxisLength(3);
+		box.setxAxisStart(0);
+		box.setyAxisStart(0);
+		box.setxAxisLength(3);
+		box.setyAxisLength(3);
 
 		GridModel gridModel = new GridModel("x", "y");
-		gridModel.setSlowAxisPoints(4);
-		gridModel.setFastAxisPoints(25);
+		gridModel.setyAxisPoints(4);
+		gridModel.setxAxisPoints(25);
 		gridModel.setBoundingBox(box);
 		gridModel.setSnake(snake);
 

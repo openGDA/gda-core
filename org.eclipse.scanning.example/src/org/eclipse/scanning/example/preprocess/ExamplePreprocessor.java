@@ -42,8 +42,8 @@ public class ExamplePreprocessor implements IPreprocessor {
 			if (model instanceof StepModel) {
 				((StepModel)model).setName("xfred");
 			} if (model instanceof IBoundingBoxModel) {
-				((IBoundingBoxModel)model).setFastAxisName("xfred");
-				((IBoundingBoxModel)model).setSlowAxisName("yfred");
+				((IBoundingBoxModel)model).setxAxisName("xfred");
+				((IBoundingBoxModel)model).setyAxisName("yfred");
 			}
 		}
 

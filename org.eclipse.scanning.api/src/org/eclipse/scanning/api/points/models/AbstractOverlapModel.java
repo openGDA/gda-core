@@ -26,6 +26,7 @@ package org.eclipse.scanning.api.points.models;
  * support multiple inheritance. If this were to change then this class should
  * extend {@link AbstractBoundingBoxModel} directly and duplication of
  * {@link AbstractGridModel} properties would be unavoidable.
+ * Note: x and y must be in lower case in getter and setter names for JFace bindings to work correctly
  */
 public abstract class AbstractOverlapModel extends AbstractGridModel {
 
@@ -34,16 +35,16 @@ public abstract class AbstractOverlapModel extends AbstractGridModel {
 	private double xBeamSize;
 	private double yBeamSize;
 
-	public double getXBeamSize() {
+	public double getxBeamSize() {
 		return xBeamSize;
 	}
-	public void setXBeamSize(double xBeamSize) {
+	public void setxBeamSize(double xBeamSize) {
 		this.xBeamSize = xBeamSize;
 	}
-	public double getYBeamSize() {
+	public double getyBeamSize() {
 		return yBeamSize;
 	}
-	public void setYBeamSize(double yBeamSize) {
+	public void setyBeamSize(double yBeamSize) {
 		this.yBeamSize = yBeamSize;
 	}
 	public void setBeamSize(Object[] position) {

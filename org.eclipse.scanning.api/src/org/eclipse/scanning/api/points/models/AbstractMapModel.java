@@ -20,15 +20,15 @@ import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 
 public abstract class AbstractMapModel extends AbstractPointsModel implements IMapPathModel {
 
-	@FieldDescriptor(label="Fast Axis", device=DeviceType.SCANNABLE, hint="The name of the scannable in the fast direction, for instance 'stage_x'.")
-	private String      fastAxisName = "stage_x";
+	@FieldDescriptor(label="X Axis", device=DeviceType.SCANNABLE, hint="The name of the scannable in the x-axis direction as plotted, for instance 'stage_x'.")
+	private String xAxisName = "stage_x";
 
-	@FieldDescriptor(label="Slow Axis", device=DeviceType.SCANNABLE, hint="The name of the scannable in the slow direction, for instance 'stage_y'.")
-	private String      slowAxisName = "stage_y";
+	@FieldDescriptor(label="Y Axis", device=DeviceType.SCANNABLE, hint="The name of the scannable in the y-axis direction as plotted, for instance 'stage_y'.")
+	private String yAxisName = "stage_y";
 
-	private String fastAxisUnits = "mm";
+	private String xAxisUnits = "mm";
 
-	private String slowAxisUnits = "mm";
+	private String yAxisUnits = "mm";
 
 	@FieldDescriptor(label="Continuous", hint="Whether the motors should move continuously or stop at each point in the scan to take an image")
 	private boolean continuous = false;
@@ -37,55 +37,55 @@ public abstract class AbstractMapModel extends AbstractPointsModel implements IM
 		super();
 	}
 
-	public AbstractMapModel(String fastName, String slowName) {
-		this.fastAxisName = fastName;
-		this.slowAxisName = slowName;
+	public AbstractMapModel(String xName, String yName) {
+		this.xAxisName = xName;
+		this.yAxisName = yName;
 	}
 
 	@Override
 	@UiHidden
-	public String getFastAxisName() {
-		return fastAxisName;
+	public String getxAxisName() {
+		return xAxisName;
 	}
 
 	@Override
-	public void setFastAxisName(String newValue) {
-		String oldValue = this.fastAxisName;
-		this.fastAxisName = newValue;
-		this.pcs.firePropertyChange("fastAxisName", oldValue, newValue);
+	public void setxAxisName(String newValue) {
+		String oldValue = this.xAxisName;
+		this.xAxisName = newValue;
+		this.pcs.firePropertyChange("xAxisName", oldValue, newValue);
 	}
 
 	@Override
 	@UiHidden
-	public String getSlowAxisName() {
-		return slowAxisName;
+	public String getyAxisName() {
+		return yAxisName;
 	}
 
 	@Override
-	public void setSlowAxisName(String newValue) {
-		String oldValue = this.slowAxisName;
-		this.slowAxisName = newValue;
-		this.pcs.firePropertyChange("slowAxisName", oldValue, newValue);
+	public void setyAxisName(String newValue) {
+		String oldValue = this.yAxisName;
+		this.yAxisName = newValue;
+		this.pcs.firePropertyChange("yAxisName", oldValue, newValue);
 	}
 
 	@Override
-	public String getFastAxisUnits() {
-		return fastAxisUnits;
+	public String getxAxisUnits() {
+		return xAxisUnits;
 	}
 
 	@Override
-	public void setFastAxisUnits(String fastAxisUnits) {
-		this.fastAxisUnits = fastAxisUnits;
+	public void setxAxisUnits(String xAxisUnits) {
+		this.xAxisUnits = xAxisUnits;
 	}
 
 	@Override
-	public String getSlowAxisUnits() {
-		return slowAxisUnits;
+	public String getyAxisUnits() {
+		return yAxisUnits;
 	}
 
 	@Override
-	public void setSlowAxisUnits(String slowAxisUnits) {
-		this.slowAxisUnits = slowAxisUnits;
+	public void setyAxisUnits(String yAxisUnits) {
+		this.yAxisUnits = yAxisUnits;
 	}
 
 	@Override
@@ -103,7 +103,7 @@ public abstract class AbstractMapModel extends AbstractPointsModel implements IM
 	@UiHidden
 	@Override
 	public List<String> getScannableNames() {
-		return Arrays.asList(getFastAxisName(), getSlowAxisName());
+		return Arrays.asList(getxAxisName(), getyAxisName());
 	}
 
 	@Override
@@ -111,8 +111,8 @@ public abstract class AbstractMapModel extends AbstractPointsModel implements IM
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + (continuous ? 1231 : 1237);
-		result = prime * result + ((fastAxisName == null) ? 0 : fastAxisName.hashCode());
-		result = prime * result + ((slowAxisName == null) ? 0 : slowAxisName.hashCode());
+		result = prime * result + ((xAxisName == null) ? 0 : xAxisName.hashCode());
+		result = prime * result + ((yAxisName == null) ? 0 : yAxisName.hashCode());
 		return result;
 	}
 
@@ -127,23 +127,23 @@ public abstract class AbstractMapModel extends AbstractPointsModel implements IM
 		AbstractMapModel other = (AbstractMapModel) obj;
 		if (continuous != other.continuous)
 			return false;
-		if (fastAxisName == null) {
-			if (other.fastAxisName != null)
+		if (xAxisName == null) {
+			if (other.xAxisName != null)
 				return false;
-		} else if (!fastAxisName.equals(other.fastAxisName))
+		} else if (!xAxisName.equals(other.xAxisName))
 			return false;
-		if (slowAxisName == null) {
-			if (other.slowAxisName != null)
+		if (yAxisName == null) {
+			if (other.yAxisName != null)
 				return false;
-		} else if (!slowAxisName.equals(other.slowAxisName))
+		} else if (!yAxisName.equals(other.yAxisName))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "AbstractMapModel [fastAxisName=" + fastAxisName + ", slowAxisName=" + slowAxisName + ", fastAxisUnits="
-				+ fastAxisUnits + ", slowAxisUnits=" + slowAxisUnits + ", continuous=" + continuous + ", " + super.toString() + "]";
+		return "AbstractMapModel [xAxisName=" + xAxisName + ", yAxisName=" + yAxisName + ", xAxisUnits="
+				+ xAxisUnits + ", yAxisUnits=" + yAxisUnits + ", continuous=" + continuous + ", " + super.toString() + "]";
 	}
 
 }

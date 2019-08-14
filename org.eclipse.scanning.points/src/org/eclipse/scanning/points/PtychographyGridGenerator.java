@@ -39,8 +39,8 @@ public class PtychographyGridGenerator extends AbstractGenerator<PtychographyGri
 	@Override
 	protected void validateModel() {
 		super.validateModel();
-		if (getModel().getXBeamSize() == 0) throw new ModelValidationException("X beam size cannot be zero", getModel(), "xBeamSize");
-		if (getModel().getYBeamSize() == 0) throw new ModelValidationException("Y beam size cannot be zero", getModel(), "yBeamSize");
+		if (getModel().getxBeamSize() == 0) throw new ModelValidationException("X beam size cannot be zero", getModel(), "xBeamSize");
+		if (getModel().getyBeamSize() == 0) throw new ModelValidationException("Y beam size cannot be zero", getModel(), "yBeamSize");
 		if (getModel().getOverlap() < 0) throw new ModelValidationException("Overlap must be positive", getModel(), "overlap");
 		if (getModel().getOverlap() >= 1) throw new ModelValidationException("Overlap must be smaller than 1", getModel(), "overlap");
 	}
@@ -49,37 +49,37 @@ public class PtychographyGridGenerator extends AbstractGenerator<PtychographyGri
 	protected Iterator<IPosition> iteratorFromValidModel() {
 		PtychographyGridModel model = getModel();
 
-		double xBeamDim = model.getXBeamSize();
-		double yBeamDim = model.getYBeamSize();
+		double xBeamDim = model.getxBeamSize();
+		double yBeamDim = model.getyBeamSize();
 
 		double overlap = model.getOverlap();
 		double xStep = (1 - overlap) * xBeamDim;
 		double yStep = (1 - overlap) * yBeamDim;
 
-		double xLength = model.getBoundingBox().getFastAxisLength();
-		double yLength = model.getBoundingBox().getSlowAxisLength();
+		double xLength = model.getBoundingBox().getxAxisLength();
+		double yLength = model.getBoundingBox().getyAxisLength();
 
 		int yPoints = (int) Math.floor(yLength/yStep + 1);
 		int xPoints = (int) Math.floor(xLength/xStep + 1);
 
-		String xName = model.getFastAxisName();
-		String xUnits = model.getFastAxisUnits();
-		String yName = model.getSlowAxisName();
-		String yUnits = model.getSlowAxisUnits();
+		String xName = model.getxAxisName();
+		String xUnits = model.getxAxisUnits();
+		String yName = model.getyAxisName();
+		String yUnits = model.getyAxisUnits();
 
 		JythonObjectFactory<ScanPointIterator> lineGeneratorFactory = ScanPointGeneratorFactory.JLineGenerator1DFactory();
 
 		ScanPointIterator yLine = lineGeneratorFactory.createObject(
 				yName, yUnits,
-				model.getBoundingBox().getSlowAxisStart(),
-				model.getBoundingBox().getSlowAxisStart() + (yPoints - 1) * yStep,
+				model.getBoundingBox().getyAxisStart(),
+				model.getBoundingBox().getyAxisStart() + (yPoints - 1) * yStep,
 				yPoints,
 				model.isSnake());
 
 		ScanPointIterator xLine = lineGeneratorFactory.createObject(
 				xName, xUnits,
-				model.getBoundingBox().getFastAxisStart(),
-				model.getBoundingBox().getFastAxisStart() + (xPoints - 1) * xStep,
+				model.getBoundingBox().getxAxisStart(),
+				model.getBoundingBox().getxAxisStart() + (xPoints - 1) * xStep,
 				xPoints,
 				model.isSnake());
 

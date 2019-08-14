@@ -32,8 +32,8 @@ public class SpiralModelDeserialiser implements IPVStructureDeserialiser {
 		SpiralModel spiralModel = new SpiralModel();
 		spiralModel.setName(pvStructure.getSubField(PVString.class, "name").get());
 		spiralModel.setBoundingBox(deserialiser.fromPVStructure(pvStructure.getStructureField("boundingBox"), BoundingBox.class));
-		spiralModel.setFastAxisName(pvStructure.getSubField(PVString.class, "fastAxisName").get());
-		spiralModel.setSlowAxisName(pvStructure.getSubField(PVString.class, "slowAxisName").get());
+		spiralModel.setxAxisName(pvStructure.getSubField(PVString.class, "fastAxisName").get());
+		spiralModel.setyAxisName(pvStructure.getSubField(PVString.class, "slowAxisName").get());
 		spiralModel.setScale(pvStructure.getSubField(PVDouble.class, "scale").get());
 		return spiralModel;
 	}

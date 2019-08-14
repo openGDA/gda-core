@@ -280,10 +280,10 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 
 	private IRunnableDevice<ScanModel> createScan() throws Exception {
 		final GridModel gmodel = new GridModel(); // Note stage_x and stage_y scannables controlled by malcolm
-		gmodel.setFastAxisName("stage_x");
-		gmodel.setFastAxisPoints(10);
-		gmodel.setSlowAxisName("stage_y");
-		gmodel.setSlowAxisPoints(10);
+		gmodel.setxAxisName("stage_x");
+		gmodel.setxAxisPoints(10);
+		gmodel.setyAxisName("stage_y");
+		gmodel.setyAxisPoints(10);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 		final IPointGenerator<?> gridGen = pointGenService.createGenerator(gmodel);
 		final StepModel stepModel = new StepModel("stage_z", 0, 1, 1);

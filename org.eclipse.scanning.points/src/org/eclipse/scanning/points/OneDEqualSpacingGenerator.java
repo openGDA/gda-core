@@ -47,8 +47,8 @@ public class OneDEqualSpacingGenerator extends AbstractGenerator<OneDEqualSpacin
 		final double xStep = step * Math.cos(line.getAngle());
 		final double yStep = step * Math.sin(line.getAngle());
 
-		final PyList names =  new PyList(Arrays.asList(model.getFastAxisName(), model.getSlowAxisName()));
-		final PyList units = new PyList(Arrays.asList(model.getFastAxisUnits(), model.getSlowAxisUnits()));
+		final PyList names =  new PyList(Arrays.asList(model.getxAxisName(), model.getyAxisName()));
+		final PyList units = new PyList(Arrays.asList(model.getxAxisUnits(), model.getyAxisUnits()));
 		final double[] start = {line.getxStart() + xStep/2, line.getyStart() + yStep/2};
 		final double[] stop = {line.getxStart() + xStep * (numPoints - 0.5), line.getyStart() + yStep * (numPoints - 0.5)};
 

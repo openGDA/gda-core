@@ -72,8 +72,8 @@ public class ScanRankTest {
 
 		OneDEqualSpacingModel model = new OneDEqualSpacingModel();
 		model.setPoints(10);
-		model.setFastAxisName("x");
-		model.setSlowAxisName("y");
+		model.setxAxisName("x");
+		model.setyAxisName("y");
 
 		// Get the point list
 		IPointGenerator<?> gen = service.createGenerator(model, roi);
@@ -91,10 +91,10 @@ public class ScanRankTest {
 	@Test
 	public void testRankSpiral() throws Exception {
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(0);
-		box.setSlowAxisStart(0);
-		box.setFastAxisLength(3);
-		box.setSlowAxisLength(3);
+		box.setxAxisStart(0);
+		box.setyAxisStart(0);
+		box.setxAxisLength(3);
+		box.setyAxisLength(3);
 
 		SpiralModel model = new SpiralModel("x", "y");
 		model.setBoundingBox(box);
@@ -235,14 +235,14 @@ public class ScanRankTest {
 
 	private <R> IPointGenerator<?> createGridGenerator(int nestCount, R region) throws Exception {
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(0);
-		box.setSlowAxisStart(0);
-		box.setFastAxisLength(3);
-		box.setSlowAxisLength(3);
+		box.setxAxisStart(0);
+		box.setyAxisStart(0);
+		box.setxAxisLength(3);
+		box.setyAxisLength(3);
 
 		GridModel model = new GridModel("x", "y");
-		model.setSlowAxisPoints(20);
-		model.setFastAxisPoints(20);
+		model.setyAxisPoints(20);
+		model.setxAxisPoints(20);
 		model.setBoundingBox(box);
 
 		// Get the point list

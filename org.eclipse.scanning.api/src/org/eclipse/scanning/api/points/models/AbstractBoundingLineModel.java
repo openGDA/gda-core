@@ -59,8 +59,8 @@ public class AbstractBoundingLineModel extends AbstractMapModel implements IBoun
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName()+" [boundingLine=" + boundingLine + ", fastAxisName=" + getFastAxisName()
-			+ ", slowAxisName=" + getSlowAxisName() + ", continuous=" + isContinuous() + "]";
+		return getClass().getSimpleName()+" [boundingLine=" + boundingLine + ", xAxisName=" + getxAxisName()
+			+ ", yAxisName=" + getyAxisName() + ", continuous=" + isContinuous() + "]";
 	}
 
 }

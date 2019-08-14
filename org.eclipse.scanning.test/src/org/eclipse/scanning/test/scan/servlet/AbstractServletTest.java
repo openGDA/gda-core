@@ -110,17 +110,17 @@ public abstract class AbstractServletTest extends BrokerTest {
 		final ScanRequest<?> req = new ScanRequest<IROI>();
 		// Create a grid scan model
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(0);
-		box.setSlowAxisStart(0);
-		box.setFastAxisLength(3);
-		box.setSlowAxisLength(3);
+		box.setxAxisStart(0);
+		box.setyAxisStart(0);
+		box.setxAxisLength(3);
+		box.setyAxisLength(3);
 
 		GridModel gmodel = new GridModel();
-		gmodel.setSlowAxisPoints(2);
-		gmodel.setFastAxisPoints(2);
+		gmodel.setyAxisPoints(2);
+		gmodel.setxAxisPoints(2);
 		gmodel.setBoundingBox(box);
-		gmodel.setFastAxisName("xNex");
-		gmodel.setSlowAxisName("yNex");
+		gmodel.setxAxisName("xNex");
+		gmodel.setyAxisName("yNex");
 
 		// 2 models
 		List<IScanPathModel> models = new ArrayList<>(outerScanNum+1);
@@ -162,17 +162,17 @@ public abstract class AbstractServletTest extends BrokerTest {
 		final ScanRequest<?> req = new ScanRequest<IROI>();
 		// Create a grid scan model
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(0);
-		box.setSlowAxisStart(0);
-		box.setFastAxisLength(3);
-		box.setSlowAxisLength(3);
+		box.setxAxisStart(0);
+		box.setyAxisStart(0);
+		box.setxAxisLength(3);
+		box.setyAxisLength(3);
 
 		GridModel gmodel = new GridModel();
-		gmodel.setSlowAxisPoints(2);
-		gmodel.setFastAxisPoints(2);
+		gmodel.setyAxisPoints(2);
+		gmodel.setxAxisPoints(2);
 		gmodel.setBoundingBox(box);
-		gmodel.setFastAxisName("xNex");
-		gmodel.setSlowAxisName("yNex");
+		gmodel.setxAxisName("xNex");
+		gmodel.setyAxisName("yNex");
 
 		req.setCompoundModel(new CompoundModel(gmodel));
 		req.setMonitorNamesPerPoint(Arrays.asList("monitor"));

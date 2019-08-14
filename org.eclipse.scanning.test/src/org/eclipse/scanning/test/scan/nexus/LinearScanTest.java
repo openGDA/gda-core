@@ -107,8 +107,8 @@ public class LinearScanTest extends BrokerTest{
 	private IScanPathModel create1DModel(int size) {
         OneDEqualSpacingModel model = new OneDEqualSpacingModel();
         model.setPoints(size);
-        model.setFastAxisName("xNex");
-        model.setSlowAxisName("yNex");
+        model.setxAxisName("xNex");
+        model.setyAxisName("yNex");
         return model;
 	}
 
@@ -138,17 +138,17 @@ public class LinearScanTest extends BrokerTest{
 		if (size.length>2) throw new IllegalArgumentException("Two values or no values should be provided!");
 
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(0);
-		box.setSlowAxisStart(0);
-		box.setFastAxisLength(3);
-		box.setSlowAxisLength(3);
+		box.setxAxisStart(0);
+		box.setyAxisStart(0);
+		box.setxAxisLength(3);
+		box.setyAxisLength(3);
 
 		GridModel model = new GridModel();
-		model.setSlowAxisPoints(size[0]);
-		model.setFastAxisPoints(size[1]);
+		model.setyAxisPoints(size[0]);
+		model.setxAxisPoints(size[1]);
 		model.setBoundingBox(box);
-		model.setFastAxisName("xNex");
-		model.setSlowAxisName("yNex");
+		model.setxAxisName("xNex");
+		model.setyAxisName("yNex");
 		return model;
 	}
 

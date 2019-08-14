@@ -135,17 +135,17 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 		assertEquals(GridModel.class, model.getClass());
 
 		GridModel gmodel = (GridModel) model;
-		assertEquals("fred", gmodel.getFastAxisName());
-		assertEquals("y", gmodel.getSlowAxisName());
-		assertEquals(5, gmodel.getFastAxisPoints());
-		assertEquals(6, gmodel.getSlowAxisPoints());
+		assertEquals("fred", gmodel.getxAxisName());
+		assertEquals("y", gmodel.getyAxisName());
+		assertEquals(5, gmodel.getxAxisPoints());
+		assertEquals(6, gmodel.getyAxisPoints());
 		assertEquals(true, gmodel.isSnake());
 
 		BoundingBox bbox = gmodel.getBoundingBox();
-		assertEquals(0, bbox.getFastAxisStart(), 1e-8);
-		assertEquals(2, bbox.getSlowAxisStart(), 1e-8);
-		assertEquals(10, bbox.getFastAxisLength(), 1e-8);
-		assertEquals(9, bbox.getSlowAxisLength(), 1e-8);
+		assertEquals(0, bbox.getxAxisStart(), 1e-8);
+		assertEquals(2, bbox.getyAxisStart(), 1e-8);
+		assertEquals(10, bbox.getxAxisLength(), 1e-8);
+		assertEquals(9, bbox.getyAxisLength(), 1e-8);
 
 		Collection<IROI> regions = service.findRegions(gmodel, request.getCompoundModel().getRegions());
 		assertEquals(1, regions.size());
@@ -190,17 +190,17 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 		assertEquals(GridModel.class, model.getClass());
 
 		GridModel gmodel = (GridModel) model;
-		assertEquals("fred", gmodel.getFastAxisName());
-		assertEquals("y", gmodel.getSlowAxisName());
-		assertEquals(5, gmodel.getFastAxisPoints());
-		assertEquals(6, gmodel.getSlowAxisPoints());
+		assertEquals("fred", gmodel.getxAxisName());
+		assertEquals("y", gmodel.getyAxisName());
+		assertEquals(5, gmodel.getxAxisPoints());
+		assertEquals(6, gmodel.getyAxisPoints());
 		assertEquals(true, gmodel.isSnake());
 
 		BoundingBox bbox = gmodel.getBoundingBox();
-		assertEquals(0, bbox.getFastAxisStart(), 1e-8);
-		assertEquals(2, bbox.getSlowAxisStart(), 1e-8);
-		assertEquals(10, bbox.getFastAxisLength(), 1e-8);
-		assertEquals(9, bbox.getSlowAxisLength(), 1e-8);
+		assertEquals(0, bbox.getxAxisStart(), 1e-8);
+		assertEquals(2, bbox.getyAxisStart(), 1e-8);
+		assertEquals(10, bbox.getxAxisLength(), 1e-8);
+		assertEquals(9, bbox.getyAxisLength(), 1e-8);
 
 		Collection<IROI> regions = service.findRegions(gmodel, request.getCompoundModel().getRegions());
 		assertEquals(1, regions.size());
@@ -275,10 +275,10 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			assertEquals(RandomOffsetGridModel.class, model.getClass());
 
 			RandomOffsetGridModel rogmodel = (RandomOffsetGridModel) model;
-			assertEquals("fred", rogmodel.getFastAxisName());
-			assertEquals("y", rogmodel.getSlowAxisName());
-			assertEquals(5, rogmodel.getFastAxisPoints());
-			assertEquals(6, rogmodel.getSlowAxisPoints());
+			assertEquals("fred", rogmodel.getxAxisName());
+			assertEquals("y", rogmodel.getyAxisName());
+			assertEquals(5, rogmodel.getxAxisPoints());
+			assertEquals(6, rogmodel.getyAxisPoints());
 			assertEquals(true, rogmodel.isSnake());
 			assertEquals(5, rogmodel.getOffset(), 1e-8);
 			assertEquals(0, rogmodel.getSeed());
@@ -473,7 +473,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 		assertEquals(RasterModel.class, model.getClass());
 
 		RasterModel rmodel = (RasterModel) model;
-		assertEquals(0.5, rmodel.getFastAxisStep(), 1e-8);
+		assertEquals(0.5, rmodel.getxAxisStep(), 1e-8);
 
 		Collection<IROI> regions = service.findRegions(rmodel, request.getCompoundModel().getRegions());
 		assertEquals(2, regions.size());
@@ -515,7 +515,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 		assertEquals(RasterModel.class, model.getClass());
 
 		RasterModel rmodel = (RasterModel) model;
-		assertEquals(0.5, rmodel.getFastAxisStep(), 1e-8);
+		assertEquals(0.5, rmodel.getxAxisStep(), 1e-8);
 
 		Collection<IROI> regions = service.findRegions(rmodel, request.getCompoundModel().getRegions());
 		assertEquals(2, regions.size());
@@ -667,7 +667,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 
 		Iterator<Object> modelIterator = models.iterator();
 		GridModel gmodel = (GridModel) modelIterator.next();
-		assertEquals(5, gmodel.getSlowAxisPoints());
+		assertEquals(5, gmodel.getyAxisPoints());
 
 		StepModel smodel = (StepModel) modelIterator.next();
 		assertEquals(10, smodel.getStop(), 1e-8);

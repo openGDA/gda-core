@@ -85,10 +85,10 @@ public class MalcolmGridScanTest extends AbstractMalcolmScanTest {
 
 		// Create scan points for a grid and make a generator
 		GridModel gmodel = new GridModel(); // Note stage_x and stage_y scannables controlled by malcolm
-		gmodel.setFastAxisName("stage_x");
-		gmodel.setFastAxisPoints(size[size.length-1]);
-		gmodel.setSlowAxisName("stage_y");
-		gmodel.setSlowAxisPoints(size[size.length-2]);
+		gmodel.setxAxisName("stage_x");
+		gmodel.setxAxisPoints(size[size.length-1]);
+		gmodel.setyAxisName("stage_y");
+		gmodel.setyAxisPoints(size[size.length-2]);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 		gmodel.setSnake(snake);
 

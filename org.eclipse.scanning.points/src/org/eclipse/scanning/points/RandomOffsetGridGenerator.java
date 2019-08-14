@@ -57,14 +57,14 @@ public class RandomOffsetGridGenerator extends GridGenerator {
 	public ScanPointIterator iteratorFromValidModel() {
 		final RandomOffsetGridModel model = getModel();
 
-		final int columns = model.getFastAxisPoints();
-		final int rows = model.getSlowAxisPoints();
-		final String xName = model.getFastAxisName();
-		final String yName = model.getSlowAxisName();
-		final double xStep = model.getBoundingBox().getFastAxisLength() / columns;
-		final double yStep = model.getBoundingBox().getSlowAxisLength() / rows;
-		final double minX = model.getBoundingBox().getFastAxisStart() + xStep / 2;
-		final double minY = model.getBoundingBox().getSlowAxisStart() + yStep / 2;
+		final int columns = model.getxAxisPoints();
+		final int rows = model.getyAxisPoints();
+		final String xName = model.getxAxisName();
+		final String yName = model.getyAxisName();
+		final double xStep = model.getBoundingBox().getxAxisLength() / columns;
+		final double yStep = model.getBoundingBox().getyAxisLength() / rows;
+		final double minX = model.getBoundingBox().getxAxisStart() + xStep / 2;
+		final double minY = model.getBoundingBox().getyAxisStart() + yStep / 2;
 
         final JythonObjectFactory<ScanPointIterator> lineGeneratorFactory = ScanPointGeneratorFactory.JLineGenerator1DFactory();
 

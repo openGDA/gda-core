@@ -221,8 +221,8 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 						final Object model = pa[i].getModel();
 						if (model instanceof IBoundingBoxModel) {
 							IBoundingBoxModel bmodel = (IBoundingBoxModel) model;
-							bmodel.setFastAxisName(conf.getXAxisName());
-							bmodel.setSlowAxisName(conf.getYAxisName());
+							bmodel.setxAxisName(conf.getXAxisName());
+							bmodel.setyAxisName(conf.getYAxisName());
 						}
 					}
 				}

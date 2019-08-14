@@ -31,10 +31,10 @@ public class SpiralTest extends AbstractGeneratorTest {
 	public void testSpiralNoROI() throws Exception {
 
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(-10);
-		box.setSlowAxisStart(5);
-		box.setFastAxisLength(3);
-		box.setSlowAxisLength(4);
+		box.setxAxisStart(-10);
+		box.setyAxisStart(5);
+		box.setxAxisLength(3);
+		box.setyAxisLength(4);
 
 		SpiralModel model = new SpiralModel("x", "y");
 		model.setBoundingBox(box);
@@ -61,10 +61,10 @@ public class SpiralTest extends AbstractGeneratorTest {
 	public void testSpiralNoROIWrtCompound() throws Exception {
 
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(-10);
-		box.setSlowAxisStart(5);
-		box.setFastAxisLength(3);
-		box.setSlowAxisLength(4);
+		box.setxAxisStart(-10);
+		box.setyAxisStart(5);
+		box.setxAxisLength(3);
+		box.setyAxisLength(4);
 
 		SpiralModel model = new SpiralModel("x", "y");
 		model.setBoundingBox(box);

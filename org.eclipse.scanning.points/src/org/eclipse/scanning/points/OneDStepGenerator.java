@@ -46,8 +46,8 @@ class OneDStepGenerator extends AbstractGenerator<OneDStepModel> {
         final double xStep = model.getStep() * Math.cos(line.getAngle());
         final double yStep = model.getStep() * Math.sin(line.getAngle());
 
-		final PyList names =  new PyList(Arrays.asList(model.getFastAxisName(), model.getSlowAxisName()));
-		final PyList units = new PyList(Arrays.asList(model.getFastAxisUnits(), model.getSlowAxisUnits()));
+		final PyList names =  new PyList(Arrays.asList(model.getxAxisName(), model.getyAxisName()));
+		final PyList units = new PyList(Arrays.asList(model.getxAxisUnits(), model.getyAxisUnits()));
 		final double[] start = {line.getxStart(), line.getyStart()};
         final double[] stop = {line.getxStart() + xStep * numPoints, line.getyStart() + yStep * numPoints};
 

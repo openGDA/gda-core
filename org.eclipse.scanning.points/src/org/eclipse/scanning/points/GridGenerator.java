@@ -32,26 +32,26 @@ class GridGenerator extends AbstractGenerator<GridModel> {
 	@Override
 	protected void validateModel() {
 		super.validateModel();
-		if (model.getSlowAxisPoints() <= 0) throw new ModelValidationException("Model must have a positive number of slow axis points!", model, "slowAxisPoints");
-		if (model.getFastAxisPoints() <= 0) throw new ModelValidationException("Model must have a positive number of fast axis points!", model, "fastAxisPoints");
-		if (model.getFastAxisName()==null) throw new ModelValidationException("The model must have a fast axis!\nIt is the motor name used for this axis.", model, "fastAxisName");
-		if (model.getSlowAxisName()==null) throw new ModelValidationException("The model must have a slow axis!\nIt is the motor name used for this axis.", model, "slowAxisName");
+		if (model.getyAxisPoints() <= 0) throw new ModelValidationException("Model must have a positive number of y-axis points!", model, "yAxisPoints");
+		if (model.getxAxisPoints() <= 0) throw new ModelValidationException("Model must have a positive number of x-axis points!", model, "xAxisPoints");
+		if (model.getxAxisName()==null) throw new ModelValidationException("The model must have a fast axis!\nIt is the motor name used for this axis.", model, "xAxisName");
+		if (model.getyAxisName()==null) throw new ModelValidationException("The model must have a slow axis!\nIt is the motor name used for this axis.", model, "yAxisName");
 	}
 
 	@Override
 	public ScanPointIterator iteratorFromValidModel() {
 		final GridModel model = getModel();
 
-		final int columns = model.getFastAxisPoints();
-		final int rows = model.getSlowAxisPoints();
-		final String xName = model.getFastAxisName();
-		final String xUnits = model.getFastAxisUnits();
-		final String yName = model.getSlowAxisName();
-		final String yUnits = model.getSlowAxisUnits();
-		final double xStep = model.getBoundingBox().getFastAxisLength() / columns;
-		final double yStep = model.getBoundingBox().getSlowAxisLength() / rows;
-		final double minX = model.getBoundingBox().getFastAxisStart() + xStep / 2;
-		final double minY = model.getBoundingBox().getSlowAxisStart() + yStep / 2;
+		final int columns = model.getxAxisPoints();
+		final int rows = model.getyAxisPoints();
+		final String xName = model.getxAxisName();
+		final String xUnits = model.getxAxisUnits();
+		final String yName = model.getyAxisName();
+		final String yUnits = model.getyAxisUnits();
+		final double xStep = model.getBoundingBox().getxAxisLength() / columns;
+		final double yStep = model.getBoundingBox().getyAxisLength() / rows;
+		final double minX = model.getBoundingBox().getxAxisStart() + xStep / 2;
+		final double minY = model.getBoundingBox().getyAxisStart() + yStep / 2;
 
 		final JythonObjectFactory<ScanPointIterator> lineGeneratorFactory = ScanPointGeneratorFactory.JLineGenerator1DFactory();
 

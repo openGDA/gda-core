@@ -46,13 +46,13 @@ public class BoundingBoxSerialiser implements IPVStructureSerialiser<BoundingBox
 	@Override
 	public void populatePVStructure(Serialiser serialiser, BoundingBox model, PVStructure pvStructure) throws Exception {
 		PVDouble fastAxisStart = pvStructure.getSubField(PVDouble.class, "fastAxisStart");
-		fastAxisStart.put(model.getFastAxisStart());
+		fastAxisStart.put(model.getxAxisStart());
 		PVDouble slowAxisStart = pvStructure.getSubField(PVDouble.class, "slowAxisStart");
-		slowAxisStart.put(model.getSlowAxisStart());
+		slowAxisStart.put(model.getyAxisStart());
 		PVDouble fastAxisLength = pvStructure.getSubField(PVDouble.class, "fastAxisLength");
-		fastAxisLength.put(model.getFastAxisLength());
+		fastAxisLength.put(model.getxAxisLength());
 		PVDouble slowAxisLength = pvStructure.getSubField(PVDouble.class, "slowAxisLength");
-		slowAxisLength.put(model.getSlowAxisLength());
+		slowAxisLength.put(model.getyAxisLength());
 	}
 
 }

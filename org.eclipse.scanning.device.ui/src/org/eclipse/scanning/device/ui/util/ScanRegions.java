@@ -86,10 +86,10 @@ public class ScanRegions {
 		for (IROI roi : rois) rect = rect.bounds(roi);
 
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(rect.getPoint()[0]);
-		box.setSlowAxisStart(rect.getPoint()[1]);
-		box.setFastAxisLength(rect.getLength(0));
-		box.setSlowAxisLength(rect.getLength(1));
+		box.setxAxisStart(rect.getPoint()[0]);
+		box.setyAxisStart(rect.getPoint()[1]);
+		box.setxAxisLength(rect.getLength(0));
+		box.setyAxisLength(rect.getLength(1));
 		return box;
 	}
 

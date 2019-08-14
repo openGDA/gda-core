@@ -256,16 +256,16 @@ public class BenchmarkScanTest extends BrokerTest {
 		// Before, run, after, check time.
 		final StepModel smodel = new StepModel(bean.getScannableName(), 0, bean.getSize(), 1);
 		final GridModel gmodel = new GridModel();
-		gmodel.setFastAxisName("xNex");
-		gmodel.setSlowAxisName("yNex");
-		gmodel.setFastAxisPoints(1);
-		gmodel.setSlowAxisPoints(1);
+		gmodel.setxAxisName("xNex");
+		gmodel.setyAxisName("yNex");
+		gmodel.setxAxisPoints(1);
+		gmodel.setyAxisPoints(1);
 
 		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(2);
-		box.setSlowAxisStart(2);
-		box.setFastAxisLength(5);
-		box.setSlowAxisLength(5);
+		box.setxAxisStart(2);
+		box.setyAxisStart(2);
+		box.setxAxisLength(5);
+		box.setyAxisLength(5);
 		gmodel.setBoundingBox(box);
 
 		ScanModel scanModel = createTestScanner(bean.getDetector(), smodel, gmodel);

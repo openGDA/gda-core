@@ -43,6 +43,7 @@ public class BoundingLine  {
 		this.length = Math.sqrt(Math.pow(xLength, 2) + Math.pow(yLength, 2));
 	}
 
+	// Note: x and y must be in lower case in getter/setter names for JFace bindings to work correctly.
 	public double getxStart() {
 		return xStart;
 	}
