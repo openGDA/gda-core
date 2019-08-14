@@ -24,7 +24,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
-public class RandomOffsetGridPathEditor extends AbstractPathEditor {
+public class RandomOffsetGridPathEditor extends AbstractGridPathEditor {
 
 	@Override
 	public Composite createEditorPart(Composite parent) {
@@ -53,8 +53,7 @@ public class RandomOffsetGridPathEditor extends AbstractPathEditor {
 		grabHorizontalSpace.applyTo(slowPoints);
 		binder.bind(slowPoints, "slowAxisPoints", getModel());
 
-		makeSnakeControl(composite, getModel());
-		makeContinuousControl(composite, getModel());
+		makeCommonGridOptionsControls(composite);
 
 		return composite;
 	}

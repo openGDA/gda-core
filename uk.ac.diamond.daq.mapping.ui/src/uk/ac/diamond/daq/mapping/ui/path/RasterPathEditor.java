@@ -28,7 +28,7 @@ import org.eclipse.swt.widgets.Label;
 
 import uk.ac.gda.client.NumberAndUnitsComposite;
 
-public class RasterPathEditor extends AbstractPathEditor {
+public class RasterPathEditor extends AbstractGridPathEditor {
 
 	@Override
 	public Composite createEditorPart(Composite parent) {
@@ -47,8 +47,7 @@ public class RasterPathEditor extends AbstractPathEditor {
 
 		binder.bind(yStep, SLOW_AXIS_STEP, getModel(), GREATER_THAN_ZERO);
 
-		makeSnakeControl(composite, getModel());
-		makeContinuousControl(composite, getModel());
+		makeCommonGridOptionsControls(composite);
 
 		return composite;
 	}
