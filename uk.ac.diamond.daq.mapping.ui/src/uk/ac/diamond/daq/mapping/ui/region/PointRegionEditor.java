@@ -32,12 +32,12 @@ public class PointRegionEditor extends AbstractRegionEditor {
 	public Composite createEditorPart(Composite parent) {
 		final Composite composite = super.createEditorPart(parent);
 
-		new Label(composite, SWT.NONE).setText(getFastAxisName() + " position");
+		new Label(composite, SWT.NONE).setText(getXAxisName() + " position");
 		NumberAndUnitsComposite<Length> xPosition = createNumberAndUnitsLengthComposite(composite, X_POSITION);
 		grabHorizontalSpace.applyTo(xPosition);
 		binder.bind(xPosition, X_POSITION, getModel());
 
-		new Label(composite, SWT.NONE).setText(getSlowAxisName() + " position");
+		new Label(composite, SWT.NONE).setText(getYAxisName() + " position");
 		NumberAndUnitsComposite<Length> yPosition = createNumberAndUnitsLengthComposite(composite, Y_POSITION);
 		grabHorizontalSpace.applyTo(yPosition);
 		binder.bind(yPosition, Y_POSITION, getModel());

@@ -114,14 +114,14 @@ public class DescriptiveFilenameFactory {
 	enum PathParameterSource {
 		POINT(0, "1 pt", path -> "", path -> ""),
 		RAST(1, "%s step per side, %s %s",
-			path -> enclose(((RasterModel)path).getFastAxisStep() + "," + ((RasterModel)path).getSlowAxisStep()),
+			path -> enclose(((RasterModel)path).getxAxisStep() + "," + ((RasterModel)path).getyAxisStep()),
 			path -> isContinuous(path)),
 		GRID(2, "%s pts per side. %s %s",
-			path -> enclose(((GridModel)path).getFastAxisPoints() + "," + ((GridModel)path).getSlowAxisPoints()),
+			path -> enclose(((GridModel)path).getxAxisPoints() + "," + ((GridModel)path).getyAxisPoints()),
 			path -> isContinuous(path) + isSnake(path)),
 		RAND(3, "%s pts per side. %s %s",
-			path -> enclose(((RandomOffsetGridModel)path).getFastAxisPoints() + ","
-							+ ((RandomOffsetGridModel)path).getSlowAxisPoints()),
+			path -> enclose(((RandomOffsetGridModel)path).getxAxisPoints() + ","
+							+ ((RandomOffsetGridModel)path).getyAxisPoints()),
 			path -> isContinuous(path) + isSnake(path) + "r"),
 		EQUAL(4, "%s pts, %s %s",
 			path -> enclose(String.valueOf(((OneDEqualSpacingModel)path).getPoints())),

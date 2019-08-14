@@ -136,7 +136,7 @@ public class ScanRequestConverter {
 
 		// Add the ROI for the mapping region
 		final ScanRegion<IROI> region = new ScanRegion<>(scanRegion.getRegion().toROI(),
-				mapPath.getSlowAxisName(), mapPath.getFastAxisName());
+				mapPath.getyAxisName(), mapPath.getxAxisName());
 
 		// Convert to a List of ScanRegion<IROI> containing one item to avoid unsafe varargs warning
 		compoundModel.setRegions(Arrays.asList(region));
@@ -220,14 +220,14 @@ public class ScanRequestConverter {
 			// If the mapping stage is set, use these axis, and update the default map path with them
 			String xAxisName = mappingStageInfo.getPlotXAxisName();
 			String yAxisName = mappingStageInfo.getPlotYAxisName();
-			mapPath.setFastAxisName(xAxisName);
-			mapPath.setSlowAxisName(yAxisName);
+			mapPath.setxAxisName(xAxisName);
+			mapPath.setyAxisName(yAxisName);
 
 			ScannableMotionUnits xAxis = Finder.getInstance().find(xAxisName);
-			mapPath.setFastAxisUnits(xAxis.getHardwareUnitString());
+			mapPath.setxAxisUnits(xAxis.getHardwareUnitString());
 
 			ScannableMotionUnits yAxis = Finder.getInstance().find(yAxisName);
-			mapPath.setSlowAxisUnits(yAxis.getHardwareUnitString());
+			mapPath.setyAxisUnits(yAxis.getHardwareUnitString());
 		} else {
 			// Otherwise we use the default axis in the map path model
 			logger.warn("No mapping axis manager is set - the scan request will use default axis names and uni!");
@@ -392,8 +392,8 @@ public class ScanRequestConverter {
 
 		// update the mapping bean with axes in the mapping path
 		if (mappingStageInfo != null) {
-			mappingStageInfo.setPlotXAxisName(mapPath.getFastAxisName());
-			mappingStageInfo.setPlotYAxisName(mapPath.getSlowAxisName());
+			mappingStageInfo.setPlotXAxisName(mapPath.getxAxisName());
+			mappingStageInfo.setPlotYAxisName(mapPath.getyAxisName());
 		}
 
 		return mapPath;

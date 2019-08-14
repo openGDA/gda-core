@@ -30,19 +30,19 @@ public class GridPathEditor extends AbstractGridPathEditor {
 
 		final Composite composite = super.createEditorPart(parent);
 
-		(new Label(composite, SWT.NONE)).setText(getFastAxisName() + " Points");
+		(new Label(composite, SWT.NONE)).setText(getXAxisName() + " Points");
 		Spinner fastPoints = new Spinner(composite, SWT.BORDER);
 		fastPoints.setMinimum(1);
 		fastPoints.setMaximum(Integer.MAX_VALUE);
 		grabHorizontalSpace.applyTo(fastPoints);
-		binder.bind(fastPoints, "fastAxisPoints", getModel());
+		binder.bind(fastPoints, "xAxisPoints", getModel());
 
-		(new Label(composite, SWT.NONE)).setText(getSlowAxisName() + " Points");
+		(new Label(composite, SWT.NONE)).setText(getYAxisName() + " Points");
 		Spinner slowPoints = new Spinner(composite, SWT.BORDER);
 		slowPoints.setMinimum(1);
 		slowPoints.setMaximum(Integer.MAX_VALUE);
 		grabHorizontalSpace.applyTo(slowPoints);
-		binder.bind(slowPoints, "slowAxisPoints", getModel());
+		binder.bind(slowPoints, "yAxisPoints", getModel());
 
 		makeCommonGridOptionsControls(composite);
 

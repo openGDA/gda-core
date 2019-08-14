@@ -80,12 +80,12 @@ public class PolygonRegionEditor extends AbstractRegionEditor {
 		// content and label providers
 		polygonTableViewer.setContentProvider(new ArrayContentProvider());
 
-		TableViewerColumn xCol = createTableViewerColumn(polygonTableViewer, getFastAxisName() + " (mm)");
+		TableViewerColumn xCol = createTableViewerColumn(polygonTableViewer, getXAxisName() + " (mm)");
 		xCol.setLabelProvider(new MutablePointLabelProvider(Axis.X));
 		xCol.setEditingSupport(new PointEditingSupport(polygonTableViewer, Axis.X));
 		xCol.getColumn().setToolTipText("Edit X position of vertex");
 
-		TableViewerColumn yCol = createTableViewerColumn(polygonTableViewer, getSlowAxisName() + " (mm)");
+		TableViewerColumn yCol = createTableViewerColumn(polygonTableViewer, getYAxisName() + " (mm)");
 		yCol.setLabelProvider(new MutablePointLabelProvider(Axis.Y));
 		yCol.setEditingSupport(new PointEditingSupport(polygonTableViewer, Axis.Y));
 		yCol.getColumn().setToolTipText("Edit Y position of vertex");
@@ -129,7 +129,7 @@ public class PolygonRegionEditor extends AbstractRegionEditor {
 		}
 
 		private void createValidation() {
-			String scannableName = axis==Axis.X ? getFastAxisName() :  getSlowAxisName();
+			String scannableName = axis==Axis.X ? getXAxisName() :  getYAxisName();
 			double lowerLimit = getLowerLimit(scannableName);
 			double upperLimit = getUpperLimit(scannableName);
 
@@ -206,7 +206,7 @@ public class PolygonRegionEditor extends AbstractRegionEditor {
 
 		public MutablePointLabelProvider(Axis axis) {
 			this.axis = axis;
-			String scannableName = axis == Axis.X ? getFastAxisName() : getSlowAxisName();
+			String scannableName = axis == Axis.X ? getXAxisName() : getYAxisName();
 			lowerLimit = getLowerLimit(scannableName);
 			upperLimit = getUpperLimit(scannableName);
 		}

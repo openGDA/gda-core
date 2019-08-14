@@ -73,8 +73,8 @@ public abstract class AbstractModelEditor<T> {
 
 	protected static final String RADIUS = "radius";
 
-	protected static final String FAST_AXIS_STEP = "fastAxisStep";
-	protected static final String SLOW_AXIS_STEP = "slowAxisStep";
+	protected static final String X_AXIS_STEP = "xAxisStep";
+	protected static final String Y_AXIS_STEP = "yAxisStep";
 
 	private static final Unit<Length> MODEL_LENGTH_UNIT = MILLI(METER);
 	private static final List<Unit<Length>> LENGTH_UNITS = ImmutableList.of(MILLI(METER), MICRO(METER), NANO(METER));
@@ -158,16 +158,16 @@ public abstract class AbstractModelEditor<T> {
 	}
 
 	/**
-	 * @return scannable name if IStageScanConfiguration is configured, otherwise the literal "Fast axis"
+	 * @return scannable name if IStageScanConfiguration is configured, otherwise the literal "x axis"
 	 */
-	protected String getFastAxisName() {
-		return Objects.nonNull(mappingStageInfo) ? mappingStageInfo.getPlotXAxisName() : "Fast axis";
+	protected String getXAxisName() {
+		return Objects.nonNull(mappingStageInfo) ? mappingStageInfo.getPlotXAxisName() : "x axis";
 	}
 
 	/**
-	 * @return scannable name if IStageScanConfiguration is configured, otherwise the literal "Slow axis"
+	 * @return scannable name if IStageScanConfiguration is configured, otherwise the literal "y axis"
 	 */
-	protected String getSlowAxisName() {
+	protected String getYAxisName() {
 		return Objects.nonNull(mappingStageInfo) ? mappingStageInfo.getPlotYAxisName() : "Slow axis";
 	}
 

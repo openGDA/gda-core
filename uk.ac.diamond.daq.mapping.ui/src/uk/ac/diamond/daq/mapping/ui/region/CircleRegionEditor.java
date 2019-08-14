@@ -34,11 +34,11 @@ public class CircleRegionEditor extends AbstractRegionEditor {
 
 		final Composite composite = super.createEditorPart(parent);
 
-		new Label(composite, SWT.NONE).setText(getFastAxisName() + " Centre");
+		new Label(composite, SWT.NONE).setText(getXAxisName() + " Centre");
 		NumberAndUnitsComposite<Length> xCentre = createNumberAndUnitsLengthComposite(composite, X_CENTRE);
 		grabHorizontalSpace.applyTo(xCentre);
 
-		new Label(composite, SWT.NONE).setText(getSlowAxisName() + " Centre");
+		new Label(composite, SWT.NONE).setText(getYAxisName() + " Centre");
 		NumberAndUnitsComposite<Length> yCentre = createNumberAndUnitsLengthComposite(composite, Y_CENTRE);
 		grabHorizontalSpace.applyTo(yCentre);
 
@@ -51,8 +51,8 @@ public class CircleRegionEditor extends AbstractRegionEditor {
 		binder.bind(radius, RADIUS, getModel());
 
 		ControlDecorationSupport.create(createGreaterThanZeroValidator(radius), SWT.LEFT);
-		ControlDecorationSupport.create(createLimitsValidator(getFastAxisName(), xCentre, radius), SWT.LEFT);
-		ControlDecorationSupport.create(createLimitsValidator(getSlowAxisName(), yCentre, radius), SWT.LEFT);
+		ControlDecorationSupport.create(createLimitsValidator(getXAxisName(), xCentre, radius), SWT.LEFT);
+		ControlDecorationSupport.create(createLimitsValidator(getYAxisName(), yCentre, radius), SWT.LEFT);
 
 		return composite;
 	}

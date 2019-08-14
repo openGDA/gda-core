@@ -928,10 +928,10 @@ public class ScannableNexusWrapperScanTest {
 			String outerScannableName, int... size) throws Exception {
 		// Create scan points for a grid and make a generator
 		GridModel gmodel = new GridModel();
-		gmodel.setFastAxisName("salong");
-		gmodel.setFastAxisPoints(size[size.length-1]);
-		gmodel.setSlowAxisName("saperp");
-		gmodel.setSlowAxisPoints(size[size.length-2]);
+		gmodel.setxAxisName("salong");
+		gmodel.setxAxisPoints(size[size.length-1]);
+		gmodel.setyAxisName("saperp");
+		gmodel.setyAxisPoints(size[size.length-2]);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
 		IPointGenerator<?> gen = gservice.createGenerator(gmodel);
