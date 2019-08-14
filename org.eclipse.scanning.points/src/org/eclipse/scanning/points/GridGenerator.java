@@ -55,13 +55,14 @@ class GridGenerator extends AbstractGenerator<GridModel> {
 
 		final JythonObjectFactory<ScanPointIterator> lineGeneratorFactory = ScanPointGeneratorFactory.JLineGenerator1DFactory();
 
-		final ScanPointIterator outerLine = lineGeneratorFactory.createObject(
+		final ScanPointIterator yLine = lineGeneratorFactory.createObject(
 				yName, yUnits, minY, minY + (rows - 1) * yStep, rows, model.isSnake());
-
-		final ScanPointIterator innerLine = lineGeneratorFactory.createObject(
+		final ScanPointIterator xLine = lineGeneratorFactory.createObject(
 				xName, xUnits, minX, minX + (columns - 1) * xStep, columns, model.isSnake());
 
-        final Iterator<?>[] generators = { outerLine, innerLine };
+		final Iterator<?>[] generators = new Iterator<?>[2];
+		generators[0] = model.isVerticalOrientation() ? xLine : yLine;
+		generators[1] = model.isVerticalOrientation() ? yLine : xLine;
 
         final String[] axisNames = new String[] { xName, yName };
 		final ScanPointIterator pyIterator = CompoundSpgIteratorFactory.createSpgCompoundGenerator(generators,
