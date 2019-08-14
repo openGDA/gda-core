@@ -196,13 +196,13 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 		if (conf==null) return;
 
 		createPlot(conf);
-		system.getSelectedXAxis().setTitle(conf.getFastAxisName());
-		system.getSelectedYAxis().setTitle(conf.getSlowAxisName());
+		system.getSelectedXAxis().setTitle(conf.getXAxisName());
+		system.getSelectedYAxis().setTitle(conf.getYAxisName());
 
 		// If we have to reaxis the regions, try to
 		if (conf.isApplyRegions()) {
 			List<ScanRegion<IROI>> regions = ScanRegions.getScanRegions(system);
-			List<String> axes = Arrays.asList(conf.getFastAxisName(), conf.getSlowAxisName());
+			List<String> axes = Arrays.asList(conf.getXAxisName(), conf.getYAxisName());
 			for (ScanRegion<IROI> region : regions) {
 				region.setScannables(axes);
 			}
@@ -221,8 +221,8 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 						final Object model = pa[i].getModel();
 						if (model instanceof IBoundingBoxModel) {
 							IBoundingBoxModel bmodel = (IBoundingBoxModel) model;
-							bmodel.setFastAxisName(conf.getFastAxisName());
-							bmodel.setSlowAxisName(conf.getSlowAxisName());
+							bmodel.setFastAxisName(conf.getXAxisName());
+							bmodel.setSlowAxisName(conf.getYAxisName());
 						}
 					}
 				}
@@ -245,27 +245,27 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 	protected AxisConfiguration getAxisConfiguration() {
 
 		if (axisConfig==null) axisConfig = new AxisConfiguration();
-		axisConfig.setFastAxisName(system.getSelectedXAxis().getTitle());
+		axisConfig.setXAxisName(system.getSelectedXAxis().getTitle());
 
 		final IImageTrace image = (IImageTrace)system.getTrace("image");
 		if (image!=null) {
 			double[] da = image.getGlobalRange();
-			axisConfig.setFastAxisStart(da[0]);
-			axisConfig.setFastAxisEnd(da[1]);
+			axisConfig.setXAxisStart(da[0]);
+			axisConfig.setXAxisEnd(da[1]);
 
-			axisConfig.setSlowAxisStart(da[2]);
-			axisConfig.setSlowAxisEnd(da[3]);
+			axisConfig.setYAxisStart(da[2]);
+			axisConfig.setYAxisEnd(da[3]);
 		} else {
 
-			axisConfig.setFastAxisStart(system.getSelectedXAxis().getLower());
-			axisConfig.setFastAxisEnd(system.getSelectedXAxis().getUpper());
+			axisConfig.setXAxisStart(system.getSelectedXAxis().getLower());
+			axisConfig.setXAxisEnd(system.getSelectedXAxis().getUpper());
 
-			axisConfig.setSlowAxisStart(system.getSelectedYAxis().getLower());
-			axisConfig.setSlowAxisEnd(system.getSelectedYAxis().getUpper());
+			axisConfig.setYAxisStart(system.getSelectedYAxis().getLower());
+			axisConfig.setYAxisEnd(system.getSelectedYAxis().getUpper());
 		}
 
-		axisConfig.setFastAxisName(system.getSelectedXAxis().getTitle());
-		axisConfig.setSlowAxisName(system.getSelectedYAxis().getTitle());
+		axisConfig.setXAxisName(system.getSelectedXAxis().getTitle());
+		axisConfig.setYAxisName(system.getSelectedYAxis().getTitle());
 
 		return axisConfig;
 	}
@@ -289,8 +289,8 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 			image = Random.rand(4096, 3012);
 		}
 		if (image==null) {
-			system.getSelectedXAxis().setRange(conf.getFastAxisStart(), conf.getFastAxisEnd());
-			system.getSelectedYAxis().setRange(conf.getSlowAxisStart(), conf.getSlowAxisEnd());
+			system.getSelectedXAxis().setRange(conf.getXAxisStart(), conf.getXAxisEnd());
+			system.getSelectedYAxis().setRange(conf.getYAxisStart(), conf.getYAxisEnd());
 			return;
 		}
 		createTrace(conf, image);
@@ -302,10 +302,10 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 		int fsize = image.getShape()[1];
 		int ssize = image.getShape()[0];
 
-		IDataset x = DatasetFactory.createRange(conf.getFastAxisStart(), conf.getFastAxisEnd(), (conf.getFastAxisEnd()-conf.getFastAxisStart())/fsize, Dataset.FLOAT);
-		x.setName(conf.getFastAxisName());
-		IDataset y = DatasetFactory.createRange(conf.getSlowAxisStart(), conf.getSlowAxisEnd(), (conf.getSlowAxisEnd()-conf.getSlowAxisStart())/ssize, Dataset.FLOAT);
-		y.setName(conf.getSlowAxisName());
+		IDataset x = DatasetFactory.createRange(conf.getXAxisStart(), conf.getXAxisEnd(), (conf.getXAxisEnd()-conf.getXAxisStart())/fsize, Dataset.FLOAT);
+		x.setName(conf.getXAxisName());
+		IDataset y = DatasetFactory.createRange(conf.getYAxisStart(), conf.getYAxisEnd(), (conf.getYAxisEnd()-conf.getYAxisStart())/ssize, Dataset.FLOAT);
+		y.setName(conf.getYAxisName());
 
 		IImageTrace it = system.getTrace("image")!=null
 				       ? (IImageTrace)system.getTrace("image")
@@ -313,10 +313,10 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 		it.setData(image, Arrays.asList(new IDataset[]{x,y}), false);
 
 		double[] globalRange = new double[4];
-		globalRange[0] = conf.getFastAxisStart();
-		globalRange[1] = conf.getFastAxisEnd();
-		globalRange[2] = conf.getSlowAxisStart();
-		globalRange[3] = conf.getSlowAxisEnd();
+		globalRange[0] = conf.getXAxisStart();
+		globalRange[1] = conf.getXAxisEnd();
+		globalRange[2] = conf.getYAxisStart();
+		globalRange[3] = conf.getYAxisEnd();
 		it.setGlobalRange(globalRange);
 
 		system.addTrace(it);
