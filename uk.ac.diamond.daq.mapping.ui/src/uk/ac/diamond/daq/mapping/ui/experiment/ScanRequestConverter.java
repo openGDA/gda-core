@@ -218,8 +218,8 @@ public class ScanRequestConverter {
 		final IMapPathModel mapPath = (IMapPathModel) scanRegion.getScanPath();
 		if (mappingStageInfo != null) {
 			// If the mapping stage is set, use these axis, and update the default map path with them
-			String xAxisName = mappingStageInfo.getActiveFastScanAxis();
-			String yAxisName = mappingStageInfo.getActiveSlowScanAxis();
+			String xAxisName = mappingStageInfo.getPlotXAxisName();
+			String yAxisName = mappingStageInfo.getPlotYAxisName();
 			mapPath.setFastAxisName(xAxisName);
 			mapPath.setSlowAxisName(yAxisName);
 
@@ -392,8 +392,8 @@ public class ScanRequestConverter {
 
 		// update the mapping bean with axes in the mapping path
 		if (mappingStageInfo != null) {
-			mappingStageInfo.setActiveFastScanAxis(mapPath.getFastAxisName());
-			mappingStageInfo.setActiveSlowScanAxis(mapPath.getSlowAxisName());
+			mappingStageInfo.setPlotXAxisName(mapPath.getFastAxisName());
+			mappingStageInfo.setPlotYAxisName(mapPath.getSlowAxisName());
 		}
 
 		return mapPath;
