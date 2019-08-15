@@ -39,7 +39,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 import uk.ac.diamond.daq.mapping.ui.Activator;
 
@@ -51,7 +50,7 @@ public class NexusTemplatesSection extends AbstractMappingSection {
 
 	private static final String NO_TEMPLATES_SELECTED = "<no template files selected>";
 
-	private Text templatesLabel;
+	private Label templatesLabel;
 
 	@Override
 	public boolean shouldShow() {
@@ -73,8 +72,8 @@ public class NexusTemplatesSection extends AbstractMappingSection {
 		new Label(templatesComposite, SWT.NONE).setText("Template Files:");
 
 		// create the read only text field showing the template files
-		templatesLabel = new Text(templatesComposite, SWT.NONE | SWT.READ_ONLY);
-		GridDataFactory.fillDefaults().hint(300, SWT.DEFAULT).grab(true, false).applyTo(templatesLabel);
+		templatesLabel = new Label(templatesComposite, SWT.NONE);
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).hint(300, SWT.DEFAULT).grab(true, false).applyTo(templatesLabel);
 		updateTemplatesLabel();
 
 		// create the edit button
