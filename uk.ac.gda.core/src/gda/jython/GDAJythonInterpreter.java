@@ -846,8 +846,7 @@ public class GDAJythonInterpreter {
 		public void __delitem__(String key) {
 			// If deleting an aliased command, remove the alias
 			if (translator != null) {
-				translator.getAliasedCommands().remove(key);
-				translator.getAliasedVarargCommands().remove(key);
+				translator.removeAlias(key);
 			}
 			super.__delitem__(key);
 		}
