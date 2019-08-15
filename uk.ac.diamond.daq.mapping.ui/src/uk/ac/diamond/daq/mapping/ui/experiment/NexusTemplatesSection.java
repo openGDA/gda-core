@@ -110,6 +110,11 @@ public class NexusTemplatesSection extends AbstractMappingSection {
 		}
 	}
 
+	@Override
+	public void updateControls() {
+		updateTemplatesLabel();
+	}
+
 	/**
 	 * A dialog to select template files.
 	 */
