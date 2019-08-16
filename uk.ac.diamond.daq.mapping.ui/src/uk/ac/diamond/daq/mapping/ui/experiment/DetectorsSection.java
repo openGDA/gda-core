@@ -321,7 +321,7 @@ public class DetectorsSection extends AbstractMappingSection {
 
 		// get the DeviceInformation objects for the malcolm devices and apply the function
 		// above to create DetectorModelWrappers for them.
-		final Map<String, IScanModelWrapper<IDetectorModel>> malcolmParams = getMappingMalcolmDeviceInfos().stream()
+		final Map<String, IScanModelWrapper<IDetectorModel>> malcolmParams = getMalcolmDeviceInfos().stream()
 				.map(malcolmInfoToWrapper::apply)
 				.collect(toMap(IScanModelWrapper<IDetectorModel>::getName, identity()));
 
@@ -359,12 +359,9 @@ public class DetectorsSection extends AbstractMappingSection {
 	 * for mapping, i.e. ones that have 2 axesToMove.
 	 * @return
 	 */
-	private Collection<DeviceInformation<?>> getMappingMalcolmDeviceInfos() {
+	private Collection<DeviceInformation<?>> getMalcolmDeviceInfos() {
 		try {
-			// Filter out malcolm devices with more than 2 axes, unless we're using new malcolm (note: this will show all malcolm device we can't connect to)
-			return getRunnableDeviceService().getDeviceInformation(DeviceRole.MALCOLM).stream()
-					.filter(info -> info.isNewMalcolm() || (info.getAvailableAxes() != null && info.getAvailableAxes().size() <= 2))
-					.collect(toList());
+			return getRunnableDeviceService().getDeviceInformation(DeviceRole.MALCOLM);
 		} catch (Exception e) {
 			logger.error("Could not get malcolm devices.", e);
 			return Collections.emptyList();
