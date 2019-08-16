@@ -62,16 +62,22 @@ public class PlottingPerspective implements IPerspectiveFactory {
 			return;
 		}
 
-		IFolderLayout folderLayout_0 = layout.createFolder("folder10", IPageLayout.LEFT, 0.7f, editorArea);
-		folderLayout_0.addView(LivePlotView.ID);
+		IFolderLayout bottomLeft = layout.createFolder("bottomLeft", IPageLayout.BOTTOM, 0.70f, editorArea);
+		bottomLeft.addView(CommandQueueViewFactory.ID);
+		bottomLeft.addView(ScriptControllerLogView.ID);
+
+		IFolderLayout bottomRight = layout.createFolder("bottomRight", IPageLayout.RIGHT, 0.5f, "bottomLeft");
+		bottomRight.addView(JythonTerminalView.ID);
+
+		IFolderLayout topLeft = layout.createFolder("topLeft", IPageLayout.LEFT, 0.7f, editorArea);
+		topLeft.addView(LivePlotView.ID);
 		if (!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.HIDE_LnI0ItScanPlotView))
-			folderLayout_0.addView(LnI0ItScanPlotView.ID);
-		IFolderLayout folderLayout = layout.createFolder("folder", IPageLayout.BOTTOM, 0.5f, "folder1");
-		folderLayout.addView(JythonTerminalView.ID);
-		IFolderLayout folderLayout_1 = layout.createFolder("folder0", IPageLayout.BOTTOM, 0.7f, LivePlotView.ID);
-		folderLayout_1.addView(CommandQueueViewFactory.ID);
-		IFolderLayout folderLayout_2 = layout.createFolder("folder2", IPageLayout.RIGHT, 0.5f, "folder0");
-		folderLayout_2.addView(ScriptControllerLogView.ID);
+			topLeft.addView(LnI0ItScanPlotView.ID);
+
+		IFolderLayout topRight = layout.createFolder("topRight", IPageLayout.RIGHT, 0.7f, "topLeft");
+		topRight.addView("uk.ac.gda.exafs.ui.views.detectors.ionchamberRates");
+		topRight.addView("uk.ac.gda.client.simplescanview");
+
 	}
 
 }
