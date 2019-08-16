@@ -113,16 +113,6 @@ public class _MalcolmDevice<M extends MalcolmModel> extends _RunnableDevice<M> i
 		}
 	}
 
-	@Override
-	public boolean isNewMalcolmVersion() throws MalcolmDeviceException {
-		try {
-			updateDeviceInfo();
-			return info.isNewMalcolm();
-		} catch (Exception e) {
-			throw new MalcolmDeviceException(this, e);
-		}
-	}
-
 	private void updateDeviceInfo() throws EventException, InterruptedException {
 		DeviceRequest req = new DeviceRequest(name);
 		DeviceRequest res = requester.post(req);

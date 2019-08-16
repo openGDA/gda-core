@@ -223,50 +223,44 @@ public class MalcolmEpicsV4ConnectorTest {
 	 */
 	@Test
 	public void connectToValidDeviceButOfflineWhenConfigure() throws Exception {
+		// Start the dummy test device
+		DeviceRunner runner = new DeviceRunner();
+		epicsv4Device = runner.start();
+
+		// Get the device
+		IMalcolmDevice<MalcolmModel> malcolmDevice = createMalcolmDevice(epicsv4Device.getRecordName());
+
+		// Get the device state.
+		DeviceState deviceState = malcolmDevice.getDeviceState();
+
+		assertEquals(DeviceState.READY, deviceState);
+
+		List<IROI> regions = new LinkedList<>();
+		regions.add(new CircularROI(2, 6, 1));
+
+		IPointGeneratorService pgService = new PointGeneratorService();
+		IPointGenerator<SpiralModel> temp = pgService.createGenerator(
+				new SpiralModel("stage_x", "stage_y", 1, new BoundingBox(0, -5, 8, 3)), regions);
+		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
+
+		MalcolmModel pmac1 = new MalcolmModel();
+		pmac1.setExposureTime(23.1);
+
+		// Set the generator on the device
+		// Cannot set the generator from @PreConfigure in this unit test.
+		((AbstractMalcolmDevice<?>) malcolmDevice).setPointGenerator(scan);
+		((AbstractMalcolmDevice<?>) malcolmDevice).setOutputDir("/TestFile/Dir");
+		epicsv4Device.stop();
 
 		try {
-			// Start the dummy test device
-			DeviceRunner runner = new DeviceRunner();
-			epicsv4Device = runner.start();
-
-			// Get the device
-			IMalcolmDevice<MalcolmModel> malcolmDevice = createMalcolmDevice(epicsv4Device.getRecordName());
-
-			// Get the device state.
-			DeviceState deviceState = malcolmDevice.getDeviceState();
-
-			assertEquals(DeviceState.READY, deviceState);
-
-			List<IROI> regions = new LinkedList<>();
-			regions.add(new CircularROI(2, 6, 1));
-
-			IPointGeneratorService pgService = new PointGeneratorService();
-			IPointGenerator<SpiralModel> temp = pgService.createGenerator(
-					new SpiralModel("stage_x", "stage_y", 1, new BoundingBox(0, -5, 8, 3)), regions);
-			IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
-
-			MalcolmModel pmac1 = new MalcolmModel();
-			pmac1.setExposureTime(23.1);
-
-			// Set the generator on the device
-			// Cannot set the generator from @PreConfigure in this unit test.
-			((AbstractMalcolmDevice<?>) malcolmDevice).setPointGenerator(scan);
-			((AbstractMalcolmDevice<?>) malcolmDevice).setOutputDir("/TestFile/Dir");
-			epicsv4Device.stop();
-
-			try {
-				// Call configure
-				malcolmDevice.configure(pmac1);
-				fail("No exception thrown but one was expected");
-
-			} catch (Exception ex) {
-				assertEquals(MalcolmDeviceException.class, ex.getClass());
-				assertTrue("Message was: " + ex.getMessage(), ex.getMessage().contains("Failed to connect to device"));
-				assertTrue("Message was: " + ex.getMessage(), ex.getMessage().contains(epicsv4Device.getRecordName()));
-			}
+			// Call configure
+			malcolmDevice.configure(pmac1);
+			fail("No exception thrown but one was expected");
 
 		} catch (Exception ex) {
-			fail(ex.getMessage());
+			assertEquals(MalcolmDeviceException.class, ex.getClass());
+			assertTrue("Message was: " + ex.getMessage(), ex.getMessage().contains("Failed to connect to device"));
+			assertTrue("Message was: " + ex.getMessage(), ex.getMessage().contains(epicsv4Device.getRecordName()));
 		}
 	}
 
@@ -277,53 +271,46 @@ public class MalcolmEpicsV4ConnectorTest {
 	 */
 	@Test
 	public void connectToValidDeviceButOfflineWhenRun() throws Exception {
+		// Start the dummy test device
+		DeviceRunner runner = new DeviceRunner();
+		epicsv4Device = runner.start();
+
+		// Get the device
+		IMalcolmDevice<MalcolmModel> modelledDevice = createMalcolmDevice(epicsv4Device.getRecordName());
+
+		// Get the device state.
+		DeviceState deviceState = modelledDevice.getDeviceState();
+
+		assertEquals(DeviceState.READY, deviceState);
+
+		List<IROI> regions = new LinkedList<>();
+		regions.add(new CircularROI(2, 6, 1));
+
+		IPointGeneratorService pgService = new PointGeneratorService();
+		IPointGenerator<SpiralModel> temp = pgService
+				.createGenerator(new SpiralModel("stage_x", "stage_y", 1, new BoundingBox(0, -5, 8, 3)), regions);
+		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
+
+		MalcolmModel pmac1 = new MalcolmModel();
+		pmac1.setExposureTime(23.1);
+
+		// Set the generator on the device
+		// Cannot set the generator from @PreConfigure in this unit test.
+		((AbstractMalcolmDevice<?>)modelledDevice).setPointGenerator(scan);
+		((AbstractMalcolmDevice<?>)modelledDevice).setOutputDir("/TestFile/Dir");
+		// Call configure
+		modelledDevice.configure(pmac1);
+
+		epicsv4Device.stop();
 
 		try {
-			// Start the dummy test device
-			DeviceRunner runner = new DeviceRunner();
-			epicsv4Device = runner.start();
-
-			// Get the device
-			IMalcolmDevice<MalcolmModel> modelledDevice = createMalcolmDevice(epicsv4Device.getRecordName());
-
-			// Get the device state.
-			DeviceState deviceState = modelledDevice.getDeviceState();
-
-			assertEquals(DeviceState.READY, deviceState);
-
-			List<IROI> regions = new LinkedList<>();
-			regions.add(new CircularROI(2, 6, 1));
-
-			IPointGeneratorService pgService = new PointGeneratorService();
-			IPointGenerator<SpiralModel> temp = pgService
-					.createGenerator(new SpiralModel("stage_x", "stage_y", 1, new BoundingBox(0, -5, 8, 3)), regions);
-			IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
-
-			MalcolmModel pmac1 = new MalcolmModel();
-			pmac1.setExposureTime(23.1);
-
-			// Set the generator on the device
-			// Cannot set the generator from @PreConfigure in this unit test.
-			((AbstractMalcolmDevice<?>)modelledDevice).setPointGenerator(scan);
-			((AbstractMalcolmDevice<?>)modelledDevice).setOutputDir("/TestFile/Dir");
-			// Call configure
-			modelledDevice.configure(pmac1);
-
-			epicsv4Device.stop();
-
-			try {
-				modelledDevice.run(null);
-				fail("No exception thrown but one was expected");
-
-			} catch (Exception ex) {
-				assertEquals(MalcolmDeviceException.class, ex.getClass());
-				assertTrue("Message was: " + ex.getMessage(), ex.getMessage().contains("ERROR: channel not connected"));
-			}
+			modelledDevice.run(null);
+			fail("No exception thrown but one was expected");
 
 		} catch (Exception ex) {
-			fail(ex.getMessage());
+			assertEquals(MalcolmDeviceException.class, ex.getClass());
+			assertTrue("Message was: " + ex.getMessage(), ex.getMessage().contains("ERROR: channel not connected"));
 		}
 	}
-
 
 }

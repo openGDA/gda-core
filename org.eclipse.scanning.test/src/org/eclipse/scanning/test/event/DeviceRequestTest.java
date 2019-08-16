@@ -285,13 +285,4 @@ public class DeviceRequestTest extends BrokerTest {
 		assertNotNull(datasetsTable);
 	}
 
-	@Test
-	public void testIsNewMalcolm() throws Exception {
-		DeviceRequest req = new DeviceRequest();
-		req.setDeviceName("malcolm");
-		DeviceRequest res = requester.post(req);
-
-		assertTrue(res.getDeviceInformation().isNewMalcolm());
-	}
-
 }

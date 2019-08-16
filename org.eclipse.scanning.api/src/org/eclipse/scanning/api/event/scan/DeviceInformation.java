@@ -134,8 +134,6 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 
 	private List<String> availableAxes;
 
-	private boolean isNewMalcolm;
-
 	/**
 	 * Indicates whether the detector should be shown by default (i.e. after a client reset) in the detectors section of
 	 * the mapping experiment view,
@@ -246,7 +244,6 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 		result = prime * result + ((health == null) ? 0 : health.hashCode());
 		result = prime * result + ((icon == null) ? 0 : icon.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + (isNewMalcolm ? 1231 : 1237);
 		result = prime * result + ((label == null) ? 0 : label.hashCode());
 		result = prime * result + level;
 		result = prime * result + ((lower == null) ? 0 : lower.hashCode());
@@ -302,8 +299,6 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 			if (other.id != null)
 				return false;
 		} else if (!id.equals(other.id))
-			return false;
-		if (isNewMalcolm != other.isNewMalcolm)
 			return false;
 		if (label == null) {
 			if (other.label != null)
@@ -455,14 +450,6 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 
 	public void setAvailableAxes(List<String> list) {
 		this.availableAxes = list;
-	}
-
-	public boolean isNewMalcolm() {
-		return isNewMalcolm;
-	}
-
-	public void setNewMalcolm(boolean isNewMalcolm) {
-		this.isNewMalcolm = isNewMalcolm;
 	}
 
 	public boolean isShownByDefault() {

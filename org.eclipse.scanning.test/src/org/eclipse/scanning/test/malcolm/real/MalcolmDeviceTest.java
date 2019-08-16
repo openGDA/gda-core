@@ -28,7 +28,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
@@ -431,19 +430,6 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 
 		// Act / Assert
 		assertThat(malcolmDevice.getDatasets(), is(Matchers.sameInstance(datasetsTable)));
-	}
-
-	@Test
-	public void testIsNewMalcolm() throws Exception {
-		// Arrange
-		MalcolmMessage expectedMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
-		String[] axesNames = new String[] { "stage_x", "stage_y" };
-		StringArrayAttribute availableAxes = new StringArrayAttribute(axesNames);
-		when(malcolmConnection.send(malcolmDevice, expectedMessage))
-				.thenReturn(createExpectedMalcolmOkReply(availableAxes));
-
-		// Act / Assert
-		assertTrue(malcolmDevice.isNewMalcolmVersion());
 	}
 
 }

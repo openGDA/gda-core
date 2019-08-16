@@ -125,7 +125,6 @@ public abstract class AbstractMalcolmDevice<M extends IMalcolmModel> extends Abs
 	public DeviceInformation<M> getDeviceInformation(boolean includeNonAlive) throws ScanningException {
 		final DeviceInformation<M> info = super.getDeviceInformation(includeNonAlive);
 		if (includeNonAlive || info.isAlive()) {
-			info.setNewMalcolm(isNewMalcolmVersion());
 			info.setAvailableAxes(getAvailableAxes());
 		}
 

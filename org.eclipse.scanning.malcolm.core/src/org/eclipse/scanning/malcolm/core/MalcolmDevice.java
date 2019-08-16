@@ -11,14 +11,11 @@
  *******************************************************************************/
 package org.eclipse.scanning.malcolm.core;
 
-import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_AXES_TO_MOVE;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
 import static org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.ERROR_MESSAGE_PREFIX_FAILED_TO_CONNECT;
 
 import java.nio.file.Paths;
-import java.text.MessageFormat;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -682,21 +679,8 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 
 	@Override
 	public List<String> getAvailableAxes() throws MalcolmDeviceException {
-		// as of malcolm version 3, the attribute 'axesToMove' will be replaced by 'simultaneousAxes' with
-		// a subtly different meaning
-		Optional<IDeviceAttribute<String[]>> optAttr = getOptionalAttribute(ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
-		if (!optAttr.isPresent()) {
-			optAttr = getOptionalAttribute(ATTRIBUTE_NAME_AXES_TO_MOVE);
-		}
-
-		return optAttr.map(IDeviceAttribute::getValue).map(Arrays::asList).map(ArrayList::new).orElseThrow(
-				() -> new MalcolmDeviceException(MessageFormat.format("Malcolm device has no axes attribute, either {0} or {1}",
-						ATTRIBUTE_NAME_SIMULTANEOUS_AXES, ATTRIBUTE_NAME_AXES_TO_MOVE)));
-	}
-
-	@Override
-	public boolean isNewMalcolmVersion() throws MalcolmDeviceException {
-		return getOptionalAttribute(ATTRIBUTE_NAME_SIMULTANEOUS_AXES).isPresent();
+		final IDeviceAttribute<String[]> axesAttribute = getAttribute(ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
+		return Arrays.asList(axesAttribute.getValue());
 	}
 
 	@Override

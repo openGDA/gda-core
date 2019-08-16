@@ -838,11 +838,6 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 	}
 
 	@Override
-	public boolean isNewMalcolmVersion() {
-		return true;
-	}
-
-	@Override
 	public MalcolmTable getDatasets() throws MalcolmDeviceException {
 		return getAttributeValue(MalcolmConstants.ATTRIBUTE_NAME_DATASETS);
 	}

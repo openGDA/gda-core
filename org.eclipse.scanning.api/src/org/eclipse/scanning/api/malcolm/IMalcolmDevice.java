@@ -121,20 +121,6 @@ public interface IMalcolmDevice<T> extends IRunnableEventDevice<T>, IValidator<T
 	public void removeMalcolmListener(IMalcolmEventListener listener);
 
 	/**
-	 * Returns whether malcolm device is a 'new' malcolm device. Where new means new
-	 * as of approx. June 2018 and the principal changes are that:<ul>
-	 * <li>'axesToMove' must always be set on the underlying malcolm device when malcolm is configured;</li>
-	 * <li>The attribute 'axesToMove' has been replaced by 'simultaneousAxes'</li>
-	 * </ul>
-	 * <p>TODO this method should be removed when no beamlines use the old malcolm version (i.e. that with an
-	 * 'axesToMove' attribute. See DAQ-1523 in JIRA.
-	 *
-	 * @return <code>true</code> if this malcolm device is a new malcolm device, <code>false</code> otherwise
-	 * @throws MalcolmDeviceException
-	 */
-	public boolean isNewMalcolmVersion() throws MalcolmDeviceException;
-
-	/**
 	 * Returns a {@link MalcolmTable} object describing the datasets that this malcolm device is configured to create
 	 * during a scan. This method should only be called after {@link #configure(Object)} has been called
 	 * on this malcolm device.

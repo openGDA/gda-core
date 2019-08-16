@@ -21,8 +21,6 @@ package org.eclipse.scanning.api.malcolm;
 public class MalcolmConstants {
 
 	public static final String ATTRIBUTE_NAME_DATASETS = "datasets";
-	@Deprecated
-	public static final String ATTRIBUTE_NAME_AXES_TO_MOVE = "axesToMove"; // TODO remove when no pre 3.0 malcolm device are used
 	public static final String ATTRIBUTE_NAME_SIMULTANEOUS_AXES = "simultaneousAxes";
 	public static final String DATASETS_TABLE_COLUMN_NAME = "name";
 	public static final String DATASETS_TABLE_COLUMN_FILENAME = "filename";

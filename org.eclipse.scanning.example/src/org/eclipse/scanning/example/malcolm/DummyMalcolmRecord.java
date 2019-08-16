@@ -255,7 +255,7 @@ class DummyMalcolmRecord extends PVRecord {
 				.add("health", healthStructure).add("busy", booleanStructure).add("totalSteps", intStructure)
 				.add("abort", methodStructure).add("configure", methodStructure).add("disable", methodStructure)
 				.add("reset", methodStructure).add("run", methodStructure).add("validate", methodStructure)
-				.add("A", floatStructure).add("B", floatStructure).add("axesToMove", stringArrayStructure)
+				.add("A", floatStructure).add("B", floatStructure).add("simultaneousAxes", stringArrayStructure)
 				.add("layout", layoutTableStructure).add("datasets", datasetTableStructure)
 				.add("generator", pointGeneratorStructure).add("completedSteps", intStructure)
 				.setId(CORE_ID + "Block:1.0").createStructure();
@@ -290,7 +290,7 @@ class DummyMalcolmRecord extends PVRecord {
 		// axes
 		String[] axesArray = new String[] { x, y };
 
-		PVStringArray axes = blockPVStructure.getSubField(PVStringArray.class, "axesToMove.value");
+		PVStringArray axes = blockPVStructure.getSubField(PVStringArray.class, "simultaneousAxes.value");
 		axes.put(0, axesArray.length, axesArray, 0);
 
 		// datasets
