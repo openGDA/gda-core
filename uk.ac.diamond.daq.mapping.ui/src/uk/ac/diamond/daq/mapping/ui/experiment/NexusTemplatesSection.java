@@ -18,10 +18,14 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import static java.util.stream.Collectors.toList;
+
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -97,7 +101,13 @@ public class NexusTemplatesSection extends AbstractMappingSection {
 			return NO_TEMPLATES_SELECTED;
 		}
 
-		return String.join(", ", templateFilePaths);
+		return String.join(", ", templateFilePaths.stream()
+				.map(NexusTemplatesSection::getFileName)
+				.collect(toList()));
+	}
+
+	private static String getFileName(String filePath) {
+		return Paths.get(filePath).getFileName().toString();
 	}
 
 	private void editTemplateFiles() {
@@ -108,6 +118,11 @@ public class NexusTemplatesSection extends AbstractMappingSection {
 			getMappingBean().setTemplateFilePaths(dialog.getTemplateFilePaths());
 			updateTemplatesLabel();
 		}
+	}
+
+	@Override
+	public void updateControls() {
+		updateTemplatesLabel();
 	}
 
 	/**
@@ -145,13 +160,17 @@ public class NexusTemplatesSection extends AbstractMappingSection {
 
 				@Override
 				public String getText(Object element) {
-					return (String) element;
+					return getFileName((String) element);
 				}
 
 			});
 
 			GridDataFactory.fillDefaults().grab(true, true).hint(300, 200).applyTo(filesListViewer.getControl());
 			filesListViewer.setInput(templateFilePaths);
+
+			final int buttonWidth = convertHorizontalDLUsToPixels(IDialogConstants.BUTTON_WIDTH);
+			GridDataFactory buttonGridDataFactory = GridDataFactory.swtDefaults()
+					.align(SWT.FILL, SWT.CENTER).hint(buttonWidth, SWT.DEFAULT);
 
 			final Composite buttonArea = new Composite(composite, SWT.NONE);
 			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).applyTo(buttonArea);
@@ -160,16 +179,17 @@ public class NexusTemplatesSection extends AbstractMappingSection {
 			final Button addButton = new Button(buttonArea, SWT.PUSH);
 			addButton.setText("Add...");
 			addButton.addListener(SWT.Selection, event -> addTemplateFile());
+			buttonGridDataFactory.applyTo(addButton);
 
 			final Button removeButton = new Button(buttonArea, SWT.PUSH);
 			removeButton.setText("Remove");
 			removeButton.addListener(SWT.Selection, event -> removeTemplateFiles());
-
-			final int buttonWidth = convertHorizontalDLUsToPixels(IDialogConstants.BUTTON_WIDTH);
-			GridDataFactory buttonGridDataFactory = GridDataFactory.swtDefaults()
-					.align(SWT.FILL, SWT.CENTER).hint(buttonWidth, SWT.DEFAULT);
-			buttonGridDataFactory.applyTo(addButton);
 			buttonGridDataFactory.applyTo(removeButton);
+
+			final Button removeAllButton = new Button(buttonArea, SWT.PUSH);
+			removeAllButton.setText("Remove All");
+			removeAllButton.addListener(SWT.Selection, event -> removeAllTemplateFiles());
+			buttonGridDataFactory.applyTo(removeAllButton);
 
 			return composite;
 		}
@@ -183,7 +203,9 @@ public class NexusTemplatesSection extends AbstractMappingSection {
 			dialog.setFilterPath(templatesDir);
 
 			if (dialog.open() != null) {
-				templateFilePaths.addAll(Arrays.asList(dialog.getFileNames()));
+				final String dir = dialog.getFilterPath() + IPath.SEPARATOR;
+				Arrays.stream(dialog.getFileNames())
+					.forEach(name -> templateFilePaths.add(dir + name));
 				filesListViewer.refresh();
 			}
 		}
@@ -191,6 +213,11 @@ public class NexusTemplatesSection extends AbstractMappingSection {
 		private void removeTemplateFiles() {
 			final Object[] selectedItems = filesListViewer.getStructuredSelection().toArray();
 			templateFilePaths.removeAll(Arrays.asList(selectedItems));
+			filesListViewer.refresh();
+		}
+
+		private void removeAllTemplateFiles() {
+			templateFilePaths.clear();
 			filesListViewer.refresh();
 		}
 
