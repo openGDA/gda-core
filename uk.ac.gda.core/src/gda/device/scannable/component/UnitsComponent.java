@@ -35,6 +35,7 @@ import static gda.jscience.physics.units.NonSIext.DEG_ANGLE_SYMBOL;
 import static gda.jscience.physics.units.NonSIext.GIGAELECTRONVOLT_STRING;
 import static gda.jscience.physics.units.NonSIext.KILOCOUNTS;
 import static gda.jscience.physics.units.NonSIext.KILOCOUNTS_STRING;
+import static gda.jscience.physics.units.NonSIext.KILOCOUNTS_UC_STRING;
 import static gda.jscience.physics.units.NonSIext.KILOCOUNT_STRING;
 import static gda.jscience.physics.units.NonSIext.KILOELECTRONVOLT_STRING;
 import static gda.jscience.physics.units.NonSIext.MICROAMPERE_MU_STRING;
@@ -47,7 +48,9 @@ import static gda.jscience.physics.units.NonSIext.MICRON_UM_STRING;
 import static gda.jscience.physics.units.NonSIext.MICRO_DEG_ANGLE_STRING;
 import static gda.jscience.physics.units.NonSIext.MICRO_DEG_MU_ANGLE_STRING;
 import static gda.jscience.physics.units.NonSIext.MICRO_DEG_U_ANGLE_STRING;
+import static gda.jscience.physics.units.NonSIext.MICRO_RADIAN_ANGLE_LOWERCASE_STRING;
 import static gda.jscience.physics.units.NonSIext.MICRO_RADIAN_ANGLE_STRING;
+import static gda.jscience.physics.units.NonSIext.MICRO_RADIAN_MU_ANGLE_LOWERCASE_STRING;
 import static gda.jscience.physics.units.NonSIext.MICRO_RADIAN_MU_ANGLE_STRING;
 import static gda.jscience.physics.units.NonSIext.MICRO_RADIAN_U_ANGLE_LOWERCASE_STRING;
 import static gda.jscience.physics.units.NonSIext.MICRO_RADIAN_U_ANGLE_STRING;
@@ -333,6 +336,8 @@ public class UnitsComponent implements PositionConvertor {
 			unitList.add(MICRO_RADIAN_U_ANGLE_STRING);
 			unitList.add(MICRO_RADIAN_MU_ANGLE_STRING);
 			unitList.add(MICRO_RADIAN_U_ANGLE_LOWERCASE_STRING);
+			unitList.add(MICRO_RADIAN_ANGLE_LOWERCASE_STRING);
+			unitList.add(MICRO_RADIAN_MU_ANGLE_LOWERCASE_STRING);
 		}
 
 		// // temperature
@@ -356,6 +361,7 @@ public class UnitsComponent implements PositionConvertor {
 			unitList.add(COUNTS_STRING);
 			unitList.add(KILOCOUNT_STRING);
 			unitList.add(KILOCOUNTS_STRING);
+			unitList.add(KILOCOUNTS_UC_STRING);
 		}
 
 		// also want energy here

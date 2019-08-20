@@ -64,12 +64,12 @@ public class UnitsComponentTest {
 	private static final List<String> ANGLE_UNITS = Arrays.asList(
 			"rad", "Deg", "degrees", "°",
 			"mDeg", "deg", "mdeg", "mRad", "mrad",
-			"uDeg", "\u00b5Deg", "\u03bcDeg", "uRad", "urad", "\u00b5Rad", "\u03bcRad");
+			"uDeg", "\u00b5Deg", "\u03bcDeg", "uRad", "urad", "\u00b5Rad", "\u03bcRad", "\u00b5rad", "\u03bcrad");
 
 	private static final List<String> TEMPERATURE_UNITS = Arrays.asList("centigrade", "K");
 	private static final List<String> FORCE_UNITS = Arrays.asList("N");
 	private static final List<String> ELECTRICAL_POTENTIAL_UNITS = Arrays.asList("V");
-	private static final List<String> COUNT_UNITS = Arrays.asList("ct", "cts", "kct", "kcts");
+	private static final List<String> COUNT_UNITS = Arrays.asList("Kcount", "ct", "cts", "kct", "kcts");
 	private static final List<String> ENERGY_UNITS = Arrays.asList("keV", "eV", "GeV");
 	private static final List<String> DIMENSIONLESS_UNITS = Arrays.asList(Unit.ONE.toString());
 	private static final List<String> ELECTRIC_CURRENT_UNITS = Arrays.asList("A", "\u00b5A", "\u03bcA", "uA", "mA");

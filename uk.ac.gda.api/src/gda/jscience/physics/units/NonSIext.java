@@ -60,6 +60,8 @@ public final class NonSIext {
 	public static final String MILLI_RADIAN_ANGLE_LOWERCASE_STRING = "mrad";
 	public static final String MICRO_RADIAN_ANGLE_STRING = "\u00b5Rad";
 	public static final String MICRO_RADIAN_MU_ANGLE_STRING = "\u03bcRad";
+	public static final String MICRO_RADIAN_ANGLE_LOWERCASE_STRING = "\u00b5rad";
+	public static final String MICRO_RADIAN_MU_ANGLE_LOWERCASE_STRING = "\u03bcrad";
 	public static final String MICRO_RADIAN_U_ANGLE_STRING = "uRad";
 	public static final String MICRO_RADIAN_U_ANGLE_LOWERCASE_STRING = "urad";
 
@@ -95,6 +97,7 @@ public final class NonSIext {
 	public static final String COUNTS_STRING = "cts";
 	public static final String KILOCOUNT_STRING = "kct";
 	public static final String KILOCOUNTS_STRING = "kcts";
+	public static final String KILOCOUNTS_UC_STRING = "Kcount";
 
 	/**
 	 * A unit of angle equal to <code>1/360</code> REVOLUTION (standard name <code>°</code>, alternative name defined
@@ -204,6 +207,8 @@ public final class NonSIext {
 		unitFormat.alias(SI.RADIAN.times(1e-3), MILLI_RADIAN_ANGLE_LOWERCASE_STRING);
 		unitFormat.alias(SI.MICRO(SI.RADIAN), MICRO_RADIAN_ANGLE_STRING);
 		unitFormat.alias(SI.MICRO(SI.RADIAN), MICRO_RADIAN_MU_ANGLE_STRING);
+		unitFormat.alias(SI.MICRO(SI.RADIAN), MICRO_RADIAN_ANGLE_LOWERCASE_STRING);
+		unitFormat.alias(SI.MICRO(SI.RADIAN), MICRO_RADIAN_MU_ANGLE_LOWERCASE_STRING);
 		unitFormat.alias(SI.MICRO(SI.RADIAN), MICRO_RADIAN_U_ANGLE_STRING);
 		unitFormat.alias(SI.MICRO(SI.RADIAN), MICRO_RADIAN_U_ANGLE_LOWERCASE_STRING);
 
@@ -238,6 +243,7 @@ public final class NonSIext {
 		unitFormat.alias(SI.METER.inverse(), COUNTS_STRING);
 		unitFormat.alias(SI.METER.inverse().times(1e3), KILOCOUNT_STRING);
 		unitFormat.alias(SI.METER.inverse().times(1e3), KILOCOUNTS_STRING);
+		unitFormat.alias(SI.METER.inverse().times(1e3), KILOCOUNTS_UC_STRING);
 
 		DEG_ANGLE = (Unit<Angle>) Unit.valueOf(DEG_ANGLE_STRING);
 		DEG_ANGLE_LOWERCASE = (Unit<Angle>) Unit.valueOf(DEG_ANGLE_LOWERCASE_STRING);
