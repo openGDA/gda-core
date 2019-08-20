@@ -187,7 +187,7 @@ public abstract class IncrementalFile extends DataWriterBase {
 				fparent.mkdirs();
 			}
 			file = new FileWriter(f);
-			terminalPrinter.print("Writing data to file:" + fileUrl);
+			terminalPrinter.print("Writing data to file: " + fileUrl);
 		} catch (Exception ex) {
 			String error = "Failed to create a new data file: " + fileUrl + " - " + ex.getMessage();
 			terminalPrinter.print(error);
