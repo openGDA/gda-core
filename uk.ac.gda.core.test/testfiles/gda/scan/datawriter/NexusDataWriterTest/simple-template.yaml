@@ -1,0 +1,10 @@
+scan/:
+  NX_class@: NXentry # the '@' has to come at the end
+  start_time: /entry1/start_time
+  end_time: /entry1/end_time
+  definition: NXscan
+  program_name:
+    value: gda
+    version@: "9.13"
+    configuration@: dummy
+    

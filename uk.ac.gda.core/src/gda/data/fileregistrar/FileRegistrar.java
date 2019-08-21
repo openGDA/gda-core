@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.data.PathConstructor;
+import gda.data.ServiceHolder;
 import gda.data.scan.datawriter.DataWriterExtenderBase;
 import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.device.Detector;
@@ -205,7 +206,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 			if (lastScanDataPoint != null) {
 				scanId = "scan-" + lastScanDataPoint.getScanIdentifier();
 			} else {
-				final IFilePathService pathService = FileRegistrarServiceHolder.getFilePathService();
+				final IFilePathService pathService = ServiceHolder.getFilePathService();
 				String id; // to get over the fact the scanId is final
 				try {
 					int scanNumber = pathService.getScanNumber();
@@ -273,7 +274,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	 * @throws ClassCastException if IRunnableDeviceService is not a IScanService which is must be.
 	 */
 	public void register() {
-		((IScanService)FileRegistrarServiceHolder.getRunnableDeviceService()).addScanParticipant(this);
+		((IScanService)ServiceHolder.getRunnableDeviceService()).addScanParticipant(this);
 		logger.info("Registered {} as a participant in scans", getClass().getSimpleName());
 	}
 

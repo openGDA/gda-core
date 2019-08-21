@@ -48,7 +48,8 @@ Require-Bundle: org.aopalliance,
  org.jline;bundle-version="(3.3.1,4.0.0]",
  com.springsource.net.sf.cglib;bundle-version="2.2.0",
  com.fasterxml.jackson.core.jackson-databind,
- com.fasterxml.jackson.core.jackson-core
+ com.fasterxml.jackson.core.jackson-core,
+ org.eclipse.dawnsci.nexus.template
 Eclipse-RegisterBuddy: uk.ac.diamond.scisoft.analysis,
  uk.ac.gda.api,
  uk.ac.diamond.org.springframework

@@ -40,6 +40,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import gda.TestHelpers;
+import gda.data.ServiceHolder;
 import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.device.Detector;
 import gda.factory.Factory;
@@ -86,7 +87,7 @@ public class FileRegistrarUnitTest {
 		fileArrayCaptor = ArgumentCaptor.forClass(String[].class);
 
 		filePathService = mock(IFilePathService.class);
-		new FileRegistrarServiceHolder().setFilePathService(filePathService);
+		new ServiceHolder().setFilePathService(filePathService);
 	}
 
 	@Before
@@ -260,7 +261,7 @@ public class FileRegistrarUnitTest {
 	@Test
 	public void testRegister() throws Exception {
 		final IScanService scanService = mock(IScanService.class);
-		new FileRegistrarServiceHolder().setRunnableDeviceService(scanService);
+		new ServiceHolder().setRunnableDeviceService(scanService);
 		final ArgumentCaptor<FileRegistrar> fileRegistrarCaptor = ArgumentCaptor.forClass(FileRegistrar.class);
 
 		final FileRegistrar fileRegistrar = new FileRegistrar(icatXmlCreator);

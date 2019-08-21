@@ -16,8 +16,9 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.data.fileregistrar;
+package gda.data;
 
+import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.scan.IFilePathService;
 
@@ -25,7 +26,7 @@ import org.eclipse.scanning.api.scan.IFilePathService;
  * Holds the IRunnableDeviceService which the file registrar uses
  * to register itself with.
  */
-public class FileRegistrarServiceHolder {
+public class ServiceHolder {
 
 
 	// This is provided by OSGi. Making static usually gives the best
@@ -47,7 +48,17 @@ public class FileRegistrarServiceHolder {
 	}
 
 	public void setFilePathService(IFilePathService filePathService) {
-		FileRegistrarServiceHolder.filePathService = filePathService;
+		ServiceHolder.filePathService = filePathService;
+	}
+
+	private static NexusTemplateService nexusTemplateService;
+
+	public static NexusTemplateService getNexusTemplateService() {
+		return nexusTemplateService;
+	}
+
+	public void setNexusTemplateService(NexusTemplateService nexusTemplateService) {
+		ServiceHolder.nexusTemplateService = nexusTemplateService;
 	}
 
 }

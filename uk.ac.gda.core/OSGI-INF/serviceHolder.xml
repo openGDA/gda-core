@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="Service Holder">
+   <implementation class="gda.data.ServiceHolder"/>
+   <reference bind="setRunnableDeviceService" cardinality="1..1" interface="org.eclipse.scanning.api.device.IRunnableDeviceService" name="IRunnableDeviceService" policy="static"/>
+   <reference bind="setFilePathService" cardinality="1..1" interface="org.eclipse.scanning.api.scan.IFilePathService" name="IFilePathService" policy="static"/>
+   <reference bind="setNexusTemplateService" cardinality="1..1" interface="org.eclipse.dawnsci.nexus.template.NexusTemplateService" name="NexusTemplateService" policy="static"/>
+</scr:component>

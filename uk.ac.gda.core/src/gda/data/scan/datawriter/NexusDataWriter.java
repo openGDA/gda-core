@@ -32,6 +32,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -52,6 +53,8 @@ import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
+import org.eclipse.dawnsci.nexus.template.NexusTemplate;
+import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DTypeUtils;
 import org.eclipse.january.dataset.Dataset;
@@ -67,6 +70,7 @@ import org.springframework.util.StringUtils;
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
+import gda.data.ServiceHolder;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
 import gda.data.nexus.INeXusInfoWriteable;
@@ -194,6 +198,8 @@ public class NexusDataWriter extends DataWriterBase {
 	private static Map<String, Set<String>> metadataScannablesPerDetector = new HashMap<>();
 
 	private static Map<String, String> metadataEntries;
+
+	private static List<String> nexusTemplateFiles;
 
 	/**
 	 * Constructor. This attempts to read the java.property which defines the beamline name.
@@ -965,6 +971,7 @@ public class NexusDataWriter extends DataWriterBase {
 					null,
 					DatasetFactory.createFromObject(ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now())),
 					new int[] {0}, new int[] {1}, new int[] {1});
+			applyTemplates();
 		}
 		releaseFile();
 		super.completeCollection();
@@ -972,6 +979,22 @@ public class NexusDataWriter extends DataWriterBase {
 		// Log the performance info. Convert ns into ms, and report per point to make comparable
 		logger.info("Writing {} points to NeXus took an average of {} ms per point", numberOfPoints,
 				(totalWritingTime / 1.0E6) / numberOfPoints);
+	}
+
+	private void applyTemplates() throws NexusException {
+		final NexusTemplateService templateService = ServiceHolder.getNexusTemplateService();
+		if (templateService != null) {
+			for (String templateFilePath : NexusDataWriter.getNexusTemplateFiles()) {
+				Path filePath = Paths.get(templateFilePath);
+				if (!filePath.isAbsolute()) {
+					// if the file path is relative, resolve it relative to gda.var
+					final String gdaVar = PathConstructor.createFromProperty(LocalProperties.GDA_VAR_DIR);
+					templateFilePath = Paths.get(gdaVar).resolve(filePath).toString();
+				}
+				final NexusTemplate template = templateService.loadTemplate(templateFilePath);
+				template.apply(file);
+			}
+		}
 	}
 
 	/**
@@ -2052,6 +2075,18 @@ public class NexusDataWriter extends DataWriterBase {
 			NexusDataWriter.metadataScannablesPerDetector = metadataScannablesPerDetector.entrySet().stream()
 					.collect(Collectors.toMap(Entry::getKey, e -> new HashSet<>(e.getValue())));
 		}
+	}
+
+	public static void setNexusTemplateFiles(List<String> nexusTemplateFiles) {
+		if (nexusTemplateFiles == null) {
+			NexusDataWriter.nexusTemplateFiles = Collections.emptyList();
+		} else {
+			NexusDataWriter.nexusTemplateFiles = nexusTemplateFiles;
+		}
+	}
+
+	public static List<String> getNexusTemplateFiles() {
+		return NexusDataWriter.nexusTemplateFiles;
 	}
 
 	public String getNexusFileName() {

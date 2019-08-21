@@ -22,6 +22,7 @@ package gda.data.nexus;
 import java.io.File;
 
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
+import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.slf4j.Logger;
@@ -79,7 +80,12 @@ public class NexusFileFactory {
 		return nf;
 	}
 
+	public static NexusFile openFileToRead(String fileUrl) throws NexusException {
+		return NexusFileHDF5.openNexusFileReadOnly(fileUrl);
+	}
+
 	public static NexusFile createFile(String fileUrl, boolean instrumentFileApi) throws Exception {
 		return createFile(fileUrl, instrumentFileApi, false);
 	}
+
 }
