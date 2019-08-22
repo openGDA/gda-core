@@ -165,7 +165,7 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 	private ProcessingSetupConfiguration processingSetupConfiguration = null;
 
-	private ProcessingMode mode = ProcessingMode.EXISTING_DAWN;
+	private ProcessingMode mode = ProcessingMode.NEW_DAWN;
 
 	/**
 	 * A map from the name of a malcolm device to the name of the main primary dataset for that malcolm device.
