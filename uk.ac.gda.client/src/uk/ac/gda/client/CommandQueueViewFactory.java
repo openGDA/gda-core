@@ -25,12 +25,12 @@ import org.eclipse.scanning.event.ui.view.EventConnectionView;
 import org.eclipse.scanning.event.ui.view.StatusQueueView;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.osgi.util.tracker.ServiceTracker;
 
+import gda.commandqueue.IFindableQueueProcessor;
 import gda.commandqueue.Processor;
 import gda.commandqueue.Queue;
 import gda.configuration.properties.LocalProperties;
-import gda.rcp.GDAClientActivator;
+import gda.factory.Finder;
 
 public class CommandQueueViewFactory implements IExecutableExtensionFactory {
 
@@ -38,42 +38,32 @@ public class CommandQueueViewFactory implements IExecutableExtensionFactory {
 
 	public static final String GDA_USE_STATUS_QUEUE_VIEW = "gda.client.useStatusQueueView";
 
-	private static Processor processor;
-	private static Queue queue;
-	private static Boolean openProcessorServiceAlreadyAttempted = false;
-	private static Boolean openQueueServiceAlreadyAttempted = false;
+	private static IFindableQueueProcessor queueProcessor;
+	private static boolean openQueueProcessorAlreadyAttempted = false;
 	private static Boolean usingNewQueue = null;
 
 	/**
 	 * @return Returns the processor.
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static Processor getProcessor() {
-		if (processor == null && !openProcessorServiceAlreadyAttempted) {
-			openProcessorServiceAlreadyAttempted = true;
-			final ServiceTracker processorTracker = new ServiceTracker(GDAClientActivator.getBundleContext(), Processor.class.getName(), null);
-			processorTracker.open();
-			processor = (Processor) processorTracker.getService();
-		}
-		return processor;
+		return getQueueProcessor();
 	}
 
 	/**
 	 * @return Returns the queue.
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static Queue getQueue() {
 		if (usingNewQueue()) {
 			return null;
 		}
+		return getQueueProcessor();
+	}
 
-		if (queue == null && !openQueueServiceAlreadyAttempted) {
-			openQueueServiceAlreadyAttempted = true;
-			final ServiceTracker queueTracker = new ServiceTracker(GDAClientActivator.getBundleContext(), Queue.class.getName(), null);
-			queueTracker.open();
-			queue = (Queue) queueTracker.getService();
+	private static IFindableQueueProcessor getQueueProcessor() {
+		if (queueProcessor == null && !openQueueProcessorAlreadyAttempted) {
+			queueProcessor = Finder.getInstance().listFindablesOfType(IFindableQueueProcessor.class).stream().findFirst().orElse(null);
 		}
-		return queue;
+		return queueProcessor;
 	}
 
 	public static void showView(){
