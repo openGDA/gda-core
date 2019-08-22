@@ -32,7 +32,7 @@ public class StopAfterCurrentCommandQueueHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
 			logger.debug("Stop after current scan button pressed");
-			CommandQueueViewFactory.processor.stopAfterCurrent();
+			CommandQueueViewFactory.getProcessor().stopAfterCurrent();
 			return Boolean.TRUE;
 		} catch (Exception ne) {
 			throw new ExecutionException("Error running StopAfterCurrentCommand", ne);

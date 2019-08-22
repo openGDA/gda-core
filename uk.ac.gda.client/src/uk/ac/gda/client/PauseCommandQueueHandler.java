@@ -32,7 +32,7 @@ public class PauseCommandQueueHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
 			logger.debug("Pause queue button pressed");
-			CommandQueueViewFactory.processor.pause(500);
+			CommandQueueViewFactory.getProcessor().pause(500);
 			return Boolean.TRUE;
 		} catch (Exception ne) {
 			throw new ExecutionException("Error handling PauseCommandQueue", ne);

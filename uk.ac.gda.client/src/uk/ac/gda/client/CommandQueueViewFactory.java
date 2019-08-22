@@ -38,24 +38,22 @@ public class CommandQueueViewFactory implements IExecutableExtensionFactory {
 
 	public static final String GDA_USE_STATUS_QUEUE_VIEW = "gda.client.useStatusQueueView";
 
-	static Processor processor;
-	static Queue queue;
-	static Boolean openProcessorServiceAlreadyAttempted = false;
-	static Boolean openQueueServiceAlreadyAttempted = false;
-	static Boolean usingNewQueue = null;
-
+	private static Processor processor;
+	private static Queue queue;
+	private static Boolean openProcessorServiceAlreadyAttempted = false;
+	private static Boolean openQueueServiceAlreadyAttempted = false;
+	private static Boolean usingNewQueue = null;
 
 	/**
 	 * @return Returns the processor.
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static Processor getProcessor() {
-		if( processor == null && !openProcessorServiceAlreadyAttempted ){
+		if (processor == null && !openProcessorServiceAlreadyAttempted) {
 			openProcessorServiceAlreadyAttempted = true;
-			ServiceTracker processorTracker;
-			processorTracker = new ServiceTracker(GDAClientActivator.getBundleContext(), gda.commandqueue.Processor.class.getName(), null);
+			final ServiceTracker processorTracker = new ServiceTracker(GDAClientActivator.getBundleContext(), Processor.class.getName(), null);
 			processorTracker.open();
-			processor = (gda.commandqueue.Processor)processorTracker.getService();
+			processor = (Processor) processorTracker.getService();
 		}
 		return processor;
 	}
@@ -69,37 +67,35 @@ public class CommandQueueViewFactory implements IExecutableExtensionFactory {
 			return null;
 		}
 
-		if( queue == null && !openQueueServiceAlreadyAttempted){
+		if (queue == null && !openQueueServiceAlreadyAttempted) {
 			openQueueServiceAlreadyAttempted = true;
-			ServiceTracker queueTracker;
-			queueTracker = new ServiceTracker(GDAClientActivator.getBundleContext(), gda.commandqueue.Queue.class.getName(), null);
+			final ServiceTracker queueTracker = new ServiceTracker(GDAClientActivator.getBundleContext(), Queue.class.getName(), null);
 			queueTracker.open();
-			queue = (gda.commandqueue.Queue)queueTracker.getService();
+			queue = (Queue) queueTracker.getService();
 		}
 		return queue;
 	}
 
-	static public void showView(){
+	public static void showView(){
 		try {
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(CommandQueueViewFactory.ID);
 		} catch (PartInitException e1) {
-			// TODO Auto-generated catch block
+			// Logger may not be initialised
+			System.err.println("Error initialising CommandQueueViewFactory");
 			e1.printStackTrace();
 		}
 
 	}
 	public static boolean usingNewQueue() {
 		if (usingNewQueue == null) {
-			usingNewQueue = new Boolean(LocalProperties.check(GDA_USE_STATUS_QUEUE_VIEW));
+			usingNewQueue = LocalProperties.check(GDA_USE_STATUS_QUEUE_VIEW);
 		}
 		return usingNewQueue;
 	}
 
 	public CommandQueueViewFactory() {
-		if (!usingNewQueue()) {
-			if( getProcessor() == null || getQueue() == null){
-				throw new IllegalStateException("Unable to find processor or queue");
-			}
+		if (!usingNewQueue() && (getProcessor() == null || getQueue() == null)) {
+			throw new IllegalStateException("Unable to find processor or queue");
 		}
 	}
 
@@ -107,13 +103,13 @@ public class CommandQueueViewFactory implements IExecutableExtensionFactory {
 	public Object create() throws CoreException {
 		if (usingNewQueue()) {
 			// use the new GDA9 StatusQueueView
-			String queueViewPropertiesId = createStatusQueuePropertiesString();
-			StatusQueueView statusQueueView = new StatusQueueView();
+			final String queueViewPropertiesId = createStatusQueuePropertiesString();
+			final StatusQueueView statusQueueView = new StatusQueueView();
 			statusQueueView.setIdProperties(queueViewPropertiesId);
 			return statusQueueView;
 		} else {
 			// use the old CommandQueueView
-			CommandQueueView commandQueueView = new CommandQueueView();
+			final CommandQueueView commandQueueView = new CommandQueueView();
 			commandQueueView.setProcessor(getProcessor());
 			commandQueueView.setQueue(getQueue());
 			return commandQueueView;
@@ -121,7 +117,7 @@ public class CommandQueueViewFactory implements IExecutableExtensionFactory {
 	}
 
 	private String createStatusQueuePropertiesString() {
-		String activeMqUri = LocalProperties.get(LocalProperties.GDA_ACTIVEMQ_BROKER_URI, "");
+		final String activeMqUri = LocalProperties.get(LocalProperties.GDA_ACTIVEMQ_BROKER_URI, "");
 		String queueViewPropertiesId = EventConnectionView.createSecondaryId(activeMqUri,
 				"org.eclipse.scanning.api",
 				"org.eclipse.scanning.api.event.status.StatusBean",
@@ -130,6 +126,5 @@ public class CommandQueueViewFactory implements IExecutableExtensionFactory {
 		queueViewPropertiesId = queueViewPropertiesId + "partName=Queue";
 		return queueViewPropertiesId;
 	}
-
 
 }

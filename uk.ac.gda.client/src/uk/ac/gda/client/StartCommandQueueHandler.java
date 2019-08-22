@@ -32,7 +32,7 @@ public class StartCommandQueueHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
 			logger.debug("Pause/Resume Scan button pressed");
-			CommandQueueViewFactory.processor.start(500);
+			CommandQueueViewFactory.getProcessor().start(500);
 			return Boolean.TRUE;
 		} catch (Exception ne) {
 			throw new ExecutionException("Error running StartCommandHandler", ne);

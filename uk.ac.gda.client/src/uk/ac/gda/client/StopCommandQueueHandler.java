@@ -32,7 +32,7 @@ public class StopCommandQueueHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
 			logger.debug("Stop queue button pressed");
-			CommandQueueViewFactory.processor.stop(1000);
+			CommandQueueViewFactory.getProcessor().stop(1000);
 			return Boolean.TRUE;
 		} catch (Exception ne) {
 			throw new ExecutionException("Error running StopCommand", ne);
