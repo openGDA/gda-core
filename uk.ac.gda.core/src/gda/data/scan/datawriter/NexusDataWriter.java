@@ -1886,14 +1886,6 @@ public class NexusDataWriter extends DataWriterBase {
 		return this.nexusFileNameTemplate;
 	}
 
-	@Override
-	public void addDataWriterExtender(final IDataWriterExtender e) {
-		super.addDataWriterExtender(e);
-		if (this.createSrsFile) {
-			logger.warn("NexusDataWriter no longer disables the creation of SRS data files when a DataWriterExtender is added: {}", e);
-		}
-	}
-
 	public boolean isFirstData() {
 		return firstData;
 	}
