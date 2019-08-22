@@ -265,6 +265,13 @@ public class ScanParameterDialog extends Dialog {
 	private TomoScanParameters getIDialogModel() throws Exception {
 		final IDialogSettings dialogSettings = Activator.getDefault().getDialogSettings();
 		final String modelJson = dialogSettings.get(DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL);
-		return ServiceHolder.getMarshallerService().unmarshal(modelJson, TomoScanParameters.class);
+		if (modelJson != null) {
+			try {
+				return ServiceHolder.getMarshallerService().unmarshal(modelJson, TomoScanParameters.class);
+			} catch (Exception e) {
+				logger.warn("Cannot retrieve saved parameters; using defaults", e);
+			}
+		}
+		return new TomoScanParameters();
 	}
 }
