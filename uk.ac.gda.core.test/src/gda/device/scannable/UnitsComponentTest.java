@@ -21,6 +21,7 @@ package gda.device.scannable;
 import static gda.jscience.physics.units.NonSIext.DEG_ANGLE;
 import static gda.jscience.physics.units.NonSIext.DEG_ANGLE_LOWERCASE_STRING;
 import static gda.jscience.physics.units.NonSIext.MILLI_DEG_ANGLE;
+import static gda.jscience.physics.units.NonSIext.MILLI_DEG_ANGLE_LOWERCASE_STRING;
 import static javax.measure.unit.SI.METER;
 import static javax.measure.unit.SI.MILLI;
 import static javax.measure.unit.SI.NANO;
@@ -347,7 +348,7 @@ public class UnitsComponentTest {
 		uc.setHardwareUnitString("Deg");
 		assertEquals(DEG_ANGLE_LOWERCASE_STRING, uc.getHardwareUnitString());
 		assertEquals(DEG_ANGLE, uc.getHardwareUnit());
-		assertEquals("rad*1.7453292519943296E-5", uc.getUserUnitString());
+		assertEquals(MILLI_DEG_ANGLE_LOWERCASE_STRING, uc.getUserUnitString());
 		assertEquals(MILLI_DEG_ANGLE, uc.getUserUnit());
 	}
 

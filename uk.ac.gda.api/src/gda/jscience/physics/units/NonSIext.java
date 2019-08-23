@@ -19,16 +19,21 @@
 
 package gda.jscience.physics.units;
 
+import java.util.Map;
+
 import javax.measure.quantity.Angle;
 import javax.measure.quantity.Duration;
 import javax.measure.quantity.ElectricCurrent;
 import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
+import javax.measure.quantity.Quantity;
 import javax.measure.quantity.Temperature;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
+
+import com.google.common.collect.ImmutableMap;
 
 import gda.jscience.physics.quantities.Count;
 import gda.jscience.physics.quantities.Vector;
@@ -43,6 +48,8 @@ import gda.jscience.physics.quantities.Vector;
  * <p>
  * The <code>Unit</code> objects are set in a static initialiser. This is necessary because we need to control the
  * order: the aliases must be defined to JScience before being used to create the objects.
+ * <p>
+ * When adding a unit to this class, please remember to update 'unitStrings' accordingly
  */
 @SuppressWarnings("unchecked")
 public final class NonSIext {
@@ -281,7 +288,38 @@ public final class NonSIext {
 
 		COUNTS = (Unit<Count>) Unit.valueOf(COUNTS_STRING);
 		KILOCOUNTS = (Unit<Count>) Unit.valueOf(KILOCOUNTS_STRING);
-}
+	}
+
+	/**
+	 * For some units, the output of <code>Unit.toString()</code> is not very easy to read, for example the degree
+	 * symbol or <code>(1/m)*1000.0</code> for kilocounts.<br>
+	 * This table overrides string to be printed for these cases.
+	 * <p>
+	 * Because of the aliasing defined above, <code>DEG_ANGLE</code>, <code>DEG_ANGLE_LOWERCASE</code> and
+	 * <code>DEGREES_ANGLE</code> are all assigned to the same object, so only one needs to be put into this map.<br>
+	 * The same applies to the other aliased units.
+	 */
+	private static final Map<Object, Object> unitStrings = ImmutableMap.builder()
+			.put(DEG_ANGLE, DEG_ANGLE_LOWERCASE_STRING)
+			.put(MILLI_DEG_ANGLE, MILLI_DEG_ANGLE_LOWERCASE_STRING)
+			.put(MICRO_DEG_ANGLE, MICRO_DEG_ANGLE_STRING)
+			.put(MILLI_RADIAN_ANGLE, MILLI_RADIAN_ANGLE_LOWERCASE_STRING)
+			.put(MICRO_RADIAN_ANGLE, MICRO_RADIAN_ANGLE_LOWERCASE_STRING)
+			.put(MICRON, MICRON_SYMBOL_STRING)
+			.put(MICROSECOND, MICROSECOND_LOWERCASE_STRING)
+			.put(ANGSTROM, ANGSTROM_STRING)
+			.put(PER_ANGSTROM, PER_ANGSTROM_STRING)
+			.put(CENTIGRADE, CENTIGRADE_STRING)
+			.put(KILOELECTRONVOLT, KILOELECTRONVOLT_STRING)
+			.put(GIGAELECTRONVOLT, GIGAELECTRONVOLT_STRING)
+			.put(MICRO_AMPERE, MICROAMPERE_STRING)
+			.put(COUNTS, COUNTS_STRING)
+			.put(KILOCOUNTS, KILOCOUNTS_STRING)
+			.build();
+
+	public static String getUnitString(Unit<? extends Quantity> unit) {
+		return (String) unitStrings.getOrDefault(unit, unit.toString());
+	}
 
 	/** Default constructor (prevents this class from being instantiated). */
 	private NonSIext() {
