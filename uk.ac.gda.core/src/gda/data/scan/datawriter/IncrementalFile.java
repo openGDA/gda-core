@@ -133,7 +133,7 @@ public abstract class IncrementalFile extends DataWriterBase {
 					NumTracker runs = new NumTracker("tmp");
 					thisFileNumber = runs.incrementNumber();
 				} catch (IOException e) {
-					throw new InstantiationException("Could not instantiate NumTracker in IncrementalFile(): " + e.getLocalizedMessage().toString());
+					throw new InstantiationException("Could not instantiate NumTracker in IncrementalFile(): " + e.getLocalizedMessage());
 				}
 			}
 			fileNumberConfigured = true;
@@ -187,7 +187,9 @@ public abstract class IncrementalFile extends DataWriterBase {
 				fparent.mkdirs();
 			}
 			file = new FileWriter(f);
-			terminalPrinter.print("Writing data to file: " + fileUrl);
+			String msg = "Writing data to file: " + fileUrl;
+			terminalPrinter.print(msg);
+			logger.info(msg);
 		} catch (Exception ex) {
 			String error = "Failed to create a new data file: " + fileUrl + " - " + ex.getMessage();
 			terminalPrinter.print(error);
@@ -200,10 +202,10 @@ public abstract class IncrementalFile extends DataWriterBase {
 	 */
 	public void releaseFile() {
 		try {
-			// System.err.println("Closing file.");
-			logger.info("Closing incremental file: " + fileUrl);
+			logger.info("Closing incremental file: {}", fileUrl);
 			file.close();
 		} catch (IOException ex) {
+			logger.warn("Error closing file: {}", fileUrl);
 		}
 		finally{
 			file = null;

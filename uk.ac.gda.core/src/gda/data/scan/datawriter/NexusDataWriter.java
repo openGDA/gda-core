@@ -1722,11 +1722,6 @@ public class NexusDataWriter extends DataWriterBase {
 			String msg = "Writing data to file (NeXus): " + nexusFileUrl;
 			logger.info(msg);
 			terminalPrinter.print(msg);
-			if (createSrsFile) {
-				msg = "Also creating file (txt): " + srsFile.fileUrl;
-				logger.info(msg);
-				terminalPrinter.print(msg);
-			}
 		} catch (Exception ex) {
 			String error = "Failed to create file (" + nexusFileUrl;
 			if (createSrsFile) {
