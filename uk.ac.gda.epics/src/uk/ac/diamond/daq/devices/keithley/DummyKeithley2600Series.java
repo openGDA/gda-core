@@ -106,26 +106,4 @@ public class DummyKeithley2600Series extends AbstractKeithley2600Series {
 	public boolean isOutputOn() throws DeviceException {
 		return outputOn;
 	}
-
-	@Override
-	public void setDwellTime(int demand) throws DeviceException {
-		dwellTime = demand;
-	}
-
-	@Override
-	public int getDwellTime() throws DeviceException {
-		return dwellTime;
-	}
-
-	@Override
-	public void setNumberOfReadings(int demand) throws DeviceException {
-		numberOfReadings = demand;
-
-	}
-
-	@Override
-	public int getNumberOfReadings() throws DeviceException {
-		return numberOfReadings;
-	}
-
 }

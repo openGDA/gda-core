@@ -253,24 +253,9 @@ public abstract class AbstractKeithley2600Series extends ScannableBase {
 		logger.trace("Settling finshed");
 	}
 
-	@Override
-	public void atScanEnd() throws DeviceException {
-		outputOff();
-	}
-
 	protected abstract void outputOff() throws DeviceException;
 
 	protected abstract void outputOn() throws DeviceException;
-
-	@Override
-	public void atCommandFailure() throws DeviceException {
-		outputOff();
-	}
-
-	@Override
-	public void stop() throws DeviceException {
-		outputOff();
-	}
 
 	public void setSourceMode(String mode) throws DeviceException {
 		setSourceMode(SourceMode.valueOf(mode.toUpperCase()));
@@ -322,12 +307,4 @@ public abstract class AbstractKeithley2600Series extends ScannableBase {
 	public void setSwitchOnDelayTimeMs(long switchOnDelayTimeMs) {
 		this.switchOnDelayTimeMs = switchOnDelayTimeMs;
 	}
-
-	public abstract void setDwellTime(int dwellTime) throws DeviceException;
-
-	public abstract int getDwellTime() throws DeviceException;
-
-	public abstract void setNumberOfReadings(int numberOfReadings) throws DeviceException;
-
-	public abstract int getNumberOfReadings() throws DeviceException;
 }

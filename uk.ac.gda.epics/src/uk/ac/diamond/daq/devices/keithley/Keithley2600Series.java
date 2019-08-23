@@ -82,14 +82,6 @@ public class Keithley2600Series extends AbstractKeithley2600Series {
 	private static final String RESISTANCE_MODE = "ResistanceMode";
 	private static final String RESISTANCE_MODE_RBV = "ResistanceModeRead";
 
-	/** Number of readings to be taken */
-	private static final String NUMBER_OF_READINGS = "MeasCount";
-	private static final String NUMBER_OF_READINGS_RBV = "MeasCountR";
-
-	/** Interval between readings */
-	private static final String DWELL_TIME = "MeasInterval";
-	private static final String DWELL_TIME_RBV = "MeasIntervalR";
-
 
 	/** This monitors the status flags for voltage or current limits hit */
 	private final MonitorListener limitStatusMonitor = ev -> {
@@ -237,6 +229,12 @@ public class Keithley2600Series extends AbstractKeithley2600Series {
 
 	@Override
 	public void outputOn() throws DeviceException {
+
+		if (isOutputOn() ) {
+			logger.debug("'{}' Output is already on.", getName());
+			return;
+		}
+
 		logger.debug("'{}' Switching on...", getName());
 		try {
 			epicsController.caputWait(getChannel(OUTPUT), "On");
@@ -362,46 +360,6 @@ public class Keithley2600Series extends AbstractKeithley2600Series {
 			return epicsController.cagetDouble(getChannel(CURRENT_SETPOINT_RBV));
 		} catch (Exception e) {
 			throw new DeviceException("Failed to get demand current", e);
-		}
-	}
-
-	@Override
-	public void setDwellTime(int demand) throws DeviceException {
-		// TODO validation
-		logger.debug("{} setting dwell time to: {}", getName(), demand);
-		try {
-			epicsController.caputWait(getChannel(DWELL_TIME), demand);
-		} catch (Exception exception) {
-			throw new DeviceException("Failed to set dwell time to: " + demand, exception);
-		}
-	}
-
-	@Override
-	public int getDwellTime() throws DeviceException {
-		try {
-			return epicsController.cagetInt(getChannel(DWELL_TIME_RBV));
-		} catch (Exception exception) {
-			throw new DeviceException("Failed to get dwell time", exception);
-		}
-	}
-
-	@Override
-	public void setNumberOfReadings(int demand) throws DeviceException {
-		// TODO validation
-		logger.debug("{} setting number of readings to: {}", getName(), demand);
-		try {
-			epicsController.caputWait(getChannel(NUMBER_OF_READINGS), demand);
-		} catch (Exception exception) {
-			throw new DeviceException("Failed to set number of readings to: " + demand, exception);
-		}
-	}
-
-	@Override
-	public int getNumberOfReadings() throws DeviceException {
-		try {
-			return epicsController.cagetInt(getChannel(NUMBER_OF_READINGS_RBV));
-		} catch (Exception exception) {
-			throw new DeviceException("Failed to get number of readings", exception);
 		}
 	}
 }
