@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -123,6 +124,7 @@ public class StatusPanel extends AbstractMappingSection {
 								.stream()
 								.filter(IScanModelWrapper<IScanPathModel>::isIncludeInScan)
 								.map(IScanModelWrapper<IScanPathModel>::getModel)
+								.filter(Objects::nonNull)
 								.mapToInt(this::calculatePathPoints)
 								.reduce(1, (a, b) -> a * b);
 
