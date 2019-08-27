@@ -2,8 +2,6 @@ package uk.ac.diamond.daq.server;
 
 import static uk.ac.diamond.daq.server.configuration.IGDAConfigurationService.ServerType.LOG;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.ServerSocket;
