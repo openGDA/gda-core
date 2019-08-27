@@ -71,7 +71,7 @@ public class TomographyScanParameterDialog extends Dialog {
 	protected void createButtonsForButtonBar(Composite parent) {
 		createButton(parent, SAVE, TomographyMessagesUtility.getMessage(TomographyMessages.SAVE), false);
 		createButton(parent, CANCEL, TomographyMessagesUtility.getMessage(TomographyMessages.CANCEL), false);
-	};
+	}
 
 	@Override
 	protected void buttonPressed(int buttonId) {
