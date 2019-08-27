@@ -189,10 +189,10 @@ public class LivePlottingComposite extends Composite {
 				// Use the full camera name from the camera configuration, if available, for the plot title as it should
 				// better describe the camera and we should have plenty of space for it.
 				plottingSystem.setTitle(camConfig.getName() + ": " + streamType + " - No data yet");
-				liveStreamConnection.getStream().addDataListener(titleUpdateListener);
+				liveStreamConnection.addDataListenerToStream(titleUpdateListener);
 			} else {
 				plottingSystem.setTitle("");
-				liveStreamConnection.getStream().removeDataListener(titleUpdateListener);
+				liveStreamConnection.removeDataListenerFromStream(titleUpdateListener);
 			}
 		} catch (LiveStreamException e) {
 			// This will probably never happen, as getStream() should not fail once the stream is connected
@@ -213,7 +213,7 @@ public class LivePlottingComposite extends Composite {
 			iTrace = plottingSystem.createImageTrace(LIVE_CAMERA_STREAM);
 
 			// Connect the stream to the trace
-			dataset = liveStreamConnection.getStream();
+			dataset = liveStreamConnection.connect();
 			iTrace.setDynamicData(dataset);
 
 			// Add the axes to the trace

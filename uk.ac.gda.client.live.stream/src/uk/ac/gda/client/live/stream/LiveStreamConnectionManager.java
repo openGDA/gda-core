@@ -97,9 +97,7 @@ public class LiveStreamConnectionManager implements ILiveStreamConnectionService
 	@Override
 	public LiveStreamMapObject getLiveStreamMapObjectUsingConnection(final LiveStreamConnection liveStreamConnection)
 			throws LiveStreamException {
-		if (!liveStreamConnection.isConnected()) {
-			liveStreamConnection.connect();
-		}
+
 		return new LiveStreamPlottable(liveStreamConnection);
 	}
 
