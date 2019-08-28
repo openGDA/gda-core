@@ -417,7 +417,7 @@ public class MScanSubmitterTest {
 											new RegionShapeElementProcessor(RegionShape.POINT),
 											new NumberElementProcessor(2),
 											new NumberElementProcessor(3),
-											new AreaScanpathElementProcessor(AreaScanpath.SINGLEPOINT),
+											new AreaScanpathElementProcessor(AreaScanpath.SINGLE_POINT),
 											new NumberElementProcessor(2),
 											new NumberElementProcessor(3)),
 							  Arrays.asList(new IRunnableDeviceDetectorElementProcessor(detectorRunnableDevice))));
@@ -435,7 +435,7 @@ public class MScanSubmitterTest {
 		assertThat(processors.get(4), instanceOf(NumberElementProcessor.class));
 		assertThat(processors.get(4).getElement(), is(3));
 		assertThat(processors.get(5), instanceOf(AreaScanpathElementProcessor.class));
-		assertThat(processors.get(5).getElement(), is(AreaScanpath.SINGLEPOINT));
+		assertThat(processors.get(5).getElement(), is(AreaScanpath.SINGLE_POINT));
 		assertThat(processors.get(6), instanceOf(NumberElementProcessor.class));
 		assertThat(processors.get(6).getElement(), is(2));
 		assertThat(processors.get(7), instanceOf(NumberElementProcessor.class));
@@ -453,7 +453,7 @@ public class MScanSubmitterTest {
 											new RegionShapeElementProcessor(RegionShape.POINT),
 											new NumberElementProcessor(2),
 											new NumberElementProcessor(3),
-											new AreaScanpathElementProcessor(AreaScanpath.SINGLEPOINT),
+											new AreaScanpathElementProcessor(AreaScanpath.SINGLE_POINT),
 											new NumberElementProcessor(2),
 											new NumberElementProcessor(3)),
 							  Arrays.asList(new IRunnableDeviceDetectorElementProcessor(detectorRunnableDevice))));
@@ -471,13 +471,133 @@ public class MScanSubmitterTest {
 		assertThat(processors.get(4), instanceOf(NumberElementProcessor.class));
 		assertThat(processors.get(4).getElement(), is(3));
 		assertThat(processors.get(5), instanceOf(AreaScanpathElementProcessor.class));
-		assertThat(processors.get(5).getElement(), is(AreaScanpath.SINGLEPOINT));
+		assertThat(processors.get(5).getElement(), is(AreaScanpath.SINGLE_POINT));
 		assertThat(processors.get(6), instanceOf(NumberElementProcessor.class));
 		assertThat(processors.get(6).getElement(), is(2));
 		assertThat(processors.get(7), instanceOf(NumberElementProcessor.class));
 		assertThat(processors.get(7).getElement(), is(3));
 		assertThat(processors.get(8), instanceOf(IRunnableDeviceDetectorElementProcessor.class));
 		assertThat(processors.get(8).getElement(), is(detectorRunnableDevice));
+	}
+
+	@Test
+	public void createsCorrectProcessorListForAxialPointsScanWithFullSyntax() throws Exception {
+		Object[] arr = {scannable, RegionShape.AXIAL, 2, 3, AreaScanpath.ONE_AXIS_NO_OF_POINTS, 20, detectorRunnableDevice};
+		when(resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
+											new RegionShapeElementProcessor(RegionShape.AXIAL),
+											new NumberElementProcessor(2),
+											new NumberElementProcessor(3),
+											new AreaScanpathElementProcessor(AreaScanpath.ONE_AXIS_NO_OF_POINTS),
+											new NumberElementProcessor(20)),
+							  Arrays.asList(new IRunnableDeviceDetectorElementProcessor(detectorRunnableDevice))));
+		builder.buildAndSubmitBlockingScanRequest(arr);
+		List<IClauseElementProcessor> processors = captor.getValue();
+		assertThat(processors.size(), is(7));
+		assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(0).getElement(), is(scannable));
+		assertThat(processors.get(1), instanceOf(RegionShapeElementProcessor.class));
+		assertThat(processors.get(1).getElement(), is(RegionShape.AXIAL));
+		assertThat(processors.get(2), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(2).getElement(), is(2));
+		assertThat(processors.get(3), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(3).getElement(), is(3));
+		assertThat(processors.get(4), instanceOf(AreaScanpathElementProcessor.class));
+		assertThat(processors.get(4).getElement(), is(AreaScanpath.ONE_AXIS_NO_OF_POINTS));
+		assertThat(processors.get(5), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(5).getElement(), is(20));
+		assertThat(processors.get(6), instanceOf(IRunnableDeviceDetectorElementProcessor.class));
+		assertThat(processors.get(6).getElement(), is(detectorRunnableDevice));
+	}
+
+	@Test
+	public void createsCorrectProcessorListForAxialPointsScanWithAliasedSyntax() throws Exception {
+		Object[] arr = {scannable, RegionShape.AXIAL, 2, 3, AreaScanpath.TWO_AXIS_NO_OF_POINTS, 20, detectorRunnableDevice};
+		when(resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
+											new RegionShapeElementProcessor(RegionShape.AXIAL),
+											new NumberElementProcessor(2),
+											new NumberElementProcessor(3),
+											new AreaScanpathElementProcessor(AreaScanpath.ONE_AXIS_NO_OF_POINTS),
+											new NumberElementProcessor(20)),
+							  Arrays.asList(new IRunnableDeviceDetectorElementProcessor(detectorRunnableDevice))));
+		builder.buildAndSubmitBlockingScanRequest(arr);
+		List<IClauseElementProcessor> processors = captor.getValue();
+		assertThat(processors.size(), is(7));
+		assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(0).getElement(), is(scannable));
+		assertThat(processors.get(1), instanceOf(RegionShapeElementProcessor.class));
+		assertThat(processors.get(1).getElement(), is(RegionShape.AXIAL));
+		assertThat(processors.get(2), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(2).getElement(), is(2));
+		assertThat(processors.get(3), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(3).getElement(), is(3));
+		assertThat(processors.get(4), instanceOf(AreaScanpathElementProcessor.class));
+		assertThat(processors.get(4).getElement(), is(AreaScanpath.ONE_AXIS_NO_OF_POINTS));
+		assertThat(processors.get(5), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(5).getElement(), is(20));
+		assertThat(processors.get(6), instanceOf(IRunnableDeviceDetectorElementProcessor.class));
+		assertThat(processors.get(6).getElement(), is(detectorRunnableDevice));
+	}
+
+	@Test
+	public void createsCorrectProcessorListForAxialStepScanWithFullSyntax() throws Exception {
+		Object[] arr = {scannable, RegionShape.AXIAL, 2, 3, AreaScanpath.ONE_AXIS_STEP, 0.2, detectorRunnableDevice};
+		when(resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
+											new RegionShapeElementProcessor(RegionShape.AXIAL),
+											new NumberElementProcessor(2),
+											new NumberElementProcessor(3),
+											new AreaScanpathElementProcessor(AreaScanpath.ONE_AXIS_STEP),
+											new NumberElementProcessor(0.2)),
+							  Arrays.asList(new IRunnableDeviceDetectorElementProcessor(detectorRunnableDevice))));
+		builder.buildAndSubmitBlockingScanRequest(arr);
+		List<IClauseElementProcessor> processors = captor.getValue();
+		assertThat(processors.size(), is(7));
+		assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(0).getElement(), is(scannable));
+		assertThat(processors.get(1), instanceOf(RegionShapeElementProcessor.class));
+		assertThat(processors.get(1).getElement(), is(RegionShape.AXIAL));
+		assertThat(processors.get(2), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(2).getElement(), is(2));
+		assertThat(processors.get(3), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(3).getElement(), is(3));
+		assertThat(processors.get(4), instanceOf(AreaScanpathElementProcessor.class));
+		assertThat(processors.get(4).getElement(), is(AreaScanpath.ONE_AXIS_STEP));
+		assertThat(processors.get(5), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(5).getElement(), is(0.2));
+		assertThat(processors.get(6), instanceOf(IRunnableDeviceDetectorElementProcessor.class));
+		assertThat(processors.get(6).getElement(), is(detectorRunnableDevice));
+	}
+
+	@Test
+	public void createsCorrectProcessorListForAxialStepScanWithAliasedSyntax() throws Exception {
+		Object[] arr = {scannable, RegionShape.AXIAL, 2, 3, AreaScanpath.TWO_AXIS_STEP, 0.2, detectorRunnableDevice};
+		when(resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
+											new RegionShapeElementProcessor(RegionShape.AXIAL),
+											new NumberElementProcessor(2),
+											new NumberElementProcessor(3),
+											new AreaScanpathElementProcessor(AreaScanpath.ONE_AXIS_STEP),
+											new NumberElementProcessor(0.2)),
+							  Arrays.asList(new IRunnableDeviceDetectorElementProcessor(detectorRunnableDevice))));
+		builder.buildAndSubmitBlockingScanRequest(arr);
+		List<IClauseElementProcessor> processors = captor.getValue();
+		assertThat(processors.size(), is(7));
+		assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(0).getElement(), is(scannable));
+		assertThat(processors.get(1), instanceOf(RegionShapeElementProcessor.class));
+		assertThat(processors.get(1).getElement(), is(RegionShape.AXIAL));
+		assertThat(processors.get(2), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(2).getElement(), is(2));
+		assertThat(processors.get(3), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(3).getElement(), is(3));
+		assertThat(processors.get(4), instanceOf(AreaScanpathElementProcessor.class));
+		assertThat(processors.get(4).getElement(), is(AreaScanpath.ONE_AXIS_STEP));
+		assertThat(processors.get(5), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(5).getElement(), is(0.2));
+		assertThat(processors.get(6), instanceOf(IRunnableDeviceDetectorElementProcessor.class));
+		assertThat(processors.get(6).getElement(), is(detectorRunnableDevice));
 	}
 
 	@Test

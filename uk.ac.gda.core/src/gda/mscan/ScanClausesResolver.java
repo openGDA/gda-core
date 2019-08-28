@@ -40,7 +40,7 @@ import gda.mscan.processor.IClauseElementProcessor;
  */
 public class ScanClausesResolver {
 
-	private static final Logger logger = LoggerFactory.getLogger(ScanClausesResolver.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ScanClausesResolver.class);
 	private static final int MIN_MSCAN_NON_SCANNABLE_TERMS = 5;
 
 	private final int nArgs;
@@ -116,7 +116,7 @@ public class ScanClausesResolver {
 	 * array, otherwise it is if the previous element is not a {@link Scannable}.
 	 *
 	 * N.B. this will also catch the mscan case where the clause is ScanGrp Num Num.... i.e. where the Roi is not
-	 * specified so the default for the path would be used as this is equivalent to a SPEC stayle scan using a
+	 * specified so the default for the path would be used as this is equivalent to a SPEC style scan using a
 	 * Scannable Group. This should not matter though as we're only detecting boundaries here.
 	 *
 	 * @return				true if the current element represent a SPEC style scan clause boundary.
@@ -125,7 +125,7 @@ public class ScanClausesResolver {
 		boolean potential = (processors.get(index+1).hasNumber());
 		boolean actual = (0 == index) ? potential : (potential && !processors.get(index-1).hasScannable());
 		if (actual) {
-			logger.debug("Spec scan boundary detected at position {}", index);
+			LOGGER.debug("Spec scan boundary detected at position {}", index);
 		}
 		return actual;
 	}
@@ -155,15 +155,18 @@ public class ScanClausesResolver {
 						"The scan command is incorrect - MScan path definition can't contain more than two Scannables");
 				}
 			}
-			// first test for default arrangement: (mscan) S1 S1 Region.......
+			// first test for default arrangement: (mscan) S1 S2 Region.......
 			IClauseElementProcessor nextProcessor = processors.get(adjustedIndex);
 			IClauseElementProcessor nextButOneProcessor = processors.get(adjustedIndex + 1);
-			boolean detected = nextProcessor.hasScannable() &&
+			boolean detected2D = nextProcessor.hasScannable() &&
 												(nextButOneProcessor.hasRoi() || nextButOneProcessor.hasNumber());
-			if (detected) {
-				logger.debug("MScan boundary detected at position {}", index);
+			// then for axial case: (mscan) S1 AxialRegion Number......
+			boolean detected1D = (nextProcessor.hasRoi() && nextButOneProcessor.hasNumber() &&
+												((RegionShape)nextProcessor.getElement()).equals(RegionShape.AXIAL));
+			if (detected2D || detected1D) {
+				LOGGER.debug("MScan boundary detected at position {}", index);
 			}
-			return detected;
+			return detected2D || detected1D;
 		} else {
 			throw new IllegalArgumentException("The scan command is incorrect - final scan path definition is invalid.");
 		}
@@ -181,7 +184,7 @@ public class ScanClausesResolver {
 
 	private void logClauseDetection(final StringJoiner joiner) {
 		if (joiner.length() > 0) {
-			logger.info("MScan clause detected {}", joiner);
+			LOGGER.info("MScan clause detected {}", joiner);
 		}
 	}
 }

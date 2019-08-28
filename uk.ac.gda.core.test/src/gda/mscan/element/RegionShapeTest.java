@@ -18,6 +18,7 @@
 
 package gda.mscan.element;
 
+import static gda.mscan.element.RegionShape.AXIAL;
 import static gda.mscan.element.RegionShape.CENTRED_RECTANGLE;
 import static gda.mscan.element.RegionShape.CIRCLE;
 import static gda.mscan.element.RegionShape.LINE;
@@ -64,6 +65,7 @@ public class RegionShapeTest {
 		correctLengthRegionShapeData.put(POLYGON, Arrays.asList(5.0, 6.0, 7.0, 8.0, 9.0, 10.0));
 		correctLengthRegionShapeData.put(LINE, Arrays.asList(5.0, 6.0, 7.0, 8.0));
 		correctLengthRegionShapeData.put(POINT, Arrays.asList(5.0, 6.0));
+		correctLengthRegionShapeData.put(AXIAL, Arrays.asList(5.0, 6.0));
 	}
 
 	@Test
@@ -74,6 +76,7 @@ public class RegionShapeTest {
 		assertThat(POLYGON.valueCount(), is(6));
 		assertThat(LINE.valueCount(), is(4));
 		assertThat(POINT.valueCount(), is(2));
+		assertThat(AXIAL.valueCount(), is(2));
 	}
 
 	@Test
@@ -84,6 +87,7 @@ public class RegionShapeTest {
 		assertTrue(POLYGON.roiType().equals(PolygonalROI.class));
 		assertTrue(LINE.roiType().equals(LinearROI.class));
 		assertTrue(POINT.roiType().equals(PointROI.class));
+		assertTrue(AXIAL.roiType().equals(LinearROI.class));
 	}
 
 	@Test
@@ -95,9 +99,10 @@ public class RegionShapeTest {
 		tooMany.put(POLYGON, new Double[] {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0});  // can have up to Integer.MAX_VALUE
 		tooMany.put(LINE, new Double[] {1.0, 2.0, 3.0, 4.0, 5.0});
 		tooMany.put(POINT, new Double[] {1.0, 2.0, 3.0});
+		tooMany.put(AXIAL, new Double[] {1.0, 2.0, 3.0});
 
 		List<RegionShape> rejected = assertCreatingAllInstancesFailsIfWrongNoOfParams(tooMany);
-		assertThat(rejected, contains(RECTANGLE, CENTRED_RECTANGLE, CIRCLE, LINE, POINT));
+		assertThat(rejected, contains(RECTANGLE, CENTRED_RECTANGLE, CIRCLE, LINE, POINT, AXIAL));
 	}
 
 	@Test
@@ -109,9 +114,10 @@ public class RegionShapeTest {
 		tooFew.put(POLYGON, new Double[] {1.0, 2.0, 3.0, 4.0});
 		tooFew.put(LINE, new Double[] {1.0, 2.0, 3.0});
 		tooFew.put(POINT, new Double[] {1.0});
+		tooFew.put(AXIAL, new Double[] {1.0});
 
 		List<RegionShape> rejected = assertCreatingAllInstancesFailsIfWrongNoOfParams(tooFew);
-		assertThat(rejected, contains(RECTANGLE, CENTRED_RECTANGLE, CIRCLE, POLYGON, LINE, POINT));
+		assertThat(rejected, contains(RECTANGLE, CENTRED_RECTANGLE, CIRCLE, POLYGON, LINE, POINT, AXIAL));
 	}
 
 	private List<RegionShape> assertCreatingAllInstancesFailsIfWrongNoOfParams(Map<RegionShape, Double[]> params) throws Exception {
@@ -218,7 +224,7 @@ public class RegionShapeTest {
 	}
 
 	@Test
-	public void createRoiRejectsSidesOfZeroWidthForCircle() throws Exception {
+	public void createRoiRejectsRadiusOfZeroForCircle() throws Exception {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Circle must have a positive radius");
 		CIRCLE.createIROI(Arrays.asList(1.0, 2.0, 0));
@@ -256,13 +262,31 @@ public class RegionShapeTest {
 	@Test
 	public void createRoiRejectsZeroLengthForLine() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Linear Roi must have non-zero length");
+		exception.expectMessage("LinearROI must have non-zero length");
 		LINE.createIROI(Arrays.asList(1.0, 1.0, 1.0, 1.0));
+	}
+
+	@Test
+	public void createRoiRejectsZeroLengthForAxial() throws Exception {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("LinearROI must have non-zero length");
+		AXIAL.createIROI(Arrays.asList(1.0, 1.0, 1.0, 1.0));
 	}
 
 	@Test
 	public void createRoiCreatesCorrectIROIForLine() throws Exception {
 		IROI roi = LINE.createIROI(correctLengthRegionShapeData.get(LINE));
+		assertThat(roi, instanceOf(LinearROI.class));
+		LinearROI lRoi = (LinearROI)roi;
+		assertThat(roi.getPointX(), is(5.0));
+		assertThat(roi.getPointY(), is(6.0));
+		assertThat(lRoi.getEndPoint()[0], is(7.0));
+		assertThat(lRoi.getEndPoint()[1], is(8.0));
+	}
+
+	@Test
+	public void createRoiCreatesCorrectIROIForAxial() throws Exception {
+		IROI roi = AXIAL.createIROI(correctLengthRegionShapeData.get(LINE));
 		assertThat(roi, instanceOf(LinearROI.class));
 		LinearROI lRoi = (LinearROI)roi;
 		assertThat(roi.getPointX(), is(5.0));

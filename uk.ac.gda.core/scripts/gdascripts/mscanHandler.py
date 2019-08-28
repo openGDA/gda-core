@@ -73,8 +73,10 @@ grid = (lambda:AreaScanpath.GRID)()
 rast = raster = (lambda:AreaScanpath.RASTER)()
 spir = spiral = (lambda:AreaScanpath.SPIRAL)()
 liss = lissajous = (lambda:AreaScanpath.LISSAJOUS)()
-step = angl = angle = (lambda:AreaScanpath.ONEDSTEP)()
-equa = equal = eq = proj = projections = (lambda:AreaScanpath.ONEDEQUAL)()
+step = angl = angle = (lambda:AreaScanpath.TWO_AXIS_STEP)()
+nopt = pts = noofpoints = points = proj = projections = (lambda:AreaScanpath.TWO_AXIS_NO_OF_POINTS)()
+axst = axisstep = (lambda:AreaScanpath.ONE_AXIS_STEP)()
+axno = axispoints = (lambda:AreaScanpath.ONE_AXIS_NO_OF_POINTS)()
 
 
 # Register the commands with the Translator
@@ -88,8 +90,16 @@ alias('lissajous')
 alias('step')
 alias('angl')
 alias('angle')
-alias('equa')
-alias('equal')
+alias('nopt')
+alias('pts')
+alias('noofpoints')
+alias('points')
+alias('projections')
+alias('proj')
+alias('axst')
+alias('axisstep')
+alias('axno')
+alias('axispoints')
 
 
 # Set up functions that return the RegionShape Enum instances and assign them to
@@ -102,6 +112,7 @@ circ = circle = (lambda:RegionShape.CIRCLE)()
 poly = polygon = (lambda:RegionShape.POLYGON)()
 line = (lambda:RegionShape.LINE)()
 poin = point = pt = (lambda:RegionShape.POINT)()
+axis = (lambda:RegionShape.AXIAL)()
 
 # Register the commands with the Translator
 alias('rect')
@@ -116,6 +127,7 @@ alias('line')
 alias('poin')
 alias('point')
 alias('pt')
+alias('axis')
 
 
 

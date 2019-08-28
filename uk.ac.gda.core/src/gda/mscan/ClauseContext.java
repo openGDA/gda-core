@@ -20,11 +20,14 @@ package gda.mscan;
 
 import static gda.mscan.element.AreaScanpath.GRID;
 import static gda.mscan.element.AreaScanpath.LISSAJOUS;
-import static gda.mscan.element.AreaScanpath.ONEDEQUAL;
-import static gda.mscan.element.AreaScanpath.ONEDSTEP;
+import static gda.mscan.element.AreaScanpath.ONE_AXIS_NO_OF_POINTS;
+import static gda.mscan.element.AreaScanpath.ONE_AXIS_STEP;
 import static gda.mscan.element.AreaScanpath.RASTER;
-import static gda.mscan.element.AreaScanpath.SINGLEPOINT;
+import static gda.mscan.element.AreaScanpath.SINGLE_POINT;
 import static gda.mscan.element.AreaScanpath.SPIRAL;
+import static gda.mscan.element.AreaScanpath.TWO_AXIS_NO_OF_POINTS;
+import static gda.mscan.element.AreaScanpath.TWO_AXIS_STEP;
+import static gda.mscan.element.RegionShape.AXIAL;
 import static gda.mscan.element.RegionShape.CENTRED_RECTANGLE;
 import static gda.mscan.element.RegionShape.CIRCLE;
 import static gda.mscan.element.RegionShape.LINE;
@@ -44,7 +47,10 @@ import java.util.Optional;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.util.MathUtils;
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.StepModel;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -52,6 +58,7 @@ import gda.device.Detector;
 import gda.device.Monitor;
 import gda.device.Scannable;
 import gda.mscan.element.AreaScanpath;
+import gda.mscan.element.IMScanDimensionalElementEnum;
 import gda.mscan.element.Mutator;
 import gda.mscan.element.RegionShape;
 import gda.mscan.processor.IClauseElementProcessor;
@@ -80,8 +87,9 @@ public class ClauseContext {
 			.put(CENTRED_RECTANGLE, Arrays.asList(GRID, RASTER ,SPIRAL, LISSAJOUS))
 			.put(CIRCLE,            Arrays.asList(GRID, RASTER ,SPIRAL, LISSAJOUS))
 			.put(POLYGON,           Arrays.asList(GRID, RASTER ,SPIRAL, LISSAJOUS))
-			.put(LINE,              Arrays.asList(ONEDEQUAL, ONEDSTEP))
-			.put(POINT,             Arrays.asList(SINGLEPOINT)).build();
+			.put(LINE,              Arrays.asList(TWO_AXIS_NO_OF_POINTS, TWO_AXIS_STEP))
+			.put(AXIAL,             Arrays.asList(ONE_AXIS_NO_OF_POINTS, ONE_AXIS_STEP))
+			.put(POINT,             Arrays.asList(SINGLE_POINT)).build();
 
 	private static final int REQUIRED_SCANNABLES_FOR_AREA = 2;
 	private static final List<Class<?>> INVALID_SCANNABLE_SUBTYPES = Arrays.asList(Detector.class, Monitor.class);
@@ -159,8 +167,8 @@ public class ClauseContext {
 		rejectIfAnyParamsWritten(RegionShape.class.getSimpleName());
 		// If the default regionShape has already been set or defaulted the reject the supplied one
 		rejectIfAlreadySet(regionShapeDefaulted, regionShape);
-		rejectIncorrectNumberOfScannables(RegionShape.class.getSimpleName());
 		nullCheck(supplied, RegionShape.class.getSimpleName());
+		rejectIncorrectNumberOfScannables(supplied);
 		regionShape = Optional.of(supplied);
 		paramsToFill = shapeParams;
 		requiredParamCount = supplied.valueCount();
@@ -179,12 +187,12 @@ public class ClauseContext {
 			throw new IllegalStateException(
 					"AreaScanpath must be specified before its parameters");
 		}
-		rejectIncorrectNumberOfScannables(AreaScanpath.class.getSimpleName());
+		nullCheck(supplied, AreaScanpath.class.getSimpleName());
+		rejectIncorrectNumberOfScannables(supplied);
 
 		// If the default scanpath has already been set or defaulted the reject the supplied one
 		rejectIfAlreadySet(areaScanpathDefaulted, areaScanpath);
 		rejectIfNoRegionShapeOrNotEnoughRegionShapeParams();
-		nullCheck(supplied, AreaScanpath.class.getSimpleName());
 		rejectIfInvalidCombintationOfShapeAndPath(supplied);
 		areaScanpath = Optional.of(supplied);
 		paramsToFill = pathParams;
@@ -349,6 +357,9 @@ public class ClauseContext {
 	}
 
 	/**
+	 * Returns the list of path params as set
+	 *
+	 * @return	An unmodifiable list of the path params set.
 	 * @throws	NoSuchElementException if the {@link ClauseContext} is not complete and valid.
 	 */
 	public List<Number> getPathParams() {
@@ -357,11 +368,51 @@ public class ClauseContext {
 	}
 
 	/**
+	 * For single axis scans (e.g. those based on {@link StepModel}), the start and stop values are required
+	 * as well as the step size when creating the {@link IScanPathModel}. If validated, these are in the
+	 * shapeParams, so these must be added in to the returned list.
+	 *
+	 * @return	An unmodifiable list  of the path params required to create {@link IScanPathModel} that
+	 * 			 corresponds to the previously set {@link AreaScanpath}
+	 * @throws	NoSuchElementException if the {@link ClauseContext} is not complete and valid.
+	 */
+	public List<Number> getModelPathParams() {
+		throwIfNotValidated();
+		List<Number> output;
+		if (regionShape.get().getAxisCount() == 1) {
+			output = new ArrayList<>(shapeParams);
+			output.addAll(pathParams);
+		} else {
+			output = pathParams;
+		}
+
+		return Collections.unmodifiableList(output);
+	}
+
+	/**
+	 * @return	An unmodifiable list of the shape params set.
 	 * @throws	NoSuchElementException if the {@link ClauseContext} is not complete and valid.
 	 */
 	public List<Number> getShapeParams() {
 		throwIfNotValidated();
 		return Collections.unmodifiableList(shapeParams);
+	}
+
+	/**
+	 * Mostly returns what {{@link #getShapeParams()} does except for axial scans which ignore the bounding box.
+	 * In this case a synthetic bounding box is returned based on the start and stop values of the scan. This
+	 * allows the {@link IROI} validation step to complete.
+	 *
+	 * @return	A List of numbers defining the bounds of the scan
+	 * @throws	NoSuchElementException if the {@link ClauseContext} is not complete and valid.
+	 */
+	public List<Number> getBounds() {
+		throwIfNotValidated();
+		/** For Axial Scans (which only have two (@link shapeParams} we need bounds to satisfy {@link IROI} validation
+		 so just construct artificial ones, otherwise return the {@link shapeParams}. **/
+		return regionShape.get().equals(AXIAL)
+				? Arrays.asList(shapeParams.get(0), shapeParams.get(0), shapeParams.get(1), shapeParams.get(1))
+				: getShapeParams();
 	}
 
 	/**
@@ -474,7 +525,7 @@ public class ClauseContext {
 	 */
 	private void forPointRegionShapeScanpathMustBePointAlsoAndParamsMustMatch() {
 		if (regionShape.get().equals(POINT)) {
-			if (!areaScanpath.get().equals(SINGLEPOINT)) {
+			if (!areaScanpath.get().equals(SINGLE_POINT)) {
 				throw new IllegalStateException(
 						"Invalid Scan clause: POINT RegionShape can only be used with POINT Scanpath");
 			}
@@ -534,10 +585,11 @@ public class ClauseContext {
 	 * @param elementName	The type name of element currently being set
 	 * @throws UnsupportedOperationException if not enough {@link SCannable}s have been specified to set the element
 	 */
-	private void rejectIncorrectNumberOfScannables(final String elementName) {
-		if (scannables.size() != REQUIRED_SCANNABLES_FOR_AREA) {
+	private void rejectIncorrectNumberOfScannables(final IMScanDimensionalElementEnum element) {
+		if (scannables.size() != element.getAxisCount()) {
 			throw new UnsupportedOperationException(String.format(
-				"Invalid Scan clause: Scan with %s requires %d scannables", elementName, REQUIRED_SCANNABLES_FOR_AREA));
+				"Invalid Scan clause: Scan with %s requires %d scannables",
+				element.getClass().getSimpleName(), element.getAxisCount()));
 		}
 	}
 
