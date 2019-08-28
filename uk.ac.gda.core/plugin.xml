@@ -287,9 +287,6 @@
             name="gda.util.osgi">
          </package>
          <package
-            name="gda.util.simpleServlet">
-         </package>
-         <package
             name="gda.util.userOptions">
          </package>
          <package
