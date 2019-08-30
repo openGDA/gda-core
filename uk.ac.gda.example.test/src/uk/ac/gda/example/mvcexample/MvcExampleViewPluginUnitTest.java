@@ -11,6 +11,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -18,7 +19,6 @@ import org.junit.Test;
 import gda.device.motor.DummyMotor;
 import gda.device.scannable.ScannableMotor;
 import gda.util.osgi.OSGiServiceRegister;
-import junit.framework.Assert;
 import uk.ac.gda.beans.ObservableModel;
 import uk.ac.gda.client.observablemodels.ScannableWrapper;
 

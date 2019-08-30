@@ -21,8 +21,7 @@ package gda.analysis.numerical.straightline;
 import java.util.Arrays;
 import java.util.Vector;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 public class StraightLineFitTest {

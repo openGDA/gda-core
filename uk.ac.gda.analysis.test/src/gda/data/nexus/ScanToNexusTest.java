@@ -29,6 +29,7 @@ import java.nio.file.Paths;
 import java.util.LinkedList;
 
 import org.eclipse.january.dataset.Dataset;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -56,7 +57,6 @@ import gda.device.Detector;
 import gda.device.Scannable;
 import gda.scan.ConcurrentScan;
 import gda.util.TestUtils;
-import junit.framework.Assert;
 import uk.ac.gda.analysis.hdf5.Hdf5Helper;
 import uk.ac.gda.analysis.hdf5.Hdf5HelperData;
 import uk.ac.gda.util.io.FileUtils;
