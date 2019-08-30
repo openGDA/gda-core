@@ -18,14 +18,13 @@
 
 package gda.jython.authenticator;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.util.List;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import gda.configuration.properties.LocalProperties;
 
 public class LdapMixinTest {
 

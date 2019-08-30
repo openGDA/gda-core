@@ -19,19 +19,18 @@
 package gda.commandqueue;
 
 
-import gda.observable.IObserver;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
-import junit.framework.Assert;
-
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import gda.observable.IObserver;
 
 /**
  *
