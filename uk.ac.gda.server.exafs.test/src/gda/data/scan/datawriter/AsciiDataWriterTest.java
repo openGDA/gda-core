@@ -26,6 +26,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Vector;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import gda.TestHelpers;
@@ -36,7 +37,6 @@ import gda.device.detector.DummyDetector;
 import gda.device.scannable.DummyScannable;
 import gda.device.scannable.ScannableUtils;
 import gda.scan.ScanDataPoint;
-import junit.framework.Assert;
 
 /**
  * Test the configurable format of this data writer. This uses DummyScannable and DummyDetector so indirectly tests

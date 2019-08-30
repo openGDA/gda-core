@@ -18,6 +18,7 @@
 
 package uk.ac.gda.server.exafs.scan;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
@@ -29,7 +30,6 @@ import gda.device.scannable.ContinuouslyScannable;
 import gda.device.scannable.RealPositionReader;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
-import junit.framework.Assert;
 import uk.ac.gda.client.microfocus.scan.MapFactory;
 import uk.ac.gda.client.microfocus.scan.StepMap;
 
