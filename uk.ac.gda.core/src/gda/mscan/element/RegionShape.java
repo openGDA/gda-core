@@ -33,31 +33,34 @@ import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 
 /**
  * Links the revised mscan syntax to corresponding DAWN {@link IROI} factory functions in a typed way. The abbreviation
- * to specify a Roi is linked to the {@link IROI} factory function via the constructor along with the number of
- * parameters required to specify it. The factory functions need to be a nested static class so that they are in scope
- * when the constructor is called.
+ * to specify a {@link RegionShape} is linked to the {@link IROI} factory function via the constructor along with the
+ * number of parameters required to specify it. The factory functions need to be a nested static class so that they
+ * are in scope when the constructor is called.
  *
  * @since GDA 9.9
  */
-public enum RegionShape implements IMScanElementEnum {
-	RECTANGLE("rect", 4, true, RectangularROI.class, Factory::createRectangularROI),
-	CENTRED_RECTANGLE("crec", 4, true, RectangularROI.class, Factory::createCenteredRectangularROI),
-	CIRCLE("circ", 3, true, CircularROI.class, Factory::createCircularROI),
-	POLYGON("poly", 6, false, PolygonalROI.class, Factory::createPolygonalROI),
-	LINE("line", 4, true, LinearROI.class, Factory::createLinearROI),
-	POINT("poin", 2, true, PointROI.class, Factory::createPointROI);
+public enum RegionShape implements IMScanDimensionalElementEnum {
+	RECTANGLE("rect", 2, 4, true, RectangularROI.class, Factory::createRectangularROI),
+	CENTRED_RECTANGLE("crec", 2, 4, true, RectangularROI.class, Factory::createCenteredRectangularROI),
+	CIRCLE("circ", 2, 3, true, CircularROI.class, Factory::createCircularROI),
+	POLYGON("poly", 2, 6, false, PolygonalROI.class, Factory::createPolygonalROI),
+	LINE("line", 2, 4, true, LinearROI.class, Factory::createLinearROI),
+	POINT("poin", 2, 2, true, PointROI.class, Factory::createPointROI),
+	AXIAL("axis", 1, 2, true, LinearROI.class, Factory::createLinearROI);
 
 	private static final String PREFIX = "Invalid Scan clause: ";
 
 	private final String text;
+	private final int axisCount;
 	private final int valueCount;
 	private final boolean hasFixedValueCount;
 	private final Class<? extends IROI> roiType;
 	private final RoiFactoryFunction factory;
 
-	private RegionShape(final String text, final int valueCount, final boolean hasFixedValueCount,
+	private RegionShape(final String text, final int axisCount, final int valueCount, final boolean hasFixedValueCount,
 				final Class<? extends IROI> roiType, final RoiFactoryFunction factoryFunction) {
 		this.text = text;
+		this.axisCount = axisCount;
 		this.valueCount = valueCount;
 		this.hasFixedValueCount = hasFixedValueCount;
 		this.roiType = roiType;
@@ -74,12 +77,20 @@ public enum RegionShape implements IMScanElementEnum {
 	}
 
 	/**
-	 * The default text values that correspond to the instances of Roi
+	 * The default text values that correspond to the instances of {@link RegionShape}
 	 *
 	 * @return		List of default text for the instances
 	 */
 	public static List<String> strValues() {
 		return stream(values()).map(val -> val.text).collect(toList());
+	}
+
+	/**
+	 * @return	The number of axes associated with this {@link RegionShape}
+	 */
+	@Override
+	public int getAxisCount() {
+		return axisCount;
 	}
 
 	/**
@@ -106,12 +117,12 @@ public enum RegionShape implements IMScanElementEnum {
 	}
 
 	/**
-	 * Creates the correct {@link IROI} implementing object for this instance of Roi
+	 * Creates the correct {@link IROI} implementing object for this instance of {@link RegionShape}
 	 * Where possible the number of supplied points will be validated against {@link #valueCount()}
 	 *
-	 * @param params	The param list that defines the points of the Roi
+	 * @param params	The param list that defines the points of the {@link RegionShape}
 	 *
-	 * @return			The correct {@link IROI} implementing object for this instance of Roi
+	 * @return			The correct {@link IROI} implementing object for this instance of {@link RegionShape}
 	 *
 	 * @throws 			IllegalArgumentException if the validation of parameters fails
 	 */
@@ -122,15 +133,17 @@ public enum RegionShape implements IMScanElementEnum {
 
 	/**
 	 * Check that the correct number of parameters has been supplied for the required {@link IROI} except for Polygons
-	 * where we can only check the minimum number were supplied.
+	 * where we can only check the minimum number were supplied. N.B> for {@link #AXIAL} when creating a ROI, there
+	 * must be an associated 2D bounding box to succesfully validate, so passed in params will have a size of 4
+	 * rather than the expected value, hece the special case check for this.
 	 *
-	 * @param params				The numeric coordinate sets for the Roi vertices
-	 * @param nParams				The required number of params for this Roi type
-	 * @param roiName				The name of the Roi for exception message purposes
-	 * @param noFixedPointCount		Flag to indicate whether this Roi has a fixed number of vertices
+	 * @param params				The numeric coordinate sets for the {@link RegionShape} vertices
 	 */
 	private void validateParamSize(final List<Number> params) {
 		if (params.size() != valueCount) {
+			if (this.equals(AXIAL) && params.size() == AXIAL.valueCount * 2) { // artificial bounding box
+				return;
+			}
 			String qualifier = "";
 			if (!hasFixedValueCount) {
 				qualifier = "at least ";
@@ -253,7 +266,7 @@ public enum RegionShape implements IMScanElementEnum {
 		private static IROI createLinearROI(final List<Number> params) {
 			if ((params.get(2).doubleValue() - params.get(0).doubleValue()) == 0 &&
 					(params.get(3).doubleValue() - params.get(1).doubleValue()) == 0) {
-				throw new IllegalArgumentException(PREFIX + "Linear Roi must have non-zero length");
+				throw new IllegalArgumentException(PREFIX + "LinearROI must have non-zero length");
 			}
 			return new LinearROI(
 					new double[] {params.get(0).doubleValue(), params.get(1).doubleValue()},

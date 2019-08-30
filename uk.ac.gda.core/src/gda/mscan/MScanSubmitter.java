@@ -71,7 +71,7 @@ import gda.mscan.processor.ScannableGroupElementProcessor;
  */
 public class MScanSubmitter {
 
-	private static final Logger logger = LoggerFactory.getLogger(MScanSubmitter.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(MScanSubmitter.class);
 
 	private interface ProcessorFunction extends Function<Object, IClauseElementProcessor> {}
 	/**
@@ -130,7 +130,7 @@ public class MScanSubmitter {
 	 */
 	public void buildAndSubmitScanRequest(final Object[] args, final boolean block) throws Exception {
 		throwIf(args == null, "The scan request array is null");
-		logger.info("MScan command received {}", Arrays.toString(args));
+		LOGGER.info("MScan command received {}", Arrays.toString(args));
 
 		final ScanClausesResolver resolver = validateCommand(args);
 		final CompoundModel<IROI> scanModel = new CompoundModel<IROI>();
@@ -221,7 +221,7 @@ public class MScanSubmitter {
 		String name = proc.getElementValue();
 		monitorsPerPoint.add(name);
 		String monitorType = isReadout ? "Scannable readout" : "Monitor";
-		logger.debug("{} added for {}", monitorType, name);
+		LOGGER.debug("{} added for {}", monitorType, name);
 	}
 
 	/**
@@ -238,22 +238,22 @@ public class MScanSubmitter {
 	private void addPathModelAndRegion(final List<IClauseElementProcessor> clauseProcessors,
 															final CompoundModel<IROI> scanModel) {
 		final ClauseContext context = new ClauseContext();
-		for (int index = 0; index < clauseProcessors.size(); index++){
+		for (int index = 0; index < clauseProcessors.size(); index++) {
 			clauseProcessors.get(index).process(context, index);
 		}
 
 		if (context.validateAndAdjust() && context.getAreaScanpath() != null) {
-			logger.debug("Valid scan definition clause detected and added");
+			LOGGER.debug("Valid scan definition clause detected and added");
 			ArrayList<Number> boundingBoxParams = new ArrayList<>();
 
-			IROI roi = context.getRegionShape().createIROI(context.getShapeParams());
+			IROI roi = context.getRegionShape().createIROI(context.getBounds());
 			IRectangularROI boundingRoi = roi.getBounds();
 			boundingBoxParams.add(boundingRoi.getPointX());
 			boundingBoxParams.add(boundingRoi.getPointY());
 			boundingBoxParams.add(boundingRoi.getLength(0));
 			boundingBoxParams.add(boundingRoi.getLength(1));
 			scanModel.setData(context.getAreaScanpath().createModel(context.getScannables(),
-					context.getPathParams(), boundingBoxParams, context.getMutatorUses()), roi);
+					context.getModelPathParams(), boundingBoxParams, context.getMutatorUses()), roi);
 		}
 	}
 
@@ -294,7 +294,7 @@ public class MScanSubmitter {
 			model.setExposureTime(exposure);
 		}
 		detectorMap.put(detector.getName(), model);
-		logger.debug("Detector added for {}", detector.getName());
+		LOGGER.debug("Detector added for {}", detector.getName());
 	}
 
 	/**
@@ -323,11 +323,26 @@ public class MScanSubmitter {
 			if (args[i].equals(RegionShape.POINT) && args[i + 1] instanceof Number && args[i + 2] instanceof Number) {
 				params.add(args[i + 1]);
 				params.add(args[i + 2]);
-				params.add(AreaScanpath.SINGLEPOINT);
+				params.add(AreaScanpath.SINGLE_POINT);
 				if ((args.length >= i + 6) && (args[i + 3].equals(RegionShape.POINT))) {
 					i += 3;
 				}
 			}
+		}
+
+		// Adjust so that the more friendly two axis related terms can be used to describe equivalent 1 axis paths
+		List<Object> currentList = params;
+		int len = currentList.size();
+		while (currentList.contains(RegionShape.AXIAL)) {
+			int index = currentList.indexOf(RegionShape.AXIAL);
+			if (len > index + 2) {
+				if (currentList.get(index + 3).equals(AreaScanpath.TWO_AXIS_STEP)) {
+					currentList.set(index + 3, AreaScanpath.ONE_AXIS_STEP);
+				} else if (currentList.get(index + 3).equals(AreaScanpath.TWO_AXIS_NO_OF_POINTS)) {
+					currentList.set(index + 3, AreaScanpath.ONE_AXIS_NO_OF_POINTS);
+				}
+			}
+			currentList = currentList.subList(index + 1, len -index);
 		}
 
 		// Iterate over the command args looking for Scannable and Scannable groups. Can't just use the returned class
