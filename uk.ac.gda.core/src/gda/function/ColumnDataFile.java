@@ -268,9 +268,6 @@ public class ColumnDataFile extends FindableConfigurableBase {
 	@Override
 	public void configure() throws FactoryException {
 		logger.debug("ColumnDataFile configure called");
-		if (isConfigured()) {
-			return;
-		}
 		readTheFile();
 		setConfigured(true);
 	}
