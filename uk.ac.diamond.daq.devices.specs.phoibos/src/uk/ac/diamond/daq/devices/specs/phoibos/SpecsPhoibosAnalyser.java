@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.devices.specs.phoibos;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -43,6 +44,7 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceHelper;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceValidation;
 
 /**
  * <p>
@@ -895,6 +897,52 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		}
 	}
 
+	@Override
+	public SpecsPhoibosSequenceValidation validateSequence(SpecsPhoibosSequence sequence) {
+		updatePhotonEnergy();
+		// Instantiate validation class
+		SpecsPhoibosSequenceValidation validationErrors = new SpecsPhoibosSequenceValidation();
+
+		for (SpecsPhoibosRegion region : sequence.getRegions()) {
+			List<String> regionErrors = validateRegion(region);
+			if (! regionErrors.isEmpty()) {
+				validationErrors.addValidationErrors(region, regionErrors);
+			}
+		}
+		return validationErrors;
+	}
+
+	/**
+	 * Tests that energy values for a region are acceptable by comparing
+	 * high and low energy limit against the pass energy
+	 *
+	 * @param region
+	 * @return A list of error messages or an empty list if no errors
+	 */
+	private List<String> validateRegion(SpecsPhoibosRegion region) {
+		List<String> regionErrors = new ArrayList<>();
+
+		// Fetch relevant values from region object
+		double startEnergy = region.getStartEnergy();
+		double endEnergy = region.getEndEnergy();
+		double passEnergy = region.getPassEnergy();
+		boolean bindingEnergyMode = region.isBindingEnergy();
+
+		// Convert binding to kinetic if needed
+		if (bindingEnergyMode) {
+			startEnergy = toKineticEnergy(startEnergy);
+			endEnergy = toKineticEnergy(endEnergy);
+		}
+
+		// Actual tests
+		if (startEnergy <= passEnergy) {
+			regionErrors.add("Start energy too low");
+		}
+		if (endEnergy <= passEnergy) {
+			regionErrors.add("End energy too low");
+		}
+		return regionErrors;
+	}
 
 	private void processEpicsUpdate(Object source, Object arg) {
 		// TODO The performance could be improved here the update from EPICS already contains the current point so

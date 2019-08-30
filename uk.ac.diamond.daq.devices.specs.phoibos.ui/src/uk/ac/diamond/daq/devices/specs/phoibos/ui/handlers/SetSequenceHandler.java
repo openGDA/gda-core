@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceValidation;
 import uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsUiConstants;
 
 public class SetSequenceHandler {
@@ -44,26 +45,31 @@ public class SetSequenceHandler {
 	public void execute(MPart part, @Named(IServiceConstants.ACTIVE_SHELL) Shell shell) {
 		// Get the sequence open in the editor
 		SpecsPhoibosSequence sequence = (SpecsPhoibosSequence) part.getTransientData().get(SpecsUiConstants.OPEN_SEQUENCE);
-
 		logger.trace("About to configure analyser with sequence: {}", sequence);
+		SpecsPhoibosSequenceValidation validationResult = analyser.validateSequence(sequence);
+		if (validationResult.isValid()) {
+			try {
+				// Setup the analyser
+				analyser.setSequence(sequence);
+			} catch (IllegalArgumentException e) {
+				logger.error("Failed to set sequence: {}", sequence, e);
+				// Couldn't set the sequence
+				MessageBox dialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+				dialog.setText("Setting up anlyser failed");
+				dialog.setMessage("Failed to setup analyser: " + e.getMessage() + "\n\n" + sequence);
+				dialog.open();
 
-		try {
-			// Setup the analyser
-			analyser.setSequence(sequence);
-		} catch (IllegalArgumentException e) {
-			logger.error("Failed to set sequence: {}", sequence, e);
-			// Couldn't set the sequence
-			MessageBox dialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-			dialog.setText("Setting up anlyser failed");
-			dialog.setMessage("Failed to setup analyser: " + e.getMessage() + "\n\n" + sequence);
-			dialog.open();
-
-			// Rethrow to prevent running the analyser with a old sequence
-			// TODO Maybe having RunSequenceHandler extend this isn't good?
-			throw e;
+				// Rethrow to prevent running the analyser with a old sequence
+				throw e;
+			}
+			logger.debug("Sucessfully configured analyser with sequence");
+		}else {
+			logger.error("Failed to validate energy values");
+			MessageBox validationDialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+			validationDialog.setText("Failed to validate energy values!");
+			validationDialog.setMessage(validationResult.toString());
+			validationDialog.open();
 		}
-
-		logger.debug("Sucessfully configured analyser with sequence");
 	}
 
 

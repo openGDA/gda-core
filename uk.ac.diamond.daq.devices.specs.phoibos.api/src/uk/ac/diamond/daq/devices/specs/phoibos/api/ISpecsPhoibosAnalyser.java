@@ -65,6 +65,14 @@ public interface ISpecsPhoibosAnalyser extends Findable, IObservable {
 	double[][] getImage();
 
 	/**
+	 * Validates a sequence
+	 *
+	 * @param sequence
+	 * @return SpecsPhoibosSequenceValidation
+	 */
+	SpecsPhoibosSequenceValidation validateSequence(SpecsPhoibosSequence sequence);
+
+	/**
 	 * Configures the analyser to acquire the region specified.
 	 *
 	 * @param region The region to set

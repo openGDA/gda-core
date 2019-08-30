@@ -2,7 +2,9 @@ package uk.ac.diamond.daq.devices.specs.phoibos.test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -17,6 +19,7 @@ import uk.ac.diamond.daq.devices.specs.phoibos.SpecsPhoibosCollectionStrategy;
 import uk.ac.diamond.daq.devices.specs.phoibos.SpecsPhoibosController;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceValidation;
 
 public class SpecsPhoibosAnalyserTest {
 
@@ -131,6 +134,35 @@ public class SpecsPhoibosAnalyserTest {
 	public void testLoadingSequenceFromAbsolutePath() {
 		String sequencePath = this.getClass().getResource("test_sequence.seq").getFile();
 		analyser.setSequenceFile(sequencePath);
+	}
+
+	@Test
+	public void testValidateSequenceWithInvalidRegion() {
+		// Create invalid region
+		SpecsPhoibosRegion region  = new SpecsPhoibosRegion();
+		region.setStartEnergy(50);
+		region.setEndEnergy(60);
+		region.setPassEnergy(70);
+		SpecsPhoibosSequence sequence = new SpecsPhoibosSequence();
+		sequence.addRegion(region);
+		SpecsPhoibosSequenceValidation validationErrors = new SpecsPhoibosSequenceValidation();
+		validationErrors = analyser.validateSequence(sequence);
+		assertFalse(validationErrors.isValid());
+	}
+
+	@Test
+	public void testValidateSequenceWithValidRegion() {
+		// Create valid region
+		SpecsPhoibosRegion region  = new SpecsPhoibosRegion();
+		region.setStartEnergy(50);
+		region.setEndEnergy(60);
+		region.setPassEnergy(5);
+		SpecsPhoibosSequence sequence = new SpecsPhoibosSequence();
+		sequence.addRegion(region);
+		SpecsPhoibosSequenceValidation validationErrors = new SpecsPhoibosSequenceValidation();
+		validationErrors = analyser.validateSequence(sequence);
+		assertTrue(validationErrors.isValid());
+
 	}
 
 }
