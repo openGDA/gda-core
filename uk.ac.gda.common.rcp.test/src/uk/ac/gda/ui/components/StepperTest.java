@@ -18,8 +18,6 @@
 
 package uk.ac.gda.ui.components;
 
-import junit.framework.Assert;
-
 import org.eclipse.draw2d.GridData;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -27,6 +25,7 @@ import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
