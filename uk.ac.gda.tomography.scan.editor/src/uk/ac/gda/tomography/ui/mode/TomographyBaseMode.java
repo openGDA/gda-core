@@ -18,8 +18,10 @@
 
 package uk.ac.gda.tomography.ui.mode;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -69,13 +71,17 @@ public abstract class TomographyBaseMode implements TomographyMode {
 		devicesMap.put(device, propertyName);
 	}
 
-	private Map<ModeDevices, IScannableMotor> loadMotors() throws IncompleteModeException {
+	private Map<ModeDevices, IScannableMotor> loadMotors() {
 		if (loaded) {
 			return motors;
 		}
 		populateDevicesMap();
 		for (Entry<ModeDevices, String> entry : getDevicesMap().entrySet()) {
-			motors.put(entry.getKey(), ModeHelper.getMotor(getBeanId(entry)));
+			try {
+				motors.put(entry.getKey(), ModeHelper.getMotor(getBeanId(entry)));
+			} catch (IncompleteModeException e) {
+				logger.error("Error", e);
+			}
 		}
 		loaded = true;
 		return motors;
@@ -102,7 +108,7 @@ public abstract class TomographyBaseMode implements TomographyMode {
 	}
 
 	protected final TabCompositeFactory createStageMotorsCompositeFactory(StageCompositeDefinition[] motors, TomographyMessages message) {
-		TabCompositeFactoryImpl group  = new TabCompositeFactoryImpl();
+		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
 		StageCompositeFactory scf = new StageCompositeFactory();
 		group.setCompositeFactory(scf);
 		group.setLabel(TomographyMessagesUtility.getMessage(message));
@@ -110,12 +116,11 @@ public abstract class TomographyBaseMode implements TomographyMode {
 		return group;
 	}
 
-	protected StageCompositeDefinition doMotor(ModeDevices device, TomographyMessages label) {
+	protected StageCompositeDefinition doMotor(ModeDevices device, TomographyMessages label) throws IncompleteModeException {
 		StageCompositeDefinition scd = new StageCompositeDefinition();
-		try {
-			scd.setScannable(getMotors().get(device));
-		} catch (IncompleteModeException e) {
-			logger.error("TODO put description of error here", e);
+		scd.setScannable(getMotors().get(device));
+		if (Objects.isNull(scd.getScannable())) {
+			throw new IncompleteModeException(String.format("Device %s not found", device));
 		}
 		scd.setStepSize(1);
 		scd.setDecimalPlaces(0);
@@ -127,6 +132,42 @@ public abstract class TomographyBaseMode implements TomographyMode {
 		TabFolderCompositeFactory motorTabs = new TabFolderCompositeFactory();
 		motorTabs.setFactories(getTabsFactories());
 		motorTabs.createComposite(getStageControls(), SWT.NONE);
+	}
+
+	protected class TabCompositionBuilder {
+		private List<TabCompositeFactory> tabComposite = new ArrayList<>();
+
+		public TabCompositionBuilder assemble(StageCompositeDefinition[] stageComposite, TomographyMessages label) {
+			if (Objects.nonNull(stageComposite)) {
+				tabComposite.add(createStageMotorsCompositeFactory(stageComposite, label));
+			}
+			return this;
+		}
+
+		public TabCompositeFactory[] build() {
+			return tabComposite.toArray(new TabCompositeFactory[0]);
+		}
+	}
+
+	protected class StageCompositeDefinitionBuilder {
+		private List<StageCompositeDefinition> composite = new ArrayList<>();
+
+		public StageCompositeDefinitionBuilder assemble(ModeDevices device, TomographyMessages label) {
+			StageCompositeDefinition scd;
+			try {
+				scd = doMotor(device, label);
+			} catch (IncompleteModeException e) {
+				return this;
+			}
+			if (Objects.nonNull(scd)) {
+				composite.add(scd);
+			}
+			return this;
+		}
+
+		public StageCompositeDefinition[] build() {
+			return composite.toArray(new StageCompositeDefinition[0]);
+		}
 	}
 
 	protected abstract void populateDevicesMap();

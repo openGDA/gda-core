@@ -35,19 +35,24 @@ public class TomographyDefaultMode extends TomographyBaseMode {
 
 	@Override
 	protected TabCompositeFactory[] getTabsFactories() {
-		return new TabCompositeFactory[] { createStageMotorsCompositeFactory(createMotorAxesComposite(), TomographyMessages.STAGE),
-				createStageMotorsCompositeFactory(createCameraMotorsComposite(), TomographyMessages.CAMERA) };
+		TabCompositionBuilder builder = new TabCompositionBuilder();
+		builder.assemble(createMotorAxesComposite(), TomographyMessages.STAGE);
+		builder.assemble(createCameraMotorsComposite(), TomographyMessages.CAMERA);
+		return builder.build();
 	}
 
 	private StageCompositeDefinition[] createMotorAxesComposite() {
-		return new StageCompositeDefinition[] {
-				doMotor(ModeDevices.STAGE_MOTOR_X, TomographyMessages.AXIS_X),
-				doMotor(ModeDevices.STAGE_MOTOR_Y, TomographyMessages.AXIS_Y),
-				doMotor(ModeDevices.STAGE_MOTOR_Z, TomographyMessages.AXIS_Z),
-				doMotor(ModeDevices.STAGE_ROT_Y, TomographyMessages.THETA) };
+		StageCompositeDefinitionBuilder builder = new StageCompositeDefinitionBuilder();
+		builder.assemble(ModeDevices.STAGE_MOTOR_X, TomographyMessages.AXIS_X);
+		builder.assemble(ModeDevices.STAGE_MOTOR_Y, TomographyMessages.AXIS_Y);
+		builder.assemble(ModeDevices.STAGE_MOTOR_Z, TomographyMessages.AXIS_Z);
+		builder.assemble(ModeDevices.STAGE_ROT_Y, TomographyMessages.THETA);
+		return builder.build();
 	}
 
 	private StageCompositeDefinition[] createCameraMotorsComposite() {
-		return new StageCompositeDefinition[] { doMotor(ModeDevices.CAMERA_Z, TomographyMessages.CAMERA) };
+		StageCompositeDefinitionBuilder builder = new StageCompositeDefinitionBuilder();
+		builder.assemble(ModeDevices.CAMERA_Z, TomographyMessages.CAMERA);
+		return builder.build();
 	}
 }
