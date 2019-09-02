@@ -199,7 +199,7 @@ public class NexusDataWriter extends DataWriterBase {
 
 	private static Map<String, String> metadataEntries;
 
-	private static List<String> nexusTemplateFiles;
+	private static List<String> nexusTemplateFiles = Collections.emptyList();
 
 	/**
 	 * Constructor. This attempts to read the java.property which defines the beamline name.
