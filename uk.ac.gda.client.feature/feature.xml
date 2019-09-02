@@ -424,6 +424,18 @@
          download-size="0"
          install-size="0"
          version="0.0.0"
-         unpack="false"/>
+         unpack="false"/>      
+         
+   <plugin
+         id="uk.ac.diamond.daq.client.gui.camera"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>        
+         
+   <plugin
+         id="uk.ac.diamond.daq.stage"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
 </feature>
