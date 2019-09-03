@@ -25,7 +25,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -47,17 +46,24 @@ import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * This class provides a generic lookup function for looking up the value for a scannable (scannable name as column
- * heading)that corresponding to a given key (such as row name). It reads a text file which contains columnar data in
+ * heading) that corresponds to a given key (such as row name). It reads a text file which contains columnar data in
  * the following format:
- * <ul>
- * <li>Comments: Any line beginning with # is ignored</li>
- * <li>Column Heading: the name of scannable objects, starting with a Marker string constant "ScannableNames" (the
- * default) or Spring configured property "columnHead" used as key</li>
- * <li>Unit String: the physical units used by each of the scannables, starting with a Marker string constant
- * "ScannableUnits" (the default) or Spring configure property "columnUnit"</li>
- * <li>Lookup Values: Multiple rows and columns of data with NO Marker, instead, the first column of data (i.e. the
- * left-most scannable's values) are used as key by default for the lookup on specific row.</li>
- * </ul>
+ * <dl>
+ * <dt>Comments</dt>
+ * <dd>Any line beginning with # is ignored</dd>
+ *
+ * <dt>Column Heading</dt>
+ * <dd>The name of scannable objects, starting with a Marker string constant "ScannableNames" (the default)
+ * or Spring configured property "columnHead" used as key</dd>
+ *
+ * <dt>Unit String</dt>
+ * <dd>The physical units used by each of the scannables, starting with a Marker string constant
+ * "ScannableUnits" (the default) or Spring configure property "columnUnit"</dd>
+ *
+ * <dt>Lookup Values</dt>
+ * <dd>Multiple rows and columns of data with NO Marker, instead, the first column of data (i.e. the
+ * left-most scannable's values) are used as key by default for the lookup on specific row.</dd>
+ * </dl>
  * it uses a MultiValuedMap object to store the lookup table.
  */
 @ServiceInterface(Lookup.class)
@@ -71,7 +77,7 @@ public class LookupTable extends FindableConfigurableBase implements Lookup {
 	 */
 	private int numberOfRows;
 	/**
-	 * the number of decimal places used for the scannable objects
+	 * the values available in the value map used for the scannable objects
 	 */
 	private ArrayList<Object> keys;
 	/**
@@ -81,12 +87,12 @@ public class LookupTable extends FindableConfigurableBase implements Lookup {
 	private String dirLUT = null;
 	/**
 	 * Column head holds the name of the column header - previously this was hard coded to ScannableNames - so
-	 * defaulting to to 'ScannableNames' for backward compatability
+	 * defaulting to 'ScannableNames' for backward compatibility
 	 */
 	private String columnHead = "ScannableNames";
 	/**
-	 * Column head holds the name of the column units - previously this was hard coded to ScannableUnits - so defaulting
-	 * to to 'ScannableUnits' for backward compatability
+	 * Column head holds the name of the column units - previously this was hard coded to ScannableUnits - so
+	 * defaulting to 'ScannableUnits' for backward compatibility
 	 */
 	private String columnUnit = "ScannableUnits";
 
@@ -131,21 +137,14 @@ public class LookupTable extends FindableConfigurableBase implements Lookup {
 	private MultiValueMap lookupMap = new MultiValueMap();
 	private ObservableComponent observableComponent = new ObservableComponent();
 
-	/**
-	 * default constructor
-	 */
-	public LookupTable() {
-	}
-
 	@Override
 	public void configure() {
 		logger.info("{} configuring lookup table. This will take a while, please wait ......", getName());
-//		logger.debug("LookupTable configure called");
 		if (!isConfigured()) {
 			String filePath;
 			if (dirLUT == null) {
-				String gda_config = LocalProperties.get(LocalProperties.GDA_CONFIG);
-				String lookupTableFolder = LocalProperties.get("gda.function.lookupTable.dir", gda_config
+				String gdaConfig = LocalProperties.get(LocalProperties.GDA_CONFIG);
+				String lookupTableFolder = LocalProperties.get("gda.function.lookupTable.dir", gdaConfig
 						+ File.separator + "lookupTables");
 				filePath = lookupTableFolder + File.separator + filename;
 			} else {
@@ -176,52 +175,40 @@ public class LookupTable extends FindableConfigurableBase implements Lookup {
 	private void readTheFile(String filePath) {
 		lookupMap.clear();
 
-		BufferedReader br = null;
 		String nextLine;
 		String[] names = null;
 		String[] unitStrings = null;
 		int[] decimalPlaces = null;
-		ArrayList<String> lines = new ArrayList<String>();
-		try {
+		ArrayList<String> lines = new ArrayList<>();
+		try (FileReader fr = new FileReader(filePath); BufferedReader br = new BufferedReader(fr)) {
 			// Find out lookup table folder
 
 			logger.info("loading the look up table file {} ", filePath);
 
-			br = new BufferedReader(new FileReader(filePath));
-			while (((nextLine = br.readLine()) != null) && (nextLine.length() > 0)) {
+			while (((nextLine = br.readLine()) != null) && !nextLine.isEmpty()) {
 				if (nextLine.startsWith(getColumnHead())) {
-					//logger.debug(nextLine);
 					// NB This regex means one or more comma space or tab
 					// This split will include the word "ScannableNames" as one of the names
 					names = nextLine.split("[, \t][, \t]*");
 				} else if (nextLine.startsWith(getColumnUnit())) {
-					//logger.debug(nextLine);
 					// NB This regex means one or more comma space or tab
 					// This split will include the word "ScannableUnits" as one of the unitStrings
 					unitStrings = nextLine.split("[, \t][, \t]*");
-				} else if (!nextLine.startsWith("#"))
+				} else if (!nextLine.startsWith("#")) {
 					lines.add(nextLine);
+				}
 			}
 		} catch (FileNotFoundException fnfe) {
 			throw new IllegalArgumentException("LookupTable could not open file " + filePath, fnfe);
 		} catch (IOException ioe) {
 			throw new RuntimeException("LookupTable IOException ", ioe);
-		} finally {
-			try {
-				if (br!=null) {
-					br.close();
-				}
-			} catch (IOException e) {
-				logger.error("IOException on loading look up table", e);
-				throw new RuntimeException("IOException on loading look up table", e);
-			}
 		}
 
 		numberOfRows = lines.size();
-		logger.debug("the file containes " + numberOfRows + " lines");
+		logger.debug("the file containes {} lines", numberOfRows);
 		int nColumns = new StringTokenizer(lines.get(0), ", \t").countTokens();
-		logger.debug("each line contains " + nColumns + " numbers");
-		keys = new ArrayList<Object>();
+		logger.debug("each line contains {} numbers", nColumns);
+		keys = new ArrayList<>();
 		if (names != null) {
 			for (int i = 0; i < nColumns; i++) {
 				lookupMap.put(names[0], names[i + 1]);
@@ -350,7 +337,7 @@ public class LookupTable extends FindableConfigurableBase implements Lookup {
 		values = new double[strtok.countTokens()];
 		int i = 0;
 		while (strtok.hasMoreTokens()) {
-			values[i] = Double.valueOf(strtok.nextToken()).doubleValue();
+			values[i] = Double.parseDouble(strtok.nextToken());
 			i++;
 		}
 		return values;
@@ -397,10 +384,6 @@ public class LookupTable extends FindableConfigurableBase implements Lookup {
 		return filename;
 	}
 
-	private MultiValueMap getLookupMap() {
-		return this.lookupMap;
-	}
-
 	/**
 	 * @return array of the values in the first column, considering that the first three rows are ScannableNames,
 	 *         ScannableUnits, and DecimalPlaces
@@ -425,21 +408,6 @@ public class LookupTable extends FindableConfigurableBase implements Lookup {
 		return null;
 	}
 
-	// below is testing code used in this class internally only
-	/**
-	 * configures the object, used by this class's main test method only
-	 *
-	 * @param filename
-	 */
-	private void configure(String filename) {
-		logger.debug("LookupTable configure called");
-		if (!isConfigured()) {
-
-			readTheFile(filename);
-			setConfigured(true);
-		}
-	}
-
 	/**
 	 * returns the keys of map in its original order in the map
 	 *
@@ -447,30 +415,6 @@ public class LookupTable extends FindableConfigurableBase implements Lookup {
 	 */
 	private ArrayList<Object> getKeys() {
 		return keys;
-	}
-
-	/**
-	 * Tests this class
-	 *
-	 * @param args
-	 * @throws DeviceException
-	 */
-	public static void main(String[] args) throws DeviceException {
-		System.out.println("testing LookupTable file reading ....");
-		LookupTable lut = new LookupTable();
-		// lut.configure("C:\\workspace\\config\\i11-EpicsSimulation\\lookupTables\\Automated_energy_setup.txt");
-		lut.configure("/scratch/i12workspace/i12-config/lookupTables/tomo/module_lookup_table.txt");
-		MultiValueMap lum = lut.getLookupMap();
-		for (Object key : lut.getKeys()) {
-			Collection<?> list = lum.getCollection(key);
-			for (Object o : list) {
-				System.out.print(o + "\t");
-			}
-			System.out.println();
-		}
-
-		lut.getLookupKeys();
-
 	}
 
 	@Override

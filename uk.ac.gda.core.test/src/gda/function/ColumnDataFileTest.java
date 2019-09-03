@@ -115,11 +115,4 @@ public class ColumnDataFileTest {
 		cdf.setFilename(new File(TEST_FILE_DIRECTORY, MISSING).getAbsolutePath(), true);
 		cdf.configure();
 	}
-
-	@Test
-	public void stringFromDoubleArray() throws Exception {
-		cdf = getFile(TEST_FILE);
-		// TODO: Odd space at end of string
-		assertThat(cdf.doubleArrayToString(new double[] {1.2, 2.3, 3.4, 4.5}), is("1.2 2.3 3.4 4.5 "));
-	}
 }

@@ -29,7 +29,6 @@ import java.util.StringTokenizer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
 import gda.configuration.properties.LocalProperties;
 import gda.factory.FactoryException;
@@ -56,12 +55,6 @@ public class ColumnDataFile extends FindableConfigurableBase {
 	private int[] columnDecimalPlaces;
 
 	private boolean filenameIsFull = false;
-
-	/**
-	 * FIXME remove empty constructor
-	 */
-	public ColumnDataFile() {
-	}
 
 	/**
 	 * Returns the (data) filename
@@ -100,7 +93,7 @@ public class ColumnDataFile extends FindableConfigurableBase {
 	private void readTheFile() {
 		String nextLine;
 		String[] unitStrings = null;
-		ArrayList<String> lines = new ArrayList<String>();
+		ArrayList<String> lines = new ArrayList<>();
 		String filePath = filename;
 		if (!filenameIsFull) {
 			// Find out lookup table folder
@@ -109,27 +102,28 @@ public class ColumnDataFile extends FindableConfigurableBase {
 		}
 
 		try (FileReader fr = new FileReader(filePath); BufferedReader br = new BufferedReader(fr)) {
-			logger.debug("ColumnDataFile loading file: " + filePath);
+			logger.debug("ColumnDataFile loading file: {}", filePath);
 			while (((nextLine = br.readLine()) != null) && (nextLine.length() > 0)) {
 				if (nextLine.startsWith("Units")) {
-					logger.debug("Units are :" + nextLine.substring(6));
+					logger.debug("Units are : {}", nextLine.substring(6));
 					// NB This regex means one or more comma space or tab
 					// This split will include the word "Units" as one of
 					// the
 					// unitStrings
 					unitStrings = nextLine.split("[, \t][, \t]*");
-				} else if (!nextLine.startsWith("#"))
+				} else if (!nextLine.startsWith("#")) {
 					lines.add(nextLine);
+				}
 			}
 
 		} catch (IOException ioe) {
-			throw new RuntimeException("Could not load " + StringUtils.quote(filePath), ioe);
+			throw new RuntimeException("Could not load '" + filePath + "'", ioe);
 		}
 
 		numberOfXValues = lines.size();
-		logger.debug("the file contained " + numberOfXValues + " lines");
+		logger.debug("the file contained {} lines", numberOfXValues);
 		int nColumns = new StringTokenizer(lines.get(0), ", \t").countTokens();
-		logger.debug("each line should contain " + nColumns + " numbers");
+		logger.debug("each line should contain {} numbers", nColumns);
 
 		if (unitStrings != null) {
 			columnUnits = new ArrayList<>();
@@ -157,10 +151,6 @@ public class ColumnDataFile extends FindableConfigurableBase {
 			for (j = 0; j < thisLine.length; j++)
 				columnData[j][i] = thisLine[j];
 		}
-
-		/*
-		 * for (i = 0; i < nColumns; i++) { Message.out("column " + i + " is " + doubleArrayToString(columnData[i])); }
-		 */
 	}
 
 	/**
@@ -187,21 +177,6 @@ public class ColumnDataFile extends FindableConfigurableBase {
 		}
 
 		return values;
-	}
-
-	/**
-	 * Converts an array of doubles into a string. Exists mainly for debugging.
-	 *
-	 * @param values
-	 *            the array of doubles
-	 * @return a string containing the doubles separated by commas.
-	 */
-	public String doubleArrayToString(double[] values) {
-		String string = "";
-		for (int j = 0; j < values.length; j++)
-			string = string + values[j] + " ";
-
-		return string;
 	}
 
 	/**
@@ -249,7 +224,7 @@ public class ColumnDataFile extends FindableConfigurableBase {
 		values = new double[strtok.countTokens()];
 		int i = 0;
 		while (strtok.hasMoreTokens()) {
-			values[i] = Double.valueOf(strtok.nextToken()).doubleValue();
+			values[i] = Double.parseDouble(strtok.nextToken());
 			i++;
 		}
 
