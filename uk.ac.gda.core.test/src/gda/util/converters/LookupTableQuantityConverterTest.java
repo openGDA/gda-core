@@ -61,7 +61,7 @@ public class LookupTableQuantityConverterTest {
 		} catch (Exception e) {
 			final String msg = e.getMessage();
 			assertEquals(
-					"LookupTableQuantityConverter.LookupTableQuantityConverter: Error accessing data from ColumnDataFile - check the column indices are correct. LookupTableQuantityConverter using details in Simple.txt. sColumn=0 tColumn=3 mode = BOTH_DIRECTIONS",
+					"LookupTableQuantityConverter.LookupTableQuantityConverter: Index 3 is out of range. Expected value in range (0, 2)",
 					msg);
 		}
 	}

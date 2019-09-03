@@ -19,6 +19,9 @@
 
 package gda.function;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.IntStream.range;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -26,6 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.function.BiFunction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +47,10 @@ public class ColumnDataFile extends FindableConfigurableBase {
 	public static final String GDA_FUNCTION_COLUMN_DATA_FILE_LOOKUP_DIR = "gda.function.columnDataFile.lookupDir";
 
 	private static final Logger logger = LoggerFactory.getLogger(ColumnDataFile.class);
+
+	/** Format index and maximum value into a more useful out of bounds error message */
+	private static final BiFunction<Integer, Integer, String> INDEX_ERROR_MESSAGE = (index, range) ->
+			String.format("Index %d is out of range. Expected value in range (0, %d)", index, range);
 
 	int numberOfXValues;
 
@@ -120,6 +128,9 @@ public class ColumnDataFile extends FindableConfigurableBase {
 			throw new RuntimeException("Could not load '" + filePath + "'", ioe);
 		}
 
+		if (lines.isEmpty()) {
+			throw new IllegalArgumentException("File " + filePath + " does not contain any data");
+		}
 		numberOfXValues = lines.size();
 		logger.debug("the file contained {} lines", numberOfXValues);
 		int nColumns = new StringTokenizer(lines.get(0), ", \t").countTokens();
@@ -136,6 +147,11 @@ public class ColumnDataFile extends FindableConfigurableBase {
 				}
 				columnUnits.add(unitString);
 			}
+		}
+
+		if (columnUnits == null || columnUnits.isEmpty()) {
+			// If no units are given, columns should be dimensionless
+			columnUnits = range(0, nColumns).mapToObj(i -> "").collect(toList());
 		}
 		// Create array in column (i.e. the opposite to the file) order
 		columnData = new double[nColumns][numberOfXValues];
@@ -186,7 +202,11 @@ public class ColumnDataFile extends FindableConfigurableBase {
 	 * @return a double array of the values in the column
 	 */
 	public double[] getColumn(int which) {
-		return columnData[which];
+		try {
+			return columnData[which];
+		} catch (IndexOutOfBoundsException e) {
+			throw new IllegalArgumentException(INDEX_ERROR_MESSAGE.apply(which, columnData.length -1), e);
+		}
 	}
 
 	/**
@@ -196,7 +216,11 @@ public class ColumnDataFile extends FindableConfigurableBase {
 	 * @return the Unit
 	 */
 	public String getColumnUnits(int which) {
-		return columnUnits.get(which);
+		try {
+			return columnUnits.get(which);
+		} catch (IndexOutOfBoundsException e) {
+			throw new IllegalArgumentException(INDEX_ERROR_MESSAGE.apply(which, columnUnits.size()-1), e);
+		}
 	}
 
 	/**
@@ -206,7 +230,11 @@ public class ColumnDataFile extends FindableConfigurableBase {
 	 * @return the numberOfDecimalPlaces
 	 */
 	public int getColumnDecimalPlaces(int which) {
-		return columnDecimalPlaces[which];
+		try {
+			return columnDecimalPlaces[which];
+		} catch (IndexOutOfBoundsException e) {
+			throw new IllegalArgumentException(INDEX_ERROR_MESSAGE.apply(which, columnDecimalPlaces.length -1), e);
+		}
 	}
 
 	/**

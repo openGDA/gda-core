@@ -25,7 +25,6 @@ import static org.junit.Assert.assertThat;
 import java.io.File;
 import java.nio.file.Paths;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import gda.configuration.properties.LocalProperties;
@@ -61,7 +60,6 @@ public class ColumnDataFileTest {
 		assertThat(cdf.getColumnUnits(3), is(""));
 	}
 
-	@Ignore // Currently throws NPE
 	@Test
 	public void unitlessColumnUnits() throws Exception {
 		cdf = getFile(UNITLESS);
@@ -102,7 +100,6 @@ public class ColumnDataFileTest {
 		}
 	}
 
-	@Ignore // currently throw IndexOutOfBounds
 	@Test(expected = IllegalArgumentException.class)
 	public void emptyFile() throws Exception {
 		cdf = getFile(EMPTY);

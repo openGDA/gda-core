@@ -110,17 +110,25 @@ public class InterpolationFunction<T extends Quantity<T>, R extends Quantity<R>>
 	}
 
 	@Override
-	public void configure() {
+	public void configure() throws FactoryException {
 		if (!configured) {
 			if (cdf == null) {
 				cdf = Finder.getInstance().find(cdfName);
 			}
 			numberOfXValues = cdf.getNumberOfXValues();
-			xValues = cdf.getColumn(xColumn);
-			xUnits = QuantityFactory.createUnitFromString(cdf.getColumnUnits(xColumn));
-			yValues = cdf.getColumn(yColumn);
-			yUnits = QuantityFactory.createUnitFromString(cdf.getColumnUnits(yColumn));
-			yPlaces = cdf.getColumnDecimalPlaces(yColumn);
+			try {
+				xValues = cdf.getColumn(xColumn);
+				xUnits = QuantityFactory.createUnitFromString(cdf.getColumnUnits(xColumn));
+			} catch (IllegalArgumentException e) {
+				throw new FactoryException("X column index is out of bounds", e);
+			}
+			try {
+				yValues = cdf.getColumn(yColumn);
+				yUnits = QuantityFactory.createUnitFromString(cdf.getColumnUnits(yColumn));
+				yPlaces = cdf.getColumnDecimalPlaces(yColumn);
+			} catch (IllegalArgumentException e) {
+				throw new FactoryException("Y column index is out of bounds", e);
+			}
 			configured = true;
 		}
 	}
