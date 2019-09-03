@@ -43,7 +43,7 @@ public class InterpolationFunction<T extends Quantity<T>, R extends Quantity<R>>
 
 	private int yColumn = -1;
 
-	private ColumnDataFile cdf = null;
+	private ColumnDataFile cdf;
 
 	private String cdfName;
 
@@ -112,7 +112,9 @@ public class InterpolationFunction<T extends Quantity<T>, R extends Quantity<R>>
 	@Override
 	public void configure() {
 		if (!configured) {
-			cdf = Finder.getInstance().find(cdfName);
+			if (cdf == null) {
+				cdf = Finder.getInstance().find(cdfName);
+			}
 			numberOfXValues = cdf.getNumberOfXValues();
 			xValues = cdf.getColumn(xColumn);
 			xUnits = QuantityFactory.createUnitFromString(cdf.getColumnUnits(xColumn));
@@ -142,14 +144,20 @@ public class InterpolationFunction<T extends Quantity<T>, R extends Quantity<R>>
 	 * @return Returns the cdf.
 	 */
 	public String getCdfName() {
+		if (cdf != null) {
+			return cdf.getName();
+		}
 		return cdfName;
 	}
 
 	/**
 	 * @param cdfName
 	 *            The cdf to set.
+	 * @deprecated Set the CDF instance directly instead of using the name
 	 */
+	@Deprecated
 	public void setCdfName(String cdfName) {
+		logger.warn("Setting CDF by name is deprecated. Set the CDF instance directly.");
 		this.cdfName = cdfName;
 	}
 
@@ -303,5 +311,9 @@ public class InterpolationFunction<T extends Quantity<T>, R extends Quantity<R>>
 			previous = next;
 		}
 		return true;
+	}
+
+	public void setCdf(ColumnDataFile cdf) {
+		this.cdf = cdf;
 	}
 }
