@@ -19,6 +19,7 @@
 
 package gda.function;
 
+import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.IntStream.range;
 
@@ -27,6 +28,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.function.BiFunction;
@@ -100,7 +102,7 @@ public class ColumnDataFile extends FindableConfigurableBase {
 	 */
 	private void readTheFile() {
 		String nextLine;
-		String[] unitStrings = null;
+		String[] unitStrings = new String[] {};
 		ArrayList<String> lines = new ArrayList<>();
 		String filePath = filename;
 		if (!filenameIsFull) {
@@ -136,18 +138,10 @@ public class ColumnDataFile extends FindableConfigurableBase {
 		int nColumns = new StringTokenizer(lines.get(0), ", \t").countTokens();
 		logger.debug("each line should contain {} numbers", nColumns);
 
-		if (unitStrings != null) {
-			columnUnits = new ArrayList<>();
-			// NB unitStrings contains as its first element "Units" hence
-			// the i+1
-			for (int i = 0; i < nColumns; i++){
-				String unitString = unitStrings[i + 1];
-				if (unitString.equals("\"\"")) {
-					unitString = "";
-				}
-				columnUnits.add(unitString);
-			}
-		}
+		columnUnits = Arrays.stream(unitStrings)
+				.skip(1) // Skip 'Units' keyword
+				.map(units -> "\"\"".equals(units) ? "" : units) // A literal "" should be replaced by an empty string
+				.collect(toList());
 
 		if (columnUnits == null || columnUnits.isEmpty()) {
 			// If no units are given, columns should be dimensionless
@@ -174,25 +168,9 @@ public class ColumnDataFile extends FindableConfigurableBase {
 	 * @return an array of token positions
 	 */
 	private int[] calculateDecimalPlaces(String string) {
-		int[] values;
-		String nextToken;
-		int index;
-
-		StringTokenizer strtok = new StringTokenizer(string, ", \t");
-
-		values = new int[strtok.countTokens()];
-		int i = 0;
-		while (strtok.hasMoreTokens()) {
-			nextToken = strtok.nextToken();
-			index = nextToken.indexOf('.');
-			if (index == -1)
-				values[i] = 0;
-			else
-				values[i] = nextToken.length() - index - 1;
-			i++;
-		}
-
-		return values;
+		return stream(string.split("[, \t]+"))
+				.mapToInt(s -> (s.length() - s.indexOf('.') - 1) % s.length()) // characters to right of '.' (or 0 if none present)
+				.toArray();
 	}
 
 	/**
@@ -245,18 +223,9 @@ public class ColumnDataFile extends FindableConfigurableBase {
 	 * @return an array of doubles found in the string
 	 */
 	private double[] stringToDoubleArray(String string) {
-		double[] values;
-
-		StringTokenizer strtok = new StringTokenizer(string, ", \t");
-
-		values = new double[strtok.countTokens()];
-		int i = 0;
-		while (strtok.hasMoreTokens()) {
-			values[i] = Double.parseDouble(strtok.nextToken());
-			i++;
-		}
-
-		return values;
+		return stream(string.split("[, \t]+"))
+				.mapToDouble(Double::parseDouble)
+				.toArray();
 	}
 
 	/**

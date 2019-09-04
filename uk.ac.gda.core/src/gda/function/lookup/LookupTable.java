@@ -19,6 +19,8 @@
 
 package gda.function.lookup;
 
+import static java.util.Arrays.stream;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -79,7 +81,7 @@ public class LookupTable extends FindableConfigurableBase implements Lookup {
 	/**
 	 * the values available in the value map used for the scannable objects
 	 */
-	private ArrayList<Object> keys;
+	private ArrayList<String> keys;
 	/**
 	 * the filename of the lookup table - ASCII file
 	 */
@@ -330,17 +332,9 @@ public class LookupTable extends FindableConfigurableBase implements Lookup {
 	 * @return an array of doubles found in the string
 	 */
 	private double[] stringToDoubleArray(String string) {
-		double[] values;
-
-		StringTokenizer strtok = new StringTokenizer(string, ", \t");
-
-		values = new double[strtok.countTokens()];
-		int i = 0;
-		while (strtok.hasMoreTokens()) {
-			values[i] = Double.parseDouble(strtok.nextToken());
-			i++;
-		}
-		return values;
+		return stream(string.split("[, \t]+"))
+				.mapToDouble(Double::parseDouble)
+				.toArray();
 	}
 
 	/**
@@ -348,25 +342,9 @@ public class LookupTable extends FindableConfigurableBase implements Lookup {
 	 * @return an array of token positions
 	 */
 	private int[] calculateDecimalPlaces(String string) {
-		int[] values;
-		String nextToken;
-		int index;
-
-		StringTokenizer strtok = new StringTokenizer(string, ", \t");
-
-		values = new int[strtok.countTokens()];
-		int i = 0;
-		while (strtok.hasMoreTokens()) {
-			nextToken = strtok.nextToken();
-			index = nextToken.indexOf('.');
-			if (index == -1)
-				values[i] = 0;
-			else
-				values[i] = nextToken.length() - index - 1;
-			i++;
-		}
-
-		return values;
+		return stream(string.split("[, \t]+"))
+				.mapToInt(s -> (s.length() - s.indexOf('.') - 1) % s.length()) // characters to right of '.' (or 0 if none present)
+				.toArray();
 	}
 
 	@Override
@@ -392,29 +370,10 @@ public class LookupTable extends FindableConfigurableBase implements Lookup {
 	@Override
 	public double[] getLookupKeys() throws DeviceException {
 		checkConfigured();
-		ArrayList<Object> actualKeys = getKeys();
 		final int firstRows = 3;// ScannableNames, ScannableUnits, DecimalPlaces
-		int totalKeys = actualKeys.size();
-		if (totalKeys > firstRows) {
-			double[] keys = new double[totalKeys - firstRows];
-			for (int count = firstRows; count < actualKeys.size(); count++) {
-				// While reading the file there is a mandate that the first column must be a double value - so
-				// additional checks aren't required here
-				keys[count - firstRows] = Double.parseDouble((String) actualKeys.get(count));
-			}
-			return keys;
-		}
-
-		return null;
-	}
-
-	/**
-	 * returns the keys of map in its original order in the map
-	 *
-	 * @return array list of keys
-	 */
-	private ArrayList<Object> getKeys() {
-		return keys;
+		return keys.stream()
+				.skip(firstRows)
+				.mapToDouble(Double::parseDouble).toArray();
 	}
 
 	@Override
@@ -431,5 +390,4 @@ public class LookupTable extends FindableConfigurableBase implements Lookup {
 	public void deleteIObservers() {
 		observableComponent.deleteIObservers();
 	}
-
 }
