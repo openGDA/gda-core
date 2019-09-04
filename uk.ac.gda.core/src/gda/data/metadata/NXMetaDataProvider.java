@@ -351,8 +351,13 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 
 			try {
 				Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
-				metaScannableList.add(scannable);
-			} catch (Exception e) {
+				if (scannable == null) {
+					logger.warn("Scannable '{}' is not in Jython namespace - it will not be included in metadata", scannableName);
+				}
+				else {
+					metaScannableList.add(scannable);
+				}
+			} catch (ClassCastException e) {
 				throw new RuntimeException("Error converting " + scannableName + " to a scannable", e);
 			}
 		}
