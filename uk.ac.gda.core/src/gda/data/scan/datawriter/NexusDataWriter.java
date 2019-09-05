@@ -191,7 +191,7 @@ public class NexusDataWriter extends DataWriterBase {
 
 	private boolean fileNumberConfigured = false;
 
-	private static Set<String> metadatascannables = new HashSet<>();
+	private static Set<String> metadatascannables = new LinkedHashSet<>();
 
 	private static Map<String, ScannableWriter> locationmap = new HashMap<>();
 
