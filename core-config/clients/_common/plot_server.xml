@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:gda="http://www.diamond.ac.uk/schema/gda/gda"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
-	http://www.springframework.org/schema/beans/spring-beans.xsd
-	http://www.diamond.ac.uk/schema/gda/gda
-	http://www.diamond.ac.uk/schema/gda/gda/gda-gda-1.2.xsd">
+	http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<gda:import
-		service="plot_server"
-		serviceInterface="uk.ac.diamond.scisoft.analysis.PlotServer" />
+	<bean id="plot_server" class="uk.ac.gda.remoting.client.GdaRmiProxy" />
 
 	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
 		<property name="staticMethod" value="uk.ac.diamond.scisoft.analysis.PlotServerProvider.setPlotServer" />
