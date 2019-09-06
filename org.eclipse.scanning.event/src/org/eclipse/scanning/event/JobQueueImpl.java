@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.event;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.net.InetAddress;
 import java.net.URI;
@@ -130,8 +131,10 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 		this.commandAckTopicName = commandAckTopicName;
 		this.queueStatusTopicName = queueStatusTopicName;
 
+		// create the status queue and submission queue,
 		final String dbDir = connectorService.getPersistenceDir();
 		persistentStorePath = Paths.get(dbDir, submitQueueName + ".db").toString();
+		new File(persistentStorePath).getParentFile().mkdirs();
 		final MVStore store = MVStore.open(persistentStorePath);
 		submissionQueue = new SynchronizedModifiableIdQueue<>(connectorService, store, QUEUE_NAME_SUBMISSION_QUEUE);
 		statusQueue = new SynchronizedModifiableIdQueue<>(connectorService, store, QUEUE_NAME_STARTED_BEANS);
