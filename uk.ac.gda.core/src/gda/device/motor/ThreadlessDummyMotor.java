@@ -167,22 +167,23 @@ public class ThreadlessDummyMotor extends MotorBase {
 	private void moveTowardsTarget() {
 		double delta = targetPosition - position;
 		setStatus(BUSY);
+		double next;
 		if (Math.abs(delta) < stepSize) {
-			position = targetPosition;
+			next = targetPosition;
 		} else {
 			double step = delta > 0 ? stepSize : -stepSize;
-			double next = position + step;
-			if (next >= upperHardLimit) {
-				setStatus(UPPER_LIMIT);
-				shutdown();
-				position = upperHardLimit;
-			} else if (next <= lowerHardLimit) {
-				setStatus(LOWER_LIMIT);
-				shutdown();
-				position = lowerHardLimit;
-			} else {
-				position += step;
-			}
+			next = position + step;
+		}
+		if (next >= upperHardLimit) {
+			setStatus(UPPER_LIMIT);
+			shutdown();
+			position = upperHardLimit;
+		} else if (next <= lowerHardLimit) {
+			setStatus(LOWER_LIMIT);
+			shutdown();
+			position = lowerHardLimit;
+		} else {
+			position = next;
 		}
 	}
 
@@ -242,6 +243,7 @@ public class ThreadlessDummyMotor extends MotorBase {
 	@Override
 	public void stop() {
 		targetPosition = position;
+		status.compareAndSet(BUSY, READY);
 		shutdown();
 	}
 
