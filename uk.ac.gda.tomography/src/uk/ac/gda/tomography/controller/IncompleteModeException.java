@@ -16,17 +16,28 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.ui.mode;
+package uk.ac.gda.tomography.controller;
 
-import java.util.Map;
+public class IncompleteModeException extends AcquisitionControllerException {
 
-import gda.device.IScannableMotor;
-
-public interface TomographyMode {
-
-	public enum ModeDevices {
-		STAGE_MOTOR_X, STAGE_MOTOR_Y, STAGE_MOTOR_Z, STAGE_ROT_Y, CAMERA_Z;
+	public IncompleteModeException() {
+		super();
 	}
 
-	public Map<ModeDevices, IScannableMotor> getMotors() throws IncompleteModeException;
+	public IncompleteModeException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+		super(message, cause, enableSuppression, writableStackTrace);
+	}
+
+	public IncompleteModeException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public IncompleteModeException(String message) {
+		super(message);
+	}
+
+	public IncompleteModeException(Throwable cause) {
+		super(cause);
+	}
+
 }

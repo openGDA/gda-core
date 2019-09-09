@@ -28,6 +28,8 @@ import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Control;
 
+import uk.ac.gda.tomography.service.message.TomographyMessages;
+
 public class WidgetUtilities {
 
 	private static final Map<Integer, ControlDecoration> decoratorMap;

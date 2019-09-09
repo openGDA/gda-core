@@ -1,5 +1,4 @@
 {
-	"devices": [],
 	"acquisitionParameters": {
 		"name": "tomoTest",
 		"scanType": "FLY",

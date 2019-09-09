@@ -19,9 +19,6 @@
 package uk.ac.gda.tomography.model;
 
 import java.util.Map;
-import java.util.Set;
-
-import gda.device.Device;
 
 /**
  * An acquisition includes three components.
@@ -34,11 +31,6 @@ import gda.device.Device;
  * @author Maurizio Nagni
  */
 public interface AcquisitionConfiguration<T extends AcquisitionParameters> {
-
-	/**
-	 * @return the devices involved in this acquisition
-	 */
-	public Set<Device> getDevices();
 
 	/**
 	 * @return the parameters defining the acquisition execution

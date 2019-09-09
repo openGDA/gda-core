@@ -22,6 +22,7 @@ import java.util.Objects;
 
 import gda.device.IScannableMotor;
 import gda.factory.Finder;
+import uk.ac.gda.tomography.controller.IncompleteModeException;
 
 /**
  * Finds devices being aware of the expected type.
@@ -34,10 +35,14 @@ public final class ModeHelper {
 	private ModeHelper() {}
 
 	public static IScannableMotor getMotor(String beanId) throws IncompleteModeException {
-		IScannableMotor sm = Finder.getInstance().find(beanId);
-		if (Objects.isNull(sm)) {
+		return getFindableDevice(beanId);
+	}
+
+	public static synchronized <T> T getFindableDevice(String beanId) throws IncompleteModeException {
+		T findable = Finder.getInstance().find(beanId);
+		if (Objects.isNull(findable)) {
 			throw new IncompleteModeException(String.format("Cannot find any beanId:%s", beanId));
 		}
-		return sm;
+		return findable;
 	}
 }

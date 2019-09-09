@@ -10,8 +10,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,13 +25,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import gda.device.Device;
 import gda.jython.JythonServerFacade;
+import uk.ac.gda.tomography.base.TomographyConfiguration;
+import uk.ac.gda.tomography.base.TomographyMode;
 import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
 import uk.ac.gda.tomography.base.TomographyParameters;
-import uk.ac.gda.tomography.base.TomographyConfiguration;
 import uk.ac.gda.tomography.controller.AcquisitionController;
 import uk.ac.gda.tomography.controller.AcquisitionControllerException;
+import uk.ac.gda.tomography.model.DevicePosition;
 import uk.ac.gda.tomography.model.EndAngle;
 import uk.ac.gda.tomography.model.ImageCalibration;
 import uk.ac.gda.tomography.model.MultipleScans;
@@ -45,6 +46,7 @@ import uk.ac.gda.tomography.service.TomographyService;
 import uk.ac.gda.tomography.service.TomographyServiceException;
 import uk.ac.gda.tomography.service.impl.TomographyServiceImpl;
 import uk.ac.gda.tomography.service.message.TomographyRunMessage;
+import uk.ac.gda.tomography.ui.StageConfiguration;
 
 /**
  * The basic controller for Tomography scan.
@@ -61,7 +63,17 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	private static final String JSON_EXTENSION = "json";
 	private static final String PYTHON_EXTENSION = "py";
 
+	public enum Positions {
+		DEFAULT, OUT_OF_BEAM, START, END;
+	}
+
+	public enum METADATA {
+		EXPOSURE;
+	}
+
+	private TomographyMode tomographyMode;
 	private TomographyParameterAcquisition acquisition;
+	private final Map<Positions, Set<DevicePosition<Double>>> motorsPosition = new EnumMap<>(Positions.class);
 
 	// This parameter should be of type IFilePathService,
 	// however this package does not have scanning.api as dependency but only, by change may be, uk.ac.gda.core
@@ -71,9 +83,9 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	private final TomographyService tomographyService;
 	private Object dataConfigurationSource;
 
-	 public TomographyParametersAcquisitionController() {
-		 this.tomographyService = new TomographyServiceImpl();
-	 }
+	public TomographyParametersAcquisitionController() {
+		this.tomographyService = new TomographyServiceImpl();
+	}
 
 	public TomographyParametersAcquisitionController(TomographyService tomographyService) {
 		this.tomographyService = tomographyService;
@@ -113,25 +125,29 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	}
 
 	@Override
-	public void saveAcquisitionAsFile(TomographyParameterAcquisition acquisition, URL destination) throws AcquisitionControllerException {
-			Path filePath = File.class.cast(dataConfigurationSource).toPath();
-			try {
-				Files.delete(filePath);
-			} catch (IOException e) {
-				throw new AcquisitionControllerException(e);
-			}
-			File newFile;
-			try {
-				newFile = new File(destination.toURI());
-			} catch (URISyntaxException e) {
-				throw new AcquisitionControllerException("Canot save acquisition configuration on file", e);
-			}
-			try (FileOutputStream fos = new FileOutputStream(newFile)) {
-				DataOutputStream outStream = new DataOutputStream(fos);
-				outStream.writeUTF(dataToJson(acquisition));
-			} catch (IOException e) {
-				throw new AcquisitionControllerException("Canot save acquisition configuration on file", e);
-			}
+	public void saveAcquisitionAsFile(final TomographyParameterAcquisition acquisition, URL destination) throws AcquisitionControllerException {
+		Path filePath = File.class.cast(dataConfigurationSource).toPath();
+		try {
+			Files.delete(filePath);
+		} catch (IOException e) {
+			throw new AcquisitionControllerException(e);
+		}
+		File newFile;
+		try {
+			newFile = new File(destination.toURI());
+		} catch (URISyntaxException e) {
+			throw new AcquisitionControllerException("Canot save acquisition configuration on file", e);
+		}
+		try (FileOutputStream fos = new FileOutputStream(newFile)) {
+			DataOutputStream outStream = new DataOutputStream(fos);
+			outStream.writeUTF(dataToJson(generateStageConfiguration(acquisition)));
+		} catch (IOException e) {
+			throw new AcquisitionControllerException("Canot save acquisition configuration on file", e);
+		}
+	}
+
+	private void populateMetadata() {
+		getTomographyMode().getMetadata().put(METADATA.EXPOSURE.name(), Double.toString(0.1));
 	}
 
 	@Override
@@ -143,16 +159,32 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	@Override
 	public void runAcquisition(TomographyParameterAcquisition acquisition) throws AcquisitionControllerException {
 		try {
-			tomographyService.runAcquisition(createTomographyRunMessage(acquisition), getAcquisitionScript(), null, null);
+			StageConfiguration sc = generateStageConfiguration(acquisition);
+			if (requiresOutOfBeamPosition(sc)) {
+				throw new AcquisitionControllerException("Acquisition needs a OutOfBeam position to acquire flat images");
+			}
+			tomographyService.runAcquisition(createTomographyRunMessage(generateStageConfiguration(acquisition)), getAcquisitionScript(), null, null);
 		} catch (TomographyServiceException e) {
 			logger.error("Error submitting tomoscan to queue", e);
 		}
 	}
 
+	/**
+	 * Verifies if a {@link Positions#OUT_OF_BEAM} is present, if the user wants to acquire flat images.
+	 *
+	 * @param sc
+	 *            the stage configuration
+	 * @return true if the stage configuration is consistent, false otherwise
+	 */
+	private boolean requiresOutOfBeamPosition(StageConfiguration sc) {
+		ImageCalibration ic = sc.getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters().getImageCalibration();
+		return ((ic.getNumberFlat() > 0 && (ic.isAfterAcquisition() || ic.isBeforeAcquisition())) && !sc.getMotorPositions().containsKey(Positions.OUT_OF_BEAM));
+	}
+
 	// @Override
 	public URL takeFlatImage(TomographyParameterAcquisition acquisition) throws AcquisitionControllerException {
 		try {
-			return tomographyService.takeFlatImage(createTomographyRunMessage(acquisition), getAcquisitionScript());
+			return tomographyService.takeFlatImage(createTomographyRunMessage(generateStageConfiguration(acquisition)), getAcquisitionScript());
 		} catch (TomographyServiceException e) {
 			throw new AcquisitionControllerException("Error acquiring Flat Image", e);
 		}
@@ -161,7 +193,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	// @Override
 	public URL takeDarkImage(TomographyParameterAcquisition acquisition) throws AcquisitionControllerException {
 		try {
-			return tomographyService.takeDarkImage(createTomographyRunMessage(acquisition), getAcquisitionScript());
+			return tomographyService.takeDarkImage(createTomographyRunMessage(generateStageConfiguration(acquisition)), getAcquisitionScript());
 		} catch (TomographyServiceException e) {
 			throw new AcquisitionControllerException("Error acquiring Dark Image", e);
 		}
@@ -177,7 +209,34 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		return acquisition;
 	}
 
+	public TomographyMode getTomographyMode() {
+		return tomographyMode;
+	}
+
+	public void setTomographyMode(TomographyMode tomographyMode) {
+		this.tomographyMode = tomographyMode;
+	}
+
+	public Set<DevicePosition<Double>> savePosition(Positions position) {
+		motorsPosition.put(position, getTomographyMode().getMotorsPosition());
+		return motorsPosition.get(position);
+	}
+
+	private StageConfiguration generateStageConfiguration(TomographyParameterAcquisition acquisition) {
+		populateMetadata();
+		savePosition(Positions.START);
+		return new StageConfiguration(acquisition, getTomographyMode(), getMotorsPositions());
+	}
+
 	private String dataToJson(TomographyParameterAcquisition acquisition) throws AcquisitionControllerException {
+		return intDataToJson(acquisition);
+	}
+
+	private String dataToJson(StageConfiguration acquisition) throws AcquisitionControllerException {
+		return intDataToJson(acquisition);
+	}
+
+	private String intDataToJson(Object acquisition) throws AcquisitionControllerException {
 		// --- all this should be externalised to a service
 		ObjectMapper mapper = new ObjectMapper();
 		try {
@@ -187,6 +246,10 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		} catch (JsonProcessingException e) {
 			throw new AcquisitionControllerException("Cannot parse json document", e);
 		}
+	}
+
+	private Map<Positions, Set<DevicePosition<Double>>> getMotorsPositions() {
+		return motorsPosition;
 	}
 
 	private void parseJsonData(String jsonData, Object origin) throws AcquisitionControllerException {
@@ -209,7 +272,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 
 	}
 
-	private TomographyRunMessage createTomographyRunMessage(TomographyParameterAcquisition acquisition) throws AcquisitionControllerException {
+	private TomographyRunMessage createTomographyRunMessage(StageConfiguration acquisition) throws AcquisitionControllerException {
 		return new TomographyRunMessage(dataToJson(acquisition));
 	}
 
@@ -255,17 +318,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		multipleScan.setWaitingTime(0);
 		tp.setMultipleScans(multipleScan);
 
-		newConfiguration.getAcquisitionConfiguration().setDevices(new HashSet<>());
 		newConfiguration.getAcquisitionConfiguration().setAcquisitionParameters(tp);
 		return newConfiguration;
-	}
-
-	public void updateDevices(Collection<? extends Device> toRemove, Collection<? extends Device> toAdd) {
-		if (Objects.nonNull(toRemove)) {
-			getAcquisition().getAcquisitionConfiguration().getDevices().removeAll(toRemove);
-		}
-		if (Objects.nonNull(toAdd)) {
-			getAcquisition().getAcquisitionConfiguration().getDevices().addAll(toAdd);
-		}
 	}
 }

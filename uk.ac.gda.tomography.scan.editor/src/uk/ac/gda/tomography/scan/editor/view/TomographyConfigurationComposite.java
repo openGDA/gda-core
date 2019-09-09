@@ -20,6 +20,7 @@ package uk.ac.gda.tomography.scan.editor.view;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -39,16 +40,21 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import uk.ac.gda.tomography.base.TomographyMode.TomographyDevices;
 import uk.ac.gda.tomography.base.TomographyParameters;
+import uk.ac.gda.tomography.model.DevicePosition;
 import uk.ac.gda.tomography.model.MultipleScansType;
 import uk.ac.gda.tomography.model.RangeType;
 import uk.ac.gda.tomography.model.ScanType;
+import uk.ac.gda.tomography.service.message.TomographyMessages;
 import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
+import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController.Positions;
 import uk.ac.gda.tomography.ui.tool.TomographyBindingElements;
 import uk.ac.gda.tomography.ui.tool.TomographySWTElements;
 
 /**
  * This Composite allows to edit a {@link TomographyParameters} object.
+ *
  * @author Maurizio Nagni
  */
 public class TomographyConfigurationComposite extends CompositeTemplate<TomographyParametersAcquisitionController> {
@@ -81,7 +87,9 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 
 	/** The Calibration Composite elements **/
 	private Text numberDark;
+	private Text darkExposure;
 	private Text numberFlat;
+	private Text flatExposure;
 	private Button beforeAcquisition;
 	private Button afterAcquisition;
 
@@ -107,7 +115,7 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 		startAngleContent(TomographySWTElements.createGroup(this, 2, TomographyMessages.START), labelStyle, textStyle);
 		endAngleContent(TomographySWTElements.createGroup(this, 3, TomographyMessages.END), labelStyle, textStyle);
 		projectionsContent(TomographySWTElements.createGroup(this, 2, TomographyMessages.PROJECTIONS), labelStyle, textStyle);
-		imagesCalibrationContent(TomographySWTElements.createGroup(this, 3, TomographyMessages.IMAGE_CALIBRATION), labelStyle, textStyle);
+		imagesCalibrationContent(TomographySWTElements.createGroup(this, 2, TomographyMessages.IMAGE_CALIBRATION), labelStyle, textStyle);
 		multipleScansContent(this, labelStyle, textStyle);
 	}
 
@@ -156,12 +164,22 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 
 	private void imagesCalibrationContent(Composite parent, int labelStyle, int textStyle) {
 		TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.NUM_DARK);
-		TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.NUM_FLAT);
-		TomographySWTElements.createEmptyCell(parent, labelStyle);
-		numberDark = TomographySWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 2),
+		TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.DARK_EXPOSURE);
+		numberDark = TomographySWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 1),
 				TomographyMessages.NUM_DARK_TOOLTIP);
-		numberFlat = TomographySWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 2),
+		darkExposure = TomographySWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 1),
+				TomographyMessages.DARK_EXPOSURE_TP);
+
+		TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.NUM_FLAT);
+		TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.FLAT_EXPOSURE);
+		numberFlat = TomographySWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 1),
 				TomographyMessages.NUM_FLAT_TOOLTIP);
+		flatExposure = TomographySWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 1),
+				TomographyMessages.FLAT_EXPOSURE_TP);
+
+		TomographySWTElements.createEmptyCell(parent, labelStyle);
+		TomographySWTElements.createEmptyCell(parent, labelStyle);
+
 		beforeAcquisition = TomographySWTElements.createButton(parent, SWT.CHECK, TomographyMessages.AT_START, TomographyMessages.AT_START_TOOLTIP);
 		afterAcquisition = TomographySWTElements.createButton(parent, SWT.CHECK, TomographyMessages.AT_END, TomographyMessages.AT_END_TOOLTIP);
 	}
@@ -201,15 +219,18 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 		TomographyBindingElements.bindCheckBox(dbc, currentAngleButton, "start.useCurrentAngle", getTemplateData());
 		TomographyBindingElements.bindText(dbc, startAngleText, Double.class, "start.start", getTemplateData());
 
-//		TomographyBindingElements.bindText(dbc, numberRotation, Integer.class, "end.numberRotation", getTemplateData());
+		// TomographyBindingElements.bindText(dbc, numberRotation, Integer.class, "end.numberRotation", getTemplateData());
 		TomographyBindingElements.bindText(dbc, customAngle, Double.class, "end.customAngle", getTemplateData());
 
 		TomographyBindingElements.bindText(dbc, totalProjections, Double.class, "projections.totalProjections", getTemplateData());
+		//TomographyBindingElements.bindL(dbc, angularStep, Double.class, "projections.angularStep", getTemplateData());
 
 		TomographyBindingElements.bindCheckBox(dbc, beforeAcquisition, "imageCalibration.beforeAcquisition", getTemplateData());
 		TomographyBindingElements.bindCheckBox(dbc, afterAcquisition, "imageCalibration.afterAcquisition", getTemplateData());
 		TomographyBindingElements.bindText(dbc, numberDark, Integer.class, "imageCalibration.numberDark", getTemplateData());
 		TomographyBindingElements.bindText(dbc, numberFlat, Integer.class, "imageCalibration.numberFlat", getTemplateData());
+		TomographyBindingElements.bindText(dbc, darkExposure, Integer.class, "imageCalibration.darkExposure", getTemplateData());
+		TomographyBindingElements.bindText(dbc, flatExposure, Integer.class, "imageCalibration.flatExposure", getTemplateData());
 
 		TomographyBindingElements.bindCheckBox(dbc, multipleScans, "multipleScans.enabled", getTemplateData());
 		multipleScans.setSelection(multipleScans.getSelection());
@@ -264,14 +285,14 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 
 				if (source.getSelection()) {
 					if (source.equals(halfRotationRangeType)) {
-						// fullGroup.setEnabled(false);
 						customGroup.setEnabled(false);
+						customAngle.setText(Double.toString(180));
 					} else if (source.equals(fullRotationRangeType)) {
-						// fullGroup.setEnabled(true);
+						customAngle.setText(Double.toString(360));
 						customGroup.setEnabled(false);
 					} else if (source.equals(customRotationRangeType)) {
-						// fullGroup.setEnabled(false);
 						customGroup.setEnabled(true);
+						customAngle.setText(Double.toString(getTemplateData().getStart().getStart()));
 					}
 				}
 				angularStep.setText(Double.toString(calculateAngularStep()));
@@ -284,10 +305,10 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 
 	private void customAngleLooseFocus() {
 		FocusListener customAngleListener = FocusListener.focusLostAdapter(c -> {
-//			if (getTemplateData().getEnd().getCustomAngle() < getTemplateData().getStart().getStart()) {
-//				getTemplateData().getEnd().setCustomAngle(getTemplateData().getStart().getStart());
-//				customAngle.setText(startAngleText.getText());
-//			}
+			// if (getTemplateData().getEnd().getCustomAngle() < getTemplateData().getStart().getStart()) {
+			// getTemplateData().getEnd().setCustomAngle(getTemplateData().getStart().getStart());
+			// customAngle.setText(startAngleText.getText());
+			// }
 			// customAngle.pack();
 			pack();
 			updateCurrentAngularPosition();
@@ -311,7 +332,7 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 	private void angularStepListener() {
 		ModifyListener angularStepListener = event -> {
 			updateCurrentAngularPosition();
-			angularStep.setText(Double.toString(calculateAngularStep()));
+			setAngularStep();
 			angularStep.pack();
 		};
 		totalProjections.addModifyListener(angularStepListener);
@@ -333,10 +354,16 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 				} else {
 					startAngleText.setEnabled(true);
 				}
-				angularStep.setText(Double.toString(calculateAngularStep()));
+				setAngularStep();
 			}
 		};
 		currentAngleButton.addSelectionListener(useCurrentAngleListener);
+	}
+
+	private void setAngularStep() {
+		double newAngularStep = calculateAngularStep();
+		angularStep.setText(Double.toString(newAngularStep));
+		getTemplateData().getProjections().setAngularStep(newAngularStep);
 	}
 
 	// private VerifyListener validateCustomAngle() {
@@ -364,8 +391,9 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 	// }
 
 	private double getMotorAngularPosition() {
-		// TBD
-		return 33.33;
+		Set<DevicePosition<Double>> start = controller.savePosition(Positions.START);
+		return start.stream().filter(dp -> dp.getName().equals(TomographyDevices.MOTOR_STAGE_ROT_Y.name())).findFirst()
+				.orElse(new DevicePosition<>(TomographyDevices.MOTOR_STAGE_ROT_Y.name(), 0.0)).getPosition();
 	}
 
 	private void updateCurrentAngularPosition() {
@@ -384,7 +412,7 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 		// if (customRotationRangeType.getSelection()) {
 		// fullGroup.setEnabled(false);
 		// }
-		angularStep.setText(Double.toString(calculateAngularStep()));
+		setAngularStep();
 	}
 
 	private double totalAngle() {

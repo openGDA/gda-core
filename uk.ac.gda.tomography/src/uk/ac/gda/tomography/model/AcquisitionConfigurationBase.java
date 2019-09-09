@@ -19,24 +19,12 @@
 package uk.ac.gda.tomography.model;
 
 import java.util.Map;
-import java.util.Set;
-
-import gda.device.Device;
 
 public class AcquisitionConfigurationBase<T extends AcquisitionParameters> implements AcquisitionConfiguration<T> {
 
-	private Set<Device> devices;
 	private T acquisitionParameters;
 	private Map<String, String> metadata;
 
-
-	@Override
-	public Set<Device> getDevices() {
-		return devices;
-	}
-	public void setDevices(Set<Device> devices) {
-		this.devices = devices;
-	}
 	@Override
 	public T getAcquisitionParameters() {
 		return acquisitionParameters;

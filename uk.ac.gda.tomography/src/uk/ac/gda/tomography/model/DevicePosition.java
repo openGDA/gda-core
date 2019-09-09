@@ -16,30 +16,29 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.ui.mode;
+package uk.ac.gda.tomography.model;
 
-import uk.ac.gda.tomography.controller.AcquisitionControllerException;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-public class IncompleteModeException extends AcquisitionControllerException {
+import uk.ac.gda.tomography.base.serializer.DevicePositionSerializer;
 
-	public IncompleteModeException() {
+@JsonSerialize(using=DevicePositionSerializer.class)
+public class DevicePosition<E> {
+
+	private final String name;
+	private final E position;
+
+	public DevicePosition(String name, E position) {
 		super();
+		this.name = name;
+		this.position = position;
 	}
 
-	public IncompleteModeException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-		super(message, cause, enableSuppression, writableStackTrace);
+	public String getName() {
+		return name;
 	}
 
-	public IncompleteModeException(String message, Throwable cause) {
-		super(message, cause);
+	public E getPosition() {
+		return position;
 	}
-
-	public IncompleteModeException(String message) {
-		super(message);
-	}
-
-	public IncompleteModeException(Throwable cause) {
-		super(cause);
-	}
-
 }

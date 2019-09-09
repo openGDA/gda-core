@@ -21,10 +21,13 @@ package uk.ac.gda.tomography.ui.mode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -32,14 +35,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.device.DeviceException;
 import gda.device.IScannableMotor;
 import gda.rcp.views.StageCompositeDefinition;
 import gda.rcp.views.StageCompositeFactory;
 import gda.rcp.views.TabCompositeFactory;
 import gda.rcp.views.TabCompositeFactoryImpl;
 import gda.rcp.views.TabFolderCompositeFactory;
-import uk.ac.gda.tomography.scan.editor.view.TomographyMessages;
-import uk.ac.gda.tomography.ui.tool.TomographyMessagesUtility;
+import uk.ac.gda.tomography.base.TomographyMode;
+import uk.ac.gda.tomography.controller.IncompleteModeException;
+import uk.ac.gda.tomography.model.DevicePosition;
+import uk.ac.gda.tomography.service.message.TomographyMessages;
+import uk.ac.gda.tomography.service.message.TomographyMessagesUtility;
 import uk.ac.gda.tomography.ui.tool.TomographySWTElements;
 
 public abstract class TomographyBaseMode implements TomographyMode {
@@ -47,19 +54,66 @@ public abstract class TomographyBaseMode implements TomographyMode {
 	private boolean loaded = false;
 
 	private Composite stageControls;
+	private final Stage stage;
 
 	// this works for any number of elements:
-	private final Map<ModeDevices, String> devicesMap = new EnumMap<>(ModeDevices.class);
-	private final Map<ModeDevices, IScannableMotor> motors = new EnumMap<>(ModeDevices.class);
+	private final Map<TomographyDevices, String> devicesMap = new EnumMap<>(TomographyDevices.class);
+	private final Map<TomographyDevices, IScannableMotor> motors = new EnumMap<>(TomographyDevices.class);
+	private final Map<String, String> metadata = new HashMap<>();
 
-	private static final Logger logger = LoggerFactory.getLogger(TomographyBaseMode.class);
+	protected static final Logger logger = LoggerFactory.getLogger(TomographyBaseMode.class);
 
-	@Override
-	public Map<ModeDevices, IScannableMotor> getMotors() throws IncompleteModeException {
-		return loadMotors();
+	protected TomographyBaseMode(Stage stage) {
+		super();
+		this.stage = stage;
 	}
 
-	public Map<ModeDevices, String> getDevicesMap() {
+	@Override
+	public Map<TomographyDevices, IScannableMotor> getMotors() throws IncompleteModeException {
+		if (motors.isEmpty()) {
+			loadDevices();
+		}
+		return Collections.unmodifiableMap(motors);
+	}
+
+	@Override
+	public Stage getStage() {
+		return stage;
+	}
+
+	@Override
+	public Map<String, String> getMetadata() {
+		if (metadata.isEmpty()) {
+			loadDevices();
+		}
+		return metadata;
+	}
+
+	@Override
+	public Set<DevicePosition<Double>> getMotorsPosition() {
+		Set<DevicePosition<Double>> positions = new HashSet<>();
+		Map<TomographyDevices, IScannableMotor> intMotors;
+		try {
+			intMotors = getMotors();
+		} catch (IncompleteModeException e) {
+			logger.error("TODO put description of error here", e);
+			return Collections.unmodifiableSet(positions);
+		}
+		for (Entry<TomographyDevices, IScannableMotor> entry : intMotors.entrySet()) {
+			try {
+				Double position = (Double)entry.getValue().getPosition();
+				positions.add(new DevicePosition(entry.getKey().name(), position));
+			} catch (DeviceException e) {
+				logger.error("TODO put description of error here", e);
+			}
+		}
+		return Collections.unmodifiableSet(positions);
+	}
+
+	public Map<TomographyDevices, String> getDevicesMap() {
+		if (devicesMap.isEmpty()) {
+			populateDevicesMap();
+		}
 		return Collections.unmodifiableMap(devicesMap);
 	}
 
@@ -67,27 +121,38 @@ public abstract class TomographyBaseMode implements TomographyMode {
 		return getStageControls(parent);
 	}
 
-	void addToDevicesMap(ModeDevices device, String propertyName) {
+	void addToDevicesMap(TomographyDevices device, String propertyName) {
 		devicesMap.put(device, propertyName);
 	}
 
-	private Map<ModeDevices, IScannableMotor> loadMotors() {
-		if (loaded) {
-			return motors;
-		}
-		populateDevicesMap();
-		for (Entry<ModeDevices, String> entry : getDevicesMap().entrySet()) {
-			try {
-				motors.put(entry.getKey(), ModeHelper.getMotor(getBeanId(entry)));
-			} catch (IncompleteModeException e) {
-				logger.error("Error", e);
+	private void loadDevices() {
+		for (Entry<TomographyDevices, String> entry : getDevicesMap().entrySet()) {
+			if (entry.getKey().name().startsWith("MOTOR")) {
+				loadMotor(entry);
+			}
+			if (entry.getKey().name().startsWith("MALCOLM")) {
+				loadMalcolm(entry);
 			}
 		}
-		loaded = true;
-		return motors;
 	}
 
-	private String getBeanId(Entry<ModeDevices, String> entry) throws IncompleteModeException {
+	private void loadMotor(Entry<TomographyDevices, String> entry) {
+		try {
+			motors.put(entry.getKey(), ModeHelper.getMotor(getBeanId(entry)));
+		} catch (IncompleteModeException e) {
+			logger.error("Error", e);
+		}
+	}
+
+	private void loadMalcolm(Entry<TomographyDevices, String> entry) {
+		try {
+			metadata.put(entry.getKey().name(), getBeanId(entry));
+		} catch (IncompleteModeException e) {
+			logger.error("Error", e);
+		}
+	}
+
+	private String getBeanId(Entry<TomographyDevices, String> entry) throws IncompleteModeException {
 		if (Objects.isNull(LocalProperties.get(entry.getValue(), null))) {
 			throw new IncompleteModeException(String.format("Cannot find property beanId:%s for device:%s", entry.getValue(), entry.getKey()));
 		}
@@ -116,7 +181,7 @@ public abstract class TomographyBaseMode implements TomographyMode {
 		return group;
 	}
 
-	protected StageCompositeDefinition doMotor(ModeDevices device, TomographyMessages label) throws IncompleteModeException {
+	protected StageCompositeDefinition doMotor(TomographyDevices device, TomographyMessages label) throws IncompleteModeException {
 		StageCompositeDefinition scd = new StageCompositeDefinition();
 		scd.setScannable(getMotors().get(device));
 		if (Objects.isNull(scd.getScannable())) {
@@ -152,7 +217,7 @@ public abstract class TomographyBaseMode implements TomographyMode {
 	protected class StageCompositeDefinitionBuilder {
 		private List<StageCompositeDefinition> composite = new ArrayList<>();
 
-		public StageCompositeDefinitionBuilder assemble(ModeDevices device, TomographyMessages label) {
+		public StageCompositeDefinitionBuilder assemble(TomographyDevices device, TomographyMessages label) {
 			StageCompositeDefinition scd;
 			try {
 				scd = doMotor(device, label);

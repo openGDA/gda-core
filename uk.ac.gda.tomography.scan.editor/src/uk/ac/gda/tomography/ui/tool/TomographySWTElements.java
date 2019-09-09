@@ -39,7 +39,8 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import uk.ac.gda.tomography.scan.editor.TomographyResourceManager;
-import uk.ac.gda.tomography.scan.editor.view.TomographyMessages;
+import uk.ac.gda.tomography.service.message.TomographyMessages;
+import uk.ac.gda.tomography.service.message.TomographyMessagesUtility;
 
 /**
  * Utility class for create SWT Tomography standard SWT elements. GridLayout is the default layout for all the elements

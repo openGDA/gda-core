@@ -7,6 +7,14 @@ package uk.ac.gda.tomography.model;
  */
 public class Projections {
 
+	/**
+	 * The absolute total number of projections
+	 */
+	private int totalProjections;
+	/**
+	 * The angular step for the scan
+	 */
+	private double angularStep;
 
 	/**
 	 *
@@ -17,37 +25,31 @@ public class Projections {
 
 	/**
 	 * @param totalProjections
-	 * @param anglarStep
+	 * @param angularStep
 	 */
-	public Projections(int totalProjections, double anglarStep) {
+	public Projections(int totalProjections, double angularStep) {
 		super();
 		this.totalProjections = totalProjections;
-		this.anglarStep = anglarStep;
+		this.angularStep = angularStep;
 	}
 
 	public Projections(Projections projections) {
-		this(projections.getTotalProjections(), projections.getAnglarStep());
+		this(projections.getTotalProjections(), projections.getAngularStep());
 	}
-
-	/**
-	 * The absolute total number of projections
-	 */
-	private int totalProjections;
-	/**
-	 * The angular step for the scan
-	 */
-	private double anglarStep;
 
 	public int getTotalProjections() {
 		return totalProjections;
 	}
+
 	public void setTotalProjections(int totalProjections) {
 		this.totalProjections = totalProjections;
 	}
-	public double getAnglarStep() {
-		return anglarStep;
+
+	public double getAngularStep() {
+		return angularStep;
 	}
-	public void setAnglarStep(double anglarStep) {
-		this.anglarStep = anglarStep;
+
+	public void setAngularStep(double angularStep) {
+		this.angularStep = angularStep;
 	}
 }

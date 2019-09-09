@@ -24,9 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.tomography.controller.AcquisitionControllerException;
-import uk.ac.gda.tomography.ui.mode.TomographyBaseMode;
-import uk.ac.gda.tomography.ui.mode.TomographyDefaultMode;
-import uk.ac.gda.tomography.ui.mode.TomographyTR6Mode;
 
 /**
  * Controls the tomography perspective delegating its subsections to other specialised controllers.
@@ -34,27 +31,6 @@ import uk.ac.gda.tomography.ui.mode.TomographyTR6Mode;
  * @author Maurizio Nagni
  */
 public class TomographyPerspectiveController {
-
-	public enum StageType {
-		DEFAULT("Default", new TomographyDefaultMode()),
-		TR6("TR6", new TomographyTR6Mode());
-
-		private final TomographyBaseMode stage;
-		private final String label;
-
-		StageType(String label, TomographyBaseMode stage) {
-			this.label = label;
-			this.stage = stage;
-		}
-
-		public String getLabel() {
-			return label;
-		}
-
-		public TomographyBaseMode getStage() {
-			return stage;
-		}
-	}
 
 	private TomographyParametersAcquisitionController tomographyAcquisitionController;
 

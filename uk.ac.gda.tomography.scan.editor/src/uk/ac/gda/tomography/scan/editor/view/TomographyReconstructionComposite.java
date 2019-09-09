@@ -26,6 +26,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
+import uk.ac.gda.tomography.service.message.TomographyMessages;
 import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
 import uk.ac.gda.tomography.ui.tool.TomographyBindingElements;
 import uk.ac.gda.tomography.ui.tool.TomographySWTElements;
@@ -64,8 +65,8 @@ public class TomographyReconstructionComposite extends CompositeTemplate<Tomogra
 	protected void bindElements() {
 		DataBindingContext dbc = new DataBindingContext();
 
-		TomographyBindingElements.bindText(dbc, pixelSizeX, Integer.class, "pixelSizeX", getTemplateData());
-		TomographyBindingElements.bindText(dbc, pixelSizeY, Integer.class, "pixelSizeY", getTemplateData());
+		TomographyBindingElements.bindText(dbc, pixelSizeX, Integer.class, "pixelSizeX", getMetadata());
+		TomographyBindingElements.bindText(dbc, pixelSizeY, Integer.class, "pixelSizeY", getMetadata());
 	}
 
 	@Override
@@ -73,7 +74,7 @@ public class TomographyReconstructionComposite extends CompositeTemplate<Tomogra
 
 	}
 
-	private Map<String, String> getTemplateData() {
+	private Map<String, String> getMetadata() {
 		return getController().getAcquisition().getAcquisitionConfiguration().getMetadata();
 	}
 }

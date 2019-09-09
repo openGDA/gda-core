@@ -1,0 +1,111 @@
+{
+	"acquisition": {
+		"uuid": null,
+		"name": null,
+		"description": null,
+		"executionPeriod": null,
+		"script": null,
+		"acquisitionConfiguration": {
+			"acquisitionParameters": {
+				"name": "Default name",
+				"scanType": "FLY",
+				"start": {
+					"start": 0.0,
+					"useCurrentAngle": false,
+					"currentAngle": 4.9E-324
+				},
+				"end": {
+					"rangeType": "RANGE_180",
+					"numberRotation": 1,
+					"customAngle": 0.0
+				},
+				"projections": {
+					"totalProjections": 1,
+					"anglarStep": 0.0
+				},
+				"imageCalibration": {
+					"numberDark": 0,
+					"darkExposure": 0.0,
+					"numberFlat": 0,
+					"flatExposure": 0.0,
+					"beforeAcquisition": false,
+					"afterAcquisition": false
+				},
+				"multipleScans": {
+					"multipleScansType": "REPEAT_SCAN",
+					"numberRepetitions": 1,
+					"waitingTime": 0,
+					"enabled": false
+				}
+			},
+			"metadata": null
+		},
+		"logs": null
+	},
+	"mode": {
+		"stage": "DEFAULT",
+		"devicesMap": {
+			"MOTOR_STAGE_X": "tomography.main.motor.linear.x",
+			"MOTOR_STAGE_Y": "tomography.main.motor.linear.y",
+			"MOTOR_STAGE_Z": "tomography.main.motor.linear.z",
+			"MOTOR_STAGE_ROT_Y": "tomography.main.motor.rot.y",
+			"MOTOR_CAMERA_Z": "tomography.main.motor.camera.z",
+			"MALCOLM_TOMO": "tomography.malcolm.device.tomo"
+		},
+		"motors": {
+			"MOTOR_STAGE_X": {
+				"name": "simx"
+			},
+			"MOTOR_STAGE_Y": {
+				"name": "simy"
+			},
+			"MOTOR_STAGE_Z": {
+				"name": "simz"
+			},
+			"MOTOR_STAGE_ROT_Y": {
+				"name": "simtheta"
+			}
+		},
+		"metadata": {
+			"MALCOLM_TOMO": "ws157-ML-SCAN-02"
+		}
+	},
+	"motorPositions": {
+		"OUT_OF_BEAM": [
+			{
+				"name": "MOTOR_STAGE_X",
+				"value": 0.0
+			},
+			{
+				"name": "MOTOR_STAGE_Y",
+				"value": 4.0
+			},
+			{
+				"name": "MOTOR_STAGE_Z",
+				"value": 0.0
+			},
+			{
+				"name": "MOTOR_STAGE_ROT_Y",
+				"value": 10.0
+			}
+		],
+		"START": [
+			{
+				"name": "MOTOR_STAGE_Y",
+				"value": 4.0
+			},
+			{
+				"name": "MOTOR_STAGE_X",
+				"value": 2.0
+			},
+			{
+				"name": "MOTOR_STAGE_Z",
+				"value": 0.0
+			},
+			{
+				"name": "MOTOR_STAGE_ROT_Y",
+				"value": 10.0
+			}
+		]
+	}
+}

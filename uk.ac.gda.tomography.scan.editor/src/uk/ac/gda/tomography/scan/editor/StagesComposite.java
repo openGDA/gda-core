@@ -19,14 +19,9 @@
 package uk.ac.gda.tomography.scan.editor;
 
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -39,17 +34,16 @@ import org.eclipse.swt.widgets.Control;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.Device;
 import uk.ac.gda.tomography.model.AcquisitionConfiguration;
-import uk.ac.gda.tomography.scan.editor.view.TomographyMessages;
+import uk.ac.gda.tomography.service.message.TomographyMessages;
+import uk.ac.gda.tomography.ui.StageType;
 import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
-import uk.ac.gda.tomography.ui.controller.TomographyPerspectiveController.StageType;
-import uk.ac.gda.tomography.ui.mode.IncompleteModeException;
+import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController.Positions;
 import uk.ac.gda.tomography.ui.tool.TomographySWTElements;
 
 /**
- * Creates a drop-down list in the parent Composite to switch between different stages.
- * using a {@link TomographyParametersAcquisitionController} to updates the associated {@link AcquisitionConfiguration#getDevices()} model.
+ * Creates a drop-down list in the parent Composite to switch between different stages. using a {@link TomographyParametersAcquisitionController} to updates the
+ * associated {@link AcquisitionConfiguration#getDevices()} model.
  *
  * @author Maurizio Nagni
  */
@@ -77,6 +71,10 @@ public class StagesComposite {
 		return pc;
 	}
 
+	public StageType getStageType() {
+		return stageType;
+	}
+
 	private Composite getParent() {
 		return parent;
 	}
@@ -92,6 +90,7 @@ public class StagesComposite {
 		comboStageSelectionListener();
 
 		outOfBeam = TomographySWTElements.createButton(getParent(), SWT.PUSH, TomographyMessages.OUT_OF_BEAM, TomographyMessages.OUT_OF_BEAM_TP);
+		attachOutOfBeamSelectionListener();
 	}
 
 	private void comboStageSelectionListener() {
@@ -107,25 +106,26 @@ public class StagesComposite {
 		stagesCombo.addSelectionListener(listener);
 	}
 
+	private void attachOutOfBeamSelectionListener() {
+		SelectionListener listener = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				controller.savePosition(Positions.OUT_OF_BEAM);
+			}
+		};
+		outOfBeam.addSelectionListener(listener);
+	}
+
 	private Stream<StageType> filterPerspectiveLabel(final String perspectiveLabel) {
 		return Arrays.stream(StageType.values()).filter(p -> p.getLabel().equals(perspectiveLabel));
 	}
 
 	private void setStageType(StageType stageType) {
-		StageType oldStageType = this.stageType;
 		this.stageType = stageType;
 		stagesCombo.setText(stageType.getLabel());
 		Arrays.stream(stageComposite.getChildren()).forEach(Control::dispose);
 		this.stageType.getStage().getUI(stageComposite);
 		stageComposite.layout(true);
-		try {
-			Collection<? extends Device> oldMotors = Objects.isNull(oldStageType) ? null : oldStageType.getStage().getMotors().values();
-			Collection<? extends Device> newMotors = Objects.isNull(this.stageType.getStage()) ? null : stageType.getStage().getMotors().values();
-			controller.updateDevices(oldMotors, newMotors);
-		} catch (IncompleteModeException e) {
-			ErrorDialog.openError(parent.getShell(), "Stage change failed", "Cannot update stage model",
-					new Status(IStatus.ERROR, this.getClass().getPackage().getName(), e.getMessage(), e));
-		}
 	}
 
 	private String[] getTypes() {

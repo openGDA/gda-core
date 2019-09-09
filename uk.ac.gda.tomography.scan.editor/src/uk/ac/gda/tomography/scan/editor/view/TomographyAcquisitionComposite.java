@@ -19,6 +19,7 @@
 package uk.ac.gda.tomography.scan.editor.view;
 
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
@@ -37,13 +38,15 @@ import uk.ac.diamond.daq.client.gui.camera.CameraConfigurationDialog;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
+import uk.ac.gda.tomography.controller.AcquisitionControllerException;
 import uk.ac.gda.tomography.scan.editor.Activator;
 import uk.ac.gda.tomography.scan.editor.StagesComposite;
 import uk.ac.gda.tomography.scan.editor.TomographyAcquisitionTabsDialog;
 import uk.ac.gda.tomography.scan.editor.TomographyResourceManager;
 import uk.ac.gda.tomography.scan.editor.TomographyScanParameterDialog;
+import uk.ac.gda.tomography.service.message.TomographyMessages;
+import uk.ac.gda.tomography.service.message.TomographyMessagesUtility;
 import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
-import uk.ac.gda.tomography.ui.tool.TomographyMessagesUtility;
 import uk.ac.gda.tomography.ui.tool.TomographySWTElements;
 
 /**
@@ -53,6 +56,7 @@ import uk.ac.gda.tomography.ui.tool.TomographySWTElements;
  */
 public class TomographyAcquisitionComposite extends CompositeTemplate<TomographyParametersAcquisitionController> {
 
+	private static final String CAMERA_CONFIGURATION_BEAN = "imaging.camera.name";
 	private static final String DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL = "tomographyScanModel";
 	private static final Logger logger = LoggerFactory.getLogger(TomographyAcquisitionComposite.class);
 
@@ -92,7 +96,8 @@ public class TomographyAcquisitionComposite extends CompositeTemplate<Tomography
 	}
 
 	private void stageCompose(Composite parent, int labelStyle, int textStyle) {
-		StagesComposite.buildModeComposite(parent, controller);
+		StagesComposite stagesComposite = StagesComposite.buildModeComposite(parent, controller);
+		controller.setTomographyMode(stagesComposite.getStageType().getStage());
 	}
 
 	private void createSource(Composite parent, int labelStyle, int textStyle) {
@@ -127,7 +132,7 @@ public class TomographyAcquisitionComposite extends CompositeTemplate<Tomography
 	}
 
 	private CameraConfiguration getCameraConfiguration() {
-		String cameraName = LocalProperties.get("imaging.camera.name");
+		String cameraName = LocalProperties.get(CAMERA_CONFIGURATION_BEAN);
 		return Finder.getInstance().find(cameraName);
 	}
 
@@ -136,11 +141,18 @@ public class TomographyAcquisitionComposite extends CompositeTemplate<Tomography
 			Dialog dialog = new TomographyAcquisitionTabsDialog(Display.getDefault().getActiveShell(), controller);
 			dialog.open();
 			if (dialog.getReturnCode() == TomographyScanParameterDialog.SAVE) {
-				controller.saveAcquisitionAsIDialogSettings(getController().getAcquisition(), Activator.getDefault().getDialogSettings(), DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL);
+				controller.saveAcquisitionAsIDialogSettings(getController().getAcquisition(), Activator.getDefault().getDialogSettings(),
+						DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL);
 			}
 			if (dialog.getReturnCode() == TomographyScanParameterDialog.RUN) {
-				controller.saveAcquisitionAsIDialogSettings(getController().getAcquisition(), Activator.getDefault().getDialogSettings(), DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL);
-				controller.runAcquisition(getController().getAcquisition());
+				controller.saveAcquisitionAsIDialogSettings(getController().getAcquisition(), Activator.getDefault().getDialogSettings(),
+						DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL);
+				try {
+					controller.runAcquisition(getController().getAcquisition());
+				} catch (AcquisitionControllerException e) {
+					MessageDialog.openError(getShell(), "Run Acquisition", e.getMessage());
+				}
+
 			}
 		} catch (Exception e) {
 			logger.error("Error handling configuration Dialog", e);
@@ -149,6 +161,7 @@ public class TomographyAcquisitionComposite extends CompositeTemplate<Tomography
 
 	@Override
 	protected void initialiseElements() {
+
 	}
 
 	private String getPluginId() {

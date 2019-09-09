@@ -25,9 +25,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
 import uk.ac.gda.tomography.scan.editor.view.TomographyConfigurationComposite;
-import uk.ac.gda.tomography.scan.editor.view.TomographyMessages;
+import uk.ac.gda.tomography.service.message.TomographyMessages;
+import uk.ac.gda.tomography.service.message.TomographyMessagesUtility;
 import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
-import uk.ac.gda.tomography.ui.tool.TomographyMessagesUtility;
 
 /**
  * Allows the user to create/edit tomography scan parameter configuration. This dialog has been created primarily for k11 however has been developed to allow
