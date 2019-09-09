@@ -19,16 +19,17 @@
 
 package gda.function.lookup;
 
+import static java.util.Arrays.asList;
+import static java.util.Arrays.copyOfRange;
 import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.IntStream.range;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
+import java.util.function.DoubleFunction;
+import java.util.stream.Stream;
 
 import javax.measure.Quantity;
 import javax.measure.Unit;
@@ -37,12 +38,9 @@ import org.apache.commons.collections.map.MultiValueMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
-import gda.factory.FindableConfigurableBase;
+import gda.factory.FactoryException;
 import gda.function.Lookup;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
 import gda.util.QuantityFactory;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
@@ -69,7 +67,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * it uses a MultiValuedMap object to store the lookup table.
  */
 @ServiceInterface(Lookup.class)
-public class LookupTable extends FindableConfigurableBase implements Lookup {
+public class LookupTable extends AbstractColumnFile implements Lookup {
 	/**
 	 * the logger instance
 	 */
@@ -82,11 +80,6 @@ public class LookupTable extends FindableConfigurableBase implements Lookup {
 	 * the values available in the value map used for the scannable objects
 	 */
 	private ArrayList<String> keys;
-	/**
-	 * the filename of the lookup table - ASCII file
-	 */
-	private String filename;
-	private String dirLUT = null;
 	/**
 	 * Column head holds the name of the column header - previously this was hard coded to ScannableNames - so
 	 * defaulting to 'ScannableNames' for backward compatibility
@@ -128,31 +121,29 @@ public class LookupTable extends FindableConfigurableBase implements Lookup {
 		this.columnUnit = columnUnit;
 	}
 
+	/** @deprecated use {@link #getDirectory} instead */
+	@Deprecated
 	public String getDirLUT() {
-		return dirLUT;
+		return getDirectory();
 	}
 
+	/** @deprecated use {@link #setDirectory} instead */
+	@Deprecated
 	public void setDirLUT(String dirLUT) {
-		this.dirLUT = dirLUT;
+		setDirectory(dirLUT);
 	}
 
 	private MultiValueMap lookupMap = new MultiValueMap();
-	private ObservableComponent observableComponent = new ObservableComponent();
 
 	@Override
-	public void configure() {
+	public void configure() throws FactoryException {
 		logger.info("{} configuring lookup table. This will take a while, please wait ......", getName());
 		if (!isConfigured()) {
-			String filePath;
-			if (dirLUT == null) {
-				String gdaConfig = LocalProperties.get(LocalProperties.GDA_CONFIG);
-				String lookupTableFolder = LocalProperties.get("gda.function.lookupTable.dir", gdaConfig
-						+ File.separator + "lookupTables");
-				filePath = lookupTableFolder + File.separator + filename;
-			} else {
-				filePath = dirLUT + File.separator + filename;
+			try {
+				readTheFile();
+			} catch (IOException e) {
+				throw new FactoryException("Could not read file", e);
 			}
-			readTheFile(filePath);
 			setConfigured(true);
 		}
 	}
@@ -162,8 +153,9 @@ public class LookupTable extends FindableConfigurableBase implements Lookup {
 			throw new DeviceException("LookupTable '" + getName() +"' is not configured");
 		}
 	}
+
 	@Override
-	public void reload() {
+	public void reload() throws FactoryException {
 		setConfigured(false);
 		configure();
 	}
@@ -173,75 +165,59 @@ public class LookupTable extends FindableConfigurableBase implements Lookup {
 	 * and scannable name.
 	 *
 	 * @param filePath
+	 * @throws IOException
+	 * @throws FactoryException
 	 */
-	private void readTheFile(String filePath) {
+	private void readTheFile() throws IOException, FactoryException {
 		lookupMap.clear();
+		List<String> names = new ArrayList<>();
+		List<String> units = new ArrayList<>();
+		List<String[]> data = new ArrayList<>();
 
-		String nextLine;
-		String[] names = null;
-		String[] unitStrings = null;
-		int[] decimalPlaces = null;
-		ArrayList<String> lines = new ArrayList<>();
-		try (FileReader fr = new FileReader(filePath); BufferedReader br = new BufferedReader(fr)) {
-			// Find out lookup table folder
-
-			logger.info("loading the look up table file {} ", filePath);
-
-			while (((nextLine = br.readLine()) != null) && !nextLine.isEmpty()) {
-				if (nextLine.startsWith(getColumnHead())) {
-					// NB This regex means one or more comma space or tab
-					// This split will include the word "ScannableNames" as one of the names
-					names = nextLine.split("[, \t][, \t]*");
-				} else if (nextLine.startsWith(getColumnUnit())) {
-					// NB This regex means one or more comma space or tab
-					// This split will include the word "ScannableUnits" as one of the unitStrings
-					unitStrings = nextLine.split("[, \t][, \t]*");
-				} else if (!nextLine.startsWith("#")) {
-					lines.add(nextLine);
+		try (Stream<String[]> lines = readLines()) {
+			lines.forEach(line -> {
+				if (line[0].startsWith(columnHead)) {
+					names.addAll(asList(copyOfRange(line, 1, line.length)));
+				} else if (line[0].startsWith(columnUnit)) {
+					units.addAll(asList(copyOfRange(line, 1, line.length)));
+				} else {
+					data.add(line);
 				}
-			}
-		} catch (FileNotFoundException fnfe) {
-			throw new IllegalArgumentException("LookupTable could not open file " + filePath, fnfe);
-		} catch (IOException ioe) {
-			throw new RuntimeException("LookupTable IOException ", ioe);
+			});
+		}
+		if (data.isEmpty()) {
+			throw new FactoryException("File " + getPath() + " does not contain any data");
 		}
 
-		numberOfRows = lines.size();
+		numberOfRows = data.size();
 		logger.debug("the file containes {} lines", numberOfRows);
-		int nColumns = new StringTokenizer(lines.get(0), ", \t").countTokens();
+		int nColumns = data.get(0).length;
 		logger.debug("each line contains {} numbers", nColumns);
 		keys = new ArrayList<>();
-		if (names != null) {
-			for (int i = 0; i < nColumns; i++) {
-				lookupMap.put(names[0], names[i + 1]);
-			}
-			keys.add(names[0]);
-		}
 
-		if (unitStrings != null) {
-			for (int i = 0; i < nColumns; i++) {
-				lookupMap.put(unitStrings[0], QuantityFactory.createUnitFromString(unitStrings[i + 1]));
-			}
-			keys.add(unitStrings[0]);
+		lookupMap.putAll(columnHead, names);
+		keys.add(columnHead);
+		if (units.isEmpty()) {
+			// If no units are given, columns should be dimensionless
+			units.addAll(range(0, nColumns).mapToObj(i -> "").collect(toList()));
 		}
+		lookupMap.putAll(columnUnit, units.stream()
+				.map(unit -> "\"\"".equals(unit) ? "" : unit) // A literal "" should be replaced by an empty string
+				.map(QuantityFactory::createUnitFromString)
+				.collect(toList()));
+		keys.add(columnUnit);
 
-		decimalPlaces = calculateDecimalPlaces(lines.get(0));
-		if (decimalPlaces != null) {
-			for (int i = 0; i < nColumns; i++) {
-				lookupMap.put("DecimalPlaces", decimalPlaces[i]);
-			}
-			keys.add("DecimalPlaces");
-		}
+		stream(calculateDecimalPlaces(data.get(0))).forEach(dp -> lookupMap.put("DecimalPlaces", dp));
+		keys.add("DecimalPlaces");
 
-		double[] thisLine;
-		int i;
-		int j;
-		for (i = 0; i < numberOfRows; i++) {
-			nextLine = lines.get(i);
-			thisLine = stringToDoubleArray(nextLine);
-			for (j = 0; j < thisLine.length; j++)
-				lookupMap.put(String.format("%.3f", thisLine[0]), thisLine[j]);
-			keys.add(String.format("%.3f", thisLine[0]));
+		DoubleFunction<String> format = d -> String.format("%.3f", d);
+		for (int i = 0; i < numberOfRows; i++) {
+			String[] stringLine = data.get(i);
+			List<Double> values = stream(stringLine)
+					.map(Double::parseDouble)
+					.collect(toList());
+			lookupMap.putAll(format.apply(values.get(0)), values);
+			keys.add(format.apply(values.get(0)));
 		}
 	}
 
@@ -265,6 +241,9 @@ public class LookupTable extends FindableConfigurableBase implements Lookup {
 		double result;
 		synchronized (lookupMap) {
 			int index = indexOfScannable(getScannableNames(), scannableName);
+			if (index < 0) {
+				throw new IllegalArgumentException("Scannable '" + scannableName + "' not found in table");
+			}
 			double energyDouble = Double.parseDouble(energy.toString());
 			String value = String.format("%.3f", energyDouble);
 			ArrayList<Double> list = (ArrayList<Double>) lookupMap.getCollection(value);
@@ -324,42 +303,9 @@ public class LookupTable extends FindableConfigurableBase implements Lookup {
 		return scannableNames.indexOf(scannableName);
 	}
 
-	/**
-	 * Takes a string of comma, space or tab separated values and parses it into an array of doubles
-	 *
-	 * @param string
-	 *            the input string
-	 * @return an array of doubles found in the string
-	 */
-	private double[] stringToDoubleArray(String string) {
-		return stream(string.split("[, \t]+"))
-				.mapToDouble(Double::parseDouble)
-				.toArray();
-	}
-
-	/**
-	 * @param string
-	 * @return an array of token positions
-	 */
-	private int[] calculateDecimalPlaces(String string) {
-		return stream(string.split("[, \t]+"))
-				.mapToInt(s -> (s.length() - s.indexOf('.') - 1) % s.length()) // characters to right of '.' (or 0 if none present)
-				.toArray();
-	}
-
 	@Override
 	public int getNumberOfRows() {
 		return numberOfRows;
-	}
-
-	@Override
-	public void setFilename(String filename) {
-		this.filename = filename;
-	}
-
-	@Override
-	public String getFilename() {
-		return filename;
 	}
 
 	/**
@@ -374,20 +320,5 @@ public class LookupTable extends FindableConfigurableBase implements Lookup {
 		return keys.stream()
 				.skip(firstRows)
 				.mapToDouble(Double::parseDouble).toArray();
-	}
-
-	@Override
-	public void addIObserver(IObserver anIObserver) {
-		observableComponent.addIObserver(anIObserver);
-	}
-
-	@Override
-	public void deleteIObserver(IObserver anIObserver) {
-		observableComponent.deleteIObserver(anIObserver);
-	}
-
-	@Override
-	public void deleteIObservers() {
-		observableComponent.deleteIObservers();
 	}
 }

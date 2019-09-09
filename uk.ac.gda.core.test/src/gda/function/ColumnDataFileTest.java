@@ -18,7 +18,7 @@
 
 package gda.function;
 
-import static gda.function.ColumnDataFile.GDA_FUNCTION_COLUMN_DATA_FILE_LOOKUP_DIR;
+import static gda.function.lookup.AbstractColumnFile.LOOKUP_TABLE_DIRECTORY_PROPERTY;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -89,14 +89,14 @@ public class ColumnDataFileTest {
 
 	@Test
 	public void useDefaultDirectory() throws FactoryException {
+		LocalProperties.set(LOOKUP_TABLE_DIRECTORY_PROPERTY, new File("testfiles/gda/function").getAbsolutePath());
 		cdf = new ColumnDataFile();
-		LocalProperties.set(GDA_FUNCTION_COLUMN_DATA_FILE_LOOKUP_DIR, new File("testfiles/gda/function").getAbsolutePath());
 		cdf.setFilename(TEST_FILE);
 		try {
 			cdf.configure();
 			assertThat(cdf.getNumberOfXValues(), is(2));
 		} finally {
-			LocalProperties.clearProperty(GDA_FUNCTION_COLUMN_DATA_FILE_LOOKUP_DIR);
+			LocalProperties.clearProperty(LOOKUP_TABLE_DIRECTORY_PROPERTY);
 		}
 	}
 
@@ -106,7 +106,7 @@ public class ColumnDataFileTest {
 		assertThat(cdf.getNumberOfXValues(), is(0));
 	}
 
-	@Test(expected = RuntimeException.class) // should throw IllegalArgumentException instead
+	@Test(expected = FactoryException.class)
 	public void missingFile() throws FactoryException {
 		cdf = new ColumnDataFile();
 		cdf.setFilename(new File(TEST_FILE_DIRECTORY, MISSING).getAbsolutePath(), true);

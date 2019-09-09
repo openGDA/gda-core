@@ -19,11 +19,12 @@
 
 package gda.function;
 
+import java.util.ArrayList;
+
 import gda.device.DeviceException;
+import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.observable.IObservable;
-
-import java.util.ArrayList;
 
 /**
  * This interface defines generic lookup functions for looking up the value for a given object that corresponding to a
@@ -99,7 +100,8 @@ public interface Lookup extends Findable, IObservable {
 
 	/**
 	 * Reloads the lookuptable, i.e reads the file provided and reloads the map values
+	 * @throws FactoryException
 	 */
-	void reload();
+	void reload() throws FactoryException;
 
 }

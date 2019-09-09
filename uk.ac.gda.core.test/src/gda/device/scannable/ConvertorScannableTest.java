@@ -19,7 +19,7 @@
 
 package gda.device.scannable;
 
-import static gda.function.ColumnDataFile.GDA_FUNCTION_COLUMN_DATA_FILE_LOOKUP_DIR;
+import static gda.function.lookup.AbstractColumnFile.LOOKUP_TABLE_DIRECTORY_PROPERTY;
 import static gda.util.converters.LookupTableQuantityConverter.Mode_Both;
 import static gda.util.converters.LookupTableQuantityConverter.Mode_StoT;
 import static org.junit.Assert.assertEquals;
@@ -55,13 +55,13 @@ public class ConvertorScannableTest {
 
 	@Before
 	public void setUp() {
-		saveLookupDir = LocalProperties.get(GDA_FUNCTION_COLUMN_DATA_FILE_LOOKUP_DIR);
-		LocalProperties.set(GDA_FUNCTION_COLUMN_DATA_FILE_LOOKUP_DIR, "testfiles/gda/device/scannable/ConvertorScannableTest");
+		saveLookupDir = LocalProperties.get(LOOKUP_TABLE_DIRECTORY_PROPERTY);
+		LocalProperties.set(LOOKUP_TABLE_DIRECTORY_PROPERTY, "testfiles/gda/device/scannable/ConvertorScannableTest");
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		LocalProperties.set(GDA_FUNCTION_COLUMN_DATA_FILE_LOOKUP_DIR, saveLookupDir);
+		LocalProperties.set(LOOKUP_TABLE_DIRECTORY_PROPERTY, saveLookupDir);
 	}
 
 	@Test
