@@ -30,7 +30,9 @@ import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
+import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import uk.ac.gda.api.remoting.ServiceInterface;
@@ -58,6 +60,11 @@ public class EpicsValve extends EnumPositionerBase implements MonitorListener {
 	protected Channel currentStatusChnl;
 
 	protected EpicsChannelManager channelManager;
+
+	//Valve status enum - same order as in Epics
+	private enum ValveStatus { FAULT, OPEN, OPENING, CLOSED, CLOSING }
+	private boolean checkDemandInStatus;
+	private String lastDemandPosition = "";
 
 	/**
 	 * Constructor.
@@ -106,9 +113,11 @@ public class EpicsValve extends EnumPositionerBase implements MonitorListener {
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		try {
+			lastDemandPosition = "";
 			// check top ensure a correct string has been supplied
 			if (containsPosition(position.toString())) {
 				controller.caput(currentPositionChnl, position.toString(), channelManager);
+				lastDemandPosition = position.toString();
 				return;
 			}
 			// if get here then wrong position name supplied
@@ -123,16 +132,18 @@ public class EpicsValve extends EnumPositionerBase implements MonitorListener {
 	public String getPosition() throws DeviceException {
 		try {
 			// get the position
-			int position = controller.cagetEnum(currentStatusChnl);
-
-			// map the position to the equivalent string
-			if (position == 1 || position == 4) {
-				return OPEN;
-			} else if (position == 3 || position == 2) {
-				return CLOSE;
-			} else {
-				return "UNKNOWN"; // or throw an error
+			ValveStatus valveStatus = getValveStatus();
+			switch(valveStatus) {
+				case OPEN :
+				case OPENING :
+					return OPEN;
+				case CLOSED :
+				case CLOSING :
+					return CLOSE;
+				default :
+					return "UNKNOWN";
 			}
+
 		} catch (Exception e) {
 			throw new DeviceException("failed to get position", e);
 		}
@@ -145,19 +156,39 @@ public class EpicsValve extends EnumPositionerBase implements MonitorListener {
 
 	protected EnumPositionerStatus fetchEpicsStatus() throws DeviceException {
 		try {
-			// get the status
-			int status = controller.cagetEnum(currentStatusChnl);
+			ValveStatus valveStatus = getValveStatus();
+
+			// Return 'moving' state if current position does not match the demand
+			if (checkDemandInStatus &&
+					((lastDemandPosition.equals(OPEN) && valveStatus != ValveStatus.OPEN) ||
+					(lastDemandPosition.equals(CLOSE) && valveStatus != ValveStatus.CLOSED))) {
+				return EnumPositionerStatus.MOVING;
+			}
 
 			// map the status to the EnumPositioner status's
-			if (status == 1 || status == 3) {
-				return EnumPositionerStatus.IDLE;
-			} else if (status == 2 || status == 4) {
-				return EnumPositionerStatus.MOVING;
-			} else {
-				return EnumPositionerStatus.ERROR;
+			switch(valveStatus) {
+				case OPEN :
+				case CLOSED :
+					return EnumPositionerStatus.IDLE;
+				case OPENING :
+				case CLOSING :
+					return EnumPositionerStatus.MOVING;
+				default :
+					return EnumPositionerStatus.ERROR;
 			}
 		} catch (Exception e) {
 			throw new DeviceException("failed to get status", e);
+		}
+	}
+
+	// Get ValveStatus enum for current value of the valve status
+	public ValveStatus getValveStatus() throws TimeoutException, CAException, InterruptedException {
+		int status = controller.cagetEnum(currentStatusChnl);
+		if (status < 0 || status > ValveStatus.values().length) {
+			return ValveStatus.FAULT;
+		}
+		else {
+			return ValveStatus.values()[status];
 		}
 	}
 
@@ -197,5 +228,19 @@ public class EpicsValve extends EnumPositionerBase implements MonitorListener {
 		} catch (DeviceException e) {
 			logger.debug(e.getClass() + " while updating EpicsPositioner " + getName() + " : " + e.getMessage());
 		}
+	}
+
+	public boolean isCheckDemandInStatus() {
+		return checkDemandInStatus;
+	}
+
+	/**
+	 * If set to 'true', the demand and current valve positions will be checked in {@link #getStatus()} -
+	 * if the current position != demand position then state is set to {@link EnumPositionerStatus#MOVING}.
+	 *
+	 * @param checkDemandInStatus
+	 */
+	public void setCheckDemandInStatus(boolean checkDemandInStatus) {
+		this.checkDemandInStatus = checkDemandInStatus;
 	}
 }
