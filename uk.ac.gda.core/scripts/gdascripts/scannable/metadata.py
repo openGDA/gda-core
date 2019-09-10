@@ -192,7 +192,7 @@ class MetadataCollector(ScannableBase):
         for scn in metascannables:
             pairs = self._createNamePositionPairs(scn)
             for key, value in pairs:
-                s += fmt % (key, value)
+                s += fmt % (key, value.strip())
         return s
 
     def _warn(self, msg):
