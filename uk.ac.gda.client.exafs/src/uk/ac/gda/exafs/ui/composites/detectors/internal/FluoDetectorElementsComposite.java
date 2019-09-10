@@ -21,6 +21,7 @@ package uk.ac.gda.exafs.ui.composites.detectors.internal;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.richbeans.widgets.selector.GridListEditor;
 import org.eclipse.richbeans.widgets.selector.GridListEditor.GRID_ORDER;
@@ -134,8 +135,12 @@ public class FluoDetectorElementsComposite extends Composite {
 		} else {
 			detectorElementTable.setGridOrder(gridOrder);
 		}
-		detectorElementTable.setGridWidth(Math.max(160, columns * 25));
-		detectorElementTable.setGridHeight(rows * 23);
+		detectorElementTable.setGridWidth(Math.max(160, columns * 30));
+
+		TableViewer tableView = (TableViewer) detectorElementTable.getViewer();
+		int height = tableView.getTable().getItemHeight();
+		detectorElementTable.setGridHeight(rows * height);
+
 		GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.CENTER).span(2, 1).applyTo(detectorElementTable);
 		detectorElementTable.moveAbove(elementName);
 		this.getParent().layout(true, true);
