@@ -26,6 +26,7 @@ import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IRequestHandler;
 import org.eclipse.scanning.api.event.scan.AcquireRequest;
 import org.eclipse.scanning.api.event.status.Status;
+import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.StaticModel;
@@ -86,10 +87,17 @@ public class AcquireRequestHandler implements IRequestHandler<AcquireRequest> {
 
 		final ScanModel scanModel = new ScanModel();
 
-		IPointGenerator<?> gen = pointGenService.createGenerator(new StaticModel());
-		scanModel.setPointGenerator(gen);
-		scanModel.setFilePath(getOutputFilePath(request));
 		IRunnableDevice<?> detector = deviceService.getRunnableDevice(bean.getDetectorName());
+
+		IPointGenerator<?> gen = pointGenService.createGenerator(new StaticModel());
+		if (detector instanceof IMalcolmDevice) {
+			IPointGenerator<?> compoundGen = pointGenService.createCompoundGenerator(gen);
+			scanModel.setPointGenerator(compoundGen);
+		} else {
+			scanModel.setPointGenerator(gen);
+		}
+
+		scanModel.setFilePath(getOutputFilePath(request));
 		scanModel.setDetectors(detector);
 		scanModel.setScannables(Collections.emptyList());
 
@@ -116,9 +124,9 @@ public class AcquireRequestHandler implements IRequestHandler<AcquireRequest> {
 			manager.addContext(info);
 			manager.addDevices(detector);
 
-			manager.invoke(PreConfigure.class, detectorModel, gen);
+			manager.invoke(PreConfigure.class, detectorModel, gen, scanModel);
 			((IRunnableDevice<Object>) detector).configure(detectorModel);
-			manager.invoke(PostConfigure.class, detectorModel, gen);
+			manager.invoke(PostConfigure.class, detectorModel, gen, scanModel);
 		} catch (Exception e) {
 			throw new ScanningException(e);
 		}
