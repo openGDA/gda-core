@@ -36,7 +36,7 @@ public class GridModelSerialiser implements IPVStructureSerialiser<GridModel> {
 	public Structure buildStructure(Serialiser serialiser, GridModel model) throws Exception {
 		FieldCreate fieldCreate = FieldFactory.getFieldCreate();
 
-		Structure structure = fieldCreate.createFieldBuilder().
+		return fieldCreate.createFieldBuilder().
 			add("name", ScalarType.pvString).
 			add("xAxisName", ScalarType.pvString).
 			add("yAxisName", ScalarType.pvString).
@@ -47,7 +47,6 @@ public class GridModelSerialiser implements IPVStructureSerialiser<GridModel> {
 			add("verticalOrientation", ScalarType.pvBoolean).
 			setId("GridModel").
 			createStructure();
-		return structure;
 	}
 
 	@Override

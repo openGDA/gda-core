@@ -30,6 +30,7 @@ import org.eclipse.scanning.api.event.scan.DeviceRequest;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
+import org.eclipse.scanning.api.malcolm.MalcolmVersion;
 import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
@@ -101,6 +102,16 @@ public class _MalcolmDevice extends _RunnableDevice<IMalcolmModel> implements IM
 	@Override
 	public boolean isLocked() throws MalcolmDeviceException {
 		throw new UnsupportedOperationException("This method is not supported on the client");
+	}
+
+	@Override
+	public MalcolmVersion getVersion() throws MalcolmDeviceException {
+		try {
+			updateDeviceInfo();
+			return info.getMalcolmVersion();
+		} catch (Exception e) {
+			throw new MalcolmDeviceException(this, e);
+		}
 	}
 
 	@Override

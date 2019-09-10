@@ -18,6 +18,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.scanning.api.IServiceResolver;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -107,5 +108,9 @@ public class Activator extends AbstractUIPlugin implements IServiceResolver {
 		return ret;
 	}
 
+	public static Image getImage(final String imagePath) {
+		// TODO: DO NOT MERGE: we're leaking images!!! we should cache them
+		return AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN_ID, imagePath).createImage();
+	}
 
 }

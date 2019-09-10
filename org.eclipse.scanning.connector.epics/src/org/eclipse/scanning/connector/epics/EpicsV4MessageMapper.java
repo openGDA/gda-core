@@ -11,6 +11,15 @@
  *******************************************************************************/
 package org.eclipse.scanning.connector.epics;
 
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_MESSAGE;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_ERROR;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_METHOD;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_NT_SCALAR;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_NT_SCALAR_ARRAY;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_NT_TABLE;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_POINT_GENERATOR;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_TABLE;
+
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.EllipticalROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.FreeDrawROI;
@@ -27,6 +36,7 @@ import org.eclipse.dawnsci.analysis.dataset.roi.RingROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.SectorROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.XAxisBoxROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.YAxisBoxROI;
+import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.malcolm.message.Type;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -51,7 +61,10 @@ import org.eclipse.scanning.connector.epics.custommarshallers.IPointGeneratorSer
 import org.eclipse.scanning.connector.epics.custommarshallers.LinearROIDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.LinearROISerialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.MalcolmMessageSerialiser;
-import org.eclipse.scanning.connector.epics.custommarshallers.MalcolmPointGeneratorDeserialiser;
+import org.eclipse.scanning.connector.epics.custommarshallers.MalcolmMethodDeserialiser;
+import org.eclipse.scanning.connector.epics.custommarshallers.PointGeneratorDeserialiser;
+import org.eclipse.scanning.connector.epics.custommarshallers.MalcolmTableDeserialiser;
+import org.eclipse.scanning.connector.epics.custommarshallers.MalcolmTableSerialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.NTScalarArrayDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.NTScalarDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.NTTableDeserialiser;
@@ -91,13 +104,9 @@ public class EpicsV4MessageMapper {
 
 	private PVMarshaller marshaller;
 
-	private static String ERROR_TYPE = "malcolm:core/Error:";
-
-	private static String TYPE_ID_KEY = "typeid";
-
 	public EpicsV4MessageMapper() {
 		marshaller = new PVMarshaller();
-		marshaller.registerMapTypeIdKey(TYPE_ID_KEY);
+		marshaller.registerMapTypeIdKey(EpicsConnectionConstants.TYPE_ID_KEY);
 		marshaller.registerSerialiser(IPointGenerator.class, new IPointGeneratorSerialiser());
 		marshaller.registerSerialiser(PyDictionary.class, new PyDictionarySerialiser());
 		marshaller.registerSerialiser(MalcolmMessage.class, new MalcolmMessageSerialiser());
@@ -144,17 +153,17 @@ public class EpicsV4MessageMapper {
 		marshaller.registerSerialiser(BoundingBox.class, new BoundingBoxSerialiser());
 		marshaller.registerDeserialiser("BoundingBox", new BoundingBoxDeserialiser());
 
-		marshaller.registerDeserialiser("epics:nt/NTScalar:1.0", new NTScalarDeserialiser());
-		marshaller.registerDeserialiser("epics:nt/NTScalarArray:1.0", new NTScalarArrayDeserialiser());
-		marshaller.registerDeserialiser("epics:nt/NTTable:1.0", new NTTableDeserialiser());
-		marshaller.registerDeserialiser("malcolm:core/PointGenerator:1.0", new MalcolmPointGeneratorDeserialiser());
+		marshaller.registerDeserialiser(TYPE_ID_NT_SCALAR, new NTScalarDeserialiser());
+		marshaller.registerDeserialiser(TYPE_ID_NT_SCALAR_ARRAY, new NTScalarArrayDeserialiser());
+		marshaller.registerDeserialiser(TYPE_ID_NT_TABLE, new NTTableDeserialiser());
+		marshaller.registerDeserialiser(TYPE_ID_POINT_GENERATOR, new PointGeneratorDeserialiser());
+		marshaller.registerDeserialiser(TYPE_ID_METHOD, new MalcolmMethodDeserialiser());
+		marshaller.registerSerialiser(MalcolmTable.class, new MalcolmTableSerialiser());
+		marshaller.registerDeserialiser(TYPE_ID_TABLE, new MalcolmTableDeserialiser());
 	}
 
 	public PVStructure convertMalcolmMessageToPVStructure(MalcolmMessage malcolmMessage) throws Exception {
-
-		PVStructure pvRequest = marshaller.toPVStructure(malcolmMessage);
-
-		return pvRequest;
+		return marshaller.toPVStructure(malcolmMessage);
 	}
 
 	public MalcolmMessage convertCallPVStructureToMalcolmMessage(PVStructure structure, MalcolmMessage message) throws Exception {
@@ -164,9 +173,9 @@ public class EpicsV4MessageMapper {
 		result.setId(message.getId());
 		result.setRawValue(structure.toString());
 
-		if (structure.getStructure().getID().startsWith(ERROR_TYPE)) {
+		if (structure.getStructure().getID().startsWith(TYPE_ID_ERROR)) {
 			result.setType(Type.ERROR);
-			PVString errorMessage = structure.getSubField(PVString.class, "message");
+			PVString errorMessage = structure.getSubField(PVString.class, FIELD_NAME_MESSAGE);
 			result.setMessage(errorMessage.get());
 		} else {
 			Object returnedObject = marshaller.fromPVStructure(structure, Object.class);
@@ -193,15 +202,16 @@ public class EpicsV4MessageMapper {
 
 	public MalcolmMessage convertGetPVStructureToMalcolmMessage(PVStructure structure, MalcolmMessage message)
 	{
+		System.out.println(structure);
 		MalcolmMessage result = new MalcolmMessage();
 		result.setType(Type.RETURN);
 		result.setEndpoint(message.getEndpoint());
 		result.setId(message.getId());
 		result.setRawValue(structure.toString());
 
-		if (structure.getStructure().getID().startsWith(ERROR_TYPE)) {
+		if (structure.getStructure().getID().startsWith(TYPE_ID_ERROR)) {
 			result.setType(Type.ERROR);
-			PVString errorMessage = structure.getSubField(PVString.class, "message");
+			PVString errorMessage = structure.getSubField(PVString.class, FIELD_NAME_MESSAGE);
 			result.setMessage(errorMessage.get());
 		} else {
 			try {
@@ -259,4 +269,5 @@ public class EpicsV4MessageMapper {
 			return marshaller.getObjectFromField(parentStructure, requestArray[requestArray.length-1]);
 		}
 	}
+
 }

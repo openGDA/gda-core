@@ -131,6 +131,13 @@ public interface IMalcolmDevice extends IRunnableEventDevice<IMalcolmModel>, IVa
 	public MalcolmTable getDatasets() throws MalcolmDeviceException;
 
 	/**
+	 * Returns the version of this malcolm device.
+	 * @return version
+	 * @throws MalcolmDeviceException if the version cannot be returned for any reason
+	 */
+	public MalcolmVersion getVersion() throws MalcolmDeviceException;
+
+	/**
 	 * Disposes of the malcolm device causing it to disconnect from the underlying malcolm device.
 	 *
 	 * @throws MalcolmDeviceException

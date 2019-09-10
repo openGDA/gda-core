@@ -24,4 +24,10 @@ public interface IMalcolmModel extends IDetectorModel {
 	 */
 	public List<String> getAxesToMove();
 
+	/**
+	 * Get the models for the detectors controlled by malcolm.
+	 * @return malcolm detector models
+	 */
+	public List<IMalcolmDetectorModel> getDetectorModels();
+
 }

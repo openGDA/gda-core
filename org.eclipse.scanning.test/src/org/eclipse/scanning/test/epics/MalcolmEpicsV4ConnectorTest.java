@@ -15,11 +15,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
+import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
+import org.eclipse.scanning.api.device.models.MalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
@@ -69,7 +72,21 @@ public class MalcolmEpicsV4ConnectorTest {
 	}
 
 	private IMalcolmDevice createMalcolmDevice(String name) throws MalcolmDeviceException {
-		return new MalcolmDevice(name, connectorService, service);
+		MalcolmDevice malcolmDevice = new MalcolmDevice(name, connectorService, service);
+		malcolmDevice.setModel(createMalcolmModel());
+		return malcolmDevice;
+	}
+
+	protected MalcolmModel createMalcolmModel() {
+		final MalcolmModel malcolmModel = new MalcolmModel();
+		malcolmModel.setExposureTime(0.1);
+		final List<IMalcolmDetectorModel> detectorModels = new ArrayList<>();
+		detectorModels.add(new MalcolmDetectorModel("det1", 0.1, 1, true));
+		detectorModels.add(new MalcolmDetectorModel("det2", 0.05, 2, true));
+		detectorModels.add(new MalcolmDetectorModel("det3", 0.1, 1, false));
+		detectorModels.add(new MalcolmDetectorModel("det3", 0.02, 5, true));
+		malcolmModel.setDetectorModels(detectorModels);
+		return malcolmModel;
 	}
 
 	@Test(expected=MalcolmDeviceException.class)
@@ -290,7 +307,7 @@ public class MalcolmEpicsV4ConnectorTest {
 				.createGenerator(new SpiralModel("stage_x", "stage_y", 1, new BoundingBox(0, -5, 8, 3)), regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
-		MalcolmModel pmac1 = new MalcolmModel();
+		MalcolmModel pmac1 = createMalcolmModel();
 		pmac1.setExposureTime(23.1);
 
 		// Set the generator on the device

@@ -1,8 +1,78 @@
 package org.eclipse.scanning.example.malcolm;
 
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_COMPLETED_STEPS;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_DATASETS;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_HEALTH;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_LAYOUT;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_STATE;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_TOTAL_STEPS;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_FILENAME;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_NAME;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_PATH;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_RANK;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_TYPE;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_UNIQUEID;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_ENABLE;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_EXPOSURE;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_MRI;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_NAME;
+import static org.eclipse.scanning.api.malcolm.connector.MalcolmMethod.ABORT;
+import static org.eclipse.scanning.api.malcolm.connector.MalcolmMethod.CONFIGURE;
+import static org.eclipse.scanning.api.malcolm.connector.MalcolmMethod.DISABLE;
+import static org.eclipse.scanning.api.malcolm.connector.MalcolmMethod.RESET;
+import static org.eclipse.scanning.api.malcolm.connector.MalcolmMethod.RUN;
+import static org.eclipse.scanning.api.malcolm.connector.MalcolmMethod.VALIDATE;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_AXES_TO_MOVE;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_CHOICES;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_DEFAULTS;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_DESCRIPTION;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_DETECTORS;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_DTYPE;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_FILE_DIR;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_FILE_TEMPLATE;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_LABEL;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_LABELS;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_META;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_MRI;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_NAME;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_PRESENT;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_REQUIRED;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_RETURNED;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_RETURNS;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_TAGS;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_TAKES;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_TOOK;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_VALUE;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_VISIBLE;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_WRITEABLE;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_BLOCK;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_BOOLEAN_META;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_CHOICE_META;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_MAP_META;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_METHOD;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_METHOD_LOG;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_METHOD_META;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_NT_SCALAR;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_NT_SCALAR_ARRAY;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_NT_TABLE;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_NUMBER_ARRAY_META;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_NUMBER_META;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_POINT_GENERATOR;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_POINT_GENERATOR_META;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_STRING_ARRAY_META;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_STRING_META;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_TABLE;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_TABLE_META;
+
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.scanning.api.event.scan.DeviceState;
+import org.eclipse.scanning.api.malcolm.MalcolmConstants;
+import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
+import org.eclipse.scanning.connector.epics.EpicsConnectionConstants;
 import org.epics.pvaccess.server.rpc.RPCResponseCallback;
 import org.epics.pvaccess.server.rpc.RPCServiceAsync;
 import org.epics.pvaccess.server.rpc.Service;
@@ -34,11 +104,29 @@ import org.epics.pvdatabase.PVRecord;
 
 class DummyMalcolmRecord extends PVRecord {
 
+
 	// Static Data
 	private static final FieldCreate FIELDCREATE = FieldFactory.getFieldCreate();
 	private static final PVDataCreate PVDATACREATE = PVDataFactory.getPVDataCreate();
-	private static final String CORE_ID = "malcolm:core/";
-	private static final String STATEVALUE = "state.value";
+
+	private static final String ID_PREFIX_MALCOLM = "malcolm:core/";
+
+	private static final String STRUCTURE_ELEMENTS = "elements";
+
+	private static final String FIELD_NAME_STATE_VALUE = "state.value";
+	private static final String ATTRIBUTE_NAME_BUSY = "busy";  // TODO real malcolm device has no such attribute
+	private static final String ATTRIBUTE_NAME_A = "A";
+	private static final String ATTRIBUTE_NAME_B = "B";
+
+	private static final String FIELD_NAME_STAGE_X = "stage_x";
+	private static final String FIELD_NAME_STAGE_Y = "stage_y";
+	private static final String FIELD_NAME_GENERATOR = "generator"; // TODO real malcolm has no such attribute
+
+	public static final String FIELD_NAME_NAMES = "names";
+	public static final String FIELD_NAME_UNITS = "units";
+	public static final String FIELD_NAME_SCALE = "scale";
+	public static final String FIELD_NAME_CENTRE = "centre";
+	public static final String FIELD_NAME_RADIUS = "radius";
 
 	// Member data
 	private boolean underControl = false;
@@ -83,28 +171,32 @@ class DummyMalcolmRecord extends PVRecord {
 				return;
 			}
 
-			Structure mapStructure = FIELDCREATE.createFieldBuilder().setId(CORE_ID + "Map:1.0").createStructure();
+			Structure mapStructure = FIELDCREATE.createFieldBuilder().setId(ID_PREFIX_MALCOLM + "Map:1.0").createStructure();
 			PVStructure returnPvStructure = PVDATACREATE.createPVStructure(mapStructure);
 
-			if ("validate".equals(methodName)) {
-				returnPvStructure = args;
-			} else if ("configure".equals(methodName)) {
-				pvRecord.getPVStructure().getSubField(PVString.class, STATEVALUE).put("CONFIGURING");
-			} else if ("run".equals(methodName)) {
-				pvRecord.getPVStructure().getSubField(PVString.class, STATEVALUE).put("RUNNING");
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
+			final MalcolmMethod method = MalcolmMethod.fromString(methodName);
+			switch (method) {
+				case VALIDATE:
+					returnPvStructure = args;
+					break;
+				case CONFIGURE:
+					pvRecord.getPVStructure().getSubField(PVString.class, FIELD_NAME_STATE_VALUE).put(DeviceState.CONFIGURING.name());
+					break;
+				case RUN:
+					pvRecord.getPVStructure().getSubField(PVString.class, FIELD_NAME_STATE_VALUE).put(DeviceState.RUNNING.name());
+					try {
+						Thread.sleep(2000);
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+					break;
+				default:
 			}
 
-			pvRecord.getPVStructure().getSubField(PVString.class, STATEVALUE).put("ARMED");
+			pvRecord.getPVStructure().getSubField(PVString.class, FIELD_NAME_STATE_VALUE).put(DeviceState.ARMED.name());
 
 			pvRecord.releaseControl();
 			callback.requestDone(statusOk, returnPvStructure);
-			return;
-
 		}
 
 		private void handleError(String message, RPCResponseCallback callback, boolean haveControl) {
@@ -118,122 +210,111 @@ class DummyMalcolmRecord extends PVRecord {
 	public static DummyMalcolmRecord create(String recordName) {
 		FieldBuilder fb = FIELDCREATE.createFieldBuilder();
 
-		final String description = "description";
-		final String tags = "tags";
-		final String writeable = "writeable";
-		final String label = "label";
-		final String labels = "labels";
-		final String dtype = "dtype";
-		final String meta = "meta";
-		final String value = "value";
-		final String eid = "epics:nt/NTScalar:1.0";
-		final String name = "name";
-		final String names = "names";
-		final String x = "stage_x";
-		final String y = "stage_y";
-		final String visible = "visible";
-		final String detector = "detector";
-		final String filename = "filename";
-		final String dataset = "dataset";
-		final String users = "users";
-		final String units = "units";
-		final String scale = "scale";
-		final String centre = "centre";
-		final String radius = "radius";
+		// The structure of the 'meta' field - a field that contains the names of the other fields
+		Structure metaStructure = newDefaultField(EpicsConnectionConstants.TYPE_ID_BLOCK_META);
+		Structure choiceMetaStructure = newDefaultFieldBuilder().addArray(FIELD_NAME_CHOICES, ScalarType.pvString)
+				.setId(TYPE_ID_CHOICE_META).createStructure();
+		Structure stringMetaStructure = newDefaultField(TYPE_ID_STRING_META);
+		Structure booleanMetaStructure = newDefaultField(TYPE_ID_BOOLEAN_META);
+		Structure intNumberMetaStructure = newScalarTypeField(TYPE_ID_NUMBER_META, ScalarType.pvString);
+		Structure floatNumberMetaStructure = newScalarTypeField(TYPE_ID_NUMBER_META, ScalarType.pvString);
+		Structure stringArrayMetaStructure = newDefaultField(TYPE_ID_STRING_ARRAY_META);
+		Structure numberArrayMetaStructure = newScalarTypeField(TYPE_ID_NUMBER_ARRAY_META, ScalarType.pvString);
 
-		Structure metaStructure = FIELDCREATE.createFieldBuilder().add(description, ScalarType.pvString)
-				.addArray(tags, ScalarType.pvString).add(writeable, ScalarType.pvBoolean)
-				.add(label, ScalarType.pvString).setId(CORE_ID + "BlockMeta:1.0").createStructure();
+		Structure simpleMetaMethodArgmentsStructure = FIELDCREATE.createFieldBuilder().addArray(EpicsConnectionConstants.FIELD_NAME_REQUIRED, ScalarType.pvString)
+				.setId(TYPE_ID_MAP_META).createStructure();
 
-		Structure choiceMetaStructure = fb.add(description, ScalarType.pvString)
-				.addArray("choices", ScalarType.pvString).addArray(tags, ScalarType.pvString)
-				.add(writeable, ScalarType.pvBoolean).add(label, ScalarType.pvString).setId(CORE_ID + "ChoiceMeta:1.0")
+		Structure pointGeneratorMetaStructure = newDefaultField(TYPE_ID_POINT_GENERATOR_META);
+		Structure detectorsTableElementsStructure = newDefaultFieldBuilder()
+				.add(DETECTORS_TABLE_COLUMN_ENABLE, booleanMetaStructure)
+				.add(DETECTORS_TABLE_COLUMN_NAME, stringArrayMetaStructure)
+				.add(DETECTORS_TABLE_COLUMN_MRI, stringArrayMetaStructure)
+				.add(DETECTORS_TABLE_COLUMN_EXPOSURE, numberArrayMetaStructure)
+				.add(DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP, numberArrayMetaStructure)
 				.createStructure();
 
-		Structure healthMetaStructure = FIELDCREATE.createFieldBuilder().add(description, ScalarType.pvString)
-				.addArray(tags, ScalarType.pvString).add(writeable, ScalarType.pvBoolean)
-				.add(label, ScalarType.pvString).setId(CORE_ID + "HealthMeta:1.0").createStructure();
+		Structure detectorsMetaStructure = newDefaultFieldBuilder().add(STRUCTURE_ELEMENTS, detectorsTableElementsStructure)
+				.setId(TYPE_ID_TABLE_META).createStructure();
 
-		Structure booleanMetaStructure = FIELDCREATE.createFieldBuilder().add(description, ScalarType.pvString)
-				.addArray(tags, ScalarType.pvString).add(writeable, ScalarType.pvBoolean)
-				.add(label, ScalarType.pvString).setId(CORE_ID + "BooleanMeta:1.0").createStructure();
-
-		Structure intNumberMetaStructure = FIELDCREATE.createFieldBuilder().add(dtype, ScalarType.pvString)
-				.add(description, ScalarType.pvString).addArray(tags, ScalarType.pvString)
-				.add(writeable, ScalarType.pvBoolean).add(label, ScalarType.pvString).setId(CORE_ID + "NumberMeta:1.0")
+		Structure malcolmModelStructure = FIELDCREATE.createFieldBuilder()
+				.add(FIELD_NAME_GENERATOR, pointGeneratorMetaStructure)
+				.add(FIELD_NAME_FILE_DIR, stringMetaStructure)
+				.add(FIELD_NAME_AXES_TO_MOVE, stringArrayMetaStructure)
+				.add(FIELD_NAME_DETECTORS, detectorsMetaStructure)
+				.add(FIELD_NAME_FILE_TEMPLATE, stringMetaStructure)
 				.createStructure();
 
-		Structure floatNumberMetaStructure = FIELDCREATE.createFieldBuilder().add(dtype, ScalarType.pvString)
-				.add(description, ScalarType.pvString).addArray(tags, ScalarType.pvString)
-				.add(writeable, ScalarType.pvBoolean).add(label, ScalarType.pvString).setId(CORE_ID + "NumberMeta:1.0")
+		Structure malcolmModelArgumentsStructure = FIELDCREATE.createFieldBuilder()
+				.add(STRUCTURE_ELEMENTS, malcolmModelStructure)
+				.addArray(FIELD_NAME_REQUIRED, ScalarType.pvString).setId(TYPE_ID_MAP_META).createStructure();
+
+		Structure tableElementsStructure = FIELDCREATE.createFieldBuilder()
+				.add(DATASETS_TABLE_COLUMN_NAME, stringArrayMetaStructure)
+				.add(DATASETS_TABLE_COLUMN_FILENAME, stringArrayMetaStructure)
+				.add(DATASETS_TABLE_COLUMN_TYPE, stringArrayMetaStructure)
+				.add(DATASETS_TABLE_COLUMN_RANK, numberArrayMetaStructure)
+				.add(DATASETS_TABLE_COLUMN_PATH, stringArrayMetaStructure)
+				.add(DATASETS_TABLE_COLUMN_UNIQUEID, stringArrayMetaStructure)
 				.createStructure();
 
-		Structure stringArrayMetaStructure = FIELDCREATE.createFieldBuilder().add(description, ScalarType.pvString)
-				.addArray(tags, ScalarType.pvString).add(writeable, ScalarType.pvBoolean)
-				.add(label, ScalarType.pvString).setId(CORE_ID + "StringArrayMeta:1.0").createStructure();
-
-		Structure numberArrayMetaStructure = FIELDCREATE.createFieldBuilder().add(dtype, ScalarType.pvString)
-				.add(description, ScalarType.pvString).addArray(tags, ScalarType.pvString)
-				.add(writeable, ScalarType.pvBoolean).add(label, ScalarType.pvString)
-				.setId(CORE_ID + "NumberArrayMeta:1.0").createStructure();
-
-		Structure mapMetaStructure = FIELDCREATE.createFieldBuilder().add(description, ScalarType.pvString)
-				.addArray(tags, ScalarType.pvString).add(writeable, ScalarType.pvBoolean)
-				.add(label, ScalarType.pvString).addArray("required", ScalarType.pvString)
-				.setId(CORE_ID + "MapMeta:1.0").createStructure();
-
-		Structure tableElementsStructure = FIELDCREATE.createFieldBuilder().add(detector, stringArrayMetaStructure)
-				.add(filename, stringArrayMetaStructure).add(dataset, stringArrayMetaStructure)
-				.add(users, numberArrayMetaStructure).createStructure();
-
-		Structure tableMetaStructure = FIELDCREATE.createFieldBuilder().add("elements", tableElementsStructure)
-				.add(description, ScalarType.pvString).addArray(tags, ScalarType.pvString)
-				.add(writeable, ScalarType.pvBoolean).add(label, ScalarType.pvString).setId(CORE_ID + "TableMeta:1.0")
-				.createStructure();
-
-		Structure pointGeneratorMetaStructure = FIELDCREATE.createFieldBuilder().add(description, ScalarType.pvString)
-				.addArray(tags, ScalarType.pvString).add(writeable, ScalarType.pvBoolean)
-				.add(label, ScalarType.pvString).setId(CORE_ID + "PointGeneratorMeta:1.0").createStructure();
+		Structure tableMetaStructure = newDefaultFieldBuilder().add(STRUCTURE_ELEMENTS, tableElementsStructure)
+				.setId(TYPE_ID_TABLE_META).createStructure();
 
 		// Attributes
-		Structure choiceStructure = FIELDCREATE.createFieldBuilder().add(meta, choiceMetaStructure)
-				.add(value, ScalarType.pvString).setId(eid).createStructure();
+		Structure stateStructure = createValueStructure(TYPE_ID_NT_SCALAR, ScalarType.pvString, choiceMetaStructure);
+		Structure healthStructure = createValueStructure(TYPE_ID_NT_SCALAR, ScalarType.pvString, stringMetaStructure);
+		Structure stringArrayAttributeStructure = FIELDCREATE.createFieldBuilder().add(FIELD_NAME_META, stringArrayMetaStructure)
+				.addArray(FIELD_NAME_VALUE, ScalarType.pvString).setId(TYPE_ID_NT_SCALAR_ARRAY).createStructure();
+		Structure booleanStructure = createValueStructure(TYPE_ID_NT_SCALAR, ScalarType.pvBoolean, booleanMetaStructure);
+		Structure intStructure = createValueStructure(TYPE_ID_NT_SCALAR, ScalarType.pvInt, intNumberMetaStructure);
 
-		Structure healthStructure = FIELDCREATE.createFieldBuilder().add(meta, healthMetaStructure)
-				.add(value, ScalarType.pvString).setId(eid).createStructure();
+		Structure datasetValueTableStructure = FIELDCREATE.createFieldBuilder()
+				.addArray(DATASETS_TABLE_COLUMN_NAME, ScalarType.pvString)
+				.addArray(DATASETS_TABLE_COLUMN_FILENAME, ScalarType.pvString)
+				.addArray(DATASETS_TABLE_COLUMN_TYPE, ScalarType.pvString)
+				.addArray(DATASETS_TABLE_COLUMN_RANK, ScalarType.pvInt)
+				.addArray(DATASETS_TABLE_COLUMN_PATH, ScalarType.pvString)
+				.addArray(DATASETS_TABLE_COLUMN_UNIQUEID, ScalarType.pvString)
+				.setId(TYPE_ID_TABLE)
+				.createStructure();
 
-		Structure stringArrayStructure = FIELDCREATE.createFieldBuilder().add(meta, stringArrayMetaStructure)
-				.addArray(value, ScalarType.pvString).setId("epics:nt/NTScalarArray:1.0").createStructure();
+		Structure datasetTableStructure = FIELDCREATE.createFieldBuilder().add(FIELD_NAME_META, tableMetaStructure)
+				.addArray(FIELD_NAME_LABELS, ScalarType.pvString).add(FIELD_NAME_VALUE, datasetValueTableStructure)
+				.setId(TYPE_ID_NT_TABLE).createStructure();
 
-		Structure booleanStructure = FIELDCREATE.createFieldBuilder().add(meta, booleanMetaStructure)
-				.add(value, ScalarType.pvBoolean).setId(eid).createStructure();
+		Structure layoutTableValueStructure = FIELDCREATE.createFieldBuilder().addArray(FIELD_NAME_NAME, ScalarType.pvString)
+				.addArray(FIELD_NAME_MRI, ScalarType.pvString).addArray(FIELD_NAME_STAGE_X, ScalarType.pvFloat)
+				.addArray(FIELD_NAME_STAGE_Y, ScalarType.pvFloat).addArray(FIELD_NAME_VISIBLE, ScalarType.pvBoolean)
+				.createStructure();
 
-		Structure intStructure = FIELDCREATE.createFieldBuilder().add(meta, intNumberMetaStructure)
-				.add(value, ScalarType.pvInt).setId(eid).createStructure();
+		// TODO: the layout table incorrectly reuses the same table meta as for the datasets table, fix this
+		Structure layoutTableStructure = FIELDCREATE.createFieldBuilder().add(FIELD_NAME_META, tableMetaStructure)
+				.addArray(FIELD_NAME_LABELS, ScalarType.pvString).add(FIELD_NAME_VALUE, layoutTableValueStructure)
+				.setId(TYPE_ID_NT_TABLE).createStructure();
 
-		Structure datasetTableValueStructure = FIELDCREATE.createFieldBuilder().addArray(detector, ScalarType.pvString)
-				.addArray(filename, ScalarType.pvString).addArray(dataset, ScalarType.pvString)
-				.addArray(users, ScalarType.pvInt).createStructure();
+		Structure simpleMethodStructure = createMethodStructure(simpleMetaMethodArgmentsStructure, simpleMetaMethodArgmentsStructure);
 
-		Structure datasetTableStructure = FIELDCREATE.createFieldBuilder().add(meta, tableMetaStructure)
-				.addArray(labels, ScalarType.pvString).add(value, datasetTableValueStructure)
-				.setId("epics:nt/NTTable:1.0").createStructure();
+		Structure detectorsDefaultTableStructure = FIELDCREATE.createFieldBuilder()
+				.addArray(DETECTORS_TABLE_COLUMN_ENABLE, ScalarType.pvBoolean)
+				.addArray(DETECTORS_TABLE_COLUMN_NAME, ScalarType.pvString)
+				.addArray(DETECTORS_TABLE_COLUMN_MRI, ScalarType.pvString)
+				.addArray(DETECTORS_TABLE_COLUMN_EXPOSURE, ScalarType.pvDouble)
+				.addArray(DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP, ScalarType.pvInt)
+				.setId(TYPE_ID_TABLE)
+				.createStructure();
 
-		Structure layoutTableValueStructure = FIELDCREATE.createFieldBuilder().addArray(name, ScalarType.pvString)
-				.addArray("mri", ScalarType.pvString).addArray(x, ScalarType.pvFloat).addArray(y, ScalarType.pvFloat)
-				.addArray(visible, ScalarType.pvBoolean).createStructure();
+		Structure malcolmModelDefaultsStructure = FIELDCREATE.createFieldBuilder()
+				.add(FIELD_NAME_DETECTORS, detectorsDefaultTableStructure)
+				.add(FIELD_NAME_FILE_TEMPLATE, ScalarType.pvString)
+				.createStructure();
 
-		Structure layoutTableStructure = FIELDCREATE.createFieldBuilder().add(meta, tableMetaStructure)
-				.addArray(labels, ScalarType.pvString).add(value, layoutTableValueStructure)
-				.setId("epics:nt/NTTable:1.0").createStructure();
+		Structure configureMethodStructure = createMethodStructure(malcolmModelArgumentsStructure,
+				simpleMetaMethodArgmentsStructure, malcolmModelDefaultsStructure);
+		Structure validateMethodStructure = createMethodStructure(malcolmModelArgumentsStructure,
+				malcolmModelArgumentsStructure, malcolmModelDefaultsStructure);
 
-		Structure methodStructure = FIELDCREATE.createFieldBuilder().add("takes", mapMetaStructure)
-				.add(description, ScalarType.pvString).addArray(tags, ScalarType.pvString)
-				.add(writeable, ScalarType.pvBoolean).add(label, ScalarType.pvString).add("returns", mapMetaStructure)
-				.setId(CORE_ID + "MethodMeta:1.0").createStructure();
-
-		Structure floatStructure = FIELDCREATE.createFieldBuilder().add(meta, floatNumberMetaStructure)
-				.add(value, ScalarType.pvFloat).setId(eid).createStructure();
+		Structure floatStructure = FIELDCREATE.createFieldBuilder().add(FIELD_NAME_META, floatNumberMetaStructure)
+				.add(FIELD_NAME_VALUE, ScalarType.pvFloat).setId(TYPE_ID_NT_SCALAR).createStructure();
 
 		Union union = FieldFactory.getFieldCreate().createVariantUnion();
 		Structure generatorStructure = FieldFactory.getFieldCreate().createFieldBuilder().addArray("mutators", union)
@@ -241,27 +322,40 @@ class DummyMalcolmRecord extends PVRecord {
 				.setId("scanpointgenerator:generator/CompoundGenerator:1.0").createStructure();
 
 		Structure spiralGeneratorStructure = FieldFactory.getFieldCreate().createFieldBuilder()
-				.addArray(centre, ScalarType.pvDouble).add(scale, ScalarType.pvDouble).add(units, ScalarType.pvString)
-				.addArray(names, ScalarType.pvString).add("alternate_direction", ScalarType.pvBoolean)
-				.add(radius, ScalarType.pvDouble).setId("scanpointgenerator:generator/SpiralGenerator:1.0")
+				.addArray(FIELD_NAME_CENTRE, ScalarType.pvDouble).add(FIELD_NAME_SCALE, ScalarType.pvDouble).add(FIELD_NAME_UNITS, ScalarType.pvString)
+				.addArray(FIELD_NAME_NAMES, ScalarType.pvString).add("alternate_direction", ScalarType.pvBoolean)
+				.add(FIELD_NAME_RADIUS, ScalarType.pvDouble).setId("scanpointgenerator:generator/SpiralGenerator:1.0")
 				.createStructure();
 
 		Structure pointGeneratorStructure = FieldFactory.getFieldCreate().createFieldBuilder()
-				.add(meta, pointGeneratorMetaStructure).add(value, generatorStructure)
-				.setId(CORE_ID + "PointGenerator:1.0").createStructure();
+				.add(FIELD_NAME_META, pointGeneratorMetaStructure).add(FIELD_NAME_VALUE, generatorStructure)
+				.setId(TYPE_ID_POINT_GENERATOR).createStructure();
 
 		// Device
-		Structure deviceStructure = fb.add(meta, metaStructure).add("state", choiceStructure)
-				.add("health", healthStructure).add("busy", booleanStructure).add("totalSteps", intStructure)
-				.add("abort", methodStructure).add("configure", methodStructure).add("disable", methodStructure)
-				.add("reset", methodStructure).add("run", methodStructure).add("validate", methodStructure)
-				.add("A", floatStructure).add("B", floatStructure).add("simultaneousAxes", stringArrayStructure)
-				.add("layout", layoutTableStructure).add("datasets", datasetTableStructure)
-				.add("generator", pointGeneratorStructure).add("completedSteps", intStructure)
-				.setId(CORE_ID + "Block:1.0").createStructure();
+		Structure deviceStructure = fb.add(FIELD_NAME_META, metaStructure) // a string array of the names of the other fields
+				.add(ATTRIBUTE_NAME_STATE, stateStructure) // a choice (enum) of string values
+				.add(ATTRIBUTE_NAME_HEALTH, healthStructure) // a string value
+				.add(ATTRIBUTE_NAME_BUSY, booleanStructure) // a boolean, Note: a real malcolm device does not have this attribute
+				.add(ATTRIBUTE_NAME_TOTAL_STEPS, intStructure)
+				.add(ABORT.toString(), simpleMethodStructure)
+				.add(CONFIGURE.toString(), configureMethodStructure)
+				.add(DISABLE.toString(), simpleMethodStructure)
+				.add(RESET.toString(), simpleMethodStructure)
+				.add(RUN.toString(), simpleMethodStructure)
+				.add(VALIDATE.toString(), validateMethodStructure)
+				// Note that this test does not add PAUSE and RESUME methods yet, they could be added if necessary
+				.add(ATTRIBUTE_NAME_A, floatStructure) // Attributes 'A' and 'B' are just for test, a real malcolm devices doesn't have them
+				.add(ATTRIBUTE_NAME_B, floatStructure)
+				.add(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, stringArrayAttributeStructure)
+				.add(ATTRIBUTE_NAME_LAYOUT, layoutTableStructure)
+				.add(ATTRIBUTE_NAME_DATASETS, datasetTableStructure)
+				.add(FIELD_NAME_GENERATOR, pointGeneratorStructure) // TODO this attribute no longer exists, has it been replaced
+				.add(ATTRIBUTE_NAME_COMPLETED_STEPS, intStructure)
+				.setId(TYPE_ID_BLOCK).createStructure();
 
 		PVStructure blockPVStructure = PVDATACREATE.createPVStructure(deviceStructure);
 
+		// Fill in the values to the fields above
 		// State
 		String[] choicesArray = new String[] { "Resetting", "Ready", "Armed", "Configuring", "Running", "PostRun",
 				"Paused", "Rewinding", "Aborting", "Aborted", "Fault", "Disabling", "Disabled" };
@@ -269,7 +363,7 @@ class DummyMalcolmRecord extends PVRecord {
 		PVStringArray choices = blockPVStructure.getSubField(PVStringArray.class, "state.meta.choices");
 		choices.put(0, choicesArray.length, choicesArray, 0);
 
-		blockPVStructure.getSubField(PVString.class, STATEVALUE).put("READY");
+		blockPVStructure.getSubField(PVString.class, FIELD_NAME_STATE_VALUE).put("READY");
 
 		// Health
 		blockPVStructure.getSubField(PVString.class, "health.value").put("Test Health");
@@ -288,58 +382,33 @@ class DummyMalcolmRecord extends PVRecord {
 		blockPVStructure.getSubField(PVBoolean.class, "B.meta.writeable").put(true);
 
 		// axes
-		String[] axesArray = new String[] { x, y };
+		String[] axesArray = new String[] { FIELD_NAME_STAGE_X, FIELD_NAME_STAGE_Y };
 
 		PVStringArray axes = blockPVStructure.getSubField(PVStringArray.class, "simultaneousAxes.value");
 		axes.put(0, axesArray.length, axesArray, 0);
 
 		// datasets
-		PVStructure datasetsPVStructure = blockPVStructure.getStructureField("datasets");
-		String[] detectorArray = new String[] { "panda2", "panda2", "express3" };
-		String[] filenameArray = new String[] { "panda2.h5", "panda2.h5", "express3.h5" };
-		String[] datasetArray = new String[] { "/entry/detector/I200", "/entry/detector/Iref", "/entry/detector/det1" };
-		int[] usersArray = new int[] { 3, 1, 42 };
-		PVStructure tableValuePVStructure = datasetsPVStructure.getStructureField(value);
-		tableValuePVStructure.getSubField(PVStringArray.class, detector).put(0, detectorArray.length, detectorArray, 0);
-		tableValuePVStructure.getSubField(PVStringArray.class, filename).put(0, filenameArray.length, filenameArray, 0);
-		tableValuePVStructure.getSubField(PVStringArray.class, dataset).put(0, datasetArray.length, datasetArray, 0);
-		tableValuePVStructure.getSubField(PVIntArray.class, users).put(0, usersArray.length, usersArray, 0);
-		String[] headingsArray = new String[] { detector, filename, dataset, users };
-		datasetsPVStructure.getSubField(PVStringArray.class, labels).put(0, headingsArray.length, headingsArray, 0);
+		populateDatasetsAttribute(blockPVStructure);
+
+		// default detectors
+		populateConfigureDefault(blockPVStructure);
 
 		// current step
 		blockPVStructure.getSubField(PVInt.class, "completedSteps.value").put(1);
 
 		// layout
-		PVStructure layoutPVStructure = blockPVStructure.getStructureField("layout");
-		String[] layoutNameArray = new String[] { "BRICK", "MIC", "ZEBRA" };
-		String[] layoutMrifilenameArray = new String[] { "P45-BRICK01", "P45-MIC", "P45-ZEBRA01" };
-		float[] layoutXArray = new float[] { 0.0f, 0.0f, 0.0f };
-		float[] layoutYArray = new float[] { 0.0f, 0.0f, 0.0f };
-		boolean[] layoutVisibleArray = new boolean[] { false, false, false };
-		PVStructure layoutTableValuePVStructure = layoutPVStructure.getStructureField(value);
-		layoutTableValuePVStructure.getSubField(PVStringArray.class, name).put(0, layoutNameArray.length,
-				layoutNameArray, 0);
-		layoutTableValuePVStructure.getSubField(PVStringArray.class, "mri").put(0, layoutMrifilenameArray.length,
-				layoutMrifilenameArray, 0);
-		layoutTableValuePVStructure.getSubField(PVFloatArray.class, x).put(0, layoutXArray.length, layoutXArray, 0);
-		layoutTableValuePVStructure.getSubField(PVFloatArray.class, y).put(0, layoutYArray.length, layoutYArray, 0);
-		layoutTableValuePVStructure.getSubField(PVBooleanArray.class, visible).put(0, layoutVisibleArray.length,
-				layoutVisibleArray, 0);
-		String[] layoutHeadingsArray = new String[] { name, "mri", x, y, visible };
-		layoutPVStructure.getSubField(PVStringArray.class, labels).put(0, layoutHeadingsArray.length,
-				layoutHeadingsArray, 0);
+		populateLayoutAttribute(blockPVStructure);
 
 		PVStructure spiralGeneratorPVStructure = PVDataFactory.getPVDataCreate()
 				.createPVStructure(spiralGeneratorStructure);
 		double[] acentre = new double[] { 3.5, 4.5 };
-		spiralGeneratorPVStructure.getSubField(PVDoubleArray.class, centre).put(0, acentre.length, acentre, 0);
-		spiralGeneratorPVStructure.getDoubleField(scale).put(1.5);
-		spiralGeneratorPVStructure.getStringField(units).put("mm");
-		String[] anames = new String[] { x, y };
-		spiralGeneratorPVStructure.getSubField(PVStringArray.class, names).put(0, anames.length, anames, 0);
+		spiralGeneratorPVStructure.getSubField(PVDoubleArray.class, FIELD_NAME_CENTRE).put(0, acentre.length, acentre, 0);
+		spiralGeneratorPVStructure.getDoubleField(FIELD_NAME_SCALE).put(1.5);
+		spiralGeneratorPVStructure.getStringField(FIELD_NAME_UNITS).put("mm");
+		String[] anames = new String[] { FIELD_NAME_STAGE_X, FIELD_NAME_STAGE_Y };
+		spiralGeneratorPVStructure.getSubField(PVStringArray.class, FIELD_NAME_NAMES).put(0, anames.length, anames, 0);
 		spiralGeneratorPVStructure.getBooleanField("alternate_direction").put(true);
-		spiralGeneratorPVStructure.getDoubleField(radius).put(5.5);
+		spiralGeneratorPVStructure.getDoubleField(FIELD_NAME_RADIUS).put(5.5);
 
 		PVUnion pvu1 = PVDataFactory.getPVDataCreate().createPVVariantUnion();
 		pvu1.set(spiralGeneratorPVStructure);
@@ -351,6 +420,128 @@ class DummyMalcolmRecord extends PVRecord {
 		PVDatabase master = PVDatabaseFactory.getMaster();
 		master.addRecord(pvRecord);
 		return pvRecord;
+	}
+
+	private static void populateDatasetsAttribute(PVStructure blockPVStructure) {
+		PVStructure datasetsPVStructure = blockPVStructure.getStructureField(ATTRIBUTE_NAME_DATASETS);
+		String[] namesArray = new String[] { "DET1.data", "DET1.sum", "DET2.data", "DET2.sum", "stagey.value_set", "stagex.value_set", "stagey.value", "stagex.value" };
+		String[] filenameArray = new String[] { "DET1.h5", "DET1.h5", "DET2.h5", "DET2.h5", "PANDA-01.h5", "PANDA-01.h5", "PANDA-02.h5", "PANDA-02.h5" };
+		String[] typeArray = new String[] { "primary", "second", "primary", "secondary", "position_set", "position_set", "position_value", "position_value" };
+		int[] rankArray = new int[] { 4, 2, 4, 2, 1, 1, 2, 2 };
+		String[] pathArray = new String[] { "/entry/detector1/detector1", "/entry/sum1/sum1", "/entry/detector2/detector2", "/entry/sum2/sum2",
+					"/entry/detector1/stagey_set", "/entry/detector1/stagex_set", "/entry/detector1/stagey", "/entry/detector1/stagex" };
+		String uniqueIDPath = "/entry/NDAttributes/NDArrayUniqueId";
+		String[] uniqueIdArray = new String[] { uniqueIDPath, uniqueIDPath, uniqueIDPath, uniqueIDPath, "", "", uniqueIDPath, uniqueIDPath };
+		PVStructure tableValuePVStructure = datasetsPVStructure.getStructureField(FIELD_NAME_VALUE);
+		tableValuePVStructure.getSubField(PVStringArray.class, DATASETS_TABLE_COLUMN_NAME).put(0, namesArray.length, namesArray, 0);
+		tableValuePVStructure.getSubField(PVStringArray.class, DATASETS_TABLE_COLUMN_FILENAME).put(0, filenameArray.length, filenameArray, 0);
+		tableValuePVStructure.getSubField(PVStringArray.class, DATASETS_TABLE_COLUMN_TYPE).put(0, typeArray.length, typeArray, 0);
+		tableValuePVStructure.getSubField(PVIntArray.class, DATASETS_TABLE_COLUMN_RANK).put(0, rankArray.length, rankArray, 0);
+		tableValuePVStructure.getSubField(PVStringArray.class, DATASETS_TABLE_COLUMN_PATH).put(0, pathArray.length, pathArray, 0);
+		tableValuePVStructure.getSubField(PVStringArray.class, DATASETS_TABLE_COLUMN_UNIQUEID).put(0, uniqueIdArray.length, uniqueIdArray, 0);
+
+		String[] headingsArray = new String[] { DATASETS_TABLE_COLUMN_NAME, DATASETS_TABLE_COLUMN_FILENAME, DATASETS_TABLE_COLUMN_TYPE,
+				DATASETS_TABLE_COLUMN_RANK, DATASETS_TABLE_COLUMN_PATH, DATASETS_TABLE_COLUMN_UNIQUEID };
+		datasetsPVStructure.getSubField(PVStringArray.class, FIELD_NAME_LABELS).put(0, headingsArray.length, headingsArray, 0);
+	}
+
+	private static PVStructure populateConfigureDefault(PVStructure blockPVStructure) {
+		boolean[] enabledArray = new boolean[] { true, true, false, true };
+		String[] namesArray = new String[] { "DET", "DIFF", "PANDA-01", "PANDA-02" };
+		String[] mriArray = new String[] { "BL45P-ML-DET-01", "BL45P-ML-DIFF-01", "BL45P-ML-PANDA-01", "BL45P-ML-PANDA-02" };
+		double[] exposureArray = new double[] { 0, 0, 0, 0 };
+		int[] framesPerStepArray = new int[] { 1, 1, 1, 1 };
+
+		PVStructure defaultsPVStructure = blockPVStructure.getStructureField(CONFIGURE.toString())
+				.getStructureField(FIELD_NAME_META).getStructureField(FIELD_NAME_DEFAULTS);
+		defaultsPVStructure.getSubField(PVString.class, FIELD_NAME_FILE_TEMPLATE).put("%s.h5");
+
+		PVStructure defaultDetectorsPVStructure = defaultsPVStructure.getStructureField(FIELD_NAME_DETECTORS);
+		defaultDetectorsPVStructure.getSubField(PVBooleanArray.class, DETECTORS_TABLE_COLUMN_ENABLE).put(0, enabledArray.length, enabledArray, 0);
+		defaultDetectorsPVStructure.getSubField(PVStringArray.class, DETECTORS_TABLE_COLUMN_NAME).put(0, namesArray.length, namesArray, 0);
+		defaultDetectorsPVStructure.getSubField(PVStringArray.class, DETECTORS_TABLE_COLUMN_MRI).put(0, mriArray.length, mriArray, 0);
+		defaultDetectorsPVStructure.getSubField(PVDoubleArray.class, DETECTORS_TABLE_COLUMN_EXPOSURE).put(0, exposureArray.length, exposureArray, 0);
+		defaultDetectorsPVStructure.getSubField(PVIntArray.class, DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP).put(0, framesPerStepArray.length, framesPerStepArray, 0);
+
+		return defaultDetectorsPVStructure;
+	}
+
+	private static void populateLayoutAttribute(PVStructure blockPVStructure) {
+		PVStructure layoutPVStructure = blockPVStructure.getStructureField(MalcolmConstants.ATTRIBUTE_NAME_LAYOUT);
+		String[] layoutNameArray = new String[] { "BRICK", "MIC", "ZEBRA" };
+		String[] layoutMrifilenameArray = new String[] { "P45-BRICK01", "P45-MIC", "P45-ZEBRA01" };
+		float[] layoutXArray = new float[] { 0.0f, 0.0f, 0.0f };
+		float[] layoutYArray = new float[] { 0.0f, 0.0f, 0.0f };
+		boolean[] layoutVisibleArray = new boolean[] { false, false, false };
+		PVStructure layoutTableValuePVStructure = layoutPVStructure.getStructureField(FIELD_NAME_VALUE);
+		layoutTableValuePVStructure.getSubField(PVStringArray.class, FIELD_NAME_NAME).put(0, layoutNameArray.length,
+				layoutNameArray, 0);
+		layoutTableValuePVStructure.getSubField(PVStringArray.class, FIELD_NAME_MRI).put(0, layoutMrifilenameArray.length,
+				layoutMrifilenameArray, 0);
+		layoutTableValuePVStructure.getSubField(PVFloatArray.class, FIELD_NAME_STAGE_X).put(0, layoutXArray.length, layoutXArray, 0);
+		layoutTableValuePVStructure.getSubField(PVFloatArray.class, FIELD_NAME_STAGE_Y).put(0, layoutYArray.length, layoutYArray, 0);
+		layoutTableValuePVStructure.getSubField(PVBooleanArray.class, FIELD_NAME_VISIBLE).put(0, layoutVisibleArray.length,
+				layoutVisibleArray, 0);
+		String[] layoutHeadingsArray = new String[] { FIELD_NAME_NAME, FIELD_NAME_MRI, FIELD_NAME_STAGE_X, FIELD_NAME_STAGE_Y, FIELD_NAME_VISIBLE };
+		layoutPVStructure.getSubField(PVStringArray.class, FIELD_NAME_LABELS).put(0, layoutHeadingsArray.length,
+				layoutHeadingsArray, 0);
+	}
+
+	private static FieldBuilder newDefaultFieldBuilder() {
+		return FIELDCREATE.createFieldBuilder()
+				.add(FIELD_NAME_DESCRIPTION, ScalarType.pvString)
+				.addArray(FIELD_NAME_TAGS, ScalarType.pvString)
+				.add(FIELD_NAME_WRITEABLE, ScalarType.pvBoolean)
+				.add(FIELD_NAME_LABEL, ScalarType.pvString);
+	}
+
+	private static FieldBuilder newDefaultFieldBuilder(String id) {
+		return newDefaultFieldBuilder().setId(id);
+	}
+
+	private static Structure newDefaultField(String id) {
+		return newDefaultFieldBuilder().setId(id).createStructure();
+	}
+
+	private static Structure newScalarTypeField(String id, ScalarType type) {
+		return newDefaultFieldBuilder(id).add(FIELD_NAME_DTYPE, type).createStructure();
+	}
+
+	private static Structure createValueStructure(String typeId, ScalarType type, Structure metaStructure) {
+		return FIELDCREATE.createFieldBuilder()
+				.add(FIELD_NAME_META, metaStructure)
+				.add(FIELD_NAME_VALUE, type)
+				.setId(typeId)
+				.createStructure();
+	}
+
+	private static Structure createMethodStructure(Structure takesStructure, Structure returnsStructure) {
+		return createMethodStructure(takesStructure, returnsStructure, null);
+	}
+
+	private static Structure createMethodStructure(Structure takesStructure, Structure returnsStructure,
+			Structure defaultsStructure) {
+		FieldBuilder methodMetaBuilder = newDefaultFieldBuilder()
+				.add(FIELD_NAME_TAKES, takesStructure);
+		if (defaultsStructure != null) {
+			methodMetaBuilder.add(FIELD_NAME_DEFAULTS, defaultsStructure);
+		}
+		Structure methodMetaStructure = methodMetaBuilder.add(FIELD_NAME_RETURNS, returnsStructure)
+				.setId(TYPE_ID_METHOD_META)
+				.createStructure();
+
+		// Note: we don't fully populate the method log as it differs between methods and GDA makes no use of it
+		Structure methodLogStructure = FIELDCREATE.createFieldBuilder()
+				.addArray(FIELD_NAME_PRESENT, ScalarType.pvString)
+				.setId(TYPE_ID_METHOD_LOG)
+				.createStructure();
+
+		return FIELDCREATE.createFieldBuilder()
+				.add(FIELD_NAME_TOOK, methodLogStructure)
+				.add(FIELD_NAME_RETURNED, methodLogStructure)
+				.add(FIELD_NAME_META, methodMetaStructure)
+				.setId(TYPE_ID_METHOD)
+				.createStructure();
 	}
 
 	public DummyMalcolmRecord(String recordName, PVStructure blockPVStructure) {

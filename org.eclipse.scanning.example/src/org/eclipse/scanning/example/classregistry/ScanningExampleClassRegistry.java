@@ -20,6 +20,7 @@ import org.eclipse.dawnsci.analysis.api.persistence.IClassRegistry;
 import org.eclipse.scanning.example.detector.ConstantVelocityModel;
 import org.eclipse.scanning.example.detector.DarkImageModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
+import org.eclipse.scanning.example.malcolm.DummyMalcolmDetectorModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmTriggeredModel;
 
@@ -34,6 +35,7 @@ public class ScanningExampleClassRegistry implements IClassRegistry {
 		registerClass(tmp, DarkImageModel.class);
 		registerClass(tmp, MandelbrotModel.class);
 		registerClass(tmp, DummyMalcolmModel.class);
+		registerClass(tmp, DummyMalcolmDetectorModel.class);
 		registerClass(tmp, DummyMalcolmTriggeredModel.class);
 
 		idToClassMap = Collections.unmodifiableMap(tmp);

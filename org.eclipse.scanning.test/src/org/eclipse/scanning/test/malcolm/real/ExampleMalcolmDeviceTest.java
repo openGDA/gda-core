@@ -11,25 +11,51 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.malcolm.real;
 
-import static org.junit.Assert.assertEquals;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_FILENAME;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_NAME;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_PATH;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_RANK;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_TYPE;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_UNIQUEID;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_EXPOSURE;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_MRI;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_NAME;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_AXES_TO_MOVE;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_DETECTORS;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_FILE_DIR;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_FILE_TEMPLATE;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_GENERATOR;
+import static org.eclipse.scanning.api.malcolm.connector.MalcolmMethod.CONFIGURE;
+import static org.eclipse.scanning.api.malcolm.connector.MalcolmMethod.PAUSE;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_TABLE;
+import static org.eclipse.scanning.malcolm.core.MalcolmDevice.ATTRIBUTE_NAME_COMPLETED_STEPS;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
+import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
+import org.eclipse.scanning.api.device.models.IMalcolmModel;
+import org.eclipse.scanning.api.device.models.MalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
+import org.eclipse.scanning.api.malcolm.MalcolmConstants;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
-import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.SpiralModel;
 import org.eclipse.scanning.api.scan.IScanService;
-import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.connector.epics.MalcolmEpicsV4Connection;
 import org.eclipse.scanning.example.malcolm.IEPICSv4Device;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
@@ -95,22 +121,19 @@ public class ExampleMalcolmDeviceTest {
 		configureMalcolmDevice();
 
 		// Test that malcolm attributes have the expected value
-		assertEquals(DeviceState.ARMED, malcolmDevice.getDeviceState());
-		assertEquals("Test Health", malcolmDevice.getDeviceHealth());
-		assertEquals(false, malcolmDevice.isDeviceBusy());
+		assertThat(malcolmDevice.getDeviceState(), is(DeviceState.ARMED));
+		assertThat(malcolmDevice.getDeviceHealth(), is(equalTo("Test Health")));
+		assertThat(malcolmDevice.isDeviceBusy(), is(false));
 
 		// Test the 'datasets' attribute
 		MalcolmTable malcolmTable = malcolmDevice.getDatasets();
 
-		assertEquals(4, malcolmTable.getHeadings().size());
-		assertEquals("detector", malcolmTable.getHeadings().get(0));
-		assertEquals("filename", malcolmTable.getHeadings().get(1));
-		assertEquals("dataset", malcolmTable.getHeadings().get(2));
-		assertEquals("users", malcolmTable.getHeadings().get(3));
-		assertEquals(3, malcolmTable.getColumn("dataset").size());
-		assertEquals("/entry/detector/I200", malcolmTable.getColumn("dataset").get(0));
-		assertEquals("/entry/detector/Iref", malcolmTable.getColumn("dataset").get(1));
-		assertEquals("/entry/detector/det1", malcolmTable.getColumn("dataset").get(2));
+		assertThat(malcolmTable.getHeadings(), contains(
+				DATASETS_TABLE_COLUMN_NAME, DATASETS_TABLE_COLUMN_FILENAME, DATASETS_TABLE_COLUMN_TYPE,
+				DATASETS_TABLE_COLUMN_RANK, DATASETS_TABLE_COLUMN_PATH, DATASETS_TABLE_COLUMN_UNIQUEID));
+		assertThat(malcolmTable.getColumn(DATASETS_TABLE_COLUMN_NAME),
+				contains("DET1.data", "DET1.sum", "DET2.data", "DET2.sum",
+						"stagey.value_set", "stagex.value_set", "stagey.value", "stagex.value"));
 
 		// Call run
 		malcolmDevice.run(null);
@@ -118,10 +141,9 @@ public class ExampleMalcolmDeviceTest {
 		// Check seek method works
 		malcolmDevice.seek(4);
 
-
 		// Check the RPC calls were received correctly by the device
 		Map<String, PVStructure> rpcCalls = epicsv4Device.getReceivedRPCCalls();
-		assertEquals(5, rpcCalls.size()); // configure (which calls abort, reset and configure), run and seek (which calls pause)
+		assertThat(rpcCalls.keySet(), hasSize(5)); // configure (which calls abort, reset and configure), run and seek (which calls pause)
 
 		// Check the 'configure' call is as expected
 		// first create the expected structure (it's quite large)
@@ -143,23 +165,33 @@ public class ExampleMalcolmDeviceTest {
 				.add("radius", ScalarType.pvDouble)
 				.setId("scanpointgenerator:generator/SpiralGenerator:1.0").createStructure();
 
-		Structure expectedCircularRoiStructure = FieldFactory.getFieldCreate().createFieldBuilder().
-				addArray("centre", ScalarType.pvDouble).
-				add("radius", ScalarType.pvDouble).
-				setId("scanpointgenerator:roi/CircularROI:1.0").
-				createStructure();
+		Structure expectedCircularRoiStructure = FieldFactory.getFieldCreate().createFieldBuilder()
+				.addArray("centre", ScalarType.pvDouble)
+				.add("radius", ScalarType.pvDouble)
+				.setId("scanpointgenerator:roi/CircularROI:1.0")
+				.createStructure();
 
-		Structure expectedExcluderStructure = FieldFactory.getFieldCreate().createFieldBuilder().
-				addArray("axes", ScalarType.pvString).
-				addArray("rois", union).
-				setId("scanpointgenerator:excluder/ROIExcluder:1.0").
-				createStructure();
+		Structure expectedExcluderStructure = FieldFactory.getFieldCreate().createFieldBuilder()
+				.addArray("axes", ScalarType.pvString)
+				.addArray("rois", union)
+				.setId("scanpointgenerator:excluder/ROIExcluder:1.0")
+				.createStructure();
+
+		Structure expectedDetectorsStructure = FieldFactory.getFieldCreate().createFieldBuilder()
+				.addArray(MalcolmConstants.DETECTORS_TABLE_COLUMN_ENABLE, ScalarType.pvBoolean)
+				.addArray(DETECTORS_TABLE_COLUMN_NAME, ScalarType.pvString)
+				.addArray(DETECTORS_TABLE_COLUMN_MRI, ScalarType.pvString)
+				.addArray(DETECTORS_TABLE_COLUMN_EXPOSURE, ScalarType.pvDouble)
+				.addArray(DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP, ScalarType.pvInt)
+				.setId(TYPE_ID_TABLE)
+				.createStructure();
 
 		Structure expectedConfigureStructure = FieldFactory.getFieldCreate().createFieldBuilder()
-				.add("generator", expectedGeneratorStructure)
-				.addArray("axesToMove", ScalarType.pvString)
-				.add("fileDir", ScalarType.pvString)
-				.add("fileTemplate", ScalarType.pvString)
+				.add(FIELD_NAME_GENERATOR, expectedGeneratorStructure)
+				.addArray(FIELD_NAME_AXES_TO_MOVE, ScalarType.pvString)
+				.add(FIELD_NAME_FILE_DIR, ScalarType.pvString)
+				.add(FIELD_NAME_FILE_TEMPLATE, ScalarType.pvString)
+				.add(FIELD_NAME_DETECTORS, expectedDetectorsStructure)
 				.createStructure();
 
 		PVStructure expectedSpiralGeneratorPVStructure = PVDataFactory.getPVDataCreate()
@@ -224,33 +256,52 @@ public class ExampleMalcolmDeviceTest {
 		PVString fileTemplateVal = expectedConfigurePVStructure.getSubField(PVString.class, "fileTemplate");
 		fileTemplateVal.put("ixx-1234-%s.h5");
 
-		PVStructure actualConfigureStructure = rpcCalls.get("configure");
-		assertEquals(expectedConfigureStructure, actualConfigureStructure.getStructure());
-		assertEquals(expectedConfigurePVStructure, actualConfigureStructure);
-
+		PVStructure actualConfigureStructure = rpcCalls.get(CONFIGURE.name().toLowerCase());
+		assertThat(actualConfigureStructure.getStructure(), is(equalTo(expectedConfigureStructure)));
 
 		// Check the 'run' call is as expected
 		Structure expectedRunStructure = FieldFactory.getFieldCreate().createFieldBuilder().createStructure();
 		PVStructure expectedRunPVStructure = PVDataFactory.getPVDataCreate().createPVStructure(expectedRunStructure);
 
 		PVStructure actualRunStructure = rpcCalls.get("run");
-		assertEquals(expectedRunStructure, actualRunStructure.getStructure());
-		assertEquals(expectedRunPVStructure, actualRunStructure);
 
+		assertThat(actualRunStructure.getStructure(), is(equalTo(expectedRunStructure)));
+		assertThat(actualRunStructure, is(equalTo(expectedRunPVStructure)));
 
 		// Check the 'seek' call is as expected
 		Structure expectedSeekStructure = FieldFactory.getFieldCreate().createFieldBuilder()
-				.add("completedSteps", ScalarType.pvInt).createStructure();
+				.add(ATTRIBUTE_NAME_COMPLETED_STEPS, ScalarType.pvInt).createStructure();
 		PVStructure expectedSeekPVStructure = PVDataFactory.getPVDataCreate().createPVStructure(expectedSeekStructure);
-		expectedSeekPVStructure.getIntField("completedSteps").put(4);
+		expectedSeekPVStructure.getIntField(ATTRIBUTE_NAME_COMPLETED_STEPS).put(4);
 
-		PVStructure actualSeekStructure = rpcCalls.get("pause");
-		assertEquals(expectedSeekStructure, actualSeekStructure.getStructure());
-		assertEquals(expectedSeekPVStructure, actualSeekStructure);
+		PVStructure actualSeekStructure = rpcCalls.get(PAUSE.name().toLowerCase());
+		assertThat(actualSeekStructure.getStructure(), is(equalTo(expectedSeekStructure)));
+		assertThat(actualSeekStructure, is(equalTo(expectedSeekPVStructure)));
 	}
 
-	private void configureMalcolmDevice() throws GeneratorException, ScanningException {
-		// Setup the model and other configuration items
+	private List<IMalcolmDetectorModel> createExpectedMalcolmDetectorModels() {
+		final List<IMalcolmDetectorModel> detectorModels = new ArrayList<>(4);
+		detectorModels.add(new MalcolmDetectorModel("DET", 0, 1, true));
+		detectorModels.add(new MalcolmDetectorModel("DIFF", 0, 1, true));
+		detectorModels.add(new MalcolmDetectorModel("PANDA-01", 0, 1, false));
+		detectorModels.add(new MalcolmDetectorModel("PANDA-02", 0, 1, true));
+
+		return detectorModels;
+	}
+
+	private void configureMalcolmDevice() throws Exception {
+		// create a new model and set it on the malcolm device (will be null before being set)
+		IMalcolmModel model = new MalcolmModel();
+		model.setExposureTime(0.25);
+		malcolmDevice.setModel(model);
+		// get the model, this populates the malcolm detector models by communicating over the epics connection
+		// with the real malcolm device (or the DummyMalcolmRecord in the case of this test)
+		model = malcolmDevice.getModel();
+		List<IMalcolmDetectorModel> detectorModels = model.getDetectorModels();
+		// assert that the malcolm detectors are as expected
+		assertThat(detectorModels, is(equalTo(createExpectedMalcolmDetectorModels())));
+
+		// Create and set a point generator
 		List<IROI> regions = new LinkedList<>();
 		regions.add(new CircularROI(2, 0, 0));
 		regions.add(new CircularROI(4, -1, -2));
@@ -262,17 +313,22 @@ public class ExampleMalcolmDeviceTest {
 				spiral, regions);
 		IPointGenerator<?> pointGen = pointGenService.createCompoundGenerator(spiralGen);
 
-		MalcolmModel malcolmModel = new MalcolmModel();
-		malcolmModel.setExposureTime(23.1);
-
 		// Set the generator on the device
 		// Cannot set the generator from @PreConfigure in this unit test.
 		malcolmDevice.setPointGenerator(pointGen);
+
 		// Set the file directory on the device
 		malcolmDevice.setOutputDir("/path/to/ixx-1234");
 
+		// create a new malcolm model with modified exposure time and detector models
+		model.setExposureTime(0.1);
+		model.getDetectorModels().get(0).setExposureTime(0.1);
+		model.getDetectorModels().get(0).setFramesPerStep(1);
+		model.getDetectorModels().get(1).setExposureTime(0.025);
+		model.getDetectorModels().get(1).setFramesPerStep(4);
+
 		// Call configure
-		malcolmDevice.configure(malcolmModel);
+		malcolmDevice.configure(model);
 	}
 
 }

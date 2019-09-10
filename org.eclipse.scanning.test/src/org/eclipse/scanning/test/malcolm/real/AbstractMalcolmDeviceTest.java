@@ -31,7 +31,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
-import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.attributes.ChoiceAttribute;
@@ -160,12 +159,6 @@ public abstract class AbstractMalcolmDeviceTest {
 		assertThat(event, is(equalTo(createExpectedMalcolmEvent(DeviceState.READY, DeviceState.OFFLINE, "connected to " + malcolmDevice.getName()))));
 		verifyNoMoreInteractions(malcolmEventListener);
 //		verifyNoMoreInteractions(malcolmConnection); // This doesn't work, not sure why
-	}
-
-	protected MalcolmModel createMalcolmModel() {
-		final MalcolmModel malcolmModel = new MalcolmModel();
-		malcolmModel.setExposureTime(0.1);
-		return malcolmModel;
 	}
 
 	protected IPointGenerator<?> createPointGenerator() throws Exception {

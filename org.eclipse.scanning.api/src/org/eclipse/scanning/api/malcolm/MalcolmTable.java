@@ -18,6 +18,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Class representing a table in Malcolm Format (List of columns with data).
@@ -25,24 +27,27 @@ import java.util.NoSuchElementException;
  */
 public class MalcolmTable implements Iterable<Map<String, Object>> {
 
-	private Map<String, List<Object>> tableData;
-	private Map<String, Class<?>> tableDataTypes;
+	private LinkedHashMap<String, List<?>> tableData;
+	private LinkedHashMap<String, Class<?>> tableDataTypes;
 	private List<String> headings;
 	private int numRows;
 
 	public MalcolmTable() {
-
+		// no-arg constructor required for epics deserialization
 	}
 
 	/**
 	 * Create a new Malcolm table with the given columns data and data types. The
 	 * size of each column must be equal, and the keys of both maps must be the same, these
 	 * are the column headings.
+	 * <p>
+	 * The passed maps are required to be {@link LinkedHashMap}s as the order of the columns must be maintained
+	 * when the table is serialized
 	 * @param tableAsMap a list of values for each column, of equal lengths
 	 * @param dataTypes a map of the data types for each column, this map must have the
 	 *    same keys as the tableAsMap
 	 */
-	public MalcolmTable(Map<String, List<Object>> tableAsMap, Map<String, Class<?>> dataTypes) {
+	public MalcolmTable(LinkedHashMap<String, List<?>> tableAsMap, LinkedHashMap<String, Class<?>> dataTypes) {
 		if (tableAsMap == null || dataTypes == null) throw new NullPointerException();
 		if (tableAsMap.size() != dataTypes.size()) {
 			throw new IllegalArgumentException("The given arguments are not of the same size");
@@ -52,7 +57,7 @@ public class MalcolmTable implements Iterable<Map<String, Object>> {
 
 		numRows = tableData.isEmpty() ? 0 : tableData.values().iterator().next().size();
 		tableDataTypes = dataTypes;
-		headings = new LinkedList<String>(tableAsMap.keySet());
+		headings = new LinkedList<>(tableAsMap.keySet());
 
 		for (String heading : headings) {
 			if (!dataTypes.containsKey(heading)) {
@@ -60,7 +65,7 @@ public class MalcolmTable implements Iterable<Map<String, Object>> {
 			}
 
 			if (tableAsMap.get(heading).size() != numRows) {
-				throw new IllegalArgumentException(String.format("The column %s has size %d, should be %d",
+				throw new IllegalArgumentException(String.format("The column '%s' has size %d, should be %d",
 						heading, tableAsMap.get(heading).size(), numRows));
 			}
 		}
@@ -70,9 +75,9 @@ public class MalcolmTable implements Iterable<Map<String, Object>> {
 	 * Creates a new empty table with columns of the given types.
 	 * @param dataTypes map from column name to data type for that column
 	 */
-	public MalcolmTable(Map<String, Class<?>> dataTypes) {
+	public MalcolmTable(LinkedHashMap<String, Class<?>> dataTypes) {
 		tableDataTypes = dataTypes;
-		headings = new LinkedList<String>(tableDataTypes.keySet());
+		headings = new LinkedList<>(tableDataTypes.keySet());
 
 		tableData = new LinkedHashMap<>(headings.size());
 		for (String heading : headings) {
@@ -81,20 +86,21 @@ public class MalcolmTable implements Iterable<Map<String, Object>> {
 		numRows = 0;
 	}
 
-	public List<Object> getColumn(String columnName) {
-		List<Object> column = tableData.get(columnName);
+	@SuppressWarnings("unchecked")
+	public <T> List<T> getColumn(String columnName) {
+		List<?> column = tableData.get(columnName);
 		if (column != null) {
-			return tableData.get(columnName);
+			return (List<T>) tableData.get(columnName);
 		}
-		throw new RuntimeException("Unknown column: " + columnName);
+		throw new IllegalArgumentException("Unknown column: " + columnName);
 	}
 
 	public Class<?> getColumnClass(String columnName) {
-		List<Object> column = tableData.get(columnName);
+		List<?> column = tableData.get(columnName);
 		if (column != null) {
 			return tableDataTypes.get(columnName);
 		}
-		throw new RuntimeException("Unknown column: " + columnName);
+		throw new IllegalArgumentException("Unknown column: " + columnName);
 	}
 
 	public Map<String, Object> getRow(int rowIndex) {
@@ -118,7 +124,7 @@ public class MalcolmTable implements Iterable<Map<String, Object>> {
 		return headings;
 	}
 
-	public void addRow(Map<String, Object> newRow) {
+	public <T> void addRow(Map<String, T> newRow) {
 		if (newRow.size() != headings.size()) {
 			throw new IllegalArgumentException("The size of the map for the new row must match the number of columns in the table.");
 		}
@@ -126,15 +132,30 @@ public class MalcolmTable implements Iterable<Map<String, Object>> {
 			if (!newRow.containsKey(heading)) {
 				throw new IllegalArgumentException("This row map does not have an entry for the column with the heading " + heading);
 			}
-			List<Object> columnValues = tableData.get(heading);
+			@SuppressWarnings("unchecked")
+			List<T> columnValues = (List<T>) tableData.get(heading);
 			columnValues.add(newRow.get(heading));
 		}
 		numRows++;
 	}
 
+	/**
+	 * Returns an iterator over the rows of the table, where each row is represented as a {@link Map}
+	 * from a column name (a String) to a value.
+	 * @return iterator over table rows
+	 */
 	@Override
 	public Iterator<Map<String, Object>> iterator() {
 		return new MalcolmTableRowIterator();
+	}
+
+	/**
+	 * Returns a stream of the rows of the table, where each row is represented as a {@link Map}
+	 * from a column name (a String) to a value.
+	 * @return stream of table rows
+	 */
+	public Stream<Map<String, Object>> stream() {
+		return StreamSupport.stream(this.spliterator(), false);
 	}
 
 	public class MalcolmTableRowIterator implements Iterator<Map<String, Object>> {
@@ -156,25 +177,24 @@ public class MalcolmTable implements Iterable<Map<String, Object>> {
 
 	}
 
-	public Map<String, List<Object>> getTableData() {
+	public Map<String, List<?>> getTableData() {
 		return tableData;
 	}
 
-	public void setTableData(Map<String, List<Object>> tableData) {
+	public void setTableData(LinkedHashMap<String, List<?>> tableData) {
 		this.tableData = tableData;
 		// also sets the number of rows.
-		int numRows = tableData.values().iterator().next().size();
+		numRows = tableData.values().iterator().next().size();
 		if (tableData.values().stream().anyMatch(column -> column.size() != numRows)) {
 			throw new IllegalArgumentException("All columns must have the same size");
 		}
-		this.numRows = numRows;
 	}
 
-	public Map<String, Class<?>> getTableDataTypes() {
+	public LinkedHashMap<String, Class<?>> getTableDataTypes() {
 		return tableDataTypes;
 	}
 
-	public void setTableDataTypes(Map<String, Class<?>> tableDataTypes) {
+	public void setTableDataTypes(LinkedHashMap<String, Class<?>> tableDataTypes) {
 		this.tableDataTypes = tableDataTypes;
 	}
 

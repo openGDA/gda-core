@@ -19,6 +19,7 @@ import java.util.Set;
 import org.eclipse.scanning.api.IModelProvider;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.ScanMode;
+import org.eclipse.scanning.api.malcolm.MalcolmVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -135,6 +136,11 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 	private List<String> availableAxes;
 
 	/**
+	 * The version of the malcolm device. Naturally, this field is only set for malcolm devices.
+	 */
+	private MalcolmVersion malcolmVersion;
+
+	/**
 	 * Indicates whether the detector should be shown by default (i.e. after a client reset) in the detectors section of
 	 * the mapping experiment view,
 	 */
@@ -242,6 +248,7 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((deviceRole == null) ? 0 : deviceRole.hashCode());
 		result = prime * result + ((health == null) ? 0 : health.hashCode());
+		result = prime * result + ((malcolmVersion == null) ? 0 : malcolmVersion.hashCode());
 		result = prime * result + ((icon == null) ? 0 : icon.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((label == null) ? 0 : label.hashCode());
@@ -289,6 +296,11 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 			if (other.health != null)
 				return false;
 		} else if (!health.equals(other.health))
+			return false;
+		if (malcolmVersion == null) {
+			if (other.malcolmVersion != null)
+				return false;
+		} else if (!malcolmVersion.equals(other.malcolmVersion))
 			return false;
 		if (icon == null) {
 			if (other.icon != null)
@@ -458,6 +470,14 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 
 	public void setShownByDefault(boolean shownByDefault) {
 		this.shownByDefault = shownByDefault;
+	}
+
+	public MalcolmVersion getMalcolmVersion() {
+		return malcolmVersion;
+	}
+
+	public void setMalcolmVersion(MalcolmVersion malcolmVersion) {
+		this.malcolmVersion = malcolmVersion;
 	}
 
 }
