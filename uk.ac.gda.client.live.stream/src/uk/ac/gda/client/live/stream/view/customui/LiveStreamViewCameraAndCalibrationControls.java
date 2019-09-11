@@ -22,11 +22,14 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.util.Objects;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +52,7 @@ public class LiveStreamViewCameraAndCalibrationControls extends LiveStreamViewCa
 	@Override
 	public void createUi(Composite composite) {
 		super.createUi(composite);
+		GridLayoutFactory.fillDefaults().numColumns(5).applyTo(mainComposite);
 		final Button calibrateButton = new Button(mainComposite, SWT.PUSH);
 		GridDataFactory.swtDefaults().applyTo(calibrateButton);
 		calibrateButton.setText("Calibrate");
@@ -60,14 +64,20 @@ public class LiveStreamViewCameraAndCalibrationControls extends LiveStreamViewCa
 		int overlayPositionX;
 		int overlayPositionY;
 
-		try {
-			overlayPositionX = cameraControl.getOverlayCentreX();
-			overlayPositionY = cameraControl.getOverlayCentreY();
-		} catch (DeviceException exception) {
-			logger.error("Unable to get overlay co-ordinates.", exception);
-			return;
-		}
+		if (MessageDialog.openConfirm(
+				Display.getCurrent().getActiveShell(),
+				"Confirm beam position calibration",
+				"This will set the beam position to the current cross overlay position. Do you want to continue?")) {
 
-		calibration.setBeamPosition(overlayPositionX, overlayPositionY, true);
+			try {
+				overlayPositionX = cameraControl.getOverlayCentreX();
+				overlayPositionY = cameraControl.getOverlayCentreY();
+			} catch (DeviceException exception) {
+				logger.error("Unable to get overlay co-ordinates.", exception);
+				return;
+			}
+
+			calibration.setBeamPosition(overlayPositionX, overlayPositionY, true);
+		}
 	}
 }
