@@ -18,8 +18,6 @@
 
 package gda.device.detector.countertimer;
 
-import java.util.HashMap;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -202,34 +200,34 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		daserver.sendCommand("tfg setup-trig start ttl" + ttlSocket);
 	}
 
+	/**
+	 * @return Return true if tfg is armed and waiting for an external trigger
+	 * @throws DeviceException
+	 */
+	public boolean isWaitingForTrigger() throws DeviceException {
+		String armedState = daserver.sendCommand("tfg read status show-armed").toString();
+		return "EXT-ARMED".equals(armedState);
+	}
+
 	@Override
 	public int getNumberFrames() throws DeviceException {
-		if (!continuousMode)
-			return 0;
-		String[] cmds = new String[]{"status show-armed","progress","status","full","lap","frame"};
-		HashMap <String,String> currentVals = new HashMap<String,String>();
-		for (String cmd : cmds){
-			currentVals.put(cmd, daserver.sendCommand("tfg read " + cmd).toString());
-//			logger.info("tfg read "+ cmd + ": " + currentVals.get(cmd));
-		}
-		if (currentVals.isEmpty())
-			return 0;
-
-		// else either scan not started (return -1) or has finished (return continuousParameters.getNumberDataPoints())
-
-		// if started but nothing collected yet
-		if (currentVals.get("status show-armed").equals("EXT-ARMED") /*&& currentVals.get("status").equals("IDLE")*/ ){
+		if (!continuousMode) {
 			return 0;
 		}
+
+		if (isWaitingForTrigger()) {
+			return 0;
+		}
+
+		String currentNumFramesString = daserver.sendCommand("tfg read frame").toString();
 
 		// if frame is non-0 then work out the current frame
-		if (!currentVals.get("frame").equals("0")){
-			String numFrames = currentVals.get("frame");
+		if (!currentNumFramesString.equals("0")) {
 			try{
-				return extractCurrentFrame(Integer.parseInt(numFrames));
+				return extractCurrentFrame(Integer.parseInt(currentNumFramesString));
 			}
 			catch(NumberFormatException e){
-				throw new DeviceException(numFrames);
+				throw new DeviceException(currentNumFramesString);
 			}
 		}
 
