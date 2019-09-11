@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 
 public class StreamViewUtility {
 
-	private static Text errorText;
 
 	private StreamViewUtility() {
 	    throw new IllegalStateException("Utility class");
@@ -37,21 +36,20 @@ public class StreamViewUtility {
 		displayAndLogError(logger, parent, errorMessage, null);
 	}
 
-	public static void displayAndLogError(Logger logger, final Composite parent, final String errorMessage, final Throwable throwable) {
+	public static void displayAndLogError(Logger logger, final Composite parent, final String errorMessage,
+			final Throwable throwable) {
 		logger.error(errorMessage, throwable);
-		if (errorText == null) {
-			errorText = new Text(parent, SWT.LEFT | SWT.WRAP | SWT.BORDER);
-			errorText.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseDoubleClick(MouseEvent e) {
-					errorText.dispose();
-					parent.layout(true);
-					errorText = null;
-				}
-			});
-			errorText.setToolTipText("Double click this message to remove it.");
-			parent.layout(true);
-		}
+		final Text errorText = new Text(parent, SWT.LEFT | SWT.WRAP | SWT.BORDER);
+		errorText.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				errorText.dispose();
+				parent.layout(true);
+			}
+		});
+		errorText.setToolTipText("Double click this message to remove it.");
+		parent.layout(true);
+
 		final StringBuilder s = new StringBuilder(errorText.getText());
 		s.append("\n").append(errorMessage);
 		if (throwable != null) {
