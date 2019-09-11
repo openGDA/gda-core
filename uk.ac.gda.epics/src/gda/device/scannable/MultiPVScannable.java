@@ -53,7 +53,7 @@ public class MultiPVScannable extends ScannableMotionUnitsBase {
 		} else {
 			throw new FactoryException("readPV is not set for" + this.getName());
 		}
-		if (readPVname != null && !writePVname.isEmpty()) {
+		if (writePVname != null && !writePVname.isEmpty()) {
 			pvWrite = LazyPVFactory.newDoublePV(writePVname);
 		} else {
 			throw new FactoryException("writePV is not set for" + this.getName());
