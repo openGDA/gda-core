@@ -928,19 +928,48 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		double passEnergy = region.getPassEnergy();
 		boolean bindingEnergyMode = region.isBindingEnergy();
 
+		// Debug - KINETIC ENERGY VALUES
+		logger.debug("Validated region - {}", region.getName());
+		String inputType;
+		if (bindingEnergyMode) {
+			inputType = "BINDING";
+		}else {
+			inputType = "KINETIC";
+		}
+		logger.debug("Energy mode - {}", inputType);
+		logger.debug("------------{}-ENERGY-INPUT-VALUES--------------", inputType);
+		logger.debug("Photon energy at the time of validation: {} eV", currentPhotonEnergy);
+		logger.debug("Start energy is: {}", startEnergy);
+		logger.debug("End energy is: {}", endEnergy);
+		logger.debug("Pass energy is: {}", passEnergy);
+
+
 		// Convert binding to kinetic if needed
 		if (bindingEnergyMode) {
 			startEnergy = toKineticEnergy(startEnergy);
 			endEnergy = toKineticEnergy(endEnergy);
+			logger.debug("-----CONVERTED-KINETIC-ENERGY-VALUES-----");
+			logger.debug("Start energy is: {}", startEnergy);
+			logger.debug("End energy is: {}", endEnergy);
 		}
 
 		// Actual tests
 		if (startEnergy <= passEnergy) {
-			regionErrors.add("Start energy too low");
+			regionErrors.add("Start energy is lower than or equal to pass energy");
 		}
+
 		if (endEnergy <= passEnergy) {
-			regionErrors.add("End energy too low");
+			regionErrors.add("End energy is lower than or equal to pass energy");
 		}
+
+		if (regionErrors.isEmpty()) {
+			logger.debug("Area has no validation errors");
+		}else {
+			logger.debug("Validation returned errors {}", regionErrors);
+		}
+		logger.debug("----END-OF-REGION-VALIDATION----");
+
+
 		return regionErrors;
 	}
 
