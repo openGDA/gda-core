@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Beamline Configuration Tests
+Bundle-SymbolicName: uk.ac.diamond.daq.beamline.configuration.test
+Bundle-Version: 1.0.0.qualifier
+Fragment-Host: uk.ac.diamond.daq.beamline.configuration
+Automatic-Module-Name: uk.ac.diamond.daq.beamline.configuration.test
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.junit;bundle-version="4.12.0",
+ org.mockito.mockito-core;bundle-version="1.10.19",
+ org.objenesis;bundle-version="2.6.0",
+ org.hamcrest.library;bundle-version="1.3.0"
