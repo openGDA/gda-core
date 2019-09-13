@@ -54,11 +54,16 @@ public class SpecsPhoibosSequenceValidation implements Serializable {
 	 * @return A string
 	 */
 	public String toString(){
-		String prettyMessage = "";
+		String validationSummary = "";
 		for (SpecsPhoibosRegion r : validationErrors.keySet()) {
-			prettyMessage += r.getName() + " " + validationErrors.get(r) + System.lineSeparator();
+			List<String> regionErrors = validationErrors.get(r);
+			String regionErrorsPretty = "";
+			for (String item : regionErrors) {
+				regionErrorsPretty += item + System.lineSeparator();
+			}
+			validationSummary += r.getName() + System.lineSeparator() + regionErrorsPretty + System.lineSeparator();
 		}
-		return prettyMessage;
+		return validationSummary;
 	}
 
 
