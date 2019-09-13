@@ -132,7 +132,7 @@ public class OuterScannablesSection extends AbstractMappingSection {
 
 		// button to add a new scannable
 		final Button btnAdd = new Button(sectionComposite, SWT.PUSH);
-		btnAdd.setImage(MappingExperimentUtils.getImage("icons/plus.png"));
+		btnAdd.setImage(getImage("icons/plus.png"));
 		btnAdd.setToolTipText("Add scannables");
 		GridDataFactory.fillDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(btnAdd);
 		btnAdd.addListener(SWT.Selection, event -> addScannables());
@@ -183,7 +183,7 @@ public class OuterScannablesSection extends AbstractMappingSection {
 
 			// Button to delete scannable
 			final Button deleteScannableButton = new Button(scannablesComposite, SWT.NONE);
-			deleteScannableButton.setImage(MappingExperimentUtils.getImage("icons/cross.png"));
+			deleteScannableButton.setImage(getImage("icons/cross.png"));
 			deleteScannableButton.setToolTipText("Delete scannable");
 			deleteScannableButton.addListener(SWT.Selection, event -> deleteScannable(scannableAxisParameters));
 

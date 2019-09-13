@@ -64,9 +64,9 @@ public class RegionAndPathSection extends AbstractMappingSection {
 	private static final String MAPPING_STAGE_KEY_JSON = "mappingStageAxes.json";
 
 	private Composite regionAndPathComposite;
-	private AbstractModelEditor<IScanPathModel> pathEditor;
+	private AbstractRegionPathModelEditor<IScanPathModel> pathEditor;
 
-	private AbstractModelEditor<IMappingScanRegionShape> regionEditor;
+	private AbstractRegionPathModelEditor<IMappingScanRegionShape> regionEditor;
 	private ComboViewer regionSelector;
 	private ComboViewer pathSelector;
 	private Optional<String> selectedMalcolmDeviceName = Optional.empty();
@@ -127,7 +127,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 
 		Button configureStageButton = new Button(pathComboComposite, SWT.PUSH);
 		configureStageButton.setToolTipText("Configure mapping stage");
-		configureStageButton.setImage(MappingExperimentUtils.getImage("icons/gear.png"));
+		configureStageButton.setImage(getImage("icons/gear.png"));
 		configureStageButton.addListener(SWT.Selection, event -> {
 			MappingStageInfo mappingStage = getService(MappingStageInfo.class);
 			EditMappingStageDialog dialog = new EditMappingStageDialog(getShell(), mappingStage, selectedMalcolmDeviceName);

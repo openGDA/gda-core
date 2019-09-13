@@ -39,6 +39,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.mapping.ui.Activator;
+
 public class MultiStepEditorDialog extends Dialog {
 
 	private static final Logger logger = LoggerFactory.getLogger(MultiStepEditorDialog.class);
@@ -65,11 +67,11 @@ public class MultiStepEditorDialog extends Dialog {
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(comp);
 
 		Button loadButton = new Button(comp, SWT.PUSH);
-		loadButton.setImage(MappingExperimentUtils.getImage("icons/folder-import.png"));
+		loadButton.setImage(Activator.getImage("icons/folder-import.png"));
 		loadButton.setToolTipText("Load multi-step model");
 
 		Button saveButton = new Button(comp, SWT.PUSH);
-		saveButton.setImage(MappingExperimentUtils.getImage("icons/folder-export.png"));
+		saveButton.setImage(Activator.getImage("icons/folder-export.png"));
 		saveButton.setToolTipText("Save multi-step model");
 
 		if (model==null) {

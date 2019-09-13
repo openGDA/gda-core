@@ -22,7 +22,6 @@ import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.creat
 
 import java.beans.PropertyChangeListener;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -70,11 +69,12 @@ import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
-import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.device.ui.device.EditDetectorModelDialog;
+import org.eclipse.scanning.device.ui.util.ScanningUiUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.SashForm;
@@ -99,8 +99,7 @@ import uk.ac.diamond.daq.mapping.api.ILineMappingRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.region.LineMappingRegion;
-import uk.ac.diamond.daq.mapping.ui.experiment.EditDetectorParametersDialog;
-import uk.ac.diamond.daq.mapping.ui.experiment.MappingExperimentUtils;
+import uk.ac.diamond.daq.mapping.ui.Activator;
 import uk.ac.diamond.daq.mapping.ui.experiment.PathInfoCalculatorJob;
 import uk.ac.diamond.daq.mapping.ui.experiment.PlottingController;
 import uk.ac.gda.client.NumberAndUnitsComposite;
@@ -310,14 +309,14 @@ class FocusScanSetupPage extends WizardPage {
 	private Control createDataPlotControl(Composite parent) {
 		try {
 			final IPlottingSystem<Composite> plottingSystem = PlottingFactory.createPlottingSystem();
-			Control plotControl = MappingExperimentUtils.createDataPlotControl(parent, plottingSystem, getTitle());
+			Control plotControl = ScanningUiUtils.createDataPlotControl(parent, plottingSystem, getTitle());
 			mapFileController.getPlottedObjects().stream().forEach(plot -> drawMapPlot(plottingSystem, plot));
 			plottingController = new PlottingController(plottingSystem);
 			return plotControl;
 		} catch (Exception e) {
 			final String message = "Could not create plotting system";
 			logger.error(message, e);
-			return MappingExperimentUtils.createErrorLabel(parent, message, e);
+			return ScanningUiUtils.createErrorLabel(parent, message, e);
 		}
 	}
 
@@ -529,7 +528,7 @@ class FocusScanSetupPage extends WizardPage {
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(comboViewer.getControl());
 
 		final Button configureDetectorButton = new Button(detectorComposite, SWT.PUSH);
-		configureDetectorButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));
+		configureDetectorButton.setImage(Activator.getImage("icons/pencil.png"));
 		configureDetectorButton.setToolTipText("Edit parameters");
 		configureDetectorButton.addListener(SWT.Selection,
 				event -> editDetectorParameters(getDetectorWrapperForSelection(comboViewer.getSelection())));
@@ -596,31 +595,32 @@ class FocusScanSetupPage extends WizardPage {
 					final String message = String.format("The selected malcolm device does not include the focus scannable '%s' as an axis", focusScannableName);
 					MessageDialog.openWarning(getShell(), "Focus Scan", message);
 				}
-			} catch (ScanningException | EventException e) {
+			} catch (ScanningException e) {
 				logger.error("Could not get malcolm axes", e);
 				MessageDialog.openError(getShell(), "Focus Scan", "Could not get axes for malcolm device. See error log for more details");
 			}
 		}
 	}
 
-	public IRunnableDeviceService getRunnableDeviceService() throws EventException {
+	public IRunnableDeviceService getRunnableDeviceService() {
 		try {
 			URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
-			return  eventService.createRemoteService(jmsURI, IRunnableDeviceService.class);
-		} catch (URISyntaxException e) {
-			throw new EventException("Malformed URI for activemq", e);
+			return eventService.createRemoteService(jmsURI, IRunnableDeviceService.class);
+		} catch (Exception e) {
+			logger.error("Could not get runnable device service", e);
+			return null;
 		}
 	}
 
-	private List<String> getMalcolmAxes(IMalcolmModel malcolmModel) throws ScanningException, EventException {
+	private List<String> getMalcolmAxes(IMalcolmModel malcolmModel) throws ScanningException {
 		final String deviceName = malcolmModel.getName();
 		final IMalcolmDevice malcolmDevice = (IMalcolmDevice) (IRunnableDevice<?>) getRunnableDeviceService().getRunnableDevice(deviceName);
 		return malcolmDevice.getAvailableAxes();
 	}
 
 	private void editDetectorParameters(IScanModelWrapper<IDetectorModel> detectorModelWrapper) {
-		final EditDetectorParametersDialog editDialog = new EditDetectorParametersDialog(
-				getShell(), injectionContext, detectorModelWrapper);
+		final EditDetectorModelDialog editDialog = new EditDetectorModelDialog(
+				getShell(), getRunnableDeviceService(), detectorModelWrapper.getModel(), detectorModelWrapper.getName());
 		editDialog.create();
 		editDialog.open();
 		// The dialog updates the model live, using , so we don't have to do anything here

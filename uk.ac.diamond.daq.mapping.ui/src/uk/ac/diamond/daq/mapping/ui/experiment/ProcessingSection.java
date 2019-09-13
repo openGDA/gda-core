@@ -64,6 +64,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.ConfigWrapper;
+import uk.ac.diamond.daq.mapping.ui.Activator;
 import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
 
 /**
@@ -80,8 +81,8 @@ public class ProcessingSection extends AbstractMappingSection {
 
 	private TableViewer viewer;
 
-	private static final Image ticked = MappingExperimentUtils.getImage("icons/ticked.png");
-	private static final Image unticked = MappingExperimentUtils.getImage("icons/unticked.gif");
+	private static final Image ticked = Activator.getImage("icons/ticked.png");
+	private static final Image unticked = Activator.getImage("icons/unticked.gif");
 
 	@Override
 	public void createControls(Composite parent) {

@@ -1,5 +1,6 @@
 package uk.ac.diamond.daq.mapping.ui;
 
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -40,5 +41,11 @@ public class Activator extends AbstractUIPlugin {
 		ServiceReference<T> ref = context.getServiceReference(serviceClass);
 		return context.getService(ref);
 	}
+
+	public static Image getImage(final String imagePath) {
+		// TODO: DO NOT MERGE: we're leaking images!!! we should cache them
+		return AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN_ID, imagePath).createImage();
+	}
+
 
 }

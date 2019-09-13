@@ -38,6 +38,7 @@ import org.eclipse.swt.widgets.Text;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IScriptFiles;
+import uk.ac.diamond.daq.mapping.ui.Activator;
 
 /**
  * Simple dialog for choosing scripts to run before and/or after a scan.
@@ -116,11 +117,11 @@ public class ScriptsSelectionDialog extends Dialog {
 		textbox.setText(currentScript);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(textbox);
 		final Button browse = new Button(composite, SWT.PUSH);
-		browse.setImage(MappingExperimentUtils.getImage(BROWSE_ICON_PATH));
+		browse.setImage(Activator.getImage(BROWSE_ICON_PATH));
 		browse.setToolTipText("Browse...");
 		browse.addListener(SWT.Selection, e -> textbox.setText(browseForScript(whenToRun.toLowerCase())));
 		final Button clear = new Button(composite, SWT.PUSH);
-		clear.setImage(MappingExperimentUtils.getImage(CLEAR_ICON_PATH));
+		clear.setImage(Activator.getImage(CLEAR_ICON_PATH));
 		clear.setToolTipText("Clear");
 		clear.addListener(SWT.Selection, e -> textbox.setText(""));
 		return textbox::getText;

@@ -80,6 +80,7 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.device.ui.util.ScanningUiUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Button;
@@ -97,7 +98,6 @@ import gda.util.QuantityFactory;
 import uk.ac.diamond.daq.mapping.api.EnergyFocusBean;
 import uk.ac.diamond.daq.mapping.api.FocusScanBean;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
-import uk.ac.diamond.daq.mapping.ui.experiment.MappingExperimentUtils;
 import uk.ac.diamond.daq.mapping.ui.experiment.ScanBeanSubmitter;
 import uk.ac.gda.client.NumberAndUnitsComposite;
 
@@ -202,7 +202,7 @@ public class FocusScanResultPage extends WizardPage {
 	private Control createFocusScanPlotControl(Composite composite) {
 		try {
 			plottingSystem = PlottingFactory.createPlottingSystem();
-			final Control plotControl = MappingExperimentUtils.createDataPlotControl(
+			final Control plotControl = ScanningUiUtils.createDataPlotControl(
 					composite, plottingSystem, getTitle());
 			plottingSystem.addClickListener(new IClickListener() {
 				@Override
@@ -219,7 +219,7 @@ public class FocusScanResultPage extends WizardPage {
 		} catch (Exception e) {
 			final String message = "Could not create plotting system";
 			logger.error(message, e);
-			return MappingExperimentUtils.createErrorLabel(composite, message, e);
+			return ScanningUiUtils.createErrorLabel(composite, message, e);
 		}
 	}
 

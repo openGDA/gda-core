@@ -33,7 +33,6 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
-import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.scan.IParserService;
@@ -43,6 +42,7 @@ import org.eclipse.scanning.device.ui.util.PageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
@@ -54,6 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
+import uk.ac.diamond.daq.mapping.ui.Activator;
 
 public abstract class AbstractMappingSection implements IMappingSection {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractMappingSection.class);
@@ -95,7 +96,7 @@ public abstract class AbstractMappingSection implements IMappingSection {
 		return mappingView.getEclipseContext().get(serviceClass);
 	}
 
-	protected IRunnableDeviceService getRunnableDeviceService() throws EventException {
+	protected IRunnableDeviceService getRunnableDeviceService() {
 		return mappingView.getRunnableDeviceService();
 	}
 
@@ -105,6 +106,10 @@ public abstract class AbstractMappingSection implements IMappingSection {
 
 	protected MappingExperimentView getMappingView() {
 		return mappingView;
+	}
+
+	protected Image getImage(String imagePath) {
+		return Activator.getImage(imagePath);
 	}
 
 	protected void relayoutMappingView() {

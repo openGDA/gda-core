@@ -19,7 +19,6 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +45,6 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
-import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
@@ -388,24 +386,25 @@ public class MappingExperimentView implements IAdaptable {
 		return null;
 	}
 
-	public IRunnableDeviceService getRunnableDeviceService() throws EventException {
+	public IRunnableDeviceService getRunnableDeviceService() {
 		if (runnableDeviceService == null) {
-			return (IRunnableDeviceService) getRemoteService(IRunnableDeviceService.class);
+			return getRemoteService(IRunnableDeviceService.class);
 		}
 		return runnableDeviceService;
 	}
 
-	public IScannableDeviceService getScannableDeviceService() throws EventException {
-		return (IScannableDeviceService) getRemoteService(IScannableDeviceService.class);
+	public IScannableDeviceService getScannableDeviceService() {
+		return getRemoteService(IScannableDeviceService.class);
 	}
 
-	private Object getRemoteService(Class<?> klass) throws EventException {
+	private <T> T getRemoteService(Class<T> klass) {
 		IEventService eventService = injectionContext.get(IEventService.class);
 		try {
 			URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
 			return eventService.createRemoteService(jmsURI, klass);
-		} catch (URISyntaxException e) {
-			throw new EventException("Malformed URI for activemq", e);
+		} catch (Exception e) {
+			logger.error("Error getting remote service {}", klass, e);
+			return null;
 		}
 	}
 

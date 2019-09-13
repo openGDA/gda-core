@@ -49,9 +49,10 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
 import org.eclipse.richbeans.widgets.file.FileSelectionDialog;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
-import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.scan.AcquireRequest;
 import org.eclipse.scanning.api.event.status.Status;
+import org.eclipse.scanning.device.ui.util.ScanningUiUtils;
+import org.eclipse.scanning.event.util.QueueUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StackLayout;
@@ -93,8 +94,6 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 	private static String lastFilePath = null;
 
 	private final IEclipseContext context;
-
-	private IRequester<AcquireRequest> acquireRequestor = null;
 
 	private Job update;
 
@@ -154,7 +153,7 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 
 		// to prevent AcquireRequest interrupting a running scan,
 		// we'll check that no running/submitted scans are currently in the queue
-		if (!new SubmissionQueueReporter().isQueueEmpty()) {
+		if (!QueueUtils.isQueueEmpty()) {
 			final String msg = "Cannot take snapshot while there are submitted or running scans.";
 			logger.warn("{}\nAcquireRequest aborted",msg);
 			MessageDialog.openInformation(getShell(), "Snapshot", msg);
@@ -162,7 +161,7 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 		}
 
 		try {
-			final AcquireRequest response = MappingExperimentUtils.acquireData(acquireDetectorModel, getRequestor());
+			final AcquireRequest response = ScanningUiUtils.acquireData(acquireDetectorModel);
 			if (response.getStatus() == Status.COMPLETE) {
 				loadDataFromFile(response.getFilePath());
 			} else if (response.getStatus() == Status.FAILED) {
@@ -173,13 +172,6 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 		} catch (Exception e) {
 			handleException("Unable to acquire data for detector " + acquireDetectorModel.getName(), e);
 		}
-	}
-
-	private IRequester<AcquireRequest> getRequestor() throws Exception {
-		if (acquireRequestor == null) {
-			acquireRequestor = MappingExperimentUtils.getAcquireRequestor(context);
-		}
-		return acquireRequestor;
 	}
 
 	private void loadDataFromFile() {
@@ -203,7 +195,7 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 	}
 
 	private void loadDataFromFile(String filePath) {
-		final String datasetPath = MappingExperimentUtils.getDatasetPath(detectorDataGroupName);
+		final String datasetPath = ScanningUiUtils.getDatasetPath(detectorDataGroupName);
 
 		try {
 			getWizard().getContainer().run(true, true, new IRunnableWithProgress() {
@@ -259,8 +251,8 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 	}
 
 	private void update(IDataset dataset) {
-		final SliceInformation s = MappingExperimentUtils.getDatasetSlice(dataset);
-		final SourceInformation source = MappingExperimentUtils.getSourceInformation(detectorDataGroupName, dataset);
+		final SliceInformation s = ScanningUiUtils.getDatasetSlice(dataset);
+		final SourceInformation source = ScanningUiUtils.getSourceInformation(detectorDataGroupName, dataset);
 
 		final SliceFromSeriesMetadata m = new SliceFromSeriesMetadata(source,s);
 		dataset.setMetadata(m);
@@ -306,11 +298,11 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 	private Control createDataPlotControl(Composite parent) {
 		try {
 			plottingSystem = PlottingFactory.createPlottingSystem();
-			return MappingExperimentUtils.createDataPlotControl(parent, plottingSystem, PAGE_TITLE);
+			return ScanningUiUtils.createDataPlotControl(parent, plottingSystem, PAGE_TITLE);
 		} catch (Exception e) {
 			final String message = "Could not create plotting system";
 			logger.error(message, e);
-			return MappingExperimentUtils.createErrorLabel(parent, message, e);
+			return ScanningUiUtils.createErrorLabel(parent, message, e);
 		}
 	}
 

@@ -64,7 +64,7 @@ public class ScriptFilesSection extends AbstractMappingSection {
 		summaryText.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY));
 
 		final Button editScriptsButton = new Button(scriptsComposite, SWT.PUSH);
-		editScriptsButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));
+		editScriptsButton.setImage(getImage("icons/pencil.png"));
 		editScriptsButton.setToolTipText("Select Script Files");
 		GridDataFactory.swtDefaults().align(SWT.TRAIL, SWT.CENTER).applyTo(editScriptsButton);
 

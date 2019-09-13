@@ -25,7 +25,7 @@ import org.eclipse.scanning.api.device.models.IDetectorModel;
  * It adds a name which is displayed to the user (which can be different to the name
  * of the detector in the model), and a boolean for whether to include this detector in the scan.
  */
-public class DetectorModelWrapper extends ScanModelWrapper<IDetectorModel> {
+public class DetectorModelWrapper<T extends IDetectorModel> extends ScanModelWrapper<T> {
 
 	/**
 	 * Indicates whether the detector should be shown by default (i.e. after a client reset) in the detectors section of
@@ -37,7 +37,7 @@ public class DetectorModelWrapper extends ScanModelWrapper<IDetectorModel> {
 		// no-arg constructor for json serialization
 	}
 
-	public DetectorModelWrapper(String name, IDetectorModel model, boolean includeInScan) {
+	public DetectorModelWrapper(String name, T model, boolean includeInScan) {
 		super(name, model, includeInScan);
 	}
 

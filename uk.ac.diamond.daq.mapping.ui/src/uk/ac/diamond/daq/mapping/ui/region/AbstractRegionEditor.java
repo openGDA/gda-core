@@ -31,12 +31,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
-import uk.ac.diamond.daq.mapping.ui.experiment.AbstractModelEditor;
+import uk.ac.diamond.daq.mapping.ui.experiment.AbstractRegionPathModelEditor;
 
 /**
  * Base class for all region editors in RegionAndPathSection.
  */
-public abstract class AbstractRegionEditor extends AbstractModelEditor<IMappingScanRegionShape> {
+public abstract class AbstractRegionEditor extends AbstractRegionPathModelEditor<IMappingScanRegionShape> {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractRegionEditor.class);
 

@@ -29,12 +29,12 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.mapping.ui.experiment.AbstractModelEditor;
+import uk.ac.diamond.daq.mapping.ui.experiment.AbstractRegionPathModelEditor;
 
 /**
  * Parent class for all path editors used in RegionAndPathSection.
  */
-public abstract class AbstractPathEditor extends AbstractModelEditor<IScanPathModel> {
+public abstract class AbstractPathEditor extends AbstractRegionPathModelEditor<IScanPathModel> {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractPathEditor.class);
 	private Button continuous;

@@ -112,14 +112,14 @@ public class SubmitScanSection extends AbstractMappingSection {
 
 		// Button to copy a scan to the clipboard
 		final Button copyScanCommandButton = new Button(mscanComposite, SWT.PUSH);
-		copyScanCommandButton.setImage(MappingExperimentUtils.getImage("icons/copy.png"));
+		copyScanCommandButton.setImage(getImage("icons/copy.png"));
 		copyScanCommandButton.setToolTipText("Copy the scan command to the system clipboard");
 		GridDataFactory.swtDefaults().applyTo(copyScanCommandButton);
 		copyScanCommandButton.addSelectionListener(widgetSelectedAdapter(e -> smController.copyScanToClipboard()));
 
 		// Button to load a scan from disk
 		final Button loadButton = new Button(mscanComposite, SWT.PUSH);
-		loadButton.setImage(MappingExperimentUtils.getImage("icons/open.png"));
+		loadButton.setImage(getImage("icons/open.png"));
 		loadButton.setToolTipText("Load a scan from the file system");
 		GridDataFactory.swtDefaults().applyTo(loadButton);
 		loadButton.addSelectionListener(widgetSelectedAdapter(e -> {
@@ -133,7 +133,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 
 		// Button to save a scan to disk
 		final Button saveButton = new Button(mscanComposite, SWT.PUSH);
-		saveButton.setImage(MappingExperimentUtils.getImage("icons/save.png"));
+		saveButton.setImage(getImage("icons/save.png"));
 		saveButton.setToolTipText("Save a scan to the file system");
 		GridDataFactory.swtDefaults().applyTo(saveButton);
 		saveButton.addSelectionListener(widgetSelectedAdapter(e -> smController.saveScan(chooseFileName(SWT.SAVE))));

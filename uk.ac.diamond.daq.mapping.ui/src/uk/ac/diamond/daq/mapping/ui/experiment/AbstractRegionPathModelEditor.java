@@ -26,11 +26,11 @@ import javax.inject.Inject;
 import javax.measure.quantity.Quantity;
 
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.ui.IStageScanConfiguration;
+import org.eclipse.scanning.device.ui.AbstractModelEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
@@ -40,12 +40,12 @@ import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.client.NumberAndUnitsComposite;
 
 /**
- * Base class for model (e.g. region, path) editors. Once the model is set, call createEditorPart.
+ * Base class for region or path model editors. Once the model is set, call createEditorPart.
  * Though it has no abstract methods, this class is abstract because createEditorPart returns a blank composite.
  * @param <T> Type of model handled by the editor
  */
-public abstract class AbstractModelEditor<T> {
-	private static final Logger logger = LoggerFactory.getLogger(AbstractModelEditor.class);
+public abstract class AbstractRegionPathModelEditor<T> extends AbstractModelEditor<T> {
+	private static final Logger logger = LoggerFactory.getLogger(AbstractRegionPathModelEditor.class);
 
 	protected static final String X_POSITION = "xPosition";
 	protected static final String Y_POSITION = "yPosition";
@@ -65,9 +65,6 @@ public abstract class AbstractModelEditor<T> {
 	protected static final String X_AXIS_STEP = "xAxisStep";
 	protected static final String Y_AXIS_STEP = "yAxisStep";
 
-	private T model;
-	private Composite composite;
-
 	@Inject
 	private IStageScanConfiguration mappingStageInfo;
 
@@ -80,6 +77,7 @@ public abstract class AbstractModelEditor<T> {
 	 */
 	private UnitsProvider units;
 
+
 	/**
 	 * Apply to a control to make it fill horizontal space
 	 */
@@ -89,59 +87,6 @@ public abstract class AbstractModelEditor<T> {
 	 * For common binding calls
 	 */
 	protected final DataBinder binder = new DataBinder();
-
-	/**
-	 * Create a GUI to edit the model (which must already be set). Default implementation creates a blank 2-column composite.
-	 * For proper disposal and style consistency, final implementations should use super's returned composite.
-	 * i.e.
-	 * <pre>
-	 * {@code @Override
-	 * public Composite createEditorPart(Composite parent)
-	 *     final Composite composite = super.createEditorPart(parent)
-	 *     ....
-	 *     return composite;}
-	 * </pre>
-	 *
-	 * Final implementations should handle the data binding as well - probably using the protected DataBinder instance.
-	 * @param parent composite on which to put this one.
-	 * @return Editor composite
-	 */
-	public Composite createEditorPart(Composite parent) {
-		return makeComposite(parent);
-	}
-
-	/**
-	 * This method should be called before createEditorPart for data binding.
-	 * @param model
-	 */
-	public void setModel(T model) {
-		this.model = model;
-	}
-
-	/**
-	 * @return the model being edited by this editor
-	 */
-	public T getModel() {
-		return model;
-	}
-
-	/**
-	 * Child classes can override and add their tear down calls,
-	 * but they should call super.dispose() as well
-	 */
-	public void dispose() {
-		composite.dispose();
-	}
-
-	/**
-	 * @return a blank 2-column composite
-	 */
-	private Composite makeComposite(Composite parentComposite) {
-		composite = new Composite(parentComposite, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.TOP).applyTo(composite);
-		GridLayoutFactory.swtDefaults().numColumns(2).spacing(10, 5).applyTo(composite);
-		return composite;
-	}
 
 	/**
 	 * @return scannable name if IStageScanConfiguration is configured, otherwise the literal "x axis"
@@ -202,5 +147,4 @@ public abstract class AbstractModelEditor<T> {
 		}
 		return units;
 	}
-
 }

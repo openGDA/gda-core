@@ -58,6 +58,8 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.mapping.ui.Activator;
+
 /**
  * A dialog for editing beamline configuration.
  */
@@ -193,7 +195,7 @@ public class EditBeamlineConfigurationDialog extends Dialog {
 	}
 
 	private ImageDescriptor getImageDescriptor(String path) {
-		return ImageDescriptor.createFromImage(MappingExperimentUtils.getImage(path));
+		return ImageDescriptor.createFromImage(Activator.getImage(path));
 	}
 
 	private void saveConfiguration() {

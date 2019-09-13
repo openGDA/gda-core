@@ -82,7 +82,7 @@ public class NexusTemplatesSection extends AbstractMappingSection {
 
 		// create the edit button
 		final Button editTemplatesButton = new Button(templatesComposite, SWT.NONE);
-		editTemplatesButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));
+		editTemplatesButton.setImage(getImage("icons/pencil.png"));
 		editTemplatesButton.setToolTipText("Select Nexus Template Files");
 		editTemplatesButton.addListener(SWT.Selection, event -> editTemplateFiles());
 		GridDataFactory.swtDefaults().align(SWT.TRAIL, SWT.CENTER).applyTo(editTemplatesButton);

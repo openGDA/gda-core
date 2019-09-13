@@ -46,6 +46,8 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -56,9 +58,11 @@ import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
+import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.device.ui.device.EditDetectorModelDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -102,7 +106,7 @@ public class DetectorsSection extends AbstractMappingSection {
 
 		// button to open the detector chooser dialog
 		Button configure = new Button(sectionComposite, SWT.PUSH);
-		configure.setImage(MappingExperimentUtils.getImage("icons/gear.png"));
+		configure.setImage(getImage("icons/gear.png"));
 		configure.setToolTipText("Select detectors to show");
 		GridDataFactory.fillDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(configure);
 		configure.addListener(SWT.Selection, event -> chooseDetectors());
@@ -173,21 +177,9 @@ public class DetectorsSection extends AbstractMappingSection {
 			final Composite configComposite = new Composite(detectorsComposite, SWT.NONE);
 			GridLayoutFactory.fillDefaults().applyTo(configComposite);
 			final Button configButton = new Button(configComposite, SWT.PUSH);
-			configButton.setImage(MappingExperimentUtils.getImage("icons/camera.png"));
-			if (detectorParameters.getModel() instanceof IMalcolmModel) {
-				// DAQ-1531 AcquireRequest does not work for MalcolmDevices
-				// so there is no point in allowing the configButton to be used
-				configButton.setEnabled(false);
-				configComposite.setToolTipText("Configuration dialog for Malcolm detectors unsupported");
-
-				if (detectorParameters.isIncludeInScan()) {
-					selectedMalcolmDevice = Optional.of(detectorParameters);
-				}
-
-			} else {
-				configButton.setToolTipText("Edit parameters");
-				configButton.addListener(SWT.Selection, event -> editDetectorParameters(detectorParameters));
-			}
+			configButton.setImage(getImage("icons/camera.png"));
+			configButton.setToolTipText("Edit parameters");
+			configButton.addListener(SWT.Selection, event -> editDetectorParameters(detectorParameters));
 		}
 
 		// if a malcolm device is selected already, deselect and disable the checkboxes for the other detectors
@@ -195,9 +187,21 @@ public class DetectorsSection extends AbstractMappingSection {
 	}
 
 	private void editDetectorParameters(final IScanModelWrapper<IDetectorModel> detectorParameters) {
-		final EditDetectorParametersDialog editDialog = new EditDetectorParametersDialog(getShell(), getEclipseContext(), detectorParameters);
-		editDialog.create();
-		if (editDialog.open() == Window.OK) {
+		try {
+			if (detectorParameters.getModel() instanceof IMalcolmModel && getRunnableDeviceService().getRunnableDevice(
+					detectorParameters.getModel().getName()).getDeviceState() == DeviceState.OFFLINE) {
+				MessageDialog.openError(getShell(), "Malcolm Device " + detectorParameters.getModel().getName(),
+						"Cannot edit malcolm device " + detectorParameters.getModel().getName() + " as it is offline.");
+				return;
+			}
+		} catch (ScanningException e) {
+			logger.error("Cannot get malcolm device", e);
+		}
+
+		final Dialog editModelDialog = new EditDetectorModelDialog(getShell(), getRunnableDeviceService(),
+				detectorParameters.getModel(), detectorParameters.getName());
+		editModelDialog.create();
+		if (editModelDialog.open() == Window.OK) {
 			dataBindingContext.updateTargets();
 		}
 	}
@@ -251,7 +255,7 @@ public class DetectorsSection extends AbstractMappingSection {
 		try {
 			// get the axesToMove from the malcolm device
 			final MappingStageInfo stageInfo = getEclipseContext().get(MappingStageInfo.class);
-			final List<String> malcolmAxes = getMalcolmDeviceAxes(deviceName);
+			final List<String> malcolmAxes = getMalcolmDevice(deviceName).getAvailableAxes();
 
 			// only update the mapping stage if the malcolm device is configured to move at least two axes.
 			if (malcolmAxes.size() < 2) return;
@@ -301,13 +305,13 @@ public class DetectorsSection extends AbstractMappingSection {
 		}
 	}
 
-	private List<String> getMalcolmDeviceAxes(final String malcolmDeviceName) throws ScanningException, EventException {
+	private IMalcolmDevice getMalcolmDevice(final String malcolmDeviceName) throws ScanningException, EventException {
 		IRunnableDevice<?> runnableDevice = getRunnableDeviceService().getRunnableDevice(malcolmDeviceName);
 		if (!(runnableDevice instanceof IMalcolmDevice)) {
 			throw new ScanningException("Device " + malcolmDeviceName + " is not a malcolm device");
 		}
 
-		return ((IMalcolmDevice) runnableDevice).getAvailableAxes();
+		return (IMalcolmDevice) runnableDevice;
 	}
 
 	private Map<String, IScanModelWrapper<IDetectorModel>> updateDetectorParameters() {

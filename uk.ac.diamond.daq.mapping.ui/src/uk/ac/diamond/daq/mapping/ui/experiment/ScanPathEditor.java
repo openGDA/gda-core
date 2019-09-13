@@ -58,6 +58,7 @@ import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
+import uk.ac.diamond.daq.mapping.ui.Activator;
 
 /**
  * Create a scan path editor, consisting of a text box for direct entry of the scan path, and a button to bring up a
@@ -103,7 +104,7 @@ public class ScanPathEditor extends Composite implements IObservable {
 
 		// Button to display a MultiStepEditorDialog as an alternative way of editing the scan path definition
 		final Button multiStepButton = new Button(this, 0);
-		multiStepButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));
+		multiStepButton.setImage(Activator.getImage("icons/pencil.png"));
 		multiStepButton.setToolTipText("Edit a multi-step scan");
 		multiStepButton.addSelectionListener(widgetSelectedAdapter(event -> {
 			final Shell activeShell = Display.getDefault().getActiveShell();

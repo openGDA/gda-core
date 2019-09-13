@@ -35,6 +35,7 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.event.util.QueueUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
@@ -86,7 +87,7 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 		summaryText.setVisible(false);
 
 		Button editBeamlineConfigButton = new Button(beamlineConfigComposite, SWT.PUSH);
-		editBeamlineConfigButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));
+		editBeamlineConfigButton.setImage(getImage("icons/pencil.png"));
 		editBeamlineConfigButton.setToolTipText("Edit Beamline Configuration");
 		editBeamlineConfigButton.addListener(SWT.Selection, event -> editBeamlineConfiguration());
 
@@ -113,7 +114,7 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 	}
 
 	private void configureFocus() {
-		if (!new SubmissionQueueReporter().isQueueEmpty()) {
+		if (!QueueUtils.isQueueEmpty()) {
 			MessageDialog.openError(getShell(), "Focus Scan",
 					"Cannot configure focus while there are submitted or running scans. "
 					+ "These scans should be cancelled or allowed to complete before focus can be configured.");
