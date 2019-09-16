@@ -30,6 +30,7 @@ import gda.device.Timer;
 import gda.device.detector.NXDetectorData;
 import gda.device.timer.FrameSet;
 import gda.device.timer.Tfg;
+import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 import gda.scan.ScanInformation;
@@ -42,6 +43,11 @@ public class NcdEigerDetector extends NcdSubDetector {
 	private Timer timer;
 	private IObserver timeListener = this::updateTimes; // hold reference so it can be removed
 	private int framesPerPoint;
+
+	@Override
+	public void configure() throws FactoryException {
+		// no config needed
+	}
 
 	@Override
 	public void atScanStart() throws DeviceException {
