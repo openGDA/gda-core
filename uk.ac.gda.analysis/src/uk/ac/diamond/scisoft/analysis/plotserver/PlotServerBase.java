@@ -28,12 +28,14 @@ import gda.observable.IObserver;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerDevice;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * This is the fundamental class for all the PlotServer functionality, it is basically a store of all the GUI specific
  * information so that they are synchronised across all the servers, as well as containing the plot information which
  * should be displayed on all the GUI windows.
  */
+@ServiceInterface(PlotServerDevice.class)
 public class PlotServerBase extends DeviceBase implements PlotServerDevice {
 
 	private static final Logger logger = LoggerFactory.getLogger(PlotServerBase.class);
@@ -56,7 +58,7 @@ public class PlotServerBase extends DeviceBase implements PlotServerDevice {
 	}
 
 	public static PlotServer getPlotServer() {
-		return (PlotServer) Finder.getInstance().find("plot_server");
+		return Finder.getInstance().find("plot_server");
 	}
 
 	@Override
