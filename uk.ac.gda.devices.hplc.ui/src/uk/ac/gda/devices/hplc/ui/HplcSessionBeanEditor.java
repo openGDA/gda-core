@@ -190,17 +190,13 @@ public final class HplcSessionBeanEditor extends RichBeanMultiPageEditorPart {
 
 				try {
 					HplcBean tibi1 = new HplcBean();
-					initialiseHplcBean(tibi1, "Sample A1", "low", (short) 1, 'A', (short) 3, (short) 1, 'A',
-							(short) 1, 10, 560, 0.5, 120, (float) 22.0);
+					initialiseHplcBean(tibi1, "Sample A1", "low", 10, 560, 0.5, 120, (float) 22.0);
 					HplcBean tibi2 = new HplcBean();
-					initialiseHplcBean(tibi2, "Sample B1", "medium", (short) 1, 'B', (short) 3, (short) 1, 'B',
-							(short) 1, 30, 78, 0.5, 120, (float) 22.0);
+					initialiseHplcBean(tibi2, "Sample B1", "medium", 30, 78, 0.5, 120, (float) 22.0);
 					HplcBean tibi3 = new HplcBean();
-					initialiseHplcBean(tibi3, "Sample C1", "medium", (short) 1, 'C', (short) 3, (short) 1, 'C',
-							(short) 1, 300, 340, 2.0, 30, (float) 22.0);
+					initialiseHplcBean(tibi3, "Sample C1", "medium", 300, 340, 2.0, 30, (float) 22.0);
 					HplcBean tibi4 = new HplcBean();
-					initialiseHplcBean(tibi4, "Sample C2", "medium", (short) 1, 'C', (short) 3, (short) 2, 'C',
-							(short) 1, 150, 340, 2.0, 30, (float) 22.0);
+					initialiseHplcBean(tibi4, "Sample C2", "medium", 150, 340, 2.0, 30, (float) 22.0);
 					measurements.add(tibi1);
 					measurements.add(tibi2);
 					measurements.add(tibi3);
@@ -230,12 +226,9 @@ public final class HplcSessionBeanEditor extends RichBeanMultiPageEditorPart {
 		}
 	}
 
-	private void initialiseHplcBean(HplcBean titrationBean, String name, String viscosity, short bufferCol,
-			char bufferRow, short bufferPlate, short col, char row, short plate, double concentration,
+	private void initialiseHplcBean(HplcBean titrationBean, String name, String viscosity, double concentration,
 			double molecularWeight, double timePerFrame, int noOfFrames, float exposureTemp) throws Exception {
 		titrationBean.setSampleName(name);
-		String location = String.format("%c%d", row, col);
-		titrationBean.setLocation(location);
 		titrationBean.setConcentration(concentration);
 		titrationBean.setMolecularWeight(molecularWeight);
 		titrationBean.setTimePerFrame(timePerFrame);

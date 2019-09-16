@@ -1,28 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-	<xsd:complexType name="LocationBean">
-		<xsd:all>
-			<xsd:element name="plate" maxOccurs="1" minOccurs="1">
-				<xsd:simpleType>
-					<xsd:restriction base="xsd:short">
-					</xsd:restriction>
-				</xsd:simpleType>
-			</xsd:element>
-			<xsd:element name="row" maxOccurs="1" minOccurs="1">
-				<xsd:simpleType>
-					<xsd:restriction base="xsd:string">
-						<xsd:length value="1" />
-					</xsd:restriction>
-				</xsd:simpleType>
-			</xsd:element>
-			<xsd:element name="column" maxOccurs="1" minOccurs="1">
-				<xsd:simpleType>
-					<xsd:restriction base="xsd:short">
-					</xsd:restriction>
-				</xsd:simpleType>
-			</xsd:element>
-		</xsd:all>
-	</xsd:complexType>
 	<xsd:complexType name="bufferlist">
 		<xsd:all>
 			<xsd:element name="buffer" type="xsd:string" minOccurs="0" />
@@ -31,7 +8,6 @@
 	
 	<xsd:complexType name="HplcBean">
 		<xsd:all>
-			<xsd:element name="location" type="xsd:string" minOccurs="1" />
 			<xsd:element name="sampleName" type="xsd:string" minOccurs="1"/>
 			<xsd:element name="concentration" type="xsd:double" />
 			<xsd:element name="molecularWeight" type="xsd:double" />

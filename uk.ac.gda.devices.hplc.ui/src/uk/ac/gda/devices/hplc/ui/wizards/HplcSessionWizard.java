@@ -43,7 +43,6 @@ public class HplcSessionWizard extends HatsaxsWizard implements INewWizard {
 		HplcSessionBean sessionBean = new HplcSessionBean();
 		List<HplcBean> measurements = new ArrayList<HplcBean>();
 		HplcBean hb = new HplcBean();
-		hb.setLocation("A1");
 		hb.setConcentration(concentration);
 		hb.setBuffers("");
 		hb.setMolecularWeight(0);
