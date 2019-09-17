@@ -18,8 +18,8 @@
 
 package uk.ac.gda.devices.hplc.ui;
 
-import gda.commandqueue.JythonCommandCommandProvider;
-import gda.commandqueue.Queue;
+import gda.factory.Finder;
+import gda.util.RemoteCommandRunner;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -36,7 +36,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.client.CommandQueueViewFactory;
+import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
 public final class HplcSessionBeanComposite extends Composite {
@@ -91,33 +91,26 @@ public final class HplcSessionBeanComposite extends Composite {
 		runControls.setLayoutData(layoutData);
 		
 		layoutData = new GridData(SWT.TRAIL, SWT.FILL, true, false, 1, 1);
-		final Button btnRunPipeline = new Button(runControls, SWT.CHECK );
-		btnRunPipeline.setText("Include processing");
-		btnRunPipeline.setLayoutData(layoutData);
-		btnRunPipeline.setToolTipText("Automatically run processing after experiment");
 
 		layoutData = new GridData(SWT.TRAIL, SWT.FILL, true, false, 1, 1);
 		Button btnQueueExperiment = new Button(runControls, SWT.NONE);
 		btnQueueExperiment.setLayoutData(layoutData);
-		btnQueueExperiment.setText("Queue Experiment");
-		btnQueueExperiment.setToolTipText("save file and queue for execution (will start immediately if queue running)");
+		btnQueueExperiment.setText("Run Experiment");
+		btnQueueExperiment.setToolTipText("Save file and run experiment");
 		btnQueueExperiment.addSelectionListener(new SelectionAdapter() {
+			private RemoteCommandRunner runner  = Finder.getInstance().find("HPLCRunner");
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				super.widgetSelected(e);
 				try {
 					IProgressMonitor monitor = new NullProgressMonitor();
 					editor.doSave(monitor);
-					if (monitor.isCanceled())
+					if (monitor.isCanceled()) {
 						return;
-					Queue queue = CommandQueueViewFactory.getQueue();
-					if (queue != null) {
-						queue.addToTail(new JythonCommandCommandProvider(String.format("import HPLC;HPLC.HPLC('%s').run('%s')", editor.getPath(), String.valueOf(btnRunPipeline.getSelection())), editor.getTitle(), editor.getPath()));
-					} else {
-						logger.warn("No queue received from CommandQueueViewFactory");
 					}
-				} catch (Exception e1) {
-					logger.error("Error adding command to the queue", e1);
+					runner.runCommand(editor.getPath().replace(",", "\\'"));
+				} catch (Exception ex) {
+					logger.error("Couldn't run HPLC experiment", ex);
+					UIHelper.showError("Couldn't run HPLC experiment", ex);
 				}
 			}
 		});

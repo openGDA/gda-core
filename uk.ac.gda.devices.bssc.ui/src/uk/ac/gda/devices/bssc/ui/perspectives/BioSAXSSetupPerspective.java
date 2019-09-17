@@ -29,9 +29,8 @@ public class BioSAXSSetupPerspective implements IPerspectiveFactory {
 
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
-		layout.addView(CommandQueueViewFactory.ID, IPageLayout.BOTTOM, 0.6f, IPageLayout.ID_EDITOR_AREA);
+		layout.addView("gda.rcp.ncd.views.NCDStatus", IPageLayout.BOTTOM, 0.5f, IPageLayout.ID_EDITOR_AREA);
 		layout.addView("uk.ac.gda.rcp.views.dashboardView", IPageLayout.RIGHT, 0.5f, CommandQueueViewFactory.ID);
-		layout.addView("gda.rcp.ncd.views.NCDStatus", IPageLayout.BOTTOM, 0.5f, CommandQueueViewFactory.ID);
 		layout.addView("gda.rcp.jythonterminalview", IPageLayout.BOTTOM, 0.55f, "uk.ac.gda.rcp.views.dashboardView");
 	}
 }
