@@ -98,6 +98,7 @@ public class CoupledScannable extends ScannableMotionUnitsBase {
 
 		// Register for updates with each scannable
 		for (Scannable scannable : theScannables) {
+			scannable.configure();
 			scannable.addIObserver(this::handleUpdate);
 		}
 
