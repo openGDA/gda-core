@@ -106,6 +106,10 @@ public final class NonSIext {
 	public static final String KILOCOUNTS_STRING = "kcts";
 	public static final String KILOCOUNTS_UC_STRING = "Kcount";
 
+	public static final String MICROLITRE_STRING = "\u00b5L";
+	public static final String MICROLITRE_U_STRING = "uL";
+	public static final String MICROLITRE_MU_STRING = "\u03bcL";
+
 	/**
 	 * A unit of angle equal to <code>1/360</code> REVOLUTION (standard name <code>°</code>, alternative name defined
 	 * here as <code>Deg</code>).
@@ -251,6 +255,10 @@ public final class NonSIext {
 		unitFormat.alias(SI.METER.inverse().times(1e3), KILOCOUNT_STRING);
 		unitFormat.alias(SI.METER.inverse().times(1e3), KILOCOUNTS_STRING);
 		unitFormat.alias(SI.METER.inverse().times(1e3), KILOCOUNTS_UC_STRING);
+
+		unitFormat.alias(SI.MICRO(NonSI.LITRE), MICROLITRE_STRING);
+		unitFormat.alias(SI.MICRO(NonSI.LITRE), MICROLITRE_U_STRING);
+		unitFormat.alias(SI.MICRO(NonSI.LITRE), MICROLITRE_MU_STRING);
 
 		DEG_ANGLE = (Unit<Angle>) Unit.valueOf(DEG_ANGLE_STRING);
 		DEG_ANGLE_LOWERCASE = (Unit<Angle>) Unit.valueOf(DEG_ANGLE_LOWERCASE_STRING);
