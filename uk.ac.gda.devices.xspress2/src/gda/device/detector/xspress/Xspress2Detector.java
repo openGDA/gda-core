@@ -111,7 +111,7 @@ public class Xspress2Detector extends XspressSystem implements XspressFluorescen
 		}
 
 		if ( controller != null )
-			controller.configure();
+			controller.reconfigure();
 
 		setConfigured(true);
 	}
@@ -663,7 +663,8 @@ public class Xspress2Detector extends XspressSystem implements XspressFluorescen
 
 	@Override
 	public void reconfigure() throws FactoryException {
-		controller.reconfigure();
+		setConfigured(false);
+		configure();
 	}
 
 	@Override
@@ -901,7 +902,7 @@ public class Xspress2Detector extends XspressSystem implements XspressFluorescen
 	public void applyConfigurationParameters(
 			FluorescenceDetectorParameters parameters) throws Exception {
 		settings.setXspressParameters((XspressParameters) parameters);
-		controller.configure();
+		controller.reconfigure();
 		// if mode override is set as a property ignore all the parameter file settings
 		if (modeOverride) {
 			settings.getParameters().setReadoutMode(READOUT_MCA);

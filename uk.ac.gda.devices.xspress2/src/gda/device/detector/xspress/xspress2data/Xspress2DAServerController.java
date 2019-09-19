@@ -155,6 +155,11 @@ public class Xspress2DAServerController extends ConfigurableBase implements Xspr
 
 	@Override
 	public void reconfigure() throws FactoryException {
+		setConfigured(false);
+		configure();
+	}
+
+	public void reconnect() throws FactoryException {
 		// A real system needs a connection to a real da.server via a DAServer
 		// object.
 		logger.debug("Xspress2System.reconfigure(): reconnecting to: " + daServer.getName());
