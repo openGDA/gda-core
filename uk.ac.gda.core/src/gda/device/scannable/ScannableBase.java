@@ -19,8 +19,9 @@
 package gda.device.scannable;
 
 import static java.lang.String.format;
-import static java.util.Arrays.stream;
+import static java.util.stream.IntStream.range;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -632,7 +633,8 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 		if (position == null) {
 			return null;
 		} else if (position.getClass().isArray()) {
-			return new PyTuple(stream((Object[])position)
+			return new PyTuple(range(0, Array.getLength(position))
+					.mapToObj(i -> Array.get(position, i))
 					.map(Py::java2py)
 					.toArray(PyObject[]::new));
 		} else {

@@ -19,6 +19,7 @@
 package gda.device.scannable;
 
 import static gda.device.scannable.PositionConvertorFunctions.toDoubleArray;
+import static gda.device.scannable.PositionConvertorFunctions.toIntegerArray;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -191,6 +192,14 @@ public class ScannableBaseTest {
 	public void test__call__() throws DeviceException {
 		when(getSB().getPosition()).thenReturn( new Double[] { 1., 2. } );
 		assertArrayEquals(toDoubleArray(getSB().__call__()), new Double[] { 1., 2. });
+	}
+
+	@Test
+	public void testPrimitive__call__() throws DeviceException {
+		when(getSB().getPosition()).thenReturn( new double[] { 1., 2. } );
+		assertArrayEquals(toDoubleArray(getSB().__call__()), new Double[] { 1., 2. });
+		when(getSB().getPosition()).thenReturn( new int[] { 1, 2 } );
+		assertArrayEquals(toIntegerArray(getSB().__call__()), new Integer[] { 1, 2 });
 	}
 
 	@Test
