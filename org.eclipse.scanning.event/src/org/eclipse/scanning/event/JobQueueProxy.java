@@ -35,9 +35,9 @@ import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.queue.IQueueStatusBeanListener;
 import org.eclipse.scanning.api.event.queue.QueueCommandBean;
+import org.eclipse.scanning.api.event.queue.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.queue.QueueStatus;
 import org.eclipse.scanning.api.event.queue.QueueStatusBean;
-import org.eclipse.scanning.api.event.queue.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.status.StatusBean;
 
 public final class JobQueueProxy<U extends StatusBean> extends AbstractConnection implements IJobQueue<U> {
@@ -64,7 +64,7 @@ public final class JobQueueProxy<U extends StatusBean> extends AbstractConnectio
 
 	private void subscribeToQueueStatusTopic() throws EventException {
 		queueStatusTopicSubscriber = eventService.createSubscriber(uri, EventConstants.QUEUE_STATUS_TOPIC);
-		queueStatusTopicSubscriber.addListener(evt -> fireStatusChangeListeners(evt.getBean().getJobQueueStatus()));
+		queueStatusTopicSubscriber.addListener(evt -> fireStatusChangeListeners(evt.getBean().getQueueStatus()));
 	}
 
 	private void fireStatusChangeListeners(QueueStatus status) {
@@ -267,7 +267,7 @@ public final class JobQueueProxy<U extends StatusBean> extends AbstractConnectio
 
 	@Override
 	public QueueStatus getQueueStatus() {
-		return getConsumerInfo().getJobQueueStatus();
+		return getConsumerInfo().getQueueStatus();
 	}
 
 	@Override
