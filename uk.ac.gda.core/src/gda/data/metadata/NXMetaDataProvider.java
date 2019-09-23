@@ -38,6 +38,7 @@ import org.python.core.PyList;
 import org.python.core.PyNone;
 import org.python.core.PyObject;
 import org.python.core.PySequence;
+import org.python.core.PyString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -904,6 +905,8 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 
 		if (object instanceof String) {
 			groupData = new NexusGroupData((String) object);
+		} else if (object instanceof PyString) {
+			groupData = new NexusGroupData(((PyString) object).getString());
 		} else if (object instanceof Integer) {
 			groupData = new NexusGroupData((Integer) object);
 //		} else if (object instanceof Long) {
@@ -984,13 +987,6 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 			elements = (Object[]) scannableGetPositionOut;
 		} else if (scannableGetPositionOut instanceof PySequence) {
 			PySequence seq = (PySequence) scannableGetPositionOut;
-			int len = seq.__len__();
-			elements = new Object[len];
-			for (int i = 0; i < len; i++) {
-				elements[i] = seq.__finditem__(i);
-			}
-		} else if (scannableGetPositionOut instanceof PyList) {
-			PyList seq = (PyList) scannableGetPositionOut;
 			int len = seq.__len__();
 			elements = new Object[len];
 			for (int i = 0; i < len; i++) {
