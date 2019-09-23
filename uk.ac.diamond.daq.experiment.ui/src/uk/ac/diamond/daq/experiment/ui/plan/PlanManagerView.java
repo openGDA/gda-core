@@ -1,6 +1,7 @@
 package uk.ac.diamond.daq.experiment.ui.plan;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+import static uk.ac.diamond.daq.experiment.api.Services.getExperimentService;
 import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.CONFIGURE_ICON;
 import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.MINUS_ICON;
 import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.PLUS_ICON;
@@ -29,7 +30,6 @@ import org.eclipse.ui.part.ViewPart;
 
 import gda.device.DeviceException;
 import gda.factory.Finder;
-import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanException;
 import uk.ac.diamond.daq.experiment.api.remote.PlanRequestHandler;
@@ -39,7 +39,6 @@ public class PlanManagerView extends ViewPart {
 	private static final String PLAN_SELECT_TOOLTIP = "Click on a plan below to select it";
 	
 	private PlanRequestHandler handler = Finder.getInstance().findSingleton(PlanRequestHandler.class);
-	private ExperimentService experimentService = Finder.getInstance().findSingleton(ExperimentService.class);
 	
 	private Composite base;
 	private Text selectedPlan;
@@ -144,7 +143,7 @@ public class PlanManagerView extends ViewPart {
 		if (selectedPlan.getText() == null || selectedPlan.getText().isEmpty()) {
 			throw new ExperimentPlanException("There is no plan selected. The UI should prevent this method from being called!");
 		}
-		ExperimentPlanBean plan = experimentService.getExperimentPlan(selectedPlan.getText());
+		ExperimentPlanBean plan = getExperimentService().getExperimentPlan(selectedPlan.getText());
 		try {
 			handler.submit(plan);
 		} catch (DeviceException e) {
@@ -155,20 +154,20 @@ public class PlanManagerView extends ViewPart {
 	private void add() {
 		ExperimentPlanBean bean = new ExperimentPlanBean();
 		if (openWizard(bean)) {
-			experimentService.saveExperimentPlan(bean);
+			getExperimentService().saveExperimentPlan(bean);
 			update();
 			select(bean.getPlanName());
 		}
 	}
 	
 	private void edit(String planName) {
-		ExperimentPlanBean bean = experimentService.getExperimentPlan(planName);
+		ExperimentPlanBean bean = getExperimentService().getExperimentPlan(planName);
 		final String originalName = bean.getPlanName(); // the edit could change this
 		if (openWizard(bean)) {
 			if (!bean.getPlanName().equals(originalName)) {
-				experimentService.deleteExperimentPlan(originalName);
+				getExperimentService().deleteExperimentPlan(originalName);
 			}
-			experimentService.saveExperimentPlan(bean);
+			getExperimentService().saveExperimentPlan(bean);
 			update();
 			select(bean.getPlanName());
 		}
@@ -177,7 +176,7 @@ public class PlanManagerView extends ViewPart {
 	private void remove(String planName) {
 		if (MessageDialog.openConfirm(base.getShell(), "Delete experiment plan",
 				"Do you want to delete experiment plan '" + planName + "'?")) {
-			experimentService.deleteExperimentPlan(planName);
+			getExperimentService().deleteExperimentPlan(planName);
 			selectedPlan.setText("");
 			update();
 		}
@@ -202,7 +201,7 @@ public class PlanManagerView extends ViewPart {
 	}
 	
 	private void updateInput() {
-		viewer.setInput(experimentService.getExperimentPlanNames());
+		viewer.setInput(getExperimentService().getExperimentPlanNames());
 	}
 	
 	private void updateButtons() {

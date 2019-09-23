@@ -22,14 +22,11 @@ import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.DriverProfileSection;
 import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
-import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * For runtime testing and demoing until a real implementation is made
  */
-@ServiceInterface(ExperimentService.class)
 public class DummyExperimentService extends FindableBase implements ExperimentService {
-
 	private final Map<String, ScanRequest<IROI>> scans;
 
 	private final Map<String, DriverModel> driverProfiles;
@@ -52,7 +49,6 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 		furnaceProfiles = new HashMap<>();
 		furnaceProfiles.put("temp99", getProfile1());
 
-
 		driverModels = new HashMap<>();
 		driverModels.put("tr6_driver", driverProfiles);
 		driverModels.put("furnace", furnaceProfiles);
@@ -66,7 +62,7 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 
 	private ScanRequest<IROI> getTomographyScan() {
 		IScanPathModel model = new StepModel("tr6_rot", 0, 180, 5);
-		return new ScanRequest<>(model, null, (String)null, null, null);
+		return new ScanRequest<>(model, null, (String) null, null, null);
 	}
 
 	private ScanRequest<IROI> getDiffractionSpotScan() {
@@ -75,15 +71,13 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 		model.setyAxisName("beam_y");
 		model.setX(12.5);
 		model.setY(0.38);
-		IROI roi = new PointROI(new double[] {12.5, 0.38});
+		IROI roi = new PointROI(new double[] { 12.5, 0.38 });
 		return new ScanRequest<>(model, roi, null, null, null);
 	}
 
 	private DriverModel getProfile1() {
 		SingleAxisLinearSeries profile = new SingleAxisLinearSeries();
-		profile.setProfile(Arrays.asList(
-				new DriverProfileSection(0, 5, 0.5),
-				new DriverProfileSection(5, 5, 0.5),
+		profile.setProfile(Arrays.asList(new DriverProfileSection(0, 5, 0.5), new DriverProfileSection(5, 5, 0.5),
 				new DriverProfileSection(5, 0, 0.5)));
 		profile.setName("trapez_30s");
 		return profile;
@@ -92,14 +86,10 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 	private DriverModel getProfile2() {
 		SingleAxisLinearSeries profile = new SingleAxisLinearSeries();
 		double tenSeconds = 10 / 60.0;
-		profile.setProfile(Arrays.asList(
-				new DriverProfileSection(0, 2.5, tenSeconds),
-				new DriverProfileSection(2.5, 2.5, tenSeconds),
-				new DriverProfileSection(2.5, 5, tenSeconds),
-				new DriverProfileSection(5, 5, tenSeconds),
-				new DriverProfileSection(5, 2.5, tenSeconds),
-				new DriverProfileSection(2.5, 2.5, tenSeconds),
-				new DriverProfileSection(2.5, 0, tenSeconds)));
+		profile.setProfile(Arrays.asList(new DriverProfileSection(0, 2.5, tenSeconds),
+				new DriverProfileSection(2.5, 2.5, tenSeconds), new DriverProfileSection(2.5, 5, tenSeconds),
+				new DriverProfileSection(5, 5, tenSeconds), new DriverProfileSection(5, 2.5, tenSeconds),
+				new DriverProfileSection(2.5, 2.5, tenSeconds), new DriverProfileSection(2.5, 0, tenSeconds)));
 		profile.setName("sombrero");
 		return profile;
 	}
@@ -107,9 +97,8 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 	private DriverModel getProfile3() {
 		SingleAxisLinearSeries model = new SingleAxisLinearSeries();
 
-		List<DriverProfileSection> singlePeriod = Arrays.asList(
-													new DriverProfileSection(5, 10, 0.1),
-													new DriverProfileSection(10, 5, 0.1));
+		List<DriverProfileSection> singlePeriod = Arrays.asList(new DriverProfileSection(5, 10, 0.1),
+				new DriverProfileSection(10, 5, 0.1));
 
 		List<DriverProfileSection> wholeProfile = new ArrayList<>();
 
@@ -122,18 +111,18 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 		return model;
 	}
 
-	private DriverModel getUserWorkingGroupProfile () {
+	private DriverModel getUserWorkingGroupProfile() {
 		SingleAxisLinearSeries model = new SingleAxisLinearSeries();
 
 		List<DriverProfileSection> profile = new ArrayList<>();
 
-		//start experiment at 200 and hold for 15 seconds
+		// start experiment at 200 and hold for 15 seconds
 		profile.add(new DriverProfileSection(200, 200, 0.25));
-		//damp from 200 and drive to 304 in 1 minute
-		profile.add(new DriverProfileSection(200,  304, 1.0));
-		//hold at 304 for 30 seconds
+		// damp from 200 and drive to 304 in 1 minute
+		profile.add(new DriverProfileSection(200, 304, 1.0));
+		// hold at 304 for 30 seconds
 		profile.add(new DriverProfileSection(304, 304, 0.5));
-		//return to 0 in 30 seconds
+		// return to 0 in 30 seconds
 		profile.add(new DriverProfileSection(304, 200, 1.0));
 
 		model.setProfile(profile);
@@ -145,11 +134,11 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 
 	@Override
 	public void saveScan(ScanRequest<IROI> scanRequest, String scanName, String experimentId) {
-		// no.
+		scans.put(scanName, scanRequest);
 	}
 
 	@Override
-	public ScanRequest<IROI> getScan(String scanName, String experimentId) {
+	public ScanRequest<IROI> getDiffScan(String scanName, String experimentId) {
 		return scans.get(scanName);
 	}
 
@@ -201,6 +190,12 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 	@Override
 	public void deleteExperimentPlan(String planName) {
 		plans.remove(planName);
+	}
+
+	@Override
+	public void deleteScan(String scanName, String experimentId) {
+		scans.remove(scanName);
+
 	}
 
 }

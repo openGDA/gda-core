@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import static java.util.stream.Collectors.toSet;
+import static uk.ac.diamond.daq.experiment.api.Services.getExperimentService;
 
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -29,6 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 
+import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.runtime.IStatus;
@@ -70,6 +72,9 @@ public class ScanManagementController extends AbstractMappingController {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanManagementController.class);
 
+	//FIXME: Currently FileSystemBasedExperimentService is not using the experiment id, but this should be some logical grouping (e.g. visit id) for scans
+	private final String EXPERIMENT_ID = null;
+
 	private boolean clickToScanArmed = false;
 	private MappingStageInfo stage;
 	private DescriptiveFilenameFactory filenameFactory = new DescriptiveFilenameFactory();
@@ -92,7 +97,7 @@ public class ScanManagementController extends AbstractMappingController {
 	 * @param filename	The fully qualified name of the required file
 	 * @return			An {@link Optional} of a mapping bean constructed from the contents of the file
 	 */
-	public Optional<IMappingExperimentBean> loadScan(final String filename) {
+	public Optional<IMappingExperimentBean> loadScanMappingBean(final String filename) {
 		checkInitialised();
 		Optional<IMappingExperimentBean> result = Optional.empty();
 		if (filename != null) {
@@ -113,6 +118,7 @@ public class ScanManagementController extends AbstractMappingController {
 		}
 		return result;
 	}
+
 
 	/**
 	 * Writes the current contents of the mapping bean to a file specified by the supplied fully qualified filename.
@@ -137,7 +143,17 @@ public class ScanManagementController extends AbstractMappingController {
 				ErrorDialog.openError(Display.getCurrent().getActiveShell(), "Save Scan", errorMessage,
 						new Status(IStatus.ERROR, MappingUIConstants.PLUGIN_ID, errorMessage, e));
 			}
+			getExperimentService().saveScan((ScanRequest<IROI>) createScanBean().getScanRequest(), getShortName(filename), EXPERIMENT_ID);
 		}
+	}
+
+	/**
+	 *  ExperimentService expects only the filename, Files.write expects the absolute path.
+	 *  ExperimentService also doesn't like non-alphanumeric characters, while the auto-generated section of the filename does
+	 */
+
+	private String getShortName(String filename) {
+		return FilenameUtils.getName(filename).split("\\.")[0];
 	}
 
 	/**

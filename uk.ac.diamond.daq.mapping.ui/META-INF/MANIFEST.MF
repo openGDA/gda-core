@@ -37,10 +37,12 @@ Require-Bundle: org.eclipse.ui,
  com.fasterxml.jackson.core.jackson-core,
  uk.ac.gda.client,
  com.google.guava,
- uk.ac.gda.client.live.stream
+ uk.ac.gda.client.live.stream,
+ uk.ac.diamond.daq.experiment.api;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: com.ibm.icu.text,
+ org.apache.commons.io;version="2.6.0",
  org.eclipse.e4.core.contexts,
  org.eclipse.e4.core.di,
  org.eclipse.e4.core.di.annotations,

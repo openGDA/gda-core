@@ -82,6 +82,7 @@ public class PlanPreviewerTest {
 
     	Factory testFactory = mock(Factory.class);
     	when(testFactory.getFindablesOfType(ExperimentService.class)).thenReturn(map);
+    	when(testFactory.isLocal()).thenReturn(true);
 
     	Finder.getInstance().addFactory(testFactory);
     }
