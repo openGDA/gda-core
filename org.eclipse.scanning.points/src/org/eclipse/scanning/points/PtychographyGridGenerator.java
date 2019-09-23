@@ -25,6 +25,7 @@ import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.ScanPointIterator;
+import org.eclipse.scanning.api.points.models.AbstractGridModel.Orientation;
 import org.eclipse.scanning.api.points.models.PtychographyGridModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.python.core.PyDictionary;
@@ -96,8 +97,8 @@ public class PtychographyGridGenerator extends AbstractGenerator<PtychographyGri
 		final PyObject randomOffset = randomOffsetMutatorFactory.createObject(seed, axes, maxOffset);
 
 		final Iterator<?>[] generators = new Iterator<?>[2];
-		generators[0] = model.isVerticalOrientation() ? xLine : yLine;
-		generators[1] = model.isVerticalOrientation() ? yLine : xLine;
+		generators[0] = model.getOrientation().equals(Orientation.VERTICAL) ? xLine : yLine;
+		generators[1] = model.getOrientation().equals(Orientation.VERTICAL) ? yLine : xLine;
         final PyObject[] mutators = { randomOffset };
 
         final String[] axisNames = new String[] { xName, yName };

@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.connector.epics.custommarshallers;
 
+import org.eclipse.scanning.api.points.models.AbstractGridModel.Orientation;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.epics.pvdata.pv.PVInt;
 import org.epics.pvdata.pv.PVString;
@@ -37,7 +38,7 @@ public class GridModelDeserialiser implements IPVStructureDeserialiser {
 		gridModel.setyAxisPoints(pvStructure.getSubField(PVInt.class, "yAxisPoints").get());
 		gridModel.setAlternating(pvStructure.getBooleanField("alternating").get());
 		gridModel.setContinuous(pvStructure.getBooleanField("continuous").get());
-		gridModel.setVerticalOrientation(pvStructure.getBooleanField("verticalOrientation").get());
+		gridModel.setOrientation(Orientation.valueOf(pvStructure.getSubField(PVString.class, "orientation").get()));
 		return gridModel;
 	}
 }

@@ -25,8 +25,22 @@ import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
  */
 public abstract class AbstractGridModel extends AbstractBoundingBoxModel {
 
-	@FieldDescriptor(label="Vertical Orientation")
-	private boolean verticalOrientation = false;
+	@FieldDescriptor(label="Orientation")
+	private Orientation orientation = Orientation.HORIZONTAL;
+
+	public enum Orientation {
+		HORIZONTAL("Horizontal"), VERTICAL("Vertical");
+
+		private final String orientationString;
+
+		Orientation(String orientationString) {
+	        this.orientationString = orientationString;
+	    }
+
+	    @Override
+		public String toString() {
+	        return this.orientationString;
+	    }}
 
 	/**
 	 * By default the horizontal axis is the scanned first, i.e. is the fast axis. If this
@@ -36,21 +50,25 @@ public abstract class AbstractGridModel extends AbstractBoundingBoxModel {
 	 * the horizontal axis is scanned first.
 	 */
 
-	public boolean isVerticalOrientation() {
-		return verticalOrientation;
+	public Orientation getOrientation() {
+		return orientation;
 	}
 
-	public void setVerticalOrientation(boolean verticalOrientation) {
-		boolean oldValue = this.verticalOrientation;
-		this.verticalOrientation = verticalOrientation;
-		this.pcs.firePropertyChange("verticalOrientation", oldValue, verticalOrientation);
+	public void setOrientation(Orientation orientation) {
+		Orientation oldValue = this.orientation;
+		this.orientation = orientation;
+		this.pcs.firePropertyChange("orientation", oldValue, orientation);
+	}
+
+	public boolean isVerticalOrientation() {
+		return orientation.equals(Orientation.VERTICAL);
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + (verticalOrientation ? 1231 : 1237);
+		result = prime * result + (orientation.equals(Orientation.VERTICAL) ? 1231 : 1237);
 		return result;
 	}
 
@@ -59,12 +77,12 @@ public abstract class AbstractGridModel extends AbstractBoundingBoxModel {
 		if (!super.equals(obj))
 			return false;
 		AbstractGridModel other = (AbstractGridModel) obj;
-		return (verticalOrientation == other.verticalOrientation);
+		return orientation.equals(other.orientation);
 	}
 
 	@Override
 	public String toString() {
-		return "AbstractGridModel [verticalOrientation=" + verticalOrientation
+		return "AbstractGridModel [orientation=" + orientation
 				+ ", " + super.toString() + "]";
 	}
 
