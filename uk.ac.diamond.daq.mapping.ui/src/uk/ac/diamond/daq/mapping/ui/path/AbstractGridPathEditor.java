@@ -18,7 +18,14 @@
 
 package uk.ac.diamond.daq.mapping.ui.path;
 
+import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.jface.databinding.viewers.IViewerObservableValue;
+import org.eclipse.jface.databinding.viewers.ViewerProperties;
+import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.scanning.api.points.models.AbstractGridModel;
+import org.eclipse.scanning.api.points.models.AbstractGridModel.Orientation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -34,14 +41,14 @@ public class AbstractGridPathEditor extends AbstractPathEditor {
 	 * Creates controls for options common to grid paths:<ul>
 	 * <li>alternating - whether subsequent scans change direction in the innermost axis;</li>
 	 * <li>continuous - whether to scan the innermost axis continuously (for malcolm scans only);</li>
-	 * <li>vertical orientation - whether to treat the 2nd axis as the fast axis</li>
+	 * <li>orientation - whether to treat the 2nd axis as the fast axis</li>
 	 *
 	 * @param parent composite to draw the controls on
 	 */
 
 	protected void makeCommonGridOptionsControls(Composite parent) {
 		makeCommonOptionsControls(parent);
-		makeVerticalOrientationControl(parent);
+		makeOrientationControl(parent);
 	}
 
 	/**
@@ -49,11 +56,18 @@ public class AbstractGridPathEditor extends AbstractPathEditor {
 	 * control to toggle this property.
 	 * @param parent composite to draw control on
 	 */
-	private void makeVerticalOrientationControl(Composite parent) {
-		Label verticalOrientationLabel = new Label(parent, SWT.NONE);
-		verticalOrientationLabel.setText("Vertical Orientation");
-		Button verticalOrientation = new Button(parent, SWT.CHECK);
-		binder.bind(verticalOrientation, "verticalOrientation", getModel());
+	@SuppressWarnings("unchecked")
+	private void makeOrientationControl(Composite parent) {
+		Label orientationLabel = new Label(parent, SWT.NONE);
+		orientationLabel.setText("Orientation");
+		ComboViewer oriantationSelector = new ComboViewer(parent);
+		oriantationSelector.add(Orientation.HORIZONTAL);
+		oriantationSelector.add(Orientation.VERTICAL);
+		oriantationSelector.setSelection(new StructuredSelection(Orientation.HORIZONTAL));
+
+		IViewerObservableValue inWidget = ViewerProperties.singleSelection().observe(oriantationSelector);
+		IObservableValue<String> inModel = BeanProperties.value("orientation").observe(getModel());
+		binder.bind(inWidget, inModel);
 	}
 
 }
