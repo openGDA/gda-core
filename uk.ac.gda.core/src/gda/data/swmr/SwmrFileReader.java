@@ -101,6 +101,7 @@ public class SwmrFileReader {
 	 * @throws NexusException
 	 */
 	public Dataset readDataset(String dataNodePath, int[] start, int[] shape, int[] step) throws NexusException {
+		logger.debug("Reading from dataset {} : start = {}, shape = {}, step = {}", dataNodePath, ArrayUtils.toString(start), ArrayUtils.toString(shape), ArrayUtils.toString(step));
 		return HDF5Utils.readDataset(hdfFile, dataNodePath, start, shape, step, -1, -1, false);
 	}
 
@@ -116,6 +117,10 @@ public class SwmrFileReader {
 		List<Dataset> datasets = new ArrayList<Dataset>();
 		for(String datasetLabel : dataToRead.keySet()) {
 			String datasetName = dataToRead.get(datasetLabel);
+			if (!datasetExists(datasetName)) {
+				logger.warn("Dataset {} does not exist - skipping", datasetName);
+				continue;
+			}
 			Dataset dataset = readDataset(datasetName, start, shape, step);
 			dataset.setName(datasetLabel);
 			datasets.add(dataset);
@@ -123,16 +128,26 @@ public class SwmrFileReader {
 		return datasets;
 	}
 
+	private boolean datasetExists(String name) throws NexusException {
+		try {
+			return HDF5Utils.hasDataset(filename, name);
+		} catch (ScanFileHolderException e) {
+			throw new NexusException(e);
+		}
+	}
 	/**
 	 * Return maximum number of frames of data that can be read (across all datasets in 'dataToRead'}.)
 	 * See {@link #getCurrentShape(String)}
 	 * @return number of frames available
 	 * @throws NexusException
-
 	 */
 	public int getNumAvailableFrames() throws NexusException {
 		List<Integer> vals = new ArrayList<Integer>();
 		for(String datasetName : dataToRead.values() ) {
+			if (!datasetExists(datasetName)) {
+				logger.warn("Dataset {} does not exist - skipping", datasetName);
+				continue;
+			}
 			vals.add(getCurrentShape(datasetName)[0]);
 		}
 		return Collections.min(vals);
