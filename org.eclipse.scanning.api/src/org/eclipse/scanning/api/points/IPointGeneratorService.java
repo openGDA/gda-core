@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
@@ -72,7 +73,7 @@ public interface IPointGeneratorService {
 	 * @param region which implements IPointContainer (most useful) or IROI (less useful because IROI is in the data coordinates, no the motor coordinates)
 	 * @return
 	 */
-	default <T,R> IPointGenerator<T> createGenerator(T model, R region) throws GeneratorException {
+	default <T> IPointGenerator<T> createGenerator(T model, IROI region) throws GeneratorException {
 		return createGenerator(model, Arrays.asList(region));
 	}
 
@@ -89,7 +90,7 @@ public interface IPointGeneratorService {
 	 * @param regions a reference to zero or more IROIs for instance
 	 * @return
 	 */
-	<T,R> IPointGenerator<T> createGenerator(T model, Collection<R> regions) throws GeneratorException;
+	<T> IPointGenerator<T> createGenerator(T model, Collection<IROI> regions) throws GeneratorException;
 
 	/**
 	 * Create a nested or compound generator.
@@ -108,7 +109,7 @@ public interface IPointGeneratorService {
 	 * @return
 	 * @throws GeneratorException
 	 */
-	IPointGenerator<?> createCompoundGenerator(CompoundModel<?> cmodel) throws GeneratorException;
+	IPointGenerator<?> createCompoundGenerator(CompoundModel cmodel) throws GeneratorException;
 
 	/**
 	 *
@@ -117,7 +118,7 @@ public interface IPointGeneratorService {
 	 * @return regions, never <code>null</code>
 	 * @throws GeneratorException
 	 */
-	<R> List<R> findRegions(Object model, Collection<ScanRegion<R>> regions) throws GeneratorException;
+	List<IROI> findRegions(Object model, Collection<ScanRegion> regions) throws GeneratorException;
 
 	/**
 	 * Each IPointGenerator must have a unique id which is used to refer to it in the user interface.

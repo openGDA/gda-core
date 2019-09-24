@@ -71,7 +71,7 @@ public class ScanRegions {
 			// TODO FIXME Analysis renames axes which then do not match the scannable name
 			final List<String>     axes    = Arrays.asList(system.getSelectedXAxis().getTitle(),
 	                                                       system.getSelectedYAxis().getTitle());
-			List<ScanRegion<IROI>> regions = ScanRegions.getScanRegions(system, axes);
+			List<ScanRegion> regions = ScanRegions.getScanRegions(system, axes);
 			if (regions.isEmpty()) return null;
 			rois = regions.stream().map(ScanRegion::getRoi).collect(Collectors.toList());
 		}
@@ -99,9 +99,9 @@ public class ScanRegions {
 	 * @param regions
 	 * @throws Exception
 	 */
-	public static void createRegions(IPlottingSystem<?> system, List<ScanRegion<IROI>> regions) throws Exception {
+	public static void createRegions(IPlottingSystem<?> system, List<ScanRegion> regions) throws Exception {
 		if (regions!=null && !regions.isEmpty()) {
-			for (ScanRegion<IROI> scanRegion : regions) {
+			for (ScanRegion scanRegion : regions) {
 				IRegion region = createRegion(system, (RegionType)scanRegion.getType(), scanRegion.getRoi());
 				if (region != null) {
 					region.setUserObject(scanRegion); // Override default because we know it.
@@ -125,7 +125,7 @@ public class ScanRegions {
 
 		String x = system.getSelectedXAxis().getTitle();
 		String y = system.getSelectedYAxis().getTitle();
-		region.setUserObject(new ScanRegion<IROI>(region.getName(), regionType, Arrays.asList(x,y)));
+		region.setUserObject(new ScanRegion(region.getName(), regionType, Arrays.asList(x,y)));
 		region.setAlpha(30);
 		if (roi!=null) {
 			region.setROI(roi);
@@ -142,7 +142,7 @@ public class ScanRegions {
 	 * @param system
 	 * @return scan regions, never <code>null</code>
 	 */
-	public static List<ScanRegion<IROI>> getScanRegions(IPlottingSystem<?> system) {
+	public static List<ScanRegion> getScanRegions(IPlottingSystem<?> system) {
         return getScanRegions(system, null);
 	}
 
@@ -152,16 +152,16 @@ public class ScanRegions {
 	 * @param system
 	 * @return regions, never <code>null</code>
 	 */
-	public static List<ScanRegion<IROI>> getScanRegions(IPlottingSystem<?> system, List<String> axes) {
+	public static List<ScanRegion> getScanRegions(IPlottingSystem<?> system, List<String> axes) {
 
 		final Collection<IRegion> regions = system.getRegions();
 		if (regions==null || regions.isEmpty()) return Collections.emptyList();
 
-		final List<ScanRegion<IROI>> ret = new ArrayList<>();
+		final List<ScanRegion> ret = new ArrayList<>();
 		for (IRegion region : regions) {
 			if (region.getUserObject() instanceof ScanRegion) {
 				@SuppressWarnings("unchecked")
-				ScanRegion<IROI> sr = (ScanRegion<IROI>)region.getUserObject();
+				ScanRegion sr = (ScanRegion)region.getUserObject();
 				if (axes!=null && !sr.getScannables().equals(axes)) continue;
 				sr.setRoi(region.getROI());
 				ret.add(sr);

@@ -70,5 +70,5 @@ public interface IParserService {
 	 * @throws an exception. This can often happen if features of the scan not supported in the python command are used.
 	 * For instance generators which do not have a working alternative.
 	 */
-	<T> String getCommand(ScanRequest<T> req, boolean verbose) throws Exception;
+	<T> String getCommand(ScanRequest req, boolean verbose) throws Exception;
 }

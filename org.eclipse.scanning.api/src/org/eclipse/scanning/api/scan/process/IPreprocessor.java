@@ -41,5 +41,5 @@ public interface IPreprocessor {
 	 * @param req The request sent by the user interface
 	 * @return the processed {@link ScanRequest}
 	 */
-	<T> ScanRequest<T> preprocess(ScanRequest<T> req) throws ProcessingException;
+	<T> ScanRequest preprocess(ScanRequest req) throws ProcessingException;
 }

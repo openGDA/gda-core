@@ -330,7 +330,7 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 		}
 	}
 
-	private ScanRequest<IROI> createScanRequest() throws Exception {
+	private ScanRequest createScanRequest() throws Exception {
 		return createScanRequest(!Boolean.getBoolean("org.eclipse.scanning.ignore.scan.request.adapters"));
 	}
 
@@ -344,7 +344,7 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 	 * @throws Exception
 			// TODO Use IScanBuilderService
 	 */
-	private ScanRequest<IROI> createScanRequest(boolean lookForScanRequest) throws Exception {
+	private ScanRequest createScanRequest(boolean lookForScanRequest) throws Exception {
 
 		if (lookForScanRequest) {
 			// TODO Replace with IScanBuilderService to make e4 compatible
@@ -352,7 +352,7 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 			for (IViewReference iViewReference : refs) {
 				IViewPart part = iViewReference.getView(false);
 				if (part==null) continue;
-				ScanRequest<IROI> req = part.getAdapter(ScanRequest.class);
+				ScanRequest req = part.getAdapter(ScanRequest.class);
 				if (req!=null) return req;
 			}
 		}
@@ -365,7 +365,7 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 				IViewPart part = iViewReference.getView(false);
 				if (part == null)
 					continue;
-				CompoundModel<IROI> cm = part.getAdapter(CompoundModel.class);
+				CompoundModel cm = part.getAdapter(CompoundModel.class);
 				if (cm != null) {
 					modelAdaptable = part;
 				}
@@ -376,8 +376,8 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 		// We see if there is a view with a compound model adaptable
 		// TODO Replace with IScanBuilderService to make e4 compatible
 
-		ScanRequest<IROI> ret = new ScanRequest<IROI>();
-		CompoundModel<IROI> cm = modelAdaptable.getAdapter(CompoundModel.class);
+		ScanRequest ret = new ScanRequest();
+		CompoundModel cm = modelAdaptable.getAdapter(CompoundModel.class);
 		ret.setCompoundModel(cm);
 
 		IPosition[] pos = modelAdaptable.getAdapter(IPosition[].class);
@@ -418,7 +418,7 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 			// This slightly funny alg or assign and sometimes update
 			// is correct. Do not change unless sure that UI is working afterwards.
 			if (ob instanceof IAdaptable) { // TODO Replace with ScanBuilderService
-                CompoundModel<IROI> cm = ((IAdaptable)ob).getAdapter(CompoundModel.class);
+                CompoundModel cm = ((IAdaptable)ob).getAdapter(CompoundModel.class);
                 if (cm !=null) modelAdaptable = (IAdaptable)ob;
 			}
 			if (isUpdatableSelection(ob)) updateJob.schedule();
@@ -447,7 +447,7 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 	private void update(IProgressMonitor monitor) {
 
 		try {
-			ScanRequest<IROI> req = createScanRequest();
+			ScanRequest req = createScanRequest();
 			if (monitor.isCanceled()) return;
 			if (req==null) {
 			StyledString styledString = new StyledString();
@@ -456,7 +456,7 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 	            setThreadSafeText(text, styledString);
 	            return;
 			}
-	        CompoundModel<IROI> cm = req.getCompoundModel();
+	        CompoundModel cm = req.getCompoundModel();
 	        if (cm != null) {
 			// Validate
 			validatorService.validate(cm);
@@ -581,7 +581,7 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 		});
 	}
 
-	private String getModelNames(CompoundModel<IROI> compound) {
+	private String getModelNames(CompoundModel compound) {
 		StringBuilder buf = new StringBuilder();
 		for (Iterator<Object> it = compound.getModels().iterator(); it.hasNext();) {
 			Object model = it.next();
@@ -622,12 +622,12 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 	});
     }
 
-	private String getScanRegions(Collection<ScanRegion<IROI>> regions) {
+	private String getScanRegions(Collection<ScanRegion> regions) {
 
 		final StringBuilder buf = new StringBuilder();
 		if (regions==null) { return "None"; }
-	for (Iterator<ScanRegion<IROI>> it = regions.iterator(); it.hasNext();) {
-		ScanRegion<IROI> region = it.next();
+	for (Iterator<ScanRegion> it = regions.iterator(); it.hasNext();) {
+		ScanRegion region = it.next();
 		buf.append(region);
 		if(it.hasNext()) buf.append(",");
 		buf.append(" ");
@@ -778,7 +778,7 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 
 	private void clipboard() {
 		try {
-		    ScanRequest<IROI> req = createScanRequest();
+		    ScanRequest req = createScanRequest();
 		    String cmd = ServiceHolder.getParserService().getCommand(req, true);
 			Clipboard clipboard = new Clipboard(Display.getDefault());
 			clipboard.setContents(new Object[] { cmd }, new Transfer[] { TextTransfer.getInstance() });

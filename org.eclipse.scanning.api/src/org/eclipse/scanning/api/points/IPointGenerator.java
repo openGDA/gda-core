@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.IModelProvider;
 import org.eclipse.scanning.api.IValidator;
 
@@ -54,9 +55,9 @@ public interface IPointGenerator<T> extends Iterable<IPosition>, IValidator<T>, 
 	 * The regions for the generator.
 	 * @return
 	 */
-	Collection<Object> getRegions();
+	Collection<IROI> getRegions();
 
-	void setRegions(Collection<Object> region) throws GeneratorException;
+	void setRegions(Collection<IROI> region) throws GeneratorException;
 
 	/**
 	 * The size of the points iterator. This call will be as fast as possible

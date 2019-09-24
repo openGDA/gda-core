@@ -106,13 +106,13 @@ public class PointGeneratorService implements IPointGeneratorService {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T, R> IPointGenerator<T> createGenerator(T model, Collection<R> regions) throws GeneratorException {
+	public <T> IPointGenerator<T> createGenerator(T model, Collection<IROI> regions) throws GeneratorException {
 		try {
 			IPointGenerator<T> gen = (IPointGenerator<T>) modelToGenerator.get(model.getClass()).newInstance();
 			if (regions != null && !regions.isEmpty()) {
 				setBounds(model, new ArrayList<>(regions));
 				gen.setContainers(wrap(regions));
-				gen.setRegions((Collection<Object>) regions);
+				gen.setRegions((Collection<IROI>) regions);
 			}
 			gen.setModel(model);
 			return gen;
@@ -264,12 +264,12 @@ public class PointGeneratorService implements IPointGeneratorService {
 	}
 
 	@Override
-	public IPointGenerator<?> createCompoundGenerator(CompoundModel<?> cmodel) throws GeneratorException {
+	public IPointGenerator<?> createCompoundGenerator(CompoundModel cmodel) throws GeneratorException {
 
-		IPointGenerator<?>[] gens = new IPointGenerator<?>[cmodel.getModels().size()];
+		IPointGenerator<?>[] gens = new IPointGenerator[cmodel.getModels().size()];
 		int index = 0;
 		for (Object model : cmodel.getModels()) {
-			Collection<?> regions = findRegions(model, cmodel.getRegions());
+			Collection<IROI> regions = findRegions(model, cmodel.getRegions());
 			gens[index] = createGenerator(model, regions);
 			index++;
 		}
@@ -277,12 +277,12 @@ public class PointGeneratorService implements IPointGeneratorService {
 	}
 
 	@Override
-	public <R> List<R> findRegions(Object model, Collection<ScanRegion<R>> sregions) throws GeneratorException {
+	public List<IROI> findRegions(Object model, Collection<ScanRegion> sregions) throws GeneratorException {
 		if (sregions == null || sregions.isEmpty())
 			return Collections.emptyList();
 
 		final Collection<String> names = AbstractPointsModel.getScannableNames(model);
-		final Predicate<ScanRegion<R>> shouldAddRoi = scanRegion -> {
+		final Predicate<ScanRegion> shouldAddRoi = scanRegion -> {
 			final List<String> scannables = scanRegion.getScannables();
 			return scannables == null || scannables.containsAll(names) || findNamesAsEntry(scannables, names);
 		};

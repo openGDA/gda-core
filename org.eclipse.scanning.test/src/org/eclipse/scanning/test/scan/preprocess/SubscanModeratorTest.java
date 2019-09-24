@@ -52,7 +52,7 @@ public class SubscanModeratorTest {
 	@Test
 	public void testSimpleWrappedScan() throws Exception {
 
-		CompoundModel cmodel = new CompoundModel<>();
+		CompoundModel cmodel = new CompoundModel();
 
 		GridModel gmodel = new GridModel("x", "y");
 		gmodel.setyAxisPoints(5);
@@ -83,7 +83,7 @@ public class SubscanModeratorTest {
 	@Test
 	public void testSimpleWrappedScanSubscanOutside() throws Exception {
 
-		CompoundModel cmodel = new CompoundModel<>();
+		CompoundModel cmodel = new CompoundModel();
 
 		GridModel gmodel = new GridModel("x", "y");
 		gmodel.setyAxisPoints(5);
@@ -126,7 +126,7 @@ public class SubscanModeratorTest {
 	@Test
 	public void testSubscanOnlyScan() throws Exception {
 
-		CompoundModel cmodel = new CompoundModel<>();
+		CompoundModel cmodel = new CompoundModel();
 
 		GridModel gmodel = new GridModel("x", "y");
 		gmodel.setyAxisPoints(5);
@@ -150,7 +150,7 @@ public class SubscanModeratorTest {
 	@Test
 	public void testNoSubscanDevice1() throws Exception {
 
-		CompoundModel cmodel = new CompoundModel<>();
+		CompoundModel cmodel = new CompoundModel();
 
 		GridModel gmodel = new GridModel("x", "y");
 		gmodel.setyAxisPoints(5);
@@ -173,7 +173,7 @@ public class SubscanModeratorTest {
 	@Test
 	public void testNoSubscanDevice2() throws Exception {
 
-		CompoundModel cmodel = new CompoundModel<>();
+		CompoundModel cmodel = new CompoundModel();
 
 		GridModel gmodel = new GridModel("x", "y");
 		gmodel.setyAxisPoints(5);
@@ -198,7 +198,7 @@ public class SubscanModeratorTest {
 	@Test
 	public void testDifferentAxes1() throws Exception {
 
-		CompoundModel cmodel = new CompoundModel<>();
+		CompoundModel cmodel = new CompoundModel();
 
 		GridModel gmodel = new GridModel("x", "y");
 		gmodel.setyAxisPoints(5);
@@ -232,7 +232,7 @@ public class SubscanModeratorTest {
 	@Test
 	public void testDifferentAxes2() throws Exception {
 
-		CompoundModel cmodel = new CompoundModel<>();
+		CompoundModel cmodel = new CompoundModel();
 
 		GridModel gmodel = new GridModel("x", "y");
 		gmodel.setyAxisPoints(5);
@@ -257,7 +257,7 @@ public class SubscanModeratorTest {
 	@Test
 	public void testEmptyAxes() throws Exception {
 
-		CompoundModel cmodel = new CompoundModel<>();
+		CompoundModel cmodel = new CompoundModel();
 
 		GridModel gmodel = new GridModel("x", "y");
 		gmodel.setyAxisPoints(5);
@@ -282,7 +282,7 @@ public class SubscanModeratorTest {
 	@Test
 	public void testDifferentAxes3() throws Exception {
 
-		CompoundModel cmodel = new CompoundModel<>();
+		CompoundModel cmodel = new CompoundModel();
 
 		GridModel gmodel = new GridModel("p", "y");
 		gmodel.setyAxisPoints(5);
@@ -307,7 +307,7 @@ public class SubscanModeratorTest {
 	@Test
 	public void testNestedAxes() throws Exception {
 
-		CompoundModel cmodel = new CompoundModel<>();
+		CompoundModel cmodel = new CompoundModel();
 
 		GridModel gmodel = new GridModel("p", "y");
 		gmodel.setyAxisPoints(5);
@@ -336,7 +336,7 @@ public class SubscanModeratorTest {
 	@Test
 	public void testSimpleWrappedScanSpiral() throws Exception {
 
-		CompoundModel cmodel = new CompoundModel<>();
+		CompoundModel cmodel = new CompoundModel();
 
 		SpiralModel gmodel = new SpiralModel("p", "y");
 		gmodel.setScale(2d);
@@ -358,7 +358,7 @@ public class SubscanModeratorTest {
 
 	@Test
 	public void testStaticScan() throws Exception {
-		CompoundModel cmodel = new CompoundModel<>();
+		CompoundModel cmodel = new CompoundModel();
 
 		StaticModel smodel = new StaticModel();
 
@@ -381,7 +381,7 @@ public class SubscanModeratorTest {
 	@Test
 	public void testStaticScan2() throws Exception {
 		// the malcolm device's axesToMove is not empty
-		CompoundModel cmodel = new CompoundModel<>();
+		CompoundModel cmodel = new CompoundModel();
 
 		StaticModel smodel = new StaticModel();
 
@@ -404,7 +404,7 @@ public class SubscanModeratorTest {
 	@Test
 	public void testStaticScanWithOuterScan() throws Exception {
 		// the malcolm device's axesToMove is not empty
-		CompoundModel cmodel = new CompoundModel<>();
+		CompoundModel cmodel = new CompoundModel();
 
 		StaticModel smodel = new StaticModel();
 

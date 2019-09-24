@@ -160,7 +160,7 @@ public class ParserServiceImpl implements IParserService {
 	}
 
 	@Override
-	public <T> String getCommand(ScanRequest<T> req, boolean verbose) throws Exception {
+	public <T> String getCommand(ScanRequest req, boolean verbose) throws Exception {
 		PyExpressionFactory factory = new PyExpressionFactory();
 		return factory.pyExpress(req, verbose);
 	}

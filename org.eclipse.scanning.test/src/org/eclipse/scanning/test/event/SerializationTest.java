@@ -214,7 +214,7 @@ public class SerializationTest {
 		final ScanBean bean = new ScanBean();
 		bean.setName("Hello Scanning World");
 
-		final ScanRequest<?> req = new ScanRequest<IROI>();
+		final ScanRequest req = new ScanRequest();
 		req.setCompoundModel(new CompoundModel(new StepModel("fred", 0, 9, 1)));
 		req.setMonitorNamesPerPoint(Arrays.asList("monitor"));
 		req.setMonitorNamesPerScan(Arrays.asList("metadata"));
@@ -234,7 +234,7 @@ public class SerializationTest {
 		final ScanBean bean = new ScanBean();
 		bean.setName("Hello Scanning World");
 
-		final ScanRequest<IROI> req = new ScanRequest<IROI>();
+		final ScanRequest req = new ScanRequest();
 		// Create a grid scan model
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(0);
@@ -313,7 +313,7 @@ public class SerializationTest {
 		final ScanBean bean = new ScanBean();
 		bean.setName("Hello Scanning World");
 
-		final ScanRequest<IROI> req = new ScanRequest<IROI>();
+		final ScanRequest req = new ScanRequest();
 		// Create a grid scan model
 		CompoundModel model = new CompoundModel();
 		model.setModelsVarArgs(new StepModel("T", 290, 300, 1), new SpiralModel("x", "y", 1, new BoundingBox(0, -5, 10, 5)), new GridModel("fast", "slow"));

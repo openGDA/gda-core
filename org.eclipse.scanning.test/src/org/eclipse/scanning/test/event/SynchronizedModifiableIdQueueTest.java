@@ -356,7 +356,7 @@ public class SynchronizedModifiableIdQueueTest {
 		GridModel gridModel = new GridModel("x", "y", 10, 20);
 		gridModel.setBoundingBox(new BoundingBox(0, 0, 7.5, 12.2));
 		CompoundModel model = new CompoundModel(Arrays.asList(stepModel, gridModel));
-		ScanRequest<?> request = new ScanRequest<>();
+		ScanRequest request = new ScanRequest();
 		request.setCompoundModel(model);
 		ScanBean bean = new ScanBean();
 		bean.setScanRequest(request);

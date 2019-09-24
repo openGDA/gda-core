@@ -49,7 +49,7 @@ public final class ScanBean extends StatusBean {
 	private static final long serialVersionUID = 8191863784268392626L;
 
 	// Field required to start a scan, may be null.
-	private ScanRequest<?> scanRequest;
+	private ScanRequest scanRequest;
 
 	// General Information
 	private String  deviceName;
@@ -73,7 +73,7 @@ public final class ScanBean extends StatusBean {
         super();
 	}
 
-	public ScanBean(ScanRequest<?> req) throws UnknownHostException {
+	public ScanBean(ScanRequest req) throws UnknownHostException {
         super();
         this.scanRequest = req;
         this.status = Status.SUBMITTED;
@@ -82,7 +82,7 @@ public final class ScanBean extends StatusBean {
 	}
 
 
-	private String createNameFromRequest(ScanRequest<?> req) {
+	private String createNameFromRequest(ScanRequest req) {
 
 		String sname = "Scan";
 		if (req.getSampleData()!=null               &&
@@ -347,11 +347,11 @@ public final class ScanBean extends StatusBean {
 		return true;
 	}
 
-	public ScanRequest<?> getScanRequest() {
+	public ScanRequest getScanRequest() {
 		return scanRequest;
 	}
 
-	public void setScanRequest(ScanRequest<?> scanRequest) {
+	public void setScanRequest(ScanRequest scanRequest) {
 		this.scanRequest = scanRequest;
 	}
 

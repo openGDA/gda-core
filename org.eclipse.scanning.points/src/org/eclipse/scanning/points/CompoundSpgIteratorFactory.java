@@ -96,7 +96,7 @@ public class CompoundSpgIteratorFactory {
 	 * A Compound model is continuous if its inner most model is a map model and that model is continuous.
 	 * @return
 	 */
-	private static boolean isContinuous(CompoundModel<?> model) {
+	private static boolean isContinuous(CompoundModel model) {
 		List<Object> models = model.getModels();
 		if (!models.isEmpty()) {
 			final Object innerModel = models.get(models.size() - 1);
@@ -138,7 +138,7 @@ public class CompoundSpgIteratorFactory {
 		if (regions != null) {
 			for (Object region : regions) {
 				if (region instanceof ScanRegion) {
-					final ScanRegion<?> sr = (ScanRegion<?>) region;
+					final ScanRegion sr = (ScanRegion) region;
 					final Optional<List<Object>> excluderOptional = excluders.entrySet().stream()
 							.filter(e -> sr.getScannables().containsAll(e.getKey()))
 							.map(Map.Entry::getValue)

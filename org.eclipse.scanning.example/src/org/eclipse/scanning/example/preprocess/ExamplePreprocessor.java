@@ -36,7 +36,7 @@ public class ExamplePreprocessor implements IPreprocessor {
 	}
 
 	@Override
-	public <T> ScanRequest<T> preprocess(ScanRequest<T> req) throws ProcessingException {
+	public <T> ScanRequest preprocess(ScanRequest req) throws ProcessingException {
 
 		for (Object model : req.getCompoundModel().getModels()) {
 			if (model instanceof StepModel) {

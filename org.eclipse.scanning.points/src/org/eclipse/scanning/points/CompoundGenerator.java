@@ -34,7 +34,7 @@ import org.python.core.PyDictionary;
  * @author Matthew Gerring
  *
  */
-class CompoundGenerator extends AbstractGenerator<CompoundModel<Object>> implements PySerializable {
+class CompoundGenerator extends AbstractGenerator<CompoundModel> implements PySerializable {
 
 	private IPointGenerator<?>[]     generators;
 	private List<Collection<String>> dimensionNames;
@@ -43,7 +43,7 @@ class CompoundGenerator extends AbstractGenerator<CompoundModel<Object>> impleme
 		super(createId(generators));
 
         // We create a model with no regions from the generators.
-        this.model = new CompoundModel<>();
+        this.model = new CompoundModel();
         for (IPointGenerator<?> g : generators) model.addData(g.getModel(), g.getRegions());
         // This model is not designed to hold all the data because we have the actual generators!
 

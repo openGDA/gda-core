@@ -82,7 +82,7 @@ public class ScanServlet extends AbstractJobQueueServlet<ScanBean> {
 	}
 
 	private void preprocess(ScanBean scanBean) throws ProcessingException {
-		ScanRequest<?> req = scanBean.getScanRequest();
+		ScanRequest req = scanBean.getScanRequest();
 		if (req.isIgnorePreprocess()) {
 			return;
 		}

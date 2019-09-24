@@ -315,7 +315,7 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 		final ScanBean bean = new ScanBean();
 		bean.setName("Hello Scanning World");
 
-		final ScanRequest<?> req = new ScanRequest<>();
+		final ScanRequest req = new ScanRequest();
 		req.setCompoundModel(new CompoundModel(new StepModel("fred", 0, 9, 1)));
 		req.setMonitorNamesPerPoint(Arrays.asList("monitor"));
 

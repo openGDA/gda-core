@@ -728,7 +728,7 @@ public class PVDataSerializationTest {
 		IPointGenerator<GridModel> temp = pgService.createGenerator(gm, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
-		CompoundModel<?> cm = (CompoundModel<?>) scan.getModel();
+		CompoundModel cm = (CompoundModel) scan.getModel();
 		cm.setMutators(mutators);
 		cm.setDuration(2.5);
 
@@ -1112,7 +1112,7 @@ public class PVDataSerializationTest {
 		IPointGenerator<GridModel> temp = pgService.createGenerator(gm, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
-		CompoundModel<?> cm = (CompoundModel<?>) scan.getModel();
+		CompoundModel cm = (CompoundModel) scan.getModel();
 		cm.setMutators(mutators);
 		cm.setDuration(1.5);
 

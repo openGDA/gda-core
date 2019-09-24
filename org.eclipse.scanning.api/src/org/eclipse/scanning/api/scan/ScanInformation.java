@@ -43,11 +43,11 @@ public class ScanInformation {
 	private final long timePerPoint; // in ms
 	private final long estimatedScanTime; // in ms
 
-	public ScanInformation(IPointGeneratorService pointGenService, ScanRequest<?> scanRequest) throws GeneratorException {
+	public ScanInformation(IPointGeneratorService pointGenService, ScanRequest scanRequest) throws GeneratorException {
 		this(pointGenService.createCompoundGenerator(scanRequest.getCompoundModel()), scanRequest.getDetectors().values(), scanRequest.getFilePath());
 	}
 
-	public ScanInformation(IPointGenerator<?> pointGen, ScanRequest<?> scanRequest) throws GeneratorException {
+	public ScanInformation(IPointGenerator<?> pointGen, ScanRequest scanRequest) throws GeneratorException {
 		this(pointGen, scanRequest.getDetectors().values(), scanRequest.getFilePath());
 	}
 

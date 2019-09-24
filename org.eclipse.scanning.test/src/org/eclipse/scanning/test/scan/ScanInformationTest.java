@@ -57,7 +57,7 @@ public class ScanInformationTest {
 	public void testNewScanInformationFromScanRequest() throws Exception {
 		CompoundModel compoundModel = createCompoundModel();
 
-		ScanRequest<?> scanRequest = new ScanRequest<>();
+		ScanRequest scanRequest = new ScanRequest();
 		scanRequest.setCompoundModel(compoundModel);
 		scanRequest.setDetectors(createDetectorModels());
 		String filePath = "/path/to/nexusFile.nxs";
@@ -87,7 +87,7 @@ public class ScanInformationTest {
 		gridModel.setyAxisPoints(5);
 		gridModel.setBoundingBox(new BoundingBox(0, 0, 5, 5));
 		StepModel stepModel = new StepModel("T", 0, 25, 5);
-		CompoundModel compoundModel = new CompoundModel<>(stepModel, gridModel);
+		CompoundModel compoundModel = new CompoundModel(stepModel, gridModel);
 		return compoundModel;
 	}
 

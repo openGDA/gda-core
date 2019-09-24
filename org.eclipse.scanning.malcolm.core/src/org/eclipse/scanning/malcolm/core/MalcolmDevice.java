@@ -416,7 +416,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	public static IPointGenerator<?> getDummyPointGenerator() {
 		if (dummyPointGenerator == null && Services.getPointGeneratorService() != null) {
 			try {
-				dummyPointGenerator = Services.getPointGeneratorService().createCompoundGenerator(new CompoundModel<>(new StaticModel()));
+				dummyPointGenerator = Services.getPointGeneratorService().createCompoundGenerator(new CompoundModel(new StaticModel()));
 			} catch (GeneratorException e) {
 				logger.error("Could not generate default point generator", e);
 			}
@@ -442,8 +442,8 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 			pointGen = getDummyPointGenerator();
 		}
 		if (pointGen != null) {
-			((CompoundModel<?>) pointGen.getModel()).setMutators(Collections.emptyList());
-			((CompoundModel<?>) pointGen.getModel()).setDuration(exposureTime);
+			((CompoundModel) pointGen.getModel()).setMutators(Collections.emptyList());
+			((CompoundModel) pointGen.getModel()).setDuration(exposureTime);
 		}
 
 		// set the file template and output dir

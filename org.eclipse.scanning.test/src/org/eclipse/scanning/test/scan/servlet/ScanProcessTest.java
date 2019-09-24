@@ -41,7 +41,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
@@ -135,8 +134,8 @@ public class ScanProcessTest {
 	public void testScriptFilesRun() throws Exception {
 		// Arrange
 		final ScanBean scanBean = new ScanBean();
-		final ScanRequest<IROI> scanRequest = new ScanRequest<>();
-		scanRequest.setCompoundModel(new CompoundModel<>(new StepModel("xNex", 0, 9, 1)));
+		final ScanRequest scanRequest = new ScanRequest();
+		scanRequest.setCompoundModel(new CompoundModel(new StepModel("xNex", 0, 9, 1)));
 
 		final ScriptRequest before = new ScriptRequest();
 		before.setFile("/path/to/before.py");
@@ -168,10 +167,10 @@ public class ScanProcessTest {
 	public void testSimpleNest() throws Exception {
 		// Arrange
 		final ScanBean scanBean = new ScanBean();
-		final ScanRequest<IROI> scanRequest = new ScanRequest<>();
+		final ScanRequest scanRequest = new ScanRequest();
 
-		final CompoundModel<IROI> cmodel = new CompoundModel<>(Arrays.asList(new StepModel("T", 290, 291, 2), new GridModel("xNex", "yNex", 2, 2)));
-		cmodel.setRegions(Arrays.asList(new ScanRegion<IROI>(new RectangularROI(0, 0, 3, 3, 0), "xNex", "yNex")));
+		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new StepModel("T", 290, 291, 2), new GridModel("xNex", "yNex", 2, 2)));
+		cmodel.setRegions(Arrays.asList(new ScanRegion(new RectangularROI(0, 0, 3, 3, 0), "xNex", "yNex")));
 		scanRequest.setCompoundModel(cmodel);
 
 		final Map<String, Object> dmodels = new HashMap<String, Object>(3);
@@ -288,9 +287,9 @@ public class ScanProcessTest {
 	private ScanBean createScanBean() {
 		// only used for the newer mockito based test methods in this class
 		final ScanBean scanBean = new ScanBean();
-		final ScanRequest<IROI> scanRequest = new ScanRequest<>();
+		final ScanRequest scanRequest = new ScanRequest();
 		scanBean.setScanRequest(scanRequest);
-		scanRequest.setCompoundModel(new CompoundModel<IROI>(new StepModel("xNex", 0, 9, 1)));
+		scanRequest.setCompoundModel(new CompoundModel(new StepModel("xNex", 0, 9, 1)));
 
 		final ScriptRequest beforeScript = new ScriptRequest();
 		beforeScript.setFile("/path/to/before.py");
@@ -317,7 +316,7 @@ public class ScanProcessTest {
 	public void testTerminateMovingPosition() throws Exception {
 		// Arrange
 		final ScanBean scanBean = createScanBean();
-		final ScanRequest<?> scanRequest = scanBean.getScanRequest();
+		final ScanRequest scanRequest = scanBean.getScanRequest();
 
 		final Mocks mocks = setupMocks();
 		final IPositioner mockPositioner = mocks.get(IPositioner.class);
@@ -346,7 +345,7 @@ public class ScanProcessTest {
 	public void testTerminateScript() throws Exception {
 		// Arrange
 		final ScanBean scanBean = createScanBean();
-		final ScanRequest<?> scanRequest = scanBean.getScanRequest();
+		final ScanRequest scanRequest = scanBean.getScanRequest();
 
 		final Mocks mocks = setupMocks();
 		final WaitingAnswer<Void> waitingAnswer = new WaitingAnswer<>(null);
@@ -395,7 +394,7 @@ public class ScanProcessTest {
 	private void testTerminateScan(boolean alwaysRunAfterScript) throws Exception {
 		// Arrange
 		final ScanBean scanBean = createScanBean();
-		final ScanRequest<?> scanRequest = scanBean.getScanRequest();
+		final ScanRequest scanRequest = scanBean.getScanRequest();
 		scanRequest.setAlwaysRunAfterScript(alwaysRunAfterScript);
 
 		final Mocks mocks = setupMocks();
@@ -451,7 +450,7 @@ public class ScanProcessTest {
 	private void testScanFails(boolean alwaysRunAfterScript) throws Exception {
 		// Arrange
 		final ScanBean scanBean = createScanBean();
-		final ScanRequest<?> scanRequest = scanBean.getScanRequest();
+		final ScanRequest scanRequest = scanBean.getScanRequest();
 		scanRequest.setAlwaysRunAfterScript(alwaysRunAfterScript);
 
 		final Mocks mocks = setupMocks();
@@ -486,7 +485,7 @@ public class ScanProcessTest {
 	public void testStateChanges() throws Exception {
 		// Arrange
 		final ScanBean scanBean = createScanBean();
-		final ScanRequest<?> scanRequest = scanBean.getScanRequest();
+		final ScanRequest scanRequest = scanBean.getScanRequest();
 
 		// the waiting answers for before/after script, start/stop position and running the scan
 		// allow us to verify the state of the scan being at each point in the scan
@@ -573,10 +572,10 @@ public class ScanProcessTest {
 	public void testScannableAndMonitor() throws Exception {
 		// Arrange
 		final ScanBean scanBean = new ScanBean();
-		final ScanRequest<IROI> scanRequest = new ScanRequest<>();
+		final ScanRequest scanRequest = new ScanRequest();
 
-		final CompoundModel<IROI> cmodel = new CompoundModel<>(Arrays.asList(new StepModel("T", 290, 300, 2), new GridModel("xNex", "yNex", 2, 2)));
-		cmodel.setRegions(Arrays.asList(new ScanRegion<IROI>(new RectangularROI(0, 0, 3, 3, 0), "xNex", "yNex")));
+		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new StepModel("T", 290, 300, 2), new GridModel("xNex", "yNex", 2, 2)));
+		cmodel.setRegions(Arrays.asList(new ScanRegion(new RectangularROI(0, 0, 3, 3, 0), "xNex", "yNex")));
 		scanRequest.setCompoundModel(cmodel);
 
 		final Map<String, Object> dmodels = new HashMap<String, Object>(3);
@@ -621,8 +620,8 @@ public class ScanProcessTest {
 	public void testStartAndEndPos() throws Exception {
 		// Arrange
 		final ScanBean scanBean = new ScanBean();
-		final ScanRequest<IROI> scanRequest = new ScanRequest<>();
-		scanRequest.setCompoundModel(new CompoundModel<>(new StepModel("xNex", 0, 9, 1)));
+		final ScanRequest scanRequest = new ScanRequest();
+		scanRequest.setCompoundModel(new CompoundModel(new StepModel("xNex", 0, 9, 1)));
 
 		final MapPosition start = new MapPosition();
 		start.put("p", 1.0);
@@ -669,8 +668,8 @@ public class ScanProcessTest {
 				.toArray(String[]::new);
 
 		ScanBean scanBean = new ScanBean();
-		ScanRequest<?> scanRequest = new ScanRequest<>();
-		scanRequest.setCompoundModel(new CompoundModel<>(new StepModel("xNex", 0, 9, 1)));
+		ScanRequest scanRequest = new ScanRequest();
+		scanRequest.setCompoundModel(new CompoundModel(new StepModel("xNex", 0, 9, 1)));
 		scanRequest.setTemplateFilePaths(new HashSet<>(Arrays.asList(templateFilePaths)));
 
 		scanBean.setScanRequest(scanRequest);
@@ -718,8 +717,8 @@ public class ScanProcessTest {
 		dservice.createRunnableDevice(dmodel);
 
 		final ScanBean scanBean = new ScanBean();
-		final ScanRequest<IROI> scanRequest = new ScanRequest<>();
-		scanRequest.setCompoundModel(new CompoundModel<>(gmodel));
+		final ScanRequest scanRequest = new ScanRequest();
+		scanRequest.setCompoundModel(new CompoundModel(gmodel));
 		scanRequest.putDetector("malcolm", dmodel);
 
 		scanBean.setScanRequest(scanRequest);

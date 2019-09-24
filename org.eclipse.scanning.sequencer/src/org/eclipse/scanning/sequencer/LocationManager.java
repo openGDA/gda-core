@@ -97,7 +97,7 @@ public final class LocationManager {
 	 */
 	public Iterator<IPosition> createPositionIterator() throws ScanningException {
 
-		CompoundModel<?> cmodel = bean.getScanRequest()!=null ? bean.getScanRequest().getCompoundModel() : null;
+		CompoundModel cmodel = bean.getScanRequest()!=null ? bean.getScanRequest().getCompoundModel() : null;
 		SubscanModerator moderator = new SubscanModerator(model.getPointGenerator(), cmodel, model.getDetectors(), ServiceHolder.getGeneratorService());
 		manager.addContext(moderator);
 

@@ -13,7 +13,6 @@ package org.eclipse.scanning.device.ui.points;
 
 import java.util.List;
 
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -37,8 +36,8 @@ class ScanRegionContentProvider implements IStructuredContentProvider {
 
 	@Override
 	public Object[] getElements(Object inputElement) {
-		List<ScanRegion<IROI>> regions = ScanRegions.getScanRegions(system);
-		if (regions.isEmpty()) return new ScanRegion[]{new ScanRegion<IROI>()};
+		List<ScanRegion> regions = ScanRegions.getScanRegions(system);
+		if (regions.isEmpty()) return new ScanRegion[]{new ScanRegion()};
 		return regions.toArray(new ScanRegion[regions.size()]);
 	}
 

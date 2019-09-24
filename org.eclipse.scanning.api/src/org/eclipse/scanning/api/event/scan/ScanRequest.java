@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
@@ -42,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * @param <T> must be type of region that the regions correspond to. For instance IROI for any region type or IRectangularROI is all known to be rectangular.
  *
  */
-public class ScanRequest<T> implements Serializable {
+public class ScanRequest implements Serializable {
 	private static Logger logger = LoggerFactory.getLogger(ScanRequest.class);
 
 	private static final long serialVersionUID = 456095444930240261L;
@@ -54,7 +55,7 @@ public class ScanRequest<T> implements Serializable {
 	 *
 	 * e.g. a StepModel
 	 */
-	private CompoundModel<T> compoundModel;
+	private CompoundModel compoundModel;
 
 	/**
 	 * The names of the detectors to use in the scan
@@ -134,7 +135,7 @@ public class ScanRequest<T> implements Serializable {
 
 	public ScanRequest(IScanPathModel m, String filePath, List<String> monitorNamesPerPoint, List<String> monitorNamesPerScan, ProcessingRequest processing) {
 		super();
-		this.compoundModel = new CompoundModel<T>(m);
+		this.compoundModel = new CompoundModel(m);
 		this.monitorNamesPerPoint = monitorNamesPerPoint;
 		this.monitorNamesPerScan = monitorNamesPerScan;
 		this.filePath = filePath;
@@ -149,9 +150,9 @@ public class ScanRequest<T> implements Serializable {
 		this.processingRequest = processingRequest;
 	}
 
-	public ScanRequest(IScanPathModel m, T region, String filePath, List<String> monitorNamesPerPoint, List<String> monitorNamesPerScan) {
+	public ScanRequest(IScanPathModel m, IROI region, String filePath, List<String> monitorNamesPerPoint, List<String> monitorNamesPerScan) {
 		this(m, filePath, monitorNamesPerPoint, monitorNamesPerScan, null);
-		compoundModel.setRegions(Arrays.asList(new ScanRegion<T>(region, m.getScannableNames())));
+		compoundModel.setRegions(Arrays.asList(new ScanRegion(region, m.getScannableNames())));
 	}
 
 	public SampleData getSampleData() {
@@ -224,7 +225,7 @@ public class ScanRequest<T> implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ScanRequest<?> other = (ScanRequest<?>) obj;
+		ScanRequest other = (ScanRequest) obj;
 		if (afterScript == null) {
 			if (other.afterScript != null)
 				return false;
@@ -365,11 +366,11 @@ public class ScanRequest<T> implements Serializable {
 		this.scanMetadata.add(scanMetadata);
 	}
 
-	public CompoundModel<T> getCompoundModel() {
+	public CompoundModel getCompoundModel() {
 		return compoundModel;
 	}
 
-	public void setCompoundModel(CompoundModel<T> model) {
+	public void setCompoundModel(CompoundModel model) {
 		this.compoundModel = model;
 	}
 
