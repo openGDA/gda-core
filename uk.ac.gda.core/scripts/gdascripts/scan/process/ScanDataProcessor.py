@@ -92,16 +92,18 @@ class ScanDataProcessor(ScanListener):
 				return "<" + e.message + ">"
 
 			report += "   (Processing %s v's %s)\n"%(yfieldname,xfieldname)
+			scanDimensions = concurrentScan.getScanInformation().getDimensions()
+
 			# Check the datasets are processable
-			if len(xDataset.shape) > 1:
+			if len(scanDimensions) > 1:
 				self.log.debug('Not processing multidimensional scan')
 				return "Cannot process multidimensional scans"
-			if xDataset.shape[0] in (0,1):
-				self.log.debug('Scan too short to process (shape=%s)', xDataset.shape[0])
+			if scanDimensions[0] in (0,1):
+				self.log.debug('Scan too short to process (shape=%s)', scanDimensions[0])
 				return "Scan too short to process sensibly"
-			if xDataset.shape[0] != yDataset.shape[0]:
-				self.log.error('Scan dimensions do not match (%s != %s)', xDataset.shape[0], yDataset.shape[0])
-				return "Scan dimensions mismatch! (length(x)=%d != length(y)=%d)" % (xDataset.shape[0], yDataset.shape[0])
+			if scanDimensions[0] != yDataset.shape[0]:
+				self.log.error('Scan dimensions do not match (%s != %s)', scanDimensions[0], yDataset.shape[0])
+				return "Scan dimensions mismatch! (length(x)=%d != length(y)=%d)" % (scanDimensions[0], yDataset.shape[0])
 
 			lines = []
 			for processor in self.processors:

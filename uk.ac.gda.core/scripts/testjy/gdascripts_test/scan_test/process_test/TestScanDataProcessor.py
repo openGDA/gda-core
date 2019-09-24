@@ -13,13 +13,15 @@ from mock import Mock
 from gdascripts.scan.process.ScanDataProcessorResult import ScanDataProcessorResult
 from gda.scan import ConcurrentScan
 import os
+import array
 
-def MockConcurrentScan(filename = '1234.dat'):
+def MockConcurrentScan(filename = '1234.dat', scanDims=None):
 	w, x, y, z, _ = createSimpleScanFileHolderAndScannables()
 	mock = Mock()
 	mock.getScanPlotSettings.return_value = Mock()
 	mock.getScanPlotSettings.return_value.getYAxesShown.return_value = ['yi','ye']
 	mock.getScanPlotSettings.return_value.getXAxisName.return_value = 'x'
+	mock.getScanInformation.return_value.getDimensions.return_value = scanDims
 	mock.getUserListedScannables.return_value = [x, y, z, w]
 	mock.getAllScannables.return_value = [x, y, z, w]
 	mock.getDetectors.return_value = []
@@ -38,6 +40,7 @@ def createMockConcurrentScanForRealNexusFile():
 	mock.getScanPlotSettings.return_value = Mock()
 	mock.getScanPlotSettings.return_value.getYAxesShown.return_value = ['bsdiode']
 	mock.getScanPlotSettings.return_value.getXAxisName.return_value = 'base_x'
+	mock.getScanInformation.return_value.getDimensions.return_value = array.array('i', [33])
 	mock.getUserListedScannables.return_value = [a, b]
 	mock.getAllScannables.return_value = [a, b]
 	mock.getDetectors.return_value = []
@@ -49,7 +52,7 @@ class TestScanDataProcessor(unittest.TestCase):
 
 	def setUp(self):
 		self.w, self.x, self.y, self.z, self.sfh = createSimpleScanFileHolderAndScannables()
-		self.concurrentScan = MockConcurrentScan()
+		self.concurrentScan = MockConcurrentScan(scanDims=array.array('i', [10]))
 
 	def testProcessScanWithNoProcessors(self):
 		rootNamespaceDict = {'a':1}
@@ -87,7 +90,7 @@ class TestScanDataProcessor(unittest.TestCase):
 		print rootNamespaceDict
 
 	def testProcessScanWithMultiInputXScannable(self):
-		concurrentScan = MockConcurrentScan()
+		concurrentScan = MockConcurrentScan(scanDims=array.array('i', [10]))
 		concurrentScan.getUserListedScannables.return_value = [self.w, self.x, self.y, self.z]
 		concurrentScan.getScanPlotSettings.return_value.getXAxisName.return_value = 'wi1'
 		sdp = ScanDataProcessor([MaxPositionAndValue(), MinPositionAndValue()], {}, raiseProcessorExceptions=True)
@@ -182,7 +185,7 @@ class TestScanDataProcessorWithOnlyOnePoint(TestScanDataProcessor):
 
 	def setUp(self):
 		self.w, self.x, self.y, self.z, self.sfh = createSimpleScanFileHolderWithOneValueAndScannables()
-		self.concurrentScan = MockConcurrentScan('1234-singlepoint.dat')
+		self.concurrentScan = MockConcurrentScan(filename='1234-singlepoint.dat', scanDims=array.array('i', [1]))
 
 	def testProcessScan(self):
 		rootNamespaceDict = {}
@@ -249,7 +252,7 @@ class TestScanDataProcessorWithSDPC(unittest.TestCase):
 
 	def setUp(self):
 		self.w, self.x, self.y, self.z, self.sfh = createSimpleScanFileHolderAndScannables()
-		self.concurrentScan = MockConcurrentScan()
+		self.concurrentScan = MockConcurrentScan(scanDims=array.array('i', [10]))
 		self.sdpc = MockScanDataPointCache(self.sfh)
 
 	def testProcessScanWithNoProcessors(self):
@@ -288,7 +291,7 @@ class TestScanDataProcessorWithSDPC(unittest.TestCase):
 		print rootNamespaceDict
 
 	def testProcessScanWithMultiInputXScannable(self):
-		concurrentScan = MockConcurrentScan()
+		concurrentScan = MockConcurrentScan(scanDims=array.array('i', [10]))
 		concurrentScan.getUserListedScannables.return_value = [self.w, self.x, self.y, self.z]
 		concurrentScan.getScanPlotSettings.return_value.getXAxisName.return_value = 'wi1'
 		sdp = ScanDataProcessor([MaxPositionAndValue(), MinPositionAndValue()], {}, raiseProcessorExceptions=True, scanDataPointCache=self.sdpc)
