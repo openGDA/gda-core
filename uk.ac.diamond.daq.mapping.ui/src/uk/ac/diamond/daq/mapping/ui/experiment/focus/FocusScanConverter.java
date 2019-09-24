@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
@@ -51,17 +50,17 @@ public class FocusScanConverter {
 		this.mappingStageInfo = mappingStageInfo;
 	}
 
-	public ScanRequest<IROI> convertToScanRequest(FocusScanBean focusScanBean) {
+	public ScanRequest convertToScanRequest(FocusScanBean focusScanBean) {
 		logger.debug("Converting focusScanBean to scan request");
-		final ScanRequest<IROI> scanRequest = new ScanRequest<>();
+		final ScanRequest scanRequest = new ScanRequest();
 
 		final IMapPathModel lineModel = createLineModel(focusScanBean);
 		final ILineMappingRegion lineRegion = focusScanBean.getLineRegion();
-		final ScanRegion<IROI> scanRegion = new ScanRegion<>(lineRegion.toROI(),
+		final ScanRegion scanRegion = new ScanRegion(lineRegion.toROI(),
 				lineModel.getyAxisName(), lineModel.getxAxisName());
 		final IScanPathModel focusModel = createFocusPathModel(focusScanBean);
 
-		final CompoundModel<IROI> compoundModel = new CompoundModel<>(Arrays.asList(focusModel, lineModel));
+		final CompoundModel compoundModel = new CompoundModel(Arrays.asList(focusModel, lineModel));
 		compoundModel.setRegions(Arrays.asList(scanRegion));
 		scanRequest.setCompoundModel(compoundModel);
 

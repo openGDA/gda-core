@@ -2,7 +2,6 @@ package uk.ac.diamond.daq.experiment.api;
 
 import java.util.Set;
 
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 
 import gda.factory.Findable;
@@ -22,13 +21,13 @@ public interface ExperimentService extends Findable {
 
 	void deleteScan(String scanName, String experimentId);
 
-	public void saveScan(ScanRequest<IROI> scanRequest, String fileName, String experimentId);
+	public void saveScan(ScanRequest scanRequest, String fileName, String experimentId);
 
 	/**
 	 * Get the scan request saved with the given scan name associated with the given
 	 * experiment ID
 	 */
-	ScanRequest<IROI> getDiffScan(String scanName, String experimentId);
+	ScanRequest getDiffScan(String scanName, String experimentId);
 
 	/**
 	 * Get the names of all defined scans for the given experiment ID

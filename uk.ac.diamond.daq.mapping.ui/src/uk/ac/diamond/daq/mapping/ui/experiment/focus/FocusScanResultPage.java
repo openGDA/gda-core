@@ -286,7 +286,7 @@ public class FocusScanResultPage extends WizardPage {
 		scanBean.setName(String.format("%s - Focus Scan", getSampleName()));
 		scanBean.setBeamline(System.getProperty("BEAMLINE"));
 
-		ScanRequest<?> scanRequest = converter.convertToScanRequest(focusScanBean);
+		ScanRequest scanRequest = converter.convertToScanRequest(focusScanBean);
 		scanBean.setScanRequest(scanRequest);
 
 		// submit the ScanBean

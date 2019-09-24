@@ -34,88 +34,88 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QueuePreventingScanSubmitterTest {
-	
+
 	private QueuePreventingScanSubmitter scanSubmitter;
 	private List<ScanBean> submissionQueue;
-	private List<ScanBean> runningAndCompleted;	
-	
+	private List<ScanBean> runningAndCompleted;
+
 	@Mock
 	private IEventService eventService;
 	@Mock
 	private ISubmitter<StatusBean> submitter;
 	@Mock
 	private IJobQueue<ScanBean> consumer;
-	
+
 	@Rule
 	public final ExpectedException exception = ExpectedException.none();
-	
+
 	@Before
 	public void setUp() throws EventException {
 		when(eventService.createSubmitter(any(), anyString())).thenReturn(submitter);
-		
+
 		// Queue starts empty
 		submissionQueue = new ArrayList<>();
 		runningAndCompleted = new ArrayList<>();
-		
+
 		when(consumer.getSubmissionQueue()).thenReturn(submissionQueue);
 		when(consumer.getRunningAndCompleted()).thenReturn(runningAndCompleted);
 		doReturn(consumer).when(eventService).getJobQueue(anyString());
-		
+
 		scanSubmitter = new QueuePreventingScanSubmitter();
 		scanSubmitter.setEventService(eventService);
 	}
-	
+
 	@Test
 	public void canSubmitScanToEmptyQueue() throws Exception {
 		ScanBean scan = getTestScanBean();
 		scanSubmitter.submitScan(scan);
 		verify(submitter).submit(scan);
 	}
-	
+
 	@Test
 	public void submittingScanToNonEmptyQueueThrows() throws Exception {
 		submissionQueue.add(getTestScanBean());
 		ScanBean scanBean = getTestScanBean();
 		exception.expect(ScanningException.class);
 		exception.expectMessage("Could not submit request for '" + scanBean.getName() + "' because another scan is ongoing");
-		
+
 		scanSubmitter.submitScan(scanBean);
 	}
-	
+
 	@Test
 	public void canSubmitImportantScanToEmptyQueue() throws Exception {
 		ScanBean scan = getTestScanBean();
 		scanSubmitter.submitImportantScan(scan);
 		verify(submitter).submit(scan);
 	}
-	
+
 	@Test
 	public void importantSubmissionClearsSubmittedList() throws Exception {
 		submissionQueue.add(getTestScanBean());
 		submissionQueue.add(getTestScanBean());
-		
+
 		scanSubmitter.submitImportantScan(getTestScanBean());
 
 		verify(consumer, times(2)).terminateJob(any());
 	}
-	
+
 	@Test
 	public void importantSubmissionAbortsRunningScan() throws Exception {
 		ScanBean runningScan = getTestScanBean();
 		runningScan.setStatus(Status.RUNNING);
 		runningAndCompleted.add(runningScan);
-		
+
 		scanSubmitter.submitImportantScan(getTestScanBean());
-		
+
 		verify(consumer).terminateJob(runningScan);
 	}
 
 	private ScanBean getTestScanBean() throws UnknownHostException {
 		IScanPathModel model = mock(IScanPathModel.class);
-		CompoundModel<?> compoundModel = mock(CompoundModel.class);
+		CompoundModel compoundModel = mock(CompoundModel.class);
 		when(compoundModel.getModels()).thenReturn(Arrays.asList(model));
-		
-		ScanRequest<?> scanRequest = mock(ScanRequest.class);
+
+		ScanRequest scanRequest = mock(ScanRequest.class);
 		doReturn(compoundModel).when(scanRequest).getCompoundModel();
 		ScanBean bean = new ScanBean(scanRequest);
 		bean.setName("test scan");

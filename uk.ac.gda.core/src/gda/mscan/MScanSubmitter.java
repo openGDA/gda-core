@@ -133,7 +133,7 @@ public class MScanSubmitter {
 		LOGGER.info("MScan command received {}", Arrays.toString(args));
 
 		final ScanClausesResolver resolver = validateCommand(args);
-		final CompoundModel<IROI> scanModel = new CompoundModel<IROI>();
+		final CompoundModel scanModel = new CompoundModel();
 		final Map<String, Object> detectorMap = new HashMap<>();
 		final List<String> monitorsPerPoint = new ArrayList<>();
 		scanModel.setModels(new ArrayList<>());
@@ -191,7 +191,7 @@ public class MScanSubmitter {
 		}
 
 		// Populate the {@link ScanRequest} with the assembled objects
-		ScanRequest<IROI> scanRequest = new ScanRequest<IROI>();
+		ScanRequest scanRequest = new ScanRequest();
 		scanRequest.setCompoundModel(scanModel);
 		scanRequest.setDetectors(detectorMap);
 		scanRequest.setMonitorNamesPerPoint(monitorsPerPoint);
@@ -236,7 +236,7 @@ public class MScanSubmitter {
 	 * @throws IllegalArgumentException if the {@link IROI} fails to validate the supplied parameters on creation
 	 */
 	private void addPathModelAndRegion(final List<IClauseElementProcessor> clauseProcessors,
-															final CompoundModel<IROI> scanModel) {
+															final CompoundModel scanModel) {
 		final ClauseContext context = new ClauseContext();
 		for (int index = 0; index < clauseProcessors.size(); index++) {
 			clauseProcessors.get(index).process(context, index);

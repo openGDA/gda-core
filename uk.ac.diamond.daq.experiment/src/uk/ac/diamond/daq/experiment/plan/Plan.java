@@ -253,13 +253,13 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, ISampleEnvironmentVariable sev, double target,
+	public ITrigger addTrigger(String name, ScanRequest scanRequest, ISampleEnvironmentVariable sev, double target,
 			double tolerance) {
 		return factory.addTrigger(name, scanRequest, sev, target, tolerance);
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan,
+	public ITrigger addTrigger(String name, ScanRequest scanRequest, boolean importantScan,
 			ISampleEnvironmentVariable sev, double target, double tolerance) {
 		return factory.addTrigger(name, scanRequest, importantScan, sev, target, tolerance);
 	}
@@ -270,13 +270,13 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, ISampleEnvironmentVariable sev,
+	public ITrigger addTrigger(String name, ScanRequest scanRequest, ISampleEnvironmentVariable sev,
 			double interval) {
 		return factory.addTrigger(name, scanRequest, sev, interval);
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan,
+	public ITrigger addTrigger(String name, ScanRequest scanRequest, boolean importantScan,
 			ISampleEnvironmentVariable sev, double interval) {
 		return factory.addTrigger(name, scanRequest, importantScan, sev, interval);
 	}
@@ -297,12 +297,12 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, double target, double tolerance) {
+	public ITrigger addTrigger(String name, ScanRequest scanRequest, double target, double tolerance) {
 		return addTrigger(name, scanRequest, lastDefinedSEV(), target, tolerance);
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan, double target,
+	public ITrigger addTrigger(String name, ScanRequest scanRequest, boolean importantScan, double target,
 			double tolerance) {
 		return addTrigger(name, scanRequest, importantScan, lastDefinedSEV(), target, tolerance);
 	}
@@ -313,12 +313,12 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, double interval) {
+	public ITrigger addTrigger(String name, ScanRequest scanRequest, double interval) {
 		return addTrigger(name, scanRequest, lastDefinedSEV(), interval);
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan, double interval) {
+	public ITrigger addTrigger(String name, ScanRequest scanRequest, boolean importantScan, double interval) {
 		return addTrigger(name, scanRequest, importantScan, lastDefinedSEV(), interval);
 	}
 }

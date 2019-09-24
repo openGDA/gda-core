@@ -94,7 +94,7 @@ public interface IPlanFactory {
 	 *
 	 * @return 					Reference to the created trigger
 	 */
-	ITrigger addTrigger(String name, ScanRequest<?> scanRequest, ISampleEnvironmentVariable sev, double target, double tolerance);
+	ITrigger addTrigger(String name, ScanRequest scanRequest, ISampleEnvironmentVariable sev, double target, double tolerance);
 
 
 	/**
@@ -114,7 +114,7 @@ public interface IPlanFactory {
 	 *
 	 * @return 					Reference to the created trigger
 	 */
-	ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan, ISampleEnvironmentVariable sev, double target, double tolerance);
+	ITrigger addTrigger(String name, ScanRequest scanRequest, boolean importantScan, ISampleEnvironmentVariable sev, double target, double tolerance);
 
 
 	/**
@@ -140,7 +140,7 @@ public interface IPlanFactory {
 	 *
 	 * @return reference to the created trigger
 	 */
-	ITrigger addTrigger(String name, ScanRequest<?> scanRequest, ISampleEnvironmentVariable sev, double interval);
+	ITrigger addTrigger(String name, ScanRequest scanRequest, ISampleEnvironmentVariable sev, double interval);
 
 
 	/**
@@ -158,7 +158,7 @@ public interface IPlanFactory {
 	 *
 	 * @return 					Reference to the created trigger
 	 */
-	ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan, ISampleEnvironmentVariable sev, double interval);
+	ITrigger addTrigger(String name, ScanRequest scanRequest, boolean importantScan, ISampleEnvironmentVariable sev, double interval);
 
 
 	/**

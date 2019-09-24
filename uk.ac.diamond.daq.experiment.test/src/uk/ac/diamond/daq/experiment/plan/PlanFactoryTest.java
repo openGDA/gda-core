@@ -29,7 +29,7 @@ public class PlanFactoryTest {
 	private ISampleEnvironmentVariable sev;
 	private ISampleEnvironmentVariable timer;
 
-	private ScanRequest<?> scanRequest = mock(ScanRequest.class);
+	private ScanRequest scanRequest = mock(ScanRequest.class);
 
 	@Before
 	public void setup() {

@@ -27,7 +27,7 @@ import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
  * For runtime testing and demoing until a real implementation is made
  */
 public class DummyExperimentService extends FindableBase implements ExperimentService {
-	private final Map<String, ScanRequest<IROI>> scans;
+	private final Map<String, ScanRequest> scans;
 
 	private final Map<String, DriverModel> driverProfiles;
 	private final Map<String, DriverModel> furnaceProfiles;
@@ -54,25 +54,25 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 		driverModels.put("furnace", furnaceProfiles);
 	}
 
-	private ScanRequest<IROI> getDiffractionScan() {
+	private ScanRequest getDiffractionScan() {
 		IScanPathModel model = new GridModel("beam_x", "beam_y", 5, 5);
 		IROI roi = new RectangularROI(0, 0, 5, 5, 0);
-		return new ScanRequest<>(model, roi, null, null, null);
+		return new ScanRequest(model, roi, null, null, null);
 	}
 
-	private ScanRequest<IROI> getTomographyScan() {
+	private ScanRequest getTomographyScan() {
 		IScanPathModel model = new StepModel("tr6_rot", 0, 180, 5);
-		return new ScanRequest<>(model, null, (String) null, null, null);
+		return new ScanRequest(model, null, (String) null, null, null);
 	}
 
-	private ScanRequest<IROI> getDiffractionSpotScan() {
+	private ScanRequest getDiffractionSpotScan() {
 		SinglePointModel model = new SinglePointModel();
 		model.setxAxisName("beam_x");
 		model.setyAxisName("beam_y");
 		model.setX(12.5);
 		model.setY(0.38);
 		IROI roi = new PointROI(new double[] { 12.5, 0.38 });
-		return new ScanRequest<>(model, roi, null, null, null);
+		return new ScanRequest(model, roi, null, null, null);
 	}
 
 	private DriverModel getProfile1() {
@@ -133,12 +133,12 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 	}
 
 	@Override
-	public void saveScan(ScanRequest<IROI> scanRequest, String scanName, String experimentId) {
+	public void saveScan(ScanRequest scanRequest, String scanName, String experimentId) {
 		scans.put(scanName, scanRequest);
 	}
 
 	@Override
-	public ScanRequest<IROI> getDiffScan(String scanName, String experimentId) {
+	public ScanRequest getDiffScan(String scanName, String experimentId) {
 		return scans.get(scanName);
 	}
 

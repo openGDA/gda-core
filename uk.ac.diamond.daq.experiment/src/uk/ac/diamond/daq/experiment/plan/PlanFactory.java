@@ -72,13 +72,13 @@ public class PlanFactory implements IPlanFactory {
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, ISampleEnvironmentVariable sev, double target, double tolerance) {
+	public ITrigger addTrigger(String name, ScanRequest scanRequest, ISampleEnvironmentVariable sev, double target, double tolerance) {
 		Triggerable triggerable = new TriggerableScan(scanRequest, false, eventService);
 		return addTrigger(name, triggerable, sev, target, tolerance);
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan,
+	public ITrigger addTrigger(String name, ScanRequest scanRequest, boolean importantScan,
 			ISampleEnvironmentVariable sev, double target, double tolerance) {
 		Triggerable triggerable = new TriggerableScan(scanRequest, importantScan, eventService);
 		return addTrigger(name, triggerable, sev, target, tolerance);
@@ -92,14 +92,14 @@ public class PlanFactory implements IPlanFactory {
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, ISampleEnvironmentVariable sev,
+	public ITrigger addTrigger(String name, ScanRequest scanRequest, ISampleEnvironmentVariable sev,
 			double interval) {
 		Triggerable triggerable = new TriggerableScan(scanRequest, false, eventService);
 		return addTrigger(name, triggerable, sev, interval);
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan,
+	public ITrigger addTrigger(String name, ScanRequest scanRequest, boolean importantScan,
 			ISampleEnvironmentVariable sev, double interval) {
 		Triggerable triggerable = new TriggerableScan(scanRequest, importantScan, eventService);
 		return addTrigger(name, triggerable, sev, interval);

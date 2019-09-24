@@ -4,7 +4,6 @@ import java.nio.file.Paths;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 
 import gda.factory.FindableBase;
@@ -85,12 +84,12 @@ public class FileSystemBasedExperimentService extends FindableBase implements Ex
 	/* SCANS */
 
 	@Override
-	public void saveScan(ScanRequest<IROI> scanRequest, String fileName, String experimentId) {
+	public void saveScan(ScanRequest scanRequest, String fileName, String experimentId) {
 		saver.saveObject(scanRequest, getValidName(fileName), SCAN_EXTENSION);
 	}
 
 	@Override
-	public ScanRequest<IROI> getDiffScan(String scanName, String experimentId) {
+	public ScanRequest getDiffScan(String scanName, String experimentId) {
 		return saver.loadObject(ScanRequest.class, getValidName(scanName), SCAN_EXTENSION);
 	}
 

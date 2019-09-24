@@ -114,8 +114,8 @@ public class ScanRequestConverter {
 	 *            the IMappingExperimentBean to be converted
 	 * @return the ScanRequest
 	 */
-	public ScanRequest<IROI> convertToScanRequest(IMappingExperimentBean mappingBean) {
-		final ScanRequest<IROI> scanRequest = new ScanRequest<>();
+	public ScanRequest convertToScanRequest(IMappingExperimentBean mappingBean) {
+		final ScanRequest scanRequest = new ScanRequest();
 
 		final IMappingScanRegion scanRegion = mappingBean.getScanDefinition().getMappingScanRegion();
 		final IMapPathModel mapPath = getMapPathAndConfigureScanAxes(scanRegion);
@@ -132,10 +132,10 @@ public class ScanRequestConverter {
 		models.add(mapPath);
 
 		// Convert the list of models into a compound model
-		final CompoundModel<IROI> compoundModel = new CompoundModel<>(models);
+		final CompoundModel compoundModel = new CompoundModel(models);
 
 		// Add the ROI for the mapping region
-		final ScanRegion<IROI> region = new ScanRegion<>(scanRegion.getRegion().toROI(),
+		final ScanRegion region = new ScanRegion(scanRegion.getRegion().toROI(),
 				mapPath.getyAxisName(), mapPath.getxAxisName());
 
 		// Convert to a List of ScanRegion<IROI> containing one item to avoid unsafe varargs warning
@@ -195,7 +195,7 @@ public class ScanRequestConverter {
 		return scanRequest;
 	}
 
-	private void configureMonitors(IMappingExperimentBean mappingBean, final ScanRequest<IROI> scanRequest) {
+	private void configureMonitors(IMappingExperimentBean mappingBean, final ScanRequest scanRequest) {
 		scanRequest.setMonitorNamesPerPoint(mappingBean.getPerPointMonitorNames());
 
 		Set<String> perScanMonitorNames = mappingBean.getPerScanMonitorNames() == null ?
@@ -236,7 +236,7 @@ public class ScanRequestConverter {
 		return mapPath;
 	}
 
-	private void setSampleMetadata(IMappingExperimentBean mappingBean, ScanRequest<IROI> scanRequest) {
+	private void setSampleMetadata(IMappingExperimentBean mappingBean, ScanRequest scanRequest) {
 		final ISampleMetadata sampleMetadata = mappingBean.getSampleMetadata();
 		String sampleName = sampleMetadata.getSampleName();
 		if (sampleName == null || sampleName.trim().isEmpty()) {
@@ -278,9 +278,9 @@ public class ScanRequestConverter {
 	 * @param scanRequest the {@link ScanRequest}
 	 * @param mappingBean the {@link IMappingExperimentBean} to merge into
 	 */
-	public void mergeIntoMappingBean(ScanRequest<IROI> scanRequest, IMappingExperimentBean mappingBean) {
-		final CompoundModel<IROI> compoundModel = scanRequest.getCompoundModel();
-		final Collection<ScanRegion<IROI>> regions = compoundModel.getRegions();
+	public void mergeIntoMappingBean(ScanRequest scanRequest, IMappingExperimentBean mappingBean) {
+		final CompoundModel compoundModel = scanRequest.getCompoundModel();
+		final Collection<ScanRegion> regions = compoundModel.getRegions();
 		if (regions.size() != 1) {
 			throw new IllegalArgumentException("The scan request must have exactly one region, has " + regions.size());
 		}
@@ -297,7 +297,7 @@ public class ScanRequestConverter {
 		scanRegion.setScanPath(mapPath);
 
 		// convert the ROI to a mapping scan region shape
-		final ScanRegion<IROI> region = regions.iterator().next();
+		final ScanRegion region = regions.iterator().next();
 		final IMappingScanRegionShape shape = convertROItoRegionShape(region.getRoi());
 		scanRegion.setRegion(shape);
 
@@ -332,7 +332,7 @@ public class ScanRequestConverter {
 		mergeProcessingRequest(scanRequest, mappingBean);
 	}
 
-	private void mergeProcessingRequest(ScanRequest<IROI> scanRequest, IMappingExperimentBean mappingBean) {
+	private void mergeProcessingRequest(ScanRequest scanRequest, IMappingExperimentBean mappingBean) {
 
 		List<ConfigWrapper> pc = mappingBean.getProcessingConfigs();
 
@@ -380,7 +380,7 @@ public class ScanRequestConverter {
 		return false;
 	}
 
-	private IMapPathModel checkMapModelAndUpdateMappingStage(final CompoundModel<IROI> compoundModel) {
+	private IMapPathModel checkMapModelAndUpdateMappingStage(final CompoundModel compoundModel) {
 		final List<Object> models = compoundModel.getModels();
 		// check that the inner most model is an IMapPathModel, i.e. for a mapping scan
 		final Object innerModelObj = models.get(models.size() - 1);
@@ -420,7 +420,7 @@ public class ScanRequestConverter {
 		return regionShape;
 	}
 
-	private void mergeOuterScannables(CompoundModel<IROI> compoundModel, IMappingExperimentBean mappingBean) {
+	private void mergeOuterScannables(CompoundModel compoundModel, IMappingExperimentBean mappingBean) {
 		final List<IScanModelWrapper<IScanPathModel>> outerScannables = mappingBean.getScanDefinition().getOuterScannables();
 		final List<Object> models = compoundModel.getModels();
 		final List<Object> outerScannableModels = new ArrayList<>(models.subList(0, models.size() - 1));
@@ -457,7 +457,7 @@ public class ScanRequestConverter {
 		}
 	}
 
-	private void mergeDetectorAndProcessing(ScanRequest<?> scanRequest, IMappingExperimentBean mappingBean) {
+	private void mergeDetectorAndProcessing(ScanRequest scanRequest, IMappingExperimentBean mappingBean) {
 		// disable all the existing detectors in the mapping bean, also create a map of them by
 		// detector name (note: the name in the IDetectorModel, not the name in the wrapper)
 		final Map<String, IScanModelWrapper<IDetectorModel>> detectorModelWrappers;
@@ -500,7 +500,7 @@ public class ScanRequestConverter {
 		}
 	}
 
-	private void mergeSampleMetadata(ScanRequest<IROI> scanRequest, IMappingExperimentBean mappingBean) {
+	private void mergeSampleMetadata(ScanRequest scanRequest, IMappingExperimentBean mappingBean) {
 		List<ScanMetadata> scanMetadata = scanRequest.getScanMetadata();
 		if (scanMetadata == null) return;
 		Optional<ScanMetadata> sampleScanMetadataOpt = scanMetadata.stream().filter(

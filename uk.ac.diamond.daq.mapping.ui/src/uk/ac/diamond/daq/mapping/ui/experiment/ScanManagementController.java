@@ -36,7 +36,6 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -143,7 +142,7 @@ public class ScanManagementController extends AbstractMappingController {
 				ErrorDialog.openError(Display.getCurrent().getActiveShell(), "Save Scan", errorMessage,
 						new Status(IStatus.ERROR, MappingUIConstants.PLUGIN_ID, errorMessage, e));
 			}
-			getExperimentService().saveScan((ScanRequest<IROI>) createScanBean().getScanRequest(), getShortName(filename), EXPERIMENT_ID);
+			getExperimentService().saveScan((ScanRequest) createScanBean().getScanRequest(), getShortName(filename), EXPERIMENT_ID);
 		}
 	}
 
@@ -208,7 +207,7 @@ public class ScanManagementController extends AbstractMappingController {
 		scanBean.setBeamline(System.getProperty("BEAMLINE"));
 
 		final ScanRequestConverter converter = getService(ScanRequestConverter.class);
-		final ScanRequest<IROI> scanRequest = converter.convertToScanRequest(mappingBean);
+		final ScanRequest scanRequest = converter.convertToScanRequest(mappingBean);
 		scanBean.setScanRequest(scanRequest);
 		return scanBean;
 	}

@@ -11,10 +11,10 @@ import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 public class TriggerableScan implements Triggerable {
 
 	private final QueuePreventingScanSubmitter scanSubmitter;
-	private final ScanRequest<?> scanRequest;
+	private final ScanRequest scanRequest;
 	private final boolean important;
 
-	TriggerableScan(ScanRequest<?> scanRequest, boolean important, IEventService eventService) {
+	TriggerableScan(ScanRequest scanRequest, boolean important, IEventService eventService) {
 		scanSubmitter = new QueuePreventingScanSubmitter();
 		scanSubmitter.setEventService(eventService);
 		this.scanRequest = scanRequest;

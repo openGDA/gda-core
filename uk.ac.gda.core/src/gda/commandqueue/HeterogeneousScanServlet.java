@@ -70,7 +70,7 @@ public class HeterogeneousScanServlet extends AbstractJobQueueServlet<StatusBean
 
 	private void preprocess(ScanBean scanBean) throws ProcessingException {
 		// copied from ScanServlet
-		ScanRequest<?> req = scanBean.getScanRequest();
+		ScanRequest req = scanBean.getScanRequest();
 		if (req.isIgnorePreprocess()) {
 			return;
 		}

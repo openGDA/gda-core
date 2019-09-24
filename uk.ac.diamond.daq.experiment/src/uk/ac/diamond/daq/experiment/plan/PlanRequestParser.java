@@ -4,7 +4,6 @@ import static uk.ac.diamond.daq.experiment.api.Services.getExperimentService;
 
 import java.util.stream.Collectors;
 
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 
 import gda.device.DeviceException;
@@ -59,7 +58,7 @@ public class PlanRequestParser {
 
 	private ITrigger convertToTrigger(TriggerRequest request) {
 
-		ScanRequest<IROI> scanRequest = getExperimentService().getDiffScan(request.getScanName(),
+		ScanRequest scanRequest = getExperimentService().getDiffScan(request.getScanName(),
 				plan.getName());
 		ISampleEnvironmentVariable sev;
 

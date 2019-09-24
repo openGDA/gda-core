@@ -58,7 +58,7 @@ public interface ConveniencePlanFactory {
 	 *
 	 * @return 					Reference to the created trigger
 	 */
-	ITrigger addTrigger(String name, ScanRequest<?> scanRequest, double target, double tolerance);
+	ITrigger addTrigger(String name, ScanRequest scanRequest, double target, double tolerance);
 
 
 	/**
@@ -77,7 +77,7 @@ public interface ConveniencePlanFactory {
 	 *
 	 * @return 					Reference to the created trigger
 	 */
-	ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan, double target, double tolerance);
+	ITrigger addTrigger(String name, ScanRequest scanRequest, boolean importantScan, double target, double tolerance);
 
 
 	/**
@@ -101,7 +101,7 @@ public interface ConveniencePlanFactory {
 	 *
 	 * @return reference to the created trigger
 	 */
-	ITrigger addTrigger(String name, ScanRequest<?> scanRequest, double interval);
+	ITrigger addTrigger(String name, ScanRequest scanRequest, double interval);
 
 
 	/**
@@ -118,6 +118,6 @@ public interface ConveniencePlanFactory {
 	 *
 	 * @return 					Reference to the created trigger
 	 */
-	ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan, double interval);
+	ITrigger addTrigger(String name, ScanRequest scanRequest, boolean importantScan, double interval);
 
 }

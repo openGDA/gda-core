@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Objects;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -118,7 +117,7 @@ public class XanesSubmitScanSection extends SubmitScanSection {
 	@Override
 	protected void submitScan() {
 		final IScriptService scriptService = getService(IScriptService.class);
-		final ScanRequest<IROI> scanRequest = getScanRequest(getMappingBean());
+		final ScanRequest scanRequest = getScanRequest(getMappingBean());
 		final XanesEdgeParametersSection paramsSection = getMappingView().getSection(XanesEdgeParametersSection.class);
 		final XanesEdgeParameters xanesEdgeParameters = paramsSection.getScanParameters();
 

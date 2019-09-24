@@ -28,7 +28,6 @@ import java.util.function.BiFunction;
 
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -248,12 +247,12 @@ public abstract class AbstractMappingSection implements IMappingSection {
 		scanBean.setName(String.format("%s - %s Scan", sampleName, pathName));
 		scanBean.setBeamline(System.getProperty("BEAMLINE"));
 
-		final ScanRequest<IROI> scanRequest = getScanRequest(mappingBean);
+		final ScanRequest scanRequest = getScanRequest(mappingBean);
 		scanBean.setScanRequest(scanRequest);
 		return scanBean;
 	}
 
-	protected ScanRequest<IROI> getScanRequest(final IMappingExperimentBean mappingBean) {
+	protected ScanRequest getScanRequest(final IMappingExperimentBean mappingBean) {
 		final ScanRequestConverter converter = getService(ScanRequestConverter.class);
 		return converter.convertToScanRequest(mappingBean);
 	}

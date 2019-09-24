@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ProcessingRequest;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
@@ -157,7 +156,7 @@ public class ScanRequestConverterTest {
 		mappingBean.setDetectorParameters(Arrays.asList(new DetectorModelWrapper(displayName, detModel, true)));
 
 		// Act - convert mapping bean to scan request
-		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+		final ScanRequest scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert
 		assertEquals(detModel, scanRequest.getDetectors().get(detName));
@@ -183,7 +182,7 @@ public class ScanRequestConverterTest {
 		mappingBean.setDetectorParameters(Arrays.asList(new DetectorModelWrapper(displayName, detModel, false)));
 
 		// Act - convert mapping bean to scan request
-		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+		final ScanRequest scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert
 		assertThat(scanRequest.getDetectors().entrySet(), is(empty()));
@@ -209,7 +208,7 @@ public class ScanRequestConverterTest {
 		mappingBean.setDetectorParameters(Arrays.asList(new DetectorModelWrapper(displayName, detModel, true)));
 
 		// Act - convert mapping bean to scan request
-		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+		final ScanRequest scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert
 		assertEquals(detModel, scanRequest.getDetectors().get(detName));
@@ -221,7 +220,7 @@ public class ScanRequestConverterTest {
 	@Test
 	public void testMonitorsIncluded() throws Exception {
 		// Act
-		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+		final ScanRequest scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert - these are the monitors that are set as active in MockScannableConnector
 		String[] expectedMonitorNamesPerPoint = new String[] { "perPoint1", "perPoint2", "perPoint3" };
@@ -236,7 +235,7 @@ public class ScanRequestConverterTest {
 	@Test
 	public void testScanPathIsIncluded() throws Exception {
 		// Act - convert mapping bean to scan request (with the default set-up)
-		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+		final ScanRequest scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert
 		assertEquals(scanRequest.getCompoundModel().getModels().get(0), scanPath);
@@ -256,7 +255,7 @@ public class ScanRequestConverterTest {
 
 		// Act - they're set according to the MappingStageInfo when the mapping bean is
 		// converted to a scan request
-		ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+		ScanRequest scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert - the axis names are now set to the names of the stage
 		assertThat(scanPath.getxAxisName(), is(equalTo(X_AXIS_NAME)));
@@ -281,7 +280,7 @@ public class ScanRequestConverterTest {
 
 		// Act - they're set according to the MappingStageInfo when the mapping bean is
 		// converted to a scan request
-		ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+		ScanRequest scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert - the axis names are now set to the names of the stage
 		assertThat(scanPath.getxAxisName(), is(equalTo(X_AXIS_NAME)));
@@ -311,7 +310,7 @@ public class ScanRequestConverterTest {
 
 	@Test
 	public void testBeamSizeScannableIncluded() throws Exception {
-		ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+		ScanRequest scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 		assertTrue(scanRequest.getMonitorNamesPerScan().contains(BEAM_SIZE_NAME));
 
 		mappingStageInfo.setBeamSize(null);
@@ -332,7 +331,7 @@ public class ScanRequestConverterTest {
 		scriptFiles.setAlwaysRunAfterScript(true);
 
 		// Act - covert mapping bean to scan request
-		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+		final ScanRequest scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert
 		final ScriptRequest beforeScriptReq = scanRequest.getBeforeScript();
@@ -366,7 +365,7 @@ public class ScanRequestConverterTest {
 		mappingBean.setBeamlineConfiguration(beamlineConfiguration);
 
 		// Act - convert mapping bean to scan request
-		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+		final ScanRequest scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert
 		final IPosition startPos = scanRequest.getStartPosition();
@@ -387,12 +386,12 @@ public class ScanRequestConverterTest {
 	@Test
 	public void testRoiAxisNamesAreSet() throws Exception {
 		// Act - convert mapping bean to scan request
-		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
-		final Collection<ScanRegion<IROI>> regions = scanRequest.getCompoundModel().getRegions();
+		final ScanRequest scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+		final Collection<ScanRegion> regions = scanRequest.getCompoundModel().getRegions();
 
 		// Assert - ensure only one region
 		assertThat(regions.size(), is(equalTo(1)));
-		for (final ScanRegion<?> scanRegion : regions) {
+		for (final ScanRegion scanRegion : regions) {
 			final List<String> scannables = scanRegion.getScannables();
 			assertThat(scannables.get(0), is(equalTo(Y_AXIS_NAME)));
 			assertThat(scannables.get(1), is(equalTo(X_AXIS_NAME)));
@@ -414,7 +413,7 @@ public class ScanRequestConverterTest {
 		mappingBean.getScanDefinition().setOuterScannables(outerScannables);
 
 		// Act - convert mapping bean to scan request
-		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+		final ScanRequest scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert
 		// Check there are now 2 models the outer z StepModel and the inner Grid model
@@ -452,7 +451,7 @@ public class ScanRequestConverterTest {
 		mappingBean.getScanDefinition().setOuterScannables(outerScannables);
 
 		// Act - convert mapping bean to scan request
-		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+		final ScanRequest scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Creates a new wrapper for the outer scannable in newMappingBean
 		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
@@ -472,7 +471,7 @@ public class ScanRequestConverterTest {
 		mappingBean.addProcessingRequest(wrapper);
 
 		// Act - convert mapping bean to scan request
-		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+		final ScanRequest scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert
 		ProcessingRequest processingRequest = scanRequest.getProcessingRequest();
@@ -506,7 +505,7 @@ public class ScanRequestConverterTest {
 		mappingBean.getSampleMetadata().setDescription(sampleDescription);
 
 		// Act - convert mapping bean to scan request
-		ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+		ScanRequest scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert
 		List<ScanMetadata> scanMetadataList = scanRequest.getScanMetadata();
@@ -532,7 +531,7 @@ public class ScanRequestConverterTest {
 		mappingBean.setTemplateFilePaths(Arrays.asList(templateFilePaths));
 
 		// Act
-		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+		final ScanRequest scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert
 		assertThat(scanRequest.getTemplateFilePaths(), contains(templateFilePaths));
@@ -552,7 +551,7 @@ public class ScanRequestConverterTest {
 		final Set<String> perScanMonitorNames = mappingBean.getPerScanMonitorNames();
 
 		// Act - convert mapping bean to scan request
-		ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+		ScanRequest scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert
 		assertEquals(perPointMonitorNames, scanRequest.getMonitorNamesPerPoint());

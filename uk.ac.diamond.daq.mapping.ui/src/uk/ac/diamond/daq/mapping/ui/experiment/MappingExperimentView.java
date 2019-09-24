@@ -32,7 +32,6 @@ import javax.inject.Named;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.di.Focus;
@@ -310,8 +309,7 @@ public class MappingExperimentView implements IAdaptable {
 		}
 
 		// Get the scan request and merge it into the mapping bean
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> scanRequest = (ScanRequest<IROI>) scanBean.getScanRequest();
+		ScanRequest scanRequest = scanBean.getScanRequest();
 		try {
 			scanRequestConverter.mergeIntoMappingBean(scanRequest, mappingBeanProvider.getMappingExperimentBean());
 			updateControls();

@@ -89,10 +89,10 @@ public class FocusScanConverterTest {
 
 	@Test
 	public void testConvertFocusScanBean() {
-		final ScanRequest<?> scanRequest = focusScanConverter.convertToScanRequest(focusScanBean);
+		final ScanRequest scanRequest = focusScanConverter.convertToScanRequest(focusScanBean);
 
 		// test compound model
-		final CompoundModel<?> compoundModel = scanRequest.getCompoundModel();
+		final CompoundModel compoundModel = scanRequest.getCompoundModel();
 		assertNotNull(compoundModel);
 		final List<Object> models = compoundModel.getModels();
 		assertEquals(2, models.size());
@@ -124,7 +124,7 @@ public class FocusScanConverterTest {
 
 		// test scan regions
 		assertEquals(1, compoundModel.getRegions().size());
-		final ScanRegion<?> scanRegion = compoundModel.getRegions().iterator().next();
+		final ScanRegion scanRegion = compoundModel.getRegions().iterator().next();
 		assertEquals(2, scanRegion.getScannables().size());
 		assertEquals(mappingStageInfo.getPlotYAxisName(), scanRegion.getScannables().get(0));
 		assertEquals(mappingStageInfo.getPlotXAxisName(), scanRegion.getScannables().get(1));
