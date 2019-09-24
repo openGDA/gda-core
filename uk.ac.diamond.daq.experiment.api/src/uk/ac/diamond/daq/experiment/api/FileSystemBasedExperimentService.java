@@ -4,6 +4,10 @@ import java.nio.file.Paths;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.scanning.api.event.scan.ScanRequest;
+
+import gda.factory.FindableBase;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
@@ -11,19 +15,24 @@ import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 /**
  * Save and load to file system.
  *
- * FIXME Only extending dummy impl until scan support is added!
  * TODO store by experiment ID, currently unused!
  */
-public class FileSystemBasedExperimentService extends DummyExperimentService {
+
+public class FileSystemBasedExperimentService extends FindableBase implements ExperimentService {
 
 	private static final String EXPERIMENT_BASE = "experiments";
 	private static final String PLAN_EXTENSION = "plan";
 	private static final String DRIVER_PROFILE_EXTENSION = "prof";
+	private static final String SCAN_EXTENSION = "scan";
 
 	private static final Pattern INVALID_CHARACTERS_PATTERN = Pattern.compile("[^a-zA-Z0-9\\.\\-\\_\\ ]");
 	private static final String INVALID_CHARACTER_REPLACEMENT = "_";
 
 	private final SaveLoadTool saver = new SaveLoadTool(EXPERIMENT_BASE);
+
+	private String getValidName(String fileName) {
+		return INVALID_CHARACTERS_PATTERN.matcher(fileName).replaceAll(INVALID_CHARACTER_REPLACEMENT);
+	}
 
 	/* EXPERIMENT PLANS */
 
@@ -73,8 +82,28 @@ public class FileSystemBasedExperimentService extends DummyExperimentService {
 		return Paths.get(getValidName(driverName), getValidName(modelName)).toString();
 	}
 
-	private String getValidName(String fileName) {
-		return INVALID_CHARACTERS_PATTERN.matcher(fileName).replaceAll(INVALID_CHARACTER_REPLACEMENT);
+	/* SCANS */
+
+	@Override
+	public void saveScan(ScanRequest<IROI> scanRequest, String fileName, String experimentId) {
+		saver.saveObject(scanRequest, getValidName(fileName), SCAN_EXTENSION);
+	}
+
+	@Override
+	public ScanRequest<IROI> getDiffScan(String scanName, String experimentId) {
+		return saver.loadObject(ScanRequest.class, getValidName(scanName), SCAN_EXTENSION);
+	}
+
+	@Override
+	public Set<String> getScanNames(String experimentId) {
+		return saver.getSavedNames(SCAN_EXTENSION, experimentId);
+
+	}
+
+	@Override
+	public void deleteScan(String scanName, String experimentId) {
+		saver.delete(getValidName(scanName), SCAN_EXTENSION);
+
 	}
 
 }

@@ -1,5 +1,6 @@
 package uk.ac.diamond.daq.experiment.ui.plan;
 
+import static uk.ac.diamond.daq.experiment.api.Services.getExperimentService;
 import static uk.ac.diamond.daq.experiment.api.plan.event.EventConstants.EXPERIMENT_PLAN_TOPIC;
 
 import java.net.URI;
@@ -45,7 +46,6 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.concurrent.Async;
-import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.DriverProfileSection;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
@@ -61,7 +61,6 @@ public class PlanProgressPlotView extends ViewPart {
 	
 	private ISubscriber<IBeanListener<PlanStatusBean>> subscriber;
 	private static IEventService eventService;
-	private ExperimentService experimentService;
 
 	private PlanStatusBean activePlan;
 	
@@ -83,9 +82,7 @@ public class PlanProgressPlotView extends ViewPart {
 			logger.error("Could not create subscriber, rendering this view useless. Giving up...", e);
 			return;
 		}
-		
-		experimentService = Finder.getInstance().findSingleton(ExperimentService.class);
-		
+				
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(composite);
 		GridLayoutFactory.fillDefaults().applyTo(composite);
@@ -203,7 +200,7 @@ public class PlanProgressPlotView extends ViewPart {
 	}
 	
 	private void plotDriverProfile() { // FIXME either DriverModel should plot itself, or we need plotter per DriverModel impl
-		List<DriverProfileSection> sections = ((SingleAxisLinearSeries) experimentService.getDriverProfile(activePlan.getDriverName(),
+		List<DriverProfileSection> sections = ((SingleAxisLinearSeries) getExperimentService().getDriverProfile(activePlan.getDriverName(),
 										activePlan.getDriverProfile(), activePlan.getName())).getProfile();
 		if (sections.isEmpty()) return;
 		

@@ -123,7 +123,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 		loadButton.setToolTipText("Load a scan from the file system");
 		GridDataFactory.swtDefaults().applyTo(loadButton);
 		loadButton.addSelectionListener(widgetSelectedAdapter(e -> {
-			final Optional<IMappingExperimentBean> bean = smController.loadScan(chooseFileName(SWT.OPEN));
+			final Optional<IMappingExperimentBean> bean = smController.loadScanMappingBean(chooseFileName(SWT.OPEN));
 			if (bean.isPresent()) {
 				getMappingView().setMappingBean(bean.get());
 				smController.updateGridModelIndex();
