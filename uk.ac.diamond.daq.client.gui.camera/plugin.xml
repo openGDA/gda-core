@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="true"
+            class="uk.ac.diamond.daq.client.gui.camera.CameraConfigurationView"
+            icon="icons/camera.png"
+            id="uk.ac.diamond.daq.client.gui.camera.CameraConfigurationView"
+            name="Camera Configuration"
+            restorable="true">
+      </view>
+      <view
+         allowMultiple="true"
+         class="uk.ac.diamond.daq.client.gui.camera.liveview.SimpleLiveStreamView"
+         icon="icons/live_stream.png"
+         id="uk.ac.diamond.daq.client.gui.camera.liveview.SimpleLiveStreamView"
+         name="Simple Live Stream"
+         restorable="true">
+      </view>
+</extension>
+</plugin>

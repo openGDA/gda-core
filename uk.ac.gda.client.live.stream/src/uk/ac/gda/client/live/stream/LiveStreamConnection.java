@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.dawnsci.analysis.api.io.IRemoteDatasetService;
@@ -32,6 +33,7 @@ import org.eclipse.january.dataset.DataEvent;
 import org.eclipse.january.dataset.IDataListener;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.IDatasetConnector;
+import org.eclipse.scanning.api.event.core.IConnection;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,10 +44,10 @@ import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
 
 /**
- * An instance of this class encapsulates a connection to a live stream, i.e. a camera,
- * as defined by a {@link CameraConfiguration} and a {@link StreamType}.
+ * An instance of this class encapsulates a connection to a live stream, i.e. a camera, as defined by a
+ * {@link CameraConfiguration} and a {@link StreamType}.
  */
-public class LiveStreamConnection {
+public class LiveStreamConnection implements IConnection {
 
 	@FunctionalInterface
 	public interface IAxisChangeListener {
@@ -81,29 +83,30 @@ public class LiveStreamConnection {
 	}
 
 	public synchronized IDatasetConnector connect() throws LiveStreamException {
-		if (stream != null) {
+		if (getStream() != null) {
 			increaseConnectionCount();
 			return stream;
 		}
 
-		if (streamType == StreamType.MJPEG && cameraConfig.getUrl() == null) {
-			throw new LiveStreamException("MJPEG stream requested but no url defined for " + cameraConfig.getName());
+		if (streamType == StreamType.MJPEG && getCameraConfig().getUrl() == null) {
+			throw new LiveStreamException("MJPEG stream requested but no url defined for " + getCameraConfig().getName());
 		}
-		if (streamType == StreamType.EPICS_ARRAY && cameraConfig.getArrayPv() == null) {
-			throw new LiveStreamException("EPICS stream requested but no array PV defined for " + cameraConfig.getName());
+		if (streamType == StreamType.EPICS_ARRAY && getCameraConfig().getArrayPv() == null) {
+			throw new LiveStreamException(
+					"EPICS stream requested but no array PV defined for " + getCameraConfig().getName());
 		}
 
 		// Attach the IDatasetConnector of the MJPEG stream to the trace.
 		logger.debug("Connecting to live stream");
 		switch (streamType) {
-			case MJPEG:
-				stream = setupMpegStream();
-				break;
-			case EPICS_ARRAY:
-				stream = setupEpicsArrayStream();
-				break;
-			default:
-				throw new LiveStreamException("Stream type '" + streamType + "' not supported");
+		case MJPEG:
+			setStream(setupMpegStream());
+			break;
+		case EPICS_ARRAY:
+			setStream(setupEpicsArrayStream());
+			break;
+		default:
+			throw new LiveStreamException("Stream type '" + streamType + "' not supported");
 		}
 
 		setupAxes();
@@ -113,22 +116,18 @@ public class LiveStreamConnection {
 		return stream;
 	}
 
-	public CameraConfiguration getCameraConfiguration() {
-		return cameraConfig;
-	}
-
+	@Override
 	public synchronized void disconnect() throws LiveStreamException {
 		decreaseConnectionCount();
-
 		if (getConnectionCount() == 0) {
-			if (stream != null) { // Will be null the first time
+			if (getStream() != null) { // Will be null the first time
 				try {
-					CalibratedAxesProvider calibratedAxesProvider = cameraConfig.getCalibratedAxesProvider();
+					CalibratedAxesProvider calibratedAxesProvider = getCameraConfig().getCalibratedAxesProvider();
 					if (calibratedAxesProvider != null) {
 						calibratedAxesProvider.disconnect();
 						stream.removeDataListener(axesUpdater);
 					}
-					stream.disconnect();
+					getStream().disconnect();
 				} catch (Exception e) {
 					throw new LiveStreamException("Error disconnecting from live stream", e);
 				} finally {
@@ -151,15 +150,15 @@ public class LiveStreamConnection {
 	}
 
 	public void addDataListenerToStream(IDataListener listener) throws LiveStreamException {
-		if (stream == null) {
+		if (getStream() == null) {
 			throw new LiveStreamException("Stream is not connected.");
 		}
 
-		stream.addDataListener(listener);
+		getStream().addDataListener(listener);
 	}
 
 	public void removeDataListenerFromStream(IDataListener listener) throws LiveStreamException {
-		if (stream == null) {
+		if (getStream() == null) {
 			throw new LiveStreamException("Stream is not connected.");
 		}
 
@@ -168,36 +167,35 @@ public class LiveStreamConnection {
 
 	private IDatasetConnector setupEpicsArrayStream() throws LiveStreamException {
 		try {
-			stream = new EpicsV3DynamicDatasetConnector(cameraConfig.getArrayPv());
+			setStream(new EpicsV3DynamicDatasetConnector(getCameraConfig().getArrayPv()));
+			return getStream();
 		} catch (NoClassDefFoundError e) {
-			// As uk.ac.gda.epics is an optional dependency if it is not included in the client. The code will fail here.
+			// As uk.ac.gda.epics is an optional dependency if it is not included in the client. The code will fail
+			// here.
 			throw new LiveStreamException("Could not connect to EPICS stream, Is uk.ac.gda.epics in the product?", e);
-		}
-		try {
-			stream.connect();
-			return stream;
-		} catch (DatasetException e) {
-			throw new LiveStreamException("Could not connect to EPICS Array Stream PV: " + cameraConfig.getArrayPv(), e);
 		}
 	}
 
 	private IDatasetConnector setupMpegStream() throws LiveStreamException {
 		final URL url;
 		try {
-			url = new URL(cameraConfig.getUrl());
+			url = new URL(getCameraConfig().getUrl());
 		} catch (MalformedURLException e) {
 			throw new LiveStreamException("Malformed URL check camera configuration", e);
 		}
 
 		// If sleepTime or cacheSize are set use them, else use the defaults
-		final long sleepTime = cameraConfig.getSleepTime() != 0 ? cameraConfig.getSleepTime() : MJPEG_DEFAULT_SLEEP_TIME; // ms
-		final int cacheSize = cameraConfig.getCacheSize() != 0 ? cameraConfig.getCacheSize() : MJPEG_DEFAULT_CACHE_SIZE; // frames
+		final long sleepTime = getCameraConfig().getSleepTime() != 0 ? cameraConfig.getSleepTime()
+				: MJPEG_DEFAULT_SLEEP_TIME; // ms
+		final int cacheSize = getCameraConfig().getCacheSize() != 0 ? cameraConfig.getCacheSize() : MJPEG_DEFAULT_CACHE_SIZE; // frames
 
 		try {
 			if (cameraConfig.isRgb()) {
-				stream = PlatformUI.getWorkbench().getService(IRemoteDatasetService.class).createMJPGDataset(url, sleepTime, cacheSize);
+				stream = PlatformUI.getWorkbench().getService(IRemoteDatasetService.class).createMJPGDataset(url,
+						sleepTime, cacheSize);
 			} else {
-				stream = PlatformUI.getWorkbench().getService(IRemoteDatasetService.class).createGrayScaleMJPGDataset(url, sleepTime, cacheSize);
+				stream = PlatformUI.getWorkbench().getService(IRemoteDatasetService.class)
+						.createGrayScaleMJPGDataset(url, sleepTime, cacheSize);
 			}
 			stream.connect();
 			return stream;
@@ -207,13 +205,15 @@ public class LiveStreamConnection {
 	}
 
 	/**
-	 * Sets up the x and y axis of the live stream, if the {@link CameraConfiguration} has been set
-	 * in the Spring configuration.
+	 * Sets up the x and y axis of the live stream, if the {@link CameraConfiguration} has been set in the Spring
+	 * configuration.
+	 *
 	 * @throws LiveStreamException
 	 */
 	private void setupAxes() {
-		final CalibratedAxesProvider calibratedAxesProvider = cameraConfig.getCalibratedAxesProvider();
-		if (calibratedAxesProvider == null) return;
+		final CalibratedAxesProvider calibratedAxesProvider = getCameraConfig().getCalibratedAxesProvider();
+		if (calibratedAxesProvider == null)
+			return;
 		logger.debug("Setting up axes");
 		calibratedAxesProvider.connect();
 		this.axesUpdater = new AxesUpdater(calibratedAxesProvider);
@@ -223,10 +223,10 @@ public class LiveStreamConnection {
 		yAxisDataset = calibratedAxesProvider.getYAxisDataset();
 	}
 
-
 	public List<IDataset> getAxes() {
 		if (xAxisDataset == null || yAxisDataset == null) {
-			return null; // returns null rather than empty list to indicate that axes have not been configured (therefore NOSONAR please)
+			return null; // returns null rather than empty list to indicate that axes have not been configured
+							// (therefore NOSONAR please)
 		}
 
 		return Arrays.asList(xAxisDataset, yAxisDataset);
@@ -236,12 +236,13 @@ public class LiveStreamConnection {
 		return streamType;
 	}
 
+	@Override
 	public boolean isConnected() {
 		return connected;
 	}
 
 	public boolean hasAxesProvider() {
-		return cameraConfig.getCalibratedAxesProvider() != null;
+		return getCameraConfig().getCalibratedAxesProvider() != null;
 	}
 
 	public int getConnectionCount() {
@@ -255,6 +256,26 @@ public class LiveStreamConnection {
 	private void decreaseConnectionCount() {
 		if (getConnectionCount() > 0) {
 			connectionCount.decrementAndGet();
+		}
+	}
+
+	public CameraConfiguration getCameraConfig() {
+		return cameraConfig;
+	}
+
+	public IDatasetConnector getStream() {
+		return stream;
+	}
+
+	private void setStream(IDatasetConnector stream) throws LiveStreamException {
+		if (getStream() == null) {
+			try {
+				this.stream = stream;
+				getStream().connect(5, TimeUnit.SECONDS);
+			} catch (DatasetException e) {
+				throw new LiveStreamException(
+						"Could not connect to EPICS Array Stream PV: " + cameraConfig.getArrayPv(), e);
+			}
 		}
 	}
 

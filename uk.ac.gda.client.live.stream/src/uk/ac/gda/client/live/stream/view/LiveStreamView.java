@@ -64,6 +64,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.detector.nxdetector.roi.ImutableRectangularIntegerROI;
 import gda.factory.Finder;
+import uk.ac.gda.client.live.stream.IConnectionFactory;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.api.ILiveStreamConnectionService;
@@ -244,8 +245,7 @@ public class LiveStreamView extends ViewPart {
 
 		// Create the plotting view
 		try {
-			ILiveStreamConnectionService connectionService = PlatformUI.getWorkbench().getService(ILiveStreamConnectionService.class);
-			liveStreamConnection = connectionService.getSharedLiveStreamConnection(camConfig, streamType);
+			liveStreamConnection = getLiveStreamConnection(camConfig, streamType);
 			plottingComposite = new LivePlottingComposite(parent, SWT.NONE, getPartName(), liveStreamConnection, actionBars, this);
 			plottingComposite.setShowAxes(camConfig.getCalibratedAxesProvider() != null);
 			plottingComposite.setShowTitle(true);
@@ -262,6 +262,10 @@ public class LiveStreamView extends ViewPart {
 
 		createCustomUi(parent);
 
+	}
+
+	private LiveStreamConnection getLiveStreamConnection(CameraConfiguration camConfig, final StreamType streamType) {
+		return IConnectionFactory.getLiveStremConnection(camConfig, streamType);
 	}
 
 	/**

@@ -13,16 +13,18 @@ import org.eclipse.january.dataset.IndexIterator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.scanning.api.event.core.IConnection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.swtdesigner.SWTResourceManager;
 
 import gda.device.DeviceException;
-import uk.ac.diamond.daq.client.gui.camera.controller.CameraConfigurationAdapter;
 import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
+import uk.ac.diamond.daq.client.gui.camera.controller.CameraConfigurationAdapter;
 import uk.ac.diamond.daq.client.gui.camera.controller.CameraConfigurationMode;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
 import uk.ac.gda.client.live.stream.LiveStreamException;
@@ -173,7 +175,7 @@ public class CameraImageComposite extends Composite {
 	}
 	
 	public CameraImageComposite(Composite parent, AbstractCameraConfigurationController controller,
-			LiveStreamConnection liveStreamConnection, int style) throws Exception {
+			IConnection liveStreamConnection, int style) throws Exception {
 		super(parent, style);
 		
 		this.controller = controller;
@@ -182,12 +184,16 @@ public class CameraImageComposite extends Composite {
 		
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(this);
 
-		plottingComposite = new LivePlottingComposite(this, SWT.NONE, "Live View", liveStreamConnection);
+		if (!LiveStreamConnection.class.isInstance(liveStreamConnection)) {
+			throw new DeviceException("LivePlottingComposite supports only LiveStreamConnection class");
+		}
+		
+		plottingComposite = new LivePlottingComposite(this, SWT.NONE, "Live View", LiveStreamConnection.class.cast(liveStreamConnection));
 		plottingComposite.setShowTitle(true);
 		plottingSystem = plottingComposite.getPlottingSystem();
-		if (!liveStreamConnection.isConnected()) {
-			plottingComposite.connect();
-		}
+//		if (!liveStreamConnection.isConnected()) {
+//			plottingComposite.connect();
+//		}
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(plottingComposite);
 
 		roiSelectionRegion = new DrawableRegion(plottingSystem, SWTResourceManager.getColor(SWT.COLOR_GREEN), "ROI", new ROIListener());

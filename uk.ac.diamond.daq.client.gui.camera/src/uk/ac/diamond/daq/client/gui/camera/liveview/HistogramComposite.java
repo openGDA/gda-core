@@ -27,8 +27,10 @@ public class HistogramComposite extends Composite {
 			histogram = new HistogramViewer(this);
 			Collection<ITrace> traces = plottingSystem.getTraces(IPaletteTrace.class);
 			histogram.setContentProvider(new ImageHistogramProvider());
-			histogram.setInput(traces.iterator().next());
-			histogram.refresh();
+			if (!traces.isEmpty()) {
+				histogram.setInput(traces.iterator().next());
+				histogram.refresh();
+			}			
 			GridDataFactory.fillDefaults().grab(true, true).applyTo(histogram.getComposite());
 		} catch (Exception e) {
 			e.printStackTrace();
