@@ -688,15 +688,18 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 
 		setActive(true);
 
+		// We're now fully initialized and about to start running the main loop that consumes and runs beans,
+		// so set the consumerThreadRunning flag to true and notify any threads that called awaitStart()
+		// note that we do this before checkStartPaused() so that the queue status is PAUSED and not STOPPED
+		// this fixes a bug where the client did not correctly show the queue as paused
+		consumerThreadRunning = true;
+		notifyStatusChanged();
+
 		// We should pause if there are things in the queue. This is because on a server restart the user will
 		// need to choose the visit again and get the baton.
 		// NOTE: Not all job queues check the submit queue and  pause before they start.
 		checkStartPaused();
 
-		// We're now fully initialized and about to start running the main loop that consumes and runs beans,
-		// so set the consumerThreadRunning flag to true and notify any threads that called awaitStart()
-		consumerThreadRunning = true;
-		notifyStatusChanged();
 		if (latchStart!=null) latchStart.countDown();
 	}
 

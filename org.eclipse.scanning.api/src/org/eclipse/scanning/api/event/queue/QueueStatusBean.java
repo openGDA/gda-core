@@ -103,7 +103,7 @@ public class QueueStatusBean {
 		this.jobQueueName = jobQueueName;
 	}
 
-	public QueueStatus getJobQueueStatus() {
+	public QueueStatus getQueueStatus() {
 		return queueStatus;
 	}
 
