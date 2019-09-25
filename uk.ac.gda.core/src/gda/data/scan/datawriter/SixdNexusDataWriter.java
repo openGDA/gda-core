@@ -36,7 +36,6 @@ import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
-import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
@@ -694,7 +693,7 @@ public class SixdNexusDataWriter extends DataWriterBase {
 				for (String element : inputNames) {
 					// Create the data array (with an unlimited scan
 					// dimension)
-					ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(element, Dataset.FLOAT64, dataDim, null, null);
+					ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(element, Double.class, dataDim, null, null);
 					DataNode data = file.createData(g, lazy);
 
 					// assign axes
@@ -720,7 +719,7 @@ public class SixdNexusDataWriter extends DataWriterBase {
 
 					// Create the data array (with an unlimited scan
 					// dimension)
-					ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(element, Dataset.FLOAT64, dataDim, null, null);
+					ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(element, Double.class, dataDim, null, null);
 					DataNode data = file.createData(g, lazy);
 
 					if (thisPoint.getDetectorNames().isEmpty() && extranameindex == 0) {
@@ -797,7 +796,7 @@ public class SixdNexusDataWriter extends DataWriterBase {
 			INexusTree detTree = extractNexusTree(detector.getName());
 			for (INexusTree det : detTree) {
 				if (det.getNxClass().equals(NexusExtractor.NXDetectorClassName)) {
-					makeGenericDetector(det.getName(), null, Dataset.FLOAT64, detector, det);
+					makeGenericDetector(det.getName(), null, Double.class, detector, det);
 				}
 			}
 		}
@@ -813,7 +812,7 @@ public class SixdNexusDataWriter extends DataWriterBase {
 	 * @param detector
 	 * @throws NexusException
 	 */
-	private void makeGenericDetector(String detectorName, int[] dataDimensions, int dtype, Detector detector,
+	private void makeGenericDetector(String detectorName, int[] dataDimensions, Class<?> clazz, Detector detector,
 			INexusTree detectorData) throws NexusException {
 		// Navigate to the relevant section in file...
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
@@ -849,7 +848,7 @@ public class SixdNexusDataWriter extends DataWriterBase {
 			int[] dataDim = generateDataDim(true, scanDimensions, null);
 
 			for (int j = 0; j < detector.getExtraNames().length; j++) {
-				ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(detector.getExtraNames()[j], Dataset.FLOAT64, dataDim, null, null);
+				ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(detector.getExtraNames()[j], Double.class, dataDim, null, null);
 				DataNode data = file.createData(group, lazy);
 
 				// Get a link ID to this data set
@@ -873,7 +872,7 @@ public class SixdNexusDataWriter extends DataWriterBase {
 			// even make data area for detectors that first create their own files
 			int[] dataDim = generateDataDim(true, scanDimensions, dataDimensions);
 
-			ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("data", dtype, dataDim, null, null);
+			ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("data", clazz, dataDim, null, null);
 			// make the data array to store the data...
 			DataNode data = file.createData(group, lazy);
 
@@ -938,7 +937,7 @@ public class SixdNexusDataWriter extends DataWriterBase {
 			if ( !isNumberParsable(dataList.get(j)) ){//Non parsable entry, treat it as file name string
 				GroupNode g = file.getGroup(group, "data_file", NexusExtractor.NXNoteClassName, true);
 				dataDim = generateDataDim(true, scanDimensions, null);
-				ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("file_name", Dataset.STRING, dataDim, null, null);
+				ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("file_name", String.class, dataDim, null, null);
 				DataNode data = file.createData(g, lazy);
 				// Get a link ID to this data set
 				detectorID = new SelfCreatingLink(data);
@@ -947,7 +946,7 @@ public class SixdNexusDataWriter extends DataWriterBase {
 				dataDim = generateDataDim(true, scanDimensions, null);
 
 				//this can fail if the list of names contains duplicates
-				ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("data", Dataset.FLOAT64, dataDim, null, null);
+				ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("data", Double.class, dataDim, null, null);
 				DataNode data = file.createData(group, lazy);
 				// Get a link ID to this data set
 				detectorID = new SelfCreatingLink(data);

@@ -22,9 +22,9 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Vector;
 
-import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyDataset;
+import org.eclipse.january.dataset.StringDataset;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -449,7 +449,6 @@ public class Hdf5HelperTest {
 		Assert.assertEquals(readBack.dims.length, 1);
 		Assert.assertEquals(readBack.dims[0], 1);
 		Assert.assertEquals(string.getBytes().length,readBack.datasetType.size);
-		Assert.assertEquals(Dataset.STRING,readBack.datasetType.dtype);
+		Assert.assertEquals(StringDataset.class, readBack.datasetType.clazz);
 	}
-
 }

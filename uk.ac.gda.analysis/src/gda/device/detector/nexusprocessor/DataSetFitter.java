@@ -18,10 +18,6 @@
 
 package gda.device.detector.nexusprocessor;
 
-import gda.data.nexus.extractor.NexusGroupData;
-import gda.device.detector.GDANexusDetectorData;
-import gda.device.detector.NXDetectorData;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -34,6 +30,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import gda.data.nexus.extractor.NexusGroupData;
+import gda.device.detector.GDANexusDetectorData;
+import gda.device.detector.NXDetectorData;
 import uk.ac.diamond.scisoft.analysis.fitting.Fitter;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Gaussian;
@@ -84,7 +83,7 @@ public class DataSetFitter extends DataSetProcessorBase implements InitializingB
 			CompositeFunction fit[] = new CompositeFunction[numFits];
 			for (int i = 0; i < numFits; i++) {
 				Dataset sum = dataset.sum(i);
-				Dataset arange = DatasetFactory.createRange(sum.getShape()[0], Dataset.FLOAT64);
+				Dataset arange = DatasetFactory.createRange(sum.getShapeRef()[0]);
 				double position_max = arange.max().doubleValue();
 				double position_min = arange.min().doubleValue();
 				double fwhm_max = arange.max().doubleValue();

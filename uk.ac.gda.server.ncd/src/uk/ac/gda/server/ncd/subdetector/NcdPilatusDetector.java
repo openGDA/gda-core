@@ -110,7 +110,7 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 			ILazyWriteableDataset lazy;
 			DataNode data;
 			if (scanDataPoint == 0) {
-				lazy = NexusUtils.createLazyWriteableDataset("data", Dataset.INT32, slabdatadims, datadims, slabdatadims);
+				lazy = NexusUtils.createLazyWriteableDataset("data", Integer.class, slabdatadims, datadims, slabdatadims);
 				data = file.createData(group, lazy);
 			} else {
 				data = file.getData(group, "data");

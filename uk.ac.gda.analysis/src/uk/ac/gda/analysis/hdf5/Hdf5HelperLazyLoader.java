@@ -36,13 +36,8 @@ public class Hdf5HelperLazyLoader implements ILazyLoader {
 	private String fileName;
 	private String groupName;
 	private String dataSetName;
-	private int dtype;
 	private Hdf5HelperData helperData = null;
-
-	public int getDType() throws Exception {
-		checkConfigured();
-		return dtype;
-	}
+	private Class<? extends Dataset> clazz;
 
 	public Hdf5HelperLazyLoader(String fileName, String groupName, String dataSetName, boolean extend) {
 		super();
@@ -62,7 +57,7 @@ public class Hdf5HelperLazyLoader implements ILazyLoader {
 	private void checkConfigured() throws Exception {
 		if (helperData == null) {
 			helperData = Hdf5Helper.getInstance().readDataSetAll(fileName, groupName, dataSetName, false);
-			dtype = helperData.datasetType.dtype;
+			clazz = helperData.datasetType.clazz;
 		}
 	}
 
@@ -83,7 +78,7 @@ public class Hdf5HelperLazyLoader implements ILazyLoader {
 				dsize[i]   = shape[i];
 			}
 			Object data2 = Hdf5Helper.getInstance().readDataSet(fileName, groupName, dataSetName, sstart, sstride, dsize, null, null, dsize, helperData.native_type, null, true).data;
-			return HDF5Utils.createDataset(data2, shape, dtype, extend);
+			return HDF5Utils.createDataset(data2, shape, clazz, extend);
 		} catch (Exception e) {
 			throw new IOException("Error reading from " + fileName,e);
 		}
@@ -96,6 +91,6 @@ public class Hdf5HelperLazyLoader implements ILazyLoader {
 		for( int i=0; i< dims.length;i++){
 			dims[i] = (int) helperData.dims[i];
 		}
-		return new LazyDataset(dataSetName, dtype, dims, this);
+		return new LazyDataset(this, dataSetName, clazz, dims);
 	}
 }

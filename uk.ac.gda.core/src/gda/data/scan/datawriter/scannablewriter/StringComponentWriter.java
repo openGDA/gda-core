@@ -56,7 +56,7 @@ public class StringComponentWriter extends DefaultComponentWriter {
 
 		int[] dim = makedatadimfordim(scanDims);
 
-		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(name, Dataset.STRING, dim, null, null);
+		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(name, String.class, dim, null, null);
 		GroupNode lGroup = file.getGroup(aPath.substring(0, aPath.length() - name.length()), true);
 		lazy.setChunking(NexusUtils.estimateChunking(scanDims, 8));
 		DataNode data = file.createData(lGroup, lazy);
