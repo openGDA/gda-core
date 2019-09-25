@@ -504,7 +504,7 @@ public class CompoundTest {
 		GridModel gmodel = new GridModel("stage_x", "stage_y", 5, 5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		IPointGenerator<?> scan = service.createCompoundGenerator(new CompoundModel<>(Arrays.asList(mmodel, gmodel)));
+		IPointGenerator<?> scan = service.createCompoundGenerator(new CompoundModel(Arrays.asList(mmodel, gmodel)));
 
 		assertEquals(50, scan.size());
 	}

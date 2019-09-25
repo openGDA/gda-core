@@ -216,7 +216,7 @@ public class ScanPointGeneratorFactoryTest {
 		JythonObjectFactory<ScanPointIterator> compoundGeneratorFactory = ScanPointGeneratorFactory.JCompoundGeneratorFactory();
 
         Object[] generators = {outerLine, innerLine};
-        Object[] excluders = CompoundSpgIteratorFactory.getExcluders(Arrays.asList(new ScanRegion<>(new RectangularROI(0,0,5,5,0), Arrays.asList("x", "y"))));
+        Object[] excluders = CompoundSpgIteratorFactory.getExcluders(Arrays.asList(new ScanRegion(new RectangularROI(0,0,5,5,0), Arrays.asList("x", "y"))));
         Object[] mutators = {};
 
         ScanPointIterator iterator = compoundGeneratorFactory.createObject(
@@ -270,7 +270,7 @@ public class ScanPointGeneratorFactoryTest {
 
         Object[] generators = {line1, line2};
         Object[] excluders = CompoundSpgIteratorFactory.getExcluders(Arrays.asList(
-			new ScanRegion<>(new RectangularROI(0,0,5,10,0), Arrays.asList("x", "y"))));
+			new ScanRegion(new RectangularROI(0,0,5,10,0), Arrays.asList("x", "y"))));
         Object[] mutators = {randomOffset};
 
 		ScanPointIterator iterator = compoundGeneratorFactory.createObject(

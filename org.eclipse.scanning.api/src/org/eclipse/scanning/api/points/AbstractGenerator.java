@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
@@ -36,7 +37,7 @@ public abstract class AbstractGenerator<T> implements IPointGenerator<T> {
 	protected volatile T model; // Because of the validateModel() method
 
 	protected List<IPointContainer> containers;
-	protected Collection<Object> regions = new ArrayList<>();
+	protected Collection<IROI> regions = new ArrayList<>();
 	private String id;
 	private String label;
 	private String description;
@@ -264,12 +265,12 @@ public abstract class AbstractGenerator<T> implements IPointGenerator<T> {
 	}
 
 	@Override
-	public Collection<Object> getRegions() {
+	public Collection<IROI> getRegions() {
 		return regions;
 	}
 
 	@Override
-	public void setRegions(Collection<Object> regions) throws GeneratorException {
+	public void setRegions(Collection<IROI> regions) throws GeneratorException {
 		this.regions = regions == null ? new ArrayList<>() : regions;
 	}
 

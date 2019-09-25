@@ -17,10 +17,10 @@ import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.command.ParserServiceImpl;
 
-class ScanRequestExpresser extends PyModelExpresser<ScanRequest<?>> {
+class ScanRequestExpresser extends PyModelExpresser<ScanRequest> {
 
 	@Override
-	String pyExpress(ScanRequest<?> request, boolean verbose) throws Exception {
+	String pyExpress(ScanRequest request, boolean verbose) throws Exception {
 
 
 		StringBuilder fragment = new StringBuilder("mscan(");

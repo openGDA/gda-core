@@ -48,7 +48,7 @@ public class DefaultScanPreprocessor implements IPreprocessor {
 	}
 
 	@Override
-	public <T> ScanRequest<T> preprocess(ScanRequest<T> scanRequest) throws ProcessingException {
+	public <T> ScanRequest preprocess(ScanRequest scanRequest) throws ProcessingException {
 		if (defaultScanConfiguration == null) {
 			// try getting the configuration object from the OSGi bundle context
 			defaultScanConfiguration = Activator.getService(DefaultScanConfiguration.class);

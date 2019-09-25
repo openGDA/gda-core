@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.scan.IScanListener;
@@ -88,7 +87,7 @@ public abstract class AbstractServletTest extends BrokerTest {
 		final ScanBean bean = new ScanBean();
 		bean.setName("Hello Scanning World");
 
-		final ScanRequest<?> req = new ScanRequest<>();
+		final ScanRequest req = new ScanRequest();
 		req.setCompoundModel(new CompoundModel(new StepModel("xNex", 0, 9, 1)));
 		req.setMonitorNamesPerPoint(Arrays.asList("monitor"));
 
@@ -107,7 +106,7 @@ public abstract class AbstractServletTest extends BrokerTest {
 		final ScanBean bean = new ScanBean();
 		bean.setName("Hello Scanning World");
 
-		final ScanRequest<?> req = new ScanRequest<IROI>();
+		final ScanRequest req = new ScanRequest();
 		// Create a grid scan model
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(0);
@@ -159,7 +158,7 @@ public abstract class AbstractServletTest extends BrokerTest {
 		final ScanBean bean = new ScanBean();
 		bean.setName("Hello Scanning World");
 
-		final ScanRequest<?> req = new ScanRequest<IROI>();
+		final ScanRequest req = new ScanRequest();
 		// Create a grid scan model
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(0);

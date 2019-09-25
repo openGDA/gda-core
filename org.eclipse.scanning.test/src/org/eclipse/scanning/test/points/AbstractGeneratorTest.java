@@ -43,7 +43,7 @@ public abstract class AbstractGeneratorTest {
 		assertEquals(size, pointList.size());
 		assertEquals(size, generator.size());
 
-		CompoundModel<IROI> cmodel = new CompoundModel<>(model);
+		CompoundModel cmodel = new CompoundModel(model);
 		if (roi!=null) cmodel.setRegions(Arrays.asList(new ScanRegion(roi, Arrays.asList("x", "y"))));
 
 		IPointGenerator<?> cgenerator = service.createCompoundGenerator(cmodel);

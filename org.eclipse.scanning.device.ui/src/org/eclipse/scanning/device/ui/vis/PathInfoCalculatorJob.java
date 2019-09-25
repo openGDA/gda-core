@@ -43,7 +43,7 @@ class PathInfoCalculatorJob extends Job {
 
 	// Model
 	private Object                   scanPathModel;
-	private List<ScanRegion<IROI>>   scanRegions;
+	private List<ScanRegion>   scanRegions;
 
 	// Controller
 	private PlottingController controller;
@@ -59,7 +59,7 @@ class PathInfoCalculatorJob extends Job {
 		this.vservice              = ServiceHolder.getValidatorService();
 	}
 
-	protected void schedule(Object model, List<ScanRegion<IROI>> scanRegions) {
+	protected void schedule(Object model, List<ScanRegion> scanRegions) {
 		this.scanPathModel = model;
 		this.scanRegions   = scanRegions;
 		schedule();

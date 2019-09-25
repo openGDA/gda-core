@@ -131,7 +131,7 @@ public abstract class AbstractAcquisitionTest {
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 		models.add(gmodel);
 
-		IPointGenerator<?> gen = ServiceTestHelper.getPointGeneratorService().createCompoundGenerator(new CompoundModel<>(models));
+		IPointGenerator<?> gen = ServiceTestHelper.getPointGeneratorService().createCompoundGenerator(new CompoundModel(models));
 
 		if (dmodel!=null) {
 			AnnotationManager manager = new AnnotationManager(Activator.createResolver());

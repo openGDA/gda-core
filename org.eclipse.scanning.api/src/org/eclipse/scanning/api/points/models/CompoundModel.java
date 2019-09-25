@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.IMutator;
 /**
  * This class is designed to encapsulate the information
@@ -73,10 +74,10 @@ import org.eclipse.scanning.api.points.IMutator;
  * @author Matthew Gerring
  *
  */
-public class CompoundModel<R> implements Cloneable {
+public class CompoundModel implements Cloneable {
 
 	private List<Object>               models;
-	private Collection<ScanRegion<R>>  regions;
+	private Collection<ScanRegion>  regions;
 	private List<IMutator>	           mutators;
 	private double                     duration = -1;
 
@@ -88,8 +89,8 @@ public class CompoundModel<R> implements Cloneable {
 	 * Returns a copy (clone) of the given {@link CompoundModel}.
 	 * @param toCopy the model to copy
 	 */
-	public static <R> CompoundModel<R> copy(CompoundModel<R> toCopy) {
-		final CompoundModel<R> copy = new CompoundModel<>();
+	public static  CompoundModel copy(CompoundModel toCopy) {
+		final CompoundModel copy = new CompoundModel();
 		copy.models = toCopy.models;
 		copy.regions = toCopy.regions;
 		copy.mutators = toCopy.mutators;
@@ -100,8 +101,8 @@ public class CompoundModel<R> implements Cloneable {
 	/**
 	 * Returns a
 	 */
-	public static <R> CompoundModel<R> copyAndSetModels(CompoundModel<R> toCopy, List<Object> models) {
-		CompoundModel<R> copy = copy(toCopy);
+	public static CompoundModel copyAndSetModels(CompoundModel toCopy, List<Object> models) {
+		CompoundModel copy = copy(toCopy);
 		copy.models = models;
 		return copy;
 	}
@@ -118,7 +119,7 @@ public class CompoundModel<R> implements Cloneable {
 	public CompoundModel(List<Object> ms) {
 		models = ms;
 	}
-	public CompoundModel(IScanPathModel model, R region) {
+	public CompoundModel(IScanPathModel model, IROI region) {
 		if (region instanceof IScanPathModel) { // It's not a region
 			models = Arrays.asList(model, (IScanPathModel)region);
 		} else {
@@ -126,7 +127,7 @@ public class CompoundModel<R> implements Cloneable {
 		}
 	}
 
-	public void setData(IScanPathModel model, R region) {
+	public void setData(IScanPathModel model, IROI region) {
 		if (region instanceof IScanPathModel) { // It's not a region
 			models = Arrays.asList(model, (IScanPathModel)region);
 		} else {
@@ -134,12 +135,12 @@ public class CompoundModel<R> implements Cloneable {
 		}
 	}
 
-	public void setData(IScanPathModel model, R region, List<String> names) {
+	public void setData(IScanPathModel model, IROI region, List<String> names) {
 		if (region instanceof IScanPathModel) throw new IllegalArgumentException("The region must not be a generator model!");
 
 		// We do it this way to make setData(...) fast. This means addData(...) has to deal with unmodifiable lists.
 		this.models  = Arrays.asList(model);
-	    this.regions = Arrays.asList(new ScanRegion<R>(region, names));
+	    this.regions = Arrays.asList(new ScanRegion(region, names));
 	}
 
 	/**
@@ -149,7 +150,7 @@ public class CompoundModel<R> implements Cloneable {
 	 * @param model
 	 * @param rois
 	 */
-	public void addData(Object model, Collection<R> rois) {
+	public void addData(Object model, Collection<IROI> rois) {
 
 		if (models==null) models = new ArrayList<>(7);
 		try {
@@ -165,13 +166,13 @@ public class CompoundModel<R> implements Cloneable {
 
 		// They are not really ordered but for now we maintain order.
 		if (regions==null) regions = new LinkedHashSet<>(7);
-		if (rois!=null) for (R roi : rois) {
-			ScanRegion<R> region = new ScanRegion<>(roi, AbstractPointsModel.getScannableNames(model));
+		if (rois!=null) for (IROI roi : rois) {
+			ScanRegion region = new ScanRegion(roi, AbstractPointsModel.getScannableNames(model));
 			try {
 				this.regions.add(region);
 			} catch(Exception ne) {
 				// It might be unmodifiable
-				Collection<ScanRegion<R>> tmp = new LinkedHashSet<>(7);
+				Collection<ScanRegion> tmp = new LinkedHashSet<>(7);
 				tmp.addAll(this.regions);
 				tmp.add(region);
 				regions = tmp;
@@ -188,13 +189,13 @@ public class CompoundModel<R> implements Cloneable {
 	public void setModelsVarArgs(Object... models) {
 		this.models = Arrays.asList(models);
 	}
-	public Collection<ScanRegion<R>> getRegions() {
+	public Collection<ScanRegion> getRegions() {
 		return regions;
 	}
-	public void setRegions(Collection<ScanRegion<R>> regions) {
+	public void setRegions(Collection<ScanRegion> regions) {
 		this.regions = regions;
 	}
-	public void setRegionsVarArgs(@SuppressWarnings("unchecked") ScanRegion<R>... regions) {
+	public void setRegionsVarArgs(@SuppressWarnings("unchecked") ScanRegion... regions) {
 		this.regions = Arrays.asList(regions);
 	}
 
@@ -234,7 +235,7 @@ public class CompoundModel<R> implements Cloneable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		CompoundModel<?> other = (CompoundModel<?>) obj;
+		CompoundModel other = (CompoundModel) obj;
 		if (duration != other.duration) return false;
 		if (models == null) {
 			if (other.models != null)

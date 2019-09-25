@@ -82,7 +82,7 @@ public class ScanShapeTest {
 
 	@Test
 	public void testShapeGrid() throws Exception {
-		ScanRequest<Object> req = createGridScanRequest(nestCount, snake);
+		ScanRequest req = createGridScanRequest(nestCount, snake);
 
 		ScanInformation scanInfo = new ScanInformation(service, req);
 		final int expectedRank = nestCount + 2;
@@ -98,7 +98,7 @@ public class ScanShapeTest {
 
 	@Test
 	public void testShapeGridCircularRegion() throws Exception {
-		ScanRequest<Object> req = createGridWithCircleRegionScanRequest(nestCount, snake);
+		ScanRequest req = createGridWithCircleRegionScanRequest(nestCount, snake);
 
 		ScanInformation scanInfo = new ScanInformation(service, req);
 		int[] shape = scanInfo.getShape();
@@ -111,7 +111,7 @@ public class ScanShapeTest {
 
 	@Test
 	public void testShapeGridPolygonRegion() throws Exception {
-		ScanRequest<Object> req = createGridWithPolygonRegionScanRequest(nestCount, snake);
+		ScanRequest req = createGridWithPolygonRegionScanRequest(nestCount, snake);
 
 		ScanInformation scanInfo = new ScanInformation(service, req);
 		int[] shape = scanInfo.getShape();
@@ -138,9 +138,9 @@ public class ScanShapeTest {
 			models[i] = new StepModel("T" + (nestCount - 1- i), 100, 100 + (10 * i), 10);
 		}
 		models[nestCount] = spiralModel;
-		CompoundModel<Object> compoundModel = new CompoundModel<>(models);
+		CompoundModel compoundModel = new CompoundModel(models);
 
-		ScanRequest<Object> req = new ScanRequest<>();
+		ScanRequest req = new ScanRequest();
 		req.setCompoundModel(compoundModel);
 		ScanInformation scanInfo = new ScanInformation(service, req);
 
@@ -157,7 +157,7 @@ public class ScanShapeTest {
 	@Test
 	public void testShapeLine() throws Exception {
 		LinearROI roi = new LinearROI(new double[] { 0, 0 }, new double [] { 3, 3 });
-		ScanRegion<Object> region = new ScanRegion<>(roi, "x", "y");
+		ScanRegion region = new ScanRegion(roi, "x", "y");
 		// TODO: we need to give the region to the point generator somehow, but the
 		// scan estimator doesn't have it at present
 		OneDEqualSpacingModel lineModel = new OneDEqualSpacingModel();
@@ -170,10 +170,10 @@ public class ScanShapeTest {
 			models[i] = new StepModel("T" + (nestCount - 1- i), 100, 100 + (10 * i), 10);
 		}
 		models[nestCount] = lineModel;
-		CompoundModel<Object> compoundModel = new CompoundModel<>(models);
+		CompoundModel compoundModel = new CompoundModel(models);
 		compoundModel.setRegions(Arrays.asList(region));
 
-		ScanRequest<Object> req = new ScanRequest<>();
+		ScanRequest req = new ScanRequest();
 		req.setCompoundModel(compoundModel);
 		ScanInformation scanInfo = new ScanInformation(service, req);
 
@@ -191,9 +191,9 @@ public class ScanShapeTest {
 	public void testShapeStatic() throws Exception {
 		// Note this test shouldn't be repeated
 		StaticModel staticModel = new StaticModel();
-		CompoundModel<Object> compoundModel = new CompoundModel<>(staticModel);
+		CompoundModel compoundModel = new CompoundModel(staticModel);
 
-		ScanRequest<Object> req = new ScanRequest<>();
+		ScanRequest req = new ScanRequest();
 		req.setCompoundModel(compoundModel);
 
 		ScanInformation scanInfo = new ScanInformation(service, req);
@@ -205,7 +205,7 @@ public class ScanShapeTest {
 		assertEquals(expectedRank, shape.length);
 	}
 
-	private ScanRequest<Object> createGridScanRequest(int nestCount, boolean snake) {
+	private ScanRequest createGridScanRequest(int nestCount, boolean snake) {
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(0);
 		box.setyAxisStart(0);
@@ -223,34 +223,34 @@ public class ScanShapeTest {
 			models[i] = new StepModel("T" + (nestCount - 1 - i), 100, 100 + (10 * i), 10);
 		}
 		models[nestCount] = gridModel;
-		CompoundModel<Object> compoundModel = new CompoundModel<>(models);
+		CompoundModel compoundModel = new CompoundModel(models);
 
 		//System.out.println("The number of points will be: "+gen.size());
 
-		ScanRequest<Object> req = new ScanRequest<>();
+		ScanRequest req = new ScanRequest();
 		req.setCompoundModel(compoundModel);
 		return req;
 	}
 
-	private ScanRequest<Object> createGridWithCircleRegionScanRequest(int nestCount, boolean snake) {
-		ScanRequest<Object> req = createGridScanRequest(nestCount, snake);
+	private ScanRequest createGridWithCircleRegionScanRequest(int nestCount, boolean snake) {
+		ScanRequest req = createGridScanRequest(nestCount, snake);
 
 		CircularROI roi = new CircularROI(2, 1, 1);
-		ScanRegion<Object> circleRegion = new ScanRegion<Object>(roi, "x", "y");
+		ScanRegion circleRegion = new ScanRegion(roi, "x", "y");
 		req.getCompoundModel().setRegions(Arrays.asList(circleRegion));
 
 		return req;
 	}
 
-	private ScanRequest<Object> createGridWithPolygonRegionScanRequest(int nestCount, boolean snake) {
-		ScanRequest<Object> req = createGridScanRequest(nestCount, snake);
+	private ScanRequest createGridWithPolygonRegionScanRequest(int nestCount, boolean snake) {
+		ScanRequest req = createGridScanRequest(nestCount, snake);
 
 		PolygonalROI diamond = new PolygonalROI(new double[] { 1.5, 0 });
 		diamond.insertPoint(new double[] { 3, 1.5 });
 		diamond.insertPoint(new double[] { 1.5, 3 });
 		diamond.insertPoint(new double[] { 0, 1.5 });
 
-		ScanRegion<Object> circleRegion = new ScanRegion<Object>(diamond, "x", "y");
+		ScanRegion circleRegion = new ScanRegion(diamond, "x", "y");
 		req.getCompoundModel().setRegions(Arrays.asList(circleRegion));
 
 		return req;

@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.dawnsci.plotting.api.preferences.BasePlottingConstants;
@@ -161,7 +160,7 @@ public class ScanRegionView extends ViewPart {
 			try {
 				final String scanRegionsJson = memento.getString(MEMENTO_KEY_SCAN_REGIONS);
 				@SuppressWarnings("unchecked")
-				final List<ScanRegion<IROI>> scanRegions =
+				final List<ScanRegion> scanRegions =
 						ServiceHolder.getMarshallerService().unmarshal(scanRegionsJson, List.class);
 				createRegions(scanRegions);
 			} catch (Exception e) {
@@ -213,7 +212,7 @@ public class ScanRegionView extends ViewPart {
 					try {
 						Object ob = ((IStructuredSelection)viewer.getSelection()).getFirstElement();
 						@SuppressWarnings("unchecked")
-						ScanRegion<IROI> region = (ScanRegion<IROI>) ob;
+						ScanRegion region = (ScanRegion) ob;
 						IRegion sregion = system.getRegion(region.getName());
 						if (sregion!=null) system.removeRegion(sregion);
 						viewer.refresh(); // Must do global refresh because might effect units of other parameters.
@@ -238,7 +237,7 @@ public class ScanRegionView extends ViewPart {
 		system.addRegionListener(regionListener);
 
 		// Called when user clicks on UI
-		Function<SelectionChangedEvent, Optional<ScanRegion<IROI>>> toScanRegion = event->
+		Function<SelectionChangedEvent, Optional<ScanRegion>> toScanRegion = event->
 			Optional.ofNullable(((IStructuredSelection) event.getSelection()).getFirstElement()).map(ScanRegion.class::cast);
 
 		viewer.addSelectionChangedListener(event -> toScanRegion.apply(event).ifPresent(this::setSelectedRegion));
@@ -255,9 +254,9 @@ public class ScanRegionView extends ViewPart {
 		});
 	}
 
-	private void checkAxes(Collection<ScanRegion<IROI>> regions) {
+	private void checkAxes(Collection<ScanRegion> regions) {
 		if (regions==null || regions.isEmpty()) return;
-		for (ScanRegion<IROI> region : regions) {
+		for (ScanRegion region : regions) {
 			if (region!=null) {
 				IRegion iregion = system.getRegion(region.getName());
 				if (iregion!=null) {
@@ -274,7 +273,7 @@ public class ScanRegionView extends ViewPart {
 		return axes;
 	}
 
-	private void setSelectedRegion(ScanRegion<IROI> sregion) {
+	private void setSelectedRegion(ScanRegion sregion) {
 		Collection<IRegion> regions = system.getRegions();
 		for (IRegion iRegion : regions) {
 			if (!(iRegion.getUserObject() instanceof ScanRegion)) continue;
@@ -324,7 +323,7 @@ public class ScanRegionView extends ViewPart {
 		final IAction save = new Action("Save regions", IAction.AS_PUSH_BUTTON) {
 			@Override
 			public void run() {
-				List<ScanRegion<IROI>> regions = ScanRegions.getScanRegions(system);
+				List<ScanRegion> regions = ScanRegions.getScanRegions(system);
 
 				if (regions == null) return;
 				FileSelectionDialog dialog = new FileSelectionDialog(getViewSite().getShell());
@@ -391,12 +390,12 @@ public class ScanRegionView extends ViewPart {
 
 	private void readRegions(String filePath) {
 		@SuppressWarnings("unchecked")
-		List<ScanRegion<IROI>> regions = loadFromFile(List.class, filePath).orElse(emptyList());
+		List<ScanRegion> regions = loadFromFile(List.class, filePath).orElse(emptyList());
 		createRegions(regions);
 		viewer.refresh();
 	}
 
-	private void createRegions(List<ScanRegion<IROI>> regions) {
+	private void createRegions(List<ScanRegion> regions) {
 		try {
 			ScanRegions.createRegions(system, regions);
 			checkAxes(regions);
@@ -414,7 +413,7 @@ public class ScanRegionView extends ViewPart {
 			@SuppressWarnings("unchecked")
 			@Override
 			public String getText(Object element) {
-				return ((ScanRegion<IROI>)element).getName();
+				return ((ScanRegion)element).getName();
 			}
 		});
 
@@ -426,8 +425,8 @@ public class ScanRegionView extends ViewPart {
 			@SuppressWarnings("unchecked")
 			@Override
 			public String getText(Object element) {
-				if (element==null || ((ScanRegion<IROI>)element).getScannables()==null) return "";
-				return ((ScanRegion<IROI>)element).getScannables().toString();
+				if (element==null || ((ScanRegion)element).getScannables()==null) return "";
+				return ((ScanRegion)element).getScannables().toString();
 			}
 		});
 		IScannableDeviceService cservice = ServiceHolder.getEventService().createRemoteService(new URI(CommandConstants.getScanningBrokerUri()), IScannableDeviceService.class);

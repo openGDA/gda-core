@@ -33,7 +33,7 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 
-class ScanRequestValidator implements IValidator<ScanRequest<?>> {
+class ScanRequestValidator implements IValidator<ScanRequest> {
 
 
 	private IValidatorService vservice;
@@ -44,9 +44,9 @@ class ScanRequestValidator implements IValidator<ScanRequest<?>> {
 	}
 
 	@Override
-	public void validate(ScanRequest<?> req) throws ValidationException, InstantiationException, IllegalAccessException {
+	public void validate(ScanRequest req) throws ValidationException, InstantiationException, IllegalAccessException {
 
-	    final CompoundModel<?> cm = req.getCompoundModel();
+	    final CompoundModel cm = req.getCompoundModel();
 		if (cm!=null && cm.getModels()!=null && !cm.getModels().isEmpty()) {
 			vservice.validate(cm);
 		} else {

@@ -74,7 +74,7 @@ public class ScanServletTest extends AbstractServletTest {
 			List<ScanBean> beans = runAndCheck(bean, 10);
 			// We now check that they all had xfred set.
 			for (ScanBean scanBean : beans) {
-				ScanRequest<?> req = scanBean.getScanRequest();
+				ScanRequest req = scanBean.getScanRequest();
 
 				StepModel step = (StepModel)req.getCompoundModel().getModels().toArray()[0];
 				assertEquals("xNex", step.getName());
@@ -118,7 +118,7 @@ public class ScanServletTest extends AbstractServletTest {
 		}
 
 		@Override
-		public <T> ScanRequest<T> preprocess(ScanRequest<T> req) throws ProcessingException {
+		public <T> ScanRequest preprocess(ScanRequest req) throws ProcessingException {
 			executed = true;
 			return req;
 		}

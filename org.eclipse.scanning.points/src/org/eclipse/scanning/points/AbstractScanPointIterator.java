@@ -80,8 +80,8 @@ public abstract class AbstractScanPointIterator implements ScanPointIterator, Py
 
 	protected static PyObject makePyRoi(Object region) {
 		IROI roi = null;
-		if (region instanceof ScanRegion<?>) {
-			region = ((ScanRegion<?>) region).getRoi();
+		if (region instanceof ScanRegion) {
+			region = ((ScanRegion) region).getRoi();
 		}
 		if (region instanceof IROI) {
 			roi = (IROI) region;

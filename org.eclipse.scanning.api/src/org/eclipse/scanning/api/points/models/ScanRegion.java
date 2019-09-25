@@ -14,6 +14,7 @@ package org.eclipse.scanning.api.points.models;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.INameable;
 
 /**
@@ -25,11 +26,11 @@ import org.eclipse.scanning.api.INameable;
  *
  * @param <T>
  */
-public class ScanRegion<T> implements INameable {
+public class ScanRegion implements INameable {
 
 	private String       name;
 	private Object       type;
-	private T            roi;
+	private IROI            roi;
 	private List<String> scannables;
 
 	public ScanRegion() {
@@ -44,19 +45,19 @@ public class ScanRegion<T> implements INameable {
 		this.scannables = snames;
 	}
 
-	public ScanRegion(T roi, List<String> names) {
+	public ScanRegion(IROI roi, List<String> names) {
 		this.roi = roi;
 		this.scannables = names;
 	}
-	public ScanRegion(T roi, String... names) {
+	public ScanRegion(IROI roi, String... names) {
 		this.roi = roi;
 		this.scannables = Arrays.asList(names);
 	}
 
-	public T getRoi() {
+	public IROI getRoi() {
 		return roi;
 	}
-	public void setRoi(T roi) {
+	public void setRoi(IROI roi) {
 		this.roi = roi;
 	}
 	public List<String> getScannables() {
@@ -83,7 +84,7 @@ public class ScanRegion<T> implements INameable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ScanRegion<?> other = (ScanRegion<?>) obj;
+		ScanRegion other = (ScanRegion) obj;
 		if (roi == null) {
 			if (other.roi != null)
 				return false;

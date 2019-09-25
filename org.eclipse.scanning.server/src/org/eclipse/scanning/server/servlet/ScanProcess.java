@@ -277,7 +277,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		logger.debug("Running blocking scan {}", scanModel.getFilePath());
 		updateBean(Status.RUNNING, "Starting scan");
 		sendJsonScanStartMessage(scanModel);
-		final ScanRequest<?> scanRequest = bean.getScanRequest();
+		final ScanRequest scanRequest = bean.getScanRequest();
 		boolean afterScriptRun = false;
 
 		try {
@@ -364,7 +364,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 	private void validateScanRequest() throws InstantiationException, IllegalAccessException {
 		if (!Boolean.getBoolean("org.eclipse.scanning.server.servlet.scanProcess.disableValidate")) {
 			logger.debug("Validating run : {}", bean);
-			final ScanRequest<?> scanRequest = bean.getScanRequest();
+			final ScanRequest scanRequest = bean.getScanRequest();
 			if (scanRequest.getDetectors() != null && scanRequest.getDetectors().isEmpty()) {
 				scanRequest.setDetectors(null);
 			}
@@ -401,7 +401,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 	}
 
 	private void setFilePath(ScanBean bean) throws EventException {
-		final ScanRequest<?> req = bean.getScanRequest();
+		final ScanRequest req = bean.getScanRequest();
 
 		// Set the file path to the next scan file path from the service which manages scan names.
 		if (req.getFilePath() == null) {
@@ -451,7 +451,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 
 	private IDeviceController createRunnableDevice(ScanModel scanModel) throws ScanningException, EventException {
 
-		final ScanRequest<?> req = bean.getScanRequest();
+		final ScanRequest req = bean.getScanRequest();
 		if (req == null) {
 			throw new ScanningException("There must be a scan request to run a scan!");
 		}
@@ -487,7 +487,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		scanModel.setPointGenerator(generator);
 		bean.setSize(generator.size());
 
-		final ScanRequest<?> req = bean.getScanRequest();
+		final ScanRequest req = bean.getScanRequest();
 		scanModel.setDetectors(getDetectors(req.getDetectors()));
 
 		// Note: no need to set the scannables as AcquisitionDevice can determine them from the point generator
@@ -533,7 +533,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 
 	private IPointGenerator<?> createPointGenerator() throws GeneratorException {
 		final IPointGeneratorService service = Services.getGeneratorService();
-		final ScanRequest<?> scanRequest = bean.getScanRequest();
+		final ScanRequest scanRequest = bean.getScanRequest();
 		if (scanRequest.getDetectors() != null) {
 			// if theres a malcolm device, set the duration of the compound model to its exposure time
 			scanRequest.getDetectors().values().stream()

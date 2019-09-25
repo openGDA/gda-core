@@ -23,7 +23,6 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.region.IRegion;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
@@ -379,8 +378,8 @@ public class ScanView  extends ViewPart implements SeriesItemView, SeriesItemLis
 		if (CompoundModel.class == clazz) {
 			List<IScanPathModel> models = getPath();
 			if (models==null) return null;
-			CompoundModel<IROI> cm = new CompoundModel<IROI>(models);
-			final List<ScanRegion<IROI>> regions = ScanRegions.getScanRegions(PlotUtil.getRegionSystem());
+			CompoundModel cm = new CompoundModel(models);
+			final List<ScanRegion> regions = ScanRegions.getScanRegions(PlotUtil.getRegionSystem());
 			cm.setRegions(regions);
 			return (T)cm;
 		}

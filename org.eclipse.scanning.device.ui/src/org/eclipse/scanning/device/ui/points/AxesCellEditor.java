@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.richbeans.widgets.internal.GridUtils;
@@ -37,7 +36,7 @@ import org.eclipse.swt.widgets.Label;
 
 public class AxesCellEditor extends CellEditor {
 
-	private ScanRegion<IROI>        region;
+	private ScanRegion              region;
 	private CCombo                  fast, slow;
 	private DelegatingSelectionProvider prov;
 	private List<String>            names;
@@ -135,7 +134,7 @@ public class AxesCellEditor extends CellEditor {
 
 	@Override
 	protected void doSetValue(Object value) {
-		this.region = (ScanRegion<IROI>)value;
+		this.region = (ScanRegion)value;
 		if (region.getScannables()==null) {
 			region.setScannables(new ArrayList<String>(Arrays.asList(new String[]{"stage_x","stage_y"})));
 		}

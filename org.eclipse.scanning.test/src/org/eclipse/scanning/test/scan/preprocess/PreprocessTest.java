@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
@@ -47,7 +46,7 @@ public class PreprocessTest {
 	@Test
 	public void testSimplePreprocess() throws Exception {
 
-		ScanRequest<?> req = createStepRequest();
+		ScanRequest req = createStepRequest();
 		req = preprocessor.preprocess(req);
 		assertNotNull(req);
 
@@ -58,7 +57,7 @@ public class PreprocessTest {
 	@Test
 	public void testGridPreprocess() throws Exception {
 
-		ScanRequest<?> req = createGridRequest();
+		ScanRequest req = createGridRequest();
 		req = preprocessor.preprocess(req);
 		assertNotNull(req);
 
@@ -70,16 +69,16 @@ public class PreprocessTest {
 	@Test
 	public void testGridStepPreprocess() throws Exception {
 
-		ScanRequest<?> req = createStepGridRequest(5);
+		ScanRequest req = createStepGridRequest(5);
 		req = preprocessor.preprocess(req);
 		assertNotNull(req);
 
 		// TODO
 	}
 
-	private ScanRequest<?> createStepRequest() throws IOException {
+	private ScanRequest createStepRequest() throws IOException {
 
-		final ScanRequest<?> req = new ScanRequest<IROI>();
+		final ScanRequest req = new ScanRequest();
 		req.setCompoundModel(new CompoundModel(new StepModel("fred", 0, 9, 1)));
 		req.setMonitorNamesPerPoint(Arrays.asList("monitor"));
 
@@ -91,10 +90,10 @@ public class PreprocessTest {
 		return req;
 	}
 
-	private ScanRequest<?> createStepGridRequest(int outerScanNum) throws IOException {
+	private ScanRequest createStepGridRequest(int outerScanNum) throws IOException {
 
 
-		final ScanRequest<?> req = new ScanRequest<IROI>();
+		final ScanRequest req = new ScanRequest();
 		// Create a grid scan model
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(0);
@@ -138,9 +137,9 @@ public class PreprocessTest {
 		return req;
 	}
 
-	private ScanRequest<?> createGridRequest() throws IOException {
+	private ScanRequest createGridRequest() throws IOException {
 
-		final ScanRequest<?> req = new ScanRequest<IROI>();
+		final ScanRequest req = new ScanRequest();
 		// Create a grid scan model
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(0);

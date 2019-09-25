@@ -201,9 +201,9 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 
 		// If we have to reaxis the regions, try to
 		if (conf.isApplyRegions()) {
-			List<ScanRegion<IROI>> regions = ScanRegions.getScanRegions(system);
+			List<ScanRegion> regions = ScanRegions.getScanRegions(system);
 			List<String> axes = Arrays.asList(conf.getXAxisName(), conf.getYAxisName());
-			for (ScanRegion<IROI> region : regions) {
+			for (ScanRegion region : regions) {
 				region.setScannables(axes);
 			}
 		}
@@ -368,7 +368,7 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 		roi.setName(region.getName());
 		setSelection(new StructuredSelection(roi));
 
-		List<ScanRegion<IROI>> sregions = ScanRegions.getScanRegions(system);
+		List<ScanRegion> sregions = ScanRegions.getScanRegions(system);
 		if (drawPath) {
 			if (sregions.isEmpty()) {
 				setPathVisible(false);

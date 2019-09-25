@@ -20,7 +20,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PointROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
@@ -69,8 +68,8 @@ public class PyExpresserTest {
 		Collection<String> monitors = new ArrayList<>();
 		monitors.add("someMonitor");
 
-		ScanRequest<IROI> request = new ScanRequest<>();
-		request.setCompoundModel(new CompoundModel<IROI>(smodel));
+		ScanRequest request = new ScanRequest();
+		request.setCompoundModel(new CompoundModel(smodel));
 		request.setMonitorNamesPerPoint(monitors);
 
 		assertEquals(  // Concise.
@@ -154,9 +153,9 @@ public class PyExpresserTest {
 		model.setContinuous(false);
 
 		CircularROI croi = new CircularROI();
-		ScanRequest<IROI> request = new ScanRequest<>();
+		ScanRequest request = new ScanRequest();
 
-		CompoundModel<IROI> cmodel = new CompoundModel<>();
+		CompoundModel cmodel = new CompoundModel();
 		cmodel.setData(model, croi);
 		request.setCompoundModel(cmodel);
 
@@ -204,8 +203,8 @@ public class PyExpresserTest {
 		Collection<String> monitors = new ArrayList<>();
 		monitors.add("someMonitor");
 
-		ScanRequest<IROI> request = new ScanRequest<>();
-		request.setCompoundModel(new CompoundModel<IROI>(rmodel));
+		ScanRequest request = new ScanRequest();
+		request.setCompoundModel(new CompoundModel(rmodel));
 		request.setMonitorNamesPerPoint(monitors);
 
 		assertEquals(  // Concise.
@@ -237,9 +236,9 @@ public class PyExpresserTest {
 		gmodel.setContinuous(true);
 
 		CircularROI croi = new CircularROI();
-		ScanRequest<IROI> request = new ScanRequest<>();
+		ScanRequest request = new ScanRequest();
 
-		CompoundModel<IROI> cmodel = new CompoundModel<>();
+		CompoundModel cmodel = new CompoundModel();
 		cmodel.setData(gmodel, croi);
 		request.setCompoundModel(cmodel);
 
@@ -265,8 +264,8 @@ public class PyExpresserTest {
 		amodel.setName("fred");
 		amodel.setPositions(0.1);
 
-		ScanRequest<IROI> request = new ScanRequest<>();
-		request.setCompoundModel(new CompoundModel<IROI>(smodel, amodel));
+		ScanRequest request = new ScanRequest();
+		request.setCompoundModel(new CompoundModel(smodel, amodel));
 
 		assertEquals(  // Concise.
 				"mscan([step('fred', 0.0, 10.0, 1.0), val('fred', 0.1)])",
@@ -403,7 +402,7 @@ public class PyExpresserTest {
 		gmodel.setContinuous(false);
 		gmodel.setSnake(false);
 
-		ScanRequest<IROI> request = new ScanRequest<>();
+		ScanRequest request = new ScanRequest();
 		request.setCompoundModel(new CompoundModel(Arrays.asList(gmodel)));
 		Map<String,Object> detectors = new LinkedHashMap<>();
 		detectors.put("mandelbrot", new MandelbrotModel("p", "q"));

@@ -47,9 +47,9 @@ public class DefaultScanPreprocessorTest {
 		preprocessor.setDefaultScanConfiguration(defaultScanConfig);
 	}
 
-	protected ScanRequest<?> createStepScan() {
-		final ScanRequest<?> req = new ScanRequest<>();
-		req.setCompoundModel(new CompoundModel<>(new StepModel("fred", 0, 9, 1)));
+	protected ScanRequest createStepScan() {
+		final ScanRequest req = new ScanRequest();
+		req.setCompoundModel(new CompoundModel(new StepModel("fred", 0, 9, 1)));
 
 		final MockDetectorModel dmodel = new MockDetectorModel();
 		dmodel.setName("detector");
@@ -61,7 +61,7 @@ public class DefaultScanPreprocessorTest {
 
 	@Test
 	public void testPreprocess() throws Exception {
-		ScanRequest<?> scanRequest = createStepScan();
+		ScanRequest scanRequest = createStepScan();
 		scanRequest.setMonitorNamesPerPoint(Arrays.asList("pp1", "pp2"));
 		scanRequest.setMonitorNamesPerScan(Arrays.asList("ps1", "ps2", "ps3"));
 		scanRequest.setTemplateFilePaths(new HashSet<>(Arrays.asList("fred.yaml")));
@@ -78,7 +78,7 @@ public class DefaultScanPreprocessorTest {
 
 	@Test
 	public void testPreprocessEmptyScanRequest() throws Exception {
-		ScanRequest<?> scanRequest = createStepScan();
+		ScanRequest scanRequest = createStepScan();
 		preprocessor.preprocess(scanRequest);
 
 		assertEquals(new HashSet<>(Arrays.asList("defpp1", "defpp2", "defpp3")),
@@ -93,7 +93,7 @@ public class DefaultScanPreprocessorTest {
 	public void testPreprocessEmptyDefaultScanConfiguration() throws Exception {
 		preprocessor.setDefaultScanConfiguration(new DefaultScanConfiguration());
 
-		ScanRequest<?> scanRequest = createStepScan();
+		ScanRequest scanRequest = createStepScan();
 		scanRequest.setMonitorNamesPerPoint(Arrays.asList("pp1", "pp2"));
 		scanRequest.setMonitorNamesPerScan(Arrays.asList("ps1", "ps2", "ps3"));
 		scanRequest.setTemplateFilePaths(new HashSet<>(Arrays.asList("fred.yaml")));

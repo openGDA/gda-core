@@ -76,8 +76,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			  + ")"
 		);
 
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> request = pi.get("sr", ScanRequest.class);
+		ScanRequest request = pi.get("sr", ScanRequest.class);
 
 		Collection<Object> models = request.getCompoundModel().getModels();
 		assertEquals(1, models.size());  // I.e. this is not a compound scan.
@@ -102,8 +101,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			  + ")"
 		);
 
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> request = pi.get("sr", ScanRequest.class);
+		ScanRequest request = pi.get("sr", ScanRequest.class);
 
 		Collection<Object> models = request.getCompoundModel().getModels();
 		assertEquals(1, models.size());  // I.e. this is not a compound scan.
@@ -125,8 +123,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	"    ),                           "
 			+	"    det=detector('mandelbrot', 0.1),         "
 			+	")                                ");
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> request = pi.get("sr", ScanRequest.class);
+		ScanRequest request = pi.get("sr", ScanRequest.class);
 
 		Collection<Object> models = request.getCompoundModel().getModels();
 		assertEquals(1, models.size());  // I.e. this is not a compound scan.
@@ -180,8 +177,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	"        roi=circ((4, 6), 5)      "
 			+	"    ),                           "
 			+	")                                ");
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> request = pi.get("sr", ScanRequest.class);
+		ScanRequest request = pi.get("sr", ScanRequest.class);
 
 		Collection<Object> models = request.getCompoundModel().getModels();
 		assertEquals(1, models.size());  // I.e. this is not a compound scan.
@@ -226,8 +222,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	"        roi=poly((0, 0),(1, 5),(1, -2))"
 			+	"    ),                           "
 			+	")                                ");
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> request = pi.get("sr", ScanRequest.class);
+		ScanRequest request = pi.get("sr", ScanRequest.class);
 
 		Collection<Object> models = request.getCompoundModel().getModels();
 		assertEquals(1, models.size());  // I.e. this is not a compound scan.
@@ -265,8 +260,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 				+	"    ),                           "
 				+	"    det=detector('mandelbrot', 0.1),         "
 				+	")                                ");
-			@SuppressWarnings("unchecked")
-			ScanRequest<IROI> request = pi.get("sr", ScanRequest.class);
+			ScanRequest request = pi.get("sr", ScanRequest.class);
 
 			Collection<Object> models = request.getCompoundModel().getModels();
 			assertEquals(1, models.size());  // I.e. this is not a compound scan.
@@ -297,8 +291,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 				+	"        roi=circ((4, 6), 5)      "
 				+	"    )                            "
 				+	")                                ");
-			@SuppressWarnings("unchecked")
-			ScanRequest<IROI> request = pi.get("sr", ScanRequest.class);
+			ScanRequest request = pi.get("sr", ScanRequest.class);
 
 			Collection<Object> models = request.getCompoundModel().getModels();
 			assertEquals(1, models.size());  // I.e. this is not a compound scan.
@@ -326,8 +319,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 				+	"        roi=circ((4, 6), 5)      "
 				+	"    )                            "
 				+	")                                ");
-			@SuppressWarnings("unchecked")
-			ScanRequest<IROI> request = pi.get("sr", ScanRequest.class);
+			ScanRequest request = pi.get("sr", ScanRequest.class);
 
 			Collection<Object> models = request.getCompoundModel().getModels();
 			assertEquals(1, models.size());  // I.e. this is not a compound scan.
@@ -351,8 +343,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	"    monitorsPerPoint=['x', another_scannable],  "  // Monitor two scannables.
 			+	"    det=detector('mandelbrot', 0.1),           "
 			+	")                                  ");
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> request = pi.get("sr", ScanRequest.class);
+		ScanRequest request = pi.get("sr", ScanRequest.class);
 
 		Object model = request.getCompoundModel().getModels().get(0);
 		assertEquals(StepModel.class, model.getClass());
@@ -377,8 +368,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	"    step(my_scannable, -2, 5, 0.5),"
 			+	"    monitorsPerPoint=['x', another_scannable],  "  // Monitor two scannables.
 			+	")                                  ");
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> request = pi.get("sr", ScanRequest.class);
+		ScanRequest request = pi.get("sr", ScanRequest.class);
 
 		Object model = request.getCompoundModel().getModels().get(0);
 		assertEquals(StepModel.class, model.getClass());
@@ -404,8 +394,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	"    monitorsPerPoint=['x', another_scannable],  "  // Monitor two scannables.
 			+	"    det=detector('mandelbrot', 0.1),           "
 			+	")                                  ");
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> request = pi.get("sr", ScanRequest.class);
+		ScanRequest request = pi.get("sr", ScanRequest.class);
 
 		Object model = request.getCompoundModel().getModels().get(0);
 		assertEquals(RepeatedPointModel.class, model.getClass());
@@ -430,8 +419,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	"    repeat(my_scannable, 10, 2.2, 25),"
 			+	"    monitorsPerPoint=['x', another_scannable]  "  // Monitor two scannables.
 			+	")                                  ");
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> request = pi.get("sr", ScanRequest.class);
+		ScanRequest request = pi.get("sr", ScanRequest.class);
 
 		Object model = request.getCompoundModel().getModels().get(0);
 		assertEquals(RepeatedPointModel.class, model.getClass());
@@ -466,8 +454,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	"    ),                               "
 			+	"    det=detector('mandelbrot', 0.1),             "
 			+	")                                    ");
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> request = pi.get("sr", ScanRequest.class);
+		ScanRequest request = pi.get("sr", ScanRequest.class);
 
 		Object model = request.getCompoundModel().getModels().iterator().next();
 		assertEquals(RasterModel.class, model.getClass());
@@ -508,8 +495,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	"        ]                            "
 			+	"    )                                "
 			+	")                                    ");
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> request = pi.get("sr", ScanRequest.class);
+		ScanRequest request = pi.get("sr", ScanRequest.class);
 
 		Object model = request.getCompoundModel().getModels().iterator().next();
 		assertEquals(RasterModel.class, model.getClass());
@@ -541,8 +527,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	"    array('qty', [-3, 1, 1.5, 1e10]),"
 			+	"    det=detector('mandelbrot', 0.1),             "
 			+	")                                    ");
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> request = pi.get("sr", ScanRequest.class);
+		ScanRequest request = pi.get("sr", ScanRequest.class);
 
 		Object model = request.getCompoundModel().getModels().iterator().next();
 		assertEquals(ArrayModel.class, model.getClass());
@@ -562,8 +547,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	"    line(origin=(0, 4), length=10, angle=0.1, count=10),"
 			+	"    det=[detector('mandelbrot', 0.1)],                              "
 			+	")                                                       ");
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> request = pi.get("sr", ScanRequest.class);
+		ScanRequest request = pi.get("sr", ScanRequest.class);
 
 		Object model = request.getCompoundModel().getModels().iterator().next();
 		assertEquals(OneDEqualSpacingModel.class, model.getClass());
@@ -583,8 +567,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	"    line(origin=(-2, 1.3), length=10, angle=0.1, step=0.5),"
 			+	"    det=detector('mandelbrot', 0.1),                                   "
 			+	")                                                          ");
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> request = pi.get("sr", ScanRequest.class);
+		ScanRequest request = pi.get("sr", ScanRequest.class);
 
 		Object model = request.getCompoundModel().getModels().iterator().next();
 		assertEquals(OneDStepModel.class, model.getClass());
@@ -600,8 +583,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 	@Test
 	public void testSinglePointCommand() {
 		pi.exec("sr = scan_request(point(4, 5), det=mandelbrot(0.1))");
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> request = pi.get("sr", ScanRequest.class);
+		ScanRequest request = pi.get("sr", ScanRequest.class);
 
 		Object model = request.getCompoundModel().getModels().iterator().next();
 		assertEquals(SinglePointModel.class, model.getClass());
@@ -627,14 +609,10 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 		pi.exec("sr2 = scan_request(point(4, 5), det=[detector('mandelbrot', 0.1)])");
 		pi.exec("sr3 = scan_request([point(4, 5)], det=[detector('mandelbrot', 0.1)])");
 
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> request1 = pi.get("sr0", ScanRequest.class);
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> request2 = pi.get("sr1", ScanRequest.class);
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> request3 = pi.get("sr2", ScanRequest.class);
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> request4 = pi.get("sr3", ScanRequest.class);
+		ScanRequest request1 = pi.get("sr0", ScanRequest.class);
+		ScanRequest request2 = pi.get("sr1", ScanRequest.class);
+		ScanRequest request3 = pi.get("sr2", ScanRequest.class);
+		ScanRequest request4 = pi.get("sr3", ScanRequest.class);
 
 		assertEquals(4, ((SinglePointModel) request1.getCompoundModel().getModels().iterator().next()).getX(), 1e-8);
 		assertEquals(0.1, ((MandelbrotModel) request1.getDetectors().get("mandelbrot")).getExposureTime(), 1e-8);
@@ -659,8 +637,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	"    ],                                                                               "
 			+	"    det=detector('mandelbrot', 0.1),                                                             "
 			+	")                                                                                    ");
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> request = pi.get("sr", ScanRequest.class);
+		ScanRequest request = pi.get("sr", ScanRequest.class);
 
 		Collection<Object> models = request.getCompoundModel().getModels();
 		assertEquals(2, models.size());  // I.e. this is a compound scan with two components.
@@ -680,8 +657,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	"    [step(my_scannable, -2, 5, 0.5), val('y', 5)],"
 			+	"    det=detector('mandelbrot', 0.1),                          "
 			+	")                                                 ");
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> request = pi.get("sr", ScanRequest.class);
+		ScanRequest request = pi.get("sr", ScanRequest.class);
 
 		Collection<Object> models = request.getCompoundModel().getModels();
 		assertEquals(2, models.size());
@@ -700,8 +676,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	"scan_request(                                     "
 			+	"    [step(my_scannable, -2, 5, 0.5), val('y', 5)]"
 			+	")                                                 ");
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> request = pi.get("sr", ScanRequest.class);
+		ScanRequest request = pi.get("sr", ScanRequest.class);
 
 		Collection<Object> models = request.getCompoundModel().getModels();
 		assertEquals(2, models.size());
@@ -751,10 +726,8 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	"    mandelbrot(0.1),                            "
 			+	")                                               ");
 
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> requestFullKeywords = pi.get("sr_full", ScanRequest.class);
-		@SuppressWarnings("unchecked")
-		ScanRequest<IROI> requestMinimalKeywords = pi.get("sr_minimal", ScanRequest.class);
+		ScanRequest requestFullKeywords = pi.get("sr_full", ScanRequest.class);
+		ScanRequest requestMinimalKeywords = pi.get("sr_minimal", ScanRequest.class);
 
 		assertTrue(requestMinimalKeywords.equals(requestFullKeywords));
 	}

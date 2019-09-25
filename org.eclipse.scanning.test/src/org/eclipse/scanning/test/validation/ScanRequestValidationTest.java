@@ -14,7 +14,6 @@ package org.eclipse.scanning.test.validation;
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
@@ -64,7 +63,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 	@Test(expected=ModelValidationException.class)
 	public void emptyRequest() throws Exception {
-		validator.validate(new ScanRequest<>());
+		validator.validate(new ScanRequest());
 	}
 
 	@Test
@@ -72,13 +71,13 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		GridModel gmodel = new GridModel("stage_x", "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
-		validator.validate(new ScanRequest<>(gmodel, null, (String)null, null, null));
+		validator.validate(new ScanRequest(gmodel, null, (String)null, null, null));
 	}
 
 	@Test
 	public void standardScanRequestOkay() throws Exception {
 
-		ScanRequest<IROI> req = createScanRequest();
+		ScanRequest req = createScanRequest();
 		validator.validate(req);
 	}
 
@@ -86,7 +85,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		GridModel gmodel = new GridModel("stage_x", "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
-		ScanRequest<?> req = new ScanRequest<>(gmodel, null, (String)null, null, null);
+		ScanRequest req = new ScanRequest(gmodel, null, (String)null, null, null);
 		req.setDetectors(Collections.emptyMap());
 		validator.validate(req);
 	}
@@ -97,7 +96,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		GridModel gmodel = new GridModel("stage_x", "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
-		ScanRequest<?> req = new ScanRequest<>(gmodel, null, (String)null, null, null);
+		ScanRequest req = new ScanRequest(gmodel, null, (String)null, null, null);
 		req.putDetector("mandelbrot", new MandelbrotModel());
 		validator.validate(req);
 	}
@@ -107,7 +106,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		GridModel gmodel = new GridModel(null, "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
-		ScanRequest<?> req = new ScanRequest<>(gmodel, null, (String)null, null, null);
+		ScanRequest req = new ScanRequest(gmodel, null, (String)null, null, null);
 		req.putDetector("mandelbrot", new MandelbrotModel());
 		validator.validate(req);
 	}
@@ -116,8 +115,8 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 	@Test(expected=ModelValidationException.class)
 	public void collidingPointsModels() throws Exception {
 
-		final CompoundModel<IROI> cmodel = new CompoundModel<>(Arrays.asList(new StepModel("stage_x", 10, 20, 1), new GridModel("stage_x", "stage_y")));
-		ScanRequest<IROI> req = new ScanRequest<>();
+		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new StepModel("stage_x", 10, 20, 1), new GridModel("stage_x", "stage_y")));
+		ScanRequest req = new ScanRequest();
 		req.putDetector("mandelbrot", new MandelbrotModel());
 		req.setCompoundModel(cmodel);
 		validator.validate(req);
@@ -126,7 +125,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 	@Test(expected=ModelValidationException.class)
 	public void emptyProcessing() throws Exception {
 
-		ScanRequest<IROI> req = createScanRequest();
+		ScanRequest req = createScanRequest();
 
 		req.putDetector("processing", new ProcessingModel());
 
@@ -136,7 +135,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 	@Test
 	public void aCPUAndProcessing() throws Exception {
 
-		ScanRequest<IROI> req = createScanRequest();
+		ScanRequest req = createScanRequest();
 
 		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 		req.putDetector("mandelbrot", dservice.getDeviceInformation("mandelbrot").getModel());
@@ -148,7 +147,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 	@Test
 	public void twoCPUAndProcessing() throws Exception {
 
-		ScanRequest<IROI> req = createScanRequest();
+		ScanRequest req = createScanRequest();
 
 		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 		req.putDetector("mandelbrot", dservice.getDeviceInformation("mandelbrot").getModel());
@@ -161,7 +160,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 	@Test
 	public void twoCPUAndTwoProcessing() throws Exception {
 
-		ScanRequest<IROI> req = createScanRequest();
+		ScanRequest req = createScanRequest();
 
 		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 		req.putDetector("mandelbrot", dservice.getDeviceInformation("mandelbrot").getModel());
@@ -176,7 +175,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 	@Test(expected=ValidationException.class)
 	public void aCPUAndAMalcolm() throws Exception {
 
-		ScanRequest<IROI> req = createScanRequest();
+		ScanRequest req = createScanRequest();
 
 		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 		req.putDetector("mandelbrot", dservice.getDeviceInformation("mandelbrot").getModel());
@@ -188,7 +187,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 	@Test
 	public void aProcessingAndAMalcolm() throws Exception {
 
-		ScanRequest<IROI> req = createScanRequest();
+		ScanRequest req = createScanRequest();
 
 		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 
@@ -201,7 +200,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 	@Test
 	public void aTriggeredAndAMalcolm() throws Exception {
 
-		ScanRequest<IROI> req = createScanRequest();
+		ScanRequest req = createScanRequest();
 
 		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 
@@ -214,7 +213,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 	@Test(expected = ValidationException.class)
 	public void aCPUaTriggeredAndAMalcolm() throws Exception {
 
-		ScanRequest<IROI> req = createScanRequest();
+		ScanRequest req = createScanRequest();
 
 		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 
@@ -228,7 +227,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 	@Test
 	public void aTriggeredAMalcolmAndAProcessing() throws Exception {
 
-		ScanRequest<IROI> req = createScanRequest();
+		ScanRequest req = createScanRequest();
 
 		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 
@@ -242,7 +241,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 	@Test(expected=ValidationException.class)
 	public void aTriggered() throws Exception {
 
-		ScanRequest<IROI> req = createScanRequest();
+		ScanRequest req = createScanRequest();
 
 		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 
@@ -253,7 +252,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 	@Test
 	public void aHardwareOrSoftwareTriggered() throws Exception {
-		ScanRequest<IROI> req = createScanRequest();
+		ScanRequest req = createScanRequest();
 
 		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 		req.putDetector("dummyHardwareOrSoftwareTriggered", dservice.getDeviceInformation("dummyMalcolmTriggered").getModel());
@@ -264,7 +263,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 	@Test
 	public void aHardwareOrSoftwareTriggeredAndMalcolm() throws Exception {
 
-		ScanRequest<IROI> req = createScanRequest();
+		ScanRequest req = createScanRequest();
 
 		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 
@@ -276,7 +275,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 	@Test(expected=ValidationException.class)
 	public void twoMalcolms() throws Exception {
-		ScanRequest<IROI> req = createScanRequest();
+		ScanRequest req = createScanRequest();
 
 		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 		req.putDetector("malcolm1",    dservice.getDeviceInformation("malcolm").getModel());
@@ -288,7 +287,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 	@Test(expected=ValidationException.class)
 	public void threeMalcolms() throws Exception {
 
-		ScanRequest<IROI> req = createScanRequest();
+		ScanRequest req = createScanRequest();
 
 		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 		req.putDetector("malcolm1",    dservice.getDeviceInformation("malcolm").getModel());
@@ -298,11 +297,11 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		validator.validate(req);
 	}
 
-	private ScanRequest<IROI> createScanRequest() {
+	private ScanRequest createScanRequest() {
 		GridModel gmodel = new GridModel("stage_x", "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
-		final CompoundModel<IROI> cmodel = new CompoundModel<>(Arrays.asList(new StepModel("fred", 10, 20, 1), gmodel));
-		ScanRequest<IROI> req = new ScanRequest<>();
+		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new StepModel("fred", 10, 20, 1), gmodel));
+		ScanRequest req = new ScanRequest();
 		req.setCompoundModel(cmodel);
         return req;
 	}

@@ -42,7 +42,7 @@ public class SubscanModerator {
 	private IPointGenerator<?> outerPointGenerator;
 	private IPointGenerator<?> innerPointGenerator;
 
-	private CompoundModel<?> compoundModel;
+	private CompoundModel compoundModel;
 	private List<Object> outerModels;
 	private List<Object> innerModels;
 
@@ -51,7 +51,7 @@ public class SubscanModerator {
 		this(generator, null, detectors, gservice);
 	}
 
-	public SubscanModerator(IPointGenerator<?> generator, CompoundModel<?> cmodel, List<IRunnableDevice<?>> detectors,
+	public SubscanModerator(IPointGenerator<?> generator, CompoundModel cmodel, List<IRunnableDevice<?>> detectors,
 			IPointGeneratorService gservice) throws ScanningException {
 		this.pointGenService = gservice;
 		this.pointGen = generator;
@@ -63,12 +63,12 @@ public class SubscanModerator {
 		}
 	}
 
-	private CompoundModel<?> getModel(IPointGenerator<?> pointGenerator) {
+	private CompoundModel getModel(IPointGenerator<?> pointGenerator) {
 		Object model = pointGenerator.getModel();
 		if (model instanceof CompoundModel) {
-			return (CompoundModel<?>) model;
+			return (CompoundModel) model;
 		}
-		return new CompoundModel<>(model);
+		return new CompoundModel(model);
 	}
 
 	private boolean isMalcolmScan(List<IRunnableDevice<?>> detectors) {

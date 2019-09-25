@@ -233,7 +233,7 @@ public class ScanRankTest {
 		}
 	}
 
-	private <R> IPointGenerator<?> createGridGenerator(int nestCount, R region) throws Exception {
+	private <R> IPointGenerator<?> createGridGenerator(int nestCount, IROI region) throws Exception {
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(0);
 		box.setyAxisStart(0);
@@ -247,7 +247,7 @@ public class ScanRankTest {
 
 		// Get the point list
 		IPointGenerator<?> grid = service.createGenerator(model,
-				region == null ? Collections.emptyList() : Arrays.asList(region));
+				region == null ? Collections.<IROI>emptyList() : Arrays.<IROI>asList(region));
 
 		IPointGenerator<?>[] gens = new IPointGenerator<?>[nestCount + 1];
 		for (int i = 0; i < nestCount; i++) {

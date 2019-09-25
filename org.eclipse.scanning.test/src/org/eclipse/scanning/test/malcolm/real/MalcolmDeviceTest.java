@@ -307,7 +307,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		verify(malcolmConnection).send(malcolmDevice, expectedResetMessage);
 		verify(malcolmConnection).send(malcolmDevice, expectedConfigureMessage);
 		// test duration of pointGen's model has been set to exposure time of malcolm model
-		assertThat(((CompoundModel<?>) pointGen.getModel()).getDuration(), is(equalTo(malcolmModel.getExposureTime())));
+		assertThat(((CompoundModel) pointGen.getModel()).getDuration(), is(equalTo(malcolmModel.getExposureTime())));
 	}
 
 	private void testCall(MalcolmCall malcolmCall, MalcolmMethod method, Object params) throws Exception {
