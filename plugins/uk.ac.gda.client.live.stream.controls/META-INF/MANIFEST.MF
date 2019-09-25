@@ -16,7 +16,8 @@ Require-Bundle: uk.ac.gda.api,
  uk.ac.gda.client.live.stream,
  org.eclipse.dawnsci.plotting.api,
  org.apache.commons.collections4;bundle-version="4.1.0",
- org.apache.commons.beanutils;bundle-version="1.9.3"
+ org.apache.commons.beanutils;bundle-version="1.9.3",
+ org.eclipse.scanning.api
 Bundle-ActivationPolicy: lazy
 Export-Package: uk.ac.gda.client.live.stream.controls,
  uk.ac.gda.client.live.stream.controls.camera.state,
