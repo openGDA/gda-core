@@ -4,10 +4,9 @@ import static uk.ac.diamond.daq.experiment.api.Services.getExperimentService;
 
 import java.util.stream.Collectors;
 
-import org.eclipse.scanning.api.event.scan.ScanRequest;
-
 import gda.device.DeviceException;
 import gda.factory.Finder;
+import uk.ac.diamond.daq.experiment.api.TriggerableScan;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.plan.IPlan;
@@ -58,7 +57,7 @@ public class PlanRequestParser {
 
 	private ITrigger convertToTrigger(TriggerRequest request) {
 
-		ScanRequest scanRequest = getExperimentService().getDiffScan(request.getScanName(),
+		TriggerableScan scanRequest = getExperimentService().getScan(request.getScanName(),
 				plan.getName());
 		ISampleEnvironmentVariable sev;
 

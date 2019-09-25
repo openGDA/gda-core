@@ -1,4 +1,4 @@
-package uk.ac.diamond.daq.experiment.plan;
+package uk.ac.diamond.daq.mapping.triggerable;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -39,18 +39,18 @@ import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
  * <li>{@link #submitImportantScan(ScanBean)} will clear the queue
  * by aborting running & submitted scans, and then submit the important scan.
  * </ol>
- * 
+ *
  */
 public class QueuePreventingScanSubmitter {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(QueuePreventingScanSubmitter.class);
-	
+
 	private IEventService eventService;
-	
+
 	private IJobQueue<ScanBean> jobQueue;
 	private ISubmitter<ScanBean> submitter;
-	
-	
+
+
 	/**
 	 * Submits the given scan if the queue is empty, otherwise throws ScanningException
 	 */
@@ -61,9 +61,9 @@ public class QueuePreventingScanSubmitter {
 			throw new ScanningException("Could not submit request for '" + scanBean.getName() + "' because another scan is ongoing");
 		}
 	}
-	
+
 	/**
-	 * Submits the given scan, aborting any previously submitted and running scans 
+	 * Submits the given scan, aborting any previously submitted and running scans
 	 */
 	public void submitImportantScan(ScanBean scanBean) throws EventException {
 		if (!queueIsEmpty()) {
@@ -82,8 +82,11 @@ public class QueuePreventingScanSubmitter {
 			.forEach(scannable -> {
 				try {
 					scannable.waitWhileBusy();
-				} catch (DeviceException | InterruptedException e) {
+				} catch (DeviceException e) {
 					logger.error("Error encountered while waiting while busy", e);
+				} catch (InterruptedException interrupted) {
+					logger.error("waitWhileBusy interrupted!", interrupted);
+					Thread.currentThread().interrupt();
 				}
 			});
 	}
@@ -97,9 +100,9 @@ public class QueuePreventingScanSubmitter {
 		Optional<ScanBean> running = getJobQueue().getRunningAndCompleted().stream()
 					.filter(bean -> bean.getStatus() == Status.RUNNING || bean.getStatus() == Status.PAUSED).findAny();
 		if (running.isPresent()) getJobQueue().terminateJob(running.get());
-		
+
 	}
-	
+
 	private boolean queueIsEmpty() {
 		try {
 			return submissionQueueIsEmpty() && runningOrCompletedAllFinal();
@@ -108,16 +111,16 @@ public class QueuePreventingScanSubmitter {
 			return false;
 		}
 	}
-	
+
 	private boolean submissionQueueIsEmpty() throws EventException {
 		return getJobQueue().getSubmissionQueue().isEmpty();
 	}
-	
+
 	private boolean runningOrCompletedAllFinal() throws EventException {
 		return getJobQueue().getRunningAndCompleted().stream()
 				.map(StatusBean::getStatus).allMatch(Status::isFinal);
 	}
-	
+
 	private ISubmitter<ScanBean> getSubmitter() throws EventException {
 		if (submitter == null) {
 			Objects.requireNonNull(eventService, "Event service is not set - check OSGi settings");
@@ -130,21 +133,21 @@ public class QueuePreventingScanSubmitter {
 		}
 		return submitter;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private IJobQueue<ScanBean> getJobQueue() throws EventException {
-		if (jobQueue == null) { 
+		if (jobQueue == null) {
 			Objects.requireNonNull(eventService, "Event service is not set - check OSGi settings");
 			jobQueue = (IJobQueue<ScanBean>) eventService.getJobQueue(EventConstants.SUBMISSION_QUEUE);
 		}
 		return jobQueue;
 	}
-	
+
 	/**
 	 * For OSGi/unit tests only
 	 */
 	public void setEventService(IEventService service) {
 		this.eventService = service;
 	}
-	
+
 }

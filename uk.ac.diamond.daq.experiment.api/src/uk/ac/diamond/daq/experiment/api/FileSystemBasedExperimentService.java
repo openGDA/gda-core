@@ -4,8 +4,6 @@ import java.nio.file.Paths;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.eclipse.scanning.api.event.scan.ScanRequest;
-
 import gda.factory.FindableBase;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
@@ -84,13 +82,13 @@ public class FileSystemBasedExperimentService extends FindableBase implements Ex
 	/* SCANS */
 
 	@Override
-	public void saveScan(ScanRequest scanRequest, String fileName, String experimentId) {
+	public void saveScan(TriggerableScan scanRequest, String fileName, String experimentId) {
 		saver.saveObject(scanRequest, getValidName(fileName), SCAN_EXTENSION);
 	}
 
 	@Override
-	public ScanRequest getDiffScan(String scanName, String experimentId) {
-		return saver.loadObject(ScanRequest.class, getValidName(scanName), SCAN_EXTENSION);
+	public TriggerableScan getScan(String scanName, String experimentId) {
+		return saver.loadObject(TriggerableScan.class, getValidName(scanName), SCAN_EXTENSION);
 	}
 
 	@Override

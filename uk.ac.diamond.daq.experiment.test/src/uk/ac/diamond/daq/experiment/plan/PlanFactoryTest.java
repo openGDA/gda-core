@@ -3,10 +3,7 @@ package uk.ac.diamond.daq.experiment.plan;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.mock;
 
-import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,12 +26,9 @@ public class PlanFactoryTest {
 	private ISampleEnvironmentVariable sev;
 	private ISampleEnvironmentVariable timer;
 
-	private ScanRequest scanRequest = mock(ScanRequest.class);
-
 	@Before
 	public void setup() {
 		factory = new PlanFactory();
-		factory.setEventService(mock(IEventService.class));
 		sev = factory.addSEV(()->0.0);
 		timer = factory.addTimer();
 	}
@@ -89,21 +83,6 @@ public class PlanFactoryTest {
 	}
 
 	/**
-	 * Creates a scan trigger which fires once.
-	 *
-	 * When a {@link ScanRequest} is given, the factory sets the trigger's {@link Triggerable}
-	 * as a {@link TriggerableScan}
-	 */
-	@Test
-	public void singleScanTrigger() {
-		ITrigger singleScanTrigger = factory.addTrigger(TRIGGER_NAME, scanRequest, sev, 12.0, 0.15);
-		assertThat(singleScanTrigger, is(instanceOf(SingleTrigger.class)));
-
-		SingleTrigger trigger = (SingleTrigger) singleScanTrigger;
-		assertThat(trigger.getTriggerable(), is(instanceOf(TriggerableScan.class)));
-	}
-
-	/**
 	 * Creates a trigger which triggers a generic {@link Triggerable}
 	 * in specified intervals of signal from given {@link ISampleEnvironmentVariable}.
 	 *
@@ -113,25 +92,6 @@ public class PlanFactoryTest {
 	public void repeatingTrigger() {
 		ITrigger repeatingTrigger = factory.addTrigger(TRIGGER_NAME, this::work, sev, 2.5);
 		assertThat(repeatingTrigger, is(instanceOf(RepeatingTrigger.class)));
-	}
-
-	/**
-	 * Creates a trigger which triggers a scan in specified intervals
-	 * of signal from given {@link ISampleEnvironmentVariable}.
-	 *
-	 * A boolean can be passed after the {@link ScanRequest} indicating
-	 * whether the scan is 'important' (see {@link QueuePreventingScanSubmitter})
-	 */
-	@Test
-	public void repeatingScanTrigger() {
-		ITrigger repeatingScanTrigger = factory.addTrigger(TRIGGER_NAME,
-															scanRequest, true,  // mark this scan as 'important'
-															timer, 10);			// trigger every 10 seconds
-
-		assertThat(repeatingScanTrigger, is(instanceOf(RepeatingTrigger.class)));
-
-		RepeatingTrigger trigger = (RepeatingTrigger) repeatingScanTrigger;
-		assertThat(trigger.getTriggerable(), is(instanceOf(TriggerableScan.class)));
 	}
 
 	/**

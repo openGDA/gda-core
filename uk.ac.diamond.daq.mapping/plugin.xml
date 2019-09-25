@@ -10,4 +10,12 @@
       </classregistry>
    </extension>
 
+   <extension
+      point="org.eclipse.dawnsci.analysis.api.marshaller">
+      <marshaller
+            class="uk.ac.diamond.daq.mapping.triggerable.TriggerableMapMarshaller"
+            id="uk.ac.diamond.daq.mapping.triggerable.TriggerableMapMarshaller">
+      </marshaller>
+   </extension>
+
 </plugin>

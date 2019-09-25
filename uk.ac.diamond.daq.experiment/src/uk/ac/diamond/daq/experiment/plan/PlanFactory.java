@@ -2,9 +2,6 @@ package uk.ac.diamond.daq.experiment.plan;
 
 import java.util.function.DoubleSupplier;
 
-import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.scan.ScanRequest;
-
 import gda.device.Scannable;
 import uk.ac.diamond.daq.experiment.api.plan.IPlanFactory;
 import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
@@ -17,7 +14,6 @@ import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 public class PlanFactory implements IPlanFactory {
 	
 	private static final String SYSTEM_TIMER_NAME = "System timer";
-	private static IEventService eventService;
 
 	private IPlanRegistrar registrar;
 	
@@ -72,37 +68,11 @@ public class PlanFactory implements IPlanFactory {
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, ScanRequest scanRequest, ISampleEnvironmentVariable sev, double target, double tolerance) {
-		Triggerable triggerable = new TriggerableScan(scanRequest, false, eventService);
-		return addTrigger(name, triggerable, sev, target, tolerance);
-	}
 
-	@Override
-	public ITrigger addTrigger(String name, ScanRequest scanRequest, boolean importantScan,
-			ISampleEnvironmentVariable sev, double target, double tolerance) {
-		Triggerable triggerable = new TriggerableScan(scanRequest, importantScan, eventService);
-		return addTrigger(name, triggerable, sev, target, tolerance);
-	}
-
-	@Override
 	public ITrigger addTrigger(String name, Triggerable triggerable, ISampleEnvironmentVariable sev, double interval) {
 		ITrigger trigger = new RepeatingTrigger(registrar, sev, triggerable, interval);
 		trigger.setName(name);
 		return trigger;
-	}
-
-	@Override
-	public ITrigger addTrigger(String name, ScanRequest scanRequest, ISampleEnvironmentVariable sev,
-			double interval) {
-		Triggerable triggerable = new TriggerableScan(scanRequest, false, eventService);
-		return addTrigger(name, triggerable, sev, interval);
-	}
-
-	@Override
-	public ITrigger addTrigger(String name, ScanRequest scanRequest, boolean importantScan,
-			ISampleEnvironmentVariable sev, double interval) {
-		Triggerable triggerable = new TriggerableScan(scanRequest, importantScan, eventService);
-		return addTrigger(name, triggerable, sev, interval);
 	}
 
 	@Override
@@ -112,9 +82,5 @@ public class PlanFactory implements IPlanFactory {
 	
 	public IPlanRegistrar getRegistrar() {
 		return registrar;
-	}
-	
-	public void setEventService(IEventService service) {
-		PlanFactory.eventService = service;
 	}
 }
