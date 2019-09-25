@@ -26,10 +26,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import uk.ac.gda.tomography.service.message.TomographyMessages;
 import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
-import uk.ac.gda.tomography.ui.tool.TomographyBindingElements;
-import uk.ac.gda.tomography.ui.tool.TomographySWTElements;
+import uk.ac.gda.ui.tool.ClientBindingElements;
+import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.ClientSWTElements;
 
 /**
  * @author Maurizio Nagni
@@ -50,23 +50,22 @@ public class TomographyReconstructionComposite extends CompositeTemplate<Tomogra
 
 	@Override
 	protected void createElements(int labelStyle, int textStyle) {
-		GridLayoutFactory.swtDefaults().margins(TomographySWTElements.defaultCompositeMargin()).applyTo(this);
-		pixelSizeContent(TomographySWTElements.createGroup(this, 2, TomographyMessages.PIXEL_SIZE), labelStyle, textStyle);
+		GridLayoutFactory.swtDefaults().margins(ClientSWTElements.defaultCompositeMargin()).applyTo(this);
+		pixelSizeContent(ClientSWTElements.createGroup(this, 2, ClientMessages.PIXEL_SIZE), labelStyle, textStyle);
 	}
 
 	private void pixelSizeContent(Composite parent, int labelStyle, int textStyle) {
-		TomographySWTElements.createLabel(parent, labelStyle, "X");
-		TomographySWTElements.createLabel(parent, labelStyle, "Y");
-		pixelSizeX = TomographySWTElements.createText(parent, textStyle, null);
-		pixelSizeY = TomographySWTElements.createText(parent, textStyle, null);
+		ClientSWTElements.createLabel(parent, labelStyle, "X");
+		ClientSWTElements.createLabel(parent, labelStyle, "Y");
+		pixelSizeX = ClientSWTElements.createText(parent, textStyle, null);
+		pixelSizeY = ClientSWTElements.createText(parent, textStyle, null);
 	}
 
 	@Override
 	protected void bindElements() {
 		DataBindingContext dbc = new DataBindingContext();
-
-		TomographyBindingElements.bindText(dbc, pixelSizeX, Integer.class, "pixelSizeX", getMetadata());
-		TomographyBindingElements.bindText(dbc, pixelSizeY, Integer.class, "pixelSizeY", getMetadata());
+		ClientBindingElements.bindText(dbc, pixelSizeX, Integer.class, "pixelSizeX", getMetadata());
+		ClientBindingElements.bindText(dbc, pixelSizeY, Integer.class, "pixelSizeY", getMetadata());
 	}
 
 	@Override

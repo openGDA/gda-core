@@ -46,11 +46,11 @@ import uk.ac.gda.tomography.model.DevicePosition;
 import uk.ac.gda.tomography.model.MultipleScansType;
 import uk.ac.gda.tomography.model.RangeType;
 import uk.ac.gda.tomography.model.ScanType;
-import uk.ac.gda.tomography.service.message.TomographyMessages;
 import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
 import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController.Positions;
-import uk.ac.gda.tomography.ui.tool.TomographyBindingElements;
-import uk.ac.gda.tomography.ui.tool.TomographySWTElements;
+import uk.ac.gda.ui.tool.ClientBindingElements;
+import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.ClientSWTElements;
 
 /**
  * This Composite allows to edit a {@link TomographyParameters} object.
@@ -110,95 +110,95 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 
 	@Override
 	protected void createElements(int labelStyle, int textStyle) {
-		GridLayoutFactory.swtDefaults().margins(TomographySWTElements.defaultCompositeMargin()).applyTo(this);
-		nameAndScanTypeContent(TomographySWTElements.createComposite(this, SWT.NONE, 2), labelStyle, textStyle);
-		startAngleContent(TomographySWTElements.createGroup(this, 2, TomographyMessages.START), labelStyle, textStyle);
-		endAngleContent(TomographySWTElements.createGroup(this, 3, TomographyMessages.END), labelStyle, textStyle);
-		projectionsContent(TomographySWTElements.createGroup(this, 2, TomographyMessages.PROJECTIONS), labelStyle, textStyle);
-		imagesCalibrationContent(TomographySWTElements.createGroup(this, 2, TomographyMessages.IMAGE_CALIBRATION), labelStyle, textStyle);
+		GridLayoutFactory.swtDefaults().margins(ClientSWTElements.defaultCompositeMargin()).applyTo(this);
+		nameAndScanTypeContent(ClientSWTElements.createComposite(this, SWT.NONE, 2), labelStyle, textStyle);
+		startAngleContent(ClientSWTElements.createGroup(this, 2, ClientMessages.START), labelStyle, textStyle);
+		endAngleContent(ClientSWTElements.createGroup(this, 3, ClientMessages.END), labelStyle, textStyle);
+		projectionsContent(ClientSWTElements.createGroup(this, 2, ClientMessages.PROJECTIONS), labelStyle, textStyle);
+		imagesCalibrationContent(ClientSWTElements.createGroup(this, 2, ClientMessages.IMAGE_CALIBRATION), labelStyle, textStyle);
 		multipleScansContent(this, labelStyle, textStyle);
 	}
 
 	private void nameAndScanTypeContent(Composite parent, int labelStyle, int textStyle) {
-		TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.NAME, new Point(2, 1));
-		this.name = TomographySWTElements.createText(parent, textStyle, null, new Point(2, 1), TomographyMessages.NAME_TOOLTIP, new Point(500, SWT.DEFAULT));
-		flyScanType = TomographySWTElements.createButton(parent, SWT.RADIO, TomographyMessages.FLY_SCAN, TomographyMessages.FLY_SCAN_TOOLTIP);
+		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.NAME, new Point(2, 1));
+		this.name = ClientSWTElements.createText(parent, textStyle, null, new Point(2, 1), ClientMessages.NAME_TOOLTIP, new Point(500, SWT.DEFAULT));
+		flyScanType = ClientSWTElements.createButton(parent, SWT.RADIO, ClientMessages.FLY_SCAN, ClientMessages.FLY_SCAN_TOOLTIP);
 		flyScanType.setData(ScanType.FLY);
-		stepScanType = TomographySWTElements.createButton(parent, SWT.RADIO, TomographyMessages.STEP_SCAN, TomographyMessages.STEP_SCAN_TOOLTIP);
+		stepScanType = ClientSWTElements.createButton(parent, SWT.RADIO, ClientMessages.STEP_SCAN, ClientMessages.STEP_SCAN_TOOLTIP);
 		stepScanType.setData(ScanType.STEP);
 	}
 
 	private void startAngleContent(Composite parent, int labelStyle, int textStyle) {
-		TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.ANGLE, new Point(2, 1));
-		startAngleText = TomographySWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyDoubleText, null,
-				TomographyMessages.START_ANGLE_TOOLTIP);
-		currentAngleButton = TomographySWTElements.createButton(parent, SWT.CHECK, TomographyMessages.CURRENT_ANGLE, TomographyMessages.CURRENT_ANGLE_TOOLTIP);
+		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.ANGLE, new Point(2, 1));
+		startAngleText = ClientSWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyDoubleText, null,
+				ClientMessages.START_ANGLE_TOOLTIP);
+		currentAngleButton = ClientSWTElements.createButton(parent, SWT.CHECK, ClientMessages.CURRENT_ANGLE, ClientMessages.CURRENT_ANGLE_TOOLTIP);
 	}
 
 	private void endAngleContent(Composite parent, int labelStyle, int textStyle) {
-		halfRotationRangeType = TomographySWTElements.createButton(parent, SWT.RADIO, TomographyMessages.STRAIGHT_ANGLE,
-				TomographyMessages.STRAIGHT_ANGLE_TOOLTIP);
+		halfRotationRangeType = ClientSWTElements.createButton(parent, SWT.RADIO, ClientMessages.STRAIGHT_ANGLE,
+				ClientMessages.STRAIGHT_ANGLE_TOOLTIP);
 
-		fullRotationRangeType = TomographySWTElements.createButton(parent, SWT.RADIO, TomographyMessages.FULL_ANGLE, TomographyMessages.FULL_ANGLE_TOOLTIP);
-		// fullGroup = TomographySWTElements.createGroup(parent, 1, null);
-		// TomographySWTElements.createLabel(fullGroup, labelStyle, TomographyMessages.NUM_ROTATIONS);
-		// numberRotation = TomographySWTElements.createText(fullGroup, textStyle,
+		fullRotationRangeType = ClientSWTElements.createButton(parent, SWT.RADIO, ClientMessages.FULL_ANGLE, ClientMessages.FULL_ANGLE_TOOLTIP);
+		// fullGroup = ClientSWTElements.createGroup(parent, 1, null);
+		// ClientSWTElements.createLabel(fullGroup, labelStyle, ClientMessages.NUM_ROTATIONS);
+		// numberRotation = ClientSWTElements.createText(fullGroup, textStyle,
 		// TomographyVerifyListener.verifyOnlyDigitText);
 
-		customRotationRangeType = TomographySWTElements.createButton(parent, SWT.RADIO, TomographyMessages.CUSTOM, TomographyMessages.CUSTOM_END_TOOLTIP);
+		customRotationRangeType = ClientSWTElements.createButton(parent, SWT.RADIO, ClientMessages.CUSTOM, ClientMessages.CUSTOM_END_TOOLTIP);
 		ExpandBar customBar = createExpandBar(parent);
-		customGroup = TomographySWTElements.createGroup(customBar, 1, null);
-		TomographySWTElements.createLabel(customGroup, labelStyle, TomographyMessages.ANGLE);
-		customAngle = TomographySWTElements.createText(customGroup, textStyle, TomographyVerifyListener.verifyOnlyDoubleText, null,
-				TomographyMessages.CUSTOM_END_TOOLTIP);
+		customGroup = ClientSWTElements.createGroup(customBar, 1, null);
+		ClientSWTElements.createLabel(customGroup, labelStyle, ClientMessages.ANGLE);
+		customAngle = ClientSWTElements.createText(customGroup, textStyle, TomographyVerifyListener.verifyOnlyDoubleText, null,
+				ClientMessages.CUSTOM_END_TOOLTIP);
 		expandBar(customBar, customGroup, customRotationRangeType);
 	}
 
 	private void projectionsContent(Composite parent, int labelStyle, int textStyle) {
-		TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.TOTAL_PROJECTIONS);
-		TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.ANGULAR_STEP);
-		totalProjections = TomographySWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, null,
-				TomographyMessages.TOTAL_PROJECTIONS_TOOLTIP);
-		angularStep = TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.EMPTY_MESSAGE);
+		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.TOTAL_PROJECTIONS);
+		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.ANGULAR_STEP);
+		totalProjections = ClientSWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, null,
+				ClientMessages.TOTAL_PROJECTIONS_TOOLTIP);
+		angularStep = ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.EMPTY_MESSAGE);
 	}
 
 	private void imagesCalibrationContent(Composite parent, int labelStyle, int textStyle) {
-		TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.NUM_DARK);
-		TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.DARK_EXPOSURE);
-		numberDark = TomographySWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 1),
-				TomographyMessages.NUM_DARK_TOOLTIP);
-		darkExposure = TomographySWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 1),
-				TomographyMessages.DARK_EXPOSURE_TP);
+		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.NUM_DARK);
+		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.DARK_EXPOSURE);
+		numberDark = ClientSWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 1),
+				ClientMessages.NUM_DARK_TOOLTIP);
+		darkExposure = ClientSWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 1),
+				ClientMessages.DARK_EXPOSURE_TP);
 
-		TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.NUM_FLAT);
-		TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.FLAT_EXPOSURE);
-		numberFlat = TomographySWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 1),
-				TomographyMessages.NUM_FLAT_TOOLTIP);
-		flatExposure = TomographySWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 1),
-				TomographyMessages.FLAT_EXPOSURE_TP);
+		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.NUM_FLAT);
+		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.FLAT_EXPOSURE);
+		numberFlat = ClientSWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 1),
+				ClientMessages.NUM_FLAT_TOOLTIP);
+		flatExposure = ClientSWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 1),
+				ClientMessages.FLAT_EXPOSURE_TP);
 
-		TomographySWTElements.createEmptyCell(parent, labelStyle);
-		TomographySWTElements.createEmptyCell(parent, labelStyle);
+		ClientSWTElements.createEmptyCell(parent, labelStyle);
+		ClientSWTElements.createEmptyCell(parent, labelStyle);
 
-		beforeAcquisition = TomographySWTElements.createButton(parent, SWT.CHECK, TomographyMessages.AT_START, TomographyMessages.AT_START_TOOLTIP);
-		afterAcquisition = TomographySWTElements.createButton(parent, SWT.CHECK, TomographyMessages.AT_END, TomographyMessages.AT_END_TOOLTIP);
+		beforeAcquisition = ClientSWTElements.createButton(parent, SWT.CHECK, ClientMessages.AT_START, ClientMessages.AT_START_TOOLTIP);
+		afterAcquisition = ClientSWTElements.createButton(parent, SWT.CHECK, ClientMessages.AT_END, ClientMessages.AT_END_TOOLTIP);
 	}
 
 	private void multipleScansContent(Composite parent, int labelStyle, int textStyle) {
-		multipleScans = TomographySWTElements.createButton(parent, SWT.CHECK, TomographyMessages.MULTIPLE_SCANS, TomographyMessages.MULTIPLE_SCANS_TOOLTIP);
+		multipleScans = ClientSWTElements.createButton(parent, SWT.CHECK, ClientMessages.MULTIPLE_SCANS, ClientMessages.MULTIPLE_SCANS_TOOLTIP);
 		ExpandBar customBar = createExpandBar(parent);
-		Group multipleScan = TomographySWTElements.createGroup(customBar, 3, TomographyMessages.EMPTY_MESSAGE);
-		TomographySWTElements.createLabel(multipleScan, labelStyle, TomographyMessages.NUM_REPETITIONS);
-		TomographySWTElements.createLabel(multipleScan, labelStyle, TomographyMessages.WAITING_TIME);
-		TomographySWTElements.createEmptyCell(multipleScan, labelStyle);
-		numberRepetitions = TomographySWTElements.createText(multipleScan, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 2),
-				TomographyMessages.NUM_REPETITIONS_TOOLTIP);
-		waitingTime = TomographySWTElements.createText(multipleScan, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 2),
-				TomographyMessages.WAITING_TIME_TOOLTIP);
-		repeateMultipleScansType = TomographySWTElements.createButton(multipleScan, SWT.RADIO, TomographyMessages.REPEATE_SCAN,
-				TomographyMessages.REPEATE_SCAN_TOOLTIP);
-		switchbackMultipleScansType = TomographySWTElements.createButton(multipleScan, SWT.RADIO, TomographyMessages.SWITCHBACK_SCAN,
-				TomographyMessages.SWITCHBACK_SCAN_TOOLTIP);
+		Group multipleScan = ClientSWTElements.createGroup(customBar, 3, ClientMessages.EMPTY_MESSAGE);
+		ClientSWTElements.createLabel(multipleScan, labelStyle, ClientMessages.NUM_REPETITIONS);
+		ClientSWTElements.createLabel(multipleScan, labelStyle, ClientMessages.WAITING_TIME);
+		ClientSWTElements.createEmptyCell(multipleScan, labelStyle);
+		numberRepetitions = ClientSWTElements.createText(multipleScan, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 2),
+				ClientMessages.NUM_REPETITIONS_TOOLTIP);
+		waitingTime = ClientSWTElements.createText(multipleScan, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 2),
+				ClientMessages.WAITING_TIME_TOOLTIP);
+		repeateMultipleScansType = ClientSWTElements.createButton(multipleScan, SWT.RADIO, ClientMessages.REPEATE_SCAN,
+				ClientMessages.REPEATE_SCAN_TOOLTIP);
+		switchbackMultipleScansType = ClientSWTElements.createButton(multipleScan, SWT.RADIO, ClientMessages.SWITCHBACK_SCAN,
+				ClientMessages.SWITCHBACK_SCAN_TOOLTIP);
 
 		// --- this is a workaround to expand the bar ---//
 		multipleScans.setSelection(getTemplateData().getMultipleScans().isEnabled());
@@ -214,42 +214,42 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 		bindMultipleScanType(dbc);
 		binRangeType(dbc);
 
-		TomographyBindingElements.bindText(dbc, name, String.class, "name", getTemplateData());
+		ClientBindingElements.bindText(dbc, name, String.class, "name", getTemplateData());
 
-		TomographyBindingElements.bindCheckBox(dbc, currentAngleButton, "start.useCurrentAngle", getTemplateData());
-		TomographyBindingElements.bindText(dbc, startAngleText, Double.class, "start.start", getTemplateData());
+		ClientBindingElements.bindCheckBox(dbc, currentAngleButton, "start.useCurrentAngle", getTemplateData());
+		ClientBindingElements.bindText(dbc, startAngleText, Double.class, "start.start", getTemplateData());
 
-		// TomographyBindingElements.bindText(dbc, numberRotation, Integer.class, "end.numberRotation", getTemplateData());
-		TomographyBindingElements.bindText(dbc, customAngle, Double.class, "end.customAngle", getTemplateData());
+		// ClientBindingElements.bindText(dbc, numberRotation, Integer.class, "end.numberRotation", getTemplateData());
+		ClientBindingElements.bindText(dbc, customAngle, Double.class, "end.customAngle", getTemplateData());
 
-		TomographyBindingElements.bindText(dbc, totalProjections, Double.class, "projections.totalProjections", getTemplateData());
-		//TomographyBindingElements.bindL(dbc, angularStep, Double.class, "projections.angularStep", getTemplateData());
+		ClientBindingElements.bindText(dbc, totalProjections, Double.class, "projections.totalProjections", getTemplateData());
+		//ClientBindingElements.bindL(dbc, angularStep, Double.class, "projections.angularStep", getTemplateData());
 
-		TomographyBindingElements.bindCheckBox(dbc, beforeAcquisition, "imageCalibration.beforeAcquisition", getTemplateData());
-		TomographyBindingElements.bindCheckBox(dbc, afterAcquisition, "imageCalibration.afterAcquisition", getTemplateData());
-		TomographyBindingElements.bindText(dbc, numberDark, Integer.class, "imageCalibration.numberDark", getTemplateData());
-		TomographyBindingElements.bindText(dbc, numberFlat, Integer.class, "imageCalibration.numberFlat", getTemplateData());
-		TomographyBindingElements.bindText(dbc, darkExposure, Integer.class, "imageCalibration.darkExposure", getTemplateData());
-		TomographyBindingElements.bindText(dbc, flatExposure, Integer.class, "imageCalibration.flatExposure", getTemplateData());
+		ClientBindingElements.bindCheckBox(dbc, beforeAcquisition, "imageCalibration.beforeAcquisition", getTemplateData());
+		ClientBindingElements.bindCheckBox(dbc, afterAcquisition, "imageCalibration.afterAcquisition", getTemplateData());
+		ClientBindingElements.bindText(dbc, numberDark, Integer.class, "imageCalibration.numberDark", getTemplateData());
+		ClientBindingElements.bindText(dbc, numberFlat, Integer.class, "imageCalibration.numberFlat", getTemplateData());
+		ClientBindingElements.bindText(dbc, darkExposure, Integer.class, "imageCalibration.darkExposure", getTemplateData());
+		ClientBindingElements.bindText(dbc, flatExposure, Integer.class, "imageCalibration.flatExposure", getTemplateData());
 
-		TomographyBindingElements.bindCheckBox(dbc, multipleScans, "multipleScans.enabled", getTemplateData());
+		ClientBindingElements.bindCheckBox(dbc, multipleScans, "multipleScans.enabled", getTemplateData());
 		multipleScans.setSelection(multipleScans.getSelection());
-		TomographyBindingElements.bindText(dbc, numberRepetitions, Integer.class, "multipleScans.numberRepetitions", getTemplateData());
-		TomographyBindingElements.bindText(dbc, waitingTime, Integer.class, "multipleScans.waitingTime", getTemplateData());
+		ClientBindingElements.bindText(dbc, numberRepetitions, Integer.class, "multipleScans.numberRepetitions", getTemplateData());
+		ClientBindingElements.bindText(dbc, waitingTime, Integer.class, "multipleScans.waitingTime", getTemplateData());
 	}
 
 	private void bindScanType(DataBindingContext dbc) {
 		Map<ScanType, Object> enumRadioMap = new EnumMap<>(ScanType.class);
 		enumRadioMap.put(ScanType.FLY, flyScanType);
 		enumRadioMap.put(ScanType.STEP, stepScanType);
-		TomographyBindingElements.bindEnumToRadio(dbc, ScanType.class, "scanType", getTemplateData(), enumRadioMap);
+		ClientBindingElements.bindEnumToRadio(dbc, ScanType.class, "scanType", getTemplateData(), enumRadioMap);
 	}
 
 	private void bindMultipleScanType(DataBindingContext dbc) {
 		Map<MultipleScansType, Object> enumRadioMap = new EnumMap<>(MultipleScansType.class);
 		enumRadioMap.put(MultipleScansType.REPEAT_SCAN, repeateMultipleScansType);
 		enumRadioMap.put(MultipleScansType.SWITCHBACK_SCAN, switchbackMultipleScansType);
-		TomographyBindingElements.bindEnumToRadio(dbc, MultipleScansType.class, "multipleScans.multipleScansType", getTemplateData(), enumRadioMap);
+		ClientBindingElements.bindEnumToRadio(dbc, MultipleScansType.class, "multipleScans.multipleScansType", getTemplateData(), enumRadioMap);
 	}
 
 	private void binRangeType(DataBindingContext dbc) {
@@ -257,7 +257,7 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 		enumRadioMap.put(RangeType.RANGE_180, halfRotationRangeType);
 		enumRadioMap.put(RangeType.RANGE_360, fullRotationRangeType);
 		enumRadioMap.put(RangeType.CUSTOM, customRotationRangeType);
-		TomographyBindingElements.bindEnumToRadio(dbc, RangeType.class, "end.rangeType", getTemplateData(), enumRadioMap);
+		ClientBindingElements.bindEnumToRadio(dbc, RangeType.class, "end.rangeType", getTemplateData(), enumRadioMap);
 	}
 
 	@Override
@@ -373,9 +373,9 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 	// String newText = (currentText.substring(0, e.start) + e.text + currentText.substring(e.end));
 	// if (TomographyVerifyListener.stringIsDoubleNumber(newText)) {
 	// if (Double.parseDouble(newText) < getTemplateData().getStart().getStart()) {
-	// widget.setToolTipText(TomographyMessagesUtility.getMessage(TomographyMessages.LESS_THAN_START));
+	// widget.setToolTipText(ClientMessagesUtility.getMessage(ClientMessages.LESS_THAN_START));
 	// WidgetUtilities.addErrorDecorator(widget,
-	// TomographyMessagesUtility.getMessage(TomographyMessages.LESS_THAN_START)).show();
+	// ClientMessagesUtility.getMessage(ClientMessages.LESS_THAN_START)).show();
 	// e.doit = false;
 	// return;
 	// }
@@ -383,9 +383,9 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 	// WidgetUtilities.hideDecorator(widget);
 	// return;
 	// }
-	// widget.setToolTipText(TomographyMessagesUtility.getMessage(TomographyMessages.ONLY_NUMBERS_ALLOWED));
+	// widget.setToolTipText(ClientMessagesUtility.getMessage(ClientMessages.ONLY_NUMBERS_ALLOWED));
 	// WidgetUtilities.addErrorDecorator(widget,
-	// TomographyMessagesUtility.getMessage(TomographyMessages.ONLY_NUMBERS_ALLOWED)).show();
+	// ClientMessagesUtility.getMessage(ClientMessages.ONLY_NUMBERS_ALLOWED)).show();
 	// e.doit = false;
 	// };
 	// }

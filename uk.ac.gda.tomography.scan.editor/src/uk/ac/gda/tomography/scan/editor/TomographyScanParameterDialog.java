@@ -29,6 +29,9 @@ import uk.ac.gda.tomography.service.message.TomographyMessages;
 import uk.ac.gda.tomography.service.message.TomographyMessagesUtility;
 import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
 
+import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.ClientMessagesUtility;
+
 /**
  * Allows the user to create/edit tomography scan parameter configuration. This dialog has been created primarily for k11 however has been developed to allow
  * other beamlines migrate to this one.
@@ -52,7 +55,7 @@ public class TomographyScanParameterDialog extends Dialog {
 	protected void configureShell(Shell newShell) {
 		newShell.setLayout(new GridLayout(1, false));
 		super.configureShell(newShell);
-		newShell.setText(TomographyMessagesUtility.getMessage(TomographyMessages.TOMO_SCAN_PARMS));
+		newShell.setText(ClientMessagesUtility.getMessage(ClientMessages.TOMO_SCAN_PARMS));
 	}
 
 	@Override
@@ -65,9 +68,9 @@ public class TomographyScanParameterDialog extends Dialog {
 
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
-		createButton(parent, RUN, TomographyMessagesUtility.getMessage(TomographyMessages.RUN), false);
-		createButton(parent, SAVE, TomographyMessagesUtility.getMessage(TomographyMessages.SAVE), false);
-		createButton(parent, CANCEL, TomographyMessagesUtility.getMessage(TomographyMessages.CANCEL), false);
+		createButton(parent, RUN, ClientMessagesUtility.getMessage(ClientMessages.RUN), false);
+		createButton(parent, SAVE, ClientMessagesUtility.getMessage(ClientMessages.SAVE), false);
+		createButton(parent, CANCEL, ClientMessagesUtility.getMessage(ClientMessages.CANCEL), false);
 	}
 
 	@Override

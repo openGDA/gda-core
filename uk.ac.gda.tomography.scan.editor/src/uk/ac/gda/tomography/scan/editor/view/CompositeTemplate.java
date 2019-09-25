@@ -25,7 +25,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.tomography.ui.tool.TomographySWTElements;
+import uk.ac.gda.ui.tool.ClientSWTElements;
 
 /**
  * Template for build composite objects.
@@ -50,7 +50,7 @@ public abstract class CompositeTemplate<T extends Object> extends Composite {
 
 	public CompositeTemplate(Composite parent, int style, T controller) {
 		super(parent, style);
-		GridLayoutFactory.swtDefaults().margins(TomographySWTElements.defaultCompositeMargin()).applyTo(this);
+		GridLayoutFactory.swtDefaults().margins(ClientSWTElements.defaultCompositeMargin()).applyTo(this);
 		GridDataFactory.swtDefaults().grab(true, true).align(SWT.LEFT, SWT.TOP).applyTo(this);
 		this.controller = controller;
 		createElements(SWT.NONE, SWT.BORDER);

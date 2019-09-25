@@ -35,11 +35,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.tomography.model.AcquisitionConfiguration;
-import uk.ac.gda.tomography.service.message.TomographyMessages;
 import uk.ac.gda.tomography.ui.StageType;
 import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
 import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController.Positions;
-import uk.ac.gda.tomography.ui.tool.TomographySWTElements;
+import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.ClientSWTElements;
 
 /**
  * Creates a drop-down list in the parent Composite to switch between different stages. using a {@link TomographyParametersAcquisitionController} to updates the
@@ -82,14 +82,14 @@ public class StagesComposite {
 	/**
 	 */
 	private void buildStageComposite() {
-		TomographySWTElements.createLabel(getParent(), SWT.NONE, TomographyMessages.STAGE, new Point(2, 1));
-		stagesCombo = TomographySWTElements.createCombo(getParent(), SWT.READ_ONLY, getTypes(), TomographyMessages.STAGE_TP);
-		stageComposite = TomographySWTElements.createComposite(getParent(), SWT.NONE, 1);
+		ClientSWTElements.createLabel(getParent(), SWT.NONE, ClientMessages.STAGE, new Point(2, 1));
+		stagesCombo = ClientSWTElements.createCombo(getParent(), SWT.READ_ONLY, getTypes(), ClientMessages.STAGE_TP);
+		stageComposite = ClientSWTElements.createComposite(getParent(), SWT.NONE, 1);
 		setStageType(StageType.DEFAULT);
 
 		comboStageSelectionListener();
 
-		outOfBeam = TomographySWTElements.createButton(getParent(), SWT.PUSH, TomographyMessages.OUT_OF_BEAM, TomographyMessages.OUT_OF_BEAM_TP);
+		outOfBeam = ClientSWTElements.createButton(getParent(), SWT.PUSH, ClientMessages.OUT_OF_BEAM, ClientMessages.OUT_OF_BEAM_TP);
 		attachOutOfBeamSelectionListener();
 	}
 

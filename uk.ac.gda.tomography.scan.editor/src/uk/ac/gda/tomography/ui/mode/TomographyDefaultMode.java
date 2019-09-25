@@ -20,7 +20,7 @@ package uk.ac.gda.tomography.ui.mode;
 
 import gda.rcp.views.StageCompositeDefinition;
 import gda.rcp.views.TabCompositeFactory;
-import uk.ac.gda.tomography.service.message.TomographyMessages;
+import uk.ac.gda.ui.tool.ClientMessages;
 
 public class TomographyDefaultMode extends TomographyBaseMode {
 
@@ -41,23 +41,23 @@ public class TomographyDefaultMode extends TomographyBaseMode {
 	@Override
 	protected TabCompositeFactory[] getTabsFactories() {
 		TabCompositionBuilder builder = new TabCompositionBuilder();
-		builder.assemble(createMotorAxesComposite(), TomographyMessages.STAGE);
-		builder.assemble(createCameraMotorsComposite(), TomographyMessages.CAMERA);
+		builder.assemble(createMotorAxesComposite(), ClientMessages.STAGE);
+		builder.assemble(createCameraMotorsComposite(), ClientMessages.CAMERA);
 		return builder.build();
 	}
 
 	private StageCompositeDefinition[] createMotorAxesComposite() {
 		StageCompositeDefinitionBuilder builder = new StageCompositeDefinitionBuilder();
-		builder.assemble(TomographyDevices.MOTOR_STAGE_X, TomographyMessages.AXIS_X);
-		builder.assemble(TomographyDevices.MOTOR_STAGE_Y, TomographyMessages.AXIS_Y);
-		builder.assemble(TomographyDevices.MOTOR_STAGE_Z, TomographyMessages.AXIS_Z);
-		builder.assemble(TomographyDevices.MOTOR_STAGE_ROT_Y, TomographyMessages.THETA);
+		builder.assemble(TomographyDevices.MOTOR_STAGE_X, ClientMessages.AXIS_X);
+		builder.assemble(TomographyDevices.MOTOR_STAGE_Y, ClientMessages.AXIS_Y);
+		builder.assemble(TomographyDevices.MOTOR_STAGE_Z, ClientMessages.AXIS_Z);
+		builder.assemble(TomographyDevices.MOTOR_STAGE_ROT_Y, ClientMessages.THETA);
 		return builder.build();
 	}
 
 	private StageCompositeDefinition[] createCameraMotorsComposite() {
 		StageCompositeDefinitionBuilder builder = new StageCompositeDefinitionBuilder();
-		builder.assemble(TomographyDevices.MOTOR_CAMERA_Z, TomographyMessages.CAMERA);
+		builder.assemble(TomographyDevices.MOTOR_CAMERA_Z, ClientMessages.CAMERA);
 		return builder.build();
 	}
 }

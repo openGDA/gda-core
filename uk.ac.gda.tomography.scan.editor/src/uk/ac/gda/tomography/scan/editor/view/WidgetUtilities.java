@@ -28,7 +28,7 @@ import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Control;
 
-import uk.ac.gda.tomography.service.message.TomographyMessages;
+import uk.ac.gda.ui.tool.ClientMessages;
 
 public class WidgetUtilities {
 
@@ -61,7 +61,7 @@ public class WidgetUtilities {
 		decoratorMap.put(control.hashCode(), txtDecorator);
 		return txtDecorator;
 	}
-	public static ControlDecoration addErrorDecorator(final Control control, final TomographyMessages message) {
+	public static ControlDecoration addErrorDecorator(final Control control, final ClientMessages message) {
 		return addErrorDecorator(control, message.name());
 	}
 	public static void hideDecorator(final Control control) {

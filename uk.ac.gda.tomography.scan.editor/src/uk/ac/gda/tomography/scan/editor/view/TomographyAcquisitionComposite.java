@@ -31,23 +31,16 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.DeviceException;
-import gda.factory.Finder;
-import uk.ac.diamond.daq.client.gui.camera.CameraConfigurationDialog;
-import uk.ac.gda.client.live.stream.LiveStreamConnection;
-import uk.ac.gda.client.live.stream.view.CameraConfiguration;
-import uk.ac.gda.client.live.stream.view.StreamType;
 import uk.ac.gda.tomography.controller.AcquisitionControllerException;
 import uk.ac.gda.tomography.scan.editor.Activator;
 import uk.ac.gda.tomography.scan.editor.StagesComposite;
 import uk.ac.gda.tomography.scan.editor.TomographyAcquisitionTabsDialog;
-import uk.ac.gda.tomography.scan.editor.TomographyResourceManager;
 import uk.ac.gda.tomography.scan.editor.TomographyScanParameterDialog;
-import uk.ac.gda.tomography.service.message.TomographyMessages;
-import uk.ac.gda.tomography.service.message.TomographyMessagesUtility;
 import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
-import uk.ac.gda.tomography.ui.tool.TomographySWTElements;
+import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.ClientMessagesUtility;
+import uk.ac.gda.ui.tool.ClientResourceManager;
+import uk.ac.gda.ui.tool.ClientSWTElements;
 
 /**
  * Allows editing of TomographyAcquisition objects.
@@ -69,7 +62,6 @@ public class TomographyAcquisitionComposite extends CompositeTemplate<Tomography
 	private Label shutterValue;
 
 	private Label configuration;
-	private Label camera;
 
 	public TomographyAcquisitionComposite(final Composite parent, final TomographyParametersAcquisitionController controller) {
 		super(parent, SWT.NONE, controller);
@@ -77,22 +69,17 @@ public class TomographyAcquisitionComposite extends CompositeTemplate<Tomography
 
 	@Override
 	protected void createElements(int labelStyle, int textStyle) {
-		headerElements(TomographySWTElements.createComposite(this, SWT.NONE, 3), labelStyle, textStyle);
-		stageCompose(TomographySWTElements.createComposite(this, SWT.NONE, 1), labelStyle, textStyle);
+		headerElements(ClientSWTElements.createComposite(this, SWT.NONE, 3), labelStyle, textStyle);
+		stageCompose(ClientSWTElements.createComposite(this, SWT.NONE, 1), labelStyle, textStyle);
 	}
 
 	private void headerElements(Composite parent, int labelStyle, int textStyle) {
-		createSource(TomographySWTElements.createGroup(parent, 3, TomographyMessages.SOURCE), labelStyle, textStyle);
+		createSource(ClientSWTElements.createGroup(parent, 3, ClientMessages.SOURCE), labelStyle, textStyle);
 
-		configuration = TomographySWTElements.createLabel(parent, labelStyle);
-		configuration.setImage(TomographySWTElements.getImage(getPluginId(), "icons/sinogram-50.png"));
-		configuration.setToolTipText(TomographyMessagesUtility.getMessage(TomographyMessages.EDIT_CONFIGURATION_TP));
-		TomographySWTElements.changeHIndent(configuration, 50);
-
-		camera = TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.CAMERA);
-		camera.setImage(TomographySWTElements.getImage(getPluginId(), "icons/camera-50.png"));
-		camera.setToolTipText(TomographyMessagesUtility.getMessage(TomographyMessages.CAMERA_TP));
-		TomographySWTElements.changeHIndent(camera, 50);
+		configuration = ClientSWTElements.createLabel(parent, labelStyle);
+		configuration.setImage(ClientSWTElements.getImage(getPluginId(), "icons/sinogram-50.png"));
+		configuration.setToolTipText(ClientMessagesUtility.getMessage(ClientMessages.EDIT_CONFIGURATION_TP));
+		ClientSWTElements.changeHIndent(configuration, 50);
 	}
 
 	private void stageCompose(Composite parent, int labelStyle, int textStyle) {
@@ -101,39 +88,21 @@ public class TomographyAcquisitionComposite extends CompositeTemplate<Tomography
 	}
 
 	private void createSource(Composite parent, int labelStyle, int textStyle) {
-		energyIcon = TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.ENERGY_KEV);
-		energyIcon.setImage(TomographySWTElements.getImage(getPluginId(), "icons/beam-16.png"));
-		energy = TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.ENERGY_KEV);
-		energyValue = TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.NOT_AVAILABLE, null,
-				FontDescriptor.createFrom(TomographyResourceManager.getInstance().getTextDefaultFont()));
+		energyIcon = ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.ENERGY_KEV);
+		energyIcon.setImage(ClientSWTElements.getImage(getPluginId(), "icons/beam-16.png"));
+		energy = ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.ENERGY_KEV);
+		energyValue = ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.NOT_AVAILABLE, null,
+				FontDescriptor.createFrom(ClientResourceManager.getInstance().getTextDefaultFont()));
 
-		shutter = TomographySWTElements.createButton(parent, SWT.CHECK, TomographyMessages.EMPTY_MESSAGE, TomographyMessages.SHUTTER_TP);
-		shutterLabel = TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.SHUTTER);
-		shutterValue = TomographySWTElements.createLabel(parent, labelStyle, TomographyMessages.NOT_AVAILABLE, null,
-				FontDescriptor.createFrom(TomographyResourceManager.getInstance().getTextDefaultFont()));
+		shutter = ClientSWTElements.createButton(parent, SWT.CHECK, ClientMessages.EMPTY_MESSAGE, ClientMessages.SHUTTER_TP);
+		shutterLabel = ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.SHUTTER);
+		shutterValue = ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.NOT_AVAILABLE, null,
+				FontDescriptor.createFrom(ClientResourceManager.getInstance().getTextDefaultFont()));
 	}
 
 	@Override
 	protected void bindElements() {
 		configuration.addListener(SWT.FOCUSED, this::getaddOrEditConfigurationListener);
-		camera.addListener(SWT.FOCUSED, this::cameraListener);
-	}
-
-	private void cameraListener(Event event) {
-		try {
-			CameraConfigurationDialog.show(Display.getDefault(), getLiveStreamConnection());
-		} catch (DeviceException e) {
-			logger.error("Error handling configuration Dialog", e);
-		}
-	}
-
-	private LiveStreamConnection getLiveStreamConnection() {
-		return new LiveStreamConnection(getCameraConfiguration(), StreamType.EPICS_ARRAY);
-	}
-
-	private CameraConfiguration getCameraConfiguration() {
-		String cameraName = LocalProperties.get(CAMERA_CONFIGURATION_BEAN);
-		return Finder.getInstance().find(cameraName);
 	}
 
 	private void getaddOrEditConfigurationListener(Event event) {
@@ -161,7 +130,6 @@ public class TomographyAcquisitionComposite extends CompositeTemplate<Tomography
 
 	@Override
 	protected void initialiseElements() {
-
 	}
 
 	private String getPluginId() {

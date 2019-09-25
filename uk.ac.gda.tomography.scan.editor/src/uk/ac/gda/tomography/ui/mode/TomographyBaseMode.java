@@ -45,9 +45,9 @@ import gda.rcp.views.TabFolderCompositeFactory;
 import uk.ac.gda.tomography.base.TomographyMode;
 import uk.ac.gda.tomography.controller.IncompleteModeException;
 import uk.ac.gda.tomography.model.DevicePosition;
-import uk.ac.gda.tomography.service.message.TomographyMessages;
-import uk.ac.gda.tomography.service.message.TomographyMessagesUtility;
-import uk.ac.gda.tomography.ui.tool.TomographySWTElements;
+import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.ClientMessagesUtility;
+import uk.ac.gda.ui.tool.ClientSWTElements;
 
 public abstract class TomographyBaseMode implements TomographyMode {
 
@@ -161,7 +161,7 @@ public abstract class TomographyBaseMode implements TomographyMode {
 
 	private Composite getStageControls(Composite parent) {
 		if (Objects.isNull(stageControls) || stageControls.isDisposed()) {
-			stageControls = TomographySWTElements.createComposite(parent, SWT.NONE, 4);
+			stageControls = ClientSWTElements.createComposite(parent, SWT.NONE, 4);
 			createStageControls(SWT.NONE, SWT.BORDER);
 			stageControls.pack();
 		}
@@ -172,16 +172,16 @@ public abstract class TomographyBaseMode implements TomographyMode {
 		return stageControls;
 	}
 
-	protected final TabCompositeFactory createStageMotorsCompositeFactory(StageCompositeDefinition[] motors, TomographyMessages message) {
+	protected final TabCompositeFactory createStageMotorsCompositeFactory(StageCompositeDefinition[] motors, ClientMessages message) {
 		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
 		StageCompositeFactory scf = new StageCompositeFactory();
 		group.setCompositeFactory(scf);
-		group.setLabel(TomographyMessagesUtility.getMessage(message));
+		group.setLabel(ClientMessagesUtility.getMessage(message));
 		scf.setStageCompositeDefinitions(motors);
 		return group;
 	}
 
-	protected StageCompositeDefinition doMotor(TomographyDevices device, TomographyMessages label) throws IncompleteModeException {
+	protected StageCompositeDefinition doMotor(TomographyDevices device, ClientMessages label) throws IncompleteModeException {
 		StageCompositeDefinition scd = new StageCompositeDefinition();
 		scd.setScannable(getMotors().get(device));
 		if (Objects.isNull(scd.getScannable())) {
@@ -189,7 +189,7 @@ public abstract class TomographyBaseMode implements TomographyMode {
 		}
 		scd.setStepSize(1);
 		scd.setDecimalPlaces(0);
-		scd.setLabel(TomographyMessagesUtility.getMessage(label));
+		scd.setLabel(ClientMessagesUtility.getMessage(label));
 		return scd;
 	}
 
@@ -202,7 +202,7 @@ public abstract class TomographyBaseMode implements TomographyMode {
 	protected class TabCompositionBuilder {
 		private List<TabCompositeFactory> tabComposite = new ArrayList<>();
 
-		public TabCompositionBuilder assemble(StageCompositeDefinition[] stageComposite, TomographyMessages label) {
+		public TabCompositionBuilder assemble(StageCompositeDefinition[] stageComposite, ClientMessages label) {
 			if (Objects.nonNull(stageComposite)) {
 				tabComposite.add(createStageMotorsCompositeFactory(stageComposite, label));
 			}
@@ -217,7 +217,7 @@ public abstract class TomographyBaseMode implements TomographyMode {
 	protected class StageCompositeDefinitionBuilder {
 		private List<StageCompositeDefinition> composite = new ArrayList<>();
 
-		public StageCompositeDefinitionBuilder assemble(TomographyDevices device, TomographyMessages label) {
+		public StageCompositeDefinitionBuilder assemble(TomographyDevices device, ClientMessages label) {
 			StageCompositeDefinition scd;
 			try {
 				scd = doMotor(device, label);

@@ -27,9 +27,9 @@ import org.eclipse.swt.widgets.ExpandItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.tomography.service.message.TomographyMessages;
-import uk.ac.gda.tomography.service.message.TomographyMessagesUtility;
-import uk.ac.gda.tomography.ui.tool.TomographySWTElements;
+import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.ClientMessagesUtility;
+import uk.ac.gda.ui.tool.ClientSWTElements;
 
 /**
  * Helps to build an ExpandBar. Once instantiated, {@link #getInternalArea()} provides the {@link Composite} where build the content. Calling
@@ -41,17 +41,17 @@ public class ExpandBarBuilder {
 
 	private final ExpandBar bar;
 	private Composite internalArea;
-	private final TomographyMessages title;
+	private final ClientMessages title;
 	private boolean built = false;
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpandBarBuilder.class);
 
-	public ExpandBarBuilder(Composite composite, TomographyMessages title) {
+	public ExpandBarBuilder(Composite composite, ClientMessages title) {
 		this.bar = new ExpandBar(composite, SWT.NONE);
 		this.title = title;
 		GridLayoutFactory.swtDefaults().applyTo(this.bar);
 		GridDataFactory.swtDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(this.bar);
-		this.internalArea = TomographySWTElements.createComposite(this.bar, SWT.NONE, 1);
+		this.internalArea = ClientSWTElements.createComposite(this.bar, SWT.NONE, 1);
 		GridLayoutFactory.swtDefaults().applyTo(this.internalArea);
 		GridDataFactory.swtDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(this.internalArea);
 	}
@@ -72,9 +72,9 @@ public class ExpandBarBuilder {
 		return bar;
 	}
 
-	private void addExpandableArea(TomographyMessages title) {
+	private void addExpandableArea(ClientMessages title) {
 		ExpandItem item0 = new ExpandItem(this.bar, SWT.NONE, 0);
-		item0.setText(TomographyMessagesUtility.getMessage(title));
+		item0.setText(ClientMessagesUtility.getMessage(title));
 		item0.setHeight(getInternalArea().computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
 		item0.setControl(getInternalArea());
 		item0.setExpanded(true);
