@@ -44,20 +44,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.dawnsci.commandserver"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.dawnsci.commandserver.tomo"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.scanning.event.ui"
          download-size="0"
          install-size="0"

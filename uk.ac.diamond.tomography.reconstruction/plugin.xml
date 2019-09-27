@@ -326,32 +326,4 @@
           </content-type>
          
    </extension>
-   <extension
-         point="org.eclipse.ui.perspectiveExtensions">
-      <perspectiveExtension
-            targetID="uk.ac.diamond.tomography.reconstruction.perspective">
-         <actionSet
-               id="uk.ac.diamond.tomography.reconstruction.actionSet1">
-         </actionSet>
-      </perspectiveExtension>
-   
-   </extension>
-   <extension
-         point="org.eclipse.ui.actionSets">
-      <actionSet
-            id="uk.ac.diamond.tomography.reconstruction.actionSet1"
-            label="Reconstruction"
-            visible="false">
-         <action
-               class="uk.ac.diamond.tomography.reconstruction.ui.actions.SubmitReconstruction"
-               enablesFor="1"
-               icon="icons/wrench.png"
-               id="uk.ac.diamond.tomography.reconstruction.commandServerSubmit"
-               label="Execute Reconstruction..."
-               menubarPath="File/"
-               style="push"
-               toolbarPath="tools/additions">
-         </action>
-      </actionSet>
-   </extension>
 </plugin>
