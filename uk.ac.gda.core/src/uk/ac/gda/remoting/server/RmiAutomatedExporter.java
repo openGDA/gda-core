@@ -18,6 +18,8 @@
 
 package uk.ac.gda.remoting.server;
 
+import static java.util.Collections.emptySet;
+
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
@@ -225,8 +227,8 @@ public class RmiAutomatedExporter implements RmiRemoteObjectProvider {
 				throw new IllegalArgumentException("clazz must extend Findable was: " + clazz);
 			}
 		} catch (ClassNotFoundException e) {
-			logger.error("'{}' could not be loaded by the server", clazz, e);
-			throw new IllegalArgumentException("clazz must be visiable to the server", e);
+			logger.warn("'{}' could not be loaded by the server", clazz, e);
+			return emptySet();
 		}
 	}
 

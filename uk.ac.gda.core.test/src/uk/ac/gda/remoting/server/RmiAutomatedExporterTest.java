@@ -231,9 +231,10 @@ public class RmiAutomatedExporterTest {
 		rmiAutoExporter.getRemoteObjectNamesImplementingType(Map.class.getCanonicalName());
 	}
 
-	@Test(expected=IllegalArgumentException.class)
-	public void testGettingAllFindablesWithTypeMissingClassThrows() throws Exception {
-		rmiAutoExporter.getRemoteObjectNamesImplementingType("uk.ac.diamond.daq.test.MadeupMissingClassName");
+	@Test
+	public void testGettingAllFindablesWithTypeMissingClassReturnsEmpty() throws Exception {
+		Set<String> missingClass = rmiAutoExporter.getRemoteObjectNamesImplementingType("uk.ac.diamond.daq.test.MadeupMissingClassName");
+		assertThat(missingClass, is(empty()));
 	}
 
 
