@@ -123,13 +123,29 @@ public class PlanProgressPlotView extends ViewPart {
 			plottingSystem.clearTraces();
 		});
 		
+		initialisePlanPlottingComponents();
+		
 		if (bean.getDriverName() != null && bean.getDriverProfile() != null) {
-			plotDriverProfile();
-			initialiseAllThePlottingStuff();
-			startTrajectoryJob();
+			initialiseDriverPlottingComponents();
 		}
 	}
 	
+	
+	private void initialisePlanPlottingComponents() {
+		triggerPlots = new HashMap<>();
+		segmentAnnotations = new ArrayList<>();
+	}
+	
+	private void initialiseDriverPlottingComponents() {
+		plotDriverProfile();
+		
+		IExperimentDriver<? extends DriverModel> driver = Finder.getInstance().find(activePlan.getDriverName());
+		signalSource = Finder.getInstance().find(driver.getMainReadoutName());
+		trajectory = new DynamicTraceMaintainer("actual trajectory", true);
+		
+		startTrajectoryJob();
+	}
+
 	/**
 	 * Records the position of the driver's main readout every 500ms and adds to plot
 	 */
@@ -143,8 +159,10 @@ public class PlanProgressPlotView extends ViewPart {
 		}
 		plotTriggers();
 		updatePlotTitleAndAxisLabel(activePlan.getName() + ": " + activePlan.getStatus().toString(), "Time (min)");
-		if (activePlan.getStatus() == Status.COMPLETE && trajectoryJob != null && !trajectoryJob.isDone()) {
-			trajectoryJob.cancel(true);
+		if (activePlan.getStatus() == Status.COMPLETE) {
+			if (trajectoryJob != null && !trajectoryJob.isDone()) {
+				trajectoryJob.cancel(true);
+			}
 			try {
 				IAnnotation planEndAnnotation = plottingSystem.createAnnotation("Plan end");
 				planEndAnnotation.setLocation(getRelativeTimeInMinutes(activePlan.getSegments().get(activePlan.getSegments().size()-1).getEndTime()), getYPosition());
@@ -182,14 +200,6 @@ public class PlanProgressPlotView extends ViewPart {
 			plottingSystem.setTitle(title);
 			plottingSystem.getSelectedXAxis().setTitle(xAxisLabel);
 		});
-	}
-	
-	private void initialiseAllThePlottingStuff() {
-		IExperimentDriver<? extends DriverModel> driver = Finder.getInstance().find(activePlan.getDriverName());
-		signalSource = Finder.getInstance().find(driver.getMainReadoutName());
-		trajectory = new DynamicTraceMaintainer("actual trajectory", true);
-		triggerPlots = new HashMap<>();
-		segmentAnnotations = new ArrayList<>();
 	}
 	
 	private void addPointToTrajectory() {
@@ -233,12 +243,14 @@ public class PlanProgressPlotView extends ViewPart {
 	}
 	
 	private double getYPosition() {
-		try {
-			return (double) signalSource.getPosition();
-		} catch (DeviceException e) {
-			logger.error("Error reading scannable", e);
-			return 0; // lol
+		if (signalSource != null) {
+			try {
+				return (double) signalSource.getPosition();
+			} catch (DeviceException e) {
+				logger.error("Error reading scannable", e);
+			}
 		}
+		return 0.0;
 	}
 
 	private class DynamicTraceMaintainer {
