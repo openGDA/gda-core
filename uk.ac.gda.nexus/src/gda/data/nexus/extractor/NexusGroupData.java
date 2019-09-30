@@ -638,7 +638,7 @@ public class NexusGroupData implements Serializable {
 				}
 			}
 		}
-		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("data", dtype, shape, null, chunks);
+		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("data", DTypeUtils.getElementClass(dtype), shape, null, chunks);
 		return lazy;
 	}
 
@@ -656,7 +656,7 @@ public class NexusGroupData implements Serializable {
 	 * @return dataset
 	 */
 	public Dataset toDataset(boolean keepBitWidth) {
-		Dataset dataset = DatasetFactory.createFromObject(dtype, getBuffer());
+		Dataset dataset = DatasetFactory.createFromObject(DTypeUtils.getInterface(dtype), getBuffer());
 		if (!keepBitWidth && isUnsigned) {
 			dataset = DatasetUtils.makeUnsigned(dataset);
 		}
