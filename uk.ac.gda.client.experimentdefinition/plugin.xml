@@ -103,11 +103,6 @@
             name="Queue and Run multi">
       </command>
       <command
-            description="Stop everything and restart the queue."
-            id="uk.ac.gda.client.experimentdefinition.StopAllCommand"
-            name="Stop All">
-      </command>
-      <command
             defaultHandler="uk.ac.gda.client.experimentdefinition.ui.handlers.RefreshProjectCommandHandler"
             id="uk.ac.gda.client.experimentdefinition.ui.handlers.RefreshProjectCommandHandler"
             name="Refresh Project">
