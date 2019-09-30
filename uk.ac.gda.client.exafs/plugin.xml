@@ -177,11 +177,6 @@
             name="Delete from Queue">
       </command>
       <command
-            defaultHandler="uk.ac.gda.exafs.ui.actions.AlignmentModeHandler"
-            id="uk.ac.gda.client.exafs.alignmentCommand"
-            name="Aligment Mode">
-      </command>
-      <command
             defaultHandler="uk.ac.gda.exafs.ui.actions.DataCollectionModeHandler"
             id="uk.ac.gda.client.exafs.dataCollectionCommand"
             name="Data Collection Mode">
@@ -376,13 +371,6 @@
                   label="Data Collection"
                   style="push"
                   tooltip="Open all perspectives useful for data collection.">
-            </command>
-            <command
-                  commandId="uk.ac.gda.client.exafs.alignmentCommand"
-                  icon="icons/ruby.png"
-                  label="Alignment"
-                  style="push"
-                  tooltip="Open all perspectives useful for alignment">
             </command>
             <command
                   commandId="uk.ac.gda.client.exafs.switchScanType"
