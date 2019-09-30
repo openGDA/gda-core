@@ -348,17 +348,6 @@
       <menuContribution
             locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
          <toolbar
-               id="uk.ac.gda.client.mainControls">
-            <command
-                  commandId="uk.ac.gda.client.experimentdefinition.StopAllCommand"
-                  icon="icons/stop.png"
-                  label="Stop All"
-                  mode="FORCE_TEXT"
-                  style="push"
-                  tooltip="Stop all currently executed tasks.">
-            </command>
-         </toolbar>
-         <toolbar
                id="uk.ac.gda.client.exafs.toolbar1">
             <command
                   commandId="uk.ac.gda.client.exafs.switchScanType"
