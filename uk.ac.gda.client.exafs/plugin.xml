@@ -176,11 +176,6 @@
             id="uk.ac.gda.client.exafs.DeleteFromQueueCommand"
             name="Delete from Queue">
       </command>
-      <command
-            defaultHandler="uk.ac.gda.exafs.ui.actions.DataCollectionModeHandler"
-            id="uk.ac.gda.client.exafs.dataCollectionCommand"
-            name="Data Collection Mode">
-      </command>
       <category
             id="uk.ac.gda.client.exafs.ui.views.scalersmonitor"
             name="ScalersMonitorViewCommands">
@@ -365,13 +360,6 @@
          </toolbar>
          <toolbar
                id="uk.ac.gda.client.exafs.toolbar1">
-            <command
-                  commandId="uk.ac.gda.client.exafs.dataCollectionCommand"
-                  icon="icons/chart_curve.png"
-                  label="Data Collection"
-                  style="push"
-                  tooltip="Open all perspectives useful for data collection.">
-            </command>
             <command
                   commandId="uk.ac.gda.client.exafs.switchScanType"
                   helpContextId="org.eclipse.ui.switch_scan_type"
