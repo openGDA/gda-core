@@ -1894,9 +1894,10 @@ public class NexusDataWriter extends DataWriterBase {
 		return thisPoint.getPositions().get(index);
 	}
 
-	private void makeMetadataScannableFallback(GroupNode group, Scannable scannable, Object position) throws NexusException {
-		String[] inputNames = scannable.getInputNames();
-		String[] extraNames = scannable.getExtraNames();
+	private void makeMetadataScannableFallback(GroupNode group, Scannable scannable, Object position)
+			throws NexusException {
+
+		String[] allNames = (String[]) ArrayUtils.addAll(scannable.getInputNames(), scannable.getExtraNames());
 
 		logger.debug("Writing data for scannable ({}) to NeXus file.", scannable.getName());
 
@@ -1908,32 +1909,22 @@ public class NexusDataWriter extends DataWriterBase {
 				NexusUtils.addToAugmentPath(new StringBuilder(file.getPath(group)), nxDirName, nxClass),
 				scannable.getName(), nxClass).toString();
 		logger.debug("Writing data for scannable ({}) to NeXus file at {}.", scannable.getName(), augmentedPath);
-		GroupNode g = file.getGroup(augmentedPath, true);
+		GroupNode groupNode = file.getGroup(augmentedPath, true);
+
 		// handle String value that cannot be converted to Quantity
 		if (position instanceof String && QuantityFactory.createFromString((String) position) == null) {
-			if (inputNames.length == 1) {
-				NexusUtils.writeString(file, g, inputNames[0], (String) position);
-			}
-			if (extraNames.length == 1) {
-				NexusUtils.writeString(file, g, extraNames[0], (String) position);
-			}
+			// If position is a single String then just have one name regardless whether input or extra
+			NexusUtils.writeString(file, groupNode, allNames[0], (String) position);
 		} else if (position instanceof String[]) {
 			String[] positions = (String[]) position;
-			for (int i = 0; i < inputNames.length; i++) {
-				NexusUtils.writeString(file, g, inputNames[i], positions[i]);
-			}
-			for (int i = 0; i < extraNames.length; i++) { // TODO check if position index is correct here
-				NexusUtils.writeString(file, g, extraNames[i], positions[inputNames.length + i]);
+			for (int i = 0; i < allNames.length; i++) {
+				NexusUtils.writeString(file, groupNode, allNames[i], positions[i]);
 			}
 		} else if (position.getClass().isArray()) {
 			// handle a scannable returns array of mixed primitive data types
-			for (int i = 0; i < inputNames.length; i++) {
+			for (int i = 0; i < allNames.length; i++) {
 				Object object = Array.get(position, i);
-				writeItem(inputNames, g, i, object);
-			}
-			for (int i = 0; i < extraNames.length; i++) {
-				Object object = Array.get(position, i + inputNames.length);
-				writeItem(extraNames, g, i, object);
+				writeItem(allNames, groupNode, i, object);
 			}
 
 		} else {
@@ -1942,11 +1933,8 @@ public class NexusDataWriter extends DataWriterBase {
 			// FIXME this needs to bring in the units
 			Double[] positions = ScannableUtils.objectToArray(position);
 
-			for (int i = 0; i < inputNames.length; i++) {
-				NexusUtils.writeDouble(file, g, inputNames[i], positions[i]);
-			}
-			for (int i = 0; i < extraNames.length; i++) {
-				NexusUtils.writeDouble(file, g, extraNames[i], positions[inputNames.length + i]);
+			for (int i = 0; i < allNames.length; i++) {
+				NexusUtils.writeDouble(file, groupNode, allNames[i], positions[i]);
 			}
 		}
 	}
