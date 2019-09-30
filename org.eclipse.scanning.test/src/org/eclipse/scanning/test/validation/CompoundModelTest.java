@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.validation;
 
-import static org.junit.Assert.fail;
-
 import java.util.Arrays;
 
 import org.eclipse.scanning.api.ValidationException;
@@ -26,7 +24,7 @@ public class CompoundModelTest extends AbstractValidationTest {
 
 
 	@Test(expected=ValidationException.class)
-	public void testNoBoundingBox() throws ValidationException, InstantiationException, IllegalAccessException {
+	public void testNoBoundingBox() throws ValidationException {
 
 		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new StepModel("fred", 10, 20, 1), new GridModel("stage_x", "stage_y")));
 		validator.validate(cmodel);
@@ -36,15 +34,11 @@ public class CompoundModelTest extends AbstractValidationTest {
 	public void testAxesColliding() {
 
 		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new StepModel("stage_x", 10, 20, 1), new GridModel("stage_x", "stage_y")));
-		try {
-			validator.validate(cmodel);
-		} catch (InstantiationException | IllegalAccessException e) {
-			fail("Unexpected exception in test!");
-		}
+		validator.validate(cmodel);
 	}
 
 	@Test
-	public void testBoundingBox() throws ValidationException, InstantiationException, IllegalAccessException {
+	public void testBoundingBox() throws ValidationException {
 
 		GridModel gmodel = new GridModel("stage_x", "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
@@ -52,7 +46,7 @@ public class CompoundModelTest extends AbstractValidationTest {
 	}
 
 	@Test(expected=ValidationException.class)
-	public void nullAxisTest() throws ValidationException, InstantiationException, IllegalAccessException {
+	public void nullAxisTest() throws ValidationException {
 
 		GridModel gmodel = new GridModel(null, "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));

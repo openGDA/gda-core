@@ -31,11 +31,12 @@ public interface IValidator<T> {
 	 * Otherwise, just returns. A model should be considered invalid if its
 	 * parameters would cause the generator implementation to hang or crash.
 	 *
+	 * @param model the model to validate
 	 * @throw exception if model invalid
 	 * @return
 	 */
-	default void validate(T model) throws ValidationException, InstantiationException, IllegalAccessException {
-		return; // They should implement a validation which throws an exception
+	default void validate(T model) throws ValidationException {
+		// do nothing by default, implementations should override
 	}
 
 	/**
@@ -45,7 +46,7 @@ public interface IValidator<T> {
 	 * @param vservice
 	 */
 	default void setService(IValidatorService vservice) {
-
+		// do nothing by default, implementations should override
 	}
 
 	/**
@@ -56,11 +57,7 @@ public interface IValidator<T> {
 	 * @throws ValidationException
 	 */
 	default Object validateWithReturn(T model) throws ValidationException {
-		try {
-			validate(model);
-		} catch (InstantiationException | IllegalAccessException e) {
-			throw new ValidationException(e);
-		}
+		validate(model);
 		return null; // They should implement a validation which throws an exception
 	}
 }

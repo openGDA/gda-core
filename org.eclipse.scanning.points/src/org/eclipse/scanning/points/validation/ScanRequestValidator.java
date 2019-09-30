@@ -44,7 +44,7 @@ class ScanRequestValidator implements IValidator<ScanRequest> {
 	}
 
 	@Override
-	public void validate(ScanRequest req) throws ValidationException, InstantiationException, IllegalAccessException {
+	public void validate(ScanRequest req) throws ValidationException {
 
 	    final CompoundModel cm = req.getCompoundModel();
 		if (cm!=null && cm.getModels()!=null && !cm.getModels().isEmpty()) {
@@ -65,7 +65,7 @@ class ScanRequestValidator implements IValidator<ScanRequest> {
 		}
 	}
 
-	private void validateAnnotations(Map<String, Object> dmodels) throws ValidationException, IllegalArgumentException, IllegalAccessException, ScanningException {
+	private void validateAnnotations(Map<String, Object> dmodels) throws ValidationException, ScanningException {
 		for (Object model : dmodels.values()) {
 			// If the model has an annotated field which points at
 			// a detector, that detector must be in the scan.
@@ -133,7 +133,7 @@ class ScanRequestValidator implements IValidator<ScanRequest> {
 		}
 	}
 
-	private void validateDetectors(Map<String, Object> dmodels) throws ValidationException, InstantiationException, IllegalAccessException {
+	private void validateDetectors(Map<String, Object> dmodels) throws ValidationException {
 		// All the models must validate too
 		for (Object model : dmodels.values()) {
 			IValidator<Object> validator = vservice.getValidator(model);

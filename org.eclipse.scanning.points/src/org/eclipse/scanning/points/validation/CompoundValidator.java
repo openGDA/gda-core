@@ -24,7 +24,7 @@ import org.eclipse.scanning.api.points.models.IScanPathModel;
 class CompoundValidator implements IValidator<CompoundModel> {
 
 	@Override
-	public void validate(CompoundModel model) throws ValidationException, InstantiationException, IllegalAccessException {
+	public void validate(CompoundModel model) throws ValidationException {
 
 		if (model.getModels()==null || model.getModels().isEmpty()) {
 			throw new ModelValidationException("There are no models defined.", model, "models");

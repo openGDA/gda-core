@@ -104,25 +104,29 @@ public class ValidatorService implements IValidatorService {
 	}
 
 	@Override
-	public <T> void validate(T model) throws ValidationException, InstantiationException, IllegalAccessException {
+	public <T> void validate(T model) throws ValidationException {
 
 		if (model==null) throw new ValidationException("The object to validate is null and cannot be checked!");
 		IValidator<T> validator = getValidator(model);
-		if (validator==null) throw new IllegalAccessException("There is no validator for "+model.getClass().getSimpleName());
+		if (validator==null) throw new ValidationException("There is no validator for class: " + model.getClass());
 		validator.setService(this);
 		validator.validate(model);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> IValidator<T> getValidator(T model) throws InstantiationException, IllegalAccessException {
+	public <T> IValidator<T> getValidator(T model) throws ValidationException {
 
 		if (model==null) throw new NullPointerException("The model is null!");
 
 		if (model instanceof IValidator) throw new IllegalArgumentException("Models should be vanilla and not contain logic for validating themselves!");
 
 		if (validators.containsKey(model.getClass())) {
-			return validators.get(model.getClass()).newInstance();
+			try {
+				return validators.get(model.getClass()).newInstance();
+			} catch (InstantiationException | IllegalAccessException e) {
+				throw new ValidationException("Could not create validator for model class: " + model.getClass(), e);
+			}
 		}
 
 		if (model instanceof IScanPathModel) { // Ask a generator
@@ -132,7 +136,7 @@ public class ValidatorService implements IValidatorService {
 				return (IValidator<T>)gen;
 
 			} catch (GeneratorException e) {
-				throw new IllegalAccessException(e.getMessage());
+				throw new ValidationException("Could not create generator for model class: " + model.getClass());
 			}
 		} else {
 			try {

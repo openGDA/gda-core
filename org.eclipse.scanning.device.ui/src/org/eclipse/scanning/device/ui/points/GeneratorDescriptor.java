@@ -190,7 +190,7 @@ public class GeneratorDescriptor<T extends IScanPathModel> implements ISeriesIte
 	}
 
 	@Override
-	public void validate(T model) throws ValidationException, InstantiationException, IllegalAccessException {
+	public void validate(T model) throws ValidationException {
 		generator.validate(model);
 	}
 
