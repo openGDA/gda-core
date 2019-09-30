@@ -1927,9 +1927,14 @@ public class NexusDataWriter extends DataWriterBase {
 				writeItem(allNames, groupNode, i, object);
 			}
 
-		} else {
+		} else if (position instanceof Iterable<?>) {
+			Iterator<?> positions = ((Iterable<?>) position).iterator();
+		    for (int i = 0; i < allNames.length; i++) {
+		        writeItem(allNames, groupNode, i, positions.next());
+		    }
+		}
 
-			// FIXME ideally this would work for non-doubles as well
+		else {
 			// FIXME this needs to bring in the units
 			Double[] positions = ScannableUtils.objectToArray(position);
 
