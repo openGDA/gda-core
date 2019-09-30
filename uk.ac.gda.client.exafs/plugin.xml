@@ -211,11 +211,6 @@
             name="Import Experiment">
       </command>
       <command
-            defaultHandler="uk.ac.gda.client.experimentdefinition.ui.handlers.ResetPerspectiveHandler"
-            id="uk.ac.gda.client.exafs.resetperspective"
-            name="Reset Perspective">
-      </command>
-      <command
             id="uk.ac.gda.client.exafs.pauseAfterRepetition"
             name="Pause After Repetition">
       </command>
@@ -388,12 +383,6 @@
                   label="Alignment"
                   style="push"
                   tooltip="Open all perspectives useful for alignment">
-            </command>
-            <command
-                  commandId="uk.ac.gda.client.exafs.resetperspective"
-                  label="Reset perspective"
-                  style="push"
-                  tooltip="Resets the current perspective to its default layout">
             </command>
             <command
                   commandId="uk.ac.gda.client.exafs.switchScanType"
