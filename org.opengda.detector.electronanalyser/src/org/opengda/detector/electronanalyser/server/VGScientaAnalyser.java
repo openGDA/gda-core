@@ -375,8 +375,6 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 	}
 	private void createSpectrumData(INexusTree regionNode) {
 		try {
-			int size = getEnergyAxis().length;
-
 			double[] s = getSpectrum();
 			NexusGroupData spectrum_data=new NexusGroupData(s);
 			spectrum_data.isDetectorEntryData=true;
@@ -534,7 +532,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 			DataNode d = nexusFile.getData(g, "image_data");
 			ILazyWriteableDataset lazy;
 			if (d == null || !Arrays.equals(d.getDataset().getShape(), dims)) {
-				lazy = NexusUtils.createLazyWriteableDataset("image_data", Dataset.INT32, dims, datadims, dims);
+				lazy = NexusUtils.createLazyWriteableDataset("image_data", Integer.class, dims, datadims, dims);
 				d = nexusFile.createData(g, lazy);
 			} else {
 				lazy = d.getWriteableDataset();
@@ -557,7 +555,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 			DataNode d = nexusFile.getData(g, "spectrum_data");
 			ILazyWriteableDataset lazy;
 			if (d == null || !Arrays.equals(d.getDataset().getShape(), dims)) {
-				lazy = NexusUtils.createLazyWriteableDataset("spectrum_data", Dataset.FLOAT64, dims, datadims, dims);
+				lazy = NexusUtils.createLazyWriteableDataset("spectrum_data", Double.class, dims, datadims, dims);
 				d = nexusFile.createData(g, lazy);
 			} else {
 				lazy = d.getWriteableDataset();
@@ -588,7 +586,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 			DataNode d = nexusFile.getData(g, "external_io_data");
 			ILazyWriteableDataset lazy;
 			if (d == null || !Arrays.equals(d.getDataset().getShape(), dims)) {
-				lazy = NexusUtils.createLazyWriteableDataset("external_io_data", Dataset.FLOAT64, dims, datadims, dims);
+				lazy = NexusUtils.createLazyWriteableDataset("external_io_data", Double.class, dims, datadims, dims);
 				d = nexusFile.createData(g, lazy);
 			} else {
 				lazy = d.getWriteableDataset();
@@ -611,7 +609,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 			DataNode d = nexusFile.getData(g, "excitation_energy");
 			ILazyWriteableDataset lazy;
 			if (d == null || !Arrays.equals(d.getDataset().getShape(), dims)) {
-				lazy = NexusUtils.createLazyWriteableDataset("excitation_energy", Dataset.FLOAT64, dims, datadims, dims);
+				lazy = NexusUtils.createLazyWriteableDataset("excitation_energy", Double.class, dims, datadims, dims);
 				d = nexusFile.createData(g, lazy);
 			} else {
 				lazy = d.getWriteableDataset();
