@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests for persistence class loader
+Bundle-SymbolicName: uk.ac.diamond.daq.persistence.classloader.test;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Diamond Light Source
+Automatic-Module-Name: uk.ac.diamond.daq.persistence.classloader.test
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: uk.ac.diamond.daq.persistence.classloader,
+ org.eclipse.core.runtime,
+ org.hamcrest.core;bundle-version="1.3.0",
+ uk.ac.diamond.daq.persistence.eliot
+Import-Package: org.junit;version="4.12.0",
+ org.slf4j;version="1.7.25"
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: uk.ac.diamond.daq.persistence.classloader.PersistenceClassLoaderTestActivator
+Export-Package: uk.ac.diamond.daq.persistence.testdata

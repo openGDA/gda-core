@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Generic class loader service
+Bundle-SymbolicName: uk.ac.diamond.daq.persistence.classloader
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: uk.ac.diamond.daq.persistence.classloader
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: Diamond Light Source
+Import-Package: org.osgi.framework;version="1.8.0",
+ org.slf4j;version="1.7.25"
+Export-Package: uk.ac.diamond.daq.persistence.classloader
+Require-Bundle: org.eclipse.osgi,
+ org.eclipse.core.runtime;bundle-version="3.13.0",
+ ch.qos.logback.classic;bundle-version="1.2.3",
+ ch.qos.logback.core;bundle-version="1.2.3",
+ uk.ac.diamond.daq.persistence.eliot
