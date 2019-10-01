@@ -67,7 +67,7 @@ public class PlanManagerView extends ViewPart {
 
 	private boolean planComplete;
 
-	private PlanRequestHandler handler = Finder.getInstance().findSingleton(PlanRequestHandler.class);
+	private PlanRequestHandler handler;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -179,6 +179,9 @@ public class PlanManagerView extends ViewPart {
 		}
 		ExperimentPlanBean plan = getExperimentService().getExperimentPlan(selectedPlan.getText());
 		try {
+			if (handler == null) {
+				handler = Finder.getInstance().findSingleton(PlanRequestHandler.class);
+			}
 			handler.submit(plan);
 			planComplete = false;
 			updateButtons();
