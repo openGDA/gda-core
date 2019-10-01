@@ -14,13 +14,15 @@ package org.eclipse.scanning.command.factory;
 import java.util.Collection;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.scanning.api.points.models.StepModel;
 
 class StepModelExpresser extends PyModelExpresser<StepModel> {
 
 	@Override
 	public String pyExpress(StepModel model, Collection<IROI> rois, boolean verbose) {
-		if (rois != null && !rois.isEmpty())
+		if (rois != null && !rois.isEmpty() &&
+				!rois.stream().allMatch(m -> LinearROI.class.isInstance(m)))
 			throw new IllegalStateException("StepModels cannot be associated with ROIs.");
 
 		return getString(model, verbose);
