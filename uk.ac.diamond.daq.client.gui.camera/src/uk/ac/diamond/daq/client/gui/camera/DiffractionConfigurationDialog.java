@@ -2,63 +2,73 @@ package uk.ac.diamond.daq.client.gui.camera;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.TabFolder;
-import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.widgets.Shell;
 
 import gda.device.DeviceException;
+import gda.rcp.views.CompositeFactory;
+import gda.rcp.views.TabCompositeFactory;
+import gda.rcp.views.TabCompositeFactoryImpl;
+import gda.rcp.views.TabFolderBuilder;
 import uk.ac.diamond.daq.client.gui.camera.controller.DiffractionCameraConfigurationController;
-import uk.ac.diamond.daq.client.gui.camera.diffraction.DiffractionAnalysisConfigurationComposite;
-import uk.ac.diamond.daq.client.gui.camera.diffraction.DiffractionConfigurationComposite;
+import uk.ac.diamond.daq.client.gui.camera.diffraction.DiffractionConfigurationCompositeFactory;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
 
-public class DiffractionConfigurationDialog extends AbstractCameraConfigurationDialog<DiffractionCameraConfigurationController> {
-	private static final int EXPOSURE_TAB_INDEX = 0;
-	private static final int DIFFRACTION_TAB_INDEX = 1;
+public class DiffractionConfigurationDialog
+		extends AbstractCameraConfigurationDialog<DiffractionCameraConfigurationController> {
 
 	private static final int MINIMUM_WIDTH = 960;
 	private static final int MINIMUM_HEIGHT = 600;
 
 	private static DiffractionConfigurationDialog instance;
-		
-	public static void show (Display display, LiveStreamConnection liveStreamConnection) throws DeviceException {
-		if (instance == null) {
-			DiffractionCameraConfigurationController controller = new DiffractionCameraConfigurationController(
-					"diffraction_camera_control", "det_position");
-			
-			instance = new DiffractionConfigurationDialog(display, controller, liveStreamConnection, 
-					"Diffraction Configuration");
-			instance.shell.addListener(SWT.Dispose, e -> {
-				instance.controller.dispose ();
-				instance = null;
-			});
-		}
-		instance.shell.open();
-		instance.shell.setVisible(true);
+
+	public static void show(Display display, LiveStreamConnection liveStreamConnection) throws DeviceException {
+		DiffractionCameraConfigurationController controller = new DiffractionCameraConfigurationController(
+				"diffraction_camera_control", "det_position");
+
+		Point minimumDialogSize = new Point(MINIMUM_WIDTH, MINIMUM_HEIGHT);
+		Shell shell = new Shell(display, SWT.TITLE | SWT.RESIZE);
+		shell.setText("Camera Configuration");
+		shell.setSize(minimumDialogSize);
+		shell.setMinimumSize(minimumDialogSize);
+
+		instance = new DiffractionConfigurationDialog(shell, controller, liveStreamConnection);
+		shell.addListener(SWT.Dispose, e -> {
+			instance.controller.dispose();
+			instance = null;
+		});
+		instance.createComposite(true);
+		shell.open();
+		shell.setVisible(true);
 	}
-	
-	private DiffractionConfigurationDialog(Display display, DiffractionCameraConfigurationController controller,
-			LiveStreamConnection liveStreamConnection, String title) throws DeviceException {
-		super (display, controller, liveStreamConnection, title, new Point(MINIMUM_WIDTH, MINIMUM_HEIGHT));
+
+	private DiffractionConfigurationDialog(Shell shell, DiffractionCameraConfigurationController controller,
+			LiveStreamConnection liveStreamConnection) throws DeviceException {
+		super(shell, controller, liveStreamConnection);
 	}
 
 	@Override
-	protected TabFolder createTabFolder () throws DeviceException {
-		TabFolder tabFolder = new TabFolder(shell, SWT.TOP);
-		TabItem exposureTab = new TabItem(tabFolder, SWT.NONE, EXPOSURE_TAB_INDEX);
-		exposureTab.setText("Exposure");
-
-		DiffractionConfigurationComposite diffractionConfigurationComposite = 
-				new DiffractionConfigurationComposite(tabFolder, controller, SWT.NONE);
-		exposureTab.setControl(diffractionConfigurationComposite);
-
-		TabItem diffractionTab = new TabItem(tabFolder, SWT.NONE, DIFFRACTION_TAB_INDEX);
-		diffractionTab.setText("Diffraction Analysis");
-
-		DiffractionAnalysisConfigurationComposite diffractionAnalysisConfigurationComposite = 
-				new DiffractionAnalysisConfigurationComposite(tabFolder, SWT.NONE);
-		diffractionTab.setControl(diffractionAnalysisConfigurationComposite);
-		
-		return tabFolder;
+	protected CompositeFactory createTabFactory(Composite parent) throws DeviceException {
+		TabFolderBuilder builder = new TabFolderBuilder();
+		builder.addTab(createDiffractionConfigurationFactory());
+		builder.addTab(createDiffractionAnalysisFactory());
+		return builder.build();
+	}
+	
+	protected final TabCompositeFactory createDiffractionConfigurationFactory() {
+		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
+		CompositeFactory cf = new DiffractionConfigurationCompositeFactory<>(getController());
+		group.setCompositeFactory(cf);
+		group.setLabel("Exposure");
+		return group;
+	}
+	
+	protected final TabCompositeFactory createDiffractionAnalysisFactory() {
+		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
+		CompositeFactory cf = new DiffractionConfigurationCompositeFactory<>(getController());
+		group.setCompositeFactory(cf);
+		group.setLabel("Diffraction Analysis");
+		return group;
 	}
 }

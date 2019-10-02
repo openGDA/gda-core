@@ -1,128 +1,122 @@
 package uk.ac.diamond.daq.client.gui.camera;
 
-import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.RowDataFactory;
 import org.eclipse.jface.layout.RowLayoutFactory;
+import org.eclipse.scanning.api.event.core.IConnection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TabFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
 import uk.ac.diamond.daq.client.gui.camera.liveview.CameraImageComposite;
-import uk.ac.diamond.daq.client.gui.camera.liveview.HistogramComposite;
-import uk.ac.gda.client.live.stream.LiveStreamConnection;
+import uk.ac.diamond.daq.client.gui.camera.liveview.LiveViewCompositeFactory;
+import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.ClientSWTElements;
 
-public abstract class AbstractCameraConfigurationDialog<CONTROLLER extends AbstractCameraConfigurationController> {
+public abstract class AbstractCameraConfigurationDialog<T extends AbstractCameraConfigurationController> {
 	private static final Logger log = LoggerFactory.getLogger(AbstractCameraConfigurationDialog.class);
 
 	private static final int BUTTON_WIDTH = 80;
-	
-	protected Shell shell;
-	protected CONTROLLER controller;
-	private LiveStreamConnection liveStreamConnection;
-	protected CameraImageComposite cameraImageComposite;
-	double aspectRatio;
 
-	public AbstractCameraConfigurationDialog (Display display, CONTROLLER controller, 
-			LiveStreamConnection liveStreamConnection, String title, Point minimumDialogSize) throws DeviceException {	
+	private final Shell shell;
+	private final Composite parent;
+	protected T controller;
+	private IConnection liveStreamConnection;
+	protected CameraImageComposite cameraImageComposite;
+
+	public AbstractCameraConfigurationDialog(Composite composite, T controller, IConnection liveStreamConnection) {
+		this.parent = composite;
+		this.shell = composite.getShell();
 		this.controller = controller;
 		this.liveStreamConnection = liveStreamConnection;
-		
-		shell = new Shell(display, SWT.TITLE | SWT.RESIZE);
-		shell.setText(title);
-		shell.setSize(minimumDialogSize);
-		shell.setMinimumSize(minimumDialogSize);
+	}
+
+	public AbstractCameraConfigurationDialog(Shell shell, T controller, IConnection liveStreamConnection) {
+		this.shell = shell;
+		this.parent = null;
+		this.controller = controller;
+		this.liveStreamConnection = liveStreamConnection;
 
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(shell);
-
 		GridLayoutFactory.swtDefaults().applyTo(shell);
-
-		Composite liveViewComposite = createLiveViewComposite(shell);
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(liveViewComposite);
-
-		TabFolder tabFolder = createTabFolder();
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.END).applyTo(tabFolder);
-
-		Composite dialogLoadSaveComposite = createLoadSaveComposite(shell, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.END).applyTo(dialogLoadSaveComposite);
 	}
-	
-	protected abstract TabFolder createTabFolder () throws DeviceException;
-		
-	private Composite createLiveViewComposite(Composite composite) {
-		Composite panel = new Composite(composite, SWT.NONE);
 
-		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(panel);
-		try {
-			cameraImageComposite = new CameraImageComposite(panel, controller, liveStreamConnection, SWT.NONE);
-			GridDataFactory.fillDefaults().grab(true, true).applyTo(cameraImageComposite);
+	public void createComposite(boolean closable) throws DeviceException {
+		Composite intParent = getParent() == null ? getShell() : getParent();
 
-			HistogramComposite histogramPanel = new HistogramComposite(panel, 
-					cameraImageComposite.getPlottingSystem(), SWT.NONE);
-			GridDataFactory.fillDefaults().grab(true, true).applyTo(histogramPanel);
-			
-			RectangularROI maxSize = controller.getMaximumSizedROI();
-			aspectRatio = maxSize.getLength(1) / maxSize.getLength(0);
-		} catch (Exception e) {
-			log.error("Unable to connect camera", e);
-			
-			Label label;
+		CompositeFactory cf = new LiveViewCompositeFactory<>(getController(), getLiveStreamConnection());
+		cf.createComposite(intParent, SWT.NONE);
 
-			label = new Label(panel, SWT.NONE);
-			label.setText("No Camera found");
-			GridDataFactory.fillDefaults().grab(true, true).applyTo(label);
+		cf = createTabFactory(intParent);
+		cf.createComposite(intParent, SWT.NONE);
 
-			label = new Label(panel, SWT.NONE);
-			label.setText("No Camera found");
-			GridDataFactory.fillDefaults().grab(true, true).applyTo(label);
-		}
-
-		return panel;
+		createLoadSaveComposite(intParent, closable);
 	}
-	
-	private Composite createLoadSaveComposite(Composite parent, int style) {
-		Composite panel = new Composite(parent, style);
 
-		GridLayoutFactory.fillDefaults().numColumns(3).applyTo(panel);
+	public T getController() {
+		return controller;
+	}
 
-		Composite loadSavePanel = new Composite(panel, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).applyTo(loadSavePanel);
+	public void setController(T controller) {
+		this.controller = controller;
+	}
+
+	public IConnection getLiveStreamConnection() {
+		return liveStreamConnection;
+	}
+
+	public void setLiveStreamConnection(IConnection liveStreamConnection) {
+		this.liveStreamConnection = liveStreamConnection;
+	}
+
+	protected abstract CompositeFactory createTabFactory(Composite composite) throws DeviceException;
+
+	private Composite createLoadSaveComposite(Composite parent, boolean closable) {
+		Composite panel = ClientSWTElements.createComposite(parent, SWT.NONE, 3);
+
+		Composite loadSavePanel = ClientSWTElements.createComposite(panel, SWT.NONE);
 		RowLayoutFactory.swtDefaults().applyTo(loadSavePanel);
 
-		Button loadButton = new Button(loadSavePanel, SWT.PUSH);
-		loadButton.setText("Load");
+		Button loadButton = ClientSWTElements.createButton(loadSavePanel, SWT.PUSH, ClientMessages.LOAD,
+				ClientMessages.LOAD);
 		loadButton.addListener(SWT.Selection, e -> load());
 		RowDataFactory.swtDefaults().hint(BUTTON_WIDTH, -1).applyTo(loadButton);
 
-		Button saveButton = new Button(loadSavePanel, SWT.PUSH);
-		saveButton.setText("Save");
+		Button saveButton = ClientSWTElements.createButton(loadSavePanel, SWT.PUSH, ClientMessages.SAVE,
+				ClientMessages.SAVE);
 		saveButton.addListener(SWT.Selection, e -> save());
 		RowDataFactory.swtDefaults().hint(BUTTON_WIDTH, -1).applyTo(saveButton);
 
 		// Spacing label between panels
-		Label label = new Label(panel, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(label);
+		ClientSWTElements.createLabel(panel, SWT.NONE);
 
-		Composite okCancelPanel = new Composite(panel, SWT.NONE);
+		Composite okCancelPanel = ClientSWTElements.createComposite(panel, SWT.NONE);
 		GridDataFactory.swtDefaults().align(SWT.END, SWT.CENTER).applyTo(okCancelPanel);
 		RowLayoutFactory.swtDefaults().applyTo(okCancelPanel);
-
-		Button closeButton = new Button(okCancelPanel, SWT.PUSH);
-		closeButton.setText("Close");
+		Button closeButton = ClientSWTElements.createButton(okCancelPanel, SWT.PUSH, ClientMessages.CLOSE,
+				ClientMessages.CLOSE);
 		closeButton.addListener(SWT.Selection, e -> shell.close());
 		RowDataFactory.swtDefaults().hint(BUTTON_WIDTH, -1).applyTo(closeButton);
-		
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.END).applyTo(panel);
+		if (!closable) {
+			closeButton.setVisible(false);
+		}
 		return panel;
+	}
+
+	protected Shell getShell() {
+		return this.shell;
+	}
+
+	protected Composite getParent() {
+		return parent;
 	}
 
 	private void load() {

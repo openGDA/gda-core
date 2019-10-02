@@ -1,12 +1,16 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Generic Camera Configuration Dialog
-Bundle-SymbolicName: uk.ac.diamond.daq.client.gui.camera
+Bundle-SymbolicName: uk.ac.diamond.daq.client.gui.camera;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: gda.factory,
+Import-Package: gda.configuration.properties,
+ gda.factory,
  org.eclipse.january.dataset;version="2.1.5",
+ org.eclipse.scanning.api.event.core,
+ org.eclipse.ui,
+ org.eclipse.ui.part,
  org.slf4j
 Require-Bundle: org.eclipse.jface,
  com.google.gson,

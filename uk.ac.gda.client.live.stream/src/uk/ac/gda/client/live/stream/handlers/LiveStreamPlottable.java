@@ -83,7 +83,7 @@ public class LiveStreamPlottable implements LiveStreamMapObject {
 
 	@Override
 	public String getLongName() {
-		final CameraConfiguration camConfig = connection.getCameraConfiguration();
+		final CameraConfiguration camConfig = connection.getCameraConfig();
 		if (camConfig.getDisplayName() != null)
 			return camConfig.getDisplayName();
 		if (camConfig.getName() != null)
@@ -130,7 +130,7 @@ public class LiveStreamPlottable implements LiveStreamMapObject {
 
 	@Override
 	public String getPath() {
-		return connection.getCameraConfiguration().getDisplayName();
+		return connection.getCameraConfig().getDisplayName();
 	}
 
 	@Override

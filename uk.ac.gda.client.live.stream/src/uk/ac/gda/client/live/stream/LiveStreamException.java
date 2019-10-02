@@ -18,7 +18,9 @@
 
 package uk.ac.gda.client.live.stream;
 
-public class LiveStreamException extends Exception {
+import org.eclipse.scanning.api.event.EventException;
+
+public class LiveStreamException extends EventException {
 
 	public LiveStreamException(String message) {
 		super(message);

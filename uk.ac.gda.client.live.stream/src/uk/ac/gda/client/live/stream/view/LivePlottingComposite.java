@@ -115,7 +115,7 @@ public class LivePlottingComposite extends Composite {
 
 		private String buildTitle() {
 			final double fps = getFps();
-			final String cameraName = liveStreamConnection.getCameraConfiguration().getName();
+			final String cameraName = liveStreamConnection.getCameraConfig().getName();
 			return String.format("%s: %s - Frame: %d (%.1f fps)", cameraName, liveStreamConnection.getStreamType(),
 					frameCounter.incrementAndGet(), fps);
 		}
@@ -184,7 +184,7 @@ public class LivePlottingComposite extends Composite {
 	private void updateTitleVisibility() {
 		try {
 			if (showTitle) {
-				final CameraConfiguration camConfig = liveStreamConnection.getCameraConfiguration();
+				final CameraConfiguration camConfig = liveStreamConnection.getCameraConfig();
 				final StreamType streamType = liveStreamConnection.getStreamType();
 				// Use the full camera name from the camera configuration, if available, for the plot title as it should
 				// better describe the camera and we should have plenty of space for it.
