@@ -1,14 +1,10 @@
 package uk.ac.gda.tomography.ui.controller;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EnumMap;
 import java.util.Map;
@@ -26,6 +22,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import gda.jython.JythonServerFacade;
+import uk.ac.diamond.daq.experiment.api.Services;
+import uk.ac.diamond.daq.experiment.api.TriggerableScan;
 import uk.ac.gda.tomography.base.TomographyConfiguration;
 import uk.ac.gda.tomography.base.TomographyMode;
 import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
@@ -46,6 +44,7 @@ import uk.ac.gda.tomography.service.TomographyService;
 import uk.ac.gda.tomography.service.TomographyServiceException;
 import uk.ac.gda.tomography.service.impl.TomographyServiceImpl;
 import uk.ac.gda.tomography.service.message.TomographyRunMessage;
+import uk.ac.gda.tomography.triggerable.TriggerableTomography;
 import uk.ac.gda.tomography.ui.StageConfiguration;
 
 /**
@@ -126,24 +125,31 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 
 	@Override
 	public void saveAcquisitionAsFile(final TomographyParameterAcquisition acquisition, URL destination) throws AcquisitionControllerException {
-		Path filePath = File.class.cast(dataConfigurationSource).toPath();
-		try {
-			Files.delete(filePath);
-		} catch (IOException e) {
-			throw new AcquisitionControllerException(e);
+		StageConfiguration sc = generateStageConfiguration(acquisition);
+		if (requiresOutOfBeamPosition(sc)) {
+			throw new AcquisitionControllerException("Acquisition needs a OutOfBeam position to acquire flat images");
 		}
-		File newFile;
-		try {
-			newFile = new File(destination.toURI());
-		} catch (URISyntaxException e) {
-			throw new AcquisitionControllerException("Canot save acquisition configuration on file", e);
-		}
-		try (FileOutputStream fos = new FileOutputStream(newFile)) {
-			DataOutputStream outStream = new DataOutputStream(fos);
-			outStream.writeUTF(dataToJson(generateStageConfiguration(acquisition)));
-		} catch (IOException e) {
-			throw new AcquisitionControllerException("Canot save acquisition configuration on file", e);
-		}
+		TriggerableScan triggerableTomo = new TriggerableTomography(dataToJson(generateStageConfiguration(acquisition)),
+				getAcquisitionScript().getAbsolutePath());
+		Services.getExperimentService().saveScan(triggerableTomo, acquisition.getAcquisitionConfiguration().getAcquisitionParameters().getName(), null); // FIXME visit?)
+//		Path filePath = File.class.cast(dataConfigurationSource).toPath();
+//		try {
+//			Files.delete(filePath);
+//		} catch (IOException e) {
+//			throw new AcquisitionControllerException(e);
+//		}
+//		File newFile;
+//		try {
+//			newFile = new File(destination.toURI());
+//		} catch (URISyntaxException e) {
+//			throw new AcquisitionControllerException("Canot save acquisition configuration on file", e);
+//		}
+//		try (FileOutputStream fos = new FileOutputStream(newFile)) {
+//			DataOutputStream outStream = new DataOutputStream(fos);
+//			outStream.writeUTF(dataToJson(generateStageConfiguration(acquisition)));
+//		} catch (IOException e) {
+//			throw new AcquisitionControllerException("Canot save acquisition configuration on file", e);
+//		}
 	}
 
 	private void populateMetadata() {
