@@ -26,6 +26,7 @@
 				<pathelement location="${plugin.basedir}/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/diamond.releng.tools.gda/logging" />  <!-- to pick up logback-test.xml -->
 				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.test.helpers/bin" />
+				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
 				<pathelement location="${plugin.host.basedir}/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/main" />
@@ -41,6 +42,7 @@
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.example/bin" />
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.points/bin" />
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.server/bin" />
+				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.diamond.daq.experiment.api/bin" />
 				<path refid="tp.slf4j.path" />  <!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
 				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->
 				<path refid="tp.hamcrest.path" />  <!-- ensure that latest version appears first in classpath -->

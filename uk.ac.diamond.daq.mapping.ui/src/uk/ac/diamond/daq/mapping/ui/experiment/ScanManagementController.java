@@ -54,9 +54,11 @@ import org.eclipse.ui.IViewReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.experiment.api.TriggerableScan;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
+import uk.ac.diamond.daq.mapping.triggerable.TriggerableMap;
 import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
 import uk.ac.diamond.daq.mapping.ui.experiment.file.DescriptiveFilenameFactory;
 import uk.ac.diamond.daq.osgi.OsgiService;
@@ -142,7 +144,8 @@ public class ScanManagementController extends AbstractMappingController {
 				ErrorDialog.openError(Display.getCurrent().getActiveShell(), "Save Scan", errorMessage,
 						new Status(IStatus.ERROR, MappingUIConstants.PLUGIN_ID, errorMessage, e));
 			}
-			getExperimentService().saveScan((ScanRequest) createScanBean().getScanRequest(), getShortName(filename), EXPERIMENT_ID);
+			TriggerableScan scan = new TriggerableMap(createScanBean().getScanRequest(), false);
+			getExperimentService().saveScan(scan, getShortName(filename), EXPERIMENT_ID);
 		}
 	}
 

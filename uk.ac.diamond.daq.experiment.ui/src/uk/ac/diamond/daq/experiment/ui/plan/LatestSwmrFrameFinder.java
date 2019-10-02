@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.dawnsci.datavis.model.DataOptions;
 import org.dawnsci.datavis.model.ILiveLoadedFileListener;
@@ -89,6 +90,16 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 		} catch (NoSuchElementException e) {
 			logger.warn("Could not refresh data", e);
 		}
+	}
+	
+	private Optional<IDataset> take2(LoadedFile file) {
+		
+		List<DataOptions> signals = file.getDataOptions(true);
+		List<DataOptions> keysOptions = file.getDataOptions().stream()
+				.filter(options -> options.getName().contains("keys"))
+				.collect(Collectors.toList());
+		
+		return Optional.empty();
 	}
 	
 	private Optional<IDataset> findLatestFrame(LoadedFile file) {
