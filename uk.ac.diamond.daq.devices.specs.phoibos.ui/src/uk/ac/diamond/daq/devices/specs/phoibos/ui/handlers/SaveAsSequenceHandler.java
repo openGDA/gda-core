@@ -29,7 +29,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 
-import gda.data.PathConstructor;
+import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceHelper;
 import uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsUiConstants;
@@ -69,7 +69,7 @@ public class SaveAsSequenceHandler {
 		dialog.setFilterNames(new String[] { "Sequence Files (*.seq)", "All Files (*.*)" });
 		dialog.setFilterExtensions(new String[] { "*.seq", "*.*" });
 		// Set the default location to save to the visits xml directory
-		dialog.setFilterPath(PathConstructor.getClientVisitSubdirectory("xml"));
+		dialog.setFilterPath(InterfaceProvider.getPathConstructor().getClientVisitSubdirectory("xml"));
 		// Warn if overwriting
 		dialog.setOverwrite(true);
 		dialog.setFileName("user.seq");

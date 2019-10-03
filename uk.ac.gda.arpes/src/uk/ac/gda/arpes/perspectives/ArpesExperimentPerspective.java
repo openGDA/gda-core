@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
+import gda.jython.InterfaceProvider;
 
 public class ArpesExperimentPerspective implements IPerspectiveFactory {
 
@@ -70,7 +70,7 @@ public class ArpesExperimentPerspective implements IPerspectiveFactory {
 	private void createExampleArpesFileIfRequired() {
 
 		// Find the target location for the example .arpes file
-		final String tgtDataRootPath = PathConstructor.createFromProperty("gda.analyser.sampleConf.dir");
+		final String tgtDataRootPath = InterfaceProvider.getPathConstructor().createFromProperty("gda.analyser.sampleConf.dir");
 		final String exampleFileName = LocalProperties.get("gda.analyser.sampleConf");
 		final File targetFile = new File(tgtDataRootPath, exampleFileName);
 		logger.debug("Initial .arpes file target '{}'", targetFile.getAbsolutePath());

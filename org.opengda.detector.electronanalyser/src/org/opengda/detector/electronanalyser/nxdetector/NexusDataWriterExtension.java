@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
-import gda.data.PathConstructor;
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.jython.InterfaceProvider;
 
@@ -115,7 +114,7 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 			regionNexusFileName = beamline + "_" + regionNexusFileName;
 		}
 		if (dataDir==null) {
-			dataDir=PathConstructor.createFromDefaultProperty();
+			dataDir=InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		}
 		if (!dataDir.endsWith(File.separator)) {
 			dataDir += File.separator;
