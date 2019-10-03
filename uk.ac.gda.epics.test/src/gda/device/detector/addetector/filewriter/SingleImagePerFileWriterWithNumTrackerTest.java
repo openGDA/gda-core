@@ -31,7 +31,6 @@ import org.mockito.InOrder;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
-import gda.data.PathConstructor;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.jython.ICurrentScanInformationHolder;
@@ -63,7 +62,7 @@ public class SingleImagePerFileWriterWithNumTrackerTest {
 		when(mockNdFile.filePathExists()).thenReturn(true);
 		when(mockNdFile.isWriteStatusErr()).thenReturn(false);
 		when(mockNdFile.createWriteStatusObservable()).thenReturn(new ObservableUtil<Short>());
-		LocalProperties.set(PathConstructor.getDefaultPropertyName(), "path/to/datadir");
+		LocalProperties.set(InterfaceProvider.getPathConstructor().getDefaultPropertyName(), "path/to/datadir");
 		configureScanInformationHolder();
 	}
 

@@ -30,7 +30,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
 import gda.device.detector.NXDetectorDataWithFilepathForSrs;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDPluginBase;
@@ -67,7 +66,7 @@ public class SingleImagePerFileWriterTest {
 		writer.setNdFile(mockNdFile);
 		writer.setWaitForFileArrival(false);
 		writer.afterPropertiesSet();
-		LocalProperties.set(PathConstructor.getDefaultPropertyName(), "absolute/path/to/datadir");
+		LocalProperties.set(InterfaceProvider.getPathConstructor().getDefaultPropertyName(), "absolute/path/to/datadir");
 		configureScanInformationHolder();
 		InterfaceProvider.setTerminalPrinterForTesting(mock(ITerminalPrinter.class));
 

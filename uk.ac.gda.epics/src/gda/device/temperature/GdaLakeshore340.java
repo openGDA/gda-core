@@ -28,12 +28,12 @@ import org.python.core.PySequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.TemperatureRamp;
 import gda.device.TemperatureStatus;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
 import gda.util.Poller;
@@ -86,7 +86,7 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 			// register this as listener to poller for update temperature values.
 			poller.addListener(this);
 
-			String filePrefix = PathConstructor.createFromProperty("gda.device.temperature.datadir");
+			String filePrefix = InterfaceProvider.getPathConstructor().createFromProperty("gda.device.temperature.datadir");
 			if ((filePrefix != null) && (fileSuffix != null)) {
 				dataFileWriter = new DataFileWriter(filePrefix, fileSuffix);
 			}

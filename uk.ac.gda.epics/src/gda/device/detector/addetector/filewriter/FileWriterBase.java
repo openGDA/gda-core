@@ -29,7 +29,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 
-import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.nxdetector.NXFileWriterPlugin;
@@ -264,7 +263,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, NXFileWriter
 	 */
 	protected String getRelativeFilePath() throws Exception {
 		String fullFileName = getFullFileName();
-		String datadir = PathConstructor.createFromDefaultProperty();
+		String datadir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		if (StringUtils.startsWith(fullFileName, datadir)) {
 			String relativeFilename = StringUtils.removeStart(fullFileName, datadir);
 			relativeFilename = StringUtils.removeStart(relativeFilename, "/");
@@ -276,14 +275,14 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, NXFileWriter
 	private String substituteDatadir(String template) {
 
 		if (StringUtils.contains(template, "$datadir$")) {
-			template = StringUtils.replace(template, "$datadir$", PathConstructor.createFromDefaultProperty());
+			template = StringUtils.replace(template, "$datadir$", InterfaceProvider.getPathConstructor().createFromDefaultProperty());
 		}
 
 		return template;
 	}
 
 	protected String getAbsoluteFilePath(String filePathRelativeToDataDir) {
-		return PathConstructor.createFromDefaultProperty() + File.separator + filePathRelativeToDataDir;
+		return InterfaceProvider.getPathConstructor().createFromDefaultProperty() + File.separator + filePathRelativeToDataDir;
 	}
 
 	private String substituteScan(String template) {
