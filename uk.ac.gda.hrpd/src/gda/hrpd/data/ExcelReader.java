@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 
 /**
@@ -62,12 +62,12 @@ public class ExcelReader {
 	 * constructor that creates an multimap object for holding sample information loaded in from an Excel spreadsheet
 	 * file specified by java property {@code gda.hrpd.data.sample.info} in the data directory specified by another java
 	 * property {@code gda.data.scan.datawriter.datadir}. The default Excel spreadsheet file name is {@code Sample.xls}
-	 * 
+	 *
 	 * @throws InstantiationException
 	 */
 	public ExcelReader() throws InstantiationException {
 		// check if the data directory has been defined
-		dataDir = PathConstructor.createFromDefaultProperty();
+		dataDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 
 		if (this.dataDir == null) {
 			// this is compulsory - stop the scan
@@ -93,7 +93,7 @@ public class ExcelReader {
 	 * constructor that creates an multimap object for holding sample information loaded in from an Excel spreadsheet
 	 * file specified. If full path name is not specified, it is expecting the sample information file resides in the
 	 * data directory specified by java property {@code gda.data.scan.datawriter.datadir}.
-	 * 
+	 *
 	 * @param filename
 	 * @throws InstantiationException
 	 */
@@ -103,7 +103,7 @@ public class ExcelReader {
 			this.filename = filename;
 		} else {
 			// check if the data directory has been defined
-			dataDir = PathConstructor.createFromProperty("gda.data.scan.datawriter.datadir");
+			dataDir = InterfaceProvider.getPathConstructor().createFromProperty("gda.data.scan.datawriter.datadir");
 
 			if (this.dataDir == null) {
 				// this java property is compulsory - stop the scan
@@ -151,7 +151,7 @@ public class ExcelReader {
 
 	/**
 	 * open or reopen the specified spreadsheet file for work sheet 0.
-	 * 
+	 *
 	 * @param filename
 	 */
 	public void openSpreadsheet(String filename) {

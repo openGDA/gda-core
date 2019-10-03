@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import gda.beamline.BeamlineInfo;
 import gda.beamline.beam.Beam;
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
 import gda.data.fileregistrar.FileRegistrarHelper;
 import gda.data.metadata.Metadata;
 import gda.data.scan.datawriter.DataWriter;
@@ -50,6 +49,7 @@ import gda.device.detector.multichannelscaler.EpicsMultiChannelScaler;
 import gda.device.detector.multichannelscaler.Mca;
 import gda.factory.FindableConfigurableBase;
 import gda.hrpd.SampleInfo;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.scan.IScanDataPoint;
 
@@ -549,7 +549,7 @@ public class EpicsCVscanDataWriter extends FindableConfigurableBase implements D
 	 * @return the full path of the folder which data files are written
 	 */
 	public String getDataDir() {
-		return PathConstructor.createFromDefaultProperty();
+		return InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 	}
 
 	/**

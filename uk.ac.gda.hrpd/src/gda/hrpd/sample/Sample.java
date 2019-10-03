@@ -28,14 +28,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
 import gda.factory.FactoryException;
 import gda.factory.FindableConfigurableBase;
 import gda.hrpd.SampleInfo;
 import gda.hrpd.data.ExcelWorkbook;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
+import uk.ac.gda.api.io.PathConstructor;
 
 /**
  * This class reads the sample information data from a table in an Excel spreadsheet (default to sheet 0) and/or writes
@@ -419,7 +420,7 @@ public class Sample extends FindableConfigurableBase implements SampleInfo {
 			this.filename = filename;
 		} else if (!filename.startsWith("/")) {
 			// assume the file is at user's home directory
-			String processingDir = PathConstructor.createFromDefaultProperty() + File.separator + "processing";
+			String processingDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty() + File.separator + "processing";
 			this.filename = processingDir + File.separator + filename;
 		}
 
