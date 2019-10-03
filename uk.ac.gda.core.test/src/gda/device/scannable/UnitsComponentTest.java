@@ -75,7 +75,7 @@ public class UnitsComponentTest {
 	private static final List<String> DIMENSIONLESS_UNITS = Arrays.asList(Unit.ONE.toString());
 	private static final List<String> ELECTRIC_CURRENT_UNITS = Arrays.asList("A", "\u00b5A", "\u03bcA", "uA", "mA");
 	private static final List<String> DURATION_UNITS = Arrays.asList("s", "ms");
-	private static final List<String> VOLUME_UNITS = Arrays.asList("L", "m³");
+	private static final List<String> VOLUME_UNITS = Arrays.asList("L", "m³", "\u00b5L", "uL", "\u03bcL");
 	private static final List<String> VOLUMETRIC_DENSITY_UNITS = Arrays.asList("mg/mL");
 	private static final List<String> PRESSURE_UNITS = Arrays.asList("Pa", "mPa", "kPa", "MPa");
 

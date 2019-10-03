@@ -372,6 +372,9 @@ public class UnitsComponent implements PositionConvertor {
 		else if (unit.isCompatible(Volume.UNIT)) {
 			unitList.add(LITER.toString());
 			unitList.add(CUBIC_METRE.toString());
+			unitList.add(NonSIext.MICROLITRE_STRING);
+			unitList.add(NonSIext.MICROLITRE_U_STRING);
+			unitList.add(NonSIext.MICROLITRE_MU_STRING);
 		}
 
 		else if (unit.isCompatible(VolumetricDensity.UNIT)) {
