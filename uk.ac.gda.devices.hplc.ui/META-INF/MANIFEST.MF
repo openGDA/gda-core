@@ -16,7 +16,8 @@ Require-Bundle: uk.ac.gda.devices.hatsaxs;bundle-version="1.0.0",
  uk.ac.gda.devices.hatsaxs.ui,
  org.apache.poi;bundle-version="3.9.0",
  org.apache.poi.ooxml;bundle-version="3.9.0",
- org.apache.poi.ooxml.schemas;bundle-version="3.9.0"
+ org.apache.poi.ooxml.schemas;bundle-version="3.9.0",
+ uk.ac.gda.api
 Import-Package: gda.configuration.properties,
  gda.rcp,
  org.apache.commons.beanutils;version="1.9.1",

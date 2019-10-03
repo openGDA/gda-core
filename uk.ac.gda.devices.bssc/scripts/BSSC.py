@@ -1,6 +1,6 @@
 import datetime, time, sys, os
 from java.util import HashMap
-from gda.data import PathConstructor
+from gda.jython import InterfaceProvider
 import gda.factory.Finder
 from uk.ac.gda.devices.bssc.beans import BSSCSessionBean
 from gda.data.metadata import GDAMetadataProvider
@@ -397,8 +397,8 @@ class BSSCRun:
         now = datetime.datetime.now().strftime('_%Y%m%d_%H%M%S')
 
         user_visit = InterfaceProvider.getBatonStateProvider().getBatonHolder().getVisitID()
-        prop = PathConstructor.getDefaultPropertyName()
-        path = PathConstructor.createFromProperty(prop, HashMap({'visit': user_visit}))
+        prop = InterfaceProvider.getPathConstructor().getDefaultPropertyName()
+        path = InterfaceProvider.getPathConstructor().createFromProperty(prop, HashMap({'visit': user_visit}))
 
         full_path = os.path.join(path, fname + now + '.biosaxs')
         BSSCSessionBean.writeToXML(self.bean, full_path)

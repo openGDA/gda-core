@@ -28,5 +28,6 @@ Import-Package: gda.rcp,
 Require-Bundle: uk.ac.gda.core,
  org.eclipse.swt,
  org.eclipse.jface,
- slf4j.api
+ slf4j.api,
+ uk.ac.gda.api
 Automatic-Module-Name: uk.ac.gda.devices.hatsaxs.ui

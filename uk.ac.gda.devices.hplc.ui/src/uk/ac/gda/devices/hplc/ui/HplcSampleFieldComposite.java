@@ -66,8 +66,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
 import gda.jython.InterfaceProvider;
+import uk.ac.gda.api.io.PathConstructor;
 import uk.ac.gda.devices.hatsaxs.ui.Column;
 import uk.ac.gda.devices.hatsaxs.ui.HatsaxsMenu;
 import uk.ac.gda.devices.hplc.beans.HplcBean;
@@ -268,7 +268,7 @@ public class HplcSampleFieldComposite extends FieldComposite {
 					String visit = element.getVisit();
 					HashMap<String, String> overrides = new HashMap<>();
 					overrides.put("visit", visit);
-					String visitPath = PathConstructor.createFromProperty(LocalProperties.GDA_VISIT_DIR, overrides);
+					String visitPath = InterfaceProvider.getPathConstructor().createFromProperty(LocalProperties.GDA_VISIT_DIR, overrides);
 					File visitDir = new File(visitPath);
 					return visitDir.exists() && visitDir.isDirectory();
 				}

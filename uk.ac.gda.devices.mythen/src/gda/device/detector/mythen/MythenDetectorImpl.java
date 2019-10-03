@@ -36,7 +36,6 @@ import org.springframework.beans.factory.InitializingBean;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
-import gda.data.PathConstructor;
 import gda.data.fileregistrar.FileRegistrarHelper;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -211,7 +210,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 	 * @return the data directory
 	 */
 	public synchronized File getDataDirectory() {
-		return new File(PathConstructor.createFromDefaultProperty(), this.subDirectory);
+		return new File(InterfaceProvider.getPathConstructor().createFromDefaultProperty(), this.subDirectory);
 	}
 
 	protected int numberOfModules;

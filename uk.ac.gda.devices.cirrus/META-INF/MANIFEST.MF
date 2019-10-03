@@ -11,7 +11,8 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.core;bundle-version="1.0.0",
  uk.ac.gda.nexus,
  org.eclipse.ui;bundle-version="3.8.2",
- org.eclipse.ui.views;bundle-version="3.6.100"
+ org.eclipse.ui.views;bundle-version="3.6.100",
+ uk.ac.gda.api
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .,

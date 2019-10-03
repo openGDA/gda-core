@@ -29,7 +29,6 @@ import org.springframework.beans.factory.InitializingBean;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
-import gda.data.PathConstructor;
 import gda.data.fileregistrar.FileRegistrarHelper;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -780,7 +779,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	@Override
 	public File createMainFileStructure() throws IOException {
 		// set up the filename which will be the base directory for data to be saved to
-		final File path = new File(PathConstructor.createFromDefaultProperty());
+		final File path = new File(InterfaceProvider.getPathConstructor().createFromDefaultProperty());
 		final NumTracker nt = new NumTracker(LocalProperties.GDA_BEAMLINE_NAME);
 		String fileNum;
 		if (!isScanNumberAlreadyIncremented()) {

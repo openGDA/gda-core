@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.NXDetector;
@@ -150,7 +149,7 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 		//send event to client with scan info at start so users are informed
 		final int scannumber =getCurrentScanInformationHolder().getCurrentScanInformation().getScanNumber();
 		final int numberOfPoints = getCurrentScanInformationHolder().getCurrentScanInformation().getNumberOfPoints();
-		String dataDir=PathConstructor.createFromDefaultProperty();
+		String dataDir=InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		if (!dataDir.endsWith(File.separator)) {
 			dataDir += File.separator;
 		}

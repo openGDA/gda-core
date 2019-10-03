@@ -18,7 +18,7 @@
 
 package uk.ac.gda.devices.hatsaxs;
 
-import gda.data.PathConstructor;
+import gda.jython.InterfaceProvider;
 
 import java.io.File;
 
@@ -33,7 +33,7 @@ public class HatsaxsUtils {
 	private HatsaxsUtils() {}
 
 	public static String getXmlDirectory() {
-		return PathConstructor.getClientVisitSubdirectory("xml");
+		return InterfaceProvider.getPathConstructor().getClientVisitSubdirectory("xml");
 	}
 	
 	public static File getBioSaxsFileFromName(String name) {

@@ -18,12 +18,6 @@
 
 package uk.ac.gda.devices.cirrus;
 
-import gda.data.PathConstructor;
-import gda.device.DeviceException;
-import gda.device.detector.NXDetectorData;
-import gda.device.scannable.ScannableBase;
-import gda.jython.InterfaceProvider;
-
 import java.io.BufferedOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,6 +28,12 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.device.detector.NXDetectorData;
+import gda.device.scannable.ScannableBase;
+import gda.jython.InterfaceProvider;
+import uk.ac.gda.api.io.PathConstructor;
+
 /**
  * Zero-input, zero-output scannable which will run the Cirrus Microreactor during scans asynchronously to the scan
  * itself and write masses out to file every second during the scan.
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 public class CirrusFileWritingScannable extends ScannableBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(CirrusFileWritingScannable.class);
-	
+
 	private final CirrusDetector cirrus;
 
 	private volatile boolean scanComplete;
@@ -62,9 +62,9 @@ public class CirrusFileWritingScannable extends ScannableBase {
 		scanComplete = false;
 		int scanNumber = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation()
 				.getScanNumber();
-		String dataDir = PathConstructor.createFromDefaultProperty();
+		String dataDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		filename = dataDir + scanNumber + "_cirrus.dat";
-		
+
 		startCirrusThread();
 	}
 
@@ -77,7 +77,7 @@ public class CirrusFileWritingScannable extends ScannableBase {
 				try (BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(path,
 						StandardOpenOption.CREATE, StandardOpenOption.APPEND)))
 				{
-						
+
 					String columnHeaders = new String();
 					columnHeaders = "Time\t";
 					Integer[] masses = cirrus.getMasses();
@@ -87,7 +87,7 @@ public class CirrusFileWritingScannable extends ScannableBase {
 					columnHeaders.trim();
 					columnHeaders += "\n";
 					out.write(columnHeaders.getBytes(), 0, columnHeaders.getBytes().length);
-					
+
 					while (!scanComplete) {
 						cirrus.setCollectionTime(1);
 						cirrus.collectData();

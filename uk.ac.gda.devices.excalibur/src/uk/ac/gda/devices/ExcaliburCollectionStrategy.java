@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.detector.addetector.triggering.SingleExposureStandard;
 import gda.device.detector.areadetector.v17.ADBase;
@@ -179,7 +178,7 @@ public class ExcaliburCollectionStrategy extends SingleExposureStandard implemen
 		int scanNumber = currScanInfo.getScanNumber();
 		int nScanPts = currScanInfo.getNumberOfPoints();
 
-		String dataDirPath = PathConstructor.createFromDefaultProperty();
+		String dataDirPath = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		String inFileNames = "";
 		String inFileNamePrefix = "";
 		for (int i=0; i < nNodes; i++) {

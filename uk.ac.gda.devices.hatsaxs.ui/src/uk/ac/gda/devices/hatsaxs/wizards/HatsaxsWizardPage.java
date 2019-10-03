@@ -1,6 +1,6 @@
 package uk.ac.gda.devices.hatsaxs.wizards;
 
-import gda.data.PathConstructor;
+import gda.jython.InterfaceProvider;
 import gda.rcp.DataProject;
 
 import org.eclipse.core.resources.IContainer;
@@ -109,7 +109,7 @@ public class HatsaxsWizardPage extends WizardPage {
 
 		IProject dataProject = DataProject.getDataProjectIfExists();
 		if (dataProject != null) {
-			containerText.setText(PathConstructor.createFromTemplate("/$visit$/data/xml"));
+			containerText.setText(InterfaceProvider.getPathConstructor().createFromTemplate("/$visit$/data/xml"));
 		}
 	}
 

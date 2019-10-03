@@ -23,7 +23,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.PathConstructor;
 import gda.device.detector.addetector.filewriter.MultipleImagesPerHDF5FileWriter;
 import gda.epics.CachedLazyPVFactory;
 import gda.epics.LazyPVFactory;
@@ -261,7 +260,7 @@ public class ExcaliburMultipleImagesPerHDF5FileWriter extends MultipleImagesPerH
 		int scanNumber = currScanInfo.getScanNumber();
 		int nScanPts = currScanInfo.getNumberOfPoints();
 
-		String dataDirPath = PathConstructor.createFromDefaultProperty();
+		String dataDirPath = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		String inFileNames = "";
 		String inFileNamePrefix = "";
 		for (int i=0; i < nNodes; i++) {
