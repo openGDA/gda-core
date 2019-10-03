@@ -50,7 +50,6 @@ import com.ibm.icu.text.NumberFormat;
 
 import gda.commandqueue.JythonCommandCommandProvider;
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
 import gda.jython.InterfaceProvider;
 import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.tomography.scan.TomoScanParameters;
@@ -208,7 +207,7 @@ public class ScanParameterDialog extends Dialog {
 	}
 
 	private String getModelFilePath() {
-		String gdaVar = PathConstructor.createFromProperty(LocalProperties.GDA_VAR_DIR);
+		String gdaVar = InterfaceProvider.getPathConstructor().createFromProperty(LocalProperties.GDA_VAR_DIR);
 		return gdaVar + "/" + DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL + ".json";
 	}
 

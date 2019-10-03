@@ -18,15 +18,6 @@
 
 package uk.ac.gda.client.tomo.alignment.view.handlers.impl;
 
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.data.metadata.GDAMetadataProvider;
-import gda.device.DeviceException;
-import gda.factory.Findable;
-import gda.jython.IScanDataPointObserver;
-import gda.jython.JythonServerFacade;
-import gda.observable.IObservable;
-
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.File;
@@ -44,6 +35,14 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.NumTracker;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.device.DeviceException;
+import gda.factory.Findable;
+import gda.jython.IScanDataPointObserver;
+import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
+import gda.observable.IObservable;
 import uk.ac.gda.client.tomo.DoublePointList;
 import uk.ac.gda.client.tomo.ExternalFunction;
 import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
@@ -298,7 +297,7 @@ public class TiltController implements ITiltController {
 		progress.beginTask("Matlab Processing", 10);
 		ArrayList<String> cmdAndArgs = new ArrayList<String>();
 		cmdAndArgs.add(externalProgram1.getCommand());
-		String path = PathConstructor.createFromDefaultProperty();
+		String path = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		long filenumber = new NumTracker("i12").getCurrentFileNumber();
 		//
 		String imagesPath = path + File.separator + filenumber + File.separator + "projections" + File.separator;

@@ -24,7 +24,8 @@ Require-Bundle: uk.ac.gda.core;bundle-version="8.26.0",
  uk.ac.gda.tomography.scan,
  org.eclipse.dawnsci.analysis.api,
  uk.ac.gda.common,
- uk.ac.gda.tomography
+ uk.ac.gda.tomography,
+ uk.ac.gda.api
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-ActivationPolicy: lazy
 Import-Package: com.fasterxml.jackson.core;version="2.6.2",
