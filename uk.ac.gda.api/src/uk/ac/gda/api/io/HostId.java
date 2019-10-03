@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.util;
+package uk.ac.gda.api.io;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;

@@ -68,7 +68,6 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.PathConstructor;
 import gda.jython.IScanDataPointObserver;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
@@ -351,7 +350,7 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 				fileDialog = new FileDialog(getSite().getShell(), SWT.OPEN);
 				String[] filterNames = new String[] { "All Files (*)" };
 				String[] filterExtensions = new String[] { "*" };
-				fileDialog.setFilterPath(PathConstructor.createFromDefaultProperty());
+				fileDialog.setFilterPath(InterfaceProvider.getPathConstructor().createFromDefaultProperty());
 				fileDialog.setFilterNames(filterNames);
 				fileDialog.setFilterExtensions(filterExtensions);
 			}

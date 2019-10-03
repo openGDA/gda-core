@@ -19,7 +19,7 @@
 package uk.ac.diamond.scisoft.analysis.plotserver;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
+import gda.jython.InterfaceProvider;
 
 public class GDASimplePlotServer extends SimplePlotServer {
 
@@ -30,7 +30,7 @@ public class GDASimplePlotServer extends SimplePlotServer {
 
 	@Override
 	protected String getDefaultDataDir() {
-		return PathConstructor.createFromDefaultProperty();
+		return InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 	}
 
 	@Override

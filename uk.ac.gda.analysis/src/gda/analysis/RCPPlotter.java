@@ -27,7 +27,7 @@ import org.eclipse.january.dataset.IDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.PathConstructor;
+import gda.jython.InterfaceProvider;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
@@ -47,7 +47,7 @@ public class RCPPlotter extends SDAPlotter {
 
 		try {
 			File tmpFile = File.createTempFile("tmp_img", ".raw");
-			String dirName = PathConstructor.getClientVisitSubdirectory(PlotServer.GRIDVIEWDIR);
+			String dirName = InterfaceProvider.getPathConstructor().getClientVisitSubdirectory(PlotServer.GRIDVIEWDIR);
 			File directory = new File(dirName);
 			if (!directory.exists())
 				directory.mkdir();

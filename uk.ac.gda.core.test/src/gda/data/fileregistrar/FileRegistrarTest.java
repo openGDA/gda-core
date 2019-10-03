@@ -31,12 +31,12 @@ import org.slf4j.LoggerFactory;
 
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
 import gda.data.metadata.Metadata;
 import gda.data.scan.datawriter.DefaultDataWriterFactory;
 import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.device.Detector;
 import gda.device.Scannable;
+import gda.jython.InterfaceProvider;
 import gda.scan.ConcurrentScan;
 
 /**
@@ -62,7 +62,7 @@ public class FileRegistrarTest {
 	public static void setUp(String name, boolean makedir) throws Exception {
 		testScratchDirectoryName = new File(TestHelpers.setUpTest(FileRegistrarTest.class, name, makedir))
 				.getAbsolutePath();
-		LocalProperties.set(PathConstructor.getDefaultPropertyName(), testScratchDirectoryName);
+		LocalProperties.set(InterfaceProvider.getPathConstructor().getDefaultPropertyName(), testScratchDirectoryName);
 	}
 
 	static void runScanToCreateFile(IDataWriterExtender dataWriterExtender) throws InterruptedException, Exception {

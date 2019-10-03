@@ -27,11 +27,11 @@ import org.eclipse.january.dataset.Dataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.PathConstructor;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
 import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.MARLoader;
 import uk.ac.gda.api.remoting.ServiceInterface;
@@ -406,7 +406,7 @@ public class Mar165Detector extends DetectorBase {
 
 	@Override
 	public float[] readout() throws DeviceException {
-		String path = PathConstructor.createFromTemplate(dirTemplate);
+		String path = InterfaceProvider.getPathConstructor().createFromTemplate(dirTemplate);
 		String filename = path + "/" + getName() + "-" + tracker + "." + SUFFIX;
 
 		new File(filename).delete();

@@ -1,6 +1,7 @@
 from gda.analysis.io import SRSLoader, NexusLoader
 from gda.configuration.properties import LocalProperties
-from gda.data import PathConstructor, NumTracker
+from gda.data import NumTracker
+from gda.jython import InterfaceProvider
 from gda.data.metadata import GDAMetadataProvider
 from uk.ac.diamond.scisoft.analysis.io import LoaderFactory
 import os.path
@@ -12,7 +13,7 @@ class ScanFileLoader:
 		if dir!=None and dir != "None":
 			self.dir=dir
 		else:
-			self.dir = PathConstructor.createFromDefaultProperty()
+			self.dir = InterfaceProvider.getPathConstructor().createFromDefaultProperty()
 		self.beamline = GDAMetadataProvider.getInstance().getMetadataValue("instrument", LocalProperties.GDA_INSTRUMENT, "tmp")
 		if (self.format == "NexusDataWriter"):
 			#really should use scanFileName prefix rather than forcing to beamline-

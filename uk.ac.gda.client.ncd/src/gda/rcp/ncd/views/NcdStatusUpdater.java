@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
-import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
 import gda.device.Device;
@@ -142,7 +141,7 @@ public class NcdStatusUpdater implements IScanDataPointObserver {
 
 	private void meUpdate() {
 		client.subDirectory.setText(subdirectory);
-		client.currentDirectory.setText(PathConstructor.createFromDefaultProperty());
+		client.currentDirectory.setText(InterfaceProvider.getPathConstructor().createFromDefaultProperty());
 		client.scanTitle.setText(scanTitle);
 		exptDataModel.setDirectory(client.currentDirectory.getText());
 	}

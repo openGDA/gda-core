@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
+import gda.jython.InterfaceProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.GDADataNature;
 import uk.ac.gda.preferences.PreferenceConstants;
 import uk.ac.gda.preferences.PreferenceInitializer;
@@ -88,7 +88,7 @@ public class DataProject {
 		if (project != null)
 			return project;
 
-		return createDataProject(monitor, projName, PathConstructor.getClientVisitDirectory(),
+		return createDataProject(monitor, projName, InterfaceProvider.getPathConstructor().getClientVisitDirectory(),
 			preferenceStore.getString(PreferenceConstants.GDA_DATA_PROJECT_FILTER),
 			preferenceStore.getBoolean(PreferenceConstants.GDA_DATA_PROJECT_FILTER_IS_EXCLUDE));
 	}

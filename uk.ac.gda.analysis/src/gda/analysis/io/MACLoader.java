@@ -25,7 +25,7 @@ import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
-import gda.data.PathConstructor;
+import gda.jython.InterfaceProvider;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 
 /**
@@ -120,7 +120,7 @@ public class MACLoader extends uk.ac.diamond.scisoft.analysis.io.SRSLoader {
 	 * @return data directory
 	 */
 	public String getDataDir() {
-		return PathConstructor.createFromDefaultProperty();
+		return InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 	}
 
 	/**

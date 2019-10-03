@@ -313,7 +313,7 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 			path = self.replacePartOfPath(path)
 			if path[0] != '/':
 				#if relative path then we have to assume it's from the data directory
-				path = gda.data.PathConstructor.createFromDefaultProperty() + "/" + path
+				path = uk.ac.gda.api.io.InterfaceProvider.getPathConstructor().createFromDefaultProperty() + "/" + path
 			self.datasetProvider = LazyDataSetProvider(path, self.iFileLoader, self.fileLoadTimout, self.printNfsTimes, wait_for_exposure_callable)
 			self.logger.debug("datasetProvider is {}", self.datasetProvider)
 		

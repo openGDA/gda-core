@@ -34,13 +34,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.data.NumTracker;
-import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
+import gda.jython.InterfaceProvider;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 @ServiceInterface(INcdSubDetector.class)
@@ -149,7 +149,7 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 			long scanNumber = numTracker.getCurrentFileNumber();
 
 			// Check to see if the data directory has been defined.
-			dataDir = PathConstructor.createFromDefaultProperty();
+			dataDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 			if (dataDir == null) {
 				// this java property is compulsory - stop the scan
 				throw new InstantiationException("cannot work out data directory - cannot create a new data file.");

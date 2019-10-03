@@ -43,8 +43,9 @@ import javax.swing.event.ChangeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.PathConstructor;
 import gda.device.DeviceException;
+import gda.jython.InterfaceProvider;
+import uk.ac.gda.api.io.PathConstructor;
 
 /**
  * An implementation of a panel for time-frame configuration.
@@ -56,7 +57,7 @@ public class TimeFrameConfigure extends JPanel implements ChangeListener {
 
 	private boolean extendedTFG = true;
 
-	private JFileChooser jf; 
+	private JFileChooser jf;
 
 	/**
 	 * Create the configure panel
@@ -74,7 +75,7 @@ public class TimeFrameConfigure extends JPanel implements ChangeListener {
 		add(MemoryUsage.getInstance());
 		add(Box.createVerticalStrut(5));
 		add(createButtonPanel());
-		
+
 		setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Time Frame Configure",
 				TitledBorder.LEFT, TitledBorder.TOP, null, Color.black));
 	}
@@ -90,7 +91,7 @@ public class TimeFrameConfigure extends JPanel implements ChangeListener {
 			timeFrameProfile = new TimeFrameProfile1();
 
 		tabbedPane.addTab("Profile 1", timeFrameProfile);
-		
+
 		ParameterFileController.getInstance().add(this);
 	}
 
@@ -98,7 +99,7 @@ public class TimeFrameConfigure extends JPanel implements ChangeListener {
 		JPanel panel;
 
 		String filter[] = { "dat", "txt" };
-		jf = new JFileChooser(PathConstructor.getClientVisitDirectory());
+		jf = new JFileChooser(InterfaceProvider.getPathConstructor().getClientVisitDirectory());
 		jf.addChoosableFileFilter(new SimpleFileFilter(filter, "Data (*.dat, *.txt)"));
 
 		panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -151,7 +152,7 @@ public class TimeFrameConfigure extends JPanel implements ChangeListener {
 
 		return panel;
 	}
-	
+
 	private JPanel createAccessPanel() {
 		JButton addButton;
 		JButton delButton;
@@ -259,7 +260,7 @@ public class TimeFrameConfigure extends JPanel implements ChangeListener {
 
 	/**
 	 * Save the configured TFG parameters to an XML file
-	 * 
+	 *
 	 * @param writer
 	 */
 	public void save(BufferedWriter writer) {
@@ -284,7 +285,7 @@ public class TimeFrameConfigure extends JPanel implements ChangeListener {
 
 	/**
 	 * Load the saved TFG parameters from an xml file
-	 * 
+	 *
 	 * @param reader
 	 */
 	public void load(BufferedReader reader) {

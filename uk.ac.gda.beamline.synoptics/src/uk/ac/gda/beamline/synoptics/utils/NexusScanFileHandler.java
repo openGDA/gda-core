@@ -33,7 +33,7 @@ import org.eclipse.january.metadata.IMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.PathConstructor;
+import gda.jython.InterfaceProvider;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.gda.beamline.synoptics.views.DetectorFilePlotView;
 
@@ -84,7 +84,7 @@ public class NexusScanFileHandler extends FileNameFilteringFileHandler {
 	}
 
 	private String relativeName(String filename) {
-		String visitDirectory = PathConstructor.getClientVisitDirectory();
+		String visitDirectory = InterfaceProvider.getPathConstructor().getClientVisitDirectory();
 		Path visit = Paths.get(visitDirectory);
 		Path relativize = visit.relativize(Paths.get(filename));
 		return relativize.toString();

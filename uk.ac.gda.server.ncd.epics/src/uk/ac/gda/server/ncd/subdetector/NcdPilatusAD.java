@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.data.NumTracker;
-import gda.data.PathConstructor;
 import gda.data.fileregistrar.FileRegistrarHelper;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.device.Detector;
@@ -289,7 +288,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 		}
 
 		// Check to see if the data directory has been defined.
-		String dataDir = PathConstructor.createFromDefaultProperty();
+		String dataDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		// Now lets try and setup the NumTracker...
 		NumTracker runNumber = new NumTracker(beamline);
 		// Get the current number

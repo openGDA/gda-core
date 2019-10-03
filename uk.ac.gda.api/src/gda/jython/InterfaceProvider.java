@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 import gda.factory.Finder;
 import gda.jython.commandinfo.ICommandThreadInfoProvider;
 import gda.jython.completion.TextCompleter;
+import uk.ac.gda.api.io.IPathConstructor;
+import uk.ac.gda.api.io.PathConstructor;
 
 /**
  * Static methods to get current implementation for various interfaces supported by JythonServerFacade and JythonServer
@@ -54,6 +56,7 @@ public final class InterfaceProvider {
 	private static ICommandThreadInfoProvider commandInfoProvider;
 	private static IJythonServerStatusProvider jythonServerStatusProvider;
 	private static TextCompleter jythonCompleter;
+	private static IPathConstructor pathConstructor;
 
 	private InterfaceProvider() {
 		// Prevent Instances
@@ -363,6 +366,27 @@ public final class InterfaceProvider {
 			jythonCompleter = JythonServerFacade.getInstance();
 		}
 		return jythonCompleter;
+	}
+
+	public static IPathConstructor getPathConstructor() {
+		// it would be good to move this functionality to the JythonServerFacade however you then
+		// start to get activemq initialisation problems when starting up as it is trying to get its
+		// persistence dir before the facarde has fully initialised.
+		if (pathConstructor == null)
+		{
+			pathConstructor = new PathConstructor();
+		}
+
+		return pathConstructor;
+	}
+
+	/**
+	 * call this only when you wish to run outside of gda when JythonServer does not exist
+	 * @param pathConstructor
+	 */
+	public static void setPathConstructorForTesting(IPathConstructor pathConstructor) {
+		logger.warn("setPathConstructorForTesting called");
+		InterfaceProvider.pathConstructor = pathConstructor;
 	}
 
 	/**

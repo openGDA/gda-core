@@ -26,9 +26,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.PathConstructor;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataFileAppenderForSrs;
+import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 
 public class ODCCDOverflow extends ODCCDSingleExposure {
@@ -92,7 +92,8 @@ public class ODCCDOverflow extends ODCCDSingleExposure {
 				}
 			} else if (fastFilenames.size() > unixFilenames.size()) {
 				String runfileOdccdFilename = getOdccdFilePath(runfileName);
-				String finalUnixFilename = String.format("%s/spool/%s/frames/%s_%d_%d.img", PathConstructor.createFromDefaultProperty(),
+				String finalUnixFilename = String.format("%s/spool/%s/frames/%s_%d_%d.img",
+						InterfaceProvider.getPathConstructor().createFromDefaultProperty(),
 						experimentName, experimentName, finalFileSequenceNumber, unixFilenames.size()+1);
 				String finalOdccdFilename = getOdccdFilePath(finalUnixFilename);
 				logger.debug("Saving slow image to {} & final image to {} ", unixFilename, finalUnixFilename);

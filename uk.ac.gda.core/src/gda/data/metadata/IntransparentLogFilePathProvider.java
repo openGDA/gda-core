@@ -20,7 +20,6 @@ package gda.data.metadata;
 
 import gda.data.ObservablePathProvider;
 import gda.data.PathChanged;
-import gda.data.PathConstructor;
 import gda.device.Device;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
@@ -51,7 +50,7 @@ public class IntransparentLogFilePathProvider extends MetadataBlaster implements
 
 	@Override
 	public String getPath() {
-		return PathConstructor.createFromTemplate(pathTemplate);
+		return InterfaceProvider.getPathConstructor().createFromTemplate(pathTemplate);
 	}
 
 	@Override

@@ -32,13 +32,13 @@ import org.eclipse.scanning.api.scan.IScanService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.PathConstructor;
 import gda.data.ServiceHolder;
 import gda.data.scan.datawriter.DataWriterExtenderBase;
 import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.device.Detector;
 import gda.device.DeviceBase;
 import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.jython.JythonStatus;
 import gda.scan.IScanDataPoint;
@@ -145,7 +145,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 		logger.debug("Adding {}", fileNameOrPath);
 		String filePath = fileNameOrPath;
 		if (fileNameOrPath.charAt(0) != '/') {
-			filePath = Paths.get(PathConstructor.createFromDefaultProperty(), fileNameOrPath).toString();
+			filePath = Paths.get(InterfaceProvider.getPathConstructor().createFromDefaultProperty(), fileNameOrPath).toString();
 			logger.debug("Changed file path to {}", filePath);
 		}
 

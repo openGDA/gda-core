@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.detector.NXDetectorData;
@@ -34,6 +33,7 @@ import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 import gda.scan.ScanInformation;
+import uk.ac.gda.api.io.PathConstructor;
 import uk.ac.gda.server.ncd.subdetector.eiger.NcdEigerController;
 
 public class NcdEigerDetector extends NcdSubDetector {
@@ -56,7 +56,7 @@ public class NcdEigerDetector extends NcdSubDetector {
 		int scanNumber = scanInformation.getScanNumber();
 		int[] scanDimensions = scanInformation.getDimensions();
 		String beamline = LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME);
-		controller.setDataOutput(PathConstructor.createFromDefaultProperty(), String.format("%s-%d-%s", beamline, scanNumber, getName()));
+		controller.setDataOutput(InterfaceProvider.getPathConstructor().createFromDefaultProperty(), String.format("%s-%d-%s", beamline, scanNumber, getName()));
 		controller.setScanDimensions(scanDimensions);
 		controller.startRecording();
 	}

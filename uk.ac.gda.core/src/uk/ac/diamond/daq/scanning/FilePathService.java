@@ -27,9 +27,9 @@ import org.eclipse.scanning.api.scan.IFilePathService;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
-import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.device.DeviceException;
+import gda.jython.InterfaceProvider;
 
 /**
  * Implementation of the {@link IFilePathService} which determines the next path to write to.
@@ -52,7 +52,7 @@ public class FilePathService implements IFilePathService {
 	@Override
 	public synchronized String getNextPath(String template) throws IOException, InvalidPathException {
 		// Get the current data directory
-		String dir = PathConstructor.createFromDefaultProperty();
+		String dir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		return getNextPath(dir, template);
 	}
 
@@ -91,7 +91,7 @@ public class FilePathService implements IFilePathService {
 	public String createFolderForLinkedFiles(String filename) throws Exception {
 		// Get the current data directory
 		// TODO This currently doesn't support sub directories under the visit e.g /sample1/
-		String parentDir = PathConstructor.createFromDefaultProperty();
+		String parentDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		String bareFilename = getBareFilename(filename);
 		File newDir = new File(parentDir, bareFilename);
 		newDir.mkdir();
@@ -119,29 +119,29 @@ public class FilePathService implements IFilePathService {
 
 	@Override
 	public String getVisitDir() {
-		return PathConstructor.getVisitDirectory();
+		return InterfaceProvider.getPathConstructor().getVisitDirectory();
 	}
 
 	@Override
 	public String getTempDir() {
 		// Get the current visit directory and append /tmp.
-		return PathConstructor.getVisitSubdirectory(VISIT_TEMP_DIR_NAME);
+		return InterfaceProvider.getPathConstructor().getVisitSubdirectory(VISIT_TEMP_DIR_NAME);
 	}
 
 	@Override
 	public String getProcessedFilesDir() {
 		// Get the current visit directory and append /processed.
-		return PathConstructor.getVisitSubdirectory(VISIT_PROCESSED_DIR_NAME);
+		return InterfaceProvider.getPathConstructor().getVisitSubdirectory(VISIT_PROCESSED_DIR_NAME);
 	}
 
 	@Override
 	public String getProcessingDir() {
-		return PathConstructor.getVisitSubdirectory(VISIT_PROCESSING_DIR_NAME);
+		return InterfaceProvider.getPathConstructor().getVisitSubdirectory(VISIT_PROCESSING_DIR_NAME);
 	}
 
 	@Override
 	public String getPersistenceDir() {
-		return PathConstructor.createFromProperty(LocalProperties.GDA_VAR_DIR);
+		return InterfaceProvider.getPathConstructor().createFromProperty(LocalProperties.GDA_VAR_DIR);
 	}
 
 
@@ -178,7 +178,7 @@ public class FilePathService implements IFilePathService {
 	@Override
 	public String getVisitConfigDir() {
 		// Get the current visit directory and append /tmp.
-		return PathConstructor.getVisitSubdirectory(VISIT_CONFIG_DIR_NAME);
+		return InterfaceProvider.getPathConstructor().getVisitSubdirectory(VISIT_CONFIG_DIR_NAME);
 	}
 
 }

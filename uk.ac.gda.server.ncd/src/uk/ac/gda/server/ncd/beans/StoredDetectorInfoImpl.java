@@ -32,9 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
 import gda.data.metadata.MetadataBlaster;
 import gda.factory.FindableBase;
+import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 import uk.ac.gda.util.io.FileUtils;
 
@@ -135,7 +135,7 @@ public class StoredDetectorInfoImpl extends FindableBase implements StoredDetect
 	}
 
 	private String getNewFilePath(File currentFile) {
-		return PathConstructor.createFromDefaultProperty() + "/" + currentFile.getName();
+		return InterfaceProvider.getPathConstructor().createFromDefaultProperty() + "/" + currentFile.getName();
 	}
 
 	private void copyFile(File source, File target) {
@@ -177,8 +177,8 @@ public class StoredDetectorInfoImpl extends FindableBase implements StoredDetect
 	public void setSaxsDetectorInfoPath(String filePath) {
 		File newFile = new File(filePath);
 		if (newFile.exists()) {
-			if (!(newFile.getParentFile().equals(new File(PathConstructor.createFromDefaultProperty())))) {
-				File timeStamped = new File(PathConstructor.createFromDefaultProperty() + "/" + timeStamped("detectorMask") + ".h5");
+			if (!(newFile.getParentFile().equals(new File(InterfaceProvider.getPathConstructor().createFromDefaultProperty())))) {
+				File timeStamped = new File(InterfaceProvider.getPathConstructor().createFromDefaultProperty() + "/" + timeStamped("detectorMask") + ".h5");
 				copyFile(newFile, timeStamped);
 				this.saxsDetectorInfo = timeStamped;
 			} else {
@@ -201,8 +201,8 @@ public class StoredDetectorInfoImpl extends FindableBase implements StoredDetect
 	public void setDataCalibrationReductionSetupPath(String filePath) {
 		File newFile = new File(filePath);
 		if (newFile.exists()) {
-			if (!(newFile.getParentFile().equals(new File(PathConstructor.createFromDefaultProperty())))) {
-				File timeStamped = new File(PathConstructor.createFromDefaultProperty() + "/" + timeStamped("ReductionAndCalibration") + ".xml");
+			if (!(newFile.getParentFile().equals(new File(InterfaceProvider.getPathConstructor().createFromDefaultProperty())))) {
+				File timeStamped = new File(InterfaceProvider.getPathConstructor().createFromDefaultProperty() + "/" + timeStamped("ReductionAndCalibration") + ".xml");
 				copyFile(newFile, timeStamped);
 				dataCalibrationReductionSetup = timeStamped;
 			} else {

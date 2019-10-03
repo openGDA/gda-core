@@ -36,7 +36,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.PathConstructor;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.ConstantVelocityMoveController;
@@ -49,6 +48,7 @@ import gda.device.detector.odccd.ODCCDController;
 import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionStreamIndexerProvider;
 import gda.device.scannable.ScannableMotor;
+import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 import uk.ac.gda.util.FilePathConverter;
 
@@ -280,7 +280,8 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 	protected String getUnixFilename(String fileNameTemplatePrefix) {
 		String unixfilename = String.format(fileTemplate, filePathTemplate, fileNameTemplatePrefix+fileNameTemplate, unixFilenames.size()+1);
 		int scanNumber = scanInfo.getScanNumber();
-		unixfilename = StringUtils.replace(unixfilename, "$datadir$", PathConstructor.createFromDefaultProperty());
+		unixfilename = StringUtils.replace(unixfilename, "$datadir$",
+				InterfaceProvider.getPathConstructor().createFromDefaultProperty());
 		unixfilename = StringUtils.replace(unixfilename, "$scan$", String.valueOf(scanNumber));
 		return unixfilename;
 	}
@@ -659,7 +660,7 @@ public class ODCCDSingleExposure implements CollectionStrategyBeanInterface, NXF
 			//		<4. apply repair correction> <5. poly mscalar>
 			//		<6. unwarp> <7. flood poly> (0=apply correction, 0=no correction)
 			//		<8. export all intermediate images> <9. subtract correlated dark (not used here)> <10. export compressed>  (1=true, 0=false)
-			String unixfilename = PathConstructor.createFromDefaultProperty()+"/"+filename;
+			String unixfilename = InterfaceProvider.getPathConstructor().createFromDefaultProperty()+"/"+filename;
 			String odccdfilename = getOdccdFilePath(unixfilename);
 			odccd.runScript("call correlateDark_atlas " + exposureTime + " "+binning+" \""+odccdfilename+"\" "+fileParameters(false));
 			odccd.readInputUntil("ATLAS End");

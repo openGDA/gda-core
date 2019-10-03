@@ -39,9 +39,10 @@ import gda.data.metadata.PropertyMetadataEntry;
 import gda.data.metadata.icat.IcatProvider;
 import gda.device.DeviceException;
 import gda.factory.Finder;
-import gda.util.HostId;
+import gda.jython.InterfaceProvider;
 import gda.util.ObjectServer;
 import gda.util.TestUtils;
+import uk.ac.gda.api.io.HostId;
 
 /**
  * A Class for performing unit tests on a class for constructing paths based on templates. Separate Java properties and
@@ -104,8 +105,8 @@ public class PathConstructorTest {
 
 	private void testPathConstructor(String given, String expected) {
 		System.setProperty(propertyName, given);
-		assertEquals("Path contruction failed", expected, PathConstructor.createFromTemplate(given));
-		assertEquals("Path contruction failed", expected, PathConstructor.createFromProperty(propertyName));
+		assertEquals("Path contruction failed", expected, InterfaceProvider.getPathConstructor().createFromTemplate(given));
+		assertEquals("Path contruction failed", expected, InterfaceProvider.getPathConstructor().createFromProperty(propertyName));
 	}
 
 	/**
@@ -141,13 +142,13 @@ public class PathConstructorTest {
 		final int thisYear = LocalDate.now().getYear();
 		final String hostId = HostId.getId();
 
-		assertEquals("/0", PathConstructor.createFromTemplate("/$proposal$"));
-		assertEquals("/0-0", PathConstructor.createFromTemplate("/$visit$"));
-		assertEquals("/", PathConstructor.createFromTemplate("/$instrument$"));
-		assertEquals("/", PathConstructor.createFromTemplate("/$facility$"));
-		assertEquals("/" + thisYear, PathConstructor.createFromTemplate("/$year$"));
-		assertEquals("/", PathConstructor.createFromTemplate("/$subdirectory$"));
-		assertEquals("/" + hostId, PathConstructor.createFromTemplate("/$hostid$"));
+		assertEquals("/0", InterfaceProvider.getPathConstructor().createFromTemplate("/$proposal$"));
+		assertEquals("/0-0", InterfaceProvider.getPathConstructor().createFromTemplate("/$visit$"));
+		assertEquals("/", InterfaceProvider.getPathConstructor().createFromTemplate("/$instrument$"));
+		assertEquals("/", InterfaceProvider.getPathConstructor().createFromTemplate("/$facility$"));
+		assertEquals("/" + thisYear, InterfaceProvider.getPathConstructor().createFromTemplate("/$year$"));
+		assertEquals("/", InterfaceProvider.getPathConstructor().createFromTemplate("/$subdirectory$"));
+		assertEquals("/" + hostId, InterfaceProvider.getPathConstructor().createFromTemplate("/$hostid$"));
 	}
 
 	@Test
@@ -166,19 +167,19 @@ public class PathConstructorTest {
 		final int thisYear = LocalDate.now().getYear();
 		final String hostId = HostId.getId();
 
-		assertEquals("/" + proposal, PathConstructor.createFromTemplate("/$proposal$"));
-		assertEquals("/" + visit, PathConstructor.createFromTemplate("/$visit$"));
-		assertEquals("/" + instrument, PathConstructor.createFromTemplate("/$instrument$"));
-		assertEquals("/" + facility, PathConstructor.createFromTemplate("/$facility$"));
-		assertEquals("/" + thisYear, PathConstructor.createFromTemplate("/$year$"));
-		assertEquals("/", PathConstructor.createFromTemplate("/$subdirectory$"));
-		assertEquals("/" + hostId, PathConstructor.createFromTemplate("/$hostid$"));
+		assertEquals("/" + proposal, InterfaceProvider.getPathConstructor().createFromTemplate("/$proposal$"));
+		assertEquals("/" + visit, InterfaceProvider.getPathConstructor().createFromTemplate("/$visit$"));
+		assertEquals("/" + instrument, InterfaceProvider.getPathConstructor().createFromTemplate("/$instrument$"));
+		assertEquals("/" + facility, InterfaceProvider.getPathConstructor().createFromTemplate("/$facility$"));
+		assertEquals("/" + thisYear, InterfaceProvider.getPathConstructor().createFromTemplate("/$year$"));
+		assertEquals("/", InterfaceProvider.getPathConstructor().createFromTemplate("/$subdirectory$"));
+		assertEquals("/" + hostId, InterfaceProvider.getPathConstructor().createFromTemplate("/$hostid$"));
 	}
 
 	@Test
 	public void testInvalidToken() {
 		// Should not result in an exception, but use of invalid token should be logged
-		assertEquals("/test/token", PathConstructor.createFromTemplate("/test/$invalid$/token"));
+		assertEquals("/test/token", InterfaceProvider.getPathConstructor().createFromTemplate("/test/$invalid$/token"));
 	}
 
 	@After

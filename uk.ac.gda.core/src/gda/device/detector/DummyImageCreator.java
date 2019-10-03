@@ -32,12 +32,12 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
-import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
 
 /**
  * A Dummy class that will create an image file of a specified format.
@@ -156,7 +156,7 @@ public class DummyImageCreator extends DetectorBase {
 	private String getDummyDataDir() {
 		String dir = null;
 
-		dir = PathConstructor.createFromDefaultProperty();
+		dir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 
 		if (dir == null) {
 			dir = "/tmp/";

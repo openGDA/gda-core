@@ -69,7 +69,6 @@ import org.springframework.util.StringUtils;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
-import gda.data.PathConstructor;
 import gda.data.ServiceHolder;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
@@ -239,7 +238,7 @@ public class NexusDataWriter extends DataWriterBase {
 		}
 
 		// Check to see if the data directory has been defined.
-		dataDir = PathConstructor.createFromDefaultProperty();
+		dataDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		if (dataDir == null) {
 			// this java property is compulsory - stop the scan
 			throw new IllegalStateException("cannot work out data directory - cannot create a new data file.");
@@ -988,7 +987,7 @@ public class NexusDataWriter extends DataWriterBase {
 				Path filePath = Paths.get(templateFilePath);
 				if (!filePath.isAbsolute()) {
 					// if the file path is relative, resolve it relative to gda.var
-					final String gdaVar = PathConstructor.createFromProperty(LocalProperties.GDA_VAR_DIR);
+					final String gdaVar = InterfaceProvider.getPathConstructor().createFromProperty(LocalProperties.GDA_VAR_DIR);
 					templateFilePath = Paths.get(gdaVar).resolve(filePath).toString();
 				}
 				final NexusTemplate template = templateService.loadTemplate(templateFilePath);

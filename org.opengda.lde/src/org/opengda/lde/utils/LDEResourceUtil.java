@@ -25,10 +25,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
 import gda.device.DeviceException;
+import gda.jython.InterfaceProvider;
 
 public class LDEResourceUtil {
 	private final Logger logger = LoggerFactory.getLogger(LDEResourceUtil.class);
@@ -67,7 +67,7 @@ public class LDEResourceUtil {
 				metadata.setMetadataValue("subdirectory", "");
 			}
 			// A hacky impl here as this class need to run on both server and client. GDA PathConstructor provide different methods for client and server which cannot be distinguished here.
-			String defaultFolder = PathConstructor.createFromDefaultProperty();
+			String defaultFolder = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 			String currentVisitFolder=defaultFolder;
 			if (LocalProperties.get(LocalProperties.RCP_APP_VISIT) != null) {
 				currentVisitFolder = defaultFolder.replace(LocalProperties.get(LocalProperties.GDA_DEF_VISIT),LocalProperties.get(LocalProperties.RCP_APP_VISIT));

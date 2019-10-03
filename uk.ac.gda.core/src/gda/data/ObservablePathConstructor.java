@@ -31,7 +31,9 @@ import gda.data.metadata.IMetadataEntry;
 import gda.data.metadata.MetadataEntry;
 import gda.device.DeviceBase;
 import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
+import uk.ac.gda.api.io.PathConstructor;
 
 /**
  * An {@link ObservablePathProvider} that when configured with a template of the form expected by {@link PathConstructor}
@@ -101,7 +103,7 @@ public class ObservablePathConstructor extends DeviceBase implements ObservableP
 
 	@Override
 	public String getPath() {
-		return PathConstructor.createFromTemplate(getTemplate());
+		return InterfaceProvider.getPathConstructor().createFromTemplate(getTemplate());
 	}
 
 	public void setGdaMetadata(GdaMetadata gdaMetadata) {

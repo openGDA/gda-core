@@ -46,7 +46,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
-import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.IMetadataEntry;
 import gda.data.metadata.Metadata;
@@ -60,6 +59,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.NexusDetector;
 import gda.device.scannable.ScannableUtils;
+import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 
 /**
@@ -176,7 +176,7 @@ public class SixdNexusDataWriter extends DataWriterBase {
 		}
 
 		// Check to see if the data directory has been defined.
-		dataDir = PathConstructor.createFromDefaultProperty();
+		dataDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		if (dataDir == null) {
 			// this java property is compulsory - stop the scan
 			throw new InstantiationException("cannot work out data directory - cannot create a new data file.");

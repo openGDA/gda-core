@@ -19,7 +19,7 @@
 package gda.util;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
+import gda.jython.InterfaceProvider;
 
 /**
  * VisitPath Class
@@ -33,6 +33,6 @@ public class VisitPath {
 		 * in java.properties add a definition for the template e.g. gda.data.scan.datawriter.datadir =
 		 * /dls/$instrument$/data/$year$/$visit$
 		 */
-		return PathConstructor.createFromProperty(LocalProperties.GDA_DATAWRITER_DIR);
+		return InterfaceProvider.getPathConstructor().createFromProperty(LocalProperties.GDA_DATAWRITER_DIR);
 	}
 }

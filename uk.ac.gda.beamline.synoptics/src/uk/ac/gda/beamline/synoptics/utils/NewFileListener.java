@@ -43,13 +43,13 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.IMetadataEntry;
 import gda.data.metadata.Metadata;
 import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -174,7 +174,7 @@ public class NewFileListener extends ConfigurableBase implements DataDirectoryMo
 	 * if it has. Adds all files in the current datadirectory except those ignored by the preset filters.
 	 */
 	private void updateDataDirectory() {
-		Path newDataDirectory = Paths.get(PathConstructor.getVisitDirectory());
+		Path newDataDirectory = Paths.get(InterfaceProvider.getPathConstructor().getVisitDirectory());
 		if (!newDataDirectory.equals(dataDirectory)) {
 			dataDirectory = newDataDirectory;
 			dataFiles.clear();

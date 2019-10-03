@@ -18,7 +18,13 @@
 
 package uk.ac.gda.server.ncd.pilatus;
 
-import gda.data.PathConstructor;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.AreaDetectorROI;
 import gda.device.detector.areadetector.IPVProvider;
@@ -31,16 +37,9 @@ import gda.device.detector.areadetector.v17.NDROI;
 import gda.device.detector.areadetector.v17.NDStats;
 import gda.epics.connection.EpicsController;
 import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-
 import uk.ac.gda.server.ncd.epics.NDFileHDF5Impl;
 
 public class PilatusADController implements InitializingBean {
@@ -365,7 +364,7 @@ public class PilatusADController implements InitializingBean {
 		if (hdf5.getCapture() == 1)
 				throw new DeviceException("detector found already saving data when it should not be");
 
-		hdf5.setFilePath(PathConstructor.createFromDefaultProperty());
+		hdf5.setFilePath(InterfaceProvider.getPathConstructor().createFromDefaultProperty());
 		hdf5.startCapture();
 		int totalmillis = 60 * 1000;
 		int grain = 25;

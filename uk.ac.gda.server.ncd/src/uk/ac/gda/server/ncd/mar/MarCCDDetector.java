@@ -24,12 +24,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.data.NumTracker;
-import gda.data.PathConstructor;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.detector.DetectorBase;
 import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
+import uk.ac.gda.api.io.PathConstructor;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
@@ -432,7 +433,7 @@ public class MarCCDDetector extends DetectorBase implements Runnable {
 				Thread.sleep(50);
 			}
 			try {
-				String path = PathConstructor.createFromDefaultProperty();
+				String path = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 				filename = path + "/" + getName() + "-" + tracker.incrementNumber() + "." + SUFFIX;
 				while (timer.getStatus() != Timer.IDLE) {
 					Thread.sleep(50);

@@ -34,7 +34,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.scan.datawriter.DataWriterExtenderBase;
 import gda.data.scan.datawriter.IDataWriterExtender;
@@ -68,7 +67,7 @@ public class ScanListDataWriterExtender extends DataWriterExtenderBase implement
 			return;
 		}
 		if (filename != null && !filename.isEmpty()) {
-			String path = PathConstructor.getVisitDirectory();
+			String path = InterfaceProvider.getPathConstructor().getVisitDirectory();
 			this.file = new File(path, filename);
 			logger.debug("Configured to use file {}", file.getAbsolutePath());
 		} else {

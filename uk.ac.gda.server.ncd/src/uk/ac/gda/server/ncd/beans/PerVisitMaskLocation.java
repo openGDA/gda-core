@@ -31,7 +31,6 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.PathConstructor;
 import gda.factory.FactoryException;
 import gda.factory.FindableConfigurableBase;
 import gda.jython.InterfaceProvider;
@@ -140,7 +139,7 @@ public class PerVisitMaskLocation extends FindableConfigurableBase implements St
 	}
 
 	private static File getMaskDirectory() throws IOException {
-		File path = new File(String.format("%s/%s", PathConstructor.createFromProperty(VISIT_DIRECTORY_PROPERTY), "masks"));
+		File path = new File(String.format("%s/%s", InterfaceProvider.getPathConstructor().createFromProperty(VISIT_DIRECTORY_PROPERTY), "masks"));
 		logger.debug("mask directory: {}", path);
 		if (!path.exists()) {
 			if (!path.mkdirs()) {

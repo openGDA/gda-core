@@ -45,7 +45,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
-import gda.data.PathConstructor;
 import gda.data.scan.datawriter.DataWriter;
 import gda.data.scan.datawriter.DefaultDataWriterFactory;
 import gda.data.scan.datawriter.NexusDataWriter;
@@ -686,7 +685,7 @@ public abstract class ScanBase implements NestableScan {
 		String visit = null;
 
 		try {
-			visit = PathConstructor.getVisitDirectory();
+			visit = InterfaceProvider.getPathConstructor().getVisitDirectory();
 		} catch (IllegalArgumentException e) {
 			logger.warn("Visit directory not accessible from PathConstructor");
 		}

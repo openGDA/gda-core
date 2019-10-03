@@ -27,9 +27,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 
 public class SubdirectoryMetadataEntry extends PersistantMetadataEntry implements IObserver {
@@ -74,7 +74,7 @@ public class SubdirectoryMetadataEntry extends PersistantMetadataEntry implement
 		String oldValue = getMetadataValue();
 		value = sanitze(value);
 		super.setValue(value);
-		String path = PathConstructor.createFromDefaultProperty();
+		String path = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		File file = new File(path);
 		if (file.isDirectory())
 			return;

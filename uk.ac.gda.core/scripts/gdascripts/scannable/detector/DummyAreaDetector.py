@@ -8,7 +8,7 @@ from gda.device import Detector
 from gda.device.detector import DetectorBase
 #from gda.device.detector import PseudoDetector
 
-from gda.data import PathConstructor
+from gda.jython import InterfaceProvider
 
 from gda.analysis.io import JPEGLoader, TIFFImageLoader, PilatusTiffLoader
 from gda.analysis import ScanFileHolder
@@ -139,8 +139,8 @@ class DummyAreaDetectorClass(DetectorBase):
 ## Area Detector Implementation
 	def setFile(self, subDir, newFilePrefix):
 		"""Set file path and name"""
-#		imagePath = PathConstructor.createFromProperty("gda.data.scan.datawriter.datadir");
-		imagePath=PathConstructor.createFromDefaultProperty() + File.separator;
+#		imagePath = InterfaceProvider.getPathConstructor().createFromProperty("gda.data.scan.datawriter.datadir");
+		imagePath=InterfaceProvider.getPathConstructor().createFromDefaultProperty() + File.separator;
 		
 		fullPath = os.path.join(imagePath, subDir);
 		print "Note: Current Pilatus image path: " + fullPath;

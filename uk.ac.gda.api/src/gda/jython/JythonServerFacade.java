@@ -63,6 +63,7 @@ import gda.observable.ObservableComponent;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanEvent;
 import gda.util.LibGdaCommon;
+import uk.ac.gda.api.io.PathConstructor;
 
 /**
  * Provides a single point of access for the Jython package for all Java classes. This will work whether the Java is
@@ -116,6 +117,8 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	private volatile boolean runningAsAlternateUser = false;
 
 	private IScanDataPoint lastScanDataPoint;
+
+	private PathConstructor pathConstructor;
 
 	/**
 	 * Creates a Jython server facade, using the {@link Finder} to obtain the Jython command server.

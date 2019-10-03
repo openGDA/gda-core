@@ -55,8 +55,8 @@ import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
-import gda.data.PathConstructor;
 import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 import gda.rcp.ncd.ExptDataModel;
 import uk.ac.gda.client.NumberAndUnitsComposite;
@@ -319,7 +319,7 @@ public class SimpleTimerView extends ViewPart {
 
 	private void saveConfiguration () {
 		FileDialog fileDialog = new FileDialog(this.getViewSite().getShell(), SWT.SAVE);
-		fileDialog.setFilterPath(PathConstructor.getClientVisitSubdirectory("xml"));
+		fileDialog.setFilterPath(InterfaceProvider.getPathConstructor().getClientVisitSubdirectory("xml"));
 		fileDialog.setFilterExtensions(new String[] {timerController.getConfigurationFileExtension()});
 
 		String selectedFileName = fileDialog.open();
@@ -339,7 +339,7 @@ public class SimpleTimerView extends ViewPart {
 
 	private void loadConfiguration () {
 		FileDialog fileDialog = new FileDialog(this.getViewSite().getShell(), SWT.OPEN);
-		fileDialog.setFilterPath(PathConstructor.getClientVisitSubdirectory("xml"));
+		fileDialog.setFilterPath(InterfaceProvider.getPathConstructor().getClientVisitSubdirectory("xml"));
 		fileDialog.setFilterExtensions(new String[] {timerController.getConfigurationFileExtension()});
 
 		String selectedFilename = fileDialog.open();

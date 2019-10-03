@@ -18,8 +18,6 @@
 
 package uk.ac.gda.client.experimentdefinition.wizards;
 
-import gda.data.PathConstructor;
-
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -32,6 +30,8 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
+
+import gda.jython.InterfaceProvider;
 
 public class TargetFolderPage extends WizardPage {
 
@@ -63,7 +63,7 @@ public class TargetFolderPage extends WizardPage {
 				// open file dialog at the beamline's data folder
 				DirectoryDialog  dialog = new DirectoryDialog (PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
 						SWT.OPEN);
-				dialog.setFilterPath(PathConstructor.createFromRCPProperties() + "/xml");
+				dialog.setFilterPath(InterfaceProvider.getPathConstructor().createFromRCPProperties() + "/xml");
 
 				targetDir = dialog.open();
 

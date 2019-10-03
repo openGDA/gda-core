@@ -29,9 +29,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
 import gda.factory.FactoryException;
 import gda.factory.FindableConfigurableBase;
+import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
@@ -109,7 +109,7 @@ public class UserOptionsManager extends FindableConfigurableBase implements User
 
 	@Override
 	public UserOptionsMap getOptionsCurrent() throws ConfigurationException, IOException {
-		String optionsDirectory = PathConstructor.getClientVisitDirectory();
+		String optionsDirectory = InterfaceProvider.getPathConstructor().getClientVisitDirectory();
 		String optionsFilename = LocalProperties.get(PROP_OPTIONS_FILENAME);
 		return getOptionsMapFromConfig(optionsDirectory, optionsFilename);
 	}
@@ -165,7 +165,7 @@ public class UserOptionsManager extends FindableConfigurableBase implements User
 
 	@Override
 	public UserOptionsMap saveOptionsCurrent(UserOptionsMap options) throws ConfigurationException, IOException {
-		String optionsDirectory = PathConstructor.getClientVisitDirectory();
+		String optionsDirectory = InterfaceProvider.getPathConstructor().getClientVisitDirectory();
 		String optionsFilename = LocalProperties.get(PROP_OPTIONS_FILENAME);
 		// Save current options values for visit-neutral retrieval by GDA server
 		saveOptionsMapValuesToConfig(LocalProperties.getVarDir(), optionsFilename, options);

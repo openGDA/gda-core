@@ -32,7 +32,6 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
 import gda.device.Device;
@@ -131,7 +130,7 @@ public class MetadataUpdater implements IObserver, IScanDataPointObserver, IJyth
 				@Override
 				public void run() {
 					widget.setText(arg.toString());
-					client.currentDirectory.setText(PathConstructor.createFromDefaultProperty());
+					client.currentDirectory.setText(InterfaceProvider.getPathConstructor().createFromDefaultProperty());
 				}
 			});
 		}
@@ -163,7 +162,7 @@ public class MetadataUpdater implements IObserver, IScanDataPointObserver, IJyth
 		jsf.addScanEventObserver(this);
 		jsf.addCommandThreadObserver(this);
 
-		client.currentDirectory.setText(PathConstructor.createFromDefaultProperty());
+		client.currentDirectory.setText(InterfaceProvider.getPathConstructor().createFromDefaultProperty());
 	}
 
 	@Override

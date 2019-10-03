@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
-import gda.data.PathConstructor;
+import gda.jython.InterfaceProvider;
 
 /**
  * This class is for writing ascii files of tabulated data, with a header and footer.
@@ -74,7 +74,7 @@ public abstract class IncrementalFile extends DataWriterBase {
 	 */
 	public IncrementalFile() {
 		// check for files using the format 1234.dat in the data directory
-		dataDir = PathConstructor.createFromDefaultProperty();
+		dataDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 
 		if (this.dataDir == null) {
 			// this is compulsory - stop the scan

@@ -27,9 +27,9 @@ import org.slf4j.LoggerFactory;
 import gda.beamline.BeamlineInfo;
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
-import gda.data.PathConstructor;
 import gda.factory.FactoryException;
 import gda.factory.FindableConfigurableBase;
+import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 
@@ -87,13 +87,13 @@ public class Beamline extends FindableConfigurableBase implements BeamlineInfo {
 
 	@Override
 	public String getDataDir() {
-		return PathConstructor.createFromDefaultProperty();
+		return InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 	}
 
 	@Override
 	public void setDataDir(String dataDir) {
 		// change the GDA system properties for data directory
-		LocalProperties.set(PathConstructor.getDefaultPropertyName(), dataDir);
+		LocalProperties.set(InterfaceProvider.getPathConstructor().getDefaultPropertyName(), dataDir);
 	}
 
 	@Override

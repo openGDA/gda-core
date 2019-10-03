@@ -17,7 +17,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.data;
+package uk.ac.gda.api.io;
 
 import static gda.configuration.properties.LocalProperties.GDA_DATAWRITER_DIR;
 import static gda.configuration.properties.LocalProperties.GDA_VISIT_DIR;
@@ -38,8 +38,6 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.device.DeviceException;
-import gda.util.HostId;
-import uk.ac.gda.util.io.IPathConstructor;
 
 /**
  * A class for constructing path names based on a template. The template can be either passed in directly or stored in a
@@ -69,7 +67,7 @@ import uk.ac.gda.util.io.IPathConstructor;
  * If the special cases of instrument and facility do not exist as metadata items then by default the values of the Java
  * properties gda.instrument and gda.facility are used.
  */
-public class PathConstructor implements IPathConstructor {
+public class PathConstructor implements IPathConstructor{
 	private static final Logger logger = LoggerFactory.getLogger(PathConstructor.class);
 
 	private enum PathToken {
@@ -110,7 +108,8 @@ public class PathConstructor implements IPathConstructor {
 	/**
 	 * @return the default java property name that contains the data directory template.
 	 */
-	public static String getDefaultPropertyName() {
+	@Override
+	public String getDefaultPropertyName() {
 		return GDA_DATAWRITER_DIR;
 	}
 
@@ -119,7 +118,8 @@ public class PathConstructor implements IPathConstructor {
 	 *
 	 * @return The constructed path.
 	 */
-	public static String createFromDefaultProperty() {
+	@Override
+	public String createFromDefaultProperty() {
 		return createFromProperty(GDA_DATAWRITER_DIR);
 	}
 
@@ -135,7 +135,8 @@ public class PathConstructor implements IPathConstructor {
 	 *     or {@link PathConstructor#getVisitSubdirectory(String)}
 	 */
 	@Deprecated
-	public static String createFromRCPProperties() {
+	@Override
+	public String createFromRCPProperties() {
 		logger.warn("Using deprecated createFromRCPProperties. Use getClientVisitDirectory");
 		HashMap<String, String> metadataOverrides = new HashMap<>();
 		if (LocalProperties.get(LocalProperties.RCP_APP_VISIT) != null) {
@@ -156,7 +157,8 @@ public class PathConstructor implements IPathConstructor {
 	 *            The name of a Java property from which to obtain the path template.
 	 * @return The constructed path.
 	 */
-	public static String createFromProperty(String property) {
+	@Override
+	public String createFromProperty(String property) {
 		return createFromProperty(property, null);
 	}
 
@@ -169,7 +171,8 @@ public class PathConstructor implements IPathConstructor {
 	 * @see PathConstructor#createFromTemplate(String, Map)
 	 * @return The constructed path.
 	 */
-	public static String createFromProperty(String property, Map<String, String> overrides) {
+	@Override
+	public String createFromProperty(String property, Map<String, String> overrides) {
 		String template = LocalProperties.get(property);
 		if (template == null) {
 			throw new IllegalArgumentException("Could not find property '" + property + "'");
@@ -184,7 +187,8 @@ public class PathConstructor implements IPathConstructor {
 	 *            The path template.
 	 * @return The constructed path.
 	 */
-	public static String createFromTemplate(String template) {
+	@Override
+	public String createFromTemplate(String template) {
 		return createFromTemplate(template, null);
 	}
 
@@ -204,7 +208,7 @@ public class PathConstructor implements IPathConstructor {
 	 *            baton has been taken.; or be working 'offline' or unit testing.
 	 * @return The canonical form of the constructed path.
 	 */
-	public static String createFromTemplate(String template, Map<String, String> overrides) {
+	public String createFromTemplate(String template, Map<String, String> overrides) {
 		StringTokenizer st = new StringTokenizer(template, "$");
 		StringBuilder path = new StringBuilder();
 
@@ -230,7 +234,8 @@ public class PathConstructor implements IPathConstructor {
 	 *
 	 * @return path to visit directory
 	 */
-	public static String getVisitDirectory() {
+	@Override
+	public String getVisitDirectory() {
 		return createFromProperty(GDA_VISIT_DIR);
 	}
 
@@ -240,7 +245,8 @@ public class PathConstructor implements IPathConstructor {
 	 * @param subdirectory
 	 * @return Path of visit subdirectory without trailing /
 	 */
-	public static String getVisitSubdirectory(String subdirectory) {
+	@Override
+	public String getVisitSubdirectory(String subdirectory) {
 		return Paths.get(getVisitDirectory(), subdirectory).toString();
 	}
 
@@ -257,7 +263,8 @@ public class PathConstructor implements IPathConstructor {
 	 *
 	 * @return The constructed path.
 	 */
-	public static String getClientVisitDirectory() {
+	@Override
+	public String getClientVisitDirectory() {
 		Map<String, String> metadataOverrides = new HashMap<>();
 		if (LocalProperties.get(LocalProperties.RCP_APP_VISIT) != null) {
 			metadataOverrides.put("visit", LocalProperties.get(LocalProperties.RCP_APP_VISIT));
@@ -276,11 +283,12 @@ public class PathConstructor implements IPathConstructor {
 	 * @param subdirectory
 	 * @return Path of visit subdirectory without trailing /
 	 */
-	public static String getClientVisitSubdirectory(String subdirectory) {
+	@Override
+	public String getClientVisitSubdirectory(String subdirectory) {
 		return Paths.get(getClientVisitDirectory(), subdirectory).toString();
 	}
 
-	private static String interpret(String s, Map<String, String> overrides) {
+	private String interpret(String s, Map<String, String> overrides) {
 		String value = "";
 
 		// Use the overrides in preference to metadata values. This is useful as the metadata is correct for the
@@ -310,7 +318,7 @@ public class PathConstructor implements IPathConstructor {
 		return value;
 	}
 
-	private static Optional<PathToken> findToken(String tokenToFind) {
+	private Optional<PathToken> findToken(String tokenToFind) {
 		try {
 			return Optional.of(PathToken.valueOf(tokenToFind.toUpperCase()));
 		} catch (IllegalArgumentException e) {
@@ -321,11 +329,11 @@ public class PathConstructor implements IPathConstructor {
 
 	@Override
 	public String getDefaultDataDir() {
-		return PathConstructor.createFromRCPProperties();
+		return new PathConstructor().createFromRCPProperties();
 	}
 
 	@Override
 	public String getFromTemplate(String template) {
-		return PathConstructor.createFromTemplate(template);
+		return new PathConstructor().createFromTemplate(template);
 	}
 }

@@ -38,7 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.jython.scriptcontroller.Scriptcontroller;
@@ -128,7 +127,7 @@ public class PropertyValueSelectionComposite extends Composite implements Proper
 			eventAdmin.addIObserver(this);
 		}
 		if (property.getPropertyName().equals(LocalProperties.GDA_DATAWRITER_DIR)) {
-			String currentPath = PathConstructor.createFromProperty(LocalProperties.GDA_DATAWRITER_DIR);
+			String currentPath = InterfaceProvider.getPathConstructor().createFromProperty(LocalProperties.GDA_DATAWRITER_DIR);
 			viewer.setSelection(new StructuredSelection(currentPath));
 		} else {
 			viewer.setSelection(new StructuredSelection(LocalProperties.get(property.getPropertyName())));

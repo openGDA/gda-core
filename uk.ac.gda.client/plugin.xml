@@ -972,7 +972,7 @@
    <extension
          point="uk.ac.gda.common.path.constructor">
       <path
-            class="gda.data.PathConstructor">
+            class="uk.ac.gda.api.io.PathConstructor">
       </path>
    </extension>
    <extension

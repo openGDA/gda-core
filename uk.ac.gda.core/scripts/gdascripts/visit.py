@@ -1,4 +1,4 @@
-from gda.data import PathConstructor
+from gda.jython import InterfaceProvider
 from gda.factory import Finder
 from gdascripts.scannable.detector.dummy.ImageReadingDummyDetector import ImageReadingDummyDetector
 import os
@@ -14,7 +14,7 @@ class VisitSetter():
     def datadir(self, *args):
         if len(args) > 0:
             raise ValueError("The data directory now depends on the visit. Use the 'visit' command to change this.")
-        return PathConstructor.createFromDefaultProperty()
+        return InterfaceProvider.getPathConstructor().createFromDefaultProperty()
 
     def visit(self, new_visit = None):
         if new_visit:
@@ -27,7 +27,7 @@ class VisitSetter():
         return Finder.getInstance().find("GDAMetadata").getMetadataValue("visit")
 
     def getVisitDirectory(self):
-        return PathConstructor.createFromDefaultProperty()
+        return InterfaceProvider.getPathConstructor().createFromDefaultProperty()
     
     def setDetectorDirectories(self):
         for det in self.detector_adapters:

@@ -18,19 +18,18 @@
 
 package uk.ac.gda.beamline.synoptics.utils;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
-import gda.jython.JythonServerFacade;
-
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.InputStream;
 
+import gda.configuration.properties.LocalProperties;
+import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
 import uk.ac.gda.beamline.synoptics.composites.PropertyValueSelectionCompositeFactory;
 /**
  * provide the property change support for a specified property. Change to a property via this object
- * ensure it occurs on on both the Client and Server. 
- * 
+ * ensure it occurs on on both the Client and Server.
+ *
  * You can find an example of usage at {@link PropertyValueSelectionCompositeFactory}
  */
 public class ListenableProperty {
@@ -50,16 +49,16 @@ public class ListenableProperty {
     }
 
     /**
-     * returns current value set for the property. 
+     * returns current value set for the property.
      * If property value contains $template$ (like substitution variable) they are interpreted first.
      * For example {@link LocalProperties#GDA_DATAWRITER_DIR}
      * @return
      */
     public String get() {
-    	
+
         String propertyValue = LocalProperties.get(getPropertyName());
         if (getPropertyName().equals(LocalProperties.GDA_DATAWRITER_DIR)) {
-        	propertyValue=PathConstructor.createFromTemplate(propertyValue);
+        	propertyValue=InterfaceProvider.getPathConstructor().createFromTemplate(propertyValue);
         }
 		return propertyValue;
     }
@@ -67,13 +66,13 @@ public class ListenableProperty {
      * set the new value to this property in both server and client application.
      * If the value contains $template$ (like variable substitution) they are interpreted first.
      * Change is only propagated if and only if the value actually changed.
-     * 
+     *
      * @param newValue
      */
     public void set(String newValue) {
         String oldValue = LocalProperties.get(getPropertyName());
         if (getPropertyName().equals(LocalProperties.GDA_DATAWRITER_DIR)) {
-        	oldValue=PathConstructor.createFromTemplate(oldValue);
+        	oldValue=InterfaceProvider.getPathConstructor().createFromTemplate(oldValue);
         }
         if (!newValue.equals(oldValue)) {
         	//client side property change

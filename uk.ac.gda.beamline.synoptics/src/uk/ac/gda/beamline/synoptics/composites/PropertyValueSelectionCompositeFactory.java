@@ -18,11 +18,6 @@
 
 package uk.ac.gda.beamline.synoptics.composites;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
-import gda.jython.scriptcontroller.Scriptcontroller;
-import gda.rcp.views.CompositeFactory;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,18 +28,22 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.springframework.beans.factory.InitializingBean;
 
+import gda.configuration.properties.LocalProperties;
+import gda.jython.InterfaceProvider;
+import gda.jython.scriptcontroller.Scriptcontroller;
+import gda.rcp.views.CompositeFactory;
 import swing2swt.layout.BorderLayout;
 import uk.ac.gda.beamline.synoptics.utils.ListenableProperty;
 import uk.ac.gda.ui.utils.SWTUtils;
 /**
  * A Spring bean configurable factory that creates a drop down list of values for a specified property
- * with a label text to the left. The list of values can be defined explicitly in the bean if 
- * {@link #listIsSetExplicitlyInProperty} is set to false or use the listed value in the properties file 
+ * with a label text to the left. The list of values can be defined explicitly in the bean if
+ * {@link #listIsSetExplicitlyInProperty} is set to false or use the listed value in the properties file
  * which defines this specified property (the default).
- * 
+ *
  * Property {@link LocalProperties#GDA_DATAWRITER_DIR} is processed differently because it contains $template$
  * for substitution at runtime.
- * 
+ *
  * Example bean definition:
  * <pre>
  * {@code
@@ -58,10 +57,10 @@ import uk.ac.gda.ui.utils.SWTUtils;
 </bean>
  * }
  * </pre>
- * {@link #eventAdminName} is the name of an event administrator 'eventadmin' which is a findable instance 
- * of the {@link Scriptcontroller} used to pass event from server to client. If this is not specified, the 
+ * {@link #eventAdminName} is the name of an event administrator 'eventadmin' which is a findable instance
+ * of the {@link Scriptcontroller} used to pass event from server to client. If this is not specified, the
  * property value displayed in this drop down list will not be the same as that is set on the GDA server.
- * 
+ *
  * @author fy65
  *
  */
@@ -146,10 +145,10 @@ public class PropertyValueSelectionCompositeFactory implements CompositeFactory,
 		if (propertyValue.contains("$visit$/$subdirectory$")) {
 			propertyValue=propertyValue.replace("$visit$/$subdirectory$", "");
 		}
-		String visitParentPath=PathConstructor.createFromTemplate(propertyValue);
+		String visitParentPath=InterfaceProvider.getPathConstructor().createFromTemplate(propertyValue);
 		File dir=new File(visitParentPath);
 		String[] list = dir.list();
-		List<String> dirList=new ArrayList<String>();
+		List<String> dirList=new ArrayList<>();
 		if (list != null) {
 			for (String s : list) {
 				File file=new File(visitParentPath+File.separator+s);

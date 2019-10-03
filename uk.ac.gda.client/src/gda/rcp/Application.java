@@ -38,7 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
 import gda.data.metadata.VisitEntry;
 import gda.data.metadata.icat.IcatProvider;
 import gda.factory.FactoryException;
@@ -457,7 +456,7 @@ public class Application implements IApplication {
 
 		String path = null;
 		try {
-			path = PathConstructor.createFromProperty("gda.rcp.workspace",metadataOverrides);
+			path = InterfaceProvider.getPathConstructor().createFromProperty("gda.rcp.workspace",metadataOverrides);
 		} catch (Exception ne) {
 			path = null;
 		}
@@ -467,7 +466,7 @@ public class Application implements IApplication {
 			final String username = UserAuthentication.getUsername();
 			final String visit = LocalProperties.get(LocalProperties.RCP_APP_VISIT);
 			final String template = String.format("%s/.workspace-%s-%s", varDir, username, visit);
-			path = PathConstructor.createFromTemplate(template);
+			path = InterfaceProvider.getPathConstructor().createFromTemplate(template);
 		}
 		return path;
 	}
@@ -483,13 +482,13 @@ public class Application implements IApplication {
 	public static String getXmlPath() {
 		String path = null;
 		try {
-			path = PathConstructor.createFromProperty("gda.rcp.xmlproject");
+			path = InterfaceProvider.getPathConstructor().createFromProperty("gda.rcp.xmlproject");
 		} catch (Exception ne) {
 			path = null;
 		}
 
 		if (path == null) {
-			path = PathConstructor.getClientVisitSubdirectory("xml") + File.separator;
+			path = InterfaceProvider.getPathConstructor().getClientVisitSubdirectory("xml") + File.separator;
 		}
 		return path;
 	}

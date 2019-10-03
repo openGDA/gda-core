@@ -21,11 +21,11 @@ package gda.device.detector.mar345;
 
 import java.io.File;
 
-import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.Mar345;
 import gda.device.detector.DetectorBase;
 import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 
 /**
@@ -64,7 +64,7 @@ public class Mar345Detector extends DetectorBase implements Mar345 {
 			return;
 		}
 		m345 = new Mar345Controller();//taken from constructor because of problems detecting when the mar345 is idle.
-		defaultMarDirectory = PathConstructor.createFromDefaultProperty();
+		defaultMarDirectory = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		setConfigured(true);
 	}
 	/**
