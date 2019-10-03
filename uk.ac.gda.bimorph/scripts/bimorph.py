@@ -3,7 +3,7 @@ import Jama.SingularValueDecomposition
 from gdascripts.pd.dummy_pds import DummyPD
 import gda.jython.commands.InputCommands as inputCommand
 from gdascripts.analysis.io.ScanFileLoader import ScanFileLoader
-from gda.data import PathConstructor
+from gda.jython import InterfaceProvider
 from gda.data import NumTracker
 from gda.data.metadata import GDAMetadataProvider
 
@@ -165,7 +165,7 @@ class RunOptimisation:
         try:
             errorData = ScanFileLoader(fileNo, self.scanDir).getSFH()
         except Exception, e:
-            errorData = ScanFileLoader(fileNo, PathConstructor().getDefaultDataDir()).getSFH()
+            errorData = ScanFileLoader(fileNo, InterfaceProvider.getPathConstructor()().getDefaultDataDir()).getSFH()
         return errorData
 
     def getColumnNames(self, headings):
