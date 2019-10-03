@@ -16,6 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.results.navigator;
 
+import gda.jython.InterfaceProvider;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
@@ -85,7 +86,7 @@ public class DataNavigator extends ViewPart {
 	/**
 	 * Do not break encapsulation, leave private.
 	 */
-	private static String DEFAULT_FILE_PATH = PathUtils.createFromDefaultProperty();
+	private static String DEFAULT_FILE_PATH = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 
 	/**
 	 * 
@@ -379,7 +380,7 @@ public class DataNavigator extends ViewPart {
 					if (members[i] instanceof IContainer) dataPath = members[i].getLocation().toOSString();
 				}
 			} else {
-				dataPath = PathUtils.createFromDefaultProperty();
+				dataPath = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 			}
 		}
 		

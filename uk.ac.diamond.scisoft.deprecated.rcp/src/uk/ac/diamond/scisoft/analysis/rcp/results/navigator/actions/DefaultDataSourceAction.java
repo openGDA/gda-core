@@ -21,6 +21,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.PlatformUI;
 
+import gda.jython.InterfaceProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.results.navigator.DataNavigator;
 import uk.ac.gda.common.rcp.util.PathUtils;
 
@@ -36,7 +37,7 @@ public class DefaultDataSourceAction extends AbstractHandler {
 
 		final DataNavigator view = (DataNavigator)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(DataNavigator.ID);
 		if (view == null) return Boolean.FALSE;
-		view.setSelectedPath(PathUtils.createFromDefaultProperty());
+		view.setSelectedPath(InterfaceProvider.getPathConstructor().createFromDefaultProperty());
 		return Boolean.TRUE;
 	}
 
