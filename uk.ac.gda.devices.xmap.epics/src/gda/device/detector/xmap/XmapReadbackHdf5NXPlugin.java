@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
@@ -17,6 +16,7 @@ import gda.device.detector.nxdetector.plugin.NullNXPlugin;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.device.detector.xmap.edxd.NDHDF5PVProvider;
 import gda.device.detector.xmap.util.XmapNexusFileLoader;
+import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
@@ -60,7 +60,7 @@ public class XmapReadbackHdf5NXPlugin extends NullNXPlugin {
 		// captureStarted = false;
 
 		// make a subfolder
-		String dataDir = PathConstructor.createFromDefaultProperty();
+		String dataDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		dataDir += scanInfo.getScanNumber();
 		hdf5Folder = new File(dataDir);
 		hdf5Folder.mkdirs();

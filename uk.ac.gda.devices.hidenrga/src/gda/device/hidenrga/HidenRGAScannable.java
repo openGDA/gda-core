@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
-import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableBase;
 import gda.epics.EpicsConstants;
@@ -185,7 +184,7 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 	}
 
 	private String nextRGAFilename() throws IOException {
-		String dataDir = PathConstructor.createFromDefaultProperty();
+		String dataDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 
 		String numTrackerDir = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
 		NumTracker runs = new NumTracker("hiden_rga", numTrackerDir);

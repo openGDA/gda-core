@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.data.NumTracker;
-import gda.data.PathConstructor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
@@ -189,7 +188,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 			if (StringUtils.isNotEmpty(filePath)) {
 				return filePath;
 			} else {
-				String hdfDir = PathConstructor.createFromDefaultProperty();
+				String hdfDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 				if (StringUtils.isNotEmpty(defaultSubDirectory)) {
 					hdfDir = Paths.get(hdfDir, defaultSubDirectory).toString();
 				}

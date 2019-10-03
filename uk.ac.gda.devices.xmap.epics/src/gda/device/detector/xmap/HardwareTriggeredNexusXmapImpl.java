@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.data.NumTracker;
-import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
@@ -34,6 +33,7 @@ import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetectorBase;
 import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.device.scannable.PositionStreamIndexer;
+import gda.jython.InterfaceProvider;
 
 public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorBase implements
 		HardwareTriggeredNexusXmap {
@@ -335,7 +335,7 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 		controller.setFilenamePostfix(lastRowNumber + "-" + getName());
 
 		// set the sub-directory and create if necessary
-		String dataDir = PathConstructor.createFromDefaultProperty();
+		String dataDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		dataDir = dataDir + "tmp" + File.separator + lastScanNumber;
 		if (!(new File(dataDir)).exists()) {
 			boolean directoryExists = (new File(dataDir)).mkdirs();

@@ -58,7 +58,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
-import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.detector.FluorescenceDetectorMcaProvider;
 import gda.factory.Findable;
@@ -826,7 +825,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			openDialog = new FileDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), SWT.OPEN);
 		}
 
-		String dataDir = PathConstructor.createFromDefaultProperty();
+		String dataDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		openDialog.setFilterPath(dataDir);
 		openDialog.setFilterNames(new String[] { "*.mca" });
 		final String filePath = openDialog.open();
@@ -850,7 +849,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			long snapShotNumber = new NumTracker(snapshotPrefix).incrementNumber();
 			String fileName = snapshotPrefix + snapShotNumber + ".mca";
 
-			String spoolDirPath = PathConstructor.createFromProperty(SPOOL_DIR_PROPERTY);
+			String spoolDirPath = InterfaceProvider.getPathConstructor().createFromProperty(SPOOL_DIR_PROPERTY);
 			File filePath = new File(spoolDirPath + "/" + fileName);
 			String outputFilename = filePath.getAbsolutePath();
 

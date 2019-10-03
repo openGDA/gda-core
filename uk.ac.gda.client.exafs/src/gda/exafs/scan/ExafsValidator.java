@@ -30,10 +30,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
 import gda.device.Scannable;
 import gda.factory.Findable;
 import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
 import gda.util.exafs.Element;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.FluorescenceParameters;
@@ -254,7 +254,7 @@ public abstract class ExafsValidator extends AbstractValidator {
 
 		} else { // Fixed XES and XAS or XANES
 			if (bean != null) {
-				String xmlFolderName = PathConstructor.createFromDefaultProperty() + "/xml/"
+				String xmlFolderName = InterfaceProvider.getPathConstructor().createFromDefaultProperty() + "/xml/"
 						+ bean.getFolder().getName() + "/";
 				checkFileExists("Scan file name", x.getScanFileName(), xmlFolderName, errors);
 

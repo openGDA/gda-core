@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
-import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.ContinuousParameters;
@@ -398,7 +397,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		controller.setFilenamePostfix(lastRowNumber + "-" + getName());
 
 		// set the sub-directory and create if necessary
-		String dataDir = PathConstructor.createFromDefaultProperty();
+		String dataDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		dataDir = Paths.get(dataDir, defaultSubDirectory).toString();
 
 		File scanSubDir = new File(dataDir);

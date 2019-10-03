@@ -23,12 +23,12 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
-import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.device.detector.xmap.edxd.NDHDF5PVProvider;
+import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 import uk.ac.gda.beans.DetectorROI;
 
@@ -69,7 +69,7 @@ public class HardwareTriggeredWithOnlineDataReductionXmap extends XmapSimpleAcqu
 		ndHDF5PVProvider.setNumExtraDims(0);
 
 		// make a subfolder
-		String dataDir = PathConstructor.createFromDefaultProperty();
+		String dataDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		dataDir += scanInfo.getScanNumber();
 		File tempFolder = new File(dataDir);
 		tempFolder.mkdirs();
@@ -112,7 +112,7 @@ public class HardwareTriggeredWithOnlineDataReductionXmap extends XmapSimpleAcqu
 	@Override
 	public List<String> getInputStreamNames() {
 		// work this our from ROIs
-		List<String> extraNames = new Vector<String>();
+		List<String> extraNames = new Vector<>();
 		for (DetectorROI roi : rois) {
 			extraNames.add(roi.getRoiName());
 		}
@@ -129,7 +129,7 @@ public class HardwareTriggeredWithOnlineDataReductionXmap extends XmapSimpleAcqu
 	@Override
 	public List<String> getInputStreamFormats() {
 		List<String> extraNames = getInputStreamNames();
-		List<String> formats = new Vector<String>();
+		List<String> formats = new Vector<>();
 		for(int i = 0; i < extraNames.size(); i++){
 			formats.add("%.3f");
 		}
