@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.client.closeactions.ClientCloseOption;
 import uk.ac.gda.client.closeactions.UserOptionsMenuOnClose;
 
@@ -33,8 +34,9 @@ public class UserOptionsOnCloseDialog extends TitleAreaDialog {
 
 	public static final int RESTART = -1;
 	private static final String TITLE = "Close Actions";
-	private static final String BLURB = "Please tell us why you're closing the client, so we can take appropriate action.";
-	private static final int NICE_WIDTH = 480;
+	private static final String BLURB =
+			"Please tell us why you're closing the client, so we can take appropriate action.";
+	private static final int NICE_WIDTH = 600;
 
 	private ClientCloseOption selectedOption;
 	private String reason;
@@ -85,10 +87,7 @@ public class UserOptionsOnCloseDialog extends TitleAreaDialog {
 					closeAction.doCloseAction(selectedOption, reason, name);
 					System.setProperty("requestedRestart", "true");
 					setReturnCode(RESTART);
-				} else if (selectedOption == ClientCloseOption.RESTART_CLIENT_AND_SERVER){
-					closeAction.doCloseAction(selectedOption, reason, name);
-					setReturnCode(OK);
-				} else{
+				} else {
 					closeAction.doCloseAction(selectedOption, "", "");
 					setReturnCode(OK);
 				}
