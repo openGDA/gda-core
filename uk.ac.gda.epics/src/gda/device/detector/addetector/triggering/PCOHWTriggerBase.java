@@ -43,6 +43,7 @@ public class PCOHWTriggerBase extends SimpleAcquire {
 	private final ADDriverPco adDriverPco;
 	private double collectionTime = 0.;
 	private PcoTriggerMode triggerMode = PcoTriggerMode.EXTERNAL_AND_SOFTWARE;
+	private ImageMode imageMode = ImageMode.SINGLE;
 
 	public PCOHWTriggerBase(ADBase adBase, ADDriverPco adDriverPco) {
 		super(adBase, 0.);
@@ -74,8 +75,8 @@ public class PCOHWTriggerBase extends SimpleAcquire {
 		getAdBase().setAcquireTime(collectionTime);
 		getAdBase().setAcquirePeriod(0.); //required for new IOC otherwise it remains at current value
 		// we want 1 image per trigger - there will be multiple triggers per collection
-		getAdBase().setNumImages(1);
-		getAdBase().setImageModeWait(ImageMode.SINGLE);
+		getAdBase().setNumImages((ImageMode.SINGLE == imageMode) ? 1 : numImagesIgnored);
+		getAdBase().setImageModeWait(imageMode);
 		adDriverPco.getAdcModePV().putNoWait(1); //2 adcs
 		adDriverPco.getTimeStampModePV().putNoWait(timeStamp);
 		// getAdBase().setAcquirePeriod(0.0); //this is needed for PCO to make sure delay=0 - do not use as it affects delay
@@ -212,5 +213,13 @@ public class PCOHWTriggerBase extends SimpleAcquire {
 
 	public void setTriggerMode(PcoTriggerMode triggerMode) {
 		this.triggerMode = triggerMode;
+	}
+
+	public ImageMode getImageMode() {
+		return imageMode;
+	}
+
+	public void setImageMode(ImageMode imageMode) {
+		this.imageMode = imageMode;
 	}
 }

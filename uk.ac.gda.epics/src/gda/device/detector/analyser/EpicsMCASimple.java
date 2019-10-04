@@ -909,7 +909,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 		ensureQuantityConverterExists();
 		try {
 			final Amount<? extends Quantity> channel = channelToEnergyConverter.toTarget(Amount.valueOf(energy, ELECTRON_VOLT));
-			return (int) Math.max(Math.min(channel.getExactValue(), getNumberOfChannels() - 1), 0);
+			return (int) Math.max(Math.min(channel.getEstimatedValue(), getNumberOfChannels() - 1), 0);
 		} catch (Exception e) {
 			throw new DeviceException(String.format("Error getting channel for energy %s", energy), e);
 		}
