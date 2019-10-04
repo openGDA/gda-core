@@ -19,9 +19,12 @@
 
 package gda.jython.scriptcontroller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import gda.factory.FactoryException;
 import gda.factory.FindableConfigurableBase;
-import gda.jython.ICommandRunner;
+import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -35,38 +38,42 @@ import uk.ac.gda.api.remoting.ServiceInterface;
 public class ScriptControllerBase extends FindableConfigurableBase implements Scriptcontroller {
 
 	private String commandName;
-
-	private String parametersName;
-
-	private String importCommand;
+	private String commandFormat = "";
+	private String importCommand = null;
+	private String parametersName = "";
+	private List<Object> parameters = new ArrayList<>(4);
 
 	private final ObservableComponent observable = new ObservableComponent();
 
 	@Override
 	public void configure() throws FactoryException {
-		if (isConfigured()) {
-			return;
+		if (!isConfigured()) {
+			reconfigure();
 		}
-		doImport();
-		setConfigured(true);
 	}
 
 	@Override
 	public void reconfigure() throws FactoryException {
 		doImport();
+		parameters.clear();
+		setConfigured(true);
 	}
 
 	private void doImport() {
 		// load the script into the namespace
-		if (importCommand != null && !importCommand.equals("")) {
-			final ICommandRunner server = InterfaceProvider.getCommandRunner();
-			server.runCommand(importCommand);
-		}
+		this.runCommand(importCommand);
 	}
 
 	@Override
 	public String getCommand() {
-		return commandName;
+		String cmd = commandName;
+		if (null != commandFormat && !commandFormat.isEmpty()) {
+			if (!parametersName.isEmpty()) {
+				parameters = readParameters(parametersName);
+			}
+			cmd = String.format(commandFormat, parameters.toArray(new Object[parameters.size()]));
+		}
+		return cmd;
 	}
 
 	@Override
@@ -118,5 +125,55 @@ public class ScriptControllerBase extends FindableConfigurableBase implements Sc
 	@Override
 	public void notifyIObservers(Object source, Object event) {
 		observable.notifyIObservers(source, event);
+	}
+
+	public String getCommandFormat() {
+		return commandFormat;
+	}
+
+	public void setCommandFormat(String format) {
+		this.commandFormat = format;
+	}
+
+	@Override
+	public void addParameter(Object param) {
+		parameters.add(param);
+	}
+
+	/**
+	 * Derive a parameter list from a given key
+	 * Defines three ways to specify parameters:
+	 * 1. If the key does not locate a findable object, the key string is the parameter for the command
+	 * 2. If the key-findable object is a list, treat as list of parameters for the command
+	 * 3. If the key-findable object is not a list, the object is a parameter usable by the scripted command
+	 * @param key
+	 * @return parameters as a list of Objects
+	 */
+	public List<Object> readParameters(String key) {
+		List<Object> paramList = new ArrayList<>();
+		if (null != key && !key.isEmpty()) {
+			Object provider = Finder.getInstance().find(key);
+			if (provider instanceof List<?>) {
+				paramList = new ArrayList<>((List<?>) provider);
+			} else {
+				if (null == provider) {
+					paramList.add(key);
+				} else {
+					paramList.add(provider);
+				}
+			}
+		}
+		return paramList;
+	}
+
+	public void run() {
+		// run the script in the namespace
+		this.runCommand(this.getCommand());
+	}
+
+	private void runCommand(String commandToRun) {
+		if (null != commandToRun && !commandToRun.isEmpty()) {
+			InterfaceProvider.getCommandRunner().runCommand(commandToRun);
+		}
 	}
 }
