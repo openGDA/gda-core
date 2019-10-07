@@ -31,7 +31,6 @@ import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
@@ -42,6 +41,7 @@ import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -51,7 +51,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.jython.JythonServerFacade;
-import gda.rcp.GDAClientActivator;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters;
@@ -108,9 +107,9 @@ public class XanesSubmitScanSection extends SubmitScanSection {
 		final Button stopButton = new Button(parent, SWT.PUSH);
 		stopButton.setText("Stop");
 		stopButton.setToolTipText("Stop all scripts and the current scan");
-		final ImageDescriptor stopImage = GDAClientActivator.getImageDescriptor("icons/stop.png");
+		final Image stopImage = new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/stop.png"));
 		Objects.requireNonNull(stopImage, "Missing image for stop button");
-		stopButton.setImage(stopImage.createImage());
+		stopButton.setImage(stopImage);
 		stopButton.addSelectionListener(widgetSelectedAdapter(e -> stopScan()));
 	}
 
