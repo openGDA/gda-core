@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+      point="org.eclipse.dawnsci.analysis.api.classregistry">
+      <classregistry
+           class="uk.ac.diamond.daq.experiment.scans.TriggerableScansClassRegistry"
+           id="uk.ac.diamond.daq.experiment.scans.TriggerableScansClassRegistry">
+      </classregistry>
+   </extension>
+
+   <extension
+      point="org.eclipse.dawnsci.analysis.api.marshaller">
+      <marshaller
+            class="uk.ac.diamond.daq.experiment.scans.mapping.TriggerableMapMarshaller"
+            id="uk.ac.diamond.daq.experiment.scans.mapping.TriggerableMapMarshaller">
+      </marshaller>
+   </extension>
+   
+   <extension
+      point="org.eclipse.dawnsci.analysis.api.marshaller">
+      <marshaller
+            class="uk.ac.diamond.daq.experiment.scans.tomography.TriggerableTomographyMarshaller"
+            id="uk.ac.diamond.daq.experiment.scans.tomography.TriggerableTomographyMarshaller">
+      </marshaller>
+   </extension>
+
+</plugin>

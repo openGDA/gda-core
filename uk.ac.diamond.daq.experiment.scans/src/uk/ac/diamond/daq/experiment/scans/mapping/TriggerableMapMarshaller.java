@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.triggerable;
+package uk.ac.diamond.daq.experiment.scans.mapping;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshaller;
 

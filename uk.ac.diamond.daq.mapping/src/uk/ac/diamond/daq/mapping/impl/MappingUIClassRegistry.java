@@ -31,7 +31,6 @@ import uk.ac.diamond.daq.mapping.region.PointMappingRegion;
 import uk.ac.diamond.daq.mapping.region.PolygonMappingRegion;
 import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
 import uk.ac.diamond.daq.mapping.region.SnappedLineMappingRegion;
-import uk.ac.diamond.daq.mapping.triggerable.TriggerableMap;
 
 public class MappingUIClassRegistry implements IClassRegistry {
 
@@ -55,7 +54,6 @@ public class MappingUIClassRegistry implements IClassRegistry {
 		registerClass(tmp, SimpleSampleMetadata.class);
 		registerClass(tmp, ScriptFiles.class);
 		registerClass(tmp, MappingStageInfo.class);
-		registerClass(tmp, TriggerableMap.class);
 
 		idToClassMap = Collections.unmodifiableMap(tmp);
 	}

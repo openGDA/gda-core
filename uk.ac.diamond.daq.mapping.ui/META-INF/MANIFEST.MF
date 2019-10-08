@@ -38,7 +38,7 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.gda.client,
  com.google.guava,
  uk.ac.gda.client.live.stream,
- uk.ac.diamond.daq.experiment.api;bundle-version="1.0.0"
+ uk.ac.diamond.org.springframework
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: com.ibm.icu.text,

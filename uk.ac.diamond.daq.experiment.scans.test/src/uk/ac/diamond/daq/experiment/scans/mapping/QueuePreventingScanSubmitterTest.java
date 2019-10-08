@@ -1,4 +1,4 @@
-package uk.ac.diamond.daq.mapping.triggerable;
+package uk.ac.diamond.daq.experiment.scans.mapping;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -32,7 +32,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import uk.ac.diamond.daq.mapping.triggerable.QueuePreventingScanSubmitter;
+import uk.ac.diamond.daq.experiment.scans.mapping.QueuePreventingScanSubmitter;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QueuePreventingScanSubmitterTest {

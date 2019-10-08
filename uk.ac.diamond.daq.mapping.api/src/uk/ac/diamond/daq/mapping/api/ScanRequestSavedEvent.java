@@ -16,19 +16,32 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.triggerable;
+package uk.ac.diamond.daq.mapping.api;
 
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.springframework.context.ApplicationEvent;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+/**
+ * Notifies listeners that a {@link ScanRequest} has been saved
+ * and is ready for submission.
+ */
+public class ScanRequestSavedEvent extends ApplicationEvent {
 
-public abstract class TriggerableMapMixIn {
+	private final String scanName;
+	private final ScanRequest scanRequest;
 
-	@SuppressWarnings("unused")
-	@JsonCreator public TriggerableMapMixIn(
-			@JsonProperty("scanRequest") ScanRequest scanRequest,
-			@JsonProperty("important") boolean important) {
-		// do nothing
+	public ScanRequestSavedEvent(Object source, String scanName, ScanRequest scanRequest) {
+		super(source);
+		this.scanName = scanName;
+		this.scanRequest = scanRequest;
 	}
+
+	public String getScanName() {
+		return scanName;
+	}
+
+	public ScanRequest getScanRequest() {
+		return scanRequest;
+	}
+
 }
