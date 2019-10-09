@@ -93,6 +93,12 @@ public class Xmap extends DetectorBase implements XmapDetector, IObserver {
 		}
 	}
 
+	@Override
+	public void reconfigure() throws FactoryException {
+		setConfigured(false);
+		configure();
+	}
+
 	/**
 	 * Call this method to ask the detector to load the current template XML file. If the detector was configured
 	 * without a configFileName set, then nothing will happen.
