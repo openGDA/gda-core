@@ -40,6 +40,7 @@ import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.SliceND;
 import org.eclipse.scanning.api.AbstractScannable;
+import org.eclipse.scanning.api.annotation.scan.PrepareScan;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
@@ -103,7 +104,7 @@ public class CalibrationFrameCollector extends AbstractScannable<Object> impleme
 		this.malcolmDetectorNames = malcolmDetectorNames;
 	}
 
-	//@PrepareScan
+	@PrepareScan
 	public void setDetectorAndCollect(ScanModel model) throws ScanningException {
 		if (model.getDetectors().isEmpty()) return;
 		this.detector = model.getDetectors().get(0);
