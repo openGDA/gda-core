@@ -20,6 +20,9 @@ package gda.rcp;
 
 import static gda.configuration.properties.LocalProperties.GDA_GUI_STOP_ALL_COMMAND_ID;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
@@ -32,6 +35,14 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.scanning.api.event.EventConstants;
+import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.event.bean.IBeanListener;
+import org.eclipse.scanning.api.event.core.ISubscriber;
+import org.eclipse.scanning.api.event.scan.ScanBean;
+import org.eclipse.scanning.api.event.status.StatusBean;
+import org.eclipse.scanning.event.ui.ServiceHolder;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -376,6 +387,31 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		});
 
 		final StatusLineContributionItem scanStatus = new StatusLineContributionItem("GDA-ScanStatus", true, 55);
+
+		IEventService service = ServiceHolder.getEventService();
+
+		try {
+			ISubscriber<IBeanListener<StatusBean>> statusTopicSubscriber = service.createSubscriber(getActiveMqUri(), EventConstants.STATUS_TOPIC);
+			statusTopicSubscriber.addListener(evt -> {
+				if (evt.getBean() instanceof ScanBean) {
+					updateScanDetails(scanStatus, (ScanBean)evt.getBean());
+				}
+			});
+
+			ApplicationWorkbenchAdvisor.addCleanupWork(() -> {
+				try {
+					statusTopicSubscriber.removeAllListeners();
+					statusTopicSubscriber.close();
+				} catch (EventException e1) {
+					logger.error("Error removing listener from STATUS_TOPIC", e1);
+				}
+			});
+
+		} catch (Exception e2) {
+			logger.error("Error adding listener to STATUS_TOPIC", e2);
+		}
+
+
 		manager.add(scanStatus);
 
 		final StatusLineContributionItem scriptStatus = new StatusLineContributionItem("GDA-ScriptStatus", true, 20);
@@ -536,6 +572,41 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		final StatusLineContributionItem spacer = new StatusLineContributionItem("uk.ac.diamond.daq.stopall.spacer", true, 0);
 		manager.add(spacer);
 	}
+    protected URI getActiveMqUri() throws URISyntaxException {
+		return new URI(LocalProperties.getActiveMQBrokerURI());
+	}
+
+    private void updateScanDetails(StatusLineContributionItem status, ScanBean scanBean) {
+    	String message = scanBean.toProgressString();
+
+		switch (scanBean.getStatus()) {
+		case TERMINATED:
+		case REQUEST_TERMINATE:
+		case FAILED:
+			setStatusLineText(status, message, "control_stop_blue.png");
+			break;
+		case REQUEST_PAUSE:
+		case PAUSED:
+			setStatusLineText(status, message, "control_pause_blue.png");
+			break;
+		case REQUEST_RESUME:
+		case PREPARING:
+		case RESUMED:
+		case RUNNING:
+		case SUBMITTED:
+			if (scanEventRateLimiter.tryAcquire()) {
+				setStatusLineText(status, message, "computer_go.png");
+			}
+			break;
+		case FINISHING:
+		case COMPLETE:
+		case NONE:
+		case UNFINISHED:
+		default:
+			setStatusLineText(status, message);
+			break;
+		}
+    }
 
 	private void updateScanDetails(StatusLineContributionItem status, ScanEvent changeCode) {
 		String message = changeCode.toProgressString();
