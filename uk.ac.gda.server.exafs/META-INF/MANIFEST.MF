@@ -44,5 +44,7 @@ Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE",
  gda.device.detector.addetector,
  gda.device.detector.addetector.triggering,
  gda.device.detector.areadetector.v17,
- gda.device.detector.areadetector.v17.impl
+ gda.device.detector.areadetector.v17.impl,
+ gda.device.detector.xmap,
+ gda.device.detector.xspress
 Automatic-Module-Name: uk.ac.gda.server.exafs
