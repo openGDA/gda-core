@@ -48,7 +48,7 @@ public class IRunnableDeviceDetectorElementProcessor extends ElementProcessorBas
 
 	@Override
 	public boolean hasDetector() {
-		return enclosed.getRole() == DeviceRole.HARDWARE;
+		return enclosed.getRole() == DeviceRole.HARDWARE || enclosed.getRole() == DeviceRole.MALCOLM;
 	}
 
 	/**
