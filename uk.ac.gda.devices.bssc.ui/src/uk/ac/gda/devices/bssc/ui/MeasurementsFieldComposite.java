@@ -24,6 +24,7 @@ import static uk.ac.gda.devices.hatsaxs.ui.Column.ColumnType.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -50,15 +51,14 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Widget;
@@ -89,6 +89,9 @@ public class MeasurementsFieldComposite extends FieldComposite {
 	private final TableViewer tableViewer;
 	private Composite composite_1;
 	private final RichBeanEditorPart rbeditor;
+
+	/** Collection of colours to be disposed of when the view is disposed */
+	private Collection<Runnable> colourClearing = new ArrayList<>();
 
 	private boolean isStaff;
 
@@ -139,9 +142,10 @@ public class MeasurementsFieldComposite extends FieldComposite {
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 		new HatsaxsMenu<TitrationBean>(tableViewer);
-		table.addListener(SWT.EraseItem, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
+		
+		// This listener lets the background colour of cells be kept even when the row is selected
+		// (instead of being replaced by the selected foreground)
+		table.addListener(SWT.EraseItem, (event) -> {
 				event.detail &= ~SWT.HOT;
 				if ((event.detail & SWT.SELECTED) == 0)
 					return;
@@ -151,11 +155,38 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				gc.setBackground(display.getSystemColor(SWT.COLOR_LIST_SELECTION));
 				gc.fillRectangle(rect);
 				event.detail &= ~SWT.SELECTED;
-			}
 		});
 
 
 		columns = new LinkedHashMap<>();
+		columns.put("", new Column<TitrationBean, String>(5, tableViewer, rbeditor, READ_ONLY, true) {
+
+			@Override
+			public String getRealValue(TitrationBean element) {
+				return "";
+			}
+
+			@Override
+			public void setNewValue(TitrationBean element, String value) {
+			}
+			@Override
+			protected Color getColour(TitrationBean element) {
+				LocationBean location = element.getLocation();
+				Plate plate = location.getConfig().getPlate(location.getPlate());
+				Color colour = plate.getProperty("colour");
+				if (colour == null) {
+					Display display = Display.getDefault();
+					Color newColour = new Color(display, (RGB)plate.getProperty("rgb"));
+					plate.setProperty("colour", colour);
+					colourClearing.add(() -> {
+						plate.setProperty("colour", null);
+						newColour.dispose();
+					});
+					colour = newColour;
+				}
+				return colour;
+			}
+		});
 		columns.putAll(getLocationColumns("", new ColumnHelper<TitrationBean, LocationBean>() {
 			@Override
 			public LocationBean getValue(TitrationBean target) {
@@ -798,5 +829,10 @@ public class MeasurementsFieldComposite extends FieldComposite {
 		sampleCount.setText(String.valueOf(samples.size()));
 		int overheadPerSample = LocalProperties.getAsInt(SAMPLE_TIME_OVERHEAD, 90);
 		totalRuntime.setText(getRuntimeString(samples, tb -> tb.getTimePerFrame() * tb.getFrames(), overheadPerSample));
+	}
+	@Override
+	public void dispose() {
+		super.dispose();
+		colourClearing.forEach(Runnable::run);
 	}
 }

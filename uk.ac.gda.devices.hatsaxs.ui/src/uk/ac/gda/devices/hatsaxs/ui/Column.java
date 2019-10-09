@@ -206,19 +206,24 @@ public abstract class Column<T,V> {
 	private CellEditor cellEditor;
 	private CellLabelProvider labelProvider;
 	private String outputFormat = "%s";
+	private boolean fixed;
 
 	public void setOutputFormat(String outputFormat) {
 		this.outputFormat = outputFormat;
 	}
 	public Column(int width, TableViewer table, RichBeanEditorPart rbEditor, @SuppressWarnings("unchecked") V... choices) {
-		this(width, table,rbEditor,ColumnType.CHOICE.getCellEditor(table.getTable(), choices));
+		this(width, table,rbEditor,ColumnType.CHOICE.getCellEditor(table.getTable(), choices), false);
 	}
 	public Column(int width, TableViewer table, RichBeanEditorPart rbEditor, ColumnType type) {
-		this(width, table,rbEditor,type.getCellEditor(table.getTable()));
+		this(width, table,rbEditor,type.getCellEditor(table.getTable()), false);
 	}
-	private Column(int width, TableViewer table, RichBeanEditorPart rbEditor, CellEditor editor) {
+	public Column(int width, TableViewer table, RichBeanEditorPart rbEditor, ColumnType type, boolean fixed) {
+		this(width, table,rbEditor,type.getCellEditor(table.getTable()), fixed);
+	}
+	private Column(int width, TableViewer table, RichBeanEditorPart rbEditor, CellEditor editor, boolean fixed) {
 		this.width = width;
 		this.cellEditor = editor;
+		this.fixed = fixed;
 		setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -317,8 +322,8 @@ public abstract class Column<T,V> {
 
 		tableColumn.setWidth(width);
 		tableColumn.setText(name);
-		tableColumn.setResizable(true);
-		tableColumn.setMoveable(true);
+		tableColumn.setResizable(!fixed);
+		tableColumn.setMoveable(!fixed);
 		((TableColumnLayout) viewer.getTable().getParent().getLayout()).setColumnData(tableColumn, new ColumnWeightData(width, width));
 		tableColumn.setData(UPDATE_METHOD, getUpdateMethod());
 		columnViewer.setLabelProvider(labelProvider);

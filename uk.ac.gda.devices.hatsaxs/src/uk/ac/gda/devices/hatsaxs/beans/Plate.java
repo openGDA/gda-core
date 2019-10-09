@@ -19,12 +19,15 @@
 package uk.ac.gda.devices.hatsaxs.beans;
 
 import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class Plate implements Serializable {
 	private static final long serialVersionUID = 1942532991825612943L;
 	private int rowCount;
 	private int columnCount;
 	private String name;
+	private Map<String, Object> properties = new LinkedHashMap<>();
 
 	public Plate() {
 		rowCount = columnCount = 1;
@@ -101,5 +104,17 @@ public class Plate implements Serializable {
 			columns[i] = i+1;
 		}
 		return columns;
+	}
+	
+	public void setProperties(Map<String, Object> props) {
+		properties.putAll(props);
+	}
+	
+	public void setProperty(String key, Object value) {
+		properties.put(key, value);
+	}
+	
+	public <T> T getProperty(String key) {
+		return (T)properties.get(key);
 	}
 }
