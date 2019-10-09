@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import org.dawnsci.datavis.model.DataOptions;
 import org.dawnsci.datavis.model.ILiveLoadedFileListener;
@@ -35,7 +34,7 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 	
 	private final Consumer<IDataset> frameProcessor;
 	private final RateLimiter rateLimiter;
-	private Optional<LoadedFile> loadedFileOptional;
+	private Optional<IRefreshable> refreshableOptional;
 	
 	/**
 	 * Constructs an {@link ILiveLoadedFileListener} which finds the latest detector frame
@@ -48,7 +47,7 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 	public LatestSwmrFrameFinder(Consumer<IDataset> frameProcessor, double updateRateFrequency) {
 		this.frameProcessor = frameProcessor;
 		this.rateLimiter = RateLimiter.create(updateRateFrequency);
-		loadedFileOptional = Optional.empty();
+		refreshableOptional = Optional.empty();
 	}
 	
 	/**
@@ -62,8 +61,7 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 	public void fileLoaded(LoadedFile loadedFile) {
 		if (loadedFile instanceof IRefreshable) {
 			IRefreshable swmr = (IRefreshable) loadedFile;
-			swmr.setInitialised();
-			loadedFileOptional = Optional.of(loadedFile);
+			refreshableOptional = Optional.of(swmr);
 		} else {
 			logger.debug("Was passed a non-SWMR file; will ignore");
 		}
@@ -72,7 +70,7 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 	@Override
 	public void refreshRequest() {
 		if (rateLimiter.tryAcquire()) {
-			loadedFileOptional.ifPresent(this::refresh);
+			refreshableOptional.ifPresent(this::refresh);
 		}
 	}
 	
@@ -80,11 +78,11 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 	public void localReload(String path, boolean force) {
 		/* The last frame is written by this point,
 		 * so force a refresh without rate limiting */
-		loadedFileOptional.ifPresent(this::refresh);
+		refreshableOptional.ifPresent(this::refresh);
 	}
 	
-	private void refresh(LoadedFile file) {
-		((IRefreshable) file).refresh(); // if it were not assignable it would not have been cached
+	private void refresh(IRefreshable file) {
+		file.refresh();
 		try {
 			findLatestFrame(file).ifPresent(frameProcessor);
 		} catch (NoSuchElementException e) {
@@ -92,18 +90,8 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 		}
 	}
 	
-	private Optional<IDataset> take2(LoadedFile file) {
-		
-		List<DataOptions> signals = file.getDataOptions(true);
-		List<DataOptions> keysOptions = file.getDataOptions().stream()
-				.filter(options -> options.getName().contains("keys"))
-				.collect(Collectors.toList());
-		
-		return Optional.empty();
-	}
-	
-	private Optional<IDataset> findLatestFrame(LoadedFile file) {
-		List<DataOptions> dataOptions = file.getDataOptions();
+	private Optional<IDataset> findLatestFrame(IRefreshable file) {
+		List<DataOptions> dataOptions = file.getUninitialisedDataOptions();
 		
 		DataOptions uniqueKeysDataOptions = dataOptions.stream()
 				.filter(options -> options.getName().endsWith(UNIQUE_KEYS_DATASET_SUFFIX))
