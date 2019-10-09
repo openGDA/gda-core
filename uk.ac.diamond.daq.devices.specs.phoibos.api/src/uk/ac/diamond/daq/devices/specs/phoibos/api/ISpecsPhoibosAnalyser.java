@@ -18,8 +18,10 @@
 
 package uk.ac.diamond.daq.devices.specs.phoibos.api;
 
+import java.util.List;
 import java.util.Set;
 
+import gda.device.DeviceException;
 import gda.factory.Findable;
 import gda.observable.IObservable;
 
@@ -69,8 +71,9 @@ public interface ISpecsPhoibosAnalyser extends Findable, IObservable {
 	 *
 	 * @param sequence
 	 * @return SpecsPhoibosSequenceValidation
+	 * @throws DeviceException
 	 */
-	SpecsPhoibosSequenceValidation validateSequence(SpecsPhoibosSequence sequence);
+	SpecsPhoibosSequenceValidation validateSequence(SpecsPhoibosSequence sequence) throws DeviceException;
 
 	/**
 	 * Configures the analyser to acquire the region specified.
@@ -161,4 +164,11 @@ public interface ISpecsPhoibosAnalyser extends Findable, IObservable {
 	 */
 	double[] toBindingEnergy(double[] kineticEnergy);
 
+	boolean hasConfigurablePhotonEnergyScannable();
+	boolean hasAdditionalConfigurableScannables();
+	boolean hasAnyConfigurableScannables();
+
+	SpecsPhoibosConfigurableScannableInfo getConfigurablePhotonEnergyScannableInfo();
+	List<SpecsPhoibosConfigurableScannableInfo> getAllConfigurableScannablesInfo();
+	List<SpecsPhoibosConfigurableScannableInfo> getAdditionalConfigurableScannablesInfo();
 }

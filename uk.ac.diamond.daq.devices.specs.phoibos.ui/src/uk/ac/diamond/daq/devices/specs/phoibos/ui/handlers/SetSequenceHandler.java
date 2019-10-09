@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
@@ -42,11 +43,23 @@ public class SetSequenceHandler {
 	}
 
 	@Execute
-	public void execute(MPart part, @Named(IServiceConstants.ACTIVE_SHELL) Shell shell) {
+	public void execute(MPart part, @Named(IServiceConstants.ACTIVE_SHELL) Shell shell) throws DeviceException {
 		// Get the sequence open in the editor
 		SpecsPhoibosSequence sequence = (SpecsPhoibosSequence) part.getTransientData().get(SpecsUiConstants.OPEN_SEQUENCE);
 		logger.trace("About to configure analyser with sequence: {}", sequence);
-		SpecsPhoibosSequenceValidation validationResult = analyser.validateSequence(sequence);
+
+		SpecsPhoibosSequenceValidation validationResult = null;
+		try {
+			validationResult = analyser.validateSequence(sequence);
+		} catch (DeviceException exception) {
+			logger.error("Device errors encountered during sequence validation", exception);
+			MessageBox validationDialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+			validationDialog.setText("Device errors encountered");
+			validationDialog.setMessage("Device errors were encountered while trying to validate your sequence.");
+			validationDialog.open();
+			throw exception;
+		}
+
 		if (validationResult.isValid()) {
 			try {
 				// Setup the analyser
@@ -65,9 +78,9 @@ public class SetSequenceHandler {
 			}
 			logger.debug("Sucessfully configured analyser with sequence");
 		}else {
-			logger.error("Failed to validate energy values");
+			logger.error("Sequence failed validation.");
 			MessageBox validationDialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-			validationDialog.setText("Failed to validate energy values!");
+			validationDialog.setText("Invalid values in sequence");
 			validationDialog.setMessage(validationResult.toString());
 			validationDialog.open();
 		}

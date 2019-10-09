@@ -2,6 +2,7 @@
 package uk.ac.diamond.daq.devices.specs.phoibos.ui.editors;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,6 +14,7 @@ import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.core.databinding.conversion.IConverter;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.SelectObservableValue;
 import org.eclipse.core.databinding.validation.ValidationStatus;
@@ -43,7 +45,9 @@ import com.swtdesigner.SWTResourceManager;
 
 import gda.factory.Finder;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosConfigurableScannableInfo;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosScannableValue;
 import uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsUiConstants;
 import uk.ac.diamond.daq.devices.specs.phoibos.ui.helpers.SpecsPhoibosRegionEditingWrapper;
 
@@ -80,6 +84,10 @@ public class SpecsRegionEditor {
 	private Text centreEnergyText;
 	private Text widthEnergyText;
 	private Text estimatedTimeText;
+
+	// Optional scannable textbox values
+	private HashMap<String, Button> scannableValueEnableCheckboxes = new HashMap<String, Button>();
+	private HashMap<String, Text> scannableValueTextBoxes = new HashMap<String, Text>();
 
 	private Spinner slicesSpinner;
 	private static final String REGEX_PATTERN = "[a-zA-Z_0-9 -]+";
@@ -195,6 +203,24 @@ public class SpecsRegionEditor {
 
 		energyModeGroup.layout(true);
 
+		if (analyser.hasAnyConfigurableScannables()) {
+			Group configurableScannablesGroup = new Group(child, SWT.SHADOW_NONE);
+			configurableScannablesGroup.setLayout(GridLayoutFactory.swtDefaults().numColumns(2).create());
+			configurableScannablesGroup.setText("Configurable Scannables");
+			configurableScannablesGroup.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+			GridDataFactory.swtDefaults().span(2, 1).grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(configurableScannablesGroup);
+
+			if (analyser.hasConfigurablePhotonEnergyScannable()) {
+				createConfigurableScannableEditControls(configurableScannablesGroup, analyser.getConfigurablePhotonEnergyScannableInfo());
+			}
+
+			for (SpecsPhoibosConfigurableScannableInfo configurableScannable : analyser.getAdditionalConfigurableScannablesInfo()) {
+				createConfigurableScannableEditControls(configurableScannablesGroup, configurableScannable);
+			}
+
+			configurableScannablesGroup.layout(true);
+		}
+
 		Label exposureTimeLabel = new Label(child, SWT.NONE);
 		exposureTimeLabel.setText("Exposure time (sec)");
 		exposureTimeText = new Text(child, SWT.BORDER);
@@ -225,9 +251,19 @@ public class SpecsRegionEditor {
 		// Expand both horizontally and vertically
 		scrollComp.setExpandHorizontal(true);
 		scrollComp.setExpandVertical(true);
-		scrollComp.setMinHeight(450);
+		scrollComp.setMinSize(child.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
 		logger.trace("Finished building composite");
+	}
+
+	private void createConfigurableScannableEditControls(Group group, SpecsPhoibosConfigurableScannableInfo configurableScannableInfo) {
+		Button checkbox = new Button(group, SWT.CHECK);
+		checkbox.setText(configurableScannableInfo.getScannableDescription());
+		Text textBox = new Text(group, SWT.BORDER);
+		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(textBox);
+
+		scannableValueTextBoxes.put(configurableScannableInfo.getScannableName(), textBox);
+		scannableValueEnableCheckboxes.put(configurableScannableInfo.getScannableName(), checkbox);
 	}
 
 	@Focus
@@ -374,6 +410,48 @@ public class SpecsRegionEditor {
 		IObservableValue estimatedTimeTarget = WidgetProperties.text(SWT.Modify).observe(estimatedTimeText);
 		IObservableValue estimatedTimeModel = BeanProperties.value("estimatedTime").observe(regionEditingWrapper);
 		dbc.bindValue(estimatedTimeTarget, estimatedTimeModel, POLICY_NEVER, POLICY_UPDATE);
+
+		// Bind the checkboxes and textboxes for any optional scannables
+		if (analyser.hasAnyConfigurableScannables()) {
+			IConverter doubleToString = IConverter.create(Double.class, String.class, Object::toString);
+			IConverter stringToDouble = IConverter.create(String.class, Double.class, s -> Double.parseDouble((String)s));
+
+			UpdateValueStrategy updateStrategy = UpdateValueStrategy.create(stringToDouble);
+			updateStrategy.setAfterGetValidator(s -> {
+				String value = (String)s;
+				try {
+					Double.parseDouble(value);
+				} catch (NumberFormatException | NullPointerException exception) {
+					return ValidationStatus.error("Value must be a number.");
+				}
+
+				return ValidationStatus.ok();
+			});
+
+
+			for (SpecsPhoibosConfigurableScannableInfo scannableInfo : analyser.getAllConfigurableScannablesInfo()) {
+				String scannableName = scannableInfo.getScannableName();
+
+				SpecsPhoibosScannableValue scannableValue = region.getScannableValue(scannableName);
+				if (scannableValue == null) {
+					scannableValue = region.addScannableValue(scannableName);
+				}
+
+				Text textBox = scannableValueTextBoxes.get(scannableName);
+				IObservableValue scannableValueTarget = WidgetProperties.text(SWT.Modify).observe(textBox);
+				IObservableValue scannableValueModel = BeanProperties.value("scannableValue").observe(scannableValue);
+				Binding binding = dbc.bindValue(scannableValueTarget,
+						scannableValueModel,
+						updateStrategy,
+						UpdateValueStrategy.create(doubleToString));
+				ControlDecorationSupport.create(binding, SWT.TOP | SWT.LEFT);
+
+				Button checkbox = scannableValueEnableCheckboxes.get(scannableName);
+				IObservableValue scannabledEnabledTarget = WidgetProperties.selection().observe(checkbox);
+				IObservableValue scannableEnabledModel = BeanProperties.value("enabled").observe(scannableValue);
+				dbc.bindValue(scannabledEnabledTarget, scannableEnabledModel);
+			}
+		}
 
 		// Update the widgets from the model
 		dbc.updateTargets();
