@@ -25,6 +25,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
@@ -91,6 +92,8 @@ public class SegmentEditor implements ElementEditor {
 		timeSource = new Button(composite, SWT.RADIO);
 		timeSource.setText("Time");
 		STRETCH.applyTo(timeSource);
+		
+		toggleSevEnabled();
 		
 		addSpace(composite);
 		
@@ -253,17 +256,32 @@ public class SegmentEditor implements ElementEditor {
 	}
 	
 	private void populateReadoutsCombo() {
-		if (readoutsCombo != null && readouts != null) { 
+		if (readouts != null) {
 			readoutsCombo.setInput(readouts);
 			if (segment != null && readouts.contains(segment.getSampleEnvironmentVariableName())) {
 				readoutsCombo.setSelection(new StructuredSelection(segment.getSampleEnvironmentVariableName()));
 			}
 		}
 	}
+	
+	private void toggleSevEnabled() {
+		boolean enabled = readouts != null && !readouts.isEmpty();
+		
+		sevSource.setEnabled(enabled);
+		if (!enabled && sevSource.getSelection()) {
+			sevSource.setSelection(false);
+			timeSource.setSelection(true);
+			sevSource.notifyListeners(SWT.Selection, new Event());;
+			timeSource.notifyListeners(SWT.Selection, new Event());
+		}
+	}
 
 	public void setReadouts(Set<String> readouts) {
 		this.readouts = readouts;
-		populateReadoutsCombo();
+		toggleSevEnabled();
+		if (readoutsCombo != null && !readoutsCombo.getCombo().isDisposed()) {
+			populateReadoutsCombo();
+		}
 		triggers.setReadouts(readouts);
 	}
 }
