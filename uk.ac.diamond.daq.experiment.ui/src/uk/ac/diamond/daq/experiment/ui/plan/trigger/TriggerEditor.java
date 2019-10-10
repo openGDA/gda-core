@@ -36,6 +36,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -137,6 +138,8 @@ public class TriggerEditor implements ElementEditor {
 		
 		timeSourceButton = new Button(sourceGroup, SWT.RADIO);
 		timeSourceButton.setText("Time");
+		
+		toggleSevEnabled();
 		
 		//////// TRIGGER MODE ////////
 		
@@ -384,6 +387,17 @@ public class TriggerEditor implements ElementEditor {
 		detailBindings.clear();
 	}
 	
+	private void toggleSevEnabled() {
+		boolean enabled = readouts != null && !readouts.isEmpty();
+		sevSourceButton.setEnabled(enabled);
+		if (!enabled && sevSourceButton.getSelection()) {
+			sevSourceButton.setSelection(false);
+			timeSourceButton.setSelection(true);
+			sevSourceButton.notifyListeners(SWT.Selection, new Event());
+			timeSourceButton.notifyListeners(SWT.Selection, new Event());
+		}
+	}
+	
 	private void setEnabled(boolean enabled) {
 		nameText.setEnabled(enabled);
 		scanCombo.getControl().setEnabled(enabled);
@@ -397,10 +411,15 @@ public class TriggerEditor implements ElementEditor {
 		controls.stream()
 			.filter(Objects::nonNull).filter(control -> !control.isDisposed())
 			.forEach(control -> control.setEnabled(enabled));
+		
+		if (enabled) {
+			toggleSevEnabled();
+		}
 	}
 
 	void setReadouts(Set<String> readouts) {
 		this.readouts = readouts;
+		toggleSevEnabled();
 		if (readoutsCombo != null && !readoutsCombo.getControl().isDisposed()) {
 			populateSevCombo();
 		}
