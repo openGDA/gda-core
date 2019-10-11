@@ -1921,16 +1921,15 @@ public class NexusDataWriter extends DataWriterBase {
 				NexusUtils.writeString(file, groupNode, allNames[i], positions[i]);
 			}
 		} else if (position.getClass().isArray()) {
-			// handle a scannable returns array of mixed primitive data types
+			// handle a scannable that returns an array (single type, mixed or primitive)
 			for (int i = 0; i < allNames.length; i++) {
-				Object object = Array.get(position, i);
-				writeItem(allNames, groupNode, i, object);
+				NexusUtils.write(file, groupNode, allNames[i], Array.get(position, i));
 			}
 
 		} else if (position instanceof Iterable<?>) {
 			Iterator<?> positions = ((Iterable<?>) position).iterator();
 		    for (int i = 0; i < allNames.length; i++) {
-		        writeItem(allNames, groupNode, i, positions.next());
+		        NexusUtils.write(file, groupNode, allNames[i], positions.next());
 		    }
 		}
 
@@ -1941,27 +1940,6 @@ public class NexusDataWriter extends DataWriterBase {
 			for (int i = 0; i < allNames.length; i++) {
 				NexusUtils.writeDouble(file, groupNode, allNames[i], positions[i]);
 			}
-		}
-	}
-
-	private void writeItem(String[] names, GroupNode g, int i, Object object) throws NexusException {
-		if (object instanceof Double) {
-			NexusUtils.writeDouble(file, g, names[i], ((Double) object).doubleValue());
-		} else if (object instanceof Integer) {
-			NexusUtils.writeInteger(file, g, names[i], ((Integer)object).intValue());
-		} else if (object instanceof Float) {
-			NexusUtils.writeDouble(file, g, names[i], ((Float) object).doubleValue());
-		} else if (object instanceof Short) {
-			NexusUtils.writeInteger(file, g, names[i], ((Short) object).intValue());
-		} else if (object instanceof Long) {
-			NexusUtils.writeInteger(file, g, names[i], ((Long) object).intValue());
-		} else if (object instanceof String) {
-			NexusUtils.writeString(file, g, names[i], (String) object);
-		} else if (object instanceof Boolean) {
-			NexusUtils.writeString(file, g, names[i], ((Boolean) object).toString());
-		} else {
-			logger.error("Data Type '{}' for name '{}' is not supported.", object.getClass().getName(), names[i] );
-			throw new NexusException("Data Type '"+object.getClass().getName()+"' for name '"+names[i] +"' is not supported.");
 		}
 	}
 
