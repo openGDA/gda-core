@@ -53,22 +53,16 @@ public class RangeLookupServiceTest {
 		}
 	}
 
-	private void testRowIsFound(Map<String, Double> results, double expectedPosition1, double expectedPosition2) {
+	private void testRowIsFound(Map<String, Object> results, double expectedPosition1, double expectedPosition2) {
 
 		if (results == null || results.isEmpty()) {
 			fail("No matching row found");
 		}
 
-		Double position = results.get(POSITION_ONE_COLUMN);
-		if (position == null) {
-			fail(POSITION_ONE_COLUMN + " value column not found in row");
-		}
+		Double position = ((Number) results.get(POSITION_ONE_COLUMN)).doubleValue();
 		assertThat(position, is(closeTo(expectedPosition1, 0.01)));
 
-		position = results.get(POSITION_TWO_COLUMN);
-		if (position == null) {
-			fail(POSITION_TWO_COLUMN + " value column not found in row");
-		}
+		position = ((Number) results.get(POSITION_TWO_COLUMN)).doubleValue();
 		assertThat(position, is(closeTo(expectedPosition2, 0.01)));
 	}
 

@@ -49,7 +49,7 @@ public class ScriptBasedItem extends WorkflowItemBase {
 	}
 
 	@Override
-	public Map<Scannable, Double> getPositions(Properties properties) throws WorkflowException {
+	public Map<Scannable, Object> getPositions(Properties properties) throws WorkflowException {
 		PyObject argument = getFunctionArgument(properties);
 		String source = readFile();
 		return evaluateUserFunctions(source, argument);
@@ -68,24 +68,28 @@ public class ScriptBasedItem extends WorkflowItemBase {
 		}
 	}
 
-	private Map<Scannable, Double> evaluateUserFunctions(String source, PyObject argument) throws WorkflowException {
-		Map<Scannable, Double> targetPositions = new HashMap<>();
+	private Map<Scannable, Object> evaluateUserFunctions(String source, PyObject argument) throws WorkflowException {
+		Map<Scannable, Object> targetPositions = new HashMap<>();
 
 		for (Map.Entry<Scannable, String> scannableEntry : functionsPerScannable.entrySet()) {
 			Scannable scannable = scannableEntry.getKey();
 			String functionName = scannableEntry.getValue();
 			PyObject function = getFunction(source, functionName);
 
-			double result = evaluateFunction(functionName, function, argument);
+			Object result = evaluateFunction(functionName, function, argument);
 
 			targetPositions.put(scannable, result);
 		}
 		return targetPositions;
 	}
 
-	private PyObject getFunction(String code, String functionName) {
+	private PyObject getFunction(String code, String functionName) throws WorkflowException {
 		Jython jython = getJythonInterpreter();
-		jython.exec(code);
+		try {
+			jython.exec(code);
+		} catch (PyException e) {
+			throw new WorkflowException("Error interpreting script", e);
+		}
 		return Objects.requireNonNull((PyObject) jython.getFromJythonNamespace(functionName, jython.getName()),
 				"Could not find function '" + functionName + "'");
 	}
@@ -99,12 +103,12 @@ public class ScriptBasedItem extends WorkflowItemBase {
 	 *
 	 * Any exception is rethrown as a WorkflowException
 	 */
-	private double evaluateFunction(String functionName, PyObject function, PyObject argument) throws WorkflowException {
+	private Object evaluateFunction(String functionName, PyObject function, PyObject argument) throws WorkflowException {
 		logger.debug("Evaluating {}({})...", functionName, argument.__str__());
 		try {
-			double result = function.__call__(argument).asDouble();
+			Object result = function.__call__(argument).__tojava__(Object.class);
 			logger.debug("... evaluation result = {}", result);
-			return result;
+			return Objects.requireNonNull(result, "Function returned null!");
 		} catch (PyException e) {
 			throw new WorkflowException("Error executing function '" + functionName + "'", e);
 		}

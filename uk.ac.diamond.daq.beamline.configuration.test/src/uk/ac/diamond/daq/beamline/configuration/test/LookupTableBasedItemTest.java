@@ -54,9 +54,9 @@ public class LookupTableBasedItemTest {
 	public void startWithOneMotor () throws Exception {
 		LookupTableBasedItem workflowItem = new LookupTableBasedItem(INPUT_PROPERTY, scannables, motorPositionLookupService);
 
-		Map<String, Double> answer = new HashMap<>();
+		Map<String, Object> answer = new HashMap<>();
 		answer.put(X_NAME, 22.0);
-		when(motorPositionLookupService.getScannablePositions(30, scannables.keySet())).thenReturn(answer);
+		when(motorPositionLookupService.getScannablePositions(30.0, scannables.keySet())).thenReturn(answer);
 
 		workflowItem.start(getProperties(30.0));
 		verify(x).asynchronousMoveTo(22.0);
@@ -66,15 +66,32 @@ public class LookupTableBasedItemTest {
 	public void startWithTwoMotors () throws Exception {
 		LookupTableBasedItem workflowItem = new LookupTableBasedItem(INPUT_PROPERTY, scannables, motorPositionLookupService);
 
-		Map<String, Double> answer = new HashMap<>();
+		Map<String, Object> answer = new HashMap<>();
 		answer.put(X_NAME, 22.0);
 		answer.put(Y_NAME, 25.0);
-		when(motorPositionLookupService.getScannablePositions(30, scannables.keySet())).thenReturn(answer);
+		when(motorPositionLookupService.getScannablePositions(30.0, scannables.keySet())).thenReturn(answer);
 
 		workflowItem.start(getProperties(30.0));
 
 		verify(x).asynchronousMoveTo(22.0);
 		verify(y).asynchronousMoveTo(25.0);
+	}
+
+	@Test
+	public void otherPositionTypes() throws Exception {
+		LookupTableBasedItem workflowItem = new LookupTableBasedItem(INPUT_PROPERTY, scannables, motorPositionLookupService);
+
+		Map<String, Object> answer = new HashMap<>();
+		String xPosition = "Maximum";
+		int[] yPosition = new int[] {5, 4, 7, 54};
+		answer.put(X_NAME, xPosition);
+		answer.put(Y_NAME, yPosition);
+		when(motorPositionLookupService.getScannablePositions(30.0, scannables.keySet())).thenReturn(answer);
+
+		workflowItem.start(getProperties(30.0));
+
+		verify(x).asynchronousMoveTo(xPosition);
+		verify(y).asynchronousMoveTo(yPosition);
 	}
 
 	@Test

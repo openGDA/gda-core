@@ -23,7 +23,7 @@ public abstract class WorkflowItemBase implements WorkflowItem {
 
 	@Override
 	public void start(Properties properties) throws WorkflowException {
-		Map<Scannable, Double> positions = getPositions(properties);
+		Map<Scannable, Object> positions = getPositions(properties);
 		moveScannables(positions);
 	}
 
@@ -42,7 +42,7 @@ public abstract class WorkflowItemBase implements WorkflowItem {
 	/**
 	 * Read whatever property you need and get me a map of Scannable to its target position (as Double)
 	 */
-	protected abstract Map<Scannable, Double> getPositions(Properties properties) throws WorkflowException;
+	protected abstract Map<Scannable, Object> getPositions(Properties properties) throws WorkflowException;
 
 	/**
 	 * All scannables configured in this item
@@ -52,10 +52,10 @@ public abstract class WorkflowItemBase implements WorkflowItem {
 	/**
 	 * Moves scannables asynchronously, then blocks until they reach their destinations
 	 */
-	protected void moveScannables(Map<Scannable, Double> positions) throws WorkflowException {
-		for (Map.Entry<Scannable, Double> entry : positions.entrySet()) {
+	protected void moveScannables(Map<Scannable, Object> positions) throws WorkflowException {
+		for (Map.Entry<Scannable, Object> entry : positions.entrySet()) {
 			Scannable scannable = entry.getKey();
-			Double position = entry.getValue();
+			Object position = entry.getValue();
 			move(scannable, position);
 		}
 
@@ -64,7 +64,7 @@ public abstract class WorkflowItemBase implements WorkflowItem {
 		}
 	}
 
-	private void move(Scannable scannable, Double position) throws WorkflowException {
+	private void move(Scannable scannable, Object position) throws WorkflowException {
 		try {
 			scannable.asynchronousMoveTo(position);
 		} catch (DeviceException e) {

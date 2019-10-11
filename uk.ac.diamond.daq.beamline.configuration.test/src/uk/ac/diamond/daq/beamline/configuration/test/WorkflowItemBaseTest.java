@@ -91,7 +91,7 @@ public class WorkflowItemBaseTest {
 
 	private class DummyItem extends WorkflowItemBase {
 
-		private final Map<Scannable, Double> positions;
+		private final Map<Scannable, Object> positions;
 
 		public DummyItem() {
 			positions = new HashMap<>();
@@ -100,7 +100,7 @@ public class WorkflowItemBaseTest {
 		}
 
 		@Override
-		public Map<Scannable, Double> getPositions(Properties properties) throws WorkflowException {
+		public Map<Scannable, Object> getPositions(Properties properties) throws WorkflowException {
 			return positions;
 		}
 
