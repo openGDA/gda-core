@@ -22,6 +22,7 @@ import static gda.jython.JythonStatus.RUNNING;
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_SCAN_REQUEST_JSON;
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_XANES_EDGE_PARAMS_JSON;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+import static uk.ac.diamond.daq.mapping.xanes.ui.XanesScanningUtils.getOuterScannable;
 
 import java.net.URI;
 import java.util.List;
@@ -70,7 +71,7 @@ public class XanesSubmitScanSection extends SubmitScanSection {
 	private static final Logger logger = LoggerFactory.getLogger(XanesSubmitScanSection.class);
 
 	private static final String SCRIPT_FILE = "scanning/submit_xanes_scan.py";
-	private String energyScannable;
+	private String energyScannableName;
 
 	private IJobQueue<StatusBean> jobQueueProxy;
 
@@ -213,20 +214,15 @@ public class XanesSubmitScanSection extends SubmitScanSection {
 	 *            <code>true</code> to select the energy scannable, <code>false</code> to deselect it
 	 */
 	private void selectEnergyScannable(boolean select) {
-		if (energyScannable != null && !energyScannable.equals("")) {
-			final List<IScanModelWrapper<IScanPathModel>> outerScannables = getMappingBean().getScanDefinition().getOuterScannables();
-			for (IScanModelWrapper<IScanPathModel> scannable : outerScannables) {
-				if (scannable.getName().equals(energyScannable)) {
-					scannable.setIncludeInScan(select);
-					final OuterScannablesSection outerScannablesSection = getMappingView().getSection(OuterScannablesSection.class);
-					outerScannablesSection.updateControls();
-					break;
-				}
-			}
+		final IScanModelWrapper<IScanPathModel> scannable = getOuterScannable(getMappingBean(), energyScannableName);
+		if (scannable != null) {
+			scannable.setIncludeInScan(select);
+			final OuterScannablesSection outerScannablesSection = getMappingView().getSection(OuterScannablesSection.class);
+			outerScannablesSection.updateControls();
 		}
 	}
 
-	public void setEnergyScannable(String energyScannable) {
-		this.energyScannable = energyScannable;
+	public void setEnergyScannableName(String energyScannableName) {
+		this.energyScannableName = energyScannableName;
 	}
 }

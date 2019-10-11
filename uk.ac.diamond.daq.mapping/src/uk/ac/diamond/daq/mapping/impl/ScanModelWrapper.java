@@ -72,6 +72,7 @@ public abstract class ScanModelWrapper<T> implements IScanModelWrapper<T> {
 		return model;
 	}
 
+	@Override
 	public void setModel(T model) {
 		this.model = model;
 	}

@@ -50,4 +50,12 @@ public interface IScanModelWrapper<M> {
 	 * @return the model
 	 */
 	public M getModel();
+
+	/**
+	 * Set the model
+	 *
+	 * @param model
+	 *            new model
+	 */
+	public void setModel(M model);
 }
