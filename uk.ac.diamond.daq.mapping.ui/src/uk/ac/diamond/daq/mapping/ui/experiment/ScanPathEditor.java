@@ -26,7 +26,7 @@ import java.util.Optional;
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.PojoProperties;
+import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.conversion.Converter;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.ValidationStatus;
@@ -152,7 +152,7 @@ public class ScanPathEditor extends Composite implements IObservable {
 	private void bindScanPathModelToTextField(IScanModelWrapper<IScanPathModel> scannableAxisParameters, IObservableValue<?> axisTextValue) {
 		final String scannableName = scannableAxisParameters.getName();
 		@SuppressWarnings("unchecked")
-		final IObservableValue<?> axisValue = PojoProperties.value("model").observe(scannableAxisParameters);
+		final IObservableValue<?> axisValue = BeanProperties.value("model").observe(scannableAxisParameters);
 
 		// create an update strategy from text to model with a converter and a validator
 		final UpdateValueStrategy axisTextToModelStrategy = new UpdateValueStrategy();
