@@ -21,13 +21,20 @@ package uk.ac.gda.epics.camera;
 import static uk.ac.gda.api.camera.CameraState.ACQUIRING;
 import static uk.ac.gda.api.camera.CameraState.IDLE;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.NDOverlaySimple;
 import gda.device.detector.areadetector.v17.NDROI;
-import gda.factory.FindableBase;
+import gda.device.detector.areadetector.v17.impl.ADBaseImpl;
+import gda.epics.connection.EpicsController;
+import gda.factory.FactoryException;
+import gda.factory.FindableConfigurableBase;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
+import gov.aps.jca.event.MonitorEvent;
 import uk.ac.gda.api.camera.BinningFormat;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraControllerEvent;
@@ -35,17 +42,27 @@ import uk.ac.gda.api.camera.CameraState;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 @ServiceInterface(CameraControl.class)
-public class EpicsCameraControl extends FindableBase implements CameraControl {
+public class EpicsCameraControl extends FindableConfigurableBase implements CameraControl {
+	private static final Logger logger = LoggerFactory.getLogger(EpicsCameraControl.class);
 
 	private final ObservableComponent observableComponent = new ObservableComponent();
 	private final ADBase adBase;
 	private final NDROI ndRoi;
 	private NDOverlaySimple ndOverlay;
 	private boolean iocHasOverlayCentrePvs;
+	private boolean useAcquireTimeMonitor;
 
 	public EpicsCameraControl(ADBase adBase, NDROI ndRoi) {
 		this.adBase = adBase;
 		this.ndRoi = ndRoi;
+	}
+
+	@Override
+	public void configure() throws FactoryException {
+		if (useAcquireTimeMonitor) {
+			addAcquireTimeMonitor();
+		}
+		super.configure();
 	}
 
 	/**
@@ -232,6 +249,36 @@ public class EpicsCameraControl extends FindableBase implements CameraControl {
 			}
 		} catch (Exception e) {
 			throw new DeviceException("Unable to get overlay Y centre co-ordinate.", e);
+		}
+	}
+
+	public boolean isUseAcquireTimeMonitor() {
+		return useAcquireTimeMonitor;
+	}
+
+	public void setUseAcquireTimeMonitor(boolean useAcquireTimeMonitor) {
+		this.useAcquireTimeMonitor = useAcquireTimeMonitor;
+	}
+
+	private void addAcquireTimeMonitor() {
+		if (!(adBase instanceof ADBaseImpl)) {
+			logger.warn("Cannot add AcquireTime Monitor - ADBase object is not an instanceof ADBaseImpl");
+			return;
+		}
+		try {
+			final EpicsController epicsController = EpicsController.getInstance();
+			ADBaseImpl adbaseImpl = (ADBaseImpl) adBase;
+			epicsController.setMonitor(epicsController.createChannel(adbaseImpl.getBasePVName()+ADBase.AcquireTime), this::onMonitorChanged);
+		} catch (Exception e) {
+			logger.warn("Problem setting up AcquireTime Monitor", ADBase.AcquireTime, e);
+		}
+	}
+
+	private void onMonitorChanged(MonitorEvent event) {
+		try {
+			notifyObservers();
+		} catch (DeviceException e) {
+			logger.error("Problem notifying observers", e);
 		}
 	}
 }
