@@ -28,11 +28,13 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import uk.ac.gda.api.camera.CameraControl;
+import uk.ac.gda.api.camera.CameraControllerEvent;
 
 /**
  * Control the exposure time of a camera, warning the user if they have input an invalid exposure time
@@ -85,6 +87,12 @@ public class LiveStreamExposureTimeComposite extends Composite {
 			}
 		});
 
+		cameraControl.addIObserver((source, arg) -> {
+			if (arg instanceof CameraControllerEvent) {
+				updateExposureTime((CameraControllerEvent) arg);
+			}
+		});
+
 		// Label to show error message if exposure time is invalid
 		exposureTimeMessage = new Label(this, SWT.NONE);
 		GridDataFactory.swtDefaults().hint(MESSAGE_WIDTH, SWT.DEFAULT).applyTo(exposureTimeMessage);
@@ -100,6 +108,17 @@ public class LiveStreamExposureTimeComposite extends Composite {
 			exposureTimeText.setText("#ERR");
 			displayError(message);
 		}
+	}
+
+	private void updateExposureTime(CameraControllerEvent event) {
+		final double acqTime = event.getAcquireTime();
+		PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+			// Update the widget if the exposure time from Epics is different from the current GUI value.
+			if (acqTime != parseExposureTime()) {
+				logger.debug("Updating Exposure time from Epics event : value = {}", acqTime);
+				exposureTimeText.setText(Double.toString(acqTime));
+			}
+		});
 	}
 
 	private double parseExposureTime() {
