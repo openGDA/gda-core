@@ -94,9 +94,6 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		finalEnergy.setLabelWidth(100);
 		finalEnergy.setLabelDecimalPlaces(3);
 		finalEnergy.setPrefix(" ");
-		GridData gd_finalEnergy = new GridData(SWT.FILL, SWT.CENTER, false, false);
-		gd_finalEnergy.widthHint = 150;
-		finalEnergy.setLayoutData(gd_finalEnergy);
 
 		finalEnergy.setUnit("eV");
 		createEmptyLabel(finalEnergy);
