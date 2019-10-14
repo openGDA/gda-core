@@ -11,8 +11,11 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.event.scan;
 
+import java.io.File;
+import java.math.RoundingMode;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.text.NumberFormat;
 import java.util.Iterator;
 
 import org.eclipse.scanning.api.event.IdBean;
@@ -329,5 +332,69 @@ public final class ScanBean extends StatusBean {
 
 	public void setDeviceName(String deviceName) {
 		this.deviceName = deviceName;
+	}
+
+	public String toProgressString() {
+
+		final String output;
+
+		switch (getStatus()) {
+
+		case FAILED:
+			output = getScanCompletedMessagePrefix() + "failed.";
+			break;
+		case REQUEST_TERMINATE:
+		case TERMINATED:
+			output = getScanCompletedMessagePrefix() + " was aborted.";
+			break;
+		case COMPLETE:
+			output = getScanCompletedMessagePrefix() + " complete.";
+			break;
+		case FINISHING:
+			output = addScanRunningOutput() + " FINISHING";
+			break;
+		case REQUEST_PAUSE:
+		case PAUSED:
+			output = addScanRunningOutput() + " PAUSED";
+			break;
+		default:
+			output = addScanRunningOutput();
+			break;
+		}
+		return output;
+	}
+
+
+	private String getScanCompletedMessagePrefix() {
+		String output = "No scan running. ";
+
+		String filepath = getFilePath();
+
+		if (filepath != null && !filepath.isEmpty()) {
+			File file = new File(filepath);
+			output += "Last scan '" + file.getName() + "'";
+		}
+
+		return output;
+
+	}
+
+
+	private String addScanRunningOutput() {
+		String output = "Scan ";
+
+		String filepath = getFilePath();
+		if (filepath != null && !filepath.isEmpty()) {
+			File file = new File(filepath);
+			output += "'" + file.getName() + "' ";
+		}
+
+
+		final NumberFormat percentFormat = NumberFormat.getPercentInstance();
+		percentFormat.setRoundingMode(RoundingMode.DOWN);
+		String percent = percentFormat.format(getPercentComplete()/100d);
+		output += "running (" + percent + " complete)";
+
+		return output;
 	}
 }
