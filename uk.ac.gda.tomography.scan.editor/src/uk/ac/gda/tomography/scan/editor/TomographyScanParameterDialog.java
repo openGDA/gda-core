@@ -25,10 +25,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
 import uk.ac.gda.tomography.scan.editor.view.TomographyConfigurationComposite;
-import uk.ac.gda.tomography.service.message.TomographyMessages;
-import uk.ac.gda.tomography.service.message.TomographyMessagesUtility;
 import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
-
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 
