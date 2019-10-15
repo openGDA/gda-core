@@ -67,7 +67,7 @@ public abstract class WorkflowItemBase implements WorkflowItem {
 	private void move(Scannable scannable, Object position) throws WorkflowException {
 		try {
 			scannable.asynchronousMoveTo(position);
-		} catch (DeviceException e) {
+		} catch (Exception e) {
 			throw new WorkflowException("Error moving scannable '" + scannable.getName() + "'", e);
 		}
 	}

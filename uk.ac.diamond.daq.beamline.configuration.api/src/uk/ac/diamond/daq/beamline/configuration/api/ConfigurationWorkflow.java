@@ -3,12 +3,13 @@ package uk.ac.diamond.daq.beamline.configuration.api;
 import java.util.Properties;
 
 import gda.factory.Findable;
+import gda.observable.IObservable;
 
-public interface ConfigurationWorkflow extends Findable {
+public interface ConfigurationWorkflow extends Findable, IObservable {
 
-	void start(Properties properties) throws WorkflowException;
+	void start(Properties properties);
 
-	void abort() throws WorkflowException;
+	void abort();
 
-	boolean isRunning();
+	WorkflowUpdate getState();
 }

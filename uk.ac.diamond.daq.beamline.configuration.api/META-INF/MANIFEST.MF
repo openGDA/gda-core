@@ -7,3 +7,4 @@ Automatic-Module-Name: uk.ac.diamond.daq.beamline.configuration.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: uk.ac.gda.api;bundle-version="9.15.0"
 Export-Package: uk.ac.diamond.daq.beamline.configuration.api
+Eclipse-RegisterBuddy: uk.ac.gda.api

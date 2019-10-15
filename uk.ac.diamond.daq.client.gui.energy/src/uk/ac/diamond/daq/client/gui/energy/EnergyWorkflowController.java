@@ -1,8 +1,9 @@
 package uk.ac.diamond.daq.client.gui.energy;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -11,10 +12,12 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.observable.IObserver;
 import uk.ac.diamond.daq.beamline.configuration.api.ConfigurationWorkflow;
-import uk.ac.diamond.daq.beamline.configuration.api.WorkflowException;
+import uk.ac.diamond.daq.beamline.configuration.api.WorkflowStatus;
+import uk.ac.diamond.daq.beamline.configuration.api.WorkflowUpdate;
 
-public class EnergyWorkflowController {
+public class EnergyWorkflowController implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(EnergyWorkflowController.class);
 	private static final String UNRECOGNISED_TYPE_MSG = "Unrecognised beam type";
@@ -44,31 +47,22 @@ public class EnergyWorkflowController {
 	}
 
 	public void startWorkflow(BeamEnergyBean bean) {
+		logger.info("Changing energy: {}", generateEnergyRequestSummary(bean));
 		executor.submit(() -> {
-			try {
-				listeners.forEach(EnergyControllerListener::workflowStarted);
-				getWorkflow(bean).start(getProperties(bean));
-				listeners.forEach(EnergyControllerListener::workflowFinished);
-			} catch (WorkflowException e) {
-				logger.error("Workflow failed", e);
-				listeners.forEach(listener -> listener.workflowFailed(e.getMessage()));
-			}
+			ConfigurationWorkflow wf = getWorkflow(bean);
+			wf.addIObserver(this);
+			listeners.forEach(EnergyControllerListener::operationStarted);
+			wf.start(getProperties(bean));
 		});
 	}
 
-	public void stopWorkflow(BeamEnergyBean bean) {
-		try {
-			getWorkflow(bean).abort();
-		} catch (WorkflowException e) {
-			logger.error("Error aborting workflow", e);
-			listeners.forEach(listener -> listener.workflowFailed(e.getMessage()));
-		}
+	private String generateEnergyRequestSummary(BeamEnergyBean bean) {
+		return bean.getType().toString() + " -> " +
+				(bean.getType() == EnergyType.MONOCHROMATIC ? bean.getMonoEnergy() : bean.getPolyEnergy().getLabel());
 	}
 
-	public boolean isRunning() {
-		return Arrays.asList(monoWorkflow, pinkWorkflow).stream()
-				.filter(Objects::nonNull)
-				.anyMatch(ConfigurationWorkflow::isRunning);
+	public void stopWorkflow(BeamEnergyBean bean) {
+		getWorkflow(bean).abort();
 	}
 
 	private Properties getProperties(BeamEnergyBean bean) {
@@ -110,12 +104,60 @@ public class EnergyWorkflowController {
 		return workflow;
 	}
 
+	/**
+	 * If an active workflow is found, the listener will be notified of this workflow's state immediately
+	 */
 	public void addListener(EnergyControllerListener listener) {
 		listeners.add(listener);
+		getActiveWorkflow().ifPresent(workflow ->
+			notifyListeners(workflow.getState(), Collections.singleton(listener)));
 	}
 
 	public void removeListener(EnergyControllerListener listener) {
 		listeners.remove(listener);
+	}
+
+	@Override
+	public void update(Object source, Object arg) {
+		WorkflowUpdate update = (WorkflowUpdate) arg;
+		logger.debug("Received update: {}", update);
+		notifyListeners(update, listeners);
+	}
+
+	private void notifyListeners(WorkflowUpdate update, Set<EnergyControllerListener> listeners) {
+		switch (update.getStatus()) {
+		case IDLE:
+			listeners.forEach(EnergyControllerListener::operationFinished);
+			break;
+		case RUNNING:
+			listeners.forEach(listener -> listener.progressMade(update.getMessage(), update.getPercentComplete()));
+			break;
+		case FAULT: // drop to INTERRUPTED
+		case INTERRUPTED:
+			listeners.forEach(listener -> listener.operationFailed(update.getMessage()));
+			break;
+		default:
+			throw new IllegalArgumentException("Unrecognised state! " + update.getStatus());
+		}
+	}
+
+	private Optional<ConfigurationWorkflow> getActiveWorkflow() {
+		switch (getEnergySelectionType()) {
+		case BOTH:
+			return filterActiveWorkflow(monoWorkflow, pinkWorkflow);
+		case MONO:
+			return filterActiveWorkflow(monoWorkflow);
+		case PINK:
+			return filterActiveWorkflow(pinkWorkflow);
+		default:
+			throw new IllegalArgumentException("Unrecognised energy type! " + getEnergySelectionType());
+		}
+	}
+
+	private Optional<ConfigurationWorkflow> filterActiveWorkflow(ConfigurationWorkflow... workflows) {
+		return Arrays.asList(workflows).stream()
+				.filter(workflow -> workflow.getState().getStatus() != WorkflowStatus.IDLE)
+				.findFirst();
 	}
 
 }

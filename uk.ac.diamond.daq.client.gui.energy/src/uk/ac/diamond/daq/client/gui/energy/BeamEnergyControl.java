@@ -23,6 +23,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
 
 public class BeamEnergyControl {
@@ -41,6 +42,8 @@ public class BeamEnergyControl {
 	private Button stop;
 
 	private Label updateMessage;
+
+	private ProgressBar progress;
 
 	private BeamEnergyBean bean;
 
@@ -79,6 +82,9 @@ public class BeamEnergyControl {
 		stop.setText("Stop");
 		stop.setImage(getIcon(STOP_ICON_PATH));
 		layout.applyTo(stop);
+
+		progress = new ProgressBar(base, SWT.NONE);
+		layout.copy().span(2, 1).applyTo(progress);
 
 		updateMessage = new Label(base, SWT.READ_ONLY);
 		updateMessage.setBackground(base.getBackground());
@@ -141,18 +147,10 @@ public class BeamEnergyControl {
 	}
 
 	private void setInitialState() {
-		if (controller.isRunning()) {
-			disable();
-			setMessage("Running...");
-		} else {
-			enable();
-			setMessage("Ready");
-			beamTypeChanged(bean.getType());
-		}
 
 		switch (controller.getEnergySelectionType()) {
 		case BOTH:
-			return;
+			break;
 
 		case MONO:
 			pinkBeam.setVisible(false);
@@ -165,8 +163,14 @@ public class BeamEnergyControl {
 			break;
 
 		default:
-			return;
+			break;
 		}
+
+		stop.setEnabled(false);
+
+		progress.setSelection(0);
+		updateMessage.setText("Ready");
+
 	}
 
 	private void beamTypeChanged(EnergyType newType) {
@@ -183,35 +187,13 @@ public class BeamEnergyControl {
 		controller.stopWorkflow(bean);
 	}
 
-	private void setMessage(String msg) {
-		updateMessage.setText(msg);
-	}
-
-	private void enable() {
-		setControlsEnabled(true);
-		beamTypeChanged(bean.getType());
-	}
-
-	private void disable() {
-		setControlsEnabled(false);
-	}
-
-	private void setControlsEnabled(boolean enabled) {
-		monoBeam.setEnabled(enabled);
-		monoDemand.setEnabled(enabled);
-		pinkBeam.setEnabled(enabled);
-		pinkDemand.getControl().setEnabled(enabled);
-		start.setEnabled(enabled);
-		stop.setEnabled(!enabled);
-	}
-
 	private Image getIcon(String path) {
 		return new Image(Display.getCurrent(), getClass().getResourceAsStream(path));
 	}
 
 	private class Updater implements EnergyControllerListener {
 		@Override
-		public void workflowStarted() {
+		public void operationStarted() {
 			Display.getDefault().asyncExec(() -> {
 				disable();
 				setMessage("Running...");
@@ -219,19 +201,52 @@ public class BeamEnergyControl {
 		}
 
 		@Override
-		public void workflowFinished() {
+		public void operationFinished() {
 			Display.getDefault().asyncExec(() -> {
 				enable();
 				setMessage("Complete");
+				progress.setSelection(100);
 			});
 		}
 
 		@Override
-		public void workflowFailed(String message) {
+		public void operationFailed(String message) {
 			Display.getDefault().asyncExec(() -> {
 				enable();
 				setMessage("Failed: " + message);
 			});
+		}
+
+		@Override
+		public void progressMade(String message, double percentage) {
+			Display.getDefault().asyncExec(() -> {
+				disable();
+				setMessage(message);
+				progress.setSelection((int) percentage);
+			});
+		}
+
+
+		private void setMessage(String msg) {
+			updateMessage.setText(msg);
+		}
+
+		private void enable() {
+			setControlsEnabled(true);
+			beamTypeChanged(bean.getType());
+		}
+
+		private void disable() {
+			setControlsEnabled(false);
+		}
+
+		private void setControlsEnabled(boolean enabled) {
+			monoBeam.setEnabled(enabled);
+			monoDemand.setEnabled(enabled);
+			pinkBeam.setEnabled(enabled);
+			pinkDemand.getControl().setEnabled(enabled);
+			start.setEnabled(enabled);
+			stop.setEnabled(!enabled);
 		}
 	}
 

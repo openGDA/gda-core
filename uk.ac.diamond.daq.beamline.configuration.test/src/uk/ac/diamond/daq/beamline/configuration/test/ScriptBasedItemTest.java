@@ -88,7 +88,6 @@ public class ScriptBasedItemTest {
 		assertThat(position, is(equalTo(singletonMap(scannable, result))));
 	}
 
-
 	@Test
 	public void returnString() throws Exception {
 		Scannable shutter = createMockScannable();
