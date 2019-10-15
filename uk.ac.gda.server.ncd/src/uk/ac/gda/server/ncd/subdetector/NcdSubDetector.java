@@ -40,7 +40,6 @@ import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.Detector;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
-import gda.device.Timer;
 import gda.device.detector.DataDimension;
 import gda.device.detector.NXDetectorData;
 import gda.factory.FactoryException;
@@ -394,18 +393,6 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 			//
 		}
 		logger.error("{} - cannot set mask due to dimensions problem", getName());
-	}
-
-	@Override
-	public void atScanStart() throws DeviceException {
-	}
-
-	@Override
-	public void atScanEnd() throws DeviceException {
-	}
-
-	@Override
-	public void setTimer(Timer timer) {
 	}
 
 	public String getInterpretation() {
