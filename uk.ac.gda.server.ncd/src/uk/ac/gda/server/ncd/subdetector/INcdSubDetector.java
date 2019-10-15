@@ -27,7 +27,7 @@ import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.detector.DataDimension;
 import gda.device.detector.NXDetectorData;
-
+import gda.scan.ScanInformation;
 
 /**
  * A class to represent a physical detector for NCD.
@@ -76,6 +76,10 @@ public interface INcdSubDetector extends Device {
 
 	@SuppressWarnings("unused")
 	public default void atScanStart() throws DeviceException {
+	}
+
+	public default void atScanStart(@SuppressWarnings("unused") final ScanInformation info) throws DeviceException {
+		atScanStart();
 	}
 
 	@SuppressWarnings("unused")

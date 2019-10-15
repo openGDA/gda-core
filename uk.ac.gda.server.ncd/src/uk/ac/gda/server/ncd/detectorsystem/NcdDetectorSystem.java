@@ -36,7 +36,9 @@ import gda.device.detector.DetectorBase;
 import gda.device.detector.NXDetectorData;
 import gda.device.scannable.PositionCallableProvider;
 import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
+import gda.scan.ScanInformation;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.server.ncd.actions.NcdAction;
 import uk.ac.gda.server.ncd.beans.CalibLabel;
@@ -347,8 +349,10 @@ public class NcdDetectorSystem extends DetectorBase implements NcdDetector, Posi
 	@Override
 	public void atScanStart() throws DeviceException {
 		scanStartActions.stream().forEach(NcdAction::run);
+		ScanInformation scanInformation = InterfaceProvider.getCurrentScanInformationHolder()
+				.getCurrentScanInformation();
 		for (INcdSubDetector det : subDetectors) {
-			det.atScanStart();
+			det.atScanStart(scanInformation);
 		}
 	}
 

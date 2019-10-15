@@ -302,18 +302,16 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 	 * we need to initiate the file saving in here in order for that to be in line with the scan
 	 */
 	@Override
-	public void atScanStart() throws DeviceException {
+	public void atScanStart(ScanInformation info) throws DeviceException {
 		logger.debug("{} - scan start", getName());
 		if (tfgMisconfigurationException != null)
 			throw tfgMisconfigurationException;
 
-		ScanInformation scanInformation = InterfaceProvider.getCurrentScanInformationHolder()
-				.getCurrentScanInformation();
 		try {
 			if (nxplugins != null) {
 				for (NXPlugin nxpi: nxplugins) {
 					nxpi.stop();
-					nxpi.prepareForCollection(controller.getNumImages(), scanInformation);
+					nxpi.prepareForCollection(controller.getNumImages(), info);
 					nxpi.prepareForLine();
 				}
 			}
@@ -321,7 +319,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 			throw new DeviceException(getName() + " - error setting up nxplugins", e);
 		}
 		try {
-			controller.setScanDimensions(scanInformation.getDimensions());
+			controller.setScanDimensions(info.getDimensions());
 			setupFilename();
 			controller.resetCounters();
 			controller.startRecording();
