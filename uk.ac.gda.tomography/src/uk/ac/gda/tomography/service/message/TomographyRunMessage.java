@@ -18,15 +18,17 @@
 
 package uk.ac.gda.tomography.service.message;
 
-public class TomographyRunMessage implements TomographyMessage {
-	private final Object configuration;
+import java.io.Serializable;
 
-	public TomographyRunMessage(Object configuration) {
+public class TomographyRunMessage implements TomographyMessage, Serializable {
+	private final Serializable configuration;
+
+	public TomographyRunMessage(Serializable configuration) {
 		super();
 		this.configuration = configuration;
 	}
 
-	public Object getConfiguration() {
+	public Serializable getConfiguration() {
 		return configuration;
 	}
 

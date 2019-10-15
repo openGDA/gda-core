@@ -1,10 +1,14 @@
 package uk.ac.gda.tomography.ui.controller;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EnumMap;
 import java.util.Map;
@@ -15,6 +19,9 @@ import java.util.stream.Collectors;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Controller;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -22,14 +29,14 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import gda.jython.JythonServerFacade;
-import uk.ac.diamond.daq.experiment.api.Services;
-import uk.ac.diamond.daq.experiment.api.TriggerableScan;
 import uk.ac.gda.tomography.base.TomographyConfiguration;
 import uk.ac.gda.tomography.base.TomographyMode;
 import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
 import uk.ac.gda.tomography.base.TomographyParameters;
 import uk.ac.gda.tomography.controller.AcquisitionController;
 import uk.ac.gda.tomography.controller.AcquisitionControllerException;
+import uk.ac.gda.tomography.event.TomographyRunAcquisitionEvent;
+import uk.ac.gda.tomography.event.TomographySaveEvent;
 import uk.ac.gda.tomography.model.DevicePosition;
 import uk.ac.gda.tomography.model.EndAngle;
 import uk.ac.gda.tomography.model.ImageCalibration;
@@ -44,7 +51,6 @@ import uk.ac.gda.tomography.service.TomographyService;
 import uk.ac.gda.tomography.service.TomographyServiceException;
 import uk.ac.gda.tomography.service.impl.TomographyServiceImpl;
 import uk.ac.gda.tomography.service.message.TomographyRunMessage;
-import uk.ac.gda.tomography.triggerable.TriggerableTomography;
 import uk.ac.gda.tomography.ui.StageConfiguration;
 
 /**
@@ -52,15 +58,12 @@ import uk.ac.gda.tomography.ui.StageConfiguration;
  *
  * @author Maurizio Nagni
  */
+@Controller
 public class TomographyParametersAcquisitionController implements AcquisitionController<TomographyParameterAcquisition> {
 	private static final Logger logger = LoggerFactory.getLogger(TomographyParametersAcquisitionController.class);
 
-	private static final String CANNOT_SERIALIZE = "Cannot serialize data";
 	private static final String TOMOGRAPHY_BASE_DIR = "tomographyBaseDir";
-	private static final String TOMOGRAPHY_CONFIGURATIONS_FOLDER = "configurations";
 	private static final String TOMOGRAPHY_SCRIPT_FOLDER = "scripts";
-	private static final String JSON_EXTENSION = "json";
-	private static final String PYTHON_EXTENSION = "py";
 
 	public enum Positions {
 		DEFAULT, OUT_OF_BEAM, START, END;
@@ -69,6 +72,9 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	public enum METADATA {
 		EXPOSURE;
 	}
+
+	@Autowired
+	private ApplicationEventPublisher applicationEventPublisher;
 
 	private TomographyMode tomographyMode;
 	private TomographyParameterAcquisition acquisition;
@@ -126,53 +132,66 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	@Override
 	public void saveAcquisitionAsFile(final TomographyParameterAcquisition acquisition, URL destination) throws AcquisitionControllerException {
 		StageConfiguration sc = generateStageConfiguration(acquisition);
-		if (requiresOutOfBeamPosition(sc)) {
-			throw new AcquisitionControllerException("Acquisition needs a OutOfBeam position to acquire flat images");
-		}
-		TriggerableScan triggerableTomo = new TriggerableTomography(dataToJson(generateStageConfiguration(acquisition)),
-				getAcquisitionScript().getAbsolutePath());
-		Services.getExperimentService().saveScan(triggerableTomo, acquisition.getAcquisitionConfiguration().getAcquisitionParameters().getName(), null); // FIXME visit?)
-//		Path filePath = File.class.cast(dataConfigurationSource).toPath();
-//		try {
-//			Files.delete(filePath);
-//		} catch (IOException e) {
-//			throw new AcquisitionControllerException(e);
-//		}
-//		File newFile;
-//		try {
-//			newFile = new File(destination.toURI());
-//		} catch (URISyntaxException e) {
-//			throw new AcquisitionControllerException("Canot save acquisition configuration on file", e);
-//		}
-//		try (FileOutputStream fos = new FileOutputStream(newFile)) {
-//			DataOutputStream outStream = new DataOutputStream(fos);
-//			outStream.writeUTF(dataToJson(generateStageConfiguration(acquisition)));
-//		} catch (IOException e) {
-//			throw new AcquisitionControllerException("Canot save acquisition configuration on file", e);
-//		}
-	}
+		String acquisitionDocument = dataToJson(sc);
 
-	private void populateMetadata() {
-		getTomographyMode().getMetadata().put(METADATA.EXPOSURE.name(), Double.toString(0.1));
+		saveFile(destination, acquisitionDocument);
+
+		publishSave(acquisition.getAcquisitionConfiguration().getAcquisitionParameters().getName(), acquisitionDocument,
+				getAcquisitionScript().getAbsolutePath());
 	}
 
 	@Override
 	public void saveAcquisitionAsIDialogSettings(TomographyParameterAcquisition acquisition, IDialogSettings destination, String key)
 			throws AcquisitionControllerException {
-		destination.put(key, dataToJson(acquisition));
+		StageConfiguration sc = generateStageConfiguration(acquisition);
+		String acquisitionDocument = dataToJson(sc);
+
+		saveFile(destination, acquisitionDocument, key);
+
+		publishSave(acquisition.getAcquisitionConfiguration().getAcquisitionParameters().getName(), acquisitionDocument,
+				getAcquisitionScript().getAbsolutePath());
 	}
 
 	@Override
 	public void runAcquisition(TomographyParameterAcquisition acquisition) throws AcquisitionControllerException {
 		try {
 			StageConfiguration sc = generateStageConfiguration(acquisition);
-			if (requiresOutOfBeamPosition(sc)) {
-				throw new AcquisitionControllerException("Acquisition needs a OutOfBeam position to acquire flat images");
-			}
-			tomographyService.runAcquisition(createTomographyRunMessage(generateStageConfiguration(acquisition)), getAcquisitionScript(), null, null);
+			TomographyRunMessage tomographyRunMessage = createTomographyRunMessage(sc);
+			tomographyService.runAcquisition(tomographyRunMessage, getAcquisitionScript(), null, null);
+
+			publishRun(tomographyRunMessage);
 		} catch (TomographyServiceException e) {
 			logger.error("Error submitting tomoscan to queue", e);
 		}
+	}
+
+	private void saveFile(URL destination, String acquisitionDocument) throws AcquisitionControllerException {
+		Path filePath = File.class.cast(dataConfigurationSource).toPath();
+		try {
+			Files.delete(filePath);
+		} catch (IOException e) {
+			throw new AcquisitionControllerException(e);
+		}
+		File newFile;
+		try {
+			newFile = new File(destination.toURI());
+		} catch (URISyntaxException e) {
+			throw new AcquisitionControllerException("Cannot save acquisition configuration on file", e);
+		}
+		try (FileOutputStream fos = new FileOutputStream(newFile)) {
+			DataOutputStream outStream = new DataOutputStream(fos);
+			outStream.writeUTF(acquisitionDocument);
+		} catch (IOException e) {
+			throw new AcquisitionControllerException("Cannot save acquisition configuration on file", e);
+		}
+	}
+
+	private void populateMetadata() {
+		getTomographyMode().getMetadata().put(METADATA.EXPOSURE.name(), Double.toString(0.1));
+	}
+
+	private void saveFile(IDialogSettings destination, String acquisitionDocument, String key) {
+		destination.put(key, acquisitionDocument);
 	}
 
 	/**
@@ -184,7 +203,8 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	 */
 	private boolean requiresOutOfBeamPosition(StageConfiguration sc) {
 		ImageCalibration ic = sc.getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters().getImageCalibration();
-		return ((ic.getNumberFlat() > 0 && (ic.isAfterAcquisition() || ic.isBeforeAcquisition())) && !sc.getMotorPositions().containsKey(Positions.OUT_OF_BEAM));
+		return ((ic.getNumberFlat() > 0 && (ic.isAfterAcquisition() || ic.isBeforeAcquisition()))
+				&& !sc.getMotorPositions().containsKey(Positions.OUT_OF_BEAM));
 	}
 
 	// @Override
@@ -228,10 +248,14 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		return motorsPosition.get(position);
 	}
 
-	private StageConfiguration generateStageConfiguration(TomographyParameterAcquisition acquisition) {
+	private StageConfiguration generateStageConfiguration(TomographyParameterAcquisition acquisition) throws AcquisitionControllerException {
 		populateMetadata();
 		savePosition(Positions.START);
-		return new StageConfiguration(acquisition, getTomographyMode(), getMotorsPositions());
+		StageConfiguration sc = new StageConfiguration(acquisition, getTomographyMode(), getMotorsPositions());
+		if (requiresOutOfBeamPosition(sc)) {
+			throw new AcquisitionControllerException("Acquisition needs a OutOfBeam position to acquire flat images");
+		}
+		return sc;
 	}
 
 	private String dataToJson(TomographyParameterAcquisition acquisition) throws AcquisitionControllerException {
@@ -327,4 +351,13 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		newConfiguration.getAcquisitionConfiguration().setAcquisitionParameters(tp);
 		return newConfiguration;
 	}
+
+	private void publishSave(String name, String acquisition, String scriptPath) {
+		applicationEventPublisher.publishEvent(new TomographySaveEvent(this, name, acquisition, scriptPath));
+	}
+
+	private void publishRun(TomographyRunMessage tomographyRunMessage) {
+		applicationEventPublisher.publishEvent(new TomographyRunAcquisitionEvent(this, tomographyRunMessage));
+	}
+
 }

@@ -18,8 +18,6 @@
 
 package uk.ac.gda.tomography.scan.editor.view;
 
-import java.io.File;
-
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.FontDescriptor;
@@ -114,7 +112,6 @@ public class TomographyAcquisitionComposite extends CompositeTemplate<Tomography
 			if (dialog.getReturnCode() == TomographyScanParameterDialog.SAVE) {
 				controller.saveAcquisitionAsIDialogSettings(getController().getAcquisition(), Activator.getDefault().getDialogSettings(),
 						DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL);
-				controller.saveAcquisitionAsFile(getController().getAcquisition(), new File("hi").toURI().toURL());
 			}
 			if (dialog.getReturnCode() == TomographyScanParameterDialog.RUN) {
 				controller.saveAcquisitionAsIDialogSettings(getController().getAcquisition(), Activator.getDefault().getDialogSettings(),

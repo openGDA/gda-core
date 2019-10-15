@@ -10,6 +10,7 @@ Export-Package: uk.ac.gda.tomography;uses:="org.osgi.framework,uk.ac.gda.tomogra
  uk.ac.gda.tomography.base.serializer,
  uk.ac.gda.tomography.controller,
  uk.ac.gda.tomography.devices;uses:="gda.factory",
+ uk.ac.gda.tomography.event,
  uk.ac.gda.tomography.model,
  uk.ac.gda.tomography.parameters;uses:="org.eclipse.emf.ecore,org.eclipse.emf.common.util",
  uk.ac.gda.tomography.parameters.impl;
@@ -56,6 +57,7 @@ Import-Package: com.fasterxml.jackson.annotation;version="2.6.2",
  org.eclipse.scanning.api.device.models,
  org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory;version="3.0.4",
+ org.springframework.context;version="4.0.6.RELEASE",
  org.springframework.util;version="3.0.4"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework

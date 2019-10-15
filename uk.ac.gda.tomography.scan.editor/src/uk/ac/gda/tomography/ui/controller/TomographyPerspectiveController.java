@@ -22,6 +22,8 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 
 import uk.ac.gda.tomography.controller.AcquisitionControllerException;
 
@@ -30,15 +32,17 @@ import uk.ac.gda.tomography.controller.AcquisitionControllerException;
  *
  * @author Maurizio Nagni
  */
+@Controller
 public class TomographyPerspectiveController {
 
+	@Autowired
 	private TomographyParametersAcquisitionController tomographyAcquisitionController;
 
 	private static final Logger logger = LoggerFactory.getLogger(TomographyPerspectiveController.class);
 
 	public TomographyParametersAcquisitionController getTomographyAcquisitionController() {
-		if (Objects.isNull(tomographyAcquisitionController)) {
-			tomographyAcquisitionController = new TomographyParametersAcquisitionController();
+		// This conditional statement should be removed and managed by the controller when necessary
+		if (Objects.isNull(tomographyAcquisitionController.getAcquisition())) {
 			try {
 				tomographyAcquisitionController.loadData(TomographyParametersAcquisitionController.createNewAcquisition());
 			} catch (AcquisitionControllerException e) {

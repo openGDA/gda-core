@@ -9,6 +9,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: uk.ac.gda.tomography.scan.editor,
  uk.ac.gda.tomography.scan.editor.view,
  uk.ac.gda.tomography.scan.presentation,
+ uk.ac.gda.tomography.ui,
  uk.ac.gda.tomography.ui.controller,
  uk.ac.gda.tomography.ui.mode
 Require-Bundle: uk.ac.gda.core;bundle-version="8.26.0",
@@ -23,8 +24,7 @@ Require-Bundle: uk.ac.gda.core;bundle-version="8.26.0",
  uk.ac.gda.tomography.scan,
  org.eclipse.dawnsci.analysis.api,
  uk.ac.gda.common,
- uk.ac.gda.tomography,
- uk.ac.diamond.daq.experiment.api;bundle-version="1.0.0"
+ uk.ac.gda.tomography
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-ActivationPolicy: lazy
 Import-Package: com.fasterxml.jackson.core;version="2.6.2",
@@ -38,6 +38,11 @@ Import-Package: com.fasterxml.jackson.core;version="2.6.2",
  org.eclipse.scanning.api.event.core,
  org.junit;version="4.12.0",
  org.slf4j;version="[1.7.2,2.0.0)",
+ org.springframework.beans;version="4.0.6.RELEASE",
+ org.springframework.beans.factory;version="4.0.6.RELEASE",
+ org.springframework.beans.factory.annotation;version="4.0.6.RELEASE",
+ org.springframework.context;version="4.0.6.RELEASE",
+ org.springframework.stereotype;version="4.0.6.RELEASE",
  uk.ac.diamond.daq.client.gui.camera,
  uk.ac.gda.api.camera,
  uk.ac.gda.client.live.stream,
