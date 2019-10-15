@@ -184,7 +184,6 @@ public class SingleScalerWithScalingAndOffset extends NcdScalerDetector implemen
 	public void atScanStart() throws DeviceException {
 		wasFixed = scalingAndOffset.isFixed();
 		scalingAndOffset.setFixed(true);
-		super.atScanStart();
 	}
 
 	@Override
