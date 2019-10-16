@@ -23,6 +23,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InOrder;
+
 import gda.MockFactory;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
@@ -35,10 +40,6 @@ import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
 import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.InOrder;
 
 /**
  *
@@ -162,7 +163,7 @@ public class ConstantVelocityScanLineTest {
 
 		inOrder.verify(mockedController).stopAndReset();
 		inOrder.verify(mockedController).setStart(-.5);
-		inOrder.verify(mockedController).setEnd(1.5);
+		inOrder.verify(mockedController).setEnd(2.5);
 		inOrder.verify(mockedController).setStep(1.);
 
 
