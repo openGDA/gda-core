@@ -903,10 +903,10 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		// Instantiate validation class
 		SpecsPhoibosSequenceValidation validationErrors = new SpecsPhoibosSequenceValidation();
 
-		for (SpecsPhoibosRegion region : sequence.getRegions()) {
-			List<String> regionErrors = validateRegion(region);
+		for (SpecsPhoibosRegion enabledRegion : sequence.getEnabledRegions()) {
+			List<String> regionErrors = validateRegion(enabledRegion);
 			if (! regionErrors.isEmpty()) {
-				validationErrors.addValidationErrors(region, regionErrors);
+				validationErrors.addValidationErrors(enabledRegion, regionErrors);
 			}
 		}
 		return validationErrors;
