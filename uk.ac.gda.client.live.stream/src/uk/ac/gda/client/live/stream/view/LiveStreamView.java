@@ -343,7 +343,7 @@ public class LiveStreamView extends ViewPart {
 		actionBars.getMenuManager().removeAll();
 
 		// Add the Reset button to restart the view
-		toolBarManager.insertBefore(toolBarManager.getItems()[0].getId(), new Action() {
+		Action reset = new Action() {
 			@Override
 			public void run() {
 				openViewWithSecondaryId(getViewSite().getSecondaryId(), true);
@@ -356,7 +356,10 @@ public class LiveStreamView extends ViewPart {
 			public  String getToolTipText() {
 				return "Reset live stream view";
 			}
-		});
+		};
+		reset.setId("uk.ac.gda.client.live.stream.view.reset");
+
+		toolBarManager.insertBefore(toolBarManager.getItems()[0].getId(), reset);
 
 		actionBars.updateActionBars();
 	}
