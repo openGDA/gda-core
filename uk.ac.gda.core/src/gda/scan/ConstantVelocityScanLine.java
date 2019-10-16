@@ -141,7 +141,7 @@ public class ConstantVelocityScanLine extends AbstractContinuousScanLine {
 		}else{
 		if (detectorsIntegrateBetweenTriggers) {
 			controller.setStart(start - step / 2.);
-			controller.setEnd(stop - step / 2.);
+			controller.setEnd(stop + step / 2.);
 		} else {
 			controller.setStart(start);
 			controller.setEnd(stop);
