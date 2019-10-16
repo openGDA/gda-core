@@ -29,6 +29,7 @@ import org.eclipse.dawnsci.hdf5.HDF5Utils;
 import org.eclipse.dawnsci.hdf5.HDF5Utils.DatasetType;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.StringDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,7 +119,7 @@ public class Hdf5Helper {
 		// Create a new file using default properties.
 		try {
 			if ((new File(fileName)).exists()) {
-				fileId = HDF5Utils.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDWR, HDF5Constants.H5P_DEFAULT);
+				fileId = H5.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDWR, HDF5Constants.H5P_DEFAULT);
 			} else {
 				fileId = H5.H5Fcreate(fileName, HDF5Constants.H5F_ACC_EXCL, HDF5Constants.H5P_DEFAULT,
 						HDF5Constants.H5P_DEFAULT);
@@ -252,7 +253,7 @@ public class Hdf5Helper {
 		// Create a new file using default properties.
 		try {
 			if ((new File(fileName)).exists()) {
-				fileId = HDF5Utils.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDWR, HDF5Constants.H5P_DEFAULT);
+				fileId = H5.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDWR, HDF5Constants.H5P_DEFAULT);
 			} else {
 				fileId = H5.H5Fcreate(fileName, HDF5Constants.H5F_ACC_EXCL, HDF5Constants.H5P_DEFAULT,
 						HDF5Constants.H5P_DEFAULT);
@@ -299,12 +300,12 @@ public class Hdf5Helper {
 	}
 
 	public Dataset createDataSet(Hdf5HelperData hData, boolean extend) throws NullPointerException {
-		int dtype = hData.datasetType.dtype;
+		Class<? extends Dataset> clazz = hData.datasetType.clazz;
 		int dims[] = new int[hData.dims.length];
 		for (int i = 0; i < hData.dims.length; i++)
 			dims[i] = (int) hData.dims[i];
 
-		return HDF5Utils.createDataset(hData.data, dims, dtype, extend);
+		return HDF5Utils.createDataset(hData.data, dims, clazz, extend);
 	}
 
 	public Hdf5HelperData readDataSetAll(String fileName, String location, String dataSetName, boolean getData)
@@ -329,7 +330,7 @@ public class Hdf5Helper {
 		Vector<String> names = new Vector<String>();
 		long fileId = -1;
 		try {
-			fileId = HDF5Utils.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDONLY, HDF5Constants.H5P_DEFAULT);
+			fileId = H5.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDONLY, HDF5Constants.H5P_DEFAULT);
 			if (fileId < 0) {
 				throw new Exception("Unable to open file `" + fileName + "`");
 			}
@@ -422,7 +423,7 @@ public class Hdf5Helper {
 			long[] data_dims, long native_mem_type, Object data, boolean getData) throws Exception {
 		long fileId = -1;
 		try {
-			fileId = HDF5Utils.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDONLY, HDF5Constants.H5P_DEFAULT);
+			fileId = H5.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDONLY, HDF5Constants.H5P_DEFAULT);
 			if (fileId < 0) {
 				throw new IllegalArgumentException("Unable to open file `" + fileName + "`");
 			}
@@ -531,7 +532,7 @@ public class Hdf5Helper {
 			}
 			shape[i] = (int) s;
 		}
-		return DatasetFactory.zeros(datasetType.isize, shape, datasetType.dtype).getBuffer();
+		return DatasetFactory.zeros(datasetType.isize, datasetType.clazz, shape).getBuffer();
 	}
 
 
@@ -557,7 +558,7 @@ public class Hdf5Helper {
 		long dataspaceId = -1;
 		long memtype_id = -1;
 		try {
-			fileId = HDF5Utils.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDONLY, HDF5Constants.H5P_DEFAULT);
+			fileId = H5.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDONLY, HDF5Constants.H5P_DEFAULT);
 			if (fileId < 0) {
 				throw new IllegalArgumentException("Unable to open file " + fileName);
 			}
@@ -589,7 +590,7 @@ public class Hdf5Helper {
 			long native_type = H5.H5Tget_native_type(mem_type_id);
 			DatasetType datasetType = HDF5Utils.getDatasetType(mem_type_id, native_type);
 			Object data = allocateArray(datasetType, dims);
-			if (datasetType.dtype == Dataset.STRING) {
+			if (StringDataset.class.isAssignableFrom(datasetType.clazz)) {
 				if (datasetType.isVariableLength) {
 					H5.H5AreadVL(attributeId, mem_type_id, (String[]) data);
 				} else {
@@ -661,7 +662,7 @@ public class Hdf5Helper {
 		long dataspaceId = -1;
 		long memtype_id = -1;
 		try {
-			fileId = HDF5Utils.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDONLY, HDF5Constants.H5P_DEFAULT);
+			fileId = H5.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDONLY, HDF5Constants.H5P_DEFAULT);
 			if (fileId < 0) {
 				throw new IllegalArgumentException("Unable to open file " + fileName);
 			}
@@ -788,7 +789,7 @@ public class Hdf5Helper {
 		long memtype_id = -1;
 		String attributeHolderName = location.getLocationForOpen();
 		try {
-			fileId = HDF5Utils.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDWR, HDF5Constants.H5P_DEFAULT);
+			fileId = H5.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDWR, HDF5Constants.H5P_DEFAULT);
 			if (fileId < 0) {
 				throw new IllegalArgumentException("Unable to open file " + fileName);
 			}

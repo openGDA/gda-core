@@ -594,8 +594,8 @@ public class NexusDataWriter extends DataWriterBase {
 			DataNode d = file.getData(g, "data");
 			ILazyWriteableDataset lazy;
 			if (d == null) {
-				lazy = NexusUtils.createLazyWriteableDataset("data", Dataset.FLOAT64, dimArray, null, null);
-				lazy.setFillValue(getFillValue(Dataset.FLOAT64));
+				lazy = NexusUtils.createLazyWriteableDataset("data", Double.class, dimArray, null, null);
+				lazy.setFillValue(getFillValue(Double.class));
 				file.createData(g, lazy);
 			} else {
 				lazy = d.getWriteableDataset();
@@ -1056,8 +1056,8 @@ public class NexusDataWriter extends DataWriterBase {
 			final int[] chunking = NexusUtils.estimateChunking(scanDimensions, 8);
 
 			for (String header : headers) {
-				ILazyWriteableDataset lazyWriteableDataset = NexusUtils.createLazyWriteableDataset(header, Dataset.FLOAT64, dataDimensions, null, chunking);
-				lazyWriteableDataset.setFillValue(getFillValue(Dataset.FLOAT64));
+				ILazyWriteableDataset lazyWriteableDataset = NexusUtils.createLazyWriteableDataset(header, Double.class, dataDimensions, null, chunking);
+				lazyWriteableDataset.setFillValue(getFillValue(Double.class));
 				file.createData(measurementGroup, lazyWriteableDataset); // Makes the dataset
 			}
 
@@ -1128,7 +1128,7 @@ public class NexusDataWriter extends DataWriterBase {
 			}
 			NexusUtils.writeString(file, g, "start_time", ISO_OFFSET_DATE_TIME.format(startTime));
 			ILazyWriteableDataset endTime = NexusUtils.createLazyWriteableDataset(
-					"end_time", Dataset.STRING, new int[] {1}, new int[] {1}, new int[] {1});
+					"end_time", String.class, new int[] {1}, new int[] {1}, new int[] {1});
 			file.createData(g, endTime);
 			createCustomMetaData(g);
 		} catch (Exception e) {
@@ -1292,8 +1292,8 @@ public class NexusDataWriter extends DataWriterBase {
 					// Create the data array (with an unlimited scan
 					// dimension)
 					int[] chunking = NexusUtils.estimateChunking(scanDimensions, 8);
-					ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(element, Dataset.FLOAT64, dataDim, null, chunking);
-					lazy.setFillValue(getFillValue(Dataset.FLOAT64));
+					ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(element, Double.class, dataDim, null, chunking);
+					lazy.setFillValue(getFillValue(Double.class));
 					DataNode data = file.createData(g, lazy);
 
 					// Get a link ID to this data set.
@@ -1321,8 +1321,8 @@ public class NexusDataWriter extends DataWriterBase {
 
 					// Create the data array (with an unlimited scan
 					// dimension)
-					ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(element, Dataset.FLOAT64, dataDim, null, null);
-					lazy.setFillValue(getFillValue(Dataset.FLOAT64));
+					ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(element, Double.class, dataDim, null, null);
+					lazy.setFillValue(getFillValue(Double.class));
 					DataNode data = file.createData(g, lazy);
 
 					// Get a link ID to this data set.
@@ -1404,7 +1404,7 @@ public class NexusDataWriter extends DataWriterBase {
 			INexusTree detTree = extractNexusTree(detector.getName());
 			for (INexusTree det : detTree) {
 				if (det.getNxClass().equals(NexusExtractor.NXDetectorClassName)) {
-					makeGenericDetector(det.getName(), null, Dataset.FLOAT64, detector, det);
+					makeGenericDetector(det.getName(), null, Double.class, detector, det);
 				} else if (det.getNxClass().equals(NexusExtractor.NXMonitorClassName)) {
 					// FIXME -- if this doesn't explode I am truly surprised
 					GroupNode group = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), false);
@@ -1419,7 +1419,7 @@ public class NexusDataWriter extends DataWriterBase {
 			makeCounterTimer(detector);
 		} else {
 			logger.debug("Creating Generic Detector entry in NeXus file.");
-			makeGenericDetector(detector.getName(), detector.getDataDimensions(), Dataset.FLOAT64, detector, null);
+			makeGenericDetector(detector.getName(), detector.getDataDimensions(), Double.class, detector, null);
 		}
 	}
 
@@ -1490,7 +1490,7 @@ public class NexusDataWriter extends DataWriterBase {
 
 		int[] dataDim = generateDataDim(true, scanDimensions, null);
 
-		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("file_name", Dataset.STRING, dataDim, null, null);
+		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("file_name", String.class, dataDim, null, null);
 		int dataByteSize = 8; // vlen strings are sizeof(char*), need to handle fixed length case
 		int[] chunk = NexusUtils.estimateChunking(scanDimensions, dataByteSize);
 		lazy.setChunking(chunk);
@@ -1511,7 +1511,7 @@ public class NexusDataWriter extends DataWriterBase {
 	/**
 	 * Creates an NXdetector for a generic detector (ie one without a special create routine).
 	 */
-	private void makeGenericDetector(String detectorName, int[] dataDimensions, int dtype, Detector detector,
+	private void makeGenericDetector(String detectorName, int[] dataDimensions, Class<?> clazz, Detector detector,
 			INexusTree detectorData) throws NexusException {
 		// Navigate to the relevant section in file...
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
@@ -1559,8 +1559,8 @@ public class NexusDataWriter extends DataWriterBase {
 			boolean first = true;
 			for (String extra : detector.getExtraNames()) {
 
-				ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(extra, Dataset.FLOAT64, dataDim, null, null);
-				lazy.setFillValue(getFillValue(Dataset.FLOAT64));
+				ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(extra, Double.class, dataDim, null, null);
+				lazy.setFillValue(getFillValue(Double.class));
 				DataNode data = file.createData(group, lazy);
 
 				NexusUtils.writeStringAttribute(file, data, "local_name", String.format("%s.%s", detectorName, extra));
@@ -1588,8 +1588,8 @@ public class NexusDataWriter extends DataWriterBase {
 			int[] dataDim = generateDataDim(true, scanDimensions, dataDimensions);
 
 			// make the data array to store the data...
-			ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("data", dtype, dataDim, null, null);
-			lazy.setFillValue(getFillValue(dtype));
+			ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("data", clazz, dataDim, null, null);
+			lazy.setFillValue(getFillValue(clazz));
 			DataNode data = file.createData(group, lazy);
 			NexusUtils.writeStringAttribute(file, data, "local_name", String.format("%s.%s", detectorName, detectorName));
 
@@ -1648,7 +1648,7 @@ public class NexusDataWriter extends DataWriterBase {
 		for (int j = 0; j < extraNames.length; j++) {
 
 			// this can fail if the list of names contains duplicates
-			ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(extraNames[j], Dataset.FLOAT64, dataDim, null, null);
+			ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(extraNames[j], Double.class, dataDim, null, null);
 			lazy.setChunking(NexusUtils.estimateChunking(scanDimensions, 8));
 			DataNode data = file.createData(group, lazy);
 
@@ -2086,26 +2086,23 @@ public class NexusDataWriter extends DataWriterBase {
 	}
 
 	private static Object getFillValue(int dtype) {
-		switch (dtype) {
-		case Dataset.FLOAT64: {
+		return getFillValue(DTypeUtils.getElementClass(dtype));
+	}
+	private static Object getFillValue(Class<?> clazz) {
+
+		if (Double.class.equals(clazz)) {
 			String floatFill = LocalProperties.get("gda.nexus.floatfillvalue", "nan");
 			return floatFill.equalsIgnoreCase("nan") ? Double.NaN : Double.parseDouble(floatFill);
 		}
-		case Dataset.FLOAT32: {
+		if (Float.class.equals(clazz)) {
 			String floatFill = LocalProperties.get("gda.nexus.floatfillvalue", "nan");
 			return floatFill.equalsIgnoreCase("nan") ? Float.NaN : Float.parseFloat(floatFill);
 		}
-		case Dataset.INT8:
-			return (byte) 0;
-		case Dataset.INT16:
-			return (short) 0;
-		case Dataset.INT32:
-			return 0;
-		case Dataset.INT64:
-			return (long) 0;
-		default:
-			return null;
+		Object[] objs = NexusUtils.getFillValue(clazz);
+		if (objs != null) {
+			return objs[0];
 		}
+			return null;
 	}
 
 	/**

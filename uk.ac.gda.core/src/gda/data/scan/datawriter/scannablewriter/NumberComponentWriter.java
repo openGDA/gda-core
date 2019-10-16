@@ -74,7 +74,7 @@ public class NumberComponentWriter extends DefaultComponentWriter {
 
 		final int[] makedatadim = makedatadimfordim(dim);
 		final int[] initialdims = new int[makedatadim.length];
-		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(name, Dataset.FLOAT64, initialdims, makedatadim, null);
+		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(name, Double.class, initialdims, makedatadim, null);
 		String fillValue = LocalProperties.get("gda.nexus.floatfillvalue", "nan");
 		lazy.setFillValue(fillValue.equalsIgnoreCase("nan") ? Double.NaN : Double.parseDouble(fillValue));
 		lazy.setChunking(chunkfordim(dim, 8));
