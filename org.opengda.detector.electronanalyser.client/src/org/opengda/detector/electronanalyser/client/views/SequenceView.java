@@ -260,10 +260,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource().equals(comboElementSet)) {
 				updateFeature(sequence, RegiondefinitionPackage.eINSTANCE.getSequence_ElementSet(), comboElementSet.getText());
-				if (!isAllRegionsValid()) {
-					openMessageBox("Invalid Regions", "There are invalid active regions in the Sequence Editor. \nCorrect"
-							+ " and validate all active regions by de-select and re-select them.", SWT.ICON_WARNING);
-				}
 			}
 		}
 	};
