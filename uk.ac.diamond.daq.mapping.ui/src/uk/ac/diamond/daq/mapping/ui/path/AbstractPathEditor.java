@@ -39,8 +39,7 @@ public abstract class AbstractPathEditor extends AbstractModelEditor<IScanPathMo
 	private static final Logger logger = LoggerFactory.getLogger(AbstractPathEditor.class);
 	private Button continuous;
 	private Label continuousLabel;
-	private Binding continousBinding;
-
+	private Binding continuousBinding;
 	/**
 	 * If the path edited by this editor can be continuous (Malcolm-driven), this method will draw the controls for consistency.
 	 * @param parent composite to draw control on
@@ -49,7 +48,7 @@ public abstract class AbstractPathEditor extends AbstractModelEditor<IScanPathMo
 		continuousLabel = new Label(parent, SWT.NONE);
 		continuousLabel.setText("Continuous");
 		continuous = new Button(parent, SWT.CHECK);
-		continousBinding = binder.bind(continuous, "continuous", getModel());
+		continuousBinding = binder.bind(continuous, "continuous", getModel());
 	}
 
 	/**
@@ -59,10 +58,21 @@ public abstract class AbstractPathEditor extends AbstractModelEditor<IScanPathMo
 	public void setContinuousEnabled(boolean enabled) {
 		if (continuousLabel != null) {
 			continuousLabel.setEnabled(enabled);
-
 			continuous.setEnabled(enabled);
-			continuous.setSelection(enabled);
-			continousBinding.updateTargetToModel();
+
+			if (enabled) {
+				// control is enabled: update it from model
+				continuousBinding.updateModelToTarget();
+			} else {
+
+				/* Control is disabled: uncheck button but don't update model
+				 *
+				 * Q: Why?
+				 * A: We want to cache the continuous state for the next time
+				 *    the control becomes enabled
+				 */
+				continuous.setSelection(false);
+			}
 		}
 	}
 
