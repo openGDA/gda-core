@@ -32,6 +32,7 @@ public class XanesEdgeParameters {
 
 	private String linesToTrack = "";
 	private String trackingMethod = REFERENCE.toString();
+	private String visitId = "";
 
 	public String getLinesToTrack() {
 		return linesToTrack;
@@ -49,9 +50,18 @@ public class XanesEdgeParameters {
 		this.trackingMethod = trackingMethod;
 	}
 
+	public String getVisitId() {
+		return visitId;
+	}
+
+	public void setVisitId(String visitId) {
+		this.visitId = visitId;
+	}
+
 	@Override
 	public String toString() {
-		return "XanesEdgeParameters [linesToTrack=" + linesToTrack + ", trackingMethod=" + trackingMethod + "]";
+		return "XanesEdgeParameters [linesToTrack=" + linesToTrack + ", trackingMethod=" + trackingMethod + ", visitId="
+				+ visitId + "]";
 	}
 
 }

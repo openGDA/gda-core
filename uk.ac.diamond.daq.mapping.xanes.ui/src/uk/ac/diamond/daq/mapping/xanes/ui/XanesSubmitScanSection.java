@@ -51,6 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
@@ -120,6 +121,7 @@ public class XanesSubmitScanSection extends SubmitScanSection {
 		final ScanRequest scanRequest = getScanRequest(getMappingBean());
 		final XanesEdgeParametersSection paramsSection = getMappingView().getSection(XanesEdgeParametersSection.class);
 		final XanesEdgeParameters xanesEdgeParameters = paramsSection.getScanParameters();
+		xanesEdgeParameters.setVisitId(InterfaceProvider.getBatonStateProvider().getBatonHolder().getVisitID());
 
 		try {
 			final IMarshallerService marshallerService = getService(IMarshallerService.class);
