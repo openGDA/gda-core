@@ -363,6 +363,10 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin, FrameCountin
 		}
 		return (roi == null) ? "" : roi.getName().replace(" ", "") + "_";
 	}
+
+	public ReadOnlyPV<Integer> getTSCurrentPointPV() {
+		return pvs.getTSCurrentPointPV();
+	}
 }
 
 

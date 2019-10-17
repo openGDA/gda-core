@@ -21,7 +21,9 @@ package gda.device.detector.nxdetector;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,8 +35,10 @@ import gda.device.detector.DetectorBase;
 import gda.device.detector.NXDetector;
 import gda.device.detector.NexusDetector;
 import gda.device.detector.areadetector.v17.NDPluginBase;
+import gda.device.detector.nxdetector.plugin.areadetector.ADRoiStatsPair;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
+import gda.epics.ReadOnlyPV;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
@@ -58,7 +62,8 @@ public class BufferedNXDetector extends DetectorBase implements BufferedDetector
 	/** Base PV name of ROI plugin */
 	private String baseRoiPvName;
 
-	private String currentPointPointPvName = "TSCurrentPoint";
+	private String currentPointPvName;
+
 	private String minCallbackTimePvName = NDPluginBase.MinCallbackTime;
 
 	private List<NexusTreeProvider> allFrames = new ArrayList<>();
@@ -66,7 +71,7 @@ public class BufferedNXDetector extends DetectorBase implements BufferedDetector
 
 	private PV<Double> statMinCallbackTimePv;
 	private PV<Double> roiMinCallbackTimePv;
-	private PV<Integer> currentNumPointsPv;
+	private ReadOnlyPV<Integer> currentNumPointsPv;
 
 	private boolean continuousMode = false;
 
@@ -81,11 +86,39 @@ public class BufferedNXDetector extends DetectorBase implements BufferedDetector
 			throw new FactoryException("Cannot configure "+getName()+" : 'baseStatPvName' and 'baseRoiPvName' both need to be set");
 		}
 
-		currentNumPointsPv = LazyPVFactory.newIntegerPV(createPvName(baseStatPvName, currentPointPointPvName));
+		setupCurrentNumPointsPv();
+		if (currentNumPointsPv == null) {
+			throw new FactoryException("Cannot configure "+getName()+" : 'current point' PV could not be set from manually specified value or ADRoiStatsPair plugin");
+		}
 		statMinCallbackTimePv = LazyPVFactory.newDoublePV(createPvName(baseStatPvName, minCallbackTimePvName));
 		roiMinCallbackTimePv = LazyPVFactory.newDoublePV(createPvName(baseRoiPvName, minCallbackTimePvName));
 
 		setConfigured(true);
+	}
+
+	private void setupCurrentNumPointsPv() {
+		currentNumPointsPv = null;
+
+		// Create the PV from manually specified PV name :
+		if (StringUtils.isNotEmpty(currentPointPvName)) {
+			logger.warn("Using manually set 'current point' PV : {}", createPvName(baseStatPvName, currentPointPvName));
+			currentNumPointsPv = LazyPVFactory.newReadOnlyIntegerPV(createPvName(baseStatPvName, currentPointPvName));
+			return;
+		}
+
+		// Get the current number of point PV for time series array from stats plugin
+		logger.info("Trying to get 'current point' PV from {} ADRoiStatsPair plugin... ", detector.getName());
+		Optional<ReadOnlyPV<Integer>> numPointsPv = detector.getAdditionalPluginList().stream().
+			filter(plugin -> plugin instanceof ADRoiStatsPair).
+			map(plugin -> ((ADRoiStatsPair) plugin).getStatsPlugin().getTSCurrentPointPV()).
+			findFirst();
+
+		if (numPointsPv.isPresent()) {
+			currentNumPointsPv = numPointsPv.get();
+			logger.info("Using PV from stats plugin : {}", currentNumPointsPv.getPvName());
+		} else {
+			logger.warn("Could not get PV from {}", detector.getName());
+		}
 	}
 
 	private String createPvName(String basePv, String pvName) {
@@ -304,5 +337,19 @@ public class BufferedNXDetector extends DetectorBase implements BufferedDetector
 	 */
 	public void setCollectionStrategy(NXCollectionStrategyPlugin collectionStrategy) {
 		this.collectionStrategy = collectionStrategy;
+	}
+
+	public String getCurrentPointPointPvName() {
+		return currentPointPvName;
+	}
+
+	/**
+	 * Set this to manually set the PV to use to get the current number of points in the time series array.
+	 * If not set (or set to empty string), the PV provided by NXDetector ADRoiStatsPair plugin will be used.
+	 * (i.e. TSCurrentPoint, or TS:TSCurrentPoint for RHEL7)
+	 * @param currentPointPointPvName
+	 */
+	public void setCurrentPointPointPvName(String currentPointPointPvName) {
+		this.currentPointPvName = currentPointPointPvName;
 	}
 }
