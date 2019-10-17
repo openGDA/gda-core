@@ -31,7 +31,7 @@ public abstract class AbstractMapModel extends AbstractPointsModel implements IM
 	private String yAxisUnits = "mm";
 
 	@FieldDescriptor(label="Continuous", hint="Whether the motors should move continuously or stop at each point in the scan to take an image")
-	private boolean continuous = false;
+	private boolean continuous = true;
 
 	public AbstractMapModel() {
 		super();

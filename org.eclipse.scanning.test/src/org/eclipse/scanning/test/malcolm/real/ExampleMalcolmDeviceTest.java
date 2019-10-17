@@ -255,8 +255,11 @@ public class ExampleMalcolmDeviceTest {
 		regions.add(new CircularROI(2, 0, 0));
 		regions.add(new CircularROI(4, -1, -2));
 
+		SpiralModel spiral = new SpiralModel("stage_x", "stage_y", 1, new BoundingBox(0, -5, 8, 3));
+		spiral.setContinuous(false);
+
 		IPointGenerator<SpiralModel> spiralGen = pointGenService.createGenerator(
-				new SpiralModel("stage_x", "stage_y", 1, new BoundingBox(0, -5, 8, 3)), regions);
+				spiral, regions);
 		IPointGenerator<?> pointGen = pointGenService.createCompoundGenerator(spiralGen);
 
 		MalcolmModel malcolmModel = new MalcolmModel();

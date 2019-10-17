@@ -865,6 +865,7 @@ public class PVDataSerializationTest {
 		lissajousModel.setPoints(20);
 		lissajousModel.setyAxisName("san");
 		lissajousModel.setxAxisName("fan");
+		lissajousModel.setContinuous(false);
 		IPointGenerator<LissajousModel> temp = pgService.createGenerator(lissajousModel);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
@@ -942,7 +943,9 @@ public class PVDataSerializationTest {
 
 		// Create test generator
 		IPointGeneratorService pgService = new PointGeneratorService();
-		IPointGenerator<SpiralModel> temp = pgService.createGenerator(new SpiralModel("x", "y", 2, new BoundingBox(0, 5, 2, 4)));
+		SpiralModel spiralModel = new SpiralModel("x", "y", 2, new BoundingBox(0, 5, 2, 4));
+		spiralModel.setContinuous(false);
+		IPointGenerator<SpiralModel> temp = pgService.createGenerator(spiralModel);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
 		// Create the expected PVStructure
@@ -1105,6 +1108,7 @@ public class PVDataSerializationTest {
 
 		IPointGeneratorService pgService = new PointGeneratorService();
 		GridModel gm = new GridModel("stage_x", "stage_y");
+		gm.setContinuous(false);
 		gm.setSnake(true);
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);

@@ -183,9 +183,10 @@ public class PyExpresserTest {
 		model.setDelta(0);
 		model.setPoints(100);
 		model.setThetaStep(0.05);
+		model.setContinuous(true);
 
-		String expectedConcise = "lissajous(('myFast', 'mySlow'), (0, 1), (10, 12), 1.0, 0.25, 0.0, 0.05, 100, False)";
-		String expectedVerbose = "lissajous(axes=('myFast', 'mySlow'), start=(0, 1), stop=(10, 12), a=1.0, b=0.25, delta=0.0, theta=0.05, points=100, continuous=False)";
+		String expectedConcise = "lissajous(('myFast', 'mySlow'), (0, 1), (10, 12), 1.0, 0.25, 0.0, 0.05, 100, True)";
+		String expectedVerbose = "lissajous(axes=('myFast', 'mySlow'), start=(0, 1), stop=(10, 12), a=1.0, b=0.25, delta=0.0, theta=0.05, points=100, continuous=True)";
 		assertEquals(expectedConcise, factory.pyExpress(model, false));
 		assertEquals(expectedVerbose, factory.pyExpress(model, true));
 	}
