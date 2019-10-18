@@ -32,11 +32,15 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+
+import gda.rcp.GDAClientActivator;
+import uk.ac.gda.ui.tool.images.ClientImages;
 
 /**
  * Utility class for create SWT Client standard SWT elements.
@@ -204,14 +208,47 @@ public final class ClientSWTElements {
 		return list;
 	}
 
+
 	/**
-	 * Retrieves and {@link Image} using the specified path
+	 * Retrieves an {@link Image} from a specific plug-in
 	 *
-	 * @param path	The path to the image file
-	 * @return		The retrieved {@link Image}
+	 * @param pluginId the plug-in ID
+	 * @param path the image path inside the plug-in
+	 * @return the required image
+	 *
+     * @deprecated please use instead {@link #getImage(ClientImages)}.
+     * This method is available only for compatibility purpose in case is not possible to update the client's images/icons package
 	 */
+	@Deprecated
 	public static Image getImage(String pluginId, String path) {
 		return AbstractUIPlugin.imageDescriptorFromPlugin(pluginId, path).createImage();
+	}
+
+	/**
+	 * Retrieves an {@link Image} using a specific object's ClassLoader
+	 *
+	 * @param caller the object used to get the ClassLoader
+	 * @param path path of the desired resource
+	 * @return the required image
+	 *
+	 * @deprecated please use instead {@link #getImage(ClientImages)}
+     * This method is available only for compatibility purpose in case is not possible to update the client's images/icons package
+	 */
+	@Deprecated
+	public static Image getImage(Class<?> caller, String path) {
+		return new Image(Display.getCurrent(), caller.getResourceAsStream(path));
+	}
+
+	/**
+	 * Retrieves an {@link Image} from the client's standard folder, which is located into uk.ac.gda.client package.
+	 * This method uses {@link ClientImages} in order to both have a standard reference to a specific icon and force the developer
+	 * to harmonise the icons around the various GDA client views/perspectives
+	 *
+	 * @param image the image enum
+	 * @return the required image
+	 */
+	public static Image getImage(ClientImages image) {
+		return GDAClientActivator.getImageDescriptor(image.getImagePath()).createImage();
 	}
 
 	public static void changeVAlignement(Control control, int vAlignement) {
