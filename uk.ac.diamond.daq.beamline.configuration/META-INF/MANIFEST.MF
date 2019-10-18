@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Beamline Configuration
+Bundle-SymbolicName: uk.ac.diamond.daq.beamline.configuration
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: uk.ac.diamond.daq.beamline.configuration
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: uk.ac.diamond.daq.beamline.configuration.api;bundle-version="1.0.0",
+ uk.ac.gda.api;bundle-version="9.15.0",
+ slf4j.api;bundle-version="1.7.25",
+ uk.ac.diamond.jython;bundle-version="2.7.1",
+ org.apache.commons.csv;bundle-version="1.5.0"
+Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE"
+Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
+Export-Package: uk.ac.diamond.daq.beamline.configuration
