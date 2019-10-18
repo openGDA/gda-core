@@ -20,6 +20,7 @@ package uk.ac.gda.tomography.scan.editor.view;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.eclipse.core.databinding.DataBindingContext;
@@ -39,9 +40,12 @@ import org.eclipse.swt.widgets.ExpandItem;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.tomography.base.TomographyMode.TomographyDevices;
 import uk.ac.gda.tomography.base.TomographyParameters;
+import uk.ac.gda.tomography.controller.AcquisitionControllerException;
 import uk.ac.gda.tomography.model.DevicePosition;
 import uk.ac.gda.tomography.model.MultipleScansType;
 import uk.ac.gda.tomography.model.RangeType;
@@ -100,6 +104,8 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 	private Button repeateMultipleScansType;
 	private Button switchbackMultipleScansType;
 
+	private static final Logger logger = LoggerFactory.getLogger(TomographyConfigurationComposite.class);
+
 	public TomographyConfigurationComposite(Composite parent, TomographyParametersAcquisitionController controller) {
 		this(parent, SWT.NONE, controller);
 	}
@@ -136,8 +142,7 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 	}
 
 	private void endAngleContent(Composite parent, int labelStyle, int textStyle) {
-		halfRotationRangeType = ClientSWTElements.createButton(parent, SWT.RADIO, ClientMessages.STRAIGHT_ANGLE,
-				ClientMessages.STRAIGHT_ANGLE_TOOLTIP);
+		halfRotationRangeType = ClientSWTElements.createButton(parent, SWT.RADIO, ClientMessages.STRAIGHT_ANGLE, ClientMessages.STRAIGHT_ANGLE_TOOLTIP);
 
 		fullRotationRangeType = ClientSWTElements.createButton(parent, SWT.RADIO, ClientMessages.FULL_ANGLE, ClientMessages.FULL_ANGLE_TOOLTIP);
 		// fullGroup = ClientSWTElements.createGroup(parent, 1, null);
@@ -195,8 +200,7 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 				ClientMessages.NUM_REPETITIONS_TOOLTIP);
 		waitingTime = ClientSWTElements.createText(multipleScan, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 2),
 				ClientMessages.WAITING_TIME_TOOLTIP);
-		repeateMultipleScansType = ClientSWTElements.createButton(multipleScan, SWT.RADIO, ClientMessages.REPEATE_SCAN,
-				ClientMessages.REPEATE_SCAN_TOOLTIP);
+		repeateMultipleScansType = ClientSWTElements.createButton(multipleScan, SWT.RADIO, ClientMessages.REPEATE_SCAN, ClientMessages.REPEATE_SCAN_TOOLTIP);
 		switchbackMultipleScansType = ClientSWTElements.createButton(multipleScan, SWT.RADIO, ClientMessages.SWITCHBACK_SCAN,
 				ClientMessages.SWITCHBACK_SCAN_TOOLTIP);
 
@@ -223,7 +227,7 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 		ClientBindingElements.bindText(dbc, customAngle, Double.class, "end.customAngle", getTemplateData());
 
 		ClientBindingElements.bindText(dbc, totalProjections, Double.class, "projections.totalProjections", getTemplateData());
-		//ClientBindingElements.bindL(dbc, angularStep, Double.class, "projections.angularStep", getTemplateData());
+		// ClientBindingElements.bindL(dbc, angularStep, Double.class, "projections.angularStep", getTemplateData());
 
 		ClientBindingElements.bindCheckBox(dbc, beforeAcquisition, "imageCalibration.beforeAcquisition", getTemplateData());
 		ClientBindingElements.bindCheckBox(dbc, afterAcquisition, "imageCalibration.afterAcquisition", getTemplateData());
@@ -467,6 +471,13 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 	}
 
 	private TomographyParameters getTemplateData() {
+		if (Objects.isNull(getController().getAcquisition())) {
+			try {
+				getController().loadData(TomographyParametersAcquisitionController.createNewAcquisition());
+			} catch (AcquisitionControllerException e) {
+				logger.error("Cannot create the acquisition controller", e);
+			}
+		}
 		return getController().getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
 	}
 }
