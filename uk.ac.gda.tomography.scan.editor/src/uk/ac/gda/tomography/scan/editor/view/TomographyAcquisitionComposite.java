@@ -41,6 +41,7 @@ import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 import uk.ac.gda.ui.tool.ClientResourceManager;
 import uk.ac.gda.ui.tool.ClientSWTElements;
+import uk.ac.gda.ui.tool.images.ClientImages;
 
 /**
  * Allows editing of TomographyAcquisition objects.
@@ -77,7 +78,7 @@ public class TomographyAcquisitionComposite extends CompositeTemplate<Tomography
 		createSource(ClientSWTElements.createGroup(parent, 3, ClientMessages.SOURCE), labelStyle, textStyle);
 
 		configuration = ClientSWTElements.createLabel(parent, labelStyle);
-		configuration.setImage(ClientSWTElements.getImage(getPluginId(), "icons/sinogram-50.png"));
+		configuration.setImage(ClientSWTElements.getImage(ClientImages.SINOGRAM_50));
 		configuration.setToolTipText(ClientMessagesUtility.getMessage(ClientMessages.EDIT_CONFIGURATION_TP));
 		ClientSWTElements.changeHIndent(configuration, 50);
 	}
@@ -89,7 +90,7 @@ public class TomographyAcquisitionComposite extends CompositeTemplate<Tomography
 
 	private void createSource(Composite parent, int labelStyle, int textStyle) {
 		energyIcon = ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.ENERGY_KEV);
-		energyIcon.setImage(ClientSWTElements.getImage(getPluginId(), "icons/beam-16.png"));
+		energyIcon.setImage(ClientSWTElements.getImage(ClientImages.BEAM_16));
 		energy = ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.ENERGY_KEV);
 		energyValue = ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.NOT_AVAILABLE, null,
 				FontDescriptor.createFrom(ClientResourceManager.getInstance().getTextDefaultFont()));
