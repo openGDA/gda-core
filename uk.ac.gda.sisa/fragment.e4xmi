@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ASCII"?>
+<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:advanced="http://www.eclipse.org/ui/2010/UIModel/application/ui/advanced" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmi:id="_pE0oMLahEeia4pbuu-47pw">
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_AhJIsLaiEeia4pbuu-47pw" featurename="snippets" parentElementId="org.eclipse.e4.legacy.ide.application">
+    <elements xsi:type="advanced:Perspective" xmi:id="_lavGoLaiEeia4pbuu-47pw" elementId="uk.ac.gda.sisa.ui.perspective.livealignment" label="Live Alignment" iconURI="platform:/plugin/uk.ac.gda.sisa/icons/liveAlign.png">
+      <tags>Perspective</tags>
+      <children xsi:type="basic:PartSashContainer" xmi:id="_ejpm4LdOEeia4pbuu-47pw" elementId="uk.ac.gda.sisa.partsashcontainer.0" horizontal="true">
+        <children xsi:type="basic:PartStack" xmi:id="_ZovjsMIxEeilXPx1svshRw" elementId="uk.ac.gda.sisa.partstack.0">
+          <children xsi:type="basic:Part" xmi:id="_gOdi4LdOEeia4pbuu-47pw" elementId="uk.ac.gda.client.live.stream.view.LiveStreamView:analyser_stream#MJPEG" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Analyser Live Alignment" closeable="true"/>
+        </children>
+        <children xsi:type="basic:PartSashContainer" xmi:id="_Z5wxUMIoEeilXPx1svshRw" elementId="uk.ac.gda.sisa.partsashcontainer.1">
+          <children xsi:type="basic:PartStack" xmi:id="_hCpJcMIxEeilXPx1svshRw" elementId="uk.ac.gda.sisa.partstack.1">
+            <children xsi:type="basic:Part" xmi:id="_byyWUNuAEei3sM5JV-xBeg" elementId="uk.ac.gda.sisa.ImageStatsDisplayPart" contributionURI="bundleclass://uk.ac.gda.sisa/uk.ac.gda.sisa.ui.ImageStatsDisplayPart" label="Image Stats"/>
+          </children>
+          <children xsi:type="basic:PartStack" xmi:id="_ipBRYMIxEeilXPx1svshRw" elementId="uk.ac.gda.sisa.partstack.2">
+            <children xsi:type="basic:Part" xmi:id="_CwEwwNhUEeiufdkEvopL2Q" elementId="uk.ac.gda.sisa.AnalyserControlsPart" contributionURI="bundleclass://uk.ac.gda.sisa/uk.ac.gda.sisa.ui.AnalyserControlPart" label="Controls"/>
+          </children>
+        </children>
+      </children>
+    </elements>
+  </fragments>
+</fragment:ModelFragments>
