@@ -24,9 +24,11 @@ import static uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsUiConstants.REGION
 import static uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsUiConstants.SAVED_SEQUENCE_HASH;
 
 import java.beans.PropertyChangeListener;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
 import org.eclipse.e4.core.di.annotations.Optional;
@@ -46,11 +48,13 @@ import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -60,13 +64,17 @@ import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
+import gda.factory.Finder;
+import gda.observable.IObserver;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceHelper;
 import uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsUiConstants;
 import uk.ac.diamond.daq.devices.specs.phoibos.ui.helpers.SpecsPhoibosTimeEstimator;
 
-public class SpecsSequenceEditor {
+public class SpecsSequenceEditor implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(SpecsSequenceEditor.class);
 
@@ -87,6 +95,7 @@ public class SpecsSequenceEditor {
 
 	private Map<String, Object> transientData;
 	private SpecsPhoibosSequence sequence;
+	private ISpecsPhoibosAnalyser analyser;
 
 	// When sequence fire property change events cause the table to refresh
 	private final PropertyChangeListener sequenceListener = evt -> {
@@ -97,6 +106,14 @@ public class SpecsSequenceEditor {
 
 	@PostConstruct
 	void createView(Composite parent) {
+
+		List<ISpecsPhoibosAnalyser> analysers = Finder.getInstance().listLocalFindablesOfType(ISpecsPhoibosAnalyser.class);
+		if (analysers.size() != 1) {
+			throw new RuntimeException("No Analyser was found! (Or more than 1)");
+		}
+		analyser = analysers.get(0);
+		analyser.addIObserver(this);
+
 		transientData = part.getTransientData();
 
 		GridLayoutFactory.swtDefaults().numColumns(1).spacing(5, 0).applyTo(parent);
@@ -168,6 +185,25 @@ public class SpecsSequenceEditor {
 		if (sequencePath != null) {
 			openSequence(SpecsPhoibosSequenceHelper.loadSequence(sequencePath));
 		}
+	}
+
+	@Override
+	public void update(Object source, Object arg) {
+
+		if (arg instanceof SpecsPhoibosLiveDataUpdate) {
+			SpecsPhoibosLiveDataUpdate evt = (SpecsPhoibosLiveDataUpdate) arg;
+			String currentRegionName = evt.getRegionName();
+			Display.getDefault().asyncExec(() -> {
+				SpecsPhoibosRegion currentReg = sequence.getRegion(currentRegionName);
+				StructuredSelection structuredSelection = new StructuredSelection(currentReg);
+				sequenceTableViewer.setSelection(structuredSelection, true);
+			});
+		}
+	}
+
+	@PreDestroy
+	void dispose() {
+		analyser.deleteIObserver(this);
 	}
 
 	private void updateEstiamtedTime() {
