@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.dawnsci.mapping.ui.api.IMapFileController;
-import org.dawnsci.mapping.ui.datamodel.IMapPlotController;
 import org.dawnsci.mapping.ui.datamodel.LiveStreamMapObject;
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -56,14 +55,14 @@ public class EnableLiveBackgroundHandler implements IHandler, IElementUpdater {
 	private State toggleState;
 	private LiveStreamMapObject liveStreamMap;
 	private IWorkbench workbench = PlatformUI.getWorkbench();
-	private IMapPlotController mapPlotController = workbench.getService(IMapPlotController.class);
+	private IMapFileController mapFileController = workbench.getService(IMapFileController.class);
 	private ICommandService commandService = workbench.getService(ICommandService.class);
 
 	/**
 	 * Handles the button press. The stream connection is first initialised; if this is the first time execute has been
 	 * called. Next, the current toggle state is retrieved and stored so that it can be used later to refresh the button
 	 * widget regardless of whether is has been changed or not. Based on this, {@link LiveStreamMapObject},
-	 * {@link IMapPlotController} and the state of the toggle are then updated. Finally the button widget is refreshed
+	 * {@link IMapFileController} and the state of the toggle are then updated. Finally the button widget is refreshed
 	 * according to the 'new' toggleState.
 	 *
 	 * @param event		An {@link ExecutionEvent} object that references the {@link Command} associated with the GUI
@@ -89,7 +88,7 @@ public class EnableLiveBackgroundHandler implements IHandler, IElementUpdater {
 		if (initialised) {
 			toggleState.setValue(!toggleStateAsBool());
 			liveStreamMap.setPlotted(toggleStateAsBool());
-			mapPlotController.updatePlot();
+			mapFileController.registerUpdates(null);
 		}
 	}
 
@@ -115,7 +114,7 @@ public class EnableLiveBackgroundHandler implements IHandler, IElementUpdater {
 	public void dispose() {
 		liveStreamMap = null;
 		commandService = null;
-		mapPlotController = null;
+		mapFileController = null;
 		workbench = null;
 		toggleState = null;
 	}
