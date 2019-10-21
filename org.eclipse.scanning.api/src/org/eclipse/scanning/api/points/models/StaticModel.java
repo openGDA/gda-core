@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
+import org.eclipse.scanning.api.ModelValidationException;
 
 /**
  * A model for one or more positions where nothing is moved. This can be used to expose detectors
@@ -48,16 +49,33 @@ public class StaticModel extends AbstractPointsModel {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
 		if (!super.equals(obj))
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
 		StaticModel other = (StaticModel) obj;
-		if (size != other.size)
-			return false;
-		return true;
+		return (size == other.size);
 	}
 
+	@Override
+	public boolean isContinuous() {
+		return false;
+	}
+
+	@Override
+	public void setContinuous(boolean continuous) {
+		if (continuous) {
+			throw new ModelValidationException("StaticModel does not support continuous operation", this, "continuous");
+		}
+	}
+
+	@Override
+	public boolean isAlternating() {
+		return false;
+	}
+
+	@Override
+	public void setAlternating(boolean alternating) {
+		if (alternating) {
+			throw new ModelValidationException("StaticModel does not support alternating operation", this, "continuous");
+		}
+	}
 }

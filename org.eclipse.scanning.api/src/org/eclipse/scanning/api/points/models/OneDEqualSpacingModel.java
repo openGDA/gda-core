@@ -50,16 +50,9 @@ public class OneDEqualSpacingModel extends AbstractBoundingLineModel implements 
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
 		if (!super.equals(obj))
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
 		OneDEqualSpacingModel other = (OneDEqualSpacingModel) obj;
-		if (points != other.points)
-			return false;
-		return true;
+		return points == other.points;
 	}
-
 }

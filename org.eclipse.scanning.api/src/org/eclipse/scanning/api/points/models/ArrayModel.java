@@ -13,7 +13,6 @@ package org.eclipse.scanning.api.points.models;
 
 import java.util.Arrays;
 
-
 /**
  * A model for a scan at an array of defined positions along a single axis.
  *
@@ -21,7 +20,6 @@ import java.util.Arrays;
  *
  */
 public class ArrayModel extends AbstractPointsModel {
-
 
 	private double[] positions;
 
@@ -36,11 +34,13 @@ public class ArrayModel extends AbstractPointsModel {
 	public double[] getPositions() {
 		return positions;
 	}
+
 	public void setPositions(double... positions) {
 		double[] oldValue = this.positions;
 		this.positions = positions;
-		this.pcs.firePropertyChange("positions", oldValue, positions);
+		pcs.firePropertyChange("positions", oldValue, positions);
 	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -48,23 +48,17 @@ public class ArrayModel extends AbstractPointsModel {
 		result = prime * result + Arrays.hashCode(positions);
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
 		if (!super.equals(obj))
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
 		ArrayModel other = (ArrayModel) obj;
-		if (!Arrays.equals(positions, other.positions))
-			return false;
-		return true;
+		return Arrays.equals(positions, other.positions);
 	}
 
 	@Override
 	public String toString() {
 		return "ArrayModel [positions=" + Arrays.toString(positions) + "]";
 	}
-
 }

@@ -32,10 +32,10 @@ class GridModelExpresser extends AbstractGridModelExpresser<GridModel> {
 				.append(formatValue(model.getBoundingBox().getyAxisEnd())+"), ")
 				.append("count=(")
 				.append(model.getxAxisPoints()+", ")
-				.append(model.getyAxisPoints()+"), ");
+				.append(model.getyAxisPoints()+")");
 				appendCommonGridProperties(sb, model, verbose);
-				sb.append(getROIPyExpression(rois, verbose));
-				sb.append(")");
+				sb.append(getROIPyExpression(rois, verbose))
+				.append(")");
 				return sb.toString();
 	}
 

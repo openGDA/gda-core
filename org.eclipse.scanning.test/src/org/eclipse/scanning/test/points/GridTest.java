@@ -130,7 +130,7 @@ public class GridTest extends AbstractGeneratorTest {
 		GridModel model = new GridModel("x", "y");
 		model.setyAxisPoints(5);
 		model.setxAxisPoints(5);
-		model.setSnake(true);
+		model.setAlternating(true);
 		model.setBoundingBox(box);
 
 		IPointGenerator<GridModel> gen = service.createGenerator(model);
@@ -201,7 +201,7 @@ public class GridTest extends AbstractGeneratorTest {
 		GridModel model = new GridModel("x", "y");
 		model.setyAxisPoints(5);
 		model.setxAxisPoints(5);
-		model.setSnake(true);
+		model.setAlternating(true);
 		model.setBoundingBox(box);
 
 		IPointGenerator<GridModel> gen = service.createGenerator(model);
@@ -272,7 +272,7 @@ public class GridTest extends AbstractGeneratorTest {
 		GridModel model = new GridModel("x", "y");
 		model.setyAxisPoints(5);
 		model.setxAxisPoints(5);
-		model.setSnake(true);
+		model.setAlternating(true);
 		model.setBoundingBox(box);
 
 		IPointGenerator<GridModel> gen = service.createGenerator(model);
@@ -532,7 +532,7 @@ public class GridTest extends AbstractGeneratorTest {
 		GridModel model = new GridModel("x", "y");
 		model.setyAxisPoints(3);
 		model.setxAxisPoints(3);
-		model.setSnake(true);
+		model.setAlternating(true);
 
 		// Get the point list
 		IPointGenerator<GridModel> gen = service.createGenerator(model, roi);

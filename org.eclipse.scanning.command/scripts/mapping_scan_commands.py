@@ -259,7 +259,7 @@ def sample(**kwargs):
         md.addField(key,value)
     return md
 
-def step(axis=None, start=None, stop=None, step=None, **kwargs):
+def step(axis=None, start=None, stop=None, step=None, alternating=False, continuous=True, **kwargs):
     """Define a step scan path to be passed to mscan().
 
     Note that this function may be called with or without keyword syntax. That
@@ -288,7 +288,9 @@ def step(axis=None, start=None, stop=None, step=None, **kwargs):
                 {'name': axis,
                  'start': start,
                  'stop': stop,
-                 'step': step})
+                 'step': step,
+                 'alternating': alternating,
+                 'continuous': continuous})
 
     return model, _listify(roi)
 
@@ -323,7 +325,7 @@ def mstep(axis=None, stepModels=None, **kwargs):
 
     return model, _listify(roi)
 
-def cstep(names=None, start=None, stop=None, step=None, **kwargs):
+def cstep(names=None, start=None, stop=None, step=None, alternating=False, continuous=True, **kwargs):
     """Define a step scan path to be passed to mscan().
 
     Note that this function may be called with or without keyword syntax. That
@@ -351,7 +353,9 @@ def cstep(names=None, start=None, stop=None, step=None, **kwargs):
                 {'start': start,
                  'stop': stop,
                  'step': step,
-                 'names': names})
+                 'names': names,
+                 'alternating': alternating,
+                 'continuous': continuous})
 
     return model, _listify(roi)
 
@@ -388,8 +392,8 @@ def repeat(axis=None, count=None, value=None, sleep=None, **kwargs):
 
     return model, _listify(roi)
 
-def grid(axes=None, start=None, stop=None, step=None, count=None, snake=True,
-         continuous=False, verticalOrientation=False, roi=None, **kwargs):
+def grid(axes=None, start=None, stop=None, step=None, count=None, alternating=True,
+         continuous=True, verticalOrientation=False, roi=None, **kwargs):
     """Define a grid scan path to be passed to mscan().
 
     Required keyword arguments:
@@ -444,7 +448,7 @@ def grid(axes=None, start=None, stop=None, step=None, count=None, snake=True,
                      'yAxisName': yName,
                      'xAxisPoints': rows,
                      'yAxisPoints': cols,
-                     'snake': snake,
+                     'alternating': alternating,
                      'continuous' : continuous,
                      'verticalOrientation' : verticalOrientation,
                      'boundingBox': bbox})
@@ -461,7 +465,7 @@ def grid(axes=None, start=None, stop=None, step=None, count=None, snake=True,
                      'yAxisName': yName,
                      'xAxisStep': xStep,
                      'yAxisStep': yStep,
-                     'snake': snake,
+                     'alternating': alternating,
                      'continuous' : continuous,
                      'verticalOrientation' : verticalOrientation,
                      'boundingBox': bbox})
@@ -470,8 +474,8 @@ def grid(axes=None, start=None, stop=None, step=None, count=None, snake=True,
     # roi=circ(x, y, r) or roi=[circ(x, y, r), rect(x, y, w, h, angle)].
     return model, _listify(roi)
 
-def random_offset_grid(axes=None, start=None, stop=None, count=None, snake=True,
-         continuous=False, verticalOrientation=False, roi=None, seed=0, offset=0):
+def random_offset_grid(axes=None, start=None, stop=None, count=None, alternating=True,
+         continuous=True, verticalOrientation=False, roi=None, seed=0, offset=0):
     try:
         assert None not in (axes, start, stop, count)
     except AssertionError:
@@ -496,7 +500,7 @@ def random_offset_grid(axes=None, start=None, stop=None, count=None, snake=True,
                  'yAxisName': yName,
                  'xAxisPoints': rows,
                  'yAxisPoints': cols,
-                 'snake': snake,
+                 'alternating': alternating,
                  'boundingBox': bbox,
                  'seed': seed,
                  'continuous': continuous,
@@ -505,7 +509,7 @@ def random_offset_grid(axes=None, start=None, stop=None, count=None, snake=True,
     
     return model, _listify(roi)
 
-def spiral(axes=None, start=None, stop=None, scale=1, continuous=True, roi=None):
+def spiral(axes=None, start=None, stop=None, scale=1, alternating=False, continuous=True, roi=None):
     
     try:
         assert None not in (axes, start, stop, roi)
@@ -526,11 +530,12 @@ def spiral(axes=None, start=None, stop=None, scale=1, continuous=True, roi=None)
                  'yAxisName': yName,
                  'boundingBox': bbox,
                  'scale': scale,
-                 'continuous': continuous})
+                 'continuous': continuous,
+                 'alternating': alternating})
     
     return model, _listify(roi)
 
-def lissajous(axes=None, start=None, stop=None, a=1.0, b=0.25, delta=0.0, theta=0.05, points=100, continuous=True, roi=None):
+def lissajous(axes=None, start=None, stop=None, a=1.0, b=0.25, points=100, alternating=False, continuous=True, roi=None):
     try:
         assert None not in (axes, start, stop, roi)
     except (TypeError, ValueError):
@@ -551,13 +556,12 @@ def lissajous(axes=None, start=None, stop=None, a=1.0, b=0.25, delta=0.0, theta=
                  'boundingBox': bbox,
                  'a': a,
                  'b': b,
-                 'delta': delta,
-                 'thetaStep': theta,
                  'points': points,
-                 'continuous': continuous})
+                 'continuous': continuous,
+                 'alternating': alternating})
     return model, _listify(roi)
 
-def line(origin=None, length=None, angle=None, count=None, step=None, continuous=False, **kwargs):
+def line(origin=None, length=None, angle=None, count=None, step=None, alternating=False, continuous=True, **kwargs):
     """Define a line segment scan path to be passed to mscan().
 
     Required keyword arguments:
@@ -586,17 +590,12 @@ def line(origin=None, length=None, angle=None, count=None, step=None, continuous
 
     roi = None
 
-    bline = _instantiate(BoundingLine,
-                         {'xStart': xStart,
-                          'yStart': yStart,
-                          'length': length,
-                          'angle': angle})
-
     if step is not None:
         model = _instantiate(
                     OneDStepModel,
                     {'step': step,
                      'continuous': continuous,
+                     'alternating': alternating,
                      'boundingLine': _instantiate(BoundingLine,
                                                   {'xStart': xStart,
                                                    'yStart': yStart,
@@ -608,6 +607,7 @@ def line(origin=None, length=None, angle=None, count=None, step=None, continuous
                     OneDEqualSpacingModel,
                     {'points': count,
                      'continuous': continuous,
+                     'alternating': alternating,
                      'boundingLine': _instantiate(BoundingLine,
                                                   {'xStart': xStart,
                                                    'yStart': yStart,
@@ -617,7 +617,7 @@ def line(origin=None, length=None, angle=None, count=None, step=None, continuous
     return model, _listify(roi)
 
 
-def array(axis=None, values=None, **kwargs):
+def array(axis=None, values=None, alternating=False, continuous=True, **kwargs):
     """Define an array scan path to be passed to mscan().
 
     Required keyword arguments:
@@ -639,6 +639,8 @@ def array(axis=None, values=None, **kwargs):
     amodel = ArrayModel()
     amodel.setName(axis)
     amodel.setPositions(*values)
+    amodel.setAlternating(alternating)
+    amodel.setContinuous(continuous)
 
     return amodel, _listify(roi)
 

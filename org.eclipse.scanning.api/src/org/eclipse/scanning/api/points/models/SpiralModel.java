@@ -50,16 +50,10 @@ public class SpiralModel extends AbstractBoundingBoxModel {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
 		if (!super.equals(obj))
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
 		SpiralModel other = (SpiralModel) obj;
-		if (Double.doubleToLongBits(scale) != Double.doubleToLongBits(other.scale))
-			return false;
-		return true;
+		return (Double.doubleToLongBits(scale) == Double.doubleToLongBits(other.scale));
 	}
 	@Override
 	public String toString() {

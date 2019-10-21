@@ -23,6 +23,7 @@ public class CollatedStepModel extends StepModel {
 
 	public CollatedStepModel() {
 	}
+
 	public CollatedStepModel(double start, double stop, double step, String... names) {
 		super();
 		this.names = Arrays.asList(names);
@@ -30,18 +31,22 @@ public class CollatedStepModel extends StepModel {
 		setStop(stop);
 		setStep(step);
 	}
+
 	public List<String> getNames() {
 		return names;
 	}
+
 	@Override
 	public String getName() {
-		if (super.getName()!=null) return super.getName();
+		if (super.getName() != null)
+			return super.getName();
 		return names.get(0);
 	}
 
 	public void setNames(List<String> name) {
 		this.names = name;
 	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -49,21 +54,16 @@ public class CollatedStepModel extends StepModel {
 		result = prime * result + ((names == null) ? 0 : names.hashCode());
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
 		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
 			return false;
 		CollatedStepModel other = (CollatedStepModel) obj;
 		if (names == null) {
-			if (other.names != null)
-				return false;
-		} else if (!names.equals(other.names))
-			return false;
-		return true;
+			return other.names == null;
+			}
+		return names.equals(other.names);
 	}
 
 }

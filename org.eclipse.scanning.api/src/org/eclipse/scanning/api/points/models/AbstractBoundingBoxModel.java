@@ -51,13 +51,13 @@ public abstract class AbstractBoundingBoxModel extends AbstractMapModel implemen
 
 	@Override
 	public void setxAxisName(String newValue) {
-		if (boundingBox!=null) boundingBox.setxAxisName(getxAxisName());
+		if (boundingBox!=null) boundingBox.setxAxisName(newValue);
 		super.setxAxisName(newValue);
 	}
 
 	@Override
 	public void setyAxisName(String newValue) {
-		if (boundingBox!=null) boundingBox.setyAxisName(getyAxisName());
+		if (boundingBox!=null) boundingBox.setyAxisName(newValue);
 		super.setyAxisName(newValue);
 	}
 
@@ -71,19 +71,14 @@ public abstract class AbstractBoundingBoxModel extends AbstractMapModel implemen
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
+		if (!super.equals(obj)) {
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
+		}
 		AbstractBoundingBoxModel other = (AbstractBoundingBoxModel) obj;
 		if (boundingBox == null) {
-			if (other.boundingBox != null)
-				return false;
-		} else if (!boundingBox.equals(other.boundingBox))
-			return false;
-		return true;
+			return other.boundingBox == null;
+		}
+		return boundingBox.equals(other.boundingBox);
 	}
 
 	@Override

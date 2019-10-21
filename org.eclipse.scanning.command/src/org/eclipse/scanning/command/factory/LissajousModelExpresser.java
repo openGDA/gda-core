@@ -19,12 +19,11 @@
 package org.eclipse.scanning.command.factory;
 
 import java.util.Collection;
-import java.util.Objects;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.models.LissajousModel;
 
-public class LissajousModelExpresser extends PyModelExpresser<LissajousModel> {
+public class LissajousModelExpresser extends AbstractPointsModelExpresser<LissajousModel> {
 
 	@Override
 	String pyExpress(LissajousModel model, Collection<IROI> rois, boolean verbose) throws Exception {
@@ -42,25 +41,12 @@ public class LissajousModelExpresser extends PyModelExpresser<LissajousModel> {
 		sb.append(model.getA()+", ");
 		sb.append(verbose?"b=":"");
 		sb.append(model.getB()+", ");
-		sb.append(verbose?"delta=":"");
-		sb.append(model.getDelta()+", ");
-		sb.append(verbose?"theta=":"");
-		sb.append(model.getThetaStep()+", ");
 		sb.append(verbose?"points=":"");
-		sb.append(model.getPoints()+", ");
-		sb.append(isContinuous(model, verbose));
-		if (Objects.nonNull(rois) && !rois.isEmpty()) {
-			sb.append(", ");
-			sb.append(verbose?"roi=":"");
-			sb.append(factory.pyExpress(rois, verbose));
-		}
+		sb.append(model.getPoints());
+		appendCommonProperties(sb, model, verbose);
+		sb.append(getROIPyExpression(rois, verbose));
 		sb.append(")");
 
 		return sb.toString();
-	}
-
-	private String isContinuous(LissajousModel model, boolean verbose) {
-		String pythonBoolean = model.isContinuous() ? "True" : "False";
-		return (verbose ? "continuous=" : "") + pythonBoolean;
 	}
 }

@@ -19,7 +19,6 @@
 package org.eclipse.scanning.command.factory;
 
 import java.util.Collection;
-import java.util.Objects;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.models.RandomOffsetGridModel;
@@ -47,28 +46,14 @@ public class RandomOffsetGridModelExpresser extends AbstractGridModelExpresser<R
 		// points
 		sb.append(verbose?"count=":"");
 		sb.append("("+model.getxAxisPoints()+", ");
-		sb.append(model.getyAxisPoints()+"), ");
+		sb.append(model.getyAxisPoints()+")");
 
-		// common grid properties (snake, continous, vertical orientation)
+		// common grid properties (alternates, continuous, vertical orientation)
 		appendCommonGridProperties(sb, model, verbose);
 
 		// rois
-		if (Objects.nonNull(rois) && !rois.isEmpty()) {
-			sb.append(", ");
-			sb.append(verbose?"roi=":"");
-			sb.append(factory.pyExpress(rois, verbose));
-		}
+		sb.append(getROIPyExpression(rois, verbose));
 		sb.append(")");
 		return sb.toString();
-	}
-
-	private String isSnake(RandomOffsetGridModel model, boolean verbose) {
-		String pythonBoolean = model.isSnake() ? "True" : "False";
-		return (verbose ? "snake=" : "") + pythonBoolean;
-	}
-
-	private String isContinuous(RandomOffsetGridModel model, boolean verbose) {
-		String pythonBoolean = model.isContinuous() ? "True" : "False";
-		return (verbose ? "continuous=" : "") + pythonBoolean;
 	}
 }

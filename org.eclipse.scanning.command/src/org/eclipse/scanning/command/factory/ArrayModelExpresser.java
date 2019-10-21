@@ -17,32 +17,36 @@ import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.models.ArrayModel;
 import org.eclipse.scanning.command.PyExpressionNotImplementedException;
 
-class ArrayModelExpresser extends PyModelExpresser<ArrayModel> {
-
+class ArrayModelExpresser extends AbstractPointsModelExpresser<ArrayModel> {
 
 	@Override
-	String pyExpress(ArrayModel model, Collection<IROI> rois, boolean verbose) throws PyExpressionNotImplementedException {
+	String pyExpress(ArrayModel model, Collection<IROI> rois, boolean verbose)
+			throws PyExpressionNotImplementedException {
 
-		if (rois != null && !rois.isEmpty()) throw new IllegalStateException("ArrayModels cannot be associated with ROIs.");
+		if (rois != null && !rois.isEmpty())
+			throw new IllegalStateException("ArrayModels cannot be associated with ROIs.");
 
 		if (model.getPositions().length == 1 && !verbose)
-			return "val('"+model.getName()+"', "+model.getPositions()[0]+")";
+			// Doesn't make sense to be continuous or alternating with 1 point
+			return "val('" + model.getName() + "', " + model.getPositions()[0] + ")";
 
 		StringBuilder fragment = new StringBuilder();
-		fragment.append("array(")
-				.append(verbose?"axis=":"")
-				.append("'"+model.getName()+"'"+", ")
-				.append(verbose?"values=":"")
-				.append("[");
+		fragment.append("array(").append(verbose ? "axis=" : "").append("'" + model.getName() + "'" + ", ")
+				.append(verbose ? "values=" : "").append("[");
 		boolean listPartiallyWritten = false;
 
 		for (double position : model.getPositions()) {
-			if (listPartiallyWritten) fragment.append(", ");
+			if (listPartiallyWritten)
+				fragment.append(", ");
 			fragment.append(position);
 			listPartiallyWritten |= true;
 		}
-
-		fragment.append("])");
+		fragment.append("]");
+		if (model.getPositions().length != 1) {
+			// Doesn't make sense to be continuous or alternating with 1 point
+			appendCommonProperties(fragment, model, verbose);
+		}
+		fragment.append(")");
 		return fragment.toString();
 	}
 

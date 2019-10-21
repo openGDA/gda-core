@@ -11,6 +11,10 @@
  *******************************************************************************/
 package org.eclipse.scanning.points;
 
+import static org.eclipse.scanning.points.AbstractScanPointIterator.EMPTY_PY_ARRAY;
+
+import java.util.Iterator;
+
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.points.AbstractGenerator;
@@ -48,10 +52,14 @@ public class ArrayGenerator extends AbstractGenerator<ArrayModel> {
         final JythonObjectFactory<ScanPointIterator> arrayGeneratorFactory = ScanPointGeneratorFactory.JArrayGeneratorFactory();
 
         final double[] points = model.getPositions();
+        final String name = model.getName();
+        final String units = model.getUnits().get(0);
 
-		final ScanPointIterator pyIterator = arrayGeneratorFactory.createObject(
-				model.getName(), "mm", points);
-        return new SpgIterator(pyIterator);
+		final ScanPointIterator array = arrayGeneratorFactory.createObject(
+				name, units, points, model.isAlternating());
+		final ScanPointIterator pyIterator = CompoundSpgIteratorFactory.createSpgCompoundGenerator(new Iterator[] {array}, getRegions().toArray(),
+				model.getScannableNames().toArray(new String[0]), EMPTY_PY_ARRAY, -1, model.isContinuous());
+		return new SpgIterator(pyIterator);
 	}
 
 	@Override

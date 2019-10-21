@@ -17,28 +17,25 @@ import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.scanning.api.points.models.StepModel;
 
-class StepModelExpresser extends PyModelExpresser<StepModel> {
+class StepModelExpresser extends AbstractPointsModelExpresser<StepModel> {
 
 	@Override
 	public String pyExpress(StepModel model, Collection<IROI> rois, boolean verbose) {
-		if (rois != null && !rois.isEmpty() &&
-				!rois.stream().allMatch(m -> LinearROI.class.isInstance(m)))
+		if (rois != null && !rois.isEmpty() && !rois.stream().allMatch(m -> LinearROI.class.isInstance(m)))
 			throw new IllegalStateException("StepModels cannot be associated with ROIs.");
 
 		return getString(model, verbose);
 	}
 
-	static final String getString(StepModel model, boolean verbose) {
-		return new StringBuilder("step(")
-				.append(verbose?"axis=":"")
-				.append("'"+model.getName()+"'"+", ")
-				.append(verbose?"start=":"")
-				.append(model.getStart()+", ")
-				.append(verbose?"stop=":"")
-				.append(model.getStop()+", ")
-				.append(verbose?"step=":"")
-				.append(model.getStep()+")")
-				.toString();
+	private final String getString(StepModel model, boolean verbose) {
+		StringBuilder sb = new StringBuilder("step(")
+				.append(verbose ? "axis=" : "").append("'" + model.getName() + "'" + ", ")
+				.append(verbose ? "start=" : "").append(model.getStart() + ", ")
+				.append(verbose ? "stop=" : "").append(model.getStop() + ", ")
+				.append(verbose ? "step=" : "").append(model.getStep());
+		appendCommonProperties(sb, model, verbose);
+		sb.append(")");
+		return sb.toString();
 	}
 
 }

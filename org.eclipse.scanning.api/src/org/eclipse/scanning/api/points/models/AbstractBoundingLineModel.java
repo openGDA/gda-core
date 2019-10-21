@@ -14,9 +14,9 @@ package org.eclipse.scanning.api.points.models;
 import org.eclipse.scanning.api.annotation.UiHidden;
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 
-public class AbstractBoundingLineModel extends AbstractMapModel implements IBoundingLineModel {
+public abstract class AbstractBoundingLineModel extends AbstractMapModel implements IBoundingLineModel {
 
-	@FieldDescriptor(editable=false) // We edit this with a popup.
+	@FieldDescriptor(editable = false) // We edit this with a popup.
 	private BoundingLine boundingLine;
 
 	@Override
@@ -50,17 +50,15 @@ public class AbstractBoundingLineModel extends AbstractMapModel implements IBoun
 			return false;
 		AbstractBoundingLineModel other = (AbstractBoundingLineModel) obj;
 		if (boundingLine == null) {
-			if (other.boundingLine != null)
-				return false;
-		} else if (!boundingLine.equals(other.boundingLine))
-			return false;
-		return true;
+			return (other.boundingLine == null);
+		}
+		return boundingLine.equals(other.boundingLine);
 	}
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName()+" [boundingLine=" + boundingLine + ", xAxisName=" + getxAxisName()
-			+ ", yAxisName=" + getyAxisName() + ", continuous=" + isContinuous() + "]";
+		return getClass().getSimpleName() + " [boundingLine=" + boundingLine + ", xAxisName=" + getxAxisName()
+				+ ", yAxisName=" + getyAxisName() + ", continuous=" + isContinuous() + "]";
 	}
 
 }

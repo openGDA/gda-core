@@ -151,13 +151,13 @@ class JArrayGenerator(JavaIteratorWrapper):
     Create an ArrayGenerator and wrap the points into java Scalar objects
     """
 
-    def __init__(self, name, units, points):
+    def __init__(self, name, units, points, alternate=False):
         super(JArrayGenerator, self).__init__()
 
         points = points.tolist()  # Convert from array to list
 
         self.name = name
-        array_gen = ArrayGenerator(name, units, points)
+        array_gen = ArrayGenerator(name, units, points, alternate)
         self.generator = CompoundGenerator([array_gen], [], [])
         self.generator.prepare()
         self.logger.debug('Created JArrayGenerator: %s', self.generator.to_dict())
@@ -207,12 +207,12 @@ class JLissajousGenerator(JavaIteratorWrapper):
     Create a LissajousGenerator and wrap the points into java Point objects
     """
 
-    def __init__(self, names, units, box, num_lobes, num_points):
+    def __init__(self, names, units, box, num_lobes, num_points, alternate=False):
         super(JLissajousGenerator, self).__init__()
 
         self.names = names
         liss_gen = LissajousGenerator(names, units, box["centre"],
-                [box["width"], box["height"]], num_lobes, num_points)
+                [box["width"], box["height"]], num_lobes, num_points, alternate)
         self.generator = CompoundGenerator([liss_gen], [], [])
         self.generator.prepare()
         self.logger.debug('Created JLissajousGenerator: %s', self.generator.to_dict())

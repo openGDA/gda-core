@@ -69,7 +69,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			  + "		start=(0, 0),"
 			  + "		stop=(1, 1),"
 			  + "		count=(5, 5)," // this is what makes the model a grid
-			  + "		snake=False,"
+			  + "		alternating=False,"
 			  + "		continuous=True,"
 			  + "		roi=rect(origin=(0, 0), size=(1, 1))),"
 			  + "	det=[detector('mandelbrot', 0.5)]"
@@ -94,7 +94,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			  + "		start=(0, 0),"
 			  + "		stop=(1, 1),"
 			  + "		step=(0.01, 0.01)," // this is what makes the model a raster
-			  + "		snake=False,"
+			  + "		alternating=False,"
 			  + "		continuous=True,"
 			  + "		roi=rect(origin=(0, 0), size=(1, 1))),"
 			  + "	det=[detector('mandelbrot', 0.5)]"
@@ -136,7 +136,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 		assertEquals("y", gmodel.getyAxisName());
 		assertEquals(5, gmodel.getxAxisPoints());
 		assertEquals(6, gmodel.getyAxisPoints());
-		assertEquals(true, gmodel.isSnake());
+		assertEquals(true, gmodel.isAlternating());
 
 		BoundingBox bbox = gmodel.getBoundingBox();
 		assertEquals(0, bbox.getxAxisStart(), 1e-8);
@@ -190,7 +190,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 		assertEquals("y", gmodel.getyAxisName());
 		assertEquals(5, gmodel.getxAxisPoints());
 		assertEquals(6, gmodel.getyAxisPoints());
-		assertEquals(true, gmodel.isSnake());
+		assertEquals(true, gmodel.isAlternating());
 
 		BoundingBox bbox = gmodel.getBoundingBox();
 		assertEquals(0, bbox.getxAxisStart(), 1e-8);
@@ -273,7 +273,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			assertEquals("y", rogmodel.getyAxisName());
 			assertEquals(5, rogmodel.getxAxisPoints());
 			assertEquals(6, rogmodel.getyAxisPoints());
-			assertEquals(true, rogmodel.isSnake());
+			assertEquals(true, rogmodel.isAlternating());
 			assertEquals(5, rogmodel.getOffset(), 1e-8);
 			assertEquals(0, rogmodel.getSeed());
 
@@ -313,8 +313,6 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 				+	"        stop=(10, 11),           "
 				+   "		 a=(0.5),			 	  "
 				+   "		 b=(0.1),			 	  "
-				+   "		 delta=(5),			 	  "
-				+   "		 theta=(3),			 	  "
 				+   "		 points=(40),		 	  "
 				+	"        roi=circ((4, 6), 5)      "
 				+	"    )                            "
@@ -330,8 +328,6 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			LissajousModel lissajous = (LissajousModel) model;
 			assertEquals(0.5, lissajous.getA(), 1e-8);
 			assertEquals(0.1, lissajous.getB(), 1e-8);
-			assertEquals(5, lissajous.getDelta(), 1e-8);
-			assertEquals(3, lissajous.getThetaStep(), 1e-8);
 			assertEquals(40, lissajous.getPoints());
 	}
 
@@ -446,7 +442,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	"        start=(1, 2),                "
 			+	"        stop=(8, 10),                "
 			+	"        step=(0.5, 0.6),             "
-			+	"        snake=True,                  "
+			+	"        alternating=True,                  "
 			+	"        roi=[                        "
 			+	"            circ((4, 4), 5),         "
 			+	"            rect((3, 4), (3, 3), 0.1)"
@@ -488,7 +484,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	"        start=(1, 2),                "
 			+	"        stop=(8, 10),                "
 			+	"        step=(0.5, 0.6),             "
-			+	"        snake=True,                  "
+			+	"        alternating=True,                  "
 			+	"        roi=[                        "
 			+	"            circ((4, 4), 5),         "
 			+	"            rect((3, 4), (3, 3), 0.1)"
@@ -632,7 +628,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 		pi.exec("sr =                                                                                 "
 			+	"scan_request(                                                                        "
 			+	"    path=[                                                                           "
-			+	"        grid(axes=('x', 'y'), start=(0, 0), stop=(10, 10), count=(5, 5), snake=True),"
+			+	"        grid(axes=('x', 'y'), start=(0, 0), stop=(10, 10), count=(5, 5), alternating=True),"
 			+	"        step('qty', 0, 10, 1),                                                       "
 			+	"    ],                                                                               "
 			+	"    det=detector('mandelbrot', 0.1),                                                             "

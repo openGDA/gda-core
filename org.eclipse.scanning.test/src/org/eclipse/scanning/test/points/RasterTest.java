@@ -308,7 +308,7 @@ public class RasterTest {
 		RasterModel model = new RasterModel("x", "y");
 		model.setxAxisStep(1);
 		model.setyAxisStep(1);
-		model.setSnake(true);
+		model.setAlternating(true);
 
 		// Get the point list
 		IPointGenerator<RasterModel> gen = service.createGenerator(model, roi);

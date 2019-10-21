@@ -11,12 +11,17 @@
  *******************************************************************************/
 package org.eclipse.scanning.points;
 
+import static org.eclipse.scanning.points.AbstractScanPointIterator.EMPTY_PY_ARRAY;
+
+import java.util.Iterator;
+
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.ScanPointIterator;
 import org.eclipse.scanning.api.points.models.StepModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
+import org.python.core.PyList;
 
 class StepGenerator extends AbstractGenerator<StepModel> {
 
@@ -45,12 +50,16 @@ class StepGenerator extends AbstractGenerator<StepModel> {
 
         final JythonObjectFactory<ScanPointIterator> lineGeneratorFactory = ScanPointGeneratorFactory.JLineGenerator1DFactory();
 
-        final String name   = model.getName();
+        final PyList axisNames   = new PyList(model.getScannableNames());
+        final PyList units = new PyList(model.getUnits());
         final int numPoints = model.size();
         final double start  = model.getStart();
         final double stop   = start + model.getStep() * (numPoints-1);
 
-		return lineGeneratorFactory.createObject(name, "mm", start, stop, numPoints);
+		ScanPointIterator line =  lineGeneratorFactory.createObject(axisNames, units, start, stop, numPoints, model.isAlternating());
+		return CompoundSpgIteratorFactory.createSpgCompoundGenerator(
+				new Iterator[] {line}, getRegions().toArray(),
+				model.getScannableNames().toArray(new String[0]), EMPTY_PY_ARRAY, -1, model.isContinuous());
 	}
 
 	@Override

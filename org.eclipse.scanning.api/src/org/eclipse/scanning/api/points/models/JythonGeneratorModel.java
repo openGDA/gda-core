@@ -83,13 +83,7 @@ public class JythonGeneratorModel extends AbstractPointsModel {
 
 	@Override
 	public boolean equals(Object obj) {
-
-		if (this == obj)
-			return true;
 		if (!super.equals(obj))
-			return false;
-
-		if (getClass() != obj.getClass())
 			return false;
 
 		JythonGeneratorModel other = (JythonGeneratorModel) obj;

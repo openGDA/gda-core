@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
+import org.eclipse.scanning.api.ModelValidationException;
+
 /**
  * A model for a scan at a single two-dimensional point.
  *
@@ -62,17 +64,38 @@ public class SinglePointModel extends AbstractMapModel {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
+		if (!super.equals(obj)) {
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
+		}
 		SinglePointModel other = (SinglePointModel) obj;
 		if (Double.doubleToLongBits(x) != Double.doubleToLongBits(other.x))
 			return false;
 		if (Double.doubleToLongBits(y) != Double.doubleToLongBits(other.y))
 			return false;
 		return true;
+	}
+
+	@Override
+	public boolean isContinuous() {
+		return false;
+	}
+
+	@Override
+	public void setContinuous(boolean continuous) {
+		if (continuous) {
+			throw new ModelValidationException("SinglePointModel does not support continuous operation", this, "continuous");
+		}
+	}
+
+	@Override
+	public boolean isAlternating() {
+		return false;
+	}
+
+	@Override
+	public void setAlternating(boolean alternating) {
+		if (alternating) {
+			throw new ModelValidationException("SinglePointModel does not support alternating operation", this, "continuous");
+		}
 	}
 }

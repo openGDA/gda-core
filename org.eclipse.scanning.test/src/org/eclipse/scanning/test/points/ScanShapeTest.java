@@ -216,7 +216,7 @@ public class ScanShapeTest {
 		gridModel.setyAxisPoints(4);
 		gridModel.setxAxisPoints(25);
 		gridModel.setBoundingBox(box);
-		gridModel.setSnake(snake);
+		gridModel.setAlternating(snake);
 
 		Object[] models = new Object[nestCount + 1];
 		for (int i = 0; i < nestCount; i++) {

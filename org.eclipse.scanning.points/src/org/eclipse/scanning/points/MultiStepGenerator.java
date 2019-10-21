@@ -11,8 +11,11 @@
  *******************************************************************************/
 package org.eclipse.scanning.points;
 
+import static org.eclipse.scanning.points.AbstractScanPointIterator.EMPTY_PY_ARRAY;
+
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.scanning.api.ModelValidationException;
@@ -84,7 +87,12 @@ class MultiStepGenerator extends AbstractGenerator<MultiStepModel> {
 			pos += positions.length;
 		}
 
-		final ScanPointIterator pyIterator = arrayGeneratorFactory.createObject(model.getName(), "mm", points);
+		final String name = model.getName();
+		final List<String> units = model.getUnits();
+
+		final ScanPointIterator multiStep = arrayGeneratorFactory.createObject(name, units, points, model.isAlternating());
+		final ScanPointIterator pyIterator = CompoundSpgIteratorFactory.createSpgCompoundGenerator(new Iterator[] {multiStep}, getRegions().toArray(),
+				new String[] {name}, EMPTY_PY_ARRAY, -1, model.isContinuous());
 		return new SpgIterator(pyIterator);
 	}
 

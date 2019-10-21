@@ -21,6 +21,8 @@ package org.eclipse.scanning.points;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import org.eclipse.scanning.api.ModelValidationException;
+import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.ScanPointIterator;
@@ -43,6 +45,17 @@ public class SinglePointGenerator extends AbstractGenerator<SinglePointModel> {
 		final ScanPointIterator pyIterator = lineGeneratorFactory.createObject(names, units, position, position, 1);
 
 		return new SpgIterator(pyIterator);
+	}
+
+	@Override
+	protected
+	void validateModel() throws ValidationException {
+		if (model.isContinuous()) {
+			throw new ModelValidationException("SinglePointModels cannot be continuous!", model, "continuous");
+		}
+		if (model.isAlternating()) {
+			throw new ModelValidationException("SinglePointModels cannot be alternating!", model, "continuous");
+		}
 	}
 
 }

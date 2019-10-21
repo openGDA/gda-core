@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
+import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.annotation.ui.DeviceType;
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 
@@ -79,6 +80,30 @@ public class RepeatedPointModel extends AbstractPointsModel {
 	}
 
 	@Override
+	public boolean isContinuous() {
+		return false;
+	}
+
+	@Override
+	public void setContinuous(boolean continuous) {
+		if (continuous) {
+			throw new ModelValidationException("RepeatedPointModel does not support continuous operation", this, "continuous");
+		}
+	}
+
+	@Override
+	public boolean isAlternating() {
+		return false;
+	}
+
+	@Override
+	public void setAlternating(boolean alternating) {
+		if (alternating) {
+			throw new ModelValidationException("RepeatedPointModel does not support alternating operation", this, "continuous");
+		}
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
@@ -93,19 +118,10 @@ public class RepeatedPointModel extends AbstractPointsModel {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
 		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
 			return false;
 		RepeatedPointModel other = (RepeatedPointModel) obj;
 		if (count != other.count)
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
 			return false;
 		if (sleep != other.sleep)
 			return false;

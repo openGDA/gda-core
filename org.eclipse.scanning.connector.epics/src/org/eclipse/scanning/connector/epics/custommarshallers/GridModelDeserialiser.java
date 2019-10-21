@@ -35,7 +35,7 @@ public class GridModelDeserialiser implements IPVStructureDeserialiser {
 		gridModel.setyAxisName(pvStructure.getSubField(PVString.class, "yAxisName").get());
 		gridModel.setxAxisPoints(pvStructure.getSubField(PVInt.class, "xAxisPoints").get());
 		gridModel.setyAxisPoints(pvStructure.getSubField(PVInt.class, "yAxisPoints").get());
-		gridModel.setSnake(pvStructure.getBooleanField("snake").get());
+		gridModel.setAlternating(pvStructure.getBooleanField("alternating").get());
 		gridModel.setContinuous(pvStructure.getBooleanField("continuous").get());
 		gridModel.setVerticalOrientation(pvStructure.getBooleanField("verticalOrientation").get());
 		return gridModel;

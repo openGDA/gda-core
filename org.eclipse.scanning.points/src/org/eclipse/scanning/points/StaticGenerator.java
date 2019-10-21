@@ -36,6 +36,12 @@ class StaticGenerator extends AbstractGenerator<StaticModel> {
 	@Override
 	protected void validateModel() {
 		if (model.getSize() < 1) throw new ModelValidationException("Size must be greater than zero!", model, "size");
+		if (model.isContinuous()) {
+			throw new ModelValidationException("StaticModels cannot be continuous!", model, "continuous");
+		}
+		if (model.isAlternating()) {
+			throw new ModelValidationException("StaticModels cannot be alternating!", model, "continuous");
+		}
 	}
 
 	@Override

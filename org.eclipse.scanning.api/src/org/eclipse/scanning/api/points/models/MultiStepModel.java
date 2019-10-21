@@ -110,19 +110,13 @@ public class MultiStepModel extends AbstractPointsModel {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
 		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
 			return false;
 		MultiStepModel other = (MultiStepModel) obj;
 		if (stepModels == null) {
-			if (other.stepModels != null)
-				return false;
-		} else if (!stepModels.equals(other.stepModels))
-			return false;
-		return true;
+			return other.stepModels == null;
+			}
+		return stepModels.equals(other.stepModels);
 	}
 
 	@Override

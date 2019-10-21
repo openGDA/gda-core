@@ -60,11 +60,7 @@ public class PtychographyGridModel extends AbstractOverlapModel {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
 		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
 			return false;
 		PtychographyGridModel other = (PtychographyGridModel) obj;
 		if (Double.doubleToLongBits(randomOffset) != Double.doubleToLongBits(other.randomOffset))

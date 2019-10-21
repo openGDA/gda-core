@@ -25,37 +25,8 @@ import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
  */
 public abstract class AbstractGridModel extends AbstractBoundingBoxModel {
 
-	@FieldDescriptor(label="Snake")
-	private boolean snake = false;
-
 	@FieldDescriptor(label="Vertical Orientation")
 	private boolean verticalOrientation = false;
-
-	/**
-	 * A snake scan is a scan where each line of the scan is performed in the opposite direction
-	 * to the previous one as show below:
-	 * <pre>
-	 * -------------------->
-	 * <--------------------
-	 * -------------------->
-     * </pre>
-     * Otherwise all lines of the scan are performed in the same direction
-     * <pre>
-     * -------------------->
-     * -------------------->
-     * -------------------->
-     * </pre>
-     * @return <code>true</code> if the scan is a snake scan, <code>false</code> otherwise
- 	 */
-	public boolean isSnake() {
-		return snake;
-	}
-
-	public void setSnake(boolean snake) {
-		boolean oldValue = this.snake;
-		this.snake = snake;
-		this.pcs.firePropertyChange("snake", oldValue, snake);
-	}
 
 	/**
 	 * By default the horizontal axis is the scanned first, i.e. is the fast axis. If this
@@ -64,6 +35,7 @@ public abstract class AbstractGridModel extends AbstractBoundingBoxModel {
 	 * @return <code>true</code> if the vertical axis is scanned first, <code>false</code> if
 	 * the horizontal axis is scanned first.
 	 */
+
 	public boolean isVerticalOrientation() {
 		return verticalOrientation;
 	}
@@ -78,30 +50,21 @@ public abstract class AbstractGridModel extends AbstractBoundingBoxModel {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + (snake ? 1231 : 1237);
 		result = prime * result + (verticalOrientation ? 1231 : 1237);
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
 		if (!super.equals(obj))
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
 		AbstractGridModel other = (AbstractGridModel) obj;
-		if (snake != other.snake)
-			return false;
-		if (verticalOrientation != other.verticalOrientation)
-			return false;
-		return true;
+		return (verticalOrientation == other.verticalOrientation);
 	}
 
 	@Override
 	public String toString() {
-		return "AbstractGridModel [snake=" + snake + ", verticalOrientation=" + verticalOrientation
+		return "AbstractGridModel [verticalOrientation=" + verticalOrientation
 				+ ", " + super.toString() + "]";
 	}
 

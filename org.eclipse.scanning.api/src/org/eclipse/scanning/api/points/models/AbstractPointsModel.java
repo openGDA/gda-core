@@ -14,6 +14,7 @@ package org.eclipse.scanning.api.points.models;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -29,20 +30,27 @@ import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
  */
 public abstract class AbstractPointsModel implements IScanPathModel {
 
+	private static final String HARDCODED_UNITS = "mm";
+
+	@FieldDescriptor(label="'Snake' - switches direction with every iteration of wrapping model")
+	private boolean alternating = false;
 
 	protected final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
 	@Override
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		this.pcs.addPropertyChangeListener(listener);
+		pcs.addPropertyChangeListener(listener);
 	}
 	@Override
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		this.pcs.removePropertyChangeListener(listener);
+		pcs.removePropertyChangeListener(listener);
 	}
 
 	@FieldDescriptor(visible=false)
 	private String name;
+
+	@FieldDescriptor(label = "Continuous", hint = "Whether the motors should move continuously or stop at each point in the scan to take an image")
+	private boolean continuous = true;
 
 	@Override
 	public String getName() {
@@ -79,23 +87,29 @@ public abstract class AbstractPointsModel implements IScanPathModel {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + (alternating ? 1231 : 1237);
+		result = prime * result + (continuous ? 1231 : 1237);
 		return result;
 	}
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null || obj.getClass()!=getClass()) {
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
+		}
 		AbstractPointsModel other = (AbstractPointsModel) obj;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
+		if (alternating != other.alternating) {
 			return false;
-		return true;
+		}
+		if (continuous != other.continuous) {
+			return false;
+		}
+		if (name == null) {
+			return (other.name == null);
+		}
+		return (name.equals(other.name));
 	}
 
 
@@ -117,6 +131,50 @@ public abstract class AbstractPointsModel implements IScanPathModel {
 	}
 	@Override
 	public String toString() {
-		return "AbstractPointsModel [name=" + name + "]";
+		return "AbstractPointsModel [name=" + name + ", continuous="+ continuous + ", alternating=" + alternating + "]";
+	}
+
+	public boolean isContinuous() {
+		return continuous;
+	}
+
+	public void setContinuous(boolean newValue) {
+		pcs.firePropertyChange("continuous", continuous, newValue);
+		continuous = newValue;
+	}
+
+	public List<String> getUnits(){
+		List<String> dimensions = new ArrayList<>();
+		dimensions.add(HARDCODED_UNITS);
+		return dimensions;
+	}
+
+	/**
+     * **This setting only makes sense when there is a scannable outside of this one**
+     *
+	 * An alternating/snake scan is a scan where each line of the scan is performed in the opposite direction
+	 * to the previous one as show below:
+	 * <pre>
+	 * -------------------->
+	 * <--------------------
+	 * -------------------->
+     * </pre>
+     * Otherwise all lines of the scan are performed in the same direction
+     * <pre>
+     * -------------------->
+     * -------------------->
+     * -------------------->
+     * </pre>
+     * @return <code>true</code> if the scan is a snake scan, <code>false</code> otherwise
+ 	 */
+
+	public boolean isAlternating() {
+		return alternating;
+	}
+
+	public void setAlternating(boolean snake) {
+		boolean oldValue = this.alternating;
+		this.alternating = snake;
+		this.pcs.firePropertyChange("alternates", oldValue, snake);
 	}
 }

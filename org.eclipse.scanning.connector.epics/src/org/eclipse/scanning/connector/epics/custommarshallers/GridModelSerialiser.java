@@ -62,8 +62,8 @@ public class GridModelSerialiser implements IPVStructureSerialiser<GridModel> {
 		fastAxisPoints.put(model.getxAxisPoints());
 		PVInt slowAxisPoints = pvStructure.getSubField(PVInt.class, "slowAxisPoints");
 		slowAxisPoints.put(model.getyAxisPoints());
-		PVBoolean snake = pvStructure.getSubField(PVBoolean.class, "snake");
-		snake.put(model.isSnake());
+		PVBoolean alternates = pvStructure.getSubField(PVBoolean.class, "alternates");
+		alternates.put(model.isAlternating());
 		PVBoolean continuous = pvStructure.getSubField(PVBoolean.class, "continuous");
 		continuous.put(model.isContinuous());
 		PVBoolean verticalOrientation = pvStructure.getSubField(PVBoolean.class, "verticalOrientation");

@@ -90,7 +90,7 @@ public class MalcolmGridScanTest extends AbstractMalcolmScanTest {
 		gmodel.setyAxisName("stage_y");
 		gmodel.setyAxisPoints(size[size.length-2]);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
-		gmodel.setSnake(snake);
+		gmodel.setAlternating(snake);
 
 		IPointGenerator<?> gen = pointGenService.createGenerator(gmodel);
 

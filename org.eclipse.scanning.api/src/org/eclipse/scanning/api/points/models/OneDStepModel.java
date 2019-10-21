@@ -52,15 +52,9 @@ public class OneDStepModel extends AbstractBoundingLineModel implements IBoundin
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
 		if (!super.equals(obj))
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
 		OneDStepModel other = (OneDStepModel) obj;
-		if (Double.doubleToLongBits(step) != Double.doubleToLongBits(other.step))
-			return false;
-		return true;
+		return (Double.doubleToLongBits(step) == Double.doubleToLongBits(other.step));
 	}
 }

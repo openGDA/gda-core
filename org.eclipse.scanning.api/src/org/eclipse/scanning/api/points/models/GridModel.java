@@ -82,18 +82,10 @@ public class GridModel extends AbstractGridModel {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
 		if (!super.equals(obj))
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
 		GridModel other = (GridModel) obj;
-		if (xAxisPoints != other.xAxisPoints)
-			return false;
-		if (yAxisPoints != other.yAxisPoints)
-			return false;
-		return true;
+		return (xAxisPoints == other.xAxisPoints && yAxisPoints == other.yAxisPoints);
 	}
 
 	@Override

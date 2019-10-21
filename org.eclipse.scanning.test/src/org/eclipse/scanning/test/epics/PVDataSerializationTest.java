@@ -75,7 +75,7 @@ public class PVDataSerializationTest {
 		this.connectorService = new MalcolmEpicsV4Connection();
 	}
 	@Test
-	public void TestArrayGenerator() throws Exception {
+	public void testArrayGenerator() throws Exception {
 
 		// Create test generator
 		List<IROI> regions = new LinkedList<>();
@@ -84,6 +84,8 @@ public class PVDataSerializationTest {
 		ArrayModel stepModel = new ArrayModel();
 		stepModel.setName("x");
 		stepModel.setPositions(new double [] {1, 2, 3, 4});
+		stepModel.setContinuous(false);
+		stepModel.setAlternating(true);
 		IPointGenerator<ArrayModel> temp = pgService.createGenerator(stepModel, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
@@ -120,7 +122,7 @@ public class PVDataSerializationTest {
 		double[] points = new double[] {1, 2, 3, 4};
 		pointsVal.put(0, points.length, points, 0);
 		PVBoolean adVal = expectedGeneratorsPVStructure.getSubField(PVBoolean.class, "alternate");
-		adVal.put(false);
+		adVal.put(true);
 
 		PVStructure expectedCompGenPVStructure = pvDataCreate.createPVStructure(expectedCompGenStructure);
 		PVDouble durationVal = expectedCompGenPVStructure.getSubField(PVDouble.class, "duration");
@@ -149,7 +151,7 @@ public class PVDataSerializationTest {
 
 		IPointGeneratorService pgService = new PointGeneratorService();
 		GridModel gm = new GridModel("stage_x", "stage_y");
-		gm.setSnake(true);
+		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
@@ -231,7 +233,7 @@ public class PVDataSerializationTest {
 
 		IPointGeneratorService pgService = new PointGeneratorService();
 		GridModel gm = new GridModel("stage_x", "stage_y");
-		gm.setSnake(true);
+		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
@@ -316,7 +318,7 @@ public class PVDataSerializationTest {
 
 		IPointGeneratorService pgService = new PointGeneratorService();
 		GridModel gm = new GridModel("stage_x", "stage_y");
-		gm.setSnake(true);
+		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
@@ -359,7 +361,7 @@ public class PVDataSerializationTest {
 
 		IPointGeneratorService pgService = new PointGeneratorService();
 		GridModel gm = new GridModel("stage_x", "stage_y");
-		gm.setSnake(true);
+		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
@@ -458,7 +460,7 @@ public class PVDataSerializationTest {
 
 		IPointGeneratorService pgService = new PointGeneratorService();
 		GridModel gm = new GridModel("stage_x", "stage_y");
-		gm.setSnake(true);
+		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
@@ -541,7 +543,7 @@ public class PVDataSerializationTest {
 
 		IPointGeneratorService pgService = new PointGeneratorService();
 		GridModel gm = new GridModel("stage_x", "stage_y");
-		gm.setSnake(true);
+		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
@@ -628,7 +630,7 @@ public class PVDataSerializationTest {
 
 		IPointGeneratorService pgService = new PointGeneratorService();
 		GridModel gm = new GridModel("stage_x", "stage_y");
-		gm.setSnake(true);
+		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
@@ -721,7 +723,7 @@ public class PVDataSerializationTest {
 
 		IPointGeneratorService pgService = new PointGeneratorService();
 		GridModel gm = new GridModel("stage_x", "stage_y");
-		gm.setSnake(true);
+		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
@@ -790,6 +792,8 @@ public class PVDataSerializationTest {
 		// Create test generator
 		IPointGeneratorService pgService = new PointGeneratorService();
 		StepModel stepModel = new StepModel("x", 3, 4, 0.25);
+		stepModel.setAlternating(true);
+		stepModel.setContinuous(false);
 		IPointGenerator<StepModel> temp = pgService.createGenerator(stepModel);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
@@ -835,7 +839,7 @@ public class PVDataSerializationTest {
 		PVInt numVal = expectedGeneratorsPVStructure.getSubField(PVInt.class, "size");
 		numVal.put(5);
 		PVBoolean adVal = expectedGeneratorsPVStructure.getSubField(PVBoolean.class, "alternate");
-		adVal.put(false);
+		adVal.put(true);
 
 		PVStructure expectedCompGenPVStructure = pvDataCreate.createPVStructure(expectedCompGenStructure);
 		PVDouble durationVal = expectedCompGenPVStructure.getSubField(PVDouble.class, "duration");
@@ -866,6 +870,7 @@ public class PVDataSerializationTest {
 		lissajousModel.setyAxisName("san");
 		lissajousModel.setxAxisName("fan");
 		lissajousModel.setContinuous(false);
+		lissajousModel.setAlternating(true);
 		IPointGenerator<LissajousModel> temp = pgService.createGenerator(lissajousModel);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
@@ -885,6 +890,7 @@ public class PVDataSerializationTest {
 				add("lobes", ScalarType.pvInt).
 				addArray("centre", ScalarType.pvDouble).
 				addArray("units", ScalarType.pvString).
+				add("alternating", ScalarType.pvBoolean).
 				add("size", ScalarType.pvInt).
 				addArray("span", ScalarType.pvDouble).
 				setId("scanpointgenerator:generator/LissajousGenerator:1.0").
@@ -919,6 +925,8 @@ public class PVDataSerializationTest {
 		PVDoubleArray spanVal = expectedGeneratorsPVStructure.getSubField(PVDoubleArray.class, "span");
 		double[] span = new double[] {10, 6};
 		spanVal.put(0, span.length, span, 0);
+		PVBoolean altVal = expectedGeneratorsPVStructure.getSubField(PVBoolean.class, "alternating");
+		altVal.put(true);
 
 		PVStructure expectedCompGenPVStructure = pvDataCreate.createPVStructure(expectedCompGenStructure);
 		PVDouble durationVal = expectedCompGenPVStructure.getSubField(PVDouble.class, "duration");
@@ -939,13 +947,11 @@ public class PVDataSerializationTest {
 	}
 
 	@Test
-	public void testSpiralModel() throws Exception {
+	public void testSpiralGenerator() throws Exception {
 
 		// Create test generator
 		IPointGeneratorService pgService = new PointGeneratorService();
-		SpiralModel spiralModel = new SpiralModel("x", "y", 2, new BoundingBox(0, 5, 2, 4));
-		spiralModel.setContinuous(false);
-		IPointGenerator<SpiralModel> temp = pgService.createGenerator(spiralModel);
+		IPointGenerator<SpiralModel> temp = pgService.createGenerator(new SpiralModel("x", "y", 2, new BoundingBox(0, 5, 2, 4)));
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
 		// Create the expected PVStructure
@@ -994,6 +1000,8 @@ public class PVDataSerializationTest {
 		PVStructure expectedCompGenPVStructure = pvDataCreate.createPVStructure(expectedCompGenStructure);
 		PVDouble durationVal = expectedCompGenPVStructure.getSubField(PVDouble.class, "duration");
 		durationVal.put(-1);
+		PVBoolean contVal = expectedCompGenPVStructure.getSubField(PVBoolean.class, "continuous");
+		contVal.put(true);
 		PVUnionArray generators = expectedCompGenPVStructure.getSubField(PVUnionArray.class, "generators");
 
 		PVUnion[] unionArray = new PVUnion[1];
@@ -1010,13 +1018,14 @@ public class PVDataSerializationTest {
 	}
 
 	@Test
-	public void testSingualurLineGenerator() throws Exception {
+	public void testSingularLineGenerator() throws Exception {
 
 		// Create test generator
 		List<IROI> regions = new LinkedList<>();
 
 		IPointGeneratorService pgService = new PointGeneratorService();
 		StepModel stepModel = new StepModel("x", 3, 4, 0.25);
+		stepModel.setContinuous(false);
 		IPointGenerator<StepModel> temp = pgService.createGenerator(stepModel, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
@@ -1108,8 +1117,8 @@ public class PVDataSerializationTest {
 
 		IPointGeneratorService pgService = new PointGeneratorService();
 		GridModel gm = new GridModel("stage_x", "stage_y");
+		gm.setAlternating(true);
 		gm.setContinuous(false);
-		gm.setSnake(true);
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
@@ -1250,9 +1259,8 @@ public class PVDataSerializationTest {
 		stopVal.put(0, stop.length, stop, 0);
 		PVInt numVal = expectedGeneratorsPVStructure2.getSubField(PVInt.class, "size");
 		numVal.put(10);
-		PVBoolean adVal = expectedGeneratorsPVStructure2.getSubField(PVBoolean.class, "alternate");
-		adVal.put(true);
-
+		PVBoolean adVal2 = expectedGeneratorsPVStructure2.getSubField(PVBoolean.class, "alternate");
+		adVal2.put(true);
 
 		PVStructure expectedCompGenPVStructure = pvDataCreate.createPVStructure(expectedCompGenStructure);
 		PVDouble durationVal = expectedCompGenPVStructure.getSubField(PVDouble.class, "duration");

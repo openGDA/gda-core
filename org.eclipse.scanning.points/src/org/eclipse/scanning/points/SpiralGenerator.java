@@ -36,10 +36,6 @@ class SpiralGenerator extends AbstractGenerator<SpiralModel> {
 	@Override
 	public ScanPointIterator iteratorFromValidModel() {
 		final SpiralModel model = getModel();
-		final String xName = model.getxAxisName();
-		final String xUnits = model.getxAxisUnits();
-		final String yName = model.getyAxisName();
-		final String yUnits = model.getyAxisUnits();
 
 		final double radiusX = model.getBoundingBox().getxAxisLength() / 2;
 		final double radiusY = model.getBoundingBox().getyAxisLength() / 2;
@@ -49,17 +45,16 @@ class SpiralGenerator extends AbstractGenerator<SpiralModel> {
 
         final JythonObjectFactory<ScanPointIterator> spiralGeneratorFactory = ScanPointGeneratorFactory.JSpiralGeneratorFactory();
 
-        final PyList axisNamesPy =  new PyList(Arrays.asList(xName, yName));
-        final PyList units = new PyList(Arrays.asList(xUnits, yUnits));
+        final PyList axisNamesPy =  new PyList(model.getScannableNames());
+        final PyList units = new PyList(model.getUnits());
         final PyList centre = new PyList(Arrays.asList(xCentre, yCentre));
         final double radius = maxRadius;
         final double scale = model.getScale();
-        final boolean alternate = false;
 
 		final ScanPointIterator spiral = spiralGeneratorFactory.createObject(
-				axisNamesPy, units, centre, radius, scale, alternate);
+				axisNamesPy, units, centre, radius, scale, model.isAlternating());
 		final Iterator<?>[] iterators = new Iterator<?>[] { spiral };
-		final String[] axisNames = new String[] { xName, yName };
+		final String[] axisNames = model.getScannableNames().toArray(new String[0]);
 		final ScanPointIterator pyIterator = CompoundSpgIteratorFactory.createSpgCompoundGenerator(
 				iterators, getRegions().toArray(),
 				axisNames, EMPTY_PY_ARRAY, -1, model.isContinuous());

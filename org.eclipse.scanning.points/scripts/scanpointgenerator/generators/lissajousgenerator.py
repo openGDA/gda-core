@@ -82,6 +82,7 @@ class LissajousGenerator(Generator):
         d['span'] = [self.x_max * 2, self.y_max * 2]
         d['lobes'] = self.x_freq
         d['size'] = self.size
+        d['alternating'] = self.alternate
 
         return d
 
@@ -103,5 +104,6 @@ class LissajousGenerator(Generator):
         span = d['span']
         lobes = d['lobes']
         size = d['size']
+        alternate = d['alternating']
 
-        return cls(axes, units, centre, span, lobes, size)
+        return cls(axes, units, centre, span, lobes, size, alternate)

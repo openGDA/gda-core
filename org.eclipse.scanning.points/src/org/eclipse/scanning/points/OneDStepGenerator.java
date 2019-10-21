@@ -11,7 +11,9 @@
  *******************************************************************************/
 package org.eclipse.scanning.points;
 
-import java.util.Arrays;
+import static org.eclipse.scanning.points.AbstractScanPointIterator.EMPTY_PY_ARRAY;
+
+import java.util.Iterator;
 
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.AbstractGenerator;
@@ -46,13 +48,15 @@ class OneDStepGenerator extends AbstractGenerator<OneDStepModel> {
         final double xStep = model.getStep() * Math.cos(line.getAngle());
         final double yStep = model.getStep() * Math.sin(line.getAngle());
 
-		final PyList names =  new PyList(Arrays.asList(model.getxAxisName(), model.getyAxisName()));
-		final PyList units = new PyList(Arrays.asList(model.getxAxisUnits(), model.getyAxisUnits()));
+		final PyList axisNames =  new PyList(model.getScannableNames());
+		final PyList units = new PyList(model.getUnits());
 		final double[] start = {line.getxStart(), line.getyStart()};
         final double[] stop = {line.getxStart() + xStep * numPoints, line.getyStart() + yStep * numPoints};
 
-		final ScanPointIterator pyIterator = lineGeneratorFactory.createObject(
-				names, units, start, stop, numPoints);
+		final ScanPointIterator lineIt = lineGeneratorFactory.createObject(
+				axisNames, units, start, stop, numPoints, model.isAlternating());
+		final ScanPointIterator pyIterator = CompoundSpgIteratorFactory.createSpgCompoundGenerator(new Iterator[] {lineIt}, getRegions().toArray(),
+				model.getScannableNames().toArray(new String[0]), EMPTY_PY_ARRAY, -1, model.isContinuous());
 		return new SpgIterator(pyIterator);
 	}
 

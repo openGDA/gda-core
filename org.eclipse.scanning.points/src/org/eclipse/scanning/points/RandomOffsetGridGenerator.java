@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.points;
 
-import java.util.Arrays;
 import java.util.Iterator;
 
 import org.eclipse.scanning.api.ModelValidationException;
@@ -69,9 +68,9 @@ public class RandomOffsetGridGenerator extends GridGenerator {
         final JythonObjectFactory<ScanPointIterator> lineGeneratorFactory = ScanPointGeneratorFactory.JLineGenerator1DFactory();
 
 		final ScanPointIterator yLine = lineGeneratorFactory.createObject(
-				yName, "mm", minY, minY + (rows - 1) * yStep, rows, model.isSnake());
+				yName, model.getUnits().get(1), minY, minY + (rows - 1) * yStep, rows, model.isAlternating());
 		final ScanPointIterator xLine = lineGeneratorFactory.createObject(
-				xName, "mm", minX, minX + (columns - 1) * xStep, columns, model.isSnake());
+				xName, model.getUnits().get(0), minX, minX + (columns - 1) * xStep, columns, model.isAlternating());
 
         final JythonObjectFactory<PyObject> randomOffsetMutatorFactory = ScanPointGeneratorFactory.JRandomOffsetMutatorFactory();
 
@@ -82,7 +81,7 @@ public class RandomOffsetGridGenerator extends GridGenerator {
         maxOffset.put(yName, offset);
         maxOffset.put(xName, offset);
 
-        final PyList axes = new PyList(Arrays.asList(yName, xName));
+        final PyList axes = new PyList(model.getScannableNames());
 		final PyObject randomOffset = randomOffsetMutatorFactory.createObject(seed, axes, maxOffset);
 
 		final Iterator<?>[] generators = new Iterator<?>[2];
@@ -90,9 +89,8 @@ public class RandomOffsetGridGenerator extends GridGenerator {
 		generators[1] = model.isVerticalOrientation() ? yLine : xLine;
         final PyObject[] mutators = { randomOffset };
 
-        final String[] axisNames = new String[] { xName, yName };
 		final ScanPointIterator pyIterator = CompoundSpgIteratorFactory.createSpgCompoundGenerator(
-				generators, getRegions().toArray(), axisNames, mutators, -1, model.isContinuous());
+				generators, getRegions().toArray(), model.getScannableNames().toArray(new String[0]), mutators, -1, model.isContinuous());
 
 		return new SpgIterator(pyIterator);
 	}

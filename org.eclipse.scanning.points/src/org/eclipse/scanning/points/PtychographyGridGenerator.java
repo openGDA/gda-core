@@ -74,14 +74,14 @@ public class PtychographyGridGenerator extends AbstractGenerator<PtychographyGri
 				model.getBoundingBox().getyAxisStart(),
 				model.getBoundingBox().getyAxisStart() + (yPoints - 1) * yStep,
 				yPoints,
-				model.isSnake());
+				model.isAlternating());
 
 		ScanPointIterator xLine = lineGeneratorFactory.createObject(
 				xName, xUnits,
 				model.getBoundingBox().getxAxisStart(),
 				model.getBoundingBox().getxAxisStart() + (xPoints - 1) * xStep,
 				xPoints,
-				model.isSnake());
+				model.isAlternating());
 
 		JythonObjectFactory<PyObject> randomOffsetMutatorFactory = ScanPointGeneratorFactory.JRandomOffsetMutatorFactory();
 		int seed = model.getSeed();

@@ -11,12 +11,12 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
+import org.eclipse.scanning.api.ModelValidationException;
+
 public class LissajousModel extends AbstractBoundingBoxModel {
 
 	private double a = 1;
 	private double b = 0.25;
-	private double delta = 0;
-	private double thetaStep = 0.05;
 	private int points = 503; // this gives a closed path with the other default values
 
 	public LissajousModel() {
@@ -39,26 +39,14 @@ public class LissajousModel extends AbstractBoundingBoxModel {
 		this.b = b;
 		this.pcs.firePropertyChange("b", oldValue, b);
 	}
-	public double getDelta() {
-		return delta;
-	}
-	public void setDelta(double delta) {
-		double oldValue = this.delta;
-		this.delta = delta;
-		this.pcs.firePropertyChange("delta", oldValue, delta);
-	}
-	public double getThetaStep() {
-		return thetaStep;
-	}
-	public void setThetaStep(double thetaStep) {
-		double oldValue = this.thetaStep;
-		this.thetaStep = thetaStep;
-		this.pcs.firePropertyChange("thetaStep", oldValue, thetaStep);
-	}
+
 	public int getPoints() {
 		return points;
 	}
 	public void setPoints(int points) {
+		if (points == 0) {
+			throw new ModelValidationException("Cannot have 0 points!", this, "points");
+		}
 		int oldValue = this.points;
 		this.points = points;
 		this.pcs.firePropertyChange("points", oldValue, points);
@@ -73,40 +61,40 @@ public class LissajousModel extends AbstractBoundingBoxModel {
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(b);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(delta);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + points;
-		temp = Double.doubleToLongBits(thetaStep);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
 		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
 			return false;
 		LissajousModel other = (LissajousModel) obj;
 		if (Double.doubleToLongBits(a) != Double.doubleToLongBits(other.a))
 			return false;
 		if (Double.doubleToLongBits(b) != Double.doubleToLongBits(other.b))
 			return false;
-		if (Double.doubleToLongBits(delta) != Double.doubleToLongBits(other.delta))
-			return false;
-		if (points != other.points)
-			return false;
-		if (Double.doubleToLongBits(thetaStep) != Double.doubleToLongBits(other.thetaStep))
-			return false;
-		return true;
+		return points == other.points;
 	}
 
 	@Override
 	public String toString() {
-		return "LissajousModel [a=" + a + ", b=" + b + ", delta=" + delta + ", thetaStep=" + thetaStep + ", points="
+		return "LissajousModel [a=" + a + ", b=" + b + ", phaseDifference=" + getPhaseDifference() + ", thetaStep=" + getThetaStep() + ", points="
 				+ points + ", " + super.toString() + "]";
+	}
+
+	private double getThetaStep() {
+		return 2*Math.PI/points;
+	}
+
+	/**
+	 * #lobes = floor(a/b)
+	 * @return 0 for even number of lobes
+	 *         pi/2 for odd number
+	 */
+
+	private double getPhaseDifference() {
+		return Math.PI /2  * (((int) a/b) % 2);
 	}
 
 

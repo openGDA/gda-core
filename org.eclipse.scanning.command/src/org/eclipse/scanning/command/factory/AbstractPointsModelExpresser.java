@@ -18,13 +18,14 @@
 
 package org.eclipse.scanning.command.factory;
 
-import org.eclipse.scanning.api.points.models.AbstractGridModel;
+import org.eclipse.scanning.api.points.models.AbstractPointsModel;
 
-public abstract class AbstractGridModelExpresser<T extends AbstractGridModel> extends AbstractPointsModelExpresser<T> {
+public abstract class AbstractPointsModelExpresser<T extends AbstractPointsModel> extends PyModelExpresser<T> {
 
-	public void appendCommonGridProperties(StringBuilder sb, T model, boolean verbose) {
-		appendCommonProperties(sb, model, verbose);
+	public void appendCommonProperties(StringBuilder sb, T model, boolean verbose) {
 		sb.append(", ");
-		sb.append(getBooleanPyExpression("verticalOrientation", model.isVerticalOrientation(), verbose));
+		sb.append(getBooleanPyExpression("alternating", model.isAlternating(), verbose));
+		sb.append(", ");
+		sb.append(getBooleanPyExpression("continuous", model.isContinuous(), verbose));
 	}
 }

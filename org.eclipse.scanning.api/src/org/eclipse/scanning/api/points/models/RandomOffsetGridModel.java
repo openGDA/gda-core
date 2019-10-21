@@ -66,11 +66,7 @@ public class RandomOffsetGridModel extends GridModel {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
 		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
 			return false;
 		RandomOffsetGridModel other = (RandomOffsetGridModel) obj;
 		if (Double.doubleToLongBits(offset) != Double.doubleToLongBits(other.offset))

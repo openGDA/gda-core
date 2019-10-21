@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,9 +30,6 @@ public abstract class AbstractMapModel extends AbstractPointsModel implements IM
 	private String xAxisUnits = "mm";
 
 	private String yAxisUnits = "mm";
-
-	@FieldDescriptor(label="Continuous", hint="Whether the motors should move continuously or stop at each point in the scan to take an image")
-	private boolean continuous = true;
 
 	public AbstractMapModel() {
 		super();
@@ -89,15 +87,11 @@ public abstract class AbstractMapModel extends AbstractPointsModel implements IM
 	}
 
 	@Override
-	public boolean isContinuous() {
-		return continuous;
-	}
-
-	@Override
-	public void setContinuous(boolean newValue) {
-		boolean oldValue = this.continuous;
-		this.continuous = newValue;
-		this.pcs.firePropertyChange("continuous", oldValue, newValue);
+	public List<String> getUnits(){
+		List<String> dimensions = new ArrayList<>();
+		dimensions.add(xAxisUnits);
+		dimensions.add(yAxisUnits);
+		return dimensions;
 	}
 
 	@UiHidden
@@ -110,7 +104,6 @@ public abstract class AbstractMapModel extends AbstractPointsModel implements IM
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + (continuous ? 1231 : 1237);
 		result = prime * result + ((xAxisName == null) ? 0 : xAxisName.hashCode());
 		result = prime * result + ((yAxisName == null) ? 0 : yAxisName.hashCode());
 		return result;
@@ -118,32 +111,24 @@ public abstract class AbstractMapModel extends AbstractPointsModel implements IM
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
 		if (!super.equals(obj))
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
 		AbstractMapModel other = (AbstractMapModel) obj;
-		if (continuous != other.continuous)
-			return false;
 		if (xAxisName == null) {
 			if (other.xAxisName != null)
 				return false;
 		} else if (!xAxisName.equals(other.xAxisName))
 			return false;
 		if (yAxisName == null) {
-			if (other.yAxisName != null)
-				return false;
-		} else if (!yAxisName.equals(other.yAxisName))
-			return false;
-		return true;
+			return (other.yAxisName == null);
+		}
+		return yAxisName.equals(other.yAxisName);
 	}
 
 	@Override
 	public String toString() {
 		return "AbstractMapModel [xAxisName=" + xAxisName + ", yAxisName=" + yAxisName + ", xAxisUnits="
-				+ xAxisUnits + ", yAxisUnits=" + yAxisUnits + ", continuous=" + continuous + ", " + super.toString() + "]";
+				+ xAxisUnits + ", yAxisUnits=" + yAxisUnits + ", " + super.toString() + "]";
 	}
 
 }

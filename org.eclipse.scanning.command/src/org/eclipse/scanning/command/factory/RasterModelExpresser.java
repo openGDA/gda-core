@@ -32,7 +32,7 @@ class RasterModelExpresser extends AbstractGridModelExpresser<RasterModel> {
 				.append(formatValue(model.getBoundingBox().getyAxisEnd())+"), ")
 				.append((verbose?"step=":"")+"(")
 				.append(model.getxAxisStep()+", ")
-				.append(model.getyAxisStep()+"), ");
+				.append(model.getyAxisStep()+")");
 				appendCommonGridProperties(sb, model, verbose);
 				sb.append(getROIPyExpression(rois, verbose))
 				.append(")");

@@ -15,7 +15,7 @@ package org.eclipse.scanning.api.points.models;
  * A model defining a line in two dimensional space, which can be used to confine and give scale to a {@link
  * IBoundingLineModel}.
  * <p>
- * The position of the line is defined by an (X, Y) start point, an angle (CCW from the positive X axis) and a length.
+ * The position of the line is defined by an (X, Y) start point, an angle (CCW from the positive X axis in Radians) and a length.
  *
  * Important difference between BoundingLine and LinearROI -> rois are in data coordinates and bounding lines are
  * in axis coordinates i.e. locations of the motors rather than the selection of the data.
@@ -59,8 +59,14 @@ public class BoundingLine  {
 	public double getAngle() {
 		return angle;
 	}
+	public double getAngleInDegrees() {
+		return Math.toDegrees(angle);
+	}
 	public void setAngle(double angle) {
-		this.angle = angle;  // FIXME: Degrees? Radians?
+		this.angle = angle;
+	}
+	public void setAngleInDegrees(double angle) {
+		this.angle = Math.toRadians(angle);
 	}
 	public double getLength() {
 		return length;

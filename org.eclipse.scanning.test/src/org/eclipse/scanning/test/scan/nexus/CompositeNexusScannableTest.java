@@ -341,7 +341,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 		gmodel.setyAxisName("yNex");
 		gmodel.setyAxisPoints(SCAN_SIZE[0]);
 		gmodel.setBoundingBox(new BoundingBox(0, 0, 3, 3));
-		gmodel.setSnake(false);
+		gmodel.setAlternating(false);
 
 		IPointGenerator<?> gen = pointGenService.createGenerator(gmodel);
 

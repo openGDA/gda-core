@@ -299,7 +299,7 @@ public abstract class NexusTest {
 		gmodel.setyAxisName("yNex");
 		gmodel.setyAxisPoints(size[size.length-2]);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
-		gmodel.setSnake(snake);
+		gmodel.setAlternating(snake);
 
 		IPointGenerator<?> gen = pointGenService.createGenerator(gmodel,
 				region == null ? Collections.emptyList() : Arrays.asList(region));

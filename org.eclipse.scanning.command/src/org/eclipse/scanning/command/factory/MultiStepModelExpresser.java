@@ -18,7 +18,7 @@ import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.models.MultiStepModel;
 import org.eclipse.scanning.api.points.models.StepModel;
 
-class MultiStepModelExpresser extends PyModelExpresser<MultiStepModel> {
+class MultiStepModelExpresser extends AbstractPointsModelExpresser<MultiStepModel> {
 
 	@Override
 	public String pyExpress(MultiStepModel mmodel, Collection<IROI> rois, boolean verbose) {
@@ -33,20 +33,30 @@ class MultiStepModelExpresser extends PyModelExpresser<MultiStepModel> {
 
 
 		for (Iterator<StepModel> it = mmodel.getStepModels().iterator(); it.hasNext();) {
-			String step = getString(it.next());
+			String step = getString(it.next(), verbose);
 			ret.append(step);
             if (it.hasNext()) ret.append(", ");
 		}
-		ret.append("])");
+		ret.append("]");
+		appendCommonProperties(ret, mmodel, verbose);
+		ret.append(")");
 		return ret.toString();
 	}
 
-	static final String getString(StepModel model) {
+	private final String getString(StepModel model, boolean verbose) {
 		StringBuilder ret = new StringBuilder("StepModel(");
+		ret.append(verbose?"axis=":"");
 		ret.append("'"+model.getName()+"'"+", ");
+		ret.append(verbose?"start=":"");
 		ret.append(model.getStart()+", ");
+		ret.append(verbose?"stop=":"");
 		ret.append(model.getStop()+", ");
+		ret.append(verbose?"step=":"");
 		ret.append(model.getStep());
+		ret.append(", ");
+		ret.append(getBooleanPyExpression("alternating", model.isAlternating(), verbose));
+		ret.append(", ");
+		ret.append(getBooleanPyExpression("continuous", model.isContinuous(), verbose));
 		ret.append(")");
 		return ret.toString();
 	}

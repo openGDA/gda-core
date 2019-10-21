@@ -28,8 +28,8 @@ import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.ScanPointIterator;
+import org.eclipse.scanning.api.points.models.AbstractPointsModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.python.core.PyDictionary;
@@ -100,7 +100,9 @@ public class CompoundSpgIteratorFactory {
 		List<Object> models = model.getModels();
 		if (!models.isEmpty()) {
 			final Object innerModel = models.get(models.size() - 1);
-			return innerModel instanceof IMapPathModel && ((IMapPathModel) innerModel).isContinuous();
+			if (innerModel instanceof AbstractPointsModel) {
+				return ((AbstractPointsModel) innerModel).isContinuous();
+			}
 		}
 		return false;
 	}

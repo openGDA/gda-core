@@ -19,12 +19,11 @@
 package org.eclipse.scanning.command.factory;
 
 import java.util.Collection;
-import java.util.Objects;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.models.SpiralModel;
 
-public class SpiralModelExpresser extends PyModelExpresser<SpiralModel> {
+public class SpiralModelExpresser extends AbstractPointsModelExpresser<SpiralModel> {
 
 	@Override
 	String pyExpress(SpiralModel model, Collection<IROI> rois, boolean verbose) throws Exception {
@@ -47,17 +46,13 @@ public class SpiralModelExpresser extends PyModelExpresser<SpiralModel> {
 
 		// scale
 		sb.append(verbose?"scale=":"");
-		sb.append(model.getScale()+", ");
+		sb.append(model.getScale());
 
-		// continuous
-		sb.append(isContinuous(model, verbose));
+		// Alternating, continuous
+		appendCommonProperties(sb, model, verbose);
 
-		// rois
-		if (Objects.nonNull(rois) && !rois.isEmpty()) {
-			sb.append(", ");
-			sb.append(verbose?"roi=":"");
-			sb.append(factory.pyExpress(rois, verbose));
-		}
+		//ROIs
+		sb.append(getROIPyExpression(rois, verbose));
 
 		sb.append(")");
 		return sb.toString();

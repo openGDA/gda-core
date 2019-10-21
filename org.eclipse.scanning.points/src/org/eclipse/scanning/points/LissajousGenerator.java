@@ -13,7 +13,6 @@ package org.eclipse.scanning.points;
 
 import static org.eclipse.scanning.points.AbstractScanPointIterator.EMPTY_PY_ARRAY;
 
-import java.util.Arrays;
 import java.util.Iterator;
 
 import org.eclipse.scanning.api.ModelValidationException;
@@ -34,10 +33,6 @@ public class LissajousGenerator extends AbstractGenerator<LissajousModel> {
 
 	@Override
 	public ScanPointIterator iteratorFromValidModel() {
-		final String xName = model.getxAxisName();
-		final String xUnits = model.getxAxisUnits();
-		final String yName = model.getyAxisName();
-		final String yUnits = model.getyAxisUnits();
 		final double width = model.getBoundingBox().getxAxisLength();
 		final double height = model.getBoundingBox().getyAxisLength();
 
@@ -49,15 +44,15 @@ public class LissajousGenerator extends AbstractGenerator<LissajousModel> {
         box.put("centre", new double[] {model.getBoundingBox().getxAxisStart() + width / 2,
 									model.getBoundingBox().getyAxisStart() + height / 2});
 
-        final PyList names =  new PyList(Arrays.asList(xName, yName));
-        final PyList units = new PyList(Arrays.asList(xUnits, yUnits));
+        final PyList names =  new PyList(model.getScannableNames());
+        final PyList units = new PyList(model.getUnits());
         final int numLobes = (int) (model.getA() / model.getB());
         final int numPoints = model.getPoints();
 
         final ScanPointIterator lissajous = lissajousGeneratorFactory.createObject(
-				names, units, box, numLobes, numPoints);
+				names, units, box, numLobes, numPoints, model.isAlternating());
 		final ScanPointIterator pyIterator = CompoundSpgIteratorFactory.createSpgCompoundGenerator(new Iterator[] {lissajous}, getRegions().toArray(),
-				new String[] {xName, yName}, EMPTY_PY_ARRAY, -1, model.isContinuous());
+				model.getScannableNames().toArray(new String[0]), EMPTY_PY_ARRAY, -1, model.isContinuous());
 		return new SpgIterator(pyIterator);
 	}
 

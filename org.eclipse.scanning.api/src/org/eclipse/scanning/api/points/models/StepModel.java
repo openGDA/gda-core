@@ -93,22 +93,13 @@ public class StepModel extends AbstractPointsModel {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
 		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
 			return false;
 		StepModel other = (StepModel) obj;
 		if (label == null) {
 			if (other.label != null)
 				return false;
 		} else if (!label.equals(other.label))
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
 			return false;
 		if (Double.doubleToLongBits(start) != Double.doubleToLongBits(other.start))
 			return false;
