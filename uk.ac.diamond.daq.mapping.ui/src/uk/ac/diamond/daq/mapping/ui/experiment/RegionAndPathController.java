@@ -1,5 +1,5 @@
 /*-
-4 * Copyright © 2019 Diamond Light Source Ltd.
+ * Copyright © 2019 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -21,9 +21,11 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -59,6 +61,8 @@ import uk.ac.diamond.daq.mapping.api.IMappingRegionManager;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
+import uk.ac.diamond.daq.mapping.region.CentredRectangleMappingRegion;
+import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
 import uk.ac.diamond.daq.osgi.OsgiService;
 
 
@@ -205,6 +209,7 @@ public class RegionAndPathController extends AbstractMappingController {
 	private PlottingController plotter;
 	private BeamPositionPlotter beamPositionPlotter;
 	private IMappingRegionManager mappingRegionManager;
+	private Set<Class<?>> scanRegionClasses;
 	private PathInfoCalculatorJob pathCalculationJob;
 	private IMappingScanRegionShape scanRegionShape = null;
 	private IScanPathModel scanPathModel = null;
@@ -256,8 +261,9 @@ public class RegionAndPathController extends AbstractMappingController {
 		registerPathPlotEventHandler();
 
 		mappingRegionManager = getService(IMappingRegionManager.class);
+		initialiseScanRegionClasses(mappingRegionManager);
 		pathCalculationJob = createPathCalculationJob();
-		scanRegionShape = getScanRegionFromBean().getRegion();		// Initialize the shape and
+		setScanRegionShape(getScanRegionFromBean().getRegion());	// Initialize the shape and
 		scanPathModel = getScanRegionFromBean().getScanPath();		// path to default values
 		pathBeanPropertyChangeListener = evt -> updatePoints();
 		listener = new RegionSelectorListener();
@@ -324,6 +330,36 @@ public class RegionAndPathController extends AbstractMappingController {
 			}
 		}
 		return regionList;
+	}
+
+	/**
+	 * Set {@link #scanRegionShape} from the input value, if a compatible editor exists.
+	 * <p>
+	 * In many cases, {@link #scanRegionShape} will be set to the input shape directly.<br>
+	 * The special case is that a {@link CentredRectangleMappingRegion} and {@link RectangularMappingRegion} are
+	 * semantically identical and can be used interchangeably, so convert one to the other if the only one of the two
+	 * editors is available.
+	 *
+	 * @param regionShape
+	 *            the region shape to set (subject to possible conversion noted above)
+	 */
+	private void setScanRegionShape(IMappingScanRegionShape regionShape) {
+		if (regionShape == null) {
+			scanRegionShape = null;
+			return;
+		}
+		final Class<?> regionShapeClass = regionShape.getClass();
+		if (scanRegionClasses.contains(regionShapeClass)) {
+			scanRegionShape = regionShape;
+		} else if (regionShapeClass.equals(RectangularMappingRegion.class) && scanRegionClasses.contains(CentredRectangleMappingRegion.class)) {
+			scanRegionShape = new CentredRectangleMappingRegion();
+			scanRegionShape.updateFromROI(regionShape.toROI());
+		} else if (regionShapeClass.equals(CentredRectangleMappingRegion.class) && scanRegionClasses.contains(RectangularMappingRegion.class)) {
+			scanRegionShape = new RectangularMappingRegion();
+			scanRegionShape.updateFromROI(regionShape.toROI());
+		} else {
+			logger.error("Cannot set mapping scan region {}: no compatible editor found", regionShape.getName());
+		}
 	}
 
 	/**
@@ -418,7 +454,7 @@ public class RegionAndPathController extends AbstractMappingController {
 	public void refreshFromMappingBean() {
 		checkInitialised();
 		IMappingScanRegion mappingScanRegion = getScanRegionFromBean();
-		scanRegionShape = mappingScanRegion.getRegion();
+		setScanRegionShape(mappingScanRegion.getRegion());
 		scanPathModel = mappingScanRegion.getScanPath();
 	}
 
@@ -532,6 +568,19 @@ public class RegionAndPathController extends AbstractMappingController {
 			}
 		});
 		return job;
+	}
+
+	/**
+	 * Initialise the set of available scan regions
+	 * <p>
+	 * The {@link #mappingRegionManager} must be set before classing this function
+	 */
+	private void initialiseScanRegionClasses(IMappingRegionManager mappingRegionManager) {
+		final List<IMappingScanRegionShape> scanRegions = mappingRegionManager.getTemplateRegions();
+		scanRegionClasses = new HashSet<>(scanRegions.size());
+		for (IMappingScanRegionShape region : scanRegions) {
+			scanRegionClasses.add(region.getClass());
+		}
 	}
 
 	private double getAxisPosition(String axisName) {
