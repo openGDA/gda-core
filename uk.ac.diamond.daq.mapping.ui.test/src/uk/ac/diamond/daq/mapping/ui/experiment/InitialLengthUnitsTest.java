@@ -31,6 +31,7 @@ import gda.configuration.properties.LocalProperties;
 
 public class InitialLengthUnitsTest {
 
+	private static final String DEFAULT_VALUE = "mm";
 	private Map<String, String> unitsMap = ImmutableMap.of(
 		"xStart", "μm",
 		"yStart", "μm",
@@ -47,25 +48,25 @@ public class InitialLengthUnitsTest {
 	@Test
 	public void testUnitsSetInMap() {
 		final InitialLengthUnits lengthUnits = new InitialLengthUnits(unitsMap);
-		assertEquals("μm", lengthUnits.getDefaultUnit("xStart"));
-		assertEquals("μm", lengthUnits.getDefaultUnit("yStart"));
-		assertEquals("nm", lengthUnits.getDefaultUnit("xAxisStep"));
-		assertEquals("nm", lengthUnits.getDefaultUnit("yAxisStep"));
+		assertEquals("μm", lengthUnits.getDefaultUnit("xStart", DEFAULT_VALUE));
+		assertEquals("μm", lengthUnits.getDefaultUnit("yStart", DEFAULT_VALUE));
+		assertEquals("nm", lengthUnits.getDefaultUnit("xAxisStep", DEFAULT_VALUE));
+		assertEquals("nm", lengthUnits.getDefaultUnit("yAxisStep", DEFAULT_VALUE));
 	}
 
 	@Test
 	public void testDefaultToLocalProperty() {
 		LocalProperties.set(GDA_INITIAL_LENGTH_UNITS, "cm");
 		final InitialLengthUnits lengthUnits = new InitialLengthUnits(unitsMap);
-		assertEquals("μm", lengthUnits.getDefaultUnit("xStart"));
-		assertEquals("cm", lengthUnits.getDefaultUnit("zStart"));
+		assertEquals("μm", lengthUnits.getDefaultUnit("xStart", DEFAULT_VALUE));
+		assertEquals("cm", lengthUnits.getDefaultUnit("zStart", DEFAULT_VALUE));
 		LocalProperties.clearProperty(GDA_INITIAL_LENGTH_UNITS);
 	}
 
 	@Test
 	public void testDefaultToMillimetres() {
 		final InitialLengthUnits lengthUnits = new InitialLengthUnits(unitsMap);
-		assertEquals("μm", lengthUnits.getDefaultUnit("xStart"));
-		assertEquals("mm", lengthUnits.getDefaultUnit("zStart"));
+		assertEquals("μm", lengthUnits.getDefaultUnit("xStart", DEFAULT_VALUE));
+		assertEquals("mm", lengthUnits.getDefaultUnit("zStart", DEFAULT_VALUE));
 	}
 }

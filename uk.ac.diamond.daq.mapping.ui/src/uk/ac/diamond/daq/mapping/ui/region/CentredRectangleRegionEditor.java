@@ -18,7 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.ui.region;
 
-import javax.measure.quantity.Length;
+import javax.measure.quantity.Quantity;
 
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.MultiValidator;
@@ -39,19 +39,19 @@ public class CentredRectangleRegionEditor extends AbstractRegionEditor {
 		final Composite composite = super.createEditorPart(parent);
 
 		new Label(composite, SWT.NONE).setText(getXAxisName() + " Centre");
-		NumberAndUnitsComposite<Length> xCentre = createNumberAndUnitsLengthComposite(composite, X_CENTRE);
+		NumberAndUnitsComposite<Quantity> xCentre = createNumberAndUnitsComposite(composite, getXAxisName(), X_CENTRE);
 		grabHorizontalSpace.applyTo(xCentre);
 
 		new Label(composite, SWT.NONE).setText(getXAxisName() + " Range");
-		NumberAndUnitsComposite<Length> xRange = createNumberAndUnitsLengthComposite(composite, X_RANGE);
+		NumberAndUnitsComposite<Quantity> xRange = createNumberAndUnitsComposite(composite, getXAxisName(), X_RANGE);
 		grabHorizontalSpace.applyTo(xRange);
 
 		new Label(composite, SWT.NONE).setText(getYAxisName() + " Centre");
-		NumberAndUnitsComposite<Length> yCentre = createNumberAndUnitsLengthComposite(composite, Y_CENTRE);
+		NumberAndUnitsComposite<Quantity> yCentre = createNumberAndUnitsComposite(composite, getYAxisName(), Y_CENTRE);
 		grabHorizontalSpace.applyTo(yCentre);
 
 		new Label(composite, SWT.NONE).setText(getYAxisName() + " Range");
-		NumberAndUnitsComposite<Length> yRange = createNumberAndUnitsLengthComposite(composite, Y_RANGE);
+		NumberAndUnitsComposite<Quantity> yRange = createNumberAndUnitsComposite(composite, getYAxisName(), Y_RANGE);
 		grabHorizontalSpace.applyTo(yRange);
 
 		createValidatedBindings(getXAxisName(), xCentre, X_CENTRE, xRange, X_RANGE);
@@ -60,10 +60,11 @@ public class CentredRectangleRegionEditor extends AbstractRegionEditor {
 		return composite;
 	}
 
+	@SuppressWarnings("unchecked")
 	private void createValidatedBindings(String scannableName,
-										 NumberAndUnitsComposite<Length> centreWidget,
+										 NumberAndUnitsComposite<Quantity> centreWidget,
 										 String centreProperty,
-										 NumberAndUnitsComposite<Length> rangeWidget,
+										 NumberAndUnitsComposite<Quantity> rangeWidget,
 										 String rangeProperty) {
 
 		binder.bind(centreWidget, centreProperty, getModel());
@@ -76,13 +77,13 @@ public class CentredRectangleRegionEditor extends AbstractRegionEditor {
 			double lowerLimit = getLowerLimit(scannableName);
 			double upperLimit = getUpperLimit(scannableName);
 
-			IObservableValue centreValue = binder.getObservableValue(centreWidget);
-			IObservableValue rangeValue  = binder.getObservableValue(rangeWidget);
+			IObservableValue<Double> centreValue = binder.getObservableValue(centreWidget);
+			IObservableValue<Double> rangeValue  = binder.getObservableValue(rangeWidget);
 
 			@Override
 			protected IStatus validate() {
-				double centre = (double) centreValue.getValue();
-				double range  = (double) rangeValue.getValue();
+				double centre = centreValue.getValue();
+				double range  = rangeValue.getValue();
 
 				if (centre - range/2 < lowerLimit || centre + range/2 > upperLimit) return getLimitsError(lowerLimit, upperLimit);
 				return ValidationStatus.ok();

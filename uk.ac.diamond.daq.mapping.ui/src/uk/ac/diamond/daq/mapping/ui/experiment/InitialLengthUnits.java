@@ -35,7 +35,7 @@ import uk.ac.diamond.daq.osgi.OsgiService;
  * If no unit has been configured for a given field, the value returned will default to:
  * <ul>
  * <li>the value set in the uk.ac.gda.client.defaultUnits property</li>
- * <li>millimetres if this property is not set</li>
+ * <li>the default value supplied by the caller</li>
  * </ul>
  */
 @OsgiService(InitialLengthUnits.class)
@@ -51,12 +51,12 @@ public class InitialLengthUnits {
 		this.units = units;
 	}
 
-	public String getDefaultUnit(String propertyName) {
+	public String getDefaultUnit(String propertyName, String defaultValue) {
 		if (units.containsKey(propertyName)) {
 			return units.get(propertyName);
 		}
 
-		final String defaultUnits = LocalProperties.get(GDA_INITIAL_LENGTH_UNITS, "mm").toLowerCase();
+		final String defaultUnits = LocalProperties.get(GDA_INITIAL_LENGTH_UNITS, defaultValue).toLowerCase();
 		logger.debug("No initial unit set for {}, using default ({})", propertyName, defaultUnits);
 		return defaultUnits;
 	}

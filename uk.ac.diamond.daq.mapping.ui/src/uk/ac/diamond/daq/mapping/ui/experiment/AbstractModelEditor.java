@@ -18,20 +18,12 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import static gda.configuration.properties.LocalProperties.GDA_INITIAL_LENGTH_UNITS;
-import static javax.measure.unit.SI.METER;
-import static javax.measure.unit.SI.MICRO;
-import static javax.measure.unit.SI.MILLI;
-import static javax.measure.unit.SI.NANO;
-
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.Objects;
 
 import javax.inject.Inject;
-import javax.measure.quantity.Length;
-import javax.measure.unit.Unit;
+import javax.measure.quantity.Quantity;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -41,11 +33,8 @@ import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.ui.IStageScanConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableList;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.client.NumberAndUnitsComposite;
@@ -76,9 +65,6 @@ public abstract class AbstractModelEditor<T> {
 	protected static final String X_AXIS_STEP = "xAxisStep";
 	protected static final String Y_AXIS_STEP = "yAxisStep";
 
-	private static final Unit<Length> MODEL_LENGTH_UNIT = MILLI(METER);
-	private static final List<Unit<Length>> LENGTH_UNITS = ImmutableList.of(MILLI(METER), MICRO(METER), NANO(METER));
-
 	private T model;
 	private Composite composite;
 
@@ -90,9 +76,9 @@ public abstract class AbstractModelEditor<T> {
 	private IScannableDeviceService scannableDeviceService;
 
 	/**
-	 * Service to get initial length units - may be null
+	 * Get via {@link #getUnitsProvider()} to ensure correct initialisation
 	 */
-	private final InitialLengthUnits lengthUnitsService = PlatformUI.getWorkbench().getService(InitialLengthUnits.class);
+	private UnitsProvider units;
 
 	/**
 	 * Apply to a control to make it fill horizontal space
@@ -168,7 +154,7 @@ public abstract class AbstractModelEditor<T> {
 	 * @return scannable name if IStageScanConfiguration is configured, otherwise the literal "y axis"
 	 */
 	protected String getYAxisName() {
-		return Objects.nonNull(mappingStageInfo) ? mappingStageInfo.getPlotYAxisName() : "Slow axis";
+		return Objects.nonNull(mappingStageInfo) ? mappingStageInfo.getPlotYAxisName() : "y axis";
 	}
 
 	protected IScannableDeviceService getScannableDeviceService() throws EventException {
@@ -186,45 +172,35 @@ public abstract class AbstractModelEditor<T> {
 	}
 
 	/**
-	 * Get the initial units (i.e. the units shown in the combo box when it is first displayed)
-	 * <p>
-	 * This defaults to millimetres but can be set in a property
-	 *
-	 * @param pathPropertyName
-	 *            Name of the path property for which we are getting the unit
-	 *
-	 * @return the initial units
-	 */
-	@SuppressWarnings("unchecked")
-	private Unit<Length> getInitialLengthUnit(String pathPropertyName) {
-		final String unitString;
-		if (lengthUnitsService == null) {
-			unitString = LocalProperties.get(GDA_INITIAL_LENGTH_UNITS, "mm").toLowerCase();
-		} else {
-			unitString = lengthUnitsService.getDefaultUnit(pathPropertyName);
-		}
-		try {
-			final Unit<?> unit = Unit.valueOf(unitString);
-			if (unit.isCompatible(MODEL_LENGTH_UNIT)) {
-				return (Unit<Length>) unit;
-			}
-			logger.warn("Value '{}' of property '{}' is not a valid length unit: assuming millimetres", unitString, GDA_INITIAL_LENGTH_UNITS);
-			return MODEL_LENGTH_UNIT;
-		} catch (Exception e) {
-			logger.warn("Cannot parse value '{}' of property '{}': assuming millimetres", unitString, GDA_INITIAL_LENGTH_UNITS);
-			return MODEL_LENGTH_UNIT;
-		}
-	}
-
-	/**
-	 * Create a {@link NumberAndUnitsComposite} for length units, assuming model units are mm
+	 * Create a {@link NumberAndUnitsComposite} initialising units according the axis scannable.
 	 *
 	 * @param parent
 	 *            composite
-	 * @return a {@link NumberAndUnitsComposite} initialised for length
+	 *
+	 * @param axisName
+	 *            name of scannable
+	 *
+	 * @param modelPropertyName
+	 *            if {@link InitialLengthUnits} is configured, initial units for that property are looked up
+	 *
+	 * @return a {@link NumberAndUnitsComposite} initialised for the scannable
 	 */
-	protected NumberAndUnitsComposite<Length> createNumberAndUnitsLengthComposite(Composite parent, String pathPropertyName) {
-		return new NumberAndUnitsComposite<>(parent, SWT.NONE, MODEL_LENGTH_UNIT, LENGTH_UNITS, getInitialLengthUnit(pathPropertyName));
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	protected NumberAndUnitsComposite<Quantity> createNumberAndUnitsComposite(Composite parent, String axisName, String modelPropertyName) {
+		return new NumberAndUnitsComposite(parent, SWT.NONE, getUnitsProvider().getScannableUnit(axisName),
+				getUnitsProvider().getCompatibleUnits(axisName), getUnitsProvider().getInitialUnit(axisName, modelPropertyName));
+	}
+
+	private UnitsProvider getUnitsProvider() {
+		if (units == null) {
+			units = new UnitsProvider();
+			try {
+				units.setScannableService(getScannableDeviceService());
+			} catch (EventException e) {
+				logger.warn("Could not get the scannable device service; initialising GUI with default units", e);
+			}
+		}
+		return units;
 	}
 
 }

@@ -20,8 +20,8 @@ package gda.rcp.ncd.views;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.measure.quantity.Duration;
 import javax.measure.unit.NonSI;
@@ -215,7 +215,7 @@ public class SimpleTimerView extends ViewPart {
 		this.parent = parent;
 
 		Label label;
-		List<Unit<Duration>> units = new ArrayList<>();
+		Set<Unit<Duration>> units = new HashSet<>();
 		units.add(SI.MILLI(SI.SECOND));
 		units.add(SI.SECOND);
 		units.add(NonSI.MINUTE);

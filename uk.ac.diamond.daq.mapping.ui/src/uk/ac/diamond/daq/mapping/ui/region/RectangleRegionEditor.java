@@ -18,7 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.ui.region;
 
-import javax.measure.quantity.Length;
+import javax.measure.quantity.Quantity;
 
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.MultiValidator;
@@ -39,19 +39,19 @@ public class RectangleRegionEditor extends AbstractRegionEditor {
 		Composite composite = super.createEditorPart(parent);
 
 		new Label(composite, SWT.NONE).setText(getXAxisName() + " Start");
-		NumberAndUnitsComposite<Length> xStart = createNumberAndUnitsLengthComposite(composite, X_START);
+		NumberAndUnitsComposite<? extends Quantity> xStart = createNumberAndUnitsComposite(composite, getXAxisName(), X_START);
 		grabHorizontalSpace.applyTo(xStart);
 
 		new Label(composite, SWT.NONE).setText(getXAxisName() + " Stop");
-		NumberAndUnitsComposite<Length> xStop = createNumberAndUnitsLengthComposite(composite, X_STOP);
+		NumberAndUnitsComposite<? extends Quantity> xStop = createNumberAndUnitsComposite(composite, getXAxisName(), X_STOP);
 		grabHorizontalSpace.applyTo(xStop);
 
 		new Label(composite, SWT.NONE).setText(getYAxisName() + " Start");
-		NumberAndUnitsComposite<Length> yStart = createNumberAndUnitsLengthComposite(composite, Y_START);
+		NumberAndUnitsComposite<? extends Quantity> yStart = createNumberAndUnitsComposite(composite, getYAxisName(), Y_START);
 		grabHorizontalSpace.applyTo(yStart);
 
 		new Label(composite, SWT.NONE).setText(getYAxisName() + " Stop");
-		NumberAndUnitsComposite<Length> yStop = createNumberAndUnitsLengthComposite(composite, Y_STOP);
+		NumberAndUnitsComposite<? extends Quantity> yStop = createNumberAndUnitsComposite(composite, getYAxisName(), Y_STOP);
 		grabHorizontalSpace.applyTo(yStop);
 
 		bind(getXAxisName(), xStart, X_START, xStop, X_STOP);
@@ -60,17 +60,18 @@ public class RectangleRegionEditor extends AbstractRegionEditor {
 		return composite;
 	}
 
+	@SuppressWarnings("unchecked")
 	private void bind(String scannableName,
-					  NumberAndUnitsComposite<Length> firstWidget,
+					  NumberAndUnitsComposite<? extends Quantity> firstWidget,
 					  String firstProperty,
-					  NumberAndUnitsComposite<Length> secondWidget,
+					  NumberAndUnitsComposite<? extends Quantity> secondWidget,
 					  String secondProperty) {
 
-		IObservableValue targetStart = binder.getObservableValue(firstWidget);
-		IObservableValue targetStop  = binder.getObservableValue(secondWidget);
+		IObservableValue<Double> targetStart = binder.getObservableValue(firstWidget);
+		IObservableValue<Double> targetStop  = binder.getObservableValue(secondWidget);
 
-		IObservableValue modelStart  = binder.getObservableValue(firstProperty, getModel());
-		IObservableValue modelStop	 = binder.getObservableValue(secondProperty, getModel());
+		IObservableValue<Double> modelStart  = binder.getObservableValue(firstProperty, getModel());
+		IObservableValue<Double> modelStop	 = binder.getObservableValue(secondProperty, getModel());
 
 		// Binding
 
@@ -82,8 +83,8 @@ public class RectangleRegionEditor extends AbstractRegionEditor {
 		MultiValidator lengthValidator = new MultiValidator() {
 			@Override
 			protected IStatus validate() {
-				double start = (double) targetStart.getValue();
-				double stop = (double) targetStop.getValue();
+				double start = targetStart.getValue();
+				double stop = targetStop.getValue();
 				if (Math.abs(start-stop) > 0.0) return ValidationStatus.ok();
 				return ValidationStatus.error("Length must be greater than zero!");
 			}

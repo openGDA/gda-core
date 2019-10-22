@@ -1,7 +1,9 @@
 package uk.ac.diamond.daq.client.gui.camera.exposure;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -27,7 +29,7 @@ public class CameraPositionComposite extends Composite {
 		label.setText("X:");
 		GridDataFactory.swtDefaults().applyTo(label);
 
-		List<Unit<Length>> units = new ArrayList<>();
+		Set<Unit<Length>> units = new HashSet<>();
 		units.add(SI.MILLI(SI.METER));
 		units.add(SI.METER);
 
