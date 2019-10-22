@@ -23,6 +23,7 @@ import java.util.Arrays;
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.hdf5.HDF5Utils;
 import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DoubleDataset;
 
 /* This class is used for testing Xspress3 v2 and will replace in the long run Xspress3FileReader. A new class was needed in order not to interfere with
  * other beamlines that are using Xspress3. With SWMR, we probably do not need this class anymore.
@@ -64,7 +65,7 @@ public class Xspress3FileReader {
 		Arrays.fill(step, 1);
 		Arrays.fill(start, 0);
 
-		dataset = HDF5Utils.loadDataset(url, DATA_PATH, start, shape[0], step, Dataset.FLOAT64, 1, false);
+		dataset = HDF5Utils.loadDataset(url, DATA_PATH, start, shape[0], step, 1, DoubleDataset.class, false);
 		double[] buffer = (double[]) dataset.getBuffer();
 		int numFrames = shape[0][0];
 		theData = new double[numFrames][numberOfDetectorElements][mcaSize];
