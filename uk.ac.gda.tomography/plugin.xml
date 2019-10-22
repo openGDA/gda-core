@@ -29,21 +29,5 @@
             name="Scripts: Tomography">
       </location>
    </extension>
-   
-   <extension
-      point="org.eclipse.dawnsci.analysis.api.classregistry">
-      <classregistry
-           class="uk.ac.gda.tomography.triggerable.TomoClassRegistry"
-           id="uk.ac.gda.tomography.triggerable.TomoClassRegistry">
-      </classregistry>
-   </extension>
-   
-   <extension
-      point="org.eclipse.dawnsci.analysis.api.marshaller">
-      <marshaller
-            class="uk.ac.gda.tomography.triggerable.TriggerableTomographyMarshaller"
-            id="uk.ac.gda.tomography.triggerable.TriggerableTomographyMarshaller">
-      </marshaller>
-   </extension>
 
 </plugin>

@@ -32,8 +32,7 @@ Export-Package: uk.ac.gda.tomography;uses:="org.osgi.framework,uk.ac.gda.tomogra
  uk.ac.gda.tomography.service;uses:="gda.factory",
  uk.ac.gda.tomography.service.impl,
  uk.ac.gda.tomography.service.message,
- uk.ac.gda.tomography.tilt,
- uk.ac.gda.tomography.triggerable
+ uk.ac.gda.tomography.tilt
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.13.0",
  uk.ac.gda.api;bundle-version="1.0.0",
  org.eclipse.emf.ecore;visibility:=reexport,
@@ -43,7 +42,6 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.13.0",
  org.eclipse.emf.workspace;visibility:=reexport,
  uk.ac.gda.epics;bundle-version="1.0.0",
  uk.ac.diamond.daq.jython.api,
- uk.ac.diamond.daq.experiment.api,
  org.eclipse.dawnsci.analysis.api
 Bundle-ActivationPolicy: lazy
 Import-Package: com.fasterxml.jackson.annotation;version="2.6.2",
