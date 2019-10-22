@@ -211,4 +211,9 @@ public class PolygonMappingRegion implements IMappingScanRegionShape {
 		return points.equals(other.points);
 	}
 
+	@Override
+	public String toString() {
+		return "PolygonMappingRegion [points=" + points + "]";
+	}
+
 }

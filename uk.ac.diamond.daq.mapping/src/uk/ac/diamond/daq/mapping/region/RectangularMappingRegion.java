@@ -193,6 +193,6 @@ public class RectangularMappingRegion implements IMappingScanRegionShape {
 	@Override
 	public String toString() {
 		return "RectangularMappingRegion [xStart=" + xStart + ", xStop=" + xStop + ", yStart=" + yStart + ", yStop="
-				+ yStop + ", name=" + NAME + ", pcs=" + pcs + "]";
+				+ yStop + ", name=" + NAME + "]";
 	}
 }

@@ -161,4 +161,10 @@ public class CircularMappingRegion implements IMappingScanRegionShape {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "CircularMappingRegion [xCentre=" + xCentre + ", yCentre=" + yCentre + ", radius=" + radius + "]";
+	}
+
 }

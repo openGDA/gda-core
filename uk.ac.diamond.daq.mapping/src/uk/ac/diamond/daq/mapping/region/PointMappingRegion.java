@@ -141,4 +141,9 @@ public class PointMappingRegion implements IMappingScanRegionShape {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "PointMappingRegion [xPosition=" + xPosition + ", yPosition=" + yPosition + "]";
+	}
+
 }

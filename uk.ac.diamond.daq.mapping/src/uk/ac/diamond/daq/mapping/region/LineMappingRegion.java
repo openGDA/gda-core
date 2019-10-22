@@ -194,8 +194,7 @@ public class LineMappingRegion implements ILineMappingRegion {
 
 	@Override
 	public String toString() {
-		return "LineMappingRegion [xStart=" + xStart + ", yStart=" + yStart + ", xStop=" + xStop + ", yStop=" + yStop
-				+ ", pcs=" + pcs + "]";
+		return "LineMappingRegion [xStart=" + xStart + ", yStart=" + yStart + ", xStop=" + xStop + ", yStop=" + yStop + "]";
 	}
 
 }

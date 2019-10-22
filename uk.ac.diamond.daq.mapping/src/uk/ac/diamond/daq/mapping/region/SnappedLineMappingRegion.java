@@ -203,4 +203,10 @@ public class SnappedLineMappingRegion implements ILineMappingRegion {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "SnappedLineMappingRegion [orientation=" + orientation + ", start=" + start + ", stop=" + stop
+				+ ", constant=" + constant + "]";
+	}
 }

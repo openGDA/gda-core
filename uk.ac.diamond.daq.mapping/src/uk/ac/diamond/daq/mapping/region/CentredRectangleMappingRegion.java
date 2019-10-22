@@ -189,4 +189,10 @@ public class CentredRectangleMappingRegion implements IMappingScanRegionShape {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "CentredRectangleMappingRegion [xCentre=" + xCentre + ", xRange=" + xRange + ", yCentre=" + yCentre
+				+ ", yRange=" + yRange + "]";
+	}
+
 }
