@@ -31,10 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.tomography.scan.editor.view.TomographyConfigurationComposite;
 import uk.ac.gda.tomography.scan.editor.view.TomographyReconstructionComposite;
-import uk.ac.gda.tomography.service.message.TomographyMessages;
-import uk.ac.gda.tomography.service.message.TomographyMessagesUtility;
 import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
-
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 
@@ -63,7 +60,7 @@ public class TomographyAcquisitionTabsDialog extends Dialog {
 	protected void configureShell(Shell newShell) {
 		newShell.setLayout(new GridLayout(1, false));
 		super.configureShell(newShell);
-		newShell.setText(TomographyMessagesUtility.getMessage(TomographyMessages.TOMO_SCAN_PARMS));
+		newShell.setText(ClientMessagesUtility.getMessage(ClientMessages.TOMO_SCAN_PARMS));
 	}
 
 	@Override
@@ -71,12 +68,12 @@ public class TomographyAcquisitionTabsDialog extends Dialog {
 		final TabFolder tabFolder = new TabFolder (parent, SWT.BORDER);
 		//Composite container = (Composite) super.createDialogArea(parent);
 		TabItem item = new TabItem (tabFolder, SWT.NONE);
-		item.setText(TomographyMessagesUtility.getMessage(TomographyMessages.ACQUISITION));
+		item.setText(ClientMessagesUtility.getMessage(ClientMessages.ACQUISITION));
 		Composite comp = new TomographyConfigurationComposite(tabFolder, controller);
 		item.setControl(comp);
 
 		item = new TabItem (tabFolder, SWT.NONE);
-		item.setText(TomographyMessagesUtility.getMessage(TomographyMessages.RECONSTRUCTION));
+		item.setText(ClientMessagesUtility.getMessage(ClientMessages.RECONSTRUCTION));
 		comp = new TomographyReconstructionComposite(tabFolder, controller);
 		item.setControl(comp);
 		return parent;
