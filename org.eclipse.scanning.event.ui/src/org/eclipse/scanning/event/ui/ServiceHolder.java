@@ -14,6 +14,8 @@ package org.eclipse.scanning.event.ui;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.event.scan.IBeanSummariser;
+import org.eclipse.scanning.api.event.scan.ScanBeanSummariser;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -25,6 +27,7 @@ public class ServiceHolder {
 	private static IPointGeneratorService generatorService;
 	private static IScannableDeviceService deviceConnectorService;
 	private static BundleContext context;
+	private static IBeanSummariser beanSummary;
 
 	public static IEventConnectorService getEventConnectorService() {
 		if (eventConnectorService==null) eventConnectorService = getService(IEventConnectorService.class);
@@ -74,5 +77,10 @@ public class ServiceHolder {
 		} catch (NullPointerException npe) {
 			return null;
 		}
+	}
+
+	public static IBeanSummariser getBeanSummariser() {
+		if (beanSummary == null) beanSummary = new ScanBeanSummariser();
+		return beanSummary;
 	}
 }

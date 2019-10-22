@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.text.WordUtils;
@@ -59,6 +60,7 @@ import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.core.JobQueueConfiguration;
 import org.eclipse.scanning.api.event.queue.QueueStatus;
 import org.eclipse.scanning.api.event.queues.QueueViews;
+import org.eclipse.scanning.api.event.scan.IBeanSummariser;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.status.AdministratorMessage;
 import org.eclipse.scanning.api.event.status.OpenRequest;
@@ -158,8 +160,12 @@ public class StatusQueueView extends EventConnectionView {
 
 	private List<IResultHandler<StatusBean>> resultsHandlers = null;
 
+	protected IBeanSummariser toolTipTextProvider;
+
 	public StatusQueueView() {
 		this.service = ServiceHolder.getEventService();
+
+		toolTipTextProvider = ServiceHolder.getBeanSummariser();
 	}
 
 	@Override
@@ -1134,80 +1140,35 @@ public class StatusQueueView extends EventConnectionView {
 		final TableViewerColumn name = new TableViewerColumn(viewer, SWT.LEFT);
 		name.getColumn().setText("Name");
 		name.getColumn().setWidth(260);
-		name.setLabelProvider(new StatusQueueColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				return ((StatusBean)element).getName();
-			}
-		});
+		name.setLabelProvider(new StatusQueueColumnLabelProvider(element -> ((StatusBean)element).getName(),
+																 element -> getToolTipText((StatusBean)element)));
 
 		final TableViewerColumn status = new TableViewerColumn(viewer, SWT.LEFT);
 		status.getColumn().setText("Status");
 		status.getColumn().setWidth(80);
-		status.setLabelProvider(new StatusQueueColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				return ((StatusBean)element).getStatus().toString();
-			}
-		});
+		status.setLabelProvider(new StatusQueueColumnLabelProvider(element -> ((StatusBean)element).getStatus().toString()));
 
 		final TableViewerColumn pc = new TableViewerColumn(viewer, SWT.CENTER);
 		pc.getColumn().setText("Complete");
 		pc.getColumn().setWidth(70);
 		final NumberFormat percentFormat = NumberFormat.getPercentInstance();
 		percentFormat.setRoundingMode(RoundingMode.DOWN);
-		pc.setLabelProvider(new StatusQueueColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				try {
-					return percentFormat.format(((StatusBean)element).getPercentComplete()/100d);
-				} catch (Exception ne) {
-					return "-";
-				}
-			}
-		});
+		pc.setLabelProvider(new StatusQueueColumnLabelProvider(element -> percentFormat.format(((StatusBean)element).getPercentComplete()/100d)));
 
 		final TableViewerColumn submittedDate = new TableViewerColumn(viewer, SWT.CENTER);
 		submittedDate.getColumn().setText("Date Submitted");
 		submittedDate.getColumn().setWidth(120);
-		submittedDate.setLabelProvider(new StatusQueueColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				try {
-					return DateFormat.getDateTimeInstance().format(new Date(((StatusBean)element).getSubmissionTime()));
-				} catch (Exception e) {
-					return e.getMessage();
-				}
-			}
-		});
+		submittedDate.setLabelProvider(new StatusQueueColumnLabelProvider(element -> DateFormat.getDateTimeInstance().format(new Date(((StatusBean)element).getSubmissionTime()))));
 
 		final TableViewerColumn message = new TableViewerColumn(viewer, SWT.LEFT);
 		message.getColumn().setText("Message");
 		message.getColumn().setWidth(150);
-		message.setLabelProvider(new StatusQueueColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				try {
-					return ((StatusBean)element).getMessage();
-				} catch (Exception e) {
-					return e.getMessage();
-				}
-			}
-		});
+		message.setLabelProvider(new StatusQueueColumnLabelProvider(element -> ((StatusBean)element).getMessage()));
 
 		final TableViewerColumn location = new TableViewerColumn(viewer, SWT.LEFT);
 		location.getColumn().setText("Location");
 		location.getColumn().setWidth(300);
-		location.setLabelProvider(new StatusQueueColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				try {
-					final StatusBean bean = (StatusBean)element;
-					return getLocation(bean);
-				} catch (Exception e) {
-					return e.getMessage();
-				}
-			}
+		location.setLabelProvider(new StatusQueueColumnLabelProvider(element -> getLocation((StatusBean)element)) {
 
 			@Override
 			public Color getForeground(Object element) {
@@ -1219,62 +1180,28 @@ public class StatusQueueView extends EventConnectionView {
 		final TableViewerColumn host = new TableViewerColumn(viewer, SWT.CENTER);
 		host.getColumn().setText("Host");
 		host.getColumn().setWidth(90);
-		host.setLabelProvider(new StatusQueueColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				try {
-					return ((StatusBean)element).getHostName();
-				} catch (Exception e) {
-					return e.getMessage();
-				}
-			}
-		});
+		host.setLabelProvider(new StatusQueueColumnLabelProvider(element -> ((StatusBean)element).getHostName()));
 
 		final TableViewerColumn user = new TableViewerColumn(viewer, SWT.CENTER);
 		user.getColumn().setText("User Name");
 		user.getColumn().setWidth(80);
-		user.setLabelProvider(new StatusQueueColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				try {
-					return ((StatusBean)element).getUserName();
-				} catch (Exception e) {
-					return e.getMessage();
-				}
-			}
-		});
+		user.setLabelProvider(new StatusQueueColumnLabelProvider(element -> ((StatusBean)element).getUserName()));
 
 		final TableViewerColumn startTime = new TableViewerColumn(viewer, SWT.CENTER);
 		startTime.getColumn().setText("Start Time");
 		startTime.getColumn().setWidth(120);
-		startTime.setLabelProvider(new StatusQueueColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				try {
-					long statusStartTime = ((StatusBean)element).getStartTime();
-					if (statusStartTime == 0) return "";
-					return DateFormat.getTimeInstance().format(new Date(statusStartTime));
-				} catch (Exception e) {
-					return e.getMessage();
-				}
-			}
-		});
+		startTime.setLabelProvider(new StatusQueueColumnLabelProvider(element -> {
+			long statusStartTime = ((StatusBean)element).getStartTime();
+			return statusStartTime == 0 ? "" : DateFormat.getTimeInstance().format(new Date(statusStartTime));
+		}));
 
 		final TableViewerColumn estimatedEndTime = new TableViewerColumn(viewer, SWT.CENTER);
 		estimatedEndTime.getColumn().setText("E. End Time");
 		estimatedEndTime.getColumn().setWidth(120);
-		estimatedEndTime.setLabelProvider(new StatusQueueColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				try {
-					long statusEstimatedEndTime = ((StatusBean)element).getStartTime() + ((StatusBean)element).getEstimatedTime();
-					if (statusEstimatedEndTime == 0) return "";
-					return DateFormat.getTimeInstance().format(new Date(statusEstimatedEndTime));
-				} catch (Exception e) {
-					return e.getMessage();
-				}
-			}
-		});
+		estimatedEndTime.setLabelProvider(new StatusQueueColumnLabelProvider(element -> {
+			long statusEstimatedEndTime = ((StatusBean)element).getStartTime() + ((StatusBean)element).getEstimatedTime();
+			return statusEstimatedEndTime == 0 ? "" : DateFormat.getTimeInstance().format(new Date(statusEstimatedEndTime));
+		}));
 
 		MouseMoveListener cursorListener = e -> {
 				Point pt = new Point(e.x, e.y);
@@ -1363,12 +1290,47 @@ public class StatusQueueView extends EventConnectionView {
 	 * edge of the screen. We believe that this is fixed in later versions of the Eclipse platform. For the time being,
 	 * wrap the tool tip to make this less likely to happen.
 	 */
-	private static class StatusQueueColumnLabelProvider extends ColumnLabelProvider {
-		private static final int WRAP_LENGTH = 40;
+	private class StatusQueueColumnLabelProvider extends ColumnLabelProvider {
+		private static final int WRAP_LENGTH = 200;
+		private Function<Object, String> getTextMethod;
+		private Function<Object, String> getToolTipTextMethod;
+
+		public StatusQueueColumnLabelProvider(Function<Object, String> getTextMethod) {
+			this(getTextMethod, null);
+		}
+
+		public StatusQueueColumnLabelProvider(Function<Object, String> getTextMethod, Function<Object, String> getToolTipTextMethod) {
+			super();
+			this.getTextMethod = getTextMethod;
+			this.getToolTipTextMethod = getToolTipTextMethod;
+		}
+
+		@Override
+		public String getText(Object element)
+		{
+			String text = null;
+			if (getTextMethod != null) {
+				try {
+					text =  getTextMethod.apply(element);
+				} catch (Exception e) {
+					text = e.getMessage();
+				}
+			}
+			return text;
+		}
 
 		@Override
 		public String getToolTipText(Object element) {
-			return WordUtils.wrap(getText(element), WRAP_LENGTH, null, true);
+			String toolTipText = "";
+
+			if (getToolTipTextMethod != null) {
+				toolTipText =  getToolTipTextMethod.apply(element);
+			}
+			else {
+				toolTipText =  getTextMethod.apply(element);
+			}
+
+			return WordUtils.wrap(toolTipText, WRAP_LENGTH, null, true);
 		}
 	}
 
@@ -1381,5 +1343,9 @@ public class StatusQueueView extends EventConnectionView {
 		}
 		return super.getSecondaryIdAttribute(key);
 
+	}
+
+	public String getToolTipText(StatusBean statusBean) {
+		return toolTipTextProvider.summarise(statusBean);
 	}
 }
