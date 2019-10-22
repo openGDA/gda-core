@@ -190,4 +190,8 @@ public class SpecsPhoibosLiveDataUpdate implements Serializable {
 		return yAxisUnits;
 	}
 
+	public boolean isFirstUpdate() {
+		return getCurrentPoint() == 1 && getcurrentPointInIteration() == 1;
+	}
+
 }

@@ -97,6 +97,8 @@ public class SpecsSequenceEditor implements IObserver {
 	private SpecsPhoibosSequence sequence;
 	private ISpecsPhoibosAnalyser analyser;
 
+	private String currentlySelectedRegionName = "";
+
 	// When sequence fire property change events cause the table to refresh
 	private final PropertyChangeListener sequenceListener = evt -> {
 		sequenceTableViewer.refresh();
@@ -157,6 +159,7 @@ public class SpecsSequenceEditor implements IObserver {
 			logger.trace("Region selected: {}", selection);
 			final IStructuredSelection structuredSelection = (IStructuredSelection) selection;
 			final SpecsPhoibosRegion region = (SpecsPhoibosRegion) structuredSelection.getFirstElement();
+			currentlySelectedRegionName = region.getName();
 			transientData.put(SpecsUiConstants.SELECTED_REGION, region);
 			// Send the event the region editor will display the region
 			eventBroker.post(REGION_SELECTED_EVENT, region);
@@ -189,15 +192,18 @@ public class SpecsSequenceEditor implements IObserver {
 
 	@Override
 	public void update(Object source, Object arg) {
-
 		if (arg instanceof SpecsPhoibosLiveDataUpdate) {
-			SpecsPhoibosLiveDataUpdate evt = (SpecsPhoibosLiveDataUpdate) arg;
-			String currentRegionName = evt.getRegionName();
-			Display.getDefault().asyncExec(() -> {
-				SpecsPhoibosRegion currentReg = sequence.getRegion(currentRegionName);
-				StructuredSelection structuredSelection = new StructuredSelection(currentReg);
-				sequenceTableViewer.setSelection(structuredSelection, true);
-			});
+			SpecsPhoibosLiveDataUpdate event = (SpecsPhoibosLiveDataUpdate) arg;
+			String updateRegionName = event.getRegionName();
+
+			// We only need to update the selection on the first update, and each time the name changes
+			if (event.isFirstUpdate() || !updateRegionName.equals(currentlySelectedRegionName)) {
+				Display.getDefault().asyncExec(() -> {
+					SpecsPhoibosRegion currentReg = sequence.getRegion(updateRegionName);
+					StructuredSelection structuredSelection = new StructuredSelection(currentReg);
+					sequenceTableViewer.setSelection(structuredSelection, true);
+				});
+			}
 		}
 	}
 

@@ -19,6 +19,8 @@ import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.e4.ui.di.UIEventTopic;
+import org.eclipse.e4.ui.workbench.modeling.EPartService;
+import org.eclipse.e4.ui.workbench.modeling.EPartService.PartState;
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.databinding.viewers.IViewerObservableValue;
@@ -48,12 +50,17 @@ import uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsUiConstants;
 import uk.ac.diamond.daq.devices.specs.phoibos.ui.helpers.SpecsPhoibosRegionEditingWrapper;
 
 public class SpecsRegionEditor {
+	private static final String PART_ID = "uk.ac.diamond.daq.devices.specs.phoibos.ui.part.regioneditor";
+
 	private static final Logger logger = LoggerFactory.getLogger(SpecsRegionEditor.class);
 
 	private static final UpdateValueStrategy POLICY_UPDATE = new UpdateValueStrategy(false,
 			UpdateValueStrategy.POLICY_UPDATE);
 	private static final UpdateValueStrategy POLICY_NEVER = new UpdateValueStrategy(false,
 			UpdateValueStrategy.POLICY_NEVER);
+
+	@Inject
+	private EPartService partService;
 
 	private Composite parent;
 
@@ -380,6 +387,7 @@ public class SpecsRegionEditor {
 
 		// Bindings are setup make the controls visible
 		parent.setVisible(true);
+		partService.showPart(PART_ID, PartState.VISIBLE);
 
 		logger.trace("Finished bindings");
 	}
