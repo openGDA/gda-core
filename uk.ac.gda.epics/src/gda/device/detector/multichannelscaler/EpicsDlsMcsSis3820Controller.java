@@ -640,7 +640,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 				logger.error("Expecting double or float but got {} type. ", dbr.getType());
 			}
 			notifyIObservers(AcquisitionProperty.ELAPSEDTIME, elapsedRealTimeValue);
-			logger.debug("{}: Elapsed time updated to {}", getName(), elapsedRealTimeValue);
+			logger.trace("{}: Elapsed time updated to {}", getName(), elapsedRealTimeValue);
 		}
 	}
 
