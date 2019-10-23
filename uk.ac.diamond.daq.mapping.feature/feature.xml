@@ -24,15 +24,6 @@
    <includes
          id="uk.ac.diamond.daq.remotedataset.feature"
          version="0.0.0"/>
-         
-         
-<!-- Temporarily moved from k11.feature to allow Eclipse to find this for all mapping beamlines.
-This should be removed when the Persistence Service for scans allows, as it allows the FileBasedExperimentSystem to function -->
- <plugin
-         id="uk.ac.diamond.daq.experiment.api"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
 
    <plugin
          id="uk.ac.diamond.daq.mapping"

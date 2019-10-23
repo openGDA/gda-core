@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.triggerable;
+package uk.ac.diamond.daq.experiment.scans.mapping;
 
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.IdBean;
@@ -25,27 +25,24 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 
 import uk.ac.diamond.daq.experiment.api.TriggerableScan;
 import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanException;
-import uk.ac.diamond.daq.mapping.Activator;
+import uk.ac.diamond.daq.experiment.scans.Activator;
 
 public class TriggerableMap implements TriggerableScan {
 
+	/** not serialised */
 	private QueuePreventingScanSubmitter scanSubmitter;
+
 	private ScanRequest scanRequest;
 	private boolean important;
 
 	public TriggerableMap(ScanRequest scanRequest, boolean important) {
-		this();
 		this.scanRequest = scanRequest;
 		this.important = important;
 	}
 
-	public TriggerableMap() {
-		scanSubmitter = new QueuePreventingScanSubmitter();
-		scanSubmitter.setEventService(Activator.getService(IEventService.class));
-	}
-
 	@Override
 	public IdBean trigger() {
+		if (scanSubmitter == null) initialise();
 		try {
 			final ScanBean scanBean = new ScanBean(scanRequest);
 			if (important) {
@@ -59,20 +56,23 @@ public class TriggerableMap implements TriggerableScan {
 		}
 	}
 
+	private void initialise() {
+		scanSubmitter = new QueuePreventingScanSubmitter();
+		scanSubmitter.setEventService(Activator.getService(IEventService.class));
+	}
+
+	/**
+	 * Used by Marshaller
+	 */
 	public ScanRequest getScanRequest() {
 		return scanRequest;
 	}
 
-	public void setScanRequest(ScanRequest scanRequest) {
-		this.scanRequest = scanRequest;
-	}
-
+	/**
+	 * Used by Marshaller
+	 */
 	public boolean isImportant() {
 		return important;
-	}
-
-	public void setImportant(boolean important) {
-		this.important = important;
 	}
 
 }

@@ -19,7 +19,6 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import static java.util.stream.Collectors.toSet;
-import static uk.ac.diamond.daq.experiment.api.Services.getExperimentService;
 
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -53,12 +52,13 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IViewReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 
-import uk.ac.diamond.daq.experiment.api.TriggerableScan;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
+import uk.ac.diamond.daq.mapping.api.ScanRequestSavedEvent;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
-import uk.ac.diamond.daq.mapping.triggerable.TriggerableMap;
 import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
 import uk.ac.diamond.daq.mapping.ui.experiment.file.DescriptiveFilenameFactory;
 import uk.ac.diamond.daq.osgi.OsgiService;
@@ -69,12 +69,11 @@ import uk.ac.diamond.daq.osgi.OsgiService;
  * @since GDA 9.13
  */
 @OsgiService(ScanManagementController.class)
-public class ScanManagementController extends AbstractMappingController {
+public class ScanManagementController extends AbstractMappingController implements ApplicationEventPublisherAware {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanManagementController.class);
 
-	//FIXME: Currently FileSystemBasedExperimentService is not using the experiment id, but this should be some logical grouping (e.g. visit id) for scans
-	private final String EXPERIMENT_ID = null;
+	private ApplicationEventPublisher applicationEventPublisher;
 
 	private boolean clickToScanArmed = false;
 	private MappingStageInfo stage;
@@ -144,9 +143,10 @@ public class ScanManagementController extends AbstractMappingController {
 				ErrorDialog.openError(Display.getCurrent().getActiveShell(), "Save Scan", errorMessage,
 						new Status(IStatus.ERROR, MappingUIConstants.PLUGIN_ID, errorMessage, e));
 			}
-			TriggerableScan scan = new TriggerableMap(createScanBean().getScanRequest(), false);
-			getExperimentService().saveScan(scan, getShortName(filename), EXPERIMENT_ID);
 		}
+
+		applicationEventPublisher.publishEvent(new ScanRequestSavedEvent(this, getShortName(filename), createScanBean().getScanRequest()));
+
 	}
 
 	/**
@@ -300,5 +300,10 @@ public class ScanManagementController extends AbstractMappingController {
 
 	public int getGridModelIndex() {
 		return gridModelIndex;
+	}
+
+	@Override
+	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+		this.applicationEventPublisher = applicationEventPublisher;
 	}
 }

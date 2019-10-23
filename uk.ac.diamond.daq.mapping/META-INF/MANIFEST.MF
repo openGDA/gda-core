@@ -12,7 +12,6 @@ Require-Bundle: uk.ac.diamond.daq.mapping.api;bundle-version="1.0.0",
  org.eclipse.dawnsci.analysis.dataset;bundle-version="1.0.0",
  org.eclipse.scanning.example,
  org.eclipse.core.databinding.observable,
- uk.ac.diamond.daq.experiment.api,
  slf4j.api,
  uk.ac.gda.common,
  org.eclipse.core.runtime;bundle-version="3.7.0",
@@ -20,8 +19,7 @@ Require-Bundle: uk.ac.diamond.daq.mapping.api;bundle-version="1.0.0",
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: uk.ac.diamond.daq.mapping.impl,
- uk.ac.diamond.daq.mapping.region,
- uk.ac.diamond.daq.mapping.triggerable
+ uk.ac.diamond.daq.mapping.region
 Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE"
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Automatic-Module-Name: uk.ac.diamond.daq.mapping

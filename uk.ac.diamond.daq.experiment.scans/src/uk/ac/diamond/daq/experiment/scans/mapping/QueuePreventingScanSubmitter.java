@@ -1,4 +1,4 @@
-package uk.ac.diamond.daq.mapping.triggerable;
+package uk.ac.diamond.daq.experiment.scans.mapping;
 
 import java.net.URI;
 import java.net.URISyntaxException;
