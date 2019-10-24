@@ -33,5 +33,8 @@ Require-Bundle: org.eclipse.jface,
  org.eclipse.core.databinding.beans,
  org.eclipse.dawnsci.analysis.dataset
 Export-Package: uk.ac.diamond.daq.client.gui.camera,
+ uk.ac.diamond.daq.client.gui.camera.controller,
+ uk.ac.diamond.daq.client.gui.camera.event,
+ uk.ac.diamond.daq.client.gui.camera.liveview,
  uk.ac.diamond.daq.client.gui.camera.samplealignment
 Automatic-Module-Name: uk.ac.diamond.daq.client.gui.camera

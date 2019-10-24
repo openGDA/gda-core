@@ -16,24 +16,23 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client.live.stream;
+package uk.ac.diamond.daq.client.gui.camera.event;
 
-import uk.ac.gda.client.live.stream.view.CameraConfiguration;
-import uk.ac.gda.client.live.stream.view.StreamType;
+import org.springframework.context.ApplicationEvent;
 
 /**
- * Wraps the {@link LiveStreamConnectionManager} to offer a Flyweight pattern for the existing liveStreams.
+ *  Parent class for all camera events.
  *
  * @author Maurizio Nagni
  */
-public class IConnectionFactory {
+public class CameraEvent extends ApplicationEvent {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5094032542760128396L;
 
-	private static final LiveStreamConnectionManager liveStreamConnectionManager = new LiveStreamConnectionManager();
-
-	private IConnectionFactory() {}
-
-	public static LiveStreamConnection getLiveStreamConnection(final CameraConfiguration cameraConfig, final StreamType streamType) {
-		return liveStreamConnectionManager.getSharedLiveStreamConnection(cameraConfig, streamType);
+	public CameraEvent(Object source) {
+		super(source);
 	}
-
 }

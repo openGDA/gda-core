@@ -16,7 +16,7 @@ import gda.device.DeviceException;
 import uk.ac.diamond.daq.client.gui.camera.controller.DiffractionCameraConfigurationAdapter;
 import uk.ac.diamond.daq.client.gui.camera.controller.DiffractionCameraConfigurationController;
 import uk.ac.diamond.daq.client.gui.camera.exposure.BinningComposite;
-import uk.ac.diamond.daq.client.gui.camera.exposure.ExposureLengthComposite;
+import uk.ac.diamond.daq.client.gui.camera.exposure.ExposureDurationComposite;
 import uk.ac.diamond.daq.client.gui.camera.exposure.SensorROIComposite;
 
 public class DiffractionConfigurationComposite extends Composite {
@@ -84,7 +84,7 @@ public class DiffractionConfigurationComposite extends Composite {
 		
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(this);
 
-		ExposureLengthComposite exposureLengthComposite = new ExposureLengthComposite(this, SWT.NONE);
+		Composite exposureLengthComposite = new ExposureDurationComposite(controller).createComposite(this, SWT.NONE);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(exposureLengthComposite);
 		
 		Composite binningComposite = new BinningComposite(this, controller, SWT.NONE);

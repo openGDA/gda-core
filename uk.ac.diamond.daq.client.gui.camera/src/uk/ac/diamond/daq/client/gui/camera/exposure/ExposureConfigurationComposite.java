@@ -8,7 +8,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 import gda.device.DeviceException;
@@ -16,52 +15,52 @@ import gda.factory.Finder;
 import uk.ac.diamond.daq.client.gui.camera.PositionValueControlComposite;
 import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
 import uk.ac.diamond.daq.stage.MultipleStagePositioningService;
+import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.ClientMessagesUtility;
+import uk.ac.gda.ui.tool.ClientSWTElements;
 
 public class ExposureConfigurationComposite extends Composite {
-	public ExposureConfigurationComposite(Composite parent, AbstractCameraConfigurationController controller, int style) throws DeviceException {
+	public ExposureConfigurationComposite(Composite parent, AbstractCameraConfigurationController controller, int style)
+			throws DeviceException {
 		super(parent, style);
 
-		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(this);
+		GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(false).applyTo(this);
+		GridDataFactory gdf = GridDataFactory.fillDefaults();
 
-		ExposureLengthComposite exposureLengthComposite = new ExposureLengthComposite(this, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(exposureLengthComposite);
-		
+		Composite exposureLengthComposite = new ExposureDurationComposite(controller).createComposite(this, SWT.NONE);
+		gdf.applyTo(exposureLengthComposite);
+
 		Composite binningComposite = new BinningComposite(this, controller, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(binningComposite);
+		gdf.applyTo(binningComposite);
 
 		Composite sensorROIPanel = new SensorROIComposite(this, controller, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(sensorROIPanel);
+		gdf.applyTo(sensorROIPanel);
 
 		Composite adjustPanel = createAdjustPanel();
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(adjustPanel);
-		
-		Label spacer = new Label(this, SWT.NONE);
-		GridDataFactory.swtDefaults().span(2, 1).align(SWT.FILL, SWT.FILL).applyTo(spacer);
+		gdf.applyTo(adjustPanel);
 	}
 
 	private Composite createAdjustPanel() {
-		Group panel = new Group(this, SWT.SHADOW_NONE);
-		panel.setText("Adjust");
-
+		Group panel = ClientSWTElements.createGroup(this, 1, ClientMessages.ADJUST);
 		RowLayoutFactory.swtDefaults().type(SWT.VERTICAL).fill(true).applyTo(panel);
 
-		Button sourceButton = new Button(panel, SWT.PUSH);
-		sourceButton.setText("Source");
+		Button sourceButton = ClientSWTElements.createButton(panel, SWT.PUSH, ClientMessages.SOURCE,
+				ClientMessages.EMPTY_MESSAGE);
 		RowDataFactory.swtDefaults().applyTo(sourceButton);
 
-		Button cameraPositionButton = new Button(panel, SWT.PUSH);
-		cameraPositionButton.setText("Camera Position");
+		Button cameraPositionButton = ClientSWTElements.createButton(panel, SWT.PUSH, ClientMessages.CAMERA_POSITION,
+				ClientMessages.EMPTY_MESSAGE);
 		cameraPositionButton.addListener(SWT.Selection, e -> {
 			Shell positionDialog = new Shell(getDisplay());
-			positionDialog.setText("Camera Position");
+			positionDialog.setText(ClientMessagesUtility.getMessage(ClientMessages.CAMERA_POSITION));
 			positionDialog.setSize(250, 130);
 			GridLayoutFactory.swtDefaults().numColumns(1).applyTo(positionDialog);
-			
-			MultipleStagePositioningService multipleStagePositioningService = 
-					Finder.getInstance().find("cameraPositionMultipleStagePositioningService");
-			PositionValueControlComposite dialComposite = new PositionValueControlComposite(positionDialog, 
+
+			MultipleStagePositioningService multipleStagePositioningService = Finder.getInstance()
+					.find("cameraPositionMultipleStagePositioningService");
+			PositionValueControlComposite dialComposite = new PositionValueControlComposite(positionDialog,
 					multipleStagePositioningService, SWT.NONE);
-			
+
 			GridDataFactory.fillDefaults().grab(true, true).applyTo(dialComposite);
 
 			positionDialog.open();

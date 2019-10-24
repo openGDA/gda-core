@@ -16,24 +16,27 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client.live.stream;
-
-import uk.ac.gda.client.live.stream.view.CameraConfiguration;
-import uk.ac.gda.client.live.stream.view.StreamType;
+package uk.ac.diamond.daq.client.gui.camera.event;
 
 /**
- * Wraps the {@link LiveStreamConnectionManager} to offer a Flyweight pattern for the existing liveStreams.
+ *  Describes a camera exposure change event.
  *
  * @author Maurizio Nagni
  */
-public class IConnectionFactory {
+public class ExposureChangeEvent extends CameraEvent {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -454684975840133320L;
+	private final double exposureTime;
 
-	private static final LiveStreamConnectionManager liveStreamConnectionManager = new LiveStreamConnectionManager();
-
-	private IConnectionFactory() {}
-
-	public static LiveStreamConnection getLiveStreamConnection(final CameraConfiguration cameraConfig, final StreamType streamType) {
-		return liveStreamConnectionManager.getSharedLiveStreamConnection(cameraConfig, streamType);
+    public ExposureChangeEvent(Object source, double exposureTime) {
+		super(source);
+		this.exposureTime = exposureTime;
 	}
 
+	public double getExposureTime() {
+		return exposureTime;
+	}
 }

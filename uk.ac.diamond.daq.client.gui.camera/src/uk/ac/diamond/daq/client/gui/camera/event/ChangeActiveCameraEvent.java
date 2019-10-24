@@ -16,24 +16,32 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client.live.stream;
+package uk.ac.diamond.daq.client.gui.camera.event;
 
-import uk.ac.gda.client.live.stream.view.CameraConfiguration;
-import uk.ac.gda.client.live.stream.view.StreamType;
+import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 
 /**
- * Wraps the {@link LiveStreamConnectionManager} to offer a Flyweight pattern for the existing liveStreams.
+ *  Published when the active camera changes. The camera index is related to the client configuration properties.
+ *  See {@link CameraHelper}
  *
  * @author Maurizio Nagni
  */
-public class IConnectionFactory {
-
-	private static final LiveStreamConnectionManager liveStreamConnectionManager = new LiveStreamConnectionManager();
-
-	private IConnectionFactory() {}
-
-	public static LiveStreamConnection getLiveStreamConnection(final CameraConfiguration cameraConfig, final StreamType streamType) {
-		return liveStreamConnectionManager.getSharedLiveStreamConnection(cameraConfig, streamType);
+public class ChangeActiveCameraEvent extends CameraEvent {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -933748166416333930L;
+	private final int activeCamera;
+	
+    public ChangeActiveCameraEvent(Object source, int activeCamera) {
+		super(source);
+		this.activeCamera = activeCamera;
 	}
+
+	public int getActiveCamera() {
+		return activeCamera;
+	}
+
 
 }

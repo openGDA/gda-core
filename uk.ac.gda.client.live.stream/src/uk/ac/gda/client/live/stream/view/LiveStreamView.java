@@ -265,7 +265,7 @@ public class LiveStreamView extends ViewPart {
 	}
 
 	private LiveStreamConnection getLiveStreamConnection(CameraConfiguration camConfig, final StreamType streamType) {
-		return IConnectionFactory.getLiveStremConnection(camConfig, streamType);
+		return IConnectionFactory.getLiveStreamConnection(camConfig, streamType);
 	}
 
 	/**

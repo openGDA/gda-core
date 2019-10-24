@@ -52,8 +52,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IViewReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
 
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.ScanRequestSavedEvent;
@@ -62,6 +60,7 @@ import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
 import uk.ac.diamond.daq.mapping.ui.experiment.file.DescriptiveFilenameFactory;
 import uk.ac.diamond.daq.osgi.OsgiService;
+import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
  * Controller to handle loading, saving and submission of scans
@@ -69,11 +68,9 @@ import uk.ac.diamond.daq.osgi.OsgiService;
  * @since GDA 9.13
  */
 @OsgiService(ScanManagementController.class)
-public class ScanManagementController extends AbstractMappingController implements ApplicationEventPublisherAware {
+public class ScanManagementController extends AbstractMappingController {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanManagementController.class);
-
-	private ApplicationEventPublisher applicationEventPublisher;
 
 	private boolean clickToScanArmed = false;
 	private MappingStageInfo stage;
@@ -145,7 +142,7 @@ public class ScanManagementController extends AbstractMappingController implemen
 			}
 		}
 
-		applicationEventPublisher.publishEvent(new ScanRequestSavedEvent(this, getShortName(filename), createScanBean().getScanRequest()));
+		SpringApplicationContextProxy.publishEvent(new ScanRequestSavedEvent(this, getShortName(filename), createScanBean().getScanRequest()));
 
 	}
 
@@ -300,10 +297,5 @@ public class ScanManagementController extends AbstractMappingController implemen
 
 	public int getGridModelIndex() {
 		return gridModelIndex;
-	}
-
-	@Override
-	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
-		this.applicationEventPublisher = applicationEventPublisher;
 	}
 }

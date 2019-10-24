@@ -34,6 +34,7 @@ public class ClientResourceManager {
 	private Font groupFont;
 	private Font labelFont;
 	private Font textFont;
+	private Font buttonFont;
 
 	private ClientResourceManager() {
 
@@ -76,6 +77,13 @@ public class ClientResourceManager {
 			groupFont = getFont(FontDescriptor.createFrom(FONT, 10, SWT.BOLD));
 		}
 		return groupFont;
+	}
+
+	public Font getButtonDefaultFont() {
+		if (buttonFont == null) {
+			buttonFont = getFont(FontDescriptor.createFrom(FONT, 10, SWT.NORMAL));
+		}
+		return buttonFont;
 	}
 
 	public static String getDefaultFont() {
