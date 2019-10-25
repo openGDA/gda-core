@@ -18,8 +18,6 @@
 
 package uk.ac.gda.tomography.event;
 
-import org.springframework.context.ApplicationEvent;
-
 import uk.ac.gda.tomography.service.message.TomographyRunMessage;
 
 /**
@@ -27,7 +25,7 @@ import uk.ac.gda.tomography.service.message.TomographyRunMessage;
  *
  * @author Maurizio Nagni
  */
-public class TomographyRunAcquisitionEvent extends ApplicationEvent {
+public class TomographyRunAcquisitionEvent extends TomographyEvent {
 	private final TomographyRunMessage tomographyRunMessage;
 
     public TomographyRunAcquisitionEvent(Object source, TomographyRunMessage tomographyRunMessage) {

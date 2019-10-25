@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Controller;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -28,6 +28,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import gda.device.DeviceException;
 import gda.jython.JythonServerFacade;
 import uk.ac.gda.tomography.base.TomographyConfiguration;
 import uk.ac.gda.tomography.base.TomographyMode;
@@ -52,14 +53,27 @@ import uk.ac.gda.tomography.service.TomographyServiceException;
 import uk.ac.gda.tomography.service.impl.TomographyServiceImpl;
 import uk.ac.gda.tomography.service.message.TomographyRunMessage;
 import uk.ac.gda.tomography.ui.StageConfiguration;
+import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
  * The basic controller for Tomography scan.
  *
+ * Uses Spring to publish
+ * <ul>
+ * <li>
+ * 		{@link TomographySaveEvent} when an acquisition configuration is saved
+ * </li>
+ * <li>
+ * 		{@link TomographyRunAcquisitionEvent} when an acquisition starts
+ * </li>
+ * </ul>
+ *
+ *
+ *
  * @author Maurizio Nagni
  */
 @Controller
-public class TomographyParametersAcquisitionController implements AcquisitionController<TomographyParameterAcquisition> {
+public class TomographyParametersAcquisitionController implements AcquisitionController<TomographyParameterAcquisition>, ApplicationListener<ApplicationEvent> {
 	private static final Logger logger = LoggerFactory.getLogger(TomographyParametersAcquisitionController.class);
 
 	private static final String TOMOGRAPHY_BASE_DIR = "tomographyBaseDir";
@@ -72,9 +86,6 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	public enum METADATA {
 		EXPOSURE;
 	}
-
-	@Autowired
-	private ApplicationEventPublisher applicationEventPublisher;
 
 	private TomographyMode tomographyMode;
 	private TomographyParameterAcquisition acquisition;
@@ -249,6 +260,11 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	}
 
 	private StageConfiguration generateStageConfiguration(TomographyParameterAcquisition acquisition) throws AcquisitionControllerException {
+		try {
+			TomographyParametersAcquisitionControllerHelper.updateExposure(this);
+		} catch (DeviceException e) {
+			throw new AcquisitionControllerException("Acquisition cannot acquire the active camera exposure time");
+		}
 		populateMetadata();
 		savePosition(Positions.START);
 		StageConfiguration sc = new StageConfiguration(acquisition, getTomographyMode(), getMotorsPositions());
@@ -256,10 +272,6 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 			throw new AcquisitionControllerException("Acquisition needs a OutOfBeam position to acquire flat images");
 		}
 		return sc;
-	}
-
-	private String dataToJson(TomographyParameterAcquisition acquisition) throws AcquisitionControllerException {
-		return intDataToJson(acquisition);
 	}
 
 	private String dataToJson(StageConfiguration acquisition) throws AcquisitionControllerException {
@@ -353,11 +365,15 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	}
 
 	private void publishSave(String name, String acquisition, String scriptPath) {
-		applicationEventPublisher.publishEvent(new TomographySaveEvent(this, name, acquisition, scriptPath));
+		SpringApplicationContextProxy.publishEvent(new TomographySaveEvent(this, name, acquisition, scriptPath));
 	}
 
 	private void publishRun(TomographyRunMessage tomographyRunMessage) {
-		applicationEventPublisher.publishEvent(new TomographyRunAcquisitionEvent(this, tomographyRunMessage));
+		SpringApplicationContextProxy.publishEvent(new TomographyRunAcquisitionEvent(this, tomographyRunMessage));
 	}
 
+	@Override
+	public void onApplicationEvent(ApplicationEvent event) {
+		TomographyParametersAcquisitionControllerHelper.onApplicationEvent(event, this);
+	}
 }

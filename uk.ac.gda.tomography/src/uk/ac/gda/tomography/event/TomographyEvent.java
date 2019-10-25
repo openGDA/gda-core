@@ -18,32 +18,17 @@
 
 package uk.ac.gda.tomography.event;
 
+import org.springframework.context.ApplicationEvent;
+
 /**
- *  Notifies registered listeners that a tomography acquisition configuration has been saved.
+ *   Parent class for all tomography events.
  *
  * @author Maurizio Nagni
  */
-public class TomographySaveEvent extends TomographyEvent {
-	private final String name;
-	private final String acquisitionConfiguration;
-	private final String scriptPath;
+public class TomographyEvent extends ApplicationEvent {
 
-    public TomographySaveEvent(Object source, String name, String acquisitionConfiguration, String scriptPath) {
+	public TomographyEvent(Object source) {
 		super(source);
-		this.name = name;
-		this.acquisitionConfiguration = acquisitionConfiguration;
-		this.scriptPath = scriptPath;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public String getAcquisitionConfiguration() {
-		return acquisitionConfiguration;
-	}
-
-	public String getScriptPath() {
-		return scriptPath;
-	}
 }

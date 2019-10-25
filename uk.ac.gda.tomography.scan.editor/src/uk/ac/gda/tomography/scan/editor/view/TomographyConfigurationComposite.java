@@ -127,7 +127,7 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 
 	private void nameAndScanTypeContent(Composite parent, int labelStyle, int textStyle) {
 		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.NAME, new Point(2, 1));
-		this.name = ClientSWTElements.createText(parent, textStyle, null, new Point(2, 1), ClientMessages.NAME_TOOLTIP, new Point(500, SWT.DEFAULT));
+		this.name = ClientSWTElements.createText(parent, textStyle, null, new Point(2, 1), ClientMessages.NAME_TOOLTIP, new Point(500, SWT.DEFAULT), null);
 		flyScanType = ClientSWTElements.createButton(parent, SWT.RADIO, ClientMessages.FLY_SCAN, ClientMessages.FLY_SCAN_TOOLTIP);
 		flyScanType.setData(ScanType.FLY);
 		stepScanType = ClientSWTElements.createButton(parent, SWT.RADIO, ClientMessages.STEP_SCAN, ClientMessages.STEP_SCAN_TOOLTIP);
@@ -137,7 +137,7 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 	private void startAngleContent(Composite parent, int labelStyle, int textStyle) {
 		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.ANGLE, new Point(2, 1));
 		startAngleText = ClientSWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyDoubleText, null,
-				ClientMessages.START_ANGLE_TOOLTIP);
+				ClientMessages.START_ANGLE_TOOLTIP, null);
 		currentAngleButton = ClientSWTElements.createButton(parent, SWT.CHECK, ClientMessages.CURRENT_ANGLE, ClientMessages.CURRENT_ANGLE_TOOLTIP);
 	}
 
@@ -155,7 +155,7 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 		customGroup = ClientSWTElements.createGroup(customBar, 1, null);
 		ClientSWTElements.createLabel(customGroup, labelStyle, ClientMessages.ANGLE);
 		customAngle = ClientSWTElements.createText(customGroup, textStyle, TomographyVerifyListener.verifyOnlyDoubleText, null,
-				ClientMessages.CUSTOM_END_TOOLTIP);
+				ClientMessages.CUSTOM_END_TOOLTIP, null);
 		expandBar(customBar, customGroup, customRotationRangeType);
 	}
 
@@ -163,7 +163,7 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.TOTAL_PROJECTIONS);
 		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.ANGULAR_STEP);
 		totalProjections = ClientSWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, null,
-				ClientMessages.TOTAL_PROJECTIONS_TOOLTIP);
+				ClientMessages.TOTAL_PROJECTIONS_TOOLTIP, null);
 		angularStep = ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.EMPTY_MESSAGE);
 	}
 
@@ -171,16 +171,16 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.NUM_DARK);
 		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.DARK_EXPOSURE);
 		numberDark = ClientSWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 1),
-				ClientMessages.NUM_DARK_TOOLTIP);
+				ClientMessages.NUM_DARK_TOOLTIP, null);
 		darkExposure = ClientSWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 1),
-				ClientMessages.DARK_EXPOSURE_TP);
+				ClientMessages.DARK_EXPOSURE_TP, null);
 
 		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.NUM_FLAT);
 		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.FLAT_EXPOSURE);
 		numberFlat = ClientSWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 1),
-				ClientMessages.NUM_FLAT_TOOLTIP);
+				ClientMessages.NUM_FLAT_TOOLTIP, null);
 		flatExposure = ClientSWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 1),
-				ClientMessages.FLAT_EXPOSURE_TP);
+				ClientMessages.FLAT_EXPOSURE_TP, null);
 
 		ClientSWTElements.createEmptyCell(parent, labelStyle);
 		ClientSWTElements.createEmptyCell(parent, labelStyle);
@@ -197,9 +197,9 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 		ClientSWTElements.createLabel(multipleScan, labelStyle, ClientMessages.WAITING_TIME);
 		ClientSWTElements.createEmptyCell(multipleScan, labelStyle);
 		numberRepetitions = ClientSWTElements.createText(multipleScan, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 2),
-				ClientMessages.NUM_REPETITIONS_TOOLTIP);
+				ClientMessages.NUM_REPETITIONS_TOOLTIP, null);
 		waitingTime = ClientSWTElements.createText(multipleScan, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 2),
-				ClientMessages.WAITING_TIME_TOOLTIP);
+				ClientMessages.WAITING_TIME_TOOLTIP, null);
 		repeateMultipleScansType = ClientSWTElements.createButton(multipleScan, SWT.RADIO, ClientMessages.REPEATE_SCAN, ClientMessages.REPEATE_SCAN_TOOLTIP);
 		switchbackMultipleScansType = ClientSWTElements.createButton(multipleScan, SWT.RADIO, ClientMessages.SWITCHBACK_SCAN,
 				ClientMessages.SWITCHBACK_SCAN_TOOLTIP);
