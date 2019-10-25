@@ -20,6 +20,7 @@
 package gda.configuration.properties;
 
 import static java.io.File.separator;
+import static java.util.stream.Collectors.toList;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -29,14 +30,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A utility singleton class which allows the getting of Java properties from a local source file or standard System
- * properties.
+ * A utility singleton class which allows the getting of Java properties from a local source file or standard System properties.
  */
 public final class LocalProperties {
 	private static final Logger logger = LoggerFactory.getLogger(LocalProperties.class);
@@ -48,11 +52,12 @@ public final class LocalProperties {
 	/**
 	 * Along with {@link #GDA_GIT_LOC} replaces the gda.root variable.
 	 * <p>
-	 * The system property which defines the location of the some of the GDA installation. Within this folder should be
-	 * the IDE's .metadata folder and the third-party plugin, plus any svn checkouts.
+	 * The system property which defines the location of the some of the GDA installation. Within this folder should be the IDE's .metadata folder and the
+	 * third-party plugin, plus any svn checkouts.
 	 * <p>
 	 * At Diamond, the folder structure is, by convention:
 	 * </p>
+	 *
 	 * <pre>
 	 * <folder named after GDA release version>/
 	 *   |
@@ -66,32 +71,28 @@ public final class LocalProperties {
 	 *                  |->uk.ac.gda.core/   # each plugin project within this git repository at this level
 	 * </pre>
 	 * <p>
-	 * It should not be assumed that the configuration files are relative to this location. This is defined by
-	 * GDA_CONFIG
+	 * It should not be assumed that the configuration files are relative to this location. This is defined by GDA_CONFIG
 	 */
 	public static final String GDA_WORKSPACE_LOC = "gda.install.workspace.loc";
 
 	/**
 	 * Along with {@link #GDA_WORKSPACE_LOC} replaces the gda.root variable.
 	 * <p>
-	 * The system property which defines the top-level folder holding the various git repositories which make up this
-	 * gda installation.
+	 * The system property which defines the top-level folder holding the various git repositories which make up this gda installation.
 	 * <p>
-	 * It should not be assumed that the configuration files are relative to this location. This is defined by
-	 * GDA_CONFIG
+	 * It should not be assumed that the configuration files are relative to this location. This is defined by GDA_CONFIG
 	 */
 	public static final String GDA_GIT_LOC = "gda.install.git.loc";
 
 	/**
-	 * Property that sets the top-level directory where data is written to. The actual directory the data writers should
-	 * use is defined by gda.data.scan.datawriter.datadir. That property may be dynamic and vary as the current visit
-	 * varies, but the gda.data property should be static at runtime.
+	 * Property that sets the top-level directory where data is written to. The actual directory the data writers should use is defined by
+	 * gda.data.scan.datawriter.datadir. That property may be dynamic and vary as the current visit varies, but the gda.data property should be static at
+	 * runtime.
 	 */
 	public static final String GDA_DATA = "gda.data";
 
 	/**
-	 * Name of class in package gda.data.scan.datawriter that is called when ScanDataPoints are available to be written
-	 * Must support interface DataWriter
+	 * Name of class in package gda.data.scan.datawriter that is called when ScanDataPoints are available to be written Must support interface DataWriter
 	 */
 	public static final String GDA_DATA_SCAN_DATAWRITER_DATAFORMAT = "gda.data.scan.datawriter.dataFormat";
 
@@ -101,15 +102,15 @@ public final class LocalProperties {
 	public static final String GDA_VISIT_DIR = "gda.paths.visitdirectory";
 
 	/**
-	 * Property used to provide the 'default' property to gda.data.PathConstructor (in uk.ac.gda.core). This in turn
-	 * is used by *many* classes to determine where scan files or images should be written.
+	 * Property used to provide the 'default' property to gda.data.PathConstructor (in uk.ac.gda.core). This in turn is used by *many* classes to determine
+	 * where scan files or images should be written.
 	 */
 	public static final String GDA_DATAWRITER_DIR = "gda.data.scan.datawriter.datadir";
 
 	/**
 	 * The directory in which to keep NumTracker files. (See NumTracker for alternative ways to specify this).
 	 */
-	public static final String GDA_DATA_NUMTRACKER="gda.data.numtracker";
+	public static final String GDA_DATA_NUMTRACKER = "gda.data.numtracker";
 
 	/**
 	 * Property that specifies the GDA configuration folder.
@@ -117,11 +118,11 @@ public final class LocalProperties {
 	public static final String GDA_CONFIG = "gda.config";
 
 	/**
-	 * The location of a global read-write directory for persistence of information which is continued to be used on the
-	 * same beamline from version to version of GDA.
+	 * The location of a global read-write directory for persistence of information which is continued to be used on the same beamline from version to version
+	 * of GDA.
 	 * <p>
-	 * Has been config/var but the recommended location is outside of the configuration directory, at the same level
-	 * that different GDA installations are located.
+	 * Has been config/var but the recommended location is outside of the configuration directory, at the same level that different GDA installations are
+	 * located.
 	 * <p>
 	 * Directory in which gda.data.NumTracker files are stored.
 	 */
@@ -147,7 +148,6 @@ public final class LocalProperties {
 	 */
 	public static final String GDA_OE_FACTORY = "gda.oe.oefactory";
 
-
 	/**
 	 * Boolean property that indicates whether GDA is using the dummy mode configuration.
 	 */
@@ -163,12 +163,10 @@ public final class LocalProperties {
 	 */
 	public static final String GDA_BATON_MANAGEMENT_ENABLED = "gda.accesscontrol.useBatonControl";
 
-
 	/**
 	 * Boolean property that indicates that clients with the same user and visit can share the baton.
 	 */
 	private static final String GDA_BATON_SHARING_ENABLED = "gda.accesscontrol.sameUserVisitShareBaton";
-
 
 	/**
 	 * Property that specifies the server-side XML file.
@@ -191,8 +189,7 @@ public final class LocalProperties {
 	public static final String GDA_GUI_BEANS_XML = "gda.gui.beans.xml";
 
 	/**
-	 * File containing beam centre and beam size values for each zoom level; read by gda.images.camera.BeamDataComponent
-	 * in uk.ac.gda.px.
+	 * File containing beam centre and beam size values for each zoom level; read by gda.images.camera.BeamDataComponent in uk.ac.gda.px.
 	 */
 	public static final String GDA_IMAGES_DISPLAY_CONFIG_FILE = "gda.images.displayConfigFile";
 
@@ -208,20 +205,19 @@ public final class LocalProperties {
 	public static final String GDA_BEAMLINE_NAME = "gda.beamline.name";
 
 	/**
-	 * The on-screen sample image shows the X axis from left to right, but the image can be flipped. This property
-	 * indicates which edge of the image is the +ve side - {@code "left"} or {@code "right"}.
+	 * The on-screen sample image shows the X axis from left to right, but the image can be flipped. This property indicates which edge of the image is the +ve
+	 * side - {@code "left"} or {@code "right"}.
 	 */
 	public static final String GDA_IMAGES_HORIZONTAL_DIRECTION = "gda.images.horizontaldirection";
 
 	/**
-	 * Property that allows the beamline-specific orientation of the X/Y/Z axes to be specified. It should be a matrix,
-	 * in the form
+	 * Property that allows the beamline-specific orientation of the X/Y/Z axes to be specified. It should be a matrix, in the form
 	 */
 	public static final String GDA_PX_SAMPLE_CONTROL_AXIS_ORIENTATION = "gda.px.samplecontrol.axisorientation";
 
 	/**
-	 * Property that specifies the direction of a +ve omega rotation when viewed from behind the goniometer, with the beam
-	 * going from left to right. Should be "clockwise" or "anticlockwise".
+	 * Property that specifies the direction of a +ve omega rotation when viewed from behind the goniometer, with the beam going from left to right. Should be
+	 * "clockwise" or "anticlockwise".
 	 */
 	public static final String GDA_PX_SAMPLE_CONTROL_OMEGA_DIRECTION = "gda.px.samplecontrol.omegadirection";
 
@@ -231,8 +227,8 @@ public final class LocalProperties {
 	public static final String GDA_PX_SAMPLE_CONTROL_ALLOW_BEAM_AXIS_MOVEMENT = "gda.px.samplecontrol.allowbeamaxismovement";
 
 	/**
-	 * Default visit number if an ICAT system is not specified; or connection to ICAT fails; or user is a member of
-	 * staff and has not other available visit ID in the ICAT system.
+	 * Default visit number if an ICAT system is not specified; or connection to ICAT fails; or user is a member of staff and has not other available visit ID
+	 * in the ICAT system.
 	 */
 	public static final String GDA_DEF_VISIT = "gda.defVisit";
 
@@ -246,16 +242,16 @@ public final class LocalProperties {
 	public static final String DEFAULT_VISIT = "0-0";
 
 	/**
-	 * The visit which the current RCP application is running under. This should NOT be set in a java.properties file
-	 * but set at runtime once the RCP process has identified which value it wishes to use.
+	 * The visit which the current RCP application is running under. This should NOT be set in a java.properties file but set at runtime once the RCP process
+	 * has identified which value it wishes to use.
 	 * <p>
 	 * For times when the metadata value is misleading to client-side objects.
 	 */
 	public static final String RCP_APP_VISIT = "gda.rcp.application.this.visit";
 
 	/**
-	 * The user name (federalid) which the current RCP application is running under. This should NOT be set in a
-	 * java.properties file but set at runtime once the RCP process has identified which value it wishes to use.
+	 * The user name (federalid) which the current RCP application is running under. This should NOT be set in a java.properties file but set at runtime once
+	 * the RCP process has identified which value it wishes to use.
 	 * <p>
 	 * For times when the metadata value is misleading to client-side objects.
 	 */
@@ -267,20 +263,19 @@ public final class LocalProperties {
 	public static final String GDA_DATA_NUMTRACKER_EXTENSION = "gda.data.numtracker.extension";
 
 	/**
-	 * The number of ScanDataPoints that can be in a gda.scan.MultithreadedScanDataPointPipeline before it starts
-	 * blocking new requests. i.e. the number of points 'behind' the collection completed points can get.
+	 * The number of ScanDataPoints that can be in a gda.scan.MultithreadedScanDataPointPipeline before it starts blocking new requests. i.e. the number of
+	 * points 'behind' the collection completed points can get.
 	 */
 	public static final String GDA_SCAN_MULTITHREADED_SCANDATA_POINT_PIPElINE_LENGTH = "gda.scan.multithreadedScanDataPointPipeline.length";
 
 	/**
-	 * The number of ScanDataPoints that can be in a gda.scan.MultithreadedScanDataPointPipeline before it starts
-	 * blocking new requests. i.e. the number of points 'behind' the collection completed points can get.
+	 * The number of ScanDataPoints that can be in a gda.scan.MultithreadedScanDataPointPipeline before it starts blocking new requests. i.e. the number of
+	 * points 'behind' the collection completed points can get.
 	 */
 	public static final String GDA_SCAN_CONCURRENTSCAN_READOUT_CONCURRENTLY = "gda.scan.concurrentScan.readoutConcurrently";
 
 	/**
-	 * The number of threads used by a scan to convert position Callables from PositionCallableProviding Scannables to
-	 * Object positions.
+	 * The number of threads used by a scan to convert position Callables from PositionCallableProviding Scannables to Object positions.
 	 */
 	public static final String GDA_SCAN_MULTITHREADED_SCANDATA_POINT_PIPElINE_POINTS_TO_COMPUTE_SIMULTANEOUSELY = "gda.scan.multithreadedScanDataPointPipeline.pointsToComputeSimultaneousely";
 
@@ -290,8 +285,7 @@ public final class LocalProperties {
 	public static final String GDA_GUI_FORCE_INTRO = "gda.gui.window.force.intro";
 
 	/**
-	 * Option to save and restore the GUI state between sessions. Default 'true'.
-	 * If 'true' the setting to force the Intro/Welcome Screen may have no effect
+	 * Option to save and restore the GUI state between sessions. Default 'true'. If 'true' the setting to force the Intro/Welcome Screen may have no effect
 	 */
 	public static final String GDA_GUI_SAVE_RESTORE = "gda.gui.save.restore";
 
@@ -347,9 +341,7 @@ public final class LocalProperties {
 
 	public static String getActiveMQBrokerURI() {
 		return get(GDA_ACTIVEMQ_BROKER_URI,
-				String.format("failover:(tcp://%s:%d?daemon=true)?startupMaxReconnectAttempts=3",
-						get("gda.server.host", "localhost"),
-						61616));
+				String.format("failover:(tcp://%s:%d?daemon=true)?startupMaxReconnectAttempts=3", get("gda.server.host", "localhost"), 61616));
 	}
 
 	public static void setActiveMQBrokerURI(final String brokerURI) {
@@ -357,28 +349,25 @@ public final class LocalProperties {
 	}
 
 	/**
-	 * Use to undo {@link LocalProperties#forceActiveMQEmbeddedBroker()} between unit tests
-	 * i.e. call from @org.junit.AfterClass annotated tearDownClass method.
+	 * Use to undo {@link LocalProperties#forceActiveMQEmbeddedBroker()} between unit tests i.e. call from @org.junit.AfterClass annotated tearDownClass method.
 	 */
 	public static void unsetActiveMQBrokerURI() {
 		setActiveMQBrokerURI(null);
 	}
 
 	/**
-	 * For <a href="http://activemq.apache.org/how-to-unit-test-jms-code.html"/>unit tests</a>
-	 * i.e. call from @org.junit.BeforeClass annotated setUpClass method.
-	 * Undo with {@link LocalProperties#unsetActiveMQBrokerURI()}
-	 * (or {@link LocalProperties#setActiveMQBrokerURI(String)}).
+	 * For <a href="http://activemq.apache.org/how-to-unit-test-jms-code.html"/>unit tests</a> i.e. call from @org.junit.BeforeClass annotated setUpClass
+	 * method. Undo with {@link LocalProperties#unsetActiveMQBrokerURI()} (or {@link LocalProperties#setActiveMQBrokerURI(String)}).
 	 */
 	public static void forceActiveMQEmbeddedBroker() {
 		setActiveMQBrokerURI("vm://localhost?broker.persistent=false");
 	}
 
-
-	public static boolean isScanSetsScanNumber(){
+	public static boolean isScanSetsScanNumber() {
 		return LocalProperties.check(LocalProperties.GDA_SCAN_SETS_SCANNUMBER);
 	}
-	public static void setScanSetsScanNumber(boolean enable){
+
+	public static void setScanSetsScanNumber(boolean enable) {
 		LocalProperties.set(LocalProperties.GDA_SCAN_SETS_SCANNUMBER, Boolean.toString(enable));
 	}
 
@@ -448,13 +437,10 @@ public final class LocalProperties {
 	}
 
 	/**
-	 * Provide a more explicit means to force initialisation and loading of the Local Properties
-	 * rather than just relying on, but in addition to, it happening when a specific property is
-	 * loaded. This method doesn't need to do anything, the ability to call it alone will
-	 * trigger the static initialiser block. By keeping the static initialiser block rather
-	 * than making it into a static method, we keep the thread safety it guarantees without the
-	 * need to add an initialised flag on which to synchronise it and all the access methods,
-	 * which would need to check the flag.
+	 * Provide a more explicit means to force initialisation and loading of the Local Properties rather than just relying on, but in addition to, it happening
+	 * when a specific property is loaded. This method doesn't need to do anything, the ability to call it alone will trigger the static initialiser block. By
+	 * keeping the static initialiser block rather than making it into a static method, we keep the thread safety it guarantees without the need to add an
+	 * initialised flag on which to synchronise it and all the access methods, which would need to check the flag.
 	 */
 	public static final void load() {
 		// Just needs to exist to trigger the initialiser block when called
@@ -492,8 +478,7 @@ public final class LocalProperties {
 	}
 
 	/**
-	 * Get a boolean property value using a specified key string. No default is specified and "false" is returned if no
-	 * key is found.
+	 * Get a boolean property value using a specified key string. No default is specified and "false" is returned if no key is found.
 	 *
 	 * @param propertyName
 	 *            the key specified to fetch the boolean value
@@ -592,7 +577,6 @@ public final class LocalProperties {
 		propConfig.setString(value, propertyName);
 	}
 
-
 	/**
 	 * Determines whether GDA is using the dummy mode configuration.
 	 *
@@ -638,6 +622,7 @@ public final class LocalProperties {
 
 	/**
 	 * {@link #GDA_WORKSPACE_LOC}
+	 *
 	 * @return String
 	 */
 	public static String getInstallationWorkspaceDir() {
@@ -646,6 +631,7 @@ public final class LocalProperties {
 
 	/**
 	 * {@link #GDA_GIT_LOC}
+	 *
 	 * @return String
 	 */
 	public static String getParentGitDir() {
@@ -654,6 +640,7 @@ public final class LocalProperties {
 
 	/**
 	 * {@link #GDA_CONFIG}
+	 *
 	 * @return String
 	 */
 	public static String getConfigDir() {
@@ -671,8 +658,8 @@ public final class LocalProperties {
 	}
 
 	/**
-	 * If the property gda.var is not defined, then it is assumed that there is a var dir inside the config directory
-	 * (where var was previously recommended to be placed)
+	 * If the property gda.var is not defined, then it is assumed that there is a var dir inside the config directory (where var was previously recommended to
+	 * be placed)
 	 *
 	 * @see #GDA_VAR_DIR
 	 */
@@ -731,8 +718,7 @@ public final class LocalProperties {
 	/**
 	 * Get the value of the named property as an <code>int</code> value.
 	 * <p>
-	 * This method will throw NullPointerException if the property is undefined. To avoid this, call {@link
-	 * #getAsInt(String, int)} instead.
+	 * This method will throw NullPointerException if the property is undefined. To avoid this, call {@link #getAsInt(String, int)} instead.
 	 *
 	 * @param propertyName
 	 *            the property to find
@@ -757,8 +743,7 @@ public final class LocalProperties {
 	}
 
 	/**
-	 * Get the value of the named property as an <code>int</code> value. If the property is not defined, the given
-	 * default value is returned.
+	 * Get the value of the named property as an <code>int</code> value. If the property is not defined, the given default value is returned.
 	 *
 	 * @param propertyName
 	 *            the property to find
@@ -801,9 +786,12 @@ public final class LocalProperties {
 		obsoletePropertyToReason.put("gda.device.scannable.ScannableMotor.waitWhileBusyThrowsExceptionWhenMotorIsInFaultState", "it is not used any more");
 		obsoletePropertyToReason.put("gda.epics.EpicsDeviceFactory", "it is not used any more: see DAQ-1156");
 		obsoletePropertyToReason.put("gda.scan.endscan.neworder", "the new scan order is now the default and previous order is deprecated - See DAQ-1425");
-		obsoletePropertyToReason.put("gda.epics.interface.schema", "this property is associated with use of an EPICS interface file, due to be deprecated in GDA 9.11");
-		obsoletePropertyToReason.put("gda.epics.SimulatedEpicsDeviceFactory", "this property is associated with use of an EPICS interface file, due to be deprecated in GDA 9.11");
-		obsoletePropertyToReason.put("gda.epics.interface.xml", "this property is associated with use of an EPICS interface file, due to be deprecated in GDA 9.11");
+		obsoletePropertyToReason.put("gda.epics.interface.schema",
+				"this property is associated with use of an EPICS interface file, due to be deprecated in GDA 9.11");
+		obsoletePropertyToReason.put("gda.epics.SimulatedEpicsDeviceFactory",
+				"this property is associated with use of an EPICS interface file, due to be deprecated in GDA 9.11");
+		obsoletePropertyToReason.put("gda.epics.interface.xml",
+				"this property is associated with use of an EPICS interface file, due to be deprecated in GDA 9.11");
 		// Corba DAQ-1322
 		obsoletePropertyToReason.put("gda.eventreceiver.purge", "Corba related removed in GDA 9.11 - see DAQ-1322");
 		obsoletePropertyToReason.put("gda.ORBClass", "Corba related removed in GDA 9.11 - see DAQ-1322");
@@ -812,8 +800,10 @@ public final class LocalProperties {
 		obsoletePropertyToReason.put("jacorb.config.dir", "Corba related removed in GDA 9.11 - see DAQ-1322");
 		obsoletePropertyToReason.put("gda.remoting.disableCorba", "No longer needed Corba related removed in GDA 9.11 - see DAQ-1322");
 		// Cairo
-		obsoletePropertyToReason.put("org.eclipse.swt.internal.gtk.cairoGraphics", "MXGDA-3174 This issue has been fixed, and setting this now may result in flickering");
-		obsoletePropertyToReason.put("org.eclipse.swt.internal.gtk.useCairo", "MXGDA-3174 This issue has been fixed, and setting this now may result in flickering");
+		obsoletePropertyToReason.put("org.eclipse.swt.internal.gtk.cairoGraphics",
+				"MXGDA-3174 This issue has been fixed, and setting this now may result in flickering");
+		obsoletePropertyToReason.put("org.eclipse.swt.internal.gtk.useCairo",
+				"MXGDA-3174 This issue has been fixed, and setting this now may result in flickering");
 	}
 
 	public static void checkForObsoleteProperties() {
@@ -828,4 +818,33 @@ public final class LocalProperties {
 		return propConfig.getStringArray(propertyName);
 	}
 
+	/**
+	 * Returns a list of property keys matching a regular expression
+	 *
+	 * @param regex
+	 *            the regular expression to match
+	 * @return a <code>List</code> of keys
+	 */
+	public static List<String> getKeysByRegexp(String regex) {
+		return getStreamKeysByRegexp(regex).collect(toList());
+	}
+
+	/**
+	 * Returns the first property key matching a regular expression
+	 *
+	 * @param regex
+	 *            the regular expression to match
+	 * @param defaultKey
+	 *            the default value if no key is found
+	 * @return a the first key that matches <code>String</code>, otherwise the <code>defaultKey</code>
+	 */
+	public static String getFirstKeyByRegexp(String regex, String defaultKey) {
+		return getStreamKeysByRegexp(regex).findFirst().orElse(defaultKey);
+	}
+
+	private static Stream<String> getStreamKeysByRegexp(String regex) {
+		Predicate<String> matches = s -> Pattern.compile(regex).matcher(s).matches();
+		final Iterable<String> iterable = () -> propConfig.getKeys();
+		return StreamSupport.stream(iterable.spliterator(), false).filter(matches);
+	}
 }

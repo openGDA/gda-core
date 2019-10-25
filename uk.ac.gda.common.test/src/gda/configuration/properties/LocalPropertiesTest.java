@@ -22,6 +22,7 @@ package gda.configuration.properties;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -79,5 +80,22 @@ public class LocalPropertiesTest {
 	public void testGetAsIntThrowsNumberFormatExceptionWhenPropertyIsNotANumber() {
 		LocalProperties.set(LocalPropertiesTest.TEST, "not a number");
 		LocalProperties.getAsInt(LocalPropertiesTest.TEST);
+	}
+
+	@Test
+	public void testGetKeysWithRegExpr() {
+		LocalProperties.set("camera.cameraConfiguration.1", "conf 1");
+		LocalProperties.set("camera.cameraConfiguration.1.specialParam", "3.141592");
+		LocalProperties.set("camera.cameraControl.1", "cont 1");
+
+		LocalProperties.set("camera.cameraConfiguration.2", "conf 2");
+		LocalProperties.set("camera.cameraConfiguration.23", "conf 3");
+		// not accepted
+		LocalProperties.set("camera.cameraConfiguration.2a", "conf 4");
+		List<String> res = LocalProperties.getKeysByRegexp("camera.cameraConfiguration\\.\\d+(\\..*)?");
+		for (String key : res) {
+			System.out.println(key);
+		}
+		assertEquals(4, res.size());
 	}
 }
