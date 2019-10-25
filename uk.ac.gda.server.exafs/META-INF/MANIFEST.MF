@@ -23,7 +23,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.richbeans.api;bundle-version="1.0.0",
  uk.ac.gda.devices.xspress3,
  uk.ac.gda.devices.xspress4,
- uk.ac.gda.epics
+ uk.ac.gda.epics,
+ uk.ac.gda.devices.xmap;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Eclipse-RegisterBuddy: uk.ac.gda.common,
@@ -40,11 +41,10 @@ Export-Package: gda.device.detector,
  uk.ac.gda.server.exafs.scan,
  uk.ac.gda.server.exafs.scan.iterators,
  uk.ac.gda.server.exafs.scan.preparers
-Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE",
- gda.device.detector.addetector,
+Import-Package: gda.device.detector.addetector,
  gda.device.detector.addetector.triggering,
  gda.device.detector.areadetector.v17,
  gda.device.detector.areadetector.v17.impl,
- gda.device.detector.xmap,
- gda.device.detector.xspress
+ gda.device.detector.xspress,
+ org.springframework.beans.factory;version="4.0.6.RELEASE"
 Automatic-Module-Name: uk.ac.gda.server.exafs
