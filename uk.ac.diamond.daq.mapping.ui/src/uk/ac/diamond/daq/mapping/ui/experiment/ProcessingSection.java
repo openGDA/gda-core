@@ -278,7 +278,7 @@ public class ProcessingSection extends AbstractMappingSection {
 
 		viewer.setInput(getMappingBean().getProcessingConfigs().toArray());
 		viewer.refresh();
-
+		getMappingView().updateControls();
 	}
 
 	private File[] getTemplateFiles() {
