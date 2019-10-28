@@ -1,0 +1,55 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<modelVersion>4.0.0</modelVersion>
+<groupId>dawn</groupId>
+<artifactId>dawn-xas-core</artifactId>
+<version>1.0.0-SNAPSHOT</version>
+<packaging>pom</packaging>
+
+<parent>
+<groupId>uk.ac.diamond</groupId>
+<artifactId>uk.ac.diamond.aggregator</artifactId>
+<version>1.0.0-SNAPSHOT</version>
+</parent>
+
+<modules>
+<module>uk.ac.diamond.daq.client.microfocus.scan</module>
+<!-- 
+<module>uk.ac.diamond.daq.client.microfocus.scan.test</module>
+ -->
+<module>uk.ac.diamond.daq.microfocus.api</module>
+<module>uk.ac.diamond.daq.xas.server.feature</module>
+<module>uk.ac.gda.client.exafs</module>
+<module>uk.ac.gda.client.exafs.test</module>
+<module>uk.ac.gda.client.microfocus</module>
+<!-- 
+<module>uk.ac.gda.client.microfocus.test</module>
+<module>uk.ac.gda.devices.hidenrga.test</module>
+ -->
+<module>uk.ac.gda.devices.andor</module>
+<module>uk.ac.gda.devices.andor.test</module>
+<module>uk.ac.gda.devices.hidenrga</module>
+<module>uk.ac.gda.devices.xmap</module>
+<module>uk.ac.gda.devices.xmap.api</module>
+<module>uk.ac.gda.devices.xmap.epics</module>
+<!-- 
+<module>uk.ac.gda.devices.xmap.epics.test</module>
+<module>uk.ac.gda.devices.xspress2.test</module>
+<module>uk.ac.gda.server.exafs.test</module>
+ -->
+<module>uk.ac.gda.devices.xspress2</module>
+<module>uk.ac.gda.devices.xspress3</module>
+<module>uk.ac.gda.devices.xspress3.epics</module>
+<module>uk.ac.gda.devices.xspress3.epics.test</module>
+<module>uk.ac.gda.devices.xspress3.test</module>
+<module>uk.ac.gda.devices.xspress4</module>
+<module>uk.ac.gda.devices.xspress4.test</module>
+<module>uk.ac.gda.exafs.api</module>
+<module>uk.ac.gda.exafs.datawriter</module>
+<module>uk.ac.gda.server.exafs</module>
+<module>uk.ac.gda.server.exafs.epics</module>
+
+</modules>
+</project>
+
