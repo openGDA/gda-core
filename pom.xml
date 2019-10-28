@@ -1,0 +1,36 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<modelVersion>4.0.0</modelVersion>
+<groupId>uk.ac.diamond</groupId>
+<artifactId>gda-tomography</artifactId>
+<version>1.0.0-SNAPSHOT</version>
+<packaging>pom</packaging>
+
+<parent>
+<groupId>uk.ac.diamond</groupId>
+<artifactId>uk.ac.diamond.aggregator</artifactId>
+<version>1.0.0-SNAPSHOT</version>
+</parent>
+
+<modules>
+<module>uk.ac.diamond.tomography.reconstruction</module>
+<module>uk.ac.diamond.tomography.reconstruction.dawn</module>
+<module>uk.ac.diamond.tomography.reconstruction.feature</module>
+<module>uk.ac.diamond.tomography.reconstruction.parameters</module>
+<module>uk.ac.diamond.tomography.reconstruction.parameters.edit</module>
+<module>uk.ac.diamond.tomography.reconstruction.test</module>
+<module>uk.ac.gda.client.tomo</module>
+<module>uk.ac.gda.client.tomo.feature</module>
+<!-- Requires com.windowtester.swt.runtime  which is not available
+<module>uk.ac.gda.client.tomo.test</module>
+ -->
+<module>uk.ac.gda.tomography</module>
+<module>uk.ac.gda.tomography.scan</module>
+<module>uk.ac.gda.tomography.scan.editor</module>
+<module>uk.ac.gda.tomography.scan.tests</module>
+<module>uk.ac.gda.tomography.test</module>
+
+</modules>
+</project>
+
