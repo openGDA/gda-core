@@ -37,6 +37,7 @@ public interface ADBase extends ADCommon {
 	/**
 	 * List all the PVs
 	 */
+	public final String ADCoreVersion_RBV="ADCoreVersion_RBV";
 
 	public final String PortName_RBV = "PortName_RBV";
 
@@ -204,6 +205,8 @@ public interface ADBase extends ADCommon {
 	public final String Temperature = "Temperature";
 
 	public final String Temperature_RBV = "Temperature_RBV";
+
+	String getADCoreVersion_RBV() throws Exception;
 
 	/**
 	 *

@@ -857,4 +857,9 @@ public class ADBaseSimulator implements ADBase {
 	@Override
 	public void setStringBySuffix(String suffix, String acquiretime) throws Exception {
 	}
+
+	@Override
+	public String getADCoreVersion_RBV() throws Exception {
+		return null;
+	}
 }
