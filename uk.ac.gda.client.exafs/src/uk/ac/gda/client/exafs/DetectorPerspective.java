@@ -31,13 +31,17 @@ public class DetectorPerspective implements IPerspectiveFactory {
 
 		IFolderLayout topLeft = layout.createFolder("topLeft", IPageLayout.LEFT, 0.4f, editorArea);
 		topLeft.addView("uk.ac.gda.client.exafs.stanford.amplifiers");
-		topLeft.addView("uk.ac.gda.beamline.b18.mythencontrol");
-		topLeft.addView("uk.ac.gda.devices.mythen.visualisation.views.MythenDataControlView");
 
-		layout.addStandaloneView("uk.ac.gda.client.simplescanview", true, IPageLayout.BOTTOM, 0.5f, "topLeft");
+		IFolderLayout bottomLeft = layout.createFolder("bottomLeft", IPageLayout.BOTTOM, 0.5f, "topLeft");
+		bottomLeft.addView("uk.ac.gda.beamline.b18.mythencontrol");
+		bottomLeft.addView("uk.ac.gda.devices.mythen.visualisation.views.MythenDataControlView");
+		bottomLeft.addView("uk.ac.gda.exafs.ui.views.xspress2View");
+		bottomLeft.addView("uk.ac.gda.exafs.ui.views.xspress3View");
+
+//		layout.addStandaloneView("uk.ac.gda.client.simplescanview", true, IPageLayout.BOTTOM, 0.5f, "topLeft");
 
 		IFolderLayout topRight = layout.createFolder("topRight", IPageLayout.RIGHT, 0.6f, editorArea);
-		topRight.addView("uk.ac.gda.exafs.ui.views.scalersmonitor");
+		topRight.addView("uk.ac.gda.exafs.ui.views.detectors.ionchamberRates");
 		layout.addStandaloneView("gda.rcp.jythonterminalview", true, IPageLayout.BOTTOM, 0.5f, "topRight");
 
 
