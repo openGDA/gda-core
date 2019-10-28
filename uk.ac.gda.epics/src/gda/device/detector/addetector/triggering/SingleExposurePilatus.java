@@ -29,7 +29,7 @@ public class SingleExposurePilatus extends SingleExposureStandard {
 
 	private static final Logger logger = LoggerFactory.getLogger(SingleExposurePilatus.class);
 
-	private int sleepMillis = 0;			// ~1000 ms are required on i12 in some circumstances
+	private int sleepMillis = 0;			// ~1000-3000 ms are required on i12 in some circumstances (I12-452, I12-457)
 
 	public SingleExposurePilatus(ADBase adBase, double readoutTime) {
 		super(adBase, readoutTime);
