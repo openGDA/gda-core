@@ -20,13 +20,10 @@ package uk.ac.gda.client.live.stream.view.customui;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
-import java.util.Objects;
-
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -37,30 +34,32 @@ import gda.device.DeviceException;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.live.stream.calibration.BeamPositionCalibration;
 
-public class LiveStreamViewCameraAndCalibrationControls extends LiveStreamViewCameraControls {
-
-	private static final Logger logger = LoggerFactory.getLogger(LiveStreamViewCameraAndCalibrationControls.class);
+public class LiveStreamViewCameraControlsCalibrate implements LiveStreamViewCameraControlsExtension {
+	private static final Logger logger = LoggerFactory.getLogger(LiveStreamViewCameraControlsCalibrate.class);
 
 	private BeamPositionCalibration calibration;
-
-	public LiveStreamViewCameraAndCalibrationControls(CameraControl cameraControl, BeamPositionCalibration calibration) {
-		super(cameraControl);
-		Objects.requireNonNull(calibration, "Beam position calibration should not be null.");
-		this.calibration = calibration;
-	}
+	private CameraControl cameraControl;
 
 	@Override
-	public void createUi(Composite composite) {
-		super.createUi(composite);
-		GridLayoutFactory.fillDefaults().numColumns(5).applyTo(mainComposite);
+	public void createUi(Composite composite, CameraControl cameraControl) {
+		if (calibration == null) {
+			logger.error("Beam position calibration must not be null.");
+			return;
+		}
+		this.cameraControl = cameraControl;
+
+		final Composite mainComposite = new Composite(composite, SWT.NONE);
+		GridDataFactory.fillDefaults().applyTo(mainComposite);
+		GridLayoutFactory.swtDefaults().margins(0, 5).applyTo(mainComposite);
+
 		final Button calibrateButton = new Button(mainComposite, SWT.PUSH);
-		GridDataFactory.swtDefaults().applyTo(calibrateButton);
+		GridDataFactory.fillDefaults().applyTo(calibrateButton);
 		calibrateButton.setText("Calibrate");
 		calibrateButton.setToolTipText("Set beam position to cross overlay position");
-		calibrateButton.addSelectionListener(widgetSelectedAdapter(this::calibrate));
+		calibrateButton.addSelectionListener(widgetSelectedAdapter(e -> calibrate()));
 	}
 
-	private void calibrate(SelectionEvent e) {
+	private void calibrate() {
 		int overlayPositionX;
 		int overlayPositionY;
 
@@ -80,4 +79,9 @@ public class LiveStreamViewCameraAndCalibrationControls extends LiveStreamViewCa
 			calibration.setBeamPosition(overlayPositionX, overlayPositionY, true);
 		}
 	}
+
+	public void setCalibration(BeamPositionCalibration calibration) {
+		this.calibration = calibration;
+	}
+
 }

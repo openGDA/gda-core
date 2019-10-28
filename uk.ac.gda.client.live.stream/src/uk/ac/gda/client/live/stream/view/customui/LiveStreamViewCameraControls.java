@@ -20,6 +20,9 @@ package uk.ac.gda.client.live.stream.view.customui;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -54,6 +57,12 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 	protected Composite mainComposite;
 
 	/**
+	 * Extensions to allow extra controls to be added to the basic set.<br>
+	 * Each extensions will be allocated one column in {@link #mainComposite}.
+	 */
+	protected List<LiveStreamViewCameraControlsExtension> extensions = Collections.emptyList();
+
+	/**
 	 * Scannable to reset camera - the actual camera, not GDA's connection to it (optional)
 	 */
 	private Scannable cameraResetScannable;
@@ -66,7 +75,7 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 	@Override
 	public void createUi(Composite composite) {
 		mainComposite = new Composite(composite, SWT.NONE);
-		GridLayoutFactory.fillDefaults().numColumns(4).applyTo(mainComposite);
+		GridLayoutFactory.fillDefaults().numColumns(4 + extensions.size()).applyTo(mainComposite);
 
 		// Exposure control
 		final LiveStreamExposureTimeComposite exposureTimeComposite = new LiveStreamExposureTimeComposite(mainComposite, SWT.NONE, cameraControl);
@@ -92,6 +101,11 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 			resetButton.setText("Reset camera");
 			resetButton.setToolTipText("Reconnect to camera");
 			resetButton.addSelectionListener(widgetSelectedAdapter(this::resetCamera));
+		}
+
+		// Extensions
+		for (LiveStreamViewCameraControlsExtension extension : extensions) {
+			extension.createUi(mainComposite, cameraControl);
 		}
 	}
 
@@ -126,5 +140,13 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 
 	public void setCameraResetScannable(Scannable cameraResetScannable) {
 		this.cameraResetScannable = cameraResetScannable;
+	}
+
+	public void setExtensions(List<LiveStreamViewCameraControlsExtension> extensions) {
+		this.extensions = extensions;
+	}
+
+	public void setExtension(LiveStreamViewCameraControlsExtension extension) {
+		this.extensions = Arrays.asList(extension);
 	}
 }
