@@ -1105,11 +1105,16 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void startAcquiring() throws Exception {
 		logger.debug("Acquisition started: {} called.", Acquire);
+		String adCoreVersion = getADCoreVersion_RBV();
+		logger.warn("Area Detector '{}' is running ADCore version {}", getBasePVName(), adCoreVersion);
+		int majorVersionNumber=Integer.parseInt(adCoreVersion.split("\\.")[0]);
 		try {
-			if (getAcquireState() == 1) {
+			if (majorVersionNumber < 3 && getAcquireState() == 1) {
+				//Don't need to check acquire state again here when running EPICS ADCore 3+ on Redhad 7
 				return; // if continuing acquiring already started,do not put another call again as EPICS will not
 						// callback at all in this case.
 			}
+
 			setStatus(Detector.BUSY);
 			EPICS_CONTROLLER.caput(getChannel(Acquire), 1, startputlistener);
 		} catch (Exception e) {
@@ -1118,6 +1123,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			throw e;
 		}
 	}
+
 	@Override
 	public void startAcquiringWait() throws Exception {
 		startAcquiring();
@@ -2116,4 +2122,16 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		logger.info("Setting channel {} to string value {}", channel.getName(), value);
 		EPICS_CONTROLLER.caput(channel, value);
 	}
+
+	@Override
+
+	public String getADCoreVersion_RBV() throws Exception {
+		try {
+			return EPICS_CONTROLLER.caget(getChannel(ADCoreVersion_RBV));
+		} catch (Exception ex) {
+			logger.warn("Cannot getADCoreVersion_RBV", ex);
+			throw ex;
+		}
+	}
+
 }
