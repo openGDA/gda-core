@@ -20,13 +20,6 @@ package gda.device.scannable.scannablegroup;
 
 import static gda.device.scannable.PositionConvertorFunctions.toObjectArray;
 import static gda.device.scannable.PositionConvertorFunctions.toParticularContainer;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.continuouscontroller.ContinuousMoveController;
-import gda.device.scannable.ContinuouslyScannableViaController;
-import gda.device.scannable.PositionConvertorFunctions;
-import gda.device.scannable.ScannableMotionBase;
-import gda.device.scannable.ScannableMotionUnitsBase;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +31,14 @@ import org.python.core.Py;
 import org.python.core.PyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.continuouscontroller.ContinuousMoveController;
+import gda.device.scannable.ContinuouslyScannableViaController;
+import gda.device.scannable.PositionConvertorFunctions;
+import gda.device.scannable.ScannableMotionBase;
+import gda.device.scannable.ScannableMotionUnitsBase;
 
 /**
  * Extend as ScannableMotionBase. Provides a {@link #completeInstantiation()} method which adds a dictionary of
@@ -743,12 +744,12 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 	public void stop() throws DeviceException {
 		positionAtScanStart = null;
 		super.stop();
-		if (isOperatingContinously()) {
-			try {
+		try {
+			if (isOperatingContinously()) {
 				controller.stopAndReset();
-			} catch (InterruptedException e) {
-				throw new DeviceException("InterruptedException while stopping and resetting " + controller.getName());
 			}
+		} catch (Exception e) {
+			throw new DeviceException("Exception while stopping and resetting " + (controller==null ? "'null'" : controller.getName()), e);
 		}
 	}
 

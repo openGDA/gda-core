@@ -256,12 +256,12 @@ public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup 
 	@Override
 	public void stop() throws DeviceException {
 		super.stop(); // stop all axes and turn off defer flag
-		if (isOperatingContinously()) {
-			try {
+		try {
+			if (isOperatingContinously()) {
 				controller.stopAndReset();
-			} catch (InterruptedException e) {
-				throw new DeviceException("InterruptedException while stopping and resetting " + controller.getName());
 			}
+		} catch (Exception e) {
+			throw new DeviceException("Exception while stopping and resetting " + (controller==null ? "'null'" : controller.getName()), e);
 		}
 	}
 }
