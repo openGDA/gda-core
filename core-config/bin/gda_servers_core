@@ -221,7 +221,7 @@ fi
 #
 # thus a), b) and c) respectively correspond to 1., 2. and 3.
 
-if [[ "${GDA_MODE}" == "dummy" ]] || [[ "${ssh_tunnel_activated:-}" == true ]] || [[ "${CONTROL_MACHINE_NAME}" == "$(uname -n)" && "${GDA_IN_REMOTE_STARTUP}" == false ]]; then
+if [[ "${GDA_MODE}" == "dummy" ]] || [[ "${ssh_tunnel_activated:-}" == true ]] || [[ "${CONTROL_MACHINE_NAME}" == "$(uname -n)" && "${GDA_IN_REMOTE_STARTUP:-}" != true ]]; then
 
     unset ssh_tunnel_activated                                      # Cancel the flag allowing entry  when starting in live mode on the workstation
 
