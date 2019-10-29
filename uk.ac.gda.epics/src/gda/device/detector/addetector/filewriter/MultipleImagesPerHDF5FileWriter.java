@@ -144,7 +144,8 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 
 	private boolean storePerform=false;
 
-	private boolean alreadyPrepared=false;
+	private boolean alreadyPrepared=false; //use to allow the same fileWriter to be used in the same multiscan
+	private boolean alwaysPrepare=false; // Set to true to disable alreadyPrepared mechanism
 
 	private boolean lazyOpen=false;
 
@@ -243,8 +244,15 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 
 		if(!isEnabled())
 			return;
-		if( alreadyPrepared)
+
+		/* The alreadyPrepared optimisation prevents SwitchableHardwareTriggerableProcessingDetectorWrapper from
+		 * reconfiguring the detector when switching between hardware_triggered_detector and detector_for_snaps
+		 * detectors, so the alwaysPrepare property enables this mechanism to be disabled on a per detector basis.
+		 */
+		if (alreadyPrepared && !alwaysPrepare) {
 			return;
+		}
+
 		setNDArrayPortAndAddress();
 		getNdFile().getPluginBase().disableCallbacks();
 		getNdFile().getPluginBase().setBlockingCallbacks(blocking ? 1:0); //use camera memory
@@ -564,5 +572,13 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 
 	public String getyPixelSizeUnit() {
 		return yPixelSizeUnit;
+	}
+
+	public boolean isAlwaysPrepare() {
+		return alwaysPrepare;
+	}
+
+	public void setAlwaysPrepare(boolean alwaysPrepare) {
+		this.alwaysPrepare = alwaysPrepare;
 	}
 }
