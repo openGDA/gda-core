@@ -18,7 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.ui.region;
 
-import javax.measure.quantity.Length;
+import javax.measure.quantity.Quantity;
 
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.MultiValidator;
@@ -41,29 +41,30 @@ public class LineRegionEditor extends AbstractRegionEditor {
 		final Composite composite = super.createEditorPart(parent);
 
 		new Label(composite, SWT.NONE).setText(getXAxisName() + " Start");
-		NumberAndUnitsComposite<Length> xStart = createNumberAndUnitsLengthComposite(composite, X_START);
+		NumberAndUnitsComposite<Quantity> xStart = createNumberAndUnitsComposite(composite, getXAxisName(), X_START);
 		grabHorizontalSpace.applyTo(xStart);
 
 		new Label(composite, SWT.NONE).setText(getYAxisName() + " Start");
-		NumberAndUnitsComposite<Length> yStart = createNumberAndUnitsLengthComposite(composite, Y_START);
+		NumberAndUnitsComposite<Quantity> yStart = createNumberAndUnitsComposite(composite, getYAxisName(), Y_START);
 		grabHorizontalSpace.applyTo(yStart);
 
 		new Label(composite, SWT.NONE).setText(getXAxisName() + " Stop");
-		NumberAndUnitsComposite<Length> xStop = createNumberAndUnitsLengthComposite(composite, X_STOP);
+		NumberAndUnitsComposite<Quantity> xStop = createNumberAndUnitsComposite(composite, getXAxisName(), X_STOP);
 		grabHorizontalSpace.applyTo(xStop);
 
 		new Label(composite, SWT.NONE).setText(getYAxisName() + " Stop");
-		NumberAndUnitsComposite<Length> yStop = createNumberAndUnitsLengthComposite(composite, Y_STOP);
+		NumberAndUnitsComposite<Quantity> yStop = createNumberAndUnitsComposite(composite, getYAxisName(), Y_STOP);
 		grabHorizontalSpace.applyTo(yStop);
 
 		validateAndBind(xStart, yStart, xStop, yStop);
 		return composite;
 	}
 
-	private void validateAndBind(NumberAndUnitsComposite<Length> xStart,
-								 NumberAndUnitsComposite<Length> yStart,
-								 NumberAndUnitsComposite<Length> xStop,
-								 NumberAndUnitsComposite<Length> yStop) {
+	@SuppressWarnings("unchecked")
+	private void validateAndBind(NumberAndUnitsComposite<Quantity> xStart,
+								 NumberAndUnitsComposite<Quantity> yStart,
+								 NumberAndUnitsComposite<Quantity> xStop,
+								 NumberAndUnitsComposite<Quantity> yStop) {
 
 		binder.bind(xStart, X_START, getModel());
 		binder.bind(yStart, Y_START, getModel());
@@ -75,17 +76,17 @@ public class LineRegionEditor extends AbstractRegionEditor {
 		ControlDecorationSupport.create(createLimitsValidator(getYAxisName(), yStart), SWT.LEFT);
 		ControlDecorationSupport.create(createLimitsValidator(getYAxisName(), yStop), SWT.LEFT);
 
-		IObservableValue targetXStart = binder.getObservableValue(xStart);
-		IObservableValue targetXStop  = binder.getObservableValue(xStop);
-		IObservableValue targetYStart = binder.getObservableValue(yStart);
-		IObservableValue targetYStop  = binder.getObservableValue(yStop);
+		IObservableValue<Double> targetXStart = binder.getObservableValue(xStart);
+		IObservableValue<Double> targetXStop  = binder.getObservableValue(xStop);
+		IObservableValue<Double> targetYStart = binder.getObservableValue(yStart);
+		IObservableValue<Double> targetYStop  = binder.getObservableValue(yStop);
 
 		MultiValidator lengthValidator = new MultiValidator() {
 
 			@Override
 			protected IStatus validate() {
-				double deltaX = Math.abs((double) targetXStart.getValue() - (double) targetXStop.getValue());
-				double deltaY = Math.abs((double) targetYStart.getValue() - (double) targetYStop.getValue());
+				double deltaX = Math.abs(targetXStart.getValue() - targetXStop.getValue());
+				double deltaY = Math.abs(targetYStart.getValue() - targetYStop.getValue());
 				if (deltaX > 0 || deltaY > 0) return ValidationStatus.ok();
 				return ValidationStatus.error(VALIDATION_ERROR_MESSAGE);
 			}

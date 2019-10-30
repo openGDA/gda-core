@@ -20,8 +20,8 @@ package uk.ac.gda.client;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
+import java.util.Set;
 
 import javax.measure.quantity.Duration;
 import javax.measure.quantity.Energy;
@@ -31,13 +31,17 @@ import javax.measure.unit.Unit;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.jscience.physics.amount.Amount;
+
+import gda.jscience.physics.units.NonSIext;
 
 /**
  * A Composite for displaying a number with a unit.<br>
@@ -77,19 +81,19 @@ public class NumberAndUnitsComposite<Q extends Quantity> extends Composite {
 	 * Constructor for the case where only one unit is permitted
 	 * <p>
 	 * For parameters, see (@link
-	 * {@link NumberAndUnitsComposite#NumberAndUnitsComposite(Composite, int, Unit, List, Unit)}
+	 * {@link NumberAndUnitsComposite#NumberAndUnitsComposite(Composite, int, Unit, Set, Unit)}
 	 */
 	public NumberAndUnitsComposite(Composite parent, int style, Unit<Q> modelUnit) {
-		this(parent, style, modelUnit, Arrays.asList(modelUnit), modelUnit);
+		this(parent, style, modelUnit, Collections.singleton(modelUnit), modelUnit);
 	}
 
 	/**
 	 * Constructor for the case where the initially-displayed unit is the same as the model unit
 	 * <p>
 	 * For parameters, see (@link
-	 * {@link NumberAndUnitsComposite#NumberAndUnitsComposite(Composite, int, Unit, List, Unit)}
+	 * {@link NumberAndUnitsComposite#NumberAndUnitsComposite(Composite, int, Unit, Set, Unit)}
 	 */
-	public NumberAndUnitsComposite(Composite parent, int style, Unit<Q> modelUnit, List<Unit<Q>> validUnits) {
+	public NumberAndUnitsComposite(Composite parent, int style, Unit<Q> modelUnit, Set<Unit<Q>> validUnits) {
 		this(parent, style, modelUnit, validUnits, modelUnit);
 	}
 
@@ -107,7 +111,7 @@ public class NumberAndUnitsComposite<Q extends Quantity> extends Composite {
 	 * @param initialUnit
 	 *            Units to be selected when the combo box is first displayed
 	 */
-	public NumberAndUnitsComposite(Composite parent, int style, Unit<Q> modelUnit, List<Unit<Q>> validUnits, Unit<Q> initialUnit) {
+	public NumberAndUnitsComposite(Composite parent, int style, Unit<Q> modelUnit, Set<Unit<Q>> validUnits, Unit<Q> initialUnit) {
 		super(parent, style);
 		this.modelUnit = modelUnit;
 		this.currentUnit = initialUnit;
@@ -127,9 +131,17 @@ public class NumberAndUnitsComposite<Q extends Quantity> extends Composite {
 		// TODO Might want to add validation to stop people typing letters in but need to be very careful WRT data
 		// binding.
 		unitsCombo = new ComboViewer(this, SWT.NONE | SWT.READ_ONLY);
-		unitsCombo.add(validUnits.stream().toArray());
+		unitsCombo.setContentProvider(ArrayContentProvider.getInstance());
+		unitsCombo.setInput(validUnits);
 		unitsCombo.setSelection(new StructuredSelection(initialUnit));
 		unitsCombo.addSelectionChangedListener(this::handleUnitChange);
+		unitsCombo.setLabelProvider(new LabelProvider() {
+			@SuppressWarnings("unchecked")
+			@Override
+			public String getText(Object element) {
+				return NonSIext.getUnitString((Unit<? extends Quantity>) element);
+			}
+		});
 	}
 
 	@SuppressWarnings("unchecked")

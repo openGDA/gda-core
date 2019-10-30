@@ -27,7 +27,7 @@ import static javax.measure.unit.SI.NANO;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
+import java.util.Set;
 
 import javax.measure.quantity.Length;
 import javax.measure.unit.Unit;
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 import gda.configuration.properties.LocalProperties;
 import gda.function.ILinearFunction;
@@ -55,7 +55,7 @@ public class FocusScanUtils {
 	private static final Logger logger = LoggerFactory.getLogger(FocusScanUtils.class);
 
 	private static final Unit<Length> MODEL_LENGTH_UNIT = MILLI(METER);
-	private static final List<Unit<Length>> LENGTH_UNITS = ImmutableList.of(MILLI(METER), MICRO(METER), NANO(METER));
+	private static final Set<Unit<Length>> LENGTH_UNITS = ImmutableSet.of(MILLI(METER), MICRO(METER), NANO(METER));
 	private static final Unit<Length> INITIAL_LENGTH_UNIT = getInitialLengthUnit();
 
 	private static ObjectMapper objectMapper = new ObjectMapper();

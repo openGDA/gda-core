@@ -27,7 +27,7 @@ import static javax.measure.unit.SI.NANO;
 import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.displayError;
 import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.getInitialLengthUnit;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
@@ -43,7 +43,7 @@ import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 import gda.function.ILinearFunction;
 import uk.ac.gda.client.NumberAndUnitsComposite;
@@ -57,11 +57,11 @@ public class EnergyFocusFunctionDisplay {
 	private static final int COMPOSITE_WIDTH = 200;
 
 	private static final Unit<Length> MODEL_LENGTH_UNIT = MILLI(METER);
-	private static final List<Unit<Length>> LENGTH_UNITS = ImmutableList.of(MILLI(METER), MICRO(METER), NANO(METER));
+	private static final Set<Unit<Length>> LENGTH_UNITS = ImmutableSet.of(MILLI(METER), MICRO(METER), NANO(METER));
 	private static final Unit<Length> INITIAL_LENGTH_UNIT = getInitialLengthUnit();
 
 	private static final Unit<Energy> MODEL_ENERGY_UNIT = ELECTRON_VOLT;
-	private static final List<Unit<Energy>> ENERGY_UNITS = ImmutableList.of(KILO(ELECTRON_VOLT), ELECTRON_VOLT);
+	private static final Set<Unit<Energy>> ENERGY_UNITS = ImmutableSet.of(KILO(ELECTRON_VOLT), ELECTRON_VOLT);
 	private static final Unit<Energy> INITIAL_ENERGY_UNIT = ELECTRON_VOLT;
 
 	private final ILinearFunction energyFocusFunction;
@@ -123,7 +123,7 @@ public class EnergyFocusFunctionDisplay {
 	 * @return The {@link NumberAndUnitsComposite} that has been created
 	 */
 	private static <Q extends Quantity> NumberAndUnitsComposite<Q> createRow(Composite parent, String text,
-			Unit<Q> modelUnit, List<Unit<Q>> validUnits, Unit<Q> initialUnit) {
+			Unit<Q> modelUnit, Set<Unit<Q>> validUnits, Unit<Q> initialUnit) {
 		final Label label = new Label(parent, SWT.NONE);
 		GridDataFactory.swtDefaults().applyTo(label);
 		label.setText(text);
