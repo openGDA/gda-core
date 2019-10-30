@@ -40,12 +40,6 @@ public class NDPythonImpl extends NDBaseImpl implements NDPython, InitializingBe
 
 	private String basePVName;
 
-	private String pythonFilename;
-
-	private String pythonClassname;
-
-	private boolean propertiesSet = false;
-
 	private Channel getChannel(String pvSuffix) throws CAException, TimeoutException {
 		final String pvName = getBasePVName() + pvSuffix;
 		Channel channel = channelMap.get(pvName);
@@ -86,14 +80,7 @@ public class NDPythonImpl extends NDBaseImpl implements NDPython, InitializingBe
 
 	@Override
 	public void setFilename(String filename) throws Exception {
-		this.pythonFilename = filename;
-		if (propertiesSet) {
-			putFilenameToChannel();
-		}
-	}
-
-	private void putFilenameToChannel() throws Exception {
-		EPICS_CONTROLLER.caput(getChannel(Filename), (pythonFilename + "\0").getBytes());
+		EPICS_CONTROLLER.caput(getChannel(Filename), (filename + "\0").getBytes());
 	}
 
 	@Override
@@ -108,14 +95,7 @@ public class NDPythonImpl extends NDBaseImpl implements NDPython, InitializingBe
 
 	@Override
 	public void setClassname(String classname) throws Exception {
-		pythonClassname = classname;
-		if (propertiesSet) {
-			putClassnameToChannel();
-		}
-	}
-
-	private void putClassnameToChannel() throws CAException, InterruptedException, TimeoutException {
-		EPICS_CONTROLLER.caput(getChannel(Classname), (pythonClassname + "\0").getBytes());
+		EPICS_CONTROLLER.caput(getChannel(Classname), (classname + "\0").getBytes());
 	}
 
 	@Override
@@ -141,14 +121,6 @@ public class NDPythonImpl extends NDBaseImpl implements NDPython, InitializingBe
 		if (parameterMap == null) {
 			throw new IllegalArgumentException("'parameterMap' must be specified");
 		}
-		if (pythonFilename != null) {
-			putFilenameToChannel();
-		}
-		if (pythonClassname != null) {
-			putClassnameToChannel();
-		}
-		readFile();
-		propertiesSet = true;
 	}
 
 	@Override
