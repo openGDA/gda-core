@@ -29,9 +29,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 <module>uk.ac.gda.devices.mythen.visualisation</module>
 <module>uk.ac.gda.devices.pco</module>
 <module>uk.ac.gda.devices.pixium</module>
-<!-- 
 <module>uk.ac.gda.epics.client.mythen</module>
- -->
 <module>uk.ac.gda.epics.client.pco</module>
 <module>uk.ac.gda.epics.client.pixium</module>
 </modules>
