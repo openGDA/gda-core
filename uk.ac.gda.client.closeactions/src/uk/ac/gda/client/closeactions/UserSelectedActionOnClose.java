@@ -1,6 +1,8 @@
 package uk.ac.gda.client.closeactions;
 
 import gda.configuration.properties.LocalProperties;
+import gda.jython.InterfaceProvider;
+import gda.jython.batoncontrol.ClientDetails;
 import gda.util.Email;
 import uk.ac.gda.client.closeactions.ClientCloseOption;
 import uk.ac.gda.client.closeactions.contactinfo.ISPyBJdbcTemplate;
@@ -49,30 +51,26 @@ public class UserSelectedActionOnClose {
 	}
 
 	public void doCloseAction(ClientCloseOption selectedOption, String reason, String name) {
+		ClientDetails[] clients = InterfaceProvider.getBatonStateProvider().getOtherClientInformation();
 		optionChoice = selectedOption;
 		switch (selectedOption)
 		{
 		case RESTART_CLIENT:
 			trimAndEmail(reason, name);
-			logger.info("User felt the need to restart client. Could we be having client issues?");
+			logger.info("User felt the need to restart GDA. Could we be having DAQ issues?");
 			break;
-		case RESTART_CLIENT_AND_SERVER:
-			trimAndEmail(reason, name);
-			logger.info("User felt the need to restart client and server. Could we be having server/control station issues?");
-			if (!LocalProperties.isDummyModeEnabled()){
-				ProcessBuilder pb = new ProcessBuilder("gdaservers_closemenurestart");
-				try {
-					pb.start();
-				} catch (IOException e) {
-					logger.error("There was a problem restarting servers from the Close Menu: " + e);
+		case FINISHED:
+			break;
+		case FINISHED_UDC:
+			for (ClientDetails client : clients) {
+				if (client.isAutomatedUser()) {
+					InterfaceProvider.getBatonStateProvider().assignBaton(client.getIndex());
+					break;
 				}
 			}
 			break;
-		case TEMP_ABSENCE:
-			// do nothing, client will exit cleanly
-			break;
-		case FINISHED:
-			sendEmail("", "Current user is finished");
+
+		default:
 			break;
 		}
 	}
@@ -135,11 +133,6 @@ public class UserSelectedActionOnClose {
 		switch (optionChoice)
 		{
 		case RESTART_CLIENT:
-			for (String email : getFeedbackGroup()) {
-				eRs.add(email);
-			}
-			break;
-		case RESTART_CLIENT_AND_SERVER:
 			for (String email : getFeedbackGroup()) {
 				eRs.add(email);
 			}

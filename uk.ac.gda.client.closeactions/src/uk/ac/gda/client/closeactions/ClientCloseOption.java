@@ -20,7 +20,6 @@ package uk.ac.gda.client.closeactions;
 
 public enum ClientCloseOption {
 	RESTART_CLIENT,
-	RESTART_CLIENT_AND_SERVER,
-	TEMP_ABSENCE,
-	FINISHED
+	FINISHED,
+	FINISHED_UDC
 }
