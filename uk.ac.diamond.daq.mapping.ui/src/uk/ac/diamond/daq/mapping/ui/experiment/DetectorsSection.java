@@ -307,7 +307,7 @@ public class DetectorsSection extends AbstractMappingSection {
 			throw new ScanningException("Device " + malcolmDeviceName + " is not a malcolm device");
 		}
 
-		return ((IMalcolmDevice<?>) runnableDevice).getAvailableAxes();
+		return ((IMalcolmDevice) runnableDevice).getAvailableAxes();
 	}
 
 	private Map<String, IScanModelWrapper<IDetectorModel>> updateDetectorParameters() {

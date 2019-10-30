@@ -691,8 +691,8 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 			try {
 				malcolmDevice.configure(malcolmModel); // configure the malcolm device, puts it in 'Armed' state
-				if (malcolmDevice instanceof IMalcolmDevice<?>) {
-					final MalcolmTable datasetsTable = ((IMalcolmDevice<?>) malcolmDevice).getDatasets();
+				if (malcolmDevice instanceof IMalcolmDevice) {
+					final MalcolmTable datasetsTable = ((IMalcolmDevice) malcolmDevice).getDatasets();
 					if (datasetsTable != null) {
 						datasetName = getPrimaryDatasetNameForMalcolm(datasetsTable);
 					}

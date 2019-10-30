@@ -28,6 +28,7 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
@@ -70,7 +71,7 @@ public class EditMappingStageDialog extends Dialog {
 				final URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
 				final IEventService eventService = getService(IEventService.class);
 				IRunnableDeviceService runnableDeviceService = eventService.createRemoteService(jmsURI, IRunnableDeviceService.class);
-				IMalcolmDevice<?> malcolmDevice = (IMalcolmDevice<?>) runnableDeviceService.getRunnableDevice(malcolmDeviceName.get());
+				IMalcolmDevice malcolmDevice = (IMalcolmDevice) (IRunnableDevice<?>) runnableDeviceService.getRunnableDevice(malcolmDeviceName.get());
 				List<String> availableAxes = new ArrayList<>(malcolmDevice.getAvailableAxes());
 				List<String> associatedAxes = null;
 				if (options != null) {

@@ -65,6 +65,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.scanning.api.IScannable;
+import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
@@ -589,7 +590,7 @@ class FocusScanSetupPage extends WizardPage {
 	private void checkFocusScanAxis(IDetectorModel model) {
 		if (model instanceof IMalcolmModel) {
 			try {
-				final List<String> axesToMove = getMalcolmAxes(model);
+				final List<String> axesToMove = getMalcolmAxes((IMalcolmModel) model);
 				final String focusScannableName = focusScanBean.getFocusScannableName();
 				if (axesToMove == null || axesToMove.isEmpty() || !axesToMove.contains(focusScannableName)) {
 					final String message = String.format("The selected malcolm device does not include the focus scannable '%s' as an axis", focusScannableName);
@@ -611,9 +612,9 @@ class FocusScanSetupPage extends WizardPage {
 		}
 	}
 
-	private List<String> getMalcolmAxes(IDetectorModel malcolmModel) throws ScanningException, EventException {
+	private List<String> getMalcolmAxes(IMalcolmModel malcolmModel) throws ScanningException, EventException {
 		final String deviceName = malcolmModel.getName();
-		final IMalcolmDevice<?> malcolmDevice = (IMalcolmDevice<?>) getRunnableDeviceService().getRunnableDevice(deviceName);
+		final IMalcolmDevice malcolmDevice = (IMalcolmDevice) (IRunnableDevice<?>) getRunnableDeviceService().getRunnableDevice(deviceName);
 		return malcolmDevice.getAvailableAxes();
 	}
 
