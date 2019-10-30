@@ -101,6 +101,8 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 
 	private PV<Integer> pvDetectorState_RBV;
 
+	private String adCoreVersion;
+
 	private Map<Short, NDPluginBase.DataType> dataTypeRBV_Map;
 
 	private ReadOnlyPV<Short> detectorStatePV = null;
@@ -1105,9 +1107,12 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	@Override
 	public void startAcquiring() throws Exception {
 		logger.debug("Acquisition started: {} called.", Acquire);
-		String adCoreVersion = getADCoreVersion_RBV();
-		logger.warn("Area Detector '{}' is running ADCore version {}", getBasePVName(), adCoreVersion);
-		int majorVersionNumber=Integer.parseInt(adCoreVersion.split("\\.")[0]);
+
+		int majorVersionNumber=2;
+		if (adCoreVersion!=null) {
+			majorVersionNumber=Integer.parseInt(adCoreVersion.split("\\.")[0]);
+		}
+
 		try {
 			if (majorVersionNumber < 3 && getAcquireState() == 1) {
 				//Don't need to check acquire state again here when running EPICS ADCore 3+ on Redhad 7
@@ -1769,6 +1774,15 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 
 		pvArrayCounter_RBV = LazyPVFactory.newIntegerPV(genenerateFullPvName(ArrayCounter_RBV));
 		pvDetectorState_RBV = LazyPVFactory.newIntegerPV(genenerateFullPvName(DetectorState_RBV));
+
+		try {
+			//get ADCore version number on completion of object creation
+			adCoreVersion=getADCoreVersion_RBV();
+		} catch (Exception e) {
+			//OLD IOC does not use ADCore don't have this PV
+			logger.warn("EPICS IOC for {} may require update to use ADCore for this area detector!", getBasePVName());
+			adCoreVersion=null;
+		}
 	}
 
 	/**
