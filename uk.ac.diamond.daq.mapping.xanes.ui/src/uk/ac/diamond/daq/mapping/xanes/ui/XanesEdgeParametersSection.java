@@ -23,6 +23,14 @@ import static com.github.tschoonj.xraylib.Xraylib.L3_SHELL;
 import static uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod.EDGE;
 import static uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod.REFERENCE;
 import static uk.ac.diamond.daq.mapping.xanes.ui.XanesScanningUtils.getOuterScannable;
+import static uk.ac.gda.ui.tool.ClientMessages.XANES_ELEMENT_AND_EDGE;
+import static uk.ac.gda.ui.tool.ClientMessages.XANES_ELEMENT_AND_EDGE_TOOLTIP;
+import static uk.ac.gda.ui.tool.ClientMessages.XANES_LINES_TO_TRACK;
+import static uk.ac.gda.ui.tool.ClientMessages.XANES_LINES_TO_TRACK_TOOLTIP;
+import static uk.ac.gda.ui.tool.ClientMessages.XANES_SCAN_PARAMETERS;
+import static uk.ac.gda.ui.tool.ClientMessages.XANES_USE_EDGE;
+import static uk.ac.gda.ui.tool.ClientMessages.XANES_USE_REFERENCE;
+import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -58,7 +66,6 @@ import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.MultiStepModel;
 import org.eclipse.scanning.api.points.models.StepModel;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -72,11 +79,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.swtdesigner.SWTResourceManager;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod;
-import uk.ac.diamond.daq.mapping.ui.experiment.AbstractMappingSection;
-import uk.ac.diamond.daq.mapping.ui.experiment.HideableMappingSection;
+import uk.ac.diamond.daq.mapping.ui.experiment.AbstractHideableMappingSection;
 import uk.ac.diamond.daq.mapping.ui.experiment.OuterScannablesSection;
 
 /**
@@ -91,17 +98,18 @@ import uk.ac.diamond.daq.mapping.ui.experiment.OuterScannablesSection;
  * {@link XanesSubmitScanSection} combines these with the standard parameters from the Mapping view (x & y coordinates, detector etc.) and
  * passed to the appropriate script.
  */
-public class XanesEdgeParametersSection extends AbstractMappingSection implements HideableMappingSection {
+public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	private static final Logger logger = LoggerFactory.getLogger(XanesEdgeParametersSection.class);
 
-	private static final String XANES_SCAN_KEY = "XanesScan.json";
+	private static final String PROPERTY_NAME_XANES_SCAN_KEY = "xanes.scan.key";
+	private static final String DEFAULT_XANES_SCAN_KEY = "XanesScan.json";
+
+	/**
+	 * The key under which Eclipse stores/restores XANES parameters
+	 */
+	private static final String XANES_SCAN_KEY = LocalProperties.get(PROPERTY_NAME_XANES_SCAN_KEY, DEFAULT_XANES_SCAN_KEY);
+
 	private static final int NUM_COLUMNS = 6;
-
-	private static final String ELEMENT_AND_EDGE_TOOLTIP = "Choose the element/edge to scan over\n"
-			+ "Radioactive elements are marked with *asterisks*";
-	private static final String LINES_TO_TRACK_TOOLTIP = "Choose one of the lines defined in the selected processing file(s)";
-
-	private Composite content;
 
 	/**
 	 * The edge parameters to pass to the XANES script
@@ -142,8 +150,6 @@ public class XanesEdgeParametersSection extends AbstractMappingSection implement
 	 */
 	private ComboViewer linesToTrackCombo;
 
-	private boolean visible = true;
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public void createControls(Composite parent) {
@@ -171,14 +177,14 @@ public class XanesEdgeParametersSection extends AbstractMappingSection implement
 		content.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		// Title
-		createLabel(content, "XANES scan parameters", NUM_COLUMNS);
+		createLabel(content, getMessage(XANES_SCAN_PARAMETERS), NUM_COLUMNS);
 
 		// Element/edge drop-down list
-		createLabel(content, "Element/edge", 1);
+		createLabel(content, getMessage(XANES_ELEMENT_AND_EDGE), 1);
 		final ComboViewer elementsAndEdgeCombo = new ComboViewer(content);
 		elementsAndEdgeCombo.setContentProvider(ArrayContentProvider.getInstance());
 		elementsAndEdgeCombo.setInput(createEdgeToEnergyList());
-		elementsAndEdgeCombo.getCombo().setToolTipText(ELEMENT_AND_EDGE_TOOLTIP);
+		elementsAndEdgeCombo.getCombo().setToolTipText(getMessage(XANES_ELEMENT_AND_EDGE_TOOLTIP));
 		elementsAndEdgeCombo.setLabelProvider(new LabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -189,10 +195,10 @@ public class XanesEdgeParametersSection extends AbstractMappingSection implement
 				(EdgeToEnergy) elementsAndEdgeCombo.getStructuredSelection().getFirstElement()));
 
 		// Lines to track combo box
-		createLabel(content, "Lines to track", 1);
+		createLabel(content, getMessage(XANES_LINES_TO_TRACK), 1);
 		linesToTrackCombo = new ComboViewer(content);
 		linesToTrackCombo.setContentProvider(ArrayContentProvider.getInstance());
-		linesToTrackCombo.getCombo().setToolTipText(LINES_TO_TRACK_TOOLTIP);
+		linesToTrackCombo.getCombo().setToolTipText(getMessage(XANES_LINES_TO_TRACK_TOOLTIP));
 		GridDataFactory.fillDefaults().hint(80, SWT.DEFAULT).applyTo(linesToTrackCombo.getCombo());
 
 		// Bind to model
@@ -202,9 +208,9 @@ public class XanesEdgeParametersSection extends AbstractMappingSection implement
 
 		// Radio buttons to choose tracking method (reference/edge)
 		final SelectObservableValue<String> radioButtonObservable = new SelectObservableValue<>();
-		final Button btnUseReference = createRadioButton(content, "Use reference");
+		final Button btnUseReference = createRadioButton(content, getMessage(XANES_USE_REFERENCE));
 		radioButtonObservable.addOption(REFERENCE.toString(), WidgetProperties.selection().observe(btnUseReference));
-		final Button btnUseEdge = createRadioButton(content, "Use edge");
+		final Button btnUseEdge = createRadioButton(content, getMessage(XANES_USE_EDGE));
 		radioButtonObservable.addOption(EDGE.toString(), WidgetProperties.selection().observe(btnUseEdge));
 
 		// Bind to model
@@ -391,25 +397,6 @@ public class XanesEdgeParametersSection extends AbstractMappingSection implement
 
 	public XanesEdgeParameters getScanParameters() {
 		return scanParameters;
-	}
-
-	@Override
-	public boolean isVisible() {
-		return visible;
-	}
-
-	@Override
-	public void setVisible(boolean visible) {
-		this.visible = visible;
-		setContentVisibility();
-	}
-
-	private void setContentVisibility() {
-		if (content != null) {
-			setSeparatorVisibility(visible);
-			content.setVisible(visible);
-			((GridData) content.getLayoutData()).exclude = !visible;
-		}
 	}
 
 	public void setElementsAndEdges(List<ElementAndEdges> elementsAndEdges) {
