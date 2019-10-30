@@ -18,6 +18,17 @@
 
 package gda.device.detector.addetector.filewriter;
 
+import java.io.File;
+import java.text.MessageFormat;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.NDFile;
@@ -27,12 +38,6 @@ import gda.jython.InterfaceProvider;
 import gda.observable.Observable;
 import gda.observable.Observer;
 import gda.scan.ScanInformation;
-
-import java.io.File;
-import java.text.MessageFormat;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.InitializingBean;
 
 public abstract class FileWriterBase implements NXFileWriterPlugin, NXFileWriterWithTemplate, InitializingBean {
 
@@ -389,5 +394,61 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, NXFileWriter
 
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
+	}
+
+	/** Simple class to manage rate limiting of log messages
+	 *
+	 * For example:
+	 *
+	 * LogLimiter logLimiter = new LogLimiter(Duration.ofSeconds(10), true);
+	 * ...
+	 * if (logLimiter.isLogDue()) {
+	 * 		logger.warn("... blocked for {} seconds ...logLimiter.getTimeSinceStart().getSeconds());
+	 * }
+	 */
+	public static class LogLimiter {
+		public LogLimiter(Duration toNextReport, boolean backOff) {
+			super();
+			this.toNextReport = toNextReport;
+			this.betweenReports = toNextReport;
+			this.backOff = backOff;
+		}
+
+		final boolean backOff;
+		final Instant startTime = Instant.now();
+		final Duration betweenReports;
+		Duration toNextReport;
+
+		public boolean isLogDue() {
+			if (Duration.between(startTime, Instant.now()).minus(toNextReport).isNegative()) {
+				return false;
+			}
+			toNextReport = backOff ? toNextReport.multipliedBy(2) : toNextReport.plus(betweenReports);
+			return true;
+		}
+
+		public Duration getTimeSinceStart() {
+			return Duration.between(startTime, Instant.now());
+		}
+	}
+
+	/** Simple function to log an abridged stack trace to the TRACE logger provided
+	 *
+	 * For example:
+	 *
+	 * logStackTrace(logger, "myFunction()");
+	 */
+	public static void logStackTrace(Logger logger, String from) {
+		final String[] prefixesToSkip = {"sun.reflect", "java.lang.reflect",
+				"org.python.core", "org.python.proxies", "org.python.pycode", "org.python.util"};
+
+		if (logger.isTraceEnabled()) {
+			logger.trace("{} called from (abridged): {}", from, Arrays.stream(Thread.currentThread().getStackTrace()).
+					skip(2). // Skip this function and the getStackTrace function itself
+					map(ste -> StringUtils.startsWithAny(ste.getClassName(), prefixesToSkip)? "..." : ste.toString()).
+					distinct().
+					collect(Collectors.joining("\n\t", "\n\t", ""))
+				);
+		}
 	}
 }
