@@ -169,6 +169,10 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			// Set the number of frames to be collected from scan information
 			numberOfFramesToCollect = XspressHelperMethods.getLengthOfEachScanLine();
 		}
+		setupNumFramesToCollect(numberOfFramesToCollect);
+	}
+
+	public void setupNumFramesToCollect(int numberOfFramesToCollect) throws DeviceException {
 
 		xspress3Controller.setNumFramesToAcquire(numberOfFramesToCollect);
 
@@ -184,7 +188,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			// Set hdf output directory, name :
 			String hdfDir = XspressHelperMethods.getFilePath(filePath, defaultSubDirectory);
 			// make any parent directories
-			File file = new File(filePath);
+			File file = new File(hdfDir);
 			if (!file.exists()) {
 				file.mkdirs();
 			}
@@ -204,6 +208,8 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 				xspress3Controller.setSavingFiles(false);
 			}
 		}
+
+		xspress4Controller.stopTimeSeries();
 
 		// create link to hdf file...
 		if (writeHdfFiles) {
@@ -274,7 +280,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 //		detector.setFramesRead(0);
 		xspress3Controller.setSavingFiles(writeHdfFiles);
 		xspress3Controller.doErase();
-
+		xspress4Controller.startTimeSeries();
 		// Start Acquire if using hardware triggering (i.e. detector waits for external trigger for each frame)
 		if (currentTriggerMode != TriggerMode.Software) {
 			xspress3Controller.doStart();

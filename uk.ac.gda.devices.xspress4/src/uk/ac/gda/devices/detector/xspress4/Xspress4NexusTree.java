@@ -19,15 +19,24 @@
 package uk.ac.gda.devices.detector.xspress4;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
+import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DoubleDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
+import gda.data.swmr.SwmrFileReader;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.xspress.Xspress2Detector;
@@ -43,14 +52,21 @@ public class Xspress4NexusTree {
 
 	private static final Logger logger = LoggerFactory.getLogger(Xspress4NexusTree.class);
 
-	private final Xspress4Detector detector;
+	protected final Xspress4Detector detector;
 	private final Xspress4Controller controller;
-	private final int numberDetectorElements;
+	private Xspress4BufferedDetector bufferedDetector;
+	protected final int numberDetectorElements;
+	private SwmrFileReader swmrFileReader = null;
 
 	public Xspress4NexusTree(Xspress4Detector detector) {
 		this.detector = detector;
 		controller = detector.getController();
 		numberDetectorElements = detector.getNumberOfElements();
+	}
+
+	public Xspress4NexusTree(Xspress4BufferedDetector bufferedDetector) {
+		this(bufferedDetector.getXspress4Detector());
+		this.bufferedDetector = bufferedDetector;
 	}
 
 	public NXDetectorData getDetectorData() throws DeviceException {
@@ -94,6 +110,53 @@ public class Xspress4NexusTree {
 
 		return frame;
 	}
+
+	/** Scaler number for 'raw scaler in-window' values */
+	private int inWindowCountsScalerNumber = 5;
+
+	public NXDetectorData[] getDetectorData(int lowFrame, int highFrame) throws DeviceException, NexusException, ScanFileHolderException {
+
+		Map<String, Dataset> allDatasets = getDatasetMap(lowFrame, highFrame);
+
+		Dataset[][] scalerData = getScalerData(allDatasets);
+		Dataset[] dtcFactorData = getDeadtimeCorrectionFactors(allDatasets);
+
+		int numScalers = detector.getController().getNumScalers();
+
+		// Create dataset to store all scaler values from all detector elements for 1 frame
+		Dataset scalerDataset = DatasetFactory.zeros(DoubleDataset.class, numberDetectorElements, numScalers);
+
+		String[] extraNames = detector.getExtraNames();
+		String[] outputFormat = detector.getOutputFormat();
+
+		// Add data for each frame
+		int numFrames = highFrame - lowFrame + 1;
+		NXDetectorData[] results = new NXDetectorData[numFrames];
+		for (int frame = 0; frame < numFrames; frame++) {
+			double[] windowCounts = new double[numberDetectorElements];
+			double[] dtcFactors = new double[numberDetectorElements];
+
+			// Get the data to be added to the frame.
+			for(int i=0; i<numberDetectorElements; i++) {
+				// raw in window counts for element
+				windowCounts[i] = scalerData[i][inWindowCountsScalerNumber].getDouble(frame);
+
+				// Set all scaler values for current frame for detector element
+				for(int j=0; j<numScalers; j++) {
+					scalerDataset.set( scalerData[i][j].getDouble(frame), i, j);
+				}
+				dtcFactors[i] = dtcFactorData[i].getDouble(frame);
+			}
+
+			NXDetectorData thisFrame = new NXDetectorData(extraNames, outputFormat, detector.getName());
+			INexusTree detTree = thisFrame.getDetTree(detector.getName());
+			addScalerData(detTree, thisFrame, windowCounts, null, dtcFactors);
+			addDeadtimeScalerData(detTree, thisFrame, scalerDataset, dtcFactors);
+			results[frame] = thisFrame;
+		}
+		return results;
+	}
+
 
 
 	/**
@@ -317,7 +380,7 @@ public class Xspress4NexusTree {
 	 * @param window1CountData
 	 * @param window2CountData
 	 */
-	private void addScalerData(INexusTree detectorTree, NXDetectorData frame, double[] window1CountData, double[] window2CountData, double[] dtcFactor) {
+	protected void addScalerData(INexusTree detectorTree, NXDetectorData frame, double[] window1CountData, double[] window2CountData, double[] dtcFactor) {
 		String[] extraNames = detector.getExtraNames();
 
 		XspressParameters parameters = (XspressParameters) detector.getConfigurationParameters();
@@ -363,13 +426,27 @@ public class Xspress4NexusTree {
 	}
 
 	/**
-	 * Add dead time correction data to Nexus tree and plottable data (i.e. values of SCA0 ... SCA7 for each channel)
+	 *
 	 * @param detectorTree
+	 * @param frame
 	 * @throws DeviceException
-	 * @throws IOException
 	 */
 	private void addDeadtimeScalerData(INexusTree detectorTree, NXDetectorData frame) throws DeviceException {
 		Dataset deadtimeScalerData = getDeadtimeScalerData();
+		double[] dtcFactors = controller.getDeadtimeCorrectionFactors();
+		addDeadtimeScalerData(detectorTree, frame, deadtimeScalerData, dtcFactors);
+	}
+
+	/**
+	 * Add deadtime correction scaler values to Nexus tree - these are raw, unprocessed scaler values,
+	 * @param detectorTree
+	 * @param frame
+	 * @param deadtimeScalerData 2-dimensional data of scaler values for all detector elements [num detector elements, num scalers],
+	 * as returned by {@link #getDeadtimeScalerData()}.
+	 * @param dtcFactors array of deadtime correction factors [num detector elements] (e.g. from by {@link Xspress4Controller#getDeadtimeCorrectionFactors()}).
+	 * @throws DeviceException
+	 */
+	protected void addDeadtimeScalerData(INexusTree detectorTree, NXDetectorData frame, Dataset deadtimeScalerData, double [] dtcFactors) throws DeviceException {
 		int numElements = deadtimeScalerData.getShape()[0];
 
 		// Copy array of scaler values and add to Nexus tree
@@ -384,7 +461,6 @@ public class Xspress4NexusTree {
 		}
 
 		// Add the deadtime factors to Nexus tree
-		double[] dtcFactors = controller.getDeadtimeCorrectionFactors();
 		NXDetectorData.addData(detectorTree, "dtc factors", new NexusGroupData(dtcFactors), "value", 1);
 
 		// Add dead-time correction values for each detector element to to ascii output :
@@ -427,5 +503,137 @@ public class Xspress4NexusTree {
 			allScalerData[i] = controller.getScalerArray(i);
 		}
 		return DatasetFactory.createFromObject(allScalerData);
+	}
+
+	/**
+	 * Read all datasets from detector SWMR file or array PVs across specified range of frames.<p>
+	 * (i.e. scaler and deadtime correction factor data for each detector element
+	 * @param lowFrame
+	 * @param highFrame
+	 * @return Map of data, with key = dataset name, value = dataset.
+	 * @throws NexusException
+	 * @throws DeviceException
+	 * @throws ScanFileHolderException
+	 */
+	private Map<String, Dataset> getDatasetMap(int lowFrame, int highFrame) throws NexusException, DeviceException, ScanFileHolderException {
+		logger.info("getDatasets called : lowFrame = {}, highFrame = {}", lowFrame, highFrame);
+
+		List<Dataset> allDatasets = null;
+
+		if (swmrFileReader == null) {
+			logger.info("SwmrFileReader has not been set - using PVs to get scaler data");
+			allDatasets = getDatasetsFromPvs(lowFrame, highFrame);
+		} else {
+			logger.info("Using SwmrFileReader to get scaler data");
+
+			int[] start = new int[] { lowFrame };
+			int[] shape = new int[] { highFrame - lowFrame + 1 };
+			int[] step = new int[] { 1 };
+
+			int totalFramesAvailable = swmrFileReader.getNumAvailableFrames();
+			logger.debug("{} frames of data available in hdf file", totalFramesAvailable);
+
+			allDatasets = swmrFileReader.readDatasets(start, shape, step);
+		}
+		logger.info("{} datasets of scaler datasets collected", allDatasets.size());
+
+		// create map from dataset name to dataset
+		return allDatasets.stream()
+				.collect(Collectors.toMap(Dataset::getName, Function.identity()));
+	}
+
+	/**
+	 * Return list of scaler time series arrays for a detector element
+	 * @param element
+	 * @param lowFrame
+	 * @param highFrame
+	 * @return
+	 * @throws DeviceException
+	 */
+	private List<Dataset> getScalerTimeseries(int element, int lowFrame, int highFrame) throws DeviceException {
+		List<Dataset> datasets = new ArrayList<>();
+
+		// read the timeseries arrays for this detector element [num scalers][numValues]
+		double[][] scalerValues = controller.getScalerTimeseries(element, lowFrame, highFrame);
+
+		// Make Dataset for each array and set the name to match the attribute it corresponds
+		// to (Chan01Sca1 for scaler 0, Chan01Sca2 for scaler 1 etc)
+		int numScalers = scalerValues.length;
+		for (int j = 0; j < numScalers; j++) {
+			Dataset dataset = DatasetFactory.createFromObject(scalerValues[j]);
+			dataset.setName(bufferedDetector.getScalerName(element, j));
+			datasets.add(dataset);
+		}
+		return datasets;
+	}
+
+	/**
+	 * Read scaler time series arrays from Epics PVs for all detector elements
+	 * @param lowFrame
+	 * @param highFrame
+	 * @return
+	 * @throws DeviceException
+	 */
+	private List<Dataset> getDatasetsFromPvs(int lowFrame, int highFrame) throws DeviceException {
+		logger.info("Getting scaler values from PVs for frames {} to {}", lowFrame, highFrame);
+		List<Dataset> datasets = new ArrayList<>();
+		for (int i = 0; i < numberDetectorElements; i++) {
+			datasets.addAll(getScalerTimeseries(i, lowFrame, highFrame));
+		}
+		return datasets;
+	}
+
+	/**
+	 * Extract scaler datasets from the map
+	 * @param datasetMap
+	 * @return
+	 */
+	private Dataset[][] getScalerData(Map<String, Dataset> datasetMap) {
+		int numElements = detector.getNumberOfElements();
+		int numScalers = detector.getController().getNumScalers();
+		Dataset[][] scalerData = new Dataset[numElements][numScalers];
+		for (int i = 0; i < numElements; i++) {
+			for (int j = 0; j < numScalers; j++) {
+				String scalerName = bufferedDetector.getScalerName(i, j);
+				if (datasetMap.containsKey(scalerName)) {
+					scalerData[i][j] = datasetMap.get(scalerName);
+				} else {
+					logger.warn("Dataset for detector element {} scaler {} ({}) was not found in hdf file", i, j, scalerName);
+				}
+			}
+		}
+		return scalerData;
+	}
+
+	/**
+	 * Extract deadtime correction factor dataset from the map
+	 * @param datasetMap
+	 * @return
+	 */
+	private Dataset[] getDeadtimeCorrectionFactors(Map<String, Dataset> datasetMap) {
+		Dataset firstDataset = datasetMap.values().iterator().next();
+		int numFrames = firstDataset.getShape()[0];
+
+		int numElements = detector.getNumberOfElements();
+		Dataset[] dtcData = new Dataset[numElements];
+		for (int i = 0; i < numElements; i++) {
+			String dtcName = bufferedDetector.getDeadtimeCorrectionFactorName(i);
+			if (datasetMap.containsKey(dtcName)) {
+				dtcData[i] = datasetMap.get(dtcName);
+			} else {
+				logger.warn("Dataset called {} to use for deadtime correction was not found", dtcName);
+				logger.warn("Using deadtime correction factor value of 1 for element {}", i);
+				dtcData[i] = DatasetFactory.ones(DoubleDataset.class, numFrames);
+			}
+		}
+		return dtcData;
+	}
+
+	public SwmrFileReader getSwmrFileReader() {
+		return swmrFileReader;
+	}
+
+	public void setSwmrFileReader(SwmrFileReader swmrFileReader) {
+		this.swmrFileReader = swmrFileReader;
 	}
 }

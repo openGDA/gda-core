@@ -18,14 +18,19 @@
 
 package uk.ac.gda.devices.detector.xspress4;
 
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.device.DeviceException;
 import gda.factory.FindableBase;
 
 public class DummyXspress4Controller extends FindableBase implements Xspress4Controller, InitializingBean {
+
+	private static final Logger logger = LoggerFactory.getLogger(DummyXspress4Controller.class);
 
 	private int numElements = 64;
 	private int numScalers = 8;
@@ -35,6 +40,8 @@ public class DummyXspress4Controller extends FindableBase implements Xspress4Con
 	private double deadtimeCorrectionEnergy = 0;
 	private int triggerMode = 0;
 	private boolean saveResGradeData = false;
+	private int totalNumFramesAvailable = 0;
+	private int timeSeriesNumPoints = 0;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -53,13 +60,43 @@ public class DummyXspress4Controller extends FindableBase implements Xspress4Con
 	}
 
 	@Override
+	public double[][] getScalerTimeseries(int element, int startFrame, int finalFrame) {
+		double[][] values = new double[numScalers][];
+		int numValues = finalFrame - startFrame + 1;
+		for(int i=0; i<numScalers; i++) {
+			double[] vals = new double[numValues];
+			Arrays.fill(vals, getScalerValue(element, i));
+			values[i] = vals;
+		}
+		return values;
+	}
+
+	@Override
+	public void startTimeSeries() throws DeviceException {
+		logger.debug("startTimeSeries called");
+	}
+
+	@Override
+	public void stopTimeSeries() throws DeviceException {
+		logger.debug("stopTimeSeries called");
+	}
+
+	@Override
+	public int getTimeSeriesNumPoints() throws DeviceException {
+		return timeSeriesNumPoints;
+	}
+
+	public void setTimeSeriesNumPoints(int timeSeriesNumPoints) throws DeviceException {
+		this.timeSeriesNumPoints = timeSeriesNumPoints;
+	}
+
+	@Override
 	public double[] getResGradeArrays(int element, int window) {
 		double[] vals = new double[numResGrades];
 		IntStream.range(0,numResGrades).forEach(index -> {
 			// In window counts weighted by gaussian function
 			double weight = Math.exp( -Math.pow((double)(index-numResGrades)/numResGrades, 2.0) );
 			vals[index] = weight * getScalerValue(element, 5);
-
 		});
 		return vals;
 	}
@@ -107,7 +144,15 @@ public class DummyXspress4Controller extends FindableBase implements Xspress4Con
 
 	@Override
 	public int getTotalFramesAvailable() throws DeviceException {
-		return 0;
+		return totalNumFramesAvailable;
+	}
+
+	/**
+	 * Set total number of frames available to readout (ArrayCounter_RBV)
+	 * @param totalNumFramesAvailable
+	 */
+	public void setTotalNumFramesAvailable(int totalNumFramesAvailable) {
+		this.totalNumFramesAvailable = totalNumFramesAvailable;
 	}
 
 	@Override
