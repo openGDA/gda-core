@@ -200,7 +200,8 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
-		logger.trace("prepareForCollection({}, {})", numberImagesPerCollection, scanInfo);
+		logger.trace("prepareForCollection({}, {}) isEnabled={}, alreadyPrepared={}, alwaysPrepare={}", numberImagesPerCollection, scanInfo, isEnabled(), alreadyPrepared, alwaysPrepare);
+		logStackTrace(logger, "prepareForCollection(...)");
 
 		if (!isEnabled())
 			return;
@@ -332,7 +333,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 
 	@Override
 	public void completeCollection() throws Exception {
-		logger.trace("completeCollection()");
+		logStackTrace(logger, "completeCollection()");
 
 		alreadyPrepared=false;
 		if (!isEnabled())
@@ -349,12 +350,14 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 
 	@Override
 	public void stop() throws Exception {
+		logStackTrace(logger, "stop()");
 		alreadyPrepared=false;
 		super.stop();
 	}
 
 	@Override
 	public void atCommandFailure() throws Exception {
+		logStackTrace(logger, "atCommandFailure()");
 		alreadyPrepared=false;
 		super.atCommandFailure();
 	}
@@ -391,6 +394,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	@Override
 	public List<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {
+		logStackTrace(logger, "read(...)");
 		ArrayList<NXDetectorDataAppender> l = new ArrayList<NXDetectorDataAppender>();
 		l.add(readNXDetectorDataAppender());
 		return l;

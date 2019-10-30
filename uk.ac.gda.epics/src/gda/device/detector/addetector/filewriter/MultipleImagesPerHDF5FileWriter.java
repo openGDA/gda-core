@@ -20,7 +20,6 @@ package gda.device.detector.addetector.filewriter;
 
 import java.io.File;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -144,7 +143,8 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 
 	private boolean storePerform=false;
 
-	private boolean alreadyPrepared=false;
+	private boolean alreadyPrepared=false; //use to allow the same fileWriter to be used in the same multiscan
+	private boolean alwaysPrepare=false; // Set to true to disable alreadyPrepared mechanism
 
 	private boolean lazyOpen=false;
 
@@ -239,12 +239,20 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 
 	@Override // interface NXPluginBase
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
-		logger.trace("prepareForCollection({}, {})", numberImagesPerCollection, scanInfo);
+		logger.trace("prepareForCollection({}, {}) isEnabled={}, alreadyPrepared={}, alwaysPrepare={}", numberImagesPerCollection, scanInfo, isEnabled(), alreadyPrepared, alwaysPrepare);
+		logStackTrace(logger, "prepareForCollection(...)");
 
 		if(!isEnabled())
 			return;
-		if( alreadyPrepared)
+
+		/* The alreadyPrepared optimisation prevents SwitchableHardwareTriggerableProcessingDetectorWrapper from
+		 * reconfiguring the detector when switching between hardware_triggered_detector and detector_for_snaps
+		 * detectors, so the alwaysPrepare property enables this mechanism to be disabled on a per detector basis.
+		 */
+		if (alreadyPrepared && !alwaysPrepare) {
 			return;
+		}
+
 		setNDArrayPortAndAddress();
 		getNdFile().getPluginBase().disableCallbacks();
 		getNdFile().getPluginBase().setBlockingCallbacks(blocking ? 1:0); //use camera memory
@@ -328,7 +336,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 	}
 
 	private void startRecording() throws Exception {
-		logger.trace("startRecording()");
+		logStackTrace(logger, "startRecording()");
 		//if (getNdFileHDF5().getCapture() == 1)
 			//	throw new DeviceException("detector found already saving data when it should not be");
 
@@ -351,9 +359,6 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 		getNdFile().getPluginBase().setArrayCounter(0);
 	}
 
-
-
-
 	@Override // class FileWriterBase
 	public void disableFileWriting() throws Exception {
 		getNdFile().getPluginBase().disableCallbacks();
@@ -364,11 +369,13 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 
 	@Override // interface NXPluginBase
 	public void completeLine() throws Exception {
+		logStackTrace(logger, "completeLine()");
 		super.completeLine();
 	}
 
 	@Override
 	public void completeLine(int framesCollected) throws Exception {
+		logger.trace("completeLine({})", framesCollected);
 		completeLine();
 	}
 
@@ -380,6 +387,8 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 
 	@Override
 	public void completeCollection(int framesCollected) throws Exception {
+		logger.trace("completeCollection({})", framesCollected);
+		logStackTrace(logger, "completeCollection(...)");
 		expectedFrameCount = framesCollected;
 		alreadyPrepared=false;
 		if(!isEnabled())
@@ -392,7 +401,9 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 	}
 
 	private void endRecording() throws Exception {
-		Instant before = Instant.now();
+		logStackTrace(logger, "endRecording()");
+		LogLimiter logLimiter = new LogLimiter(Duration.ofSeconds(10), true);
+
 		short capture_RBV;
 		long numCaptured_RBV;
 
@@ -417,10 +428,9 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 				break;
 			}
 
-			if (Duration.between(before, Instant.now()).toMillis() > 10000) {
-				logger.warn("endRecording() blocked for 10 seconds, Capture_RBV={}, NumCaptured_RBV={}, expectedFrameCount={}",
-						capture_RBV, numCaptured_RBV, expectedFrameCount);
-				before = Instant.now();
+			if (logLimiter.isLogDue()) {
+				logger.warn("endRecording() blocked for {} seconds, Capture_RBV={}, NumCaptured_RBV={}, expectedFrameCount={}",
+						logLimiter.getTimeSinceStart().getSeconds(), capture_RBV, numCaptured_RBV, expectedFrameCount);
 			}
 			Thread.sleep(1000);
 		}
@@ -441,6 +451,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 
 	@Override // interface NXPluginBase
 	public void stop() throws Exception {
+		logStackTrace(logger, "stop()");
 		alreadyPrepared=false;
 		if(!isEnabled())
 			return;
@@ -450,6 +461,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 
 	@Override // interface NXPluginBase
 	public void atCommandFailure() throws Exception {
+		logStackTrace(logger, "atCommandFailure()");
 		alreadyPrepared=false;
 		if(!isEnabled())
 			return;
@@ -470,6 +482,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 	public Vector<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {
 		logger.trace("read({}), firstReadoutInScan={}, numCaptured={}, numToBeCaptured={}", maxToRead, firstReadoutInScan, numCaptured, numToBeCaptured);
+		logStackTrace(logger, "read(...)");
 		NXDetectorDataAppender dataAppender;
 		//wait until the NumCaptured_RBV is equal to or exceeds maxToRead.
 		if (isEnabled()) {
@@ -490,7 +503,14 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 			numToBeCaptured++;
 		}
 		logger.debug("firstReadoutInScan={}, numCaptured={}, numToBeCaptured={}", firstReadoutInScan, numCaptured, numToBeCaptured);
+
+		LogLimiter logLimiter = new LogLimiter(Duration.ofSeconds(10), true);
+
 		while( numCaptured< numToBeCaptured){
+			if (logLimiter.isLogDue()) {
+				logger.info("Waiting for {} points, but only {} captured after {} seconds on {}",
+						numToBeCaptured, numCaptured, logLimiter.getTimeSinceStart().getSeconds(), getName());
+			}
 			try {
 				getNdFile().getPluginBase().checkDroppedFrames();
 			} catch (Exception e) {
@@ -509,15 +529,20 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 		return appenders;
 	}
 
-
-	 class NXDetectorDataFileLinkAppenderDelayed implements NXDetectorDataAppender {
+	class NXDetectorDataFileLinkAppenderDelayed implements NXDetectorDataAppender {
 
 			@Override
 			public void appendTo(NXDetectorData data, String detectorName) throws DeviceException {
 
+				LogLimiter logLimiter = new LogLimiter(Duration.ofSeconds(10), true);
+
 				try{
 					String filename = "";
-					do{
+					do {
+						if (logLimiter.isLogDue()) {
+							logger.info("NXDetectorDataFileLinkAppenderDelayed.appendTo() Waiting for fullFilename for {} seconds from {}",
+									logLimiter.getTimeSinceStart().getSeconds(), getName());
+						}
 						Thread.sleep(1000);
 						filename=getFullFileName();
 					}
@@ -527,11 +552,8 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 				}catch(Exception ex){
 					throw new DeviceException("Exception getting filename");
 				}
-
 			}
-
 		}
-
 
 	public Double getyPixelSize() {
 		return yPixelSize;
@@ -559,10 +581,17 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 
 	public void setyPixelSizeUnit(String yPixelSizeUnit) {
 		this.yPixelSizeUnit=yPixelSizeUnit;
-
 	}
 
 	public String getyPixelSizeUnit() {
 		return yPixelSizeUnit;
+	}
+
+	public boolean isAlwaysPrepare() {
+		return alwaysPrepare;
+	}
+
+	public void setAlwaysPrepare(boolean alwaysPrepare) {
+		this.alwaysPrepare = alwaysPrepare;
 	}
 }
