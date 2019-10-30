@@ -23,7 +23,7 @@ import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.DeviceRole;
-import org.eclipse.scanning.api.device.models.MalcolmModel;
+import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IConnection;
@@ -134,8 +134,10 @@ public class _RunnableDeviceService extends AbstractRemoteService implements IRu
 			@SuppressWarnings("unchecked")
 			final DeviceInformation<T> info = (DeviceInformation<T>) response.getDeviceInformation();
 			if (info.getDeviceRole() == DeviceRole.MALCOLM) {
+				@SuppressWarnings("resource")
+				IMalcolmDevice malcolmDevice = new _MalcolmDevice((DeviceInformation<IMalcolmModel>) info, uri, eservice);
 				@SuppressWarnings("unchecked")
-				IMalcolmDevice<T> device = (IMalcolmDevice<T>) new _MalcolmDevice<>((DeviceInformation<MalcolmModel>) info, uri, eservice);
+				IRunnableDevice<T> device = (IRunnableDevice<T>) malcolmDevice;
 				return device;
 			} else {
 				return new _RunnableDevice<>(info, uri, eservice);

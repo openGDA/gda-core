@@ -80,7 +80,7 @@ public interface IMalcolmConnection {
 	 * @return
 	 * @throws MalcolmDeviceException
 	 */
-	public MalcolmMessage send(IMalcolmDevice<?> device, MalcolmMessage message) throws MalcolmDeviceException;
+	public MalcolmMessage send(IMalcolmDevice device, MalcolmMessage message) throws MalcolmDeviceException;
 
 
 	/**
@@ -89,7 +89,7 @@ public interface IMalcolmConnection {
 	 * @return
 	 * @throws MalcolmDeviceException
 	 */
-	public void subscribe(IMalcolmDevice<?> device, MalcolmMessage message, IMalcolmConnectionEventListener listener) throws MalcolmDeviceException;
+	public void subscribe(IMalcolmDevice device, MalcolmMessage message, IMalcolmConnectionEventListener listener) throws MalcolmDeviceException;
 
 
 	/**
@@ -98,7 +98,7 @@ public interface IMalcolmConnection {
 	 * @return
 	 * @throws MalcolmDeviceException
 	 */
-	public MalcolmMessage unsubscribe(IMalcolmDevice<?> device, MalcolmMessage message, IMalcolmConnectionEventListener... listeners) throws MalcolmDeviceException;
+	public MalcolmMessage unsubscribe(IMalcolmDevice device, MalcolmMessage message, IMalcolmConnectionEventListener... listeners) throws MalcolmDeviceException;
 
 
 	/**
@@ -110,7 +110,7 @@ public interface IMalcolmConnection {
 	 * @param listener the listener to be notified of changes
 	 * @throws MalcolmDeviceException
 	 */
-	public void subscribeToConnectionStateChange(IMalcolmDevice<?> device, IMalcolmConnectionStateListener listener)
+	public void subscribeToConnectionStateChange(IMalcolmDevice device, IMalcolmConnectionStateListener listener)
 			throws MalcolmDeviceException;
 
 }

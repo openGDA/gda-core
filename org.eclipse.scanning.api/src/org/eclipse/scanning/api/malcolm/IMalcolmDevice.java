@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.eclipse.scanning.api.IValidator;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
+import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -60,7 +61,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
  * @param <T> the type of the model for this malcolm device
  *
  */
-public interface IMalcolmDevice<T> extends IRunnableEventDevice<T>, IValidator<T> {
+public interface IMalcolmDevice extends IRunnableEventDevice<IMalcolmModel>, IValidator<IMalcolmModel> {
 
 	/**
 	 * Initializes the connection to the actual malcolm device. This methods must be called before

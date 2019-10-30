@@ -37,7 +37,7 @@ public class MalcolmNexusScanFileManager extends NexusScanFileManager {
 
 	private static final Map<NexusBaseClass, ScanRole> DEFAULT_SCAN_ROLES;
 
-	private List<IMalcolmDevice<?>> malcolmDevices = null;
+	private List<IMalcolmDevice> malcolmDevices = null;
 
 	static {
 		DEFAULT_SCAN_ROLES = new HashMap<>();// not an enum map as most base classes not mapped

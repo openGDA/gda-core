@@ -148,10 +148,10 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 	@Test
 	public void testDummyMalcolmNexusFiles() throws Exception {
 		DummyMalcolmModel model = createModel();
-		IRunnableDevice<DummyMalcolmModel> malcolmDevice = runnableDeviceService.createRunnableDevice(model, false);
+		IMalcolmDevice malcolmDevice = (IMalcolmDevice) (IRunnableDevice<?>) runnableDeviceService.createRunnableDevice(model, false);
 		// Cannot set the generator from @PreConfigure in this unit test.
-		((AbstractMalcolmDevice<?>)malcolmDevice).setPointGenerator(getGenerator(2, 2));// Generator isn't actually used by the test malcolm device
-		((AbstractMalcolmDevice<?>)malcolmDevice).setOutputDir(malcolmOutputDir.getAbsolutePath());
+		((AbstractMalcolmDevice) malcolmDevice).setPointGenerator(getGenerator(2, 2));// Generator isn't actually used by the test malcolm device
+		((AbstractMalcolmDevice) malcolmDevice).setOutputDir(malcolmOutputDir.getAbsolutePath());
 		int scanRank = 2;
 		assertNotNull(malcolmDevice);
 		malcolmDevice.configure(model);
@@ -159,17 +159,17 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 		malcolmDevice.run(new StaticPosition());
 
 		// Check file has been written with some data
-		checkMalcolmNexusFiles((IMalcolmDevice<DummyMalcolmModel>) malcolmDevice, scanRank);
+		checkMalcolmNexusFiles(malcolmDevice, scanRank);
 	}
 
 	@Test
 	public void testMalcolmNexusObjects() throws Exception {
 		DummyMalcolmModel model = createModel();
-		IRunnableDevice<DummyMalcolmModel> malcolmDevice = runnableDeviceService.createRunnableDevice(model, false);
+		IMalcolmDevice malcolmDevice = (IMalcolmDevice) (IRunnableDevice<?>) runnableDeviceService.createRunnableDevice(model, false);
 		int scanRank = 3;
 		// Cannot set the generator from @PreConfigure in this unit test.
-		((AbstractMalcolmDevice<?>) malcolmDevice).setPointGenerator(getGenerator(2, 2, 2));// Generator isn't actually used by the test malcolm device
-		((AbstractMalcolmDevice<?>)malcolmDevice).setOutputDir(malcolmOutputDir.getAbsolutePath());
+		((AbstractMalcolmDevice) malcolmDevice).setPointGenerator(getGenerator(2, 2, 2));// Generator isn't actually used by the test malcolm device
+		((AbstractMalcolmDevice) malcolmDevice).setOutputDir(malcolmOutputDir.getAbsolutePath());
 		malcolmDevice.configure(model);
 
 		NexusScanInfo nexusScanInfo = new NexusScanInfo();
@@ -190,8 +190,7 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 		}
 	}
 
-	private void checkMalcolmNexusFiles(IMalcolmDevice<DummyMalcolmModel> malcolmDevice,
-			int scanRank)
+	private void checkMalcolmNexusFiles(IMalcolmDevice malcolmDevice, int scanRank)
 			throws MalcolmDeviceException, Exception {
 		MalcolmTable table = malcolmDevice.getDatasets();
 		Map<String, NXentry> nexusEntries = new HashMap<>();

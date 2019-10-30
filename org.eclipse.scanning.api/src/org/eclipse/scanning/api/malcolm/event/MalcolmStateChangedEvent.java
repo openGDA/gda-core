@@ -26,7 +26,7 @@ public final class MalcolmStateChangedEvent extends MalcolmEvent {
 	private final DeviceState deviceState;
 	private final DeviceState previousState;
 
-	protected MalcolmStateChangedEvent(IMalcolmDevice<?> malcolmDevice, DeviceState deviceState, DeviceState prevState, String message) {
+	protected MalcolmStateChangedEvent(IMalcolmDevice malcolmDevice, DeviceState deviceState, DeviceState prevState, String message) {
 		super(malcolmDevice, MalcolmEventType.STATE_CHANGED, message);
 		this.deviceState = deviceState;
 		this.previousState = prevState;

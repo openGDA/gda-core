@@ -49,7 +49,6 @@ import org.eclipse.january.dataset.PositionIterator;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.event.scan.ScanBean;
-import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
@@ -57,6 +56,7 @@ import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmControlledDetectorModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDatasetModel;
+import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.malcolm.core.AbstractMalcolmDevice;
 import org.junit.After;
@@ -66,7 +66,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 
 	protected String malcolmOutputDir;
 
-	protected IRunnableDevice<DummyMalcolmModel> malcolmDevice;
+	protected DummyMalcolmDevice malcolmDevice;
 
 	protected MockScanParticpiant participant;
 
@@ -76,10 +76,10 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		malcolmOutputDir = org.eclipse.scanning.sequencer.ServiceHolder.getFilePathService().createFolderForLinkedFiles(output.getName());
 		final DummyMalcolmModel model = createMalcolmModel();
 
-		malcolmDevice = runnableDeviceService.createRunnableDevice(model);
-		((IMalcolmDevice<?>) malcolmDevice).setOutputDir(malcolmOutputDir);
+		malcolmDevice = (DummyMalcolmDevice) (IRunnableDevice<?>) runnableDeviceService.createRunnableDevice(model);
+		malcolmDevice.setOutputDir(malcolmOutputDir);
 		assertNotNull(malcolmDevice);
-		((AbstractMalcolmDevice<?>) malcolmDevice).addRunListener(new IRunListener() {
+		((AbstractMalcolmDevice) malcolmDevice).addRunListener(new IRunListener() {
 			@Override
 			public void runPerformed(RunEvent evt) throws ScanningException {
 				System.out.println("Ran test malcolm device @ " + evt.getPosition());
@@ -142,7 +142,8 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 
 	private Map<String, List<String>> getExpectedPrimaryDataFieldsPerDetector() {
 		Map<String, List<String>> primaryDataFieldsPerDetector = new HashMap<>();
-		for (DummyMalcolmControlledDetectorModel detectorModel : malcolmDevice.getModel().getDummyDetectorModels()) {
+		DummyMalcolmModel model = (DummyMalcolmModel) malcolmDevice.getModel();
+		for (DummyMalcolmControlledDetectorModel detectorModel : model.getDummyDetectorModels()) {
 			List<String> list = detectorModel.getDatasets().stream().map(d -> d.getName())
 				.collect(Collectors.toCollection(ArrayList::new));
 			list.set(0, NXdata.NX_DATA); // the first dataset is the primary one, so the field is called 'data' in the nexus tree
@@ -165,7 +166,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 
 	@Override
 	protected NXroot checkNexusFile(IRunnableDevice<ScanModel> scanner, boolean snake, int... sizes) throws Exception {
-		final DummyMalcolmModel dummyMalcolmModel = malcolmDevice.getModel();
+		final DummyMalcolmModel dummyMalcolmModel = (DummyMalcolmModel) malcolmDevice.getModel();
 		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
 
 		NXroot rootNode = getNexusRoot(scanner);

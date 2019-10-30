@@ -34,7 +34,7 @@ public abstract class MalcolmEvent extends EventObject {
 	private final String message;
 	private MalcolmEventType type;
 
-	protected MalcolmEvent(IMalcolmDevice<?> malcolmDevice, MalcolmEventType type, String message) {
+	protected MalcolmEvent(IMalcolmDevice malcolmDevice, MalcolmEventType type, String message) {
 		super(malcolmDevice);
 		this.message = message;
 		this.type = type;
@@ -50,18 +50,18 @@ public abstract class MalcolmEvent extends EventObject {
 		throw new AssertionError("Unknown event type " + getEventType());
 	}
 
-	public static MalcolmStateChangedEvent forStateChange(IMalcolmDevice<?> malcolmDevice,
+	public static MalcolmStateChangedEvent forStateChange(IMalcolmDevice malcolmDevice,
 			DeviceState deviceState, DeviceState prevState, String message) {
 		return new MalcolmStateChangedEvent(malcolmDevice, deviceState, prevState, message);
 	}
 
-	public static MalcolmStepsCompletedEvent forStepsCompleted(IMalcolmDevice<?> malcolmDevice,
+	public static MalcolmStepsCompletedEvent forStepsCompleted(IMalcolmDevice malcolmDevice,
 			int stepsCompleted, String message) {
 		return new MalcolmStepsCompletedEvent(malcolmDevice, stepsCompleted, message);
 	}
 
-	public IMalcolmDevice<?> getMalcolmDevice() {
-		return (IMalcolmDevice<?>) getSource();
+	public IMalcolmDevice getMalcolmDevice() {
+		return (IMalcolmDevice) getSource();
 	}
 
 	public String getMalcolmDeviceName() {

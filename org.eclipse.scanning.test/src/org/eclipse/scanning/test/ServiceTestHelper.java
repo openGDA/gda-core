@@ -34,6 +34,7 @@ import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
+import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.device.models.JythonModel;
 import org.eclipse.scanning.api.device.models.ProcessingModel;
 import org.eclipse.scanning.api.event.EventConstants;
@@ -257,7 +258,7 @@ public final class ServiceTestHelper {
 		runnableDeviceServiceImpl.createRunnableDevice(model);
 
 		final DummyMalcolmDevice dummyMalcolm = new DummyMalcolmDevice();
-		final DeviceInformation<DummyMalcolmModel> malcInfo = new DeviceInformation<>();
+		final DeviceInformation<IMalcolmModel> malcInfo = new DeviceInformation<>();
 		malcInfo.setName("malcolm");
 		malcInfo.setLabel("Malcolm");
 		malcInfo.setDescription("Example malcolm device");

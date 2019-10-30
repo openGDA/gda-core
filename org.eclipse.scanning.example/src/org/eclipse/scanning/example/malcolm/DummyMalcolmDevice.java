@@ -59,6 +59,7 @@ import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.annotation.scan.PreConfigure;
+import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmConstants;
@@ -88,8 +89,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A dummy Malcolm device for use in dummy mode or tests.
  */
-public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
-		implements IMalcolmDevice<DummyMalcolmModel> {
+public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcolmDevice {
 
 	private static interface IDummyMalcolmControlledDevice {
 
@@ -278,9 +278,10 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 			treeFile.setGroupNode(root);
 			NXentry entry = NexusNodeFactory.createNXentry();
 			root.setEntry(entry);
+			final DummyMalcolmModel model = (DummyMalcolmModel) getModel();
 
 			// add the positioners to the entry
-			for (String positionerName : getModel().getPositionerNames()) {
+			for (String positionerName : model.getPositionerNames()) {
 				// The path to positioner datasets written by malcolm is e.g. /entry/x/x
 				NXpositioner positioner = NexusNodeFactory.createNXpositioner();
 				entry.addGroupNode(positionerName, positioner);
@@ -289,7 +290,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 			}
 
 			// add the monitors to the entry
-			for (String monitorName : getModel().getMonitorNames()) {
+			for (String monitorName : model.getMonitorNames()) {
 				NXmonitor monitor = NexusNodeFactory.createNXmonitor();
 				entry.addGroupNode(monitorName, monitor);
 				// TODO: if we want non-scalar monitors we'll have to change the model
@@ -309,7 +310,8 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 
 		@Override
 		public void writePosition(IPosition position) throws Exception {
-			for (String positionerName : getModel().getPositionerNames()) {
+			final DummyMalcolmModel model = (DummyMalcolmModel) getModel();
+			for (String positionerName : model.getPositionerNames()) {
 				Object posValue = position.get(positionerName);
 				if (posValue == null) { // a malcolm controlled positioner which is not a axis (maybe aggregated, e.g. one of a group of jacks)
 					posValue = Random.rand();
@@ -317,7 +319,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 				IDataset data = DatasetFactory.createFromObject(posValue);
 				writeData(positionerName, position, data);
 			}
-			for (String monitorName : getModel().getMonitorNames()) {
+			for (String monitorName : model.getMonitorNames()) {
 				writeData(monitorName, position, Random.rand());
 			}
 
@@ -442,13 +444,13 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 	}
 
 	@Override
-	public void setModel(DummyMalcolmModel model) {
+	public void setModel(IMalcolmModel model) {
 		super.setModel(model);
 		availableAxes.setValue(model.getAxesToMove().toArray(new String[model.getAxesToMove().size()]));
 	}
 
 	@Override
-	public void validate(DummyMalcolmModel model) throws ValidationException {
+	public void validate(IMalcolmModel model) throws ValidationException {
 		super.validate(model);
 
 		// validate field: axesToMove
@@ -477,7 +479,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 	}
 
 	@Override
-	public void configure(DummyMalcolmModel model) throws ScanningException {
+	public void configure(IMalcolmModel model) throws ScanningException {
 		setDeviceState(DeviceState.CONFIGURING);
 
 		// Note: cannot create dataset attr at this point as we don't know the scan rank,
@@ -492,8 +494,9 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 
 		// super.configure sets device state to ready
 		super.configure(model);
+		List<DummyMalcolmControlledDetectorModel> detectorModels = ((DummyMalcolmModel) model).getDummyDetectorModels();
 
-		devices = model.getDummyDetectorModels().stream().collect(Collectors.toMap(
+		devices = detectorModels.stream().collect(Collectors.toMap(
 				INameable::getName, DummyMalcolmControlledDetector::new));
 		devices.put("panda", new DummyPandaDevice());
 	}
@@ -541,6 +544,11 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 				scanRank = 1;
 			}
 		}
+	}
+
+	@Override
+	public DummyMalcolmModel getModel() {
+		return (DummyMalcolmModel) super.getModel();
 	}
 
 	private int getScanRank() {
@@ -728,7 +736,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 	}
 
 	private void createNexusFiles() throws ScanningException {
-		DummyMalcolmModel model = getModel();
+		final DummyMalcolmModel model = (DummyMalcolmModel) getModel();
 		if (model.getDummyDetectorModels().isEmpty()) return;
 
 		String dirPath = getOutputDir();
@@ -824,7 +832,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 		health.setValue(deviceState == DeviceState.FAULT ? "Fault" : "OK");
 		busy.setValue(isDeviceBusy());
 
-		datasets = createDatasetsAttribute(model);
+		datasets = createDatasetsAttribute(getModel());
 		allAttributes.put("datasets", datasets);
 
 		layout = createLayoutAttribute();

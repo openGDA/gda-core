@@ -96,7 +96,7 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 	}
 
 	@Override
-	public MalcolmMessage send(IMalcolmDevice<?> device, MalcolmMessage message) throws MalcolmDeviceException {
+	public MalcolmMessage send(IMalcolmDevice device, MalcolmMessage message) throws MalcolmDeviceException {
 		try {
 			switch (message.getType()) {
 			case CALL:
@@ -120,7 +120,7 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 	}
 
 	@Override
-	public void subscribe(IMalcolmDevice<?> device, MalcolmMessage subscribeMessage, IMalcolmConnectionEventListener listener)
+	public void subscribe(IMalcolmDevice device, MalcolmMessage subscribeMessage, IMalcolmConnectionEventListener listener)
 			throws MalcolmDeviceException {
 
 		try {
@@ -144,7 +144,7 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 	}
 
 	@Override
-	public void subscribeToConnectionStateChange(IMalcolmDevice<?> device, IMalcolmConnectionStateListener listener)
+	public void subscribeToConnectionStateChange(IMalcolmDevice device, IMalcolmConnectionStateListener listener)
 			throws MalcolmDeviceException {
 
 		try {
@@ -157,7 +157,7 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 		}
 	}
 
-	private PvaClientChannel createAndCheckChannel(IMalcolmDevice<?> device, double timeout) throws MalcolmDeviceException {
+	private PvaClientChannel createAndCheckChannel(IMalcolmDevice device, double timeout) throws MalcolmDeviceException {
 		PvaClientChannel pvaChannel = pvaClient.createChannel(device.getName(), "pva");
 		pvaChannel.issueConnect();
 		Status status = pvaChannel.waitConnect(timeout);
@@ -170,7 +170,7 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 	}
 
 	@Override
-	public MalcolmMessage unsubscribe(IMalcolmDevice<?> device, MalcolmMessage msg, IMalcolmConnectionEventListener... removeListeners)
+	public MalcolmMessage unsubscribe(IMalcolmDevice device, MalcolmMessage msg, IMalcolmConnectionEventListener... removeListeners)
 			throws MalcolmDeviceException {
 
 		MalcolmMessage result = new MalcolmMessage();
@@ -208,7 +208,7 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 		return result;
 	}
 
-	protected MalcolmMessage sendGetMessage(IMalcolmDevice<?> device, MalcolmMessage message) {
+	protected MalcolmMessage sendGetMessage(IMalcolmDevice device, MalcolmMessage message) {
 
 		MalcolmMessage returnMessage = new MalcolmMessage();
 		PvaClientChannel pvaChannel = null;
@@ -243,7 +243,7 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 		return returnMessage;
 	}
 
-	private MalcolmMessage sendPutMessage(IMalcolmDevice<?> device, MalcolmMessage message) {
+	private MalcolmMessage sendPutMessage(IMalcolmDevice device, MalcolmMessage message) {
 		MalcolmMessage returnMessage = new MalcolmMessage();
 		returnMessage.setType(Type.RETURN);
 		returnMessage.setId(message.getId());
@@ -285,7 +285,7 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 		return returnMessage;
 	}
 
-	private MalcolmMessage sendCallMessage(IMalcolmDevice<?> device, MalcolmMessage message) {
+	private MalcolmMessage sendCallMessage(IMalcolmDevice device, MalcolmMessage message) {
 
 		MalcolmMessage returnMessage = new MalcolmMessage();
 		RPCClientImpl client = null;

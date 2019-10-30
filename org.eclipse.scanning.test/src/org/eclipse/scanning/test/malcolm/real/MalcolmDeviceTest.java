@@ -66,7 +66,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 
 	@FunctionalInterface
 	public interface MalcolmCall {
-		void call(IMalcolmDevice<?> malcolmDevice) throws Exception;
+		void call(IMalcolmDevice malcolmDevice) throws Exception;
 	}
 
 	private static final String OUTPUT_DIR = "/path/to/ixx-1234";

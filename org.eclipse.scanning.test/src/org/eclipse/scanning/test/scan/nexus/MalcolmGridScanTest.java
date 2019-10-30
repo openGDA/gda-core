@@ -12,6 +12,7 @@ import org.eclipse.scanning.api.annotation.scan.FileDeclared;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.event.scan.DeviceState;
+import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.BoundingBox;
@@ -22,7 +23,6 @@ import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
-import org.eclipse.scanning.malcolm.core.AbstractMalcolmDevice;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -81,7 +81,7 @@ public class MalcolmGridScanTest extends AbstractMalcolmScanTest {
 		checkNexusFile(scanner, snake, shape); // Step model is +1 on the size
 	}
 
-	private IRunnableDevice<ScanModel> createMalcolmGridScan(final IRunnableDevice<?> malcolmDevice, File file, boolean snake, int... size) throws Exception {
+	private IRunnableDevice<ScanModel> createMalcolmGridScan(final IMalcolmDevice malcolmDevice, File file, boolean snake, int... size) throws Exception {
 
 		// Create scan points for a grid and make a generator
 		GridModel gmodel = new GridModel(); // Note stage_x and stage_y scannables controlled by malcolm
@@ -116,7 +116,7 @@ public class MalcolmGridScanTest extends AbstractMalcolmScanTest {
 		smodel.setPointGenerator(gen);
 		smodel.setDetectors(malcolmDevice);
 		// Cannot set the generator from @PreConfigure in this unit test.
-		((AbstractMalcolmDevice<?>)malcolmDevice).setPointGenerator(gen);
+		malcolmDevice.setPointGenerator(gen);
 
 		// Create a file to scan into.
 		smodel.setFilePath(file.getAbsolutePath());

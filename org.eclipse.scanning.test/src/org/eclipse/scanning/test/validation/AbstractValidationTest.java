@@ -17,7 +17,6 @@ import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.GridModel;
-import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.server.application.PseudoSpringParser;
 import org.eclipse.scanning.test.ServiceTestHelper;
@@ -37,14 +36,14 @@ public abstract class AbstractValidationTest {
 		PseudoSpringParser parser = new PseudoSpringParser();
 		parser.parse(getClass().getResourceAsStream("test_detectors.xml"));
 
-		IRunnableDevice<DummyMalcolmModel> device = ServiceTestHelper.getRunnableDeviceService().getRunnableDevice("malcolm");
+		IRunnableDevice<?> device = ServiceTestHelper.getRunnableDeviceService().getRunnableDevice("malcolm");
+		IMalcolmDevice mdevice = (IMalcolmDevice) device;
 
 		// Just for testing we give it a dir.
 		File dir = File.createTempFile("fred", ".nxs").getParentFile();
-		((IMalcolmDevice<?>)device).setOutputDir(dir.getAbsolutePath());
+		mdevice.setOutputDir(dir.getAbsolutePath());
 
 		// Just for testing, we make the detector legal.
-		IMalcolmDevice<?> mdevice = (IMalcolmDevice<?>)device;
 		GridModel gmodel = new GridModel("stage_x", "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
 		// Cannot set the generator from @PreConfigure in this unit test.

@@ -24,7 +24,7 @@ public class MalcolmStepsCompletedEvent extends MalcolmEvent {
 
 	private final int stepsCompleted;
 
-	protected MalcolmStepsCompletedEvent(IMalcolmDevice<?> malcolmDevice, int stepsCompleted, String message) {
+	protected MalcolmStepsCompletedEvent(IMalcolmDevice malcolmDevice, int stepsCompleted, String message) {
 		super(malcolmDevice, MalcolmEventType.STEPS_COMPLETED, message);
 		this.stepsCompleted = stepsCompleted;
 	}

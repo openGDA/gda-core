@@ -26,7 +26,6 @@ import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
-import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmConstants;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
@@ -40,13 +39,13 @@ import org.eclipse.scanning.api.scan.ScanningException;
  *
  * @author Matthew Dickie
  */
-class MalcolmNexusObjectBuilder<M extends IMalcolmModel> {
+class MalcolmNexusObjectBuilder {
 
 	private static final String PROPERTY_NAME_UNIQUE_KEYS = "uniqueKeys";
 
 	private static final Map<MalcolmDatasetType, NexusBaseClass> nexusClassForDatasetType;
 
-	private final IMalcolmDevice<M> malcolmDevice;
+	private final IMalcolmDevice malcolmDevice;
 
 	// The name (last segment only) of the malcolm output dir
 	private final String malcolmOutputDirName;
@@ -62,7 +61,7 @@ class MalcolmNexusObjectBuilder<M extends IMalcolmModel> {
 		nexusClassForDatasetType.put(MalcolmDatasetType.POSITION_SET, NexusBaseClass.NX_POSITIONER);
 	}
 
-	MalcolmNexusObjectBuilder(IMalcolmDevice<M> malcolmDevice) {
+	MalcolmNexusObjectBuilder(IMalcolmDevice malcolmDevice) {
 		this.malcolmDevice = malcolmDevice;
 		nexusWrappers = new HashMap<>();
 		malcolmOutputDirName = new File(malcolmDevice.getOutputDir()).getName();

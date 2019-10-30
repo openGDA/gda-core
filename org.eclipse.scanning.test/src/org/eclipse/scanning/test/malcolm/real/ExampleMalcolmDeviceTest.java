@@ -57,7 +57,7 @@ public class ExampleMalcolmDeviceTest {
 	private IScanService service;
 	private IEPICSv4Device epicsv4Device;
 	private MalcolmEpicsV4Connection connectorService;
-	private IMalcolmDevice<MalcolmModel> malcolmDevice;
+	private IMalcolmDevice malcolmDevice;
 	private IPointGeneratorService pointGenService;
 
 	@Before
@@ -72,7 +72,7 @@ public class ExampleMalcolmDeviceTest {
 		epicsv4Device = runner.start();
 
 		// Create the device
-		malcolmDevice = new MalcolmDevice<>(epicsv4Device.getRecordName(), connectorService, service);
+		malcolmDevice = new MalcolmDevice(epicsv4Device.getRecordName(), connectorService, service);
 		pointGenService = new PointGeneratorService();
 	}
 

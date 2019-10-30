@@ -216,14 +216,14 @@ public class DeviceRequestHandler implements IRequestHandler<DeviceRequest> {
 	}
 
 	private static void addDeviceInformation(
-			IRunnableDevice<Object> device, DeviceRequest request) throws ScanningException {
+			IRunnableDevice<?> device, DeviceRequest request) throws ScanningException {
 		// get the device information and set it in the request
 		DeviceInformation<?> info = ((AbstractRunnableDevice<?>)device).getDeviceInformation();
 		request.addDeviceInformation(info);
 
 		if (device instanceof IMalcolmDevice && request.isGetDatasets()) {
 			// convert the list of attributes to a map and set in the request
-			request.setDatasets(((IMalcolmDevice<?>) device).getDatasets());
+			request.setDatasets(((IMalcolmDevice) device).getDatasets());
 		}
 	}
 

@@ -33,7 +33,6 @@ import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
-import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.MalcolmConstants;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
@@ -65,7 +64,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Matthew Gerring
  */
-public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice<M> {
+public class MalcolmDevice extends AbstractMalcolmDevice {
 
 	/**
 	 * An enumeration of timeout property names and default values for different operations.
@@ -341,13 +340,13 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	}
 
 	@Override
-	public void validate(M params) throws ValidationException {
+	public void validate(IMalcolmModel model) throws ValidationException {
 		logger.debug("validate() called");
-		validateWithReturn(params);
+		validateWithReturn(model);
 	}
 
 	@Override
-	public Object validateWithReturn(M params) throws ValidationException {
+	public Object validateWithReturn(IMalcolmModel model) throws ValidationException {
 		if (Boolean.getBoolean("org.eclipse.scanning.malcolm.skipvalidation")) {
 			logger.warn("Skipping Malcolm Validate");
 			return null;
@@ -355,7 +354,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 
 		MalcolmMessage reply = null;
 		try {
-			final EpicsMalcolmModel epicsModel = createEpicsMalcolmModel(params, true); // use default point gen and filedir if not set (i.e. we're not in a scan)
+			final EpicsMalcolmModel epicsModel = createEpicsMalcolmModel(model, true); // use default point gen and filedir if not set (i.e. we're not in a scan)
 			final MalcolmMessage msg = messageGenerator.createCallMessage(MalcolmMethod.VALIDATE, epicsModel);
 			reply = send(msg, Timeout.STANDARD.toMillis());
 			if (reply.getType()==Type.ERROR) {
@@ -374,7 +373,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	}
 
 	@Override
-	public void configure(M model) throws MalcolmDeviceException {
+	public void configure(IMalcolmModel model) throws MalcolmDeviceException {
 		logger.debug("configure() called");
 
 		// Abort and/or reset the device before configure in case it's in a fault state
@@ -433,7 +432,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	 * @param useDefaults <code>true</code> to use a default point generator, <code>false</code> otherwise
 	 * @return
 	 */
-	private EpicsMalcolmModel createEpicsMalcolmModel(M model, boolean useDefaults) throws MalcolmDeviceException {
+	private EpicsMalcolmModel createEpicsMalcolmModel(IMalcolmModel model, boolean useDefaults) throws MalcolmDeviceException {
 		double exposureTime = model.getExposureTime();
 
 		// set the exposure time and mutators in the points generator

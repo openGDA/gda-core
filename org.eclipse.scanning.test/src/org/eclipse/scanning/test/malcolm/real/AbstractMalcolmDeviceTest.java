@@ -66,7 +66,7 @@ public abstract class AbstractMalcolmDeviceTest {
 
 	protected IRunnableDeviceService runnableDeviceService;
 	protected IPointGeneratorService pointGenService;
-	protected IMalcolmDevice<MalcolmModel> malcolmDevice;
+	protected IMalcolmDevice malcolmDevice;
 
 	@Mock
 	protected IMalcolmConnection malcolmConnection;
@@ -94,7 +94,7 @@ public abstract class AbstractMalcolmDeviceTest {
 		new Services().setPointGeneratorService(pointGenService);
 
 		when(malcolmConnection.getMessageGenerator()).thenReturn(new MalcolmMessageGenerator());
-		malcolmDevice = new MalcolmDevice<>("malcolm", malcolmConnection, runnableDeviceService);
+		malcolmDevice = new MalcolmDevice("malcolm", malcolmConnection, runnableDeviceService);
 
 		malcolmBeanCaptor = BeanCollectingAnswer.forClass(MalcolmEvent.class, MalcolmEvent::copy);
 		doAnswer(malcolmBeanCaptor).when(malcolmEventListener).eventPerformed(any(MalcolmEvent.class));

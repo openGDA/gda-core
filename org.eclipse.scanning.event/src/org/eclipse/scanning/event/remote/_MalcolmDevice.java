@@ -22,7 +22,7 @@ import java.net.URI;
 import java.util.List;
 
 import org.eclipse.scanning.api.device.models.DeviceRole;
-import org.eclipse.scanning.api.device.models.MalcolmModel;
+import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
@@ -36,13 +36,13 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 
-public class _MalcolmDevice<M extends MalcolmModel> extends _RunnableDevice<M> implements IMalcolmDevice<M> {
+public class _MalcolmDevice extends _RunnableDevice<IMalcolmModel> implements IMalcolmDevice {
 
 	// TODO to implement IMalcolmDevice we have to implement loads of methods that don't make sense on the client.
 	// We should try to fix this. Some methods probably shouldn't be declared on IMalcolmDevice, e.g setFileDir
 	// but on MalcolmDevice, and others, e.g. fire... methods should not be part of the API.
 
-	_MalcolmDevice(DeviceInformation<M> info, URI uri, IEventService eventService) throws EventException {
+	_MalcolmDevice(DeviceInformation<IMalcolmModel> info, URI uri, IEventService eventService) throws EventException {
 		super(info, uri, eventService);
 		if (info.getDeviceRole() != DeviceRole.MALCOLM)
 			throw new IllegalArgumentException("Not a malcolm device: " + info.getName());
@@ -116,7 +116,7 @@ public class _MalcolmDevice<M extends MalcolmModel> extends _RunnableDevice<M> i
 	private void updateDeviceInfo() throws EventException, InterruptedException {
 		DeviceRequest req = new DeviceRequest(name);
 		DeviceRequest res = requester.post(req);
-		merge((DeviceInformation<M>)res.getDeviceInformation());
+		merge((DeviceInformation<IMalcolmModel>)res.getDeviceInformation());
 	}
 
 	@Override
@@ -125,7 +125,7 @@ public class _MalcolmDevice<M extends MalcolmModel> extends _RunnableDevice<M> i
 			DeviceRequest req = new DeviceRequest(name);
 			req.setGetDatasets(true);
 			DeviceRequest res = requester.post(req);
-			merge((DeviceInformation<M>)res.getDeviceInformation());
+			merge((DeviceInformation<IMalcolmModel>)res.getDeviceInformation());
 			return req.getDatasets();
 		} catch (Exception e) {
 			throw new MalcolmDeviceException(this, e);

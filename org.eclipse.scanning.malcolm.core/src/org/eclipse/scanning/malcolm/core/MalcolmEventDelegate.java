@@ -28,9 +28,9 @@ public class MalcolmEventDelegate {
 	// scan and to hold data for scan events
 	private MalcolmEvent templateBean;
 
-	private final IMalcolmDevice<?> malcolmDevice;
+	private final IMalcolmDevice malcolmDevice;
 
-	public MalcolmEventDelegate(IMalcolmDevice<?> malcolmDevice) {
+	public MalcolmEventDelegate(IMalcolmDevice malcolmDevice) {
 		this.malcolmDevice = malcolmDevice;
 	}
 

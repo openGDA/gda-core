@@ -19,7 +19,6 @@ import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
-import org.eclipse.scanning.malcolm.core.AbstractMalcolmDevice;
 import org.junit.Test;
 
 /**
@@ -90,7 +89,7 @@ public class MalcolmStaticScanTest extends AbstractMalcolmScanTest {
 		scanModel.setPointGenerator(pointGenerator);
 		scanModel.setDetectors(malcolmDevice);
 		// Cannot set the generator from @PreConfigure in this unit test.
-		((AbstractMalcolmDevice<?>) malcolmDevice).setPointGenerator(pointGenerator);
+		malcolmDevice.setPointGenerator(pointGenerator);
 
 		// Create a file to scan into.
 		scanModel.setFilePath(output.getAbsolutePath());

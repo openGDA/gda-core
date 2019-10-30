@@ -33,6 +33,7 @@ import java.util.List;
 import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.models.DeviceWatchdogModel;
+import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
@@ -156,10 +157,10 @@ public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
 	 */
 	@Test
 	public void testTopupWithOuterScanTest() throws Exception {
-		DummyMalcolmModel model = createDummyMalcolmModel();
+		IMalcolmModel model = createDummyMalcolmModel();
 
-		final IMalcolmDevice<DummyMalcolmModel> malcolmDevice =
-				(IMalcolmDevice<DummyMalcolmModel>) ServiceTestHelper.getRunnableDeviceService().createRunnableDevice(model, false);
+		final IMalcolmDevice malcolmDevice =
+				(IMalcolmDevice) ServiceTestHelper.getRunnableDeviceService().createRunnableDevice(model, false);
 		final List<String> axisNames = Arrays.asList("x", "y", "outer");
 		IDeviceController controller = createTestScanner(null, null, malcolmDevice, model, 3, axisNames, null);
 		IRunnableEventDevice<?> scanner = (IRunnableEventDevice<?>)controller.getDevice();
@@ -169,7 +170,7 @@ public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
 
 		final IMalcolmEventListener malcolmEventListener = mock(IMalcolmEventListener.class);
 		final ArgumentCaptor<MalcolmEvent> malcolmEventCaptor = ArgumentCaptor.forClass(MalcolmEvent.class);
-		((IMalcolmDevice<?>) malcolmDevice).addMalcolmListener(malcolmEventListener);
+		malcolmDevice.addMalcolmListener(malcolmEventListener);
 
 		scanner.start(null);
 		outerScannable.waitForSetPosition(); // initial move at start of scan

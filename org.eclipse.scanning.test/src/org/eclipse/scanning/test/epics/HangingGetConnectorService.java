@@ -16,7 +16,7 @@ public class HangingGetConnectorService extends MalcolmEpicsV4Connection {
 	}
 
 	@Override
-	protected MalcolmMessage sendGetMessage(IMalcolmDevice<?> device, MalcolmMessage message) {
+	protected MalcolmMessage sendGetMessage(IMalcolmDevice device, MalcolmMessage message) {
 		try {
 			latch.await();
 		} catch (InterruptedException e) {

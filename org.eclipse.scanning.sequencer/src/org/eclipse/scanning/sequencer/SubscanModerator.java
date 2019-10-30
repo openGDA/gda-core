@@ -139,7 +139,7 @@ public class SubscanModerator {
 		}
 	}
 
-	private List<String> getAxesToMove(IMalcolmDevice<?> malc) {
+	private List<String> getAxesToMove(IMalcolmDevice malc) {
 		try {
 			return malc.getAvailableAxes();
 		} catch (ScanningException e) {

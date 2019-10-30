@@ -149,7 +149,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	 */
 	private Iterator<IPosition> positionIterator;
 
-	private Optional<IMalcolmDevice<?>> malcolmDevice;
+	private Optional<IMalcolmDevice> malcolmDevice;
 
 	/**
 	 * Package private constructor, devices are created by the service.
@@ -257,8 +257,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	}
 
 	@SuppressWarnings("unchecked")
-	private Optional<IMalcolmDevice<?>> findMalcolmDevice(ScanModel scanModel) {
-		return (Optional<IMalcolmDevice<?>>) (Optional<?>) scanModel.getDetectors().stream() // why is the double-cast necessary?
+	private Optional<IMalcolmDevice> findMalcolmDevice(ScanModel scanModel) {
+		return (Optional<IMalcolmDevice>) (Optional<?>) scanModel.getDetectors().stream() // why is the double-cast necessary?
 				.filter(IMalcolmDevice.class::isInstance)
 				.findFirst();
 	}

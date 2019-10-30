@@ -45,8 +45,8 @@ import org.slf4j.LoggerFactory;
  *
  * @param <M> the model class for this malcolm device
  */
-public abstract class AbstractMalcolmDevice<M extends IMalcolmModel> extends AbstractRunnableDevice<M>
-		implements IMalcolmDevice<M>, IMultipleNexusDevice {
+public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalcolmModel>
+		implements IMalcolmDevice, IMultipleNexusDevice {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractMalcolmDevice.class);
 
@@ -122,8 +122,8 @@ public abstract class AbstractMalcolmDevice<M extends IMalcolmModel> extends Abs
 	}
 
 	@Override
-	public DeviceInformation<M> getDeviceInformation(boolean includeNonAlive) throws ScanningException {
-		final DeviceInformation<M> info = super.getDeviceInformation(includeNonAlive);
+	public DeviceInformation<IMalcolmModel> getDeviceInformation(boolean includeNonAlive) throws ScanningException {
+		final DeviceInformation<IMalcolmModel> info = super.getDeviceInformation(includeNonAlive);
 		if (includeNonAlive || info.isAlive()) {
 			info.setAvailableAxes(getAvailableAxes());
 		}
@@ -197,7 +197,7 @@ public abstract class AbstractMalcolmDevice<M extends IMalcolmModel> extends Abs
 	@Override
 	public List<NexusObjectProvider<?>> getNexusProviders(NexusScanInfo info) throws NexusException {
 		try {
-			MalcolmNexusObjectBuilder<M> malcolmNexusBuilder = new MalcolmNexusObjectBuilder<>(this);
+			MalcolmNexusObjectBuilder malcolmNexusBuilder = new MalcolmNexusObjectBuilder(this);
 			return malcolmNexusBuilder.buildNexusObjects(info);
 		} catch (Exception e) {
 			throw new NexusException("Could not create nexus objects for malcolm device " + getName(), e);
