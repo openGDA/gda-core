@@ -159,7 +159,6 @@ public class SpecsSequenceEditor implements IObserver {
 			logger.trace("Region selected: {}", selection);
 			final IStructuredSelection structuredSelection = (IStructuredSelection) selection;
 			final SpecsPhoibosRegion region = (SpecsPhoibosRegion) structuredSelection.getFirstElement();
-			currentlySelectedRegionName = region.getName();
 			transientData.put(SpecsUiConstants.SELECTED_REGION, region);
 			// Send the event the region editor will display the region
 			eventBroker.post(REGION_SELECTED_EVENT, region);
@@ -202,6 +201,7 @@ public class SpecsSequenceEditor implements IObserver {
 					SpecsPhoibosRegion currentReg = sequence.getRegion(updateRegionName);
 					StructuredSelection structuredSelection = new StructuredSelection(currentReg);
 					sequenceTableViewer.setSelection(structuredSelection, true);
+					currentlySelectedRegionName = updateRegionName;
 				});
 			}
 		}
