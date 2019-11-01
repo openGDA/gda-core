@@ -28,6 +28,7 @@ import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.DeviceRequest;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
+import org.eclipse.scanning.api.malcolm.MalcolmDetectorInfo;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.malcolm.MalcolmVersion;
@@ -124,20 +125,32 @@ public class _MalcolmDevice extends _RunnableDevice<IMalcolmModel> implements IM
 		}
 	}
 
-	private void updateDeviceInfo() throws EventException, InterruptedException {
-		DeviceRequest req = new DeviceRequest(name);
-		DeviceRequest res = requester.post(req);
-		merge((DeviceInformation<IMalcolmModel>)res.getDeviceInformation());
+	@Override
+	public List<MalcolmDetectorInfo> getDetectorInfos() throws MalcolmDeviceException {
+		try {
+			updateDeviceInfo();
+			return info.getMalcolmDetectorInfos();
+		} catch (Exception e) {
+			throw new MalcolmDeviceException(this, e);
+		}
 	}
 
+	@SuppressWarnings("unchecked")
+	private void updateDeviceInfo() throws EventException, InterruptedException {
+		DeviceRequest request = new DeviceRequest(name);
+		DeviceRequest response = requester.post(request);
+		merge((DeviceInformation<IMalcolmModel>) response.getDeviceInformation());
+	}
+
+	@SuppressWarnings("unchecked")
 	@Override
 	public MalcolmTable getDatasets() throws MalcolmDeviceException {
 		try {
-			DeviceRequest req = new DeviceRequest(name);
-			req.setGetDatasets(true);
-			DeviceRequest res = requester.post(req);
-			merge((DeviceInformation<IMalcolmModel>)res.getDeviceInformation());
-			return req.getDatasets();
+			DeviceRequest request = new DeviceRequest(name);
+			request.setGetDatasets(true);
+			DeviceRequest response = requester.post(request);
+			merge((DeviceInformation<IMalcolmModel>) response.getDeviceInformation());
+			return request.getDatasets();
 		} catch (Exception e) {
 			throw new MalcolmDeviceException(this, e);
 		}

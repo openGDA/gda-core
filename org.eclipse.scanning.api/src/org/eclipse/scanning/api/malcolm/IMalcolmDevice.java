@@ -85,6 +85,14 @@ public interface IMalcolmDevice extends IRunnableEventDevice<IMalcolmModel>, IVa
 	public List<String> getAvailableAxes() throws ScanningException;
 
 	/**
+	 * Returns the {@link MalcolmDetectorInfo}s for the detectors controlled by this malcolm device,
+	 * describing their current state.
+	 * @return detector infos
+	 * @throws MalcolmDeviceException
+	 */
+	public List<MalcolmDetectorInfo> getDetectorInfos() throws MalcolmDeviceException;
+
+	/**
 	 * Set the point generator for the malcolm device.
 	 * @param pointGenerator point generator
 	 */

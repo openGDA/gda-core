@@ -43,7 +43,6 @@ import org.slf4j.LoggerFactory;
  *
  * Base class for Malcolm devices
  *
- * @param <M> the model class for this malcolm device
  */
 public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalcolmModel>
 		implements IMalcolmDevice, IMultipleNexusDevice {
@@ -127,6 +126,7 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 		if (includeNonAlive || info.isAlive()) {
 			info.setAvailableAxes(getAvailableAxes());
 			info.setMalcolmVersion(getVersion());
+			info.setMalcolmDetectorInfos(getDetectorInfos());
 		}
 
 		return info;

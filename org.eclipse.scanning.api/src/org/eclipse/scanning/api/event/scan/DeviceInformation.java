@@ -17,15 +17,19 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.scanning.api.IModelProvider;
+import org.eclipse.scanning.api.IScannable;
+import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.ScanMode;
+import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
+import org.eclipse.scanning.api.malcolm.MalcolmDetectorInfo;
 import org.eclipse.scanning.api.malcolm.MalcolmVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
- * Information about a given device. It may be an IRunnabDevice or an IScannableDevice.
+ * Information about a given device. It may be an IRunnableDevice or an IScannableDevice.
  *
  * The type of information is for displaying the device in the UI.
  *
@@ -85,22 +89,26 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 	private T model;
 
 	/**
-	 * The unit for the device, if any
+	 * The unit for the device, if any.
+	 * This field has the same value as {@link IScannable#getUnit()}
 	 */
 	private String unit;
 
 	/**
 	 * The upper limit or null if none exists.
+	 * This field is only used for {@link IScannable#getMaximum()}
 	 */
 	private Object upper;
 
 	/**
 	 * The lower limit or null if none exists.
+	 * This field is only used for {@link IScannable}s.
 	 */
 	private Object lower;
 
 	/**
 	 * Allowed values if value has discrete options
+	 * This field is only used for {@link IScannable}s.
 	 */
 	private Object[] permittedValues;
 
@@ -113,18 +121,25 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 
 	/**
 	 * The device health, free text to describe the current status of the device.
+	 * This field is only used for {@link IRunnableDevice}s
 	 */
 	private String health;
 
 	/**
-	 * Whether the device is busy or not
+	 * Whether the device is busy or not.
+	 * This field is only used for {@link IRunnableDevice}s
 	 */
 	private boolean busy;
 
+	/**
+	 * The role of the device in the scan.
+	 * This field is only used for {@link IRunnableDevice}s
+	 */
 	private DeviceRole deviceRole;
 
 	/**
-	 *
+	 * The {@link ScanMode}s supported by this device.
+	 * This field is only used for {@link IRunnableDevice}s
 	 */
 	private Set<ScanMode> supportedScanModes;
 
@@ -133,12 +148,22 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 	 */
 	private boolean alive = true;
 
+	/**
+	 * The available axes of the malcolm device.
+	 * This field is only used for {@link IMalcolmDevice}s.
+	 */
 	private List<String> availableAxes;
 
 	/**
 	 * The version of the malcolm device. Naturally, this field is only set for malcolm devices.
 	 */
 	private MalcolmVersion malcolmVersion;
+
+	/**
+	 * A list of {@link MalcolmDetectorInfo}s describing the detectors controlled by the malcolm device.
+	 * This field is only used for {@link IMalcolmDevice}s
+	 */
+	private List<MalcolmDetectorInfo> malcolmDetectorInfos;
 
 	/**
 	 * Indicates whether the detector should be shown by default (i.e. after a client reset) in the detectors section of
@@ -260,6 +285,7 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 		result = prime * result + (shownByDefault ? 1231 : 1237);
 		result = prime * result + ((state == null) ? 0 : state.hashCode());
 		result = prime * result + ((supportedScanModes == null) ? 0 : supportedScanModes.hashCode());
+		result = prime * result + ((malcolmDetectorInfos == null) ? 0: malcolmDetectorInfos.hashCode());
 		result = prime * result + ((unit == null) ? 0 : unit.hashCode());
 		result = prime * result + ((upper == null) ? 0 : upper.hashCode());
 		return result;
@@ -478,6 +504,14 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 
 	public void setMalcolmVersion(MalcolmVersion malcolmVersion) {
 		this.malcolmVersion = malcolmVersion;
+	}
+
+	public List<MalcolmDetectorInfo> getMalcolmDetectorInfos() {
+		return malcolmDetectorInfos;
+	}
+
+	public void setMalcolmDetectorInfos(List<MalcolmDetectorInfo> malcolmDetectorInfos) {
+		this.malcolmDetectorInfos = malcolmDetectorInfos;
 	}
 
 }

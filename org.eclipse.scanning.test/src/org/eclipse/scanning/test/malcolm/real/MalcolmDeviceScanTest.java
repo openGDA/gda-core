@@ -19,9 +19,9 @@
 package org.eclipse.scanning.test.malcolm.real;
 
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_STATE;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.ATTRIBUTE_NAME_COMPLETED_STEPS;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.POSITION_COMPLETE_INTERVAL;
-import static org.eclipse.scanning.malcolm.core.MalcolmDevice.STATE_ENDPOINT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
@@ -172,6 +172,10 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		// set up the malcolm connection to create a respond to the second run message
 		MalcolmMessage expectedRunMessage2 = createExpectedCallMessage(id++, MalcolmMethod.RUN, null);
 		when(malcolmConnection.send(malcolmDevice, expectedRunMessage2)).thenAnswer(runAnswer);
+		MalcolmMessage expectedGetStateMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_STATE);
+		when(malcolmConnection.send(malcolmDevice, expectedGetStateMessage)).thenReturn(
+				createExpectedMalcolmStateReply(DeviceState.ARMED));
+
 		// Resume the Answer, will cause the MalcolmDevice.run method to return and the first inner scan to end
 		runAnswer.resume();
 
@@ -271,10 +275,10 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 
 	private MalcolmMessage createStateChangeEvent(DeviceState state) {
 		final MalcolmMessage message = new MalcolmMessage();
-		message.setEndpoint(STATE_ENDPOINT);
+		message.setEndpoint(ATTRIBUTE_NAME_STATE);
 
 		final ChoiceAttribute stateAttr = new ChoiceAttribute();
-		stateAttr.setName(STATE_ENDPOINT);
+		stateAttr.setName(ATTRIBUTE_NAME_STATE);
 		stateAttr.setValue(state.toString());
 		message.setValue(stateAttr);
 
@@ -307,6 +311,9 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		// call methods in the mocked communication layer, so we need to set up replies for those
 		final MalcolmMessage axesToMoveReply = createExpectedMalcolmOkReply(new StringArrayAttribute("stage_x", "stage_y"));
 		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES))).thenReturn(axesToMoveReply);
+		MalcolmMessage expectedGetConfigureMessage = createExpectedMalcolmMessage(id++, Type.GET, MalcolmMethod.CONFIGURE.toString());
+		when(malcolmConnection.send(malcolmDevice, expectedGetConfigureMessage)).thenReturn(createExpectedMalcolmGetConfigureReply());
+
 		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES))).thenReturn(axesToMoveReply); // This is called at 2 different points
 
 		return runnableDeviceService.createRunnableDevice(scanModel, publisher);

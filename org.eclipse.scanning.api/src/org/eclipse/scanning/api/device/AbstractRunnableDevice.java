@@ -385,7 +385,7 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 	 */
 	public DeviceInformation<T> getDeviceInformation(boolean includeNonAlive) throws ScanningException {
 		if (deviceInformation==null) {
-			deviceInformation = new DeviceInformation<T>();
+			deviceInformation = new DeviceInformation<>();
 		}
 		deviceInformation.setModel(getModel());
 		deviceInformation.setDeviceRole(getRole());
@@ -403,7 +403,7 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 				deviceInformation.setBusy(isDeviceBusy());
 				deviceInformation.setAlive(isAlive());
 			} catch (Exception ex) {
-				ex.printStackTrace();
+				logger.error("Could not get state for malcolm device {}", getName());
 				deviceInformation.setAlive(false);
 			}
 		}

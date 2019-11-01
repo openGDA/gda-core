@@ -81,10 +81,10 @@ public class MalcolmEpicsV4ConnectorTest {
 		final MalcolmModel malcolmModel = new MalcolmModel();
 		malcolmModel.setExposureTime(0.1);
 		final List<IMalcolmDetectorModel> detectorModels = new ArrayList<>();
-		detectorModels.add(new MalcolmDetectorModel("det1", 0.1, 1, true));
-		detectorModels.add(new MalcolmDetectorModel("det2", 0.05, 2, true));
-		detectorModels.add(new MalcolmDetectorModel("det3", 0.1, 1, false));
-		detectorModels.add(new MalcolmDetectorModel("det3", 0.02, 5, true));
+		detectorModels.add(new MalcolmDetectorModel("DET", 0.1, 1, true));
+		detectorModels.add(new MalcolmDetectorModel("DIFF", 0.05, 2, true));
+		detectorModels.add(new MalcolmDetectorModel("PANDA-01", 0.1, 1, false));
+		detectorModels.add(new MalcolmDetectorModel("PANDA-02", 0.02, 5, true));
 		malcolmModel.setDetectorModels(detectorModels);
 		return malcolmModel;
 	}

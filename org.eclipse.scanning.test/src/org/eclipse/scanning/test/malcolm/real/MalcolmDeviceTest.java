@@ -20,20 +20,17 @@ package org.eclipse.scanning.test.malcolm.real;
 
 import static java.util.Arrays.asList;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_DATASETS;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_HEALTH;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
-import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_ENABLE;
-import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_EXPOSURE;
-import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP;
-import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_MRI;
-import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_NAME;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_STATE;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.FILE_EXTENSION_H5;
-import static org.eclipse.scanning.malcolm.core.MalcolmDevice.HEALTH_ENDPOINT;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.STANDARD_MALCOLM_ERROR_STR;
-import static org.eclipse.scanning.malcolm.core.MalcolmDevice.STATE_ENDPOINT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
@@ -42,25 +39,27 @@ import static org.mockito.Mockito.when;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.scanning.api.ValidationException;
+import org.eclipse.scanning.api.device.AbstractRunnableDevice;
+import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
+import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.device.models.MalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
+import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmConstants;
+import org.eclipse.scanning.api.malcolm.MalcolmDetectorInfo;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.TableAttribute;
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection;
 import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
-import org.eclipse.scanning.api.malcolm.connector.MalcolmMethodMeta;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.malcolm.message.Type;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -68,7 +67,6 @@ import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice.EpicsMalcolmModel;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 /**
@@ -107,36 +105,9 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 			pointGen = MalcolmDevice.getDummyPointGenerator();
 		}
 		final List<String> axesToMove = pointGen.getNames(); // we don't test using non-malcolm axes
-		final MalcolmTable detectorsTable = createExpectedMalcolmTable();
+		final MalcolmTable detectorsTable = createExpectedDetectorsMalcolmTable();
 
 		return new EpicsMalcolmModel(outputDir, fileTemplate, axesToMove, pointGen, detectorsTable);
-	}
-
-	private MalcolmTable createExpectedMalcolmTable() {
-		final LinkedHashMap<String, Class<?>> tableTypesMap = new LinkedHashMap<>();
-		tableTypesMap.put(DETECTORS_TABLE_COLUMN_ENABLE, Boolean.class);
-		tableTypesMap.put(DETECTORS_TABLE_COLUMN_NAME, String.class);
-		tableTypesMap.put(DETECTORS_TABLE_COLUMN_MRI, String.class);
-		tableTypesMap.put(DETECTORS_TABLE_COLUMN_EXPOSURE, Double.class);
-		tableTypesMap.put(DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP, Integer.class);
-
-		final LinkedHashMap<String, List<?>> tableData = new LinkedHashMap<>();
-		tableData.put(DETECTORS_TABLE_COLUMN_ENABLE, asList(true, true, false, true));
-		tableData.put(DETECTORS_TABLE_COLUMN_NAME, asList("det1", "det2", "det3", "det4"));
-		tableData.put(DETECTORS_TABLE_COLUMN_MRI, asList("mri1", "mri2", "mri3", "mri4"));
-		tableData.put(DETECTORS_TABLE_COLUMN_EXPOSURE, asList(0.1, 0.05, 0.1, 0.02));
-		tableData.put(DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP, asList(1, 2, 1, 5));
-
-		return new MalcolmTable(tableData, tableTypesMap);
-	}
-
-	protected MalcolmMessage createExpectedMalcolmGetConfigureReply() {
-		final MalcolmMethodMeta result = new MalcolmMethodMeta(MalcolmMethod.CONFIGURE);
-		final Map<String, Object> defaults = new HashMap<>();
-		defaults.put(MalcolmConstants.FIELD_NAME_DETECTORS, createExpectedMalcolmTable());
-		result.setDefaults(defaults);
-
-		return createExpectedMalcolmOkReply(result);
 	}
 
 	@Test
@@ -150,7 +121,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		for (int i = 0; i < deviceStates.length; i++) {
 			// Arrange: set up mocks
 			final DeviceState deviceState = deviceStates[i];
-			MalcolmMessage expectedMessage = createExpectedMalcolmMessage(i, Type.GET, STATE_ENDPOINT);
+			MalcolmMessage expectedMessage = createExpectedMalcolmMessage(i, Type.GET, ATTRIBUTE_NAME_STATE);
 			when(malcolmConnection.send(malcolmDevice, expectedMessage)).thenReturn(
 					createExpectedMalcolmStateReply(deviceState));
 
@@ -168,7 +139,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		for (int i = 0; i < healthValues.length; i++) {
 			// Arrange
 			final String deviceHealth = healthValues[i];
-			MalcolmMessage expectedMessage = createExpectedMalcolmMessage(i, Type.GET, HEALTH_ENDPOINT);
+			MalcolmMessage expectedMessage = createExpectedMalcolmMessage(i, Type.GET, ATTRIBUTE_NAME_HEALTH);
 			when(malcolmConnection.send(malcolmDevice, expectedMessage)).thenReturn(
 					createExpectedMalcolmHealthReply(deviceHealth));
 
@@ -192,7 +163,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		for (int i = 0; i < deviceStates.length; i++) {
 			// Arrange: set up mocks
 			final DeviceState deviceState = deviceStates[i];
-			MalcolmMessage expectedMessage = createExpectedMalcolmMessage(i, Type.GET, STATE_ENDPOINT);
+			MalcolmMessage expectedMessage = createExpectedMalcolmMessage(i, Type.GET, ATTRIBUTE_NAME_STATE);
 			when(malcolmConnection.send(malcolmDevice, expectedMessage)).thenReturn(
 					createExpectedMalcolmStateReply(deviceState));
 
@@ -503,7 +474,86 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 				.thenReturn(createExpectedMalcolmOkReply(datasetsAttr));
 
 		// Act / Assert
-		assertThat(malcolmDevice.getDatasets(), is(Matchers.sameInstance(datasetsTable)));
+		assertThat(malcolmDevice.getDatasets(), is(sameInstance(datasetsTable)));
+	}
+
+	@Test
+	public void testGetMalcolmDetectorInfos() throws Exception {
+		// Arrange
+		initializeMalcolmDevice();
+
+		// create the expected 'configure' message to get the default detectors
+		MalcolmMessage expectedGetConfigureMessage = createExpectedMalcolmMessage(id++, Type.GET, MalcolmMethod.CONFIGURE.toString());
+		when(malcolmConnection.send(malcolmDevice, expectedGetConfigureMessage)).thenReturn(
+				createExpectedMalcolmGetConfigureReply());
+
+		// Act
+		final List<MalcolmDetectorInfo> detectorInfos = malcolmDevice.getDetectorInfos();
+
+		// Assert
+		assertThat(detectorInfos, is(equalTo(getExpectedMalcolmDetectorInfos())));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testGetDeviceInformation() throws Exception {
+		final IMalcolmModel model = createMalcolmModel();
+		malcolmDevice.setModel(model);
+
+		DeviceInformation<IMalcolmModel> deviceInfo = new DeviceInformation<>("malcolm");
+		deviceInfo.setActivated(false);
+		deviceInfo.setAlive(true);
+		deviceInfo.setAvailableAxes(asList("x", "y"));
+		deviceInfo.setBusy(false);
+		deviceInfo.setDescription("Mock malcolm device");
+		deviceInfo.setDeviceRole(DeviceRole.MALCOLM);
+		deviceInfo.setHealth("fault");
+		deviceInfo.setIcon("icon.png");
+		deviceInfo.setLabel("Mock Malcolm");
+		deviceInfo.setLevel(2);
+		deviceInfo.setModel(model);
+		deviceInfo.setState(DeviceState.ABORTED);
+		((AbstractRunnableDevice<IMalcolmModel>) malcolmDevice).setDeviceInformation(deviceInfo);
+
+		// Arrange: set up mocks
+		initializeMalcolmDevice();
+
+		// create replies for the mock connection for the messages that MalcolmDevice sends to populate the DeviceInformation object
+		// create the expected 'configure' message to get the default detectors
+		final MalcolmMessage expectedGetConfigureMessage = createExpectedMalcolmMessage(id++, Type.GET, MalcolmMethod.CONFIGURE.toString());
+		final MalcolmMessage expectedGetConfigureReply = createExpectedMalcolmGetConfigureReply();
+		when(malcolmConnection.send(malcolmDevice, expectedGetConfigureMessage)).thenReturn(expectedGetConfigureReply);
+		final MalcolmMessage expectedGetDeviceStateMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_STATE);
+		when(malcolmConnection.send(malcolmDevice, expectedGetDeviceStateMessage)).thenReturn(
+				createExpectedMalcolmStateReply(DeviceState.READY));
+		final MalcolmMessage expectedGetDeviceHealthMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_HEALTH);
+		when(malcolmConnection.send(malcolmDevice, expectedGetDeviceHealthMessage)).thenReturn(
+				createExpectedMalcolmHealthReply("ok"));
+		final MalcolmMessage expectedGetDeviceStateMessage2 = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_STATE);
+		when(malcolmConnection.send(malcolmDevice, expectedGetDeviceStateMessage2)).thenReturn(
+				createExpectedMalcolmStateReply(DeviceState.READY));
+		final MalcolmMessage expectedGetSimultaneousAxesMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
+		when(malcolmConnection.send(malcolmDevice, expectedGetSimultaneousAxesMessage)).thenReturn(
+				createExpectedMalcolmOkReply(new StringArrayAttribute("stage_x", "stage_y")));
+		final MalcolmMessage expectedGetConfigureMessage2 = createExpectedMalcolmMessage(id++, Type.GET, MalcolmMethod.CONFIGURE.toString());
+		when(malcolmConnection.send(malcolmDevice, expectedGetConfigureMessage2)).thenReturn(expectedGetConfigureReply);
+
+		// Act
+		deviceInfo = ((AbstractRunnableDevice<IMalcolmModel>) malcolmDevice).getDeviceInformation();
+
+		// Assert
+		assertThat(deviceInfo, is(notNullValue()));
+		assertThat(deviceInfo.getAvailableAxes(), is(equalTo(asList("stage_x", "stage_y"))));
+		assertThat(deviceInfo.getDescription(), is(equalTo("Mock malcolm device")));
+		assertThat(deviceInfo.getDeviceRole(), is(DeviceRole.MALCOLM));
+		assertThat(deviceInfo.getHealth(), is(equalTo("ok")));
+		assertThat(deviceInfo.getIcon(), is(equalTo("icon.png")));
+		assertThat(deviceInfo.getLabel(), is(equalTo("Mock Malcolm")));
+		assertThat(deviceInfo.getLevel(), is(1));
+		assertThat(deviceInfo.getModel(), is(equalTo(model)));
+		assertThat(deviceInfo.getName(), is(equalTo("malcolm")));
+		assertThat(deviceInfo.getState(), is(DeviceState.READY));
+		assertThat(deviceInfo.getMalcolmDetectorInfos(), is(equalTo(getExpectedMalcolmDetectorInfos())));
 	}
 
 }
