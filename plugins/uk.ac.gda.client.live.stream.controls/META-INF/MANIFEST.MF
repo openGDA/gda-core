@@ -29,6 +29,7 @@ Import-Package: com.swtdesigner,
  org.eclipse.dawnsci.analysis.dataset.roi,
  org.eclipse.dawnsci.plotting.api.region,
  org.eclipse.january.dataset;version="2.2.2",
+ org.eclipse.ui.forms.widgets,
  org.slf4j,
  org.springframework.beans.factory;version="4.0.6.RELEASE",
  uk.ac.gda.client.livecontrol
