@@ -37,6 +37,7 @@ import com.swtdesigner.SWTResourceManager;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannablePositionChangeEvent;
+import gda.factory.FactoryException;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
 
@@ -65,7 +66,6 @@ public class InputTextComposite extends Composite {
 	private int textWidth = DEFAULT_TEXT_WIDTH;
 	private Label unitLabel;
 	private boolean textInput;
-	private String currentPosition;
 	private boolean readOnly;
 	/**
 	 * Constructor
@@ -339,49 +339,12 @@ public class InputTextComposite extends Composite {
 
 		scannable.addIObserver(iObserver);
 		this.addDisposeListener(e -> scannable.deleteIObserver(iObserver));
-		updateGui(getCurrentPosition());
-	}
-
-	/**
-	 * Calls {@link Scannable} getPosition() method and parses it into a String using getOutputFormat().
-	 * If the scannable returns an array the first element is used.
-	 *
-	 * @return The current position of the scannable
-	 */
-	private String getCurrentPosition() {
-		String currentPosition = null;
-		Object cPosition;
+		//The original pulling current position call blocks when GUI is starting - not clear what caused it.
 		try {
-			Object getPosition = scannable.getPosition();
-
-			if (getPosition.getClass().isArray())
-				// The scannable returns an array assume the relevant value is the first
-				cPosition = ((Object[]) getPosition)[0];
-			else
-				cPosition = getPosition;
-			if (cPosition instanceof Number) {
-				currentPosition=String.format(scannable.getOutputFormat()[0], cPosition).trim();
-			} else {
-				currentPosition=cPosition.toString();
-			}
-		} catch (DeviceException e) {
-			logger.error("Error while getting currrent position of {}", scannableName, e);
-			return "Unavailable";
+			scannable.reconfigure();
+		} catch (FactoryException e1) {
+			logger.error("reconfigure scannable '{}' failed.", scannable.getName(), e1);
 		}
-
-		return currentPosition;
-	}
-	/**
-	 * This is used to update the GUI. Only this method should be used to update the GUI to ensure display is consistent.
-	 *
-	 * @param currentPosition
-	 *            The newest position to display typically from {@link #getCurrentPosition()}
-	 */
-	private void updateGui(final String currentPosition) {
-		// Save the new position
-		this.currentPosition = currentPosition;
-		// Update the GUI in the UI thread
-		Display.getDefault().asyncExec(()->	positionText.setText(currentPosition));
 	}
 
 	public boolean isTextInput() {
