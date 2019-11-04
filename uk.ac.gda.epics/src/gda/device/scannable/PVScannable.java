@@ -101,6 +101,14 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 		}
 	}
 
+	@Override
+	public void reconfigure() throws FactoryException {
+		if (isConfigured()) {
+			setConfigured(false);
+		}
+		configure();
+	}
+
 	public String getPvName() {
 		return pvName;
 	}
