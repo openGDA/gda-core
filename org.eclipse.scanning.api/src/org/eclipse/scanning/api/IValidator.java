@@ -56,8 +56,8 @@ public interface IValidator<T> {
 	 * @return
 	 * @throws ValidationException
 	 */
-	default Object validateWithReturn(T model) throws ValidationException {
+	default T validateWithReturn(T model) throws ValidationException {
 		validate(model);
-		return null; // They should implement a validation which throws an exception
+		return model; // By default return the given model
 	}
 }

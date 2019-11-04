@@ -23,6 +23,11 @@ import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_D
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_HEALTH;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_STATE;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_AXES_TO_MOVE;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_DETECTORS;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_FILE_DIR;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_FILE_TEMPLATE;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_GENERATOR;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.FILE_EXTENSION_H5;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.STANDARD_MALCOLM_ERROR_STR;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -39,6 +44,7 @@ import static org.mockito.Mockito.when;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -83,17 +89,19 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 
 	protected MalcolmModel createMalcolmModel() {
 		final MalcolmModel malcolmModel = new MalcolmModel();
+		malcolmModel.setName("testMalcolm");
 		malcolmModel.setExposureTime(0.1);
 		final List<IMalcolmDetectorModel> detectorModels = new ArrayList<>();
 		detectorModels.add(new MalcolmDetectorModel("det1", 0.1, 1, true));
 		detectorModels.add(new MalcolmDetectorModel("det2", 0.05, 2, true));
 		detectorModels.add(new MalcolmDetectorModel("det3", 0.1, 1, false));
-		detectorModels.add(new MalcolmDetectorModel("det3", 0.02, 5, true));
+		detectorModels.add(new MalcolmDetectorModel("det4", 0.02, 5, true));
 		malcolmModel.setDetectorModels(detectorModels);
 		return malcolmModel;
 	}
 
-	private EpicsMalcolmModel createExpectedEpicsMalcolmModel(IPointGenerator<?> pointGen, String outputDir) {
+	private EpicsMalcolmModel createExpectedEpicsMalcolmModel(IPointGenerator<?> pointGen, String outputDir,
+			List<MalcolmDetectorInfo> detectorInfos) {
 		if (outputDir == null) {
 			outputDir = System.getProperty("user.dir");
 		}
@@ -105,7 +113,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 			pointGen = MalcolmDevice.getDummyPointGenerator();
 		}
 		final List<String> axesToMove = pointGen.getNames(); // we don't test using non-malcolm axes
-		final MalcolmTable detectorsTable = createExpectedDetectorsMalcolmTable();
+		final MalcolmTable detectorsTable = createExpectedDetectorsMalcolmTable(detectorInfos);
 
 		return new EpicsMalcolmModel(outputDir, fileTemplate, axesToMove, pointGen, detectorsTable);
 	}
@@ -191,7 +199,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		final MalcolmModel malcolmModel = createMalcolmModel();
 
 		// create the expected EpicsMalcolmModel that should be sent to malcolm
-		final EpicsMalcolmModel expectedMalcolmModel = createExpectedEpicsMalcolmModel(pointGen, fileDir);
+		final EpicsMalcolmModel expectedEpicsMalcolmModel = createExpectedEpicsMalcolmModel(pointGen, fileDir, getExpectedMalcolmDetectorInfos());
 
 		// create the expected message to get the simultaneous axes (required to configure the malcolm device) and reply as expected
 		MalcolmMessage expectedGetSimultaneousAxesMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
@@ -204,8 +212,10 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 				createExpectedMalcolmGetConfigureReply());
 
 		// create the expected validate message and configure the mock connection to reply as expected
-		MalcolmMessage expectedValidateMessage = createExpectedCallMessage(id++, MalcolmMethod.VALIDATE, expectedMalcolmModel);
-		when(malcolmConnection.send(malcolmDevice, expectedValidateMessage)).thenReturn(createExpectedMalcolmOkReply(null));
+		// note: the mock connection layer needs to reply as validate calls validateWithReturn internally
+		MalcolmMessage expectedValidateMessage = createExpectedCallMessage(id++, MalcolmMethod.VALIDATE, expectedEpicsMalcolmModel);
+		when(malcolmConnection.send(malcolmDevice, expectedValidateMessage)).thenReturn(
+				createExpectedMalcolmOkReply(createExpectedMalcolmValidateReturnValue(expectedEpicsMalcolmModel)));
 
 		// Act
 		// pointGenerator and fileDir would be set by ScanProcess in a real scan
@@ -224,7 +234,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 				createExpectedMalcolmOkReply(new StringArrayAttribute("stage_x", "stage_y")));
 
 		// create the expected validate message and configure the mock connection to reply as expected
-		expectedValidateMessage = createExpectedCallMessage(id++, MalcolmMethod.VALIDATE, expectedMalcolmModel);
+		expectedValidateMessage = createExpectedCallMessage(id++, MalcolmMethod.VALIDATE, expectedEpicsMalcolmModel);
 		final String errorMessage = "Invalid model";
 		when(malcolmConnection.send(malcolmDevice, expectedValidateMessage)).thenReturn(createExpectedMalcolmErrorReply(errorMessage));
 
@@ -251,13 +261,11 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	}
 
 	public void testValidateWithReturn(IPointGenerator<?> pointGen, String fileDir) throws Exception {
-		// TODO: validateWithReturn should really return a MalcolmModel, with the exposureTime updated if necessary. See JIRA ticket DAQ-1437.
-
 		// Arrange
 		final MalcolmModel malcolmModel = createMalcolmModel();
 
 		// create the expected EpicsMalcolmModel that should be sent to malcolm
-		EpicsMalcolmModel expectedEpicsMalcolmModel = createExpectedEpicsMalcolmModel(pointGen, fileDir);
+		EpicsMalcolmModel expectedEpicsMalcolmModel = createExpectedEpicsMalcolmModel(pointGen, fileDir, getExpectedMalcolmDetectorInfos());
 
 		// create the expected message to get the simultaneous axes (required to configure the malcolm device) and reply as expected
 		MalcolmMessage expectedGetSimultaneousAxesMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
@@ -272,17 +280,17 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		// create the expected validate message and configure the mock connection to reply as expected
 		MalcolmMessage expectedValidateMessage = createExpectedCallMessage(id++, MalcolmMethod.VALIDATE, expectedEpicsMalcolmModel);
 		when(malcolmConnection.send(malcolmDevice, expectedValidateMessage)).thenReturn(
-				createExpectedMalcolmValidateReturnReply(expectedEpicsMalcolmModel));
+				createExpectedMalcolmOkReply(createExpectedMalcolmValidateReturnValue(expectedEpicsMalcolmModel)));
 
 		// Act
 		// pointGenerator and fileDir would be set by ScanProcess in a real scan
 		malcolmDevice.setPointGenerator(pointGen);
 		malcolmDevice.setOutputDir(fileDir);
 
-		EpicsMalcolmModel result = (EpicsMalcolmModel) malcolmDevice.validateWithReturn(malcolmModel);
+		IMalcolmModel result = malcolmDevice.validateWithReturn(malcolmModel);
 
 		// Assert
-		assertThat(result, equalTo(expectedEpicsMalcolmModel));
+		assertThat(result, is(equalTo(createExpectedValidateReturnModel(malcolmModel, pointGen))));
 		verify(malcolmConnection).send(malcolmDevice, expectedValidateMessage);
 
 		// Arrange, now with a modified model
@@ -292,15 +300,47 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 				createExpectedMalcolmOkReply(new StringArrayAttribute("stage_x", "stage_y")));
 		// create the expected validate message and configure the mock connection to reply as expected
 		expectedValidateMessage = createExpectedCallMessage(id++, MalcolmMethod.VALIDATE, expectedEpicsMalcolmModel);
-		final IPointGenerator<?> modifiedPointGen = createPointGenerator();
-		final EpicsMalcolmModel modifiedEpicsMalcolmModel = createExpectedEpicsMalcolmModel(modifiedPointGen, fileDir);
-		final MalcolmMessage expectedValidateResponse = createExpectedMalcolmValidateReturnReply(modifiedEpicsMalcolmModel);
+		pointGen = pointGen != null ? createPointGenerator() : null;
+
+		// set det2 to have 4 frames per step, exposure time still 0.05 (vs 0.1 for overall step)
+		malcolmModel.getDetectorModels().get(1).setFramesPerStep(4);
+		// set the returned value to fix the exposure time to 0.025 (4 * 0.025 = 0.1)
+		final List<MalcolmDetectorInfo> detectorInfos = getExpectedMalcolmDetectorInfos();
+		detectorInfos.get(1).setFramesPerStep(4);
+		detectorInfos.get(1).setExposureTime(0.025);
+		final EpicsMalcolmModel modifiedEpicsMalcolmModel = createExpectedEpicsMalcolmModel(
+				pointGen, fileDir, detectorInfos);
+		final MalcolmMessage expectedValidateResponse =
+				createExpectedMalcolmOkReply(createExpectedMalcolmValidateReturnValue(modifiedEpicsMalcolmModel));
 		when(malcolmConnection.send(malcolmDevice, expectedValidateMessage)).thenReturn(expectedValidateResponse);
 
-		// Act, this time an error should occur
-		result = (EpicsMalcolmModel) malcolmDevice.validateWithReturn(malcolmModel);
-		assertThat(result, equalTo(modifiedEpicsMalcolmModel));
+		// Act, this time the returned model should be different
+		malcolmModel.getDetectorModels().get(1).setFramesPerStep(4);
+		result = malcolmDevice.validateWithReturn(malcolmModel);
+
+		// Assert
+		IMalcolmModel expectedValidateReturnModel = createExpectedValidateReturnModel(malcolmModel, pointGen);
+		expectedValidateReturnModel.getDetectorModels().get(1).setExposureTime(0.025);
+		assertThat(result, equalTo(expectedValidateReturnModel));
 		verify(malcolmConnection).send(malcolmDevice, expectedValidateMessage);
+	}
+
+	private IMalcolmModel createExpectedValidateReturnModel(MalcolmModel malcolmModel, IPointGenerator<?> pointGen) {
+		// the value expected
+		MalcolmModel model = new MalcolmModel(malcolmModel);
+		model.setAxesToMove(pointGen != null ? pointGen.getNames() : Collections.emptyList());
+		return model;
+	}
+
+	private LinkedHashMap<String, Object> createExpectedMalcolmValidateReturnValue(EpicsMalcolmModel epicsMalcolmModel) {
+		// the value to be returned over the mocked epics connection layer
+		final LinkedHashMap<String, Object> expectedValue = new LinkedHashMap<>();
+		expectedValue.put(FIELD_NAME_GENERATOR, epicsMalcolmModel.getGenerator());
+		expectedValue.put(FIELD_NAME_AXES_TO_MOVE, epicsMalcolmModel.getAxesToMove());
+		expectedValue.put(FIELD_NAME_FILE_DIR, epicsMalcolmModel.getFileDir());
+		expectedValue.put(FIELD_NAME_FILE_TEMPLATE, epicsMalcolmModel.getFileTemplate());
+		expectedValue.put(FIELD_NAME_DETECTORS, epicsMalcolmModel.getDetectors());
+		return expectedValue;
 	}
 
 	@Test
@@ -318,7 +358,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		final String fileDir = OUTPUT_DIR;
 
 		// create the expected EpicsMalcolmModel that should be sent to malcolm
-		final EpicsMalcolmModel expectedMalcolmModel = createExpectedEpicsMalcolmModel(pointGen, fileDir);
+		final EpicsMalcolmModel expectedMalcolmModel = createExpectedEpicsMalcolmModel(pointGen, fileDir, getExpectedMalcolmDetectorInfos());
 
 		// create the expected abort, reset and configure message and configure the mock connection to reply as expected
 		final MalcolmMessage expectedAbortMessage = createExpectedCallMessage(id++, MalcolmMethod.ABORT, null);

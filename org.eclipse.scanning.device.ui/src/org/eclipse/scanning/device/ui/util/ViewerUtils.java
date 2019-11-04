@@ -13,7 +13,10 @@ package org.eclipse.scanning.device.ui.util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.function.Function;
 
+import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ICheckStateProvider;
 import org.eclipse.swt.widgets.Composite;
 
 public class ViewerUtils {
@@ -40,6 +43,7 @@ public class ViewerUtils {
 			// ignore
 		}
 	}
+
 	/**
 	 * Finds the method with the given name and parameter count from the specified methods.
 	 * @param methods the methods to search through
@@ -56,4 +60,41 @@ public class ViewerUtils {
 		return null;
 	}
 
+	public static <T> ICheckStateProvider createCheckStateProvider(Function<T, Boolean> checkStateFunction) {
+		return new ICheckStateProvider() {
+
+			@Override
+			public boolean isGrayed(Object element) {
+				return false;
+			}
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public boolean isChecked(Object element) {
+				return checkStateFunction.apply((T) element).booleanValue();
+			}
+		};
+
+	}
+
+	public static <T> ColumnLabelProvider createTableColumnLabelProvider(Function<T, String> labelFunction) {
+		return createTableColumnLabelProvider(labelFunction, null);
+	}
+
+	public static <T> ColumnLabelProvider createTableColumnLabelProvider(Function<T, String> labelFunction, String tooltipText) {
+		return new ColumnLabelProvider() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public String getText(Object element) {
+				return labelFunction.apply((T) element);
+			}
+
+			@Override
+			public String getToolTipText(Object element) {
+				return tooltipText;
+			}
+
+		};
+	}
 }

@@ -12,6 +12,7 @@
 package org.eclipse.scanning.api.device.models;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
@@ -20,23 +21,38 @@ import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
  * The model for a malcolm device that writes h5 files.
  */
 public class MalcolmModel extends AbstractDetectorModel implements IMalcolmModel {
-	
-	private static final long DEFAULT_TIMEOUT_SECOND = Duration.ofDays(1).getSeconds();
 
-	public MalcolmModel() {
-		setTimeout(DEFAULT_TIMEOUT_SECOND);
-	}
+	private static final long DEFAULT_TIMEOUT_SECOND = Duration.ofDays(1).getSeconds();
 
 	@FieldDescriptor(editable=false)
 	private List<String> axesToMove;
 
 	private List<IMalcolmDetectorModel> detectorModels;
 
+	public MalcolmModel() {
+		setTimeout(DEFAULT_TIMEOUT_SECOND);
+	}
+
+	public MalcolmModel(IMalcolmModel toCopy) {
+		super((AbstractDetectorModel) toCopy);
+		setAxesToMove(toCopy.getAxesToMove() == null ? null : new ArrayList<>(toCopy.getAxesToMove()));
+
+		final List<IMalcolmDetectorModel> detectorModelsToCopy = toCopy.getDetectorModels();
+		if (detectorModelsToCopy != null) {
+			final List<IMalcolmDetectorModel> newDetectorModels = new ArrayList<>(detectorModelsToCopy.size());
+			for (IMalcolmDetectorModel detectorModel : toCopy.getDetectorModels()) {
+				newDetectorModels.add(new MalcolmDetectorModel(detectorModel));
+			}
+			setDetectorModels(newDetectorModels);
+		}
+	}
+
 	@Override
 	public List<String> getAxesToMove() {
 		return axesToMove;
 	}
 
+	@Override
 	public void setAxesToMove(List<String> axesToMove) {
 		this.axesToMove = axesToMove;
 	}
@@ -46,6 +62,7 @@ public class MalcolmModel extends AbstractDetectorModel implements IMalcolmModel
 		return detectorModels;
 	}
 
+	@Override
 	public void setDetectorModels(List<IMalcolmDetectorModel> detectorModels) {
 		this.detectorModels = detectorModels;
 	}
@@ -83,7 +100,7 @@ public class MalcolmModel extends AbstractDetectorModel implements IMalcolmModel
 
 	@Override
 	public String toString() {
-		return "MalcolmModel [axesToMove=" + axesToMove + " " + detectorModels + " "
+		return "MalcolmModel [axesToMove=" + axesToMove + " detectorModels=" + detectorModels + " "
 				+ super.toString() + "]";
 	}
 

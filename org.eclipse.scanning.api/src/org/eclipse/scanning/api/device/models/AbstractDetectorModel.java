@@ -46,6 +46,12 @@ public abstract class AbstractDetectorModel implements IDetectorModel, IReflecte
 		setExposureTime(exposureTime);
 	}
 
+	public AbstractDetectorModel(AbstractDetectorModel toCopy) {
+		setName(toCopy.getName());
+		setTimeout(toCopy.getTimeout());
+		setExposureTime(toCopy.getExposureTime());
+	}
+
 	@Override
 	@UiComesAfter("name")
 	public double getExposureTime() {

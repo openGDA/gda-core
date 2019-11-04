@@ -18,6 +18,12 @@
 
 package org.eclipse.scanning.device.ui.device;
 
+import static java.util.stream.Collectors.toMap;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
@@ -27,12 +33,11 @@ import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.EditingSupport;
-import org.eclipse.jface.viewers.ICheckStateProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
-import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
@@ -40,6 +45,7 @@ import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmVersion;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.device.ui.AbstractModelEditor;
+import org.eclipse.scanning.device.ui.util.ViewerUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -51,22 +57,58 @@ import org.slf4j.LoggerFactory;
 public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 
 	private enum DetectorTableColumn {
-		ENABLED("Enabled", false, 80, SWT.CENTER),
-		DETECTOR_NAME("Name", false, 200, SWT.LEAD),
-		FRAMES_PER_STEP("Frames per step", true, 120, SWT.CENTER),
-		FRAME_TIME("Frame time", false, 120, SWT.CENTER), // calculated based on exposure time * frames-per-step
-		EXPOSURE_TIME("Exposure time", true, 120, SWT.CENTER);
+
+		ENABLED("Enabled", false, false, 80, SWT.CENTER, "Whether to enable this detector"),
+
+		DETECTOR_NAME("Name", false, false, 200, SWT.LEAD, "The name of the detector") {
+			@Override
+			public String getLabel(IMalcolmDetectorModel model) {
+				return model.getName();
+			}
+		},
+
+		FRAMES_PER_STEP("Frames per step", true, true, 120, SWT.CENTER, "The number of frames recorded by this detector per scan point\n requested (actual)") {
+			@Override
+			public String getLabel(IMalcolmDetectorModel model) {
+				return Integer.toString(model.getFramesPerStep());
+			}
+		},
+
+		FRAME_TIME("Frame time", false, true, 120, SWT.CENTER, "The time for each frame of this scan.\nrequested (actual).\nThis field is not editable. Calculated as: exposure time / frames per step") {
+			@Override
+			public String getLabel(IMalcolmDetectorModel model) {
+				// calculated based on exposure time / frames-per-step
+				return String.format("%.3f", model.getExposureTime() / model.getFramesPerStep());
+			}
+		},
+
+		EXPOSURE_TIME("Exposure time", true, true, 120, SWT.CENTER, "The exposure time for this detector for each frame.\nrequested (actual)") {
+			@Override
+			public String getLabel(IMalcolmDetectorModel model) {
+				return String.format("%.3f", model.getExposureTime());
+			}
+		};
 
 		public final String label;
+		public final boolean editable;
+		public final boolean showActualValue;
 		public final int columnWidth;
 		public final int alignment;
-		public final boolean editable;
+		public final String toolTipText;
 
-		private DetectorTableColumn(String label, boolean editable, int columnWidth, int alignment) {
+		private DetectorTableColumn(String label, boolean editable, boolean showActualValue,
+				int columnWidth, int alignment, String toolTipText) {
 			this.label = label;
-			this.columnWidth = columnWidth;
 			this.editable = editable;
+			this.showActualValue = showActualValue;
+			this.columnWidth = columnWidth;
 			this.alignment = alignment;
+			this.toolTipText = toolTipText;
+		}
+
+		@SuppressWarnings("unused")
+		public String getLabel(IMalcolmDetectorModel model) {
+			return null;
 		}
 
 	}
@@ -80,6 +122,8 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 	private final IRunnableDeviceService runnableDeviceService;
 
 	private TableViewer detectorsTable;
+
+	private Map<String, IMalcolmDetectorModel> modifiedDetectorModels = null;
 
 	public MalcolmModelEditor(IRunnableDeviceService runnableDeviceService, IMalcolmModel model) {
 		this.runnableDeviceService = runnableDeviceService;
@@ -112,7 +156,7 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 
 	private void createDetectorsTable(final Composite parent) {
 		final Label label = new Label(parent, SWT.NONE);
-		label.setText("Detectors:    (exposure time of 0 = use maximum)"); // TODO use a checkbox for maximum?
+		label.setText("Detectors:     (exposure time of 0 = use maximum)"); // TODO use a checkbox for maximum?
 		GridDataFactory.swtDefaults().span(2, 1).applyTo(label);
 
 		final boolean canEnableDetectors = canEnableDetectors();
@@ -122,20 +166,21 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 
 		detectorsTable = new CheckboxTableViewer(table);
 		table.setHeaderVisible(true);
-//		ColumnViewerToolTipSupport.enableFor(detectorsTable); // TODO add tooltips
+		ColumnViewerToolTipSupport.enableFor(detectorsTable);
 
 		// setup the context provider, label/checkstate provider and check state listener
 		detectorsTable.setContentProvider(new ArrayContentProvider());
-		final MalcolmDetectorsTableLabelProvider labelProvider = new MalcolmDetectorsTableLabelProvider();
 		if (canEnableDetectors) {
-			((CheckboxTableViewer) detectorsTable).setCheckStateProvider(new MalcolmDetectorsTableCheckStateProvider());
+			((CheckboxTableViewer) detectorsTable).setCheckStateProvider(ViewerUtils.createCheckStateProvider(IMalcolmDetectorModel::isEnabled));
 			((CheckboxTableViewer) detectorsTable).addCheckStateListener(
 					evt -> ((IMalcolmDetectorModel) evt.getElement()).setEnabled(evt.getChecked()));
 		}
 
 		for (DetectorTableColumn columnInfo : DETECTOR_TABLE_COLUMNS) {
+			if (!canEnableDetectors && columnInfo == DetectorTableColumn.ENABLED) continue;
+
 			final TableViewerColumn column = new TableViewerColumn(detectorsTable, columnInfo.alignment);
-			column.setLabelProvider(labelProvider);
+			column.setLabelProvider(new MalcolmDetectorsTableLabelProvider(columnInfo));
 			column.getColumn().setText(columnInfo.label);
 			column.getColumn().setWidth(columnInfo.columnWidth);
 			if (columnInfo.editable) {
@@ -157,46 +202,39 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 		}
 	}
 
+	public void updateValidatedModel(IMalcolmModel modifiedModel) {
+		if (modifiedModel == null) {
+			modifiedDetectorModels = null;
+		} else {
+			modifiedDetectorModels = modifiedModel.getDetectorModels().stream()
+					.collect(toMap(IMalcolmDetectorModel::getName, Function.identity()));
+		}
+		detectorsTable.refresh();
+	}
+
 	private class MalcolmDetectorsTableLabelProvider extends ColumnLabelProvider {
 
-		private DetectorTableColumn column;
+		private final DetectorTableColumn column;
 
-		@Override
-		public void update(ViewerCell cell) {
-			column = DETECTOR_TABLE_COLUMNS[cell.getColumnIndex()];
-			super.update(cell);
+		public MalcolmDetectorsTableLabelProvider(DetectorTableColumn column) {
+			this.column = column;
 		}
 
 		@Override
 		public String getText(Object element) {
 			final IMalcolmDetectorModel detectorModel = (IMalcolmDetectorModel) element;
-			switch (column) {
-				case ENABLED: return "";
-				case DETECTOR_NAME: return detectorModel.getName();
-				case FRAMES_PER_STEP: return Integer.toString(detectorModel.getFramesPerStep());
-				case EXPOSURE_TIME: return String.format("%.3f", detectorModel.getExposureTime());
-				case FRAME_TIME: return String.format("%.3f", getModel().getExposureTime() / detectorModel.getFramesPerStep());
-				default: throw new IllegalArgumentException("Unknown column: " + column);
+			final Optional<IMalcolmDetectorModel> validatedModel = modifiedDetectorModels == null ?
+					Optional.empty() : Optional.of(modifiedDetectorModels.get(detectorModel.getName()));
+			final String value = column.getLabel(detectorModel);
+			if (column.showActualValue && validatedModel.isPresent()) {
+				return value + " (" + column.getLabel(validatedModel.get()) + ")";
 			}
+			return value;
 		}
 
 		@Override
 		public String getToolTipText(Object element) {
-			return super.getToolTipText(element); // TODO add tooltips
-		}
-
-	}
-
-	private static class MalcolmDetectorsTableCheckStateProvider implements ICheckStateProvider {
-
-		@Override
-		public boolean isChecked(Object element) {
-			return ((IMalcolmDetectorModel) element).isEnabled();
-		}
-
-		@Override
-		public boolean isGrayed(Object element) {
-			return false;
+			return column.toolTipText;
 		}
 
 	}

@@ -50,6 +50,7 @@ import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIEL
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_BLOCK;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_BOOLEAN_META;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_CHOICE_META;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_MAP;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_MAP_META;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_METHOD;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_METHOD_LOG;
@@ -66,11 +67,14 @@ import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_TABLE;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_TABLE_META;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.MalcolmConstants;
+import org.eclipse.scanning.api.malcolm.MalcolmDetectorInfo;
 import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
 import org.eclipse.scanning.connector.epics.EpicsConnectionConstants;
 import org.epics.pvaccess.server.rpc.RPCResponseCallback;
@@ -104,12 +108,9 @@ import org.epics.pvdatabase.PVRecord;
 
 class DummyMalcolmRecord extends PVRecord {
 
-
 	// Static Data
 	private static final FieldCreate FIELDCREATE = FieldFactory.getFieldCreate();
 	private static final PVDataCreate PVDATACREATE = PVDataFactory.getPVDataCreate();
-
-	private static final String ID_PREFIX_MALCOLM = "malcolm:core/";
 
 	private static final String STRUCTURE_ELEMENTS = "elements";
 
@@ -128,6 +129,7 @@ class DummyMalcolmRecord extends PVRecord {
 	public static final String FIELD_NAME_CENTRE = "centre";
 	public static final String FIELD_NAME_RADIUS = "radius";
 
+	private static List<MalcolmDetectorInfo> malcolmDetectorInfos = null;
 	// Member data
 	private boolean underControl = false;
 	private Map<String, PVStructure> receivedRPCCalls = new HashMap<>();
@@ -171,13 +173,13 @@ class DummyMalcolmRecord extends PVRecord {
 				return;
 			}
 
-			Structure mapStructure = FIELDCREATE.createFieldBuilder().setId(ID_PREFIX_MALCOLM + "Map:1.0").createStructure();
+			Structure mapStructure = FIELDCREATE.createFieldBuilder().setId(TYPE_ID_MAP).createStructure();
 			PVStructure returnPvStructure = PVDATACREATE.createPVStructure(mapStructure);
 
 			final MalcolmMethod method = MalcolmMethod.fromString(methodName);
 			switch (method) {
 				case VALIDATE:
-					returnPvStructure = args;
+					returnPvStructure = modifyValidationPVStucture(args);
 					break;
 				case CONFIGURE:
 					pvRecord.getPVStructure().getSubField(PVString.class, FIELD_NAME_STATE_VALUE).put(DeviceState.CONFIGURING.name());
@@ -197,6 +199,23 @@ class DummyMalcolmRecord extends PVRecord {
 
 			pvRecord.releaseControl();
 			callback.requestDone(statusOk, returnPvStructure);
+		}
+
+		private PVStructure modifyValidationPVStucture(PVStructure pvStructure) {
+			final PVStructure detectorsStructure = pvStructure.getStructureField(FIELD_NAME_DETECTORS);
+
+			final List<MalcolmDetectorInfo> detectorInfos = getDefaultMalcolmDetectorInfos();
+			detectorInfos.get(0).setExposureTime(0.1);
+			detectorInfos.get(0).setFramesPerStep(1);
+			detectorInfos.get(1).setEnabled(false);
+			detectorInfos.get(1).setExposureTime(0.025);
+			detectorInfos.get(1).setFramesPerStep(4);
+			detectorInfos.get(2).setEnabled(true);
+
+			populateDetectorsPVStructure(detectorsStructure, detectorInfos);
+
+			System.err.println("detectors pvStructure = " + detectorsStructure); // TODO REMOVE, DO NOT COMMIT
+			return pvStructure;
 		}
 
 		private void handleError(String message, RPCResponseCallback callback, boolean haveControl) {
@@ -445,25 +464,52 @@ class DummyMalcolmRecord extends PVRecord {
 		datasetsPVStructure.getSubField(PVStringArray.class, FIELD_NAME_LABELS).put(0, headingsArray.length, headingsArray, 0);
 	}
 
-	private static PVStructure populateConfigureDefault(PVStructure blockPVStructure) {
-		boolean[] enabledArray = new boolean[] { true, true, false, true };
-		String[] namesArray = new String[] { "DET", "DIFF", "PANDA-01", "PANDA-02" };
-		String[] mriArray = new String[] { "BL45P-ML-DET-01", "BL45P-ML-DIFF-01", "BL45P-ML-PANDA-01", "BL45P-ML-PANDA-02" };
-		double[] exposureArray = new double[] { 0, 0, 0, 0 };
-		int[] framesPerStepArray = new int[] { 1, 1, 1, 1 };
+	private static List<MalcolmDetectorInfo> getDefaultMalcolmDetectorInfos() {
+		if (malcolmDetectorInfos == null) {
+			malcolmDetectorInfos = new ArrayList<>(4);
+			malcolmDetectorInfos.add(new MalcolmDetectorInfo("BL45P-ML-DET-01", "DET", 1, 0, true));
+			malcolmDetectorInfos.add(new MalcolmDetectorInfo("BL45P-ML-DIFF-01", "DIFF", 1, 0, true));
+			malcolmDetectorInfos.add(new MalcolmDetectorInfo("BL45P-ML-PANDA-01", "PANDA-01", 1, 0, false));
+			malcolmDetectorInfos.add(new MalcolmDetectorInfo("BL45P-ML-PANDA-02", "PANDA-02", 1, 0, true));
+		}
 
-		PVStructure defaultsPVStructure = blockPVStructure.getStructureField(CONFIGURE.toString())
+		return malcolmDetectorInfos;
+	}
+
+	private static PVStructure populateConfigureDefault(PVStructure blockPVStructure) {
+		final PVStructure defaultsPVStructure = blockPVStructure.getStructureField(CONFIGURE.toString())
 				.getStructureField(FIELD_NAME_META).getStructureField(FIELD_NAME_DEFAULTS);
 		defaultsPVStructure.getSubField(PVString.class, FIELD_NAME_FILE_TEMPLATE).put("%s.h5");
+		final PVStructure defaultDetectorsPVStructure = defaultsPVStructure.getStructureField(FIELD_NAME_DETECTORS);
 
-		PVStructure defaultDetectorsPVStructure = defaultsPVStructure.getStructureField(FIELD_NAME_DETECTORS);
-		defaultDetectorsPVStructure.getSubField(PVBooleanArray.class, DETECTORS_TABLE_COLUMN_ENABLE).put(0, enabledArray.length, enabledArray, 0);
-		defaultDetectorsPVStructure.getSubField(PVStringArray.class, DETECTORS_TABLE_COLUMN_NAME).put(0, namesArray.length, namesArray, 0);
-		defaultDetectorsPVStructure.getSubField(PVStringArray.class, DETECTORS_TABLE_COLUMN_MRI).put(0, mriArray.length, mriArray, 0);
-		defaultDetectorsPVStructure.getSubField(PVDoubleArray.class, DETECTORS_TABLE_COLUMN_EXPOSURE).put(0, exposureArray.length, exposureArray, 0);
-		defaultDetectorsPVStructure.getSubField(PVIntArray.class, DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP).put(0, framesPerStepArray.length, framesPerStepArray, 0);
+		return populateDetectorsPVStructure(defaultDetectorsPVStructure, getDefaultMalcolmDetectorInfos());
+	}
 
-		return defaultDetectorsPVStructure;
+	private static PVStructure populateDetectorsPVStructure(final PVStructure detectorsPvStructure,
+			final List<MalcolmDetectorInfo> detectorInfos) {
+		final int numDetectors = detectorInfos.size();
+		final boolean[] enabledArray = new boolean[numDetectors];
+		final String[] nameArray = new String[numDetectors];
+		final String[] mriArray = new String[numDetectors];
+		final double[] exposureTimeArray = new double[numDetectors];
+		final int[] framesPerStepArray = new int[numDetectors];
+
+		for (int i = 0; i < numDetectors; i++) {
+			final MalcolmDetectorInfo detectorInfo = detectorInfos.get(i);
+			enabledArray[i] = detectorInfo.isEnabled();
+			nameArray[i] = detectorInfo.getName();
+			mriArray[i] = detectorInfo.getId();
+			exposureTimeArray[i] = detectorInfo.getExposureTime();
+			framesPerStepArray[i] = detectorInfo.getFramesPerStep();
+		}
+
+		detectorsPvStructure.getSubField(PVBooleanArray.class, DETECTORS_TABLE_COLUMN_ENABLE).put(0, enabledArray.length, enabledArray, 0);
+		detectorsPvStructure.getSubField(PVStringArray.class, DETECTORS_TABLE_COLUMN_NAME).put(0, nameArray.length, nameArray, 0);
+		detectorsPvStructure.getSubField(PVStringArray.class, DETECTORS_TABLE_COLUMN_MRI).put(0, mriArray.length, mriArray, 0);
+		detectorsPvStructure.getSubField(PVDoubleArray.class, DETECTORS_TABLE_COLUMN_EXPOSURE).put(0, exposureTimeArray.length, exposureTimeArray, 0);
+		detectorsPvStructure.getSubField(PVIntArray.class, DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP).put(0, framesPerStepArray.length, framesPerStepArray, 0);
+
+		return detectorsPvStructure;
 	}
 
 	private static void populateLayoutAttribute(PVStructure blockPVStructure) {

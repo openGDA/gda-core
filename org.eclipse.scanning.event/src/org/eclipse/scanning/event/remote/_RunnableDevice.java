@@ -107,12 +107,13 @@ class _RunnableDevice<M> extends _AbstractRemoteDevice<M> implements IRunnableDe
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public Object validateWithReturn(M model) throws ValidationException {
+	public M validateWithReturn(M model) throws ValidationException {
 		try {
 			DeviceRequest res = requester.post(new DeviceRequest(info.getName(), DeviceAction.VALIDATEWITHRETURN, model));
 			res.checkException();
-			return res.getDeviceValue();
+			return (M) res.getDeviceValue();
 		} catch (ValidationException ve) {
 			throw ve;
 		} catch (Exception ne) {

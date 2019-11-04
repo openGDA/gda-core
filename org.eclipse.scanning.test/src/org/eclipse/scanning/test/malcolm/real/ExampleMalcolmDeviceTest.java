@@ -37,6 +37,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +52,7 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmConstants;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
+import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.BoundingBox;
@@ -117,7 +119,7 @@ public class ExampleMalcolmDeviceTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void configureAndRunDummyMalcolm() throws Exception {
+	public void testMalcolmDevice() throws Exception {
 		configureMalcolmDevice();
 
 		// Test that malcolm attributes have the expected value
@@ -143,7 +145,7 @@ public class ExampleMalcolmDeviceTest {
 
 		// Check the RPC calls were received correctly by the device
 		Map<String, PVStructure> rpcCalls = epicsv4Device.getReceivedRPCCalls();
-		assertThat(rpcCalls.keySet(), hasSize(5)); // configure (which calls abort, reset and configure), run and seek (which calls pause)
+		assertThat(rpcCalls.keySet(), hasSize(6)); // validate, configure (which calls abort, reset and configure), run and seek (which calls pause)
 
 		// Check the 'configure' call is as expected
 		// first create the expected structure (it's quite large)
@@ -187,7 +189,7 @@ public class ExampleMalcolmDeviceTest {
 				.setId(TYPE_ID_TABLE)
 				.createStructure();
 
-		Structure expectedConfigureStructure = FieldFactory.getFieldCreate().createFieldBuilder()
+		Structure expectedConfigureValidateStructure = FieldFactory.getFieldCreate().createFieldBuilder()
 				.add(FIELD_NAME_GENERATOR, expectedGeneratorStructure)
 				.addArray(FIELD_NAME_AXES_TO_MOVE, ScalarType.pvString)
 				.add(FIELD_NAME_FILE_DIR, ScalarType.pvString)
@@ -208,7 +210,7 @@ public class ExampleMalcolmDeviceTest {
 		expectedSpiralGeneratorPVStructure.getDoubleField("radius").put(7.632168761236874);
 
 
-		PVStructure expectedConfigurePVStructure = PVDataFactory.getPVDataCreate().createPVStructure(expectedConfigureStructure);
+		PVStructure expectedConfigurePVStructure = PVDataFactory.getPVDataCreate().createPVStructure(expectedConfigureValidateStructure);
 		PVUnion pvu1 = PVDataFactory.getPVDataCreate().createPVVariantUnion();
 		pvu1.set(expectedSpiralGeneratorPVStructure);
 		PVUnion[] unionArray = new PVUnion[1];
@@ -258,8 +260,13 @@ public class ExampleMalcolmDeviceTest {
 		PVString fileTemplateVal = expectedConfigurePVStructure.getSubField(PVString.class, "fileTemplate");
 		fileTemplateVal.put("ixx-1234-%s.h5");
 
+		// check that the 'validate' call is as expected
+		PVStructure actualValidateStructure = rpcCalls.get(MalcolmMethod.VALIDATE.name().toLowerCase());
+		assertThat(actualValidateStructure.getStructure(), is(equalTo(expectedConfigureValidateStructure)));
+
+		// check that the 'configure' call is as expected
 		PVStructure actualConfigureStructure = rpcCalls.get(CONFIGURE.name().toLowerCase());
-		assertThat(actualConfigureStructure.getStructure(), is(equalTo(expectedConfigureStructure)));
+		assertThat(actualConfigureStructure.getStructure(), is(equalTo(expectedConfigureValidateStructure)));
 
 		// Check the 'run' call is as expected
 		Structure expectedRunStructure = FieldFactory.getFieldCreate().createFieldBuilder().createStructure();
@@ -281,27 +288,33 @@ public class ExampleMalcolmDeviceTest {
 		assertThat(actualSeekStructure, is(equalTo(expectedSeekPVStructure)));
 	}
 
-	private List<IMalcolmDetectorModel> createExpectedMalcolmDetectorModels() {
+	private IMalcolmModel createExpectedMalcolmModel() {
+		final IMalcolmModel malcolmModel = new MalcolmModel();
+		malcolmModel.setExposureTime(0.1);
+
 		final List<IMalcolmDetectorModel> detectorModels = new ArrayList<>(4);
 		detectorModels.add(new MalcolmDetectorModel("DET", 0, 1, true));
 		detectorModels.add(new MalcolmDetectorModel("DIFF", 0, 1, true));
 		detectorModels.add(new MalcolmDetectorModel("PANDA-01", 0, 1, false));
 		detectorModels.add(new MalcolmDetectorModel("PANDA-02", 0, 1, true));
+		malcolmModel.setDetectorModels(detectorModels);
 
-		return detectorModels;
+		return malcolmModel;
 	}
 
 	private void configureMalcolmDevice() throws Exception {
 		// create a new model and set it on the malcolm device (will be null before being set)
 		IMalcolmModel model = new MalcolmModel();
-		model.setExposureTime(0.25);
+		model.setExposureTime(0.1);
 		malcolmDevice.setModel(model);
+
+		IMalcolmModel expectedModel = createExpectedMalcolmModel();
+
 		// get the model, this populates the malcolm detector models by communicating over the epics connection
 		// with the real malcolm device (or the DummyMalcolmRecord in the case of this test)
-		model = malcolmDevice.getModel();
-		List<IMalcolmDetectorModel> detectorModels = model.getDetectorModels();
-		// assert that the malcolm detectors are as expected
-		assertThat(detectorModels, is(equalTo(createExpectedMalcolmDetectorModels())));
+		IMalcolmModel actualModel = malcolmDevice.getModel();
+
+		assertThat(actualModel, is(equalTo(expectedModel)));
 
 		// Create and set a point generator
 		List<IROI> regions = new LinkedList<>();
@@ -322,12 +335,22 @@ public class ExampleMalcolmDeviceTest {
 		// Set the file directory on the device
 		malcolmDevice.setOutputDir("/path/to/ixx-1234");
 
-		// create a new malcolm model with modified exposure time and detector models
-		model.setExposureTime(0.1);
-		model.getDetectorModels().get(0).setExposureTime(0.1);
-		model.getDetectorModels().get(0).setFramesPerStep(1);
-		model.getDetectorModels().get(1).setExposureTime(0.025);
-		model.getDetectorModels().get(1).setFramesPerStep(4);
+		// create a new expected malcolm model to match the version as modified by DummyMalcolmRecord
+		expectedModel = new MalcolmModel(expectedModel);
+		expectedModel.setAxesToMove(Arrays.asList("stage_x", "stage_y"));
+		expectedModel.setExposureTime(0.1);
+		expectedModel.getDetectorModels().get(0).setExposureTime(0.1);
+		expectedModel.getDetectorModels().get(0).setFramesPerStep(1);
+		expectedModel.getDetectorModels().get(1).setEnabled(false);
+		expectedModel.getDetectorModels().get(1).setExposureTime(0.025);
+		expectedModel.getDetectorModels().get(1).setFramesPerStep(4);
+		expectedModel.getDetectorModels().get(2).setEnabled(true);
+
+		// Call validate on the malcolm device
+		actualModel = malcolmDevice.validateWithReturn(model);
+
+		// check that the returned model has been modified as expected
+		assertThat(actualModel, is(equalTo(expectedModel)));
 
 		// Call configure
 		malcolmDevice.configure(model);

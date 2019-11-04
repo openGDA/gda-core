@@ -50,7 +50,9 @@ import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
+import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.ui.DetectorScanUIElement;
 import org.eclipse.scanning.api.ui.CommandConstants;
@@ -386,6 +388,11 @@ public class DetectorView extends ViewPart {
 		try {
 			final IRunnableDevice<M> device = runnableDeviceService.getRunnableDevice(detectorName);
 			final M model = element.getModel();
+			if (model instanceof IMalcolmModel && device.getDeviceState() == DeviceState.OFFLINE) {
+				MessageDialog.openError(getViewSite().getShell(), "Malcolm Device " + model.getName(),
+						"Cannot edit malcolm device " + model.getName() + " as it is offline.");
+				return;
+			}
 
 			final String label = runnableDeviceService.getDeviceInformation(model.getName()).getLabel();
 			final Dialog editModelDialog = new EditDetectorModelDialog(getViewSite().getShell(),

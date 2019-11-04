@@ -21,6 +21,7 @@ import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_MRI;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_NAME;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_AXES_TO_MOVE;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_DETECTORS;
 import static org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.ERROR_MESSAGE_PREFIX_FAILED_TO_CONNECT;
 
@@ -478,7 +479,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	}
 
 	@Override
-	public Object validateWithReturn(IMalcolmModel model) throws ValidationException {
+	public IMalcolmModel validateWithReturn(IMalcolmModel model) throws ValidationException {
 		if (Boolean.getBoolean("org.eclipse.scanning.malcolm.skipvalidation")) {
 			logger.warn("Skipping Malcolm Validate");
 			return null;
@@ -497,11 +498,40 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 			throw new ValidationException(mde);
 		}
 
-		// TODO: reply.getRawValue is probably the EpicsMalcolmModel. It may be modified, e.g. the
-		// exposure time may have been changed by malcolm to be a multiple of the clock speed. We
-		// should take the updated duration time and update it in the malcolm model and then
-		// return that. See JIRA ticket DAQ-1437
-		return reply.getRawValue();
+		// the returned value is a map with the same key names as the fields as the EpicsMalcolmModel
+		// malcolm may have modified the scan point generator and/or the detector models
+		@SuppressWarnings("unchecked")
+		final Map<String, Object> result = (Map<String, Object>) reply.getValue();
+		return validateResultToMalcolmModel(model, result);
+	}
+
+	private IMalcolmModel validateResultToMalcolmModel(IMalcolmModel model, Map<String, Object> validateResult) {
+		final MalcolmTable modifiedDetectorsMalcolmTable = (MalcolmTable) validateResult.get(FIELD_NAME_DETECTORS);
+		final List<IMalcolmDetectorModel> detectorModels = modifiedDetectorsMalcolmTable.stream()
+				.map(this::detectorRowToMalcolmDetectorModel).collect(toList());
+		@SuppressWarnings("unchecked")
+		final List<String> axesToMove = (List<String>) validateResult.get(FIELD_NAME_AXES_TO_MOVE);
+
+		final MalcolmModel newModel = new MalcolmModel();
+		newModel.setName(model.getName()); // get the name and timeout from the original model, they aren't changed
+		newModel.setTimeout(model.getTimeout());
+		newModel.setExposureTime(model.getExposureTime()); // TODO get from the scan point generator
+		newModel.setAxesToMove(axesToMove);
+		newModel.setDetectorModels(detectorModels);
+
+		return newModel;
+	}
+
+	private MalcolmDetectorModel detectorRowToMalcolmDetectorModel(Map<String, Object> row) {
+		// TODO the enable column is only added for malcolm 4.2, so we need it not being present
+		// final boolean enabled = (Boolean) row.get(DETECTORS_TABLE_COLUMN_ENABLE),
+		final Boolean enabledWrapper = (Boolean) row.get(DETECTORS_TABLE_COLUMN_ENABLE);
+		final boolean enabled = enabledWrapper == null || enabledWrapper.booleanValue();
+
+		final String name = (String) row.get(DETECTORS_TABLE_COLUMN_NAME);
+		final double exposureTime = (Double) row.get(DETECTORS_TABLE_COLUMN_EXPOSURE);
+		final int framesPerStep = (Integer) row.get(DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP);
+		return new MalcolmDetectorModel(name, exposureTime, framesPerStep, enabled);
 	}
 
 	@Override

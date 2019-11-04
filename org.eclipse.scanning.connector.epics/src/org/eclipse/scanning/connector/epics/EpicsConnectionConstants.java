@@ -32,6 +32,7 @@ public class EpicsConnectionConstants {
 
 	public static final String ID_PREFIX_MALCOLM = "malcolm:core/";
 	public static final String TYPE_ID_ERROR = ID_PREFIX_MALCOLM + "Error:";
+	public static final String TYPE_ID_MAP = ID_PREFIX_MALCOLM + "Map:1.0";
 	public static final String TYPE_ID_TABLE = ID_PREFIX_MALCOLM + "Table:1.0";
 	public static final String TYPE_ID_METHOD_LOG = ID_PREFIX_MALCOLM + "MethodLog:1.0";
 	public static final String TYPE_ID_BLOCK = ID_PREFIX_MALCOLM + "Block:1.0";

@@ -122,6 +122,7 @@ public abstract class AbstractMalcolmDeviceTest {
 	public void tearDown() throws Exception {
 		malcolmDevice.dispose();
 		malcolmConnection.disconnect();
+		malcolmDetectorInfos = null;
 	}
 
 	/**
@@ -232,23 +233,22 @@ public abstract class AbstractMalcolmDeviceTest {
 	protected MalcolmMessage createExpectedMalcolmGetConfigureReply() {
 		final MalcolmMethodMeta result = new MalcolmMethodMeta(MalcolmMethod.CONFIGURE);
 		final Map<String, Object> defaults = new HashMap<>();
-		defaults.put(MalcolmConstants.FIELD_NAME_DETECTORS, createExpectedDetectorsMalcolmTable());
+		defaults.put(MalcolmConstants.FIELD_NAME_DETECTORS, createExpectedDetectorsMalcolmTable(getExpectedMalcolmDetectorInfos()));
 		result.setDefaults(defaults);
 
 		return createExpectedMalcolmOkReply(result);
 	}
 
-	protected MalcolmTable createExpectedDetectorsMalcolmTable() {
+	protected MalcolmTable createExpectedDetectorsMalcolmTable(List<MalcolmDetectorInfo> detectorInfos) {
 		// convert the MalcolmDetectorInfos to a MalcolmTable
-		final List<MalcolmDetectorInfo> infos = getExpectedMalcolmDetectorInfos();
-		final int numDetectors = infos.size();
+		final int numDetectors = detectorInfos.size();
 		final List<String> names = new ArrayList<>(numDetectors);
 		final List<String> mris = new ArrayList<>(numDetectors);
 		final List<Double> exposures = new ArrayList<>(numDetectors);
 		final List<Integer> framesPerSteps = new ArrayList<>(numDetectors);
 		final List<Boolean> enablements = new ArrayList<>(numDetectors);
 
-		for (MalcolmDetectorInfo info : infos) {
+		for (MalcolmDetectorInfo info : detectorInfos) {
 			names.add(info.getName());
 			mris.add(info.getId());
 			exposures.add(info.getExposureTime());

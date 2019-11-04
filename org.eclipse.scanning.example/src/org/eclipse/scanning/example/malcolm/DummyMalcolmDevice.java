@@ -30,6 +30,8 @@ import static org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType.SEC
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -552,6 +554,25 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 	@Override
 	public DummyMalcolmModel getModel() {
 		return (DummyMalcolmModel) super.getModel();
+	}
+
+	@Override
+	public IMalcolmModel validateWithReturn(IMalcolmModel model) throws ValidationException {
+		// the dummy malcolm device only allows frames per step between 1 and 10
+		for (IMalcolmDetectorModel detModel : model.getDetectorModels()) {
+			int framesPerStep = detModel.getFramesPerStep();
+			framesPerStep = Math.max(1, framesPerStep);
+			framesPerStep = Math.min(10, framesPerStep);
+			detModel.setFramesPerStep(framesPerStep);
+
+			// round the exposure time to 2 decimal places. This is just an example for testing the EditMalcolmModel dialog
+			double exposureTime = detModel.getExposureTime();
+			BigDecimal bigD = BigDecimal.valueOf(exposureTime).setScale(2, RoundingMode.HALF_UP);
+			exposureTime = bigD.doubleValue();
+			detModel.setExposureTime(exposureTime);
+		}
+
+		return super.validateWithReturn(model);
 	}
 
 	private int getScanRank() {

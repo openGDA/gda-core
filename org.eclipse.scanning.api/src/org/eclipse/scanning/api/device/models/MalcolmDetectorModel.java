@@ -30,9 +30,17 @@ public class MalcolmDetectorModel extends AbstractDetectorModel implements IMalc
 
 	public MalcolmDetectorModel(String name, double exposureTime, int framesPerStep, boolean enabled) {
 		setName(name);
+		setEnabled(enabled);
 		setExposureTime(exposureTime);
 		setFramesPerStep(framesPerStep);
-		setEnabled(enabled);
+	}
+
+	public MalcolmDetectorModel(IMalcolmDetectorModel toCopy) {
+		setName(toCopy.getName());
+		setTimeout(toCopy.getTimeout());
+		setEnabled(toCopy.isEnabled());
+		setExposureTime(toCopy.getExposureTime());
+		setFramesPerStep(toCopy.getFramesPerStep());
 	}
 
 	@Override

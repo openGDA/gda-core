@@ -22,7 +22,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
+import java.util.Optional;
 
+import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.Job;
@@ -110,6 +112,8 @@ public class EditDetectorModelDialog extends Dialog {
 	private Button plotAsImage;
 
 	private Combo datasetCombo;
+
+	private Optional<MalcolmModelEditor> malcolmModelEditor = null;
 
 	public EditDetectorModelDialog(final Shell parentShell, final IRunnableDeviceService runnableDeviceService,
 			final IDetectorModel detectorModel, final String detectorName) {
@@ -266,42 +270,62 @@ public class EditDetectorModelDialog extends Dialog {
 		final Composite composite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().applyTo(composite);
 
-		final Control modelEditor;
+		final Control modelEditorControl;
 		if (detectorModel instanceof IMalcolmModel) {
 			// create a MalcolmModelEditor for malcolm devices
 			MalcolmModelEditor malcolmModelEditor = new MalcolmModelEditor(runnableDeviceService, (IMalcolmModel) detectorModel);
-			modelEditor = malcolmModelEditor.createEditorPart(parent);
+			modelEditorControl = malcolmModelEditor.createEditorPart(parent);
+			this.malcolmModelEditor = Optional.of(malcolmModelEditor);
+			validateModel(true); // the malcolm dialog needs an initial validation
 		} else {
 			// for software detectors use the gui generator to generate a gui to edit the detector model
 			final IGuiGeneratorService guiGenerator = Activator.getDefault().getService(IGuiGeneratorService.class);
-			modelEditor = guiGenerator.generateGui(detectorModel, parent);
+			modelEditorControl = guiGenerator.generateGui(detectorModel, parent);
 		}
-		GridDataFactory.fillDefaults().applyTo(modelEditor);
+		GridDataFactory.fillDefaults().applyTo(modelEditorControl);
 
 		final Button validateButton = new Button(parent, SWT.PUSH);
 		validateButton.setText("Validate");
-		validateButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(event -> validateModel()));
+		validateButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(event -> validateModel(false)));
 
 		return composite;
 	}
 
-	private void validateModel() {
-		IRunnableDevice<IDetectorModel> detector;
-		try {
-			detector = runnableDeviceService.getRunnableDevice(detectorModel.getName());
-		} catch (ScanningException e) {
-			logger.error("Error getting device '{}'", detectorModel.getName(), e);
-			MessageDialog.openError(getShell(), "Error", "Could not get device " + detectorLabel);
-			return;
-		}
+	private void validateModel(boolean initialValidation) {
+		final Job validateJob = Job.create("Validate detector model", (ICoreRunnable) monitor -> {
+			Object result;
+			try {
+				result = validate(detectorModel);
+			} catch (Exception e) {
+				result = e;
+			}
 
-		try {
-			detector.validate(detectorModel);
-			MessageDialog.openInformation(getShell(), "Validation Successful", "The given configuration is valid.");
-		} catch (ValidationException e) {
-			MessageDialog.openError(getShell(), "Validation Error",
-					"The given configuration is invalid: " + e.getMessage());
-		}
+			displayValidationResult(result, initialValidation);
+		});
+
+		validateJob.schedule();
+	}
+
+	private IDetectorModel validate(IDetectorModel model) throws ScanningException {
+		final IRunnableDevice<IDetectorModel> detector = runnableDeviceService.getRunnableDevice(model.getName());
+		return detector.validateWithReturn(model);
+	}
+
+	private void displayValidationResult(Object result, boolean initialValidation) {
+		getShell().getDisplay().asyncExec(() -> {
+			if (result instanceof ValidationException) {
+				MessageDialog.openError(getShell(), "Validation Error",
+						"The given configuration is invalid: " + ((Exception) result).getMessage());
+			} else if (result instanceof Exception) {
+				logger.error("Error getting device '{}'", detectorModel.getName(), (Exception) result);
+				MessageDialog.openError(getShell(), "Error", "Could not get device " + detectorLabel);
+			} else if (!initialValidation) {
+				// only show message for ok if button pressed
+				MessageDialog.openInformation(getShell(), "Validation Successful", "The given configuration is valid.");
+			}
+			malcolmModelEditor.ifPresent(editor -> editor.updateValidatedModel(
+					result instanceof IMalcolmModel ? (IMalcolmModel) result : null));
+		});
 	}
 
 	private void createStatsSection() {
