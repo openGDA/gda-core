@@ -15,10 +15,12 @@ import gda.device.DeviceException;
 import uk.ac.diamond.daq.client.gui.camera.controller.CameraConfigurationAdapter;
 import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
 import uk.ac.gda.api.camera.BinningFormat;
+import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.ClientSWTElements;
 
 public class BinningComposite extends Composite {
 	private static final Logger log = LoggerFactory.getLogger(BinningComposite.class);
-	
+
 	private class BinningListener extends CameraConfigurationAdapter {
 		@Override
 		public void setBinningFormat(BinningFormat binningFormat) {
@@ -39,9 +41,10 @@ public class BinningComposite extends Composite {
 	}
 
 	private BinningButton[] binningButtons;
-	private AbstractCameraConfigurationController controller;
+	private final AbstractCameraConfigurationController controller;
 
-	public BinningComposite(Composite parent, AbstractCameraConfigurationController controller, int style) throws DeviceException {
+	public BinningComposite(Composite parent, AbstractCameraConfigurationController controller, int style)
+			throws DeviceException {
 		super(parent, style);
 
 		this.controller = controller;
@@ -49,20 +52,16 @@ public class BinningComposite extends Composite {
 		controller.addListener(binningListener);
 
 		addListener(SWT.Dispose, e -> controller.removeListener(binningListener));
-
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(this);
 
-		Group group = new Group(this, SWT.NONE);
-		group.setText("Binning");
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(group);
-
-		GridLayoutFactory.swtDefaults().numColumns(6).applyTo(group);
+		Group group = ClientSWTElements.createGroup(this, 6, ClientMessages.BINNING, null,
+				GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(true, true));
 
 		binningButtons = new BinningButton[3];
 		binningButtons[0] = addButton(group, 1);
 		binningButtons[1] = addButton(group, 2);
 		binningButtons[2] = addButton(group, 4);
-		
+
 		binningListener.setBinningFormat(controller.getBinning());
 	}
 

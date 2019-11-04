@@ -16,20 +16,30 @@ import uk.ac.diamond.daq.client.gui.camera.absorption.AbsorptionCompositeFactory
 import uk.ac.diamond.daq.client.gui.camera.controller.ImagingCameraConfigurationController;
 import uk.ac.diamond.daq.client.gui.camera.exposure.ExposureCompositeFactory;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
+import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.ClientMessagesUtility;
 
+/**
+ * 
+ * 
+ * @author Maurizio Nagni
+ * @author Eliot Hall
+ *
+ */
 public class CameraConfigurationDialog extends AbstractCameraConfigurationDialog<ImagingCameraConfigurationController> {
 	private static final int MINIMUM_WIDTH = 960;
 	private static final int MINIMUM_HEIGHT = 600;
 
-	private static CameraConfigurationDialog instance;
-
 	public static void show(Display display, IConnection liveStreamConnection) throws DeviceException {
-		ImagingCameraConfigurationController controller = new ImagingCameraConfigurationController(
-				CameraConfigurationView.CAMERA_CONTROL_NAME);
+		// Preliminary implementation to parametrise the active camera (0 will be a
+		// parameter)
+		int activeCamera = 0;
+		ImagingCameraConfigurationController controller = (ImagingCameraConfigurationController) CameraHelper
+				.getCameraControlInstance(activeCamera);
 
 		Point minimumDialogSize = new Point(MINIMUM_WIDTH, MINIMUM_HEIGHT);
 		Shell shell = new Shell(display, SWT.TITLE | SWT.RESIZE);
-		shell.setText("Camera Configuration");
+		shell.setText(ClientMessagesUtility.getMessage(ClientMessages.CAMERA_CONFIGURATION));
 		shell.setSize(minimumDialogSize);
 		shell.setMinimumSize(minimumDialogSize);
 
@@ -51,35 +61,28 @@ public class CameraConfigurationDialog extends AbstractCameraConfigurationDialog
 	}
 
 	CameraConfigurationDialog(Shell shell, ImagingCameraConfigurationController controller,
-			LiveStreamConnection liveStreamConnection) throws DeviceException {
+			LiveStreamConnection liveStreamConnection) {
 		super(shell, controller, liveStreamConnection);
 	}
 
 	CameraConfigurationDialog(Composite composite, ImagingCameraConfigurationController controller,
-			LiveStreamConnection liveStreamConnection) throws DeviceException {
+			LiveStreamConnection liveStreamConnection) {
 		super(composite, controller, liveStreamConnection);
 	}
 
-	
-	
 	@Override
-	protected CompositeFactory createTabFactory(Composite parent) throws DeviceException {
+	protected CompositeFactory createTabFactory() throws DeviceException {
 		TabFolderBuilder builder = new TabFolderBuilder();
 		builder.addTab(createExposureCompositeFactory());
 		builder.addTab(createAbsorptionCompositeFactory());
 		return builder.build();
-//		
-//
-//		tabsFactory.createComposite(parent, SWT.NONE);
-//		GridDataFactory.fillDefaults().grab(true, true).applyTo(parent);
-//		return null;
 	}
 
 	protected final TabCompositeFactory createExposureCompositeFactory() {
 		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
 		CompositeFactory cf = new ExposureCompositeFactory<>(getController());
 		group.setCompositeFactory(cf);
-		group.setLabel("Exposure");
+		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.EXPOSURE));
 		return group;
 	}
 
@@ -87,7 +90,7 @@ public class CameraConfigurationDialog extends AbstractCameraConfigurationDialog
 		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
 		CompositeFactory cf = new AbsorptionCompositeFactory<>(getController());
 		group.setCompositeFactory(cf);
-		group.setLabel("Absorption");
+		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.ABSORPTION));
 		return group;
 	}
 }

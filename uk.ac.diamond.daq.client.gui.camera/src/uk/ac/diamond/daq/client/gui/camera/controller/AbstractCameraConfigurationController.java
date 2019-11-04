@@ -7,57 +7,80 @@ import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.factory.Finder;
 import gda.observable.IObserver;
+import uk.ac.diamond.daq.client.gui.camera.event.ExposureChangeEvent;
 import uk.ac.gda.api.camera.BinningFormat;
 import uk.ac.gda.api.camera.CameraControl;
+import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
+/**
+ * Base class for diffraction and imaging camera controllers.
+ * 
+ * Uses Spring to publish {@link ExposureChangeEvent} whenever the camera exposure changes
+ * 
+ * @author Maurizio Nagni
+ * @author Elliot Hall
+ *
+ */
 public abstract class AbstractCameraConfigurationController implements IObserver {
-	private static final Logger log = LoggerFactory.getLogger(AbstractCameraConfigurationController.class);
-	
+	private static final Logger logger = LoggerFactory.getLogger(AbstractCameraConfigurationController.class);
+
+	/**
+	 * The camera minimal exposure expressed in milliseconds
+	 */
+	public static final String CAMERA_MIN_EXPOSURE = "camera.min.exposure";
+	/**
+	 * The camera maximal exposure expressed in milliseconds
+	 */
+	public static final String CAMERA_MAX_EXPOSURE = "camera.max.exposure";
+	private static final int MAX_EXPOSURE_DEFAULT = 1000;
+	private static final int MIN_EXPOSURE_DEFAULT = 1;
+
 	protected List<CameraConfigurationListener> listeners = new ArrayList<>();
 	private CameraControl cameraControl;
 	private CameraConfigurationMode cameraConfigurationMode;
 	private RectangularROI currentRoi;
 	private RectangularROI proposedRoi;
-	
-	public AbstractCameraConfigurationController (String findableInstance) throws DeviceException {
+
+	public AbstractCameraConfigurationController(String findableInstance) throws DeviceException {
 		cameraControl = Finder.getInstance().find(findableInstance);
 		cameraControl.addIObserver(this);
-		
-		int[] rawRoi= cameraControl.getRoi();
+
+		int[] rawRoi = cameraControl.getRoi();
 		currentRoi = new RectangularROI(rawRoi[0], rawRoi[1], rawRoi[2], rawRoi[3], 0.0);
 		proposedRoi = new RectangularROI(0.0, 0.0, 0.0, 0.0, 0.0);
 	}
-	
-	public void dispose () {
+
+	public void dispose() {
 		cameraControl.deleteIObserver(this);
 	}
-	
-	public void addListener (CameraConfigurationListener listener) {
+
+	public void addListener(CameraConfigurationListener listener) {
 		listeners.add(listener);
 	}
-	
-	public void removeListener (CameraConfigurationListener listener) {
+
+	public void removeListener(CameraConfigurationListener listener) {
 		listeners.remove(listener);
 	}
-	
-	public RectangularROI getROI () {
+
+	public RectangularROI getROI() {
 		return proposedRoi;
 	}
-	
+
 	public RectangularROI getCurrentRoi() {
 		return currentRoi;
 	}
-	
-	public void setROI (RectangularROI roi)  {
-		if (log.isTraceEnabled()) {
+
+	public void setROI(RectangularROI roi) {
+		if (logger.isTraceEnabled()) {
 			String was = String.format("(%d, %d, %d, %d)", proposedRoi.getIntPoint()[0], proposedRoi.getIntPoint()[1],
 					proposedRoi.getIntLengths()[0], proposedRoi.getIntLengths()[1]);
 			String now = String.format("(%d, %d, %d, %d)", roi.getIntPoint()[0], roi.getIntPoint()[1],
 					roi.getIntLengths()[0], roi.getIntLengths()[1]);
-			log.trace("Updatinng ROI => Was: {}, Now: {}", was, now);
+			logger.trace("Updatinng ROI => Was: {}, Now: {}", was, now);
 		}
 		proposedRoi = roi;
 		if (proposedRoi.getLength(0) == 0.0 && proposedRoi.getLength(1) == 0.0) {
@@ -70,8 +93,8 @@ public abstract class AbstractCameraConfigurationController implements IObserver
 			}
 		}
 	}
-	
-	public void deleteROI () throws DeviceException {
+
+	public void deleteROI() throws DeviceException {
 		proposedRoi.setPoint(0.0, 0.0);
 		proposedRoi.setLengths(0.0, 0.0);
 		cameraControl.clearRoi();
@@ -80,73 +103,87 @@ public abstract class AbstractCameraConfigurationController implements IObserver
 			listener.clearRegionOfInterest();
 		}
 	}
-	
-	public void applyROI () throws DeviceException {
+
+	public void applyROI() throws DeviceException {
 		if (proposedRoi.getLength(0) == 0.0 && proposedRoi.getLength(1) == 0.0) {
 			cameraControl.clearRoi();
 		} else {
-			cameraControl.setRoi(proposedRoi.getIntPoint()[0], proposedRoi.getIntPoint()[1], 
-				proposedRoi.getIntLength(0), proposedRoi.getIntLength(1));
+			cameraControl.setRoi(proposedRoi.getIntPoint()[0], proposedRoi.getIntPoint()[1],
+					proposedRoi.getIntLength(0), proposedRoi.getIntLength(1));
 			currentRoi = proposedRoi.copy();
 		}
 		for (CameraConfigurationListener listener : listeners) {
 			listener.clearRegionOfInterest();
 		}
 	}
-	
-	public RectangularROI getMaximumSizedROI () throws DeviceException {
+
+	public RectangularROI getMaximumSizedROI() throws DeviceException {
 		int[] frameSize = cameraControl.getFrameSize();
 		RectangularROI max = new RectangularROI();
-		max.setPoint(0,  0);
+		max.setPoint(0, 0);
 		max.setEndPoint(frameSize);
 		return max;
 	}
-	
-	public void calculateRatio (int highRegion, int lowRegion) {
+
+	public void calculateRatio(int highRegion, int lowRegion) {
 		if (lowRegion == 0) {
 			lowRegion = 1;
 		}
-		double ratio = (double)highRegion / lowRegion;
+		double ratio = (double) highRegion / lowRegion;
 		for (CameraConfigurationListener listener : listeners) {
 			listener.setRatio(highRegion, lowRegion, ratio);
 		}
 	}
-	
+
 	public CameraConfigurationMode getCameraDialogMode() {
 		return cameraConfigurationMode;
 	}
-	
-	public void setMode (CameraConfigurationMode cameraConfigurationMode) {
+
+	public void setMode(CameraConfigurationMode cameraConfigurationMode) {
 		this.cameraConfigurationMode = cameraConfigurationMode;
 		for (CameraConfigurationListener listener : listeners) {
 			listener.setCameraConfigurationMode(cameraConfigurationMode);
 		}
 	}
-	
-	public BinningFormat getBinning () throws DeviceException {
+
+	public BinningFormat getBinning() throws DeviceException {
 		return cameraControl.getBinningPixels();
 	}
-	
-	public void setBinning (BinningFormat binningFormat) throws DeviceException {
+
+	public void setBinning(BinningFormat binningFormat) throws DeviceException {
 		cameraControl.setBinningPixels(binningFormat);
 	}
-	
-	public double getExposure () throws DeviceException {
+
+	public double getMinExposure() {
+		return LocalProperties.getDouble(CAMERA_MIN_EXPOSURE, MIN_EXPOSURE_DEFAULT);
+	}
+
+	public double getMaxExposure() {
+		return LocalProperties.getDouble(CAMERA_MAX_EXPOSURE, MAX_EXPOSURE_DEFAULT);
+	}
+
+	public double getExposure() throws DeviceException {
 		return cameraControl.getAcquireTime();
 	}
-	
-	public void setExposure (double time) throws DeviceException {
+
+	public void setExposure(double time) throws DeviceException {
 		cameraControl.setAcquireTime(time);
+		publishExposureChangeEvent(time);
 	}
-	
-	public void refreshSnapshot () {
+
+	public void refreshSnapshot() {
 		for (CameraConfigurationListener listener : listeners) {
 			listener.refreshSnapshot();
 		}
 	}
 
+	private void publishExposureChangeEvent(double exposureTime) {
+		ExposureChangeEvent event = new ExposureChangeEvent(this, exposureTime);
+		SpringApplicationContextProxy.publishEvent(event);
+	}
+	
 	@Override
 	public void update(Object source, Object arg) {
-		//nothing yet
+		// nothing yet
 	}
 }

@@ -49,7 +49,7 @@ public class DiffractionConfigurationDialog
 	}
 
 	@Override
-	protected CompositeFactory createTabFactory(Composite parent) throws DeviceException {
+	protected CompositeFactory createTabFactory() throws DeviceException {
 		TabFolderBuilder builder = new TabFolderBuilder();
 		builder.addTab(createDiffractionConfigurationFactory());
 		builder.addTab(createDiffractionAnalysisFactory());

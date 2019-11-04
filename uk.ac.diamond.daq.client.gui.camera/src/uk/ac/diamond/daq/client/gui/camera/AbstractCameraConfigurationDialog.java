@@ -44,18 +44,19 @@ public abstract class AbstractCameraConfigurationDialog<T extends AbstractCamera
 		this.controller = controller;
 		this.liveStreamConnection = liveStreamConnection;
 
-		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(shell);
-		GridLayoutFactory.swtDefaults().applyTo(shell);
+		GridLayoutFactory.fillDefaults().applyTo(shell);
 	}
 
 	public void createComposite(boolean closable) throws DeviceException {
 		Composite intParent = getParent() == null ? getShell() : getParent();
+		intParent.setBackground(intParent.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
 
 		CompositeFactory cf = new LiveViewCompositeFactory<>(getController(), getLiveStreamConnection());
 		cf.createComposite(intParent, SWT.NONE);
 
-		cf = createTabFactory(intParent);
-		cf.createComposite(intParent, SWT.NONE);
+		cf = createTabFactory();
+		Composite tabs = cf.createComposite(intParent, SWT.NONE);
+		GridDataFactory.fillDefaults().applyTo(tabs);
 
 		createLoadSaveComposite(intParent, closable);
 	}
@@ -76,7 +77,7 @@ public abstract class AbstractCameraConfigurationDialog<T extends AbstractCamera
 		this.liveStreamConnection = liveStreamConnection;
 	}
 
-	protected abstract CompositeFactory createTabFactory(Composite composite) throws DeviceException;
+	protected abstract CompositeFactory createTabFactory() throws DeviceException;
 
 	private Composite createLoadSaveComposite(Composite parent, boolean closable) {
 		Composite panel = ClientSWTElements.createComposite(parent, SWT.NONE, 3);
