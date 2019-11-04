@@ -30,6 +30,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 <module>uk.ac.gda.arpes.server</module>
 <module>uk.ac.gda.arpes.server.test</module>
 <module>uk.ac.gda.devices.vgscienta</module>
+<module>uk.ac.gda.sisa</module>
 </modules>
 </project>
 
