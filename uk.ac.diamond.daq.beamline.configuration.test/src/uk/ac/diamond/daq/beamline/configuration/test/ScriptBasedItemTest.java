@@ -40,6 +40,7 @@ public class ScriptBasedItemTest {
 	private static final String INPUT_PROPERTY = "potato";
 	private static final String SQUARED_FUNCTION = "	return x**2";
 	private static final String ERROR_IN_SCRIPT_MESSAGE = "Error executing function '" + FUNCTION + "'";
+	private static final String FUNCTION_RETURNED_NULL = "Function returned null!";
 
 	private static PythonInterpreter python;
 
@@ -54,7 +55,7 @@ public class ScriptBasedItemTest {
 		Scannable scannable = createMockScannable();
 
 		ScriptBasedItem item = new ScriptBasedItem(new File(FILENAME), singletonMap(scannable, FUNCTION), INPUT_PROPERTY);
-		Map<Scannable, Double> position = item.getPositions(getProperties(input));
+		Map<Scannable, Object> position = item.getPositions(getProperties(input));
 
 		assertThat(position, is(equalTo(singletonMap(scannable, expectedOutput))));
 	}
@@ -82,9 +83,20 @@ public class ScriptBasedItemTest {
 		double input = 4.5;
 		double result = Math.pow(input - 1, 2);
 
-		Map<Scannable, Double> position = new ScriptBasedItem(new File(FILENAME), singletonMap(scannable, FUNCTION), INPUT_PROPERTY).getPositions(getProperties(input));
+		Map<Scannable, Object> position = new ScriptBasedItem(new File(FILENAME), singletonMap(scannable, FUNCTION), INPUT_PROPERTY).getPositions(getProperties(input));
 
 		assertThat(position, is(equalTo(singletonMap(scannable, result))));
+	}
+
+	@Test
+	public void returnString() throws Exception {
+		Scannable shutter = createMockScannable();
+		String scriptResult = "Closed";
+		createScript("	return '" + scriptResult + "'");
+
+		new ScriptBasedItem(new File(FILENAME), singletonMap(shutter, FUNCTION), INPUT_PROPERTY).start(getProperties(0));
+
+		verify(shutter).asynchronousMoveTo(scriptResult);
 	}
 
 	@Test
@@ -118,8 +130,8 @@ public class ScriptBasedItemTest {
 		functionsMap.put(y, "fn2");
 		new ScriptBasedItem(new File(FILENAME), functionsMap, INPUT_PROPERTY).start(getProperties(0));
 
-		verify(x).asynchronousMoveTo(42.0);
-		verify(y).asynchronousMoveTo(-3.0);
+		verify(x).asynchronousMoveTo(42);
+		verify(y).asynchronousMoveTo(-3);
 	}
 
 	@Test
@@ -128,7 +140,7 @@ public class ScriptBasedItemTest {
 				  "\n	return 42"
 				+ "\n"
 				+ "def fn2(x):"
-				+ "\n	return 'covfefe'";
+				+ "\n	fail!";
 		createScript(script);
 
 		Scannable x = createMockScannable();
@@ -147,10 +159,17 @@ public class ScriptBasedItemTest {
 
 	@Test
 	public void noReturnStatement() throws Exception {
+		/*
+		 *  Note that there is no such thing as a void method in Python
+		 * so the following are equivalent
+		 * - return
+		 * - return None
+		 * - << no return statement >>
+		 **/
 		createScript("	pass");
 
-		exception.expect(WorkflowException.class);
-		exception.expectMessage(ERROR_IN_SCRIPT_MESSAGE);
+		exception.expect(NullPointerException.class);
+		exception.expectMessage(FUNCTION_RETURNED_NULL);
 
 		new ScriptBasedItem(new File(FILENAME), singletonMap(createMockScannable(), FUNCTION), INPUT_PROPERTY).start(getProperties(5.0));
 	}
@@ -160,6 +179,23 @@ public class ScriptBasedItemTest {
 		exception.expect(WorkflowException.class);
 		exception.expectMessage("Error reading script");
 		new ScriptBasedItem(new File("covfefe.py"), singletonMap(createMockScannable(), FUNCTION), INPUT_PROPERTY).start(getProperties(5.0));
+	}
+
+	@Test
+	public void handlingSyntaxError() throws Exception {
+		/*
+		 * This test covers a syntax error when our Jython interpreter
+		 * executes the entire script (before evaluating a particular function)
+		 **/
+		String script = "	pass\n"
+					  + "invalid syntax";
+		createScript(script);
+
+		exception.expect(WorkflowException.class);
+		exception.expectMessage("Error interpreting script");
+
+		new ScriptBasedItem(new File(FILENAME), singletonMap(createMockScannable(), FUNCTION), INPUT_PROPERTY)
+			.getPositions(getProperties(0));
 	}
 
 	private void createScript(String functionBody) throws Exception {

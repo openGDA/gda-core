@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Set;
 
 public interface ScannablePositionLookupService {
-	
-	Map<String, Double> getScannablePositions(double value, Set<String> scannables) throws WorkflowException;
+
+	Map<String, Object> getScannablePositions(Object value, Set<String> scannables) throws WorkflowException;
 
 }

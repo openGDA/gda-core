@@ -1,7 +1,6 @@
 package uk.ac.diamond.daq.beamline.configuration.test;
 
 import static java.util.Collections.singleton;
-import static java.util.Collections.singletonMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -11,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,14 +36,14 @@ public class AbstractCSVLookupServiceTest {
 		}
 
 		@Override
-		public Map<String, Double> getScannablePositions(double value, Set<String> columns) throws WorkflowException {
+		public Map<String, Object> getScannablePositions(Object value, Set<String> columns) throws WorkflowException {
 			List<String> requestedColumns = new ArrayList<>();
 			requestedColumns.add(customLookupColumn);
 			requestedColumns.addAll(columns);
 
-			double[] row = this.readCSVFile(value, requestedColumns);
+			String[] row = readCSVFile(value, requestedColumns);
 
-			Map<String, Double> result = new HashMap<>();
+			Map<String, Object> result = new HashMap<>();
 			for (int i=1;i<requestedColumns.size();i++) {
 				result.put(requestedColumns.get(i), row[i]);
 			}
@@ -51,15 +51,16 @@ public class AbstractCSVLookupServiceTest {
 		}
 
 		@Override
-		protected boolean rowMatches(double value, double[] row) {
-			return value == row[0];
+		protected boolean rowMatches(Object value, String[] row) {
+			return value.equals(row[0]);
 		}
 
 	}
 
 	private static final String CSV_FILE = "AbstractCVSMotoPositionLookupServiceTest.csv";
 	private static final String LOOKUP_COLUMN = "lookup";
-	private static final String VALUE_COLUMN = "value";
+	private static final String VALUE_ONE_COLUMN = "value 1";
+	private static final String VALUE_TWO_COLUMN = "value 2";
 
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
@@ -73,9 +74,9 @@ public class AbstractCSVLookupServiceTest {
 		}
 
 		FileWriter fileWriter = new FileWriter(csvFile);
-		fileWriter.write(LOOKUP_COLUMN + "," + VALUE_COLUMN + "," + ",\r\n");
-		fileWriter.write("1,2\n");
-		fileWriter.write("3,4\n");
+		fileWriter.write(LOOKUP_COLUMN + "," + VALUE_ONE_COLUMN + "," + VALUE_TWO_COLUMN+ "," + ",\r\n");
+		fileWriter.write("1,2,Open,\n");
+		fileWriter.write("3,4,Close,\n");
 		fileWriter.close();
 	}
 
@@ -89,9 +90,17 @@ public class AbstractCSVLookupServiceTest {
 
 	@Test
 	public void getMotorPositions_validLookupAndResultColumns() throws Exception {
-		Map<String, Double> position = new DummyService(new File(CSV_FILE), LOOKUP_COLUMN)
-				.getScannablePositions(3, singleton(VALUE_COLUMN));
-		assertThat(position, is(equalTo(singletonMap(VALUE_COLUMN, 4.0))));
+		Set<String> columns = new HashSet<>();
+		columns.add(VALUE_ONE_COLUMN);
+		columns.add(VALUE_TWO_COLUMN);
+
+		Map<String, Object> expectedResult = new HashMap<>();
+		expectedResult.put(VALUE_ONE_COLUMN, "4");
+		expectedResult.put(VALUE_TWO_COLUMN, "Close");
+
+		Map<String, Object> position = new DummyService(new File(CSV_FILE), LOOKUP_COLUMN)
+				.getScannablePositions("3", columns);
+		assertThat(position, is(equalTo(expectedResult)));
 	}
 
 	@Test
@@ -100,7 +109,7 @@ public class AbstractCSVLookupServiceTest {
 		expectWorkflowException("No column '" + rubbishColumn + "' found in file '" + CSV_FILE + "'");
 
 		new DummyService(new File(CSV_FILE), rubbishColumn)
-			.getScannablePositions(1, singleton(VALUE_COLUMN));
+			.getScannablePositions(1, singleton(VALUE_ONE_COLUMN));
 	}
 
 	@Test
@@ -113,11 +122,11 @@ public class AbstractCSVLookupServiceTest {
 
 	@Test
 	public void noRowMatched() throws Exception {
-		double argument = 5.0;
+		String argument = "5";
 		expectWorkflowException("No rows matched for value " + argument);
 
 		new DummyService(new File(CSV_FILE), LOOKUP_COLUMN)
-			.getScannablePositions(argument, singleton(VALUE_COLUMN));
+			.getScannablePositions(argument, singleton(VALUE_ONE_COLUMN));
 	}
 
 	private void expectWorkflowException(String message) {

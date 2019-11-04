@@ -18,14 +18,14 @@ public class LookupTableBasedItem extends WorkflowItemBase {
 
 	private Map<String, Scannable> scannables;
 	private String inputProperty;
-	private ScannablePositionLookupService motorPositionLookupService;
+	private ScannablePositionLookupService positionLookupService;
 
 	public LookupTableBasedItem(String inputProperty, Map<String, Scannable> scannables,
-			ScannablePositionLookupService motorPositionLookupService) {
+			ScannablePositionLookupService positionLookupService) {
 
 		this.inputProperty = inputProperty;
 		this.scannables = scannables;
-		this.motorPositionLookupService = motorPositionLookupService;
+		this.positionLookupService = positionLookupService;
 	}
 
 	@Override
@@ -35,9 +35,9 @@ public class LookupTableBasedItem extends WorkflowItemBase {
 	}
 
 	@Override
-	public Map<Scannable, Double> getPositions(Properties properties) throws WorkflowException {
+	public Map<Scannable, Object> getPositions(Properties properties) throws WorkflowException {
 		double lookupArgument = getLookupArgument(properties);
-		Map<String, Double> scannablePositions = motorPositionLookupService.getScannablePositions(lookupArgument, scannables.keySet());
+		Map<String, Object> scannablePositions = positionLookupService.getScannablePositions(lookupArgument, scannables.keySet());
 
 		return createPositionsMap(scannablePositions);
 	}
@@ -51,7 +51,7 @@ public class LookupTableBasedItem extends WorkflowItemBase {
 		return Double.parseDouble(rawValue);
 	}
 
-	private Map<Scannable, Double> createPositionsMap(Map<String, Double> scannablePositions) {
+	private Map<Scannable, Object> createPositionsMap(Map<String, Object> scannablePositions) {
 		return scannablePositions.entrySet().stream()
 			.collect(Collectors.toMap(entry -> scannables.get(entry.getKey()),	Map.Entry::getValue));
 	}

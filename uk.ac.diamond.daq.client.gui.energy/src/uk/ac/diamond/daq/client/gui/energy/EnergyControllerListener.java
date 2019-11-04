@@ -2,10 +2,12 @@ package uk.ac.diamond.daq.client.gui.energy;
 
 public interface EnergyControllerListener {
 
-	void workflowStarted();
+	void operationStarted();
 
-	void workflowFinished();
+	void progressMade(String message, double percentage);
 
-	void workflowFailed(String message);
+	void operationFinished();
+
+	void operationFailed(String message);
 
 }
