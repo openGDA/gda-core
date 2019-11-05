@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="GDA Generic Client" id="uk.ac.gda.client.product" application="uk.ac.gda.client.application" version="9.16.0" useFeatures="true" includeLaunchers="true">
+<product name="GDA Generic Client" uid="uk.ac.gda.client.product" id="uk.ac.gda.client.product" application="uk.ac.gda.client.application" version="9.16.0" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/uk.ac.gda.core/icons/GDAlogos/GDALogo128.png"/>
@@ -35,7 +35,6 @@ See &lt;http://www.opengda.org/&gt;
       location="uk.ac.gda.client" />
    <launcher>
       <linux icon="/uk.ac.gda.core/icons/GDAlogos/GDALogo48.xpm"/>
-      <solaris/>
       <win useIco="false">
          <bmp/>
       </win>
