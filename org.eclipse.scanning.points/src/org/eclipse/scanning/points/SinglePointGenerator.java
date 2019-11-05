@@ -54,7 +54,7 @@ public class SinglePointGenerator extends AbstractGenerator<SinglePointModel> {
 			throw new ModelValidationException("SinglePointModels cannot be continuous!", model, "continuous");
 		}
 		if (model.isAlternating()) {
-			throw new ModelValidationException("SinglePointModels cannot be alternating!", model, "continuous");
+			throw new ModelValidationException("SinglePointModels cannot be alternating!", model, "alternating");
 		}
 	}
 

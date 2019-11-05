@@ -300,4 +300,18 @@ public class CompoundModel implements Cloneable {
 				+ duration + "]";
 	}
 
+	public boolean supportsAlternating() {
+		Object o = models.get(models.size()-1);
+		return (o instanceof AbstractPointsModel && ((AbstractPointsModel) o).supportsAlternating());
+	}
+
+	public boolean supportsContinuous() {
+		Object o = models.get(models.size()-1);
+		return (o instanceof AbstractPointsModel && ((AbstractPointsModel) o).supportsContinuous());
+	}
+
+	public boolean supportsRandomOffset() {
+		Object o = models.get(models.size()-1);
+		return (o instanceof AbstractPointsModel && ((AbstractPointsModel) o).supportsRandomOffset());
+	}
 }

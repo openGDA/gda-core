@@ -42,11 +42,7 @@ public abstract class AbstractBoundingLineModel extends AbstractMapModel impleme
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
 		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
 			return false;
 		AbstractBoundingLineModel other = (AbstractBoundingLineModel) obj;
 		if (boundingLine == null) {

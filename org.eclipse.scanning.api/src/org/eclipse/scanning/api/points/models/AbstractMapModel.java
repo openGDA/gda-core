@@ -119,6 +119,16 @@ public abstract class AbstractMapModel extends AbstractPointsModel implements IM
 				return false;
 		} else if (!xAxisName.equals(other.xAxisName))
 			return false;
+		if (xAxisUnits == null) {
+			if (other.xAxisUnits != null)
+				return false;
+		} else if (!xAxisUnits.equals(other.xAxisUnits))
+			return false;
+		if (yAxisUnits == null) {
+			if (other.yAxisUnits != null)
+				return false;
+		} else if (!yAxisUnits.equals(other.yAxisUnits))
+			return false;
 		if (yAxisName == null) {
 			return (other.yAxisName == null);
 		}

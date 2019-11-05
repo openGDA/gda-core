@@ -75,4 +75,8 @@ public class PtychographyGridModel extends AbstractOverlapModel {
 		return "PtychographyGridModel [seed=" + seed + ", randomOffset=" + randomOffset + "]";
 	}
 
+	@Override
+	public boolean supportsRandomOffset() {
+		return true;
+	}
 }

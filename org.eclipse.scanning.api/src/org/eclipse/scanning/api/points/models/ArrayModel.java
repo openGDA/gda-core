@@ -38,7 +38,7 @@ public class ArrayModel extends AbstractPointsModel {
 	public void setPositions(double... positions) {
 		double[] oldValue = this.positions;
 		this.positions = positions;
-		pcs.firePropertyChange("positions", oldValue, positions);
+		this.pcs.firePropertyChange("positions", oldValue, positions);
 	}
 
 	@Override

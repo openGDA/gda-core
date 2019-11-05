@@ -99,7 +99,7 @@ public class RepeatedPointModel extends AbstractPointsModel {
 	@Override
 	public void setAlternating(boolean alternating) {
 		if (alternating) {
-			throw new ModelValidationException("RepeatedPointModel does not support alternating operation", this, "continuous");
+			throw new ModelValidationException("RepeatedPointModel does not support alternating operation", this, "alternating");
 		}
 	}
 
@@ -128,5 +128,15 @@ public class RepeatedPointModel extends AbstractPointsModel {
 		if (Double.doubleToLongBits(value) != Double.doubleToLongBits(other.value))
 			return false;
 		return true;
+	}
+
+	@Override
+	public boolean supportsAlternating() {
+		return false;
+	}
+
+	@Override
+	public boolean supportsContinuous() {
+		return false;
 	}
 }

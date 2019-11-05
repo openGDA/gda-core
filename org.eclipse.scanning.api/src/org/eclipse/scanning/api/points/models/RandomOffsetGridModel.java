@@ -73,4 +73,9 @@ public class RandomOffsetGridModel extends GridModel {
 			return false;
 		return true;
 	}
+
+	@Override
+	public boolean supportsRandomOffset() {
+		return true;
+	}
 }

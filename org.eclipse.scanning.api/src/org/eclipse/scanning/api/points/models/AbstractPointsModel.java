@@ -175,6 +175,18 @@ public abstract class AbstractPointsModel implements IScanPathModel {
 	public void setAlternating(boolean snake) {
 		boolean oldValue = this.alternating;
 		this.alternating = snake;
-		this.pcs.firePropertyChange("alternates", oldValue, snake);
+		this.pcs.firePropertyChange("alternating", oldValue, snake);
+	}
+
+	public boolean supportsAlternating() {
+		return true;
+	}
+
+	public boolean supportsContinuous() {
+		return true;
+	}
+
+	public boolean supportsRandomOffset() {
+		return false;
 	}
 }

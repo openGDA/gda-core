@@ -34,6 +34,7 @@ public class ArrayGenerator extends AbstractGenerator<ArrayModel> {
 	protected void validateModel() throws ValidationException {
 		if (getModel().getPositions()==null) throw new ModelValidationException("There are no positions!", model, "positions");
 		if (getModel().getName()==null) throw new ModelValidationException("The model must have a name!\nIt is the motor name used for the array of points.", model, "name");
+		if (getModel().getPositions().length < 2) throw new ModelValidationException("ArrayModel requires at least 2 positions, did you want SinglePointModel?", model, "positions");
 		super.validateModel();
 	}
 
