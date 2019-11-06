@@ -128,7 +128,7 @@ public class XesOffsets extends FindableConfigurableBase implements IXesOffsets 
 	@Override
 	public void removeAll() {
 		logger.debug("Setting all motor offsets to zero");
-		for (Scannable scn : spectrometerGroup.getGroupMembers()) {
+		for (Scannable scn : spectrometerGroup.getGroupMembersAsArray()) {
 			((ScannableMotor)scn).setOffset(0.0);
 		}
 		spectrometerGroup.update(this, OFFSET_UPDATE_EVENT);
@@ -155,7 +155,7 @@ public class XesOffsets extends FindableConfigurableBase implements IXesOffsets 
 
 		// Make map from scannable to offset
 		Map<ScannableMotor, Double> offsets = new HashMap<>();
-		for (Scannable scn : spectrometerGroup.getGroupMembers()) {
+		for (Scannable scn : spectrometerGroup.getGroupMembersAsArray()) {
 			Object obj = store.getProperty(scn.getName());
 			Double offset;
 			if (obj == null) {
@@ -192,7 +192,7 @@ public class XesOffsets extends FindableConfigurableBase implements IXesOffsets 
 		logger.info("Saving offsets to file {} in directory {}", filename, storeDirectory);
 		try {
 			XMLConfiguration store = LocalParameters.getXMLConfiguration(storeDirectory, filename, true);
-			for (Scannable scn : spectrometerGroup.getGroupMembers()) {
+			for (Scannable scn : spectrometerGroup.getGroupMembersAsArray()) {
 				ScannableMotor scnMotor = (ScannableMotor) scn;
 				Double offset = getOffsetForMotor(scnMotor);
 				store.setProperty(scnMotor.getName(), offset);

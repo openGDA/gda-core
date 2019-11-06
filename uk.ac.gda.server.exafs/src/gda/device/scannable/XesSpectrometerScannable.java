@@ -124,9 +124,9 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 
 		private boolean isAllowedToMove = true;
 
-		public ScannableGroupAllowedToMove(String name, List<Scannable> scannables) {
+		public ScannableGroupAllowedToMove(String name, List<Scannable> scannables) throws FactoryException {
 			setName(name);
-			setGroupMembers(scannables);
+			setGroupMembersWithList(scannables);
 		}
 
 		@Override
@@ -406,7 +406,7 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	 * @throws DeviceException
 	 */
 	private void checkPositionValid(ScannableGroup scannableGroup, double[] target) throws DeviceException {
-		List<Scannable> scannables = scannableGroup.getGroupMembers();
+		List<Scannable> scannables = scannableGroup.getGroupMembersAsList();
 		for (int i=0; i<target.length && i<scannables.size(); i++) {
 			checkPositionValid((ScannableMotor)scannables.get(i), target[i]);
 		}

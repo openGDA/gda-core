@@ -192,7 +192,7 @@ public class XesSpectrometerScannableTest {
 	}
 
 	private void checkPositions(ScannableGroup group, double[] expectedPositions) throws NumberFormatException, DeviceException {
-		List<Scannable> scannables = group.getGroupMembers();
+		List<Scannable> scannables = group.getGroupMembersAsList();
 		assertEquals(expectedPositions.length, scannables.size());
 		for(int i=0; i<expectedPositions.length; i++) {
 			double position = Double.valueOf(scannables.get(i).getPosition().toString());
