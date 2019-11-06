@@ -24,7 +24,9 @@ Require-Bundle: org.eclipse.core.databinding;bundle-version="1.6.100",
  com.github.tschoonj.xraylib,
  com.google.guava,
  com.google.gson,
- org.eclipse.dawnsci.nexus
+ org.eclipse.dawnsci.nexus,
+ org.eclipse.e4.core.contexts,
+ uk.ac.diamond.scisoft.analysis;bundle-version="1.5.0"
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Import-Package: org.slf4j;version="1.7.25",
  org.springframework.beans.factory;version="4.0.6.RELEASE"

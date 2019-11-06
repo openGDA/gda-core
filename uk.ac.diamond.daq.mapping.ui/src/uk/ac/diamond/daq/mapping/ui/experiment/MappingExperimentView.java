@@ -369,7 +369,7 @@ public class MappingExperimentView implements IAdaptable {
 		return mainComposite;
 	}
 
-	protected IMappingExperimentBean getBean() {
+	public IMappingExperimentBean getBean() {
 		return mappingBeanProvider.getMappingExperimentBean();
 	}
 
