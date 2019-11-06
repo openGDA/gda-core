@@ -38,7 +38,6 @@ import gda.data.metadata.NexusMetadataReader;
 import gda.data.metadata.StoredMetadataEntry;
 import gda.device.enumpositioner.DummyEnumPositioner;
 import gda.device.scannable.CoupledScannable;
-import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.function.IdentityFunction;
 import gda.util.converters.util.RangeConverterNameProvider;
 import gda.util.converters.util.RangeandConverterNameHolder;
@@ -64,14 +63,6 @@ public class CollectionSetterTest {
 		NexusMetadataEntry entry = new NexusMetadataEntry();
 		nmr.setNexusMetadataEntries(asList(entry));
 		assertEquals(1, nmr.getNexusMetadataEntries().size());
-	}
-
-	@Test
-	public void testScannableGroupMemberNames() {
-		ScannableGroup sg = new ScannableGroup();
-		assertEquals(0, sg.getGroupMemberNames().length);
-		sg.setGroupMemberNames(asList("one", "two"));
-		assertEquals(2, sg.getGroupMemberNames().length);
 	}
 
 	@Test

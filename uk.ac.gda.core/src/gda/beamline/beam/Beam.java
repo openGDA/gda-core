@@ -30,7 +30,8 @@ import gda.data.metadata.StoredMetadataEntry;
 import gda.device.DeviceException;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableMotor;
-import gda.device.scannable.scannablegroup.ScannableGroup;
+import gda.device.scannable.scannablegroup.IScannableGroupNamed;
+import gda.device.scannable.scannablegroup.ScannableGroupNamed;
 import gda.factory.FactoryException;
 import gda.factory.FindableConfigurableBase;
 import gda.factory.Finder;
@@ -129,8 +130,8 @@ public class Beam extends FindableConfigurableBase implements BeamInfo {
 	@Override
 	public void setEnergy() throws DeviceException {
 		Finder finder = Finder.getInstance();
-		ScannableGroup sdcm = (ScannableGroup)finder.find("DCM");
-		ScannableMotor energy1=(ScannableMotor)sdcm.getGroupMember("energy");
+		IScannableGroupNamed sdcm = (ScannableGroupNamed)finder.find("DCM");
+		ScannableMotor energy1=(ScannableMotor)sdcm.getGroupMemberByName("energy");
 		if (energy1.getHardwareUnitString().isEmpty() || energy1.getHardwareUnitString()== null) {
 			logger.warn("{} has no unit being set. Treat the value as in 'keV' here.", energy1.getName());
 		} else {

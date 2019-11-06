@@ -32,6 +32,7 @@ import org.junit.Test;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.factory.FactoryException;
 
 public class MotomanRobotScannableGroupTest {
 
@@ -43,7 +44,7 @@ public class MotomanRobotScannableGroupTest {
 	private Scannable sPhi;
 
 	@Before
-	public void setUp() {
+	public void setUp() throws FactoryException {
 		kTheta = createMockScannable("kTheta");
 		kPhi = createMockScannable("kPhi");
 		sTheta = createMockScannable("sTheta");
@@ -51,7 +52,7 @@ public class MotomanRobotScannableGroupTest {
 		sPhi = createMockScannable("sPhi");
 
 		group = new MotomanRobotScannableGroup();
-		group.setGroupMembers(Arrays.asList(kTheta, kPhi, sTheta, sKappa, sPhi));
+		group.setGroupMembersWithList(Arrays.asList(kTheta, kPhi, sTheta, sKappa, sPhi));
 	}
 
 	private Scannable createMockScannable(final String name) {
@@ -61,9 +62,9 @@ public class MotomanRobotScannableGroupTest {
 	}
 
 	@Test(expected = DeviceException.class)
-	public void testNotEnoughMotors() throws DeviceException {
+	public void testNotEnoughMotors() throws DeviceException, FactoryException {
 		final MotomanRobotScannableGroup smallGroup = new MotomanRobotScannableGroup();
-		smallGroup.setGroupMembers(Arrays.asList(kTheta, kPhi, sTheta, sKappa));
+		smallGroup.setGroupMembersWithList(Arrays.asList(kTheta, kPhi, sTheta, sKappa));
 		smallGroup.asynchronousMoveTo(new Double[] { 1.0, 2.0, 3.0, 4.0, 5.0 });
 	}
 

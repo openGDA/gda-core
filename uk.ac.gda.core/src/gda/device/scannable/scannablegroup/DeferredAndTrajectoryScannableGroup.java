@@ -33,8 +33,8 @@ import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableMotor;
 import gda.factory.FactoryException;
 
-public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup implements
-		ContinuouslyScannableViaController {
+public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup
+		implements ContinuouslyScannableViaController {
 
 	private TrajectoryMoveController controller;
 
@@ -45,19 +45,20 @@ public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup 
 	}
 
 	@Override
-	public void setGroupMembers(List<Scannable> groupMembers) {
+	public void setGroupMembersWithList(List<Scannable> groupMembers) throws FactoryException {
 		for (Scannable scn : groupMembers) {
 			if (!(scn instanceof ScannableMotor)) {
 				throw new IllegalArgumentException("groupMembers must be ScannableMotors ");
 			}
 		}
-		super.setGroupMembers(groupMembers);
+		super.setGroupMembersWithList(groupMembers);
 	}
 
 	public ArrayList<ScannableMotor> getScannableMotors() {
 		ArrayList<ScannableMotor> members = new ArrayList<ScannableMotor>();
-		for (Scannable wrappedScannable : getGroupMembers()) {
-			Scannable scannableMotor = ((CoordinatedChildContinuousScannableMotionUnits) wrappedScannable).getPhysicalScannable();
+		for (Scannable wrappedScannable : getGroupMembersAsArray()) {
+			Scannable scannableMotor = ((CoordinatedChildContinuousScannableMotionUnits) wrappedScannable)
+					.getPhysicalScannable();
 			members.add((ScannableMotor) scannableMotor);
 		}
 		return members;
@@ -190,12 +191,10 @@ public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup 
 	@Override
 	public Object getPositionWhileMovingContinuousely(ICoordinatedScannableGroupChildScannable childScannable)
 			throws DeviceException {
-		int index = getGroupMembers().indexOf(childScannable);
+		int index = getGroupMembersAsList().indexOf(childScannable);
 		Double[] pos = controller.getLastPointAdded();
-		if (pos != null) {
-			if (pos[index] != null) {
-				return pos[index];
-			}
+		if (pos != null && pos[index] != null) {
+			return pos[index];
 		}
 		// otherwise getPhysical position watching out for infinite recursion!
 		return childScannable.getPhysicalScannable().getPosition();
@@ -223,18 +222,18 @@ public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup 
 		if (targetPosition.length != getNumberAxes()) {
 			throw new DeviceException(MessageFormat.format(
 					"Position does not have correct number of fields. Expected = {0} actual = {1} position= {2}",
-					getNumberAxes(), targetPosition.length, position.toString()));
+					getNumberAxes(), targetPosition.length, position));
 		}
 		return targetPosition;
 	}
 
 	//
 	private int getNumberAxes() {
-		return getGroupMembers().size();
+		return getGroupMembersAsArray().length;
 	}
 
 	private void assertGroupMembersAllHaveOnlyOneInputField() throws FactoryException {
-		for (Scannable scn : getGroupMembers()) {
+		for (Scannable scn : getGroupMembersAsArray()) {
 			if ((scn.getInputNames().length != 1) || (scn.getExtraNames().length != 0)) {
 				throw new FactoryException("DeferredAndTrajectoryScannableGroup " + getName()
 						+ " must contain members with one input field and extra fields");
@@ -266,8 +265,8 @@ public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup 
 	}
 }
 
-class CoordinatedChildContinuousScannable extends CoordinatedChildScannable implements
-		ContinuouslyScannableViaController {
+class CoordinatedChildContinuousScannable extends CoordinatedChildScannable
+		implements ContinuouslyScannableViaController {
 
 	public CoordinatedChildContinuousScannable(Scannable delegate, ICoordinatedParentScannable group) {
 		super(delegate, group);
@@ -290,7 +289,8 @@ class CoordinatedChildContinuousScannable extends CoordinatedChildScannable impl
 
 	@Override
 	public void setContinuousMoveController(ContinuousMoveController controller) {
-		throw new IllegalArgumentException("setContinuousMoveController("+controller.getName()+") not supported on "+this.getName());
+		throw new IllegalArgumentException(
+				"setContinuousMoveController(" + controller.getName() + ") not supported on " + this.getName());
 	}
 
 	@Override
@@ -303,8 +303,8 @@ class CoordinatedChildContinuousScannable extends CoordinatedChildScannable impl
 
 }
 
-class CoordinatedChildContinuousScannableMotion extends CoordinatedChildScannableMotion implements
-		ContinuouslyScannableViaController {
+class CoordinatedChildContinuousScannableMotion extends CoordinatedChildScannableMotion
+		implements ContinuouslyScannableViaController {
 
 	public CoordinatedChildContinuousScannableMotion(Scannable delegate, ICoordinatedParentScannable group) {
 		super(delegate, group);
@@ -327,7 +327,8 @@ class CoordinatedChildContinuousScannableMotion extends CoordinatedChildScannabl
 
 	@Override
 	public void setContinuousMoveController(ContinuousMoveController controller) {
-		throw new IllegalArgumentException("setContinuousMoveController("+controller.getName()+") not supported on "+this.getName());
+		throw new IllegalArgumentException(
+				"setContinuousMoveController(" + controller.getName() + ") not supported on " + this.getName());
 	}
 
 	@Override
@@ -340,8 +341,8 @@ class CoordinatedChildContinuousScannableMotion extends CoordinatedChildScannabl
 
 }
 
-class CoordinatedChildContinuousScannableMotionUnits extends CoordinatedChildScannableMotionUnits implements
-		ContinuouslyScannableViaController {
+class CoordinatedChildContinuousScannableMotionUnits extends CoordinatedChildScannableMotionUnits
+		implements ContinuouslyScannableViaController {
 
 	public CoordinatedChildContinuousScannableMotionUnits(Scannable delegate, ICoordinatedParentScannable group) {
 		super(delegate, group);
@@ -364,7 +365,8 @@ class CoordinatedChildContinuousScannableMotionUnits extends CoordinatedChildSca
 
 	@Override
 	public void setContinuousMoveController(ContinuousMoveController controller) {
-		throw new IllegalArgumentException("setContinuousMoveController("+controller.getName()+") not supported on "+this.getName());
+		throw new IllegalArgumentException(
+				"setContinuousMoveController(" + controller.getName() + ") not supported on " + this.getName());
 	}
 
 	@Override

@@ -24,16 +24,17 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InOrder;
+
 import gda.MockFactory;
 import gda.device.ControlPoint;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.scannablegroup.DeferredScannableGroup;
 import gda.factory.FactoryException;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.InOrder;
 
 public class DeferredScannableGroupTest {
 
@@ -55,9 +56,9 @@ public class DeferredScannableGroupTest {
 		getGroup().configure();
 	}
 
-	void createGroup() {
+	void createGroup() throws FactoryException {
 		group = new DeferredScannableGroup();
-		getGroup().setGroupMembers(new Scannable[] { rawa, rawb, rawc });
+		getGroup().setGroupMembersWithArray(new Scannable[] { rawa, rawb, rawc });
 		getGroup().setDeferredControlPoint(mockedControlPoint);
 	}
 
@@ -116,8 +117,8 @@ public class DeferredScannableGroupTest {
 
 	@Test
 	public void testAsynchronousMoveToViaElements() throws DeviceException {
-		Scannable a =  (getGroup().getGroupMembers().get(0));
-		Scannable c =  (getGroup().getGroupMembers().get(2));
+		Scannable a =  (getGroup().getGroupMembersAsList().get(0));
+		Scannable c =  (getGroup().getGroupMembersAsList().get(2));
 		InOrder inOrder = inOrder(mockedControlPoint, rawa, rawb, rawc);
 
 		a.atLevelMoveStart();

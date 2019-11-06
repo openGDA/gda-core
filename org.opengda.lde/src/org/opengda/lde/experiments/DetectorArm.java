@@ -4,23 +4,23 @@ import org.opengda.lde.model.ldeexperiment.Stage;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.device.scannable.scannablegroup.ScannableGroup;
+import gda.device.scannable.scannablegroup.ScannableGroupNamed;
 
-public class DetectorArm extends ScannableGroup {
+public class DetectorArm extends ScannableGroupNamed {
 	//TODO define detector safe position
 	private double parkPosition = 2900.0;
 	private double positionTolerance=0.001;
 
-	public Scannable getXMotor() {
-		return this.getGroupMember(getName() + "x");
+	public Scannable getXMotor() throws DeviceException {
+		return this.getGroupMemberByName(getName() + "x");
 	}
 
-	public Scannable getYMotor() {
-		return this.getGroupMember(getName() + "y");
+	public Scannable getYMotor() throws DeviceException {
+		return this.getGroupMemberByName(getName() + "y");
 	}
 
-	public Scannable getZMotor() {
-		return this.getGroupMember(getName() + "z");
+	public Scannable getZMotor() throws DeviceException {
+		return this.getGroupMemberByName(getName() + "z");
 	}
 
 	public void parkDetector() throws DeviceException {

@@ -340,8 +340,11 @@ public class ScannableCommands {
 			final List<String> scannablesInGroups = new ArrayList<>();
 			for (Object obj : map.values()) {
 				if (obj instanceof IScannableGroup) {
-					final String[] groupMembers = ((IScannableGroup) obj).getGroupMemberNames();
-					scannablesInGroups.addAll(Arrays.asList(groupMembers));
+					List<String> names = new ArrayList<>();
+					for (Scannable member : ((IScannableGroup) obj).getGroupMembersAsArray()) {
+						names.add(member.getName());
+					}
+					scannablesInGroups.addAll(names);
 				}
 			}
 

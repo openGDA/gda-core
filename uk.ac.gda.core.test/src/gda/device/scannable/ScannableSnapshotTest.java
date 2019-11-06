@@ -83,6 +83,7 @@ public class ScannableSnapshotTest {
 		ScannableGroup group = new ScannableGroup("group", new Scannable[] {scn, motGroup});
 		ScannableSnapshot s = new ScannableSnapshot(group);
 		assertEquals("group", s.name);
+		// Both ScannableGroups add names of holding scannable, so some repetition here
 		assertArrayEquals(new String[] {"scn", "mot1", "mot2"}, s.inputNames);
 		assertArrayEquals(new String[] {"extra"}, s.extraNames);
 		assertArrayEquals(new String[] {"%d", "%5.5d", "%5.5d", "%s"}, s.outputFormat);
