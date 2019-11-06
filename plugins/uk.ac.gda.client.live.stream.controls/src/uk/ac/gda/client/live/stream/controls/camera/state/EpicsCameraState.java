@@ -42,19 +42,27 @@ import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
+
 /**
- * An {@link ISourceProvider} supports and updates Camera State variable {@link #getStateVariableName()}.
- *<p>
- * It monitors Camera State change in EPICS, and update this variable in {@link ISources#WORKBENCH} scope.
+ * An {@link ISourceProvider} supports and updates Camera State variable
+ * {@link #getStateVariableName()}.
+ * <p>
+ * It monitors Camera State change in EPICS, and update this variable in
+ * {@link ISources#WORKBENCH} scope.
  * </p>
  * <p>
- * The {@link #getStateVariableName()} variable name must be unique for each camera state instance and can be defined in Spring bean for that camera state instance.
+ * The {@link #getStateVariableName()} variable name must be unique for each
+ * camera state instance and can be defined in Spring bean for that camera state
+ * instance.
  * </p>
  * <p>
- * The same variable name must be declared in {@link org.eclipse.ui.services} extension point under this {@link ISourceProvider}.
- * Which then can be used in core expression (visibleWhen, activeWhen, or enableWhen) to create dynamic camera control contribution to the view's toolbar.
+ * The same variable name must be declared in {@link org.eclipse.ui.services}
+ * extension point under this {@link ISourceProvider}. Which then can be used in
+ * core expression (visibleWhen, activeWhen, or enableWhen) to create dynamic
+ * camera control contribution to the view's toolbar.
  * </p>
- * It also caches the current state which can be queried programmatically using {@link #isRunning()}.
+ * It also caches the current state which can be queried programmatically using
+ * {@link #isRunning()}.
  */
 public class EpicsCameraState extends AbstractSourceProvider implements ICameraState {
 
@@ -66,9 +74,11 @@ public class EpicsCameraState extends AbstractSourceProvider implements ICameraS
 	private Channel startCh = null;
 	private Monitor monitor = null;
 	private CameraConfiguration cameraConfig;
-	private boolean connected=false;
+	private String pvName;
+	private boolean connected = false;
 	/**
-	 * a camera state monitor used to synchronise Camera state in GDA with EPICS control
+	 * a camera state monitor used to synchronise Camera state in GDA with EPICS
+	 * control
 	 */
 	private final MonitorListener ml = new MonitorListener() {
 		// used to synchronise state when changed outside GDA
@@ -105,9 +115,13 @@ public class EpicsCameraState extends AbstractSourceProvider implements ICameraS
 	@Override
 	public void connect() throws DeviceException {
 		try {
-			startCh = EPICS_CONTROLLER.createChannel(getCameraConfig().getArrayPv().split(":")[0] + CAM_ACQUIRE);
+			if (getCameraConfig() != null) {
+				startCh = EPICS_CONTROLLER.createChannel(getCameraConfig().getArrayPv().split(":")[0] + CAM_ACQUIRE);
+			} else if (getPvName() != null) {
+				startCh = EPICS_CONTROLLER.createChannel(getPvName());
+			}
 			monitor = EPICS_CONTROLLER.setMonitor(startCh, ml, MonitorType.NATIVE);
-			connected=true;
+			connected = true;
 		} catch (CAException | TimeoutException | InterruptedException e) {
 			logger.error("Exception while create channel to camera {}",
 					getCameraConfig().getArrayPv().split(":")[0] + CAM_ACQUIRE, e);
@@ -125,7 +139,7 @@ public class EpicsCameraState extends AbstractSourceProvider implements ICameraS
 			startCh.dispose();
 			startCh = null;
 		}
-		connected=false;
+		connected = false;
 	}
 
 	@Override
@@ -174,16 +188,17 @@ public class EpicsCameraState extends AbstractSourceProvider implements ICameraS
 	public void setCameraConfig(CameraConfiguration cameraConfig) {
 		this.cameraConfig = cameraConfig;
 	}
+
 	@Override
 	public boolean isConnected() {
 		return connected;
 	}
 
 	public void afterPropertiesSet() throws Exception {
-		if (getCameraConfig()==null) {
-			throw new IllegalStateException("Camera configuration is NOT set!");
+		if (getCameraConfig() == null && getPvName() == null) {
+			throw new IllegalStateException("Both camera configuration and pvName are NOT set!, You must set one of these!");
 		}
-		if (getStateVariableName()==null) {
+		if (getStateVariableName() == null) {
 			throw new IllegalStateException("State variable name is NOT set!");
 		}
 	}
@@ -200,5 +215,13 @@ public class EpicsCameraState extends AbstractSourceProvider implements ICameraS
 	 */
 	public void setStateVariableName(String stateVariableName) {
 		this.stateVariableName = stateVariableName;
+	}
+
+	public String getPvName() {
+		return pvName;
+	}
+
+	public void setPvName(String pvName) {
+		this.pvName = pvName;
 	}
 }
