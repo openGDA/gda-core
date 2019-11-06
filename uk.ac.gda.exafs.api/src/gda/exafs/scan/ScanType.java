@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.server.exafs.scan;
+package gda.exafs.scan;
 
 public enum ScanType {
 	XES_ONLY, QEXAFS_DEFAULT, XANES_DEFAULT;

@@ -55,7 +55,6 @@ import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.exafs.ui.ElementEdgeEditor;
-import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**

@@ -39,11 +39,11 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import gda.exafs.scan.ScanObject;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentBeanDescription;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
-import uk.ac.gda.exafs.ui.data.ScanObject;
 
 public class SwitchScanWizardPageTwo extends WizardPage {
 	Combo scanFiles;

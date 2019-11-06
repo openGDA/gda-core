@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.dialogs;
 
-import gda.util.exafs.Element;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
@@ -51,6 +49,10 @@ import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.swtdesigner.SWTResourceManager;
+
+import gda.exafs.scan.ScanObject;
+import gda.util.exafs.Element;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.ElementPosition;
 import uk.ac.gda.beans.exafs.FluorescenceParameters;
@@ -62,14 +64,11 @@ import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.beans.exafs.i20.I20SampleParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.exafs.ExafsActivator;
-import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.util.CancelledException;
 import uk.ac.gda.exafs.util.GainBean;
 import uk.ac.gda.exafs.util.GainCalculation;
 import uk.ac.gda.exafs.util.IntensityException;
 import uk.ac.gda.exafs.util.SmallIntensityException;
-
-import com.swtdesigner.SWTResourceManager;
 
 public class GainWizardPage extends WizardPage {
 	private static Logger logger = LoggerFactory.getLogger(GainWizardPage.class);

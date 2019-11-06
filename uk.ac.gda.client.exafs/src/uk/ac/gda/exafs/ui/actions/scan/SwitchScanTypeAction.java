@@ -33,13 +33,13 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 
+import gda.exafs.scan.ScanObject;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentBeanDescription;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
 import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
 import uk.ac.gda.client.experimentdefinition.components.XMLFileDialog;
-import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.ui.data.ScanObjectManager;
 
 public class SwitchScanTypeAction extends AbstractHandler implements IWorkbenchWindowActionDelegate,

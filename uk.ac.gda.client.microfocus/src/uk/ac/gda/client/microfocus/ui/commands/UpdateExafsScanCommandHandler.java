@@ -30,6 +30,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.exafs.scan.ScanObject;
 import uk.ac.gda.beans.exafs.i18.I18SampleParameters;
 import uk.ac.gda.beans.exafs.i18.SampleStageParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
@@ -39,7 +40,6 @@ import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentProjectNature;
 import uk.ac.gda.client.microfocus.util.DisplayMessages;
 import uk.ac.gda.client.microfocus.views.ExafsSelectionView;
-import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class UpdateExafsScanCommandHandler extends AbstractHandler implements IHandler {

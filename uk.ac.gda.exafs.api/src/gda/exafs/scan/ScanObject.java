@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.exafs.ui.data;
+package gda.exafs.scan;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -29,7 +29,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.richbeans.api.reflection.RichBeanUtils;
 
-import gda.exafs.scan.ExafsTimeEstimator;
+import gda.exafs.scan.ScanType;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.ISampleParameters;
@@ -41,7 +41,6 @@ import uk.ac.gda.beans.exafs.XesScanParameters;
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentObject;
 import uk.ac.gda.client.experimentdefinition.IXMLCommandHandler;
-import uk.ac.gda.server.exafs.scan.ScanType;
 import uk.ac.gda.util.beans.BeansFactory;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 import uk.ac.gda.util.beans.xml.XMLRichBean;

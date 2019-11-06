@@ -44,6 +44,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.LoggerFactory;
 
+import gda.exafs.scan.ScanObject;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
@@ -60,7 +61,6 @@ import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.RefreshProjectCommandHandler;
-import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.ui.dialogs.ParameterValuesForBean.ParameterValue;
 import uk.ac.gda.util.beans.BeansFactory;
 import uk.ac.gda.util.beans.xml.XMLHelpers;

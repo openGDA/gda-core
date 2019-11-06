@@ -44,11 +44,11 @@ import org.slf4j.LoggerFactory;
 import com.github.tschoonj.xraylib.Xraylib;
 import com.github.tschoonj.xraylib.XraylibException;
 
+import gda.exafs.scan.ScanObject;
 import gda.util.exafs.Element;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.exafs.ui.composites.detectors.FluorescenceDetectorComposite;
-import uk.ac.gda.exafs.ui.data.ScanObject;
 
 /**
  * Composite with controls to select an element and transition resonance line from combo boxes

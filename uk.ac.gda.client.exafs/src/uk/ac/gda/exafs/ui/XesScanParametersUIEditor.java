@@ -28,10 +28,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.widgets.Composite;
 
+import gda.exafs.scan.ScanObject;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
-import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 

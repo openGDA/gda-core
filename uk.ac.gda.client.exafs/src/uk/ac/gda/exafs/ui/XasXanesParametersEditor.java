@@ -18,12 +18,12 @@
 
 package uk.ac.gda.exafs.ui;
 
+import gda.exafs.scan.ScanObject;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.XesScanParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanMultiPageEditor;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
-import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 

@@ -30,7 +30,9 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.exafs.scan.ScanObject;
 import gda.exafs.scan.ScanStartedMessage;
+import gda.exafs.scan.ScanType;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.scriptcontroller.logging.ILoggingScriptController;
@@ -45,7 +47,6 @@ import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.preferences.PreferenceConstants;
-import uk.ac.gda.server.exafs.scan.ScanType;
 
 public final class ScanObjectManager extends ExperimentObjectManager implements IExperimentObjectManager, IObserver {
 	private static IScanParameters currentScan;

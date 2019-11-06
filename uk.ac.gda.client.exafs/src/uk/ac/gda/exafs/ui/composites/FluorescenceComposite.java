@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import gda.configuration.properties.LocalProperties;
+import gda.exafs.scan.ScanObject;
 import gda.factory.Finder;
 import uk.ac.gda.beans.exafs.DetectorGroup;
 import uk.ac.gda.beans.exafs.DetectorGroupTemplateConfiguration;
@@ -65,7 +66,6 @@ import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 import uk.ac.gda.exafs.ExafsActivator;
-import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.util.beans.BeansFactory;
 import uk.ac.gda.util.io.FileUtils;

@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.util.exafs.Element;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.richbeans.api.binding.IBeanController;
@@ -43,6 +41,8 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.exafs.scan.ScanObject;
+import gda.util.exafs.Element;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
@@ -53,7 +53,6 @@ import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.exafs.ExafsActivator;
-import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 import uk.ac.gda.util.beans.xml.XMLRichBean;

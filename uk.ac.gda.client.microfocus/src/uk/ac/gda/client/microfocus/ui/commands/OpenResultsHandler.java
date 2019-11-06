@@ -24,10 +24,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.commandqueue.ExperimentCommandBean;
+import gda.exafs.scan.ScanObject;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.AbstractOpenResultsHandler;
 import uk.ac.gda.client.microfocus.ui.MicroFocusPerspective;
-import uk.ac.gda.exafs.ui.data.ScanObject;
 
 /**
  * An {@link IResultHandler} to open results of an {@link ExperimentCommandBean} for a microfocus scan.
