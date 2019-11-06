@@ -102,11 +102,10 @@ public class LivePlottingComposite extends Composite {
 
 		@Override
 		public void dataChangePerformed(DataEvent evt) {
-			final Display display = PlatformUI.getWorkbench().getDisplay();
 			// Build the new title while not in the UI thread
 			final String newTitle = buildTitle();
 			// Update the plot title in the UI thread
-			display.asyncExec(() -> {
+			Display.getDefault().asyncExec(() -> {
 				if (plottingSystem != null && !plottingSystem.isDisposed()) {
 					plottingSystem.setTitle(newTitle);
 				}
