@@ -18,47 +18,29 @@
 
 package uk.ac.diamond.daq.mapping.xanes.ui;
 
-import static gda.jython.JythonStatus.RUNNING;
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_SCAN_REQUEST_JSON;
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_XANES_EDGE_PARAMS_JSON;
-import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.diamond.daq.mapping.xanes.ui.XanesScanningUtils.getOuterScannable;
-
-import java.net.URI;
-import java.util.List;
-import java.util.Objects;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.scanning.api.event.EventConstants;
-import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
-import org.eclipse.scanning.api.event.status.Status;
-import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
 import gda.jython.InterfaceProvider;
-import gda.jython.JythonServerFacade;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters;
-import uk.ac.diamond.daq.mapping.ui.experiment.MappingExperimentView;
+import uk.ac.diamond.daq.mapping.ui.SubmitScanToScriptSection;
 import uk.ac.diamond.daq.mapping.ui.experiment.OuterScannablesSection;
-import uk.ac.diamond.daq.mapping.ui.experiment.SubmitScanSection;
 
 /**
  * Submit a XANES scan
@@ -68,27 +50,11 @@ import uk.ac.diamond.daq.mapping.ui.experiment.SubmitScanSection;
  * <p>
  * The parameters are passed in JSON format to avoid serialisation problems.
  */
-public class XanesSubmitScanSection extends SubmitScanSection {
+public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 	private static final Logger logger = LoggerFactory.getLogger(XanesSubmitScanSection.class);
 
-	private static final String SCRIPT_FILE = "scanning/submit_xanes_scan.py";
+	private String scriptFilePath = "scanning/submit_xanes_scan.py";
 	private String energyScannableName;
-
-	private IJobQueue<StatusBean> jobQueueProxy;
-
-	@Override
-	public void initialize(MappingExperimentView mappingView) {
-		super.initialize(mappingView);
-
-		final IEventService eventService = getService(IEventService.class);
-		try {
-			final URI activeMQUri = new URI(LocalProperties.getActiveMQBrokerURI());
-			jobQueueProxy = eventService.createJobQueueProxy(activeMQUri, EventConstants.SUBMISSION_QUEUE,
-					EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
-		} catch (Exception e) {
-			logger.error("Error creating consumer proxy", e);
-		}
-	}
 
 	@Override
 	public void createControls(Composite parent) {
@@ -103,16 +69,6 @@ public class XanesSubmitScanSection extends SubmitScanSection {
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(submitComposite);
 		createSubmitButton(submitComposite);
 		createStopButton(submitComposite);
-	}
-
-	private void createStopButton(Composite parent) {
-		final Button stopButton = new Button(parent, SWT.PUSH);
-		stopButton.setText("Stop");
-		stopButton.setToolTipText("Stop all scripts and the current scan");
-		final Image stopImage = new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/stop.png"));
-		Objects.requireNonNull(stopImage, "Missing image for stop button");
-		stopButton.setImage(stopImage);
-		stopButton.addSelectionListener(widgetSelectedAdapter(e -> stopScan()));
 	}
 
 	@Override
@@ -133,47 +89,7 @@ public class XanesSubmitScanSection extends SubmitScanSection {
 			return;
 		}
 
-		Async.execute(() -> {
-			// Run the script, disabling the submit button while it is running
-			final JythonServerFacade jythonServerFacade = JythonServerFacade.getInstance();
-			try {
-				setButtonEnabled(false);
-				logger.info("Running XANES scanning script: {}", SCRIPT_FILE);
-				jythonServerFacade.runScript(SCRIPT_FILE);
-				while (jythonServerFacade.getScriptStatus() == RUNNING) {
-					Thread.sleep(500);
-				}
-				logger.info("Finished running XANES scanning script");
-			} catch (Exception e) {
-				logger.error("Error running XANES scanning script", e);
-			} finally {
-				setButtonEnabled(true);
-			}
-		});
-	}
-
-	private void stopScan() {
-		logger.info("Stopping XANES script & job");
-
-		// Stop the XANES script
-		final JythonServerFacade jythonServerFacade = JythonServerFacade.getInstance();
-		jythonServerFacade.abortCommands();
-
-		try {
-			// Stop the currently-running job
-			final List<StatusBean> currentJobs = jobQueueProxy.getRunningAndCompleted();
-			for (StatusBean job : currentJobs) {
-				if (job.getStatus() == Status.RUNNING) {
-					jobQueueProxy.terminateJob(job);
-				}
-			}
-		} catch (EventException e) {
-			logger.error("Error accessing queue", e);
-		}
-	}
-
-	private void setButtonEnabled(boolean enabled) {
-		Display.getDefault().syncExec(() -> setSubmitScanButtonEnabled(enabled));
+		Async.execute(() -> runScript(scriptFilePath, "XANES scanning script"));
 	}
 
 	@Override
@@ -226,5 +142,9 @@ public class XanesSubmitScanSection extends SubmitScanSection {
 
 	public void setEnergyScannableName(String energyScannableName) {
 		this.energyScannableName = energyScannableName;
+	}
+
+	public void setScriptFilePath(String scriptFilePath) {
+		this.scriptFilePath = scriptFilePath;
 	}
 }
