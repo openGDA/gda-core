@@ -32,6 +32,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
@@ -139,6 +140,45 @@ public class AreaScanpathTest {
 		assertTrue(SINGLE_POINT.modelType().equals(SinglePointModel.class));
 		assertTrue(ONE_AXIS_NO_OF_POINTS.modelType().equals(StepModel.class));
 		assertTrue(ONE_AXIS_STEP.modelType().equals(StepModel.class));
+	}
+
+	@Test
+	public void checkContinuousSupport() throws Exception {
+		assertTrue(GRID.supports(Mutator.CONTINUOUS));
+		assertTrue(RASTER.supports(Mutator.CONTINUOUS));
+		assertTrue(SPIRAL.supports(Mutator.CONTINUOUS));
+		assertTrue(LISSAJOUS.supports(Mutator.CONTINUOUS));
+		assertTrue(TWO_AXIS_NO_OF_POINTS.supports(Mutator.CONTINUOUS));
+		assertTrue(TWO_AXIS_STEP.supports(Mutator.CONTINUOUS));
+		assertFalse(SINGLE_POINT.supports(Mutator.CONTINUOUS));
+		assertTrue(ONE_AXIS_NO_OF_POINTS.supports(Mutator.CONTINUOUS));
+		assertTrue(ONE_AXIS_STEP.supports(Mutator.CONTINUOUS));
+	}
+
+	@Test
+	public void checkAlternatingSupport() throws Exception {
+		assertTrue(GRID.supports(Mutator.ALTERNATING));
+		assertTrue(RASTER.supports(Mutator.ALTERNATING));
+		assertTrue(SPIRAL.supports(Mutator.ALTERNATING));
+		assertTrue(LISSAJOUS.supports(Mutator.ALTERNATING));
+		assertTrue(TWO_AXIS_NO_OF_POINTS.supports(Mutator.ALTERNATING));
+		assertTrue(TWO_AXIS_STEP.supports(Mutator.ALTERNATING));
+		assertFalse(SINGLE_POINT.supports(Mutator.ALTERNATING));
+		assertTrue(ONE_AXIS_NO_OF_POINTS.supports(Mutator.ALTERNATING));
+		assertTrue(ONE_AXIS_STEP.supports(Mutator.ALTERNATING));
+	}
+
+	@Test
+	public void checkRandomOffsetSupport() throws Exception {
+		assertTrue(GRID.supports(Mutator.RANDOM_OFFSET));
+		assertFalse(RASTER.supports(Mutator.RANDOM_OFFSET));
+		assertFalse(SPIRAL.supports(Mutator.RANDOM_OFFSET));
+		assertFalse(LISSAJOUS.supports(Mutator.RANDOM_OFFSET));
+		assertFalse(TWO_AXIS_NO_OF_POINTS.supports(Mutator.RANDOM_OFFSET));
+		assertFalse(TWO_AXIS_STEP.supports(Mutator.RANDOM_OFFSET));
+		assertFalse(SINGLE_POINT.supports(Mutator.RANDOM_OFFSET));
+		assertFalse(ONE_AXIS_NO_OF_POINTS.supports(Mutator.RANDOM_OFFSET));
+		assertFalse(ONE_AXIS_STEP.supports(Mutator.RANDOM_OFFSET));
 	}
 
 	@Test
@@ -299,12 +339,14 @@ public class AreaScanpathTest {
 		assertThat(gModel.getyAxisPoints(), is(6));
 		assertThat(gModel.getBoundingBox().getyAxisStart(), is(2.0));
 		assertThat(gModel.isAlternating(), is(false));
+		assertThat(gModel.isContinuous(), is(false));
 	}
 
 	@Test
 	public void createModelCreatesCorrectModelForGridWithRandomOffsetMutator() throws Exception {
 		pathParams = Arrays.asList(5, 6);
 		mutators.put(Mutator.RANDOM_OFFSET, Arrays.asList(20, 2));
+		mutators.put(Mutator.CONTINUOUS, Arrays.asList(blankArray));
 		IScanPathModel model = GRID.createModel(scannables, pathParams, bboxParams, mutators);
 		assertThat(model, is(instanceOf(RandomOffsetGridModel.class)));
 		RandomOffsetGridModel gModel = (RandomOffsetGridModel)model;
@@ -319,11 +361,13 @@ public class AreaScanpathTest {
 		assertThat(gModel.getOffset(), is(20.0));
 		assertThat(gModel.getSeed(), is(2));
 		assertThat(gModel.isAlternating(), is(false));
+		assertThat(gModel.isContinuous(), is(true));
 	}
 
 	@Test
 	public void createModelCreatesCorrectModelForTwoDEqualSpacing() throws Exception {
 		pathParams = Arrays.asList(5);
+		mutators.put(Mutator.CONTINUOUS, Arrays.asList(blankArray));
 		IScanPathModel model = TWO_AXIS_NO_OF_POINTS.createModel(scannables, pathParams, bboxParams, mutators);
 		assertThat(model, is(instanceOf(OneDEqualSpacingModel.class)));
 		OneDEqualSpacingModel eModel = (OneDEqualSpacingModel)model;
@@ -333,6 +377,7 @@ public class AreaScanpathTest {
 		assertThat(eModel.getBoundingLine().getLength(), is(5.0));
 		assertThat(Math.rint(Math.toDegrees(eModel.getBoundingLine().getAngle())), is(53.0));
 		assertThat(eModel.getPoints(), is(5));
+		assertThat(eModel.isContinuous(), is(true));
 	}
 
 	@Test
@@ -398,7 +443,7 @@ public class AreaScanpathTest {
 	@Test
 	public void createModelRejectsRandomOffsetMutatorForRaster() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Only Grid Model supports Random Offset paths");
+		exception.expectMessage("The random offset mutator is not supported by RasterModel");
 		pathParams = Arrays.asList(-5.2, 6.1);
 		mutators.put(Mutator.RANDOM_OFFSET, Arrays.asList(20, 2));
 		RASTER.createModel(scannables, pathParams, bboxParams, mutators);
@@ -420,6 +465,7 @@ public class AreaScanpathTest {
 		assertThat(rModel.getyAxisStep(), is(6.5));
 		assertThat(rModel.getBoundingBox().getyAxisStart(), is(2.0));
 		assertThat(rModel.isAlternating(), is(true));
+		assertThat(rModel.isContinuous(), is(false));
 	}
 
 	@Test
@@ -434,6 +480,7 @@ public class AreaScanpathTest {
 		assertThat(sModel.getBoundingLine().getLength(), is(5.0));
 		assertThat(Math.rint(Math.toDegrees(sModel.getBoundingLine().getAngle())), is(53.0));
 		assertThat(sModel.getStep(), is(0.5));
+		assertThat(sModel.isContinuous(), is(false));
 	}
 
 	@Test
@@ -451,6 +498,7 @@ public class AreaScanpathTest {
 	@Test
 	public void createModelCreatesCorrectModelForSpiral() throws Exception {
 		pathParams = Arrays.asList(5.0);
+		mutators.put(Mutator.CONTINUOUS, Arrays.asList(blankArray));
 		IScanPathModel model = SPIRAL.createModel(scannables, pathParams, bboxParams, mutators);
 		assertThat(model, is(instanceOf(SpiralModel.class)));
 		SpiralModel sModel = (SpiralModel)model;
@@ -461,12 +509,13 @@ public class AreaScanpathTest {
 		assertThat(sModel.getBoundingBox().getyAxisLength(), is(4.0));
 		assertThat(sModel.getScale(), is(5.0));
 		assertThat(sModel.getBoundingBox().getyAxisStart(), is(2.0));
+		assertThat(sModel.isContinuous(), is(true));
 	}
 
 	@Test
 	public void createModelRejectsRandomOffsetMutatorForSpiral() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Only Grid Model supports Random Offset paths");
+		exception.expectMessage("The random offset mutator is not supported by SpiralModel");
 		pathParams = Arrays.asList(5.0);
 		mutators.put(Mutator.RANDOM_OFFSET, Arrays.asList(20, 2));
 		SPIRAL.createModel(scannables, pathParams, bboxParams, mutators);
@@ -487,12 +536,13 @@ public class AreaScanpathTest {
 		assertThat(lModel.getA(), is(6.0));
 		assertThat(lModel.getB(), is(7.0));
 		assertThat(lModel.getBoundingBox().getyAxisStart(), is(2.0));
+		assertThat(lModel.isContinuous(), is(false));
 	}
 
 	@Test
 	public void createModelRejectsRandomOffsetMutatorForLissajous() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Only Grid Model supports Random Offset paths");
+		exception.expectMessage("The random offset mutator is not supported by LissajousModel");
 		pathParams = Arrays.asList(5.0, 6.0, 7.0);
 		mutators.put(Mutator.RANDOM_OFFSET, Arrays.asList(20, 2));
 		LISSAJOUS.createModel(scannables, pathParams, bboxParams, mutators);

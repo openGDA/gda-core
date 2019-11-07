@@ -29,7 +29,8 @@ import java.util.List;
  */
 public enum Mutator implements IMScanElementEnum {
 	ALTERNATING("alte", 0, 0, new boolean[]{}),
-	RANDOM_OFFSET("roff", 2, 1, new boolean[]{true, false});
+	RANDOM_OFFSET("roff", 2, 1, new boolean[]{true, false}),
+	CONTINUOUS("cont", 0, 0, new boolean[]{});
 
 	private final String text;
 	private final int maxValueCount;
@@ -81,5 +82,20 @@ public enum Mutator implements IMScanElementEnum {
 	 */
 	public boolean positiveValuesOnlyFor(final int index) {
 		return positiveValuesOnly[index];
+	}
+
+	/**
+	 * Indicates whether the params associated with a mutator should be checked for null values. At the moment
+	 * this is based purely on whether there are any to check.
+	 *
+	 * @return	true if the params associated with this mutator should be checked for Null values
+	 */
+	public boolean shouldParamsBeNullChecked() {
+		return positiveValuesOnly.length > 0;
+	}
+
+	@Override
+	public String toString() {
+		return name().replace("_", " ").toLowerCase();
 	}
 }

@@ -49,7 +49,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.util.MathUtils;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
-import org.eclipse.scanning.api.points.models.AbstractPointsModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.StepModel;
 
@@ -211,27 +210,10 @@ public class ClauseContext {
 	public void addMutator(final Mutator supplied) {
 		areaScanMustHaveRegionShapePlusAreaScanpath();
 		nullCheck(supplied, Mutator.class.getSimpleName());
-		switch (supplied) {
-		case RANDOM_OFFSET:
-			if (!AbstractPointsModel.supportsRandomOffset(areaScanpath.get().modelType())) {
-				String message = String.format("RandomOffset not supported by model type %s",
-						areaScanpath.get().modelType());
-				throw new UnsupportedOperationException(message);
-			}
-			paramNullCheckValid = true;
-			break;
-		case ALTERNATING:
-			if (!AbstractPointsModel.supportsAlternating(areaScanpath.get().modelType())) {
-				String message = String.format("Alternating not supported by model type %s",
-						areaScanpath.get().modelType());
-				throw new UnsupportedOperationException(message);
-			}
-			paramNullCheckValid = false;
-			break;
-		default:
-			String message = String.format("Mutator %s not supported!", supplied.toString());
-			throw new UnsupportedOperationException(message);
+		if (!areaScanpath.get().supports(supplied)) {
+			throw new UnsupportedOperationException(String.format("%s is not supported by the current scan path", supplied.toString()));
 		}
+		paramNullCheckValid = supplied.shouldParamsBeNullChecked();
 		paramsToFill = new ArrayList<>();
 		mutatorUses.put(supplied, paramsToFill);
 		requiredParamCount = supplied.maxValueCount();
@@ -299,7 +281,7 @@ public class ClauseContext {
 			throw new IllegalStateException(
 					"Parameters may not be added until either a RegionShape or a Scanpath has been specified");
 		}
-		// Because of defaulting behaviour, this next condition can only be true for AreaScanpathss
+		// Because of defaulting behaviour, this next condition can only be true for AreaScanpaths
 		if (paramsFull()) {
 			throw new IllegalStateException(String.format(
 					"The required number of params for the %s has already been supplied",
