@@ -21,6 +21,7 @@ package uk.ac.diamond.daq.api.messaging.messages;
 import static uk.ac.diamond.daq.api.messaging.messages.DestinationConstants.GDA_MESSAGES_SCAN_TOPIC;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -54,7 +55,7 @@ public class ScanMessage implements Message {
 	private final List<String> scannables;
 	private final List<String> detectors;
 	private final double percentageComplete;
-	private final Map<String,Object> processingRequest;
+	private final Map<String, Collection<Object>> processingRequest;
 
 	public ScanMessage(ScanStatus status,
 			String filePath,
@@ -65,7 +66,7 @@ public class ScanMessage implements Message {
 			List<String> scannables,
 			List<String> detectors,
 			double percentageComplete,
-			Map<String,Object> processingRequest) {
+			Map<String, Collection<Object>> processingRequest) {
 
 		this.status = status;
 		this.filePath = filePath;
@@ -115,7 +116,7 @@ public class ScanMessage implements Message {
 		return percentageComplete;
 	}
 
-	public Map<String,Object> getProcessingRequest() {
+	public Map<String, Collection<Object>> getProcessingRequest() {
 		return processingRequest;
 	}
 

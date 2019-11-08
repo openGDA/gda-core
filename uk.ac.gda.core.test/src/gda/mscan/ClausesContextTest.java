@@ -1114,9 +1114,9 @@ public class ClausesContextTest {
 		assertThat(clausesContext.getProcessorRequest().getRequest().size(), is(2));
 		assertThat(clausesContext.getProcessorRequest().getRequest().containsKey("one"), is(true));
 		assertThat(clausesContext.getProcessorRequest().getRequest().containsKey("two"), is(true));
-		assertThat(((List<String>)clausesContext.getProcessorRequest().getRequest().get("one")).get(0), is("fil"));
-		assertThat(((List<String>)clausesContext.getProcessorRequest().getRequest().get("one")).get(1), is("fol"));
-		assertThat(((List<String>)clausesContext.getProcessorRequest().getRequest().get("two")).get(0), is("fal"));
+		assertThat(((List<Object>)clausesContext.getProcessorRequest().getRequest().get("one")).get(0), is("fil"));
+		assertThat(((List<Object>)clausesContext.getProcessorRequest().getRequest().get("one")).get(1), is("fol"));
+		assertThat(((List<Object>)clausesContext.getProcessorRequest().getRequest().get("two")).get(0), is("fal"));
 		assertThat(clausesContext.isClauseProcessed(), is(true));
 	}
 
@@ -1132,8 +1132,8 @@ public class ClausesContextTest {
 		assertThat(clausesContext.getProcessorRequest().getRequest().size(), is(2));
 		assertThat(clausesContext.getProcessorRequest().getRequest().containsKey("one"), is(true));
 		assertThat(clausesContext.getProcessorRequest().getRequest().containsKey("two"), is(true));
-		assertThat(((List<String>)clausesContext.getProcessorRequest().getRequest().get("one")).get(0), is("fil"));
-		assertThat(((List<String>)clausesContext.getProcessorRequest().getRequest().get("two")).get(0), is("fal"));
+		assertThat(((List<Object>)clausesContext.getProcessorRequest().getRequest().get("one")).get(0), is("fil"));
+		assertThat(((List<Object>)clausesContext.getProcessorRequest().getRequest().get("two")).get(0), is("fal"));
 		assertThat(clausesContext.isClauseProcessed(), is(true));
 	}
 
@@ -1149,8 +1149,8 @@ public class ClausesContextTest {
 		assertThat(clausesContext.getProcessorRequest().getRequest().size(), is(2));
 		assertThat(clausesContext.getProcessorRequest().getRequest().containsKey("one"), is(true));
 		assertThat(clausesContext.getProcessorRequest().getRequest().containsKey("two"), is(true));
-		assertThat(((List<String>)clausesContext.getProcessorRequest().getRequest().get("one")).get(0), is("fil"));
-		assertThat(((List<String>)clausesContext.getProcessorRequest().getRequest().get("two")).get(0), is("fal"));
+		assertThat(((List<Object>)clausesContext.getProcessorRequest().getRequest().get("one")).get(0), is("fil"));
+		assertThat(((List<Object>)clausesContext.getProcessorRequest().getRequest().get("two")).get(0), is("fal"));
 		assertThat(clausesContext.isClauseProcessed(), is(true));
 	}
 

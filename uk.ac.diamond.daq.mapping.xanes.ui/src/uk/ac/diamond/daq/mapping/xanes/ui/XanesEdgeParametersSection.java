@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -258,12 +259,12 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	 * @return map of processing files to the line(s) tracked by each one
 	 */
 	@SuppressWarnings("unchecked")
-	private static SortedMap<String, SortedSet<String>> getLinesToTrack(final Map<String, Object> processingRequest) {
+	private static SortedMap<String, SortedSet<String>> getLinesToTrack(final Map<String, Collection<Object>> processingRequest) {
 		final SortedMap<String, SortedSet<String>> linesToTrack = new TreeMap<>();
 
-		final Object dawnEntry = processingRequest.get("dawn");
+		final Collection<?> dawnEntry = processingRequest.get("dawn");
 		if (dawnEntry != null) {
-			for (String jsonFilePath : (List<String>) dawnEntry) {
+			for (String jsonFilePath : (Collection<String>) dawnEntry) {
 				try {
 					// Get the path of the processing file and the tracking lines it contains
 					final String json = new String(Files.readAllBytes(Paths.get(jsonFilePath)));

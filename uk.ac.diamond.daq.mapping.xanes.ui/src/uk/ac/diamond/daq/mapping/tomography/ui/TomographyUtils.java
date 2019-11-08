@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -66,17 +67,16 @@ public class TomographyUtils {
 	}
 
 	public static String[] getProcessingFilesAs(IMappingExperimentBean mappingBean) {
-		final Map<String, Object> processingRequest = mappingBean.getProcessingRequest();
+		final Map<String, Collection<Object>> processingRequest = mappingBean.getProcessingRequest();
 		final List<String> processingFiles = new ArrayList<>();
 
-		for (Map.Entry<String, Object> entry : processingRequest.entrySet()) {
+		for (Map.Entry<String, Collection<Object>> entry : processingRequest.entrySet()) {
 			if (entry.getKey().equals("dawn")) {
-				@SuppressWarnings("unchecked")
-				final List<String> jsonFiles = (List<String>) entry.getValue();
-				for (String jsonFilePath : jsonFiles) {
+				final Collection<Object> jsonFiles = entry.getValue();
+				for (Object jsonFilePath : jsonFiles) {
 					try {
 						// Get the path of the processing file and the tracking lines it contains
-						final String json = new String(Files.readAllBytes(Paths.get(jsonFilePath)));
+						final String json = new String(Files.readAllBytes(Paths.get((String)jsonFilePath)));
 						final JsonObject jObject = new JsonParser().parse(json).getAsJsonObject();
 						final String processingFilePath = jObject.get("processingFile").getAsString();
 						processingFiles.add(processingFilePath);
