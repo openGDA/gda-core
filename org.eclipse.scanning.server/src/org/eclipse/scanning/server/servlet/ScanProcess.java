@@ -313,7 +313,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		try {
 			final int[] scanShape = scanModel.getPointGenerator().getShape();
 
-			Map<String, Object> processingRequest = null;
+			Map<String, Collection<Object>> processingRequest = null;
 
 			if (bean.getScanRequest().getProcessingRequest() != null) {
 				processingRequest = bean.getScanRequest().getProcessingRequest().getRequest();
