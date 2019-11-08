@@ -25,6 +25,8 @@ import static gda.jython.InterfaceProvider.getJythonServerNotifer;
 import static gda.jython.InterfaceProvider.getScanStatusHolder;
 import static gda.jython.InterfaceProvider.getTerminalPrinter;
 import static gda.scan.ScanDataPoint.handleZeroInputExtraNameDevice;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -33,11 +35,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Stream;
 
 import org.python.core.PyException;
 import org.slf4j.Logger;
@@ -50,6 +55,7 @@ import gda.data.scan.datawriter.DefaultDataWriterFactory;
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.device.Detector;
 import gda.device.DeviceException;
+import gda.device.ProcessingRequestProvider;
 import gda.device.Scannable;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.ScannableBase;
@@ -173,6 +179,8 @@ public abstract class ScanBase implements NestableScan {
 	protected ParentScanComponent parentComponent = new ParentScanComponent(ScanStatus.NOTSTARTED);
 
 	private final boolean isScripted;
+
+	private Map<String, Collection<Object>> procReq;
 
 	@Override
 	public int getScanNumber() {
@@ -700,7 +708,7 @@ public abstract class ScanBase implements NestableScan {
 				Arrays.asList(info.getScannableNames()),
 				Arrays.asList(info.getDetectorNames()),
 				(100.0 * (currentPointCount + 1)) / info.getNumberOfPoints(),// Progress in %
-				null);
+				procReq);
 
 		// If the optional is missing probably running in a unit test
 		Optional<MessagingService> optionalJms = GDACoreActivator.getService(MessagingService.class);
@@ -1447,7 +1455,21 @@ public abstract class ScanBase implements NestableScan {
 
 		// ensure that there are no duplications in the list of scannables
 		removeDuplicateScannables();
+		extractProcessingInformation();
+	}
 
+	private void extractProcessingInformation() {
+		procReq = Stream.of(allScannables, allDetectors)
+				.flatMap(List::stream)
+				.filter(ProcessingRequestProvider.class::isInstance)
+				.map(ProcessingRequestProvider.class::cast)
+				.map(ProcessingRequestProvider::getProcessingRequest)
+				.flatMap(req -> req.entrySet().stream())
+				.collect(toMap(
+						Entry::getKey,
+						Entry::getValue,
+						(a, b) -> Stream.of(a, b).flatMap(Collection::stream).collect(toList())
+				));
 	}
 
 	/**
