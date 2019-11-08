@@ -23,16 +23,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
 
 import gda.device.DeviceException;
 import uk.ac.gda.client.live.stream.controls.camera.state.ICameraState;
@@ -61,22 +58,20 @@ public class CustomCameraLiveControls extends AbstractLiveStreamViewCustomUi {
 	@Override
 	public void createUi(Composite composite) {
 		FormToolkit toolkit = new FormToolkit(composite.getDisplay());
-		composite.setBackgroundMode(SWT.INHERIT_FORCE);
+
 		if (!liveControls.isEmpty()) {
 			Section section = toolkit.createSection(composite,
-					Section.EXPANDED | Section.TWISTIE | Section.SHORT_TITLE_BAR);
+					Section.EXPANDED | Section.TWISTIE | Section.TITLE_BAR);
+			section.setLayout(GridLayoutFactory.fillDefaults().create());
+			section.setLayoutData(GridDataFactory.fillDefaults().grab(true, false).create());
 			section.setText("Camera Control");
 			section.setExpanded(true);
 			section.setEnabled(true);
 			section.setVisible(true);
 			Composite client = toolkit.createComposite(section, SWT.WRAP);
-			GridLayout layout = new GridLayout();
-			layout.numColumns = 4;
-			layout.marginWidth = 2;
-			layout.marginHeight = 2;
-			client.setLayout(layout);
+			client.setLayout(GridLayoutFactory.fillDefaults().numColumns(4).create());
 			liveControls.stream().forEach(e -> e.createControl(client));
-			toolkit.paintBordersFor(client);
+			toolkit.adapt(client);
 			section.setClient(client);
 		}
 
