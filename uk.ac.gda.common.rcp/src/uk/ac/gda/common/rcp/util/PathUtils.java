@@ -24,7 +24,7 @@ import org.eclipse.core.runtime.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.util.io.IPathConstructor;
+import uk.ac.gda.api.io.IPathConstructor;
 
 
 @Deprecated // See DAQ-563
