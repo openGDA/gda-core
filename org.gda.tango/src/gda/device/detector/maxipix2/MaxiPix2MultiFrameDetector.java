@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.Tango.DevState;
-import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.TangoUtils;
@@ -495,7 +494,7 @@ public class MaxiPix2MultiFrameDetector extends DetectorBase implements Position
 		ScanInformation currentScanInformation = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
 		if( (currentScanInformation!=null) && useScanSpecificFolder  ){
 			int scanNumber = currentScanInformation.getScanNumber();
-			String dataDir = PathConstructor.createFromDefaultProperty();
+			String dataDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 			dataDir = dataDir + File.separator + Long.toString(scanNumber) + File.separator + "mpx" + File.separator ;
 			File f = new File(dataDir);
 			if (!f.exists()){
