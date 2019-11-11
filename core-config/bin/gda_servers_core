@@ -271,6 +271,9 @@ if [[ "${GDA_MODE}" == "dummy" ]] || [[ "${ssh_tunnel_activated:-}" == true ]] |
                     break
                 fi
                 sleep 1
+                if ! ps -p "$$" > /dev/null 2>&1; then         # don't keep running if the parent shell has exited
+                    exit $FAILED
+                fi
                 $progress_emitter                   # Emit the progress indicator char correctly, based on GDA_NO_PROMPT/DISPLAY
             done
         ) | $progress_consumer                      # consuming it with the corresponding command
