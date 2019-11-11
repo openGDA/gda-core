@@ -28,12 +28,15 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class wraps a StackLayout of sections which allow the user to submit the scan parameters to different forms of
  * scanning, for example a standard mapping scan, or a XANES scanning script with drift correction.
  */
 public class SubmitScanSelector extends AbstractMappingSection {
+	private static final Logger logger = LoggerFactory.getLogger(SubmitScanSelector.class);
 
 	private Composite mainComposite;
 	private Composite optionsComposite;
@@ -58,11 +61,17 @@ public class SubmitScanSelector extends AbstractMappingSection {
 		optionsComposite.setLayout(optionsStack);
 
 		// Create the various sections
-		sectionsComposites = new ArrayList<Composite>(sections.size());
+		sectionsComposites = new ArrayList<>(sections.size());
 		for (SubmitScanSection section : sections) {
-			section.initialize(getMappingView());
-			section.createControls(optionsComposite);
-			sectionsComposites.add(section.getComposite());
+			final String sectionName = section.getClass().getSimpleName();
+			logger.debug("Creating mapping section {}", sectionName);
+			try {
+				section.initialize(getMappingView());
+				section.createControls(optionsComposite);
+				sectionsComposites.add(section.getComposite());
+			} catch (Exception e) {
+				logger.error("Error creating mapping section {}", sectionName, e);
+			}
 		}
 		showSection(0);
 	}

@@ -242,12 +242,18 @@ public class MappingExperimentView implements IAdaptable {
 
 	private void createSections(Composite parent, List<IMappingSection> sectionsToCreate, Map<String, String> persistedState) {
 		for (IMappingSection section : sectionsToCreate) {
-			section.initialize(this);
-			sections.put(section.getClass(), section);
+			final String sectionName = section.getClass().getSimpleName();
+			logger.debug("Creating mapping section {}", sectionName);
+			try {
+				section.initialize(this);
+				sections.put(section.getClass(), section);
 
-			if (section.shouldShow()) {
-				section.loadState(persistedState);
-				section.createControls(parent);
+				if (section.shouldShow()) {
+					section.loadState(persistedState);
+					section.createControls(parent);
+				}
+			} catch (Exception e) {
+				logger.error("Error creating mapping section {}", sectionName, e);
 			}
 		}
 	}
