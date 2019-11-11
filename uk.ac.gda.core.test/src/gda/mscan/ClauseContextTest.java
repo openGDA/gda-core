@@ -245,20 +245,6 @@ public class ClauseContextTest {
 	}
 
 	@Test
-	public void addMutatorRejectsSnakeMutatorForSpiral() throws Exception {
-		expectUnsupportedOperationWithMessageContents("Snake may only be applied");
-		prepareForMutatorTest(clauseContext, AreaScanpath.SPIRAL, 1);
-		clauseContext.addMutator(Mutator.SNAKE);
-	}
-
-	@Test
-	public void addMutatorRejectsSnakeMutatorForLissajous() throws Exception {
-		expectUnsupportedOperationWithMessageContents("Snake may only be applied");
-		prepareForMutatorTest(clauseContext, AreaScanpath.LISSAJOUS, 1, 2, 3, 4, 5);
-		clauseContext.addMutator(Mutator.SNAKE);
-	}
-
-	@Test
 	public void addMutatorRejectsParametersForSnakeMutator() throws Exception {
 		expectIllegalStateWithMessageContents("Too many parameters");
 		prepareForMutatorTest(clauseContext);
@@ -336,7 +322,7 @@ public class ClauseContextTest {
 	@Test
 	public void addMutatorRejectsRandomOffsetGridMutatorForLissajous() throws Exception {
 		expectUnsupportedOperationWithMessageContents("Random offsets may only be applied");
-		prepareForMutatorTest(clauseContext, AreaScanpath.LISSAJOUS, 1, 2, 3, 4, 5);
+		prepareForMutatorTest(clauseContext, AreaScanpath.LISSAJOUS, 1, 2, 3);
 		clauseContext.addMutator(Mutator.RANDOM_OFFSET);
 	}
 

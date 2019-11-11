@@ -24,7 +24,7 @@ import java.text.NumberFormat;
 import java.util.StringJoiner;
 import java.util.function.Function;
 
-import org.eclipse.scanning.api.points.models.AbstractMapModel;
+import org.eclipse.scanning.api.points.models.AbstractPointsModel;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.LissajousModel;
@@ -115,26 +115,26 @@ public class DescriptiveFilenameFactory {
 		POINT(0, "1 pt", path -> "", path -> ""),
 		RAST(1, "%s step per side, %s %s",
 			path -> enclose(((RasterModel)path).getxAxisStep() + "," + ((RasterModel)path).getyAxisStep()),
-			path -> isContinuous(path)),
+			path -> isContinuous(path) + isAlternating(path)),
 		GRID(2, "%s pts per side. %s %s",
 			path -> enclose(((GridModel)path).getxAxisPoints() + "," + ((GridModel)path).getyAxisPoints()),
-			path -> isContinuous(path) + isSnake(path)),
+			path -> isContinuous(path) + isAlternating(path)),
 		RAND(3, "%s pts per side. %s %s",
 			path -> enclose(((RandomOffsetGridModel)path).getxAxisPoints() + ","
 							+ ((RandomOffsetGridModel)path).getyAxisPoints()),
-			path -> isContinuous(path) + isSnake(path) + "r"),
+			path -> isContinuous(path) + isAlternating(path)),
 		EQUAL(4, "%s pts, %s %s",
 			path -> enclose(String.valueOf(((OneDEqualSpacingModel)path).getPoints())),
-			path -> isContinuous(path)),
+			path -> isContinuous(path) + isAlternating(path)),
 		STEP(5, "%s step, %s %s",
 			path -> enclose(String.valueOf(((OneDStepModel)path).getStep())),
-			path -> isContinuous(path)),
+			path -> isContinuous(path) + isAlternating(path)),
 		SPIR(6, "%s scale %s %s",
 			path -> enclose(String.valueOf(((SpiralModel)path).getScale())),
-			path -> isContinuous(path)),
+			path -> isContinuous(path) + isAlternating(path)),
 		LISS(7,	"%s a %s b, %s %s",
 			path -> enclose(((LissajousModel)path).getA() + "," + ((LissajousModel)path).getB()),
-			path -> isContinuous(path));
+			path -> isContinuous(path) + isAlternating(path));
 
 		private final int id;
 		private final String summaryFormat;
@@ -153,11 +153,11 @@ public class DescriptiveFilenameFactory {
 		}
 
 		private static String isContinuous(final IScanPathModel path) {
-			return ((AbstractMapModel)path).isContinuous() ? "c" : "";
+			return (path instanceof AbstractPointsModel && ((AbstractPointsModel)path).isContinuous()) ? "c" : "";
 		}
 
-		private static String isSnake(final IScanPathModel path) {
-			return ((GridModel)path).isSnake() ? "s" : "";
+		private static String isAlternating(final IScanPathModel path) {
+			return (path instanceof AbstractPointsModel && ((AbstractPointsModel)path).isAlternating()) ? "a" : "";
 		}
 
 		static String getSummary(final String shapeId, final Object... args) {

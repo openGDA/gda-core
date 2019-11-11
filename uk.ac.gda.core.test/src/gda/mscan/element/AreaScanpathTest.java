@@ -94,7 +94,7 @@ public class AreaScanpathTest {
 		correctLengthPathData.put(GRID, new Double[] {3.0, 3.0});
 		correctLengthPathData.put(RASTER, new Double[] {4.0, 4.0});
 		correctLengthPathData.put(SPIRAL, new Double[] {5.0});
-		correctLengthPathData.put(LISSAJOUS, new Double[] {6.0, 6.0, 6.0, 6.0, 6.0});
+		correctLengthPathData.put(LISSAJOUS, new Double[] {6.0, 6.0, 6.0});
 		correctLengthPathData.put(TWO_AXIS_NO_OF_POINTS, new Double[] {6.0});
 		correctLengthPathData.put(TWO_AXIS_STEP, new Double[] {6.0});
 		correctLengthPathData.put(SINGLE_POINT, new Double[] {6.0, 6.0});
@@ -120,7 +120,7 @@ public class AreaScanpathTest {
 		assertThat(GRID.valueCount(), is(2));
 		assertThat(RASTER.valueCount(), is(2));
 		assertThat(SPIRAL.valueCount(), is(1));
-		assertThat(LISSAJOUS.valueCount(), is(5));
+		assertThat(LISSAJOUS.valueCount(), is(3));
 		assertThat(TWO_AXIS_NO_OF_POINTS.valueCount(), is(1));
 		assertThat(TWO_AXIS_STEP.valueCount(), is(1));
 		assertThat(SINGLE_POINT.valueCount(), is(2));
@@ -298,7 +298,7 @@ public class AreaScanpathTest {
 		assertThat(gModel.getxAxisPoints(), is(5));
 		assertThat(gModel.getyAxisPoints(), is(6));
 		assertThat(gModel.getBoundingBox().getyAxisStart(), is(2.0));
-		assertThat(gModel.isSnake(), is(false));
+		assertThat(gModel.isAlternating(), is(false));
 	}
 
 	@Test
@@ -318,7 +318,7 @@ public class AreaScanpathTest {
 		assertThat(gModel.getBoundingBox().getyAxisStart(), is(2.0));
 		assertThat(gModel.getOffset(), is(20.0));
 		assertThat(gModel.getSeed(), is(2));
-		assertThat(gModel.isSnake(), is(false));
+		assertThat(gModel.isAlternating(), is(false));
 	}
 
 	@Test
@@ -419,7 +419,7 @@ public class AreaScanpathTest {
 		assertThat(rModel.getxAxisStep(), is(0.5));
 		assertThat(rModel.getyAxisStep(), is(6.5));
 		assertThat(rModel.getBoundingBox().getyAxisStart(), is(2.0));
-		assertThat(rModel.isSnake(), is(true));
+		assertThat(rModel.isAlternating(), is(true));
 	}
 
 	@Test
@@ -473,17 +473,8 @@ public class AreaScanpathTest {
 	}
 
 	@Test
-	public void createModelRejectsSnakeMutatorForSpiral() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Only Grid and Raster Models support Snake paths");
-		pathParams = Arrays.asList(5.0);
-		mutators.put(Mutator.SNAKE, new ArrayList<>());
-		SPIRAL.createModel(scannables, pathParams, bboxParams, mutators);
-	}
-
-	@Test
 	public void createModelsCorrectModelForLissajous() throws Exception {
-		pathParams = Arrays.asList(5.0, 6.0, 7.0, 8.0, 9);
+		pathParams = Arrays.asList(5, 6.0, 7.0);
 		IScanPathModel model = LISSAJOUS.createModel(scannables, pathParams, bboxParams, mutators);
 		assertThat(model, is(instanceOf(LissajousModel.class)));
 		LissajousModel lModel = (LissajousModel)model;
@@ -492,11 +483,9 @@ public class AreaScanpathTest {
 		assertThat(lModel.getBoundingBox().getyAxisStart(), is(2.0));
 		assertThat(lModel.getBoundingBox().getxAxisLength(), is(3.0));
 		assertThat(lModel.getBoundingBox().getyAxisLength(), is(4.0));
-		assertThat(lModel.getA(), is(5.0));
-		assertThat(lModel.getB(), is(6.0));
-		assertThat(lModel.getDelta(), is(7.0));
-		assertThat(lModel.getThetaStep(), is(8.0));
-		assertThat(lModel.getPoints(), is(9));
+		assertThat(lModel.getPoints(), is(5));
+		assertThat(lModel.getA(), is(6.0));
+		assertThat(lModel.getB(), is(7.0));
 		assertThat(lModel.getBoundingBox().getyAxisStart(), is(2.0));
 	}
 
@@ -504,17 +493,8 @@ public class AreaScanpathTest {
 	public void createModelRejectsRandomOffsetMutatorForLissajous() throws Exception {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Only Grid Model supports Random Offset paths");
-		pathParams = Arrays.asList(5.0, 6.0, 7.0, 8.0, 9);
+		pathParams = Arrays.asList(5.0, 6.0, 7.0);
 		mutators.put(Mutator.RANDOM_OFFSET, Arrays.asList(20, 2));
-		LISSAJOUS.createModel(scannables, pathParams, bboxParams, mutators);
-	}
-
-	@Test
-	public void createModelRejectsSnakeMutatorForLissajous() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Only Grid and Raster Models support Snake paths");
-		pathParams = Arrays.asList(5.0, 6.0, 7.0, 8.0, 9);
-		mutators.put(Mutator.SNAKE, new ArrayList<>());
 		LISSAJOUS.createModel(scannables, pathParams, bboxParams, mutators);
 	}
 
