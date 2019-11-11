@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
+import gda.jython.InterfaceProvider;
 
 /**
  * class that provides access to sample information in a Excel spreadsheet. The default file name of the spreadsheet is
@@ -66,7 +66,7 @@ public class SampleExperimentSummary {
 	 */
 	public SampleExperimentSummary() throws InstantiationException {
 		// check if the data directory has been defined
-		dataDir = PathConstructor.createFromDefaultProperty();
+		dataDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 
 		if (this.dataDir == null) {
 			// this java property is compulsory - stop the scan

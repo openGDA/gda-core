@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import gda.beamline.BeamlineInfo;
 import gda.beamline.beam.Beam;
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
 import gda.data.fileregistrar.FileRegistrarHelper;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
@@ -53,6 +52,7 @@ import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.hrpd.SampleInfo;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.scan.IScanDataPoint;
 
@@ -342,7 +342,7 @@ public class MacDataWriter extends DataWriterBase implements Findable, Configura
 		this.fileSuffix = LocalProperties.get("gda.data.file.suffix", "");
 		currentFileName = this.filePrefix + thisFileNumber + this.fileSuffix + "." + this.fileExtension;
 
-		fileUrl = PathConstructor.createFromDefaultProperty() + File.separator + currentFileName;
+		fileUrl = InterfaceProvider.getPathConstructor().createFromDefaultProperty() + File.separator + currentFileName;
 		try {
 			file = new FileWriter(fileUrl);
 		} catch (IOException ex1) {
@@ -593,7 +593,7 @@ public class MacDataWriter extends DataWriterBase implements Findable, Configura
 	 * @return the full path of the folder which data files are written
 	 */
 	public String getDataDir() {
-		return PathConstructor.createFromDefaultProperty();
+		return InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 	}
 
 	/**
