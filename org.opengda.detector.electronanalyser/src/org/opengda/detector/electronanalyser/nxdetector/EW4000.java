@@ -21,7 +21,6 @@ import org.springframework.beans.factory.InitializingBean;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
-import gda.data.PathConstructor;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -29,6 +28,7 @@ import gda.device.detector.NXDetector;
 import gda.device.detector.NexusDetector;
 import gda.device.scannable.PositionCallableProvider;
 import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
 import gda.jython.accesscontrol.MethodAccessProtected;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
@@ -189,7 +189,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	public void atScanStart() throws DeviceException {
 		int scannumber =getCurrentScanInformationHolder().getCurrentScanInformation().getScanNumber();
 		int numberOfPoints = getCurrentScanInformationHolder().getCurrentScanInformation().getNumberOfPoints();
-		String dataDir=PathConstructor.createFromDefaultProperty();
+		String dataDir=InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		if (!dataDir.endsWith(File.separator)) {
 			dataDir += File.separator;
 		}

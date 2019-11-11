@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.RateLimiter;
 
-import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.Scannable;
@@ -38,6 +37,7 @@ import gda.device.detector.NXDetector;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
@@ -771,7 +771,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		}
 		else {
 			logger.trace("Assuming file path within visit XML dir");
-			String visitXmlDir = PathConstructor.getVisitSubdirectory("xml");
+			String visitXmlDir = InterfaceProvider.getPathConstructor().getVisitSubdirectory("xml");
 			absoluteFilePath = Paths.get(visitXmlDir, filePath).toString();
 		}
 

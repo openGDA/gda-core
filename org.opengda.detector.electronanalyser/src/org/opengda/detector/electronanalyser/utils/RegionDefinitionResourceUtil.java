@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
+import gda.jython.InterfaceProvider;
 
 public class RegionDefinitionResourceUtil {
 	private final Logger logger = LoggerFactory
@@ -41,7 +41,7 @@ public class RegionDefinitionResourceUtil {
 	private String createExampleSequenceFileIfRequired() {
 
 		// Find the target location for the example .seq file
-		final String tgtDataRootPath = PathConstructor.createFromProperty("gda.ses.electronanalyser.seq.dir");
+		final String tgtDataRootPath = InterfaceProvider.getPathConstructor().createFromProperty("gda.ses.electronanalyser.seq.dir");
 		final String exampleFileName = LocalProperties.get("gda.ses.electronanalyser.seq.filename");
 		final String combinedFileName = tgtDataRootPath + File.separator + exampleFileName;
 		final File targetFile = new File(tgtDataRootPath, exampleFileName);
