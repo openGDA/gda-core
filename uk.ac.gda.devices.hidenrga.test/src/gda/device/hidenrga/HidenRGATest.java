@@ -15,11 +15,12 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
+import uk.ac.gda.api.io.IPathConstructor;
+import uk.ac.gda.api.io.PathConstructor;
 
 /*-
  * Copyright © 2015 Diamond Light Source Ltd.
@@ -70,8 +71,9 @@ public class HidenRGATest {
 		PowerMockito.when(mockedController.readtemp()).thenReturn(20.0);
 
 
-		PowerMockito.mockStatic(PathConstructor.class);
-		PowerMockito.when(PathConstructor.createFromDefaultProperty()).thenReturn("/tmp");
+		IPathConstructor pathConstructor = Mockito.mock(PathConstructor.class);
+		InterfaceProvider.setPathConstructorForTesting(pathConstructor);
+		PowerMockito.when(pathConstructor.createFromDefaultProperty()).thenReturn("/tmp");
 
 		PowerMockito.mockStatic(LocalProperties.class);
 		PowerMockito.when(LocalProperties.get(LocalProperties.GDA_VAR_DIR)).thenReturn("/tmp");

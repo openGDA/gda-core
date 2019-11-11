@@ -18,9 +18,6 @@
 
 package uk.ac.gda.exafs.ui.detectorviews.wizards;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -31,13 +28,16 @@ import java.io.OutputStream;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.Wizard;
 
+import gda.configuration.properties.LocalProperties;
+import gda.jython.InterfaceProvider;
+
 public class ImportExperimentWizard extends Wizard implements IWizard {
 	private ImportExperimentWizardPage page;
 
 	@Override
 	public boolean performFinish() {
 		String source = page.getRootPath() + "/" + page.getYears().getSelection()[0] + "/" + page.getVisits().getSelection()[0] + "/xml/" +page.getExperiments().getSelection()[0];
-		String currentDir =  PathConstructor.createFromProperty(LocalProperties.GDA_DATAWRITER_DIR);
+		String currentDir =  InterfaceProvider.getPathConstructor().createFromProperty(LocalProperties.GDA_DATAWRITER_DIR);
 		String destination = currentDir + "xml/" + page.getExperiments().getSelection()[0] + "_imported";
 		File src = new File(source);
 		File dst = new File(destination);

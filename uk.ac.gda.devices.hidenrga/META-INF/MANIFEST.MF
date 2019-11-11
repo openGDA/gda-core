@@ -16,7 +16,8 @@ Require-Bundle: uk.ac.gda.epics,
  org.eclipse.ui,
  org.eclipse.january,
  org.eclipse.dawnsci.plotting.api,
- uk.ac.diamond.org.springframework
+ uk.ac.diamond.org.springframework,
+ uk.ac.gda.api
 Export-Package: gda.device.hidenrga,
  uk.ac.gda.devices.hidenrga.ui.handlers,
  uk.ac.gda.devices.hidenrga.ui.views

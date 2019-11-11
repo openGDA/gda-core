@@ -22,7 +22,6 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
@@ -102,7 +101,7 @@ public class Xspress3ScanOperations {
 		controller.setFileArrayCounter(0);
 		String scanNumber = Long.toString(currentScanNumber);
 		// /dls/iXX/20XX/cm1234-5/tmp/xspress3/12345/0.hdf
-		Path filePath = Paths.get(PathConstructor.getVisitDirectory(), "tmp", detectorName, scanNumber);
+		Path filePath = Paths.get(InterfaceProvider.getPathConstructor().getVisitDirectory(), "tmp", detectorName, scanNumber);
 		File filePathTester = filePath.toFile();
 		if (!filePathTester.exists()) {
 			filePathTester.mkdirs();
