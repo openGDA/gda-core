@@ -17,6 +17,7 @@ import java.util.LinkedHashSet;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.scanning.api.IServiceResolver;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
@@ -80,6 +81,7 @@ public class Activator extends AbstractUIPlugin implements IServiceResolver {
 
 	public static ImageDescriptor getImageDescriptor(String path) {
 		if (plugin==null) {
+			// create an image outside of eclipse, used for tests
 			final ImageData data = new ImageData("../"+PLUGIN_ID+"/"+path);
 			return new ImageDescriptor() {
 				@Override
@@ -88,7 +90,22 @@ public class Activator extends AbstractUIPlugin implements IServiceResolver {
 				}
 			};
 		}
-		return imageDescriptorFromPlugin(PLUGIN_ID, path);
+
+		final ImageRegistry imageRegistry = getDefault().getImageRegistry();
+		ImageDescriptor descriptor = imageRegistry.getDescriptor(path);
+		if (descriptor == null) {
+			descriptor = imageDescriptorFromPlugin(PLUGIN_ID, path);
+			imageRegistry.put(path, descriptor);
+		}
+		return descriptor;
+	}
+
+	public static Image getImage(final String path) {
+		ImageDescriptor imageDescriptor = getImageDescriptor(path); // loads the ImageDescriptor into the image registry
+		if (plugin == null) {
+			return imageDescriptor.createImage();
+		}
+		return getDefault().getImageRegistry().get(path);
 	}
 
 	@Override
@@ -106,11 +123,6 @@ public class Activator extends AbstractUIPlugin implements IServiceResolver {
 		Collection<T> ret = new LinkedHashSet<T>(refs.size());
 		for (ServiceReference<T> ref : refs) ret.add(context.getService(ref));
 		return ret;
-	}
-
-	public static Image getImage(final String imagePath) {
-		// TODO: DO NOT MERGE: we're leaking images!!! we should cache them
-		return AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN_ID, imagePath).createImage();
 	}
 
 }

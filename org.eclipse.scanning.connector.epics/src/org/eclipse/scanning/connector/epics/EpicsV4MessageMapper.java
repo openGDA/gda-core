@@ -12,6 +12,7 @@
 package org.eclipse.scanning.connector.epics;
 
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_MESSAGE;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_BLOCK_META;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_ERROR;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_METHOD;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_NT_SCALAR;
@@ -44,6 +45,7 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.SpiralModel;
 import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.connector.epics.custommarshallers.BlockMetaDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.BoundingBoxDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.BoundingBoxSerialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.CircularROIDeserialiser;
@@ -155,6 +157,7 @@ public class EpicsV4MessageMapper {
 
 		marshaller.registerDeserialiser(TYPE_ID_NT_SCALAR, new NTScalarDeserialiser());
 		marshaller.registerDeserialiser(TYPE_ID_NT_SCALAR_ARRAY, new NTScalarArrayDeserialiser());
+		marshaller.registerDeserialiser(TYPE_ID_BLOCK_META, new BlockMetaDeserialiser());
 		marshaller.registerDeserialiser(TYPE_ID_NT_TABLE, new NTTableDeserialiser());
 		marshaller.registerDeserialiser(TYPE_ID_POINT_GENERATOR, new PointGeneratorDeserialiser());
 		marshaller.registerDeserialiser(TYPE_ID_METHOD, new MalcolmMethodDeserialiser());

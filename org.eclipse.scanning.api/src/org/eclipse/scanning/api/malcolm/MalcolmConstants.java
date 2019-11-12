@@ -37,12 +37,15 @@ public class MalcolmConstants {
 	public static final String DATASETS_TABLE_COLUMN_RANK = "rank";
 	public static final String DATASETS_TABLE_COLUMN_UNIQUEID = "uniqueid";
 
+	public static final String FIELD_NAME_META = "meta";
+
 	// The names of the fields of the model used to configure a malcolm device
 	public static final String FIELD_NAME_DETECTORS = "detectors";
 	public static final String FIELD_NAME_GENERATOR = "generator";
 	public static final String FIELD_NAME_AXES_TO_MOVE = "axesToMove";
 	public static final String FIELD_NAME_FILE_DIR = "fileDir";
 	public static final String FIELD_NAME_FILE_TEMPLATE = "fileTemplate";
+
 
 	// the column names of the detectors table, this is the defaults field of the MethodMeta for the configure and validate methods
 	// TODO move to internal constants? unlike the Datasets table, the names of the columns are not required externally

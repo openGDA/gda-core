@@ -52,6 +52,7 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmConstants;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
+import org.eclipse.scanning.api.malcolm.MalcolmVersion;
 import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
@@ -80,6 +81,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * A test for malcolm device that uses the real PV deserialization with <code>DummyMalcolmRecord</code> set up as
+ * a mock to return the expected results.
+ */
 public class ExampleMalcolmDeviceTest {
 
 	private IScanService service;
@@ -111,11 +116,18 @@ public class ExampleMalcolmDeviceTest {
 		epicsv4Device.stop();
 	}
 
+	@Test
+	public void testGetMalcolmVersion() throws Exception {
+		final MalcolmVersion version = malcolmDevice.getVersion();
+		assertThat(version, is(equalTo(MalcolmVersion.VERSION_4_2)));
+	}
+
 	/**
 	 * Starts an instance of the ExampleMalcolmDevice and then probes it with the configure() and call() methods
 	 * as well as getting a list of all attributes and several specific attributes.
 	 * This method thoroughly checks the malcolm attributes and the PV structures created by the EpicsV4
-	 * connector sevice
+	 * connector sevice.
+	 * TODO: split the @Test method for this class into one test method for each method of IMalcolmDevice, see JIRA DAQ-2548.
 	 * @throws Exception
 	 */
 	@Test

@@ -23,6 +23,7 @@ import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_NAME;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_AXES_TO_MOVE;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_DETECTORS;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_META;
 import static org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.ERROR_MESSAGE_PREFIX_FAILED_TO_CONNECT;
 
 import java.nio.file.Paths;
@@ -59,6 +60,7 @@ import org.eclipse.scanning.api.malcolm.attributes.ChoiceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.MalcolmAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.NumberAttribute;
+import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.StringAttribute;
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection;
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.IMalcolmConnectionEventListener;
@@ -806,11 +808,20 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 
 	@Override
 	public MalcolmVersion getVersion() throws MalcolmDeviceException {
-		getModel(); // call get model to ensure detectorsTableTypesMap has been initialized
-		if (detectorsTableTypesMap.containsKey(DETECTORS_TABLE_COLUMN_ENABLE)) {
-			return MalcolmVersion.VERSION_4_2;
+//		getModel(); // call get model to ensure detectorsTableTypesMap has been initialized
+//		if (detectorsTableTypesMap.containsKey(DETECTORS_TABLE_COLUMN_ENABLE)) { // TODO remove these lines ***********
+//			return MalcolmVersion.VERSION_4_2;
+//		}
+//		return MalcolmVersion.VERSION_4_0;
+
+		// The version of a malcolm device can be retrieved from the tags of the 'meta' attribute
+		final StringArrayAttribute value = getEndpointValue(FIELD_NAME_META);
+		final String[] tags = value.getTags();
+		if (tags.length == 0) {
+			return MalcolmVersion.VERSION_4_0; // last version without a way to get the version
 		}
-		return MalcolmVersion.VERSION_4_0;
+
+		return MalcolmVersion.fromVersionString(tags[0]);
 	}
 
 	@Override

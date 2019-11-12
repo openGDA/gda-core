@@ -144,7 +144,7 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		// Assert
 		assertThat(malcolmDevice.isAlive(), is(false));
 		// verify that a state change event is received, from ARMED to OFFLINE
-		verify(malcolmEventListener, timeout(250).times(2)).eventPerformed(any(MalcolmEvent.class));
+		verify(malcolmEventListener, timeout(1000).times(2)).eventPerformed(any(MalcolmEvent.class));
 		assertThat(malcolmBeanCaptor.getValue(), is(equalTo(createExpectedMalcolmEvent(
 				DeviceState.OFFLINE, DeviceState.READY, "disconnected from " + malcolmDevice.getName()))));
 
@@ -158,7 +158,7 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		assertThat(malcolmDevice.isAlive(), is(true));
 
 		// Assert
-		verify(malcolmConnection, timeout(250)) // wait with timeout as invocation happens in a another thread
+		verify(malcolmConnection, timeout(1000)) // wait with timeout as invocation happens in a another thread
 				.send(malcolmDevice, expectedGetDeviceStateMessage);
 		verify(malcolmEventListener, times(3)).eventPerformed(any(MalcolmEvent.class));
 		assertThat(malcolmBeanCaptor.getValue(), is(equalTo(createExpectedMalcolmEvent(

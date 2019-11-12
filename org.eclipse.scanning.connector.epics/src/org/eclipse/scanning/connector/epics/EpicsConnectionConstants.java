@@ -74,8 +74,9 @@ public class EpicsConnectionConstants {
 	public static final String FIELD_NAME_NAME = "name";
 	public static final String FIELD_NAME_MESSAGE = "message";
 	public static final String FIELD_NAME_LABELS = "labels"; // malcolm table
-	public static final String FIELD_NAME_VISIBLE = "visible"; // use by layout
-	public static final String FIELD_NAME_MRI = "mri"; // used by layout
+	public static final String FIELD_NAME_VISIBLE = "visible"; // used by layout attribute
+	public static final String FIELD_NAME_MRI = "mri"; // used by layout attribute
+	public static final String FIELD_NAME_FIELDS = "fields"; // used by meta attribute
 
 	// field names for model to configure malcolm (EpicsMalcolmModel)
 	public static final String FIELD_NAME_FILE_DIR = "fileDir";

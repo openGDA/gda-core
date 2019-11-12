@@ -18,7 +18,13 @@
 
 package org.eclipse.scanning.api.malcolm;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class MalcolmVersion implements Comparable<MalcolmVersion> {
+
+	private static final String MALCOLM_VERSION_STRING_PREFIX = "version:pymalcolm:";
+	private static final Pattern MALCOLM_VERSION_STRING_PATTERN = Pattern.compile(MALCOLM_VERSION_STRING_PREFIX + "(\\d+\\.\\d+).*");
 
 	public static final MalcolmVersion VERSION_4_0 = new MalcolmVersion(4, 0);
 	public static final MalcolmVersion VERSION_4_2 = new MalcolmVersion(4, 2);
@@ -34,6 +40,19 @@ public class MalcolmVersion implements Comparable<MalcolmVersion> {
 	public MalcolmVersion(int major, int minor) {
 		this.major = major;
 		this.minor = minor;
+	}
+
+	public static MalcolmVersion fromVersionString(String versionString) {
+		final Matcher matcher = MALCOLM_VERSION_STRING_PATTERN.matcher(versionString);
+		if (!matcher.matches()) {
+			throw new IllegalArgumentException("Malcolm device string does not match expected format: version:pymalcolm:<maj>.<min>-<build>");
+		}
+
+		final String result = matcher.group(1); // result is of the form n.n, e.g. 4.2
+		final String[] segments = result.split("\\.");
+		final int majorVersion = Integer.parseInt(segments[0]);
+		final int minorVersion = Integer.parseInt(segments[1]);
+		return new MalcolmVersion(majorVersion, minorVersion);
 	}
 
 	public int getMajor() {

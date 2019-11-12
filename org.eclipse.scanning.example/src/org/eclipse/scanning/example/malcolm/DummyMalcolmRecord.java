@@ -30,6 +30,7 @@ import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIEL
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_DESCRIPTION;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_DETECTORS;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_DTYPE;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_FIELDS;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_FILE_DIR;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_FILE_TEMPLATE;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_LABEL;
@@ -48,6 +49,7 @@ import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIEL
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_VISIBLE;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_WRITEABLE;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_BLOCK;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_BLOCK_META;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_BOOLEAN_META;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_CHOICE_META;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_MAP;
@@ -230,7 +232,8 @@ class DummyMalcolmRecord extends PVRecord {
 		FieldBuilder fb = FIELDCREATE.createFieldBuilder();
 
 		// The structure of the 'meta' field - a field that contains the names of the other fields
-		Structure metaStructure = newDefaultField(EpicsConnectionConstants.TYPE_ID_BLOCK_META);
+		Structure metaStructure = newDefaultFieldBuilder().addArray(FIELD_NAME_FIELDS, ScalarType.pvString)
+				.setId(TYPE_ID_BLOCK_META).createStructure();
 		Structure choiceMetaStructure = newDefaultFieldBuilder().addArray(FIELD_NAME_CHOICES, ScalarType.pvString)
 				.setId(TYPE_ID_CHOICE_META).createStructure();
 		Structure stringMetaStructure = newDefaultField(TYPE_ID_STRING_META);
@@ -375,6 +378,21 @@ class DummyMalcolmRecord extends PVRecord {
 		PVStructure blockPVStructure = PVDATACREATE.createPVStructure(deviceStructure);
 
 		// Fill in the values to the fields above
+		// Meta
+		String malcolmVersionString = "version:pymalcolm:4.2";
+		String[] metaFields= new String[] {
+				ATTRIBUTE_NAME_STATE, ATTRIBUTE_NAME_HEALTH, ATTRIBUTE_NAME_TOTAL_STEPS,
+				FIELD_NAME_MRI, ATTRIBUTE_NAME_LAYOUT,
+				ABORT.toString(), CONFIGURE.toString(), DISABLE.toString(),
+				RESET.toString(), RUN.toString(), VALIDATE.toString(),
+				ATTRIBUTE_NAME_DATASETS, ATTRIBUTE_NAME_SIMULTANEOUS_AXES
+		};
+
+		PVStringArray metaTagsArray = blockPVStructure.getSubField(PVStringArray.class, "meta.tags");
+		metaTagsArray.put(0, 1, new String[] { malcolmVersionString }, 0);
+		PVStringArray metaFieldsArray = blockPVStructure.getSubField(PVStringArray.class, FIELD_NAME_META + "." + FIELD_NAME_FIELDS);
+		metaFieldsArray.put(0, metaFields.length, metaFields, 0);
+
 		// State
 		String[] choicesArray = new String[] { "Resetting", "Ready", "Armed", "Configuring", "Running", "PostRun",
 				"Paused", "Rewinding", "Aborting", "Aborted", "Fault", "Disabling", "Disabled" };

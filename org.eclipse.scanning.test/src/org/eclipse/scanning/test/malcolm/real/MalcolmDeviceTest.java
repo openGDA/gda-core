@@ -28,6 +28,7 @@ import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_DETEC
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_FILE_DIR;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_FILE_TEMPLATE;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_GENERATOR;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_META;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.FILE_EXTENSION_H5;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.STANDARD_MALCOLM_ERROR_STR;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -575,6 +576,12 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		final MalcolmMessage expectedGetSimultaneousAxesMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
 		when(malcolmConnection.send(malcolmDevice, expectedGetSimultaneousAxesMessage)).thenReturn(
 				createExpectedMalcolmOkReply(new StringArrayAttribute("stage_x", "stage_y")));
+		// create the expected meta message used to get the malcolm version
+		final StringArrayAttribute metaFieldValue = new StringArrayAttribute();
+		metaFieldValue.setTags(new String[] { "version:pymalcolm:4.2" });
+		final MalcolmMessage expectedGetMetaMessage = createExpectedMalcolmMessage(id++, Type.GET, FIELD_NAME_META);
+		when(malcolmConnection.send(malcolmDevice, expectedGetMetaMessage)).thenReturn(
+				createExpectedMalcolmOkReply(metaFieldValue));
 		final MalcolmMessage expectedGetConfigureMessage2 = createExpectedMalcolmMessage(id++, Type.GET, MalcolmMethod.CONFIGURE.toString());
 		when(malcolmConnection.send(malcolmDevice, expectedGetConfigureMessage2)).thenReturn(expectedGetConfigureReply);
 
