@@ -18,14 +18,14 @@
 		<property name="name" hidden="true" no-setter="true" type="java.lang.String" />
 		<property name="xAxisPoints" type="int" />
 		<property name="yAxisPoints" type="int" />
-		<property name="snake" type="boolean" />
+		<property name="alternating" type="boolean" />
 	</entity>
 
 	<entity type="org.eclipse.scanning.api.points.models.RasterModel">
 		<property name="name" hidden="true" no-setter="true" type="java.lang.String" />
 		<property name="xAxisStep" type="double" />
 		<property name="yAxisStep" type="double" />
-		<property name="snake" type="boolean" />
+		<property name="alternating" type="boolean" />
 	</entity>
 
 	<entity type="uk.ac.diamond.daq.mapping.path.LissajousModel">
