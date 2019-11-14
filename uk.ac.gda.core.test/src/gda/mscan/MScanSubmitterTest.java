@@ -296,7 +296,7 @@ public class MScanSubmitterTest {
 
 	@Test
 	public void canMakeMutatorProcessors() throws Exception {
-		Object[] arr = {scannable, Mutator.SNAKE};
+		Object[] arr = {scannable, Mutator.ALTERNATING};
 		when(resolver.resolveScanClauses()).thenThrow(new IllegalArgumentException());
 		exception.expect(IllegalArgumentException.class);
 		try {
@@ -307,7 +307,7 @@ public class MScanSubmitterTest {
 			assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
 			assertThat(processors.get(0).getElement(), is(scannable));
 			assertThat(processors.get(1), instanceOf(MutatorElementProcessor.class));
-			assertThat(processors.get(1).getElement(), is(Mutator.SNAKE));
+			assertThat(processors.get(1).getElement(), is(Mutator.ALTERNATING));
 			throw e;
 		}
 	}

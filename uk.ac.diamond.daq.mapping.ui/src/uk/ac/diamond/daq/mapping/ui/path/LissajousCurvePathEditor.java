@@ -41,22 +41,12 @@ public class LissajousCurvePathEditor extends AbstractPathEditor {
 		grabHorizontalSpace.applyTo(bTxt);
 		binder.bind(bTxt, "b", getModel());
 
-		new Label(composite, SWT.NONE).setText("Delta");
-		Text deltaTxt = new Text(composite, SWT.BORDER);
-		grabHorizontalSpace.applyTo(deltaTxt);
-		binder.bind(deltaTxt, "delta", getModel());
-
 		new Label(composite, SWT.NONE).setText("Points");
 		Spinner pointsSpinner = new Spinner(composite, SWT.BORDER);
 		grabHorizontalSpace.applyTo(pointsSpinner);
 		binder.bind(pointsSpinner, "points", getModel());
 
-		new Label(composite, SWT.NONE).setText("Theta step");
-		Text thetaTxt = new Text(composite, SWT.BORDER);
-		grabHorizontalSpace.applyTo(thetaTxt);
-		binder.bind(thetaTxt, "thetaStep", getModel());
-
-		makeContinuousControl(composite);
+		makeCommonOptionsControls(composite);
 
 		return composite;
 	}

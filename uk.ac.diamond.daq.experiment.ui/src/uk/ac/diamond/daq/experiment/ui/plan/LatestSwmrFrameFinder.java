@@ -164,11 +164,11 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 		 * The position of the latest frame is given
 		 * by the position of the latest non-zero unique key.
 		 * 
-		 * We cannot tell whether this is a 'snake' acquisition,
+		 * We cannot tell whether this is an alternating acquisition,
 		 * so we have to iterate through the entire dataset, even if we find zeros!
 		 * 
 		 * The exception is if we find a non-zero key after finding a zero,
-		 * in which case this is definitely a snake acquisition,
+		 * in which case this is definitely a alternating acquisition,
 		 * and that first non-zero key following the zero indicates the position of the latest frame.
 		 */
 		while (iterator.hasNext()) {

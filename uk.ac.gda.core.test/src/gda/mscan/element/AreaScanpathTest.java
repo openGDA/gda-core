@@ -407,7 +407,7 @@ public class AreaScanpathTest {
 	@Test
 	public void createModelCreatesCorrectModelForRaster() throws Exception {
 		pathParams = Arrays.asList(0.5, 6.5);
-		mutators.put(Mutator.SNAKE, new ArrayList<>());
+		mutators.put(Mutator.ALTERNATING, new ArrayList<>());
 		IScanPathModel model = RASTER.createModel(scannables, pathParams, bboxParams, mutators);
 		assertThat(model, is(instanceOf(RasterModel.class)));
 		RasterModel rModel = (RasterModel)model;

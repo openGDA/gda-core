@@ -28,7 +28,7 @@ import java.util.List;
  * @since GDA 9.9
  */
 public enum Mutator implements IMScanElementEnum {
-	SNAKE("snak", 0, 0, new boolean[]{}),
+	ALTERNATING("alte", 0, 0, new boolean[]{}),
 	RANDOM_OFFSET("roff", 2, 1, new boolean[]{true, false});
 
 	private final String text;

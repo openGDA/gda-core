@@ -135,12 +135,14 @@ alias('axis')
 # the corresponding names and standard 4 character abbreviations so that
 # they can be protected using alias()
 
-snak = snake = (lambda:Mutator.SNAKE)()
+snak = snake = alte = alternating = (lambda:Mutator.ALTERNATING)()
 roff = random_offset = (lambda:Mutator.RANDOM_OFFSET)()
 
 # Register the commands with the Translator
 alias('snak')
 alias('snake')
+alias('alte')
+alias('alternating')
 alias('roff')
 alias('random_offset')
 

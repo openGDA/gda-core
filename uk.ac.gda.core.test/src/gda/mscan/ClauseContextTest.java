@@ -39,6 +39,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import gda.device.detector.DummyDetector;
 import gda.device.monitor.DummyMonitor;
+import gda.device.scannable.DummyScannable;
 import gda.device.scannable.ScannableMotor;
 import gda.mscan.element.AreaScanpath;
 import gda.mscan.element.Mutator;
@@ -223,10 +224,10 @@ public class ClauseContextTest {
 	}
 
 	@Test
-	public void addMutatorSetsMetadataAndStoresSnakeMutatorCorrectlyForGrid() throws Exception {
+	public void addMutatorSetsMetadataAndStoresAlternatingMutatorCorrectlyForGrid() throws Exception {
 		prepareForMutatorTest(unvalidatedClauseContext, AreaScanpath.GRID, 3, 3);
-		unvalidatedClauseContext.addMutator(Mutator.SNAKE);
-		assertThat(unvalidatedClauseContext.getMutatorUses(), hasEntry(Mutator.SNAKE, new ArrayList<Number>()));
+		unvalidatedClauseContext.addMutator(Mutator.ALTERNATING);
+		assertThat(unvalidatedClauseContext.getMutatorUses(), hasEntry(Mutator.ALTERNATING, new ArrayList<Number>()));
 		assertThat(unvalidatedClauseContext.getMutatorUses().size(), is(1));
 		assertThat(unvalidatedClauseContext.getPreviousType().getTypeName(), is("gda.mscan.element.Mutator"));
 		assertThat(unvalidatedClauseContext.paramsFull(), is(true));
@@ -234,10 +235,10 @@ public class ClauseContextTest {
 	}
 
 	@Test
-	public void addMutatorSetsMetadataAndStoresSnakeMutatorCorrectlyForRaster() throws Exception {
+	public void addMutatorSetsMetadataAndStoresAlternatingMutatorCorrectlyForRaster() throws Exception {
 		prepareForMutatorTest(unvalidatedClauseContext, AreaScanpath.RASTER, 3, 3);
-		unvalidatedClauseContext.addMutator(Mutator.SNAKE);
-		assertThat(unvalidatedClauseContext.getMutatorUses(), hasEntry(Mutator.SNAKE, new ArrayList<Number>()));
+		unvalidatedClauseContext.addMutator(Mutator.ALTERNATING);
+		assertThat(unvalidatedClauseContext.getMutatorUses(), hasEntry(Mutator.ALTERNATING, new ArrayList<Number>()));
 		assertThat(unvalidatedClauseContext.getMutatorUses().size(), is(1));
 		assertThat(unvalidatedClauseContext.getPreviousType().getTypeName(), is("gda.mscan.element.Mutator"));
 		assertThat(unvalidatedClauseContext.paramsFull(), is(true));
@@ -245,10 +246,25 @@ public class ClauseContextTest {
 	}
 
 	@Test
-	public void addMutatorRejectsParametersForSnakeMutator() throws Exception {
+
+	public void addMutatorRejectsAlternatingForSinglePoint() throws Exception {
+		expectUnsupportedOperationWithMessageContents("Alternating not supported");
+		clauseContext.addScannable(new DummyScannable());
+		clauseContext.addScannable(new DummyScannable());
+		clauseContext.setRegionShape(RegionShape.POINT);
+		clauseContext.addParam(4);
+		clauseContext.addParam(4);
+		clauseContext.setAreaScanpath(AreaScanpath.SINGLE_POINT);
+		clauseContext.addParam(4);
+		clauseContext.addParam(4);
+		clauseContext.addMutator(Mutator.ALTERNATING);
+	}
+
+	@Test
+	public void addMutatorRejectsParametersForAlternatingMutator() throws Exception {
 		expectIllegalStateWithMessageContents("Too many parameters");
 		prepareForMutatorTest(clauseContext);
-		clauseContext.addMutator(Mutator.SNAKE);
+		clauseContext.addMutator(Mutator.ALTERNATING);
 		clauseContext.addParam(2);
 	}
 
@@ -307,21 +323,21 @@ public class ClauseContextTest {
 
 	@Test
 	public void addMutatorRejectsRandomOffsetGridMutatorForRaster() throws Exception {
-		expectUnsupportedOperationWithMessageContents("Random offsets may only be applied");
+		expectUnsupportedOperationWithMessageContents("RandomOffset not supported by model type");
 		prepareForMutatorTest(clauseContext, AreaScanpath.RASTER, 1);
 		clauseContext.addMutator(Mutator.RANDOM_OFFSET);
 	}
 
 	@Test
 	public void addMutatorRejectsRandomOffsetGridMutatorForSpiral() throws Exception {
-		expectUnsupportedOperationWithMessageContents("Random offsets may only be applied");
+		expectUnsupportedOperationWithMessageContents("RandomOffset not supported by model type");
 		prepareForMutatorTest(clauseContext, AreaScanpath.SPIRAL, 1);
 		clauseContext.addMutator(Mutator.RANDOM_OFFSET);
 	}
 
 	@Test
 	public void addMutatorRejectsRandomOffsetGridMutatorForLissajous() throws Exception {
-		expectUnsupportedOperationWithMessageContents("Random offsets may only be applied");
+		expectUnsupportedOperationWithMessageContents("RandomOffset not supported by model type");
 		prepareForMutatorTest(clauseContext, AreaScanpath.LISSAJOUS, 1, 2, 3);
 		clauseContext.addMutator(Mutator.RANDOM_OFFSET);
 	}

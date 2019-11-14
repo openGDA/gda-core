@@ -39,7 +39,7 @@ public class MutatorElementProcessorTest {
 
 	private MutatorElementProcessor processor;
 
-	private Mutator mutator = Mutator.SNAKE;
+	private Mutator mutator = Mutator.ALTERNATING;
 
 	@Mock
 	private ClauseContext context;

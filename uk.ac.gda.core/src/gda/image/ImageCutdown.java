@@ -110,10 +110,10 @@ public class ImageCutdown {
 
 	ImageCutdown(String imagePath, String saveDir, List<int[][]> coords, String suffix, boolean testing) throws IncorrectFileTypeException, InvalidCoordinatesException, ScanFileHolderException {
 		this.imagePath = imagePath;
-		String snakeSuffix = coords.size() > 1 ? "_" + suffix + "_" : "_" + suffix;
+		String alternatingSuffix = coords.size() > 1 ? "_" + suffix + "_" : "_" + suffix;
 		String name = Paths.get(imagePath).getFileName().toString();
 		String nameWithoutExtension = name.substring(0, name.lastIndexOf('.'));
-		imageName = nameWithoutExtension + snakeSuffix;
+		imageName = nameWithoutExtension + alternatingSuffix;
 		imageType = imageTypeFromFileExtension(imagePath);
 		this.saveDir = saveDir;
 
