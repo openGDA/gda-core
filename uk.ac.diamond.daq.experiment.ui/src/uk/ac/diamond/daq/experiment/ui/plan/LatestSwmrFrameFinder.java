@@ -30,7 +30,7 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 	private static final Logger logger = LoggerFactory.getLogger(LatestSwmrFrameFinder.class);
 	
 	private static final String DETECTOR_DATASET_SUFFIX = "/data";
-	private static final String UNIQUE_KEYS_DATASET_SUFFIX = "/uniqueKeys";
+	private static final String UNIQUE_KEYS_KEY_WORD = "keys";
 	
 	private final Consumer<IDataset> frameProcessor;
 	private final RateLimiter rateLimiter;
@@ -91,15 +91,21 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 	}
 	
 	private Optional<IDataset> findLatestFrame(IRefreshable file) {
+		
 		List<DataOptions> dataOptions = file.getUninitialisedDataOptions();
 		
 		DataOptions uniqueKeysDataOptions = dataOptions.stream()
-				.filter(options -> options.getName().endsWith(UNIQUE_KEYS_DATASET_SUFFIX))
+				.filter(options -> options.getName().toLowerCase().contains(UNIQUE_KEYS_KEY_WORD))
 				.findFirst().orElseThrow(() -> new NoSuchElementException("Unique keys dataset not found"));
 		
 		DataOptions detectorDataOptions = dataOptions.stream()
 				.filter(options -> options.getName().endsWith(DETECTOR_DATASET_SUFFIX))
 				.findFirst().orElseThrow(() -> new NoSuchElementException("Detector dataset not found"));
+		
+		/* FIXME We are about to use uniqueKeysDataOptions to find a frame in detectorDataOptions
+		 * This is really only valid for a scan which contains a a single detector.
+		 * See DAQ-2549
+		 */
 		
 		try {
 			
@@ -126,13 +132,19 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 		int[] shape = detectorData.getShape();
 		final SliceND slice = new SliceND(shape);
 		
-		for (int dimension = 0; dimension < positionOfLastFrame.length; dimension++) {
+		int dataRank = detectorData.getRank();
+		int positionRank = positionOfLastFrame.length;
+		int finalDimension = dataRank == positionRank
+				? positionRank - 2 	// Malcolm scan
+				: positionRank; 	// GDA scan
+		
+		for (int dimension = 0; dimension < finalDimension; dimension++) {
 			slice.setSlice(dimension,
 					new Slice(positionOfLastFrame[dimension],
 					positionOfLastFrame[dimension]+1));
 		}
 		
-		return slice;
+ 		return slice;
 	}
 
 	/**
