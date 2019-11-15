@@ -5,6 +5,7 @@ import java.util.Collection;
 import org.dawnsci.plotting.histogram.ImageHistogramProvider;
 import org.dawnsci.plotting.histogram.ui.HistogramViewer;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
 import org.eclipse.dawnsci.plotting.api.trace.IPaletteTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -27,10 +28,13 @@ public class HistogramComposite extends Composite {
 			histogram = new HistogramViewer(this);
 			Collection<ITrace> traces = plottingSystem.getTraces(IPaletteTrace.class);
 			histogram.setContentProvider(new ImageHistogramProvider());
+
 			if (!traces.isEmpty()) {
-				histogram.setInput(traces.iterator().next());
+				IImageTrace trace = (IImageTrace)traces.iterator().next();
+				trace.getImageServiceBean().setMax(260.0);
+				histogram.setInput(trace);
 				histogram.refresh();
-			}			
+			}
 			GridDataFactory.fillDefaults().grab(true, true).applyTo(histogram.getComposite());
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -28,7 +28,7 @@ import uk.ac.gda.ui.tool.ClientMessagesUtility;
  */
 public class CameraConfigurationDialog extends AbstractCameraConfigurationDialog<ImagingCameraConfigurationController> {
 	private static final int MINIMUM_WIDTH = 960;
-	private static final int MINIMUM_HEIGHT = 600;
+	private static final int MINIMUM_HEIGHT = 900;
 
 	public static void show(Display display, IConnection liveStreamConnection) throws DeviceException {
 		// Preliminary implementation to parametrise the active camera (0 will be a
