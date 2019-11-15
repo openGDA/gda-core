@@ -39,7 +39,7 @@ public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements Bu
 
 	private static final Logger logger = LoggerFactory.getLogger(Xspress3FFoverI0BufferedDetector.class);
 
-	private Xspress3BufferedDetector qxspress = null;
+	private BufferedDetector qxspress = null;
 	private BufferedScaler qscaler = null;
 	protected ContinuousParameters continuousParameters = null;
 	protected boolean isContinuousMode = true;
@@ -61,8 +61,7 @@ public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements Bu
 			throws DeviceException {
 
 		double[][] scalerFrames = (double[][]) qscaler.readFrames(startFrame, finalFrame);
-		NexusTreeProvider[] expressFrames = qxspress.readFrames(startFrame, finalFrame);
-
+		NexusTreeProvider[] expressFrames = (NexusTreeProvider[]) qxspress.readFrames(startFrame, finalFrame);
 		Double[] ffio = new Double[finalFrame - startFrame + 1];
 
 		for (int thisFrame = 0; thisFrame < finalFrame - startFrame + 1; thisFrame++) {
@@ -179,11 +178,11 @@ public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements Bu
 		return 0;
 	}
 
-	public Xspress3BufferedDetector getQexafsXspress() {
+	public BufferedDetector getQexafsXspress() {
 		return qxspress;
 	}
 
-	public void setQexafsXspress(Xspress3BufferedDetector xspress) {
+	public void setQexafsXspress(BufferedDetector xspress) {
 		this.qxspress = xspress;
 	}
 
