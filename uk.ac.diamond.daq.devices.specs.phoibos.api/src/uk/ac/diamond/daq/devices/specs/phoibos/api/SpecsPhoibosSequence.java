@@ -166,20 +166,6 @@ public class SpecsPhoibosSequence implements Serializable {
 		}
 	}
 
-	/**
-	 * Find the region with the right name
-	 *
-	 * @return The right region object
-	 */
-	public SpecsPhoibosRegion getRegion(String regionName) {
-		for (SpecsPhoibosRegion r : regions ) {
-			if (r.getName().equals(regionName)) {
-				return r;
-			}
-		}
-		return null;
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
