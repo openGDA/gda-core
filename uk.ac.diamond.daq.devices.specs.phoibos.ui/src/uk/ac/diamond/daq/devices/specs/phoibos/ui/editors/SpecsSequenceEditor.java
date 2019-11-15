@@ -97,8 +97,6 @@ public class SpecsSequenceEditor implements IObserver {
 	private SpecsPhoibosSequence sequence;
 	private ISpecsPhoibosAnalyser analyser;
 
-	private String currentlySelectedRegionName = "";
-
 	// When sequence fire property change events cause the table to refresh
 	private final PropertyChangeListener sequenceListener = evt -> {
 		sequenceTableViewer.refresh();
@@ -192,18 +190,13 @@ public class SpecsSequenceEditor implements IObserver {
 	@Override
 	public void update(Object source, Object arg) {
 		if (arg instanceof SpecsPhoibosLiveDataUpdate) {
-			SpecsPhoibosLiveDataUpdate event = (SpecsPhoibosLiveDataUpdate) arg;
-			String updateRegionName = event.getRegionName();
-
-			// We only need to update the selection on the first update, and each time the name changes
-			if (event.isFirstUpdate() || !updateRegionName.equals(currentlySelectedRegionName)) {
-				Display.getDefault().asyncExec(() -> {
-					SpecsPhoibosRegion currentReg = sequence.getRegion(updateRegionName);
-					StructuredSelection structuredSelection = new StructuredSelection(currentReg);
-					sequenceTableViewer.setSelection(structuredSelection, true);
-					currentlySelectedRegionName = updateRegionName;
-				});
-			}
+			SpecsPhoibosLiveDataUpdate evt = (SpecsPhoibosLiveDataUpdate) arg;
+			String currentRegionName = evt.getRegionName();
+			Display.getDefault().asyncExec(() -> {
+				SpecsPhoibosRegion currentReg = sequence.getRegion(currentRegionName);
+				StructuredSelection structuredSelection = new StructuredSelection(currentReg);
+				sequenceTableViewer.setSelection(structuredSelection, true);
+			});
 		}
 	}
 
