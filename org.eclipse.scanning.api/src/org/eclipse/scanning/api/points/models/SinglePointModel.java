@@ -98,14 +98,4 @@ public class SinglePointModel extends AbstractMapModel {
 			throw new ModelValidationException("SinglePointModel does not support alternating operation", this, "alternating");
 		}
 	}
-
-	@Override
-	public boolean supportsAlternating() {
-		return false;
-	}
-
-	@Override
-	public boolean supportsContinuous() {
-		return false;
-	}
 }

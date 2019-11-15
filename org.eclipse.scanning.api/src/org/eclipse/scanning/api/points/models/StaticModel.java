@@ -78,19 +78,4 @@ public class StaticModel extends AbstractPointsModel {
 			throw new ModelValidationException("StaticModel does not support alternating operation", this, "alternating");
 		}
 	}
-
-	@Override
-	public boolean supportsAlternating() {
-		return false;
-	}
-
-	@Override
-	public boolean supportsContinuous() {
-		return false;
-	}
-
-	@Override
-	public boolean supportsRandomOffset() {
-		return false;
-	}
 }

@@ -25,7 +25,7 @@ class RasterGenerator extends AbstractGenerator<RasterModel> {
 
 	RasterGenerator() {
 		setLabel("Raster");
-		setDescription("Creates a raster scan (a scan of x and y).\nThe scan supports bidirectional or 'snake' mode.");
+		setDescription("Creates a raster scan (a scan of x and y).\nThe scan support alternating/bidirectional/'snake' mode.");
 		setIconPath("icons/scanner--raster.png"); // This icon exists in the rendering bundle
 	}
 

@@ -129,14 +129,4 @@ public class RepeatedPointModel extends AbstractPointsModel {
 			return false;
 		return true;
 	}
-
-	@Override
-	public boolean supportsAlternating() {
-		return false;
-	}
-
-	@Override
-	public boolean supportsContinuous() {
-		return false;
-	}
 }

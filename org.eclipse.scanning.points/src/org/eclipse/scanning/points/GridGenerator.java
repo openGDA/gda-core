@@ -25,7 +25,7 @@ class GridGenerator extends AbstractGenerator<GridModel> {
 
 	GridGenerator() {
 		setLabel("Grid");
-		setDescription("Creates a grid scan (a scan of x and y).\nThe scan supports bidirectional or 'snake' mode.");
+		setDescription("Creates a grid scan (a scan of x and y).\nThe scan support alternating/bidirectional/'snake' mode.");
 		setIconPath("icons/scanner--grid.png"); // This icon exists in the rendering bundle
 	}
 

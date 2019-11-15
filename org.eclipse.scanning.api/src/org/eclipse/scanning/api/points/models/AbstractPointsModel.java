@@ -32,7 +32,7 @@ public abstract class AbstractPointsModel implements IScanPathModel {
 
 	private static final String HARDCODED_UNITS = "mm";
 
-	@FieldDescriptor(label="'Snake' - switches direction with every iteration of wrapping model")
+	@FieldDescriptor(label="Alternating/'Snake' - switches direction with every iteration of wrapping model")
 	private boolean alternating = false;
 
 	protected final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
@@ -165,28 +165,28 @@ public abstract class AbstractPointsModel implements IScanPathModel {
      * -------------------->
      * -------------------->
      * </pre>
-     * @return <code>true</code> if the scan is a snake scan, <code>false</code> otherwise
+     * @return <code>true</code> if the scan is a alternating, <code>false</code> otherwise
  	 */
 
 	public boolean isAlternating() {
 		return alternating;
 	}
 
-	public void setAlternating(boolean snake) {
+	public void setAlternating(boolean alternating) {
 		boolean oldValue = this.alternating;
-		this.alternating = snake;
-		this.pcs.firePropertyChange("alternating", oldValue, snake);
+		this.alternating = alternating;
+		this.pcs.firePropertyChange("alternating", oldValue, alternating);
 	}
 
-	public boolean supportsAlternating() {
-		return true;
+	public static boolean supportsAlternating(Class<? extends IScanPathModel> model) {
+		return !(model.equals(RepeatedPointModel.class) || model.equals(SinglePointModel.class) || model.equals(StaticModel.class));
+	}
+	public static boolean supportsContinuous(Class<? extends IScanPathModel> model) {
+		return !(model.equals(RepeatedPointModel.class) || model.equals(SinglePointModel.class) || model.equals(StaticModel.class));
+	}
+	public static boolean supportsRandomOffset(Class<? extends IScanPathModel> model) {
+		return (model.equals(GridModel.class));
+
 	}
 
-	public boolean supportsContinuous() {
-		return true;
-	}
-
-	public boolean supportsRandomOffset() {
-		return false;
-	}
 }

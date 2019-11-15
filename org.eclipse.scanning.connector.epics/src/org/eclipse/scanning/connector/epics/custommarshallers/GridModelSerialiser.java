@@ -42,7 +42,7 @@ public class GridModelSerialiser implements IPVStructureSerialiser<GridModel> {
 			add("yAxisName", ScalarType.pvString).
 			add("xAxisPoints", ScalarType.pvInt).
 			add("yAxisPoints", ScalarType.pvInt).
-			add("snake", ScalarType.pvBoolean).
+			add("alternating", ScalarType.pvBoolean).
 			add("continuous", ScalarType.pvBoolean).
 			add("verticalOrientation", ScalarType.pvBoolean).
 			setId("GridModel").
@@ -62,7 +62,7 @@ public class GridModelSerialiser implements IPVStructureSerialiser<GridModel> {
 		fastAxisPoints.put(model.getxAxisPoints());
 		PVInt slowAxisPoints = pvStructure.getSubField(PVInt.class, "slowAxisPoints");
 		slowAxisPoints.put(model.getyAxisPoints());
-		PVBoolean alternates = pvStructure.getSubField(PVBoolean.class, "alternates");
+		PVBoolean alternates = pvStructure.getSubField(PVBoolean.class, "alternating");
 		alternates.put(model.isAlternating());
 		PVBoolean continuous = pvStructure.getSubField(PVBoolean.class, "continuous");
 		continuous.put(model.isContinuous());

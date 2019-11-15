@@ -26,7 +26,7 @@ public class RandomOffsetGridGenerator extends GridGenerator {
 
 	RandomOffsetGridGenerator() {
 		setLabel("Random Offset Grid");
-		setDescription("Creates a grid scan (a scan of x and y) with random offsets applied to each point.\nThe scan supports bidirectional or 'snake' mode.");
+		setDescription("Creates a grid scan (a scan of x and y) with random offsets applied to each point.\nThe scan support alternating/bidirectional/'snake' mode.");
 		setIconPath("icons/scanner--grid.png"); // This icon exists in the rendering bundle
 	}
 
