@@ -51,8 +51,8 @@ import uk.ac.gda.client.live.stream.view.StreamType;
 public class LiveStreamConnection implements IConnection {
 
 	/**
-	 * The Connection Universal Unique ID
-	 * UUID, Type 4 ,pseudo randomly generated
+	 * The Connection Universal Unique ID UUID, Type 4 ,pseudo randomly generated
+	 *
 	 * @see "https://www.ietf.org/rfc/rfc4122.txt"
 	 */
 	private final UUID id;
@@ -93,7 +93,8 @@ public class LiveStreamConnection implements IConnection {
 
 	/**
 	 * Returns this connection unique id
-	 * @return  the UUID associated with this connection
+	 *
+	 * @return the UUID associated with this connection
 	 */
 	public UUID getId() {
 		return id;
@@ -106,7 +107,8 @@ public class LiveStreamConnection implements IConnection {
 		}
 
 		if (streamType == StreamType.MJPEG && getCameraConfig().getUrl() == null) {
-			throw new LiveStreamException("MJPEG stream requested but no url defined for " + getCameraConfig().getName());
+			throw new LiveStreamException(
+					"MJPEG stream requested but no url defined for " + getCameraConfig().getName());
 		}
 		if (streamType == StreamType.EPICS_ARRAY && getCameraConfig().getArrayPv() == null) {
 			throw new LiveStreamException(
@@ -204,7 +206,8 @@ public class LiveStreamConnection implements IConnection {
 		// If sleepTime or cacheSize are set use them, else use the defaults
 		final long sleepTime = getCameraConfig().getSleepTime() != 0 ? cameraConfig.getSleepTime()
 				: MJPEG_DEFAULT_SLEEP_TIME; // ms
-		final int cacheSize = getCameraConfig().getCacheSize() != 0 ? cameraConfig.getCacheSize() : MJPEG_DEFAULT_CACHE_SIZE; // frames
+		final int cacheSize = getCameraConfig().getCacheSize() != 0 ? cameraConfig.getCacheSize()
+				: MJPEG_DEFAULT_CACHE_SIZE; // frames
 
 		try {
 			if (cameraConfig.isRgb()) {
@@ -284,6 +287,17 @@ public class LiveStreamConnection implements IConnection {
 		return stream;
 	}
 
+
+	/**
+	 * Utility method to compare this instance with the essential component of a LiveStreamConnection object
+	 * @param cameraConfig
+	 * @param streamType
+	 * @return <code>true</code> if the configuration is the same, <code>false</code> in any other case
+	 */
+	public final boolean sameConfiguration(final CameraConfiguration cameraConfig, final StreamType streamType) {
+		return cameraConfig.equals(getCameraConfig()) && streamType.equals(getStreamType());
+	}
+
 	private void setStream(IDatasetConnector stream) throws LiveStreamException {
 		if (getStream() == null) {
 			try {
@@ -332,4 +346,28 @@ public class LiveStreamConnection implements IConnection {
 		}
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		LiveStreamConnection other = (LiveStreamConnection) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
 }

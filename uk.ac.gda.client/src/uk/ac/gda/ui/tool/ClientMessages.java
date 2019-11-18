@@ -18,6 +18,10 @@
 
 package uk.ac.gda.ui.tool;
 
+/**
+ * The elements contained in this enumeration are used to parametrise the client messages
+ * and enhance the reuse of same elements across client different components.
+ */
 public enum ClientMessages {
 
 	ABSORPTION,

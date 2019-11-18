@@ -18,35 +18,102 @@
 
 package uk.ac.gda.client.live.stream.api;
 
+import java.util.UUID;
+
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
 
+/**
+ * An interface to create or retrieve {@link LiveStreamConnection}. The connections may be created in two flavours:
+ * <ul>
+ * <li>shared</li>
+ * <li>unshared</li>
+ * </ul>
+ * A <code>shared</code> connection is created to be shared between different component so when any component changes
+ * the connection parameters all other components are affected.
+ *
+ * A <code>unshared</code> connection is created to be managed by a single component which will be the final
+ * responsible for it
+ *
+ * @author Keith Ralph
+ * @author Maurizio Nagni
+ *
+ */
 public interface ILiveStreamConnectionService extends IMappableLiveStreamConnectionSource {
+
+	/**
+	 * Returns the {@link LiveStreamConnection} associated with this service
+	 *
+	 * @param uuid
+	 *            the required connection id
+	 * @return the required connection or <code>null</code> if not found
+	 */
+	LiveStreamConnection getStreamConnection(UUID uuid);
+
+	/**
+	 * Verifies if a {@link LiveStreamConnection} exists and matches the <code>shared</code> type
+	 *
+	 * @param uuid
+	 *            the required connection id
+	 * @param shared
+	 *            the connection type
+	 * @return <code>true</code> if the connection is found, <code>false</code> otherwise
+	 */
+	boolean isStreamConnectionAvailable(UUID uuid, boolean shared);
+
+	/**
+	 * Creates a new connection stream
+	 * @param cameraConfig
+	 *            the camera configuration use to open the streaming connection
+	 * @param streamType
+	 *            the connection streaming type
+	 * @param shared
+	 *            the connection type
+	 * @return the new connection
+	 */
+	LiveStreamConnection createStreamConnection(CameraConfiguration cameraConfig, StreamType streamType,
+			boolean shared);
 
 	/**
 	 * Retrieve a shared {@link LiveStreamConnection} of the specified {@link StreamType} based on the specified
 	 * {@link CameraConfiguration}.
+	 *
+	 * @deprecated to create a connection use {@link #createStreamConnection(CameraConfiguration, StreamType, boolean)},
+	 *             to retrieve a connection use {@link #getStreamConnection(UUID)}
 	 */
-	public LiveStreamConnection getSharedLiveStreamConnection(
-			final CameraConfiguration cameraConfig, final StreamType streamType);
+	@Deprecated
+	LiveStreamConnection getSharedLiveStreamConnection(final CameraConfiguration cameraConfig,
+			final StreamType streamType);
 
 	/**
 	 * Retrieve a shared {@link LiveStreamConnection} of the specified {@link StreamType} corresponding to the supplied
 	 * named camera.
+	 *
+	 * @Deprecated to create a connection use {@link #createStreamConnection(CameraConfiguration, StreamType, boolean)},
+	 *             to retrieve a connection use {@link #getStreamConnection(UUID)}
 	 */
-	public LiveStreamConnection getSharedLiveStreamConnection(final String cameraName, final StreamType streamType);
+	@Deprecated
+	LiveStreamConnection getSharedLiveStreamConnection(final String cameraName, final StreamType streamType);
 
 	/**
 	 * Instantiate a new {@link LiveStreamConnection} of the specified {@link StreamType} based on the specified
 	 * {@link CameraConfiguration}
+	 *
+	 * @deprecated to create a connection use {@link #createStreamConnection(CameraConfiguration, StreamType, boolean)},
+	 *             to retrieve a connection use {@link #getStreamConnection(UUID)}
 	 */
-	public LiveStreamConnection getFreshLiveStreamConnection(
-			final CameraConfiguration cameraConfig, final StreamType streamType);
+	@Deprecated
+	LiveStreamConnection getFreshLiveStreamConnection(final CameraConfiguration cameraConfig,
+			final StreamType streamType);
 
 	/**
 	 * Instantiate a new {@link LiveStreamConnection} of the specified {@link StreamType} corresponding to the supplied
 	 * named camera
+	 *
+	 * @deprecated to create a connection use {@link #createStreamConnection(CameraConfiguration, StreamType, boolean)},
+	 *             to retrieve a connection use {@link #getStreamConnection(UUID)}
 	 */
-	public LiveStreamConnection getFreshLiveStreamConnection(final String cameraName, final StreamType streamType);
+	@Deprecated
+	LiveStreamConnection getFreshLiveStreamConnection(final String cameraName, final StreamType streamType);
 }
