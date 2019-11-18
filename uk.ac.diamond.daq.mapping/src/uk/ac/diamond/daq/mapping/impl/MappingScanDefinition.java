@@ -31,12 +31,12 @@ public class MappingScanDefinition implements IScanDefinition {
 
 	private IMappingScanRegion mappingScanRegion;
 	private List<IScanModelWrapper<IScanPathModel>> outerScannables;
-	private List<String> defaultOuterScannables;
+	private List<String> permittedOuterScannables;
 
 	public MappingScanDefinition() {
 		mappingScanRegion = new MappingScanRegion();
 		outerScannables = Collections.emptyList();
-		defaultOuterScannables = Collections.emptyList();
+		permittedOuterScannables = Collections.emptyList();
 	}
 
 	@Override
@@ -63,13 +63,13 @@ public class MappingScanDefinition implements IScanDefinition {
 	}
 
 	@Override
-	public List<String> getDefaultOuterScannables() {
-		return defaultOuterScannables;
+	public List<String> getPermittedOuterScannables() {
+		return permittedOuterScannables;
 	}
 
 	@Override
-	public void setDefaultOuterScannables(List<String> defaultOuterScannables) {
-		this.defaultOuterScannables = defaultOuterScannables;
+	public void setPermittedOuterScannables(List<String> scannables) {
+		this.permittedOuterScannables = scannables;
 	}
 
 	@Override
@@ -78,6 +78,7 @@ public class MappingScanDefinition implements IScanDefinition {
 		int result = 1;
 		result = prime * result + ((mappingScanRegion == null) ? 0 : mappingScanRegion.hashCode());
 		result = prime * result + ((outerScannables == null) ? 0 : outerScannables.hashCode());
+		result = prime * result + ((permittedOuterScannables == null) ? 0 : permittedOuterScannables.hashCode());
 		return result;
 	}
 
@@ -100,12 +101,18 @@ public class MappingScanDefinition implements IScanDefinition {
 				return false;
 		} else if (!outerScannables.equals(other.outerScannables))
 			return false;
+		if (permittedOuterScannables == null) {
+			if (other.permittedOuterScannables != null)
+				return false;
+		} else if (!permittedOuterScannables.equals(other.permittedOuterScannables))
+			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
 		return "MappingScanDefinition [mappingScanRegion=" + mappingScanRegion + ", outerScannables=" + outerScannables
-				+ ", defaultOuterScannables=" + defaultOuterScannables + "]";
+				+ ", permittedOuterScannables=" + permittedOuterScannables + "]";
 	}
+
 }
