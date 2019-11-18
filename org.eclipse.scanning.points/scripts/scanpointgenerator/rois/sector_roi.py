@@ -1,32 +1,40 @@
 ###
 # Copyright (c) 2016 Diamond Light Source Ltd.
 #
-# All rights reserved. This program and the accompanying materials
-# are made available under the terms of the Eclipse Public License v1.0
-# which accompanies this distribution, and is available at
-# http://www.eclipse.org/legal/epl-v10.html
-#
 # Contributors:
 #    Charles Mita - initial API and implementation and/or initial documentation
 #
 ###
+
+from annotypes import Anno, Union, Array, Sequence
 
 from math import hypot, atan2, pi
 
 from scanpointgenerator.core import ROI
 from scanpointgenerator.compat import np
 
+with Anno("The centre of sector"):
+    ACentre = Array[float]
+UCentre = Union[ACentre, Sequence[float]]
+with Anno("The radii[0] of sector"):
+    ARadii = Array[float]
+URadii = Union[ARadii, Sequence[float]]
+with Anno("The angles[0] of sector"):
+    AAngles = Array[float]
+UAngles = Union[AAngles, Sequence[float]]
+
 
 @ROI.register_subclass("scanpointgenerator:roi/SectorROI:1.0")
 class SectorROI(ROI):
 
     def __init__(self, centre, radii, angles):
+        # type: (UCentre, URadii, UAngles) -> None
         super(SectorROI, self).__init__()
         if radii[0] < 0 or radii[1] < radii[0] or radii[1] <= 0.0:
             raise ValueError("Sector size is invalid")
-        self.centre = centre
-        self.radii = radii
-        self.angles = self.constrain_angles(angles)
+        self.centre = ACentre(centre)
+        self.radii = ARadii(radii)
+        self.angles = AAngles(self.constrain_angles(angles))
 
     def constrain_angles(self, angles):
         # constrain angles such that angles[0] < angles[1],
@@ -57,7 +65,7 @@ class SectorROI(ROI):
         if r < self.radii[0] or r > self.radii[1]:
             return False
         sweep = angles[1] - angles[0]
-        # angle along starting at angles[0]
+        # angle along start[0]ing at angles[0][0]
         theta = (phi - angles[0] + 2*pi) % (2*pi)
         return theta <= sweep
 
@@ -81,17 +89,3 @@ class SectorROI(ROI):
         mask &= r2 >= self.radii[0]
         mask &= (phi_x <= phi_s)
         return mask
-
-    def to_dict(self):
-        d = super(SectorROI, self).to_dict()
-        d["centre"] = self.centre
-        d["radii"] = self.radii
-        d["angles"] = self.angles
-        return d
-
-    @classmethod
-    def from_dict(cls, d):
-        centre = d['centre']
-        radii = d['radii']
-        angles = d['angles']
-        return cls(centre, radii, angles)

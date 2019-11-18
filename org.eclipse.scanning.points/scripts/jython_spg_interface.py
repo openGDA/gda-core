@@ -238,9 +238,9 @@ class JStaticPointGenerator(JavaIteratorWrapper):
     Wrap a StaticPointGenerator and produce StaticPosition objects
     """
 
-    def __init__(self, size):
+    def __init__(self, size, axes=[]):
         super(JStaticPointGenerator, self).__init__()
-        g = StaticPointGenerator(size)
+        g = StaticPointGenerator(size, axes)
         self.generator = CompoundGenerator([g], [], [])
         self.generator.prepare()
         self.logger.debug('Created JStaticPointGenerator: %s', self.generator.to_dict())
@@ -255,7 +255,7 @@ class JCompoundGenerator(JavaIteratorWrapper):
     Create a CompoundGenerator and wrap the points into java Point objects
     """
 
-    def __init__(self, iterators, excluders, mutators, duration=-1, continuous=True):
+    def __init__(self, iterators, excluders, mutators, duration=-1, continuous=True, delay_after=0):
         super(JCompoundGenerator, self).__init__()
         try:  # If JavaIteratorWrapper
             generators = [g for t in iterators for g in t.generator.generators]
@@ -286,11 +286,9 @@ class JCompoundGenerator(JavaIteratorWrapper):
                 extracted_generators.append(generator)
         generators = extracted_generators
 
-        self.generator = CompoundGenerator(generators, excluders, mutators, duration=duration, continuous=continuous)
+        self.generator = CompoundGenerator(generators, excluders, mutators, duration, continuous, delay_after)
         self.generator.prepare()
-
-        self.dimension_names = [reduce(lambda x,y:x+y, (g.axes for g in d.generators))
-                for d in self.generator.dimensions]
+        self.dimension_names = [d.axes for d in self.generator.dimensions]
         self.axes_ordering = sum(self.dimension_names, [])
         self.index_locations = {axis:[axis in names for names in self.dimension_names].index(True)
                 for axis in self.axes_ordering}

@@ -49,7 +49,6 @@ import org.epics.pvdata.pv.PVDataCreate;
 import org.epics.pvdata.pv.PVDouble;
 import org.epics.pvdata.pv.PVDoubleArray;
 import org.epics.pvdata.pv.PVInt;
-import org.epics.pvdata.pv.PVString;
 import org.epics.pvdata.pv.PVStringArray;
 import org.epics.pvdata.pv.PVStructure;
 import org.epics.pvdata.pv.PVUnion;
@@ -95,9 +94,9 @@ public class PVDataSerializationTest {
 		PVDataCreate pvDataCreate = PVDataFactory.getPVDataCreate();
 
 		Structure expectedGeneratorsStructure = fieldCreate.createFieldBuilder().
+				addArray("axes", ScalarType.pvString).
 				add("alternate", ScalarType.pvBoolean).
-				add("units", ScalarType.pvString).
-				add("axis", ScalarType.pvString).
+				addArray("units", ScalarType.pvString).
 				addArray("points", ScalarType.pvDouble).
 				setId("scanpointgenerator:generator/ArrayGenerator:1.0").
 				createStructure();
@@ -107,6 +106,7 @@ public class PVDataSerializationTest {
 		Structure expectedCompGenStructure = fieldCreate.createFieldBuilder().
 				addArray("mutators", union).
 				add("duration", ScalarType.pvDouble).
+				add("delay_after", ScalarType.pvDouble).
 				add("continuous", ScalarType.pvBoolean).
 				addArray("generators", union).
 				addArray("excluders", union).
@@ -114,10 +114,12 @@ public class PVDataSerializationTest {
 				createStructure();
 
 		PVStructure expectedGeneratorsPVStructure = pvDataCreate.createPVStructure(expectedGeneratorsStructure);
-		PVString nameVal = expectedGeneratorsPVStructure.getSubField(PVString.class, "axis");
-		nameVal.put("x");
-		PVString unitsVal = expectedGeneratorsPVStructure.getSubField(PVString.class, "units");
-		unitsVal.put("mm");
+		PVStringArray nameVal = expectedGeneratorsPVStructure.getSubField(PVStringArray.class, "axes");
+		String[] axes = new String[] {"x"};
+		nameVal.put(0, axes.length, axes, 0);
+		PVStringArray unitsVal = expectedGeneratorsPVStructure.getSubField(PVStringArray.class, "units");
+		String[] units = new String[] {"mm"};
+		unitsVal.put(0, units.length, units, 0);
 		PVDoubleArray pointsVal = expectedGeneratorsPVStructure.getSubField(PVDoubleArray.class, "points");
 		double[] points = new double[] {1, 2, 3, 4};
 		pointsVal.put(0, points.length, points, 0);
@@ -127,6 +129,8 @@ public class PVDataSerializationTest {
 		PVStructure expectedCompGenPVStructure = pvDataCreate.createPVStructure(expectedCompGenStructure);
 		PVDouble durationVal = expectedCompGenPVStructure.getSubField(PVDouble.class, "duration");
 		durationVal.put(-1);
+		PVDouble delay_afterVal = expectedCompGenPVStructure.getSubField(PVDouble.class, "delay_after");
+		delay_afterVal.put(0);
 		PVUnionArray generators = expectedCompGenPVStructure.getSubField(PVUnionArray.class, "generators");
 
 		PVUnion[] unionArray = new PVUnion[1];
@@ -739,14 +743,10 @@ public class PVDataSerializationTest {
 
 		PVDataCreate pvDataCreate = PVDataFactory.getPVDataCreate();
 
-		Structure maxOffsetStructure = fieldCreate.createFieldBuilder().
-				add("x", ScalarType.pvDouble).
-				createStructure();
-
 		Structure expectedRandomOffsetMutatorStructure = fieldCreate.createFieldBuilder().
 				add("seed", ScalarType.pvInt).
 				addArray("axes", ScalarType.pvString).
-				add("max_offset", maxOffsetStructure).
+				addArray("max_offset", ScalarType.pvDouble).
 				setId("scanpointgenerator:mutator/RandomOffsetMutator:1.0").
 				createStructure();
 
@@ -766,9 +766,9 @@ public class PVDataSerializationTest {
 		String[] axesStr = new String[] {"x"};
 		axesVal.put(0, axesStr.length, axesStr, 0);
 
-		PVStructure maxOffsetPVStructure = expectedMutatorPVStructure.getStructureField("max_offset");
-		PVDouble xVal = maxOffsetPVStructure.getSubField(PVDouble.class, "x");
-		xVal.put(34);
+		PVDoubleArray maxOffsetPVfield = expectedMutatorPVStructure.getSubField(PVDoubleArray.class, "max_offset");
+		double[] expectedMaxoffset = new double[] {34};
+		maxOffsetPVfield.put(0, expectedMaxoffset.length, expectedMaxoffset, 0);
 
 		PVStructure expectedCompGenPVStructure = pvDataCreate.createPVStructure(expectedCompGenStructure);
 		PVUnionArray generators = expectedCompGenPVStructure.getSubField(PVUnionArray.class, "mutators");
@@ -817,6 +817,7 @@ public class PVDataSerializationTest {
 		Structure expectedCompGenStructure = fieldCreate.createFieldBuilder().
 				addArray("mutators", union).
 				add("duration", ScalarType.pvDouble).
+				add("delay_after", ScalarType.pvDouble).
 				add("continuous", ScalarType.pvBoolean).
 				addArray("generators", union).
 				addArray("excluders", union).
@@ -844,6 +845,8 @@ public class PVDataSerializationTest {
 		PVStructure expectedCompGenPVStructure = pvDataCreate.createPVStructure(expectedCompGenStructure);
 		PVDouble durationVal = expectedCompGenPVStructure.getSubField(PVDouble.class, "duration");
 		durationVal.put(-1);
+		PVDouble delay_afterVal = expectedCompGenPVStructure.getSubField(PVDouble.class, "delay_after");
+		delay_afterVal.put(0);
 		PVUnionArray generators = expectedCompGenPVStructure.getSubField(PVUnionArray.class, "generators");
 
 		PVUnion[] unionArray = new PVUnion[1];
@@ -879,6 +882,7 @@ public class PVDataSerializationTest {
 
 		PVDataCreate pvDataCreate = PVDataFactory.getPVDataCreate();
 
+		//TODO: Not used?
 		Structure expectedBoxStructure = fieldCreate.createFieldBuilder().
 				addArray("centre", ScalarType.pvDouble).
 				add("width", ScalarType.pvDouble).
@@ -889,8 +893,8 @@ public class PVDataSerializationTest {
 				addArray("axes", ScalarType.pvString).
 				add("lobes", ScalarType.pvInt).
 				addArray("centre", ScalarType.pvDouble).
+				add("alternate", ScalarType.pvBoolean).
 				addArray("units", ScalarType.pvString).
-				add("alternating", ScalarType.pvBoolean).
 				add("size", ScalarType.pvInt).
 				addArray("span", ScalarType.pvDouble).
 				setId("scanpointgenerator:generator/LissajousGenerator:1.0").
@@ -901,6 +905,7 @@ public class PVDataSerializationTest {
 		Structure expectedCompGenStructure = fieldCreate.createFieldBuilder().
 				addArray("mutators", union).
 				add("duration", ScalarType.pvDouble).
+				add("delay_after", ScalarType.pvDouble).
 				add("continuous", ScalarType.pvBoolean).
 				addArray("generators", union).
 				addArray("excluders", union).
@@ -925,12 +930,14 @@ public class PVDataSerializationTest {
 		PVDoubleArray spanVal = expectedGeneratorsPVStructure.getSubField(PVDoubleArray.class, "span");
 		double[] span = new double[] {10, 6};
 		spanVal.put(0, span.length, span, 0);
-		PVBoolean altVal = expectedGeneratorsPVStructure.getSubField(PVBoolean.class, "alternating");
+		PVBoolean altVal = expectedGeneratorsPVStructure.getSubField(PVBoolean.class, "alternate");
 		altVal.put(true);
 
 		PVStructure expectedCompGenPVStructure = pvDataCreate.createPVStructure(expectedCompGenStructure);
 		PVDouble durationVal = expectedCompGenPVStructure.getSubField(PVDouble.class, "duration");
 		durationVal.put(-1);
+		PVDouble delayVal = expectedCompGenPVStructure.getSubField(PVDouble.class, "delay_after");
+		delayVal.put(0);
 		PVUnionArray generators = expectedCompGenPVStructure.getSubField(PVUnionArray.class, "generators");
 
 		PVUnion[] unionArray = new PVUnion[1];
@@ -974,6 +981,7 @@ public class PVDataSerializationTest {
 		Structure expectedCompGenStructure = fieldCreate.createFieldBuilder().
 				addArray("mutators", union).
 				add("duration", ScalarType.pvDouble).
+				add("delay_after", ScalarType.pvDouble).
 				add("continuous", ScalarType.pvBoolean).
 				addArray("generators", union).
 				addArray("excluders", union).
@@ -1000,6 +1008,8 @@ public class PVDataSerializationTest {
 		PVStructure expectedCompGenPVStructure = pvDataCreate.createPVStructure(expectedCompGenStructure);
 		PVDouble durationVal = expectedCompGenPVStructure.getSubField(PVDouble.class, "duration");
 		durationVal.put(-1);
+		PVDouble delay_afterVal = expectedCompGenPVStructure.getSubField(PVDouble.class, "delay_after");
+		delay_afterVal.put(0);
 		PVBoolean contVal = expectedCompGenPVStructure.getSubField(PVBoolean.class, "continuous");
 		contVal.put(true);
 		PVUnionArray generators = expectedCompGenPVStructure.getSubField(PVUnionArray.class, "generators");
@@ -1049,6 +1059,7 @@ public class PVDataSerializationTest {
 		Structure expectedCompGenStructure = fieldCreate.createFieldBuilder().
 				addArray("mutators", union).
 				add("duration", ScalarType.pvDouble).
+				add("delay_after", ScalarType.pvDouble).
 				add("continuous", ScalarType.pvBoolean).
 				addArray("generators", union).
 				addArray("excluders", union).
@@ -1076,6 +1087,8 @@ public class PVDataSerializationTest {
 		PVStructure expectedCompGenPVStructure = pvDataCreate.createPVStructure(expectedCompGenStructure);
 		PVDouble durationVal = expectedCompGenPVStructure.getSubField(PVDouble.class, "duration");
 		durationVal.put(-1);
+		PVDouble delay_afterVal = expectedCompGenPVStructure.getSubField(PVDouble.class, "delay_after");
+		delay_afterVal.put(0);
 		PVUnionArray generators = expectedCompGenPVStructure.getSubField(PVUnionArray.class, "generators");
 
 		PVUnion[] unionArray = new PVUnion[1];
@@ -1150,13 +1163,10 @@ public class PVDataSerializationTest {
 				setId("scanpointgenerator:excluder/ROIExcluder:1.0").
 				createStructure();
 
-		Structure expectedOffsets = fieldCreate.createFieldBuilder().
-				add("stage_x", ScalarType.pvDouble).
-				createStructure();
 		Structure expectedRandomOffsetMutatorStructure = fieldCreate.createFieldBuilder().
 				add("seed", ScalarType.pvInt).
 				addArray("axes", ScalarType.pvString).
-				add("max_offset", expectedOffsets).
+				addArray("max_offset", ScalarType.pvDouble).
 				setId("scanpointgenerator:mutator/RandomOffsetMutator:1.0").
 				createStructure();
 
@@ -1173,6 +1183,7 @@ public class PVDataSerializationTest {
 		Structure expectedCompGenStructure = fieldCreate.createFieldBuilder().
 				addArray("mutators", union).
 				add("duration", ScalarType.pvDouble).
+				add("delay_after", ScalarType.pvDouble).
 				add("continuous", ScalarType.pvBoolean).
 				addArray("generators", union).
 				addArray("excluders", union).
@@ -1216,9 +1227,9 @@ public class PVDataSerializationTest {
 
 		// Mutators
 		PVStructure expectedMutatorPVStructure = pvDataCreate.createPVStructure(expectedRandomOffsetMutatorStructure);
-		PVStructure expectedOffsetPVStructure = expectedMutatorPVStructure.getStructureField("max_offset");
-		PVDouble offsetVal = expectedOffsetPVStructure.getSubField(PVDouble.class, "stage_x");
-		offsetVal.put(0.5);
+		PVDoubleArray expectedOffsetPVStructure = expectedMutatorPVStructure.getSubField(PVDoubleArray.class, "max_offset");
+		double[] offsetArray = new double[] {0.5};
+		expectedOffsetPVStructure.put(0, offsetArray.length, offsetArray, 0);
 		PVInt seedVal = expectedMutatorPVStructure.getSubField(PVInt.class, "seed");
 		seedVal.put(112);
 		PVStringArray axesVal = expectedMutatorPVStructure.getSubField(PVStringArray.class, "axes");
@@ -1265,6 +1276,8 @@ public class PVDataSerializationTest {
 		PVStructure expectedCompGenPVStructure = pvDataCreate.createPVStructure(expectedCompGenStructure);
 		PVDouble durationVal = expectedCompGenPVStructure.getSubField(PVDouble.class, "duration");
 		durationVal.put(1.5);
+		PVDouble delayVal = expectedCompGenPVStructure.getSubField(PVDouble.class, "delay_after");
+		delayVal.put(0);
 		PVUnionArray excluders = expectedCompGenPVStructure.getSubField(PVUnionArray.class, "excluders");
 
 		PVUnion[] unionArray = new PVUnion[1];

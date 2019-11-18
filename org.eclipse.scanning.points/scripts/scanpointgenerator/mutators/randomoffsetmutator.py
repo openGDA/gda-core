@@ -1,18 +1,27 @@
 ###
 # Copyright (c) 2016, 2017 Diamond Light Source Ltd.
 #
-# All rights reserved. This program and the accompanying materials
-# are made available under the terms of the Eclipse Public License v1.0
-# which accompanies this distribution, and is available at
-# http://www.eclipse.org/legal/epl-v10.html
-#
 # Contributors:
 #    Gary Yendell - initial API and implementation and/or initial documentation
 #    Charles Mita - initial API and implementation and/or initial documentation
 #
 ###
 
+import collections
+
+from annotypes import Anno, Union, Array, Sequence
+
 from scanpointgenerator.core import Mutator
+
+with Anno("Seed for random offset generator"):
+    ASeed = int
+with Anno("Axes to apply random offsets to, "
+          "in the order the offsets should be applied"):
+    AAxes = Array[str]
+UAxes = Union[AAxes, Sequence[str], str]
+with Anno("Array of maximum allowed offset in generator-defined units"):
+    AMaxOffset = Array[float]
+UMaxOffset = Union[AMaxOffset, Sequence[float], float]
 
 
 @Mutator.register_subclass("scanpointgenerator:mutator/RandomOffsetMutator:1.0")
@@ -21,21 +30,27 @@ class RandomOffsetMutator(Mutator):
     ScanPointGenerator"""
 
     def __init__(self, seed, axes, max_offset):
-        """
-        Args:
-            seed(int): Seed for random offset generator
-            axes(list): Axes to apply random offsets to, in the order the
-            offsets should be applied
-            max_offset(dict): ND dict of maximum allowed offset in
-            generator-defined units
-        """
+        # type: (ASeed, UAxes, UMaxOffset) -> None
 
-        self.seed = seed
-        self.axes = axes
-        self.max_offset = max_offset
+        self.seed = ASeed(seed)
+        self.axes = AAxes(axes)
+
+        # Check max_offset isn't a dict, and convert to list if it is
+        if isinstance(max_offset, collections.Mapping):
+            new_max_offset = []
+            for axis in axes:
+                new_max_offset.append(max_offset[axis])
+            max_offset = new_max_offset
+
+        self.max_offset = AMaxOffset(max_offset)
+
+        # Validate
+        if len(self.max_offset) != len(self.axes):
+            raise ValueError("Dimensions of axes (%s) and max offset (%s) don't"
+                             " match" % (len(self.max_offset), len(self.axes)))
 
     def calc_offset(self, axis, idx):
-        m = self.max_offset[axis]
+        m = self.max_offset[self.axes.index(axis)]
         x = (idx << 4) + (0 if len(axis) == 0 else ord(axis[0]))
         x ^= (self.seed << 12)
         # Apply hash algorithm to x for pseudo-randomness
@@ -54,7 +69,6 @@ class RandomOffsetMutator(Mutator):
         return m * r
 
     def mutate(self, point, idx):
-        inner_meta = None
         point_offset = None
         for axis in self.axes:
             offset = self.calc_offset(axis, idx)
@@ -74,32 +88,3 @@ class RandomOffsetMutator(Mutator):
             offset = (point_offset + next_offset) / 2
             point.upper[inner_axis] += offset
         return point
-
-    def to_dict(self):
-        """Convert object attributes into a dictionary"""
-
-        d = dict()
-        d['typeid'] = self.typeid
-        d['seed'] = self.seed
-        d['axes'] = self.axes
-        d['max_offset'] = self.max_offset
-
-        return d
-
-    @classmethod
-    def from_dict(cls, d):
-        """
-        Create a RandomOffsetMutator instance from a serialised dictionary
-
-        Args:
-            d(dict): Dictionary of attributes
-
-        Returns:
-            RandomOffsetMutator: New RandomOffsetMutator instance
-        """
-
-        seed = d['seed']
-        axes = d['axes']
-        max_offset = d['max_offset']
-
-        return cls(seed, axes, max_offset)
