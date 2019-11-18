@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -48,6 +49,13 @@ import uk.ac.gda.client.live.stream.view.StreamType;
  * {@link CameraConfiguration} and a {@link StreamType}.
  */
 public class LiveStreamConnection implements IConnection {
+
+	/**
+	 * The Connection Universal Unique ID
+	 * UUID, Type 4 ,pseudo randomly generated
+	 * @see "https://www.ietf.org/rfc/rfc4122.txt"
+	 */
+	private final UUID id;
 
 	@FunctionalInterface
 	public interface IAxisChangeListener {
@@ -80,6 +88,15 @@ public class LiveStreamConnection implements IConnection {
 	public LiveStreamConnection(CameraConfiguration cameraConfig, StreamType streamType) {
 		this.cameraConfig = cameraConfig;
 		this.streamType = streamType;
+		this.id = UUID.randomUUID();
+	}
+
+	/**
+	 * Returns this connection unique id
+	 * @return  the UUID associated with this connection
+	 */
+	public UUID getId() {
+		return id;
 	}
 
 	public synchronized IDatasetConnector connect() throws LiveStreamException {
