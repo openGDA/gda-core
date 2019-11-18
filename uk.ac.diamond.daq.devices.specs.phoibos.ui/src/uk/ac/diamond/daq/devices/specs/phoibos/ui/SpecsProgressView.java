@@ -39,6 +39,7 @@ import gda.factory.Finder;
 import gda.observable.IObserver;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceFileUpdate;
 
 /**
  * Class to show the current progress of the SPECS analyser with bars for
@@ -54,6 +55,7 @@ public class SpecsProgressView implements IObserver {
 	private Text positionText;
 	private Text regionNameText;
 	private Text iterationNumberText;
+	private Text sequenceFileText;
 
 	@PostConstruct
 	void createView(Composite parent) {
@@ -72,12 +74,12 @@ public class SpecsProgressView implements IObserver {
 		controlArea.setLayout(new GridLayout(4, false));
 		controlArea.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
-		Label positionLabel = new Label(controlArea, SWT.NONE);
-		positionLabel.setText("Position in Sequence:");
-		positionText = new Text(controlArea, SWT.BORDER);
-		positionText.setEditable(false);
-		positionText.setEnabled(false);
-		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(positionText);
+		Label sequenceFileLabel = new Label(controlArea, SWT.NONE);
+		sequenceFileLabel.setText("Sequence File:");
+		sequenceFileText = new Text(controlArea, SWT.BORDER);
+		sequenceFileText.setEditable(false);
+		sequenceFileText.setEnabled(false);
+		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(sequenceFileText);
 
 		Label regionNameLabel = new Label(controlArea, SWT.NONE);
 		regionNameLabel.setText("Region Name:");
@@ -90,6 +92,13 @@ public class SpecsProgressView implements IObserver {
 		lblRegionProgress.setText("Region Progress:");
 		regionProgressBar = new ProgressBar(controlArea, SWT.HORIZONTAL);
 		GridDataFactory.fillDefaults().span(3, 1).applyTo(regionProgressBar);
+
+		Label positionLabel = new Label(controlArea, SWT.NONE);
+		positionLabel.setText("Position in Sequence:");
+		positionText = new Text(controlArea, SWT.BORDER);
+		positionText.setEditable(false);
+		positionText.setEnabled(false);
+		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(positionText);
 
 		Label iterationNumberLabel = new Label(controlArea, SWT.NONE);
 		iterationNumberLabel.setText("Iteration Number:");
@@ -108,18 +117,28 @@ public class SpecsProgressView implements IObserver {
 	public void update(Object source, Object arg) {
 
 		if (arg instanceof SpecsPhoibosLiveDataUpdate) {
-			SpecsPhoibosLiveDataUpdate evt = (SpecsPhoibosLiveDataUpdate) arg;
-			final int pointsPerIter = evt.getTotalPoints() / evt.getTotalIterations();
-			final int iterationNumber = (evt.getCurrentPoint() -  1) / pointsPerIter + 1;
-			final String iterationString = iterationNumber + " of " + evt.getTotalIterations();
+			SpecsPhoibosLiveDataUpdate event = (SpecsPhoibosLiveDataUpdate) arg;
+			final int pointsPerIter = event.getTotalPoints() / event.getTotalIterations();
+			final int iterationNumber = (event.getCurrentPoint() -  1) / pointsPerIter + 1;
+			final String iterationString = iterationNumber + " of " + event.getTotalIterations();
 			Display.getDefault().asyncExec(() -> {
-				regionProgressBar.setMaximum(evt.getTotalPoints());
-				regionProgressBar.setSelection(evt.getCurrentPoint());
-				regionNameText.setText(evt.getRegionName());
-				positionText.setText(evt.getPositionString());
+				regionProgressBar.setMaximum(event.getTotalPoints());
+				regionProgressBar.setSelection(event.getCurrentPoint());
+				regionNameText.setText(event.getRegionName());
+				positionText.setText(event.getPositionString());
 				iterationProgressBar.setMaximum(pointsPerIter);
-				iterationProgressBar.setSelection(evt.getcurrentPointInIteration());
+				iterationProgressBar.setSelection(event.getcurrentPointInIteration());
 				iterationNumberText.setText(iterationString);
+			});
+
+		} else if (arg instanceof SpecsPhoibosSequenceFileUpdate) {
+			SpecsPhoibosSequenceFileUpdate event = (SpecsPhoibosSequenceFileUpdate) arg;
+			Display.getDefault().asyncExec(() -> {
+				if (event.getFilePath() == null || event.getFilePath().isEmpty()) {
+					sequenceFileText.setText("Current sequence not saved");
+				} else {
+					sequenceFileText.setText(event.getFilePath());
+				}
 			});
 		}
 	}

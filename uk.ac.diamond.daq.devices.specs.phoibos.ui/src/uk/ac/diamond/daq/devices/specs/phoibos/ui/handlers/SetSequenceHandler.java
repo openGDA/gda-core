@@ -50,7 +50,8 @@ public class SetSequenceHandler {
 		if (validationResult.isValid()) {
 			try {
 				// Setup the analyser
-				analyser.setSequence(sequence);
+				String path = part.getPersistedState().get(SpecsUiConstants.OPEN_SEQUENCE_FILE_PATH);
+				analyser.setSequence(sequence, path);
 			} catch (IllegalArgumentException e) {
 				logger.error("Failed to set sequence: {}", sequence, e);
 				// Couldn't set the sequence

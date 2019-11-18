@@ -106,10 +106,12 @@ public interface ISpecsPhoibosAnalyser extends Findable, IObservable {
 	 *
 	 * @param sequence
 	 *            The sequence to set
+	 * @param filepath
+	 *            The path of the sequence file
 	 * @throws IllegalArgumentException
 	 *             If the sequence can't be set
 	 */
-	void setSequence(SpecsPhoibosSequence sequence);
+	void setSequence(SpecsPhoibosSequence sequence, String filepath);
 
 	/**
 	 * Converts binding energy to kinetic energy according to:

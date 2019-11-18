@@ -43,6 +43,7 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceFileUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceHelper;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceValidation;
 
@@ -775,12 +776,14 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 			absoluteFilePath = Paths.get(visitXmlDir, filePath).toString();
 		}
 
-		setSequence(SpecsPhoibosSequenceHelper.loadSequence(absoluteFilePath));
+		setSequence(SpecsPhoibosSequenceHelper.loadSequence(absoluteFilePath), filePath);
 	}
 
 	@Override
-	public void setSequence(SpecsPhoibosSequence sequence) {
+	public void setSequence(SpecsPhoibosSequence sequence, String filepath) {
 		collectionStrategy.setSequence(sequence);
+		SpecsPhoibosSequenceFileUpdate liveSequence = new SpecsPhoibosSequenceFileUpdate(filepath);
+		notifyIObservers(this, liveSequence);
 	}
 
 	public SpecsPhoibosStatus getDetectorStatus() {

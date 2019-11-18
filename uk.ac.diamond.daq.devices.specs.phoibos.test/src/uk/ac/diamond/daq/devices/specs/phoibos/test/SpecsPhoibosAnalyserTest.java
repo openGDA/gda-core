@@ -60,7 +60,8 @@ public class SpecsPhoibosAnalyserTest {
 		region2.setName("Test");
 
 		// This should throw when the sequence copy constructor is used
-		analyser.setSequence(sequence);
+		String dummyPath = "/dummy/path";
+		analyser.setSequence(sequence, dummyPath);
 	}
 
 	@Test
