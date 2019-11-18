@@ -49,6 +49,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.util.MathUtils;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.points.models.AbstractPointsModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.StepModel;
 
@@ -210,16 +211,26 @@ public class ClauseContext {
 	public void addMutator(final Mutator supplied) {
 		areaScanMustHaveRegionShapePlusAreaScanpath();
 		nullCheck(supplied, Mutator.class.getSimpleName());
-		if (Mutator.RANDOM_OFFSET == supplied) {
-			if (GRID != areaScanpath.get()) {
-				throw new UnsupportedOperationException("Random offsets may only be applied to Grid paths");
+		switch (supplied) {
+		case RANDOM_OFFSET:
+			if (!AbstractPointsModel.supportsRandomOffset(areaScanpath.get().modelType())) {
+				String message = String.format("RandomOffset not supported by model type %s",
+						areaScanpath.get().modelType());
+				throw new UnsupportedOperationException(message);
 			}
 			paramNullCheckValid = true;
-		} else {
-			if (AreaScanpath.GRID != areaScanpath.get() && AreaScanpath.RASTER != areaScanpath.get()) {
-				throw new UnsupportedOperationException("Snake may only be applied to Grid or Raster paths");
+			break;
+		case ALTERNATING:
+			if (!AbstractPointsModel.supportsAlternating(areaScanpath.get().modelType())) {
+				String message = String.format("Alternating not supported by model type %s",
+						areaScanpath.get().modelType());
+				throw new UnsupportedOperationException(message);
 			}
 			paramNullCheckValid = false;
+			break;
+		default:
+			String message = String.format("Mutator %s not supported!", supplied.toString());
+			throw new UnsupportedOperationException(message);
 		}
 		paramsToFill = new ArrayList<>();
 		mutatorUses.put(supplied, paramsToFill);

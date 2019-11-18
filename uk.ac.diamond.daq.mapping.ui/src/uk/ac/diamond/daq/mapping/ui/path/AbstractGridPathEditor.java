@@ -31,27 +31,17 @@ import org.eclipse.swt.widgets.Label;
 public class AbstractGridPathEditor extends AbstractPathEditor {
 
 	/**
-	 * Creates controls for options common to all grid paths:<ul>
-	 * <li>snake - whether subsequent rows change scan direction in the fast axis;</li>
-	 * <li>continuous - whether to scan the fast axis continuously (for malcolm scans only);</li>
+	 * Creates controls for options common to grid paths:<ul>
+	 * <li>alternating - whether subsequent scans change direction in the innermost axis;</li>
+	 * <li>continuous - whether to scan the innermost axis continuously (for malcolm scans only);</li>
+	 * <li>vertical orientation - whether to treat the 2nd axis as the fast axis</li>
 	 *
 	 * @param parent composite to draw the controls on
 	 */
-	protected void makeCommonGridOptionsControls(Composite parent) {
-		makeSnakeControl(parent);
-		makeContinuousControl(parent);
-		makeVerticalOrientationControl(parent);
-	}
 
-	/**
-	 * If the path edited by this editor is snakeable, this method will draw the controls for consistency.
-	 * @param parent composite to draw control on
-	 */
-	private void makeSnakeControl(Composite parent) {
-		Label snakeLabel = new Label(parent, SWT.NONE);
-		snakeLabel.setText("Snake");
-		Button snake = new Button(parent, SWT.CHECK);
-		binder.bind(snake, "snake", getModel());
+	protected void makeCommonGridOptionsControls(Composite parent) {
+		makeCommonOptionsControls(parent);
+		makeVerticalOrientationControl(parent);
 	}
 
 	/**

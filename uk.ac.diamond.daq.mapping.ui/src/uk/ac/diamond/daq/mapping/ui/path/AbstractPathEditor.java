@@ -40,15 +40,39 @@ public abstract class AbstractPathEditor extends AbstractModelEditor<IScanPathMo
 	private Button continuous;
 	private Label continuousLabel;
 	private Binding continuousBinding;
+
+	/**
+	 * Creates controls for options common to all paths:<ul>
+	 * <li>alternating - whether subsequent scans change direction in the innermost axis - only effectively valid with an outer scannable;</li>
+	 * <li>continuous - whether to scan the innermost axis continuously (for malcolm scans only);</li>
+	 *
+	 * @param parent composite to draw the controls on
+	 */
+	protected void makeCommonOptionsControls(Composite parent) {
+		makeAlternatingControl(parent);
+		makeContinuousControl(parent);
+	}
+
 	/**
 	 * If the path edited by this editor can be continuous (Malcolm-driven), this method will draw the controls for consistency.
 	 * @param parent composite to draw control on
 	 */
-	protected void makeContinuousControl(Composite parent) {
+	private void makeContinuousControl(Composite parent) {
 		continuousLabel = new Label(parent, SWT.NONE);
 		continuousLabel.setText("Continuous");
 		continuous = new Button(parent, SWT.CHECK);
 		continuousBinding = binder.bind(continuous, "continuous", getModel());
+	}
+
+	/**
+	 * If the path edited by this editor is alternating, this method will draw the controls for consistency.
+	 * @param parent composite to draw control on
+	 */
+	private void makeAlternatingControl(Composite parent) {
+		Label alternatingLabel = new Label(parent, SWT.NONE);
+		alternatingLabel.setText("Alternating");
+		Button alternatingButton = new Button(parent, SWT.CHECK);
+		binder.bind(alternatingButton, "alternating", getModel());
 	}
 
 	/**

@@ -253,7 +253,7 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 			model.setxAxisPoints(scanParameters.get(X_AXIS_INDEX).intValue());
 			model.setyAxisPoints(scanParameters.get(Y_AXIS_INDEX).intValue());
 
-			if (mutatorUses.containsKey(Mutator.SNAKE)) {
+			if (mutatorUses.containsKey(Mutator.ALTERNATING)) {
 				model.setAlternating(true);
 			}
 			return model;
@@ -285,7 +285,7 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 			model.setxAxisStep(scanParameters.get(X_AXIS_INDEX).doubleValue());
 			model.setyAxisStep(scanParameters.get(Y_AXIS_INDEX).doubleValue());
 
-			if (mutatorUses.containsKey(Mutator.SNAKE)) {
+			if (mutatorUses.containsKey(Mutator.ALTERNATING)) {
 				model.setAlternating(true);
 			}
 			return model;
@@ -308,7 +308,7 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 														 final Map<Mutator, List<Number>> mutatorUses) {
 
 			SpiralModel model = initBoxBasedModel(new SpiralModel(), scannables, bboxParameters);
-			if (mutatorUses.containsKey(Mutator.SNAKE)) {
+			if (mutatorUses.containsKey(Mutator.ALTERNATING)) {
 				model.setAlternating(true);
 			}
 			model.setScale(scanParameters.get(SCALE).doubleValue());
@@ -336,7 +336,7 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 			model.setA(scanParameters.get(A).doubleValue());
 			model.setB(scanParameters.get(B).doubleValue());
 			model.setPoints(scanParameters.get(POINTS).intValue());
-			if (mutatorUses.containsKey(Mutator.SNAKE)) {
+			if (mutatorUses.containsKey(Mutator.ALTERNATING)) {
 				model.setAlternating(true);
 			}
 			return model;
@@ -364,7 +364,7 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 			}
 			OneDStepModel model = initLineBasedModel(new OneDStepModel(), scannables, blineParameters);
 			model.setStep(scanParameters.get(STEP).doubleValue());
-			if (mutatorUses.containsKey(Mutator.SNAKE)) {
+			if (mutatorUses.containsKey(Mutator.ALTERNATING)) {
 				model.setAlternating(true);
 			}
 			return model;
@@ -397,7 +397,7 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 			}
 			OneDEqualSpacingModel model = initLineBasedModel(new OneDEqualSpacingModel(), scannables, blineParameters);
 			model.setPoints(scanParameters.get(POINTS).intValue());
-			if (mutatorUses.containsKey(Mutator.SNAKE)) {
+			if (mutatorUses.containsKey(Mutator.ALTERNATING)) {
 				model.setAlternating(true);
 			}
 		return model;
@@ -453,7 +453,7 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 											scanParameters.get(START).doubleValue(),
 											scanParameters.get(STOP).doubleValue(),
 											scanParameters.get(AX_STEP).doubleValue() * sign);
-			if (mutatorUses.containsKey(Mutator.SNAKE)) {
+			if (mutatorUses.containsKey(Mutator.ALTERNATING)) {
 				model.setAlternating(true);
 			}
 			return model;
@@ -495,7 +495,7 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 											start,
 											scanParameters.get(STOP).doubleValue(),
 											sign * length / divisor);
-			if (mutatorUses.containsKey(Mutator.SNAKE)) {
+			if (mutatorUses.containsKey(Mutator.ALTERNATING)) {
 				model.setAlternating(true);
 			}
 			return model;

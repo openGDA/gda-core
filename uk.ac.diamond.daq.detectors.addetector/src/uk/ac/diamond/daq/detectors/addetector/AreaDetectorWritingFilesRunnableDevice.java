@@ -112,7 +112,7 @@ public class AreaDetectorWritingFilesRunnableDevice extends AreaDetectorRunnable
 			ndFileHDF5.setLazyOpen(true);
 			ndFile.setFileWriteMode(FileWriteMode.STREAM);
 
-			// FIXME This only handles raster type scans (not snake) and ones in a line square or cube.
+			// FIXME This only handles non-alternating scans in a line square or cube.
 			// Think the solution is to use the POS plugin to tell AD in advance where the frames are going
 			final int[] scanShape = information.getShape();
 			switch (information.getRank()) {
