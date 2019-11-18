@@ -32,11 +32,13 @@ public class MappingScanDefinition implements IScanDefinition {
 	private IMappingScanRegion mappingScanRegion;
 	private List<IScanModelWrapper<IScanPathModel>> outerScannables;
 	private List<String> permittedOuterScannables;
+	private List<String> defaultOuterScannables;
 
 	public MappingScanDefinition() {
 		mappingScanRegion = new MappingScanRegion();
 		outerScannables = Collections.emptyList();
 		permittedOuterScannables = Collections.emptyList();
+		defaultOuterScannables = Collections.emptyList();
 	}
 
 	@Override
@@ -70,6 +72,16 @@ public class MappingScanDefinition implements IScanDefinition {
 	@Override
 	public void setPermittedOuterScannables(List<String> scannables) {
 		this.permittedOuterScannables = scannables;
+	}
+
+	@Override
+	public List<String> getDefaultOuterScannables() {
+		return defaultOuterScannables;
+	}
+
+	@Override
+	public void setDefaultOuterScannables(List<String> scannables) {
+		this.defaultOuterScannables = scannables;
 	}
 
 	@Override

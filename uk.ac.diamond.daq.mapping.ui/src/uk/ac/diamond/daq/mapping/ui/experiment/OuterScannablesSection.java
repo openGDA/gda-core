@@ -98,24 +98,27 @@ public class OuterScannablesSection extends AbstractMappingSection {
 	/**
 	 * Names of the scannables that the user can choose
 	 * <p>
-	 * This list will be either:<br>
+	 * This will be either:<br>
 	 * <li>the {@code permittedOuterScannables} configured</li>
 	 * or, if no default scannables are configured:
 	 * <li>all {@link ScannableMotion} devices configured for the beamline</li>
 	 */
-	private List<String> availableScannables;
+	private Set<String> availableScannables;
 
 	@Override
 	public void initialize(MappingExperimentView mappingView) {
 		super.initialize(mappingView);
 
-		availableScannables = new ArrayList<>(getMappingBean().getScanDefinition().getPermittedOuterScannables());
+		availableScannables = new HashSet<>(getMappingBean().getScanDefinition().getPermittedOuterScannables());
 		if (availableScannables.isEmpty()) {
 			try {
-				availableScannables = new ArrayList<>(Finder.getInstance().getFindablesOfType(ScannableMotion.class).keySet());
+				availableScannables.addAll(Finder.getInstance().getFindablesOfType(ScannableMotion.class).keySet());
 			} catch (Exception e) {
 				logger.error("Exception getting list of scannables", e);
 			}
+		} else {
+			// Ensure that the default scannable(s) are in the list, even if not explicitly set as "permitted"
+			availableScannables.addAll(getMappingBean().getScanDefinition().getDefaultOuterScannables());
 		}
 	}
 

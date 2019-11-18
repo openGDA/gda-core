@@ -30,7 +30,7 @@ public interface IScanDefinition {
 	 *
 	 * @return mappingScanRegion
 	 */
-	public IMappingScanRegion getMappingScanRegion();
+	IMappingScanRegion getMappingScanRegion();
 
 	/**
 	 * Sets the mapping scan region to be used in the mapping scan. Includes the shape, shape parameters, pattern and
@@ -38,7 +38,7 @@ public interface IScanDefinition {
 	 *
 	 * @param mappingScanRegion
 	 */
-	public void setMappingScanRegion(IMappingScanRegion mappingScanRegion);
+	void setMappingScanRegion(IMappingScanRegion mappingScanRegion);
 
 	/**
 	 * Gets the list of outer scannables including their parameters for use outside the mapping scan. e.g change
@@ -47,7 +47,7 @@ public interface IScanDefinition {
 	 *
 	 * @return outerScannables the outer scannables
 	 */
-	public List<IScanModelWrapper<IScanPathModel>> getOuterScannables();
+	List<IScanModelWrapper<IScanPathModel>> getOuterScannables();
 
 	/**
 	 * Sets the list of outer scannables including their parameters for use outside the mapping scan. e.g change
@@ -59,7 +59,7 @@ public interface IScanDefinition {
 	 *
 	 * @param outerScannables
 	 */
-	public void setOuterScannables(List<IScanModelWrapper<IScanPathModel>> outerScannables);
+	void setOuterScannables(List<IScanModelWrapper<IScanPathModel>> outerScannables);
 
 	/**
 	 * Gets the list of beamline scannables that the user may choose as outer scannables
@@ -68,12 +68,27 @@ public interface IScanDefinition {
 	 *
 	 * @return the permitted outer scannables for this beamline
 	 */
-	public List<String> getPermittedOuterScannables();
+	List<String> getPermittedOuterScannables();
 
 	/**
 	 * Sets the permitted outer scannables for this beamline. See {@link #getPermittedOuterScannables()}
 	 *
 	 * @param scannables
 	 */
-	public void setPermittedOuterScannables(List<String> scannables);
+	void setPermittedOuterScannables(List<String> scannables);
+
+	/**
+	 * Gets the list of outer scannables that will be shown by default (on first use or when the client is reset)
+	 *
+	 * @return the default outer scannables
+	 */
+	List<String> getDefaultOuterScannables();
+
+	/**
+	 * Sets the list of default outer scannables (see {@link #getDefaultOuterScannables()}
+	 *
+	 * @param scannables
+	 *            the default outer scannables
+	 */
+	void setDefaultOuterScannables(List<String> scannables);
 }

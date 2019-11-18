@@ -23,6 +23,7 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -68,8 +69,10 @@ import com.google.common.collect.MutableClassToInstanceMap;
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
+import uk.ac.diamond.daq.mapping.api.IScanDefinition;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
+import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
 
 /**
  * An E4-style POJO class for the a view containing several sections view.
@@ -216,6 +219,20 @@ public class MappingExperimentView implements IAdaptable {
 				} catch (Exception e) {
 					logger.error("Failed to restore the previous state of the mapping view", e);
 				}
+			} else {
+				// If there is no state to restore, ensure that any default outer scannables are set
+				final IScanDefinition scanDefinition = mappingBeanProvider.getMappingExperimentBean().getScanDefinition();
+				if (scanDefinition == null) {
+					return;
+				}
+				final List<String> defaultOuterScannables = scanDefinition.getDefaultOuterScannables();
+				if (defaultOuterScannables.isEmpty()) {
+					return;
+				}
+				final List<IScanModelWrapper<IScanPathModel>> scanModels = defaultOuterScannables.stream()
+						.map(scannable -> new ScanPathModelWrapper(scannable, null, false))
+						.collect(Collectors.toList());
+				scanDefinition.setOuterScannables(scanModels);
 			}
 		}
 	}
