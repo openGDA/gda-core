@@ -23,7 +23,6 @@ import static java.util.Comparator.comparing;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -59,7 +58,7 @@ import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
  * A section for configuring the outer scannables of a scan, e.g. temperature.
  * <p>
  * When only a subset of the configured scannables could be used as the outer axis in a scan,
- * they should be given as the {@code defaultOuterScannables} in the {@link MappingScanDefinition}.
+ * they should be given as the {@code permittedOuterScannables} in the {@link MappingScanDefinition}.
  * <br>
  * If this list is not configured, then the user will be able to display and
  * configure any available scannable that implements {@link ScannableMotion} or a derived interface.
@@ -100,25 +99,23 @@ public class OuterScannablesSection extends AbstractMappingSection {
 	 * Names of the scannables that the user can choose
 	 * <p>
 	 * This list will be either:<br>
-	 * <li>the {@code defaultOuterScannables} configured</li>
+	 * <li>the {@code permittedOuterScannables} configured</li>
 	 * or, if no default scannables are configured:
-	 * <li>all {@link ScannableMotion} configured for the beamline</li>
+	 * <li>all {@link ScannableMotion} devices configured for the beamline</li>
 	 */
 	private List<String> availableScannables;
 
 	@Override
 	public void initialize(MappingExperimentView mappingView) {
 		super.initialize(mappingView);
-		List<String> defaultScannables = getMappingBean().getScanDefinition().getDefaultOuterScannables();
-		if (defaultScannables == null || defaultScannables.isEmpty()) {
+
+		availableScannables = new ArrayList<>(getMappingBean().getScanDefinition().getPermittedOuterScannables());
+		if (availableScannables.isEmpty()) {
 			try {
 				availableScannables = new ArrayList<>(Finder.getInstance().getFindablesOfType(ScannableMotion.class).keySet());
 			} catch (Exception e) {
 				logger.error("Exception getting list of scannables", e);
-				availableScannables = Collections.emptyList();
 			}
-		} else {
-			availableScannables = new ArrayList<>(defaultScannables);
 		}
 	}
 

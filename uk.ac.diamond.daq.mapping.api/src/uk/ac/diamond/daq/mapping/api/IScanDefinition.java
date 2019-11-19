@@ -54,7 +54,7 @@ public interface IScanDefinition {
 	 * temperature and at each temperature take a map. This list allows complex scan to be built containing many outer
 	 * loops.<br>
 	 * This function should not be used to configure outer scannables in Spring, as it will be overwritten at runtime.
-	 * Instead, use {@link IScanDefinition#setDefaultOuterScannables(List)} if you want to restrict the scannables that
+	 * Instead, use {@link IScanDefinition#setPermittedOuterScannables(List)} if you want to restrict the scannables that
 	 * the user can choose.
 	 *
 	 * @param outerScannables
@@ -62,19 +62,18 @@ public interface IScanDefinition {
 	public void setOuterScannables(List<IScanModelWrapper<IScanPathModel>> outerScannables);
 
 	/**
-	 * Gets the list of outer scannables that will be shown by default in the mapping UI
+	 * Gets the list of beamline scannables that the user may choose as outer scannables
 	 * <p>
-	 * If this list contains any scannables, the user will only be able to choose one or more of them.<br>
 	 * If the list is empty, the user is free to choose any scannable available on the beamline.
 	 *
-	 * @return the default outer scannables configured for this beamline
+	 * @return the permitted outer scannables for this beamline
 	 */
-	public List<String> getDefaultOuterScannables();
+	public List<String> getPermittedOuterScannables();
 
 	/**
-	 * Sets the default outer scannables for this beamline. See {@link #getDefaultOuterScannables()}
+	 * Sets the permitted outer scannables for this beamline. See {@link #getPermittedOuterScannables()}
 	 *
 	 * @param scannables
 	 */
-	public void setDefaultOuterScannables(List<String> scannables);
+	public void setPermittedOuterScannables(List<String> scannables);
 }
