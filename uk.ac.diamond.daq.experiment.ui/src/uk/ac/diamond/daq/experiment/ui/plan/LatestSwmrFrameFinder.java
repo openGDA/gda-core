@@ -1,14 +1,26 @@
 package uk.ac.diamond.daq.experiment.ui.plan;
 
+import static java.util.stream.Collectors.toMap;
+import static org.eclipse.dawnsci.analysis.api.tree.TreeUtils.getPath;
+import static org.eclipse.dawnsci.analysis.api.tree.TreeUtils.treeBreadthFirstSearch;
+
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.dawnsci.datavis.model.DataOptions;
 import org.dawnsci.datavis.model.ILiveLoadedFileListener;
 import org.dawnsci.datavis.model.IRefreshable;
 import org.dawnsci.datavis.model.LoadedFile;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
+import org.eclipse.dawnsci.analysis.api.tree.Tree;
+import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetUtils;
@@ -23,36 +35,66 @@ import org.slf4j.LoggerFactory;
 import com.google.common.util.concurrent.RateLimiter;
 
 /**
- * Listens for SWMR files from ongoing scans and finds their latest detector frame
+ * Listens for SWMR files from ongoing scans and finds their latest detector frame.
+ * <p>
+ * When a file is registered, the available detectors are given to the consumer
+ * passed in the constructor. The caller should then select one of these via {@link #selectDetector(String)}
  */
 public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 	
 	private static final Logger logger = LoggerFactory.getLogger(LatestSwmrFrameFinder.class);
 	
-	private static final String DETECTOR_DATASET_SUFFIX = "/data";
-	private static final String UNIQUE_KEYS_KEY_WORD = "keys";
+	/** We notify this consumer of available detectors when a file is loaded */
+	private final Consumer<Set<String>> detectorsSubscriber;
 	
+	/** We pass the latest frame to this processor */
 	private final Consumer<IDataset> frameProcessor;
+	
 	private final RateLimiter rateLimiter;
 	private Optional<IRefreshable> refreshableOptional;
+
+	/** Detector name to dataset path */
+	private Map<String, String> detectorDatasets;
+	
+	/** Detector name to associated unique keys path */
+	private Map<String, String> uniqueKeysDatasets;
+	
+	/** Name of detector to get the latest frame from */
+	private String requestedDetector;
 	
 	/**
 	 * Constructs an {@link ILiveLoadedFileListener} which finds the latest detector frame
 	 * in the SWMR file of the ongoing scan, rate-limited at the given frequency, and passes
 	 * the frame to the given frameProcessor.
 	 * 
+	 * @param detectorsSubscriber This consumer is passed a list of detectors available
+	 * 			when a new SWMR file is loaded. The caller can choose any of these ({@link #selectDetector(String)}
+	 * 
 	 * @param frameProcessor something which works on the latest frame IDataset
+	 * 
 	 * @param updateRateFrequency in Hz
 	 */
-	public LatestSwmrFrameFinder(Consumer<IDataset> frameProcessor, double updateRateFrequency) {
+	public LatestSwmrFrameFinder(Consumer<Set<String>> detectorsSubscriber, Consumer<IDataset> frameProcessor, double updateRateFrequency) {
+		this.detectorsSubscriber = detectorsSubscriber;
 		this.frameProcessor = frameProcessor;
 		this.rateLimiter = RateLimiter.create(updateRateFrequency);
 		refreshableOptional = Optional.empty();
 	}
+
+	/**
+	 * Clients choose which detector we should find the latest frame of.
+	 * The argument should be one in the list given to the detectors subscriber passed in the constructor.
+	 */
+	public void selectDetector(String requestedDetector) {
+		logger.debug("Detector requested = '{}'", requestedDetector);
+		this.requestedDetector = requestedDetector;
+		refreshableOptional.ifPresent(this::refresh);
+	}
 	
 	/**
 	 * This class operates only on SWMR files, denoted by being instances of IRefreshable.
-	 * When one of these files is given to this method*, it is initialised and cached.
+	 * When one of these files is given to this method*, it is cached and from its tree
+	 * we also cache links to detector and unique keys datasets.
 	 * <p>
 	 * *This is most likely since the method is specified by {@link ILiveLoadedFileListener}
 	 * which deals with SWMR files.
@@ -62,6 +104,10 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 		if (loadedFile instanceof IRefreshable) {
 			IRefreshable swmr = (IRefreshable) loadedFile;
 			refreshableOptional = Optional.of(swmr);
+			NexusTreeDatasetFinder datasetFinder = new NexusTreeDatasetFinder(loadedFile.getTree());
+			detectorDatasets = datasetFinder.getDetectorDatasets();
+			uniqueKeysDatasets = datasetFinder.getUniqueKeysDatasets(detectorDatasets.keySet());
+			detectorsSubscriber.accept(detectorDatasets.keySet());
 		} else {
 			logger.debug("Was passed a non-SWMR file; will ignore");
 		}
@@ -82,7 +128,14 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 	}
 	
 	private void refresh(IRefreshable file) {
+		if (requestedDetector == null) {
+			// no one is interested in the data just yet,
+			// come back later
+			return;
+		}
+		
 		file.refresh();
+		
 		try {
 			findLatestFrame(file).ifPresent(frameProcessor);
 		} catch (NoSuchElementException e) {
@@ -91,31 +144,20 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 	}
 	
 	private Optional<IDataset> findLatestFrame(IRefreshable file) {
-		
 		List<DataOptions> dataOptions = file.getUninitialisedDataOptions();
 		
-		DataOptions uniqueKeysDataOptions = dataOptions.stream()
-				.filter(options -> options.getName().toLowerCase().contains(UNIQUE_KEYS_KEY_WORD))
-				.findFirst().orElseThrow(() -> new NoSuchElementException("Unique keys dataset not found"));
-		
-		DataOptions detectorDataOptions = dataOptions.stream()
-				.filter(options -> options.getName().endsWith(DETECTOR_DATASET_SUFFIX))
-				.findFirst().orElseThrow(() -> new NoSuchElementException("Detector dataset not found"));
-		
-		/* FIXME We are about to use uniqueKeysDataOptions to find a frame in detectorDataOptions
-		 * This is really only valid for a scan which contains a a single detector.
-		 * See DAQ-2549
-		 */
+		DataOptions data = getDetectorData(dataOptions);
+		DataOptions keys = getKeys(dataOptions);
 		
 		try {
 			
-			int[] positionOfLastFrame = getPositionOfLastFrame(uniqueKeysDataOptions);
+			int[] positionOfLastFrame = getPositionOfLastFrame(keys);
 			if (positionOfLastFrame == null) {
 				logger.debug("No data written yet");
 				return Optional.empty();
 			}
 			
-			ILazyDataset detectorData = detectorDataOptions.getLazyDataset();
+			ILazyDataset detectorData = data.getLazyDataset();
 			SliceND slice = getSlice(detectorData, positionOfLastFrame);			
 			return Optional.of(detectorData.getSlice(slice).squeeze());
 
@@ -125,6 +167,18 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 		}
 	}
 	
+	private DataOptions getDetectorData(List<DataOptions> dataOptions) {
+		return dataOptions.stream()
+				.filter(options -> options.getName().equals(detectorDatasets.get(requestedDetector)))
+				.findFirst().orElseThrow(() -> new NoSuchElementException("Could not find requested dataset '" + requestedDetector + "'"));
+	}
+	
+	private DataOptions getKeys(List<DataOptions> dataOptions) {
+		return dataOptions.stream()
+				.filter(options -> options.getName().equals(uniqueKeysDatasets.get(requestedDetector)))
+				.findFirst().orElseThrow(() -> new NoSuchElementException("Cannot find unique keys to match dataset '" + requestedDetector + "'"));
+	}
+
 	/**
 	 * Returns the slice corresponding to the last detector frame
 	 */
@@ -183,5 +237,65 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 		}
 		
 		return positionOfLastFrame;
+	}
+	
+	
+	/**
+	 * Traverses a NeXus tree to find detector datasets and their associated unique keys
+	 */
+	private class NexusTreeDatasetFinder {
+		
+		private static final String KEYS_GROUP_NAME = "keys";
+		private Tree tree;
+		
+		public NexusTreeDatasetFinder(Tree tree) {
+			this.tree = tree;
+		}
+		
+		/**
+		 * Returns a map of detector name to dataset path
+		 */
+		public Map<String, String> getDetectorDatasets() {
+			return treeBreadthFirstSearch(tree.getGroupNode(), this::nodeIsDetector, false, null).values().stream()
+					.collect(toMap(NodeLink::getName, node -> getPath(tree, 
+							((GroupNode) node.getDestination()).getNode(NexusConstants.DATA_DATA))));
+		}
+		
+		/**
+		 * Returns a map of detector name to unique keys dataset path
+		 */
+		public Map<String, String> getUniqueKeysDatasets(Set<String> detectorNames) {
+			Map<String, NodeLink> result = treeBreadthFirstSearch(tree.getGroupNode(), this::nodeIsUniqueKeysGroup, true, null);
+			GroupNode keysGroup = (GroupNode) result.values().iterator().next().getDestination();
+			
+			Map<String, DataNode> keyNodes = keysGroup.getDataNodeMap();
+			
+			if (keysGroup.getNumberOfDataNodes() == 1) {
+				// GDA scan with any number of detectors, or Malcolm scan with single detector
+				return detectorNames.stream().collect(toMap(det -> det, det -> getPath(tree, keyNodes.values().iterator().next())));
+			} else {
+				// Malcolm scan: one unique keys dataset per detector
+				return detectorNames.stream().collect(toMap(det -> det,
+					det -> keyNodes.entrySet().stream()
+						.filter(entry -> entry.getKey().contains(det))
+						.map(Entry<String, DataNode>::getValue)
+						.map(node -> getPath(tree, node))
+						.findFirst().orElseThrow(() -> new NoSuchElementException("Cannot find unique keys for detector '" + det + "'"))
+					));
+			}
+		}
+		
+		private boolean nodeIsDetector(NodeLink node) {
+			return node.isDestinationGroup() // node is a group
+					&& ((GroupNode) node.getDestination()).getAttribute(NexusConstants.NXCLASS)
+						.getFirstElement().equals(NexusConstants.DETECTOR); // and an NXdetector
+		}
+		
+		private boolean nodeIsUniqueKeysGroup(NodeLink node) {
+			return node.isDestinationGroup() // node is a group
+					&& ((GroupNode) node.getDestination()).getAttribute(NexusConstants.NXCLASS)
+						.getFirstElement().equals(NexusConstants.COLLECTION) // and an NXcollection
+					&& node.getName().equals(KEYS_GROUP_NAME); // called "keys"
+		}
 	}
 }
