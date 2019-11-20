@@ -18,6 +18,8 @@
 
 package gda.device.monitor;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +41,25 @@ public class DummyEpicsMonitor extends EpicsMonitor {
 	 * @param newVal the value
 	 */
 	public void setValue(Object newVal) {
-		this.latestValue = newVal;
+		if (newVal instanceof List) {
+			// Spring cannot pass an array, so convert List
+			final List<?> newValList = (List<?>) newVal;
+			final Object firstVal = newValList.get(0);
+			if (firstVal instanceof Integer) {
+				latestValue = newValList.stream().mapToInt(a -> (int) a).toArray();
+			} else if (firstVal instanceof Double || firstVal instanceof Float) {
+				latestValue = newValList.stream().mapToDouble(a -> (double) a).toArray();
+			} else if (firstVal instanceof String) {
+				latestValue = newValList.stream().map(a -> (String) a).toArray();
+			} else {
+				// Anything else (unlikely to happen) - leave as it is
+				latestValue = newVal;
+			}
+		} else {
+			// Not a list - just store the value
+			latestValue = newVal;
+		}
+
 		notifyIObservers(this, latestValue);
 	}
 	@Override
