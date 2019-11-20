@@ -14,7 +14,7 @@
 		</field>
 	</class>
 
-	<class name="uk.ac.gda.beans.exafs.i20.ROIRegion">
+	<class name="uk.ac.gda.beans.medipix.ROIRegion">
 		<map-to xml="ROIRegion"/>
 		<field name="roiName" type="string">
 			<bind-xml name="roiName" node="element"/>
@@ -27,9 +27,9 @@
 		</field>
 	</class>
 
-	<class name="uk.ac.gda.beans.exafs.i20.MedipixParameters">
+	<class name="uk.ac.gda.beans.medipix.MedipixParameters">
 		<map-to xml="MedipixParameters"/>
-		<field name="roiRegion" type="uk.ac.gda.beans.exafs.i20.ROIRegion"
+		<field name="roiRegion" type="uk.ac.gda.beans.medipix.ROIRegion"
 			collection="collection" set-method="addRegion" get-method="getRegionList">
 			<bind-xml name="roiRegion" node="element"/>
 		</field>

@@ -20,7 +20,7 @@ package uk.ac.gda.exafs.ui.describers;
 
 import org.eclipse.richbeans.xml.XMLBeanContentDescriber;
 
-import uk.ac.gda.beans.exafs.i20.MedipixParameters;
+import uk.ac.gda.beans.medipix.MedipixParameters;
 import uk.ac.gda.exafs.ui.detector.medipix.MedipixParametersEditor;
 
 public class MedipixDescriber  extends XMLBeanContentDescriber {

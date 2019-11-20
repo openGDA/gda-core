@@ -28,6 +28,13 @@
             template="Xspress_Parameters"
             type="UNREGISTERED">
       </describer>
+      <describer
+            bean="uk.ac.gda.beans.medipix.MedipixParameters"
+            includeInNew="true"
+            name="Medipix parameters"
+            template="Medipix_Parameters"
+            type="MedipixParameters">
+      </describer>
    </extension>
    
 </plugin>
