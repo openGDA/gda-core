@@ -298,6 +298,7 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		final ISelection currentSelection = linesToTrackCombo.getSelection();
 		Collections.sort(lines);
 		linesToTrackCombo.setInput(lines.toArray());
+		linesToTrackCombo.insert("", 0);
 		if (currentSelection != null) {
 			linesToTrackCombo.setSelection(currentSelection);
 		}
