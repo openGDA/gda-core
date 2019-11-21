@@ -361,18 +361,14 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		}
 	}
 
-	private void validateScanRequest() throws InstantiationException, IllegalAccessException {
-		if (!Boolean.getBoolean("org.eclipse.scanning.server.servlet.scanProcess.disableValidate")) {
-			logger.debug("Validating run : {}", bean);
-			final ScanRequest scanRequest = bean.getScanRequest();
-			if (scanRequest.getDetectors() != null && scanRequest.getDetectors().isEmpty()) {
-				scanRequest.setDetectors(null);
-			}
-			Services.getValidatorService().validate(scanRequest);
-			logger.debug("Validating passed : {}", bean);
-		} else {
-			logger.warn("The run {} has validation switched off.", bean);
+	private void validateScanRequest() {
+		logger.debug("Validating scan: {}", bean);
+		final ScanRequest scanRequest = bean.getScanRequest();
+		if (scanRequest.getDetectors() != null && scanRequest.getDetectors().isEmpty()) {
+			scanRequest.setDetectors(null);
 		}
+		Services.getValidatorService().validate(scanRequest);
+		logger.debug("Validating passed : {}", bean);
 	}
 
 	/**

@@ -482,11 +482,6 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 
 	@Override
 	public IMalcolmModel validateWithReturn(IMalcolmModel model) throws ValidationException {
-		if (Boolean.getBoolean("org.eclipse.scanning.malcolm.skipvalidation")) {
-			logger.warn("Skipping Malcolm Validate");
-			return null;
-		}
-
 		MalcolmMessage reply = null;
 		try {
 			final EpicsMalcolmModel epicsModel = createEpicsMalcolmModel(model, true); // use default point gen and filedir if not set (i.e. we're not in a scan)
