@@ -133,7 +133,7 @@ public class TestBase {
 		// Findables the server needs to know about
 		Findable[] findables = new Findable[] { xspress4detector, xsp3controller, dummyScannableMotor };
 
-		final Factory factory = TestHelpers.createTestFactory("test");
+		final Factory factory = TestHelpers.createTestFactory();
 		for (Findable f : findables) {
 			factory.addFindable(f);
 			InterfaceProvider.getJythonNamespace().placeInJythonNamespace(f.getName(), f);

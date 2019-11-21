@@ -54,7 +54,7 @@ public class OutputPreparerTest {
 		Mockito.when(mocked_sxcryo_scannable.getName()).thenReturn("mocked_sxcryo_scannable");
 
 
-		Factory finderfactory = TestHelpers.createTestFactory("OutputPreparerTest");
+		Factory finderfactory = TestHelpers.createTestFactory();
 		finderfactory.addFindable(mocked_sxcryo_scannable);
 		Finder.getInstance().addFactory(finderfactory);
 
