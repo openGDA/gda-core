@@ -137,6 +137,7 @@ alias('axis')
 
 snak = snake = alte = alternating = (lambda:Mutator.ALTERNATING)()
 roff = random_offset = (lambda:Mutator.RANDOM_OFFSET)()
+cont = continuous = (lambda:Mutator.CONTINUOUS)()
 
 # Register the commands with the Translator
 alias('snak')
@@ -145,6 +146,9 @@ alias('alte')
 alias('alternating')
 alias('roff')
 alias('random_offset')
+alias('cont')
+alias('continuous')
+
 
 # The Java entry point for MScan commands, creates the scan builder and
 # submits the command string via the GeneralTranslator.

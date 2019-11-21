@@ -84,7 +84,7 @@ public class ScanClausesResolver {
 
 			// a potential scan clause boundary, might be the first of a Scannable pair or a ScannableGroup
 			// if it's a mapping scan, also have to cope with one or more Detectors or Monitors at end of line
-			if (thisProcessor.hasScannable() || thisProcessor.hasDetector()) {
+			if (thisProcessor.hasScannable() || thisProcessor.hasDetector() || thisProcessor.hasMonitor()) {
 				monitorSeen = monitorSeen ? true : thisProcessor.hasMonitor();     // Latch recognition of a Monitor
 				detectorSeen = detectorSeen ? true : thisProcessor.hasDetector();  // Latch recognition of a Detector
 				readoutSeen = readoutSeen ? true : checker.isAPureScannableUsedAsReadout(

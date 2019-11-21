@@ -18,11 +18,15 @@
 
 package gda.mscan.element;
 
+import static gda.mscan.element.Mutator.ALTERNATING;
+import static gda.mscan.element.Mutator.CONTINUOUS;
+import static gda.mscan.element.Mutator.RANDOM_OFFSET;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.eclipse.scanning.api.points.models.AbstractBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.AbstractBoundingLineModel;
@@ -66,6 +70,10 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 
 	private static final int BOUNDS_REQUIRED_PARAMS = 4;
 	private static final String PREFIX = "Invalid Scan clause: ";
+	private static final Map<Mutator, Function<Class<? extends AbstractPointsModel>, Boolean>> SUPPORT_LOOKUP =
+							ImmutableMap.of(RANDOM_OFFSET, AbstractPointsModel::supportsRandomOffset,
+											ALTERNATING, AbstractPointsModel::supportsAlternating,
+											CONTINUOUS, AbstractPointsModel::supportsContinuous);
 
 	private final String text;
 	private final int axisCount;
@@ -128,6 +136,10 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 		return modelType;
 	}
 
+	public boolean supports(Mutator mutator) {
+		return SUPPORT_LOOKUP.get(mutator).apply(this.modelType);
+	}
+
 	/**
 	 * Creates the correct {@link AbstractPointsModel} based object for this instance of AreaScanpath
 	 * The number of supplied {@link Scannable}s, path parameters and bounding box parameters will be validated
@@ -147,9 +159,14 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 		validateInputs(ImmutableMap.of(scannables, axisCount,
 										pathParams, axisCount == 1 ? valueCount + 2 : valueCount,
 										bboxParams, BOUNDS_REQUIRED_PARAMS));
-		if (this != GRID && mutatorUses.containsKey(Mutator.RANDOM_OFFSET)) {
-			throw new IllegalArgumentException(PREFIX + "Only Grid Model supports Random Offset paths");
-		}
+		mutatorUses.keySet().forEach(mutator -> {
+			if (!supports(mutator)) {
+				throw new IllegalArgumentException(String.format(
+						"%s The %s mutator is not supported by %s",
+							PREFIX,  mutator, this.modelType.getSimpleName()));
+			}
+		});
+
 		return factory.createScanpathModel(scannables, pathParams, bboxParams, mutatorUses);
 	}
 
@@ -163,7 +180,7 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 	 * @throws					IllegalArgument exception if the required number of parameters is not present.
 	 */
 	private void validateInputs(final Map<List<? extends Object>, Integer> inputs) {
-		inputs.entrySet().forEach(entry ->{
+		inputs.entrySet().forEach(entry -> {
 			if (entry.getKey().size() != entry.getValue()) {
 				throw new IllegalArgumentException(String.format(
 						"%s%s requires %s numeric values to be specified",
@@ -173,7 +190,7 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 	}
 
 	/**
-	 * This Class contains factory methods for each of the required {@link AbstractPointsModel} based types
+	 *  This Class contains factory methods for each of the required {@link AbstractPointsModel} based types
 	 *  mapped by the instance constructor. It also defines constants to allow the various parameters required for
 	 *  construction of the required {@link IScanPathModel} to be expressed in a more meaningful way.
 	 */
@@ -239,12 +256,12 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 				}
 			}
 			GridModel model;
-			if (mutatorUses.containsKey(Mutator.RANDOM_OFFSET)) {
+			if (mutatorUses.containsKey(RANDOM_OFFSET)) {
 				RandomOffsetGridModel roModel = initBoxBasedModel(new RandomOffsetGridModel(), scannables, bboxParameters);
-				List<Number> params = mutatorUses.get(Mutator.RANDOM_OFFSET);
+				List<Number> params = mutatorUses.get(RANDOM_OFFSET);
 				roModel.setOffset(params.get(OFFSET).doubleValue());
 				if (params.size() > 1) {
-					roModel.setSeed(mutatorUses.get(Mutator.RANDOM_OFFSET).get(SEED).intValue());
+					roModel.setSeed(mutatorUses.get(RANDOM_OFFSET).get(SEED).intValue());
 				}
 				model = roModel;
 			} else {
@@ -252,10 +269,8 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 			}
 			model.setxAxisPoints(scanParameters.get(X_AXIS_INDEX).intValue());
 			model.setyAxisPoints(scanParameters.get(Y_AXIS_INDEX).intValue());
-
-			if (mutatorUses.containsKey(Mutator.ALTERNATING)) {
-				model.setAlternating(true);
-			}
+			model.setAlternating(mutatorUses.containsKey(ALTERNATING));
+			model.setContinuous(mutatorUses.containsKey(CONTINUOUS));
 			return model;
 		}
 
@@ -284,10 +299,8 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 			RasterModel model = initBoxBasedModel(new RasterModel(), scannables, bboxParameters);
 			model.setxAxisStep(scanParameters.get(X_AXIS_INDEX).doubleValue());
 			model.setyAxisStep(scanParameters.get(Y_AXIS_INDEX).doubleValue());
-
-			if (mutatorUses.containsKey(Mutator.ALTERNATING)) {
-				model.setAlternating(true);
-			}
+			model.setAlternating(mutatorUses.containsKey(ALTERNATING));
+			model.setContinuous(mutatorUses.containsKey(CONTINUOUS));
 			return model;
 		}
 
@@ -308,10 +321,9 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 														 final Map<Mutator, List<Number>> mutatorUses) {
 
 			SpiralModel model = initBoxBasedModel(new SpiralModel(), scannables, bboxParameters);
-			if (mutatorUses.containsKey(Mutator.ALTERNATING)) {
-				model.setAlternating(true);
-			}
+			model.setAlternating(mutatorUses.containsKey(ALTERNATING));
 			model.setScale(scanParameters.get(SCALE).doubleValue());
+			model.setContinuous(mutatorUses.containsKey(CONTINUOUS));
 			return model;
 		}
 
@@ -336,9 +348,8 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 			model.setA(scanParameters.get(A).doubleValue());
 			model.setB(scanParameters.get(B).doubleValue());
 			model.setPoints(scanParameters.get(POINTS).intValue());
-			if (mutatorUses.containsKey(Mutator.ALTERNATING)) {
-				model.setAlternating(true);
-			}
+			model.setAlternating(mutatorUses.containsKey(ALTERNATING));
+			model.setContinuous(mutatorUses.containsKey(CONTINUOUS));
 			return model;
 		}
 
@@ -364,9 +375,8 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 			}
 			OneDStepModel model = initLineBasedModel(new OneDStepModel(), scannables, blineParameters);
 			model.setStep(scanParameters.get(STEP).doubleValue());
-			if (mutatorUses.containsKey(Mutator.ALTERNATING)) {
-				model.setAlternating(true);
-			}
+			model.setAlternating(mutatorUses.containsKey(ALTERNATING));
+			model.setContinuous(mutatorUses.containsKey(CONTINUOUS));
 			return model;
 		}
 
@@ -397,10 +407,9 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 			}
 			OneDEqualSpacingModel model = initLineBasedModel(new OneDEqualSpacingModel(), scannables, blineParameters);
 			model.setPoints(scanParameters.get(POINTS).intValue());
-			if (mutatorUses.containsKey(Mutator.ALTERNATING)) {
-				model.setAlternating(true);
-			}
-		return model;
+			model.setAlternating(mutatorUses.containsKey(ALTERNATING));
+			model.setContinuous(mutatorUses.containsKey(CONTINUOUS));
+			return model;
 		}
 
 		/**
@@ -453,9 +462,8 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 											scanParameters.get(START).doubleValue(),
 											scanParameters.get(STOP).doubleValue(),
 											scanParameters.get(AX_STEP).doubleValue() * sign);
-			if (mutatorUses.containsKey(Mutator.ALTERNATING)) {
-				model.setAlternating(true);
-			}
+			model.setAlternating(mutatorUses.containsKey(ALTERNATING));
+			model.setContinuous(mutatorUses.containsKey(CONTINUOUS));
 			return model;
 		}
 
@@ -495,9 +503,8 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 											start,
 											scanParameters.get(STOP).doubleValue(),
 											sign * length / divisor);
-			if (mutatorUses.containsKey(Mutator.ALTERNATING)) {
-				model.setAlternating(true);
-			}
+			model.setAlternating(mutatorUses.containsKey(ALTERNATING));
+			model.setContinuous(mutatorUses.containsKey(CONTINUOUS));
 			return model;
 		}
 
