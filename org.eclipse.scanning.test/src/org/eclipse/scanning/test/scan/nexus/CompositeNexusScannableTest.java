@@ -37,7 +37,7 @@ import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.GridModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
@@ -335,7 +335,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 	}
 
 	private IRunnableDevice<ScanModel> createGridScan(IScannable<?> perScanMonitor) throws Exception {
-		GridModel gmodel = new GridModel();
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
 		gmodel.setxAxisName("xNex");
 		gmodel.setxAxisPoints(SCAN_SIZE[1]);
 		gmodel.setyAxisName("yNex");

@@ -26,17 +26,17 @@ import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolylineROI;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
-import org.eclipse.scanning.api.points.models.ArrayModel;
+import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.GridModel;
-import org.eclipse.scanning.api.points.models.LissajousModel;
-import org.eclipse.scanning.api.points.models.MultiStepModel;
-import org.eclipse.scanning.api.points.models.RandomOffsetGridModel;
-import org.eclipse.scanning.api.points.models.RasterModel;
-import org.eclipse.scanning.api.points.models.RepeatedPointModel;
-import org.eclipse.scanning.api.points.models.SpiralModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
+import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsRandomOffsetModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
+import org.eclipse.scanning.api.points.models.OneAxisPointRepeatedModel;
+import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.command.factory.PyExpressionFactory;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
@@ -58,7 +58,7 @@ public class PyExpresserTest {
 	@Test
 	public void testScanRequestWithMonitor_Step() throws Exception {
 
-		StepModel smodel = new StepModel();
+		AxialStepModel smodel = new AxialStepModel();
 		smodel.setStart(0);
 		smodel.setStop(10);
 		smodel.setStep(1);
@@ -89,7 +89,7 @@ public class PyExpresserTest {
 		bbox.setxAxisLength(10);
 		bbox.setyAxisLength(11);
 
-		GridModel gmodel = new GridModel();
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
 		gmodel.setxAxisName("myFast");
 		gmodel.setyAxisName("mySlow");
 		gmodel.setBoundingBox(bbox);
@@ -120,7 +120,7 @@ public class PyExpresserTest {
 		bbox.setxAxisLength(10);
 		bbox.setyAxisLength(11);
 
-		RandomOffsetGridModel model = new RandomOffsetGridModel();
+		TwoAxisGridPointsRandomOffsetModel model = new TwoAxisGridPointsRandomOffsetModel();
 		model.setxAxisName("myFast");
 		model.setyAxisName("mySlow");
 		model.setBoundingBox(bbox);
@@ -145,7 +145,7 @@ public class PyExpresserTest {
 		bbox.setxAxisLength(10);
 		bbox.setyAxisLength(11);
 
-		SpiralModel model = new SpiralModel();
+		TwoAxisSpiralModel model = new TwoAxisSpiralModel();
 		model.setxAxisName("myFast");
 		model.setyAxisName("mySlow");
 		model.setBoundingBox(bbox);
@@ -174,7 +174,7 @@ public class PyExpresserTest {
 		bbox.setxAxisLength(10);
 		bbox.setyAxisLength(11);
 
-		LissajousModel model = new LissajousModel();
+		TwoAxisLissajousModel model = new TwoAxisLissajousModel();
 		model.setxAxisName("myFast");
 		model.setyAxisName("mySlow");
 		model.setBoundingBox(bbox);
@@ -193,7 +193,7 @@ public class PyExpresserTest {
 	public void testScanRequestWithMonitor_Repeat()
 			throws Exception {
 
-		RepeatedPointModel rmodel = new RepeatedPointModel();
+		OneAxisPointRepeatedModel rmodel = new OneAxisPointRepeatedModel();
 		rmodel.setCount(10);
 		rmodel.setValue(2.2);
 		rmodel.setSleep(25);
@@ -225,7 +225,7 @@ public class PyExpresserTest {
 		bbox.setxAxisLength(10);
 		bbox.setyAxisLength(11);
 
-		GridModel gmodel = new GridModel();
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
 		gmodel.setxAxisName("myFast");
 		gmodel.setyAxisName("mySlow");
 		gmodel.setBoundingBox(bbox);
@@ -253,13 +253,13 @@ public class PyExpresserTest {
 	public void testCompoundScanRequest()
 			throws Exception {
 
-		StepModel smodel = new StepModel();
+		AxialStepModel smodel = new AxialStepModel();
 		smodel.setStart(0);
 		smodel.setStop(10);
 		smodel.setStep(1);
 		smodel.setName("fred");
 
-		ArrayModel amodel = new ArrayModel();
+		AxialArrayModel amodel = new AxialArrayModel();
 		amodel.setName("fred");
 		amodel.setPositions(0.1);
 
@@ -277,7 +277,7 @@ public class PyExpresserTest {
 	@Test
 	public void testStepModel() throws Exception{
 
-		StepModel smodel = new StepModel();
+		AxialStepModel smodel = new AxialStepModel();
 		smodel.setStart(0);
 		smodel.setStop(10);
 		smodel.setStep(1);
@@ -294,7 +294,7 @@ public class PyExpresserTest {
 	@Test
 	public void testMultiStepModelNoSteps() throws Exception{
 
-		MultiStepModel mmodel = new MultiStepModel();
+		AxialMultiStepModel mmodel = new AxialMultiStepModel();
 		mmodel.setName("fred");
 
 		assertEquals(  // Concise.
@@ -308,10 +308,10 @@ public class PyExpresserTest {
 	@Test
 	public void testMultiStepModelOneStep() throws Exception{
 
-		MultiStepModel mmodel = new MultiStepModel();
+		AxialMultiStepModel mmodel = new AxialMultiStepModel();
 		mmodel.setName("fred");
 
-		StepModel smodel = new StepModel();
+		AxialStepModel smodel = new AxialStepModel();
 		smodel.setStart(0);
 		smodel.setStop(10);
 		smodel.setStep(1);
@@ -329,17 +329,17 @@ public class PyExpresserTest {
 	@Test
 	public void testMultiStepModelTwoSteps() throws Exception{
 
-		MultiStepModel mmodel = new MultiStepModel();
+		AxialMultiStepModel mmodel = new AxialMultiStepModel();
 		mmodel.setName("fred");
 
-		StepModel smodel = new StepModel();
+		AxialStepModel smodel = new AxialStepModel();
 		smodel.setStart(0);
 		smodel.setStop(10);
 		smodel.setStep(1);
 		smodel.setName("fred");
 		mmodel.addStepModel(smodel);
 
-		smodel = new StepModel();
+		smodel = new AxialStepModel();
 		smodel.setStart(20);
 		smodel.setStop(30);
 		smodel.setStep(2);
@@ -366,7 +366,7 @@ public class PyExpresserTest {
 		bbox.setxAxisLength(10);
 		bbox.setyAxisLength(11);
 
-		GridModel gmodel = new GridModel();
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
 		gmodel.setxAxisName("myFast");
 		gmodel.setyAxisName("mySlow");
 		gmodel.setBoundingBox(bbox);
@@ -392,7 +392,7 @@ public class PyExpresserTest {
 		bbox.setxAxisLength(10);
 		bbox.setyAxisLength(11);
 
-		GridModel gmodel = new GridModel();
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
 		gmodel.setxAxisName("p");
 		gmodel.setyAxisName("q");
 		gmodel.setBoundingBox(bbox);
@@ -460,7 +460,7 @@ public class PyExpresserTest {
 		bbox.setxAxisLength(10);
 		bbox.setyAxisLength(11);
 
-		RasterModel rmodel = new RasterModel();
+		TwoAxisGridStepModel rmodel = new TwoAxisGridStepModel();
 		rmodel.setxAxisName("myFast");
 		rmodel.setyAxisName("mySlow");
 		rmodel.setBoundingBox(bbox);
@@ -480,7 +480,7 @@ public class PyExpresserTest {
 	@Test
 	public void testArrayModel() throws Exception {
 
-		ArrayModel amodel = new ArrayModel();
+		AxialArrayModel amodel = new AxialArrayModel();
 		amodel.setName("fred");
 		amodel.setPositions(0.1);
 

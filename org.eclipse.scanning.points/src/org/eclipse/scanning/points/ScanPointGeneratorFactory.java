@@ -12,7 +12,7 @@
 
 package org.eclipse.scanning.points;
 
-import org.eclipse.scanning.api.points.ScanPointIterator;
+import org.eclipse.scanning.api.points.PPointGenerator;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.python.core.PyObject;
 
@@ -36,7 +36,7 @@ public class ScanPointGeneratorFactory {
 			@Override
 			public void run() {
 				// Loading one causes Jython to class load.
-				ScanPointGeneratorFactory.JLineGenerator1DFactory();
+				ScanPointGeneratorFactory.JOneAxisLineGeneratorFactory();
 			}
 		};
 		background.setDaemon(true);
@@ -53,32 +53,40 @@ public class ScanPointGeneratorFactory {
 	// These are the constructors for each Jython SPG interface. To add a new one just replace,
 	// for example, "JArrayGenerator" with your new class and give the constructor a new name
 	// like "<YourClass>Factory"
-    public static JythonObjectFactory<ScanPointIterator> JLineGenerator1DFactory() {
-        return new JythonObjectFactory<>(ScanPointIterator.class, "jython_spg_interface", "JLineGenerator1D");
+    public static JythonObjectFactory<PPointGenerator> JOneAxisLineGeneratorFactory() {
+        return new JythonObjectFactory<>(PPointGenerator.class, "jython_spg_interface", "JLineGenerator1D");
     }
 
-	public static JythonObjectFactory<ScanPointIterator> JLineGenerator2DFactory() {
-        return new JythonObjectFactory<>(ScanPointIterator.class, "jython_spg_interface", "JLineGenerator2D");
+	public static JythonObjectFactory<PPointGenerator> JTwoAxisLineGeneratorFactory() {
+        return new JythonObjectFactory<>(PPointGenerator.class, "jython_spg_interface", "JLineGenerator2D");
     }
 
-    public static JythonObjectFactory<ScanPointIterator> JArrayGeneratorFactory() {
-        return new JythonObjectFactory<>(ScanPointIterator.class, "jython_spg_interface", "JArrayGenerator");
+    public static JythonObjectFactory<PPointGenerator> JOneAxisArrayGeneratorFactory() {
+        return new JythonObjectFactory<>(PPointGenerator.class, "jython_spg_interface", "JArrayGenerator");
     }
 
-	public static JythonObjectFactory<ScanPointIterator> JStaticGeneratorFactory() {
-		return new JythonObjectFactory<>(ScanPointIterator.class, "jython_spg_interface", "JStaticPointGenerator");
+	public static JythonObjectFactory<PPointGenerator> JStaticGeneratorFactory() {
+		return new JythonObjectFactory<>(PPointGenerator.class, "jython_spg_interface", "JStaticPointGenerator");
 	}
 
-	public static JythonObjectFactory<ScanPointIterator> JSpiralGeneratorFactory() {
-        return new JythonObjectFactory<>(ScanPointIterator.class, "jython_spg_interface", "JSpiralGenerator");
+	public static JythonObjectFactory<PPointGenerator> JTwoAxisSpiralGeneratorFactory() {
+        return new JythonObjectFactory<>(PPointGenerator.class, "jython_spg_interface", "JSpiralGenerator");
     }
 
-    public static JythonObjectFactory<ScanPointIterator> JLissajousGeneratorFactory() {
-        return new JythonObjectFactory<>(ScanPointIterator.class, "jython_spg_interface", "JLissajousGenerator");
+    public static JythonObjectFactory<PPointGenerator> JTwoAxisLissajousGeneratorFactory() {
+        return new JythonObjectFactory<>(PPointGenerator.class, "jython_spg_interface", "JLissajousGenerator");
     }
 
-    public static JythonObjectFactory<ScanPointIterator> JCompoundGeneratorFactory() {
-        return new JythonObjectFactory<>(ScanPointIterator.class, "jython_spg_interface", "JCompoundGenerator");
+    public static JythonObjectFactory<PPointGenerator> JConcatGeneratorFactory(){
+        return new JythonObjectFactory<>(PPointGenerator.class, "jython_spg_interface", "JConcatGenerator");
+    }
+
+    public static JythonObjectFactory<PPointGenerator> JZipGeneratorFactory(){
+        return new JythonObjectFactory<>(PPointGenerator.class, "jython_spg_interface", "JZipGenerator");
+    }
+
+    public static JythonObjectFactory<PPointGenerator> JCompoundGeneratorFactory() {
+        return new JythonObjectFactory<>(PPointGenerator.class, "jython_spg_interface", "JCompoundGenerator");
     }
 
     public static JythonObjectFactory<PyObject> JRandomOffsetMutatorFactory() {

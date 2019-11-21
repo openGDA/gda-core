@@ -40,6 +40,7 @@ Export-Package: org.eclipse.scanning.api,
  org.eclipse.scanning.api.ui,
  org.eclipse.scanning.api.ui.auto
 Import-Package: org.eclipse.dawnsci.analysis.api.roi,
+ org.python.core;version="2.7.1",
  org.slf4j
 Automatic-Module-Name: org.eclipse.scanning.api
 Require-Bundle: org.eclipse.january;bundle-version="2.3.0"

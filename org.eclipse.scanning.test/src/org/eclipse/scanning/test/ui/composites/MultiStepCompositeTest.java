@@ -12,7 +12,7 @@ import org.eclipse.richbeans.binding.BeanService;
 import org.eclipse.richbeans.test.ui.ShellTest;
 import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
-import org.eclipse.scanning.api.points.models.MultiStepModel;
+import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
 import org.eclipse.scanning.device.ui.composites.MultiStepComposite;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.swt.SWT;
@@ -31,14 +31,14 @@ public class MultiStepCompositeTest extends ShellTest{
 	private IScannableDeviceService service;
 
 
-	private MultiStepModel     model;
+	private AxialMultiStepModel     model;
 	private MultiStepComposite ui;
-	private IBeanController<MultiStepModel>    controller;
+	private IBeanController<AxialMultiStepModel>    controller;
 
 	@Override
 	protected Shell createShell(Display display) throws Exception {
 
-		this.model = new MultiStepModel();
+		this.model = new AxialMultiStepModel();
 
 		Shell shell = new Shell(display);
 		shell.setText("Multi-Step");

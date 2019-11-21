@@ -37,10 +37,10 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.GridModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
-import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.BrokerTest;
@@ -91,21 +91,21 @@ public class LinearScanTest extends BrokerTest{
 	@Test
 	public void testWrappedLineScan() throws Exception {
 		LinearROI roi = new LinearROI(new double[]{0,0}, new double[]{3,3});
-		doScan(roi, 2, new int[]{4,10,64,64}, new StepModel("T", 290, 300, 3), create1DModel(10));
+		doScan(roi, 2, new int[]{4,10,64,64}, new AxialStepModel("T", 290, 300, 3), create1DModel(10));
 	}
 
 	@Test
 	public void testBigWrappedLineScan() throws Exception {
 		LinearROI roi = new LinearROI(new double[]{0,0}, new double[]{3,3});
-		doScan(roi, 5, new int[]{2,2,2,2,3,64,64}, new StepModel("T1", 290, 291, 1),
-				                                   new StepModel("T2", 290, 291, 1),
-                                                   new StepModel("T3", 290, 291, 1),
-                                                   new StepModel("T4", 290, 291, 1),
+		doScan(roi, 5, new int[]{2,2,2,2,3,64,64}, new AxialStepModel("T1", 290, 291, 1),
+				                                   new AxialStepModel("T2", 290, 291, 1),
+                                                   new AxialStepModel("T3", 290, 291, 1),
+                                                   new AxialStepModel("T4", 290, 291, 1),
                                                     create1DModel(3));
 	}
 
 	private IScanPathModel create1DModel(int size) {
-        OneDEqualSpacingModel model = new OneDEqualSpacingModel();
+        TwoAxisLinePointsModel model = new TwoAxisLinePointsModel();
         model.setPoints(size);
         model.setxAxisName("xNex");
         model.setyAxisName("yNex");
@@ -120,19 +120,19 @@ public class LinearScanTest extends BrokerTest{
 
 	@Test
 	public void testWrappedGridScan() throws Exception {
-		doScan(null, 3, new int[]{4,5,5,64,64}, new StepModel("T", 290, 300, 3), createGridModel());
+		doScan(null, 3, new int[]{4,5,5,64,64}, new AxialStepModel("T", 290, 300, 3), createGridModel());
 	}
 
 	@Test
 	public void testBigWrappedGridScan() throws Exception {
-		doScan(null,6, new int[]{2,2,2,2,2,2,64,64}, new StepModel("T1", 290, 291, 1),
-										             new StepModel("T2", 290, 291, 1),
-										             new StepModel("T3", 290, 291, 1),
-										             new StepModel("T4", 290, 291, 1),
+		doScan(null,6, new int[]{2,2,2,2,2,2,64,64}, new AxialStepModel("T1", 290, 291, 1),
+										             new AxialStepModel("T2", 290, 291, 1),
+										             new AxialStepModel("T3", 290, 291, 1),
+										             new AxialStepModel("T4", 290, 291, 1),
 										             createGridModel(2,2));
 	}
 
-	private GridModel createGridModel(int... size) {
+	private TwoAxisGridPointsModel createGridModel(int... size) {
 		if (size==null)    size = new int[]{5,5};
 		if (size.length<2) size = new int[]{5,5};
 		if (size.length>2) throw new IllegalArgumentException("Two values or no values should be provided!");
@@ -143,7 +143,7 @@ public class LinearScanTest extends BrokerTest{
 		box.setxAxisLength(3);
 		box.setyAxisLength(3);
 
-		GridModel model = new GridModel();
+		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel();
 		model.setyAxisPoints(size[0]);
 		model.setxAxisPoints(size[1]);
 		model.setBoundingBox(box);

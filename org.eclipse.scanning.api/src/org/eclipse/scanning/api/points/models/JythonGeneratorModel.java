@@ -130,4 +130,11 @@ public class JythonGeneratorModel extends AbstractPointsModel {
 		if (arguments==null) arguments = new ArrayList<>();
 		arguments.add(jythonArgument);
 	}
+
+
+	@Override
+	public int size() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

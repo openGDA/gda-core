@@ -22,7 +22,7 @@ import java.util.List;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +41,7 @@ public class CompoundTestLarge {
 
 		List<IPointGenerator<?>> gens = new ArrayList<>(20);
 		for (int i = 0; i < 24; i++) {
-			IPointGenerator<StepModel> two = service.createGenerator(new StepModel("Temperature"+i, 290,291,1));
+			IPointGenerator<AxialStepModel> two = service.createGenerator(new AxialStepModel("Temperature"+i, 290,291,1));
 			assertEquals(2, two.size());
 			assertEquals(1, two.getRank());
 			assertArrayEquals(new int[] { 2 }, two.getShape());

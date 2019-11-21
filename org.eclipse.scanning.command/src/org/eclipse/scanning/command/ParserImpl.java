@@ -16,10 +16,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.IParserResult;
 
-class ParserImpl implements IParserResult<StepModel> {
+class ParserImpl implements IParserResult<AxialStepModel> {
 
 	static {
 		System.out.println("Started Parser Service");
@@ -27,7 +27,7 @@ class ParserImpl implements IParserResult<StepModel> {
 
 	private final String command;
 
-	private Map<String, StepModel> scannables;
+	private Map<String, AxialStepModel> scannables;
 
 	private Map<String, Number> detectorExposures;
 
@@ -35,7 +35,7 @@ class ParserImpl implements IParserResult<StepModel> {
 		this.command = command;
 	}
 
-	protected void setScannables(LinkedHashMap<String, StepModel> scannables) {
+	protected void setScannables(LinkedHashMap<String, AxialStepModel> scannables) {
 		this.scannables = scannables;
 	}
 
@@ -64,7 +64,7 @@ class ParserImpl implements IParserResult<StepModel> {
 	}
 
 	@Override
-	public StepModel getModel(String scannableName) {
+	public AxialStepModel getModel(String scannableName) {
 		return scannables.get(scannableName);
 	}
 

@@ -44,8 +44,8 @@ import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.GridModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.event.queue.IPersistentModifiableIdQueue;
 import org.eclipse.scanning.event.queue.SynchronizedModifiableIdQueue;
@@ -352,8 +352,8 @@ public class SynchronizedModifiableIdQueueTest {
 	}
 
 	private ScanBean getScanBean() {
-		StepModel stepModel = new StepModel("energy", 10, 20, 2);
-		GridModel gridModel = new GridModel("x", "y", 10, 20);
+		AxialStepModel stepModel = new AxialStepModel("energy", 10, 20, 2);
+		TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel("x", "y", 10, 20);
 		gridModel.setBoundingBox(new BoundingBox(0, 0, 7.5, 12.2));
 		CompoundModel model = new CompoundModel(Arrays.asList(stepModel, gridModel));
 		ScanRequest request = new ScanRequest();

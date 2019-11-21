@@ -21,8 +21,8 @@ import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.GridModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
@@ -62,7 +62,7 @@ public class ScanWithNoNexusFileTest extends NexusTest {
 	private IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<?> detector, File file, int... size) throws Exception {
 
 		// Create scan points for a grid and make a generator
-		GridModel gmodel = new GridModel();
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
 		gmodel.setxAxisName("xNex");
 		gmodel.setxAxisPoints(size[size.length-1]);
 		gmodel.setyAxisName("yNex");
@@ -75,11 +75,11 @@ public class ScanWithNoNexusFileTest extends NexusTest {
 		// We add the outer scans, if any
 		if (size.length > 2) {
 			for (int dim = size.length-3; dim>-1; dim--) {
-				final StepModel model;
+				final AxialStepModel model;
 				if (size[dim]-1>0) {
-				    model = new StepModel("neXusScannable"+(dim+1), 10,20,9.99d/(size[dim]-1));
+				    model = new AxialStepModel("neXusScannable"+(dim+1), 10,20,9.99d/(size[dim]-1));
 				} else {
-					model = new StepModel("neXusScannable"+(dim+1), 10,20,30); // Will generate one value at 10
+					model = new AxialStepModel("neXusScannable"+(dim+1), 10,20,30); // Will generate one value at 10
 				}
 				final IPointGenerator<?> step = pointGenService.createGenerator(model);
 				gens[dim] = step;

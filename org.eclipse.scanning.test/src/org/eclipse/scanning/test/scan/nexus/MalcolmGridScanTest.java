@@ -16,8 +16,8 @@ import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.GridModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
@@ -84,7 +84,7 @@ public class MalcolmGridScanTest extends AbstractMalcolmScanTest {
 	private IRunnableDevice<ScanModel> createMalcolmGridScan(final IMalcolmDevice malcolmDevice, File file, boolean snake, int... size) throws Exception {
 
 		// Create scan points for a grid and make a generator
-		GridModel gmodel = new GridModel(); // Note stage_x and stage_y scannables controlled by malcolm
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel(); // Note stage_x and stage_y scannables controlled by malcolm
 		gmodel.setxAxisName("stage_x");
 		gmodel.setxAxisPoints(size[size.length-1]);
 		gmodel.setyAxisName("stage_y");
@@ -97,11 +97,11 @@ public class MalcolmGridScanTest extends AbstractMalcolmScanTest {
 		IPointGenerator<?>[] gens = new IPointGenerator<?>[size.length - 1];
 		if (size.length > 2) {
 			for (int dim = size.length - 3; dim > -1; dim--) {
-				final StepModel model;
+				final AxialStepModel model;
 				if (size[dim]-1>0) {
-					model = new StepModel("neXusScannable"+(dim+1), 10,20,9.99d/(size[dim]-1));
+					model = new AxialStepModel("neXusScannable"+(dim+1), 10,20,9.99d/(size[dim]-1));
 				} else {
-					model = new StepModel("neXusScannable"+(dim+1), 10,20,30);
+					model = new AxialStepModel("neXusScannable"+(dim+1), 10,20,30);
 				}
 				final IPointGenerator<?> step = pointGenService.createGenerator(model);
 				gens[dim] = step;

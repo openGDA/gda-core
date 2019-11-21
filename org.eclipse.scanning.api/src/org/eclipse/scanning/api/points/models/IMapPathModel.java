@@ -45,16 +45,4 @@ public interface IMapPathModel extends IScanPathModel {
 	public String getyAxisUnits();
 	public void setyAxisUnits(String units);
 
-	/**
-	 * If <code>true</code> the scan is continuous if possible, i.e. the motors continue to move while the detectors
-	 * are exposed, if <code>false</code> the motors stop at each point for the detectors are exposed.
-	 * For a scan to be continous, generally it must done by malcolm device, i.e. for a GDA point of view the
-	 * scan contains exactly one runnable device and that must be a malcolm device. Additionally continuous scanning
-	 * is only possible for certain path models, e.g. {@link GridModel}, where even then the scan will only
-	 * be continuous in the fast axis, and step in the slow axis, where the x-axis is the fast axis by default.
-	 * @return <code>true</code> if the scan should be continuous, <code>false</code> otherwise.
-	 */
-	public boolean isContinuous();
-	public void setContinuous(boolean continuous);
-
 }

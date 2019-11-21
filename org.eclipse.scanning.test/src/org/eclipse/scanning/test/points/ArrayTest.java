@@ -18,25 +18,25 @@ import java.util.List;
 
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Scalar;
-import org.eclipse.scanning.api.points.models.ArrayModel;
-import org.eclipse.scanning.points.ArrayGenerator;
+import org.eclipse.scanning.api.points.models.AxialArrayModel;
+import org.eclipse.scanning.points.AxialArrayGenerator;
 import org.junit.Before;
 import org.junit.Test;
 
 public class ArrayTest {
 
-	private ArrayGenerator generator;
+	private AxialArrayGenerator generator;
 
 	@Before
 	public void before() throws Exception {
 
 		double[] positions = new double[] {1.0, 2.0 ,3.0, 4.0, 5.0};
 
-		ArrayModel model = new ArrayModel();
+		AxialArrayModel model = new AxialArrayModel();
 		model.setPositions(positions);
 		model.setName("x");
 
-		generator = new ArrayGenerator();
+		generator = new AxialArrayGenerator();
 		generator.setModel(model);
 	}
 

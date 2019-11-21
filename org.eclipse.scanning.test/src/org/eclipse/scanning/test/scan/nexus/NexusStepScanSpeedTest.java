@@ -25,7 +25,7 @@ import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
@@ -49,7 +49,7 @@ public class NexusStepScanSpeedTest extends NexusTest {
 
 	private static EventServiceImpl eservice;
 	private static BrokerDelegate delegate;
-	private IPointGenerator<StepModel> gen;
+	private IPointGenerator<AxialStepModel> gen;
 
 	@BeforeClass
     public static void createEventService() throws Exception {
@@ -70,7 +70,7 @@ public class NexusStepScanSpeedTest extends NexusTest {
 		// We write a nexus file to ensure that the library is loaded
 		File file = File.createTempFile("test_nexus", ".nxs");
 		file.deleteOnExit();
-		IPointGenerator<StepModel> gen = pointGenService.createGenerator(new StepModel("xNex", 0, 3, 1));
+		IPointGenerator<AxialStepModel> gen = pointGenService.createGenerator(new AxialStepModel("xNex", 0, 3, 1));
 		final IRunnableDevice<ScanModel> scan = runnableDeviceService.createRunnableDevice(new ScanModel(gen, file));
 		scan.run(null);
 
@@ -83,7 +83,7 @@ public class NexusStepScanSpeedTest extends NexusTest {
 
 	@Before
 	public void before() throws GeneratorException, IOException {
-		this.gen = pointGenService.createGenerator(new StepModel("xNex", 0, 1000, 1));
+		this.gen = pointGenService.createGenerator(new AxialStepModel("xNex", 0, 1000, 1));
 	}
 
 	@Test

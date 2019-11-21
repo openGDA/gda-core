@@ -24,9 +24,9 @@ import java.util.Map;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.GridModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.process.IPreprocessor;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.preprocess.ExamplePreprocessor;
@@ -50,7 +50,7 @@ public class PreprocessTest {
 		req = preprocessor.preprocess(req);
 		assertNotNull(req);
 
-		StepModel step = (StepModel)req.getCompoundModel().getModels().toArray()[0];
+		AxialStepModel step = (AxialStepModel)req.getCompoundModel().getModels().toArray()[0];
 		assertTrue(step.getName().equals("xfred"));
 	}
 
@@ -61,7 +61,7 @@ public class PreprocessTest {
 		req = preprocessor.preprocess(req);
 		assertNotNull(req);
 
-		GridModel grid = (GridModel)req.getCompoundModel().getModels().toArray()[0];
+		TwoAxisGridPointsModel grid = (TwoAxisGridPointsModel)req.getCompoundModel().getModels().toArray()[0];
 		assertTrue(grid.getxAxisName().equals("xfred"));
 		assertTrue(grid.getyAxisName().equals("yfred"));
 	}
@@ -79,7 +79,7 @@ public class PreprocessTest {
 	private ScanRequest createStepRequest() throws IOException {
 
 		final ScanRequest req = new ScanRequest();
-		req.setCompoundModel(new CompoundModel(new StepModel("fred", 0, 9, 1)));
+		req.setCompoundModel(new CompoundModel(new AxialStepModel("fred", 0, 9, 1)));
 		req.setMonitorNamesPerPoint(Arrays.asList("monitor"));
 
 		final MockDetectorModel dmodel = new MockDetectorModel();
@@ -101,7 +101,7 @@ public class PreprocessTest {
 		box.setxAxisLength(3);
 		box.setyAxisLength(3);
 
-		GridModel gmodel = new GridModel();
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
 		gmodel.setyAxisPoints(5);
 		gmodel.setxAxisPoints(5);
 		gmodel.setBoundingBox(box);
@@ -111,7 +111,7 @@ public class PreprocessTest {
 		// 2 models
 		List<IScanPathModel> models = new ArrayList<>(outerScanNum+1);
 		for (int i = 0; i < outerScanNum; i++) {
-			models.add(new StepModel("neXusScannable"+i, 1, 2, 1));
+			models.add(new AxialStepModel("neXusScannable"+i, 1, 2, 1));
 		}
 		models.add(gmodel);
 		req.setCompoundModel(new CompoundModel(models));
@@ -147,7 +147,7 @@ public class PreprocessTest {
 		box.setxAxisLength(3);
 		box.setyAxisLength(3);
 
-		GridModel gmodel = new GridModel();
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
 		gmodel.setyAxisPoints(5);
 		gmodel.setxAxisPoints(5);
 		gmodel.setBoundingBox(box);

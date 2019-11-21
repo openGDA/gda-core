@@ -14,6 +14,7 @@ package org.eclipse.scanning.points;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.GeneratorException;
+import org.eclipse.scanning.api.points.PPointGenerator;
 import org.eclipse.scanning.api.points.ScanPointIterator;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
@@ -35,23 +36,13 @@ class StaticGenerator extends AbstractGenerator<StaticModel> {
 
 	@Override
 	protected void validateModel() {
+		super.validateModel();
 		if (model.getSize() < 1) throw new ModelValidationException("Size must be greater than zero!", model, "size");
-		if (model.isContinuous()) {
-			throw new ModelValidationException("StaticModels cannot be continuous!", model, "continuous");
-		}
-		if (model.isAlternating()) {
-			throw new ModelValidationException("StaticModels cannot be alternating!", model, "continuous");
-		}
 	}
 
 	@Override
 	protected ScanPointIterator iteratorFromValidModel() {
-		final JythonObjectFactory<ScanPointIterator> staticGeneratorFactory = ScanPointGeneratorFactory.JStaticGeneratorFactory();
-
-		final int numPoints = model.getSize();
-
-		final ScanPointIterator pyIterator = staticGeneratorFactory.createObject(numPoints);
-		return new SpgIterator(pyIterator);
+		return createPythonPointGenerator().getPointIterator();
 	}
 
 	// Users to not edit the StaticGenerator
@@ -61,12 +52,16 @@ class StaticGenerator extends AbstractGenerator<StaticModel> {
 	}
 
 	@Override
-	public boolean isScanPointGeneratorFactory() {
-		return true;
+	public int[] getShape() throws GeneratorException {
+		return model.getSize() == 1 ? EMPTY_SHAPE : new int[] { model.getSize() };
 	}
 
 	@Override
-	public int[] getShape() throws GeneratorException {
-		return model.getSize() == 1 ? EMPTY_SHAPE : new int[] { model.getSize() };
+	public PPointGenerator createPythonPointGenerator() {
+		final JythonObjectFactory<PPointGenerator> staticGeneratorFactory = ScanPointGeneratorFactory.JStaticGeneratorFactory();
+
+		final int numPoints = model.getSize();
+
+		return staticGeneratorFactory.createObject(numPoints);
 	}
 }

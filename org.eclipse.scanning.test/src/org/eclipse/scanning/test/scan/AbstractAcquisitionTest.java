@@ -36,9 +36,9 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.GridModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
@@ -120,12 +120,12 @@ public abstract class AbstractAcquisitionTest {
 		if (dims>2) {
 			for (int i = dims; i>2; i--) {
 				String axisName = axisNames != null ? axisNames.get(i - 1) : "T" + i;
-				models.add(new StepModel(axisName, 290, 292, 1));
+				models.add(new AxialStepModel(axisName, 290, 292, 1));
 			}
 		}
 		// Create scan points for a grid and make a generator
 		if (axisNames==null) axisNames = Arrays.asList("x", "y");
-		GridModel gmodel = new GridModel(axisNames.get(0), axisNames.get(1));
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel(axisNames.get(0), axisNames.get(1));
 		gmodel.setyAxisPoints(5);
 		gmodel.setxAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));

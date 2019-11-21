@@ -29,7 +29,7 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.GridModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
@@ -107,12 +107,12 @@ public class MappingScanTest extends BrokerTest{
 		box.setxAxisLength(5);
 		box.setyAxisLength(2);
 
-		final GridModel model = new GridModel("x", "y");
+		final TwoAxisGridPointsModel model = new TwoAxisGridPointsModel("x", "y");
 		model.setyAxisPoints(2);
 		model.setxAxisPoints(5);
 		model.setBoundingBox(box);
 
-		IPointGenerator<GridModel> gen = gservice.createGenerator(model);
+		IPointGenerator<TwoAxisGridPointsModel> gen = gservice.createGenerator(model);
 
 		// Outer loop temperature, will be scan command driven when sequencer exists.
 		bean.setDeviceState(DeviceState.CONFIGURING);
@@ -138,7 +138,7 @@ public class MappingScanTest extends BrokerTest{
 		assertTrue(gotBack.get(gotBack.size() - 1).scanEnd());
 	}
 
-	private void testDeviceScan(ScanBean bean, IPointGenerator<GridModel> gen) throws Exception {
+	private void testDeviceScan(ScanBean bean, IPointGenerator<TwoAxisGridPointsModel> gen) throws Exception {
 
 
 		bean.setDeviceState(DeviceState.RUNNING);

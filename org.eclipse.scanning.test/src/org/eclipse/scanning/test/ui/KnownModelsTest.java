@@ -18,13 +18,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.richbeans.test.ui.ShellTest;
-import org.eclipse.scanning.api.points.models.ArrayModel;
-import org.eclipse.scanning.api.points.models.CollatedStepModel;
-import org.eclipse.scanning.api.points.models.GridModel;
-import org.eclipse.scanning.api.points.models.LissajousModel;
-import org.eclipse.scanning.api.points.models.RasterModel;
-import org.eclipse.scanning.api.points.models.SpiralModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.AxialArrayModel;
+import org.eclipse.scanning.api.points.models.AxialCollatedStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.ui.auto.IInterfaceService;
 import org.eclipse.scanning.api.ui.auto.IModelViewer;
 import org.eclipse.scanning.device.ui.model.InterfaceService;
@@ -107,13 +107,13 @@ public class KnownModelsTest extends ShellTest{
 
 	private List<ModelTest> createTestPointsModels() {
 		List<ModelTest> models = new ArrayList<>();
-		models.add(new ModelTest(new StepModel("x", 0, 10, 1), 6));
-		models.add(new ModelTest(new CollatedStepModel(0, 10, 1, "x1", "y1"), 7));
-		models.add(new ModelTest(new ArrayModel(0,1,2,3,4,5,6,7,8,9), 3));
-		models.add(new ModelTest(new GridModel("x", "y"), 10));
-		models.add(new ModelTest(new RasterModel("x", "y"), 10));
-		models.add(new ModelTest(new SpiralModel("x", "y", 2, null), 8));
-		models.add(new ModelTest(new LissajousModel(), 10));
+		models.add(new ModelTest(new AxialStepModel("x", 0, 10, 1), 6));
+		models.add(new ModelTest(new AxialCollatedStepModel(0, 10, 1, "x1", "y1"), 7));
+		models.add(new ModelTest(new AxialArrayModel(0,1,2,3,4,5,6,7,8,9), 3));
+		models.add(new ModelTest(new TwoAxisGridPointsModel("x", "y"), 10));
+		models.add(new ModelTest(new TwoAxisGridStepModel("x", "y"), 10));
+		models.add(new ModelTest(new TwoAxisSpiralModel("x", "y", 2, null), 8));
+		models.add(new ModelTest(new TwoAxisLissajousModel(), 10));
 		return models;
 	}
 

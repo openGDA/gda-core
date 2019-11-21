@@ -24,7 +24,7 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Point;
-import org.eclipse.scanning.api.points.models.GridModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +45,7 @@ public class GridTestLarge {
 		CircularROI roi = new CircularROI(500, 500, 500);
 
 		// Create a raster scan path
-		GridModel model = new GridModel();
+		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel();
 		model.setyAxisPoints(3162);
 		model.setxAxisPoints(3162);
 
@@ -59,7 +59,7 @@ public class GridTestLarge {
 		RectangularROI roi = new RectangularROI(0, 0, 1000, 10000, 0);
 
 		// Create a raster scan path
-		GridModel model = new GridModel();
+		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel();
 		model.setyAxisPoints(1000);
 		model.setxAxisPoints(10000);
 
@@ -67,12 +67,12 @@ public class GridTestLarge {
 	}
 
 
-	private void testIteratorTime(GridModel model, IROI roi, int size, long tenMilTime) throws Exception {
+	private void testIteratorTime(TwoAxisGridPointsModel model, IROI roi, int size, long tenMilTime) throws Exception {
 
 		long start = System.currentTimeMillis();
 
 		// Get the point list
-		IPointGenerator<GridModel> gen = service.createGenerator(model, roi);
+		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model, roi);
         Iterator<IPosition>       it  = gen.iterator();
 
 		long after1 = System.currentTimeMillis();
@@ -112,12 +112,12 @@ public class GridTestLarge {
 		RectangularROI boundingRectangle = new RectangularROI(0, 0, 1000, 10000, 0);
 
 		// Create a raster scan path
-		GridModel gridScanPath = new GridModel();
+		TwoAxisGridPointsModel gridScanPath = new TwoAxisGridPointsModel();
 		gridScanPath.setyAxisPoints(1000);
 		gridScanPath.setxAxisPoints(10000);
 
 		// Get the point list
-		IPointGenerator<GridModel> gen = service.createGenerator(gridScanPath, boundingRectangle);
+		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(gridScanPath, boundingRectangle);
 		List<IPosition> points = gen.createPoints();
 
 		assertEquals(10000000, points.size());

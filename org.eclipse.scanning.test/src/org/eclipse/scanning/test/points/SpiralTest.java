@@ -21,7 +21,7 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Point;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.SpiralModel;
+import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -36,11 +36,11 @@ public class SpiralTest extends AbstractGeneratorTest {
 		box.setxAxisLength(3);
 		box.setyAxisLength(4);
 
-		SpiralModel model = new SpiralModel("x", "y");
+		TwoAxisSpiralModel model = new TwoAxisSpiralModel("x", "y");
 		model.setBoundingBox(box);
 
 		// Get the point list
-		IPointGenerator<SpiralModel> generator = service.createGenerator(model);
+		IPointGenerator<TwoAxisSpiralModel> generator = service.createGenerator(model);
 
 		final int expectedSize = 20;
 		assertEquals(expectedSize, generator.size());
@@ -66,7 +66,7 @@ public class SpiralTest extends AbstractGeneratorTest {
 		box.setxAxisLength(3);
 		box.setyAxisLength(4);
 
-		SpiralModel model = new SpiralModel("x", "y");
+		TwoAxisSpiralModel model = new TwoAxisSpiralModel("x", "y");
 		model.setBoundingBox(box);
 
 		checkWrtCompound(model, null, 20);
@@ -79,7 +79,7 @@ public class SpiralTest extends AbstractGeneratorTest {
 	public void testSpiralWrtCompound() throws Exception {
 
 		RectangularROI roi = new RectangularROI(28.5684, 24.0729, 50.4328, 54.2378, 0.0);
-		SpiralModel model = new SpiralModel("x", "y");
+		TwoAxisSpiralModel model = new TwoAxisSpiralModel("x", "y");
 		model.setScale(2.0);
 
         checkWrtCompound(model, roi, 682);

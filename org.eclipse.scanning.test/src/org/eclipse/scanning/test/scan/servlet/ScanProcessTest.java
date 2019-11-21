@@ -74,9 +74,9 @@ import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.points.ScanPointIterator;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.GridModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositioner;
 import org.eclipse.scanning.api.scan.models.ScanModel;
@@ -135,7 +135,7 @@ public class ScanProcessTest {
 		// Arrange
 		final ScanBean scanBean = new ScanBean();
 		final ScanRequest scanRequest = new ScanRequest();
-		scanRequest.setCompoundModel(new CompoundModel(new StepModel("xNex", 0, 9, 1)));
+		scanRequest.setCompoundModel(new CompoundModel(new AxialStepModel("xNex", 0, 9, 1)));
 
 		final ScriptRequest before = new ScriptRequest();
 		before.setFile("/path/to/before.py");
@@ -169,7 +169,7 @@ public class ScanProcessTest {
 		final ScanBean scanBean = new ScanBean();
 		final ScanRequest scanRequest = new ScanRequest();
 
-		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new StepModel("T", 290, 291, 2), new GridModel("xNex", "yNex", 2, 2)));
+		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new AxialStepModel("T", 290, 291, 2), new TwoAxisGridPointsModel("xNex", "yNex", 2, 2)));
 		cmodel.setRegions(Arrays.asList(new ScanRegion(new RectangularROI(0, 0, 3, 3, 0), "xNex", "yNex")));
 		scanRequest.setCompoundModel(cmodel);
 
@@ -289,7 +289,7 @@ public class ScanProcessTest {
 		final ScanBean scanBean = new ScanBean();
 		final ScanRequest scanRequest = new ScanRequest();
 		scanBean.setScanRequest(scanRequest);
-		scanRequest.setCompoundModel(new CompoundModel(new StepModel("xNex", 0, 9, 1)));
+		scanRequest.setCompoundModel(new CompoundModel(new AxialStepModel("xNex", 0, 9, 1)));
 
 		final ScriptRequest beforeScript = new ScriptRequest();
 		beforeScript.setFile("/path/to/before.py");
@@ -574,7 +574,7 @@ public class ScanProcessTest {
 		final ScanBean scanBean = new ScanBean();
 		final ScanRequest scanRequest = new ScanRequest();
 
-		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new StepModel("T", 290, 300, 2), new GridModel("xNex", "yNex", 2, 2)));
+		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new AxialStepModel("T", 290, 300, 2), new TwoAxisGridPointsModel("xNex", "yNex", 2, 2)));
 		cmodel.setRegions(Arrays.asList(new ScanRegion(new RectangularROI(0, 0, 3, 3, 0), "xNex", "yNex")));
 		scanRequest.setCompoundModel(cmodel);
 
@@ -621,7 +621,7 @@ public class ScanProcessTest {
 		// Arrange
 		final ScanBean scanBean = new ScanBean();
 		final ScanRequest scanRequest = new ScanRequest();
-		scanRequest.setCompoundModel(new CompoundModel(new StepModel("xNex", 0, 9, 1)));
+		scanRequest.setCompoundModel(new CompoundModel(new AxialStepModel("xNex", 0, 9, 1)));
 
 		final MapPosition start = new MapPosition();
 		start.put("p", 1.0);
@@ -669,7 +669,7 @@ public class ScanProcessTest {
 
 		ScanBean scanBean = new ScanBean();
 		ScanRequest scanRequest = new ScanRequest();
-		scanRequest.setCompoundModel(new CompoundModel(new StepModel("xNex", 0, 9, 1)));
+		scanRequest.setCompoundModel(new CompoundModel(new AxialStepModel("xNex", 0, 9, 1)));
 		scanRequest.setTemplateFilePaths(new HashSet<>(Arrays.asList(templateFilePaths)));
 
 		scanBean.setScanRequest(scanRequest);
@@ -704,7 +704,7 @@ public class ScanProcessTest {
 
 	public void testMalcolmValidation(boolean valid) throws Exception {
 		// Arrange
-		final GridModel gmodel = new GridModel();
+		final TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
 		gmodel.setxAxisName("stage_x");
 		gmodel.setxAxisPoints(5);
 		gmodel.setyAxisName("stage_y");

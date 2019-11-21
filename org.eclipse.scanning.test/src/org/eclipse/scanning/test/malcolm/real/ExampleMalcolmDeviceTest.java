@@ -57,7 +57,7 @@ import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.SpiralModel;
+import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.connector.epics.MalcolmEpicsV4Connection;
 import org.eclipse.scanning.example.malcolm.IEPICSv4Device;
@@ -333,10 +333,10 @@ public class ExampleMalcolmDeviceTest {
 		regions.add(new CircularROI(2, 0, 0));
 		regions.add(new CircularROI(4, -1, -2));
 
-		SpiralModel spiral = new SpiralModel("stage_x", "stage_y", 1, new BoundingBox(0, -5, 8, 3));
+		TwoAxisSpiralModel spiral = new TwoAxisSpiralModel("stage_x", "stage_y", 1, new BoundingBox(0, -5, 8, 3));
 		spiral.setContinuous(false);
 
-		IPointGenerator<SpiralModel> spiralGen = pointGenService.createGenerator(
+		IPointGenerator<TwoAxisSpiralModel> spiralGen = pointGenService.createGenerator(
 				spiral, regions);
 		IPointGenerator<?> pointGen = pointGenService.createCompoundGenerator(spiralGen);
 

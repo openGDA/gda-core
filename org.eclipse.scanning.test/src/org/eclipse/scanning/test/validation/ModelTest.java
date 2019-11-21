@@ -21,10 +21,10 @@ import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
-import org.eclipse.scanning.api.points.models.LissajousModel;
-import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
-import org.eclipse.scanning.api.points.models.OneDStepModel;
-import org.eclipse.scanning.api.points.models.SinglePointModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.points.validation.ValidatorService;
@@ -35,11 +35,11 @@ public class ModelTest extends AbstractValidationTest {
 	private static Collection<Class<?>> COMPLETE_MODELS; // Models that come complete when they are created with a no-arg constructor
 	static {
 		COMPLETE_MODELS = new ArrayList<>();
-		COMPLETE_MODELS.add(LissajousModel.class);
+		COMPLETE_MODELS.add(TwoAxisLissajousModel.class);
 		COMPLETE_MODELS.add(StaticModel.class);
-		COMPLETE_MODELS.add(OneDEqualSpacingModel.class);
-		COMPLETE_MODELS.add(OneDStepModel.class);
-		COMPLETE_MODELS.add(SinglePointModel.class);
+		COMPLETE_MODELS.add(TwoAxisLinePointsModel.class);
+		COMPLETE_MODELS.add(TwoAxisLineStepModel.class);
+		COMPLETE_MODELS.add(TwoAxisPointSingleModel.class);
 	}
 
 	@Test

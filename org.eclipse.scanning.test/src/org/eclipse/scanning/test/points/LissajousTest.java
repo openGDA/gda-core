@@ -18,8 +18,8 @@ import java.util.List;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Point;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.LissajousModel;
-import org.eclipse.scanning.points.LissajousGenerator;
+import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
+import org.eclipse.scanning.points.TwoAxisLissajousGenerator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -28,7 +28,7 @@ import org.junit.Test;
 @Ignore("DAQ-2088 Tests have not been implemented")
 public class LissajousTest {
 
-	private LissajousGenerator generator;
+	private TwoAxisLissajousGenerator generator;
 
 	@Before
 	public void before() throws Exception {
@@ -39,11 +39,11 @@ public class LissajousTest {
 		box.setxAxisLength(3);
 		box.setyAxisLength(4);
 
-		LissajousModel model = new LissajousModel();
+		TwoAxisLissajousModel model = new TwoAxisLissajousModel();
 		model.setBoundingBox(box);
 		// use default parameters
 
-		generator = new LissajousGenerator();
+		generator = new TwoAxisLissajousGenerator();
 		generator.setModel(model);
 	}
 
@@ -57,9 +57,9 @@ public class LissajousTest {
 
 		// Test a few points
 		// TODO check x and y index values - currently these are not tested by AbstractPosition.equals()
-		assertEquals(new Point(0, -8.5, 0, 7.0, -1, false), pointList.get(0));
-		assertEquals(new Point(100, -9.939837880744866, 100, 6.925069008238842, -1, false), pointList.get(100));
-		assertEquals(new Point(300, -7.5128903496577735, 300, 6.775627736273646, -1, false), pointList.get(300));
+		assertEquals(new Point(0, -8.5, 0, 7.0, 0, false), pointList.get(0));
+		assertEquals(new Point(100, -9.939837880744866, 100, 6.925069008238842, 100, false), pointList.get(100));
+		assertEquals(new Point(300, -7.5128903496577735, 300, 6.775627736273646, 300, false), pointList.get(300));
 	}
 
 	@Test

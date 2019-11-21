@@ -29,7 +29,7 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Point;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.GridModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.junit.Test;
 
 public class GridTest extends AbstractGeneratorTest {
@@ -44,13 +44,13 @@ public class GridTest extends AbstractGeneratorTest {
 		box.setxAxisLength(3);
 		box.setyAxisLength(3);
 
-		GridModel model = new GridModel("x", "y");
+		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel("x", "y");
 		model.setyAxisPoints(20);
 		model.setxAxisPoints(20);
 		model.setBoundingBox(box);
 
 		// Get the point list
-		IPointGenerator<GridModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model);
 		final int expectedSize = 400;
 		assertEquals(expectedSize, gen.size());
 		assertEquals(2, gen.getRank());
@@ -71,12 +71,12 @@ public class GridTest extends AbstractGeneratorTest {
 		box.setxAxisLength(3);
 		box.setyAxisLength(3);
 
-		GridModel model = new GridModel("x", "y");
+		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel("x", "y");
 		model.setyAxisPoints(-20);  // An unsigned integer type would solve this problem...
 		model.setxAxisPoints(20);
 		model.setBoundingBox(box);
 
-		IPointGenerator<GridModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model);
 		List<IPosition> pointList = gen.createPoints();
 
 		assertEquals(pointList.size(), gen.size());
@@ -92,12 +92,12 @@ public class GridTest extends AbstractGeneratorTest {
 		box.setxAxisLength(5);
 		box.setyAxisLength(5);
 
-		GridModel model = new GridModel("x", "y");
+		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel("x", "y");
 		model.setyAxisPoints(5);
 		model.setxAxisPoints(5);
 		model.setBoundingBox(box);
 
-		IPointGenerator<GridModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model);
 		assertEquals(25, gen.size());
 		assertEquals(2, gen.getRank());
 		assertArrayEquals(new int[] { 5, 5 }, gen.getShape());
@@ -127,13 +127,13 @@ public class GridTest extends AbstractGeneratorTest {
 		box.setxAxisLength(5);
 		box.setyAxisLength(5);
 
-		GridModel model = new GridModel("x", "y");
+		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel("x", "y");
 		model.setyAxisPoints(5);
 		model.setxAxisPoints(5);
 		model.setAlternating(true);
 		model.setBoundingBox(box);
 
-		IPointGenerator<GridModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model);
 		assertEquals(25, gen.size());
 		assertEquals(2, gen.getRank());
 		assertArrayEquals(new int[] { 5, 5}, gen.getShape());
@@ -163,12 +163,12 @@ public class GridTest extends AbstractGeneratorTest {
 		box.setxAxisLength(-5);
 		box.setyAxisLength(5);
 
-		GridModel model = new GridModel("x", "y");
+		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel("x", "y");
 		model.setyAxisPoints(5);
 		model.setxAxisPoints(5);
 		model.setBoundingBox(box);
 
-		IPointGenerator<GridModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model);
 		assertEquals(25, gen.size());
 		assertEquals(2, gen.getRank());
 		assertArrayEquals(new int[] { 5, 5 }, gen.getShape());
@@ -198,13 +198,13 @@ public class GridTest extends AbstractGeneratorTest {
 		box.setxAxisLength(-5);
 		box.setyAxisLength(5);
 
-		GridModel model = new GridModel("x", "y");
+		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel("x", "y");
 		model.setyAxisPoints(5);
 		model.setxAxisPoints(5);
 		model.setAlternating(true);
 		model.setBoundingBox(box);
 
-		IPointGenerator<GridModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model);
 		assertEquals(25, gen.size());
 		assertEquals(2, gen.getRank());
 		assertArrayEquals(new int[] { 5, 5 }, gen.getShape());
@@ -234,12 +234,12 @@ public class GridTest extends AbstractGeneratorTest {
 		box.setxAxisLength(-5);
 		box.setyAxisLength(-5);
 
-		GridModel model = new GridModel("x", "y");
+		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel("x", "y");
 		model.setyAxisPoints(5);
 		model.setxAxisPoints(5);
 		model.setBoundingBox(box);
 
-		IPointGenerator<GridModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model);
 		assertEquals(25, gen.size());
 		assertEquals(2, gen.getRank());
 		assertArrayEquals(new int[] { 5, 5 }, gen.getShape());
@@ -269,13 +269,13 @@ public class GridTest extends AbstractGeneratorTest {
 		box.setxAxisLength(-5);
 		box.setyAxisLength(-5);
 
-		GridModel model = new GridModel("x", "y");
+		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel("x", "y");
 		model.setyAxisPoints(5);
 		model.setxAxisPoints(5);
 		model.setAlternating(true);
 		model.setBoundingBox(box);
 
-		IPointGenerator<GridModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model);
 		assertEquals(25, gen.size());
 		assertEquals(2, gen.getRank());
 		assertArrayEquals(new int[] { 5, 5}, gen.getShape());
@@ -303,14 +303,14 @@ public class GridTest extends AbstractGeneratorTest {
 		RectangularROI roi = new RectangularROI(0, 0, 3, 3, 0);
 
 		// Create a raster scan path
-		GridModel model = new GridModel("x", "y");
+		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel("x", "y");
 		model.setyAxisPoints(20);
 		model.setxAxisPoints(20);
 		model.setyAxisName("y");
 		model.setxAxisName("x");
 
 		// Get the point list
-		IPointGenerator<GridModel> gen = service.createGenerator(model, roi);
+		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model, roi);
 		final int expectedSize = 400;
 		assertEquals(expectedSize, gen.size());
 		assertEquals(2, gen.getRank());
@@ -332,7 +332,7 @@ public class GridTest extends AbstractGeneratorTest {
 		RectangularROI roi = new RectangularROI(0, 0, 3, 3, 0);
 
 		// Create a raster scan path
-		GridModel model = new GridModel("x", "y");
+		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel("x", "y");
 		model.setyAxisPoints(20);
 		model.setxAxisPoints(20);
 		model.setyAxisName("y");
@@ -348,14 +348,14 @@ public class GridTest extends AbstractGeneratorTest {
 		RectangularROI roi = new RectangularROI(0, 0, 3, 3, 0);
 
 		// Create a raster scan path
-		GridModel model = new GridModel("x", "y");
+		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel("x", "y");
 		model.setyAxisPoints(20);
 		model.setxAxisPoints(20);
 		model.setyAxisName("y");
 		model.setxAxisName("x");
 
 		// Get the point list
-		IPointGenerator<GridModel> gen = service.createGenerator(model, roi);
+		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model, roi);
 		assertEquals(400, gen.size());
 		assertEquals(2, gen.getRank());
 		assertArrayEquals(new int[] { 20, 20 }, gen.getShape());
@@ -377,14 +377,14 @@ public class GridTest extends AbstractGeneratorTest {
 		CircularROI circle = new CircularROI(1.5, 1.5, 1.5);
 
 		// Create a raster scan path
-		GridModel gridScanPath = new GridModel("x", "y");
+		TwoAxisGridPointsModel gridScanPath = new TwoAxisGridPointsModel("x", "y");
 		gridScanPath.setyAxisPoints(20);
 		gridScanPath.setxAxisPoints(20);
 		gridScanPath.setyAxisName("y");
 		gridScanPath.setxAxisName("x");
 
 		// Get the point list
-		IPointGenerator<GridModel> gen = service.createGenerator(gridScanPath, circle);
+		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(gridScanPath, circle);
 		final int expectedSize = 316;
 		assertEquals(expectedSize, gen.size());
 		assertEquals(1, gen.getRank());
@@ -402,12 +402,12 @@ public class GridTest extends AbstractGeneratorTest {
 		CircularROI circle = new CircularROI(1.5, 1.5, 15);
 
 		// Create a raster scan path
-		GridModel gridScanPath = new GridModel("x", "y");
+		TwoAxisGridPointsModel gridScanPath = new TwoAxisGridPointsModel("x", "y");
 		gridScanPath.setyAxisPoints(20);
 		gridScanPath.setxAxisPoints(200);
 
 		// Get the point list
-		IPointGenerator<GridModel> gen = service.createGenerator(gridScanPath, circle);
+		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(gridScanPath, circle);
 		final int expectedSize = 3156;
 		assertEquals(expectedSize, gen.size());
 		assertEquals(1, gen.getRank());
@@ -448,13 +448,13 @@ public class GridTest extends AbstractGeneratorTest {
 		box.setxAxisLength(3);
 		box.setyAxisLength(3);
 
-		GridModel model = new GridModel("x", "y");
+		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel("x", "y");
 		model.setyAxisPoints(20);
 		model.setxAxisPoints(20);
 		model.setBoundingBox(box);
 
 		// Get the point list
-		IPointGenerator<GridModel> gen = service.createGenerator(model, diamond);
+		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model, diamond);
 		final int expectedSize = 194;
 		assertEquals(expectedSize, gen.size());
 		assertEquals(1, gen.getRank());
@@ -502,14 +502,14 @@ public class GridTest extends AbstractGeneratorTest {
 		RectangularROI roi = new RectangularROI(-10.0, 5.0, 3.0, 3.0, 0.0);
 
 		// Create a grid scan path
-		GridModel model = new GridModel("x", "y");
+		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel("x", "y");
 		model.setyAxisPoints(3);
 		model.setxAxisPoints(3);
 		model.setyAxisName("y");
 		model.setxAxisName("x");
 
 		// Get the point list
-		IPointGenerator<GridModel> gen = service.createGenerator(model, roi);
+		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model, roi);
 		List<IPosition> pointList = gen.createPoints();
 
 		assertEquals(9, pointList.size());
@@ -529,13 +529,13 @@ public class GridTest extends AbstractGeneratorTest {
 		RectangularROI roi = new RectangularROI(0, 0, 3, 3, 0);
 
 		// Create a grid scan path
-		GridModel model = new GridModel("x", "y");
+		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel("x", "y");
 		model.setyAxisPoints(3);
 		model.setxAxisPoints(3);
 		model.setAlternating(true);
 
 		// Get the point list
-		IPointGenerator<GridModel> gen = service.createGenerator(model, roi);
+		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model, roi);
 		List<IPosition> pointList = gen.createPoints();
 
 		assertEquals(9, pointList.size());

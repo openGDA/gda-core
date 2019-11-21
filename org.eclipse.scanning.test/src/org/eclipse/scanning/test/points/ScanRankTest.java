@@ -30,10 +30,10 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.GridModel;
-import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
-import org.eclipse.scanning.api.points.models.SpiralModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,7 +70,7 @@ public class ScanRankTest {
 	public void testRankLine() throws Exception {
 		LinearROI roi = new LinearROI(new double[]{0,0}, new double[]{3,3});
 
-		OneDEqualSpacingModel model = new OneDEqualSpacingModel();
+		TwoAxisLinePointsModel model = new TwoAxisLinePointsModel();
 		model.setPoints(10);
 		model.setxAxisName("x");
 		model.setyAxisName("y");
@@ -80,7 +80,7 @@ public class ScanRankTest {
 
 		IPointGenerator<?>[] gens = new IPointGenerator<?>[nestCount + 1];
 		for (int i = 0; i < nestCount; i++) {
-			gens[i] = service.createGenerator(new StepModel("T"+(nestCount - 1 - i), 290, 300, 1));
+			gens[i] = service.createGenerator(new AxialStepModel("T"+(nestCount - 1 - i), 290, 300, 1));
 		}
 		gens[nestCount] = gen;
 		gen = service.createCompoundGenerator(gens);
@@ -96,7 +96,7 @@ public class ScanRankTest {
 		box.setxAxisLength(3);
 		box.setyAxisLength(3);
 
-		SpiralModel model = new SpiralModel("x", "y");
+		TwoAxisSpiralModel model = new TwoAxisSpiralModel("x", "y");
 		model.setBoundingBox(box);
 
 		// Get the point list
@@ -104,7 +104,7 @@ public class ScanRankTest {
 
 		IPointGenerator<?>[] gens = new IPointGenerator<?>[nestCount + 1];
 		for (int i = 0; i < nestCount; i++) {
-			gens[i] = service.createGenerator(new StepModel("T"+(nestCount -1 -i), 290, 300, 1));
+			gens[i] = service.createGenerator(new AxialStepModel("T"+(nestCount -1 -i), 290, 300, 1));
 		}
 		gens[nestCount] = gen;
 		gen = service.createCompoundGenerator(gens);
@@ -240,7 +240,7 @@ public class ScanRankTest {
 		box.setxAxisLength(3);
 		box.setyAxisLength(3);
 
-		GridModel model = new GridModel("x", "y");
+		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel("x", "y");
 		model.setyAxisPoints(20);
 		model.setxAxisPoints(20);
 		model.setBoundingBox(box);
@@ -251,7 +251,7 @@ public class ScanRankTest {
 
 		IPointGenerator<?>[] gens = new IPointGenerator<?>[nestCount + 1];
 		for (int i = 0; i < nestCount; i++) {
-			gens[i] = service.createGenerator(new StepModel("T"+(nestCount -1 -i), 290, 300, 1));
+			gens[i] = service.createGenerator(new AxialStepModel("T"+(nestCount -1 -i), 290, 300, 1));
 		}
 		gens[nestCount] = grid;
 

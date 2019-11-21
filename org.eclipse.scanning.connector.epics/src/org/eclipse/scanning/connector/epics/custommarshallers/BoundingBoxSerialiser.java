@@ -34,10 +34,10 @@ public class BoundingBoxSerialiser implements IPVStructureSerialiser<BoundingBox
 		FieldCreate fieldCreate = FieldFactory.getFieldCreate();
 
 		Structure structure = fieldCreate.createFieldBuilder().
-			add("fastAxisStart", ScalarType.pvDouble).
-			add("slowAxisStart", ScalarType.pvDouble).
-			add("fastAxisLength", ScalarType.pvDouble).
-			add("slowAxisLength", ScalarType.pvDouble).
+			add("xAxisStart", ScalarType.pvDouble).
+			add("yAxisStart", ScalarType.pvDouble).
+			add("xAxisLength", ScalarType.pvDouble).
+			add("yAxisLength", ScalarType.pvDouble).
 			setId("BoundingBox").
 			createStructure();
 		return structure;
@@ -45,14 +45,14 @@ public class BoundingBoxSerialiser implements IPVStructureSerialiser<BoundingBox
 
 	@Override
 	public void populatePVStructure(Serialiser serialiser, BoundingBox model, PVStructure pvStructure) throws Exception {
-		PVDouble fastAxisStart = pvStructure.getSubField(PVDouble.class, "fastAxisStart");
-		fastAxisStart.put(model.getxAxisStart());
-		PVDouble slowAxisStart = pvStructure.getSubField(PVDouble.class, "slowAxisStart");
-		slowAxisStart.put(model.getyAxisStart());
-		PVDouble fastAxisLength = pvStructure.getSubField(PVDouble.class, "fastAxisLength");
-		fastAxisLength.put(model.getxAxisLength());
-		PVDouble slowAxisLength = pvStructure.getSubField(PVDouble.class, "slowAxisLength");
-		slowAxisLength.put(model.getyAxisLength());
+		PVDouble xAxisStart = pvStructure.getSubField(PVDouble.class, "xAxisStart");
+		xAxisStart.put(model.getxAxisStart());
+		PVDouble yAxisStart = pvStructure.getSubField(PVDouble.class, "yAxisStart");
+		yAxisStart.put(model.getyAxisStart());
+		PVDouble xAxisLength = pvStructure.getSubField(PVDouble.class, "xAxisLength");
+		xAxisLength.put(model.getxAxisLength());
+		PVDouble yAxisLength = pvStructure.getSubField(PVDouble.class, "yAxisLength");
+		yAxisLength.put(model.getyAxisLength());
 	}
 
 }

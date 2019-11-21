@@ -21,14 +21,14 @@ package org.eclipse.scanning.api.points.models;
 /**
  * Base class for path models which require knowledge of beam size
  * <p>
- * Note: this class extends {@link AbstractGridModel} as its only subclass is a type
+ * Note: this class extends {@link AbstractTwoAxisGridModel} as its only subclass is a type
  * of grid model. This prevents having to duplicate properties as Java does not
  * support multiple inheritance. If this were to change then this class should
  * extend {@link AbstractBoundingBoxModel} directly and duplication of
- * {@link AbstractGridModel} properties would be unavoidable.
+ * {@link AbstractTwoAxisGridModel} properties would be unavoidable.
  * Note: x and y must be in lower case in getter and setter names for JFace bindings to work correctly
  */
-public abstract class AbstractOverlapModel extends AbstractGridModel {
+public abstract class AbstractOverlapModel extends AbstractTwoAxisGridModel {
 
 	private double overlap;
 
@@ -64,6 +64,11 @@ public abstract class AbstractOverlapModel extends AbstractGridModel {
 
 	public double getOverlap() {
 		return overlap;
+	}
+
+	@Override
+	public String toString() {
+		return "overlap=" + overlap + ", xBeamSize=" + xBeamSize + ", yBeamSize" + yBeamSize;
 	}
 
 }

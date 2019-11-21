@@ -53,8 +53,8 @@ public abstract class AbstractBoundingLineModel extends AbstractMapModel impleme
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + " [boundingLine=" + boundingLine + ", xAxisName=" + getxAxisName()
-				+ ", yAxisName=" + getyAxisName() + ", continuous=" + isContinuous() + "]";
+		return "boundingLine=" + boundingLine + ", "
+				+ super.toString();
 	}
 
 }

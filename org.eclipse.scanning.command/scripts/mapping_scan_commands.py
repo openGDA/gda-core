@@ -53,10 +53,13 @@ from org.eclipse.scanning.api.event.EventConstants import (
 from org.eclipse.scanning.api.event.scan import (ScanBean, ScanRequest)
 
 from org.eclipse.scanning.api.points.models import (
-    StepModel, MultiStepModel, CollatedStepModel, GridModel, RasterModel, SinglePointModel,
-    OneDEqualSpacingModel, OneDStepModel, ArrayModel,
-    BoundingBox, BoundingLine, CompoundModel, RepeatedPointModel,
-    RandomOffsetGridModel, SpiralModel, LissajousModel, StaticModel)
+    AxialStepModel, AxialMultiStepModel, AxialCollatedStepModel, AxialArrayModel,
+    TwoAxisGridPointsModel, TwoAxisGridStepModel, TwoAxisGridPointsRandomOffsetModel,
+    TwoAxisPointSingleModel,OneAxisPointRepeatedModel, StaticModel,
+    TwoAxisLinePointsModel, TwoAxisLineStepModel,
+    TwoAxisSpiralModel, TwoAxisLissajousModel,
+    BoundingBox, BoundingLine,
+    CompoundModel)
 
 from org.eclipse.scanning.command.Services import (
     getEventService, getRunnableDeviceService, getScannableDeviceService)
@@ -284,7 +287,7 @@ def step(axis=None, start=None, stop=None, step=None, alternating=False, continu
     roi = None
 
     model = _instantiate(
-                StepModel,
+                AxialStepModel,
                 {'name': axis,
                  'start': start,
                  'stop': stop,
@@ -319,7 +322,7 @@ def mstep(axis=None, stepModels=None, **kwargs):
     roi = None
 
     model = _instantiate(
-                MultiStepModel,
+                AxialMultiStepModel,
                 {'name'       : axis,
                  'stepModels' : stepModels})
 
@@ -349,7 +352,7 @@ def cstep(names=None, start=None, stop=None, step=None, alternating=False, conti
     _processKeywords(names, kwargs)
 
     model = _instantiate(
-                CollatedStepModel,
+                AxialCollatedStepModel,
                 {'start': start,
                  'stop': stop,
                  'step': step,
@@ -384,7 +387,7 @@ def repeat(axis=None, count=None, value=None, sleep=None, **kwargs):
     roi = None
 
     model = _instantiate(
-                RepeatedPointModel,
+                OneAxisPointRepeatedModel,
                 {'name': axis,
                  'count': count,
                  'value': value,
@@ -443,7 +446,7 @@ def grid(axes=None, start=None, stop=None, step=None, count=None, alternating=Tr
             raise ValueError('`count` must be a pair of integers (r, c).')
 
         model = _instantiate(
-                    GridModel,
+                    TwoAxisGridPointsModel,
                     {'xAxisName': xName,
                      'yAxisName': yName,
                      'xAxisPoints': rows,
@@ -460,7 +463,7 @@ def grid(axes=None, start=None, stop=None, step=None, count=None, alternating=Tr
             raise ValueError('`step` must be a pair of numbers (dx, dy).')
 
         model = _instantiate(
-                    RasterModel,
+                    TwoAxisGridStepModel,
                     {'xAxisName': xName,
                      'yAxisName': yName,
                      'xAxisStep': xStep,
@@ -495,7 +498,7 @@ def random_offset_grid(axes=None, start=None, stop=None, count=None, alternating
         raise ValueError('`count` must be a pair of integers (r, c).')
 
     model = _instantiate(
-                RandomOffsetGridModel,
+                TwoAxisGridPointsRandomOffsetModel,
                 {'xAxisName': xName,
                  'yAxisName': yName,
                  'xAxisPoints': rows,
@@ -525,7 +528,7 @@ def spiral(axes=None, start=None, stop=None, scale=1, alternating=False, continu
     bbox = _makeBoundingBox(start, stop)
 
     model = _instantiate(
-                SpiralModel,
+                TwoAxisSpiralModel,
                 {'xAxisName': xName,
                  'yAxisName': yName,
                  'boundingBox': bbox,
@@ -550,7 +553,7 @@ def lissajous(axes=None, start=None, stop=None, a=1.0, b=0.25, points=100, alter
     bbox = _makeBoundingBox(start, stop)
     
     model = _instantiate(
-                LissajousModel,
+                TwoAxisLissajousModel,
                 {'xAxisName': xName,
                  'yAxisName': yName,
                  'boundingBox': bbox,
@@ -592,7 +595,7 @@ def line(origin=None, length=None, angle=None, count=None, step=None, alternatin
 
     if step is not None:
         model = _instantiate(
-                    OneDStepModel,
+                    TwoAxisLineStepModel,
                     {'step': step,
                      'continuous': continuous,
                      'alternating': alternating,
@@ -604,7 +607,7 @@ def line(origin=None, length=None, angle=None, count=None, step=None, alternatin
 
     else:
         model = _instantiate(
-                    OneDEqualSpacingModel,
+                    TwoAxisLinePointsModel,
                     {'points': count,
                      'continuous': continuous,
                      'alternating': alternating,
@@ -636,7 +639,7 @@ def array(axis=None, values=None, alternating=False, continuous=True, **kwargs):
 
     # We have to manually call ArrayModel.setPositions,
     # as it takes a (Double... positions) argument.
-    amodel = ArrayModel()
+    amodel = AxialArrayModel()
     amodel.setName(axis)
     amodel.setPositions(*values)
     amodel.setAlternating(alternating)
@@ -672,7 +675,7 @@ def point(x, y):
     """Define a point scan path to be passed to mscan().
     """
     roi = None
-    return _instantiate(SinglePointModel, {'x': x, 'y': y}), _listify(roi)
+    return _instantiate(TwoAxisPointSingleModel, {'x': x, 'y': y}), _listify(roi)
 
 
 def static(size=1):

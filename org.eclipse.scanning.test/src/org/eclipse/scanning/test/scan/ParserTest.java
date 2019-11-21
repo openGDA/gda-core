@@ -13,7 +13,7 @@ package org.eclipse.scanning.test.scan;
 
 import static org.junit.Assert.assertTrue;
 
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.IParserResult;
 import org.eclipse.scanning.api.scan.IParserService;
 import org.eclipse.scanning.command.ParserServiceImpl;
@@ -38,7 +38,7 @@ public class ParserTest {
 		assertTrue(parserService!=null);
 	}
 
-	private void assertStepModel(StepModel stepModel, String name, double start, double stop, double step) {
+	private void assertStepModel(AxialStepModel stepModel, String name, double start, double stop, double step) {
 		assertTrue(parserService!=null);
 		assertTrue(stepModel.getName().equals(name));
 		assertTrue(DoubleUtils.equalsWithinTolerance(stepModel.getStart(), start, PRECISION));
@@ -53,7 +53,7 @@ public class ParserTest {
 		final IParserResult<?> parser = parserService.createParser(scanCommand);
 		assertTrue(parser.getCommand().equals(scanCommand));
 		assertTrue(parser.getScannableNames().contains("x"));
-		final StepModel xModel = (StepModel) parser.getModel("x");
+		final AxialStepModel xModel = (AxialStepModel) parser.getModel("x");
 		assertStepModel(xModel, "x", 0, 10, 0.5);
 		assertTrue(parser.getDetectorNames().contains("detector"));
 		assertTrue(parser.getExposures().keySet().contains("detector"));

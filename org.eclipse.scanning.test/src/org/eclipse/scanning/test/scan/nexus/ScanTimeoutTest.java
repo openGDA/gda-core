@@ -6,7 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.models.MultiStepModel;
+import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.RandomLineDevice;
@@ -102,7 +102,7 @@ public class ScanTimeoutTest  extends NexusTest {
 
 	private IRunnableDevice<ScanModel> createMultiStepScanner(IRunnableDevice<?> device) throws Exception {
 
-		MultiStepModel model = new MultiStepModel();
+		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 		model.addRange(10, 20, 2); // Te = 0.0015
 		model.addRange(25, 50, 5);  // Te = 0.002

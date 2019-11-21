@@ -55,8 +55,8 @@ import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.StaticPosition;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.GridModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDatasetModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDetectorModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
@@ -95,7 +95,7 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 	}
 
 	private IPointGenerator<?> getGenerator(int... size) throws GeneratorException {
-		GridModel gmodel = new GridModel();
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
 		gmodel.setxAxisName("stage_x");
 		gmodel.setxAxisPoints(size[size.length - 1]);
 		gmodel.setyAxisName("stage_y");
@@ -108,13 +108,13 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 		// We add the outer scans, if any
 		if (size.length > 2) {
 			for (int dim = size.length - 3; dim > -1; dim--) {
-				final StepModel model;
+				final AxialStepModel model;
 				if (size[dim] - 1 > 0) {
-					model = new StepModel("neXusScannable" + (dim + 1), 10, 20,
+					model = new AxialStepModel("neXusScannable" + (dim + 1), 10, 20,
 							9.99d / (size[dim] - 1));
 				} else {
 					// Will generate one value at 10
-					model = new StepModel("neXusScannable" + (dim + 1), 10, 20, 30);
+					model = new AxialStepModel("neXusScannable" + (dim + 1), 10, 20, 30);
 				}
 				final IPointGenerator<?> step = pointGenService.createGenerator(model);
 				gens[dim] = step;

@@ -22,8 +22,8 @@ import org.eclipse.scanning.api.device.models.ProcessingModel;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.GridModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
@@ -69,7 +69,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 	@Test
 	public void nullDetectorModelsAllowed() throws Exception {
 
-		GridModel gmodel = new GridModel("stage_x", "stage_y");
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
 		validator.validate(new ScanRequest(gmodel, null, (String)null, null, null));
 	}
@@ -83,7 +83,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 	public void emptyDetectorModelsAllowed() throws Exception {
 
-		GridModel gmodel = new GridModel("stage_x", "stage_y");
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
 		ScanRequest req = new ScanRequest(gmodel, null, (String)null, null, null);
 		req.setDetectors(Collections.emptyMap());
@@ -94,7 +94,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 	@Test
 	public void legalDetectorModelList() throws Exception {
 
-		GridModel gmodel = new GridModel("stage_x", "stage_y");
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
 		ScanRequest req = new ScanRequest(gmodel, null, (String)null, null, null);
 		req.putDetector("mandelbrot", new MandelbrotModel());
@@ -104,7 +104,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 	@Test(expected=ModelValidationException.class)
 	public void nulledAxisName() throws Exception {
 
-		GridModel gmodel = new GridModel(null, "stage_y");
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel(null, "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
 		ScanRequest req = new ScanRequest(gmodel, null, (String)null, null, null);
 		req.putDetector("mandelbrot", new MandelbrotModel());
@@ -115,7 +115,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 	@Test(expected=ModelValidationException.class)
 	public void collidingPointsModels() throws Exception {
 
-		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new StepModel("stage_x", 10, 20, 1), new GridModel("stage_x", "stage_y")));
+		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new AxialStepModel("stage_x", 10, 20, 1), new TwoAxisGridPointsModel("stage_x", "stage_y")));
 		ScanRequest req = new ScanRequest();
 		req.putDetector("mandelbrot", new MandelbrotModel());
 		req.setCompoundModel(cmodel);
@@ -298,9 +298,9 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 	}
 
 	private ScanRequest createScanRequest() {
-		GridModel gmodel = new GridModel("stage_x", "stage_y");
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
-		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new StepModel("fred", 10, 20, 1), gmodel));
+		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new AxialStepModel("fred", 10, 20, 1), gmodel));
 		ScanRequest req = new ScanRequest();
 		req.setCompoundModel(cmodel);
         return req;

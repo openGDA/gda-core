@@ -57,8 +57,8 @@ import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.malcolm.message.Type;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.GridModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
@@ -286,14 +286,14 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 	}
 
 	private IRunnableDevice<ScanModel> createScan() throws Exception {
-		final GridModel gmodel = new GridModel(); // Note stage_x and stage_y scannables controlled by malcolm
+		final TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel(); // Note stage_x and stage_y scannables controlled by malcolm
 		gmodel.setxAxisName("stage_x");
 		gmodel.setxAxisPoints(10);
 		gmodel.setyAxisName("stage_y");
 		gmodel.setyAxisPoints(10);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 		final IPointGenerator<?> gridGen = pointGenService.createGenerator(gmodel);
-		final StepModel stepModel = new StepModel("stage_z", 0, 1, 1);
+		final AxialStepModel stepModel = new AxialStepModel("stage_z", 0, 1, 1);
 		final IPointGenerator<?> stepGen = pointGenService.createGenerator(stepModel);
 		final IPointGenerator<?> gen = pointGenService.createCompoundGenerator(stepGen, gridGen);
 

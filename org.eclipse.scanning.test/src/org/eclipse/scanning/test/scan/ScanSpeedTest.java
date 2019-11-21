@@ -39,8 +39,8 @@ import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
-import org.eclipse.scanning.api.points.models.CollatedStepModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.AxialCollatedStepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.scannable.MockScannable;
@@ -299,7 +299,7 @@ public class ScanSpeedTest extends BrokerTest {
 			names[i] = scannables.get(i).getName();
 		}
 
-		final StepModel onek = new CollatedStepModel(0,pointCount,1,names);
+		final AxialStepModel onek = new AxialCollatedStepModel(0,pointCount,1,names);
 		IPointGenerator<?> gen = gservice.createGenerator(onek);
 
 		final ScanModel  smodel = new ScanModel();

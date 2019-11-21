@@ -52,7 +52,7 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
@@ -302,12 +302,12 @@ public class MonitorTest extends NexusTest {
 	private IRunnableDevice<ScanModel> createNestedStepScanWithMonitors(final IRunnableDevice<?> detector, List<String> monitorNamesPerPoint, List<String> monitorNamesPerScan, int... size) throws Exception {
 
 		// Create scan points for a grid and make a generator
-		StepModel smodel;
+		AxialStepModel smodel;
 		int ySize = size[size.length-1];
 		if (ySize-1>0) {
-			smodel = new StepModel("yNex", 10,20,11d/ySize);
+			smodel = new AxialStepModel("yNex", 10,20,11d/ySize);
 		} else {
-			smodel = new StepModel("yNex", 10,20,30); // Will generate one value at 10
+			smodel = new AxialStepModel("yNex", 10,20,30); // Will generate one value at 10
 		}
 
 		IPointGenerator<?> stepGen = pointGenService.createGenerator(smodel);
@@ -317,11 +317,11 @@ public class MonitorTest extends NexusTest {
 		// We add the outer scans, if any
 		if (size.length > 1) {
 			for (int dim = size.length-2; dim>-1; dim--) {
-				final StepModel model;
+				final AxialStepModel model;
 				if (size[dim]-1>0) {
-				    model = new StepModel("neXusScannable"+(dim+1), 10,20,11d/(size[dim]));
+				    model = new AxialStepModel("neXusScannable"+(dim+1), 10,20,11d/(size[dim]));
 				} else {
-					model = new StepModel("neXusScannable"+(dim+1), 10,20,30); // Will generate one value at 10
+					model = new AxialStepModel("neXusScannable"+(dim+1), 10,20,30); // Will generate one value at 10
 				}
 				final IPointGenerator<?> step = pointGenService.createGenerator(model);
 				gens[dim] = step;

@@ -78,4 +78,14 @@ public class StaticModel extends AbstractPointsModel {
 			throw new ModelValidationException("StaticModel does not support alternating operation", this, "alternating");
 		}
 	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + "[size=" + size + ", " + super.toString() + "]";
+	}
+
+	@Override
+	public int size() {
+		return size;
+	}
 }

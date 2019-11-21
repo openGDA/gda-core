@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.IParserResult;
 import org.eclipse.scanning.api.scan.IParserService;
 import org.eclipse.scanning.api.scan.ParsingException;
@@ -74,8 +74,8 @@ public class ParserServiceImpl implements IParserService {
 		return "(?<" + groupName + ">" + groupRegex + ")";
 	}
 
-	private LinkedHashMap<String, StepModel> parseScannables(final String scannablesString) throws ParsingException {
-		final LinkedHashMap<String, StepModel> scannables = new LinkedHashMap<>();
+	private LinkedHashMap<String, AxialStepModel> parseScannables(final String scannablesString) throws ParsingException {
+		final LinkedHashMap<String, AxialStepModel> scannables = new LinkedHashMap<>();
 
 		final Matcher scannableMatcher = scannablePattern.matcher(scannablesString);
 		while (scannableMatcher.find()) {
@@ -87,7 +87,7 @@ public class ParserServiceImpl implements IParserService {
 			}
 
 			final double[] numericArgs = getNumericArgs(strs, "scannable");
-			final StepModel scannableModel = new StepModel(scannableName, numericArgs[0], numericArgs[1], numericArgs[2]);
+			final AxialStepModel scannableModel = new AxialStepModel(scannableName, numericArgs[0], numericArgs[1], numericArgs[2]);
 			scannables.put(scannableName, scannableModel);
 		}
 
@@ -148,7 +148,7 @@ public class ParserServiceImpl implements IParserService {
 
 		// parse the scannables string
 		final String scannablesString = scanCommandMatcher.group(GROUP_NAME_SCANNABLES);
-		final LinkedHashMap<String, StepModel> scannableModels = parseScannables(scannablesString);
+		final LinkedHashMap<String, AxialStepModel> scannableModels = parseScannables(scannablesString);
 		parser.setScannables(scannableModels);
 
 		// parser the detectors string

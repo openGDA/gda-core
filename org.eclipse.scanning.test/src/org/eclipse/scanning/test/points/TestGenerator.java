@@ -13,6 +13,7 @@ package org.eclipse.scanning.test.points;
 
 import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.GeneratorException;
+import org.eclipse.scanning.api.points.PPointGenerator;
 import org.eclipse.scanning.api.points.ScanPointIterator;
 
 public class TestGenerator extends AbstractGenerator<TestGeneratorModel> {
@@ -27,6 +28,11 @@ public class TestGenerator extends AbstractGenerator<TestGeneratorModel> {
 
 	@Override
 	public int[] getShape() throws GeneratorException {
+		throw new UnsupportedOperationException("Not designed to be run, just to test extension point for when people want to load by extension!");
+	}
+
+	@Override
+	public PPointGenerator createPythonPointGenerator() {
 		throw new UnsupportedOperationException("Not designed to be run, just to test extension point for when people want to load by extension!");
 	}
 

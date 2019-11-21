@@ -83,7 +83,7 @@ public abstract class AbstractBoundingBoxModel extends AbstractMapModel implemen
 
 	@Override
 	public String toString() {
-		return "AbstractBoundingBoxModel [boundingBox=" + boundingBox + ", " + super.toString() + "]";
+		return "boundingBox=" + boundingBox + ", " + super.toString();
 	}
 
 }

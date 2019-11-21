@@ -47,9 +47,9 @@ import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.points.Point;
 import org.eclipse.scanning.api.points.models.AbstractPointsModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.GridModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
@@ -239,7 +239,7 @@ public class ScanTest extends BrokerTest {
 	@Test
 	public void testStepScan() throws Exception {
 
-		StepModel model = new StepModel();
+		AxialStepModel model = new AxialStepModel();
 		model.setStart(0);
 		model.setStop(100);
 		model.setStep(1);
@@ -253,7 +253,7 @@ public class ScanTest extends BrokerTest {
 	@Test
 	public void testInvalidStepScan() throws Exception {
 
-		StepModel model = new StepModel();
+		AxialStepModel model = new AxialStepModel();
 		model.setStart(0);
 		model.setStop(10);
 		model.setStep(-1);
@@ -280,7 +280,7 @@ public class ScanTest extends BrokerTest {
 	@Test
 	public void testZeroStepStepScan() throws Exception {
 
-		StepModel model = new StepModel();
+		AxialStepModel model = new AxialStepModel();
 		model.setStart(0);
 		model.setStop(10);
 		model.setStep(0);
@@ -468,10 +468,10 @@ public class ScanTest extends BrokerTest {
 
 		// If none passed, create scan points for a grid.
 		if (pmodel == null) {
-			pmodel = new GridModel("x", "y");
-			((GridModel) pmodel).setyAxisPoints(5);
-			((GridModel) pmodel).setxAxisPoints(5);
-			((GridModel) pmodel).setBoundingBox(new BoundingBox(0,0,3,3));
+			pmodel = new TwoAxisGridPointsModel("x", "y");
+			((TwoAxisGridPointsModel) pmodel).setyAxisPoints(5);
+			((TwoAxisGridPointsModel) pmodel).setxAxisPoints(5);
+			((TwoAxisGridPointsModel) pmodel).setBoundingBox(new BoundingBox(0,0,3,3));
 		}
 
 		if (axes!=null && pmodel instanceof IBoundingBoxModel) {

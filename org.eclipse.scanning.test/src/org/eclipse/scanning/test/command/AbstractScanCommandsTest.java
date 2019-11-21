@@ -27,7 +27,7 @@ import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.points.ScanPointGeneratorFactory;
 import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.server.servlet.ScanServlet;
@@ -316,7 +316,7 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 		bean.setName("Hello Scanning World");
 
 		final ScanRequest req = new ScanRequest();
-		req.setCompoundModel(new CompoundModel(new StepModel("fred", 0, 9, 1)));
+		req.setCompoundModel(new CompoundModel(new AxialStepModel("fred", 0, 9, 1)));
 		req.setMonitorNamesPerPoint(Arrays.asList("monitor"));
 
 		final MockDetectorModel dmodel = new MockDetectorModel();

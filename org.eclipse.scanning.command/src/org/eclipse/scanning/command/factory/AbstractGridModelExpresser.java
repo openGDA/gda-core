@@ -18,9 +18,9 @@
 
 package org.eclipse.scanning.command.factory;
 
-import org.eclipse.scanning.api.points.models.AbstractGridModel;
+import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
 
-public abstract class AbstractGridModelExpresser<T extends AbstractGridModel> extends AbstractPointsModelExpresser<T> {
+public abstract class AbstractGridModelExpresser<T extends AbstractTwoAxisGridModel> extends AbstractPointsModelExpresser<T> {
 
 	public void appendCommonGridProperties(StringBuilder sb, T model, boolean verbose) {
 		appendCommonProperties(sb, model, verbose);

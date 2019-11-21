@@ -59,9 +59,9 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.GridModel;
-import org.eclipse.scanning.api.points.models.SpiralModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
@@ -293,7 +293,7 @@ public abstract class NexusTest {
 
 	protected ScanModel createGridScanModel(final IRunnableDevice<?> detector, File file, IROI region, boolean snake, int... size) throws Exception {
 		// Create scan points for a grid and make a generator
-		GridModel gmodel = new GridModel();
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
 		gmodel.setxAxisName("xNex");
 		gmodel.setxAxisPoints(size[size.length-1]);
 		gmodel.setyAxisName("yNex");
@@ -308,11 +308,11 @@ public abstract class NexusTest {
 		// We add the outer scans, if any
 		if (size.length > 2) {
 			for (int dim = size.length-3; dim>-1; dim--) {
-				final StepModel model;
+				final AxialStepModel model;
 				if (size[dim]-1>0) {
-				    model = new StepModel("neXusScannable"+(dim+1), 10,20,9.99d/(size[dim]-1));
+				    model = new AxialStepModel("neXusScannable"+(dim+1), 10,20,9.99d/(size[dim]-1));
 				} else {
-					model = new StepModel("neXusScannable"+(dim+1), 10,20,30); // Will generate one value at 10
+					model = new AxialStepModel("neXusScannable"+(dim+1), 10,20,30); // Will generate one value at 10
 				}
 				final IPointGenerator<?> step = pointGenService.createGenerator(model);
 				gens[dim] = step;
@@ -341,13 +341,13 @@ public abstract class NexusTest {
 	}
 
 	protected ScanModel createSpiralScanModel(final IRunnableDevice<?> detector, File file) throws Exception {
-		SpiralModel spmodel = new SpiralModel("xNex","yNex");
+		TwoAxisSpiralModel spmodel = new TwoAxisSpiralModel("xNex","yNex");
 		spmodel.setScale(2.0);
 		spmodel.setBoundingBox(new BoundingBox(0,0,1,1));
 
 		IPointGenerator<?> gen = pointGenService.createGenerator(spmodel);
 
-		final StepModel  model = new StepModel("neXusScannable1", 0,3,1);
+		final AxialStepModel  model = new AxialStepModel("neXusScannable1", 0,3,1);
 		final IPointGenerator<?> step = pointGenService.createGenerator(model);
 
 		gen = pointGenService.createCompoundGenerator(new IPointGenerator<?>[]{step,gen});

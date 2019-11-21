@@ -15,15 +15,15 @@ from org.eclipse.scanning.api.points import Point
 from org.eclipse.scanning.api.points import Scalar
 from org.eclipse.scanning.api.points import MapPosition
 from org.eclipse.scanning.api.points import StaticPosition
+from org.eclipse.scanning.api.points import PPointGenerator
 from org.eclipse.scanning.api.points import ScanPointIterator
-from org.eclipse.scanning.points import PySerializable
-from java.util import ArrayList
 
 from scanpointgenerator import LineGenerator
 from scanpointgenerator import ArrayGenerator
 from scanpointgenerator import SpiralGenerator
 from scanpointgenerator import LissajousGenerator
 from scanpointgenerator import StaticPointGenerator
+from scanpointgenerator import ZipGenerator
 from scanpointgenerator import CompoundGenerator
 from scanpointgenerator import RandomOffsetMutator
 from scanpointgenerator import CircularROI
@@ -40,30 +40,28 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class JavaIteratorWrapper(ScanPointIterator, PySerializable):
+class JavaIteratorWrapper(ScanPointIterator):
     """
     A wrapper class to give a python iterator the while(hasNext()) next()
     operation required of Java Iterators
     """
 
-    def __init__(self):
-        self._iterator = self._iterator()  # Store single instance of _iterator()
+    def __init__(self, iterator, generator):
+        self.generator = generator
         self.logger = logger.getChild(self.__class__.__name__)
+        self._iterator = iterator
         self._has_next = None
         self._next = None
-
-    def _iterator(self):
-        raise NotImplementedError("Must be implemented in child class")
+        self._index = 0
 
     def next(self):
 
         if self._has_next:
             result = self._next
         else:
-            result = self._iterator.next()  # Note: No next() in Py3
-
+            result = next(self._iterator)
         self._has_next = None
-
+        self._index += 1
         return result
 
     def hasNext(self):
@@ -71,7 +69,7 @@ class JavaIteratorWrapper(ScanPointIterator, PySerializable):
         if self._has_next is None:
 
             try:
-                self._next = self._iterator.next()  # Note: No next() in Py3
+                self._next = next(self._iterator)
             except StopIteration:
                 self._has_next = False
             else:
@@ -82,186 +80,209 @@ class JavaIteratorWrapper(ScanPointIterator, PySerializable):
     def toDict(self):
         return self.generator.to_dict()
 
-    def size(self):
+    def getSize(self):
         return self.generator.size
     def getShape(self):
         return self.generator.shape
     def getRank(self):
         return len(self.generator.shape)
+    def getIndex(self):
+        return self._index
+        
 
-
-class JLineGenerator1D(JavaIteratorWrapper):
+class GeneratorWrapper(PPointGenerator):
     """
-    Create a 1D LineGenerator and wrap the points into java Scalar objects
+    Wrapper class for Java Generator
+    """
+    
+    def __init__(self, generator):
+        self._index = -1
+        self.generator = generator
+    
+    def __iter__(self):
+        return self.generator.iterator()
+    
+    def __getitem__(self, n):
+        self._index = n
+        return self.generator.get_point(n)
+    
+    def __len__(self):
+        return self.generator.size
+    
+    def getPointIterator(self):
+        return JavaIteratorWrapper(self.__iter__(), self.generator)
+    
+    def getSize(self):
+        return self.generator.size
+    def getShape(self):
+        return self.generator.shape
+    def getRank(self):
+        return len(self.generator.shape)
+    
+    def toDict(self):
+        return self.generator.to_dict()
+
+
+class StaticPositionGeneratorWrapper(GeneratorWrapper):
+    """
+    Wraps points into StaticPosition objects
+    """
+    
+    def __iter__(self):
+        for point in self.generator.iterator():
+            yield StaticPosition()
+
+class ScalarPointGeneratorWrapper(GeneratorWrapper):
+    """
+    Wraps points into Scalar objects
+    """
+    
+    def __iter__(self):
+        for point in self.generator.iterator():
+            index = point.indexes[0]
+            position = point.positions[self.name]
+            yield Scalar(self.name, index, position)
+
+class TwoDPointGeneratorWrapper(GeneratorWrapper):
+    """
+    Wraps points into 2-dimensional Java Point objects
+    """
+    
+    def __iter__(self):
+        for point in self.generator.iterator():
+            index = point.indexes[0]
+            x_name, y_name = self.names
+            x_position, y_position = point.positions[x_name], point.positions[y_name]
+            yield Point(x_name, index, x_position, y_name, index, y_position, False)
+
+class MapPositionWrapper(GeneratorWrapper):
+    """
+    Wraps points into n-dimensional MapPosition objects
+    """
+    
+    def __iter__(self):
+        self._index = -1
+        names = [d.axes for d in self.generator.dimensions]
+        axes_ordered = sum(names, [])
+        index_locations = {axis:[axis in name for name in names].index(True) for axis in axes_ordered}
+        for point in self.generator.iterator():
+            self._index += 1
+            map_point = MapPosition()
+            for axis in axes_ordered:
+                index = index_locations[axis]
+                value = point.positions[axis]
+                map_point.put(axis, value)
+                map_point.putIndex(axis, point.indexes[index])
+                map_point.setStepIndex(self._index)
+            map_point.setDimensionNames(names)
+            print(map_point)
+            yield map_point
+    
+  
+class JLineGenerator1D(ScalarPointGeneratorWrapper):
+    """
+    Create a 1D LineGenerator and wrap the points into Java Scalar objects
     """
 
-    def __init__(self, name, units, start, stop, num_points, alternate_direction=False):
-        super(JLineGenerator1D, self).__init__()
+    def __init__(self, name, units, start, stop, num_points, alternate_direction=False, continuous=True):
 
         self.name = name
         line_gen = LineGenerator(name, units, start, stop, num_points, alternate_direction)
-        self.generator = CompoundGenerator([line_gen], [], [])
+        self.generator = CompoundGenerator([line_gen], [], [], -1, continuous)
         self.generator.prepare()
-        self.logger.debug('Created JLineGenerator1D: %s', self.generator.to_dict())
+        super(ScalarPointGeneratorWrapper, self).__init__(self.generator)
 
-    def _iterator(self):
-
-        for point in self.generator.iterator():
-            index = point.indexes[0]
-            position = point.positions[self.name]
-            java_point = Scalar(self.name, index, position)
-
-            yield java_point
-
-
-class JLineGenerator2D(JavaIteratorWrapper):
+class JLineGenerator2D(TwoDPointGeneratorWrapper):
     """
     Create a 2D LineGenerator and wrap the points into java Point objects
     """
-
-    def __init__(self, names, units, start, stop, num_points, alternate_direction=False):
-        super(JLineGenerator2D, self).__init__()
-
-        start = start.tolist()  # Convert from array to list
-        stop = stop.tolist()
+    
+    def __init__(self, names, units, start, stop, num_points, alternate_direction=False, continuous=True):
 
         self.names = names
+        start = start.tolist()  # Convert from array to list
+        stop = stop.tolist()
         line_gen = LineGenerator(names, units, start, stop, num_points, alternate_direction)
-        self.generator = CompoundGenerator([line_gen], [], [])
+        self.generator = CompoundGenerator([line_gen], [], [], -1, continuous)
         self.generator.prepare()
-        self.logger.debug('Created JLineGenerator2D: %s', self.generator.to_dict())
+        super(TwoDPointGeneratorWrapper, self).__init__(self.generator)
 
-    def _iterator(self):
-
-        for point in self.generator.iterator():
-            index = point.indexes[0]
-            x_name = self.names[0]
-            y_name = self.names[1]
-            x_position = point.positions[x_name]
-            y_position = point.positions[y_name]
-            java_point = Point(x_name, index, x_position,
-                               y_name, index, y_position, False)
-            # Set is2D=False
-
-            yield java_point
-
-
-class JArrayGenerator(JavaIteratorWrapper):
+class JArrayGenerator(ScalarPointGeneratorWrapper):
     """
     Create an ArrayGenerator and wrap the points into java Scalar objects
     """
-
-    def __init__(self, name, units, points, alternate=False):
-        super(JArrayGenerator, self).__init__()
-
-        points = points.tolist()  # Convert from array to list
+    
+    def __init__(self, name, units, points, alternate_direction=False, continuous=True):
 
         self.name = name
-        array_gen = ArrayGenerator(name, units, points, alternate)
-        self.generator = CompoundGenerator([array_gen], [], [])
+        array_gen = ArrayGenerator(name, units, points, alternate_direction)
+        self.generator = CompoundGenerator([array_gen], [], [], -1, continuous)
         self.generator.prepare()
-        self.logger.debug('Created JArrayGenerator: %s', self.generator.to_dict())
+        super(ScalarPointGeneratorWrapper, self).__init__(self.generator)
 
-    def _iterator(self):
-
-        for point in self.generator.iterator():
-            index = point.indexes[0]
-            position = point.positions[self.name]
-            java_point = Scalar(self.name, index, position)
-
-            yield java_point
-
-
-class JSpiralGenerator(JavaIteratorWrapper):
+class JSpiralGenerator(TwoDPointGeneratorWrapper):
     """
     Create a SpiralGenerator and wrap the points into java Point objects
     """
 
-    def __init__(self, names, units, centre, radius, scale=1.0, alternate_direction=False):
-        super(JSpiralGenerator, self).__init__()
+    def __init__(self, names, units, centre, radius, scale=1.0, alternate_direction=False, continuous=True):
 
         self.names = names
         spiral_gen = SpiralGenerator(names, units, centre, radius, scale, alternate_direction)
-        self.generator = CompoundGenerator([spiral_gen], [], [])
+        self.generator = CompoundGenerator([spiral_gen], [], [], -1, continuous)
         self.generator.prepare()
-        self.logger.debug('Created JSpiralGenerator: %s', self.generator.to_dict())
+        super(TwoDPointGeneratorWrapper, self).__init__(self.generator)
 
-    def _iterator(self):
-
-        x_name = self.names[0]
-        y_name = self.names[1]
-
-        for point in self.generator.iterator():
-            index = point.indexes[0]
-            x_position = point.positions[x_name]
-            y_position = point.positions[y_name]
-            java_point = Point(x_name, index, x_position,
-                               y_name, index, y_position, False)
-            # Set is2D=False
-
-            yield java_point
-
-
-class JLissajousGenerator(JavaIteratorWrapper):
+class JLissajousGenerator(TwoDPointGeneratorWrapper):
     """
     Create a LissajousGenerator and wrap the points into java Point objects
     """
 
-    def __init__(self, names, units, box, num_lobes, num_points, alternate=False):
-        super(JLissajousGenerator, self).__init__()
-
+    def __init__(self, names, units, box, num_lobes, num_points, alternate_direction=False, continuous=True):
+        
         self.names = names
         liss_gen = LissajousGenerator(names, units, box["centre"],
-                [box["width"], box["height"]], num_lobes, num_points, alternate)
-        self.generator = CompoundGenerator([liss_gen], [], [])
+                [box["width"], box["height"]], num_lobes, num_points, alternate_direction)
+        self.generator = CompoundGenerator([liss_gen], [], [], -1, continuous)
         self.generator.prepare()
-        self.logger.debug('Created JLissajousGenerator: %s', self.generator.to_dict())
+        super(TwoDPointGeneratorWrapper, self).__init__(self.generator)
 
-    def _iterator(self):
-
-        x_name = self.names[0]
-        y_name = self.names[1]
-
-        for point in self.generator.iterator():
-            index = point.indexes[0]
-            x_position = point.positions[x_name]
-            y_position = point.positions[y_name]
-            java_point = Point(x_name, index, x_position,
-                               y_name, index, y_position, False)
-            # Set is2D=False
-
-            yield java_point
-
-
-class JStaticPointGenerator(JavaIteratorWrapper):
+class JZipGenerator(MapPositionWrapper):
+    """
+    Wrap a ZipGenerator and produce MapPosition objects
+    """
+    
+    def __init__(self, iterators, alternate_direction=False, continuous=False):
+        super(JZipGenerator, self).__init__()
+        zip_gen = ZipGenerator(iterators, alternate)
+        self.generator = CompoundGenerator([zip_gen], [], [], -1, continuous)
+        self.generator.prepare()
+        self.names = [d.axes for d in self.generator.dimensions]
+        super(MapPositionWrapper, self).__init__(self.generator)
+    
+class JStaticPointGenerator(StaticPositionGeneratorWrapper):
     """
     Wrap a StaticPointGenerator and produce StaticPosition objects
     """
-
+    
     def __init__(self, size, axes=[]):
-        super(JStaticPointGenerator, self).__init__()
         g = StaticPointGenerator(size, axes)
         self.generator = CompoundGenerator([g], [], [])
         self.generator.prepare()
-        self.logger.debug('Created JStaticPointGenerator: %s', self.generator.to_dict())
+        super(StaticPositionGeneratorWrapper, self).__init__(self.generator)
 
-    def _iterator(self):
-        for p in self.generator.iterator():
-            yield StaticPosition()
-
-
-class JCompoundGenerator(JavaIteratorWrapper):
+class JCompoundGenerator(MapPositionWrapper):
     """
     Create a CompoundGenerator and wrap the points into java Point objects
     """
 
     def __init__(self, iterators, excluders, mutators, duration=-1, continuous=True, delay_after=0):
-        super(JCompoundGenerator, self).__init__()
         try:  # If JavaIteratorWrapper
-            generators = [g for t in iterators for g in t.generator.generators]
+            generators = [generator for iterator in iterators for generator in iterator.generator.generators]
         except AttributeError:  # Else call get*() of Java iterator
-            generators = [iterator.getPyIterator().generator for iterator in iterators]
-        logger.debug("Generators passed to JCompoundGenerator: %s", [g.to_dict() for g in generators])
+            generators = [iterator.generator for iterator in iterators]
+        except AttributeError:  # Else call get*() of Java iterator
+            generators = [iterator.getPointIterator().generator for iterator in iterators]
 
         excluders = [excluder.py_excluder for excluder in excluders]
         mutators = [mutator.py_mutator for mutator in mutators]
@@ -288,54 +309,33 @@ class JCompoundGenerator(JavaIteratorWrapper):
 
         self.generator = CompoundGenerator(generators, excluders, mutators, duration, continuous, delay_after)
         self.generator.prepare()
-        self.dimension_names = [d.axes for d in self.generator.dimensions]
-        self.axes_ordering = sum(self.dimension_names, [])
-        self.index_locations = {axis:[axis in names for names in self.dimension_names].index(True)
-                for axis in self.axes_ordering}
+        super(MapPositionWrapper, self).__init__(self.generator)
 
-        self.logger.debug("Dimension names: %s", self.dimension_names)
-        self.logger.debug("Index Locations: %s", self.index_locations)
-        self.logger.debug("Axes Ordering: %s", self.axes_ordering)
 
-        self.logger.debug("CompoundGenerator: %s", self.generator.to_dict())
+class JSimplePointGen(MapPositionWrapper):
+    """
+    Create a CompoundGenerator without regions etc., just to apply continuousness and generate points.
+    """
 
-    def _iterator(self):
+    def __init__(self, generators, continuous=True):
+        try:  # If JavaIteratorWrapper
+            generators = [g for t in iterators for g in t.generator.generators]
+        except AttributeError:  # Else call get*() of Java iterator
+            generators = [iterator.getPyIterator().generator for iterator in iterators]
+        logger.debug("Generators passed to JSimplePointGen: %s", [g.to_dict() for g in generators])
 
-        for point in self.generator.iterator():
+        extracted_generators = []
 
-            if len(point.positions.keys()) == 1:
-                name = point.positions.keys()[0]
-                index = point.indexes[0]
-                position = point.positions[name]
-                java_point = Scalar(name, index, position)
-
-            elif len(point.positions.keys()) == 2:
-                self.logger.debug('Index: %s Positions: %s', point.indexes, point.positions)
-
-                names = []
-                indexes = []
-                values = []
-                for axis in self.axes_ordering:
-                    index = self.index_locations[axis]
-                    indexes.append(point.indexes[index])
-                    values.append(point.positions[axis])
-                    names.append(axis)
-
-                java_point = Point(names[1], indexes[1], values[1],
-                                   names[0], indexes[0], values[0])
-                java_point.setDimensionNames(self.dimension_names)
+        for generator in generators:
+            if generator.__class__.__name__ == "CompoundGenerator":
+                extracted_generators.extend(generator.generators)
             else:
-                java_point = MapPosition()
+                extracted_generators.append(generator)
+        generators = extracted_generators
 
-                for axis in self.axes_ordering:
-                    index = self.index_locations[axis]
-                    value = point.positions[axis]
-                    java_point.put(axis, value)
-                    java_point.putIndex(axis, point.indexes[index])
-
-                java_point.setDimensionNames(self.dimension_names)
-
-            yield java_point
+        self.generator = CompoundGenerator(generators, [], [], -1, continuous)
+        self.generator.prepare()
+        super(MapPositionWrapper, self).__init__(self.generator)
 
 
 class JRandomOffsetMutator(object):
@@ -345,6 +345,7 @@ class JRandomOffsetMutator(object):
         self.logger = logger.getChild(self.__class__.__name__)
         self.logger.debug('Created JRandomOffsetMutator: %s', self.py_mutator.to_dict())
 
+
 class JExcluder(object):
 
     def __init__(self, rois, scannables):
@@ -352,6 +353,7 @@ class JExcluder(object):
         self.py_excluder = ROIExcluder(py_rois, scannables)
         self.logger = logger.getChild(self.__class__.__name__)
         self.logger.debug('Created JExcluder: %s', self.py_excluder.to_dict())
+
 
 class JCircularROI(object):
 

@@ -13,7 +13,7 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.StaticModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
@@ -71,11 +71,11 @@ public class MalcolmStaticScanTest extends AbstractMalcolmScanTest {
 			final IPointGenerator<?>[] stepGenerators = new IPointGenerator<?>[size.length];
 			if (size.length > 0) {
 				for (int dim = size.length - 1; dim >= 0; dim--) {
-					final StepModel model;
+					final AxialStepModel model;
 					if (size[dim] - 1 > 0) {
-						model = new StepModel("neXusScannable" + (dim + 1), 10, 20, 9.99d / (size[dim] - 1));
+						model = new AxialStepModel("neXusScannable" + (dim + 1), 10, 20, 9.99d / (size[dim] - 1));
 					} else {
-						model = new StepModel("neXusScannable" + (dim + 1), 10, 20, 30);
+						model = new AxialStepModel("neXusScannable" + (dim + 1), 10, 20, 30);
 					}
 					final IPointGenerator<?> stepGenerator = pointGenService.createGenerator(model);
 					stepGenerators[dim] = stepGenerator;

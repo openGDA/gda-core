@@ -20,7 +20,9 @@ import java.util.List;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.ValidationException;
+import org.eclipse.scanning.api.points.models.AbstractPointsModel;
 import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
+import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +49,6 @@ public abstract class AbstractGenerator<T> implements IPointGenerator<T> {
 	private int[] shape = null;
 
 	protected AbstractGenerator() {
-		super();
 		this.id = getClass().getName();
 	}
 
@@ -72,6 +73,13 @@ public abstract class AbstractGenerator<T> implements IPointGenerator<T> {
 		return iteratorFromValidModel();
 	}
 
+	public final PPointGenerator createPythonPointGeneratorFromValidModel() {
+		validateModel();
+		return createPythonPointGenerator();
+	}
+
+	protected abstract PPointGenerator createPythonPointGenerator();
+
 	/**
 	 * Creates and returns an iterator for this model. If possible subclasses should aim to
 	 * return an instance of {@link ScanPointIterator}.
@@ -89,16 +97,31 @@ public abstract class AbstractGenerator<T> implements IPointGenerator<T> {
 	 * @throw exception if model invalid
 	 */
 	protected void validateModel() throws ValidationException {
+		if (model instanceof IScanPathModel) {
+			validateScanPath((IScanPathModel) model);
+		}
 		if (model instanceof IBoundingBoxModel) {
-			IBoundingBoxModel bmodel = (IBoundingBoxModel)model;
-			// As implemented, model width and/or height can be negative,
-			// and this flips the slow and/or fast point order.
-			if (bmodel.getBoundingBox() == null)
-				throw new ModelValidationException("The model must have a Bounding Box!", model, "boundingBox");
-	        if (bmodel.getBoundingBox().getxAxisLength()==0)
-	        	throw new ModelValidationException("The length must not be 0!", bmodel, "boundingBox");
-	        if (bmodel.getBoundingBox().getyAxisLength()==0)
-	        	throw new ModelValidationException("The length must not be 0!", bmodel, "boundingBox");
+			validateBoundingBox((IBoundingBoxModel) model);
+		}
+	}
+
+	private void validateBoundingBox(IBoundingBoxModel boxModel) {
+		// As implemented, model width and/or height can be negative,
+		// and this flips the slow and/or fast point order.
+		if (boxModel.getBoundingBox() == null)
+			throw new ModelValidationException("The model must have a Bounding Box!", boxModel, "boundingBox");
+        if (boxModel.getBoundingBox().getxAxisLength()==0)
+        	throw new ModelValidationException("The length must not be 0!", boxModel, "boundingBox");
+        if (boxModel.getBoundingBox().getyAxisLength()==0)
+        	throw new ModelValidationException("The length must not be 0!", boxModel, "boundingBox");
+	}
+
+	private void validateScanPath(IScanPathModel scanPath) {
+		if (!AbstractPointsModel.supportsContinuous(scanPath.getClass()) && scanPath.isContinuous()) {
+			throw new ModelValidationException(scanPath.getClass().getSimpleName() + " cannot be continuous!", model, "continuous");
+		}
+		if (!AbstractPointsModel.supportsAlternating(scanPath.getClass()) && scanPath.isAlternating()) {
+			throw new ModelValidationException(scanPath.getClass().getSimpleName() + " cannot be alternating!", model, "alternating");
 		}
 	}
 
@@ -210,7 +233,7 @@ public abstract class AbstractGenerator<T> implements IPointGenerator<T> {
 		// Always ask the iterator for size because it is
 		// much faster than actual iteration.
 		if (it instanceof ScanPointIterator) {
-			return ((ScanPointIterator)it).size();
+			return ((ScanPointIterator)it).getSize();
 		}
 		int index = 0;
 		while (it.hasNext()) {
@@ -387,10 +410,14 @@ public abstract class AbstractGenerator<T> implements IPointGenerator<T> {
 		return true;
 	}
 
+	protected String description() {
+	return "model=" + model + ", containers=" + containers + ", regions=" + regions + ", id=" +
+			id + ", label=" + label + ", visible=" + visible + ", enabled=" + enabled + ", shape=" + Arrays.toString(shape);
+	}
+
 	@Override
 	public String toString() {
-		return "AbstractGenerator [model=" + model + ", containers=" + containers + ", regions=" + regions + ", id="
-				+ id + ", label=" + label + ", visible="
-				+ visible + ", enabled=" + enabled + ", shape=" + Arrays.toString(shape) + "]";
+		return getClass().getSimpleName() + " [" + description() + "]";
 	}
+
 }

@@ -91,6 +91,7 @@ public abstract class AbstractPointsModel implements IScanPathModel {
 		result = prime * result + (continuous ? 1231 : 1237);
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -131,13 +132,15 @@ public abstract class AbstractPointsModel implements IScanPathModel {
 	}
 	@Override
 	public String toString() {
-		return "AbstractPointsModel [name=" + name + ", continuous="+ continuous + ", alternating=" + alternating + "]";
+		return "name=" + name + ", continuous="+ continuous + ", alternating=" + alternating;
 	}
 
+	@Override
 	public boolean isContinuous() {
 		return continuous;
 	}
 
+	@Override
 	public void setContinuous(boolean newValue) {
 		pcs.firePropertyChange("continuous", continuous, newValue);
 		continuous = newValue;
@@ -149,29 +152,12 @@ public abstract class AbstractPointsModel implements IScanPathModel {
 		return dimensions;
 	}
 
-	/**
-     * **This setting only makes sense when there is a scannable outside of this one**
-     *
-	 * An alternating/snake scan is a scan where each line of the scan is performed in the opposite direction
-	 * to the previous one as show below:
-	 * <pre>
-	 * -------------------->
-	 * <--------------------
-	 * -------------------->
-     * </pre>
-     * Otherwise all lines of the scan are performed in the same direction
-     * <pre>
-     * -------------------->
-     * -------------------->
-     * -------------------->
-     * </pre>
-     * @return <code>true</code> if the scan is a alternating, <code>false</code> otherwise
- 	 */
-
+	@Override
 	public boolean isAlternating() {
 		return alternating;
 	}
 
+	@Override
 	public void setAlternating(boolean alternating) {
 		boolean oldValue = this.alternating;
 		this.alternating = alternating;
@@ -179,14 +165,13 @@ public abstract class AbstractPointsModel implements IScanPathModel {
 	}
 
 	public static boolean supportsAlternating(Class<? extends IScanPathModel> model) {
-		return !(model.equals(RepeatedPointModel.class) || model.equals(SinglePointModel.class) || model.equals(StaticModel.class));
+		return !(model.equals(OneAxisPointRepeatedModel.class) || model.equals(TwoAxisPointSingleModel.class) || model.equals(StaticModel.class));
 	}
 	public static boolean supportsContinuous(Class<? extends IScanPathModel> model) {
-		return !(model.equals(RepeatedPointModel.class) || model.equals(SinglePointModel.class) || model.equals(StaticModel.class));
+		return !(model.equals(OneAxisPointRepeatedModel.class) || model.equals(TwoAxisPointSingleModel.class) || model.equals(StaticModel.class));
 	}
 	public static boolean supportsRandomOffset(Class<? extends IScanPathModel> model) {
-		return (model.equals(GridModel.class));
-
+		return (model.equals(TwoAxisGridPointsModel.class));
 	}
 
 }

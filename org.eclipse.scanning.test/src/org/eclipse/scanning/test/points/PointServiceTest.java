@@ -19,7 +19,7 @@ import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.GridModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +47,7 @@ public class PointServiceTest {
 
 		IRectangularROI roi1 = new RectangularROI(0,0,5,5,0);
 
-		GridModel model = new GridModel("x", "y");
+		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel("x", "y");
 		model.setyAxisPoints(5);
 		model.setxAxisPoints(5);
 

@@ -36,9 +36,9 @@ import org.eclipse.scanning.api.event.scan.ScanEvent;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.GridModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.BrokerTest;
@@ -254,8 +254,8 @@ public class BenchmarkScanTest extends BrokerTest {
 		if (!bean.isSilent()) System.out.println("\nChecking that "+bean.getSize()+" points take "+bean.getReqTime()+"ms or less to run. Using "+bean.getTries()+" tries.");
 
 		// Before, run, after, check time.
-		final StepModel smodel = new StepModel(bean.getScannableName(), 0, bean.getSize(), 1);
-		final GridModel gmodel = new GridModel();
+		final AxialStepModel smodel = new AxialStepModel(bean.getScannableName(), 0, bean.getSize(), 1);
+		final TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
 		gmodel.setxAxisName("xNex");
 		gmodel.setyAxisName("yNex");
 		gmodel.setxAxisPoints(1);

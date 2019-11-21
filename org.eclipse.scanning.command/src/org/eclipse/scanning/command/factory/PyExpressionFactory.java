@@ -22,15 +22,15 @@ import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.scanning.api.device.models.IReflectedModel;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
-import org.eclipse.scanning.api.points.models.ArrayModel;
-import org.eclipse.scanning.api.points.models.GridModel;
-import org.eclipse.scanning.api.points.models.LissajousModel;
-import org.eclipse.scanning.api.points.models.MultiStepModel;
-import org.eclipse.scanning.api.points.models.RandomOffsetGridModel;
-import org.eclipse.scanning.api.points.models.RasterModel;
-import org.eclipse.scanning.api.points.models.RepeatedPointModel;
-import org.eclipse.scanning.api.points.models.SpiralModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.AxialArrayModel;
+import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
+import org.eclipse.scanning.api.points.models.OneAxisPointRepeatedModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsRandomOffsetModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
+import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.scanning.command.PyExpressionNotImplementedException;
 
 /**
@@ -52,16 +52,16 @@ public class PyExpressionFactory {
 	static {
 		Map<Class<?>, PyModelExpresser<?>> exp = new LinkedHashMap<>();
 
-		exp.put(StepModel.class,           new StepModelExpresser());
-		exp.put(MultiStepModel.class,      new MultiStepModelExpresser());
-		exp.put(GridModel.class,           new GridModelExpresser());
-		exp.put(RasterModel.class,         new RasterModelExpresser());
-		exp.put(ArrayModel.class,          new ArrayModelExpresser());
-		exp.put(RepeatedPointModel.class,  new RepeatedPointExpresser());
-		exp.put(RandomOffsetGridModel.class,
-										   new RandomOffsetGridModelExpresser());
-		exp.put(SpiralModel.class,		   new SpiralModelExpresser());
-		exp.put(LissajousModel.class, 	   new LissajousModelExpresser());
+		exp.put(AxialStepModel.class, new AxialStepModelExpresser());
+		exp.put(AxialMultiStepModel.class, new AxialMultiStepModelExpresser());
+		exp.put(TwoAxisGridPointsModel.class, new TwoAxisGridPointsModelExpresser());
+		exp.put(TwoAxisGridStepModel.class, new TwoAxisGridStepModelExpresser());
+		exp.put(AxialArrayModel.class,new AxialArrayModelExpresser());
+		exp.put(OneAxisPointRepeatedModel.class, new OneAxisPointRepeatedModelExpresser());
+		exp.put(TwoAxisGridPointsRandomOffsetModel.class,
+				new TwoAxisGridPointsRandomOffsetModelExpresser());
+		exp.put(TwoAxisSpiralModel.class, new TwoAxisSpiralModelExpresser());
+		exp.put(TwoAxisLissajousModel.class, new TwoAxisLissajousModelExpresser());
 
 		exp.put(Collection.class,      new ROICollectionExpresser());
 		exp.put(List.class,            new ROICollectionExpresser());

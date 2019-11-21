@@ -64,7 +64,7 @@ public class JythonInterpreterManager {
 	public static synchronized void addPath(String directory) throws IOException {
 
 		// Load one of the standard functions if the state has not been created yet.
-		if (configuredState==null) ScanPointGeneratorFactory.JLineGenerator1DFactory();
+		if (configuredState==null) ScanPointGeneratorFactory.JOneAxisLineGeneratorFactory();
 
 		// Do nothing if the directory is on the path
 		if (configuredState.path.contains(directory)) return;

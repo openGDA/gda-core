@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.PPointGenerator;
 import org.eclipse.scanning.api.points.Point;
 import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.points.ScanPointIterator;
@@ -38,10 +39,10 @@ public class ScanPointGeneratorFactoryTest {
 
     @Test
     public void testJLineGeneratorFactory1D() {
-        JythonObjectFactory<ScanPointIterator> lineGeneratorFactory = ScanPointGeneratorFactory.JLineGenerator1DFactory();
+        JythonObjectFactory<PPointGenerator> lineGeneratorFactory = ScanPointGeneratorFactory.JOneAxisLineGeneratorFactory();
 
 		ScanPointIterator iterator = lineGeneratorFactory.createObject(
-				"x", "mm", 1.0, 5.0, 5);
+				"x", "mm", 1.0, 5.0, 5).getPointIterator();
 
         List<Object> expectedPoints = new ArrayList<Object>();
 	    expectedPoints.add(new Scalar<>("x", 0, 1.0));
@@ -51,7 +52,7 @@ public class ScanPointGeneratorFactoryTest {
 	    expectedPoints.add(new Scalar<>("x", 4, 5.0));
 
 	    final int expectedSize = expectedPoints.size();
-        assertEquals(expectedSize, iterator.size());
+        assertEquals(expectedSize, iterator.getSize());
         assertEquals(1, iterator.getRank());
         assertArrayEquals(new int[] { expectedSize }, iterator.getShape());
 
@@ -68,7 +69,7 @@ public class ScanPointGeneratorFactoryTest {
 
     @Test
     public void testJLineGeneratorFactory2D() {
-        JythonObjectFactory<ScanPointIterator> lineGeneratorFactory = ScanPointGeneratorFactory.JLineGenerator2DFactory();
+        JythonObjectFactory<PPointGenerator> lineGeneratorFactory = ScanPointGeneratorFactory.JTwoAxisLineGeneratorFactory();
 
         PyList names = new PyList(Arrays.asList(new String[] {"X", "Y"}));
         PyList units = new PyList(Arrays.asList(new String[] {"mm", "mm"}));
@@ -76,7 +77,7 @@ public class ScanPointGeneratorFactoryTest {
         double[] stop = {5.0, 10.0};
 
 		ScanPointIterator iterator = lineGeneratorFactory.createObject(
-				names, units, start, stop, 5);
+				names, units, start, stop, 5).getPointIterator();
 
         List<Object> expectedPoints = new ArrayList<Object>();
 	    expectedPoints.add(new Point("X", 0, 1.0, "Y", 0, 2.0, false));
@@ -86,7 +87,7 @@ public class ScanPointGeneratorFactoryTest {
 	    expectedPoints.add(new Point("X", 4, 5.0, "Y", 4, 10.0, false));
 
 	    final int expectedSize = expectedPoints.size();
-        assertEquals(expectedSize, iterator.size());
+        assertEquals(expectedSize, iterator.getSize());
         assertEquals(1, iterator.getRank());
         assertArrayEquals(new int[] { expectedSize }, iterator.getShape());
 
@@ -101,12 +102,12 @@ public class ScanPointGeneratorFactoryTest {
 
     @Test
     public void testJArrayGeneratorFactory() {
-        JythonObjectFactory<ScanPointIterator> arrayGeneratorFactory = ScanPointGeneratorFactory.JArrayGeneratorFactory();
+        JythonObjectFactory<PPointGenerator> arrayGeneratorFactory = ScanPointGeneratorFactory.JOneAxisArrayGeneratorFactory();
 
         double[] arrayPoints = new double[] {1.0, 2.0, 3.0, 4.0, 5.0};
 
 		ScanPointIterator iterator = arrayGeneratorFactory.createObject(
-				"x", "mm", arrayPoints);
+				"x", "mm", arrayPoints).getPointIterator();
 
         List<Object> expectedPoints = new ArrayList<Object>();
 	    expectedPoints.add(new Scalar<>("x", 0, 1.0));
@@ -116,7 +117,7 @@ public class ScanPointGeneratorFactoryTest {
 	    expectedPoints.add(new Scalar<>("x", 4, 5.0));
 
 	    final int expectedSize = expectedPoints.size();
-        assertEquals(expectedSize, iterator.size());
+        assertEquals(expectedSize, iterator.getSize());
         assertEquals(1, iterator.getRank());
         assertArrayEquals(new int[] { expectedSize }, iterator.getShape());
 
@@ -131,7 +132,7 @@ public class ScanPointGeneratorFactoryTest {
 
     @Test
     public void testJSpiralGeneratorFactory() {
-        JythonObjectFactory<ScanPointIterator> spiralGeneratorFactory = ScanPointGeneratorFactory.JSpiralGeneratorFactory();
+        JythonObjectFactory<PPointGenerator> spiralGeneratorFactory = ScanPointGeneratorFactory.JTwoAxisSpiralGeneratorFactory();
 
         PyList names = new PyList(Arrays.asList(new String[] {"X", "Y"}));
         PyList centre = new PyList(Arrays.asList(new Double[] {0.0, 0.0}));
@@ -140,7 +141,7 @@ public class ScanPointGeneratorFactoryTest {
         boolean alternate = false;
 
         ScanPointIterator iterator = spiralGeneratorFactory.createObject(
-				names, "mm", centre, radius, scale, alternate);
+				names, "mm", centre, radius, scale, alternate).getPointIterator();
 
         List<Object> expectedPoints = new ArrayList<Object>();
 	    expectedPoints.add(new Point("X", 0, 0.23663214944574582, "Y", 0, -0.3211855677650875, false));
@@ -153,7 +154,7 @@ public class ScanPointGeneratorFactoryTest {
 	    expectedPoints.add(new Point("X", 7, -0.43197069612785155, "Y", 7, -1.4834842311481606, false));
 
 	    final int expectedSize = 8;
-        assertEquals(expectedSize, iterator.size());
+        assertEquals(expectedSize, iterator.getSize());
         assertEquals(1, iterator.getRank());
         assertArrayEquals(new int[] { expectedSize }, iterator.getShape());
 
@@ -168,7 +169,7 @@ public class ScanPointGeneratorFactoryTest {
 
     @Test
     public void testJLissajousGeneratorFactory() {
-        JythonObjectFactory<ScanPointIterator> lissajousGeneratorFactory = ScanPointGeneratorFactory.JLissajousGeneratorFactory();
+        JythonObjectFactory<PPointGenerator> lissajousGeneratorFactory = ScanPointGeneratorFactory.JTwoAxisLissajousGeneratorFactory();
 
         PyDictionary box = new PyDictionary();
         box.put("width", 1.5);
@@ -180,7 +181,7 @@ public class ScanPointGeneratorFactoryTest {
         int numPoints = 500;
 
         ScanPointIterator iterator = lissajousGeneratorFactory.createObject(
-				names, "mm", box, numLobes, numPoints);
+				names, "mm", box, numLobes, numPoints).getPointIterator();
 
         List<Object> expectedPoints = new ArrayList<Object>();
 	    expectedPoints.add(new Point("X", 0, 0.0, "Y", 0, 0.0, false));
@@ -190,7 +191,7 @@ public class ScanPointGeneratorFactoryTest {
 	    expectedPoints.add(new Point("X", 4, 0.07527128613841116, "Y", 4, 0.1126691918405678, false));
 	    expectedPoints.add(new Point("X", 5, 0.0939999251732282, "Y", 5, 0.14053598593929345, false));
 
-        assertEquals(numPoints, iterator.size());
+        assertEquals(numPoints, iterator.getSize());
         assertEquals(1, iterator.getRank());
         assertArrayEquals(new int[] { numPoints }, iterator.getShape());
 
@@ -205,33 +206,33 @@ public class ScanPointGeneratorFactoryTest {
     @Test
     public void testJCompoundGeneratorFactoryWithRaster() {
 
-		JythonObjectFactory<ScanPointIterator> lineGeneratorFactory = ScanPointGeneratorFactory.JLineGenerator1DFactory();
+		JythonObjectFactory<PPointGenerator> lineGeneratorFactory = ScanPointGeneratorFactory.JOneAxisLineGeneratorFactory();
 
 		ScanPointIterator outerLine = lineGeneratorFactory.createObject(
-				"y", "mm", 0.0, 5.0, 2);
+				"y", "mm", 0.0, 5.0, 2).getPointIterator();
 
 		ScanPointIterator innerLine = lineGeneratorFactory.createObject(
-				"x", "mm", 1.0, 3.0, 3, true);
+				"x", "mm", 1.0, 3.0, 3, true).getPointIterator();
 
-		JythonObjectFactory<ScanPointIterator> compoundGeneratorFactory = ScanPointGeneratorFactory.JCompoundGeneratorFactory();
+		JythonObjectFactory<PPointGenerator> compoundGeneratorFactory = ScanPointGeneratorFactory.JCompoundGeneratorFactory();
 
         Object[] generators = {outerLine, innerLine};
         Object[] excluders = CompoundSpgIteratorFactory.getExcluders(Arrays.asList(new ScanRegion(new RectangularROI(0,0,5,5,0), Arrays.asList("x", "y"))));
         Object[] mutators = {};
 
         ScanPointIterator iterator = compoundGeneratorFactory.createObject(
-				generators, excluders, mutators);
+				generators, excluders, mutators).getPointIterator();
 
         List<Object> expectedPoints = new ArrayList<Object>();
-	    expectedPoints.add(new Point(0, 1.0, 0, 0.0));
-	    expectedPoints.add(new Point(1, 2.0, 0, 0.0));
-	    expectedPoints.add(new Point(2, 3.0, 0, 0.0));
-	    expectedPoints.add(new Point(2, 3.0, 1, 5.0));
-	    expectedPoints.add(new Point(1, 2.0, 1, 5.0));
-	    expectedPoints.add(new Point(0, 1.0, 1, 5.0));
+	    expectedPoints.add(new Point(0, 1.0, 0, 0.0, 0));
+	    expectedPoints.add(new Point(1, 2.0, 0, 0.0, 1));
+	    expectedPoints.add(new Point(2, 3.0, 0, 0.0, 2));
+	    expectedPoints.add(new Point(2, 3.0, 1, 5.0, 3));
+	    expectedPoints.add(new Point(1, 2.0, 1, 5.0, 4));
+	    expectedPoints.add(new Point(0, 1.0, 1, 5.0, 5));
 
 	    final int expectedSize = expectedPoints.size();
-        assertEquals(expectedSize, iterator.size());
+        assertEquals(expectedSize, iterator.getSize());
         assertEquals(2, iterator.getRank());
         assertArrayEquals(new int[] { 2, 3 }, iterator.getShape());
 
@@ -246,13 +247,13 @@ public class ScanPointGeneratorFactoryTest {
 
     @Test
     public void testJCompoundGeneratorFactoryWithMutatedRaster() {
-        JythonObjectFactory<ScanPointIterator> lineGeneratorFactory = ScanPointGeneratorFactory.JLineGenerator1DFactory();
+        JythonObjectFactory<PPointGenerator> lineGeneratorFactory = ScanPointGeneratorFactory.JOneAxisLineGeneratorFactory();
 
 		ScanPointIterator line1 = lineGeneratorFactory.createObject(
-				"y", "mm", 2.0, 10.0, 5);
+				"y", "mm", 2.0, 10.0, 5).getPointIterator();
 
 		ScanPointIterator line2 = lineGeneratorFactory.createObject(
-				"x", "mm", 1.0, 5.0, 5);
+				"x", "mm", 1.0, 5.0, 5).getPointIterator();
 
         JythonObjectFactory<?> randomOffsetMutatorFactory = ScanPointGeneratorFactory.JRandomOffsetMutatorFactory();
 
@@ -266,7 +267,7 @@ public class ScanPointGeneratorFactoryTest {
 
 		PyObject randomOffset = (PyObject) randomOffsetMutatorFactory.createObject(seed, axes, maxOffset);
 
-        JythonObjectFactory<ScanPointIterator> compoundGeneratorFactory = ScanPointGeneratorFactory.JCompoundGeneratorFactory();
+        JythonObjectFactory<PPointGenerator> compoundGeneratorFactory = ScanPointGeneratorFactory.JCompoundGeneratorFactory();
 
         Object[] generators = {line1, line2};
         Object[] excluders = CompoundSpgIteratorFactory.getExcluders(Arrays.asList(
@@ -274,7 +275,7 @@ public class ScanPointGeneratorFactoryTest {
         Object[] mutators = {randomOffset};
 
 		ScanPointIterator iterator = compoundGeneratorFactory.createObject(
-				generators, excluders, mutators);
+				generators, excluders, mutators).getPointIterator();
 
 		List<IPosition> vanillaPoints = new ArrayList<IPosition>(10);
 		vanillaPoints.add(new Point("x", 0, 1.0, "y", 0, 2.0));
@@ -290,7 +291,7 @@ public class ScanPointGeneratorFactoryTest {
 
 	    final int[] expectedShape = new int[] { 5, 5 };
 	    final int expectedSize = expectedShape[0] * expectedShape[1];
-        assertEquals(expectedSize, iterator.size());
+        assertEquals(expectedSize, iterator.getSize());
         assertEquals(2, iterator.getRank());
         assertArrayEquals(expectedShape, iterator.getShape());
 

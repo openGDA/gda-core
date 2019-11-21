@@ -24,7 +24,7 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Point;
-import org.eclipse.scanning.api.points.models.RasterModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -47,7 +47,7 @@ public class RasterTestLarge {
 		CircularROI roi = new CircularROI(500, 500, 500);
 
 		// Create a raster scan path
-		RasterModel model = new RasterModel();
+		TwoAxisGridStepModel model = new TwoAxisGridStepModel();
 		model.setxAxisStep(1);
 		model.setyAxisStep(1);
 
@@ -61,7 +61,7 @@ public class RasterTestLarge {
 		RectangularROI roi = new RectangularROI(0, 0, 1000, 10000, 0);
 
 		// Create a raster scan path
-		RasterModel model = new RasterModel();
+		TwoAxisGridStepModel model = new TwoAxisGridStepModel();
 		model.setxAxisStep(1);
 		model.setyAxisStep(1);
 
@@ -69,11 +69,11 @@ public class RasterTestLarge {
 	}
 
 
-	private void testIteratorTime(RasterModel model, IROI roi, int size, long tenMilTime, boolean testAllPoints) throws Exception {
+	private void testIteratorTime(TwoAxisGridStepModel model, IROI roi, int size, long tenMilTime, boolean testAllPoints) throws Exception {
 
 
 		// Get the point list
-		IPointGenerator<RasterModel> gen = service.createGenerator(model, roi);
+		IPointGenerator<TwoAxisGridStepModel> gen = service.createGenerator(model, roi);
 		if (testAllPoints) GeneratorUtil.testGeneratorPoints(gen);
 
 		long start = System.currentTimeMillis();
@@ -117,12 +117,12 @@ public class RasterTestLarge {
 		RectangularROI boundingRectangle = new RectangularROI(0, 0, 1000, 10000, 0);
 
 		// Create a raster scan path
-		RasterModel model = new RasterModel();
+		TwoAxisGridStepModel model = new TwoAxisGridStepModel();
 		model.setxAxisStep(1);
 		model.setyAxisStep(1);
 
 		// Get the point list
-		IPointGenerator<RasterModel> gen = service.createGenerator(model, boundingRectangle);
+		IPointGenerator<TwoAxisGridStepModel> gen = service.createGenerator(model, boundingRectangle);
 		List<IPosition> points = gen.createPoints();
 
 		assertEquals(10011001, points.size()); // TODO Is 10011001 correct?

@@ -28,7 +28,7 @@ import org.eclipse.dawnsci.analysis.dataset.roi.PointROI;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
-import org.eclipse.scanning.api.points.models.SinglePointModel;
+import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
 import org.junit.Test;
 
 public class SinglePointTest extends AbstractGeneratorTest {
@@ -41,13 +41,13 @@ public class SinglePointTest extends AbstractGeneratorTest {
 	@Test
 	public void onlyOnePointGenerated() throws GeneratorException {
 
-		final SinglePointModel model = new SinglePointModel();
+		final TwoAxisPointSingleModel model = new TwoAxisPointSingleModel();
 		model.setxAxisName(FAST_NAME);
 		model.setyAxisName(SLOW_NAME);
 		model.setX(FAST_COORDINATE);
 		model.setY(SLOW_COORDINATE);
 
-		final IPointGenerator<SinglePointModel> generator = service.createGenerator(model);
+		final IPointGenerator<TwoAxisPointSingleModel> generator = service.createGenerator(model);
 
 		assertThat(generator.getRank(), is(1));
 
@@ -68,13 +68,13 @@ public class SinglePointTest extends AbstractGeneratorTest {
 	public void coordinatesTakenFromROI() throws GeneratorException {
 
 		final PointROI roi = new PointROI(FAST_COORDINATE, SLOW_COORDINATE);
-		final SinglePointModel model = new SinglePointModel();
+		final TwoAxisPointSingleModel model = new TwoAxisPointSingleModel();
 		model.setxAxisName(FAST_NAME);
 		model.setyAxisName(SLOW_NAME);
 
 		// note that we are not setting x and y on model
 
-		final IPointGenerator<SinglePointModel> generator = service.createGenerator(model, roi);
+		final IPointGenerator<TwoAxisPointSingleModel> generator = service.createGenerator(model, roi);
 		final IPosition point = generator.getFirstPoint();
 
 		assertThat(point.get(FAST_NAME), is(FAST_COORDINATE));

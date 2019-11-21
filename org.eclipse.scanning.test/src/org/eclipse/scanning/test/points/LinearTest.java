@@ -24,8 +24,8 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.BoundingLine;
-import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
-import org.eclipse.scanning.api.points.models.OneDStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,13 +47,13 @@ public class LinearTest {
 		line.setyStart(0.0);
 		line.setLength(Math.hypot(3.0, 3.0));
 
-        OneDEqualSpacingModel model = new OneDEqualSpacingModel();
+        TwoAxisLinePointsModel model = new TwoAxisLinePointsModel();
         final int numPoints = 10;
         model.setPoints(numPoints);
         model.setBoundingLine(line);
 
 		// Get the point list
-		IPointGenerator<OneDEqualSpacingModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisLinePointsModel> gen = service.createGenerator(model);
 		assertEquals(numPoints, gen.size());
 		assertEquals(1, gen.getRank());
 		assertArrayEquals(new int[] { numPoints }, gen.getShape());
@@ -72,13 +72,13 @@ public class LinearTest {
         line.setyStart(0.0);
         line.setLength(Math.hypot(3.0, 3.0));
 
-        OneDEqualSpacingModel model = new OneDEqualSpacingModel();
+        TwoAxisLinePointsModel model = new TwoAxisLinePointsModel();
         final int numPoints = 10;
         model.setPoints(numPoints);
         model.setBoundingLine(line);
 
 		// Get the point list
-		IPointGenerator<OneDEqualSpacingModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisLinePointsModel> gen = service.createGenerator(model);
 		assertEquals(numPoints, gen.size());
 		assertEquals(1, gen.getRank());
 		assertArrayEquals(new int[] { numPoints }, gen.getShape());
@@ -103,7 +103,7 @@ public class LinearTest {
 	@Test
 	public void testOneDEqualSpacingNoROI() throws GeneratorException {
 
-		OneDEqualSpacingModel model = new OneDEqualSpacingModel();
+		TwoAxisLinePointsModel model = new TwoAxisLinePointsModel();
 		final int numPoints = 10;
 		model.setPoints(numPoints);
 		BoundingLine bl = new BoundingLine();
@@ -114,7 +114,7 @@ public class LinearTest {
 		model.setBoundingLine(bl);
 
 		// Get the point list
-		IPointGenerator<OneDEqualSpacingModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisLinePointsModel> gen = service.createGenerator(model);
 		int expectedSize = 10;
 		assertEquals(expectedSize, gen.size());
 		assertEquals(1, gen.getRank());
@@ -132,12 +132,12 @@ public class LinearTest {
         line.setyStart(0.0);
         line.setLength(Math.hypot(3.0, 3.0));
 
-        OneDEqualSpacingModel model = new OneDEqualSpacingModel();
+        TwoAxisLinePointsModel model = new TwoAxisLinePointsModel();
         model.setPoints(0);
         model.setBoundingLine(line);
 
 		// Get the point list
-		IPointGenerator<OneDEqualSpacingModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisLinePointsModel> gen = service.createGenerator(model);
 		List<IPosition> pointList = gen.createPoints();
         GeneratorUtil.testGeneratorPoints(gen);
 	}
@@ -152,18 +152,17 @@ public class LinearTest {
 		//implicit line.setAngle(0);
 		line.setLength(Math.hypot(3.0, 3.0)); // 4.24264
 
-        OneDStepModel model = new OneDStepModel();
+        TwoAxisLineStepModel model = new TwoAxisLineStepModel();
         model.setStep(0.3);
         model.setBoundingLine(line);
-
-		// TODO: These expected values match current behaviour, not behaviour expected by users
-		//       They go outside of the given BoundingLine and do not step the required step distance.
-		double[] expected_xs = new double[] {0.0, 0.32, 0.64, 0.96, 1.28, 1.6, 1.92, 2.25, 2.57, 2.89, 3.21, 3.53, 3.85, 4.17, 4.5};
-		double[] expected_ys = new double[] {0.0, 0.0,  0.0,  0.0,  0.0,  0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0};
+        // Current behaviour now that line has both ends trimmed by 0.5 steps each [as with two axis Grids] so that continuous operation
+        // would 'prepare bounds' within the line.
+		double[] expected_xs = new double[] {0.15, 0.45, 0.75, 1.05, 1.35, 1.65, 1.95, 2.25, 2.55, 2.85, 3.15, 3.45, 3.75, 4.05};
+		double[] expected_ys = new double[] {0.0, 0.0,  0.0,  0.0,  0.0,  0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0};
 		assertEquals(expected_xs.length, expected_ys.length);
 
 		// Get the point list
-		IPointGenerator<OneDStepModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisLineStepModel> gen = service.createGenerator(model);
 		final int expectedSize = expected_xs.length;
 		assertEquals(expectedSize, gen.size());
 		assertEquals(1, gen.getRank());
@@ -182,7 +181,7 @@ public class LinearTest {
 	@Test
 	public void testOneDStepNoROI() throws GeneratorException {
 
-		OneDStepModel model = new OneDStepModel();
+		TwoAxisLineStepModel model = new TwoAxisLineStepModel();
 		model.setStep(1);
 		BoundingLine bl = new BoundingLine();
 		bl.setxStart(0);
@@ -192,8 +191,8 @@ public class LinearTest {
 		model.setBoundingLine(bl);
 
 		// Get the point list
-		IPointGenerator<OneDStepModel> gen = service.createGenerator(model);
-		final int expectedSize = 11;
+		IPointGenerator<TwoAxisLineStepModel> gen = service.createGenerator(model);
+		final int expectedSize = 10;
 		assertEquals(expectedSize, gen.size());
 		assertEquals(1, gen.getRank());
 		assertArrayEquals(new int[] { expectedSize }, gen.getShape());
@@ -209,12 +208,12 @@ public class LinearTest {
         line.setyStart(0.0);
         line.setLength(Math.hypot(3.0, 3.0));
 
-        OneDStepModel model = new OneDStepModel();
+        TwoAxisLineStepModel model = new TwoAxisLineStepModel();
         model.setStep(0);
         model.setBoundingLine(line);
 
 		// Get the point list
-		IPointGenerator<OneDStepModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisLineStepModel> gen = service.createGenerator(model);
 
 		List<IPosition> pointList = gen.createPoints();
         GeneratorUtil.testGeneratorPoints(gen);
@@ -228,12 +227,12 @@ public class LinearTest {
         line.setyStart(0.0);
         line.setLength(Math.hypot(3.0, 3.0));
 
-		OneDStepModel model = new OneDStepModel();
+		TwoAxisLineStepModel model = new TwoAxisLineStepModel();
 		model.setStep(-0.3);
 		model.setBoundingLine(line);
 
 		// Get the point list
-		IPointGenerator<OneDStepModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisLineStepModel> gen = service.createGenerator(model);
 		List<IPosition> pointList = gen.createPoints();
 		GeneratorUtil.testGeneratorPoints(gen);
 	}
@@ -249,12 +248,12 @@ public class LinearTest {
 	        line.setyStart(0.0);
 	        line.setLength(Math.hypot(3.0, 3.0));
 
-	        OneDStepModel model = new OneDStepModel();
+	        TwoAxisLineStepModel model = new TwoAxisLineStepModel();
 	        model.setStep(0);
 	        model.setBoundingLine(line);
 
 			// Get the point list
-			IPointGenerator<OneDStepModel> gen = service.createGenerator(model, roi);
+			IPointGenerator<TwoAxisLineStepModel> gen = service.createGenerator(model, roi);
 			List<IPosition> pointList = gen.createPoints();
 	        GeneratorUtil.testGeneratorPoints(gen);
 		} catch (ModelValidationException | GeneratorException e) {

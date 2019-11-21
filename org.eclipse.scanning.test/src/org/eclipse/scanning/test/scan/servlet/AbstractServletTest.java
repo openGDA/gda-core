@@ -32,9 +32,9 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.GridModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.server.servlet.AbstractJobQueueServlet;
 import org.eclipse.scanning.test.BrokerTest;
@@ -88,7 +88,7 @@ public abstract class AbstractServletTest extends BrokerTest {
 		bean.setName("Hello Scanning World");
 
 		final ScanRequest req = new ScanRequest();
-		req.setCompoundModel(new CompoundModel(new StepModel("xNex", 0, 9, 1)));
+		req.setCompoundModel(new CompoundModel(new AxialStepModel("xNex", 0, 9, 1)));
 		req.setMonitorNamesPerPoint(Arrays.asList("monitor"));
 
 		final MockDetectorModel dmodel = new MockDetectorModel();
@@ -114,7 +114,7 @@ public abstract class AbstractServletTest extends BrokerTest {
 		box.setxAxisLength(3);
 		box.setyAxisLength(3);
 
-		GridModel gmodel = new GridModel();
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
 		gmodel.setyAxisPoints(2);
 		gmodel.setxAxisPoints(2);
 		gmodel.setBoundingBox(box);
@@ -124,7 +124,7 @@ public abstract class AbstractServletTest extends BrokerTest {
 		// 2 models
 		List<IScanPathModel> models = new ArrayList<>(outerScanNum+1);
 		for (int i = 0; i < outerScanNum; i++) {
-			models.add(new StepModel("neXusScannable"+i, 1, 2, 1));
+			models.add(new AxialStepModel("neXusScannable"+i, 1, 2, 1));
 		}
 		models.add(gmodel);
 		req.setCompoundModel(new CompoundModel(models.toArray(new IScanPathModel[models.size()])));
@@ -166,7 +166,7 @@ public abstract class AbstractServletTest extends BrokerTest {
 		box.setxAxisLength(3);
 		box.setyAxisLength(3);
 
-		GridModel gmodel = new GridModel();
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
 		gmodel.setyAxisPoints(2);
 		gmodel.setxAxisPoints(2);
 		gmodel.setBoundingBox(box);

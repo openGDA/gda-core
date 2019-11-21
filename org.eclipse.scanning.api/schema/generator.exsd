@@ -57,7 +57,7 @@
          <attribute name="model" type="string" use="required">
             <annotation>
                <documentation>
-                  The type of the model for the generator. For instance GridGenerator would be GridModel.
+                  The type of the model for the generator. For instance TwoAxisGridPointsGenerator would be TwoAxisGridPointsModel.
 The model must have a no-argument constructor.
                </documentation>
                <appinfo>

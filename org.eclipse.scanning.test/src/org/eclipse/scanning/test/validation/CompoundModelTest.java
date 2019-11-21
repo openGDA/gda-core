@@ -16,8 +16,8 @@ import java.util.Arrays;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.GridModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.junit.Test;
 
 public class CompoundModelTest extends AbstractValidationTest {
@@ -26,30 +26,30 @@ public class CompoundModelTest extends AbstractValidationTest {
 	@Test(expected=ValidationException.class)
 	public void testNoBoundingBox() throws ValidationException {
 
-		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new StepModel("fred", 10, 20, 1), new GridModel("stage_x", "stage_y")));
+		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new AxialStepModel("fred", 10, 20, 1), new TwoAxisGridPointsModel("stage_x", "stage_y")));
 		validator.validate(cmodel);
 	}
 
 	@Test(expected=ValidationException.class)
 	public void testAxesColliding() {
 
-		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new StepModel("stage_x", 10, 20, 1), new GridModel("stage_x", "stage_y")));
+		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new AxialStepModel("stage_x", 10, 20, 1), new TwoAxisGridPointsModel("stage_x", "stage_y")));
 		validator.validate(cmodel);
 	}
 
 	@Test
 	public void testBoundingBox() throws ValidationException {
 
-		GridModel gmodel = new GridModel("stage_x", "stage_y");
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
-		validator.validate(new CompoundModel(new StepModel("fred", 10, 20, 1), gmodel));
+		validator.validate(new CompoundModel(new AxialStepModel("fred", 10, 20, 1), gmodel));
 	}
 
 	@Test(expected=ValidationException.class)
 	public void nullAxisTest() throws ValidationException {
 
-		GridModel gmodel = new GridModel(null, "stage_y");
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel(null, "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
-		validator.validate(new CompoundModel(Arrays.asList(new StepModel("fred", 10, 20, 1), gmodel)));
+		validator.validate(new CompoundModel(Arrays.asList(new AxialStepModel("fred", 10, 20, 1), gmodel)));
 	}
 }

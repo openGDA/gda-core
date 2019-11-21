@@ -137,8 +137,8 @@ public abstract class AbstractMapModel extends AbstractPointsModel implements IM
 
 	@Override
 	public String toString() {
-		return "AbstractMapModel [xAxisName=" + xAxisName + ", yAxisName=" + yAxisName + ", xAxisUnits="
-				+ xAxisUnits + ", yAxisUnits=" + yAxisUnits + ", " + super.toString() + "]";
+		return "xAxisName=" + xAxisName + ", yAxisName=" + yAxisName + ", xAxisUnits="
+				+ xAxisUnits + ", yAxisUnits=" + yAxisUnits + ", " + super.toString();
 	}
 
 }

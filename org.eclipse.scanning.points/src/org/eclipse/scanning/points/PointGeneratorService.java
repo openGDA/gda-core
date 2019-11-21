@@ -34,28 +34,28 @@ import org.eclipse.scanning.api.points.IPointContainer;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AbstractPointsModel;
-import org.eclipse.scanning.api.points.models.ArrayModel;
+import org.eclipse.scanning.api.points.models.AxialArrayModel;
+import org.eclipse.scanning.api.points.models.AxialCollatedStepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
+import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.BoundingLine;
-import org.eclipse.scanning.api.points.models.CollatedStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.IBoundingLineModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.JythonGeneratorModel;
-import org.eclipse.scanning.api.points.models.LissajousModel;
-import org.eclipse.scanning.api.points.models.MultiStepModel;
-import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
-import org.eclipse.scanning.api.points.models.OneDStepModel;
-import org.eclipse.scanning.api.points.models.PtychographyGridModel;
-import org.eclipse.scanning.api.points.models.RandomOffsetGridModel;
-import org.eclipse.scanning.api.points.models.RasterModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
-import org.eclipse.scanning.api.points.models.SinglePointModel;
-import org.eclipse.scanning.api.points.models.SpiralModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsRandomOffsetModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
+import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
+import org.eclipse.scanning.api.points.models.TwoAxisPtychographyModel;
+import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 
 public class PointGeneratorService implements IPointGeneratorService {
 
@@ -71,21 +71,21 @@ public class PointGeneratorService implements IPointGeneratorService {
 		// NOTE Repeated generators are currently not allowed. Will not break the service
 		// (models class keys are different) but causes ambiguity in the GUI when it creates a
 		// generator for a model.
-		gens.put(StepModel.class, StepGenerator.class);
-		gens.put(CollatedStepModel.class, CollatedStepGenerator.class);
-		gens.put(MultiStepModel.class, MultiStepGenerator.class);
-		gens.put(ArrayModel.class, ArrayGenerator.class);
-		gens.put(GridModel.class, GridGenerator.class);
-		gens.put(OneDEqualSpacingModel.class, OneDEqualSpacingGenerator.class);
-		gens.put(OneDStepModel.class, OneDStepGenerator.class);
-		gens.put(RasterModel.class, RasterGenerator.class);
+		gens.put(AxialStepModel.class, AxialStepGenerator.class);
+		gens.put(AxialCollatedStepModel.class, AxialCollatedStepGenerator.class);
+		gens.put(AxialMultiStepModel.class, AxialMultiStepGenerator.class);
+		gens.put(AxialArrayModel.class, AxialArrayGenerator.class);
+		gens.put(TwoAxisGridPointsModel.class, TwoAxisGridPointsGenerator.class);
+		gens.put(TwoAxisLinePointsModel.class, TwoAxisLinePointsGenerator.class);
+		gens.put(TwoAxisLineStepModel.class, TwoAxisLineStepGenerator.class);
+		gens.put(TwoAxisGridStepModel.class, TwoAxisGridStepGenerator.class);
 		gens.put(StaticModel.class, StaticGenerator.class);
-		gens.put(RandomOffsetGridModel.class, RandomOffsetGridGenerator.class);
-		gens.put(SpiralModel.class, SpiralGenerator.class);
-		gens.put(LissajousModel.class, LissajousGenerator.class);
+		gens.put(TwoAxisGridPointsRandomOffsetModel.class, TwoAxisGridPointsRandomOffsetGenerator.class);
+		gens.put(TwoAxisSpiralModel.class, TwoAxisSpiralGenerator.class);
+		gens.put(TwoAxisLissajousModel.class, TwoAxisLissajousGenerator.class);
 		gens.put(JythonGeneratorModel.class, JythonGenerator.class);
-		gens.put(PtychographyGridModel.class, PtychographyGridGenerator.class);
-		gens.put(SinglePointModel.class, SinglePointGenerator.class);
+		gens.put(TwoAxisPtychographyModel.class, TwoAxisPtychographyGenerator.class);
+		gens.put(TwoAxisPointSingleModel.class, TwoAxisPointSingleGenerator.class);
 
 		Map<String, GeneratorInfo> tinfo = new TreeMap<>();
 		fillStaticGeneratorInfo(gens, tinfo);
@@ -154,9 +154,9 @@ public class PointGeneratorService implements IPointGeneratorService {
 			line.setLength(lroi.getLength());
 			line.setAngle(lroi.getAngle());
 			((IBoundingLineModel) model).setBoundingLine(line);
-		} else if (model instanceof SinglePointModel) {
-			((SinglePointModel) model).setX(rect.getPointX());
-			((SinglePointModel) model).setY(rect.getPointY());
+		} else if (model instanceof TwoAxisPointSingleModel) {
+			((TwoAxisPointSingleModel) model).setX(rect.getPointX());
+			((TwoAxisPointSingleModel) model).setY(rect.getPointY());
 		}
 	}
 

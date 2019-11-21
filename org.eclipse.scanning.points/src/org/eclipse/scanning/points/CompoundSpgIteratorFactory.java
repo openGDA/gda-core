@@ -15,7 +15,6 @@ import static org.eclipse.scanning.points.AbstractScanPointIterator.EMPTY_PY_ARR
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,12 +23,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.IMutator;
-import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.PPointGenerator;
+import org.eclipse.scanning.api.points.PySerializable;
 import org.eclipse.scanning.api.points.ScanPointIterator;
-import org.eclipse.scanning.api.points.models.AbstractPointsModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.python.core.PyDictionary;
@@ -61,35 +61,23 @@ public class CompoundSpgIteratorFactory {
 
 	private static Logger logger = LoggerFactory.getLogger(CompoundSpgIteratorFactory.class);
 
-	protected static ScanPointIterator createSpgCompoundGenerator(Iterator<?>[] iterators, Object[] regions,
-			String[] regionAxes, PyObject[] mutators, int duration, boolean continuous) {
+	protected static PPointGenerator createSpgCompoundGenerator(PPointGenerator[] generators, Object[] regions,
+			List<String> regionAxes, PyObject[] mutators, int duration, boolean continuous) {
 		// TODO Matt D. 2017-10-25: where does this method belong?
 		final JythonObjectFactory<PyObject> excluderFactory = ScanPointGeneratorFactory.JExcluderFactory();
-		final JythonObjectFactory<ScanPointIterator> cpgFactory = ScanPointGeneratorFactory.JCompoundGeneratorFactory();
+		final JythonObjectFactory<PPointGenerator> cpgFactory = ScanPointGeneratorFactory.JCompoundGeneratorFactory();
 		final List<PyObject> pyRegions = Arrays.asList(regions)
 				.stream()
 				.map(AbstractScanPointIterator::makePyRoi)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
-		final PyObject excluder = excluderFactory.createObject(pyRegions.toArray(), new PyList(Arrays.asList(regionAxes)));
+		final PyObject excluder = excluderFactory.createObject(pyRegions.toArray(), new PyList(regionAxes));
 		final PyObject[] excluders = pyRegions.isEmpty() ? EMPTY_PY_ARRAY : new PyObject[] { excluder };
-		return cpgFactory.createObject(iterators, excluders, mutators, duration, continuous);
+		return cpgFactory.createObject(generators, excluders, mutators, duration, continuous);
 	}
 
 	public CompoundSgpIterator createCompoundSpgIterator(CompoundGenerator gen) {
-		Iterator<? extends IPosition>[] iterators = initIterators(gen);
-
-		final JythonObjectFactory<ScanPointIterator> compoundGeneratorFactory = ScanPointGeneratorFactory.JCompoundGeneratorFactory();
-
-	    final Object[] excluders = getExcluders(gen.getModel().getRegions());
-	    final Object[] mutators = getMutators(gen.getModel().getMutators());
-	    final double duration = gen.getModel().getDuration();
-	    final boolean continuous = isContinuous(gen.getModel());
-
-	    final ScanPointIterator pyIterator = compoundGeneratorFactory.createObject(
-				iterators, excluders, mutators, duration, continuous);
-
-	    return new CompoundSgpIterator(pyIterator);
+		return new CompoundSgpIterator(createSpgCompoundGenerator(gen).getPointIterator());
 	}
 
 	/**
@@ -100,18 +88,17 @@ public class CompoundSpgIteratorFactory {
 		List<Object> models = model.getModels();
 		if (!models.isEmpty()) {
 			final Object innerModel = models.get(models.size() - 1);
-			if (innerModel instanceof AbstractPointsModel) {
-				return ((AbstractPointsModel) innerModel).isContinuous();
+			if (innerModel instanceof IScanPathModel) {
+				return ((IScanPathModel) innerModel).isContinuous();
 			}
 		}
 		return false;
 	}
 
-	@SuppressWarnings("unchecked")
-	private static Iterator<? extends IPosition>[] initIterators(CompoundGenerator gen) {
-		return Arrays.stream(gen.getGenerators()).
-				map(IPointGenerator::iterator).
-				toArray(Iterator[]::new);
+	private static PPointGenerator[] initGenerators(CompoundGenerator gen) {
+		return Arrays.stream(gen.getGenerators()).map(AbstractGenerator.class::cast)
+				.map(AbstractGenerator::createPythonPointGeneratorFromValidModel)
+				.toArray(PPointGenerator[]::new);
 	}
 
 	/**
@@ -165,6 +152,20 @@ public class CompoundSpgIteratorFactory {
 				.filter(e -> !e.getValue().isEmpty())
 				.map(e -> excluderFactory.createObject(e.getValue().toArray(), e.getKey()))
 				.toArray();
+	}
+
+	public static PPointGenerator createSpgCompoundGenerator(CompoundGenerator compoundGenerator) {
+		PPointGenerator[] generators = initGenerators(compoundGenerator);
+
+		final JythonObjectFactory<PPointGenerator> compoundGeneratorFactory = ScanPointGeneratorFactory.JCompoundGeneratorFactory();
+
+	    final Object[] excluders = getExcluders(compoundGenerator.getModel().getRegions());
+	    final Object[] mutators = getMutators(compoundGenerator.getModel().getMutators());
+	    final double duration = compoundGenerator.getModel().getDuration();
+	    final boolean continuous = isContinuous(compoundGenerator.getModel());
+
+	    return compoundGeneratorFactory.createObject(
+	    		generators, excluders, mutators, duration, continuous);
 	}
 
 }

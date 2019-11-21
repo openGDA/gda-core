@@ -21,7 +21,7 @@ import java.util.List;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.process.IPreprocessor;
 import org.eclipse.scanning.api.scan.process.ProcessingException;
 import org.eclipse.scanning.server.servlet.AbstractJobQueueServlet;
@@ -76,7 +76,7 @@ public class ScanServletTest extends AbstractServletTest {
 			for (ScanBean scanBean : beans) {
 				ScanRequest req = scanBean.getScanRequest();
 
-				StepModel step = (StepModel)req.getCompoundModel().getModels().toArray()[0];
+				AxialStepModel step = (AxialStepModel)req.getCompoundModel().getModels().toArray()[0];
 				assertEquals("xNex", step.getName());
 			}
 		} finally {

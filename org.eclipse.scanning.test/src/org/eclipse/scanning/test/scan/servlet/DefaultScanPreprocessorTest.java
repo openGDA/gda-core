@@ -25,7 +25,7 @@ import java.util.HashSet;
 
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.server.servlet.DefaultScanConfiguration;
 import org.eclipse.scanning.server.servlet.DefaultScanPreprocessor;
 import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
@@ -49,7 +49,7 @@ public class DefaultScanPreprocessorTest {
 
 	protected ScanRequest createStepScan() {
 		final ScanRequest req = new ScanRequest();
-		req.setCompoundModel(new CompoundModel(new StepModel("fred", 0, 9, 1)));
+		req.setCompoundModel(new CompoundModel(new AxialStepModel("fred", 0, 9, 1)));
 
 		final MockDetectorModel dmodel = new MockDetectorModel();
 		dmodel.setName("detector");

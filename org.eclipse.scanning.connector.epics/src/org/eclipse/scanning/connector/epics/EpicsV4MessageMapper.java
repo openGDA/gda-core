@@ -41,10 +41,12 @@ import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.malcolm.message.Type;
 import org.eclipse.scanning.api.points.IPointGenerator;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.GridModel;
-import org.eclipse.scanning.api.points.models.SpiralModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
+import org.eclipse.scanning.connector.epics.custommarshallers.AxialStepModelDeserialiser;
+import org.eclipse.scanning.connector.epics.custommarshallers.AxialStepModelSerialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.BlockMetaDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.BoundingBoxDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.BoundingBoxSerialiser;
@@ -54,8 +56,6 @@ import org.eclipse.scanning.connector.epics.custommarshallers.EllipticalROIDeser
 import org.eclipse.scanning.connector.epics.custommarshallers.EllipticalROISerialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.FreeDrawROIDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.FreeDrawROISerialiser;
-import org.eclipse.scanning.connector.epics.custommarshallers.GridModelDeserialiser;
-import org.eclipse.scanning.connector.epics.custommarshallers.GridModelSerialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.GridROISerialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.HyperbolicROIDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.HyperbolicROISerialiser;
@@ -64,7 +64,6 @@ import org.eclipse.scanning.connector.epics.custommarshallers.LinearROIDeseriali
 import org.eclipse.scanning.connector.epics.custommarshallers.LinearROISerialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.MalcolmMessageSerialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.MalcolmMethodDeserialiser;
-import org.eclipse.scanning.connector.epics.custommarshallers.PointGeneratorDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.MalcolmTableDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.MalcolmTableSerialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.NTScalarArrayDeserialiser;
@@ -74,6 +73,7 @@ import org.eclipse.scanning.connector.epics.custommarshallers.ParabolicROIDeseri
 import org.eclipse.scanning.connector.epics.custommarshallers.ParabolicROISerialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.PerimeterBoxROIDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.PerimeterBoxROISerialiser;
+import org.eclipse.scanning.connector.epics.custommarshallers.PointGeneratorDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.PointROIDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.PointROISerialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.PolygonalROIDeserialiser;
@@ -87,10 +87,10 @@ import org.eclipse.scanning.connector.epics.custommarshallers.RingROIDeserialise
 import org.eclipse.scanning.connector.epics.custommarshallers.RingROISerialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.SectorROIDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.SectorROISerialiser;
-import org.eclipse.scanning.connector.epics.custommarshallers.SpiralModelDeserialiser;
-import org.eclipse.scanning.connector.epics.custommarshallers.SpiralModelSerialiser;
-import org.eclipse.scanning.connector.epics.custommarshallers.StepModelDeserialiser;
-import org.eclipse.scanning.connector.epics.custommarshallers.StepModelSerialiser;
+import org.eclipse.scanning.connector.epics.custommarshallers.TwoAxisGridPointsModelDeserialiser;
+import org.eclipse.scanning.connector.epics.custommarshallers.TwoAxisGridPointsModelSerialiser;
+import org.eclipse.scanning.connector.epics.custommarshallers.TwoAxisSpiralModelDeserialiser;
+import org.eclipse.scanning.connector.epics.custommarshallers.TwoAxisSpiralModelSerialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.XAxisBoxROIDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.XAxisBoxROISerialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.YAxisBoxROIDeserialiser;
@@ -113,12 +113,12 @@ public class EpicsV4MessageMapper {
 		marshaller.registerSerialiser(PyDictionary.class, new PyDictionarySerialiser());
 		marshaller.registerSerialiser(MalcolmMessage.class, new MalcolmMessageSerialiser());
 
-		marshaller.registerSerialiser(SpiralModel.class, new SpiralModelSerialiser());
-		marshaller.registerDeserialiser("SpiralModel", new SpiralModelDeserialiser());
-		marshaller.registerSerialiser(StepModel.class, new StepModelSerialiser());
-		marshaller.registerDeserialiser("StepModel", new StepModelDeserialiser());
-		marshaller.registerSerialiser(GridModel.class, new GridModelSerialiser());
-		marshaller.registerDeserialiser("GridModel", new GridModelDeserialiser());
+		marshaller.registerSerialiser(TwoAxisSpiralModel.class, new TwoAxisSpiralModelSerialiser());
+		marshaller.registerDeserialiser(TwoAxisSpiralModel.class.getSimpleName(), new TwoAxisSpiralModelDeserialiser());
+		marshaller.registerSerialiser(AxialStepModel.class, new AxialStepModelSerialiser());
+		marshaller.registerDeserialiser(AxialStepModel.class.getSimpleName(), new AxialStepModelDeserialiser());
+		marshaller.registerSerialiser(TwoAxisGridPointsModel.class, new TwoAxisGridPointsModelSerialiser());
+		marshaller.registerDeserialiser(TwoAxisGridPointsModel.class.getSimpleName(), new TwoAxisGridPointsModelDeserialiser());
 
 		marshaller.registerSerialiser(CircularROI.class, new CircularROISerialiser());
 		marshaller.registerDeserialiser("CircularROI", new CircularROIDeserialiser());

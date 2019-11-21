@@ -37,8 +37,8 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.GridModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.junit.Before;
@@ -80,13 +80,13 @@ public class ScanInformationTest {
 	}
 
 	private CompoundModel createCompoundModel() {
-		GridModel gridModel = new GridModel();
+		TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel();
 		gridModel.setxAxisName("xNex");
 		gridModel.setxAxisPoints(8);
 		gridModel.setyAxisName("yNex");
 		gridModel.setyAxisPoints(5);
 		gridModel.setBoundingBox(new BoundingBox(0, 0, 5, 5));
-		StepModel stepModel = new StepModel("T", 0, 25, 5);
+		AxialStepModel stepModel = new AxialStepModel("T", 0, 25, 5);
 		CompoundModel compoundModel = new CompoundModel(stepModel, gridModel);
 		return compoundModel;
 	}

@@ -22,6 +22,8 @@ import org.eclipse.scanning.api.points.AbstractPosition;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.PPointGenerator;
+import org.eclipse.scanning.api.points.PySerializable;
 import org.eclipse.scanning.api.points.ScanPointIterator;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.python.core.PyDictionary;
@@ -86,7 +88,7 @@ class CompoundGenerator extends AbstractGenerator<CompoundModel> implements PySe
 		Iterator<IPosition> it = iteratorFromValidModel();
 		int size = 1;
 		if (it instanceof ScanPointIterator) {
-			size = ((ScanPointIterator) it).size();
+			size = ((ScanPointIterator) it).getSize();
 		} else {
 			for (int i = 0;i < generators.length; i++) {
 				size *= generators[i].size();
@@ -186,19 +188,15 @@ class CompoundGenerator extends AbstractGenerator<CompoundModel> implements PySe
 		this.dimensionNames = dimensionNames;
 	}
 
-
 	@Override
-	public boolean isScanPointGeneratorFactory() {
-		for (IPointGenerator<?> gen : generators) {
-			if (!gen.isScanPointGeneratorFactory()) return false;
-		}
-		return true;
+	public String toString() {
+		return getClass().getSimpleName() + " [generators=" + Arrays.toString(generators) + ", dimensionNames=" + dimensionNames
+				+ description() + "]";
 	}
 
 	@Override
-	public String toString() {
-		return "CompoundGenerator [generators=" + Arrays.toString(generators) + ", dimensionNames=" + dimensionNames
-				+ ", AbstractGenerator [" + super.toString() + "]";
+	public PPointGenerator createPythonPointGenerator() {
+		return CompoundSpgIteratorFactory.createSpgCompoundGenerator(this);
 	}
 
 }

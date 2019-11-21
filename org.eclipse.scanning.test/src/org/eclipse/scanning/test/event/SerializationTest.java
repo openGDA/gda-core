@@ -47,12 +47,12 @@ import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.points.Point;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
-import org.eclipse.scanning.api.points.models.SpiralModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.scanning.api.scan.ui.ControlFileNode;
 import org.eclipse.scanning.api.scan.ui.ControlNode;
 import org.eclipse.scanning.api.scan.ui.ControlTree;
@@ -215,7 +215,7 @@ public class SerializationTest {
 		bean.setName("Hello Scanning World");
 
 		final ScanRequest req = new ScanRequest();
-		req.setCompoundModel(new CompoundModel(new StepModel("fred", 0, 9, 1)));
+		req.setCompoundModel(new CompoundModel(new AxialStepModel("fred", 0, 9, 1)));
 		req.setMonitorNamesPerPoint(Arrays.asList("monitor"));
 		req.setMonitorNamesPerScan(Arrays.asList("metadata"));
 
@@ -242,7 +242,7 @@ public class SerializationTest {
 		box.setxAxisLength(3);
 		box.setyAxisLength(3);
 
-		GridModel gmodel = new GridModel();
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
 		gmodel.setyAxisPoints(5);
 		gmodel.setxAxisPoints(5);
 		gmodel.setBoundingBox(box);
@@ -274,7 +274,7 @@ public class SerializationTest {
 		double[] ept = {3, 4};
 
 		CompoundModel model = new CompoundModel();
-		model.setData(new SpiralModel("x", "y", 1, new BoundingBox(0, -5, 10, 5)), new LinearROI(spt, ept));
+		model.setData(new TwoAxisSpiralModel("x", "y", 1, new BoundingBox(0, -5, 10, 5)), new LinearROI(spt, ept));
 
 		String   json = service.marshal(model, true); // TODO Should work with false here but does not, see below.
 
@@ -293,7 +293,7 @@ public class SerializationTest {
 
 		CompoundModel model = new CompoundModel();
 
-		model.setModelsVarArgs(new StepModel("T", 290, 300, 1), new SpiralModel("x", "y", 1, new BoundingBox(0, -5, 10, 5)), new GridModel("fast", "slow"));
+		model.setModelsVarArgs(new AxialStepModel("T", 290, 300, 1), new TwoAxisSpiralModel("x", "y", 1, new BoundingBox(0, -5, 10, 5)), new TwoAxisGridPointsModel("fast", "slow"));
 		model.setRegionsVarArgs(new ScanRegion(new CircularROI(2, 0, 0), "x", "y"), new ScanRegion(new RectangularROI(1,2,0), "fast", "slow"));
 
 		String   json = service.marshal(model, true); // TODO Should work with false here but does not, see below.
@@ -316,7 +316,7 @@ public class SerializationTest {
 		final ScanRequest req = new ScanRequest();
 		// Create a grid scan model
 		CompoundModel model = new CompoundModel();
-		model.setModelsVarArgs(new StepModel("T", 290, 300, 1), new SpiralModel("x", "y", 1, new BoundingBox(0, -5, 10, 5)), new GridModel("fast", "slow"));
+		model.setModelsVarArgs(new AxialStepModel("T", 290, 300, 1), new TwoAxisSpiralModel("x", "y", 1, new BoundingBox(0, -5, 10, 5)), new TwoAxisGridPointsModel("fast", "slow"));
 		model.setRegionsVarArgs(new ScanRegion(new CircularROI(2, 0, 0), "x", "y"), new ScanRegion(new RectangularROI(1,2,0), "fast", "slow"));
 		req.setCompoundModel(model);
 
@@ -419,7 +419,7 @@ public class SerializationTest {
 		 "\"percentComplete\":0.0,\"userName\":\"fcp94556\",\"hostName\":\"DIAMRL5606\",\"submissionTime\":1474893775913,"+
 		 "\"scanRequest\":{\"@type\":\"ScanRequest\","+
 		     "\"compoundModel\":{\"@type\":\"CompoundModel\","+
-		         "\"models\":[{\"@type\":\"GridModel\",\"name\":\"Grid\",\"boundingBox\":{\"@type\":\"BoundingBox\",\"xAxisName\":\"x\",\"yAxisName\":\"y\",\"xAxisStart\":-84.13637953036218,\"xAxisLength\":43.356972243563845,\"yAxisStart\":123.33760426169476,\"yAxisLength\":42.80505395362201},\"xAxisName\":\"x\",\"yAxisName\":\"y\",\"xAxisPoints\":5,\"yAxisPoints\":5,\"snake\":false}]},"+
+		         "\"models\":[{\"@type\":\"TwoAxisGridPointsModel\",\"name\":\"Grid\",\"boundingBox\":{\"@type\":\"BoundingBox\",\"xAxisName\":\"x\",\"yAxisName\":\"y\",\"xAxisStart\":-84.13637953036218,\"xAxisLength\":43.356972243563845,\"yAxisStart\":123.33760426169476,\"yAxisLength\":42.80505395362201},\"xAxisName\":\"x\",\"yAxisName\":\"y\",\"xAxisPoints\":5,\"yAxisPoints\":5,\"alternating\":false}]},"+
 		     "\"detectors\":{\"mandelbrot\":{\"@type\":\"MandelbrotModel\",\"maxIterations\":500,\"escapeRadius\":10.0,\"columns\":301,\"rows\":241,\"points\":1000,\"maxRealCoordinate\":1.5,\"maxImaginaryCoordinate\":1.2,\"realAxisName\":\"x\",\"imaginaryAxisName\":\"y\",\"name\":\"mandelbrot\",\"exposureTime\":0.1,\"timeout\":-1}},"+
 		     "\"ignorePreprocess\":false},"+
 		  "\"point\":0,\"size\":0,\"scanNumber\":0}";
@@ -461,7 +461,7 @@ public class SerializationTest {
 		 "\"percentComplete\":0.0,\"userName\":\"fcp94556\",\"hostName\":\"DIAMRL5606\",\"submissionTime\":1474893775913,"+
 		 "\"scanRequest\":{\"@type\":\"ScanRequest\","+
 		     "\"compoundModel\":{\"@type\":\"CompoundModel\","+
-		         "\"models\":[{\"@type\":\"GridModel\",\"name\":\"Grid\",\"boundingBox\":{\"@type\":\"BoundingBox\",\"xAxisName\":\"x\",\"yAxisName\":\"y\",\"xAxisStart\":-84.13637953036218,\"xAxisLength\":43.356972243563845,\"yAxisStart\":123.33760426169476,\"yAxisLength\":42.80505395362201},\"xAxisName\":\"x\",\"yAxisName\":\"y\",\"xAxisPoints\":5,\"yAxisPoints\":5,\"snake\":false}]},"+
+		         "\"models\":[{\"@type\":\"TwoAxisGridPointsModel\",\"name\":\"Grid\",\"boundingBox\":{\"@type\":\"BoundingBox\",\"xAxisName\":\"x\",\"yAxisName\":\"y\",\"xAxisStart\":-84.13637953036218,\"xAxisLength\":43.356972243563845,\"yAxisStart\":123.33760426169476,\"yAxisLength\":42.80505395362201},\"xAxisName\":\"x\",\"yAxisName\":\"y\",\"xAxisPoints\":5,\"yAxisPoints\":5,\"alternating\":false}]},"+
 		     "\"detectors\":{\"mandelbrot\":{\"@type\":\"MandelbrotModel\",\"maxIterations\":500,\"escapeRadius\":10.0,\"columns\":301,\"rows\":241,\"points\":1000,\"maxRealCoordinate\":1.5,\"maxImaginaryCoordinate\":1.2,\"realAxisName\":\"x\",\"imaginaryAxisName\":\"y\",\"name\":\"mandelbrot\",\"exposureTime\":0.1,\"timeout\":-1}},"+
 		     "\"ignorePreprocess\":false},"+
 		  "\"point\":0,\"size\":0,\"scanNumber\":0}";

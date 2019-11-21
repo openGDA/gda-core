@@ -27,10 +27,10 @@ import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.GridModel;
-import org.eclipse.scanning.api.points.models.SpiralModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
@@ -54,12 +54,12 @@ public class SubscanModeratorTest {
 
 		CompoundModel cmodel = new CompoundModel();
 
-		GridModel gmodel = new GridModel("x", "y");
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel("x", "y");
 		gmodel.setyAxisPoints(5);
 		gmodel.setxAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		cmodel.setModels(Arrays.asList(new StepModel("T", 290, 300, 2), gmodel));
+		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), gmodel));
 
 		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
 
@@ -85,12 +85,12 @@ public class SubscanModeratorTest {
 
 		CompoundModel cmodel = new CompoundModel();
 
-		GridModel gmodel = new GridModel("x", "y");
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel("x", "y");
 		gmodel.setyAxisPoints(5);
 		gmodel.setxAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		cmodel.setModels(Arrays.asList(gmodel, new StepModel("T", 290, 300, 2)));
+		cmodel.setModels(Arrays.asList(gmodel, new AxialStepModel("T", 290, 300, 2)));
 
 		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
 
@@ -128,7 +128,7 @@ public class SubscanModeratorTest {
 
 		CompoundModel cmodel = new CompoundModel();
 
-		GridModel gmodel = new GridModel("x", "y");
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel("x", "y");
 		gmodel.setyAxisPoints(5);
 		gmodel.setxAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
@@ -152,7 +152,7 @@ public class SubscanModeratorTest {
 
 		CompoundModel cmodel = new CompoundModel();
 
-		GridModel gmodel = new GridModel("x", "y");
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel("x", "y");
 		gmodel.setyAxisPoints(5);
 		gmodel.setxAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
@@ -175,12 +175,12 @@ public class SubscanModeratorTest {
 
 		CompoundModel cmodel = new CompoundModel();
 
-		GridModel gmodel = new GridModel("x", "y");
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel("x", "y");
 		gmodel.setyAxisPoints(5);
 		gmodel.setxAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		cmodel.setModels(Arrays.asList(new StepModel("T", 290, 300, 2), gmodel));
+		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), gmodel));
 
 		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
 
@@ -200,7 +200,7 @@ public class SubscanModeratorTest {
 
 		CompoundModel cmodel = new CompoundModel();
 
-		GridModel gmodel = new GridModel("x", "y");
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel("x", "y");
 		gmodel.setyAxisPoints(5);
 		gmodel.setxAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
@@ -234,12 +234,12 @@ public class SubscanModeratorTest {
 
 		CompoundModel cmodel = new CompoundModel();
 
-		GridModel gmodel = new GridModel("x", "y");
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel("x", "y");
 		gmodel.setyAxisPoints(5);
 		gmodel.setxAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		cmodel.setModels(Arrays.asList(new StepModel("T", 290, 300, 2), gmodel));
+		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), gmodel));
 
 		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
 
@@ -259,12 +259,12 @@ public class SubscanModeratorTest {
 
 		CompoundModel cmodel = new CompoundModel();
 
-		GridModel gmodel = new GridModel("x", "y");
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel("x", "y");
 		gmodel.setyAxisPoints(5);
 		gmodel.setxAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		cmodel.setModels(Arrays.asList(new StepModel("T", 290, 300, 2), gmodel));
+		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), gmodel));
 
 		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
 
@@ -284,12 +284,12 @@ public class SubscanModeratorTest {
 
 		CompoundModel cmodel = new CompoundModel();
 
-		GridModel gmodel = new GridModel("p", "y");
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel("p", "y");
 		gmodel.setyAxisPoints(5);
 		gmodel.setxAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		cmodel.setModels(Arrays.asList(new StepModel("T", 290, 300, 2), gmodel));
+		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), gmodel));
 
 		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
 
@@ -309,12 +309,12 @@ public class SubscanModeratorTest {
 
 		CompoundModel cmodel = new CompoundModel();
 
-		GridModel gmodel = new GridModel("p", "y");
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel("p", "y");
 		gmodel.setyAxisPoints(5);
 		gmodel.setxAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		cmodel.setModels(Arrays.asList(new StepModel("p", 290, 300, 2), gmodel));
+		cmodel.setModels(Arrays.asList(new AxialStepModel("p", 290, 300, 2), gmodel));
 
 		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
 
@@ -338,11 +338,11 @@ public class SubscanModeratorTest {
 
 		CompoundModel cmodel = new CompoundModel();
 
-		SpiralModel gmodel = new SpiralModel("p", "y");
+		TwoAxisSpiralModel gmodel = new TwoAxisSpiralModel("p", "y");
 		gmodel.setScale(2d);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		cmodel.setModels(Arrays.asList(new StepModel("T", 290, 300, 2), gmodel));
+		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), gmodel));
 
 		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
 
@@ -408,7 +408,7 @@ public class SubscanModeratorTest {
 
 		StaticModel smodel = new StaticModel();
 
-		cmodel.setModels(Arrays.asList(new StepModel("T", 290, 300, 2), smodel));
+		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), smodel));
 
 		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
 

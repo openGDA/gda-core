@@ -24,8 +24,8 @@ import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.filter.IFilterService;
-import org.eclipse.scanning.api.points.models.MultiStepModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.device.ui.util.SortNatural;
 import org.eclipse.swt.SWT;
@@ -43,7 +43,7 @@ public class MultiStepComposite extends Composite {
 
 	// UI
     private final ComboWrapper                  name;
-	private final VerticalListEditor<StepModel> steps;
+	private final VerticalListEditor<AxialStepModel> steps;
 	private IScannableDeviceService             scannableConnectorService;
 	private StepModelComposite                  stepComposite;
 
@@ -69,7 +69,7 @@ public class MultiStepComposite extends Composite {
 		steps.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
 		steps.setMinItems(0);
 		steps.setMaxItems(10);
-		steps.setEditorClass(StepModel.class); // Must match generic!
+		steps.setEditorClass(AxialStepModel.class); // Must match generic!
 		steps.setBeanConfigurator((bean, previous, context)->contiguous(bean, previous));
 		steps.setListHeight(80);
 		steps.setRequireSelectionPack(false);
@@ -99,7 +99,7 @@ public class MultiStepComposite extends Composite {
 	}
 
 	@Inject
-	public void setScannableService(IScannableDeviceService service, MultiStepModel model) throws ScanningException {
+	public void setScannableService(IScannableDeviceService service, AxialMultiStepModel model) throws ScanningException {
 
 		this.scannableConnectorService = service;
 		List<String> items = getScannablesList(true);
@@ -129,7 +129,7 @@ public class MultiStepComposite extends Composite {
 		name.setItems(items.toArray(new String[items.size()]));
 	}
 
-	private void contiguous(StepModel bean, StepModel previous) {
+	private void contiguous(AxialStepModel bean, AxialStepModel previous) {
 
 		bean.setStart(previous!=null?previous.getStop():10);
 		bean.setStop(bean.getStart()+10);
@@ -137,7 +137,7 @@ public class MultiStepComposite extends Composite {
 		bean.setStep((bean.getStop()-bean.getStart())/10d);
 	}
 
-	public VerticalListEditor<StepModel> getStepModels() {
+	public VerticalListEditor<AxialStepModel> getStepModels() {
 		return steps;
 	}
 

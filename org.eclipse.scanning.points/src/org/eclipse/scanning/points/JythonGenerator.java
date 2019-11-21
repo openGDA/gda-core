@@ -9,6 +9,7 @@ import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.PPointGenerator;
 import org.eclipse.scanning.api.points.ScanPointIterator;
 import org.eclipse.scanning.api.points.models.JythonArgument;
 import org.eclipse.scanning.api.points.models.JythonArgument.JythonArgumentType;
@@ -24,7 +25,7 @@ public class JythonGenerator extends AbstractGenerator<JythonGeneratorModel> {
 
 	JythonGenerator() {
 		setLabel("Function");
-		setDescription("Uses a function to get the motor positions for the scan");
+		setDescription("Uses a function to get the motor positions for the scan.");
 		setIconPath("icons/scanner--function.png"); // This icon exists in the rendering bundle
 	}
 
@@ -78,5 +79,10 @@ public class JythonGenerator extends AbstractGenerator<JythonGeneratorModel> {
 
         super.validateModel();
 
+	}
+
+	@Override
+	public PPointGenerator createPythonPointGenerator() {
+		throw new UnsupportedOperationException("As JythonGenerator is currently set up to produce its Iterator directly, this method is unused and Jython Generators cannot be nested in CompoundModels.");
 	}
 }

@@ -12,7 +12,6 @@
 package org.eclipse.scanning.api.points.models;
 
 import java.io.Serializable;
-import java.text.DecimalFormat;
 
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 
@@ -217,37 +216,9 @@ public class BoundingBox  implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Start="+toString(getStart())+" length="+toString(getLength());
+		return getClass().getSimpleName() +" [xAxisName=" + xAxisName + ", xAxisStart=" + xAxisStart + ", xAxisLength=" + xAxisLength + ", "
+				+ "yAxisName=" + yAxisName + ", yAxisStart=" + yAxisStart + ", yAxisLength=" + yAxisLength + ", "
+						+ "regionName=" + regionName + "]";
 	}
-
-	private double[] getStart() {
-		return new double[]{xAxisStart, yAxisStart};
-	}
-	private double[] getLength() {
-		return new double[]{xAxisLength, yAxisLength};
-	}
-
-    private String toString(double[] a) {
-        if (a == null)
-            return "null";
-        int iMax = a.length - 1;
-        if (iMax == -1)
-            return "[]";
-
-        StringBuilder b = new StringBuilder();
-        b.append('[');
-        for (int i = 0; ; i++) {
-            b.append(format.format(a[i]));
-            if (i == iMax)
-                return b.append(']').toString();
-            b.append(", ");
-        }
-    }
-
-    private DecimalFormat format = new DecimalFormat("##########0.0###");
-
-    public void setNumberFormat(String sformat) {
-    	format = new DecimalFormat(sformat);
-    }
 
 }

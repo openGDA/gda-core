@@ -19,4 +19,9 @@ public class TestGeneratorModel extends AbstractPointsModel {
 		setName("Test");
 	}
 
+	@Override
+	public int size() {
+		return 1;
+	}
+
 }

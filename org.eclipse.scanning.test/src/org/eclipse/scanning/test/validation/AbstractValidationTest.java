@@ -16,7 +16,7 @@ import java.io.File;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.GridModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.server.application.PseudoSpringParser;
 import org.eclipse.scanning.test.ServiceTestHelper;
@@ -44,7 +44,7 @@ public abstract class AbstractValidationTest {
 		mdevice.setOutputDir(dir.getAbsolutePath());
 
 		// Just for testing, we make the detector legal.
-		GridModel gmodel = new GridModel("stage_x", "stage_y");
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
 		// Cannot set the generator from @PreConfigure in this unit test.
 		mdevice.setPointGenerator(ServiceTestHelper.getPointGeneratorService().createGenerator(gmodel));

@@ -30,7 +30,7 @@ import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.PtychographyGridModel;
+import org.eclipse.scanning.api.points.models.TwoAxisPtychographyModel;
 import org.junit.Test;
 
 public class PtychographyGridPathTest extends AbstractGeneratorTest {
@@ -38,7 +38,7 @@ public class PtychographyGridPathTest extends AbstractGeneratorTest {
 	@Test
 	public void rectangularRoi() throws GeneratorException {
 		// square roi of 2x5
-		PtychographyGridModel model = createTestModel(2.0, 5.0);
+		TwoAxisPtychographyModel model = createTestModel(2.0, 5.0);
 
 		// square beam of 0.3x0.1
 		model.setBeamSize(new Object[] {0.3, 0.1});
@@ -46,22 +46,22 @@ public class PtychographyGridPathTest extends AbstractGeneratorTest {
 		// 55% beam overlap
 		model.setOverlap(0.55);
 
-		IPointGenerator<PtychographyGridModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisPtychographyModel> gen = service.createGenerator(model);
 
 		// 2 dimensions
 		assertEquals(2, gen.getRank());
 
 		// number of points in first dimension:
 		// 1) beam size of 0.3 with 55% overlap -> 0.3*0.45 = 0.135 step size
-		// 2) 2 length / 0.135 = 14 rounded down
-		// 3) + 1 because there is a point at the origin = 15
-		int pointsInFirstDimension = 15;
+		// 2) 2 length / 0.135 = 14 rounded down -1 fortrimming at either end of box
+		// 3) + 1 because there is a point at the origin = 14
+		int pointsInFirstDimension = 14;
 
 		// number of points in second dimension:
 		// 1) beam size of 0.1 with 55% overlap -> 0.1*0.45 = 0.045 step size
-		// 2) 5 length / 0.045 = 111 rounded down
-		// 3) + 1 because there is a point at the origin = 112
-		int pointsInSecondDimension = 112;
+		// 2) 5 length / 0.045 = 111 rounded down -1 fortrimming at either end of box
+		// 3) + 1 because there is a point at the origin = 111
+		int pointsInSecondDimension = 111;
 
 		assertArrayEquals(
 				new int[] {pointsInSecondDimension, pointsInFirstDimension},
@@ -77,17 +77,17 @@ public class PtychographyGridPathTest extends AbstractGeneratorTest {
 	public void randomOffsetOffsetsPositions() throws GeneratorException {
 		Object[] beamSize = new Object[] {0.1, 0.2};
 
-		PtychographyGridModel regularModel = createTestModel();
+		TwoAxisPtychographyModel regularModel = createTestModel();
 		regularModel.setBeamSize(beamSize);
 		regularModel.setRandomOffset(0);
 
-		PtychographyGridModel randomOffsetGrid = createTestModel();
+		TwoAxisPtychographyModel randomOffsetGrid = createTestModel();
 		randomOffsetGrid.setBeamSize(beamSize);
 
 		double offset = 0.04; // 4%
 		randomOffsetGrid.setRandomOffset(offset);
 
-		IPointGenerator<PtychographyGridModel> gen = service.createGenerator(regularModel);
+		IPointGenerator<TwoAxisPtychographyModel> gen = service.createGenerator(regularModel);
 		List<IPosition> regularPoints = gen.createPoints();
 
 		gen = service.createGenerator(randomOffsetGrid);
@@ -122,33 +122,33 @@ public class PtychographyGridPathTest extends AbstractGeneratorTest {
 
 	@Test(expected=ModelValidationException.class)
 	public void zeroXBeamSizeThrows() throws Exception {
-		PtychographyGridModel model = createTestModel();
+		TwoAxisPtychographyModel model = createTestModel();
 		model.setxBeamSize(0);
 		service.createGenerator(model).validate(model);
 	}
 
 	@Test(expected=ModelValidationException.class)
 	public void zeroYBeamSizeThrows() throws Exception {
-		PtychographyGridModel model = createTestModel();
+		TwoAxisPtychographyModel model = createTestModel();
 		model.setyBeamSize(0);
 		service.createGenerator(model).validate(model);
 	}
 
 	@Test(expected=ModelValidationException.class)
 	public void negativeOverlapThrows() throws Exception {
-		PtychographyGridModel model = createTestModel();
+		TwoAxisPtychographyModel model = createTestModel();
 		model.setOverlap(-53.6);
 		service.createGenerator(model).validate(model);
 	}
 
 	@Test(expected=ModelValidationException.class)
 	public void overlapGreaterThanOneThrows() throws Exception {
-		PtychographyGridModel model = createTestModel();
+		TwoAxisPtychographyModel model = createTestModel();
 		model.setOverlap(1.0);
 		service.createGenerator(model).validate(model);
 	}
 
-	private PtychographyGridModel createTestModel() {
+	private TwoAxisPtychographyModel createTestModel() {
 		return createTestModel(1.0, 1.0);
 	}
 
@@ -157,8 +157,8 @@ public class PtychographyGridPathTest extends AbstractGeneratorTest {
 	 * @param width of bounding box
 	 * @return
 	 */
-	private PtychographyGridModel createTestModel(double length, double width) {
-		PtychographyGridModel model = new PtychographyGridModel();
+	private TwoAxisPtychographyModel createTestModel(double length, double width) {
+		TwoAxisPtychographyModel model = new TwoAxisPtychographyModel();
 		model.setBoundingBox(new BoundingBox(0, 0, length, width));
 		return model;
 	}

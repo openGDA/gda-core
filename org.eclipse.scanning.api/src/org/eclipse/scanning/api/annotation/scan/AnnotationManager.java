@@ -316,14 +316,12 @@ public class AnnotationManager {
 		if (cachedClasses.containsKey(clazz)) return cachedClasses.get(clazz);
 
 		final Collection<Class<?>> classes = new HashSet<>();
-		classes.add(clazz);
-		Class<?>[] interfaces = clazz.getInterfaces();
-		for (Class<?> class1 : interfaces)  classes.add(class1);
-
-		// TODO Currently only support one level deep
-		classes.add(clazz.getSuperclass());
-		interfaces = clazz.getSuperclass().getInterfaces();
-		for (Class<?> class1 : interfaces)  classes.add(class1);
+		Class<?> superClass = clazz;
+		while (!superClass.equals(Object.class)) {
+			classes.add(superClass);
+			classes.addAll(Arrays.asList(superClass.getInterfaces()));
+			superClass = superClass.getSuperclass();
+		}
 
 		cachedClasses.put(clazz, classes);
 

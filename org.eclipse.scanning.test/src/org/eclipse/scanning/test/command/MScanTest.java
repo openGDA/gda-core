@@ -34,17 +34,17 @@ public class MScanTest extends AbstractScanCommandsTest {
 
 	@Test
 	public void testMultiStep() {
-		pi.exec("mscan(mstep(axis='energy', stepModels=[StepModel('energy', 300, 310, 5)]))");
+		pi.exec("mscan(mstep(axis='energy', stepModels=[AxialStepModel('energy', 300, 310, 5)]))");
 	}
 
 	@Test
 	public void testMulti1StepAroundGridScanNoDetector() {
-		pi.exec("mscan([mstep(axis='energy', stepModels=[StepModel('energy', 300, 310, 5)]), grid(axes=('xNex', 'yNex'), start=(0, 0), stop=(10, 10), count=(2, 2), snake=True)])");
+		pi.exec("mscan([mstep(axis='energy', stepModels=[AxialStepModel('energy', 300, 310, 5)]), grid(axes=('xNex', 'yNex'), start=(0, 0), stop=(10, 10), count=(2, 2), snake=True)])");
 	}
 
 	@Test
 	public void testMulti2StepAroundGridScanNoDetector() {
-		pi.exec("mscan([mstep(axis='energy', stepModels=[StepModel('energy', 290, 300, 5), StepModel('energy', 300, 310, 5)]), grid(axes=('xNex', 'yNex'), start=(0, 0), stop=(10, 10), count=(2, 2), snake=True)])");
+		pi.exec("mscan([mstep(axis='energy', stepModels=[AxialStepModel('energy', 290, 300, 5), AxialStepModel('energy', 300, 310, 5)]), grid(axes=('xNex', 'yNex'), start=(0, 0), stop=(10, 10), count=(2, 2), snake=True)])");
 	}
 
 	@Test

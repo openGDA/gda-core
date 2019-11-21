@@ -31,13 +31,13 @@ import org.eclipse.dawnsci.analysis.dataset.roi.SectorROI;
 import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
-import org.eclipse.scanning.api.points.models.ArrayModel;
+import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.GridModel;
-import org.eclipse.scanning.api.points.models.LissajousModel;
-import org.eclipse.scanning.api.points.models.SpiralModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
+import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.connector.epics.MalcolmEpicsV4Connection;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.mutators.RandomOffsetMutator;
@@ -80,12 +80,12 @@ public class PVDataSerializationTest {
 		List<IROI> regions = new LinkedList<>();
 
 		IPointGeneratorService pgService = new PointGeneratorService();
-		ArrayModel stepModel = new ArrayModel();
+		AxialArrayModel stepModel = new AxialArrayModel();
 		stepModel.setName("x");
 		stepModel.setPositions(new double [] {1, 2, 3, 4});
 		stepModel.setContinuous(false);
 		stepModel.setAlternating(true);
-		IPointGenerator<ArrayModel> temp = pgService.createGenerator(stepModel, regions);
+		IPointGenerator<AxialArrayModel> temp = pgService.createGenerator(stepModel, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
 		// Create the expected PVStructure
@@ -154,12 +154,12 @@ public class PVDataSerializationTest {
 		regions.add(new CircularROI(2, 6, 7));
 
 		IPointGeneratorService pgService = new PointGeneratorService();
-		GridModel gm = new GridModel("stage_x", "stage_y");
+		TwoAxisGridPointsModel gm = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
-		IPointGenerator<GridModel> temp = pgService.createGenerator(gm, regions);
+		IPointGenerator<TwoAxisGridPointsModel> temp = pgService.createGenerator(gm, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
 		// Create the expected PVStructure
@@ -236,12 +236,12 @@ public class PVDataSerializationTest {
 		regions.add(eRoi);
 
 		IPointGeneratorService pgService = new PointGeneratorService();
-		GridModel gm = new GridModel("stage_x", "stage_y");
+		TwoAxisGridPointsModel gm = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
-		IPointGenerator<GridModel> temp = pgService.createGenerator(gm, regions);
+		IPointGenerator<TwoAxisGridPointsModel> temp = pgService.createGenerator(gm, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
 		// Create the expected PVStructure
@@ -321,12 +321,12 @@ public class PVDataSerializationTest {
 		regions.add(lRoi);
 
 		IPointGeneratorService pgService = new PointGeneratorService();
-		GridModel gm = new GridModel("stage_x", "stage_y");
+		TwoAxisGridPointsModel gm = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
-		IPointGenerator<GridModel> temp = pgService.createGenerator(gm, regions);
+		IPointGenerator<TwoAxisGridPointsModel> temp = pgService.createGenerator(gm, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
 		// Create the expected PVStructure. Note, Linear ROIs are not supported so should be empty
@@ -364,12 +364,12 @@ public class PVDataSerializationTest {
 		regions.add(new CircularROI(2, 6, 7));
 
 		IPointGeneratorService pgService = new PointGeneratorService();
-		GridModel gm = new GridModel("stage_x", "stage_y");
+		TwoAxisGridPointsModel gm = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
-		IPointGenerator<GridModel> temp = pgService.createGenerator(gm, regions);
+		IPointGenerator<TwoAxisGridPointsModel> temp = pgService.createGenerator(gm, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
 		// Create the expected PVStructure
@@ -463,12 +463,12 @@ public class PVDataSerializationTest {
 		regions.add(diamond);
 
 		IPointGeneratorService pgService = new PointGeneratorService();
-		GridModel gm = new GridModel("stage_x", "stage_y");
+		TwoAxisGridPointsModel gm = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
-		IPointGenerator<GridModel> temp = pgService.createGenerator(gm, regions);
+		IPointGenerator<TwoAxisGridPointsModel> temp = pgService.createGenerator(gm, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
 		// Create the expected PVStructure
@@ -546,12 +546,12 @@ public class PVDataSerializationTest {
 		regions.add(rRoi);
 
 		IPointGeneratorService pgService = new PointGeneratorService();
-		GridModel gm = new GridModel("stage_x", "stage_y");
+		TwoAxisGridPointsModel gm = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
-		IPointGenerator<GridModel> temp = pgService.createGenerator(gm, regions);
+		IPointGenerator<TwoAxisGridPointsModel> temp = pgService.createGenerator(gm, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
 		// Create the expected PVStructure
@@ -633,12 +633,12 @@ public class PVDataSerializationTest {
 		regions.add(sRoi);
 
 		IPointGeneratorService pgService = new PointGeneratorService();
-		GridModel gm = new GridModel("stage_x", "stage_y");
+		TwoAxisGridPointsModel gm = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
-		IPointGenerator<GridModel> temp = pgService.createGenerator(gm, regions);
+		IPointGenerator<TwoAxisGridPointsModel> temp = pgService.createGenerator(gm, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
 		// Create the expected PVStructure
@@ -726,12 +726,12 @@ public class PVDataSerializationTest {
 		mutators.add(rom);
 
 		IPointGeneratorService pgService = new PointGeneratorService();
-		GridModel gm = new GridModel("stage_x", "stage_y");
+		TwoAxisGridPointsModel gm = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
-		IPointGenerator<GridModel> temp = pgService.createGenerator(gm, regions);
+		IPointGenerator<TwoAxisGridPointsModel> temp = pgService.createGenerator(gm, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
 		CompoundModel cm = (CompoundModel) scan.getModel();
@@ -791,10 +791,10 @@ public class PVDataSerializationTest {
 
 		// Create test generator
 		IPointGeneratorService pgService = new PointGeneratorService();
-		StepModel stepModel = new StepModel("x", 3, 4, 0.25);
+		AxialStepModel stepModel = new AxialStepModel("x", 3, 4, 0.25);
 		stepModel.setAlternating(true);
 		stepModel.setContinuous(false);
-		IPointGenerator<StepModel> temp = pgService.createGenerator(stepModel);
+		IPointGenerator<AxialStepModel> temp = pgService.createGenerator(stepModel);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
 		// Create the expected PVStructure
@@ -867,14 +867,14 @@ public class PVDataSerializationTest {
 
 		// Create test generator
 		IPointGeneratorService pgService = new PointGeneratorService();
-		LissajousModel lissajousModel = new LissajousModel();
+		TwoAxisLissajousModel lissajousModel = new TwoAxisLissajousModel();
 		lissajousModel.setBoundingBox(new BoundingBox(0, -5, 10, 6));
 		lissajousModel.setPoints(20);
 		lissajousModel.setyAxisName("san");
 		lissajousModel.setxAxisName("fan");
 		lissajousModel.setContinuous(false);
 		lissajousModel.setAlternating(true);
-		IPointGenerator<LissajousModel> temp = pgService.createGenerator(lissajousModel);
+		IPointGenerator<TwoAxisLissajousModel> temp = pgService.createGenerator(lissajousModel);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
 		// Create the expected PVStructure
@@ -958,7 +958,7 @@ public class PVDataSerializationTest {
 
 		// Create test generator
 		IPointGeneratorService pgService = new PointGeneratorService();
-		IPointGenerator<SpiralModel> temp = pgService.createGenerator(new SpiralModel("x", "y", 2, new BoundingBox(0, 5, 2, 4)));
+		IPointGenerator<TwoAxisSpiralModel> temp = pgService.createGenerator(new TwoAxisSpiralModel("x", "y", 2, new BoundingBox(0, 5, 2, 4)));
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
 		// Create the expected PVStructure
@@ -1034,9 +1034,9 @@ public class PVDataSerializationTest {
 		List<IROI> regions = new LinkedList<>();
 
 		IPointGeneratorService pgService = new PointGeneratorService();
-		StepModel stepModel = new StepModel("x", 3, 4, 0.25);
+		AxialStepModel stepModel = new AxialStepModel("x", 3, 4, 0.25);
 		stepModel.setContinuous(false);
-		IPointGenerator<StepModel> temp = pgService.createGenerator(stepModel, regions);
+		IPointGenerator<AxialStepModel> temp = pgService.createGenerator(stepModel, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
 		// Create the expected PVStructure
@@ -1129,13 +1129,13 @@ public class PVDataSerializationTest {
 		mutators.add(new RandomOffsetMutator(112, Arrays.asList(new String[] {"stage_x"}), offsets));
 
 		IPointGeneratorService pgService = new PointGeneratorService();
-		GridModel gm = new GridModel("stage_x", "stage_y");
+		TwoAxisGridPointsModel gm = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gm.setAlternating(true);
 		gm.setContinuous(false);
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
-		IPointGenerator<GridModel> temp = pgService.createGenerator(gm, regions);
+		IPointGenerator<TwoAxisGridPointsModel> temp = pgService.createGenerator(gm, regions);
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
 		CompoundModel cm = (CompoundModel) scan.getModel();
