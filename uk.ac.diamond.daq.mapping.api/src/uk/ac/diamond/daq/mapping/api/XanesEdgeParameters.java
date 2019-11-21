@@ -20,6 +20,9 @@ package uk.ac.diamond.daq.mapping.api;
 
 import static uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod.REFERENCE;
 
+import java.util.Collections;
+import java.util.SortedSet;
+
 /**
  * Parameters specific to tracking a XANES edge.
  */
@@ -30,15 +33,15 @@ public class XanesEdgeParameters {
 		EDGE
 	}
 
-	private String linesToTrack = "";
+	private LinesToTrackEntry linesToTrack;
 	private String trackingMethod = REFERENCE.toString();
 	private String visitId = "";
 
-	public String getLinesToTrack() {
+	public LinesToTrackEntry getLinesToTrack() {
 		return linesToTrack;
 	}
 
-	public void setLinesToTrack(String linesToTrack) {
+	public void setLinesToTrack(LinesToTrackEntry linesToTrack) {
 		this.linesToTrack = linesToTrack;
 	}
 
@@ -64,4 +67,41 @@ public class XanesEdgeParameters {
 				+ visitId + "]";
 	}
 
+	/**
+	 * Class holding a line to track and the processing file(s) in which it is defined
+	 */
+	public static class LinesToTrackEntry {
+		private String line = "";
+		private SortedSet<String> filePaths = Collections.emptySortedSet();
+
+		public LinesToTrackEntry() {
+			// default constructor for JSON
+		}
+
+		public LinesToTrackEntry(String line, SortedSet<String> filePaths) {
+			this.line = line;
+			this.filePaths = filePaths;
+		}
+
+		public String getLine() {
+			return line;
+		}
+
+		public void setLine(String line) {
+			this.line = line;
+		}
+
+		public SortedSet<String> getFilePaths() {
+			return filePaths;
+		}
+
+		public void setFilePaths(SortedSet<String> filePaths) {
+			this.filePaths = filePaths;
+		}
+
+		@Override
+		public String toString() {
+			return "LinesToTrackEntry [line=" + line + ", filePaths=" + filePaths + "]";
+		}
+	}
 }

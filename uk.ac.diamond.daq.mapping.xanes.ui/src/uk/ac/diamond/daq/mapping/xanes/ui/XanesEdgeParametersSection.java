@@ -38,9 +38,12 @@ import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.BeanProperties;
@@ -60,8 +63,9 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
-import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.MultiStepModel;
 import org.eclipse.scanning.api.points.models.StepModel;
@@ -82,6 +86,7 @@ import com.swtdesigner.SWTResourceManager;
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters;
+import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.LinesToTrackEntry;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod;
 import uk.ac.diamond.daq.mapping.ui.experiment.AbstractHideableMappingSection;
 import uk.ac.diamond.daq.mapping.ui.experiment.OuterScannablesSection;
@@ -197,9 +202,16 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		// Lines to track combo box
 		createLabel(content, getMessage(XANES_LINES_TO_TRACK), 1);
 		linesToTrackCombo = new ComboViewer(content);
-		linesToTrackCombo.setContentProvider(ArrayContentProvider.getInstance());
 		linesToTrackCombo.getCombo().setToolTipText(getMessage(XANES_LINES_TO_TRACK_TOOLTIP));
 		GridDataFactory.fillDefaults().hint(80, SWT.DEFAULT).applyTo(linesToTrackCombo.getCombo());
+
+		linesToTrackCombo.setContentProvider(ArrayContentProvider.getInstance());
+		linesToTrackCombo.setLabelProvider(new LabelProvider() {
+			@Override
+			public String getText(Object element) {
+				return ((LinesToTrackEntry) element).getLine();
+			}
+		});
 
 		// Bind to model
 		final IViewerObservableValue comboObservable = ViewersObservables.observeSingleSelection(linesToTrackCombo);
@@ -275,32 +287,60 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 
 	@Override
 	public void updateControls() {
+		// Save the current selection
+		final IStructuredSelection currentSelection = linesToTrackCombo.getStructuredSelection();
+
 		// Read all selected processing files and extract lines to track
 		final Map<String, Object> processingRequest = getMappingBean().getProcessingRequest();
-		final List<String> lines = new ArrayList<>();
+		final SortedMap<String, SortedSet<String>> linesToTrack = new TreeMap<>();
+
 		for (Map.Entry<String, Object> entry : processingRequest.entrySet()) {
 			if (entry.getKey().equals("dawn")) {
 				@SuppressWarnings("unchecked")
 				final List<String> jsonFiles = (List<String>) entry.getValue();
 				for (String jsonFilePath : jsonFiles) {
 					try {
+						// Get the path of the processing file and the tracking lines it contains
 						final String json = new String(Files.readAllBytes(Paths.get(jsonFilePath)));
 						final JsonObject jObject = new JsonParser().parse(json).getAsJsonObject();
 						final String processingFilePath = jObject.get("processingFile").getAsString();
-						lines.addAll(getProcessingLinesFromFile(processingFilePath));
+						final List<String> lines = getProcessingLinesFromFile(processingFilePath);
+
+						// Add tracking lines and the corresponding processing file path
+						for (String line : lines) {
+							final SortedSet<String> filePaths = linesToTrack.computeIfAbsent(line, k -> new TreeSet<>());
+							filePaths.add(processingFilePath);
+						}
 					} catch (IOException e) {
 						logger.error("Error opening JSON file {}", jsonFilePath, e);
 					}
 				}
 			}
 		}
-		// Update the options in the combo box, but keep current selection if possible
-		final ISelection currentSelection = linesToTrackCombo.getSelection();
-		Collections.sort(lines);
-		linesToTrackCombo.setInput(lines.toArray());
-		linesToTrackCombo.insert("", 0);
-		if (currentSelection != null) {
-			linesToTrackCombo.setSelection(currentSelection);
+
+		// Add lines and restore current selection if possible
+		final int numLines = linesToTrack.size();
+		if (numLines == 0) {
+			linesToTrackCombo.setInput(null);
+		} else {
+			final LinesToTrackEntry[] comboEntries = new LinesToTrackEntry[numLines];
+			int i = 0;
+			for (Map.Entry<String, SortedSet<String>> entry : linesToTrack.entrySet()) {
+				comboEntries[i++] = new LinesToTrackEntry(entry.getKey(), entry.getValue());
+			}
+			linesToTrackCombo.setInput(comboEntries);
+			linesToTrackCombo.insert(new LinesToTrackEntry(), 0);
+
+			// Restore previous selection if possible
+			if (currentSelection != null && !currentSelection.isEmpty()) {
+				final String line = ((LinesToTrackEntry) currentSelection.getFirstElement()).getLine();
+				for (LinesToTrackEntry entry : comboEntries) {
+					if (entry.getLine().equals(line)) {
+						linesToTrackCombo.setSelection(new StructuredSelection(entry));
+						break;
+					}
+				}
+			}
 		}
 	}
 
@@ -336,7 +376,6 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		} catch (NexusException e) {
 			logger.error("Cannot read file {}", processingFilePath, e);
 		}
-		Collections.sort(lines);
 		return lines;
 	}
 
