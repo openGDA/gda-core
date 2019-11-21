@@ -310,7 +310,8 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	 * We expect the node <code>/entry/process/0/data</code> to contain a string of the form:<br>
 	 * <code>{"lineGroupsXRF":["Fe-Kα","Cs-Kβ"],"minExcitationEnergy":1.0,"maxExcitationEnergy":50.0,"plotOptions":"CURRENT_DATASET","roiWidth":10,"externalFilename":null,"externalDatasetName":null}]</code>
 	 * <p>
-	 * We want to extract the lines from <code>lineGroupsXRF</code>
+	 * We want to extract the lines from <code>lineGroupsXRF</code>, but to convert Greek letters to the equivalent
+	 * Latin characters, as used elsewhere in the Nexus file
 	 *
 	 * @param processingFilePath
 	 *            path to he processing file (in Nexus format)
@@ -323,7 +324,7 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 			final DataNode dataNode = nexusFile.getData("/entry/process/0/data");
 			final JsonObject jObject = new JsonParser().parse(dataNode.getString()).getAsJsonObject();
 			for (JsonElement lineGroups : jObject.getAsJsonArray("lineGroupsXRF")) {
-				lines.add(lineGroups.getAsString());
+				lines.add(lineGroups.getAsString().replace('\u03B1', 'a').replace('\u03B2', 'b'));
 			}
 		} catch (NexusException e) {
 			logger.error("Cannot read file {}", processingFilePath, e);
