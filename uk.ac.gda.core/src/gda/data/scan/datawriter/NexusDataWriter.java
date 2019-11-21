@@ -62,6 +62,7 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
+import org.python.core.Py;
 import org.python.core.PyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -903,7 +904,7 @@ public class NexusDataWriter extends DataWriterBase {
 			int length = ((PyList) object).__len__();
 			data = new double[length];
 			for (int i = 0; i < length; i++) {
-				data[i] = Double.valueOf(((PyList) object).__getitem__(i).toString());
+				data[i] = Py.py2double(((PyList) object).__getitem__(i));
 			}
 		} else if (object instanceof int[]) {
 			int[] idata = (int[]) object;
