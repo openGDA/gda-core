@@ -116,6 +116,11 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 	}
 
 	@Override
+	public boolean isScanRunning() {
+		return scanStatus != JythonStatus.IDLE;
+	}
+
+	@Override
 	public void pauseCurrentScan() {
 	}
 
