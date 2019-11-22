@@ -32,11 +32,11 @@ import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingLine;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.junit.After;
 import org.junit.Before;
@@ -98,8 +98,8 @@ public class FocusScanConverterTest {
 		assertEquals(2, models.size());
 
 		// test outer model - the focus model
-		assertThat(models.get(0), is(instanceOf(StepModel.class)));
-		final StepModel focusModel = (StepModel) models.get(0);
+		assertThat(models.get(0), is(instanceOf(AxialStepModel.class)));
+		final AxialStepModel focusModel = (AxialStepModel) models.get(0);
 		assertEquals(1, focusModel.getScannableNames().size());
 		assertEquals(focusScanBean.getFocusScannableName(), focusModel.getScannableNames().get(0));
 		assertEquals(focusScanBean.getFocusCentre() - focusScanBean.getFocusRange() + focusModel.getStep() / 2, focusModel.getStart(), 1e-15);
@@ -108,8 +108,8 @@ public class FocusScanConverterTest {
 		assertEquals(focusScanBean.getFocusRange() * 2 / focusScanBean.getNumberOfFocusSteps(), focusModel.getStep(), 1e-15);
 
 		// test inner model - the line model
-		assertThat(models.get(1), is(instanceOf(OneDEqualSpacingModel.class)));
-		final OneDEqualSpacingModel lineModel = (OneDEqualSpacingModel) models.get(1);
+		assertThat(models.get(1), is(instanceOf(TwoAxisLinePointsModel.class)));
+		final TwoAxisLinePointsModel lineModel = (TwoAxisLinePointsModel) models.get(1);
 		assertEquals(2, lineModel.getScannableNames().size());
 		assertEquals(mappingStageInfo.getPlotYAxisName(), lineModel.getScannableNames().get(1));
 		assertEquals(mappingStageInfo.getPlotXAxisName(), lineModel.getScannableNames().get(0));

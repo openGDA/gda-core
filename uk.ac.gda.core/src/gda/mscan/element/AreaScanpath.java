@@ -32,18 +32,18 @@ import org.eclipse.scanning.api.points.models.AbstractBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.AbstractBoundingLineModel;
 import org.eclipse.scanning.api.points.models.AbstractMapModel;
 import org.eclipse.scanning.api.points.models.AbstractPointsModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.BoundingLine;
-import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
-import org.eclipse.scanning.api.points.models.LissajousModel;
-import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
-import org.eclipse.scanning.api.points.models.OneDStepModel;
-import org.eclipse.scanning.api.points.models.RandomOffsetGridModel;
-import org.eclipse.scanning.api.points.models.RasterModel;
-import org.eclipse.scanning.api.points.models.SinglePointModel;
-import org.eclipse.scanning.api.points.models.SpiralModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsRandomOffsetModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
+import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
+import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -58,15 +58,15 @@ import gda.device.Scannable;
  * @since GDA 9.9
  */
 public enum AreaScanpath implements IMScanDimensionalElementEnum {
-	GRID("grid", 2, 2, GridModel.class, Factory::createGridModel),
-	RASTER("rast", 2, 2, RasterModel.class, Factory::createRasterModel),
-	SPIRAL("spir", 2, 1, SpiralModel.class, Factory::createSpiralModel),
-	LISSAJOUS("liss", 2, 3, LissajousModel.class, Factory::createLissajousModel),
-	TWO_AXIS_STEP("step", 2, 1, OneDStepModel.class, Factory::create2DSteppedLineModel),
-	TWO_AXIS_NO_OF_POINTS("nopt", 2, 1, OneDEqualSpacingModel.class, Factory::create2DNoOfPointsLineModel),
-	SINGLE_POINT("poin", 2, 2, SinglePointModel.class, Factory::createSinglePointModel),
-	ONE_AXIS_STEP("axst", 1, 1, StepModel.class, Factory::createAxialStepModel),
-	ONE_AXIS_NO_OF_POINTS("axno", 1, 1, StepModel.class, Factory::createAxialNoOfPointsModel);
+	GRID_POINTS("grid", 2, 2, TwoAxisGridPointsModel.class, Factory::createTwoAxisGridPointsModel),
+	GRID_STEP("rast", 2, 2, TwoAxisGridStepModel.class, Factory::createTwoAxisGridStepModel),
+	SPIRAL("spir", 2, 1, TwoAxisSpiralModel.class, Factory::createTwoAxisSpiralModel),
+	LISSAJOUS("liss", 2, 3, TwoAxisLissajousModel.class, Factory::createTwoAxisLissajousModel),
+	LINE_STEP("step", 2, 1, TwoAxisLineStepModel.class, Factory::createTwoAxisLineStepModel),
+	LINE_POINTS("nopt", 2, 1, TwoAxisLinePointsModel.class, Factory::createTwoAxisLinePointsModel),
+	SINGLE_POINT("poin", 2, 2, TwoAxisPointSingleModel.class, Factory::createSinglePointModel),
+	AXIS_STEP("axst", 1, 1, AxialStepModel.class, Factory::createAxialStepModel),
+	AXIS_POINTS("axno", 1, 1, AxialStepModel.class, Factory::createAxialPointsModel);
 
 	private static final int BOUNDS_REQUIRED_PARAMS = 4;
 	private static final String PREFIX = "Invalid Scan clause: ";
@@ -81,6 +81,11 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 	private final int valueCount;
 	private final Class<? extends AbstractPointsModel> modelType;
 	private final AreaScanpathModelFactoryFunction factory;
+
+	private static final String ALL_POSITIVE_ERROR = " path requires all positive parameters";
+	private static final String ALL_INTEGER_ERROR = " path requires all integer parameters";
+	private static final String ONE_POSITIVE_ERROR = " path requires that parameter %s is positive";
+	private static final String ONE_INTEGER_ERROR = " path requires that parameter %s is an integer";
 
 	private AreaScanpath(final String text, final int axisCount, final int valueCount,
 						final Class<? extends AbstractPointsModel> type,
@@ -104,10 +109,10 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 	/**
 	 * The default instance value to be used if one is not specified in the scan command
 	 *
-	 * @return		The {@link #GRID} instance
+	 * @return		The {@link #GRID_POINTS} instance
 	 */
 	public static AreaScanpath defaultValue() {
-		return RASTER;
+		return GRID_STEP;
 	}
 
 	/**
@@ -199,7 +204,7 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 		private static final int X_AXIS_INDEX = 0;
 		private static final int Y_AXIS_INDEX = 1;
 
-		// Constants to reference the available parameters for a {@link RandomOffsetGridModel}
+		// Constants to reference the available parameters for a {@link RandomOffsetTwoAxisGridPointsModel}
 		private static final int OFFSET = 0;
 		private static final int SEED = 1;
 
@@ -210,28 +215,28 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 		private static final int X_LENGTH_PARAM_INDEX = 2;
 		private static final int Y_LENGTH_PARAM_INDEX = 3;
 
-		/** Constant to reference the available parameter of a {@link SpiralModel} **/
+		/** Constant to reference the available parameter of a {@link TwoAxisSpiralModel} **/
 		private static final int SCALE = 0;
 
-		/** Constant to reference the available parameter of a {@link OneDStepModel} **/
+		/** Constant to reference the available parameter of a {@link TwoAxisLineAxialStepModel} **/
 		private static final int STEP = 0;
 
-		/** Constant to reference the available parameter of a {@link OneDEqualSpacingModel}/{@link LissajousModel} **/
+		/** Constant to reference the available parameter of a {@link TwoAxisLinePointsModel}/{@link TwoAxisLissajousModel} **/
 		private static final int POINTS = 0;
 
-		/** Constants to reference the available parameters of {@link StepModel} **/
+		/** Constants to reference the available parameters of {@link AxialStepModel} **/
 		private static final int START = 0;
 		private static final int STOP = 1;
 		private static final int AX_STEP = 2;
 		private static final int AX_POINTS = 2;
 
-		/** Constant to reference the available parameter of a {@link LissajousModel} **/
+		/** Constant to reference the available parameter of a {@link TwoAxisLissajousModel} **/
 		private static final int A = 1;
 		private static final int B = 2;
 
 		/**
-		 * Creates a {@link GridModel} using the supplied params. If the RandomOffset {@link Mutator} is specified, a
-		 * {@link RandomOffsetGridModel} is created instead.
+		 * Creates a {@link TwoAxisGridPointsModel} using the supplied params. If the RandomOffset {@link Mutator} is specified, a
+		 * {@link RandomOffsetTwoAxisGridPointsModel} is created instead.
 		 *
 		 * @param scannables		The {@link Scannable}s that relate to the axes of the grid as a {@link List} in the
 		 * 							order: fastScannable, slowScannable
@@ -242,22 +247,18 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
-		private static IScanPathModel createGridModel ( final List<Scannable> scannables,
+		private static IScanPathModel createTwoAxisGridPointsModel ( final List<Scannable> scannables,
 				 										final List<Number> scanParameters,
 				 										final List<Number> bboxParameters,
 				 										final Map<Mutator, List<Number>> mutatorUses) {
 
 			for (Number param : scanParameters) {
-				if (param.doubleValue() <= 0) {
-					throw new IllegalArgumentException(PREFIX + "Grid path requires all positive parameters");
-				}
-				if (!(param instanceof Integer)) {
-					throw new IllegalArgumentException(PREFIX + "Grid path requires integer parameters");
-				}
+				checkParamPositive(param, TwoAxisGridPointsModel.class.getSimpleName());
+				checkParamInteger(param, TwoAxisGridPointsModel.class.getSimpleName());
 			}
-			GridModel model;
+			TwoAxisGridPointsModel model;
 			if (mutatorUses.containsKey(RANDOM_OFFSET)) {
-				RandomOffsetGridModel roModel = initBoxBasedModel(new RandomOffsetGridModel(), scannables, bboxParameters);
+				TwoAxisGridPointsRandomOffsetModel roModel = initBoxBasedModel(new TwoAxisGridPointsRandomOffsetModel(), scannables, bboxParameters);
 				List<Number> params = mutatorUses.get(RANDOM_OFFSET);
 				roModel.setOffset(params.get(OFFSET).doubleValue());
 				if (params.size() > 1) {
@@ -265,7 +266,7 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 				}
 				model = roModel;
 			} else {
-				model = initBoxBasedModel(new GridModel(), scannables, bboxParameters);
+				model = initBoxBasedModel(new TwoAxisGridPointsModel(), scannables, bboxParameters);
 			}
 			model.setxAxisPoints(scanParameters.get(X_AXIS_INDEX).intValue());
 			model.setyAxisPoints(scanParameters.get(Y_AXIS_INDEX).intValue());
@@ -275,7 +276,7 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 		}
 
 		/**
-		 * Creates a {@link RasterModel} using the supplied params.
+		 * Creates a {@link TwoAxisGridAxialStepModel} using the supplied params.
 		 *
 		 * @param scannables		The {@link Scannable}s that relate to the axes of the raster as a {@link List} in
 		 * 							the order: fastScannable, slowScannable
@@ -286,17 +287,15 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
-		private static IScanPathModel createRasterModel (final List<Scannable> scannables,
+		private static IScanPathModel createTwoAxisGridStepModel (final List<Scannable> scannables,
 														 final List<Number> scanParameters,
 														 final List<Number> bboxParameters,
 														 final Map<Mutator, List<Number>> mutatorUses) {
 
 			for (Number param : scanParameters) {
-				if (param.doubleValue() <= 0) {
-					throw new IllegalArgumentException(PREFIX + "Raster path requires all positive parameters");
-				}
+				checkParamPositive(param, TwoAxisGridStepModel.class.getSimpleName());
 			}
-			RasterModel model = initBoxBasedModel(new RasterModel(), scannables, bboxParameters);
+			TwoAxisGridStepModel model = initBoxBasedModel(new TwoAxisGridStepModel(), scannables, bboxParameters);
 			model.setxAxisStep(scanParameters.get(X_AXIS_INDEX).doubleValue());
 			model.setyAxisStep(scanParameters.get(Y_AXIS_INDEX).doubleValue());
 			model.setAlternating(mutatorUses.containsKey(ALTERNATING));
@@ -305,7 +304,7 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 		}
 
 		/**
-		 * Creates a {@link SpiralModel} using the supplied params.
+		 * Creates a {@link TwoAxisSpiralModel} using the supplied params.
 		 *
 		 * @param scannables		The {@link Scannable}s that relate to the axes of the spiral as a {@link List} in
 		 * 							the order: fastScannable, slowScannable
@@ -315,12 +314,12 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
-		private static IScanPathModel createSpiralModel (final List<Scannable> scannables,
+		private static IScanPathModel createTwoAxisSpiralModel (final List<Scannable> scannables,
 														 final List<Number> scanParameters,
 														 final List<Number> bboxParameters,
 														 final Map<Mutator, List<Number>> mutatorUses) {
 
-			SpiralModel model = initBoxBasedModel(new SpiralModel(), scannables, bboxParameters);
+			TwoAxisSpiralModel model = initBoxBasedModel(new TwoAxisSpiralModel(), scannables, bboxParameters);
 			model.setAlternating(mutatorUses.containsKey(ALTERNATING));
 			model.setScale(scanParameters.get(SCALE).doubleValue());
 			model.setContinuous(mutatorUses.containsKey(CONTINUOUS));
@@ -328,7 +327,7 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 		}
 
 		/**
-		 * Creates a {@link LissajousModel} using the supplied params.
+		 * Creates a {@link TwoAxisLissajousModel} using the supplied params.
 		 *
 		 * @param scannables		The {@link Scannable}s that relate to the axes of the lissajous as a {@link List} in
 		 * 							the order: fastScannable, slowScannable
@@ -339,12 +338,12 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
-		private static IScanPathModel createLissajousModel (final List<Scannable> scannables,
+		private static IScanPathModel createTwoAxisLissajousModel (final List<Scannable> scannables,
 															final List<Number> scanParameters,
 															final List<Number> bboxParameters,
 															final Map<Mutator, List<Number>> mutatorUses) {
 
-			LissajousModel model = initBoxBasedModel(new LissajousModel(), scannables, bboxParameters);
+			TwoAxisLissajousModel model = initBoxBasedModel(new TwoAxisLissajousModel(), scannables, bboxParameters);
 			model.setA(scanParameters.get(A).doubleValue());
 			model.setB(scanParameters.get(B).doubleValue());
 			model.setPoints(scanParameters.get(POINTS).intValue());
@@ -354,7 +353,7 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 		}
 
 		/**
-		 * Creates a {@link OneDStepModel} using the supplied params.
+		 * Creates a {@link TwoAxisLineAxialStepModel} using the supplied params.
 		 *
 		 * @param scannables		The {@link Scannable}s that relate to the axes of the step path as a {@link List} in
 		 * 							the order: fastScannable, slowScannable
@@ -364,16 +363,14 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
-		private static IScanPathModel create2DSteppedLineModel (final List<Scannable> scannables,
+		private static IScanPathModel createTwoAxisLineStepModel (final List<Scannable> scannables,
 														   final List<Number> scanParameters,
 														   final List<Number> blineParameters,
 														   final Map<Mutator, List<Number>> mutatorUses) {
 			for (Number param : scanParameters) {
-				if (param.doubleValue() <= 0) {
-					throw new IllegalArgumentException(PREFIX + "Two Axis Step path requires all positive parameters");
-				}
+				checkParamPositive(param, TwoAxisLineStepModel.class.getSimpleName());
 			}
-			OneDStepModel model = initLineBasedModel(new OneDStepModel(), scannables, blineParameters);
+			TwoAxisLineStepModel model = initLineBasedModel(new TwoAxisLineStepModel(), scannables, blineParameters);
 			model.setStep(scanParameters.get(STEP).doubleValue());
 			model.setAlternating(mutatorUses.containsKey(ALTERNATING));
 			model.setContinuous(mutatorUses.containsKey(CONTINUOUS));
@@ -381,7 +378,7 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 		}
 
 		/**
-		 * Creates a {@link OneDEqualSpacingModel} using the supplied params.
+		 * Creates a {@link TwoAxisLinePointsModel} using the supplied params.
 		 *
 		 * @param scannables		The {@link Scannable}s that relate to the axes of the path as a {@link List} in
 		 * 							the order: fastScannable, slowScannable
@@ -391,21 +388,15 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
-		private static IScanPathModel create2DNoOfPointsLineModel (final List<Scannable> scannables,
+		private static IScanPathModel createTwoAxisLinePointsModel (final List<Scannable> scannables,
 				   													final List<Number> scanParameters,
 				   													final List<Number> blineParameters,
 				   													final Map<Mutator, List<Number>> mutatorUses) {
 			for (Number param : scanParameters) {
-				if (param.doubleValue() <= 0) {
-					throw new IllegalArgumentException(
-							PREFIX + "Two Axis No of Points path requires all positive parameters");
-				}
-				if (!(param instanceof Integer)) {
-					throw new IllegalArgumentException(
-							PREFIX + "Two Axis No of Points path requires integer parameters");
-				}
+				checkParamPositive(param, TwoAxisLinePointsModel.class.getSimpleName());
+				checkParamInteger(param, TwoAxisLinePointsModel.class.getSimpleName());
 			}
-			OneDEqualSpacingModel model = initLineBasedModel(new OneDEqualSpacingModel(), scannables, blineParameters);
+			TwoAxisLinePointsModel model = initLineBasedModel(new TwoAxisLinePointsModel(), scannables, blineParameters);
 			model.setPoints(scanParameters.get(POINTS).intValue());
 			model.setAlternating(mutatorUses.containsKey(ALTERNATING));
 			model.setContinuous(mutatorUses.containsKey(CONTINUOUS));
@@ -426,7 +417,7 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 																final List<Number> scanParameters,
 																final List<Number> notUsed,
 																final Map<Mutator, List<Number>> notUsedMap) {
-			SinglePointModel model = new SinglePointModel();
+			TwoAxisPointSingleModel model = new TwoAxisPointSingleModel();
 			setAxisNames(model, scannables);
 			model.setX(scanParameters.get(X_AXIS_INDEX).doubleValue());
 			model.setY(scanParameters.get(Y_AXIS_INDEX).doubleValue());
@@ -434,12 +425,12 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 		}
 
 		/**
-		 * Creates a {@link StepModel} using the supplied params.
+		 * Creates a {@link AxialStepModel} using the supplied params.
 		 *
 		 * @param scannables		The {@link Scannable} that relates to the axis of the step path as a {@link List}
 		 * 							of 1
 		 * @param scanParameters	The parameters that defines the start stop and step size as a {@link List}.
-		 * @param notUsed			Not used by {@link StepModel}s
+		 * @param notUsed			Not used by {@link AxialStepModel}s
 		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
@@ -448,17 +439,15 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 														   final List<Number> notUsed,
 														   final Map<Mutator, List<Number>> mutatorUses) {
 
-			// This is actually inconsistent as the underlying StepModel requires steps in the negative direction to
+			// This is actually inconsistent as the underlying AxialStepModel requires steps in the negative direction to
 			// be negative (see below) but for consistency with classic scanning and the Mapping UI negative steps
 			// are disallowed as part of a valid mscan string
-			if (scanParameters.get(AX_STEP).doubleValue() <= 0) {
-				throw new IllegalArgumentException(PREFIX + "Axial Step path requires all positive parameters");
-			}
+			checkOneParameterPositive(scanParameters.get(AX_STEP), AxialStepModel.class.getSimpleName(), AX_STEP);
 
 			// Multiplier to adjust the step value direction
 			double sign = scanParameters.get(STOP).doubleValue() < scanParameters.get(START).doubleValue() ? -1	: 1;
 
-			StepModel model = new StepModel(scannables.get(0).getName(),
+			AxialStepModel model = new AxialStepModel(scannables.get(0).getName(),
 											scanParameters.get(START).doubleValue(),
 											scanParameters.get(STOP).doubleValue(),
 											scanParameters.get(AX_STEP).doubleValue() * sign);
@@ -468,24 +457,20 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 		}
 
 		/**
-		 * Creates a {@link StepModel} with a defined number of points using the supplied params.
+		 * Creates a {@link AxialStepModel} with a defined number of points using the supplied params.
 		 *
 		 * @param scannables		The {@link Scannable} that relates to the axis of the step path as a {@link List}
 		 * 							of 1
 		 * @param scanParameters	The parameters that defines the start stop and no of points as a {@link List}.
-		 * @param notUsed			Not used by {@link StepModel}s
+		 * @param notUsed			Not used by {@link AxialStepModel}s
 		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
-		private static IScanPathModel createAxialNoOfPointsModel (final List<Scannable> scannables,
+		private static IScanPathModel createAxialPointsModel (final List<Scannable> scannables,
 														   final List<Number> scanParameters,
 														   final List<Number> notUsed,
 														   final Map<Mutator, List<Number>> mutatorUses) {
-
-			if (!(scanParameters.get(AX_POINTS) instanceof Integer) ||
-							(scanParameters.get(AX_POINTS).intValue() <= 0)) {
-				throw new IllegalArgumentException(PREFIX + "Axial Step path requires a positive integer no of points");
-			}
+			checkOneParameterPositiveInteger(scanParameters.get(AX_POINTS), "AxialPointsModel", AX_POINTS);
 			double length = Math.abs(scanParameters.get(STOP).doubleValue() - scanParameters.get(START).doubleValue());
 
 			int divisor = scanParameters.get(AX_POINTS).intValue() - 1;
@@ -499,7 +484,7 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 
 			double sign = scanParameters.get(STOP).doubleValue() < start ? -1 : 1;
 
-			StepModel model = new StepModel(scannables.get(0).getName(),
+			AxialStepModel model = new AxialStepModel(scannables.get(0).getName(),
 											start,
 											scanParameters.get(STOP).doubleValue(),
 											sign * length / divisor);
@@ -555,5 +540,30 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 			model.setxAxisName(scannables.get(X_AXIS_INDEX).getName());
 			model.setyAxisName(scannables.get(Y_AXIS_INDEX).getName());
 		}
+	}
+
+	private static void checkParamInteger(Number param, String className) {
+		if (!(param instanceof Integer)) {
+			throw new IllegalArgumentException(PREFIX + className + ALL_INTEGER_ERROR);
+		}
+	}
+
+	private static void checkParamPositive(Number param, String className) {
+		if (param.doubleValue() <= 0) {
+			throw new IllegalArgumentException(PREFIX + className + ALL_POSITIVE_ERROR);
+		}
+	}
+
+	private static void checkOneParameterPositive(Number param, String className, int paramOrder) {
+		if (param.doubleValue() <= 0) {
+			throw new IllegalArgumentException(PREFIX + className + String.format(ONE_POSITIVE_ERROR, paramOrder));
+		}
+	}
+
+	private static void checkOneParameterPositiveInteger(Number param, String className, int paramOrder) {
+		if (!(param instanceof Integer)) {
+			throw new IllegalArgumentException(PREFIX + className + String.format(ONE_INTEGER_ERROR, paramOrder));
+		}
+		checkOneParameterPositive(param, className, paramOrder);
 	}
 }

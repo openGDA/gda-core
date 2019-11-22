@@ -23,16 +23,16 @@ import java.util.Map;
 
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
-import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
-import org.eclipse.scanning.api.points.models.LissajousModel;
-import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
-import org.eclipse.scanning.api.points.models.OneDStepModel;
-import org.eclipse.scanning.api.points.models.PtychographyGridModel;
-import org.eclipse.scanning.api.points.models.RandomOffsetGridModel;
-import org.eclipse.scanning.api.points.models.RasterModel;
-import org.eclipse.scanning.api.points.models.SinglePointModel;
-import org.eclipse.scanning.api.points.models.SpiralModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsRandomOffsetModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
+import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
+import org.eclipse.scanning.api.points.models.TwoAxisPtychographyModel;
+import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 
 /**
  * Class managing the custom editors for different path types.
@@ -46,15 +46,15 @@ public final class PathEditorProvider {
 	static {
 		// Initialise the pathToEditor map
 		pathToEditor = new HashMap<>();
-		pathToEditor.put(GridModel.class, GridPathEditor.class);
-		pathToEditor.put(RasterModel.class, RasterPathEditor.class);
-		pathToEditor.put(PtychographyGridModel.class, PtychographyGridPathEditor.class);
-		pathToEditor.put(SpiralModel.class, SpiralPathEditor.class);
-		pathToEditor.put(LissajousModel.class, LissajousCurvePathEditor.class);
-		pathToEditor.put(RandomOffsetGridModel.class, RandomOffsetGridPathEditor.class);
-		pathToEditor.put(OneDStepModel.class, OneDStepModelPathEditor.class);
-		pathToEditor.put(OneDEqualSpacingModel.class, OneDEqualSpacingPathEditor.class);
-		pathToEditor.put(SinglePointModel.class, NoPathEditor.class);
+		pathToEditor.put(TwoAxisGridPointsModel.class, GridPointsPathEditor.class);
+		pathToEditor.put(TwoAxisGridStepModel.class, GridStepPathEditor.class);
+		pathToEditor.put(TwoAxisPtychographyModel.class, PtychographyGridPathEditor.class);
+		pathToEditor.put(TwoAxisSpiralModel.class, SpiralPathEditor.class);
+		pathToEditor.put(TwoAxisLissajousModel.class, LissajousCurvePathEditor.class);
+		pathToEditor.put(TwoAxisGridPointsRandomOffsetModel.class, GridPointsRandomOffsetPathEditor.class);
+		pathToEditor.put(TwoAxisLineStepModel.class, LineStepPathEditor.class);
+		pathToEditor.put(TwoAxisLinePointsModel.class, LinePointsPathEditor.class);
+		pathToEditor.put(TwoAxisPointSingleModel.class, NoPathEditor.class);
 	}
 
 	private PathEditorProvider() {

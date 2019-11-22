@@ -25,15 +25,15 @@ import java.util.StringJoiner;
 import java.util.function.Function;
 
 import org.eclipse.scanning.api.points.models.AbstractPointsModel;
-import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
-import org.eclipse.scanning.api.points.models.LissajousModel;
-import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
-import org.eclipse.scanning.api.points.models.OneDStepModel;
-import org.eclipse.scanning.api.points.models.RandomOffsetGridModel;
-import org.eclipse.scanning.api.points.models.RasterModel;
-import org.eclipse.scanning.api.points.models.SinglePointModel;
-import org.eclipse.scanning.api.points.models.SpiralModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsRandomOffsetModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
+import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
+import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
@@ -114,26 +114,26 @@ public class DescriptiveFilenameFactory {
 	enum PathParameterSource {
 		POINT(0, "1 pt", path -> "", path -> ""),
 		RAST(1, "%s step per side, %s %s",
-			path -> enclose(((RasterModel)path).getxAxisStep() + "," + ((RasterModel)path).getyAxisStep()),
+			path -> enclose(((TwoAxisGridStepModel)path).getxAxisStep() + "," + ((TwoAxisGridStepModel)path).getyAxisStep()),
 			path -> isContinuous(path) + isAlternating(path)),
 		GRID(2, "%s pts per side. %s %s",
-			path -> enclose(((GridModel)path).getxAxisPoints() + "," + ((GridModel)path).getyAxisPoints()),
+			path -> enclose(((TwoAxisGridPointsModel)path).getxAxisPoints() + "," + ((TwoAxisGridPointsModel)path).getyAxisPoints()),
 			path -> isContinuous(path) + isAlternating(path)),
 		RAND(3, "%s pts per side. %s %s",
-			path -> enclose(((RandomOffsetGridModel)path).getxAxisPoints() + ","
-							+ ((RandomOffsetGridModel)path).getyAxisPoints()),
+			path -> enclose(((TwoAxisGridPointsRandomOffsetModel)path).getxAxisPoints() + ","
+							+ ((TwoAxisGridPointsRandomOffsetModel)path).getyAxisPoints()),
 			path -> isContinuous(path) + isAlternating(path)),
 		EQUAL(4, "%s pts, %s %s",
-			path -> enclose(String.valueOf(((OneDEqualSpacingModel)path).getPoints())),
+			path -> enclose(String.valueOf(((TwoAxisLinePointsModel)path).getPoints())),
 			path -> isContinuous(path) + isAlternating(path)),
 		STEP(5, "%s step, %s %s",
-			path -> enclose(String.valueOf(((OneDStepModel)path).getStep())),
+			path -> enclose(String.valueOf(((TwoAxisLineStepModel)path).getStep())),
 			path -> isContinuous(path) + isAlternating(path)),
 		SPIR(6, "%s scale %s %s",
-			path -> enclose(String.valueOf(((SpiralModel)path).getScale())),
+			path -> enclose(String.valueOf(((TwoAxisSpiralModel)path).getScale())),
 			path -> isContinuous(path) + isAlternating(path)),
 		LISS(7,	"%s a %s b, %s %s",
-			path -> enclose(((LissajousModel)path).getA() + "," + ((LissajousModel)path).getB()),
+			path -> enclose(((TwoAxisLissajousModel)path).getA() + "," + ((TwoAxisLissajousModel)path).getB()),
 			path -> isContinuous(path) + isAlternating(path));
 
 		private final int id;
@@ -185,14 +185,14 @@ public class DescriptiveFilenameFactory {
 	 */
 	private final BiMap<Class<? extends IScanPathModel>, PathParameterSource> pathLookup =
 			new ImmutableBiMap.Builder<Class<? extends IScanPathModel>, PathParameterSource>()
-			.put(SinglePointModel.class, PathParameterSource.POINT)
-			.put(RasterModel.class, PathParameterSource.RAST)
-			.put(GridModel.class, PathParameterSource.GRID)
-			.put(RandomOffsetGridModel.class, PathParameterSource.RAND)
-			.put(OneDEqualSpacingModel.class, PathParameterSource.EQUAL)
-			.put(OneDStepModel.class, PathParameterSource.STEP)
-			.put(SpiralModel.class, PathParameterSource.SPIR)
-			.put(LissajousModel.class, PathParameterSource.LISS)
+			.put(TwoAxisPointSingleModel.class, PathParameterSource.POINT)
+			.put(TwoAxisGridStepModel.class, PathParameterSource.RAST)
+			.put(TwoAxisGridPointsModel.class, PathParameterSource.GRID)
+			.put(TwoAxisGridPointsRandomOffsetModel.class, PathParameterSource.RAND)
+			.put(TwoAxisLinePointsModel.class, PathParameterSource.EQUAL)
+			.put(TwoAxisLineStepModel.class, PathParameterSource.STEP)
+			.put(TwoAxisSpiralModel.class, PathParameterSource.SPIR)
+			.put(TwoAxisLissajousModel.class, PathParameterSource.LISS)
 			.build();
 
 	/**

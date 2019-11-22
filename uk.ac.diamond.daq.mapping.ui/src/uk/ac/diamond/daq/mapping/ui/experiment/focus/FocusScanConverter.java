@@ -25,14 +25,14 @@ import java.util.Map;
 import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingLine;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IBoundingLineModel;
 import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
-import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,14 +82,14 @@ public class FocusScanConverter {
 		final double start = (centre - range) + step / 2;
 		final double stop = centre + range - (step / 2) + (step / 100); // add step/100 to prevent rounding errors
 
-		return new StepModel(zonePlateScannableName, start, stop, step);
+		return new AxialStepModel(zonePlateScannableName, start, stop, step);
 	}
 
 	private IBoundingLineModel createLineModel(FocusScanBean focusScanBean) {
 		final ILineMappingRegion lineRegion = focusScanBean.getLineRegion();
 		final int numPoints = focusScanBean.getNumberOfLinePoints();
 
-		final OneDEqualSpacingModel lineModel = new OneDEqualSpacingModel();
+		final TwoAxisLinePointsModel lineModel = new TwoAxisLinePointsModel();
 		lineModel.setPoints(numPoints);
 		lineModel.setContinuous(true); // continuous if possible (i.e. malcolm)
 		if (mappingStageInfo != null) {

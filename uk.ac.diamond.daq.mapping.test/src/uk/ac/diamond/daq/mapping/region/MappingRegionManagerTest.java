@@ -13,14 +13,14 @@ import static org.mockito.Mockito.mock;
 import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
-import org.eclipse.scanning.api.points.models.LissajousModel;
-import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
-import org.eclipse.scanning.api.points.models.OneDStepModel;
-import org.eclipse.scanning.api.points.models.RasterModel;
-import org.eclipse.scanning.api.points.models.SinglePointModel;
-import org.eclipse.scanning.api.points.models.SpiralModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
+import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
+import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,10 +34,10 @@ public class MappingRegionManagerTest {
 			rectangle, new CentredRectangleMappingRegion(),
 			new CircularMappingRegion(), new LineMappingRegion(), new PointMappingRegion(),
 			new PolygonMappingRegion() };
-	private IScanPathModel[] twoDPaths = new IScanPathModel[] { new GridModel(), new RasterModel(),
-			new SpiralModel(), new LissajousModel() };
-	private IScanPathModel[] oneDPaths = new IScanPathModel[] { new OneDEqualSpacingModel(), new OneDStepModel() };
-	private IScanPathModel[] zeroDPaths = new IScanPathModel[] { new SinglePointModel() };
+	private IScanPathModel[] twoDPaths = new IScanPathModel[] { new TwoAxisGridPointsModel(), new TwoAxisGridStepModel(),
+			new TwoAxisSpiralModel(), new TwoAxisLissajousModel() };
+	private IScanPathModel[] oneDPaths = new IScanPathModel[] { new TwoAxisLinePointsModel(), new TwoAxisLineStepModel() };
+	private IScanPathModel[] zeroDPaths = new IScanPathModel[] { new TwoAxisPointSingleModel() };
 
 	private MappingRegionManager mappingRegionManager;
 
@@ -140,11 +140,11 @@ public class MappingRegionManagerTest {
 
 	@Test
 	public void getTemplateReturnsCopy() {
-		final RectangularMappingRegion copy1 = mappingRegionManager.getTemplateRegion(RectangularMappingRegion.class);
-		final RectangularMappingRegion copy2 = mappingRegionManager.getTemplateRegion(RectangularMappingRegion.class);
+		final RectangularMappingRegion region1 = mappingRegionManager.getTemplateRegion(RectangularMappingRegion.class);
+		final RectangularMappingRegion region2 = mappingRegionManager.getTemplateRegion(RectangularMappingRegion.class);
 
-		assertThat(copy1, is(equalTo(copy2)));
-		assertThat(copy1, is(not(sameInstance(copy2))));
+		assertThat(region1, is(equalTo(region2)));
+		assertThat(region1, is(not(sameInstance(region2))));
 	}
 
 	@Test (expected = IllegalArgumentException.class)

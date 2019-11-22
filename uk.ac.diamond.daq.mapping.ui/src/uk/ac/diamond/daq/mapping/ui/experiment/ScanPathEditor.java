@@ -35,10 +35,10 @@ import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
-import org.eclipse.scanning.api.points.models.ArrayModel;
+import org.eclipse.scanning.api.points.models.AxialArrayModel;
+import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
-import org.eclipse.scanning.api.points.models.MultiStepModel;
-import org.eclipse.scanning.api.points.models.StepModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -109,15 +109,15 @@ public class ScanPathEditor extends Composite implements IObservable {
 		multiStepButton.addSelectionListener(widgetSelectedAdapter(event -> {
 			final Shell activeShell = Display.getDefault().getActiveShell();
 			final MultiStepEditorDialog editorDialog = new MultiStepEditorDialog(activeShell, scannableName);
-			final MultiStepModel multiStepModel = convertTextToModel(axisText.getText(), scannableName);
-			editorDialog.setModel(multiStepModel);
+			final AxialMultiStepModel multiAxialStepModel = convertTextToModel(axisText.getText(), scannableName);
+			editorDialog.setModel(multiAxialStepModel);
 			if (editorDialog.open() == Window.OK) {
 				try {
-					final MultiStepModel model = editorDialog.getEditor().getModel();
+					final AxialMultiStepModel model = editorDialog.getEditor().getModel();
 					axisText.setText((String) new ScanPathToStringConverter().convert(model));
 					observable.notifyIObservers(this, model);
 				} catch (Exception e) {
-					logger.error("Cannot retrieve MultiStepModel from dialog", e);
+					logger.error("Cannot retrieve MultiAxialStepModel from dialog", e);
 				}
 			}
 		}));
@@ -194,7 +194,7 @@ public class ScanPathEditor extends Composite implements IObservable {
 
 
 	/**
-	 * Convert text representing a scan path to a {@link MultiStepModel}
+	 * Convert text representing a scan path to a {@link AxialMultiStepModel}
 	 *
 	 * @param text
 	 *            The text to convert (can be empty)
@@ -202,26 +202,26 @@ public class ScanPathEditor extends Composite implements IObservable {
 	 *            The name of the scannable to which the scan path refers
 	 * @return The corresponding multi-step model
 	 */
-	private MultiStepModel convertTextToModel(String text, String scannableName) {
-		MultiStepModel multiStepModel = new MultiStepModel();
+	private AxialMultiStepModel convertTextToModel(String text, String scannableName) {
+		AxialMultiStepModel multiAxialStepModel = new AxialMultiStepModel();
 
 		if (!text.isEmpty()) {
 			final Object oldModel = (new StringToScanPathConverter(scannableName)).convert(text);
 
-			if (oldModel instanceof MultiStepModel) {
-				multiStepModel = (MultiStepModel) oldModel;
-			} else if (oldModel instanceof StepModel) {
-				multiStepModel.getStepModels().add((StepModel) oldModel);
-			} else if (oldModel instanceof ArrayModel) {
-				final double[] positions = ((ArrayModel) oldModel).getPositions();
+			if (oldModel instanceof AxialMultiStepModel) {
+				multiAxialStepModel = (AxialMultiStepModel) oldModel;
+			} else if (oldModel instanceof AxialStepModel) {
+				multiAxialStepModel.getStepModels().add((AxialStepModel) oldModel);
+			} else if (oldModel instanceof AxialArrayModel) {
+				final double[] positions = ((AxialArrayModel) oldModel).getPositions();
 				for (int i = 0; i < positions.length - 1; i++) {
-					final StepModel stepModel = new StepModel(scannableName, positions[i], positions[i + 1], positions[i + 1] - positions[i]);
-					multiStepModel.getStepModels().add(stepModel);
+					final AxialStepModel stepModel = new AxialStepModel(scannableName, positions[i], positions[i + 1], positions[i + 1] - positions[i]);
+					multiAxialStepModel.getStepModels().add(stepModel);
 				}
 			}
 		}
-		multiStepModel.setName(scannableName);
-		return multiStepModel;
+		multiAxialStepModel.setName(scannableName);
+		return multiAxialStepModel;
 	}
 
 	/**
@@ -245,26 +245,26 @@ public class ScanPathEditor extends Composite implements IObservable {
 		public Object convert(Object fromObject) {
 			if (fromObject == null) {
 				return ""; // this is the case when the outer scannable is not specified
-			} else if (fromObject instanceof StepModel) {
-				return convertStepModel((StepModel) fromObject);
-			} else if (fromObject instanceof ArrayModel) {
-				return convertArrayModel((ArrayModel) fromObject);
-			} else if (fromObject instanceof MultiStepModel) {
-				return convertMultiStepModel((MultiStepModel) fromObject);
+			} else if (fromObject instanceof AxialStepModel) {
+				return convertAxialStepModel((AxialStepModel) fromObject);
+			} else if (fromObject instanceof AxialArrayModel) {
+				return convertAxialArrayModel((AxialArrayModel) fromObject);
+			} else if (fromObject instanceof AxialMultiStepModel) {
+				return convertMultiAxialStepModel((AxialMultiStepModel) fromObject);
 			} else {
 				// We only expect path model types that can be created from this GUI
 				throw new IllegalArgumentException("Unknown model type: " + fromObject.getClass());
 			}
 		}
 
-		private String convertStepModel(StepModel stepModel) {
+		private String convertAxialStepModel(AxialStepModel stepModel) {
 			final StringBuilder stringBuilder = new StringBuilder();
-			appendStepModel(stepModel, stringBuilder);
+			appendAxialStepModel(stepModel, stringBuilder);
 
 			return stringBuilder.toString();
 		}
 
-		private void appendStepModel(StepModel stepModel, StringBuilder stringBuilder) {
+		private void appendAxialStepModel(AxialStepModel stepModel, StringBuilder stringBuilder) {
 			stringBuilder.append(doubleToString(stepModel.getStart()));
 			stringBuilder.append(' ');
 			stringBuilder.append(doubleToString(stepModel.getStop()));
@@ -272,12 +272,12 @@ public class ScanPathEditor extends Composite implements IObservable {
 			stringBuilder.append(doubleToString(stepModel.getStep()));
 		}
 
-		private String convertMultiStepModel(MultiStepModel multiStepModel) {
-			final Iterator<StepModel> iter = multiStepModel.getStepModels().iterator();
+		private String convertMultiAxialStepModel(AxialMultiStepModel multiAxialStepModel) {
+			final Iterator<AxialStepModel> iter = multiAxialStepModel.getStepModels().iterator();
 
 			final StringBuilder stringBuilder = new StringBuilder();
 			while (iter.hasNext()) {
-				appendStepModel(iter.next(), stringBuilder);
+				appendAxialStepModel(iter.next(), stringBuilder);
 				if (iter.hasNext()) {
 					stringBuilder.append(";");
 				}
@@ -286,7 +286,7 @@ public class ScanPathEditor extends Composite implements IObservable {
 			return stringBuilder.toString();
 		}
 
-		private String convertArrayModel(ArrayModel arrayModel) {
+		private String convertAxialArrayModel(AxialArrayModel arrayModel) {
 			final double[] positions = arrayModel.getPositions();
 			final StringBuilder stringBuilder = new StringBuilder();
 			for (int i = 0; i < positions.length; i++) {
@@ -335,11 +335,11 @@ public class ScanPathEditor extends Composite implements IObservable {
 			}
 			try {
 				if (text.contains(",")) {
-					return convertStringToArrayModel(text);
+					return convertStringToAxialArrayModel(text);
 				} else if (text.contains(";")) {
-					return convertStringToMultiStepModel(text);
+					return convertStringToMultiAxialStepModel(text);
 				} else {
-					return convertStringToStepModel(text);
+					return convertStringToAxialStepModel(text);
 				}
 			} catch (Exception e) {
 				logger.error("Could not convert string to model", e);
@@ -347,10 +347,10 @@ public class ScanPathEditor extends Composite implements IObservable {
 			}
 		}
 
-		private StepModel convertStringToStepModel(String text) {
+		private AxialStepModel convertStringToAxialStepModel(String text) {
 			final String[] startStopStep = text.split(" ");
 			if (startStopStep.length == 3) {
-				StepModel stepModel = new StepModel();
+				AxialStepModel stepModel = new AxialStepModel();
 				stepModel.setName(scannableName);
 				stepModel.setStart(Double.parseDouble(startStopStep[0]));
 				stepModel.setStop(Double.parseDouble(startStopStep[1]));
@@ -360,34 +360,34 @@ public class ScanPathEditor extends Composite implements IObservable {
 			return null;
 		}
 
-		private IScanPathModel convertStringToMultiStepModel(String text) {
+		private IScanPathModel convertStringToMultiAxialStepModel(String text) {
 			final String[] stepModelStrs = text.split(";");
 
-			// If there is only one step specified, return a StepModel
+			// If there is only one step specified, return a AxialStepModel
 			if (stepModelStrs.length == 1) {
-				return convertStringToStepModel(stepModelStrs[0].trim());
+				return convertStringToAxialStepModel(stepModelStrs[0].trim());
 			}
 
-			final MultiStepModel multiStepModel = new MultiStepModel();
-			multiStepModel.setName(scannableName);
+			final AxialMultiStepModel multiAxialStepModel = new AxialMultiStepModel();
+			multiAxialStepModel.setName(scannableName);
 			for (String stepModelStr : stepModelStrs) {
-				final StepModel stepModel = convertStringToStepModel(stepModelStr.trim());
+				final AxialStepModel stepModel = convertStringToAxialStepModel(stepModelStr.trim());
 				if (stepModel == null) {
 					return null;
 				}
-				multiStepModel.addRange(stepModel);
+				multiAxialStepModel.addRange(stepModel);
 			}
 
-			return multiStepModel;
+			return multiAxialStepModel;
 		}
 
-		private ArrayModel convertStringToArrayModel(String text) {
+		private AxialArrayModel convertStringToAxialArrayModel(String text) {
 			final String[] strings = text.split(",");
 			final double[] positions = new double[strings.length];
 			for (int index = 0; index < strings.length; index++) {
 				positions[index] = Double.parseDouble(strings[index]);
 			}
-			final ArrayModel arrayModel = new ArrayModel();
+			final AxialArrayModel arrayModel = new AxialArrayModel();
 			arrayModel.setName(scannableName);
 			arrayModel.setPositions(positions);
 			return arrayModel;

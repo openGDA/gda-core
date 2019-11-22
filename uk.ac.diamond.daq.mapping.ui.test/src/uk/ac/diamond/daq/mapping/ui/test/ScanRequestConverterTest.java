@@ -48,10 +48,10 @@ import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ProcessingRequest;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.IPosition;
-import org.eclipse.scanning.api.points.models.GridModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.models.ScanMetadata;
 import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.script.ScriptRequest;
@@ -92,7 +92,7 @@ public class ScanRequestConverterTest {
 	private MappingStageInfo mappingStageInfo;
 	private MappingExperimentBean mappingBean;
 	private MappingExperimentBean newMappingBean;
-	private GridModel scanPath;
+	private TwoAxisGridPointsModel scanPath;
 
 	@Before
 	public void setUp() throws Exception {
@@ -124,7 +124,7 @@ public class ScanRequestConverterTest {
 		// Set up the experiment bean with some sensible defaults
 		mappingBean = new MappingExperimentBean();
 
-		scanPath = new GridModel();
+		scanPath = new TwoAxisGridPointsModel();
 		scanPath.setContinuous(true);
 		mappingBean.getScanDefinition().getMappingScanRegion().setScanPath(scanPath);
 
@@ -298,8 +298,8 @@ public class ScanRequestConverterTest {
 		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
 
 		// check that the new mapping bean has the correct stage names
-		assertThat(newRegion.getScanPath(), is(instanceOf(GridModel.class)));
-		GridModel newScanPath = (GridModel) newRegion.getScanPath();
+		assertThat(newRegion.getScanPath(), is(instanceOf(TwoAxisGridPointsModel.class)));
+		TwoAxisGridPointsModel newScanPath = (TwoAxisGridPointsModel) newRegion.getScanPath();
 		assertThat(newScanPath.getxAxisName(), is(equalTo(X_AXIS_NAME)));
 		assertThat(newScanPath.getyAxisName(), is(equalTo(Y_AXIS_NAME)));
 
@@ -406,7 +406,7 @@ public class ScanRequestConverterTest {
 	@Test
 	public void testOuterScannableIsSet() throws Exception {
 		// Arrange
-		final IScanPathModel outerModel = new StepModel(Z_AXIS_NAME, -3, 2, 0.5);
+		final IScanPathModel outerModel = new AxialStepModel(Z_AXIS_NAME, -3, 2, 0.5);
 		final List<IScanModelWrapper<IScanPathModel>> outerScannables = Arrays.asList(new ScanPathModelWrapper(
 				Z_AXIS_NAME, outerModel, true));
 
@@ -416,9 +416,9 @@ public class ScanRequestConverterTest {
 		final ScanRequest scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert
-		// Check there are now 2 models the outer z StepModel and the inner Grid model
+		// Check there are now 2 models the outer z AxialStepModel and the inner Grid model
 		assertThat(scanRequest.getCompoundModel().getModels().size(), is(equalTo(2)));
-		final StepModel recoveredOuterModel = (StepModel) scanRequest.getCompoundModel().getModels().get(0);
+		final AxialStepModel recoveredOuterModel = (AxialStepModel) scanRequest.getCompoundModel().getModels().get(0);
 		// Check the outer scannable model is first in the list
 		assertThat(recoveredOuterModel, is(outerModel));
 		// Check it has the correct axis name
@@ -427,8 +427,8 @@ public class ScanRequestConverterTest {
 		// setup the new mapping bean with an outer scannable for the same axis, but disabled
 		// and with a different model, and another enabled and for a different axis
 		newMappingBean.getScanDefinition().setOuterScannables(Arrays.asList(
-				new ScanPathModelWrapper(Z_AXIS_NAME, new StepModel(Z_AXIS_NAME, 0, 5, 0.25), false),
-				new ScanPathModelWrapper("energy", new StepModel("energy", 10000, 15000, 1000), true)));
+				new ScanPathModelWrapper(Z_AXIS_NAME, new AxialStepModel(Z_AXIS_NAME, 0, 5, 0.25), false),
+				new ScanPathModelWrapper("energy", new AxialStepModel("energy", 10000, 15000, 1000), true)));
 		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
 
 		// Assert again - check the new mapping bean is the same as the old one
@@ -444,7 +444,7 @@ public class ScanRequestConverterTest {
 	@Test
 	public void testOuterScannableAddedToMappingBeanIfNotThereAlready() {
 		// Arrange
-		final IScanPathModel outerModel = new StepModel(Z_AXIS_NAME, -3, 2, 0.5);
+		final IScanPathModel outerModel = new AxialStepModel(Z_AXIS_NAME, -3, 2, 0.5);
 		final List<IScanModelWrapper<IScanPathModel>> outerScannables = Arrays.asList(new ScanPathModelWrapper(
 				Z_AXIS_NAME, outerModel, true));
 

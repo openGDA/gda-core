@@ -18,26 +18,23 @@
 
 package uk.ac.diamond.daq.mapping.ui.path;
 
+import static uk.ac.diamond.daq.mapping.ui.experiment.DataBinder.GREATER_THAN_ZERO;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Text;
 
-public class OneDEqualSpacingPathEditor extends AbstractPathEditor {
+public class LineStepPathEditor extends AbstractPathEditor {
 
 	@Override
 	public Composite createEditorPart(Composite parent) {
-
 		final Composite composite = super.createEditorPart(parent);
-
-		new Label(composite, SWT.NONE).setText("Points");
-		Spinner points = new Spinner(composite, SWT.BORDER);
-		points.setMinimum(1);
-		grabHorizontalSpace.applyTo(points);
-		binder.bind(points, "points", getModel());
-
+		new Label(composite, SWT.NONE).setText("Step");
+		Text step = new Text(composite, SWT.BORDER);
+		grabHorizontalSpace.applyTo(step);
+		binder.bind(step, "step", getModel(), GREATER_THAN_ZERO);
 		makeCommonOptionsControls(composite);
-
 		return composite;
 	}
 

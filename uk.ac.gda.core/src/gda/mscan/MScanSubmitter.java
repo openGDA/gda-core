@@ -336,10 +336,10 @@ public class MScanSubmitter {
 		while (currentList.contains(RegionShape.AXIAL)) {
 			int index = currentList.indexOf(RegionShape.AXIAL);
 			if (len > index + 2) {
-				if (currentList.get(index + 3).equals(AreaScanpath.TWO_AXIS_STEP)) {
-					currentList.set(index + 3, AreaScanpath.ONE_AXIS_STEP);
-				} else if (currentList.get(index + 3).equals(AreaScanpath.TWO_AXIS_NO_OF_POINTS)) {
-					currentList.set(index + 3, AreaScanpath.ONE_AXIS_NO_OF_POINTS);
+				if (currentList.get(index + 3).equals(AreaScanpath.LINE_STEP)) {
+					currentList.set(index + 3, AreaScanpath.AXIS_STEP);
+				} else if (currentList.get(index + 3).equals(AreaScanpath.LINE_POINTS)) {
+					currentList.set(index + 3, AreaScanpath.AXIS_POINTS);
 				}
 			}
 			currentList = currentList.subList(index + 1, len -index);

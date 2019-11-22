@@ -20,21 +20,35 @@ package uk.ac.diamond.daq.mapping.ui.path;
 
 import static uk.ac.diamond.daq.mapping.ui.experiment.DataBinder.GREATER_THAN_ZERO;
 
+import javax.measure.quantity.Quantity;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 
-public class OneDStepModelPathEditor extends AbstractPathEditor {
+import uk.ac.gda.client.NumberAndUnitsComposite;
+
+public class GridStepPathEditor extends AbstractGridPathEditor {
 
 	@Override
 	public Composite createEditorPart(Composite parent) {
+
 		final Composite composite = super.createEditorPart(parent);
-		new Label(composite, SWT.NONE).setText("Step");
-		Text step = new Text(composite, SWT.BORDER);
-		grabHorizontalSpace.applyTo(step);
-		binder.bind(step, "step", getModel(), GREATER_THAN_ZERO);
-		makeCommonOptionsControls(composite);
+
+		new Label(composite, SWT.NONE).setText(getXAxisName() + " Step");
+		NumberAndUnitsComposite<Quantity> xStep = createNumberAndUnitsComposite(composite, getXAxisName(), X_AXIS_STEP);
+		grabHorizontalSpace.applyTo(xStep);
+
+		binder.bind(xStep, X_AXIS_STEP, getModel(), GREATER_THAN_ZERO);
+
+		new Label(composite, SWT.NONE).setText(getYAxisName() + " Step");
+		NumberAndUnitsComposite<Quantity> yStep = createNumberAndUnitsComposite(composite, getYAxisName(), Y_AXIS_STEP);
+		grabHorizontalSpace.applyTo(yStep);
+
+		binder.bind(yStep, Y_AXIS_STEP, getModel(), GREATER_THAN_ZERO);
+
+		makeCommonGridOptionsControls(composite);
+
 		return composite;
 	}
 

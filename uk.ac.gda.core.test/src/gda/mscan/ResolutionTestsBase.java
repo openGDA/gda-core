@@ -57,7 +57,7 @@ public class ResolutionTestsBase {
 	protected static IClauseElementProcessor m1Proc = mockMonitorProc(m1, "MonitorOne");
 	protected static IClauseElementProcessor m2Proc = mockMonitorProc(m2, "MonitorTwo");
 	protected static IClauseElementProcessor num1Proc = mockNumberProc(1);
-	protected static IClauseElementProcessor gridProc = mockAreaScanpathProc(AreaScanpath.GRID);
+	protected static IClauseElementProcessor gridProc = mockAreaScanpathProc(AreaScanpath.GRID_POINTS);
 	protected static IClauseElementProcessor rectProc = mockRoiProc(RegionShape.RECTANGLE);
 
 	protected static IClauseElementProcessor mockScannableProc(Scannable scannable, final String name) {

@@ -23,8 +23,8 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.richbeans.widgets.selector.BeanConfigurator;
 import org.eclipse.scanning.api.IModelProvider;
-import org.eclipse.scanning.api.points.models.MultiStepModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
+import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
 import org.eclipse.scanning.api.ui.IScannableUIPreferencesService;
 import org.eclipse.scanning.api.ui.ScannableUIPreferences;
 import org.eclipse.scanning.device.ui.composites.MultiStepComposite;
@@ -45,8 +45,8 @@ public class MultiStepEditorDialog extends Dialog {
 
 	private static final Logger logger = LoggerFactory.getLogger(MultiStepEditorDialog.class);
 
-	private TypeEditor<MultiStepModel> ed;
-	private MultiStepModel model;
+	private TypeEditor<AxialMultiStepModel> ed;
+	private AxialMultiStepModel model;
 	private String scannableName;
 
 	protected MultiStepEditorDialog(Shell parentShell, String scannableName) {
@@ -75,18 +75,18 @@ public class MultiStepEditorDialog extends Dialog {
 		saveButton.setToolTipText("Save multi-step model");
 
 		if (model==null) {
-			model = new MultiStepModel();
+			model = new AxialMultiStepModel();
 			model.setName(scannableName);
 		}
-		final IModelProvider<MultiStepModel> modelProvider = new IModelProvider<MultiStepModel>() {
+		final IModelProvider<AxialMultiStepModel> modelProvider = new IModelProvider<AxialMultiStepModel>() {
 
 			@Override
-			public MultiStepModel getModel() throws Exception {
+			public AxialMultiStepModel getModel() throws Exception {
 				return model;
 			}
 
 			@Override
-			public void updateModel(MultiStepModel model) throws Exception {
+			public void updateModel(AxialMultiStepModel model) throws Exception {
 				// updateModel is not needed for this implementation
 				// Overriding because super throws IllegalArgumentException
 			}
@@ -109,16 +109,16 @@ public class MultiStepEditorDialog extends Dialog {
 		((MultiStepComposite) ed.getUI()).getStepModels().setBeanConfigurator(getBeanConfigurator());
 
 		// save & load logic
-		ModelPersistAction<MultiStepModel> load = new ModelPersistAction<>(ed,PersistType.LOAD);
+		ModelPersistAction<AxialMultiStepModel> load = new ModelPersistAction<>(ed,PersistType.LOAD);
 		loadButton.addListener(SWT.Selection, event->load.run());
 
-		ModelPersistAction<MultiStepModel> save = new ModelPersistAction<>(ed,PersistType.SAVE);
+		ModelPersistAction<AxialMultiStepModel> save = new ModelPersistAction<>(ed,PersistType.SAVE);
 		saveButton.addListener(SWT.Selection, event->save.run());
 
 		return ed;
 	}
 
-	private BeanConfigurator<StepModel> getBeanConfigurator() {
+	private BeanConfigurator<AxialStepModel> getBeanConfigurator() {
 		ScannableUIPreferences prefs = IScannableUIPreferencesService.DEFAULT.getPreferences(scannableName);
 		return (bean, previous, context) -> {
 			bean.setStart(previous != null ? previous.getStop() : prefs.getStepModelStart());
@@ -127,11 +127,11 @@ public class MultiStepEditorDialog extends Dialog {
 		};
 	}
 
-	public TypeEditor<MultiStepModel> getEditor() {
+	public TypeEditor<AxialMultiStepModel> getEditor() {
 		return ed;
 	}
 
-	public void setModel(MultiStepModel model) {
+	public void setModel(AxialMultiStepModel model) {
 		this.model = model;
 	}
 }

@@ -18,15 +18,15 @@
 
 package gda.mscan;
 
-import static gda.mscan.element.AreaScanpath.GRID;
+import static gda.mscan.element.AreaScanpath.GRID_POINTS;
 import static gda.mscan.element.AreaScanpath.LISSAJOUS;
-import static gda.mscan.element.AreaScanpath.ONE_AXIS_NO_OF_POINTS;
-import static gda.mscan.element.AreaScanpath.ONE_AXIS_STEP;
-import static gda.mscan.element.AreaScanpath.RASTER;
+import static gda.mscan.element.AreaScanpath.AXIS_POINTS;
+import static gda.mscan.element.AreaScanpath.AXIS_STEP;
+import static gda.mscan.element.AreaScanpath.GRID_STEP;
 import static gda.mscan.element.AreaScanpath.SINGLE_POINT;
 import static gda.mscan.element.AreaScanpath.SPIRAL;
-import static gda.mscan.element.AreaScanpath.TWO_AXIS_NO_OF_POINTS;
-import static gda.mscan.element.AreaScanpath.TWO_AXIS_STEP;
+import static gda.mscan.element.AreaScanpath.LINE_POINTS;
+import static gda.mscan.element.AreaScanpath.LINE_STEP;
 import static gda.mscan.element.RegionShape.AXIAL;
 import static gda.mscan.element.RegionShape.CENTRED_RECTANGLE;
 import static gda.mscan.element.RegionShape.CIRCLE;
@@ -49,8 +49,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.util.MathUtils;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
-import org.eclipse.scanning.api.points.models.StepModel;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -83,12 +83,12 @@ public class ClauseContext {
 
 	private static final ImmutableMap<RegionShape, List<AreaScanpath>> VALID_COMBINATIONS =
 			new ImmutableMap.Builder<RegionShape, List<AreaScanpath>>()
-			.put(RECTANGLE,         Arrays.asList(GRID, RASTER ,SPIRAL, LISSAJOUS))
-			.put(CENTRED_RECTANGLE, Arrays.asList(GRID, RASTER ,SPIRAL, LISSAJOUS))
-			.put(CIRCLE,            Arrays.asList(GRID, RASTER ,SPIRAL, LISSAJOUS))
-			.put(POLYGON,           Arrays.asList(GRID, RASTER ,SPIRAL, LISSAJOUS))
-			.put(LINE,              Arrays.asList(TWO_AXIS_NO_OF_POINTS, TWO_AXIS_STEP))
-			.put(AXIAL,             Arrays.asList(ONE_AXIS_NO_OF_POINTS, ONE_AXIS_STEP))
+			.put(RECTANGLE,         Arrays.asList(GRID_POINTS, GRID_STEP ,SPIRAL, LISSAJOUS))
+			.put(CENTRED_RECTANGLE, Arrays.asList(GRID_POINTS, GRID_STEP ,SPIRAL, LISSAJOUS))
+			.put(CIRCLE,            Arrays.asList(GRID_POINTS, GRID_STEP ,SPIRAL, LISSAJOUS))
+			.put(POLYGON,           Arrays.asList(GRID_POINTS, GRID_STEP ,SPIRAL, LISSAJOUS))
+			.put(LINE,              Arrays.asList(LINE_POINTS, LINE_STEP))
+			.put(AXIAL,             Arrays.asList(AXIS_POINTS, AXIS_STEP))
 			.put(POINT,             Arrays.asList(SINGLE_POINT)).build();
 
 	private static final int REQUIRED_SCANNABLES_FOR_AREA = 2;
@@ -361,7 +361,7 @@ public class ClauseContext {
 	}
 
 	/**
-	 * For single axis scans (e.g. those based on {@link StepModel}), the start and stop values are required
+	 * For single axis scans (e.g. those based on {@link AxialStepModel}), the start and stop values are required
 	 * as well as the step size when creating the {@link IScanPathModel}. If validated, these are in the
 	 * shapeParams, so these must be added in to the returned list.
 	 *

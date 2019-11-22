@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2017 Diamond Light Source Ltd.
+ * Copyright © 2018 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -22,34 +22,25 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
-import org.eclipse.swt.widgets.Text;
 
-public class RandomOffsetGridPathEditor extends AbstractGridPathEditor {
+public class GridPointsPathEditor extends AbstractGridPathEditor {
 
 	@Override
 	public Composite createEditorPart(Composite parent) {
 
 		final Composite composite = super.createEditorPart(parent);
 
-		new Label(composite, SWT.NONE).setText("Offset (%)");
-		Text offset = new Text(composite, SWT.BORDER);
-		grabHorizontalSpace.applyTo(offset);
-		binder.bind(offset, "offset", getModel());
-
-		new Label(composite, SWT.NONE).setText("Seed");
-		Text seed = new Text(composite, SWT.BORDER);
-		grabHorizontalSpace.applyTo(seed);
-		binder.bind(seed, "seed", getModel());
-
-		new Label(composite, SWT.NONE).setText(getXAxisName() + " Points");
+		(new Label(composite, SWT.NONE)).setText(getXAxisName() + " Points");
 		Spinner fastPoints = new Spinner(composite, SWT.BORDER);
 		fastPoints.setMinimum(1);
+		fastPoints.setMaximum(Integer.MAX_VALUE);
 		grabHorizontalSpace.applyTo(fastPoints);
 		binder.bind(fastPoints, "xAxisPoints", getModel());
 
-		new Label(composite, SWT.NONE).setText(getYAxisName() + " Points");
+		(new Label(composite, SWT.NONE)).setText(getYAxisName() + " Points");
 		Spinner slowPoints = new Spinner(composite, SWT.BORDER);
 		slowPoints.setMinimum(1);
+		slowPoints.setMaximum(Integer.MAX_VALUE);
 		grabHorizontalSpace.applyTo(slowPoints);
 		binder.bind(slowPoints, "yAxisPoints", getModel());
 

@@ -30,9 +30,9 @@ import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.json.MarshallerService;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.GridModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.example.classregistry.ScanningExampleClassRegistry;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
@@ -144,7 +144,7 @@ public class MappingUISerializationTest {
 
 	@Test
 	public void testSerializeScanPathModelWrapper() throws Exception {
-		StepModel model = new StepModel("energy", 10000.0, 10200.0, 10.0);
+		AxialStepModel model = new AxialStepModel("energy", 10000.0, 10200.0, 10.0);
 		ScanPathModelWrapper wrapper = new ScanPathModelWrapper("energy", model, true);
 
 		String json = service.marshal(wrapper);
@@ -249,7 +249,7 @@ public class MappingUISerializationTest {
 	private IMappingScanRegion createScanRegion() {
 		IMappingScanRegion scanRegion = new MappingScanRegion();
 
-		GridModel gmodel = new GridModel();
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
 		gmodel.setxAxisName("xNex");
 		gmodel.setxAxisPoints(50);
 		gmodel.setyAxisName("yNex");
@@ -280,9 +280,9 @@ public class MappingUISerializationTest {
 	private IScanDefinition createScanDefinition() {
 		IMappingScanRegion scanRegion = createScanRegion();
 
-		StepModel energy = new StepModel("energy", 10000.0, 10200.0, 10.0);
+		AxialStepModel energy = new AxialStepModel("energy", 10000.0, 10200.0, 10.0);
 		ScanPathModelWrapper energyWrapper = new ScanPathModelWrapper("energy", energy, true);
-		StepModel z = new StepModel("z", 2.5, 17.5, 0.1);
+		AxialStepModel z = new AxialStepModel("z", 2.5, 17.5, 0.1);
 		ScanPathModelWrapper zWrapper = new ScanPathModelWrapper("z", z, true);
 
 		IScanDefinition scanDefinition = new MappingScanDefinition();

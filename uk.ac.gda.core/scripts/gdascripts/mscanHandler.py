@@ -69,14 +69,14 @@ from org.eclipse.scanning.command.Services import *
 # Models and assign them to the corresponding names and standard 4 character
 # abbreviations so that they can be protected using alias()
 
-grid = (lambda:AreaScanpath.GRID)()
-rast = raster = (lambda:AreaScanpath.RASTER)()
+grid = (lambda:AreaScanpath.GRID_POINTS)()
+rast = raster = (lambda:AreaScanpath.GRID_STEP)()
 spir = spiral = (lambda:AreaScanpath.SPIRAL)()
 liss = lissajous = (lambda:AreaScanpath.LISSAJOUS)()
-step = angl = angle = (lambda:AreaScanpath.TWO_AXIS_STEP)()
-nopt = pts = noofpoints = points = proj = projections = (lambda:AreaScanpath.TWO_AXIS_NO_OF_POINTS)()
-axst = axisstep = (lambda:AreaScanpath.ONE_AXIS_STEP)()
-axno = axispoints = (lambda:AreaScanpath.ONE_AXIS_NO_OF_POINTS)()
+step = angl = angle = (lambda:AreaScanpath.LINE_STEP)()
+nopt = pts = noofpoints = points = proj = projections = (lambda:AreaScanpath.LINE_POINTS)()
+axst = axisstep = (lambda:AreaScanpath.AXIS_STEP)()
+axno = axispoints = (lambda:AreaScanpath.AXIS_POINTS)()
 
 
 # Register the commands with the Translator

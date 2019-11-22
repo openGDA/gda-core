@@ -71,7 +71,7 @@ import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
-import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.device.ui.device.EditDetectorModelDialog;
 import org.eclipse.scanning.device.ui.util.ScanningUiUtils;
@@ -133,7 +133,7 @@ class FocusScanSetupPage extends WizardPage {
 	@Inject
 	private IMappingExperimentBeanProvider mappingBeanProvider;
 
-	private OneDEqualSpacingModel linePathModel;
+	private TwoAxisLinePointsModel linePathModel;
 
 	/**
 	 * Instructions for drawing a line over the desired feature
@@ -189,7 +189,7 @@ class FocusScanSetupPage extends WizardPage {
 
 		lineRegion.addPropertyChangeListener(regionBeanPropertyChangeListener);
 
-		linePathModel = new OneDEqualSpacingModel();
+		linePathModel = new TwoAxisLinePointsModel();
 		pathBeanPropertyChangeListener = event -> updatePoints();
 		linePathModel.addPropertyChangeListener(pathBeanPropertyChangeListener);
 

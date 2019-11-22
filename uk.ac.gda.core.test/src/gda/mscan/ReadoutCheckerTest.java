@@ -63,7 +63,7 @@ public class ReadoutCheckerTest extends ResolutionTestsBase {
 		d1Proc = mockDetectorProc(d1, "DetectorOne");
 		m1Proc = mockMonitorProc(m1, "MonitorOne");
 		num1Proc = mockNumberProc(1);
-		gridProc = mockAreaScanpathProc(AreaScanpath.GRID);
+		gridProc = mockAreaScanpathProc(AreaScanpath.GRID_POINTS);
 		rectProc = mockRoiProc(RegionShape.RECTANGLE);
 		return Arrays.asList(new Object[][] {
 			// single scannables as the last entry that aren't detectors or monitors match

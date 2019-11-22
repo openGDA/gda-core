@@ -42,7 +42,7 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
-import org.eclipse.scanning.api.points.models.RandomOffsetGridModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsRandomOffsetModel;
 import org.eclipse.scanning.api.scan.IParserService;
 import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement.MonitorScanRole;
 import org.eclipse.scanning.device.ui.device.MonitorView;
@@ -378,7 +378,7 @@ public class ScanManagementController extends AbstractMappingController {
 	public void updateGridModelIndex() {
 		updateGridModelIndex(
 				getMappingBean().getScanDefinition().getMappingScanRegion().getScanPath().getClass()
-				.equals(RandomOffsetGridModel.class));
+				.equals(TwoAxisGridPointsRandomOffsetModel.class));
 	}
 
 	public void updateGridModelIndex(boolean isRandom) {

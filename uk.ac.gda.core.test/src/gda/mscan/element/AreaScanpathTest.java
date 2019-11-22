@@ -19,15 +19,15 @@
 package gda.mscan.element;
 
 
-import static gda.mscan.element.AreaScanpath.GRID;
+import static gda.mscan.element.AreaScanpath.AXIS_POINTS;
+import static gda.mscan.element.AreaScanpath.AXIS_STEP;
+import static gda.mscan.element.AreaScanpath.GRID_POINTS;
+import static gda.mscan.element.AreaScanpath.GRID_STEP;
+import static gda.mscan.element.AreaScanpath.LINE_POINTS;
+import static gda.mscan.element.AreaScanpath.LINE_STEP;
 import static gda.mscan.element.AreaScanpath.LISSAJOUS;
-import static gda.mscan.element.AreaScanpath.ONE_AXIS_NO_OF_POINTS;
-import static gda.mscan.element.AreaScanpath.ONE_AXIS_STEP;
-import static gda.mscan.element.AreaScanpath.RASTER;
 import static gda.mscan.element.AreaScanpath.SINGLE_POINT;
 import static gda.mscan.element.AreaScanpath.SPIRAL;
-import static gda.mscan.element.AreaScanpath.TWO_AXIS_NO_OF_POINTS;
-import static gda.mscan.element.AreaScanpath.TWO_AXIS_STEP;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -43,16 +43,16 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.scanning.api.points.models.GridModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
-import org.eclipse.scanning.api.points.models.LissajousModel;
-import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
-import org.eclipse.scanning.api.points.models.OneDStepModel;
-import org.eclipse.scanning.api.points.models.RandomOffsetGridModel;
-import org.eclipse.scanning.api.points.models.RasterModel;
-import org.eclipse.scanning.api.points.models.SinglePointModel;
-import org.eclipse.scanning.api.points.models.SpiralModel;
-import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsRandomOffsetModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
+import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
+import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -70,6 +70,12 @@ public class AreaScanpathTest {
 	private static Map<AreaScanpath, Double[]> emptyPathData = new EnumMap<>(AreaScanpath.class);
 	private static Map<AreaScanpath, Double[]> correctLengthPathData = new EnumMap<>(AreaScanpath.class);
 	private static Double[] blankArray = new Double[]{};
+
+	private final String MUTATOR_NOT_SUPPORTED_BY = "The %s mutator is not supported by ";
+	private final String ALL_POSITIVE_ERROR = " path requires all positive parameters";
+	private final String ALL_INTEGER_ERROR = " path requires all integer parameters";
+	private final String ONE_POSITIVE_ERROR = " path requires that parameter %s is positive";
+	private final String ONE_INTEGER_ERROR = " path requires that parameter %s is an integer";
 
 	@Rule
 	public final ExpectedException exception = ExpectedException.none();
@@ -92,15 +98,15 @@ public class AreaScanpathTest {
 		for (AreaScanpath scanpath : AreaScanpath.values()) {
 			emptyPathData.put(scanpath, new Double[] {});
 		}
-		correctLengthPathData.put(GRID, new Double[] {3.0, 3.0});
-		correctLengthPathData.put(RASTER, new Double[] {4.0, 4.0});
+		correctLengthPathData.put(GRID_POINTS, new Double[] {3.0, 3.0});
+		correctLengthPathData.put(GRID_STEP, new Double[] {4.0, 4.0});
 		correctLengthPathData.put(SPIRAL, new Double[] {5.0});
 		correctLengthPathData.put(LISSAJOUS, new Double[] {6.0, 6.0, 6.0});
-		correctLengthPathData.put(TWO_AXIS_NO_OF_POINTS, new Double[] {6.0});
-		correctLengthPathData.put(TWO_AXIS_STEP, new Double[] {6.0});
+		correctLengthPathData.put(LINE_POINTS, new Double[] {6.0});
+		correctLengthPathData.put(LINE_STEP, new Double[] {6.0});
 		correctLengthPathData.put(SINGLE_POINT, new Double[] {6.0, 6.0});
-		correctLengthPathData.put(ONE_AXIS_STEP, new Double[] {5.0});
-		correctLengthPathData.put(ONE_AXIS_NO_OF_POINTS, new Double[] {5.0});
+		correctLengthPathData.put(AXIS_STEP, new Double[] {5.0});
+		correctLengthPathData.put(AXIS_POINTS, new Double[] {5.0});
 	}
 
 	@Before
@@ -118,67 +124,67 @@ public class AreaScanpathTest {
 
 	@Test
 	public void checkValueCounts() throws Exception {
-		assertThat(GRID.valueCount(), is(2));
-		assertThat(RASTER.valueCount(), is(2));
+		assertThat(GRID_POINTS.valueCount(), is(2));
+		assertThat(GRID_STEP.valueCount(), is(2));
 		assertThat(SPIRAL.valueCount(), is(1));
 		assertThat(LISSAJOUS.valueCount(), is(3));
-		assertThat(TWO_AXIS_NO_OF_POINTS.valueCount(), is(1));
-		assertThat(TWO_AXIS_STEP.valueCount(), is(1));
+		assertThat(LINE_POINTS.valueCount(), is(1));
+		assertThat(LINE_STEP.valueCount(), is(1));
 		assertThat(SINGLE_POINT.valueCount(), is(2));
-		assertThat(ONE_AXIS_NO_OF_POINTS.valueCount(), is(1));
-		assertThat(ONE_AXIS_STEP.valueCount(), is(1));
+		assertThat(AXIS_POINTS.valueCount(), is(1));
+		assertThat(AXIS_STEP.valueCount(), is(1));
 	}
 
 	@Test
 	public void checkModelTypes() throws Exception {
-		assertTrue(GRID.modelType().equals(GridModel.class));
-		assertTrue(RASTER.modelType().equals(RasterModel.class));
-		assertTrue(SPIRAL.modelType().equals(SpiralModel.class));
-		assertTrue(LISSAJOUS.modelType().equals(LissajousModel.class));
-		assertTrue(TWO_AXIS_NO_OF_POINTS.modelType().equals(OneDEqualSpacingModel.class));
-		assertTrue(TWO_AXIS_STEP.modelType().equals(OneDStepModel.class));
-		assertTrue(SINGLE_POINT.modelType().equals(SinglePointModel.class));
-		assertTrue(ONE_AXIS_NO_OF_POINTS.modelType().equals(StepModel.class));
-		assertTrue(ONE_AXIS_STEP.modelType().equals(StepModel.class));
+		assertTrue(GRID_POINTS.modelType().equals(TwoAxisGridPointsModel.class));
+		assertTrue(GRID_STEP.modelType().equals(TwoAxisGridStepModel.class));
+		assertTrue(SPIRAL.modelType().equals(TwoAxisSpiralModel.class));
+		assertTrue(LISSAJOUS.modelType().equals(TwoAxisLissajousModel.class));
+		assertTrue(LINE_POINTS.modelType().equals(TwoAxisLinePointsModel.class));
+		assertTrue(LINE_STEP.modelType().equals(TwoAxisLineStepModel.class));
+		assertTrue(SINGLE_POINT.modelType().equals(TwoAxisPointSingleModel.class));
+		assertTrue(AXIS_POINTS.modelType().equals(AxialStepModel.class));
+		assertTrue(AXIS_STEP.modelType().equals(AxialStepModel.class));
 	}
 
 	@Test
 	public void checkContinuousSupport() throws Exception {
-		assertTrue(GRID.supports(Mutator.CONTINUOUS));
-		assertTrue(RASTER.supports(Mutator.CONTINUOUS));
+		assertTrue(GRID_POINTS.supports(Mutator.CONTINUOUS));
+		assertTrue(GRID_STEP.supports(Mutator.CONTINUOUS));
 		assertTrue(SPIRAL.supports(Mutator.CONTINUOUS));
 		assertTrue(LISSAJOUS.supports(Mutator.CONTINUOUS));
-		assertTrue(TWO_AXIS_NO_OF_POINTS.supports(Mutator.CONTINUOUS));
-		assertTrue(TWO_AXIS_STEP.supports(Mutator.CONTINUOUS));
+		assertTrue(LINE_POINTS.supports(Mutator.CONTINUOUS));
+		assertTrue(LINE_STEP.supports(Mutator.CONTINUOUS));
 		assertFalse(SINGLE_POINT.supports(Mutator.CONTINUOUS));
-		assertTrue(ONE_AXIS_NO_OF_POINTS.supports(Mutator.CONTINUOUS));
-		assertTrue(ONE_AXIS_STEP.supports(Mutator.CONTINUOUS));
+		assertTrue(AXIS_POINTS.supports(Mutator.CONTINUOUS));
+		assertTrue(AXIS_STEP.supports(Mutator.CONTINUOUS));
 	}
 
 	@Test
 	public void checkAlternatingSupport() throws Exception {
-		assertTrue(GRID.supports(Mutator.ALTERNATING));
-		assertTrue(RASTER.supports(Mutator.ALTERNATING));
+		assertTrue(GRID_POINTS.supports(Mutator.ALTERNATING));
+		assertTrue(GRID_STEP.supports(Mutator.ALTERNATING));
 		assertTrue(SPIRAL.supports(Mutator.ALTERNATING));
 		assertTrue(LISSAJOUS.supports(Mutator.ALTERNATING));
-		assertTrue(TWO_AXIS_NO_OF_POINTS.supports(Mutator.ALTERNATING));
-		assertTrue(TWO_AXIS_STEP.supports(Mutator.ALTERNATING));
+		assertTrue(LINE_POINTS.supports(Mutator.ALTERNATING));
+		assertTrue(LINE_STEP.supports(Mutator.ALTERNATING));
 		assertFalse(SINGLE_POINT.supports(Mutator.ALTERNATING));
-		assertTrue(ONE_AXIS_NO_OF_POINTS.supports(Mutator.ALTERNATING));
-		assertTrue(ONE_AXIS_STEP.supports(Mutator.ALTERNATING));
+		assertTrue(AXIS_POINTS.supports(Mutator.ALTERNATING));
+		assertTrue(AXIS_STEP.supports(Mutator.ALTERNATING));
 	}
 
 	@Test
 	public void checkRandomOffsetSupport() throws Exception {
-		assertTrue(GRID.supports(Mutator.RANDOM_OFFSET));
-		assertFalse(RASTER.supports(Mutator.RANDOM_OFFSET));
+		assertTrue(GRID_POINTS.supports(Mutator.RANDOM_OFFSET));
+		assertFalse(GRID_STEP.supports(Mutator.RANDOM_OFFSET));
 		assertFalse(SPIRAL.supports(Mutator.RANDOM_OFFSET));
 		assertFalse(LISSAJOUS.supports(Mutator.RANDOM_OFFSET));
-		assertFalse(TWO_AXIS_NO_OF_POINTS.supports(Mutator.RANDOM_OFFSET));
-		assertFalse(TWO_AXIS_STEP.supports(Mutator.RANDOM_OFFSET));
+		assertFalse(LINE_POINTS.supports(Mutator.RANDOM_OFFSET));
+		assertFalse(LINE_STEP.supports(Mutator.RANDOM_OFFSET));
 		assertFalse(SINGLE_POINT.supports(Mutator.RANDOM_OFFSET));
-		assertFalse(ONE_AXIS_NO_OF_POINTS.supports(Mutator.RANDOM_OFFSET));
-		assertFalse(ONE_AXIS_STEP.supports(Mutator.RANDOM_OFFSET));
+		assertFalse(AXIS_POINTS.supports(Mutator.RANDOM_OFFSET));
+		assertFalse(AXIS_STEP.supports(Mutator.RANDOM_OFFSET));
 	}
 
 	@Test
@@ -198,15 +204,15 @@ public class AreaScanpathTest {
 	@Test
 	public void createModelRejectsTooManyPathParamsForAllInstances() throws Exception {
 		Map<AreaScanpath, Double[]> tooMany = new EnumMap<>(AreaScanpath.class);
-		tooMany.put(GRID, new Double[] {3.0, 3.0, 3.0});
-		tooMany.put(RASTER, new Double[] {4.0, 4.0, 4.0});
+		tooMany.put(GRID_POINTS, new Double[] {3.0, 3.0, 3.0});
+		tooMany.put(GRID_STEP, new Double[] {4.0, 4.0, 4.0});
 		tooMany.put(SPIRAL, new Double[] {5.0, 5.0});
 		tooMany.put(LISSAJOUS, new Double[] {6.0, 6.0, 6.0, 6.0, 6.0, 6.0});
-		tooMany.put(TWO_AXIS_NO_OF_POINTS, new Double[] {3.0, 3.0});
-		tooMany.put(TWO_AXIS_STEP, new Double[] {3.0, 3.0});
+		tooMany.put(LINE_POINTS, new Double[] {3.0, 3.0});
+		tooMany.put(LINE_STEP, new Double[] {3.0, 3.0});
 		tooMany.put(SINGLE_POINT, new Double[] {6.0, 6.0, 6.0});
-		tooMany.put(ONE_AXIS_NO_OF_POINTS, new Double[] {3.0, 3.0});
-		tooMany.put(ONE_AXIS_STEP, new Double[] {3.0, 3.0});
+		tooMany.put(AXIS_POINTS, new Double[] {3.0, 3.0});
+		tooMany.put(AXIS_STEP, new Double[] {3.0, 3.0});
 
 		assertCreatingAllInstancesFailsIfWrongNoOfParams(tooMany, blankArray);
 	}
@@ -214,15 +220,15 @@ public class AreaScanpathTest {
 	@Test
 	public void createModelRejectsTooFewPathParamsForAllInstances() throws Exception {
 		Map<AreaScanpath, Double[]> tooFew = new EnumMap<>(AreaScanpath.class);
-		tooFew.put(GRID, new Double[] {3.0});
-		tooFew.put(RASTER, new Double[] {4.0});
+		tooFew.put(GRID_POINTS, new Double[] {3.0});
+		tooFew.put(GRID_STEP, new Double[] {4.0});
 		tooFew.put(SPIRAL, blankArray);
 		tooFew.put(LISSAJOUS, new Double[] {6.0, 6.0, 6.0, 6.0});
-		tooFew.put(TWO_AXIS_NO_OF_POINTS, blankArray);
-		tooFew.put(TWO_AXIS_STEP, blankArray);
+		tooFew.put(LINE_POINTS, blankArray);
+		tooFew.put(LINE_STEP, blankArray);
 		tooFew.put(SINGLE_POINT, new Double[] {6.0});
-		tooFew.put(ONE_AXIS_NO_OF_POINTS, blankArray);
-		tooFew.put(ONE_AXIS_STEP, blankArray);
+		tooFew.put(AXIS_POINTS, blankArray);
+		tooFew.put(AXIS_STEP, blankArray);
 
 		assertCreatingAllInstancesFailsIfWrongNoOfParams(tooFew, blankArray);
 	}
@@ -241,7 +247,7 @@ public class AreaScanpathTest {
 	private void assertCreatingAllInstancesFailsIfWrongNoOfParams(Map<AreaScanpath, Double[]> pathParams,
 															Double[] bboxParams) throws Exception {
 		for (AreaScanpath path: AreaScanpath.values()) {
-			List<Scannable> scannableList = path.equals(ONE_AXIS_STEP) || path.equals(ONE_AXIS_NO_OF_POINTS) ? axialScannables : scannables;
+			List<Scannable> scannableList = path.equals(AXIS_STEP) || path.equals(AXIS_POINTS) ? axialScannables : scannables;
 
 			try {
 				path.createModel(scannableList, Arrays.asList(pathParams.get(path)), Arrays.asList(bboxParams), mutators);
@@ -255,81 +261,81 @@ public class AreaScanpathTest {
 	@Test
 	public void createModelRejectsNegativeNoOfPointsForGrid() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Grid path requires all positive parameters");
+		exception.expectMessage(TwoAxisGridPointsModel.class.getSimpleName() + ALL_POSITIVE_ERROR);
 		pathParams = Arrays.asList(-5, 6);
-		GRID.createModel(scannables, pathParams, bboxParams, mutators);
+		GRID_POINTS.createModel(scannables, pathParams, bboxParams, mutators);
 	}
 
 	@Test
 	public void createModelRejectsZeroNoOfPointsForGrid() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Grid path requires all positive parameters");
+		exception.expectMessage(TwoAxisGridPointsModel.class.getSimpleName() + ALL_POSITIVE_ERROR);
 		pathParams = Arrays.asList(0, 6);
-		GRID.createModel(scannables, pathParams, bboxParams, mutators);
+		GRID_POINTS.createModel(scannables, pathParams, bboxParams, mutators);
 	}
 
 	@Test
 	public void createModelRejectsNegativeNoOfPointsForTwoDEqualSpacing() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Two Axis No of Points path requires all positive parameters");
+		exception.expectMessage(TwoAxisLinePointsModel.class.getSimpleName() + ALL_POSITIVE_ERROR);
 		pathParams = Arrays.asList(-5);
-		TWO_AXIS_NO_OF_POINTS.createModel(scannables, pathParams, bboxParams, mutators);
+		LINE_POINTS.createModel(scannables, pathParams, bboxParams, mutators);
 	}
 
 	@Test
 	public void createModelRejectsZeroNoOfPointsForTwoDEqualSpacing() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Two Axis No of Points path requires all positive parameters");
+		exception.expectMessage(TwoAxisLinePointsModel.class.getSimpleName() + ALL_POSITIVE_ERROR);
 		pathParams = Arrays.asList(0);
-		TWO_AXIS_NO_OF_POINTS.createModel(scannables, pathParams, bboxParams, mutators);
+		LINE_POINTS.createModel(scannables, pathParams, bboxParams, mutators);
 	}
 
 	@Test
 	public void createModelRejectsNegativeNoOfPointsForOneDEqualSpacing() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Axial Step path requires a positive integer no of points");
+		exception.expectMessage("AxialPointsModel" + String.format(ONE_POSITIVE_ERROR, 2));
 		pathParams = Arrays.asList(2, 3, -5);
-		ONE_AXIS_NO_OF_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators);
+		AXIS_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators);
 	}
 
 	@Test
 	public void createModelRejectsZeroNoOfPointsForOneDEqualSpacing() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Axial Step path requires a positive integer no of points");
+		exception.expectMessage("AxialPointsModel" + String.format(ONE_POSITIVE_ERROR, 2));
 		pathParams = Arrays.asList(2, 3, 0);
-		ONE_AXIS_NO_OF_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators);
+		AXIS_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators);
 	}
 
 	@Test
 	public void createModelRejectsNonIntegerNoOfPointsForGrid() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Grid path requires integer parameters");
+		exception.expectMessage(TwoAxisGridPointsModel.class.getSimpleName() + ALL_INTEGER_ERROR);
 		pathParams = Arrays.asList(5, 6.2);
-		GRID.createModel(scannables, pathParams, bboxParams, mutators);
+		GRID_POINTS.createModel(scannables, pathParams, bboxParams, mutators);
 	}
 
 	@Test
 	public void createModelRejectsNonIntegerNoOfPointsForTwoDEqualSpacing() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Two Axis No of Points path requires integer parameters");
+		exception.expectMessage(TwoAxisLinePointsModel.class.getSimpleName() + ALL_INTEGER_ERROR);
 		pathParams = Arrays.asList(6.2);
-		TWO_AXIS_NO_OF_POINTS.createModel(scannables, pathParams, bboxParams, mutators);
+		LINE_POINTS.createModel(scannables, pathParams, bboxParams, mutators);
 	}
 
 	@Test
 	public void createModelRejectsNonIntegerNoOfPointsForOneDEqualSpacing() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Axial Step path requires a positive integer no of points");
+		exception.expectMessage("AxialPointsModel" + String.format(ONE_INTEGER_ERROR, 2));
 		pathParams = Arrays.asList(2, 3, 6.2);
-		ONE_AXIS_NO_OF_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators);
+		AXIS_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators);
 	}
 
 	@Test
 	public void createModelCreatesCorrectModelForGrid() throws Exception {
 		pathParams = Arrays.asList(5, 6);
-		IScanPathModel model = GRID.createModel(scannables, pathParams, bboxParams, mutators);
-		assertThat(model, is(instanceOf(GridModel.class)));
-		GridModel gModel = (GridModel)model;
+		IScanPathModel model = GRID_POINTS.createModel(scannables, pathParams, bboxParams, mutators);
+		assertThat(model, is(instanceOf(TwoAxisGridPointsModel.class)));
+		TwoAxisGridPointsModel gModel = (TwoAxisGridPointsModel)model;
 		assertThat(gModel.getScannableNames(), contains("name1", "name2"));
 		assertThat(gModel.getBoundingBox().getxAxisStart(), is(1.0));
 		assertThat(gModel.getBoundingBox().getyAxisStart(), is(2.0));
@@ -347,9 +353,9 @@ public class AreaScanpathTest {
 		pathParams = Arrays.asList(5, 6);
 		mutators.put(Mutator.RANDOM_OFFSET, Arrays.asList(20, 2));
 		mutators.put(Mutator.CONTINUOUS, Arrays.asList(blankArray));
-		IScanPathModel model = GRID.createModel(scannables, pathParams, bboxParams, mutators);
-		assertThat(model, is(instanceOf(RandomOffsetGridModel.class)));
-		RandomOffsetGridModel gModel = (RandomOffsetGridModel)model;
+		IScanPathModel model = GRID_POINTS.createModel(scannables, pathParams, bboxParams, mutators);
+		assertThat(model, is(instanceOf(TwoAxisGridPointsRandomOffsetModel.class)));
+		TwoAxisGridPointsRandomOffsetModel gModel = (TwoAxisGridPointsRandomOffsetModel)model;
 		assertThat(gModel.getScannableNames(), contains("name1", "name2"));
 		assertThat(gModel.getBoundingBox().getxAxisStart(), is(1.0));
 		assertThat(gModel.getBoundingBox().getyAxisStart(), is(2.0));
@@ -368,9 +374,9 @@ public class AreaScanpathTest {
 	public void createModelCreatesCorrectModelForTwoDEqualSpacing() throws Exception {
 		pathParams = Arrays.asList(5);
 		mutators.put(Mutator.CONTINUOUS, Arrays.asList(blankArray));
-		IScanPathModel model = TWO_AXIS_NO_OF_POINTS.createModel(scannables, pathParams, bboxParams, mutators);
-		assertThat(model, is(instanceOf(OneDEqualSpacingModel.class)));
-		OneDEqualSpacingModel eModel = (OneDEqualSpacingModel)model;
+		IScanPathModel model = LINE_POINTS.createModel(scannables, pathParams, bboxParams, mutators);
+		assertThat(model, is(instanceOf(TwoAxisLinePointsModel.class)));
+		TwoAxisLinePointsModel eModel = (TwoAxisLinePointsModel)model;
 		assertThat(eModel.getScannableNames(), contains("name1", "name2"));
 		assertThat(eModel.getBoundingLine().getxStart(), is(1.0));
 		assertThat(eModel.getBoundingLine().getyStart(), is(2.0));
@@ -383,9 +389,9 @@ public class AreaScanpathTest {
 	@Test
 	public void createModelCreatesCorrectModelForOneDEqualSpacing() throws Exception {
 		pathParams = Arrays.asList(-2, 2, 5);
-		IScanPathModel model = ONE_AXIS_NO_OF_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators);
-		assertThat(model, is(instanceOf(StepModel.class)));
-		StepModel eModel = (StepModel)model;
+		IScanPathModel model = AXIS_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators);
+		assertThat(model, is(instanceOf(AxialStepModel.class)));
+		AxialStepModel eModel = (AxialStepModel)model;
 		assertThat(eModel.getScannableNames(), contains("name1"));
 		assertThat(eModel.getStart(), is(-2.0));
 		assertThat(eModel.getStop(), is(2.0));
@@ -395,67 +401,67 @@ public class AreaScanpathTest {
 	@Test
 	public void createModelRejectsNegativeNoOfPointsForRaster() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Raster path requires all positive parameters");
+		exception.expectMessage(TwoAxisGridStepModel.class.getSimpleName() + ALL_POSITIVE_ERROR);
 		pathParams = Arrays.asList(-5.2, 6.1);
-		RASTER.createModel(scannables, pathParams, bboxParams, mutators);
+		GRID_STEP.createModel(scannables, pathParams, bboxParams, mutators);
 	}
 
 	@Test
 	public void createModelRejectsZeroNoOfPointsForRaster() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Raster path requires all positive parameters");
+		exception.expectMessage(TwoAxisGridStepModel.class.getSimpleName() + ALL_POSITIVE_ERROR);
 		pathParams = Arrays.asList(-5.2,0);
-		RASTER.createModel(scannables, pathParams, bboxParams, mutators);
+		GRID_STEP.createModel(scannables, pathParams, bboxParams, mutators);
 	}
 
 	@Test
 	public void createModelRejectsNegativeStepValueForTwoDStep() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Two Axis Step path requires all positive parameters");
+		exception.expectMessage(TwoAxisLineStepModel.class.getSimpleName() + ALL_POSITIVE_ERROR);
 		pathParams = Arrays.asList(-5.2);
-		TWO_AXIS_STEP.createModel(scannables, pathParams, bboxParams, mutators);
+		LINE_STEP.createModel(scannables, pathParams, bboxParams, mutators);
 	}
 
 	@Test
 	public void createModelRejectsZeroStepValueForTwoDStep() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Two Axis Step path requires all positive parameters");
+		exception.expectMessage(TwoAxisLineStepModel.class.getSimpleName() + ALL_POSITIVE_ERROR);
 		pathParams = Arrays.asList(0);
-		TWO_AXIS_STEP.createModel(scannables, pathParams, bboxParams, mutators);
+		LINE_STEP.createModel(scannables, pathParams, bboxParams, mutators);
 	}
 
 	@Test
 	public void createModelRejectsNegativeStepValueForOneDStep() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Axial Step path requires all positive parameters");
+		exception.expectMessage(AxialStepModel.class.getSimpleName() + String.format(ONE_POSITIVE_ERROR, 2));
 		pathParams = Arrays.asList(2, 3, -5.2);
-		ONE_AXIS_STEP.createModel(axialScannables, pathParams, bboxParams, mutators);
+		AXIS_STEP.createModel(axialScannables, pathParams, bboxParams, mutators);
 	}
 
 	@Test
 	public void createModelRejectsZeroStepValueForOneDStep() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Axial Step path requires all positive parameters");
+		exception.expectMessage(AxialStepModel.class.getSimpleName() + String.format(ONE_POSITIVE_ERROR, 2));
 		pathParams = Arrays.asList(2, 3, 0);
-		ONE_AXIS_STEP.createModel(axialScannables, pathParams, bboxParams, mutators);
+		AXIS_STEP.createModel(axialScannables, pathParams, bboxParams, mutators);
 	}
 
 	@Test
 	public void createModelRejectsRandomOffsetMutatorForRaster() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("The random offset mutator is not supported by RasterModel");
+		exception.expectMessage(String.format(MUTATOR_NOT_SUPPORTED_BY, "random offset")+TwoAxisGridStepModel.class.getSimpleName());
 		pathParams = Arrays.asList(-5.2, 6.1);
 		mutators.put(Mutator.RANDOM_OFFSET, Arrays.asList(20, 2));
-		RASTER.createModel(scannables, pathParams, bboxParams, mutators);
+		GRID_STEP.createModel(scannables, pathParams, bboxParams, mutators);
 	}
 
 	@Test
 	public void createModelCreatesCorrectModelForRaster() throws Exception {
 		pathParams = Arrays.asList(0.5, 6.5);
 		mutators.put(Mutator.ALTERNATING, new ArrayList<>());
-		IScanPathModel model = RASTER.createModel(scannables, pathParams, bboxParams, mutators);
-		assertThat(model, is(instanceOf(RasterModel.class)));
-		RasterModel rModel = (RasterModel)model;
+		IScanPathModel model = GRID_STEP.createModel(scannables, pathParams, bboxParams, mutators);
+		assertThat(model, is(instanceOf(TwoAxisGridStepModel.class)));
+		TwoAxisGridStepModel rModel = (TwoAxisGridStepModel)model;
 		assertThat(rModel.getScannableNames(), contains("name1", "name2"));
 		assertThat(rModel.getBoundingBox().getxAxisStart(), is(1.0));
 		assertThat(rModel.getBoundingBox().getyAxisStart(), is(2.0));
@@ -471,9 +477,9 @@ public class AreaScanpathTest {
 	@Test
 	public void createModelCreatesCorrectModelForTwoDStep() throws Exception {
 		pathParams = Arrays.asList(0.5);
-		IScanPathModel model = TWO_AXIS_STEP.createModel(scannables, pathParams, blineParams, mutators);
-		assertThat(model, is(instanceOf(OneDStepModel.class)));
-		OneDStepModel sModel = (OneDStepModel)model;
+		IScanPathModel model = LINE_STEP.createModel(scannables, pathParams, blineParams, mutators);
+		assertThat(model, is(instanceOf(TwoAxisLineStepModel.class)));
+		TwoAxisLineStepModel sModel = (TwoAxisLineStepModel)model;
 		assertThat(sModel.getScannableNames(), contains("name1", "name2"));
 		assertThat(sModel.getBoundingLine().getxStart(), is(1.0));
 		assertThat(sModel.getBoundingLine().getyStart(), is(2.0));
@@ -486,9 +492,9 @@ public class AreaScanpathTest {
 	@Test
 	public void createModelCreatesCorrectModelForOneDStep() throws Exception {
 		pathParams = Arrays.asList(2, 3, 0.5);
-		IScanPathModel model = ONE_AXIS_STEP.createModel(axialScannables, pathParams, blineParams, mutators);
-		assertThat(model, is(instanceOf(StepModel.class)));
-		StepModel sModel = (StepModel)model;
+		IScanPathModel model = AXIS_STEP.createModel(axialScannables, pathParams, blineParams, mutators);
+		assertThat(model, is(instanceOf(AxialStepModel.class)));
+		AxialStepModel sModel = (AxialStepModel)model;
 		assertThat(sModel.getScannableNames(), contains("name1"));
 		assertThat(sModel.getStart(), is(2.0));
 		assertThat(sModel.getStop(), is(3.0));
@@ -500,8 +506,8 @@ public class AreaScanpathTest {
 		pathParams = Arrays.asList(5.0);
 		mutators.put(Mutator.CONTINUOUS, Arrays.asList(blankArray));
 		IScanPathModel model = SPIRAL.createModel(scannables, pathParams, bboxParams, mutators);
-		assertThat(model, is(instanceOf(SpiralModel.class)));
-		SpiralModel sModel = (SpiralModel)model;
+		assertThat(model, is(instanceOf(TwoAxisSpiralModel.class)));
+		TwoAxisSpiralModel sModel = (TwoAxisSpiralModel)model;
 		assertThat(sModel.getScannableNames(), contains("name1", "name2"));
 		assertThat(sModel.getBoundingBox().getxAxisStart(), is(1.0));
 		assertThat(sModel.getBoundingBox().getyAxisStart(), is(2.0));
@@ -515,7 +521,7 @@ public class AreaScanpathTest {
 	@Test
 	public void createModelRejectsRandomOffsetMutatorForSpiral() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("The random offset mutator is not supported by SpiralModel");
+		exception.expectMessage(String.format(MUTATOR_NOT_SUPPORTED_BY, "random offset")+TwoAxisSpiralModel.class.getSimpleName());
 		pathParams = Arrays.asList(5.0);
 		mutators.put(Mutator.RANDOM_OFFSET, Arrays.asList(20, 2));
 		SPIRAL.createModel(scannables, pathParams, bboxParams, mutators);
@@ -525,8 +531,8 @@ public class AreaScanpathTest {
 	public void createModelsCorrectModelForLissajous() throws Exception {
 		pathParams = Arrays.asList(5, 6.0, 7.0);
 		IScanPathModel model = LISSAJOUS.createModel(scannables, pathParams, bboxParams, mutators);
-		assertThat(model, is(instanceOf(LissajousModel.class)));
-		LissajousModel lModel = (LissajousModel)model;
+		assertThat(model, is(instanceOf(TwoAxisLissajousModel.class)));
+		TwoAxisLissajousModel lModel = (TwoAxisLissajousModel)model;
 		assertThat(lModel.getScannableNames(), contains("name1", "name2"));
 		assertThat(lModel.getBoundingBox().getxAxisStart(), is(1.0));
 		assertThat(lModel.getBoundingBox().getyAxisStart(), is(2.0));
@@ -542,7 +548,7 @@ public class AreaScanpathTest {
 	@Test
 	public void createModelRejectsRandomOffsetMutatorForLissajous() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("The random offset mutator is not supported by LissajousModel");
+		exception.expectMessage(String.format(MUTATOR_NOT_SUPPORTED_BY, "random offset")+TwoAxisLissajousModel.class.getSimpleName());
 		pathParams = Arrays.asList(5.0, 6.0, 7.0);
 		mutators.put(Mutator.RANDOM_OFFSET, Arrays.asList(20, 2));
 		LISSAJOUS.createModel(scannables, pathParams, bboxParams, mutators);
@@ -552,8 +558,8 @@ public class AreaScanpathTest {
 	public void createModelCreatesCorrectModelForSinglePoint() throws Exception {
 		pathParams = Arrays.asList(5.1, 6.2);
 		IScanPathModel model = SINGLE_POINT.createModel(scannables, pathParams, bboxParams, mutators);
-		assertThat(model, is(instanceOf(SinglePointModel.class)));
-		SinglePointModel eModel = (SinglePointModel)model;
+		assertThat(model, is(instanceOf(TwoAxisPointSingleModel.class)));
+		TwoAxisPointSingleModel eModel = (TwoAxisPointSingleModel)model;
 		assertThat(eModel.getScannableNames(), contains("name1", "name2"));
 		assertThat(eModel.getX(), is(5.1));
 		assertThat(eModel.getY(), is(6.2));

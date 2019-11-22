@@ -66,9 +66,9 @@ import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
-import org.eclipse.scanning.api.points.models.MultiStepModel;
-import org.eclipse.scanning.api.points.models.StepModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -389,15 +389,15 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		logger.debug("Element/edge selection changed to {}", selection);
 
 		final double edgeEnergy = selection.getEnergy();
-		final List<StepModel> stepModels = new ArrayList<>(xanesStepRanges.length);
+		final List<AxialStepModel> stepModels = new ArrayList<>(xanesStepRanges.length);
 
 		// Create a step model for each range of energies around the edge
 		for (double[] range : xanesStepRanges) {
-			stepModels.add(new StepModel(energyScannableName, roundDouble(edgeEnergy + range[0]), roundDouble(edgeEnergy + range[1]), range[2]));
+			stepModels.add(new AxialStepModel(energyScannableName, roundDouble(edgeEnergy + range[0]), roundDouble(edgeEnergy + range[1]), range[2]));
 		}
 
 		// Create a multi-step model containing these step models
-		final MultiStepModel multiStepModel = new MultiStepModel(energyScannableName, stepModels);
+		final AxialMultiStepModel multiStepModel = new AxialMultiStepModel(energyScannableName, stepModels);
 
 		final IScanModelWrapper<IScanPathModel> energyScannable = getOuterScannable(getMappingBean(), energyScannableName);
 		if (energyScannable != null) {

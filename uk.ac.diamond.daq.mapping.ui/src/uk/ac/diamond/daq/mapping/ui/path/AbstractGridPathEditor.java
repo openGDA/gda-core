@@ -24,15 +24,15 @@ import org.eclipse.jface.databinding.viewers.IViewerObservableValue;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.scanning.api.points.models.AbstractGridModel;
-import org.eclipse.scanning.api.points.models.AbstractGridModel.Orientation;
+import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
+import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel.Orientation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 /**
- * Abstract superclass for grid-like paths (subclasses of {@link AbstractGridModel}),
+ * Abstract superclass for grid-like paths (subclasses of {@link AbstractTwoAxisGridModel}),
  *
  */
 public class AbstractGridPathEditor extends AbstractPathEditor {
