@@ -14,45 +14,49 @@
 		<property name="intField" />
 	</entity>
 
-	<entity type="org.eclipse.scanning.api.points.models.GridModel">
+	<entity type="org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel">
 		<property name="name" hidden="true" no-setter="true" type="java.lang.String" />
 		<property name="xAxisPoints" type="int" />
 		<property name="yAxisPoints" type="int" />
 		<property name="alternating" type="boolean" />
 	</entity>
 
-	<entity type="org.eclipse.scanning.api.points.models.RasterModel">
+	<entity type="org.eclipse.scanning.api.points.models.TwoAxisGridStepModel">
 		<property name="name" hidden="true" no-setter="true" type="java.lang.String" />
 		<property name="xAxisStep" type="double" />
 		<property name="yAxisStep" type="double" />
 		<property name="alternating" type="boolean" />
 	</entity>
 
-	<entity type="uk.ac.diamond.daq.mapping.path.LissajousModel">
+	<entity type="uk.ac.diamond.daq.mapping.path.TwoAxisLissajousModel">
 		<property name="name" hidden="true" no-setter="true" type="java.lang.String" />
 		<property name="a" type="double" />
 		<property name="b" type="double" />
-		<property name="delta" type="double" />
-		<property name="thetaStep" type="double" />
+		<property name="phaseDifference" type="double" read-only="true" />
+		<property name="thetaStep" type="double" read-only="true" />
 		<property name="points" type="int" />
+		<property name="alternating" type="boolean" />
 	</entity>
 	
-	<entity type="uk.ac.diamond.daq.mapping.path.SpiralModel">
+	<entity type="uk.ac.diamond.daq.mapping.path.TwoAxisSpiralModel">
 		<property name="name" hidden="true" no-setter="true" type="java.lang.String" />
 		<property name="scale" type="double" />
+		<property name="alternating" type="boolean" />
 	</entity>
 
-	<entity type="org.eclipse.scanning.api.points.models.OneDEqualSpacingModel">
+	<entity type="org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel">
 		<property name="name" hidden="true" no-setter="true" type="java.lang.String" />
 		<property name="points" type="int" />
+		<property name="alternating" type="boolean" />
 	</entity>
 
-	<entity type="org.eclipse.scanning.api.points.models.OneDStepModel">
+	<entity type="org.eclipse.scanning.api.points.models.TwoAxisLineStepModel">
 		<property name="name" hidden="true" no-setter="true" type="java.lang.String" />
 		<property name="step" type="double" />
+		<property name="alternating" type="boolean" />
 	</entity>
 
-	<entity type="org.eclipse.scanning.api.points.models.SinglePointModel">
+	<entity type="org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel">
 		<property name="uniqueKey" hidden="true" type="java.lang.String" />
 		<property name="name" hidden="true" no-setter="true" type="java.lang.String" />
 		<property name="x" hidden="true" read-only="true" type="double" /> <!-- Maybe this should be hidden instead of read-only -->
