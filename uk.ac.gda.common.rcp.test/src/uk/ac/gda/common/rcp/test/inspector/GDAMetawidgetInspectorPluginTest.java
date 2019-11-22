@@ -9,7 +9,7 @@ import static org.metawidget.inspector.InspectionResultConstants.NAME;
 
 import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.GridModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Spinner;
@@ -36,7 +36,7 @@ public class GDAMetawidgetInspectorPluginTest extends SWTTestBase {
 		guiGenerator = guiGeneratorService;
 	}
 
-	private GridModel gridModel;
+	private TwoAxisGridPointsModel gridModel;
 	private Composite metawidget;
 
 	@Before
@@ -48,7 +48,7 @@ public class GDAMetawidgetInspectorPluginTest extends SWTTestBase {
 		box.setxAxisLength(6.0);
 		box.setyAxisLength(5.1);
 
-		gridModel = new GridModel();
+		gridModel = new TwoAxisGridPointsModel();
 		gridModel.setyAxisPoints(5);
 		gridModel.setxAxisPoints(6);
 		gridModel.setBoundingBox(box);
