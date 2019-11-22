@@ -74,13 +74,6 @@ def caput_string2waveform(pvstring, value):
 	for each in value:
 		arr.append(ord(each))
 	caput(pvstring, arr)
-	
-def printJythonEnvironment():
-	import os,sys
-	print '  cwd =', os.getcwd()
-	#print '  login =', os.getlogin() # TODO: Broken in Jython 2.5.3?
-	print '  javapath = ',os.environ['CLASSPATH']
-	print '  jythonpath = ', sys.path
 
 @contextmanager
 def default_scannables(*scn):
