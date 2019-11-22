@@ -172,7 +172,7 @@ public class XspressHdfWriter extends ScannableBase {
 		for(String datasetName : datasetNames) {
 			logger.info("  {}", datasetName);
 			// create new lazy dataset
-			ILazyWriteableDataset lazyDataset = NexusUtils.createLazyWriteableDataset(datasetName, Dataset.FLOAT64, initialShape, maxShape, null);
+			ILazyWriteableDataset lazyDataset = NexusUtils.createLazyWriteableDataset(datasetName, Double.class, initialShape, maxShape, null);
 			lazyDataset.setName(datasetName);
 			lazyDataset.setChunking(chunking);
 

@@ -25,8 +25,8 @@ import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.january.DatasetException;
-import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetUtils;
+import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +85,7 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 		IDataset slice = lazyDataset.getSlice(new int[] { 0, 0, channel, 0 }, new int[] { yAxisLengthFromFile, xAxisLengthFromFile,
 				channel+1, 4096 }, new int[] { 1, 1, 1, 1 });
 		IDataset sqSlice = slice.squeeze();
-		double[] data = (double[]) DatasetUtils.cast(sqSlice, Dataset.FLOAT64).getBuffer();
+		double[] data = (double[]) DatasetUtils.cast(DoubleDataset.class, sqSlice).getBuffer();
 		int dim[] = sqSlice.getShape();
 		return packto4D(data, dim[0], dim[1], dim[2]);
 	}
@@ -163,7 +163,7 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 			return null; // we are out of the limits
 		}
 		IDataset sqSlice = slice.squeeze();
-		return (double[]) DatasetUtils.cast(sqSlice, Dataset.FLOAT64).getBuffer();
+		return (double[]) DatasetUtils.cast(DoubleDataset.class, sqSlice).getBuffer();
 	}
 
 	@Override

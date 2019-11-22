@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.january.DatasetException;
-import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
@@ -56,9 +55,8 @@ public class MapCache {
 	public double[] getSpectrum(int detectorNo, int x, int y) throws DatasetException {
 
 		int mcaSize = allMCAs.getShape()[3];
-		DoubleDataset mcaDataset = (DoubleDataset) DatasetUtils.cast(
-				allMCAs.getSlice(new int[] { y, x, detectorNo, 0 }, new int[] { y + 1, x + 1, detectorNo + 1, mcaSize }, new int[] { 1, 1, 1, 1 }),
-				Dataset.FLOAT64);
+		DoubleDataset mcaDataset = DatasetUtils.cast(DoubleDataset.class,
+				allMCAs.getSlice(new int[] { y, x, detectorNo, 0 }, new int[] { y + 1, x + 1, detectorNo + 1, mcaSize }, new int[] { 1, 1, 1, 1 }));
 		return mcaDataset.getData();
 	}
 
