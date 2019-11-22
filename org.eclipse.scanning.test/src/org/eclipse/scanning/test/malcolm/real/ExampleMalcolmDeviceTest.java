@@ -129,6 +129,7 @@ public class ExampleMalcolmDeviceTest {
 		Structure expectedGeneratorStructure = FieldFactory.getFieldCreate().createFieldBuilder()
 				.addArray("mutators", union)
 				.add("duration", ScalarType.pvDouble)
+				.add("delay_after", ScalarType.pvDouble)
 				.add("continuous", ScalarType.pvBoolean)
 				.addArray("generators", union)
 				.addArray("excluders", union)
@@ -215,6 +216,7 @@ public class ExampleMalcolmDeviceTest {
 
 		expectedConfigurePVStructure.getUnionArrayField("generator.excluders").put(0, crUnionArray.length, crUnionArray, 0);
 		expectedConfigurePVStructure.getSubField(PVDouble.class, "generator.duration").put(23.1);
+		expectedConfigurePVStructure.getSubField(PVDouble.class, "generator.delay_after").put(0);
 		PVStringArray axesToMoveArray = expectedConfigurePVStructure.getSubField(PVStringArray.class, "axesToMove");
 		String[] axesToMove = new String[] { "stage_x", "stage_y" };
 		axesToMoveArray.put(0, axesToMove.length, axesToMove, 0);

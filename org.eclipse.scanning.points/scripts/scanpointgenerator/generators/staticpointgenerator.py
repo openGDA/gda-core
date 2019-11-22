@@ -1,38 +1,37 @@
 ###
 # Copyright (c) 2017 Diamond Light Source Ltd.
 #
-# All rights reserved. This program and the accompanying materials
-# are made available under the terms of the Eclipse Public License v1.0
-# which accompanies this distribution, and is available at
-# http://www.eclipse.org/legal/epl-v10.html
-#
 # Contributors:
 #    Charles Mita - initial API and implementation and/or initial documentation
 #
 ###
 
-from scanpointgenerator.core import Generator
+import numpy as np
+from scanpointgenerator.core import Generator, ASize, UAxes, AAxes
 
-@Generator.register_subclass("scanpointgenerator:generator/StaticPointGenerator:1.0")
+
+@Generator.register_subclass(
+    "scanpointgenerator:generator/StaticPointGenerator:1.0")
 class StaticPointGenerator(Generator):
-    """Generate 'empty' points with no axis information"""
+    """Generate 'empty' points with optional axis information"""
+    def __init__(self, size, axes=[]):
+        # type: (ASize, UAxes) -> None
 
-    def __init__(self, size):
-        self.size = size
-        self.units = {}
-        self.axes = []
+        axis = AAxes(axes)
+        # Validate
+        assert len(axis) <= 1, \
+            "Expected 1D or no axes, got axes %s" % (
+                list(axis))
 
-    def to_dict(self):
-        d = {
-                "typeid" : self.typeid,
-                "size" : self.size,
-            }
-        return d
+        super(StaticPointGenerator, self).__init__(axes=axis,
+                                                   units=[""] * len(axis),
+                                                   size=size)
 
     def prepare_arrays(self, index_array):
-        return {}
+        arrays = {}
+        # If there is an axis in self.axes, produce a 1-indexed array for it
+        for axis in self.axes:
+            arrays[axis] = np.arange(1, len(index_array)+1)
+        return arrays
 
-    @classmethod
-    def from_dict(cls, d):
-        size = d["size"]
-        return cls(size)
+

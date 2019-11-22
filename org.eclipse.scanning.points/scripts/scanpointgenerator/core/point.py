@@ -1,11 +1,6 @@
 ###
 # Copyright (c) 2016 Diamond Light Source Ltd.
 #
-# All rights reserved. This program and the accompanying materials
-# are made available under the terms of the Eclipse Public License v1.0
-# which accompanies this distribution, and is available at
-# http://www.eclipse.org/legal/epl-v10.html
-#
 # Contributors:
 #    Tom Cobb - initial API and implementation and/or initial documentation
 #    Gary Yendell - initial API and implementation and/or initial documentation
@@ -25,6 +20,7 @@ class Point(object):
         indexes (list): List of int indexes for each dataset dimension, fastest
             changing last. E.g. [15]
         duration (int): Int or None for duration of the point exposure
+        delay_after (float): Float or None. Insert a time delay after every point
     """
     def __init__(self):
         self.positions = {}
@@ -32,3 +28,4 @@ class Point(object):
         self.upper = {}
         self.indexes = []
         self.duration = None
+        self.delay_after = None

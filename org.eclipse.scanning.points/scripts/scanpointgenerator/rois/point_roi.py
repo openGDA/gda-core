@@ -1,25 +1,26 @@
 ###
 # Copyright (c) 2016 Diamond Light Source Ltd.
 #
-# All rights reserved. This program and the accompanying materials
-# are made available under the terms of the Eclipse Public License v1.0
-# which accompanies this distribution, and is available at
-# http://www.eclipse.org/legal/epl-v10.html
-#
 # Contributors:
 #    Charles Mita - initial API and implementation and/or initial documentation
 #
 ###
 
+from annotypes import Anno, Union, Array, Sequence
+
 from scanpointgenerator.core import ROI
 
+with Anno("The point"):
+    APoint = Array[float]
+UPoint = Union[APoint, Sequence[float]]
 
 @ROI.register_subclass("scanpointgenerator:roi/PointROI:1.0")
 class PointROI(ROI):
 
     def __init__(self, point):
+        # type: (UPoint) -> None
         super(PointROI, self).__init__()
-        self.point = point
+        self.point = APoint(point)
 
     def contains_point(self, point, epsilon=0):
         if epsilon == 0:
@@ -37,12 +38,3 @@ class PointROI(ROI):
         y *= y
         x += y
         return x <= epsilon * epsilon
-
-    def to_dict(self):
-        d = super(PointROI, self).to_dict()
-        d["point"] = self.point
-        return d
-
-    @classmethod
-    def from_dict(cls, d):
-        return cls(d["point"])
