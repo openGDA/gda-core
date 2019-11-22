@@ -20,6 +20,9 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import static org.eclipse.dawnsci.nexus.NexusConstants.NXCLASS;
 import static org.eclipse.dawnsci.nexus.NexusConstants.POSITIONER;
+import static uk.ac.gda.ui.tool.ClientMessages.CANNOT_MOVE_STAGES;
+import static uk.ac.gda.ui.tool.ClientMessages.CANNOT_MOVE_STAGES_SCAN_RUNNING_OR_PENDING;
+import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -40,6 +43,7 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.scanning.api.device.ScanRole;
 import org.eclipse.scanning.api.ui.IStageScanConfiguration;
+import org.eclipse.scanning.event.util.SubmissionQueueUtils;
 import org.eclipse.swt.widgets.Display;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
@@ -49,6 +53,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
 
 /**
  * Handler for double-click events from MappedDataView. Moves the stage i.e.
@@ -71,6 +76,12 @@ public class StageMoveHandler implements EventHandler {
 		final IMapClickEvent mapClickEvent = (IMapClickEvent) event.getProperty("event");
 		// moveTo is only handled for double-clicks
 		if (mapClickEvent.isDoubleClick()) {
+			if (isScanRunning()) {
+				final String title = getMessage(CANNOT_MOVE_STAGES);
+				final String message = getMessage(CANNOT_MOVE_STAGES_SCAN_RUNNING_OR_PENDING);
+				Display.getDefault().syncExec(() -> MessageDialog.openError(null, title, message));
+				return;
+			}
 			final ClickEvent clickEvent = mapClickEvent.getClickEvent();
 
 			String associatedAxisName = stageConfiguration.getAssociatedAxis();
@@ -183,6 +194,10 @@ public class StageMoveHandler implements EventHandler {
 		}
 	}
 
+	private boolean isScanRunning() {
+		return InterfaceProvider.getScanStatusHolder().isScanRunning()	// GDA 8 scans
+				|| SubmissionQueueUtils.isJobRunningOrPending();	// GDA 9 scans
+	}
 
 	// Called by OSGi:
 	public void setMappingStageConfiguration(IStageScanConfiguration stageConfiguration) {
