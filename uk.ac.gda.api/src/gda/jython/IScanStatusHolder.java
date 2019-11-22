@@ -23,9 +23,12 @@ package gda.jython;
  */
 public interface IScanStatusHolder {
 	/**
-	 *
 	 * @return status of Jython scan e.g. JythonStatus.IDLE
 	 */
 	public JythonStatus getScanStatus();
 
+	/**
+	 * @return <code>true</code> if a scan is running, <code>false</code> otherwise
+	 */
+	public boolean isScanRunning();
 }

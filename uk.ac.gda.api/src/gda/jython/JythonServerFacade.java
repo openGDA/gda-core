@@ -487,6 +487,11 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	}
 
 	@Override
+	public boolean isScanRunning() {
+		return getScanStatus() != JythonStatus.IDLE;
+	}
+
+	@Override
 	public void setScriptStatus(JythonStatus status) {
 		commandServer.setScriptStatus(status, name);
 	}
