@@ -89,41 +89,7 @@ public class Hdf5HelperData {
 	}
 
 	public Hdf5HelperData( Dataset ads) {
-		this( getShapeAsLongs(ads.getShape()), ads.getBuffer(),  getH5DataType(ads));
-	}
-
-	private static long getH5DataType(Dataset ads) {
-		int dtype = ads.getDType();
-		switch (dtype) {
-		case Dataset.BOOL:
-			throw new IllegalArgumentException("BOOL not yet supported");
-		case Dataset.INT8:
-		case Dataset.ARRAYINT8:
-			return HDF5Constants.H5T_NATIVE_INT8;
-		case Dataset.INT16:
-		case Dataset.ARRAYINT16:
-			return HDF5Constants.H5T_NATIVE_INT16;
-		case Dataset.RGB:
-			throw new IllegalArgumentException("RGB not yet supported");
-		case Dataset.INT32:
-		case Dataset.ARRAYINT32:
-			return HDF5Constants.H5T_NATIVE_INT32;
-		case Dataset.INT64:
-		case Dataset.ARRAYINT64:
-			return HDF5Constants.H5T_NATIVE_INT64;
-		case Dataset.FLOAT32:
-		case Dataset.ARRAYFLOAT32:
-			return HDF5Constants.H5T_NATIVE_FLOAT;
-		case Dataset.FLOAT64:
-		case Dataset.ARRAYFLOAT64:
-			return HDF5Constants.H5T_NATIVE_DOUBLE;
-		case Dataset.COMPLEX64:
-			throw new IllegalArgumentException("COMPLEX64 not yet supported");
-		case Dataset.COMPLEX128:
-			throw new IllegalArgumentException("COMPLEX128 not yet supported");
-		default:
-			throw new IllegalArgumentException(dtype + " not yet supported");
-		}
+		this(getShapeAsLongs(ads.getShape()), ads.getBuffer(), HDF5Utils.getHDF5type(ads.getClass()));
 	}
 
 	static public long [] getShapeAsLongs(int [] shape){

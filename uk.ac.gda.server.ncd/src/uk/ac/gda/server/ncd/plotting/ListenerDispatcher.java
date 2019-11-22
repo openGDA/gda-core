@@ -305,7 +305,7 @@ public class ListenerDispatcher extends FindableConfigurableBase implements ISca
 	}
 
 	private static DoubleDataset getDSfromNGD(NexusGroupData ngd, String name) {
-		DoubleDataset ds = (DoubleDataset) ngd.toDataset().cast(Dataset.FLOAT64);
+		DoubleDataset ds = ngd.toDataset().cast(DoubleDataset.class);
 		ds.setName(name);
 		return ds;
 	}

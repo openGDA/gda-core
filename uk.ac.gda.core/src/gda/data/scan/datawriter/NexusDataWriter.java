@@ -56,11 +56,11 @@ import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.template.NexusTemplate;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.january.DatasetException;
-import org.eclipse.january.dataset.DTypeUtils;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
+import org.eclipse.january.dataset.InterfaceUtils;
 import org.eclipse.january.dataset.SliceND;
 import org.python.core.Py;
 import org.python.core.PyList;
@@ -788,7 +788,7 @@ public class NexusDataWriter extends DataWriterBase {
 							specifiedChunkDims = new int[scanDimensions.length];
 							Arrays.fill(specifiedChunkDims, -1);
 						}
-						int dataByteSize = DTypeUtils.getItemBytes(sds.getDType());
+						int dataByteSize = InterfaceUtils.getItemBytes(1, sds.getInterface());
 						if (dataByteSize <= 0) {
 							// TODO: Fix for string types, particularly fixed length strings
 							dataByteSize = 4;
@@ -802,7 +802,7 @@ public class NexusDataWriter extends DataWriterBase {
 						lazy.setChunking(chunk);
 					}
 					// TODO: only enable compression if the chunk size makes it worthwhile
-					lazy.setFillValue(getFillValue(sds.getDType()));
+					lazy.setFillValue(getFillValue(InterfaceUtils.getElementClass(sds.getInterface())));
 					data = file.createData(group, lazy, compression);
 
 					if (!tree.isPointDependent()) {
@@ -2056,9 +2056,6 @@ public class NexusDataWriter extends DataWriterBase {
 		return scanNumber;
 	}
 
-	private static Object getFillValue(int dtype) {
-		return getFillValue(DTypeUtils.getElementClass(dtype));
-	}
 	private static Object getFillValue(Class<?> clazz) {
 
 		if (Double.class.equals(clazz)) {

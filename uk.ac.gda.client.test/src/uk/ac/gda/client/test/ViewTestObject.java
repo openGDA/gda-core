@@ -23,7 +23,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
@@ -147,7 +146,7 @@ public class ViewTestObject implements IScanDataPointProvider {
 		if (data.isEmpty())
 			throw new Exception("Data should not be empty!");
 		for (IDataset d : data.values()) {
-			DoubleDataset oldD = (DoubleDataset) DatasetUtils.cast(d, Dataset.FLOAT64);
+			DoubleDataset oldD = DatasetUtils.cast(DoubleDataset.class, d);
 			if (oldD.getSize() != checkSize)
 				throw new Exception("Data (size = " + oldD.getSize() + ") should be same size as plotted data (size = "
 						+ checkSize + ").");

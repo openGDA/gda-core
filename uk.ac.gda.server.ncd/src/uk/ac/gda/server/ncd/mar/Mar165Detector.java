@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.Date;
 
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
-import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.FloatDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -432,7 +432,7 @@ public class Mar165Detector extends DetectorBase {
 			throw new DeviceException("error reading mar file", e);
 		}
 
-		float[] data = (float[]) dataHolder.getDataset(0).cast(Dataset.FLOAT32).getBuffer();
+		float[] data = (float[]) dataHolder.getDataset(0).cast(FloatDataset.class).getBuffer();
 
 		file.delete();
 		return data;
