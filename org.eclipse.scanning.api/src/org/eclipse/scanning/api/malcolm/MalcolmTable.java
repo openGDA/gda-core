@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.malcolm;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -249,4 +251,24 @@ public class MalcolmTable implements Iterable<Map<String, Object>> {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("MalcolmTable, numRows = ");
+		sb.append(numRows);
+		sb.append('\n');
+		for (Map.Entry<String, List<?>> column : tableData.entrySet()) {
+			sb.append("  ");
+			sb.append(column.getKey());
+			sb.append(" (type=");
+			sb.append(tableDataTypes.get(column.getKey()).getSimpleName());
+			sb.append("): ");
+			sb.append(String.join(", ", column.getValue().stream().map(String::valueOf).collect(toList())));
+			sb.append('\n');
+		}
+
+		return sb.toString();
+	}
+
 }
