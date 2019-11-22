@@ -27,4 +27,16 @@ public enum MalcolmMethod {
 	public String toString() {
 		return name().toLowerCase();
 	}
+
+	/**
+	 * Returns the {@link MalcolmMethod} enum constant object for the given name, or
+	 * throws {@link IllegalArgumentException} if no such method exists
+	 * @param methodName
+	 * @return the enum constants from this enum for the given method name
+	 * @throws IllegalArgumentException if no such method exists
+	 */
+	public static MalcolmMethod fromString(String methodName) {
+		return MalcolmMethod.valueOf(methodName.toUpperCase());
+	}
+
 }

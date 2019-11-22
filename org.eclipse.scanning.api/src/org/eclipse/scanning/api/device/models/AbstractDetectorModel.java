@@ -114,7 +114,7 @@ public abstract class AbstractDetectorModel implements IDetectorModel, IReflecte
 
 	@Override
 	public String toString() {
-		return getClass().getName() + '@' + Integer.toHexString(hashCode())
-				+ " [timeout=" + timeout + ", name=" + name + ", exposureTime=" + exposureTime + "]";
+		return "AbstractDetectorModel [timeout=" + timeout + ", name=" + name + ", exposureTime=" + exposureTime + "]";
 	}
+
 }

@@ -204,13 +204,13 @@ public class MalcolmAttributesSerializationTest {
 
 	@Test
 	public void testSerializeTableAttribute() throws Exception {
-		Map<String, Class<?>> types = new LinkedHashMap<>();
+		final LinkedHashMap<String, Class<?>> types = new LinkedHashMap<>();
 		// a simplified version of the datasets table
 		types.put(MalcolmConstants.DATASETS_TABLE_COLUMN_NAME, String.class);
 		types.put(MalcolmConstants.DATASETS_TABLE_COLUMN_RANK, Integer.class);
 		types.put(MalcolmConstants.DATASETS_TABLE_COLUMN_TYPE, String.class);
 
-		Map<String, List<Object>> tableData = new HashMap<>();
+		final LinkedHashMap<String, List<?>> tableData = new LinkedHashMap<>();
 		tableData.put(MalcolmConstants.DATASETS_TABLE_COLUMN_NAME, Arrays.asList("det.data", "det.sum",
 				"x.value", "x.value_set", "y.value", "y.value_set", "I0", "It"));
 		tableData.put(MalcolmConstants.DATASETS_TABLE_COLUMN_RANK, Arrays.asList(4, 2, 2, 2, 2, 2, 2, 2));

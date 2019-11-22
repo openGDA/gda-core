@@ -59,12 +59,14 @@ import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.annotation.scan.PreConfigure;
+import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmConstants;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
+import org.eclipse.scanning.api.malcolm.MalcolmVersion;
 import org.eclipse.scanning.api.malcolm.attributes.BooleanAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.ChoiceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
@@ -169,11 +171,11 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 	/**
 	 * A dummy malcolm controlled detector which writes nexus.
 	 */
-	private final class DummyMalcolmControlledDetector extends DummyMalcolmControlledDevice {
+	private final class DummyMalcolmDetector extends DummyMalcolmControlledDevice {
 
-		private final DummyMalcolmControlledDetectorModel model;
+		private final DummyMalcolmDetectorModel model;
 
-		public DummyMalcolmControlledDetector(DummyMalcolmControlledDetectorModel model) {
+		public DummyMalcolmDetector(DummyMalcolmDetectorModel model) {
 			this.model = model;
 		}
 
@@ -465,7 +467,6 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 
 		// validate file dir if set
 		if (getOutputDir() != null) {
-
 			final File fileDir = new File(getOutputDir());
 			if (!fileDir.exists()) {
 				throw new ModelValidationException("The output dir for malcolm does not exist: " + getOutputDir(),
@@ -494,10 +495,10 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 
 		// super.configure sets device state to ready
 		super.configure(model);
-		List<DummyMalcolmControlledDetectorModel> detectorModels = ((DummyMalcolmModel) model).getDummyDetectorModels();
 
+		final List<IMalcolmDetectorModel> detectorModels = ((DummyMalcolmModel) model).getDetectorModels();
 		devices = detectorModels.stream().collect(Collectors.toMap(
-				INameable::getName, DummyMalcolmControlledDetector::new));
+				INameable::getName, detModel -> new DummyMalcolmDetector((DummyMalcolmDetectorModel) detModel)));
 		devices.put("panda", new DummyPandaDevice());
 	}
 
@@ -556,7 +557,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 	}
 
 	private TableAttribute createDatasetsAttribute(DummyMalcolmModel model) throws MalcolmDeviceException {
-		Map<String, Class<?>> types = new LinkedHashMap<>();
+		final LinkedHashMap<String, Class<?>> types = new LinkedHashMap<>();
 		types.put(DATASETS_TABLE_COLUMN_NAME, String.class);
 		types.put(DATASETS_TABLE_COLUMN_FILENAME, String.class);
 		types.put(DATASETS_TABLE_COLUMN_TYPE, String.class);
@@ -568,10 +569,10 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 		MalcolmTable table = new MalcolmTable(types);
 
 		int scanRank = getScanRank();
-		for (DummyMalcolmControlledDetectorModel detectorModel : model.getDummyDetectorModels()) {
+		for (IMalcolmDetectorModel detectorModel : model.getDetectorModels()) {
 			String deviceName = detectorModel.getName();
 			MalcolmDatasetType datasetType = PRIMARY; // the first dataset is the primary dataset
-			for (DummyMalcolmDatasetModel datasetModel : detectorModel.getDatasets()) {
+			for (DummyMalcolmDatasetModel datasetModel : ((DummyMalcolmDetectorModel) detectorModel).getDatasets()) {
 				final String datasetName = datasetModel.getName();
 				final String path = String.format("/entry/%s/%s", datasetName, datasetName);
 				// The primary dataset is called det.data, whatever its actual name
@@ -586,8 +587,8 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 		// Add rows for the demand values for the axes controlled by malcolm. Malcolm adds these
 		// to the NXdata for each primary and secondary dataset of each detector. As they
 		// are all the same, the datasets attribute only returns the first one
-		if (!model.getDummyDetectorModels().isEmpty()) {
-			final String firstDetectorName = model.getDummyDetectorModels().get(0).getName();
+		if (!model.getDetectorModels().isEmpty()) {
+			final String firstDetectorName = model.getDetectorModels().get(0).getName();
 			for (String axisToMove : model.getAxesToMove()) {
 				final String datasetName = "value_set";
 				final String path = String.format("/entry/%s/%s_set", firstDetectorName, axisToMove); // e.g. /entry/detector/x_set
@@ -634,7 +635,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 	}
 
 	private TableAttribute createLayoutAttribute() throws MalcolmDeviceException {
-		Map<String, Class<?>> types = new LinkedHashMap<>();
+		final LinkedHashMap<String, Class<?>> types = new LinkedHashMap<>();
 		types.put("name", String.class);
 		types.put("mri", String.class);
 		types.put("x", Double.class);
@@ -736,8 +737,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 	}
 
 	private void createNexusFiles() throws ScanningException {
-		final DummyMalcolmModel model = (DummyMalcolmModel) getModel();
-		if (model.getDummyDetectorModels().isEmpty()) return;
+		if (model.getDetectorModels().isEmpty()) return;
 
 		String dirPath = getOutputDir();
 		if (dirPath == null) return; // we can run without writing Nexus
@@ -848,6 +848,11 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 	@Override
 	public MalcolmTable getDatasets() throws MalcolmDeviceException {
 		return getAttributeValue(MalcolmConstants.ATTRIBUTE_NAME_DATASETS);
+	}
+
+	@Override
+	public MalcolmVersion getVersion() throws MalcolmDeviceException {
+		return MalcolmVersion.VERSION_4_2;
 	}
 
 }

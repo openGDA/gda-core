@@ -20,8 +20,6 @@ package org.eclipse.scanning.api.malcolm.attributes;
  */
 public class NumberAttribute extends MalcolmAttribute<Number> {
 
-	public static final String NUMBER_ID = "malcolm:core/NumberMeta:";
-
 	private String dtype;
 	private Number value;
 

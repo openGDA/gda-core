@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.connector.epics.custommarshallers;
 
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_METHOD;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -46,7 +48,7 @@ public class MalcolmMessageSerialiser implements IPVStructureSerialiser<MalcolmM
 		case CALL:
 
 			Structure methodStructure = fieldCreate.createFieldBuilder().
-				add("method", ScalarType.pvString).
+				add(FIELD_NAME_METHOD, ScalarType.pvString).
 				createStructure();
 
 			Field field = null;

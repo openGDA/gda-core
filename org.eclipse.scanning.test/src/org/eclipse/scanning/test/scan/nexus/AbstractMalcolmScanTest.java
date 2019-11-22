@@ -48,14 +48,15 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.PositionIterator;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
+import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
-import org.eclipse.scanning.example.malcolm.DummyMalcolmControlledDetectorModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDatasetModel;
+import org.eclipse.scanning.example.malcolm.DummyMalcolmDetectorModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.malcolm.core.AbstractMalcolmDevice;
@@ -106,7 +107,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		DummyMalcolmModel model = new DummyMalcolmModel();
 		model.setTimeout(10 * 60); // increased timeout for debugging purposes
 
-		DummyMalcolmControlledDetectorModel det1Model = new DummyMalcolmControlledDetectorModel();
+		DummyMalcolmDetectorModel det1Model = new DummyMalcolmDetectorModel();
 		det1Model.setName("detector");
 
 		DummyMalcolmDatasetModel detector1dataset1 = new DummyMalcolmDatasetModel();
@@ -120,7 +121,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		detector1dataset2.setDtype(Double.class);
 		det1Model.setDatasets(Arrays.asList(detector1dataset1, detector1dataset2));
 
-		DummyMalcolmControlledDetectorModel det2Model = new DummyMalcolmControlledDetectorModel();
+		DummyMalcolmDetectorModel det2Model = new DummyMalcolmDetectorModel();
 		det2Model.setName("detector2");
 
 		DummyMalcolmDatasetModel detector2dataset = new DummyMalcolmDatasetModel();
@@ -129,7 +130,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		detector2dataset.setDtype(Double.class);
 		det2Model.setDatasets(Arrays.asList(detector2dataset));
 
-		model.setDummyDetectorModels(Arrays.asList(det1Model, det2Model));
+		model.setDetectorModels(Arrays.asList(det1Model, det2Model));
 
 		return model;
 	}
@@ -143,8 +144,8 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 	private Map<String, List<String>> getExpectedPrimaryDataFieldsPerDetector() {
 		Map<String, List<String>> primaryDataFieldsPerDetector = new HashMap<>();
 		DummyMalcolmModel model = (DummyMalcolmModel) malcolmDevice.getModel();
-		for (DummyMalcolmControlledDetectorModel detectorModel : model.getDummyDetectorModels()) {
-			List<String> list = detectorModel.getDatasets().stream().map(d -> d.getName())
+		for (IMalcolmDetectorModel detectorModel : model.getDetectorModels()) {
+			List<String> list = ((DummyMalcolmDetectorModel) detectorModel).getDatasets().stream().map(d -> d.getName())
 				.collect(Collectors.toCollection(ArrayList::new));
 			list.set(0, NXdata.NX_DATA); // the first dataset is the primary one, so the field is called 'data' in the nexus tree
 			primaryDataFieldsPerDetector.put(detectorModel.getName(), list);
@@ -154,7 +155,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 	}
 
 	private List<String> getExpectedExternalFiles(DummyMalcolmModel dummyMalcolmModel) {
-		List<String> expectedFileNames = dummyMalcolmModel.getDummyDetectorModels().stream()
+		List<String> expectedFileNames = dummyMalcolmModel.getDetectorModels().stream()
 			.map(d -> d.getName() + FILE_EXTENSION_HDF5)
 			.collect(Collectors.toCollection(ArrayList::new));
 		if (!dummyMalcolmModel.getPositionerNames().isEmpty()) {
@@ -183,7 +184,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		assertEquals(primaryDataFieldNamesPerDetector.values().stream().flatMap(list -> list.stream()).count(),
 				nxDataGroups.size());
 
-		for (DummyMalcolmControlledDetectorModel detectorModel : dummyMalcolmModel.getDummyDetectorModels()) {
+		for (IMalcolmDetectorModel detectorModel : dummyMalcolmModel.getDetectorModels()) {
 			String detectorName = detectorModel.getName();
 			NXdetector detector = instrument.getDetector(detectorName);
 
@@ -197,7 +198,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 			assertTrue(nxDataGroups.keySet().containsAll(expectedDataGroupNames.values()));
 
 			boolean isFirst = true;
-			for (DummyMalcolmDatasetModel datasetModel : detectorModel.getDatasets()) {
+			for (DummyMalcolmDatasetModel datasetModel : ((DummyMalcolmDetectorModel) detectorModel).getDatasets()) {
 				String fieldName = datasetModel.getName();
 				String nxDataGroupName = isFirst ? detectorName : detectorName + "_" + fieldName;
 				NXdata nxData = entry.getData(nxDataGroupName);

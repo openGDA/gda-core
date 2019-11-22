@@ -11,6 +11,19 @@
  *******************************************************************************/
 package org.eclipse.scanning.connector.epics.custommarshallers;
 
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_CHOICES;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_DESCRIPTION;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_DTYPE;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_LABEL;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_META;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_TAGS;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_VALUE;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.FIELD_NAME_WRITEABLE;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_BOOLEAN_META;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_CHOICE_META;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_NUMBER_META;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_STRING_META;
+
 import org.eclipse.scanning.api.malcolm.attributes.BooleanAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.ChoiceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.NumberAttribute;
@@ -29,28 +42,19 @@ import org.epics.pvmarshaller.marshaller.deserialisers.Deserialiser;
  */
 public class NTScalarDeserialiser implements IPVStructureDeserialiser {
 
-	private final String valueField = "value";
-	private final String numberTypeField = "dtype";
-	private final String choicesTagField = "choices";
-	private final String metaField = "meta";
-	private final String descriptionField = "description";
-	private final String writeableField = "writeable";
-	private final String labelField = "label";
-	private final String tagsField = "tags";
-
 	@Override
 	public Object fromPVStructure(Deserialiser deserialiser, PVStructure pvStructure) throws Exception {
 
-		PVStructure metaStructure = pvStructure.getStructureField(metaField);
+		PVStructure metaStructure = pvStructure.getStructureField(FIELD_NAME_META);
 		String metaId = metaStructure.getStructure().getID();
-		String description = metaStructure.getStringField(descriptionField).get();
-		boolean writeable = metaStructure.getBooleanField(writeableField).get();
-		String label = metaStructure.getStringField(labelField).get();
-		PVStringArray tagsArray = metaStructure.getSubField(PVStringArray.class, tagsField);
+		String description = metaStructure.getStringField(FIELD_NAME_DESCRIPTION).get();
+		boolean writeable = metaStructure.getBooleanField(FIELD_NAME_WRITEABLE).get();
+		String label = metaStructure.getStringField(FIELD_NAME_LABEL).get();
+		PVStringArray tagsArray = metaStructure.getSubField(PVStringArray.class, FIELD_NAME_TAGS);
 		StringArrayData tagsArrayData = new StringArrayData();
 		tagsArray.get(0, tagsArray.getLength(), tagsArrayData);
 
-		if (metaId.startsWith(ChoiceAttribute.CHOICE_ID)) {
+		if (metaId.startsWith(TYPE_ID_CHOICE_META)) {
 			ChoiceAttribute attribute = new ChoiceAttribute();
 
 			attribute.setDescription(description);
@@ -59,15 +63,15 @@ public class NTScalarDeserialiser implements IPVStructureDeserialiser {
 			attribute.setWriteable(writeable);
 			attribute.setName(pvStructure.getFullName());
 
-			PVStringArray choicesArray = metaStructure.getSubField(PVStringArray.class, choicesTagField);
+			PVStringArray choicesArray = metaStructure.getSubField(PVStringArray.class, FIELD_NAME_CHOICES);
 			StringArrayData choicesArrayData = new StringArrayData();
 			choicesArray.get(0, choicesArray.getLength(), choicesArrayData);
 			attribute.setChoices(choicesArrayData.data);
 
-			String value = pvStructure.getStringField(valueField).get();
+			String value = pvStructure.getStringField(FIELD_NAME_VALUE).get();
 			attribute.setValue(value);
 			return attribute;
-		} else if (metaId.startsWith(StringAttribute.STRING_ID) || metaId.startsWith(StringAttribute.HEALTH_ID)) {
+		} else if (metaId.startsWith(TYPE_ID_STRING_META)) {
 			StringAttribute attribute = new StringAttribute();
 
 			attribute.setDescription(description);
@@ -76,10 +80,10 @@ public class NTScalarDeserialiser implements IPVStructureDeserialiser {
 			attribute.setWriteable(writeable);
 			attribute.setName(pvStructure.getFullName());
 
-			String value = pvStructure.getStringField(valueField).get();
+			String value = pvStructure.getStringField(FIELD_NAME_VALUE).get();
 			attribute.setValue(value);
 			return attribute;
-		} else if (metaId.startsWith(BooleanAttribute.BOOLEAN_ID)) {
+		} else if (metaId.startsWith(TYPE_ID_BOOLEAN_META)) {
 			BooleanAttribute attribute = new BooleanAttribute();
 
 			attribute.setDescription(description);
@@ -88,10 +92,10 @@ public class NTScalarDeserialiser implements IPVStructureDeserialiser {
 			attribute.setWriteable(writeable);
 			attribute.setName(pvStructure.getFullName());
 
-			boolean value = pvStructure.getBooleanField(valueField).get();
+			boolean value = pvStructure.getBooleanField(FIELD_NAME_VALUE).get();
 			attribute.setValue(value);
 			return attribute;
-		} else if (metaId.startsWith(NumberAttribute.NUMBER_ID)) {
+		} else if (metaId.startsWith(TYPE_ID_NUMBER_META)) {
 			NumberAttribute attribute = new NumberAttribute();
 
 			attribute.setDescription(description);
@@ -100,10 +104,10 @@ public class NTScalarDeserialiser implements IPVStructureDeserialiser {
 			attribute.setWriteable(writeable);
 			attribute.setName(pvStructure.getFullName());
 
-			String numberType = metaStructure.getStringField(numberTypeField).get();
+			String numberType = metaStructure.getStringField(FIELD_NAME_DTYPE).get();
 			attribute.setDtype(numberType);
 
-			PVField valuePVField = pvStructure.getSubField(valueField);
+			PVField valuePVField = pvStructure.getSubField(FIELD_NAME_VALUE);
 
 			// Use scalar deserialiser to get value. Class passed in can be null as it's only used
 			// to determine between String and char, and we 'know' it's a number here

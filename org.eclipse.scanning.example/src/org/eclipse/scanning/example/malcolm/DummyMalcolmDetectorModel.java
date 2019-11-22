@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.scanning.api.INameable;
+import org.eclipse.scanning.api.device.models.MalcolmDetectorModel;
 
 /**
  * A model describing a detector that would be controlled by malcolm in a real scan.
@@ -31,17 +32,17 @@ import org.eclipse.scanning.api.INameable;
  *
  * @author Matthew Dickie
  */
-public class DummyMalcolmControlledDetectorModel implements INameable {
+public class DummyMalcolmDetectorModel extends MalcolmDetectorModel implements INameable {
 
 	private String name;
 
 	private List<DummyMalcolmDatasetModel> datasets = null;
 
-	public DummyMalcolmControlledDetectorModel() {
+	public DummyMalcolmDetectorModel() {
 		// no-arg constructor
 	}
 
-	public DummyMalcolmControlledDetectorModel(String name) {
+	public DummyMalcolmDetectorModel(String name) {
 		this.name = name;
 	}
 

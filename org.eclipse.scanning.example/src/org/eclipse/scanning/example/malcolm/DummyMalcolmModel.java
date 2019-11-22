@@ -17,21 +17,20 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.scanning.api.ITimeoutable;
+import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.IPosition;
 
 /**
  * A Malcolm Model for a {@link DummyMalcolmDevice}. This model describes which nexus files
- * and datasets the dummy malcolm device should create. A {@link DummyMalcolmControlledDetectorModel}
+ * and datasets the dummy malcolm device should create. A {@link DummyMalcolmDetectorModel}
  * should be added for each device (i.e. detector, scannable) that is being simulated by the
  * real malcolm device.
  *
  * @author Matthew Dickie
  */
 public class DummyMalcolmModel extends MalcolmModel implements ITimeoutable {
-
-	private List<DummyMalcolmControlledDetectorModel> dummyDetectorModels = Collections.emptyList();
 
 	/**
 	 * The positioner names are the names of the datasets written by the dummy malcolm device.
@@ -53,24 +52,32 @@ public class DummyMalcolmModel extends MalcolmModel implements ITimeoutable {
 		// the default model has a single detector with a single dataset
 		// this can be overridden by calling setDummyDetectorModels()
 		setName("malcolm");
-		DummyMalcolmControlledDetectorModel detModel = new DummyMalcolmControlledDetectorModel("detector");
-		List<DummyMalcolmDatasetModel> datasets = new ArrayList<>();
-		datasets.add(new DummyMalcolmDatasetModel("detector", 2, Double.class));
-		detModel.setDatasets(datasets);
+
+		// some default detector models
+		List<IMalcolmDetectorModel> detModels = new ArrayList<>();
+		detModels.add(createMalcolmDetector("det1", 0.0, 1));
+		detModels.add(createMalcolmDetector("det2", 0.0, 2));
+		detModels.add(createMalcolmDetector("det3", 0.0, 3));
+
 		List<String> axes = Arrays.asList("stage_x", "stage_y");
 		setAxesToMove(axes); // determines the _set (i.e. demand) values to be written
 		setPositionerNames(axes); // determines the value (a.k.a rbv) values to be written
-		setDummyDetectorModels(Arrays.asList(detModel));
+		setDetectorModels(detModels);
 	}
 
-	public List<DummyMalcolmControlledDetectorModel> getDummyDetectorModels() {
-		if (dummyDetectorModels == null) return Collections.emptyList();
-		return dummyDetectorModels;
+	private DummyMalcolmDetectorModel createMalcolmDetector(String name, double exposureTime, int framesPerStep) {
+		DummyMalcolmDetectorModel detectorModel = new DummyMalcolmDetectorModel(name);
+		detectorModel.setExposureTime(exposureTime);
+		detectorModel.setFramesPerStep(framesPerStep);
+
+		// datasets
+		List<DummyMalcolmDatasetModel> datasets = new ArrayList<>();
+		datasets.add(new DummyMalcolmDatasetModel(name, 2, Double.class));
+		detectorModel.setDatasets(datasets);
+
+		return detectorModel;
 	}
 
-	public void setDummyDetectorModels(List<DummyMalcolmControlledDetectorModel> dummyDetectorModels) {
-		this.dummyDetectorModels = dummyDetectorModels;
-	}
 
 	public List<String> getPositionerNames() {
 		if (positionerNames == null) return Collections.emptyList();

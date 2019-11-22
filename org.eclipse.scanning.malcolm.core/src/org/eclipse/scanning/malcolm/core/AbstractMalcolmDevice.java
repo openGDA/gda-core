@@ -126,6 +126,7 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 		final DeviceInformation<IMalcolmModel> info = super.getDeviceInformation(includeNonAlive);
 		if (includeNonAlive || info.isAlive()) {
 			info.setAvailableAxes(getAvailableAxes());
+			info.setMalcolmVersion(getVersion());
 		}
 
 		return info;

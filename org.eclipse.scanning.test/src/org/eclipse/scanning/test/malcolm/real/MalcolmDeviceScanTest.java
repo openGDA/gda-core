@@ -19,7 +19,7 @@
 package org.eclipse.scanning.test.malcolm.real;
 
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
-import static org.eclipse.scanning.malcolm.core.MalcolmDevice.COMPLETED_STEPS_ENDPOINT;
+import static org.eclipse.scanning.malcolm.core.MalcolmDevice.ATTRIBUTE_NAME_COMPLETED_STEPS;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.POSITION_COMPLETE_INTERVAL;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.STATE_ENDPOINT;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -34,6 +34,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.net.InetAddress;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -41,6 +42,8 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.scanning.api.device.IPausableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.device.models.MalcolmDetectorModel;
+import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.DeviceState;
@@ -259,7 +262,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		final MalcolmMessage message = new MalcolmMessage();
 
 		final NumberAttribute stepsAttr = new NumberAttribute();
-		stepsAttr.setName(COMPLETED_STEPS_ENDPOINT);
+		stepsAttr.setName(ATTRIBUTE_NAME_COMPLETED_STEPS);
 		stepsAttr.setValue(numSteps);
 		message.setValue(stepsAttr);
 
@@ -293,6 +296,12 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setPointGenerator(gen);
 		scanModel.setDetectors(malcolmDevice);
+
+		final MalcolmModel malcolmModel = new MalcolmModel();
+		malcolmModel.setName("malcolm");
+		malcolmModel.setExposureTime(0.1);
+		malcolmModel.setDetectorModels(Arrays.asList(new MalcolmDetectorModel("det1", 0.1, 1, true)));
+		malcolmDevice.setModel(malcolmModel);
 
 		// Create and configure the scanner (AcquisitionDevice) this calls some method on MalcolmDevice which in turn
 		// call methods in the mocked communication layer, so we need to set up replies for those

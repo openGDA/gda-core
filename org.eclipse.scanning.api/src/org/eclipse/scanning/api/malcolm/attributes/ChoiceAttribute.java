@@ -21,7 +21,6 @@ import java.util.Arrays;
  *
  */
 public class ChoiceAttribute extends MalcolmAttribute<String> {
-	public static final String CHOICE_ID = "malcolm:core/ChoiceMeta:";
 
 	private String[] choices;
 	private String value;

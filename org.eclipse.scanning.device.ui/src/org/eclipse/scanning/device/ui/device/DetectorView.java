@@ -33,6 +33,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionManager;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -48,6 +49,7 @@ import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.DeviceRole;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.ui.DetectorScanUIElement;
@@ -371,8 +373,8 @@ public class DetectorView extends ViewPart {
 		}
 	}
 
-	protected void configure() {
-		final DetectorScanUIElement<?> element = getSelection();
+	protected <M extends IDetectorModel> void configure() {
+		final DetectorScanUIElement<M> element = getSelection();
 		if (element==null) return; // Nothing to configure
 		final String detectorName = element.getName();
 
@@ -382,8 +384,13 @@ public class DetectorView extends ViewPart {
 		if (!ok) return;
 
 		try {
-			final IRunnableDevice<Object> device = runnableDeviceService.getRunnableDevice(detectorName);
-			final Object model = element.getModel();
+			final IRunnableDevice<M> device = runnableDeviceService.getRunnableDevice(detectorName);
+			final M model = element.getModel();
+
+			final String label = runnableDeviceService.getDeviceInformation(model.getName()).getLabel();
+			final Dialog editModelDialog = new EditDetectorModelDialog(getViewSite().getShell(),
+					runnableDeviceService, model, label);
+			editModelDialog.open();
 
 			// Pass null to 'clear' the validation results view
 			selectionProvider.fireSelection(new StructuredSelection(new ValidateResults(detectorName, null)));
@@ -417,9 +424,10 @@ public class DetectorView extends ViewPart {
 		});
 	}
 
-	private DetectorScanUIElement<?> getSelection() {
+	@SuppressWarnings("unchecked")
+	private <M> DetectorScanUIElement<M> getSelection() {
 		if (viewer.getSelection() == null || viewer.getSelection().isEmpty()) return null;
-		return (DetectorScanUIElement<?>)((IStructuredSelection)viewer.getSelection()).getFirstElement();
+		return (DetectorScanUIElement<M>) ((IStructuredSelection)viewer.getSelection()).getFirstElement();
 	}
 
 	@Override

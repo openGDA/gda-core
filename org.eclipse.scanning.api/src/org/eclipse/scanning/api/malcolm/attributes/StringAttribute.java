@@ -20,10 +20,6 @@ package org.eclipse.scanning.api.malcolm.attributes;
  */
 public class StringAttribute extends MalcolmAttribute<String> {
 
-	public static final String STRING_ID = "malcolm:core/StringMeta:";
-	// TODO remove HEALTH_ID when no longer using malcolm 2. See JIRA DAQ-4555
-	public static final String HEALTH_ID = "malcolm:core/HealthMeta:";
-
 	private String value;
 
 	@Override
