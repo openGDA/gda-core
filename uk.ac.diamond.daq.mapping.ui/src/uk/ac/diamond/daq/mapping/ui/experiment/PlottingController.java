@@ -62,7 +62,14 @@ public class PlottingController {
 	private Color scanPathColour;
 	private PathInfo lastPathInfo;
 
+	/**
+	 * Controls whether the scan path is shown in the plot<br>
+	 * Default value must match default value of <code>RegistryToggleState</code>
+	 * for command id <code>uk.ac.diamond.daq.mapping.ui.command.showHideMappingPath</code>
+	 * in <code>plugin.xml</code>
+	 */
 	private volatile boolean scanPathVisible = true;
+
 	private volatile boolean updatingROIFromRegion = false;
 
 	public PlottingController() {
@@ -213,23 +220,31 @@ public class PlottingController {
 		}
 	}
 
-	void toggleRegionVisibility() {
+	boolean toggleRegionVisibility() {
 		checkPlottingSystem();
 		IRegion plotRegion = mapPlottingSystem.getRegion(MAPPING_REGION_NAME);
-		if (plotRegion != null) {
-			plotRegion.setVisible(!plotRegion.isVisible());
+		if (plotRegion == null) {
+			return false;
+		} else {
+			final boolean regionVisible = !plotRegion.isVisible();
+			plotRegion.setVisible(regionVisible);
+			return regionVisible;
 		}
 	}
 
-	void toggleRegionFill() {
+	boolean toggleRegionFill() {
 		checkPlottingSystem();
 		IRegion plotRegion = mapPlottingSystem.getRegion(MAPPING_REGION_NAME);
-		if (plotRegion != null) {
-			plotRegion.setFill(!plotRegion.isFill());
+		if (plotRegion == null) {
+			return false;
+		} else {
+			final boolean fillVisible = !plotRegion.isFill();
+			plotRegion.setFill(fillVisible);
+			return fillVisible;
 		}
 	}
 
-	void togglePathVisibility() {
+	boolean togglePathVisibility() {
 		ITrace pathTrace = mapPlottingSystem.getTrace(MAPPING_PATH_NAME);
 		if (pathTrace != null && pathTrace.isVisible()) {
 			// Path exists and is visible, so make it invisible.
@@ -243,6 +258,7 @@ public class PlottingController {
 			replotLastPath();
 			// TODO showing path after a new map is plotted hides the region - maybe a bug in the plotting system?
 		}
+		return scanPathVisible;
 	}
 
 	public void dispose() {

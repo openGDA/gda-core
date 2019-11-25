@@ -33,7 +33,8 @@ public class ToggleFillMappingRegion extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		plotter.toggleRegionFill();
+		final boolean fillVisible = plotter.toggleRegionFill();
+		PlottingUtils.setCommandState(event.getCommand(), fillVisible);
 		return null;
 	}
 }

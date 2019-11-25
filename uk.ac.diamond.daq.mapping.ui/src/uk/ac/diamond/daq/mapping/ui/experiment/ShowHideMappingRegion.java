@@ -33,7 +33,8 @@ public class ShowHideMappingRegion extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		plotter.toggleRegionVisibility();
+		final boolean regionVisible = plotter.toggleRegionVisibility();
+		PlottingUtils.setCommandState(event.getCommand(), regionVisible);
 		return null;
 	}
 }

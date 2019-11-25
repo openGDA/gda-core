@@ -33,7 +33,8 @@ public class ShowHideMappingPath extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		plotter.togglePathVisibility();
+		final boolean pathVisible = plotter.togglePathVisibility();
+		PlottingUtils.setCommandState(event.getCommand(), pathVisible);
 		return null;
 	}
 }

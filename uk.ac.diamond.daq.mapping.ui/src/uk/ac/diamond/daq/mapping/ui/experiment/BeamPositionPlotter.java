@@ -72,7 +72,15 @@ public class BeamPositionPlotter implements IObserver, PropertyChangeListener {
 	private Scannable yAxisScannable;
 
 	private boolean initialised = false;
+
+	/**
+	 * Controls whether the beam position is shown in the plot<br>
+	 * Default value must match default value of <code>RegistryToggleState</code>
+	 * for command id <code>uk.ac.diamond.daq.mapping.ui.command.showHideBeamPosition</code>
+	 * in <code>plugin.xml</code>
+	 */
 	private boolean showBeamPosition = true;
+
 	private double lastXCoordinate;
 	private double lastYCoordinate;
 	private double beamSize = -1.0;
@@ -162,9 +170,10 @@ public class BeamPositionPlotter implements IObserver, PropertyChangeListener {
 		}
 	}
 
-	void toggleShowBeamPosition() {
+	boolean toggleShowBeamPosition() {
 		showBeamPosition = !showBeamPosition;
 		replot();
+		return showBeamPosition;
 	}
 
 	/**

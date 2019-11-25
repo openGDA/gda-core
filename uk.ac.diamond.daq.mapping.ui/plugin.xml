@@ -25,22 +25,38 @@
       <command
             defaultHandler="uk.ac.diamond.daq.mapping.ui.experiment.ShowHideMappingRegion"
             id="uk.ac.diamond.daq.mapping.ui.command.showHideMappingRegion"
-            name="Show/Hide Mapping Region">
+            name="Show Mapping Region">
+            <state
+                  class="org.eclipse.ui.handlers.RegistryToggleState:true"
+                  id="org.eclipse.ui.commands.toggleState">
+            </state>
       </command>
       <command
             defaultHandler="uk.ac.diamond.daq.mapping.ui.experiment.ToggleFillMappingRegion"
             id="uk.ac.diamond.daq.mapping.ui.command.toggleFillMappingRegion"
-            name="Toggle Mapping Region FIll">
+            name="Show Mapping Region FIll">
+            <state
+                  class="org.eclipse.ui.handlers.RegistryToggleState:true"
+                  id="org.eclipse.ui.commands.toggleState">
+            </state>
       </command>
       <command
             defaultHandler="uk.ac.diamond.daq.mapping.ui.experiment.ShowHideMappingPath"
             id="uk.ac.diamond.daq.mapping.ui.command.showHideMappingPath"
-            name="Show/Hide Mapping Path">
+            name="Show Mapping Path">
+            <state
+                  class="org.eclipse.ui.handlers.RegistryToggleState:true"
+                  id="org.eclipse.ui.commands.toggleState">
+            </state>
       </command>
       <command
             defaultHandler="uk.ac.diamond.daq.mapping.ui.experiment.ShowHideBeamPosition"
             id="uk.ac.diamond.daq.mapping.ui.command.showHideBeamPosition"
-            name="Show/Hide Beam Position">
+            name="Show Beam Position">
+            <state
+                  class="org.eclipse.ui.handlers.RegistryToggleState:true"
+                  id="org.eclipse.ui.commands.toggleState">
+            </state>
       </command>
       <command
       		defaultHandler="uk.ac.diamond.daq.mapping.ui.experiment.FindBeamInPlot"
@@ -73,6 +89,7 @@
             action_type="TOOLBAR"
             command_id="uk.ac.diamond.daq.mapping.ui.command.showHideMappingRegion"
             icon="icons/Show_Hide_Mapping_Region_16.png"
+            style="toggle_button"
             id="uk.ac.diamond.daq.mapping.ui.showHideMappingRegionAction"
             plot_name="Map">
       </plotting_action>
@@ -80,6 +97,7 @@
             action_type="TOOLBAR"
             command_id="uk.ac.diamond.daq.mapping.ui.command.toggleFillMappingRegion"
             icon="icons/Fill_Mapping_Region_16.png"
+            style="toggle_button"
             id="uk.ac.diamond.daq.mapping.ui.toggleFillMappingRegionAction"
             plot_name="Map">
       </plotting_action>
@@ -87,6 +105,7 @@
             action_type="TOOLBAR"
             command_id="uk.ac.diamond.daq.mapping.ui.command.showHideMappingPath"
             icon="icons/Show_Hide_Path_64.png"
+            style="toggle_button"
             id="uk.ac.diamond.daq.mapping.ui.showHideMappingPathAction"
             plot_name="Map">
       </plotting_action>
@@ -94,6 +113,7 @@
             action_type="TOOLBAR"
             command_id="uk.ac.diamond.daq.mapping.ui.command.showHideBeamPosition"
             icon="icons/Show_Hide_Beam.png"
+            style="toggle_button"
             id="uk.ac.diamond.daq.mapping.ui.showHideBeamPositionAction"
             plot_name="Map">
       </plotting_action>
@@ -177,22 +197,22 @@
             <command
                   commandId="uk.ac.diamond.daq.mapping.ui.command.showHideMappingPath"
                   icon="icons/Show_Hide_Path_16.png"
-                  style="push">
+                  style="toggle">
             </command>
             <command
                   commandId="uk.ac.diamond.daq.mapping.ui.command.showHideMappingRegion"
                   icon="icons/Show_Hide_Mapping_Region_16.png"
-                  style="push">
+                  style="toggle">
             </command>
             <command
                   commandId="uk.ac.diamond.daq.mapping.ui.command.showHideBeamPosition"
                   icon="icons/Show_Hide_Beam.png"
-                  style="push">
+                  style="toggle">
             </command>
             <command
                   commandId="uk.ac.diamond.daq.mapping.ui.command.toggleFillMappingRegion"
                   icon="icons/Fill_Mapping_Region_16.png"
-                  style="push">
+                  style="toggle">
             </command>
             <command
                   commandId="uk.ac.diamond.daq.mapping.ui.command.findBeamInPlot"

@@ -33,7 +33,8 @@ public class ShowHideBeamPosition extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		beamPositionPlotter.init();
-		beamPositionPlotter.toggleShowBeamPosition();
+		final boolean beamVisible = beamPositionPlotter.toggleShowBeamPosition();
+		PlottingUtils.setCommandState(event.getCommand(), beamVisible);
 		return null;
 	}
 }
