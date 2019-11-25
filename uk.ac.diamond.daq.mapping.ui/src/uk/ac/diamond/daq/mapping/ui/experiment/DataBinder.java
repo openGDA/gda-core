@@ -29,6 +29,7 @@ import org.eclipse.core.databinding.validation.IValidator;
 import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.databinding.viewers.IViewerObservableValue;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Spinner;
@@ -88,6 +89,16 @@ public class DataBinder {
 	 */
 	public Binding bind(Widget widget, String modelProperty, Object bean) {
 		return bind(widget, modelProperty, bean, null);
+	}
+
+	/**
+	 * Bind an IViewerObservableValue to a IObservableValue
+	 * @param value the 'widget' containing the value
+	 * @param model the model element to bind to
+	 * @return created binding
+	 */
+	public Binding bind(IViewerObservableValue value, IObservableValue<String> model) {
+		return dbc.bindValue(value, model);
 	}
 
 	/**
