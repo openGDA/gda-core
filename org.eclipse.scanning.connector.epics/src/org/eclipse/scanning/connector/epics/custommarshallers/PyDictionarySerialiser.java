@@ -14,6 +14,7 @@ package org.eclipse.scanning.connector.epics.custommarshallers;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 
 import org.epics.pvdata.pv.PVStructure;
 import org.epics.pvdata.pv.Structure;
@@ -30,33 +31,33 @@ import org.python.core.PyUnicode;
 
 /**
  * Custom serialiser for PyDictionary.
- * TODO - make this non 'test' and finalise custom serialisation strategy for PyDictionaries
- * @author Matt Taylor
  *
+ * @author Matt Taylor
  */
 public class PyDictionarySerialiser implements IPVStructureSerialiser<PyDictionary> {
 
 	@Override
 	public Structure buildStructure(Serialiser serialiser, PyDictionary dictionary) throws Exception {
 		// Convert to map first
-		Map<String,?> dictionaryAsMap = convertMap(dictionary);
-		Structure structure = serialiser.getMapSerialiser().buildStructureFromMap(dictionaryAsMap);
-		return structure;
+		final Map<String, Object> dictionaryAsMap = convertPyDictionary(dictionary);
+		return serialiser.getMapSerialiser().buildStructureFromMap(dictionaryAsMap);
 	}
 
 	@Override
 	public void populatePVStructure(Serialiser serialiser, PyDictionary dictionary, PVStructure pvStructure) throws Exception {
-		Map<String,?> dictionaryAsMap = convertMap(dictionary);
+		final Map<String, Object> dictionaryAsMap = convertPyDictionary(dictionary);
 		serialiser.getMapSerialiser().setMapValues(pvStructure, dictionaryAsMap);
 	}
 
-	private LinkedHashMap<String, Object> convertMap(Map<Object, Object> maptoCopy) {
-		LinkedHashMap<String, Object> newObject = new LinkedHashMap<String, Object>();
-		for (Object key : maptoCopy.keySet()) {
-			String keyString = key.toString();
-			newObject.put(keyString, convertPyObject(maptoCopy.get(key)));
+	private Map<String, Object> convertPyDictionary(PyDictionary dictionary) {
+		final LinkedHashMap<String, Object> result = new LinkedHashMap<>();
+		@SuppressWarnings("unchecked")
+		final Set<Map.Entry<Object, Object>> entrySet = dictionary.entrySet();
+		for (Map.Entry<Object, Object> entry : entrySet) {
+			result.put(entry.getKey().toString(), convertPyObject(entry.getValue()));
 		}
-		return newObject;
+
+		return result;
 	}
 
 	/**
@@ -69,47 +70,22 @@ public class PyDictionarySerialiser implements IPVStructureSerialiser<PyDictiona
 			return null;
 		}
 		if (pyObj instanceof PyList) {
-			PyList pyList = (PyList)pyObj;
-
-			if (pyList.size() == 1) {
-				Object first = pyList.get(0);
-				if (first.getClass().isArray()) {
-					return convertPyObject(pyList.get(0));
-				}
-			}
-			Object[] array = pyList.toArray();
-			LinkedList<Object> newList = new LinkedList<>();
-			for (Object listElement : array) {
-				newList.add(convertPyObject(listElement));
-			}
-			return newList;
+			return convertPyList((PyList) pyObj);
 		} else if (pyObj instanceof PyArray) {
-			PyArray pyArray = (PyArray)pyObj;
-			return convertPyObject(pyArray.tolist());
+			return convertPyObject(((PyArray) pyObj).tolist());
 		} else if (pyObj instanceof PyDictionary) {
 			PyDictionary pyDict = (PyDictionary) pyObj;
-			LinkedHashMap<String, Object> newMap = convertMap(pyDict);
-			return newMap;
+			return convertPyDictionary(pyDict);
 		} else if (pyObj instanceof PyUnicode) {
-			PyUnicode pyUnicode = (PyUnicode) pyObj;
-			String newString = pyUnicode.getString();
-			return newString;
+			return ((PyUnicode) pyObj).getString();
 		} else if (pyObj instanceof PyInteger) {
-			PyInteger pyInteger = (PyInteger) pyObj;
-			int newString = pyInteger.getValue();
-			return newString;
+			return ((PyInteger) pyObj).getValue();
 		} else if (pyObj instanceof PyFloat) {
-			PyFloat pyFloat = (PyFloat) pyObj;
-			double newDouble = pyFloat.getValue();
-			return newDouble;
+			return ((PyFloat) pyObj).getValue();
 		} else if (pyObj instanceof PyBoolean) {
-			PyBoolean pyBoolean = (PyBoolean) pyObj;
-			boolean newBoolean = pyBoolean.getBooleanValue();
-			return newBoolean;
+			return ((PyBoolean) pyObj).getBooleanValue();
 		} else if (pyObj instanceof PyString) {
-			PyString pyString = (PyString) pyObj;
-			String newString = pyString.getString();
-			return newString;
+			return ((PyString) pyObj).getString();
 		}
 
 		if (pyObj.getClass().toString().contains("py")) {
@@ -117,6 +93,21 @@ public class PyDictionarySerialiser implements IPVStructureSerialiser<PyDictiona
 		}
 
 		return pyObj;
+	}
+
+	private Object convertPyList(PyList pyList) {
+		if (pyList.size() == 1) {
+			Object first = pyList.get(0);
+			if (first.getClass().isArray()) {
+				return convertPyObject(pyList.get(0));
+			}
+		}
+		Object[] array = pyList.toArray();
+		LinkedList<Object> newList = new LinkedList<>();
+		for (Object listElement : array) {
+			newList.add(convertPyObject(listElement));
+		}
+		return newList;
 	}
 
 }
