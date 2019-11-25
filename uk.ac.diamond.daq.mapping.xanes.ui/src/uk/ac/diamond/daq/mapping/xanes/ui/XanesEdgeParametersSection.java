@@ -317,12 +317,19 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	 *            path to he processing file (in Nexus format)
 	 */
 	private List<String> getProcessingLinesFromFile(String processingFilePath) {
+		final String dataNodePath = "/entry/process/0/data";
 		final INexusFileFactory nexusFileFactory = ServiceHolder.getNexusFileFactory();
 		final List<String> lines = new ArrayList<>();
 		try (NexusFile nexusFile = nexusFileFactory.newNexusFile(processingFilePath)) {
 			nexusFile.openToRead();
-			final DataNode dataNode = nexusFile.getData("/entry/process/0/data");
+			final DataNode dataNode = nexusFile.getData(dataNodePath);
+			if (dataNode == null) {
+				throw new NexusException("Missing data node " + dataNodePath);
+			}
 			final JsonObject jObject = new JsonParser().parse(dataNode.getString()).getAsJsonObject();
+			if (jObject == null) {
+				throw new NexusException("Cannot parse data node " + dataNode.toString() + " as JSON");
+			}
 			for (JsonElement lineGroups : jObject.getAsJsonArray("lineGroupsXRF")) {
 				lines.add(lineGroups.getAsString().replace('\u03B1', 'a').replace('\u03B2', 'b'));
 			}
