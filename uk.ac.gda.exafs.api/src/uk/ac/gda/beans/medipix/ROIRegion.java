@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.beans.exafs.i20;
+package uk.ac.gda.beans.medipix;
 
 import java.io.Serializable;
 

@@ -20,7 +20,7 @@ package uk.ac.gda.exafs.ui.detector.medipix;
 
 import java.net.URL;
 
-import uk.ac.gda.beans.exafs.i20.MedipixParameters;
+import uk.ac.gda.beans.medipix.MedipixParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanMultiPageEditor;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
