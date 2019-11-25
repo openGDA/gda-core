@@ -59,8 +59,8 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider;
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.beans.exafs.i20.MedipixParameters;
-import uk.ac.gda.beans.exafs.i20.ROIRegion;
+import uk.ac.gda.beans.medipix.MedipixParameters;
+import uk.ac.gda.beans.medipix.ROIRegion;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.epics.adviewer.views.TwoDArrayView;
 import uk.ac.gda.richbeans.editors.DirtyContainer;

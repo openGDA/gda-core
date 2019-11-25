@@ -777,6 +777,10 @@
             class="uk.ac.gda.beans.exafs.XesScanParameters"
             describer="uk.ac.gda.exafs.ui.describers.XesScanParametersDescriber">
       </bean>
+      <bean
+            class="uk.ac.gda.beans.medipix.MedipixParameters"
+            describer="uk.ac.gda.exafs.ui.describers.MedipixDescriber">
+      </bean>
    </extension>
 
    <extension point="org.eclipse.scanning.api.resultsHandler">
