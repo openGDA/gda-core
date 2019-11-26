@@ -106,16 +106,16 @@ public class GridTest extends AbstractGeneratorTest {
 		assertEquals(25, pointList.size());
 
 		// Zeroth point is (0, 0).
-		assertEquals(0.0, pointList.get(0).getValue("X"), 1e-8);
-		assertEquals(0.0, pointList.get(0).getValue("Y"), 1e-8);
+		assertEquals(0.0, pointList.get(0).getValue("x"), 1e-8);
+		assertEquals(0.0, pointList.get(0).getValue("y"), 1e-8);
 
 		// Oneth point is (1, 0).
-		assertEquals(1.0, pointList.get(1).getValue("X"), 1e-8);
-		assertEquals(0.0, pointList.get(1).getValue("Y"), 1e-8);
+		assertEquals(1.0, pointList.get(1).getValue("x"), 1e-8);
+		assertEquals(0.0, pointList.get(1).getValue("y"), 1e-8);
 
 		// Fifth point is (0, 1).
-		assertEquals(0.0, pointList.get(5).getValue("X"), 1e-8);
-		assertEquals(1.0, pointList.get(5).getValue("Y"), 1e-8);
+		assertEquals(0.0, pointList.get(5).getValue("x"), 1e-8);
+		assertEquals(1.0, pointList.get(5).getValue("y"), 1e-8);
 	}
 
 	@Test
@@ -142,16 +142,16 @@ public class GridTest extends AbstractGeneratorTest {
 		assertEquals(25, pointList.size());
 
 		// Zeroth point is (0, 0).
-		assertEquals(0.0, pointList.get(0).getValue("X"), 1e-8);
-		assertEquals(0.0, pointList.get(0).getValue("Y"), 1e-8);
+		assertEquals(0.0, pointList.get(0).getValue("x"), 1e-8);
+		assertEquals(0.0, pointList.get(0).getValue("y"), 1e-8);
 
 		// Oneth point is (1, 0).
-		assertEquals(1.0, pointList.get(1).getValue("X"), 1e-8);
-		assertEquals(0.0, pointList.get(1).getValue("Y"), 1e-8);
+		assertEquals(1.0, pointList.get(1).getValue("x"), 1e-8);
+		assertEquals(0.0, pointList.get(1).getValue("y"), 1e-8);
 
 		// Fifth point is (4, 1).
-		assertEquals(4.0, pointList.get(5).getValue("X"), 1e-8);
-		assertEquals(1.0, pointList.get(5).getValue("Y"), 1e-8);
+		assertEquals(4.0, pointList.get(5).getValue("x"), 1e-8);
+		assertEquals(1.0, pointList.get(5).getValue("y"), 1e-8);
 	}
 
 	@Test
@@ -177,16 +177,16 @@ public class GridTest extends AbstractGeneratorTest {
 		assertEquals(25, pointList.size());
 
 		// Zeroth point is (4, 0).
-		assertEquals(4.0, pointList.get(0).getValue("X"), 1e-8);
-		assertEquals(0.0, pointList.get(0).getValue("Y"), 1e-8);
+		assertEquals(4.0, pointList.get(0).getValue("x"), 1e-8);
+		assertEquals(0.0, pointList.get(0).getValue("y"), 1e-8);
 
 		// Oneth point is (3, 0).
-		assertEquals(3.0, pointList.get(1).getValue("X"), 1e-8);
-		assertEquals(0.0, pointList.get(1).getValue("Y"), 1e-8);
+		assertEquals(3.0, pointList.get(1).getValue("x"), 1e-8);
+		assertEquals(0.0, pointList.get(1).getValue("y"), 1e-8);
 
 		// Fifth point is (4, 1).
-		assertEquals(4.0, pointList.get(5).getValue("X"), 1e-8);
-		assertEquals(1.0, pointList.get(5).getValue("Y"), 1e-8);
+		assertEquals(4.0, pointList.get(5).getValue("x"), 1e-8);
+		assertEquals(1.0, pointList.get(5).getValue("y"), 1e-8);
 	}
 
 	@Test
@@ -213,16 +213,16 @@ public class GridTest extends AbstractGeneratorTest {
 		assertEquals(25, pointList.size());
 
 		// Zeroth point is (4, 0).
-		assertEquals(4.0, pointList.get(0).getValue("X"), 1e-8);
-		assertEquals(0.0, pointList.get(0).getValue("Y"), 1e-8);
+		assertEquals(4.0, pointList.get(0).getValue("x"), 1e-8);
+		assertEquals(0.0, pointList.get(0).getValue("y"), 1e-8);
 
 		// Oneth point is (3, 0).
-		assertEquals(3.0, pointList.get(1).getValue("X"), 1e-8);
-		assertEquals(0.0, pointList.get(1).getValue("Y"), 1e-8);
+		assertEquals(3.0, pointList.get(1).getValue("x"), 1e-8);
+		assertEquals(0.0, pointList.get(1).getValue("y"), 1e-8);
 
 		// Fifth point is (0, 1).
-		assertEquals(0.0, pointList.get(5).getValue("X"), 1e-8);
-		assertEquals(1.0, pointList.get(5).getValue("Y"), 1e-8);
+		assertEquals(0.0, pointList.get(5).getValue("x"), 1e-8);
+		assertEquals(1.0, pointList.get(5).getValue("y"), 1e-8);
 	}
 
 	@Test
@@ -248,16 +248,16 @@ public class GridTest extends AbstractGeneratorTest {
 		assertEquals(25, pointList.size());
 
 		// Zeroth point is (4, 4).
-		assertEquals(4.0, pointList.get(0).getValue("X"), 1e-8);
-		assertEquals(4.0, pointList.get(0).getValue("Y"), 1e-8);
+		assertEquals(4.0, pointList.get(0).getValue("x"), 1e-8);
+		assertEquals(4.0, pointList.get(0).getValue("y"), 1e-8);
 
 		// Oneth point is (3, 4).
-		assertEquals(3.0, pointList.get(1).getValue("X"), 1e-8);
-		assertEquals(4.0, pointList.get(1).getValue("Y"), 1e-8);
+		assertEquals(3.0, pointList.get(1).getValue("x"), 1e-8);
+		assertEquals(4.0, pointList.get(1).getValue("y"), 1e-8);
 
 		// Fifth point is (4, 3).
-		assertEquals(4.0, pointList.get(5).getValue("X"), 1e-8);
-		assertEquals(3.0, pointList.get(5).getValue("Y"), 1e-8);
+		assertEquals(4.0, pointList.get(5).getValue("x"), 1e-8);
+		assertEquals(3.0, pointList.get(5).getValue("y"), 1e-8);
 	}
 
 	@Test
@@ -284,16 +284,16 @@ public class GridTest extends AbstractGeneratorTest {
 		assertEquals(25, pointList.size());
 
 		// Zeroth point is (4, 4).
-		assertEquals(4.0, pointList.get(0).getValue("X"), 1e-8);
-		assertEquals(4.0, pointList.get(0).getValue("Y"), 1e-8);
+		assertEquals(4.0, pointList.get(0).getValue("x"), 1e-8);
+		assertEquals(4.0, pointList.get(0).getValue("y"), 1e-8);
 
 		// Oneth point is (3, 4).
-		assertEquals(3.0, pointList.get(1).getValue("X"), 1e-8);
-		assertEquals(4.0, pointList.get(1).getValue("Y"), 1e-8);
+		assertEquals(3.0, pointList.get(1).getValue("x"), 1e-8);
+		assertEquals(4.0, pointList.get(1).getValue("y"), 1e-8);
 
 		// Fifth point is (0, 3).
-		assertEquals(0.0, pointList.get(5).getValue("X"), 1e-8);
-		assertEquals(3.0, pointList.get(5).getValue("Y"), 1e-8);
+		assertEquals(0.0, pointList.get(5).getValue("x"), 1e-8);
+		assertEquals(3.0, pointList.get(5).getValue("y"), 1e-8);
 	}
 
 	@Test
@@ -472,7 +472,7 @@ public class GridTest extends AbstractGeneratorTest {
 		assertEquals(20 * 20, pointList.size());
 
 		// Check some random points are correct
-		assertEquals(0.075, pointList.get(0).getValue("X"), 1e-8);
+		assertEquals(0.075, pointList.get(0).getValue("x"), 1e-8);
 		for (int i = 0; i < 20; i++) {
 			assertEquals(i, pointList.get(i).getIndex("x"));
 			assertEquals(0, pointList.get(i).getIndex("y"));
@@ -482,16 +482,16 @@ public class GridTest extends AbstractGeneratorTest {
 			assertEquals(1, pointList.get(i).getIndex("y"));
 		}
 
-		assertEquals(0.075, pointList.get(0).getValue("Y"), 1e-8);
+		assertEquals(0.075, pointList.get(0).getValue("y"), 1e-8);
 
-		assertEquals(0.075 + 3 * (3.0 / 20.0), pointList.get(3).getValue("X"), 1e-8);
-		assertEquals(0.075 + 0.0, pointList.get(3).getValue("Y"), 1e-8);
+		assertEquals(0.075 + 3 * (3.0 / 20.0), pointList.get(3).getValue("x"), 1e-8);
+		assertEquals(0.075 + 0.0, pointList.get(3).getValue("y"), 1e-8);
 
-		assertEquals(0.075 + 2 * (3.0 / 20.0), pointList.get(22).getValue("X"), 1e-8);
-		assertEquals(0.075 + 1 * (3.0 / 20.0), pointList.get(22).getValue("Y"), 1e-8);
+		assertEquals(0.075 + 2 * (3.0 / 20.0), pointList.get(22).getValue("x"), 1e-8);
+		assertEquals(0.075 + 1 * (3.0 / 20.0), pointList.get(22).getValue("y"), 1e-8);
 
-		assertEquals(0.075 + 10 * (3.0 / 20.0), pointList.get(350).getValue("X"), 1e-8);
-		assertEquals(0.075 + 17 * (3.0 / 20.0), pointList.get(350).getValue("Y"), 1e-8);
+		assertEquals(0.075 + 10 * (3.0 / 20.0), pointList.get(350).getValue("x"), 1e-8);
+		assertEquals(0.075 + 17 * (3.0 / 20.0), pointList.get(350).getValue("y"), 1e-8);
 
 	}
 

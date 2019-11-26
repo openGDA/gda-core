@@ -105,8 +105,8 @@ public final class Point extends AbstractPosition {
 
 	@Override
 	public Double get(String name) {
-		if (xName.equalsIgnoreCase(name)) return getX();
-		if (yName.equalsIgnoreCase(name)) return getY();
+		if (xName.equals(name)) return getX();
+		if (yName.equals(name)) return getY();
 		return null;
 	}
 

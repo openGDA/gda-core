@@ -63,17 +63,17 @@ public class RasterTest {
 		assertEquals(expectedSize, pointList.size());
 
 		// Check some random points are correct
-		assertEquals(0.0, pointList.get(0).getValue("X"), 1e-8);
-		assertEquals(0.0, pointList.get(0).getValue("Y"), 1e-8);
+		assertEquals(0.0, pointList.get(0).getValue("x"), 1e-8);
+		assertEquals(0.0, pointList.get(0).getValue("y"), 1e-8);
 
-		assertEquals(3.0, pointList.get(3).getValue("X"), 1e-8);
-		assertEquals(0.0, pointList.get(3).getValue("Y"), 1e-8);
+		assertEquals(3.0, pointList.get(3).getValue("x"), 1e-8);
+		assertEquals(0.0, pointList.get(3).getValue("y"), 1e-8);
 
-		assertEquals(3.0, pointList.get(7).getValue("X"), 1e-8);
-		assertEquals(1.0, pointList.get(7).getValue("Y"), 1e-8);
+		assertEquals(3.0, pointList.get(7).getValue("x"), 1e-8);
+		assertEquals(1.0, pointList.get(7).getValue("y"), 1e-8);
 
-		assertEquals(3.0, pointList.get(11).getValue("X"), 1e-8);
-		assertEquals(2.0, pointList.get(11).getValue("Y"), 1e-8);
+		assertEquals(3.0, pointList.get(11).getValue("x"), 1e-8);
+		assertEquals(2.0, pointList.get(11).getValue("y"), 1e-8);
 
         GeneratorUtil.testGeneratorPoints(gen);
 	}
@@ -98,12 +98,12 @@ public class RasterTest {
 		List<IPosition> pointList = gen.createPoints();
 
 		// Zeroth point is (0, 0).
-		assertEquals(0.0, pointList.get(0).getValue("X"), 1e-8);
-		assertEquals(0.0, pointList.get(0).getValue("Y"), 1e-8);
+		assertEquals(0.0, pointList.get(0).getValue("x"), 1e-8);
+		assertEquals(0.0, pointList.get(0).getValue("y"), 1e-8);
 
 		// First point is (1, 0).
-		assertEquals(1.0, pointList.get(1).getValue("X"), 1e-8);
-		assertEquals(0.0, pointList.get(1).getValue("Y"), 1e-8);
+		assertEquals(1.0, pointList.get(1).getValue("x"), 1e-8);
+		assertEquals(0.0, pointList.get(1).getValue("y"), 1e-8);
 	}
 
 	@Test
@@ -128,12 +128,12 @@ public class RasterTest {
 		List<IPosition> pointList = gen.createPoints();
 
 		// Zeroth point is (5, 0).
-		assertEquals(5.0, pointList.get(0).getValue("X"), 1e-8);
-		assertEquals(0.0, pointList.get(0).getValue("Y"), 1e-8);
+		assertEquals(5.0, pointList.get(0).getValue("x"), 1e-8);
+		assertEquals(0.0, pointList.get(0).getValue("y"), 1e-8);
 
 		// First point is (4, 0).
-		assertEquals(4.0, pointList.get(1).getValue("X"), 1e-8);
-		assertEquals(0.0, pointList.get(1).getValue("Y"), 1e-8);
+		assertEquals(4.0, pointList.get(1).getValue("x"), 1e-8);
+		assertEquals(0.0, pointList.get(1).getValue("y"), 1e-8);
 	}
 
 	@Test(expected=ModelValidationException.class)
@@ -189,14 +189,14 @@ public class RasterTest {
 
 		// Check some points
 		assertEquals(new Point(0, xStart, 0, yStart, 0), pointList.get(0));
-		assertEquals(xStart + 3 * xStep, pointList.get(3).getValue("X"), 1e-8);
-		assertEquals(yStart + 0 * yStep, pointList.get(3).getValue("Y"), 1e-8);
+		assertEquals(xStart + 3 * xStep, pointList.get(3).getValue("x"), 1e-8);
+		assertEquals(yStart + 0 * yStep, pointList.get(3).getValue("y"), 1e-8);
 
-		assertEquals(xStart + xStep, pointList.get(1+1*rows).getValue("X"), 1e-8);
-		assertEquals(yStart + yStep, pointList.get(1+1*rows).getValue("Y"), 1e-8);
+		assertEquals(xStart + xStep, pointList.get(1+1*rows).getValue("x"), 1e-8);
+		assertEquals(yStart + yStep, pointList.get(1+1*rows).getValue("y"), 1e-8);
 
-		assertEquals(xStart + 5*xStep, pointList.get(5+2*rows).getValue("X"), 1e-8);
-		assertEquals(yStart + 2*yStep, pointList.get(5+2*rows).getValue("Y"), 1e-8);
+		assertEquals(xStart + 5*xStep, pointList.get(5+2*rows).getValue("x"), 1e-8);
+		assertEquals(yStart + 2*yStep, pointList.get(5+2*rows).getValue("y"), 1e-8);
 
 		GeneratorUtil.testGeneratorPoints(gen, cols, rows);
 	}
