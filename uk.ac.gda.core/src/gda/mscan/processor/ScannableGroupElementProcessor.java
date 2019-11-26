@@ -46,11 +46,12 @@ public class ScannableGroupElementProcessor extends ElementProcessorBase<Scannab
 	@Override
 	public void process(final ClauseContext context, final int index) {
 		if(isValidElement(context, this.getClass().getName(), Scannable.class)) {
-			if (enclosed.getGroupMembers().size() > 2) {
+			// Must use asList implementation else some Mocked tests NullPointer
+			if (enclosed.getGroupMembersAsList().size() > 2) {
 				throw new UnsupportedOperationException(
 						"The maximum supported number of Scannable Group members (2) has been exceeded");
 			}
-			for (Scannable member : enclosed.getGroupMembers()) {
+			for (Scannable member : enclosed.getGroupMembersAsList()) {
 				context.addScannable(member);
 			}
 		}

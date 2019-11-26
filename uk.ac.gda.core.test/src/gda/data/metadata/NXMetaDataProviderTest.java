@@ -43,6 +43,7 @@ import gda.device.ScannableMotionUnits;
 import gda.device.scannable.DummyScannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.Factory;
+import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.scan.ConcurrentScan;
@@ -61,7 +62,7 @@ public class NXMetaDataProviderTest {
 	private List<MetaDataUserSuppliedItem> userSuppliedItems;
 
 	@Before
-	public void setUp() throws DeviceException {
+	public void setUp() throws DeviceException, FactoryException {
 		NexusDataWriter.setMetadatascannables(new HashSet<String>());
 		this.rand = new Random();
 		this.formattingMap = new HashMap<String, String>();
@@ -292,7 +293,7 @@ public class NXMetaDataProviderTest {
 		DummyScannable s = new DummyScannable("s");
 		s.configure();
 
-		Factory factory = TestHelpers.createTestFactory("test");
+		Factory factory = TestHelpers.createTestFactory();
 		factory.addFindable(metaDataProvider);
 		// Finder.getInstance().addFactory(factory);
 

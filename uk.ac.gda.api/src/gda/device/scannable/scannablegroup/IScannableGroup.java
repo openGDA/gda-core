@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2019 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -15,24 +15,35 @@
  * You should have received a copy of the GNU General Public License along
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
-
 package gda.device.scannable.scannablegroup;
 
+import java.util.List;
+
+import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.factory.FactoryException;
 
 /**
  * Distributed interface for the ScannableGroup which provides a logical group of scannables
  */
+
 public interface IScannableGroup extends Scannable {
 
-	/**
-	 * @param groupMemberName
-	 *            the name of the scannable object to add to this group
-	 */
-	public void addGroupMemberName(String groupMemberName);
+	Scannable[] getGroupMembersAsArray() throws DeviceException;
 
-	/**
-	 * @return the names of the members of this group
-	 */
-	public String[] getGroupMemberNames();
+	List<Scannable> getGroupMembersAsList() throws DeviceException;
+
+	void setGroupMembersWithList(List<Scannable> scannables) throws FactoryException;
+
+	void setGroupMembersWithArray(Scannable[] scannables) throws FactoryException;
+
+	void removeGroupMemberByScannable(Scannable scannable) throws FactoryException;
+
+	void removeGroupMemberByIndex(int index) throws FactoryException;
+
+	void addGroupMember(Scannable scannable) throws FactoryException;
+
+	void addGroupMember(Scannable groupMember, boolean toConfigure) throws FactoryException;
+
+	void setGroupMembersWithList(List<Scannable> groupMembers, boolean toConfigure) throws FactoryException;
 }

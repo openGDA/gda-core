@@ -20,12 +20,9 @@ package gda.device.scannable.scannablegroup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Vector;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.python.core.Py;
 import org.python.core.PyString;
 import org.slf4j.Logger;
@@ -37,7 +34,6 @@ import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableUtils;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 import gda.observable.IObserver;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
@@ -50,12 +46,8 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 	private static final Logger logger = LoggerFactory.getLogger(ScannableGroup.class);
 
 	// the list of members
-	String[] groupMemberNames = new String[0]; // will use jakarta commons.lang to manipulate this
-	ArrayList<Scannable> groupMembers = new ArrayList<Scannable>();
+	ArrayList<Scannable> groupMembers = new ArrayList<>();
 
-	/**
-	 * Constructor.
-	 */
 	public ScannableGroup() {
 	}
 
@@ -64,10 +56,20 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 	 *
 	 * @param name
 	 * @param groupMembers
+	 * @throws FactoryException
 	 */
-	public ScannableGroup(String name, Scannable[] groupMembers) {
+	public ScannableGroup(String name, Scannable[] groupMembers) throws FactoryException {
+		this(name);
+		setGroupMembersWithArray(groupMembers);
+	}
+
+	public ScannableGroup(String name, List<Scannable> groupMembers) throws FactoryException {
+		this(name);
+		setGroupMembersWithList(groupMembers);
+	}
+
+	public ScannableGroup(String name) {
 		setName(name);
-		setGroupMembers(groupMembers);
 	}
 
 	@Override
@@ -75,31 +77,8 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 		if (isConfigured()) {
 			return;
 		}
-		// add all membernames to the list of members
-		Set<String> namesOfGroupMembers = setOfGroupMemberNames(groupMembers);
-		for (String name : groupMemberNames) {
 
-			if (name == null) {
-				continue;
-			}
-
-			if (!namesOfGroupMembers.contains(name)) {
-				try {
-					Scannable newScannable = (Scannable) Finder.getInstance().find(name.trim());
-					if (newScannable != null) {
-						addGroupMember(newScannable);
-						namesOfGroupMembers.add(name);
-						newScannable.addIObserver(this);
-					}
-				} catch (ClassCastException e) {
-					// finder must have returned something which was not a Scannable
-				}
-			}
-		}
-
-		// Update group member names to match group members
-		setGroupMemberNamesArrayUsingGroupMembersList();
-
+		logger.info("{} configuring...", getName());
 		// configure all members
 		for (Scannable scannable : groupMembers) {
 			scannable.configure();
@@ -110,100 +89,92 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 		setConfigured(true);
 	}
 
-	@Override
-	public void addGroupMemberName(String groupMemberName) {
-		if (!ArrayUtils.contains(groupMemberNames, groupMemberName)) {
-			groupMemberNames = (String[]) ArrayUtils.add(groupMemberNames, groupMemberName);
-		}
-	}
-
 	/**
-	 * Sets the group member names for this scannable group.
-	 *
-	 * @param groupMemberNames
-	 *            the group member names
-	 */
-	public void setGroupMemberNames(List<String> groupMemberNames) {
-		this.groupMemberNames = new String[0];
-		for (String name : groupMemberNames) {
-			addGroupMemberName(name);
-		}
-	}
-
-	@Override
-	public String[] getGroupMemberNames() {
-		return this.groupMemberNames;
-	}
-
-	/**
-	 * Adds a scannable to this group. This will not add a Scannable if its name matches anther member's name, even if
-	 * they are different objects.
+	 * Adds a scannable to this group. This will not add a Scannable if it is already included
+	 * Will configure the Scannable if the ScannableGroup is already configured
 	 *
 	 * @param groupMember
+	 * @throws FactoryException
 	 */
-	public void addGroupMember(Scannable groupMember) {
-		Scannable member = getGroupMember(groupMember.getName());
-		if (member == null) {
-			if (!this.groupMembers.contains(groupMember)) {
-				this.groupMembers.add(groupMember);
-				if (isConfigured()) {
-					setGroupMemberNamesArrayUsingGroupMembersList();
-				}
+	@Override
+	public void addGroupMember(Scannable groupMember) throws FactoryException {
+		addGroupMember(groupMember, true);
+	}
+
+	/**
+	 * Adds a scannable to this group. This will not add a Scannable if it is already included
+	 *
+	 * @param groupMember
+	 * @param toConfigure - controls behaviour when the ScannableGroup is configured:
+	 * 			whether to configure the scannable IF this group is already configured (true)
+	 * 			or set the ScannableGroue to be unconfigured (false)
+	 * @throws FactoryException
+	 */
+	@Override
+	public void addGroupMember(Scannable groupMember, boolean toConfigure) throws FactoryException {
+		if (!groupMembers.contains(groupMember)) {
+			groupMembers.add(groupMember);
+			if (toConfigure && isConfigured()) {
+				groupMember.configure();
+				groupMember.addIObserver(this);
+			}
+			if (!toConfigure) {
+				logger.info("{} contains unconfigured member, re-enabling configuring...", getName());
+				setConfigured(false);
 			}
 		} else {
 			logger.info(getName() + " will not add Scannable named " + groupMember.getName()
-					+ " as it already has a Scannable with the same name");
+					+ " as it already contains this Scannable.");
 		}
 	}
 
-	public void removeGroupMember(Scannable groupMember) {
-		if (this.groupMembers.contains(groupMember)) {
-			this.groupMembers.remove(groupMember);
-			if (isConfigured()) {
-				setGroupMemberNamesArrayUsingGroupMembersList();
-			}
-		}
-	}
-
-	public void removeGroupMember(String nameOfGroupMember) {
-		Scannable member = getGroupMember(nameOfGroupMember);
-		if (member != null) {
-			removeGroupMember(member);
-		}
+	@Override
+	public void removeGroupMemberByScannable(Scannable groupMember) {
+		groupMember.deleteIObserver(this);
+		groupMembers.remove(groupMember);
 	}
 
 	/**
 	 * @return array of scannable objects in this group
 	 */
-	public List<Scannable> getGroupMembers() {
-		return this.groupMembers;
+	@Override
+	public Scannable[] getGroupMembersAsArray() {
+		return groupMembers.toArray(new Scannable[0]);
 	}
 
 	/**
-	 * @param name
-	 * @return the Scannable of the given name
+	 * Sets the group members that make up this scannable group.
+	 * Sets this ScannableGroup to unconfigured.
+	 *
+	 * @param groupMembers
+	 *            the group members
+	 * @throws FactoryException
 	 */
-	public Scannable getGroupMember(String name) {
-		for (Scannable member : groupMembers) {
-			if (member.getName().equals(name)) {
-				return member;
-			}
-		}
-		return null;
+	@Override
+	public void setGroupMembersWithList(List<Scannable> groupMembers) throws FactoryException {
+		setGroupMembersWithList(groupMembers, false);
 	}
-
 
 	/**
 	 * Sets the group members that make up this scannable group.
 	 *
 	 * @param groupMembers
 	 *            the group members
+	 * @throws FactoryException
 	 */
-	public void setGroupMembers(List<Scannable> groupMembers) {
-		this.groupMembers = new ArrayList<Scannable>(groupMembers);
-		if (isConfigured()) {
-			setGroupMemberNamesArrayUsingGroupMembersList();
-			setArrays();
+	@Override
+	public void setGroupMembersWithList(List<Scannable> groupMembers, boolean toConfigure) throws FactoryException {
+		for (Scannable groupMember : groupMembers) {
+			groupMember.deleteIObserver(this);
+		}
+		this.groupMembers = new ArrayList<>(groupMembers);
+		if (toConfigure) {
+			for (Scannable groupMember : this.groupMembers) {
+				groupMember.addIObserver(this);
+				groupMember.configure();
+			}
+		} else {
+			setConfigured(false);
 		}
 	}
 
@@ -214,9 +185,11 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 	 * <p>
 	 *
 	 * @param groupMembers
+	 * @throws FactoryException
 	 */
-	final public void setGroupMembers(Scannable[] groupMembers) {
-		setGroupMembers(new ArrayList<Scannable>(Arrays.asList(groupMembers)));
+	@Override
+	public final void setGroupMembersWithArray(Scannable[] groupMembers) throws FactoryException {
+		setGroupMembersWithList(new ArrayList<Scannable>(Arrays.asList(groupMembers)));
 	}
 
 	/**
@@ -248,13 +221,12 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 				return member;
 			}
 		}
-
 		throw Py.AttributeError(name);
 	}
 
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
-		//TODO must check if the number of inputs match with number of members
+		// TODO must check if the number of inputs match with number of members
 		Vector<Object[]> targets = extractPositionsFromObject(position);
 
 		// send out moves
@@ -358,7 +330,7 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 			}
 			for (int i = 0; i < groupMembers.size(); i++) {
 				for (int j = 0; j < groupMembers.get(i).getExtraNames().length; j++) {
-					position[n] = memberPositions.get(i)[j+groupMembers.get(i).getInputNames().length];
+					position[n] = memberPositions.get(i)[j + groupMembers.get(i).getInputNames().length];
 					n++;
 				}
 			}
@@ -391,7 +363,7 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 
 	@Override
 	public String toFormattedString() {
-		return ScannableUtils.formatScannableWithChildren(this, getGroupMembers(), false);
+		return ScannableUtils.formatScannableWithChildren(this, getGroupMembersAsList(), false);
 	}
 
 	@Override
@@ -453,10 +425,10 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 		}
 		for (int i = 0; i < groupMembers.size(); i++) {
 			for (int j = 0; j < groupMembers.get(i).getExtraNames().length; j++) {
-				outputFormat.add(groupMembers.get(i).getOutputFormat()[j+groupMembers.get(i).getInputNames().length]);
+				outputFormat.add(groupMembers.get(i).getOutputFormat()[j + groupMembers.get(i).getInputNames().length]);
 			}
 		}
-		return outputFormat.toArray(new String[]{});
+		return outputFormat.toArray(new String[] {});
 	}
 
 	@Override
@@ -494,19 +466,20 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 			scannable.atLevelMoveStart();
 		}
 	}
+
 	@Override
 	public void atLevelStart() throws DeviceException {
 		for (Scannable scannable : groupMembers) {
 			scannable.atLevelStart();
 		}
 	}
+
 	@Override
 	public void atLevelEnd() throws DeviceException {
 		for (Scannable scannable : groupMembers) {
 			scannable.atLevelEnd();
 		}
 	}
-
 
 	@Override
 	public void atCommandFailure() throws DeviceException {
@@ -541,7 +514,7 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 
 		for (int i = 0; i < groupMembers.size(); i++) {
 			Object[] thisTarget = targets.get(i);
-			if ((thisTarget!=null) && (thisTarget.length > 0) && (thisTarget[0] != null)) {
+			if ((thisTarget != null) && (thisTarget.length > 0) && (thisTarget[0] != null)) {
 				String reason = groupMembers.get(i).checkPositionValid(thisTarget);
 				if (reason != null) {
 					return reason;
@@ -595,22 +568,28 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 		}
 	}
 
-	protected void setGroupMemberNamesArrayUsingGroupMembersList() {
-		groupMemberNames = setOfGroupMemberNames(groupMembers).toArray(new String[0]);
-	}
-
-	private static Set<String> setOfGroupMemberNames(List<Scannable> groupMembers) {
-		Set<String> name = new LinkedHashSet<String>();
-		for (Scannable groupMember : groupMembers) {
-			name.add(groupMember.getName());
-		}
-		return name;
-	}
-
 	@Override
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
 		for (Scannable scannable : groupMembers) {
 			scannable.waitWhileBusy();
 		}
+	}
+
+	@Override
+	public void removeGroupMemberByIndex(int index) {
+		groupMembers.remove(index);
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("ScannableGroup "+getName()+ ": ")
+		.append(groupMembers);
+		return sb.toString();
+	}
+
+	@Override
+	public List<Scannable> getGroupMembersAsList() {
+		return groupMembers;
 	}
 }

@@ -23,12 +23,14 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import gda.MockFactory;
-import gda.device.DeviceException;
-import gda.device.Scannable;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import gda.MockFactory;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.factory.FactoryException;
 
 /**
  * Integration type test of CoordinatedScannableGroup and CoordinatedScannableElements.
@@ -41,12 +43,12 @@ public class ScannableGroupTest {
 	Scannable c;
 
 	@Before
-	public void setUp() throws DeviceException {
+	public void setUp() throws DeviceException, FactoryException {
 		a = MockFactory.createMockScannable("a");
 		b = MockFactory.createMockScannable("b");
 		c = MockFactory.createMockScannable("c");
 		group = new ScannableGroup();
-		group.setGroupMembers(new Scannable[] { a, b, c });
+		group.setGroupMembersWithArray(new Scannable[] { a, b, c });
 	}
 
 	@Test
@@ -66,9 +68,9 @@ public class ScannableGroupTest {
 	}
 
 	@Test
-	public void testAsynchronousMoveToWithMultiInput() throws DeviceException {
+	public void testAsynchronousMoveToWithMultiInput() throws DeviceException, FactoryException {
 		b = MockFactory.createMockScannable("b", new String[]{"input1", "input2"}, new String[]{}, new String[]{"%5.5g","%5.5g","%1d"}, 5, new Double[]{10.,20.});
-		group.setGroupMembers(new Scannable[] { a, b, c });
+		group.setGroupMembersWithArray(new Scannable[] { a, b, c });
 
 		group.asynchronousMoveTo(new Double[] {1., 2., 5., 3.});
 		verify(a).asynchronousMoveTo(1.);

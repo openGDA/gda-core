@@ -7,11 +7,11 @@ import org.springframework.beans.factory.InitializingBean;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.scannablegroup.IScannableGroup;
-import gda.device.scannable.scannablegroup.ScannableGroup;
+import gda.device.scannable.scannablegroup.ScannableGroupNamed;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 @ServiceInterface(IScannableGroup.class)
-public class SampleStage extends ScannableGroup implements InitializingBean, Comparable<SampleStage> {
+public class SampleStage extends ScannableGroupNamed implements InitializingBean, Comparable<SampleStage> {
 	private double parkPosition = -400.0;
 	private double engagePosition = 0.0;
 	private double positionTolerance=0.001;
@@ -19,16 +19,16 @@ public class SampleStage extends ScannableGroup implements InitializingBean, Com
 	private double zPosition;
 	private boolean processed=false;
 
-	public Scannable getXMotor() {
-		return this.getGroupMember(getName() + "x");
+	public Scannable getXMotor() throws DeviceException {
+		return this.getGroupMemberByName(getName() + "x");
 	}
 
-	public Scannable getYMotor() {
-		return this.getGroupMember(getName() + "y");
+	public Scannable getYMotor() throws DeviceException {
+		return this.getGroupMemberByName(getName() + "y");
 	}
 
-	public Scannable getRotationMotor() {
-		Scannable groupMember = this.getGroupMember(getName() + "rot");
+	public Scannable getRotationMotor() throws DeviceException {
+		Scannable groupMember = this.getGroupMemberByName(getName() + "rot");
 		if (groupMember==null) {
 			throw new IllegalArgumentException("No rotation motor in the group '"+getName()+"'.");
 		}
@@ -92,7 +92,7 @@ public class SampleStage extends ScannableGroup implements InitializingBean, Com
 	}
 
 	public double getzPosition() throws DeviceException {
-		Scannable groupMember = this.getGroupMember(getName() + "ztop");
+		Scannable groupMember = this.getGroupMemberByName(getName() + "ztop");
 		if (groupMember!=null) {
 			return zPosition+Double.valueOf(groupMember.getPosition().toString());
 		}

@@ -55,6 +55,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 import gda.device.scannable.ScannableUtils;
+import gda.device.scannable.scannablegroup.IScannableGroup;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.FindableBase;
 import gda.jython.InterfaceProvider;
@@ -720,13 +721,13 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 			//throw new DeviceException("input names + extra names != field names ("inputNames.size());
 		}
 
-		if (scn instanceof ScannableGroup) {
+		if (scn instanceof IScannableGroup) {
 
 			node = new NexusTreeNode(scn.getName(), NexusExtractor.NXCollectionClassName, parentNode);
 			node.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_METADATA_TYPE, NexusExtractor.AttrClassName, node,
 					new NexusGroupData(ATTRIBUTE_VALUE_FOR_METADATA_TYPE_SCANNABLE_GROUP)));
 
-			for (Scannable s : ((ScannableGroup) scn).getGroupMembers()) {
+			for (Scannable s : ((ScannableGroup) scn).getGroupMembersAsArray()) {
 				INexusTree sNode = createChildNodeForScannableMetaEntry(s, node, scannableMap);
 				if (sNode != null) {
 					node.addChildNode(sNode);

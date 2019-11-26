@@ -29,14 +29,16 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import gda.MockFactory;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.component.PositionValidator;
-
-import org.junit.Before;
-import org.junit.Test;
+import gda.factory.FactoryException;
 
 
 /**
@@ -55,17 +57,17 @@ public class CoordinatedScannableGroupTest {
 	private PositionValidator validator2;
 
 	@Before
-	public void setUp() throws DeviceException {
+	public void setUp() throws DeviceException, FactoryException {
 		rawa = MockFactory.createMockScannable("rawa");
 		rawb = MockFactory.createMockScannableMotion("rawb");
 		rawc = MockFactory.createMockScannableMotion("rawc");
 		group = new CoordinatedScannableGroup();
 		group = spy(group);
 		group.coordinatedScannableComponent = new CoordinatedParentScannableComponent(group); // Hack for test only
-		group.setGroupMembers(new Scannable[] { rawa, rawb, rawc });
-		a = (ICoordinatedChildScannable) (group.getGroupMembers().get(0));
-		b = (ICoordinatedChildScannable) (group.getGroupMembers().get(1));
-		c = (ICoordinatedChildScannable) (group.getGroupMembers().get(2));
+		group.setGroupMembersWithArray(new Scannable[] { rawa, rawb, rawc });
+		a = (ICoordinatedChildScannable) (group.getGroupMembersAsList().get(0));
+		b = (ICoordinatedChildScannable) (group.getGroupMembersAsList().get(1));
+		c = (ICoordinatedChildScannable) (group.getGroupMembersAsList().get(2));
 		validator1 = mock(PositionValidator.class);
 		validator2 = mock(PositionValidator.class);
 
@@ -163,7 +165,7 @@ public class CoordinatedScannableGroupTest {
 		verify(rawc).checkPositionValid(new Double[] {3.});
 	}
 	@Test
-	public void testCheckPositionWithAdditionalValidatorOkay() throws DeviceException {
+	public void testCheckPositionWithAdditionalValidatorOkay() throws DeviceException, FactoryException {
 		configureWithmocksOfScannableBase();
 		group.addPositionValidator("val1", validator1);
 		group.addPositionValidator("val2", validator2);
@@ -179,19 +181,19 @@ public class CoordinatedScannableGroupTest {
 	}
 
 	@Test
-	public void testCheckPositionWithAdditionalValidatorsFailForFailingValidator() throws DeviceException {
+	public void testCheckPositionWithAdditionalValidatorsFailForFailingValidator() throws DeviceException, FactoryException {
 		testCheckPositionWithAdditionalValidatorOkay(); //for setup
 		when(validator2.checkInternalPosition(new Double[] {1., 12.5, 3.})).thenReturn("validator2 problem");
 		assertEquals("validator2 problem", group.checkPositionValid(new Double[] {1., null, 3.}));
 
 	}
 
-	private void configureWithmocksOfScannableBase() throws DeviceException {
+	private void configureWithmocksOfScannableBase() throws DeviceException, FactoryException {
 		rawa = MockFactory.createMockScannable(ScannableBase.class, "rawa", new String[] {"rawa"}, new String[] {}, new String[] {"%f"}, 5, 11.);
 		rawb = MockFactory.createMockScannable(ScannableBase.class, "rawb", new String[] {"rawb"}, new String[] {}, new String[] {"%f"}, 5, 12.);
 		rawc = MockFactory.createMockScannable(ScannableBase.class, "rawc", new String[] {"rawc"}, new String[] {}, new String[] {"%f"}, 5, 13.);
 		group = new CoordinatedScannableGroup();
-		group.setGroupMembers(new Scannable[] { rawa, rawb, rawc });
+		group.setGroupMembersWithArray(new Scannable[] { rawa, rawb, rawc });
 	}
 
 

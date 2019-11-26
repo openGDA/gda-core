@@ -678,7 +678,15 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		}
 		checkForPauseAndInterruption();
 
-		Scannable x_motor = stage.getXMotor();
+		Scannable x_motor;
+		try {
+			x_motor = stage.getXMotor();
+		} catch (DeviceException e1) {
+			message = "Missing parameters: Sample '" + getName() + "' must have X motor provided by stage " + stage.getName();
+			updateMessage(e1, message);
+			// stop as scan will fail
+			throw new IllegalArgumentException(message);
+		}
 		Double x_start = sample.getSample_x_start();
 		Double x_stop = sample.getSample_x_stop();
 		Double x_step = sample.getSample_x_step();
@@ -698,7 +706,14 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		Double y_stop = sample.getSample_y_stop();
 		Double y_step = sample.getSample_y_step();
 		if (y_start!=Double.NaN) {
-			scanparameters.add(stage.getYMotor());
+			try {
+				scanparameters.add(stage.getYMotor());
+			} catch (DeviceException e) {
+				message = "Missing parameters: Sample '" + getName() + "' must have Y motor provided by stage " + stage.getName();
+				updateMessage(e, message);
+				// stop as scan will fail
+				throw new IllegalArgumentException(message);
+			}
 			scanparameters.add(y_start);
 			if (y_stop!=Double.NaN) {
 				scanparameters.add(y_stop);
