@@ -13,7 +13,9 @@ package org.eclipse.scanning.malcolm.core;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_HEALTH;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_STATE;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_ENABLE;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_EXPOSURE;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP;
@@ -37,6 +39,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
@@ -47,6 +50,7 @@ import org.eclipse.scanning.api.device.models.MalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.MalcolmConstants;
+import org.eclipse.scanning.api.malcolm.MalcolmDetectorInfo;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.malcolm.MalcolmVersion;
@@ -187,9 +191,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 
 	private static final Logger logger = LoggerFactory.getLogger(MalcolmDevice.class);
 
-	// Constants, note: these constants are here instead of MalcolmConstants and they are not required outside of this class and tests
-	public static final String STATE_ENDPOINT = "state";
-	public static final String HEALTH_ENDPOINT = "health";
+	// Constants, note: these constants are here instead of MalcolmConstants as they are not required outside of this class and tests
 	public static final String ATTRIBUTE_NAME_COMPLETED_STEPS = "completedSteps";
 	public static final String FILE_EXTENSION_H5 = "h5";
 	public static final String STANDARD_MALCOLM_ERROR_STR = "Error from Malcolm Device Connection: ";
@@ -236,8 +238,8 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 
 	private ConnectionStateListener connectionStateListener;
 
-	// A cache of the Malcolm Resource Identifiers (MRIs) of the detectors controlled by this malcolm device
-	private Map<String, String> detectorMriMap = null;
+	// The malcolm detector infos describing controlled by this malcolm device
+	private LinkedHashMap<String, MalcolmDetectorInfo> detectorInfos = null;
 
 	public MalcolmDevice() {
 		this(null, Services.getConnectorService(), Services.getRunnableDeviceService());
@@ -268,7 +270,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 			final DeviceState currentState = getDeviceState(); // throws exception if no connection
 			logger.debug("Current state of malcolm device ''{}'' is: {}", getName(), currentState);
 
-			stateSubscribeMessage = messageGenerator.createSubscribeMessage(STATE_ENDPOINT);
+			stateSubscribeMessage = messageGenerator.createSubscribeMessage(ATTRIBUTE_NAME_STATE);
 			subscribe(stateSubscribeMessage, stateChangeListener);
 
 			scanSubscribeMessage = messageGenerator.createSubscribeMessage(ATTRIBUTE_NAME_COMPLETED_STEPS);
@@ -322,7 +324,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 
 	protected void handleStateChange(MalcolmMessage message) {
 		try {
-			logger.debug("Received malcolm message on endpoint {}, message: {}", STATE_ENDPOINT, message);
+			logger.debug("Received malcolm message on endpoint {}, message: {}", ATTRIBUTE_NAME_STATE, message);
 
 			final ChoiceAttribute attribute = (ChoiceAttribute) message.getValue();
 			final DeviceState newState = DeviceState.valueOf(attribute.getValue().toUpperCase());
@@ -356,55 +358,74 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 
 	@Override
 	public DeviceState getDeviceState() throws MalcolmDeviceException {
-		final ChoiceAttribute choiceAttr = getEndpointValue(STATE_ENDPOINT);
+		final ChoiceAttribute choiceAttr = getEndpointValue(ATTRIBUTE_NAME_STATE);
 		return DeviceState.valueOf(choiceAttr.getValue().toUpperCase());
 	}
 
 	@Override
 	public IMalcolmModel getModel() {
 		final MalcolmModel model = (MalcolmModel) super.getModel();
-		if (model.getDetectorModels() == null) {
-			try {
-				model.setDetectorModels(createDefaultDetectorModelsAndMriMap());
-			} catch (MalcolmDeviceException e) {
-				logger.error("", e);
-				model.setDetectorModels(Collections.emptyList());
+		if (detectorInfos == null) {
+			// initialize the detector infos, and use those
+			detectorInfos = fetchMalcolmDetectorInfos();
+			if (model.getDetectorModels() == null) {
+				model.setDetectorModels(detectorInfos.values().stream().map(this::detectorInfoToModel).collect(toList()));
 			}
 		}
 		return model;
 	}
 
-	private List<IMalcolmDetectorModel> createDefaultDetectorModelsAndMriMap() throws MalcolmDeviceException {
-		final MalcolmMethodMeta methodMeta = getEndpointValue(MalcolmMethod.CONFIGURE.toString());
-		final Map<String, Object> configureDefaults = methodMeta.getDefaults();
-		final MalcolmTable detectorsTable = (MalcolmTable) configureDefaults.get(FIELD_NAME_DETECTORS);
-		if (detectorsTable == null) throw new MalcolmDeviceException("Could not get detectors table for malcolm device: " + getName());
-
-		// create our cached map of malcolm MRI (malcolm resource identifiers) by detector name
-		detectorMriMap = detectorsTable.stream().collect(toMap(
-				row -> (String) row.get(DETECTORS_TABLE_COLUMN_NAME),
-				row -> (String) row.get(DETECTORS_TABLE_COLUMN_MRI)));
-		// get the map of data types for the detector table columns
-		detectorsTableTypesMap = detectorsTable.getTableDataTypes();
-
-		return detectorsTable.stream().map(MalcolmDevice::detectorRowToMalcolmDetectorModel).collect(toList());
+	private LinkedHashMap<String, MalcolmDetectorInfo> fetchMalcolmDetectorInfos() {
+		try {
+			final MalcolmMethodMeta configureMethodMeta = getEndpointValue(MalcolmMethod.CONFIGURE.toString());
+			final Map<String, Object> configureDefaults = configureMethodMeta.getDefaults();
+			final MalcolmTable defaultDetectorsTable = (MalcolmTable) configureDefaults.get(FIELD_NAME_DETECTORS);
+			if (detectorsTableTypesMap == null) {
+				detectorsTableTypesMap = defaultDetectorsTable.getTableDataTypes();
+			}
+			return defaultDetectorsTable.stream().map(this::malcolmTableRowToDetectorInfo).collect(
+					toMap(MalcolmDetectorInfo::getName, Function.identity(), (x, y) -> x, LinkedHashMap::new));
+		} catch (MalcolmDeviceException e) {
+			logger.error("Error getting malcolm detectors", e);
+			return new LinkedHashMap<>();
+		}
 	}
 
-	private static MalcolmDetectorModel detectorRowToMalcolmDetectorModel(Map<String, Object> row) {
-		// the enable column is only added for malcolm 4.2, so we need to deal with it not being present
-//		final boolean enabled = (Boolean) row.get(DETECTORS_TABLE_COLUMN_ENABLE),
-		final Boolean enabledWrapper = (Boolean) row.get(DETECTORS_TABLE_COLUMN_ENABLE);
-		final boolean enabled = enabledWrapper == null || enabledWrapper.booleanValue();
+	private MalcolmDetectorInfo malcolmTableRowToDetectorInfo(Map<String, Object> tableRow) {
+		final MalcolmDetectorInfo info = new MalcolmDetectorInfo();
 
-		final String name = (String) row.get(DETECTORS_TABLE_COLUMN_NAME);
-		final double exposureTime = (Double) row.get(DETECTORS_TABLE_COLUMN_EXPOSURE);
-		final int framesPerStep = (Integer) row.get(DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP);
-		return new MalcolmDetectorModel(name, exposureTime, framesPerStep, enabled);
+		// TODO the enable column is only added for malcolm 4.2, so we need to deal with it not being present
+//		final boolean enabled = (Boolean) row.get(DETECTORS_TABLE_COLUMN_ENABLE),
+		final Boolean enabledWrapper = (Boolean) tableRow.get(DETECTORS_TABLE_COLUMN_ENABLE);
+		final boolean enabled = enabledWrapper == null || enabledWrapper.booleanValue();
+		info.setEnabled(enabled);
+		info.setId((String) tableRow.get(DETECTORS_TABLE_COLUMN_MRI));
+		info.setName((String) tableRow.get(DETECTORS_TABLE_COLUMN_NAME));
+		info.setFramesPerStep((Integer) tableRow.get(DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP));
+		info.setExposureTime((Double) tableRow.get(DETECTORS_TABLE_COLUMN_EXPOSURE));
+
+		return info;
+	}
+
+	private IMalcolmDetectorModel detectorInfoToModel(MalcolmDetectorInfo detectorInfo) {
+		final IMalcolmDetectorModel detectorModel = new MalcolmDetectorModel();
+		detectorModel.setEnabled(detectorInfo.isEnabled());
+		detectorModel.setName(detectorInfo.getName());
+		detectorModel.setExposureTime(detectorInfo.getExposureTime());
+		detectorModel.setFramesPerStep(detectorInfo.getFramesPerStep());
+
+		return detectorModel;
+	}
+
+	@Override
+	public List<MalcolmDetectorInfo> getDetectorInfos() throws MalcolmDeviceException {
+		detectorInfos = fetchMalcolmDetectorInfos();
+		return detectorInfos.values().stream().collect(toList());
 	}
 
 	private MalcolmTable detectorModelsToTable(List<IMalcolmDetectorModel> detectorModels) throws MalcolmDeviceException {
-		if (detectorMriMap == null) { // ensure the cached map of detector mri maps is non-null
-			createDefaultDetectorModelsAndMriMap();
+		if (detectorInfos == null) { // ensure the cached map of detector mri maps is non-null
+			detectorInfos = fetchMalcolmDetectorInfos();
 		}
 
 		// create a list for each property of the model, corresponding to a table column
@@ -412,15 +433,17 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		final List<String> names = new ArrayList<>(numDetectors);
 		final List<String> mris = new ArrayList<>(numDetectors);
 		final List<Double> exposures = new ArrayList<>(numDetectors);
-		final List<Integer> framesPerStep = new ArrayList<>(numDetectors);
+		final List<Integer> framesPerSteps = new ArrayList<>(numDetectors);
 		final List<Boolean> enablements = new ArrayList<>(numDetectors);
 
 		// iterate through the models populating the lists
 		for (IMalcolmDetectorModel detectorModel : detectorModels) {
 			names.add(detectorModel.getName());
-			mris.add(detectorMriMap.get(detectorModel.getName()));
+			if (!detectorInfos.containsKey(detectorModel.getName()))
+				throw new MalcolmDeviceException("No such detector '" + detectorModel.getName() + "' for malcolm device '" + getName() + "'");
+			mris.add(detectorInfos.get(detectorModel.getName()).getId());
 			exposures.add(detectorModel.getExposureTime());
-			framesPerStep.add(detectorModel.getFramesPerStep());
+			framesPerSteps.add(detectorModel.getFramesPerStep());
 			enablements.add(detectorModel.isEnabled());
 		}
 
@@ -429,7 +452,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		tableData.put(DETECTORS_TABLE_COLUMN_NAME, names);
 		tableData.put(DETECTORS_TABLE_COLUMN_MRI, mris);
 		tableData.put(DETECTORS_TABLE_COLUMN_EXPOSURE, exposures);
-		tableData.put(DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP, framesPerStep);
+		tableData.put(DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP, framesPerSteps);
 		if (detectorsTableTypesMap.containsKey(DETECTORS_TABLE_COLUMN_ENABLE)) {
 			tableData.put(DETECTORS_TABLE_COLUMN_ENABLE, enablements); // enable column only present for malcolm v4.2 and above
 		}
@@ -439,7 +462,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 
 	@Override
 	public String getDeviceHealth() throws MalcolmDeviceException {
-		final StringAttribute attribute = getEndpointValue(HEALTH_ENDPOINT);
+		final StringAttribute attribute = getEndpointValue(ATTRIBUTE_NAME_HEALTH);
 		return attribute.getValue();
 	}
 
@@ -499,6 +522,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 
 	@SuppressWarnings("unchecked")
 	private <T> T getEndpointValue(String endpointName) throws MalcolmDeviceException {
+		logger.debug("Getting endpoint value {}", endpointName);
 		final MalcolmMessage reply = getEndpointReply(endpointName);
 		if (reply.getType()==Type.ERROR) {
 			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());

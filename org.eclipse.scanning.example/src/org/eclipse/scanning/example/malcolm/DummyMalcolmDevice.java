@@ -13,6 +13,7 @@
 
 package org.eclipse.scanning.example.malcolm;
 
+import static java.util.stream.Collectors.toList;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_FILENAME;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_NAME;
@@ -64,6 +65,7 @@ import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmConstants;
+import org.eclipse.scanning.api.malcolm.MalcolmDetectorInfo;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.malcolm.MalcolmVersion;
@@ -853,6 +855,23 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 	@Override
 	public MalcolmVersion getVersion() throws MalcolmDeviceException {
 		return MalcolmVersion.VERSION_4_2;
+	}
+
+	@Override
+	public List<MalcolmDetectorInfo> getDetectorInfos() throws MalcolmDeviceException {
+		// for the dummy malcolm device, the detector models in the malcolm model defines the detectors
+		return getModel().getDetectorModels().stream().map(this::detectorModelToInfo).collect(toList());
+	}
+
+	private MalcolmDetectorInfo detectorModelToInfo(IMalcolmDetectorModel detectorModel) {
+		final MalcolmDetectorInfo info = new MalcolmDetectorInfo();
+		info.setEnabled(detectorModel.isEnabled());
+		info.setName(detectorModel.getName());
+		info.setExposureTime(detectorModel.getExposureTime());
+		info.setFramesPerStep(detectorModel.getFramesPerStep());
+		info.setId(detectorModel.getName()); // the model doesn't have an id field
+
+		return info;
 	}
 
 }

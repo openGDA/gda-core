@@ -18,6 +18,13 @@
 
 package org.eclipse.scanning.test.malcolm.real;
 
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_HEALTH;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_STATE;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_ENABLE;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_EXPOSURE;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_MRI;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_NAME;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -30,9 +37,18 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
+import org.eclipse.scanning.api.malcolm.MalcolmConstants;
+import org.eclipse.scanning.api.malcolm.MalcolmDetectorInfo;
+import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.malcolm.attributes.ChoiceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.StringAttribute;
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection;
@@ -40,6 +56,7 @@ import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.IMalcolmCon
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.IMalcolmConnectionStateListener;
 import org.eclipse.scanning.api.malcolm.connector.MalcolmMessageGenerator;
 import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
+import org.eclipse.scanning.api.malcolm.connector.MalcolmMethodMeta;
 import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
@@ -82,6 +99,8 @@ public abstract class AbstractMalcolmDeviceTest {
 	protected BeanCollectingAnswer<MalcolmEvent> malcolmBeanCaptor;
 
 	protected int id = 0;
+
+	protected List<MalcolmDetectorInfo> malcolmDetectorInfos = null;
 
 	@Before
 	public void setUp() throws Exception {
@@ -174,6 +193,7 @@ public abstract class AbstractMalcolmDeviceTest {
 		msg.setId(id);
 		msg.setType(type);
 		msg.setEndpoint(endpoint);
+
 		return msg;
 	}
 
@@ -187,26 +207,83 @@ public abstract class AbstractMalcolmDeviceTest {
 		return msg;
 	}
 
-	protected MalcolmMessage createExpectedMalcolmOkReply(Object value) {
+	protected MalcolmMessage createExpectedMalcolmOkReply(Object returnValue) {
 		final MalcolmMessage msg = new MalcolmMessage();
-		msg.setValue(value);
+		msg.setValue(returnValue);
 		return msg;
 	}
 
 	protected MalcolmMessage createExpectedMalcolmStateReply(DeviceState deviceState) {
 		final ChoiceAttribute stateAttr = new ChoiceAttribute();
-		stateAttr.setName("state");
-		stateAttr.setLabel("state");
+		stateAttr.setName(ATTRIBUTE_NAME_STATE);
+		stateAttr.setLabel(ATTRIBUTE_NAME_STATE);
 		stateAttr.setValue(deviceState.toString());
 		return createExpectedMalcolmOkReply(stateAttr);
 	}
 
 	protected MalcolmMessage createExpectedMalcolmHealthReply(String health) {
 		final StringAttribute healthAttr = new StringAttribute();
-		healthAttr.setName("health");
-		healthAttr.setLabel("health");
+		healthAttr.setName(ATTRIBUTE_NAME_HEALTH);
+		healthAttr.setLabel(ATTRIBUTE_NAME_HEALTH);
 		healthAttr.setValue(health);
 		return createExpectedMalcolmOkReply(healthAttr);
+	}
+
+	protected MalcolmMessage createExpectedMalcolmGetConfigureReply() {
+		final MalcolmMethodMeta result = new MalcolmMethodMeta(MalcolmMethod.CONFIGURE);
+		final Map<String, Object> defaults = new HashMap<>();
+		defaults.put(MalcolmConstants.FIELD_NAME_DETECTORS, createExpectedDetectorsMalcolmTable());
+		result.setDefaults(defaults);
+
+		return createExpectedMalcolmOkReply(result);
+	}
+
+	protected MalcolmTable createExpectedDetectorsMalcolmTable() {
+		// convert the MalcolmDetectorInfos to a MalcolmTable
+		final List<MalcolmDetectorInfo> infos = getExpectedMalcolmDetectorInfos();
+		final int numDetectors = infos.size();
+		final List<String> names = new ArrayList<>(numDetectors);
+		final List<String> mris = new ArrayList<>(numDetectors);
+		final List<Double> exposures = new ArrayList<>(numDetectors);
+		final List<Integer> framesPerSteps = new ArrayList<>(numDetectors);
+		final List<Boolean> enablements = new ArrayList<>(numDetectors);
+
+		for (MalcolmDetectorInfo info : infos) {
+			names.add(info.getName());
+			mris.add(info.getId());
+			exposures.add(info.getExposureTime());
+			framesPerSteps.add(info.getFramesPerStep());
+			enablements.add(info.isEnabled());
+		}
+
+		final LinkedHashMap<String, Class<?>> tableTypesMap = new LinkedHashMap<>();
+		tableTypesMap.put(DETECTORS_TABLE_COLUMN_ENABLE, Boolean.class);
+		tableTypesMap.put(DETECTORS_TABLE_COLUMN_NAME, String.class);
+		tableTypesMap.put(DETECTORS_TABLE_COLUMN_MRI, String.class);
+		tableTypesMap.put(DETECTORS_TABLE_COLUMN_EXPOSURE, Double.class);
+		tableTypesMap.put(DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP, Integer.class);
+
+		final LinkedHashMap<String, List<?>> tableData = new LinkedHashMap<>();
+		tableData.put(DETECTORS_TABLE_COLUMN_NAME, names);
+		tableData.put(DETECTORS_TABLE_COLUMN_MRI, mris);
+		tableData.put(DETECTORS_TABLE_COLUMN_EXPOSURE, exposures);
+		tableData.put(DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP, framesPerSteps);
+		tableData.put(DETECTORS_TABLE_COLUMN_ENABLE, enablements);
+
+		return new MalcolmTable(tableData, tableTypesMap);
+	}
+
+
+	protected List<MalcolmDetectorInfo> getExpectedMalcolmDetectorInfos() {
+		if (malcolmDetectorInfos == null) {
+			malcolmDetectorInfos = new ArrayList<>();
+			malcolmDetectorInfos.add(new MalcolmDetectorInfo("mri1", "det1", 1, 0.1, true));
+			malcolmDetectorInfos.add(new MalcolmDetectorInfo("mri2", "det2", 2, 0.05, true));
+			malcolmDetectorInfos.add(new MalcolmDetectorInfo("mri3", "det3", 1, 0.1, false));
+			malcolmDetectorInfos.add(new MalcolmDetectorInfo("mri4", "det4", 5, 0.02, true));
+		}
+
+		return malcolmDetectorInfos;
 	}
 
 	protected MalcolmMessage createExpectedMalcolmValidateReturnReply(Object rawValue) {
