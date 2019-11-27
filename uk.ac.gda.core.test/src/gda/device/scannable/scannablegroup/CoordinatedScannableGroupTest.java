@@ -65,9 +65,9 @@ public class CoordinatedScannableGroupTest {
 		group = spy(group);
 		group.coordinatedScannableComponent = new CoordinatedParentScannableComponent(group); // Hack for test only
 		group.setGroupMembersWithArray(new Scannable[] { rawa, rawb, rawc });
-		a = (ICoordinatedChildScannable) (group.getGroupMembersAsList().get(0));
-		b = (ICoordinatedChildScannable) (group.getGroupMembersAsList().get(1));
-		c = (ICoordinatedChildScannable) (group.getGroupMembersAsList().get(2));
+		a = (ICoordinatedChildScannable) (group.getGroupMembers().get(0));
+		b = (ICoordinatedChildScannable) (group.getGroupMembers().get(1));
+		c = (ICoordinatedChildScannable) (group.getGroupMembers().get(2));
 		validator1 = mock(PositionValidator.class);
 		validator2 = mock(PositionValidator.class);
 

@@ -40,7 +40,7 @@ public class ScannableGroupNamedTest extends ScannableGroupTest {
 	@Test
 	@Override
 	public void testNewlyInstantiatedScannableGroup() throws DeviceException {
-		assertEquals(EMPTY_SCANNABLE_LIST, sg2.getGroupMembersAsList());
+		assertEquals(EMPTY_SCANNABLE_LIST, sg2.getGroupMembers());
 		assertArrayEquals(EMPTY_SCANNABLE_NAME_ARRAY, sg2.getGroupMembersNamesAsArray());
 	}
 }

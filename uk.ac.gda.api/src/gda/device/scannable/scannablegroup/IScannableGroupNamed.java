@@ -32,9 +32,9 @@ public interface IScannableGroupNamed extends IScannableGroup {
 
 	String[] getGroupMembersNamesAsArray();
 
-	List<String> getGroupMembersNamesAsList();
+	List<String> getGroupMembersNames();
 
-	void setGroupMembersNamesWithList(List<String> scannableNames) throws FactoryException;
+	void setGroupMembersNames(List<String> scannableNames) throws FactoryException;
 
 	void setGroupMembersNamesWithList(List<String> scannableNames, boolean toConfigure) throws FactoryException;
 

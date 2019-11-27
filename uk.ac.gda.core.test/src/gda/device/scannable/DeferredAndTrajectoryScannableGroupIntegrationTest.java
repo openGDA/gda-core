@@ -159,8 +159,8 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 
 	@Test
 	public void testAsynchronousMoveToViaElements() throws DeviceException {
-		Scannable c = (trajgroup.getGroupMembersAsList().get(2));
-		Scannable a = (trajgroup.getGroupMembersAsList().get(0));
+		Scannable c = (trajgroup.getGroupMembers().get(2));
+		Scannable a = (trajgroup.getGroupMembers().get(0));
 		InOrder inOrder = inOrder(mockedControlPoint, motora, motorb, motorc);
 
 		a.atLevelMoveStart();
@@ -203,8 +203,8 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 
 	@Test
 	public void testTrajectoryScanOperationViaElement() throws Exception {
-		ContinuouslyScannableViaController wrapperaa = (ContinuouslyScannableViaController) trajgroup.getGroupMembersAsList().get(0);
-		ContinuouslyScannableViaController wrapperac = (ContinuouslyScannableViaController) trajgroup.getGroupMembersAsList().get(2);
+		ContinuouslyScannableViaController wrapperaa = (ContinuouslyScannableViaController) trajgroup.getGroupMembers().get(0);
+		ContinuouslyScannableViaController wrapperac = (ContinuouslyScannableViaController) trajgroup.getGroupMembers().get(2);
 
 		wrapperaa.setOperatingContinuously(true);
 		wrapperac.setOperatingContinuously(true);
@@ -236,7 +236,7 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 	@Test
 	public void testOffsetsAppliedDuringTrajectoryScanViaElement() throws Exception {
 		scna.setOffset(10);
-		Scannable wrapperaa = trajgroup.getGroupMembersAsList().get(0);
+		Scannable wrapperaa = trajgroup.getGroupMembers().get(0);
 
 		((ContinuouslyScannableViaController) wrapperaa).setOperatingContinuously(true);
 		wrapperaa.atLevelMoveStart();
@@ -270,7 +270,7 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 	public void testTrajectoryScanOperationViolatedScannableLimitViaElement() throws Exception {
 		scna.setUpperGdaLimits(0.);
 
-		ContinuouslyScannableViaController wrapperaa = (ContinuouslyScannableViaController) trajgroup.getGroupMembersAsList().get(0);
+		ContinuouslyScannableViaController wrapperaa = (ContinuouslyScannableViaController) trajgroup.getGroupMembers().get(0);
 		wrapperaa.setOperatingContinuously(true);
 		wrapperaa.atLevelMoveStart();
 		wrapperaa.asynchronousMoveTo(1.1);
@@ -280,7 +280,7 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 	public void testTrajectoryScanOperationViolatedScannableLimitViaElement2() throws Exception {
 		scnb.setUpperGdaLimits(0.);
 
-		ContinuouslyScannableViaController wrapperab = (ContinuouslyScannableViaController) trajgroup.getGroupMembersAsList().get(1);
+		ContinuouslyScannableViaController wrapperab = (ContinuouslyScannableViaController) trajgroup.getGroupMembers().get(1);
 		wrapperab.setOperatingContinuously(true);
 		wrapperab.atLevelMoveStart();
 		wrapperab.asynchronousMoveTo(1.1);
@@ -291,7 +291,7 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 		when(motora.getMaxPosition()).thenReturn(0.);
 		scna.setUpperGdaLimits(0.);
 
-		ContinuouslyScannableViaController wrapperaa = (ContinuouslyScannableViaController) trajgroup.getGroupMembersAsList().get(0);
+		ContinuouslyScannableViaController wrapperaa = (ContinuouslyScannableViaController) trajgroup.getGroupMembers().get(0);
 		wrapperaa.setOperatingContinuously(true);
 		wrapperaa.atLevelMoveStart();
 		wrapperaa.asynchronousMoveTo(1.1);

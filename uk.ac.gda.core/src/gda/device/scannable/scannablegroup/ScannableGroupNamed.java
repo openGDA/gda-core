@@ -50,7 +50,7 @@ public class ScannableGroupNamed extends ScannableGroup implements IScannableGro
 
 	public ScannableGroupNamed(String name, List<Scannable> groupMembers) throws FactoryException {
 		this(name);
-		setGroupMembersWithList(groupMembers);
+		setGroupMembers(groupMembers);
 	}
 
 	public ScannableGroupNamed(String name) {
@@ -72,11 +72,11 @@ public class ScannableGroupNamed extends ScannableGroup implements IScannableGro
 
 	@Override
 	public final String[] getGroupMembersNamesAsArray() {
-		return getGroupMembersNamesAsList().toArray(new String[0]);
+		return getGroupMembersNames().toArray(new String[0]);
 	}
 
 	@Override
-	public List<String> getGroupMembersNamesAsList() {
+	public List<String> getGroupMembersNames() {
 		List<String> names = new ArrayList<>(groupMembers.size());
 		for (Scannable groupMember : groupMembers) {
 			names.add(groupMember.getName());
@@ -91,7 +91,7 @@ public class ScannableGroupNamed extends ScannableGroup implements IScannableGro
 	 */
 
 	@Override
-	public void setGroupMembersNamesWithList(List<String> scannableNames) throws FactoryException {
+	public void setGroupMembersNames(List<String> scannableNames) throws FactoryException {
 		setGroupMembersNamesWithList(scannableNames, false);
 	}
 

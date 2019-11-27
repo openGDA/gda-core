@@ -80,7 +80,7 @@ public class ScannableGroupTest extends TestCase {
 	@Test
 	public void testNewlyInstantiatedScannableGroup() throws DeviceException {
 		System.out.println(sg.getGroupMembersAsArray());
-		assertEquals(EMPTY_SCANNABLE_LIST, sg.getGroupMembersAsList());
+		assertEquals(EMPTY_SCANNABLE_LIST, sg.getGroupMembers());
 	}
 
 	/**

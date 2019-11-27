@@ -72,7 +72,7 @@ public class ResolutionTestsBase {
 		scannable1 = mock(ScannableMotor.class);
 		scannable2 = mock(ScannableMotor.class);
 		sg1 = mock(ScannableGroup.class);
-		when(sg1.getGroupMembersAsList()).thenReturn(Arrays.asList(scannable1, scannable2));
+		when(sg1.getGroupMembers()).thenReturn(Arrays.asList(scannable1, scannable2));
 		when(sg1.getName()).thenReturn(name);
 		IClauseElementProcessor proc = mock(ScannableGroupElementProcessor.class);
 		when(proc.getElement()).thenReturn(sg1);

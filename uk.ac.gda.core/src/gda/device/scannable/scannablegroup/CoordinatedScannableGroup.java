@@ -125,12 +125,12 @@ public class CoordinatedScannableGroup extends ScannableGroup implements ICoordi
 	}
 
 	@Override
-	public void setGroupMembersWithList(List<Scannable> groupMembers) throws FactoryException {
+	public void setGroupMembers(List<Scannable> groupMembers) throws FactoryException {
 		ArrayList<Scannable> wrappedGroupMembers = new ArrayList<Scannable>();
 		for (Scannable scannable : groupMembers) {
 			wrappedGroupMembers.add(wrapScannable(scannable));
 		}
-		super.setGroupMembersWithList(wrappedGroupMembers);
+		super.setGroupMembers(wrappedGroupMembers);
 		setMembersInCoordinatedScannableComponent();
 	}
 
@@ -187,7 +187,7 @@ public class CoordinatedScannableGroup extends ScannableGroup implements ICoordi
 		StringBuilder sb= new StringBuilder();
 		for (int i = 0; i < position.length; i++) {
 			if (position[i] != null) {
-				sb.append(getGroupMembersAsList().get(i).getName() + " = " + position[i] + ",");
+				sb.append(getGroupMembers().get(i).getName() + " = " + position[i] + ",");
 			}
 		}
 		if (sb.length() > 0){
@@ -253,20 +253,20 @@ public class CoordinatedScannableGroup extends ScannableGroup implements ICoordi
 		Double[] internalPositionArray = new Double[externalPositionArray.length];
 
 		// check there is one element per (assumed to be single input) scannable group member
-		if (externalPositionArray.length != getGroupMembersAsList().size()) {
-			throw new DeviceException("Position does not have correct number of fields. Expected = " + getGroupMembersAsList().size()
+		if (externalPositionArray.length != getGroupMembers().size()) {
+			throw new DeviceException("Position does not have correct number of fields. Expected = " + getGroupMembers().size()
 					+ " actual = " + externalPositionArray.length + " position= " + externalPos.toString());
 		}
 		// Replace any nulls with corresponding scannables current position
 		for (int i = 0; i < externalPositionArray.length; i++) {
 			if (externalPositionArray[i] == null) {
-				externalPositionArray[i] = PositionConvertorFunctions.toDouble(getGroupMembersAsList().get(i).getPosition());
+				externalPositionArray[i] = PositionConvertorFunctions.toDouble(getGroupMembers().get(i).getPosition());
 			}
 		}
 
 		// change to internal positions
 		for (int i = 0; i < externalPositionArray.length; i++) {
-			ScannableBase physicalScannable = (ScannableBase) ((ICoordinatedScannableGroupChildScannable) getGroupMembersAsList().get(i)).getPhysicalScannable();
+			ScannableBase physicalScannable = (ScannableBase) ((ICoordinatedScannableGroupChildScannable) getGroupMembers().get(i)).getPhysicalScannable();
 			internalPositionArray[i] = PositionConvertorFunctions.toDouble(physicalScannable.externalToInternal(externalPositionArray[i]));
 		}
 

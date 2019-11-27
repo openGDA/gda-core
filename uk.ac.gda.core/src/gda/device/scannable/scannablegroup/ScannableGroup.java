@@ -65,7 +65,7 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 
 	public ScannableGroup(String name, List<Scannable> groupMembers) throws FactoryException {
 		this(name);
-		setGroupMembersWithList(groupMembers);
+		setGroupMembers(groupMembers);
 	}
 
 	public ScannableGroup(String name) {
@@ -151,7 +151,7 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 	 * @throws FactoryException
 	 */
 	@Override
-	public void setGroupMembersWithList(List<Scannable> groupMembers) throws FactoryException {
+	public void setGroupMembers(List<Scannable> groupMembers) throws FactoryException {
 		setGroupMembersWithList(groupMembers, false);
 	}
 
@@ -189,7 +189,7 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 	 */
 	@Override
 	public final void setGroupMembersWithArray(Scannable[] groupMembers) throws FactoryException {
-		setGroupMembersWithList(new ArrayList<Scannable>(Arrays.asList(groupMembers)));
+		setGroupMembers(new ArrayList<Scannable>(Arrays.asList(groupMembers)));
 	}
 
 	/**
@@ -363,7 +363,7 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 
 	@Override
 	public String toFormattedString() {
-		return ScannableUtils.formatScannableWithChildren(this, getGroupMembersAsList(), false);
+		return ScannableUtils.formatScannableWithChildren(this, getGroupMembers(), false);
 	}
 
 	@Override
@@ -589,7 +589,7 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 	}
 
 	@Override
-	public List<Scannable> getGroupMembersAsList() {
+	public List<Scannable> getGroupMembers() {
 		return groupMembers;
 	}
 }

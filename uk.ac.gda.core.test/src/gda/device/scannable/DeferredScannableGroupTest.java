@@ -117,8 +117,8 @@ public class DeferredScannableGroupTest {
 
 	@Test
 	public void testAsynchronousMoveToViaElements() throws DeviceException {
-		Scannable a =  (getGroup().getGroupMembersAsList().get(0));
-		Scannable c =  (getGroup().getGroupMembersAsList().get(2));
+		Scannable a =  (getGroup().getGroupMembers().get(0));
+		Scannable c =  (getGroup().getGroupMembers().get(2));
 		InOrder inOrder = inOrder(mockedControlPoint, rawa, rawb, rawc);
 
 		a.atLevelMoveStart();

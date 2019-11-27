@@ -52,7 +52,7 @@ public class MotomanRobotScannableGroupTest {
 		sPhi = createMockScannable("sPhi");
 
 		group = new MotomanRobotScannableGroup();
-		group.setGroupMembersWithList(Arrays.asList(kTheta, kPhi, sTheta, sKappa, sPhi));
+		group.setGroupMembers(Arrays.asList(kTheta, kPhi, sTheta, sKappa, sPhi));
 	}
 
 	private Scannable createMockScannable(final String name) {
@@ -64,7 +64,7 @@ public class MotomanRobotScannableGroupTest {
 	@Test(expected = DeviceException.class)
 	public void testNotEnoughMotors() throws DeviceException, FactoryException {
 		final MotomanRobotScannableGroup smallGroup = new MotomanRobotScannableGroup();
-		smallGroup.setGroupMembersWithList(Arrays.asList(kTheta, kPhi, sTheta, sKappa));
+		smallGroup.setGroupMembers(Arrays.asList(kTheta, kPhi, sTheta, sKappa));
 		smallGroup.asynchronousMoveTo(new Double[] { 1.0, 2.0, 3.0, 4.0, 5.0 });
 	}
 

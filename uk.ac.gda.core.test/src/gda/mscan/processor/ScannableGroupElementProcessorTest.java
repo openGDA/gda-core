@@ -58,7 +58,7 @@ public class ScannableGroupElementProcessorTest {
 
 	@Before
 	public void setUp() throws Exception {
-		when((sGroup.getGroupMembersAsList())).thenReturn(Arrays.asList(scannable1, scannable2));
+		when((sGroup.getGroupMembers())).thenReturn(Arrays.asList(scannable1, scannable2));
 		processor = new ScannableGroupElementProcessor(sGroup);
 		when(context.grammar()).thenCallRealMethod();
 	}
@@ -76,13 +76,13 @@ public class ScannableGroupElementProcessorTest {
 	public void processAddsValidSuccessorMembersToContextScannablesList() throws Exception {
 		doReturn(Scannable.class).when(context).getPreviousType();
 		processor.process(context, 0);
-		verify(context).addScannable(sGroup.getGroupMembersAsList().get(0));
-		verify(context).addScannable(sGroup.getGroupMembersAsList().get(1));
+		verify(context).addScannable(sGroup.getGroupMembers().get(0));
+		verify(context).addScannable(sGroup.getGroupMembers().get(1));
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void processRejectsMoreThanTwoScannableGroupMembers() throws Exception {
-		when((sGroup.getGroupMembersAsList())).thenReturn(Arrays.asList(scannable1, scannable2, scannable1));
+		when((sGroup.getGroupMembers())).thenReturn(Arrays.asList(scannable1, scannable2, scannable1));
 		doReturn(Scannable.class).when(context).getPreviousType();
 		processor.process(context, 0);
 	}

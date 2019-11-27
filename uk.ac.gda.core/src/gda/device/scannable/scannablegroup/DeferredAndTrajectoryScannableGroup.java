@@ -45,13 +45,13 @@ public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup
 	}
 
 	@Override
-	public void setGroupMembersWithList(List<Scannable> groupMembers) throws FactoryException {
+	public void setGroupMembers(List<Scannable> groupMembers) throws FactoryException {
 		for (Scannable scn : groupMembers) {
 			if (!(scn instanceof ScannableMotor)) {
 				throw new IllegalArgumentException("groupMembers must be ScannableMotors ");
 			}
 		}
-		super.setGroupMembersWithList(groupMembers);
+		super.setGroupMembers(groupMembers);
 	}
 
 	public ArrayList<ScannableMotor> getScannableMotors() {
@@ -191,7 +191,7 @@ public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup
 	@Override
 	public Object getPositionWhileMovingContinuousely(ICoordinatedScannableGroupChildScannable childScannable)
 			throws DeviceException {
-		int index = getGroupMembersAsList().indexOf(childScannable);
+		int index = getGroupMembers().indexOf(childScannable);
 		Double[] pos = controller.getLastPointAdded();
 		if (pos != null && pos[index] != null) {
 			return pos[index];

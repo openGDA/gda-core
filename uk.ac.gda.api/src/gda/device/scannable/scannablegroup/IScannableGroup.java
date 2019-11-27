@@ -31,9 +31,9 @@ public interface IScannableGroup extends Scannable {
 
 	Scannable[] getGroupMembersAsArray() throws DeviceException;
 
-	List<Scannable> getGroupMembersAsList() throws DeviceException;
+	List<Scannable> getGroupMembers() throws DeviceException;
 
-	void setGroupMembersWithList(List<Scannable> scannables) throws FactoryException;
+	void setGroupMembers(List<Scannable> scannables) throws FactoryException;
 
 	void setGroupMembersWithArray(Scannable[] scannables) throws FactoryException;
 
