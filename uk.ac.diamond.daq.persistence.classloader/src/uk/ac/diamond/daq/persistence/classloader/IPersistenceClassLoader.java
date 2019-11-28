@@ -18,14 +18,12 @@
 
 package uk.ac.diamond.daq.persistence.classloader;
 
-import org.osgi.framework.Bundle;
-
-import uk.ac.diamond.daq.persistence.implementation.service.ClassLoaderService;
-import uk.ac.diamond.daq.persistence.implementation.service.PersistenceException;
+import uk.ac.diamond.daq.application.persistence.service.ClassLoaderService;
+import uk.ac.diamond.daq.application.persistence.service.PersistenceException;
 
 public interface IPersistenceClassLoader extends ClassLoaderService {
 
-	void initialise(Bundle[] contextBundles) throws PersistenceException;
+	void initialise() throws PersistenceException;
 
 	boolean isInitialised();
 }

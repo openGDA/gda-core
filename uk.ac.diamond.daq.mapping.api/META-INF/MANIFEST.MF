@@ -7,8 +7,12 @@ Require-Bundle: org.eclipse.scanning.api;bundle-version="1.0.0",
  org.eclipse.dawnsci.analysis.api,
  uk.ac.gda.core,
  uk.ac.gda.api,
- uk.ac.diamond.org.springframework
+ uk.ac.diamond.org.springframework,
+ uk.ac.diamond.daq.application.persistence,
+ uk.ac.diamond.daq.persistence.manager,
+ com.fasterxml.jackson.core.jackson-annotations
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: uk.ac.diamond.daq.mapping.api;uses:="org.osgi.framework,org.eclipse.dawnsci.plotting.api.region"
 Automatic-Module-Name: uk.ac.diamond.daq.mapping.api
+Import-Package: org.slf4j

@@ -1,13 +1,12 @@
 package uk.ac.diamond.daq.persistence.data;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import uk.ac.diamond.daq.persistence.implementation.annotation.Listable;
-import uk.ac.diamond.daq.persistence.implementation.annotation.Persisted;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import uk.ac.diamond.daq.application.persistence.annotation.Listable;
 
 public class ConcreteItemBsubA extends ConcreteItemB {
 

@@ -31,31 +31,27 @@ import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.persistence.implementation.service.PersistenceException;
+import gda.factory.Findable;
+import uk.ac.diamond.daq.application.persistence.service.PersistenceException;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
-public class PersistenceClassLoader extends ClassLoader implements IPersistenceClassLoader {
+@ServiceInterface(PersistenceClassLoader.class)
+public class PersistenceClassLoader extends ClassLoader implements IPersistenceClassLoader, Findable {
 	private static final Logger logger = LoggerFactory.getLogger(PersistenceClassLoader.class);
 
-	private static final PersistenceClassLoader instance = new PersistenceClassLoader();
-
 	private boolean initialised = false;
+	private String name;
 
 	// For each package, map the bundle(s) in which it is defined
 	private Map<String, List<Bundle>> packageMap = new HashMap<>();
 
-	private PersistenceClassLoader() {
-		// prevent instantiation
-	}
-
-	public static PersistenceClassLoader getInstance() {
-		return instance;
-	}
-
 	@Override
-	public void initialise(Bundle[] contextBundles) throws PersistenceException {
-		logger.debug("Initialising persistence class loader");
-		initialisePackageMap(contextBundles);
-		initialised = true;
+	public void initialise() throws PersistenceException {
+		if (!initialised) {
+			logger.debug("Initialising persistence class loader");
+			initialisePackageMap(ClassLoaderActivator.getInstance().getBundleContext().getBundles());
+			initialised = true;
+		}
 	}
 
 	@Override
@@ -65,6 +61,8 @@ public class PersistenceClassLoader extends ClassLoader implements IPersistenceC
 
 	@Override
 	public Class<?> forName(String canonicalName) throws PersistenceException {
+		initialise();
+
 		if (canonicalName == null || canonicalName.length() == 0) {
 			throw new PersistenceException(canonicalName + " not found");
 		}
@@ -77,7 +75,7 @@ public class PersistenceClassLoader extends ClassLoader implements IPersistenceC
 		for (Bundle bundle : getMatchingBundlesForName(canonicalName)) {
 			try {
 				final Class<?> theClass = bundle.loadClass(canonicalName);
-				logger.debug("Loaded class {} from bundle {}", canonicalName, bundle);
+				logger.trace("Loaded class {} from bundle {}", canonicalName, bundle);
 				return theClass;
 			} catch (ClassNotFoundException er) {
 				// try the next bundle
@@ -99,6 +97,7 @@ public class PersistenceClassLoader extends ClassLoader implements IPersistenceC
 				if (exportPackages != null) {
 					for (ManifestElement element : exportPackages) {
 						final String pkgName = element.getValue();
+						logger.trace("Importing Package: {}", pkgName);
 						final List<Bundle> bundles = packageMap.get(pkgName);
 						if (bundles == null) {
 							packageMap.put(pkgName, new ArrayList<Bundle>(Arrays.asList(bundle)));
@@ -126,5 +125,15 @@ public class PersistenceClassLoader extends ClassLoader implements IPersistenceC
 			}
 		}
 		return matchingBundles;
+	}
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public String getName() {
+		return this.name;
 	}
 }

@@ -29,7 +29,7 @@ public class SavedScansContentProvider implements ITreeContentProvider {
 
 	@Override
 	public Object[] getElements(Object inputElement) {
-		return inputElement instanceof String[] ? (String[]) inputElement : null;
+		return inputElement instanceof SavedScanMetaData[] ? (SavedScanMetaData[]) inputElement : null;
 	}
 
 	@Override

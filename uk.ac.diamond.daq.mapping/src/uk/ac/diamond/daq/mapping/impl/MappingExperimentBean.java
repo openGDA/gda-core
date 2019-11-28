@@ -20,6 +20,8 @@ import uk.ac.diamond.daq.mapping.api.IScriptFiles;
 
 public class MappingExperimentBean implements IMappingExperimentBean {
 
+	private long id;
+	private String displayName;
 	private SimpleSampleMetadata sampleMetadata;
 	private List<IScanModelWrapper<IDetectorModel>> detectorParameters = null;
 	private List<IScanModelWrapper<ClusterProcessingModel>> clusterProcessingConfiguration = null;
@@ -33,9 +35,30 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	private List<String> templateFilePaths;
 
 	public MappingExperimentBean() {
+		id = -1;
 		sampleMetadata = new SimpleSampleMetadata();
 		scanDefinition = new MappingScanDefinition();
 		processingConfigs = new ArrayList<ConfigWrapper>();
+	}
+
+	@Override
+	public long getId() {
+		return id;
+	}
+
+	@Override
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	@Override
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	@Override
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
 	}
 
 	@Override

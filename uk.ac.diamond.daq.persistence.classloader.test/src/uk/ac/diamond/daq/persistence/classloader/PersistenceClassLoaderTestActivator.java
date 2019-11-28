@@ -21,11 +21,14 @@ package uk.ac.diamond.daq.persistence.classloader;
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
+import gda.factory.Finder;
+
 public class PersistenceClassLoaderTestActivator extends Plugin {
 
 	@Override
 	public void start(BundleContext context) throws Exception {
-		PersistenceClassLoader.getInstance().initialise(context.getBundles());
+		PersistenceClassLoader classLoader = Finder.getInstance().find("classLoaderService");
+		classLoader.initialise();
 		super.start(context);
 	}
 }

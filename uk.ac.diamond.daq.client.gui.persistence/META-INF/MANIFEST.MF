@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Persistence
+Bundle-SymbolicName: uk.ac.diamond.daq.client.gui.persistence
+Bundle-Version: 1.0.0
+Automatic-Module-Name: uk.ac.diamond.daq.client.persistence
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.eclipse.swt.widgets
+Require-Bundle: org.eclipse.jface,
+ uk.ac.diamond.daq.application.persistence,
+ org.eclipse.ui.workbench
+Export-Package: uk.ac.diamond.daq.client.gui.persistence

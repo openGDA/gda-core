@@ -38,7 +38,10 @@ public class SavedScanNameLabelProvider extends LabelProvider implements ICompar
 
 	@Override
 	public StyledString getStyledText(Object element) {
-		return element instanceof String ?  new StyledString(splitOnDot(element)[0]) : new StyledString();
+		if (element instanceof String || element instanceof SavedScanMetaData) {
+			return new StyledString(splitOnDot(element)[0]);
+		}
+		return new StyledString();
 	}
 
 	@Override
@@ -46,8 +49,8 @@ public class SavedScanNameLabelProvider extends LabelProvider implements ICompar
 		return new ViewerComparator() {
 		    @Override
 			public int compare(Viewer viewer, Object element1, Object element2) {
-		    	String first = splitOnDot(element1)[0].toLowerCase();
-		    	String second = splitOnDot(element2)[0].toLowerCase();
+		    	String first = splitOnDot(element1.toString())[0].toLowerCase();
+		    	String second = splitOnDot(element2.toString())[0].toLowerCase();
 
 		    	Comparator<String> c = Comparator.comparing(String::toString);
 		    	int direction = ((TreeViewer)viewer).getTree().getSortDirection() == SWT.UP ? 1 : -1;

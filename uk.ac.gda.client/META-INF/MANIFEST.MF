@@ -68,7 +68,8 @@ Require-Bundle: org.eclipse.help.ui,
  org.eclipse.scanning.api,
  uk.ac.gda.client.closeactions,
  com.google.guava,
- uk.ac.diamond.org.jscience4
+ uk.ac.diamond.org.jscience4,
+ uk.ac.diamond.daq.persistence.classloader
 Export-Package: com.swtdesigner,
  gda.gui.scriptcontroller.logging,
  gda.rcp,

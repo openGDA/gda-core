@@ -51,10 +51,10 @@ public class SavedScanShapeLabelProvider extends LabelProvider implements ICompa
      */
 	@Override
     public Image getImage(Object element) {
-		if (!(element instanceof String)) {
+		if (!(element instanceof String  || element instanceof SavedScanMetaData)) {
 			return null;
 		}
-		String[] tokens = splitOnDot(element);
+		String[] tokens = splitOnDot(element.toString());
 
 		if (tokens.length > 2 && tokens[tokens.length - 2].matches("^S[0-9].*")) {
 			int i = Integer.valueOf(tokens[1].substring(1, 2));

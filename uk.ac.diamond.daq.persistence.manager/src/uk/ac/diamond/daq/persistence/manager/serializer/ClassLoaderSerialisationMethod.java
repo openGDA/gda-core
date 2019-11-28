@@ -19,29 +19,26 @@
 package uk.ac.diamond.daq.persistence.manager.serializer;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-import uk.ac.diamond.daq.persistence.classloader.IPersistenceClassLoader;
+import gda.factory.Finder;
+import uk.ac.diamond.daq.application.persistence.service.CustomSerialisationMethod;
+import uk.ac.diamond.daq.application.persistence.service.PersistenceException;
 import uk.ac.diamond.daq.persistence.classloader.PersistenceClassLoader;
-import uk.ac.diamond.daq.persistence.implementation.json.CustomSerialisationMethod;
-import uk.ac.diamond.daq.persistence.implementation.service.PersistenceException;
 
+/**
+ * Use the Marshaling Service to custom serialise Mapping elements in the persistence service
+ */
 public class ClassLoaderSerialisationMethod implements CustomSerialisationMethod {
 
-	private static final Logger logger = LoggerFactory.getLogger(ClassLoaderSerialisationMethod.class);
-
-	private IMarshallerService marshallingService = Activator.getService(IMarshallerService.class);
+	private IMarshallerService marshallingService = PersistenceActivator.getService(IMarshallerService.class);
 
 	private static final String TYPE_INFO_FIELD_NAME = "@type";
 	private ObjectMapper objectMapper = new ObjectMapper();
-	private static IPersistenceClassLoader classLoader = PersistenceClassLoader.getInstance();
 
 	@Override
 	public ObjectNode serialise(Object value) throws PersistenceException {
@@ -63,12 +60,9 @@ public class ClassLoaderSerialisationMethod implements CustomSerialisationMethod
 	@Override
 	public Object deserialise(ObjectNode node) throws PersistenceException {
 		try {
-			Class<?> clazz;
-			if (node.get("classes") != null) {
-				clazz = classLoader.forName(((ArrayNode) node.get("classes")).get(0).textValue());
-			} else {
-				clazz = classLoader.forName(node.get(TYPE_INFO_FIELD_NAME).textValue());
-			}
+			PersistenceClassLoader classLoader = Finder.getInstance().find("classLoaderService");
+			Class<?> clazz = classLoader.forName(node.get(TYPE_INFO_FIELD_NAME).textValue());
+
 			return marshallingService.unmarshal(node.toString(), clazz);
 		} catch (Exception e) {
 			throw new PersistenceException("Unable to convert node " + node.toString(), e);

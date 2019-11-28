@@ -21,8 +21,8 @@ package uk.ac.diamond.daq.persistence.manager;
 import java.util.HashSet;
 import java.util.Set;
 
-import uk.ac.diamond.daq.persistence.implementation.service.VisitService;
-import uk.ac.diamond.daq.persistence.implementation.service.VisitServiceListener;
+import uk.ac.diamond.daq.application.persistence.service.VisitService;
+import uk.ac.diamond.daq.application.persistence.service.VisitServiceListener;
 
 public class TestVisitService implements VisitService {
 

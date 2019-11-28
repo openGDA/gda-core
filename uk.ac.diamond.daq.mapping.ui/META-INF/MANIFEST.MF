@@ -39,7 +39,10 @@ Require-Bundle: org.eclipse.ui,
  com.google.guava,
  uk.ac.gda.client.live.stream,
  uk.ac.diamond.org.springframework,
- org.eclipse.scanning.event
+ org.eclipse.scanning.event,
+ uk.ac.diamond.daq.persistence.manager,
+ uk.ac.diamond.daq.client.gui.persistence,
+ uk.ac.diamond.daq.persistence.manager
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: com.ibm.icu.text,
@@ -51,11 +54,14 @@ Import-Package: com.ibm.icu.text,
  org.eclipse.e4.ui.di,
  org.eclipse.e4.ui.services,
  org.eclipse.richbeans.widgets.shuffle,
- org.slf4j;version="1.7.6"
+ org.slf4j;version="1.7.6",
+ uk.ac.diamond.daq.application.persistence.data,
+ uk.ac.diamond.daq.application.persistence.service
 Service-Component: OSGI-INF/*.xml
 Eclipse-RegisterBuddy: uk.ac.gda.core
 Export-Package: uk.ac.diamond.daq.mapping.ui.experiment,
  uk.ac.diamond.daq.mapping.ui.experiment.file,
- uk.ac.diamond.daq.mapping.ui.experiment.focus
+ uk.ac.diamond.daq.mapping.ui.experiment.focus,
+ uk.ac.diamond.daq.mapping.ui.experiment.saver
 Bundle-Activator: uk.ac.diamond.daq.mapping.ui.Activator
 Automatic-Module-Name: uk.ac.diamond.daq.mapping.ui

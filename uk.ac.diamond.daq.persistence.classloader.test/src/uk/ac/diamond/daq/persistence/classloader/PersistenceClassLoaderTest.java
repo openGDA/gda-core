@@ -35,7 +35,7 @@ public class PersistenceClassLoaderTest {
 
 	@Before
 	public void setUp() {
-		classLoader = PersistenceClassLoader.getInstance();
+		classLoader = new PersistenceClassLoader ();
 	}
 
 	@Test

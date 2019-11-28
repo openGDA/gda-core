@@ -25,19 +25,20 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.ac.diamond.daq.application.persistence.json.impl.DefaultJsonSerialisationFactory;
+import uk.ac.diamond.daq.application.persistence.service.PersistenceException;
+import uk.ac.diamond.daq.application.persistence.service.PersistenceService;
 import uk.ac.diamond.daq.persistence.classloader.PersistenceClassLoader;
 import uk.ac.diamond.daq.persistence.data.AbstractItem;
 import uk.ac.diamond.daq.persistence.data.ConcreteItemA;
 import uk.ac.diamond.daq.persistence.data.ConcreteItemB;
 import uk.ac.diamond.daq.persistence.data.ConcreteItemBsubA;
-import uk.ac.diamond.daq.persistence.implementation.json.impl.DefaultJsonSerialisationFactory;
-import uk.ac.diamond.daq.persistence.implementation.service.PersistenceException;
 
 public class PersistenceManagerTest {
 
 	private static final String CONCRETE_ITEM_B_NAME_1 = "Tomo Scan 1";
 
-	private PersistenceManager persistenceManager;
+	private PersistenceService persistenceManager;
 
 	private ConcreteItemB concreteItemB = new ConcreteItemB(CONCRETE_ITEM_B_NAME_1, 100, 360.0);
 
