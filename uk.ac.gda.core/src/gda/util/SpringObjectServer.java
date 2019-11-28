@@ -36,6 +36,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -368,6 +369,7 @@ public class SpringObjectServer extends ObjectServer {
 		// Stats about configuring
 		int configuredCounter = 0;
 		final Stopwatch configureStopwatch = Stopwatch.createStarted();
+		Set<String> failedConfigurables = new LinkedHashSet<>();
 
 		Map<String, Configurable> configurables = applicationContext.getBeansOfType(Configurable.class);
 		for (Map.Entry<String, Configurable> entry : configurables.entrySet()) {
@@ -390,7 +392,8 @@ public class SpringObjectServer extends ObjectServer {
 					if (!allowExceptionInConfigure) {
 						throw new FactoryException("Error in configure for " + name, e);
 					}
-					logger.error("Error in configure for " + name, e);
+					failedConfigurables.add(name);
+					logger.error("Error in configure for {}", name, e);
 				}
 			} else {
 				logger.info("Not configuring {}", name);
@@ -401,6 +404,9 @@ public class SpringObjectServer extends ObjectServer {
 		configureStopwatch.stop();
 		logger.info("Finished configuring objects. Configured {} objects in {} seconds", configuredCounter,
 				configureStopwatch.elapsed(SECONDS));
+		if (!failedConfigurables.isEmpty()) {
+			logger.warn("Failed to configure {} objects: {}", failedConfigurables.size(), failedConfigurables);
+		}
 	}
 
 }
