@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2019 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,24 +16,16 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.rcp.views;
-
-import org.eclipse.swt.widgets.Composite;
+package uk.ac.gda.client.live.stream.event;
 
 /**
- * Interface for Factories that create composites. Part of work to allow views to be configured in Spring
+ *  Message published when a LiveStream connection is closed
  *
- * @author Jonathan Blakes
  * @author Maurizio Nagni
  */
+public class CloseConnectionEvent extends LiveStreamEvent {
 
-public interface CompositeFactory {
-
-	/**
-	 * Defines a well specific property in {@link Composite#getData(String)} which identifies a composite instance as
-	 * parent for the contained children.
-	 */
-	public static final String COMPOSITE_ROOT = "COMPOSITE_ROOT";
-
-	public Composite createComposite(Composite parent, int style);
+	public CloseConnectionEvent(Object source) {
+		super(source);
+	}
 }

@@ -23,11 +23,15 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
+
+import uk.ac.gda.client.exception.GDAClientException;
 
 /**
  * This class exposes Spring {@link ApplicationEventPublisher} to components as Views or Perspectives which are directly
- * managed by Eclipse and consequently cannot be initialized by Spring
+ * managed by Eclipse and consequently cannot be initialised by Spring
  *
  * @author Maurizio Nagni
  */
@@ -35,7 +39,11 @@ import org.springframework.stereotype.Component;
 public class SpringApplicationContextProxy implements ApplicationEventPublisherAware, ApplicationContextAware {
 
 	private static ApplicationEventPublisher applicationPublisher;
+
+	@SuppressWarnings("unused")
 	private static ApplicationContext applicationContext;
+
+	private static ConfigurableApplicationContext configurableApplicationContext;
 
 	@Override
 	public void setApplicationEventPublisher(ApplicationEventPublisher applicationPublisher) {
@@ -45,17 +53,24 @@ public class SpringApplicationContextProxy implements ApplicationEventPublisherA
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) {
 		SpringApplicationContextProxy.applicationContext = applicationContext;
+		if (ConfigurableApplicationContext.class.isAssignableFrom(applicationContext.getClass())) {
+			configurableApplicationContext = ConfigurableApplicationContext.class.cast(applicationContext);
+		}
 	}
 
 	public static final void publishEvent(ApplicationEvent event) {
 		SpringApplicationContextProxy.applicationPublisher.publishEvent(event);
 	}
 
-	public static final <T> T getBean(String name, Class<T> clazz) {
-		return SpringApplicationContextProxy.applicationContext.getBean(name, clazz);
-	}
-
-	public static final <T> T getBean(Class<T> clazz) {
-		return SpringApplicationContextProxy.applicationContext.getBean(clazz);
+	/**
+	 * Attached a listener to the application context in order to be notified when new events occur
+	 * @param listener
+	 * @throws GDAClientException
+	 */
+	public static final void addApplicationListener(ApplicationListener<?> listener) throws GDAClientException {
+		if (configurableApplicationContext == null) {
+			throw new GDAClientException("This class has no valid ConfigurableApplicationContext instance");
+		}
+		SpringApplicationContextProxy.configurableApplicationContext.addApplicationListener(listener);
 	}
 }

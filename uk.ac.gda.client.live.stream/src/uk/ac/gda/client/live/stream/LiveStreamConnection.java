@@ -41,14 +41,21 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.epics.connector.EpicsV3DynamicDatasetConnector;
 import uk.ac.gda.client.live.stream.calibration.CalibratedAxesProvider;
+import uk.ac.gda.client.live.stream.event.OpenConnectionEvent;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
+import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
  * An instance of this class encapsulates a connection to a live stream, i.e. a camera, as defined by a
  * {@link CameraConfiguration} and a {@link StreamType}.
+ *
+ * Publishes {@link OpenConnectionEvent} when a connection is created
+ *
+ * @author Matthew Dickie
+ * @author Maurizio Nagni
  */
-public class LiveStreamConnection implements IConnection {
+public class LiveStreamConnection implements IConnection, ILiveStreamConnection {
 
 	/**
 	 * The Connection Universal Unique ID UUID, Type 4 ,pseudo randomly generated
@@ -96,8 +103,26 @@ public class LiveStreamConnection implements IConnection {
 	 *
 	 * @return the UUID associated with this connection
 	 */
+	@Override
 	public UUID getId() {
 		return id;
+	}
+
+	public synchronized IDatasetConnector connect(IDatasetConnector stream) throws LiveStreamException {
+		if (getStream() != null) {
+			increaseConnectionCount();
+			return stream;
+		}
+
+
+
+		// Attach the IDatasetConnector of the MJPEG stream to the trace.
+		logger.debug("Connecting to live stream");
+		setStream(stream);
+		setupAxes();
+		connected = true;
+		increaseConnectionCount();
+		return stream;
 	}
 
 	public synchronized IDatasetConnector connect() throws LiveStreamException {
@@ -131,14 +156,14 @@ public class LiveStreamConnection implements IConnection {
 		setupAxes();
 		connected = true;
 		increaseConnectionCount();
-
+		SpringApplicationContextProxy.publishEvent(new OpenConnectionEvent(this));
 		return stream;
 	}
 
 	@Override
 	public synchronized void disconnect() throws LiveStreamException {
 		decreaseConnectionCount();
-		if (getConnectionCount() == 0) {
+		//if (getConnectionCount() == 0) {
 			if (getStream() != null) { // Will be null the first time
 				try {
 					CalibratedAxesProvider calibratedAxesProvider = getCameraConfig().getCalibratedAxesProvider();
@@ -157,31 +182,42 @@ public class LiveStreamConnection implements IConnection {
 			xAxisDataset = null;
 			yAxisDataset = null;
 			connected = false;
-		}
+		//}
 	}
 
+	@Override
 	public void addAxisMoveListener(IAxisChangeListener axisMoveListener) {
 		axisChangeListeners.add(axisMoveListener);
 	}
 
+	@Override
 	public void removeAxisMoveListener(IAxisChangeListener axisMoveListener) {
 		axisChangeListeners.remove(axisMoveListener);
 	}
 
+	@Override
 	public void addDataListenerToStream(IDataListener listener) throws LiveStreamException {
 		if (getStream() == null) {
 			throw new LiveStreamException("Stream is not connected.");
 		}
-
 		getStream().addDataListener(listener);
 	}
 
-	public void removeDataListenerFromStream(IDataListener listener) throws LiveStreamException {
-		if (getStream() == null) {
-			throw new LiveStreamException("Stream is not connected.");
+	@Override
+	public void removeDataListenerFromStream(IDataListener listener) {
+		if (getStream() != null) {
+			stream.removeDataListener(listener);
 		}
+	}
 
-		stream.removeDataListener(listener);
+	@Override
+	public CameraConfiguration getCameraConfig() {
+		return cameraConfig;
+	}
+
+	@Override
+	public StreamType getStreamType() {
+		return streamType;
 	}
 
 	private IDatasetConnector setupEpicsArrayStream() throws LiveStreamException {
@@ -252,10 +288,6 @@ public class LiveStreamConnection implements IConnection {
 		return Arrays.asList(xAxisDataset, yAxisDataset);
 	}
 
-	public StreamType getStreamType() {
-		return streamType;
-	}
-
 	@Override
 	public boolean isConnected() {
 		return connected;
@@ -279,10 +311,6 @@ public class LiveStreamConnection implements IConnection {
 		}
 	}
 
-	public CameraConfiguration getCameraConfig() {
-		return cameraConfig;
-	}
-
 	public IDatasetConnector getStream() {
 		return stream;
 	}
@@ -299,10 +327,14 @@ public class LiveStreamConnection implements IConnection {
 	}
 
 	private void setStream(IDatasetConnector stream) throws LiveStreamException {
+		if (stream == null) {
+			return;
+		}
+
 		if (getStream() == null) {
 			try {
+				stream.connect(5, TimeUnit.SECONDS);
 				this.stream = stream;
-				getStream().connect(5, TimeUnit.SECONDS);
 			} catch (DatasetException e) {
 				throw new LiveStreamException(
 						"Could not connect to EPICS Array Stream PV: " + cameraConfig.getArrayPv(), e);

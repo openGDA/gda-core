@@ -1,5 +1,6 @@
 package uk.ac.diamond.daq.client.gui.camera;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,10 +13,7 @@ import gda.device.DeviceException;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
 import uk.ac.diamond.daq.client.gui.camera.controller.ImagingCameraConfigurationController;
-import uk.ac.gda.client.live.stream.IConnectionFactory;
-import uk.ac.gda.client.live.stream.LiveStreamConnection;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
-import uk.ac.gda.client.live.stream.view.StreamType;
 
 /**
  * Hides the configuration structural design. In the property file are listed
@@ -27,6 +25,18 @@ import uk.ac.gda.client.live.stream.view.StreamType;
  * </ol>
  * 
  * which identify the beans defining a camera property.
+ * 
+ * A typical configuration defining two camera would look like below
+ * 
+ * <code>
+ * client.cameraConfiguration.0=d2_cam_config
+ * client.cameraConfiguration.name.0=Camera Zero
+ * server.cameraControl.0=imaging_camera_control
+ * 
+ * client.cameraConfiguration.1=d2_cam_config
+ * client.cameraConfiguration.name.1=Camera One
+ * server.cameraControl.1=imaging_camera_control
+ * </code>
  * 
  * @author Maurizio Nagni
  *
@@ -56,25 +66,6 @@ public final class CameraHelper {
 	}
 
 	/**
-	 * Uses {@link IConnectionFactory} to retrieve the {@link LiveStreamConnection}
-	 * associated with a given camera. The camera configuration is retrieved using
-	 * {@link #getCameraConfiguration(String)}.
-	 * 
-	 * @param cameraPropertyName the property name (in
-	 *                           xx-config/properties/{mode}/anyName.properties
-	 *                           file) whose value is the bean name of a findable
-	 *                           {@link CameraConfiguration}
-	 * @return the live stream associated with the camera configuration
-	 */
-	public static LiveStreamConnection getLiveStreamConnection(String cameraPropertyName, final StreamType streamType) {
-		return IConnectionFactory.getLiveStreamConnection(getCameraConfiguration(cameraPropertyName), streamType);
-	}
-
-	public static LiveStreamConnection getLiveStreamConnection(int cameraIndex, final StreamType streamType) {
-		return IConnectionFactory.getLiveStreamConnection(getCameraConfiguration(cameraIndex), streamType);
-	}
-
-	/**
 	 * Retrieves the {@link CameraConfiguration} associated with a given camera.
 	 * 
 	 * @param cameraPropertyName the property name (in
@@ -84,28 +75,23 @@ public final class CameraHelper {
 	 * @return the camera configuration associated with the camera name
 	 */
 	public static CameraConfiguration getCameraConfiguration(String cameraPropertyName) {
-		String cameraName = LocalProperties.get(cameraPropertyName);
-		return Finder.getInstance().find(cameraName);
+		return Finder.getInstance().find(cameraPropertyName);
+	}
+	
+	public static CameraConfiguration getCameraConfiguration(CameraComboItem cameraItem) {
+		return getCameraConfiguration(getCameraConfigurationInstance(cameraItem.getIndex()));
+	}
+	
+	public static CameraConfiguration getCameraConfiguration(int cameraIndex) {
+		return getCameraConfiguration(getCameraConfigurationInstance(cameraIndex));
 	}
 
-	public static CameraConfiguration getCameraConfiguration(int cameraIndex) {
+	public static String getCameraConfigurationInstance(int cameraIndex) {
 		String cameraKey = LocalProperties.getFirstKeyByRegexp(
 				String.format(CAMERA_CONFIGURATION_REGEX, Integer.toString(cameraIndex)), CAMERA_CONFIGURATION_PREFIX);
-		return getCameraConfiguration(cameraKey);
-	}
-
-	/**
-	 * Returns the value of the cameraController property associated with an index
-	 * 
-	 * @param cameraIndex
-	 * @return
-	 */
-	public static String getCameraControllerBeanID(int cameraIndex) {
-		String cameraKey = LocalProperties.getFirstKeyByRegexp(
-				String.format(CAMERA_CONTROL_REGEX, Integer.toString(cameraIndex)), CAMERA_CONTROL_PREFIX);
 		return LocalProperties.get(cameraKey);
 	}
-
+	
 	/**
 	 * Returns a {@link AbstractCameraConfigurationController} based on a camera
 	 * index
@@ -126,11 +112,39 @@ public final class CameraHelper {
 		return cameraControllers.get(activeCamera);
 	}
 
-	public List<String> getCameraControlKeys() {
-		return LocalProperties.getKeysByRegexp(CAMERA_CONTROL_PREFIX + ".*");
+	public static List<CameraComboItem> getCameraComboItems() {
+		List<CameraComboItem> items = new ArrayList<>();
+		List<String> confKey = getCameraConfigurationKeys();
+		confKey.stream().forEach(k -> {
+			final int index = Integer.parseInt(k.substring(k.lastIndexOf('.') + 1));
+			final String name = getCameraConfigurationName(index);
+			items.add(new CameraComboItem(name, index));
+		});
+		return items;
+	}	
+	
+	public static List<String> getCameraControlKeys() {
+		return LocalProperties.getKeysByRegexp(CAMERA_CONTROL_PREFIX + "\\.\\d");
 	}
 
-	public List<String> getCameraConfigurationKeys() {
-		return LocalProperties.getKeysByRegexp(CAMERA_CONFIGURATION_PREFIX + ".*");
+	public static List<String> getCameraConfigurationKeys() {
+		return LocalProperties.getKeysByRegexp(CAMERA_CONFIGURATION_PREFIX + "\\.\\d");
+	}
+	
+	public static String getCameraConfigurationName(int index) {
+		String confName = LocalProperties.getKeysByRegexp(CAMERA_CONFIGURATION_PREFIX + ".*\\.name\\." + index).get(0);
+		return LocalProperties.get(confName);
+	}
+	
+	/**
+	 * Returns the value of the cameraController property associated with an index
+	 * 
+	 * @param cameraIndex
+	 * @return
+	 */
+	private static String getCameraControllerBeanID(int cameraIndex) {
+		String cameraKey = LocalProperties.getFirstKeyByRegexp(
+				String.format(CAMERA_CONTROL_REGEX, Integer.toString(cameraIndex)), CAMERA_CONTROL_PREFIX);
+		return LocalProperties.get(cameraKey);
 	}
 }

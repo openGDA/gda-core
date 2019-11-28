@@ -18,10 +18,6 @@
 
 package gda.rcp.views;
 
-
-
-
-
 import java.util.HashMap;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -34,7 +30,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.springframework.beans.factory.InitializingBean;
 
-
+/**
+ * Generates a {@link Composite} containing a set of tabs.
+ *
+ * @deprecated A better option is to use {@link TabFolderBuilder} to assemble this factory, consequently in future this
+ *             class may be implemented as inner private calls of {@link TabFolderBuilder}
+ *
+ * @author Paul Gibbons
+ * @author Maurizio Nagni
+ */
+@Deprecated
 public class TabFolderCompositeFactory implements CompositeFactory, InitializingBean {
 	protected TabCompositeFactory[] factories;
 
@@ -42,14 +47,13 @@ public class TabFolderCompositeFactory implements CompositeFactory, Initializing
 	public Composite createComposite(Composite parent, int style) {
 		final TabFolderComposite comp = new TabFolderComposite(parent, style, factories);
 		comp.createControls();
+		comp.setData(TabFolderBuilder.CTAB_FOLDER, comp.getTabFolder());
 		return comp;
 	}
-
 
 	public void setFactories(TabCompositeFactory[] factories) {
 		this.factories = factories;
 	}
-
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -71,26 +75,24 @@ class TabFolderComposite extends Composite {
 		this.availableModes = availableModes;
 	}
 
-
 	public CTabFolder getTabFolder() {
 		return tabFolder;
 	}
 
-
 	void createControls() {
-		GridLayoutFactory.fillDefaults().numColumns(1).margins(0,0).spacing(0,0).applyTo(this);
+		GridLayoutFactory.fillDefaults().numColumns(1).margins(0, 0).spacing(0, 0).applyTo(this);
 		GridDataFactory.fillDefaults().applyTo(this);
 		tabFolder = new CTabFolder(this, SWT.TOP | SWT.BORDER);
-		GridLayoutFactory.fillDefaults().numColumns(1).margins(0,0).spacing(0,0).applyTo(tabFolder);
+		GridLayoutFactory.fillDefaults().numColumns(1).margins(0, 0).spacing(0, 0).applyTo(tabFolder);
 		GridDataFactory.fillDefaults().applyTo(tabFolder);
 
 		tabs = new HashMap<TabCompositeFactory, CTabItem>();
 		for (int i = 0; i < availableModes.length; i++) {
 			TabCompositeFactory mode = availableModes[i];
-			if( mode.isEnabled()){
+			if (mode.isEnabled()) {
 				CTabItem cTab = new CTabItem(tabFolder, SWT.NONE);
 				Image tabImage = mode.getImage();
-				if (tabImage != null){
+				if (tabImage != null) {
 					cTab.setImage(tabImage);
 				}
 				cTab.setText(mode.getLabel());

@@ -21,7 +21,7 @@ package uk.ac.diamond.daq.client.gui.camera.event;
 import org.springframework.context.ApplicationEvent;
 
 /**
- *  Parent class for all camera events.
+ *  Published when an event to a Camera
  *
  * @author Maurizio Nagni
  */
