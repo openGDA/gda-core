@@ -35,7 +35,7 @@ class TomographyParametersAcquisitionControllerHelper {
 	}
 
 	private static void onApplicationEvent(ChangeActiveCameraEvent event, TomographyParametersAcquisitionController controller) {
-		activeCamera = event.getActiveCamera();
+		activeCamera = event.getActiveCamera().getIndex();
 	}
 
 	/**
