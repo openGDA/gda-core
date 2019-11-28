@@ -171,8 +171,8 @@ public class ConfigureExitSlitsDialog extends TitleAreaDialog {
 			createPlottingView(container);
 			cameraControl.stopAcquiring();
 		} catch (DeviceException e) {
-			final String message = String.format("Error acquiring from camera %s", cameraControl.getName());
-			displayError("Data acquisition error", message, e, logger);
+			final String message = String.format("Error connecting to camera %s", cameraControl.getName());
+			displayError("Live stream connection error", message, e, logger);
 		}
 
 		createSeparator(container);
@@ -202,7 +202,7 @@ public class ConfigureExitSlitsDialog extends TitleAreaDialog {
 		updateButtons();
 	}
 
-	private void createPlottingView(Composite parent) {
+	private void createPlottingView(Composite parent) throws DeviceException {
 		// Live view of the camera
 		try {
 			plottingComposite = new LivePlottingComposite(parent, SWT.NONE, TITLE, liveStreamConnection);
@@ -210,8 +210,7 @@ public class ConfigureExitSlitsDialog extends TitleAreaDialog {
 			plottingComposite.setShowAxes(true);
 			plottingComposite.setCrosshairs(params.getCrosshairXPosition(), params.getCrosshairYPosition());
 		} catch (Exception e) {
-			logger.error("Error creating plotting view", e);
-			return;
+			throw new DeviceException("Error creating plotting view for " + liveStreamConnection.getCameraConfig().getName(), e);
 		}
 
 		createSeparator(parent);
@@ -366,6 +365,9 @@ public class ConfigureExitSlitsDialog extends TitleAreaDialog {
 			btnSkip.setEnabled(currentControl.canSkip());
 			btnCancel.setEnabled(currentControl.canCancel());
 			btnFinish.setEnabled(currentControl.canFinish());
+		}
+
+		if (chkAcquire != null) {
 			try {
 				chkAcquire.setSelection(params.getCameraControl().getAcquireState() == CameraState.ACQUIRING);
 			} catch (DeviceException e) {
@@ -385,14 +387,20 @@ public class ConfigureExitSlitsDialog extends TitleAreaDialog {
 
 	@Override
 	public boolean close() {
-		plottingComposite.dispose();
-		try {
-			liveStreamConnection.disconnect();
-		} catch (LiveStreamException e) {
-			logger.error("Error closing live stream connection", e);
+		if (plottingComposite != null) {
+			plottingComposite.dispose();
 		}
-		for (ConfigureExitSlitsComposite controlSection : controlSections) {
-			controlSection.dispose();
+		if (liveStreamConnection != null) {
+			try {
+				liveStreamConnection.disconnect();
+			} catch (LiveStreamException e) {
+				logger.error("Error closing live stream connection", e);
+			}
+		}
+		if (controlSections != null) {
+			for (ConfigureExitSlitsComposite controlSection : controlSections) {
+				controlSection.dispose();
+			}
 		}
 		return super.close();
 	}

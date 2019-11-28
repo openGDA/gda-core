@@ -118,7 +118,7 @@ public class ConfigureExitSlitsUtils {
 		logger.error(message, ex);
 		final MessageBox messageBox = new MessageBox(Display.getCurrent().getActiveShell(), SWT.ICON_ERROR | SWT.OK);
 		messageBox.setText(text);
-		messageBox.setMessage(String.format("%s: %s", message, ex.getMessage()));
+		messageBox.setMessage(String.format("%s: %s%nSee log file for more information", message, ex));
 		messageBox.open();
 	}
 
