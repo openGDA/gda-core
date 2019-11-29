@@ -59,7 +59,7 @@ import org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.device.ui.Activator;
 import org.eclipse.scanning.device.ui.util.ScanningUiUtils;
-import org.eclipse.scanning.event.util.QueueUtils;
+import org.eclipse.scanning.event.util.SubmissionQueueUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -388,7 +388,7 @@ public class EditDetectorModelDialog extends Dialog {
 
 		// to prevent AcquireRequest interrupting a running scan,
 		// we'll check that no running/submitted scans are currently in the queue
-		if (!QueueUtils.isQueueEmpty()) {
+		if (SubmissionQueueUtils.isJobRunningOrPending()) {
 			String msg = "Cannot take snapshot while there are submitted or running scans.";
 			logger.warn("{}\nAcquireRequest aborted",msg);
 			MessageDialog.openInformation(getShell(), messageTitle, msg);
