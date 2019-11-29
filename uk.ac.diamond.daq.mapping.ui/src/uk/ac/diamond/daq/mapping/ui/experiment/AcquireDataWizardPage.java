@@ -52,7 +52,7 @@ import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.AcquireRequest;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.device.ui.util.ScanningUiUtils;
-import org.eclipse.scanning.event.util.QueueUtils;
+import org.eclipse.scanning.event.util.SubmissionQueueUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StackLayout;
@@ -153,7 +153,7 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 
 		// to prevent AcquireRequest interrupting a running scan,
 		// we'll check that no running/submitted scans are currently in the queue
-		if (!QueueUtils.isQueueEmpty()) {
+		if (SubmissionQueueUtils.isJobRunningOrPending()) {
 			final String msg = "Cannot take snapshot while there are submitted or running scans.";
 			logger.warn("{}\nAcquireRequest aborted",msg);
 			MessageDialog.openInformation(getShell(), "Snapshot", msg);
