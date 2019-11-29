@@ -386,6 +386,11 @@ public final class LocalProperties {
 	 */
 	public static final String GDA_INITIAL_LENGTH_UNITS = "uk.ac.gda.client.defaultUnits";
 
+	/**
+	 * Property to choose whether to use the persistence service or file base persistence
+	 */
+	public static final String GDA_PERSISTENCE_SERVICE_ENABLED = "uk.ac.diamond.persistence.manager.enabled";
+
 	// create Jakarta properties handler object
 	// README - The JakartaPropertiesConfig class automatically picks up
 	// system
@@ -678,6 +683,13 @@ public final class LocalProperties {
 	 */
 	public static String getBaseDataDir() {
 		return appendSeparator(get(GDA_DATA));
+	}
+
+	/**
+	 * @return if the persistence service is available
+	 */
+	public static boolean isPersistenceServiceAvailable () {
+		return check(LocalProperties.GDA_PERSISTENCE_SERVICE_ENABLED, false);
 	}
 
 	/**
