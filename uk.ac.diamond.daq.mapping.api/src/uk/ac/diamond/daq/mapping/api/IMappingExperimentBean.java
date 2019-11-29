@@ -29,6 +29,27 @@ import org.eclipse.scanning.api.ui.IStageScanConfiguration;
  * This interface should be implemented by any class which can represent a mapping type experiment
  */
 public interface IMappingExperimentBean {
+	/**
+	 * @return the id used in the Persistence Service
+	 */
+	long getId();
+
+	/**
+	 * @param id used by the persistence Service
+	 */
+	void setId(long id);
+
+	/**
+	 *
+	 * @return displayed in the persistence view
+	 */
+	String getDisplayName ();
+
+	/**
+	 *
+	 * @param displayName name to be displayed in the persistence view
+	 */
+	void setDisplayName (String displayName);
 
 	/**
 	 * Gets the sample metadata for the mapping scan e.g. name, chemical formula ...

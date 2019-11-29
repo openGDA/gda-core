@@ -1,15 +1,14 @@
 package uk.ac.diamond.daq.persistence.data;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import uk.ac.diamond.daq.persistence.implementation.annotation.Listable;
-import uk.ac.diamond.daq.persistence.implementation.annotation.Persisted;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import uk.ac.diamond.daq.application.persistence.annotation.Listable;
 
 public class ConcreteItemB extends AbstractItem {
     private static final Logger log = LoggerFactory.getLogger(ConcreteItemB.class);

@@ -20,10 +20,13 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.window.Window;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -32,8 +35,18 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import uk.ac.diamond.daq.application.persistence.data.SearchResult;
+import uk.ac.diamond.daq.application.persistence.service.PersistenceException;
+import uk.ac.diamond.daq.client.gui.persistence.AbstractSearchResultLabelProvider;
+import uk.ac.diamond.daq.client.gui.persistence.SearchResultViewDialog;
+import uk.ac.diamond.daq.client.gui.persistence.SearchResultViewDialogMode;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
+import uk.ac.diamond.daq.mapping.api.PersistableMappingExperimentBean;
+import uk.ac.diamond.daq.persistence.manager.PersistenceServiceWrapper;
 
 /**
  * A section containing:<ul>
@@ -50,6 +63,7 @@ import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
  * </ul>
  */
 public class SubmitScanSection extends AbstractMappingSection {
+	private static final Logger log = LoggerFactory.getLogger(SubmitScanSection.class);
 
 	private static final String[] FILE_FILTER_NAMES = new String[] { "Mapping Scan Files", "All Files (*.*)" };
 	private static final String[] FILE_FILTER_EXTENSIONS = new String[] { "*.map", "*.*" };
@@ -117,13 +131,38 @@ public class SubmitScanSection extends AbstractMappingSection {
 		GridDataFactory.swtDefaults().applyTo(copyScanCommandButton);
 		copyScanCommandButton.addSelectionListener(widgetSelectedAdapter(e -> smController.copyScanToClipboard()));
 
+		List<AbstractSearchResultLabelProvider> labelProviders =
+				Arrays.asList(
+						new ComplexScanNameLabelProvider("Name", PersistableMappingExperimentBean.SCAN_NAME_TITLE, true, 0),
+						new ComplexScanNameLabelProvider("Dimensions", PersistableMappingExperimentBean.SCAN_NAME_TITLE, false, 1));
+
+
 		// Button to load a scan from disk
 		final Button loadButton = new Button(mscanComposite, SWT.PUSH);
 		loadButton.setImage(getImage("icons/open.png"));
 		loadButton.setToolTipText("Load a scan from the file system");
 		GridDataFactory.swtDefaults().applyTo(loadButton);
 		loadButton.addSelectionListener(widgetSelectedAdapter(e -> {
-			final Optional<IMappingExperimentBean> bean = smController.loadScanMappingBean(chooseFileName(SWT.OPEN));
+			Optional<IMappingExperimentBean> bean = Optional.empty();
+			if (LocalProperties.isPersistenceServiceAvailable()) {
+				PersistenceServiceWrapper persistenceService = getService(PersistenceServiceWrapper.class);
+				SearchResult searchResult;
+				try {
+					searchResult = persistenceService.get(PersistableMappingExperimentBean.class);
+				} catch (PersistenceException e1) {
+					log.error("Unable to find existing Mapping Beans", e1);
+					return;
+				}
+				SearchResultViewDialog searchDialog = new SearchResultViewDialog(getShell(), searchResult,
+						"Load Scan Definition", true, false, PersistableMappingExperimentBean.SCAN_NAME_TITLE,
+						SearchResultViewDialogMode.load, labelProviders);
+				searchDialog.open();
+				if (searchDialog.getReturnCode() == Window.OK) {
+					bean = smController.loadScanMappingBean(searchDialog.getItemId());
+				}
+			} else {
+				bean = smController.loadScanMappingBean(chooseFileName(SWT.OPEN));
+			}
 			if (bean.isPresent()) {
 				getMappingView().setMappingBean(bean.get());
 				smController.updateGridModelIndex();
@@ -136,7 +175,34 @@ public class SubmitScanSection extends AbstractMappingSection {
 		saveButton.setImage(getImage("icons/save.png"));
 		saveButton.setToolTipText("Save a scan to the file system");
 		GridDataFactory.swtDefaults().applyTo(saveButton);
-		saveButton.addSelectionListener(widgetSelectedAdapter(e -> smController.saveScan(chooseFileName(SWT.SAVE))));
+		saveButton.addSelectionListener(widgetSelectedAdapter(e -> {
+			if (LocalProperties.isPersistenceServiceAvailable()) {
+				PersistenceServiceWrapper persistenceService = getService(PersistenceServiceWrapper.class);
+				SearchResult searchResult;
+				try {
+					searchResult = persistenceService.get(PersistableMappingExperimentBean.class);
+				} catch (PersistenceException e1) {
+					log.error("Unable to find existing Mapping Beans", e1);
+					return;
+				}
+				SearchResultViewDialog searchDialog = new SearchResultViewDialog(getShell(), searchResult,
+						"Save Scan Definition", true, true, PersistableMappingExperimentBean.SCAN_NAME_TITLE,
+						SearchResultViewDialogMode.save, labelProviders);
+				searchDialog.open();
+				if (searchDialog.getReturnCode() == Window.OK) {
+					IMappingExperimentBean mappingBean = getMappingBean();
+					if (searchDialog.getItemId() != SearchResultViewDialog.INVALID_ID) {
+						mappingBean.setId(searchDialog.getItemId());
+					} else if (searchDialog.getNewName() != null) {
+						mappingBean.setId(SearchResultViewDialog.INVALID_ID);
+						mappingBean.setDisplayName(searchDialog.getNewName());
+					}
+					smController.saveScanAs(mappingBean.getId());
+				}
+			} else {
+				smController.saveScan(chooseFileName(SWT.SAVE));
+			}
+		}));
 	}
 
 	protected void submitScan() {

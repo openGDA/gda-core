@@ -52,8 +52,8 @@ public class SavedScanDetailsLabelProvider extends LabelProvider implements ICom
 	public StyledString getStyledText(Object element) {
 		StyledString result = new StyledString();
 		DecimalFormat decimal = new DecimalFormat("#########.###");
-		if (element instanceof String) {
-			String[] tokens = splitOnDot(element);
+		if (element instanceof String || element instanceof SavedScanMetaData) {
+			String[] tokens = splitOnDot(element.toString());
 			if (tokens.length > 2) {								// if there is a descriptor section
 				String descriptor = penultimateOf(tokens);		// it will be the one before .map
 				if (descriptor.startsWith("S0")) {
@@ -83,8 +83,8 @@ public class SavedScanDetailsLabelProvider extends LabelProvider implements ICom
 		return new ViewerComparator() {
 		    @Override
 			public int compare(Viewer viewer, Object element1, Object element2) {
-		    	String[] first = splitOnDot(element1);
-		    	String[] second = splitOnDot(element2);
+		    	String[] first = splitOnDot(element1.toString());
+		    	String[] second = splitOnDot(element2.toString());
 
 		    	if (first.length < 3 || second.length < 3) {
 			    	return (first.length < second.length) ? 1 : -1;

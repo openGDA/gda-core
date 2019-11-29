@@ -34,7 +34,7 @@ public interface IComparableStyledLabelProvider extends IStyledLabelProvider {
 	ViewerComparator getComparator();
 
 	default String[] splitOnDot(Object element) {
-		return ((String)element).split("\\.");
+		return element.toString().split("\\.");
 	}
 
 	default String penultimateOf(String[] array) {

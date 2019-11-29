@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import uk.ac.diamond.daq.persistence.implementation.annotation.Listable;
+import uk.ac.diamond.daq.application.persistence.annotation.Listable;
 
 public class ConcreteItemA extends AbstractItem {
 

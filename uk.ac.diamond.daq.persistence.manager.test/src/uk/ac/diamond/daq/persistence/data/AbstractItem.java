@@ -1,11 +1,12 @@
 package uk.ac.diamond.daq.persistence.data;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import uk.ac.diamond.daq.persistence.implementation.annotation.*;
-
-import java.util.Objects;
+import uk.ac.diamond.daq.application.persistence.annotation.Listable;
+import uk.ac.diamond.daq.application.persistence.annotation.PersistableItem;
 
 @PersistableItem
 public abstract class AbstractItem {

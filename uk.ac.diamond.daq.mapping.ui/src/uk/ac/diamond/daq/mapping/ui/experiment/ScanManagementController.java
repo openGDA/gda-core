@@ -20,6 +20,8 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import static java.util.stream.Collectors.toSet;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -53,13 +55,16 @@ import org.eclipse.ui.IViewReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.application.persistence.service.PersistenceException;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
+import uk.ac.diamond.daq.mapping.api.PersistableMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.ScanRequestSavedEvent;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
 import uk.ac.diamond.daq.mapping.ui.experiment.file.DescriptiveFilenameFactory;
 import uk.ac.diamond.daq.osgi.OsgiService;
+import uk.ac.diamond.daq.persistence.manager.PersistenceServiceWrapper;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
@@ -103,7 +108,7 @@ public class ScanManagementController extends AbstractMappingController {
 				final String json = new String(bytes, "UTF-8");
 
 				final IMarshallerService marshaller = getService(IMarshallerService.class);
-				IMappingExperimentBean mappingBean = marshaller.unmarshal(json, MappingExperimentBean.class);
+				MappingExperimentBean mappingBean = marshaller.unmarshal(json, MappingExperimentBean.class);
 				stage.merge((MappingStageInfo) mappingBean.getStageInfoSnapshot());
 				result = Optional.of(mappingBean);
 			} catch (Exception e) {
@@ -112,6 +117,30 @@ public class ScanManagementController extends AbstractMappingController {
 				ErrorDialog.openError(Display.getCurrent().getActiveShell(), "Load Scan", errorMessage,
 						new Status(IStatus.ERROR, MappingUIConstants.PLUGIN_ID, errorMessage, e));
 			}
+		}
+		return result;
+	}
+
+	/**
+	 * Loads the Mapping Scan from the Persistence Service.
+	 *
+	 * @param id	The Persistence Id for the mapping Bean
+	 * @return		An {@link Optional} of a mapping bean constructed from the contents of the file
+	 */
+	public Optional<IMappingExperimentBean> loadScanMappingBean(final long id) {
+		checkInitialised();
+		Optional<IMappingExperimentBean> result = Optional.empty();
+		try {
+			final PersistenceServiceWrapper persistenceService = getService(PersistenceServiceWrapper.class);
+			PersistableMappingExperimentBean persistedBean = persistenceService.get(id, PersistableMappingExperimentBean.class);
+			IMappingExperimentBean mappingBean = persistedBean.getMappingBean();
+			stage.merge((MappingStageInfo) mappingBean.getStageInfoSnapshot());
+			result = Optional.of(mappingBean);
+		} catch (PersistenceException e) {
+			final String errorMessage = "Could not load a mapping scan with id: " + id;
+			logger.error(errorMessage, e);
+			ErrorDialog.openError(Display.getCurrent().getActiveShell(), "Load Scan", errorMessage,
+					new Status(IStatus.ERROR, MappingUIConstants.PLUGIN_ID, errorMessage, e));
 		}
 		return result;
 	}
@@ -144,6 +173,67 @@ public class ScanManagementController extends AbstractMappingController {
 
 		SpringApplicationContextProxy.publishEvent(new ScanRequestSavedEvent(this, getShortName(filename), createScanBean().getScanRequest()));
 
+	}
+
+	/**
+	 * Saves the current mapping bean to the Persistence Service.
+	 */
+	public void saveScanAs(long id) {
+		checkInitialised();
+		IMappingExperimentBean mappingBean = getMappingBean();
+		mappingBean.setId(id);
+		PersistableMappingExperimentBean persistableBean = new PersistableMappingExperimentBean();
+		persistableBean.setMappingBean(mappingBean);
+		saveScan (persistableBean);
+	}
+
+	/**
+	 * Saves the current mapping bean as a new bean to the Persistence Service.
+	 *
+	 * @param scanName	the display name of the scan
+	 */
+	public void saveScanAs(final String scanName) {
+		checkInitialised();
+		if (scanName != null) {
+			IMappingExperimentBean mappingBean = getMappingBean();
+			mappingBean.setDisplayName(scanName);
+			PersistableMappingExperimentBean persistableBean = new PersistableMappingExperimentBean();
+			persistableBean.setMappingBean(mappingBean);
+			saveScan (persistableBean);
+		}
+	}
+
+	public void saveScan (PersistableMappingExperimentBean persistableBean) {
+		try {
+			captureStageInfoSnapshot();
+			final PersistenceServiceWrapper persistenceService = getService(PersistenceServiceWrapper.class);
+			persistenceService.save(persistableBean);
+
+			SpringApplicationContextProxy.publishEvent(new ScanRequestSavedEvent(this, persistableBean.getScanName(),
+					createScanBean().getScanRequest()));
+		} catch (PersistenceException e) {
+			final String errorMessage = "Could not save the mapping scan : " + persistableBean.getScanName();
+			logger.error(errorMessage, e);
+			ErrorDialog.openError(Display.getCurrent().getActiveShell(), "Save Scan", errorMessage,
+					new Status(IStatus.ERROR, MappingUIConstants.PLUGIN_ID, errorMessage, e));
+		}
+	}
+
+	public void deleteScan(String filename) {
+		try {
+			Files.deleteIfExists(new File(filename).toPath());
+		} catch (IOException e) {
+			logger.error("Failed to delete scan at path: {}", filename, e);
+		}
+	}
+
+	public void deleteScan(long id) {
+		final PersistenceServiceWrapper persistenceService = getService(PersistenceServiceWrapper.class);
+		try {
+			persistenceService.delete(id);
+		} catch (PersistenceException e) {
+			logger.error("Failed to delete scan with id: {}", id, e);
+		}
 	}
 
 	/**

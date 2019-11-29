@@ -7,6 +7,5 @@
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/scratch/dls_sw/all-dls/software/gda_versions/master_persistence/workspace_git/gda-persistence.git/build/libs/persistence.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
