@@ -287,36 +287,15 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 
 	@Override
 	public void updateControls() {
+		updateLinesToTrack();
+	}
+
+	private void updateLinesToTrack() {
 		// Save the current selection
 		final IStructuredSelection currentSelection = linesToTrackCombo.getStructuredSelection();
 
 		// Read all selected processing files and extract lines to track
-		final Map<String, Object> processingRequest = getMappingBean().getProcessingRequest();
-		final SortedMap<String, SortedSet<String>> linesToTrack = new TreeMap<>();
-
-		for (Map.Entry<String, Object> entry : processingRequest.entrySet()) {
-			if (entry.getKey().equals("dawn")) {
-				@SuppressWarnings("unchecked")
-				final List<String> jsonFiles = (List<String>) entry.getValue();
-				for (String jsonFilePath : jsonFiles) {
-					try {
-						// Get the path of the processing file and the tracking lines it contains
-						final String json = new String(Files.readAllBytes(Paths.get(jsonFilePath)));
-						final JsonObject jObject = new JsonParser().parse(json).getAsJsonObject();
-						final String processingFilePath = jObject.get("processingFile").getAsString();
-						final List<String> lines = getProcessingLinesFromFile(processingFilePath);
-
-						// Add tracking lines and the corresponding processing file path
-						for (String line : lines) {
-							final SortedSet<String> filePaths = linesToTrack.computeIfAbsent(line, k -> new TreeSet<>());
-							filePaths.add(processingFilePath);
-						}
-					} catch (IOException e) {
-						logger.error("Error opening JSON file {}", jsonFilePath, e);
-					}
-				}
-			}
-		}
+		final SortedMap<String, SortedSet<String>> linesToTrack = getLinesToTrack(getMappingBean().getProcessingRequest());
 
 		// Add lines and restore current selection if possible
 		final int numLines = linesToTrack.size();
@@ -329,6 +308,7 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 				comboEntries[i++] = new LinesToTrackEntry(entry.getKey(), entry.getValue());
 			}
 			linesToTrackCombo.setInput(comboEntries);
+			// Add blank line to start of the list
 			linesToTrackCombo.insert(new LinesToTrackEntry(), 0);
 
 			// Restore previous selection if possible
@@ -344,6 +324,33 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	private static SortedMap<String, SortedSet<String>> getLinesToTrack(final Map<String, Object> processingRequest) {
+		final SortedMap<String, SortedSet<String>> linesToTrack = new TreeMap<>();
+
+		final Object dawnEntry = processingRequest.get("dawn");
+		if (dawnEntry != null) {
+			for (String jsonFilePath : (List<String>) dawnEntry) {
+				try {
+					// Get the path of the processing file and the tracking lines it contains
+					final String json = new String(Files.readAllBytes(Paths.get(jsonFilePath)));
+					final JsonObject jObject = new JsonParser().parse(json).getAsJsonObject();
+					final String processingFilePath = jObject.get("processingFile").getAsString();
+					final List<String> lines = getProcessingLinesFromFile(processingFilePath);
+
+					// Add tracking lines and the corresponding processing file path
+					for (String line : lines) {
+						final SortedSet<String> filePaths = linesToTrack.computeIfAbsent(line, k -> new TreeSet<>());
+						filePaths.add(processingFilePath);
+					}
+				} catch (IOException e) {
+					logger.error("Error opening JSON file {}", jsonFilePath, e);
+				}
+			}
+		}
+		return linesToTrack;
+	}
+
 	/**
 	 * Extract the lines defined in a processing file and add to the combo box
 	 * <p>
@@ -356,7 +363,7 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	 * @param processingFilePath
 	 *            path to he processing file (in Nexus format)
 	 */
-	private List<String> getProcessingLinesFromFile(String processingFilePath) {
+	private static List<String> getProcessingLinesFromFile(String processingFilePath) {
 		final String dataNodePath = "/entry/process/0/data";
 		final INexusFileFactory nexusFileFactory = ServiceHolder.getNexusFileFactory();
 		final List<String> lines = new ArrayList<>();
