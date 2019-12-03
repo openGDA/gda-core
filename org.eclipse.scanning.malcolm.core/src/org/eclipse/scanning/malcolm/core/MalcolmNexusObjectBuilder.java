@@ -11,6 +11,13 @@
  *******************************************************************************/
 package org.eclipse.scanning.malcolm.core;
 
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_FILENAME;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_NAME;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_PATH;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_RANK;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_TYPE;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_UNIQUEID;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -27,10 +34,11 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
-import org.eclipse.scanning.api.malcolm.MalcolmConstants;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A helper class that knows how to build the NeXus objects and the {@link NexusObjectProvider}s
@@ -44,6 +52,8 @@ class MalcolmNexusObjectBuilder {
 	private static final String PROPERTY_NAME_UNIQUE_KEYS = "uniqueKeys";
 
 	private static final Map<MalcolmDatasetType, NexusBaseClass> nexusClassForDatasetType;
+
+	private static final Logger logger = LoggerFactory.getLogger(MalcolmNexusObjectBuilder.class);
 
 	private final IMalcolmDevice malcolmDevice;
 
@@ -75,16 +85,16 @@ class MalcolmNexusObjectBuilder {
 	 * @throws ScanningException
 	 */
 	public List<NexusObjectProvider<?>> buildNexusObjects(NexusScanInfo scanInfo) throws ScanningException {
-		MalcolmTable datasetsTable = malcolmDevice.getDatasets();
+		logger.debug("Creating nexus objects from datasets table for malcolm device {}", malcolmDevice.getName());
+		final MalcolmTable datasetsTable = malcolmDevice.getDatasets();
 
 		for (Map<String, Object> datasetRow : datasetsTable) {
-			final String datasetFullName = (String) datasetRow.get(MalcolmConstants.DATASETS_TABLE_COLUMN_NAME);
-			final String externalFileName = (String) datasetRow.get(MalcolmConstants.DATASETS_TABLE_COLUMN_FILENAME);
-			final String datasetPath = (String) datasetRow.get(MalcolmConstants.DATASETS_TABLE_COLUMN_PATH);
-			final int datasetRank = ((Integer) datasetRow.get(MalcolmConstants.DATASETS_TABLE_COLUMN_RANK)).intValue();
-			final MalcolmDatasetType datasetType = MalcolmDatasetType.valueOf(
-					((String) datasetRow.get(MalcolmConstants.DATASETS_TABLE_COLUMN_TYPE)).toUpperCase());
-			final String uniqueIdPath = (String) datasetRow.get(MalcolmConstants.DATASETS_TABLE_COLUMN_UNIQUEID);
+			final String datasetFullName = (String) datasetRow.get(DATASETS_TABLE_COLUMN_NAME);
+			final String externalFileName = (String) datasetRow.get(DATASETS_TABLE_COLUMN_FILENAME);
+			final String datasetPath = (String) datasetRow.get(DATASETS_TABLE_COLUMN_PATH);
+			final int datasetRank = ((Integer) datasetRow.get(DATASETS_TABLE_COLUMN_RANK)).intValue();
+			final MalcolmDatasetType datasetType = getDatasetType(datasetRow);
+			final String uniqueIdPath = (String) datasetRow.get(DATASETS_TABLE_COLUMN_UNIQUEID);
 
 			final String[] nameSegments = datasetFullName.split("\\.");
 			final String deviceName = nameSegments[0];
@@ -112,6 +122,15 @@ class MalcolmNexusObjectBuilder {
 		return new ArrayList<>(nexusWrappers.values());
 	}
 
+	private MalcolmDatasetType getDatasetType(Map<String, Object> datasetRow) {
+		final String datasetTypeStr = (String) datasetRow.get(DATASETS_TABLE_COLUMN_TYPE);
+		final MalcolmDatasetType datasetType = MalcolmDatasetType.fromString(datasetTypeStr);
+		if (datasetType == MalcolmDatasetType.UNKNOWN) {
+			logger.warn("Unknown dataset type '{}' for malcolm device {}", datasetType, malcolmDevice.getName());
+		}
+		return datasetType;
+	}
+
 	/**
 	 * Configure the nexus wrapper to describe the wrapped nexus object appropriately.
 	 * @param datasetType
@@ -121,31 +140,32 @@ class MalcolmNexusObjectBuilder {
 	private void configureNexusWrapperForDataset(final MalcolmDatasetType datasetType,
 			final String datasetName, final NexusObjectWrapper<NXobject> nexusWrapper) {
 		switch (datasetType) {
-			case PRIMARY: {
+			case PRIMARY:
 				nexusWrapper.setPrimaryDataFieldName(datasetName);
 				break;
-			}
-			case SECONDARY: {
+			case SECONDARY:
 				nexusWrapper.addAdditionalPrimaryDataFieldName(datasetName);
 				break;
-			}
-			case MONITOR: {
+			case MONITOR:
 				nexusWrapper.addAxisDataFieldName(datasetName);
 				if (nexusWrapper.getPrimaryDataFieldName() == null) {
 					nexusWrapper.setPrimaryDataFieldName(datasetName);
 				}
 				break;
-			}
-			case POSITION_VALUE: {
+			case POSITION_VALUE:
 				nexusWrapper.addAxisDataFieldName(datasetName);
 				nexusWrapper.setPrimaryDataFieldName(datasetName);
 				break;
-			}
-			case POSITION_SET: {
+			case POSITION_SET:
 				nexusWrapper.addAxisDataFieldName(datasetName);
 				nexusWrapper.setDefaultAxisDataFieldName(datasetName);
 				break;
-			}
+			case POSITION_MIN:
+				break; // do nothing, see DAQ-2613
+			case POSITION_MAX:
+				break; // do nothing, see DAQ-2613
+			case UNKNOWN:
+				break; // do nothing (warning already logged)
 		}
 	}
 

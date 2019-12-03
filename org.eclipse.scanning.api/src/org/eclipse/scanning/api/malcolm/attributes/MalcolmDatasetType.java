@@ -49,10 +49,32 @@ public enum MalcolmDatasetType {
 	MONITOR(ScanRole.MONITOR_PER_POINT),
 
 	/**
-	 * The value dataset for a position
+	 * The value dataset for a position. This dataset contains the actual value
+	 * of the motor, a.k.a. the read-back value (rbv).
 	 */
 	POSITION_VALUE(ScanRole.SCANNABLE),
-	POSITION_SET(ScanRole.SCANNABLE);
+
+	/**
+	 * The set value datsets for a position. This dataset contains the value that the
+	 * motor was requested to move do, a.k.a. the demand value.
+	 */
+	POSITION_SET(ScanRole.SCANNABLE),
+
+	/**
+	 * A dataset containing the minimum position for a motor.
+	 */
+	POSITION_MIN(ScanRole.SCANNABLE),
+
+	/**
+	 * A dataset containing the maximum position for a motor.
+	 */
+	POSITION_MAX(ScanRole.SCANNABLE),
+
+	/**
+	 * This constant represents an unknown dataset type. This allows malcolm to add new dataset types
+	 * without causing an error in GDA.
+	 */
+	UNKNOWN(null);
 
 	private final ScanRole scanRole;
 
@@ -65,7 +87,11 @@ public enum MalcolmDatasetType {
 	}
 
 	public static MalcolmDatasetType fromString(String typeStr) {
-		return valueOf(typeStr.toUpperCase());
+		try {
+			return valueOf(typeStr.toUpperCase());
+		} catch (IllegalArgumentException e) {
+			return UNKNOWN;
+		}
 	}
 
 }
