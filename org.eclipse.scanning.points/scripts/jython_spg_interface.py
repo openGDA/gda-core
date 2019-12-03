@@ -175,7 +175,6 @@ class MapPositionWrapper(GeneratorWrapper):
                 map_point.putIndex(axis, point.indexes[index])
                 map_point.setStepIndex(self._index)
             map_point.setDimensionNames(names)
-            print(map_point)
             yield map_point
     
   
