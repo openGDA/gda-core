@@ -62,6 +62,7 @@ public class SpecsPhoibosCollectionStrategy implements AsyncNXCollectionStrategy
 	private SpecsPhoibosSequence sequence;
 	private SpecsPhoibosAnalyser analyser;
 	private volatile int status = Detector.IDLE;
+	private boolean safeStateAfterScan;
 
 	// The future will return status of the detector
 	private Future<Integer> runningAcquisition;
@@ -113,7 +114,14 @@ public class SpecsPhoibosCollectionStrategy implements AsyncNXCollectionStrategy
 		// Empty the queue shouldn't be needed but will ensure future scans could work if the queue was not empty
 		pointsAwaitingWriting.clear();
 
+		// Set if the analyser HV will be switched off at the end of the scan
+		analyser.setSafeState(safeStateAfterScan);
+
 		logger.debug("Finished complete collection");
+	}
+
+	public void setSafeStateAfterScan(boolean safeStateAfterScan) {
+		this.safeStateAfterScan = safeStateAfterScan;
 	}
 
 	@Override
