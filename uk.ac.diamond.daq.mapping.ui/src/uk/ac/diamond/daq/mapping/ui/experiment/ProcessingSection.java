@@ -277,10 +277,14 @@ public class ProcessingSection extends AbstractMappingSection {
 	private void addProcessingModel() {
 
 		ConfigWrapper config = configureProcessingModel();
-		getMappingBean().addProcessingRequest(config);
+		if (config != null) {
+			// Ensure file is selected
+			config.setActive(true);
+			getMappingBean().addProcessingRequest(config);
 
-		getMappingView().updateControls();
-		getMappingView().showControl(processingChainsComposite.getParent());
+			getMappingView().updateControls();
+			getMappingView().showControl(processingChainsComposite.getParent());
+		}
 	}
 
 	private File[] getTemplateFiles() {
