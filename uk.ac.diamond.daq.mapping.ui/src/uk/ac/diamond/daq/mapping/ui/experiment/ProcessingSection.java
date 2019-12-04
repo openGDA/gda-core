@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
@@ -56,6 +57,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -201,7 +203,7 @@ public class ProcessingSection extends AbstractMappingSection {
 						getMappingBean().getProcessingConfigs().removeAll(w);
 					}
 
-					viewer.setInput(getMappingBean().getProcessingConfigs());
+					getMappingView().updateControls();
 				}
 			}
 		});
@@ -211,7 +213,7 @@ public class ProcessingSection extends AbstractMappingSection {
 
 		List<ConfigWrapper> configs = getMappingBean().getProcessingConfigs();
 		viewer.setInput(configs.toArray());
-
+		setTableSize();
 	}
 
 	private ConfigWrapper configureProcessingModel() {
@@ -277,8 +279,6 @@ public class ProcessingSection extends AbstractMappingSection {
 		ConfigWrapper config = configureProcessingModel();
 		getMappingBean().addProcessingRequest(config);
 
-		viewer.setInput(getMappingBean().getProcessingConfigs().toArray());
-		viewer.refresh();
 		getMappingView().updateControls();
 	}
 
@@ -297,9 +297,32 @@ public class ProcessingSection extends AbstractMappingSection {
 	public void updateControls() {
 
 		List<ConfigWrapper> configs = getMappingBean().getProcessingConfigs();
-		if (configs != null) {
-			viewer.setInput(configs);
-			viewer.refresh();
+		if (configs == null) {
+			configs = Collections.emptyList();
+		}
+
+		viewer.setInput(configs);
+		viewer.refresh();
+
+		setTableSize();
+		processingChainsComposite.getParent().layout(true, true);
+		relayoutMappingView();
+	}
+
+	/**
+	 * Resize the table to fit the data, subject to a maximum size: table will scroll to view all items
+	 */
+	private void setTableSize() {
+		final int maxItems = 5;
+		if (processingChainsComposite.getLayoutData() instanceof GridData) {
+			final int itemCount = Math.min(viewer.getTable().getItemCount(), maxItems);
+			final int itemHeight = viewer.getTable().getItemHeight();
+			final int headerHeight = viewer.getTable().getHeaderHeight();
+
+			final GridData gd = (GridData) processingChainsComposite.getLayoutData();
+			final int h = (1 + itemCount) * itemHeight + headerHeight;
+			gd.minimumHeight = h;
+			gd.heightHint = h;
 		}
 	}
 
