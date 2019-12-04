@@ -280,6 +280,7 @@ public class ProcessingSection extends AbstractMappingSection {
 		getMappingBean().addProcessingRequest(config);
 
 		getMappingView().updateControls();
+		getMappingView().showControl(processingChainsComposite.getParent());
 	}
 
 	private File[] getTemplateFiles() {
