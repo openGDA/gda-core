@@ -212,6 +212,7 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 				return ((LinesToTrackEntry) element).getLine();
 			}
 		});
+		updateControls();
 
 		// Bind to model
 		final IViewerObservableValue comboObservable = ViewersObservables.observeSingleSelection(linesToTrackCombo);
@@ -290,6 +291,9 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		updateLinesToTrack();
 	}
 
+	/**
+	 * Populate the "lines to track" drop-down list with the lines available in the selected processing files (if any)
+	 */
 	private void updateLinesToTrack() {
 		// Save the current selection
 		final IStructuredSelection currentSelection = linesToTrackCombo.getStructuredSelection();
@@ -324,6 +328,13 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		}
 	}
 
+	/**
+	 * Read the "lines to track" available in selected processing file(s)
+	 *
+	 * @param processingRequest
+	 *            processing request included in the mapping bean
+	 * @return map of processing files to the line(s) tracked by each one
+	 */
 	@SuppressWarnings("unchecked")
 	private static SortedMap<String, SortedSet<String>> getLinesToTrack(final Map<String, Object> processingRequest) {
 		final SortedMap<String, SortedSet<String>> linesToTrack = new TreeMap<>();
@@ -413,9 +424,6 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 
 		// Refresh outer scannables section to update text box
 		getMappingView().getSection(OuterScannablesSection.class).updateControls();
-
-		// Update this section
-		this.updateControls();
 	}
 
 	private double roundDouble(double input) {
