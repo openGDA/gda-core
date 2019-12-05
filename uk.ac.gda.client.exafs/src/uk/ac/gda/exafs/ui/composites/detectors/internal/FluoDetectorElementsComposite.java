@@ -138,8 +138,10 @@ public class FluoDetectorElementsComposite extends Composite {
 		detectorElementTable.setGridWidth(Math.max(160, columns * 30));
 
 		TableViewer tableView = (TableViewer) detectorElementTable.getViewer();
-		int height = tableView.getTable().getItemHeight();
-		detectorElementTable.setGridHeight(rows * height);
+		if (tableView != null) {
+			int height = tableView.getTable().getItemHeight();
+			detectorElementTable.setGridHeight(rows * height);
+		}
 
 		GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.CENTER).span(2, 1).applyTo(detectorElementTable);
 		detectorElementTable.moveAbove(elementName);
