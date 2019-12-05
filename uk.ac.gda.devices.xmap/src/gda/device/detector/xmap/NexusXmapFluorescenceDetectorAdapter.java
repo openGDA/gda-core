@@ -67,7 +67,7 @@ public class NexusXmapFluorescenceDetectorAdapter implements FluorescenceDetecto
 	public double[][] getMCAData(double time) throws DeviceException {
 		double[][] data = new double[numberOfElements][xmap.getNumberOfBins()];
 		int[][] xmapData;
-		xmap.setCollectionTime(time);
+		xmap.setCollectionTime(time / 1000);
 		xmap.collectData();
 
 		if (mcaCollectionUsesTfg) {
