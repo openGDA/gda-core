@@ -372,7 +372,7 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	 * Latin characters, as used elsewhere in the Nexus file
 	 *
 	 * @param processingFilePath
-	 *            path to he processing file (in Nexus format)
+	 *            path to the processing file (in Nexus format)
 	 */
 	private static List<String> getProcessingLinesFromFile(String processingFilePath) {
 		final String dataNodePath = "/entry/process/0/data";
@@ -388,11 +388,15 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 			if (jObject == null) {
 				throw new NexusException("Cannot parse data node " + dataNode.toString() + " as JSON");
 			}
-			for (JsonElement lineGroups : jObject.getAsJsonArray("lineGroupsXRF")) {
+			final String xrfLinesMember = "lineGroupsXRF";
+			if (!jObject.has(xrfLinesMember)) {
+				throw new NexusException("No XRF line data");
+			}
+			for (JsonElement lineGroups : jObject.getAsJsonArray(xrfLinesMember)) {
 				lines.add(lineGroups.getAsString().replace('\u03B1', 'a').replace('\u03B2', 'b'));
 			}
 		} catch (NexusException e) {
-			logger.error("Cannot read file {}", processingFilePath, e);
+			logger.warn("Cannot get processing data from file {}", processingFilePath, e);
 		}
 		return lines;
 	}
