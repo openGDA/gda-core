@@ -34,7 +34,10 @@ import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -239,9 +242,7 @@ public class OuterScannablesSection extends AbstractMappingSection {
 		if (dialog.open() == Window.OK) {
 			final List<String> scannablesSelected = dialog.getSelected();
 			if (!scannablesSelected.isEmpty()) {
-				for (String scannable : scannablesSelected) {
-					scannablesToShow.add(new ScanPathModelWrapper(scannable, null, false));
-				}
+				showScannables(scannablesSelected, false);
 				updateControls();
 			}
 		}
@@ -264,5 +265,63 @@ public class OuterScannablesSection extends AbstractMappingSection {
 	public void dispose() {
 		disposeScanPathEditors();
 		super.dispose();
+	}
+
+	/**
+	 * Get the wrapper for the named scannable.
+	 * <p>
+	 * If the scannable is not currently shown in this section, this will return <code>null</code>
+	 *
+	 * @param scannableName
+	 *            name of the scannable
+	 * @return wrapper for the scannable or <code>null</code>
+	 */
+	private IScanModelWrapper<IScanPathModel> getScannableWrapper(String scannableName) {
+		return scannablesToShow.stream()
+				.filter(item -> item.getName().equals(scannableName))
+				.findFirst()
+				.orElse(null);
+	}
+
+	/**
+	 * Make a scannable visible in this section (if it is not already shown) and set the flag to say whether it should
+	 * be included in a scan
+	 *
+	 * @param scannableName
+	 *            name of the scannable
+	 * @param includeInScan
+	 *            <code>true</code> if the scannable is to be included in scans, <code>false</code> otherwise
+	 */
+	public void showScannable(String scannableName, boolean includeInScan) {
+		final IScanModelWrapper<IScanPathModel> wrapper = getScannableWrapper(scannableName);
+		if (wrapper != null) {
+			wrapper.setIncludeInScan(includeInScan);
+			return;
+		}
+
+		if (availableScannables.contains(scannableName)) {
+			scannablesToShow.add(new ScanPathModelWrapper(scannableName, null, includeInScan));
+		} else {
+			final String message = String.format("Cannot add %s as outer scannable: not one of the permitted scannables", scannableName);
+			final Status status = new Status(IStatus.WARNING, "uk.ac.diamond.daq.mapping.ui", "Scannable configuration");
+			ErrorDialog.openError(getShell(), "Configuration error", message, status);
+			logger.warn(message);
+		}
+	}
+
+	/**
+	 * Make a collection of scannables visible in this section.
+	 * <p>
+	 * See {@link #showScannable(String, boolean)}
+	 *
+	 * @param scannableNames
+	 *            names of the scannable
+	 * @param includeInScan
+	 *            <code>true</code> if the scannables are to be included in scans, <code>false</code> otherwise
+	 */
+	public void showScannables(Collection<String> scannableNames, boolean includeInScan) {
+		for (String scannableName : scannableNames) {
+			showScannable(scannableName, includeInScan);
+		}
 	}
 }

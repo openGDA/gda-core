@@ -20,14 +20,15 @@ package uk.ac.diamond.daq.mapping.xanes.ui;
 
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_SCAN_REQUEST_JSON;
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_XANES_EDGE_PARAMS_JSON;
-import static uk.ac.diamond.daq.mapping.xanes.ui.XanesScanningUtils.getOuterScannable;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
@@ -37,7 +38,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.concurrent.Async;
-import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters;
 import uk.ac.diamond.daq.mapping.ui.SubmitScanToScriptSection;
 import uk.ac.diamond.daq.mapping.ui.experiment.OuterScannablesSection;
@@ -132,12 +132,15 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 	 *            <code>true</code> to select the energy scannable, <code>false</code> to deselect it
 	 */
 	private void selectEnergyScannable(boolean select) {
-		final IScanModelWrapper<IScanPathModel> scannable = getOuterScannable(getMappingBean(), energyScannableName);
-		if (scannable != null) {
-			scannable.setIncludeInScan(select);
-			final OuterScannablesSection outerScannablesSection = getMappingView().getSection(OuterScannablesSection.class);
-			outerScannablesSection.updateControls();
+		final OuterScannablesSection outerScannablesSection = getMappingView().getSection(OuterScannablesSection.class);
+		if (outerScannablesSection == null) {
+			final String message = "OuterScannablesSection not found";
+			final Status status = new Status(IStatus.WARNING, "uk.ac.diamond.daq.mapping.ui", "Mapping view configuration");
+			ErrorDialog.openError(getShell(), "Mapping view configuration error", message, status);
+			return;
 		}
+		outerScannablesSection.showScannable(energyScannableName, select);
+		getMappingView().updateControls();
 	}
 
 	public void setEnergyScannableName(String energyScannableName) {
