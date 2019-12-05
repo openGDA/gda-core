@@ -11,6 +11,10 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points;
 
+import org.python.core.PyObject;
+
 public interface IMutator {
-	public Object getMutatorAsJythonObject();
+
+	public PyObject getMutatorAsJythonObject();
+
 }

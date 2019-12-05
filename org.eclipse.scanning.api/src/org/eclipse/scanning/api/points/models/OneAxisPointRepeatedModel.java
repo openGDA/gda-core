@@ -39,20 +39,10 @@ public class OneAxisPointRepeatedModel extends AbstractPointsModel {
 	}
 
 	public OneAxisPointRepeatedModel(String name, int count, double value, long sleep) {
-		this.name  = name;
+		setName(name);
 		this.count = count;
 		this.value = value;
 		this.sleep = sleep;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public double getValue() {

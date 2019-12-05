@@ -13,31 +13,29 @@ package org.eclipse.scanning.points;
 
 import static org.eclipse.scanning.points.AbstractScanPointIterator.EMPTY_PY_ARRAY;
 
-import org.eclipse.scanning.api.ModelValidationException;
+import java.util.List;
+
 import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.PPointGenerator;
-import org.eclipse.scanning.api.points.ScanPointIterator;
 import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.python.core.PyObject;
 
 abstract class AbstractGridGenerator<T extends AbstractTwoAxisGridModel> extends AbstractGenerator<T> {
 
-	@Override
-	protected void validateModel() {
-		super.validateModel();
-		if (model.getBoundingBox() == null)
-			throw new ModelValidationException("The model must have a Bounding Box!", model, "boundingBox");
-	    if (model.getBoundingBox().getxAxisLength()==0 || model.getBoundingBox().getyAxisLength()==0)
-	        throw new ModelValidationException("The length must not be 0!", model, "boundingBox");
+	protected AbstractGridGenerator(T model) {
+		super(model);
 	}
 
 	@Override
 	public PPointGenerator createPythonPointGenerator() {
+		final JythonObjectFactory<PPointGenerator> lineGeneratorFactory = ScanPointGeneratorFactory.JOneAxisLineGeneratorFactory();
+
 		final T model = getModel();
 
 		final int columns = getXPoints();
 		final int rows = getYPoints();
+		final List<String> axes = model.getScannableNames();
 		final String xName = model.getxAxisName();
 		final String xUnits = model.getxAxisUnits();
 		final String yName = model.getyAxisName();
@@ -46,25 +44,20 @@ abstract class AbstractGridGenerator<T extends AbstractTwoAxisGridModel> extends
 		final double yStep = getYStep();
 		final double minX = model.getBoundingBox().getxAxisStart() + xStep / 2;
 		final double minY = model.getBoundingBox().getyAxisStart() + yStep / 2;
-
-		final JythonObjectFactory<PPointGenerator> lineGeneratorFactory = ScanPointGeneratorFactory.JOneAxisLineGeneratorFactory();
+		final boolean alternating = model.isAlternating();
+		final boolean continuous = model.isContinuous();
 
 		final PPointGenerator yLine = lineGeneratorFactory.createObject(
-				yName, yUnits, minY, minY + (rows - 1) * yStep, rows, model.isAlternating(), model.isContinuous());
+				yName, yUnits, minY, minY + (rows - 1) * yStep, rows, alternating);
 		final PPointGenerator xLine = lineGeneratorFactory.createObject(
-				xName, xUnits, minX, minX + (columns - 1) * xStep, columns, model.isAlternating(), model.isContinuous());
+				xName, xUnits, minX, minX + (columns - 1) * xStep, columns, alternating);
 
 		final PPointGenerator[] generators = new PPointGenerator[2];
 		generators[0] = model.isVerticalOrientation() ? xLine : yLine;
 		generators[1] = model.isVerticalOrientation() ? yLine : xLine;
 
 		return CompoundSpgIteratorFactory.createSpgCompoundGenerator(generators,
-				getRegions().toArray(),	model.getScannableNames(), getMutators(), -1, model.isContinuous());
-	}
-
-	@Override
-	public ScanPointIterator iteratorFromValidModel() {
-		return createPythonPointGenerator().getPointIterator();
+				getRegions(), axes, getMutators(), -1, continuous);
 	}
 
 	protected abstract int getXPoints();

@@ -11,17 +11,18 @@
  *******************************************************************************/
 package org.eclipse.scanning.points;
 
+import java.util.List;
+
 import org.eclipse.scanning.api.ModelValidationException;
-import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsRandomOffsetModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.python.core.PyDictionary;
-import org.python.core.PyList;
 import org.python.core.PyObject;
 
 public class TwoAxisGridPointsRandomOffsetGenerator extends AbstractGridGenerator<TwoAxisGridPointsRandomOffsetModel> {
 
-	TwoAxisGridPointsRandomOffsetGenerator() {
+	TwoAxisGridPointsRandomOffsetGenerator(TwoAxisGridPointsRandomOffsetModel model) {
+		super(model);
 		setLabel("Two-Axis Grid Points (with RandomOffset) Scan");
 		setDescription("Creates a grid scan by slicing each axis of a box into equal sized portions: each position is then offset in both axes by an amount proportional to the fast axis step."
 				+ "\nThe scan supports alternating/bidirectional/'snake' mode.");
@@ -50,27 +51,27 @@ public class TwoAxisGridPointsRandomOffsetGenerator extends AbstractGridGenerato
 
 	@Override
 	protected PyObject[] getMutators() {
+		final JythonObjectFactory<PyObject> randomOffsetMutatorFactory = ScanPointGeneratorFactory.JRandomOffsetMutatorFactory();
 
-		BoundingBox box = model.getBoundingBox();
-		double maxOffset = (model.getOffset() / 100) * (model.isVerticalOrientation() ? box.getyAxisLength()/getYPoints() : box.getxAxisLength()/getXPoints());
+		final TwoAxisGridPointsRandomOffsetModel model = getModel();
 
-        final PyList axes = new PyList(model.getScannableNames());
+		final List<String> axes = model.getScannableNames();
+		final double maxOffset = (model.getOffset() / 100) * (model.isVerticalOrientation() ? getYStep() : getXStep());
+		final int seed = model.getSeed();
+
 		final PyDictionary offset = new PyDictionary();
         // "the same standard deviation is used for the random Gaussian offset for each axis." - See {Code @RandomOffsetDecorator}
 		offset.put(model.getyAxisName(), maxOffset);
 		offset.put(model.getxAxisName(), maxOffset);
-		JythonObjectFactory<PyObject> randomOffsetMutatorFactory = ScanPointGeneratorFactory.JRandomOffsetMutatorFactory();
 
-		return new PyObject[] { randomOffsetMutatorFactory.createObject(model.getSeed(), axes, offset) };
+		return new PyObject[] { randomOffsetMutatorFactory.createObject(seed, axes, offset) };
 	}
 
 	@Override
-	protected void validateModel() {
-		super.validateModel();
+	public void validate(TwoAxisGridPointsRandomOffsetModel model) {
+		super.validate(model);
 		if (model.getyAxisPoints() <= 0) throw new ModelValidationException("Model must have a positive number of y-axis points!", model, "yAxisPoints");
 		if (model.getxAxisPoints() <= 0) throw new ModelValidationException("Model must have a positive number of x-axis points!", model, "xAxisPoints");
-		if (model.getxAxisName()==null) throw new ModelValidationException("The model must have a fast axis!\nIt is the motor name used for this axis.", model, "xAxisName");
-		if (model.getyAxisName()==null) throw new ModelValidationException("The model must have a slow axis!\nIt is the motor name used for this axis.", model, "yAxisName");
 	}
 
 }

@@ -27,6 +27,7 @@ public class TwoAxisSpiralModel extends AbstractBoundingBoxModel {
 
 	public TwoAxisSpiralModel(String fastName, String slowName) {
 		super(fastName, slowName, null);
+		setName("Spiral");
 	}
 	public double getScale() {
 		return scale;

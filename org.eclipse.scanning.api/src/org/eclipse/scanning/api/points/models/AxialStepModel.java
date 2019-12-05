@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
+import java.math.BigDecimal;
+
 import org.eclipse.scanning.api.annotation.ui.DeviceType;
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 
@@ -21,9 +23,6 @@ public class AxialStepModel extends AbstractPointsModel {
 
 	@FieldDescriptor(label="Device", device=DeviceType.SCANNABLE, fieldPosition=0)
 	private String name;
-
-	@FieldDescriptor(visible=false)
-	private String label;
 
 	@FieldDescriptor(label="Start", scannable="name", hint="This is the start position for the scan", fieldPosition=1) // The scannable lookup gets the units
 	private double start;
@@ -40,20 +39,12 @@ public class AxialStepModel extends AbstractPointsModel {
 
 	public AxialStepModel(String name, double start, double stop, double step) {
 		super();
-		this.name = name;
+		setName(name);
 		this.start = start;
 		this.stop = stop;
 		this.step = step;
 	}
 
-	@Override
-	public String getName() {
-		return name;
-	}
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
 	public double getStart() {
 		return start;
 	}
@@ -73,13 +64,10 @@ public class AxialStepModel extends AbstractPointsModel {
 		this.step = step;
 	}
 
-
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((label == null) ? 0 : label.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		long temp;
 		temp = Double.doubleToLongBits(start);
@@ -96,11 +84,6 @@ public class AxialStepModel extends AbstractPointsModel {
 		if (!super.equals(obj))
 			return false;
 		AxialStepModel other = (AxialStepModel) obj;
-		if (label == null) {
-			if (other.label != null)
-				return false;
-		} else if (!label.equals(other.label))
-			return false;
 		if (Double.doubleToLongBits(start) != Double.doubleToLongBits(other.start))
 			return false;
 		if (Double.doubleToLongBits(step) != Double.doubleToLongBits(other.step))
@@ -112,23 +95,12 @@ public class AxialStepModel extends AbstractPointsModel {
 
 	@Override
 	public int size() {
-
-		// copied from StepGenerator.sizeOfValidModel
-		double div = ((getStop()-getStart())/getStep());
-		div += 0.01;
-		return Math.toIntExact(Math.round(Math.floor(div+1d)));
-	}
-
-	public String getLabel() {
-		return label;
-	}
-
-	public void setLabel(String label) {
-		this.label = label;
+		// Includes point if would be within 1% (of step length) of end
+		return 1 + BigDecimal.valueOf(0.01*getStep()+getStop()-getStart()).divideToIntegralValue(BigDecimal.valueOf(getStep())).intValue();
 	}
 
 	protected String description() {
-		return "label=" + label + ", start=" + start + ", stop=" + stop + ", step=" + step
+		return "start=" + start + ", stop=" + stop + ", step=" + step
 				+ ", " + super.toString();
 	}
 

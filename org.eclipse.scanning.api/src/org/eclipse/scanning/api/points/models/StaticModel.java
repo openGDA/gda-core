@@ -28,6 +28,7 @@ public class StaticModel extends AbstractPointsModel {
 	}
 
 	public StaticModel(int size) {
+		this();
 		this.size = size;
 	}
 

@@ -69,7 +69,7 @@ public class GeneratorDescriptor<T extends IScanPathModel> implements ISeriesIte
 
 	@Override
 	public String getName() {
-		String id = generator.getId();
+		String id = generator.getClass().getName();
 		if (id == null) id = generator.getClass().getName();
 		return id;
 	}
@@ -152,12 +152,12 @@ public class GeneratorDescriptor<T extends IScanPathModel> implements ISeriesIte
 	public Image getImage() {
 		if (icons==null) createIcons();
 
-		Image icon = icons.get(generator.getId());
+		Image icon = icons.get(generator.getClass().getName());
 		if (icon != null) return icon;
 
 		if (generator.getIconPath()!=null) {
 			icon = Activator.getImageDescriptor(generator.getIconPath()).createImage();
-			icons.put(generator.getId(), icon);
+			icons.put(generator.getClass().getName(), icon);
 			return icon;
 		}
 

@@ -20,10 +20,10 @@ import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.ProcessingModel;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
-import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
@@ -101,7 +101,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		validator.validate(req);
 	}
 
-	@Test(expected=ModelValidationException.class)
+	@Test(expected=ValidationException.class)
 	public void nulledAxisName() throws Exception {
 
 		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel(null, "stage_y");
@@ -112,7 +112,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 	}
 
 
-	@Test(expected=ModelValidationException.class)
+	@Test(expected=ValidationException.class)
 	public void collidingPointsModels() throws Exception {
 
 		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new AxialStepModel("stage_x", 10, 20, 1), new TwoAxisGridPointsModel("stage_x", "stage_y")));

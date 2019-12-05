@@ -25,7 +25,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
@@ -120,28 +119,28 @@ public class PtychographyGridPathTest extends AbstractGeneratorTest {
 		}
 	}
 
-	@Test(expected=ModelValidationException.class)
+	@Test(expected=GeneratorException.class)
 	public void zeroXBeamSizeThrows() throws Exception {
 		TwoAxisPtychographyModel model = createTestModel();
 		model.setxBeamSize(0);
 		service.createGenerator(model).validate(model);
 	}
 
-	@Test(expected=ModelValidationException.class)
+	@Test(expected=GeneratorException.class)
 	public void zeroYBeamSizeThrows() throws Exception {
 		TwoAxisPtychographyModel model = createTestModel();
 		model.setyBeamSize(0);
 		service.createGenerator(model).validate(model);
 	}
 
-	@Test(expected=ModelValidationException.class)
+	@Test(expected=GeneratorException.class)
 	public void negativeOverlapThrows() throws Exception {
 		TwoAxisPtychographyModel model = createTestModel();
 		model.setOverlap(-53.6);
 		service.createGenerator(model).validate(model);
 	}
 
-	@Test(expected=ModelValidationException.class)
+	@Test(expected=GeneratorException.class)
 	public void overlapGreaterThanOneThrows() throws Exception {
 		TwoAxisPtychographyModel model = createTestModel();
 		model.setOverlap(1.0);

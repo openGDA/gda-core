@@ -17,7 +17,6 @@ import static org.junit.Assert.assertEquals;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
@@ -54,63 +53,63 @@ public class StepTest {
 		GeneratorUtil.testGeneratorPoints(gen);
 
 		model = new AxialStepModel("Temperature", 0,10,1);
-		gen.setModel(model);
+		gen = service.createGenerator(model);
 		assertEquals(11, gen.size());
 		assertEquals(1, gen.getRank());
 		assertArrayEquals(new int[] { 11 }, gen.getShape());
 		GeneratorUtil.testGeneratorPoints(gen);
 
 		model = new AxialStepModel("Temperature", 1,11,1);
-		gen.setModel(model);
+		gen = service.createGenerator(model);
 		assertEquals(11, gen.size());
 		assertEquals(1, gen.getRank());
 		assertArrayEquals(new int[] { 11 }, gen.getShape());
 		GeneratorUtil.testGeneratorPoints(gen);
 
 		model = new AxialStepModel("Temperature", 0,3, 0.9);
-		gen.setModel(model);
+		gen = service.createGenerator(model);
 		assertEquals(4, gen.size());
 		assertEquals(1, gen.getRank());
 		assertArrayEquals(new int[] { 4 }, gen.getShape());
 		GeneratorUtil.testGeneratorPoints(gen);
 
 		model = new AxialStepModel("Temperature", 1,4, 0.9);
-		gen.setModel(model);
+		gen = service.createGenerator(model);
 		assertEquals(4, gen.size());
 		assertEquals(1, gen.getRank());
 		assertArrayEquals(new int[] { 4 }, gen.getShape());
 		GeneratorUtil.testGeneratorPoints(gen);
 
 		model = new AxialStepModel("Temperature", 0, 3, 0.8);
-		gen.setModel(model);
+		gen = service.createGenerator(model);
 		assertEquals(4, gen.size());
 		assertEquals(1, gen.getRank());
 		assertArrayEquals(new int[] { 4 }, gen.getShape());
 		GeneratorUtil.testGeneratorPoints(gen);
 
 		model = new AxialStepModel("Temperature", 1,4, 0.8);
-		gen.setModel(model);
+		gen = service.createGenerator(model);
 		assertEquals(4, gen.size());
 		assertEquals(1, gen.getRank());
 		assertArrayEquals(new int[] { 4 }, gen.getShape());
 		GeneratorUtil.testGeneratorPoints(gen);
 
 		model = new AxialStepModel("Temperature", 0,3, 0.6);
-		gen.setModel(model);
+		gen = service.createGenerator(model);
 		assertEquals(6, gen.size());
 		assertEquals(1, gen.getRank());
 		assertArrayEquals(new int[] { 6 }, gen.getShape());
 		GeneratorUtil.testGeneratorPoints(gen);
 
 		model = new AxialStepModel("Temperature", 1,4, 0.6);
-		gen.setModel(model);
+		gen = service.createGenerator(model);
 		assertEquals(6, gen.size());
 		assertEquals(1, gen.getRank());
 		assertArrayEquals(new int[] { 6 }, gen.getShape());
 		GeneratorUtil.testGeneratorPoints(gen);
 
 		model = new AxialStepModel("Temperature", 1,4, 0.5);
-		gen.setModel(model);
+		gen = service.createGenerator(model);
 		assertEquals(7, gen.size());
 		assertEquals(1, gen.getRank());
 		assertArrayEquals(new int[] { 7 }, gen.getShape());
@@ -142,14 +141,14 @@ public class StepTest {
 		// TODO Should this throw an exception or do this? Possible to do a size 1 step makes some tests easier to write.
 	}
 
-	@Test(expected = ModelValidationException.class)
+	@Test(expected = GeneratorException.class)
 	public void testMisdirectedStepGenSize() throws Exception {
 
 		IPointGenerator<AxialStepModel> gen = service.createGenerator(new AxialStepModel("Temperature", 290, 300, -1));
 		gen.size();
 	}
 
-	@Test(expected = ModelValidationException.class)
+	@Test(expected = GeneratorException.class)
 	public void testMisdirectedStepGenPoints() throws Exception {
 
 		IPointGenerator<AxialStepModel> gen = service.createGenerator(new AxialStepModel("Temperature", 290, 300, -1));
@@ -168,7 +167,7 @@ public class StepTest {
 
 		// outside the 1% of step size tolerance
 		model = new AxialStepModel("Temperature", 0.0, 2.0, 0.67);
-		gen.setModel(model);
+		gen = service.createGenerator(model);
 		assertEquals(3, gen.size());
 		assertEquals(1, gen.getRank());
 		assertArrayEquals(new int[] { 3 }, gen.getShape());
@@ -184,22 +183,22 @@ public class StepTest {
 		GeneratorUtil.testGeneratorPoints(gen, 11);
 
 		model = new AxialStepModel("Temperature", 0,3, 0.6);
-		gen.setModel(model);
+		gen = service.createGenerator(model);
 		checkSequence(gen, 0d, 0.6, 1.2, 1.8, 2.4, 3.0);
 		GeneratorUtil.testGeneratorPoints(gen, 6);
 
 		model = new AxialStepModel("Temperature", 1, 4, 0.6);
-		gen.setModel(model);
+		gen = service.createGenerator(model);
 		checkSequence(gen, 1.0, 1.6, 2.2, 2.8, 3.4, 4.0);
 		GeneratorUtil.testGeneratorPoints(gen, 6);
 
 		model = new AxialStepModel("Temperature", 11, 14, 0.6);
-		gen.setModel(model);
+		gen = service.createGenerator(model);
 		checkSequence(gen, 11.0, 11.6, 12.2, 12.8, 13.4, 14.0);
 		GeneratorUtil.testGeneratorPoints(gen, 6);
 
 		model = new AxialStepModel("Temperature", 1,4, 0.5);
-		gen.setModel(model);
+		gen = service.createGenerator(model);
 		checkSequence(gen, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0);
 		GeneratorUtil.testGeneratorPoints(gen, 7);
 	}
@@ -214,22 +213,22 @@ public class StepTest {
 		GeneratorUtil.testGeneratorPoints(gen, 10);
 
 		model = new AxialStepModel("Temperature", 0, 2.5, 0.6);
-		gen.setModel(model);
+		gen = service.createGenerator(model);
 		checkSequence(gen, 0d, 0.6, 1.2, 1.8, 2.4);
 		GeneratorUtil.testGeneratorPoints(gen, 5);
 
 		model = new AxialStepModel("Temperature", 1, 3, 0.6);
-		gen.setModel(model);
+		gen = service.createGenerator(model);
 		checkSequence(gen, 1.0, 1.6, 2.2, 2.8);
 		GeneratorUtil.testGeneratorPoints(gen, 4);
 
 		model = new AxialStepModel("Temperature", -1, 1, 0.6);
-		gen.setModel(model);
+		gen = service.createGenerator(model);
 		checkSequence(gen, -1.0, -0.4, 0.2, 0.8);
 		GeneratorUtil.testGeneratorPoints(gen, 4);
 
 		model = new AxialStepModel("Temperature", 1, -1, -0.6);
-		gen.setModel(model);
+		gen = service.createGenerator(model);
 		checkSequence(gen, 1.0, 0.4, -0.2, -0.8);
 		GeneratorUtil.testGeneratorPoints(gen, 4);
 	}
@@ -241,19 +240,19 @@ public class StepTest {
 		GeneratorUtil.testGeneratorPoints(gen, 11);
 
 		model = new AxialStepModel("Temperature", 0, 3, 0.6);
-		gen.setModel(model);
+		gen = service.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 6);
 
 		model = new AxialStepModel("Temperature", 1, 4, 0.6);
-		gen.setModel(model);
+		gen = service.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 6);
 
 		model = new AxialStepModel("Temperature", 11, 14, 0.6);
-		gen.setModel(model);
+		gen = service.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 6);
 
 		model = new AxialStepModel("Temperature", 1,4, 0.5);
-		gen.setModel(model);
+		gen = service.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 7);
 	}
 

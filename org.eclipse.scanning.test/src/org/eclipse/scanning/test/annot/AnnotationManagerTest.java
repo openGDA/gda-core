@@ -40,6 +40,7 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Point;
+import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -175,8 +176,9 @@ public class AnnotationManagerTest {
 	@Test
 	public void scanPointGeneratorInject() throws Exception {
 		ScanInformation info = mock(ScanInformation.class);
-
-		IPointGenerator<TwoAxisGridPointsModel> gen = pservice.createGenerator(new TwoAxisGridPointsModel());
+		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel();
+		model.setBoundingBox(new BoundingBox(0,0,1,1));
+		IPointGenerator<TwoAxisGridPointsModel> gen = pservice.createGenerator(model);
 		manager.invoke(PreConfigure.class, gen, info);
 		assertEquals(gen, idevice.getPointGenerator());
 	}

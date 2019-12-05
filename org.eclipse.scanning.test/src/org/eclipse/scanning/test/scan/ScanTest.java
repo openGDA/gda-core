@@ -41,15 +41,16 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.IScanListener;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanEvent;
+import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.points.Point;
 import org.eclipse.scanning.api.points.models.AbstractPointsModel;
-import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
-import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
+import org.eclipse.scanning.api.points.models.BoundingBox;
+import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
@@ -268,7 +269,7 @@ public class ScanTest extends BrokerTest {
 			Thread.sleep(5000);  // testStepScan (the valid one) takes ~2 seconds total.
 
 		} catch (Exception ex) {
-			assertEquals(ScanningException.class, ex.getClass());
+			assertEquals(GeneratorException.class, ex.getClass());
 			assertEquals(ModelValidationException.class, ex.getCause().getClass());
 			assertTrue(ex.getCause().getMessage().toLowerCase().indexOf("wrong direction")>0);
 			return;
@@ -295,7 +296,7 @@ public class ScanTest extends BrokerTest {
 			Thread.sleep(5000);  // testStepScan (the valid one) takes ~2 seconds total.
 
 		} catch (Exception ex) {
-			assertEquals(ScanningException.class, ex.getClass());
+			assertEquals(GeneratorException.class, ex.getClass());
 			assertEquals(ModelValidationException.class, ex.getCause().getClass());
 			assertEquals("Model step size must be nonzero!", ex.getCause().getMessage());
 			return;

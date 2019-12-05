@@ -18,13 +18,17 @@ import org.eclipse.scanning.api.points.ScanPointIterator;
 
 public class TestGenerator extends AbstractGenerator<TestGeneratorModel> {
 
+	TestGenerator(TestGeneratorModel model){
+		super(model);
+	}
+
 	@Override
 	protected ScanPointIterator iteratorFromValidModel() {
 		throw new UnsupportedOperationException("Not designed to be run, just to test extension point for when people want to load by extension!");
 	}
 
 	@Override
-	protected void validateModel() { }
+	public void validate(TestGeneratorModel model) { }
 
 	@Override
 	public int[] getShape() throws GeneratorException {

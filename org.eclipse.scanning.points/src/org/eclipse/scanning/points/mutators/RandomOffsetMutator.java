@@ -13,12 +13,13 @@ package org.eclipse.scanning.points.mutators;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.eclipse.scanning.points.ScanPointGeneratorFactory;
 import org.python.core.PyDictionary;
-import org.python.core.PyList;
+import org.python.core.PyObject;
 
 public class RandomOffsetMutator implements IMutator {
 
@@ -57,16 +58,18 @@ public class RandomOffsetMutator implements IMutator {
 	}
 
 	@Override
-	public Object getMutatorAsJythonObject() {
-		JythonObjectFactory randomOffsetMutatorFactory = ScanPointGeneratorFactory.JRandomOffsetMutatorFactory();
+	public PyObject getMutatorAsJythonObject() {
+		JythonObjectFactory<PyObject> randomOffsetMutatorFactory = ScanPointGeneratorFactory.JRandomOffsetMutatorFactory();
 
-        PyList pyAxes = new PyList(axes);
+        final List<String> axes = getAxes();
+        final Map<String, Double> maxOffsets = getMaxOffsets();
+        final int seed = getSeed();
 
-        PyDictionary maxOffset = new PyDictionary();
-        for (String axis : maxOffsets.keySet()) {
-		maxOffset.put(axis, maxOffsets.get(axis));
+        final PyDictionary maxOffset = new PyDictionary();
+        for (Entry<String, Double> axis : maxOffsets.entrySet()) {
+        	maxOffset.put(axis.getKey(), axis.getValue());
         }
 
-		return randomOffsetMutatorFactory.createObject(seed, pyAxes, maxOffset);
+		return randomOffsetMutatorFactory.createObject(seed, axes, maxOffset);
 	}
 }

@@ -13,16 +13,13 @@ package org.eclipse.scanning.api.points;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.ModelValidationException;
-import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.points.models.AbstractPointsModel;
 import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,15 +29,14 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T>
  */
-public abstract class AbstractGenerator<T> implements IPointGenerator<T> {
+public abstract class AbstractGenerator<T extends AbstractPointsModel> implements IPointGenerator<T> {
 
 	private static Logger logger = LoggerFactory.getLogger(AbstractGenerator.class);
 
-	protected volatile T model; // Because of the validateModel() method
+	protected T model;
+	private PPointGenerator pointGenerator;
 
-	protected List<IPointContainer> containers;
-	protected Collection<IROI> regions = new ArrayList<>();
-	private String id;
+	protected List<IROI> regions = new ArrayList<>();
 	private String label;
 	private String description;
 	private String iconPath;
@@ -48,12 +44,13 @@ public abstract class AbstractGenerator<T> implements IPointGenerator<T> {
 	private boolean enabled=true;
 	private int[] shape = null;
 
-	protected AbstractGenerator() {
-		this.id = getClass().getName();
+	protected AbstractGenerator(T model) {
+		this.model = model;
+		validateModel();
 	}
 
-	protected AbstractGenerator(String id) {
-		this.id = id;
+	protected AbstractGenerator() {
+		// For validating AxialMultiStepModels only
 	}
 
 	@Override
@@ -61,31 +58,35 @@ public abstract class AbstractGenerator<T> implements IPointGenerator<T> {
 		return model;
 	}
 
+	/**
+	 * To allow Models to be validated prior to the iterator ever being called (to allow {@code ModelValidationException} to be checked,
+	 * Generators are now created once with their model. IPointGeneratorService.createGenerator(model) should be used instead.
+	 * Regions can still be added (where the generator supports them).
+	 */
+	@Deprecated
 	@Override
-	public void setModel(T model) {
-		this.model = model;
-		this.shape = null; // clear cached shape
+	public void setModel(T model) throws GeneratorException {
+		throw new IllegalArgumentException("Generators should be instantiated with their models, to allow validation at this time.");
 	}
 
 	@Override
 	public final Iterator<IPosition> iterator() {
-		validateModel();
 		return iteratorFromValidModel();
 	}
 
-	public final PPointGenerator createPythonPointGeneratorFromValidModel() {
-		validateModel();
-		return createPythonPointGenerator();
-	}
-
-	protected abstract PPointGenerator createPythonPointGenerator();
+	public abstract PPointGenerator createPythonPointGenerator();
 
 	/**
 	 * Creates and returns an iterator for this model. If possible subclasses should aim to
 	 * return an instance of {@link ScanPointIterator}.
 	 * @return iterator for this model
 	 */
-	protected abstract Iterator<IPosition> iteratorFromValidModel();
+	protected Iterator<IPosition> iteratorFromValidModel(){
+		if (pointGenerator == null) {
+			pointGenerator = createPythonPointGenerator();
+		}
+		return pointGenerator.getPointIterator();
+	}
 
 
 	/**
@@ -96,52 +97,28 @@ public abstract class AbstractGenerator<T> implements IPointGenerator<T> {
 	 *
 	 * @throw exception if model invalid
 	 */
-	protected void validateModel() throws ValidationException {
-		if (model instanceof IScanPathModel) {
-			validateScanPath((IScanPathModel) model);
-		}
-		if (model instanceof IBoundingBoxModel) {
-			validateBoundingBox((IBoundingBoxModel) model);
-		}
+	protected final void validateModel() throws ModelValidationException {
+		validate(this.model);
 	}
 
-	private void validateBoundingBox(IBoundingBoxModel boxModel) {
-		// As implemented, model width and/or height can be negative,
-		// and this flips the slow and/or fast point order.
-		if (boxModel.getBoundingBox() == null)
-			throw new ModelValidationException("The model must have a Bounding Box!", boxModel, "boundingBox");
-        if (boxModel.getBoundingBox().getxAxisLength()==0)
-        	throw new ModelValidationException("The length must not be 0!", boxModel, "boundingBox");
-        if (boxModel.getBoundingBox().getyAxisLength()==0)
-        	throw new ModelValidationException("The length must not be 0!", boxModel, "boundingBox");
-	}
-
-	private void validateScanPath(IScanPathModel scanPath) {
-		if (!AbstractPointsModel.supportsContinuous(scanPath.getClass()) && scanPath.isContinuous()) {
-			throw new ModelValidationException(scanPath.getClass().getSimpleName() + " cannot be continuous!", model, "continuous");
-		}
-		if (!AbstractPointsModel.supportsAlternating(scanPath.getClass()) && scanPath.isAlternating()) {
-			throw new ModelValidationException(scanPath.getClass().getSimpleName() + " cannot be alternating!", model, "alternating");
-		}
-	}
-
-	/**
-	 * The AbstractGenerator has a no argument validateModel() method which
-	 * generators have implemented to validate models.
-	 * Therefore the model is temporarily set in order to check it.
-	 * In order to make that thread safe, model is marked as volatile.
-	 */
 	@Override
 	public void validate(T model) throws ModelValidationException {
-		T orig = this.getModel();
-		try {
-			setModel(model);
-			validateModel();
-
-		} catch (SecurityException | IllegalArgumentException e) {
-			throw new ModelValidationException(e);
-		} finally {
-			setModel(orig);
+		if (model.getScannableNames() == null || model.getScannableNames().contains(null)) throw new ModelValidationException("The model must have all the names of the scannables it is acting upon!", model, "name");
+		if (model.getUnits().size() != model.getScannableNames().size()) {
+			throw new ModelValidationException("Model must have units for each scannable axis!", model, "name"); // Not actually name
+		}
+		if (!AbstractPointsModel.supportsContinuous(model.getClass()) && model.isContinuous())
+			throw new ModelValidationException(model.getClass().getSimpleName() + " cannot be continuous!", model, "continuous");
+		if (!AbstractPointsModel.supportsAlternating(model.getClass()) && model.isAlternating())
+			throw new ModelValidationException(model.getClass().getSimpleName() + " cannot be alternating!", model, "alternating");
+		if (model instanceof IBoundingBoxModel) {
+			IBoundingBoxModel boxModel = (IBoundingBoxModel) model;
+			if (boxModel.getBoundingBox() == null)
+				throw new ModelValidationException("The model must have a Bounding Box!", boxModel, "boundingBox");
+			// As implemented, model width and/or height can be negative,
+			// and this flips the slow and/or fast point order.
+			if (boxModel.getBoundingBox().getxAxisLength()==0 || boxModel.getBoundingBox().getyAxisLength()==0)
+	        	throw new ModelValidationException("The length must not be 0!", boxModel, "boundingBox");
 		}
 	}
 
@@ -150,7 +127,6 @@ public abstract class AbstractGenerator<T> implements IPointGenerator<T> {
 	 */
 	@Override
 	public final int size() throws GeneratorException {
-		validateModel();
 		return sizeOfValidModel();
 	}
 
@@ -203,7 +179,7 @@ public abstract class AbstractGenerator<T> implements IPointGenerator<T> {
 		long lastTime = System.currentTimeMillis();
 		int[] shape = new int[scanRank];
 		// Indices = all 0s so shape already set.
-		IPosition last = first;
+		IPosition last;
 		while (iterator.hasNext()) {
 			last = iterator.next(); // Could be large...
 			pointNum++;
@@ -213,7 +189,7 @@ public abstract class AbstractGenerator<T> implements IPointGenerator<T> {
 
 			if (pointNum % 10000 == 0) {
 				long newTime = System.currentTimeMillis();
-				logger.debug("Point number {}, took {} ms", pointNum++, (newTime - lastTime));
+				logger.debug("Point number {}, took {} ms", pointNum, (newTime - lastTime));
 			}
 		}
 		return shape;
@@ -251,45 +227,15 @@ public abstract class AbstractGenerator<T> implements IPointGenerator<T> {
 	}
 
 	@Override
-	public List<IPointContainer> getContainers() {
-		return containers;
-	}
-
-	@Override
-	public void setContainers(List<IPointContainer> containers) throws GeneratorException {
-		this.containers = containers;
-	}
-
-	/**
-	 * Returns whether this generator contains the given point.
-	 * If there are no containers, the point is considered contained.
-	 *
-	 * @param point point
-	 * @return <code>true</code> if this generator contains the given point, <code>false</code> otherwise
-	 */
-	public boolean containsPoint(IPosition point) {
-		if (containers==null || containers.isEmpty())    return true;
-		return containers.stream().anyMatch(c -> c.containsPoint(point));
-	}
-
-	@Override
-	public Collection<IROI> getRegions() {
+	public List<IROI> getRegions() {
 		return regions;
 	}
 
 	@Override
-	public void setRegions(Collection<IROI> regions) throws GeneratorException {
+	public void setRegions(List<IROI> regions) throws GeneratorException {
+		pointGenerator = null;
+		shape = null;
 		this.regions = regions == null ? new ArrayList<>() : regions;
-	}
-
-	@Override
-	public String getId() {
-		return id;
-	}
-
-	@Override
-	public void setId(String id) {
-		this.id = id;
 	}
 
 	@Override
@@ -346,11 +292,9 @@ public abstract class AbstractGenerator<T> implements IPointGenerator<T> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((containers == null) ? 0 : containers.hashCode());
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + (enabled ? 1231 : 1237);
 		result = prime * result + ((iconPath == null) ? 0 : iconPath.hashCode());
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((label == null) ? 0 : label.hashCode());
 		result = prime * result + ((model == null) ? 0 : model.hashCode());
 		result = prime * result + (visible ? 1231 : 1237);
@@ -367,28 +311,17 @@ public abstract class AbstractGenerator<T> implements IPointGenerator<T> {
 		if (getClass() != obj.getClass())
 			return false;
 		AbstractGenerator<?> other = (AbstractGenerator<?>) obj;
-		if (containers == null) {
-			if (other.containers != null)
-				return false;
-		} else if (!containers.equals(other.containers))
-			return false;
 		if (description == null) {
 			if (other.description != null)
 				return false;
 		} else if (!description.equals(other.description))
 			return false;
 		if (enabled != other.enabled)
-			return false;if (containers.size()<1) return true;
-
+			return false;
 		if (iconPath == null) {
 			if (other.iconPath != null)
 				return false;
 		} else if (!iconPath.equals(other.iconPath))
-			return false;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
 			return false;
 		if (label == null) {
 			if (other.label != null)
@@ -411,8 +344,8 @@ public abstract class AbstractGenerator<T> implements IPointGenerator<T> {
 	}
 
 	protected String description() {
-	return "model=" + model + ", containers=" + containers + ", regions=" + regions + ", id=" +
-			id + ", label=" + label + ", visible=" + visible + ", enabled=" + enabled + ", shape=" + Arrays.toString(shape);
+	return "model=" + model + ", regions=" + regions + ", label=" + label
+			+ ", visible=" + visible + ", enabled=" + enabled + ", shape=" + Arrays.toString(shape);
 	}
 
 	@Override

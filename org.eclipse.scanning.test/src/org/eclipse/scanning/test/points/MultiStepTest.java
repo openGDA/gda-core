@@ -16,7 +16,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
@@ -36,7 +35,7 @@ public class MultiStepTest {
 		service = new PointGeneratorService();
 	}
 
-	@Test(expected = ModelValidationException.class)
+	@Test(expected = GeneratorException.class)
 	public void testNoName() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 
@@ -44,7 +43,7 @@ public class MultiStepTest {
 		GeneratorUtil.testGeneratorPoints(gen);
 	}
 
-	@Test(expected = ModelValidationException.class)
+	@Test(expected = GeneratorException.class)
 	public void testEmpty() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
@@ -75,7 +74,7 @@ public class MultiStepTest {
 		}
 	}
 
-	@Test(expected = ModelValidationException.class)
+	@Test(expected = GeneratorException.class)
 	public void testSingleForwardStepsWrongDir() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
@@ -107,7 +106,7 @@ public class MultiStepTest {
 		}
 	}
 
-	@Test(expected = ModelValidationException.class)
+	@Test(expected = GeneratorException.class)
 	public void testSingleBackwardStepsWrongDir() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
@@ -227,7 +226,7 @@ public class MultiStepTest {
 		}
 	}
 
-	@Test(expected = ModelValidationException.class)
+	@Test(expected = GeneratorException.class)
 	public void testForwardOverlapping() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
@@ -239,7 +238,7 @@ public class MultiStepTest {
 		GeneratorUtil.testGeneratorPoints(gen);
 	}
 
-	@Test(expected = ModelValidationException.class)
+	@Test(expected = GeneratorException.class)
 	public void testBackwardOverlapping() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
@@ -251,7 +250,7 @@ public class MultiStepTest {
 		GeneratorUtil.testGeneratorPoints(gen);
 	}
 
-	@Test(expected = ModelValidationException.class)
+	@Test(expected = GeneratorException.class)
 	public void testForwardThenBackward() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
@@ -263,7 +262,7 @@ public class MultiStepTest {
 		GeneratorUtil.testGeneratorPoints(gen);
 	}
 
-	@Test(expected = ModelValidationException.class)
+	@Test(expected = GeneratorException.class)
 	public void testBackwardThenForward() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");

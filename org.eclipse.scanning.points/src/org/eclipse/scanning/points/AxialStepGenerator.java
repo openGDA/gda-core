@@ -13,18 +13,20 @@ package org.eclipse.scanning.points;
 
 import static org.eclipse.scanning.points.AbstractScanPointIterator.EMPTY_PY_ARRAY;
 
+import java.math.BigDecimal;
+import java.util.List;
+
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.AbstractGenerator;
-import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.PPointGenerator;
-import org.eclipse.scanning.api.points.ScanPointIterator;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
-import org.python.core.PyList;
 
 class AxialStepGenerator extends AbstractGenerator<AxialStepModel> {
 
-	AxialStepGenerator() {
+	public AxialStepGenerator(AxialStepModel model) {
+		super(model);
 		setLabel("AxialStep Scan");
 		setDescription("Creates a scan that steps through a Scannable axis, from the start to the highest multiple of the step lower than the stop."
 				+ "\nIf the last requested point is within 1% of the end it will still be included in the scan."
@@ -32,49 +34,42 @@ class AxialStepGenerator extends AbstractGenerator<AxialStepModel> {
 		setIconPath("icons/scanner--step.png"); // This icon exists in the rendering bundle
 	}
 
-	@Override
-	protected void validateModel() {
-		super.validateModel();
-		double div = ((model.getStop()-model.getStart())/model.getStep());
-		if (div < 0) throw new ModelValidationException("Model step is directed in the wrong direction!", model, "start", "stop", "step");
-		if (!Double.isFinite(div)) throw new ModelValidationException("Model step size must be nonzero!", model, "start", "stop", "step");
+	AxialStepGenerator() {
+		// For validating AxialMultiStepModels only
 	}
 
 	@Override
-	public int sizeOfValidModel() throws GeneratorException {
-		if (containers!=null) throw new GeneratorException("Cannot deal with regions in a step scan!");
-		return getModel().size();
-	}
-
-	@Override
-	public ScanPointIterator iteratorFromValidModel() {
-		final ScanPointIterator pyIterator = createPythonPointGenerator().getPointIterator();
-		return new AxialStepIterator(getModel(), pyIterator);
-	}
-
-	@Override
-	public int[] getShape() throws GeneratorException {
-		return new int[] { sizeOfValidModel() };
+	public void validate(AxialStepModel model) {
+		super.validate(model);
+		if (model.getStep() == 0) {
+			throw new ModelValidationException("Model step size must be nonzero!", model, "step");
+		}
+		int dir = Integer.signum(BigDecimal.valueOf(model.getStop()-model.getStart()).divideToIntegralValue(BigDecimal.valueOf(model.getStep())).intValue());
+		if (dir < 0) {
+			throw new ModelValidationException("Model step is directed in the wrong direction!", model, "start", "stop", "step");
+		}
 	}
 
 	@Override
 	public PPointGenerator createPythonPointGenerator() {
-		final AxialStepModel model = getModel();
-
         final JythonObjectFactory<PPointGenerator> lineGeneratorFactory = ScanPointGeneratorFactory.JOneAxisLineGeneratorFactory();
 
+		final AxialStepModel model = getModel();
+		final List<IROI> regions = getRegions();
+
+		final List<String> axes = model.getScannableNames();
         final String name = model.getName();
-        final PyList units = new PyList(model.getUnits());
+        final List<String> units = model.getUnits();
+        final boolean alternating = model.isAlternating();
+        final boolean continuous = model.isContinuous();
         final int numPoints = model.size();
         final double start  = model.getStart();
         final double stop   = start + model.getStep() * (numPoints-1);
 
-        PPointGenerator pointGen = lineGeneratorFactory.createObject(name, units, start, stop, numPoints, model.isAlternating(), model.isContinuous());
-        if (getRegions().isEmpty()) {
-        	return pointGen;
-        }
+        PPointGenerator pointGen = lineGeneratorFactory.createObject(name, units, start, stop, numPoints, alternating);
+
         return CompoundSpgIteratorFactory.createSpgCompoundGenerator(new PPointGenerator[] {pointGen},
-				getRegions().toArray(),	model.getScannableNames(), EMPTY_PY_ARRAY, -1, model.isContinuous());
+				regions, axes, EMPTY_PY_ARRAY, -1, continuous);
 	}
 
 }

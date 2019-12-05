@@ -40,7 +40,6 @@ public class AxialMultiStepModel extends AbstractPointsModel {
 	}
 
 	public AxialMultiStepModel(String name, double start, double stop, double step) {
-		super();
 		setName(name);
 		stepModels = new ArrayList<>(4);
 		stepModels.add(new AxialStepModel(name, start, stop, step));
@@ -52,7 +51,6 @@ public class AxialMultiStepModel extends AbstractPointsModel {
 	 * @param stepModels
 	 */
 	public AxialMultiStepModel(String name, List<AxialStepModel> stepModels) {
-		super();
 		setName(name);
 		this.stepModels = stepModels;
 	}

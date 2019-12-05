@@ -12,12 +12,12 @@
 package org.eclipse.scanning.points;
 
 import org.eclipse.scanning.api.ModelValidationException;
-import org.eclipse.scanning.api.points.ScanPointIterator;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 
 public class TwoAxisLinePointsGenerator extends AbstractLineGenerator<TwoAxisLinePointsModel> {
 
-	TwoAxisLinePointsGenerator() {
+	TwoAxisLinePointsGenerator(TwoAxisLinePointsModel model) {
+		super(model);
 		setLabel("Two-Axis Grid Points Scan");
 		setDescription("Creates a line scan along a line defined in two dimensions, with points evenly spaced along the bounding line."
 				+ "\nThe scan supports continuous operation and alternating mode [when wrapped in an outer scan].");
@@ -25,19 +25,9 @@ public class TwoAxisLinePointsGenerator extends AbstractLineGenerator<TwoAxisLin
 	}
 
 	@Override
-	protected void validateModel() {
-		super.validateModel();
+	public void validate(TwoAxisLinePointsModel model) {
+		super.validate(model);
 		if (model.getPoints() < 1) throw new ModelValidationException("Must have one or more points in model!", model, "points");
-	}
-
-	@Override
-	public ScanPointIterator iteratorFromValidModel() {
-		return createPythonPointGenerator().getPointIterator();
-	}
-
-	@Override
-	public int[] getShape() {
-		return new int[] { getPoints() };
 	}
 
 	@Override

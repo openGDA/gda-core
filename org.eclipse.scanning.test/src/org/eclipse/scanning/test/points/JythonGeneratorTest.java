@@ -16,7 +16,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 
-import org.eclipse.scanning.api.ValidationException;
+import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
@@ -43,39 +43,28 @@ public class JythonGeneratorTest {
 		service = new PointGeneratorService();
 	}
 
-	@Test
-	public void generatorExists() throws Exception {
-
-        JythonGeneratorModel model = new JythonGeneratorModel();
-        IPointGenerator<JythonGeneratorModel> gen = service.createGenerator(model);
-        assertNotNull(gen);
-	}
-
-	@Test(expected=ValidationException.class)
+	@Test(expected=GeneratorException.class)
 	public void emptyModel() throws Exception {
 
         JythonGeneratorModel model = new JythonGeneratorModel();
         IPointGenerator<JythonGeneratorModel> gen = service.createGenerator(model);
-        gen.size();
 	}
 
-	@Test(expected=ValidationException.class)
+	@Test(expected=GeneratorException.class)
 	public void modulelessModel() throws Exception {
 
         JythonGeneratorModel model = new JythonGeneratorModel();
         model.setPath("src/org/eclipse/scanning/test/points");
         IPointGenerator<JythonGeneratorModel> gen = service.createGenerator(model);
-        gen.size();
 	}
 
-	@Test(expected=ValidationException.class)
+	@Test(expected=GeneratorException.class)
 	public void classlessModel() throws Exception {
 
         JythonGeneratorModel model = new JythonGeneratorModel();
         model.setPath("src/org/eclipse/scanning/test/points");
         model.setModuleName("JythonGeneratorTest");
         IPointGenerator<JythonGeneratorModel> gen = service.createGenerator(model);
-        gen.size();
 	}
 
 	@Test(expected=PyException.class)
@@ -116,6 +105,7 @@ public class JythonGeneratorTest {
 
         JythonGeneratorModel model = createFixedValueModel("x", 10, Math.PI);
         IPointGenerator<JythonGeneratorModel> gen = service.createGenerator(model);
+        assertNotNull(gen);
         assertEquals(10, gen.size());
 	}
 

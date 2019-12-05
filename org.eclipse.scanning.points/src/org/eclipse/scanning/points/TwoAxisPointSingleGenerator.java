@@ -18,41 +18,33 @@
 
 package org.eclipse.scanning.points;
 
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.scanning.api.points.AbstractGenerator;
-import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.PPointGenerator;
 import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
-import org.python.core.PyList;
 
 public class TwoAxisPointSingleGenerator extends AbstractGenerator<TwoAxisPointSingleModel> {
 
-	public TwoAxisPointSingleGenerator() {
+	public TwoAxisPointSingleGenerator(TwoAxisPointSingleModel model) {
+		super(model);
 		setLabel("Two-Axis Point Scan");
 		setDescription("Creates a single point in two axes to scan.");
 		setIconPath("icons/scanner--plus.png"); // This icon exists in the rendering bundle
 	}
 
 	@Override
-	protected Iterator<IPosition> iteratorFromValidModel() {
-		return createPythonPointGenerator().getPointIterator();
-	}
-
-	@Override
 	public PPointGenerator createPythonPointGenerator() {
+		final JythonObjectFactory<PPointGenerator> lineGeneratorFactory = ScanPointGeneratorFactory.JTwoAxisLineGeneratorFactory();
+
 		final TwoAxisPointSingleModel model = getModel();
 
-		final PyList names =  new PyList(Arrays.asList(model.getxAxisName(), model.getyAxisName()));
-		final PyList units = new PyList(Arrays.asList(model.getxAxisUnits(), model.getyAxisUnits()));
+		final List<String> names =  model.getScannableNames();
+		final List<String> units = model.getUnits();
 		final double[] position = new double[] {model.getX(), model.getY()};
 
-		// ArrayGenerator might be better suited for a single point, but it only supports a single dimension.
-		final JythonObjectFactory<PPointGenerator> lineGeneratorFactory = ScanPointGeneratorFactory.JTwoAxisLineGeneratorFactory();
 		return lineGeneratorFactory.createObject(names, units, position, position, 1);
-
 	}
 
 }

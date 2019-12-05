@@ -15,11 +15,13 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import org.eclipse.scanning.api.points.IPointGenerator;
+import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Point;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
-import org.eclipse.scanning.points.TwoAxisLissajousGenerator;
+import org.eclipse.scanning.points.PointGeneratorService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -28,7 +30,8 @@ import org.junit.Test;
 @Ignore("DAQ-2088 Tests have not been implemented")
 public class LissajousTest {
 
-	private TwoAxisLissajousGenerator generator;
+	private IPointGenerator<TwoAxisLissajousModel> generator;
+	private IPointGeneratorService pgs;
 
 	@Before
 	public void before() throws Exception {
@@ -43,8 +46,8 @@ public class LissajousTest {
 		model.setBoundingBox(box);
 		// use default parameters
 
-		generator = new TwoAxisLissajousGenerator();
-		generator.setModel(model);
+		pgs = new PointGeneratorService();
+		generator = pgs.createGenerator(model);
 	}
 
 	@Test

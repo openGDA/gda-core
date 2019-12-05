@@ -41,10 +41,8 @@ class CompoundGenerator extends AbstractGenerator<CompoundModel> implements PySe
 	private List<Collection<String>> dimensionNames;
 
 	public CompoundGenerator(IPointGenerator<?>[] generators) throws GeneratorException {
-		super(createId(generators));
-
         // We create a model with no regions from the generators.
-        this.model = new CompoundModel();
+		super(new CompoundModel());
         for (IPointGenerator<?> g : generators) model.addData(g.getModel(), g.getRegions());
         // This model is not designed to hold all the data because we have the actual generators!
 
@@ -66,16 +64,8 @@ class CompoundGenerator extends AbstractGenerator<CompoundModel> implements PySe
 		return names;
 	}
 
-	private static String createId(IPointGenerator<?>[] gens) throws GeneratorException {
-        if (gens == null || gens.length == 0) throw new GeneratorException("Cannot make a compound generator from a list of less than one generators!");
-
-        final StringBuilder buf = new StringBuilder();
-        for (IPointGenerator<?> gen : gens) buf.append("+"+gen);
-        return buf.toString();
-	}
-
 	@Override
-	protected void validateModel() {
+	public void validate(CompoundModel model) {
 		// CompoundGenerator is a bit of a special case. this.iterator() calls
 		// the .iterator() methods of the component IPointGenerators, which in
 		// turn each calls .validateModel(). Therefore we don't need to do any

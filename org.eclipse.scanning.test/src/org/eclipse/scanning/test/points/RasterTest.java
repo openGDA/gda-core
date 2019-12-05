@@ -19,7 +19,7 @@ import java.util.List;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
-import org.eclipse.scanning.api.ModelValidationException;
+import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
@@ -133,7 +133,7 @@ public class RasterTest {
 		assertEquals(0.5, pointList.get(1).getValue("y"), 1e-8);
 	}
 
-	@Test(expected=ModelValidationException.class)
+	@Test(expected=GeneratorException.class)
 	public void testBackwardsStep() throws Exception {
 
 		BoundingBox box = new BoundingBox();

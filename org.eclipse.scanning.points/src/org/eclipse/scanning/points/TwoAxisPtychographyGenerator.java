@@ -18,16 +18,18 @@
 
 package org.eclipse.scanning.points;
 
+import java.util.List;
+
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.models.TwoAxisPtychographyModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.python.core.PyDictionary;
-import org.python.core.PyList;
 import org.python.core.PyObject;
 
 public class TwoAxisPtychographyGenerator extends AbstractGridGenerator<TwoAxisPtychographyModel> {
 
-	TwoAxisPtychographyGenerator() {
+	TwoAxisPtychographyGenerator(TwoAxisPtychographyModel model) {
+		super(model);
 		setLabel("Ptychography Model/TwoAxisGridStep (with RandomOffset) Model");
 		setDescription(
 				"Creates a grid scan by taking equally sized steps in each axis: each position is then offset in both axes by an amount proportional to its step.\nThe scan supports alternating/bidirectional/'snake' mode.");
@@ -35,16 +37,14 @@ public class TwoAxisPtychographyGenerator extends AbstractGridGenerator<TwoAxisP
 	}
 
 	@Override
-	protected void validateModel() {
-		super.validateModel();
-		if (getModel().getxBeamSize() == 0)
+	public void validate(TwoAxisPtychographyModel model) {
+		super.validate(model);
+		if (model.getxBeamSize() == 0)
 			throw new ModelValidationException("X beam size cannot be zero", getModel(), "xBeamSize");
-		if (getModel().getyBeamSize() == 0)
+		if (model.getyBeamSize() == 0)
 			throw new ModelValidationException("Y beam size cannot be zero", getModel(), "yBeamSize");
-		if (getModel().getOverlap() < 0)
-			throw new ModelValidationException("Overlap must be positive", getModel(), "overlap");
-		if (getModel().getOverlap() >= 1)
-			throw new ModelValidationException("Overlap must be smaller than 1", getModel(), "overlap");
+		if (model.getOverlap() < 0 || model.getOverlap() >= 1)
+			throw new ModelValidationException("Overlap must be positive between 0 [inclusive] and 1", getModel(), "overlap");
 	}
 
 	@Override
@@ -69,18 +69,20 @@ public class TwoAxisPtychographyGenerator extends AbstractGridGenerator<TwoAxisP
 
 	@Override
 	protected PyObject[] getMutators() {
+		final JythonObjectFactory<PyObject> randomOffsetMutatorFactory = ScanPointGeneratorFactory.JRandomOffsetMutatorFactory();
 
-		double maxXOffset = (1 - model.getOverlap()) * model.getxBeamSize() * model.getRandomOffset();
-		double maxYOffset = (1 - model.getOverlap()) * model.getyBeamSize() * model.getRandomOffset();
+		final TwoAxisPtychographyModel model = getModel();
 
-		final PyList axes = new PyList(model.getScannableNames());
+		final List<String> axes = model.getScannableNames();
+		final int seed = model.getSeed();
+		final double offsetScale = (1 - model.getOverlap())  * model.getRandomOffset();
+		final double maxXOffset = offsetScale * model.getxBeamSize();
+		final double maxYOffset = offsetScale * model.getyBeamSize();
 		final PyDictionary maxOffset = new PyDictionary();
 		maxOffset.put(model.getyAxisName(), maxYOffset);
 		maxOffset.put(model.getxAxisName(), maxXOffset);
-		JythonObjectFactory<PyObject> randomOffsetMutatorFactory = ScanPointGeneratorFactory
-				.JRandomOffsetMutatorFactory();
 
-		return new PyObject[] { randomOffsetMutatorFactory.createObject(model.getSeed(), axes, maxOffset) };
+		return new PyObject[] { randomOffsetMutatorFactory.createObject(seed, axes, maxOffset) };
 	}
 
 }

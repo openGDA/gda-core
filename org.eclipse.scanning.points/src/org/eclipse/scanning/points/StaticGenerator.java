@@ -11,11 +11,13 @@
  *******************************************************************************/
 package org.eclipse.scanning.points;
 
+import java.util.List;
+
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.PPointGenerator;
-import org.eclipse.scanning.api.points.ScanPointIterator;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 
@@ -28,27 +30,27 @@ class StaticGenerator extends AbstractGenerator<StaticModel> {
 
 	private static final int[] EMPTY_SHAPE = new int[0];
 
-	StaticGenerator() {
+	StaticGenerator(StaticModel model) {
+		super(model);
 		setLabel("Empty");
 		setDescription("Empty generator used when wrapping malcolm scans with no CPU steps.");
-		setVisible(false);
-	}
-
-	@Override
-	protected void validateModel() {
-		super.validateModel();
-		if (model.getSize() < 1) throw new ModelValidationException("Size must be greater than zero!", model, "size");
-	}
-
-	@Override
-	protected ScanPointIterator iteratorFromValidModel() {
-		return createPythonPointGenerator().getPointIterator();
 	}
 
 	// Users to not edit the StaticGenerator
 	@Override
 	public boolean isVisible() {
 		return false;
+	}
+
+	@Override
+	public void setRegions(List<IROI> regions) throws GeneratorException {
+		throw new GeneratorException("StaticGenerator cannot have regions.");
+	}
+
+	@Override
+	public void validate(StaticModel model) {
+		super.validate(model);
+		if (model.getSize() < 1) throw new ModelValidationException("Size must be greater than zero!", model, "size");
 	}
 
 	@Override
@@ -59,6 +61,8 @@ class StaticGenerator extends AbstractGenerator<StaticModel> {
 	@Override
 	public PPointGenerator createPythonPointGenerator() {
 		final JythonObjectFactory<PPointGenerator> staticGeneratorFactory = ScanPointGeneratorFactory.JStaticGeneratorFactory();
+
+		final StaticModel model = getModel();
 
 		final int numPoints = model.getSize();
 

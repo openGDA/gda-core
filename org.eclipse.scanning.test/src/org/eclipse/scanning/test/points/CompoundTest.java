@@ -26,11 +26,11 @@ import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
-import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
-import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.PySerializable;
 import org.junit.Before;
@@ -156,7 +156,7 @@ public class CompoundTest {
 	public void testSimpleToDict() throws Exception {
 
 		IPointGenerator<AxialStepModel> temp = service.createGenerator(new AxialStepModel("Temperature", 290, 295, 1));
-		IPointGenerator<?> scan = service.createCompoundGenerator(temp);
+		IPointGenerator<CompoundModel> scan = (IPointGenerator<CompoundModel>) service.createCompoundGenerator(temp);
 
 		Map<?,?> dict = ((PySerializable)scan).toDict();
 
@@ -164,7 +164,7 @@ public class CompoundTest {
 		PyDictionary line1 = (PyDictionary) gens.get(0);
 
 		assertEquals("Temperature", ((PyList) line1.get("axes")).get(0));
-		assertEquals("mm", ((PyList) line1.get("units")).get(0));
+		assertEquals("mm", ((ArrayList<String>) line1.get("units")).get(0));
 		assertEquals(290.0, (double) ((PyList) line1.get("start")).get(0), 1E-10);
 		assertEquals(295.0, (double) ((PyList) line1.get("stop")).get(0), 1E-10);
 		assertEquals(6, (int) line1.get("size"));
@@ -189,13 +189,13 @@ public class CompoundTest {
 		PyDictionary line2 = (PyDictionary) gens.get(1);
 
 		assertEquals("Temperature", ((PyList) line1.get("axes")).get(0));
-		assertEquals("mm", ((PyList) line1.get("units")).get(0));
+		assertEquals("mm", ((ArrayList<String>) line1.get("units")).get(0));
 		assertEquals(290.0, (double) ((PyList) line1.get("start")).get(0), 1E-10);
 		assertEquals(295.0, (double) ((PyList) line1.get("stop")).get(0), 1E-10);
 		assertEquals(6, (int) line1.get("size"));
 
 		assertEquals("Position", ((PyList) line2.get("axes")).get(0));
-		assertEquals("mm", ((PyList) line2.get("units")).get(0));
+		assertEquals("mm", ((ArrayList<String>) line2.get("units")).get(0));
 		assertEquals(1.0, (double) ((PyList) line2.get("start")).get(0), 1E-10);
 		assertEquals(4.0, (double) ((PyList) line2.get("stop")).get(0), 1E-10);
 		assertEquals(6, (int) line2.get("size"));

@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -40,24 +39,13 @@ public interface IPointGenerator<T> extends Iterable<IPosition>, IValidator<T>, 
 	@Override
 	T getModel();
 
-	@Override
-	void setModel(T model) throws GeneratorException;
-
-	/**
-	 * The class which contains points, may be null.
-	 * @return
-	 */
-	List<IPointContainer> getContainers();
-
-	void setContainers(List<IPointContainer> container) throws GeneratorException;
-
 	/**
 	 * The regions for the generator.
 	 * @return
 	 */
-	Collection<IROI> getRegions();
+	List<IROI> getRegions();
 
-	void setRegions(Collection<IROI> region) throws GeneratorException;
+	void setRegions(List<IROI> region) throws GeneratorException;
 
 	/**
 	 * The size of the points iterator. This call will be as fast as possible
@@ -98,16 +86,6 @@ public interface IPointGenerator<T> extends Iterable<IPosition>, IValidator<T>, 
 	 * @return
 	 */
 	List<IPosition> createPoints() throws GeneratorException;
-
-	/**
-	 * The id for this generator. Generators defined by extension must set an it.
-	 * Those defined by
-	 *
-	 * @return
-	 */
-	public String getId();
-
-	public void setId(String id);
 
 	/**
 	 * The short label shown to the user for this generator.
@@ -182,6 +160,5 @@ public interface IPointGenerator<T> extends Iterable<IPosition>, IValidator<T>, 
 	default List<String> getNames() {
 		return getFirstPoint().getNames();
 	}
-
 
 }

@@ -13,7 +13,6 @@
 package org.eclipse.scanning.device.ui.vis;
 
 
-import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -94,7 +93,7 @@ class PathInfoCalculatorJob extends Job {
 		try {
 			vservice.validate(scanPathModel); // Throws exception if invalid.
 
-			final Collection<IROI> rois = pointGeneratorFactory.findRegions(scanPathModel, scanRegions); // Out of the regions defined finds in the ones for this model.
+			final List<IROI> rois = pointGeneratorFactory.findRegions(scanPathModel, scanRegions); // Out of the regions defined finds in the ones for this model.
 			if (rois==null || rois.isEmpty()) {
 				setPathVisible(false);
 				return Status.CANCEL_STATUS;// No path to draw.

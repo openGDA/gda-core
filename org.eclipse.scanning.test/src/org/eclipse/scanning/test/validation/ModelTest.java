@@ -20,18 +20,20 @@ import java.util.Collection;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
-import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
+import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
 import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
-import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
+import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.validation.ValidatorService;
 import org.junit.Test;
 
 public class ModelTest extends AbstractValidationTest {
 
+	//TODO: Should all models be constructed valid?
 	private static Collection<Class<?>> COMPLETE_MODELS; // Models that come complete when they are created with a no-arg constructor
 	static {
 		COMPLETE_MODELS = new ArrayList<>();
@@ -44,10 +46,9 @@ public class ModelTest extends AbstractValidationTest {
 
 	@Test
 	public void emptyScanModels() throws Exception {
-
-		IPointGeneratorService pservice = ValidatorService.getPointGeneratorService();
-		for (String id : pservice.getRegisteredGenerators()) {
-			Object empty = pservice.createGenerator(id).getModel();
+		PointGeneratorService pservice = (PointGeneratorService) ValidatorService.getPointGeneratorService();
+		for (Class<? extends IScanPathModel> modelType : pservice.getGenerators().keySet()) {
+			IScanPathModel empty = modelType.newInstance();
 			try {
 			    validator.validate(empty);
 			} catch (Exception ne) {

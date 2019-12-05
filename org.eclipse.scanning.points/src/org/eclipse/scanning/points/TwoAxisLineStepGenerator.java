@@ -18,7 +18,8 @@ import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
 
 class TwoAxisLineStepGenerator extends AbstractLineGenerator<TwoAxisLineStepModel> {
 
-	TwoAxisLineStepGenerator() {
+	TwoAxisLineStepGenerator(TwoAxisLineStepModel model) {
+		super(model);
 		setLabel("Two-Axis Line Step Scan");
 		setDescription("Creates a line scan along a line defined in two dimensions, with points placed from the start to the highest multiple of the step lower than the stop."
 				+ "\nThe scan supports continuous operation and alternating mode [when wrapped in an outer scan].");
@@ -26,8 +27,8 @@ class TwoAxisLineStepGenerator extends AbstractLineGenerator<TwoAxisLineStepMode
 	}
 
 	@Override
-	protected void validateModel() {
-		super.validateModel();
+	public void validate(TwoAxisLineStepModel model) {
+		super.validate(model);
 		if (model.getStep() <= 0) throw new ModelValidationException("Model step size must be positive!", model, "step");
 	}
 

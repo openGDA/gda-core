@@ -124,7 +124,7 @@ public class LinearTest {
 		assertEquals(expectedSize, pointList.size());
 	}
 
-	@Test(expected = ModelValidationException.class)
+	@Test(expected = GeneratorException.class)
 	public void testOneDEqualSpacingNoPoints() throws Exception {
 
         BoundingLine line = new BoundingLine();
@@ -200,7 +200,7 @@ public class LinearTest {
 		assertEquals(expectedSize, gen.createPoints().size());
 	}
 
-	@Test(expected = ModelValidationException.class)
+	@Test(expected = GeneratorException.class)
 	public void testOneDStepNoStep() throws Exception {
 
         BoundingLine line = new BoundingLine();
@@ -219,7 +219,7 @@ public class LinearTest {
         GeneratorUtil.testGeneratorPoints(gen);
 	}
 
-	@Test(expected = ModelValidationException.class)
+	@Test(expected = GeneratorException.class)
 	public void testOneDStepNegativeStep() throws Exception {
 
         BoundingLine line = new BoundingLine();
@@ -237,7 +237,6 @@ public class LinearTest {
 		GeneratorUtil.testGeneratorPoints(gen);
 	}
 
-	@Test
 	public void testOneDStepWrongROI() throws Exception {
 
 		try {

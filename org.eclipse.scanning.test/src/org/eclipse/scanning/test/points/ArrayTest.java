@@ -16,16 +16,19 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import org.eclipse.scanning.api.points.IPointGenerator;
+import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
-import org.eclipse.scanning.points.AxialArrayGenerator;
+import org.eclipse.scanning.points.PointGeneratorService;
 import org.junit.Before;
 import org.junit.Test;
 
 public class ArrayTest {
 
-	private AxialArrayGenerator generator;
+	private IPointGenerator<AxialArrayModel> generator;
+	private IPointGeneratorService pgs;
 
 	@Before
 	public void before() throws Exception {
@@ -36,8 +39,8 @@ public class ArrayTest {
 		model.setPositions(positions);
 		model.setName("x");
 
-		generator = new AxialArrayGenerator();
-		generator.setModel(model);
+		pgs = new PointGeneratorService();
+		generator = pgs.createGenerator(model);
 	}
 
 	@Test

@@ -16,7 +16,8 @@ import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 
 class TwoAxisGridStepGenerator extends AbstractGridGenerator<TwoAxisGridStepModel> {
 
-	TwoAxisGridStepGenerator() {
+	TwoAxisGridStepGenerator(TwoAxisGridStepModel model) {
+		super(model);
 		setLabel("Two-Axis Grid Step Scan");
 		setDescription("Creates a grid scan by taking steps of a fixed size in each axis, until the next step would land outside the bounding area."
 				+ "\nThe scan supports continuous operation and alternating/bidirectional/'snake' mode.");
@@ -24,8 +25,8 @@ class TwoAxisGridStepGenerator extends AbstractGridGenerator<TwoAxisGridStepMode
 	}
 
 	@Override
-	protected void validateModel() {
-		super.validateModel();
+	public void validate(TwoAxisGridStepModel model) {
+		super.validate(model);
 		if (model.getxAxisStep() == 0) throw new ModelValidationException("Model x-axis step size must be nonzero!", model, "xAxisStep");
 		if (model.getyAxisStep() == 0) throw new ModelValidationException("Model y-axis step size must be nonzero!", model, "yAxisStep");
 
@@ -53,11 +54,17 @@ class TwoAxisGridStepGenerator extends AbstractGridGenerator<TwoAxisGridStepMode
 
 	@Override
 	protected double getXStep() {
+		if (getXPoints() == 1){
+			return model.getBoundingBox().getxAxisLength();
+		}
 		return model.getxAxisStep();
 	}
 
 	@Override
 	protected double getYStep() {
+		if (getYPoints() == 1){
+			return model.getBoundingBox().getyAxisLength();
+		}
 		return model.getyAxisStep();
 	}
 

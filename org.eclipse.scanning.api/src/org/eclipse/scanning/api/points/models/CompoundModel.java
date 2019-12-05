@@ -74,7 +74,7 @@ import org.eclipse.scanning.api.points.IMutator;
  * @author Matthew Gerring
  *
  */
-public class CompoundModel implements Cloneable {
+public class CompoundModel extends AbstractPointsModel implements Cloneable {
 
 	private List<Object>               models;
 	private Collection<ScanRegion>  regions;
@@ -195,7 +195,7 @@ public class CompoundModel implements Cloneable {
 	public void setRegions(Collection<ScanRegion> regions) {
 		this.regions = regions;
 	}
-	public void setRegionsVarArgs(@SuppressWarnings("unchecked") ScanRegion... regions) {
+	public void setRegionsVarArgs(ScanRegion... regions) {
 		this.regions = Arrays.asList(regions);
 	}
 
@@ -300,30 +300,15 @@ public class CompoundModel implements Cloneable {
 				+ duration + "]";
 	}
 
-	public boolean supportsAlternating() {
-		Object o = models.get(models.size()-1);
-		if (o instanceof AbstractPointsModel) {
-			AbstractPointsModel m = (AbstractPointsModel) o;
-			return AbstractPointsModel.supportsAlternating(m.getClass());
+	// CompoundModel not a valid model for Zip/Concat generator currently
+	// May be possible when ScanPointGenerator changes behaviour, see
+	// https://github.com/dls-controls/scanpointgenerator/issues/76
+	@Override
+	public int size() {
+		int size = 1;
+		for (Object model : models) {
+			size *= ((IScanPathModel) model).size();
 		}
-		return false;
-	}
-
-	public boolean supportsContinuous() {
-		Object o = models.get(models.size()-1);
-		if (o instanceof AbstractPointsModel) {
-			AbstractPointsModel m = (AbstractPointsModel) o;
-			return AbstractPointsModel.supportsContinuous(m.getClass());
-		}
-		return false;
-	}
-
-	public boolean supportsRandomOffset() {
-		Object o = models.get(models.size()-1);
-		if (o instanceof AbstractPointsModel) {
-			AbstractPointsModel m = (AbstractPointsModel) o;
-			return AbstractPointsModel.supportsRandomOffset(m.getClass());
-		}
-		return false;
+		return size;
 	}
 }

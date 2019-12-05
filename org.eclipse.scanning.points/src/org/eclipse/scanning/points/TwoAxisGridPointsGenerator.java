@@ -23,7 +23,8 @@ import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 
 public class TwoAxisGridPointsGenerator extends AbstractGridGenerator<TwoAxisGridPointsModel> {
 
-	TwoAxisGridPointsGenerator() {
+	TwoAxisGridPointsGenerator(TwoAxisGridPointsModel model) {
+		super(model);
 		setLabel("Two-Axis Grid Points Scan");
 		setDescription("Creates a grid scan by slicing each axis of a box into equal sized portions."
 				+ "\nThe scan supports alternating/bidirectional/'snake' mode.");
@@ -41,12 +42,10 @@ public class TwoAxisGridPointsGenerator extends AbstractGridGenerator<TwoAxisGri
 	}
 
 	@Override
-	protected void validateModel() {
-		super.validateModel();
+	public void validate(TwoAxisGridPointsModel model) {
+		super.validate(model);
 		if (model.getyAxisPoints() <= 0) throw new ModelValidationException("Model must have a positive number of y-axis points!", model, "yAxisPoints");
 		if (model.getxAxisPoints() <= 0) throw new ModelValidationException("Model must have a positive number of x-axis points!", model, "xAxisPoints");
-		if (model.getxAxisName()==null) throw new ModelValidationException("The model must have a fast axis!\nIt is the motor name used for this axis.", model, "xAxisName");
-		if (model.getyAxisName()==null) throw new ModelValidationException("The model must have a slow axis!\nIt is the motor name used for this axis.", model, "yAxisName");
 	}
 
 	@Override

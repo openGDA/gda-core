@@ -23,7 +23,8 @@ public class JythonGenerator extends AbstractGenerator<JythonGeneratorModel> {
 
 	private static final Logger logger = LoggerFactory.getLogger(JythonGenerator.class);
 
-	JythonGenerator() {
+	JythonGenerator(JythonGeneratorModel model) {
+		super(model);
 		setLabel("Function");
 		setDescription("Uses a function to get the motor positions for the scan.");
 		setIconPath("icons/scanner--function.png"); // This icon exists in the rendering bundle
@@ -65,8 +66,7 @@ public class JythonGenerator extends AbstractGenerator<JythonGeneratorModel> {
 	}
 
 	@Override
-	protected void validateModel() throws ValidationException {
-
+	public void validate(JythonGeneratorModel model) throws ValidationException {
 		if (model.getPath()==null) throw new ModelValidationException("No module directory is set!", model, "path");
 		final File file = new File(model.getPath());
 		if (!file.exists()) throw new ModelValidationException("The module directory '"+file+"' does not exist!", model, "path");
@@ -76,9 +76,6 @@ public class JythonGenerator extends AbstractGenerator<JythonGeneratorModel> {
 			throw new ModelValidationException("The module name must be set!", model, "moduleName");
 		if (!Optional.ofNullable(model.getClassName()).isPresent())
 			throw new ModelValidationException("The class name must be set!", model, "className");
-
-        super.validateModel();
-
 	}
 
 	@Override

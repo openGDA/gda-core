@@ -20,32 +20,34 @@ package org.eclipse.scanning.points;
 
 import static org.eclipse.scanning.points.AbstractScanPointIterator.EMPTY_PY_ARRAY;
 
-import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.AbstractGenerator;
-import org.eclipse.scanning.api.points.GeneratorException;
-import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.PPointGenerator;
 import org.eclipse.scanning.api.points.models.AbstractBoundingLineModel;
 import org.eclipse.scanning.api.points.models.BoundingLine;
 import org.eclipse.scanning.jython.JythonObjectFactory;
-import org.python.core.PyList;
 
 public abstract class AbstractLineGenerator<T extends AbstractBoundingLineModel> extends AbstractGenerator<T> {
 
+	protected AbstractLineGenerator(T model) {
+		super(model);
+	}
+
 	@Override
-	protected void validateModel() {
-		super.validateModel();
+	public void validate(T model) {
+		super.validate(model);
 		if (model.getBoundingLine() == null) throw new ModelValidationException("Model must have BoundingLine!", model, "boundingLine");
 	}
 
 	@Override
-	protected PPointGenerator createPythonPointGenerator() {
-		final T model =  getModel();
-		final BoundingLine line = model.getBoundingLine();
-
+	public PPointGenerator createPythonPointGenerator() {
 		final JythonObjectFactory<PPointGenerator> lineGeneratorFactory = ScanPointGeneratorFactory.JTwoAxisLineGeneratorFactory();
+
+		final T model =  getModel();
+
+		final BoundingLine line = model.getBoundingLine();
 
 		final int numPoints = getPoints();
 		final double step = getStep();
@@ -54,35 +56,20 @@ public abstract class AbstractLineGenerator<T extends AbstractBoundingLineModel>
 		final double minX = line.getxStart() + xStep/2;
 		final double minY = line.getyStart() + yStep/2;
 
-		final PyList names =  new PyList(model.getScannableNames());
-		final PyList units = new PyList(model.getUnits());
+		final List<String> axes =  model.getScannableNames();
+		final List<String> units = model.getUnits();
 		final double[] start = {minX, minY};
 		final double[] stop = {minX + (numPoints - 1) * xStep, minY + (numPoints - 1) * yStep};
+		final boolean alternating = model.isAlternating();
+		final boolean continuous = model.isContinuous();
 
-		final PPointGenerator lineIt = lineGeneratorFactory.createObject(
-				names, units, start, stop, numPoints, model.isAlternating(), model.isContinuous());
-		if (getRegions().isEmpty()) {
-			return lineIt;
-		}
-		return CompoundSpgIteratorFactory.createSpgCompoundGenerator(new PPointGenerator[]{lineIt}, getRegions().toArray(),
-				model.getScannableNames(), EMPTY_PY_ARRAY, -1, model.isContinuous());
+		PPointGenerator lineGen = lineGeneratorFactory.createObject(
+				axes, units, start, stop, numPoints, alternating);
+		return CompoundSpgIteratorFactory.createSpgCompoundGenerator(new PPointGenerator[]{lineGen},
+				getRegions(), axes, EMPTY_PY_ARRAY, -1, continuous);
 	}
 
 	protected abstract double getStep();
-
-	@Override
-	protected Iterator<IPosition> iteratorFromValidModel() {
-		return createPythonPointGenerator().getPointIterator();
-	}
-
-	@Override
-	public int[] getShape() throws GeneratorException {
-		BoundingLine line = getModel().getBoundingLine();
-		if (line != null) {
-			return new int[] { getPoints() };
-		}
-		return super.getShape();
-	}
 
 	protected abstract int getPoints();
 
