@@ -32,6 +32,8 @@ import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DatasetUtils;
+import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.january.dataset.StringDataset;
 import org.junit.Test;
 
 public class HierarchicalDataFileModelTest {
@@ -320,7 +322,7 @@ public class HierarchicalDataFileModelTest {
 				model.getPath("/entry1/instrument/analyser/cps@units"));
 	}
 
-	private Object createNexusFile(final int dtype, final int[] shape, final Object buffer) throws Exception {
+	private Object createNexusFile(final Class<? extends Dataset> clazz, final int[] shape, final Object buffer) throws Exception {
 		
 		String PATH = Node.SEPARATOR + "kichwa1";
 		String dataPath = PATH + Node.SEPARATOR + "Gold";
@@ -331,7 +333,7 @@ public class HierarchicalDataFileModelTest {
 
 			// Create a file and verify it
 			NexusFile writer = NexusFileHDF5.createNexusFile(file.getAbsolutePath());
-			Dataset data = DatasetFactory.createFromObject(dtype, buffer, shape);
+			Dataset data = DatasetFactory.createFromObject(clazz, buffer, shape);
 			data.setName("Gold");
 			writer.createData(PATH, data, true);
 			writer.close();
@@ -367,37 +369,37 @@ public class HierarchicalDataFileModelTest {
 	@Test
 	public void testMultiDimArrayString() throws Exception {
 		final String GOLD = "Gold";
-		assertEquals(GOLD, createNexusFile(Dataset.STRING, new int[] { 1 }, new String[] { GOLD }));
+		assertEquals(GOLD, createNexusFile(StringDataset.class, new int[] { 1 }, new String[] { GOLD }));
 		assertEquals(
-				GOLD, createNexusFile(Dataset.STRING, new int[] { 1, 1 },
+				GOLD, createNexusFile(StringDataset.class, new int[] { 1, 1 },
 						new String[] { GOLD }));
 		assertEquals(
-				GOLD, createNexusFile(Dataset.STRING, new int[] { 1, 1, 1 },
+				GOLD, createNexusFile(StringDataset.class, new int[] { 1, 1, 1 },
 						new String[] { GOLD }));
 		assertEquals(
-				GOLD, createNexusFile(Dataset.STRING, new int[] { 1, 1, 1, 1 },
+				GOLD, createNexusFile(StringDataset.class, new int[] { 1, 1, 1, 1 },
 						new String[] { GOLD }));
 	}
 
 	@Test
 	public void testMultiDimArrayFloat() throws Exception {
 		assertEquals(1.0,
-				createNexusFile(Dataset.FLOAT64, new int[] { 1 }, new double[] { 1.0 }));
+				createNexusFile(DoubleDataset.class, new int[] { 1 }, new double[] { 1.0 }));
 		assertEquals(
 				1.0,
-				createNexusFile(Dataset.FLOAT64, new int[] { 1, 1 },
+				createNexusFile(DoubleDataset.class, new int[] { 1, 1 },
 						new double[][] { { 1.0 } }));
 		assertEquals(
 				1.0,
-				createNexusFile(Dataset.FLOAT64, new int[] { 1, 1, 1 },
+				createNexusFile(DoubleDataset.class, new int[] { 1, 1, 1 },
 						new double[][][] { { { 1.0 } } }));
 		assertEquals(
 				1.0,
-				createNexusFile(Dataset.FLOAT64, new int[] { 1, 1 },
+				createNexusFile(DoubleDataset.class, new int[] { 1, 1 },
 						new double[] { 1.0 }));
 		assertEquals(
 				1.0,
-				createNexusFile(Dataset.FLOAT64, new int[] { 1, 1, 1 },
+				createNexusFile(DoubleDataset.class, new int[] { 1, 1, 1 },
 						new double[] { 1.0 }));
 
 	}
