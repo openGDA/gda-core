@@ -19,13 +19,11 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -52,7 +50,6 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.window.Window;
-import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -67,7 +64,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.ConfigWrapper;
 import uk.ac.diamond.daq.mapping.ui.Activator;
-import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
 
 /**
  * Section to configure cluster processing for a mapping scan.
@@ -75,9 +71,6 @@ import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
 public class ProcessingSection extends AbstractMappingSection {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProcessingSection.class);
-
-	private static final File[] NO_TEMPLATE_FILES = new File[0];
-
 
 	private Composite processingChainsComposite;
 
@@ -95,11 +88,6 @@ public class ProcessingSection extends AbstractMappingSection {
 
 		createTitleAndAddProcessingRow(processingComposite);
 		createProcessingTable(processingComposite);
-	}
-
-	@Override
-	public boolean shouldShow() {
-		return getTemplateFiles().length > 0;
 	}
 
 	private void createTitleAndAddProcessingRow(Composite parent) {
@@ -282,18 +270,6 @@ public class ProcessingSection extends AbstractMappingSection {
 		getMappingView().updateControls();
 		getMappingView().showControl(processingChainsComposite.getParent());
 	}
-
-	private File[] getTemplateFiles() {
-		// TODO: consider moving this method to a service
-		File templatesDir = new File(getService(IFilePathService.class).getProcessingTemplatesDir());
-		String[] names = templatesDir.list((dir, name) -> name.endsWith("." + MappingUIConstants.NEXUS_FILE_EXTENSION));
-		if (names == null) {
-			return NO_TEMPLATE_FILES;
-		}
-
-		return Arrays.stream(names).map(name -> new File(templatesDir, name)).toArray(File[]::new);
-	}
-
 	@Override
 	public void updateControls() {
 

@@ -263,11 +263,8 @@ public class MappingExperimentView implements IAdaptable {
 			try {
 				section.initialize(this);
 				sections.put(section.getClass(), section);
-
-				if (section.shouldShow()) {
-					section.loadState(persistedState);
-					section.createControls(parent);
-				}
+				section.loadState(persistedState);
+				section.createControls(parent);
 			} catch (Exception e) {
 				logger.error("Error creating mapping section {}", sectionName, e);
 			}
@@ -350,9 +347,7 @@ public class MappingExperimentView implements IAdaptable {
 
 	public void updateControls() {
 		for (IMappingSection section : sections.values()) {
-			if (section.shouldShow()) {
-				section.updateControls();
-			}
+			section.updateControls();
 		}
 		relayout();
 	}
