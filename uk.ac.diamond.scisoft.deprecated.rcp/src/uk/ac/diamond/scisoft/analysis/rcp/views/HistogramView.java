@@ -689,7 +689,7 @@ public class HistogramView extends ViewPart implements SelectionListener,
 			logger.warn("Number of stored histograms is over expected levels, now at {}",histograms.size());
 		}
 		
-		xAxis.setValues(DatasetFactory.createLinearSpace(min, max, Math.max(1,histogram.getSize()+1), Dataset.FLOAT64));
+		xAxis.setValues(DatasetFactory.createLinearSpace(DoubleDataset.class, min, max, Math.max(1,histogram.getSize()+1)));
 		histogramPlotter.setXAxisValues(xAxis, 1);
 		generateHistogramUpdate();
 		updateChannelGraphs();
