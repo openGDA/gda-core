@@ -122,6 +122,7 @@ public class EditDetectorModelDialog extends Dialog {
 	public EditDetectorModelDialog(final Shell parentShell, final IRunnableDeviceService runnableDeviceService,
 			final IDetectorModel detectorModel, final String detectorName) {
 		super(parentShell);
+		setShellStyle(getShellStyle() | SWT.RESIZE);
 		this.runnableDeviceService = runnableDeviceService;
 		this.detectorModel = detectorModel;
 		this.detectorLabel = detectorName;
