@@ -45,96 +45,59 @@ import uk.ac.gda.client.live.stream.view.StreamType;
  */
 public class LiveStreamConnectionManager implements ILiveStreamConnectionService {
 
-	private final Set<LiveStreamConnection> sharedConnections;
-	private final Set<LiveStreamConnection> unsharedConnections;
+	private static final LiveStreamConnectionManager instance = new LiveStreamConnectionManager();
+
+	private final Set<LiveStreamConnection> liveStreamConnections;
 	private final Map<CameraConfiguration, LiveStreamConnection> connections;
 
-	public LiveStreamConnectionManager() {
+	public static LiveStreamConnectionManager getInstance() {
+		return instance;
+	}
+
+	private LiveStreamConnectionManager() {
 		this.connections = new ConcurrentHashMap<>();
-		this.sharedConnections = Collections.synchronizedSet(new HashSet<>());
-		this.unsharedConnections = Collections.synchronizedSet(new HashSet<>());
+		this.liveStreamConnections = Collections.synchronizedSet(new HashSet<>());
 	}
 
 	@Override
-	public LiveStreamConnection getStreamConnection(UUID uuid) {
+	public ILiveStreamConnection getIStreamConnection(UUID uuid) {
 		return findStreamConnection(uuid);
 	}
 
 	@Override
-	public boolean isStreamConnectionAvailable(UUID uuid, boolean shared) {
-		return findStreamConnection(shared, uuid).isPresent();
+	public boolean isILiveStreamConnectionAvailable(UUID uuid) {
+		return findStreamConnection(uuid) != null;
 	}
 
 	@Override
-	public LiveStreamConnection createStreamConnection(CameraConfiguration cameraConfig, StreamType streamType,
-			boolean shared) {
-		LiveStreamConnection instance = new LiveStreamConnection(cameraConfig, streamType);
-		if (shared) {
-			sharedConnections.add(instance);
-			connections.putIfAbsent(cameraConfig, instance);
-		} else {
-			unsharedConnections.add(instance);
+	public UUID getIStreamConnection(CameraConfiguration cameraConfig, StreamType streamType)
+			throws LiveStreamException {
+		return getStreamConnection(cameraConfig, streamType).getId();
+	}
+
+	private LiveStreamConnection getStreamConnection(final CameraConfiguration cameraConfig,
+			final StreamType streamType) throws LiveStreamException {
+		Optional<LiveStreamConnection> optional = liveStreamConnections.stream()
+				.filter(s -> s.sameConfiguration(cameraConfig, streamType)).findFirst();
+		if (optional.isPresent()) {
+			return optional.get();
 		}
-		return instance;
+		return doIStreamConnection(cameraConfig, streamType);
 	}
 
-	/**
-	 * Retrieves a {@link LiveStreamConnection} of the specified {@link StreamType} based on the specified
-	 * {@link CameraConfiguration}. A fresh one is instantiated if none currently exists for this configuration,
-	 * otherwise the existing one is provided.
-	 */
-	@Override
-	@Deprecated
-	public LiveStreamConnection getSharedLiveStreamConnection(final CameraConfiguration cameraConfig,
-			final StreamType streamType) {
-		return sharedConnections.stream().filter(s -> s.sameConfiguration(cameraConfig, streamType))
-				.findFirst().orElse(createStreamConnection(cameraConfig, streamType, true));
+	private LiveStreamConnection doIStreamConnection(CameraConfiguration cameraConfig, StreamType streamType)
+			throws LiveStreamException {
+		LiveStreamConnection liveStream = new LiveStreamConnection(cameraConfig, streamType);
+		liveStream.connect();
+		liveStreamConnections.add(liveStream);
+		connections.putIfAbsent(cameraConfig, liveStream);
+		return liveStream;
 	}
 
-	/**
-	 * Retrieves a {@link LiveStreamConnection} of the specified {@link StreamType} corresponding to the supplied named
-	 * camera. A fresh one is instantiated if none currently exists otherwise the existing one is provided.
-	 */
-	@Override
-	@Deprecated
-	public LiveStreamConnection getSharedLiveStreamConnection(final String cameraName, final StreamType streamType) {
-		CameraConfiguration cameraConfig = getConfigFromDisplayName(cameraName);
-		if (null == cameraConfig) {
-			throw new IllegalStateException(String.format("No Camera Configuration matching name: ", cameraName));
-		}
-		return sharedConnections.stream().filter(s -> s.sameConfiguration(cameraConfig, streamType))
-				.findFirst().orElse(createStreamConnection(cameraConfig, streamType, true));
-	}
-
-	/**
-	 * Instantiates a new {@link LiveStreamConnection} of the specified {@link StreamType} based on the specified
-	 * {@link CameraConfiguration}
-	 *
-	 * @deprecated This method will removed in a future release as creates instances which are no more managed by this
-	 *             service
-	 */
-	@Override
-	@Deprecated
-	public LiveStreamConnection getFreshLiveStreamConnection(final CameraConfiguration cameraConfig,
-			final StreamType streamType) {
-		return new LiveStreamConnection(cameraConfig, streamType);
-	}
-
-	/**
-	 * Instantiates a new {@link LiveStreamConnection} of the specified {@link StreamType} corresponding to the supplied
-	 * named camera
-	 *
-	 * @deprecated This method will be removed in a future release as creates instances which are no more managed by this
-	 *             service
-	 */
-	@Override
-	@Deprecated
-	public LiveStreamConnection getFreshLiveStreamConnection(final String cameraName, final StreamType streamType) {
-		CameraConfiguration configuration = getConfigFromDisplayName(cameraName);
-		if (null == configuration) {
-			throw new IllegalStateException(String.format("No Camera Configuration matching name: ", cameraName));
-		}
-		return getFreshLiveStreamConnection(configuration, streamType);
+	private LiveStreamConnection getSharedLiveStreamConnection(final CameraConfiguration cameraConfig,
+			final StreamType streamType) throws LiveStreamException {
+		return liveStreamConnections.stream().filter(s -> s.sameConfiguration(cameraConfig, streamType)).findFirst()
+				.orElse(doIStreamConnection(cameraConfig, streamType));
 	}
 
 	/**
@@ -178,41 +141,10 @@ public class LiveStreamConnectionManager implements ILiveStreamConnectionService
 		return source;
 	}
 
-	/**
-	 * Finds the matching {@link CameraConfiguraton} for the specified dame
-	 *
-	 * @param name
-	 *            The display name of the Camera to be found
-	 * @return The corresponding {@link CameraConfiguration} or null if no matching one can be found
-	 */
-	private CameraConfiguration getConfigFromDisplayName(final String name) {
-		return Finder.getInstance().find(name);
-	}
-
-	private Optional<LiveStreamConnection> findStreamConnection(boolean shared, UUID uuid) {
-		if (uuid == null) {
-			return Optional.empty();
-		}
-		if (shared) {
-			return sharedConnections.stream().filter(s -> uuid.equals(s.getId())).findFirst();
-		}
-		return unsharedConnections.stream().filter(s -> uuid.equals(s.getId())).findFirst();
-	}
-
 	private LiveStreamConnection findStreamConnection(UUID uuid) {
 		if (uuid == null) {
 			return null;
 		}
-		Optional<LiveStreamConnection> connection = sharedConnections.stream().filter(s -> uuid.equals(s.getId()))
-				.findFirst();
-		if (connection.isPresent()) {
-			return connection.get();
-		}
-		connection = unsharedConnections.stream().filter(s -> uuid.equals(s.getId())).findFirst();
-		if (connection.isPresent()) {
-			return connection.get();
-		}
-		return null;
+		return liveStreamConnections.stream().filter(s -> uuid.equals(s.getId())).findFirst().orElse(null);
 	}
-
 }

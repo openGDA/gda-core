@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.api.io.IRemoteDatasetService;
@@ -64,8 +65,8 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.detector.nxdetector.roi.ImutableRectangularIntegerROI;
 import gda.factory.Finder;
-import uk.ac.gda.client.live.stream.IConnectionFactory;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
+import uk.ac.gda.client.live.stream.LiveStreamConnectionManager;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.api.ILiveStreamConnectionService;
 import uk.ac.gda.client.live.stream.handlers.SnapshotData;
@@ -245,8 +246,9 @@ public class LiveStreamView extends ViewPart {
 
 		// Create the plotting view
 		try {
-			liveStreamConnection = getLiveStreamConnection(camConfig, streamType);
-			plottingComposite = new LivePlottingComposite(parent, SWT.NONE, getPartName(), liveStreamConnection, actionBars, this);
+			UUID streamID = LiveStreamConnectionManager.getInstance().getIStreamConnection(camConfig, streamType);
+			liveStreamConnection = (LiveStreamConnection) LiveStreamConnectionManager.getInstance().getIStreamConnection(streamID);
+			plottingComposite = new LivePlottingComposite(parent, SWT.NONE, getPartName(), actionBars, this);
 			plottingComposite.setShowAxes(camConfig.getCalibratedAxesProvider() != null);
 			plottingComposite.setShowTitle(true);
 			plottingComposite.connect();
@@ -262,10 +264,6 @@ public class LiveStreamView extends ViewPart {
 
 		createCustomUi(parent);
 
-	}
-
-	private LiveStreamConnection getLiveStreamConnection(CameraConfiguration camConfig, final StreamType streamType) {
-		return IConnectionFactory.getLiveStreamConnection(camConfig, streamType);
 	}
 
 	/**

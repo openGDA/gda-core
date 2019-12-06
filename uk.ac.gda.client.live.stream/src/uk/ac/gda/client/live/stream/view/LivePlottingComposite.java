@@ -21,6 +21,7 @@ package uk.ac.gda.client.live.stream.view;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.XAxisLineBoxROI;
@@ -38,6 +39,7 @@ import org.eclipse.january.dataset.DataEvent;
 import org.eclipse.january.dataset.IDataListener;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.IDatasetConnector;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
@@ -48,22 +50,33 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationListener;
 
 import uk.ac.diamond.scisoft.analysis.plotclient.ScriptingConnection;
+import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
 import uk.ac.gda.client.live.stream.LiveStreamConnection.IAxisChangeListener;
 import uk.ac.gda.client.live.stream.LiveStreamException;
+import uk.ac.gda.client.live.stream.event.ListenToConnectionEvent;
+import uk.ac.gda.client.live.stream.event.PlottingSystemUpdateEvent;
+import uk.ac.gda.client.live.stream.event.RootEvent;
+import uk.ac.gda.client.live.stream.event.StopListenToConnectionEvent;
+import uk.ac.gda.ui.tool.ClientSWTElements;
+import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
  * Manages an {@link IPlottingSystem} to display a live stream from a camera
+ *
+ * Publishes {@link PlottingSystemUpdateEvent} when starts listening at the inner stream
  */
 public class LivePlottingComposite extends Composite {
+
 	private static final Logger logger = LoggerFactory.getLogger(LivePlottingComposite.class);
 
 	private static final String LIVE_CAMERA_STREAM = "Live camera stream";
 
-	private final LiveStreamConnection liveStreamConnection;
-	private final IPlottingSystem<Composite> plottingSystem;
+	private LiveStreamConnection liveStreamConnection;
+	private IPlottingSystem<Composite> plottingSystem;
 
 	private ScriptingConnection scriptingConnection;
 	private IImageTrace iTrace;
@@ -131,10 +144,17 @@ public class LivePlottingComposite extends Composite {
 	 * Simple constructor for use in wizard pages etc. where there are no action bars or workspace part
 	 * <p>
 	 * For a description of parameters, see
-	 * {@link #LivePlottingComposite(Composite parent, int style, String plotName, LiveStreamConnection liveStreamConnection, IActionBars actionBars, IWorkbenchPart part)}
+	 * {@link #LivePlottingComposite(Composite parent, int style, String plotName, IActionBars actionBars, IWorkbenchPart part)}
+	 *
+	 * @throws GDAClientException
 	 */
+	public LivePlottingComposite(Composite parent, int style, String plotName) throws GDAClientException {
+		this(parent, style, plotName, null, null);
+	}
+
 	public LivePlottingComposite(Composite parent, int style, String plotName, LiveStreamConnection liveStreamConnection) throws Exception {
-		this(parent, style, plotName, liveStreamConnection, null, null);
+		this(parent, style, plotName, null, null);
+		this.liveStreamConnection = liveStreamConnection;
 	}
 
 	/**
@@ -146,32 +166,41 @@ public class LivePlottingComposite extends Composite {
 	 *            style the style of widget to construct
 	 * @param plotName
 	 *            name of plot (passed to plotting system
-	 * @param liveStreamConnection
-	 *            object to encapsulate connection to a live stream: will be connected to the actual stream if it is not
-	 *            already connected
 	 * @param actionBars
 	 *            of the parent: can be null (e.g. if the parent is not a ViewPart)
 	 * @param part
 	 *            parent ViewPart: can be null (e.g. if the parent is not a ViewPart)
-	 * @throws Exception
+	 * @throws GDAClientException
+	 *             when cannot comunicate with {@link SpringApplicationContextProxy} or when cannot prepare
+	 *             {@link IPlottingSystem}
 	 */
-	public LivePlottingComposite(Composite parent, int style, String plotName, LiveStreamConnection liveStreamConnection, IActionBars actionBars, IWorkbenchPart part) throws Exception {
+	public LivePlottingComposite(Composite parent, int style, String plotName, IActionBars actionBars,
+			IWorkbenchPart part) throws GDAClientException {
 		super(parent, style);
 		setLayout(new FillLayout());
+		SpringApplicationContextProxy.addApplicationListener(openConnectionListener);
+		SpringApplicationContextProxy.addApplicationListener(closeConnectionListener);
 
-		this.liveStreamConnection = liveStreamConnection;
+		preparePlottingSystem(plotName, actionBars, part);
 
-		final IPlottingService plottingService = PlatformUI.getWorkbench().getService(IPlottingService.class);
-		plottingSystem = plottingService.createPlottingSystem();
-		plottingSystem.createPlotPart(this, plotName, actionBars, PlotType.IMAGE, part);
-		createScriptingConnection(plotName);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(this);
+	}
 
-		// Fix the aspect ratio as is typically required for visible cameras
-		plottingSystem.setKeepAspect(true);
-		// Disable auto rescale as the live stream is constantly refreshing
-		plottingSystem.setRescale(false);
+	private void preparePlottingSystem(String plotName, IActionBars actionBars, IWorkbenchPart part)
+			throws GDAClientException {
+		try {
+			final IPlottingService plottingService = PlatformUI.getWorkbench().getService(IPlottingService.class);
+			plottingSystem = plottingService.createPlottingSystem();
+			plottingSystem.createPlotPart(this, plotName, actionBars, PlotType.IMAGE, part);
+			createScriptingConnection(plotName);
 
-		connect();
+			// Fix the aspect ratio as is typically required for visible cameras
+			// plottingSystem.setKeepAspect(false);
+			// Disable auto rescale as the live stream is constantly refreshing
+			plottingSystem.setRescale(false);
+		} catch (Exception e) {
+			throw new GDAClientException(e);
+		}
 	}
 
 	private void updateAxesVisibility() {
@@ -241,6 +270,52 @@ public class LivePlottingComposite extends Composite {
 		}
 	}
 
+	/**
+	 * Connect trace to plotting system.
+	 *
+	 * @throws LiveStreamException
+	 */
+	private void listenToStream() {
+		if (!connected) {
+			logger.debug("Connecting to plot {}", plottingSystem.getPlotName());
+
+			// Create a new trace.
+			iTrace = plottingSystem.createImageTrace(LIVE_CAMERA_STREAM);
+
+			// Connect the stream to the trace
+			dataset = liveStreamConnection.getStream();
+			iTrace.setDynamicData(dataset);
+
+			// Add the axes to the trace
+			final List<IDataset> axes = liveStreamConnection.getAxes();
+			if (liveStreamConnection.hasAxesProvider() || (axes != null && axes.size() == 2)) {
+				iTrace.setAxes(liveStreamConnection.getAxes(), false);
+				liveStreamConnection.addAxisMoveListener(axisChangeListener);
+			}
+
+			updateAxesVisibility();
+			updateTitleVisibility();
+
+			// Add the listener for updating the frame counter
+			dataset.addDataListener(dataShapeChangeListener);
+
+			// Reset the frame counter
+			frameCounter.set(0);
+
+			// Try and make the stream run faster
+			iTrace.setDownsampleType(DownsampleType.POINT);
+			iTrace.setRescaleHistogram(false);
+
+			// Plot the new trace.
+			plottingSystem.addTrace(iTrace);
+
+			UUID uuidRoot = ClientSWTElements.findParentUUID(getParent());
+			SpringApplicationContextProxy
+					.publishEvent(new PlottingSystemUpdateEvent(LivePlottingComposite.this, uuidRoot));
+			connected = true;
+		}
+	}
+
 	private void createScriptingConnection(String partName) {
 		Objects.requireNonNull(plottingSystem, "Plotting system is not initialised");
 		scriptingConnection = new ScriptingConnection(partName);
@@ -254,18 +329,20 @@ public class LivePlottingComposite extends Composite {
 
 	public void setCrosshairs(double xPos, double yPos) throws Exception {
 		if (connected) {
-			final int [] maxShape = dataset.getMaxShape();
+			final int[] maxShape = dataset.getMaxShape();
 			if (maxShape != null && maxShape.length > 1) {
 				final Color crosshairColour = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
 
 				// X-axis crosshair
-				final IRegion xRegion = plottingSystem.createRegion(RegionUtils.getUniqueName("Crosshair X", plottingSystem), RegionType.XAXIS_LINE);
+				final IRegion xRegion = plottingSystem
+						.createRegion(RegionUtils.getUniqueName("Crosshair X", plottingSystem), RegionType.XAXIS_LINE);
 				xRegion.setRegionColor(crosshairColour);
 				xRegion.setROI(new XAxisLineBoxROI(xPos, 0, 6, maxShape[1], 0));
 				plottingSystem.addRegion(xRegion);
 
 				// Y-axis crosshair
-				final IRegion yRegion = plottingSystem.createRegion(RegionUtils.getUniqueName("Crosshair Y", plottingSystem), RegionType.YAXIS_LINE);
+				final IRegion yRegion = plottingSystem
+						.createRegion(RegionUtils.getUniqueName("Crosshair Y", plottingSystem), RegionType.YAXIS_LINE);
 				yRegion.setRegionColor(crosshairColour);
 				yRegion.setROI(new YAxisBoxROI(0, yPos, maxShape[0], 6, 0));
 				plottingSystem.addRegion(yRegion);
@@ -332,4 +409,35 @@ public class LivePlottingComposite extends Composite {
 			updateTitleVisibility();
 		}
 	}
+
+	private boolean processEvent(RootEvent event, UUID uuidRoot) {
+		return event.getRootComposite() != null && event.getRootComposite().equals(uuidRoot);
+	}
+
+	ApplicationListener<ListenToConnectionEvent> openConnectionListener = new ApplicationListener<ListenToConnectionEvent>() {
+		@Override
+		public void onApplicationEvent(ListenToConnectionEvent event) {
+			UUID uuidRoot = ClientSWTElements.findParentUUID(getParent());
+			if (!processEvent(event, uuidRoot)) {
+				return;
+			}
+			if (LiveStreamConnection.class.isAssignableFrom(event.getSource().getClass())) {
+				liveStreamConnection = LiveStreamConnection.class.cast(event.getSource());
+				listenToStream();
+			}
+		}
+	};
+
+	ApplicationListener<StopListenToConnectionEvent> closeConnectionListener = new ApplicationListener<StopListenToConnectionEvent>() {
+		@Override
+		public void onApplicationEvent(StopListenToConnectionEvent event) {
+			UUID uuidRoot = ClientSWTElements.findParentUUID(getParent());
+			if (!processEvent(event, uuidRoot)) {
+				return;
+			}
+			if (LiveStreamConnection.class.isAssignableFrom(event.getSource().getClass())) {
+				disconnect();
+			}
+		}
+	};
 }

@@ -16,24 +16,25 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client.live.stream;
+package uk.ac.gda.client.live.stream.event;
 
-import uk.ac.gda.client.live.stream.view.CameraConfiguration;
-import uk.ac.gda.client.live.stream.view.StreamType;
+import org.springframework.context.ApplicationEvent;
+
+import uk.ac.gda.client.live.stream.LiveStreamConnection;
 
 /**
- * Wraps the {@link LiveStreamConnectionManager} to offer a Flyweight pattern for the existing liveStreams.
+ *  Published when events occur to a {@link LiveStreamConnection}
  *
  * @author Maurizio Nagni
  */
-public class IConnectionFactory {
+public class LiveStreamEvent extends ApplicationEvent {
 
-	private static final LiveStreamConnectionManager liveStreamConnectionManager = new LiveStreamConnectionManager();
-
-	private IConnectionFactory() {}
-
-	public static LiveStreamConnection getLiveStreamConnection(final CameraConfiguration cameraConfig, final StreamType streamType) {
-		return liveStreamConnectionManager.getSharedLiveStreamConnection(cameraConfig, streamType);
+	/**
+	 * @param source a {@link LiveStreamConnection} instance
+	 */
+	public LiveStreamEvent(Object source) {
+		super(source);
 	}
+
 
 }

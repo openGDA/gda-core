@@ -18,6 +18,9 @@
 
 package uk.ac.diamond.daq.client.gui.camera.event;
 
+import java.util.UUID;
+
+import uk.ac.diamond.daq.client.gui.camera.CameraComboItem;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 
 /**
@@ -32,16 +35,25 @@ public class ChangeActiveCameraEvent extends CameraEvent {
 	 * 
 	 */
 	private static final long serialVersionUID = -933748166416333930L;
-	private final int activeCamera;
+	private final CameraComboItem activeCamera;
+	private final UUID rootComposite;
 	
-    public ChangeActiveCameraEvent(Object source, int activeCamera) {
+    /**
+     * @param source the component which published the event
+     * @param activeCamera the component active camera
+     * @param rootComposite the component id
+     */
+    public ChangeActiveCameraEvent(Object source, CameraComboItem activeCamera, UUID rootComposite) {
 		super(source);
 		this.activeCamera = activeCamera;
+		this.rootComposite = rootComposite; 
 	}
 
-	public int getActiveCamera() {
+	public CameraComboItem getActiveCamera() {
 		return activeCamera;
 	}
 
-
+	public UUID getRootComposite() {
+		return rootComposite;
+	}
 }

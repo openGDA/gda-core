@@ -1,0 +1,15 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- This line assures that Spring scans and initialises beans using annotations instead of explicit XML declarations -->
+	<context:component-scan base-package="uk.ac.gda.tomography"></context:component-scan>
+	<context:component-scan base-package="uk.ac.gda.ui.tool.spring"></context:component-scan>
+	<context:component-scan base-package="uk.ac.diamond.daq.client.gui.camera.event"></context:component-scan>
+		
+	<context:property-placeholder />
+</beans>

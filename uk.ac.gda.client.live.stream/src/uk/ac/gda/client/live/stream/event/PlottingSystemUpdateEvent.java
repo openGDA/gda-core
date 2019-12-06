@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2019 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,24 +16,27 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.rcp.views;
+package uk.ac.gda.client.live.stream.event;
 
-import org.eclipse.swt.widgets.Composite;
+import java.util.UUID;
 
 /**
- * Interface for Factories that create composites. Part of work to allow views to be configured in Spring
+ *  Published when a component requires any child plotting system to update its data
  *
- * @author Jonathan Blakes
  * @author Maurizio Nagni
  */
+public class PlottingSystemUpdateEvent extends LiveStreamEvent implements RootEvent {
+	private static final long serialVersionUID = -933748166416333930L;
 
-public interface CompositeFactory {
+	private final UUID rootComposite;
 
-	/**
-	 * Defines a well specific property in {@link Composite#getData(String)} which identifies a composite instance as
-	 * parent for the contained children.
-	 */
-	public static final String COMPOSITE_ROOT = "COMPOSITE_ROOT";
+    public PlottingSystemUpdateEvent(Object source, UUID rootComposite) {
+		super(source);
+		this.rootComposite = rootComposite;
+	}
 
-	public Composite createComposite(Composite parent, int style);
+    @Override
+	public UUID getRootComposite() {
+		return rootComposite;
+	}
 }

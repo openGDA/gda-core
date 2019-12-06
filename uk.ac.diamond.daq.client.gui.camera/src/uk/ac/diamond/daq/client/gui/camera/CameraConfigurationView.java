@@ -3,48 +3,42 @@ package uk.ac.diamond.daq.client.gui.camera;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import uk.ac.diamond.daq.client.gui.camera.controller.ImagingCameraConfigurationController;
-import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
-import uk.ac.gda.client.live.stream.view.StreamType;
 import uk.ac.gda.ui.tool.ClientSWTElements;
-import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
  * Displays the CameraConfiguration as view.
- * 
- * Uses Spring to publish {@link ChangeActiveCameraEvent} when the active camera
- * changes.
  * 
  * @author Maurizio Nagni
  *
  */
 public class CameraConfigurationView extends ViewPart {
+	private int cameraIndex = 0;
+
+	private static final Logger logger = LoggerFactory.getLogger(CameraConfigurationView.class);
 
 	@Override
 	public void createPartControl(Composite parent) {
-		// Preliminary implementation to parametrise the active camera (0 will be a
-		// parameter)
-		int activeCamera = 0;
 		try {
 			// Casting in this way is horrible but thats the problem until is possible to
 			// properly refactor CameraConfigurationDialog
-			ImagingCameraConfigurationController controller = (ImagingCameraConfigurationController) CameraHelper
-					.getCameraControlInstance(activeCamera);
+			ImagingCameraConfigurationController cameraControl = (ImagingCameraConfigurationController) CameraHelper
+					.getCameraControlInstance(cameraIndex);
 			CameraConfigurationDialog ccd = new CameraConfigurationDialog(
-					ClientSWTElements.createComposite(parent, SWT.NONE, 1), controller,
-					CameraHelper.getLiveStreamConnection(activeCamera, StreamType.EPICS_ARRAY));
+					ClientSWTElements.createComposite(parent, SWT.NONE, 1), cameraControl);
 			ccd.createComposite(false);
-			SpringApplicationContextProxy.publishEvent(new ChangeActiveCameraEvent(this, activeCamera));
-		} catch (DeviceException e1) {
-			e1.printStackTrace();
+		} catch (DeviceException e) {
+			logger.error("DeviceException", e);
 		}
 	}
 
 	@Override
 	public void setFocus() {
-
+		logger.debug("hello");
 	}
 
 }

@@ -19,6 +19,7 @@
 package uk.ac.gda.ui.tool;
 
 import java.util.Objects;
+import java.util.UUID;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -42,6 +43,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import gda.rcp.GDAClientActivator;
+import gda.rcp.views.CompositeFactory;
 import uk.ac.gda.ui.tool.images.ClientImages;
 
 /**
@@ -336,6 +338,69 @@ public final class ClientSWTElements {
 
 	public static void setTooltip(Control control, final ClientMessages tooltip) {
 		control.setToolTipText(ClientMessagesUtility.getMessage(tooltip));
+	}
+
+	public static UUID findParentUUID(Composite composite) {
+		Composite old = composite;
+		while(true) {
+			if(UUID.class.isInstance(old.getData(CompositeFactory.COMPOSITE_ROOT))) {
+				return UUID.class.cast(old.getData(CompositeFactory.COMPOSITE_ROOT));
+			}
+			old = old.getParent();
+			if (old == null) {
+				return null;
+			}
+		}
+	}
+
+	public static void gridDataSpan(final Composite composite, final int hSpan, final int vSpan) {
+		if (GridDataFactory.class.isInstance(composite.getLayoutData())) {
+			GridDataFactory gdf = GridDataFactory.class.cast(composite.getLayoutData());
+			gdf.span(hSpan, vSpan);
+			gdf.applyTo(composite);
+		}
+	}
+
+	/**
+	 * Change a {@link Composite} item alignment using its existing {@link GridDataFactory}
+	 * @param composite
+	 * @param hAlign
+	 * @param vAlign
+	 */
+	public static void gridDataAlign(final Composite composite, final int hAlign, final int vAlign) {
+		if (GridDataFactory.class.isInstance(composite.getLayoutData())) {
+			GridDataFactory gdf = GridDataFactory.class.cast(composite.getLayoutData());
+			gdf.align(hAlign, vAlign);
+			gdf.applyTo(composite);
+		}
+	}
+
+	/**
+	 * Change a {@link Composite} item "grab" using its existing {@link GridDataFactory}
+	 * @param composite
+	 * @param horizontal
+	 * @param vertical
+	 */
+	public static void gridDataGrab(final Composite composite, final boolean horizontal, final boolean vertical) {
+		if (GridDataFactory.class.isInstance(composite.getLayoutData())) {
+			GridDataFactory gdf = GridDataFactory.class.cast(composite.getLayoutData());
+			gdf.grab(horizontal, vertical);
+			gdf.applyTo(composite);
+		}
+	}
+
+	/**
+	 * Change a {@link Composite} item minSize using its existing {@link GridDataFactory}
+	 * @param composite
+	 * @param minX
+	 * @param minY
+	 */
+	public static void gridDataMinSize(final Composite composite, final int minX, final int minY) {
+		if (GridDataFactory.class.isInstance(composite.getLayoutData())) {
+			GridDataFactory gdf = GridDataFactory.class.cast(composite.getLayoutData());
+			gdf.minSize(minX, minY);
+			gdf.applyTo(composite);
+		}
 	}
 
 	private static GridDataFactory applySpan(final Control control, final Point span, final Point minSize) {
