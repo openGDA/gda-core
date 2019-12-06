@@ -18,11 +18,7 @@
 
 package org.eclipse.scanning.device.ui.device;
 
-import static java.util.stream.Collectors.toMap;
-
-import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.PojoProperties;
@@ -74,18 +70,18 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 			}
 		},
 
-		FRAME_TIME("Frame time", false, true, 120, SWT.CENTER, "The time for each frame of this scan.\nrequested (actual).\nThis field is not editable. Calculated as: exposure time / frames per step") {
-			@Override
-			public String getLabel(IMalcolmDetectorModel model) {
-				// calculated based on exposure time / frames-per-step
-				return String.format("%.3f", model.getExposureTime() / model.getFramesPerStep());
-			}
-		},
-
 		EXPOSURE_TIME("Exposure time", true, true, 120, SWT.CENTER, "The exposure time for this detector for each frame.\nrequested (actual)") {
 			@Override
 			public String getLabel(IMalcolmDetectorModel model) {
 				return String.format("%.3f", model.getExposureTime());
+			}
+		},
+
+		FRAME_TIME("Frame time", false, true, 120, SWT.CENTER, "The time for each frame of this scan.\nrequested (actual).\nThis field is not editable. Calculated as: exposure time / frames per step") {
+			@Override
+			public String getLabel(IMalcolmDetectorModel detectorModel, IMalcolmModel malcolmModel) {
+				// calculated as step-time / frames-per-step
+				return String.format("%.3f", malcolmModel.getExposureTime() / detectorModel.getFramesPerStep());
 			}
 		};
 
@@ -107,8 +103,13 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 		}
 
 		@SuppressWarnings("unused")
-		public String getLabel(IMalcolmDetectorModel model) {
+		public String getLabel(IMalcolmDetectorModel detectorModel) {
 			return null;
+		}
+
+		@SuppressWarnings("unused")
+		public String getLabel(IMalcolmDetectorModel detectorModel, IMalcolmModel malcolmModel) {
+			return getLabel(detectorModel);
 		}
 
 	}
@@ -123,7 +124,7 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 
 	private TableViewer detectorsTable;
 
-	private Map<String, IMalcolmDetectorModel> modifiedDetectorModels = null;
+	private IMalcolmModel modifiedModel = null;
 
 	public MalcolmModelEditor(IRunnableDeviceService runnableDeviceService, IMalcolmModel model) {
 		this.runnableDeviceService = runnableDeviceService;
@@ -203,13 +204,17 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 	}
 
 	public void updateValidatedModel(IMalcolmModel modifiedModel) {
-		if (modifiedModel == null) {
-			modifiedDetectorModels = null;
-		} else {
-			modifiedDetectorModels = modifiedModel.getDetectorModels().stream()
-					.collect(toMap(IMalcolmDetectorModel::getName, Function.identity()));
-		}
+		this.modifiedModel = modifiedModel;
 		detectorsTable.refresh();
+	}
+
+	protected Optional<IMalcolmDetectorModel> getModifiedDetectorModel(String detectorName) {
+		if (modifiedModel != null) {
+			return modifiedModel.getDetectorModels().stream()
+					.filter(det -> det.getName().equals(detectorName))
+					.findFirst();
+		}
+		return Optional.empty();
 	}
 
 	private class MalcolmDetectorsTableLabelProvider extends ColumnLabelProvider {
@@ -223,11 +228,10 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 		@Override
 		public String getText(Object element) {
 			final IMalcolmDetectorModel detectorModel = (IMalcolmDetectorModel) element;
-			final Optional<IMalcolmDetectorModel> validatedModel = modifiedDetectorModels == null ?
-					Optional.empty() : Optional.of(modifiedDetectorModels.get(detectorModel.getName()));
-			final String value = column.getLabel(detectorModel);
+			final Optional<IMalcolmDetectorModel> validatedModel = getModifiedDetectorModel(detectorModel.getName());
+			final String value = column.getLabel(detectorModel, getModel());
 			if (column.showActualValue && validatedModel.isPresent()) {
-				return value + " (" + column.getLabel(validatedModel.get()) + ")";
+				return value + " (" + column.getLabel(validatedModel.get(), modifiedModel) + ")";
 			}
 			return value;
 		}
