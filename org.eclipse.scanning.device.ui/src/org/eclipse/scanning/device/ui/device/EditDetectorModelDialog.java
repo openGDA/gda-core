@@ -18,6 +18,9 @@
 
 package org.eclipse.scanning.device.ui.device;
 
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_NAME;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_TYPE;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
@@ -53,7 +56,6 @@ import org.eclipse.scanning.api.event.scan.AcquireRequest;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
-import org.eclipse.scanning.api.malcolm.MalcolmConstants;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -114,6 +116,8 @@ public class EditDetectorModelDialog extends Dialog {
 	private Combo datasetCombo;
 
 	private Optional<MalcolmModelEditor> malcolmModelEditor = null;
+
+	private String lastSnapshotFilePath = null;
 
 	public EditDetectorModelDialog(final Shell parentShell, final IRunnableDeviceService runnableDeviceService,
 			final IDetectorModel detectorModel, final String detectorName) {
@@ -218,13 +222,15 @@ public class EditDetectorModelDialog extends Dialog {
 			GridDataFactory.swtDefaults().applyTo(label);
 
 			datasetCombo = new Combo(plotControlsComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
+			GridDataFactory.fillDefaults().grab(true, false).applyTo(datasetCombo);
+			datasetCombo.addSelectionListener(SelectionListener.widgetSelectedAdapter(event ->
+					loadDatasetFromLatestFile(datasetCombo.getItem(datasetCombo.getSelectionIndex()))));
+			// populate the datasets combo with the datasets from the malcolm device
 			final String[] datasetNames = getMalcolmDatasetNames();
 			if (datasetNames.length > 0) {
 				datasetCombo.setItems(datasetNames);
 				datasetCombo.select(0);
 			}
-
-			GridDataFactory.fillDefaults().grab(true, false).applyTo(datasetCombo);
 		}
 
 		// Snapshot button
@@ -236,6 +242,7 @@ public class EditDetectorModelDialog extends Dialog {
 	}
 
 	private String[] getMalcolmDatasetNames() {
+		logger.debug("Getting malcolm dataset names for malcolm device {}", detectorModel.getName());
 		IMalcolmDevice malcolmDevice = null;
 		try {
 			malcolmDevice = (IMalcolmDevice) runnableDeviceService.<IMalcolmModel>getRunnableDevice(detectorModel.getName());
@@ -246,14 +253,16 @@ public class EditDetectorModelDialog extends Dialog {
 			malcolmDevice.configure((IMalcolmModel) detectorModel);
 			final MalcolmTable datasetsTable = malcolmDevice.getDatasets();
 			return datasetsTable.stream()
-				.filter(row -> MalcolmDatasetType.fromString((String) row.get(MalcolmConstants.DATASETS_TABLE_COLUMN_TYPE)) == MalcolmDatasetType.PRIMARY) // filter out non-primary dataset
-				.map(row -> row.get(MalcolmConstants.DATASETS_TABLE_COLUMN_NAME))
+				.filter(row -> MalcolmDatasetType.fromString((String) row.get(DATASETS_TABLE_COLUMN_TYPE)) == MalcolmDatasetType.PRIMARY) // filter out non-primary dataset
+				.map(row -> row.get(DATASETS_TABLE_COLUMN_NAME))
 				.map(String.class::cast)
 				.filter(name -> name.contains(".")) // sanity check, dataset names have 2 parts, e.g. 'detector.data'
 				.map(name -> name.split("\\.")[0]) // get the first part, e.g. 'detector'. This will be the name of the NXdata group in the nexus file
 				.toArray(String[]::new);
 		} catch (ScanningException e) {
 			logger.error("Could not get datasets for malcolm device {}", detectorModel.getName(), e);
+			getShell().getDisplay().asyncExec(() -> MessageDialog.openError(getShell(), "Error",
+					"Could not get datasets for malcolm device " + detectorModel.getName()));
 		} finally {
 			if (malcolmDevice != null) {
 				try {
@@ -402,12 +411,8 @@ public class EditDetectorModelDialog extends Dialog {
 			final AcquireRequest response = ScanningUiUtils.acquireData(detectorModel);
 
 			if (response.getStatus() == Status.COMPLETE) {
-				final String snapshotPath = response.getFilePath();
-				loadSnapshot(snapshotPath, detectorName);
-				snapshotPathText.setText(snapshotPath);
-				snapshotPathText.setToolTipText(snapshotPath);
-				snapshotPathText.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
-				snapshotPathText.setVisible(true);
+				lastSnapshotFilePath = response.getFilePath();
+				loadSnapshot(lastSnapshotFilePath, detectorName);
 			} else if (response.getStatus() == Status.FAILED) {
 				final String message = MessageFormat.format("Unable to acquire data for detector {0}: {1}",
 						detectorLabel, response.getMessage());
@@ -420,7 +425,18 @@ public class EditDetectorModelDialog extends Dialog {
 		}
 	}
 
-	private void loadSnapshot(final String filePath, String detectorName) throws Exception {
+	private void loadDatasetFromLatestFile(String datasetName) {
+		if (lastSnapshotFilePath == null) return;
+
+		try {
+			loadSnapshot(lastSnapshotFilePath, datasetName);
+		} catch (Exception e) {
+			MessageDialog.openError(getShell(), "Snapshot", "Error loading dataset " + datasetName + ": " + e.getMessage());
+			logger.error("Error loading dataset", e);
+		}
+	}
+
+	private void loadSnapshot(final String filePath, String datasetName) throws Exception {
 		logger.info("Loading snapshot from {}", filePath);
 
 		try {
@@ -441,7 +457,7 @@ public class EditDetectorModelDialog extends Dialog {
 						}
 
 						final ILoaderService loaderService = Activator.getDefault().getService(ILoaderService.class);
-						final String datasetPath = ScanningUiUtils.getDatasetPath(detectorName);
+						final String datasetPath = ScanningUiUtils.getDatasetPath(datasetName);
 						dataset = loaderService.getDataset(filePath, datasetPath, new ProgressMonitorWrapper(monitor)).squeeze();
 
 						if (dataset == null) {
@@ -453,6 +469,10 @@ public class EditDetectorModelDialog extends Dialog {
 				}
 			});
 			// Guess how the dataset should be plotted
+			if (dataset.getShape().length == 0) {
+				throw new ScanningException("Dataset " + datasetName + " is not plottable.");
+			}
+
 			if (dataset.getShape()[0] > MAX_ELEMENTS) {
 				// probably an image
 				plotAsImage.setSelection(true);
@@ -467,7 +487,11 @@ public class EditDetectorModelDialog extends Dialog {
 			createStatsSection();
 			updatePlot();
 
-		} catch (InvocationTargetException | InterruptedException e) {
+			snapshotPathText.setText(filePath);
+			snapshotPathText.setToolTipText(filePath);
+			snapshotPathText.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
+			snapshotPathText.setVisible(true);
+		} catch (Exception e) {
 			final String errorMessage = MessageFormat.format("Could not load data for detector {0} from file {1}.", detectorModel.getName(), filePath);
 			logger.error(errorMessage, e);
 			snapshotPathText.setText(errorMessage);
