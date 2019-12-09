@@ -73,4 +73,8 @@ public class SpringApplicationContextProxy implements ApplicationEventPublisherA
 		}
 		SpringApplicationContextProxy.configurableApplicationContext.addApplicationListener(listener);
 	}
+
+	public static <T> T getBean(Class<T> bean) {
+		return SpringApplicationContextProxy.applicationContext.getBean(bean);
+	}
 }
