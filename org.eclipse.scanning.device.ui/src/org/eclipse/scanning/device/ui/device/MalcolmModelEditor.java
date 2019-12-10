@@ -54,9 +54,9 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 
 	private enum DetectorTableColumn {
 
-		ENABLED("Enabled", false, false, 80, SWT.CENTER, "Whether to enable this detector"),
+		ENABLED("Enabled", false, false, 60, SWT.CENTER, "Whether to enable this detector"),
 
-		DETECTOR_NAME("Name", false, false, 200, SWT.LEAD, "The name of the detector") {
+		DETECTOR_NAME("Name", false, false, 150, SWT.LEAD, "The name of the detector") {
 			@Override
 			public String getLabel(IMalcolmDetectorModel model) {
 				return model.getName();
@@ -70,18 +70,27 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 			}
 		},
 
-		EXPOSURE_TIME("Exposure time", true, true, 120, SWT.CENTER, "The exposure time for this detector for each frame.\nrequested (actual)") {
+		EXPOSURE_TIME("Exposure time", true, true, 110, SWT.CENTER, "The exposure time for this detector for each frame.\nrequested (actual)") {
 			@Override
 			public String getLabel(IMalcolmDetectorModel model) {
 				return String.format("%.3f", model.getExposureTime());
 			}
 		},
 
-		FRAME_TIME("Frame time", false, true, 120, SWT.CENTER, "The time for each frame of this scan.\nrequested (actual).\nThis field is not editable. Calculated as: exposure time / frames per step") {
+		FRAME_TIME("Frame time", false, true, 100, SWT.CENTER, "The time for each frame of this scan.\nrequested (actual).\nThis field is not editable. Calculated as: exposure time / frames per step") {
 			@Override
 			public String getLabel(IMalcolmDetectorModel detectorModel, IMalcolmModel malcolmModel) {
 				// calculated as step-time / frames-per-step
 				return String.format("%.3f", malcolmModel.getExposureTime() / detectorModel.getFramesPerStep());
+			}
+		},
+
+		WAIT_TIME("Wait time", false, true, 100, SWT.CENTER, "The time between exposures.\nrequested (actual)") {
+			@Override
+			public String getLabel(IMalcolmDetectorModel detectorModel, IMalcolmModel malcolmModel) {
+				final double frameTime = malcolmModel.getExposureTime() / detectorModel.getFramesPerStep();
+				final double waitTime = frameTime - detectorModel.getExposureTime();
+				return String.format("%.3f", waitTime);
 			}
 		};
 
