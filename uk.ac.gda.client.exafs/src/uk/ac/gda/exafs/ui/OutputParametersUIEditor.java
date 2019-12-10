@@ -227,7 +227,7 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 	private void createMetadata(Composite composite){
 		metadataExpandableComposite = new ExpandableComposite(composite, SWT.NONE);
 		metadataExpandableComposite.setText("Add information to Ascii header");
-		metadataExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
+		metadataExpandableComposite.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false, 1, 1));
 
 		final Composite metadataComp = new Composite(metadataExpandableComposite, SWT.NONE);
 		GridLayout gridLayout = new GridLayout();
@@ -236,7 +236,7 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 
 		Group metadataGroup = new Group(metadataComp, SWT.NONE);
 
-		GridData gd = new GridData(SWT.LEFT, SWT.TOP, false, false);
+		GridData gd = new GridData(SWT.LEFT, SWT.FILL, false, true);
 		gd.widthHint = 400;
 		metadataGroup.setLayoutData(gd);
 		gridLayout = new GridLayout();
@@ -305,19 +305,11 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 		jythonExpandableComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 
 		final Composite jythonComp = new Composite(jythonExpandableComposite, SWT.NONE);
-		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 1;
-		jythonComp.setLayout(gridLayout);
-
-		GridData gd = new GridData(SWT.LEFT, SWT.TOP, false, false);
-		gd.widthHint = 400;
-		gd.heightHint = 110;
+		jythonComp.setLayout(new GridLayout());
 
 		Group jythonScriptGroup = new Group(jythonComp, SWT.NONE);
-		jythonScriptGroup.setLayoutData(gd);
-		gridLayout = new GridLayout();
-		gridLayout.numColumns = 3;
-		jythonScriptGroup.setLayout(gridLayout);
+		jythonScriptGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		jythonScriptGroup.setLayout(new GridLayout(3, false));
 
 		Label beforeScriptNameLabel = new Label(jythonScriptGroup, SWT.NONE);
 		beforeScriptNameLabel.setToolTipText("Jython commands/script to run immediately before each scan");
