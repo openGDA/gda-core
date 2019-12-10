@@ -18,10 +18,22 @@
 
 package gda.device.detector.mythen.tasks;
 
+import java.util.concurrent.Callable;
+
 import gda.device.DeviceException;
 
+@FunctionalInterface
 public interface ScanTask {
-	
+
 	public void run() throws DeviceException;
 
+	public static <T> ScanTask fromCallable(Callable<T> c) {
+		return () -> {
+			try {
+				c.call();
+			} catch (Exception e) {
+				throw new DeviceException("Failed to run callable scan task: " + c, e);
+			}
+		};
+	}
 }
