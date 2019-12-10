@@ -25,6 +25,7 @@ import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
@@ -41,8 +42,10 @@ import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmVersion;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.device.ui.AbstractModelEditor;
+import org.eclipse.scanning.device.ui.Activator;
 import org.eclipse.scanning.device.ui.util.ViewerUtils;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
@@ -145,17 +148,23 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 		final Composite composite = super.createEditorPart(parent);
 
 		createStepTimeSection(composite);
+		createDiagram(composite);
+
 		createDetectorsTable(composite);
 
 		return composite;
 	}
 
 	private void createStepTimeSection(final Composite parent) {
-		final Label label = new Label(parent, SWT.NONE);
+		final Composite composite = new Composite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.TOP).applyTo(composite);
+		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(composite);
+
+		final Label label = new Label(composite, SWT.NONE);
 		label.setText("Step time:");
 		GridDataFactory.swtDefaults().applyTo(label);
 
-		final Text stepTimeText = new Text(parent, SWT.BORDER);
+		final Text stepTimeText = new Text(composite, SWT.BORDER);
 		stepTimeText.setToolTipText("The overall time for each frame of the scan");
 		GridDataFactory.swtDefaults().hint(50, SWT.DEFAULT).applyTo(stepTimeText);
 		IObservableValue<Double> textFieldValue = WidgetProperties.text(SWT.Modify).observe(stepTimeText);
@@ -164,6 +173,14 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 		modelValue.addValueChangeListener(event -> detectorsTable.refresh());
 		dataBindingContext.bindValue(textFieldValue, modelValue);
 		dataBindingContext.updateTargets();
+	}
+
+	private void createDiagram(final Composite parent) {
+		// TODO: this diagram is quite large and leaves some blank space to the left of it. Can this be fixed?
+		final Label diagramLabel = new Label(parent, SWT.NONE);
+		final Image image = Activator.getImage("icons/detector-sync.png");
+		diagramLabel.setImage(image);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(diagramLabel);
 	}
 
 	private void createDetectorsTable(final Composite parent) {
