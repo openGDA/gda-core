@@ -100,6 +100,8 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 	private ArrayList<Future<String>> list = new ArrayList<Future<String>>();
 
+	private Callable<?> safePositionSetup;
+
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
@@ -178,6 +180,13 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	}
 
 	private void checkForCollision() throws DeviceException {
+		if (safePositionSetup != null) {
+			try {
+				safePositionSetup.call();
+			} catch (Exception e) {
+				logger.warn("Failed to run safe position setup - this scan may fail", e);
+			}
+		}
 		// collision avoidance check delta motor position only proceed if delta motor is at PSD Safe Position defined in
 		// Spring configuration
 		if (psdScannableMotor != null) {
@@ -917,6 +926,14 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 	public void setScriptController(Scriptcontroller scriptController) {
 		this.scriptController = scriptController;
+	}
+
+	public Callable<?> getSafePositionSetup() {
+		return safePositionSetup;
+	}
+
+	public void setSafePositionSetup(Callable<?> safePositionSetup) {
+		this.safePositionSetup = safePositionSetup;
 	}
 
 }
