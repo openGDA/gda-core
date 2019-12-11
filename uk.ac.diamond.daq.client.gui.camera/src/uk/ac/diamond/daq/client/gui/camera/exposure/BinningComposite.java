@@ -15,6 +15,7 @@ import gda.device.DeviceException;
 import uk.ac.diamond.daq.client.gui.camera.controller.CameraConfigurationAdapter;
 import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
 import uk.ac.gda.api.camera.BinningFormat;
+import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 
@@ -44,7 +45,7 @@ public class BinningComposite extends Composite {
 	private final AbstractCameraConfigurationController controller;
 
 	public BinningComposite(Composite parent, AbstractCameraConfigurationController controller, int style)
-			throws DeviceException {
+			throws GDAClientException {
 		super(parent, style);
 
 		this.controller = controller;
@@ -62,7 +63,11 @@ public class BinningComposite extends Composite {
 		binningButtons[1] = addButton(group, 2);
 		binningButtons[2] = addButton(group, 4);
 
-		binningListener.setBinningFormat(controller.getBinning());
+		try {
+			binningListener.setBinningFormat(controller.getBinning());
+		} catch (DeviceException e) {
+			throw new GDAClientException("Error", e);
+		}
 	}
 
 	private BinningButton addButton(Group group, int pixels) {

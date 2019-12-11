@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -13,41 +14,39 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
-import gda.factory.Finder;
 import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
 import uk.ac.diamond.daq.client.gui.camera.controller.ImagingCameraConfigurationController;
 import uk.ac.diamond.daq.client.gui.camera.properties.CameraPropertiesBuilder;
 import uk.ac.diamond.daq.client.gui.camera.properties.MotorPropertiesBuilder;
+import uk.ac.gda.client.composites.FinderHelper;
+import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.properties.CameraProperties;
 import uk.ac.gda.client.properties.MotorProperties;
+import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.ClientMessagesUtility;
 
 /**
- * Hides the configuration structural design. In the property file are listed
- * pairs of
- * 
- * <ol>
- * <li>{@link #CAMERA_CONFIGURATION_PREFIX}.aNumber</li>
- * <li>{@link #CAMERA_CONTROL_PREFIX}.aNumber</li>
- * </ol>
- * 
- * which identify the beans defining a camera property.
- * 
- * A typical configuration defining two camera would look like below
+ * Hides the configuration structural design. A typical configuration defining
+ * two camera would look like below
  * 
  * <code>
  * client.cameraConfiguration.0=d2_cam_config
- * client.cameraConfiguration.name.0=Camera Zero
- * client.cameraConfiguration.motor.0.controller.0 = stagez
- * client.cameraConfiguration.motor.0.name.0 = Camera Axis Z
- * client.cameraControl.0=imaging_camera_control
- * 
- * client.cameraConfiguration.1=d2_cam_config_another
- * client.cameraConfiguration.name.1=Camera One
- * client.cameraConfiguration.motor.0.controller.1 = stagey
- * client.cameraConfiguration.motor.0.name.1 = Camera Axis Y
- * client.cameraControl.1=imaging_camera_control
+ * client.cameraConfiguration.0.name=Camera Zero
+ * client.cameraConfiguration.0.cameraControl=imaging_camera_control
+ * client.cameraConfiguration.0.motor.0.controller = stagez
+ * client.cameraConfiguration.0.motor.0.name = Camera Axis Z
+ * client.cameraConfiguration.0.motor.1.controller = stagey
+ * client.cameraConfiguration.0.motor.1.name = Camera Axis Y 
+ * client.cameraControl.0=imaging_camera_control 
  * </code>
+ * 
+ * where
+ * 
+ * <ul>
+ * <li>client.cameraConfiguration.INDEX - represents the camera index</li>
+ * <li>motor.INDEX - represents a motor index</li>
+ * </ul>
  * 
  * @author Maurizio Nagni
  *
@@ -67,40 +66,37 @@ public final class CameraHelper {
 	/**
 	 * The prefix used in the property files to identify a camera configuration.
 	 */
-	public static final String CAMERA_CONFIGURATION_PREFIX = "client.cameraConfiguration";
+	private static final String CAMERA_CONFIGURATION_PREFIX = "client.cameraConfiguration";
 
-	/**
-	 * The prefix used in the property files to identify a camera control.
-	 */
-	public static final String CAMERA_CONTROL_PREFIX = "client.cameraControl";
-
-	private static final String CAMERA_PROPERTY_FORMAT = "%s.%s";
-	private static final String MOTOR_PROPERTY_FORMAT = CAMERA_CONFIGURATION_PREFIX + ".motor.%s";
+	private static final String CAMERA_PROPERTY_FORMAT = "%s.%s.%s";
+	private static final String CAMERA_SIMPLE_FORMAT = "%s.%s";
 
 	private CameraHelper() {
 	}
 
-	public static CameraConfiguration getCameraConfiguration(CameraComboItem cameraItem) {
-		return getCameraConfiguration(getCameraConfigurationInstance(cameraItem.getIndex()));
+	public static CameraConfiguration getCameraConfiguration(final CameraComboItem cameraItem)
+			throws LiveStreamException {
+		return getCameraConfiguration(cameraItem.getIndex())
+				.orElseThrow(() -> new LiveStreamException("No Camera Confguration found"));
 	}
 
-	public static CameraConfiguration getCameraConfiguration(int cameraIndex) {
-		return getCameraConfiguration(getCameraConfigurationInstance(cameraIndex));
+	public static Optional<CameraConfiguration> getCameraConfiguration(int cameraIndex) {
+		return FinderHelper.getFindableDevice(getCameraConfigurationInstance(cameraIndex));
 	}
 
 	/**
-	 * Returns a {@link AbstractCameraConfigurationController} based on a camera
+	 * Returns the {@link AbstractCameraConfigurationController} based on a camera
 	 * index
 	 * 
 	 * @param activeCamera the camera index
 	 * @return the camera or <code>null</code> if the camera does not exists
 	 */
 	public static AbstractCameraConfigurationController getCameraControlInstance(int activeCamera) {
-		if (!cameraControllers.containsKey(activeCamera) && activeCamera < getCameraProperties().size()) {
+		if (!cameraControllers.containsKey(activeCamera) && activeCamera < getAllCameraProperties().size()) {
 			ImagingCameraConfigurationController controller;
 			try {
 				controller = new ImagingCameraConfigurationController(
-						getCameraProperties().get(activeCamera).getCameraControl());
+						getAllCameraProperties().get(activeCamera).getCameraControl());
 				cameraControllers.put(activeCamera, controller);
 			} catch (DeviceException e) {
 				logger.error("Error", e);
@@ -113,29 +109,33 @@ public final class CameraHelper {
 		return Collections.unmodifiableList(cameraComboItems);
 	}
 
-	public static List<CameraProperties> getCameraProperties() {
+	public static List<CameraProperties> getAllCameraProperties() {
 		return Collections.unmodifiableList(cameraProperties);
 	}
 
-	private static void createCameraComboItems() {
-		getCameraProperties().stream().forEach(k -> cameraComboItems.add(new CameraComboItem(k)));
+	public static CameraProperties getCameraProperties(int cameraIndex) {
+		return cameraProperties.get(cameraIndex);
 	}
 
 	/**
-	 * Retrieves the {@link CameraConfiguration} associated with a given camera.
+	 * Returns the default camera properties. The actual implementation returns the
+	 * first camera as default but this should change in future.
 	 * 
-	 * @param cameraPropertyName the property name (in
-	 *                           xx-config/properties/{mode}/anyName.properties
-	 *                           file) whose value is the bean name of a findable
-	 *                           {@link CameraConfiguration}
-	 * @return the camera configuration associated with the camera name
+	 * @return the camera properties, otherwise <code>null</code>
 	 */
-	private static CameraConfiguration getCameraConfiguration(String cameraPropertyName) {
-		return Finder.getInstance().find(cameraPropertyName);
+	public static CameraProperties getDefaultCameraProperties() {
+		if (cameraProperties.isEmpty()) {
+			return null;
+		}
+		return cameraProperties.get(0);
+	}
+
+	private static void createCameraComboItems() {
+		getAllCameraProperties().stream().forEach(k -> cameraComboItems.add(new CameraComboItem(k)));
 	}
 
 	private static String getCameraConfigurationInstance(int cameraIndex) {
-		return getCameraProperties().get(cameraIndex).getCameraConfiguration();
+		return getCameraProperties(cameraIndex).getCameraConfiguration();
 	}
 
 	private static List<String> getCameraConfigurationKeys() {
@@ -169,46 +169,75 @@ public final class CameraHelper {
 		}).collect(Collectors.toList());
 	}
 
+	//
+	/**
+	 * Extracts properties formatted like "client.cameraConfiguration.INDEX"
+	 * 
+	 * @param index the camera index
+	 * @return
+	 */
 	private static String getCameraConfigurationProperty(int index) {
-		return LocalProperties.get(formatProperty(CAMERA_CONFIGURATION_PREFIX, index), null);
+		return LocalProperties.get(String.format(CAMERA_SIMPLE_FORMAT, CAMERA_CONFIGURATION_PREFIX, index), null);
 	}
 
+	/**
+	 * Extracts properties formatted like
+	 * "client.cameraConfiguration.INDEX.cameraControl"
+	 * 
+	 * @param index the camera index
+	 * @return
+	 */
 	private static String getCameraControlProperty(int index) {
-		return LocalProperties.get(formatProperty(CAMERA_CONTROL_PREFIX, index), null);
+		return LocalProperties.get(formatPropertyKey(CAMERA_CONFIGURATION_PREFIX, index, "cameraControl"), null);
 	}
 
+	/**
+	 * Extracts properties formatted like "client.cameraConfiguration.INDEX.name"
+	 * 
+	 * @param index the camera index
+	 * @return
+	 */
 	private static String getCameraNameProperty(int index) {
-		return LocalProperties.get(formatProperty(formatPropertyKey(CAMERA_CONFIGURATION_PREFIX, "name"), index), null);
+		return LocalProperties.get(formatPropertyKey(CAMERA_CONFIGURATION_PREFIX, index, "name"),
+				ClientMessagesUtility.getMessage(ClientMessages.NOT_AVAILABLE));
 	}
 
-	private static String formatProperty(String prefix, int index) {
-		return String.format(CAMERA_PROPERTY_FORMAT, prefix, index);
-	}
-
-	private static String formatPropertyKey(String prefix, String property) {
-		return String.format(CAMERA_PROPERTY_FORMAT, prefix, property);
+	// 
+	/**
+	 * Assemble a string formatted like something like "PREFIX.INDEX.PROPERTY"
+	 * 
+	 * @param prefix a string identifying a property  
+	 * @param index an index identifying the prefix index
+	 * @param property a subproperty of the prefix
+	 * @return
+	 */
+	private static String formatPropertyKey(String prefix, int index, String property) {
+		return String.format(CAMERA_PROPERTY_FORMAT, prefix, index, property);
 	}
 
 	// -- motors -- //
 	/**
-	 * Returns a string like "client.cameraConfiguration.motor.MOTOR_INDEX"
+	 * Returns a string like
+	 * "client.cameraConfiguration.CAMERA_INDEX.motor.MOTOR_INDEX"
 	 * 
 	 * @param motorIndex
 	 * @return
 	 */
-	private static String formatMotorProperty(int motorIndex) {
-		return String.format(MOTOR_PROPERTY_FORMAT, motorIndex);
+	private static String formatMotorProperty(int cameraIndex, int motorIndex) {
+		return String.format(CAMERA_SIMPLE_FORMAT, formatPropertyKey(CAMERA_CONFIGURATION_PREFIX, cameraIndex, "motor"),
+				motorIndex);
 	}
 
-	private static String formatMotorPropertyKey(String property, int motorIndex) {
-		return formatPropertyKey(formatMotorProperty(motorIndex), property);
+	private static String formatMotorPropertyKey(int cameraIndex, int motorIndex, String property) {
+		return String.format(CAMERA_SIMPLE_FORMAT, formatMotorProperty(cameraIndex, motorIndex), property);
 	}
 
-	private static String getCameraConfigurationMotorNameProperty(int motorIndex, int index) {
-		return LocalProperties.get(formatProperty(formatMotorPropertyKey("name", motorIndex), index), null);
+	private static String getCameraConfigurationMotorNameProperty(int cameraIndex, int motorIndex) {
+		return LocalProperties.get(formatMotorPropertyKey(cameraIndex, motorIndex, "name"),
+				ClientMessagesUtility.getMessage(ClientMessages.NOT_AVAILABLE));
 	}
 
-	private static String getCameraConfigurationMotorControllerProperty(int motorIndex, int index) {
-		return LocalProperties.get(formatProperty(formatMotorPropertyKey("controller", motorIndex), index), null);
+	private static String getCameraConfigurationMotorControllerProperty(int cameraIndex, int motorIndex) {
+		return LocalProperties.get(formatMotorPropertyKey(cameraIndex, motorIndex, "controller"), null);
 	}
 }

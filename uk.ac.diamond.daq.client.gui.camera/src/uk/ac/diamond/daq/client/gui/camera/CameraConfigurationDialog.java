@@ -13,7 +13,7 @@ import gda.rcp.views.TabCompositeFactoryImpl;
 import gda.rcp.views.TabFolderBuilder;
 import uk.ac.diamond.daq.client.gui.camera.absorption.AbsorptionComposite;
 import uk.ac.diamond.daq.client.gui.camera.controller.ImagingCameraConfigurationController;
-import uk.ac.diamond.daq.client.gui.camera.exposure.ExposureCompositeFactory;
+import uk.ac.diamond.daq.client.gui.camera.exposure.CameraConfigurationFactory;
 import uk.ac.diamond.daq.client.gui.camera.exposure.ROICompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.liveview.StreamControlCompositeFactory;
 import uk.ac.gda.ui.tool.ClientMessages;
@@ -76,7 +76,7 @@ public class CameraConfigurationDialog extends AbstractCameraConfigurationDialog
 
 	protected final TabCompositeFactory createExposureCompositeFactory() {
 		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
-		CompositeFactory cf = new ExposureCompositeFactory<>(getController());
+		CompositeFactory cf = new CameraConfigurationFactory();
 		group.setCompositeFactory(cf);
 		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.CAMERA));
 		return group;

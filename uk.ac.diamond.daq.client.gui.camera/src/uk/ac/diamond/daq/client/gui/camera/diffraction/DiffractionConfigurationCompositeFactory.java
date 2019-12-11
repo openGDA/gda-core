@@ -4,9 +4,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.DeviceException;
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.controller.DiffractionCameraConfigurationController;
+import uk.ac.gda.client.exception.GDAClientException;
 
 public class DiffractionConfigurationCompositeFactory<T extends DiffractionCameraConfigurationController> implements CompositeFactory {
 
@@ -27,7 +27,7 @@ public class DiffractionConfigurationCompositeFactory<T extends DiffractionCamer
 	public Composite createComposite(Composite parent, int style) {
 		try {
 			return new DiffractionConfigurationComposite(parent, getController(), style);
-		} catch (DeviceException e) {
+		} catch (GDAClientException e) {
 			logger.error("Error", e);
 		}
 		return null;

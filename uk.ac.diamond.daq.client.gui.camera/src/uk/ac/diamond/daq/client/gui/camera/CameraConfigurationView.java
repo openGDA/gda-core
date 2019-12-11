@@ -17,7 +17,7 @@ import uk.ac.gda.ui.tool.ClientSWTElements;
  *
  */
 public class CameraConfigurationView extends ViewPart {
-	private int cameraIndex = 0;
+	private int cameraIndex = CameraHelper.getDefaultCameraProperties().getIndex();
 
 	private static final Logger logger = LoggerFactory.getLogger(CameraConfigurationView.class);
 
