@@ -22,11 +22,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.region.IRegion;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.swt.SWT;
@@ -44,34 +46,35 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider;
+import gda.factory.Finder;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.medipix.MedipixParameters;
 import uk.ac.gda.beans.medipix.ROIRegion;
+import uk.ac.gda.client.live.stream.view.CameraConfiguration;
+import uk.ac.gda.client.live.stream.view.LiveStreamView;
+import uk.ac.gda.client.live.stream.view.StreamType;
 import uk.ac.gda.common.rcp.util.GridUtils;
-import uk.ac.gda.epics.adviewer.views.TwoDArrayView;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
 public class MedipixParametersUIEditor extends RichBeanEditorPart {
 
-	private MedipixParameters medipixParameters;
-	private TwoDArrayView twoDArrayView;
-	public static final String MEDIPIX_VIEW_SECONDARY_ID = "medipix";
 	private static final Logger logger = LoggerFactory.getLogger(MedipixParametersUIEditor.class);
+	private MedipixParameters medipixParameters;
+	public static final String MEDIPIX_CAMERA_CONFIG_NAME = "medipix_camera_config";
 	private Table roiTable;
 	private TableCursor tableCursor;
 	private int indexOfRoiBeingEdited = 0;
@@ -105,18 +108,9 @@ public class MedipixParametersUIEditor extends RichBeanEditorPart {
 			final Button openRoiButton = new Button(regionsGroup, SWT.NONE);
 			openRoiButton.setText("Open Medipix");
 			openRoiButton.setToolTipText("Open detector ROI window and apply ROI values to detector");
-			openRoiButton.addSelectionListener(new SelectionListener() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					try {
-						showArrayView();
-						addRoisToPlot(medipixParameters.getRegionList());
-					} catch (PartInitException e1) {
-						logger.error("Problem opening Array view for Medipix", e1);
-					}
-				}
-				@Override
-				public void widgetDefaultSelected(SelectionEvent e) {
+			openRoiButton.addListener(SWT.Selection, e -> {
+				if (!showLiveStreamWarning()) {
+					addRoisToPlot(medipixParameters.getRegionList());
 				}
 			});
 
@@ -124,18 +118,12 @@ public class MedipixParametersUIEditor extends RichBeanEditorPart {
 			final Button getRoiButton = new Button(regionsGroup, SWT.NONE);
 			getRoiButton.setText("Get ROI from Medipix");
 			getRoiButton.setToolTipText("Get ROIs currently set on detector and copy into table");
-			getRoiButton.addSelectionListener(new SelectionListener() {
-
-				@Override
-				public void widgetSelected(SelectionEvent e) {
+			getRoiButton.addListener(SWT.Selection, e -> {
+				if (!showLiveStreamWarning()) {
 					List<ROIRegion> regionList = getRoisFromPlot();
 					medipixParameters.setRegionList(regionList);
 					updateRoiDetailsTable();
 					sendValueChangedEvent("medipix ROIs update from plot");
-				}
-
-				@Override
-				public void widgetDefaultSelected(SelectionEvent e) {
 				}
 			});
 
@@ -143,24 +131,16 @@ public class MedipixParametersUIEditor extends RichBeanEditorPart {
 			final Button setRoiButton = new Button(regionsGroup, SWT.NONE);
 			setRoiButton.setText("Apply ROI from table");
 			setRoiButton.setToolTipText("Apply ROI values from table to detector");
-			setRoiButton.addSelectionListener(new SelectionListener() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
+			setRoiButton.addListener(SWT.Selection, e -> {
+				if (!showLiveStreamWarning()) {
 					addRoisToPlot(medipixParameters.getRegionList());
 				}
-
-				@Override
-				public void widgetDefaultSelected(SelectionEvent e) {
-				}
 			});
-
 			addRoiListComposite(widgetComposite);
 			createAddDeleteRoiControls(widgetComposite);
 
 			// Force a re-layout of the widget now that everything has been added
 			GridUtils.layoutFull(widgetComposite.getParent());
-
-			setTwoDArrayViewRef();
 
 		} catch (Exception ex) {
 			// Creating the PlottingSystem in SashFormPlotComposite can throw Exception
@@ -304,46 +284,29 @@ public class MedipixParametersUIEditor extends RichBeanEditorPart {
 
 		final Button addRoiButton = new Button(widgets, SWT.NONE);
 		addRoiButton.setText("Add ROI");
-		addRoiButton.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				ROIRegion newRoiRegion = new ROIRegion("New region", 0, 0, 100, 100);
-				medipixParameters.getRegionList().add(newRoiRegion);
-				updateRoiDetailsTable();
-				sendValueChangedEvent("ROI added to table");
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-
+		addRoiButton.addListener(SWT.Selection, e -> {
+			ROIRegion newRoiRegion = new ROIRegion("New region", 0, 0, 100, 100);
+			medipixParameters.getRegionList().add(newRoiRegion);
+			updateRoiDetailsTable();
+			sendValueChangedEvent("ROI added to table");
 		});
 
 		final Button deleteRoiButton = new Button(widgets, SWT.NONE);
 		deleteRoiButton.setText("Delete ROI");
 
-		deleteRoiButton.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				int index = getIndexOfSelectedTableRoi();
-				if (index != -1) {
-					MessageBox messageBox = new MessageBox(widgets.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-					messageBox.setText("Delete ROI");
-					ROIRegion roi = medipixParameters.getRegionList().get(index);
-					messageBox.setMessage("Are you sure you want to delete the selected ROI ("+roi.getRoiName()+")");
-					int delete = messageBox.open();
-					if (delete == SWT.YES) {
-						medipixParameters.getRegionList().remove(index);
-						updateRoiDetailsTable();
-						sendValueChangedEvent("ROI deleted from table");
-					}
+		deleteRoiButton.addListener(SWT.Selection, e -> {
+			int index = getIndexOfSelectedTableRoi();
+			if (index != -1) {
+				MessageBox messageBox = new MessageBox(widgets.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+				messageBox.setText("Delete ROI");
+				ROIRegion roi = medipixParameters.getRegionList().get(index);
+				messageBox.setMessage("Are you sure you want to delete the selected ROI ("+roi.getRoiName()+")");
+				int delete = messageBox.open();
+				if (delete == SWT.YES) {
+					medipixParameters.getRegionList().remove(index);
+					updateRoiDetailsTable();
+					sendValueChangedEvent("ROI deleted from table");
 				}
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
 	}
@@ -453,13 +416,6 @@ public class MedipixParametersUIEditor extends RichBeanEditorPart {
 		return new ROIRegion( rectRoi.getName(), (int)rectRoi.getPointX(), (int)rectRoi.getPointY(), xMax, yMax );
 	}
 
-
-	private void setRoi(ROIRegion roiRegion) {
-		List<ROIRegion> list = new ArrayList<ROIRegion>();
-		list.add(roiRegion);
-		addRoisToPlot(list);
-	}
-
 	/**
 	 * Extract ROI information from TwoDArrayView plot
 	 * @return List of ROIRegions
@@ -467,11 +423,10 @@ public class MedipixParametersUIEditor extends RichBeanEditorPart {
 	 */
 	private List<ROIRegion> getRoisFromPlot() {
 
-		List<ROIRegion> roiRegionList = new ArrayList<ROIRegion>();
+		List<ROIRegion> roiRegionList = new ArrayList<>();
 
-		IPlottingSystem plotter;
 		try {
-			plotter = getPlottingSystem();
+			IPlottingSystem<Composite> plotter = getPlottingSystem();
 			Collection<IRegion> regionList = plotter.getRegions(RegionType.BOX);
 			for( IRegion region : regionList ) {
 				ROIRegion roiReg = makeROIRegion( (RectangularROI) region.getROI() );
@@ -494,7 +449,7 @@ public class MedipixParametersUIEditor extends RichBeanEditorPart {
 			return;
 
 		try {
-			IPlottingSystem plotter = getPlottingSystem();
+			IPlottingSystem<Composite> plotter = getPlottingSystem();
 
 			// clear current regions before starting.
 			plotter.clearRegions();
@@ -512,40 +467,74 @@ public class MedipixParametersUIEditor extends RichBeanEditorPart {
 				// add region to plotter
 				plotter.addRegion(plotRegion);
 			}
-
-			PlotServerROISelectionProvider roiProvider = new PlotServerROISelectionProvider(MEDIPIX_VIEW_SECONDARY_ID, 1);
-			if (roiProvider.getRoi(0) == null)
-				logger.error("Medipix does not have any ROIs set");
 		} catch (Exception e1) {
 			logger.error("Problem getting Medipix ROI information", e1);
 		}
 	}
 
-	private void setTwoDArrayViewRef() throws PartInitException {
-		try {
-			IViewReference viewRef = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findViewReference(TwoDArrayView.ID, MEDIPIX_VIEW_SECONDARY_ID);
-			twoDArrayView = (TwoDArrayView) viewRef.getView(false);
-		} catch (NullPointerException npException) {
-			logger.warn("setTwoDArrayViewRef caught Null Pointer exception - area detector view probably not initialized yet", npException);
+	private IPlottingSystem<Composite> getPlottingSystem() throws PartInitException {
+		LiveStreamView liveStreamView = getLiveStreamViewRef();
+
+		// Open the view
+		if (liveStreamView == null) {
+			showLiveStreamView();
+			liveStreamView = getLiveStreamViewRef();
+		}
+
+		if (liveStreamView != null) {
+			IPlottingSystem<Composite> plotSystem = liveStreamView.getPlottingSystem();
+			setShowAxes(plotSystem, true);
+			return plotSystem;
+		} else {
+			return null;
 		}
 	}
 
-	private void showArrayView() throws PartInitException {
+	private LiveStreamView getLiveStreamViewRef() throws PartInitException {
 		try {
-			if ( PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(TwoDArrayView.ID) == null )
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(TwoDArrayView.ID, MEDIPIX_VIEW_SECONDARY_ID, IWorkbenchPage.VIEW_VISIBLE);
+			return (LiveStreamView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findViewReference(
+					LiveStreamView.ID,
+					MEDIPIX_CAMERA_CONFIG_NAME + StreamType.EPICS_ARRAY.secondaryIdSuffix()).getView(false);
+		} catch (Exception npException) {
+			logger.warn("Caught exception while trying to get reference to medipix LiveStreamView", npException);
+		}
+		return null;
+	}
+	/**
+	 * Check to see if client has {@link CameraConfiguration} object for medipix (called {@link #MEDIPIX_CAMERA_CONFIG_NAME}.
+	 * Show a warning dialog box if it couldn't be found
+	 *
+	 * @return true if warning was shown (i.e. config was not found), false otherwise.
+	 */
+	private boolean showLiveStreamWarning() {
+		final Map<String, CameraConfiguration> cameras = Finder.getInstance().getLocalFindablesOfType(CameraConfiguration.class);
+		if (!cameras.containsKey(MEDIPIX_CAMERA_CONFIG_NAME)) {
+			String msg = "Could not open Medipix camera view - camera configuration called "+MEDIPIX_CAMERA_CONFIG_NAME+" was not found";
+			MessageDialog.openWarning(Display.getDefault().getActiveShell(), "Could not open medipix camera view", msg);
+			logger.warn(msg);
+			return true;
+		}
+		return false;
+	}
+
+	private void showLiveStreamView() throws PartInitException {
+		try {
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(
+					LiveStreamView.ID,
+					MEDIPIX_CAMERA_CONFIG_NAME + StreamType.EPICS_ARRAY.secondaryIdSuffix(),
+					IWorkbenchPage.VIEW_VISIBLE);
 		}
 		catch (NullPointerException npException) {
-			logger.warn("showArrayView caught Null Pointer exception - area detector view probably not initialized yet", npException);
+			logger.warn("Could not open LiveStreamView for detector", npException);
 		}
 	}
-
-	private IPlottingSystem getPlottingSystem() throws PartInitException {
-		setTwoDArrayViewRef();
-		if (twoDArrayView != null && twoDArrayView.getTwoDArray() != null) {
-			return twoDArrayView.getTwoDArray().getPlottingSystem();
-		} else
-			return null;
+	/**
+	 * Switch the plot axes on/off
+	 * @param plottingSystem
+	 * @param show true = show axes
+	 */
+	private void setShowAxes(IPlottingSystem<Composite> plottingSystem, boolean show) {
+		plottingSystem.getAxes().forEach( axis -> axis.setVisible(show));
 	}
 
 	@Override
