@@ -23,7 +23,7 @@ import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
-import org.eclipse.scanning.api.points.Point;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.junit.Before;
@@ -72,7 +72,7 @@ public class GridTestLarge {
 		long start = System.currentTimeMillis();
 
 		// Get the point list
-		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model, roi);
+		IPointGenerator<CompoundModel> gen = service.createGenerator(model, roi);
         Iterator<IPosition>       it  = gen.iterator();
 
 		long after1 = System.currentTimeMillis();
@@ -82,7 +82,7 @@ public class GridTestLarge {
 		// Now iterate a few, shouldn't take that long
 		int count = 0;
 		while (it.hasNext()) {
-			Point point = (Point) it.next();
+			it.next();
 			count++;
 			if (count>10000) break;
 		}
@@ -91,7 +91,7 @@ public class GridTestLarge {
 		assertTrue(after1>(after2-200)); // Shouldn't take that long to make it!
 
 		while (it.hasNext()) { // 10mill!
-			Point point = (Point) it.next();
+			it.next();
 			count++;
 		}
 
@@ -117,7 +117,7 @@ public class GridTestLarge {
 		gridScanPath.setxAxisPoints(10000);
 
 		// Get the point list
-		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(gridScanPath, boundingRectangle);
+		IPointGenerator<CompoundModel> gen = service.createGenerator(gridScanPath, boundingRectangle);
 		List<IPosition> points = gen.createPoints();
 
 		assertEquals(10000000, points.size());

@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.points;
 
-import static org.eclipse.scanning.points.AbstractScanPointIterator.EMPTY_PY_ARRAY;
-
 import java.util.List;
 
 import org.eclipse.scanning.api.ModelValidationException;
@@ -26,11 +24,6 @@ public class TwoAxisLissajousGenerator extends AbstractGenerator<TwoAxisLissajou
 
 	public TwoAxisLissajousGenerator(TwoAxisLissajousModel model) {
 		super(model);
-		setLabel("Two-Axis Lissajous Curve Scan");
-		setDescription("Creates a Lissajous curve inside a bounding box, with points placed evenly in t."
-				+ "\na/b is floored and used as the number of lobes, and phase difference is locked to 0 for (a/b)%2=0, pi/2 for (a/b)%2=1."
-				+ "\nThe scan supports continuous operation and alternating mode [when wrapped in an outer scan].");
-		setIconPath("icons/scanner--lissajous.png"); // This icon exists in the rendering bundle
 	}
 
 	@Override
@@ -60,8 +53,7 @@ public class TwoAxisLissajousGenerator extends AbstractGenerator<TwoAxisLissajou
         final boolean continuous = model.isContinuous();
 
         PPointGenerator pointGen = lissajousGeneratorFactory.createObject(axes, units, box, numLobes, numPoints, alternating);
-        return CompoundSpgIteratorFactory.createSpgCompoundGenerator(new PPointGenerator[] {pointGen},
-				getRegions(), axes, EMPTY_PY_ARRAY, -1, continuous);
+        return CompoundGenerator.createWrappingCompoundGenerator(new PPointGenerator[] {pointGen}, continuous);
 	}
 
 }

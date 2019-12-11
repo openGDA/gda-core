@@ -14,15 +14,20 @@ package org.eclipse.scanning.test.points;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
+import org.eclipse.dawnsci.analysis.dataset.roi.EllipticalROI;
+import org.eclipse.scanning.api.points.GeneratorException;
+import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
@@ -30,9 +35,11 @@ import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.PySerializable;
+import org.eclipse.scanning.points.mutators.RandomOffsetMutator;
 import org.junit.Before;
 import org.junit.Test;
 import org.python.core.PyDictionary;
@@ -371,7 +378,7 @@ public class CompoundTest {
 		model.setBoundingBox(box);
 
 		IROI region = new CircularROI(2, 1, 1);
-		IPointGenerator<TwoAxisGridPointsModel> grid = service.createGenerator(model, region);
+		IPointGenerator<CompoundModel> grid = service.createGenerator(model, region);
 
 		final int expectedInnerSize = 316;
 		assertEquals(expectedInnerSize, grid.size());
@@ -504,9 +511,71 @@ public class CompoundTest {
 		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel("stage_x", "stage_y", 5, 5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		IPointGenerator<?> scan = service.createCompoundGenerator(new CompoundModel(Arrays.asList(mmodel, gmodel)));
+		IPointGenerator<?> scan = service.createCompoundGenerator(new CompoundModel(mmodel, gmodel));
 
 		assertEquals(50, scan.size());
+	}
+
+	@Test
+	public void testCompoundingCompoundGenerator() throws GeneratorException {
+		// Compound a CompoundGenerator with more generators, making same points as compound generator of constituent generators
+		AxialStepModel xmodel = new AxialStepModel("x", 0, 10, 1);
+		AxialStepModel ymodel = new AxialStepModel("y", 0, 5, 1);
+		CompoundModel firstCompounded = new CompoundModel(xmodel, ymodel);
+		IPointGenerator<?> firstCompound = service.createCompoundGenerator(firstCompounded);
+
+		AxialStepModel zmodel = new AxialStepModel("z", 0, 15, 5);
+		CompoundModel allInOne = new CompoundModel(xmodel, ymodel, zmodel);
+		IPointGenerator<AxialStepModel> compounder = service.createGenerator(zmodel);
+		IPointGenerator<?> secondCompound = service.createCompoundGenerator(firstCompound, compounder);
+
+		IPointGenerator<CompoundModel> result = service.createCompoundGenerator(allInOne);
+
+		assertArrayEquals(result.getShape(), secondCompound.getShape());
+		Iterator<IPosition> one = result.iterator();
+		Iterator<IPosition> two = secondCompound.iterator();
+		while(one.hasNext()) {
+			assertEquals(one.next(), two.next());
+		}
+		if (two.hasNext()) {
+			fail();
+		}
+	}
+
+	@Test
+	public void testCompoundingCompoundGeneratorWithMutatorAndRegions() throws GeneratorException {
+		AxialStepModel xmodel = new AxialStepModel("x", 0, 10, 1);
+		AxialStepModel ymodel = new AxialStepModel("y", 0, 5, 1);
+		ScanRegion region = new ScanRegion(new EllipticalROI(5, 3, 5, 5, 0), "x", "y");
+		CompoundModel firstCompounded = new CompoundModel(xmodel, ymodel);
+		firstCompounded.addRegions(Arrays.asList(region));
+
+		int seed = 12;
+		List<String> axes = Arrays.asList("x");
+		Map<String, Double> offset = new HashMap<>();
+		List<IMutator> muts = Arrays.asList(new RandomOffsetMutator(seed, axes, offset));
+		offset.put("x", 0.07);
+		firstCompounded.addMutators(muts);
+		IPointGenerator<?> firstCompound = service.createCompoundGenerator(firstCompounded);
+
+		AxialStepModel zmodel = new AxialStepModel("z", 0, 15, 5);
+		CompoundModel allInOne = new CompoundModel(xmodel, ymodel, zmodel);
+		allInOne.addMutators(muts);
+		allInOne.addRegions(Arrays.asList(region));
+		IPointGenerator<AxialStepModel> compounder = service.createGenerator(zmodel);
+		IPointGenerator<?> secondCompound = service.createCompoundGenerator(firstCompound, compounder);
+
+		IPointGenerator<CompoundModel> result = service.createCompoundGenerator(allInOne);
+
+		assertArrayEquals(result.getShape(), secondCompound.getShape());
+		Iterator<IPosition> one = result.iterator();
+		Iterator<IPosition> two = secondCompound.iterator();
+		while(one.hasNext()) {
+			assertEquals(one.next(), two.next());
+		}
+		if (two.hasNext()) {
+			fail();
+		}
 	}
 
 }

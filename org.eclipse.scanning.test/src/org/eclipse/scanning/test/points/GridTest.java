@@ -29,6 +29,7 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Point;
 import org.eclipse.scanning.api.points.models.BoundingBox;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.junit.Test;
 
@@ -310,7 +311,7 @@ public class GridTest extends AbstractGeneratorTest {
 		model.setxAxisName("x");
 
 		// Get the point list
-		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model, roi);
+		IPointGenerator<CompoundModel> gen = service.createGenerator(model, roi);
 		final int expectedSize = 400;
 		assertEquals(expectedSize, gen.size());
 		assertEquals(2, gen.getRank());
@@ -355,7 +356,7 @@ public class GridTest extends AbstractGeneratorTest {
 		model.setxAxisName("x");
 
 		// Get the point list
-		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model, roi);
+		IPointGenerator<CompoundModel> gen = service.createGenerator(model, roi);
 		assertEquals(400, gen.size());
 		assertEquals(2, gen.getRank());
 		assertArrayEquals(new int[] { 20, 20 }, gen.getShape());
@@ -384,7 +385,7 @@ public class GridTest extends AbstractGeneratorTest {
 		gridScanPath.setxAxisName("x");
 
 		// Get the point list
-		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(gridScanPath, circle);
+		IPointGenerator<CompoundModel> gen = service.createGenerator(gridScanPath, circle);
 		final int expectedSize = 316;
 		assertEquals(expectedSize, gen.size());
 		assertEquals(1, gen.getRank());
@@ -407,7 +408,7 @@ public class GridTest extends AbstractGeneratorTest {
 		gridScanPath.setxAxisPoints(200);
 
 		// Get the point list
-		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(gridScanPath, circle);
+		IPointGenerator<CompoundModel> gen = service.createGenerator(gridScanPath, circle);
 		final int expectedSize = 3156;
 		assertEquals(expectedSize, gen.size());
 		assertEquals(1, gen.getRank());
@@ -454,7 +455,7 @@ public class GridTest extends AbstractGeneratorTest {
 		model.setBoundingBox(box);
 
 		// Get the point list
-		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model, diamond);
+		IPointGenerator<CompoundModel> gen = service.createGenerator(model, diamond);
 		final int expectedSize = 194;
 		assertEquals(expectedSize, gen.size());
 		assertEquals(1, gen.getRank());
@@ -509,7 +510,7 @@ public class GridTest extends AbstractGeneratorTest {
 		model.setxAxisName("x");
 
 		// Get the point list
-		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model, roi);
+		IPointGenerator<CompoundModel> gen = service.createGenerator(model, roi);
 		List<IPosition> pointList = gen.createPoints();
 
 		assertEquals(9, pointList.size());
@@ -535,7 +536,7 @@ public class GridTest extends AbstractGeneratorTest {
 		model.setAlternating(true);
 
 		// Get the point list
-		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model, roi);
+		IPointGenerator<CompoundModel> gen = service.createGenerator(model, roi);
 		List<IPosition> pointList = gen.createPoints();
 
 		assertEquals(9, pointList.size());

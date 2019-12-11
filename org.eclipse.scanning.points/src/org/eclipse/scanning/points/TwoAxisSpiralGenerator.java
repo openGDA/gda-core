@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.points;
 
-import static org.eclipse.scanning.points.AbstractScanPointIterator.EMPTY_PY_ARRAY;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,12 +25,6 @@ class TwoAxisSpiralGenerator extends AbstractGenerator<TwoAxisSpiralModel> {
 
 	TwoAxisSpiralGenerator(TwoAxisSpiralModel model) {
 		super(model);
-		setLabel("Spiral");
-		setDescription("Creates a spiral scaled around the center of a bounding region. "
-				+ "This is an Archimedean spiral with polar form: r=b*theta. The 'Scale' parameter gives approximately "
-				+ "both the distance between arcs and the arclength between consecutive points."
-				+ "\nThe scan supports continuous operation and alternating mode [when wrapped in an outer scan].");
-		setIconPath("icons/scanner--spiral.png"); // This icon exists in the rendering bundle
 	}
 
 	@Override
@@ -61,8 +53,7 @@ class TwoAxisSpiralGenerator extends AbstractGenerator<TwoAxisSpiralModel> {
 
         PPointGenerator pointGen = spiralGeneratorFactory.createObject(
 				axes, units, centre, maxRadius, scale, alternating);
-        return CompoundSpgIteratorFactory.createSpgCompoundGenerator(new PPointGenerator[] {pointGen},
-				getRegions(), axes, EMPTY_PY_ARRAY, -1, continuous);
+        return CompoundGenerator.createWrappingCompoundGenerator(new PPointGenerator[] {pointGen}, continuous);
         }
 
 }

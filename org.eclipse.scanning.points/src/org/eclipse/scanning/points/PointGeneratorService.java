@@ -12,7 +12,6 @@
 
 package org.eclipse.scanning.points;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,8 +29,8 @@ import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.api.roi.IRectangularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
-import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.GeneratorException;
+import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AbstractPointsModel;
@@ -105,31 +104,9 @@ public class PointGeneratorService implements IPointGeneratorService {
 		return modelToGenerator;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public <T> IPointGenerator<T> createGenerator(T model, Collection<IROI> regions) throws GeneratorException {
-		try {
-			if (regions != null && !regions.isEmpty()) {
-				regions = new ArrayList<>(regions);
-				setBounds(model, new ArrayList<>(regions));
-			}
-			Class<IPointGenerator<T>> genClass = (Class<IPointGenerator<T>>) modelToGenerator.get(model.getClass());
-			IPointGenerator<T> gen = genClass.getDeclaredConstructor(model.getClass()).newInstance(model);
-			if (regions != null && !regions.isEmpty()) {
-				gen.setRegions(new ArrayList<>(regions));
-			}
-			return gen;
-		} catch (ModelValidationException | GeneratorException g) {
-			throw g;
-		} catch (InvocationTargetException ie) {
-			throw new GeneratorException(ie.getCause());
-		} catch (Exception ne) {
-			throw new GeneratorException("Cannot make a new generator for " + model.getClass().getName(), ne);
-		}
-	}
-
-	private <T, R> void setBounds(T model, List<R> regions) {
-
+	public <T, R> void setBounds(T model, List<R> regions) {
+		if (regions == null || regions.isEmpty()) return;
 		IRectangularROI rect = ((IROI) regions.get(0)).getBounds();
 		for (R roi : regions) {
 			rect = rect.bounds((IROI) roi);
@@ -212,7 +189,7 @@ public class PointGeneratorService implements IPointGeneratorService {
 
 	@Override
 	public IPointGenerator<CompoundModel> createCompoundGenerator(IPointGenerator<?>... generators) throws GeneratorException {
-		return new CompoundGenerator(generators);
+		return new CompoundGenerator(generators, this);
 	}
 
 	@Override
@@ -222,15 +199,7 @@ public class PointGeneratorService implements IPointGeneratorService {
 
 	@Override
 	public IPointGenerator<CompoundModel> createCompoundGenerator(CompoundModel cmodel) throws GeneratorException {
-
-		IPointGenerator<?>[] gens = new IPointGenerator[cmodel.getModels().size()];
-		int index = 0;
-		for (Object model : cmodel.getModels()) {
-			List<IROI> regions = findRegions(model, cmodel.getRegions());
-			gens[index] = createGenerator(model, regions);
-			index++;
-		}
-		return createCompoundGenerator(gens);
+		return new CompoundGenerator(cmodel, this);
 	}
 
 	@Override
@@ -258,7 +227,28 @@ public class PointGeneratorService implements IPointGeneratorService {
 
 	@Override
 	@Deprecated
-	public <T extends IScanPathModel> IPointGenerator<T> createGenerator(String id) throws GeneratorException {
+	public <T> IPointGenerator<T> createGenerator(String id) throws GeneratorException {
 		throw new GeneratorException("Must create a generator with a model, creating by id is no longer valid");
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> IPointGenerator<T> createGenerator(T model) throws GeneratorException {
+		Class<IPointGenerator<T>> genClass = (Class<IPointGenerator<T>>) modelToGenerator.get(model.getClass());
+		try {
+			return genClass.getDeclaredConstructor(model.getClass()).newInstance(model);
+		} catch (Exception e) {
+			throw new GeneratorException(e);
+		}
+	}
+
+	@Override
+	public <T> IPointGenerator<CompoundModel> createGenerator(T model, List<IROI> regions, List<IMutator> mutators, float duration) throws GeneratorException {
+		CompoundModel cModel = new CompoundModel();
+		cModel.addData(model, regions);
+		cModel.addMutators(mutators);
+		cModel.setDuration(duration);
+		setBounds(model, new ArrayList<>(regions));
+		return createCompoundGenerator(cModel);
 	}
 }

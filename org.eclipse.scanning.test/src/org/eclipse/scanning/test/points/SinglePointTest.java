@@ -28,6 +28,7 @@ import org.eclipse.dawnsci.analysis.dataset.roi.PointROI;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
 import org.junit.Test;
 
@@ -74,7 +75,7 @@ public class SinglePointTest extends AbstractGeneratorTest {
 
 		// note that we are not setting x and y on model
 
-		final IPointGenerator<TwoAxisPointSingleModel> generator = service.createGenerator(model, roi);
+		final IPointGenerator<CompoundModel> generator = service.createGenerator(model, roi);
 		final IPosition point = generator.getFirstPoint();
 
 		assertThat(point.get(FAST_NAME), is(FAST_COORDINATE));

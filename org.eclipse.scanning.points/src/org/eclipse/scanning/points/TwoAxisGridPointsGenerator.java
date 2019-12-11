@@ -25,10 +25,6 @@ public class TwoAxisGridPointsGenerator extends AbstractGridGenerator<TwoAxisGri
 
 	TwoAxisGridPointsGenerator(TwoAxisGridPointsModel model) {
 		super(model);
-		setLabel("Two-Axis Grid Points Scan");
-		setDescription("Creates a grid scan by slicing each axis of a box into equal sized portions."
-				+ "\nThe scan supports alternating/bidirectional/'snake' mode.");
-		setIconPath("icons/scanner--grid.png"); // This icon exists in the rendering bundle
 	}
 
 	@Override

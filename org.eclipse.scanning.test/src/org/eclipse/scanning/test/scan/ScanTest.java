@@ -15,6 +15,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -270,8 +271,9 @@ public class ScanTest extends BrokerTest {
 
 		} catch (Exception ex) {
 			assertEquals(GeneratorException.class, ex.getClass());
-			assertEquals(ModelValidationException.class, ex.getCause().getClass());
-			assertTrue(ex.getCause().getMessage().toLowerCase().indexOf("wrong direction")>0);
+			assertEquals(InvocationTargetException.class, ex.getCause().getClass());
+			assertEquals(ModelValidationException.class, ex.getCause().getCause().getClass());
+			assertTrue(ex.getCause().getCause().getMessage().toLowerCase().indexOf("wrong direction")>0);
 			return;
 		}
 
@@ -297,8 +299,9 @@ public class ScanTest extends BrokerTest {
 
 		} catch (Exception ex) {
 			assertEquals(GeneratorException.class, ex.getClass());
-			assertEquals(ModelValidationException.class, ex.getCause().getClass());
-			assertEquals("Model step size must be nonzero!", ex.getCause().getMessage());
+			assertEquals(InvocationTargetException.class, ex.getCause().getClass());
+			assertEquals(ModelValidationException.class, ex.getCause().getCause().getClass());
+			assertEquals("Model step size must be nonzero!", ex.getCause().getCause().getMessage());
 			return;
 		}
 

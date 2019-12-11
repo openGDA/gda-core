@@ -32,12 +32,12 @@ import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
-import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.connector.epics.MalcolmEpicsV4Connection;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.mutators.RandomOffsetMutator;
@@ -85,8 +85,7 @@ public class PVDataSerializationTest {
 		stepModel.setPositions(new double [] {1, 2, 3, 4});
 		stepModel.setContinuous(false);
 		stepModel.setAlternating(true);
-		IPointGenerator<AxialArrayModel> temp = pgService.createGenerator(stepModel, regions);
-		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
+		IPointGenerator<CompoundModel> scan = pgService.createGenerator(stepModel, regions);
 
 		// Create the expected PVStructure
 		FieldCreate fieldCreate = FieldFactory.getFieldCreate();
@@ -159,8 +158,7 @@ public class PVDataSerializationTest {
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
-		IPointGenerator<TwoAxisGridPointsModel> temp = pgService.createGenerator(gm, regions);
-		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
+		IPointGenerator<CompoundModel> scan = pgService.createGenerator(gm, regions);
 
 		// Create the expected PVStructure
 		FieldCreate fieldCreate = FieldFactory.getFieldCreate();
@@ -241,8 +239,7 @@ public class PVDataSerializationTest {
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
-		IPointGenerator<TwoAxisGridPointsModel> temp = pgService.createGenerator(gm, regions);
-		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
+		IPointGenerator<CompoundModel> scan = pgService.createGenerator(gm, regions);
 
 		// Create the expected PVStructure
 		FieldCreate fieldCreate = FieldFactory.getFieldCreate();
@@ -326,8 +323,7 @@ public class PVDataSerializationTest {
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
-		IPointGenerator<TwoAxisGridPointsModel> temp = pgService.createGenerator(gm, regions);
-		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
+		IPointGenerator<CompoundModel> scan = pgService.createGenerator(gm, regions);
 
 		// Create the expected PVStructure. Note, Linear ROIs are not supported so should be empty
 		FieldCreate fieldCreate = FieldFactory.getFieldCreate();
@@ -369,8 +365,7 @@ public class PVDataSerializationTest {
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
-		IPointGenerator<TwoAxisGridPointsModel> temp = pgService.createGenerator(gm, regions);
-		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
+		IPointGenerator<CompoundModel> scan = pgService.createGenerator(gm, regions);
 
 		// Create the expected PVStructure
 		FieldCreate fieldCreate = FieldFactory.getFieldCreate();
@@ -468,8 +463,7 @@ public class PVDataSerializationTest {
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
-		IPointGenerator<TwoAxisGridPointsModel> temp = pgService.createGenerator(gm, regions);
-		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
+		IPointGenerator<CompoundModel> scan = pgService.createGenerator(gm, regions);
 
 		// Create the expected PVStructure
 		FieldCreate fieldCreate = FieldFactory.getFieldCreate();
@@ -551,8 +545,7 @@ public class PVDataSerializationTest {
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
-		IPointGenerator<TwoAxisGridPointsModel> temp = pgService.createGenerator(gm, regions);
-		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
+		IPointGenerator<CompoundModel> scan = pgService.createGenerator(gm, regions);
 
 		// Create the expected PVStructure
 		FieldCreate fieldCreate = FieldFactory.getFieldCreate();
@@ -638,8 +631,7 @@ public class PVDataSerializationTest {
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
-		IPointGenerator<TwoAxisGridPointsModel> temp = pgService.createGenerator(gm, regions);
-		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
+		IPointGenerator<CompoundModel> scan = pgService.createGenerator(gm, regions);
 
 		// Create the expected PVStructure
 		FieldCreate fieldCreate = FieldFactory.getFieldCreate();
@@ -731,12 +723,7 @@ public class PVDataSerializationTest {
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
-		IPointGenerator<TwoAxisGridPointsModel> temp = pgService.createGenerator(gm, regions);
-		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
-
-		CompoundModel cm = (CompoundModel) scan.getModel();
-		cm.setMutators(mutators);
-		cm.setDuration(2.5);
+		IPointGenerator<CompoundModel> scan = pgService.createGenerator(gm, regions, mutators, 2.5f);
 
 		// Create the expected PVStructure
 		FieldCreate fieldCreate = FieldFactory.getFieldCreate();
@@ -1036,8 +1023,7 @@ public class PVDataSerializationTest {
 		IPointGeneratorService pgService = new PointGeneratorService();
 		AxialStepModel stepModel = new AxialStepModel("x", 3, 4, 0.25);
 		stepModel.setContinuous(false);
-		IPointGenerator<AxialStepModel> temp = pgService.createGenerator(stepModel, regions);
-		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
+		IPointGenerator<CompoundModel> scan = pgService.createGenerator(stepModel, regions);
 
 		// Create the expected PVStructure
 		FieldCreate fieldCreate = FieldFactory.getFieldCreate();
@@ -1135,12 +1121,7 @@ public class PVDataSerializationTest {
 		gm.setyAxisPoints(5);
 		gm.setxAxisPoints(10);
 
-		IPointGenerator<TwoAxisGridPointsModel> temp = pgService.createGenerator(gm, regions);
-		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
-
-		CompoundModel cm = (CompoundModel) scan.getModel();
-		cm.setMutators(mutators);
-		cm.setDuration(1.5);
+		IPointGenerator<CompoundModel> scan = pgService.createGenerator(gm, regions, mutators, 1.5f);
 
 		// Create the expected PVStructure
 		FieldCreate fieldCreate = FieldFactory.getFieldCreate();

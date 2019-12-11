@@ -32,6 +32,7 @@ import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialCollatedStepModel;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.junit.Test;
 
 public class CollatedStepTest extends AbstractGeneratorTest {
@@ -70,7 +71,7 @@ public class CollatedStepTest extends AbstractGeneratorTest {
 	public void withRegionInCollatedAxes() throws GeneratorException {
 		AxialCollatedStepModel model = new AxialCollatedStepModel(0, 10, 1, "x", "y", "z");
 		List<IROI> circ = Arrays.asList(new CircularROI(3, 4.5, 4.5));
-		IPointGenerator<AxialCollatedStepModel> gen = service.createGenerator(model, circ);
+		IPointGenerator<CompoundModel> gen = service.createGenerator(model, circ);
 		assertEquals(4, gen.size());
 	}
 
@@ -82,7 +83,7 @@ public class CollatedStepTest extends AbstractGeneratorTest {
 
 		// Create a raster scan path
 		AxialCollatedStepModel model = new AxialCollatedStepModel(0, 10, 1, "x", "y");
-		IPointGenerator<AxialCollatedStepModel> gen = service.createGenerator(model, roi);
+		IPointGenerator<CompoundModel> gen = service.createGenerator(model, roi);
 		System.out.println(gen.createPoints().size());
 
 

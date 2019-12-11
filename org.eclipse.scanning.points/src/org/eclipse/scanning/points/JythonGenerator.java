@@ -2,13 +2,12 @@ package org.eclipse.scanning.points;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.points.AbstractGenerator;
-import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.PPointGenerator;
 import org.eclipse.scanning.api.points.ScanPointIterator;
 import org.eclipse.scanning.api.points.models.JythonArgument;
@@ -24,14 +23,12 @@ public class JythonGenerator extends AbstractGenerator<JythonGeneratorModel> {
 	private static final Logger logger = LoggerFactory.getLogger(JythonGenerator.class);
 
 	JythonGenerator(JythonGeneratorModel model) {
-		super(model);
-		setLabel("Function");
-		setDescription("Uses a function to get the motor positions for the scan.");
-		setIconPath("icons/scanner--function.png"); // This icon exists in the rendering bundle
+		this.model = model;
+		validateModel();
 	}
 
 	@Override
-	protected Iterator<IPosition> iteratorFromValidModel() {
+	public ScanPointIterator iterator() {
 
 		try {
 			// Ensure that the module path is on the path
@@ -53,7 +50,7 @@ public class JythonGenerator extends AbstractGenerator<JythonGeneratorModel> {
 			pyIterator = jythonObject.createObject(args, keywords);
 		}
 
-		return new SpgIterator(pyIterator);
+		return pyIterator;
 	}
 
 	private static Object getArgument(JythonArgument arg) {
@@ -80,6 +77,22 @@ public class JythonGenerator extends AbstractGenerator<JythonGeneratorModel> {
 
 	@Override
 	public PPointGenerator createPythonPointGenerator() {
-		throw new UnsupportedOperationException("As JythonGenerator is currently set up to produce its Iterator directly, this method is unused and Jython Generators cannot be nested in CompoundModels.");
+		throw new UnsupportedOperationException("JythonGenerator produce their Iterator directly: "
+				+ "this method is unused and Jython Generators cannot be nested in CompoundModels.");
+	}
+
+	@Override
+	public int size() {
+		return iterator().getSize();
+	}
+
+	@Override
+	public int[] getShape() {
+		return iterator().getShape();
+	}
+
+	@Override
+	public List<String> getNames(){
+		return getFirstPoint().getNames();
 	}
 }

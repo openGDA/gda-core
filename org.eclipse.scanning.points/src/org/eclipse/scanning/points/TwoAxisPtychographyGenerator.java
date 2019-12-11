@@ -30,10 +30,6 @@ public class TwoAxisPtychographyGenerator extends AbstractGridGenerator<TwoAxisP
 
 	TwoAxisPtychographyGenerator(TwoAxisPtychographyModel model) {
 		super(model);
-		setLabel("Ptychography Model/TwoAxisGridStep (with RandomOffset) Model");
-		setDescription(
-				"Creates a grid scan by taking equally sized steps in each axis: each position is then offset in both axes by an amount proportional to its step.\nThe scan supports alternating/bidirectional/'snake' mode.");
-		setIconPath("icons/scanner--raster.png"); // This icon exists in the rendering bundle
 	}
 
 	@Override
@@ -68,7 +64,7 @@ public class TwoAxisPtychographyGenerator extends AbstractGridGenerator<TwoAxisP
 	}
 
 	@Override
-	protected PyObject[] getMutators() {
+	protected PyObject[] getMutator() {
 		final JythonObjectFactory<PyObject> randomOffsetMutatorFactory = ScanPointGeneratorFactory.JRandomOffsetMutatorFactory();
 
 		final TwoAxisPtychographyModel model = getModel();

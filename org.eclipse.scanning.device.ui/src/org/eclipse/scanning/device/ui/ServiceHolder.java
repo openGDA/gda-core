@@ -27,6 +27,7 @@ import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.IParserService;
 import org.eclipse.scanning.api.ui.CommandConstants;
 import org.eclipse.scanning.api.ui.auto.IInterfaceService;
+import org.eclipse.scanning.device.ui.points.IPointsModelDescriberService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.EventAdmin;
@@ -46,6 +47,8 @@ public class ServiceHolder {
 	private static IParserService         parserService;
 	private static IInterfaceService      interfaceService;
 	private static EventAdmin             eventAdmin;
+	private static IPointsModelDescriberService modelDescriberService;
+	private static IFilePathService filePathService;
 
 	private static BundleContext context;
 
@@ -184,8 +187,6 @@ public class ServiceHolder {
 		ServiceHolder.interfaceService = interfaceService;
 	}
 
-	private static IFilePathService filePathService;
-
 	public static IFilePathService getFilePathService() {
 		if (filePathService==null) filePathService = getService(IFilePathService.class);
 		return filePathService;
@@ -193,6 +194,15 @@ public class ServiceHolder {
 
 	public void setFilePathService(IFilePathService filePathService) {
 		ServiceHolder.filePathService = filePathService;
+	}
+
+	public static IPointsModelDescriberService getModelDescriberService() {
+		if (modelDescriberService==null) modelDescriberService = getService(IPointsModelDescriberService.class);
+		return modelDescriberService;
+	}
+
+	public void setModelDescriberService(IPointsModelDescriberService modelDescriberService) {
+		ServiceHolder.modelDescriberService = modelDescriberService;
 	}
 
 	public static BundleContext getContext() {

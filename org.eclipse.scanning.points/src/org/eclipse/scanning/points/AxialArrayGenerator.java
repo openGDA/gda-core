@@ -11,11 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.points;
 
-import static org.eclipse.scanning.points.AbstractScanPointIterator.EMPTY_PY_ARRAY;
-
-import java.util.List;
-
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.PPointGenerator;
@@ -26,9 +21,6 @@ public class AxialArrayGenerator extends AbstractGenerator<AxialArrayModel> {
 
 	public AxialArrayGenerator(AxialArrayModel model) {
 		super(model);
-		setLabel("AxialArray Scan");
-		setDescription("Creates a scan from an array of positions for a single Scannable axis."
-				+ "\nThe scan supports continuous operation and alternating mode [when wrapped in an outer scan].");
 	}
 
 	@Override
@@ -43,9 +35,7 @@ public class AxialArrayGenerator extends AbstractGenerator<AxialArrayModel> {
         final JythonObjectFactory<PPointGenerator> arrayGeneratorFactory = ScanPointGeneratorFactory.JOneAxisArrayGeneratorFactory();
 
 		final AxialArrayModel model = getModel();
-		final List<IROI> regions = getRegions();
 
-		final List<String> axes = model.getScannableNames();
 		final String name = model.getName();
         final String units = model.getUnits().get(0);
         final boolean alternating = model.isAlternating();
@@ -54,8 +44,7 @@ public class AxialArrayGenerator extends AbstractGenerator<AxialArrayModel> {
 
         PPointGenerator array = arrayGeneratorFactory.createObject(name, units, points, alternating);
 
-        return CompoundSpgIteratorFactory.createSpgCompoundGenerator(new PPointGenerator[] {array},
-        		regions, axes, EMPTY_PY_ARRAY, -1, continuous);
+        return CompoundGenerator.createWrappingCompoundGenerator(new PPointGenerator[] {array}, continuous);
 	}
 
 }

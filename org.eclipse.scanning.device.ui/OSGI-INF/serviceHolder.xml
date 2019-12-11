@@ -6,6 +6,7 @@
    <reference bind="setGeneratorService" cardinality="0..1" interface="org.eclipse.scanning.api.points.IPointGeneratorService" name="IPointGeneratorService" policy="dynamic"/>
    <reference bind="setExpressionService" cardinality="0..1" interface="org.eclipse.dawnsci.analysis.api.expressions.IExpressionService" name="IExpressionService" policy="dynamic"/>
    <reference bind="setLoaderService" cardinality="0..1" interface="org.eclipse.dawnsci.analysis.api.io.ILoaderService" name="ILoaderService" policy="dynamic"/>
+   <reference bind="setPointsModelDescriberService" cardinality="0..1" interface="org.eclipse.scanning.api.scan.ui.IPointsModelDescriberService" name="IPointsModelDescriberService" policy="dynamic"/>
    <reference cardinality="0..1" interface="org.eclipse.scanning.api.ISpringParser" name="ISpringParser" policy="dynamic"/>
    <reference bind="setInterfaceService" cardinality="1..1" interface="org.eclipse.scanning.api.ui.auto.IInterfaceService" name="IInterfaceService" policy="static"/>
    <reference bind="setFilePathService" cardinality="1..1" interface="org.eclipse.scanning.api.scan.IFilePathService" name="IFilePathService" policy="static"/>

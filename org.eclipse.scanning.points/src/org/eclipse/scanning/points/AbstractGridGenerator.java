@@ -11,8 +11,9 @@
  *******************************************************************************/
 package org.eclipse.scanning.points;
 
-import static org.eclipse.scanning.points.AbstractScanPointIterator.EMPTY_PY_ARRAY;
+import static org.eclipse.scanning.points.ROIGenerator.EMPTY_PY_ARRAY;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.scanning.api.points.AbstractGenerator;
@@ -55,9 +56,9 @@ abstract class AbstractGridGenerator<T extends AbstractTwoAxisGridModel> extends
 		final PPointGenerator[] generators = new PPointGenerator[2];
 		generators[0] = model.isVerticalOrientation() ? xLine : yLine;
 		generators[1] = model.isVerticalOrientation() ? yLine : xLine;
-
-		return CompoundSpgIteratorFactory.createSpgCompoundGenerator(generators,
-				getRegions(), axes, getMutators(), -1, continuous);
+		//Must use full CompoundGenerator for grids as 2/4 grid models use RandomOffsetMutator
+		return CompoundGenerator.createSpgCompoundGenerator(generators, new ArrayList<>(), axes, getMutator(),
+				-1d, continuous);
 	}
 
 	protected abstract int getXPoints();
@@ -68,7 +69,7 @@ abstract class AbstractGridGenerator<T extends AbstractTwoAxisGridModel> extends
 
 	protected abstract double getYStep();
 
-	protected PyObject[] getMutators() {
+	protected PyObject[] getMutator() {
 		return EMPTY_PY_ARRAY;
 	}
 

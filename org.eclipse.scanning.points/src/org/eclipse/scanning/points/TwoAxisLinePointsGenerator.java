@@ -18,10 +18,6 @@ public class TwoAxisLinePointsGenerator extends AbstractLineGenerator<TwoAxisLin
 
 	TwoAxisLinePointsGenerator(TwoAxisLinePointsModel model) {
 		super(model);
-		setLabel("Two-Axis Grid Points Scan");
-		setDescription("Creates a line scan along a line defined in two dimensions, with points evenly spaced along the bounding line."
-				+ "\nThe scan supports continuous operation and alternating mode [when wrapped in an outer scan].");
-		setIconPath("icons/scanner--line.png"); // This icon exists in the rendering bundle
 	}
 
 	@Override

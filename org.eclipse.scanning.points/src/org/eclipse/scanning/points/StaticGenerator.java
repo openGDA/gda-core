@@ -11,9 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.points;
 
-import java.util.List;
-
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.GeneratorException;
@@ -32,19 +29,6 @@ class StaticGenerator extends AbstractGenerator<StaticModel> {
 
 	StaticGenerator(StaticModel model) {
 		super(model);
-		setLabel("Empty");
-		setDescription("Empty generator used when wrapping malcolm scans with no CPU steps.");
-	}
-
-	// Users to not edit the StaticGenerator
-	@Override
-	public boolean isVisible() {
-		return false;
-	}
-
-	@Override
-	public void setRegions(List<IROI> regions) throws GeneratorException {
-		throw new GeneratorException("StaticGenerator cannot have regions.");
 	}
 
 	@Override

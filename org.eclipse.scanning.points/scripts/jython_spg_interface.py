@@ -25,6 +25,7 @@ from scanpointgenerator import SpiralGenerator
 from scanpointgenerator import LissajousGenerator
 from scanpointgenerator import StaticPointGenerator
 from scanpointgenerator import ZipGenerator
+from scanpointgenerator import ConcatGenerator
 from scanpointgenerator import CompoundGenerator
 from scanpointgenerator import RandomOffsetMutator
 from scanpointgenerator import CircularROI
@@ -41,7 +42,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class JavaIteratorWrapper(ScanPointIterator, PySerializable):
+class JavaIteratorWrapper(ScanPointIterator):
     """
     A wrapper class to give a python iterator the while(hasNext()) next()
     operation required of Java Iterators
@@ -78,9 +79,6 @@ class JavaIteratorWrapper(ScanPointIterator, PySerializable):
 
         return self._has_next
 
-    def toDict(self):
-        return self.generator.to_dict()
-
     def getSize(self):
         return self.generator.size
     def getShape(self):
@@ -89,22 +87,20 @@ class JavaIteratorWrapper(ScanPointIterator, PySerializable):
         return len(self.generator.shape)
     def getIndex(self):
         return self._index
-        
+    
 
-class GeneratorWrapper(PPointGenerator):
+class GeneratorWrapper(PPointGenerator, PySerializable):
     """
     Wrapper class for Java Generator
     """
     
     def __init__(self, generator):
-        self._index = -1
         self.generator = generator
     
     def __iter__(self):
         return self.generator.iterator()
     
     def __getitem__(self, n):
-        self._index = n
         return self.generator.get_point(n)
     
     def __len__(self):
@@ -119,6 +115,8 @@ class GeneratorWrapper(PPointGenerator):
         return self.generator.shape
     def getRank(self):
         return len(self.generator.shape)
+    def getNames(self):
+        return [name for dimension in self.generator.dimensions for name in dimension.axes]
     
     def toDict(self):
         return self.generator.to_dict()
@@ -199,7 +197,6 @@ class JLineGenerator2D(TwoDPointGeneratorWrapper):
     
     def __init__(self, names, units, start, stop, num_points, alternate_direction=False):
 
-        self.names = names
         start = start.tolist()  # Convert from array to list
         stop = stop.tolist()
         line_gen = LineGenerator(names, units, start, stop, num_points, alternate_direction)
@@ -227,7 +224,6 @@ class JSpiralGenerator(TwoDPointGeneratorWrapper):
 
     def __init__(self, names, units, centre, radius, scale=1.0, alternate_direction=False):
 
-        self.names = names
         spiral_gen = SpiralGenerator(names, units, centre, radius, scale, alternate_direction)
         self.generator = CompoundGenerator([spiral_gen], [], [])
         self.generator.prepare()
@@ -240,25 +236,11 @@ class JLissajousGenerator(TwoDPointGeneratorWrapper):
 
     def __init__(self, names, units, box, num_lobes, num_points, alternate_direction=False):
         
-        self.names = names
         liss_gen = LissajousGenerator(names, units, box["centre"],
                 [box["width"], box["height"]], num_lobes, num_points, alternate_direction)
         self.generator = CompoundGenerator([liss_gen], [], [])
         self.generator.prepare()
         super(TwoDPointGeneratorWrapper, self).__init__(self.generator)
-
-class JZipGenerator(MapPositionWrapper):
-    """
-    Wrap a ZipGenerator and produce MapPosition objects
-    """
-    
-    def __init__(self, iterators, alternate_direction=False):
-        super(JZipGenerator, self).__init__()
-        zip_gen = ZipGenerator(iterators, alternate)
-        self.generator = CompoundGenerator([zip_gen], [], [])
-        self.generator.prepare()
-        self.names = [d.axes for d in self.generator.dimensions]
-        super(MapPositionWrapper, self).__init__(self.generator)
     
 class JStaticPointGenerator(StaticPositionGeneratorWrapper):
     """
@@ -266,8 +248,8 @@ class JStaticPointGenerator(StaticPositionGeneratorWrapper):
     """
     
     def __init__(self, size, axes=[]):
-        g = StaticPointGenerator(size, axes)
-        self.generator = CompoundGenerator([g], [], [])
+        static_gen = StaticPointGenerator(size, axes)
+        self.generator = CompoundGenerator([static_gen], [], [])
         self.generator.prepare()
         super(StaticPositionGeneratorWrapper, self).__init__(self.generator)
 
@@ -277,63 +259,19 @@ class JCompoundGenerator(MapPositionWrapper):
     """
 
     def __init__(self, iterators, excluders, mutators, duration=-1, continuous=True, delay_after=0):
-        try:  # If JavaIteratorWrapper
-            generators = [generator for iterator in iterators for generator in iterator.generator.generators]
-        except AttributeError:  # Else call get*() of Java iterator
-            generators = [iterator.generator for iterator in iterators]
-        except AttributeError:  # Else call get*() of Java iterator
-            generators = [iterator.getPointIterator().generator for iterator in iterators]
-
+        # All the generators in the CompoundGenerator in a GeneratorWrapper
+        generators = [generator for wrapper in iterators for generator in wrapper.generator.generators]
+        
         excluders = [excluder.py_excluder for excluder in excluders]
         mutators = [mutator.py_mutator for mutator in mutators]
-        # used to detect duplicated excluders/mutators
-        mutator_dicts = [m.to_dict() for m in mutators]
-        excluder_dicts = [e.to_dict() for e in excluders]
-        extracted_generators = []
-
-        for generator in generators:
-            if generator.__class__.__name__ == "CompoundGenerator":
-                extracted_generators.extend(generator.generators)
-                # extract mutators/excluders we haven't already seen
-                # it's possible a mutator/excluder was attached to both us and
-                # a compound generator we were given
-                extracted_mutators = [m for m in generator.mutators if m.to_dict() not in mutator_dicts]
-                mutators.extend(extracted_mutators)
-                mutator_dicts.extend([m.to_dict() for m in extracted_mutators])
-                extracted_excluders = [e for e in generator.excluders if e.to_dict() not in excluder_dicts]
-                excluders.extend(extracted_excluders)
-                excluder_dicts.extend([e.to_dict() for e in extracted_excluders])
-            else:
-                extracted_generators.append(generator)
-        generators = extracted_generators
+        # Functionally aping a set
+        e_dict = [e.to_dict() for e in excluders]
+        m_dict = [m.to_dict() for m in mutators]
+        
+        excluders.extend([excluder for wrapper in iterators for excluder in wrapper.generator.excluders if excluder.to_dict() not in e_dict])
+        mutators.extend([mutator for wrapper in iterators for mutator in wrapper.generator.mutators if mutator.to_dict() not in m_dict])
 
         self.generator = CompoundGenerator(generators, excluders, mutators, duration, continuous, delay_after)
-        self.generator.prepare()
-        super(MapPositionWrapper, self).__init__(self.generator)
-
-
-class JSimplePointGen(MapPositionWrapper):
-    """
-    Create a CompoundGenerator without regions etc., just to apply continuousness and generate points.
-    """
-
-    def __init__(self, generators, continuous=True):
-        try:  # If JavaIteratorWrapper
-            generators = [g for t in iterators for g in t.generator.generators]
-        except AttributeError:  # Else call get*() of Java iterator
-            generators = [iterator.getPyIterator().generator for iterator in iterators]
-        logger.debug("Generators passed to JSimplePointGen: %s", [g.to_dict() for g in generators])
-
-        extracted_generators = []
-
-        for generator in generators:
-            if generator.__class__.__name__ == "CompoundGenerator":
-                extracted_generators.extend(generator.generators)
-            else:
-                extracted_generators.append(generator)
-        generators = extracted_generators
-
-        self.generator = CompoundGenerator(generators, [], [], -1, continuous)
         self.generator.prepare()
         super(MapPositionWrapper, self).__init__(self.generator)
 

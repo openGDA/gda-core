@@ -18,14 +18,46 @@
 
 package org.eclipse.scanning.api.points;
 
+import java.util.List;
+
+/**
+ * Interface for [Jython] CompoundGenerator, itself wrapped by [Java] IPointGenerator.
+ * Additionally passes information about shape/rank/size/dimensions of the scan from the [Jython] generator.
+ * <em>Note:</em> This class is an implementation class and should not be used outside the scanning framework
+ *
+ * The Jython implementation additionally inherits PySerializable within the jython_spg_interface
+ */
 public interface PPointGenerator {
 
 	public ScanPointIterator getPointIterator();
 
+	/**
+	 * @return the number of points iterated over by this iterator.
+	 */
 	public int getSize();
 
+	/**
+	 * @return the shape of the points iterated over by this iterator as an int array
+	 * In some cases multiple dimensions will be squashed into a single dimension,
+	 * for example when the inner most scan is a grid scan within a circular region.
+	 */
 	public int[] getShape();
 
+	/**
+	 * @return the rank of the points iterated over by this iterator.
+	 * In some cases dimensions may be flattened out, for example when the
+	 * inner most scan is a grid scan within a circular region.
+	 */
 	public int getRank();
+
+	/**
+	 * @return index of the next position to be returned by {@link #next()}
+	 */
+	public int getIndex();
+
+	/**
+	 * @return list of names of the scannable axes that this generator includes
+	 */
+	public List<String> getNames();
 
 }

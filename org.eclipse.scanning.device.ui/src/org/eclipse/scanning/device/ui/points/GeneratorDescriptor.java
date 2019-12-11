@@ -12,9 +12,7 @@
 package org.eclipse.scanning.device.ui.points;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IAdaptable;
@@ -45,21 +43,25 @@ public class GeneratorDescriptor<T extends IScanPathModel> implements ISeriesIte
 	private final IPointGenerator<T> generator;
 	private final SeriesTable        table;
 	private final IAdaptable         parent;
+	private final PointsModelDescriber describer;
+	private boolean enabled;
 
-	public GeneratorDescriptor(SeriesTable table, String id, IPointGeneratorService pservice, IAdaptable parent) throws GeneratorException {
+	public GeneratorDescriptor(SeriesTable table, String id, IPointGeneratorService pservice, IAdaptable parent, IPointsModelDescriberService dserv) throws GeneratorException {
 		this.generator = (IPointGenerator<T>)pservice.createGenerator(id);
 		this.table = table;
 		this.parent = parent;
+		this.describer = dserv.getModelDescriber(generator.getModel().getClass());
 	}
-	public GeneratorDescriptor(SeriesTable table, T model, IPointGeneratorService pservice, IAdaptable parent) throws GeneratorException {
+	public GeneratorDescriptor(SeriesTable table, T model, IPointGeneratorService pservice, IAdaptable parent, IPointsModelDescriberService dserv) throws GeneratorException {
 		this.generator = pservice.createGenerator(model);
 		this.table = table;
 		this.parent = parent;
+		this.describer = dserv.getModelDescriber(generator.getModel().getClass());
 	}
 
 	@Override
 	public String toString() {
-		return "GeneratorDescriptor ["+generator.getLabel()+"]";
+		return "GeneratorDescriptor ["+describer.getLabel()+"]";
 	}
 
 	@Override
@@ -76,14 +78,14 @@ public class GeneratorDescriptor<T extends IScanPathModel> implements ISeriesIte
 
 	@Override
 	public String getLabel() {
-		String label = generator.getLabel();
+		String label = describer.getLabel();
 		if (label == null) label = generator.getClass().getSimpleName();
 		return label;
 	}
 
 	@Override
 	public String getDescription() {
-		String desc =  generator.getDescription();
+		String desc =  describer.getDescription();
 		if (desc == null) desc = "Generator called '"+generator.getClass().getSimpleName()+"'";
 		return desc;
 	}
@@ -100,30 +102,8 @@ public class GeneratorDescriptor<T extends IScanPathModel> implements ISeriesIte
 		return parent.getAdapter(clazz);
 	}
 
-	private List<? extends IScanPathModel> getModels() {
-
-		List<IPointGenerator<?>> gens = getGenerators();
-		List<IScanPathModel>  ret  = new ArrayList<>(gens.size());
-		for (IPointGenerator<?> gen : gens) ret.add((IScanPathModel)gen.getModel());
-		return ret;
-	}
-
-	private List<IPointGenerator<?>> getGenerators() {
-		// They can only ask for a list of the series of
-		// generators which we are editing.
-		final List<ISeriesItemDescriptor> descriptors = table.getSeriesItems();
-		final List<IPointGenerator<?>>    gens        = new ArrayList<>();
-		for (ISeriesItemDescriptor des : descriptors) {
-			if (des instanceof GeneratorDescriptor<?>) {
-				GeneratorDescriptor<?> gdes = (GeneratorDescriptor<?>)des;
-				gens.add(gdes.generator);
-			}
-		}
-		return gens;
-	}
-
 	public boolean isVisible() {
-		return generator.isVisible(); // Would implement extension point to provide visible if this is needed.
+		return describer.isVisible(); // Would implement extension point to provide visible if this is needed.
 	}
 
 	/**
@@ -155,8 +135,8 @@ public class GeneratorDescriptor<T extends IScanPathModel> implements ISeriesIte
 		Image icon = icons.get(generator.getClass().getName());
 		if (icon != null) return icon;
 
-		if (generator.getIconPath()!=null) {
-			icon = Activator.getImageDescriptor(generator.getIconPath()).createImage();
+		if (describer.getIconPath()!=null) {
+			icon = Activator.getImageDescriptor(describer.getIconPath()).createImage();
 			icons.put(generator.getClass().getName(), icon);
 			return icon;
 		}
@@ -166,7 +146,7 @@ public class GeneratorDescriptor<T extends IScanPathModel> implements ISeriesIte
 	}
 
 	private void createIcons() {
-		icons   = new HashMap<String, Image>(7);
+		icons   = new HashMap<>(7);
 
 		final IConfigurationElement[] eles = Platform.getExtensionRegistry().getConfigurationElementsFor("org.eclipse.scanning.api.generator");
 		for (IConfigurationElement e : eles) {
@@ -192,6 +172,14 @@ public class GeneratorDescriptor<T extends IScanPathModel> implements ISeriesIte
 	@Override
 	public void validate(T model) throws ValidationException {
 		generator.validate(model);
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 
 }

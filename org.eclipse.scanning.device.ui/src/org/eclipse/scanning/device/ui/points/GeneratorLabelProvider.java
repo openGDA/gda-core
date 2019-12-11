@@ -68,7 +68,7 @@ final class GeneratorLabelProvider extends SeriesItemLabelProvider implements IS
 		try {
 			IPointGenerator<?> gen = des.getSeriesObject();
 
-			buf.append(gen.getLabel());
+			buf.append(des.getLabel());
 
 
 		} catch (Exception e) {
@@ -90,7 +90,7 @@ final class GeneratorLabelProvider extends SeriesItemLabelProvider implements IS
 
 		try {
 			IPointGenerator<?> gen = des.getSeriesObject();
-			if (!gen.isEnabled()) {
+			if (!des.isEnabled()) {
 				if (italicFont == null) {
 					final FontData shellFd = Display.getDefault().getActiveShell().getFont().getFontData()[0];
 					FontData fd      = new FontData(shellFd.getName(), shellFd.getHeight(), SWT.ITALIC);
