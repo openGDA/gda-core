@@ -18,25 +18,25 @@
 
 package uk.ac.gda.tomography.controller;
 
-public class IncompleteModeException extends AcquisitionControllerException {
+public class TomoIncompleteModeException extends AcquisitionControllerException {
 
-	public IncompleteModeException() {
+	public TomoIncompleteModeException() {
 		super();
 	}
 
-	public IncompleteModeException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+	public TomoIncompleteModeException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
-	public IncompleteModeException(String message, Throwable cause) {
+	public TomoIncompleteModeException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public IncompleteModeException(String message) {
+	public TomoIncompleteModeException(String message) {
 		super(message);
 	}
 
-	public IncompleteModeException(Throwable cause) {
+	public TomoIncompleteModeException(Throwable cause) {
 		super(cause);
 	}
 

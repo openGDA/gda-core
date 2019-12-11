@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import gda.device.IScannableMotor;
 import uk.ac.gda.tomography.base.serializer.DeviceSerializer;
-import uk.ac.gda.tomography.controller.IncompleteModeException;
+import uk.ac.gda.tomography.controller.TomoIncompleteModeException;
 import uk.ac.gda.tomography.model.DevicePosition;
 
 public interface TomographyMode {
@@ -40,7 +40,7 @@ public interface TomographyMode {
 	}
 
 	@JsonSerialize(contentUsing = DeviceSerializer.class)
-	public Map<TomographyDevices, IScannableMotor> getMotors() throws IncompleteModeException;
+	public Map<TomographyDevices, IScannableMotor> getMotors() throws TomoIncompleteModeException;
 	public Stage getStage();
 	@JsonIgnore()
 	public Set<DevicePosition<Double>> getMotorsPosition();
