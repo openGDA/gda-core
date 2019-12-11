@@ -26,6 +26,8 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.preference.JFacePreferences;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
@@ -48,6 +50,8 @@ import org.eclipse.scanning.device.ui.AbstractModelEditor;
 import org.eclipse.scanning.device.ui.Activator;
 import org.eclipse.scanning.device.ui.util.ViewerUtils;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -152,10 +156,15 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 
 		createStepTimeSection(composite);
 		createDiagram(composite);
-
 		createDetectorsTable(composite);
 
 		return composite;
+	}
+
+	@Override
+	public void dispose() {
+		super.dispose();
+		dataBindingContext.dispose();
 	}
 
 	private void createStepTimeSection(final Composite parent) {
@@ -187,12 +196,18 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 	}
 
 	private void createDetectorsTable(final Composite parent) {
-		final Label label = new Label(parent, SWT.NONE);
-		label.setText("Detectors:     (exposure time of 0 = use maximum)"); // TODO use a checkbox for maximum?
-		GridDataFactory.swtDefaults().span(2, 1).applyTo(label);
+		final Composite composite = new Composite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).align(SWT.FILL, SWT.TOP).applyTo(composite);
+		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(composite);
+
+		final Label label = new Label(composite, SWT.NONE);
+		label.setText("Detectors:");
+		GridDataFactory.swtDefaults().applyTo(label);
+
+		createDetectorsTableExplainerLabel(composite);
 
 		final boolean canEnableDetectors = canEnableDetectors();
-		final Table table = new Table(parent, (canEnableDetectors ? SWT.CHECK : 0) | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
+		final Table table = new Table(composite, (canEnableDetectors ? SWT.CHECK : 0) | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
 		detectorsTable = canEnableDetectors ? new CheckboxTableViewer(table) : new TableViewer(table);
 		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).hint(SWT.DEFAULT, 150).applyTo(table);
 
@@ -221,6 +236,21 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 		}
 
 		detectorsTable.setInput(getModel().getDetectorModels());
+	}
+
+	private void createDetectorsTableExplainerLabel(final Composite parent) {
+		final StyledText explainerLabel = new StyledText(parent, SWT.NONE);
+		explainerLabel.setBackground(parent.getBackground());
+		GridDataFactory.swtDefaults().indent(20, 0).applyTo(explainerLabel);
+
+		final StyleRange[] styleRanges = new StyleRange[2];
+		final StringBuilder sb = new StringBuilder("exposure time 0 = use maximum, "); // TODO use a checkbox for maximum?
+		styleRanges[0] = new StyleRange(sb.length(), 5, JFaceResources.getColorRegistry().get(JFacePreferences.COUNTER_COLOR), null);
+		sb.append("(0.1) = actual value, ");
+		styleRanges[1] = new StyleRange(sb.length(), 4, JFaceResources.getColorRegistry().get(JFacePreferences.QUALIFIER_COLOR), null);
+		sb.append("grey = derived value");
+		explainerLabel.setText(sb.toString());
+		explainerLabel.setStyleRanges(styleRanges);
 	}
 
 	private boolean canEnableDetectors() {

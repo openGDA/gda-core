@@ -297,6 +297,7 @@ public class EditDetectorModelDialog extends Dialog {
 		final Button validateButton = new Button(parent, SWT.PUSH);
 		validateButton.setText("Validate");
 		validateButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(event -> validateModel(false)));
+		GridDataFactory.swtDefaults().applyTo(validateButton);
 
 		return composite;
 	}
