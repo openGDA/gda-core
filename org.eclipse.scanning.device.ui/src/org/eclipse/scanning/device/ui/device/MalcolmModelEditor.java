@@ -31,7 +31,10 @@ import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.EditingSupport;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
@@ -209,7 +212,7 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 			if (!canEnableDetectors && columnInfo == DetectorTableColumn.ENABLED) continue;
 
 			final TableViewerColumn column = new TableViewerColumn(detectorsTable, columnInfo.alignment);
-			column.setLabelProvider(new MalcolmDetectorsTableLabelProvider(columnInfo));
+			column.setLabelProvider(new DelegatingStyledCellLabelProvider(new MalcolmDetectorsTableLabelProvider(columnInfo)));
 			column.getColumn().setText(columnInfo.label);
 			column.getColumn().setWidth(columnInfo.columnWidth);
 			if (columnInfo.editable) {
@@ -245,7 +248,7 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 		return Optional.empty();
 	}
 
-	private class MalcolmDetectorsTableLabelProvider extends ColumnLabelProvider {
+	private class MalcolmDetectorsTableLabelProvider extends ColumnLabelProvider implements IStyledLabelProvider {
 
 		private final DetectorTableColumn column;
 
@@ -254,14 +257,20 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 		}
 
 		@Override
-		public String getText(Object element) {
+		public StyledString getStyledText(Object element) {
 			final IMalcolmDetectorModel detectorModel = (IMalcolmDetectorModel) element;
 			final Optional<IMalcolmDetectorModel> validatedModel = getModifiedDetectorModel(detectorModel.getName());
-			final String value = column.getLabel(detectorModel, getModel());
-			if (column.showActualValue && validatedModel.isPresent()) {
-				return value + " (" + column.getLabel(validatedModel.get(), modifiedModel) + ")";
+			final String requestedValue = column.getLabel(detectorModel, getModel());
+			final StyledString result = new StyledString();
+			if (requestedValue != null) {
+				final boolean derived = !column.editable && column != DetectorTableColumn.DETECTOR_NAME;
+				result.append(requestedValue, derived ? StyledString.DECORATIONS_STYLER : null);
 			}
-			return value;
+			if (column.showActualValue && validatedModel.isPresent()) {
+				result.append(" (" + column.getLabel(validatedModel.get(), modifiedModel) + ")",
+						column.editable ? StyledString.COUNTER_STYLER : StyledString.DECORATIONS_STYLER);
+			}
+			return result;
 		}
 
 		@Override
