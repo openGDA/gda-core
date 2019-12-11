@@ -41,8 +41,9 @@ abstract class AbstractGridGenerator<T extends AbstractTwoAxisGridModel> extends
 		final String xUnits = model.getxAxisUnits();
 		final String yName = model.getyAxisName();
 		final String yUnits = model.getyAxisUnits();
-		final double xStep = getXStep();
-		final double yStep = getYStep();
+		// length/step<2 => step>length/2, just put point in middle
+		final double xStep = getXPoints() == 1 ? model.getBoundingBox().getxAxisLength() : getXStep();
+		final double yStep = getYPoints() == 1 ? model.getBoundingBox().getyAxisLength() : getYStep();
 		final double minX = model.getBoundingBox().getxAxisStart() + xStep / 2;
 		final double minY = model.getBoundingBox().getyAxisStart() + yStep / 2;
 		final boolean alternating = model.isAlternating();
