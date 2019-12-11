@@ -30,7 +30,7 @@ import gda.device.detector.NXDetectorData;
 /**
  * This generic class only supports Integer or Double, see the validation in {@link #appendTo(NXDetectorData, String)}
  *
- * Since we can't say <T extends Double | Integer> we constrain it to Number, so most inappropriate uses will result in a
+ * Since we can't say {@code <T extends Double | Integer>} we constrain it to Number, so most inappropriate uses will result in a
  * compile-time error rather than a run-time error.
  *
  * @param <T>
