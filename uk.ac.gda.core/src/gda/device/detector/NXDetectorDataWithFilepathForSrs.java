@@ -103,9 +103,11 @@ public class NXDetectorDataWithFilepathForSrs extends NXDetectorData {
 		if (justTheDoubles.length > 0) {
 			Double[] extraDoubles = Arrays.copyOfRange(justTheDoubles, filepathOutputFieldIndex + pathsHandled,
 					justTheDoubles.length); //to be tested
+			String[] extraFormats = Arrays.copyOfRange(outputFormat, filepathOutputFieldIndex + pathsHandled,
+					justTheDoubles.length); // justTheDoubles.length to provide matching array lengths for the loop
 			for (int i = 0; i < extraDoubles.length; i++) {
 				positions.add(extraDoubles[i]);
-				tmpoutputFormats.add((i < outputFormat.length) ? outputFormat[i] : "%.2f");
+				tmpoutputFormats.add(extraFormats[i] != null ? extraFormats[i]  : "%.2f");
 			}
 		}
 
