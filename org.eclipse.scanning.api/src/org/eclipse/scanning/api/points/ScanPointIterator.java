@@ -13,7 +13,7 @@ import java.util.Iterator;
  * iterated over.
  *
  */
-public interface ScanPointIterator extends Iterator<IPosition>, PySerializable {
+public interface ScanPointIterator extends Iterator<IPosition> {
 
 	/**
 	 * Returns the number of points iterated over by this iterator.

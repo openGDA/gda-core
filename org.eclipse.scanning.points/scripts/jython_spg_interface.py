@@ -17,6 +17,7 @@ from org.eclipse.scanning.api.points import MapPosition
 from org.eclipse.scanning.api.points import StaticPosition
 from org.eclipse.scanning.api.points import PPointGenerator
 from org.eclipse.scanning.api.points import ScanPointIterator
+from org.eclipse.scanning.points import PySerializable
 
 from scanpointgenerator import LineGenerator
 from scanpointgenerator import ArrayGenerator
@@ -40,7 +41,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class JavaIteratorWrapper(ScanPointIterator):
+class JavaIteratorWrapper(ScanPointIterator, PySerializable):
     """
     A wrapper class to give a python iterator the while(hasNext()) next()
     operation required of Java Iterators

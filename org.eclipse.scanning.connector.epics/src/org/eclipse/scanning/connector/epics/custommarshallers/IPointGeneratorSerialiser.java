@@ -12,7 +12,7 @@
 package org.eclipse.scanning.connector.epics.custommarshallers;
 
 import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.PySerializable;
+import org.eclipse.scanning.points.PySerializable;
 import org.epics.pvdata.pv.PVStructure;
 import org.epics.pvdata.pv.Structure;
 import org.epics.pvmarshaller.marshaller.api.IPVStructureSerialiser;

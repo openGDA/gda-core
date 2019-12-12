@@ -23,7 +23,6 @@ import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.PPointGenerator;
-import org.eclipse.scanning.api.points.PySerializable;
 import org.eclipse.scanning.api.points.ScanPointIterator;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.python.core.PyDictionary;

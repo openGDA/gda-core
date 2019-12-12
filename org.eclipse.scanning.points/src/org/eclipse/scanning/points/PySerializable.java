@@ -9,7 +9,7 @@
  * Contributors:
  *    Matthew Gerring - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.scanning.api.points;
+package org.eclipse.scanning.points;
 
 import org.python.core.PyDictionary;
 

@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.PPointGenerator;
-import org.eclipse.scanning.api.points.PySerializable;
 import org.eclipse.scanning.api.points.ScanPointIterator;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
