@@ -21,6 +21,10 @@
          id="org.eclipse.richbeans.feature"
          version="0.0.0"/>
 
+   <includes
+         id="hdf.hdf5lib.feature"
+         version="0.0.0"/>
+
    <plugin
          id="ch.qos.logback.classic"
          download-size="0"
@@ -106,13 +110,6 @@
 
    <plugin
          id="slf4j.api"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="hdf.hdf5lib"
          download-size="0"
          install-size="0"
          version="0.0.0"
