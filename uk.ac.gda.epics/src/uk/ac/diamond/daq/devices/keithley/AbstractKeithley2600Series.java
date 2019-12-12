@@ -50,6 +50,9 @@ public abstract class AbstractKeithley2600Series extends ScannableBase {
 	private long settleTimeMs = 1100;
 	/** The time to wait after a output change for stability in ms */
 	private long switchOnDelayTimeMs = 4000;
+	/** The additional time to wait for settling on the first point in mss
+	 * As settling has been observed to sometimes take longer here. */
+	private long additionalFirstPointSettleTimeMs = 0;
 
 	/** The status showing if the voltage or current limits are reached */
 	protected Status limitStatus = Status.NORMAL;
@@ -59,6 +62,9 @@ public abstract class AbstractKeithley2600Series extends ScannableBase {
 
 	/** Flag indicating the next time {@link #rawAsynchronousMoveTo(Object)} is called the output will be switched on */
 	protected boolean switchOnAtNextMove;
+
+	/** Flag indicating whether we are on the first point */
+	private boolean isFirstPoint;
 
 	protected enum SourceMode {
 		/** The source will target a voltage setpoint by varying current */
@@ -156,6 +162,9 @@ public abstract class AbstractKeithley2600Series extends ScannableBase {
 		logger.debug("Waiting for settling...");
 		try {
 			Thread.sleep(getSettleTime());
+			if (isFirstPoint) {
+				Thread.sleep(getAdditionalFirstPointSettleTimeMs());
+			}
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			logger.warn("Interrupted waiting for settling", e);
@@ -257,6 +266,11 @@ public abstract class AbstractKeithley2600Series extends ScannableBase {
 
 	protected abstract void outputOn() throws DeviceException;
 
+	@Override
+	public void stop() throws DeviceException {
+		isFirstPoint = false;
+	}
+
 	public void setSourceMode(String mode) throws DeviceException {
 		setSourceMode(SourceMode.valueOf(mode.toUpperCase()));
 	}
@@ -271,7 +285,13 @@ public abstract class AbstractKeithley2600Series extends ScannableBase {
 
 	@Override
 	public void atScanStart() throws DeviceException {
+		isFirstPoint = true;
 		switchOnAtNextMove = true;
+	}
+
+	@Override
+	public void atPointEnd() throws DeviceException {
+		isFirstPoint = false;
 	}
 
 	public abstract ResistanceMode getResistanceMode() throws DeviceException;
@@ -306,5 +326,23 @@ public abstract class AbstractKeithley2600Series extends ScannableBase {
 	 */
 	public void setSwitchOnDelayTimeMs(long switchOnDelayTimeMs) {
 		this.switchOnDelayTimeMs = switchOnDelayTimeMs;
+	}
+
+	/**
+	 * The additional delay to be applied on the first point of the scan
+	 * after setting the demand.	 *
+	 */
+	public long getAdditionalFirstPointSettleTimeMs() {
+		return additionalFirstPointSettleTimeMs;
+	}
+
+	/**
+	 * The additional delay to be applied on the first point of the scan
+	 * after setting the demand.
+	 *
+	 * @param additionalFirstPointSettleTimeMs
+	 */
+	public void setAdditionalFirstPointSettleTimeMs(long additionalFirstPointSettleTimeMs) {
+		this.additionalFirstPointSettleTimeMs = additionalFirstPointSettleTimeMs;
 	}
 }

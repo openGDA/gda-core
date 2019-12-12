@@ -288,8 +288,8 @@ public class Keithley2600Series extends AbstractKeithley2600Series {
 			setOutputDemand(demand);
 
 			if (switchOnAtNextMove) {
-				switchOnAtNextMove = false;
 				outputOn();
+				switchOnAtNextMove = false;
 			}
 		} catch (DeviceException e) {
 			// Here use RuntimeException to allow use in lambda
