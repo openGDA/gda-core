@@ -37,6 +37,10 @@
          id="org.dawnsci.common.ui.feature"
          version="0.0.0"/>
 
+   <includes
+         id="hdf.hdf5lib.feature"
+         version="0.0.0"/>
+
    <plugin
          id="uk.ac.diamond.scisoft.analysis.rcp.contributions"
          download-size="0"
@@ -44,12 +48,6 @@
          version="0.0.0"
          fragment="true"
          unpack="false"/>
-
-   <plugin
-         id="hdf.hdf5lib"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
 
    <plugin
          id="org.dawnsci.plotting.histogram"

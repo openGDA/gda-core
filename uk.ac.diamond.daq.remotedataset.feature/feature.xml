@@ -21,6 +21,14 @@
          id="org.eclipse.dawnsci.remotedataset.feature"
          version="0.0.0"/>
 
+   <includes
+         id="hdf.hdf5lib.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="uk.ac.diamond.CBFlib.feature"
+         version="0.0.0"/>
+
    <plugin
          id="org.eclipse.dawnsci.analysis.dataset"
          download-size="0"
@@ -123,19 +131,6 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-
-   <plugin
-         id="uk.ac.diamond.CBFlib"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="hdf.hdf5lib"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.dawnsci.nexus"
