@@ -18,21 +18,23 @@
 
 package gda.device.detector.nxdetector.plugin.areadetector;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.CounterTimer;
+import gda.device.Detector;
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.device.detector.NXDetector;
 import gda.device.detector.NXDetectorData;
+import gda.device.detector.countertimer.BufferedScaler;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
+import gda.device.detector.nxdetector.BufferedNXDetector;
 import gda.device.detector.nxdetector.plugin.NullNXPlugin;
 import gda.device.detector.nxdetector.roi.RectangularROI;
 import gda.jython.InterfaceProvider;
@@ -49,12 +51,29 @@ public class ADRoiCountsI0 extends NullNXPlugin {
 
 	private NXDetector nxDetector = null;
 	private CounterTimer ct = null;
+
+	private BufferedNXDetector bufferedNxDetector;
+	private BufferedScaler bufferedScaler;
+	private boolean useBufferedScaler;
+	private int frameCount;
+
 	private int i0Channel = -1;
 	private String roiCountsName;
+	private int scalerChannelToUse;
+	private String currentStreamName;
 
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		roiCountsName = getRoiCountsName();
+		useBufferedScaler = getScanUsesBufferedDetector();
+		if (useBufferedScaler) {
+			scalerChannelToUse = getChannelToUse(bufferedScaler);
+			frameCount = 0;
+		} else {
+			scalerChannelToUse = getChannelToUse(ct);
+		}
+		currentStreamName = getCurrentStreamName();
+		logger.info("Using channel {} for scaler value. Using buffered scaler {}?, Stream name = {}", scalerChannelToUse, useBufferedScaler, currentStreamName);
 	}
 
 	public int getI0_channel() {
@@ -72,7 +91,45 @@ public class ADRoiCountsI0 extends NullNXPlugin {
 
 	@Override
 	public List<String> getInputStreamNames() {
-		return Arrays.asList("FFI1" );
+		return Arrays.asList(currentStreamName);
+	}
+
+	/**
+	 * Return true if bufferedNxDetector is used in the currently running scan; (i.e. it is a continuous scan)
+	 * @return
+	 */
+	private boolean getScanUsesBufferedDetector() {
+		ScanInformation scanInfo = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
+		if (scanInfo != null && bufferedNxDetector != null && bufferedScaler != null) {
+			List<String> detectorNames = Arrays.asList(scanInfo.getDetectorNames());
+			return detectorNames.contains(bufferedNxDetector.getName()) && detectorNames.contains(bufferedScaler.getName());
+		}
+		return false;
+	}
+
+	private int getChannelToUse(Scannable scn) {
+		int channelToUse = i0Channel;
+		if (channelToUse < 0) {
+			logger.debug("Getting channel number of first non-time value from {}", scn.getName());
+			List<String> extraNames = Arrays.asList(scn.getExtraNames());
+			String matchingName = extraNames.stream()
+					.filter(name -> !name.equalsIgnoreCase("time"))
+					.findFirst()
+					.orElse("");
+
+			channelToUse = extraNames.indexOf(matchingName);
+		}
+		return channelToUse;
+	}
+
+	private String getCurrentStreamName() {
+		String channelName = "";
+		if (useBufferedScaler && bufferedScaler != null) {
+			channelName = bufferedScaler.getExtraNames()[scalerChannelToUse];
+		} else {
+			channelName = ct.getExtraNames()[scalerChannelToUse];
+		}
+		return "FF"+channelName;
 	}
 
 	@Override
@@ -124,74 +181,80 @@ public class ADRoiCountsI0 extends NullNXPlugin {
 		public void appendTo(NXDetectorData data, String detectorName) throws DeviceException {
 
 			double roiCounts = 0;
-			double i0Counts = 0;
+			double scalerCounts = 0;
 
 			try {
 				List<String> extraNames = Arrays.asList(data.getExtraNames());
 				int index = extraNames.indexOf(roiCountsName);
 				if (index == -1) {
-					String message = "Cannot calculate FFI0 - no value for FF was produced by "+detectorName+". Has a ROI been set on the detector?";
+					String message = "Cannot calculate "+currentStreamName+" - no value for FF was produced by "+detectorName+
+									 ". Has a ROI been set on the detector?";
 					InterfaceProvider.getTerminalPrinter().print(message);
 					throw new DeviceException(message);
 				}
 				Double[] values = data.getDoubleVals();
 				// Get first value from detector data - should be total ROI counts
-				if (values.length > index)
+				if (index < values.length) {
 					roiCounts = values[index];
-				i0Counts = getI0();
+				}
+
+				if (useBufferedScaler) {
+					scalerCounts = getScalerCounts(bufferedScaler, frameCount);
+					frameCount++;
+				} else {
+					scalerCounts = getScalerCounts(ct, 0);
+				}
 
 			} catch (Exception e) {
 				throw new DeviceException("Exception reading out roi count from NXDetectorData structure.", e);
 			}
 
 			double ffi0 = 1.0;
-			if (i0Counts > 0) {
-				ffi0 = roiCounts / i0Counts;
+			if (scalerCounts > 0) {
+				ffi0 = roiCounts / scalerCounts;
 			}
-			List<Double> values = new ArrayList<>();
-			values.add(ffi0);
+			logger.info("FF = {}, scaler counts = {}", roiCounts, scalerCounts);
 
 			// Make double appender and it use it for the actual appending
-			NXDetectorDataDoubleAppender doubleAppender = new NXDetectorDataDoubleAppender(getInputStreamNames(), values);
+			NXDetectorDataDoubleAppender doubleAppender = new NXDetectorDataDoubleAppender(getInputStreamNames(), Arrays.asList(ffi0));
 			doubleAppender.appendTo(data, detectorName);
 		}
-	}
 
-	/**
-	 * Return counts in i0Channel channel of counter timer. If i0Channel is set to
-	 * -1, counts from the first channel not called 'time' are returned instead.
-	 * @return I0 counts value from counter timer
-	 * @throws DeviceException
-	 */
-	public Double getI0() throws DeviceException {
-		if (ct == null) {
-			logger.warn("CounterTimer has not been set - using 0 for I0 counts");
-			return 0.0;
+		/**
+		 * Return scaler counts value from buffered scaler
+		 * @param frameNumber frame number to read
+		 * @return scaler counts value from buffered scaler (channel 'scalerChannelToUse')
+		 * @throws DeviceException
+		 */
+		private Double getScalerCounts(Detector scaler, int frameNumber) throws DeviceException {
+			if (scaler == null) {
+				logger.warn("CounterTimer has not been set - using 0 for scaler counts");
+				return 0.0;
+			}
+			if (scalerChannelToUse < 0) {
+				logger.warn("Channel for scaler counts is < 0 - using 0 for scaler counts");
+				return 0.0;
+			}
+
+			if (scaler instanceof BufferedScaler) {
+				logger.debug("Reading channel {} frame {} from {} for scaler counts", scalerChannelToUse, frameNumber, scaler.getName());
+				BufferedScaler bufScaler = (BufferedScaler) scaler;
+				return getScalerData(bufScaler.readFrames(frameNumber, frameNumber)[0]);
+			} else {
+				logger.debug("Using channel {} from {} for scaler counts ", scalerChannelToUse, scaler.getName());
+				return getScalerData(scaler.readout());
+			}
 		}
 
-		int channelToUse = i0Channel;
-		if (channelToUse < 0) {
-			channelToUse = getFirstNonTimeIndex();
+		/**
+		 * Extract channel of scaler data from the Object returned by scaler readout function.
+		 * @param scalerReadout
+		 * @return scaler counts from channel {@link #scalerChannelToUse}.
+		 */
+		private double getScalerData(Object scalerReadout) {
+			double[] arr = (double[]) scalerReadout;
+			return arr[scalerChannelToUse];
 		}
-		if (channelToUse < 0) {
-			logger.warn("Channel for I0 counts is set to -1! - using 0 for I0 counts");
-			return 0.0;
-		}
-		logger.debug("Using channel {} from {} for I0 counts ", channelToUse, ct.getName());
-		Object out = ct.readout();
-		double[] arr = (double[]) out;
-		return arr[channelToUse];
-	}
-
-	private int getFirstNonTimeIndex() {
-		logger.debug("Getting channel number of first non-time value from {}", ct.getName());
-		List<String> extraNames = Arrays.asList(ct.getExtraNames());
-		Optional<String> result = extraNames.stream()
-				.filter(name -> !name.equalsIgnoreCase("time"))
-				.findFirst();
-
-		String name = result.orElse("");
-		return extraNames.indexOf(name);
 	}
 
 	public NXDetector getNxDetector() {
@@ -210,4 +273,19 @@ public class ADRoiCountsI0 extends NullNXPlugin {
 		this.ct = i0CounterTimer;
 	}
 
+	public BufferedNXDetector getBufferedNxDetector() {
+		return bufferedNxDetector;
+	}
+
+	public void setBufferedNxDetector(BufferedNXDetector bufferedNxDetector) {
+		this.bufferedNxDetector = bufferedNxDetector;
+	}
+
+	public BufferedScaler getBufferedScaler() {
+		return bufferedScaler;
+	}
+
+	public void setBufferedScaler(BufferedScaler bufferedScaler) {
+		this.bufferedScaler = bufferedScaler;
+	}
 }
