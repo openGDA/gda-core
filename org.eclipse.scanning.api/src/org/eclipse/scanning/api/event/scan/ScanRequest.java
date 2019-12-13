@@ -34,13 +34,15 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A class to encapsulate minimal information required to run a scan.
- *
+ * <p>
  * For instance the JSON string of this class could be used on B23
- *
+ * <p>
  * The class automatically assigns a unique id for the run.
+ * <p>
+ * NB. A ScanRequest is passed to some beamline scripts (for example the I14 XANES script), so changes to the public
+ * methods should be kept to a minimum. If changes are made, the beamline should be informed.
  *
  * @author Matthew Gerring
- * @param <T> must be type of region that the regions correspond to. For instance IROI for any region type or IRectangularROI is all known to be rectangular.
  *
  */
 public class ScanRequest implements Serializable {
