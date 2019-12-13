@@ -1,4 +1,4 @@
-package uk.ac.diamond.daq.client.gui.camera.exposure;
+package uk.ac.diamond.daq.client.gui.camera;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;

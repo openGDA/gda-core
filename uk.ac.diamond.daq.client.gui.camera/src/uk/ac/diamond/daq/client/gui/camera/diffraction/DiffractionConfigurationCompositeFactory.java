@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.rcp.views.CompositeFactory;
-import uk.ac.diamond.daq.client.gui.camera.controller.DiffractionCameraConfigurationController;
 import uk.ac.gda.client.exception.GDAClientException;
 
 public class DiffractionConfigurationCompositeFactory<T extends DiffractionCameraConfigurationController> implements CompositeFactory {
@@ -15,7 +14,6 @@ public class DiffractionConfigurationCompositeFactory<T extends DiffractionCamer
 	private static final Logger logger = LoggerFactory.getLogger(DiffractionConfigurationCompositeFactory.class);
 	
 	public DiffractionConfigurationCompositeFactory(T controller) {
-		super();
 		this.controller = controller;
 	}
 	

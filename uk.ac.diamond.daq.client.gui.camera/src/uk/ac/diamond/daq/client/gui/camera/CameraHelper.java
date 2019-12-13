@@ -9,8 +9,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
@@ -18,7 +17,9 @@ import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfiguratio
 import uk.ac.diamond.daq.client.gui.camera.controller.ImagingCameraConfigurationController;
 import uk.ac.diamond.daq.client.gui.camera.properties.CameraPropertiesBuilder;
 import uk.ac.diamond.daq.client.gui.camera.properties.MotorPropertiesBuilder;
+import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.composites.FinderHelper;
+import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.properties.CameraProperties;
@@ -53,10 +54,11 @@ import uk.ac.gda.ui.tool.ClientMessagesUtility;
  */
 public final class CameraHelper {
 
-	private static final Logger logger = LoggerFactory.getLogger(CameraHelper.class);
 	private static final Map<Integer, AbstractCameraConfigurationController> cameraControllers = new HashMap<>();
 	private static final List<CameraProperties> cameraProperties = new ArrayList<>();
 	private static final List<CameraComboItem> cameraComboItems = new ArrayList<>();
+
+	private static final Map<Integer, ICameraConfiguration> cameraConfigurations = new HashMap<>();
 
 	static {
 		parseCameraProperties();
@@ -84,6 +86,10 @@ public final class CameraHelper {
 		return FinderHelper.getFindableDevice(getCameraConfigurationInstance(cameraIndex));
 	}
 
+	public static Optional<CameraControl> getCameraControl(int cameraIndex) {
+		return FinderHelper.getFindableDevice(getCameraControlProperty(cameraIndex));
+	}
+
 	/**
 	 * Returns the {@link AbstractCameraConfigurationController} based on a camera
 	 * index
@@ -91,18 +97,12 @@ public final class CameraHelper {
 	 * @param activeCamera the camera index
 	 * @return the camera or <code>null</code> if the camera does not exists
 	 */
-	public static AbstractCameraConfigurationController getCameraControlInstance(int activeCamera) {
-		if (!cameraControllers.containsKey(activeCamera) && activeCamera < getAllCameraProperties().size()) {
-			ImagingCameraConfigurationController controller;
-			try {
-				controller = new ImagingCameraConfigurationController(
-						getAllCameraProperties().get(activeCamera).getCameraControl());
-				cameraControllers.put(activeCamera, controller);
-			} catch (DeviceException e) {
-				logger.error("Error", e);
-			}
+	public static Optional<AbstractCameraConfigurationController> getCameraControlInstance(int activeCamera) {
+		if (!cameraConfigurations.containsKey(activeCamera) && activeCamera < getAllCameraProperties().size()) {
+			cameraControllers.put(activeCamera, new ImagingCameraConfigurationController(
+					getAllCameraProperties().get(activeCamera).getCameraControl()));
 		}
-		return cameraControllers.get(activeCamera);
+		return Optional.ofNullable(cameraControllers.get(activeCamera));
 	}
 
 	public static List<CameraComboItem> getCameraComboItems() {
@@ -128,6 +128,10 @@ public final class CameraHelper {
 			return null;
 		}
 		return cameraProperties.get(0);
+	}
+
+	public static ICameraConfiguration createICameraConfiguration(int cameraIndex) {
+		return cameraConfigurations.computeIfAbsent(cameraIndex, ICameraConfigurationImpl::new);
 	}
 
 	private static void createCameraComboItems() {
@@ -202,12 +206,12 @@ public final class CameraHelper {
 				ClientMessagesUtility.getMessage(ClientMessages.NOT_AVAILABLE));
 	}
 
-	// 
+	//
 	/**
 	 * Assemble a string formatted like something like "PREFIX.INDEX.PROPERTY"
 	 * 
-	 * @param prefix a string identifying a property  
-	 * @param index an index identifying the prefix index
+	 * @param prefix   a string identifying a property
+	 * @param index    an index identifying the prefix index
 	 * @param property a subproperty of the prefix
 	 * @return
 	 */
@@ -239,5 +243,50 @@ public final class CameraHelper {
 
 	private static String getCameraConfigurationMotorControllerProperty(int cameraIndex, int motorIndex) {
 		return LocalProperties.get(formatMotorPropertyKey(cameraIndex, motorIndex, "controller"), null);
+	}
+
+	private static class ICameraConfigurationImpl implements ICameraConfiguration {
+
+		private final int cameraIndex;
+
+		public ICameraConfigurationImpl(int cameraIndex) {
+			super();
+			this.cameraIndex = cameraIndex;
+		}
+
+		@Override
+		public Optional<CameraConfiguration> getCameraConfiguration() {
+			return FinderHelper.getFindableDevice(getCameraConfigurationInstance(cameraIndex));
+		}
+
+		@Override
+		public int getCameraIndex() {
+			return cameraIndex;
+		}
+
+		@Override
+		public Optional<CameraControl> getCameraControl() {
+			return FinderHelper.getFindableDevice(getCameraControlProperty(cameraIndex));
+		}
+
+		@Override
+		public RectangularROI getMaximumSizedROI() throws GDAClientException {
+			int[] frameSize;
+			try {
+				frameSize = getCameraControl().orElseThrow(() -> new GDAClientException("No Camera Control defined"))
+						.getFrameSize();
+			} catch (DeviceException e) {
+				throw new GDAClientException("Error", e);
+			}
+			RectangularROI max = new RectangularROI();
+			max.setPoint(0, 0);
+			max.setEndPoint(frameSize);
+			return max;
+		}
+
+		@Override
+		public CameraProperties getCameraProperties() {
+			return getAllCameraProperties().get(cameraIndex);
+		}
 	}
 }

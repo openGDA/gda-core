@@ -22,9 +22,12 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
 import gda.rcp.views.CompositeFactory;
+import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.event.ROIChangeEvent;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.ui.tool.ClientMessages;
@@ -42,12 +45,14 @@ public class AbsorptionComposite implements CompositeFactory {
 	private IDataset dataset;
 	private final List<ROIStatisticRow> rows = new ArrayList<>();
 
+	private static final Logger logger = LoggerFactory.getLogger(AbsorptionComposite.class);
+	
 	@Override
 	public Composite createComposite(final Composite parent, int style) {
 		try {
-			SpringApplicationContextProxy.addApplicationListener(roiListener);
-		} catch (GDAClientException e1) {
-			e1.printStackTrace();
+			SpringApplicationContextProxy.addApplicationListener(getROIChangeListener(parent));
+		} catch (GDAClientException e) {
+			logger.error("Cannot append ROIChangeListener to Spring");
 		}
 		Table table = new Table(parent, SWT.VIRTUAL | SWT.BORDER);
 		table.setLinesVisible(true);
@@ -62,23 +67,27 @@ public class AbsorptionComposite implements CompositeFactory {
 		return table;
 	}
 
-	private ApplicationListener<ROIChangeEvent> roiListener = new ApplicationListener<ROIChangeEvent>() {
-		@Override
-		public void onApplicationEvent(ROIChangeEvent event) {
-			dataset = event.getDataset();
+	private ApplicationListener<ROIChangeEvent> getROIChangeListener(Composite parent) {
+		return new ApplicationListener<ROIChangeEvent>() {
+			public void onApplicationEvent(ROIChangeEvent event) {
+				if (!event.hasSameParent(parent)) {
+					return;
+				}
+				dataset = event.getDataset();
 
-			RectangularROI rectangularROI = event.getRoi();
+				RectangularROI rectangularROI = event.getRoi();
 
-			// Updates the ratios
-			rows.stream().forEach(r -> r.processValue(rectangularROI));
+				// Updates the ratios
+				rows.stream().forEach(r -> r.processValue(rectangularROI));
 
-			// There is only one bright row and is the one after the header
-			double valueA = rows.get(0).getValue();
+				// There is only one bright row and is the one after the header
+				double valueA = rows.get(0).getValue();
 
-			// Updates the ratios
-			rows.stream().forEach(r -> r.processRatio(valueA));
-		}
-	};
+				// Updates the ratios
+				rows.stream().forEach(r -> r.processRatio(valueA));
+			}
+		};
+	}
 
 	private void createTableColumn(Table table) {
 		ClientMessages[] headers = { ClientMessages.LOCK_VALUE, ClientMessages.ROI, ClientMessages.VALUE,

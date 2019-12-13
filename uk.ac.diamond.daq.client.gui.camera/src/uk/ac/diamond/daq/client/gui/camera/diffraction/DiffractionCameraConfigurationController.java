@@ -1,4 +1,4 @@
-package uk.ac.diamond.daq.client.gui.camera.controller;
+package uk.ac.diamond.daq.client.gui.camera.diffraction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +8,8 @@ import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
 import gda.factory.Finder;
 import gda.observable.IObserver;
+import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
+import uk.ac.gda.client.exception.GDAClientException;
 
 public class DiffractionCameraConfigurationController extends AbstractCameraConfigurationController {
 	private class CameraPositionListener implements IObserver {
@@ -37,13 +39,17 @@ public class DiffractionCameraConfigurationController extends AbstractCameraConf
 	private CameraPositionListener cameraPositionListener;
 	private List<DiffractionCameraConfigurationListener> listeners = new ArrayList<>();
 	
-	public DiffractionCameraConfigurationController(String cameraName, String cameraPositionName) throws DeviceException {
+	public DiffractionCameraConfigurationController(String cameraName, String cameraPositionName) throws GDAClientException {
 		super(cameraName);
 
 		cameraPosition = Finder.getInstance().find(cameraPositionName);
 		
 		moving=false;
-		cameraPositionFrom = cameraPosition.getPosition().toString();
+		try {
+			cameraPositionFrom = cameraPosition.getPosition().toString();
+		} catch (DeviceException e) {
+			throw new GDAClientException("Position Error", e);
+		}
 		cameraPositionTo = cameraPositionFrom;
 
 		cameraPositionListener = new CameraPositionListener();
