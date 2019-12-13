@@ -19,6 +19,7 @@
 package gda.jython.server.shell;
 
 import static org.junit.Assert.assertSame;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -39,6 +40,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.python.core.PyException;
 import org.python.core.PyObject;
+import org.python.core.PySystemState;
 import org.python.core.PyUnicode;
 import org.python.util.InteractiveInterpreter;
 
@@ -132,7 +134,7 @@ public class HighlightersTest {
 		InteractiveInterpreter iI1 = mock(InteractiveInterpreter.class);
 		InteractiveInterpreter iI2 = mock(InteractiveInterpreter.class);
 		PowerMockito.whenNew(InteractiveInterpreter.class)
-				.withNoArguments()
+				.withArguments(any(PyObject.class), any(PySystemState.class))
 				.thenReturn(iI1)
 				.thenReturn(iI2);
 		PyObject h1 = mock(PyObject.class);

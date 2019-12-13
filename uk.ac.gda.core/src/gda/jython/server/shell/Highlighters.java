@@ -27,6 +27,8 @@ import org.jline.reader.Highlighter;
 import org.jline.reader.LineReader;
 import org.jline.utils.AttributedString;
 import org.python.core.PyObject;
+import org.python.core.PyStringMap;
+import org.python.core.PySystemState;
 import org.python.core.PyUnicode;
 import org.python.util.InteractiveInterpreter;
 import org.slf4j.Logger;
@@ -104,7 +106,7 @@ final class Highlighters {
 			requireNonNull(theme, "Theme must not be null");
 			logger.debug("Creating highlighter for theme {}", theme);
 			themeName = theme;
-			try (InteractiveInterpreter console = new InteractiveInterpreter()) {
+			try (InteractiveInterpreter console = new InteractiveInterpreter(new PyStringMap(), new PySystemState())) {
 				console.exec("from pygments import highlight");
 				console.exec("from pygments.lexers import PythonLexer");
 				console.exec("from pygments.formatters import Terminal256Formatter");
