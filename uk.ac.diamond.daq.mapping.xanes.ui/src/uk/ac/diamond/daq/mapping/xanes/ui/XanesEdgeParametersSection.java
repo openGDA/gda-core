@@ -18,13 +18,9 @@
 
 package uk.ac.diamond.daq.mapping.xanes.ui;
 
-import static com.github.tschoonj.xraylib.Xraylib.K_SHELL;
-import static com.github.tschoonj.xraylib.Xraylib.L3_SHELL;
 import static uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod.EDGE;
 import static uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod.REFERENCE;
 import static uk.ac.diamond.daq.mapping.xanes.ui.XanesScanningUtils.getOuterScannable;
-import static uk.ac.gda.ui.tool.ClientMessages.XANES_ELEMENT_AND_EDGE;
-import static uk.ac.gda.ui.tool.ClientMessages.XANES_ELEMENT_AND_EDGE_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessages.XANES_LINES_TO_TRACK;
 import static uk.ac.gda.ui.tool.ClientMessages.XANES_LINES_TO_TRACK_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessages.XANES_SCAN_PARAMETERS;
@@ -33,8 +29,6 @@ import static uk.ac.gda.ui.tool.ClientMessages.XANES_USE_REFERENCE;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -66,8 +60,6 @@ import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
-import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
@@ -76,8 +68,6 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.tschoonj.xraylib.Xraylib;
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -114,7 +104,7 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	 */
 	private static final String XANES_SCAN_KEY = LocalProperties.get(PROPERTY_NAME_XANES_SCAN_KEY, DEFAULT_XANES_SCAN_KEY);
 
-	private static final int NUM_COLUMNS = 6;
+	private static final int NUM_COLUMNS = 5;
 
 	/**
 	 * The edge parameters to pass to the XANES script
@@ -130,24 +120,6 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	 * The name of the energy scannable for this beamline
 	 */
 	private String energyScannableName;
-
-	/**
-	 * Maps shell as string (as set in {@link #elementsAndEdges} to the corresponding {@link Xraylib} constant
-	 */
-	private static final Map<String, Integer> edgeMap = ImmutableMap.of("K", K_SHELL, "L", L3_SHELL);
-
-	/**
-	 * The energy steps around the edge energy (EE)
-	 * <p>
-	 * For example, <code>-0.1, -0.020, 0.008</code> means "from (EE - 0.1) to (EE - 0.020), move in steps of 0.008"
-	 */
-	private static final double[][] xanesStepRanges = {
-			{ -0.1, -0.020, 0.008 },
-			{ -0.019, +0.020, 0.0005 },
-			{ +0.021, +0.040, 0.001 },
-			{ +0.041, +0.080, 0.002 },
-			{ +0.084, +0.130, 0.004 },
-			{ +0.136, +0.200, 0.006 } };
 
 	/**
 	 * Combo box allowing a choice of lines to track<p>
@@ -185,19 +157,8 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		createLabel(content, getMessage(XANES_SCAN_PARAMETERS), NUM_COLUMNS);
 
 		// Element/edge drop-down list
-		createLabel(content, getMessage(XANES_ELEMENT_AND_EDGE), 1);
-		final ComboViewer elementsAndEdgeCombo = new ComboViewer(content);
-		elementsAndEdgeCombo.setContentProvider(ArrayContentProvider.getInstance());
-		elementsAndEdgeCombo.setInput(createEdgeToEnergyList());
-		elementsAndEdgeCombo.getCombo().setToolTipText(getMessage(XANES_ELEMENT_AND_EDGE_TOOLTIP));
-		elementsAndEdgeCombo.setLabelProvider(new LabelProvider() {
-			@Override
-			public String getText(Object element) {
-				return ((EdgeToEnergy) element).getEdge();
-			}
-		});
-		elementsAndEdgeCombo.addSelectionChangedListener(e -> handleEdgeSelectionChanged(
-				(EdgeToEnergy) elementsAndEdgeCombo.getStructuredSelection().getFirstElement()));
+		final XanesEdgeCombo elementsAndEdgeCombo = new XanesEdgeCombo(content, elementsAndEdges);
+		elementsAndEdgeCombo.addIObserver((source, arg) -> handleEdgeSelectionChanged((double) arg));
 
 		// Lines to track combo box
 		createLabel(content, getMessage(XANES_LINES_TO_TRACK), 1);
@@ -253,37 +214,6 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		label.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 		label.setText(text);
 		return label;
-	}
-
-	/**
-	 * Create a list of {@link EdgeToEnergy} objects from {@link #elementsAndEdges} set when the bean is created.<br>
-	 * Used as input to the combo viewer
-	 * <p>
-	 * Radioactive elements are indicated with asterisks around the entry.
-	 *
-	 * @return list of EdgeToEnergy to set in the combo viewer
-	 */
-	private List<EdgeToEnergy> createEdgeToEnergyList() {
-		final List<EdgeToEnergy> result = new ArrayList<>(elementsAndEdges.size());
-
-		// Iterate over elements
-		for (ElementAndEdges elementEntry : elementsAndEdges) {
-			final String element = elementEntry.getElementName();
-			final int atomicNumber = Xraylib.SymbolToAtomicNumber(element);
-
-			// Iterate over the edges of this element
-			for (String edge : elementEntry.getEdges()) {
-				final Integer edgeNumber = edgeMap.get(edge);
-				if (edgeNumber == null) {
-					logger.error("Unknown edge {}", edge);
-					continue;
-				}
-				final String entryFormat = elementEntry.isRadioactive() ? "*%s-%s*" : "%s-%s";
-				final String comboEntry = String.format(entryFormat, element, edge);
-				result.add(new EdgeToEnergy(comboEntry, Xraylib.EdgeEnergy(atomicNumber, edgeNumber)));
-			}
-		}
-		return result;
 	}
 
 	@Override
@@ -402,36 +332,21 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	}
 
 	/**
-	 * Update {@link #energyScannableName} when the user selects an edge
+	 * Update {@link #energyScannable} when the user selects an edge
 	 *
-	 * @param newSelection
-	 *            The user selection
+	 * @param edgeEnergy
+	 *            Energy of the edge selected by the user
 	 */
-	private void handleEdgeSelectionChanged(EdgeToEnergy selection) {
-		logger.debug("Element/edge selection changed to {}", selection);
-
-		final double edgeEnergy = selection.getEnergy();
-		final List<AxialStepModel> stepModels = new ArrayList<>(xanesStepRanges.length);
-
-		// Create a step model for each range of energies around the edge
-		for (double[] range : xanesStepRanges) {
-			stepModels.add(new AxialStepModel(energyScannableName, roundDouble(edgeEnergy + range[0]), roundDouble(edgeEnergy + range[1]), range[2]));
-		}
-
-		// Create a multi-step model containing these step models
-		final AxialMultiStepModel multiStepModel = new AxialMultiStepModel(energyScannableName, stepModels);
+	private void handleEdgeSelectionChanged(double edgeEnergy) {
+		final IScanPathModel scanPathModel = XanesScanningUtils.createModelFromEdgeSelection(edgeEnergy, energyScannableName);
 
 		final IScanModelWrapper<IScanPathModel> energyScannable = getOuterScannable(getMappingBean(), energyScannableName);
 		if (energyScannable != null) {
-			energyScannable.setModel(multiStepModel);
+			energyScannable.setModel(scanPathModel);
 		}
 
 		// Refresh outer scannables section to update text box
 		getMappingView().getSection(OuterScannablesSection.class).updateControls();
-	}
-
-	private double roundDouble(double input) {
-		return BigDecimal.valueOf(input).setScale(7, RoundingMode.HALF_UP).doubleValue();
 	}
 
 	@Override
@@ -476,32 +391,5 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 
 	public void setEnergyScannableName(String energyScannableName) {
 		this.energyScannableName = energyScannableName;
-	}
-
-	/**
-	 * Maps element/edge in user-readable format (e.g. "Fe-K") to the corresponding edge energy<br>
-	 * Used as input for the combo box for the user to choose the edge to scan
-	 */
-	private static class EdgeToEnergy {
-		private final String edge;
-		private final double energy;
-
-		public EdgeToEnergy(String edge, double energy) {
-			this.edge = edge;
-			this.energy = energy;
-		}
-
-		public String getEdge() {
-			return edge;
-		}
-
-		public double getEnergy() {
-			return energy;
-		}
-
-		@Override
-		public String toString() {
-			return "EdgeToEnergy [edge=" + edge + ", energy=" + energy + "]";
-		}
 	}
 }
