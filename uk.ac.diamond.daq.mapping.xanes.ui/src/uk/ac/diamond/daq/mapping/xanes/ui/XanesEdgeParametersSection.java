@@ -112,11 +112,6 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	private XanesEdgeParameters scanParameters;
 
 	/**
-	 * The element/edge combinations the user can choose to track
-	 */
-	private List<ElementAndEdges> elementsAndEdges;
-
-	/**
 	 * The name of the energy scannable for this beamline
 	 */
 	private String energyScannableName;
@@ -136,9 +131,6 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		dataBindingContext = new DataBindingContext();
 
 		// Report if bean is not properly configured, but continue creating the view
-		if (elementsAndEdges == null || elementsAndEdges.isEmpty()) {
-			logger.error("No element/edge combinations have been set");
-		}
 		if (energyScannableName == null || energyScannableName.isEmpty()) {
 			logger.error("Energy scannable has not been set");
 		}
@@ -157,7 +149,7 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		createLabel(content, getMessage(XANES_SCAN_PARAMETERS), NUM_COLUMNS);
 
 		// Element/edge drop-down list
-		final XanesEdgeCombo elementsAndEdgeCombo = new XanesEdgeCombo(content, elementsAndEdges);
+		final XanesEdgeCombo elementsAndEdgeCombo = new XanesEdgeCombo(content);
 		elementsAndEdgeCombo.addIObserver((source, arg) -> handleEdgeSelectionChanged((double) arg));
 
 		// Lines to track combo box
@@ -379,10 +371,6 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 
 	public XanesEdgeParameters getScanParameters() {
 		return scanParameters;
-	}
-
-	public void setElementsAndEdges(List<ElementAndEdges> elementsAndEdges) {
-		this.elementsAndEdges = elementsAndEdges;
 	}
 
 	public String getEnergyScannableName() {

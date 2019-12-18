@@ -25,6 +25,7 @@ import static uk.ac.gda.ui.tool.ClientMessages.XANES_ELEMENT_AND_EDGE_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +43,7 @@ import com.github.tschoonj.xraylib.Xraylib;
 import com.google.common.collect.ImmutableMap;
 import com.swtdesigner.SWTResourceManager;
 
+import gda.factory.Finder;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -52,18 +54,12 @@ public class XanesEdgeCombo implements IObservable {
 	private final ObservableComponent observableComponent = new ObservableComponent();
 
 	/**
-	 * Maps shell as string (as set in {@link #elementsAndEdges} to the corresponding {@link Xraylib} constant
+	 * Maps shell as string (as set in {@link ElementAndEdges} to the corresponding {@link Xraylib} constant
 	 */
 	private static final Map<String, Integer> edgeMap = ImmutableMap.of("K", K_SHELL, "L", L3_SHELL);
 
-	/**
-	 * The element/edge combinations the user can choose to track
-	 */
-	private final List<ElementAndEdges> elementsAndEdges;
 
-	public XanesEdgeCombo(Composite parent, List<ElementAndEdges> elementsAndEdges) {
-		this.elementsAndEdges = elementsAndEdges;
-
+	public XanesEdgeCombo(Composite parent) {
 		final Composite content = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(content);
 
@@ -99,6 +95,13 @@ public class XanesEdgeCombo implements IObservable {
 	 * @return list of EdgeToEnergy to set in the combo viewer
 	 */
 	private List<EdgeToEnergy> createEdgeToEnergyList() {
+		final Map<String, ElementAndEdgesList> elementsAndEdgesMap = Finder.getInstance().getLocalFindablesOfType(ElementAndEdgesList.class);
+		if (elementsAndEdgesMap == null || elementsAndEdgesMap.isEmpty()) {
+			logger.error("No element/edge combinations have been set");
+			return Collections.emptyList();
+		}
+
+		final List<ElementAndEdges> elementsAndEdges = elementsAndEdgesMap.values().iterator().next().getElementsAndEdges();
 		final List<EdgeToEnergy> result = new ArrayList<>(elementsAndEdges.size());
 
 		// Iterate over elements
