@@ -21,6 +21,7 @@ package uk.ac.diamond.daq.mapping.xanes.ui;
 import static uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod.EDGE;
 import static uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod.REFERENCE;
 import static uk.ac.diamond.daq.mapping.xanes.ui.XanesScanningUtils.getOuterScannable;
+import static uk.ac.gda.ui.tool.ClientMessages.XANES_ENFORCE_SHAPE;
 import static uk.ac.gda.ui.tool.ClientMessages.XANES_LINES_TO_TRACK;
 import static uk.ac.gda.ui.tool.ClientMessages.XANES_LINES_TO_TRACK_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessages.XANES_SCAN_PARAMETERS;
@@ -104,7 +105,7 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	 */
 	private static final String XANES_SCAN_KEY = LocalProperties.get(PROPERTY_NAME_XANES_SCAN_KEY, DEFAULT_XANES_SCAN_KEY);
 
-	private static final int NUM_COLUMNS = 5;
+	private static final int NUM_COLUMNS = 6;
 
 	/**
 	 * The edge parameters to pass to the XANES script
@@ -121,6 +122,7 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	 * Populated from the currently-selected processing files
 	 */
 	private ComboViewer linesToTrackCombo;
+	private Button enforcedShape;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -189,12 +191,22 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 			btnUseEdge.setSelection(true);
 		}
 
+		// Check box to switch Step -> Points models to prevent floating point issues changing the shape of a scan
+		enforcedShape = createCheckButton(content, getMessage(XANES_ENFORCE_SHAPE));
+		enforcedShape.setSelection(true);
 		// Set initial visibility
 		setContentVisibility();
 	}
 
 	private static Button createRadioButton(Composite parent, String text) {
 		final Button button = new Button(parent, SWT.RADIO);
+		button.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+		button.setText(text);
+		return button;
+	}
+
+	private static Button createCheckButton(Composite parent, String text) {
+		final Button button = new Button(parent, SWT.CHECK);
 		button.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 		button.setText(text);
 		return button;
@@ -380,4 +392,9 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	public void setEnergyScannableName(String energyScannableName) {
 		this.energyScannableName = energyScannableName;
 	}
+
+	public boolean isEnforcedShape() {
+		return (enforcedShape != null && enforcedShape.getSelection());
+	}
+
 }
