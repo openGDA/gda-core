@@ -56,14 +56,19 @@ import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.mscan.element.AreaScanpath;
 import gda.mscan.element.Mutator;
 import gda.mscan.element.RegionShape;
+import gda.mscan.element.ScanDataConsumer;
 import gda.mscan.processor.AreaScanpathElementProcessor;
 import gda.mscan.processor.IClauseElementProcessor;
 import gda.mscan.processor.IRunnableDeviceDetectorElementProcessor;
 import gda.mscan.processor.MutatorElementProcessor;
 import gda.mscan.processor.NumberElementProcessor;
 import gda.mscan.processor.RegionShapeElementProcessor;
+import gda.mscan.processor.ScanDataConsumerElementProcessor;
+import gda.mscan.processor.ScannableDetectorElementProcessor;
 import gda.mscan.processor.ScannableElementProcessor;
 import gda.mscan.processor.ScannableGroupElementProcessor;
+import gda.mscan.processor.ScannableMonitorElementProcessor;
+import gda.mscan.processor.TokenStringElementProcessor;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -118,6 +123,8 @@ public class MScanSubmitterTest {
 		when(runnableDevice.getModel()).thenReturn(detectorModel);
 		when(detectorRunnableDevice.getModel()).thenReturn(detectorModel);
 		when(detectorRunnableDevice.getRole()).thenReturn(DeviceRole.HARDWARE);
+		when(monitor.getName()).thenReturn("monitor");
+		when(scannable.getName()).thenReturn("scannable");
 	}
 
 	@Test
@@ -186,7 +193,7 @@ public class MScanSubmitterTest {
 	public void firstElementCannotCurrentlyBeADetector() throws Exception {
 		Object[] arr = {detector};
 		when(resolver.resolveScanClauses()).thenReturn(
-				Arrays.asList(Arrays.asList(new ScannableElementProcessor(detector))));
+				Arrays.asList(Arrays.asList(new ScannableDetectorElementProcessor(detector))));
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("No scan path defined - SPEC style scans not yet supported");
 		builder.buildAndSubmitBlockingScanRequest(arr);
@@ -196,7 +203,7 @@ public class MScanSubmitterTest {
 	public void firstElementCannotCurrentlyBeAMonitor() throws Exception {
 		Object[] arr = {monitor};
 		when(resolver.resolveScanClauses()).thenReturn(
-				Arrays.asList(Arrays.asList(new ScannableElementProcessor(monitor))));
+				Arrays.asList(Arrays.asList(new ScannableMonitorElementProcessor(monitor))));
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("No scan path defined - SPEC style scans not yet supported");
 		builder.buildAndSubmitBlockingScanRequest(arr);
@@ -221,7 +228,7 @@ public class MScanSubmitterTest {
 	}
 
 	@Test
-	public void canMakesScannableGroupProcessors() throws Exception {
+	public void canMakeScannableGroupProcessors() throws Exception {
 		Object[] arr = {scannableGrp};
 		when(resolver.resolveScanClauses()).thenReturn(
 				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannableGrp))));
@@ -349,8 +356,44 @@ public class MScanSubmitterTest {
 	}
 
 	@Test
+	public void canMakeScanDataConsumerProcessors() throws Exception {
+		Object[] arr = {scannable, ScanDataConsumer.TEMPLATE};
+		when(resolver.resolveScanClauses()).thenThrow(new IllegalArgumentException());
+		exception.expect(IllegalArgumentException.class);
+		try {
+			builder.buildAndSubmitBlockingScanRequest(arr);
+		} catch (Exception e) {
+			List<IClauseElementProcessor> processors = captor.getValue();
+			assertThat(processors.size(), is(2));
+			assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
+			assertThat(processors.get(0).getElement(), is(scannable));
+			assertThat(processors.get(1), instanceOf(ScanDataConsumerElementProcessor.class));
+			assertThat(processors.get(1).getElement(), is(ScanDataConsumer.TEMPLATE));
+			throw e;
+		}
+	}
+
+	@Test
+	public void canMakeTokenStringProcessors() throws Exception {
+		Object[] arr = {scannable, "1 2 3 4"};
+		when(resolver.resolveScanClauses()).thenThrow(new IllegalArgumentException());
+		exception.expect(IllegalArgumentException.class);
+		try {
+			builder.buildAndSubmitBlockingScanRequest(arr);
+		} catch (Exception e) {
+			List<IClauseElementProcessor> processors = captor.getValue();
+			assertThat(processors.size(), is(2));
+			assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
+			assertThat(processors.get(0).getElement(), is(scannable));
+			assertThat(processors.get(1), instanceOf(TokenStringElementProcessor.class));
+			assertThat(processors.get(1).getElement(), is("1 2 3 4"));
+			throw e;
+		}
+	}
+
+	@Test
 	public void rejectsTypeWithNoMappedProcessor() throws Exception {
-		Object[] arr = {scannable, "FAIL"};
+		Object[] arr = {scannable, new ScanningException()};
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Your command contains an invalid argument at position 1");
 		builder.buildAndSubmitBlockingScanRequest(arr);
@@ -359,7 +402,8 @@ public class MScanSubmitterTest {
 	@Test
 	public void createsCorrectProcessorListForPlausibleScan() throws Exception {
 		Object[] arr = {scannable, anotherScannable, RegionShape.CIRCLE, 2, 3, 5.5, AreaScanpath.GRID_POINTS, 1, 1,
-										detector,monitor, detectorRunnableDevice, 0.5, scannable};
+										detector, monitor, detectorRunnableDevice, 0.5, scannable,
+										ScanDataConsumer.TEMPLATE, "template1 template2"};
 		when(resolver.resolveScanClauses()).thenReturn(
 				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
 											new ScannableElementProcessor(anotherScannable),
@@ -370,14 +414,16 @@ public class MScanSubmitterTest {
 											new AreaScanpathElementProcessor(AreaScanpath.GRID_POINTS),
 											new NumberElementProcessor(1),
 											new NumberElementProcessor(1)),
-							  Arrays.asList(new ScannableElementProcessor(detector)),
-							  Arrays.asList(new ScannableElementProcessor(monitor)),
+							  Arrays.asList(new ScannableDetectorElementProcessor(detector)),
+							  Arrays.asList(new ScannableMonitorElementProcessor(monitor)),
 							  Arrays.asList(new IRunnableDeviceDetectorElementProcessor(detectorRunnableDevice),
 											new NumberElementProcessor(0.5)),
-							  Arrays.asList(new ScannableElementProcessor(scannable))));
+							  Arrays.asList(new ScannableElementProcessor(scannable)),
+							  Arrays.asList(new ScanDataConsumerElementProcessor(ScanDataConsumer.TEMPLATE),
+									  		new TokenStringElementProcessor("template1 template2"))));
 		builder.buildAndSubmitBlockingScanRequest(arr);
 		List<IClauseElementProcessor> processors = captor.getValue();
-		assertThat(processors.size(), is(14));
+		assertThat(processors.size(), is(16));
 		assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
 		assertThat(processors.get(0).getElement(), is(scannable));
 		assertThat(processors.get(1), instanceOf(ScannableElementProcessor.class));
@@ -396,9 +442,9 @@ public class MScanSubmitterTest {
 		assertThat(processors.get(7).getElement(), is(1));
 		assertThat(processors.get(8), instanceOf(NumberElementProcessor.class));
 		assertThat(processors.get(8).getElement(), is(1));
-		assertThat(processors.get(9), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(9), instanceOf(ScannableDetectorElementProcessor.class));
 		assertThat(processors.get(9).getElement(), is(detector));
-		assertThat(processors.get(10), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(10), instanceOf(ScannableMonitorElementProcessor.class));
 		assertThat(processors.get(10).getElement(), is(monitor));
 		assertThat(processors.get(11), instanceOf(IRunnableDeviceDetectorElementProcessor.class));
 		assertThat(processors.get(11).getElement(), is(detectorRunnableDevice));
@@ -406,6 +452,10 @@ public class MScanSubmitterTest {
 		assertThat(processors.get(12).getElement(), is(0.5));
 		assertThat(processors.get(13), instanceOf(ScannableElementProcessor.class));
 		assertThat(processors.get(13).getElement(), is(scannable));
+		assertThat(processors.get(14), instanceOf(ScanDataConsumerElementProcessor.class));
+		assertThat(processors.get(14).getElement(), is(ScanDataConsumer.TEMPLATE));
+		assertThat(processors.get(15), instanceOf(TokenStringElementProcessor.class));
+		assertThat(processors.get(15).getElement(), is("template1 template2"));
 	}
 
 	@Test
@@ -446,7 +496,8 @@ public class MScanSubmitterTest {
 
 	@Test
 	public void createsCorrectProcessorListForPointScanWithFullSyntax() throws Exception {
-		Object[] arr = {scannable, anotherScannable, RegionShape.POINT, 2, 3, RegionShape.POINT, 2, 3, detectorRunnableDevice};
+		Object[] arr = {scannable, anotherScannable, RegionShape.POINT, 2, 3,
+								RegionShape.POINT, 2, 3, detectorRunnableDevice};
 		when(resolver.resolveScanClauses()).thenReturn(
 				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
 											new ScannableElementProcessor(anotherScannable),
@@ -614,7 +665,7 @@ public class MScanSubmitterTest {
 											new AreaScanpathElementProcessor(AreaScanpath.GRID_POINTS),
 											new NumberElementProcessor(1),
 											new NumberElementProcessor(1)),
-							  Arrays.asList(new ScannableElementProcessor(detector),
+							  Arrays.asList(new ScannableDetectorElementProcessor(detector),
 											new NumberElementProcessor(0.5))));
 		exception.expect(ScanningException.class);
 		exception.expectMessage(startsWith("Could not get detector"));
@@ -623,7 +674,8 @@ public class MScanSubmitterTest {
 
 	@Test
 	public void willFailWithTooManyDetectorParameters() throws Exception {
-		Object[] arr = {scannable, anotherScannable, RegionShape.CIRCLE, 2, 3, 5.5, AreaScanpath.GRID_POINTS, 1, 1, detector, 0.5, 1.7};
+		Object[] arr = {scannable, anotherScannable, RegionShape.CIRCLE, 2, 3, 5.5,
+													AreaScanpath.GRID_POINTS, 1, 1, detector, 0.5, 1.7};
 		when(resolver.resolveScanClauses()).thenReturn(
 				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
 											new ScannableElementProcessor(anotherScannable),
@@ -634,7 +686,7 @@ public class MScanSubmitterTest {
 											new AreaScanpathElementProcessor(AreaScanpath.GRID_POINTS),
 											new NumberElementProcessor(1),
 											new NumberElementProcessor(1)),
-							  Arrays.asList(new ScannableElementProcessor(detector),
+							  Arrays.asList(new ScannableDetectorElementProcessor(detector),
 											new NumberElementProcessor(0.5),
 											new NumberElementProcessor(1.7))));
 		exception.expect(IllegalArgumentException.class);
@@ -644,7 +696,8 @@ public class MScanSubmitterTest {
 
 	@Test
 	public void willFailWithWrongTypeOfDetectorParameters() throws Exception {
-		Object[] arr = {scannable, anotherScannable, RegionShape.CIRCLE, 2, 3, 5.5, AreaScanpath.GRID_POINTS, 1, 1, detector, AreaScanpath.GRID_POINTS};
+		Object[] arr = {scannable, anotherScannable, RegionShape.CIRCLE, 2, 3, 5.5,
+				AreaScanpath.GRID_POINTS, 1, 1, detector, AreaScanpath.GRID_POINTS};
 		when(resolver.resolveScanClauses()).thenReturn(
 				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
 											new ScannableElementProcessor(anotherScannable),
@@ -655,7 +708,7 @@ public class MScanSubmitterTest {
 											new AreaScanpathElementProcessor(AreaScanpath.GRID_POINTS),
 											new NumberElementProcessor(1),
 											new NumberElementProcessor(1)),
-							  Arrays.asList(new ScannableElementProcessor(detector),
+							  Arrays.asList(new ScannableDetectorElementProcessor(detector),
 									  new AreaScanpathElementProcessor(AreaScanpath.GRID_POINTS))));
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("2nd element of unexpected type in Detector clause");
@@ -664,7 +717,8 @@ public class MScanSubmitterTest {
 
 	@Test
 	public void willFailWithMonitorParameters() throws Exception {
-		Object[] arr = {scannable, anotherScannable, RegionShape.CIRCLE, 2, 3, 5.5, AreaScanpath.GRID_POINTS, 1, 1, monitor, 0.5};
+		Object[] arr = {scannable, anotherScannable, RegionShape.CIRCLE, 2, 3, 5.5,
+													AreaScanpath.GRID_POINTS, 1, 1, monitor, 0.5};
 		when(resolver.resolveScanClauses()).thenReturn(
 				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
 											new ScannableElementProcessor(anotherScannable),
@@ -675,10 +729,82 @@ public class MScanSubmitterTest {
 											new AreaScanpathElementProcessor(AreaScanpath.GRID_POINTS),
 											new NumberElementProcessor(1),
 											new NumberElementProcessor(1)),
-							  Arrays.asList(new ScannableElementProcessor(monitor),
+							  Arrays.asList(new ScannableMonitorElementProcessor(monitor),
 											new NumberElementProcessor(0.5))));
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("too many elements in Monitor clause");
+		builder.buildAndSubmitBlockingScanRequest(arr);
+	}
+
+	@Test
+	public void willFailWithTooFewScanDataConsumerParametersInAClause() throws Exception {
+		Object[] arr = {scannable, anotherScannable, RegionShape.CIRCLE, 2, 3, 5.5,
+													AreaScanpath.GRID_POINTS, 1, 1, detector, 0.5, 1.7,
+													ScanDataConsumer.TEMPLATE};
+		when(resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
+											new ScannableElementProcessor(anotherScannable),
+											new RegionShapeElementProcessor(RegionShape.CIRCLE),
+											new NumberElementProcessor(2),
+											new NumberElementProcessor(3),
+											new NumberElementProcessor(5.5),
+											new AreaScanpathElementProcessor(AreaScanpath.GRID_POINTS),
+											new NumberElementProcessor(1),
+											new NumberElementProcessor(1)),
+							  Arrays.asList(new ScannableDetectorElementProcessor(detector),
+											new NumberElementProcessor(1.7)),
+							  Arrays.asList(new ScanDataConsumerElementProcessor(ScanDataConsumer.TEMPLATE))));
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("Incorrect number of parameters for ScanDataConsumer, must be 1");
+		builder.buildAndSubmitBlockingScanRequest(arr);
+	}
+
+	@Test
+	public void willFailWithTooManyScanDataConsumerParametersInAClause() throws Exception {
+		Object[] arr = {scannable, anotherScannable, RegionShape.CIRCLE, 2, 3, 5.5,
+													AreaScanpath.GRID_POINTS, 1, 1, detector, 0.5, 1.7,
+													ScanDataConsumer.TEMPLATE, "tempa", "tempb"};
+		when(resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
+											new ScannableElementProcessor(anotherScannable),
+											new RegionShapeElementProcessor(RegionShape.CIRCLE),
+											new NumberElementProcessor(2),
+											new NumberElementProcessor(3),
+											new NumberElementProcessor(5.5),
+											new AreaScanpathElementProcessor(AreaScanpath.GRID_POINTS),
+											new NumberElementProcessor(1),
+											new NumberElementProcessor(1)),
+							  Arrays.asList(new ScannableDetectorElementProcessor(detector),
+											new NumberElementProcessor(1.7)),
+							  Arrays.asList(new ScanDataConsumerElementProcessor(ScanDataConsumer.TEMPLATE),
+								  			new TokenStringElementProcessor("tempa"),
+								  			new TokenStringElementProcessor("tempb"))));
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("Incorrect number of parameters for ScanDataConsumer, must be 1");
+		builder.buildAndSubmitBlockingScanRequest(arr);
+	}
+
+	@Test
+	public void willFailWithWrongTypeOfScanDataConsumerParameters() throws Exception {
+		Object[] arr = {scannable, anotherScannable, RegionShape.CIRCLE, 2, 3, 5.5,
+													AreaScanpath.GRID_POINTS, 1, 1, detector, 0.5, 1.7,
+													ScanDataConsumer.PROCESSOR, AreaScanpath.GRID_POINTS};
+		when(resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
+											new ScannableElementProcessor(anotherScannable),
+											new RegionShapeElementProcessor(RegionShape.CIRCLE),
+											new NumberElementProcessor(2),
+											new NumberElementProcessor(3),
+											new NumberElementProcessor(5.5),
+											new AreaScanpathElementProcessor(AreaScanpath.GRID_POINTS),
+											new NumberElementProcessor(1),
+											new NumberElementProcessor(1)),
+							  Arrays.asList(new ScannableDetectorElementProcessor(detector),
+											new NumberElementProcessor(1.7)),
+							  Arrays.asList(new ScanDataConsumerElementProcessor(ScanDataConsumer.PROCESSOR),
+									  		new AreaScanpathElementProcessor(AreaScanpath.GRID_POINTS))));
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("2nd element of unexpected type in Scan Consumer clause");
 		builder.buildAndSubmitBlockingScanRequest(arr);
 	}
 }

@@ -31,10 +31,12 @@ import gda.device.scannable.ScannableMotor;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.mscan.element.AreaScanpath;
 import gda.mscan.element.RegionShape;
+import gda.mscan.element.ScanDataConsumer;
 import gda.mscan.processor.AreaScanpathElementProcessor;
 import gda.mscan.processor.IClauseElementProcessor;
 import gda.mscan.processor.NumberElementProcessor;
 import gda.mscan.processor.RegionShapeElementProcessor;
+import gda.mscan.processor.ScanDataConsumerElementProcessor;
 import gda.mscan.processor.ScannableElementProcessor;
 import gda.mscan.processor.ScannableGroupElementProcessor;
 
@@ -49,6 +51,7 @@ public class ResolutionTestsBase {
 	protected static Detector d2;
 	protected static Monitor m1;
 	protected static Monitor m2;
+	protected static ScanDataConsumer sc1;
 	protected static IClauseElementProcessor s1Proc = mockScannableProc(s1, "DummyOne");
 	protected static IClauseElementProcessor s2Proc = mockScannableProc(s2, "DummyTwo");
 	protected static IClauseElementProcessor sGProc = mockScannableGroupProc(s1, s2, "Group1");
@@ -65,6 +68,10 @@ public class ResolutionTestsBase {
 		when(proc.hasScannableGroup()).thenReturn(false);
 		when(proc.hasDetector()).thenReturn(false);
 		when(proc.hasMonitor()).thenReturn(false);
+		when(proc.hasRoi()).thenReturn(false);
+		when(proc.hasNumber()).thenReturn(false);
+		when(proc.hasScanDataConsumer()).thenReturn(false);
+		when(proc.hasTokenString()).thenReturn(false);
 		return proc;
 	}
 
@@ -82,6 +89,8 @@ public class ResolutionTestsBase {
 		when(proc.hasScannableGroup()).thenReturn(true);
 		when(proc.hasDetector()).thenReturn(false);
 		when(proc.hasMonitor()).thenReturn(false);
+		when(proc.hasScanDataConsumer()).thenReturn(false);
+		when(proc.hasTokenString()).thenReturn(false);
 		return proc;
 	}
 
@@ -109,6 +118,8 @@ public class ResolutionTestsBase {
 		when(proc.hasScannable()).thenReturn(true);
 		when(proc.hasRoi()).thenReturn(false);
 		when(proc.hasNumber()).thenReturn(false);
+		when(proc.hasScanDataConsumer()).thenReturn(false);
+		when(proc.hasTokenString()).thenReturn(false);
 		return proc;
 	}
 
@@ -121,6 +132,8 @@ public class ResolutionTestsBase {
 		when(proc.hasScannableGroup()).thenReturn(false);
 		when(proc.hasDetector()).thenReturn(false);
 		when(proc.hasMonitor()).thenReturn(false);
+		when(proc.hasScanDataConsumer()).thenReturn(false);
+		when(proc.hasTokenString()).thenReturn(false);
 		return proc;
 	}
 
@@ -133,6 +146,8 @@ public class ResolutionTestsBase {
 		when(proc.hasScannableGroup()).thenReturn(false);
 		when(proc.hasDetector()).thenReturn(false);
 		when(proc.hasMonitor()).thenReturn(false);
+		when(proc.hasScanDataConsumer()).thenReturn(false);
+		when(proc.hasTokenString()).thenReturn(false);
 		return proc;
 	}
 
@@ -145,6 +160,36 @@ public class ResolutionTestsBase {
 		when(proc.hasScannableGroup()).thenReturn(false);
 		when(proc.hasDetector()).thenReturn(false);
 		when(proc.hasMonitor()).thenReturn(false);
+		when(proc.hasScanDataConsumer()).thenReturn(false);
+		when(proc.hasTokenString()).thenReturn(false);
+		return proc;
+	}
+
+	protected static IClauseElementProcessor mockScanDataConsumerProc(ScanDataConsumer consumer) {
+		IClauseElementProcessor proc = mock(ScanDataConsumerElementProcessor.class);
+		when(proc.getElement()).thenReturn(consumer);
+		when(proc.hasScannable()).thenReturn(false);
+		when(proc.hasRoi()).thenReturn(false);
+		when(proc.hasNumber()).thenReturn(false);
+		when(proc.hasScannableGroup()).thenReturn(false);
+		when(proc.hasDetector()).thenReturn(false);
+		when(proc.hasMonitor()).thenReturn(false);
+		when(proc.hasScanDataConsumer()).thenReturn(true);
+		when(proc.hasTokenString()).thenReturn(false);
+		return proc;
+	}
+
+	protected static IClauseElementProcessor mockTokenStringProc(String tokens) {
+		IClauseElementProcessor proc = mock(ScanDataConsumerElementProcessor.class);
+		when(proc.getElement()).thenReturn(tokens);
+		when(proc.hasScannable()).thenReturn(false);
+		when(proc.hasRoi()).thenReturn(false);
+		when(proc.hasNumber()).thenReturn(false);
+		when(proc.hasScannableGroup()).thenReturn(false);
+		when(proc.hasDetector()).thenReturn(false);
+		when(proc.hasMonitor()).thenReturn(false);
+		when(proc.hasScanDataConsumer()).thenReturn(false);
+		when(proc.hasTokenString()).thenReturn(true);
 		return proc;
 	}
 }

@@ -20,13 +20,17 @@ package gda.mscan.processor;
 
 import java.util.List;
 
+import org.eclipse.scanning.api.device.IRunnableDevice;
+
 import gda.device.Scannable;
-import gda.mscan.ClauseContext;
+import gda.mscan.ClausesContext;
+import gda.mscan.ValidationUtils;
+import gda.mscan.element.ScanDataConsumer;
 
 /**
  * A base class for implementers of {@link IClauseElementProcessor} containing common methods used in validation.
  */
-public abstract class ElementProcessorBase<T> implements IClauseElementProcessor{
+public abstract class ElementProcessorBase<T> extends ValidationUtils implements IClauseElementProcessor{
 
 	protected final T enclosed;
 
@@ -36,9 +40,9 @@ public abstract class ElementProcessorBase<T> implements IClauseElementProcessor
 
 	/**
 	 * Retrieves the list of types that are allowed to follow the type of the previous clause element by the
-	 * {@link ClauseContext} grammar so that we can check if the current element type is allowed
+	 * {@link ClausesContext} grammar so that we can check if the current element type is allowed
 	 *
-	 * @param context	The {@link ClauseContext} being filled in as the current clause is parsed
+	 * @param context	The {@link ClausesContext} being filled in as the current clause is parsed
 	 *
 	 * @return			A list of types that are allowed to follow elements of the previous element's type
 	 *
@@ -46,7 +50,7 @@ public abstract class ElementProcessorBase<T> implements IClauseElementProcessor
 	 * 					IllegalArgumentException if there is no list of successors corresponding to the type of the
 	 * 					previous element i.e. it is not a valid element type
 	 */
-	protected List<Class<?>> lookupSuccessorsForPrevious(final ClauseContext context) {
+	protected List<Class<?>> lookupSuccessorsForPrevious(final ClausesContext context) {
 		Class<?> previous = context.getPreviousType();
 		if (previous == null) {
 			throw new IllegalStateException(String.format(
@@ -63,14 +67,14 @@ public abstract class ElementProcessorBase<T> implements IClauseElementProcessor
 	/**
 	 * Checks that the type of the enclosed field is present as an allowed successor to the previous clause element
 	 *
-	 * @param context			The {@link ClauseContext} related to the clause currently being parsed
+	 * @param context			The {@link ClausesContext} related to the clause currently being parsed
 	 * @param processorName		The name of the processor subclass for Exception message purposes
 	 *
 	 * @return					true if the type associated with this processor is a valid successor element
 	 *
 	 * @throws					UnsupportedOperationException if this is not the case
 	 */
-	protected boolean isValidElement(final ClauseContext context, final String processorName) {
+	protected boolean isValidElement(final ClausesContext context, final String processorName) {
 		return isValidElement(context, processorName, enclosed.getClass());
 	}
 
@@ -78,15 +82,15 @@ public abstract class ElementProcessorBase<T> implements IClauseElementProcessor
 	 * Checks that the supplied type is present as an allowed successor to the previous clause element. This allows a
 	 * common superclass to be used for types like Integer, Double etc.
 	 *
-	 * @param context			The {@link ClauseContext} related to the clause currently being parsed
+	 * @param context			The {@link ClausesContext} related to the clause currently being parsed
 	 * @param processorName		The name of the processor subclass for Exception message purposes
-	 * @param lookupUsing		The type to be checked against the {@link ClauseContext} grammar
+	 * @param lookupUsing		The type to be checked against the {@link ClausesContext} grammar
 	 *
 	 * @return					true if the type associated with this processor is a valid successor element
 	 *
 	 * @throws					UnsupportedOperationException if this is not the case
 	 */
-	protected boolean isValidElement(final ClauseContext context,
+	protected boolean isValidElement(final ClausesContext context,
 									 final String processorName, final Class<?> lookupUsing) {
 		List<Class<?>> successors = lookupSuccessorsForPrevious(context);
 		if (successors.contains(lookupUsing)) {
@@ -99,7 +103,7 @@ public abstract class ElementProcessorBase<T> implements IClauseElementProcessor
 
 	/**
 	 * Rejects elements of the current associated type if they are the first element in the clause, which can only be
-	 * a {@link Scannable}
+	 * a {@link Scannable}/{@link IRunnableDevice} or a {@link ScanDataConsumer}
 	 *
 	 * @param index				The position of the current element in the clause
 	 *
@@ -121,5 +125,4 @@ public abstract class ElementProcessorBase<T> implements IClauseElementProcessor
 	public T getElement() {
 		return enclosed;
 	}
-
 }

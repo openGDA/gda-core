@@ -18,15 +18,15 @@
 
 package gda.mscan;
 
-import static gda.mscan.element.AreaScanpath.GRID_POINTS;
-import static gda.mscan.element.AreaScanpath.LISSAJOUS;
 import static gda.mscan.element.AreaScanpath.AXIS_POINTS;
 import static gda.mscan.element.AreaScanpath.AXIS_STEP;
+import static gda.mscan.element.AreaScanpath.GRID_POINTS;
 import static gda.mscan.element.AreaScanpath.GRID_STEP;
-import static gda.mscan.element.AreaScanpath.SINGLE_POINT;
-import static gda.mscan.element.AreaScanpath.SPIRAL;
 import static gda.mscan.element.AreaScanpath.LINE_POINTS;
 import static gda.mscan.element.AreaScanpath.LINE_STEP;
+import static gda.mscan.element.AreaScanpath.LISSAJOUS;
+import static gda.mscan.element.AreaScanpath.SINGLE_POINT;
+import static gda.mscan.element.AreaScanpath.SPIRAL;
 import static gda.mscan.element.RegionShape.AXIAL;
 import static gda.mscan.element.RegionShape.CENTRED_RECTANGLE;
 import static gda.mscan.element.RegionShape.CIRCLE;
@@ -34,23 +34,41 @@ import static gda.mscan.element.RegionShape.LINE;
 import static gda.mscan.element.RegionShape.POINT;
 import static gda.mscan.element.RegionShape.POLYGON;
 import static gda.mscan.element.RegionShape.RECTANGLE;
+import static gda.mscan.element.ScanDataConsumer.PROCESSOR;
+import static gda.mscan.element.ScanDataConsumer.TEMPLATE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.util.MathUtils;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.dawnsci.analysis.api.roi.IRectangularROI;
+import org.eclipse.scanning.api.device.IRunnableDevice;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.event.scan.ProcessingRequest;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.scan.models.ScanModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -61,19 +79,20 @@ import gda.mscan.element.AreaScanpath;
 import gda.mscan.element.IMScanDimensionalElementEnum;
 import gda.mscan.element.Mutator;
 import gda.mscan.element.RegionShape;
+import gda.mscan.element.ScanDataConsumer;
 import gda.mscan.processor.IClauseElementProcessor;
 
 /**
  * This class is a semi-smart form that is filled in by the MScan parsing process based on the types of the various
- * elements of a Scan Clause and then used to create the {@link ScanRequest} object. It sets and maintains the metadata
- * associated with each of the element types as their corresponding methods are called so the that the
- * {@link IClauseElementProcessor#process} methods that drive them can be kept very simple.
+ * elements of its Scan Clauses and then used to create the {@link ScanRequest} object. It sets and maintains the
+ * metadata associated with each of the element types as their corresponding methods are called so the that the
+ * {@link IClauseElementProcessor#process} methods that drive them can restrict themselves to handling pre-validation
  *
  * @since GDA 9.10
  */
-public class ClauseContext {
+public class ClausesContext extends ValidationUtils {
 
-	// The grammar of allowed next types used to validate the scan clause keyed on the type of the current element
+	// The grammar of allowed next types used to validate the scanpath clause keyed on the type of the current element
 	private static final ImmutableMap<Class<?>, List<Class<?>>> grammar = ImmutableMap.of(
 			Scannable.class,    Arrays.asList(Scannable.class, RegionShape.class, Number.class),
 			RegionShape.class,  Arrays.asList(Number.class),
@@ -91,36 +110,80 @@ public class ClauseContext {
 			.put(AXIAL,             Arrays.asList(AXIS_POINTS, AXIS_STEP))
 			.put(POINT,             Arrays.asList(SINGLE_POINT)).build();
 
+	// Mapping of ScanDataConsumer Handlers
+	private ImmutableMap<ScanDataConsumer, Consumer<String>> CONSUMER_HANDLERS = ImmutableMap.of(
+														TEMPLATE, this::setTemplates,
+														PROCESSOR, this::setProcessorDefinitions);
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ClausesContext.class);
 	private static final int REQUIRED_SCANNABLES_FOR_AREA = 2;
 	private static final List<Class<?>> INVALID_SCANNABLE_SUBTYPES = Arrays.asList(Detector.class, Monitor.class);
 
-	// 'Output' lists which will be read in by the ScanRequest constructor
+	private final IRunnableDeviceService runnableDeviceService;
+
+	// 'Output' objects which will be read in by the ScanRequest constructor
 	private final List<Scannable> scannables = new ArrayList<>();
 	private final List<Number> pathParams = new ArrayList<>();
 	private final List<Number> shapeParams = new ArrayList<>();
-
-	/**
-	 * Map of {@link Mutator} to its {@link List} of parameters (which may be empty)
-	 */
+	private final Map<String, Object> detectorMap = new HashMap<>();
+	private final List<String> monitorsPerPoint = new ArrayList<>();
+	private final List<String> monitorsPerScan = new ArrayList<>();
+	private Set<String> templates = new HashSet<>();
+	private Map<String, Object> processingDefinitions = new HashMap<>();
+	private ProcessingRequest processingRequest = new ProcessingRequest();
+	private String activeProcessorKey = "";
 	private final Map<Mutator, List<Number>> mutatorUses = new EnumMap<>(Mutator.class);
-
-	private Class<?> previousType = Scannable.class; // Initial value; every Scan Clause starts with a Scannable
-
-	// Metadata with default values in case their corresponding typed element is never processed
-	private int requiredParamCount = 0;
-	private Optional<RegionShape> regionShape = Optional.empty();
-	private boolean regionShapeDefaulted = false;
-	private Optional<AreaScanpath> areaScanpath = Optional.empty();
-	private boolean areaScanpathDefaulted = false;
-	private boolean paramNullCheckValid = true;
-	protected boolean validated = false;
 
 	private List<Number> paramsToFill;  // Re-pointable reference used to select whether RegionShape or Scanpath
 										// parameters are being stored
 
-	// Update methods that fill in the context. Each of these will (at least) set the previousType field to the type
-	// associated with them to be used as the grammar key next time round. They will also either reset or adjust
-	// the paramsToFill.
+	private Class<?> previousType;		// Store the last object type added to the context
+
+	// Metadata which gets refreshed for each new scan clause being processed
+	private int requiredParamCount;
+	private Optional<RegionShape> regionShape;
+	private boolean regionShapeDefaulted;
+	private Optional<AreaScanpath> areaScanpath;
+	private boolean areaScanpathDefaulted;
+	private boolean paramNullCheckValid;
+	protected boolean pathClauseValidated;
+	private boolean clauseProcessed;
+
+	// Metadata that when set is valid for the whole set of clauses in a scan
+	private boolean scanPathSeen = false;
+	private boolean detectorClauseSeen = false;
+	private boolean acceptingTemplates = true;
+	private boolean acceptingProcessors = true;
+
+
+	public ClausesContext(IRunnableDeviceService runnableDeviceService) {
+		this.runnableDeviceService = runnableDeviceService;
+		wipe();
+		}
+
+	/**
+	 * Initialise all the per-clause stores and status indicators
+	 */
+	public void wipe() {
+		scannables.clear();
+		pathParams.clear();
+		shapeParams.clear();
+		requiredParamCount = 0;
+		regionShape = Optional.empty();
+		areaScanpath = Optional.empty();
+		regionShapeDefaulted = false;
+		areaScanpathDefaulted = false;
+		mutatorUses.clear();
+		paramNullCheckValid = true;
+		pathClauseValidated = false;
+		paramsToFill = null;
+		previousType = Scannable.class;		// Initial value; every non-consumer Clause starts with a Scannable
+		clauseProcessed = false;
+	}
+
+	// Update methods that fill in the context for a path definition clause. Each of these  will (at least) set the
+	// previousType field to the type associated with them to be used as the grammar key next time round. They will
+	// also either reset or adjust the paramsToFill.
 
 	/**
 	 * Adds the supplied {@link Scannable} to the internal list providing it is not full and the supplied instance is
@@ -150,11 +213,11 @@ public class ClauseContext {
 	}
 
 	/**
-	 * Store the selected {@link RegionShape} and switch the filler reference to the corresponding param list. Also initialise
-	 * other {@link RegionShape} related metadata. The {@link RegionShape} class is used for scans bounded in 2 axes, consequently there
-	 * must be 2 {@Scannables} defined for the call to be valid. As {@Scannables} are the first entries in the clause,
-	 * these must therefore have already been set. Checks are also made that the {@link RegionShape} selection hasn't already
-	 * been defaulted or explicitly set.
+	 * Store the selected {@link RegionShape} and switch the filler reference to the corresponding param list.
+	 * Also initialise other {@link RegionShape} related metadata. The {@link RegionShape} class is used for scans
+	 * bounded in 2 axes, consequently there must be 2 {@Scannables} defined for the call to be valid. As {@Scannables}
+	 * are the first entries in the clause, these must therefore have already been set. Checks are also made that the
+	 * {@link RegionShape} selection hasn't already been defaulted or explicitly set.
 	 *
 	 * N.B. RegionShapes without a fixed value count will never be 'full' but if the scanpath is defaulted, this will be
 	 * picked up in the validateAndAdjust method
@@ -211,7 +274,8 @@ public class ClauseContext {
 		areaScanMustHaveRegionShapePlusAreaScanpath();
 		nullCheck(supplied, Mutator.class.getSimpleName());
 		if (!areaScanpath.get().supports(supplied)) {
-			throw new UnsupportedOperationException(String.format("%s is not supported by the current scan path", supplied.toString()));
+			throw new UnsupportedOperationException(String.format(
+					"%s is not supported by the current scan path", supplied.toString()));
 		}
 		paramNullCheckValid = supplied.shouldParamsBeNullChecked();
 		paramsToFill = new ArrayList<>();
@@ -221,12 +285,12 @@ public class ClauseContext {
 	}
 
 	/**
-	 * Add the supplied number to the param list that has been selected by the setting of a {@link RegionShape}, {@link Mutator}
-	 * or {@link AreaScanpath}. If either or both of {@link RegionShape} or {@link AreaScanpath} has not been set,  the default
-	 * value is used and the list selection is  made based on the order ({@link RegionShape} is the first thing that can have
-	 * parameters in the clause). If too many params are supplied this will also be rejected for all {@link RegionShape}s and
-	 * bounded {@link AreaScanpath}s. Multiple {@link Mutator}s may be specified, so contextual validation of their
-	 * parameters is done for each.
+	 * Add the supplied number to the param list that has been selected by the setting of a {@link RegionShape},
+	 * {@link Mutator} or {@link AreaScanpath}. If either or both of {@link RegionShape} or {@link AreaScanpath} has not
+	 * been set, the default value is used and the list selection is  made based on the order ({@link RegionShape} is
+	 * the first thing that can have parameters in the clause). If too many params are supplied this will also be
+	 * rejected for all {@link RegionShape}s and bounded {@link AreaScanpath}s. Multiple {@link Mutator}s may be
+	 * specified, so contextual validation of their parameters is done for each.
 	 *
 	 * @param supplied		The numeric param to be added to the list
 	 *
@@ -247,7 +311,7 @@ public class ClauseContext {
 		 * In the old style SPEC case, there would be no regionShape but only one scannable would be specified.
 		 */
 		if (!regionShape.isPresent() && REQUIRED_SCANNABLES_FOR_AREA == scannables.size()) {
-			// we are doing a 2D map scan with a bounding box with the default RegionShape so set this for future comparisons
+			// this is a 2D map scan with a bounding box with the default RegionShape so set this for future comparisons
 			regionShape = Optional.of(RegionShape.defaultValue());
 			regionShapeDefaulted = true;
 			paramsToFill = shapeParams;
@@ -291,6 +355,170 @@ public class ClauseContext {
 		return paramsToFill.add(supplied);
 	}
 
+	/**
+	 * Accepts an empty Scan model to be populated with the state set in the context for a scan path clause. The content
+	 * is validated first to check that all the necessary elements for a scan path clause are present. Flags are also
+	 * set to indicate successful storage of the scan path and processing of the clause.
+	 *
+	 * @param scanModel						The {@link ScanModel} to be filled in
+	 * @throws IllegalArgumentException 	if the {@link IROI} fails to validate the supplied parameters on creation
+	 */
+	public void addPathDefinitionToCompoundModel(final CompoundModel scanModel) {
+		nullCheck(scanModel, CompoundModel.class.getSimpleName());
+		if (validateAndAdjustPathClause() && areaScanpath != null) {
+			LOGGER.debug("Valid scan definition clause detected and added");
+			ArrayList<Number> boundingBoxParams = new ArrayList<>();
+
+			IROI roi = getRegionShape().createIROI(getBounds());
+			IRectangularROI boundingRoi = roi.getBounds();
+			boundingBoxParams.add(boundingRoi.getPointX());
+			boundingBoxParams.add(boundingRoi.getPointY());
+			boundingBoxParams.add(boundingRoi.getLength(0));
+			boundingBoxParams.add(boundingRoi.getLength(1));
+			scanModel.setData(areaScanpath.get().createModel(scannables,
+					getModelPathParams(), boundingBoxParams, mutatorUses), roi);
+			scanPathSeen = true;
+			clauseProcessed = true;
+		}
+	}
+
+	// Update methods that fill in the Context for the Detectors/Monitors clause of a scan
+
+	/**
+	 * Adds an {@link IDetectorModel} corresponding to the supplied {@link Detector} name to the map of detectors
+	 * setting the exposure time if specified
+	 *
+	 * @param detectorName			The name of the {@link Detector}
+	 * @param exposure				The exposure time of the {@link Detector} to be set if specified
+	 * @throws ScanningException	If the {@link IRunnableDevice} for the {@link Detector} cannot be retrieved.
+	 */
+	public void addDetector(final String detectorName, final double exposure) throws ScanningException {
+		nullCheck(detectorName, "detector name String");
+		IRunnableDevice<IDetectorModel> detector = runnableDeviceService.getRunnableDevice(detectorName);
+		if (detector == null) {
+			throw new ScanningException(String.format("Could not get detector for name %s", detectorName));
+		}
+		addDetector(detector, exposure);
+	}
+
+	/**
+	 * Adds an {@link IDetectorModel} corresponding to the supplied {@link IRunnableDevice} to the map of detectors,
+	 * setting the exposure time if specified
+	 *
+	 * @param detector				The {@link IRunnableDevice} corresponding to the detector
+	 * @param exposure				The exposure time of the {@link Detector} to be set if specified
+	 * @throws ScanningException	If the {@link IDetectorModel} for the {@link IRunnableDevice} is null.
+	 */
+	public void addDetector(final IRunnableDevice<?> detector, final double exposure) throws ScanningException {
+		nullCheck(detector, IRunnableDevice.class.getSimpleName());
+		IDetectorModel model = (IDetectorModel)detector.getModel();
+		if (model == null) {
+			throw new ScanningException(String.format("Could not get model for detector %s", detector.getName()));
+		}
+		if (exposure > 0) {
+			model.setExposureTime(exposure);
+		}
+		detectorMap.put(detector.getName(), model);
+		detectorClauseSeen = true;
+		clauseProcessed = true;
+		LOGGER.debug("Detector added for {}", detector.getName());
+	}
+
+	/**
+	 * Add the name of a {@link Monitor} to the {@link List} of monitor names for the scan
+	 *
+	 * @param isReadout				True if the element is a {@link Scannable} being used as a readout
+	 */
+	public void addMonitor(final String name, final boolean isReadout) {
+		nullCheck(name, "monitor name String");
+		monitorsPerPoint.add(name);
+		String monitorType = isReadout ? "Scannable readout" : "Monitor";
+		detectorClauseSeen = true;
+		clauseProcessed = true;
+		LOGGER.debug("{} added for {}", monitorType, name);
+	}
+
+	// Update methods that fill in the context for the Scan Consumer clause of a scan
+
+	/**
+	 * Routes execution to the appropriate method to set up the type of (@link ScanDataConsumer}. Currently templates
+	 * and processor definitions are supported
+	 *
+	 * @param consumer		The identifier of the type of consumer
+	 * @param tokenString	The string parameters associate with the consumer
+	 */
+	public void addScanDataConsumer(final ScanDataConsumer consumer, final String tokenString) {
+		nullCheck(consumer, "ScanDataConsumer");
+		nullCheck(tokenString, "String of Consumer tokens");
+		if (!CONSUMER_HANDLERS.containsKey(consumer)) {
+			throw new IllegalArgumentException("Unknown Scan Consumer");
+		}
+		CONSUMER_HANDLERS.get(consumer).accept(tokenString);
+		clauseProcessed = true;
+	}
+
+	/**
+	 * Sets the supplied {@link String} of template pathnames to be the active one for the scan and prevents any
+	 * further changes to this being made. The pathnames must be the full path to the required files.
+	 *
+	 * @param templateFilePaths		A space separated {@link String} containing the full paths to the templates
+	 */
+	private void setTemplates(String templateFilePaths) {
+		if (!acceptingTemplates) {
+			throw new IllegalStateException("Templates have already been set for this mscan");
+		}
+		templates= Stream.of(templateFilePaths.split(" "))
+				.collect(Collectors.toSet());
+		acceptingTemplates = false;
+	}
+
+	/**
+	 * Sets the supplied {@link String} of processor app name and config file paths to used by the active
+	 * {@link ProcessorDefinition} for the scan and prevents any further changes to this being made. The
+	 * config file paths must be the full path to the required files.
+	 *
+	 * @param processorDefs	A space separated {@link String} containing pairs for processor app names and config file
+	 * 						paths in the form "appname1:path1 appname2:path2"
+	 */
+	private void setProcessorDefinitions(String processorDefs) {
+		if (!acceptingProcessors) {
+			throw new IllegalStateException("Processors have already been set for this mscan");
+		}
+		Stream.of(processorDefs.split(" "))
+			.map(x -> x.split("::"))
+			.forEach(this::fillMap);
+
+		activeProcessorKey = "";
+		processingRequest.setRequest(processingDefinitions);
+		acceptingProcessors = false;
+	}
+
+	/**
+	 * Fills in the {{@link #processingDefinitions} map grouping entries that have the same processor App name key
+	 * into a {@link List}s. If pathOrFilename contains two elements, the first is the app name key and the second a
+	 * config filename. These will be added to the {@link #processingDefinitions} creating a new entry keyed by the
+	 * app name if necessary. Otherwise, the only elemeny will be added to the config file list of the corrently
+	 * active app name.
+	 *
+	 * @param pairOrFilename	An array of either the processor App name and config file path, or just the path
+	 */
+	@SuppressWarnings("unchecked")
+	private void fillMap(String[] pairOrFilename) {
+		throwIf(pairOrFilename.length < 1 || pairOrFilename.length > 2,
+				"Incorrect processor specification - config filename may not contain :: character sequence");
+		if (pairOrFilename.length == 1) {
+			throwIf(activeProcessorKey.isEmpty(), "No processor app specified");
+			((List<String>)processingDefinitions.get(activeProcessorKey)).add(pairOrFilename[0]);
+		} else {
+			throwIf(pairOrFilename[0].isEmpty(), "No processor app specified");
+			throwIf(pairOrFilename[1].isEmpty(), "No config file specified");
+			throwIf(processingDefinitions.containsKey(pairOrFilename[0]), "App names may not be repeated");
+			List<String> l = new ArrayList<String>(Arrays.asList(pairOrFilename[1]));
+			processingDefinitions.put(pairOrFilename[0], l);
+			activeProcessorKey = pairOrFilename[0];
+		}
+	}
+
 	// Utility methods relating to parameter management
 
 	private void resetParamList() {
@@ -317,7 +545,7 @@ public class ClauseContext {
 	/**
 	 * Validates that the context is consistent.
 	 */
-	public boolean validateAndAdjust() {
+	public boolean validateAndAdjustPathClause() {
 		if (scannables.isEmpty() || scannables.size() > REQUIRED_SCANNABLES_FOR_AREA) {
 			throw new IllegalStateException("Invalid Scan clause: scan must have the required number of Scannables");
 		}
@@ -327,25 +555,25 @@ public class ClauseContext {
 		checkRequiredMutatorParameters();
 
 		//post validate the default case
-		validated = true;
-		return validated;
+		pathClauseValidated = true;
+		return pathClauseValidated;
 	}
 
 	// Output methods to be used once the context has been populated and validated
 
 	/**
-	 * @throws	NoSuchElementException if the {@link ClauseContext} is not complete and valid.
+	 * @throws	NoSuchElementException if the {@link ClausesContext} is not complete and valid.
 	 */
 	public List<Scannable> getScannables() {
-		throwIfNotValidated();
+		throwIfPathClauseNotValidated();
 		return Collections.unmodifiableList(scannables);
 	}
 
 	/**
-	 * @throws	NoSuchElementException if the {@link ClauseContext} is not complete and valid.
+	 * @throws	NoSuchElementException if the {@link ClausesContext} is not complete and valid.
 	 */
 	public Map<Mutator, List<Number>> getMutatorUses() {
-		throwIfNotValidated();
+		throwIfPathClauseNotValidated();
 		return Collections.unmodifiableMap(mutatorUses);
 	}
 
@@ -353,10 +581,10 @@ public class ClauseContext {
 	 * Returns the list of path params as set
 	 *
 	 * @return	An unmodifiable list of the path params set.
-	 * @throws	NoSuchElementException if the {@link ClauseContext} is not complete and valid.
+	 * @throws	NoSuchElementException if the {@link ClausesContext} is not complete and valid.
 	 */
 	public List<Number> getPathParams() {
-		throwIfNotValidated();
+		throwIfPathClauseNotValidated();
 		return Collections.unmodifiableList(pathParams);
 	}
 
@@ -367,10 +595,10 @@ public class ClauseContext {
 	 *
 	 * @return	An unmodifiable list  of the path params required to create {@link IScanPathModel} that
 	 * 			 corresponds to the previously set {@link AreaScanpath}
-	 * @throws	NoSuchElementException if the {@link ClauseContext} is not complete and valid.
+	 * @throws	NoSuchElementException if the {@link ClausesContext} is not complete and valid.
 	 */
 	public List<Number> getModelPathParams() {
-		throwIfNotValidated();
+		throwIfPathClauseNotValidated();
 		List<Number> output;
 		if (regionShape.get().getAxisCount() == 1) {
 			output = new ArrayList<>(shapeParams);
@@ -384,10 +612,10 @@ public class ClauseContext {
 
 	/**
 	 * @return	An unmodifiable list of the shape params set.
-	 * @throws	NoSuchElementException if the {@link ClauseContext} is not complete and valid.
+	 * @throws	NoSuchElementException if the {@link ClausesContext} is not complete and valid.
 	 */
 	public List<Number> getShapeParams() {
-		throwIfNotValidated();
+		throwIfPathClauseNotValidated();
 		return Collections.unmodifiableList(shapeParams);
 	}
 
@@ -397,10 +625,10 @@ public class ClauseContext {
 	 * allows the {@link IROI} validation step to complete.
 	 *
 	 * @return	A List of numbers defining the bounds of the scan
-	 * @throws	NoSuchElementException if the {@link ClauseContext} is not complete and valid.
+	 * @throws	NoSuchElementException if the {@link ClausesContext} is not complete and valid.
 	 */
 	public List<Number> getBounds() {
-		throwIfNotValidated();
+		throwIfPathClauseNotValidated();
 		/** For Axial Scans (which only have two (@link shapeParams} we need bounds to satisfy {@link IROI} validation
 		 so just construct artificial ones, otherwise return the {@link shapeParams}. **/
 		return regionShape.get().equals(AXIAL)
@@ -411,20 +639,20 @@ public class ClauseContext {
 	/**
 	 * @return	The specified {@link AreaScanpath} if set or defaulted, throwing otherwise
 	 *
-	 * @throws	NoSuchElementException if the  {@link ClauseContext} is not complete and valid.
+	 * @throws	NoSuchElementException if the  {@link ClausesContext} is not complete and valid.
 	 */
 	public AreaScanpath getAreaScanpath() {
-		throwIfNotValidated();
+		throwIfPathClauseNotValidated();
 		return areaScanpath.get();
 	}
 
 	/**
 	 * @return	The specified {@link RegionShape} if set or defaulted, throwing otherwise
 	 *
-	 * @throws	NoSuchElementException if the  {@link ClauseContext} is not complete and valid.
+	 * @throws	NoSuchElementException if the  {@link ClausesContext} is not complete and valid.
 	 */
 	public RegionShape getRegionShape() {
-		throwIfNotValidated();
+		throwIfPathClauseNotValidated();
 		return regionShape.get();
 	}
 
@@ -446,7 +674,7 @@ public class ClauseContext {
 	}
 
 	/**
-	 * @return   The type of the last element to be set on this {@link ClauseContext}
+	 * @return   The type of the last element to be set on this {@link ClausesContext}
 	 */
 	public Class<?> getPreviousType() {
 		return previousType;
@@ -459,21 +687,37 @@ public class ClauseContext {
 		return grammar;
 	}
 
-	// input validation methods
+	// parsing status flags
 
-	/**
-	 * Provides uniform Null checking for all types
-	 *
-	 * @param obj	The object instance to be checked
-	 * @param name	The type name to be used in the exception message
-	 *
-	 * @throws IllegalArgumentException if the supplied object is null
-	 */
-	private void nullCheck(final Object obj, final String name) {
-		if (obj == null) {
-			throw new IllegalArgumentException(String.format("The supplied %s was null", name));
-		}
+	public Map<String, Object> getDetectorMap() {
+		return detectorMap;
 	}
+
+	public List<String> getMonitorsPerPoint() {
+		return monitorsPerPoint;
+	}
+
+	public Set<String> getTemplates() {
+		return templates;
+	}
+
+	public ProcessingRequest getProcessorRequest() {
+		return processingRequest;
+	}
+
+	public boolean isScanPathSeen() {
+		return scanPathSeen;
+	}
+
+	public boolean isDetectorClauseSeen() {
+		return detectorClauseSeen;
+	}
+
+	public boolean isClauseProcessed() {
+		return clauseProcessed;
+	}
+
+	// input validation methods
 
 	/**
 	 *Checks that both {@link RegionShape} and {@link AreaScanpath} are set for an area based scan
@@ -481,7 +725,8 @@ public class ClauseContext {
 	 *@throws IllegalStateException if either {@link AreaScanpath} or {@link RegionShape} are not set
 	 */
 	private void areaScanMustHaveRegionShapePlusAreaScanpath() {
-		if (scannables.size() == REQUIRED_SCANNABLES_FOR_AREA && (!regionShape.isPresent() || !areaScanpath.isPresent())) {
+		if (scannables.size() == REQUIRED_SCANNABLES_FOR_AREA
+				&& (!regionShape.isPresent() || !areaScanpath.isPresent())) {
 			throw new IllegalStateException("Invalid Scan clause: area scan must have both RegionShape and AreaScanpath");
 		}
 	}
@@ -496,11 +741,13 @@ public class ClauseContext {
 	private void areaScanMustHaveCorrectNumberOfParametersForRegionShapeAndAreaScanpath() {
 		if (scannables.size() == REQUIRED_SCANNABLES_FOR_AREA && regionShape.isPresent() && areaScanpath.isPresent()) {
 			if (regionShape.get().hasFixedValueCount()) {
-				if (regionShape.get().valueCount() != shapeParams.size() || areaScanpath.get().valueCount() != pathParams.size()) {
+				if (regionShape.get().valueCount() != shapeParams.size()
+						|| areaScanpath.get().valueCount() != pathParams.size()) {
 					throw new IllegalStateException(
 							"Invalid Scan clause: clause must have correct no of params for RegionShape and Scanpath");
 				}
-			} else if (regionShape.get().valueCount() > shapeParams.size() || areaScanpath.get().valueCount() != pathParams.size()) {
+			} else if (regionShape.get().valueCount() > shapeParams.size()
+					|| areaScanpath.get().valueCount() != pathParams.size()) {
 				throw new IllegalStateException(
 						"Invalid Scan clause: clause must have correct no of params for RegionShape and Scanpath");
 			} else if (regionShape.get() == POLYGON && (shapeParams.size() & 1) > 0) {
@@ -546,12 +793,12 @@ public class ClauseContext {
 	}
 
 	/**
-	 * Checks that {@link ClauseContext#validateAndAdjust()} has been successfully called
+	 * Checks that {@link ClausesContext#validateAndAdjustPathClause()} has been successfully called
 	 *
 	 * @throws UnsupportedOperationException if an attempt is made to read the claus ebefore it has been validated
 	 */
-	private void throwIfNotValidated() {
-		if(!validated) {
+	private void throwIfPathClauseNotValidated() {
+		if(!pathClauseValidated) {
 			throw new UnsupportedOperationException(
 					"The clause context must be validated before output values can be read from it");
 		}
@@ -572,8 +819,8 @@ public class ClauseContext {
 	}
 
 	/**
-	 * Prevents elements that follow {@link Scannable}s in the clause being set if the required number of
-	 * {@link Scannable}s for the scan clause have not already been set
+	 * Prevents elements that follow {@link Scannable}s in a path definition clause being set if the required number of
+	 * {@link Scannable}s for the clause have not already been set
 	 *
 	 * @param elementName	The type name of element currently being set
 	 * @throws UnsupportedOperationException if not enough {@link SCannable}s have been specified to set the element
@@ -630,7 +877,8 @@ public class ClauseContext {
 			throw new UnsupportedOperationException("Invalid Scan clause: RegionShape must be set before AreaScanpath");
 		}
 		// At this point the regionShape params should have been filled in so check this is the case
-		if ((regionShape.get().hasFixedValueCount() && !paramsFull()) || shapeParams.size() < regionShape.get().valueCount()) {
+		if ((regionShape.get().hasFixedValueCount() && !paramsFull())
+				|| shapeParams.size() < regionShape.get().valueCount()) {
 			throw new UnsupportedOperationException("Invalid Scan clause: not enough parameters for the RegionShape");
 		}
 	}
@@ -661,8 +909,8 @@ public class ClauseContext {
 		return view;
 	}
 
-	final ClauseContext withoutValidation() {
-		validated = true;
+	final ClausesContext withoutPathClauseValidation() {
+		pathClauseValidated = true;
 		return this;
 	}
 }

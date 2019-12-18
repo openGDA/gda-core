@@ -56,28 +56,28 @@ from your localstation.py or any other scripts
 
 """
 
-import sys
 import gda.mscan.element.AreaScanpath as AreaScanpath
 import gda.mscan.element.RegionShape as RegionShape
 import gda.mscan.element.Mutator as Mutator
+import gda.mscan.element.ScanDataConsumer as ScanDataConsumer
 
 from gda.jython.commands.GeneralCommands import alias
 from gda.mscan import MScanSubmitter
-from org.eclipse.scanning.command.Services import *
+from org.eclipse.scanning.command.Services import getEventService
+from org.eclipse.scanning.command.Services import getRunnableDeviceService
 
 # Set up lambdas that return the AreaScanpath Enum instances that link to the
 # Models and assign them to the corresponding names and standard 4 character
 # abbreviations so that they can be protected using alias()
 
-grid = (lambda:AreaScanpath.GRID_POINTS)()
-rast = raster = (lambda:AreaScanpath.GRID_STEP)()
-spir = spiral = (lambda:AreaScanpath.SPIRAL)()
-liss = lissajous = (lambda:AreaScanpath.LISSAJOUS)()
-step = angl = angle = (lambda:AreaScanpath.LINE_STEP)()
-nopt = pts = noofpoints = points = proj = projections = (lambda:AreaScanpath.LINE_POINTS)()
-axst = axisstep = (lambda:AreaScanpath.AXIS_STEP)()
-axno = axispoints = (lambda:AreaScanpath.AXIS_POINTS)()
-
+grid = AreaScanpath.GRID_POINTS
+rast = raster = AreaScanpath.GRID_STEP
+spir = spiral = AreaScanpath.SPIRAL
+liss = lissajous = AreaScanpath.LISSAJOUS
+step = angl = angle = AreaScanpath.LINE_STEP
+nopt = pts = noofpoints = points = proj = projections = AreaScanpath.LINE_POINTS
+axst = axisstep = AreaScanpath.AXIS_STEP
+axno = axispoints = AreaScanpath.AXIS_POINTS
 
 # Register the commands with the Translator
 alias('grid')
@@ -106,13 +106,13 @@ alias('axispoints')
 # the corresponding names and standard 4 character abbreviations so that
 # they can be protected using alias()
 
-rect = rectangle = (lambda:RegionShape.RECTANGLE)()
-crec = centred_rectangle = (lambda:RegionShape.CENTRED_RECTANGLE)()
-circ = circle = (lambda:RegionShape.CIRCLE)()
-poly = polygon = (lambda:RegionShape.POLYGON)()
-line = (lambda:RegionShape.LINE)()
-poin = point = pt = (lambda:RegionShape.POINT)()
-axis = (lambda:RegionShape.AXIAL)()
+rect = rectangle = RegionShape.RECTANGLE
+crec = centred_rectangle = RegionShape.CENTRED_RECTANGLE
+circ = circle = RegionShape.CIRCLE
+poly = polygon = RegionShape.POLYGON
+line = RegionShape.LINE
+poin = point = pt = RegionShape.POINT
+axis = RegionShape.AXIAL
 
 # Register the commands with the Translator
 alias('rect')
@@ -130,14 +130,13 @@ alias('pt')
 alias('axis')
 
 
-
 # Set up functions that return Mutator Enum instances and assign them to
 # the corresponding names and standard 4 character abbreviations so that
 # they can be protected using alias()
 
-snak = snake = alte = alternating = (lambda:Mutator.ALTERNATING)()
-roff = random_offset = (lambda:Mutator.RANDOM_OFFSET)()
-cont = continuous = (lambda:Mutator.CONTINUOUS)()
+snak = snake = alte = alternating = Mutator.ALTERNATING
+roff = random_offset =  Mutator.RANDOM_OFFSET
+cont = continuous =  Mutator.CONTINUOUS
 
 # Register the commands with the Translator
 alias('snak')
@@ -149,6 +148,13 @@ alias('random_offset')
 alias('cont')
 alias('continuous')
 
+temp = templates = ScanDataConsumer.TEMPLATE
+proc = processors = ScanDataConsumer.PROCESSOR
+
+alias('temp')
+alias('templates')
+alias('proc')
+alias('processors')
 
 # The Java entry point for MScan commands, creates the scan builder and
 # submits the command string via the GeneralTranslator.

@@ -18,18 +18,23 @@
 
 package gda.mscan;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import gda.mscan.element.AreaScanpath;
 import gda.mscan.element.RegionShape;
+import gda.mscan.element.ScanDataConsumer;
 import gda.mscan.processor.IClauseElementProcessor;
 
 public class ScanClausesResolverTest extends ResolutionTestsBase {
@@ -44,6 +49,12 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 	private IClauseElementProcessor numPoint5Proc;
 	private IClauseElementProcessor spiralProc;
 	private IClauseElementProcessor polyProc;
+	private IClauseElementProcessor templateScanDataConsumerProc;
+	private IClauseElementProcessor processingScanDataConsumerProc;
+	private IClauseElementProcessor tokenStringProc;
+
+	@Rule
+	public final ExpectedException exception = ExpectedException.none();
 
 	@Before
 	public void setup() {
@@ -54,16 +65,23 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 		numPoint5Proc = mockNumberProc(0.5);
 		spiralProc = mockAreaScanpathProc(AreaScanpath.SPIRAL);
 		polyProc = mockRoiProc(RegionShape.POLYGON);
+		templateScanDataConsumerProc = mockScanDataConsumerProc(ScanDataConsumer.TEMPLATE);
+		processingScanDataConsumerProc = mockScanDataConsumerProc(ScanDataConsumer.PROCESSOR);
+		tokenStringProc = mockTokenStringProc("one two three");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void firstElementMustBeAScannableProcessor() {
+	@Test
+	public void nonScannableFirstElementIsRejected() {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage(startsWith("First term must be a scannable"));
 		scan = Arrays.asList(num1Proc);
 		resolve(scan);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void detectorsMustBeAfterAllScanDefs() {
+	@Test
+	public void detectorsBeforeScanDefsIsRejected() {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage(startsWith("Your mScan command contains an invalid sequence"));
 		scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				d1Proc,
@@ -71,8 +89,34 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 		resolve(scan);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void monitorsMustBeAfterAllScanDefs() {
+	@Test
+	public void scanDataConsumersBeforeScanDefsIsRejected() {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage(containsString("cannot use templates or processors"));
+		scan = Arrays.asList(
+				s1Proc, num1Proc, num1Proc, num1Proc,
+				templateScanDataConsumerProc,
+				s1Proc, num1Proc, num1Proc, num1Proc,
+				d1Proc);
+		resolve(scan);
+	}
+
+	@Test
+	public void scanDataConsumersBeforeDetectorsIsRejected() {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage(containsString("cannot use templates or processors"));
+		scan = Arrays.asList(
+				s1Proc, num1Proc, num1Proc, num1Proc,
+				s1Proc, num1Proc, num1Proc, num1Proc,
+				templateScanDataConsumerProc,
+				d1Proc);
+		resolve(scan);
+	}
+
+	@Test
+	public void monitorsBeforeScanDefsIsRejected() {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage(startsWith("Your mScan command contains an invalid sequence"));
 		scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				m1Proc,
@@ -80,8 +124,10 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 		resolve(scan);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void scannableReadoutsMustBeAfterAllScanDefsWithSpecStyle() {
+	@Test
+	public void scannableReadoutsBeforeScanDefsWithSpecStyleIsRejected() {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage(containsString("can't contain more than two Scannables"));
 		scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				s1Proc,
@@ -92,8 +138,10 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 		resolve(scan);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void scannableReadoutsMustBeAfterAllScanDefsWithMappingStyle() {
+	@Test
+	public void scannableReadoutsBeforeScanDefsWithMappingStyleIszRejected() {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage(startsWith("Your mScan command contains an invalid sequence"));
 		scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				s1Proc,
@@ -104,8 +152,10 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 		resolve(scan);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void invalidLengthMScanClausesAtEndOfCommandAreRejected() {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage(startsWith("The scan command is incorrect - final scan path definition is invalid"));
 		scan = Arrays.asList(
 				s1Proc, s2Proc, rectProc, num1Proc, num1Proc);
 		resolve(scan);
@@ -263,7 +313,8 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 		resolve(scan);
 		assertThat(result.size(), is(1));
 		assertThat(result.get(0).size(), is(10));
-		assertThat(result.get(0), contains(s1Proc, s2Proc, rectProc, num1Proc, num1Proc, num2Proc, num2Proc, gridProc, numPoint1Proc, numPoint1Proc));
+		assertThat(result.get(0), contains(s1Proc, s2Proc, rectProc, num1Proc, num1Proc,
+				num2Proc, num2Proc, gridProc, numPoint1Proc, numPoint1Proc));
 	}
 
 	@Test
@@ -273,7 +324,8 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 		resolve(scan);
 		assertThat(result.size(), is(1));
 		assertThat(result.get(0).size(), is(9));
-		assertThat(result.get(0), contains(sGProc, rectProc, num1Proc, num1Proc, num2Proc, num2Proc, gridProc, numPoint1Proc, numPoint1Proc));
+		assertThat(result.get(0), contains(sGProc, rectProc, num1Proc, num1Proc,
+				num2Proc, num2Proc, gridProc, numPoint1Proc, numPoint1Proc));
 	}
 
 	@Test
@@ -283,7 +335,8 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 		resolve(scan);
 		assertThat(result.size(), is(1));
 		assertThat(result.get(0).size(), is(8));
-		assertThat(result.get(0), contains(sGProc, num1Proc, num1Proc, num2Proc, num2Proc, gridProc, numPoint1Proc, numPoint1Proc));
+		assertThat(result.get(0), contains(sGProc, num1Proc, num1Proc, num2Proc,
+				num2Proc, gridProc, numPoint1Proc, numPoint1Proc));
 	}
 
 	@Test
@@ -293,43 +346,98 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 		resolve(scan);
 		assertThat(result.size(), is(1));
 		assertThat(result.get(0).size(), is(9));
-		assertThat(result.get(0), contains(s1Proc, s2Proc, num1Proc, num1Proc, num2Proc, num2Proc, gridProc, numPoint1Proc, numPoint1Proc));
+		assertThat(result.get(0), contains(s1Proc, s2Proc, num1Proc, num1Proc,
+				num2Proc, num2Proc, gridProc, numPoint1Proc, numPoint1Proc));
 	}
 
 	@Test
 	public void newStyleMultiple() {
 		scan = Arrays.asList(
 				s1Proc, s2Proc, rectProc, num1Proc, num1Proc, num2Proc, num2Proc, gridProc, numPoint1Proc, numPoint1Proc,
-				s1Proc, s2Proc, polyProc, num1Proc, num1Proc, num2Proc, num2Proc, num3Proc, num3Proc, spiralProc, numPoint5Proc, numPoint5Proc, numPoint3Proc);
+				s1Proc, s2Proc, polyProc, num1Proc, num1Proc, num2Proc, num2Proc, num3Proc,
+				num3Proc, spiralProc, numPoint5Proc, numPoint5Proc, numPoint3Proc);
 		resolve(scan);
 		assertThat(result.size(), is(2));
 		assertThat(result.get(0).size(), is(10));
-		assertThat(result.get(0), contains(s1Proc, s2Proc, rectProc, num1Proc, num1Proc, num2Proc, num2Proc, gridProc, numPoint1Proc, numPoint1Proc));
+		assertThat(result.get(0), contains(s1Proc, s2Proc, rectProc, num1Proc, num1Proc, num2Proc,
+				num2Proc, gridProc, numPoint1Proc, numPoint1Proc));
 		assertThat(result.get(1).size(), is(13));
-		assertThat(result.get(1), contains(s1Proc, s2Proc, polyProc, num1Proc, num1Proc, num2Proc, num2Proc, num3Proc, num3Proc, spiralProc, numPoint5Proc, numPoint5Proc, numPoint3Proc));
+		assertThat(result.get(1), contains(s1Proc, s2Proc, polyProc, num1Proc, num1Proc, num2Proc,
+				num2Proc, num3Proc, num3Proc, spiralProc, numPoint5Proc, numPoint5Proc, numPoint3Proc));
 	}
 
 	@Test
-	public void bothWithDetectorsMonitorsAndSingleScannables() {
+	public void newStyleMultipleWithDetectors() {
+		scan = Arrays.asList(
+				s1Proc, s2Proc, rectProc, num1Proc, num1Proc, num2Proc, num2Proc, gridProc,
+				numPoint1Proc, numPoint1Proc,
+				s1Proc, s2Proc, polyProc, num1Proc, num1Proc, num2Proc, num2Proc, num3Proc, num3Proc,
+				spiralProc, numPoint5Proc, numPoint5Proc, numPoint3Proc,
+				d1Proc, d2Proc);
+		resolve(scan);
+		assertThat(result.size(), is(4));
+		assertThat(result.get(0).size(), is(10));
+		assertThat(result.get(0), contains(s1Proc, s2Proc, rectProc, num1Proc, num1Proc, num2Proc, num2Proc,
+				gridProc, numPoint1Proc, numPoint1Proc));
+		assertThat(result.get(1).size(), is(13));
+		assertThat(result.get(1), contains(s1Proc, s2Proc, polyProc, num1Proc, num1Proc, num2Proc, num2Proc,
+				num3Proc, num3Proc, spiralProc, numPoint5Proc, numPoint5Proc, numPoint3Proc));
+		assertThat(result.get(2).size(), is(1));
+		assertThat(result.get(2), contains(d1Proc));
+		assertThat(result.get(3).size(), is(1));
+		assertThat(result.get(3), contains(d2Proc));
+	}
+
+	@Test
+	public void newStyleMultipleWithDetectorsAndConsumers() {
+		scan = Arrays.asList(
+				s1Proc, s2Proc, rectProc, num1Proc, num1Proc, num2Proc, num2Proc, gridProc, numPoint1Proc, numPoint1Proc,
+				s1Proc, s2Proc, polyProc, num1Proc, num1Proc, num2Proc, num2Proc, num3Proc, num3Proc,
+				spiralProc, numPoint5Proc, numPoint5Proc, numPoint3Proc,
+				d1Proc, d2Proc,
+				templateScanDataConsumerProc, tokenStringProc);
+		resolve(scan);
+		assertThat(result.size(), is(5));
+		assertThat(result.get(0).size(), is(10));
+		assertThat(result.get(0), contains(s1Proc, s2Proc, rectProc, num1Proc, num1Proc, num2Proc, num2Proc,
+				gridProc, numPoint1Proc, numPoint1Proc));
+		assertThat(result.get(1).size(), is(13));
+		assertThat(result.get(1), contains(s1Proc, s2Proc, polyProc, num1Proc, num1Proc, num2Proc, num2Proc,
+				num3Proc, num3Proc, spiralProc, numPoint5Proc, numPoint5Proc, numPoint3Proc));
+		assertThat(result.get(2).size(), is(1));
+		assertThat(result.get(2), contains(d1Proc));
+		assertThat(result.get(3).size(), is(1));
+		assertThat(result.get(3), contains(d2Proc));
+		assertThat(result.get(4).size(), is(2));
+		assertThat(result.get(4), contains(templateScanDataConsumerProc, tokenStringProc));
+	}
+
+	@Test
+	public void bothWithDetectorsMonitorsAndSingleScannablesAndConsumers() {
 		scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				s1Proc, s2Proc, num1Proc, num1Proc, num2Proc, num2Proc, gridProc, numPoint1Proc, numPoint1Proc,
 				s2Proc, num1Proc, num1Proc,
-				s1Proc, s2Proc, polyProc, num1Proc, num1Proc, num2Proc, num2Proc, num3Proc, num3Proc, spiralProc, numPoint5Proc, numPoint5Proc, numPoint3Proc,
+				s1Proc, s2Proc, polyProc, num1Proc, num1Proc, num2Proc, num2Proc, num3Proc, num3Proc, spiralProc,
+				numPoint5Proc, numPoint5Proc, numPoint3Proc,
 				m1Proc,
 				d2Proc, num1Proc,
 				s2Proc,
-				d2Proc);
+				d2Proc,
+				processingScanDataConsumerProc, tokenStringProc,
+				templateScanDataConsumerProc, tokenStringProc);
 		resolve(scan);
-		assertThat(result.size(), is(8));
+		assertThat(result.size(), is(10));
 		assertThat(result.get(0).size(), is(4));
 		assertThat(result.get(0), contains(s1Proc, num1Proc, num1Proc, num1Proc));
 		assertThat(result.get(1).size(), is(9));
-		assertThat(result.get(1), contains(s1Proc, s2Proc, num1Proc, num1Proc, num2Proc, num2Proc, gridProc, numPoint1Proc, numPoint1Proc));
+		assertThat(result.get(1), contains(s1Proc, s2Proc, num1Proc, num1Proc, num2Proc, num2Proc, gridProc,
+				numPoint1Proc, numPoint1Proc));
 		assertThat(result.get(2).size(), is(3));
 		assertThat(result.get(2), contains(s2Proc, num1Proc, num1Proc));
 		assertThat(result.get(3).size(), is(13));
-		assertThat(result.get(3), contains(s1Proc, s2Proc, polyProc, num1Proc, num1Proc, num2Proc, num2Proc, num3Proc, num3Proc, spiralProc, numPoint5Proc, numPoint5Proc, numPoint3Proc));
+		assertThat(result.get(3), contains(s1Proc, s2Proc, polyProc, num1Proc, num1Proc, num2Proc, num2Proc,
+				num3Proc, num3Proc, spiralProc, numPoint5Proc, numPoint5Proc, numPoint3Proc));
 		assertThat(result.get(4).size(), is(1));
 		assertThat(result.get(4), contains(m1Proc));
 		assertThat(result.get(5).size(), is(2));
@@ -338,6 +446,10 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 		assertThat(result.get(6), contains(s2Proc));
 		assertThat(result.get(7).size(), is(1));
 		assertThat(result.get(7), contains(d2Proc));
+		assertThat(result.get(8).size(), is(2));
+		assertThat(result.get(8), contains(processingScanDataConsumerProc, tokenStringProc));
+		assertThat(result.get(9).size(), is(2));
+		assertThat(result.get(9), contains(templateScanDataConsumerProc, tokenStringProc));
 	}
 
 	@Test

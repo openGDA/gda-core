@@ -18,12 +18,14 @@
 
 package gda.mscan.processor;
 
-import gda.mscan.ClauseContext;
+import java.util.List;
+
+import gda.mscan.ClausesContext;
 import gda.mscan.element.RegionShape;
 
 /**
  * An interface to be implemented by all MScan Clause ElementProcessors. These are responsible for
- * triggering the filling in of the {@link ClauseContext} for the MScan clause being parsed based on the
+ * triggering the filling in of the {@link ClausesContext} for the MScan clause being parsed based on the
  * type that was used to create them. Each implementing class must  override the process method to
  * cause the filling in of the relevant bits of the context associated with the type of element
  * being processed. For instance for {@link RegionShape} elements it should call the method(s) on the context that
@@ -74,12 +76,28 @@ public interface IClauseElementProcessor {
 	}
 
 	/*
+	 * Default implementation to indicate whether the processor is associated with a ScanDataConsumer
+	 */
+	public default boolean hasScanDataConsumer() {
+		return false;
+	}
+
+	/*
+	 * Default implementation to indicate whether the processor is associated with a String of tokens
+	 */
+	public default boolean hasTokenString() {
+		return false;
+	}
+
+
+	/*
 	 * Fires the required method(s) on the supplied context to fill in a Clause element's details
 	 *
 	 * @param context	The {@link ClauseContext} object being completed for the current MSCan clause
 	 * @param index		The index of the clause element associated with the processor within the current clause
 	 */
-	public void process(final ClauseContext context, final int index);
+	public void process(final ClausesContext context,
+			final List<IClauseElementProcessor> clauseProcessors, final int index) throws Exception;
 
 	/**
 	 * Implementations of this method should return the element used to create the processor instance

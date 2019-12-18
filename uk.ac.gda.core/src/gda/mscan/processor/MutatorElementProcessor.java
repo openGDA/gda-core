@@ -18,7 +18,9 @@
 
 package gda.mscan.processor;
 
-import gda.mscan.ClauseContext;
+import java.util.List;
+
+import gda.mscan.ClausesContext;
 import gda.mscan.element.Mutator;
 
 /**
@@ -34,7 +36,7 @@ public class MutatorElementProcessor extends ElementProcessorBase<Mutator> {
 	 * Confirm that a {@link Mutator} is allowed as the next type to be processed in the MScan clause grammar
 	 * and if so, add the {@link Mutator}  used in construction to the context's list.
 	 *
-	 * @param context	The {@link ClauseContext} object being completed for the current MSCan clause
+	 * @param context	The {@link ClausesContext} object being completed for the current MSCan clause
 	 * @param index		The index of the clause element associated with the processor within the current clause
 	 *
 	 * @throws			IllegalStateException if the previous element of the context is null (this should never occur)
@@ -42,7 +44,8 @@ public class MutatorElementProcessor extends ElementProcessorBase<Mutator> {
 	 * 					previous element i.e. it is not a valid element type
 	 */
 	@Override
-	public void process(final ClauseContext context, final int index) {
+	public void process(final ClausesContext context,
+			final List<IClauseElementProcessor> clauseProcessors, final int index) {
 		rejectIfFirstElement(index);
 		if(isValidElement(context, this.getClass().getName())) {
 			context.addMutator(enclosed);

@@ -24,6 +24,9 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +34,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import gda.device.Scannable;
-import gda.mscan.ClauseContext;
+import gda.mscan.ClausesContext;
 import gda.mscan.element.Mutator;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -40,9 +43,10 @@ public class MutatorElementProcessorTest {
 	private MutatorElementProcessor processor;
 
 	private Mutator mutator = Mutator.ALTERNATING;
+	private List<IClauseElementProcessor> emptyList = new ArrayList<>();
 
 	@Mock
-	private ClauseContext context;
+	private ClausesContext context;
 
 	@Before
 	public void setUp() throws Exception {
@@ -56,7 +60,7 @@ public class MutatorElementProcessorTest {
 	@Test(expected = UnsupportedOperationException.class)
 	public void processLookUpTrapsMutatorAtElementZero() throws Exception {
 		doReturn(Scannable.class).when(context).getPreviousType();
-		processor.process(context, 0);
+		processor.process(context, emptyList, 0);
 	}
 
 	/**
@@ -65,13 +69,13 @@ public class MutatorElementProcessorTest {
 	@Test(expected = UnsupportedOperationException.class)
 	public void processLookUpTrapsIncorrectGrammar() throws Exception {
 		doReturn(Scannable.class).when(context).getPreviousType();
-		processor.process(context, 1);
+		processor.process(context, emptyList, 1);
 	}
 
 	@Test
 	public void processAddsValidSuccessorToContextMutatorsList() throws Exception {
 		doReturn(Number.class).when(context).getPreviousType();
-		processor.process(context, 1);
+		processor.process(context, emptyList, 1);
 		verify(context).addMutator(mutator);
 	}
 

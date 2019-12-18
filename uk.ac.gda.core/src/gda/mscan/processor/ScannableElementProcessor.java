@@ -18,10 +18,10 @@
 
 package gda.mscan.processor;
 
-import gda.device.Detector;
-import gda.device.Monitor;
+import java.util.List;
+
 import gda.device.Scannable;
-import gda.mscan.ClauseContext;
+import gda.mscan.ClausesContext;
 
 /**
  * A Clause Element Processor for {@link Scannable} elements
@@ -36,7 +36,7 @@ public class ScannableElementProcessor extends ElementProcessorBase<Scannable> {
 	 * Confirm that a {@link Scannable} is allowed as the next type to be processed in the MScan clause grammar
 	 * and if so, add the {@link Scannable} used in construction to the context's list.
 	 *
-	 * @param context	The {@link ClauseContext} object being completed for the current MSCan clause
+	 * @param context	The {@link ClausesContext} object being completed for the current MSCan clause
 	 * @param index		The index of the clause element associated with the processor within the current clause
 	 *
 	 * @throws			IllegalStateException if the previous element of the context is null (this should never occur)
@@ -44,7 +44,11 @@ public class ScannableElementProcessor extends ElementProcessorBase<Scannable> {
 	 * 					previous element i.e. it is not a valid element type
 	 */
 	@Override
-	public void process(final ClauseContext context, final int index) {
+	public void process(final ClausesContext context,
+			final List<IClauseElementProcessor> clauseProcessors, final int index) {
+		if (clauseProcessors.size() < 7 && withNullProcessorCheck(clauseProcessors.get(1)).hasNumber()){
+			throw new IllegalArgumentException("SPEC style scans not yet supported.");
+		}
 		if(isValidElement(context, this.getClass().getName(), Scannable.class)) {
 			context.addScannable(enclosed);
 		}
@@ -53,16 +57,6 @@ public class ScannableElementProcessor extends ElementProcessorBase<Scannable> {
 	@Override
 	public boolean hasScannable() {
 		return true;
-	}
-
-	@Override
-	public boolean hasDetector() {
-		return enclosed instanceof Detector;
-	}
-
-	@Override
-	public boolean hasMonitor() {
-		return enclosed instanceof Monitor;
 	}
 
 	/**
