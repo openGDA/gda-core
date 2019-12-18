@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.mapping.standards.ui;
 
 import static gda.jython.JythonStatus.RUNNING;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+import static uk.ac.diamond.daq.mapping.xanes.ui.XanesScanningUtils.createModelFromEdgeSelection;
 
 import java.net.URI;
 import java.util.List;
@@ -50,6 +51,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +63,7 @@ import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.ui.experiment.ScanPathEditor;
+import uk.ac.diamond.daq.mapping.xanes.ui.XanesEdgeCombo;
 
 public class StandardsScanView {
 	private static final Logger logger = LoggerFactory.getLogger(StandardsScanView.class);
@@ -71,6 +74,7 @@ public class StandardsScanView {
 	private IEclipseContext injectionContext;
 
 	private ScanPathEditor scanPathEditor;
+	private Text exposureTimeText;
 	private Button submitButton;
 
 	private IJobQueue<StatusBean> jobQueueProxy;
@@ -105,13 +109,31 @@ public class StandardsScanView {
 		}
 
 		// Scannable name
-		final String scannableName = standardsScanConfig.getScannableName();
+		final String energyScannableName = standardsScanConfig.getScannableName();
 		final Label nameLabel = new Label(editorComposite, SWT.NONE);
-		nameLabel.setText(scannableName);
+		nameLabel.setText(energyScannableName);
 
-		// Display and edit scannable values
-		final IScanModelWrapper<IScanPathModel> scannableWrapper = new ScanPathModelWrapper(scannableName, null, false);
+		// Scan path editor to display & edit energy values
+		final IScanModelWrapper<IScanPathModel> scannableWrapper = new ScanPathModelWrapper(energyScannableName, null, false);
 		scanPathEditor = new ScanPathEditor(editorComposite, SWT.NONE, scannableWrapper);
+
+		final Composite edgeAndExposureComposite = new Composite(parent, SWT.NONE);
+		GridDataFactory.swtDefaults().applyTo(edgeAndExposureComposite);
+		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(edgeAndExposureComposite);
+
+		// List of energy/edge combinations
+		final XanesEdgeCombo edgeCombo = new XanesEdgeCombo(edgeAndExposureComposite);
+		edgeCombo.addSelectionChangedListener(e -> {
+			final IScanPathModel scanPathModel = createModelFromEdgeSelection(edgeCombo.getSelectedEnergy(), energyScannableName);
+			scanPathEditor.setScanPathModel(scanPathModel);
+		});
+
+		// Exposure time
+		final Label exposureTimeLabel = new Label(edgeAndExposureComposite, SWT.NONE);
+		GridDataFactory.swtDefaults().applyTo(exposureTimeLabel);
+		exposureTimeLabel.setText("Exposure time");
+		exposureTimeText = new Text(edgeAndExposureComposite, SWT.BORDER);
+		GridDataFactory.swtDefaults().hint(80, SWT.DEFAULT).applyTo(exposureTimeText);
 	}
 
 	private void createSubmitSection(Composite parent) {
@@ -142,6 +164,7 @@ public class StandardsScanView {
 
 		final IScriptService scriptService = injectionContext.get(IScriptService.class);
 		scriptService.setNamedValue(IScriptService.VAR_NAME_SCAN_PATH, scanPathEditor.getAxisText());
+		scriptService.setNamedValue(IScriptService.VAR_NAME_EXPOSURE_TIME, exposureTimeText.getText());
 
 		Async.execute(() -> {
 			// Run the script, disabling the submit button while it is running

@@ -113,9 +113,7 @@ public class ScanPathEditor extends Composite implements IObservable {
 			editorDialog.setModel(multiAxialStepModel);
 			if (editorDialog.open() == Window.OK) {
 				try {
-					final AxialMultiStepModel model = editorDialog.getEditor().getModel();
-					axisText.setText((String) new ScanPathToStringConverter().convert(model));
-					observable.notifyIObservers(this, model);
+					setScanPathModel(editorDialog.getEditor().getModel());
 				} catch (Exception e) {
 					logger.error("Cannot retrieve MultiAxialStepModel from dialog", e);
 				}
@@ -148,6 +146,11 @@ public class ScanPathEditor extends Composite implements IObservable {
 	 */
 	public String getAxisText() {
 		return axisText.getText();
+	}
+
+	public void setScanPathModel(IScanPathModel model) {
+		axisText.setText((String) new ScanPathToStringConverter().convert(model));
+		observable.notifyIObservers(this, model);
 	}
 
 	private void bindScanPathModelToTextField(IScanModelWrapper<IScanPathModel> scannableAxisParameters, IObservableValue<?> axisTextValue) {
