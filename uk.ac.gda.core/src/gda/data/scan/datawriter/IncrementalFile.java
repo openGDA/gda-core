@@ -201,14 +201,15 @@ public abstract class IncrementalFile extends DataWriterBase {
 	 * Releases the file handle.
 	 */
 	public void releaseFile() {
-		try {
-			logger.info("Closing incremental file: {}", fileUrl);
-			file.close();
-		} catch (IOException ex) {
-			logger.warn("Error closing file: {}", fileUrl);
-		}
-		finally{
-			file = null;
+		if (file != null) {
+			try {
+				logger.info("Closing incremental file: {}", fileUrl);
+				file.close();
+			} catch (IOException ex) {
+				logger.warn("Error closing file: {}", fileUrl);
+			} finally {
+				file = null;
+			}
 		}
 	}
 
