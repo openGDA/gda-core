@@ -1509,7 +1509,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 						double current = getPosition();
 						if (deadband > 0 && !Double.isNaN(deadband)) {
 							if (abs(targetPosition - current) > deadband) {
-								logger.error("{} : target requested is missed (target: {}, actual: {}, deadband: {}). Report to Engineer",
+								logger.error("{} : target requested is missed (target: {}, actual: {}, deadband: {}). Report to Controls Engineer",
 										getName(), targetPosition, currentPosition, retryDeadband);
 								if (missedTargetAction == MissedTargetLevel.FAULT) {
 									newStatus = MotorStatus.FAULT;
