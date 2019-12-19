@@ -151,6 +151,8 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 		GridDataFactory.swtDefaults().hint(50, SWT.DEFAULT).applyTo(stepTimeText);
 		IObservableValue<Double> textFieldValue = WidgetProperties.text(SWT.Modify).observe(stepTimeText);
 		IObservableValue<Double> modelValue = PojoProperties.value("exposureTime").observe(getModel());
+		// recalculate the derived values for the detectors when the step time changes
+		modelValue.addValueChangeListener(event -> detectorsTable.refresh());
 		dataBindingContext.bindValue(textFieldValue, modelValue);
 		dataBindingContext.updateTargets();
 	}
