@@ -22,6 +22,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.slf4j.Logger;
@@ -35,6 +36,7 @@ import gda.device.detector.BufferedDetector;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
+import gda.device.detector.NexusTreeWriterHelper;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
@@ -58,6 +60,10 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 	private SwmrFileReader fileReader;
 	private boolean useSwmrFileReading = false;
 
+	private boolean useNexusTreeWriter = false;
+	private transient NexusTreeWriterHelper nexusTreeWriter = new NexusTreeWriterHelper();
+	private int maxFramesToReadAtOnce = 500;
+
 	@Override
 	public void clearMemory() throws DeviceException {
 		// Don't need to manually clear the memory. This is done by Xspress4Detector::atScanLineStart()
@@ -69,6 +75,10 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 		this.isContinuousModeOn = on;
 		if (on) {
 			// xspressDetector.atScanStart() has already set the number of frames and reset the array counter
+
+			// Set number of frame again - number of frames from ContinuousParameters is 1 more than is reported in the
+			// current ScanInformation object used in Xspress4Detector#atScanStart to set the number of points
+			xspressDetector.setupNumFramesToCollect(parameters.getNumberDataPoints());
 
 			// Set the trigger mode
 			xspressDetector.setTriggerMode(triggerModeForContinuousScan);
@@ -186,7 +196,23 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 	@Override
 	public NXDetectorData[] readFrames(int startFrame, int finalFrame) throws DeviceException {
 		try {
-			return nexusTree.getDetectorData(startFrame, finalFrame);
+			NXDetectorData[] detectorData = nexusTree.getDetectorData(startFrame, finalFrame);
+			if (useNexusTreeWriter) {
+				int startIndex = 0;
+				// Skip first frame if writing to scan nexus file - NexusDatawriter should write this point, so
+				// dataset has correct attributes etc.
+				if (nexusTreeWriter.isWriteToScanNexusFile()) {
+					startIndex = startFrame == 0 ? 1 : 0;
+				}
+				NexusTreeProvider[] detData = nexusTreeWriter.getCopy(detectorData, startIndex);
+				if (detData.length > 0) {
+					nexusTreeWriter.addDetectorData(detData, startFrame, finalFrame);
+					if (startFrame > 0) {
+						nexusTreeWriter.writeData();
+					}
+				}
+			}
+			return detectorData;
 		} catch (NexusException | ScanFileHolderException e) {
 			throw new DeviceException("Problem getting detector data in Xspress4BufferedDetector.readFrames", e);
 		}
@@ -199,7 +225,11 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 
 	@Override
 	public int maximumReadFrames() throws DeviceException {
-		return 500;
+		return maxFramesToReadAtOnce;
+	}
+
+	public void setMaximumReadFrames(int maxFramesToReadAtOnce) {
+		this.maxFramesToReadAtOnce = maxFramesToReadAtOnce;
 	}
 
 	public TriggerMode getTriggerModeForContinuousScan() {
@@ -257,6 +287,9 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 	@Override
 	public void atScanStart() throws DeviceException {
 		xspressDetector.atScanStart();
+		if (useNexusTreeWriter) {
+			nexusTreeWriter.atScanStart();
+		}
 	}
 
 	@Override
@@ -291,6 +324,9 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 				logger.error("Problem closing detector hdf file at scan end : {}", e.getMessage(), e);
 				throw new DeviceException(e);
 			}
+		}
+		if (useNexusTreeWriter) {
+			nexusTreeWriter.atScanEnd();
 		}
 	}
 
@@ -538,5 +574,26 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 
 	public void setUseSwmrFileReading(boolean useSwmrFileReading) {
 		this.useSwmrFileReading = useSwmrFileReading;
+	}
+
+	public boolean isUseNexusTreeWriter() {
+		return useNexusTreeWriter;
+	}
+
+	public void setUseNexusTreeWriter(boolean useNexusTreeWriter) {
+		this.useNexusTreeWriter = useNexusTreeWriter;
+	}
+
+	public void setDetectorNexusFilename(String detectorNexusFilename) {
+		if (StringUtils.isEmpty(detectorNexusFilename)) {
+			nexusTreeWriter.setWriteToScanNexusFile(true);
+		} else {
+			nexusTreeWriter.setWriteToScanNexusFile(false);
+			nexusTreeWriter.setDetectorNexusFilename(detectorNexusFilename);
+		}
+	}
+
+	public String getDetectorNexusFilename() {
+		return nexusTreeWriter.getDetectorNexusFilename();
 	}
 }

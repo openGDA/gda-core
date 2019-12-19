@@ -48,6 +48,7 @@ public class Xspress4BufferedDetectorTest extends TestBase {
 	private static final Logger logger = LoggerFactory.getLogger(Xspress4BufferedDetectorTest.class);
 	private BufferedScaler bufferedScaler;
 	private QexafsTestingScannable qexafsScannable;
+	private Xspress4BufferedDetector bufDetector;
 
 	@Before
 	public void setup() throws Exception {
@@ -56,6 +57,15 @@ public class Xspress4BufferedDetectorTest extends TestBase {
 		setupDetectorObjects();
 		setupBufferedScaler();
 		setupQexafsScannable();
+		setupXspress4();
+	}
+
+	private void setupXspress4() {
+		bufDetector = new Xspress4BufferedDetector();
+		bufDetector.setName("xspress4BufferedDetector");
+		bufDetector.setXspress4Detector(xspress4detector);
+		bufDetector.setUseSwmrFileReading(true);
+		bufDetector.setWriteHDF5Files(true);
 	}
 
 	private void setupBufferedScaler() throws DeviceException, FactoryException {
@@ -117,9 +127,6 @@ public class Xspress4BufferedDetectorTest extends TestBase {
 		int numFrames = 1000;
 		double timeForScan = 1;
 
-		Xspress4BufferedDetector bufDetector = new Xspress4BufferedDetector();
-		bufDetector.setName("xspress4BufferedDetector");
-		bufDetector.setXspress4Detector(xspress4detector);
 		bufDetector.setUseSwmrFileReading(true);
 		bufDetector.setWriteHDF5Files(true);
 		xsp3controller.setSimulationFileName(hdfFile);
@@ -159,9 +166,6 @@ public class Xspress4BufferedDetectorTest extends TestBase {
 		int numFrames = 1000;
 		double timeForScan = 1;
 
-		Xspress4BufferedDetector bufDetector = new Xspress4BufferedDetector();
-		bufDetector.setName("xspress4BufferedDetector");
-		bufDetector.setXspress4Detector(xspress4detector);
 		bufDetector.setUseSwmrFileReading(false);
 		bufDetector.setWriteHDF5Files(false);
 		xsp3controller.setSimulationFileName(hdfFile);
@@ -174,6 +178,37 @@ public class Xspress4BufferedDetectorTest extends TestBase {
 		ContinuousScan scan = new ContinuousScan(qexafsScannable, 0.0, 10.0, numFrames, timeForScan, new BufferedDetector[] {bufDetector});
 		scan.runScan();
 
+		String filename = scan.getDataWriter().getCurrentFileName();
+		checkNexusScalersAndMca(filename);
+		checkAsciiScalersAndMca(getAsciiNameFromNexusName(filename));
+	}
+
+	@Test(timeout=10000)
+	public void runBufferedXspress4ScanNoSwmrTreeWriter() throws InterruptedException, Exception {
+		setupForTest(Xspress4BufferedDetectorTest.class, "runBufferedXspress4ScanNoSwmrTreeWriter");
+
+		String testFolder = LocalProperties.get(LocalProperties.GDA_DATA);
+		String hdfFile = Paths.get(testFolder, "xspress4DetectorFile.hdf").toAbsolutePath().toString();
+		int numFrames = 10000;
+		double timeForScan = 1;
+
+		bufDetector.setUseSwmrFileReading(false);
+		bufDetector.setWriteHDF5Files(false);
+		bufDetector.setUseNexusTreeWriter(true);
+		bufDetector.setMaximumReadFrames(1000);
+		bufDetector.setDetectorNexusFilename(hdfFile);
+		xsp3controller.setSimulationFileName(hdfFile);
+		xsp4Controller.setTotalNumFramesAvailable(numFrames);
+
+		xspressParams = getParameters(XspressParameters.READOUT_MODE_SCALERS_AND_MCA, ResGrades.NONE, 1, 101);
+		bufDetector.applyConfigurationParameters(xspressParams);
+		xsp4Controller.setTimeSeriesNumPoints(numFrames);
+
+		long startTime = System.currentTimeMillis();
+		ContinuousScan scan = new ContinuousScan(qexafsScannable, 0.0, 10.0, numFrames, timeForScan, new BufferedDetector[] {bufDetector});
+		scan.runScan();
+		long endTime = System.currentTimeMillis();
+		logger.info("Scan took {} ms to run", System.currentTimeMillis() - startTime);
 		String filename = scan.getDataWriter().getCurrentFileName();
 		checkNexusScalersAndMca(filename);
 		checkAsciiScalersAndMca(getAsciiNameFromNexusName(filename));
