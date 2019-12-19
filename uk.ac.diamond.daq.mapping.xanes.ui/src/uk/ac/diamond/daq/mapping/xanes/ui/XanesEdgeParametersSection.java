@@ -150,7 +150,7 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 
 		// Element/edge drop-down list
 		final XanesEdgeCombo elementsAndEdgeCombo = new XanesEdgeCombo(content);
-		elementsAndEdgeCombo.addIObserver((source, arg) -> handleEdgeSelectionChanged((double) arg));
+		elementsAndEdgeCombo.addSelectionChangedListener(e -> handleEdgeSelectionChanged(elementsAndEdgeCombo.getSelectedEnergy()));
 
 		// Lines to track combo box
 		createLabel(content, getMessage(XANES_LINES_TO_TRACK), 1);

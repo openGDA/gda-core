@@ -32,6 +32,9 @@ import java.util.Map;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -44,20 +47,16 @@ import com.google.common.collect.ImmutableMap;
 import com.swtdesigner.SWTResourceManager;
 
 import gda.factory.Finder;
-import gda.observable.IObservable;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
 
-public class XanesEdgeCombo implements IObservable {
+public class XanesEdgeCombo implements ISelectionProvider {
 	private static final Logger logger = LoggerFactory.getLogger(XanesEdgeCombo.class);
-
-	private final ObservableComponent observableComponent = new ObservableComponent();
 
 	/**
 	 * Maps shell as string (as set in {@link ElementAndEdges} to the corresponding {@link Xraylib} constant
 	 */
 	private static final Map<String, Integer> edgeMap = ImmutableMap.of("K", K_SHELL, "L", L3_SHELL);
 
+	private ComboViewer elementsAndEdgeCombo;
 
 	public XanesEdgeCombo(Composite parent) {
 		final Composite content = new Composite(parent, SWT.NONE);
@@ -67,7 +66,7 @@ public class XanesEdgeCombo implements IObservable {
 		label.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 		label.setText(getMessage(XANES_ELEMENT_AND_EDGE));
 
-		final ComboViewer elementsAndEdgeCombo = new ComboViewer(content);
+		elementsAndEdgeCombo = new ComboViewer(content);
 		elementsAndEdgeCombo.setContentProvider(ArrayContentProvider.getInstance());
 		elementsAndEdgeCombo.setInput(createEdgeToEnergyList());
 		elementsAndEdgeCombo.getCombo().setToolTipText(getMessage(XANES_ELEMENT_AND_EDGE_TOOLTIP));
@@ -77,13 +76,6 @@ public class XanesEdgeCombo implements IObservable {
 				return ((EdgeToEnergy) element).getEdge();
 			}
 		});
-		elementsAndEdgeCombo.addSelectionChangedListener(e -> handleEdgeSelectionChanged(
-				(EdgeToEnergy) elementsAndEdgeCombo.getStructuredSelection().getFirstElement()));
-	}
-
-	private void handleEdgeSelectionChanged(EdgeToEnergy selection) {
-		logger.debug("Element/edge selection changed to {}", selection);
-		observableComponent.notifyIObservers(this, selection.getEnergy());
 	}
 
 	/**
@@ -124,21 +116,6 @@ public class XanesEdgeCombo implements IObservable {
 		return result;
 	}
 
-	@Override
-	public void addIObserver(IObserver observer) {
-		observableComponent.addIObserver(observer);
-	}
-
-	@Override
-	public void deleteIObserver(IObserver observer) {
-		observableComponent.deleteIObserver(observer);
-	}
-
-	@Override
-	public void deleteIObservers() {
-		observableComponent.deleteIObservers();
-	}
-
 	/**
 	 * Maps element/edge in user-readable format (e.g. "Fe-K") to the corresponding edge energy<br>
 	 * Used as input for the combo box for the user to choose the edge to scan
@@ -164,5 +141,29 @@ public class XanesEdgeCombo implements IObservable {
 		public String toString() {
 			return "EdgeToEnergy [edge=" + edge + ", energy=" + energy + "]";
 		}
+	}
+
+	@Override
+	public void addSelectionChangedListener(ISelectionChangedListener listener) {
+		elementsAndEdgeCombo.addSelectionChangedListener(listener);
+	}
+
+	@Override
+	public ISelection getSelection() {
+		return elementsAndEdgeCombo.getSelection();
+	}
+
+	@Override
+	public void removeSelectionChangedListener(ISelectionChangedListener listener) {
+		elementsAndEdgeCombo.removeSelectionChangedListener(listener);
+	}
+
+	@Override
+	public void setSelection(ISelection selection) {
+		elementsAndEdgeCombo.setSelection(selection);
+	}
+
+	public double getSelectedEnergy() {
+		return ((EdgeToEnergy) elementsAndEdgeCombo.getStructuredSelection().getFirstElement()).getEnergy();
 	}
 }
