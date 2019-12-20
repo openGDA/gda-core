@@ -61,10 +61,10 @@ import com.google.common.collect.ImmutableMap;
 import gda.device.detector.DummyDetector;
 import gda.device.monitor.DummyMonitor;
 import gda.device.scannable.ScannableMotor;
-import gda.mscan.element.AreaScanpath;
 import gda.mscan.element.Mutator;
 import gda.mscan.element.RegionShape;
 import gda.mscan.element.ScanDataConsumer;
+import gda.mscan.element.Scanpath;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -189,10 +189,10 @@ public class ClausesContextTest {
 	}
 
 	@Test
-	public void regionShapeCannotBeSetIfAreaScanpathAlreadyHasBeen() {
-		expectUnsupportedOperationWithMessageContents("RegionShape must be set before AreaScanpath");
+	public void regionShapeCannotBeSetIfScanpathAlreadyHasBeen() {
+		expectUnsupportedOperationWithMessageContents("RegionShape must be set before Scanpath");
 		prepareForRegionShapeTest(clausesContext, false);
-		clausesContext.setAreaScanpath(AreaScanpath.GRID_POINTS);
+		clausesContext.setScanpath(Scanpath.GRID_POINTS);
 		clausesContext.setRegionShape(RegionShape.CIRCLE);
 	}
 
@@ -209,51 +209,51 @@ public class ClausesContextTest {
 	}
 
 	/**
-	 * Test methods for {@link gda.mscan.ClausesContext#setAreaScanpath(gda.mscan.element.AreaScanpath)}.
+	 * Test methods for {@link gda.mscan.ClausesContext#setScanpath(gda.mscan.element.Scanpath)}.
 	 */
 
 	@Test
-	public void areaScanpathToSetMustNotBeNull() {
-		expectIllegalArgumentWithMessageContents("The supplied AreaScanpath was null");
-		prepareForAreaScanpathTest(clausesContext, Extent.AREA);
-		clausesContext.setAreaScanpath(null);
+	public void scanpathToSetMustNotBeNull() {
+		expectIllegalArgumentWithMessageContents("The supplied Scanpath was null");
+		prepareForScanpathTest(clausesContext, Extent.AREA);
+		clausesContext.setScanpath(null);
 	}
 
 	@Test
-	public void areaScanpathCannotBeSetIfNoScannables() {
+	public void scanpathCannotBeSetIfNoScannables() {
 		expectUnsupportedOperationWithMessageContents("requires 2 scannables");
-		clausesContext.setAreaScanpath(AreaScanpath.GRID_POINTS);
+		clausesContext.setScanpath(Scanpath.GRID_POINTS);
 	}
 
 	@Test
-	public void twoAxisAreaScanpathCannotBeSetIfOnlyOneScannable() {
+	public void twoAxisScanpathCannotBeSetIfOnlyOneScannable() {
 		expectUnsupportedOperationWithMessageContents("requires 2 scannables");
 		clausesContext.addScannable(scannable);
-		clausesContext.setAreaScanpath(AreaScanpath.GRID_POINTS);
+		clausesContext.setScanpath(Scanpath.GRID_POINTS);
 	}
 
 	@Test
-	public void oneAxisAreaScanpathCannotBeSetIfTwoScannables() {
+	public void oneAxisScanpathCannotBeSetIfTwoScannables() {
 		expectUnsupportedOperationWithMessageContents("requires 1 scannables");
 		clausesContext.addScannable(scannable);
 		clausesContext.addScannable(scannable);
-		clausesContext.setAreaScanpath(AreaScanpath.AXIS_POINTS);
+		clausesContext.setScanpath(Scanpath.AXIS_POINTS);
 	}
 
 	@Test
-	public void areaScanpathCannotBeSetTwice() {
-		expectUnsupportedOperationWithMessageContents("AreaScanpath already set");
-		prepareForAreaScanpathTest(clausesContext, Extent.AREA);
-		clausesContext.setAreaScanpath(AreaScanpath.GRID_POINTS);
-		clausesContext.setAreaScanpath(AreaScanpath.GRID_STEP);
+	public void scanpathCannotBeSetTwice() {
+		expectUnsupportedOperationWithMessageContents("Scanpath already set");
+		prepareForScanpathTest(clausesContext, Extent.AREA);
+		clausesContext.setScanpath(Scanpath.GRID_POINTS);
+		clausesContext.setScanpath(Scanpath.GRID_STEP);
 	}
 
 	@Test
-	public void setAreaScanpathSetsMetadataAndStoresScanpathIfScannablesAndRegionShapeCorrectlySet() throws Exception {
-		prepareForAreaScanpathTest(unvalidatedClauseContext, Extent.AREA);
-		unvalidatedClauseContext.setAreaScanpath(AreaScanpath.SPIRAL);
-		assertThat(unvalidatedClauseContext.getAreaScanpath(), is(AreaScanpath.SPIRAL));
-		assertThat(unvalidatedClauseContext.getPreviousType().getTypeName(), is("gda.mscan.element.AreaScanpath"));
+	public void setScanpathSetsMetadataAndStoresScanpathIfScannablesAndRegionShapeCorrectlySet() throws Exception {
+		prepareForScanpathTest(unvalidatedClauseContext, Extent.AREA);
+		unvalidatedClauseContext.setScanpath(Scanpath.SPIRAL);
+		assertThat(unvalidatedClauseContext.getScanpath(), is(Scanpath.SPIRAL));
+		assertThat(unvalidatedClauseContext.getPreviousType().getTypeName(), is("gda.mscan.element.Scanpath"));
 		assertThat(unvalidatedClauseContext.paramsToFill(), is(unvalidatedClauseContext.getPathParams()));
 		assertThat(unvalidatedClauseContext.getRequiredParamCount(), is(1));
 		assertThat(unvalidatedClauseContext.paramsFull(), is(false));
@@ -272,42 +272,42 @@ public class ClausesContextTest {
 
 	@Test
 	public void addMutatorSetsMetadataAndStoresAlternatingMutatorCorrectlyForGrid() throws Exception {
-		checkMutatorIsSupported(Mutator.ALTERNATING, AreaScanpath.GRID_POINTS, 3, 3);
+		checkMutatorIsSupported(Mutator.ALTERNATING, Scanpath.GRID_POINTS, 3, 3);
 	}
 
 	@Test
 	public void addMutatorSetsMetadataAndStoresAlternatingMutatorCorrectlyForRaster() throws Exception {
-		checkMutatorIsSupported(Mutator.ALTERNATING, AreaScanpath.GRID_STEP, 3, 3);
+		checkMutatorIsSupported(Mutator.ALTERNATING, Scanpath.GRID_STEP, 3, 3);
 	}
 
 	@Test
 	public void addMutatorSetsMetadataAndStoresAlternatingMutatorCorrectlyForLissajous() throws Exception {
-		checkMutatorIsSupported(Mutator.ALTERNATING, AreaScanpath.LISSAJOUS, 1, 3, 3);
+		checkMutatorIsSupported(Mutator.ALTERNATING, Scanpath.LISSAJOUS, 1, 3, 3);
 	}
 
 	@Test
 	public void addMutatorSetsMetadataAndStoresAlternatingMutatorCorrectlyForTwoAxisStep() throws Exception {
-		checkMutatorIsSupported(Mutator.ALTERNATING, AreaScanpath.LINE_STEP, 3);
+		checkMutatorIsSupported(Mutator.ALTERNATING, Scanpath.LINE_STEP, 3);
 	}
 
 	@Test
 	public void addMutatorSetsMetadataAndStoresAlternatingMutatorCorrectlyForTwoAxisNoOfPoints() throws Exception {
-		checkMutatorIsSupported(Mutator.ALTERNATING, AreaScanpath.LINE_POINTS, 5);
+		checkMutatorIsSupported(Mutator.ALTERNATING, Scanpath.LINE_POINTS, 5);
 	}
 
 	@Test
 	public void addMutatorRejectsAlternatingMutatorForPoint() throws Exception {
-		checkMutatorIsNotSupported(Mutator.ALTERNATING, AreaScanpath.SINGLE_POINT, 1, 2);
+		checkMutatorIsNotSupported(Mutator.ALTERNATING, Scanpath.SINGLE_POINT, 1, 2);
 	}
 
 	@Test
 	public void addMutatorSetsMetadataAndStoresAlternatingMutatorCorrectlyForOneAxisStep() throws Exception {
-		checkMutatorIsSupported(Mutator.ALTERNATING, AreaScanpath.AXIS_STEP, 1);
+		checkMutatorIsSupported(Mutator.ALTERNATING, Scanpath.AXIS_STEP, 1);
 	}
 
 	@Test
 	public void addMutatorSetsMetadataAndStoresAlternatingMutatorCorrectlyForOneAxisNoOfPoints() throws Exception {
-		checkMutatorIsSupported(Mutator.ALTERNATING, AreaScanpath.AXIS_POINTS, 10);
+		checkMutatorIsSupported(Mutator.ALTERNATING, Scanpath.AXIS_POINTS, 10);
 	}
 
 	@Test
@@ -373,56 +373,56 @@ public class ClausesContextTest {
 
 	@Test
 	public void addMutatorRejectsRandomOffsetGridMutatorForRaster() throws Exception {
-		checkMutatorIsNotSupported(Mutator.RANDOM_OFFSET, AreaScanpath.GRID_STEP, 1);
+		checkMutatorIsNotSupported(Mutator.RANDOM_OFFSET, Scanpath.GRID_STEP, 1);
 	}
 
 	@Test
 	public void addMutatorRejectsRandomOffsetGridMutatorForSpiral() throws Exception {
-		checkMutatorIsNotSupported(Mutator.RANDOM_OFFSET, AreaScanpath.SPIRAL, 1);
+		checkMutatorIsNotSupported(Mutator.RANDOM_OFFSET, Scanpath.SPIRAL, 1);
 	}
 
 	@Test
 	public void addMutatorRejectsRandomOffsetGridMutatorForLissajous() throws Exception {
-		checkMutatorIsNotSupported(Mutator.RANDOM_OFFSET, AreaScanpath.LISSAJOUS, 1, 2, 3);
+		checkMutatorIsNotSupported(Mutator.RANDOM_OFFSET, Scanpath.LISSAJOUS, 1, 2, 3);
 	}
 
 	@Test
 	public void addMutatorRejectsRandomOffsetGridMutatorForTwoAxisStep() throws Exception {
-		checkMutatorIsNotSupported(Mutator.RANDOM_OFFSET, AreaScanpath.LINE_STEP, 1);
+		checkMutatorIsNotSupported(Mutator.RANDOM_OFFSET, Scanpath.LINE_STEP, 1);
 	}
 
 	@Test
 	public void addMutatorRejectsRandomOffsetGridMutatorForTwoAxisNoOfPoints() throws Exception {
-		checkMutatorIsNotSupported(Mutator.RANDOM_OFFSET, AreaScanpath.LINE_POINTS, 1);
+		checkMutatorIsNotSupported(Mutator.RANDOM_OFFSET, Scanpath.LINE_POINTS, 1);
 	}
 
 	@Test
 	public void addMutatorRejectsRandomOffsetGridMutatorPoint() throws Exception {
-		checkMutatorIsNotSupported(Mutator.RANDOM_OFFSET, AreaScanpath.SINGLE_POINT, 1, 2);
+		checkMutatorIsNotSupported(Mutator.RANDOM_OFFSET, Scanpath.SINGLE_POINT, 1, 2);
 	}
 
 	@Test
 	public void addMutatorRejectsRandomOffsetGridMutatorForOneAxisStep() throws Exception {
-		checkMutatorIsNotSupported(Mutator.RANDOM_OFFSET, AreaScanpath.AXIS_STEP, 1);
+		checkMutatorIsNotSupported(Mutator.RANDOM_OFFSET, Scanpath.AXIS_STEP, 1);
 	}
 
 	@Test
 	public void addMutatorRejectsRandomOffsetGridMutatorForOneAxisNoOfPoints() throws Exception {
-		checkMutatorIsNotSupported(Mutator.RANDOM_OFFSET, AreaScanpath.AXIS_POINTS, 10);
+		checkMutatorIsNotSupported(Mutator.RANDOM_OFFSET, Scanpath.AXIS_POINTS, 10);
 	}
 
 	@Test
 	public void addMutatorRejectsContinuousMutatorPoint() throws Exception {
-		checkMutatorIsNotSupported(Mutator.CONTINUOUS, AreaScanpath.SINGLE_POINT, 1, 2);
+		checkMutatorIsNotSupported(Mutator.CONTINUOUS, Scanpath.SINGLE_POINT, 1, 2);
 	}
 
-	private void checkMutatorIsNotSupported(Mutator mutator, AreaScanpath path, Number... params) throws Exception {
+	private void checkMutatorIsNotSupported(Mutator mutator, Scanpath path, Number... params) throws Exception {
 		expectUnsupportedOperationWithMessageContents(mutator + " is not supported");
 		prepareForMutatorTest(clausesContext, path, params);
 		clausesContext.addMutator(mutator);
 	}
 
-	private void checkMutatorIsSupported(Mutator mutator, AreaScanpath scanpath, Number... params) {
+	private void checkMutatorIsSupported(Mutator mutator, Scanpath scanpath, Number... params) {
 		prepareForMutatorTest(unvalidatedClauseContext, scanpath, params);
 		unvalidatedClauseContext.addMutator(mutator);
 		assertThat(unvalidatedClauseContext.getMutatorUses(), hasEntry(mutator, new ArrayList<Number>()));
@@ -461,10 +461,10 @@ public class ClausesContextTest {
 	}
 
 	@Test
-	public void areaScanpathIsDefaultedIfAddParamsWhenRegionShapeAndItsParamsSetAndScannablesAdded() throws Exception {
-		prepareForAreaScanpathTest(unvalidatedClauseContext, Extent.AREA);
+	public void scanpathIsDefaultedIfAddParamsWhenRegionShapeAndItsParamsSetAndScannablesAdded() throws Exception {
+		prepareForScanpathTest(unvalidatedClauseContext, Extent.AREA);
 		assertThat(unvalidatedClauseContext.addParam(2), is(true));
-		assertThat(unvalidatedClauseContext.getAreaScanpath(), is(AreaScanpath.defaultValue()));
+		assertThat(unvalidatedClauseContext.getScanpath(), is(Scanpath.defaultValue()));
 		assertThat(unvalidatedClauseContext.getPathParams(), contains(2));
 		assertThat(unvalidatedClauseContext.getParamCount(), is(1));
 		assertThat(unvalidatedClauseContext.paramsFull(), is(false));
@@ -473,8 +473,8 @@ public class ClausesContextTest {
 
 	@Test
 	public void getModelPathParamsReturnsCompositeListForAxialScans() throws Exception {
-		prepareForAreaScanpathTest(clausesContext, Extent.AXIAL);
-		clausesContext.setAreaScanpath(AreaScanpath.AXIS_POINTS);
+		prepareForScanpathTest(clausesContext, Extent.AXIAL);
+		clausesContext.setScanpath(Scanpath.AXIS_POINTS);
 		clausesContext.addParam(20);
 		clausesContext.validateAndAdjustPathClause();
 		assertThat(clausesContext.getPathParams(), contains(20));
@@ -483,8 +483,8 @@ public class ClausesContextTest {
 
 	@Test
 	public void getBoundsReturnsSyntheticListForAxialScans() throws Exception {
-		prepareForAreaScanpathTest(clausesContext, Extent.AXIAL);
-		clausesContext.setAreaScanpath(AreaScanpath.AXIS_POINTS);
+		prepareForScanpathTest(clausesContext, Extent.AXIAL);
+		clausesContext.setScanpath(Scanpath.AXIS_POINTS);
 		clausesContext.addParam(20);
 		clausesContext.validateAndAdjustPathClause();
 		assertThat(clausesContext.getShapeParams(), contains(1,3));
@@ -493,8 +493,8 @@ public class ClausesContextTest {
 
 	@Test
 	public void getModelPathParamsReturnsSameAsGetPathParamsFor2AxisScan() throws Exception {
-		prepareForAreaScanpathTest(clausesContext, Extent.AREA);
-		clausesContext.setAreaScanpath(AreaScanpath.SPIRAL);
+		prepareForScanpathTest(clausesContext, Extent.AREA);
+		clausesContext.setScanpath(Scanpath.SPIRAL);
 		clausesContext.addParam(20);
 		clausesContext.validateAndAdjustPathClause();
 		assertThat(clausesContext.getPathParams(), contains(20));
@@ -503,8 +503,8 @@ public class ClausesContextTest {
 
 	@Test
 	public void getBoundsReturnsSameAsGetShapeParamsFor2AxisScan() throws Exception {
-		prepareForAreaScanpathTest(clausesContext, Extent.AREA);
-		clausesContext.setAreaScanpath(AreaScanpath.SPIRAL);
+		prepareForScanpathTest(clausesContext, Extent.AREA);
+		clausesContext.setScanpath(Scanpath.SPIRAL);
 		clausesContext.addParam(20);
 		clausesContext.validateAndAdjustPathClause();
 		assertThat(clausesContext.getShapeParams(), contains(1,3,3,5));
@@ -513,11 +513,11 @@ public class ClausesContextTest {
 
 
 	@Test
-	public void cannotSetAreaScanpathOnceDefaultedBecauseItsParamsWillHaveStartedToFill() throws Exception {
+	public void cannotSetScanpathOnceDefaultedBecauseItsParamsWillHaveStartedToFill() throws Exception {
 		expectIllegalStateWithMessageContents("specified before its parameters");
-		prepareForAreaScanpathTest(clausesContext, Extent.AREA);
+		prepareForScanpathTest(clausesContext, Extent.AREA);
 		assertThat(clausesContext.addParam(2), is(true));
-		clausesContext.setAreaScanpath(AreaScanpath.SPIRAL);
+		clausesContext.setScanpath(Scanpath.SPIRAL);
 	}
 
 	@Test
@@ -534,7 +534,7 @@ public class ClausesContextTest {
 	 * Test method for {@link gda.mscan.ClausesContext#paramsFull()}.+
 	 */
 	@Test
-	public void boundedRegionShapeParamsListCannotBeOverfilledBecauseWillDefaultAreaScanpath() throws Exception {
+	public void boundedRegionShapeParamsListCannotBeOverfilledBecauseWillDefaultScanpath() throws Exception {
 		prepareForNumericParamTest(unvalidatedClauseContext, RegionShape.CIRCLE);
 		assertThat(unvalidatedClauseContext.getRequiredParamCount(), is(3));
 		assertThat(unvalidatedClauseContext.addParam(0), is(true));
@@ -547,7 +547,7 @@ public class ClausesContextTest {
 		assertThat(unvalidatedClauseContext.paramsFull(), is(false));
 		assertThat(unvalidatedClauseContext.getPathParams(), contains(6));
 		assertThat(unvalidatedClauseContext.getPathParams().size(), is(1));
-		assertThat(unvalidatedClauseContext.getAreaScanpath(), is(AreaScanpath.defaultValue()));
+		assertThat(unvalidatedClauseContext.getScanpath(), is(Scanpath.defaultValue()));
 	}
 
 	@Test(expected = NoSuchElementException.class)
@@ -571,13 +571,13 @@ public class ClausesContextTest {
 		assertThat(unvalidatedClauseContext.addParam(7), is(true));
 		assertThat(unvalidatedClauseContext.paramsFull(), is(false));
 		assertThat(unvalidatedClauseContext.getPathParams().size(), is(0));
-		unvalidatedClauseContext.getAreaScanpath();
+		unvalidatedClauseContext.getScanpath();
 	}
 
 	@Test
-	public void paramsForAreaScanpathWithDefaultedAreaScanpathCannotBeFilledBeyondTheBound() throws Exception {
+	public void paramsForScanpathWithDefaultedScanpathCannotBeFilledBeyondTheBound() throws Exception {
 		expectIllegalStateWithMessageContents("has already been supplied");
-		prepareForAreaScanpathTest(clausesContext, Extent.AREA);
+		prepareForScanpathTest(clausesContext, Extent.AREA);
 		assertThat(clausesContext.addParam(0), is(true));
 		assertThat(clausesContext.paramsFull(), is(false));
 		assertThat(clausesContext.addParam(3), is(true));
@@ -585,10 +585,10 @@ public class ClausesContextTest {
 		clausesContext.addParam(7);
 	}
 	@Test
-	public void paramsForAreaScanpathWithSetAreaScanpathCannotBeFilledBeyondTheBound() throws Exception {
+	public void paramsForScanpathWithSetScanpathCannotBeFilledBeyondTheBound() throws Exception {
 		expectIllegalStateWithMessageContents("has already been supplied");
-		prepareForAreaScanpathTest(clausesContext, Extent.AREA);
-		clausesContext.setAreaScanpath(AreaScanpath.SPIRAL);
+		prepareForScanpathTest(clausesContext, Extent.AREA);
+		clausesContext.setScanpath(Scanpath.SPIRAL);
 		assertThat(clausesContext.addParam(3), is(true));
 		assertThat(clausesContext.paramsFull(), is(true));
 		clausesContext.addParam(7);
@@ -597,8 +597,8 @@ public class ClausesContextTest {
 	@Test
 	public void contextValuesCannotBeUsedIfNotValidated() throws Exception {
 		expectUnsupportedOperationWithMessageContents("must be validated");
-		prepareForAreaScanpathTest(clausesContext, Extent.AREA);
-		clausesContext.setAreaScanpath(AreaScanpath.SPIRAL);
+		prepareForScanpathTest(clausesContext, Extent.AREA);
+		clausesContext.setScanpath(Scanpath.SPIRAL);
 		clausesContext.addParam(1);
 		clausesContext.getScannables();
 	}
@@ -612,62 +612,62 @@ public class ClausesContextTest {
 	}
 
 	@Test
-	public void validateRejectsContextsWithoutBothRegionShapeAndAreaScanpath() throws Exception {
-		expectIllegalStateWithMessageContents("both RegionShape and AreaScanpath");
-		prepareForAreaScanpathTest(clausesContext, Extent.AREA);
+	public void validateRejectsContextsWithoutBothRegionShapeAndScanpath() throws Exception {
+		expectIllegalStateWithMessageContents("both RegionShape and Scanpath");
+		prepareForScanpathTest(clausesContext, Extent.AREA);
 		clausesContext.validateAndAdjustPathClause();
 	}
 
 	@Test
-	public void validateRejectsContextsWithIncompatibleRegionShapeAndAreaScanpathFor2DShape() throws Exception {
+	public void validateRejectsContextsWithIncompatibleRegionShapeAndScanpathFor2DShape() throws Exception {
 		expectIllegalStateWithMessageContents("cannot be combined with");
-		prepareForAreaScanpathTest(clausesContext, Extent.AREA);
-		clausesContext.setAreaScanpath(AreaScanpath.LINE_POINTS);
+		prepareForScanpathTest(clausesContext, Extent.AREA);
+		clausesContext.setScanpath(Scanpath.LINE_POINTS);
 		clausesContext.validateAndAdjustPathClause();
 	}
 
 	@Test
-	public void validateRejectsContextsWithIncompatibleRegionShapeAndAreaScanpathFor1AxisPath() throws Exception {
+	public void validateRejectsContextsWithIncompatibleRegionShapeAndScanpathFor1AxisPath() throws Exception {
 		expectUnsupportedOperationWithMessageContents("requires 2 scannables");
-		prepareForAreaScanpathTest(clausesContext, Extent.AXIAL);
-		clausesContext.setAreaScanpath(AreaScanpath.GRID_POINTS);
+		prepareForScanpathTest(clausesContext, Extent.AXIAL);
+		clausesContext.setScanpath(Scanpath.GRID_POINTS);
 		clausesContext.addParam(2);
 		clausesContext.addParam(2);
 		clausesContext.validateAndAdjustPathClause();
 	}
 
 	@Test
-	public void validateRejectsContextsWithIncompatibleRegionShapeAndAreaScanpathForLine() throws Exception {
+	public void validateRejectsContextsWithIncompatibleRegionShapeAndScanpathForLine() throws Exception {
 		expectIllegalStateWithMessageContents("cannot be combined with");
 		prepareForNumericParamTest(clausesContext, RegionShape.LINE);
 		clausesContext.addParam(3);
 		clausesContext.addParam(4);
 		clausesContext.addParam(5);
 		clausesContext.addParam(6);
-		clausesContext.setAreaScanpath(AreaScanpath.GRID_POINTS);
+		clausesContext.setScanpath(Scanpath.GRID_POINTS);
 		clausesContext.validateAndAdjustPathClause();
 	}
 
 	@Test
-	public void validateRejectsContextsWithIncompatibleRegionShapeAndAreaScanpathForPoint() throws Exception {
+	public void validateRejectsContextsWithIncompatibleRegionShapeAndScanpathForPoint() throws Exception {
 		expectIllegalStateWithMessageContents("cannot be combined with");
 		prepareForNumericParamTest(clausesContext, RegionShape.POINT);
 		clausesContext.addParam(3);
 		clausesContext.addParam(4);
-		clausesContext.setAreaScanpath(AreaScanpath.LINE_POINTS);
+		clausesContext.setScanpath(Scanpath.LINE_POINTS);
 		clausesContext.validateAndAdjustPathClause();
 	}
 
 	@Test
-	public void validateRejectsContextsWithTooFewAreaScanpathParams() throws Exception {
+	public void validateRejectsContextsWithTooFewScanpathParams() throws Exception {
 		expectIllegalStateWithMessageContents("correct no of params");
-		prepareForAreaScanpathTest(clausesContext, Extent.AREA);
+		prepareForScanpathTest(clausesContext, Extent.AREA);
 		clausesContext.addParam(3);
 		clausesContext.validateAndAdjustPathClause();
 	}
 
 	@Test
-	public void validateRejectsContextsWithTooFewAreaScanpathParamsForUnboundedRegionShape() throws Exception {
+	public void validateRejectsContextsWithTooFewScanpathParamsForUnboundedRegionShape() throws Exception {
 		expectIllegalStateWithMessageContents("correct no of params");
 		prepareForNumericParamTest(clausesContext, RegionShape.POLYGON);
 		clausesContext.addParam(3);
@@ -676,20 +676,20 @@ public class ClausesContextTest {
 		clausesContext.addParam(6);
 		clausesContext.addParam(7);
 		clausesContext.addParam(8);
-		clausesContext.setAreaScanpath(AreaScanpath.GRID_POINTS);
+		clausesContext.setScanpath(Scanpath.GRID_POINTS);
 		clausesContext.addParam(3);
 		clausesContext.validateAndAdjustPathClause();
 	}
 
 	@Test
-	public void validateRejectsContextsWithTooFewAreaScanpathParamsForLineRegionShape() throws Exception {
+	public void validateRejectsContextsWithTooFewScanpathParamsForLineRegionShape() throws Exception {
 		expectIllegalStateWithMessageContents("correct no of params");
 		prepareForNumericParamTest(clausesContext, RegionShape.LINE);
 		clausesContext.addParam(3);
 		clausesContext.addParam(4);
 		clausesContext.addParam(5);
 		clausesContext.addParam(6);
-		clausesContext.setAreaScanpath(AreaScanpath.LINE_STEP);
+		clausesContext.setScanpath(Scanpath.LINE_STEP);
 		clausesContext.validateAndAdjustPathClause();
 	}
 
@@ -704,7 +704,7 @@ public class ClausesContextTest {
 		clausesContext.addParam(7);
 		clausesContext.addParam(8);
 		clausesContext.addParam(9);
-		clausesContext.setAreaScanpath(AreaScanpath.GRID_POINTS);
+		clausesContext.setScanpath(Scanpath.GRID_POINTS);
 		clausesContext.addParam(3);
 		clausesContext.addParam(3);
 		clausesContext.validateAndAdjustPathClause();
@@ -712,8 +712,8 @@ public class ClausesContextTest {
 
 	@Test
 	public void correctlyFullyCompletedContextWithBoundedRegionShapeValidates() {
-		prepareForAreaScanpathTest(clausesContext, Extent.AREA);
-		clausesContext.setAreaScanpath(AreaScanpath.GRID_POINTS);
+		prepareForScanpathTest(clausesContext, Extent.AREA);
+		clausesContext.setScanpath(Scanpath.GRID_POINTS);
 		clausesContext.addParam(3);
 		clausesContext.addParam(3);
 		assertThat(clausesContext.validateAndAdjustPathClause(), is(true));
@@ -732,7 +732,7 @@ public class ClausesContextTest {
 		clausesContext.addParam(3);
 		clausesContext.addParam(3);
 		clausesContext.addParam(2);
-		clausesContext.setAreaScanpath(AreaScanpath.SPIRAL);
+		clausesContext.setScanpath(Scanpath.SPIRAL);
 		clausesContext.addParam(3);
 		assertThat(clausesContext.validateAndAdjustPathClause(), is(true));
 	}
@@ -744,7 +744,7 @@ public class ClausesContextTest {
 		clausesContext.addParam(3);
 		clausesContext.addParam(4);
 		clausesContext.addParam(4);
-		clausesContext.setAreaScanpath(AreaScanpath.LINE_POINTS);
+		clausesContext.setScanpath(Scanpath.LINE_POINTS);
 		clausesContext.addParam(13);
 		assertThat(clausesContext.validateAndAdjustPathClause(), is(true));
 	}
@@ -753,7 +753,7 @@ public class ClausesContextTest {
 		prepareForNumericParamTest(clausesContext, RegionShape.POINT);
 		clausesContext.addParam(3);
 		clausesContext.addParam(3);
-		clausesContext.setAreaScanpath(AreaScanpath.SINGLE_POINT);
+		clausesContext.setScanpath(Scanpath.SINGLE_POINT);
 		clausesContext.addParam(3);
 		clausesContext.addParam(3);
 		assertThat(clausesContext.validateAndAdjustPathClause(), is(true));
@@ -766,22 +766,22 @@ public class ClausesContextTest {
 		clausesContext.addParam(3);
 		clausesContext.addParam(4);
 		clausesContext.addParam(4);
-		clausesContext.setAreaScanpath(AreaScanpath.GRID_POINTS);
+		clausesContext.setScanpath(Scanpath.GRID_POINTS);
 		clausesContext.addParam(3);
 		clausesContext.addParam(3);
 		assertThat(clausesContext.validateAndAdjustPathClause(), is(true));
 	}
 
 	@Test
-	public void correctlyCompletedContextWithDefaultedAreaScanpathValidates() {
-		prepareForAreaScanpathTest(clausesContext, Extent.AREA);
+	public void correctlyCompletedContextWithDefaultedScanpathValidates() {
+		prepareForScanpathTest(clausesContext, Extent.AREA);
 		clausesContext.addParam(3);
 		clausesContext.addParam(3);
 		assertThat(clausesContext.validateAndAdjustPathClause(), is(true));
 	}
 
 	@Test
-	public void correctlyCompletedContextWithDefaultedRegionShapeAndAreaScanpathValidates() {
+	public void correctlyCompletedContextWithDefaultedRegionShapeAndScanpathValidates() {
 		prepareForRegionShapeTest(clausesContext, false);
 		clausesContext.addParam(3);
 		clausesContext.addParam(3);
@@ -793,8 +793,8 @@ public class ClausesContextTest {
 	}
 
 	@Test
-	public void defaultingOfAreaScanpathCannotBeDetectedWithUnboundedRegionShape() {
-		expectIllegalStateWithMessageContents("both RegionShape and AreaScanpath");
+	public void defaultingOfScanpathCannotBeDetectedWithUnboundedRegionShape() {
+		expectIllegalStateWithMessageContents("both RegionShape and Scanpath");
 		prepareForNumericParamTest(clausesContext, RegionShape.POLYGON);
 		clausesContext.addParam(3);
 		clausesContext.addParam(3);
@@ -804,7 +804,7 @@ public class ClausesContextTest {
 		clausesContext.addParam(4);
 		clausesContext.addParam(6);
 		clausesContext.addParam(3);
-		// and now lets attempt to default the AreaScanpath by not specifying it
+		// and now lets attempt to default the Scanpath by not specifying it
 		clausesContext.addParam(3);
 		clausesContext.addParam(2);
 		assertThat(clausesContext.validateAndAdjustPathClause(), is(true));
@@ -916,16 +916,16 @@ public class ClausesContextTest {
 	@Test
 	public void addPathDefinitionToCompoundModelRejectsContextWithoutRegionShape() throws Exception {
 		thrown.expect(IllegalStateException.class);
-		expectMessageContents("scan must have both RegionShape and AreaScanpath");
+		expectMessageContents("scan must have both RegionShape and Scanpath");
 		clausesContext.addScannable(scannable);
 		clausesContext.addScannable(scannable);
 		clausesContext.addPathDefinitionToCompoundModel(scanModel);
 	}
 
 	@Test
-	public void addPathDefinitionToCompoundModelRejectsContextWithoutAreaScanpath() throws Exception {
+	public void addPathDefinitionToCompoundModelRejectsContextWithoutScanpath() throws Exception {
 		thrown.expect(IllegalStateException.class);
-		expectMessageContents("scan must have both RegionShape and AreaScanpath");
+		expectMessageContents("scan must have both RegionShape and Scanpath");
 		clausesContext.addScannable(scannable);
 		clausesContext.addScannable(scannable);
 		clausesContext.setRegionShape(RegionShape.CIRCLE);
@@ -939,14 +939,14 @@ public class ClausesContextTest {
 		clausesContext.addScannable(scannable);
 		clausesContext.addScannable(scannable);
 		clausesContext.setRegionShape(RegionShape.CIRCLE);
-		clausesContext.setAreaScanpath(AreaScanpath.SPIRAL);
+		clausesContext.setScanpath(Scanpath.SPIRAL);
 		clausesContext.addPathDefinitionToCompoundModel(scanModel);
 	}
 
 	@Test
 	public void addPathDefinitionToCompoundModelRejectsTooManyParamsForRegionShape() throws Exception {
 		thrown.expect(IllegalStateException.class);
-		expectMessageContents("AreaScanpath must be specified before its parameters");
+		expectMessageContents("Scanpath must be specified before its parameters");
 		clausesContext.addScannable(scannable);
 		clausesContext.addScannable(scannable);
 		clausesContext.setRegionShape(RegionShape.CIRCLE);
@@ -954,12 +954,12 @@ public class ClausesContextTest {
 		clausesContext.addParam(1);
 		clausesContext.addParam(1);
 		clausesContext.addParam(1);
-		clausesContext.setAreaScanpath(AreaScanpath.SPIRAL);
+		clausesContext.setScanpath(Scanpath.SPIRAL);
 		clausesContext.addPathDefinitionToCompoundModel(scanModel);
 	}
 
 	@Test
-	public void addPathDefinitionToCompoundModelRejectsTooFewParamsForAreaScanpath() throws Exception {
+	public void addPathDefinitionToCompoundModelRejectsTooFewParamsForScanpath() throws Exception {
 		thrown.expect(IllegalStateException.class);
 		expectMessageContents("correct no of params for RegionShape and Scanpath");
 		clausesContext.addScannable(scannable);
@@ -968,13 +968,13 @@ public class ClausesContextTest {
 		clausesContext.addParam(1);
 		clausesContext.addParam(1);
 		clausesContext.addParam(1);
-		clausesContext.setAreaScanpath(AreaScanpath.SPIRAL);
+		clausesContext.setScanpath(Scanpath.SPIRAL);
 		clausesContext.addPathDefinitionToCompoundModel(scanModel);
 	}
 
 
 	@Test
-	public void addPathDefinitionToCompoundModelRejectsTooFewParamsForAreaScanpathForRegionShapeWithNoFixedValueCount()
+	public void addPathDefinitionToCompoundModelRejectsTooFewParamsForScanpathForRegionShapeWithNoFixedValueCount()
 			throws Exception {
 		thrown.expect(IllegalStateException.class);
 		expectMessageContents("correct no of params for RegionShape and Scanpath");
@@ -987,12 +987,12 @@ public class ClausesContextTest {
 		clausesContext.addParam(1);
 		clausesContext.addParam(1);
 		clausesContext.addParam(1);
-		clausesContext.setAreaScanpath(AreaScanpath.SPIRAL);
+		clausesContext.setScanpath(Scanpath.SPIRAL);
 		clausesContext.addPathDefinitionToCompoundModel(scanModel);
 	}
 
 	@Test
-	public void addPathDefinitionToCompoundModelRejectsOddNoOfParamsForAreaScanpathForRegionShapeWithNoFixedValueCount()
+	public void addPathDefinitionToCompoundModelRejectsOddNoOfParamsForScanpathForRegionShapeWithNoFixedValueCount()
 			throws Exception {
 		thrown.expect(IllegalStateException.class);
 		expectMessageContents("Polygon requires an even number of param");
@@ -1006,13 +1006,13 @@ public class ClausesContextTest {
 		clausesContext.addParam(1);
 		clausesContext.addParam(1);
 		clausesContext.addParam(1);
-		clausesContext.setAreaScanpath(AreaScanpath.SPIRAL);
+		clausesContext.setScanpath(Scanpath.SPIRAL);
 		clausesContext.addParam(1);
 		clausesContext.addPathDefinitionToCompoundModel(scanModel);
 	}
 
 	@Test
-	public void addPathDefinitionToCompoundModelRejectsTooManyParamsForAreaScanpath() throws Exception {
+	public void addPathDefinitionToCompoundModelRejectsTooManyParamsForScanpath() throws Exception {
 		thrown.expect(IllegalStateException.class);
 		expectMessageContents("params for the Spiral has already been supplied");
 		clausesContext.addScannable(scannable);
@@ -1021,14 +1021,14 @@ public class ClausesContextTest {
 		clausesContext.addParam(1);
 		clausesContext.addParam(1);
 		clausesContext.addParam(1);
-		clausesContext.setAreaScanpath(AreaScanpath.SPIRAL);
+		clausesContext.setScanpath(Scanpath.SPIRAL);
 		clausesContext.addParam(1);
 		clausesContext.addParam(1);
 		clausesContext.addPathDefinitionToCompoundModel(scanModel);
 	}
 
 	@Test
-	public void addPathDefinitionToCompoundModelRejectsPointWithNonMatchingAreaScanpath() throws Exception {
+	public void addPathDefinitionToCompoundModelRejectsPointWithNonMatchingScanpath() throws Exception {
 		thrown.expect(IllegalStateException.class);
 		expectMessageContents("POINT cannot be combined with SPIRAL");
 		clausesContext.addScannable(scannable);
@@ -1036,7 +1036,7 @@ public class ClausesContextTest {
 		clausesContext.setRegionShape(RegionShape.POINT);
 		clausesContext.addParam(1);
 		clausesContext.addParam(1);
-		clausesContext.setAreaScanpath(AreaScanpath.SPIRAL);
+		clausesContext.setScanpath(Scanpath.SPIRAL);
 		clausesContext.addPathDefinitionToCompoundModel(scanModel);
 	}
 
@@ -1049,7 +1049,7 @@ public class ClausesContextTest {
 		clausesContext.setRegionShape(RegionShape.POINT);
 		clausesContext.addParam(1);
 		clausesContext.addParam(1);
-		clausesContext.setAreaScanpath(AreaScanpath.SINGLE_POINT);
+		clausesContext.setScanpath(Scanpath.SINGLE_POINT);
 		clausesContext.addParam(1);
 		clausesContext.addParam(2);
 		clausesContext.addPathDefinitionToCompoundModel(scanModel);
@@ -1065,7 +1065,7 @@ public class ClausesContextTest {
 		clausesContext.addParam(1);
 		clausesContext.addParam(1);
 		clausesContext.addParam(1);
-		clausesContext.setAreaScanpath(AreaScanpath.GRID_POINTS);
+		clausesContext.setScanpath(Scanpath.GRID_POINTS);
 		clausesContext.addParam(1);
 		clausesContext.addParam(2);
 		clausesContext.addMutator(Mutator.RANDOM_OFFSET);
@@ -1081,7 +1081,7 @@ public class ClausesContextTest {
 		clausesContext.addParam(1);
 		clausesContext.addParam(2);
 		clausesContext.addParam(3);
-		clausesContext.setAreaScanpath(AreaScanpath.GRID_POINTS);
+		clausesContext.setScanpath(Scanpath.GRID_POINTS);
 		clausesContext.addParam(1);
 		clausesContext.addParam(2);
 		clausesContext.addPathDefinitionToCompoundModel(compoundModel);
@@ -1199,13 +1199,13 @@ public class ClausesContextTest {
 	}
 
 	private void prepareForMutatorTest(final ClausesContext context) {
-		prepareForMutatorTest(context, AreaScanpath.GRID_POINTS, 3, 3);
+		prepareForMutatorTest(context, Scanpath.GRID_POINTS, 3, 3);
 	}
 
-	private void prepareForMutatorTest(final ClausesContext context, final AreaScanpath path, final Number... params) {
+	private void prepareForMutatorTest(final ClausesContext context, final Scanpath path, final Number... params) {
 		Extent extent = Extent.AXIAL;
 
-		if (path.equals(AreaScanpath.SINGLE_POINT)) {
+		if (path.equals(Scanpath.SINGLE_POINT)) {
 			extent =  Extent.POINT;
 		} else if (IBoundingBoxModel.class.isAssignableFrom(path.modelType())) {
 			extent = Extent.AREA;
@@ -1213,14 +1213,14 @@ public class ClausesContextTest {
 			extent = Extent.LINEAR;
 		}
 
-		prepareForAreaScanpathTest(context, extent);
-		context.setAreaScanpath(path);
+		prepareForScanpathTest(context, extent);
+		context.setScanpath(path);
 		for (Number param : params) {
 			context.addParam(param);
 		}
 	}
 
-	private void prepareForAreaScanpathTest(final ClausesContext context, final Extent extent) {
+	private void prepareForScanpathTest(final ClausesContext context, final Extent extent) {
 		prepareForRegionShapeTest(context, extent == Extent.AXIAL);
 		context.setRegionShape(lookup.get(extent));
 		context.addParam(1);

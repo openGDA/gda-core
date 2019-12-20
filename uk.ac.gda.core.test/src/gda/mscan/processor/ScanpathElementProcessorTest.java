@@ -35,14 +35,14 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import gda.device.Scannable;
 import gda.mscan.ClausesContext;
-import gda.mscan.element.AreaScanpath;
+import gda.mscan.element.Scanpath;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AreaScanpathElementProcessorTest {
+public class ScanpathElementProcessorTest {
 
-	private AreaScanpathElementProcessor processor;
+	private ScanpathElementProcessor processor;
 
-	private AreaScanpath path = AreaScanpath.SPIRAL;
+	private Scanpath path = Scanpath.SPIRAL;
 	private List<IClauseElementProcessor> emptyList = new ArrayList<>();
 
 	@Mock
@@ -50,15 +50,15 @@ public class AreaScanpathElementProcessorTest {
 
 	@Before
 	public void setUp() throws Exception {
-		processor = new AreaScanpathElementProcessor(path);
+		processor = new ScanpathElementProcessor(path);
 		when(context.grammar()).thenCallRealMethod();
 	}
 
 	/**
-	 * AreaScanpath cannot be first element of clause
+	 * Scanpath cannot be first element of clause
 	 */
 	@Test(expected = UnsupportedOperationException.class)
-	public void processLookUpTrapsAreaScanpathAtElementZero() throws Exception {
+	public void processLookUpTrapsScanpathAtElementZero() throws Exception {
 		doReturn(Scannable.class).when(context).getPreviousType();
 		processor.process(context, emptyList, 0);
 	}
@@ -73,10 +73,10 @@ public class AreaScanpathElementProcessorTest {
 	}
 
 	@Test
-	public void processSetsValidSuccessorAsContextAreaScanpath() throws Exception {
+	public void processSetsValidSuccessorAsContextScanpath() throws Exception {
 		doReturn(Number.class).when(context).getPreviousType();
 		processor.process(context, emptyList, 1);
-		verify(context).setAreaScanpath(path);
+		verify(context).setScanpath(path);
 	}
 
 	@Test

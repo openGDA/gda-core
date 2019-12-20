@@ -38,7 +38,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableMotor;
 import gda.mscan.ClausesContext;
-import gda.mscan.element.AreaScanpath;
+import gda.mscan.element.Scanpath;
 import gda.mscan.element.RegionShape;
 
 /**
@@ -75,7 +75,7 @@ public class ScannableElementProcessorAndElementProcessorBaseTest {
 		validClause.add(new RegionShapeElementProcessor(RegionShape.AXIAL));
 		validClause.add(new NumberElementProcessor(1));
 		validClause.add(new NumberElementProcessor(3));
-		validClause.add(new AreaScanpathElementProcessor(AreaScanpath.AXIS_STEP));
+		validClause.add(new ScanpathElementProcessor(Scanpath.AXIS_STEP));
 		validClause.add(new NumberElementProcessor(1));
 	}
 

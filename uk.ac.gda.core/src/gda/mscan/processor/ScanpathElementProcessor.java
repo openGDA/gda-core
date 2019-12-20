@@ -22,20 +22,20 @@ import java.util.List;
 
 import gda.device.Scannable;
 import gda.mscan.ClausesContext;
-import gda.mscan.element.AreaScanpath;
+import gda.mscan.element.Scanpath;
 
 /**
- * A Clause Element Processor for {@link AreaScanpath} elements
+ * A Clause Element Processor for {@link Scanpath} elements
  */
-public class AreaScanpathElementProcessor extends ElementProcessorBase<AreaScanpath> {
+public class ScanpathElementProcessor extends ElementProcessorBase<Scanpath> {
 
-	public AreaScanpathElementProcessor(final AreaScanpath source) {
+	public ScanpathElementProcessor(final Scanpath source) {
 		super(source);
 	}
 
 	/**
-	 * Confirm that a {@link AreaScanpath} is allowed as the next type to be processed in the MScan clause grammar
-	 * and if so, set the {@link AreaScanpath} used in construction on the context object, provided this is not the
+	 * Confirm that a {@link Scanpath} is allowed as the next type to be processed in the MScan clause grammar
+	 * and if so, set the {@link Scanpath} used in construction on the context object, provided this is not the
 	 * first element in the clause as the first element should always be a {@link Scannable}.
 	 *
 	 * @param context	The {@link ClausesContext} object being completed for the current MSCan clause
@@ -50,14 +50,14 @@ public class AreaScanpathElementProcessor extends ElementProcessorBase<AreaScanp
 			final List<IClauseElementProcessor> clauseProcessors, final int index) {
 		rejectIfFirstElement(index);
 		if(isValidElement(context, this.getClass().getName())) {
-			context.setAreaScanpath(enclosed);
+			context.setScanpath(enclosed);
 		}
 	}
 
 	/**
-	 * Retrieve the name of the enclosed {@link AreaScanpath}
+	 * Retrieve the name of the enclosed {@link Scanpath}
 	 *
-	 * @return the name of the enclosed {@link AreaScanpath}
+	 * @return the name of the enclosed {@link Scanpath}
 	 */
 	@Override
 	public String getElementValue() {

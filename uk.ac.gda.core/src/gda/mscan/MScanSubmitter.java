@@ -44,12 +44,12 @@ import gda.device.Monitor;
 import gda.device.Scannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.Findable;
-import gda.mscan.element.AreaScanpath;
+import gda.mscan.element.Scanpath;
 import gda.mscan.element.IMScanElementEnum;
 import gda.mscan.element.Mutator;
 import gda.mscan.element.RegionShape;
 import gda.mscan.element.ScanDataConsumer;
-import gda.mscan.processor.AreaScanpathElementProcessor;
+import gda.mscan.processor.ScanpathElementProcessor;
 import gda.mscan.processor.IClauseElementProcessor;
 import gda.mscan.processor.IRunnableDeviceDetectorElementProcessor;
 import gda.mscan.processor.MutatorElementProcessor;
@@ -86,7 +86,7 @@ public class MScanSubmitter extends ValidationUtils {
 		.put (ScannableGroup.class, arg -> new ScannableGroupElementProcessor((ScannableGroup)arg))
 		.put(Detector.class, arg -> new ScannableDetectorElementProcessor((Detector)arg))
 		.put(Monitor.class, arg -> new ScannableMonitorElementProcessor((Monitor)arg))
-		.put(AreaScanpath.class, arg -> new AreaScanpathElementProcessor((AreaScanpath)arg))
+		.put(Scanpath.class, arg -> new ScanpathElementProcessor((Scanpath)arg))
 		.put(RegionShape.class, arg -> new RegionShapeElementProcessor((RegionShape)arg))
 		.put(Mutator.class, arg -> new MutatorElementProcessor((Mutator)arg))
 		.put(Integer.class, arg -> new NumberElementProcessor((Number)arg))
@@ -235,7 +235,7 @@ public class MScanSubmitter extends ValidationUtils {
 			if (args[i].equals(RegionShape.POINT) && args[i + 1] instanceof Number && args[i + 2] instanceof Number) {
 				params.add(args[i + 1]);
 				params.add(args[i + 2]);
-				params.add(AreaScanpath.SINGLE_POINT);
+				params.add(Scanpath.SINGLE_POINT);
 				if ((args.length >= i + 6) && (args[i + 3].equals(RegionShape.POINT))) {
 					i += 3;
 				}
@@ -248,10 +248,10 @@ public class MScanSubmitter extends ValidationUtils {
 		while (currentList.contains(RegionShape.AXIAL)) {
 			int index = currentList.indexOf(RegionShape.AXIAL);
 			if (len > index + 2) {
-				if (currentList.get(index + 3).equals(AreaScanpath.LINE_STEP)) {
-					currentList.set(index + 3, AreaScanpath.AXIS_STEP);
-				} else if (currentList.get(index + 3).equals(AreaScanpath.LINE_POINTS)) {
-					currentList.set(index + 3, AreaScanpath.AXIS_POINTS);
+				if (currentList.get(index + 3).equals(Scanpath.LINE_STEP)) {
+					currentList.set(index + 3, Scanpath.AXIS_STEP);
+				} else if (currentList.get(index + 3).equals(Scanpath.LINE_POINTS)) {
+					currentList.set(index + 3, Scanpath.AXIS_POINTS);
 				}
 			}
 			currentList = currentList.subList(index + 1, len -index);

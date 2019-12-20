@@ -29,14 +29,13 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import gda.device.Scannable;
 
 /**
- * Functional Interface providing the template for factory functions for Scan path models that carve out paths that
- * cover a two dimensional area.
+ * Functional Interface providing the template for factory functions for Scan path models.
  * @since GDA 9.9
  */
 @FunctionalInterface
-public interface AreaScanpathModelFactoryFunction {
+public interface ScanpathModelFactoryFunction {
 	/**
-	 * Template for area based Scan path model factory functions
+	 * Template for Scan path model factory functions
 	 * @param scannables					The {@link Scannable}s that map to the axes of movement.
 	 * @param scanParameters				The numeric parameters relevant to the specified {@link ScanModel}
 	 * @param bboxParameters				The numeric parameters describing the {@link BoundingBox} of the specified

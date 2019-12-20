@@ -18,15 +18,6 @@
 
 package gda.mscan;
 
-import static gda.mscan.element.AreaScanpath.AXIS_POINTS;
-import static gda.mscan.element.AreaScanpath.AXIS_STEP;
-import static gda.mscan.element.AreaScanpath.GRID_POINTS;
-import static gda.mscan.element.AreaScanpath.GRID_STEP;
-import static gda.mscan.element.AreaScanpath.LINE_POINTS;
-import static gda.mscan.element.AreaScanpath.LINE_STEP;
-import static gda.mscan.element.AreaScanpath.LISSAJOUS;
-import static gda.mscan.element.AreaScanpath.SINGLE_POINT;
-import static gda.mscan.element.AreaScanpath.SPIRAL;
 import static gda.mscan.element.RegionShape.AXIAL;
 import static gda.mscan.element.RegionShape.CENTRED_RECTANGLE;
 import static gda.mscan.element.RegionShape.CIRCLE;
@@ -36,6 +27,15 @@ import static gda.mscan.element.RegionShape.POLYGON;
 import static gda.mscan.element.RegionShape.RECTANGLE;
 import static gda.mscan.element.ScanDataConsumer.PROCESSOR;
 import static gda.mscan.element.ScanDataConsumer.TEMPLATE;
+import static gda.mscan.element.Scanpath.AXIS_POINTS;
+import static gda.mscan.element.Scanpath.AXIS_STEP;
+import static gda.mscan.element.Scanpath.GRID_POINTS;
+import static gda.mscan.element.Scanpath.GRID_STEP;
+import static gda.mscan.element.Scanpath.LINE_POINTS;
+import static gda.mscan.element.Scanpath.LINE_STEP;
+import static gda.mscan.element.Scanpath.LISSAJOUS;
+import static gda.mscan.element.Scanpath.SINGLE_POINT;
+import static gda.mscan.element.Scanpath.SPIRAL;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,11 +75,11 @@ import com.google.common.collect.ImmutableMap;
 import gda.device.Detector;
 import gda.device.Monitor;
 import gda.device.Scannable;
-import gda.mscan.element.AreaScanpath;
 import gda.mscan.element.IMScanDimensionalElementEnum;
 import gda.mscan.element.Mutator;
 import gda.mscan.element.RegionShape;
 import gda.mscan.element.ScanDataConsumer;
+import gda.mscan.element.Scanpath;
 import gda.mscan.processor.IClauseElementProcessor;
 
 /**
@@ -96,12 +96,12 @@ public class ClausesContext extends ValidationUtils {
 	private static final ImmutableMap<Class<?>, List<Class<?>>> grammar = ImmutableMap.of(
 			Scannable.class,    Arrays.asList(Scannable.class, RegionShape.class, Number.class),
 			RegionShape.class,  Arrays.asList(Number.class),
-			AreaScanpath.class, Arrays.asList(Number.class),
-			Number.class,       Arrays.asList(Number.class, AreaScanpath.class, Mutator.class),
+			Scanpath.class,     Arrays.asList(Number.class),
+			Number.class,       Arrays.asList(Number.class, Scanpath.class, Mutator.class),
 			Mutator.class,      Arrays.asList(Number.class, Mutator.class));
 
-	private static final ImmutableMap<RegionShape, List<AreaScanpath>> VALID_COMBINATIONS =
-			new ImmutableMap.Builder<RegionShape, List<AreaScanpath>>()
+	private static final ImmutableMap<RegionShape, List<Scanpath>> VALID_COMBINATIONS =
+			new ImmutableMap.Builder<RegionShape, List<Scanpath>>()
 			.put(RECTANGLE,         Arrays.asList(GRID_POINTS, GRID_STEP ,SPIRAL, LISSAJOUS))
 			.put(CENTRED_RECTANGLE, Arrays.asList(GRID_POINTS, GRID_STEP ,SPIRAL, LISSAJOUS))
 			.put(CIRCLE,            Arrays.asList(GRID_POINTS, GRID_STEP ,SPIRAL, LISSAJOUS))
@@ -143,8 +143,8 @@ public class ClausesContext extends ValidationUtils {
 	private int requiredParamCount;
 	private Optional<RegionShape> regionShape;
 	private boolean regionShapeDefaulted;
-	private Optional<AreaScanpath> areaScanpath;
-	private boolean areaScanpathDefaulted;
+	private Optional<Scanpath> scanpath;
+	private boolean scanpathDefaulted;
 	private boolean paramNullCheckValid;
 	protected boolean pathClauseValidated;
 	private boolean clauseProcessed;
@@ -170,9 +170,9 @@ public class ClausesContext extends ValidationUtils {
 		shapeParams.clear();
 		requiredParamCount = 0;
 		regionShape = Optional.empty();
-		areaScanpath = Optional.empty();
+		scanpath = Optional.empty();
 		regionShapeDefaulted = false;
-		areaScanpathDefaulted = false;
+		scanpathDefaulted = false;
 		mutatorUses.clear();
 		paramNullCheckValid = true;
 		pathClauseValidated = false;
@@ -199,7 +199,7 @@ public class ClausesContext extends ValidationUtils {
 					"Too many scannables in scan clause, maximum amount is %d", REQUIRED_SCANNABLES_FOR_AREA));
 		}
 		// Scannables must be added before regionshape and scanpath
-		rejectIfAlreadySet(areaScanpathDefaulted, areaScanpath);
+		rejectIfAlreadySet(scanpathDefaulted, scanpath);
 		rejectIfAlreadySet(regionShapeDefaulted, regionShape);
 		rejectIfAnyParamsWritten(Scannable.class.getSimpleName());
 
@@ -226,7 +226,7 @@ public class ClausesContext extends ValidationUtils {
 	 */
 	public void setRegionShape(final RegionShape supplied) {
 		// RegionShape must be set before scanpath
-		rejectIfAlreadySet(areaScanpathDefaulted, areaScanpath);
+		rejectIfAlreadySet(scanpathDefaulted, scanpath);
 		rejectIfAnyParamsWritten(RegionShape.class.getSimpleName());
 		// If the default regionShape has already been set or defaulted the reject the supplied one
 		rejectIfAlreadySet(regionShapeDefaulted, regionShape);
@@ -240,27 +240,27 @@ public class ClausesContext extends ValidationUtils {
 	}
 
 	/**
-	 * Store the selected {@link AreaScanpath} and reset the filler reference to point at the pathParams list. Also
+	 * Store the selected {@link Scanpath} and reset the filler reference to point at the pathParams list. Also
 	 * initialise other scanpath related metadata
 	 *
-	 * @param supplied		The {@link AreaScanpath} instance to be stored
+	 * @param supplied		The {@link Scanpath} instance to be stored
 	 */
-	public void setAreaScanpath(final AreaScanpath supplied) {
+	public void setScanpath(final Scanpath supplied) {
 		if (!pathParams.isEmpty()) {
 			throw new IllegalStateException(
-					"AreaScanpath must be specified before its parameters");
+					"Scanpath must be specified before its parameters");
 		}
-		nullCheck(supplied, AreaScanpath.class.getSimpleName());
+		nullCheck(supplied, Scanpath.class.getSimpleName());
 		rejectIncorrectNumberOfScannables(supplied);
 
 		// If the default scanpath has already been set or defaulted the reject the supplied one
-		rejectIfAlreadySet(areaScanpathDefaulted, areaScanpath);
+		rejectIfAlreadySet(scanpathDefaulted, scanpath);
 		rejectIfNoRegionShapeOrNotEnoughRegionShapeParams();
 		rejectIfInvalidCombintationOfShapeAndPath(supplied);
-		areaScanpath = Optional.of(supplied);
+		scanpath = Optional.of(supplied);
 		paramsToFill = pathParams;
 		requiredParamCount = supplied.valueCount();
-		previousType = AreaScanpath.class;
+		previousType = Scanpath.class;
 		resetParamList();
 	}
 
@@ -271,9 +271,9 @@ public class ClausesContext extends ValidationUtils {
 	 * @param supplied		The {@link Mutator} to be added to the context
 	 */
 	public void addMutator(final Mutator supplied) {
-		areaScanMustHaveRegionShapePlusAreaScanpath();
+		areaScanMustHaveRegionShapePlusScanpath();
 		nullCheck(supplied, Mutator.class.getSimpleName());
-		if (!areaScanpath.get().supports(supplied)) {
+		if (!scanpath.get().supports(supplied)) {
 			throw new UnsupportedOperationException(String.format(
 					"%s is not supported by the current scan path", supplied.toString()));
 		}
@@ -286,10 +286,10 @@ public class ClausesContext extends ValidationUtils {
 
 	/**
 	 * Add the supplied number to the param list that has been selected by the setting of a {@link RegionShape},
-	 * {@link Mutator} or {@link AreaScanpath}. If either or both of {@link RegionShape} or {@link AreaScanpath} has not
+	 * {@link Mutator} or {@link Scanpath}. If either or both of {@link RegionShape} or {@link Scanpath} has not
 	 * been set, the default value is used and the list selection is  made based on the order ({@link RegionShape} is
 	 * the first thing that can have parameters in the clause). If too many params are supplied this will also be
-	 * rejected for all {@link RegionShape}s and bounded {@link AreaScanpath}s. Multiple {@link Mutator}s may be
+	 * rejected for all {@link RegionShape}s and bounded {@link Scanpath}s. Multiple {@link Mutator}s may be
 	 * specified, so contextual validation of their parameters is done for each.
 	 *
 	 * @param supplied		The numeric param to be added to the list
@@ -317,12 +317,12 @@ public class ClausesContext extends ValidationUtils {
 			paramsToFill = shapeParams;
 			requiredParamCount = regionShape.get().valueCount();
 			resetParamList();
-		} else if (paramsToFill == shapeParams && paramsFull() && !areaScanpath.isPresent()) {
+		} else if (paramsToFill == shapeParams && paramsFull() && !scanpath.isPresent()) {
 			// we are doing a 2D map scan with a bounding box with the default path so set this for future comparisons
-			areaScanpath = Optional.of(AreaScanpath.defaultValue());
-			areaScanpathDefaulted = true;
+			scanpath = Optional.of(Scanpath.defaultValue());
+			scanpathDefaulted = true;
 			paramsToFill = pathParams;
-			requiredParamCount = areaScanpath.get().valueCount();
+			requiredParamCount = scanpath.get().valueCount();
 			resetParamList();
 		} else {
 			int indexOfParamToAdd = paramsToFill.size();
@@ -345,11 +345,11 @@ public class ClausesContext extends ValidationUtils {
 			throw new IllegalStateException(
 					"Parameters may not be added until either a RegionShape or a Scanpath has been specified");
 		}
-		// Because of defaulting behaviour, this next condition can only be true for AreaScanpaths
+		// Because of defaulting behaviour, this next condition can only be true for Scanpaths
 		if (paramsFull()) {
 			throw new IllegalStateException(String.format(
 					"The required number of params for the %s has already been supplied",
-							StringUtils.capitalize(areaScanpath.get().name().toLowerCase())));
+							StringUtils.capitalize(scanpath.get().name().toLowerCase())));
 		}
 		previousType = Number.class;
 		return paramsToFill.add(supplied);
@@ -365,7 +365,7 @@ public class ClausesContext extends ValidationUtils {
 	 */
 	public void addPathDefinitionToCompoundModel(final CompoundModel scanModel) {
 		nullCheck(scanModel, CompoundModel.class.getSimpleName());
-		if (validateAndAdjustPathClause() && areaScanpath != null) {
+		if (validateAndAdjustPathClause() && scanpath != null) {
 			LOGGER.debug("Valid scan definition clause detected and added");
 			ArrayList<Number> boundingBoxParams = new ArrayList<>();
 
@@ -375,7 +375,7 @@ public class ClausesContext extends ValidationUtils {
 			boundingBoxParams.add(boundingRoi.getPointY());
 			boundingBoxParams.add(boundingRoi.getLength(0));
 			boundingBoxParams.add(boundingRoi.getLength(1));
-			scanModel.setData(areaScanpath.get().createModel(scannables,
+			scanModel.setData(scanpath.get().createModel(scannables,
 					getModelPathParams(), boundingBoxParams, mutatorUses), roi);
 			scanPathSeen = true;
 			clauseProcessed = true;
@@ -529,7 +529,7 @@ public class ClausesContext extends ValidationUtils {
 
 	/**
 	 * Indicates whether the currently pointed to parameter list contains the required valueCount
-	 * of parameters for {@link RegionShape} or {@link AreaScanpath}, or more (more should not be possible).
+	 * of parameters for {@link RegionShape} or {@link Scanpath}, or more (more should not be possible).
 	 * N.B.parameter lists for unbounded {@link RegionShape}s e.g. polygons can never be full.
 	 *
 	 * @return true if the currently reference param list has the required count of params or more
@@ -549,8 +549,8 @@ public class ClausesContext extends ValidationUtils {
 		if (scannables.isEmpty() || scannables.size() > REQUIRED_SCANNABLES_FOR_AREA) {
 			throw new IllegalStateException("Invalid Scan clause: scan must have the required number of Scannables");
 		}
-		areaScanMustHaveRegionShapePlusAreaScanpath();
-		areaScanMustHaveCorrectNumberOfParametersForRegionShapeAndAreaScanpath();
+		areaScanMustHaveRegionShapePlusScanpath();
+		areaScanMustHaveCorrectNumberOfParametersForRegionShapeAndScanpath();
 		forPointRegionShapeScanpathMustBePointAlsoAndParamsMustMatch();
 		checkRequiredMutatorParameters();
 
@@ -594,7 +594,7 @@ public class ClausesContext extends ValidationUtils {
 	 * shapeParams, so these must be added in to the returned list.
 	 *
 	 * @return	An unmodifiable list  of the path params required to create {@link IScanPathModel} that
-	 * 			 corresponds to the previously set {@link AreaScanpath}
+	 * 			 corresponds to the previously set {@link Scanpath}
 	 * @throws	NoSuchElementException if the {@link ClausesContext} is not complete and valid.
 	 */
 	public List<Number> getModelPathParams() {
@@ -637,13 +637,13 @@ public class ClausesContext extends ValidationUtils {
 	}
 
 	/**
-	 * @return	The specified {@link AreaScanpath} if set or defaulted, throwing otherwise
+	 * @return	The specified {@link Scanpath} if set or defaulted, throwing otherwise
 	 *
 	 * @throws	NoSuchElementException if the  {@link ClausesContext} is not complete and valid.
 	 */
-	public AreaScanpath getAreaScanpath() {
+	public Scanpath getScanpath() {
 		throwIfPathClauseNotValidated();
-		return areaScanpath.get();
+		return scanpath.get();
 	}
 
 	/**
@@ -720,34 +720,34 @@ public class ClausesContext extends ValidationUtils {
 	// input validation methods
 
 	/**
-	 *Checks that both {@link RegionShape} and {@link AreaScanpath} are set for an area based scan
+	 *Checks that both {@link RegionShape} and {@link Scanpath} are set for an area based scan
 	 *
-	 *@throws IllegalStateException if either {@link AreaScanpath} or {@link RegionShape} are not set
+	 *@throws IllegalStateException if either {@link Scanpath} or {@link RegionShape} are not set
 	 */
-	private void areaScanMustHaveRegionShapePlusAreaScanpath() {
+	private void areaScanMustHaveRegionShapePlusScanpath() {
 		if (scannables.size() == REQUIRED_SCANNABLES_FOR_AREA
-				&& (!regionShape.isPresent() || !areaScanpath.isPresent())) {
-			throw new IllegalStateException("Invalid Scan clause: area scan must have both RegionShape and AreaScanpath");
+				&& (!regionShape.isPresent() || !scanpath.isPresent())) {
+			throw new IllegalStateException("Invalid Scan clause: area scan must have both RegionShape and Scanpath");
 		}
 	}
 
 	/**
-	 * Checks that the correct number of parameters have been set for the specified {@link AreaScanpath}
+	 * Checks that the correct number of parameters have been set for the specified {@link Scanpath}
 	 * and {@link RegionShape} whether bounded or not.
 	 *
 	 * @throws  IllegalStateException if and incorrect number of parameters has be supplied for either the
-	 * 			{@link AreaScanpath} or {@link RegionShape}
+	 * 			{@link Scanpath} or {@link RegionShape}
 	 */
-	private void areaScanMustHaveCorrectNumberOfParametersForRegionShapeAndAreaScanpath() {
-		if (scannables.size() == REQUIRED_SCANNABLES_FOR_AREA && regionShape.isPresent() && areaScanpath.isPresent()) {
+	private void areaScanMustHaveCorrectNumberOfParametersForRegionShapeAndScanpath() {
+		if (scannables.size() == REQUIRED_SCANNABLES_FOR_AREA && regionShape.isPresent() && scanpath.isPresent()) {
 			if (regionShape.get().hasFixedValueCount()) {
 				if (regionShape.get().valueCount() != shapeParams.size()
-						|| areaScanpath.get().valueCount() != pathParams.size()) {
+						|| scanpath.get().valueCount() != pathParams.size()) {
 					throw new IllegalStateException(
 							"Invalid Scan clause: clause must have correct no of params for RegionShape and Scanpath");
 				}
 			} else if (regionShape.get().valueCount() > shapeParams.size()
-					|| areaScanpath.get().valueCount() != pathParams.size()) {
+					|| scanpath.get().valueCount() != pathParams.size()) {
 				throw new IllegalStateException(
 						"Invalid Scan clause: clause must have correct no of params for RegionShape and Scanpath");
 			} else if (regionShape.get() == POLYGON && (shapeParams.size() & 1) > 0) {
@@ -757,15 +757,15 @@ public class ClausesContext extends ValidationUtils {
 	}
 
 	/**
-	 * Checks that the parameter values of the {@link AreaScanpath} and {@link RegiomShape} match and that they both
+	 * Checks that the parameter values of the {@link Scanpath} and {@link RegiomShape} match and that they both
 	 * specify POINT if a point scan has been selected.
 	 *
-	 * @throws IllegalStateException if there is inconsistency between the @link AreaScanpath} and {@link RegiomShape}
+	 * @throws IllegalStateException if there is inconsistency between the {@link Scanpath} and {@link RegiomShape}
 	 * 								 specifications
 	 */
 	private void forPointRegionShapeScanpathMustBePointAlsoAndParamsMustMatch() {
 		if (regionShape.get().equals(POINT)) {
-			if (!areaScanpath.get().equals(SINGLE_POINT)) {
+			if (!scanpath.get().equals(SINGLE_POINT)) {
 				throw new IllegalStateException(
 						"Invalid Scan clause: POINT RegionShape can only be used with POINT Scanpath");
 			}
@@ -834,11 +834,11 @@ public class ClausesContext extends ValidationUtils {
 	}
 
 	/**
-	 * Prevents a {@link RegionShape} or {@link AreaScanpath} being set when this has already happened in this clause
+	 * Prevents a {@link RegionShape} or {@link Scanpath} being set when this has already happened in this clause
 	 *
 	 * @param defaulted		Indicates the element being tested has been set by defaulting
-	 * @param element		An {@link Optional} of the {@link RegionShape} or {@link Area Scanpath} being set
-	 * @throws UnsupportedOperationException if an attempt to set {@link RegionShape} or {@link AreaScanpath} happens
+	 * @param element		An {@link Optional} of the {@link RegionShape} or {@link Scanpath} being set
+	 * @throws UnsupportedOperationException if an attempt to set {@link RegionShape} or {@link Scanpath} happens
 	 * 						when these have already been set for this clause
 	 */
 	private void rejectIfAlreadySet(final boolean defaulted, final Optional<?> element) {
@@ -874,7 +874,7 @@ public class ClausesContext extends ValidationUtils {
 	 */
 	private void rejectIfNoRegionShapeOrNotEnoughRegionShapeParams() {
 		if (!regionShape.isPresent()) {
-			throw new UnsupportedOperationException("Invalid Scan clause: RegionShape must be set before AreaScanpath");
+			throw new UnsupportedOperationException("Invalid Scan clause: RegionShape must be set before Scanpath");
 		}
 		// At this point the regionShape params should have been filled in so check this is the case
 		if ((regionShape.get().hasFixedValueCount() && !paramsFull())
@@ -884,12 +884,12 @@ public class ClausesContext extends ValidationUtils {
 	}
 
 	/**
-	 * Prevents further elements being set if the specified {@link RegionShape} and {@link AreaScanpath} are incompatible
+	 * Prevents further elements being set if the specified {@link RegionShape} and {@link Scanpath} are incompatible
 	 *
-	 * @param supplied	the {@link AreaScanpath} to be stored
-	 * @throws IllegalStateException for incompatible combinations of {@link RegionShape} and {@link AreaScanpath}
+	 * @param supplied	the {@link Scanpath} to be stored
+	 * @throws IllegalStateException for incompatible combinations of {@link RegionShape} and {@link Scanpath}
 	 */
-	private void rejectIfInvalidCombintationOfShapeAndPath(final AreaScanpath supplied) {
+	private void rejectIfInvalidCombintationOfShapeAndPath(final Scanpath supplied) {
 		if (!VALID_COMBINATIONS.get(regionShape.get()).contains(supplied)) {
 			throw new IllegalStateException(String.format(
 					"Invalid Scan clause: %s cannot be combined with %s", regionShape.get(), supplied));

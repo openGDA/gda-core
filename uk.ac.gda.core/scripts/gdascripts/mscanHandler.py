@@ -13,7 +13,7 @@ A friendly interface to mapping scans.
 
 Basic Syntax is of the form:
 
-mscan <axes> <RegionShape> <RegionShape Params> <AreaScanpath> <AreaScanpath Params> <Detectors/Monitors>
+mscan <axes> <RegionShape> <RegionShape Params> <Scanpath> <Scanpath Params> <Detectors/Monitors>
 
 where:
 
@@ -24,19 +24,19 @@ where:
              poly (polygon)
     N.B. the full name or abbreviation can be used
 <RegionShape Params> are the numeric parameters for the specified RegionShape
-<AreaScanpath> can be grid (grid)
+<Scanpath> can be grid (grid)
                       rast (raster)
                       spir (spiral)
                       liss (lissajous)
     N.B. the full name or abbreviation can be used
-<AreaScanpath Params> are the numeric parameters for the specified AreaScanpath
+<Scanpath Params> are the numeric parameters for the specified Scanpath
 <Detectors/Monitors> are a list of Detectors, Monitors or IRunnableDevices
 
 N.B. At the moment IRunnableDevice detectors are not supported natively and must
 have an accompanying Scannable based Detector in the beamline config with a
 matching name to be used.
 
-The default RegionShape and AreaScanpath are rectangle and raster and these will be
+The default RegionShape and Scanpath are rectangle and raster and these will be
 selected if none are specified in the command e.g.
 
 mscan sc1 sc2 0,0 5,5 0.5,0.5 d1
@@ -56,7 +56,7 @@ from your localstation.py or any other scripts
 
 """
 
-import gda.mscan.element.AreaScanpath as AreaScanpath
+import gda.mscan.element.Scanpath as Scanpath
 import gda.mscan.element.RegionShape as RegionShape
 import gda.mscan.element.Mutator as Mutator
 import gda.mscan.element.ScanDataConsumer as ScanDataConsumer
@@ -66,18 +66,18 @@ from gda.mscan import MScanSubmitter
 from org.eclipse.scanning.command.Services import getEventService
 from org.eclipse.scanning.command.Services import getRunnableDeviceService
 
-# Set up lambdas that return the AreaScanpath Enum instances that link to the
+# Set up lambdas that return the Scanpath Enum instances that link to the
 # Models and assign them to the corresponding names and standard 4 character
 # abbreviations so that they can be protected using alias()
 
-grid = AreaScanpath.GRID_POINTS
-rast = raster = AreaScanpath.GRID_STEP
-spir = spiral = AreaScanpath.SPIRAL
-liss = lissajous = AreaScanpath.LISSAJOUS
-step = angl = angle = AreaScanpath.LINE_STEP
-nopt = pts = noofpoints = points = proj = projections = AreaScanpath.LINE_POINTS
-axst = axisstep = AreaScanpath.AXIS_STEP
-axno = axispoints = AreaScanpath.AXIS_POINTS
+grid = Scanpath.GRID_POINTS
+rast = raster = Scanpath.GRID_STEP
+spir = spiral = Scanpath.SPIRAL
+liss = lissajous = Scanpath.LISSAJOUS
+step = angl = angle = Scanpath.LINE_STEP
+nopt = pts = noofpoints = points = proj = projections = Scanpath.LINE_POINTS
+axst = axisstep = Scanpath.AXIS_STEP
+axno = axispoints = Scanpath.AXIS_POINTS
 
 # Register the commands with the Translator
 alias('grid')

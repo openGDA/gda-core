@@ -29,16 +29,16 @@ import gda.device.Monitor;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableMotor;
 import gda.device.scannable.scannablegroup.ScannableGroup;
-import gda.mscan.element.AreaScanpath;
 import gda.mscan.element.RegionShape;
 import gda.mscan.element.ScanDataConsumer;
-import gda.mscan.processor.AreaScanpathElementProcessor;
+import gda.mscan.element.Scanpath;
 import gda.mscan.processor.IClauseElementProcessor;
 import gda.mscan.processor.NumberElementProcessor;
 import gda.mscan.processor.RegionShapeElementProcessor;
 import gda.mscan.processor.ScanDataConsumerElementProcessor;
 import gda.mscan.processor.ScannableElementProcessor;
 import gda.mscan.processor.ScannableGroupElementProcessor;
+import gda.mscan.processor.ScanpathElementProcessor;
 
 public class ResolutionTestsBase {
 
@@ -60,7 +60,7 @@ public class ResolutionTestsBase {
 	protected static IClauseElementProcessor m1Proc = mockMonitorProc(m1, "MonitorOne");
 	protected static IClauseElementProcessor m2Proc = mockMonitorProc(m2, "MonitorTwo");
 	protected static IClauseElementProcessor num1Proc = mockNumberProc(1);
-	protected static IClauseElementProcessor gridProc = mockAreaScanpathProc(AreaScanpath.GRID_POINTS);
+	protected static IClauseElementProcessor gridProc = mockScanpathProc(Scanpath.GRID_POINTS);
 	protected static IClauseElementProcessor rectProc = mockRoiProc(RegionShape.RECTANGLE);
 
 	protected static IClauseElementProcessor mockScannableProc(Scannable scannable, final String name) {
@@ -137,8 +137,8 @@ public class ResolutionTestsBase {
 		return proc;
 	}
 
-	protected static  IClauseElementProcessor mockAreaScanpathProc(AreaScanpath scanpath) {
-		IClauseElementProcessor proc = mock(AreaScanpathElementProcessor.class);
+	protected static  IClauseElementProcessor mockScanpathProc(Scanpath scanpath) {
+		IClauseElementProcessor proc = mock(ScanpathElementProcessor.class);
 		when(proc.getElement()).thenReturn(scanpath);
 		when(proc.hasScannable()).thenReturn(false);
 		when(proc.hasRoi()).thenReturn(false);

@@ -57,7 +57,7 @@ import gda.device.Scannable;
  *
  * @since GDA 9.9
  */
-public enum AreaScanpath implements IMScanDimensionalElementEnum {
+public enum Scanpath implements IMScanDimensionalElementEnum {
 	GRID_POINTS("grid", 2, 2, TwoAxisGridPointsModel.class, Factory::createTwoAxisGridPointsModel),
 	GRID_STEP("rast", 2, 2, TwoAxisGridStepModel.class, Factory::createTwoAxisGridStepModel),
 	SPIRAL("spir", 2, 1, TwoAxisSpiralModel.class, Factory::createTwoAxisSpiralModel),
@@ -80,16 +80,16 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 	/** The number of parameters required to generate the path **/
 	private final int valueCount;
 	private final Class<? extends AbstractPointsModel> modelType;
-	private final AreaScanpathModelFactoryFunction factory;
+	private final ScanpathModelFactoryFunction factory;
 
 	private static final String ALL_POSITIVE_ERROR = " path requires all positive parameters";
 	private static final String ALL_INTEGER_ERROR = " path requires all integer parameters";
 	private static final String ONE_POSITIVE_ERROR = " path requires that parameter %s is positive";
 	private static final String ONE_INTEGER_ERROR = " path requires that parameter %s is an integer";
 
-	private AreaScanpath(final String text, final int axisCount, final int valueCount,
+	private Scanpath(final String text, final int axisCount, final int valueCount,
 						final Class<? extends AbstractPointsModel> type,
-						final AreaScanpathModelFactoryFunction factoryFunction) {
+						final ScanpathModelFactoryFunction factoryFunction) {
 		this.text = text;
 		this.axisCount = axisCount;
 		this.valueCount = valueCount;
@@ -111,12 +111,12 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 	 *
 	 * @return		The {@link #GRID_POINTS} instance
 	 */
-	public static AreaScanpath defaultValue() {
+	public static Scanpath defaultValue() {
 		return GRID_STEP;
 	}
 
 	/**
-	 * The default text values that correspond to the instances of AreaScanpath
+	 * The default text values that correspond to the instances of Scanpath
 	 *
 	 * @return		List of default text for the instances
 	 */
@@ -142,17 +142,17 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 	}
 
 	/**
-	 * Checks whether the supplied {@link Mutator} is supported by this {@link AreaScanpath} instance
+	 * Checks whether the supplied {@link Mutator} is supported by this {@link Scanpath} instance
 	 *
 	 * @param mutator The {@link Mutator} whose support to be checked
-	 * @return		  true if the supplied {@link Mutator} can be applied to this {@link AreaScanpath}, otherwise false
+	 * @return		  true if the supplied {@link Mutator} can be applied to this {@link Scanpath}, otherwise false
 	 */
 	public boolean supports(Mutator mutator) {
 		return SUPPORT_LOOKUP.get(mutator).apply(this.modelType);
 	}
 
 	/**
-	 * Creates the correct {@link AbstractPointsModel} based object for this instance of AreaScanpath
+	 * Creates the correct {@link AbstractPointsModel} based object for this instance of Scanpath
 	 * The number of supplied {@link Scannable}s, path parameters and bounding box parameters will be validated
 	 * against their respective required numbers.
 	 *
@@ -181,7 +181,7 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 	}
 
 	/**
-	 * Check that the correct number of all required parameters has been supplied for the required AreaScanpath
+	 * Check that the correct number of all required parameters has been supplied for the required Scanpath
 	 * covering Scannables, path parameters and bounding box parameters.
 	 *
 	 * @param inputs			An {@link Map} of lists to their expected sizes

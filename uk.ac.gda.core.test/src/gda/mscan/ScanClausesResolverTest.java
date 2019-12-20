@@ -32,9 +32,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import gda.mscan.element.AreaScanpath;
 import gda.mscan.element.RegionShape;
 import gda.mscan.element.ScanDataConsumer;
+import gda.mscan.element.Scanpath;
 import gda.mscan.processor.IClauseElementProcessor;
 
 public class ScanClausesResolverTest extends ResolutionTestsBase {
@@ -63,7 +63,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 		numPoint1Proc = mockNumberProc(0.1);
 		numPoint3Proc = mockNumberProc(0.3);
 		numPoint5Proc = mockNumberProc(0.5);
-		spiralProc = mockAreaScanpathProc(AreaScanpath.SPIRAL);
+		spiralProc = mockScanpathProc(Scanpath.SPIRAL);
 		polyProc = mockRoiProc(RegionShape.POLYGON);
 		templateScanDataConsumerProc = mockScanDataConsumerProc(ScanDataConsumer.TEMPLATE);
 		processingScanDataConsumerProc = mockScanDataConsumerProc(ScanDataConsumer.PROCESSOR);

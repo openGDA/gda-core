@@ -19,15 +19,15 @@
 package gda.mscan.element;
 
 
-import static gda.mscan.element.AreaScanpath.AXIS_POINTS;
-import static gda.mscan.element.AreaScanpath.AXIS_STEP;
-import static gda.mscan.element.AreaScanpath.GRID_POINTS;
-import static gda.mscan.element.AreaScanpath.GRID_STEP;
-import static gda.mscan.element.AreaScanpath.LINE_POINTS;
-import static gda.mscan.element.AreaScanpath.LINE_STEP;
-import static gda.mscan.element.AreaScanpath.LISSAJOUS;
-import static gda.mscan.element.AreaScanpath.SINGLE_POINT;
-import static gda.mscan.element.AreaScanpath.SPIRAL;
+import static gda.mscan.element.Scanpath.AXIS_POINTS;
+import static gda.mscan.element.Scanpath.AXIS_STEP;
+import static gda.mscan.element.Scanpath.GRID_POINTS;
+import static gda.mscan.element.Scanpath.GRID_STEP;
+import static gda.mscan.element.Scanpath.LINE_POINTS;
+import static gda.mscan.element.Scanpath.LINE_STEP;
+import static gda.mscan.element.Scanpath.LISSAJOUS;
+import static gda.mscan.element.Scanpath.SINGLE_POINT;
+import static gda.mscan.element.Scanpath.SPIRAL;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -65,10 +65,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 import gda.device.Scannable;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AreaScanpathTest {
+public class ScanpathTest {
 
-	private static Map<AreaScanpath, Double[]> emptyPathData = new EnumMap<>(AreaScanpath.class);
-	private static Map<AreaScanpath, Double[]> correctLengthPathData = new EnumMap<>(AreaScanpath.class);
+	private static Map<Scanpath, Double[]> emptyPathData = new EnumMap<>(Scanpath.class);
+	private static Map<Scanpath, Double[]> correctLengthPathData = new EnumMap<>(Scanpath.class);
 	private static Double[] blankArray = new Double[]{};
 
 	private final String MUTATOR_NOT_SUPPORTED_BY = "The %s mutator is not supported by ";
@@ -95,7 +95,7 @@ public class AreaScanpathTest {
 
 	@BeforeClass
 	public static void setupClass() {
-		for (AreaScanpath scanpath : AreaScanpath.values()) {
+		for (Scanpath scanpath : Scanpath.values()) {
 			emptyPathData.put(scanpath, new Double[] {});
 		}
 		correctLengthPathData.put(GRID_POINTS, new Double[] {3.0, 3.0});
@@ -203,7 +203,7 @@ public class AreaScanpathTest {
 
 	@Test
 	public void createModelRejectsTooManyPathParamsForAllInstances() throws Exception {
-		Map<AreaScanpath, Double[]> tooMany = new EnumMap<>(AreaScanpath.class);
+		Map<Scanpath, Double[]> tooMany = new EnumMap<>(Scanpath.class);
 		tooMany.put(GRID_POINTS, new Double[] {3.0, 3.0, 3.0});
 		tooMany.put(GRID_STEP, new Double[] {4.0, 4.0, 4.0});
 		tooMany.put(SPIRAL, new Double[] {5.0, 5.0});
@@ -219,7 +219,7 @@ public class AreaScanpathTest {
 
 	@Test
 	public void createModelRejectsTooFewPathParamsForAllInstances() throws Exception {
-		Map<AreaScanpath, Double[]> tooFew = new EnumMap<>(AreaScanpath.class);
+		Map<Scanpath, Double[]> tooFew = new EnumMap<>(Scanpath.class);
 		tooFew.put(GRID_POINTS, new Double[] {3.0});
 		tooFew.put(GRID_STEP, new Double[] {4.0});
 		tooFew.put(SPIRAL, blankArray);
@@ -244,9 +244,9 @@ public class AreaScanpathTest {
 		assertCreatingAllInstancesFailsIfWrongNoOfParams(correctLengthPathData, blankArray);
 	}
 
-	private void assertCreatingAllInstancesFailsIfWrongNoOfParams(Map<AreaScanpath, Double[]> pathParams,
+	private void assertCreatingAllInstancesFailsIfWrongNoOfParams(Map<Scanpath, Double[]> pathParams,
 															Double[] bboxParams) throws Exception {
-		for (AreaScanpath path: AreaScanpath.values()) {
+		for (Scanpath path: Scanpath.values()) {
 			List<Scannable> scannableList = path.equals(AXIS_STEP) || path.equals(AXIS_POINTS) ? axialScannables : scannables;
 
 			try {
