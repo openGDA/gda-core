@@ -29,11 +29,15 @@ import org.eclipse.january.dataset.Slice;
 public class SnapshotStatsCalculator {
 
 	public double calculateTotalCount(IDataset dataset) {
-		double val = 0;
-		for (int i=0; i<dataset.getShape()[0]; i++) {
-			val+= calculateSliceCount(dataset, i);
+		double result = 0;
+		final int[] shape = dataset.getShape();
+		if (shape.length > 0) {
+			final int numSlices = dataset.getShape()[0];
+			for (int i=0; i < numSlices; i++) {
+				result+= calculateSliceCount(dataset, i);
+			}
 		}
-		return val;
+		return result;
 	}
 
 	public double calculateSliceCount(IDataset dataset, int index) {
