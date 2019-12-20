@@ -484,7 +484,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	public IMalcolmModel validateWithReturn(IMalcolmModel model) throws ValidationException {
 		MalcolmMessage reply = null;
 		try {
-			final EpicsMalcolmModel epicsModel = createEpicsMalcolmModel(model, true); // use default point gen and filedir if not set (i.e. we're not in a scan)
+			final EpicsMalcolmModel epicsModel = createEpicsMalcolmModel(model); // use default point gen and filedir if not set (i.e. we're not in a scan)
 			final MalcolmMessage msg = messageGenerator.createCallMessage(MalcolmMethod.VALIDATE, epicsModel);
 			reply = send(msg, Timeout.STANDARD.toMillis());
 			if (reply.getType()==Type.ERROR) {
@@ -533,12 +533,12 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 
 	@Override
 	public void configure(IMalcolmModel model) throws MalcolmDeviceException {
-		logger.debug("configure() called");
+		logger.debug("configure() called on malcolm device {}", getName());
 
 		// Abort and/or reset the device before configure in case it's in a fault state
 		goToReadyState();
 
-		final EpicsMalcolmModel epicsModel = createEpicsMalcolmModel(model, false);
+		final EpicsMalcolmModel epicsModel = createEpicsMalcolmModel(model);
 		final MalcolmMessage msg = messageGenerator.createCallMessage(MalcolmMethod.CONFIGURE, epicsModel);
 		MalcolmMessage reply = wrap(()->send(msg, Timeout.CONFIG.toMillis()));
 		if (reply.getType() == Type.ERROR) {
@@ -589,33 +589,26 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	 * Create the {@link EpicsMalcolmModel} passed to the actual malcolm device. This is created from both the
 	 * {@link IMalcolmModel} that this {@link MalcolmDevice} has been configured with and information about
 	 * the scan, e.g. the scan path defined by the point generator, that have been set on this object.
+	 * <p>
+	 * If a point generator or output directory have not been set then the dummy point generator and output
+	 * directory will be used instead. This is necessary as sometimes it is necessary to call validate or
+	 * configure outside of a scan, for example it is necessary to call
 	 * @param model the IMalcolmModel to use
-	 * @param useDefaults <code>true</code> to use a default point generator, <code>false</code> otherwise
 	 * @return
 	 */
-	private EpicsMalcolmModel createEpicsMalcolmModel(IMalcolmModel model, boolean useDefaults) throws MalcolmDeviceException {
+	private EpicsMalcolmModel createEpicsMalcolmModel(IMalcolmModel model) throws MalcolmDeviceException {
 		double exposureTime = model.getExposureTime();
 
 		// set the exposure time and mutators in the points generator
-		IPointGenerator<?> pointGen = this.pointGenerator;
-		if (pointGen == null && useDefaults) {
-			pointGen = getDummyPointGenerator();
-		}
+		final IPointGenerator<?> pointGen = this.pointGenerator == null ? getDummyPointGenerator() : this.pointGenerator;
 		if (pointGen != null) {
 			((CompoundModel) pointGen.getModel()).setMutators(Collections.emptyList());
 			((CompoundModel) pointGen.getModel()).setDuration(exposureTime);
 		}
 
 		// set the file template and output dir
-		String fileTemplate = null;
-		String outputDir = this.outputDir;
-		if (outputDir == null && useDefaults) {
-			outputDir = DUMMY_OUTPUT_DIR;
-		}
-
-		if (outputDir != null) {
-			fileTemplate = Paths.get(outputDir).getFileName().toString() + "-%s." + FILE_EXTENSION_H5;
-		}
+		final String outputDir = this.outputDir == null ? DUMMY_OUTPUT_DIR : this.outputDir;
+		final String fileTemplate = Paths.get(outputDir).getFileName().toString() + "-%s." + FILE_EXTENSION_H5;
 
 		// get the axes to move
 		List<String> axesToMove = model.getAxesToMove();
