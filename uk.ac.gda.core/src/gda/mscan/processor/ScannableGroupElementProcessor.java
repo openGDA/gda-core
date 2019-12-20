@@ -18,9 +18,11 @@
 
 package gda.mscan.processor;
 
+import java.util.List;
+
 import gda.device.Scannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
-import gda.mscan.ClauseContext;
+import gda.mscan.ClausesContext;
 
 /**
  * A Clause Element Processor for {@link ScannableGroup} elements
@@ -36,7 +38,7 @@ public class ScannableGroupElementProcessor extends ElementProcessorBase<Scannab
 	 * and if so, unpack the {@link Scannable}s from the group used in construction and add them to the context's
 	 * list. A maximum group size of two is currently allowed.
 	 *
-	 * @param context	The {@link ClauseContext} object being completed for the current MSCan clause
+	 * @param context	The {@link ClausesContext} object being completed for the current MSCan clause
 	 * @param index		The index of the clause element associated with the processor within the current clause
 	 *
 	 * @throws			IllegalStateException if the previous element of the context is null (this should never occur)
@@ -44,7 +46,8 @@ public class ScannableGroupElementProcessor extends ElementProcessorBase<Scannab
 	 * 					previous element i.e. it is not a valid element type
 	 */
 	@Override
-	public void process(final ClauseContext context, final int index) {
+	public void process(final ClausesContext context,
+			final List<IClauseElementProcessor> clauseProcessors, final int index) {
 		if(isValidElement(context, this.getClass().getName(), Scannable.class)) {
 			// Must use asList implementation else some Mocked tests NullPointer
 			if (enclosed.getGroupMembers().size() > 2) {

@@ -18,11 +18,14 @@
 
 package gda.mscan.processor;
 
+import java.util.List;
+
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 
-import gda.mscan.ClauseContext;
+import gda.device.Scannable;
+import gda.mscan.ClausesContext;
 
 public class IRunnableDeviceDetectorElementProcessor extends ElementProcessorBase<IRunnableDevice<IDetectorModel>> {
 
@@ -33,7 +36,7 @@ public class IRunnableDeviceDetectorElementProcessor extends ElementProcessorBas
 	/**
 	 * A dummy method in this case as Runnable Devices cannot form part of a scan path definition clause.
 	 *
-	 * @param context	The {@link ClauseContext} object being completed for the current MSCan clause
+	 * @param context	The {@link ClausesContext} object being completed for the current MSCan clause
 	 * @param index		The index of the clause element associated with the processor within the current clause
 	 *
 	 * @throws			IllegalStateException if the previous element of the context is null (this should never occur)
@@ -41,8 +44,20 @@ public class IRunnableDeviceDetectorElementProcessor extends ElementProcessorBas
 	 * 					previous element i.e. it is not a valid element type
 	 */
 	@Override
-	public void process(final ClauseContext context, final int index) {
-		// No operation here as runnable devices aren't part of a scanpath definition so are not included in the grammar
+	public void process(final ClausesContext context,
+			final List<IClauseElementProcessor> clauseProcessors, final int index) throws Exception {
+		throwIf(!context.isScanPathSeen(), "No scan path defined - SPEC style scans not yet supported");
+		throwIf(clauseProcessors.size() > 2, "too many elements in Detector clause");
+
+		double exposure = 0;
+		if (clauseProcessors.size() == 2) {
+			IClauseElementProcessor procTwo = withNullProcessorCheck(clauseProcessors.get(1));
+			throwIf(!procTwo.hasNumber(), "2nd element of unexpected type in Detector clause");
+			exposure = Double.valueOf(procTwo.getElementValue());
+		}
+		if(isValidElement(context, this.getClass().getName(), Scannable.class)) {
+			context.addDetector(enclosed, exposure);
+		}
 	}
 
 

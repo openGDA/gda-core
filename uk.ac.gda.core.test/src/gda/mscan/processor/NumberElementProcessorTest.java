@@ -24,6 +24,9 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +34,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import gda.device.Scannable;
-import gda.mscan.ClauseContext;
+import gda.mscan.ClausesContext;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NumberElementProcessorTest {
@@ -39,9 +42,10 @@ public class NumberElementProcessorTest {
 	private NumberElementProcessor processor;
 
 	private double tenPointFour = 10.4;
+	private List<IClauseElementProcessor> emptyList = new ArrayList<>();
 
 	@Mock
-	private ClauseContext context;
+	private ClausesContext context;
 
 	@Before
 	public void setUp() throws Exception {
@@ -55,14 +59,14 @@ public class NumberElementProcessorTest {
 	@Test(expected = UnsupportedOperationException.class)
 	public void processLookUpTrapsNumberAtElementZero() throws Exception {
 		doReturn(Scannable.class).when(context).getPreviousType();
-		processor.process(context, 0);
+		processor.process(context, emptyList, 0);
 	}
 
 	@Test
 	public void processAddsValidSuccessorToContextParametersList() throws Exception {
 		doReturn(Scannable.class).when(context).getPreviousType();
 		when(context.paramsFull()).thenReturn(false);
-		processor.process(context, 1);
+		processor.process(context, emptyList, 1);
 		verify(context).addParam(tenPointFour);
 	}
 

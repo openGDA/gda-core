@@ -96,17 +96,38 @@ public class ScanClausesResolver {
 				// Monitors does not bypass this, so that any trailing scan defs after these can be caught. Assuming
 				// this test is passed we can then check for scan def clause boundaries proper.
 				if (afterScanPaths() || isSPECScanBoundary() || isMScanBoundary(thisProcessor.hasScannableGroup())) {
-					logClauseDetection(joiner);
-					current = new ArrayList<>();
-					clauses.add(current);
-					joiner = new StringJoiner(" ");
+					current = startNewClause(clauses, joiner);
 				}
+			} else if (thisProcessor.hasScanDataConsumer()) {
+				if (!afterScanPaths()) {
+					throw new IllegalArgumentException(
+							"Invalid MScan : scans with no detectors or monitors cannot use templates or processors");
+				}
+				current = startNewClause(clauses, joiner);
 			}
+
+
 			joiner.add(thisProcessor.getElementValue());
 			current.add(thisProcessor);
 		}
 		logClauseDetection(joiner);
 		return Collections.unmodifiableList(clauses);
+	}
+
+	/**
+	 * Logs the detection of a new clauses, creates a new {@link List} and adds it to the {@link List} of clauses to be
+	 * filled in by the main resolution loop and alco creates a new holder for the clause logging messages.
+	 *
+	 * @param clauses	The {@link List} of clauses that belong to the scan being parsed
+	 * @param joiner	A {@link StringJoiner} containg the message to be logged about the previous clause
+	 * @return			A new {@link List} to receive the elements of the new clause.
+	 */
+	private List<IClauseElementProcessor> startNewClause(List<List<IClauseElementProcessor>> clauses, StringJoiner joiner) {
+		logClauseDetection(joiner);
+		List<IClauseElementProcessor> newList = new ArrayList<>();
+		clauses.add(newList);
+		joiner = new StringJoiner(" ");
+		return newList;
 	}
 
 	/**

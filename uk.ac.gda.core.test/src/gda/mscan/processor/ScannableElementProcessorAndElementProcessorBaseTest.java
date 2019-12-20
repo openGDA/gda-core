@@ -24,15 +24,21 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import gda.device.Scannable;
 import gda.device.scannable.ScannableMotor;
-import gda.mscan.ClauseContext;
+import gda.mscan.ClausesContext;
+import gda.mscan.element.AreaScanpath;
 import gda.mscan.element.RegionShape;
 
 /**
@@ -43,12 +49,18 @@ import gda.mscan.element.RegionShape;
 public class ScannableElementProcessorAndElementProcessorBaseTest {
 
 	private ScannableElementProcessor processor;
+	private List<IClauseElementProcessor> validClause = new ArrayList<>();
+	private List<IClauseElementProcessor> inValidClause = new ArrayList<>();
+
 
 	@Mock
 	private ScannableMotor scannable;
 
 	@Mock
-	private ClauseContext context;
+	private ClausesContext context;
+
+	@Rule
+	public final ExpectedException exception = ExpectedException.none();
 
 	/**
 	 * @throws java.lang.Exception
@@ -57,15 +69,27 @@ public class ScannableElementProcessorAndElementProcessorBaseTest {
 	public void setUp() throws Exception {
 		processor = new ScannableElementProcessor(scannable);
 		when(context.grammar()).thenCallRealMethod();
+		inValidClause.add(processor);
+		inValidClause.add(new NumberElementProcessor(1));
+		validClause.add(processor);
+		validClause.add(new RegionShapeElementProcessor(RegionShape.AXIAL));
+		validClause.add(new NumberElementProcessor(1));
+		validClause.add(new NumberElementProcessor(3));
+		validClause.add(new AreaScanpathElementProcessor(AreaScanpath.AXIS_STEP));
+		validClause.add(new NumberElementProcessor(1));
 	}
 
-	/**
-	 * Test methods for {@link gda.mscan.processor.ScannableElementProcessor#process(gda.mscan.ClauseContext, int)}.
-	 */
+	@Test
+	public void specStyleScansAreRejected() throws Exception {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("SPEC style scans not yet supported.");
+		processor.process(context, inValidClause, 0);
+	}
+
 	@Test
 	public void processLooksUpPreviousTypeAndSuccessors() throws Exception {
 		doReturn(Scannable.class).when(context).getPreviousType();
-		processor.process(context, 0);
+		processor.process(context, validClause, 0);
 		verify(context).getPreviousType();
 		verify(context).grammar();
 	}
@@ -73,13 +97,13 @@ public class ScannableElementProcessorAndElementProcessorBaseTest {
 	@Test(expected = IllegalStateException.class)
 	public void processLookUpTrapsNullPreviousType() throws Exception {
 		doReturn(null).when(context).getPreviousType();
-		processor.process(context, 0);
+		processor.process(context, validClause, 0);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void processLookUpTrapsIncorrectGrammarKeys() throws Exception {
 		doReturn(String.class).when(context).getPreviousType();
-		processor.process(context, 0);
+		processor.process(context, validClause, 0);
 	}
 
 	/**
@@ -88,13 +112,13 @@ public class ScannableElementProcessorAndElementProcessorBaseTest {
 	@Test(expected = UnsupportedOperationException.class)
 	public void processLookUpTrapsIncorrectGrammar() throws Exception {
 		doReturn(RegionShape.class).when(context).getPreviousType();
-		processor.process(context, 1);
+		processor.process(context, validClause, 1);
 	}
 
 	@Test
 	public void processAddsValidSuccessorToContextScannablesList() throws Exception {
 		doReturn(Scannable.class).when(context).getPreviousType();
-		processor.process(context, 0);
+		processor.process(context, validClause, 0);
 		verify(context).addScannable(scannable);
 	}
 

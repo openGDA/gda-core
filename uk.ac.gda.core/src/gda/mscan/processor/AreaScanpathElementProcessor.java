@@ -18,8 +18,10 @@
 
 package gda.mscan.processor;
 
+import java.util.List;
+
 import gda.device.Scannable;
-import gda.mscan.ClauseContext;
+import gda.mscan.ClausesContext;
 import gda.mscan.element.AreaScanpath;
 
 /**
@@ -36,7 +38,7 @@ public class AreaScanpathElementProcessor extends ElementProcessorBase<AreaScanp
 	 * and if so, set the {@link AreaScanpath} used in construction on the context object, provided this is not the
 	 * first element in the clause as the first element should always be a {@link Scannable}.
 	 *
-	 * @param context	The {@link ClauseContext} object being completed for the current MSCan clause
+	 * @param context	The {@link ClausesContext} object being completed for the current MSCan clause
 	 * @param index		The index of the clause element associated with the processor within the current clause
 	 *
 	 * @throws			IllegalStateException if the previous element of the context is null (this should never occur)
@@ -44,7 +46,8 @@ public class AreaScanpathElementProcessor extends ElementProcessorBase<AreaScanp
 	 * 					previous element i.e. it is not a valid element type
 	 */
 	@Override
-	public void process(final ClauseContext context, final int index) {
+	public void process(final ClausesContext context,
+			final List<IClauseElementProcessor> clauseProcessors, final int index) {
 		rejectIfFirstElement(index);
 		if(isValidElement(context, this.getClass().getName())) {
 			context.setAreaScanpath(enclosed);

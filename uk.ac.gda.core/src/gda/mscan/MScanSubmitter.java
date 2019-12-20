@@ -21,13 +21,9 @@ package gda.mscan;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
-import org.eclipse.dawnsci.analysis.api.roi.IRectangularROI;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
@@ -37,8 +33,6 @@ import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +40,7 @@ import com.google.common.collect.ImmutableMap;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
+import gda.device.Monitor;
 import gda.device.Scannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.Findable;
@@ -53,23 +48,30 @@ import gda.mscan.element.AreaScanpath;
 import gda.mscan.element.IMScanElementEnum;
 import gda.mscan.element.Mutator;
 import gda.mscan.element.RegionShape;
+import gda.mscan.element.ScanDataConsumer;
 import gda.mscan.processor.AreaScanpathElementProcessor;
 import gda.mscan.processor.IClauseElementProcessor;
 import gda.mscan.processor.IRunnableDeviceDetectorElementProcessor;
 import gda.mscan.processor.MutatorElementProcessor;
 import gda.mscan.processor.NumberElementProcessor;
 import gda.mscan.processor.RegionShapeElementProcessor;
+import gda.mscan.processor.ScanDataConsumerElementProcessor;
+import gda.mscan.processor.ScannableDetectorElementProcessor;
 import gda.mscan.processor.ScannableElementProcessor;
 import gda.mscan.processor.ScannableGroupElementProcessor;
+import gda.mscan.processor.ScannableMonitorElementProcessor;
+import gda.mscan.processor.ScannableReadoutElementProcessor;
+import gda.mscan.processor.TokenStringElementProcessor;
 
 /**
  * Validates, parses, builds and submits MScan commands supplied in the form of an array of typed Objects. It does
- * so by breaking the scan command up into Clauses delimited by the detection of a new {@link Scannable} (i.e.scan axis).
- * These clauses are then parsed individually to build up the overall {@link CompoundModel} object that represents the scan.
+ * so by breaking the scan command up into Clauses delimited by the detection of a new {@link Scannable} (i.e.scan
+ * axis). These clauses are then parsed individually to build up the overall {@link CompoundModel} object that
+ * represents the scan.
  *
  * @since GDA 9.10
  */
-public class MScanSubmitter {
+public class MScanSubmitter extends ValidationUtils {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MScanSubmitter.class);
 
@@ -82,6 +84,8 @@ public class MScanSubmitter {
 		ImmutableMap.<Class<?>, ProcessorFunction>builder()
 		.put(Scannable.class, arg -> new ScannableElementProcessor((Scannable)arg))
 		.put (ScannableGroup.class, arg -> new ScannableGroupElementProcessor((ScannableGroup)arg))
+		.put(Detector.class, arg -> new ScannableDetectorElementProcessor((Detector)arg))
+		.put(Monitor.class, arg -> new ScannableMonitorElementProcessor((Monitor)arg))
 		.put(AreaScanpath.class, arg -> new AreaScanpathElementProcessor((AreaScanpath)arg))
 		.put(RegionShape.class, arg -> new RegionShapeElementProcessor((RegionShape)arg))
 		.put(Mutator.class, arg -> new MutatorElementProcessor((Mutator)arg))
@@ -89,6 +93,8 @@ public class MScanSubmitter {
 		.put(Double.class, arg -> new NumberElementProcessor((Number)arg))
 		.put(IRunnableDevice.class,
 				arg -> new IRunnableDeviceDetectorElementProcessor((IRunnableDevice<IDetectorModel>) arg))
+		.put(ScanDataConsumer.class, arg -> new ScanDataConsumerElementProcessor((ScanDataConsumer)arg))
+		.put(String.class, arg -> new TokenStringElementProcessor((String)arg))
 		.build();
 
 	private final List<IClauseElementProcessor> processors = new ArrayList<>();
@@ -116,8 +122,8 @@ public class MScanSubmitter {
 	 * Takes the supplied MScan array, validates it and then builds a {@link CompoundModel} that represents
 	 * the command. This is then submitted to the scanning queue as a blocking call. Currently supports detectors
 	 * based on the {@link Detector} interface with a matching {@link IRunnableDevice} representation. This has always
-	 * been the case as for Jython to pick up the type of a detector it must be {@link Findable} and {@link IRunnableDevice}
-	 * based object are not yet added to the Jython Namespace.
+	 * been the case as for Jython to pick up the type of a detector it must be {@link Findable} and
+	 * {@link IRunnableDevice} based object are not yet added to the Jython Namespace.
 	 *
 	 * @param args	The array of objects constituting the command supplied by jython. This should only contain
 	 * 				{@link Scannable}s, {@link Number}s and {@link IMScanElementEnum}s or their subclasses, if any
@@ -134,8 +140,6 @@ public class MScanSubmitter {
 
 		final ScanClausesResolver resolver = validateCommand(args);
 		final CompoundModel scanModel = new CompoundModel();
-		final Map<String, Object> detectorMap = new HashMap<>();
-		final List<String> monitorsPerPoint = new ArrayList<>();
 		scanModel.setModels(new ArrayList<>());
 		scanModel.setRegions(new ArrayList<>());
 		scanModel.setMutators(new ArrayList<>());
@@ -146,7 +150,8 @@ public class MScanSubmitter {
 		final List<List<IClauseElementProcessor>> processorsByClause = resolver.resolveScanClauses();
 		throwIf(processorsByClause.isEmpty() || processorsByClause.contains(null),
 			"clause resolution returned an empty or invalid list of processors by clause");
-		boolean scanPathSeen = false;
+
+		final ClausesContext context = new ClausesContext(runnableDeviceService);
 
 		// iterate over the processors for the current clause using them to populate the constituent lists of the
 		// Compound Model. The type of the first element determines the required action; only Scannables or
@@ -155,46 +160,41 @@ public class MScanSubmitter {
 		for (final List<IClauseElementProcessor> clauseProcessors : processorsByClause) {
 			throwIf(clauseProcessors.isEmpty() || clauseProcessors.contains(null),
 					"clause resolution returned an empty or invalid processor list for a clause");
-			IClauseElementProcessor procOne = withNullCheck(clauseProcessors.get(0));
-			if (procOne.hasDetector()) {
-				throwIf(!scanPathSeen, "No scan path defined - SPEC style scans not yet supported");
-				throwIf(clauseProcessors.size() > 2, "too many elements in Detector clause");
+			context.wipe();
+			IClauseElementProcessor initialScannableProc = withNullProcessorCheck(clauseProcessors.get(0));
 
-				double exposure = 0;
-				if (clauseProcessors.size() == 2) {
-					IClauseElementProcessor procTwo = withNullCheck(clauseProcessors.get(1));
-					throwIf(!procTwo.hasNumber(), "2nd element of unexpected type in Detector clause");
-					exposure = Double.valueOf(procTwo.getElementValue());
+			// within each clauseProcessors list, the first element is always some type of Scannable for which the
+			// appropriate type of processor has already been selected. If it is a pure Scannable in a clause of length
+			// 1 after a scan definition path has been seen then that means it is a Scannable being used as a monitor
+			// and so that processor must be switched.
+			for (int index = 0; index < clauseProcessors.size(); index++) {
+				if (context.isClauseProcessed()) {
+					break;
 				}
-				if (procOne.hasScannable()) {
-					addDetector(procOne.getElementValue(), exposure, detectorMap);
-				} else {
-					addDetector((IRunnableDevice<?>) procOne.getElement(), exposure, detectorMap);
+				// Handle single element Detector or Monitor clauses
+				if (clauseProcessors.size() == 1) {
+					throwIf(!context.isScanPathSeen(), "No scan path defined - SPEC style scans not yet supported");
+					if (initialScannableProc instanceof ScannableElementProcessor) {
+						clauseProcessors.set(0, new ScannableReadoutElementProcessor(
+														(Scannable)initialScannableProc.getElement()));
+					}
 				}
-			// Next check for a {@link Monitor} clause which can have only 1 element
-			} else if (procOne.hasMonitor()) {
-				throwIf(!scanPathSeen, "No scan path defined - SPEC style scans not yet supported");
-				throwIf(clauseProcessors.size() != 1, "too many elements in Monitor clause");
-				addMonitor(procOne, monitorsPerPoint, false);
-			// that only leaves a clause starting with a plain {@link Scannable} or {@link ScannableGroup}. This could
-			// either be a readout or a scan path definition so is parsed by a dedicated method
-			} else if (clauseProcessors.size() == 1) {
-				throwIf(!scanPathSeen, "No scan path defined - SPEC style scans not yet supported");
-				addMonitor(procOne, monitorsPerPoint, true);
-			// Handle non mapping scan path definitions (not yet a comprehensive test)
-			} else if (clauseProcessors.size() < 7 && withNullCheck(clauseProcessors.get(1)).hasNumber()){
-				 throw new IllegalArgumentException("SPEC style scans not yet supported.");
-			} else {
-				addPathModelAndRegion(clauseProcessors, scanModel);
-				scanPathSeen = true;
+				clauseProcessors.get(index).process(context, clauseProcessors, index);
+			}
+			// if no detectors or monitors have been seen yet, then the current clause just defined a scanpath so
+			// this needs to be added to the CompoundModel for the entire mscan
+			if (!context.isDetectorClauseSeen()) {
+				context.addPathDefinitionToCompoundModel(scanModel);
 			}
 		}
 
 		// Populate the {@link ScanRequest} with the assembled objects
 		ScanRequest scanRequest = new ScanRequest();
 		scanRequest.setCompoundModel(scanModel);
-		scanRequest.setDetectors(detectorMap);
-		scanRequest.setMonitorNamesPerPoint(monitorsPerPoint);
+		scanRequest.setDetectors(context.getDetectorMap());
+		scanRequest.setMonitorNamesPerPoint(context.getMonitorsPerPoint());
+		scanRequest.setTemplateFilePaths(context.getTemplates());
+		scanRequest.setProcessingRequest(context.getProcessorRequest());
 
 		// validate the scan bean properly here or you get a nullpointer exception
 		final ScanBean bean = new ScanBean(scanRequest);
@@ -207,94 +207,6 @@ public class MScanSubmitter {
 				submitter.submit(bean);
 			}
 		}
-	}
-
-	/**
-	 * Add the name of a {@link Monitor} to the {@link List} of monitor names for the scan
-	 *
-	 * @param proc					The {@link IClauseElementProcessor} corresponding to the monitor
-	 * @param monitorsPerPoint		The list of monitor names for the scan
-	 * @param isReadout				True if the element is a {@link Scannable} being used as a readout
-	 */
-	private void  addMonitor(final IClauseElementProcessor proc,
-			final List<String> monitorsPerPoint, final boolean isReadout) {
-		String name = proc.getElementValue();
-		monitorsPerPoint.add(name);
-		String monitorType = isReadout ? "Scannable readout" : "Monitor";
-		LOGGER.debug("{} added for {}", monitorType, name);
-	}
-
-	/**
-	 * The main 'scan' parsing method; iterates over the list of processors that correspond to the current MScan clause,
-	 * calling process on each one which will fill in the ClauseContext object as the loop proceeds. At the end of the
-	 * loop, it will contain settings for each of the elements of a {@link ScanModel} (or default values) allowing one
-	 * to be constructed along with a corresponding DAWN {@link IROI} object. These are passed in to the overall
-	 * CompoundModel to be added as appropriate.
-	 *
-	 * @param clauseProcessors		The list of processors that correspond to the elements of the current MScan clause
-	 * @param scanModel				The {@link ScanModel} to be filled in by the parsing process
-	 * @throws IllegalArgumentException if the {@link IROI} fails to validate the supplied parameters on creation
-	 */
-	private void addPathModelAndRegion(final List<IClauseElementProcessor> clauseProcessors,
-															final CompoundModel scanModel) {
-		final ClauseContext context = new ClauseContext();
-		for (int index = 0; index < clauseProcessors.size(); index++) {
-			clauseProcessors.get(index).process(context, index);
-		}
-
-		if (context.validateAndAdjust() && context.getAreaScanpath() != null) {
-			LOGGER.debug("Valid scan definition clause detected and added");
-			ArrayList<Number> boundingBoxParams = new ArrayList<>();
-
-			IROI roi = context.getRegionShape().createIROI(context.getBounds());
-			IRectangularROI boundingRoi = roi.getBounds();
-			boundingBoxParams.add(boundingRoi.getPointX());
-			boundingBoxParams.add(boundingRoi.getPointY());
-			boundingBoxParams.add(boundingRoi.getLength(0));
-			boundingBoxParams.add(boundingRoi.getLength(1));
-			scanModel.setData(context.getAreaScanpath().createModel(context.getScannables(),
-					context.getModelPathParams(), boundingBoxParams, context.getMutatorUses()), roi);
-		}
-	}
-
-	/**
-	 * Adds an {@link IDetectorModel} corresponding to the supplied {@link Detector} name to the map of detectors
-	 * setting the exposure time if specified
-	 *
-	 * @param detectorName			The name of the {@link Detector}
-	 * @param exposure				The exposure time of the {@link Detector} to be set if specified
-	 * @param detectorMap			The map of {@link IDetectorModel}s to add the specified one to, keyed by name
-	 * @throws ScanningException	If the {@link IRunnableDevice} for the {@link Detector} cannot be retrieved.
-	 */
-	private void addDetector(final String detectorName, final double exposure,
-					final Map<String, Object> detectorMap) throws ScanningException {
-		IRunnableDevice<IDetectorModel> detector = runnableDeviceService.getRunnableDevice(detectorName);
-		if (detector == null) {
-			throw new ScanningException(String.format("Could not get detector for name %s", detectorName));
-		}
-		addDetector(detector, exposure, detectorMap);
-	}
-
-	/**
-	 * Adds an {@link IDetectorModel} corresponding to the supplied {@link IRunnableDevice} to the map of detectors,
-	 * setting the exposure time if specified
-	 *
-	 * @param detector				The {@link IRunnableDevice} corresponding to the detector
-	 * @param exposure				The exposure time of the {@link Detector} to be set if specified
-	 * @param detectorMap			The map of {@link IDetectorModel}s to add the specified one to, keyed by name
-	 * @throws ScanningException	If the {@link IDetectorModel} for the {@link IRunnableDevice} is null.
-	 */
-	private void addDetector(final IRunnableDevice<?> detector, final double exposure,
-			final Map<String, Object> detectorMap) throws ScanningException {
-		IDetectorModel model = (IDetectorModel)detector.getModel();
-		if (model == null) {
-			throw new ScanningException(String.format("Could not get model for detector %s", detector.getName()));
-		}
-		if (exposure > 0) {
-			model.setExposureTime(exposure);
-		}
-		detectorMap.put(detector.getName(), model);
-		LOGGER.debug("Detector added for {}", detector.getName());
 	}
 
 	/**
@@ -347,16 +259,20 @@ public class MScanSubmitter {
 
 		// Iterate over the command args looking for Scannable and Scannable groups. Can't just use the returned class
 		// as many classes implement Scannable
+		Class<?>[] hierarchy = {Detector.class, Monitor.class, ScannableGroup.class, Scannable.class};
 		for (int i = 0; i < params.size() ; i++) {
-			Class<?> type = params.get(i).getClass();
-			if (params.get(i) instanceof Scannable) {
-				if (params.get(i) instanceof ScannableGroup) {
-					type = ScannableGroup.class;
-				} else {
-					type = Scannable.class;
+			Object obj = params.get(i);
+			Class<?> type = obj.getClass();
+
+			if (obj instanceof Scannable) {
+				for (Class<?> cl : hierarchy) {
+					if (cl.isAssignableFrom(obj.getClass())) {
+						type = cl;
+						break;
+					}
 				}
 			}
-			else if (params.get(i) instanceof IRunnableDevice<?>) {
+			else if (obj instanceof IRunnableDevice<?>) {
 				type = IRunnableDevice.class;
 			}
 			// Check the processorBuilders map can construct a processor for the required type and if so
@@ -368,47 +284,6 @@ public class MScanSubmitter {
 			processors.add(processorBuilders.get(type).apply(params.get(i)));
 		}
 		return resolverFactory.getResolver(processors);
-	}
-
-	// Utility methods to handle parameter checking more concisely
-
-	/**
-	 * Throws an [@link IllegalArgumentException} using the supplied message prefixed with a standard header.
-	 *
-	 * @param message		The message to be appended to the standard header
-	 * @throws IllegalArgumentException
-	 */
-	private void throwOnInvalidCommand(final String message) {
-		throw new IllegalArgumentException(String.format("Invalid MScan command - %s", message));
-	}
-
-	/**
-	 * Throws an [@link IllegalArgumentException} using the supplied message prefixed with a standard header if the
-	 * rejection condition is true;.
-	 *
-	 * @param rejectionCondition	The boolean to be evaluated to determin if an exception should be thrown (if true)
-	 * @param failureMessage		The message to be appended to the standard header
-	 *
-	 * @throws IllegalArgumentException	if the rejection condition is true
-	 */
-	private void throwIf(final boolean rejectionCondition, final String failureMessage) {
-		if (rejectionCondition) {
-			throwOnInvalidCommand(failureMessage);
-		}
-	}
-
-	/**
-	 * Provides an in line null check throwing if this fails
-	 *
-	 * @param toReturn	{@link IClauseElementProcessor} to be evaluated and returned if it is not null
-	 * @return			The incoming parameter if it is not null
-	 * throws IllegaArgumentException if the incoming parameter is null
-	 */
-	private IClauseElementProcessor withNullCheck(final IClauseElementProcessor toReturn) {
-		if (toReturn == null) {
-			throwOnInvalidCommand("retrieved processor was null");
-		}
-		return toReturn;
 	}
 
 	/**

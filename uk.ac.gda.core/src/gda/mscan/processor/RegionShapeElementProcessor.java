@@ -18,7 +18,9 @@
 
 package gda.mscan.processor;
 
-import gda.mscan.ClauseContext;
+import java.util.List;
+
+import gda.mscan.ClausesContext;
 import gda.mscan.element.RegionShape;
 
 /**
@@ -35,7 +37,7 @@ public class RegionShapeElementProcessor extends ElementProcessorBase<RegionShap
 	 * and if so, set the {@link RegionShape} used in construction on the context object provided this is not the
 	 * first element in the clause.
 	 *
-	 * @param context	The {@link ClauseContext} object being completed for the current MSCan clause
+	 * @param context	The {@link ClausesContext} object being completed for the current MSCan clause
 	 * @param index		The index of the clause element associated with the processor within the current clause
 	 *
 	 * @throws			IllegalStateException if the previous element of the context is null (this should never occur)
@@ -43,7 +45,8 @@ public class RegionShapeElementProcessor extends ElementProcessorBase<RegionShap
 	 * 					previous element i.e. it is not a valid element type
 	 */
 	@Override
-	public void process(final ClauseContext context, final int index) {
+	public void process(final ClausesContext context,
+			final List<IClauseElementProcessor> clauseProcessors, final int index) {
 		rejectIfFirstElement(index);
 		if(isValidElement(context, this.getClass().getName())) {
 			context.setRegionShape(enclosed);

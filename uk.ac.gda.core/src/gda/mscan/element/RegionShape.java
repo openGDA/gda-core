@@ -165,9 +165,10 @@ public enum RegionShape implements IMScanDimensionalElementEnum {
 
 		/**
 		 * Creates a {@link RectangularROI} using the supplied params. The incoming parameters are converted from a
-		 * par of co-ordinates to 1 co-ordinate and two offsets from them which is the form that the {@link RectangularROI}
-		 * constructor accepts. It also adjusts for points in the second co-ordinate being less that those in the first
-		 * by adjusting the first one to be a minx,miny combination so that the offsets are always positive.
+		 * par of co-ordinates to 1 co-ordinate and two offsets from them, which is the form that the
+		 * {@link RectangularROI}constructor accepts. It also adjusts for points in the second co-ordinate being less
+		 * that those in the first by adjusting the first one to be a minx,miny combination so that the offsets are
+		 * always positive.
 		 *
 		 *
 		 * @param params	A par of diagonally opposite corner coordinates of the rectangle as a {@link List} in the

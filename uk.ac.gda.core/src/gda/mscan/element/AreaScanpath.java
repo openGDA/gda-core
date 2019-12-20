@@ -141,6 +141,12 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 		return modelType;
 	}
 
+	/**
+	 * Checks whether the supplied {@link Mutator} is supported by this {@link AreaScanpath} instance
+	 *
+	 * @param mutator The {@link Mutator} whose support to be checked
+	 * @return		  true if the supplied {@link Mutator} can be applied to this {@link AreaScanpath}, otherwise false
+	 */
 	public boolean supports(Mutator mutator) {
 		return SUPPORT_LOOKUP.get(mutator).apply(this.modelType);
 	}
@@ -171,7 +177,6 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 							PREFIX,  mutator, this.modelType.getSimpleName()));
 			}
 		});
-
 		return factory.createScanpathModel(scannables, pathParams, bboxParams, mutatorUses);
 	}
 
@@ -221,7 +226,7 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 		/** Constant to reference the available parameter of a {@link TwoAxisLineAxialStepModel} **/
 		private static final int STEP = 0;
 
-		/** Constant to reference the available parameter of a {@link TwoAxisLinePointsModel}/{@link TwoAxisLissajousModel} **/
+		/** Constant to reference the parameter of a {@link TwoAxisLinePointsModel}/{@link TwoAxisLissajousModel} **/
 		private static final int POINTS = 0;
 
 		/** Constants to reference the available parameters of {@link AxialStepModel} **/
@@ -235,8 +240,8 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 		private static final int B = 2;
 
 		/**
-		 * Creates a {@link TwoAxisGridPointsModel} using the supplied params. If the RandomOffset {@link Mutator} is specified, a
-		 * {@link RandomOffsetTwoAxisGridPointsModel} is created instead.
+		 * Creates a {@link TwoAxisGridPointsModel} using the supplied params. If the RandomOffset {@link Mutator} is
+		 * specified, a {@link RandomOffsetTwoAxisGridPointsModel} is created instead.
 		 *
 		 * @param scannables		The {@link Scannable}s that relate to the axes of the grid as a {@link List} in the
 		 * 							order: fastScannable, slowScannable
@@ -258,7 +263,8 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 			}
 			TwoAxisGridPointsModel model;
 			if (mutatorUses.containsKey(RANDOM_OFFSET)) {
-				TwoAxisGridPointsRandomOffsetModel roModel = initBoxBasedModel(new TwoAxisGridPointsRandomOffsetModel(), scannables, bboxParameters);
+				TwoAxisGridPointsRandomOffsetModel roModel = initBoxBasedModel(
+						new TwoAxisGridPointsRandomOffsetModel(), scannables, bboxParameters);
 				List<Number> params = mutatorUses.get(RANDOM_OFFSET);
 				roModel.setOffset(params.get(OFFSET).doubleValue());
 				if (params.size() > 1) {
@@ -439,8 +445,8 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 														   final List<Number> notUsed,
 														   final Map<Mutator, List<Number>> mutatorUses) {
 
-			// This is actually inconsistent as the underlying AxialStepModel requires steps in the negative direction to
-			// be negative (see below) but for consistency with classic scanning and the Mapping UI negative steps
+			// This is actually inconsistent as the underlying AxialStepModel requires steps in the negative direction
+			// to be negative (see below) but for consistency with classic scanning and the Mapping UI negative steps
 			// are disallowed as part of a valid mscan string
 			checkOneParameterPositive(scanParameters.get(AX_STEP), AxialStepModel.class.getSimpleName(), AX_STEP);
 
@@ -505,8 +511,10 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 				  																final List<Scannable> scannables,
 				  																final List<Number> bBoxParameters) {
 			model.setBoundingBox(new BoundingBox(
-					bBoxParameters.get(X_START_PARAM_INDEX).doubleValue(), bBoxParameters.get(Y_START_PARAM_INDEX).doubleValue(),
-					bBoxParameters.get(X_LENGTH_PARAM_INDEX).doubleValue(), bBoxParameters.get(Y_LENGTH_PARAM_INDEX).doubleValue()));
+					bBoxParameters.get(X_START_PARAM_INDEX).doubleValue(),
+					bBoxParameters.get(Y_START_PARAM_INDEX).doubleValue(),
+					bBoxParameters.get(X_LENGTH_PARAM_INDEX).doubleValue(),
+					bBoxParameters.get(Y_LENGTH_PARAM_INDEX).doubleValue()));
 			setAxisNames(model, scannables);
 			return model;
 		}
@@ -523,8 +531,10 @@ public enum AreaScanpath implements IMScanDimensionalElementEnum {
 																				  final List<Scannable> scannables,
 																				  final List<Number> blineParameters) {
 			model.setBoundingLine(new BoundingLine(
-					blineParameters.get(X_START_PARAM_INDEX).doubleValue(), blineParameters.get(Y_START_PARAM_INDEX).doubleValue(),
-					blineParameters.get(X_LENGTH_PARAM_INDEX).doubleValue(), blineParameters.get(Y_LENGTH_PARAM_INDEX).doubleValue()));
+					blineParameters.get(X_START_PARAM_INDEX).doubleValue(),
+					blineParameters.get(Y_START_PARAM_INDEX).doubleValue(),
+					blineParameters.get(X_LENGTH_PARAM_INDEX).doubleValue(),
+					blineParameters.get(Y_LENGTH_PARAM_INDEX).doubleValue()));
 			setAxisNames(model, scannables);
 			return model;
 		}

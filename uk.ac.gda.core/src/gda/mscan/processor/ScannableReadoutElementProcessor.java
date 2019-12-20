@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2018 Diamond Light Source Ltd.
+ * Copyright © 2019 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -20,23 +20,18 @@ package gda.mscan.processor;
 
 import java.util.List;
 
+import gda.device.Scannable;
 import gda.mscan.ClausesContext;
 
-/**
- * A Clause Element Processor for Numeric elements
- */
-public class NumberElementProcessor extends ElementProcessorBase<Number> {
+public class ScannableReadoutElementProcessor extends ElementProcessorBase<Scannable> {
 
-	public NumberElementProcessor(final Number source) {
+	public ScannableReadoutElementProcessor(final Scannable source) {
 		super(source);
 	}
 
 	/**
-	 * Confirm that a {@link Number} is allowed as the next type to be processed in the MScan clause grammar
-	 * and if so, add the {@link Number} used in construction to the context's currently active list, provided
-	 * the maximum size has not been exceeded.{@link Number}.class is explicitly passed as the class to lookup in to
-	 * {@link #isValidElement(ClausesContext, String, Class)} so that a single {@link Number} entry in the
-	 * {@link ClausesContext} grammar can cover integers, doubles etc.
+	 * Confirm that a {@link Scannable} is allowed as the next type to be processed in the MScan clause grammar
+	 * and if so, add the {@link Scannable} used in construction to the context's list.
 	 *
 	 * @param context	The {@link ClausesContext} object being completed for the current MSCan clause
 	 * @param index		The index of the clause element associated with the processor within the current clause
@@ -48,24 +43,26 @@ public class NumberElementProcessor extends ElementProcessorBase<Number> {
 	@Override
 	public void process(final ClausesContext context,
 			final List<IClauseElementProcessor> clauseProcessors, final int index) {
-		rejectIfFirstElement(index);
-		if(isValidElement(context, this.getClass().getName(), Number.class)) {
-			context.addParam(enclosed);
+		throwIf(!context.isScanPathSeen(), "No scan path defined - SPEC style scans not yet supported");
+		throwIf(clauseProcessors.size() != 1, "too many elements in Monitor clause");
+		if(isValidElement(context, this.getClass().getName(), Scannable.class)) {
+			context.addMonitor(enclosed.getName(), true);
+
 		}
 	}
-
 	@Override
-	public boolean hasNumber() {
+	public boolean hasScannable() {
 		return true;
 	}
 
-	/**
-	 * Retrieve the value of the enclosed {@link Number}
-	 *
-	 * @return the value of the enclosed {@link Number}
-	 */
+	@Override
+	public boolean hasMonitor() {
+		return true;
+	}
+
 	@Override
 	public String getElementValue() {
-		return String.valueOf(enclosed);
+		return enclosed.getName();
 	}
+
 }
