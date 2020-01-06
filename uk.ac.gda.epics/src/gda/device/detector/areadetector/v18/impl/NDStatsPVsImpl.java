@@ -130,7 +130,7 @@ public class NDStatsPVsImpl implements InitializingBean, NDStatsPVs {
 			tsCurrentPointPV = LazyPVFactory.newReadOnlyIntegerPV(fullname("TS:"+PVNames.TSCurrentPoint.name()));
 			tsReadScanPV = LazyPVFactory.newIntegerPV(fullname("TS:TSRead.SCAN"));
 		} else {
-			logger.warn("{} is configured to use legacy Time Series PVs, set 'legacyTSpvs' property to false once EPICS Area Detector is pdated!", getBasePVName());
+			logger.warn("{} is configured to use legacy Time Series PVs, set 'legacyTSpvs' property to false once EPICS Area Detector is updated!", getBasePVName());
 			tsControlPV = LazyPVFactory.newEnumPV(fullname(PVNames.TSControl.name()), TSControlCommands.class);
 			tsNumPointsPV = LazyPVFactory.newIntegerPV(fullname(PVNames.TSNumPoints.name()));
 			tsCurrentPointPV = LazyPVFactory.newReadOnlyIntegerPV(fullname(PVNames.TSCurrentPoint.name()));
