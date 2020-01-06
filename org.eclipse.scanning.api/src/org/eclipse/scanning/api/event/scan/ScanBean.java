@@ -73,14 +73,21 @@ public final class ScanBean extends StatusBean {
         super();
 	}
 
-	public ScanBean(ScanRequest req) throws UnknownHostException {
+	public ScanBean(ScanRequest req) {
         super();
         this.scanRequest = req;
         this.status = Status.SUBMITTED;
-		setHostName(InetAddress.getLocalHost().getHostName());
+		setHostName(getLocalHostName());
 		setName(createNameFromRequest(req));
 	}
 
+	private String getLocalHostName() {
+		try {
+			return InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException e) {
+			return "<error>";
+		}
+	}
 
 	private String createNameFromRequest(ScanRequest req) {
 
