@@ -18,6 +18,8 @@
 
 package uk.ac.gda.ui.tool.spring;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
@@ -40,6 +42,8 @@ public class SpringApplicationContextProxy implements ApplicationEventPublisherA
 
 	private static ApplicationEventPublisher applicationPublisher;
 
+	private static final Logger logger = LoggerFactory.getLogger(SpringApplicationContextProxy.class);
+
 	@SuppressWarnings("unused")
 	private static ApplicationContext applicationContext;
 
@@ -59,6 +63,11 @@ public class SpringApplicationContextProxy implements ApplicationEventPublisherA
 	}
 
 	public static final void publishEvent(ApplicationEvent event) {
+		// This condition is necessary until the client call Spring "component-scan" by default (DAQ-2645)
+		if (SpringApplicationContextProxy.applicationPublisher == null) {
+			springApplicationDidNotScanClass();
+			return;
+		}
 		SpringApplicationContextProxy.applicationPublisher.publishEvent(event);
 	}
 
@@ -68,13 +77,23 @@ public class SpringApplicationContextProxy implements ApplicationEventPublisherA
 	 * @throws GDAClientException
 	 */
 	public static final void addApplicationListener(ApplicationListener<?> listener) throws GDAClientException {
-		if (configurableApplicationContext == null) {
-			throw new GDAClientException("This class has no valid ConfigurableApplicationContext instance");
+		// This condition is necessary until the client call Spring "component-scan" by default (DAQ-2645)
+		if (SpringApplicationContextProxy.configurableApplicationContext == null) {
+			springApplicationDidNotScanClass();
+			return;
 		}
+
+//		if (configurableApplicationContext == null) {
+//			throw new GDAClientException("This class has no valid ConfigurableApplicationContext instance");
+//		}
 		SpringApplicationContextProxy.configurableApplicationContext.addApplicationListener(listener);
 	}
 
 	public static <T> T getBean(Class<T> bean) {
 		return SpringApplicationContextProxy.applicationContext.getBean(bean);
+	}
+
+	private static void springApplicationDidNotScanClass() {
+		logger.warn("The Spring Application may have not initialized uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy class");
 	}
 }

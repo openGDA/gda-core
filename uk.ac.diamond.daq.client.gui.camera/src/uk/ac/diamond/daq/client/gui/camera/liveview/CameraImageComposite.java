@@ -15,13 +15,11 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
-import gda.device.DeviceException;
 import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
 import uk.ac.diamond.daq.client.gui.camera.controller.CameraConfigurationAdapter;
 import uk.ac.diamond.daq.client.gui.camera.controller.CameraConfigurationMode;
@@ -38,23 +36,17 @@ import uk.ac.gda.client.live.stream.view.LivePlottingComposite;
  */
 public class CameraImageComposite extends Composite {
 	private static final Logger log = LoggerFactory.getLogger(CameraImageComposite.class);
-	private static final int IMAGE_DIMENSION_LABEL_WIDTH = 40;
 
 	private AbstractCameraConfigurationController controller;
 	private LivePlottingComposite plottingComposite;
 	private IPlottingSystem<Composite> plottingSystem;
 	private boolean frozen = false;
 
-	private Label widthLabel;
-	private Label heightLabel;
-
 	private SnapshotData lastSnapshot;
 
 	private DrawableRegion roiSelectionRegion;
 	private DrawableRegion highFluxRegion;
 	private DrawableRegion lowFluxRegion;
-
-	private boolean ignoreControllerUpdate = false;
 
 	private class ROIListener implements IROIListener {
 		@Override
@@ -69,7 +61,6 @@ public class CameraImageComposite extends Composite {
 
 			roi.setPoint(roi.getIntPoint()[0] + currentRoi.getIntPoint()[0],
 					roi.getIntPoint()[1] + currentRoi.getIntPoint()[1]);
-			ignoreControllerUpdate = true;
 			controller.setROI(roi);
 		}
 
@@ -100,7 +91,7 @@ public class CameraImageComposite extends Composite {
 	public class ModeListener extends CameraConfigurationAdapter {
 		private void refreshSnapshot(boolean reconnect) throws Exception {
 			if (reconnect) {
-				plottingComposite.connect();
+				plottingComposite.activatePlottingSystem();
 			}
 			ITrace liveTrace = plottingComposite.getITrace();
 			lastSnapshot = new SnapshotData("Adsorption Snapshot", liveTrace.getData().clone());
@@ -133,7 +124,7 @@ public class CameraImageComposite extends Composite {
 					lowFluxRegion.setActive(true);
 					calculateRatio();
 				} else if (cameraConfigurationMode == CameraConfigurationMode.exposure && frozen) {
-					plottingComposite.connect();
+					plottingComposite.activatePlottingSystem();
 					frozen = false;
 
 					highFluxRegion.setActive(false);
@@ -150,35 +141,6 @@ public class CameraImageComposite extends Composite {
 			}
 		}
 	}
-	
-	private class CameraRegionOfInterestListener extends CameraConfigurationAdapter {
-		@Override
-		public void clearRegionOfInterest() {
-			roiSelectionRegion.clear();
-
-			updateImageSizeLabels();
-		}
-
-		@Override
-		public void setROI(RectangularROI roi) {
-			updateImageSizeLabels();
-
-			if (ignoreControllerUpdate) {
-				ignoreControllerUpdate = false;
-				return;
-			}
-
-			RectangularROI currentRoi = controller.getCurrentRoi();
-			RectangularROI imageRoi = roi.copy();
-
-			imageRoi.setPoint(imageRoi.getIntPoint()[0] - currentRoi.getIntPoint()[0],
-					imageRoi.getIntPoint()[1] - currentRoi.getIntPoint()[1]);
-			roiSelectionRegion.setRegion(imageRoi);
-
-			highFluxRegion.clear();
-			lowFluxRegion.clear();
-		}
-	}
 
 	public CameraImageComposite(Composite parent, AbstractCameraConfigurationController controller, int style) throws GDAClientException {
 		super(parent, style);
@@ -188,7 +150,7 @@ public class CameraImageComposite extends Composite {
 
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(this);
 
-		plottingComposite = new LivePlottingComposite(this, SWT.NONE, "Live View");
+		plottingComposite = new LivePlottingComposite(this, SWT.NONE, "Live View", null);
 		plottingComposite.setShowTitle(true);
 		plottingSystem = plottingComposite.getPlottingSystem();
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(plottingComposite);
@@ -207,20 +169,6 @@ public class CameraImageComposite extends Composite {
 			controller.removeListener(modeListener);
 		});
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(this);
-	}
-
-	private void updateImageSizeLabels() {
-		try {
-			RectangularROI currentRoi = controller.getCurrentRoi();
-			if (currentRoi.getLength(0) == 0.0 && currentRoi.getLength(1) == 0.0) {
-				currentRoi = controller.getMaximumSizedROI();
-			}
-			widthLabel.setText(String.format("%4.0f", currentRoi.getLength(0)));
-			heightLabel.setText(String.format("%4.0f", currentRoi.getLength(1)));
-		} catch (DeviceException e) {
-			widthLabel.setText("Err");
-			heightLabel.setText("Err");
-		}
 	}
 
 	public IPlottingSystem<Composite> getPlottingSystem() {

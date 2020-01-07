@@ -68,7 +68,6 @@ import gda.factory.Finder;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
 import uk.ac.gda.client.live.stream.LiveStreamConnectionManager;
 import uk.ac.gda.client.live.stream.LiveStreamException;
-import uk.ac.gda.client.live.stream.api.ILiveStreamConnectionService;
 import uk.ac.gda.client.live.stream.handlers.SnapshotData;
 import uk.ac.gda.client.live.stream.view.customui.LiveStreamViewCustomUi;
 
@@ -104,11 +103,6 @@ public class LiveStreamView extends ViewPart {
 
 		if (PlatformUI.getWorkbench().getService(IPlottingService.class) == null) {
 			displayAndLogError(logger, parent, "Cannot create Live Stream: no plotting service is available");
-			return;
-		}
-
-		if (PlatformUI.getWorkbench().getService(ILiveStreamConnectionService.class) == null) {
-			displayAndLogError(logger, parent, "Cannot create Live Stream: no connection service is available");
 			return;
 		}
 
@@ -248,10 +242,10 @@ public class LiveStreamView extends ViewPart {
 		try {
 			UUID streamID = LiveStreamConnectionManager.getInstance().getIStreamConnection(camConfig, streamType);
 			liveStreamConnection = (LiveStreamConnection) LiveStreamConnectionManager.getInstance().getIStreamConnection(streamID);
-			plottingComposite = new LivePlottingComposite(parent, SWT.NONE, getPartName(), actionBars, this);
+			plottingComposite = new LivePlottingComposite(parent, SWT.NONE, getPartName(), actionBars, liveStreamConnection);
 			plottingComposite.setShowAxes(camConfig.getCalibratedAxesProvider() != null);
 			plottingComposite.setShowTitle(true);
-			plottingComposite.connect();
+			plottingComposite.activatePlottingSystem();
 			GridDataFactory.fillDefaults().grab(true, true).applyTo(plottingComposite);
 			setupRoiProvider();
 		} catch (Exception e) {
@@ -357,7 +351,10 @@ public class LiveStreamView extends ViewPart {
 		};
 		reset.setId("uk.ac.gda.client.live.stream.view.reset");
 
-		toolBarManager.insertBefore(toolBarManager.getItems()[0].getId(), reset);
+		if (toolBarManager.getItems().length > 0) {
+			toolBarManager.insertBefore(toolBarManager.getItems()[0].getId(), reset);
+		}
+
 
 		actionBars.updateActionBars();
 	}
@@ -396,13 +393,6 @@ public class LiveStreamView extends ViewPart {
 
 		if (plottingComposite != null) {
 			plottingComposite.dispose();
-		}
-		if (liveStreamConnection != null) {
-			try {
-				liveStreamConnection.disconnect();
-			} catch (LiveStreamException e) {
-				logger.error("Error disconnecting live stream", e);
-			}
 		}
 		super.dispose();
 	}
