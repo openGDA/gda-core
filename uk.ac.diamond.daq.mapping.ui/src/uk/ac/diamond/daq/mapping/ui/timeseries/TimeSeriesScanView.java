@@ -35,6 +35,8 @@ import javax.inject.Inject;
 import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.e4.ui.di.PersistState;
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -75,6 +77,8 @@ import uk.ac.diamond.daq.mapping.ui.experiment.ScanBeanSubmitter;
  */
 public class TimeSeriesScanView {
 
+	private static final String STATE_KEY_MALCOLM_DEVICE_NAME = "malcolmDeviceName";
+
 	private static final Logger logger = LoggerFactory.getLogger(TimeSeriesScanView.class);
 
 	@Inject
@@ -88,8 +92,10 @@ public class TimeSeriesScanView {
 
 	private Composite malcolmModelEditorComposite;
 
+	private Combo malcolmDevicesCombo;
+
 	@PostConstruct
-	public void createView(Composite parent) {
+	public void createView(Composite parent, MPart part) {
 		parent.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 		parent.setBackgroundMode(SWT.INHERIT_DEFAULT);
 
@@ -99,14 +105,29 @@ public class TimeSeriesScanView {
 		try {
 			final List<String> malcolmDeviceNames = getMalcolmDeviceNames();
 			if (malcolmDeviceNames.isEmpty()) {
+				// no malcolm devices, show an error label
 				createErrorLabel(viewComposite, "No malcolm devices found");
 			} else {
-				createViewControls(viewComposite, malcolmDeviceNames); // normal case
+				// normal case, show the view controls
+				final String oldMalcolmDeviceName = part.getPersistedState().get(STATE_KEY_MALCOLM_DEVICE_NAME);
+				final String malcolmDeviceName = malcolmDeviceNames.contains(oldMalcolmDeviceName)
+						? oldMalcolmDeviceName : malcolmDeviceNames.get(0);
+				createViewControls(viewComposite, malcolmDeviceName, malcolmDeviceNames);
 			}
 		} catch (ScanningException e) {
 			logger.error("Could not get malcolm devices", e);
 			createErrorLabel(parent, "Could not get malcolm devices.");
 		}
+	}
+
+	@PersistState
+	public void saveState(MPart part) {
+		part.getPersistedState().put(STATE_KEY_MALCOLM_DEVICE_NAME, getSelectedMalcolmDeviceName());
+	}
+
+	private String getSelectedMalcolmDeviceName() {
+		if (malcolmDevicesCombo == null) return null;
+		return malcolmDevicesCombo.getItem(malcolmDevicesCombo.getSelectionIndex());
 	}
 
 	private List<String> getMalcolmDeviceNames() throws ScanningException {
@@ -124,18 +145,18 @@ public class TimeSeriesScanView {
 		label.setText(errorText);
 	}
 
-	private void createViewControls(Composite parent, final List<String> malcolmDeviceNames) {
-		createMalcolmDeviceSelectionCombo(parent, malcolmDeviceNames);
+	private void createViewControls(Composite parent, String malcolmDeviceName, final List<String> malcolmDeviceNames) {
+		createMalcolmDeviceSelectionCombo(parent, malcolmDeviceNames, malcolmDeviceName);
 
 		// we need a composite to hold the model editor so that we can change it
 		malcolmModelEditorComposite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().applyTo(malcolmModelEditorComposite);
-		malcolmModelEditor = createMalcolmModelEditor(malcolmModelEditorComposite, malcolmDeviceNames.get(0));
+		malcolmModelEditor = createMalcolmModelEditor(malcolmModelEditorComposite, malcolmDeviceName);
 
 		createButtons(parent);
 	}
 
-	private void createMalcolmDeviceSelectionCombo(Composite parent, List<String> malcolmDeviceNames) {
+	private void createMalcolmDeviceSelectionCombo(Composite parent, List<String> malcolmDeviceNames, String malcolmDeviceName) {
 		final Composite composite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(composite);
 
@@ -143,13 +164,14 @@ public class TimeSeriesScanView {
 		malcolmDeviceLabel.setText("Malcolm device:");
 		GridDataFactory.swtDefaults().applyTo(malcolmDeviceLabel);
 
-		final Combo malcolmDevicesCombo = new Combo(composite, SWT.DROP_DOWN | SWT.READ_ONLY);
+		malcolmDevicesCombo = new Combo(composite, SWT.DROP_DOWN | SWT.READ_ONLY);
 		GridDataFactory.swtDefaults().applyTo(malcolmDevicesCombo);
 		malcolmDevicesCombo.addSelectionListener(SelectionListener.widgetSelectedAdapter(
 				evt -> malcolmDeviceSelected(malcolmDevicesCombo.getItem(malcolmDevicesCombo.getSelectionIndex()))));
 
 		malcolmDevicesCombo.setItems(malcolmDeviceNames.toArray(new String[malcolmDeviceNames.size()]));
-		malcolmDevicesCombo.select(0);
+
+		malcolmDevicesCombo.select(malcolmDeviceNames.indexOf(malcolmDeviceName));
 	}
 
 	private MalcolmModelEditor createMalcolmModelEditor(Composite parent, String malcolmDeviceName) {
