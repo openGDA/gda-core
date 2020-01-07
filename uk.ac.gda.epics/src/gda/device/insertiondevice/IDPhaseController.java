@@ -28,9 +28,7 @@ import gda.device.IInsertionDevicePhaseControl;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
@@ -38,8 +36,7 @@ import gov.aps.jca.TimeoutException;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
 
-public class IDPhaseController extends DeviceBase implements Configurable, Findable, InitializationListener,
-		IInsertionDevicePhaseControl {
+public class IDPhaseController extends DeviceBase implements InitializationListener, IInsertionDevicePhaseControl {
 	private final static Logger logger = LoggerFactory.getLogger(IDPhaseController.class);
 	private static final double CIRCULAR_LEFT_TOP_OUTER_MOTOR_POSITION = -15.0;
 	private static final double CIRCULAR_LEFT_BOTTOM_INNER_MOTOR_POSITION = -15.0;
