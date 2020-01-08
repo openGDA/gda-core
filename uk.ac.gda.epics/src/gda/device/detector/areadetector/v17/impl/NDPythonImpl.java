@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.InitializingBean;
 
+import gda.device.detector.areadetector.AreaDetectorException;
 import gda.device.detector.areadetector.v17.NDPython;
 import gda.epics.connection.EpicsController;
 import gov.aps.jca.CAException;
@@ -31,8 +32,6 @@ import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBRType;
 
 public class NDPythonImpl extends NDBaseImpl implements NDPython, InitializingBean {
-
-	private static final EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 
 	private final Map<String, Channel> channelMap = new HashMap<>();
 
@@ -44,7 +43,7 @@ public class NDPythonImpl extends NDBaseImpl implements NDPython, InitializingBe
 		final String pvName = getBasePVName() + pvSuffix;
 		Channel channel = channelMap.get(pvName);
 		if (channel == null) {
-			channel = EPICS_CONTROLLER.createChannel(pvName);
+			channel = EpicsController.getInstance().createChannel(pvName);
 			channelMap.put(pvName, channel);
 		}
 		return channel;
@@ -69,52 +68,88 @@ public class NDPythonImpl extends NDBaseImpl implements NDPython, InitializingBe
 	}
 
 	@Override
-	public String getFilename_RBV() throws Exception {
-		return EPICS_CONTROLLER.cagetString(getChannel(Filename_RBV));
+	public String getFilename_RBV() throws AreaDetectorException {
+		try {
+			return EpicsController.getInstance().cagetString(getChannel(Filename_RBV));
+		} catch (Exception e) {
+			throw new AreaDetectorException("Error getting ADPython file name RBV", e);
+		}
 	}
 
 	@Override
-	public String getFilename() throws Exception {
-		return EPICS_CONTROLLER.cagetString(getChannel(Filename));
+	public String getFilename() throws AreaDetectorException {
+		try {
+			return EpicsController.getInstance().cagetString(getChannel(Filename));
+		} catch (Exception e) {
+			throw new AreaDetectorException("Error getting ADPython file name", e);
+		}
 	}
 
 	@Override
-	public void setFilename(String filename) throws Exception {
-		EPICS_CONTROLLER.caput(getChannel(Filename), (filename + "\0").getBytes());
+	public void setFilename(String filename) throws AreaDetectorException {
+		try {
+			EpicsController.getInstance().caput(getChannel(Filename), (filename + "\0").getBytes());
+		} catch (Exception e) {
+			throw new AreaDetectorException("Error setting ADPython file name", e);
+		}
 	}
 
 	@Override
-	public String getClassname_RBV() throws Exception {
-		return EPICS_CONTROLLER.cagetString(getChannel(Classname_RBV));
+	public String getClassname_RBV() throws AreaDetectorException {
+		try {
+			return EpicsController.getInstance().cagetString(getChannel(Classname_RBV));
+		} catch (Exception e) {
+			throw new AreaDetectorException("Error getting ADPython class name RBV", e);
+		}
 	}
 
 	@Override
-	public String getClassname() throws Exception {
-		return EPICS_CONTROLLER.cagetString(getChannel(Classname));
+	public String getClassname() throws AreaDetectorException {
+		try {
+			return EpicsController.getInstance().cagetString(getChannel(Classname));
+		} catch (Exception e) {
+			throw new AreaDetectorException("Error getting ADPython class name", e);
+		}
 	}
 
 	@Override
-	public void setClassname(String classname) throws Exception {
-		EPICS_CONTROLLER.caput(getChannel(Classname), (classname + "\0").getBytes());
+	public void setClassname(String classname) throws AreaDetectorException {
+		try {
+			EpicsController.getInstance().caput(getChannel(Classname), (classname + "\0").getBytes());
+		} catch (Exception e) {
+			throw new AreaDetectorException("Error setting ADPython class name", e);
+		}
 	}
 
 	@Override
-	public void readFile() throws Exception {
-		EPICS_CONTROLLER.caput(getChannel(ReadFile), 1);
+	public void readFile() throws AreaDetectorException {
+		try {
+			EpicsController.getInstance().caput(getChannel(ReadFile), 1);
+		} catch (Exception e) {
+			throw new AreaDetectorException("Error reading ADPython file", e);
+		}
 	}
 
 	@Override
-	public double getRunTime() throws Exception {
-		return EPICS_CONTROLLER.cagetDouble(getChannel(Time_RBV));
+	public double getRunTime() throws AreaDetectorException {
+		try {
+			return EpicsController.getInstance().cagetDouble(getChannel(Time_RBV));
+		} catch (Exception e) {
+			throw new AreaDetectorException("Error getting ADPython run time", e);
+		}
 	}
 
 	@Override
-	public int getStatus() throws Exception {
-		return EPICS_CONTROLLER.cagetInt(getChannel(PluginState_RBV));
+	public int getStatus() throws AreaDetectorException {
+		try {
+			return EpicsController.getInstance().cagetInt(getChannel(PluginState_RBV));
+		} catch (Exception e) {
+			throw new AreaDetectorException("Error getting ADPython status", e);
+		}
 	}
 
 	@Override
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() throws AreaDetectorException {
 		if (basePVName == null) {
 			throw new IllegalArgumentException("'basePVName' needs to be declared");
 		}
@@ -124,53 +159,67 @@ public class NDPythonImpl extends NDBaseImpl implements NDPython, InitializingBe
 	}
 
 	@Override
-	public void putParam(String parameter, Object value) throws Exception {
+	public void putParam(String parameter, Object value) throws AreaDetectorException {
 		final Map<String, String> paramNames = getPythonParameters();
 		if (!paramNames.containsKey(parameter)) {
 			throw new IllegalArgumentException("Unrecognised parameter " + parameter);
 		}
-		final Channel ch = getChannel(paramNames.get(parameter));
-		if (value instanceof byte[]) EPICS_CONTROLLER.caput(ch, (byte[]) value);
-		else if (value instanceof Byte) EPICS_CONTROLLER.caput(ch, (byte) value);
-		else if (value instanceof short[]) EPICS_CONTROLLER.caput(ch, (short[]) value);
-		else if (value instanceof Short) EPICS_CONTROLLER.caput(ch, (short) value);
-		else if (value instanceof int[]) EPICS_CONTROLLER.caput(ch, (int[]) value);
-		else if (value instanceof Integer) EPICS_CONTROLLER.caput(ch, (int) value);
-		else if (value instanceof float[]) EPICS_CONTROLLER.caput(ch, (float[]) value);
-		else if (value instanceof Float) EPICS_CONTROLLER.caput(ch, (float) value);
-		else if (value instanceof double[]) EPICS_CONTROLLER.caput(ch, (double[]) value);
-		else if (value instanceof Double) EPICS_CONTROLLER.caput(ch, (double) value);
-		else if (value instanceof String[]) EPICS_CONTROLLER.caput(ch, (String[]) value);
-		else if (value instanceof String) EPICS_CONTROLLER.caput(ch, (String) value);
-		else {
-			throw new IllegalArgumentException("Unhandled parameter type " + value.getClass() + " from " + value);
+		try {
+			final Channel ch = getChannel(paramNames.get(parameter));
+			final EpicsController controller = EpicsController.getInstance();
+			if (value instanceof byte[]) controller.caput(ch, (byte[]) value);
+			else if (value instanceof Byte) controller.caput(ch, (byte) value);
+			else if (value instanceof short[]) controller.caput(ch, (short[]) value);
+			else if (value instanceof Short) controller.caput(ch, (short) value);
+			else if (value instanceof int[]) controller.caput(ch, (int[]) value);
+			else if (value instanceof Integer) controller.caput(ch, (int) value);
+			else if (value instanceof float[]) controller.caput(ch, (float[]) value);
+			else if (value instanceof Float) controller.caput(ch, (float) value);
+			else if (value instanceof double[]) controller.caput(ch, (double[]) value);
+			else if (value instanceof Double) controller.caput(ch, (double) value);
+			else if (value instanceof String[]) controller.caput(ch, (String[]) value);
+			else if (value instanceof String) controller.caput(ch, (String) value);
+			else {
+				throw new IllegalArgumentException("Unhandled parameter type " + value.getClass() + " from " + value);
+			}
+		} catch (Exception e) {
+			throw new AreaDetectorException("Error putting parameter " + parameter, e);
 		}
 	}
 
 	@Override
-	public String readParam(String parameter) throws Exception {
-		return EPICS_CONTROLLER.caget(getChannel(getPythonParameters().get(parameter)));
+	public String readParam(String parameter) throws AreaDetectorException {
+		try {
+			return EpicsController.getInstance().caget(getChannel(getPythonParameters().get(parameter)));
+		} catch (Exception e) {
+			throw new AreaDetectorException("Error reading parameter " + parameter, e);
+		}
 	}
 
 	@Override
-	public Object readParam(String parameter, DBRType type) throws Exception {
+	public Object readParam(String parameter, DBRType type) throws AreaDetectorException {
 		final Map<String, String> paramNames = getPythonParameters();
 		if (!paramNames.containsKey(parameter)) {
 			throw new IllegalArgumentException("Unrecognised parameter " + parameter);
 		}
-		final Channel ch = getChannel(paramNames.get(parameter));
-		if (type == DBRType.BYTE) {
-			return EPICS_CONTROLLER.cagetByteArray(ch);
-		} else if (type == DBRType.DOUBLE) {
-			return EPICS_CONTROLLER.cagetDoubleArray(ch);
-		} else if (type == DBRType.FLOAT) {
-			return EPICS_CONTROLLER.cagetFloatArray(ch);
-		} else if (type == DBRType.INT) {
-			return EPICS_CONTROLLER.cagetIntArray(ch);
-		} else if (type == DBRType.SHORT) {
-			return EPICS_CONTROLLER.cagetShortArray(ch);
-		} else if (type == DBRType.STRING) {
-			return EPICS_CONTROLLER.cagetStringArray(ch);
+		try {
+			final Channel ch = getChannel(paramNames.get(parameter));
+			final EpicsController controller = EpicsController.getInstance();
+			if (type == DBRType.BYTE) {
+				return controller.cagetByteArray(ch);
+			} else if (type == DBRType.DOUBLE) {
+				return controller.cagetDoubleArray(ch);
+			} else if (type == DBRType.FLOAT) {
+				return controller.cagetFloatArray(ch);
+			} else if (type == DBRType.INT) {
+				return controller.cagetIntArray(ch);
+			} else if (type == DBRType.SHORT) {
+				return controller.cagetShortArray(ch);
+			} else if (type == DBRType.STRING) {
+				return controller.cagetStringArray(ch);
+			}
+		} catch (Exception e) {
+			throw new AreaDetectorException("Error reading parameter " + parameter, e);
 		}
 		throw new IllegalArgumentException(String.format("Unhandled parameter type %s for parameter %s", type, parameter));
 	}
