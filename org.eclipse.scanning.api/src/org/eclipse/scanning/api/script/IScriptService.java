@@ -32,6 +32,7 @@ public interface IScriptService {
 	public static final String VAR_NAME_XANES_EDGE_PARAMS_JSON = "xanesEdgeParamsJson";
 	public static final String VAR_NAME_TOMO_PARAMS_JSON = "tomoParamsJson";
 	public static final String VAR_NAME_EXPOSURE_TIME = "exposureTime";
+	public static final String VAR_NAME_CUSTOM_PARAMS = "customParams";
 
 	/**
 	 * For DAQ server version 8 and 9 this will probably be {JYTHON, SPEC_PASTICHE}
