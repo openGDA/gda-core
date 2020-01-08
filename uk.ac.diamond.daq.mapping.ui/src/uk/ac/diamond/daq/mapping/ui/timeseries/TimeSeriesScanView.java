@@ -18,7 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.ui.timeseries;
 
-import static java.util.stream.Collectors.toCollection;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.net.URI;
@@ -41,6 +40,10 @@ import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
@@ -57,9 +60,7 @@ import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.device.ui.device.MalcolmModelEditor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
@@ -94,7 +95,7 @@ public class TimeSeriesScanView {
 
 	private Composite malcolmModelEditorComposite;
 
-	private Combo malcolmDevicesCombo;
+	private ComboViewer malcolmDevicesComboViewer;
 	private Spinner numStepsSpinner;
 
 	@PostConstruct
@@ -106,13 +107,13 @@ public class TimeSeriesScanView {
 		GridLayoutFactory.fillDefaults().applyTo(viewComposite);
 
 		try {
-			final List<String> malcolmDeviceNames = getMalcolmDeviceNames();
-			if (malcolmDeviceNames.isEmpty()) {
+			final List<DeviceInformation<?>> malcolmDeviceInfos = getMalcolmDeviceInfos();
+			if (malcolmDeviceInfos.isEmpty()) {
 				// no malcolm devices, show an error label
 				createErrorLabel(viewComposite, "No malcolm devices found");
 			} else {
 				// normal case, show the view controls
-				createViewControls(viewComposite, part, malcolmDeviceNames);
+				createViewControls(viewComposite, part, malcolmDeviceInfos);
 			}
 		} catch (ScanningException e) {
 			logger.error("Could not get malcolm devices", e);
@@ -120,22 +121,20 @@ public class TimeSeriesScanView {
 		}
 	}
 
+	private List<DeviceInformation<?>> getMalcolmDeviceInfos() throws ScanningException {
+		final List<DeviceInformation<?>> malcolmDeviceInfos = new ArrayList<>(
+				getRunnableDeviceService().getDeviceInformation(DeviceRole.MALCOLM));
+		Collections.sort(malcolmDeviceInfos,
+				(DeviceInformation<?> first, DeviceInformation<?> second) -> first.getName().compareTo(second.getName()));
+		return malcolmDeviceInfos;
+	}
+
 	@PersistState
 	public void saveState(MPart part) {
 		if (malcolmModelEditor != null) {
-			final String malcolmDeviceName = malcolmDevicesCombo.getItem(malcolmDevicesCombo.getSelectionIndex());
-			part.getPersistedState().put(STATE_KEY_MALCOLM_DEVICE_NAME, malcolmDeviceName);
+			part.getPersistedState().put(STATE_KEY_MALCOLM_DEVICE_NAME, getSelectedMalcolmDeviceName());
 			part.getPersistedState().put(STATE_KEY_NUM_STEPS, numStepsSpinner.getText());
 		}
-	}
-
-	private List<String> getMalcolmDeviceNames() throws ScanningException {
-		final List<String> malcolmDeviceNames = getRunnableDeviceService()
-				.getDeviceInformation(DeviceRole.MALCOLM).stream()
-				.map(DeviceInformation::getName)
-				.collect(toCollection(ArrayList::new));
-		Collections.sort(malcolmDeviceNames);
-		return malcolmDeviceNames;
 	}
 
 	private void createErrorLabel(Composite parent, String errorText) {
@@ -144,25 +143,38 @@ public class TimeSeriesScanView {
 		label.setText(errorText);
 	}
 
-	private void createViewControls(Composite parent, MPart part, final List<String> malcolmDeviceNames) {
+	private void createViewControls(Composite parent, MPart part, final List<DeviceInformation<?>> malcolmDeviceInfos) {
 		final Composite composite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns(4).applyTo(composite);
 
+		// create the combo viewer and label for selecting a malcolm device
 		final Label malcolmDeviceLabel = new Label(composite, SWT.NONE);
 		malcolmDeviceLabel.setText("Malcolm device:");
 		GridDataFactory.swtDefaults().applyTo(malcolmDeviceLabel);
 
-		malcolmDevicesCombo = new Combo(composite, SWT.DROP_DOWN | SWT.READ_ONLY);
-		GridDataFactory.swtDefaults().applyTo(malcolmDevicesCombo);
-		malcolmDevicesCombo.addSelectionListener(SelectionListener.widgetSelectedAdapter(
-				evt -> malcolmDeviceSelected(malcolmDevicesCombo.getItem(malcolmDevicesCombo.getSelectionIndex()))));
+		malcolmDevicesComboViewer = new ComboViewer(composite, SWT.DROP_DOWN | SWT.READ_ONLY);
+		GridDataFactory.swtDefaults().applyTo(malcolmDevicesComboViewer.getControl());
+		malcolmDevicesComboViewer.setContentProvider(ArrayContentProvider.getInstance());
+		malcolmDevicesComboViewer.setLabelProvider(new LabelProvider() {
+			@Override
+			public String getText(Object element) {
+				return ((DeviceInformation<?>) element).getLabel();
+			}
+		});
+		malcolmDevicesComboViewer.setInput(malcolmDeviceInfos);
+		malcolmDevicesComboViewer.addSelectionChangedListener(evt -> malcolmDeviceSelected(getSelectedMalcolmDeviceName()));
 
+		// select the previously selected malcolm device if there was one, otherwise the first one
+		// the selection is set asynchronously to fire the selection change event after the rest of the UI is complete
 		final String oldMalcolmDeviceName = part.getPersistedState().get(STATE_KEY_MALCOLM_DEVICE_NAME);
-		final String malcolmDeviceName = malcolmDeviceNames.contains(oldMalcolmDeviceName)
-				? oldMalcolmDeviceName : malcolmDeviceNames.get(0);
-		malcolmDevicesCombo.setItems(malcolmDeviceNames.toArray(new String[malcolmDeviceNames.size()]));
-		malcolmDevicesCombo.select(malcolmDeviceNames.indexOf(malcolmDeviceName));
+		final DeviceInformation<?> initiallySelectedDeviceInfo = malcolmDeviceInfos.stream()
+				.filter(info -> info.getName().equals(oldMalcolmDeviceName))
+				.findFirst()
+				.orElse(malcolmDeviceInfos.iterator().next());
+		parent.getShell().getDisplay().asyncExec(() ->
+			malcolmDevicesComboViewer.setSelection(new StructuredSelection(initiallySelectedDeviceInfo)));
 
+		// create the label and spinner to set number of steps (scan points)
 		final Label numStepsLabel = new Label(composite, SWT.NONE);
 		numStepsLabel.setText("Number of steps:");
 		GridDataFactory.swtDefaults().applyTo(numStepsLabel);
@@ -175,9 +187,14 @@ public class TimeSeriesScanView {
 		// we need a composite to hold the model editor so that we can change it
 		malcolmModelEditorComposite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().applyTo(malcolmModelEditorComposite);
-		malcolmModelEditor = createMalcolmModelEditor(malcolmModelEditorComposite, malcolmDeviceName);
 
+		// create the buttons
 		createButtons(parent);
+	}
+
+	private String getSelectedMalcolmDeviceName() {
+		final DeviceInformation<?> selectedDeviceInfo = ((DeviceInformation<?>) malcolmDevicesComboViewer.getStructuredSelection().getFirstElement());
+		return selectedDeviceInfo == null ? null : selectedDeviceInfo.getName(); // selection can be empty initially
 	}
 
 	private MalcolmModelEditor createMalcolmModelEditor(Composite parent, String malcolmDeviceName) {
@@ -195,6 +212,8 @@ public class TimeSeriesScanView {
 	}
 
 	private void malcolmDeviceSelected(String malcolmDeviceName) {
+		if (malcolmDeviceName == null) return;
+
 		if (malcolmModelEditor != null) {
 			malcolmModelEditor.dispose();
 		}
