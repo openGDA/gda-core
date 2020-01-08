@@ -22,6 +22,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
@@ -44,12 +45,11 @@ import gda.device.Monitor;
 import gda.device.Scannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.Findable;
-import gda.mscan.element.Scanpath;
 import gda.mscan.element.IMScanElementEnum;
 import gda.mscan.element.Mutator;
 import gda.mscan.element.RegionShape;
 import gda.mscan.element.ScanDataConsumer;
-import gda.mscan.processor.ScanpathElementProcessor;
+import gda.mscan.element.Scanpath;
 import gda.mscan.processor.IClauseElementProcessor;
 import gda.mscan.processor.IRunnableDeviceDetectorElementProcessor;
 import gda.mscan.processor.MutatorElementProcessor;
@@ -61,6 +61,7 @@ import gda.mscan.processor.ScannableElementProcessor;
 import gda.mscan.processor.ScannableGroupElementProcessor;
 import gda.mscan.processor.ScannableMonitorElementProcessor;
 import gda.mscan.processor.ScannableReadoutElementProcessor;
+import gda.mscan.processor.ScanpathElementProcessor;
 import gda.mscan.processor.TokenStringElementProcessor;
 
 /**
@@ -228,7 +229,8 @@ public class MScanSubmitter extends ValidationUtils {
 			"You must specify at least one argument in your mscan command and your first argument must be a Scannable");
 		}
 
-		// Adjust for point scan syntax which doesn't require both region and scanpath
+		// Adjust for point scan syntax which doesn't require both region and scanpath. This loop must run
+		// first as it potentially popoulates the list to be used in subsequent checks.
 		List<Object> params = new ArrayList<>();
 		for (int i = 0; i < args.length; i++) {
 			params.add(args[i]);
@@ -242,19 +244,28 @@ public class MScanSubmitter extends ValidationUtils {
 			}
 		}
 
-		// Adjust so that the more friendly two axis related terms can be used to describe equivalent 1 axis paths
-		List<Object> currentList = params;
-		int len = currentList.size();
-		while (currentList.contains(RegionShape.AXIAL)) {
-			int index = currentList.indexOf(RegionShape.AXIAL);
-			if (len > index + 2) {
-				if (currentList.get(index + 3).equals(Scanpath.LINE_STEP)) {
-					currentList.set(index + 3, Scanpath.AXIS_STEP);
-				} else if (currentList.get(index + 3).equals(Scanpath.LINE_POINTS)) {
-					currentList.set(index + 3, Scanpath.AXIS_POINTS);
+		// Adjust so that the more natural two axis linear related terms (step and points) can be used to
+		// describe equivalent paths for grid and axial scans. This simplifies typing, improves consistency
+		// and paves the way to remove the spurious 'grid' vs 'raster' nomenclature.
+		Optional<RegionShape> currentShape = Optional.empty();
+		for (int i = 0; i < params.size(); i++) {
+			Object element = params.get(i);
+			if (element instanceof RegionShape) {
+				throwIf(currentShape.isPresent(), "A region shape is already being processed");
+				if (element == RegionShape.LINE || element == RegionShape.POINT) {	// unless no change required
+					continue;
 				}
+				currentShape = Optional.of((RegionShape)element);	// cache the shape for the current portion
 			}
-			currentList = currentList.subList(index + 1, len -index);
+			// and replace uses of 'step' and 'points' with the dimensionally appropriate form
+			if (currentShape.isPresent() && element instanceof Scanpath) {
+				if ((Scanpath) element == Scanpath.LINE_STEP) {
+					params.set(i, currentShape.get() == RegionShape.AXIAL ? Scanpath.AXIS_STEP : Scanpath.GRID_STEP);
+				} else if ((Scanpath) element == Scanpath.LINE_POINTS) {
+					params.set(i, currentShape.get() == RegionShape.AXIAL ? Scanpath.AXIS_POINTS : Scanpath.GRID_POINTS);
+				}
+				currentShape = Optional.empty();
+			}
 		}
 
 		// Iterate over the command args looking for Scannable and Scannable groups. Can't just use the returned class

@@ -22,13 +22,33 @@ where:
              crec (centred_rectangle)
              circ (circle)
              poly (polygon)
+             line (line) -- a line in 2D space
+             poin (point)
+             axis (axial) -- a line along a scannable axis
     N.B. the full name or abbreviation can be used
 <RegionShape Params> are the numeric parameters for the specified RegionShape
-<Scanpath> can be grid (grid)
-                      rast (raster)
+<Scanpath> can be grid (grid_points)
+                      rast (raster/grid_step)
                       spir (spiral)
                       liss (lissajous)
-    N.B. the full name or abbreviation can be used
+                      step (line_step)
+                      nopt (line_points)
+                      poin (point)
+                      axst (axis_step)
+                      axno (axis_points)
+    N.B. the full name or abbreviation can be used, other aliases are also provided see below)
+    
+    In order to try to be consistent and standardised and move away from poorly chose pathnames
+    link raster (which actually means step along each axis) and grid (which actually means no
+    of points along each axis) the line_step and line_points paths can be used for the axis roi
+    and for the rectangular, circular and polygonal rois. So the following a valid:
+    
+    mscan S1 axis 0 10 step 1...             (an axis_step scan along the S1 axis with step size 1)
+    mscan S1 axis 0 10 pts 10...             (an axis_points scan along the S1 axis with 10 points)
+    mscan S1 S2 rect 0,0 1,1 step 0.1 0.2... (a 'raster' scan in S1 and S2 with step sizes of 0.1 and 0.2 along S1 and S2)
+    mscan S1 S2 circ 0,0 1 pts 10 11...      (a 'grid' scan (inside a circle) in S1 and S2 with a max of 10 points along 
+                                              S1 and 11 along S2) 
+    
 <Scanpath Params> are the numeric parameters for the specified Scanpath
 <Detectors/Monitors> are a list of Detectors, Monitors or IRunnableDevices
 
@@ -110,9 +130,9 @@ rect = rectangle = RegionShape.RECTANGLE
 crec = centred_rectangle = RegionShape.CENTRED_RECTANGLE
 circ = circle = RegionShape.CIRCLE
 poly = polygon = RegionShape.POLYGON
-line = RegionShape.LINE
+line = helical = heli = htom = RegionShape.LINE
 poin = point = pt = RegionShape.POINT
-axis = RegionShape.AXIAL
+axis = rotation = rota = rot = tomography = tomo = RegionShape.AXIAL
 
 # Register the commands with the Translator
 alias('rect')
@@ -124,10 +144,18 @@ alias('circle')
 alias('poly')
 alias('polygon')
 alias('line')
+alias('helical')
+alias('heli')
+alias('htom')
 alias('poin')
 alias('point')
 alias('pt')
 alias('axis')
+alias('rotation')
+alias('rota')
+alias('rot')
+alias('tomography')
+alias('tomo')
 
 
 # Set up functions that return Mutator Enum instances and assign them to
