@@ -29,7 +29,7 @@ public class SampleAlignmentDialog {
 			instance.setText("Sample Alignment");
 			
 			GridLayoutFactory.fillDefaults().numColumns(1).applyTo(instance);
-			LivePlottingComposite plottingComposite = new LivePlottingComposite(instance, SWT.NONE, "");
+			LivePlottingComposite plottingComposite = new LivePlottingComposite(instance, SWT.NONE, "", liveStreamConnection);
 			GridDataFactory.swtDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(plottingComposite);
 			
 			MultipleStagePositioningService multipleStagePositioningService = 

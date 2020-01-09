@@ -20,11 +20,9 @@ package uk.ac.gda.client.live.stream;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.dawnsci.mapping.ui.datamodel.LiveStreamMapObject;
 import org.eclipse.scanning.api.ui.IStageScanConfiguration;
@@ -37,8 +35,7 @@ import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
 
 /**
- * Main implementation of the {@link ILiveStreamConnectionService} interface to manage shared and unshared stream
- * connections.
+ * Main implementation of the {@link ILiveStreamConnectionService} interface to manage stream connections.
  *
  * @author Keith Ralph
  * @author Maurizio Nagni
@@ -48,14 +45,12 @@ public class LiveStreamConnectionManager implements ILiveStreamConnectionService
 	private static final LiveStreamConnectionManager instance = new LiveStreamConnectionManager();
 
 	private final Set<LiveStreamConnection> liveStreamConnections;
-	private final Map<CameraConfiguration, LiveStreamConnection> connections;
 
 	public static LiveStreamConnectionManager getInstance() {
 		return instance;
 	}
 
 	private LiveStreamConnectionManager() {
-		this.connections = new ConcurrentHashMap<>();
 		this.liveStreamConnections = Collections.synchronizedSet(new HashSet<>());
 	}
 
@@ -79,18 +74,46 @@ public class LiveStreamConnectionManager implements ILiveStreamConnectionService
 			final StreamType streamType) throws LiveStreamException {
 		Optional<LiveStreamConnection> optional = liveStreamConnections.stream()
 				.filter(s -> s.sameConfiguration(cameraConfig, streamType)).findFirst();
+		// Same Configuration and StreamType
 		if (optional.isPresent()) {
 			return optional.get();
 		}
+		optional = liveStreamConnections.stream().filter(s -> s.similarConfiguration(cameraConfig, streamType))
+				.findFirst();
+		// Same StreamType, different Configuration
+		if (optional.isPresent()) {
+			return doIStreamConnection(cameraConfig, optional.get());
+		}
+		// Not existing Configuration and StreamType
 		return doIStreamConnection(cameraConfig, streamType);
 	}
 
+	/**
+	 * Creates a new StreamConnection
+	 *
+	 * @param cameraConfig
+	 * @param liveStream
+	 * @return
+	 */
 	private LiveStreamConnection doIStreamConnection(CameraConfiguration cameraConfig, StreamType streamType)
 			throws LiveStreamException {
 		LiveStreamConnection liveStream = new LiveStreamConnection(cameraConfig, streamType);
 		liveStream.connect();
 		liveStreamConnections.add(liveStream);
-		connections.putIfAbsent(cameraConfig, liveStream);
+		return liveStream;
+	}
+
+	/**
+	 * Clones an existing connection using a different CameraConfiguration but same {@link StreamType}
+	 *
+	 * @param cameraConfig
+	 * @param liveStream
+	 * @return
+	 */
+	private LiveStreamConnection doIStreamConnection(CameraConfiguration cameraConfig,
+			LiveStreamConnection liveStream) {
+		LiveStreamConnection newLiveStream = new LiveStreamConnection(cameraConfig, liveStream);
+		liveStreamConnections.add(newLiveStream);
 		return liveStream;
 	}
 
@@ -110,7 +133,6 @@ public class LiveStreamConnectionManager implements ILiveStreamConnectionService
 	@Override
 	public LiveStreamMapObject getLiveStreamMapObjectUsingConnection(final LiveStreamConnection liveStreamConnection)
 			throws LiveStreamException {
-
 		return new LiveStreamPlottable(liveStreamConnection);
 	}
 

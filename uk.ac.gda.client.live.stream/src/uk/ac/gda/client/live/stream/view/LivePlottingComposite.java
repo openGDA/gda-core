@@ -148,13 +148,16 @@ public class LivePlottingComposite extends Composite {
 	 *
 	 * @throws GDAClientException
 	 */
-	public LivePlottingComposite(Composite parent, int style, String plotName) throws GDAClientException {
-		this(parent, style, plotName, null, null);
+	public LivePlottingComposite(Composite parent, int style, String plotName, LiveStreamConnection liveStreamConnection) throws GDAClientException {
+		this(parent, style, liveStreamConnection);
+		preparePlottingSystem(plotName, null, null);
 	}
 
-	public LivePlottingComposite(Composite parent, int style, String plotName, LiveStreamConnection liveStreamConnection) throws Exception {
-		this(parent, style, plotName, null, null);
+	public LivePlottingComposite(Composite parent, int style, String plotName, IActionBars actionBars,
+			LiveStreamConnection liveStreamConnection) throws Exception {
+		this(parent, style, liveStreamConnection);
 		this.liveStreamConnection = liveStreamConnection;
+		preparePlottingSystem(plotName, actionBars, null);
 	}
 
 	/**
@@ -176,14 +179,16 @@ public class LivePlottingComposite extends Composite {
 	 */
 	public LivePlottingComposite(Composite parent, int style, String plotName, IActionBars actionBars,
 			IWorkbenchPart part) throws GDAClientException {
+		this(parent, style, null);
+		preparePlottingSystem(plotName, actionBars, part);
+	}
+
+	private LivePlottingComposite(Composite parent, int style, LiveStreamConnection liveStreamConnection) throws GDAClientException {
 		super(parent, style);
+		this.liveStreamConnection = liveStreamConnection;
 		setLayout(new FillLayout());
 		SpringApplicationContextProxy.addApplicationListener(openConnectionListener);
 		SpringApplicationContextProxy.addApplicationListener(closeConnectionListener);
-
-		preparePlottingSystem(plotName, actionBars, part);
-
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(this);
 	}
 
 	private void preparePlottingSystem(String plotName, IActionBars actionBars, IWorkbenchPart part)
@@ -198,9 +203,13 @@ public class LivePlottingComposite extends Composite {
 			// plottingSystem.setKeepAspect(false);
 			// Disable auto rescale as the live stream is constantly refreshing
 			plottingSystem.setRescale(false);
+			if (this.liveStreamConnection.isConnected()) {
+				activatePlottingSystem();
+			}
 		} catch (Exception e) {
 			throw new GDAClientException(e);
 		}
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(this);
 	}
 
 	private void updateAxesVisibility() {
@@ -233,87 +242,50 @@ public class LivePlottingComposite extends Composite {
 	 *
 	 * @throws LiveStreamException
 	 */
-	public void connect() throws LiveStreamException {
-		if (!connected) {
-			logger.debug("Connecting to plot {}", plottingSystem.getPlotName());
-
-			// Create a new trace.
-			iTrace = plottingSystem.createImageTrace(LIVE_CAMERA_STREAM);
-
-			// Connect the stream to the trace
-			dataset = liveStreamConnection.connect();
-			iTrace.setDynamicData(dataset);
-
-			// Add the axes to the trace
-			final List<IDataset> axes = liveStreamConnection.getAxes();
-			if (liveStreamConnection.hasAxesProvider() || (axes != null && axes.size() == 2)) {
-				iTrace.setAxes(liveStreamConnection.getAxes(), false);
-				liveStreamConnection.addAxisMoveListener(axisChangeListener);
-			}
-
-			updateAxesVisibility();
-			updateTitleVisibility();
-
-			// Add the listener for updating the frame counter
-			dataset.addDataListener(dataShapeChangeListener);
-
-			// Reset the frame counter
-			frameCounter.set(0);
-
-			// Try and make the stream run faster
-			iTrace.setDownsampleType(DownsampleType.POINT);
-			iTrace.setRescaleHistogram(false);
-
-			// Plot the new trace.
-			plottingSystem.addTrace(iTrace);
-			connected = true;
+	public void activatePlottingSystem() throws LiveStreamException {
+		if (connected) {
+			return;
 		}
-	}
 
-	/**
-	 * Connect trace to plotting system.
-	 *
-	 * @throws LiveStreamException
-	 */
-	private void listenToStream() {
-		if (!connected) {
-			logger.debug("Connecting to plot {}", plottingSystem.getPlotName());
+		logger.debug("Connecting to plot {}", plottingSystem.getPlotName());
 
-			// Create a new trace.
-			iTrace = plottingSystem.createImageTrace(LIVE_CAMERA_STREAM);
+		// Create a new trace.
+		iTrace = plottingSystem.createImageTrace(LIVE_CAMERA_STREAM);
 
-			// Connect the stream to the trace
+		// Connect the stream to the trace
+		if (liveStreamConnection.isConnected()) {
 			dataset = liveStreamConnection.getStream();
-			iTrace.setDynamicData(dataset);
-
-			// Add the axes to the trace
-			final List<IDataset> axes = liveStreamConnection.getAxes();
-			if (liveStreamConnection.hasAxesProvider() || (axes != null && axes.size() == 2)) {
-				iTrace.setAxes(liveStreamConnection.getAxes(), false);
-				liveStreamConnection.addAxisMoveListener(axisChangeListener);
-			}
-
-			updateAxesVisibility();
-			updateTitleVisibility();
-
-			// Add the listener for updating the frame counter
-			dataset.addDataListener(dataShapeChangeListener);
-
-			// Reset the frame counter
-			frameCounter.set(0);
-
-			// Try and make the stream run faster
-			iTrace.setDownsampleType(DownsampleType.POINT);
-			iTrace.setRescaleHistogram(false);
-
-			// Plot the new trace.
-			plottingSystem.addTrace(iTrace);
-
-			UUID uuidRoot = ClientSWTElements.findParentUUID(getParent());
-			SpringApplicationContextProxy
-					.publishEvent(new PlottingSystemUpdateEvent(LivePlottingComposite.this, uuidRoot));
-			connected = true;
+		} else {
+			dataset = liveStreamConnection.connect();
 		}
+
+		iTrace.setDynamicData(dataset);
+
+		// Add the axes to the trace
+		final List<IDataset> axes = liveStreamConnection.getAxes();
+		if (liveStreamConnection.hasAxesProvider() || (axes != null && axes.size() == 2)) {
+			iTrace.setAxes(liveStreamConnection.getAxes(), false);
+			liveStreamConnection.addAxisMoveListener(axisChangeListener);
+		}
+
+		updateAxesVisibility();
+		updateTitleVisibility();
+
+		// Add the listener for updating the frame counter
+		dataset.addDataListener(dataShapeChangeListener);
+
+		// Reset the frame counter
+		frameCounter.set(0);
+
+		// Try and make the stream run faster
+		iTrace.setDownsampleType(DownsampleType.POINT);
+		iTrace.setRescaleHistogram(false);
+
+		// Plot the new trace.
+		plottingSystem.addTrace(iTrace);
+		UUID uuidRoot = ClientSWTElements.findParentUUID(getParent());
+		SpringApplicationContextProxy.publishEvent(new PlottingSystemUpdateEvent(LivePlottingComposite.this, uuidRoot));
+		connected = true;
 	}
 
 	private void createScriptingConnection(String partName) {
@@ -423,7 +395,11 @@ public class LivePlottingComposite extends Composite {
 			}
 			if (LiveStreamConnection.class.isAssignableFrom(event.getSource().getClass())) {
 				liveStreamConnection = LiveStreamConnection.class.cast(event.getSource());
-				listenToStream();
+				try {
+					activatePlottingSystem();
+				} catch (LiveStreamException e) {
+					logger.error("Canot activate Plotting", e);
+				}
 			}
 		}
 	};
