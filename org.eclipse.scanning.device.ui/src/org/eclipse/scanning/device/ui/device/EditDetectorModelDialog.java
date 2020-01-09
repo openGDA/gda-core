@@ -240,6 +240,7 @@ public class EditDetectorModelDialog extends Dialog {
 		snapshotButton.setImage(Activator.getImage("icons/camera.png"));
 		snapshotButton.setToolTipText("Take snapshot");
 		snapshotButton.addListener(SWT.Selection, event -> takeSnapshot());
+		snapshotButton.setEnabled(datasetCombo == null || datasetCombo.getItemCount() > 0);
 	}
 
 	private String[] getMalcolmDatasetNames() {
