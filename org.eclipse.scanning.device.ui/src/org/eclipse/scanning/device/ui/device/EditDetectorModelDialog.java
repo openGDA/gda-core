@@ -254,13 +254,19 @@ public class EditDetectorModelDialog extends Dialog {
 			// configure the detector, puts it in 'Armed' state
 			malcolmDevice.configure((IMalcolmModel) detectorModel);
 			final MalcolmTable datasetsTable = malcolmDevice.getDatasets();
-			return datasetsTable.stream()
+			final String[] datasetNames = datasetsTable.stream()
 				.filter(row -> MalcolmDatasetType.fromString((String) row.get(DATASETS_TABLE_COLUMN_TYPE)) == MalcolmDatasetType.PRIMARY) // filter out non-primary dataset
 				.map(row -> row.get(DATASETS_TABLE_COLUMN_NAME))
 				.map(String.class::cast)
 				.filter(name -> name.contains(".")) // sanity check, dataset names have 2 parts, e.g. 'detector.data'
 				.map(name -> name.split("\\.")[0]) // get the first part, e.g. 'detector'. This will be the name of the NXdata group in the nexus file
 				.toArray(String[]::new);
+			if (datasetNames.length == 0) {
+				getShell().getDisplay().asyncExec(() -> MessageDialog.openError(getShell(), "Warning",
+						"No datasets found for malcolm device " + detectorModel.getName()));
+			}
+
+			return datasetNames;
 		} catch (ScanningException e) {
 			logger.error("Could not get datasets for malcolm device {}", detectorModel.getName(), e);
 			getShell().getDisplay().asyncExec(() -> MessageDialog.openError(getShell(), "Error",
