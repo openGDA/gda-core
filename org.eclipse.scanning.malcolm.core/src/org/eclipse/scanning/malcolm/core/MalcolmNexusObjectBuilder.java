@@ -51,7 +51,7 @@ class MalcolmNexusObjectBuilder {
 
 	private static final String PROPERTY_NAME_UNIQUE_KEYS = "uniqueKeys";
 
-	private static final Map<MalcolmDatasetType, NexusBaseClass> nexusClassForDatasetType;
+	private static final Map<MalcolmDatasetType, NexusBaseClass> NEXUS_CLASS_FOR_DATASET_TYPE;
 
 	private static final Logger logger = LoggerFactory.getLogger(MalcolmNexusObjectBuilder.class);
 
@@ -63,12 +63,14 @@ class MalcolmNexusObjectBuilder {
 	private final Map<String, NexusObjectWrapper<NXobject>> nexusWrappers;
 
 	static {
-		nexusClassForDatasetType = new EnumMap<>(MalcolmDatasetType.class);
-		nexusClassForDatasetType.put(MalcolmDatasetType.PRIMARY, NexusBaseClass.NX_DETECTOR);
-		nexusClassForDatasetType.put(MalcolmDatasetType.SECONDARY, NexusBaseClass.NX_POSITIONER);
-		nexusClassForDatasetType.put(MalcolmDatasetType.MONITOR, NexusBaseClass.NX_MONITOR);
-		nexusClassForDatasetType.put(MalcolmDatasetType.POSITION_VALUE, NexusBaseClass.NX_POSITIONER);
-		nexusClassForDatasetType.put(MalcolmDatasetType.POSITION_SET, NexusBaseClass.NX_POSITIONER);
+		NEXUS_CLASS_FOR_DATASET_TYPE = new EnumMap<>(MalcolmDatasetType.class);
+		NEXUS_CLASS_FOR_DATASET_TYPE.put(MalcolmDatasetType.PRIMARY, NexusBaseClass.NX_DETECTOR);
+		NEXUS_CLASS_FOR_DATASET_TYPE.put(MalcolmDatasetType.SECONDARY, NexusBaseClass.NX_POSITIONER);
+		NEXUS_CLASS_FOR_DATASET_TYPE.put(MalcolmDatasetType.MONITOR, NexusBaseClass.NX_MONITOR);
+		NEXUS_CLASS_FOR_DATASET_TYPE.put(MalcolmDatasetType.POSITION_VALUE, NexusBaseClass.NX_POSITIONER);
+		NEXUS_CLASS_FOR_DATASET_TYPE.put(MalcolmDatasetType.POSITION_SET, NexusBaseClass.NX_POSITIONER);
+		NEXUS_CLASS_FOR_DATASET_TYPE.put(MalcolmDatasetType.POSITION_MIN, NexusBaseClass.NX_POSITIONER);
+		NEXUS_CLASS_FOR_DATASET_TYPE.put(MalcolmDatasetType.POSITION_MAX, NexusBaseClass.NX_POSITIONER);
 	}
 
 	MalcolmNexusObjectBuilder(IMalcolmDevice malcolmDevice) {
@@ -101,22 +103,23 @@ class MalcolmNexusObjectBuilder {
 			final String datasetName = nameSegments[1];
 
 			// get the nexus object and its wrapper, creating it if necessary
-			final NexusObjectWrapper<NXobject> nexusWrapper =
-					getNexusProvider(deviceName, nexusClassForDatasetType.get(datasetType));
-			final NXobject nexusObject = nexusWrapper.getNexusObject();
+			final NexusObjectWrapper<NXobject> nexusWrapper = getNexusProvider(deviceName, datasetType);
+			if (nexusWrapper != null) {
+				final NXobject nexusObject = nexusWrapper.getNexusObject();
 
-			// create the external link to the hdf5 file written by the malcolm device
-			// TODO: use relative path when bug with loading relative external links is fixed
-			final String externalFilePath = malcolmOutputDirName + "/" + externalFileName; // path relative to parent dir of scan file
-			nexusWrapper.addExternalLink(nexusObject, datasetName, externalFilePath,
-					datasetPath, datasetRank);
+				// create the external link to the hdf5 file written by the malcolm device
+				// TODO: use relative path when bug with loading relative external links is fixed
+				final String externalFilePath = malcolmOutputDirName + "/" + externalFileName; // path relative to parent dir of scan file
+				nexusWrapper.addExternalLink(nexusObject, datasetName, externalFilePath,
+						datasetPath, datasetRank);
 
-			if (uniqueIdPath != null && !uniqueIdPath.isEmpty()) {
-				nexusWrapper.setPropertyValue(PROPERTY_NAME_UNIQUE_KEYS, uniqueIdPath);
+				if (uniqueIdPath != null && !uniqueIdPath.isEmpty()) {
+					nexusWrapper.setPropertyValue(PROPERTY_NAME_UNIQUE_KEYS, uniqueIdPath);
+				}
+
+				// configure the nexus wrapper for the dataset
+				configureNexusWrapperForDataset(datasetType, datasetName, nexusWrapper);
 			}
-
-			// configure the nexus wrapper for the dataset
-			configureNexusWrapperForDataset(datasetType, datasetName, nexusWrapper);
 		}
 
 		return new ArrayList<>(nexusWrappers.values());
@@ -169,7 +172,13 @@ class MalcolmNexusObjectBuilder {
 		}
 	}
 
-	private NexusObjectWrapper<NXobject> getNexusProvider(String deviceName, NexusBaseClass nexusBaseClass) {
+	private NexusObjectWrapper<NXobject> getNexusProvider(String deviceName, MalcolmDatasetType datasetType) {
+		final NexusBaseClass nexusBaseClass = NEXUS_CLASS_FOR_DATASET_TYPE.get(datasetType);
+		if (nexusBaseClass == null) {
+			logger.warn("Unknown malcolm dataset type: " + datasetType);
+			return null;
+		}
+
 		if (nexusWrappers.containsKey(deviceName)) {
 			return nexusWrappers.get(deviceName);
 		}
