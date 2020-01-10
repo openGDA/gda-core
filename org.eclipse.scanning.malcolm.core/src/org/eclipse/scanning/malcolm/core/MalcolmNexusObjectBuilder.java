@@ -90,6 +90,10 @@ class MalcolmNexusObjectBuilder {
 		logger.debug("Creating nexus objects from datasets table for malcolm device {}", malcolmDevice.getName());
 		final MalcolmTable datasetsTable = malcolmDevice.getDatasets();
 
+		if (datasetsTable.isEmpty()) {
+			throw new ScanningException("No datasets found for malcolm device: " + malcolmDevice.getName());
+		}
+
 		for (Map<String, Object> datasetRow : datasetsTable) {
 			final String datasetFullName = (String) datasetRow.get(DATASETS_TABLE_COLUMN_NAME);
 			final String externalFileName = (String) datasetRow.get(DATASETS_TABLE_COLUMN_FILENAME);

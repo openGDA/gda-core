@@ -208,6 +208,10 @@ public class MalcolmTable implements Iterable<Map<String, Object>> {
 		this.numRows = numRows;
 	}
 
+	public boolean isEmpty() {
+		return tableData.isEmpty();
+	}
+
 	public void setHeadings(List<String> headings) {
 		this.headings = headings;
 	}
