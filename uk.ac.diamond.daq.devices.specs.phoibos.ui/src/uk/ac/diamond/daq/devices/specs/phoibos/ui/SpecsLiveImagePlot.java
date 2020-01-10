@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveUpdate;
 
 public class SpecsLiveImagePlot extends SpecsLivePlot {
 	private static final Logger logger = LoggerFactory.getLogger(SpecsLiveImagePlot.class);
@@ -38,54 +39,59 @@ public class SpecsLiveImagePlot extends SpecsLivePlot {
 		super.createPartControl(parent);
 
 		try {
+			actionBars.getToolBarManager().add(new KeBeSwich());
 			plottingSystem.createPlotPart(parent, "Image", actionBars, PlotType.IMAGE, this);
 			plottingSystem.setTitle("Analyser Image");
 			plottingSystem.setShowLegend(false);
 			plottingSystem.getSelectedYAxis().setInverted(true);
 		} catch (Exception e) {
 			logger.error("Couldn't setup plotting system", e);
+			throw e;
 		}
 
 	}
 
+
 	@Override
-	void updatePlot(SpecsPhoibosLiveDataUpdate update) {
-		if (update == null) {
-			return; // Can't do anything n this case - should only happen before any updates are received and if KE BE is pressed.
+	void updatePlot(SpecsPhoibosLiveUpdate update) {
+
+		if (update instanceof SpecsPhoibosLiveDataUpdate) {
+			SpecsPhoibosLiveDataUpdate dataUpdate = (SpecsPhoibosLiveDataUpdate) update;
+
+			// Cache the update in case we want to switch KE and BE
+			lastUpdate = dataUpdate;
+
+			// Energy axis
+			final double[] energyAxis;
+			if (displayInBindingEnergy) {
+				energyAxis = dataUpdate.getBeEnergyAxis();
+			}
+			else {
+				energyAxis = dataUpdate.getKeEnergyAxis();
+			}
+			final IDataset energyAxisDataset = DatasetFactory.createFromObject(energyAxis);
+			if (displayInBindingEnergy) {
+				energyAxisDataset.setName("Binding Energy (eV)");
+			} else {
+				energyAxisDataset.setName("Kinetic Energy (eV)");
+			}
+
+			// Y axis
+			final IDataset yAxis = DatasetFactory.createFromObject(dataUpdate.getyAxis());
+			String units = dataUpdate.getYAxisUnits();
+			yAxis.setName("Y scale (" + units + ")");
+			List<IDataset> axis = Arrays.asList(energyAxisDataset, yAxis);
+
+			// Get the image data
+			IDataset image = DatasetFactory.createFromObject(dataUpdate.getImage());
+
+			// Thread safe so don't need to be in the UI thread
+			plottingSystem.updatePlot2D(image, axis, null);
+			plottingSystem.repaint();
+
+			logger.trace("Updated plotting system");
 		}
 
-		// Cache the update in case we want to switch KE and BE
-		lastUpdate = update;
-
-		// Energy axis
-		final double[] energyAxis;
-		if (displayInBindingEnergy) {
-			energyAxis = update.getBeEnergyAxis();
-		}
-		else {
-			energyAxis = update.getKeEnergyAxis();
-		}
-		final IDataset energyAxisDataset = DatasetFactory.createFromObject(energyAxis);
-		if (displayInBindingEnergy) {
-			energyAxisDataset.setName("Binding Energy (eV)");
-		} else {
-			energyAxisDataset.setName("Kinetic Energy (eV)");
-		}
-
-		// Y axis
-		final IDataset yAxis = DatasetFactory.createFromObject(update.getyAxis());
-		String units = update.getYAxisUnits();
-		yAxis.setName("Y scale (" + units + ")");
-		List<IDataset> axis = Arrays.asList(energyAxisDataset, yAxis);
-
-		// Get the image data
-		IDataset image = DatasetFactory.createFromObject(update.getImage());
-
-		// Thread safe so don't need to be in the UI thread
-		plottingSystem.updatePlot2D(image, axis, null);
-		plottingSystem.repaint();
-
-		logger.trace("Updated plotting system");
 	}
 
 }

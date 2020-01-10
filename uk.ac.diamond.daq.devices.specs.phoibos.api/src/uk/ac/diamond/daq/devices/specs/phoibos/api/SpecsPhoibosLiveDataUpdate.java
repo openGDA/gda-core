@@ -18,15 +18,13 @@
 
 package uk.ac.diamond.daq.devices.specs.phoibos.api;
 
-import java.io.Serializable;
-
 /**
  * Immutable class to hold live data generated from a SPECS analyser. The idea is this object can be built on the server
  * side and then pushed to clients and it will contain every thing they need to display the GUI.
  *
  * @author James Mudd
  */
-public class SpecsPhoibosLiveDataUpdate implements Serializable {
+public class SpecsPhoibosLiveDataUpdate extends SpecsPhoibosLiveUpdate {
 
 	/**
 	 * Generated serial ID
@@ -39,12 +37,73 @@ public class SpecsPhoibosLiveDataUpdate implements Serializable {
 	private final int currentPoint;
 	private final int totalIterations;
 	private final int currentPointInIteration;
-	private final double[] spectrum;
+
 	private final double[][] image;
 	private final double[] keEnergyAxis;
 	private final double[] beEnergyAxis;
 	private final double[] yAxis;
 	private final String yAxisUnits;
+
+	private SpecsPhoibosLiveDataUpdate(Builder builder) {
+		super(builder.spectrum);
+		regionName = builder.regionName;
+		positionString = builder.positionString;
+		totalPoints = builder.totalPoints;
+		currentPoint = builder.currentPoint;
+		totalIterations = builder.totalIterations;
+		currentPointInIteration = builder.currentPointInIteration;
+		image = builder.image;
+		keEnergyAxis = builder.keEnergyAxis;
+		beEnergyAxis = builder.beEnergyAxis;
+		yAxis = builder.yAxis;
+		yAxisUnits = builder.yAxisUnits;
+	}
+
+
+
+	public String getPositionString() {
+		return positionString;
+	}
+
+	public String getRegionName() {
+		return regionName;
+	}
+
+	public int getTotalPoints() {
+		return totalPoints;
+	}
+
+	public int getCurrentPoint() {
+		return currentPoint;
+	}
+
+	public int getTotalIterations() {
+		return totalIterations;
+	}
+
+	public int getcurrentPointInIteration() {
+		return currentPointInIteration;
+	}
+
+	public double[][] getImage() {
+		return image;
+	}
+
+	public double[] getKeEnergyAxis() {
+		return keEnergyAxis;
+	}
+
+	public double[] getBeEnergyAxis() {
+		return beEnergyAxis;
+	}
+
+	public double[] getyAxis() {
+		return yAxis;
+	}
+
+	public String getYAxisUnits() {
+		return yAxisUnits;
+	}
 
 	public static class Builder {
 
@@ -124,70 +183,6 @@ public class SpecsPhoibosLiveDataUpdate implements Serializable {
 		public SpecsPhoibosLiveDataUpdate build() {
 			return new SpecsPhoibosLiveDataUpdate(this);
 		}
-	}
-
-	private SpecsPhoibosLiveDataUpdate(Builder builder) {
-
-		regionName = builder.regionName;
-		positionString = builder.positionString;
-		totalPoints = builder.totalPoints;
-		currentPoint = builder.currentPoint;
-		totalIterations = builder.totalIterations;
-		currentPointInIteration = builder.currentPointInIteration;
-		spectrum = builder.spectrum;
-		image = builder.image;
-		keEnergyAxis = builder.keEnergyAxis;
-		beEnergyAxis = builder.beEnergyAxis;
-		yAxis = builder.yAxis;
-		yAxisUnits = builder.yAxisUnits;
-	}
-
-	public String getPositionString() {
-		return positionString;
-	}
-
-	public String getRegionName() {
-		return regionName;
-	}
-
-	public int getTotalPoints() {
-		return totalPoints;
-	}
-
-	public int getCurrentPoint() {
-		return currentPoint;
-	}
-
-	public int getTotalIterations() {
-		return totalIterations;
-	}
-
-	public int getcurrentPointInIteration() {
-		return currentPointInIteration;
-	}
-
-	public double[] getSpectrum() {
-		return spectrum;
-	}
-
-	public double[][] getImage() {
-		return image;
-	}
-
-	public double[] getKeEnergyAxis() {
-		return keEnergyAxis;
-	}
-
-	public double[] getBeEnergyAxis() {
-		return beEnergyAxis;
-	}
-
-	public double[] getyAxis() {
-		return yAxis;
-	}
-
-	public String getYAxisUnits() {
-		return yAxisUnits;
 	}
 
 }
