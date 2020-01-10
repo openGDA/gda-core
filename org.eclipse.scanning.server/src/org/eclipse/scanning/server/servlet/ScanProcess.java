@@ -447,13 +447,13 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 
 	private IDeviceController createRunnableDevice(ScanModel scanModel) throws ScanningException, EventException {
 
-		final ScanRequest req = bean.getScanRequest();
-		if (req == null) {
+		final ScanRequest scanRequest = bean.getScanRequest();
+		if (scanRequest == null) {
 			throw new ScanningException("There must be a scan request to run a scan!");
 		}
 
 		try {
-			configureDetectors(req.getDetectors(), scanModel);
+			configureDetectors(scanRequest.getDetectors(), scanModel);
 
 			final IPausableDevice<ScanModel> device = (IPausableDevice<ScanModel>) Services.getRunnableDeviceService().createRunnableDevice(scanModel, publisher, false);
 			final IDeviceController theController = Services.getWatchdogService().create(device, bean);
@@ -498,13 +498,13 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		return scanModel;
 	}
 
-	private void configureDetectors(Map<String, Object> dmodels, ScanModel model) throws Exception {
-
-		if (dmodels == null) {
+	private void configureDetectors(Map<String, Object> detectorModels, ScanModel model) throws Exception {
+		if (detectorModels == null || detectorModels.isEmpty()) {
 			logger.debug("No detectors to configure");
 			return;
 		}
-		logger.debug("Configuring detectors {}", dmodels.keySet());
+
+		logger.debug("Configuring detectors {}", detectorModels.keySet());
 		for (IRunnableDevice<?> device : model.getDetectors()) {
 
 			final AnnotationManager manager = new AnnotationManager(Activator.createResolver());
@@ -514,17 +514,17 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 			@SuppressWarnings("unchecked")
 			final IRunnableDevice<Object> odevice = (IRunnableDevice<Object>) device;
 
-			if (!dmodels.containsKey(odevice.getName())) {
+			if (!detectorModels.containsKey(odevice.getName())) {
 				continue; // Nothing to configure
 			}
-			final Object dmodel = dmodels.get(odevice.getName());
+			final Object dmodel = detectorModels.get(odevice.getName());
 
 			final IPointGenerator<?> generator = model.getPointGenerator();
 			manager.invoke(PreConfigure.class, dmodel, generator, model, bean, publisher);
 			odevice.configure(dmodel);
 			manager.invoke(PostConfigure.class, dmodel, generator, model, bean, publisher);
 		}
-		logger.debug("Configured detectors {}", dmodels.keySet());
+		logger.debug("Configured detectors {}", detectorModels.keySet());
 	}
 
 	private IPointGenerator<?> createPointGenerator() throws GeneratorException {
