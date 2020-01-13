@@ -99,7 +99,7 @@ public class RawBinarySaver implements IFileSaver {
 			}
 
 			Dataset adata = DatasetUtils.convertToDataset(dh.getDataset(i));
-			DoubleDataset data = (DoubleDataset)adata.cast(Dataset.FLOAT64);
+			DoubleDataset data = adata.cast(DoubleDataset.class);
 			byte dtype = -1;
 			byte isize = 1;
 			String dataName = data.getName();
