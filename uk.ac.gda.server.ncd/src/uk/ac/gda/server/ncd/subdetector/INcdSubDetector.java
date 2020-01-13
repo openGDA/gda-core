@@ -74,11 +74,18 @@ public interface INcdSubDetector extends Device {
 	 */
 	public double getPixelSize() throws DeviceException;
 
-    public void atScanStart() throws DeviceException;
-    
-    public void atScanEnd() throws DeviceException;
-    
-    public void setTimer(Timer timer) throws DeviceException;
-    
+	@SuppressWarnings("unused")
+	public default void atScanStart() throws DeviceException {
+	}
+
+	@SuppressWarnings("unused")
+	public default void atScanEnd() throws DeviceException {
+	}
+
+	@SuppressWarnings("unused")
+	public default void setTimer(final Timer timer) throws DeviceException {
+	}
+
     public DetectorProperties getDetectorProperties() throws DeviceException;
+
 }
