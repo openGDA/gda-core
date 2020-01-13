@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
-import gda.device.Timer;
 import gda.device.detector.DataDimension;
 import gda.device.detector.NXDetectorData;
 import gda.device.memory.Gdhist;
@@ -178,18 +177,5 @@ public class NcdScalerDetector extends NcdSubDetector {
 	@Override
 	public void setPixelSize(double pixelsize) throws DeviceException {
 		this.pixelsize = pixelsize * getDataDimensions()[0];
-	}
-
-    @Override
-    public void atScanEnd() throws DeviceException {
-    }
-
-    @Override
-    public void atScanStart() throws DeviceException {
-    }
-
-	@Override
-	public void setTimer(Timer timer) {
-
 	}
 }
