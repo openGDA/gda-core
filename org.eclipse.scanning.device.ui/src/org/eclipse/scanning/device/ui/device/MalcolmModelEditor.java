@@ -182,7 +182,7 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 		IObservableValue<Double> textFieldValue = WidgetProperties.text(SWT.Modify).observe(stepTimeText);
 		IObservableValue<Double> modelValue = PojoProperties.value("exposureTime").observe(getModel());
 		// recalculate the derived values for the detectors when the step time changes
-		modelValue.addValueChangeListener(event -> detectorsTable.refresh());
+		modelValue.addValueChangeListener(event -> updateValidatedModel(null));
 		dataBindingContext.bindValue(textFieldValue, modelValue);
 		dataBindingContext.updateTargets();
 	}
@@ -342,6 +342,8 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 		@Override
 		protected void setValue(Object element, Object value) {
 			final IMalcolmDetectorModel detectorModel = (IMalcolmDetectorModel) element;
+			final Object oldValue = getValue(element);
+
 			switch (column) {
 				case FRAMES_PER_STEP:
 					try {
@@ -361,7 +363,11 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 					throw new IllegalArgumentException("Column should not be editable: " + column);
 			}
 			detectorsTable.update(detectorModel, null);
+			if (!value.equals(oldValue)) {
+				detectorsTable.getControl().getDisplay().asyncExec(() -> updateValidatedModel(null));
+			}
 		}
+
 	}
 
 }
