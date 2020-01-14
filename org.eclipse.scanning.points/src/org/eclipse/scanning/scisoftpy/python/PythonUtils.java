@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.apache.commons.math3.complex.Complex;
 import org.eclipse.january.DatasetException;
+import org.eclipse.january.dataset.DTypeUtils;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
@@ -279,7 +280,7 @@ public class PythonUtils {
 	public static void setSlice(Dataset a, Object object, final PyObject indexes) {
 		if (a.isComplex() || a.getElementsPerItem() == 1) {
 			if (object instanceof PySequence) {
-				object = DatasetFactory.createFromObject(a.getDType(), object);
+				object = DatasetFactory.createFromObject(a.getClass(), object);
 			}
 		}
 
@@ -297,7 +298,7 @@ public class PythonUtils {
 	 * @throws IllegalArgumentException if dataset type is not known
 	 */
 	public static Dataset createFromObject(final Integer dtype, final Object obj) {
-		return DatasetFactory.createFromObject(dtype, obj, null);
+		return DatasetFactory.createFromObject(DTypeUtils.getInterface(dtype), obj, null);
 	}
 
 }

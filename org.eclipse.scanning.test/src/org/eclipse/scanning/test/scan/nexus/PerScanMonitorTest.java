@@ -21,6 +21,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,6 +41,7 @@ import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NXslit;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetUtils;
+import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.scanning.api.AbstractScannable;
 import org.eclipse.scanning.api.IScannable;
@@ -241,14 +243,14 @@ public class PerScanMonitorTest extends NexusTest {
 					assertNotNull(dataNode);
 					dataset = DatasetUtils.sliceAndConvertLazyDataset(dataNode.getDataset());
 					assertEquals(1, dataset.getSize());
-					assertEquals(Dataset.FLOAT64, dataset.getDType());
+					assertTrue(dataset instanceof DoubleDataset);
 					assertEquals(expectedValue, dataset.getElementDoubleAbs(0), 1e-15);
 
 					dataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
 					assertNotNull(dataNode);
 					dataset = DatasetUtils.sliceAndConvertLazyDataset(dataNode.getDataset());
 					assertEquals(1, dataset.getSize());
-					assertEquals(Dataset.FLOAT64, dataset.getDType());
+					assertTrue(dataset instanceof DoubleDataset);
 					assertEquals(expectedValue, dataset.getElementDoubleAbs(0), 1e-15);
 				}
 			} else {
@@ -263,14 +265,14 @@ public class PerScanMonitorTest extends NexusTest {
 				assertNotNull(dataNode);
 				dataset = DatasetUtils.sliceAndConvertLazyDataset(dataNode.getDataset());
 				assertEquals(1, dataset.getSize());
-				assertEquals(Dataset.FLOAT64, dataset.getDType());
+				assertTrue(dataset instanceof DoubleDataset);
 				assertEquals(expectedValue, dataset.getElementDoubleAbs(0), 1e-15);
 
 				dataNode = slit.getDataNode(NXslit.NX_Y_GAP);
 				assertNotNull(dataNode);
 				dataset = DatasetUtils.sliceAndConvertLazyDataset(dataNode.getDataset());
 				assertEquals(1, dataset.getSize());
-				assertEquals(Dataset.FLOAT64, dataset.getDType());
+				assertTrue(dataset instanceof DoubleDataset);
 				assertEquals(expectedValue, dataset.getElementDoubleAbs(0), 1e-15);
 			}
 		}
