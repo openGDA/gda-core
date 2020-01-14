@@ -1,9 +1,12 @@
 package uk.ac.diamond.daq.client.gui.camera;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +16,11 @@ import gda.device.DeviceException;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
 import uk.ac.diamond.daq.client.gui.camera.controller.ImagingCameraConfigurationController;
+import uk.ac.diamond.daq.client.gui.camera.properties.CameraPropertiesBuilder;
+import uk.ac.diamond.daq.client.gui.camera.properties.MotorPropertiesBuilder;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
+import uk.ac.gda.client.properties.CameraProperties;
+import uk.ac.gda.client.properties.MotorProperties;
 
 /**
  * Hides the configuration structural design. In the property file are listed
@@ -31,11 +38,15 @@ import uk.ac.gda.client.live.stream.view.CameraConfiguration;
  * <code>
  * client.cameraConfiguration.0=d2_cam_config
  * client.cameraConfiguration.name.0=Camera Zero
- * server.cameraControl.0=imaging_camera_control
+ * client.cameraConfiguration.motor.0.controller.0 = stagez
+ * client.cameraConfiguration.motor.0.name.0 = Camera Axis Z
+ * client.cameraControl.0=imaging_camera_control
  * 
- * client.cameraConfiguration.1=d2_cam_config
+ * client.cameraConfiguration.1=d2_cam_config_another
  * client.cameraConfiguration.name.1=Camera One
- * server.cameraControl.1=imaging_camera_control
+ * client.cameraConfiguration.motor.0.controller.1 = stagey
+ * client.cameraConfiguration.motor.0.name.1 = Camera Axis Y
+ * client.cameraControl.1=imaging_camera_control
  * </code>
  * 
  * @author Maurizio Nagni
@@ -44,25 +55,70 @@ import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 public final class CameraHelper {
 
 	private static final Logger logger = LoggerFactory.getLogger(CameraHelper.class);
-	private final static Map<Integer, AbstractCameraConfigurationController> cameraControllers = new HashMap<>();
+	private static final Map<Integer, AbstractCameraConfigurationController> cameraControllers = new HashMap<>();
+	private static final List<CameraProperties> cameraProperties = new ArrayList<>();
+	private static final List<CameraComboItem> cameraComboItems = new ArrayList<>();
 
-	/**
-	 * Allows the regex below to be extended to any number followed by any other
-	 * format
-	 */
-	private static final String CAMERA_REGEX_EXTENSION = "\\.%s(\\..*)?";
+	static {
+		parseCameraProperties();
+		createCameraComboItems();
+	}
+
 	/**
 	 * The prefix used in the property files to identify a camera configuration.
 	 */
 	public static final String CAMERA_CONFIGURATION_PREFIX = "client.cameraConfiguration";
-	public static final String CAMERA_CONFIGURATION_REGEX = CAMERA_CONFIGURATION_PREFIX + CAMERA_REGEX_EXTENSION;
+
 	/**
 	 * The prefix used in the property files to identify a camera control.
 	 */
-	public static final String CAMERA_CONTROL_PREFIX = "server.cameraControl";
-	public static final String CAMERA_CONTROL_REGEX = CAMERA_CONTROL_PREFIX + CAMERA_REGEX_EXTENSION;
+	public static final String CAMERA_CONTROL_PREFIX = "client.cameraControl";
+
+	private static final String CAMERA_PROPERTY_FORMAT = "%s.%s";
+	private static final String MOTOR_PROPERTY_FORMAT = CAMERA_CONFIGURATION_PREFIX + ".motor.%s";
 
 	private CameraHelper() {
+	}
+
+	public static CameraConfiguration getCameraConfiguration(CameraComboItem cameraItem) {
+		return getCameraConfiguration(getCameraConfigurationInstance(cameraItem.getIndex()));
+	}
+
+	public static CameraConfiguration getCameraConfiguration(int cameraIndex) {
+		return getCameraConfiguration(getCameraConfigurationInstance(cameraIndex));
+	}
+
+	/**
+	 * Returns a {@link AbstractCameraConfigurationController} based on a camera
+	 * index
+	 * 
+	 * @param activeCamera the camera index
+	 * @return the camera or <code>null</code> if the camera does not exists
+	 */
+	public static AbstractCameraConfigurationController getCameraControlInstance(int activeCamera) {
+		if (!cameraControllers.containsKey(activeCamera) && activeCamera < getCameraProperties().size()) {
+			ImagingCameraConfigurationController controller;
+			try {
+				controller = new ImagingCameraConfigurationController(
+						getCameraProperties().get(activeCamera).getCameraControl());
+				cameraControllers.put(activeCamera, controller);
+			} catch (DeviceException e) {
+				logger.error("Error", e);
+			}
+		}
+		return cameraControllers.get(activeCamera);
+	}
+
+	public static List<CameraComboItem> getCameraComboItems() {
+		return Collections.unmodifiableList(cameraComboItems);
+	}
+
+	public static List<CameraProperties> getCameraProperties() {
+		return Collections.unmodifiableList(cameraProperties);
+	}
+
+	private static void createCameraComboItems() {
+		getCameraProperties().stream().forEach(k -> cameraComboItems.add(new CameraComboItem(k)));
 	}
 
 	/**
@@ -74,77 +130,85 @@ public final class CameraHelper {
 	 *                           {@link CameraConfiguration}
 	 * @return the camera configuration associated with the camera name
 	 */
-	public static CameraConfiguration getCameraConfiguration(String cameraPropertyName) {
+	private static CameraConfiguration getCameraConfiguration(String cameraPropertyName) {
 		return Finder.getInstance().find(cameraPropertyName);
 	}
-	
-	public static CameraConfiguration getCameraConfiguration(CameraComboItem cameraItem) {
-		return getCameraConfiguration(getCameraConfigurationInstance(cameraItem.getIndex()));
-	}
-	
-	public static CameraConfiguration getCameraConfiguration(int cameraIndex) {
-		return getCameraConfiguration(getCameraConfigurationInstance(cameraIndex));
+
+	private static String getCameraConfigurationInstance(int cameraIndex) {
+		return getCameraProperties().get(cameraIndex).getCameraConfiguration();
 	}
 
-	public static String getCameraConfigurationInstance(int cameraIndex) {
-		String cameraKey = LocalProperties.getFirstKeyByRegexp(
-				String.format(CAMERA_CONFIGURATION_REGEX, Integer.toString(cameraIndex)), CAMERA_CONFIGURATION_PREFIX);
-		return LocalProperties.get(cameraKey);
-	}
-	
-	/**
-	 * Returns a {@link AbstractCameraConfigurationController} based on a camera
-	 * index
-	 * 
-	 * @param activeCamera the camera index
-	 * @return the camera or <code>null</code> if the camera does not exists
-	 */
-	public static AbstractCameraConfigurationController getCameraControlInstance(int activeCamera) {
-		if (!cameraControllers.containsKey(activeCamera)) {
-			ImagingCameraConfigurationController controller;
-			try {
-				controller = new ImagingCameraConfigurationController(getCameraControllerBeanID(activeCamera));
-				cameraControllers.put(activeCamera, controller);
-			} catch (DeviceException e) {
-				logger.error("Error", e);
-			}
-		}
-		return cameraControllers.get(activeCamera);
-	}
-
-	public static List<CameraComboItem> getCameraComboItems() {
-		List<CameraComboItem> items = new ArrayList<>();
-		List<String> confKey = getCameraConfigurationKeys();
-		confKey.stream().forEach(k -> {
-			final int index = Integer.parseInt(k.substring(k.lastIndexOf('.') + 1));
-			final String name = getCameraConfigurationName(index);
-			items.add(new CameraComboItem(name, index));
-		});
-		return items;
-	}	
-	
-	public static List<String> getCameraControlKeys() {
-		return LocalProperties.getKeysByRegexp(CAMERA_CONTROL_PREFIX + "\\.\\d");
-	}
-
-	public static List<String> getCameraConfigurationKeys() {
+	private static List<String> getCameraConfigurationKeys() {
 		return LocalProperties.getKeysByRegexp(CAMERA_CONFIGURATION_PREFIX + "\\.\\d");
 	}
-	
-	public static String getCameraConfigurationName(int index) {
-		String confName = LocalProperties.getKeysByRegexp(CAMERA_CONFIGURATION_PREFIX + ".*\\.name\\." + index).get(0);
-		return LocalProperties.get(confName);
+
+	private static void parseCameraProperties() {
+		IntStream.range(0, getCameraConfigurationKeys().size()).forEach(CameraHelper::parseCameraProperties);
+		cameraProperties.sort((c1, c2) -> Integer.compare(c1.getIndex(), c2.getIndex()));
 	}
-	
+
+	private static void parseCameraProperties(int index) {
+		CameraPropertiesBuilder builder = new CameraPropertiesBuilder();
+		builder.setIndex(index);
+		builder.setName(getCameraNameProperty(index));
+		builder.setCameraConfiguration(getCameraConfigurationProperty(index));
+		builder.setCameraControl(getCameraControlProperty(index));
+
+		builder.setMotorProperties(getCameraConfigurationMotors(index));
+		cameraProperties.add(builder.build());
+	}
+
+	private static List<MotorProperties> getCameraConfigurationMotors(int index) {
+		return IntStream.range(0, 10).filter(motorIndex -> {
+			return getCameraConfigurationMotorControllerProperty(motorIndex, index) != null;
+		}).mapToObj(motorIndex -> {
+			MotorPropertiesBuilder motorBuilder = new MotorPropertiesBuilder();
+			motorBuilder.setName(getCameraConfigurationMotorNameProperty(motorIndex, index));
+			motorBuilder.setController(getCameraConfigurationMotorControllerProperty(motorIndex, index));
+			return motorBuilder.build();
+		}).collect(Collectors.toList());
+	}
+
+	private static String getCameraConfigurationProperty(int index) {
+		return LocalProperties.get(formatProperty(CAMERA_CONFIGURATION_PREFIX, index), null);
+	}
+
+	private static String getCameraControlProperty(int index) {
+		return LocalProperties.get(formatProperty(CAMERA_CONTROL_PREFIX, index), null);
+	}
+
+	private static String getCameraNameProperty(int index) {
+		return LocalProperties.get(formatProperty(formatPropertyKey(CAMERA_CONFIGURATION_PREFIX, "name"), index), null);
+	}
+
+	private static String formatProperty(String prefix, int index) {
+		return String.format(CAMERA_PROPERTY_FORMAT, prefix, index);
+	}
+
+	private static String formatPropertyKey(String prefix, String property) {
+		return String.format(CAMERA_PROPERTY_FORMAT, prefix, property);
+	}
+
+	// -- motors -- //
 	/**
-	 * Returns the value of the cameraController property associated with an index
+	 * Returns a string like "client.cameraConfiguration.motor.MOTOR_INDEX"
 	 * 
-	 * @param cameraIndex
+	 * @param motorIndex
 	 * @return
 	 */
-	private static String getCameraControllerBeanID(int cameraIndex) {
-		String cameraKey = LocalProperties.getFirstKeyByRegexp(
-				String.format(CAMERA_CONTROL_REGEX, Integer.toString(cameraIndex)), CAMERA_CONTROL_PREFIX);
-		return LocalProperties.get(cameraKey);
+	private static String formatMotorProperty(int motorIndex) {
+		return String.format(MOTOR_PROPERTY_FORMAT, motorIndex);
+	}
+
+	private static String formatMotorPropertyKey(String property, int motorIndex) {
+		return formatPropertyKey(formatMotorProperty(motorIndex), property);
+	}
+
+	private static String getCameraConfigurationMotorNameProperty(int motorIndex, int index) {
+		return LocalProperties.get(formatProperty(formatMotorPropertyKey("name", motorIndex), index), null);
+	}
+
+	private static String getCameraConfigurationMotorControllerProperty(int motorIndex, int index) {
+		return LocalProperties.get(formatProperty(formatMotorPropertyKey("controller", motorIndex), index), null);
 	}
 }
