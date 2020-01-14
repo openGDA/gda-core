@@ -31,7 +31,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.junit.After;
@@ -225,7 +225,7 @@ public class FileRegistrarUnitTest {
 		final Detector simpleDetector = TestHelpers.createTestDetector("SimpleDetector", 0.0,
 				new String[] { "simpleDetector1" }, new String[] {}, 0,
 				new String[] { "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g" },
-				TestHelpers.createTestNexusGroupData(dims1, Dataset.FLOAT64, true), SCAN_FILE, "description1", "detectorID1", "detectorType1");
+				TestHelpers.createTestNexusGroupData(DoubleDataset.class, dims1, true), SCAN_FILE, "description1", "detectorID1", "detectorType1");
 
 		final IScanDataPoint dataPoint1 = mock(IScanDataPoint.class);
 		when(dataPoint1.getDetectors()).thenReturn(new Vector<Detector>(Arrays.asList(simpleDetector)));

@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 
-import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DoubleDataset;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +76,7 @@ public class FileRegistrarTest {
 		Detector simpleDetector = TestHelpers.createTestDetector("SimpleDetector", 0.,
 				new String[] { "simpleDetector1" }, new String[] {}, 0, new String[] { "%5.2g", "%5.2g", "%5.2g",
 						"%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g" }, TestHelpers
-						.createTestNexusGroupData(dims1, Dataset.FLOAT64, true), null, "description1",
+						.createTestNexusGroupData(DoubleDataset.class, dims1, true), null, "description1",
 				"detectorID1", "detectorType1");
 
 		Detector simpleFileDetector = TestHelpers.createTestFileDetector("simpleDetector1", 0, "HLK%05X.mp3",

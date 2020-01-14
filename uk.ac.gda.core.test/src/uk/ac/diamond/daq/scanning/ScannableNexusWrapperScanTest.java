@@ -81,9 +81,8 @@ import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
-import org.eclipse.january.dataset.DTypeUtils;
-import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.InterfaceUtils;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
@@ -845,8 +844,7 @@ public class ScannableNexusWrapperScanTest {
 			IDataset dataset = dataNode.getDataset().getSlice();
 			assertEquals(0, dataset.getRank());
 			Object expectedValue = attributeScannable.getScanMetadataAttribute(attrName);
-			assertEquals(DTypeUtils.getDTypeFromObject(expectedValue),
-					((Dataset) dataset).getDType());
+			assertTrue(InterfaceUtils.getInterface(expectedValue).isInstance(dataset));
 			assertEquals(expectedValue, dataset.getObject());
 		}
 	}
