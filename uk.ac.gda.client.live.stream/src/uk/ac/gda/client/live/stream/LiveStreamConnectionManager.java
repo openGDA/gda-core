@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.dawnsci.mapping.ui.datamodel.LiveStreamMapObject;
 import org.eclipse.scanning.api.ui.IStageScanConfiguration;
 import org.eclipse.ui.PlatformUI;
@@ -39,7 +40,7 @@ import uk.ac.gda.client.live.stream.view.StreamType;
 
 public class LiveStreamConnectionManager implements ILiveStreamConnectionService {
 
-	private Map<CameraConfiguration, LiveStreamConnection> connections = new ConcurrentHashMap<>();
+	private Map<Pair<CameraConfiguration, StreamType>, LiveStreamConnection> connections = new ConcurrentHashMap<>();
 
 	/**
 	 * Retrieves a {@link LiveStreamConnection} of the specified {@link StreamType} based on the specified
@@ -49,7 +50,8 @@ public class LiveStreamConnectionManager implements ILiveStreamConnectionService
 	@Override
 	public LiveStreamConnection getSharedLiveStreamConnection(
 			final CameraConfiguration cameraConfig, final StreamType streamType) {
-		return connections.computeIfAbsent(cameraConfig, config -> getFreshLiveStreamConnection(config, streamType));
+		return connections.computeIfAbsent(Pair.of(cameraConfig, streamType),
+				pair -> getFreshLiveStreamConnection(pair.getLeft(), pair.getRight()));
 	}
 
 	/**
