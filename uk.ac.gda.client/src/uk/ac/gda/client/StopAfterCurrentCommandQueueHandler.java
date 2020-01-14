@@ -24,18 +24,25 @@ import org.eclipse.core.commands.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.InterfaceProvider;
+
 public class StopAfterCurrentCommandQueueHandler extends AbstractHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(StopAfterCurrentCommandQueueHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		try {
-			logger.debug("Stop after current scan button pressed");
-			CommandQueueViewFactory.getProcessor().stopAfterCurrent();
-			return Boolean.TRUE;
-		} catch (Exception ne) {
-			throw new ExecutionException("Error running StopAfterCurrentCommand", ne);
+		if (InterfaceProvider.getBatonStateProvider().amIBatonHolder()) {
+			try {
+				logger.debug("Stop after current scan button pressed");
+				CommandQueueViewFactory.getProcessor().stopAfterCurrent();
+				return Boolean.TRUE;
+			} catch (Exception ne) {
+				throw new ExecutionException("Error running StopAfterCurrentCommand", ne);
+			}
+		} else {
+			logger.warn("You cannot insert a stop in the queue as you do not hold the baton");
+			return Boolean.FALSE;
 		}
 	}
 

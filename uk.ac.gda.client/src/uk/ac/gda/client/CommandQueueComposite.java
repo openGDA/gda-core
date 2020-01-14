@@ -75,6 +75,7 @@ import gda.commandqueue.Queue;
 import gda.commandqueue.QueueChangeEvent;
 import gda.commandqueue.QueuedCommandSummary;
 import gda.commandqueue.SimpleCommandSummary;
+import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 import uk.ac.gda.richbeans.xml.string.StringInput;
 import uk.ac.gda.richbeans.xml.string.StringStorage;
@@ -155,16 +156,19 @@ public class CommandQueueComposite extends Composite {
 
 			@Override
 			public void run() {
-				try {
-					List<CommandId> ids = getSelectedCommandIds();
-					if (!ids.isEmpty()) {
-						queue.remove(ids);
-						tableViewer.refresh();
+				if (InterfaceProvider.getBatonStateProvider().amIBatonHolder()) {
+					try {
+						List<CommandId> ids = getSelectedCommandIds();
+						if (!ids.isEmpty()) {
+							queue.remove(ids);
+							tableViewer.refresh();
+						}
+					} catch (Exception e) {
+						logger.error("Error in run", e);
 					}
-				} catch (Exception e) {
-					logger.error("Error in run", e);
+				} else {
+					logger.warn("You cannot delete items in the queue as you do not hold the baton");
 				}
-
 			}
 
 		};
@@ -217,14 +221,18 @@ public class CommandQueueComposite extends Composite {
 		// create Move to head of queue action and enable if rows are selected
 		final Action moveToHeadAction = new Action("Move to head of queue") {
 			@Override public void run() {
-				try {
-					List<CommandId> ids = getSelectedCommandIds();
-					if (!ids.isEmpty()) {
-						queue.moveToHead(ids);
-						tableViewer.refresh();
+				if (InterfaceProvider.getBatonStateProvider().amIBatonHolder()) {
+					try {
+						List<CommandId> ids = getSelectedCommandIds();
+						if (!ids.isEmpty()) {
+							queue.moveToHead(ids);
+							tableViewer.refresh();
+						}
+					} catch (Exception e) {
+						logger.error("Error in run", e);
 					}
-				} catch (Exception e) {
-					logger.error("Error in run", e);
+				} else {
+					logger.warn("You cannot move items to the head of the queue as you do not hold the baton");
 				}
 			}
 		};
@@ -263,20 +271,24 @@ public class CommandQueueComposite extends Composite {
 				/*
 				 * get selected CommandIds and move to before the row under the mouse
 				 */
-				try {
-					final NumberedQueueEntry item = (NumberedQueueEntry) getCurrentTarget();
-					final QueuedCommandSummary target = item.entry;
-					CommandId targetId = target.id;
-					List<CommandId> ids = getSelectedCommandIds();
-					if (!ids.isEmpty()) {
-						logger.info("performDrop {} {}", targetId, ids);
-						queue.moveToBefore(targetId, ids);
-						tableViewer.refresh();
+				if (InterfaceProvider.getBatonStateProvider().amIBatonHolder()) {
+					try {
+						final NumberedQueueEntry item = (NumberedQueueEntry) getCurrentTarget();
+						final QueuedCommandSummary target = item.entry;
+						CommandId targetId = target.id;
+						List<CommandId> ids = getSelectedCommandIds();
+						if (!ids.isEmpty()) {
+							logger.info("performDrop {} {}", targetId, ids);
+							queue.moveToBefore(targetId, ids);
+							tableViewer.refresh();
+						}
+						return true;
+					} catch (Exception e) {
+						logger.error("Error in performDrop");
+						logger.debug("Error in performDrop", e);
 					}
-					return true;
-				} catch (Exception e) {
-					logger.error("Error in performDrop");
-					logger.debug("Error in performDrop", e);
+				} else {
+					logger.warn("You cannot manipulate the queue as you do not hold the baton");
 				}
 				return false;
 

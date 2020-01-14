@@ -24,18 +24,25 @@ import org.eclipse.core.commands.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.InterfaceProvider;
+
 public class StopCommandQueueHandler extends AbstractHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(StopCommandQueueHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		try {
-			logger.debug("Stop queue button pressed");
-			CommandQueueViewFactory.getProcessor().stop(1000);
-			return Boolean.TRUE;
-		} catch (Exception ne) {
-			throw new ExecutionException("Error running StopCommand", ne);
+		if (InterfaceProvider.getBatonStateProvider().amIBatonHolder()) {
+			try {
+				logger.debug("Stop queue button pressed");
+				CommandQueueViewFactory.getProcessor().stop(1000);
+				return Boolean.TRUE;
+			} catch (Exception ne) {
+				throw new ExecutionException("Error running StopCommand", ne);
+			}
+		} else {
+			logger.warn("You cannot stop the queue as you do not hold the baton");
+			return Boolean.FALSE;
 		}
 	}
 
