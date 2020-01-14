@@ -91,18 +91,7 @@ public class SpringObjectServer extends ObjectServer {
 	 *            the XML configuration file
 	 */
 	public SpringObjectServer(File xmlFile) {
-		this(xmlFile, false);
-	}
-
-	/**
-	 * Creates an object server.
-	 *
-	 * @param xmlFile
-	 *            the XML configuration file
-	 * @param localObjectsOnly
-	 */
-	public SpringObjectServer(File xmlFile, boolean localObjectsOnly) {
-		super(xmlFile, localObjectsOnly);
+		super(xmlFile);
 
 		final String configLocation = "file:" + xmlFile.getAbsolutePath();
 		applicationContext = new FileSystemXmlApplicationContext(new String[] {configLocation}, false);

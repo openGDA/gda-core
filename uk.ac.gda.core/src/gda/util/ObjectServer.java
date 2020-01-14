@@ -53,8 +53,6 @@ public abstract class ObjectServer {
 
 	protected File xmlFile;
 
-	protected boolean localObjectsOnly = false;
-
 	private static final Logger logger = LoggerFactory.getLogger(ObjectServer.class);
 
 	/**
@@ -67,12 +65,9 @@ public abstract class ObjectServer {
 	 *
 	 * @param xmlFile
 	 *            the XML configuration file
-	 * @param localObjectsOnly
-	 *            {@code true} if this object server should run in single application mode
 	 */
-	public ObjectServer(File xmlFile, boolean localObjectsOnly) {
+	public ObjectServer(File xmlFile) {
 		this.xmlFile = xmlFile;
-		this.localObjectsOnly = localObjectsOnly;
 	}
 
 	/**
@@ -113,7 +108,7 @@ public abstract class ObjectServer {
 	 * @throws FactoryException
 	 */
 	public static ObjectServer createServerImpl(String xmlFile) throws FactoryException {
-		ObjectServer objectServer = createObjectServer(xmlFile, true, false);
+		ObjectServer objectServer = createObjectServer(xmlFile, true);
 		objectServer.configure();
 		logger.info("Server initialisation complete. xmlFile = {}", xmlFile);
 		return objectServer;
@@ -151,7 +146,7 @@ public abstract class ObjectServer {
 			throw new IllegalArgumentException(String.format(msg, LocalProperties.GDA_GUI_XML));
 		}
 
-		ObjectServer objectServer = createObjectServer(xmlFile, false, isLocal());
+		ObjectServer objectServer = createObjectServer(xmlFile, false);
 		objectServer.configure();
 		logger.info("Client initialisation complete");
 		return objectServer;
@@ -166,13 +161,13 @@ public abstract class ObjectServer {
 	 * @throws FactoryException
 	 */
 	public static ObjectServer createLocalImpl(String xmlFile) throws FactoryException {
-		ObjectServer objectServer = createObjectServer(xmlFile, false, true);
+		ObjectServer objectServer = createObjectServer(xmlFile, false);
 		objectServer.configure();
 		logger.info("Local Objects initialisation complete");
 		return objectServer;
 	}
 
-	private static ObjectServer createObjectServer(String xmlFile, boolean serverSide, boolean localObjectsOnly) throws FactoryException {
+	private static ObjectServer createObjectServer(String xmlFile, boolean serverSide) throws FactoryException {
 		File file = getAbsoluteFilePath(xmlFile);
 		logger.info("Starting ObjectServer using file {}", xmlFile);
 
@@ -180,7 +175,7 @@ public abstract class ObjectServer {
 			throw new FactoryException(String.format("File does not exist: %s", file));
 		}
 
-		final SpringObjectServer springObjectServer = new SpringObjectServer(file, localObjectsOnly);
+		final SpringObjectServer springObjectServer = new SpringObjectServer(file);
 
 		if (serverSide) {
 			springObjectServer.writeFindablesJythonModule();
@@ -315,15 +310,6 @@ public abstract class ObjectServer {
 		logger.debug("-p <profile name>");
 		logger.debug("-h, --help  Display this help message.");
 		System.exit(0);
-	}
-
-	/**
-	 * Determines whether this is a local or server/client setup by examining the {@code gda.oe.oefactory} property.
-	 *
-	 * @return {@code true} if this is a local setup; {@code false} otherwise
-	 */
-	public static boolean isLocal() {
-		return LocalProperties.get(LocalProperties.GDA_OE_FACTORY, "Remote").equalsIgnoreCase("local");
 	}
 
 	private static String commandLineXmlFile;

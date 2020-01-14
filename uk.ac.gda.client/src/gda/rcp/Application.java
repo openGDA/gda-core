@@ -499,7 +499,7 @@ public class Application implements IApplication {
 			if (gda_gui_beans != null) {
 				// remove existing factories first
 				Finder.getInstance().removeAllFactories();
-				SpringObjectServer s = new SpringObjectServer(new File(gda_gui_beans), false);
+				SpringObjectServer s = new SpringObjectServer(new File(gda_gui_beans));
 				s.configure();
 			}
 			started = true;
