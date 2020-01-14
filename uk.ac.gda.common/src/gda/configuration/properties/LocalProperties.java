@@ -144,11 +144,6 @@ public final class LocalProperties {
 	public static final String GDA_FACTORY_NAME = "gda.factory.factoryName";
 
 	/**
-	 * Property that indicates whether GDA is running in local or remote mode.
-	 */
-	public static final String GDA_OE_FACTORY = "gda.oe.oefactory";
-
-	/**
 	 * Boolean property that indicates whether GDA is using the dummy mode configuration.
 	 */
 	public static final String GDA_DUMMY_MODE_ENABLED = "gda.dummy.mode";
