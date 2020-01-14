@@ -27,6 +27,7 @@ import java.util.Vector;
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.FloatDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,7 +120,7 @@ public class PVArrayPlugin extends NullNXPlugin {
 			throw new RuntimeException("Failed to get data from " +pv.getPvName(), e);
 		}
 
-		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
+		Vector<NXDetectorDataAppender> appenders = new Vector<>();
 		appenders.add(new NXDetectorDatasetAppender(ds, getUnit(), regionName));
 		return appenders;
 	}
@@ -184,7 +185,7 @@ class NXDetectorDatasetAppender implements NXDetectorDataAppender {
 		}
 
 		NexusGroupData ngd = NexusGroupData.createFromDataset(ds);
-		if (ds.getDType() == Dataset.FLOAT32) {
+		if (ds instanceof FloatDataset) {
 			ngd = ngd.asDouble();
 		}
 		//logger.warn("dimension = {}, data = {}", dims[0],ds.getBuffer());
