@@ -7,16 +7,12 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.rcp.views.CompositeFactory;
-import uk.ac.diamond.daq.client.gui.camera.absorption.AbsorptionConfigurationComposite;
 import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
 import uk.ac.diamond.daq.client.gui.camera.liveview.LiveViewCompositeFactory;
 
 
 /**
- * This wrapper is a temporary solution. A better would require to refactor
- * {@link AbsorptionConfigurationComposite} to directly implement
- * {@link CompositeFactory}
- * 
+ * Instantiates a {@link ExposureConfigurationComposite} object
  * @author Maurizio Nagni
  *
  * @param <T>

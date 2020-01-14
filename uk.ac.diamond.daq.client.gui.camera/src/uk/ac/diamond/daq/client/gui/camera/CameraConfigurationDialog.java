@@ -11,7 +11,7 @@ import gda.rcp.views.CompositeFactory;
 import gda.rcp.views.TabCompositeFactory;
 import gda.rcp.views.TabCompositeFactoryImpl;
 import gda.rcp.views.TabFolderBuilder;
-import uk.ac.diamond.daq.client.gui.camera.absorption.AbsorptionCompositeFactory;
+import uk.ac.diamond.daq.client.gui.camera.absorption.AbsorptionComposite;
 import uk.ac.diamond.daq.client.gui.camera.controller.ImagingCameraConfigurationController;
 import uk.ac.diamond.daq.client.gui.camera.exposure.ExposureCompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.exposure.ROICompositeFactory;
@@ -20,7 +20,7 @@ import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 
 /**
- * 
+ * Composes instantiates the Composites for the Camera Configuration 
  * 
  * @author Maurizio Nagni
  * @author Eliot Hall
@@ -47,7 +47,7 @@ public class CameraConfigurationDialog extends AbstractCameraConfigurationDialog
 	public CameraConfigurationDialog(Composite composite, ImagingCameraConfigurationController controller) {
 		super(composite, controller);
 	}
-	
+
 	@Override
 	protected CompositeFactory createTabFactory() throws DeviceException {
 		TabFolderBuilder builder = new TabFolderBuilder();
@@ -56,8 +56,8 @@ public class CameraConfigurationDialog extends AbstractCameraConfigurationDialog
 		builder.addTab(createAbsorptionCompositeFactory());
 		builder.addTab(createROICompositeFactory());
 		return builder.build();
-	}	
-	
+	}
+
 	protected final TabCompositeFactory createStreamControlCompositeFactory() {
 		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
 		CompositeFactory cf = new StreamControlCompositeFactory();
@@ -65,7 +65,7 @@ public class CameraConfigurationDialog extends AbstractCameraConfigurationDialog
 		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.STREAM));
 		return group;
 	}
-	
+
 	protected final TabCompositeFactory createROICompositeFactory() {
 		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
 		CompositeFactory cf = new ROICompositeFactory<>(getController());
@@ -73,7 +73,7 @@ public class CameraConfigurationDialog extends AbstractCameraConfigurationDialog
 		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.ROI));
 		return group;
 	}
-	
+
 	protected final TabCompositeFactory createExposureCompositeFactory() {
 		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
 		CompositeFactory cf = new ExposureCompositeFactory<>(getController());
@@ -84,9 +84,9 @@ public class CameraConfigurationDialog extends AbstractCameraConfigurationDialog
 
 	protected final TabCompositeFactory createAbsorptionCompositeFactory() {
 		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
-		CompositeFactory cf = new AbsorptionCompositeFactory<>(getController());
-		group.setCompositeFactory(cf);
+		group.setCompositeFactory(new AbsorptionComposite());
 		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.ABSORPTION));
+		group.setTooltip(ClientMessagesUtility.getMessage(ClientMessages.ABSORPTION_TP));
 		return group;
 	}
 }

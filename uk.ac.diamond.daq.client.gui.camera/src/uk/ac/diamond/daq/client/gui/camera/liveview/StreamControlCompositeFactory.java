@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.CameraComboItem;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
-import uk.ac.diamond.daq.client.gui.camera.absorption.AbsorptionConfigurationComposite;
 import uk.ac.diamond.daq.client.gui.camera.liveview.state.ListeningState;
 import uk.ac.diamond.daq.client.gui.camera.liveview.state.StreamController;
 import uk.ac.gda.client.live.stream.LiveStreamException;
@@ -31,13 +30,8 @@ import uk.ac.gda.ui.tool.ClientMessagesUtility;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 
 /**
- * This wrapper is a temporary solution. A better would require to refactor
- * {@link AbsorptionConfigurationComposite} to directly implement
- * {@link CompositeFactory}
  * 
  * @author Maurizio Nagni
- *
- * @param <T>
  */
 public class StreamControlCompositeFactory implements CompositeFactory {
 

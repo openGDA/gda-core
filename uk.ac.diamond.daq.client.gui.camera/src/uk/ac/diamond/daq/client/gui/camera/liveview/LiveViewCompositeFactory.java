@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.rcp.views.CompositeFactory;
-import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 
 /**
@@ -18,9 +17,8 @@ import uk.ac.gda.ui.tool.ClientSWTElements;
  *
  * @param <T>
  */
-public class LiveViewCompositeFactory<T extends AbstractCameraConfigurationController> implements CompositeFactory {
+public class LiveViewCompositeFactory implements CompositeFactory {
 
-	private final T controller;
 	protected CameraImageComposite cameraImageComposite;
 	private Composite histogram;
 	double aspectRatio;
@@ -31,9 +29,9 @@ public class LiveViewCompositeFactory<T extends AbstractCameraConfigurationContr
 
 	private static final Logger logger = LoggerFactory.getLogger(LiveViewCompositeFactory.class);
 
-	public LiveViewCompositeFactory(T controller) {
+	public LiveViewCompositeFactory() {
 		super();
-		this.controller = controller;
+		//this.controller = controller;
 	}
 
 	@Override
@@ -60,7 +58,7 @@ public class LiveViewCompositeFactory<T extends AbstractCameraConfigurationContr
 	}
 
 	private void createCameraImageComposite(Composite panel) throws Exception {
-		cameraImageComposite = new CameraImageComposite(panel, controller, SWT.NONE);
+		cameraImageComposite = new CameraImageComposite(panel, SWT.NONE);
 	}
 
 	private void createHistogramComposite(Composite panel) throws Exception {
