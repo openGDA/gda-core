@@ -57,13 +57,6 @@ public class NexusTemplatesSection extends AbstractMappingSection {
 	private Label templatesLabel;
 
 	@Override
-	public boolean shouldShow() {
-		// this section is only shown if the templates list is non null. Create an empty
-		// list of templates in your spring configuration to allow this section to be shown
-		return getMappingBean().getTemplateFilePaths() != null;
-	}
-
-	@Override
 	public void createControls(Composite parent) {
 		super.createControls(parent);
 

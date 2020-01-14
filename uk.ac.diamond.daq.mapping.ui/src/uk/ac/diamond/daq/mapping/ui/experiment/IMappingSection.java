@@ -49,15 +49,6 @@ public interface IMappingSection {
 	void dispose();
 
 	/**
-	 * Controls whether this section should be shown in the mapping view
-	 * <p>
-	 * For example, the processing section is not shown if there are no processing files.
-	 *
-	 * @return true if the section should be shown
-	 */
-	boolean shouldShow();
-
-	/**
 	 * Controls whether this section should be preceded by a separator
 	 *
 	 * @return true to show a separator before this section

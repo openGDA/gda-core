@@ -41,13 +41,6 @@ public class ScriptFilesSection extends AbstractMappingSection {
 	private Text summaryText;
 
 	@Override
-	public boolean shouldShow() {
-		// script files section only shown if bean is non null. Create an empty script files bean
-		// in your spring configuration to allow script files to be set
-		return getMappingBean().getScriptFiles() != null;
-	}
-
-	@Override
 	public void createControls(Composite parent) {
 		super.createControls(parent);
 		final Composite scriptsComposite = new Composite(parent, SWT.NONE);

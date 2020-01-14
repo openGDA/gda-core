@@ -122,11 +122,6 @@ public abstract class AbstractMappingSection implements IMappingSection {
 	}
 
 	@Override
-	public boolean shouldShow() {
-		return true;
-	}
-
-	@Override
 	public boolean createSeparator() {
 		return createSeparator;
 	}
