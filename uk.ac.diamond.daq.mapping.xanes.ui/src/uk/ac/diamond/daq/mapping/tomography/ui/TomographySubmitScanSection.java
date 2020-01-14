@@ -126,6 +126,16 @@ public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 		Async.execute(() -> runScript(tomoScanScript, "tomography scanning script"));
 	}
 
+	@Override
+	protected void onShow() {
+		selectOuterScannable(rotationMotor, true);
+	}
+
+	@Override
+	protected void onHide() {
+		selectOuterScannable(rotationMotor, false);
+	}
+
 	private void handleException(String errorMessage, Exception e) {
 		final IStatus status = new Status(IStatus.ERROR, "uk.ac.diamond.daq.mapping.xanes.ui", errorMessage, e);
 		ErrorDialog.openError(getShell(), getClientMessage(ERROR), errorMessage, status);

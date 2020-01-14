@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.jython.JythonServerFacade;
 import uk.ac.diamond.daq.mapping.ui.experiment.MappingExperimentView;
+import uk.ac.diamond.daq.mapping.ui.experiment.OuterScannablesSection;
 import uk.ac.diamond.daq.mapping.ui.experiment.SubmitScanSection;
 
 /**
@@ -131,5 +132,26 @@ public abstract class SubmitScanToScriptSection extends SubmitScanSection {
 
 	private void setSubmitButtonEnabledState(boolean enabled) {
 		Display.getDefault().syncExec(() -> setSubmitScanButtonEnabled(enabled));
+	}
+
+	/**
+	 * Select or deselect a scannable in OuterScannablesSection
+	 * <p>
+	 * The relevant scannable will be made visible in the outer scannable section if it is not already visible.
+	 *
+	 * @param scannableName
+	 *            name of the scannable to select/deselect
+	 * @param select
+	 *            <code>true</code> to select the motor, <code>false</code> to deselect it
+	 */
+	protected void selectOuterScannable(String scannableName, boolean select) {
+		final MappingExperimentView mappingView = getMappingView();
+		final OuterScannablesSection outerScannablesSection = mappingView.getSection(OuterScannablesSection.class);
+		if (outerScannablesSection == null) {
+			logger.error("OuterScannablesSection not found");
+			return;
+		}
+		outerScannablesSection.showScannable(scannableName, select);
+		mappingView.updateControls();
 	}
 }
