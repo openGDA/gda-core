@@ -21,6 +21,7 @@ package uk.ac.gda.hrpd.cvscan;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -262,6 +263,18 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 	private String getFilename() {
 		return rebinnedfile.getName();
+	}
+
+	public String getRebinnedFilePath() {
+		return Optional.ofNullable(rebinnedfile)
+				.map(File::getAbsolutePath)
+				.orElse(null);
+	}
+
+	public String getRawFilePath() {
+		return Optional.ofNullable(rawfile)
+				.map(File::getAbsolutePath)
+				.orElse(null);
 	}
 
 	@Override
