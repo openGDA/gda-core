@@ -652,6 +652,87 @@ public class MScanSubmitterTest {
 	}
 
 	@Test
+	public void createsCorrectProcessorListForRectangularPointsScanWithAliasedSyntax() throws Exception {
+		Object[] arr = {scannable, anotherScannable,  RegionShape.RECTANGLE, 2,2, 3, 3, Scanpath.LINE_POINTS, 10, 20, detectorRunnableDevice};
+		when(resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
+											new ScannableElementProcessor(anotherScannable),
+											new RegionShapeElementProcessor(RegionShape.RECTANGLE),
+											new NumberElementProcessor(2),
+											new NumberElementProcessor(2),
+											new NumberElementProcessor(3),
+											new NumberElementProcessor(3),
+											new ScanpathElementProcessor(Scanpath.GRID_POINTS),
+											new NumberElementProcessor(10),
+											new NumberElementProcessor(20)),
+							  Arrays.asList(new IRunnableDeviceDetectorElementProcessor(detectorRunnableDevice))));
+		builder.buildAndSubmitBlockingScanRequest(arr);
+		List<IClauseElementProcessor> processors = captor.getValue();
+		assertThat(processors.size(), is(11));
+		assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(0).getElement(), is(scannable));
+		assertThat(processors.get(1), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(1).getElement(), is(anotherScannable));
+		assertThat(processors.get(2), instanceOf(RegionShapeElementProcessor.class));
+		assertThat(processors.get(2).getElement(), is(RegionShape.RECTANGLE));
+		assertThat(processors.get(3), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(3).getElement(), is(2));
+		assertThat(processors.get(4), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(4).getElement(), is(2));
+		assertThat(processors.get(5), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(5).getElement(), is(3));
+		assertThat(processors.get(6), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(6).getElement(), is(3));
+		assertThat(processors.get(7), instanceOf(ScanpathElementProcessor.class));
+		assertThat(processors.get(7).getElement(), is(Scanpath.GRID_POINTS));
+		assertThat(processors.get(8), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(8).getElement(), is(10));
+		assertThat(processors.get(9), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(9).getElement(), is(20));
+		assertThat(processors.get(10), instanceOf(IRunnableDeviceDetectorElementProcessor.class));
+		assertThat(processors.get(10).getElement(), is(detectorRunnableDevice));
+	}
+
+	@Test
+	public void createsCorrectProcessorListForCircularStepScanWithAliasedSyntax() throws Exception {
+		Object[] arr = {scannable, anotherScannable, RegionShape.CIRCLE, 2, 2, 3, Scanpath.LINE_STEP, 0.1, 0.2, detectorRunnableDevice};
+		when(resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
+											new ScannableElementProcessor(anotherScannable),
+											new RegionShapeElementProcessor(RegionShape.CIRCLE),
+											new NumberElementProcessor(2),
+											new NumberElementProcessor(2),
+											new NumberElementProcessor(3),
+											new ScanpathElementProcessor(Scanpath.GRID_STEP),
+											new NumberElementProcessor(0.1),
+											new NumberElementProcessor(0.2)),
+							  Arrays.asList(new IRunnableDeviceDetectorElementProcessor(detectorRunnableDevice))));
+		builder.buildAndSubmitBlockingScanRequest(arr);
+		List<IClauseElementProcessor> processors = captor.getValue();
+		assertThat(processors.size(), is(10));
+		assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(0).getElement(), is(scannable));
+		assertThat(processors.get(1), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(1).getElement(), is(anotherScannable));
+		assertThat(processors.get(2), instanceOf(RegionShapeElementProcessor.class));
+		assertThat(processors.get(2).getElement(), is(RegionShape.CIRCLE));
+		assertThat(processors.get(3), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(3).getElement(), is(2));
+		assertThat(processors.get(4), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(4).getElement(), is(2));
+		assertThat(processors.get(5), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(5).getElement(), is(3));
+		assertThat(processors.get(6), instanceOf(ScanpathElementProcessor.class));
+		assertThat(processors.get(6).getElement(), is(Scanpath.GRID_STEP));
+		assertThat(processors.get(7), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(7).getElement(), is(0.1));
+		assertThat(processors.get(8), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(8).getElement(), is(0.2));
+		assertThat(processors.get(9), instanceOf(IRunnableDeviceDetectorElementProcessor.class));
+		assertThat(processors.get(9).getElement(), is(detectorRunnableDevice));
+	}
+
+	@Test
 	public void willFailWithoutRunnableDeviceMatchingDetector() throws Exception {
 		when(runnableDeviceService.getRunnableDevice("Detector")).thenReturn(null);
 		Object[] arr = {scannable, anotherScannable, RegionShape.CIRCLE, 2, 3, 5.5, Scanpath.GRID_POINTS, 1, 1, detector, 0.5};
