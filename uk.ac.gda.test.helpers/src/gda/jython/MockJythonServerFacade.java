@@ -223,7 +223,7 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 	}
 
 	@Override
-	public void assignBaton(int index) {
+	public void assignBaton(int receiverIndex, int holderIndex) {
 	}
 
 	@Override
