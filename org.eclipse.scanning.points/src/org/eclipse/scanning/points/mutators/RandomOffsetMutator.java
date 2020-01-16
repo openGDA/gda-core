@@ -13,7 +13,6 @@ package org.eclipse.scanning.points.mutators;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.jython.JythonObjectFactory;
@@ -66,9 +65,7 @@ public class RandomOffsetMutator implements IMutator {
         final int seed = getSeed();
 
         final PyDictionary maxOffset = new PyDictionary();
-        for (Entry<String, Double> axis : maxOffsets.entrySet()) {
-        	maxOffset.put(axis.getKey(), axis.getValue());
-        }
+        maxOffset.putAll(maxOffsets);
 
 		return randomOffsetMutatorFactory.createObject(seed, axes, maxOffset);
 	}

@@ -18,8 +18,6 @@
 
 package org.eclipse.scanning.points;
 
-import static org.eclipse.scanning.points.AbstractScanPointIterator.EMPTY_PY_ARRAY;
-
 import java.util.List;
 
 import org.eclipse.scanning.api.ModelValidationException;
@@ -65,8 +63,8 @@ public abstract class AbstractLineGenerator<T extends AbstractBoundingLineModel>
 
 		PPointGenerator lineGen = lineGeneratorFactory.createObject(
 				axes, units, start, stop, numPoints, alternating);
-		return CompoundSpgIteratorFactory.createSpgCompoundGenerator(new PPointGenerator[]{lineGen},
-				getRegions(), axes, EMPTY_PY_ARRAY, -1, continuous);
+		return CompoundGenerator.createWrappingCompoundGenerator(new PPointGenerator[] {lineGen}, continuous);
+
 	}
 
 	protected abstract double getStep();

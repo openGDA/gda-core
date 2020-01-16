@@ -43,6 +43,10 @@ public class ModelValidationException extends ValidationException {
 		if (!fieldFound) throw new RuntimeException("No field(s) '"+Arrays.toString(fieldNames)+"' has been found in Class "+model.getClass().getSimpleName());
 	}
 
+	public ModelValidationException(String message) {
+		super(message);
+	}
+
 	public ModelValidationException(Exception e) {
 		super(e);
 	}

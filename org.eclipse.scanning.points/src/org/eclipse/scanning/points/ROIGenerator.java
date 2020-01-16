@@ -1,18 +1,24 @@
 /*-
- *******************************************************************************
- * Copyright (c) 2011, 2016 Diamond Light Source Ltd.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright © 2019 Diamond Light Source Ltd.
  *
- * Contributors:
- *    Matthew Gerring - initial API and implementation and/or initial documentation
- *******************************************************************************/
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.eclipse.scanning.points;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -24,35 +30,21 @@ import org.eclipse.dawnsci.analysis.dataset.roi.PointROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.SectorROI;
-import org.eclipse.scanning.api.points.IPosition;
-import org.eclipse.scanning.api.points.ScanPointIterator;
 import org.eclipse.scanning.api.points.models.ScanRegion;
-import org.python.core.PyDictionary;
 import org.python.core.PyObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public abstract class AbstractScanPointIterator implements ScanPointIterator, PySerializable {
+public class ROIGenerator {
 
 	public static final PyObject[] EMPTY_PY_ARRAY = new PyObject[0];
 
-	private static Logger logger = LoggerFactory.getLogger(AbstractScanPointIterator.class);
-
-	private static Map<Class<?>, Function<IROI, PyObject>> roiDispatchMap = new HashMap<>();
-
-	protected ScanPointIterator pyIterator;
-
-	private int index = 0;
-
-	public Iterator<IPosition> getPyIterator() {
-		return pyIterator;
+	private ROIGenerator() {
 	}
 
-	public void setPyIterator(ScanPointIterator pyIterator) {
-		this.pyIterator = pyIterator;
-	}
+	private static Map<Class<?>, Function<IROI, PyObject>> roiDispatchMap;
 
 	static {
+		roiDispatchMap = new HashMap<>();
+
 		roiDispatchMap.put(CircularROI.class, r -> ScanPointGeneratorFactory.JCircularROIFactory().createObject(
 				((CircularROI) r).getCentre(), ((CircularROI) r).getRadius()));
 		roiDispatchMap.put(EllipticalROI.class, r -> ScanPointGeneratorFactory.JEllipticalROIFactory().createObject(
@@ -86,53 +78,13 @@ public abstract class AbstractScanPointIterator implements ScanPointIterator, Py
 		if (region instanceof IROI) {
 			roi = (IROI) region;
 		} else {
-			logger.error("Unknown region type: " + region.getClass());
 			return null;
 		}
 		if (roiDispatchMap.containsKey(roi.getClass())) {
 			return roiDispatchMap.get(roi.getClass()).apply(roi);
 		} else {
-			logger.error("Unsupported region type: " + roi.getClass());
 			return null;
 		}
-	}
-
-	@Override
-	public PyDictionary toDict() {
-		return null;
-	}
-
-	@Override
-	public boolean hasNext() {
-		return pyIterator.hasNext();
-	}
-
-	@Override
-	public IPosition next() {
-		final IPosition position = pyIterator.next();
-		position.setStepIndex(index);
-		index++;
-		return position;
-	}
-
-	@Override
-	public int getSize() {
-		return pyIterator.getSize();
-	}
-
-	@Override
-	public int[] getShape() {
-		return pyIterator.getShape();
-	}
-
-	@Override
-	public int getRank() {
-		return pyIterator.getRank();
-	}
-
-	@Override
-	public int getIndex() {
-		return index;
 	}
 
 }

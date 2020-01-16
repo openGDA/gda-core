@@ -13,6 +13,7 @@ package org.eclipse.scanning.device.ui.points;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.runtime.IAdaptable;
@@ -32,11 +33,13 @@ final class GeneratorFilter implements ISeriesItemFilter {
 	private final IPointGeneratorService pservice;
 	private final SeriesTable            table; // Gets the table which provides access the series via getAdapter(...)
 	private final IAdaptable             parent;
+	private final IPointsModelDescriberService dserv;
 
-	public GeneratorFilter(IPointGeneratorService pservice, SeriesTable table, IAdaptable parent) {
+	public GeneratorFilter(IPointGeneratorService pservice, SeriesTable table, IAdaptable parent, IPointsModelDescriberService dserv) {
 		this.pservice     = pservice;
 		this.table        = table;
 		this.parent       = parent;
+		this.dserv = dserv;
 	}
 
 	@Override
@@ -51,9 +54,8 @@ final class GeneratorFilter implements ISeriesItemFilter {
 
 			for (String id : ids) {
 
-				final GeneratorDescriptor des = new GeneratorDescriptor(table, id, pservice, parent);
-				if (!des.isVisible()) continue;
-				if (contents!=null && !des.matches(contents)) continue;
+				final GeneratorDescriptor des = new GeneratorDescriptor(table, id, pservice, parent, dserv);
+				if (!des.isVisible() || contents!=null && !des.matches(contents)) continue;
 				ret.add(des);
 			}
 
@@ -61,16 +63,16 @@ final class GeneratorFilter implements ISeriesItemFilter {
 
 		} catch (Exception e) {
 			logger.error("Cannot get operations!", e);
-			return null;
+			return Collections.emptyList();
 		}
 	}
 
 	public List<GeneratorDescriptor<?>> createDescriptors(List<? extends IScanPathModel> models) throws GeneratorException {
 
 	    List<GeneratorDescriptor<?>> descriptions = new ArrayList<>();
-		if (models!=null && models.size()>0) {
+		if (models!=null && !models.isEmpty()) {
 			for (IScanPathModel model : models) {
-				final GeneratorDescriptor<?> des = new GeneratorDescriptor<>(table, model, pservice, parent);
+				final GeneratorDescriptor<?> des = new GeneratorDescriptor<>(table, model, pservice, parent, dserv);
 				if (!des.isVisible()) continue;
 				descriptions.add(des);
 			}
@@ -81,7 +83,7 @@ final class GeneratorFilter implements ISeriesItemFilter {
 
 	@SuppressWarnings("unchecked")
 	public <T> List<T> getModels(List<ISeriesItemDescriptor> seriesItems) {
-		if (seriesItems==null) return null;
+		if (seriesItems==null) return Collections.emptyList();
 		List<T> models = new ArrayList<>();
 		for (ISeriesItemDescriptor des : seriesItems) {
 			if (des instanceof GeneratorDescriptor) {
@@ -89,10 +91,10 @@ final class GeneratorFilter implements ISeriesItemFilter {
 				models.add((T)gdes.getModel());
 			}
 		}
-		if (models.size()>0) {
+		if (!models.isEmpty()) {
 		    return models;
 		} else {
-			return null;
+			return Collections.emptyList();
 		}
 	}
 

@@ -8,9 +8,12 @@ import java.util.Iterator;
  *
  * <em>Note:</em> This class is an implementation class and should not
  * be used outside the scanning framework. Iterators that wrap jython
- * point generators should implement this. This is then used by
- * {@link AbstractGenerator} to get the size, shape and rank of the points
- * iterated over.
+ * point generators should implement this.
+ * While most {@link AbstractGenerator} get Size/Shape/Rank information from their
+ * PPointGenerator, JythonGenerator currently still requires this information from
+ * the iterator.
+ * For PPointGenerators and generators that use them, the information is taken directly from 
+ * the [Python] CompoundGenerator (see jython_spg_interface.py)
  *
  */
 public interface ScanPointIterator extends Iterator<IPosition> {

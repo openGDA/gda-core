@@ -57,6 +57,7 @@ import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.BoundingBox;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.connector.epics.MalcolmEpicsV4Connection;
@@ -336,9 +337,7 @@ public class ExampleMalcolmDeviceTest {
 		TwoAxisSpiralModel spiral = new TwoAxisSpiralModel("stage_x", "stage_y", 1, new BoundingBox(0, -5, 8, 3));
 		spiral.setContinuous(false);
 
-		IPointGenerator<TwoAxisSpiralModel> spiralGen = pointGenService.createGenerator(
-				spiral, regions);
-		IPointGenerator<?> pointGen = pointGenService.createCompoundGenerator(spiralGen);
+		IPointGenerator<CompoundModel> pointGen = pointGenService.createGenerator(spiral, regions);
 
 		// Set the generator on the device
 		// Cannot set the generator from @PreConfigure in this unit test.

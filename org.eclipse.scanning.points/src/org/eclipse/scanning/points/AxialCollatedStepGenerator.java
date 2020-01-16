@@ -11,11 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.points;
 
-import static org.eclipse.scanning.points.AbstractScanPointIterator.EMPTY_PY_ARRAY;
-
 import java.util.List;
 
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.PPointGenerator;
@@ -26,11 +23,6 @@ public class AxialCollatedStepGenerator extends AbstractGenerator<AxialCollatedS
 
 	AxialCollatedStepGenerator(AxialCollatedStepModel model) {
 		super(model);
-		setLabel("AxialStep Scan (Collated)");
-		setDescription("Creates a scan that steps through several Scannable axes simultaneously, from the start to the highest multiple of the step lower than the stop."
-				+ "\nIf the last requested point is within 1%\nof the end it will still be included in the scan."
-				+ "\nThe scan supports continuous operation and alternating mode [when wrapped in an outer scan].");
-		setVisible(false);
 	}
 
 	@Override
@@ -47,7 +39,6 @@ public class AxialCollatedStepGenerator extends AbstractGenerator<AxialCollatedS
         final JythonObjectFactory<PPointGenerator> lineGeneratorFactory = ScanPointGeneratorFactory.JTwoAxisLineGeneratorFactory();
 
 		final AxialCollatedStepModel model = getModel();
-		final List<IROI> regions = getRegions();
 
 		final List<String> axes = model.getScannableNames();
 		final int numAxes = axes.size();
@@ -66,8 +57,7 @@ public class AxialCollatedStepGenerator extends AbstractGenerator<AxialCollatedS
 
         PPointGenerator pointGen = lineGeneratorFactory.createObject(axes, units, starts, stops, points, alternating);
 
-        return CompoundSpgIteratorFactory.createSpgCompoundGenerator(new PPointGenerator[] {pointGen},
-				regions, axes, EMPTY_PY_ARRAY, -1, continuous);
+        return CompoundGenerator.createWrappingCompoundGenerator(new PPointGenerator[] {pointGen}, continuous);
 	}
 
 }

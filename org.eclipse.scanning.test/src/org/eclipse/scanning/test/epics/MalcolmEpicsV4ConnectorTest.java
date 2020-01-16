@@ -32,6 +32,7 @@ import org.eclipse.scanning.api.malcolm.message.Type;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.BoundingBox;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.connector.epics.MalcolmEpicsV4Connection;
@@ -255,9 +256,8 @@ public class MalcolmEpicsV4ConnectorTest {
 		regions.add(new CircularROI(2, 6, 1));
 
 		IPointGeneratorService pgService = new PointGeneratorService();
-		IPointGenerator<TwoAxisSpiralModel> temp = pgService.createGenerator(
+		IPointGenerator<CompoundModel> scan = pgService.createGenerator(
 				new TwoAxisSpiralModel("stage_x", "stage_y", 1, new BoundingBox(0, -5, 8, 3)), regions);
-		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
 		MalcolmModel pmac1 = new MalcolmModel();
 		pmac1.setExposureTime(23.1);
@@ -303,9 +303,8 @@ public class MalcolmEpicsV4ConnectorTest {
 		regions.add(new CircularROI(2, 6, 1));
 
 		IPointGeneratorService pgService = new PointGeneratorService();
-		IPointGenerator<TwoAxisSpiralModel> temp = pgService
+		IPointGenerator<CompoundModel> scan = pgService
 				.createGenerator(new TwoAxisSpiralModel("stage_x", "stage_y", 1, new BoundingBox(0, -5, 8, 3)), regions);
-		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
 		MalcolmModel pmac1 = createMalcolmModel();
 		pmac1.setExposureTime(23.1);

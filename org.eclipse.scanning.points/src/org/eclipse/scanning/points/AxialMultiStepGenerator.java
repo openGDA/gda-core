@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.points;
 
-import static org.eclipse.scanning.points.AbstractScanPointIterator.EMPTY_PY_ARRAY;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,13 +29,8 @@ import org.eclipse.scanning.jython.JythonObjectFactory;
  */
 class AxialMultiStepGenerator extends AbstractGenerator<AxialMultiStepModel> {
 
-	AxialMultiStepGenerator(AxialMultiStepModel model) {
+	protected AxialMultiStepGenerator(AxialMultiStepModel model) {
 		super(model);
-		setLabel("AxialMultiStep Scan");
-		setDescription("Creates a scan that steps through a Scannable axis, from the start to the highest multiple of the step lower than the stop for several values of Start, Stop, Step:"
-				+ "\nif the first point of a scan is within 1% of the final point of the previous scan, the point is removed."
-				+ "\nIf the last requested point is within 1% of the end it will still be included in the scan."
-				+ "\nThe scan supports continuous operation and alternating mode [when wrapped in an outer scan].");
 	}
 
 	@Override
@@ -139,8 +132,7 @@ class AxialMultiStepGenerator extends AbstractGenerator<AxialMultiStepModel> {
 
         PPointGenerator pointGen = arrayGeneratorFactory.createObject(axes, units, points, alternating);
 
-        return CompoundSpgIteratorFactory.createSpgCompoundGenerator(new PPointGenerator[] {pointGen},
-				getRegions(), axes, EMPTY_PY_ARRAY, -1, continuous);
+        return CompoundGenerator.createWrappingCompoundGenerator(new PPointGenerator[] {pointGen}, continuous);
 	}
 
 }

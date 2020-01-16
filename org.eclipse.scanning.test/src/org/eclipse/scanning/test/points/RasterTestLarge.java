@@ -24,6 +24,7 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Point;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.junit.Before;
@@ -73,7 +74,7 @@ public class RasterTestLarge {
 
 
 		// Get the point list
-		IPointGenerator<TwoAxisGridStepModel> gen = service.createGenerator(model, roi);
+		IPointGenerator<CompoundModel> gen = service.createGenerator(model, roi);
 		if (testAllPoints) GeneratorUtil.testGeneratorPoints(gen);
 
 		long start = System.currentTimeMillis();
@@ -122,7 +123,7 @@ public class RasterTestLarge {
 		model.setyAxisStep(1);
 
 		// Get the point list
-		IPointGenerator<TwoAxisGridStepModel> gen = service.createGenerator(model, boundingRectangle);
+		IPointGenerator<CompoundModel> gen = service.createGenerator(model, boundingRectangle);
 		List<IPosition> points = gen.createPoints();
 
 		assertEquals(10011001, points.size()); // TODO Is 10011001 correct?

@@ -29,9 +29,6 @@ public class TwoAxisPointSingleGenerator extends AbstractGenerator<TwoAxisPointS
 
 	public TwoAxisPointSingleGenerator(TwoAxisPointSingleModel model) {
 		super(model);
-		setLabel("Two-Axis Point Scan");
-		setDescription("Creates a single point in two axes to scan.");
-		setIconPath("icons/scanner--plus.png"); // This icon exists in the rendering bundle
 	}
 
 	@Override

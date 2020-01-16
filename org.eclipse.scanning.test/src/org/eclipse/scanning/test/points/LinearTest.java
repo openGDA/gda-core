@@ -24,6 +24,7 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.BoundingLine;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
 import org.eclipse.scanning.points.PointGeneratorService;
@@ -138,7 +139,6 @@ public class LinearTest {
 
 		// Get the point list
 		IPointGenerator<TwoAxisLinePointsModel> gen = service.createGenerator(model);
-		List<IPosition> pointList = gen.createPoints();
         GeneratorUtil.testGeneratorPoints(gen);
 	}
 
@@ -215,7 +215,6 @@ public class LinearTest {
 		// Get the point list
 		IPointGenerator<TwoAxisLineStepModel> gen = service.createGenerator(model);
 
-		List<IPosition> pointList = gen.createPoints();
         GeneratorUtil.testGeneratorPoints(gen);
 	}
 
@@ -233,7 +232,6 @@ public class LinearTest {
 
 		// Get the point list
 		IPointGenerator<TwoAxisLineStepModel> gen = service.createGenerator(model);
-		List<IPosition> pointList = gen.createPoints();
 		GeneratorUtil.testGeneratorPoints(gen);
 	}
 
@@ -252,8 +250,7 @@ public class LinearTest {
 	        model.setBoundingLine(line);
 
 			// Get the point list
-			IPointGenerator<TwoAxisLineStepModel> gen = service.createGenerator(model, roi);
-			List<IPosition> pointList = gen.createPoints();
+			IPointGenerator<CompoundModel> gen = service.createGenerator(model, roi);
 	        GeneratorUtil.testGeneratorPoints(gen);
 		} catch (ModelValidationException | GeneratorException e) {
 			return;

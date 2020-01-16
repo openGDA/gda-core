@@ -37,7 +37,6 @@ public class JythonGeneratorModel extends AbstractPointsModel {
 	@FieldDescriptor(visible=false) // TODO We should probably produce a TypeEditor to allow the keywords to be edited...
 	private List<String> keywords;
 
-
 	public String getModuleName() {
 		return moduleName;
 	}

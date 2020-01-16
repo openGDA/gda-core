@@ -23,10 +23,6 @@ public class TwoAxisGridPointsRandomOffsetGenerator extends AbstractGridGenerato
 
 	TwoAxisGridPointsRandomOffsetGenerator(TwoAxisGridPointsRandomOffsetModel model) {
 		super(model);
-		setLabel("Two-Axis Grid Points (with RandomOffset) Scan");
-		setDescription("Creates a grid scan by slicing each axis of a box into equal sized portions: each position is then offset in both axes by an amount proportional to the fast axis step."
-				+ "\nThe scan supports alternating/bidirectional/'snake' mode.");
-		setIconPath("icons/scanner--grid.png"); // This icon exists in the rendering bundle
 	}
 
 	@Override
@@ -50,7 +46,7 @@ public class TwoAxisGridPointsRandomOffsetGenerator extends AbstractGridGenerato
 	}
 
 	@Override
-	protected PyObject[] getMutators() {
+	protected PyObject[] getMutator() {
 		final JythonObjectFactory<PyObject> randomOffsetMutatorFactory = ScanPointGeneratorFactory.JRandomOffsetMutatorFactory();
 
 		final TwoAxisGridPointsRandomOffsetModel model = getModel();

@@ -123,6 +123,7 @@ public class ScanView  extends ViewPart implements SeriesItemView, SeriesItemLis
 	// Services
 	private IPointGeneratorService  pservice;
 	private IScannableDeviceService cservice;
+	private IPointsModelDescriberService dservice;
 
 	// UI
 	private SeriesTable  seriesTable;
@@ -137,8 +138,9 @@ public class ScanView  extends ViewPart implements SeriesItemView, SeriesItemLis
 
 	public ScanView() {
 		this.pservice     = ServiceHolder.getGeneratorService();
+		this.dservice = ServiceHolder.getModelDescriberService();
 		this.seriesTable  = new SeriesTable();
-		this.pointsFilter = new GeneratorFilter(pservice, seriesTable, this);
+		this.pointsFilter = new GeneratorFilter(pservice, seriesTable, this, dservice);
 		this.store        = Activator.getDefault().getPreferenceStore();
 		store.setDefault(DevicePreferenceConstants.START_POSITION, false);
 		store.setDefault(DevicePreferenceConstants.END_POSITION,   false);
@@ -645,32 +647,26 @@ public class ScanView  extends ViewPart implements SeriesItemView, SeriesItemLis
 		mm.add(clear);
 		mm.add(new Separator());
 
-		IPointGenerator<?> gen = null;
-
-		try {
-			ISeriesItemDescriptor selected = seriesTable.getSelected();
-			if (!(selected instanceof GeneratorDescriptor)) return;
-			gen = ((GeneratorDescriptor<?>)selected).getSeriesObject();
-		} catch (Exception e1) {
-
+		ISeriesItemDescriptor selected = seriesTable.getSelected();
+		if (!(selected instanceof GeneratorDescriptor)) {
+			return;
 		}
+
+		GeneratorDescriptor<?> desc = (GeneratorDescriptor<?>) selected;
+		IPointGenerator<?> gen = desc.getSeriesObject();
 
 		final IAction passUnMod = new Action("Enabled", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
-				ISeriesItemDescriptor current = seriesTable.getSelected();
-				if (current instanceof GeneratorDescriptor) {
-					try {
-						((GeneratorDescriptor<?>)current).getSeriesObject().setEnabled(isChecked());
-						seriesTable.refreshTable();
-					} catch (Exception e) {
-						logger.error("Problem refreshing series table!", e);
-					}
+				try {
+					desc.setEnabled(true);
+					seriesTable.refreshTable();
+				} catch (Exception e) {
+					logger.error("Problem refreshing series table!", e);
 				}
 			}
 		};
-
-		if (gen != null && !gen.isEnabled()) passUnMod.setChecked(true);
+		if (gen != null && !desc.isEnabled()) passUnMod.setChecked(true);
 		mm.add(passUnMod);
 	}
 
@@ -692,39 +688,37 @@ public class ScanView  extends ViewPart implements SeriesItemView, SeriesItemLis
 	public void itemAdded(SeriesItemEvent evt) {
 
 		final IPlottingSystem<?> system = PlotUtil.getRegionSystem();
-		if (system==null) return;
+		if (system==null || !(evt.getDescriptor() instanceof GeneratorDescriptor)) {
+			return;
+		}
+		final GeneratorDescriptor desc = (GeneratorDescriptor) evt.getDescriptor();
+		final IPointGenerator<?> generator = (IPointGenerator<?>)desc.getSeriesObject();
+		final Object model = generator.getModel();
 
 		if (!ScanRegions.getScanRegions(system).isEmpty()) {
 			IViewReference ref = PageUtil.getPage().findViewReference(ScanRegionView.ID);
 			String name = ref!=null ? ref.getPartName() : "Scan Regions";
-			if(evt.getDescriptor()!=null && evt.getDescriptor() instanceof GeneratorDescriptor) {
-				try {
-					final IPointGenerator<?> generator = (IPointGenerator<?>)evt.getDescriptor().getSeriesObject();
-					final Object model     = generator.getModel();
-					if (model instanceof IBoundingBoxModel) {
-						BoundingBox box = ScanRegions.createBoxFromPlot(model);
-						((IBoundingBoxModel) model).setBoundingBox(box);
-						showTip("There are already scan regions defined.\n"
-								+ "Drag regions to move them. Go to '"+name+"' to manage them.\n"
-								+ "The bounding box of the existing regions has been used.");
+			try {
+				if (model instanceof IBoundingBoxModel) {
+					BoundingBox box = ScanRegions.createBoxFromPlot(model);
+					((IBoundingBoxModel) model).setBoundingBox(box);
+					showTip("There are already scan regions defined.\n"
+							+ "Drag regions to move them. Go to '"+name+"' to manage them.\n"
+							+ "The bounding box of the existing regions has been used.");
 
-						ISelectionProvider prov = getViewSite().getSelectionProvider();
-						prov.setSelection(new StructuredSelection(evt.getDescriptor()));
-					}
-
-				} catch (Exception e) {
-					logger.error("Problem creating a plotted region!", e);
+					ISelectionProvider prov = getViewSite().getSelectionProvider();
+					prov.setSelection(new StructuredSelection(evt.getDescriptor()));
 				}
+			} catch (Exception e) {
+				logger.error("Problem creating a plotted region!", e);
 			}
-			return; // They already have some
+			return;
 		}
 
 		try {
-			final IPointGenerator<?> generator = (IPointGenerator<?>)evt.getDescriptor().getSeriesObject();
-			final Object model     = generator.getModel();
 			if (model instanceof IBoundingBoxModel) {
 				IRegion created = ScanRegions.createRegion(system, RegionType.BOX, null);
-				if (created!=null) showTip("Click and drag in '"+system.getPlotName()+"' to add a region for '"+generator.getLabel()+"'");
+				if (created!=null) showTip("Click and drag in '"+system.getPlotName()+"' to add a region for '"+desc.getLabel()+"'");
 			}
 		} catch (Exception e) {
 			logger.error("Problem creating a plotted region!", e);

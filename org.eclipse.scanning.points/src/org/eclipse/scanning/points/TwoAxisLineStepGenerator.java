@@ -20,10 +20,6 @@ class TwoAxisLineStepGenerator extends AbstractLineGenerator<TwoAxisLineStepMode
 
 	TwoAxisLineStepGenerator(TwoAxisLineStepModel model) {
 		super(model);
-		setLabel("Two-Axis Line Step Scan");
-		setDescription("Creates a line scan along a line defined in two dimensions, with points placed from the start to the highest multiple of the step lower than the stop."
-				+ "\nThe scan supports continuous operation and alternating mode [when wrapped in an outer scan].");
-		setIconPath("icons/scanner--line.png"); // This icon exists in the rendering bundle
 	}
 
 	@Override

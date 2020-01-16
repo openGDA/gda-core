@@ -25,12 +25,12 @@ import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
-import org.eclipse.scanning.api.points.models.StaticModel;
-import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
@@ -189,13 +189,13 @@ public class SubscanModeratorTest {
 		det.setModel(mmodel);
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
-		IPointGenerator<?> moderated = moderator.getOuterPointGenerator();
 		checkModeratedScanSizes(moderator, 150, 150, 0);
 		checkModeratedModels(moderator, 2, 0);
 	}
 
 
 	@Test
+	// The slow axis of a Grid scan is Malcolm, as is an arbitrary axis
 	public void testDifferentAxes1() throws Exception {
 
 		CompoundModel cmodel = new CompoundModel();
@@ -230,6 +230,7 @@ public class SubscanModeratorTest {
 	}
 
 	@Test
+	// The slow axis of a Grid scan is Malcolm, as is an arbitrary axis
 	public void testDifferentAxes2() throws Exception {
 
 		CompoundModel cmodel = new CompoundModel();
@@ -280,6 +281,7 @@ public class SubscanModeratorTest {
 	}
 
 	@Test
+	// The slow axis of a Grid scan is Malcolm, as is an arbitrary axis
 	public void testDifferentAxes3() throws Exception {
 
 		CompoundModel cmodel = new CompoundModel();
@@ -305,7 +307,9 @@ public class SubscanModeratorTest {
 	}
 
 	@Test
-	public void testNestedAxes() throws Exception {
+	// The fast axis of a Grid scan is Malcolm, as is an arbitrary axis
+	// This behaviour may change DAQ-2639
+	public void testDifferentAxes4() throws Exception {
 
 		CompoundModel cmodel = new CompoundModel();
 
@@ -314,14 +318,41 @@ public class SubscanModeratorTest {
 		gmodel.setxAxisPoints(5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		cmodel.setModels(Arrays.asList(new AxialStepModel("p", 290, 300, 2), gmodel));
+		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), gmodel));
 
 		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
 		det.setModel(tmodel);
-		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"p", "y"});
+		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"p", "x"});
+
+		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
+		checkModeratedScanSizes(moderator, 150, 150, 1);
+		checkModeratedModels(moderator, 2, 0);
+		checkHasSingleStaticPosition(moderator.getInnerPointGenerator());
+	}
+
+	@Test
+	// Previously tested Grid[x,y] within Step[x], but changes to PointGenerators means no longer valid
+	// Now tests Grid[x,y] within Step[z], where x,y,z are all Malcolm scannable
+	public void testNestedAxes() throws Exception {
+
+		CompoundModel cmodel = new CompoundModel();
+
+		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel("x", "y");
+		gmodel.setyAxisPoints(5);
+		gmodel.setxAxisPoints(5);
+		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
+
+		cmodel.setModels(Arrays.asList(new AxialStepModel("z", 290, 300, 2), gmodel));
+
+		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
+
+		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
+		final DummyMalcolmDevice det = new DummyMalcolmDevice();
+		det.setModel(tmodel);
+		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"x", "y", "z"});
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
 

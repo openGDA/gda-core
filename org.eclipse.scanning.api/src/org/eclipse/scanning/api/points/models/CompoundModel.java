@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.IMutator;
@@ -99,7 +100,7 @@ public class CompoundModel extends AbstractPointsModel implements Cloneable {
 	}
 
 	/**
-	 * Returns a
+	 * Copies the mutators and regions of another CompoundModel, but sets new models
 	 */
 	public static CompoundModel copyAndSetModels(CompoundModel toCopy, List<Object> models) {
 		CompoundModel copy = copy(toCopy);
@@ -120,24 +121,14 @@ public class CompoundModel extends AbstractPointsModel implements Cloneable {
 		models = ms;
 	}
 	public CompoundModel(IScanPathModel model, IROI region) {
-		if (region instanceof IScanPathModel) { // It's not a region
-			models = Arrays.asList(model, (IScanPathModel)region);
-		} else {
-		    setData(model, region, model.getScannableNames());
-		}
+		setData(model, region, model.getScannableNames());
 	}
 
 	public void setData(IScanPathModel model, IROI region) {
-		if (region instanceof IScanPathModel) { // It's not a region
-			models = Arrays.asList(model, (IScanPathModel)region);
-		} else {
-			setData(model, region, model.getScannableNames());
-		}
+		setData(model, region, model.getScannableNames());
 	}
 
 	public void setData(IScanPathModel model, IROI region, List<String> names) {
-		if (region instanceof IScanPathModel) throw new IllegalArgumentException("The region must not be a generator model!");
-
 		// We do it this way to make setData(...) fast. This means addData(...) has to deal with unmodifiable lists.
 		this.models  = Arrays.asList(model);
 	    this.regions = Arrays.asList(new ScanRegion(region, names));
@@ -152,32 +143,14 @@ public class CompoundModel extends AbstractPointsModel implements Cloneable {
 	 */
 	public void addData(Object model, Collection<IROI> rois) {
 
-		if (models==null) models = new ArrayList<>(7);
-		try {
-			models.add(model);
-		} catch(Exception ne) {
-			// Models is allowed to be non-null and unmodifiable
-			// If it is, we make it modifiable and add the model.
-			List<Object> tmp = new ArrayList<>(7);
-			tmp.addAll(models);
-			tmp.add(model);
-			models = tmp;
-		}
+		addModel(model);
 
 		// They are not really ordered but for now we maintain order.
-		if (regions==null) regions = new LinkedHashSet<>(7);
+		Set<ScanRegion> newRegions = new LinkedHashSet<>(7);
 		if (rois!=null) for (IROI roi : rois) {
-			ScanRegion region = new ScanRegion(roi, AbstractPointsModel.getScannableNames(model));
-			try {
-				this.regions.add(region);
-			} catch(Exception ne) {
-				// It might be unmodifiable
-				Collection<ScanRegion> tmp = new LinkedHashSet<>(7);
-				tmp.addAll(this.regions);
-				tmp.add(region);
-				regions = tmp;
-			}
+			newRegions.add(new ScanRegion(roi, AbstractPointsModel.getScannableNames(model)));
 		}
+		addRegions(newRegions);
 	}
 
 	public List<Object> getModels() {
@@ -296,8 +269,8 @@ public class CompoundModel extends AbstractPointsModel implements Cloneable {
 
 	@Override
 	public String toString() {
-		return "CompoundModel [models=" + models + ", regions=" + regions + ", mutators=" + mutators + ", duration="
-				+ duration + "]";
+		return getClass().getSimpleName() + " [models=" + models + ", regions=" + regions + ", mutators=" + mutators +
+				", duration=" + duration + "]";
 	}
 
 	// CompoundModel not a valid model for Zip/Concat generator currently
@@ -311,4 +284,37 @@ public class CompoundModel extends AbstractPointsModel implements Cloneable {
 		}
 		return size;
 	}
+
+	@Override
+	public boolean isContinuous() {
+		IScanPathModel innermostModel = (IScanPathModel) getModels().get(getModels().size()-1);
+		return innermostModel.isContinuous();
+	}
+
+	/*
+	 * Dealing with unmodifiable lists from setData
+	 */
+	public void addModel(Object model) {
+		List<Object> tmp = new ArrayList<>();
+		if (models != null) tmp.addAll(models);
+		tmp.add(model);
+		models = tmp;
+	}
+
+	public void addMutators(List<IMutator> mutators) {
+		if (mutators == null) return;
+		List<IMutator> tmp = new ArrayList<>();
+		if (this.mutators != null) tmp.addAll(this.mutators);
+		tmp.addAll(mutators);
+		this.mutators = tmp;
+	}
+
+	public void addRegions(Collection<ScanRegion> regions) {
+		if (regions == null) return;
+		List<ScanRegion> tmp = new ArrayList<>();
+		if (this.regions != null) tmp.addAll(this.regions);
+		tmp.addAll(regions);
+		this.regions = tmp;
+	}
+
 }

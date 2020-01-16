@@ -11,12 +11,9 @@
  *******************************************************************************/
 package org.eclipse.scanning.points;
 
-import static org.eclipse.scanning.points.AbstractScanPointIterator.EMPTY_PY_ARRAY;
-
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.PPointGenerator;
@@ -27,11 +24,6 @@ class AxialStepGenerator extends AbstractGenerator<AxialStepModel> {
 
 	public AxialStepGenerator(AxialStepModel model) {
 		super(model);
-		setLabel("AxialStep Scan");
-		setDescription("Creates a scan that steps through a Scannable axis, from the start to the highest multiple of the step lower than the stop."
-				+ "\nIf the last requested point is within 1% of the end it will still be included in the scan."
-				+ "\nThe scan supports continuous operation and alternating mode [when wrapped in an outer scan].");
-		setIconPath("icons/scanner--step.png"); // This icon exists in the rendering bundle
 	}
 
 	AxialStepGenerator() {
@@ -55,9 +47,7 @@ class AxialStepGenerator extends AbstractGenerator<AxialStepModel> {
         final JythonObjectFactory<PPointGenerator> lineGeneratorFactory = ScanPointGeneratorFactory.JOneAxisLineGeneratorFactory();
 
 		final AxialStepModel model = getModel();
-		final List<IROI> regions = getRegions();
 
-		final List<String> axes = model.getScannableNames();
         final String name = model.getName();
         final List<String> units = model.getUnits();
         final boolean alternating = model.isAlternating();
@@ -68,8 +58,7 @@ class AxialStepGenerator extends AbstractGenerator<AxialStepModel> {
 
         PPointGenerator pointGen = lineGeneratorFactory.createObject(name, units, start, stop, numPoints, alternating);
 
-        return CompoundSpgIteratorFactory.createSpgCompoundGenerator(new PPointGenerator[] {pointGen},
-				regions, axes, EMPTY_PY_ARRAY, -1, continuous);
+        return CompoundGenerator.createWrappingCompoundGenerator(new PPointGenerator[] {pointGen}, continuous);
 	}
 
 }

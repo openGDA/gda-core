@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2017 Diamond Light Source Ltd.
+ * Copyright © 2019 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,14 +16,18 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.eclipse.scanning.points;
+package org.eclipse.scanning.device.ui.points;
 
-import org.eclipse.scanning.api.points.ScanPointIterator;
+import org.eclipse.scanning.api.points.models.IScanPathModel;
 
-public class SpgIterator extends AbstractScanPointIterator {
+public interface IPointsModelDescriberService {
 
-	public SpgIterator(ScanPointIterator pyIterator) {
-		setPyIterator(pyIterator);
-	}
+	PointsModelDescriber getModelDescriber(Class<? extends IScanPathModel> clazz);
+
+	String getIconPath(Class<? extends IScanPathModel> clazz);
+
+	String getDescription(Class<? extends IScanPathModel> clazz);
+
+	String getLabel(Class<? extends IScanPathModel> clazz);
 
 }

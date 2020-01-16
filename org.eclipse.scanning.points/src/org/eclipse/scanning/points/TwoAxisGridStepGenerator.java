@@ -18,10 +18,6 @@ class TwoAxisGridStepGenerator extends AbstractGridGenerator<TwoAxisGridStepMode
 
 	TwoAxisGridStepGenerator(TwoAxisGridStepModel model) {
 		super(model);
-		setLabel("Two-Axis Grid Step Scan");
-		setDescription("Creates a grid scan by taking steps of a fixed size in each axis, until the next step would land outside the bounding area."
-				+ "\nThe scan supports continuous operation and alternating/bidirectional/'snake' mode.");
-		setIconPath("icons/scanner--raster.png"); // This icon exists in the rendering bundle
 	}
 
 	@Override
