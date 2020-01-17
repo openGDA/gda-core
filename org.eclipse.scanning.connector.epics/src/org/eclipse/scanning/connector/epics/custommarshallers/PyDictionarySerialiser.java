@@ -16,6 +16,8 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.scanning.api.points.IPointGenerator;
+import org.eclipse.scanning.points.CompoundGenerator;
 import org.epics.pvdata.pv.PVStructure;
 import org.epics.pvdata.pv.Structure;
 import org.epics.pvmarshaller.marshaller.api.IPVStructureSerialiser;
@@ -30,7 +32,8 @@ import org.python.core.PyString;
 import org.python.core.PyUnicode;
 
 /**
- * Custom serialiser for PyDictionary.
+ * Custom serialiser for {@link PyDictionary}. We use this to serialize {@link IPointGenerator}s,
+ * specifically {@link CompoundGenerator}s.
  *
  * @author Matt Taylor
  */

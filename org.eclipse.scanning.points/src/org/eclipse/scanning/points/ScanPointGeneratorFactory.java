@@ -88,6 +88,10 @@ public class ScanPointGeneratorFactory {
         return new JythonObjectFactory<>(PPointGenerator.class, "jython_spg_interface", "JCompoundGenerator");
     }
 
+    public static JythonObjectFactory<PPointGenerator> JPyDictionaryGeneratorFactory() {
+    	return new JythonObjectFactory<>(PPointGenerator.class, "jython_spg_interface", "JPyDictionaryGenerator");
+    }
+
     public static JythonObjectFactory<PyObject> JRandomOffsetMutatorFactory() {
         return new JythonObjectFactory<>(PyObject.class, "jython_spg_interface", "JRandomOffsetMutator");
     }

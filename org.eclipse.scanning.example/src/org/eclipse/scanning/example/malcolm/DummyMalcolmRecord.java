@@ -18,6 +18,7 @@ import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_MRI;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_NAME;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_GENERATOR;
 import static org.eclipse.scanning.api.malcolm.connector.MalcolmMethod.ABORT;
 import static org.eclipse.scanning.api.malcolm.connector.MalcolmMethod.CONFIGURE;
 import static org.eclipse.scanning.api.malcolm.connector.MalcolmMethod.DISABLE;
@@ -97,10 +98,12 @@ import org.epics.pvdata.pv.PVIntArray;
 import org.epics.pvdata.pv.PVString;
 import org.epics.pvdata.pv.PVStringArray;
 import org.epics.pvdata.pv.PVStructure;
+import org.epics.pvdata.pv.PVUnionArray;
 import org.epics.pvdata.pv.ScalarType;
 import org.epics.pvdata.pv.Status;
 import org.epics.pvdata.pv.Status.StatusType;
 import org.epics.pvdata.pv.Structure;
+import org.epics.pvdata.pv.UnionArrayData;
 import org.epics.pvdatabase.PVDatabase;
 import org.epics.pvdatabase.PVDatabaseFactory;
 import org.epics.pvdatabase.PVRecord;
@@ -120,15 +123,7 @@ class DummyMalcolmRecord extends PVRecord {
 
 	private static final String FIELD_NAME_STAGE_X = "stage_x";
 	private static final String FIELD_NAME_STAGE_Y = "stage_y";
-	private static final String FIELD_NAME_GENERATOR = "generator"; // TODO real malcolm has no such attribute
 
-	public static final String FIELD_NAME_NAMES = "names";
-	public static final String FIELD_NAME_UNITS = "units";
-	public static final String FIELD_NAME_SCALE = "scale";
-	public static final String FIELD_NAME_CENTRE = "centre";
-	public static final String FIELD_NAME_RADIUS = "radius";
-
-	private static List<MalcolmDetectorInfo> malcolmDetectorInfos = null;
 	// Member data
 	private boolean underControl = false;
 	private Map<String, PVStructure> receivedRPCCalls = new HashMap<>();
@@ -178,10 +173,11 @@ class DummyMalcolmRecord extends PVRecord {
 			final MalcolmMethod method = MalcolmMethod.fromString(methodName);
 			switch (method) {
 				case VALIDATE:
-					returnPvStructure = modifyValidationPVStucture(args);
+					returnPvStructure = modifyConfigureValidatePVStucture(args);
 					break;
 				case CONFIGURE:
 					pvRecord.getPVStructure().getSubField(PVString.class, FIELD_NAME_STATE_VALUE).put(DeviceState.CONFIGURING.name());
+					returnPvStructure = modifyConfigureValidatePVStucture(args);
 					break;
 				case RUN:
 					pvRecord.getPVStructure().getSubField(PVString.class, FIELD_NAME_STATE_VALUE).put(DeviceState.RUNNING.name());
@@ -200,7 +196,8 @@ class DummyMalcolmRecord extends PVRecord {
 			callback.requestDone(statusOk, returnPvStructure);
 		}
 
-		private PVStructure modifyValidationPVStucture(PVStructure pvStructure) {
+		private PVStructure modifyConfigureValidatePVStucture(PVStructure pvStructure) {
+			// modify the detectors table
 			final PVStructure detectorsStructure = pvStructure.getStructureField(FIELD_NAME_DETECTORS);
 
 			final List<MalcolmDetectorInfo> detectorInfos = getDefaultMalcolmDetectorInfos();
@@ -213,8 +210,21 @@ class DummyMalcolmRecord extends PVRecord {
 
 			populateDetectorsPVStructure(detectorsStructure, detectorInfos);
 
-			System.err.println("detectors pvStructure = " + detectorsStructure); // TODO REMOVE, DO NOT COMMIT
+			modifyPointGenerator(pvStructure);
+
 			return pvStructure;
+		}
+
+		private void modifyPointGenerator(PVStructure pvStructure) {
+			// modify the scan point generator
+			final PVStructure pointGenStructure = pvStructure.getStructureField(FIELD_NAME_GENERATOR);
+			pointGenStructure.getDoubleField("duration").put(0.2); // set duration to 0.2
+			pointGenStructure.getBooleanField("continuous").put(true); // set continuous to true
+			final PVUnionArray generatorsField = pointGenStructure.getUnionArrayField("generators");
+			final UnionArrayData unionArrayData = new UnionArrayData();
+			generatorsField.get(0, generatorsField.getLength(), unionArrayData);
+			final PVStructure spiralGenStructure = (PVStructure) unionArrayData.data[0].get();
+			spiralGenStructure.getDoubleField("scale").put(1.5); // set spiralGen scale to 1.5
 		}
 
 		private void handleError(String message, RPCResponseCallback callback, boolean haveControl) {
@@ -447,13 +457,11 @@ class DummyMalcolmRecord extends PVRecord {
 	}
 
 	private static List<MalcolmDetectorInfo> getDefaultMalcolmDetectorInfos() {
-		if (malcolmDetectorInfos == null) {
-			malcolmDetectorInfos = new ArrayList<>(4);
-			malcolmDetectorInfos.add(new MalcolmDetectorInfo("BL45P-ML-DET-01", "DET", 1, 0, true));
-			malcolmDetectorInfos.add(new MalcolmDetectorInfo("BL45P-ML-DIFF-01", "DIFF", 1, 0, true));
-			malcolmDetectorInfos.add(new MalcolmDetectorInfo("BL45P-ML-PANDA-01", "PANDA-01", 1, 0, false));
-			malcolmDetectorInfos.add(new MalcolmDetectorInfo("BL45P-ML-PANDA-02", "PANDA-02", 1, 0, true));
-		}
+		final List<MalcolmDetectorInfo> malcolmDetectorInfos = new ArrayList<>(4);
+		malcolmDetectorInfos.add(new MalcolmDetectorInfo("BL45P-ML-DET-01", "DET", 1, 0, true));
+		malcolmDetectorInfos.add(new MalcolmDetectorInfo("BL45P-ML-DIFF-01", "DIFF", 1, 0, true));
+		malcolmDetectorInfos.add(new MalcolmDetectorInfo("BL45P-ML-PANDA-01", "PANDA-01", 1, 0, false));
+		malcolmDetectorInfos.add(new MalcolmDetectorInfo("BL45P-ML-PANDA-02", "PANDA-02", 1, 0, true));
 
 		return malcolmDetectorInfos;
 	}
