@@ -22,6 +22,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.jline.reader.Highlighter;
 import org.jline.reader.LineReader;
@@ -43,7 +44,7 @@ import org.slf4j.LoggerFactory;
 final class Highlighters {
 	private static final Logger logger = LoggerFactory.getLogger(Highlighters.class);
 	/** Default no-op Highlighter to use if Pygments is not available */
-	private static final Highlighter NON_HIGHLIGHTER = (r, b) -> new AttributedString(b);
+	private static final FunctionalHighlighter NON_HIGHLIGHTER = (r, b) -> new AttributedString(b);
 	/** Cache for Pygments based highlighters if they're available */
 	private static final Map<String, Highlighter> HIGHLIGHTERS = new HashMap<>();
 	static {
@@ -93,7 +94,7 @@ final class Highlighters {
 	 *
 	 * @see <a href="http://pygments.org">pygments.org</a>
 	 */
-	private static class JythonPygmentsHighlighter implements Highlighter {
+	private static class JythonPygmentsHighlighter implements FunctionalHighlighter {
 		private static final Logger logger = LoggerFactory.getLogger(JythonPygmentsHighlighter.class);
 		private final PyObject highlight;
 		private final String themeName;
@@ -138,5 +139,13 @@ final class Highlighters {
 		public String toString() {
 			return String.format("PygmentsHighlighter(%s)", themeName);
 		}
+	}
+
+	/** Return Highlighter to being a functional interface */
+	private interface FunctionalHighlighter extends Highlighter {
+		@Override
+		default void setErrorPattern(Pattern errorPattern) {}
+		@Override
+		default void setErrorIndex(int errorIndex) {}
 	}
 }

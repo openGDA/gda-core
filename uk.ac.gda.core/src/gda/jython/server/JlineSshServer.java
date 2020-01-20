@@ -116,6 +116,11 @@ public class JlineSshServer {
 			logger.error("Jython shell failed", e);
 		} finally {
 			params.getCloser().run();
+			try {
+				params.getSession().close();
+			} catch (IOException e) {
+				logger.warn("Failed to close ssh session", e);
+			}
 		}
 	}
 
