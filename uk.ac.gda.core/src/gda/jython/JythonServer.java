@@ -800,8 +800,8 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 	}
 
 	@Override
-	public void assignBaton(String myJSFIdentifier, int indexOfReciever) {
-		this.batonManager.assignBaton(myJSFIdentifier, indexOfReciever);
+	public void assignBaton(String myJSFIdentifier, int indexOfReciever, int indexOfPasser) {
+		this.batonManager.assignBaton(myJSFIdentifier, indexOfReciever, indexOfPasser);
 	}
 
 	@Override

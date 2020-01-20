@@ -18,15 +18,15 @@
 
 package uk.ac.gda.views.baton.action;
 
-import gda.jython.InterfaceProvider;
-import gda.jython.batoncontrol.ClientDetails;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.PlatformUI;
+
+import gda.jython.InterfaceProvider;
+import gda.jython.batoncontrol.ClientDetails;
 
 /**
  *
@@ -59,7 +59,8 @@ public class PassAction extends AbstractHandler {
 			throw new ExecutionException("Cannot check if current user is the same as selected user.", ne);
 		}
 
-		InterfaceProvider.getBatonStateProvider().assignBaton(selectedDetails.getIndex());
+		int batonholderIndex = InterfaceProvider.getBatonStateProvider().getBatonHolder().getIndex();
+		InterfaceProvider.getBatonStateProvider().assignBaton(selectedDetails.getIndex(), batonholderIndex);
 		return Boolean.TRUE;
 	}
 

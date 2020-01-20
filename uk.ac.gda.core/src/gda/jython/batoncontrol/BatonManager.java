@@ -215,14 +215,20 @@ public class BatonManager implements IBatonManager {
 	}
 
 	@Override
-	public void assignBaton(String myJSFIdentifier, int indexOfReciever) {
-		if (this.batonHolder.equals(myJSFIdentifier)) {
+	public void assignBaton(String myJSFIdentifier, int indexOfReciever, int indexOfPasser) {
+		ClientDetails batonHolderDetails = InterfaceProvider.getBatonStateProvider().getBatonHolder();
+		// Assign baton if there is no baton holder, or if baton passer still holds baton
+		if (batonHolderDetails == null || indexOfPasser == batonHolderDetails.getIndex()) {
 			String idOfNewHolder = idFromIndex(indexOfReciever);
 			if (idOfNewHolder != null) {
 				changeBatonHolder(idOfNewHolder);
 				renewLease(idOfNewHolder);
 			}
 			renewLease(myJSFIdentifier);
+		} else {
+			int batonHolderIndex = InterfaceProvider.getBatonStateProvider().getBatonHolder().getIndex();
+			logger.warn("Client {} doesn't currently hold the baton, so can't pass the baton to client {}. " +
+					"Client {} is the baton holder", indexOfPasser, indexOfReciever, batonHolderIndex);
 		}
 	}
 

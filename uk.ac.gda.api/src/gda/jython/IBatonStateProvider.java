@@ -78,10 +78,11 @@ public interface IBatonStateProvider{
 	public boolean requestBaton();
 
 	/**
-	 * @param index
-	 * @see gda.jython.Jython#assignBaton(String,int)
+	 * @param receiverIndex
+	 * @param currentBatonHolderIndex
+	 * @see gda.jython.Jython#assignBaton(String,int,int)
 	 */
-	public void assignBaton(int index);
+	public void assignBaton(int receiverIndex, int currentBatonHolderIndex);
 
 	/**
 	 * @return ClientDetails[]

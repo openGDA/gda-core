@@ -18,13 +18,13 @@
 
 package uk.ac.gda.client.interfaces.impl;
 
+import java.util.List;
+
 import gda.jython.IBatonStateProvider;
 import gda.jython.InterfaceProvider;
 import gda.jython.UserMessage;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.observable.IObserver;
-
-import java.util.List;
 
 /*
  * Call InterfaceProvider.getCommandRunner() only when needed rather than in constructor when Factories may not be created
@@ -70,8 +70,8 @@ public class BatonStateProviderBean implements IBatonStateProvider{
 		return getRunner().requestBaton();
 	}
 	@Override
-	public void assignBaton(int index) {
-		getRunner().assignBaton(index);
+	public void assignBaton(int receiverIndex, int holderIndex) {
+		getRunner().assignBaton(receiverIndex, holderIndex);
 	}
 	@Override
 	public ClientDetails[] getOtherClientInformation() {

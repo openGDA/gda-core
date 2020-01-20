@@ -64,7 +64,8 @@ public class UserSelectedActionOnClose {
 		case FINISHED_UDC:
 			for (ClientDetails client : clients) {
 				if (client.isAutomatedUser()) {
-					InterfaceProvider.getBatonStateProvider().assignBaton(client.getIndex());
+					int batonholderIndex = InterfaceProvider.getBatonStateProvider().getBatonHolder().getIndex();
+					InterfaceProvider.getBatonStateProvider().assignBaton(client.getIndex(), batonholderIndex);
 					break;
 				}
 			}

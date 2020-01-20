@@ -662,8 +662,8 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	}
 
 	@Override
-	public void assignBaton(int index) {
-		commandServer.assignBaton(name, index);
+	public void assignBaton(int receiverIndex, int currentBatonHolderIndex) {
+		commandServer.assignBaton(name, receiverIndex, currentBatonHolderIndex);
 	}
 
 	/**

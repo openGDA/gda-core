@@ -24,7 +24,7 @@ public interface IBatonManager {
 
 	/**
 	 * Determines the authorisation level of the given client. If another client holds the baton then the level is 0.
-	 * 
+	 *
 	 * @param uniqueID
 	 * @return the authorisation level
 	 */
@@ -33,7 +33,7 @@ public interface IBatonManager {
 	/**
 	 * This does not take the baton into account, this is simple what is in the authorisation database for the account
 	 * the given Client is running as.
-	 * 
+	 *
 	 * @param index
 	 *            - the public index number of a client
 	 * @return int the authorisation level of the given client
@@ -42,7 +42,7 @@ public interface IBatonManager {
 
 	/**
 	 * Register a new facade to this class
-	 * 
+	 *
 	 * @param uniqueID
 	 * @param info
 	 */
@@ -50,7 +50,7 @@ public interface IBatonManager {
 
 	/**
 	 * Switches the user of the given facade.
-	 * 
+	 *
 	 * @param uniqueFacadeName
 	 * @param username
 	 * @param accessLevel
@@ -60,7 +60,7 @@ public interface IBatonManager {
 
 	/**
 	 * Remove a facade registered in this class
-	 * 
+	 *
 	 * @param uniqueID
 	 */
 	public void removeFacade(String uniqueID);
@@ -77,9 +77,10 @@ public interface IBatonManager {
 	/**
 	 * @param myJSFIdentifier
 	 * @param indexOfReciever
-	 * @see gda.jython.Jython#assignBaton(String, int)
+	 * @param indexOfPasser
+	 * @see gda.jython.Jython#assignBaton(String, int, int)
 	 */
-	public void assignBaton(String myJSFIdentifier, int indexOfReciever);
+	public void assignBaton(String myJSFIdentifier, int indexOfReciever, int indexOfPasser);
 
 	/**
 	 * @param myJSFIdentifier
@@ -122,7 +123,7 @@ public interface IBatonManager {
 	public boolean isDisableControlOverVisitMetadataEntry();
 
 	public void setDisableControlOverVisitMetadataEntry(boolean disableControlOverVisitMetadataEntry);
-	
+
 	/**
 	 * Returns details of all connected clients.
 	 */
