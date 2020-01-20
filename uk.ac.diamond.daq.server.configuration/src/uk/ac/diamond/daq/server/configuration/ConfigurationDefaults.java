@@ -3,7 +3,10 @@ package uk.ac.diamond.daq.server.configuration;
 import static com.google.common.collect.ObjectArrays.concat;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -54,9 +57,10 @@ public enum ConfigurationDefaults {
 	// Default values with their corresponding override that are use to assemble later values
 	BEAMLINE("example"),
 	APP_BEAMLINE(getHierarchicalValueWithDefault(BEAMLINE)),
-	BEAMLINE_LAYOUTS("/beamlineLayouts.cfg"),
+	
+	BEAMLINE_CONFIG("/beamlineLayouts.cfg"),
 	LAYOUT_DETAILS(loadLayoutLookup()),
-	LAYOUT(LAYOUT_DETAILS.value.split(",")[0].toUpperCase()),
+	LAYOUT(LAYOUT_DETAILS.value.split(",")[1].toUpperCase()),
 
 	PROFILE("main"),
 	APP_PROFILES(getFromApplicationArgsUsingKeySetWithDefault(PROFILE, "-p")),
@@ -70,7 +74,7 @@ public enum ConfigurationDefaults {
 	GDA_WORKSPACE_GIT_NAME(APP_WORKSPACE_NAME+"_git"),
 	APP_WORKSPACE_GIT_NAME(getHierarchicalValueWithDefault(GDA_WORKSPACE_GIT_NAME)),
 
-	GDA_INSTANCE_CONFIG_rel(combine(APP_WORKSPACE_GIT_NAME, LAYOUT_DETAILS.value.split(",")[1])),
+	GDA_INSTANCE_CONFIG_rel(combine(APP_WORKSPACE_GIT_NAME, LAYOUT_DETAILS.value.split(",")[0])),
 	APP_INSTANCE_CONFIG_rel(getFromConfigPathOverrideWithDefault(getHierarchicalValueWithDefault(GDA_INSTANCE_CONFIG_rel))),
 
 	APP_GROUP_NAME(APP_INSTANCE_CONFIG_rel.value.contains("gda-mt.git") ? "mt-config" : "nogroup"),
@@ -348,28 +352,47 @@ public enum ConfigurationDefaults {
 	}
 
 	/**
-	 * Load the configuration layout properties from the default beamline cfg file (beamlineLayouts.cfg)
+	 * Load the configuration layout properties from the default beamline cfg file (beamlineLayouts.cfg) or from another file
+	 * with the path declared by the BEAMLINE_CONFIG property. 
 	 *
-	 * @return the comma separated pair of the config layout scheme and default config relative path
+	 * @return
+	 * either: the comma separated pair of the config relative path and layout scheme if set in beamlineLayouts.cfg or other file
+	 * or (if using the default cfg):
+	 * 			"$rel_path_from_cfg_file,standard" if no layout scheme provided
+	 * 			"gda-diamond.git/configurations/$APP_BEAMLINE-config,standard" if neither relpath or layout provided
 	 * @throws the Runtime IllegalArgumentException if the file cannot be loaded or it the loaded string is badly formed
 	 */
 	private static String loadLayoutLookup() {
 		final Properties layoutLookup = new Properties();
-		String layoutDetails = null;
-
+		String configLocation = getHierarchicalValueWithDefault(BEAMLINE_CONFIG);
+		if (configLocation.equals(BEAMLINE_CONFIG.value)) {
+			return defaultLoadLayout(layoutLookup);
+		}
 		try {
-			layoutLookup.load(ConfigurationDefaults.class.getResourceAsStream(BEAMLINE_LAYOUTS.value));
-			layoutDetails = layoutLookup.get(APP_BEAMLINE.value).toString();
+			InputStream stream = new FileInputStream(new File(configLocation));
+			layoutLookup.load(stream);
+			String layoutDetails = layoutLookup.getProperty(APP_BEAMLINE.value);
 			if (StringUtils.isBlank(layoutDetails) || !layoutDetails.contains(",")) {
 				throw new IllegalArgumentException("Beamline config layout property invalid");
 			}
+			return layoutDetails;
+		} catch (FileNotFoundException f) {
+			throw new IllegalArgumentException("Beamline config layout file cannot be loaded", f);
 		} catch (IOException e) {
-			throw new IllegalArgumentException("Beamline config layout file cannot be loaded", e);
-		} catch (Exception e) {
-			throw new IllegalArgumentException("Unable to look up '" + APP_BEAMLINE.value +
-					"' from " + BEAMLINE_LAYOUTS.value, e);
+			throw new IllegalArgumentException(String.format("Unable to look up %s from %s", APP_BEAMLINE.value , configLocation), e);
 		}
-		return layoutDetails;
+	}
+	
+	private static String defaultLoadLayout(Properties layoutLookup) {
+		try {
+			layoutLookup.load(ConfigurationDefaults.class.getResourceAsStream(BEAMLINE_CONFIG.value));
+			String layoutDetails = layoutLookup.getProperty(APP_BEAMLINE.value) == null 
+					? String.format("gda-diamond.git/configurations/%s-config,standard", APP_BEAMLINE.value) 
+					: layoutLookup.getProperty(APP_BEAMLINE.value);
+			return String.format(layoutDetails.contains(",") ? layoutDetails : layoutDetails.concat(",standard"));
+		} catch (IOException e) {
+			throw new IllegalArgumentException(String.format("Unable to look up %s from %s", APP_BEAMLINE.value , BEAMLINE_CONFIG.value), e);
+		}		
 	}
 
 	/**
