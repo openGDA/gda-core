@@ -23,8 +23,8 @@ import gda.observable.IObservable;
  * Processor handles the processing of a collection of items, one item at a time.
  * The processing can be started, stopped and paused
  * The processor can be skip the processing of the current item,
- * 
- * ProcessListeners can register for updates on changes to the state of the 
+ *
+ * ProcessListeners can register for updates on changes to the state of the
  * processor.
  */
 public interface Processor extends IObservable{
@@ -36,4 +36,5 @@ public interface Processor extends IObservable{
 	public void stopAfterCurrent() throws Exception;
 	public STATE getState();
 	public ProcessorCurrentItem getCurrentItem()  throws Exception;
+	public void passBaton(String receiverUsername, int receiverIndex) throws Exception;
 }
