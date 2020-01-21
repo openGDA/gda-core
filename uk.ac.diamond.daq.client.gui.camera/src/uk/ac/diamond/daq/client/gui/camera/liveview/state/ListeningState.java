@@ -6,6 +6,7 @@ import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.gda.client.live.stream.ILiveStreamConnection;
 import uk.ac.gda.client.live.stream.LiveStreamConnectionManager;
 import uk.ac.gda.client.live.stream.LiveStreamException;
+import uk.ac.gda.client.live.stream.api.ILiveStreamConnectionManager;
 import uk.ac.gda.client.live.stream.event.ListenToConnectionEvent;
 import uk.ac.gda.client.live.stream.event.StopListenToConnectionEvent;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
@@ -53,7 +54,7 @@ public class ListeningState implements StreamControlState {
 	public void listeningState(StreamController streamController) throws LiveStreamException {
 		try {
 			// get the new stream
-			LiveStreamConnectionManager manager = LiveStreamConnectionManager.getInstance();
+			ILiveStreamConnectionManager manager = LiveStreamConnectionManager.getInstance();
 			UUID streamUUID = manager.getIStreamConnection(
 					CameraHelper.getCameraConfiguration(streamController.getControlData().getCamera()),
 					streamController.getControlData().getStreamType());

@@ -40,4 +40,3 @@ Export-Package: uk.ac.gda.client.live.stream,
  uk.ac.gda.client.live.stream.view,
  uk.ac.gda.client.live.stream.view.customui
 Automatic-Module-Name: uk.ac.gda.client.live.stream
-Service-Component: OSGI-INF/LiveStreamConnectionService.xml

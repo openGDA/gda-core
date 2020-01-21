@@ -33,7 +33,7 @@ import uk.ac.gda.client.live.stream.view.StreamType;
  * @author Maurizio Nagni
  *
  */
-public interface ILiveStreamConnectionService extends IMappableLiveStreamConnectionSource {
+public interface ILiveStreamConnectionManager extends IMappableLiveStreamConnectionSource {
 
 	/**
 	 * Returns the {@link ILiveStreamConnection} associated with this service

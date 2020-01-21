@@ -6,6 +6,7 @@ import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.gda.client.live.stream.ILiveStreamConnection;
 import uk.ac.gda.client.live.stream.LiveStreamConnectionManager;
 import uk.ac.gda.client.live.stream.LiveStreamException;
+import uk.ac.gda.client.live.stream.api.ILiveStreamConnectionManager;
 import uk.ac.gda.client.live.stream.event.ListenToConnectionEvent;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
@@ -43,7 +44,7 @@ public class IdleState implements StreamControlState {
 	 */
 	@Override
 	public void listeningState(StreamController streamController) throws LiveStreamException {
-		LiveStreamConnectionManager manager = LiveStreamConnectionManager.getInstance();
+		ILiveStreamConnectionManager manager = LiveStreamConnectionManager.getInstance();
 		UUID streamUUID = manager.getIStreamConnection(
 				CameraHelper.getCameraConfiguration(streamController.getControlData().getCamera()),
 				streamController.getControlData().getStreamType());

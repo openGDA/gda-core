@@ -37,8 +37,9 @@ import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.handlers.RegistryToggleState;
 import org.eclipse.ui.menus.UIElement;
 
+import uk.ac.gda.client.live.stream.LiveStreamConnectionManager;
 import uk.ac.gda.client.live.stream.LiveStreamException;
-import uk.ac.gda.client.live.stream.api.ILiveStreamConnectionService;
+import uk.ac.gda.client.live.stream.api.ILiveStreamConnectionManager;
 
 
 /**
@@ -139,11 +140,11 @@ public class EnableLiveBackgroundHandler implements IHandler, IElementUpdater {
 	 *  @throws ExecutionException if the attempt to connect to the live stream fails
 	 */
 	private void initialiseStream() throws ExecutionException {
-		ILiveStreamConnectionService connectionService = workbench.getService(ILiveStreamConnectionService.class);
+		ILiveStreamConnectionManager connectionManager = LiveStreamConnectionManager.getInstance();
 		IMapFileController mapFileController = workbench.getService(IMapFileController.class);
 
 		try {
-			Optional<LiveStreamMapObject> sourceOptional = connectionService.getDefaultStreamSource();
+			Optional<LiveStreamMapObject> sourceOptional = connectionManager.getDefaultStreamSource();
 			if (sourceOptional.isPresent()) {
 				liveStreamMap = sourceOptional.get();
 				mapFileController.addLiveStream(liveStreamMap);
