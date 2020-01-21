@@ -36,6 +36,14 @@ public class PersistantMetadataEntry extends MetadataEntry {
 
 	private String defaultValue = "0-0";
 
+	public PersistantMetadataEntry() {
+		super();
+	}
+
+	public PersistantMetadataEntry(String name) {
+		super(name);
+	}
+
 	@Override
 	public void configure() throws FactoryException {
 		if (isConfigured()) {

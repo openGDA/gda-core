@@ -45,6 +45,14 @@ public abstract class MetadataEntry extends FindableConfigurableBase implements 
 
 	private transient ObservableComponent observableComponent = new ObservableComponent();
 
+	public MetadataEntry() {
+		super();
+	}
+
+	public MetadataEntry(String name) {
+		setName(name);
+	}
+
 	/**
 	 * Configure Method.
 	 *

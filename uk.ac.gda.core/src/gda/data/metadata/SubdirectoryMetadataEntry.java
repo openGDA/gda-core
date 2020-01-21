@@ -20,8 +20,6 @@ package gda.data.metadata;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -30,14 +28,17 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
-import gda.observable.IObserver;
 
-public class SubdirectoryMetadataEntry extends PersistantMetadataEntry implements IObserver {
+public class SubdirectoryMetadataEntry extends PersistantMetadataEntry {
 
-	Map<String, String> visit2subdir = new HashMap<String, String>();
-	String currentvisit = "";
+	private Map<String, String> visit2subdir = new HashMap<>();
+	private String currentvisit = "";
 	private String defaultSubdirectory = "";
 	private static final Logger logger = LoggerFactory.getLogger(SubdirectoryMetadataEntry.class);
+
+	public SubdirectoryMetadataEntry() {
+		super("subdirectory");
+	}
 
 	@Override
 	public void configure() throws FactoryException {
@@ -46,17 +47,10 @@ public class SubdirectoryMetadataEntry extends PersistantMetadataEntry implement
 		}
 		super.configure();
 		try {
-			IMetadataEntry visit = null;
-			List<IMetadataEntry> metadataEntries = GDAMetadataProvider.getInstance().getMetadataEntries();
-			for (Iterator<IMetadataEntry> iterator = metadataEntries.iterator(); iterator.hasNext();) {
-				IMetadataEntry metadataEntry = iterator.next();
-				if (metadataEntry.getName().equals("visit")) {
-					visit = metadataEntry;
-					break;
-				}
-			}
-			if (visit != null)
-				visit.addIObserver(this);
+			GDAMetadataProvider.getInstance().getMetadataEntries().stream()
+					.filter(entry -> entry.getName().equals("visit"))
+					.findFirst()
+					.ifPresent(entry -> entry.addIObserver(this::update));
 		} catch (DeviceException e) {
 			setConfigured(false);
 			throw new FactoryException("error locating visit", e);
@@ -65,31 +59,24 @@ public class SubdirectoryMetadataEntry extends PersistantMetadataEntry implement
 	}
 
 	@Override
-	public String getName() {
-		return "subdirectory";
-	}
-
-	@Override
 	public void setValue(String value) throws Exception {
-		String oldValue = getMetadataValue();
-		value = sanitze(value);
-		super.setValue(value);
-		String path = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
-		File file = new File(path);
-		if (file.isDirectory())
+		final String oldValue = getMetadataValue();
+		super.setValue(sanitize(value));
+		final String path = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
+		final File file = new File(path);
+		if (file.isDirectory()) {
 			return;
+		}
 		if (file.exists() || !file.mkdirs()) {
 			super.setValue(oldValue);
-			return;
 		}
 	}
 
-	public static String sanitze(String in) {
+	private static String sanitize(String in) {
 		return in.replaceAll("[^0-9a-zA-Z,./_-]", "");
 	}
 
-	@Override
-	public void update(Object source, Object arg) {
+	private void update(Object source, Object arg) {
 		if (source instanceof MetadataEntry) {
 			if (currentvisit.equals(arg.toString())) {
 				return;
