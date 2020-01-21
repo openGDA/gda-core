@@ -50,6 +50,15 @@ public interface Metadata extends Findable, IObservable {
 	List<IMetadataEntry> getMetadataEntries() throws DeviceException;
 
 	/**
+	 * Get a metadata entry by name
+	 *
+	 * @param name
+	 *            name of required entry
+	 * @return metadata entry or <code>null</code> if there is no entry with this name
+	 */
+	IMetadataEntry getMetadataEntry(String name);
+
+	/**
 	 * Sets the the value of a named metadata entry, for further information on what type of metadata this method can be
 	 * used for see {@link IMetadataEntry}
 	 *

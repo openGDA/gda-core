@@ -114,6 +114,11 @@ public class GdaMetadata extends FindableConfigurableBase implements Metadata, I
 		return new ArrayList<>(metadataEntries.values());
 	}
 
+	@Override
+	public IMetadataEntry getMetadataEntry(String name) {
+		return metadataEntries.get(name);
+	}
+
 	/**
 	 * Sets the entries within this metadata.
 	 *
