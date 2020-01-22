@@ -220,6 +220,17 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 //		DETECTORS_TABLE_TYPES_MAP.put(DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP, Integer.class);
 //	}
 
+	/*
+	 * Requires at least 2 threads: (Run or Configure: blocking), non-blocking status changes
+	 * Run blocks while scan is running: potentially as long as 2 days
+	 * Configure could take 10 minutes but should never happen simultaneously with Run
+	 * Another thread for all other methods, which return quicker (<=15s) and can cause Run/Config to stop
+	 *
+	 * Timeout left at default (60s), allows same thread to be used for e.g. quick pause/resume,
+	 * but will release resources quickly.
+	 */
+	private ExecutorService executor = Executors.newCachedThreadPool();
+
 	private static IPointGenerator<?> dummyPointGenerator = null;
 
 	// Listeners to malcolm endpoints
@@ -482,15 +493,11 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 
 	@Override
 	public IMalcolmModel validateWithReturn(IMalcolmModel model) throws ValidationException {
-		MalcolmMessage reply = null;
+		MalcolmMessage reply;
 		try {
 			final EpicsMalcolmModel epicsModel = createEpicsMalcolmModel(model); // use default point gen and filedir if not set (i.e. we're not in a scan)
 			final MalcolmMessage msg = messageGenerator.createCallMessage(MalcolmMethod.VALIDATE, epicsModel);
-			reply = send(msg, Timeout.STANDARD.toMillis());
-			if (reply.getType()==Type.ERROR) {
-				throw new ValidationException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
-			}
-
+			reply = sendMessageWithTimeout(msg, Timeout.STANDARD.toMillis());
 		} catch (Exception mde) {
 			throw new ValidationException(mde);
 		}
@@ -540,10 +547,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 
 		final EpicsMalcolmModel epicsModel = createEpicsMalcolmModel(model);
 		final MalcolmMessage msg = messageGenerator.createCallMessage(MalcolmMethod.CONFIGURE, epicsModel);
-		MalcolmMessage reply = wrap(()->send(msg, Timeout.CONFIG.toMillis()));
-		if (reply.getType() == Type.ERROR) {
-			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
-		}
+		sendMessageWithTimeout(msg, Timeout.CONFIG.toMillis());
 		setModel(model);
 	}
 
@@ -551,16 +555,14 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	private <T> T getEndpointValue(String endpointName) throws MalcolmDeviceException {
 		logger.debug("Getting endpoint value {}", endpointName);
 		final MalcolmMessage reply = getEndpointReply(endpointName);
-		if (reply.getType()==Type.ERROR) {
-			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
-		}
+		exceptionOnError(reply);
 
 		return (T) reply.getValue();
 	}
 
 	private MalcolmMessage getEndpointReply(String endpointName) throws MalcolmDeviceException {
 		final MalcolmMessage message = messageGenerator.createGetMessage(endpointName);
-		return wrap(()->send(message, Timeout.STANDARD.toMillis()));
+		return sendMessageWithTimeout(message, Timeout.STANDARD.toMillis());
 	}
 
 	/**
@@ -642,57 +644,41 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		return reply;
 	}
 
-	private MalcolmMessage send(MalcolmMessage message, long timeout) throws InterruptedException, ExecutionException, TimeoutException {
-		logger.debug("Sending message to malcolm device: {}", message);
-		final MalcolmMessage reply = callWithTimeout(()->malcolmConnection.send(this, message), timeout);
-		logger.debug("Received reply from malcolm device: {}", reply);
-		return reply;
-	}
-
-	private MalcolmMessage call(MalcolmMethod method, long timeout) throws InterruptedException, ExecutionException, TimeoutException {
-		logger.debug("Calling '{}' method on malcolm device", method);
-		final MalcolmMessage reply = callWithTimeout(()->call(method), timeout);
-		logger.debug("Received reply from malcolm device '{}' method: {}", method, reply);
-		return reply;
-	}
-
-	private MalcolmMessage call(MalcolmMethod method) throws MalcolmDeviceException {
-		final MalcolmMessage message = messageGenerator.createCallMessage(method);
-		return malcolmConnection.send(this, message);
-	}
-
 	/**
-	 * Calls the function but wraps the exception if it is not MalcolmDeviceException
-	 * @param callable
-	 * @return
-	 * @throws MalcolmDeviceException
+	 * Sends a message to a MalcolmDevice and wraps any Exceptions in a MalcolmDeviceException
 	 */
-	private MalcolmMessage wrap(Callable<MalcolmMessage> callable) throws MalcolmDeviceException {
+	private MalcolmMessage sendMessageWithTimeout(MalcolmMessage message, long timeout) throws MalcolmDeviceException {
 		try {
-			return callable.call();
-		} catch (MalcolmDeviceException m) {
-			throw m;
+			logger.debug("Sending message to malcolm device: {}", message);
+			final MalcolmMessage reply = executeWithTimeout(() -> malcolmConnection.send(this, message), timeout);
+			logger.debug("Received reply from malcolm device: {}", reply);
+			exceptionOnError(reply);
+			return reply;
+		} catch (MalcolmDeviceException e) {
+			throw e;
 		} catch (Exception other) {
 			throw new MalcolmDeviceException(this, other);
 		}
 	}
 
-	private MalcolmMessage callWithTimeout(final Callable<MalcolmMessage> callable, long timeout) throws InterruptedException, ExecutionException, TimeoutException {
-		final ExecutorService service = Executors.newSingleThreadExecutor();
-		try {
-			return service.submit(callable).get(timeout, TimeUnit.MILLISECONDS);
-		} finally {
-			service.shutdownNow();
-		}
-	}
-
-	@Override
-	public void run(IPosition pos) throws MalcolmDeviceException, InterruptedException, ExecutionException, TimeoutException {
-		logger.debug("run() called with position {}", pos);
-		MalcolmMessage reply = call(MalcolmMethod.RUN, Timeout.RUN.toMillis());
+	private void exceptionOnError(MalcolmMessage reply) throws MalcolmDeviceException {
 		if (reply.getType()==Type.ERROR) {
 			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
 		}
+	}
+
+	private MalcolmMessage callMethodWithTimeout(MalcolmMethod method, long timeout) throws MalcolmDeviceException{
+		return sendMessageWithTimeout(messageGenerator.createCallMessage(method), timeout);
+	}
+
+	private MalcolmMessage executeWithTimeout(final Callable<MalcolmMessage> callable, long timeout) throws InterruptedException, ExecutionException, TimeoutException {
+		return executor.submit(callable).get(timeout, TimeUnit.MILLISECONDS);
+	}
+
+	@Override
+	public void run(IPosition pos) throws MalcolmDeviceException {
+		logger.debug("run() called with position {}", pos);
+		callMethodWithTimeout(MalcolmMethod.RUN, Timeout.RUN.toMillis());
 	}
 
 	@Override
@@ -701,10 +687,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		LinkedHashMap<String, Integer> seekParameters = new LinkedHashMap<>(); // TODO why is this a linked hash map
 		seekParameters.put(ATTRIBUTE_NAME_COMPLETED_STEPS, stepNumber);
 		final MalcolmMessage msg = messageGenerator.createCallMessage(MalcolmMethod.PAUSE, seekParameters);
-		final MalcolmMessage reply = wrap(()->send(msg, Timeout.CONFIG.toMillis()));
-		if (reply.getType()==Type.ERROR) {
-			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
-		}
+		sendMessageWithTimeout(msg, Timeout.CONFIG.toMillis());
 	}
 
 	/**
@@ -734,46 +717,31 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	@Override
 	public void abort() throws MalcolmDeviceException {
 		logger.debug("abort() called");
-		MalcolmMessage reply = wrap(()->call(MalcolmMethod.ABORT, Timeout.STANDARD.toMillis()));
-		if (reply.getType()==Type.ERROR) {
-			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
-		}
+		callMethodWithTimeout(MalcolmMethod.ABORT, Timeout.STANDARD.toMillis());
 	}
 
 	@Override
 	public void disable() throws MalcolmDeviceException {
 		logger.debug("disable() called");
-		MalcolmMessage reply = wrap(()->call(MalcolmMethod.DISABLE, Timeout.STANDARD.toMillis()));
-		if (reply.getType()==Type.ERROR) {
-			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
-		}
+		callMethodWithTimeout(MalcolmMethod.DISABLE, Timeout.STANDARD.toMillis());
 	}
 
 	@Override
 	public void reset() throws MalcolmDeviceException {
 		logger.debug("reset() called");
-		MalcolmMessage reply = wrap(()->call(MalcolmMethod.RESET, Timeout.STANDARD.toMillis()));
-		if (reply.getType()==Type.ERROR) {
-			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
-		}
+		callMethodWithTimeout(MalcolmMethod.RESET, Timeout.STANDARD.toMillis());
 	}
 
 	@Override
 	public void pause() throws MalcolmDeviceException {
 		logger.debug("pause() called");
-		MalcolmMessage reply = wrap(()->call(MalcolmMethod.PAUSE, Timeout.CONFIG.toMillis()));
-		if (reply.getType()==Type.ERROR) {
-			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
-		}
+		callMethodWithTimeout(MalcolmMethod.PAUSE, Timeout.CONFIG.toMillis());
 	}
 
 	@Override
 	public void resume() throws MalcolmDeviceException {
 		logger.debug("resume() called");
-		MalcolmMessage reply = wrap(()->call(MalcolmMethod.RESUME, Timeout.STANDARD.toMillis()));
-		if (reply.getType()==Type.ERROR) {
-			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
-		}
+		callMethodWithTimeout(MalcolmMethod.RESUME, Timeout.STANDARD.toMillis());
 	}
 
 	@Override

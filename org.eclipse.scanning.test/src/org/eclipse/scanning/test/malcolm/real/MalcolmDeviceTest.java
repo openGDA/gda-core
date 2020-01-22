@@ -244,7 +244,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 			malcolmDevice.validate(malcolmModel);
 			fail("A validation exception was expected");
 		} catch (ValidationException e) {
-			assertThat(e.getMessage(), is(equalTo("org.eclipse.scanning.api.ValidationException: " + STANDARD_MALCOLM_ERROR_STR + errorMessage)));
+			assertThat(e.getMessage(), is(equalTo("org.eclipse.scanning.api.malcolm.MalcolmDeviceException: " + STANDARD_MALCOLM_ERROR_STR + errorMessage)));
 		}
 
 		// check that the malcolm connection received the expected validate message
