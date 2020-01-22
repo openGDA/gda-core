@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.factory.FindableBase;
+import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import uk.ac.gda.api.remoting.ServiceInterface;
@@ -559,4 +560,12 @@ public class FindableProcessorQueue extends FindableBase implements IFindableQue
 	public CommandId getRemovedHeadID() {
 		return queue.getRemovedHeadID();
 	}
+
+	@Override
+	public void passBaton(String receiverUsername, int receiverIndex) throws Exception {
+		String batonHolderUserID = InterfaceProvider.getBatonStateProvider().getBatonHolder().getUserID();
+		int batonHolderIndex = InterfaceProvider.getBatonStateProvider().getBatonHolder().getIndex();
+		queue.addToTail(new BatonPassCommand(this, receiverUsername, batonHolderUserID, receiverIndex, batonHolderIndex));
+	}
+
 }

@@ -327,6 +327,11 @@
             name="Stop Command Queue">
       </command>
       <command
+            defaultHandler="uk.ac.gda.client.PassBatonCommandQueueHandler"
+            id="uk.ac.gda.client.PassBaton"
+            name="Pass Baton Queue">
+      </command>
+      <command
             defaultHandler="uk.ac.gda.client.PauseCommandQueueHandler"
             id="uk.ac.gda.client.PauseCommandQueue"
             name="Pause Command Queue">

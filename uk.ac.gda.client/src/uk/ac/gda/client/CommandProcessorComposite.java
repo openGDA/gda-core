@@ -81,6 +81,7 @@ public class CommandProcessorComposite extends Composite {
 	private Action btnRunPause;
 	private boolean btnRunPause_Run = false;
 	private Action btnStopAfterCurrent;
+	private Action btnPassBaton;
 	private Action btnStop;
 	private Action btnAddToQueue;
 	IWorkbenchPartSite iWorkbenchPartSite;
@@ -104,7 +105,8 @@ public class CommandProcessorComposite extends Composite {
 		runImage = GDAClientActivator.getImageDescriptor("icons/control_play_blue.png");
 		final ImageDescriptor stopImage = GDAClientActivator.getImageDescriptor("icons/delete.png");
 		final ImageDescriptor addImage = GDAClientActivator.getImageDescriptor("icons/add.png");
-
+		final ImageDescriptor stopAfterCurrentImage = GDAClientActivator.getImageDescriptor("icons/stop.png");
+		final ImageDescriptor passBatonImage = GDAClientActivator.getImageDescriptor("icons/flag_green.png");
 
 		createComponents();
 
@@ -176,7 +178,26 @@ public class CommandProcessorComposite extends Composite {
 		btnStopAfterCurrent.setToolTipText("Stop the processor after the current command has completed");
 		btnStopAfterCurrent.setId(CommandQueueViewFactory.ID + ".stopaftercurrent");
 		btnStopAfterCurrent.setText("Insert Stop");
+		btnStopAfterCurrent.setImageDescriptor(stopAfterCurrentImage);
 		toolBarManager.add(btnStopAfterCurrent);
+
+		btnPassBaton = new Action(null, SWT.NONE) {
+			@Override
+			public void run() {
+				try {
+					iWorkbenchPartSite.getService(IHandlerService.class).executeCommand(
+							CommandQueueContributionFactory.UK_AC_GDA_CLIENT_PASS_BATON, new Event());
+				} catch (Exception ex) {
+					logger.error("Error executing command "
+							+ CommandQueueContributionFactory.UK_AC_GDA_CLIENT_PASS_BATON, ex);
+				}
+			}
+		};
+		btnPassBaton.setToolTipText("Pass the baton to another client");
+		btnPassBaton.setId(CommandQueueViewFactory.ID + ".passbaton");
+		btnPassBaton.setText("Insert Baton Pass");
+		btnPassBaton.setImageDescriptor(passBatonImage);
+		toolBarManager.add(btnPassBaton);
 
 		btnAddToQueue = new Action(null, SWT.NONE) {
 			@Override

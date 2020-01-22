@@ -35,9 +35,9 @@ import org.eclipse.ui.services.IServiceLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.menu.JythonControlsFactory;
-
 import com.swtdesigner.ResourceManager;
+
+import uk.ac.gda.menu.JythonControlsFactory;
 
 public class CommandQueueContributionFactory extends ExtensionContributionFactory {
 
@@ -46,6 +46,7 @@ public class CommandQueueContributionFactory extends ExtensionContributionFactor
 	public static final String UK_AC_GDA_CLIENT_SKIP_COMMAND_QUEUE = "uk.ac.gda.client.SkipCommandQueue";
 	public static final String UK_AC_GDA_CLIENT_STOP_COMMAND_QUEUE = "uk.ac.gda.client.StopCommandQueue";
 	public static final String UK_AC_GDA_CLIENT_STOP_AFTER_CURRENT_COMMAND_QUEUE = "uk.ac.gda.client.StopAfterCurrentCommandQueue";
+	public static final String UK_AC_GDA_CLIENT_PASS_BATON = "uk.ac.gda.client.PassBaton";
 
 	private static final Logger logger = LoggerFactory.getLogger(CommandQueueContributionFactory.class);
 
@@ -60,6 +61,7 @@ public class CommandQueueContributionFactory extends ExtensionContributionFactor
 		additions.addContributionItem(getSkipContributionItem(serviceLocator), Expression.TRUE);
 		additions.addContributionItem(getStopContributionItem(serviceLocator), Expression.TRUE);
 		additions.addContributionItem(getStopAfterCurrentContributionItem(serviceLocator), Expression.TRUE);
+		additions.addContributionItem(getPassBatonItem(serviceLocator), Expression.TRUE);
 	}
 
 	public IContributionItem getStopContributionItem(IServiceLocator serviceLocator) {
@@ -82,6 +84,10 @@ public class CommandQueueContributionFactory extends ExtensionContributionFactor
 		return new ActionContributionItem(createStopAfterCurrentAction(serviceLocator));
 	}
 
+	public IContributionItem getPassBatonItem(IServiceLocator serviceLocator) {
+		return new ActionContributionItem(createPassBatonUDCAction(serviceLocator));
+	}
+
 	public Action createSkipAction(IServiceLocator serviceLocator) {
 		return createAction(serviceLocator, "Skip", UK_AC_GDA_CLIENT_SKIP_COMMAND_QUEUE, "/control_skip_blue.png");
 	}
@@ -99,7 +105,11 @@ public class CommandQueueContributionFactory extends ExtensionContributionFactor
 	}
 
 	public Action createStopAfterCurrentAction(IServiceLocator serviceLocator) {
-		return createAction(serviceLocator, "Stop After Current", UK_AC_GDA_CLIENT_STOP_AFTER_CURRENT_COMMAND_QUEUE, "/control_pause_blue.png");
+		return createAction(serviceLocator, "Stop After Current", UK_AC_GDA_CLIENT_STOP_AFTER_CURRENT_COMMAND_QUEUE, "/stop.png");
+	}
+
+	public Action createPassBatonUDCAction(IServiceLocator serviceLocator) {
+		return createAction(serviceLocator, "Pass Baton", UK_AC_GDA_CLIENT_PASS_BATON, "/flag_green.png");
 	}
 
 	public void executeCommand(IServiceLocator serviceLocator, String commandId) throws ExecutionException, NotDefinedException, NotEnabledException, NotHandledException {
