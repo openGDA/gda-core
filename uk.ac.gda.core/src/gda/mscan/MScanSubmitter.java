@@ -21,9 +21,11 @@ package gda.mscan;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
@@ -233,7 +235,7 @@ public class MScanSubmitter extends ValidationUtils {
 		// first as it potentially popoulates the list to be used in subsequent checks.
 		List<Object> params = new ArrayList<>();
 		for (int i = 0; i < args.length; i++) {
-			params.add(args[i]);
+			params.addAll(resolveNumericTuples(args[i]));
 			if (args[i].equals(RegionShape.POINT) && args[i + 1] instanceof Number && args[i + 2] instanceof Number) {
 				params.add(args[i + 1]);
 				params.add(args[i + 2]);
@@ -295,6 +297,35 @@ public class MScanSubmitter extends ValidationUtils {
 			processors.add(processorBuilders.get(type).apply(params.get(i)));
 		}
 		return resolverFactory.getResolver(processors);
+	}
+
+	/**
+	 * If mscan numeric command parameters are entered using () or [] brackets e.g.
+	 *
+	 * mscan scannable, anotherScannable, rect ((2,2) [3,3]) line [10,20] detectorRunnableDevice
+	 *
+	 * this produces tuples and lists in the passed in args. This method just flattens such entries if they exist so
+	 * that we end up with a single list containing all the grouped parameters in sequence
+	 *
+	 * @param element	The argument to be processed
+	 * @return			A flat list of {@link Number}s in the order they were specified in the command
+	 * @throws			{@link IllegalAtgumentException} if the element is a {@link List} with non-numeric entries
+	 */
+	private List<Object> resolveNumericTuples(Object element) {
+		if (element instanceof List) {
+			return ((List<?>)element).stream()
+					.map(e -> e instanceof List ? (List<?>)e : Arrays.asList(e))
+					.flatMap(Collection::stream)
+					.map(this::throwIfNotNumber)
+					.collect(Collectors.toList());
+		} else {
+			return Arrays.asList(element);
+		}
+	}
+
+	private Number throwIfNotNumber(Object o) {
+		throwIf(!(o instanceof Number), "Only numeric parameters can be enclosed in brackets");
+		return (Number)o;
 	}
 
 	/**

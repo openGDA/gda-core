@@ -48,6 +48,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.python.core.PyList;
+import org.python.core.PyTuple;
 
 import gda.device.Detector;
 import gda.device.Monitor;
@@ -694,6 +696,56 @@ public class MScanSubmitterTest {
 	}
 
 	@Test
+	public void createsCorrectProcessorListForRectangularPointsScanWithAliasedSyntaxWithTuplesOrLists() throws Exception {
+		// This is equivalent to typing:
+		// mscan scannable, anotherScannable, rect ((2,2) [3,3]) line [10,20] detectorRunnableDevice
+		PyTuple t1 = PyTuple.fromIterable(new PyList(Arrays.asList(2, 2)));
+		PyList t2 = new PyList(Arrays.asList(3, 3));
+		PyTuple t3 = PyTuple.fromIterable(new PyList(Arrays.asList(t1, t2)));
+		PyList t4 = new PyList(Arrays.asList(10, 20));
+
+		Object[] arr = {scannable, anotherScannable,
+				RegionShape.RECTANGLE, t3, Scanpath.LINE_POINTS, t4, detectorRunnableDevice};
+		when(resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
+											new ScannableElementProcessor(anotherScannable),
+											new RegionShapeElementProcessor(RegionShape.RECTANGLE),
+											new NumberElementProcessor(2),
+											new NumberElementProcessor(2),
+											new NumberElementProcessor(3),
+											new NumberElementProcessor(3),
+											new ScanpathElementProcessor(Scanpath.GRID_POINTS),
+											new NumberElementProcessor(10),
+											new NumberElementProcessor(20)),
+							  Arrays.asList(new IRunnableDeviceDetectorElementProcessor(detectorRunnableDevice))));
+		builder.buildAndSubmitBlockingScanRequest(arr);
+		List<IClauseElementProcessor> processors = captor.getValue();
+		assertThat(processors.size(), is(11));
+		assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(0).getElement(), is(scannable));
+		assertThat(processors.get(1), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(1).getElement(), is(anotherScannable));
+		assertThat(processors.get(2), instanceOf(RegionShapeElementProcessor.class));
+		assertThat(processors.get(2).getElement(), is(RegionShape.RECTANGLE));
+		assertThat(processors.get(3), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(3).getElement(), is(2));
+		assertThat(processors.get(4), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(4).getElement(), is(2));
+		assertThat(processors.get(5), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(5).getElement(), is(3));
+		assertThat(processors.get(6), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(6).getElement(), is(3));
+		assertThat(processors.get(7), instanceOf(ScanpathElementProcessor.class));
+		assertThat(processors.get(7).getElement(), is(Scanpath.GRID_POINTS));
+		assertThat(processors.get(8), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(8).getElement(), is(10));
+		assertThat(processors.get(9), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(9).getElement(), is(20));
+		assertThat(processors.get(10), instanceOf(IRunnableDeviceDetectorElementProcessor.class));
+		assertThat(processors.get(10).getElement(), is(detectorRunnableDevice));
+	}
+
+	@Test
 	public void createsCorrectProcessorListForCircularStepScanWithAliasedSyntax() throws Exception {
 		Object[] arr = {scannable, anotherScannable, RegionShape.CIRCLE, 2, 2, 3, Scanpath.LINE_STEP, 0.1, 0.2, detectorRunnableDevice};
 		when(resolver.resolveScanClauses()).thenReturn(
@@ -730,6 +782,34 @@ public class MScanSubmitterTest {
 		assertThat(processors.get(8).getElement(), is(0.2));
 		assertThat(processors.get(9), instanceOf(IRunnableDeviceDetectorElementProcessor.class));
 		assertThat(processors.get(9).getElement(), is(detectorRunnableDevice));
+	}
+
+	@Test
+	public void willFailWithNonNumericTuplesOrLists() throws Exception {
+		// This is equivalent to typing:
+		// mscan scannable, anotherScannable, (rect (2,2) [3,3]) line [10,20] detectorRunnableDevice
+		PyTuple t1 = PyTuple.fromIterable(new PyList(Arrays.asList(2, 2)));
+		PyList t2 = new PyList(Arrays.asList(3, 3));
+		PyTuple t3 = PyTuple.fromIterable(new PyList(Arrays.asList(RegionShape.RECTANGLE, t1, t2)));
+		PyList t4 = new PyList(Arrays.asList(10, 20));
+
+		Object[] arr = {scannable, anotherScannable,
+				t3, Scanpath.LINE_POINTS, t4, detectorRunnableDevice};
+		when(resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
+											new ScannableElementProcessor(anotherScannable),
+											new RegionShapeElementProcessor(RegionShape.RECTANGLE),
+											new NumberElementProcessor(2),
+											new NumberElementProcessor(2),
+											new NumberElementProcessor(3),
+											new NumberElementProcessor(3),
+											new ScanpathElementProcessor(Scanpath.GRID_POINTS),
+											new NumberElementProcessor(10),
+											new NumberElementProcessor(20)),
+							  Arrays.asList(new IRunnableDeviceDetectorElementProcessor(detectorRunnableDevice))));
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("Only numeric parameters can be enclosed in brackets");
+		builder.buildAndSubmitBlockingScanRequest(arr);
 	}
 
 	@Test
