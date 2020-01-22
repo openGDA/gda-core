@@ -18,6 +18,7 @@
 
 package gda.device.detector.nxdetector.plugin.areadetector;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -61,11 +62,13 @@ public class ADRoiCountsI0 extends NullNXPlugin {
 	private String roiCountsName;
 	private int scalerChannelToUse;
 	private String currentStreamName;
+	private List<Object> scalerData = new ArrayList<>();
 
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		roiCountsName = getRoiCountsName();
 		useBufferedScaler = getScanUsesBufferedDetector();
+		scalerData.clear();
 		if (useBufferedScaler) {
 			scalerChannelToUse = getChannelToUse(bufferedScaler);
 			frameCount = 0;
@@ -238,21 +241,35 @@ public class ADRoiCountsI0 extends NullNXPlugin {
 
 			if (scaler instanceof BufferedScaler) {
 				logger.debug("Reading channel {} frame {} from {} for scaler counts", scalerChannelToUse, frameNumber, scaler.getName());
-				BufferedScaler bufScaler = (BufferedScaler) scaler;
-				return getScalerData(bufScaler.readFrames(frameNumber, frameNumber)[0]);
+				return getScalerValue((BufferedScaler) scaler, frameNumber);
 			} else {
 				logger.debug("Using channel {} from {} for scaler counts ", scalerChannelToUse, scaler.getName());
-				return getScalerData(scaler.readout());
+				return getScalerValue(scaler);
 			}
+		}
+
+		private double getScalerValue(BufferedScaler scaler, int frameNumber) throws DeviceException {
+			if (frameNumber >= scalerData.size()) {
+				// Update scalerData array with all available frames
+				Object[] allFrames = scaler.readAllFrames();
+				if (allFrames.length > scalerData.size() ) {
+					for (int i = scalerData.size(); i < allFrames.length; i++) {
+						scalerData.add(allFrames[i]);
+					}
+				}
+			}
+			double[] arr = (double[]) scalerData.get(frameNumber);
+			return arr[scalerChannelToUse];
 		}
 
 		/**
 		 * Extract channel of scaler data from the Object returned by scaler readout function.
 		 * @param scalerReadout
 		 * @return scaler counts from channel {@link #scalerChannelToUse}.
+		 * @throws DeviceException
 		 */
-		private double getScalerData(Object scalerReadout) {
-			double[] arr = (double[]) scalerReadout;
+		private double getScalerValue(Detector scaler) throws DeviceException {
+			double[] arr = (double[]) scaler.readout();
 			return arr[scalerChannelToUse];
 		}
 	}
