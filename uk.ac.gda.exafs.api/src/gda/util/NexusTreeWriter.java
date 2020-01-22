@@ -39,13 +39,13 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.january.DatasetException;
-import org.eclipse.january.dataset.AbstractDataset;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.IntegerDataset;
+import org.eclipse.january.dataset.InterfaceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -238,8 +238,8 @@ public class NexusTreeWriter {
 				if (!datasetMap.containsKey(dataName)) {
 					int[] shape = datasetFromTree.getShape();
 					int[] newShape = ArrayUtils.addAll(new int[] { numFrames }, shape);
-					Class<? extends AbstractDataset> classType = DoubleDataset.class;
-					if (datasetFromTree.getDType() == Dataset.INT32 || datasetFromTree.getDType() == Dataset.INT64) {
+					Class<? extends Dataset> classType = DoubleDataset.class; // strange code that limits datasets to integers or doubles
+					if (InterfaceUtils.isInteger(datasetFromTree)) {
 						classType = IntegerDataset.class;
 					}
 					logger.debug("Creating dataset to store {} data. Shape = {}", dataName, Arrays.toString(newShape));

@@ -23,8 +23,8 @@ import java.util.Hashtable;
 import java.util.List;
 
 import org.eclipse.january.DatasetException;
-import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetUtils;
+import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +68,7 @@ public class ScalerMFMappableDataProvider extends MicroFocusMappableDataProvider
 						+ selectedElement);
 			IDataset slice = lazyDataset.getSlice(new int[] { 0, 0 }, new int[] { yAxisLengthFromFile,
 					xAxisLengthFromFile }, new int[] { 1, 1 });
-			data = (double[]) DatasetUtils.cast(slice, Dataset.FLOAT64).getBuffer();
+			data = (double[]) DatasetUtils.cast(DoubleDataset.class, slice).getBuffer();
 			detectorData.put(selectedElement, data);
 		} else {
 			data = detectorData.get(selectedElement);
