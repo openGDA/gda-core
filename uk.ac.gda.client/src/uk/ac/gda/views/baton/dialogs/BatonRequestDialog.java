@@ -148,7 +148,8 @@ public class BatonRequestDialog extends Dialog {
 
 	private static void doPass(final ClientDetails request, boolean ok) {
 		if (ok) {
-			InterfaceProvider.getBatonStateProvider().assignBaton(request.getIndex());
+			int batonHolderIndex = InterfaceProvider.getBatonStateProvider().getBatonHolder().getIndex();
+			InterfaceProvider.getBatonStateProvider().assignBaton(request.getIndex(), batonHolderIndex);
 		} else {
 			InterfaceProvider.getBatonStateProvider().sendMessage("Baton request denied.");
 		}

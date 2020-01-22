@@ -22,13 +22,14 @@ package gda.jython.batoncontrol;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import gda.configuration.properties.LocalProperties;
 import gda.jython.InterfaceProvider;
 import gda.jython.MockJythonServerFacade;
 import gda.jython.authenticator.Authenticator;
-
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * Tests the BatonManager component used by JythonServer
@@ -81,7 +82,7 @@ public class BatonManagerTest {
 	@Test
 	public void testAssignBaton() {
 		manager.requestBaton("opq");
-		manager.assignBaton("opq", 1);  //give to xyz
+		manager.assignBaton("opq", 1, 0);  //give to xyz
 		assertTrue(manager.amIBatonHolder("xyz"));
 		assertFalse(manager.amIBatonHolder("opq"));
 	}

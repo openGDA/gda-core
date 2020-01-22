@@ -347,8 +347,9 @@ public interface Jython extends Findable, IObservable {
 	 *
 	 * @param myJSFIdentifier
 	 * @param indexOfReciever
+	 * @param currentBatonHolderIndex
 	 */
-	public void assignBaton(String myJSFIdentifier, int indexOfReciever);
+	public void assignBaton(String myJSFIdentifier, int indexOfReciever, int currentBatonHolderIndex);
 
 
 	/**
