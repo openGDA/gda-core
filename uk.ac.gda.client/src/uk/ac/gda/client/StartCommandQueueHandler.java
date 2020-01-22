@@ -24,18 +24,25 @@ import org.eclipse.core.commands.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.InterfaceProvider;
+
 public class StartCommandQueueHandler extends AbstractHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(StartCommandQueueHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		try {
-			logger.debug("Pause/Resume Scan button pressed");
-			CommandQueueViewFactory.getProcessor().start(500);
-			return Boolean.TRUE;
-		} catch (Exception ne) {
-			throw new ExecutionException("Error running StartCommandHandler", ne);
+		if (InterfaceProvider.getBatonStateProvider().amIBatonHolder()) {
+			try {
+				logger.debug("Pause/Resume Scan button pressed");
+				CommandQueueViewFactory.getProcessor().start(500);
+				return Boolean.TRUE;
+			} catch (Exception ne) {
+				throw new ExecutionException("Error running StartCommandHandler", ne);
+			}
+		} else {
+			logger.warn("You cannot start the queue as you do not hold the baton");
+			return Boolean.FALSE;
 		}
 	}
 

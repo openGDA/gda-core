@@ -24,18 +24,25 @@ import org.eclipse.core.commands.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.InterfaceProvider;
+
 public class PauseCommandQueueHandler extends AbstractHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(PauseCommandQueueHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		try {
-			logger.debug("Pause queue button pressed");
-			CommandQueueViewFactory.getProcessor().pause(500);
-			return Boolean.TRUE;
-		} catch (Exception ne) {
-			throw new ExecutionException("Error handling PauseCommandQueue", ne);
+		if (InterfaceProvider.getBatonStateProvider().amIBatonHolder()) {
+			try {
+				logger.debug("Pause queue button pressed");
+				CommandQueueViewFactory.getProcessor().pause(500);
+				return Boolean.TRUE;
+			} catch (Exception ne) {
+				throw new ExecutionException("Error handling PauseCommandQueue", ne);
+			}
+		} else {
+			logger.warn("You cannot pause the queue as you do not hold the baton");
+			return Boolean.FALSE;
 		}
 	}
 

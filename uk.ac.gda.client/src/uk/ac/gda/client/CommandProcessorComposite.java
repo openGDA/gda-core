@@ -55,6 +55,7 @@ import gda.commandqueue.JythonCommandCommandProvider;
 import gda.commandqueue.Processor;
 import gda.commandqueue.ProcessorCurrentItem;
 import gda.commandqueue.QueueChangeEvent;
+import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 import gda.rcp.GDAClientActivator;
 import uk.ac.gda.common.rcp.util.EclipseWidgetUtils;
@@ -181,12 +182,16 @@ public class CommandProcessorComposite extends Composite {
 			@Override
 			public void run() {
 				try {
-					InputDialog dlg = new InputDialog(Display.getCurrent().getActiveShell(), "Add Command To Queue",
-							"Enter a command ( Use \"run scriptname\" to execute a script)", lastAddedCommand, null);
-					if (dlg.open() == Window.OK) {
-						lastAddedCommand = dlg.getValue();
-						CommandQueueViewFactory.getQueue().addToTail(
-								new JythonCommandCommandProvider(lastAddedCommand, lastAddedCommand, null));
+					if (InterfaceProvider.getBatonStateProvider().amIBatonHolder()) {
+						InputDialog dlg = new InputDialog(Display.getCurrent().getActiveShell(), "Add Command To Queue",
+								"Enter a command ( Use \"run scriptname\" to execute a script)", lastAddedCommand, null);
+						if (dlg.open() == Window.OK) {
+							lastAddedCommand = dlg.getValue();
+							CommandQueueViewFactory.getQueue().addToTail(
+									new JythonCommandCommandProvider(lastAddedCommand, lastAddedCommand, null));
+						}
+					} else {
+						logger.warn("You cannot add scripts to the queue as you do not hold the baton");
 					}
 				} catch (Exception e1) {
 					logger.error("Error submitting command to queue");
