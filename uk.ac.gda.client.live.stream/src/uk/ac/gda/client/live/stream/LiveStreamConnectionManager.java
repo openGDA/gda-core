@@ -29,24 +29,24 @@ import org.eclipse.scanning.api.ui.IStageScanConfiguration;
 import org.eclipse.ui.PlatformUI;
 
 import gda.factory.Finder;
-import uk.ac.gda.client.live.stream.api.ILiveStreamConnectionService;
+import uk.ac.gda.client.live.stream.api.ILiveStreamConnectionManager;
 import uk.ac.gda.client.live.stream.handlers.LiveStreamPlottable;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
 
 /**
- * Main implementation of the {@link ILiveStreamConnectionService} interface to manage stream connections.
+ * Main implementation of the {@link ILiveStreamConnectionManager} interface to manage stream connections.
  *
  * @author Keith Ralph
  * @author Maurizio Nagni
  */
-public class LiveStreamConnectionManager implements ILiveStreamConnectionService {
+public class LiveStreamConnectionManager implements ILiveStreamConnectionManager {
 
 	private static final LiveStreamConnectionManager instance = new LiveStreamConnectionManager();
 
 	private final Set<LiveStreamConnection> liveStreamConnections;
 
-	public static LiveStreamConnectionManager getInstance() {
+	public static ILiveStreamConnectionManager getInstance() {
 		return instance;
 	}
 
