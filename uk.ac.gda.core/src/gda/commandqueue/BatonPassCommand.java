@@ -19,6 +19,7 @@
 package gda.commandqueue;
 
 import gda.jython.InterfaceProvider;
+import gda.jython.batoncontrol.ClientDetails;
 
 public class BatonPassCommand extends CommandBase {
 
@@ -60,6 +61,20 @@ public class BatonPassCommand extends CommandBase {
 
 	@Override
 	public void run() throws Exception {
+		ClientDetails[] clients = InterfaceProvider.getBatonStateProvider().getOtherClientInformation();
+		boolean automatedClientExists = false;
+		int automatedClientIndex = 0;
+		for (ClientDetails client : clients) {
+			if (client.isAutomatedUser()) {
+				automatedClientIndex = client.getIndex();
+				automatedClientExists = true;
+				break;
+			}
+		}
+		if (automatedClientExists && receiverIndex == automatedClientIndex) {
+			// We don't want the command queue to continue if we're passing to an automated client so pause the queue
+			processor.stopAfterCurrent();
+		}
 		InterfaceProvider.getBatonStateProvider().assignBaton(receiverIndex, batonHolderIndex);
 		obsComp.notifyIObservers(this, new SimpleCommandProgress(100f, "BATON PASS completed"));
 		endRun();
