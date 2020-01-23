@@ -33,7 +33,6 @@ import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 import gda.scan.ScanInformation;
-import uk.ac.gda.api.io.PathConstructor;
 import uk.ac.gda.server.ncd.subdetector.eiger.NcdEigerController;
 
 public class NcdEigerDetector extends NcdSubDetector {
@@ -50,11 +49,10 @@ public class NcdEigerDetector extends NcdSubDetector {
 	}
 
 	@Override
-	public void atScanStart() throws DeviceException {
+	public void atScanStart(ScanInformation info) throws DeviceException {
 		logger.debug("Start of scan");
-		ScanInformation scanInformation = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
-		int scanNumber = scanInformation.getScanNumber();
-		int[] scanDimensions = scanInformation.getDimensions();
+		int scanNumber = info.getScanNumber();
+		int[] scanDimensions = info.getDimensions();
 		String beamline = LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME);
 		controller.setDataOutput(InterfaceProvider.getPathConstructor().createFromDefaultProperty(), String.format("%s-%d-%s", beamline, scanNumber, getName()));
 		controller.setScanDimensions(scanDimensions);
