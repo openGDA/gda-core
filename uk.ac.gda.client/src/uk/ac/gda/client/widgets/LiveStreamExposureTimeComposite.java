@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import gda.observable.IObserver;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraControllerEvent;
 
@@ -87,11 +88,13 @@ public class LiveStreamExposureTimeComposite extends Composite {
 			}
 		});
 
-		cameraControl.addIObserver((source, arg) -> {
+		IObserver updateMethod = (source, arg) -> {
 			if (arg instanceof CameraControllerEvent) {
 				updateExposureTime((CameraControllerEvent) arg);
 			}
-		});
+		};
+		cameraControl.addIObserver(updateMethod);
+		parent.addDisposeListener(e -> cameraControl.deleteIObserver(updateMethod));
 
 		// Label to show error message if exposure time is invalid
 		exposureTimeMessage = new Label(this, SWT.NONE);
