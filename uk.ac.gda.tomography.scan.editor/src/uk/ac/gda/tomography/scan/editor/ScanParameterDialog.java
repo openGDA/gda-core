@@ -60,6 +60,8 @@ public class ScanParameterDialog extends Dialog {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanParameterDialog.class);
 	private static final String DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL = "tomographyScanModel";
+	private static final String DATADIR_SUFFIX_LIVE_PROPERTY = "gda.data.scan.datawriter.datadir.subdir.live";
+	private static final String DATADIR_SUFFIX_TEMP = "tmp";
 
 	/**
 	 * Used for converter in bindings to doubles
@@ -111,24 +113,16 @@ public class ScanParameterDialog extends Dialog {
 	}
 
 	private void updateOutputPath(ParametersComposite editor) {
-		String outputDirectoryPath = getVisitPath();
-		if (editor.getSendDataToTempDirectory().getSelection()) {
-			outputDirectoryPath+="/tmp/";
-		} else {
-			outputDirectoryPath+="/raw/";
+		String outputDirectoryPath = InterfaceProvider.getCommandRunner().evaluateCommand("InterfaceProvider.getPathConstructor().createFromDefaultProperty()");
+		final boolean tmpSelected = editor.getSendDataToTempDirectory().getSelection();
+		if (tmpSelected) {
+			final String outputPathSuffix = LocalProperties.get(DATADIR_SUFFIX_LIVE_PROPERTY);
+			if (outputPathSuffix != null) {
+				outputDirectoryPath = outputDirectoryPath.replaceAll(outputPathSuffix + "[/]{0,1}$", "");
+			}
+			outputDirectoryPath = Paths.get(outputDirectoryPath, DATADIR_SUFFIX_TEMP).toString();
 		}
 		editor.getOutputDirectory().setText(outputDirectoryPath);
-	}
-
-	private String getVisitPath() {
-		String dataPath = InterfaceProvider.getCommandRunner().evaluateCommand("PathConstructor.createFromDefaultProperty()");
-		String[] dataPathSplit = dataPath.split("/");
-		StringBuilder bld = new StringBuilder();
-		for (int i = 1; i < 6; ++i) {
-			bld.append('/');
-			bld.append(dataPathSplit[i]);
-		}
-		return bld.toString();
 	}
 
 	private void createBindings(ParametersComposite editor) {
