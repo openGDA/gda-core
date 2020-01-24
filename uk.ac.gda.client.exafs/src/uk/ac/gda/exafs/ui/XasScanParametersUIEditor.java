@@ -92,6 +92,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	private GridLayout gridLayout_1;
 	private IRegion aLine, bLine, cLine, edgeLine;
 	private boolean energyInK = ExafsActivator.getStore().getBoolean(ExafsPreferenceConstants.EXAFS_FINAL_ANGSTROM);
+	private boolean onlyKStepType = ExafsActivator.getStore().getBoolean(ExafsPreferenceConstants.EXAFS_ONLY_ALLOW_K_STEP_TYPE);
 	private boolean showLineAnnotations = false;
 
 	public XasScanParametersUIEditor(final String path, final RichBeanMultiPageEditorPart containingEditor, final XasScanParameters xasScanParameters) {
@@ -473,7 +474,9 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		GridData gd_postEdgeStepType = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gd_postEdgeStepType.minimumWidth = 100;
 		exafsStepType.setLayoutData(gd_postEdgeStepType);
-
+		if (onlyKStepType) {
+			exafsStepType.setEnabled(false);
+		}
 		exafsStepEnergyLabel = new Label(edgeParametersGroup, SWT.NONE);
 		exafsStepEnergyLabel.setText("                ");
 
@@ -900,10 +903,16 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			// Set default values, bean may have changed
 			try {
 				SchemaReader reader = setupElementAndEdge("XasScanParameters");
-				List<String> choices = reader.getAllowedChoices("XasScanParameters", "exafsStepType");
-				exafsStepType.setItems(choices.toArray(new String[choices.size()]));
-				if (scanParams.getExafsStepType() == null)
+				List<String> choices = reader.getAllowedChoices("XasScanParameters", "exafsStepType"); // k, E
+				if (onlyKStepType) {
+					exafsStepType.setItems(new String[] { choices.get(0) });
 					exafsStepType.select(0);
+				} else {
+					exafsStepType.setItems(choices.toArray(new String[choices.size()]));
+					if (scanParams.getExafsStepType() == null)
+						exafsStepType.select(0);
+				}
+
 				if (scanParams.getExafsTime() == null)
 					exafsTimeType.select(1);
 				if (scanParams.getA() == null)

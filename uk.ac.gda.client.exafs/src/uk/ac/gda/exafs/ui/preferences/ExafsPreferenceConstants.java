@@ -109,6 +109,11 @@ public class ExafsPreferenceConstants {
 	public static final String EXAFS_FINAL_ANGSTROM = "exafs.final_energy.angstrom.Preference";
 
 	/**
+	 * When set to 'true' the 'Exafs step type' is set to 'k' in XasScanParametersUIEditor and the 'Exafs step type' combo box is disabled.
+	 */
+	public static final String EXAFS_ONLY_ALLOW_K_STEP_TYPE = "exafs.only.allow.kstep.type.Preference";
+
+	/**
 	 * When true, only show options relating to the XES spectrometer in various editors and dialogs.
 	 */
 	public static final String XES_MODE_ENABLED = "exafs.xes_mode_enabled.Preference";
