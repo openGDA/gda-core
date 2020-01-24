@@ -19,6 +19,7 @@
 
 package gda.configuration.properties;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -55,6 +56,8 @@ import org.slf4j.LoggerFactory;
  * So user overrides should be loaded first. Plugin/technique-specific properties should be loaded next. Default/core
  * property data should be loaded last.
  * <p>
+ * Property keys can be declared sensitive, which will prevent their value being printed to the log during startup,
+ * by adding them to the sensitiveKeys list.
  */
 public class JakartaPropertiesConfig implements PropertiesConfig {
 
@@ -65,6 +68,7 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 
 	// README - this map may not be needed - was for debugging initially.
 	private Map<String, Configuration> configMap = null;
+	private List<String> sensitiveKeys;
 
 	/**
 	 * Constructor for JakartaPropertiesConfig objects. Creates a new composite configuration and adds a system
@@ -79,11 +83,14 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 		Configuration sysConfig = new SystemConfiguration();
 		config.addConfiguration(sysConfig);
 
-		// create map to store individual configs
+		// create map to store individual configs, list to store sensitive values
 		configMap = new HashMap<>();
+		sensitiveKeys = new ArrayList<>();
 
-		// put system properties in the map
+		// put system properties in the map/sensitive keys in the list
 		configMap.put("system", sysConfig);
+		sensitiveKeys.add("gda.px.contactinfo.ispyb.user");
+		sensitiveKeys.add("gda.px.contactinfo.ispyb.password");
 	}
 
 	@Override
@@ -178,6 +185,7 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 
 	/**
 	 * Dump out all existing properties to message logging info channel.
+	 * Properties marked as sensitive in the constructor of this type will be masked with "[Sensitive]"
 	 */
 	@Override
 	public void dumpProperties() {
@@ -204,13 +212,15 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 					// processing
 					// done by commons config applied - ie string
 					// interpolation, etc.
-					logger.debug("{} = {}", key, LocalProperties.get(key));
-				} else {
-					// Handle non-string objects, eg ArrayList's
-					logger.debug("{} = {}", key, o);
+					o = LocalProperties.get(key);
 				}
+				logger.debug("{} = {}", key, isSensitive(key) ? "[Sensitive]" : o);
 			}
 		}
+	}
+
+	private boolean isSensitive(String key) {
+		return sensitiveKeys.contains(key);
 	}
 
 	@Override
