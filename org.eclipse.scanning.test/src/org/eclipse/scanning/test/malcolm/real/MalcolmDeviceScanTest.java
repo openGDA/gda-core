@@ -56,9 +56,9 @@ import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.malcolm.message.Type;
 import org.eclipse.scanning.api.points.IPointGenerator;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
-import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
@@ -97,9 +97,6 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 
 		scanBean.setDeviceName("solstice_scan");
 
-		scanBean.setDeviceState(deviceState);
-		scanBean.setPreviousDeviceState(previousState);
-
 		scanBean.setStatus(status);
 		scanBean.setPreviousStatus(previousStatus);
 
@@ -108,9 +105,6 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 
 	private ScanBean createExpectedCompleteStepsBean(int completedSteps) {
 		scanBean.setDeviceName("solstice_scan");
-
-		scanBean.setDeviceState(DeviceState.RUNNING);
-		scanBean.setPreviousDeviceState(DeviceState.RUNNING);
 
 		scanBean.setStatus(Status.RUNNING);
 		scanBean.setPreviousStatus(Status.RUNNING);

@@ -392,9 +392,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		final ScanBean bean = getScanBean();
 		bean.setPoint(count);
 		bean.setPosition(pos);
-		bean.setPreviousDeviceState(bean.getDeviceState());
 		if (size>-1) bean.setPercentComplete(((double)(count)/size)*100);
-		if (bean.getDeviceState()==DeviceState.RUNNING) { // Only set this message if we are still running.
+		if (bean.getStatus()==Status.RUNNING) { // Only set this message if we are still running.
 			bean.setMessage("Point " + (pos.getStepIndex() + 1) +" of " + size);
 		}
 
@@ -586,8 +585,6 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 			// The bean must be set in order to change state.
 			ScanBean bean = getScanBean();
 			bean.setDeviceName(getName());
-			bean.setPreviousDeviceState(bean.getDeviceState());
-			bean.setDeviceState(newDeviceState);
 
 			super.setDeviceState(newDeviceState);
 
@@ -830,8 +827,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		bean.setMessage("Point " + location.getOverallCount() + " of " + location.getTotalSize());
 		bean.setPercentComplete(location.getOuterPercent());
 		bean.setPoint(location.getStepNumber());
-		bean.setPreviousDeviceState(bean.getDeviceState()); // this bean doesn't represent a state
-		bean.setPreviousStatus(bean.getStatus()); // or status change
+		bean.setPreviousStatus(bean.getStatus()); // this bean doesn't represent a status change
 
 		if (getPublisher() != null) {
 			try {

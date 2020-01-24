@@ -39,7 +39,6 @@ import org.eclipse.scanning.api.INamedNode;
 import org.eclipse.scanning.api.ISpringParser;
 import org.eclipse.scanning.api.annotation.ui.DeviceType;
 import org.eclipse.scanning.api.event.scan.DeviceRequest;
-import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.DeviceValueMultiPosition;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
@@ -89,8 +88,6 @@ public class SerializationTest {
 
 		final ScanBean sent = new ScanBean();
 		sent.setDeviceName("fred");
-		sent.setDeviceState(DeviceState.RUNNING);
-		sent.setPreviousDeviceState(DeviceState.ARMED);
 		sent.setPosition(new MapPosition("x", 0, 1.0));
 		sent.setUniqueId(UUID.randomUUID().toString());
 		sent.setHostName(InetAddress.getLocalHost().getHostName());
@@ -114,8 +111,6 @@ public class SerializationTest {
 		Point pnt = new Point("xNex", 2, 1.5, "yNex", 2, 1.5);
 		pnt.setStepIndex(12);
 		sent.setPosition(pnt);
-		sent.setDeviceState(DeviceState.RUNNING);
-		sent.setPreviousDeviceState(DeviceState.RUNNING);
 		sent.setUniqueId(UUID.randomUUID().toString());
 		sent.setPreviousStatus(Status.RUNNING);
 		sent.setStatus(Status.RUNNING);

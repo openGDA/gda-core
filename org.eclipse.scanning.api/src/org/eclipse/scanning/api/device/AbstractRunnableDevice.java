@@ -174,8 +174,7 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 
 	/**
 	 *
-	 * @param nstate
-	 * @param position
+	 * @param newDeviceState
 	 * @throws ScanningException
 	 */
 	protected void setDeviceState(DeviceState newDeviceState) throws ScanningException {

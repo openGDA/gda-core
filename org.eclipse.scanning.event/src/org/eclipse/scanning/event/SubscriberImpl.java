@@ -46,7 +46,6 @@ import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.queue.IQueueStatusBeanListener;
 import org.eclipse.scanning.api.event.queue.QueueStatusBean;
 import org.eclipse.scanning.api.event.queue.QueueStatusBeanEvent;
-import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.IScanListener;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanEvent;
@@ -243,21 +242,11 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 	}
 
 	protected void invokeScanListener(IScanListener scanListener, ScanBean scanBean) {
-		// check if device state has changed
-		boolean isStateChange = false;
-		final DeviceState currentState = scanBean.getDeviceState();
-		final DeviceState previousState = scanBean.getPreviousDeviceState();
-		if (currentState != null && currentState != previousState) {
-			isStateChange = true;
-		}
 
 		// check if status has changed
 		final Status currentStatus = scanBean.getStatus();
 		final Status previousStatus = scanBean.getPreviousStatus();
-		if (currentStatus != null && previousStatus != null && currentStatus != previousStatus) {
-			isStateChange = true;
-		}
-
+		boolean isStateChange = (currentStatus != null && currentStatus != previousStatus);
 		if (isStateChange) {
 			scanListener.scanStateChanged(new ScanEvent(scanBean));
 		} else {

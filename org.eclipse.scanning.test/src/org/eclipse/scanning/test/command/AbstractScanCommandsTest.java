@@ -173,7 +173,11 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 			if (failed.size()>0) throw new Exception(failed.get(0).getMessage());
 
 			ScanBean start = startEvents.get(0);
-			assertEquals(start.getSize(), beans.size());
+			/*
+			 * Due to DAQ-1967 meaning that DeviceState is not longer component of ScanBean, what was previously seen
+			 * as state change now seen as event performed, Scan Complete message now event not state change.
+			 */
+			assertEquals(start.getSize() + 1, beans.size());
 			assertEquals(1, startEvents.size());
 
 			return beans;

@@ -11,10 +11,10 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.event;
 
-import static org.eclipse.scanning.api.event.scan.DeviceState.ARMED;
-import static org.eclipse.scanning.api.event.scan.DeviceState.CONFIGURING;
-import static org.eclipse.scanning.api.event.scan.DeviceState.READY;
-import static org.eclipse.scanning.api.event.scan.DeviceState.RUNNING;
+import static org.eclipse.scanning.api.event.status.Status.COMPLETE;
+import static org.eclipse.scanning.api.event.status.Status.PREPARING;
+import static org.eclipse.scanning.api.event.status.Status.RUNNING;
+import static org.eclipse.scanning.api.event.status.Status.SUBMITTED;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -33,10 +33,10 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubscriber;
-import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.IScanListener;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanEvent;
+import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.test.BrokerTest;
 import org.junit.After;
 import org.junit.Test;
@@ -153,24 +153,28 @@ public class AbstractScanEventTest extends BrokerTest {
 		Thread.sleep(500); // The bean should go back and forth in ms anyway
 
 		final List<ScanBean> beansReceived = listener.getBeansReceived();
-		checkReceivedScanBeans(beansReceived, bean.getUniqueId(), CONFIGURING, ARMED, RUNNING, READY);
+		checkReceivedScanBeans(beansReceived, bean.getUniqueId(), SUBMITTED, PREPARING, RUNNING, COMPLETE);
 	}
 
 	private void mimicScan(ScanBean bean) {
 		try {
-			bean.setDeviceState(DeviceState.CONFIGURING);
-				publisher.broadcast(bean);
-
-			bean.setDeviceState(DeviceState.ARMED);
+			bean.setStatus(SUBMITTED);
 			publisher.broadcast(bean);
+			bean.setPreviousStatus(SUBMITTED);
+
+			bean.setStatus(PREPARING);
+			publisher.broadcast(bean);
+			bean.setPreviousStatus(PREPARING);
 
 			for (int i = 0; i < 10; i++) {
-				bean.setDeviceState(DeviceState.RUNNING);
+				bean.setStatus(RUNNING);
+
 				bean.setPercentComplete(i*10);
 				publisher.broadcast(bean);
+				bean.setPreviousStatus(RUNNING);
 			}
 
-			bean.setDeviceState(DeviceState.READY);
+			bean.setStatus(COMPLETE);
 			publisher.broadcast(bean);
 		} catch (EventException e) {
 			throw new RuntimeException(e);
@@ -234,7 +238,7 @@ public class AbstractScanEventTest extends BrokerTest {
 		executors.awaitTermination(1, TimeUnit.SECONDS);
 
 		final List<ScanBean> specificScanBeans = beanSpecificListener.getBeansReceived();
-		checkReceivedScanBeans(specificScanBeans, bean.getUniqueId(), CONFIGURING, ARMED, RUNNING, READY);
+		checkReceivedScanBeans(specificScanBeans, bean.getUniqueId(), SUBMITTED, PREPARING, RUNNING, COMPLETE);
 
 		// the other scan has the same events, so the list of all events should be twice the size
 		assertEquals(specificScanBeans.size() * 2, allScansListeners.getBeansReceived().size());
@@ -243,16 +247,15 @@ public class AbstractScanEventTest extends BrokerTest {
 	private ScanBean createScanBean(String name) {
 		final ScanBean scanBean = new ScanBean();
 		scanBean.setName(name);
-		scanBean.setDeviceState(DeviceState.READY);
 		return scanBean;
 	}
 
-	private void checkReceivedScanBeans(List<ScanBean> scanBeans, String expectedBeanId, DeviceState... expectedStates) {
+	private void checkReceivedScanBeans(List<ScanBean> scanBeans, String expectedBeanId, Status... expectedStates) {
 		assertThat(scanBeans, hasSize(expectedStates.length));
 		for (int i = 0; i < scanBeans.size(); i++) {
 			final ScanBean scanBean = scanBeans.get(i);
 			assertEquals(expectedBeanId, scanBean.getUniqueId());
-			assertEquals(expectedStates[i], scanBean.getDeviceState());
+			assertEquals(expectedStates[i], scanBean.getStatus());
 		}
 	}
 
