@@ -25,16 +25,17 @@
 		<module>org.opengda.lde.model</module>
 		<module>org.opengda.lde.model.edit</module>
 		<module>org.opengda.lde.model.editor</module>
-		<module>org.opengda.lde.model.tests</module>
+		<!-- module>org.opengda.lde.model.tests</module-->
 		<module>org.opengda.lde.ui</module>
 		<module>uk.ac.diamond.daq.beamline.configuration</module>
 		<module>uk.ac.diamond.daq.beamline.configuration.api</module>
-		<module>uk.ac.diamond.daq.beamline.configuration.test</module>
+		<!-- module>uk.ac.diamond.daq.beamline.configuration.test</module-->
 		
 		<module>uk.ac.diamond.daq.client.gui.camera</module>
 		<module>uk.ac.diamond.daq.client.gui.energy</module>
 		<module>uk.ac.diamond.daq.client.gui.energyfocus.editor</module>
 		<module>uk.ac.diamond.daq.client.gui.exitslit.configuration</module>
+		<module>uk.ac.diamond.daq.client.gui.persistence</module>
 		<module>uk.ac.diamond.daq.client.gui.rcpcontroller</module>
 		<module>uk.ac.diamond.daq.detectors.addetector</module>
 		<module>uk.ac.diamond.daq.detectors.addetector.api</module>
@@ -50,27 +51,29 @@
 		<module>uk.ac.diamond.daq.mapping.api</module>
 		<module>uk.ac.diamond.daq.mapping.feature</module>
 		<module>uk.ac.diamond.daq.mapping.standards.ui</module>
-		<module>uk.ac.diamond.daq.mapping.test</module>
+		<!-- module>uk.ac.diamond.daq.mapping.test</module -->
 		<module>uk.ac.diamond.daq.mapping.ui</module>
 
 		<module>uk.ac.diamond.daq.mapping.ui.feature</module>
-		<module>uk.ac.diamond.daq.mapping.ui.test</module>
+		<!-- module>uk.ac.diamond.daq.mapping.ui.test</module -->
 		<module>uk.ac.diamond.daq.mapping.xanes.ui</module>
 		<module>uk.ac.diamond.daq.messaging</module>
-		<module>uk.ac.diamond.daq.messaging.test</module>
+		<!-- module>uk.ac.diamond.daq.messaging.test</module-->
 		<module>uk.ac.diamond.daq.msgbus</module>
-		<module>uk.ac.diamond.daq.msgbus.test</module>
+		<!-- module>uk.ac.diamond.daq.msgbus.test</module-->
 		<module>uk.ac.diamond.daq.persistence</module>
-		<module>uk.ac.diamond.daq.persistence.test</module>
+		<module>uk.ac.diamond.daq.persistence.classloader</module>
+		<module>uk.ac.diamond.daq.persistence.manager</module>
+		<!-- module>uk.ac.diamond.daq.persistence.test</module -->
 		<module>uk.ac.diamond.daq.remotedataset.feature</module>
 		<module>uk.ac.diamond.daq.scm.api</module>
 		<module>uk.ac.diamond.daq.stage</module>
-		<module>uk.ac.diamond.daq.stage.test</module>
+		<!-- module>uk.ac.diamond.daq.stage.test</module -->
 		<module>uk.ac.diamond.scisoft.gda.feature</module>
 		<module>uk.ac.gda.analysis</module>
-		<module>uk.ac.gda.analysis.test</module>
+		<!-- module>uk.ac.gda.analysis.test</module -->
 		<module>uk.ac.gda.api</module>
-		<module>uk.ac.gda.api.test</module>
+		<!-- module>uk.ac.gda.api.test</module -->
 		<module>uk.ac.gda.beamline.synoptics</module>
 		<module>uk.ac.gda.client</module>
 		<module>uk.ac.gda.client.closeactions</module>
@@ -80,7 +83,7 @@
 		<module>uk.ac.gda.client.live.stream</module>
 		<module>uk.ac.gda.client.ncd</module>
 		<module>uk.ac.gda.client.ncd.feature</module>
-		<module>uk.ac.gda.client.test</module>
+		<!-- module>uk.ac.gda.client.test</module -->
 		<module>uk.ac.gda.common.client</module>
 		<module>uk.ac.gda.core</module>
 		<!-- 
@@ -96,11 +99,11 @@
 		<module>uk.ac.gda.example.feature</module>
 		<module>uk.ac.gda.example.server</module>
 		<module>uk.ac.gda.example.site</module>
-		<module>uk.ac.gda.example.test</module>
+		<!-- module>uk.ac.gda.example.test</module -->
 		<module>uk.ac.gda.logging.dependencies.fragment</module>
 		<module>uk.ac.gda.server.ncd</module>
 		<module>uk.ac.gda.server.ncd.epics</module>
-		<module>uk.ac.gda.server.ncd.test</module>
+		<!--module>uk.ac.gda.server.ncd.test</module-->
 		<module>uk.ac.gda.xmleditor.feature</module>
 
 	</modules>
