@@ -19,7 +19,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 <module>uk.ac.diamond.tomography.reconstruction.feature</module>
 <module>uk.ac.diamond.tomography.reconstruction.parameters</module>
 <module>uk.ac.diamond.tomography.reconstruction.parameters.edit</module>
-<module>uk.ac.diamond.tomography.reconstruction.test</module>
+<!-- module>uk.ac.diamond.tomography.reconstruction.test</module -->
 <module>uk.ac.gda.client.tomo</module>
 <module>uk.ac.gda.client.tomo.feature</module>
 <!-- Requires com.windowtester.swt.runtime  which is not available
@@ -28,8 +28,8 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 <module>uk.ac.gda.tomography</module>
 <module>uk.ac.gda.tomography.scan</module>
 <module>uk.ac.gda.tomography.scan.editor</module>
-<module>uk.ac.gda.tomography.scan.tests</module>
-<module>uk.ac.gda.tomography.test</module>
+<!-- module>uk.ac.gda.tomography.scan.tests</module -->
+<!-- module>uk.ac.gda.tomography.test</module -->
 
 </modules>
 </project>
