@@ -15,6 +15,6 @@
 
 	<modules>
 		<module>uk.ac.gda.nexus</module>
-		<module>uk.ac.gda.nexus.test</module>
+		<!-- module>uk.ac.gda.nexus.test</module -->
 	</modules>
 </project>
