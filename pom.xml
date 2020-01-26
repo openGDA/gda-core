@@ -15,17 +15,17 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 
 <modules>
 <module>uk.ac.gda.devices.bssc</module>
-<module>uk.ac.gda.devices.bssc.test</module>
+<!-- module>uk.ac.gda.devices.bssc.test</module -->
 <module>uk.ac.gda.devices.bssc.ui</module>
 <module>uk.ac.gda.devices.cirrus</module>
 <module>uk.ac.gda.devices.excalibur</module>
-<module>uk.ac.gda.devices.excalibur.test</module>
+<!-- module>uk.ac.gda.devices.excalibur.test</module -->
 <module>uk.ac.gda.devices.hatsaxs</module>
 <module>uk.ac.gda.devices.hatsaxs.ui</module>
 <module>uk.ac.gda.devices.hplc</module>
 <module>uk.ac.gda.devices.hplc.ui</module>
 <module>uk.ac.gda.devices.mythen</module>
-<module>uk.ac.gda.devices.mythen.test</module>
+<!-- module>uk.ac.gda.devices.mythen.test</module -->
 <module>uk.ac.gda.devices.mythen.visualisation</module>
 <module>uk.ac.gda.devices.pco</module>
 <module>uk.ac.gda.devices.pixium</module>
