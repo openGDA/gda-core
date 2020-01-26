@@ -15,7 +15,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 
 <modules>
 <module>uk.ac.gda.common.rcp</module>
-<module>uk.ac.gda.common.rcp.test</module>
+<!-- module>uk.ac.gda.common.rcp.test</module -->
 <module>uk.ac.gda.lookuptable.editor</module>
 
 </modules>
