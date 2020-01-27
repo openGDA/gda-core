@@ -122,4 +122,10 @@ public class ConfigWrapper {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "ConfigWrapper [active=" + active + ", name=" + name + ", pathToConfig=" + pathToConfig
+				+ ", malcolmDeviceName=" + malcolmDeviceName + ", appName=" + appName + "]";
+	}
 }
