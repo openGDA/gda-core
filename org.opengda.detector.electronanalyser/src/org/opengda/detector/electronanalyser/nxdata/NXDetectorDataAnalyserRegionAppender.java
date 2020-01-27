@@ -6,7 +6,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
+import gda.data.scan.datawriter.NexusDataWriter;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
@@ -25,16 +27,34 @@ public class NXDetectorDataAnalyserRegionAppender implements NXDetectorDataAppen
 	// region name
 	private List<INexusTree> regionDataList;
 	private Logger logger = LoggerFactory.getLogger(NXDetectorDataAnalyserRegionAppender.class);
-	private List<Double> totalIntensity=new ArrayList<Double>();
+	private List<Double> totalIntensity=new ArrayList<>();
+	List<String> regionList;
+	private boolean isFirstPoint = true;
 
-	public NXDetectorDataAnalyserRegionAppender(List<INexusTree> regionDataList, List<Double> totalIntensity) {
+	public NXDetectorDataAnalyserRegionAppender(List<INexusTree> regionDataList, List<Double> totalIntensity, List<String> regionList) {
 		this.regionDataList = regionDataList;
 		this.totalIntensity = totalIntensity;
+		this.regionList = regionList;
 	}
 
 	@Override
 	public void appendTo(NXDetectorData data, String detectorName)
 			throws DeviceException {
+
+		if (isFirstPoint) {
+			writeRegionList(data, detectorName);
+			isFirstPoint = false;
+		}
+
+		writeRegionData(data);
+	}
+
+	private void writeRegionList(NXDetectorData data, String detectorName) {
+		NexusGroupData regionListData = new NexusGroupData(NexusGroupData.MAX_TEXT_LENGTH, regionList.stream().toArray(String[]::new));
+		data.addElement(detectorName, "region_list", regionListData, null, false);
+	}
+
+	private void writeRegionData(NXDetectorData data) {
 		synchronized (regionDataList) {
 			for (int i = 0; i < regionDataList.size(); i++) {
 				INexusTree regiontree=regionDataList.get(i);

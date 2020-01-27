@@ -331,9 +331,10 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 			}
 			appenders.add(new NXDetectorDataFilenamesAppender(getRegionNames(), extraValues, copyoftotalintensity));
 		} else {
-			appenders.add(new NXDetectorDataAnalyserRegionAppender(copyofregiondatalist, copyoftotalintensity));
+			appenders.add(new NXDetectorDataAnalyserRegionAppender(copyofregiondatalist, copyoftotalintensity, getRegionNames()));
 			called=true;
 		}
+
 		return appenders;
 	}
 
