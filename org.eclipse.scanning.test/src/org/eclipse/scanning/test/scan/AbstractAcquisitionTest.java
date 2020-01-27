@@ -34,11 +34,11 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
-import org.eclipse.scanning.api.points.models.AxialStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
@@ -131,7 +131,8 @@ public abstract class AbstractAcquisitionTest {
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 		models.add(gmodel);
 
-		IPointGenerator<?> gen = ServiceTestHelper.getPointGeneratorService().createCompoundGenerator(new CompoundModel(models));
+		final CompoundModel compoundModel = new CompoundModel(models);
+		final IPointGenerator<?> gen = ServiceTestHelper.getPointGeneratorService().createCompoundGenerator(compoundModel);
 
 		if (dmodel!=null) {
 			AnnotationManager manager = new AnnotationManager(Activator.createResolver());
@@ -151,21 +152,22 @@ public abstract class AbstractAcquisitionTest {
 		}
 
 		// Create the model for a scan.
-		final ScanModel  smodel = new ScanModel();
-		smodel.setPointGenerator(gen);
-        smodel.setFilePath(filePath);
+		final ScanModel  scanModel = new ScanModel();
+		scanModel.setPointGenerator(gen);
+		scanModel.setScanPathModel(compoundModel);
+        scanModel.setFilePath(filePath);
 
 		if (device==null) device = (IRunnableDevice<T>)detector;
-		smodel.setDetectors(device);
-		smodel.setMonitorsPerPoint(monitorPerPoint);
-		smodel.setMonitorsPerScan(monitorPerScan);
-		smodel.setBean(new ScanBean());
+		scanModel.setDetectors(device);
+		scanModel.setMonitorsPerPoint(monitorPerPoint);
+		scanModel.setMonitorsPerScan(monitorPerScan);
+		scanModel.setBean(new ScanBean());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = ServiceTestHelper.getRunnableDeviceService().createRunnableDevice(smodel, null, false);
-		IDeviceController controller = ServiceTestHelper.getDeviceWatchdogService().create((IPausableDevice<?>)scanner, smodel.getBean());
-		smodel.setAnnotationParticipants(controller.getObjects());
-		scanner.configure(smodel);
+		IRunnableDevice<ScanModel> scanner = ServiceTestHelper.getRunnableDeviceService().createRunnableDevice(scanModel, null, false);
+		IDeviceController controller = ServiceTestHelper.getDeviceWatchdogService().create((IPausableDevice<?>)scanner, scanModel.getBean());
+		scanModel.setAnnotationParticipants(controller.getObjects());
+		scanner.configure(scanModel);
 
 		return controller;
 	}
