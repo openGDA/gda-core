@@ -203,7 +203,7 @@ public class LivePlottingComposite extends Composite {
 			// plottingSystem.setKeepAspect(false);
 			// Disable auto rescale as the live stream is constantly refreshing
 			plottingSystem.setRescale(false);
-			if (this.liveStreamConnection.isConnected()) {
+			if (this.liveStreamConnection != null && this.liveStreamConnection.isConnected()) {
 				activatePlottingSystem();
 			}
 		} catch (Exception e) {
