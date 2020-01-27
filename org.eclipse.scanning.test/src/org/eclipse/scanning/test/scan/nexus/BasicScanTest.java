@@ -21,6 +21,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 import java.util.List;
@@ -37,6 +38,7 @@ import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetUtils;
+import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
@@ -209,14 +211,14 @@ public class BasicScanTest extends NexusTest {
 			assertNotNull(dataNode);
 			dataset = DatasetUtils.sliceAndConvertLazyDataset(dataNode.getDataset());
 			assertEquals(1, dataset.getSize());
-			assertEquals(Dataset.FLOAT64, dataset.getDType());
+			assertTrue(dataset instanceof DoubleDataset);
 			assertEquals(10.0, dataset.getElementDoubleAbs(0), 1e-15);
 
 			dataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
 			assertNotNull(dataNode);
 			dataset = DatasetUtils.sliceAndConvertLazyDataset(dataNode.getDataset());
 			assertEquals(1, dataset.getSize());
-			assertEquals(Dataset.FLOAT64, dataset.getDType());
+			assertTrue(dataset instanceof DoubleDataset);
 			assertEquals(10.0, dataset.getElementDoubleAbs(0), 1e-15);
 		}
 	}

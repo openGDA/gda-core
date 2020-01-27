@@ -47,10 +47,10 @@ import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NXsample;
 import org.eclipse.dawnsci.nexus.NXuser;
-import org.eclipse.january.dataset.DTypeUtils;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.InterfaceUtils;
 import org.eclipse.january.dataset.PositionIterator;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
@@ -60,9 +60,9 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
-import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
@@ -192,8 +192,7 @@ public class ScanMetadataTest extends NexusTest {
 				Dataset dataset = DatasetUtils.convertToDataset(object.getDataset(metadataFieldName));
 				assertNotNull(dataset);
 				assertEquals(1, dataset.getSize());
-				assertEquals(DTypeUtils.getDTypeFromObject(expectedValue),
-						dataset.getDType());
+				assertTrue(InterfaceUtils.getInterface(expectedValue).isInstance(dataset));
 				assertEquals(expectedValue, dataset.getObjectAbs(0));
 			}
 		}

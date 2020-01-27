@@ -51,14 +51,21 @@ import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.january.DatasetException;
-import org.eclipse.january.dataset.DTypeUtils;
+import org.eclipse.january.dataset.BooleanDataset;
+import org.eclipse.january.dataset.ByteDataset;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DatasetUtils;
+import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.january.dataset.FloatDataset;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.january.dataset.IndexIterator;
+import org.eclipse.january.dataset.IntegerDataset;
+import org.eclipse.january.dataset.LongDataset;
 import org.eclipse.january.dataset.PositionIterator;
+import org.eclipse.january.dataset.ShortDataset;
+import org.eclipse.january.dataset.StringDataset;
 
 /**
  *
@@ -420,7 +427,7 @@ public class NexusAssert {
 		} catch (DatasetException e) {
 			throw new AssertionError("Could not get data from lazy dataset", e);
 		}
-		assertEquals(Dataset.INT32, DTypeUtils.getDType(dataset));
+		assertTrue(dataset instanceof IntegerDataset);
 		assertEquals(sizes.length, dataset.getRank());
 		final int[] shape = dataset.getShape();
 		assertArrayEquals(sizes, shape);
@@ -516,7 +523,7 @@ public class NexusAssert {
 		} catch (DatasetException e) {
 			throw new AssertionError("Could not get data from lazy dataset", e);
 		}
-		assertEquals(Dataset.INT32, DTypeUtils.getDType(dataset)); // HDF5 doesn't support boolean datasets
+		assertTrue(dataset instanceof IntegerDataset); // HDF5 doesn't support boolean datasets
 		assertEquals(1, dataset.getRank());
 		assertArrayEquals(new int[] {1}, dataset.getShape());
 		assertEquals(finished, dataset.getBoolean(0));
@@ -613,38 +620,44 @@ public class NexusAssert {
 				throw new AssertionError("Could not get data from lazy dataset", e.getCause());
 			}
 
-			final int datatype = DTypeUtils.getDType(actualDataset);
 			PositionIterator positionIterator = new PositionIterator(actualDataset.getShape());
-			while (positionIterator.hasNext()) {
-				int[] position = positionIterator.getPos();
-				switch (datatype) {
-				case Dataset.BOOL:
+			int[] position = positionIterator.getPos();
+
+			if (expectedSlice instanceof BooleanDataset) {
+				while (positionIterator.hasNext()) {
 					assertEquals(path, expectedSlice.getBoolean(position), actualSlice.getBoolean(position));
-					break;
-				case Dataset.INT8:
+				}
+			} else if (expectedSlice instanceof ByteDataset) {
+				while (positionIterator.hasNext()) {
 					assertEquals(path, expectedSlice.getByte(position), actualSlice.getByte(position));
-					break;
-				case Dataset.INT32:
+				}
+			} else if (expectedSlice instanceof ShortDataset) {
+				while (positionIterator.hasNext()) {
+					assertEquals(path, expectedSlice.getShort(position), actualSlice.getShort(position));
+				}
+			} else if (expectedSlice instanceof IntegerDataset) {
+				while (positionIterator.hasNext()) {
 					assertEquals(path, expectedSlice.getInt(position), actualSlice.getInt(position));
-					break;
-				case Dataset.INT64:
+				}
+			} else if (expectedSlice instanceof LongDataset) {
+				while (positionIterator.hasNext()) {
 					assertEquals(path, expectedSlice.getLong(position), actualSlice.getLong(position));
-					break;
-				case Dataset.FLOAT32:
+				}
+			} else if (expectedSlice instanceof FloatDataset) {
+				while (positionIterator.hasNext()) {
 					assertEquals(path, expectedSlice.getFloat(position), actualSlice.getFloat(position), 1e-7);
-					break;
-				case Dataset.FLOAT64:
+				}
+			} else if (expectedSlice instanceof DoubleDataset) {
+				while (positionIterator.hasNext()) {
 					assertEquals(path, expectedSlice.getDouble(position), actualSlice.getDouble(position), 1e-15);
-					break;
-				case Dataset.STRING:
-				case Dataset.DATE:
+				}
+			} else if (expectedSlice instanceof StringDataset) {
+				while (positionIterator.hasNext()) {
 					assertEquals(path, expectedSlice.getString(position), actualSlice.getString(position));
-					break;
-				case Dataset.COMPLEX64:
-				case Dataset.COMPLEX128:
-				case Dataset.OBJECT:
+				}
+			} else {
+				while (positionIterator.hasNext()) {
 					assertEquals(path, expectedSlice.getObject(position), actualSlice.getObject(position));
-					break;
 				}
 			}
 		}

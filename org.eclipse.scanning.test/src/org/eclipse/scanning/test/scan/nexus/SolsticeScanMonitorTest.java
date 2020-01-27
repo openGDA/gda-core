@@ -56,12 +56,12 @@ import org.eclipse.dawnsci.nexus.builder.AbstractNexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.IMonitor;
-import org.eclipse.january.dataset.DTypeUtils;
-import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
+import org.eclipse.january.dataset.IntegerDataset;
 import org.eclipse.january.dataset.SliceND;
+import org.eclipse.january.dataset.StringDataset;
 import org.eclipse.january.io.ILazySaver;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -536,7 +536,7 @@ public class SolsticeScanMonitorTest {
 		assertNotNull(writtenToScanFinishedData);
 		assertEquals(0, writtenToScanFinishedData.getRank());
 		assertArrayEquals(new int[0], writtenToScanFinishedData.getShape());
-		assertEquals(Dataset.INT, DTypeUtils.getDType(writtenToScanFinishedData));
+		assertTrue(writtenToScanFinishedData instanceof IntegerDataset);
 		assertEquals(1, writtenToScanFinishedData.getInt());
 
 		// check data written to actual time dataset
@@ -544,7 +544,7 @@ public class SolsticeScanMonitorTest {
 		assertNotNull(writtenToActualTimeDataset);
 		assertEquals(0, writtenToActualTimeDataset.getRank());
 		assertArrayEquals(new int[0], writtenToActualTimeDataset.getShape());
-		assertEquals(Dataset.STRING, DTypeUtils.getDType(writtenToActualTimeDataset));
+		assertTrue(writtenToActualTimeDataset instanceof StringDataset);
 
 		DateTimeFormatter formatter = new DateTimeFormatterBuilder().
 				appendPattern("HH:mm:ss").appendFraction(ChronoField.NANO_OF_SECOND, 3, 3, true).toFormatter();
@@ -556,14 +556,14 @@ public class SolsticeScanMonitorTest {
 		assertNotNull(writtenToActualTimeDataset);
 		assertEquals(0, writtenToActualTimeDataset.getRank());
 		assertArrayEquals(new int[0], writtenToDeadTimeDataset.getShape());
-		assertEquals(Dataset.STRING, DTypeUtils.getDType(writtenToDeadTimeDataset));
+		assertTrue(writtenToDeadTimeDataset instanceof StringDataset);
 
 		// check data written to dead time percent dataset
 		IDataset writtenToDeadTimePercentDataset = deadTimePercentSaver.getLastWrittenData();
 		assertNotNull(writtenToDeadTimePercentDataset);
 		assertEquals(0, writtenToDeadTimePercentDataset.getRank());
 		assertArrayEquals(new int[0], writtenToDeadTimePercentDataset.getShape());
-		assertEquals(Dataset.STRING, DTypeUtils.getDType(writtenToDeadTimePercentDataset));
+		assertTrue(writtenToDeadTimePercentDataset instanceof StringDataset);
 
 		// check data written to unique keys dataset
 		IDataset writtenToUniqueKeysData = uniqueKeysSaver.getLastWrittenData();
@@ -571,7 +571,7 @@ public class SolsticeScanMonitorTest {
 		int[] expectedShape = new int[scanInfo.getRank()];
 		Arrays.fill(expectedShape, 1);
 		assertArrayEquals(writtenToUniqueKeysData.getShape(), expectedShape);
-		assertEquals(Dataset.INT, DTypeUtils.getDType(writtenToUniqueKeysData));
+		assertTrue(writtenToUniqueKeysData instanceof IntegerDataset);
 		int[] valuePos = new int[scanRank]; // all zeros
 		assertEquals(stepIndex + 1, writtenToUniqueKeysData.getInt(valuePos));
 
