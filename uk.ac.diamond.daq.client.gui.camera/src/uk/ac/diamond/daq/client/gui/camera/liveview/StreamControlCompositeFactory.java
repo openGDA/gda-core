@@ -2,6 +2,7 @@ package uk.ac.diamond.daq.client.gui.camera.liveview;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -66,14 +67,8 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 				ClientMessages.START_STREAM, ClientMessages.START_STREAM);
 		streamActivationButton.setData(ClientMessages.START_STREAM);
 
-		// initialises the state
-		UUID rootUUID = ClientSWTElements.findParentUUID(parent);
-		streamController = new StreamController(new StreamControlData(comboItems.get(0), StreamType.EPICS_ARRAY), rootUUID);
-		// initialises the camera combo
-		cameraCombo.select(0);
-		// initialises the streamType combo
-		streamTypeCombo
-				.select(Arrays.binarySearch(StreamType.values(), streamController.getControlData().getStreamType()));
+		// initialise composite
+		initialiseComposite(parent);
 
 		// add listeners
 		cameraCombo.addListener(SWT.Selection, this::changeStreamController);
@@ -81,6 +76,17 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 		streamActivationButton.addListener(SWT.Selection, this::changeStreamState);
 
 		return streamControlArea;
+	}
+
+	private void initialiseComposite(Composite parent) {
+		// initialises the state
+		UUID rootUUID = ClientSWTElements.findParentUUID(parent);
+		streamController = new StreamController(new StreamControlData(comboItems.get(0), StreamType.EPICS_ARRAY),
+				rootUUID);
+		// initialises the camera combo
+		cameraCombo.select(0);
+		// initialises the streamType combo
+		initCameraCombo(0);
 	}
 
 	private String[] getCameras() {
@@ -104,7 +110,6 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 			handleException(ex);
 		}
 		updateStreamActivationButton();
-
 	}
 
 	private void changeStreamState(Event e) {
@@ -123,8 +128,20 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 	}
 
 	private void updateStreamController() {
+		// Changes camera
+		if (streamController.getControlData().getCamera().getIndex() != cameraCombo.getSelectionIndex()) {
+			initCameraCombo(cameraCombo.getSelectionIndex());
+		}
 		streamController.setControlData(new StreamControlData(comboItems.get(cameraCombo.getSelectionIndex()),
 				StreamType.values()[streamTypeCombo.getSelectionIndex()]));
+	}
+
+	private void initCameraCombo(int cameraIndex) {
+		streamTypeCombo.removeAll();
+		CameraHelper.getCameraStreamTypes(cameraIndex).forEach(type -> streamTypeCombo.add(type.toString()));
+		if (streamTypeCombo.getItemCount() > 0) {
+			streamTypeCombo.select(0);
+		}
 	}
 
 	private void updateStreamActivationButton() {

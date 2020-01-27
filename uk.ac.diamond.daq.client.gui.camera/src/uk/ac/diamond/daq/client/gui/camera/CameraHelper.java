@@ -19,6 +19,7 @@ import uk.ac.diamond.daq.client.gui.camera.controller.ImagingCameraConfiguration
 import uk.ac.diamond.daq.client.gui.camera.properties.CameraPropertiesBuilder;
 import uk.ac.diamond.daq.client.gui.camera.properties.MotorPropertiesBuilder;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
+import uk.ac.gda.client.live.stream.view.StreamType;
 import uk.ac.gda.client.properties.CameraProperties;
 import uk.ac.gda.client.properties.MotorProperties;
 
@@ -109,6 +110,10 @@ public final class CameraHelper {
 		return cameraControllers.get(activeCamera);
 	}
 
+	public static List<StreamType> getCameraStreamTypes(int cameraIndex) {
+		return getCameraConfiguration(cameraIndex).cameraStreamTypes();
+	}
+	
 	public static List<CameraComboItem> getCameraComboItems() {
 		return Collections.unmodifiableList(cameraComboItems);
 	}
