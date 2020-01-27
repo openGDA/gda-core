@@ -83,7 +83,7 @@ import gda.jython.completion.AutoCompletion;
 import gda.jython.completion.TextCompleter;
 import gda.jython.completion.impl.JythonCompleter;
 import gda.jython.logging.PythonException;
-import gda.jython.server.JlineSshServer;
+import gda.jython.server.GdaSshServer;
 import gda.jython.translator.Translator;
 import gda.messages.InMemoryMessageHandler;
 import gda.messages.MessageHandler;
@@ -268,7 +268,8 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 			// open a socket for communication, if a port has been defined - not during reset_namespace
 			if (atStartup) {
 				if (sshPort != -1) {
-					JlineSshServer.runServer(sshPort);
+					Runnable shutdown = GdaSshServer.runServer(sshPort);
+					Runtime.getRuntime().addShutdownHook(new Thread(shutdown));
 				}
 				atStartup = false;
 			}

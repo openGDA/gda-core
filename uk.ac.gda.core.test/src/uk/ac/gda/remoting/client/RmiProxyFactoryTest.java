@@ -126,6 +126,7 @@ public class RmiProxyFactoryTest {
 		// Make object under test
 		rmiProxyFactory = new RmiProxyFactory();
 		rmiProxyFactory.configure();
+		Finder.getInstance().addFactory(rmiProxyFactory);
 	}
 
 	@After

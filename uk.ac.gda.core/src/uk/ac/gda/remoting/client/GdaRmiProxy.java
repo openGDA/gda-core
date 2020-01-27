@@ -18,7 +18,6 @@
 
 package uk.ac.gda.remoting.client;
 
-import java.util.Map;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -27,10 +26,8 @@ import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.FactoryBeanNotInitializedException;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
-import gda.factory.FactoryException;
+import gda.factory.Finder;
 
 /**
  * This is a convenience class for importing remote objects over RMI into the client side Spring context. It works using
@@ -54,10 +51,9 @@ import gda.factory.FactoryException;
  * @since GDA 9.8
  * @author James Mudd
  */
-public class GdaRmiProxy implements ApplicationContextAware, BeanNameAware, FactoryBean<Object>, InitializingBean {
+public class GdaRmiProxy implements BeanNameAware, FactoryBean<Object>, InitializingBean {
 	private static final Logger logger = LoggerFactory.getLogger(GdaRmiProxy.class);
 
-	private ApplicationContext applicationContext;
 	private String name;
 	private Object object;
 
@@ -67,45 +63,17 @@ public class GdaRmiProxy implements ApplicationContextAware, BeanNameAware, Fact
 	}
 
 	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) {
-		this.applicationContext = applicationContext;
-	}
-
-	@Override
 	public void afterPropertiesSet() throws Exception {
 		// Check state, should be ensured by Spring
-		Objects.requireNonNull(applicationContext, "applicationContext not set");
 		Objects.requireNonNull(name, "name not set");
 
 		// Get the actual proxy object
-		object = getRmiProxyFactory().getFindable(name);
+		object = Finder.getInstance().find(name);
 		// If it can't be imported throw
 		Objects.requireNonNull(object,
 				String.format("Could not import '%s' - are you sure it is exported from the server?", name));
 
 		logger.debug("Imported '{}' (Proxy={})", name, object);
-	}
-
-	/**
-	 * Gets the {@link RmiProxyFactory} from the context, and ensures only one is present. It also ensures the RmiProxyFactory
-	 * is configured before returning it.
-	 *
-	 * @return the RmiProxyFactory
-	 * @throws FactoryException
-	 *             If configuring the RmiProxyFactory fails
-	 */
-	private RmiProxyFactory getRmiProxyFactory() throws FactoryException {
-		// DAQ-1945 Don't allow allow eager initialisation when searching the context for the RmiProxyFactory
-		final Map<String, RmiProxyFactory> rmiProxyFactories = applicationContext.getBeansOfType(RmiProxyFactory.class, false, false);
-		if (rmiProxyFactories.size() != 1) {
-			throw new IllegalStateException("No " + RmiProxyFactory.class.getSimpleName() + " is avaliable. Is one created in your config?");
-		}
-		// Only one thing in the map and we don't care about the id.
-		final RmiProxyFactory rmiProxyFactory = rmiProxyFactories.values().iterator().next();
-		// Ensure it's configured
-		rmiProxyFactory.configure();
-		logger.trace("Got rmiProxyFactory '{}'", rmiProxyFactory);
-		return rmiProxyFactory;
 	}
 
 	@Override

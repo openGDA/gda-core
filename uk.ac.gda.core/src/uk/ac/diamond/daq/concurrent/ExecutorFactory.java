@@ -18,11 +18,13 @@
 
 package uk.ac.diamond.daq.concurrent;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.UnaryOperator;
 
 /**
  * An {@link ExecutorService} factory to complement the Java {@link Executors} factory methods
@@ -148,4 +150,43 @@ public final class ExecutorFactory {
 	public static ScheduledExecutorService scheduled(int poolSize) {
 		return scheduled(poolSize, DEFAULT_THREAD_POOL_TEMPLATE, poolCounter.getAndIncrement());
 	}
+
+	/**
+	 * Wrap an {@link ExecutorService} so that every task is wrapped before being submitted.
+	 * @param <T> The type of the ExecutorService to be wrapped.
+	 * @param service The ExecutorService that will actually run all tasks.
+	 * @param wrapper A function to wrap Callables. Runnable tasks are wrapped as Callables
+	 * before being passed to the same function (See {@link Executors#callable(Runnable)}.
+	 *
+	 * @return An ExecutorService that wraps tasks before running them.
+	 */
+	public static <T extends ExecutorService> ExecutorWrappers.ExecutorWrapper<T> wrap(T service, UnaryOperator<Callable<?>> wrapper) {
+		return new ExecutorWrappers.ExecutorWrapper<T>(service) {
+			@SuppressWarnings("unchecked")
+			@Override
+			<U> Callable<U> wrapCallable(Callable<U> task) {
+				return (Callable<U>) wrapper.apply(task);
+			}
+		};
+	}
+
+	/**
+	 * Wrap a {@link ScheduledExecutorService} so that every task is wrapped before being submitted.
+	 * @param <T> The type of the {@link ScheduledExecutorService} to be wrapped.
+	 * @param service The ExecutorService that will actually run all tasks.
+	 * @param wrapper A function to wrap Callables. Runnable tasks are wrapped as Callables
+	 * before being passed to the same function (See {@link Executors#callable(Runnable)}.
+	 *
+	 * @return A ScheduledExecutorService that wraps tasks before running them.
+	 */
+	public static <T extends ScheduledExecutorService> ExecutorWrappers.ScheduleExecutorWrapper<T> wrap(T service, UnaryOperator<Callable<?>> wrapper) {
+		return new ExecutorWrappers.ScheduleExecutorWrapper<T>(service) {
+			@SuppressWarnings("unchecked")
+			@Override
+			<U> Callable<U> wrapCallable(Callable<U> task) {
+				return (Callable<U>) wrapper.apply(task);
+			}
+		};
+	}
+
 }

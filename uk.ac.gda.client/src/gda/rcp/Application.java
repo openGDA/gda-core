@@ -50,6 +50,7 @@ import gda.rcp.util.UIScanDataPointEventService;
 import gda.util.SpringObjectServer;
 import gda.util.logging.LogbackUtils;
 import uk.ac.gda.preferences.PreferenceConstants;
+import uk.ac.gda.remoting.client.RmiProxyFactory;
 import uk.ac.gda.richbeans.BeansFactoryInit;
 import uk.ac.gda.ui.dialog.AuthenticationDialog;
 import uk.ac.gda.ui.dialog.GenericDialog;
@@ -83,6 +84,7 @@ public class Application implements IApplication {
 			}
 
 
+			Finder.getInstance().addFactory(new RmiProxyFactory());
 			// Start watchdog checking whether the server can be reached.
 			if(!serverAvailableWatchdog.startServerAvailableWatchdog()) {
 				// Could not connect to the server - dialog has been displayed to the user.
@@ -497,8 +499,6 @@ public class Application implements IApplication {
 		if (!started) {
 			String gda_gui_beans = LocalProperties.get(LocalProperties.GDA_GUI_BEANS_XML, LocalProperties.get(LocalProperties.GDA_GUI_XML));
 			if (gda_gui_beans != null) {
-				// remove existing factories first
-				Finder.getInstance().removeAllFactories();
 				SpringObjectServer s = new SpringObjectServer(new File(gda_gui_beans));
 				s.configure();
 			}

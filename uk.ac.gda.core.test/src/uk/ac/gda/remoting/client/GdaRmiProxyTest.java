@@ -26,28 +26,21 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.FactoryBeanNotInitializedException;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import gda.device.Scannable;
+import gda.factory.Finder;
 
 public class GdaRmiProxyTest {
 
 	// Class under test
 	private GdaRmiProxy gdaRmiProxy;
-
-	@Mock
-	private ApplicationContext applicationContext;
 
 	@Mock
 	private RmiProxyFactory rmiProxyFactory;
@@ -56,40 +49,19 @@ public class GdaRmiProxyTest {
 	public void setUp() throws Exception {
 		gdaRmiProxy = new GdaRmiProxy();
 		MockitoAnnotations.initMocks(this);
+		Finder.getInstance().removeAllFactories();
+		Finder.getInstance().addFactory(rmiProxyFactory);
 	}
 
 	@Test(expected=NullPointerException.class)
 	public void testExceptionThrownIfNameIsNotSet() throws Exception {
-		gdaRmiProxy.setApplicationContext(applicationContext);
 		// Should throw NPE
-		gdaRmiProxy.afterPropertiesSet();
-	}
-
-	@Test(expected=NullPointerException.class)
-	public void testExceptionThrownIfApplicationContextIsNotSet() throws Exception {
-		gdaRmiProxy.setBeanName("test");
-		// Should throw NPE
-		gdaRmiProxy.afterPropertiesSet();
-	}
-
-	@Test(expected=IllegalStateException.class)
-	public void testExceptionThrownWhenNoRmiProxyFactoryIsInContext() throws Exception {
-		gdaRmiProxy.setApplicationContext(applicationContext);
-		gdaRmiProxy.setBeanName("test");
-
-		when(applicationContext.getBeansOfType(RmiProxyFactory.class)).thenReturn(Collections.emptyMap());
-		// Should throw IllegalStateException
 		gdaRmiProxy.afterPropertiesSet();
 	}
 
 	@Test
 	public void testGettingObjectWorks() throws Exception {
-		gdaRmiProxy.setApplicationContext(applicationContext);
 		gdaRmiProxy.setBeanName("test");
-
-		final Map<String, RmiProxyFactory> appContextMap = new HashMap<>();
-		appContextMap.put("rmiProxyFactoryName", rmiProxyFactory);
-		when(applicationContext.getBeansOfType(RmiProxyFactory.class, false, false)).thenReturn(appContextMap);
 
 		final Scannable mockScannable = mock(Scannable.class);
 		when(rmiProxyFactory.getFindable("test")).thenReturn(mockScannable);
