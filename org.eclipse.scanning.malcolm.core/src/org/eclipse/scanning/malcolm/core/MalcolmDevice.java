@@ -399,7 +399,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 			}
 			return defaultDetectorsTable.stream().map(this::malcolmTableRowToDetectorInfo).collect(
 					toMap(MalcolmDetectorInfo::getName, Function.identity(), (x, y) -> x, LinkedHashMap::new));
-		} catch (MalcolmDeviceException e) {
+		} catch (Exception e) { // catch all exceptions in case of NullPointerException if malcolm isn't configured correctly
 			logger.error("Error getting malcolm detectors", e);
 			return new LinkedHashMap<>();
 		}
