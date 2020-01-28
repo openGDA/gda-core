@@ -11,17 +11,36 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.points;
 
-import org.eclipse.scanning.api.points.models.AbstractPointsModel;
+import java.beans.PropertyChangeListener;
 
-public class TestGeneratorModel extends AbstractPointsModel {
+import org.eclipse.scanning.api.points.models.IScanPathModel;
+
+public class TestGeneratorModel implements IScanPathModel {
+
+	private String name;
 
 	public TestGeneratorModel() {
 		setName("Test");
 	}
 
 	@Override
-	public int size() {
-		return 1;
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		// TODO Auto-generated method stub
 	}
 
 }

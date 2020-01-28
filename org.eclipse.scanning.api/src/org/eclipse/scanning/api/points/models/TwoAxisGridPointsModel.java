@@ -96,11 +96,4 @@ public class TwoAxisGridPointsModel extends AbstractTwoAxisGridModel {
 		return getClass().getSimpleName() + " [xAxisPoints=" + xAxisPoints + ", yAxisPoints=" + yAxisPoints + ", " + super.toString() + "]";
 	}
 
-	@Override
-	public int[] shape() {
-		int[] shape = new int[2];
-		shape[0] = isVerticalOrientation() ? xAxisPoints : yAxisPoints;
-		shape[1] = isVerticalOrientation() ? yAxisPoints : xAxisPoints;
-		return shape;
-	}
 }

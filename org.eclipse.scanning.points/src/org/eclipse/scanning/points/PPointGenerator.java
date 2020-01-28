@@ -16,20 +16,19 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.eclipse.scanning.api.points;
+package org.eclipse.scanning.points;
 
 import java.util.List;
+
+import org.eclipse.scanning.api.points.IPosition;
 
 /**
  * Interface for [Jython] CompoundGenerator, itself wrapped by [Java] IPointGenerator.
  * Additionally passes information about shape/rank/size/dimensions of the scan from the [Jython] generator.
  * <em>Note:</em> This class is an implementation class and should not be used outside the scanning framework
  *
- * The Jython implementation additionally inherits PySerializable within the jython_spg_interface
  */
-public interface PPointGenerator {
-
-	public ScanPointIterator getPointIterator();
+public interface PPointGenerator extends Iterable<IPosition>, PySerializable {
 
 	/**
 	 * @return the number of points iterated over by this iterator.
@@ -51,11 +50,6 @@ public interface PPointGenerator {
 	public int getRank();
 
 	/**
-	 * @return index of the next position to be returned by {@link #next()}
-	 */
-	public int getIndex();
-
-	/**
 	 * @return list of names of the scannable axes that this generator includes
 	 */
 	public List<String> getNames();
@@ -64,7 +58,6 @@ public interface PPointGenerator {
 	 * @return The final Bound (half step beyond the final Point) of the underlying
 	 * Python Generator. Used for ConsecutiveMultiModels
 	 */
-
 	public IPosition getFinalBounds();
 
 	/**

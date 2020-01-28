@@ -23,14 +23,23 @@ import org.eclipse.scanning.api.annotation.UiHidden;
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 
 /**
- * Abstract base class for scan models, which provides property change support for the convenience of subclasses.
+ * Abstract base class for models using the ScanPointGenerator module, providing property change support for the convenience of subclasses.
+ *
+ * Models should correlate to a Generator or series of Generator from ScanPointGenerator, that are valid targets for CompoundGenerators.
+ * A Generator must be able to produce from a Model its Axes, Units (of length 1 or length number of axes), size and whether it should alternate in
+ * upper dimensions.
+ *
+ * Additionally, if the model is capable of acting continuously [the Generator has a prepare_bounds method] then the generator should pass
+ * this argument from the model to the CompoundGenerator that will wrap the Generator.
  *
  * @author Matthew Gerring
+ * @author Joseph Ware
  *
  */
-public abstract class AbstractPointsModel implements IScanPathModel {
+public abstract class AbstractPointsModel implements IScanPointGeneratorModel {
 
 	private static final String HARDCODED_UNITS = "mm";
+	private List<String> units;
 
 	@FieldDescriptor(label="Alternating/'Snake' - switches direction with every iteration of wrapping model")
 	private boolean alternating = false;
@@ -146,10 +155,19 @@ public abstract class AbstractPointsModel implements IScanPathModel {
 		continuous = newValue;
 	}
 
+	@Override
 	public List<String> getUnits(){
-		List<String> dimensions = new ArrayList<>();
-		dimensions.add(HARDCODED_UNITS);
-		return dimensions;
+		if (units == null) units = new ArrayList<>();
+		while (units.size() < getScannableNames().size()) {
+			units.add(HARDCODED_UNITS);
+		}
+		return units;
+	}
+
+	@Override
+	public void setUnits(List<String> units) {
+		pcs.firePropertyChange("units", this.units, units);
+		this.units = units;
 	}
 
 	@Override

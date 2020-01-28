@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @param <T>
  */
-public abstract class AbstractMultiModel<T extends IScanPathModel> extends AbstractPointsModel {
+public abstract class AbstractMultiModel<T extends IScanPointGeneratorModel> extends AbstractPointsModel {
 
 	private List<T> models = new ArrayList<>();
 
@@ -63,8 +63,16 @@ public abstract class AbstractMultiModel<T extends IScanPathModel> extends Abstr
 	}
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((models == null) ? 0 : models.hashCode());
+		return result;
+	}
+
+	@Override
 	public String toString() {
-		return "models=" + models + ", " + super.toString();
+		return getClass().getSimpleName() + " [models=" + models + ", " + super.toString() + "]";
 	}
 
 }

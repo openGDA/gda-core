@@ -14,13 +14,11 @@ package org.eclipse.scanning.points;
 import java.util.List;
 
 import org.eclipse.scanning.api.ModelValidationException;
-import org.eclipse.scanning.api.points.AbstractGenerator;
-import org.eclipse.scanning.api.points.PPointGenerator;
 import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.python.core.PyDictionary;
 
-public class TwoAxisLissajousGenerator extends AbstractGenerator<TwoAxisLissajousModel> {
+public class TwoAxisLissajousGenerator extends AbstractScanPointGenerator<TwoAxisLissajousModel> {
 
 	public TwoAxisLissajousGenerator(TwoAxisLissajousModel model) {
 		super(model);

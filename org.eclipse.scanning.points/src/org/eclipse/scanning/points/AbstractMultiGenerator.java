@@ -22,14 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.scanning.api.ModelValidationException;
-import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
-import org.eclipse.scanning.api.points.PPointGenerator;
 import org.eclipse.scanning.api.points.models.AbstractMultiModel;
 import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 
 /**
@@ -42,7 +40,7 @@ import org.eclipse.scanning.jython.JythonObjectFactory;
  *
  * @param <T>
  */
-public abstract class AbstractMultiGenerator<T extends AbstractMultiModel<?>> extends AbstractGenerator<T> {
+public abstract class AbstractMultiGenerator<T extends AbstractMultiModel<?>> extends AbstractScanPointGenerator<T> {
 
 	private IPointGeneratorService service;
 	private List<IPointGenerator<?>> generators;
@@ -61,9 +59,13 @@ public abstract class AbstractMultiGenerator<T extends AbstractMultiModel<?>> ex
 		generators = new ArrayList<>();
 		if (getModel().getModels() == null || getModel().getModels().isEmpty())
 			throw new ModelValidationException("MultiModel requires at least one internal model!", model, "models");
-		for (IScanPathModel models : getModel().getModels()) {
+		for (IScanPointGeneratorModel models : getModel().getModels()) {
 			if (models instanceof AbstractTwoAxisGridModel) {
 				throw new ModelValidationException("MultiGenerators cannot operate on already Compounded models, like grids.",
+						model, "models");
+			}
+			if (models.isAlternating()) {
+				throw new ModelValidationException("MultiGenerators cannot contain Alternating models, set it on the multimodel instead",
 						model, "models");
 			}
 			// Validates and adds generator to generators
@@ -90,7 +92,7 @@ public abstract class AbstractMultiGenerator<T extends AbstractMultiModel<?>> ex
 	protected abstract JythonObjectFactory<PPointGenerator> getFactory();
 
 	private PPointGenerator[] initGenerators() {
-		return generators.stream().map(AbstractGenerator.class::cast).map(AbstractGenerator::getPointGenerator)
+		return generators.stream().map(AbstractScanPointGenerator.class::cast).map(AbstractScanPointGenerator::getPointGenerator)
 				.toArray(PPointGenerator[]::new);
 	}
 

@@ -196,6 +196,7 @@ public class ConsecutiveTest {
 		ConsecutiveMultiModel cmm = new ConsecutiveMultiModel();
 		cmm.addModel(lsm1);
 		cmm.addModel(lsm1);
+		cmm.setContinuous(false);
 		CompoundModel cm = new CompoundModel(aam, cmm);
 		CompoundGenerator cg = (CompoundGenerator) service.createCompoundGenerator(cm);
 		IPointGenerator<?> lj1g = service.createGenerator(lsm1);
@@ -236,6 +237,7 @@ public class ConsecutiveTest {
 		ConsecutiveMultiModel cmm = new ConsecutiveMultiModel();
 		cmm.addModel(lsm1);
 		cmm.addModel(lsm1);
+		cmm.setContinuous(false);
 		IROI roi = new CircularROI(3, 5, 5);
 		ScanRegion sr = new ScanRegion(roi, "stage_x", "stage_y");
 		CompoundModel cm = new CompoundModel(aam, cmm);

@@ -25,6 +25,7 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +36,7 @@ import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
-import org.eclipse.scanning.api.points.ScanPointIterator;
+import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.BoundingLine;
@@ -45,6 +46,7 @@ import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
+import org.eclipse.scanning.points.AbstractScanPointGenerator;
 import org.eclipse.scanning.points.NoModelGenerator;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.mutators.RandomOffsetMutator;
@@ -65,7 +67,7 @@ public class NoModelTest {
 
 		TwoAxisLissajousModel model = new TwoAxisLissajousModel();
 		model.setBoundingBox(box);
-		AbstractGenerator<TwoAxisLissajousModel> gen = (AbstractGenerator<TwoAxisLissajousModel>) pgs.createGenerator(model);
+		AbstractScanPointGenerator<TwoAxisLissajousModel> gen = (AbstractScanPointGenerator<TwoAxisLissajousModel>) pgs.createGenerator(model);
 		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
 
 		compareIterators(gen.iterator(), nmg.iterator());
@@ -84,7 +86,7 @@ public class NoModelTest {
 		model.setBoundingBox(box);
 
 		IROI roi = new CircularROI();
-		AbstractGenerator<CompoundModel> gen = (AbstractGenerator<CompoundModel>) pgs.createGenerator(model, roi);
+		AbstractScanPointGenerator<CompoundModel> gen = (AbstractScanPointGenerator<CompoundModel>) pgs.createGenerator(model, roi);
 		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
 
 		compareIterators(gen.iterator(), nmg.iterator());
@@ -102,7 +104,7 @@ public class NoModelTest {
 		offsets.put("x", 0.05);
 		RandomOffsetMutator rom = new RandomOffsetMutator(12, Arrays.asList("x"), offsets);
 		TwoAxisSpiralModel sm = new TwoAxisSpiralModel("x", "y", 1, box);
-		AbstractGenerator<CompoundModel> gen = (AbstractGenerator<CompoundModel>) pgs.createGenerator(sm, new ArrayList<>(), Arrays.asList(rom));
+		AbstractScanPointGenerator<CompoundModel> gen = (AbstractScanPointGenerator<CompoundModel>) pgs.createGenerator(sm, new ArrayList<>(), Arrays.asList(rom));
 		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
 		compareIterators(gen.iterator(), nmg.iterator());
 	}
@@ -124,7 +126,7 @@ public class NoModelTest {
 		RandomOffsetMutator rom = new RandomOffsetMutator(12, Arrays.asList("x"), offsets);
 		TwoAxisSpiralModel sm = new TwoAxisSpiralModel("x", "y", 1, box);
 
-		AbstractGenerator<CompoundModel> gen = (AbstractGenerator<CompoundModel>) pgs.createGenerator(sm, roiList, Arrays.asList(rom), 3);
+		AbstractScanPointGenerator<CompoundModel> gen = (AbstractScanPointGenerator<CompoundModel>) pgs.createGenerator(sm, roiList, Arrays.asList(rom), 3);
 
 		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
 		compareIterators(gen.iterator(), nmg.iterator());
@@ -147,7 +149,7 @@ public class NoModelTest {
 		RandomOffsetMutator rom = new RandomOffsetMutator(12, Arrays.asList("x"), offsets);
 		TwoAxisSpiralModel sm = new TwoAxisSpiralModel("x", "y", 1, box);
 
-		AbstractGenerator<CompoundModel> gen = (AbstractGenerator<CompoundModel>) pgs.createGenerator(sm, roiList, Arrays.asList(rom));
+		AbstractScanPointGenerator<CompoundModel> gen = (AbstractScanPointGenerator<CompoundModel>) pgs.createGenerator(sm, roiList, Arrays.asList(rom));
 
 		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
 
@@ -159,7 +161,7 @@ public class NoModelTest {
 		cModel1.addModel(asm);
 		cModel1.addMutators(Arrays.asList(rom));
 
-		gen = (AbstractGenerator<CompoundModel>) pgs.createCompoundGenerator(cModel1);
+		gen = (AbstractScanPointGenerator<CompoundModel>) pgs.createCompoundGenerator(cModel1);
 		AbstractGenerator<CompoundModel> gen2 = (AbstractGenerator<CompoundModel>) pgs.createCompoundGenerator(nmg, asg);
 		assertArrayEquals(gen.getShape(), gen2.getShape());
 
@@ -179,7 +181,7 @@ public class NoModelTest {
 		TwoAxisLinePointsModel lpm = new TwoAxisLinePointsModel();
 		lpm.setBoundingLine(bl);
 
-		AbstractGenerator<TwoAxisLinePointsModel> gen = (AbstractGenerator<TwoAxisLinePointsModel>) pgs.createGenerator(lpm);
+		AbstractScanPointGenerator<TwoAxisLinePointsModel> gen = (AbstractScanPointGenerator<TwoAxisLinePointsModel>) pgs.createGenerator(lpm);
 		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
 
 		nmg.getModel();
@@ -199,8 +201,8 @@ public class NoModelTest {
 		TwoAxisGridPointsModel pointsModel = new TwoAxisGridPointsModel("x", "y", 10, 10);
 		pointsModel.setBoundingBox(box);
 
-		AbstractGenerator<TwoAxisGridStepModel> stepGen = (AbstractGenerator<TwoAxisGridStepModel>) pgs.createGenerator(stepModel);
-		AbstractGenerator<TwoAxisGridPointsModel> pointsGen = (AbstractGenerator<TwoAxisGridPointsModel>) pgs.createGenerator(pointsModel);
+		AbstractScanPointGenerator<TwoAxisGridStepModel> stepGen = (AbstractScanPointGenerator<TwoAxisGridStepModel>) pgs.createGenerator(stepModel);
+		AbstractScanPointGenerator<TwoAxisGridPointsModel> pointsGen = (AbstractScanPointGenerator<TwoAxisGridPointsModel>) pgs.createGenerator(pointsModel);
 
 		NoModelGenerator stepWithoutModel = new NoModelGenerator(stepGen.getPointGenerator());
 		NoModelGenerator pointsWithoutModel = new NoModelGenerator(pointsGen.getPointGenerator());
@@ -208,7 +210,7 @@ public class NoModelTest {
 		assertEquals(stepWithoutModel, pointsWithoutModel);
 	}
 
-	private void compareIterators(ScanPointIterator creator, ScanPointIterator created) {
+	private void compareIterators(Iterator<IPosition> creator, Iterator<IPosition> created) {
 		while (creator.hasNext()) {
 			assertEquals(creator.next(), created.next());
 		}

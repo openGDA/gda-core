@@ -11,13 +11,12 @@
  *******************************************************************************/
 package org.eclipse.scanning.points;
 
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.scanning.api.ModelValidationException;
-import org.eclipse.scanning.api.points.AbstractGenerator;
-import org.eclipse.scanning.api.points.PPointGenerator;
 import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
@@ -27,7 +26,7 @@ import org.eclipse.scanning.jython.JythonObjectFactory;
  *
  * @author Matthew Dickie
  */
-class AxialMultiStepGenerator extends AbstractGenerator<AxialMultiStepModel> {
+class AxialMultiStepGenerator extends AbstractScanPointGenerator<AxialMultiStepModel> {
 
 	protected AxialMultiStepGenerator(AxialMultiStepModel model) {
 		super(model);
@@ -91,7 +90,7 @@ class AxialMultiStepGenerator extends AbstractGenerator<AxialMultiStepModel> {
 		final List<double[]> positionArrays = new ArrayList<>(model.getStepModels().size());
 		double previousEnd = 0;
 		for (AxialStepModel stepModel : model.getStepModels()) {
-			int size = stepModel.size();
+			int size = size(stepModel);
 			double pos = stepModel.getStart();
 
 			// if the start of this model is the end of the previous one, and the end of the
@@ -133,6 +132,11 @@ class AxialMultiStepGenerator extends AbstractGenerator<AxialMultiStepModel> {
         PPointGenerator pointGen = arrayGeneratorFactory.createObject(axes, units, points, alternating);
 
         return CompoundGenerator.createWrappingCompoundGenerator(new PPointGenerator[] {pointGen}, continuous);
+	}
+
+	private int size(AxialStepModel model) {
+		// Includes point if would be within 1% (of step length) of end
+		return 1 + BigDecimal.valueOf(0.01*model.getStep()+model.getStop()-model.getStart()).divideToIntegralValue(BigDecimal.valueOf(model.getStep())).intValue();
 	}
 
 }

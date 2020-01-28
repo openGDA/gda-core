@@ -2,97 +2,75 @@ package org.eclipse.scanning.points;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.ValidationException;
-import org.eclipse.scanning.api.points.AbstractGenerator;
-import org.eclipse.scanning.api.points.PPointGenerator;
-import org.eclipse.scanning.api.points.ScanPointIterator;
-import org.eclipse.scanning.api.points.models.JythonArgument;
-import org.eclipse.scanning.api.points.models.JythonArgument.JythonArgumentType;
 import org.eclipse.scanning.api.points.models.JythonGeneratorModel;
 import org.eclipse.scanning.jython.JythonInterpreterManager;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JythonGenerator extends AbstractGenerator<JythonGeneratorModel> {
+public class JythonGenerator extends AbstractScanPointGenerator<JythonGeneratorModel> {
 
-	private static final Logger logger = LoggerFactory.getLogger(JythonGenerator.class);
+	private static Logger logger = LoggerFactory.getLogger(JythonGenerator.class);
+
+	private static final String CONTINUOUS = "continuous";
+	private static final String ALTERNATE = "alternate";
+	private static final String AXES = "axes";
+	private static final String UNITS = "units";
+	private static final String SIZE = "size";
+	private static final List<String> MANDATORY_ARGS = Arrays.asList(CONTINUOUS, ALTERNATE, AXES, UNITS, SIZE);
 
 	JythonGenerator(JythonGeneratorModel model) {
-		this.model = model;
-		validateModel();
+		super(model);
 	}
 
 	@Override
-	public ScanPointIterator iterator() {
-
+	protected PPointGenerator createPythonPointGenerator() {
 		try {
 			// Ensure that the module path is on the path
 			JythonInterpreterManager.addPath(model.getPath());
 		} catch (IOException e) {
-			logger.error("Unable to add '"+model.getPath()+"' to path");
+			logger.error("Unable to add '{}' to path", model.getPath());
 		}
-
-		final JythonObjectFactory<ScanPointIterator> jythonObject =
-				new JythonObjectFactory<>(ScanPointIterator.class, model.getModuleName(), model.getClassName());
-
-		final ScanPointIterator pyIterator;
-		if (model.getArguments() == null || model.getArguments().isEmpty()) {
-			pyIterator = jythonObject.createObject();
+		final JythonObjectFactory<PPointGenerator> jythonObject = new JythonObjectFactory<>(PPointGenerator.class,
+				model.getModuleName(), model.getClassName());
+		final PPointGenerator pPointGenerator;
+		if (model.getJythonArguments() == null || model.getJythonArguments().isEmpty()) {
+			pPointGenerator = jythonObject.createObject();
 		} else {
-			final Object[] args = model.getArguments().stream().map(JythonGenerator::getArgument).toArray();
-			final String[] keywords = model.getKeywords() == null ? new String[0] :
-				model.getKeywords().toArray(new String[model.getKeywords().size()]);
-			pyIterator = jythonObject.createObject(args, keywords);
+			final Object[] args = model.getJythonArguments().values().toArray();
+			final String[] keywords = model.getJythonArguments().keySet().toArray(new String[0]);
+			pPointGenerator = jythonObject.createObject(args, keywords);
 		}
-
-		return pyIterator;
-	}
-
-	private static Object getArgument(JythonArgument arg) {
-		if (arg.getType()==JythonArgumentType.INTEGER) {
-			return Integer.parseInt(arg.getValue());
-		} else if (arg.getType()==JythonArgumentType.FLOAT) {
-			return Float.parseFloat(arg.getValue());
-		}
-		return arg.getValue();
+		return pPointGenerator;
 	}
 
 	@Override
 	public void validate(JythonGeneratorModel model) throws ValidationException {
-		if (model.getPath()==null) throw new ModelValidationException("No module directory is set!", model, "path");
+		if (model.getPath() == null)
+			throw new ModelValidationException("No module directory is set!", model, "path");
 		final File file = new File(model.getPath());
-		if (!file.exists()) throw new ModelValidationException("The module directory '"+file+"' does not exist!", model, "path");
-		if (!file.isDirectory()) throw new ModelValidationException("The module directory path '"+file+"' is not a folder!", model, "path");
-
+		if (!file.exists())
+			throw new ModelValidationException(String.format("The module directory '%s' does not exist!", file), model,
+					"path");
+		if (!file.isDirectory())
+			throw new ModelValidationException(String.format("The module directory path '%s' is not a folder!", file),
+					model, "path");
 		if (!Optional.ofNullable(model.getModuleName()).isPresent())
 			throw new ModelValidationException("The module name must be set!", model, "moduleName");
 		if (!Optional.ofNullable(model.getClassName()).isPresent())
 			throw new ModelValidationException("The class name must be set!", model, "className");
+		Map<String, Object> kwargs = model.getJythonArguments();
+		for (String arg : MANDATORY_ARGS) {
+			if (!kwargs.containsKey(arg)) throw new ModelValidationException(
+					String.format("Not all mandatory arguments set for JythonGeneratorModel, missing %s", arg), model, "jythonArguments");
+		}
 	}
 
-	@Override
-	public PPointGenerator createPythonPointGenerator() {
-		throw new UnsupportedOperationException("JythonGenerator produce their Iterator directly: "
-				+ "this method is unused and Jython Generators cannot be nested in CompoundModels.");
-	}
-
-	@Override
-	public int size() {
-		return iterator().getSize();
-	}
-
-	@Override
-	public int[] getShape() {
-		return iterator().getShape();
-	}
-
-	@Override
-	public List<String> getNames(){
-		return getFirstPoint().getNames();
-	}
 }

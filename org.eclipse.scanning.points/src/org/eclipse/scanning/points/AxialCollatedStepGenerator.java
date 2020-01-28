@@ -11,15 +11,15 @@
  *******************************************************************************/
 package org.eclipse.scanning.points;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.eclipse.scanning.api.ModelValidationException;
-import org.eclipse.scanning.api.points.AbstractGenerator;
-import org.eclipse.scanning.api.points.PPointGenerator;
 import org.eclipse.scanning.api.points.models.AxialCollatedStepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 
-public class AxialCollatedStepGenerator extends AbstractGenerator<AxialCollatedStepModel> {
+public class AxialCollatedStepGenerator extends AbstractScanPointGenerator<AxialCollatedStepModel> {
 
 	AxialCollatedStepGenerator(AxialCollatedStepModel model) {
 		super(model);
@@ -45,19 +45,25 @@ public class AxialCollatedStepGenerator extends AbstractGenerator<AxialCollatedS
         final List<String> units = model.getUnits();
         final boolean alternating = model.isAlternating();
         final boolean continuous = model.isContinuous();
-        final int points = model.size();
+        final int points = size(model);
         final double start = model.getStart();
         final double step = model.getStep();
+        final double stop = model.getStart() + (points - 1) * step;
         final double[] starts = new double[numAxes];
         final double[] stops = new double[numAxes];
         for (int i = 0; i< numAxes; i++) {
         	starts[i] = start;
-        	stops[i] = start + step * (points-1);
+        	stops[i] = stop;
         }
 
         PPointGenerator pointGen = lineGeneratorFactory.createObject(axes, units, starts, stops, points, alternating);
 
         return CompoundGenerator.createWrappingCompoundGenerator(new PPointGenerator[] {pointGen}, continuous);
+	}
+
+	private int size(AxialStepModel model) {
+		// Includes point if would be within 1% (of step length) of end
+		return 1 + BigDecimal.valueOf(0.01*model.getStep()+model.getStop()-model.getStart()).divideToIntegralValue(BigDecimal.valueOf(model.getStep())).intValue();
 	}
 
 }

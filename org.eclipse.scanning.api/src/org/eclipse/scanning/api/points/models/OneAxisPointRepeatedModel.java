@@ -125,8 +125,4 @@ public class OneAxisPointRepeatedModel extends AbstractPointsModel {
 		return getClass().getSimpleName() + "[value="+value+", count="+count+", sleep="+sleep+", "+super.toString()+"]";
 	}
 
-	@Override
-	public int size() {
-		return count;
-	}
 }

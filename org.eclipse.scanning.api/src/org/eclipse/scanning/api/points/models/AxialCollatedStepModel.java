@@ -20,8 +20,7 @@ import java.util.List;
  */
 public class AxialCollatedStepModel extends AxialStepModel {
 
-	private List<String> names = new ArrayList<String>();
-	private List<String> units = new ArrayList<String>();
+	private List<String> names = new ArrayList<>();
 
 	public AxialCollatedStepModel() {
 	}
@@ -41,25 +40,6 @@ public class AxialCollatedStepModel extends AxialStepModel {
 	@Override
 	public List<String> getScannableNames(){
 		return names;
-	}
-
-	@Override
-	public List<String> getUnits(){
-		if (units.size() == names.size()) {
-			return units;
-		}
-		// fill with hardcoded units ("mm") if not same length
-		String unit = super.getUnits().get(0);
-		List<String> units = this.units;
-		for (int i = units.size(); i < names.size(); i++) {
-			units.add(unit);
-		}
-		return units;
-	}
-
-	public void setUnits(List<String> units) {
-		pcs.firePropertyChange("units", this.units, units);
-		this.units = units;
 	}
 
 	@Override

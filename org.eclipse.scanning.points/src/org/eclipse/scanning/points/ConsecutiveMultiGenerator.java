@@ -21,10 +21,8 @@ package org.eclipse.scanning.points;
 import java.util.List;
 
 import org.eclipse.scanning.api.ModelValidationException;
-import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
-import org.eclipse.scanning.api.points.PPointGenerator;
 import org.eclipse.scanning.api.points.StaticPosition;
 import org.eclipse.scanning.api.points.models.AbstractPointsModel;
 import org.eclipse.scanning.api.points.models.ConsecutiveMultiModel;
@@ -65,8 +63,8 @@ public class ConsecutiveMultiGenerator extends AbstractMultiGenerator<Consecutiv
 		if (model.isContinuous()) {
 
 			for (int i = 1; i < getGenerators().size(); i++) {
-				IPosition previousModel = ((AbstractGenerator<?>) getGenerators().get(i - 1)).finalBounds();
-				IPosition nextModel = ((AbstractGenerator<?>) getGenerators().get(i)).initialBounds();
+				IPosition previousModel = ((AbstractScanPointGenerator<?>) getGenerators().get(i - 1)).finalBounds();
+				IPosition nextModel = ((AbstractScanPointGenerator<?>) getGenerators().get(i)).initialBounds();
 				if (previousModel instanceof StaticPosition || nextModel instanceof StaticPosition) {
 					throw new ModelValidationException(
 							"All models within a Continuous ConsecutiveModel must be capable of continuousness", model,

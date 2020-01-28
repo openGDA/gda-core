@@ -27,7 +27,7 @@ import java.util.List;
 * beyond the final point) is within DIFF_LIMIT (1e-5) in each axis of the initial bound (0.5 steps before the first
 * point) for all axes.
 */
-public class ConsecutiveMultiModel extends AbstractMultiModel<IScanPathModel> {
+public class ConsecutiveMultiModel extends AbstractMultiModel<IScanPointGeneratorModel> {
 
 	@Override
 	public List<String> getScannableNames() {
@@ -36,16 +36,7 @@ public class ConsecutiveMultiModel extends AbstractMultiModel<IScanPathModel> {
 
 	@Override
 	public List<String> getUnits() {
-		return ((AbstractPointsModel) getFirstModel()).getUnits();
-	}
-
-	@Override
-	public int size() {
-		int size = 0;
-		for (IScanPathModel model : getModels()) {
-			size += model.size();
-		}
-		return size;
+		return getFirstModel().getUnits();
 	}
 
 }

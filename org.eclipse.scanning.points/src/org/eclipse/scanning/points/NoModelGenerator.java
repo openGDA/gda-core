@@ -19,8 +19,6 @@
 package org.eclipse.scanning.points;
 
 import org.eclipse.scanning.api.ModelValidationException;
-import org.eclipse.scanning.api.points.AbstractGenerator;
-import org.eclipse.scanning.api.points.PPointGenerator;
 import org.eclipse.scanning.api.points.models.AbstractPointsModel;
 
 /**
@@ -33,7 +31,7 @@ import org.eclipse.scanning.api.points.models.AbstractPointsModel;
  */
 
 @SuppressWarnings("rawtypes")
-public class NoModelGenerator extends AbstractGenerator {
+public class NoModelGenerator extends AbstractScanPointGenerator {
 
 	@SuppressWarnings("unchecked")
 	public NoModelGenerator(PPointGenerator generator){
@@ -48,8 +46,7 @@ public class NoModelGenerator extends AbstractGenerator {
 
 	@Override
 	public String toString() {
-		// PPointGenerators are also PySerializable, but this inheritance cannot be explicit in scanning.api
-		return getClass().getSimpleName() + " [PPointGenerator=" + ((PySerializable) pointGenerator).toDict().toString() + "]";
+		return getClass().getSimpleName() + " [PPointGenerator=" + pointGenerator.toDict().toString() + "]";
 	}
 
 	@Override
@@ -72,7 +69,7 @@ public class NoModelGenerator extends AbstractGenerator {
 		if (pointGenerator == null) {
 			return other.pointGenerator == null;
 		}
-		return ((PySerializable) pointGenerator).toDict().equals(((PySerializable) other.pointGenerator).toDict());
+		return pointGenerator.toDict().equals(other.pointGenerator.toDict());
 	}
 
 	@Override

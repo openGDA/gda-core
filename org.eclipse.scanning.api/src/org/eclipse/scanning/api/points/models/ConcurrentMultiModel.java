@@ -25,12 +25,12 @@ import java.util.List;
 * and must be in mutually exclusive axes. A Compounded model (any grid) is not a valid model to be
 * run concurrently.
 */
-public class ConcurrentMultiModel extends AbstractMultiModel<IScanPathModel> {
+public class ConcurrentMultiModel extends AbstractMultiModel<IScanPointGeneratorModel> {
 
 	@Override
 	public List<String> getScannableNames() {
 		List<String> scannableNames = new ArrayList<>();
-		for (IScanPathModel model : getModels()) {
+		for (IScanPointGeneratorModel model : getModels()) {
 			scannableNames.addAll(model.getScannableNames());
 		}
 		return scannableNames;
@@ -39,15 +39,10 @@ public class ConcurrentMultiModel extends AbstractMultiModel<IScanPathModel> {
 	@Override
 	public List<String> getUnits() {
 		List<String> units = new ArrayList<>();
-		for (IScanPathModel model : getModels()) {
-			units.addAll(((AbstractPointsModel) model).getUnits());
+		for (IScanPointGeneratorModel model : getModels()) {
+			units.addAll(model.getUnits());
 		}
 		return units;
-	}
-
-	@Override
-	public int size() {
-		return getFirstModel().size();
 	}
 
 }

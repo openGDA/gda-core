@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
-import java.math.BigDecimal;
-
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 
 /**
@@ -98,17 +96,6 @@ public class TwoAxisGridStepModel extends AbstractTwoAxisGridModel {
 	public String toString() {
 		return getClass().getSimpleName() + " [xAxisStep=" + xAxisStep + ", yAxisStep=" + yAxisStep
 				+ ", " + super.toString() + "]";
-	}
-
-	@Override
-	public int[] shape() {
-		int xAxisPoints = Math.max(1, BigDecimal.valueOf(getBoundingBox().getxAxisLength()).divide(BigDecimal.valueOf(xAxisStep)).intValue());
-		int yAxisPoints = Math.max(1, BigDecimal.valueOf(getBoundingBox().getyAxisLength()).divide(BigDecimal.valueOf(yAxisStep)).intValue());
-
-		int[] shape = new int[2];
-		shape[0] = isVerticalOrientation() ? xAxisPoints : yAxisPoints;
-		shape[1] = isVerticalOrientation() ? yAxisPoints : xAxisPoints;
-		return shape;
 	}
 
 }

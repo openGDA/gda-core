@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
-import java.math.BigDecimal;
-
 import org.eclipse.scanning.api.annotation.ui.DeviceType;
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 
@@ -91,12 +89,6 @@ public class AxialStepModel extends AbstractPointsModel {
 		if (Double.doubleToLongBits(stop) != Double.doubleToLongBits(other.stop))
 			return false;
 		return true;
-	}
-
-	@Override
-	public int size() {
-		// Includes point if would be within 1% (of step length) of end
-		return 1 + BigDecimal.valueOf(0.01*getStep()+getStop()-getStart()).divideToIntegralValue(BigDecimal.valueOf(getStep())).intValue();
 	}
 
 	protected String description() {

@@ -66,9 +66,4 @@ public class AxialArrayModel extends AbstractPointsModel {
 		return getClass().getSimpleName() + "[positions=" + Arrays.toString(positions) + super.toString() + "]";
 	}
 
-	@Override
-	public int size() {
-		return positions.length;
-	}
-
 }

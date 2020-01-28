@@ -60,12 +60,5 @@ public class TwoAxisSpiralModel extends AbstractBoundingBoxModel {
 	public String toString() {
 		return getClass().getSimpleName() + " [scale=" + scale + ", " + super.toString() + "]";
 	}
-	@Override
-	public int size() {
-		double radius = Math.pow(Math.pow(getBoundingBox().getxAxisLength(), 2) + Math.pow(getBoundingBox().getyAxisLength(), 2), 0.5);
-		double alpha = Math.sqrt(4 * Math.PI);  // Theta scale factor = k
-		double beta = scale / (2 * Math.PI);  // Radius scale factor = b
-		return (int) Math.pow(radius / (alpha * beta), 2) + 1;
-	}
 
 }

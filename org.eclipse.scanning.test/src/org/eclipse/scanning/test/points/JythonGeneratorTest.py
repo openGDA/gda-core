@@ -1,4 +1,4 @@
-###
+# ##
 # Copyright (c) 2016 Diamond Light Source Ltd.
 #
 # All rights reserved. This program and the accompanying materials
@@ -10,131 +10,56 @@
 #    Gary Yendell - initial API and implementation and/or initial documentation
 #    Charles Mita - initial API and implementation and/or initial documentation
 #
-###
-from org.eclipse.scanning.api.points import Point
-from org.eclipse.scanning.api.points import Scalar
-from org.eclipse.scanning.api.points import MapPosition
-from org.eclipse.scanning.api.points import ScanPointIterator
-from java.util import ArrayList
+# ##
+from java.util import Iterator
 
-## Logging
+from scanpointgenerator import CompoundGenerator
+
+from jython_spg_interface import MapPositionWrapper
+
+from jython_spg_interface import GeneratorWrapper
+
+from JythonGeneratorExamples import FixedValueGenerator
+from JythonGeneratorExamples import MultipliedValueGenerator
+
+from org.eclipse.scanning.points import PPointGenerator
+
+# # Logging
 import logging
+
+
 # logging.basicConfig(level=logging.DEBUG)
 
 
-class JavaIteratorWrapper(ScanPointIterator):
-    """
-    A wrapper class to give a python iterator the while(hasNext()) next()
-    operation required of Java Iterators
-    """
-
-    def __init__(self):
-        self._iterator = self._iterator()  # Store single instance of _iterator()
-        self._has_next = None
-        self._next = None
-
-    def _iterator(self):
-        raise NotImplementedError("Must be implemented in child class")
-
-    def next(self):
-
-        if self._has_next:
-            result = self._next
-        else:
-            result = self._iterator.next()  # Note: No next() in Py3
-
-        self._has_next = None
-
-        return result
-
-    def hasNext(self):
-
-        if self._has_next is None:
-
-            try:
-                self._next = self._iterator.next()  # Note: No next() in Py3
-            except StopIteration:
-                self._has_next = False
-            else:
-                self._has_next = True
-
-        return self._has_next
-
-    def getSize(self):
-        return self._size
-
-
-
-class FixedValueGenerator(JavaIteratorWrapper):
+# < -- Example/TestGenerators
+class FixedValueWrapper(MapPositionWrapper):
     """
     Create a fixed series of points
     """
-    def __init__(self, scannableName, size, value):
-        super(FixedValueGenerator, self).__init__()
+    def __init__(self, axes, units, value, size, alternate=False, continuous=False):
+        fixedval = FixedValueGenerator(axes, units, value, size, alternate)
+        self.generator = CompoundGenerator([fixedval], [], [], -1, continuous)
+        self.generator.prepare()
+        super(FixedValueWrapper, self).__init__(self.generator)
 
-        self.scannableName = scannableName
-        self._size = size
-        self.value = value
+class MultipliedValueWrapper(MapPositionWrapper):
+    """
+    Create a series of points linear in an axis relative to its index
+    """
+    def __init__(self, axes, units, value, size, alternate=False, continuous=False):
+        multival = MultipliedValueGenerator(axes, units, value, size, alternate)
+        self.generator = CompoundGenerator([multival], [], [], -1, continuous)
+        self.generator.prepare()
+        super(MultipliedValueWrapper, self).__init__(self.generator)
 
-
-    def _iterator(self):
-
-        for index in xrange(self._size):
-            java_point = Scalar(self.scannableName, index, self.value)
-            yield java_point
-
-class MultipliedValueGenerator(JavaIteratorWrapper):
+# /ExampleGenerators -->
+class ExceptionGenerator(GeneratorWrapper):
     """
     Create a fixed series of points
     """
-    def __init__(self, scannableName, size, value):
-        super(MultipliedValueGenerator, self).__init__()
 
-        self.scannableName = scannableName
-        self._size = size
-        self.value = value
+    def __init__(self, scannableName, shape):
+        super(ExceptionGenerator, self).__init__(scannableName, shape)
 
-
-    def _iterator(self):
-
-        for index in xrange(self._size):
-            java_point = Scalar(self.scannableName, index, self.value*index)
-            yield java_point
-
-class MappedPositionGenerator(JavaIteratorWrapper):
-    """
-    Create a fixed series of points
-    """
-    def __init__(self, scannableName, size, value, numberOfScannables):
-        super(MappedPositionGenerator, self).__init__()
-
-        self.scannableName = scannableName
-        self._size = size
-        self.value = value
-        self.numberOfScannables = numberOfScannables
-
-
-    def _iterator(self):
-
-        for index in xrange(self._size):
-            java_point = MapPosition()
-            for iscannable in xrange(self.numberOfScannables):
-                java_point.put(self.scannableName+str(iscannable), index, self.value*index)
-
-            yield java_point
-
-class ExceptionGenerator(JavaIteratorWrapper):
-    """
-    Create a fixed series of points
-    """
-    def __init__(self, scannableName, size, value):
-        super(ExceptionGenerator, self).__init__()
-
-        self.scannableName = scannableName
-        self._size = size
-        self.value = value
-
-
-    def _iterator(self):
-
+    def __iter__(self):
         raise Exception("Cannot iterate ExceptionGenerator!")

@@ -273,21 +273,9 @@ public class CompoundModel extends AbstractPointsModel implements Cloneable {
 				", duration=" + duration + "]";
 	}
 
-	// CompoundModel not a valid model for Zip/Concat generator currently
-	// May be possible when ScanPointGenerator changes behaviour, see
-	// https://github.com/dls-controls/scanpointgenerator/issues/76
-	@Override
-	public int size() {
-		int size = 1;
-		for (Object model : models) {
-			size *= ((IScanPathModel) model).size();
-		}
-		return size;
-	}
-
 	@Override
 	public boolean isContinuous() {
-		IScanPathModel innermostModel = (IScanPathModel) getModels().get(getModels().size()-1);
+		IScanPointGeneratorModel innermostModel = (IScanPointGeneratorModel) getModels().get(getModels().size()-1);
 		return innermostModel.isContinuous();
 	}
 

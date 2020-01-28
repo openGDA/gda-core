@@ -48,7 +48,6 @@ import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
-import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
@@ -316,11 +315,7 @@ public class PerScanMonitorTest extends NexusTest {
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
 			@Override
 			public void runWillPerform(RunEvent evt) throws ScanningException{
-				try {
-					System.out.println("Running acquisition scan of size "+fgen.size());
-				} catch (GeneratorException e) {
-					throw new ScanningException(e);
-				}
+				System.out.println("Running acquisition scan of size "+fgen.size());
 			}
 		});
 

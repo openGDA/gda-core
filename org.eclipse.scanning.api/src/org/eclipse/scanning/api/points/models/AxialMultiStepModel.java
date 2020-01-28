@@ -135,31 +135,4 @@ public class AxialMultiStepModel extends AbstractPointsModel {
 		return sb.toString();
 	}
 
-	@Override
-	public int size() {
-		int totalSize = 0;
-		boolean finalPosWasEnd = false;
-		double previousEnd = 0;
-		double start = 0;
-		for (AxialStepModel stepModel : getStepModels()) {
-			int size = stepModel.size();
-			start = stepModel.getStart();
-
-			// if the start of this model is the end of the previous one, and the end of the
-			// previous was was its final point, skip the first point
-			if (finalPosWasEnd &&
-					Math.abs(start - previousEnd) < Math.abs(stepModel.getStep() / 100)) {
-				start += stepModel.getStep();
-				size--;
-			}
-			for (int i = 0; i < size; i++) {
-				start += stepModel.getStep();
-			}
-			totalSize += size;
-			previousEnd = start;
-			finalPosWasEnd = Math.abs(stepModel.getStop() - previousEnd) < Math.abs(stepModel.getStep() / 100);
-		}
-		return totalSize;
-	}
-
 }

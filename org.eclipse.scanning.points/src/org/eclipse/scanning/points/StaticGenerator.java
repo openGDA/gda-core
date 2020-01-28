@@ -12,9 +12,6 @@
 package org.eclipse.scanning.points;
 
 import org.eclipse.scanning.api.ModelValidationException;
-import org.eclipse.scanning.api.points.AbstractGenerator;
-import org.eclipse.scanning.api.points.GeneratorException;
-import org.eclipse.scanning.api.points.PPointGenerator;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 
@@ -23,7 +20,7 @@ import org.eclipse.scanning.jython.JythonObjectFactory;
  *
  * @author Matthew Dickie
  */
-class StaticGenerator extends AbstractGenerator<StaticModel> {
+class StaticGenerator extends AbstractScanPointGenerator<StaticModel> {
 
 	private static final int[] EMPTY_SHAPE = new int[0];
 
@@ -38,7 +35,7 @@ class StaticGenerator extends AbstractGenerator<StaticModel> {
 	}
 
 	@Override
-	public int[] getShape() throws GeneratorException {
+	public int[] getShape() {
 		return model.getSize() == 1 ? EMPTY_SHAPE : new int[] { model.getSize() };
 	}
 

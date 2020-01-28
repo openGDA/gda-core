@@ -18,7 +18,7 @@ package org.eclipse.scanning.api.points.models;
  * @author Colin Palmer
  *
  */
-public class TwoAxisLinePointsModel extends AbstractBoundingLineModel implements IBoundingLineModel {
+public class TwoAxisLinePointsModel extends AbstractBoundingLineModel {
 
 	private int points = 5;
 
@@ -56,8 +56,4 @@ public class TwoAxisLinePointsModel extends AbstractBoundingLineModel implements
 		return points == other.points;
 	}
 
-	@Override
-	public int size() {
-		return points;
-	}
 }

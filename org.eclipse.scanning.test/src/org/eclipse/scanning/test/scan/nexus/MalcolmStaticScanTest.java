@@ -10,10 +10,9 @@ import org.eclipse.scanning.api.annotation.scan.FileDeclared;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.event.scan.DeviceState;
-import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
+import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
@@ -100,11 +99,7 @@ public class MalcolmStaticScanTest extends AbstractMalcolmScanTest {
 		((IRunnableEventDevice<ScanModel>) scanner).addRunListener(new IRunListener() {
 			@Override
 			public void runWillPerform(RunEvent evt) throws ScanningException {
-				try {
-					System.out.println("Running acquisition size of scan " + pointGenerator.size());
-				} catch (GeneratorException e) {
-					throw new ScanningException(e);
-				}
+				System.out.println("Running acquisition scan of size "+pointGenerator.size());
 			}
 		});
 

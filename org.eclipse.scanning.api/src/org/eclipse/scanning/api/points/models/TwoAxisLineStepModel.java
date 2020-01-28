@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
-import java.math.BigDecimal;
-
 /**
  * A model for a scan along a straight line in two-dimensional space, starting at the beginning of the line and moving
  * in steps of the size given in this model.
@@ -20,7 +18,7 @@ import java.math.BigDecimal;
  * @author Colin Palmer
  *
  */
-public class TwoAxisLineStepModel extends AbstractBoundingLineModel implements IBoundingLineModel {
+public class TwoAxisLineStepModel extends AbstractBoundingLineModel {
 
 	private double step = 1;
 
@@ -60,9 +58,4 @@ public class TwoAxisLineStepModel extends AbstractBoundingLineModel implements I
 		return (Double.doubleToLongBits(step) == Double.doubleToLongBits(other.step));
 	}
 
-	@Override
-	public int size() {
-		int points = 1 + BigDecimal.valueOf(getBoundingLine().getLength()).divide(BigDecimal.valueOf(step)).intValue();
-		return points;
-	}
 }

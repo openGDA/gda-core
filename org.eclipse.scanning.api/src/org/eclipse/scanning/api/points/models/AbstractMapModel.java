@@ -94,6 +94,12 @@ public abstract class AbstractMapModel extends AbstractPointsModel implements IM
 		return dimensions;
 	}
 
+	@Override
+	public void setUnits(List<String> units) {
+		setxAxisUnits(units.get(0));
+		setyAxisUnits(units.get(1));
+	}
+
 	@UiHidden
 	@Override
 	public List<String> getScannableNames() {

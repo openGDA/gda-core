@@ -21,13 +21,11 @@ package org.eclipse.scanning.points;
 import java.util.List;
 
 import org.eclipse.scanning.api.ModelValidationException;
-import org.eclipse.scanning.api.points.AbstractGenerator;
-import org.eclipse.scanning.api.points.PPointGenerator;
 import org.eclipse.scanning.api.points.models.AbstractBoundingLineModel;
 import org.eclipse.scanning.api.points.models.BoundingLine;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 
-public abstract class AbstractLineGenerator<T extends AbstractBoundingLineModel> extends AbstractGenerator<T> {
+public abstract class AbstractLineGenerator<T extends AbstractBoundingLineModel> extends AbstractScanPointGenerator<T> {
 
 	protected AbstractLineGenerator(T model) {
 		super(model);

@@ -101,10 +101,4 @@ public class TwoAxisLissajousModel extends AbstractBoundingBoxModel {
 		return (int) (a/b);
 	}
 
-	@Override
-	public int size() {
-		return points;
-	}
-
-
 }

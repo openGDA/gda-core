@@ -16,13 +16,11 @@ import static org.eclipse.scanning.points.ROIGenerator.EMPTY_PY_ARRAY;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.scanning.api.points.AbstractGenerator;
-import org.eclipse.scanning.api.points.PPointGenerator;
 import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.python.core.PyObject;
 
-abstract class AbstractGridGenerator<T extends AbstractTwoAxisGridModel> extends AbstractGenerator<T> {
+abstract class AbstractGridGenerator<T extends AbstractTwoAxisGridModel> extends AbstractScanPointGenerator<T> {
 
 	protected AbstractGridGenerator(T model) {
 		super(model);

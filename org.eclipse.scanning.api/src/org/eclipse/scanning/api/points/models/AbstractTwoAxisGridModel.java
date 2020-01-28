@@ -89,12 +89,6 @@ public abstract class AbstractTwoAxisGridModel extends AbstractBoundingBoxModel 
 				+ ", " + super.toString();
 	}
 
-	@Override
-	public int size() {
-		int[] shape = shape();
-		return shape[0]*shape[1];
-	}
-
 	/**
 	 * Turns a StepModel into an equivalent PointsModel. Some scans (e.g XANES) perform similar scans but with small offsets,
 	 * which can catch on floating point calculation errors, giving off-by-one in dataset shapes when reconstructing.

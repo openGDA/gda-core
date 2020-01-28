@@ -12,7 +12,6 @@
 
 package org.eclipse.scanning.points;
 
-import org.eclipse.scanning.api.points.PPointGenerator;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.python.core.PyObject;
 

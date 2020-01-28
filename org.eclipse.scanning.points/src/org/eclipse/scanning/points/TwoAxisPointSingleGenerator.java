@@ -20,12 +20,10 @@ package org.eclipse.scanning.points;
 
 import java.util.List;
 
-import org.eclipse.scanning.api.points.AbstractGenerator;
-import org.eclipse.scanning.api.points.PPointGenerator;
 import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 
-public class TwoAxisPointSingleGenerator extends AbstractGenerator<TwoAxisPointSingleModel> {
+public class TwoAxisPointSingleGenerator extends AbstractScanPointGenerator<TwoAxisPointSingleModel> {
 
 	public TwoAxisPointSingleGenerator(TwoAxisPointSingleModel model) {
 		super(model);

@@ -26,12 +26,10 @@ import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.ModelValidationException;
-import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
-import org.eclipse.scanning.api.points.PPointGenerator;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
@@ -61,7 +59,7 @@ import org.slf4j.LoggerFactory;
  * @author Joseph Ware
  *
  */
-public class CompoundGenerator extends AbstractGenerator<CompoundModel> implements PySerializable {
+public class CompoundGenerator extends AbstractScanPointGenerator<CompoundModel> {
 
 	private static Logger logger = LoggerFactory.getLogger(CompoundGenerator.class);
 
@@ -246,8 +244,8 @@ public class CompoundGenerator extends AbstractGenerator<CompoundModel> implemen
 	 * Extract PPointGenerators from IPointGenerators
 	 */
 	private PPointGenerator[] initGenerators(IPointGenerator<?>[] gens) {
-		return Arrays.stream(gens).map(AbstractGenerator.class::cast)
-				.map(AbstractGenerator::getPointGenerator)
+		return Arrays.stream(gens).map(AbstractScanPointGenerator.class::cast)
+				.map(AbstractScanPointGenerator::getPointGenerator)
 				.toArray(PPointGenerator[]::new);
 	}
 

@@ -85,8 +85,4 @@ public class StaticModel extends AbstractPointsModel {
 		return getClass().getSimpleName() + "[size=" + size + ", " + super.toString() + "]";
 	}
 
-	@Override
-	public int size() {
-		return size;
-	}
 }

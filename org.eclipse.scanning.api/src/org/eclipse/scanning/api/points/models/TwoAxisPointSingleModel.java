@@ -99,8 +99,4 @@ public class TwoAxisPointSingleModel extends AbstractMapModel {
 		}
 	}
 
-	@Override
-	public int size() {
-		return 1;
-	}
 }

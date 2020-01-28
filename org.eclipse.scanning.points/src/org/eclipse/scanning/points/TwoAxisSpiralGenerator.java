@@ -15,13 +15,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.scanning.api.ModelValidationException;
-import org.eclipse.scanning.api.points.AbstractGenerator;
-import org.eclipse.scanning.api.points.PPointGenerator;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.python.core.PyList;
 
-class TwoAxisSpiralGenerator extends AbstractGenerator<TwoAxisSpiralModel> {
+class TwoAxisSpiralGenerator extends AbstractScanPointGenerator<TwoAxisSpiralModel> {
 
 	TwoAxisSpiralGenerator(TwoAxisSpiralModel model) {
 		super(model);

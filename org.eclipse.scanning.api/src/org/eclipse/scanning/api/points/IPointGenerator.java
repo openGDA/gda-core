@@ -43,21 +43,21 @@ public interface IPointGenerator<T> extends Iterable<IPosition>, IValidator<T>, 
 	 * but can be as slow as iterating all points.
 	 * @return
 	 */
-	int size() throws GeneratorException;
+	int size();
 
 	/**
 	 * The shape of the points iterator.
 	 * @return
 	 * @throws GeneratorException
 	 */
-	int[] getShape() throws GeneratorException;
+	int[] getShape();
 
 	/**
 	 * The rank of the points iterator.
 	 * @return
 	 * @throws GeneratorException
 	 */
-	int getRank() throws GeneratorException;
+	int getRank();
 
 	/**
 	 * Iterator over the points, fast because does not evaluate
@@ -76,7 +76,7 @@ public interface IPointGenerator<T> extends Iterable<IPosition>, IValidator<T>, 
 	 *
 	 * @return
 	 */
-	List<IPosition> createPoints() throws GeneratorException;
+	List<IPosition> createPoints();
 
 	/**
 	 * By default this gets the first point from the iterator.

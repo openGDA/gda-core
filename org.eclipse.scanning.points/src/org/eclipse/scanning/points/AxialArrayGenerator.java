@@ -12,12 +12,10 @@
 package org.eclipse.scanning.points;
 
 import org.eclipse.scanning.api.ModelValidationException;
-import org.eclipse.scanning.api.points.AbstractGenerator;
-import org.eclipse.scanning.api.points.PPointGenerator;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 
-public class AxialArrayGenerator extends AbstractGenerator<AxialArrayModel> {
+public class AxialArrayGenerator extends AbstractScanPointGenerator<AxialArrayModel> {
 
 	public AxialArrayGenerator(AxialArrayModel model) {
 		super(model);

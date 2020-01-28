@@ -11,9 +11,11 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.points;
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.eclipse.scanning.api.points.AbstractGenerator;
-import org.eclipse.scanning.api.points.GeneratorException;
-import org.eclipse.scanning.api.points.PPointGenerator;
+import org.eclipse.scanning.api.points.IPosition;
 
 public class TestGenerator extends AbstractGenerator<TestGeneratorModel> {
 
@@ -25,12 +27,27 @@ public class TestGenerator extends AbstractGenerator<TestGeneratorModel> {
 	public void validate(TestGeneratorModel model) { }
 
 	@Override
-	public int[] getShape() throws GeneratorException {
+	public int[] getShape() {
 		throw new UnsupportedOperationException("Not designed to be run, just to test extension point for when people want to load by extension!");
 	}
 
 	@Override
-	public PPointGenerator createPythonPointGenerator() {
+	public int size() {
+		throw new UnsupportedOperationException("Not designed to be run, just to test extension point for when people want to load by extension!");
+	}
+
+	@Override
+	public int getRank() {
+		throw new UnsupportedOperationException("Not designed to be run, just to test extension point for when people want to load by extension!");
+	}
+
+	@Override
+	public Iterator<IPosition> iterator() {
+		throw new UnsupportedOperationException("Not designed to be run, just to test extension point for when people want to load by extension!");
+	}
+
+	@Override
+	public List<String> getNames() {
 		throw new UnsupportedOperationException("Not designed to be run, just to test extension point for when people want to load by extension!");
 	}
 
