@@ -83,7 +83,7 @@ public class TwoAxisLissajousModel extends AbstractBoundingBoxModel {
 				+ points + ", " + super.toString() + "]";
 	}
 
-	private double getThetaStep() {
+	public double getThetaStep() {
 		return 2*Math.PI/points;
 	}
 
@@ -93,8 +93,12 @@ public class TwoAxisLissajousModel extends AbstractBoundingBoxModel {
 	 *         pi/2 for odd number
 	 */
 
-	private double getPhaseDifference() {
+	public double getPhaseDifference() {
 		return Math.PI /2  * (((int) a/b) % 2);
+	}
+
+	public int getLobes() {
+		return (int) (a/b);
 	}
 
 	@Override

@@ -19,7 +19,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public abstract class AbstractPosition implements IPosition, Serializable {
 
@@ -110,20 +109,7 @@ public abstract class AbstractPosition implements IPosition, Serializable {
 
 		final Map<String, Integer> iours   = getIndices();
 		final Map<String, Integer> itheirs = getIndices((IPosition)obj);
-		if (!iours.equals(itheirs)) return false;
-
-		List<List<String>> ourDimNames = getDimensionNames().stream()
-				.map(ArrayList::new)
-				.collect(Collectors.toList());
-		ourDimNames.forEach(Collections::sort);
-		List<List<String>> theirDimNames = getDimensionNames((IPosition) obj).stream()
-				.map(ArrayList::new)
-				.collect(Collectors.toList());
-		theirDimNames.forEach(Collections::sort);
-
-		if (!equals(ourDimNames, theirDimNames)) return false;
-
-		return true;
+		return (iours.equals(itheirs));
 	}
 
 	private Map<String, Integer> getIndices(IPosition pos) {

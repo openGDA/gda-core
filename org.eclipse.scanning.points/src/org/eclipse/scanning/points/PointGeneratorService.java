@@ -33,6 +33,7 @@ import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
+import org.eclipse.scanning.api.points.models.AbstractMultiModel;
 import org.eclipse.scanning.api.points.models.AbstractPointsModel;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.AxialCollatedStepModel;
@@ -41,6 +42,8 @@ import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.BoundingLine;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.ConcurrentMultiModel;
+import org.eclipse.scanning.api.points.models.ConsecutiveMultiModel;
 import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.IBoundingLineModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
@@ -86,6 +89,8 @@ public class PointGeneratorService implements IPointGeneratorService {
 		gens.put(JythonGeneratorModel.class, JythonGenerator.class);
 		gens.put(TwoAxisPtychographyModel.class, TwoAxisPtychographyGenerator.class);
 		gens.put(TwoAxisPointSingleModel.class, TwoAxisPointSingleGenerator.class);
+		gens.put(ConsecutiveMultiModel.class, ConsecutiveMultiGenerator.class);
+		gens.put(ConcurrentMultiModel.class, ConcurrentMultiGenerator.class);
 
 		Map<String, GeneratorInfo> tinfo = new TreeMap<>();
 		fillStaticGeneratorInfo(gens, tinfo);
@@ -236,6 +241,9 @@ public class PointGeneratorService implements IPointGeneratorService {
 	public <T> IPointGenerator<T> createGenerator(T model) throws GeneratorException {
 		Class<IPointGenerator<T>> genClass = (Class<IPointGenerator<T>>) modelToGenerator.get(model.getClass());
 		try {
+			if (model instanceof AbstractMultiModel) {
+				return genClass.getDeclaredConstructor(model.getClass(), IPointGeneratorService.class).newInstance(model, this);
+			}
 			return genClass.getDeclaredConstructor(model.getClass()).newInstance(model);
 		} catch (Exception e) {
 			throw new GeneratorException(e);

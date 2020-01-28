@@ -80,11 +80,11 @@ public class ScanPointGeneratorFactoryTest {
 				names, units, start, stop, 5).getPointIterator();
 
         List<Object> expectedPoints = new ArrayList<Object>();
-	    expectedPoints.add(new Point("X", 0, 1.0, "Y", 0, 2.0, false));
-	    expectedPoints.add(new Point("X", 1, 2.0, "Y", 1, 4.0, false));
-	    expectedPoints.add(new Point("X", 2, 3.0, "Y", 2, 6.0, false));
-	    expectedPoints.add(new Point("X", 3, 4.0, "Y", 3, 8.0, false));
-	    expectedPoints.add(new Point("X", 4, 5.0, "Y", 4, 10.0, false));
+	    expectedPoints.add(new Point("X", 0, 1.0, "Y", 0, 2.0, 0, false));
+	    expectedPoints.add(new Point("X", 1, 2.0, "Y", 1, 4.0, 1, false));
+	    expectedPoints.add(new Point("X", 2, 3.0, "Y", 2, 6.0, 2, false));
+	    expectedPoints.add(new Point("X", 3, 4.0, "Y", 3, 8.0, 3, false));
+	    expectedPoints.add(new Point("X", 4, 5.0, "Y", 4, 10.0, 4, false));
 
 	    final int expectedSize = expectedPoints.size();
         assertEquals(expectedSize, iterator.getSize());
@@ -144,14 +144,14 @@ public class ScanPointGeneratorFactoryTest {
 				names, "mm", centre, radius, scale, alternate).getPointIterator();
 
         List<Object> expectedPoints = new ArrayList<Object>();
-	    expectedPoints.add(new Point("X", 0, 0.23663214944574582, "Y", 0, -0.3211855677650875, false));
-	    expectedPoints.add(new Point("X", 1, -0.6440318266552169, "Y", 1, -0.25037538922751695, false));
-	    expectedPoints.add(new Point("X", 2, -0.5596688286164636, "Y", 2, 0.6946549630820702, false));
-	    expectedPoints.add(new Point("X", 3, 0.36066957248394327, "Y", 3, 0.9919687803189761, false));
-	    expectedPoints.add(new Point("X", 4, 1.130650533568409, "Y", 4, 0.3924587351155914, false));
-	    expectedPoints.add(new Point("X", 5, 1.18586065489788, "Y", 5, -0.5868891557832875, false));
-	    expectedPoints.add(new Point("X", 6, 0.5428735608675326, "Y", 6, -1.332029488076613, false));
-	    expectedPoints.add(new Point("X", 7, -0.43197069612785155, "Y", 7, -1.4834842311481606, false));
+	    expectedPoints.add(new Point("X", 0, 0.23663214944574582, "Y", 0, -0.3211855677650875, 0, false));
+	    expectedPoints.add(new Point("X", 1, -0.6440318266552169, "Y", 1, -0.25037538922751695, 1, false));
+	    expectedPoints.add(new Point("X", 2, -0.5596688286164636, "Y", 2, 0.6946549630820702, 2, false));
+	    expectedPoints.add(new Point("X", 3, 0.36066957248394327, "Y", 3, 0.9919687803189761, 3, false));
+	    expectedPoints.add(new Point("X", 4, 1.130650533568409, "Y", 4, 0.3924587351155914, 4, false));
+	    expectedPoints.add(new Point("X", 5, 1.18586065489788, "Y", 5, -0.5868891557832875, 5, false));
+	    expectedPoints.add(new Point("X", 6, 0.5428735608675326, "Y", 6, -1.332029488076613, 6, false));
+	    expectedPoints.add(new Point("X", 7, -0.43197069612785155, "Y", 7, -1.4834842311481606, 7, false));
 
 	    final int expectedSize = 8;
         assertEquals(expectedSize, iterator.getSize());
@@ -184,12 +184,12 @@ public class ScanPointGeneratorFactoryTest {
 				names, "mm", box, numLobes, numPoints).getPointIterator();
 
         List<Object> expectedPoints = new ArrayList<Object>();
-	    expectedPoints.add(new Point("X", 0, 0.0, "Y", 0, 0.0, false));
-	    expectedPoints.add(new Point("X", 1, 0.01884757158250311, "Y", 1, 0.028267637002450906, false));
-	    expectedPoints.add(new Point("X", 2, 0.03768323863482717, "Y", 2, 0.05649510414594954, false));
-	    expectedPoints.add(new Point("X", 3, 0.05649510414594954, "Y", 3, 0.08464228865511125, false));
-	    expectedPoints.add(new Point("X", 4, 0.07527128613841116, "Y", 4, 0.1126691918405678, false));
-	    expectedPoints.add(new Point("X", 5, 0.0939999251732282, "Y", 5, 0.14053598593929345, false));
+	    expectedPoints.add(new Point("X", 0, 0.0, "Y", 0, 0.0, 0, false));
+	    expectedPoints.add(new Point("X", 1, 0.01884757158250311, "Y", 1, 0.028267637002450906, 1, false));
+	    expectedPoints.add(new Point("X", 2, 0.03768323863482717, "Y", 2, 0.05649510414594954, 2, false));
+	    expectedPoints.add(new Point("X", 3, 0.05649510414594954, "Y", 3, 0.08464228865511125, 3, false));
+	    expectedPoints.add(new Point("X", 4, 0.07527128613841116, "Y", 4, 0.1126691918405678, 4, false));
+	    expectedPoints.add(new Point("X", 5, 0.0939999251732282, "Y", 5, 0.14053598593929345, 5, false));
 
         assertEquals(numPoints, iterator.getSize());
         assertEquals(1, iterator.getRank());

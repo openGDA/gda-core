@@ -66,7 +66,7 @@ public class NoModelTest {
 		TwoAxisLissajousModel model = new TwoAxisLissajousModel();
 		model.setBoundingBox(box);
 		AbstractGenerator<TwoAxisLissajousModel> gen = (AbstractGenerator<TwoAxisLissajousModel>) pgs.createGenerator(model);
-		NoModelGenerator nmg = new NoModelGenerator(gen.createPythonPointGenerator());
+		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
 
 		compareIterators(gen.iterator(), nmg.iterator());
 	}
@@ -85,7 +85,7 @@ public class NoModelTest {
 
 		IROI roi = new CircularROI();
 		AbstractGenerator<CompoundModel> gen = (AbstractGenerator<CompoundModel>) pgs.createGenerator(model, roi);
-		NoModelGenerator nmg = new NoModelGenerator(gen.createPythonPointGenerator());
+		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
 
 		compareIterators(gen.iterator(), nmg.iterator());
 	}
@@ -103,7 +103,7 @@ public class NoModelTest {
 		RandomOffsetMutator rom = new RandomOffsetMutator(12, Arrays.asList("x"), offsets);
 		TwoAxisSpiralModel sm = new TwoAxisSpiralModel("x", "y", 1, box);
 		AbstractGenerator<CompoundModel> gen = (AbstractGenerator<CompoundModel>) pgs.createGenerator(sm, new ArrayList<>(), Arrays.asList(rom));
-		NoModelGenerator nmg = new NoModelGenerator(gen.createPythonPointGenerator());
+		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
 		compareIterators(gen.iterator(), nmg.iterator());
 	}
 
@@ -126,7 +126,7 @@ public class NoModelTest {
 
 		AbstractGenerator<CompoundModel> gen = (AbstractGenerator<CompoundModel>) pgs.createGenerator(sm, roiList, Arrays.asList(rom), 3);
 
-		NoModelGenerator nmg = new NoModelGenerator(gen.createPythonPointGenerator());
+		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
 		compareIterators(gen.iterator(), nmg.iterator());
 	}
 
@@ -149,7 +149,7 @@ public class NoModelTest {
 
 		AbstractGenerator<CompoundModel> gen = (AbstractGenerator<CompoundModel>) pgs.createGenerator(sm, roiList, Arrays.asList(rom));
 
-		NoModelGenerator nmg = new NoModelGenerator(gen.createPythonPointGenerator());
+		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
 
 		AxialStepModel asm = new AxialStepModel("z", 0, 1, 0.08);
 		IPointGenerator<AxialStepModel> asg = pgs.createGenerator(asm);
@@ -180,7 +180,7 @@ public class NoModelTest {
 		lpm.setBoundingLine(bl);
 
 		AbstractGenerator<TwoAxisLinePointsModel> gen = (AbstractGenerator<TwoAxisLinePointsModel>) pgs.createGenerator(lpm);
-		NoModelGenerator nmg = new NoModelGenerator(gen.createPythonPointGenerator());
+		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
 
 		nmg.getModel();
 	}
@@ -202,8 +202,8 @@ public class NoModelTest {
 		AbstractGenerator<TwoAxisGridStepModel> stepGen = (AbstractGenerator<TwoAxisGridStepModel>) pgs.createGenerator(stepModel);
 		AbstractGenerator<TwoAxisGridPointsModel> pointsGen = (AbstractGenerator<TwoAxisGridPointsModel>) pgs.createGenerator(pointsModel);
 
-		NoModelGenerator stepWithoutModel = new NoModelGenerator(stepGen.createPythonPointGenerator());
-		NoModelGenerator pointsWithoutModel = new NoModelGenerator(pointsGen.createPythonPointGenerator());
+		NoModelGenerator stepWithoutModel = new NoModelGenerator(stepGen.getPointGenerator());
+		NoModelGenerator pointsWithoutModel = new NoModelGenerator(pointsGen.getPointGenerator());
 
 		assertEquals(stepWithoutModel, pointsWithoutModel);
 	}

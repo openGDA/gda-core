@@ -17,6 +17,7 @@ from org.eclipse.scanning.api.points import MapPosition
 from org.eclipse.scanning.api.points import StaticPosition
 from org.eclipse.scanning.api.points import PPointGenerator
 from org.eclipse.scanning.api.points import ScanPointIterator
+
 from org.eclipse.scanning.points import PySerializable
 
 from scanpointgenerator import LineGenerator
@@ -62,6 +63,7 @@ class JavaIteratorWrapper(ScanPointIterator):
             result = self._next
         else:
             result = next(self._iterator)
+        result.setStepIndex(self._index)
         self._has_next = None
         self._index += 1
         return result
@@ -117,6 +119,10 @@ class GeneratorWrapper(PPointGenerator, PySerializable):
         return len(self.generator.shape)
     def getNames(self):
         return [name for dimension in self.generator.dimensions for name in dimension.axes]
+    def getInitialBounds(self):
+        return MapPosition(self.__getitem__(0).lower)
+    def getFinalBounds(self):
+        return MapPosition(self.__getitem__(len(self)-1).upper)
     
     def toDict(self):
         return self.generator.to_dict()
@@ -160,19 +166,16 @@ class MapPositionWrapper(GeneratorWrapper):
     """
     
     def __iter__(self):
-        self._index = -1
         names = [d.axes for d in self.generator.dimensions]
         axes_ordered = sum(names, [])
         index_locations = {axis:[axis in name for name in names].index(True) for axis in axes_ordered}
         for point in self.generator.iterator():
-            self._index += 1
             map_point = MapPosition()
             for axis in axes_ordered:
                 index = index_locations[axis]
                 value = point.positions[axis]
                 map_point.put(axis, value)
                 map_point.putIndex(axis, point.indexes[index])
-                map_point.setStepIndex(self._index)
             map_point.setDimensionNames(names)
             yield map_point
     
@@ -252,6 +255,30 @@ class JStaticPointGenerator(StaticPositionGeneratorWrapper):
         self.generator = CompoundGenerator([static_gen], [], [])
         self.generator.prepare()
         super(StaticPositionGeneratorWrapper, self).__init__(self.generator)
+        
+class JZipGenerator(MapPositionWrapper):
+    """
+    Wrap a ZipGenerator and produce MapPosition objects
+    """
+    
+    def __init__(self, iterators, alternating=False):
+        generators = [generator for wrapper in iterators for generator in wrapper.generator.generators]
+        zip_gen = ZipGenerator(generators, alternating)
+        self.generator = CompoundGenerator([zip_gen], [], [], -1, False)
+        self.generator.prepare()
+        super(MapPositionWrapper, self).__init__(self.generator)
+        
+class JConcatGenerator(MapPositionWrapper):
+    """
+    Wrap a ConcatGenerator and produce MapPosition objects
+    """
+    
+    def __init__(self, iterators, alternating=False):
+        generators = [generator for wrapper in iterators for generator in wrapper.generator.generators]
+        concat_gen = ConcatGenerator(generators, alternating)
+        self.generator = CompoundGenerator([concat_gen], [], [], -1, False)
+        self.generator.prepare()
+        super(MapPositionWrapper, self).__init__(self.generator)
 
 class JCompoundGenerator(MapPositionWrapper):
     """

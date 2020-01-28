@@ -71,4 +71,5 @@ public abstract class AbstractLineGenerator<T extends AbstractBoundingLineModel>
 
 	protected abstract int getPoints();
 
+
 }

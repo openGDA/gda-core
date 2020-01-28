@@ -63,7 +63,11 @@ public abstract class AbstractGenerator<T extends AbstractPointsModel> implement
 		return pointGenerator.getPointIterator();
 	}
 
-	public abstract PPointGenerator createPythonPointGenerator();
+	protected abstract PPointGenerator createPythonPointGenerator();
+
+	public PPointGenerator getPointGenerator() {
+		return pointGenerator;
+	}
 
 	/**
 	 * If the given model is considered "invalid", this method throws a
@@ -151,6 +155,19 @@ public abstract class AbstractGenerator<T extends AbstractPointsModel> implement
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + " [model=" + model + "]";
+	}
+
+	/*
+	 * ConsecutiveGenerator requires that final bounds (final point + half step) is within DIFF_LIMIT (1e-5) of initial
+	 * bounds of next generator.
+	 * Any generator that returns StaticPosition is invalid target for continuous consecutive
+	 */
+	public final IPosition finalBounds() {
+		return pointGenerator.getFinalBounds();
+	}
+
+	public final IPosition initialBounds() {
+		return pointGenerator.getInitialBounds();
 	}
 
 }

@@ -60,4 +60,17 @@ public interface PPointGenerator {
 	 */
 	public List<String> getNames();
 
+	/**
+	 * @return The final Bound (half step beyond the final Point) of the underlying
+	 * Python Generator. Used for ConsecutiveMultiModels
+	 */
+
+	public IPosition getFinalBounds();
+
+	/**
+	 * @return The initial Bound (half step before the first Point) of the underlying
+	 * Python Generator. Used for ConsecutiveMultiModels
+	 */
+	public IPosition getInitialBounds();
+
 }

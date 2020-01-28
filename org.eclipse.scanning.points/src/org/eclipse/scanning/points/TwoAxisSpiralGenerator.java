@@ -51,9 +51,9 @@ class TwoAxisSpiralGenerator extends AbstractGenerator<TwoAxisSpiralModel> {
         final boolean alternating = model.isAlternating();
         final boolean continuous = model.isContinuous();
 
-        PPointGenerator pointGen = spiralGeneratorFactory.createObject(
+        final PPointGenerator pointGen = spiralGeneratorFactory.createObject(
 				axes, units, centre, maxRadius, scale, alternating);
-        return CompoundGenerator.createWrappingCompoundGenerator(new PPointGenerator[] {pointGen}, continuous);
+        return CompoundGenerator.createWrappingCompoundGenerator(new PPointGenerator[] { pointGen }, continuous);
         }
 
 }

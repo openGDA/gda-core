@@ -29,31 +29,33 @@ public class TwoAxisLissajousGenerator extends AbstractGenerator<TwoAxisLissajou
 	@Override
 	public void validate(TwoAxisLissajousModel model) {
 		super.validate(model);
-		if (model.getPoints() < 1) throw new ModelValidationException("Must have one or more points in model!", model, "points");
+		if (model.getPoints() < 1)
+			throw new ModelValidationException("Must have one or more points in model!", model, "points");
 	}
 
 	@Override
 	public PPointGenerator createPythonPointGenerator() {
-        final JythonObjectFactory<PPointGenerator> lissajousGeneratorFactory = ScanPointGeneratorFactory.JTwoAxisLissajousGeneratorFactory();
+		final JythonObjectFactory<PPointGenerator> lissajousGeneratorFactory = ScanPointGeneratorFactory.JTwoAxisLissajousGeneratorFactory();
 
-        final TwoAxisLissajousModel model = getModel();
+		final TwoAxisLissajousModel model = getModel();
 
-        final List<String> axes =  model.getScannableNames();
-        final List<String> units = model.getUnits();
-        final int numLobes = (int) (model.getA() / model.getB());
-        final int numPoints = model.getPoints();
+		final List<String> axes = model.getScannableNames();
+		final List<String> units = model.getUnits();
+		final int numLobes = model.getLobes();
+		final int numPoints = model.getPoints();
 		final double width = model.getBoundingBox().getxAxisLength();
 		final double height = model.getBoundingBox().getyAxisLength();
-        final PyDictionary box = new PyDictionary();
-        box.put("width", width);
-        box.put("height", height);
-        box.put("centre", new double[] {model.getBoundingBox().getxAxisStart() + width / 2,
-									model.getBoundingBox().getyAxisStart() + height / 2});
-        final boolean alternating = model.isAlternating();
-        final boolean continuous = model.isContinuous();
+		final PyDictionary box = new PyDictionary();
+		box.put("width", width);
+		box.put("height", height);
+		box.put("centre", new double[] { model.getBoundingBox().getxAxisStart() + width / 2,
+				model.getBoundingBox().getyAxisStart() + height / 2 });
+		final boolean alternating = model.isAlternating();
+		final boolean continuous = model.isContinuous();
 
-        PPointGenerator pointGen = lissajousGeneratorFactory.createObject(axes, units, box, numLobes, numPoints, alternating);
-        return CompoundGenerator.createWrappingCompoundGenerator(new PPointGenerator[] {pointGen}, continuous);
+		final PPointGenerator pointGen = lissajousGeneratorFactory.createObject(axes, units, box, numLobes, numPoints,
+				alternating);
+		return CompoundGenerator.createWrappingCompoundGenerator(new PPointGenerator[] { pointGen }, continuous);
 	}
 
 }

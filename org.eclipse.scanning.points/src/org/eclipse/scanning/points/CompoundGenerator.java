@@ -247,7 +247,7 @@ public class CompoundGenerator extends AbstractGenerator<CompoundModel> implemen
 	 */
 	private PPointGenerator[] initGenerators(IPointGenerator<?>[] gens) {
 		return Arrays.stream(gens).map(AbstractGenerator.class::cast)
-				.map(AbstractGenerator::createPythonPointGenerator)
+				.map(AbstractGenerator::getPointGenerator)
 				.toArray(PPointGenerator[]::new);
 	}
 
