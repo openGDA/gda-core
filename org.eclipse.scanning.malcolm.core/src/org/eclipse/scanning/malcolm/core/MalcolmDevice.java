@@ -392,6 +392,9 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 			final MalcolmMethodMeta configureMethodMeta = getEndpointValue(MalcolmMethod.CONFIGURE.toString());
 			final Map<String, Object> configureDefaults = configureMethodMeta.getDefaults();
 			final MalcolmTable defaultDetectorsTable = (MalcolmTable) configureDefaults.get(FIELD_NAME_DETECTORS);
+			if (defaultDetectorsTable == null) {
+				throw new MalcolmDeviceException("No Malcolm detectors table found for " + getName());
+			}
 			if (detectorsTableTypesMap == null) {
 				detectorsTableTypesMap = defaultDetectorsTable.getTableDataTypes();
 			}
