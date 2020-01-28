@@ -21,7 +21,9 @@ package uk.ac.diamond.daq.devices.specs.phoibos;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
@@ -40,8 +42,10 @@ import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosConfigurableScannableInfo;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosScannableValue;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceFileUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceHelper;
@@ -117,6 +121,9 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	private final transient RateLimiter updateLimiter = RateLimiter.create(10.0);
 
 	private String currentlyRunningRegionName;
+
+	private transient SpecsPhoibosConfigurableScannable configurablePhotonEnergyScannable;
+	private final transient List<SpecsPhoibosConfigurableScannable> additionalConfigurableScannables = new ArrayList<>();
 
 	@Override
 	public void configure() throws FactoryException {
@@ -820,12 +827,20 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 
 	@Override
 	public double toBindingEnergy(double kineticEnergy) {
-		return currentPhotonEnergy - kineticEnergy - workFunction;
+		return toBindingEnergy(kineticEnergy, currentPhotonEnergy);
+	}
+
+	private double toBindingEnergy(double kineticEnergy, double photonEnergy) {
+		return photonEnergy - kineticEnergy - workFunction;
 	}
 
 	@Override
 	public double toKineticEnergy(double bindingEnergy) {
-		return currentPhotonEnergy - bindingEnergy - workFunction;
+		return toKineticEnergy(bindingEnergy, currentPhotonEnergy);
+	}
+
+	private double toKineticEnergy(double bindingEnergy, double photonEnergy) {
+		return photonEnergy - bindingEnergy - workFunction;
 	}
 
 	@Override
@@ -901,17 +916,27 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	}
 
 	@Override
-	public SpecsPhoibosSequenceValidation validateSequence(SpecsPhoibosSequence sequence) {
+	public SpecsPhoibosSequenceValidation validateSequence(SpecsPhoibosSequence sequence) throws DeviceException {
 		updatePhotonEnergy();
-		// Instantiate validation class
+
 		SpecsPhoibosSequenceValidation validationErrors = new SpecsPhoibosSequenceValidation();
 
 		for (SpecsPhoibosRegion enabledRegion : sequence.getEnabledRegions()) {
 			List<String> regionErrors = validateRegion(enabledRegion);
-			if (! regionErrors.isEmpty()) {
+			if (!regionErrors.isEmpty()) {
 				validationErrors.addValidationErrors(enabledRegion, regionErrors);
 			}
 		}
+		return validationErrors;
+	}
+
+
+	private List<String> validateRegion(SpecsPhoibosRegion region) throws DeviceException {
+		List<String> validationErrors = new ArrayList<>();
+
+		validationErrors.addAll(validateRegionEnergy(region));
+		validationErrors.addAll(validateScannablePositions(region));
+
 		return validationErrors;
 	}
 
@@ -921,59 +946,68 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	 *
 	 * @param region
 	 * @return A list of error messages or an empty list if no errors
+	 * @throws DeviceException
 	 */
-	private List<String> validateRegion(SpecsPhoibosRegion region) {
-		List<String> regionErrors = new ArrayList<>();
-
-		// Fetch relevant values from region object
+	private List<String> validateRegionEnergy(SpecsPhoibosRegion region) {
 		double startEnergy = region.getStartEnergy();
 		double endEnergy = region.getEndEnergy();
 		double passEnergy = region.getPassEnergy();
-		boolean bindingEnergyMode = region.isBindingEnergy();
 
-		// Debug - KINETIC ENERGY VALUES
-		logger.debug("Validated region - {}", region.getName());
-		String inputType;
-		if (bindingEnergyMode) {
-			inputType = "BINDING";
-		}else {
-			inputType = "KINETIC";
-		}
-		logger.debug("Energy mode - {}", inputType);
-		logger.debug("------------{}-ENERGY-INPUT-VALUES--------------", inputType);
-		logger.debug("Photon energy at the time of validation: {} eV", currentPhotonEnergy);
-		logger.debug("Start energy is: {}", startEnergy);
-		logger.debug("End energy is: {}", endEnergy);
-		logger.debug("Pass energy is: {}", passEnergy);
-
+		logger.debug("Validating energy for region: {}", region.getName());
+		logger.debug("Energy mode: {}", region.isBindingEnergy() ? "Binding" : "Kinetic");
+		logger.debug("Photon Energy: {}, Start Energy: {}, End Energy: {}, Pass Energy: {}", currentPhotonEnergy, startEnergy, endEnergy, passEnergy);
 
 		// Convert binding to kinetic if needed
-		if (bindingEnergyMode) {
-			startEnergy = toKineticEnergy(startEnergy);
-			endEnergy = toKineticEnergy(endEnergy);
-			logger.debug("-----CONVERTED-KINETIC-ENERGY-VALUES-----");
-			logger.debug("Start energy is: {}", startEnergy);
-			logger.debug("End energy is: {}", endEnergy);
+		if (region.isBindingEnergy()) {
+
+			// If the analyser has an energy scannable and the region has an enabled value for it, we need to validate with that instead of the current photon energy
+			double photonEnergy = currentPhotonEnergy;
+
+			if (hasConfigurablePhotonEnergyScannable()) {
+				SpecsPhoibosScannableValue value = region.getScannableValue(getConfigurablePhotonEnergyScannable().getScannableName());
+				if (value != null && value.isEnabled()) {
+					photonEnergy = value.getScannableValue();
+				}
+			}
+
+			startEnergy = toKineticEnergy(startEnergy, photonEnergy);
+			endEnergy = toKineticEnergy(endEnergy, photonEnergy);
+			logger.debug("Binding energy mode. Converting values to Kinetic. Start: {}, End: {}", startEnergy, endEnergy);
 		}
 
-		// Actual tests
+		List<String> energyValidationErrors = new ArrayList<>();
 		if (startEnergy <= passEnergy) {
-			regionErrors.add("Start energy is lower than or equal to pass energy");
+			logger.debug("Start energy is lower than or equal to pass energy.");
+			energyValidationErrors.add("Start energy is lower than or equal to pass energy");
 		}
 
 		if (endEnergy <= passEnergy) {
-			regionErrors.add("End energy is lower than or equal to pass energy");
+			logger.debug("End energy is lower than or equal to pass energy");
+			energyValidationErrors.add("End energy is lower than or equal to pass energy");
 		}
 
-		if (regionErrors.isEmpty()) {
-			logger.debug("Area has no validation errors");
-		}else {
-			logger.debug("Validation returned errors {}", regionErrors);
+		if (energyValidationErrors.isEmpty()) {
+			logger.debug("Area has no energy validation errors");
 		}
-		logger.debug("----END-OF-REGION-VALIDATION----");
 
+		return energyValidationErrors;
+	}
 
-		return regionErrors;
+	private List<String> validateScannablePositions(SpecsPhoibosRegion region) throws DeviceException {
+		List<String> validationErrors = new ArrayList<>();
+
+		for (SpecsPhoibosScannableValue scannableValue : region.getEnabledScannableValues()) {
+			Optional<SpecsPhoibosConfigurableScannable> scannable = getConfigurableScannable(scannableValue.getScannableName());
+
+			if (scannable.isPresent()) {
+				String errorDescription = scannable.get().checkPositionValid(scannableValue.getScannableValue());
+				if (errorDescription != null) {
+					validationErrors.add(scannableValue.getScannableName() + ": " + errorDescription);
+				}
+			}
+		}
+
+		return validationErrors;
 	}
 
 	private void processEpicsUpdate(Object source, Object arg) {
@@ -1070,4 +1104,81 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		this.experimentalShutter = experimentalShutter;
 	}
 
+	public List<SpecsPhoibosConfigurableScannable> getAdditionalConfigurableScannables() {
+		return additionalConfigurableScannables;
+	}
+
+	public void setAdditionalConfigurableScannables(List<SpecsPhoibosConfigurableScannable> additionalOptionalScannables) {
+		additionalConfigurableScannables.clear();
+		additionalConfigurableScannables.addAll(additionalOptionalScannables);
+	}
+
+	@Override
+	public boolean hasAdditionalConfigurableScannables() {
+		return !getAdditionalConfigurableScannables().isEmpty();
+	}
+
+	@Override
+	public SpecsPhoibosConfigurableScannableInfo getConfigurablePhotonEnergyScannableInfo() {
+		if (hasConfigurablePhotonEnergyScannable()) {
+			return configurablePhotonEnergyScannable.getInfo();
+		}
+
+		return null;
+	}
+
+	public void setConfigurablePhotonEnergyScannable(SpecsPhoibosConfigurableScannable configurableScannable) {
+		configurablePhotonEnergyScannable = configurableScannable;
+	}
+
+	public SpecsPhoibosConfigurableScannable getConfigurablePhotonEnergyScannable() {
+		return configurablePhotonEnergyScannable;
+	}
+
+	@Override
+	public boolean hasConfigurablePhotonEnergyScannable() {
+		return configurablePhotonEnergyScannable != null;
+	}
+
+	@Override
+	public boolean hasAnyConfigurableScannables() {
+		return hasConfigurablePhotonEnergyScannable() || hasAdditionalConfigurableScannables();
+	}
+
+	@Override
+	public List<SpecsPhoibosConfigurableScannableInfo> getAdditionalConfigurableScannablesInfo() {
+
+		return additionalConfigurableScannables
+			.stream()
+			.map(SpecsPhoibosConfigurableScannable::getInfo)
+			.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<SpecsPhoibosConfigurableScannableInfo> getAllConfigurableScannablesInfo() {
+		List<SpecsPhoibosConfigurableScannableInfo> allScannablesInfo;
+
+		allScannablesInfo = additionalConfigurableScannables
+				.stream()
+				.map(SpecsPhoibosConfigurableScannable::getInfo)
+				.collect(Collectors.toList());
+
+		if (hasConfigurablePhotonEnergyScannable()) {
+			allScannablesInfo.add(configurablePhotonEnergyScannable.getInfo());
+		}
+
+		return allScannablesInfo;
+	}
+
+	public Optional<SpecsPhoibosConfigurableScannable> getConfigurableScannable(String name) {
+
+		if (hasConfigurablePhotonEnergyScannable() && configurablePhotonEnergyScannable.isCalled(name)) {
+			return Optional.of(configurablePhotonEnergyScannable);
+		}
+
+		return additionalConfigurableScannables
+				.stream()
+				.filter(s -> s.isCalled(name))
+				.findFirst();
+	}
 }

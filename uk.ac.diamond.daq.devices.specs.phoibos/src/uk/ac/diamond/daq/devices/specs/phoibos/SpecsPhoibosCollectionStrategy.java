@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -41,6 +42,7 @@ import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdetector.AsyncNXCollectionStrategy;
 import gda.scan.ScanInformation;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosScannableValue;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
 
 /**
@@ -242,6 +244,10 @@ public class SpecsPhoibosCollectionStrategy implements AsyncNXCollectionStrategy
 		runningAcquisition = executorService.submit(() -> {
 			// Loop through all the regions
 			for (SpecsPhoibosRegion region : regionsToAcquire) {
+
+				// Move any scannables defined by the region into their positions
+				moveConfigurableScannables(region);
+
 				logger.debug("Starting region: {} (Region {} of {})", region.getName(), regionsToAcquire.indexOf(region) + 1, regionsToAcquire.size());
 				// Setup the analyser
 				analyser.setRegion(region);
@@ -260,6 +266,32 @@ public class SpecsPhoibosCollectionStrategy implements AsyncNXCollectionStrategy
 			// Update the status
 			return Detector.IDLE;
 		});
+	}
+
+	private void moveConfigurableScannables(SpecsPhoibosRegion region) throws Exception {
+
+		List<SpecsPhoibosConfigurableScannable> movedScannables = new ArrayList<>();
+
+		logger.debug("Moving scannables to values defined in region.");
+		for (SpecsPhoibosScannableValue scannableValue : region.getEnabledScannableValues()) {
+
+			Optional<SpecsPhoibosConfigurableScannable> optionalConfigurableScannable = analyser.getConfigurableScannable(scannableValue.getScannableName());
+
+			if (optionalConfigurableScannable.isPresent()) {
+				SpecsPhoibosConfigurableScannable scannable = optionalConfigurableScannable.get();
+				logger.debug("{} found. Moving to {}", scannable.getScannableName(), scannableValue.getScannableValue());
+				scannable.asynchronousMoveTo(scannableValue.getScannableValue());
+				movedScannables.add(scannable);
+			} else {
+				logger.debug("{} not configured on analyser, it will not be moved..", scannableValue.getScannableName());
+			}
+		}
+
+		logger.debug("Waiting for scannables to finish moving to start position");
+		for (SpecsPhoibosConfigurableScannable movedScannable : movedScannables) {
+			movedScannable.waitWhileBusy();
+			logger.debug("{} finished moving. Now at {}", movedScannable.getScannableName(), movedScannable.getPosition());
+		}
 	}
 
 	private SpecsPhoibosCompletedRegion getCompletedRegion(final String regionName) {

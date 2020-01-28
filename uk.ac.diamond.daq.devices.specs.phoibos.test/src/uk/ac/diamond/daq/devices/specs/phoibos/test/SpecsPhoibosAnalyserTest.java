@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 
+import gda.device.DeviceException;
 import gda.device.Scannable;
 import uk.ac.diamond.daq.devices.specs.phoibos.SpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.SpecsPhoibosCollectionStrategy;
@@ -138,7 +139,7 @@ public class SpecsPhoibosAnalyserTest {
 	}
 
 	@Test
-	public void testValidateSequenceWithInvalidRegion() {
+	public void testValidateSequenceWithInvalidRegion() throws DeviceException {
 		// Create invalid region
 		SpecsPhoibosRegion region  = new SpecsPhoibosRegion();
 		region.setStartEnergy(50);
@@ -146,13 +147,12 @@ public class SpecsPhoibosAnalyserTest {
 		region.setPassEnergy(70);
 		SpecsPhoibosSequence sequence = new SpecsPhoibosSequence();
 		sequence.addRegion(region);
-		SpecsPhoibosSequenceValidation validationErrors = new SpecsPhoibosSequenceValidation();
-		validationErrors = analyser.validateSequence(sequence);
-		assertFalse(validationErrors.isValid());
+		SpecsPhoibosSequenceValidation validationResult = analyser.validateSequence(sequence);
+		assertFalse(validationResult.isValid());
 	}
 
 	@Test
-	public void testValidateSequenceWithValidRegion() {
+	public void testValidateSequenceWithValidRegion() throws DeviceException {
 		// Create valid region
 		SpecsPhoibosRegion region  = new SpecsPhoibosRegion();
 		region.setStartEnergy(50);

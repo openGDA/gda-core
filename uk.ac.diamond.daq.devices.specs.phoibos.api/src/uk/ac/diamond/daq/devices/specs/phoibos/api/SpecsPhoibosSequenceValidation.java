@@ -61,7 +61,7 @@ public class SpecsPhoibosSequenceValidation implements Serializable {
 			for (String item : regionErrors) {
 				regionErrorsPretty += item + System.lineSeparator();
 			}
-			validationSummary += r.getName() + System.lineSeparator() + regionErrorsPretty + System.lineSeparator();
+			validationSummary += "Region: " + r.getName() + System.lineSeparator() + regionErrorsPretty + System.lineSeparator();
 		}
 		return validationSummary;
 	}
