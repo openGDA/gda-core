@@ -95,7 +95,6 @@ import org.eclipse.scanning.api.device.models.ProcessingModel;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.AbstractPosition;
-import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
@@ -971,13 +970,8 @@ public class ScannableNexusWrapperScanTest {
 		final IPointGenerator<?> fgen = gen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
 			@Override
-					public void runWillPerform(RunEvent evt)
-							throws ScanningException {
-						try {
-							System.out.println("Running acquisition scan of size "+fgen.size());
-				} catch (GeneratorException e) {
-					throw new ScanningException(e);
-				}
+			public void runWillPerform(RunEvent evt) throws ScanningException {
+				System.out.println("Running acquisition scan of size "+fgen.size());
 			}
 		});
 
