@@ -167,9 +167,9 @@ public class LiveStreamMenuContribution extends ExtensionContributionFactory {
 			public void run() {
 				logger.debug("Opening {} {} stream", cameraConfig.getKey(), streamType.displayName);
 				String viewId=LiveStreamView.ID;
-				if (cameraConfig.getValue().isWithHistogram()) {
-					//get view ID at runtime from extension registry from configured camera name or id
-					viewId=getViewID(cameraConfig.getValue().getName());
+				if (cameraConfig.getValue().getName()!=null && !cameraConfig.getValue().getName().isEmpty()) {
+					//if the view is already registered by a plugin, return its ID, don't create a new one
+					viewId=getViewID(cameraConfig.getValue().getName())==null ? viewId : getViewID(cameraConfig.getValue().getName());
 				}
 
 				try {
