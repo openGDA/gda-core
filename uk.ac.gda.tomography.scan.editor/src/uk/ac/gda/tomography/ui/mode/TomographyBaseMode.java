@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import org.eclipse.swt.SWT;
@@ -42,16 +43,16 @@ import gda.rcp.views.StageCompositeFactory;
 import gda.rcp.views.TabCompositeFactory;
 import gda.rcp.views.TabCompositeFactoryImpl;
 import gda.rcp.views.TabFolderCompositeFactory;
+import uk.ac.gda.client.composites.FinderHelper;
+import uk.ac.gda.client.exception.IncompleteModeException;
 import uk.ac.gda.tomography.base.TomographyMode;
-import uk.ac.gda.tomography.controller.IncompleteModeException;
+import uk.ac.gda.tomography.controller.TomoIncompleteModeException;
 import uk.ac.gda.tomography.model.DevicePosition;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 
 public abstract class TomographyBaseMode implements TomographyMode {
-
-	private boolean loaded = false;
 
 	private Composite stageControls;
 	private final Stage stage;
@@ -69,7 +70,7 @@ public abstract class TomographyBaseMode implements TomographyMode {
 	}
 
 	@Override
-	public Map<TomographyDevices, IScannableMotor> getMotors() throws IncompleteModeException {
+	public Map<TomographyDevices, IScannableMotor> getMotors() throws TomoIncompleteModeException {
 		if (motors.isEmpty()) {
 			loadDevices();
 		}
@@ -95,7 +96,7 @@ public abstract class TomographyBaseMode implements TomographyMode {
 		Map<TomographyDevices, IScannableMotor> intMotors;
 		try {
 			intMotors = getMotors();
-		} catch (IncompleteModeException e) {
+		} catch (TomoIncompleteModeException e) {
 			logger.error("TODO put description of error here", e);
 			return Collections.unmodifiableSet(positions);
 		}
@@ -137,11 +138,11 @@ public abstract class TomographyBaseMode implements TomographyMode {
 	}
 
 	private void loadMotor(Entry<TomographyDevices, String> entry) {
-		try {
-			motors.put(entry.getKey(), ModeHelper.getMotor(getBeanId(entry)));
-		} catch (IncompleteModeException e) {
-			logger.error("Error", e);
-		}
+			try {
+				FinderHelper.getIScannableMotor(getBeanId(entry)).ifPresent(c -> motors.put(entry.getKey(), c));
+			} catch (IncompleteModeException e) {
+				logger.error("Cannot load motor", e);
+			}
 	}
 
 	private void loadMalcolm(Entry<TomographyDevices, String> entry) {
@@ -153,10 +154,7 @@ public abstract class TomographyBaseMode implements TomographyMode {
 	}
 
 	private String getBeanId(Entry<TomographyDevices, String> entry) throws IncompleteModeException {
-		if (Objects.isNull(LocalProperties.get(entry.getValue(), null))) {
-			throw new IncompleteModeException(String.format("Cannot find property beanId:%s for device:%s", entry.getValue(), entry.getKey()));
-		}
-		return LocalProperties.get(entry.getValue());
+		return Optional.ofNullable(LocalProperties.get(entry.getValue())).orElseThrow(IncompleteModeException::new);
 	}
 
 	private Composite getStageControls(Composite parent) {
@@ -181,11 +179,11 @@ public abstract class TomographyBaseMode implements TomographyMode {
 		return group;
 	}
 
-	protected StageCompositeDefinition doMotor(TomographyDevices device, ClientMessages label) throws IncompleteModeException {
+	protected StageCompositeDefinition createMotorElement(TomographyDevices device, ClientMessages label) throws TomoIncompleteModeException {
 		StageCompositeDefinition scd = new StageCompositeDefinition();
 		scd.setScannable(getMotors().get(device));
 		if (Objects.isNull(scd.getScannable())) {
-			throw new IncompleteModeException(String.format("Device %s not found", device));
+			throw new TomoIncompleteModeException(String.format("Device %s not found", device));
 		}
 		scd.setStepSize(1);
 		scd.setDecimalPlaces(0);
@@ -220,8 +218,8 @@ public abstract class TomographyBaseMode implements TomographyMode {
 		public StageCompositeDefinitionBuilder assemble(TomographyDevices device, ClientMessages label) {
 			StageCompositeDefinition scd;
 			try {
-				scd = doMotor(device, label);
-			} catch (IncompleteModeException e) {
+				scd = createMotorElement(device, label);
+			} catch (TomoIncompleteModeException e) {
 				return this;
 			}
 			if (Objects.nonNull(scd)) {

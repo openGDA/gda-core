@@ -54,7 +54,7 @@ import uk.ac.gda.tomography.base.TomographyConfiguration;
 import uk.ac.gda.tomography.base.TomographyMode;
 import uk.ac.gda.tomography.base.TomographyMode.Stage;
 import uk.ac.gda.tomography.base.TomographyParameters;
-import uk.ac.gda.tomography.controller.IncompleteModeException;
+import uk.ac.gda.tomography.controller.TomoIncompleteModeException;
 import uk.ac.gda.tomography.model.EndAngle;
 import uk.ac.gda.tomography.model.ImageCalibration;
 import uk.ac.gda.tomography.model.MultipleScans;
@@ -148,11 +148,11 @@ public class TomographyParametersConfigurationTest {
 	 *
 	 * @throws JsonProcessingException
 	 * @throws DeviceException
-	 * @throws IncompleteModeException
+	 * @throws TomoIncompleteModeException
 	 */
 	@Ignore //Too many problem importing dependencies. Have to think a different approach
 	@Test
-	public void devicesSerialization() throws JsonProcessingException, IncompleteModeException {
+	public void devicesSerialization() throws JsonProcessingException, TomoIncompleteModeException {
 		TomographyMode mode = createBasicTomographyMode();
 
 		String confAsString = mapper.writeValueAsString(mode);
@@ -257,7 +257,7 @@ public class TomographyParametersConfigurationTest {
 			}
 
 			@Override
-			public Map<TomographyDevices, IScannableMotor> getMotors() throws IncompleteModeException {
+			public Map<TomographyDevices, IScannableMotor> getMotors() throws TomoIncompleteModeException {
 				return intMotors();
 			}
 
