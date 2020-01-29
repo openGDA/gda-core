@@ -237,6 +237,11 @@
             id="uk.ac.gda.client.exafs.fetchDetectorConfigurationCommand"
             name="Refresh view">
       </command>
+      <command
+            defaultHandler="uk.ac.gda.exafs.ui.actions.EditRepetitionsHandler"
+            id="uk.ac.gda.exafs.ui.actions.EditRepetitionsHandler"
+            name="Edit repetitions">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -295,6 +300,10 @@
      <handler
            class="uk.ac.gda.exafs.ui.actions.RefreshDetectorConfigurationHandler"
            commandId="uk.ac.gda.client.exafs.fetchDetectorConfigurationCommand">
+     </handler>
+     <handler
+           class="uk.ac.gda.exafs.ui.actions.EditRepetitionsHandler"
+           commandId="uk.ac.gda.exafs.ui.actions.EditRepetitionsHandler">
      </handler>
    </extension>
    <extension
@@ -498,6 +507,15 @@
                tooltip="Fetch current settings from detector">
          </command>
       </menuContribution>
+      <menuContribution
+         allPopups="false"
+         locationURI="popup:uk.ac.gda.client.CommandQueueViewFactory?after=additions">
+	     <command
+	          commandId="uk.ac.gda.exafs.ui.actions.EditRepetitionsHandler"
+	          label="Edit repetitions"
+	          style="push">
+	     </command>
+	  </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.editorActions">

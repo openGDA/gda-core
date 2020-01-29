@@ -93,7 +93,8 @@ Require-Bundle: uk.ac.gda.exafs.api;bundle-version="1.0.0",
  com.github.tschoonj.xraylib,
  org.eclipse.nebula.widgets.opal.checkboxgroup,
  uk.ac.gda.dls,
- uk.ac.gda.client.live.stream
+ uk.ac.gda.client.live.stream,
+ org.eclipse.ui.workbench
 Export-Package: gda.exafs.scan,
  uk.ac.gda.client.exafs,
  uk.ac.gda.exafs,
