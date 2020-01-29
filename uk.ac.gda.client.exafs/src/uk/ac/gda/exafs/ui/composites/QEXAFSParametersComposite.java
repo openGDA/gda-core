@@ -18,16 +18,18 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import static javax.measure.unit.NonSI.ELECTRON_VOLT;
+import static si.uom.NonSI.ANGSTROM;
+import static si.uom.NonSI.DEGREE_ANGLE;
+import static si.uom.NonSI.ELECTRON_VOLT;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
+import javax.measure.Quantity;
+import javax.measure.Unit;
 import javax.measure.quantity.Angle;
 import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.Unit;
 
 import org.eclipse.richbeans.api.event.ValueAdapter;
 import org.eclipse.richbeans.api.event.ValueEvent;
@@ -43,12 +45,12 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.jscience.physics.amount.Amount;
 
 import gda.configuration.properties.LocalProperties;
 import gda.jscience.physics.quantities.QuantityConverters;
 import gda.jython.JythonServerFacade;
 import gda.util.QuantityFactory;
+import tec.units.indriya.quantity.Quantities;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
@@ -62,7 +64,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 	private Label numberPoints;
 	private Label avgTimePerPoint;
 	private NumberFormat formatter = new DecimalFormat("#0.00000");
-	private Amount<Length> crystal = null;
+	private Quantity<Length> crystal = null;
 	private BooleanWrapper btnBothWays;
 
 	public QEXAFSParametersComposite(Composite parent, final QEXAFSParameters provider, ExpressionProvider k) {
@@ -106,13 +108,13 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 				finalEnergy.setMaximum(26000.0);
 				initialEnergy.setMinimum(2050.0);
 				initialEnergy.setMaximum(26000.0);
-				crystal = Amount.valueOf(6.2695, NonSI.ANGSTROM);
+				crystal = Quantities.getQuantity(6.2695, ANGSTROM);
 			} else if ("Si(311)".equals(dcmCrystal)) {
 				finalEnergy.setMinimum(4000.0);
 				finalEnergy.setMaximum(40000.0);
 				initialEnergy.setMinimum(4000.0);
 				initialEnergy.setMaximum(40000.0);
-				crystal = Amount.valueOf(3.275, NonSI.ANGSTROM);
+				crystal = Quantities.getQuantity(3.275, ANGSTROM);
 			}
 		} else {
 			Double max = ExafsActivator.getStore()
@@ -123,7 +125,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 			finalEnergy.setMaximum(22000.0);
 			initialEnergy.setMinimum(2050.0);
 			initialEnergy.setMaximum(22000.0);
-			crystal = Amount.valueOf(6.2695, NonSI.ANGSTROM);
+			crystal = Quantities.getQuantity(6.2695, ANGSTROM);
 		}
 
 		label = new Label(this, SWT.NONE);
@@ -261,12 +263,12 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		double stepSizeVal = provider.getStepSize();
 		double rangeEv = finalEnergyVal - initialEnergyVal;
 		Unit<Energy> userUnits = ELECTRON_VOLT;
-		Amount<Energy> initialAngleQuantity = QuantityFactory.createFromObject(initialEnergyVal, userUnits);
-		Amount<Angle> initialAngle = QuantityConverters.braggAngleFromEnergy(initialAngleQuantity, crystal);
-		Amount<Energy> finalAngleQuantity = QuantityFactory.createFromObject(Double.valueOf(finalEnergyVal), userUnits);
-		Amount<Angle> finalAngle = QuantityConverters.braggAngleFromEnergy(finalAngleQuantity, crystal);
+		Quantity<Energy> initialAngleQuantity = QuantityFactory.createFromObject(initialEnergyVal, userUnits);
+		Quantity<Angle> initialAngle = QuantityConverters.braggAngleFromEnergy(initialAngleQuantity, crystal);
+		Quantity<Energy> finalAngleQuantity = QuantityFactory.createFromObject(finalEnergyVal, userUnits);
+		Quantity<Angle> finalAngle = QuantityConverters.braggAngleFromEnergy(finalAngleQuantity, crystal);
 
-		double range = (((initialAngle.doubleValue(Angle.UNIT) - finalAngle.doubleValue(Angle.UNIT)) * 180) / Math.PI);
+		double range = initialAngle.subtract(finalAngle).to(DEGREE_ANGLE).getValue().doubleValue();
 		double time = (range / speedVal) * 1000;
 		totalTime.setUnit("s");
 		if (time > 0) {
