@@ -102,7 +102,7 @@ public abstract class TomographyBaseMode implements TomographyMode {
 		}
 		for (Entry<TomographyDevices, IScannableMotor> entry : intMotors.entrySet()) {
 			try {
-				Double position = (Double)entry.getValue().getPosition();
+				Double position = (Double) entry.getValue().getPosition();
 				positions.add(new DevicePosition(entry.getKey().name(), position));
 			} catch (DeviceException e) {
 				logger.error("TODO put description of error here", e);
@@ -138,11 +138,11 @@ public abstract class TomographyBaseMode implements TomographyMode {
 	}
 
 	private void loadMotor(Entry<TomographyDevices, String> entry) {
-			try {
-				FinderHelper.getIScannableMotor(getBeanId(entry)).ifPresent(c -> motors.put(entry.getKey(), c));
-			} catch (IncompleteModeException e) {
-				logger.error("Cannot load motor", e);
-			}
+		try {
+			FinderHelper.getIScannableMotor(getBeanId(entry)).ifPresent(c -> motors.put(entry.getKey(), c));
+		} catch (IncompleteModeException e) {
+			logger.error("Cannot load motor {}", entry.getKey());
+		}
 	}
 
 	private void loadMalcolm(Entry<TomographyDevices, String> entry) {
@@ -154,7 +154,8 @@ public abstract class TomographyBaseMode implements TomographyMode {
 	}
 
 	private String getBeanId(Entry<TomographyDevices, String> entry) throws IncompleteModeException {
-		return Optional.ofNullable(LocalProperties.get(entry.getValue())).orElseThrow(IncompleteModeException::new);
+		return Optional.ofNullable(LocalProperties.get(entry.getValue()))
+				.orElseThrow(IncompleteModeException::new);
 	}
 
 	private Composite getStageControls(Composite parent) {

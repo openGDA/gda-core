@@ -44,7 +44,10 @@ class TomographyParametersAcquisitionControllerHelper {
 	 * @throws DeviceException
 	 */
 	public static void updateExposure(TomographyParametersAcquisitionController controller) throws DeviceException {
-		setAcquisitionExposure(CameraHelper.getCameraControlInstance(activeCamera).getExposure(), controller);
+		if (CameraHelper.getCameraControlInstance(activeCamera).isPresent()) {
+			setAcquisitionExposure(CameraHelper.getCameraControlInstance(activeCamera).get().getExposure(), controller);
+		}
+
 	}
 
 	private static void setAcquisitionExposure(double exposure, TomographyParametersAcquisitionController controller) {
