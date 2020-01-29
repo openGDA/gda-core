@@ -30,19 +30,18 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static si.uom.NonSI.ELECTRON_VOLT;
+import static tec.units.indriya.AbstractUnit.ONE;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.measure.Quantity;
 import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Energy;
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.Unit;
 
-import org.jscience.physics.amount.Amount;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,6 +57,7 @@ import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.util.converters.IQuantityConverter;
 import gda.util.converters.IReloadableQuantitiesConverter;
+import tec.units.indriya.quantity.Quantities;
 
 public class EpicsMCASimpleTest {
 
@@ -70,8 +70,8 @@ public class EpicsMCASimpleTest {
 
 	private static final Pattern ENERGY_PATTERN = Pattern.compile("4.56[0]* eV");
 
-	private static final Amount<Dimensionless> CHANNEL_QUANTITY = Amount.valueOf(CHANNEL, Unit.ONE);
-	private static final Amount<Energy> ENERGY_QUANTITY = Amount.valueOf(ENERGY, NonSI.ELECTRON_VOLT);
+	private static final Quantity<Dimensionless> CHANNEL_QUANTITY = Quantities.getQuantity(CHANNEL, ONE);
+	private static final Quantity<Energy> ENERGY_QUANTITY = Quantities.getQuantity(ENERGY, ELECTRON_VOLT);
 
 	private static final String CHANNEL_TO_ENERGY_STRING = String.format("channelToEnergy:%d", CHANNEL);
 	private static final String ENERGY_TO_CHANNEL_STRING = String.format("energyToChannel%.2f eV", ENERGY);
@@ -99,17 +99,17 @@ public class EpicsMCASimpleTest {
 		// Create mock converters but don't add to finder at this point
 		channelToEnergyConverter = mock(FindableConverter.class);
 		when(channelToEnergyConverter.getName()).thenReturn(CALIBRATION_NAME);
-		when(channelToEnergyConverter.toSource(CHANNEL_QUANTITY)).thenAnswer(new Answer<Amount>() {
+		when(channelToEnergyConverter.toSource(CHANNEL_QUANTITY)).thenAnswer(new Answer<Quantity>() {
 			@Override
-			public Amount<? extends Quantity> answer(InvocationOnMock invocation) throws Throwable {
+			public Quantity<? extends Quantity<?>> answer(InvocationOnMock invocation) throws Throwable {
 				return ENERGY_QUANTITY;
 			}
 		});
-		when(channelToEnergyConverter.toTarget(any(Amount.class))).thenAnswer(new Answer<Amount>() {
+		when(channelToEnergyConverter.toTarget(any(Quantity.class))).thenAnswer(new Answer<Quantity>() {
 			@Override
-			public Amount<? extends Quantity> answer(InvocationOnMock invocation) throws Throwable {
-				final Amount<? extends Quantity> energy = invocation.getArgumentAt(0, Amount.class);
-				if (Math.abs(energy.getEstimatedValue() - ENERGY_QUANTITY.getEstimatedValue()) < 0.001) {
+			public Quantity<? extends Quantity<?>> answer(InvocationOnMock invocation) throws Throwable {
+				final Quantity<Energy> energy = invocation.getArgumentAt(0, Quantity.class).to(ELECTRON_VOLT);
+				if (Math.abs(energy.subtract(ENERGY_QUANTITY).getValue().doubleValue()) < 0.001) {
 					return CHANNEL_QUANTITY;
 				}
 				return null;
@@ -404,9 +404,9 @@ public class EpicsMCASimpleTest {
 
 		// Verify that it uses the input channel number
 		@SuppressWarnings("rawtypes")
-		final ArgumentCaptor<Amount> quantityCaptor = ArgumentCaptor.forClass(Amount.class);
+		final ArgumentCaptor<Quantity> quantityCaptor = ArgumentCaptor.forClass(Quantity.class);
 		verify(channelToEnergyConverter).toSource(quantityCaptor.capture());
-		assertEquals(CHANNEL, quantityCaptor.getValue().getExactValue());
+		assertEquals(CHANNEL, quantityCaptor.getValue().getValue());
 
 		Finder.getInstance().removeAllFactories();
 	}
@@ -427,10 +427,10 @@ public class EpicsMCASimpleTest {
 
 		// Verify that it used the input energy
 		@SuppressWarnings("rawtypes")
-		final ArgumentCaptor<Amount> quantityCaptor = ArgumentCaptor.forClass(Amount.class);
+		final ArgumentCaptor<Quantity> quantityCaptor = ArgumentCaptor.forClass(Quantity.class);
 		verify(channelToEnergyConverter).toTarget(quantityCaptor.capture());
-		assertEquals(ENERGY, quantityCaptor.getValue().getEstimatedValue(), 0.001);
-		assertEquals(NonSI.ELECTRON_VOLT, quantityCaptor.getValue().getUnit());
+		assertEquals(ENERGY, quantityCaptor.getValue().getValue().doubleValue(), 0.001);
+		assertEquals(ELECTRON_VOLT, quantityCaptor.getValue().getUnit());
 
 		Finder.getInstance().removeAllFactories();
 	}

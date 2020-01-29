@@ -20,9 +20,8 @@ package gda.device.detector.analyser;
 
 import java.util.Vector;
 
-import javax.measure.quantity.Quantity;
+import javax.measure.Quantity;
 
-import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +49,7 @@ import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.dbr.DBR_String;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
+import tec.units.indriya.quantity.Quantities;
 
 /**
  * Class to communicate with an epics MCA record. The MCA record controls and acquires data from a multichannel analyser
@@ -1172,7 +1172,7 @@ public class EpicsMCA extends AnalyserBase implements IEpicsMCA, InitializationL
 			}
 			if (channelToEnergyConverter != null && channelToEnergyConverter instanceof IQuantityConverter) {
 				String channelString = attributeName.substring(channelToEnergyPrefix.length());
-				Amount<? extends Quantity> channel = Amount.valueOf(channelString);
+				Quantity<? extends Quantity<?>> channel = Quantities.getQuantity(channelString);
 				try {
 					energy = ((IQuantityConverter) channelToEnergyConverter).toSource(channel).toString();
 					return energy;
@@ -1190,9 +1190,9 @@ public class EpicsMCA extends AnalyserBase implements IEpicsMCA, InitializationL
 			}
 			if (channelToEnergyConverter != null && channelToEnergyConverter instanceof IQuantityConverter) {
 				String energyString = attributeName.substring(energyToChannelPrefix.length());
-				Amount<? extends Quantity> energy = Amount.valueOf(energyString);
+				Quantity<? extends Quantity<?>> energy = Quantities.getQuantity(energyString);
 				try {
-					long ichannel = (long) ((IQuantityConverter) channelToEnergyConverter).toTarget(energy).getEstimatedValue();
+					long ichannel = (long) ((IQuantityConverter) channelToEnergyConverter).toTarget(energy).getValue().doubleValue();
 					return Long.toString(Math.max(Math.min(ichannel, getNumberOfChannels() - 1), 0));
 				} catch (Exception e) {
 					throw new DeviceException("EpicsMCA.getAttribute exception", e);

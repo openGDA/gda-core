@@ -18,17 +18,14 @@
 
 package gda.device.zebra;
 
-import static javax.measure.unit.NonSI.ELECTRON_VOLT;
+import static si.uom.NonSI.DEGREE_ANGLE;
+import static si.uom.NonSI.ELECTRON_VOLT;
 
 import java.util.concurrent.Callable;
 
+import javax.measure.Quantity;
 import javax.measure.quantity.Angle;
 import javax.measure.quantity.Energy;
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.Unit;
-
-import org.jscience.physics.amount.Amount;
 
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.ContinuousMoveController;
@@ -36,6 +33,7 @@ import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.ScannableMotor;
 import gda.util.converters.JEPConverterHolder;
+import tec.units.indriya.quantity.Quantities;
 // TODO: Rename class to indicate that it just converts from one position type to another
 
 // TODO is this class necessary? could move the conversion functions into ZebraConstantVelocityMoveControllerForQexafs
@@ -151,17 +149,16 @@ public class ZebraScannableMotorForQexafs extends ScannableMotor implements Cont
 		return new EnergyCallable(zebraPositionCallable);
 	}
 
-	protected double convertEnergyToBraggAngle(double energy) throws Exception{
-		Amount<Energy> energyEV = Amount.valueOf(energy, NonSI.ELECTRON_VOLT);
-		Amount<Angle> angle = converter.toTarget(energyEV).to(NonSI.DEGREE_ANGLE);
-		return angle.getEstimatedValue();
+	protected double convertEnergyToBraggAngle(double energy) throws Exception {
+		Quantity<Energy> energyEV = Quantities.getQuantity(energy, ELECTRON_VOLT);
+		Quantity<Angle> angle = converter.toTarget(energyEV).asType(Angle.class).to(DEGREE_ANGLE);
+		return angle.getValue().doubleValue();
 	}
 
-	protected double convertBraggAngleToEnergy(double angle) throws Exception{
-		Unit<?> degrees = Unit.valueOf("deg");
-		Amount<? extends Quantity> angleDegree = Amount.valueOf(Math.abs(angle),degrees);
-		Amount<Energy> energyEV = converter.toSource(angleDegree).to(ELECTRON_VOLT);
-		return energyEV.getEstimatedValue();
+	protected double convertBraggAngleToEnergy(double angle) throws Exception {
+		Quantity<Angle> angleDegree = Quantities.getQuantity(Math.abs(angle), DEGREE_ANGLE);
+		Quantity<Energy> energyEV = converter.toSource(angleDegree).asType(Energy.class).to(ELECTRON_VOLT);
+		return energyEV.getValue().doubleValue();
 	}
 
 	@Override

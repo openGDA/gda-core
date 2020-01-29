@@ -21,9 +21,8 @@ package gda.device.detector.analyser;
 import java.lang.reflect.Array;
 import java.util.Vector;
 
-import javax.measure.quantity.Quantity;
+import javax.measure.Quantity;
 
-import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +35,7 @@ import gda.observable.IObserver;
 import gda.util.converters.CoupledConverterHolder;
 import gda.util.converters.IQuantitiesConverter;
 import gda.util.converters.IQuantityConverter;
+import tec.units.indriya.quantity.Quantities;
 
 /**
  * Class to communicate with an epics MCA record. The MCA record controls and acquires data from a multi-channel
@@ -544,7 +544,7 @@ public class EpicsMCA2 extends DetectorBase implements IObserver {
 			}
 			if (channelToEnergyConverter != null && channelToEnergyConverter instanceof IQuantityConverter) {
 				String channelString = attributeName.substring(channelToEnergyPrefix.length());
-				Amount<? extends Quantity> channel = Amount.valueOf(channelString);
+				Quantity<? extends Quantity<?>> channel = Quantities.getQuantity(channelString);
 				try {
 					energy = ((IQuantityConverter) channelToEnergyConverter).toSource(channel).toString();
 					return energy;
@@ -562,7 +562,7 @@ public class EpicsMCA2 extends DetectorBase implements IObserver {
 			}
 			if (channelToEnergyConverter != null && channelToEnergyConverter instanceof IQuantityConverter) {
 				String energyString = attributeName.substring(energyToChannelPrefix.length());
-				Amount<? extends Quantity> energy = Amount.valueOf(energyString);
+				Quantity<? extends Quantity<?>> energy = Quantities.getQuantity(energyString);
 				try {
 					channel = ((IQuantityConverter) channelToEnergyConverter).toTarget(energy).toString();
 					return channel;

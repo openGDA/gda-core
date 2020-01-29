@@ -18,9 +18,8 @@
 
 package gda.device;
 
-import javax.measure.quantity.Quantity;
+import javax.measure.Quantity;
 
-import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +37,7 @@ import gda.util.converters.IQuantityConverter;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
+import tec.units.indriya.quantity.Quantities;
 
 /**
  *
@@ -318,7 +318,7 @@ public class EpicsTca extends DeviceBase implements InitializationListener {
 				}
 				if (channelToEnergyConverter != null && channelToEnergyConverter instanceof IQuantityConverter) {
 					String channelString = attributeName.substring(channelToEnergyPrefix.length());
-					Amount<? extends Quantity> channel = Amount.valueOf(channelString);
+					Quantity<? extends Quantity<?>> channel = Quantities.getQuantity(channelString);
 					energy = ((IQuantityConverter) channelToEnergyConverter).toSource(channel).toString();
 					return energy;
 				}
@@ -332,7 +332,7 @@ public class EpicsTca extends DeviceBase implements InitializationListener {
 				}
 				if (channelToEnergyConverter != null && channelToEnergyConverter instanceof IQuantityConverter) {
 					String energyString = attributeName.substring(energyToChannelPrefix.length());
-					Amount<? extends Quantity> energy = Amount.valueOf(energyString);
+					Quantity<? extends Quantity<?>> energy = Quantities.getQuantity(energyString);
 					channel = ((IQuantityConverter) channelToEnergyConverter).toTarget(energy).toString();
 					return channel;
 				}

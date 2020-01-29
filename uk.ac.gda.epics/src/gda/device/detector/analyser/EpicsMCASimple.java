@@ -18,18 +18,17 @@
 
 package gda.device.detector.analyser;
 
-import static javax.measure.unit.NonSI.ELECTRON_VOLT;
+import static si.uom.NonSI.ELECTRON_VOLT;
+import static tec.units.indriya.AbstractUnit.ONE;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
+import javax.measure.Quantity;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +49,7 @@ import gda.util.converters.IQuantitiesConverter;
 import gda.util.converters.IQuantityConverter;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Enum;
+import tec.units.indriya.quantity.Quantities;
 import uk.ac.diamond.daq.concurrent.Async;
 
 /**
@@ -885,7 +885,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 			return String.format("%f %s", energy, ELECTRON_VOLT);
 		} else if (attributeName.startsWith(ENERGY_TO_CHANNEL_PREFIX)) {
 			final String energyString = attributeName.substring(ENERGY_TO_CHANNEL_PREFIX.length());
-			final double energy = Amount.valueOf(energyString).getEstimatedValue();
+			final double energy = Quantities.getQuantity(energyString).getValue().doubleValue();
 			return Integer.toString(getChannelForEnergy(energy));
 
 		} else if (attributeName.equals(NUMBER_OF_CHANNELS_ATTR)) {
@@ -899,7 +899,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 	public double getEnergyForChannel(int channel) throws DeviceException {
 		ensureQuantityConverterExists();
 		try {
-			return channelToEnergyConverter.toSource(Amount.valueOf(channel, Unit.ONE)).getEstimatedValue();
+			return channelToEnergyConverter.toSource(Quantities.getQuantity(channel, ONE)).getValue().doubleValue();
 		} catch (Exception e) {
 			throw new DeviceException(String.format("Error getting energy for channel %d", channel), e);
 		}
@@ -908,8 +908,8 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 	public int getChannelForEnergy(double energy) throws DeviceException {
 		ensureQuantityConverterExists();
 		try {
-			final Amount<? extends Quantity> channel = channelToEnergyConverter.toTarget(Amount.valueOf(energy, ELECTRON_VOLT));
-			return (int) Math.max(Math.min(channel.getEstimatedValue(), getNumberOfChannels() - 1), 0);
+			final Quantity<? extends Quantity<?>> channel = channelToEnergyConverter.toTarget(Quantities.getQuantity(energy, ELECTRON_VOLT));
+			return (int) Math.max(Math.min(channel.getValue().doubleValue(), getNumberOfChannels() - 1), 0);
 		} catch (Exception e) {
 			throw new DeviceException(String.format("Error getting channel for energy %s", energy), e);
 		}

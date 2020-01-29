@@ -18,9 +18,9 @@
 
 package gda.device.monitor;
 
-import java.lang.reflect.Array;
+import static tec.units.indriya.AbstractUnit.ONE;
 
-import javax.measure.unit.Unit;
+import java.lang.reflect.Array;
 
 import org.python.core.PySequence;
 import org.slf4j.Logger;
@@ -251,7 +251,7 @@ public class EpicsBeamMonitor extends MonitorBase implements MonitorListener {
 	@Override
 	public String getUnit() throws DeviceException {
 		// just a number
-		return Unit.ONE.toString();
+		return ONE.toString();
 	}
 
 	private synchronized void runBeamMonitor() {
