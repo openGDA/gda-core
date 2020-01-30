@@ -47,6 +47,7 @@ Import-Package: com.fasterxml.jackson.core;version="2.6.2",
  uk.ac.diamond.daq.client.gui.camera,
  uk.ac.diamond.daq.client.gui.camera.controller,
  uk.ac.diamond.daq.client.gui.camera.event,
+ uk.ac.diamond.daq.client.gui.energy,
  uk.ac.gda.api.camera,
  uk.ac.gda.client.live.stream,
  uk.ac.gda.client.live.stream.view

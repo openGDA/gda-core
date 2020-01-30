@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.client.gui.energy.BeamEnergyDialogBuilder;
 import uk.ac.gda.tomography.controller.AcquisitionControllerException;
 import uk.ac.gda.tomography.scan.editor.Activator;
 import uk.ac.gda.tomography.scan.editor.StagesComposite;
@@ -55,7 +56,7 @@ public class TomographyAcquisitionComposite extends CompositeTemplate<Tomography
 	private static final Logger logger = LoggerFactory.getLogger(TomographyAcquisitionComposite.class);
 
 	private Group source;
-	private Label energyIcon;
+	private Button energyButton;
 	private Label energy;
 	private Label energyValue;
 	private Button shutter;
@@ -89,8 +90,8 @@ public class TomographyAcquisitionComposite extends CompositeTemplate<Tomography
 	}
 
 	private void createSource(Composite parent, int labelStyle, int textStyle) {
-		energyIcon = ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.ENERGY_KEV);
-		energyIcon.setImage(ClientSWTElements.getImage(ClientImages.BEAM_16));
+		energyButton = ClientSWTElements.createButton(parent, textStyle, ClientMessages.EMPTY_MESSAGE, ClientMessages.ENERGY_KEV,
+				ClientSWTElements.getImage(ClientImages.BEAM_16));
 		energy = ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.ENERGY_KEV);
 		energyValue = ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.NOT_AVAILABLE, null,
 				FontDescriptor.createFrom(ClientResourceManager.getInstance().getTextDefaultFont()));
@@ -104,6 +105,11 @@ public class TomographyAcquisitionComposite extends CompositeTemplate<Tomography
 	@Override
 	protected void bindElements() {
 		configuration.addListener(SWT.FOCUSED, this::getaddOrEditConfigurationListener);
+		energyButton.addListener(SWT.Selection, event -> {
+			BeamEnergyDialogBuilder builder = new BeamEnergyDialogBuilder();
+			builder.addImagingController();
+			builder.build(getShell()).open();
+		});
 	}
 
 	private void getaddOrEditConfigurationListener(Event event) {
