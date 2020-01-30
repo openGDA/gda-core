@@ -40,6 +40,16 @@ public class MalcolmMessage {
 	private Object value;
 	private Object rawValue;
 
+	public MalcolmMessage() {
+		// default constructor required for deserialization
+	}
+
+	public MalcolmMessage(long id, Type type, String endpoint) {
+		setId(id);
+		setType(type);
+		setEndpoint(endpoint);
+	}
+
 	public Type getType() {
 		return type;
 	}
@@ -153,11 +163,9 @@ public class MalcolmMessage {
 		this.method = method;
 	}
 	public String getMessage() {
-		if (message!=null) return message;
-		if (value!=null && value instanceof Map) {
-			if (((Map)value).containsKey("message")) {
-				return (String)((Map)value).get("message");
-			}
+		if (message != null) return message;
+		if (value instanceof Map && (((Map<?,?>) value).containsKey("message"))) {
+			return (String)((Map<?,?>) value).get("message");
 		}
 		return null;
 	}
@@ -168,8 +176,8 @@ public class MalcolmMessage {
 	public String getEndpoint() {
 		return endpoint;
 	}
-	public void setEndpoint(String endPoint) {
-		this.endpoint = endPoint;
+	public void setEndpoint(String endpoint) {
+		this.endpoint = endpoint;
 	}
 	public Object getRawValue() {
 		return rawValue;

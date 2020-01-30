@@ -169,11 +169,9 @@ public class EpicsV4MessageMapper {
 		return marshaller.toPVStructure(malcolmMessage);
 	}
 
-	public MalcolmMessage convertCallPVStructureToMalcolmMessage(PVStructure structure, MalcolmMessage message) throws Exception {
-		MalcolmMessage result = new MalcolmMessage();
-		result.setType(Type.RETURN);
-		result.setEndpoint(message.getEndpoint());
-		result.setId(message.getId());
+	public MalcolmMessage convertPVStructureToMalcolmMessage(PVStructure structure, MalcolmMessage message, Type type) throws Exception {
+		final MalcolmMessage result = new MalcolmMessage(message.getId(),
+				type == Type.SUBSCRIBE ? Type.UPDATE : Type.RETURN, message.getEndpoint());
 		result.setRawValue(structure.toString());
 
 		if (structure.getStructure().getID().startsWith(TYPE_ID_ERROR)) {
@@ -181,48 +179,11 @@ public class EpicsV4MessageMapper {
 			PVString errorMessage = structure.getSubField(PVString.class, FIELD_NAME_MESSAGE);
 			result.setMessage(errorMessage.get());
 		} else {
-			Object returnedObject = marshaller.fromPVStructure(structure, Object.class);
-
-			result.setValue(returnedObject);
-		}
-
-		return result;
-	}
-
-	public MalcolmMessage convertSubscribeUpdatePVStructureToMalcolmMessage(PVStructure structure, MalcolmMessage message) throws Exception {
-		MalcolmMessage result = new MalcolmMessage();
-		result.setType(Type.UPDATE);
-		result.setEndpoint(message.getEndpoint());
-		result.setId(message.getId());
-		result.setRawValue(structure.toString());
-
-		Object returnedObject = getEndpointObjectFromPVStructure(structure, message.getEndpoint());
-
-		result.setValue(returnedObject);
-
-		return result;
-	}
-
-	public MalcolmMessage convertGetPVStructureToMalcolmMessage(PVStructure structure, MalcolmMessage message)
-	{
-		System.out.println(structure);
-		MalcolmMessage result = new MalcolmMessage();
-		result.setType(Type.RETURN);
-		result.setEndpoint(message.getEndpoint());
-		result.setId(message.getId());
-		result.setRawValue(structure.toString());
-
-		if (structure.getStructure().getID().startsWith(TYPE_ID_ERROR)) {
-			result.setType(Type.ERROR);
-			PVString errorMessage = structure.getSubField(PVString.class, FIELD_NAME_MESSAGE);
-			result.setMessage(errorMessage.get());
-		} else {
-			try {
+			final String endpoint = message.getEndpoint();
+			if (endpoint != null && !endpoint.isEmpty() && !endpoint.contains(",")) {
 				result.setValue(getEndpointObjectFromPVStructure(structure, message.getEndpoint()));
-			} catch (Exception e) {
-				e.printStackTrace();
-				result.setMessage("Error converting " + message.getEndpoint() + ": " + e.getMessage());
-				result.setType(Type.ERROR);
+			} else {
+				result.setValue(marshaller.fromPVStructure(structure, Object.class));
 			}
 		}
 
@@ -250,27 +211,20 @@ public class EpicsV4MessageMapper {
 	}
 
 	private Object getEndpointObjectFromPVStructure(PVStructure pvStructure, String endpoint) throws Exception {
+		PVStructure parentStructure = null;
+		String[] requestArray = endpoint.split("\\.");
 
-		if (endpoint.isEmpty()) {
-			return marshaller.fromPVStructure(pvStructure, Object.class);
-		} else if (endpoint.contains(",")) {
-			return marshaller.fromPVStructure(pvStructure, Object.class);
+		if (requestArray.length == 1) {
+			parentStructure = pvStructure;
 		} else {
-			PVStructure parentStructure = null;
-			String[] requestArray = endpoint.split("\\.");
-
-			if (requestArray.length == 1) {
-				parentStructure = pvStructure;
-			} else {
-				String parentStructureString = "";
-				for (int i = 0; i < requestArray.length - 1; i++) {
-					parentStructureString += requestArray[i];
-				}
-				parentStructure = pvStructure.getStructureField(parentStructureString);
+			String parentStructureString = "";
+			for (int i = 0; i < requestArray.length - 1; i++) {
+				parentStructureString += requestArray[i];
 			}
-
-			return marshaller.getObjectFromField(parentStructure, requestArray[requestArray.length-1]);
+			parentStructure = pvStructure.getStructureField(parentStructureString);
 		}
+
+		return marshaller.getObjectFromField(parentStructure, requestArray[requestArray.length-1]);
 	}
 
 }

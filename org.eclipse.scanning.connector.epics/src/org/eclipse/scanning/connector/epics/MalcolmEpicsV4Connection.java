@@ -229,7 +229,7 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 			PvaClientGetData pvaData = pvaGet.getData();
 			pvResult = pvaData.getPVStructure();
 			logger.debug("Get response = \n{}\nEND", pvResult);
-			returnMessage = mapper.convertGetPVStructureToMalcolmMessage(pvResult, message);
+			returnMessage = mapper.convertPVStructureToMalcolmMessage(pvResult, message, Type.GET);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			returnMessage.setType(Type.ERROR);
@@ -308,7 +308,7 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 			pvResult = client.request(parametersStructure, RUN_TIMEOUT);
 
 			logger.debug("Call response = \n{}\nEND", pvResult);
-			returnMessage = mapper.convertCallPVStructureToMalcolmMessage(pvResult, message);
+			returnMessage = mapper.convertPVStructureToMalcolmMessage(pvResult, message, Type.CALL);
 		} catch (Exception e) {
 			logger.error("Error sending call to {} to malcolm with argument {}",
 					message.getMethod(), message.getArguments(), e);
@@ -343,7 +343,7 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 
 				MalcolmMessage message = new MalcolmMessage();
 				try {
-					message = mapper.convertSubscribeUpdatePVStructureToMalcolmMessage(monitorData.getPVStructure(), subscribeMessage);
+					message = mapper.convertPVStructureToMalcolmMessage(monitorData.getPVStructure(), subscribeMessage, Type.SUBSCRIBE);
 				} catch (Exception ex) {
 					logger.error(ex.getMessage());
 					message.setType(Type.ERROR);

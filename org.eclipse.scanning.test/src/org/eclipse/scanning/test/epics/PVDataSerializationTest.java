@@ -11,8 +11,16 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.epics;
 
+import static java.util.stream.Collectors.toList;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_ENABLE;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_EXPOSURE;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_MRI;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_NAME;
+import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_TABLE;
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -28,6 +36,7 @@ import org.eclipse.dawnsci.analysis.dataset.roi.PointROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.SectorROI;
+import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
@@ -45,10 +54,12 @@ import org.epics.pvdata.factory.FieldFactory;
 import org.epics.pvdata.factory.PVDataFactory;
 import org.epics.pvdata.pv.FieldCreate;
 import org.epics.pvdata.pv.PVBoolean;
+import org.epics.pvdata.pv.PVBooleanArray;
 import org.epics.pvdata.pv.PVDataCreate;
 import org.epics.pvdata.pv.PVDouble;
 import org.epics.pvdata.pv.PVDoubleArray;
 import org.epics.pvdata.pv.PVInt;
+import org.epics.pvdata.pv.PVIntArray;
 import org.epics.pvdata.pv.PVStringArray;
 import org.epics.pvdata.pv.PVStructure;
 import org.epics.pvdata.pv.PVUnion;
@@ -67,19 +78,28 @@ import org.junit.Test;
  */
 public class PVDataSerializationTest {
 
-	MalcolmEpicsV4Connection connectorService;
+	private MalcolmEpicsV4Connection connectorService;
+
+	private IPointGeneratorService pgService;
+
+	private FieldCreate fieldCreate = FieldFactory.getFieldCreate();
+
+	private PVDataCreate pvDataCreate = PVDataFactory.getPVDataCreate();
 
 	@Before
-	public void create() throws Exception {
-		this.connectorService = new MalcolmEpicsV4Connection();
+	public void setUp() {
+		connectorService = new MalcolmEpicsV4Connection();
+		pgService = new PointGeneratorService();
+		fieldCreate = FieldFactory.getFieldCreate();
+		pvDataCreate = PVDataFactory.getPVDataCreate();
 	}
+
 	@Test
 	public void testArrayGenerator() throws Exception {
 
 		// Create test generator
 		List<IROI> regions = new LinkedList<>();
 
-		IPointGeneratorService pgService = new PointGeneratorService();
 		AxialArrayModel stepModel = new AxialArrayModel();
 		stepModel.setName("x");
 		stepModel.setPositions(new double [] {1, 2, 3, 4});
@@ -88,10 +108,6 @@ public class PVDataSerializationTest {
 		IPointGenerator<CompoundModel> scan = pgService.createGenerator(stepModel, regions);
 
 		// Create the expected PVStructure
-		FieldCreate fieldCreate = FieldFactory.getFieldCreate();
-
-		PVDataCreate pvDataCreate = PVDataFactory.getPVDataCreate();
-
 		Structure expectedGeneratorsStructure = fieldCreate.createFieldBuilder().
 				addArray("axes", ScalarType.pvString).
 				add("alternate", ScalarType.pvBoolean).
@@ -152,7 +168,6 @@ public class PVDataSerializationTest {
 		List<IROI> regions = new LinkedList<>();
 		regions.add(new CircularROI(2, 6, 7));
 
-		IPointGeneratorService pgService = new PointGeneratorService();
 		TwoAxisGridPointsModel gm = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
@@ -161,10 +176,6 @@ public class PVDataSerializationTest {
 		IPointGenerator<CompoundModel> scan = pgService.createGenerator(gm, regions);
 
 		// Create the expected PVStructure
-		FieldCreate fieldCreate = FieldFactory.getFieldCreate();
-
-		PVDataCreate pvDataCreate = PVDataFactory.getPVDataCreate();
-
 		Union union = fieldCreate.createVariantUnion();
 
 		Structure expectedCircularRoiStructure = fieldCreate.createFieldBuilder().
@@ -233,7 +244,6 @@ public class PVDataSerializationTest {
 		eRoi.setSemiAxes(new double[]{7, 8});
 		regions.add(eRoi);
 
-		IPointGeneratorService pgService = new PointGeneratorService();
 		TwoAxisGridPointsModel gm = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
@@ -242,10 +252,6 @@ public class PVDataSerializationTest {
 		IPointGenerator<CompoundModel> scan = pgService.createGenerator(gm, regions);
 
 		// Create the expected PVStructure
-		FieldCreate fieldCreate = FieldFactory.getFieldCreate();
-
-		PVDataCreate pvDataCreate = PVDataFactory.getPVDataCreate();
-
 		Union union = fieldCreate.createVariantUnion();
 
 		Structure expectedEllipticalRoiStructure = fieldCreate.createFieldBuilder().
@@ -317,7 +323,6 @@ public class PVDataSerializationTest {
 		lRoi.setAngle(0.75);
 		regions.add(lRoi);
 
-		IPointGeneratorService pgService = new PointGeneratorService();
 		TwoAxisGridPointsModel gm = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
@@ -326,10 +331,6 @@ public class PVDataSerializationTest {
 		IPointGenerator<CompoundModel> scan = pgService.createGenerator(gm, regions);
 
 		// Create the expected PVStructure. Note, Linear ROIs are not supported so should be empty
-		FieldCreate fieldCreate = FieldFactory.getFieldCreate();
-
-		PVDataCreate pvDataCreate = PVDataFactory.getPVDataCreate();
-
 		Union union = fieldCreate.createVariantUnion();
 
 		Structure expectedCompGenStructure = fieldCreate.createFieldBuilder().
@@ -359,7 +360,6 @@ public class PVDataSerializationTest {
 		regions.add(new PointROI(new double[]{5, 9.4}));
 		regions.add(new CircularROI(2, 6, 7));
 
-		IPointGeneratorService pgService = new PointGeneratorService();
 		TwoAxisGridPointsModel gm = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
@@ -368,10 +368,6 @@ public class PVDataSerializationTest {
 		IPointGenerator<CompoundModel> scan = pgService.createGenerator(gm, regions);
 
 		// Create the expected PVStructure
-		FieldCreate fieldCreate = FieldFactory.getFieldCreate();
-
-		PVDataCreate pvDataCreate = PVDataFactory.getPVDataCreate();
-
 		Structure expectedPointRoiStructure = fieldCreate.createFieldBuilder().
 				addArray("point", ScalarType.pvDouble).
 				setId("scanpointgenerator:roi/PointROI:1.0").
@@ -457,7 +453,6 @@ public class PVDataSerializationTest {
 		diamond.insertPoint(new double[] { 0, 1.5 });
 		regions.add(diamond);
 
-		IPointGeneratorService pgService = new PointGeneratorService();
 		TwoAxisGridPointsModel gm = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
@@ -466,10 +461,6 @@ public class PVDataSerializationTest {
 		IPointGenerator<CompoundModel> scan = pgService.createGenerator(gm, regions);
 
 		// Create the expected PVStructure
-		FieldCreate fieldCreate = FieldFactory.getFieldCreate();
-
-		PVDataCreate pvDataCreate = PVDataFactory.getPVDataCreate();
-
 		Union union = fieldCreate.createVariantUnion();
 
 		Structure expectedRoiStructure = fieldCreate.createFieldBuilder().
@@ -539,7 +530,6 @@ public class PVDataSerializationTest {
 		rRoi.setAngle(1.2);
 		regions.add(rRoi);
 
-		IPointGeneratorService pgService = new PointGeneratorService();
 		TwoAxisGridPointsModel gm = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
@@ -548,9 +538,6 @@ public class PVDataSerializationTest {
 		IPointGenerator<CompoundModel> scan = pgService.createGenerator(gm, regions);
 
 		// Create the expected PVStructure
-		FieldCreate fieldCreate = FieldFactory.getFieldCreate();
-
-		PVDataCreate pvDataCreate = PVDataFactory.getPVDataCreate();
 		Union union = fieldCreate.createVariantUnion();
 
 		Structure expectedCircularRoiStructure = fieldCreate.createFieldBuilder().
@@ -625,7 +612,6 @@ public class PVDataSerializationTest {
 		sRoi.setAngles(0, Math.PI);
 		regions.add(sRoi);
 
-		IPointGeneratorService pgService = new PointGeneratorService();
 		TwoAxisGridPointsModel gm = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
@@ -634,10 +620,6 @@ public class PVDataSerializationTest {
 		IPointGenerator<CompoundModel> scan = pgService.createGenerator(gm, regions);
 
 		// Create the expected PVStructure
-		FieldCreate fieldCreate = FieldFactory.getFieldCreate();
-
-		PVDataCreate pvDataCreate = PVDataFactory.getPVDataCreate();
-
 		Union union = fieldCreate.createVariantUnion();
 
 		Structure expectedRoiStructure = fieldCreate.createFieldBuilder().
@@ -717,7 +699,6 @@ public class PVDataSerializationTest {
 		RandomOffsetMutator rom = new RandomOffsetMutator(3456, axes, offsets);
 		mutators.add(rom);
 
-		IPointGeneratorService pgService = new PointGeneratorService();
 		TwoAxisGridPointsModel gm = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gm.setAlternating(true);
 		gm.setyAxisPoints(5);
@@ -777,7 +758,6 @@ public class PVDataSerializationTest {
 	public void testLineGenerator() throws Exception {
 
 		// Create test generator
-		IPointGeneratorService pgService = new PointGeneratorService();
 		AxialStepModel stepModel = new AxialStepModel("x", 3, 4, 0.25);
 		stepModel.setAlternating(true);
 		stepModel.setContinuous(false);
@@ -853,7 +833,6 @@ public class PVDataSerializationTest {
 	public void testLissajousGenerator() throws Exception {
 
 		// Create test generator
-		IPointGeneratorService pgService = new PointGeneratorService();
 		TwoAxisLissajousModel lissajousModel = new TwoAxisLissajousModel();
 		lissajousModel.setBoundingBox(new BoundingBox(0, -5, 10, 6));
 		lissajousModel.setPoints(20);
@@ -944,7 +923,6 @@ public class PVDataSerializationTest {
 	public void testSpiralGenerator() throws Exception {
 
 		// Create test generator
-		IPointGeneratorService pgService = new PointGeneratorService();
 		IPointGenerator<TwoAxisSpiralModel> temp = pgService.createGenerator(new TwoAxisSpiralModel("x", "y", 2, new BoundingBox(0, 5, 2, 4)));
 		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
 
@@ -1020,7 +998,6 @@ public class PVDataSerializationTest {
 		// Create test generator
 		List<IROI> regions = new LinkedList<>();
 
-		IPointGeneratorService pgService = new PointGeneratorService();
 		AxialStepModel stepModel = new AxialStepModel("x", 3, 4, 0.25);
 		stepModel.setContinuous(false);
 		IPointGenerator<CompoundModel> scan = pgService.createGenerator(stepModel, regions);
@@ -1114,14 +1091,13 @@ public class PVDataSerializationTest {
 		offsets.put("stage_x", 0.5);
 		mutators.add(new RandomOffsetMutator(112, Arrays.asList(new String[] {"stage_x"}), offsets));
 
-		IPointGeneratorService pgService = new PointGeneratorService();
-		TwoAxisGridPointsModel gm = new TwoAxisGridPointsModel("stage_x", "stage_y");
-		gm.setAlternating(true);
-		gm.setContinuous(false);
-		gm.setyAxisPoints(5);
-		gm.setxAxisPoints(10);
+		TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel("stage_x", "stage_y");
+		gridModel.setAlternating(true);
+		gridModel.setContinuous(false);
+		gridModel.setyAxisPoints(5);
+		gridModel.setxAxisPoints(10);
 
-		IPointGenerator<CompoundModel> scan = pgService.createGenerator(gm, regions, mutators, 1.5f);
+		IPointGenerator<CompoundModel> pointGen = pgService.createGenerator(gridModel, regions, mutators, 1.5f);
 
 		// Create the expected PVStructure
 		FieldCreate fieldCreate = FieldFactory.getFieldCreate();
@@ -1286,10 +1262,67 @@ public class PVDataSerializationTest {
 		generators.put(0, genUunionArray.length, genUunionArray, 0);
 
 		// Marshal and check against expected
-		PVStructure pvStructure = connectorService.pvMarshal(scan);
+		PVStructure pvStructure = connectorService.pvMarshal(pointGen);
 
 		assertEquals(expectedCompGenPVStructure.getStructure(), pvStructure.getStructure());
 		assertEquals(expectedCompGenPVStructure, pvStructure);
+	}
+
+	@Test
+	public void testMalcolmTable() throws Exception {
+		// test pv-serialization and deserialization of a malcolm table
+
+		final boolean[] enabledArray = new boolean[] { true, true, false };
+		final String[] nameArray = new String[] { "diffraction", "izero", "load" };
+		final String[] mriArray = new String[] { "ws256-ML-DET-01", "ws256-ML-DET-02", "ws256-ML-DET-03" };
+		final double[] exposureArray = new double[] { 0.01, 0.004, 0.0025 };
+		final int[] framesPerStepArray = new int[] { 1, 2, 3 };
+
+		// create the malcolm table to serialialize
+		final LinkedHashMap<String, Class<?>> tableTypesMap = new LinkedHashMap<>();
+		tableTypesMap.put(DETECTORS_TABLE_COLUMN_ENABLE, Boolean.class);
+		tableTypesMap.put(DETECTORS_TABLE_COLUMN_NAME, String.class);
+		tableTypesMap.put(DETECTORS_TABLE_COLUMN_MRI, String.class);
+		tableTypesMap.put(DETECTORS_TABLE_COLUMN_EXPOSURE, Double.class);
+		tableTypesMap.put(DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP, Integer.class);
+
+		final List<Boolean> enabledList = new ArrayList<>(enabledArray.length); // no
+		for (int i = 0; i < enabledArray.length; i++) enabledList.add(enabledArray[i]);
+
+		final int numDetectors = 3;
+		final LinkedHashMap<String, List<?>> tableData = new LinkedHashMap<>(numDetectors);
+		tableData.put(DETECTORS_TABLE_COLUMN_ENABLE, enabledList);
+		tableData.put(DETECTORS_TABLE_COLUMN_NAME, Arrays.stream(nameArray).collect(toList()));
+		tableData.put(DETECTORS_TABLE_COLUMN_MRI, Arrays.stream(mriArray).collect(toList()));
+		tableData.put(DETECTORS_TABLE_COLUMN_EXPOSURE, Arrays.stream(exposureArray).boxed().collect(toList()));
+		tableData.put(DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP, Arrays.stream(framesPerStepArray).boxed().collect(toList()));
+
+		final MalcolmTable detectorsTable = new MalcolmTable(tableData, tableTypesMap);
+
+		// create expected pv structure
+		final Structure expectedTableStructure = fieldCreate.createFieldBuilder()
+				.addArray(DETECTORS_TABLE_COLUMN_ENABLE, ScalarType.pvBoolean)
+				.addArray(DETECTORS_TABLE_COLUMN_NAME, ScalarType.pvString)
+				.addArray(DETECTORS_TABLE_COLUMN_MRI, ScalarType.pvString)
+				.addArray(DETECTORS_TABLE_COLUMN_EXPOSURE, ScalarType.pvDouble)
+				.addArray(DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP, ScalarType.pvInt)
+				.setId(TYPE_ID_TABLE)
+				.createStructure();
+
+		final PVStructure expectedPVStructure = pvDataCreate.createPVStructure(expectedTableStructure);
+		expectedPVStructure.getSubField(PVBooleanArray.class, DETECTORS_TABLE_COLUMN_ENABLE).put(0, enabledArray.length, enabledArray, 0);
+		expectedPVStructure.getSubField(PVStringArray.class, DETECTORS_TABLE_COLUMN_NAME).put(0, nameArray.length, nameArray, 0);
+		expectedPVStructure.getSubField(PVStringArray.class, DETECTORS_TABLE_COLUMN_MRI).put(0, mriArray.length, mriArray, 0);
+		expectedPVStructure.getSubField(PVDoubleArray.class, DETECTORS_TABLE_COLUMN_EXPOSURE).put(0, exposureArray.length, exposureArray, 0);
+		expectedPVStructure.getSubField(PVIntArray.class, DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP).put(0, framesPerStepArray.length, framesPerStepArray, 0);
+
+		// perform the serialization
+		final PVStructure pvStructure = connectorService.pvMarshal(detectorsTable);
+
+		assertEquals(expectedPVStructure, pvStructure);
+
+		final MalcolmTable unmarshalled = connectorService.pvUnmarshal(pvStructure, MalcolmTable.class);
+		assertEquals(detectorsTable, unmarshalled);
 	}
 
 }
