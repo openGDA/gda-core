@@ -19,6 +19,7 @@
 package uk.ac.gda.ui.tool;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -206,7 +207,7 @@ public final class ClientSWTElements {
 		Text text = new Text(parent, textStyle);
 		text.setFont(ClientResourceManager.getInstance().getTextDefaultFont());
 		text.setToolTipText(tooltip);
-		GridDataFactory internalGdf = applySpan(text, span, minSize, gdf);
+		GridDataFactory internalGdf = applySpan(text, Optional.ofNullable(span), Optional.ofNullable(minSize), gdf);
 		internalGdf.applyTo(text);
 		if (listener != null) {
 			text.addVerifyListener(listener);
@@ -216,23 +217,41 @@ public final class ClientSWTElements {
 
 	public static final Button createButton(final Composite parent, int style, final ClientMessages message,
 			final ClientMessages tooltip) {
-		return createButton(parent, style, message, tooltip, null);
+		return createButton(parent, style, message, tooltip, Optional.empty(), Optional.empty());
+	}
+
+	public static final Button createButton(final Composite parent, int style, final ClientMessages message,
+			final ClientMessages tooltip, Image image) {
+		return createButton(parent, style, ClientMessagesUtility.getMessage(message),
+				ClientMessagesUtility.getMessage(tooltip), Optional.empty(), Optional.ofNullable(image));
 	}
 
 	public static final Button createButton(final Composite parent, int style, final ClientMessages message,
 			final ClientMessages tooltip, final Point span) {
+		return createButton(parent, style, message, tooltip, Optional.ofNullable(span), Optional.empty());
+	}
+
+	private static final Button createButton(final Composite parent, int style, final ClientMessages message,
+			final ClientMessages tooltip, final Optional<Point> span, final Optional<Image> image) {
 		return createButton(parent, style, ClientMessagesUtility.getMessage(message),
-				ClientMessagesUtility.getMessage(tooltip), span);
+				ClientMessagesUtility.getMessage(tooltip), span, image);
 	}
 
 	private static final Button createButton(final Composite parent, int style, String message, String tooltip,
-			final Point span) {
+			final Optional<Point> span, final Optional<Image> image) {
 		Button button = new Button(parent, style);
 		button.setFont(ClientResourceManager.getInstance().getButtonDefaultFont());
 		button.setText(message);
 		button.setToolTipText(tooltip);
-		button.setSize(DEFAULT_BUTTON_SIZE);
-		applySpan(button, span, null);
+		image.ifPresent(i -> {
+			button.setImage(i);
+			button.setSize(i.getImageData().width, i.getImageData().height);
+			button.setSize(i.getImageData().width, i.getImageData().height);
+		});
+		if (!image.isPresent()) {
+			button.setSize(DEFAULT_BUTTON_SIZE);
+		}
+		applySpan(button, span, Optional.ofNullable(button.getSize()));
 		return button;
 	}
 
@@ -249,7 +268,7 @@ public final class ClientSWTElements {
 		List list = new List(parent, style | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
 		list.setToolTipText(ClientMessagesUtility.getMessage(tooltip));
 		list.setItems(items);
-		applySpan(list, span, minSize);
+		applySpan(list, Optional.ofNullable(span), Optional.ofNullable(minSize));
 		return list;
 	}
 
@@ -342,8 +361,8 @@ public final class ClientSWTElements {
 
 	public static UUID findParentUUID(Composite composite) {
 		Composite old = composite;
-		while(true) {
-			if(UUID.class.isInstance(old.getData(CompositeFactory.COMPOSITE_ROOT))) {
+		while (true) {
+			if (UUID.class.isInstance(old.getData(CompositeFactory.COMPOSITE_ROOT))) {
 				return UUID.class.cast(old.getData(CompositeFactory.COMPOSITE_ROOT));
 			}
 			old = old.getParent();
@@ -363,6 +382,7 @@ public final class ClientSWTElements {
 
 	/**
 	 * Change a {@link Composite} item alignment using its existing {@link GridDataFactory}
+	 *
 	 * @param composite
 	 * @param hAlign
 	 * @param vAlign
@@ -377,6 +397,7 @@ public final class ClientSWTElements {
 
 	/**
 	 * Change a {@link Composite} item "grab" using its existing {@link GridDataFactory}
+	 *
 	 * @param composite
 	 * @param horizontal
 	 * @param vertical
@@ -391,6 +412,7 @@ public final class ClientSWTElements {
 
 	/**
 	 * Change a {@link Composite} item minSize using its existing {@link GridDataFactory}
+	 *
 	 * @param composite
 	 * @param minX
 	 * @param minY
@@ -403,26 +425,20 @@ public final class ClientSWTElements {
 		}
 	}
 
-	private static GridDataFactory applySpan(final Control control, final Point span, final Point minSize) {
+	private static GridDataFactory applySpan(final Control control, final Optional<Point> span,
+			final Optional<Point> minSize) {
 		return applySpan(control, span, minSize, null);
 	}
 
-	private static GridDataFactory applySpan(final Control control, final Point span, final Point minSize,
-			GridDataFactory gdf) {
+	private static GridDataFactory applySpan(final Control control, final Optional<Point> span,
+			final Optional<Point> minSize, GridDataFactory gdf) {
 		if (gdf == null) {
 			gdf = GridDataFactory.swtDefaults().grab(true, false).align(SWT.BEGINNING, SWT.BEGINNING);
 		}
-		if (Objects.nonNull(span)) {
-			gdf.span(span);
-		} else {
-			gdf.span(DEFAULT_SPAN);
-		}
-		if (minSize != null) {
-			gdf.minSize(minSize);
-		} else {
-			gdf.minSize(DEFAULT_BUTTON_SIZE);
-		}
+		gdf.span(span.orElse(DEFAULT_SPAN));
+		gdf.minSize(minSize.orElse(DEFAULT_BUTTON_SIZE));
 		gdf.applyTo(control);
 		return gdf;
 	}
+
 }
