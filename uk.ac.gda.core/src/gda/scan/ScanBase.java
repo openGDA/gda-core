@@ -422,6 +422,7 @@ public abstract class ScanBase implements NestableScan {
 	 */
 	protected void readDevicesAndPublishScanDataPoint() throws Exception {
 		// now can collate the data by creating a DataPoint
+		waitIfPaused();
 		ScanDataPoint point = new ScanDataPoint();
 		point.setUniqueName(name);
 		point.setCurrentFilename(getDataWriter().getCurrentFileName());
