@@ -24,7 +24,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 <module>uk.ac.diamond.daq.eclipse.legacy.feature</module>
 <module>uk.ac.diamond.daq.emf.edit.feature</module>
 <module>uk.ac.diamond.daq.guigenerator</module>
-<module>uk.ac.diamond.daq.guigenerator.test</module>
+<!-- <module>uk.ac.diamond.daq.guigenerator.test</module> -->
 <module>uk.ac.diamond.daq.hrpd.feature</module>
 <module>uk.ac.diamond.daq.imaging.server.feature</module>
 <module>uk.ac.diamond.daq.lde.feature</module>
