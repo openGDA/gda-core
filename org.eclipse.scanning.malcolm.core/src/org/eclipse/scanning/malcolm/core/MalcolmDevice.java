@@ -578,7 +578,9 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	public static IPointGenerator<?> getDummyPointGenerator() {
 		if (dummyPointGenerator == null && Services.getPointGeneratorService() != null) {
 			try {
-				dummyPointGenerator = Services.getPointGeneratorService().createCompoundGenerator(new CompoundModel(new StaticModel()));
+				final CompoundModel compoundModel = new CompoundModel(new StaticModel());
+				compoundModel.setDuration(0.1);
+				dummyPointGenerator = Services.getPointGeneratorService().createCompoundGenerator(compoundModel);
 			} catch (GeneratorException e) {
 				logger.error("Could not generate default point generator", e);
 			}
