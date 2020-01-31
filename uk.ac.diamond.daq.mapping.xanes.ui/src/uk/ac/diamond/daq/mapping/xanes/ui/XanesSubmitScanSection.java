@@ -21,11 +21,19 @@ package uk.ac.diamond.daq.mapping.xanes.ui;
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_SCAN_REQUEST_JSON;
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_XANES_EDGE_PARAMS_JSON;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.points.models.AbstractBoundingLineModel;
+import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
+import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
@@ -72,6 +80,16 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 		final IScriptService scriptService = getService(IScriptService.class);
 		final ScanRequest scanRequest = getScanRequest(getMappingBean());
 		final XanesEdgeParametersSection paramsSection = getMappingView().getSection(XanesEdgeParametersSection.class);
+		if (paramsSection.isEnforcedShape()) {
+			CompoundModel newModel = CompoundModel.copy(scanRequest.getCompoundModel());
+			List<Object> models = newModel.getModels();
+			List<Object> enforcedShapes = new ArrayList<>(models.size());
+			for (Object model : models) {
+				enforcedShapes.add(enforce(model));
+			}
+			newModel.setModels(enforcedShapes);
+			scanRequest.setCompoundModel(newModel);
+		}
 		final XanesEdgeParameters xanesEdgeParameters = paramsSection.getScanParameters();
 		xanesEdgeParameters.setVisitId(InterfaceProvider.getBatonStateProvider().getBatonHolder().getVisitID());
 
@@ -86,6 +104,16 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 		}
 
 		Async.execute(() -> runScript(scriptFilePath, "XANES scanning script"));
+	}
+
+	private Object enforce(Object model) {
+		if (model instanceof TwoAxisLineStepModel) {
+			return AbstractBoundingLineModel.enforceShape((TwoAxisLineStepModel) model);
+		}
+		if (model instanceof TwoAxisGridStepModel) {
+			return AbstractTwoAxisGridModel.enforceShape((TwoAxisGridStepModel) model);
+		}
+		return model;
 	}
 
 	@Override
