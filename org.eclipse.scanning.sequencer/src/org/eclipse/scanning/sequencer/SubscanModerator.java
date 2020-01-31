@@ -12,19 +12,19 @@
 package org.eclipse.scanning.sequencer;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
-import org.eclipse.scanning.api.device.IRunnableDevice;
-import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.scan.models.ScanModel;
 
 /**
  *
@@ -36,7 +36,6 @@ import org.eclipse.scanning.api.scan.ScanningException;
  */
 public class SubscanModerator {
 
-	private final IPointGeneratorService pointGenService;
 	private final IPointGenerator<?> pointGen;
 
 	private IPointGenerator<?> outerPointGenerator;
@@ -46,59 +45,41 @@ public class SubscanModerator {
 	private List<Object> outerModels;
 	private List<Object> innerModels;
 
-	public SubscanModerator(IPointGenerator<?> generator, List<IRunnableDevice<?>> detectors,
-			IPointGeneratorService gservice) throws ScanningException {
-		this(generator, null, detectors, gservice);
-	}
-
-	public SubscanModerator(IPointGenerator<?> generator, CompoundModel cmodel, List<IRunnableDevice<?>> detectors,
-			IPointGeneratorService gservice) throws ScanningException {
-		this.pointGenService = gservice;
-		this.pointGen = generator;
-		this.compoundModel   = cmodel!=null ? cmodel : getModel(generator);
+	public SubscanModerator(ScanModel scanModel) throws ScanningException {
+		this.pointGen = scanModel.getPointGenerator();
+		Object scanPathModel = pointGen.getModel();
+		this.compoundModel = scanPathModel instanceof CompoundModel ? (CompoundModel) scanPathModel : new CompoundModel(scanPathModel);
 		try {
-			moderate(generator, detectors);
+			moderate(scanModel);
 		} catch (MalcolmDeviceException | GeneratorException e) {
 			throw new ScanningException("Unable to moderate scan for malcolm devices!", e);
 		}
 	}
 
-	private CompoundModel getModel(IPointGenerator<?> pointGenerator) {
-		Object model = pointGenerator.getModel();
-		if (model instanceof CompoundModel) {
-			return (CompoundModel) model;
-		}
-		return new CompoundModel(model);
-	}
+	private void moderate(ScanModel scanModel) throws GeneratorException, ScanningException {
+		outerPointGenerator = pointGen; // We will reassign it to the outer scan if there is one, otherwise it is the full scan.
 
-	private boolean isMalcolmScan(List<IRunnableDevice<?>> detectors) {
-		return detectors != null && !detectors.isEmpty() &&
-				detectors.stream().map(IRunnableDevice::getRole).anyMatch(role -> role == DeviceRole.MALCOLM);
-	}
-
-	private void moderate(IPointGenerator<?> generator, List<IRunnableDevice<?>> detectors) throws GeneratorException, ScanningException {
-		outerPointGenerator = generator; // We will reassign it to the outer scan if there is one, otherwise it is the full scan.
-
-		if (!isMalcolmScan(detectors)) {
+		final Optional<IMalcolmDevice> malcolmDevice = findMalcolmDevice(scanModel);
+		if (!malcolmDevice.isPresent()) {
 			this.outerModels = compoundModel.getModels();
 			return;
 		}
 
 		// We need a compound model to moderate this stuff
-		List<Object> orig   = compoundModel.getModels();
-		if (orig.isEmpty()) throw new ScanningException("No models are provided in the compound model!");
+		List<Object> models = compoundModel.getModels();
+		if (models.isEmpty()) throw new ScanningException("No models are provided in the compound model!");
 
 		this.outerModels = new ArrayList<>();
 		this.innerModels = new ArrayList<>();
 
-		final List<String> axes = getAxes(detectors);
+		final IPointGeneratorService pointGenService = ServiceHolder.getGeneratorService();
+		final List<String> innerScanAxes = malcolmDevice.get().getAvailableAxes();
 		boolean reachedOuterScan = false;
-		for (int i = orig.size()-1; i > -1; i--) {
-			Object model = orig.get(i);
+		for (int i = models.size()-1; i > -1; i--) {
+			IScanPathModel model = (IScanPathModel) models.get(i);
 			if (!reachedOuterScan) {
-				IPointGenerator<?> pointGen = pointGenService.createGenerator(model);
-				List<String> names = pointGen.getNames();
-				if (axes.containsAll(names)) {// These will be deal with by malcolm
+				List<String> names = model.getScannableNames();
+				if (innerScanAxes.containsAll(names)) {// These will be deal with by malcolm
 					innerModels.add(0, model);
 					continue; // The device will deal with it.
 				}
@@ -125,26 +106,11 @@ public class SubscanModerator {
 		this.outerPointGenerator = pointGenService.createCompoundGenerator(CompoundModel.copyAndSetModels(compoundModel, outerModels));
 	}
 
-	private List<String> getAxes(List<IRunnableDevice<?>> detectors) throws ScanningException {
-		try {
-			return detectors.stream()
-					.filter(IMalcolmDevice.class::isInstance)
-					.map(IMalcolmDevice.class::cast)
-					.findFirst()
-					.map(this::getAxesToMove)
-					.orElse(Collections.emptyList());
-		} catch (RuntimeException e) {
-			if (e.getCause() instanceof ScanningException) throw (ScanningException) e.getCause();
-			throw e;
-		}
-	}
-
-	private List<String> getAxesToMove(IMalcolmDevice malc) {
-		try {
-			return malc.getAvailableAxes();
-		} catch (ScanningException e) {
-			throw new RuntimeException(e);
-		}
+	private Optional<IMalcolmDevice> findMalcolmDevice(ScanModel scanModel) {
+		return scanModel.getDetectors().stream()
+				.filter(IMalcolmDevice.class::isInstance)
+				.map(IMalcolmDevice.class::cast)
+				.findFirst();
 	}
 
 	/**
@@ -183,16 +149,16 @@ public class SubscanModerator {
 		return innerModels;
 	}
 
-	public int getInnerScanSize() throws GeneratorException {
+	public int getInnerScanSize() {
 		if (innerPointGenerator == null) return 0; // the inner point generator can be null
 		return innerPointGenerator.size();
 	}
 
-	public int getOuterScanSize() throws GeneratorException {
+	public int getOuterScanSize() {
 		return outerPointGenerator.size(); // the outer point generator can't be null
 	}
 
-	public int getTotalScanSize() throws GeneratorException {
+	public int getTotalScanSize() {
 		return pointGen.size();
 	}
 

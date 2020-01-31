@@ -84,6 +84,7 @@ import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.api.scan.rank.IScanRankService;
 import org.eclipse.scanning.api.scan.rank.IScanSlice;
 import org.eclipse.scanning.example.Services;
@@ -716,8 +717,8 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 		}
 
 		// get an iterator over the inner scan positions
-		final SubscanModerator moderator = new SubscanModerator(pointGenerator,
-				Arrays.asList(this), Services.getPointGeneratorService());
+		final ScanModel scanModel = new ScanModel(pointGenerator, this);
+		final SubscanModerator moderator = new SubscanModerator(scanModel);
 		IPointGenerator<?> innerScanPositions = moderator.getInnerPointGenerator(); // should never be null
 
 		// get each dummy device to write its position at each inner scan position
