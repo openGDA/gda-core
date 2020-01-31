@@ -48,7 +48,8 @@ public abstract class AbstractLineGenerator<T extends AbstractBoundingLineModel>
 		final BoundingLine line = model.getBoundingLine();
 
 		final int numPoints = getPoints();
-		final double step = getStep();
+		// length/step<2 => step>length/2, just put point in middle
+		final double step = getPoints() == 1 ? model.getBoundingLine().getLength() : getStep();
 		final double xStep = step * Math.cos(line.getAngle());
 		final double yStep = step * Math.sin(line.getAngle());
 		final double minX = line.getxStart() + xStep/2;

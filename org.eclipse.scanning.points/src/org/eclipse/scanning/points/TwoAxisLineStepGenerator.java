@@ -31,7 +31,7 @@ class TwoAxisLineStepGenerator extends AbstractLineGenerator<TwoAxisLineStepMode
 	@Override
 	protected int getPoints() {
 		double length = getModel().getBoundingLine().getLength();
-		return Math.max(1, BigDecimal.valueOf(length).divide(BigDecimal.valueOf(model.getStep())).intValue());
+		return Math.max(1, BigDecimal.valueOf(length).divideToIntegralValue(BigDecimal.valueOf(model.getStep())).intValue());
 	}
 
 	@Override
