@@ -29,7 +29,11 @@ import uk.ac.gda.ui.tool.ClientSWTElements;
 public enum ClientImages {
 
 	// --- GENERAL IMAGES ---
-	ADD(ClientImagesGroup.GENERAL, "add.png"),
+	ADD(ClientImagesGroup.GENERAL, "add-16.png"),
+	DELETE(ClientImagesGroup.GENERAL, "delete-16.png"),
+	OPEN(ClientImagesGroup.GENERAL, "open-16.png"),
+	RUN(ClientImagesGroup.GENERAL, "run-16.png"),
+	SAVE(ClientImagesGroup.GENERAL, "save-16.png"),
 
 	// --- ENERGY IMAGES ---
 	BEAM_16(ClientImagesGroup.ENERGY, "beam_16.png"),
@@ -40,7 +44,7 @@ public enum ClientImages {
 
 	private final ClientImagesGroup group;
 	private final String fileName;
-	private final String imagesPathFormat = "%s/%s";
+	private final String imagesPathFormat = "%s%s";
 
 	/**
 	 * Defines an enum for an image.
@@ -78,7 +82,7 @@ public enum ClientImages {
 	 */
 	enum ClientImagesGroup {
 
-		GENERAL(""), ENERGY("energy"), TOMOGRAPHY("tomography");
+		GENERAL(""), ENERGY("energy/"), TOMOGRAPHY("tomography/");
 
 		private final String path;
 

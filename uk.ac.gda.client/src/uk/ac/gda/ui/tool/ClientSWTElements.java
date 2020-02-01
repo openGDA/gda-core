@@ -221,7 +221,7 @@ public final class ClientSWTElements {
 	}
 
 	public static final Button createButton(final Composite parent, int style, final ClientMessages message,
-			final ClientMessages tooltip, Image image) {
+			final ClientMessages tooltip, ClientImages image) {
 		return createButton(parent, style, ClientMessagesUtility.getMessage(message),
 				ClientMessagesUtility.getMessage(tooltip), Optional.empty(), Optional.ofNullable(image));
 	}
@@ -232,23 +232,24 @@ public final class ClientSWTElements {
 	}
 
 	private static final Button createButton(final Composite parent, int style, final ClientMessages message,
-			final ClientMessages tooltip, final Optional<Point> span, final Optional<Image> image) {
+			final ClientMessages tooltip, final Optional<Point> span, final Optional<ClientImages> image) {
 		return createButton(parent, style, ClientMessagesUtility.getMessage(message),
 				ClientMessagesUtility.getMessage(tooltip), span, image);
 	}
 
 	private static final Button createButton(final Composite parent, int style, String message, String tooltip,
-			final Optional<Point> span, final Optional<Image> image) {
+			final Optional<Point> span, final Optional<ClientImages> imageCode) {
 		Button button = new Button(parent, style);
 		button.setFont(ClientResourceManager.getInstance().getButtonDefaultFont());
 		button.setText(message);
 		button.setToolTipText(tooltip);
-		image.ifPresent(i -> {
-			button.setImage(i);
-			button.setSize(i.getImageData().width, i.getImageData().height);
-			button.setSize(i.getImageData().width, i.getImageData().height);
+		imageCode.ifPresent(i -> {
+			Image image = ClientSWTElements.getImage(i);
+			button.setImage(image);
+			button.setSize(image.getImageData().width, image.getImageData().height);
+			button.setSize(image.getImageData().width, image.getImageData().height);
 		});
-		if (!image.isPresent()) {
+		if (!imageCode.isPresent()) {
 			button.setSize(DEFAULT_BUTTON_SIZE);
 		}
 		applySpan(button, span, Optional.ofNullable(button.getSize()));
