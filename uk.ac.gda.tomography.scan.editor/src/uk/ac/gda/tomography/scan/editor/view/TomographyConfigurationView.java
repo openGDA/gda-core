@@ -18,9 +18,11 @@
 
 package uk.ac.gda.tomography.scan.editor.view;
 
+import static uk.ac.gda.ui.tool.ClientVerifyListener.verifyOnlyDoubleText;
+import static uk.ac.gda.ui.tool.ClientVerifyListener.verifyOnlyIntegerText;
+
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import org.eclipse.core.databinding.DataBindingContext;
@@ -40,9 +42,12 @@ import org.eclipse.swt.widgets.ExpandItem;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.client.UIHelper;
+import uk.ac.gda.client.composites.ButtonGroupFactoryBuilder;
 import uk.ac.gda.tomography.base.TomographyMode.TomographyDevices;
 import uk.ac.gda.tomography.base.TomographyParameters;
 import uk.ac.gda.tomography.controller.AcquisitionControllerException;
@@ -50,18 +55,24 @@ import uk.ac.gda.tomography.model.DevicePosition;
 import uk.ac.gda.tomography.model.MultipleScansType;
 import uk.ac.gda.tomography.model.RangeType;
 import uk.ac.gda.tomography.model.ScanType;
+import uk.ac.gda.tomography.scan.editor.Activator;
 import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
 import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController.Positions;
+import uk.ac.gda.tomography.ui.controller.TomographyPerspectiveController;
 import uk.ac.gda.ui.tool.ClientBindingElements;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientSWTElements;
+import uk.ac.gda.ui.tool.images.ClientImages;
+import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
  * This Composite allows to edit a {@link TomographyParameters} object.
  *
  * @author Maurizio Nagni
  */
-public class TomographyConfigurationComposite extends CompositeTemplate<TomographyParametersAcquisitionController> {
+public class TomographyConfigurationView extends ViewPart {
+
+	private static final String DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL = "tomographyScanModel";
 
 	/** Scan prefix **/
 	private Text name;
@@ -104,25 +115,103 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 	private Button repeateMultipleScansType;
 	private Button switchbackMultipleScansType;
 
-	private static final Logger logger = LoggerFactory.getLogger(TomographyConfigurationComposite.class);
+	protected TomographyParametersAcquisitionController controller;
 
-	public TomographyConfigurationComposite(Composite parent, TomographyParametersAcquisitionController controller) {
-		this(parent, SWT.NONE, controller);
-	}
+	private static final Logger logger = LoggerFactory.getLogger(TomographyConfigurationView.class);
 
-	public TomographyConfigurationComposite(Composite parent, int style, TomographyParametersAcquisitionController controller) {
-		super(parent, style, controller);
+	@Override
+	public void createPartControl(Composite parent) {
+		this.controller = getPerspectiveController().getTomographyAcquisitionController();
+		createElements(parent, SWT.NONE, SWT.BORDER);
+		bindElements();
+		initialiseElements();
 	}
 
 	@Override
-	protected void createElements(int labelStyle, int textStyle) {
-		GridLayoutFactory.swtDefaults().margins(ClientSWTElements.defaultCompositeMargin()).applyTo(this);
-		nameAndScanTypeContent(ClientSWTElements.createComposite(this, SWT.NONE, 2), labelStyle, textStyle);
-		startAngleContent(ClientSWTElements.createGroup(this, 2, ClientMessages.START), labelStyle, textStyle);
-		endAngleContent(ClientSWTElements.createGroup(this, 3, ClientMessages.END), labelStyle, textStyle);
-		projectionsContent(ClientSWTElements.createGroup(this, 2, ClientMessages.PROJECTIONS), labelStyle, textStyle);
-		imagesCalibrationContent(ClientSWTElements.createGroup(this, 2, ClientMessages.IMAGE_CALIBRATION), labelStyle, textStyle);
-		multipleScansContent(this, labelStyle, textStyle);
+	public void setFocus() {
+	}
+
+	private TomographyParametersAcquisitionController getController() {
+		return controller;
+	}
+
+	private void createElements(Composite parent, int labelStyle, int textStyle) {
+		parent.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WIDGET_LIGHT_SHADOW));
+		GridLayoutFactory.swtDefaults().margins(ClientSWTElements.defaultCompositeMargin()).applyTo(parent);
+		nameAndScanTypeContent(ClientSWTElements.createComposite(parent, SWT.NONE, 2), labelStyle, textStyle);
+		startAngleContent(ClientSWTElements.createGroup(parent, 2, ClientMessages.START), labelStyle, textStyle);
+		endAngleContent(ClientSWTElements.createGroup(parent, 3, ClientMessages.END), labelStyle, textStyle);
+		projectionsContent(ClientSWTElements.createGroup(parent, 2, ClientMessages.PROJECTIONS), labelStyle, textStyle);
+		imagesCalibrationContent(ClientSWTElements.createGroup(parent, 2, ClientMessages.IMAGE_CALIBRATION), labelStyle, textStyle);
+		multipleScansContent(parent, labelStyle, textStyle);
+		buttonsGroup(parent);
+	}
+
+	private void buttonsGroup(Composite parent) {
+		ButtonGroupFactoryBuilder builder = new ButtonGroupFactoryBuilder();
+		builder.addButton(ClientMessages.LOAD, ClientMessages.LOAD_CONFIGURATION_TP, loadListener(), ClientImages.OPEN);
+		builder.addButton(ClientMessages.SAVE, ClientMessages.SAVE_CONFIGURATION_TP, saveListener(), ClientImages.SAVE);
+		builder.addButton(ClientMessages.RUN, ClientMessages.RUN_CONFIGURATION_TP, runListener(), ClientImages.RUN);
+		builder.build().createComposite(parent, SWT.NONE);
+	}
+
+	private SelectionListener saveListener() {
+		return new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				try {
+					saveConfiguration();
+				} catch (AcquisitionControllerException e1) {
+					logger.error("TODO put description of error here", e1);
+				}
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent event) {
+				logger.debug("widgetDefaultSelected");
+			}
+		};
+	}
+
+	private SelectionListener loadListener() {
+		return new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				logger.debug("event");
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent event) {
+				logger.debug("widgetDefaultSelected");
+			}
+		};
+	}
+
+	private SelectionListener runListener() {
+		return new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				try {
+					saveConfiguration();
+					controller.runAcquisition(getController().getAcquisition());
+				} catch (AcquisitionControllerException e) {
+					UIHelper.showError("Run Acquisition", e.getMessage());
+				}
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent event) {
+				logger.debug("widgetDefaultSelected");
+			}
+		};
+	}
+
+	private void saveConfiguration() throws AcquisitionControllerException {
+		controller.saveAcquisitionAsIDialogSettings(getController().getAcquisition(), Activator.getDefault().getDialogSettings(),
+				DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL);
 	}
 
 	private void nameAndScanTypeContent(Composite parent, int labelStyle, int textStyle) {
@@ -136,8 +225,7 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 
 	private void startAngleContent(Composite parent, int labelStyle, int textStyle) {
 		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.ANGLE, new Point(2, 1));
-		startAngleText = ClientSWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyDoubleText, null,
-				ClientMessages.START_ANGLE_TOOLTIP, null);
+		startAngleText = ClientSWTElements.createText(parent, textStyle, verifyOnlyDoubleText, null, ClientMessages.START_ANGLE_TOOLTIP, null);
 		currentAngleButton = ClientSWTElements.createButton(parent, SWT.CHECK, ClientMessages.CURRENT_ANGLE, ClientMessages.CURRENT_ANGLE_TOOLTIP);
 	}
 
@@ -148,39 +236,33 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 		// fullGroup = ClientSWTElements.createGroup(parent, 1, null);
 		// ClientSWTElements.createLabel(fullGroup, labelStyle, ClientMessages.NUM_ROTATIONS);
 		// numberRotation = ClientSWTElements.createText(fullGroup, textStyle,
-		// TomographyVerifyListener.verifyOnlyDigitText);
+		// verifyOnlyDigitText);
 
 		customRotationRangeType = ClientSWTElements.createButton(parent, SWT.RADIO, ClientMessages.CUSTOM, ClientMessages.CUSTOM_END_TOOLTIP);
 		ExpandBar customBar = createExpandBar(parent);
 		customGroup = ClientSWTElements.createGroup(customBar, 1, null);
 		ClientSWTElements.createLabel(customGroup, labelStyle, ClientMessages.ANGLE);
-		customAngle = ClientSWTElements.createText(customGroup, textStyle, TomographyVerifyListener.verifyOnlyDoubleText, null,
-				ClientMessages.CUSTOM_END_TOOLTIP, null);
+		customAngle = ClientSWTElements.createText(customGroup, textStyle, verifyOnlyDoubleText, null, ClientMessages.CUSTOM_END_TOOLTIP, null);
 		expandBar(customBar, customGroup, customRotationRangeType);
 	}
 
 	private void projectionsContent(Composite parent, int labelStyle, int textStyle) {
 		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.TOTAL_PROJECTIONS);
 		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.ANGULAR_STEP);
-		totalProjections = ClientSWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, null,
-				ClientMessages.TOTAL_PROJECTIONS_TOOLTIP, null);
+		totalProjections = ClientSWTElements.createText(parent, textStyle, verifyOnlyIntegerText, null, ClientMessages.TOTAL_PROJECTIONS_TOOLTIP, null);
 		angularStep = ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.EMPTY_MESSAGE);
 	}
 
 	private void imagesCalibrationContent(Composite parent, int labelStyle, int textStyle) {
 		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.NUM_DARK);
 		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.DARK_EXPOSURE);
-		numberDark = ClientSWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 1),
-				ClientMessages.NUM_DARK_TOOLTIP, null);
-		darkExposure = ClientSWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 1),
-				ClientMessages.DARK_EXPOSURE_TP, null);
+		numberDark = ClientSWTElements.createText(parent, textStyle, verifyOnlyIntegerText, new Point(1, 1), ClientMessages.NUM_DARK_TOOLTIP, null);
+		darkExposure = ClientSWTElements.createText(parent, textStyle, verifyOnlyIntegerText, new Point(1, 1), ClientMessages.DARK_EXPOSURE_TP, null);
 
 		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.NUM_FLAT);
 		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.FLAT_EXPOSURE);
-		numberFlat = ClientSWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 1),
-				ClientMessages.NUM_FLAT_TOOLTIP, null);
-		flatExposure = ClientSWTElements.createText(parent, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 1),
-				ClientMessages.FLAT_EXPOSURE_TP, null);
+		numberFlat = ClientSWTElements.createText(parent, textStyle, verifyOnlyIntegerText, new Point(1, 1), ClientMessages.NUM_FLAT_TOOLTIP, null);
+		flatExposure = ClientSWTElements.createText(parent, textStyle, verifyOnlyIntegerText, new Point(1, 1), ClientMessages.FLAT_EXPOSURE_TP, null);
 
 		ClientSWTElements.createEmptyCell(parent, labelStyle);
 		ClientSWTElements.createEmptyCell(parent, labelStyle);
@@ -196,10 +278,9 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 		ClientSWTElements.createLabel(multipleScan, labelStyle, ClientMessages.NUM_REPETITIONS);
 		ClientSWTElements.createLabel(multipleScan, labelStyle, ClientMessages.WAITING_TIME);
 		ClientSWTElements.createEmptyCell(multipleScan, labelStyle);
-		numberRepetitions = ClientSWTElements.createText(multipleScan, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 2),
+		numberRepetitions = ClientSWTElements.createText(multipleScan, textStyle, verifyOnlyIntegerText, new Point(1, 2),
 				ClientMessages.NUM_REPETITIONS_TOOLTIP, null);
-		waitingTime = ClientSWTElements.createText(multipleScan, textStyle, TomographyVerifyListener.verifyOnlyIntegerText, new Point(1, 2),
-				ClientMessages.WAITING_TIME_TOOLTIP, null);
+		waitingTime = ClientSWTElements.createText(multipleScan, textStyle, verifyOnlyIntegerText, new Point(1, 2), ClientMessages.WAITING_TIME_TOOLTIP, null);
 		repeateMultipleScansType = ClientSWTElements.createButton(multipleScan, SWT.RADIO, ClientMessages.REPEATE_SCAN, ClientMessages.REPEATE_SCAN_TOOLTIP);
 		switchbackMultipleScansType = ClientSWTElements.createButton(multipleScan, SWT.RADIO, ClientMessages.SWITCHBACK_SCAN,
 				ClientMessages.SWITCHBACK_SCAN_TOOLTIP);
@@ -210,8 +291,7 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 		expandBar(customBar, multipleScan, multipleScans);
 	}
 
-	@Override
-	protected void bindElements() {
+	private void bindElements() {
 		DataBindingContext dbc = new DataBindingContext();
 
 		bindScanType(dbc);
@@ -264,8 +344,7 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 		ClientBindingElements.bindEnumToRadio(dbc, RangeType.class, "end.rangeType", getTemplateData(), enumRadioMap);
 	}
 
-	@Override
-	protected void initialiseElements() {
+	private void initialiseElements() {
 		endGroupsListeners();
 		customAngleLooseFocus();
 		angularStepListener();
@@ -314,7 +393,7 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 			// customAngle.setText(startAngleText.getText());
 			// }
 			// customAngle.pack();
-			pack();
+			// pack();
 			updateCurrentAngularPosition();
 		});
 		customAngle.addFocusListener(customAngleListener);
@@ -375,7 +454,7 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 	// Text widget = Text.class.cast(e.widget);
 	// String currentText = widget.getText();
 	// String newText = (currentText.substring(0, e.start) + e.text + currentText.substring(e.end));
-	// if (TomographyVerifyListener.stringIsDoubleNumber(newText)) {
+	// if (stringIsDoubleNumber(newText)) {
 	// if (Double.parseDouble(newText) < getTemplateData().getStart().getStart()) {
 	// widget.setToolTipText(ClientMessagesUtility.getMessage(ClientMessages.LESS_THAN_START));
 	// WidgetUtilities.addErrorDecorator(widget,
@@ -395,7 +474,7 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 	// }
 
 	private double getMotorAngularPosition() {
-		Set<DevicePosition<Double>> start = controller.savePosition(Positions.START);
+		Set<DevicePosition<Double>> start = getController().savePosition(Positions.START);
 		return start.stream().filter(dp -> dp.getName().equals(TomographyDevices.MOTOR_STAGE_ROT_Y.name())).findFirst()
 				.orElse(new DevicePosition<>(TomographyDevices.MOTOR_STAGE_ROT_Y.name(), 0.0)).getPosition();
 	}
@@ -448,7 +527,7 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				expandBarItem(item0, group, Button.class.cast(e.getSource()));
-				getShell().pack();
+				// getShell().pack();
 			}
 		});
 	}
@@ -471,7 +550,7 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 	}
 
 	private TomographyParameters getTemplateData() {
-		if (Objects.isNull(getController().getAcquisition())) {
+		if (getController().getAcquisition() == null) {
 			try {
 				getController().loadData(TomographyParametersAcquisitionController.createNewAcquisition());
 			} catch (AcquisitionControllerException e) {
@@ -479,5 +558,9 @@ public class TomographyConfigurationComposite extends CompositeTemplate<Tomograp
 			}
 		}
 		return getController().getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
+	}
+
+	private TomographyPerspectiveController getPerspectiveController() {
+		return SpringApplicationContextProxy.getBean(TomographyPerspectiveController.class);
 	}
 }
