@@ -64,6 +64,8 @@ public interface Zebra {
 	final public static int PULSE_TIMEUNIT_SEC = 1;
 	final public static int PULSE_TIMEUNIT_MS = 0;
 
+	final public static String CONFIG_LOAD_OK = "Done";
+
 	void setUseAvalField(boolean useAvalField);
 
 	boolean isUseAvalField();
@@ -176,6 +178,14 @@ public interface Zebra {
 	String getZebraPrefix();
 
 	void setZebraPrefix(String zebraPrefix);
+
+	void applyZebraConfig() throws IOException;
+
+	String getZebraConfigPath() throws IOException;
+
+	void setZebraConfigPath(String zebraConfigPath) throws IOException;
+
+	String getZebraConfigStatus() throws IOException;
 
 	/**
 	 * @param i should be PC_TIMEUNIT_SEC or PC_TIMEUNIT_MS
