@@ -1,7 +1,5 @@
 package uk.ac.diamond.daq.server;
 
-import static uk.ac.diamond.daq.server.configuration.IGDAConfigurationService.ServerType.LOG;
-
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.ServerSocket;
@@ -25,7 +23,6 @@ import gda.util.ObjectServer;
 import gda.util.SpringObjectServer;
 import gda.util.Version;
 import uk.ac.diamond.daq.server.configuration.IGDAConfigurationService;
-import uk.ac.diamond.daq.server.configuration.IGDAConfigurationService.ServerType;
 import uk.ac.diamond.daq.server.configuration.commands.ObjectServerCommand;
 import uk.ac.diamond.daq.services.PropertyService;
 
@@ -38,9 +35,10 @@ public class GDAServerApplication implements IApplication {
 
 	private static IGDAConfigurationService configurationService;
 
-	private final Map<ServerType, Process> processes = new HashMap<>();
 	private final CountDownLatch shutdownLatch = new CountDownLatch(1);
 	private final Map<String, ObjectServer> objectServers = new HashMap<>();
+
+	private Process logServerProcess;
 
 	private ServerSocket statusPort;
 
@@ -62,12 +60,10 @@ public class GDAServerApplication implements IApplication {
 
 		try {
 			try {
-				processes.put(LOG, configurationService.getLogServerCommand().execute());
+				logServerProcess =  configurationService.getLogServerCommand().execute();
 				logger.info("Log server starting");
-			}
-			catch (Exception subEx) {
-				String[] failedServer = {"Log", "Name", "Event"};
-				logger.error("Unable to start {} server, GDA server shutting down", failedServer[processes.size()]);
+			} catch (Exception subEx) {
+				logger.error("Unable to start log server, GDA server shutting down");
 				throw subEx;
 			}
 
@@ -79,8 +75,7 @@ public class GDAServerApplication implements IApplication {
 				final String hline_80char = "================================================================================";
 				System.out.println(hline_80char + "\n" + command.getProfile() + " object server started\n" + hline_80char);
 			}
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			logger.error("GDA server startup failure", ex);
 			ex.printStackTrace();
 			stop(); // N.B. this method does not exit the app, it just cleans up resources.
@@ -172,22 +167,18 @@ public class GDAServerApplication implements IApplication {
 			objectServers.clear();
 		}
 
-		for (Map.Entry<ServerType, Process> process : processes.entrySet()) {
-			logger.info("{} Server shutting down", process.getKey());
-			try {
-				if (process.getKey() == ServerType.LOG) {
-					((LoggerContext)LoggerFactory.getILoggerFactory()).stop();
-				}
-				if (!process.getValue().destroyForcibly().waitFor(1000, TimeUnit.MILLISECONDS)) {
-					logger.error("Shutdown of {} server timed out, check for orphaned process", process.getKey());
-				}
-			} catch (InterruptedException e) {
-				logger.error("Shutdown of {} server interrupted, check for orphaned process", process.getKey(), e);
-				e.printStackTrace();
-				Thread.currentThread().interrupt();
+		try {
+			logger.info("Log Server shutting down");
+			((LoggerContext)LoggerFactory.getILoggerFactory()).stop();
+			if (!logServerProcess.destroyForcibly().waitFor(1000, TimeUnit.MILLISECONDS)) {
+				logger.error("Shutdown of log server timed out, check for orphaned process");
 			}
+		} catch (InterruptedException e) {
+			logger.error("Shutdown of log server interrupted, check for orphaned process", e);
+			e.printStackTrace(); // log server might be dead
+			Thread.currentThread().interrupt();
 		}
-		processes.clear();
+
 		GDAJythonClassLoader.closeJarClassLoaders();
 		ApplicationEnvironment.release();
 		shutdownLatch.countDown();

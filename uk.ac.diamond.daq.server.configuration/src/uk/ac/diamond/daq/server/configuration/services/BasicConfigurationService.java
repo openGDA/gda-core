@@ -6,9 +6,7 @@ import static uk.ac.gda.common.util.EclipseUtils.URI_SEPARATOR;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.osgi.service.component.ComponentContext;
 
@@ -19,7 +17,7 @@ import uk.ac.gda.common.util.EclipseUtils;
 
 
 public class BasicConfigurationService implements IGDAConfigurationService {
-	private final Map<ServerType, SubProcessCommand> commands = new HashMap<ServerType, SubProcessCommand>();
+	private SubProcessCommand logCommand;
 	private final List<ObjectServerCommand> objectServerCommands = new ArrayList<ObjectServerCommand>();
 	private String instanceConfigRoot;
 
@@ -33,7 +31,7 @@ public class BasicConfigurationService implements IGDAConfigurationService {
 					resolvePath("uk.ac.gda.common", false),
 					resolvePath("uk.ac.gda.core", false));
 
-			commands.put(ServerType.LOG, new SubProcessCommand(buildLogServerCommand(), log_server_classpath));
+			logCommand = new SubProcessCommand(buildLogServerCommand(), log_server_classpath);
 		} catch (IOException e) {
 			throw new RuntimeException("Could not locate subprocess server classpath component:", e);
 		}
@@ -89,18 +87,8 @@ public class BasicConfigurationService implements IGDAConfigurationService {
 	}
 
 	@Override
-	public SubProcessCommand getNameServerCommand() {
-		return commands.get(ServerType.NAME);
-	}
-
-	@Override
 	public SubProcessCommand getLogServerCommand() {
-		return commands.get(ServerType.LOG);
-	}
-
-	@Override
-	public SubProcessCommand getEventServerCommand() {
-		return commands.get(ServerType.EVENT);
+		return logCommand;
 	}
 
 	@Override

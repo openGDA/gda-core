@@ -10,7 +10,7 @@ import uk.ac.diamond.daq.server.configuration.ConfigurationDefaults;
 
 /**
  * Command object class used execute arbitrary commands in a separate sub process.
- * Used to start subordinate servers i.e. log, name, event.
+ * Used to start subordinate servers i.e. log server
  * @author fri44821
  *
  */
