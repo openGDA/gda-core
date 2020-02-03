@@ -19,12 +19,19 @@
 
 package gda.device.scannable;
 
+import static javax.measure.unit.NonSI.ANGSTROM;
+import static javax.measure.unit.NonSI.DEGREE_ANGLE;
+import static javax.measure.unit.NonSI.ELECTRON_VOLT;
+import static javax.measure.unit.SI.KILO;
+import static javax.measure.unit.SI.METER;
+import static javax.measure.unit.SI.MILLI;
+import static javax.measure.unit.SI.NANO;
+
 import javax.measure.quantity.Angle;
 import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Quantity;
 import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -39,7 +46,6 @@ import gda.factory.Finder;
 import gda.jscience.physics.quantities.BraggAngle;
 import gda.jscience.physics.quantities.PhotonEnergy;
 import gda.jscience.physics.quantities.Wavelength;
-import gda.jscience.physics.units.NonSIext;
 import gda.util.QuantityFactory;
 
 /**
@@ -87,12 +93,12 @@ public class MonoScannable extends ScannableMotionUnitsBase {
 				userUnits = QuantityFactory.createUnitFromString(initialUserUnits);
 			}
 
-			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, NonSIext.MILLI_DEG_ANGLE);
-			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, NonSIext.DEG_ANGLE);
-			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, NonSI.ANGSTROM);
-			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, SI.NANO(SI.METER));
-			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, NonSI.ELECTRON_VOLT);
-			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, SI.KILO(NonSI.ELECTRON_VOLT));
+			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, MILLI(DEGREE_ANGLE));
+			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, DEGREE_ANGLE);
+			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, ANGSTROM);
+			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, NANO(METER));
+			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, ELECTRON_VOLT);
+			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, KILO(ELECTRON_VOLT));
 
 			setConfigured(true);
 		} catch (Exception e) {

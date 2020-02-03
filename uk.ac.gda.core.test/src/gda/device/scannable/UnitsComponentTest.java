@@ -18,10 +18,9 @@
 
 package gda.device.scannable;
 
-import static gda.jscience.physics.units.NonSIext.DEG_ANGLE;
 import static gda.jscience.physics.units.NonSIext.DEG_ANGLE_LOWERCASE_STRING;
-import static gda.jscience.physics.units.NonSIext.MILLI_DEG_ANGLE;
 import static gda.jscience.physics.units.NonSIext.MILLI_DEG_ANGLE_LOWERCASE_STRING;
+import static javax.measure.unit.NonSI.DEGREE_ANGLE;
 import static javax.measure.unit.SI.METER;
 import static javax.measure.unit.SI.MILLI;
 import static javax.measure.unit.SI.NANO;
@@ -347,9 +346,9 @@ public class UnitsComponentTest {
 		uc.setUserUnits("mDeg");
 		uc.setHardwareUnitString("Deg");
 		assertEquals(DEG_ANGLE_LOWERCASE_STRING, uc.getHardwareUnitString());
-		assertEquals(DEG_ANGLE, uc.getHardwareUnit());
+		assertEquals(DEGREE_ANGLE, uc.getHardwareUnit());
 		assertEquals(MILLI_DEG_ANGLE_LOWERCASE_STRING, uc.getUserUnitString());
-		assertEquals(MILLI_DEG_ANGLE, uc.getUserUnit());
+		assertEquals(MILLI(DEGREE_ANGLE), uc.getUserUnit());
 	}
 
 	@Test(expected = DeviceException.class)
