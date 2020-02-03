@@ -18,10 +18,6 @@
 
 package uk.ac.gda.client.live.stream.view;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -67,7 +63,6 @@ public class CameraConfiguration extends FindableBase {
 	/** Custom UI to be drawn below the live stream */
 	private LiveStreamViewCustomUi bottomUi;
 
-	private final List<StreamType> streamTypes = new ArrayList<>();
 
 	public String getDisplayName() {
 		return displayName;
@@ -190,20 +185,5 @@ public class CameraConfiguration extends FindableBase {
 	@Override
 	public boolean equals(Object obj) {
 		return EqualsBuilder.reflectionEquals(this, obj);
-	}
-
-	public List<StreamType> cameraStreamTypes() {
-		if (streamTypes.isEmpty()) {
-			if (getUrl() != null) {
-				streamTypes.add(StreamType.MJPEG);
-			}
-			if (getArrayPv() != null) {
-				streamTypes.add(StreamType.EPICS_ARRAY);
-			}
-			if (getPvAccessPv() != null) {
-				streamTypes.add(StreamType.EPICS_PVA);
-			}
-		}
-		return Collections.unmodifiableList(streamTypes);
 	}
 }
