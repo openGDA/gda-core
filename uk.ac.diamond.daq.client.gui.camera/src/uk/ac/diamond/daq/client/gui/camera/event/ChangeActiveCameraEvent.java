@@ -24,19 +24,16 @@ import uk.ac.diamond.daq.client.gui.camera.CameraComboItem;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 
 /**
- *  Published when the active camera changes. The camera index is related to the client configuration properties.
+ *  Published when the active camera changes.
+ *  The cameraIndex is specified into a CameraComboItem.
  *  See {@link CameraHelper}
  *
  * @author Maurizio Nagni
  */
-public class ChangeActiveCameraEvent extends CameraEvent {
+public class ChangeActiveCameraEvent extends RootCompositeEvent {
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -933748166416333930L;
 	private final CameraComboItem activeCamera;
-	private final UUID rootComposite;
 	
     /**
      * @param source the component which published the event
@@ -44,16 +41,11 @@ public class ChangeActiveCameraEvent extends CameraEvent {
      * @param rootComposite the component id
      */
     public ChangeActiveCameraEvent(Object source, CameraComboItem activeCamera, UUID rootComposite) {
-		super(source);
-		this.activeCamera = activeCamera;
-		this.rootComposite = rootComposite; 
+		super(source, rootComposite);
+		this.activeCamera = activeCamera; 
 	}
 
 	public CameraComboItem getActiveCamera() {
 		return activeCamera;
-	}
-
-	public UUID getRootComposite() {
-		return rootComposite;
-	}
+	} 
 }

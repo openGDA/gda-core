@@ -31,6 +31,7 @@ Require-Bundle: org.eclipse.jface,
  org.eclipse.swt
 Export-Package: uk.ac.diamond.daq.client.gui.camera,
  uk.ac.diamond.daq.client.gui.camera.controller,
+ uk.ac.diamond.daq.client.gui.camera.diffraction,
  uk.ac.diamond.daq.client.gui.camera.event,
  uk.ac.diamond.daq.client.gui.camera.liveview,
  uk.ac.diamond.daq.client.gui.camera.samplealignment

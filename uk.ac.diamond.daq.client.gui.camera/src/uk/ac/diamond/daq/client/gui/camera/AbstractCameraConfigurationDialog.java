@@ -4,8 +4,6 @@ import java.util.UUID;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.layout.RowDataFactory;
-import org.eclipse.jface.layout.RowLayoutFactory;
 import org.eclipse.scanning.api.event.core.IConnection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -13,7 +11,6 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Shell;
@@ -26,7 +23,7 @@ import gda.rcp.views.TabFolderBuilder;
 import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
 import uk.ac.diamond.daq.client.gui.camera.liveview.CameraImageComposite;
 import uk.ac.diamond.daq.client.gui.camera.liveview.LiveViewCompositeFactory;
-import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 
 /**
@@ -38,8 +35,6 @@ import uk.ac.gda.ui.tool.ClientSWTElements;
  * @param <T>
  */
 public abstract class AbstractCameraConfigurationDialog<T extends AbstractCameraConfigurationController> {
-
-	private static final int BUTTON_WIDTH = 80;
 
 	private final Shell shell;
 	private final Composite parent;
@@ -72,23 +67,7 @@ public abstract class AbstractCameraConfigurationDialog<T extends AbstractCamera
 		}
 	}
 
-//	public void createComposite(boolean closable) throws DeviceException {
-//		Composite intParent = getParent() == null ? getShell() : getParent();
-//		UUID uuid = UUID.randomUUID();
-//		intParent.setData(CompositeFactory.COMPOSITE_ROOT, uuid);
-//		intParent.setBackground(intParent.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
-//
-//		CompositeFactory cf = new LiveViewCompositeFactory<>(getController());
-//		cf.createComposite(intParent, SWT.NONE);
-//
-//		cf = createTabFactory();
-//		Composite tabs = cf.createComposite(intParent, SWT.NONE);
-//		CTabFolder cTab = CTabFolder.class.cast(tabs.getData(TabFolderBuilder.CTAB_FOLDER));
-//		GridDataFactory.fillDefaults().grab(true, false).applyTo(cTab);
-//		createLoadSaveComposite(intParent, closable);
-//	}
-
-	public Composite createComposite(boolean closable) throws DeviceException {
+	public Composite createComposite() throws GDAClientException {
 		Composite intParent = getParent() == null ? getShell() : getParent();
 		UUID uuid = UUID.randomUUID();
 		intParent.setData(CompositeFactory.COMPOSITE_ROOT, uuid);
@@ -140,7 +119,7 @@ public abstract class AbstractCameraConfigurationDialog<T extends AbstractCamera
 			}
 		});
 
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(cTab);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(cTab);
 		return internalArea;
 	}
 
@@ -156,40 +135,7 @@ public abstract class AbstractCameraConfigurationDialog<T extends AbstractCamera
 		this.liveStreamConnection = liveStreamConnection;
 	}
 
-	protected abstract CompositeFactory createTabFactory() throws DeviceException;
-
-	private Composite createLoadSaveComposite(Composite parent, boolean closable) {
-		Composite panel = ClientSWTElements.createComposite(parent, SWT.NONE, 3);
-
-		Composite loadSavePanel = ClientSWTElements.createComposite(panel, SWT.NONE);
-		RowLayoutFactory.swtDefaults().applyTo(loadSavePanel);
-
-		Button loadButton = ClientSWTElements.createButton(loadSavePanel, SWT.PUSH, ClientMessages.LOAD,
-				ClientMessages.LOAD);
-		loadButton.addListener(SWT.Selection, e -> load());
-		RowDataFactory.swtDefaults().hint(BUTTON_WIDTH, -1).applyTo(loadButton);
-
-		Button saveButton = ClientSWTElements.createButton(loadSavePanel, SWT.PUSH, ClientMessages.SAVE,
-				ClientMessages.SAVE);
-		saveButton.addListener(SWT.Selection, e -> save());
-		RowDataFactory.swtDefaults().hint(BUTTON_WIDTH, -1).applyTo(saveButton);
-
-		// Spacing label between panels
-		ClientSWTElements.createLabel(panel, SWT.NONE);
-
-		Composite okCancelPanel = ClientSWTElements.createComposite(panel, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.END, SWT.CENTER).applyTo(okCancelPanel);
-		RowLayoutFactory.swtDefaults().applyTo(okCancelPanel);
-		Button closeButton = ClientSWTElements.createButton(okCancelPanel, SWT.PUSH, ClientMessages.CLOSE,
-				ClientMessages.CLOSE);
-		closeButton.addListener(SWT.Selection, e -> shell.close());
-		RowDataFactory.swtDefaults().hint(BUTTON_WIDTH, -1).applyTo(closeButton);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.END).applyTo(panel);
-		if (!closable) {
-			closeButton.setVisible(false);
-		}
-		return panel;
-	}
+	protected abstract CompositeFactory createTabFactory() throws GDAClientException;
 
 	protected Shell getShell() {
 		return this.shell;
@@ -197,13 +143,5 @@ public abstract class AbstractCameraConfigurationDialog<T extends AbstractCamera
 
 	protected Composite getParent() {
 		return parent;
-	}
-
-	private void load() {
-		logger.info("I would have produced an open dialog");
-	}
-
-	private void save() {
-		logger.info("I would have produced a save dialog");
 	}
 }

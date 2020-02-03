@@ -13,11 +13,10 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 
 import gda.device.DeviceException;
-import uk.ac.diamond.daq.client.gui.camera.controller.DiffractionCameraConfigurationAdapter;
-import uk.ac.diamond.daq.client.gui.camera.controller.DiffractionCameraConfigurationController;
-import uk.ac.diamond.daq.client.gui.camera.exposure.BinningComposite;
+import gda.rcp.views.CompositeFactory;
+import uk.ac.diamond.daq.client.gui.camera.binning.BinningComposite;
 import uk.ac.diamond.daq.client.gui.camera.exposure.ExposureDurationComposite;
-import uk.ac.diamond.daq.client.gui.camera.exposure.SensorROIComposite;
+import uk.ac.diamond.daq.client.gui.camera.roi.SensorROIComposite;
 import uk.ac.gda.client.exception.GDAClientException;
 
 public class DiffractionConfigurationComposite extends Composite {
@@ -96,22 +95,17 @@ public class DiffractionConfigurationComposite extends Composite {
 		Composite binningComposite = new BinningComposite(this, controller, SWT.NONE);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(binningComposite);
 
-		Composite sensorROIPanel = new SensorROIComposite(this, controller, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(sensorROIPanel);
+		CompositeFactory sensorROIPanel = new SensorROIComposite();
+		sensorROIPanel.createComposite(this, SWT.NONE);
 
-		Composite cameraPositionComposite;
-		try {
-			cameraPositionComposite = createCameraPositionComposite();
-		} catch (DeviceException e) {
-			throw new GDAClientException("Error", e);
-		}
+		Composite cameraPositionComposite = createCameraPositionComposite();
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(cameraPositionComposite);
 
 		Label spacer = new Label(this, SWT.NONE);
 		GridDataFactory.swtDefaults().span(2, 1).align(SWT.FILL, SWT.FILL).applyTo(spacer);
 	}
 
-	private Composite createCameraPositionComposite() throws DeviceException {
+	private Composite createCameraPositionComposite() throws GDAClientException {
 		Composite composite = new Composite(this, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(composite);
 
@@ -121,8 +115,13 @@ public class DiffractionConfigurationComposite extends Composite {
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(group);
 
 		cameraPositionCombo = new ComboViewer(group, SWT.READ_ONLY);
-		cameraPositionCombo.add(controller.getPosibleCameraPositions());
-		cameraPositionCombo.setSelection(new StructuredSelection(controller.getCameraPosition()));
+		try {
+			cameraPositionCombo.add(controller.getPosibleCameraPositions());
+			cameraPositionCombo.setSelection(new StructuredSelection(controller.getCameraPosition()));
+		} catch (DeviceException e) {
+			throw new GDAClientException("Error creating camera GUI elements", e);
+		}
+
 		cameraPositionCombo.addSelectionChangedListener(cameraPositionListener);
 		GridDataFactory.swtDefaults().hint(150, SWT.DEFAULT).applyTo(cameraPositionCombo.getControl());
 

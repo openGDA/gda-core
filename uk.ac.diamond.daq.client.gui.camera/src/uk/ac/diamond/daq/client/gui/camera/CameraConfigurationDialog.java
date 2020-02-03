@@ -13,9 +13,9 @@ import gda.rcp.views.TabCompositeFactoryImpl;
 import gda.rcp.views.TabFolderBuilder;
 import uk.ac.diamond.daq.client.gui.camera.absorption.AbsorptionComposite;
 import uk.ac.diamond.daq.client.gui.camera.controller.ImagingCameraConfigurationController;
-import uk.ac.diamond.daq.client.gui.camera.exposure.CameraConfigurationFactory;
-import uk.ac.diamond.daq.client.gui.camera.exposure.ROICompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.liveview.StreamControlCompositeFactory;
+import uk.ac.diamond.daq.client.gui.camera.roi.SensorROIComposite;
+import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 
@@ -23,21 +23,20 @@ import uk.ac.gda.ui.tool.ClientMessagesUtility;
  * Composes instantiates the Composites for the Camera Configuration 
  * 
  * @author Maurizio Nagni
- * @author Eliot Hall
  *
  */
 public class CameraConfigurationDialog extends AbstractCameraConfigurationDialog<ImagingCameraConfigurationController> {
 	private static final int MINIMUM_WIDTH = 960;
 	private static final int MINIMUM_HEIGHT = 900;
 
-	public static void show(Display display, ImagingCameraConfigurationController controller) throws DeviceException {
+	public static void show(Display display, ImagingCameraConfigurationController controller) throws GDAClientException {
 		Point minimumDialogSize = new Point(MINIMUM_WIDTH, MINIMUM_HEIGHT);
 		Shell shell = new Shell(display, SWT.TITLE | SWT.RESIZE);
 		shell.setText(ClientMessagesUtility.getMessage(ClientMessages.CAMERA_CONFIGURATION));
 		shell.setSize(minimumDialogSize);
 		shell.setMinimumSize(minimumDialogSize);
 		CameraConfigurationDialog ccd = new CameraConfigurationDialog(shell, controller);
-		ccd.createComposite(true);
+		ccd.createComposite();
 		shell.addListener(SWT.Dispose, e -> {
 			ccd.controller.dispose();
 		});
@@ -49,7 +48,7 @@ public class CameraConfigurationDialog extends AbstractCameraConfigurationDialog
 	}
 
 	@Override
-	protected CompositeFactory createTabFactory() throws DeviceException {
+	protected CompositeFactory createTabFactory() throws GDAClientException {
 		TabFolderBuilder builder = new TabFolderBuilder();
 		builder.addTab(createStreamControlCompositeFactory());
 		builder.addTab(createExposureCompositeFactory());
@@ -68,7 +67,7 @@ public class CameraConfigurationDialog extends AbstractCameraConfigurationDialog
 
 	protected final TabCompositeFactory createROICompositeFactory() {
 		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
-		CompositeFactory cf = new ROICompositeFactory<>(getController());
+		CompositeFactory cf = new SensorROIComposite();
 		group.setCompositeFactory(cf);
 		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.ROI));
 		return group;

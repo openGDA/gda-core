@@ -6,8 +6,8 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.DeviceException;
 import uk.ac.diamond.daq.client.gui.camera.controller.ImagingCameraConfigurationController;
+import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 
 /**
@@ -24,21 +24,19 @@ public class CameraConfigurationView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		try {
-			// Casting in this way is horrible but thats the problem until is possible to
-			// properly refactor CameraConfigurationDialog
-			ImagingCameraConfigurationController cameraControl = (ImagingCameraConfigurationController) CameraHelper
-					.getCameraControlInstance(cameraIndex);
 			CameraConfigurationDialog ccd = new CameraConfigurationDialog(
-					ClientSWTElements.createComposite(parent, SWT.NONE, 1), cameraControl);
-			ccd.createComposite(false);
-		} catch (DeviceException e) {
-			logger.error("DeviceException", e);
+					ClientSWTElements.createComposite(parent, SWT.NONE, 1),
+					(ImagingCameraConfigurationController) CameraHelper.getCameraControlInstance(cameraIndex)
+							.orElseThrow(GDAClientException::new));
+			ccd.createComposite();
+		} catch (GDAClientException e) {
+			logger.error("Cannot find Cameraconfiguration for camera index {}", cameraIndex);
 		}
 	}
 
 	@Override
 	public void setFocus() {
-		logger.debug("hello");
+
 	}
 
 }

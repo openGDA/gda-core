@@ -1,5 +1,7 @@
 package uk.ac.diamond.daq.client.gui.camera;
 
+import java.io.Serializable;
+
 import org.eclipse.swt.widgets.Combo;
 
 import uk.ac.gda.client.properties.CameraProperties;
@@ -13,8 +15,10 @@ import uk.ac.gda.client.properties.CameraProperties;
  * 
  * @author Maurizio Nagni
  */
-public class CameraComboItem {
+public class CameraComboItem implements Serializable {
 
+	private static final long serialVersionUID = 5926542162079849239L;
+	
 	/**
 	 * The item index in the combo.
 	 */

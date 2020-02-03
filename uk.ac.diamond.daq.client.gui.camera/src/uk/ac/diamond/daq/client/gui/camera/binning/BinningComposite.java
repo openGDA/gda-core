@@ -1,4 +1,4 @@
-package uk.ac.diamond.daq.client.gui.camera.exposure;
+package uk.ac.diamond.daq.client.gui.camera.binning;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;

@@ -1,18 +1,16 @@
-package uk.ac.diamond.daq.client.gui.camera;
+package uk.ac.diamond.daq.client.gui.camera.diffraction;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import gda.device.DeviceException;
 import gda.rcp.views.CompositeFactory;
 import gda.rcp.views.TabCompositeFactory;
 import gda.rcp.views.TabCompositeFactoryImpl;
 import gda.rcp.views.TabFolderBuilder;
-import uk.ac.diamond.daq.client.gui.camera.controller.DiffractionCameraConfigurationController;
-import uk.ac.diamond.daq.client.gui.camera.diffraction.DiffractionConfigurationCompositeFactory;
+import uk.ac.diamond.daq.client.gui.camera.AbstractCameraConfigurationDialog;
+import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
 
 public class DiffractionConfigurationDialog
@@ -23,7 +21,7 @@ public class DiffractionConfigurationDialog
 
 	private static DiffractionConfigurationDialog instance;
 
-	public static void show(Display display, LiveStreamConnection liveStreamConnection) throws DeviceException {
+	public static void show(Display display, LiveStreamConnection liveStreamConnection) throws GDAClientException {
 		DiffractionCameraConfigurationController controller = new DiffractionCameraConfigurationController(
 				"diffraction_camera_control", "det_position");
 
@@ -38,18 +36,18 @@ public class DiffractionConfigurationDialog
 			instance.controller.dispose();
 			instance = null;
 		});
-		instance.createComposite(true);
+		instance.createComposite();
 		shell.open();
 		shell.setVisible(true);
 	}
 
 	private DiffractionConfigurationDialog(Shell shell, DiffractionCameraConfigurationController controller,
-			LiveStreamConnection liveStreamConnection) throws DeviceException {
+			LiveStreamConnection liveStreamConnection) throws GDAClientException {
 		super(shell, controller, liveStreamConnection);
 	}
 
 	@Override
-	protected CompositeFactory createTabFactory() throws DeviceException {
+	protected CompositeFactory createTabFactory() throws GDAClientException {
 		TabFolderBuilder builder = new TabFolderBuilder();
 		builder.addTab(createDiffractionConfigurationFactory());
 		builder.addTab(createDiffractionAnalysisFactory());

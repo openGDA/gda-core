@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.client.gui.camera.event;
 
+import java.util.UUID;
+
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.january.dataset.IDataset;
 
@@ -26,7 +28,7 @@ import org.eclipse.january.dataset.IDataset;
  *
  * @author Maurizio Nagni
  */
-public class ROIChangeEvent extends CameraEvent {
+public class ROIChangeEvent extends RootCompositeEvent {
 	
 	/**
 	 * 
@@ -42,8 +44,8 @@ public class ROIChangeEvent extends CameraEvent {
      * @param roi the ROI associated with this event
      * @param dataset the dataset over which the ROI has been selected
      */
-    public ROIChangeEvent(Object source, RectangularROI roi, IDataset dataset) {
-		super(source);
+    public ROIChangeEvent(Object source, RectangularROI roi, IDataset dataset, UUID rootComposite) {
+		super(source, rootComposite);
 		this.roi = roi;
 		this.dataset = dataset;
 	}

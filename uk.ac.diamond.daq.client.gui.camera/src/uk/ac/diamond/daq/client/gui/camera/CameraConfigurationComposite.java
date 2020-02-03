@@ -1,6 +1,6 @@
-package uk.ac.diamond.daq.client.gui.camera.exposure;
+package uk.ac.diamond.daq.client.gui.camera;
 
-import java.util.Arrays;
+import java.util.Arrays;import java.util.Optional;
 import java.util.UUID;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -10,10 +10,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Widget;
 import org.springframework.context.ApplicationListener;
 
-import uk.ac.diamond.daq.client.gui.camera.CameraComboItem;
-import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
+import uk.ac.diamond.daq.client.gui.camera.binning.BinningComposite;
 import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
 import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
+import uk.ac.diamond.daq.client.gui.camera.exposure.ExposureDurationComposite;
 import uk.ac.gda.client.composites.MotorCompositeFactory;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.ui.tool.ClientSWTElements;
@@ -28,8 +28,8 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
  */
 public class CameraConfigurationComposite extends Composite {
 
+	private ICameraConfiguration cameraConfiguration;
 	private Composite motorCompositeArea;
-	private CameraComboItem cameraCombo;
 	private AbstractCameraConfigurationController cameraController;
 	private final UUID uuidRoot;
 
@@ -75,7 +75,7 @@ public class CameraConfigurationComposite extends Composite {
 
 	private void buildMotorsGUI() {
 		Arrays.stream(motorCompositeArea.getChildren()).forEach(Widget::dispose);
-		CameraHelper.getCameraProperties(cameraCombo.getIndex()).getMotorProperties().stream().forEach(motor -> {
+		cameraConfiguration.getCameraProperties().getMotorProperties().stream().forEach(motor -> {
 			MotorCompositeFactory mc = new MotorCompositeFactory(motor);
 			mc.createComposite(motorCompositeArea, SWT.NONE);
 		});
@@ -83,7 +83,7 @@ public class CameraConfigurationComposite extends Composite {
 	}
 
 	private void updateCamera(int cameraIndex) {
-		cameraCombo = CameraHelper.getCameraComboItems().get(cameraIndex);
-		cameraController = CameraHelper.getCameraControlInstance(cameraIndex);
+		cameraConfiguration = CameraHelper.createICameraConfiguration(cameraIndex);
+		cameraController = CameraHelper.getCameraControlInstance(cameraIndex).orElse(null);	
 	}
 }
