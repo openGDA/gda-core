@@ -161,10 +161,10 @@ public class TestHelpers {
 				description, detectorID, detectorType);
 	}
 
-	public static NexusGroupData createTestNexusGroupData(int[] shape, int dtype,
+	public static NexusGroupData createTestNexusGroupData(Class<? extends Dataset> clazz, int[] shape,
 			boolean useSuperToString) {
 		int size = ShapeUtils.calcSize(shape);
-		Dataset dataset = DatasetFactory.createRange(size, dtype);
+		Dataset dataset = DatasetFactory.createRange(clazz, size);
 		dataset.setShape(shape);
 		NexusGroupData ngd = new Data(dataset, useSuperToString);
 		ngd.isDetectorEntryData = true;
