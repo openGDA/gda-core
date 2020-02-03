@@ -175,7 +175,7 @@ public class ScanRequestConverter {
 		}
 
 		//Add required processing
-		Map<String, Object> processingRequest = mappingBean.getProcessingRequest();
+		Map<String, Collection<Object>> processingRequest = mappingBean.getProcessingRequest();
 		ProcessingRequest r = new ProcessingRequest();
 		r.setRequest(processingRequest);
 		scanRequest.setProcessingRequest(r);
@@ -341,7 +341,7 @@ public class ScanRequestConverter {
 			w.setActive(false);
 		}
 
-		Map<String, Object> pr = scanRequest.getProcessingRequest().getRequest();
+		Map<String, Collection<Object>> pr = scanRequest.getProcessingRequest().getRequest();
 
 		List<ConfigWrapper> newWrappers = new ArrayList<>();
 

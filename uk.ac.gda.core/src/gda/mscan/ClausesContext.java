@@ -39,6 +39,7 @@ import static gda.mscan.element.Scanpath.SPIRAL;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -129,7 +130,7 @@ public class ClausesContext extends ValidationUtils {
 	private final List<String> monitorsPerPoint = new ArrayList<>();
 	private final List<String> monitorsPerScan = new ArrayList<>();
 	private Set<String> templates = new HashSet<>();
-	private Map<String, Object> processingDefinitions = new HashMap<>();
+	private Map<String, Collection<Object>> processingDefinitions = new HashMap<>();
 	private ProcessingRequest processingRequest = new ProcessingRequest();
 	private String activeProcessorKey = "";
 	private final Map<Mutator, List<Number>> mutatorUses = new EnumMap<>(Mutator.class);
@@ -508,12 +509,12 @@ public class ClausesContext extends ValidationUtils {
 				"Incorrect processor specification - config filename may not contain :: character sequence");
 		if (pairOrFilename.length == 1) {
 			throwIf(activeProcessorKey.isEmpty(), "No processor app specified");
-			((List<String>)processingDefinitions.get(activeProcessorKey)).add(pairOrFilename[0]);
+			((List<Object>)processingDefinitions.get(activeProcessorKey)).add(pairOrFilename[0]);
 		} else {
 			throwIf(pairOrFilename[0].isEmpty(), "No processor app specified");
 			throwIf(pairOrFilename[1].isEmpty(), "No config file specified");
 			throwIf(processingDefinitions.containsKey(pairOrFilename[0]), "App names may not be repeated");
-			List<String> l = new ArrayList<String>(Arrays.asList(pairOrFilename[1]));
+			List<Object> l = new ArrayList<>(Arrays.asList(pairOrFilename[1]));
 			processingDefinitions.put(pairOrFilename[0], l);
 			activeProcessorKey = pairOrFilename[0];
 		}

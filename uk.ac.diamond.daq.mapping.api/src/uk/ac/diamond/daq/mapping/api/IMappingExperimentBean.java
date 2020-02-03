@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.api;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -152,7 +153,7 @@ public interface IMappingExperimentBean {
 
 	void addProcessingRequest(ConfigWrapper wrapper);
 
-	Map<String,Object> getProcessingRequest();
+	Map<String, Collection<Object>> getProcessingRequest();
 
 	/**
 	 * Returns the file paths of NeXus template files to be applied to the NeXus file produced

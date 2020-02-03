@@ -2,6 +2,7 @@ package uk.ac.diamond.daq.mapping.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -140,18 +141,18 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	}
 
 	@Override
-	public Map<String,Object> getProcessingRequest() {
+	public Map<String, Collection<Object>> getProcessingRequest() {
 
-		Map<String,Object> request = new HashMap<String, Object>();
+		Map<String, Collection<Object>> request = new HashMap<>();
 
 		for (ConfigWrapper w : processingConfigs) {
 
 			if (!w.isActive()) continue;
 
 			if (request.containsKey(w.getAppName())) {
-				((List<String>)request.get(w.getAppName())).add(w.getPathToConfig());
+				request.get(w.getAppName()).add(w.getPathToConfig());
 			} else {
-				List<String> l = new ArrayList<String>(Arrays.asList(w.getPathToConfig()));
+				List<Object> l = new ArrayList<>(Arrays.asList(w.getPathToConfig()));
 				request.put(w.getAppName(), l);
 			}
 		}
