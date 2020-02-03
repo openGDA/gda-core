@@ -883,7 +883,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 
 			int[] scanShape = scanModel.getPointGenerator().getShape();
 
-			Map<String, Object> processingRequest = null;
+			Map<String, Collection<Object>> processingRequest = null;
 
 			if (scanBean.getScanRequest().getProcessingRequest() != null) {
 				processingRequest = scanBean.getScanRequest().getProcessingRequest().getRequest();

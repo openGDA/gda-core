@@ -18,21 +18,22 @@
 
 package org.eclipse.scanning.api.event.scan;
 
+import java.util.Collection;
 import java.util.Map;
 
 public class ProcessingRequest {
 
-	Map<String, Object> request;
+	Map<String, Collection<Object>> request;
 
 	public ProcessingRequest() {
 
 	}
 
-	public Map<String, Object> getRequest() {
+	public Map<String, Collection<Object>> getRequest() {
 		return request;
 	}
 
-	public void setRequest(Map<String, Object> request) {
+	public void setRequest(Map<String, Collection<Object>> request) {
 		this.request = request;
 	}
 
