@@ -20,7 +20,6 @@ import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubscriber;
-import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.IScanListener;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanEvent;
@@ -86,7 +85,6 @@ public class MappingScanTest extends BrokerTest{
 		bean.setName("Test Mapping Scan");
 		bean.setBeamline("I05-1");
 		bean.setUserName("Joe Bloggs");
-		bean.setDeviceState(DeviceState.READY);
 		bean.setPreviousStatus(Status.SUBMITTED);
 		bean.setStatus(Status.PREPARING);
 		bean.setFilePath("/dls/tmp/fred.h5");
@@ -115,7 +113,6 @@ public class MappingScanTest extends BrokerTest{
 		IPointGenerator<TwoAxisGridPointsModel> gen = gservice.createGenerator(model);
 
 		// Outer loop temperature, will be scan command driven when sequencer exists.
-		bean.setDeviceState(DeviceState.CONFIGURING);
 		publisher.broadcast(bean);
 
 		int index = -1;
@@ -141,7 +138,6 @@ public class MappingScanTest extends BrokerTest{
 	private void testDeviceScan(ScanBean bean, IPointGenerator<TwoAxisGridPointsModel> gen) throws Exception {
 
 
-		bean.setDeviceState(DeviceState.RUNNING);
 		publisher.broadcast(bean);
 		int size = 0;
 		for (IPosition pnt : gen) {
@@ -153,7 +149,6 @@ public class MappingScanTest extends BrokerTest{
 		//System.out.println("Did hardware scan of size " + size);
 		assertTrue("Did hardware scan of size " + size, size == gen.size());
 
-		bean.setDeviceState(DeviceState.ARMED);
 		publisher.broadcast(bean);
 
 	}

@@ -42,6 +42,7 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.IScanListener;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanEvent;
+import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
@@ -362,16 +363,15 @@ public class ScanTest extends BrokerTest {
 
 		final ISubscriber<IScanListener> subscriber = eventService.createSubscriber(uri, EventConstants.STATUS_TOPIC);
 		final List<ScanBean>    events = new ArrayList<ScanBean>(11);
-		final List<DeviceState> states = new ArrayList<DeviceState>(11);
+		final List<Status> states = new ArrayList<Status>(11);
 		subscriber.addListener(new IScanListener() {
 			@Override
 			public void scanStateChanged(ScanEvent evt) {
-				states.add(evt.getBean().getDeviceState());
+				states.add(evt.getBean().getStatus());
 			}
 			@Override
 			public void scanEventPerformed(ScanEvent evt) {
 				events.add(evt.getBean());
-//				System.out.println("State : "+evt.getBean().getDeviceState());
 //				System.out.println("Percent complete : "+evt.getBean().getPercentComplete());
 //				System.out.println(evt.getBean().getPosition());
 			}
@@ -389,8 +389,14 @@ public class ScanTest extends BrokerTest {
 
 			// Bit of a hack to get the generator from the model - should this be easier?
 			IPointGenerator<?> gen = ((ScanModel)((AbstractRunnableDevice)scanner).getModel()).getPointGenerator();
-			assertEquals(gen.size(), events.size());
-			assertEquals(Arrays.asList(DeviceState.CONFIGURING, DeviceState.ARMED, DeviceState.RUNNING, DeviceState.ARMED), states);
+			assertEquals(Arrays.asList(Status.SUBMITTED, Status.PREPARING, Status.RUNNING), states);
+			/*
+			 * DAQ-1967 removed deviceStatus from ScanBean, changing final Scan Complete message, 
+			 * (which doesn't change the state from running as ScanProcess may have to perform e.g. after scan)
+			 * The total number of message (25+4) sent before is maintained, but more events and less state changes.
+			 * Only non test implementation of IScanListener (SubmitterImpl) reads all State and Event messages
+			 */
+			assertEquals(gen.size() + 1, events.size());
 
 			for (ScanBean b : events) assertEquals("fred", b.getUniqueId());
 

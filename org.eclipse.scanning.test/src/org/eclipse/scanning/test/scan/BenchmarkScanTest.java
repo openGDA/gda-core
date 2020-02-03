@@ -29,16 +29,16 @@ import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubscriber;
-import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.IScanListener;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanEvent;
+import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
-import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
+import org.eclipse.scanning.api.points.models.BoundingBox;
+import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.BrokerTest;
@@ -188,11 +188,11 @@ public class BenchmarkScanTest extends BrokerTest {
 		final IPublisher<ScanBean> publisher = eservice.createPublisher(uri, EventConstants.STATUS_TOPIC);
 
 		final ISubscriber<IScanListener> subscriber = eservice.createSubscriber(uri, EventConstants.STATUS_TOPIC);
-		final Set<DeviceState> states = new HashSet<DeviceState>(5);
+		final Set<Status> states = new HashSet<>(5);
 		subscriber.addListener(new IScanListener() {
 			@Override
 			public void scanStateChanged(ScanEvent evt) {
-				states.add(evt.getBean().getDeviceState());
+				states.add(evt.getBean().getStatus());
 			}
 			@Override
 			public void scanEventPerformed(ScanEvent evt) {

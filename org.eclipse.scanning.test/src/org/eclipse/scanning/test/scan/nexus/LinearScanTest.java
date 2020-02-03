@@ -36,11 +36,11 @@ import org.eclipse.scanning.api.event.scan.ScanEvent;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
-import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
-import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
+import org.eclipse.scanning.api.points.models.BoundingBox;
+import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.BrokerTest;
@@ -158,6 +158,13 @@ public class LinearScanTest extends BrokerTest{
 		subscriber.addListener(new IScanListener() {
 			@Override
 			public void scanEventPerformed(ScanEvent evt) {
+				/*
+				 * DAQ-1967 removed DeviceState from ScanBean: Scan Complete message is no longer a state change
+				 * (does not change to Status.COMPLETE in case of afterscan script)
+				 * therefore number of scanning events received is size + 1, or must remove duplicate final point
+				 * Only non test implementation of IScanListener in SubscriberImpl checks all beans and events
+				 */
+				if (evt.getBean().getMessage().equals("Scan Complete")) return;
 				final IPosition pos = evt.getBean().getPosition();
 				positions.add(pos);
 			}

@@ -60,10 +60,6 @@ public final class ScanBean extends StatusBean {
 	private int size;
 	private IPosition position;
 
-	// State information
-	private DeviceState   deviceState;
-	private DeviceState   previousDeviceState;
-
 	// Dataset information
 	private String  filePath;
 	private String  datasetPath;
@@ -129,15 +125,6 @@ public final class ScanBean extends StatusBean {
 
 	}
 
-	public ScanBean(DeviceState state, String message) {
-		this(state);
-		this.message = message;
-	}
-
-	public ScanBean(DeviceState state) {
-		this.deviceState = state;
-	}
-
 	public ScanBean(ScanBean scanBean) {
 		merge(scanBean);
 	}
@@ -152,8 +139,6 @@ public final class ScanBean extends StatusBean {
 		this.point = scanBean.point;
 		this.size = scanBean.size;
 		this.position = scanBean.position;
-		this.deviceState = scanBean.deviceState;
-		this.previousDeviceState = scanBean.previousDeviceState;
 		this.filePath = scanBean.filePath;
 		this.datasetPath = scanBean.datasetPath;
 		this.scanNumber = scanBean.scanNumber;
@@ -188,15 +173,6 @@ public final class ScanBean extends StatusBean {
 		this.beamline = beamline;
 	}
 
-	public DeviceState getDeviceState() {
-		return deviceState;
-	}
-
-	public void setDeviceState(DeviceState state) {
-		this.previousDeviceState = this.deviceState;
-		this.deviceState = state;
-	}
-
 	@Override
 	public String toString() {
 		return "ScanBean [deviceName=" + deviceName
@@ -204,20 +180,10 @@ public final class ScanBean extends StatusBean {
 				+ ", point=" + point
 				+ ", size=" + size
 				+ ", position=" + position
-				+ ", deviceState=" + deviceState
-				+ ", previousDeviceState=" + previousDeviceState
 				+ ", filePath=" + filePath
 				+ ", scanNumber=" + scanNumber
 				+ ", datasetPath=" + datasetPath
 				+ " "+super.toString()+"]";
-	}
-
-	public DeviceState getPreviousDeviceState() {
-		return previousDeviceState;
-	}
-
-	public void setPreviousDeviceState(DeviceState previousState) {
-		this.previousDeviceState = previousState;
 	}
 
 	public int getPoint() {
@@ -291,11 +257,9 @@ public final class ScanBean extends StatusBean {
 		result = prime * result + ((beamline == null) ? 0 : beamline.hashCode());
 		result = prime * result + ((datasetPath == null) ? 0 : datasetPath.hashCode());
 		result = prime * result + ((deviceName == null) ? 0 : deviceName.hashCode());
-		result = prime * result + ((deviceState == null) ? 0 : deviceState.hashCode());
 		result = prime * result + ((filePath == null) ? 0 : filePath.hashCode());
 		result = prime * result + point;
 		result = prime * result + ((position == null) ? 0 : position.hashCode());
-		result = prime * result + ((previousDeviceState == null) ? 0 : previousDeviceState.hashCode());
 		result = prime * result + scanNumber;
 		result = prime * result + ((scanRequest == null) ? 0 : scanRequest.hashCode());
 		result = prime * result + size;
@@ -326,8 +290,6 @@ public final class ScanBean extends StatusBean {
 				return false;
 		} else if (!deviceName.equals(other.deviceName))
 			return false;
-		if (deviceState != other.deviceState)
-			return false;
 		if (filePath == null) {
 			if (other.filePath != null)
 				return false;
@@ -339,8 +301,6 @@ public final class ScanBean extends StatusBean {
 			if (other.position != null)
 				return false;
 		} else if (!position.equals(other.position))
-			return false;
-		if (previousDeviceState != other.previousDeviceState)
 			return false;
 		if (scanNumber != other.scanNumber)
 			return false;
