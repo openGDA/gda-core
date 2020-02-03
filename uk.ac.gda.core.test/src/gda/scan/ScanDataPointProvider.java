@@ -21,7 +21,7 @@ package gda.scan;
 import java.util.Collection;
 import java.util.Vector;
 
-import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.IntegerDataset;
 
 import gda.TestHelpers;
 import gda.data.nexus.extractor.NexusGroupData;
@@ -47,7 +47,7 @@ public class ScanDataPointProvider {
 	public void preparePoints(int num){
 		int[] dims2 = new int[] { 2, 3 };
 
-		NexusGroupData ngd = TestHelpers.createTestNexusGroupData(dims2, Dataset.INT32, true);
+		NexusGroupData ngd = TestHelpers.createTestNexusGroupData(IntegerDataset.class, dims2, true);
 		data2In = (int[]) ngd.getBuffer();
 		Detector det = TestHelpers.createTestDetector("SimpleDetector2", 0., new String[] {},
 				new String[] { "simpleDetector2" }, 0, new String[] { "%5.2g" }, ngd, null, "description2", "detectorID2",

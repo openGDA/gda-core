@@ -28,7 +28,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 
-import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.january.dataset.IntegerDataset;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -79,7 +80,7 @@ public class ScanToNexusTest {
 		int[] dims1 = new int[] { 10 };
 		Detector simpleDetector1 = TestHelpers.createTestDetector("SimpleDetector1", 0., new String[] {},
 				new String[] {}, 0, new String[] { "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g",
-						"%5.2g", "%5.2g", "%5.2g" }, TestHelpers.createTestNexusGroupData(dims1, Dataset.FLOAT64, true),
+						"%5.2g", "%5.2g", "%5.2g" }, TestHelpers.createTestNexusGroupData(DoubleDataset.class, dims1, true),
 						null, "description1", "detectorID1", "detectorType1");
 
 		Object[] args = new Object[] { simpleScannable1, 0., 10., 1., simpleScannable2, simpleDetector1 };
@@ -104,7 +105,7 @@ public class ScanToNexusTest {
 
 		int[] dims1 = new int[] { 10 };
 		Detector simpleDetector1 = TestHelpers.createTestDetector("SimpleDetector1", 0., new String[] {},
-				new String[] {}, 0, new String[] { "%5.2g" }, TestHelpers.createTestNexusGroupData(dims1, Dataset.FLOAT64, true),
+				new String[] {}, 0, new String[] { "%5.2g" }, TestHelpers.createTestNexusGroupData(DoubleDataset.class, dims1, true),
 				null, "description1", "detectorID1", "detectorType1");
 
 		Object[] args = new Object[] { simpleScannable1, 0., 1, 1., simpleScannable2, 0., 2, 1., simpleScannable3, 0.,
@@ -466,17 +467,17 @@ public class ScanToNexusTest {
 				new String[] {"scannableY" }, 0, new String[] { "%5.2g" }, new String[] { "\u212B" });
 		Detector pointDetector = TestHelpers.createTestDetector(
 				"pointDetector", 0., new String[] {}, new String[] {"CountTime"}, 0, new String[] {"%d"},
-				TestHelpers.createTestNexusGroupData(new int[] { 1 }, Dataset.INT32, true),
+				TestHelpers.createTestNexusGroupData(IntegerDataset.class, new int[] { 1 }, true),
 				null, "description1", "detectorID1", "detectorType1");
 		pointDetector.setExtraNames(new String[] {});
 		Detector oneDimDetector = TestHelpers.createTestDetector(
 				"1dDetector", 0., new String[] {}, new String[] {"CountTime"}, 0, new String[] {"%d"},
-				TestHelpers.createTestNexusGroupData(new int[] { 128 }, Dataset.INT32, true),
+				TestHelpers.createTestNexusGroupData(IntegerDataset.class, new int[] { 128 }, true),
 				null, "description1", "detectorID1", "detectorType1");
 		oneDimDetector.setExtraNames(new String[] {});
 		Detector twoDimDetector = TestHelpers.createTestDetector(
 				"2dDetector", 0., new String[] {}, new String[] {"CountTime"}, 0, new String[] {"%d"},
-				TestHelpers.createTestNexusGroupData(new int[] { 32, 64 }, Dataset.INT32, true),
+				TestHelpers.createTestNexusGroupData(IntegerDataset.class, new int[] { 32, 64 }, true),
 				null, "description1", "detectorID1", "detectorType1");
 		twoDimDetector.setExtraNames(new String[] {});
 		Object[] args = new Object[] { scannableX, 0., 4., 1., scannableY, 0, 1, 1, pointDetector, oneDimDetector, twoDimDetector };
