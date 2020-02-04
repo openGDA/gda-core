@@ -14,6 +14,7 @@ package org.eclipse.scanning.malcolm.core;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
+import org.eclipse.scanning.api.scan.IFilePathService;
 
 public class Services {
 
@@ -22,6 +23,8 @@ public class Services {
 	private static IMalcolmConnection connectorService;
 
 	private static IPointGeneratorService pointGenService;
+
+	private static IFilePathService filePathService;
 
 	public static IRunnableDeviceService getRunnableDeviceService() {
 		return runnableDeviceService;
@@ -45,6 +48,14 @@ public class Services {
 
 	public void setPointGeneratorService(IPointGeneratorService pointGenService) {
 		Services.pointGenService = pointGenService;
+	}
+
+	public static IFilePathService getFilePathService() {
+		return filePathService;
+	}
+
+	public void setFilePathService(IFilePathService filePathService) {
+		Services.filePathService = filePathService;
 	}
 
 }

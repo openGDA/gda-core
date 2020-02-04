@@ -203,8 +203,6 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	// broadcast every 250 milliseconds
 	public static final long POSITION_COMPLETE_INTERVAL = Long.getLong("org.eclipse.scanning.malcolm.core.positionCompleteInterval", 250);
 
-	private static final String DUMMY_OUTPUT_DIR = System.getProperty("user.dir"); // any existing directory would work, malcolm just validates it exists
-
 	// the data-type map of the MalcolmTable describing the detectors controlled by this malcolm device
 	private LinkedHashMap<String, Class<?>> detectorsTableTypesMap = null;
 
@@ -611,7 +609,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		}
 
 		// set the file template and output dir
-		final String outputDir = this.outputDir == null ? DUMMY_OUTPUT_DIR : this.outputDir;
+		final String outputDir = this.outputDir == null ? Services.getFilePathService().getTempDir() : this.outputDir;
 		final String fileTemplate = Paths.get(outputDir).getFileName().toString() + "-%s." + FILE_EXTENSION_H5;
 
 		// get the axes to move

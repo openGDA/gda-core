@@ -74,6 +74,7 @@ import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice.EpicsMalcolmModel;
+import org.eclipse.scanning.malcolm.core.Services;
 import org.junit.Test;
 
 /**
@@ -104,7 +105,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	private EpicsMalcolmModel createExpectedEpicsMalcolmModel(IPointGenerator<?> pointGen, String outputDir,
 			List<MalcolmDetectorInfo> detectorInfos) {
 		if (outputDir == null) {
-			outputDir = System.getProperty("user.dir");
+			outputDir = Services.getFilePathService().getTempDir();
 		}
 		final String fileTemplate = Paths.get(outputDir).getFileName().toString() + "-%s." + FILE_EXTENSION_H5;
 
