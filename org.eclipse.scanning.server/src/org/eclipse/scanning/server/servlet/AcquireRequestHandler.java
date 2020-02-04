@@ -100,6 +100,11 @@ public class AcquireRequestHandler implements IRequestHandler<AcquireRequest> {
 		scanModel.setFilePath(getOutputFilePath(request));
 		scanModel.setDetectors(detector);
 		scanModel.setScannables(Collections.emptyList());
+		if (detector == null) {
+			logger.error("No such detector: {}", bean.getDetectorName());
+			// Skip going to configureDetector() and throwing NPE on asList(), throw in process() where catch is
+			return null;
+		}
 
 		configureDetector(detector, request.getDetectorModel(), scanModel, gen);
 		return deviceService.createRunnableDevice(scanModel, null);
