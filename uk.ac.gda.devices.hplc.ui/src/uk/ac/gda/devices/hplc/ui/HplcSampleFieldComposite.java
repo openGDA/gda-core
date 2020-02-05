@@ -172,31 +172,6 @@ public class HplcSampleFieldComposite extends FieldComposite {
 				element.setSampleName(value);
 			}
 		});
-		columns.put("Concentration", new Column<HplcBean, Double>(70, tableViewer, rbeditor, DOUBLE) {
-			@Override
-			public Double getRealValue(HplcBean element) {
-				return element.getConcentration();
-			}
-			@Override
-			public void setNewValue(HplcBean element, String value) {
-				double conc = Double.valueOf(value);
-				element.setConcentration(conc);
-			}
-		});
-		columns.get("Concentration").setOutputFormat("%5.5f mg/ml");
-		columns.put("Molecular\n  Weight", new Column<HplcBean, Double>(50, tableViewer, rbeditor, DOUBLE) {
-			@Override
-			public Double getRealValue(HplcBean element) {
-				return element.getMolecularWeight();
-			}
-			@Override
-			public void setNewValue(HplcBean element, String value) {
-				double weight = Double.valueOf(value);
-				element.setMolecularWeight(weight);
-			}
-		});
-		columns.get("Molecular\n  Weight").setOutputFormat("%s kDa");
-
 		columns.put("Time per\n  Frame", new Column<HplcBean, Double>(50, tableViewer, rbeditor, DOUBLE) {
 			@Override
 			public Double getRealValue(HplcBean element) {
