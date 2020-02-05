@@ -17,11 +17,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.DeviceException;
 import gda.rcp.views.CompositeFactory;
 import gda.rcp.views.TabFolderBuilder;
 import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
-import uk.ac.diamond.daq.client.gui.camera.liveview.CameraImageComposite;
 import uk.ac.diamond.daq.client.gui.camera.liveview.LiveViewCompositeFactory;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.ui.tool.ClientSWTElements;
@@ -40,7 +38,6 @@ public abstract class AbstractCameraConfigurationDialog<T extends AbstractCamera
 	private final Composite parent;
 	protected final T controller;
 	private IConnection liveStreamConnection;
-	protected CameraImageComposite cameraImageComposite;
 
 	private Composite internalArea;
 	private Sash sash;

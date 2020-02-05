@@ -189,6 +189,9 @@ public class LivePlottingComposite extends Composite {
 		setLayout(new FillLayout());
 		SpringApplicationContextProxy.addApplicationListener(openConnectionListener);
 		SpringApplicationContextProxy.addApplicationListener(closeConnectionListener);
+		addDisposeListener(e -> {
+			this.dispose();
+		});
 	}
 
 	private void preparePlottingSystem(String plotName, IActionBars actionBars, IWorkbenchPart part)
@@ -407,6 +410,10 @@ public class LivePlottingComposite extends Composite {
 	ApplicationListener<StopListenToConnectionEvent> closeConnectionListener = new ApplicationListener<StopListenToConnectionEvent>() {
 		@Override
 		public void onApplicationEvent(StopListenToConnectionEvent event) {
+			//Avoids disposed widget
+			if (isDisposed() || getParent().isDisposed()) {
+				return;
+			}
 			UUID uuidRoot = ClientSWTElements.findParentUUID(getParent());
 			if (!processEvent(event, uuidRoot)) {
 				return;
