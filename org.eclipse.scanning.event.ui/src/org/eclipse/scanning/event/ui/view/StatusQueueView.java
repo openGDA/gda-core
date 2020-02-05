@@ -53,10 +53,10 @@ import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
-import org.eclipse.scanning.api.event.core.JobQueueConfiguration;
-import org.eclipse.scanning.api.event.queue.QueueStatus;
 import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.ISubscriber;
+import org.eclipse.scanning.api.event.core.JobQueueConfiguration;
+import org.eclipse.scanning.api.event.queue.QueueStatus;
 import org.eclipse.scanning.api.event.queues.QueueViews;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.status.AdministratorMessage;
@@ -323,13 +323,25 @@ public class StatusQueueView extends EventConnectionView {
 				if (queue.containsKey(bean.getUniqueId())) {
 					logger.trace("mergeBean(id={}) Merging existing bean: {}", bean.getUniqueId(), bean);
 					queue.get(bean.getUniqueId()).merge(bean);
+					/*
+					 * Not reliable without viewer.refresh()
+					 * Ought to update just relevant row, but seems to work intermittently: every ~40 points?
+					 * If this worked would prevent having to redraw whole queue.
+					 */
+//					viewer.update(queue.get(bean.getUniqueId()), null);
 					warnIfDelayed(jobStartTime, "mergeBean() asyncExec()", "merge complete");
 				} else {
 					logger.trace("mergeBean(id={}) Adding new bean:       {}", bean.getUniqueId(), bean);
 					queue.put(bean.getUniqueId(), bean);
+					// Necessary for toolbar actions to work
+					submittedList.add(bean);
+					/*
+					 * If viewer.update() worked above, could potentially move refresh here
+					 * But in testing sometimes update is applied to wrong status bean, in
+					 * addition to the irregular and spaced out update rate.
+					 */
+//					viewer.refresh();
 					warnIfDelayed(jobStartTime, "mergeBean() asyncExec()", "bean added");
-					reconnect();
-					warnIfDelayed(jobStartTime, "mergeBean() asyncExec()", "reconnect request complete");
 				}
 				viewer.refresh();
 				warnIfDelayed(jobStartTime, "mergeBean() asyncExec()", "refresh complete");
@@ -665,6 +677,7 @@ public class StatusQueueView extends EventConnectionView {
 		jobQueueProxy.clearQueue();
 		jobQueueProxy.clearRunningAndCompleted();
 
+		// Still reconnect to ensure that queue reflects state of server queue, is empty
 		reconnect();
 	}
 
@@ -781,7 +794,7 @@ public class StatusQueueView extends EventConnectionView {
 		 * This prevents Unhandled event loop exceptions when the button is pressed with no selection or when the first
 		 * selection is in the submitted list.
 		 */
-		detailsAction.setEnabled(selectedInSubmittedList.size() == 0 && selectedInRunList.size() == 1);
+		detailsAction.setEnabled(selectedInSubmittedList.isEmpty() && selectedInRunList.size() == 1);
 	}
 
 	private Action detailsActionCreate() {
@@ -899,7 +912,8 @@ public class StatusQueueView extends EventConnectionView {
 
 			jobQueueProxy.submit(copy);
 
-			reconnect();
+			// Do not need to reconnect, just add to our local list
+			mergeBean(copy);
 
 		} catch (Exception e) {
 			ErrorDialog.openError(getViewSite().getShell(), "Cannot rerun "+bean.getName(), "Cannot rerun "+bean.getName()+"\n\nPlease contact your support representative.",
