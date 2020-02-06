@@ -86,7 +86,8 @@ public class QueueViews {
 	 * @param submissionQueueName
 	 * @return
 	 */
-	public static String createSecondaryId(final String beanBundleName, final String beanClassName, final String topicName, final String submissionQueueName) {
+	public static String createSecondaryId(final String beanBundleName, final String beanClassName,
+			final String topicName, final String submissionQueueName) {
         return createSecondaryId(null, beanBundleName, beanClassName, topicName, submissionQueueName);
 	}
 
@@ -100,7 +101,8 @@ public class QueueViews {
 	 * @param submissionQueueName
 	 * @return
 	 */
-	public static String createSecondaryId(String uri, final String beanBundleName, final String beanClassName, final String topicName, final String submissionQueueName) {
+	public static String createSecondaryId(String uri, final String beanBundleName, final String beanClassName,
+			final String topicName, final String submissionQueueName) {
 
 		final StringBuilder buf = new StringBuilder();
 		if (uri!=null) {
@@ -111,10 +113,17 @@ public class QueueViews {
 			}
 			append(buf, "uri",      uri);
 		}
+		int maxQueueSize;
+		try {
+			maxQueueSize = Integer.getInteger("GDA/uk.ac.gda.client.queue.maxSize", -1);
+		} catch(NumberFormatException e) {
+			maxQueueSize = -1;
+		}
 		append(buf, "beanBundleName",      beanBundleName);
 		append(buf, "beanClassName",       beanClassName);
 		append(buf, "topicName",           topicName);
 		append(buf, "submissionQueueName", submissionQueueName);
+		append(buf, "maxQueueSize", String.valueOf(maxQueueSize));
 		return buf.toString();
 	}
 

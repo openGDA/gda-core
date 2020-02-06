@@ -341,6 +341,7 @@ public class StatusQueueView extends EventConnectionView {
 					 * addition to the irregular and spaced out update rate.
 					 */
 //					viewer.refresh();
+					removeOldestBeans(queue, jobStartTime);
 					warnIfDelayed(jobStartTime, "mergeBean() asyncExec()", "bean added");
 				}
 				viewer.refresh();
@@ -1059,6 +1060,7 @@ public class StatusQueueView extends EventConnectionView {
 					for (StatusBean bean : submittedList) {
 						ret.put(bean.getUniqueId(), bean);
 					}
+					removeOldestBeans(ret, jobStartTime);
 					updateProgress(jobStartTime, monitor, "Submitted jobs added to view list");
 
 					getSite().getShell().getDisplay().syncExec(() -> {
@@ -1346,6 +1348,36 @@ public class StatusQueueView extends EventConnectionView {
 		@Override
 		public String getToolTipText(Object element) {
 			return WordUtils.wrap(getText(element), WRAP_LENGTH, null, true);
+		}
+	}
+
+	/**
+	 * If "Max Queue Size" parameter set to a positive integer in the Queue Configuration Parameters,
+	 * removes the oldest Finished beans from the queue view until the queue's size is under the max.
+	 * @param queue
+	 */
+	private void removeOldestBeans(Map<String, StatusBean> queue, Instant jobStartTime) {
+		String maxQueue = idProperties.getProperty("maxQueueSize");
+		int maxQueueSize;
+		try {
+			maxQueueSize = Integer.parseInt(maxQueue);
+		} catch(NumberFormatException e) {
+			// null or NaN
+			return;
+		}
+		// Negative numbers = infinite queue size
+		if (maxQueueSize < 0) return;
+		if (queue.size() > maxQueueSize) {
+			List<StatusBean> finishedBeans = queue.values().stream().filter(x -> x.getStatus().isFinal()).collect(Collectors.toList());
+			// Removing all the finished beans puts us under our cap, so we only want to remove the ones which started the longest ago
+			if (queue.size() - finishedBeans.size() < maxQueueSize) {
+				int numberNeededToRemove = queue.size() - maxQueueSize;
+				finishedBeans = finishedBeans.stream().sorted((b1, b2) -> Long.compare(b1.getStartTime(), b2.getStartTime()))
+				.collect(Collectors.toList()).subList(0, numberNeededToRemove);
+			}
+			warnIfDelayed(jobStartTime, "removeOutdatedBeans()", "sort old beans");
+			finishedBeans.stream().map(StatusBean::getUniqueId).forEach(queue::remove);
+			warnIfDelayed(jobStartTime, "removeOutdatedBeans()", "remove old beans");
 		}
 	}
 }

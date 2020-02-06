@@ -96,11 +96,13 @@ public abstract class EventConnectionView extends ViewPart {
 		idProperties = properties;
 	}
 
-	public static String createSecondaryId(final String beanBundleName, final String beanClassName, final String topicName, final String submissionQueueName) {
+	public static String createSecondaryId(final String beanBundleName, final String beanClassName,
+			final String topicName, final String submissionQueueName) {
         return QueueViews.createSecondaryId(beanBundleName, beanClassName, topicName, submissionQueueName);
 	}
 
-	public static String createSecondaryId(final String uri, final String beanBundleName, final String beanClassName, final String topicName, final String submissionQueueName) {
+	public static String createSecondaryId(final String uri, final String beanBundleName, final String beanClassName,
+			final String topicName, final String submissionQueueName) {
 		return QueueViews.createSecondaryId(uri, beanBundleName, beanClassName, topicName, submissionQueueName);
 	}
 
