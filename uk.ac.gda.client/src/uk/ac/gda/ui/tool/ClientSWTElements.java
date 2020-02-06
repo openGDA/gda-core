@@ -237,6 +237,30 @@ public final class ClientSWTElements {
 				ClientMessagesUtility.getMessage(tooltip), span, image);
 	}
 
+	public static final void updateButton(final Button button, ClientMessages message, ClientMessages tooltip,
+			final ClientImages imageCode) {
+		updateButton(button, ClientMessagesUtility.getMessage(message), ClientMessagesUtility.getMessage(tooltip),
+				imageCode);
+	}
+
+	private static final void updateButton(final Button button, String message, String tooltip,
+			final ClientImages imageCode) {
+		Optional.ofNullable(message).ifPresent(button::setText);
+		Optional.ofNullable(tooltip).ifPresent(button::setToolTipText);
+
+		Optional.ofNullable(imageCode).ifPresent(i -> {
+			Image image = ClientSWTElements.getImage(i);
+			button.setImage(image);
+			button.setSize(image.getImageData().width, image.getImageData().height);
+			button.setSize(image.getImageData().width, image.getImageData().height);
+		});
+
+		if (imageCode == null) {
+			button.setSize(DEFAULT_BUTTON_SIZE);
+		}
+		button.getParent().layout(true, true);
+	}
+
 	private static final Button createButton(final Composite parent, int style, String message, String tooltip,
 			final Optional<Point> span, final Optional<ClientImages> imageCode) {
 		Button button = new Button(parent, style);
