@@ -230,8 +230,6 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	 */
 	private ExecutorService executor = Executors.newCachedThreadPool();
 
-	private static IPointGenerator<CompoundModel> dummyPointGenerator = null;
-
 	// Listeners to malcolm endpoints
 	private final IMalcolmConnectionEventListener stateChangeListener = this::handleStateChange;
 	private final IMalcolmConnectionEventListener scanEventListener = this::handleStepsCompleted;
@@ -557,6 +555,10 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		final IPointGenerator<?> pointGen = (IPointGenerator<?>) result.get(FIELD_NAME_GENERATOR);
 
 		// update the configured scan model to use the new point generator
+		// TODO: the reason we update the point generator only in the scan model, and not the pointGenerator field
+		// directly is that currently ScanProcess (indirectly) calls validate on this malcolm device after calling
+		// configure, and we can't validate the point generator returned from malcolm, so pointGenerator holds on
+		// to the original one. The pointGenerator field can be removed when this is fixed. See DAQ-2707.
 		if (pointGen != null && scanModel != null) scanModel.setPointGenerator(pointGen);
 
 		setModel(model);
@@ -577,30 +579,6 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	}
 
 	/**
-	 * Returns the default point generator. This is sent to the actual malcolm device when
-	 * validate is called outside of a scan, so that the rest of the model can be validated.
-	 *
-	 * Note that this must be created lazily instead of in a static initializer as
-	 * we need the get the point generator service from the service holder,
-	 * which may not have been set at before this class is initialized.
-	 *
-	 * @return the dummy point generator
-	 */
-	public static IPointGenerator<CompoundModel> getDummyPointGenerator() {
-		if (dummyPointGenerator == null && Services.getPointGeneratorService() != null) {
-			try {
-				final CompoundModel compoundModel = new CompoundModel(new StaticModel());
-				compoundModel.setDuration(0.1);
-				dummyPointGenerator = Services.getPointGeneratorService().createCompoundGenerator(compoundModel);
-			} catch (GeneratorException e) {
-				logger.error("Could not generate default point generator", e);
-			}
-		}
-
-		return dummyPointGenerator;
-	}
-
-	/**
 	 * Create the {@link EpicsMalcolmModel} passed to the actual malcolm device. This is created from both the
 	 * {@link IMalcolmModel} that this {@link MalcolmDevice} has been configured with and information about
 	 * the scan, e.g. the scan path defined by the point generator, that have been set on this object.
@@ -612,14 +590,8 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	 * @return
 	 */
 	private EpicsMalcolmModel createEpicsMalcolmModel(IMalcolmModel model) throws MalcolmDeviceException {
-		double exposureTime = model.getExposureTime();
-
-		// set the exposure time and mutators in the points generator
-		final IPointGenerator<?> pointGen = this.pointGenerator == null ? getDummyPointGenerator() : this.pointGenerator;
-		if (pointGen != null) {
-			((CompoundModel) pointGen.getModel()).setMutators(Collections.emptyList());
-			((CompoundModel) pointGen.getModel()).setDuration(exposureTime);
-		}
+		// get the point generator for the scan
+		final IPointGenerator<?> pointGen = createPointGenerator(model);
 
 		// set the file template and output dir
 		final String outputDir = this.outputDir == null ? Services.getFilePathService().getTempDir() : this.outputDir;
@@ -643,6 +615,36 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 
 		// create the EpicsMalcolmModel with all the arguments that malcolm's configure and validate methods require
 		return new EpicsMalcolmModel(outputDir, fileTemplate, axesToMove, pointGen, detectorTable);
+	}
+
+	/**
+	 * Creates the point generator for the scan:<ul>
+	 * <li>If this malcolm device has been configured with a point generator as part of being configured for a scan by
+	 * {@link #configureScan(org.eclipse.scanning.api.scan.models.ScanModel)}, then modify that point generator by
+	 * setting its duration to the exposure time of the malcolm model.</li>
+	 * <li>If this malcolm device is not configured with a scan, create a generator from a CompoundModel containing
+	 * just a static model</li>
+	 * </ul>
+	 *
+	 * @param model
+	 * @return
+	 * @throws GeneratorException
+	 */
+	private IPointGenerator<?> createPointGenerator(IMalcolmModel model) throws MalcolmDeviceException {
+		// set the exposure time and mutators in the points generator
+		final CompoundModel compoundModel = this.pointGenerator == null ?
+				new CompoundModel(new StaticModel()) :
+				(CompoundModel) pointGenerator.getModel();
+		compoundModel.setDuration(model.getExposureTime());
+		compoundModel.setMutators(Collections.emptyList());
+		try {
+			IPointGenerator<?> pointGen = Services.getPointGeneratorService().createCompoundGenerator(compoundModel);
+			if (this.pointGenerator != null) this.pointGenerator = pointGen;
+			if (this.scanModel != null) this.scanModel.setPointGenerator(pointGen);
+			return pointGen;
+		} catch (GeneratorException e) {
+			throw new MalcolmDeviceException("Could not create point generator.");
+		}
 	}
 
 	private void subscribe(MalcolmMessage subscribeMessage, IMalcolmConnectionEventListener listener) throws MalcolmDeviceException {

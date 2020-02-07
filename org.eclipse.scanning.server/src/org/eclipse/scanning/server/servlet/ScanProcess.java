@@ -532,7 +532,6 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		final IPointGeneratorService service = Services.getGeneratorService();
 		final ScanRequest scanRequest = bean.getScanRequest();
 		if (scanRequest.getDetectors() != null) {
-			// if theres a malcolm device, set the duration of the compound model to its exposure time
 			scanRequest.getDetectors().values().stream()
 				.filter(IMalcolmModel.class::isInstance).map(IMalcolmModel.class::cast)
 				.findFirst().ifPresent(model -> scanRequest.getCompoundModel().setDuration(model.getExposureTime()));

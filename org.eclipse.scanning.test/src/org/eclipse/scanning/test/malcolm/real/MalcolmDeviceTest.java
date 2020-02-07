@@ -73,6 +73,7 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.points.models.BoundingLine;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.malcolm.core.AbstractMalcolmDevice;
@@ -115,7 +116,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 
 		// create a copy of the compound model, so that we're not cheating when comparing the
 		// expected model with the one actually used
-		final CompoundModel model = pointGen == null ? MalcolmDevice.getDummyPointGenerator().getModel() :
+		final CompoundModel model = pointGen == null ? new CompoundModel(new StaticModel()):
 					(CompoundModel) pointGen.getModel();
 
 		final CompoundModel copiedModel = CompoundModel.copy(model);

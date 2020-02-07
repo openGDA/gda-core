@@ -39,6 +39,7 @@ import org.eclipse.scanning.connector.epics.MalcolmEpicsV4Connection;
 import org.eclipse.scanning.example.malcolm.EPICSv4EvilDevice;
 import org.eclipse.scanning.example.malcolm.IEPICSv4Device;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
+import org.eclipse.scanning.malcolm.core.Services;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.junit.After;
@@ -55,7 +56,6 @@ public class MalcolmEpicsV4ConnectorTest {
 	private IScanService service;
 	private IEPICSv4Device epicsv4Device;
 	private MalcolmEpicsV4Connection connectorService;
-	private IPointGeneratorService pointGenService;
 
 	@Before
 	public void before() throws Exception {
@@ -63,7 +63,7 @@ public class MalcolmEpicsV4ConnectorTest {
 		// Not required in OSGi mode (do not add this to your real code GET THE SERVICE FROM OSGi!)
 		this.connectorService = new MalcolmEpicsV4Connection();
 		this.service = new RunnableDeviceServiceImpl();
-		this.pointGenService = new PointGeneratorService();
+		new Services().setPointGeneratorService(new PointGeneratorService());
 	}
 
 	@After
