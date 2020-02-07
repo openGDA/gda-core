@@ -62,7 +62,6 @@ import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_NT_TABLE;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_NUMBER_ARRAY_META;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_NUMBER_META;
-import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_POINT_GENERATOR;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_POINT_GENERATOR_META;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_STRING_ARRAY_META;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_STRING_META;
@@ -98,12 +97,10 @@ import org.epics.pvdata.pv.PVIntArray;
 import org.epics.pvdata.pv.PVString;
 import org.epics.pvdata.pv.PVStringArray;
 import org.epics.pvdata.pv.PVStructure;
-import org.epics.pvdata.pv.PVUnion;
 import org.epics.pvdata.pv.ScalarType;
 import org.epics.pvdata.pv.Status;
 import org.epics.pvdata.pv.Status.StatusType;
 import org.epics.pvdata.pv.Structure;
-import org.epics.pvdata.pv.Union;
 import org.epics.pvdatabase.PVDatabase;
 import org.epics.pvdatabase.PVDatabaseFactory;
 import org.epics.pvdatabase.PVRecord;
@@ -338,21 +335,6 @@ class DummyMalcolmRecord extends PVRecord {
 		Structure floatStructure = FIELDCREATE.createFieldBuilder().add(FIELD_NAME_META, floatNumberMetaStructure)
 				.add(FIELD_NAME_VALUE, ScalarType.pvFloat).setId(TYPE_ID_NT_SCALAR).createStructure();
 
-		Union union = FieldFactory.getFieldCreate().createVariantUnion();
-		Structure generatorStructure = FieldFactory.getFieldCreate().createFieldBuilder().addArray("mutators", union)
-				.addArray("generators", union).addArray("excluders", union)
-				.setId("scanpointgenerator:generator/CompoundGenerator:1.0").createStructure();
-
-		Structure spiralGeneratorStructure = FieldFactory.getFieldCreate().createFieldBuilder()
-				.addArray(FIELD_NAME_CENTRE, ScalarType.pvDouble).add(FIELD_NAME_SCALE, ScalarType.pvDouble).add(FIELD_NAME_UNITS, ScalarType.pvString)
-				.addArray(FIELD_NAME_NAMES, ScalarType.pvString).add("alternate_direction", ScalarType.pvBoolean)
-				.add(FIELD_NAME_RADIUS, ScalarType.pvDouble).setId("scanpointgenerator:generator/SpiralGenerator:1.0")
-				.createStructure();
-
-		Structure pointGeneratorStructure = FieldFactory.getFieldCreate().createFieldBuilder()
-				.add(FIELD_NAME_META, pointGeneratorMetaStructure).add(FIELD_NAME_VALUE, generatorStructure)
-				.setId(TYPE_ID_POINT_GENERATOR).createStructure();
-
 		// Device
 		Structure deviceStructure = fb.add(FIELD_NAME_META, metaStructure) // a string array of the names of the other fields
 				.add(ATTRIBUTE_NAME_STATE, stateStructure) // a choice (enum) of string values
@@ -371,7 +353,6 @@ class DummyMalcolmRecord extends PVRecord {
 				.add(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, stringArrayAttributeStructure)
 				.add(ATTRIBUTE_NAME_LAYOUT, layoutTableStructure)
 				.add(ATTRIBUTE_NAME_DATASETS, datasetTableStructure)
-				.add(FIELD_NAME_GENERATOR, pointGeneratorStructure) // TODO this attribute no longer exists, has it been replaced
 				.add(ATTRIBUTE_NAME_COMPLETED_STEPS, intStructure)
 				.setId(TYPE_ID_BLOCK).createStructure();
 
@@ -435,23 +416,6 @@ class DummyMalcolmRecord extends PVRecord {
 
 		// layout
 		populateLayoutAttribute(blockPVStructure);
-
-		PVStructure spiralGeneratorPVStructure = PVDataFactory.getPVDataCreate()
-				.createPVStructure(spiralGeneratorStructure);
-		double[] acentre = new double[] { 3.5, 4.5 };
-		spiralGeneratorPVStructure.getSubField(PVDoubleArray.class, FIELD_NAME_CENTRE).put(0, acentre.length, acentre, 0);
-		spiralGeneratorPVStructure.getDoubleField(FIELD_NAME_SCALE).put(1.5);
-		spiralGeneratorPVStructure.getStringField(FIELD_NAME_UNITS).put("mm");
-		String[] anames = new String[] { FIELD_NAME_STAGE_X, FIELD_NAME_STAGE_Y };
-		spiralGeneratorPVStructure.getSubField(PVStringArray.class, FIELD_NAME_NAMES).put(0, anames.length, anames, 0);
-		spiralGeneratorPVStructure.getBooleanField("alternate_direction").put(true);
-		spiralGeneratorPVStructure.getDoubleField(FIELD_NAME_RADIUS).put(5.5);
-
-		PVUnion pvu1 = PVDataFactory.getPVDataCreate().createPVVariantUnion();
-		pvu1.set(spiralGeneratorPVStructure);
-		PVUnion[] unionArray = new PVUnion[1];
-		unionArray[0] = pvu1;
-		blockPVStructure.getUnionArrayField("generator.value.generators").put(0, unionArray.length, unionArray, 0);
 
 		DummyMalcolmRecord pvRecord = new DummyMalcolmRecord(recordName, blockPVStructure);
 		PVDatabase master = PVDatabaseFactory.getMaster();
