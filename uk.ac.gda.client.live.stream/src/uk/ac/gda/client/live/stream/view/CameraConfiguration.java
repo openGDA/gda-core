@@ -18,6 +18,10 @@
 
 package uk.ac.gda.client.live.stream.view;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -45,6 +49,11 @@ public class CameraConfiguration extends FindableBase {
 	/** The PV name for the PV Access plugin to use for the EPICS PVA stream e.g. "BL07I-EA-EXCBR-01:PVA:Image"*/
 	private String pvAccessPv;
 
+
+	/**
+	 * Support property containing the available {@link StreamType}s
+	 */
+	private final List<StreamType> streamTypes = new ArrayList<>();
 
 	/** If true the camera will be treated as RBG not grayscale (Only for MJPEG) */
 	private boolean rgb;
@@ -185,5 +194,20 @@ public class CameraConfiguration extends FindableBase {
 	@Override
 	public boolean equals(Object obj) {
 		return EqualsBuilder.reflectionEquals(this, obj);
+	}
+
+	public List<StreamType> cameraStreamTypes() {
+		if (streamTypes.isEmpty()) {
+			if (getUrl() != null) {
+				streamTypes.add(StreamType.MJPEG);
+			}
+			if (getArrayPv() != null) {
+				streamTypes.add(StreamType.EPICS_ARRAY);
+			}
+			if (getPvAccessPv() != null) {
+				streamTypes.add(StreamType.EPICS_PVA);
+			}
+		}
+		return Collections.unmodifiableList(streamTypes);
 	}
 }

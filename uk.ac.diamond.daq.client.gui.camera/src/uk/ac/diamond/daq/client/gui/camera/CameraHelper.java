@@ -22,6 +22,7 @@ import uk.ac.gda.client.composites.FinderHelper;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
+import uk.ac.gda.client.live.stream.view.StreamType;
 import uk.ac.gda.client.properties.CameraProperties;
 import uk.ac.gda.client.properties.MotorProperties;
 import uk.ac.gda.ui.tool.ClientMessages;
@@ -105,6 +106,20 @@ public final class CameraHelper {
 		return Optional.ofNullable(cameraControllers.get(activeCamera));
 	}
 
+	/**
+	 * Returns the available {@link StreamType}s for a specific camera
+	 * @param cameraIndex the camera index
+	 * @return the available stream types, eventually {@link Optional#empty()} if the camera is missing
+	 */
+	public static Optional<List<StreamType>> getCameraStreamTypes(int cameraIndex) {
+		Optional<CameraConfiguration> cc = getCameraConfiguration(cameraIndex);
+		if (cc.isPresent()) {
+			return Optional.ofNullable(cc.get().cameraStreamTypes());	
+		}
+		return Optional.empty();
+		
+	}
+	
 	public static List<CameraComboItem> getCameraComboItems() {
 		return Collections.unmodifiableList(cameraComboItems);
 	}
