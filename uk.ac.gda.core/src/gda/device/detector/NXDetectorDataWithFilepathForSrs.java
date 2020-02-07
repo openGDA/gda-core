@@ -47,6 +47,9 @@ public class NXDetectorDataWithFilepathForSrs extends NXDetectorData {
 	public NXDetectorDataWithFilepathForSrs() {
 
 	}
+	public NXDetectorDataWithFilepathForSrs(String[] extraNames, String[] outputFormat, String detName) {
+		super(extraNames, outputFormat, detName);
+	}
 	@Override
 	public void addFileName(String detName, String filename) {
 		if (filepath != null) {
