@@ -19,6 +19,7 @@
 package uk.ac.gda.tomography.ui.mode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -42,7 +43,7 @@ import gda.rcp.views.StageCompositeDefinition;
 import gda.rcp.views.StageCompositeFactory;
 import gda.rcp.views.TabCompositeFactory;
 import gda.rcp.views.TabCompositeFactoryImpl;
-import gda.rcp.views.TabFolderCompositeFactory;
+import gda.rcp.views.TabFolderBuilder;
 import uk.ac.gda.client.composites.FinderHelper;
 import uk.ac.gda.client.exception.IncompleteModeException;
 import uk.ac.gda.tomography.base.TomographyMode;
@@ -161,7 +162,7 @@ public abstract class TomographyBaseMode implements TomographyMode {
 	private Composite getStageControls(Composite parent) {
 		if (Objects.isNull(stageControls) || stageControls.isDisposed()) {
 			stageControls = ClientSWTElements.createComposite(parent, SWT.NONE, 4);
-			createStageControls(SWT.NONE, SWT.BORDER);
+			createStageControls();
 			stageControls.pack();
 		}
 		return stageControls;
@@ -192,10 +193,10 @@ public abstract class TomographyBaseMode implements TomographyMode {
 		return scd;
 	}
 
-	protected final void createStageControls(int labelStyle, int textStyle) {
-		TabFolderCompositeFactory motorTabs = new TabFolderCompositeFactory();
-		motorTabs.setFactories(getTabsFactories());
-		motorTabs.createComposite(getStageControls(), SWT.NONE);
+	protected final void createStageControls() {
+		TabFolderBuilder builder = new TabFolderBuilder();
+		Arrays.stream(getTabsFactories()).forEach(builder::addTab);
+		builder.build().createComposite(getStageControls(), SWT.NONE);
 	}
 
 	protected class TabCompositionBuilder {
