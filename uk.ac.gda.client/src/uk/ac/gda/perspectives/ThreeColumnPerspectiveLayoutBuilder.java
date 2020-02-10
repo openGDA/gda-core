@@ -32,9 +32,9 @@ import org.slf4j.LoggerFactory;
  * columns" layout. Using the left column as example, there are two main methods to add views:
  * <ol>
  * <li>{@link #addViewToLeftFolder(String, boolean)} - simply adds a view to the left column</li>
- * <li>{@link #addFolderThenViewToLeftFolder(String, boolean, float)} - creates a new folder below the left column, with the specified
- * ratio, then adds the view to the folder. Any following call of {@link #addViewToLeftFolder(String, boolean)} will add views to
- * this folder.</li>
+ * <li>{@link #addFolderThenViewToLeftFolder(String, boolean, float)} - creates a new folder below the left column, with
+ * the specified ratio, then adds the view to the folder. Any following call of
+ * {@link #addViewToLeftFolder(String, boolean)} will add views to this folder.</li>
  * </ol>
  *
  * Same for the central and right columns.
@@ -62,7 +62,8 @@ public class ThreeColumnPerspectiveLayoutBuilder {
 	private static final Logger logger = LoggerFactory.getLogger(ThreeColumnPerspectiveLayoutBuilder.class);
 
 	/**
-	 * Instantiate a helper using the default columns ratio ({@link #DEFAULT_LEFT_RATIO}, {@link #DEFAULT_CENTRE_RATIO}, {@link #DEFAULT_RIGHT_RATIO});
+	 * Instantiate a helper using the default columns ratio ({@link #DEFAULT_LEFT_RATIO}, {@link #DEFAULT_CENTRE_RATIO},
+	 * {@link #DEFAULT_RIGHT_RATIO});
 	 *
 	 * @param perspectiveName
 	 *            the perspective using this instance. Only for logging reason.
@@ -107,10 +108,21 @@ public class ThreeColumnPerspectiveLayoutBuilder {
 	 *
 	 * @param viewId
 	 *            the view ID to add
-	 * @param closeable set the view as closable
+	 * @param closeable
+	 *            set the view as closable
 	 */
 	public void addViewToLeftFolder(String viewId, boolean closeable) {
 		leftFolder.addView(viewId, closeable);
+	}
+
+	/**
+	 * Adds a placeholder to the left folder.
+	 *
+	 * @param viewId
+	 *            the view ID to add
+	 */
+	public void addPlaceholderToLeftFolder(String viewId) {
+		leftFolder.addPlaceholder(viewId);
 	}
 
 	/**
@@ -119,7 +131,8 @@ public class ThreeColumnPerspectiveLayoutBuilder {
 	 *
 	 * @param viewId
 	 *            the view ID to add
-	 * @param closeable set the view as closable
+	 * @param closeable
+	 *            set the view as closable
 	 * @param ratio
 	 *            the ratio how divide the vertical space
 	 */
@@ -133,10 +146,21 @@ public class ThreeColumnPerspectiveLayoutBuilder {
 	 *
 	 * @param viewId
 	 *            the view ID to add
-	 * @param closeable set the view as closable
+	 * @param closeable
+	 *            set the view as closable
 	 */
 	public void addViewToCentralFolder(String viewId, boolean closeable) {
 		centralFolder.addView(viewId, closeable);
+	}
+
+	/**
+	 * Adds a placeholder to the central folder.
+	 *
+	 * @param viewId
+	 *            the view ID to add
+	 */
+	public void addPlaceholderToCentralFolder(String viewId) {
+		centralFolder.addPlaceholder(viewId);
 	}
 
 	/**
@@ -145,7 +169,8 @@ public class ThreeColumnPerspectiveLayoutBuilder {
 	 *
 	 * @param viewId
 	 *            the view ID to add
-	 * @param closeable set the view as closable
+	 * @param closeable
+	 *            set the view as closable
 	 * @param ratio
 	 *            the ratio how divide the vertical space
 	 */
@@ -159,10 +184,21 @@ public class ThreeColumnPerspectiveLayoutBuilder {
 	 *
 	 * @param viewId
 	 *            the view ID to add
-	 * @param closeable set the view as closable
+	 * @param closeable
+	 *            set the view as closable
 	 */
 	public void addViewToRightFolder(String viewId, boolean closeable) {
 		rightFolder.addView(viewId, closeable);
+	}
+
+	/**
+	 * Adds a placeholder to the right folder.
+	 *
+	 * @param viewId
+	 *            the view ID to add
+	 */
+	public void addPlaceholderToRightFolder(String viewId) {
+		rightFolder.addPlaceholder(viewId);
 	}
 
 	/**
@@ -171,7 +207,8 @@ public class ThreeColumnPerspectiveLayoutBuilder {
 	 *
 	 * @param viewId
 	 *            the view ID to add
-	 * @param closeable set the view as closable
+	 * @param closeable
+	 *            set the view as closable
 	 * @param ratio
 	 *            the ratio how divide the vertical space
 	 */
@@ -232,6 +269,10 @@ public class ThreeColumnPerspectiveLayoutBuilder {
 		public void addView(String viewId, boolean closeable) {
 			getFolderLayout().addView(viewId);
 			getPageLayout().getViewLayout(viewId).setCloseable(closeable);
+		}
+
+		public void addPlaceholder(String viewId) {
+			getFolderLayout().addPlaceholder(viewId + ":*");
 		}
 	}
 }

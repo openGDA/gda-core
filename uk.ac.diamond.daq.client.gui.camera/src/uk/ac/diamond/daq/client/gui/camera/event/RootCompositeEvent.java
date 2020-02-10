@@ -48,7 +48,8 @@ public class RootCompositeEvent extends CameraEvent implements RootCompositeAwar
 	}
 	
 	public final boolean hasSameParent(Composite other) {
-		if (other == null) {
+		//Avoids disposed widget
+		if (other == null || other.isDisposed()) {
 			return false;
 		}	
 		return ClientSWTElements.findParentUUID(other).equals(getRootComposite());
