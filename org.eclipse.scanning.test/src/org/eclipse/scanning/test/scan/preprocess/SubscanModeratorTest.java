@@ -31,22 +31,25 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
+import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.points.PointGeneratorService;
+import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.sequencer.SubscanModerator;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class SubscanModeratorTest {
 
-	protected static IPointGeneratorService  gservice;
+	protected static IPointGeneratorService gservice;
 
 	@BeforeClass
 	public static void setServices() throws Exception {
-		gservice    = new PointGeneratorService();
+		gservice = new PointGeneratorService();
+		new ServiceHolder().setGeneratorService(gservice);
 	}
 
 	@Test
@@ -68,7 +71,8 @@ public class SubscanModeratorTest {
 		det.setModel(tmodel);
 		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"x", "y"});
 
-		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
+		final ScanModel scanModel = new ScanModel(gen, det);
+		SubscanModerator moderator = new SubscanModerator(scanModel);
 		IPointGenerator<?> outerPointGen = moderator.getOuterPointGenerator();
 		IPointGenerator<?> innerPointGen = moderator.getInnerPointGenerator();
 
@@ -99,7 +103,8 @@ public class SubscanModeratorTest {
 		det.setModel(tmodel);
 		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"x", "y"});
 
-		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
+		final ScanModel scanModel = new ScanModel(gen, det);
+		SubscanModerator moderator = new SubscanModerator(scanModel);
 		checkModeratedScanSizes(moderator, 150, 150, 1);
 		checkModeratedModels(moderator, 2, 0);
 	}
@@ -142,7 +147,8 @@ public class SubscanModeratorTest {
 		det.setModel(tmodel);
 		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"x", "y"});
 
-		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
+		final ScanModel scanModel = new ScanModel(gen, det);
+		SubscanModerator moderator = new SubscanModerator(scanModel);
 		checkModeratedScanSizes(moderator, 25, 1, 25);
 		checkModeratedModels(moderator, 0, 1);
 	}
@@ -165,7 +171,8 @@ public class SubscanModeratorTest {
 		final MandelbrotDetector det = new MandelbrotDetector();
 		det.setModel(mmodel);
 
-		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
+		final ScanModel scanModel = new ScanModel(gen, det);
+		SubscanModerator moderator = new SubscanModerator(scanModel);
 		checkModeratedScanSizes(moderator, 25, 25, 0);
 		checkModeratedModels(moderator, 1, 0);
 	}
@@ -188,7 +195,8 @@ public class SubscanModeratorTest {
 		final MandelbrotDetector det = new MandelbrotDetector();
 		det.setModel(mmodel);
 
-		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
+		final ScanModel scanModel = new ScanModel(gen, det);
+		SubscanModerator moderator = new SubscanModerator(scanModel);
 		checkModeratedScanSizes(moderator, 150, 150, 0);
 		checkModeratedModels(moderator, 2, 0);
 	}
@@ -214,7 +222,8 @@ public class SubscanModeratorTest {
 		det.setModel(tmodel);
 		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"p", "y"});
 
-		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
+		final ScanModel scanModel = new ScanModel(gen, det);
+		SubscanModerator moderator = new SubscanModerator(scanModel);
 		checkModeratedScanSizes(moderator, 25, 25, 1);
 		checkModeratedModels(moderator, 1, 0);
 		checkHasSingleStaticPosition(moderator.getInnerPointGenerator());
@@ -249,7 +258,8 @@ public class SubscanModeratorTest {
 		det.setModel(tmodel);
 		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"p", "y"});
 
-		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
+		final ScanModel scanModel = new ScanModel(gen, det);
+		SubscanModerator moderator = new SubscanModerator(scanModel);
 		checkModeratedScanSizes(moderator, 150, 150, 1);
 		checkModeratedModels(moderator, 2, 0);
 		checkHasSingleStaticPosition(moderator.getInnerPointGenerator());
@@ -274,7 +284,8 @@ public class SubscanModeratorTest {
 		det.setModel(tmodel);
 		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[0]);
 
-		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
+		final ScanModel scanModel = new ScanModel(gen, det);
+		SubscanModerator moderator = new SubscanModerator(scanModel);
 		checkModeratedScanSizes(moderator, 150, 150, 1);
 		checkModeratedModels(moderator, 2, 0);
 		checkHasSingleStaticPosition(moderator.getInnerPointGenerator());
@@ -300,7 +311,8 @@ public class SubscanModeratorTest {
 		det.setModel(tmodel);
 		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"x", "y"});
 
-		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
+		final ScanModel scanModel = new ScanModel(gen, det);
+		SubscanModerator moderator = new SubscanModerator(scanModel);
 		checkModeratedScanSizes(moderator, 150, 150, 1);
 		checkModeratedModels(moderator, 2, 0);
 		checkHasSingleStaticPosition(moderator.getInnerPointGenerator());
@@ -327,7 +339,8 @@ public class SubscanModeratorTest {
 		det.setModel(tmodel);
 		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"p", "x"});
 
-		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
+		final ScanModel scanModel = new ScanModel(gen, det);
+		SubscanModerator moderator = new SubscanModerator(scanModel);
 		checkModeratedScanSizes(moderator, 150, 150, 1);
 		checkModeratedModels(moderator, 2, 0);
 		checkHasSingleStaticPosition(moderator.getInnerPointGenerator());
@@ -354,7 +367,8 @@ public class SubscanModeratorTest {
 		det.setModel(tmodel);
 		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"x", "y", "z"});
 
-		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
+		final ScanModel scanModel = new ScanModel(gen, det);
+		SubscanModerator moderator = new SubscanModerator(scanModel);
 
 		IPointGenerator<?> outer = moderator.getOuterPointGenerator();
 		assertEquals(1, outer.size());
@@ -382,7 +396,8 @@ public class SubscanModeratorTest {
 		det.setModel(tmodel);
 		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"p", "y"});
 
-		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
+		final ScanModel scanModel = new ScanModel(gen, det);
+		SubscanModerator moderator = new SubscanModerator(scanModel);
 		checkModeratedScanSizes(moderator, 24, 6, 4);
 		checkModeratedModels(moderator, 1, 1);
 	}
@@ -402,7 +417,8 @@ public class SubscanModeratorTest {
 		det.setModel(tmodel);
 		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[0]);
 
-		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
+		final ScanModel scanModel = new ScanModel(gen, det);
+		SubscanModerator moderator = new SubscanModerator(scanModel);
 		checkModeratedScanSizes(moderator, 1, 1, 1);
 		checkModeratedModels(moderator, 0, 1);
 		checkHasSingleStaticPosition(moderator.getOuterPointGenerator());
@@ -425,7 +441,8 @@ public class SubscanModeratorTest {
 		det.setModel(tmodel);
 		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[] { "x", "y" });
 
-		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
+		final ScanModel scanModel = new ScanModel(gen, det);
+		SubscanModerator moderator = new SubscanModerator(scanModel);
 		checkModeratedScanSizes(moderator, 1, 1, 1);
 		checkModeratedModels(moderator, 0, 1);
 		checkHasSingleStaticPosition(moderator.getOuterPointGenerator());
@@ -448,7 +465,8 @@ public class SubscanModeratorTest {
 		det.setModel(tmodel);
 		det.setAttributeValue(MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[] { "x", "y" });
 
-		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
+		final ScanModel scanModel = new ScanModel(gen, det);
+		SubscanModerator moderator = new SubscanModerator(scanModel);
 		checkModeratedScanSizes(moderator, 6, 6, 1);
 		checkModeratedModels(moderator, 1, 1);
 		checkHasSingleStaticPosition(moderator.getInnerPointGenerator());

@@ -11,6 +11,9 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.scanning.api.ModelValidationException;
 
 /**
@@ -38,6 +41,16 @@ public class StaticModel extends AbstractPointsModel {
 
 	public void setSize(int size) {
 		this.size = size;
+	}
+
+	@Override
+	public List<String> getScannableNames() {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public List<String> getUnits() {
+		return Collections.emptyList();
 	}
 
 	@Override

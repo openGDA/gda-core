@@ -5,9 +5,7 @@ import java.util.Iterator;
 import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
 import org.eclipse.scanning.api.annotation.scan.PointEnd;
 import org.eclipse.scanning.api.event.scan.ScanBean;
-import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPosition;
-import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 
@@ -96,19 +94,13 @@ public final class LocationManager {
 	 * @throws ScanningException
 	 */
 	public Iterator<IPosition> createPositionIterator() throws ScanningException {
-
-		CompoundModel cmodel = bean.getScanRequest()!=null ? bean.getScanRequest().getCompoundModel() : null;
-		SubscanModerator moderator = new SubscanModerator(model.getPointGenerator(), cmodel, model.getDetectors(), ServiceHolder.getGeneratorService());
+		SubscanModerator moderator = new SubscanModerator(model);
 		manager.addContext(moderator);
 
-		try {
-			stepNumber = 0;
-			outerSize  = moderator.getOuterScanSize();
-			innerSize  = moderator.getInnerScanSize();
-			totalSize  = moderator.getTotalScanSize();
-		} catch (GeneratorException se) {
-			throw new ScanningException("Cannot create the position iterator!", se);
-		}
+		stepNumber = 0;
+		outerSize  = moderator.getOuterScanSize();
+		innerSize  = moderator.getInnerScanSize();
+		totalSize  = moderator.getTotalScanSize();
 
 		return moderator.getOuterPointGenerator().iterator();
 	}
