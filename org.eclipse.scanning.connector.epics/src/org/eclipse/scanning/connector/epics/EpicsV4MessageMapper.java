@@ -18,7 +18,6 @@ import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_NT_SCALAR;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_NT_SCALAR_ARRAY;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_NT_TABLE;
-import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_POINT_GENERATOR;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_TABLE;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
@@ -52,6 +51,7 @@ import org.eclipse.scanning.connector.epics.custommarshallers.BoundingBoxDeseria
 import org.eclipse.scanning.connector.epics.custommarshallers.BoundingBoxSerialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.CircularROIDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.CircularROISerialiser;
+import org.eclipse.scanning.connector.epics.custommarshallers.CompoundGeneratorDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.EllipticalROIDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.EllipticalROISerialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.FreeDrawROIDeserialiser;
@@ -73,7 +73,6 @@ import org.eclipse.scanning.connector.epics.custommarshallers.ParabolicROIDeseri
 import org.eclipse.scanning.connector.epics.custommarshallers.ParabolicROISerialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.PerimeterBoxROIDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.PerimeterBoxROISerialiser;
-import org.eclipse.scanning.connector.epics.custommarshallers.PointGeneratorDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.PointROIDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.PointROISerialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.PolygonalROIDeserialiser;
@@ -159,10 +158,11 @@ public class EpicsV4MessageMapper {
 		marshaller.registerDeserialiser(TYPE_ID_NT_SCALAR_ARRAY, new NTScalarArrayDeserialiser());
 		marshaller.registerDeserialiser(TYPE_ID_BLOCK_META, new BlockMetaDeserialiser());
 		marshaller.registerDeserialiser(TYPE_ID_NT_TABLE, new NTTableDeserialiser());
-		marshaller.registerDeserialiser(TYPE_ID_POINT_GENERATOR, new PointGeneratorDeserialiser());
 		marshaller.registerDeserialiser(TYPE_ID_METHOD, new MalcolmMethodDeserialiser());
 		marshaller.registerSerialiser(MalcolmTable.class, new MalcolmTableSerialiser());
 		marshaller.registerDeserialiser(TYPE_ID_TABLE, new MalcolmTableDeserialiser());
+		marshaller.registerDeserialiser("scanpointgenerator:generator/CompoundGenerator:1.0", new CompoundGeneratorDeserialiser());
+
 	}
 
 	public PVStructure convertMalcolmMessageToPVStructure(MalcolmMessage malcolmMessage) throws Exception {

@@ -42,6 +42,8 @@ from scanpointgenerator import SectorROI
 
 from scanpointgenerator import ROIExcluder
 
+from annotypes import deserialize_object
+
 ## Logging
 import logging
 
@@ -307,6 +309,17 @@ class JCompoundGenerator(MapPositionWrapper):
         self.generator.prepare()
         super(MapPositionWrapper, self).__init__(self.generator)
 
+class JPyDictionaryGenerator(MapPositionWrapper):
+    """
+    Create a generator from a PyDictionary
+    """
+    
+    def __init__(self, pydict):
+        # The pydict is expected to have been created by calling toDict() on a CompoundGenerator, 
+        # so we should be able to get a CompoundGenenerato by calling CompoundGenerator.from_dict.
+        self.generator = CompoundGenerator.from_dict(pydict)
+        self.generator.prepare()
+        super(MapPositionWrapper, self).__init__(self.generator)
 
 class JRandomOffsetMutator(object):
 

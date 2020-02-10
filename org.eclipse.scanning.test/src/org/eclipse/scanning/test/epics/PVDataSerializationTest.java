@@ -18,11 +18,15 @@ import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_MRI;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_NAME;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_TABLE;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,6 +44,7 @@ import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
+import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
@@ -1266,6 +1271,20 @@ public class PVDataSerializationTest {
 
 		assertEquals(expectedCompGenPVStructure.getStructure(), pvStructure.getStructure());
 		assertEquals(expectedCompGenPVStructure, pvStructure);
+
+		final IPointGenerator<?> actualPointGen = connectorService.pvUnmarshal(pvStructure, IPointGenerator.class);
+//		assertEquals(pointGen, deserialized); // Note: we can't directly compare point generators for equality
+		assertEquals(actualPointGen.size(), pointGen.size());
+		assertEquals(actualPointGen.getRank(), pointGen.getRank());
+		assertArrayEquals(actualPointGen.getShape(), pointGen.getShape());
+		assertEquals(actualPointGen.getNames(), pointGen.getNames());
+		final Iterator<IPosition> actualPointGenIter = actualPointGen.iterator();
+		final Iterator<IPosition> pointGenIter = pointGen.iterator();
+		while (pointGenIter.hasNext()) {
+			assertTrue(actualPointGenIter.hasNext());
+			assertEquals(actualPointGenIter.next(), pointGenIter.next());
+		}
+		assertFalse(actualPointGenIter.hasNext());
 	}
 
 	@Test

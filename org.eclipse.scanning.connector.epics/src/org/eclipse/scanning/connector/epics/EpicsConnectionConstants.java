@@ -50,6 +50,9 @@ public class EpicsConnectionConstants {
 	public static final String TYPE_ID_POINT_GENERATOR = ID_PREFIX_MALCOLM + "PointGenerator:1.0";
 	public static final String TYPE_ID_POINT_GENERATOR_META = ID_PREFIX_MALCOLM + "PointGeneratorMeta:1.0";
 
+	public static final String ID_PREFIX_GENERATOR = "scanpointgenerator:generator/";
+	public static final String TYPE_ID_COMPOUND_GENERATOR = ID_PREFIX_GENERATOR + "CompoundGenerator:1.0";
+
 	// Field names for attributes
 	public static final String FIELD_NAME_META = "meta";
 	public static final String FIELD_NAME_VALUE = "value";

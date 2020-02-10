@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
+import org.eclipse.scanning.connector.epics.EpicsConnectionConstants;
 import org.epics.pvdata.pv.Field;
 import org.epics.pvdata.pv.PVStructure;
 import org.epics.pvdata.pv.ScalarArray;
@@ -61,6 +62,7 @@ public class MalcolmTableDeserialiser implements IPVStructureDeserialiser {
 		@SuppressWarnings("unchecked")
 		final LinkedHashMap<String, List<?>> valueMap = (LinkedHashMap<String, List<?>>) deserialiser.getMapDeserialiser()
 					.createMapFromPVStructure(pvStructure, LinkedHashMap.class, Object.class);
+		valueMap.remove(EpicsConnectionConstants.TYPE_ID_KEY);
 		final LinkedHashMap<String, Class<?>> dataTypeMap = createDataTypeMap(pvStructure, valueMap.keySet());
 
 		return new MalcolmTable(valueMap, dataTypeMap);
