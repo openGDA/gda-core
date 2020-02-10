@@ -467,11 +467,11 @@ public class EditDetectorModelDialog extends Dialog {
 
 						final ILoaderService loaderService = Activator.getDefault().getService(ILoaderService.class);
 						final String datasetPath = ScanningUiUtils.getDatasetPath(datasetName);
-						dataset = loaderService.getDataset(filePath, datasetPath, new ProgressMonitorWrapper(monitor)).squeeze();
-
+						dataset = loaderService.getDataset(filePath, datasetPath, new ProgressMonitorWrapper(monitor));
 						if (dataset == null) {
 							throw new IllegalArgumentException(MessageFormat.format("No path {0} found in file {1}", datasetPath, filePath));
 						}
+						dataset = dataset.squeeze();
 					} catch (Exception e) {
 						throw new InvocationTargetException(e);
 					}
