@@ -111,7 +111,7 @@ public abstract class AbstractAcquisitionTest {
     protected <T> IDeviceController createTestScanner(IScannable<?>     monitorPerPoint,
 		                                         IScannable<?>     monitorPerScan,
 		                                         IRunnableDevice<T> device,
-		                                         T dmodel,
+		                                         T detModel,
 		                                         int dims,
 		                                         List<String> axisNames,
 		                                         String filePath) throws Exception {
@@ -134,22 +134,6 @@ public abstract class AbstractAcquisitionTest {
 		final CompoundModel compoundModel = new CompoundModel(models);
 		final IPointGenerator<?> gen = ServiceTestHelper.getPointGeneratorService().createCompoundGenerator(compoundModel);
 
-		if (dmodel!=null) {
-			AnnotationManager manager = new AnnotationManager(Activator.createResolver());
-			manager.addDevices(device);
-			manager.addContext(new ScanInformation(gen, Arrays.asList(dmodel), filePath));
-
-			manager.invoke(PreConfigure.class, dmodel, gen);
-			if (device instanceof AbstractMalcolmDevice) {
-				assertNotNull(((AbstractMalcolmDevice)device).getPointGenerator());
-			}
-
-			device.configure(dmodel);
-			assertNotNull(device.getModel());
-			assertEquals(dmodel, device.getModel());
-
-			manager.invoke(PostConfigure.class, dmodel, gen);
-		}
 
 		// Create the model for a scan.
 		final ScanModel  scanModel = new ScanModel();
@@ -162,6 +146,23 @@ public abstract class AbstractAcquisitionTest {
 		scanModel.setMonitorsPerPoint(monitorPerPoint);
 		scanModel.setMonitorsPerScan(monitorPerScan);
 		scanModel.setBean(new ScanBean());
+
+		if (detModel!=null) {
+			AnnotationManager manager = new AnnotationManager(Activator.createResolver());
+			manager.addDevices(device);
+			manager.addContext(new ScanInformation(gen, Arrays.asList(detModel), filePath));
+
+			manager.invoke(PreConfigure.class, scanModel, detModel, gen);
+			if (device instanceof AbstractMalcolmDevice) {
+				assertNotNull(((AbstractMalcolmDevice)device).getPointGenerator());
+			}
+
+			device.configure(detModel);
+			assertNotNull(device.getModel());
+			assertEquals(detModel, device.getModel());
+
+			manager.invoke(PostConfigure.class, scanModel, detModel, gen);
+		}
 
 		// Create a scan and run it without publishing events
 		IRunnableDevice<ScanModel> scanner = ServiceTestHelper.getRunnableDeviceService().createRunnableDevice(scanModel, null, false);
