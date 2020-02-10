@@ -500,14 +500,15 @@ public class EditDetectorModelDialog extends Dialog {
 			snapshotPathText.setToolTipText(filePath);
 			snapshotPathText.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
 			snapshotPathText.setVisible(true);
-		} catch (Exception e) {
+		} catch (InvocationTargetException e) {
+			final Exception ex = (Exception) e.getCause();
 			final String errorMessage = MessageFormat.format("Could not load data for detector {0} from file {1}.", detectorModel.getName(), filePath);
-			logger.error(errorMessage, e);
+			logger.error(errorMessage, ex);
 			snapshotPathText.setText(errorMessage);
 			snapshotPathText.setToolTipText(errorMessage);
 			snapshotPathText.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
 			snapshotPathText.setVisible(true);
-			throw e;
+			throw ex;
 		}
 	}
 
