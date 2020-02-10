@@ -1,0 +1,18 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+<!-- 	Temporary file which can be removed once the pewma solution has been replace
+	or once the product file has been removed from this project
+-->
+	<groupId>uk.ac.diamond</groupId>
+	<artifactId>uk.ac.diamond.daq.server.feature</artifactId>
+	<version>9.16.0-SNAPSHOT</version>
+	<packaging>eclipse-feature</packaging>
+	
+	<parent>
+		<groupId>uk.ac.diamond</groupId>
+		<artifactId>daq-platform</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+
+</project>
