@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.client.gui.camera.CameraConfigurationView;
 import uk.ac.diamond.daq.client.gui.energy.BeamEnergyDialogBuilder;
 import uk.ac.gda.tomography.scan.editor.StagesComposite;
 import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
@@ -60,6 +61,7 @@ public class TomographyAcquisitionComposite extends CompositeTemplate<Tomography
 	protected void createElements(int labelStyle, int textStyle) {
 		headerElements(ClientSWTElements.createComposite(this, SWT.NONE, 3), labelStyle, textStyle);
 		stageCompose(ClientSWTElements.createComposite(this, SWT.NONE, 1));
+		cameraGroupElements(this);
 	}
 
 	private void headerElements(Composite parent, int labelStyle, int textStyle) {
@@ -69,6 +71,11 @@ public class TomographyAcquisitionComposite extends CompositeTemplate<Tomography
 	private void stageCompose(Composite parent) {
 		StagesComposite stagesComposite = StagesComposite.buildModeComposite(parent, controller);
 		controller.setTomographyMode(stagesComposite.getStageType().getStage());
+	}
+
+	private void cameraGroupElements(Composite parent) {
+		Group cameras = ClientSWTElements.createGroup(parent, 1, ClientMessages.CAMERAS);
+		CameraConfigurationView.openCameraConfigurationViewButton(cameras);
 	}
 
 	private void createSource(Composite parent, int labelStyle, int textStyle) {
