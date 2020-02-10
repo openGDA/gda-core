@@ -246,6 +246,8 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 
 		@Override
 		public void writePosition(IPosition position) throws Exception {
+			if (nexusFile == null) return;
+
 			for (DummyMalcolmDatasetModel datasetModel : model.getDatasets()) {
 				// create the data to write into the dataset
 				int[] dataShape = getDataShape(datasetModel);
@@ -317,7 +319,9 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 
 		@Override
 		public void writePosition(IPosition position) throws Exception {
-			final DummyMalcolmModel model = (DummyMalcolmModel) getModel();
+			if (nexusFile == null) return;
+
+			final DummyMalcolmModel model = getModel();
 			for (String positionerName : model.getPositionerNames()) {
 				Object posValue = position.get(positionerName);
 				if (posValue == null) { // a malcolm controlled positioner which is not a axis (maybe aggregated, e.g. one of a group of jacks)
