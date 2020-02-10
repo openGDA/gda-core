@@ -674,30 +674,21 @@ public class NexusGroupData implements Serializable {
 	 */
 	public String getType() {
 		String type;
-		switch (DTypeUtils.getDType(clazz)) {
-		case Dataset.STRING:
+		if (StringDataset.class.isAssignableFrom(clazz)) {
 			type = "CHAR";
-			break;
-		case Dataset.INT8:
+		} else if (ByteDataset.class.isAssignableFrom(clazz)) {
 			type = "INT8";
-			break;
-		case Dataset.INT16:
+		} else if (ShortDataset.class.isAssignableFrom(clazz)) {
 			type = "INT16";
-			break;
-		case Dataset.INT32:
-			return "24";
-//			type = "INT32";
-//			break;
-		case Dataset.INT64:
+		} else if (IntegerDataset.class.isAssignableFrom(clazz)) {
+			type = "INT32";
+		} else if (LongDataset.class.isAssignableFrom(clazz)) {
 			type = "INT64";
-			break;
-		case Dataset.FLOAT32:
+		} else if (FloatDataset.class.isAssignableFrom(clazz)) {
 			type = "FLOAT32";
-			break;
-		case Dataset.FLOAT64:
+		} else if (DoubleDataset.class.isAssignableFrom(clazz)) {
 			type = "FLOAT64";
-			break;
-		default:
+		} else {
 			return "UNKNOWN";
 		}
 		if (isUnsigned) {
