@@ -26,11 +26,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,14 +82,14 @@ public class StagesComposite {
 	/**
 	 */
 	private void buildStageComposite() {
-		ClientSWTElements.createLabel(getParent(), SWT.NONE, ClientMessages.STAGE, new Point(2, 1));
-		stagesCombo = ClientSWTElements.createCombo(getParent(), SWT.READ_ONLY, getTypes(), ClientMessages.STAGE_TP);
-		stageComposite = ClientSWTElements.createComposite(getParent(), SWT.NONE, 1);
+		Group group = ClientSWTElements.createGroup(getParent(), 1, ClientMessages.STAGE);
+		stagesCombo = ClientSWTElements.createCombo(group, SWT.READ_ONLY, getTypes(), ClientMessages.STAGE_TP);
+		stageComposite = ClientSWTElements.createComposite(group, SWT.NONE, 1);
 		setStageType(StageType.DEFAULT);
 
 		comboStageSelectionListener();
 
-		outOfBeam = ClientSWTElements.createButton(getParent(), SWT.PUSH, ClientMessages.OUT_OF_BEAM, ClientMessages.OUT_OF_BEAM_TP);
+		outOfBeam = ClientSWTElements.createButton(group, SWT.PUSH, ClientMessages.OUT_OF_BEAM, ClientMessages.OUT_OF_BEAM_TP);
 		attachOutOfBeamSelectionListener();
 	}
 
