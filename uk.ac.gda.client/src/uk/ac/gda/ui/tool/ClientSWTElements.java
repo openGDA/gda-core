@@ -126,6 +126,7 @@ public final class ClientSWTElements {
 			glf = getGroupDefaultGridLayoutFactory(columns, true);
 		}
 		glf.numColumns(columns).applyTo(group);
+		gdf.indent(5, 5);
 		gdf.applyTo(group);
 		if (message != null) {
 			group.setText(ClientMessagesUtility.getMessage(message));
@@ -252,13 +253,19 @@ public final class ClientSWTElements {
 		if (!imageCode.isPresent()) {
 			button.setSize(DEFAULT_BUTTON_SIZE);
 		}
-		applySpan(button, span, Optional.ofNullable(button.getSize()));
+		GridData gridData = new GridData();
+		gridData.horizontalIndent = 5;
+		gridData.verticalIndent = 5;
+		button.setLayoutData(gridData);
 		return button;
 	}
 
 	public static final Combo createCombo(final Composite parent, int style, final String[] items,
 			final ClientMessages tooltip) {
 		Combo combo = new Combo(parent, style);
+		GridData gridData = new GridData();
+		gridData.horizontalIndent = 5;
+		combo.setLayoutData(gridData);
 		combo.setToolTipText(ClientMessagesUtility.getMessage(tooltip));
 		combo.setItems(items);
 		return combo;
