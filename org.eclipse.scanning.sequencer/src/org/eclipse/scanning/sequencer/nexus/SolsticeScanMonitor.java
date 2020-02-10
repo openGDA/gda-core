@@ -191,19 +191,20 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IN
 		// add a field for the scan rank
 		scanPointsCollection.setField(FIELD_NAME_SCAN_RANK, info.getRank());
 
-		try {
-		    String cmd = ServiceHolder.getParserService().getCommand(model.getBean().getScanRequest(), true);
-			scanPointsCollection.setField(FIELD_NAME_SCAN_CMD,  cmd);
-		} catch (Exception ne) {
-			logger.debug("Unable to write scan command", ne);
-		}
-
-		try {
-			List<?> models = model.getBean().getScanRequest().getCompoundModel().getModels();
-			String json = ServiceHolder.getMarshallerService().marshal(models);
-			scanPointsCollection.setField(FIELD_NAME_SCAN_MODELS, json);
-		} catch (Exception ne) {
-			logger.debug("Unable to write point models", ne);
+		if (model.getBean() != null && model.getBean().getScanRequest() != null) {
+			try {
+			    String cmd = ServiceHolder.getParserService().getCommand(model.getBean().getScanRequest(), true);
+				scanPointsCollection.setField(FIELD_NAME_SCAN_CMD,  cmd);
+			} catch (Exception ne) {
+				logger.debug("Unable to write scan command", ne);
+			}
+			try {
+				List<?> models = model.getBean().getScanRequest().getCompoundModel().getModels();
+				String json = ServiceHolder.getMarshallerService().marshal(models);
+				scanPointsCollection.setField(FIELD_NAME_SCAN_MODELS, json);
+			} catch (Exception ne) {
+				logger.debug("Unable to write point models", ne);
+			}
 		}
 
 		// create the scan finished dataset and set the initial value to false
