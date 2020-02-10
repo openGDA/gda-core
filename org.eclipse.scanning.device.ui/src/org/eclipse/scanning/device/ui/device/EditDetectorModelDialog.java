@@ -429,7 +429,7 @@ public class EditDetectorModelDialog extends Dialog {
 				logger.error(message);
 			}
 		} catch (Exception e) {
-			MessageDialog.openError(getShell(), messageTitle, "Error taking snapshot");
+			MessageDialog.openError(getShell(), messageTitle, "Error taking snapshot: " + e);
 			logger.error("Error taking snapshot", e);
 		}
 	}
