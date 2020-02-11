@@ -37,8 +37,7 @@ import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
 import gda.factory.FactoryException;
-import gda.jscience.physics.quantities.BraggAngle;
-import gda.jscience.physics.quantities.PhotonEnergy;
+import gda.jscience.physics.quantities.QuantityConverters;
 import gda.util.QuantityFactory;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
@@ -117,7 +116,7 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 		Amount<Energy> valueOf = Amount.valueOf(energy, NonSI.ELECTRON_VOLT);
 		Amount<Angle> braggAngleOf = null;
 		try {
-			braggAngleOf = BraggAngle.braggAngleFromEnergy(valueOf, getTwoD());
+			braggAngleOf = QuantityConverters.braggAngleFromEnergy(valueOf, getTwoD());
 		} catch (Exception e) {
 			logger.error("Exception fetching Bragg angle", e);
 		}
@@ -237,7 +236,7 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 	}
 
 	protected double angleToEV(Amount<Angle> angle) throws TimeoutException, CAException, InterruptedException {
-		double amount = QuantityFactory.createFromObject(PhotonEnergy.photonEnergyFromBraggAngle(angle, getTwoD()),
+		double amount = QuantityFactory.createFromObject(QuantityConverters.photonEnergyFromBraggAngle(angle, getTwoD()),
 				NonSI.ELECTRON_VOLT).getEstimatedValue();
 		return amount;
 	}
@@ -274,11 +273,11 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 		Amount<Length> twoD = getTwoD();
 
 		Amount<Energy> startEng = Amount.valueOf(continuousParameters.getStartPosition(), NonSI.ELECTRON_VOLT);
-		startAngle = BraggAngle.braggAngleFromEnergy(startEng, twoD);
+		startAngle = QuantityConverters.braggAngleFromEnergy(startEng, twoD);
 
 		Amount<Energy> endEng = Amount.valueOf(continuousParameters.getEndPosition(), NonSI.ELECTRON_VOLT);
 		// calculate end energy from start, step increment, and number of pulses.
-		endAngle = BraggAngle.braggAngleFromEnergy(endEng, twoD);
+		endAngle = QuantityConverters.braggAngleFromEnergy(endEng, twoD);
 
 		stepSize = (startAngle.minus(endAngle)).divide(continuousParameters.getNumberDataPoints());
 

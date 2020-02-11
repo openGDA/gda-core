@@ -46,7 +46,7 @@ import org.eclipse.swt.widgets.Label;
 import org.jscience.physics.amount.Amount;
 
 import gda.configuration.properties.LocalProperties;
-import gda.jscience.physics.quantities.BraggAngle;
+import gda.jscience.physics.quantities.QuantityConverters;
 import gda.jython.JythonServerFacade;
 import gda.util.QuantityFactory;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
@@ -262,9 +262,9 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		double rangeEv = finalEnergyVal - initialEnergyVal;
 		Unit<Energy> userUnits = ELECTRON_VOLT;
 		Amount<Energy> initialAngleQuantity = QuantityFactory.createFromObject(initialEnergyVal, userUnits);
-		Amount<Angle> initialAngle = BraggAngle.braggAngleFromEnergy(initialAngleQuantity, crystal);
+		Amount<Angle> initialAngle = QuantityConverters.braggAngleFromEnergy(initialAngleQuantity, crystal);
 		Amount<Energy> finalAngleQuantity = QuantityFactory.createFromObject(Double.valueOf(finalEnergyVal), userUnits);
-		Amount<Angle> finalAngle = BraggAngle.braggAngleFromEnergy(finalAngleQuantity, crystal);
+		Amount<Angle> finalAngle = QuantityConverters.braggAngleFromEnergy(finalAngleQuantity, crystal);
 
 		double range = (((initialAngle.doubleValue(Angle.UNIT) - finalAngle.doubleValue(Angle.UNIT)) * 180) / Math.PI);
 		double time = (range / speedVal) * 1000;
