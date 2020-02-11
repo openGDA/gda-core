@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -16,6 +17,8 @@ import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
+import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
@@ -83,48 +86,41 @@ public class MalcolmGridScanTest extends AbstractMalcolmScanTest {
 	private IRunnableDevice<ScanModel> createMalcolmGridScan(final IMalcolmDevice malcolmDevice, File file, boolean snake, int... size) throws Exception {
 
 		// Create scan points for a grid and make a generator
-		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel(); // Note stage_x and stage_y scannables controlled by malcolm
-		gmodel.setxAxisName("stage_x");
-		gmodel.setxAxisPoints(size[size.length-1]);
-		gmodel.setyAxisName("stage_y");
-		gmodel.setyAxisPoints(size[size.length-2]);
-		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
-		gmodel.setAlternating(snake);
+		TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel(); // Note stage_x and stage_y scannables controlled by malcolm
+		gridModel.setxAxisName("stage_x");
+		gridModel.setxAxisPoints(size[size.length-1]);
+		gridModel.setyAxisName("stage_y");
+		gridModel.setyAxisPoints(size[size.length-2]);
+		gridModel.setBoundingBox(new BoundingBox(0,0,3,3));
+		gridModel.setAlternating(snake);
 
-		IPointGenerator<?> gen = pointGenService.createGenerator(gmodel);
-
-		IPointGenerator<?>[] gens = new IPointGenerator<?>[size.length - 1];
-		if (size.length > 2) {
-			for (int dim = size.length - 3; dim > -1; dim--) {
-				final AxialStepModel model;
-				if (size[dim]-1>0) {
-					model = new AxialStepModel("neXusScannable"+(dim+1), 10,20,9.99d/(size[dim]-1));
-				} else {
-					model = new AxialStepModel("neXusScannable"+(dim+1), 10,20,30);
-				}
-				final IPointGenerator<?> step = pointGenService.createGenerator(model);
-				gens[dim] = step;
-			}
+		final List<IScanPathModel> models = new ArrayList<>();
+		for (int dim = 0; dim < size.length - 2; dim++) {
+			final double step = size[dim] - 1 > 0 ? 9.99d / (size[dim] - 1) : 30;
+			models.add(new AxialStepModel("neXusScannable"+(dim+1), 10, 20, step));
 		}
-		gens[size.length - 2] = gen;
 
-		gen = pointGenService.createCompoundGenerator(gens);
+		models.add(gridModel);
+		final CompoundModel compoundModel = new CompoundModel(models);
+
+		final IPointGenerator<?> pointGen = pointGenService.createCompoundGenerator(compoundModel);
 
 		// Create the model for a scan.
-		final ScanModel smodel = new ScanModel();
-		smodel.setPointGenerator(gen);
-		smodel.setDetectors(malcolmDevice);
+		final ScanModel scanModel = new ScanModel();
+		scanModel.setScanPathModel(compoundModel);
+		scanModel.setPointGenerator(pointGen);
+		scanModel.setDetectors(malcolmDevice);
 		// Cannot set the generator from @PreConfigure in this unit test.
-		malcolmDevice.setPointGenerator(gen);
+		malcolmDevice.setPointGenerator(pointGen);
 
 		// Create a file to scan into.
-		smodel.setFilePath(file.getAbsolutePath());
-		System.out.println("File writing to " + smodel.getFilePath());
+		scanModel.setFilePath(file.getAbsolutePath());
+		System.out.println("File writing to " + scanModel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(smodel, null);
+		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(scanModel, null);
 
-		final IPointGenerator<?> fgen = gen;
+		final IPointGenerator<?> fgen = pointGen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
 			@Override
 			public void runWillPerform(RunEvent evt) throws ScanningException {

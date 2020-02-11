@@ -481,6 +481,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setFilePath(bean.getFilePath());
 		scanModel.setPointGenerator(generator);
+		scanModel.setScanPathModel(bean.getScanRequest().getCompoundModel());
 		bean.setSize(generator.size());
 
 		final ScanRequest req = bean.getScanRequest();

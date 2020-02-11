@@ -58,6 +58,7 @@ import org.eclipse.scanning.api.malcolm.message.Type;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
@@ -88,8 +89,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		initializeMalcolmDevice();
 	}
 
-	private ScanBean createExpectedStateChangeBean(DeviceState deviceState, DeviceState previousState,
-			Status status, Status previousStatus) throws Exception {
+	private ScanBean createExpectedStateChangeBean(Status status, Status previousStatus) throws Exception {
 		if (scanBean == null) {
 			scanBean = new ScanBean();
 			scanBean.setHostName(InetAddress.getLocalHost().getHostName());
@@ -134,8 +134,8 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		// Before refactoring, these should be updated to reflect what we think the correct seqeuence is of
 		// Status and DeviceState changes should be. Then the code should be refactored and fixed to pass the updated test
 		assertThat(beans, hasSize(2));
-		assertThat(beans.get(0), is(equalTo(createExpectedStateChangeBean(DeviceState.CONFIGURING, null, Status.SUBMITTED, null))));
-		assertThat(beans.get(1), is(equalTo(createExpectedStateChangeBean(DeviceState.ARMED, DeviceState.CONFIGURING, Status.PREPARING, Status.SUBMITTED))));
+		assertThat(beans.get(0), is(equalTo(createExpectedStateChangeBean(Status.SUBMITTED, null))));
+		assertThat(beans.get(1), is(equalTo(createExpectedStateChangeBean(Status.PREPARING, Status.SUBMITTED))));
 		// TODO replace with assertThat collection contains?
 
 		// Arrange: set up the malcolm connection to respond to the run message with a WaitingAnswer
@@ -155,7 +155,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		ScanBean bean = beanCaptor.getValue();
 		scanBean.setSize(200); // AcquisitionDevice has now set scan size and start time in the ScanBean
 		scanBean.setStartTime(bean.getStartTime());
-		assertThat(bean, is(equalTo(createExpectedStateChangeBean(DeviceState.RUNNING, DeviceState.ARMED, Status.RUNNING, Status.PREPARING))));
+		assertThat(bean, is(equalTo(createExpectedStateChangeBean(Status.RUNNING, Status.PREPARING))));
 
 		// Send some updates to the completed steps listener and check an updated ScanBean is published
 		checkCompletedSteps(beanCaptor);
@@ -228,9 +228,9 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		// TODO DAQ-1410, ScanBean should only have DeviceState set to PAUSED when the MalcolmDevice sends us
 		// a state change with a DeviceState of PAUSED.
 		assertThat(beans.get(0), is(equalTo(createExpectedStateChangeBean(
-				DeviceState.SEEKING, DeviceState.RUNNING, Status.PAUSED, Status.RUNNING))));
+				Status.PAUSED, Status.RUNNING))));
 		assertThat(beans.get(1), is(equalTo(createExpectedStateChangeBean(
-				DeviceState.PAUSED, DeviceState.SEEKING, Status.PAUSED, Status.RUNNING))));
+				Status.PAUSED, Status.RUNNING))));
 
 		// send a state change event to say the malcolm device is paused, currently this is ignored
 		stateChangeListener.eventPerformed(createStateChangeEvent(DeviceState.PAUSED));
@@ -249,7 +249,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		// Assert
 		verify(publisher, times(++expectedNumPublishedBeans)).broadcast(any(ScanBean.class));
 		assertThat(beanCaptor.getValue(), is(equalTo(createExpectedStateChangeBean(
-				DeviceState.RUNNING, DeviceState.PAUSED, Status.RESUMED, Status.RUNNING))));
+				Status.RESUMED, Status.RUNNING))));
 
 		// send a state change event to say the malcolm device is running, currently this is ignored
 		stateChangeListener.eventPerformed(createStateChangeEvent(DeviceState.RUNNING));
@@ -286,13 +286,13 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		gmodel.setyAxisName("stage_y");
 		gmodel.setyAxisPoints(10);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
-		final IPointGenerator<?> gridGen = pointGenService.createGenerator(gmodel);
 		final AxialStepModel stepModel = new AxialStepModel("stage_z", 0, 1, 1);
-		final IPointGenerator<?> stepGen = pointGenService.createGenerator(stepModel);
-		final IPointGenerator<?> gen = pointGenService.createCompoundGenerator(stepGen, gridGen);
+		final CompoundModel compoundModel = new CompoundModel(stepModel, gmodel);
+		final IPointGenerator<?> gen = pointGenService.createCompoundGenerator(compoundModel);
 
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setPointGenerator(gen);
+		scanModel.setScanPathModel(compoundModel);
 		scanModel.setDetectors(malcolmDevice);
 
 		final MalcolmModel malcolmModel = new MalcolmModel();

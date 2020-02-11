@@ -23,6 +23,7 @@ import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DETECTORS_TABLE_COLUMN_NAME;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_AXES_TO_MOVE;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_DETECTORS;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_GENERATOR;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_META;
 import static org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.ERROR_MESSAGE_PREFIX_FAILED_TO_CONNECT;
 
@@ -548,7 +549,16 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 
 		final EpicsMalcolmModel epicsModel = createEpicsMalcolmModel(model);
 		final MalcolmMessage msg = messageGenerator.createCallMessage(MalcolmMethod.CONFIGURE, epicsModel);
-		sendMessageWithTimeout(msg, Timeout.CONFIG.toMillis());
+		final MalcolmMessage reply = sendMessageWithTimeout(msg, Timeout.CONFIG.toMillis());
+
+		// use the point generator returned from malcolm
+		@SuppressWarnings("unchecked")
+		final Map<String, Object> result = (Map<String, Object>) reply.getValue();
+		final IPointGenerator<?> pointGen = (IPointGenerator<?>) result.get(FIELD_NAME_GENERATOR);
+
+		// update the configured scan model to use the new point generator
+		if (pointGen != null && scanModel != null) scanModel.setPointGenerator(pointGen);
+
 		setModel(model);
 	}
 

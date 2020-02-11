@@ -24,6 +24,7 @@ import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.IPointGenerator;
+import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,9 +48,15 @@ public class ScanModel {
 	private String filePath;
 
 	/**
-	 * The point generator to use to generate the points of the scan.
+	 * The point generator to use to generate the points of the scan. Note that this may be updated
+	 * when configuring a malcolm device.
 	 */
 	private IPointGenerator<?> pointGenerator;
+
+	/**
+	 * The scan path model that was used to create the point generator.
+	 */
+	private IScanPathModel scanPathModel;
 
 	/**
 	 * This is the set of detectors which should be collected
@@ -108,16 +115,18 @@ public class ScanModel {
 	private ScanInformation scanInformation = null;
 
 	public ScanModel() {
-		this(null);
+		// do nothing
 	}
 
 	public ScanModel(IPointGenerator<?> positionIterator, IRunnableDevice<?>... detectors) {
+		// this constructor is used by tests for convenience
 		this.pointGenerator = positionIterator;
+		scanPathModel = (IScanPathModel) positionIterator.getModel();
 		if (detectors!=null && detectors.length>0) this.detectors = Arrays.asList(detectors);
 	}
 
 	public ScanModel(IPointGenerator<?> positionIterator, File file) {
-		this.pointGenerator = positionIterator;
+		this(positionIterator);
 		this.filePath = file.getAbsolutePath();
 	}
 
@@ -136,9 +145,10 @@ public class ScanModel {
 				+ ((monitorsPerPoint == null) ? 0 : monitorsPerPoint.hashCode());
 		result = prime * result
 				+ ((monitorsPerScan == null) ? 0 : monitorsPerScan.hashCode());
-		result = prime
-				* result
+		result = prime * result
 				+ ((pointGenerator == null) ? 0 : pointGenerator.hashCode());
+		result = prime * result
+				+ ((scanPathModel == null) ? 0 : scanPathModel.hashCode());
 		result = prime * result
 				+ ((scanMetadata == null) ? 0 : scanMetadata.hashCode());
 		return result;
@@ -193,6 +203,10 @@ public class ScanModel {
 				return false;
 		} else if (!pointGenerator.equals(other.pointGenerator))
 			return false;
+		if (scanPathModel == null) {
+			if (other.scanPathModel != null)
+				return false;
+		}
 		return true;
 	}
 
@@ -202,6 +216,14 @@ public class ScanModel {
 
 	public void setBean(ScanBean bean) {
 		this.bean = bean;
+	}
+
+	public IScanPathModel getScanPathModel() {
+		return scanPathModel;
+	}
+
+	public void setScanPathModel(IScanPathModel scanPathModel) {
+		this.scanPathModel = scanPathModel;
 	}
 
 	public IPointGenerator<?> getPointGenerator() {
@@ -333,7 +355,8 @@ public class ScanModel {
 
 	@Override
 	public String toString() {
-		return "ScanModel [filePath=" + filePath + ", pointGenerator=" + pointGenerator + ", detectors=" + detectors
+		return "ScanModel [filePath=" + filePath + ", pointGenerator=" + pointGenerator
+				+ ", compoundModel=" + scanPathModel + ", detectors=" + detectors
 				+ ", scannables=" + scannables + ", monitorsPerPoint=" + monitorsPerPoint
 				+ ", monitorsPerScan=" + monitorsPerScan + ", scanMetadata=" + scanMetadata
 				+ ", annotationParticipants=" + annotationParticipants + ", templateFilePaths=" + templateFilePaths

@@ -38,6 +38,7 @@ import static org.hamcrest.Matchers.is;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -56,13 +57,17 @@ import org.eclipse.scanning.api.malcolm.MalcolmVersion;
 import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
+import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.scanning.api.scan.IScanService;
+import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.connector.epics.MalcolmEpicsV4Connection;
+import org.eclipse.scanning.example.file.MockFilePathService;
 import org.eclipse.scanning.example.malcolm.IEPICSv4Device;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
+import org.eclipse.scanning.malcolm.core.Services;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.test.epics.DeviceRunner;
@@ -100,6 +105,7 @@ public class ExampleMalcolmDeviceTest {
 		// Not required in OSGi mode (do not add this to your real code GET THE SERVICE FROM OSGi!)
 		this.service = new RunnableDeviceServiceImpl();
 		this.connectorService = new MalcolmEpicsV4Connection();
+		new Services().setFilePathService(new MockFilePathService());
 
 		// Start the dummy test device
 		DeviceRunner runner = new DeviceRunner();
@@ -347,6 +353,46 @@ public class ExampleMalcolmDeviceTest {
 		malcolmDevice.setOutputDir("/path/to/ixx-1234");
 
 		// create a new expected malcolm model to match the version as modified by DummyMalcolmRecord
+		expectedModel = createExpectedMalcolmModel(expectedModel);
+
+		// Call validate on the malcolm device
+		actualModel = malcolmDevice.validateWithReturn(model);
+
+		// check that the returned model has been modified as expected
+		assertThat(actualModel, is(equalTo(expectedModel)));
+
+		// configure the malcolm device with a scan model (in a scan this is done by due to the @ScanFinally annotation on configureScan)
+		final ScanModel scanModel = new ScanModel(pointGen);
+		scanModel.setScanPathModel(pointGen.getModel());
+		((MalcolmDevice) malcolmDevice).configureScan(scanModel);
+
+		// Call configure
+		malcolmDevice.configure(model);
+
+		// check that the point generator has been updated in the ScanModel
+		final IPointGenerator<?> modifiedPointGen = scanModel.getPointGenerator();
+
+		// modify the model to match the changes made in DummyMalcolmRecord.RPCServiceAsyncImpl.modifyConfigureValidatePVStructure
+		spiral.setScale(1.5);
+		spiral.setContinuous(true);
+		final IPointGenerator<?> expectedPointGen = pointGenService.createGenerator(spiral, regions);
+
+		// check that the modified point is as expected. Note: we can't directly compare two generators for equality
+		assertThat(modifiedPointGen.size(), is(equalTo(expectedPointGen.size())));
+		assertThat(modifiedPointGen.getRank(), is(equalTo(expectedPointGen.getRank())));
+		assertThat(modifiedPointGen.getShape(), is(equalTo(expectedPointGen.getShape())));
+		assertThat(modifiedPointGen.getNames(), is(equalTo(expectedPointGen.getNames())));
+		final Iterator<IPosition> newPointGenIter = modifiedPointGen.iterator();
+		final Iterator<IPosition> expectedPointGenIter = expectedPointGen.iterator();
+		while (expectedPointGenIter.hasNext()) {
+			assertThat(newPointGenIter.hasNext(), is(true));
+			assertThat(newPointGenIter.next(), is(equalTo(expectedPointGenIter.next())));
+		}
+		assertThat(newPointGenIter.hasNext(), is(false));
+		// TODO, add a check that continuous is true, this is not currently possible
+	}
+
+	private IMalcolmModel createExpectedMalcolmModel(IMalcolmModel expectedModel) {
 		expectedModel = new MalcolmModel(expectedModel);
 		expectedModel.setAxesToMove(Arrays.asList("stage_x", "stage_y"));
 		expectedModel.setExposureTime(0.1);
@@ -356,15 +402,7 @@ public class ExampleMalcolmDeviceTest {
 		expectedModel.getDetectorModels().get(1).setExposureTime(0.025);
 		expectedModel.getDetectorModels().get(1).setFramesPerStep(4);
 		expectedModel.getDetectorModels().get(2).setEnabled(true);
-
-		// Call validate on the malcolm device
-		actualModel = malcolmDevice.validateWithReturn(model);
-
-		// check that the returned model has been modified as expected
-		assertThat(actualModel, is(equalTo(expectedModel)));
-
-		// Call configure
-		malcolmDevice.configure(model);
+		return expectedModel;
 	}
 
 }

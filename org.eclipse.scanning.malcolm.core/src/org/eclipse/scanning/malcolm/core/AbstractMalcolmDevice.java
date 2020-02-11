@@ -52,6 +52,7 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 	// Events
 	private MalcolmEventDelegate eventDelegate;
 
+	protected ScanModel scanModel;
 	protected IPointGenerator<?> pointGenerator;
 	protected String outputDir;
 
@@ -82,6 +83,7 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 		if (scanModel == null) return;
 
 		logger.debug("Configuring malcolm device {} for scan", getName());
+		this.scanModel = scanModel;
 		setPointGenerator(scanModel.getPointGenerator());
 		String outputDir = null;
 		if (scanModel.getFilePath() != null) {
@@ -115,7 +117,8 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 
 	@ScanFinally
 	public void scanFinally() throws ScanningException {
-		// clear the point generator and output dir when the scan has finished. These are set per scan
+		// clear the configured scan model, point generator and output dir when the scan has finished. These are set per scan
+		this.scanModel = null;
 		this.pointGenerator = null;
 		this.outputDir = null;
 	}

@@ -3,6 +3,7 @@ package org.eclipse.scanning.test.scan.nexus;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -12,6 +13,8 @@ import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
+import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
@@ -62,31 +65,27 @@ public class MalcolmStaticScanTest extends AbstractMalcolmScanTest {
 	// Create a scan where the Malcolm device just does a static scan, but there may be outer scannables
 	private IRunnableDevice<ScanModel> createScanner(int... size) throws Exception {
 		final IPointGenerator<?> pointGenerator;
+		final IScanPathModel model;
 		if (size.length == 0) {
 			// Static generator for the Malcolm device
-			pointGenerator = pointGenService.createGenerator(new StaticModel());
+			model = new StaticModel();
+			pointGenerator = pointGenService.createGenerator(model);
 		} else {
 			// Step scan generators for any other dimensions
-			final IPointGenerator<?>[] stepGenerators = new IPointGenerator<?>[size.length];
-			if (size.length > 0) {
-				for (int dim = size.length - 1; dim >= 0; dim--) {
-					final AxialStepModel model;
-					if (size[dim] - 1 > 0) {
-						model = new AxialStepModel("neXusScannable" + (dim + 1), 10, 20, 9.99d / (size[dim] - 1));
-					} else {
-						model = new AxialStepModel("neXusScannable" + (dim + 1), 10, 20, 30);
-					}
-					final IPointGenerator<?> stepGenerator = pointGenService.createGenerator(model);
-					stepGenerators[dim] = stepGenerator;
-				}
+			final List<AxialStepModel> models = new ArrayList<>(size.length);
+			for (int dim = 0; dim < size.length; dim++) {
+				final double step = size[dim] - 1 > 0 ? 9.99d / (size[dim] - 1) : 30;
+				models.add(new AxialStepModel("neXusScannable" + (dim + 1), 10, 20, step));
 			}
-			pointGenerator = pointGenService.createCompoundGenerator(stepGenerators);
+			model = new CompoundModel(models);
+			pointGenerator = pointGenService.createCompoundGenerator((CompoundModel) model);
 		}
 
 		// Create the model for a scan.
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setPointGenerator(pointGenerator);
 		scanModel.setDetectors(malcolmDevice);
+		scanModel.setScanPathModel(model);
 		// Cannot set the generator from @PreConfigure in this unit test.
 		malcolmDevice.setPointGenerator(pointGenerator);
 

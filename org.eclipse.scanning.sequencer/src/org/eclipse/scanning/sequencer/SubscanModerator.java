@@ -41,14 +41,11 @@ public class SubscanModerator {
 	private IPointGenerator<?> outerPointGenerator;
 	private IPointGenerator<?> innerPointGenerator;
 
-	private CompoundModel compoundModel;
 	private List<Object> outerModels;
 	private List<Object> innerModels;
 
 	public SubscanModerator(ScanModel scanModel) throws ScanningException {
 		this.pointGen = scanModel.getPointGenerator();
-		Object scanPathModel = pointGen.getModel();
-		this.compoundModel = scanPathModel instanceof CompoundModel ? (CompoundModel) scanPathModel : new CompoundModel(scanPathModel);
 		try {
 			moderate(scanModel);
 		} catch (MalcolmDeviceException | GeneratorException e) {
@@ -58,6 +55,11 @@ public class SubscanModerator {
 
 	private void moderate(ScanModel scanModel) throws GeneratorException, ScanningException {
 		outerPointGenerator = pointGen; // We will reassign it to the outer scan if there is one, otherwise it is the full scan.
+
+		// get the scan path model as a compound model
+		final IScanPathModel scanPathModel = scanModel.getScanPathModel();
+		final CompoundModel compoundModel = scanPathModel instanceof CompoundModel ? (CompoundModel) scanPathModel :
+				new CompoundModel(scanPathModel);
 
 		final Optional<IMalcolmDevice> malcolmDevice = findMalcolmDevice(scanModel);
 		if (!malcolmDevice.isPresent()) {
