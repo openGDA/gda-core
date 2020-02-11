@@ -99,16 +99,6 @@ public class CompoundModel extends AbstractPointsModel implements Cloneable {
 		return copy;
 	}
 
-	/**
-	 * Copies the mutators and regions of another CompoundModel, but sets new models
-	 */
-	public static CompoundModel copyAndSetModels(CompoundModel toCopy, List<Object> models) {
-		CompoundModel copy = copy(toCopy);
-		copy.models = models;
-		return copy;
-	}
-
-
 	@SuppressWarnings("unchecked")
 	public CompoundModel(Object... models) {
 		if (models !=null && models.length == 1 && models[0] instanceof List<?>) {

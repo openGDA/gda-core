@@ -14,6 +14,7 @@ package org.eclipse.scanning.sequencer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
@@ -95,8 +96,14 @@ public class SubscanModerator {
 			this.innerPointGenerator = pointGenService.createGenerator(new StaticModel(1));
 		} else {
 			// otherwise we create a new compound generator with the inner models and the same
-			// mutators, regions, duration, etc. as the overall scan
-			this.innerPointGenerator = pointGenService.createCompoundGenerator(CompoundModel.copyAndSetModels(compoundModel, innerModels));
+			// mutators, duration, etc. as the overall scan
+			// But only the regions that are relevant for these scans
+			CompoundModel innerC = CompoundModel.copy(compoundModel);
+			innerC.setModels(innerModels);
+			if (compoundModel.getRegions() != null) {
+				innerC.setRegions(compoundModel.getRegions().stream().filter(x -> innerScanAxes.containsAll(x.getScannables())).collect(Collectors.toList()));
+			}
+			this.innerPointGenerator = pointGenService.createCompoundGenerator(innerC);
 		}
 
 		if (outerModels.isEmpty()) {
@@ -104,8 +111,12 @@ public class SubscanModerator {
 			this.outerPointGenerator = pointGenService.createGenerator(new StaticModel(1));
 			return;
 		}
-
-		this.outerPointGenerator = pointGenService.createCompoundGenerator(CompoundModel.copyAndSetModels(compoundModel, outerModels));
+		CompoundModel outerC = CompoundModel.copy(compoundModel);
+		outerC.setModels(outerModels);
+		if (compoundModel.getRegions() != null) {
+			outerC.setRegions(compoundModel.getRegions().stream().filter(x -> !innerScanAxes.containsAll(x.getScannables())).collect(Collectors.toList()));
+		}
+		this.outerPointGenerator = pointGenService.createCompoundGenerator(outerC);
 	}
 
 	private Optional<IMalcolmDevice> findMalcolmDevice(ScanModel scanModel) {
