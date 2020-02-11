@@ -37,38 +37,38 @@ public class WaveVectorTest {
 
 	@Test
 	public void testWaveVectorFromEnergies() {
-		final Amount<Vector> result = WaveVector.waveVectorOf(EDGE_ENERGY, ELECTRON_ENERGY);
+		final Amount<WaveVector> result = QuantityConverters.waveVectorOf(EDGE_ENERGY, ELECTRON_ENERGY);
 		assertEquals(1.237, result.getEstimatedValue(), 0.0001);
 		assertEquals(NonSIext.PER_ANGSTROM, result.getUnit());
 	}
 
 	@Test
 	public void testWaveVectorNullEdgeEnergy() {
-		assertNull(WaveVector.waveVectorOf(null, ELECTRON_ENERGY));
+		assertNull(QuantityConverters.waveVectorOf(null, ELECTRON_ENERGY));
 	}
 
 	@Test
 	public void testWaveVectorNullElectronEnergy() {
-		assertNull(WaveVector.waveVectorOf(EDGE_ENERGY, null));
+		assertNull(QuantityConverters.waveVectorOf(EDGE_ENERGY, null));
 	}
 
 	@Test
 	public void testWaveVectorNegativeEdgeEnergy() {
-		assertNull(WaveVector.waveVectorOf(NEGATIVE_ENERGY, ELECTRON_ENERGY));
+		assertNull(QuantityConverters.waveVectorOf(NEGATIVE_ENERGY, ELECTRON_ENERGY));
 	}
 
 	@Test
 	public void testWaveVectorNegativeElectronEnergy() {
-		assertNull(WaveVector.waveVectorOf(EDGE_ENERGY, NEGATIVE_ENERGY));
+		assertNull(QuantityConverters.waveVectorOf(EDGE_ENERGY, NEGATIVE_ENERGY));
 	}
 
 	@Test
 	public void testWaveVectorZeroEdgeEnergy() {
-		assertNull(WaveVector.waveVectorOf(ZERO_ENERGY, ELECTRON_ENERGY));
+		assertNull(QuantityConverters.waveVectorOf(ZERO_ENERGY, ELECTRON_ENERGY));
 	}
 
 	@Test
 	public void testWaveVectorZeroElectronEnergy() {
-		assertNull(WaveVector.waveVectorOf(EDGE_ENERGY, ZERO_ENERGY));
+		assertNull(QuantityConverters.waveVectorOf(EDGE_ENERGY, ZERO_ENERGY));
 	}
 }

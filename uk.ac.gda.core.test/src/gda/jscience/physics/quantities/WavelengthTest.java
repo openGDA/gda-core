@@ -53,23 +53,23 @@ public class WavelengthTest {
 	@Test
 	public void testWavelengthOfEnergy() {
 		final Amount<Length> expected = Amount.valueOf(529.847, NANO(METER));
-		final Amount<Length> result = Wavelength.wavelengthOf(PHOTON_ENERGY);
+		final Amount<Length> result = QuantityConverters.wavelengthOf(PHOTON_ENERGY);
 		assertEquals(expected.doubleValue(Length.UNIT), result.doubleValue(Length.UNIT), 0.0000000000001);
 	}
 
 	@Test
 	public void testWavelengthOfEnergyNullEnergy() {
-		assertNull(Wavelength.wavelengthOf(null));
+		assertNull(QuantityConverters.wavelengthOf(null));
 	}
 
 	@Test
 	public void testWavelengthOfEnergyNegativeEnergy() {
-		assertNull(Wavelength.wavelengthOf(NEGATIVE_ENERGY));
+		assertNull(QuantityConverters.wavelengthOf(NEGATIVE_ENERGY));
 	}
 
 	@Test
 	public void testWavelengthOfEnergyZeroEnergy() {
-		assertNull(Wavelength.wavelengthOf(ZERO_ENERGY));
+		assertNull(QuantityConverters.wavelengthOf(ZERO_ENERGY));
 	}
 
 	// -------------------------------------------------------------------------------
@@ -78,37 +78,37 @@ public class WavelengthTest {
 	@Test
 	public void testWavelengthOfAngle() {
 		final Amount<Length> expectedWavelength = Amount.valueOf(1.388, ANGSTROM);
-		final Amount<Length> result = Wavelength.wavelengthOf(BRAGG_ANGLE, TWO_D);
+		final Amount<Length> result = QuantityConverters.wavelengthOf(BRAGG_ANGLE, TWO_D);
 		assertEquals(expectedWavelength.doubleValue(Length.UNIT), result.doubleValue(Length.UNIT), 0.0000000000001);
 	}
 
 	@Test
 	public void testWavelengthOfAngleNegativeLength() {
-		assertNull(Wavelength.wavelengthOf(BRAGG_ANGLE, NEGATIVE_LENGTH));
+		assertNull(QuantityConverters.wavelengthOf(BRAGG_ANGLE, NEGATIVE_LENGTH));
 	}
 
 	@Test
 	public void testWavelengthOfAngleNegativeAngle() {
-		assertNull(Wavelength.wavelengthOf(NEGATIVE_ANGLE, TWO_D));
+		assertNull(QuantityConverters.wavelengthOf(NEGATIVE_ANGLE, TWO_D));
 	}
 
 	@Test
 	public void testWavelengthOfAngleNullLength() {
-		assertNull(Wavelength.wavelengthOf(BRAGG_ANGLE, null));
+		assertNull(QuantityConverters.wavelengthOf(BRAGG_ANGLE, null));
 	}
 
 	@Test
 	public void testWavelengthOfAngleNullAngle() {
-		assertNull(Wavelength.wavelengthOf(null, TWO_D));
+		assertNull(QuantityConverters.wavelengthOf(null, TWO_D));
 	}
 
 	@Test
 	public void testWavelengthOfAngleZeroAngle() {
-		assertNull(Wavelength.wavelengthOf(ZERO_ANGLE, TWO_D));
+		assertNull(QuantityConverters.wavelengthOf(ZERO_ANGLE, TWO_D));
 	}
 
 	@Test
 	public void testWavelengthOfAngleZeroLength() {
-		assertNull(Wavelength.wavelengthOf(BRAGG_ANGLE, ZERO_LENGTH));
+		assertNull(QuantityConverters.wavelengthOf(BRAGG_ANGLE, ZERO_LENGTH));
 	}
 }

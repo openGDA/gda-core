@@ -43,7 +43,7 @@ import javax.measure.unit.UnitFormat;
 import com.google.common.collect.ImmutableMap;
 
 import gda.jscience.physics.quantities.Count;
-import gda.jscience.physics.quantities.Vector;
+import gda.jscience.physics.quantities.WaveVector;
 
 /**
  * This class contains units that are not part of the {@link NonSI} set<br>
@@ -118,7 +118,7 @@ public final class NonSIext {
 	public static final String MICROLITRE_MU_STRING = "\u03bcL";
 
 	/** An alternative unit name for one over ANGSTROM (alternative name <code>Per_Angstrom</code>). */
-	public static final Unit<Vector> PER_ANGSTROM = (Unit<Vector>) ANGSTROM.inverse();
+	public static final Unit<WaveVector> PER_ANGSTROM = (Unit<WaveVector>) ANGSTROM.inverse();
 
 	/** A unit of counts or motor steps. */
 	public static final Unit<Count> COUNTS = (Unit<Count>) METRE.inverse();

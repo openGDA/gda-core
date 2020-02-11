@@ -43,9 +43,7 @@ import org.springframework.util.StringUtils;
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-import gda.jscience.physics.quantities.BraggAngle;
-import gda.jscience.physics.quantities.PhotonEnergy;
-import gda.jscience.physics.quantities.Wavelength;
+import gda.jscience.physics.quantities.QuantityConverters;
 import gda.util.QuantityFactory;
 
 /**
@@ -194,10 +192,10 @@ public class MonoScannable extends ScannableMotionUnitsBase {
 		if (newQuantity.getUnit().isCompatible(Angle.UNIT)) {
 			angle = newQuantity.to(Angle.UNIT);
 		} else if (newQuantity.getUnit().isCompatible(Length.UNIT)) {
-			final Amount<Angle> braggangle = BraggAngle.braggAngleFromWavelength(newQuantity.to(Length.UNIT), twoDee);
+			final Amount<Angle> braggangle = QuantityConverters.braggAngleFromWavelength(newQuantity.to(Length.UNIT), twoDee);
 			angle = braggangle.to(hardwareUnit).to(Angle.UNIT);
 		} else if (newQuantity.getUnit().isCompatible(Energy.UNIT)) {
-			final Amount<Angle> braggangle = BraggAngle.braggAngleFromEnergy(newQuantity.to(Energy.UNIT), twoDee);
+			final Amount<Angle> braggangle = QuantityConverters.braggAngleFromEnergy(newQuantity.to(Energy.UNIT), twoDee);
 			angle = braggangle.to(hardwareUnit).to(Angle.UNIT);
 		}
 
@@ -221,11 +219,11 @@ public class MonoScannable extends ScannableMotionUnitsBase {
 			toReturn = currentPosition.to(userUnits);
 		} else if (toReturn.getUnit() instanceof Length) {
 			@SuppressWarnings("unchecked")
-			Amount<Length> wavelength = Wavelength.wavelengthOf((Amount<Angle>)currentPosition, twoDee);
+			Amount<Length> wavelength = QuantityConverters.wavelengthOf((Amount<Angle>)currentPosition, twoDee);
 			toReturn = wavelength.to(userUnits);
 		} else if (toReturn.getUnit() instanceof Energy) {
 			@SuppressWarnings("unchecked")
-			Amount<Energy> energy = PhotonEnergy.photonEnergyFromBraggAngle((Amount<Angle>) currentPosition, twoDee);
+			Amount<Energy> energy = QuantityConverters.photonEnergyFromBraggAngle((Amount<Angle>) currentPosition, twoDee);
 			toReturn = energy.to(userUnits);
 		}
 		return toReturn.getEstimatedValue();
@@ -243,10 +241,10 @@ public class MonoScannable extends ScannableMotionUnitsBase {
 		if (newQuantity.getUnit() instanceof Angle) {
 			angle = (Amount<Angle>) newQuantity;
 		} else if (newQuantity.getUnit() instanceof Length) {
-			Amount<Angle> braggangle = BraggAngle.braggAngleFromWavelength((Amount<Length>) newQuantity, twoDee);
+			Amount<Angle> braggangle = QuantityConverters.braggAngleFromWavelength((Amount<Length>) newQuantity, twoDee);
 			angle = (Amount<Angle>) braggangle.to(hardwareUnit);
 		} else if (newQuantity.getUnit() instanceof Energy) {
-			Amount<Angle> braggangle = BraggAngle.braggAngleFromEnergy((Amount<Energy>) newQuantity, twoDee);
+			Amount<Angle> braggangle = QuantityConverters.braggAngleFromEnergy((Amount<Energy>) newQuantity, twoDee);
 			angle = (Amount<Angle>) braggangle.to(hardwareUnit);
 		}
 
