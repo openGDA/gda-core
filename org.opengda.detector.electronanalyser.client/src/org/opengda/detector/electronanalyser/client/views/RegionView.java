@@ -473,7 +473,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		txtMinimumSize.setEnabled(false);
 
 		Label lblTotalTime = new Label(grpStep, SWT.NONE);
-		lblTotalTime.setText("Total Time [s]");
+		lblTotalTime.setText("Estimated Time [s]");
 
 		txtTotalTime = new Text(grpStep, SWT.BORDER);
 		txtTotalTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -929,6 +929,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 			if (e.getSource().equals(numberOfIterationSpinner)) {
 				updateFeature(region.getRunMode(), RegiondefinitionPackage.eINSTANCE.getRunMode_NumIterations(),
 						numberOfIterationSpinner.getSelection());
+				updateTotalTime();
 			}
 		}
 
@@ -937,6 +938,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 			if (e.getSource().equals(numberOfIterationSpinner)) {
 				updateFeature(region.getRunMode(), RegiondefinitionPackage.eINSTANCE.getRunMode_NumIterations(),
 						numberOfIterationSpinner.getSelection());
+				updateTotalTime();
 			}
 		}
 	};
@@ -1032,8 +1034,9 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	}
 
 	private void calculateTotalTime() {
+		int numberOfIterations = numberOfIterationSpinner.getSelection();
 		double calculateTotalTime = RegionStepsTimeEstimation.calculateTotalTime(Double.parseDouble(txtTime.getText()),
-				Integer.parseInt(txtTotalSteps.getText()));
+				Integer.parseInt(txtTotalSteps.getText()), numberOfIterations);
 		txtTotalTime.setText(String.format("%.3f", calculateTotalTime));
 	}
 
@@ -1204,13 +1207,13 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), sweptStepSize);
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_TotalSteps(), Integer.parseInt(txtTotalSteps.getText()));
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_TotalTime(),
-					RegionStepsTimeEstimation.calculateTotalTime(Double.parseDouble(txtTime.getText()), Integer.parseInt(txtTotalSteps.getText())));
+					RegionStepsTimeEstimation.calculateTotalTime(Double.parseDouble(txtTime.getText()), Integer.parseInt(txtTotalSteps.getText()), numberOfIterationSpinner.getSelection()));
 		} else if (source.equals(btnFixed)) {
 			setToFixedMode();
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyStep(), Double.parseDouble(txtMinimumSize.getText().trim()));
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_TotalSteps(), Integer.parseInt(txtTotalSteps.getText()));
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_TotalTime(),
-					RegionStepsTimeEstimation.calculateTotalTime(Double.parseDouble(txtTime.getText()), Integer.parseInt(txtTotalSteps.getText())));
+					RegionStepsTimeEstimation.calculateTotalTime(Double.parseDouble(txtTime.getText()), Integer.parseInt(txtTotalSteps.getText()), numberOfIterationSpinner.getSelection()));
 			// fireSelectionChanged(new TotalTimeSelection());
 		}
 	}

@@ -10,8 +10,8 @@ public class RegionStepsTimeEstimation {
 		long N = (long) (Math.ceil(energyrangperimage / energystep));
 		return M + N;
 	}
-	public static double calculateTotalTime(double stepTime, long totalSteps) {
-		return stepTime*totalSteps;
+	public static double calculateTotalTime(double stepTime, long totalSteps, int numberOfIterations) {
+		return stepTime*totalSteps*numberOfIterations;
 	}
 
 }

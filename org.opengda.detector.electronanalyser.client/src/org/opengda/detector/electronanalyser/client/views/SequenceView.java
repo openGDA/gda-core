@@ -984,11 +984,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				if (region.isEnabled()) {
 					newNumActivesValue++;
 					if (region.getAcquisitionMode() == ACQUISITION_MODE.SWEPT) {
-						newTotalTimesValue += region.getStepTime()
+						newTotalTimesValue += region.getStepTime() *region.getRunMode().getNumIterations()
 								* RegionStepsTimeEstimation.calculateTotalSteps((region.getHighEnergy() - region.getLowEnergy()), region.getEnergyStep(),
 										camera.getEnergyResolution() * region.getPassEnergy() * (region.getLastXChannel() - region.getFirstXChannel() + 1));
 					} else if (region.getAcquisitionMode() == ACQUISITION_MODE.FIXED) {
-						newTotalTimesValue += region.getStepTime() * 1;
+						newTotalTimesValue += region.getStepTime() *region.getRunMode().getNumIterations() * 1;
 					}
 				}
 			}
