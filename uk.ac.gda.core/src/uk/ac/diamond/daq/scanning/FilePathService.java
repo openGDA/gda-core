@@ -122,21 +122,27 @@ public class FilePathService implements IFilePathService {
 		return InterfaceProvider.getPathConstructor().getVisitDirectory();
 	}
 
+	private String getVisitSubdirectory(String dirName) {
+		final String subdirPath = InterfaceProvider.getPathConstructor().getVisitSubdirectory(dirName);
+		new File(subdirPath).mkdirs();
+		return subdirPath;
+	}
+
 	@Override
 	public String getTempDir() {
-		// Get the current visit directory and append /tmp.
-		return InterfaceProvider.getPathConstructor().getVisitSubdirectory(VISIT_TEMP_DIR_NAME);
+//		// Get the current visit directory and append /tmp.
+		return getVisitSubdirectory(VISIT_TEMP_DIR_NAME);
 	}
 
 	@Override
 	public String getProcessedFilesDir() {
 		// Get the current visit directory and append /processed.
-		return InterfaceProvider.getPathConstructor().getVisitSubdirectory(VISIT_PROCESSED_DIR_NAME);
+		return getVisitSubdirectory(VISIT_PROCESSED_DIR_NAME);
 	}
 
 	@Override
 	public String getProcessingDir() {
-		return InterfaceProvider.getPathConstructor().getVisitSubdirectory(VISIT_PROCESSING_DIR_NAME);
+		return getVisitSubdirectory(VISIT_PROCESSING_DIR_NAME);
 	}
 
 	@Override
