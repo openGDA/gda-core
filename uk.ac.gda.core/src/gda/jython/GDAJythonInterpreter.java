@@ -527,8 +527,9 @@ public class GDAJythonInterpreter {
 	 * Adds two default handlers to the jython logging package.
 	 * <p>
 	 * One redirects all logs to the main GDA logs (including full stacktraces), the other
-	 * writes messages (above INFO level) to the console for the user. Console messages include a list
-	 * of exception causes but omits the full traceback.
+	 * writes messages (ERROR level and above) to the console for the user.
+	 * Console messages include a list of exception causes but omits the full
+	 * traceback.
 	 * <p>
 	 * See the python logging docs <a href="https://docs.python.org/2/library/logging.html">here</a>.
 	 *
@@ -541,7 +542,7 @@ public class GDAJythonInterpreter {
 				+ "_root_logger.name = 'gda.jython.root'\n"
 				+ "_root_logger.level = 0\n" // set levels to 0 as slf4j filters logging
 				+ "_root_logger.addHandler(JythonLogRedirector())\n"
-				+ "_root_logger.addHandler(JythonTerminalPrinter(logging.INFO))\n"
+				+ "_root_logger.addHandler(JythonTerminalPrinter(logging.ERROR))\n"
 				+ "del logging\n"
 				+ "del JythonLogRedirector\n"
 				+ "del JythonTerminalPrinter\n"
