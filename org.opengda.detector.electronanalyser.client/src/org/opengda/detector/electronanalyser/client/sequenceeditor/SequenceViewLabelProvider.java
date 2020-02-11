@@ -104,9 +104,9 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 				}
 			case SequenceTableConstants.COL_TOTAL_TIME:
 				if (region.getAcquisitionMode()==ACQUISITION_MODE.SWEPT) {
-					return Double.toString(region.getStepTime()*calculatedSteps(region)*region.getRunMode().getNumIterations());
+					return Double.toString(RegionStepsTimeEstimation.calculateTotalTime(region.getStepTime(), calculatedSteps(region), region.getRunMode().getNumIterations()));
 				} else {
-					return Double.toString(region.getStepTime()*1*region.getRunMode().getNumIterations());
+					return Double.toString(RegionStepsTimeEstimation.calculateTotalTime(region.getStepTime(), 1, region.getRunMode().getNumIterations()));
 				}
 			case SequenceTableConstants.COL_X_CHANNEL_FROM:
 				return Integer.toString(region.getFirstXChannel());
