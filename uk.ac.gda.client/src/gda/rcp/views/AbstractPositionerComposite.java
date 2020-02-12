@@ -305,7 +305,7 @@ public abstract class AbstractPositionerComposite extends Composite {
 	}
 
 	private void updateBaseGui(boolean moving) {
-		if (stopButton != null) {
+		if (!stopButton.isDisposed() && stopButton != null) {
 			Display.getDefault().asyncExec(() -> stopButton.setEnabled(moving));
 		}
 	}

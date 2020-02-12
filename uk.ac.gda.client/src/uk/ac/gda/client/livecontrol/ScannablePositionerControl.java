@@ -45,6 +45,17 @@ public class ScannablePositionerControl extends FindableBase implements LiveCont
 	private String userUnits; // Use to override the scannable units (if required)
 	private Double increment; // The increment to set when then control is created Double allows null i.e. default
 	private int incrementTextWidth = 60; // Passed down to NudgePositionerComposite
+	private Boolean showIncrement;
+
+	public Boolean isShowIncrement() {
+		return showIncrement;
+	}
+
+	public void setShowIncrement(Boolean showIncrement) {
+		this.showIncrement = showIncrement;
+	}
+
+	private AbstractPositionerComposite positionerComposite;
 
 	public String getDisplayName() {
 		return displayName;
@@ -114,6 +125,7 @@ public class ScannablePositionerControl extends FindableBase implements LiveCont
 		result = prime * result + ((scannableName == null) ? 0 : scannableName.hashCode());
 		result = prime * result + ((showStop == null) ? 0 : showStop.hashCode());
 		result = prime * result + ((userUnits == null) ? 0 : userUnits.hashCode());
+		result = prime * result + ((showIncrement == null) ? 0 : showIncrement.hashCode());
 		return result;
 	}
 
@@ -164,6 +176,11 @@ public class ScannablePositionerControl extends FindableBase implements LiveCont
 				return false;
 		} else if (!userUnits.equals(other.userUnits))
 			return false;
+		if (showIncrement == null) {
+			if (other.showIncrement != null)
+				return false;
+		} else if (!showIncrement.equals(other.showIncrement))
+			return false;
 		return true;
 	}
 
@@ -177,7 +194,6 @@ public class ScannablePositionerControl extends FindableBase implements LiveCont
 		}
 		final Scannable scannable = optionalScannable.get();
 
-		AbstractPositionerComposite positionerComposite;
 		if (scannable instanceof EnumPositioner) {
 			positionerComposite = new EnumPositionerComposite(composite, SWT.NONE);
 		} else {
@@ -191,6 +207,9 @@ public class ScannablePositionerControl extends FindableBase implements LiveCont
 				npc.setIncrement(getIncrement());
 			}
 			npc.setIncrementTextWidth(incrementTextWidth);
+			if (showIncrement != null && !showIncrement) {
+				npc.hideIncrementControl();
+			}
 		}
 		positionerComposite.setScannable(scannable);
 
@@ -203,12 +222,27 @@ public class ScannablePositionerControl extends FindableBase implements LiveCont
 			positionerComposite.hideStopButton();
 		}
 	}
+	/**
+	 * show or hide increment control composite in the Live Control view
+	 */
+	public void toggleIncrementControlDisplay() {
+		if (positionerComposite instanceof NudgePositionerComposite) {
+			NudgePositionerComposite npc=(NudgePositionerComposite)positionerComposite;
+			if (npc.isIncrementControlVisible()) {
+				npc.hideIncrementControl();
+				showIncrement = false;
+			} else {
+				npc.showIncrementControl();
+				showIncrement = true;
+			}
+		}
+	}
 
 	@Override
 	public String toString() {
 		return "ScannablePositionerControl [name=" + getName() + ", displayName=" + displayName + ", group=" + group
 				+ ", scannableName=" + scannableName + ", showStop=" + showStop + ", userUnits=" + userUnits
-				+ ", increment=" + increment + ", incrementTextWidth=" + incrementTextWidth + "]";
+				+ ", increment=" + increment + ", incrementTextWidth=" + incrementTextWidth + " , showIncrement=" + showIncrement + "]";
 	}
 
 }
