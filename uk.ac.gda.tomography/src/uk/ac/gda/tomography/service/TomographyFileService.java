@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Collections;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -20,31 +19,19 @@ import uk.ac.diamond.daq.scanning.FilePathService;
 
 public class TomographyFileService {
 
+	public static final String JSON_EXTENSION = "json";
 	private FilePathService filePathService;
-
-	private final String baseDirectory;
 
 	private static final Logger logger = LoggerFactory.getLogger(TomographyFileService.class);
 
-	/**
-	 * The base directory you give me will live in GDA's persistance directory
-	 */
-	public TomographyFileService(String baseDirectory) {
-		this.baseDirectory = baseDirectory;
-	}
-
 	public void saveTextDocument(String text, String fileName, String extension) throws IOException {
-		Path path = Paths.get(getBaseDir(), fileName + "." + extension);
+		Path path = createPath(fileName, extension);
 		path.toFile().getParentFile().mkdirs();
 		Files.write(path, text.getBytes(Charset.forName("UTF-8")), StandardOpenOption.CREATE);
 	}
 
 	public byte[] loadFileAsBytes(String fileName, String extension) throws IOException {
-		return Files.readAllBytes(loadFile(fileName, extension));
-	}
-
-	public Path loadFile(String fileName, String extension) {
-		return Paths.get(getBaseDir(), fileName + "." + extension);
+		return Files.readAllBytes(createPath(fileName, extension));
 	}
 
 	public Set<String> getSavedNames(String extension) throws IOException {
@@ -72,17 +59,31 @@ public class TomographyFileService {
 	}
 
 	public void delete(String fileName, String extension) throws IOException {
-		Files.deleteIfExists(Paths.get(getBaseDir(), fileName + "." + extension));
+		Files.deleteIfExists(createPath(fileName, extension));
 	}
 
 	private FilePathService getFilePathService() {
-		if (Objects.isNull(filePathService)) {
+		if (filePathService == null) {
 			filePathService = new FilePathService();
 		}
 		return filePathService;
 	}
 
 	private String getBaseDir() {
-		return Paths.get(getFilePathService().getPersistenceDir(), baseDirectory).toString();
+		return getFilePathService().getVisitConfigDir();
+	}
+
+	private Path createPath(String fileName, String extension) throws IOException {
+		validateNameAndExtension(fileName, extension);
+		return Paths.get(getBaseDir(), String.format("%s.%s", fileName, extension));
+	}
+
+	private void validateNameAndExtension(String fileName, String extension) throws IOException {
+		if (fileName == null) {
+			throw new IOException("Filename null");
+		}
+		if (extension == null) {
+			throw new IOException("extension null");
+		}
 	}
 }

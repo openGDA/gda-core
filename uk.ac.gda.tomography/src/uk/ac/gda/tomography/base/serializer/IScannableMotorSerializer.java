@@ -20,27 +20,44 @@ package uk.ac.gda.tomography.base.serializer;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
-import gda.device.Device;
+import gda.device.IScannableMotor;
 
-public class DeviceSerializer extends StdSerializer<Device> {
+public class IScannableMotorSerializer extends StdSerializer<IScannableMotor> {
 
-	public DeviceSerializer() {
+	private static final Logger logger = LoggerFactory.getLogger(IScannableMotorSerializer.class);
+
+	public IScannableMotorSerializer() {
 		this(null);
 	}
 
-	public DeviceSerializer(Class<Device> t) {
+	public IScannableMotorSerializer(Class<IScannableMotor> t) {
 		super(t);
 	}
 
 	@Override
-	public void serialize(Device value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+	public void serialize(IScannableMotor value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
 		jgen.writeStartObject();
 		jgen.writeStringField("name", value.getName());
+		//convertEpicsMotor(value.getMotor(), jgen);
 		jgen.writeEndObject();
 	}
+
+//	private void convertEpicsMotor(Motor motor, JsonGenerator jgen) {
+//		if (EpicsMotor.class.isInstance(motor)) {
+//			try {
+//				jgen.writeStringField("pvName", EpicsMotor.class.cast(motor).getPvName());
+//			} catch (IOException e) {
+//				logger.error("Cannot serialize Epics motor", e);
+//			}
+//		}
+//	}
+
 }

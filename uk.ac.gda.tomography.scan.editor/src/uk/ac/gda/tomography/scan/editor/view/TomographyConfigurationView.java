@@ -48,17 +48,16 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.ButtonGroupFactoryBuilder;
-import uk.ac.gda.tomography.base.TomographyMode.TomographyDevices;
 import uk.ac.gda.tomography.base.TomographyParameters;
 import uk.ac.gda.tomography.controller.AcquisitionControllerException;
 import uk.ac.gda.tomography.model.DevicePosition;
 import uk.ac.gda.tomography.model.MultipleScansType;
 import uk.ac.gda.tomography.model.RangeType;
 import uk.ac.gda.tomography.model.ScanType;
-import uk.ac.gda.tomography.scan.editor.Activator;
 import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
 import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController.Positions;
 import uk.ac.gda.tomography.ui.controller.TomographyPerspectiveController;
+import uk.ac.gda.tomography.ui.mode.StageDescription.StageDevices;
 import uk.ac.gda.ui.tool.ClientBindingElements;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientSWTElements;
@@ -71,8 +70,6 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
  * @author Maurizio Nagni
  */
 public class TomographyConfigurationView extends ViewPart {
-
-	private static final String DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL = "tomographyScanModel";
 
 	/** Scan prefix **/
 	private Text name;
@@ -129,6 +126,7 @@ public class TomographyConfigurationView extends ViewPart {
 
 	@Override
 	public void setFocus() {
+		// Do not necessary
 	}
 
 	private TomographyParametersAcquisitionController getController() {
@@ -161,15 +159,16 @@ public class TomographyConfigurationView extends ViewPart {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				try {
-					saveConfiguration();
-				} catch (AcquisitionControllerException e1) {
-					logger.error("TODO put description of error here", e1);
+					controller.saveAcquisitionConfiguration();
+				} catch (AcquisitionControllerException e) {
+					UIHelper.showError("Cannot save the file", e);
+					logger.error("Cannot save the file", e);
 				}
 			}
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent event) {
-				logger.debug("widgetDefaultSelected");
+				//not necessary
 			}
 		};
 	}
@@ -179,12 +178,17 @@ public class TomographyConfigurationView extends ViewPart {
 
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				logger.debug("event");
+				try {
+					controller.loadAcquisitionConfiguration(name.getText());
+				} catch (AcquisitionControllerException e) {
+					UIHelper.showError("Cannot load the file", e);
+					logger.error("Cannot load the file", e);
+				}
 			}
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent event) {
-				logger.debug("widgetDefaultSelected");
+				//not necessary
 			}
 		};
 	}
@@ -195,10 +199,10 @@ public class TomographyConfigurationView extends ViewPart {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				try {
-					saveConfiguration();
-					controller.runAcquisition(getController().getAcquisition());
+					controller.runAcquisition();
 				} catch (AcquisitionControllerException e) {
 					UIHelper.showError("Run Acquisition", e.getMessage());
+					logger.error("Cannot run the acquisition", e);
 				}
 			}
 
@@ -207,11 +211,6 @@ public class TomographyConfigurationView extends ViewPart {
 				logger.debug("widgetDefaultSelected");
 			}
 		};
-	}
-
-	private void saveConfiguration() throws AcquisitionControllerException {
-		controller.saveAcquisitionAsIDialogSettings(getController().getAcquisition(), Activator.getDefault().getDialogSettings(),
-				DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL);
 	}
 
 	private void nameAndScanTypeContent(Composite parent, int labelStyle, int textStyle) {
@@ -475,8 +474,8 @@ public class TomographyConfigurationView extends ViewPart {
 
 	private double getMotorAngularPosition() {
 		Set<DevicePosition<Double>> start = getController().savePosition(Positions.START);
-		return start.stream().filter(dp -> dp.getName().equals(TomographyDevices.MOTOR_STAGE_ROT_Y.name())).findFirst()
-				.orElse(new DevicePosition<>(TomographyDevices.MOTOR_STAGE_ROT_Y.name(), 0.0)).getPosition();
+		return start.stream().filter(dp -> dp.getName().equals(StageDevices.MOTOR_STAGE_ROT_Y.name())).findFirst()
+				.orElse(new DevicePosition<>(StageDevices.MOTOR_STAGE_ROT_Y.name(), 0.0)).getPosition();
 	}
 
 	private void updateCurrentAngularPosition() {
@@ -527,7 +526,6 @@ public class TomographyConfigurationView extends ViewPart {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				expandBarItem(item0, group, Button.class.cast(e.getSource()));
-				// getShell().pack();
 			}
 		});
 	}
@@ -550,13 +548,6 @@ public class TomographyConfigurationView extends ViewPart {
 	}
 
 	private TomographyParameters getTemplateData() {
-		if (getController().getAcquisition() == null) {
-			try {
-				getController().loadData(TomographyParametersAcquisitionController.createNewAcquisition());
-			} catch (AcquisitionControllerException e) {
-				logger.error("Cannot create the acquisition controller", e);
-			}
-		}
 		return getController().getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
 	}
 

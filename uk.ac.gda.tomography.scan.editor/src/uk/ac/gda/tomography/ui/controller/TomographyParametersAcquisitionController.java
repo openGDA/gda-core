@@ -1,22 +1,13 @@
 package uk.ac.gda.tomography.ui.controller;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.eclipse.jface.dialogs.IDialogSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEvent;
@@ -30,8 +21,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import gda.device.DeviceException;
 import gda.jython.JythonServerFacade;
+import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.tomography.base.TomographyConfiguration;
-import uk.ac.gda.tomography.base.TomographyMode;
 import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
 import uk.ac.gda.tomography.base.TomographyParameters;
 import uk.ac.gda.tomography.controller.AcquisitionController;
@@ -53,31 +44,21 @@ import uk.ac.gda.tomography.service.TomographyServiceException;
 import uk.ac.gda.tomography.service.impl.TomographyServiceImpl;
 import uk.ac.gda.tomography.service.message.TomographyRunMessage;
 import uk.ac.gda.tomography.ui.StageConfiguration;
+import uk.ac.gda.tomography.ui.mode.StageDescription;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
- * The basic controller for Tomography scan.
- *
- * Uses Spring to publish
+ * The basic controller for Tomography scan. Uses Spring to publish
  * <ul>
- * <li>
- * 		{@link TomographySaveEvent} when an acquisition configuration is saved
- * </li>
- * <li>
- * 		{@link TomographyRunAcquisitionEvent} when an acquisition starts
- * </li>
+ * <li>{@link TomographySaveEvent} when an acquisition configuration is saved</li>
+ * <li>{@link TomographyRunAcquisitionEvent} when an acquisition starts</li>
  * </ul>
- *
- *
  *
  * @author Maurizio Nagni
  */
 @Controller
 public class TomographyParametersAcquisitionController implements AcquisitionController<TomographyParameterAcquisition>, ApplicationListener<ApplicationEvent> {
 	private static final Logger logger = LoggerFactory.getLogger(TomographyParametersAcquisitionController.class);
-
-	private static final String TOMOGRAPHY_BASE_DIR = "tomographyBaseDir";
-	private static final String TOMOGRAPHY_SCRIPT_FOLDER = "scripts";
 
 	public enum Positions {
 		DEFAULT, OUT_OF_BEAM, START, END;
@@ -87,17 +68,13 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		EXPOSURE;
 	}
 
-	private TomographyMode tomographyMode;
+	private StageDescription stageDescription;
 	private TomographyParameterAcquisition acquisition;
 	private final Map<Positions, Set<DevicePosition<Double>>> motorsPosition = new EnumMap<>(Positions.class);
 
-	// This parameter should be of type IFilePathService,
-	// however this package does not have scanning.api as dependency but only, by change may be, uk.ac.gda.core
-	// for now is enough to proof the concept
 	private TomographyFileService fileService;
 
 	private final TomographyService tomographyService;
-	private Object dataConfigurationSource;
 
 	public TomographyParametersAcquisitionController() {
 		this.tomographyService = new TomographyServiceImpl();
@@ -108,101 +85,50 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	}
 
 	@Override
-	public void loadData(URL data) throws AcquisitionControllerException {
-		String jsonData;
+	public void loadAcquisitionConfiguration(String configurationFile) throws AcquisitionControllerException {
 		try {
-			StringBuilder sb = new StringBuilder();
-			try (BufferedReader reader = new BufferedReader(new InputStreamReader(data.openStream()))) {
-				String line;
-				while ((line = reader.readLine()) != null)
-					sb.append(line);
-			}
-			jsonData = sb.toString();
+			byte[] data = getFileService().loadFileAsBytes(formatConfigurationFileName(configurationFile), "json");
+			StageConfiguration stageConfiguration = parseJsonData(data);
+			acquisition = stageConfiguration.getAcquisition();
 		} catch (IOException e) {
 			throw new AcquisitionControllerException("Cannot load the file", e);
 		}
-		parseJsonData(jsonData, data);
 	}
 
 	@Override
-	public void loadData(String data) throws AcquisitionControllerException {
-		parseJsonData(data, data);
-	}
-
-	@Override
-	public void loadData(IDialogSettings dialogSettings, String key) throws AcquisitionControllerException {
-		final String jsonData = dialogSettings.get(key);
-		parseJsonData(jsonData, dialogSettings);
-	}
-
-	@Override
-	public void loadData(TomographyParameterAcquisition data) throws AcquisitionControllerException {
-		this.acquisition = data;
-	}
-
-	@Override
-	public void saveAcquisitionAsFile(final TomographyParameterAcquisition acquisition, URL destination) throws AcquisitionControllerException {
-		StageConfiguration sc = generateStageConfiguration(acquisition);
+	public void saveAcquisitionConfiguration() throws AcquisitionControllerException {
+		StageConfiguration sc = generateStageConfiguration(getAcquisition());
 		String acquisitionDocument = dataToJson(sc);
+		save(formatConfigurationFileName(getAcquisitionParameters().getName()), acquisitionDocument);
+	}
 
-		saveFile(destination, acquisitionDocument);
-
-		publishSave(acquisition.getAcquisitionConfiguration().getAcquisitionParameters().getName(), acquisitionDocument,
-				getAcquisitionScript().getAbsolutePath());
+	private String formatConfigurationFileName(String fileName) {
+		return String.format("TOMOGRAPHY_%s", Optional.ofNullable(fileName.replaceAll("\\s", "")).orElse("noNameConfiguration"));
 	}
 
 	@Override
-	public void saveAcquisitionAsIDialogSettings(TomographyParameterAcquisition acquisition, IDialogSettings destination, String key)
-			throws AcquisitionControllerException {
-		StageConfiguration sc = generateStageConfiguration(acquisition);
-		String acquisitionDocument = dataToJson(sc);
-
-		saveFile(destination, acquisitionDocument, key);
-
-		publishSave(acquisition.getAcquisitionConfiguration().getAcquisitionParameters().getName(), acquisitionDocument,
-				getAcquisitionScript().getAbsolutePath());
-	}
-
-	@Override
-	public void runAcquisition(TomographyParameterAcquisition acquisition) throws AcquisitionControllerException {
+	public void runAcquisition() throws AcquisitionControllerException {
 		try {
-			StageConfiguration sc = generateStageConfiguration(acquisition);
+			StageConfiguration sc = generateStageConfiguration(getAcquisition());
 			TomographyRunMessage tomographyRunMessage = createTomographyRunMessage(sc);
 			tomographyService.runAcquisition(tomographyRunMessage, getAcquisitionScript(), null, null);
-
 			publishRun(tomographyRunMessage);
 		} catch (TomographyServiceException e) {
 			logger.error("Error submitting tomoscan to queue", e);
 		}
 	}
 
-	private void saveFile(URL destination, String acquisitionDocument) throws AcquisitionControllerException {
-		Path filePath = File.class.cast(dataConfigurationSource).toPath();
+	private void save(String fileName, String acquisitionDocument) {
 		try {
-			Files.delete(filePath);
+			getFileService().saveTextDocument(acquisitionDocument, fileName, TomographyFileService.JSON_EXTENSION);
 		} catch (IOException e) {
-			throw new AcquisitionControllerException(e);
+			UIHelper.showError("Cannot save the configuration", e);
 		}
-		File newFile;
-		try {
-			newFile = new File(destination.toURI());
-		} catch (URISyntaxException e) {
-			throw new AcquisitionControllerException("Cannot save acquisition configuration on file", e);
-		}
-		try (FileOutputStream fos = new FileOutputStream(newFile)) {
-			DataOutputStream outStream = new DataOutputStream(fos);
-			outStream.writeUTF(acquisitionDocument);
-		} catch (IOException e) {
-			throw new AcquisitionControllerException("Cannot save acquisition configuration on file", e);
-		}
+		publishSave(getAcquisitionParameters().getName(), acquisitionDocument, getAcquisitionScript().getAbsolutePath());
 	}
 
 	private void populateMetadata() {
-		getTomographyMode().getMetadata().put(METADATA.EXPOSURE.name(), Double.toString(0.1));
-	}
-
-	private void saveFile(IDialogSettings destination, String acquisitionDocument, String key) {
-		destination.put(key, acquisitionDocument);
+		getStageDescription().getMetadata().put(METADATA.EXPOSURE.name(), Double.toString(0.1));
 	}
 
 	/**
@@ -215,7 +141,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	private boolean requiresOutOfBeamPosition(StageConfiguration sc) {
 		ImageCalibration ic = sc.getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters().getImageCalibration();
 		return ((ic.getNumberFlat() > 0 && (ic.isAfterAcquisition() || ic.isBeforeAcquisition()))
-				&& !sc.getMotorPositions().containsKey(Positions.OUT_OF_BEAM));
+				&& !sc.getMotorsPositions().containsKey(Positions.OUT_OF_BEAM));
 	}
 
 	// @Override
@@ -237,26 +163,28 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	}
 
 	@Override
-	public void deleteAcquisition(TomographyParameterAcquisition acquisition) throws AcquisitionControllerException {
-		logger.info("Acquisition deleted (--TBD--)");
-	}
-
-	@Override
 	public TomographyParameterAcquisition getAcquisition() {
+		if (acquisition == null) {
+			acquisition = TomographyParametersAcquisitionController.createNewAcquisition();
+		}
 		return acquisition;
 	}
 
-	public TomographyMode getTomographyMode() {
-		return tomographyMode;
+	public StageDescription getStageDescription() {
+		return stageDescription;
 	}
 
-	public void setTomographyMode(TomographyMode tomographyMode) {
-		this.tomographyMode = tomographyMode;
+	public void setStageDescription(StageDescription stageDescription) {
+		this.stageDescription = stageDescription;
 	}
 
 	public Set<DevicePosition<Double>> savePosition(Positions position) {
-		motorsPosition.put(position, getTomographyMode().getMotorsPosition());
+		motorsPosition.put(position, getStageDescription().getMotorsPosition());
 		return motorsPosition.get(position);
+	}
+
+	public TomographyParameters getAcquisitionParameters() {
+		return getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
 	}
 
 	private StageConfiguration generateStageConfiguration(TomographyParameterAcquisition acquisition) throws AcquisitionControllerException {
@@ -267,7 +195,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		}
 		populateMetadata();
 		savePosition(Positions.START);
-		StageConfiguration sc = new StageConfiguration(acquisition, getTomographyMode(), getMotorsPositions());
+		StageConfiguration sc = new StageConfiguration(acquisition, getStageDescription(), getMotorsPositions());
 		if (requiresOutOfBeamPosition(sc)) {
 			throw new AcquisitionControllerException("Acquisition needs a OutOfBeam position to acquire flat images");
 		}
@@ -294,24 +222,22 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		return motorsPosition;
 	}
 
-	private void parseJsonData(String jsonData, Object origin) throws AcquisitionControllerException {
-		parseJsonData(jsonData);
-		dataConfigurationSource = origin;
+	protected StageConfiguration parseJsonData(String jsonData) throws AcquisitionControllerException {
+		return parseJsonData(jsonData.getBytes());
 	}
 
-	protected TomographyParameterAcquisition parseJsonData(String jsonData) throws AcquisitionControllerException {
+	protected StageConfiguration parseJsonData(byte[] jsonData) throws AcquisitionControllerException {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			return mapper.readValue(jsonData, TomographyParameterAcquisition.class);
+			return mapper.readValue(jsonData, StageConfiguration.class);
 		} catch (JsonParseException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Cannot parse JSON document", e);
 		} catch (JsonMappingException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Cannot map JSON document", e);
 		} catch (IOException e) {
-			logger.error("TODO put description of error here", e);
+			logger.error("Cannot read JSON document", e);
 		}
 		throw new AcquisitionControllerException("Cannot parse json document");
-
 	}
 
 	private TomographyRunMessage createTomographyRunMessage(StageConfiguration acquisition) throws AcquisitionControllerException {
@@ -323,21 +249,10 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		return new File(scriptPath);
 	}
 
-	private Set<Path> getConfigurations() {
-		return getPaths(TOMOGRAPHY_SCRIPT_FOLDER);
-	}
-
-	private Set<Path> getScripts() {
-		return getPaths(TOMOGRAPHY_SCRIPT_FOLDER);
-	}
-
-	private Set<Path> getPaths(String subfolder) {
-		return fileService.getPaths(subfolder).collect(Collectors.toSet());
-	}
-
 	private TomographyFileService getFileService() {
-		if (Objects.isNull(fileService)) {
-			fileService = new TomographyFileService(TOMOGRAPHY_BASE_DIR);
+
+		if (fileService == null) {
+			fileService = new TomographyFileService();
 		}
 		return fileService;
 	}
@@ -375,5 +290,10 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
 		TomographyParametersAcquisitionControllerHelper.onApplicationEvent(event, this);
+	}
+
+	@Override
+	public void deleteAcquisitionConfiguration(String data) throws AcquisitionControllerException {
+		throw new AcquisitionControllerException("Delete not implemented");
 	}
 }

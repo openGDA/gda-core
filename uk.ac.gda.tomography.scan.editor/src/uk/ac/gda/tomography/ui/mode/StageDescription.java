@@ -16,33 +16,43 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.base;
+package uk.ac.gda.tomography.ui.mode;
 
 import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import gda.device.IScannableMotor;
-import uk.ac.gda.tomography.base.serializer.DeviceSerializer;
-import uk.ac.gda.tomography.controller.TomoIncompleteModeException;
+import uk.ac.gda.tomography.base.serializer.IScannableMotorDeserializer;
+import uk.ac.gda.tomography.base.serializer.IScannableMotorSerializer;
 import uk.ac.gda.tomography.model.DevicePosition;
 
-public interface TomographyMode {
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "stage")
+@JsonSubTypes({ @Type(value = GTSStage.class, name = "GTS"), @Type(value = TR6Stage.class, name = "TR6") })
+public interface StageDescription {
 
-	public enum TomographyDevices {
+	enum StageDevices {
 		MOTOR_STAGE_X, MOTOR_STAGE_Y, MOTOR_STAGE_Z, MOTOR_STAGE_ROT_Y, MOTOR_CAMERA_Z, MALCOLM_TOMO;
 	}
 
-	public enum Stage {
-		DEFAULT, TR6;
+	enum Stage {
+		GTS, TR6
 	}
 
-	@JsonSerialize(contentUsing = DeviceSerializer.class)
-	public Map<TomographyDevices, IScannableMotor> getMotors() throws TomoIncompleteModeException;
+	@JsonSerialize(contentUsing = IScannableMotorSerializer.class)
+	@JsonDeserialize(contentUsing = IScannableMotorDeserializer.class)
+	public Map<StageDevices, IScannableMotor> getMotors();
+
 	public Stage getStage();
+
 	@JsonIgnore()
 	public Set<DevicePosition<Double>> getMotorsPosition();
+
 	public Map<String, String> getMetadata();
 }

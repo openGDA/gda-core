@@ -22,20 +22,20 @@ import gda.rcp.views.StageCompositeDefinition;
 import gda.rcp.views.TabCompositeFactory;
 import uk.ac.gda.ui.tool.ClientMessages;
 
-public class TomographyDefaultMode extends TomographyBaseMode {
+public class GTSStage extends CommonStage {
 
-	public TomographyDefaultMode(Stage stage) {
-		super(stage);
+	public GTSStage() {
+		super(Stage.GTS);
 	}
 
 	@Override
 	protected void populateDevicesMap() {
-		addToDevicesMap(TomographyDevices.MOTOR_STAGE_X, "tomography.main.motor.linear.x");
-		addToDevicesMap(TomographyDevices.MOTOR_STAGE_Y, "tomography.main.motor.linear.y");
-		addToDevicesMap(TomographyDevices.MOTOR_STAGE_Z, "tomography.main.motor.linear.z");
-		addToDevicesMap(TomographyDevices.MOTOR_STAGE_ROT_Y, "tomography.main.motor.rot.y");
-		addToDevicesMap(TomographyDevices.MOTOR_CAMERA_Z, "tomography.main.motor.camera.z");
-		addToDevicesMap(TomographyDevices.MALCOLM_TOMO, "tomography.malcolm.device.tomo");
+		addToDevicesMap(StageDevices.MOTOR_STAGE_X, "tomography.main.motor.linear.x");
+		addToDevicesMap(StageDevices.MOTOR_STAGE_Y, "tomography.main.motor.linear.y");
+		addToDevicesMap(StageDevices.MOTOR_STAGE_Z, "tomography.main.motor.linear.z");
+		addToDevicesMap(StageDevices.MOTOR_STAGE_ROT_Y, "tomography.main.motor.rot.y");
+		addToDevicesMap(StageDevices.MOTOR_CAMERA_Z, "tomography.main.motor.camera.z");
+		addToDevicesMap(StageDevices.MALCOLM_TOMO, "tomography.malcolm.device.tomo");
 	}
 
 	@Override
@@ -48,16 +48,16 @@ public class TomographyDefaultMode extends TomographyBaseMode {
 
 	private StageCompositeDefinition[] createMotorAxesComposite() {
 		StageCompositeDefinitionBuilder builder = new StageCompositeDefinitionBuilder();
-		builder.assemble(TomographyDevices.MOTOR_STAGE_X, ClientMessages.AXIS_X);
-		builder.assemble(TomographyDevices.MOTOR_STAGE_Y, ClientMessages.AXIS_Y);
-		builder.assemble(TomographyDevices.MOTOR_STAGE_Z, ClientMessages.AXIS_Z);
-		builder.assemble(TomographyDevices.MOTOR_STAGE_ROT_Y, ClientMessages.THETA);
+		builder.assemble(StageDevices.MOTOR_STAGE_X, ClientMessages.AXIS_X);
+		builder.assemble(StageDevices.MOTOR_STAGE_Y, ClientMessages.AXIS_Y);
+		builder.assemble(StageDevices.MOTOR_STAGE_Z, ClientMessages.AXIS_Z);
+		builder.assemble(StageDevices.MOTOR_STAGE_ROT_Y, ClientMessages.THETA);
 		return builder.build();
 	}
 
 	private StageCompositeDefinition[] createCameraMotorsComposite() {
 		StageCompositeDefinitionBuilder builder = new StageCompositeDefinitionBuilder();
-		builder.assemble(TomographyDevices.MOTOR_CAMERA_Z, ClientMessages.CAMERA);
+		builder.assemble(StageDevices.MOTOR_CAMERA_Z, ClientMessages.CAMERA);
 		return builder.build();
 	}
 }

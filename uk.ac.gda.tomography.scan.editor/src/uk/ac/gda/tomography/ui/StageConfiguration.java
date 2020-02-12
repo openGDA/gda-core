@@ -22,32 +22,47 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import uk.ac.gda.tomography.base.TomographyMode;
 import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
 import uk.ac.gda.tomography.model.DevicePosition;
 import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController.Positions;
+import uk.ac.gda.tomography.ui.mode.StageDescription;
 
+/**
+ * Represents both the acquisition and the hutch configuration
+ *
+ * @author Maurizio Nagni
+ */
 public class StageConfiguration {
-	private final TomographyParameterAcquisition acquisition;
-	private final TomographyMode mode;
-	private final Map<Positions, Set<DevicePosition<Double>>> motorsPosition;
+	private TomographyParameterAcquisition acquisition;
+	private StageDescription stageDescription;
+	private Map<Positions, Set<DevicePosition<Double>>> motorsPositions;
 
-	public StageConfiguration(TomographyParameterAcquisition acquisition, TomographyMode mode, Map<Positions, Set<DevicePosition<Double>>> motorsPosition) {
+	public StageConfiguration(TomographyParameterAcquisition acquisition, StageDescription mode, Map<Positions, Set<DevicePosition<Double>>> motorsPositions) {
 		super();
 		this.acquisition = acquisition;
-		this.mode = mode;
-		this.motorsPosition = motorsPosition;
+		this.stageDescription = mode;
+		this.motorsPositions = motorsPositions;
+	}
+
+	public StageConfiguration(StageDescription mode, Map<Positions, Set<DevicePosition<Double>>> motorsPositions) {
+		super();
+		this.stageDescription = mode;
+		this.motorsPositions = motorsPositions;
+	}
+
+	public StageConfiguration() {
+		super();
 	}
 
 	public TomographyParameterAcquisition getAcquisition() {
 		return acquisition;
 	}
 
-	public TomographyMode getMode() {
-		return mode;
+	public StageDescription getStageDescription() {
+		return stageDescription;
 	}
 
-	public Map<Positions, Set<DevicePosition<Double>>> getMotorPositions() {
-		return Collections.unmodifiableMap(motorsPosition);
+	public Map<Positions, Set<DevicePosition<Double>>> getMotorsPositions() {
+		return Collections.unmodifiableMap(motorsPositions);
 	}
 }

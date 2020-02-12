@@ -18,11 +18,21 @@
 
 package uk.ac.gda.tomography.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import gda.device.IScannableMotor;
+import uk.ac.gda.tomography.base.serializer.DevicePositionDeserializer;
 import uk.ac.gda.tomography.base.serializer.DevicePositionSerializer;
 
+/**
+ * Represents the position of a {@link IScannableMotor}
+ * @param <E>
+ *
+ * @author Mauizio Nagni
+ */
 @JsonSerialize(using=DevicePositionSerializer.class)
+@JsonDeserialize(using=DevicePositionDeserializer.class)
 public class DevicePosition<E> {
 
 	private final String name;

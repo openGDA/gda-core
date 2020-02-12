@@ -18,44 +18,57 @@
 
 package uk.ac.gda.tomography.controller;
 
-import java.net.URL;
-
-import org.eclipse.jface.dialogs.IDialogSettings;
-
 import uk.ac.gda.tomography.model.Acquisition;
 import uk.ac.gda.tomography.model.AcquisitionConfiguration;
 import uk.ac.gda.tomography.model.AcquisitionParameters;
 
 /**
- * A set of methods to load and save {@link AcquisitionConfiguration}
+ * A set of methods to load, save and delete {@link Acquisition}
  *
  * @param <T>
  * @author Maurizio Nagni
  */
 public interface AcquisitionController<T extends Acquisition<? extends AcquisitionConfiguration<? extends AcquisitionParameters>>> {
 
+	/**
+	 * Returns the acquisition actually set in the controller
+	 *
+	 * @return an acquisition
+	 */
 	public T getAcquisition();
 
 	/**
-	 * Saves the tomography scan parameters object associated with this controller
+	 * Saves the acquisition actually set in the controller
 	 *
 	 * @throws AcquisitionControllerException
 	 *             if the object cannot be saved
 	 */
-	void saveAcquisitionAsFile(T acquisition, URL destination) throws AcquisitionControllerException;
-	void saveAcquisitionAsIDialogSettings(T acquisition, IDialogSettings destination, String key) throws AcquisitionControllerException;
-	void runAcquisition(T acquisition) throws AcquisitionControllerException;
-
-	public void loadData(T data) throws AcquisitionControllerException;
-	public void loadData(URL data) throws AcquisitionControllerException;
-	public void loadData(String data) throws AcquisitionControllerException;
-	public void loadData(IDialogSettings dialogSettings, String key) throws AcquisitionControllerException;
+	void saveAcquisitionConfiguration() throws AcquisitionControllerException;
 
 	/**
-	 * Deletes the tomography scan parameters object associated with this controller
+	 * Runs the controller acquisition associated {@link #getAcquisition()}
 	 *
 	 * @throws AcquisitionControllerException
-	 *             if the object cannot be saved
 	 */
-	void deleteAcquisition(T acquisition) throws AcquisitionControllerException;
+	void runAcquisition() throws AcquisitionControllerException;
+
+	/**
+	 * Sets the controller active acquisition parsing a file
+	 *
+	 * @param filename
+	 *            the name of the file to load
+	 * @throws AcquisitionControllerException
+	 *             if file is not found or readable
+	 */
+	public void loadAcquisitionConfiguration(String filename) throws AcquisitionControllerException;
+
+	/**
+	 * Deletes an acquisition file
+	 *
+	 * @param filename
+	 *            the name of the file to delete
+	 * @throws AcquisitionControllerException
+	 *             if file is not found or readable
+	 */
+	public void deleteAcquisitionConfiguration(String filename) throws AcquisitionControllerException;
 }

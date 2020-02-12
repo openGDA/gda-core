@@ -30,9 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import org.junit.After;
@@ -46,15 +44,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import gda.device.DeviceException;
 import gda.device.IScannableMotor;
 import gda.device.scannable.DummyScannableMotor;
 import gda.rcp.views.TabCompositeFactory;
 import uk.ac.gda.tomography.base.TomographyConfiguration;
-import uk.ac.gda.tomography.base.TomographyMode;
-import uk.ac.gda.tomography.base.TomographyMode.Stage;
 import uk.ac.gda.tomography.base.TomographyParameters;
-import uk.ac.gda.tomography.controller.TomoIncompleteModeException;
 import uk.ac.gda.tomography.model.EndAngle;
 import uk.ac.gda.tomography.model.ImageCalibration;
 import uk.ac.gda.tomography.model.MultipleScans;
@@ -62,8 +56,9 @@ import uk.ac.gda.tomography.model.MultipleScansType;
 import uk.ac.gda.tomography.model.RangeType;
 import uk.ac.gda.tomography.model.ScanType;
 import uk.ac.gda.tomography.model.StartAngle;
-import uk.ac.gda.tomography.service.TomographyServiceException;
-import uk.ac.gda.tomography.ui.mode.TomographyBaseMode;
+import uk.ac.gda.tomography.ui.mode.CommonStage;
+import uk.ac.gda.tomography.ui.mode.StageDescription;
+import uk.ac.gda.tomography.ui.mode.StageDescription.Stage;
 
 public class TomographyParametersConfigurationTest {
 
@@ -71,12 +66,12 @@ public class TomographyParametersConfigurationTest {
 	private ObjectMapper mapper;
 
 	@Before
-	public void before() throws TomographyServiceException {
+	public void before() {
 		mapper = new ObjectMapper();
 	}
 
 	@After
-	public void after() throws TomographyServiceException {
+	public void after() {
 
 	}
 
@@ -147,13 +142,11 @@ public class TomographyParametersConfigurationTest {
 	 * Tests a serialisation with Devices
 	 *
 	 * @throws JsonProcessingException
-	 * @throws DeviceException
-	 * @throws TomoIncompleteModeException
 	 */
 	@Ignore //Too many problem importing dependencies. Have to think a different approach
 	@Test
-	public void devicesSerialization() throws JsonProcessingException, TomoIncompleteModeException {
-		TomographyMode mode = createBasicTomographyMode();
+	public void devicesSerialization() throws JsonProcessingException {
+		StageDescription mode = createBasicTomographyMode();
 
 		String confAsString = mapper.writeValueAsString(mode);
 		assertThat(confAsString, containsString("MotorOne"));
@@ -238,26 +231,25 @@ public class TomographyParametersConfigurationTest {
 		return configuration;
 	}
 
-	private TomographyMode createBasicTomographyMode() {
-		return new TomographyBaseMode(Stage.DEFAULT) {
+	private StageDescription createBasicTomographyMode() {
+		return new CommonStage(Stage.GTS) {
 
-			private Map<TomographyDevices, IScannableMotor> intMotors() {
-				Map<TomographyDevices, IScannableMotor> motors = new EnumMap<>(TomographyDevices.class);
+			private Map<StageDevices, IScannableMotor> intMotors() {
+				Map<StageDevices, IScannableMotor> motors = new EnumMap<>(StageDevices.class);
 
-				Set<IScannableMotor> devices = new HashSet<>();
 				IScannableMotor device = new DummyScannableMotor();
 				device.setName("MotorOne");
-				motors.put(TomographyDevices.MOTOR_STAGE_X, device);
+				motors.put(StageDevices.MOTOR_STAGE_X, device);
 
 				device = new DummyScannableMotor();
 				device.setName("MotorTwo");
-				motors.put(TomographyDevices.MOTOR_STAGE_Y, device);
+				motors.put(StageDevices.MOTOR_STAGE_Y, device);
 
 				return motors;
 			}
 
 			@Override
-			public Map<TomographyDevices, IScannableMotor> getMotors() throws TomoIncompleteModeException {
+			public Map<StageDevices, IScannableMotor> getMotors() {
 				return intMotors();
 			}
 

@@ -44,34 +44,34 @@ import gda.rcp.views.StageCompositeFactory;
 import gda.rcp.views.TabCompositeFactory;
 import gda.rcp.views.TabCompositeFactoryImpl;
 import gda.rcp.views.TabFolderBuilder;
+import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.FinderHelper;
 import uk.ac.gda.client.exception.IncompleteModeException;
-import uk.ac.gda.tomography.base.TomographyMode;
 import uk.ac.gda.tomography.controller.TomoIncompleteModeException;
 import uk.ac.gda.tomography.model.DevicePosition;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 
-public abstract class TomographyBaseMode implements TomographyMode {
+public abstract class CommonStage implements StageDescription {
 
 	private Composite stageControls;
-	private final Stage stage;
+	private Stage stage;
 
 	// this works for any number of elements:
-	private final Map<TomographyDevices, String> devicesMap = new EnumMap<>(TomographyDevices.class);
-	private final Map<TomographyDevices, IScannableMotor> motors = new EnumMap<>(TomographyDevices.class);
+	private final Map<StageDevices, String> devicesMap = new EnumMap<>(StageDevices.class);
+	private final Map<StageDevices, IScannableMotor> motors = new EnumMap<>(StageDevices.class);
 	private final Map<String, String> metadata = new HashMap<>();
 
-	protected static final Logger logger = LoggerFactory.getLogger(TomographyBaseMode.class);
+	protected static final Logger logger = LoggerFactory.getLogger(CommonStage.class);
 
-	protected TomographyBaseMode(Stage stage) {
+	protected CommonStage(Stage stage) {
 		super();
 		this.stage = stage;
 	}
 
 	@Override
-	public Map<TomographyDevices, IScannableMotor> getMotors() throws TomoIncompleteModeException {
+	public Map<StageDevices, IScannableMotor> getMotors() {
 		if (motors.isEmpty()) {
 			loadDevices();
 		}
@@ -94,17 +94,14 @@ public abstract class TomographyBaseMode implements TomographyMode {
 	@Override
 	public Set<DevicePosition<Double>> getMotorsPosition() {
 		Set<DevicePosition<Double>> positions = new HashSet<>();
-		Map<TomographyDevices, IScannableMotor> intMotors;
-		try {
-			intMotors = getMotors();
-		} catch (TomoIncompleteModeException e) {
-			logger.error("TODO put description of error here", e);
+		Map<StageDevices, IScannableMotor> intMotors = getMotors();
+		if (intMotors == null) {
 			return Collections.unmodifiableSet(positions);
 		}
-		for (Entry<TomographyDevices, IScannableMotor> entry : intMotors.entrySet()) {
+		for (Entry<StageDevices, IScannableMotor> entry : intMotors.entrySet()) {
 			try {
 				Double position = (Double) entry.getValue().getPosition();
-				positions.add(new DevicePosition(entry.getKey().name(), position));
+				positions.add(new DevicePosition<>(entry.getKey().name(), position));
 			} catch (DeviceException e) {
 				logger.error("TODO put description of error here", e);
 			}
@@ -112,7 +109,7 @@ public abstract class TomographyBaseMode implements TomographyMode {
 		return Collections.unmodifiableSet(positions);
 	}
 
-	public Map<TomographyDevices, String> getDevicesMap() {
+	public Map<StageDevices, String> getDevicesMap() {
 		if (devicesMap.isEmpty()) {
 			populateDevicesMap();
 		}
@@ -123,12 +120,12 @@ public abstract class TomographyBaseMode implements TomographyMode {
 		return getStageControls(parent);
 	}
 
-	void addToDevicesMap(TomographyDevices device, String propertyName) {
+	void addToDevicesMap(StageDevices device, String propertyName) {
 		devicesMap.put(device, propertyName);
 	}
 
 	private void loadDevices() {
-		for (Entry<TomographyDevices, String> entry : getDevicesMap().entrySet()) {
+		for (Entry<StageDevices, String> entry : getDevicesMap().entrySet()) {
 			if (entry.getKey().name().startsWith("MOTOR")) {
 				loadMotor(entry);
 			}
@@ -138,15 +135,17 @@ public abstract class TomographyBaseMode implements TomographyMode {
 		}
 	}
 
-	private void loadMotor(Entry<TomographyDevices, String> entry) {
+	private void loadMotor(Entry<StageDevices, String> entry) {
 		try {
 			FinderHelper.getIScannableMotor(getBeanId(entry)).ifPresent(c -> motors.put(entry.getKey(), c));
 		} catch (IncompleteModeException e) {
-			logger.error("Cannot load motor {}", entry.getKey());
+			String errMsg = String.format("Cannot load motor %s", entry.getKey());
+			UIHelper.showError(errMsg, e);
+			logger.error(errMsg, e);
 		}
 	}
 
-	private void loadMalcolm(Entry<TomographyDevices, String> entry) {
+	private void loadMalcolm(Entry<StageDevices, String> entry) {
 		try {
 			metadata.put(entry.getKey().name(), getBeanId(entry));
 		} catch (IncompleteModeException e) {
@@ -154,9 +153,8 @@ public abstract class TomographyBaseMode implements TomographyMode {
 		}
 	}
 
-	private String getBeanId(Entry<TomographyDevices, String> entry) throws IncompleteModeException {
-		return Optional.ofNullable(LocalProperties.get(entry.getValue()))
-				.orElseThrow(IncompleteModeException::new);
+	private String getBeanId(Entry<StageDevices, String> entry) throws IncompleteModeException {
+		return Optional.ofNullable(LocalProperties.get(entry.getValue())).orElseThrow(IncompleteModeException::new);
 	}
 
 	private Composite getStageControls(Composite parent) {
@@ -181,7 +179,7 @@ public abstract class TomographyBaseMode implements TomographyMode {
 		return group;
 	}
 
-	protected StageCompositeDefinition createMotorElement(TomographyDevices device, ClientMessages label) throws TomoIncompleteModeException {
+	protected StageCompositeDefinition createMotorElement(StageDevices device, ClientMessages label) throws TomoIncompleteModeException {
 		StageCompositeDefinition scd = new StageCompositeDefinition();
 		scd.setScannable(getMotors().get(device));
 		if (Objects.isNull(scd.getScannable())) {
@@ -217,7 +215,7 @@ public abstract class TomographyBaseMode implements TomographyMode {
 	protected class StageCompositeDefinitionBuilder {
 		private List<StageCompositeDefinition> composite = new ArrayList<>();
 
-		public StageCompositeDefinitionBuilder assemble(TomographyDevices device, ClientMessages label) {
+		public StageCompositeDefinitionBuilder assemble(StageDevices device, ClientMessages label) {
 			StageCompositeDefinition scd;
 			try {
 				scd = createMotorElement(device, label);

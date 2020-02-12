@@ -31,13 +31,14 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.tomography.model.AcquisitionConfiguration;
-import uk.ac.gda.tomography.ui.StageType;
 import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
 import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController.Positions;
+import uk.ac.gda.tomography.ui.mode.CommonStage;
+import uk.ac.gda.tomography.ui.mode.GTSStage;
+import uk.ac.gda.tomography.ui.mode.StageDescription.Stage;
+import uk.ac.gda.tomography.ui.mode.TR6Stage;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 
@@ -49,16 +50,31 @@ import uk.ac.gda.ui.tool.ClientSWTElements;
  */
 public class StagesComposite {
 
+	private enum StageType {
+		GTS(Stage.GTS, new GTSStage()),
+		TR6(Stage.TR6, new TR6Stage());
+
+		private final CommonStage stage;
+		private final Stage label;
+
+		StageType(Stage label, CommonStage stage) {
+			this.label = label;
+			this.stage = stage;
+		}
+
+		public String getLabel() {
+			return label.name();
+		}
+	}
+
 	private final Composite parent;
 	private Combo stagesCombo;
 	private Button outOfBeam;
 	private Composite stageComposite;
 
-	private StageType stageType;
+	private CommonStage stage;
 
 	private final TomographyParametersAcquisitionController controller;
-
-	private static final Logger logger = LoggerFactory.getLogger(StagesComposite.class);
 
 	private StagesComposite(Composite parent, TomographyParametersAcquisitionController controller) {
 		this.parent = parent;
@@ -71,8 +87,8 @@ public class StagesComposite {
 		return pc;
 	}
 
-	public StageType getStageType() {
-		return stageType;
+	public CommonStage getStage() {
+		return stage;
 	}
 
 	private Composite getParent() {
@@ -85,7 +101,7 @@ public class StagesComposite {
 		Group group = ClientSWTElements.createGroup(getParent(), 1, ClientMessages.STAGE);
 		stagesCombo = ClientSWTElements.createCombo(group, SWT.READ_ONLY, getTypes(), ClientMessages.STAGE_TP);
 		stageComposite = ClientSWTElements.createComposite(group, SWT.NONE, 1);
-		setStageType(StageType.DEFAULT);
+		setStage(StageType.GTS.stage);
 
 		comboStageSelectionListener();
 
@@ -99,7 +115,7 @@ public class StagesComposite {
 			public void widgetSelected(SelectionEvent e) {
 				Combo source = Combo.class.cast(e.getSource());
 				if (source.getSelectionIndex() > -1) {
-					filterPerspectiveLabel(getTypes()[source.getSelectionIndex()]).findFirst().ifPresent(p -> setStageType(p));
+					filterPerspectiveLabel(getTypes()[source.getSelectionIndex()]).findFirst().ifPresent(p -> setStage(p.stage));
 				}
 			}
 		};
@@ -120,11 +136,11 @@ public class StagesComposite {
 		return Arrays.stream(StageType.values()).filter(p -> p.getLabel().equals(perspectiveLabel));
 	}
 
-	private void setStageType(StageType stageType) {
-		this.stageType = stageType;
-		stagesCombo.setText(stageType.getLabel());
+	private void setStage(CommonStage stage) {
+		this.stage = stage;
+		stagesCombo.setText(stage.getStage().name());
 		Arrays.stream(stageComposite.getChildren()).forEach(Control::dispose);
-		this.stageType.getStage().getUI(stageComposite);
+		this.stage.getUI(stageComposite);
 		stageComposite.layout(true);
 	}
 

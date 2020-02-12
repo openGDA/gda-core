@@ -22,18 +22,18 @@ import gda.rcp.views.StageCompositeDefinition;
 import gda.rcp.views.TabCompositeFactory;
 import uk.ac.gda.ui.tool.ClientMessages;
 
-public class TomographyTR6Mode extends TomographyBaseMode {
+public class TR6Stage extends CommonStage {
 
-	public TomographyTR6Mode(Stage stage) {
-		super(stage);
+	public TR6Stage() {
+		super(Stage.TR6);
 	}
 
 	@Override
 	protected void populateDevicesMap() {
-		addToDevicesMap(TomographyDevices.MOTOR_STAGE_X, "tomography.tr6.motor.linear.y");
-		addToDevicesMap(TomographyDevices.MOTOR_STAGE_ROT_Y, "tomography.tr6.motor.rot.y");
-		addToDevicesMap(TomographyDevices.MOTOR_CAMERA_Z, "tomography.main.motor.camera.z");
-		addToDevicesMap(TomographyDevices.MALCOLM_TOMO, "tomography.malcolm.device.tomo");
+		addToDevicesMap(StageDevices.MOTOR_STAGE_X, "tomography.tr6.motor.linear.y");
+		addToDevicesMap(StageDevices.MOTOR_STAGE_ROT_Y, "tomography.tr6.motor.rot.y");
+		addToDevicesMap(StageDevices.MOTOR_CAMERA_Z, "tomography.main.motor.camera.z");
+		addToDevicesMap(StageDevices.MALCOLM_TOMO, "tomography.malcolm.device.tomo");
 	}
 
 	@Override
@@ -46,14 +46,14 @@ public class TomographyTR6Mode extends TomographyBaseMode {
 
 	private StageCompositeDefinition[] createMotorAxesComposite() {
 		StageCompositeDefinitionBuilder builder = new StageCompositeDefinitionBuilder();
-		builder.assemble(TomographyDevices.MOTOR_STAGE_Y, ClientMessages.AXIS_Y);
-		builder.assemble(TomographyDevices.MOTOR_STAGE_ROT_Y, ClientMessages.THETA);
+		builder.assemble(StageDevices.MOTOR_STAGE_Y, ClientMessages.AXIS_Y);
+		builder.assemble(StageDevices.MOTOR_STAGE_ROT_Y, ClientMessages.THETA);
 		return builder.build();
 	}
 
 	private StageCompositeDefinition[] createCameraMotorsComposite() {
 		StageCompositeDefinitionBuilder builder = new StageCompositeDefinitionBuilder();
-		builder.assemble(TomographyDevices.MOTOR_CAMERA_Z, ClientMessages.CAMERA);
+		builder.assemble(StageDevices.MOTOR_CAMERA_Z, ClientMessages.CAMERA);
 		return builder.build();
 	}
 }
