@@ -157,7 +157,7 @@ public class EnergyScannable extends ScannableBase implements IObserver {
 	}
 
 	public double getBraggWavelength() throws DeviceException {
-		return 12.3984191/((Double) bragg.getPosition());
+		return DiffractionCrystalEnvironment.calculateWavelength((Double) bragg.getPosition());
 	}
 
 	@Override

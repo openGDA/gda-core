@@ -19,6 +19,7 @@
 
 package gda.beamline.beam;
 
+import org.eclipse.dawnsci.analysis.api.diffraction.DiffractionCrystalEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +82,7 @@ public class Beam extends FindableConfigurableBase implements BeamInfo {
 	@Override
 	public void setEnergy(double energy) {
 		this.energy = energy;
-		this.wavelength = 12.39842 / energy;
+		this.wavelength = DiffractionCrystalEnvironment.calculateWavelength(energy);
 		setCalibrated(true);
 		notifyIObservers(this, this.wavelength);
 		try {
@@ -108,7 +109,7 @@ public class Beam extends FindableConfigurableBase implements BeamInfo {
 	@Override
 	public void setWavelength(double wavelength) {
 		this.wavelength = wavelength;
-		this.energy = 12.39842 / wavelength;
+		this.energy = DiffractionCrystalEnvironment.calculateWavelength(wavelength);
 		setCalibrated(true);
 		notifyIObservers(this, this.wavelength);
 		try {
@@ -139,7 +140,7 @@ public class Beam extends FindableConfigurableBase implements BeamInfo {
 			energy1.setUserUnits("keV");
 		}
 		this.energy = PositionConvertorFunctions.toDouble(energy1.getPosition());
-		this.wavelength = 12.39842 / this.energy;
+		this.wavelength = DiffractionCrystalEnvironment.calculateWavelength(energy);
 		setCalibrated(false);
 		notifyIObservers(this, this.wavelength);
 

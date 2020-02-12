@@ -19,6 +19,8 @@
 
 package gda.device.filterarray;
 
+import org.eclipse.dawnsci.analysis.api.diffraction.DiffractionCrystalEnvironment;
+
 import gda.device.DeviceException;
 
 /**
@@ -65,12 +67,12 @@ public class DummyFilterArray extends FilterArrayBase {
 
 	@Override
 	public double getCalculationWavelength() throws DeviceException {
-		return 12.39845 / currentEnergy;
+		return DiffractionCrystalEnvironment.calculateWavelength(currentEnergy);
 	}
 
 	@Override
 	public void setCalculationWavelength(double wavelength) throws DeviceException {
-		currentEnergy = 12.39845 / wavelength;
+		currentEnergy = DiffractionCrystalEnvironment.calculateEnergy(wavelength);
 	}
 
 }
