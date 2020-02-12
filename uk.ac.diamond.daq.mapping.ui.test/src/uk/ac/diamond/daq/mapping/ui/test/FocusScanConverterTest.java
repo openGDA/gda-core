@@ -126,8 +126,8 @@ public class FocusScanConverterTest {
 		assertEquals(1, compoundModel.getRegions().size());
 		final ScanRegion scanRegion = compoundModel.getRegions().iterator().next();
 		assertEquals(2, scanRegion.getScannables().size());
-		assertEquals(mappingStageInfo.getPlotYAxisName(), scanRegion.getScannables().get(0));
-		assertEquals(mappingStageInfo.getPlotXAxisName(), scanRegion.getScannables().get(1));
+		assertEquals(mappingStageInfo.getPlotYAxisName(), scanRegion.getScannables().get(1));
+		assertEquals(mappingStageInfo.getPlotXAxisName(), scanRegion.getScannables().get(0));
 		assertThat(scanRegion.getRoi(), is(instanceOf(LinearROI.class)));
 		assertEquals(expectedRegion, scanRegion.getRoi());
 
