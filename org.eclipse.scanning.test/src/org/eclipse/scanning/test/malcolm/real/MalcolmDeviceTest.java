@@ -107,17 +107,22 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	}
 
 	private EpicsMalcolmModel createExpectedEpicsMalcolmModel(IPointGenerator<?> pointGen, String outputDir,
-			List<MalcolmDetectorInfo> detectorInfos) {
+			List<MalcolmDetectorInfo> detectorInfos) throws Exception {
 		if (outputDir == null) {
 			outputDir = Services.getFilePathService().getTempDir();
 		}
 		final String fileTemplate = Paths.get(outputDir).getFileName().toString() + "-%s." + FILE_EXTENSION_H5;
 
-		if (pointGen == null) { // outside of a scan, MalcolmDevice uses default values
-			// unfortunately we need to compare with the exact same point generator for mockito validation to pass
-			// as point generators don't (and probably shouldn't) override equals
-			pointGen = MalcolmDevice.getDummyPointGenerator();
-		}
+		// create a copy of the compound model, so that we're not cheating when comparing the
+		// expected model with the one actually used
+		final CompoundModel model = pointGen == null ? MalcolmDevice.getDummyPointGenerator().getModel() :
+					(CompoundModel) pointGen.getModel();
+
+		final CompoundModel copiedModel = CompoundModel.copy(model);
+		copiedModel.setDuration(0.1);
+		copiedModel.setMutators(Collections.emptyList());
+		pointGen = pointGenService.createCompoundGenerator(copiedModel);
+
 		final List<String> axesToMove = pointGen.getNames(); // we don't test using non-malcolm axes
 		final MalcolmTable detectorsTable = createExpectedDetectorsMalcolmTable(detectorInfos);
 
@@ -399,8 +404,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 
 		// test duration of pointGen's model has been set to exposure time of malcolm model
 		assertThat(((CompoundModel) pointGen.getModel()).getDuration(), is(equalTo(malcolmModel.getExposureTime())));
-
-		assertThat(scanModel.getPointGenerator(), is(sameInstance(expectedReceivedPointGen)));
+		assertThat(scanModel.getPointGenerator(), is(equalTo(expectedReceivedPointGen)));
 	}
 
 	private IPointGenerator<?> createLineGenerator() throws Exception {
@@ -408,8 +412,10 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		lineModel.setPoints(18);
 		lineModel.setBoundingLine(new BoundingLine(0, 0, 1, 1));
 
-		final IPointGenerator<TwoAxisLinePointsModel> gridGen = pointGenService.createGenerator(lineModel);
-		return pointGenService.createCompoundGenerator(gridGen);
+		CompoundModel compoundModel = new CompoundModel(lineModel);
+		compoundModel.setDuration(0.1);
+		compoundModel.setMutators(Collections.emptyList());
+		return pointGenService.createCompoundGenerator(compoundModel);
 	}
 
 	private void testCall(MalcolmCall malcolmCall, MalcolmMethod method, Object params) throws Exception {

@@ -230,7 +230,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	 */
 	private ExecutorService executor = Executors.newCachedThreadPool();
 
-	private static IPointGenerator<?> dummyPointGenerator = null;
+	private static IPointGenerator<CompoundModel> dummyPointGenerator = null;
 
 	// Listeners to malcolm endpoints
 	private final IMalcolmConnectionEventListener stateChangeListener = this::handleStateChange;
@@ -586,7 +586,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	 *
 	 * @return the dummy point generator
 	 */
-	public static IPointGenerator<?> getDummyPointGenerator() {
+	public static IPointGenerator<CompoundModel> getDummyPointGenerator() {
 		if (dummyPointGenerator == null && Services.getPointGeneratorService() != null) {
 			try {
 				final CompoundModel compoundModel = new CompoundModel(new StaticModel());
@@ -973,6 +973,12 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 				if (other.detectors != null)
 					return false;
 			return true;
+		}
+
+		@Override
+		public String toString() {
+			return "EpicsMalcolmModel [generator=" + generator + ", axesToMove=" + axesToMove + ", fileDir=" + fileDir
+					+ ", fileTemplate=" + fileTemplate + ", detectors=" + detectors + "]";
 		}
 
 	}
