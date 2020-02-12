@@ -109,10 +109,10 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			// move to run-up position so ready to collect
 			InterfaceProvider.getTerminalPrinter().print("Moving mono to run-up position...");
 			logger.info("Moving mono to run-up position...");
+
 			// but first, ensure that the energy control switch is set to 'on'
-			if (controller.cagetInt(energySwitchChnl) == 0){
-				controller.caputWait(energySwitchChnl, 1);
-			}
+			setEnergySwitchOn();
+
 			double runupEnergy = angleToEV(runupPosition);
 			if (!runUpOn) {
 				runupEnergy = angleToEV(startAngle);
@@ -164,6 +164,17 @@ public class ZebraQexafsScannable extends QexafsScannable {
 		}
 	}
 
+	/**
+	 * Switch the energy control switch to 'on'
+	 * @throws InterruptedException
+	 * @throws CAException
+	 * @throws TimeoutException
+	 */
+	protected void setEnergySwitchOn() throws TimeoutException, CAException, InterruptedException {
+		if (controller.cagetInt(energySwitchChnl) == 0){
+			controller.caputWait(energySwitchChnl, 1);
+		}
+	}
 	private Boolean caputTestChangeDouble(Channel theChannel, double toPut, Boolean changeMade) throws CAException,
 			InterruptedException, TimeoutException {
 		double current = controller.cagetDouble(theChannel);

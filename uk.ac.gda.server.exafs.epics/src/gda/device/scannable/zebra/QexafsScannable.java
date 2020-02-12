@@ -264,6 +264,10 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 		return twoDValue;
 	}
 
+	protected double getAcceleration() throws TimeoutException, CAException, InterruptedException {
+		return controller.cagetDouble(accelChnl);
+	}
+
 	public boolean isExafs() {
 		return true;
 	}
@@ -284,7 +288,7 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 		// Calculate run up and run down
 
 		// v^2 = u^2 + 2as
-		double acceleration = controller.cagetDouble(accelChnl);
+		double acceleration = getAcceleration();
 		desiredSpeed = Math.abs(radToDeg(endAngle) - radToDeg(startAngle)) / continuousParameters.getTotalTime();
 		double runUp = (desiredSpeed * desiredSpeed) / (2 * acceleration);
 		runUp *= runUpScaleFactor; // to be safe multiply by scale factor (>1)

@@ -22,5 +22,6 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Eclipse-RegisterBuddy: uk.ac.gda.common, uk.ac.gda.core
-Export-Package: uk.ac.gda.server.exafs.epics.device.scannable
+Export-Package: gda.device.scannable.zebra,
+ uk.ac.gda.server.exafs.epics.device.scannable
 Automatic-Module-Name: uk.ac.gda.server.exafs.epics
