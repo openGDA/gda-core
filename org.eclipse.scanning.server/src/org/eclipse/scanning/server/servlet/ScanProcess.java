@@ -33,7 +33,6 @@ import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IPausableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
-import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IBeanProcess;
 import org.eclipse.scanning.api.event.core.IPublisher;
@@ -43,7 +42,6 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.ScanInformation;
@@ -218,7 +216,8 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 	private ScanModel prepareScan() throws EventException {
 		try {
 			setFilePath(bean);
-			final IPointGenerator<?> pointGenerator = createPointGenerator();
+			final IPointGenerator<?> pointGenerator = Services.getGeneratorService().createCompoundGenerator(
+					bean.getScanRequest().getCompoundModel());
 			checkAndFixMonitors(pointGenerator); // removes monitors that are also in the scan as scannables
 			return createScanModel(pointGenerator);
 		} catch (Exception e) {
@@ -528,20 +527,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		logger.debug("Configured detectors {}", detectorModels.keySet());
 	}
 
-	private IPointGenerator<?> createPointGenerator() throws GeneratorException {
-		final IPointGeneratorService service = Services.getGeneratorService();
-		final ScanRequest scanRequest = bean.getScanRequest();
-		if (scanRequest.getDetectors() != null) {
-			scanRequest.getDetectors().values().stream()
-				.filter(IMalcolmModel.class::isInstance).map(IMalcolmModel.class::cast)
-				.findFirst().ifPresent(model -> scanRequest.getCompoundModel().setDuration(model.getExposureTime()));
-		}
-
-		return service.createCompoundGenerator(scanRequest.getCompoundModel());
-	}
-
 	private List<IRunnableDevice<?>> getDetectors(Map<String, ?> detectors) throws EventException {
-
 		if (detectors == null) {
 			return null;
 		}
