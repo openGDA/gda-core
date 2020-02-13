@@ -20,11 +20,7 @@ package gda.device.scannable.zebra;
 
 import static org.junit.Assert.assertEquals;
 
-import javax.measure.quantity.Length;
-import javax.measure.unit.SI;
-
 import org.eclipse.dawnsci.analysis.api.diffraction.DiffractionCrystalEnvironment;
-import org.jscience.physics.amount.Amount;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -65,8 +61,8 @@ public class ZebraQexafsTest {
 		}
 
 		@Override
-		protected Amount<Length> getTwoD() {
-			return Amount.valueOf(twoD, SI.METER);
+		protected double getTwoD() {
+			return twoD;
 		}
 
 		@Override
@@ -75,15 +71,15 @@ public class ZebraQexafsTest {
 		}
 
 		public double getStartAngle() {
-			return startAngle.doubleValue(SI.RADIAN);
+			return startAngle;
 		}
 
 		public double getEndAngle() {
-			return endAngle.doubleValue(SI.RADIAN);
+			return endAngle;
 		}
 
 		public double getStepSize() {
-			return stepSize.doubleValue(SI.RADIAN);
+			return stepSize;
 		}
 
 		public double getDesiredSpeed() {
@@ -91,11 +87,11 @@ public class ZebraQexafsTest {
 		}
 
 		public double getRunupPosition() {
-			return runupPosition.doubleValue(SI.RADIAN);
+			return runupPosition;
 		}
 
 		public double getRundownPosition() {
-			return runDownPosition.doubleValue(SI.RADIAN);
+			return runDownPosition;
 		}
 
 		@Override

@@ -20,10 +20,6 @@ package gda.device.scannable.zebra;
 
 import java.io.IOException;
 
-import javax.measure.quantity.Angle;
-import javax.measure.unit.NonSI;
-
-import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +28,6 @@ import gda.device.zebra.controller.Zebra;
 import gda.epics.CachedLazyPVFactory;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
-import gda.util.QuantityFactory;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -113,9 +108,9 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			// but first, ensure that the energy control switch is set to 'on'
 			setEnergySwitchOn();
 
-			double runupEnergy = angleToEV(runupPosition);
+			double runupEnergy = convertAngleToEnergy(runupPosition);
 			if (!runUpOn) {
-				runupEnergy = angleToEV(startAngle);
+				runupEnergy = convertAngleToEnergy(startAngle);
 			}
 
 			// always toggle before first movement in a scan
@@ -135,9 +130,9 @@ public class ZebraQexafsScannable extends QexafsScannable {
 
 			// variable settings
 			logger.debug("Time before variable zebra settings");
-			double startDeg = radToDeg(startAngle);
-			double stopDeg = radToDeg(endAngle);
-			double stepDeg = Math.abs(radToDeg(stepSize));
+			double startDeg = Math.toDegrees(startAngle);
+			double stopDeg = Math.toDegrees(endAngle);
+			double stepDeg = Math.abs(Math.toDegrees(stepSize));
 			double width = Math.abs(stopDeg - startDeg);
 
 			int positionDir = stopDeg > startDeg ? Zebra.PC_DIR_POSITIVE : Zebra.PC_DIR_NEGATIVE;
@@ -256,9 +251,9 @@ public class ZebraQexafsScannable extends QexafsScannable {
 				InterfaceProvider.getTerminalPrinter().print("Mono move started.");
 				logger.info("Mono move started.");
 				if (runDownOn) {
-					super.asynchronousMoveTo(angleToEV(runDownPosition));
+					super.asynchronousMoveTo(convertAngleToEnergy(runDownPosition));
 				} else {
-					super.asynchronousMoveTo(angleToEV(endAngle));
+					super.asynchronousMoveTo(convertAngleToEnergy(endAngle));
 				}
 			} catch (Exception e) {
 				throw new DeviceException(e.getMessage(), e);
@@ -327,12 +322,10 @@ public class ZebraQexafsScannable extends QexafsScannable {
 		double frameCentre_offset_cts = ((stepSize_counts * frameIndex) + (0.5 * stepSize_counts));
 		// TODO change sign based on direction and resolution
 		double frameCentre_deg = startReadback_deg + (frameCentre_offset_cts * countsPerDegree);
-		if (startAngle.isGreaterThan(endAngle)) {
+		if (startAngle > endAngle) {
 			frameCentre_deg = startReadback_deg - (frameCentre_offset_cts * countsPerDegree);
 		}
-		Amount<Angle> frameCentre_angle = QuantityFactory.createFromObject(frameCentre_deg, NonSI.DEGREE_ANGLE);
-		double frameCentre_eV = angleToEV(frameCentre_angle);
-		return frameCentre_eV;
+		return convertAngleToEnergy(frameCentre_deg);
 	}
 
 	public Zebra getZebraDevice() {
