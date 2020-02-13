@@ -18,22 +18,21 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import static javax.measure.unit.NonSI.DEGREE_ANGLE;
-import static javax.measure.unit.NonSI.ELECTRON_VOLT;
-import static javax.measure.unit.SI.KILO;
-import static javax.measure.unit.SI.METER;
-import static javax.measure.unit.SI.MICRO;
-import static javax.measure.unit.SI.MILLI;
-import static javax.measure.unit.SI.NANO;
+import static si.uom.NonSI.DEGREE_ANGLE;
+import static si.uom.NonSI.ELECTRON_VOLT;
+import static tec.units.indriya.unit.MetricPrefix.KILO;
+import static tec.units.indriya.unit.MetricPrefix.MICRO;
+import static tec.units.indriya.unit.MetricPrefix.MILLI;
+import static tec.units.indriya.unit.MetricPrefix.NANO;
+import static tec.units.indriya.unit.Units.JOULE;
+import static tec.units.indriya.unit.Units.METRE;
+import static tec.units.indriya.unit.Units.RADIAN;
 
 import java.util.Collections;
 import java.util.Set;
 
-import javax.measure.quantity.Angle;
-import javax.measure.quantity.Energy;
-import javax.measure.quantity.Length;
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
+import javax.measure.Quantity;
+import javax.measure.Unit;
 
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
@@ -59,9 +58,9 @@ public class UnitsProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(UnitsProvider.class);
 
-	private static final Set<Unit<? extends Quantity>> LENGTH_UNITS = ImmutableSet.of(MILLI(METER), MICRO(METER), NANO(METER));
-	private static final Set<Unit<? extends Quantity>> ANGLE_UNITS = ImmutableSet.of(MILLI(DEGREE_ANGLE), DEGREE_ANGLE);
-	private static final Set<Unit<? extends Quantity>> ENERGY_UNITS = ImmutableSet.of(ELECTRON_VOLT, KILO(ELECTRON_VOLT));
+	private static final Set<Unit<? extends Quantity<?>>> LENGTH_UNITS = ImmutableSet.of(MILLI(METRE), MICRO(METRE), NANO(METRE));
+	private static final Set<Unit<? extends Quantity<?>>> ANGLE_UNITS = ImmutableSet.of(MILLI(DEGREE_ANGLE), DEGREE_ANGLE);
+	private static final Set<Unit<? extends Quantity<?>>> ENERGY_UNITS = ImmutableSet.of(ELECTRON_VOLT, KILO(ELECTRON_VOLT));
 
 	private static final String DEFAULT_LENGTH_UNITS_STRING = "mm";
 
@@ -71,20 +70,20 @@ public class UnitsProvider {
 	/**
 	 * Returns the base {@link Unit} of the scannable with the given name
 	 */
-	public Unit<? extends Quantity> getScannableUnit(String scannableName) {
+	public Unit<? extends Quantity<?>> getScannableUnit(String scannableName) {
 		return QuantityFactory.createUnitFromString(getScannableUnitString(scannableName));
 	}
 
 	/**
 	 * Returns 'sensible' (subjective) alternative units for the scannable with the given name
 	 */
-	public Set<Unit<? extends Quantity>> getCompatibleUnits(String scannableName) {
-		Unit<? extends Quantity> scannableUnit = getScannableUnit(scannableName);
-		if (scannableUnit.isCompatible(Length.UNIT)) {
+	public Set<Unit<? extends Quantity<?>>> getCompatibleUnits(String scannableName) {
+		Unit<? extends Quantity<?>> scannableUnit = getScannableUnit(scannableName);
+		if (scannableUnit.isCompatible(METRE)) {
 			return LENGTH_UNITS;
-		} else if (scannableUnit.isCompatible(Angle.UNIT)) {
+		} else if (scannableUnit.isCompatible(RADIAN)) {
 			return ANGLE_UNITS;
-		} else if (scannableUnit.isCompatible(Energy.UNIT)) {
+		} else if (scannableUnit.isCompatible(JOULE)) {
 			return ENERGY_UNITS;
 		}
 
@@ -101,9 +100,9 @@ public class UnitsProvider {
 	 * <li>{@link InitialLengthUnits} configured as an OSGi service
 	 * </ul>
 	 */
-	public Unit<? extends Quantity> getInitialUnit(String scannableName, String propertyName) {
-		Unit<? extends Quantity> scannableUnit = getScannableUnit(scannableName);
-		if (scannableUnit.isCompatible(Length.UNIT)) {
+	public Unit<? extends Quantity<?>> getInitialUnit(String scannableName, String propertyName) {
+		Unit<? extends Quantity<?>> scannableUnit = getScannableUnit(scannableName);
+		if (scannableUnit.isCompatible(METRE)) {
 			String initialUnitString = getLengthUnitsService().getDefaultUnit(propertyName, getScannableUnitString(scannableName));
 			return QuantityFactory.createUnitFromString(initialUnitString);
 		}

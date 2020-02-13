@@ -21,9 +21,7 @@ package gda.util.converters;
 
 import java.util.List;
 
-import javax.measure.quantity.Quantity;
-
-import org.jscience.physics.amount.Amount;
+import javax.measure.Quantity;
 
 final class CoupledQuantitiesConverter implements IQuantitiesConverter, IQuantityConverter {
 	private final IQuantitiesConverter sourceConverter, targetConverter;
@@ -44,18 +42,18 @@ final class CoupledQuantitiesConverter implements IQuantitiesConverter, IQuantit
 	}
 
 	@Override
-	public Amount<? extends Quantity>[] calculateMoveables(Amount<? extends Quantity>[] sources, Object[] moveables) throws Exception {
-		Amount<? extends Quantity>[] q = sourceConverter.calculateMoveables(sources, moveables);
+	public Quantity<? extends Quantity<?>>[] calculateMoveables(Quantity<? extends Quantity<?>>[] sources, Object[] moveables) throws Exception {
+		Quantity<? extends Quantity<?>>[] q = sourceConverter.calculateMoveables(sources, moveables);
 		// do not check units as this is done by the actual converter
 		return targetConverter.calculateMoveables(q, moveables);
 	}
 
 	/**
-	 * @see gda.util.converters.IQuantitiesConverter#toSource(Amount[], Object[])
+	 * @see gda.util.converters.IQuantitiesConverter#toSource(Quantity[], Object[])
 	 */
 	@Override
-	public Amount<? extends Quantity>[] toSource(Amount<? extends Quantity>[] targets, Object[] moveables) throws Exception {
-		Amount<? extends Quantity>[] q = targetConverter.toSource(targets, moveables);
+	public Quantity<? extends Quantity<?>>[] toSource(Quantity<? extends Quantity<?>>[] targets, Object[] moveables) throws Exception {
+		Quantity<? extends Quantity<?>>[] q = targetConverter.toSource(targets, moveables);
 		// do not check units as this is done by the actual converter
 		return sourceConverter.toSource(q, moveables);
 	}
@@ -94,12 +92,12 @@ final class CoupledQuantitiesConverter implements IQuantitiesConverter, IQuantit
 	}
 
 	@Override
-	public Amount<? extends Quantity> toSource(Amount<? extends Quantity> target) throws Exception {
+	public Quantity<? extends Quantity<?>> toSource(Quantity<? extends Quantity<?>> target) throws Exception {
 		if (!(targetConverter instanceof IQuantityConverter)) {
 			throw new IllegalArgumentException(
 					"CoupledQuantitiesConverter.toSource: targetConverter does not support IQuantityConverter ");
 		}
-		Amount<? extends Quantity> intermediate = ((IQuantityConverter) targetConverter).toSource(target);
+		Quantity<? extends Quantity<?>> intermediate = ((IQuantityConverter) targetConverter).toSource(target);
 		if (!(sourceConverter instanceof IQuantityConverter)) {
 			throw new IllegalArgumentException(
 					"CoupledQuantitiesConverter.toSource: sourceConverter does not support IQuantityConverter ");
@@ -108,12 +106,12 @@ final class CoupledQuantitiesConverter implements IQuantitiesConverter, IQuantit
 	}
 
 	@Override
-	public Amount<? extends Quantity> toTarget(Amount<? extends Quantity> source) throws Exception {
+	public Quantity<? extends Quantity<?>> toTarget(Quantity<? extends Quantity<?>> source) throws Exception {
 		if (!(sourceConverter instanceof IQuantityConverter)) {
 			throw new IllegalArgumentException(
 					"CoupledQuantitiesConverter.toTarget: sourceConverter does not support IQuantityConverter ");
 		}
-		Amount<? extends Quantity> intermediate = ((IQuantityConverter) sourceConverter).toTarget(source);
+		Quantity<? extends Quantity<?>> intermediate = ((IQuantityConverter) sourceConverter).toTarget(source);
 		if (!(targetConverter instanceof IQuantityConverter)) {
 			throw new IllegalArgumentException(
 					"CoupledQuantitiesConverter.toTarget: targetConverter does not support IQuantityConverter ");

@@ -18,28 +18,29 @@
 
 package gda.jscience.physics.quantities;
 
-import static gda.jscience.physics.quantities.QuantityConstants.ZERO_ENERGY;
-import static javax.measure.unit.NonSI.ELECTRON_VOLT;
+import static gda.jscience.physics.units.NonSIext.PER_ANGSTROM;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static si.uom.SI.ELECTRON_VOLT;
+import static tec.units.indriya.unit.Units.JOULE;
 
+import javax.measure.Quantity;
 import javax.measure.quantity.Energy;
 
-import org.jscience.physics.amount.Amount;
 import org.junit.Test;
 
-import gda.jscience.physics.units.NonSIext;
+import tec.units.indriya.quantity.Quantities;
 
 public class WaveVectorTest {
-	private static final Amount<Energy> EDGE_ENERGY = Amount.valueOf(1.4, ELECTRON_VOLT);
-	private static final Amount<Energy> ELECTRON_ENERGY = Amount.valueOf(7.23, ELECTRON_VOLT);
-	private static final Amount<Energy> NEGATIVE_ENERGY = Amount.valueOf(-0.01, ELECTRON_VOLT);
+	private static final Quantity<Energy> EDGE_ENERGY = Quantities.getQuantity(1.4, ELECTRON_VOLT);
+	private static final Quantity<Energy> ELECTRON_ENERGY = Quantities.getQuantity(7.23, ELECTRON_VOLT);
+	private static final Quantity<Energy> NEGATIVE_ENERGY = Quantities.getQuantity(-0.01, ELECTRON_VOLT);
 
 	@Test
 	public void testWaveVectorFromEnergies() {
-		final Amount<WaveVector> result = QuantityConverters.waveVectorOf(EDGE_ENERGY, ELECTRON_ENERGY);
-		assertEquals(1.237, result.getEstimatedValue(), 0.0001);
-		assertEquals(NonSIext.PER_ANGSTROM, result.getUnit());
+		final Quantity<WaveVector> result = QuantityConverters.waveVectorOf(EDGE_ENERGY, ELECTRON_ENERGY);
+		assertEquals(1.237, result.getValue().doubleValue(), 0.0001);
+		assertEquals(PER_ANGSTROM, result.getUnit());
 	}
 
 	@Test
@@ -64,11 +65,11 @@ public class WaveVectorTest {
 
 	@Test
 	public void testWaveVectorZeroEdgeEnergy() {
-		assertNull(QuantityConverters.waveVectorOf(ZERO_ENERGY, ELECTRON_ENERGY));
+		assertNull(QuantityConverters.waveVectorOf(Quantities.getQuantity(0, JOULE), ELECTRON_ENERGY));
 	}
 
 	@Test
 	public void testWaveVectorZeroElectronEnergy() {
-		assertNull(QuantityConverters.waveVectorOf(EDGE_ENERGY, ZERO_ENERGY));
+		assertNull(QuantityConverters.waveVectorOf(EDGE_ENERGY, Quantities.getQuantity(0, JOULE)));
 	}
 }

@@ -19,7 +19,7 @@
 
 package gda.device.monitor;
 
-import javax.measure.unit.Unit;
+import static tec.units.indriya.AbstractUnit.ONE;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,6 @@ import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.jython.JythonStatus;
 import gda.observable.IObserver;
-
 
 /**
  * A class to monitor the beam using a Detector. The detector notifies this class with its current data, the update
@@ -216,7 +215,7 @@ public class BeamMonitor extends MonitorBase implements IObserver {
 	@Override
 	public String getUnit() throws DeviceException {
 		// just a number
-		return Unit.ONE.toString();
+		return ONE.toString();
 	}
 
 	@Override

@@ -38,9 +38,10 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
 
 import org.dawnsci.mapping.ui.MappingUtils;
 import org.dawnsci.mapping.ui.api.IMapFileController;
@@ -88,13 +89,13 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
-import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.function.ILinearFunction;
 import gda.util.QuantityFactory;
+import tec.units.indriya.quantity.Quantities;
 import uk.ac.diamond.daq.mapping.api.EnergyFocusBean;
 import uk.ac.diamond.daq.mapping.api.FocusScanBean;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
@@ -593,14 +594,14 @@ public class FocusScanResultPage extends WizardPage {
 	protected void updateInterception() {
 		final EnergyFocusBean energyFocusBean = focusScanBean.getEnergyFocusBean();
 		if (energyFocusBean != null) {
-			final Unit<? extends Quantity> focusScannableUnit = QuantityFactory.createUnitFromString(focusScannable.getUnit());
-			final Amount<? extends Quantity> oldFocusPosition = QuantityFactory.createFromObject(focusScannableOriginalPosition, focusScannableUnit);
-			final Amount<? extends Quantity> newFocusPosition = QuantityFactory.createFromObject(focusScannablePosition.getValue(), focusScannableUnit);
-			final Amount<? extends Quantity> difference = newFocusPosition.minus(oldFocusPosition);
+			final Unit<Length> focusScannableUnit = QuantityFactory.createUnitFromString(focusScannable.getUnit());
+			final Quantity<Length> oldFocusPosition = Quantities.getQuantity(focusScannableOriginalPosition, focusScannableUnit);
+			final Quantity<Length> newFocusPosition = Quantities.getQuantity(focusScannablePosition.getValue(), focusScannableUnit);
+			final Quantity<Length> difference = newFocusPosition.subtract(oldFocusPosition);
 
-			final ILinearFunction energyFocusFunction = energyFocusBean.getEnergyFocusFunction();
-			final Amount<? extends Quantity> oldInterception = energyFocusFunction.getInterception();
-			final Amount<? extends Quantity> newInterception = oldInterception.plus(difference);
+			final ILinearFunction<Energy, Length> energyFocusFunction = energyFocusBean.getEnergyFocusFunction();
+			final Quantity<Length> oldInterception = energyFocusFunction.getInterception();
+			final Quantity<Length> newInterception = oldInterception.add(difference);
 
 			logger.debug("Calculated new interception for energy focus function");
 			logger.debug("Old focus position: {}, new focus position: {}, difference: {}", oldFocusPosition, newFocusPosition, difference);
@@ -623,8 +624,8 @@ public class FocusScanResultPage extends WizardPage {
 		}
 	}
 
-	private static String formatAmount(Amount<? extends Quantity> amount, DecimalFormat df) {
-		return df.format(amount.getEstimatedValue()) + " " + amount.getUnit();
+	private static String formatAmount(Quantity<? extends Quantity<?>> amount, DecimalFormat df) {
+		return df.format(amount.getValue().doubleValue()) + " " + amount.getUnit();
 	}
 
 	/**

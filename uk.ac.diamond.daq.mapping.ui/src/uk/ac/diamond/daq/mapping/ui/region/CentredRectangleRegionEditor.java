@@ -18,7 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.ui.region;
 
-import javax.measure.quantity.Quantity;
+import javax.measure.Quantity;
 
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.MultiValidator;
@@ -39,19 +39,19 @@ public class CentredRectangleRegionEditor extends AbstractRegionEditor {
 		final Composite composite = super.createEditorPart(parent);
 
 		new Label(composite, SWT.NONE).setText(getXAxisName() + " Centre");
-		NumberAndUnitsComposite<Quantity> xCentre = createNumberAndUnitsComposite(composite, getXAxisName(), X_CENTRE);
+		NumberAndUnitsComposite<? extends Quantity<?>> xCentre = createNumberAndUnitsComposite(composite, getXAxisName(), X_CENTRE);
 		grabHorizontalSpace.applyTo(xCentre);
 
 		new Label(composite, SWT.NONE).setText(getXAxisName() + " Range");
-		NumberAndUnitsComposite<Quantity> xRange = createNumberAndUnitsComposite(composite, getXAxisName(), X_RANGE);
+		NumberAndUnitsComposite<? extends Quantity<?>> xRange = createNumberAndUnitsComposite(composite, getXAxisName(), X_RANGE);
 		grabHorizontalSpace.applyTo(xRange);
 
 		new Label(composite, SWT.NONE).setText(getYAxisName() + " Centre");
-		NumberAndUnitsComposite<Quantity> yCentre = createNumberAndUnitsComposite(composite, getYAxisName(), Y_CENTRE);
+		NumberAndUnitsComposite<? extends Quantity<?>> yCentre = createNumberAndUnitsComposite(composite, getYAxisName(), Y_CENTRE);
 		grabHorizontalSpace.applyTo(yCentre);
 
 		new Label(composite, SWT.NONE).setText(getYAxisName() + " Range");
-		NumberAndUnitsComposite<Quantity> yRange = createNumberAndUnitsComposite(composite, getYAxisName(), Y_RANGE);
+		NumberAndUnitsComposite<? extends Quantity<?>> yRange = createNumberAndUnitsComposite(composite, getYAxisName(), Y_RANGE);
 		grabHorizontalSpace.applyTo(yRange);
 
 		createValidatedBindings(getXAxisName(), xCentre, X_CENTRE, xRange, X_RANGE);
@@ -62,9 +62,9 @@ public class CentredRectangleRegionEditor extends AbstractRegionEditor {
 
 	@SuppressWarnings("unchecked")
 	private void createValidatedBindings(String scannableName,
-										 NumberAndUnitsComposite<Quantity> centreWidget,
+										 NumberAndUnitsComposite<? extends Quantity<?>> centreWidget,
 										 String centreProperty,
-										 NumberAndUnitsComposite<Quantity> rangeWidget,
+										 NumberAndUnitsComposite<? extends Quantity<?>> rangeWidget,
 										 String rangeProperty) {
 
 		binder.bind(centreWidget, centreProperty, getModel());

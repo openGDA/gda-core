@@ -18,10 +18,9 @@
 
 package gda.device.scannable;
 
-import javax.measure.quantity.Quantity;
+import javax.measure.Quantity;
 
 import org.apache.commons.configuration.ConfigurationException;
-import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,7 +121,7 @@ public class DummyPersistentUnitsScannable extends DummyPersistentScannable impl
 	}
 
 	@Override
-	public Amount<? extends Quantity>[] getPositionAsQuantityArray() throws DeviceException {
+	public Quantity<? extends Quantity<?>>[] getPositionAsQuantityArray() throws DeviceException {
 		throw new RuntimeException("Not implemented");
 	}
 

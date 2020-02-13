@@ -23,11 +23,11 @@ import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.measure.quantity.Duration;
+import javax.measure.Quantity;
+import javax.measure.Unit;
 import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
+import javax.measure.quantity.Time;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -39,9 +39,9 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
-import org.jscience.physics.amount.Amount;
 
 import gda.jscience.physics.units.NonSIext;
+import tec.units.indriya.quantity.Quantities;
 
 /**
  * A Composite for displaying a number with a unit.<br>
@@ -49,7 +49,7 @@ import gda.jscience.physics.units.NonSIext;
  * It supports JFace databinding via {@link NumberUnitsWidgetProperty} *
  * <p>
  * Generic parameter Q is the type of quantity this composite can be used to edit e.g. {@link Energy}, {@link Length},
- * {@link Duration}
+ * {@link Time}
  * <p>
  * The composite contains a text box with the numeric value (displayed in scientific format if appropriate) and a
  * drop-down box to choose units:<br>
@@ -60,7 +60,7 @@ import gda.jscience.physics.units.NonSIext;
  * @author James Mudd
  * @author Anthony Hull
  */
-public class NumberAndUnitsComposite<Q extends Quantity> extends Composite {
+public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 	/** The text field showing the numeric value */
 	private final Text text;
 	/** The combo box to select the units */
@@ -139,16 +139,16 @@ public class NumberAndUnitsComposite<Q extends Quantity> extends Composite {
 			@SuppressWarnings("unchecked")
 			@Override
 			public String getText(Object element) {
-				return NonSIext.getUnitString((Unit<? extends Quantity>) element);
+				return NonSIext.getUnitString((Unit<? extends Quantity<?>>) element);
 			}
 		});
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void handleUnitChange(SelectionChangedEvent event) {
-		final Amount<? extends Quantity> currentValue = getValueAsQuantity(); // in "old" units
+		final Quantity<? extends Quantity<?>> currentValue = getValueAsQuantity(); // in "old" units
 		currentUnit = (Unit<Q>) ((StructuredSelection) event.getSelection()).getFirstElement();
-		setValue(currentValue.to(modelUnit).getEstimatedValue());
+		setValue(((Quantity) currentValue).to(modelUnit).getValue().doubleValue());
 	}
 
 	/**
@@ -170,8 +170,8 @@ public class NumberAndUnitsComposite<Q extends Quantity> extends Composite {
 	 *
 	 * @return Current value as a quantity
 	 */
-	public Amount<? extends Quantity> getValueAsQuantity() {
-		return Amount.valueOf(getTextAsDouble(), currentUnit);
+	public Quantity<Q> getValueAsQuantity() {
+		return Quantities.getQuantity(getTextAsDouble(), currentUnit);
 	}
 
 	/**
@@ -180,8 +180,9 @@ public class NumberAndUnitsComposite<Q extends Quantity> extends Composite {
 	 *
 	 * @return the value in model units
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public double getValue() {
-		return getValueAsQuantity().to(modelUnit).getEstimatedValue();
+		return ((Quantity) getValueAsQuantity()).to(modelUnit).getValue().doubleValue();
 	}
 
 	/**
@@ -193,7 +194,7 @@ public class NumberAndUnitsComposite<Q extends Quantity> extends Composite {
 	 */
 	public void setValue(double value) {
 		// Value in current units
-		final double valueInCurrentUnits = Amount.valueOf(value, modelUnit).to(currentUnit).getEstimatedValue();
+		final double valueInCurrentUnits = Quantities.getQuantity(value, modelUnit).to(currentUnit).getValue().doubleValue();
 		final double absValueInCurrentUnits = Math.abs(valueInCurrentUnits);
 
 		// Check if the absolute the value is not exactly zero and larger than 1000 or smaller than 0.001

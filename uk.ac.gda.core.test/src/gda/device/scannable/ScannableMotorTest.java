@@ -26,8 +26,6 @@ import static gda.device.MotorStatus.READY;
 import static gda.device.MotorStatus.SOFT_LIMIT_VIOLATION;
 import static gda.device.MotorStatus.UPPER_LIMIT;
 import static gda.device.scannable.ScannableMotor.COPY_MOTOR_LIMITS_INTO_SCANNABLE_LIMITS;
-import static javax.measure.unit.SI.METER;
-import static javax.measure.unit.SI.MILLI;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -38,8 +36,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static tec.units.indriya.unit.MetricPrefix.MILLI;
+import static tec.units.indriya.unit.Units.METRE;
 
-import org.jscience.physics.amount.Amount;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,6 +54,7 @@ import gda.factory.Factory;
 import gda.factory.Finder;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
+import tec.units.indriya.quantity.Quantities;
 
 /**
  * Note basic limits testing and offset/scaling testing is performed in SMBT and SMUBT.<br>
@@ -63,6 +63,8 @@ import gda.jython.InterfaceProvider;
 public class ScannableMotorTest {
 	// Tolerance allowed for inaccuracies in floating point calculations
 	private static final double FP_TOLERANCE = 0.0000001;
+
+	private static final String[] ENERGY_UNITS = new String[] { "J", "keV", "eV", "GeV" };
 
 	private ScannableMotor sm;
 	private Motor motor;
@@ -408,8 +410,8 @@ public class ScannableMotorTest {
 	public void testIsAt2() throws Exception {
 		sm.setTolerance(.1); // micron
 		when(motor.getPosition()).thenReturn(.001); // mm
-		assertTrue(sm.isAt(Amount.valueOf(0.001, MILLI(METER))));
-		assertFalse(sm.isAt(Amount.valueOf(0.0012, MILLI(METER))));
+		assertTrue(sm.isAt(Quantities.getQuantity(0.001, MILLI(METRE))));
+		assertFalse(sm.isAt(Quantities.getQuantity(0.0012, MILLI(METRE))));
 	}
 
 	@Test
@@ -484,7 +486,7 @@ public class ScannableMotorTest {
 		scannable.configure();
 		assertEquals("eV", scannable.getHardwareUnitString());
 		assertEquals("eV", scannable.getUserUnits());
-		assertArrayEquals(new String[] { "keV", "eV", "GeV" }, scannable.getAcceptableUnits());
+		assertArrayEquals(ENERGY_UNITS, scannable.getAcceptableUnits());
 	}
 
 	@Test
@@ -497,7 +499,7 @@ public class ScannableMotorTest {
 		scannable.configure();
 		assertEquals("eV", scannable.getHardwareUnitString());
 		assertEquals("eV", scannable.getUserUnits());
-		assertArrayEquals(new String[] { "keV", "eV", "GeV" }, scannable.getAcceptableUnits());
+		assertArrayEquals(ENERGY_UNITS, scannable.getAcceptableUnits());
 	}
 
 	@Test
@@ -511,7 +513,7 @@ public class ScannableMotorTest {
 		scannable.configure();
 		assertEquals("keV", scannable.getHardwareUnitString());
 		assertEquals("eV", scannable.getUserUnits());
-		assertArrayEquals(new String[] { "keV", "eV", "GeV" }, scannable.getAcceptableUnits());
+		assertArrayEquals(ENERGY_UNITS, scannable.getAcceptableUnits());
 	}
 
 	@Test
@@ -524,7 +526,7 @@ public class ScannableMotorTest {
 		scannable.configure();
 		assertEquals("eV", scannable.getHardwareUnitString());
 		assertEquals("keV", scannable.getUserUnits());
-		assertArrayEquals(new String[] { "keV", "eV", "GeV" }, scannable.getAcceptableUnits());
+		assertArrayEquals(ENERGY_UNITS, scannable.getAcceptableUnits());
 	}
 
 	@Test

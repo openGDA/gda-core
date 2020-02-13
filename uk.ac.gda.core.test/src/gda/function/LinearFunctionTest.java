@@ -18,46 +18,46 @@
 
 package gda.function;
 
-import static javax.measure.unit.NonSI.ELECTRON_VOLT;
-import static javax.measure.unit.SI.METER;
-import static javax.measure.unit.SI.MICRO;
-import static javax.measure.unit.SI.NANO;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static si.uom.NonSI.ELECTRON_VOLT;
+import static tec.units.indriya.AbstractUnit.ONE;
+import static tec.units.indriya.unit.MetricPrefix.MICRO;
+import static tec.units.indriya.unit.MetricPrefix.NANO;
+import static tec.units.indriya.unit.Units.METRE;
 
-import javax.measure.converter.ConversionException;
+import javax.measure.Quantity;
+import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
 
-import org.jscience.physics.amount.Amount;
 import org.junit.Test;
+
+import tec.units.indriya.quantity.Quantities;
 
 public class LinearFunctionTest {
 	// Allow for inaccuracy in floating point values
 	private static final double FP_TOLERANCE = 0.000000001;
 
-	private static final Amount<Length> LENGTH1 = Amount.valueOf(2.66, MICRO(METER));
-	private static final Amount<Length> LENGTH2 = Amount.valueOf(1.83, MICRO(METER));
-	private static final Amount<Length> LENGTH3 = Amount.valueOf(22.9, NANO(METER));
+	private static final Quantity<Length> LENGTH1 = Quantities.getQuantity(2.66, MICRO(METRE));
+	private static final Quantity<Length> LENGTH2 = Quantities.getQuantity(1.83, MICRO(METRE));
+	private static final Quantity<Length> LENGTH3 = Quantities.getQuantity(22.9, NANO(METRE));
 
-	private static final Amount<Energy> ENERGY1 = Amount.valueOf(1.2, ELECTRON_VOLT);
-	private static final Amount<Energy> ENERGY2 = Amount.valueOf(3.7, ELECTRON_VOLT);
+	private static final Quantity<Energy> ENERGY1 = Quantities.getQuantity(1.2, ELECTRON_VOLT);
+	private static final Quantity<Energy> ENERGY2 = Quantities.getQuantity(3.7, ELECTRON_VOLT);
 
 	@Test
 	public void testNoArgsConstructor() {
-		final LinearFunction function = new LinearFunction();
-		assertEquals(1.0, function.getSlopeDividend().getEstimatedValue(), FP_TOLERANCE);
-		assertEquals(Unit.ONE, function.getSlopeDividend().getUnit());
-		assertEquals(1.0, function.getSlopeDivisor().getEstimatedValue(), FP_TOLERANCE);
-		assertEquals(Unit.ONE, function.getSlopeDivisor().getUnit());
-		assertEquals(0.0, function.getInterception().getEstimatedValue(), FP_TOLERANCE);
-		assertEquals(Unit.ONE, function.getInterception().getUnit());	}
+		final LinearFunction<Energy, Length> function = new LinearFunction<>();
+		assertNull(function.getSlopeDividend());
+		assertNull(function.getSlopeDivisor());
+		assertNull(function.getInterception());
+	}
 
 	@Test
 	public void testThreeArgsConstructor() {
-		final LinearFunction function = new LinearFunction(LENGTH2, ENERGY1, LENGTH1);
+		final LinearFunction<Energy, Length> function = new LinearFunction<>(LENGTH2, ENERGY1, LENGTH1);
 		assertFalse(LENGTH2 == function.getSlopeDividend());
 		assertAmountEquals(LENGTH2, function.getSlopeDividend());
 
@@ -70,7 +70,7 @@ public class LinearFunctionTest {
 
 	@Test
 	public void testSettersCloneInput() {
-		final LinearFunction function = new LinearFunction();
+		final LinearFunction<Energy, Length> function = new LinearFunction<>();
 		function.setSlopeDividend(LENGTH2);
 		function.setSlopeDivisor(ENERGY1);
 		function.setInterception(LENGTH1);
@@ -86,50 +86,44 @@ public class LinearFunctionTest {
 	}
 
 	public void testApplyNoArgsContructor() {
-		final LinearFunction function = new LinearFunction();
-		final Amount<? extends Quantity> input = Amount.valueOf(5.32, Unit.ONE);
-		final Amount<? extends Quantity> result = function.apply(input);
-		assertEquals(input.getEstimatedValue(), result.getEstimatedValue(), FP_TOLERANCE);
-		assertEquals(Unit.ONE, result.getUnit());
+		final LinearFunction<Dimensionless, Dimensionless> function = new LinearFunction<>();
+		final Quantity<Dimensionless> input = Quantities.getQuantity(5.32, ONE);
+		final Quantity<Dimensionless> result = function.apply(input);
+		assertEquals(input.getValue().doubleValue(), result.getValue().doubleValue(), FP_TOLERANCE);
+		assertEquals(ONE, result.getUnit());
 	}
 
 	public void testApplyThreeArgsContructor() {
-		final LinearFunction function = new LinearFunction(LENGTH1, ENERGY1, LENGTH2);
-		final Amount<? extends Quantity> result = function.apply(ENERGY2);
-		assertEquals(8.3025, result.getEstimatedValue(), FP_TOLERANCE);
-		assertEquals(MICRO(METER), result.getUnit());
+		final LinearFunction<Energy, Length> function = new LinearFunction<>(LENGTH1, ENERGY1, LENGTH2);
+		final Quantity<Length> result = function.apply(ENERGY2);
+		assertEquals(8.3025, result.getValue().doubleValue(), FP_TOLERANCE);
+		assertEquals(MICRO(METRE), result.getUnit());
 	}
 
 	@Test
 	public void testApply() {
-		final LinearFunction function = new LinearFunction();
+		final LinearFunction<Energy, Length> function = new LinearFunction<>();
 		function.setInterception(LENGTH1);
 		function.setSlopeDividend(LENGTH2);
 		function.setSlopeDivisor(ENERGY1);
 
-		final Amount<? extends Quantity> result = function.apply(ENERGY2);
-		assertEquals(8.3025, result.getEstimatedValue(), FP_TOLERANCE);
-		assertEquals(MICRO(METER), result.getUnit());
+		final Quantity<? extends Quantity<?>> result = function.apply(ENERGY2);
+		assertEquals(8.3025, result.getValue().doubleValue(), FP_TOLERANCE);
+		assertEquals(MICRO(METRE), result.getUnit());
 	}
 
 	@Test
 	public void testApplyDifferentUnits() {
 		// Interception & dividend have different (but compatible) units
-		final LinearFunction function = new LinearFunction(LENGTH3, ENERGY1, LENGTH1);
-		final Amount<? extends Quantity> result = function.apply(ENERGY2);
-		assertEquals(2730.60833333333, result.getEstimatedValue(), FP_TOLERANCE);
-		assertEquals(NANO(METER), result.getUnit());
+		final LinearFunction<Energy, Length> function = new LinearFunction<>(LENGTH3, ENERGY1, LENGTH1);
+		final Quantity<? extends Quantity<?>> result = function.apply(ENERGY2);
+		assertEquals(2730.60833333333, result.getValue().doubleValue(), FP_TOLERANCE);
+		assertEquals(NANO(METRE), result.getUnit());
 	}
 
-	@Test(expected = ConversionException.class)
-	public void testApplyIncorrectUnits() {
-		final LinearFunction function = new LinearFunction(LENGTH1, ENERGY1, LENGTH2);
-		function.apply(LENGTH3);
-	}
-
-	private void assertAmountEquals(Amount<? extends Quantity> expected, Amount<? extends Quantity> actual) {
+	private void assertAmountEquals(Quantity<? extends Quantity<?>> expected, Quantity<? extends Quantity<?>> actual) {
 		assertEquals(expected.getUnit(), actual.getUnit());
-		assertEquals(expected.getEstimatedValue(), expected.getEstimatedValue(), FP_TOLERANCE);
+		assertEquals(expected.getValue().doubleValue(), expected.getValue().doubleValue(), FP_TOLERANCE);
 	}
 
 }

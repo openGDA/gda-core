@@ -18,13 +18,13 @@
 
 package gda.function;
 
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
+import javax.measure.Quantity;
+import javax.measure.Unit;
 
-import org.jscience.physics.amount.Amount;
+import tec.units.indriya.quantity.Quantities;
 
 /** A linear function that assumes the calculated amount uses the same units as the original */
-public class SimpleAffineFunction extends FindableFunction {
+public class SimpleAffineFunction <R extends Quantity<R>> extends FindableFunction<R, R> {
 
 	private double scaler = 1;
 	private double offset = 0;
@@ -33,9 +33,9 @@ public class SimpleAffineFunction extends FindableFunction {
 	 * Calculate scaler * amount + offset
 	 */
 	@Override
-	public Amount<? extends Quantity> apply(Amount<? extends Quantity> amount) {
-		Unit<? extends Quantity> unit = amount.getUnit();
-		return amount.times(scaler).plus(Amount.valueOf(offset, unit));
+	public Quantity<R> apply(Quantity<R> amount) {
+		Unit<R> unit = amount.getUnit();
+		return amount.multiply(scaler).add(Quantities.getQuantity(offset, unit));
 	}
 
 	public double getScaler() {

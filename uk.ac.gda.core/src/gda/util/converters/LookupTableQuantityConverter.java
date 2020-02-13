@@ -22,15 +22,15 @@ package gda.util.converters;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
+import javax.measure.Quantity;
+import javax.measure.Unit;
 
-import org.jscience.physics.amount.Amount;
 import org.springframework.util.StringUtils;
 
 import gda.function.ColumnDataFile;
 import gda.function.InterpolationFunction;
 import gda.function.InterpolationWithoutExtrapolationFunction;
+import gda.util.QuantityFactory;
 
 /**
  * Class to perform conversion between a Source and Target quantity using a lookup table
@@ -39,6 +39,7 @@ import gda.function.InterpolationWithoutExtrapolationFunction;
  * @see org.nfunk.jep.JEP
  */
 public final class LookupTableQuantityConverter implements IQuantityConverter {
+	@SuppressWarnings("rawtypes")
 	private final InterpolationFunction interpolateFunctionStoT, interpolateFunctionTtoS;
 
 	private final ColumnDataFile columnDataFile;
@@ -107,6 +108,7 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 		this(columnDataFileName, filenameIsFull, sColumn, tColumn, mode, true);
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public LookupTableQuantityConverter(String columnDataFileName, boolean filenameIsFull, int sColumn, int tColumn,
 			Mode mode, boolean extrapolate) {
 		this.sColumn = sColumn;
@@ -128,8 +130,8 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 			// and max source.
 			final String sColumnUnitsString = columnDataFile.getColumnUnits(sColumn);
 			final String tColumnUnitsString = columnDataFile.getColumnUnits(tColumn);
-			final Unit<? extends Quantity> sColumnUnits = Unit.valueOf(sColumnUnitsString);
-			final Unit<? extends Quantity> tColumnUnits = Unit.valueOf(tColumnUnitsString);
+			final Unit<? extends Quantity<?>> sColumnUnits = QuantityFactory.createUnitFromString(sColumnUnitsString);
+			final Unit<? extends Quantity<?>> tColumnUnits = QuantityFactory.createUnitFromString(tColumnUnitsString);
 			if (performStoT()) {
 				if (extrapolate) {
 					interpolateFunctionStoT = new InterpolationFunction(columnDataFile.getColumn(sColumn),
@@ -190,14 +192,15 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 		return acceptableTargetUnits;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public Amount<? extends Quantity> toSource(Amount<? extends Quantity> target) throws Exception {
+	public Quantity<? extends Quantity<?>> toSource(Quantity<? extends Quantity<?>> target) throws Exception {
 		if (!performTtoS()) {
 			throw new UnsupportedConversionException(
 					"LookupTableQuantityConverter.toSource: Mode does not allow T→S conversion. "
 							+ this.toString());
 		}
-		final Unit<? extends Quantity> acceptableUnits = Unit.valueOf(getAcceptableTargetUnits().get(0));
+		final Unit<? extends Quantity<?>> acceptableUnits = QuantityFactory.createUnitFromString(getAcceptableTargetUnits().get(0));
 		if (!target.getUnit().isCompatible(acceptableUnits)) {
 			throw new InvalidUnitsException("LookupTableQuantityConverter.toSource: target units ("
 					+ target.getUnit() + ") are not compatible with acceptable units (" + acceptableUnits + "). "
@@ -214,14 +217,15 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public Amount<? extends Quantity> toTarget(Amount<? extends Quantity> source) throws Exception {
+	public Quantity<? extends Quantity<?>> toTarget(Quantity<? extends Quantity<?>> source) throws Exception {
 		if (!performStoT()) {
 			throw new UnsupportedConversionException(
 					"LookupTableQuantityConverter.toTarget: Mode does not allow S→T conversion. "
 							+ this.toString());
 		}
-		final Unit<? extends Quantity> acceptableUnits = Unit.valueOf(getAcceptableSourceUnits().get(0));
+		final Unit<? extends Quantity<?>> acceptableUnits = QuantityFactory.createUnitFromString(getAcceptableSourceUnits().get(0));
 		if (!source.getUnit().isCompatible(acceptableUnits)) {
 			throw new InvalidUnitsException("LookupTableQuantityConverter.toTarget: source units ("
 					+ source.getUnit() + ") are not compatible with acceptable units (" + acceptableUnits + "). "

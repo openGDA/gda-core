@@ -21,11 +21,10 @@ package gda.util;
 
 import java.util.StringTokenizer;
 
-import javax.measure.quantity.Dimensionless;
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.format.ParserException;
 
-import org.jscience.physics.amount.Amount;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
 import org.python.core.PyString;
@@ -33,6 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.jscience.physics.units.NonSIext;
+import tec.units.indriya.AbstractUnit;
+import tec.units.indriya.format.SimpleUnitFormat;
+import tec.units.indriya.quantity.Quantities;
 
 /**
  * A factory class to create Quantities from Strings. Uses a combination of BFI and Trickery.
@@ -53,37 +55,61 @@ public class QuantityFactory {
 	 * This can take a variety of objects, including Jython native types.
 	 *
 	 * @param position
-	 * @param targetQuantity
+	 * @param unit
 	 * @return the Quantity created (or null)
 	 */
 	@SuppressWarnings("unchecked")
-	public static <Q extends Quantity> Amount<Q> createFromObject(Object position, Unit<Q> targetQuantity) {
+	public static <Q extends Quantity<Q>> Quantity<Q> createFromObject(Object position, Unit<Q> unit) {
 		// position must be a double or a string which can be converted in a
 		// suitable quantity for this object
 
 		// convert input into Quantity objects
 		if (position instanceof String) {
-			final Amount<? extends Quantity> positionAsQuantity = QuantityFactory.createFromString((String) position);
+			final Quantity<Q> positionAsQuantity = (Quantity<Q>) createFromString((String) position);
 			if (positionAsQuantity != null){
-				return positionAsQuantity.to(targetQuantity);
+				return positionAsQuantity.to(unit);
 			}
 		} else if (position instanceof PyString) {
-			final Amount<? extends Quantity> positionAsQuantity = QuantityFactory.createFromString(((PyString) position).toString());
-			if (positionAsQuantity != null) {
-				return positionAsQuantity.to(targetQuantity);
+			final Quantity<Q> positionAsQuantity = (Quantity<Q>) createFromString(((PyString) position).toString());
+			if (positionAsQuantity != null){
+				return positionAsQuantity.to(unit);
 			}
 		} else if (position instanceof Double) {
-			return Amount.valueOf((Double) position, targetQuantity);
+			return Quantities.getQuantity((Double) position, unit);
 		} else if (position instanceof Integer) {
-			return Amount.valueOf((Integer) position, targetQuantity);
+			return Quantities.getQuantity((Integer) position, unit);
 		} else if (position instanceof PyFloat) {
-			return Amount.valueOf(((PyFloat) position).getValue(), targetQuantity);
+			return Quantities.getQuantity(((PyFloat) position).getValue(), unit);
 		} else if (position instanceof PyInteger) {
-			return Amount.valueOf(((PyInteger) position).getValue(), targetQuantity);
-		} else if (position instanceof Amount) {
-			return ((Amount<? extends Quantity>) position).to(targetQuantity);
+			return Quantities.getQuantity(((PyInteger) position).getValue(), unit);
+		} else if (position instanceof Quantity) {
+			return ((Quantity<Q>) position).to(unit);
 		}
 		return null;
+	}
+
+	/**
+	 * Similar to {@link #createFromObject(Object, Unit)}, but the unit is specified as a String
+	 *
+	 * @param value
+	 * @param unitString
+	 * @return the Quantity created (or null)
+	 */
+	public static <Q extends Quantity<Q>> Quantity<Q> createFromObject(Object value, String unitString) {
+		final Unit<Q> unit = createUnitFromString(unitString);
+		return createFromObject(value, unit);
+	}
+
+	/**
+	 * Similar to {@link #createFromObject(Object, Unit)}, but with an untyped unit
+	 *
+	 * @param value
+	 * @param unit
+	 * @return the Quantity created (or null)
+	 */
+	@SuppressWarnings("unchecked")
+	public static <Q extends Quantity<Q>> Quantity<Q> createFromObjectUnknownUnit(Object value, Unit<? extends Quantity<?>> unit) {
+		return createFromObject(value, (Unit<Q>) unit);
 	}
 
 	/**
@@ -94,7 +120,7 @@ public class QuantityFactory {
 	 *            of the form '1.0 mm'
 	 * @return the Quantity created (or null)
 	 */
-	public static Amount<? extends Quantity> createFromString(String string) {
+	public static Quantity<? extends Quantity<?>> createFromString(String string) {
 		final String valueString;
 		final String unitString;
 		if (string != null) {
@@ -157,13 +183,13 @@ public class QuantityFactory {
 	 *            the units - e.g. 'mm'
 	 * @return the Quantity created (or null)
 	 */
-	public static Amount<? extends Quantity> createFromTwoStrings(String valueString, String unitString) {
+	public static <Q extends Quantity<Q>> Quantity<Q> createFromTwoStrings(String valueString, String unitString) {
 		if (valueString != null && unitString != null) {
 			try {
-				if (unitString.length() == 0) {
-					return Amount.valueOf(Double.parseDouble(valueString), Dimensionless.UNIT);
-				}
-				return Amount.valueOf(valueString + " " + unitString);
+				final Double valueDouble = Double.parseDouble(valueString);
+				@SuppressWarnings("unchecked")
+				final Unit<Q> unit = unitString.length() == 0 ? (Unit<Q>) AbstractUnit.ONE : createUnitFromString(unitString);
+				return Quantities.getQuantity(valueDouble, unit);
 			} catch (Exception e) {
 				logger.warn("Invalid Amount specified. valueString = '{}', unitString = '{}'", valueString, unitString);
 				return null;
@@ -181,12 +207,13 @@ public class QuantityFactory {
 	 *            the name of a unit.
 	 * @return the corresponding Unit, or null if not found
 	 */
-	public static Unit<? extends Quantity> createUnitFromString(String string) {
+	@SuppressWarnings("unchecked")
+	public static <Q extends Quantity<Q>> Unit<Q> createUnitFromString(String string) {
 		// This method is tagged with @suppressWarnings as we can't predict at
 		// compile time which type of unit will be created from a string.
 		try {
-			return (string != null) ? Unit.valueOf(string) : null;
-		} catch (IllegalArgumentException e) {
+			return (string != null) ? (Unit<Q>) SimpleUnitFormat.getInstance().parse(string) : null;
+		} catch (ParserException e) {
 			logger.warn("Unknown unit {} requested", string);
 			return null;
 		}

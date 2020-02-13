@@ -21,17 +21,15 @@ package gda.function;
 
 import java.util.function.Function;
 
-import javax.measure.quantity.Quantity;
-
-import org.jscience.physics.amount.Amount;
+import javax.measure.Quantity;
 
 /**
  * Identity function (yValue = xValue).
  */
-public class IdentityFunction implements Function<Amount<? extends Quantity>, Amount<? extends Quantity>> {
+public class IdentityFunction implements Function<Quantity<? extends Quantity<?>>, Quantity<? extends Quantity<?>>> {
 
 	@Override
-	public Amount<? extends Quantity> apply(Amount<? extends Quantity> xValue) {
+	public Quantity<? extends Quantity<?>> apply(Quantity<? extends Quantity<?>> xValue) {
 		return xValue;
 	}
 }

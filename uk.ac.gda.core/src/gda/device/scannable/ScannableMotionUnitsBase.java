@@ -21,9 +21,8 @@
  */
 package gda.device.scannable;
 
-import javax.measure.quantity.Quantity;
+import javax.measure.Quantity;
 
-import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +58,7 @@ public abstract class ScannableMotionUnitsBase extends ScannableMotionBase imple
 	private String initialUserUnits = null;
 
 	@Override
-	public Amount<? extends Quantity>[] getPositionAsQuantityArray() throws DeviceException {
+	public Quantity<? extends Quantity<?>>[] getPositionAsQuantityArray() throws DeviceException {
 		throw new RuntimeException("Not implemented");
 	}
 

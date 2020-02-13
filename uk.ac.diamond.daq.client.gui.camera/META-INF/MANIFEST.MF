@@ -13,7 +13,6 @@ Import-Package: gda.configuration.properties,
  org.eclipse.ui.part,
  org.slf4j
 Require-Bundle: org.eclipse.jface,
- uk.ac.diamond.org.jscience4,
  org.dawnsci.plotting.histogram,
  uk.ac.gda.client.live.stream,
  uk.ac.gda.client,

@@ -19,40 +19,45 @@
 
 package gda.jscience.physics.quantities;
 
-import static gda.jscience.physics.quantities.QuantityConstants.ZERO_ENERGY;
-import static gda.jscience.physics.quantities.QuantityConstants.ZERO_LENGTH;
-import static javax.measure.unit.NonSI.ANGSTROM;
-import static javax.measure.unit.NonSI.DEGREE_ANGLE;
-import static javax.measure.unit.NonSI.ELECTRON_VOLT;
-import static javax.measure.unit.SI.MILLI;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static si.uom.NonSI.ANGSTROM;
+import static si.uom.NonSI.DEGREE_ANGLE;
+import static si.uom.SI.ELECTRON_VOLT;
+import static tec.units.indriya.unit.MetricPrefix.MILLI;
+import static tec.units.indriya.unit.Units.JOULE;
+import static tec.units.indriya.unit.Units.METRE;
+import static tec.units.indriya.unit.Units.RADIAN;
 
+import javax.measure.Quantity;
 import javax.measure.quantity.Angle;
 import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
 
-import org.jscience.physics.amount.Amount;
 import org.junit.Test;
+
+import tec.units.indriya.quantity.Quantities;
 
 /**
  * Test suite for Bragg Angle conversion functions
  */
 public class BraggAngleTest {
-	private static final Amount<Length> WAVELENGTH = Amount.valueOf(1.388, ANGSTROM);
-	private static final Amount<Length> TWO_D = Amount.valueOf(6.271, ANGSTROM);
-	private static final Amount<Energy> PHOTON_ENERGY = Amount.valueOf(8.9326e+3, ELECTRON_VOLT);
-	private static final Amount<Length> NEGATIVE_LENGTH = Amount.valueOf(-0.01, ANGSTROM);
-	private static final Amount<Energy> NEGATIVE_ENERGY = Amount.valueOf(-0.01, ELECTRON_VOLT);
+	private static final Quantity<Length> WAVELENGTH = Quantities.getQuantity(1.388, ANGSTROM);
+	private static final Quantity<Length> TWO_D = Quantities.getQuantity(6.271, ANGSTROM);
+	private static final Quantity<Energy> PHOTON_ENERGY = Quantities.getQuantity(8.9326e+3, ELECTRON_VOLT);
+	private static final Quantity<Length> NEGATIVE_LENGTH = Quantities.getQuantity(-0.01, ANGSTROM);
+	private static final Quantity<Energy> NEGATIVE_ENERGY = Quantities.getQuantity(-0.01, ELECTRON_VOLT);
+	private static final Quantity<Length> ZERO_LENGTH = Quantities.getQuantity(0, METRE);
+	private static final Quantity<Energy> ZERO_ENERGY = Quantities.getQuantity(0, JOULE);
 
 	//------------------------------------------------------------------------------------------
 	// Bragg angle from wavelength
 	//------------------------------------------------------------------------------------------
 	@Test
 	public void testBraggAngleFromWavelength() {
-		final Amount<Angle> expectedAngle = Amount.valueOf(12787.5, MILLI(DEGREE_ANGLE));
-		final Amount<Angle> result = QuantityConverters.braggAngleFromWavelength(WAVELENGTH, TWO_D);
-		assertEquals(expectedAngle.doubleValue(Angle.UNIT), result.doubleValue(Angle.UNIT), 0.000001);
+		final Quantity<Angle> expectedAngle = Quantities.getQuantity(12787.5, MILLI(DEGREE_ANGLE));
+		final Quantity<Angle> result = QuantityConverters.braggAngleFromWavelength(WAVELENGTH, TWO_D);
+		assertEquals(expectedAngle.to(RADIAN).getValue().doubleValue(), result.to(RADIAN).getValue().doubleValue(), 0.000001);
 	}
 
 	@Test
@@ -90,9 +95,9 @@ public class BraggAngleTest {
 	//------------------------------------------------------------------------------------------
 	@Test
 	public void testBraggAngleFromPhotonEnergy() {
-		final Amount<Angle> expectedAngle = Amount.valueOf(12787.5, MILLI(DEGREE_ANGLE));
-		final Amount<Angle> result = QuantityConverters.braggAngleFromEnergy(PHOTON_ENERGY, TWO_D);
-		assertEquals(expectedAngle.doubleValue(Angle.UNIT), result.doubleValue(Angle.UNIT), 0.00001);
+		final Quantity<Angle> expectedAngle = Quantities.getQuantity(12787.5, MILLI(DEGREE_ANGLE));
+		final Quantity<Angle> result = QuantityConverters.braggAngleFromEnergy(PHOTON_ENERGY, TWO_D);
+		assertEquals(expectedAngle.to(RADIAN).getValue().doubleValue(), result.to(RADIAN).getValue().doubleValue(), 0.00001);
 	}
 
 	@Test

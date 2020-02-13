@@ -19,28 +19,7 @@
 
 package gda.jscience.physics.quantities;
 
-import javax.measure.quantity.Length;
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
+import javax.measure.Quantity;
 
-import org.jscience.physics.amount.Amount;
-
-import gda.jscience.physics.units.NonSIext;
-
-public class WaveVector implements Quantity {
-	/**
-	 * Holds the system unit.
-	 */
-	public static final Unit<WaveVector> UNIT = NonSIext.PER_ANGSTROM;
-
-	/**
-	 * Represents a {@link Length} amounting to nothing.
-	 */
-	public static final Amount<WaveVector> ZERO = Amount.valueOf(0, UNIT);
-
-	/**
-	 * Default constructor (allows for derivation).
-	 */
-	protected WaveVector() {
-	}
+public interface WaveVector extends Quantity<WaveVector> {
 }

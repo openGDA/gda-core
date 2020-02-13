@@ -22,9 +22,7 @@ package gda.util.converters;
 import java.util.List;
 import java.util.Objects;
 
-import javax.measure.quantity.Quantity;
-
-import org.jscience.physics.amount.Amount;
+import javax.measure.Quantity;
 
 import gda.factory.FindableBase;
 import gda.util.converters.util.ConverterNameProvider;
@@ -89,17 +87,17 @@ public class AutoRenameableConverter extends FindableBase implements IReloadable
 	}
 
 	@Override
-	public Amount<? extends Quantity>[] calculateMoveables(Amount<? extends Quantity>[] sources, Object[] moveables) throws Exception {
+	public Quantity<? extends Quantity<?>>[] calculateMoveables(Quantity<? extends Quantity<?>>[] sources, Object[] moveables) throws Exception {
 
 		if (autoConversion) {
-			setConverterName(getProvider().getConverterName(sources[0].getEstimatedValue()));
+			setConverterName(getProvider().getConverterName(sources[0].getValue().doubleValue()));
 			reloadConverter();
 		}
 		return getConverter().calculateMoveables(sources, moveables);
 	}
 
 	@Override
-	public Amount<? extends Quantity>[] toSource(Amount<? extends Quantity>[] targets, Object[] moveables) throws Exception {
+	public Quantity<? extends Quantity<?>>[] toSource(Quantity<? extends Quantity<?>>[] targets, Object[] moveables) throws Exception {
 		return getConverter().toSource(targets, moveables);
 	}
 
@@ -117,7 +115,7 @@ public class AutoRenameableConverter extends FindableBase implements IReloadable
 	public String toString() {
 		// Do not call getConverter as toString should not change the state of
 		// the class
-		return "RenameableConverter using converter " + getConverterName().toString() + ". Constructed converter is "
+		return "RenameableConverter using converter " + getConverterName() + ". Constructed converter is "
 				+ ((converter != null) ? converter.toString() : " not yet loaded");
 	}
 
@@ -132,14 +130,14 @@ public class AutoRenameableConverter extends FindableBase implements IReloadable
 	}
 
 	@Override
-	public Amount<? extends Quantity> toSource(Amount<? extends Quantity> target) throws Exception {
+	public Quantity<? extends Quantity<?>> toSource(Quantity<? extends Quantity<?>> target) throws Exception {
 		return CoupledConverterHolder.getIQuantityConverter(getConverter()).toSource(target);
 	}
 
 	@Override
-	public Amount<? extends Quantity> toTarget(Amount<? extends Quantity> source) throws Exception {
+	public Quantity<? extends Quantity<?>> toTarget(Quantity<? extends Quantity<?>> source) throws Exception {
 		if (autoConversion) {
-			setConverterName(getProvider().getConverterName(source.getEstimatedValue()));
+			setConverterName(getProvider().getConverterName(source.getValue().doubleValue()));
 			reloadConverter();
 		}
 		return CoupledConverterHolder.getIQuantityConverter(getConverter()).toTarget(source);

@@ -23,7 +23,7 @@ import java.net.URISyntaxException;
 import java.util.Objects;
 
 import javax.inject.Inject;
-import javax.measure.quantity.Quantity;
+import javax.measure.Quantity;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
@@ -131,7 +131,7 @@ public abstract class AbstractRegionPathModelEditor<T> extends AbstractModelEdit
 	 * @return a {@link NumberAndUnitsComposite} initialised for the scannable
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected NumberAndUnitsComposite<Quantity> createNumberAndUnitsComposite(Composite parent, String axisName, String modelPropertyName) {
+	protected NumberAndUnitsComposite<? extends Quantity<?>> createNumberAndUnitsComposite(Composite parent, String axisName, String modelPropertyName) {
 		return new NumberAndUnitsComposite(parent, SWT.NONE, getUnitsProvider().getScannableUnit(axisName),
 				getUnitsProvider().getCompatibleUnits(axisName), getUnitsProvider().getInitialUnit(axisName, modelPropertyName));
 	}

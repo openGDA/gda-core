@@ -18,10 +18,9 @@
 
 package gda.device.scannable;
 
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
+import javax.measure.Quantity;
+import javax.measure.Unit;
 
-import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +51,7 @@ public class ConvertorScannable extends ScannableMotionUnitsBase implements IObs
 	private String theScannableName;
 	private String convertorUnitString;
 
-	private Amount<? extends Quantity> lastmoveTo_internalPositionQuantity = null;
+	private Quantity<? extends Quantity<?>> lastmoveTo_internalPositionQuantity = null;
 
 	public ConvertorScannable() {
 		unitsComponent = new UnitsComponentForConvertorScannable();
@@ -105,7 +104,7 @@ public class ConvertorScannable extends ScannableMotionUnitsBase implements IObs
 		try {
 			// clear position so that if an exception happens the cached value is invalid
 			lastmoveTo_internalPositionQuantity = null;
-			final Amount<? extends Quantity> internalPositionQuantity = convertInternalPositionAmountToInternalQuantity(internalPositionAmount);
+			final Quantity<? extends Quantity<?>> internalPositionQuantity = convertInternalPositionAmountToInternalQuantity(internalPositionAmount);
 			theScannable.asynchronousMoveTo(internalToTarget(internalPositionQuantity));
 			lastmoveTo_internalPositionQuantity = internalPositionQuantity;
 		} catch (Exception e) {
@@ -113,20 +112,21 @@ public class ConvertorScannable extends ScannableMotionUnitsBase implements IObs
 		}
 	}
 
-	private Amount<? extends Quantity> convertInternalPositionAmountToInternalQuantity(Object internalPositionAmount) {
-		final Unit<? extends Quantity> internalUnit = unitsComponent.getHardwareUnit();
-		Amount<? extends Quantity> internalQuantity = PositionConvertorFunctions.toQuantity(internalPositionAmount, internalUnit);
+	@SuppressWarnings("unchecked")
+	private <Q extends Quantity<Q>> Quantity<Q> convertInternalPositionAmountToInternalQuantity(Object internalPositionAmount) {
+		final Unit<Q> internalUnit = (Unit<Q>) unitsComponent.getHardwareUnit();
+		Quantity<Q> internalQuantity = PositionConvertorFunctions.toQuantity(internalPositionAmount, internalUnit);
 
 		// convert to a quantity in hardware units. These should be the same uses the table is expecting otheriwse the
 		// converter will throw an exception
 		if (convertorUnitString != null) {
-			final Unit<? extends Quantity> convertorUnit = QuantityFactory.createUnitFromString(convertorUnitString);
+			final Unit<Q> convertorUnit = (Unit<Q>) QuantityFactory.createUnitFromString(convertorUnitString);
 			internalQuantity = PositionConvertorFunctions.toQuantity(internalQuantity, convertorUnit);
 		}
 		return internalQuantity;
 	}
 
-	private Object internalToTarget(Amount<? extends Quantity> internalPositionQuantity) throws Exception {
+	private Object internalToTarget(Quantity<? extends Quantity<?>> internalPositionQuantity) throws Exception {
 		try {
 			return theConvertor.toTarget(internalPositionQuantity);
 		} catch (IllegalArgumentException e) {
@@ -139,19 +139,20 @@ public class ConvertorScannable extends ScannableMotionUnitsBase implements IObs
 	/*
 	 * ScannableMotion considers source as the object to be driven. Convertors consider source as the driver
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Object sourceToInternal(Object sourcePositionAmount) throws Exception {
 		// theScannable will have returned in its internal (user) units. Make this explicit.
-		final Amount<? extends Quantity> sourcePositionQuantity = QuantityFactory.createFromObject(sourcePositionAmount,
-				QuantityFactory.createUnitFromString(theScannable.getUserUnits()));
+		final Quantity<? extends Quantity<?>> sourcePositionQuantity = QuantityFactory.createFromObject(sourcePositionAmount,
+				theScannable.getUserUnits());
 
-		final Unit<? extends Quantity> acceptableTargetUnits = Unit.valueOf(theConvertor.getAcceptableTargetUnits().get(0));
-		final Amount<? extends Quantity> targetPositionInTargetUnits = sourcePositionQuantity.to(acceptableTargetUnits);
+		final Unit<? extends Quantity<?>> acceptableTargetUnits = QuantityFactory.createUnitFromString(theConvertor.getAcceptableTargetUnits().get(0));
+		final Quantity<? extends Quantity<?>> targetPositionInTargetUnits = ((Quantity) sourcePositionQuantity).to(acceptableTargetUnits);
 
 		try {
-			Amount<? extends Quantity> currentPositionInHardwareUnits = theConvertor.toSource(targetPositionInTargetUnits);
-			if (Double.isInfinite(currentPositionInHardwareUnits.getEstimatedValue())) {
+			Quantity<? extends Quantity<?>> currentPositionInHardwareUnits = theConvertor.toSource(targetPositionInTargetUnits);
+			if (Double.isInfinite(currentPositionInHardwareUnits.getValue().doubleValue())) {
 				logger.debug("ConverterScannable.rawGetPosition. NewValue for " + getName() + " is infinite. ");
-				currentPositionInHardwareUnits = Amount.valueOf(0, currentPositionInHardwareUnits.getUnit());
+				currentPositionInHardwareUnits = QuantityFactory.createFromObjectUnknownUnit(0, currentPositionInHardwareUnits.getUnit());
 			}
 			return currentPositionInHardwareUnits;
 		} catch (Exception e) {
@@ -273,7 +274,7 @@ public class ConvertorScannable extends ScannableMotionUnitsBase implements IObs
 	private class UnitsComponentForConvertorScannable extends UnitsComponent {
 		@Override
 		protected void actuallySetUserUnits(String userUnitsString) throws DeviceException {
-			userUnit = Unit.valueOf(userUnitsString);
+			userUnit = QuantityFactory.createUnitFromString(userUnitsString);
 		}
 	}
 }

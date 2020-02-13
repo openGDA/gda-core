@@ -20,9 +20,7 @@ package gda.util.converters;
 
 import java.util.List;
 
-import javax.measure.quantity.Quantity;
-
-import org.jscience.physics.amount.Amount;
+import javax.measure.Quantity;
 
 import gda.factory.FindableBase;
 
@@ -96,18 +94,18 @@ public class RenameableConverter extends FindableBase implements IReloadableQuan
 	}
 
 	/**
-	 * @see gda.util.converters.IQuantitiesConverter#calculateMoveables(Amount[], Object[])
+	 * @see gda.util.converters.IQuantitiesConverter#calculateMoveables(Quantity[], Object[])
 	 */
 	@Override
-	public Amount<? extends Quantity>[] calculateMoveables(Amount<? extends Quantity>[] sources, Object[] moveables) throws Exception {
+	public Quantity<? extends Quantity<?>>[] calculateMoveables(Quantity<? extends Quantity<?>>[] sources, Object[] moveables) throws Exception {
 		return getConverter().calculateMoveables(sources, moveables);
 	}
 
 	/**
-	 * @see gda.util.converters.IQuantitiesConverter#toSource(Amount[], Object[])
+	 * @see gda.util.converters.IQuantitiesConverter#toSource(Quantity[], Object[])
 	 */
 	@Override
-	public Amount<? extends Quantity>[] toSource(Amount<? extends Quantity>[] targets, Object[] moveables) throws Exception {
+	public Quantity<? extends Quantity<?>>[] toSource(Quantity<? extends Quantity<?>>[] targets, Object[] moveables) throws Exception {
 		return getConverter().toSource(targets, moveables);
 	}
 
@@ -155,12 +153,12 @@ public class RenameableConverter extends FindableBase implements IReloadableQuan
 	}
 
 	@Override
-	public Amount<? extends Quantity> toSource(Amount<? extends Quantity> target) throws Exception {
+	public Quantity<? extends Quantity<?>> toSource(Quantity<? extends Quantity<?>> target) throws Exception {
 		return CoupledConverterHolder.getIQuantityConverter(getConverter()).toSource(target);
 	}
 
 	@Override
-	public Amount<? extends Quantity> toTarget(Amount<? extends Quantity> source) throws Exception {
+	public Quantity<? extends Quantity<?>> toTarget(Quantity<? extends Quantity<?>> source) throws Exception {
 		return CoupledConverterHolder.getIQuantityConverter(getConverter()).toTarget(source);
 	}
 

@@ -19,42 +19,42 @@
 
 package gda.jscience.physics.quantities;
 
-import static gda.jscience.physics.quantities.QuantityConstants.ZERO_ANGLE;
-import static gda.jscience.physics.quantities.QuantityConstants.ZERO_ENERGY;
-import static gda.jscience.physics.quantities.QuantityConstants.ZERO_LENGTH;
-import static javax.measure.unit.NonSI.ANGSTROM;
-import static javax.measure.unit.NonSI.DEGREE_ANGLE;
-import static javax.measure.unit.NonSI.ELECTRON_VOLT;
-import static javax.measure.unit.SI.METER;
-import static javax.measure.unit.SI.NANO;
-import static javax.measure.unit.SI.RADIAN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static si.uom.NonSI.ANGSTROM;
+import static si.uom.NonSI.DEGREE_ANGLE;
+import static si.uom.NonSI.ELECTRON_VOLT;
+import static tec.units.indriya.unit.MetricPrefix.MILLI;
+import static tec.units.indriya.unit.MetricPrefix.NANO;
+import static tec.units.indriya.unit.Units.JOULE;
+import static tec.units.indriya.unit.Units.METRE;
+import static tec.units.indriya.unit.Units.RADIAN;
 
+import javax.measure.Quantity;
 import javax.measure.quantity.Angle;
 import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
-import javax.measure.unit.SI;
 
-import org.jscience.physics.amount.Amount;
 import org.junit.Test;
 
+import tec.units.indriya.quantity.Quantities;
+
 public class WavelengthTest {
-	private static final Amount<Energy> PHOTON_ENERGY = Amount.valueOf(2.34, ELECTRON_VOLT);
-	private static final Amount<Energy> NEGATIVE_ENERGY = Amount.valueOf(-1.0, ELECTRON_VOLT);
-	private static final Amount<Length> TWO_D = Amount.valueOf(6.271, ANGSTROM);
-	private static final Amount<Angle> BRAGG_ANGLE = Amount.valueOf(12787.5, SI.MILLI(DEGREE_ANGLE));
-	private static final Amount<Length> NEGATIVE_LENGTH = Amount.valueOf(-1.0, ANGSTROM);
-	private static final Amount<Angle> NEGATIVE_ANGLE = Amount.valueOf(-1.0, RADIAN);
+	private static final Quantity<Energy> PHOTON_ENERGY = Quantities.getQuantity(2.34, ELECTRON_VOLT);
+	private static final Quantity<Energy> NEGATIVE_ENERGY = Quantities.getQuantity(-1.0, ELECTRON_VOLT);
+	private static final Quantity<Length> TWO_D = Quantities.getQuantity(6.271, ANGSTROM);
+	private static final Quantity<Angle> BRAGG_ANGLE = Quantities.getQuantity(12787.5, MILLI(DEGREE_ANGLE));
+	private static final Quantity<Length> NEGATIVE_LENGTH = Quantities.getQuantity(-1.0, ANGSTROM);
+	private static final Quantity<Angle> NEGATIVE_ANGLE = Quantities.getQuantity(-1.0, RADIAN);
 
 	// -------------------------------------------------------------------------------
 	// Wavelength from energy
 	// -------------------------------------------------------------------------------
 	@Test
 	public void testWavelengthOfEnergy() {
-		final Amount<Length> expected = Amount.valueOf(529.847, NANO(METER));
-		final Amount<Length> result = QuantityConverters.wavelengthOf(PHOTON_ENERGY);
-		assertEquals(expected.doubleValue(Length.UNIT), result.doubleValue(Length.UNIT), 0.0000000000001);
+		final Quantity<Length> expected = Quantities.getQuantity(529.847, NANO(METRE));
+		final Quantity<Length> result = QuantityConverters.wavelengthOf(PHOTON_ENERGY);
+		assertEquals(expected.to(METRE).getValue().doubleValue(), result.to(METRE).getValue().doubleValue(), 0.0000000000001);
 	}
 
 	@Test
@@ -69,7 +69,7 @@ public class WavelengthTest {
 
 	@Test
 	public void testWavelengthOfEnergyZeroEnergy() {
-		assertNull(QuantityConverters.wavelengthOf(ZERO_ENERGY));
+		assertNull(QuantityConverters.wavelengthOf(Quantities.getQuantity(0, JOULE)));
 	}
 
 	// -------------------------------------------------------------------------------
@@ -77,9 +77,9 @@ public class WavelengthTest {
 	// -------------------------------------------------------------------------------
 	@Test
 	public void testWavelengthOfAngle() {
-		final Amount<Length> expectedWavelength = Amount.valueOf(1.388, ANGSTROM);
-		final Amount<Length> result = QuantityConverters.wavelengthOf(BRAGG_ANGLE, TWO_D);
-		assertEquals(expectedWavelength.doubleValue(Length.UNIT), result.doubleValue(Length.UNIT), 0.0000000000001);
+		final Quantity<Length> expectedWavelength = Quantities.getQuantity(1.388, ANGSTROM);
+		final Quantity<Length> result = QuantityConverters.wavelengthOf(BRAGG_ANGLE, TWO_D);
+		assertEquals(expectedWavelength.to(METRE).getValue().doubleValue(), result.to(METRE).getValue().doubleValue(), 0.0000000000001);
 	}
 
 	@Test
@@ -104,11 +104,11 @@ public class WavelengthTest {
 
 	@Test
 	public void testWavelengthOfAngleZeroAngle() {
-		assertNull(QuantityConverters.wavelengthOf(ZERO_ANGLE, TWO_D));
+		assertNull(QuantityConverters.wavelengthOf(Quantities.getQuantity(0, RADIAN), TWO_D));
 	}
 
 	@Test
 	public void testWavelengthOfAngleZeroLength() {
-		assertNull(QuantityConverters.wavelengthOf(BRAGG_ANGLE, ZERO_LENGTH));
+		assertNull(QuantityConverters.wavelengthOf(BRAGG_ANGLE, Quantities.getQuantity(0, METRE)));
 	}
 }

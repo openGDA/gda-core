@@ -19,8 +19,6 @@
 package gda.device.scannable;
 
 
-import static javax.measure.unit.SI.METER;
-import static javax.measure.unit.SI.MICRO;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -28,8 +26,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static tec.units.indriya.unit.MetricPrefix.MICRO;
+import static tec.units.indriya.unit.Units.METRE;
 
-import org.jscience.physics.amount.Amount;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -38,6 +37,7 @@ import gda.device.DeviceException;
 import gda.device.ScannableMotion;
 import gda.device.ScannableMotionUnits;
 import gda.device.scannable.component.ScannableOffsetAndScalingComponent;
+import tec.units.indriya.quantity.Quantities;
 
 public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 	// Tolerance for imprecision of floating-point calculations
@@ -103,7 +103,7 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 	 */
 	@Override
 	public void testDefaultValues() throws DeviceException {
-		assertArrayEquals(new String[]{""}, getSMU().getAcceptableUnits());
+		assertArrayEquals(new String[] { "one", "" }, getSMU().getAcceptableUnits());
 		assertEquals("", getSMU().getHardwareUnitString());
 		assertEquals("", getSMU().getUserUnits());
 		super.testDefaultValues();
@@ -121,7 +121,7 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 			getSMU().setUserUnits("mm");
 			org.junit.Assert.fail("DeviceException expected");
 		} catch (DeviceException e) {
-			assertEquals("User unit mm is not acceptable. Try one of [keV, eV, GeV]", e.getMessage());
+			assertEquals("User unit mm is not acceptable. Try one of [J, keV, eV, GeV]", e.getMessage());
 		}
 	}
 
@@ -132,7 +132,7 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 			getSMU().setUserUnits("mm");
 			org.junit.Assert.fail("DeviceException expected");
 		} catch (DeviceException e) {
-			assertEquals("User unit mm is not acceptable. The current hardware unit is at its dimensionless default of ONE (settable with an empty string ''). Make sure that a sensible hardware unit has been set.", e.getMessage());
+			assertEquals("User unit mm is not acceptable. Try one of [one, ]", e.getMessage());
 		}
 	}
 
@@ -144,9 +144,9 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 	}
 
 	@Test
-	public void testSetHardwareUnit () throws DeviceException {
+	public void testSetHardwareUnit() throws DeviceException {
 		getSMU().setHardwareUnitString("keV");
-		assertArrayEquals(new String[] {"keV", "eV", "GeV"}, getSMU().getAcceptableUnits());
+		assertArrayEquals(new String[] { "J", "keV", "eV", "GeV" }, getSMU().getAcceptableUnits());
 	}
 
 	@Test
@@ -290,7 +290,7 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 		smub.setHardwareUnitString("mm");
 		smub.setUserUnits("m");
 		smub.setInputNames(new String[]{"i1", "i2", "i3"});
-		smub.setOffset(new Object[]{Amount.valueOf(1000000, MICRO(METER)), "2m", null});
+		smub.setOffset(new Object[]{Quantities.getQuantity(1000000, MICRO(METRE)), "2m", null});
 
 		// We expect setOffset() to be called once with array parameter {1000., 2000., null}
 		final ArgumentCaptor<Double[]> offsetCaptor = ArgumentCaptor.forClass(Double[].class);
@@ -311,8 +311,8 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 		smub.setHardwareUnitString("mm");
 		smub.setUserUnits("m");
 		smub.setInputNames(new String[]{"i1"});
-		smub.setOffset(new Object[]{Amount.valueOf(1000000, MICRO(METER))});
-		smub.setOffset(Amount.valueOf(1000000, MICRO(METER)));
+		smub.setOffset(new Object[]{Quantities.getQuantity(1000000, MICRO(METRE))});
+		smub.setOffset(Quantities.getQuantity(1000000, MICRO(METRE)));
 		smub.setOffset(1);
 		smub.setOffset("1");
 		smub.setOffset("1m");

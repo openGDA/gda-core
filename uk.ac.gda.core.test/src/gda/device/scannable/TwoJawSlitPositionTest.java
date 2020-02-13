@@ -26,9 +26,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import javax.measure.Quantity;
 import javax.measure.quantity.Length;
 
-import org.jscience.physics.amount.Amount;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -171,7 +171,7 @@ public class TwoJawSlitPositionTest {
 	private void verifyMove(ScannableMotionUnits jaw, double expectedPosition) throws DeviceException {
 		final ArgumentCaptor<Object> positionCaptor = ArgumentCaptor.forClass(Object.class);
 		verify(jaw).asynchronousMoveTo(positionCaptor.capture());
-		assertEquals(expectedPosition, ((Amount<Length>) positionCaptor.getValue()).getEstimatedValue(), FP_TOLERANCE);
+		assertEquals(expectedPosition, ((Quantity<Length>) positionCaptor.getValue()).getValue().doubleValue(), FP_TOLERANCE);
 	}
 
 	@Test

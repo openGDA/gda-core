@@ -19,40 +19,46 @@
 
 package gda.jscience.physics.quantities;
 
-import static gda.jscience.physics.quantities.QuantityConstants.ZERO_ANGLE;
-import static gda.jscience.physics.quantities.QuantityConstants.ZERO_ENERGY;
-import static gda.jscience.physics.quantities.QuantityConstants.ZERO_LENGTH;
-import static javax.measure.unit.NonSI.ANGSTROM;
-import static javax.measure.unit.NonSI.DEGREE_ANGLE;
-import static javax.measure.unit.NonSI.ELECTRON_VOLT;
-import static javax.measure.unit.SI.METER;
-import static javax.measure.unit.SI.MILLI;
-import static javax.measure.unit.SI.NANO;
-import static javax.measure.unit.SI.RADIAN;
+import static gda.jscience.physics.units.NonSIext.PER_ANGSTROM;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static si.uom.NonSI.ANGSTROM;
+import static si.uom.NonSI.DEGREE_ANGLE;
+import static si.uom.NonSI.ELECTRON_VOLT;
+import static tec.units.indriya.unit.MetricPrefix.MILLI;
+import static tec.units.indriya.unit.MetricPrefix.NANO;
+import static tec.units.indriya.unit.Units.JOULE;
+import static tec.units.indriya.unit.Units.METRE;
+import static tec.units.indriya.unit.Units.RADIAN;
 
-import javax.measure.converter.ConversionException;
+import javax.measure.Quantity;
+import javax.measure.UnconvertibleException;
 import javax.measure.quantity.Angle;
 import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
 
-import org.jscience.physics.amount.Amount;
 import org.junit.Test;
 
-public class PhotonEnergyTest {
-	private static final Amount<Length> WAVELENGTH = Amount.valueOf(529.847, NANO(METER));
-	private static final Amount<Length> NEGATIVE_LENGTH = Amount.valueOf(-1.0, ANGSTROM);
-	private static final Amount<Length> TWO_D = Amount.valueOf(6.271, ANGSTROM);
-	private static final Amount<Angle> BRAGG_ANGLE = Amount.valueOf(12787.5, MILLI(DEGREE_ANGLE));
-	private static final Amount<Angle> NEGATIVE_ANGLE = Amount.valueOf(-1.0, RADIAN);
+import tec.units.indriya.quantity.Quantities;
 
-	private static final Amount<Energy> EDGE = Amount.valueOf(8980.197, ELECTRON_VOLT);
-	private static final Amount<Energy> NEGATIVE_EDGE = Amount.valueOf(-1.0, ELECTRON_VOLT);
-	private static final Amount<Length> EDGE_LENGTH = Amount.valueOf(3.0, ANGSTROM);
-	private static final Amount<WaveVector> EDGE_LENGTH_VECTOR = vectorOf(EDGE_LENGTH);
-	private static final Amount<Length> NEGATIVE_EDGE_LENGTH = Amount.valueOf(-3.0, ANGSTROM);
-	private static final Amount<WaveVector> NEGATIVE_EDGE_LENGTH_VECTOR = vectorOf(NEGATIVE_EDGE_LENGTH);
+public class PhotonEnergyTest {
+	private static final Quantity<Length> WAVELENGTH = Quantities.getQuantity(529.847, NANO(METRE));
+	private static final Quantity<Length> NEGATIVE_LENGTH = Quantities.getQuantity(-1.0, ANGSTROM);
+	private static final Quantity<Length> TWO_D = Quantities.getQuantity(6.271, ANGSTROM);
+	private static final Quantity<Angle> BRAGG_ANGLE = Quantities.getQuantity(12787.5, MILLI(DEGREE_ANGLE));
+	private static final Quantity<Angle> NEGATIVE_ANGLE = Quantities.getQuantity(-1.0, RADIAN);
+
+	private static final Quantity<Energy> EDGE = Quantities.getQuantity(8980.197, ELECTRON_VOLT);
+	private static final Quantity<Energy> NEGATIVE_EDGE = Quantities.getQuantity(-1.0, ELECTRON_VOLT);
+	private static final Quantity<Length> EDGE_LENGTH = Quantities.getQuantity(3.0, ANGSTROM);
+	private static final Quantity<WaveVector> EDGE_LENGTH_VECTOR = vectorOf(EDGE_LENGTH);
+	private static final Quantity<Length> NEGATIVE_EDGE_LENGTH = Quantities.getQuantity(-3.0, ANGSTROM);
+	private static final Quantity<WaveVector> NEGATIVE_EDGE_LENGTH_VECTOR = vectorOf(NEGATIVE_EDGE_LENGTH);
+
+	private static final Quantity<Length> ZERO_LENGTH = Quantities.getQuantity(0, METRE);
+	private static final Quantity<Energy> ZERO_ENERGY = Quantities.getQuantity(0, JOULE);
+	private static final Quantity<Angle> ZERO_ANGLE = Quantities.getQuantity(0, RADIAN);
+	private static final Quantity<WaveVector> ZERO_VECTOR = Quantities.getQuantity(0, PER_ANGSTROM);
 
 	private static final double DOUBLE_VALUE = 3.0E-10;
 	private static final double NEGATIVE_DOUBLE_VALUE = -1.0;
@@ -62,9 +68,9 @@ public class PhotonEnergyTest {
 	//------------------------------------------------------------------------------
 	@Test
 	public void testPhotonEnergyOfWavelength() {
-		final Amount<Energy> expectedEnergy = Amount.valueOf(2.34, ELECTRON_VOLT);
-		final Amount<Energy> result = QuantityConverters.photonEnergyFromWavelength(WAVELENGTH);
-		assertEquals(expectedEnergy.doubleValue(Energy.UNIT), result.doubleValue(Energy.UNIT), 0.0000000000001);
+		final Quantity<Energy> expectedEnergy = Quantities.getQuantity(2.34, ELECTRON_VOLT);
+		final Quantity<Energy> result = QuantityConverters.photonEnergyFromWavelength(WAVELENGTH);
+		assertEquals(expectedEnergy.to(JOULE).getValue().doubleValue(), result.to(JOULE).getValue().doubleValue(), 0.0000000000001);
 	}
 
 	@Test
@@ -87,9 +93,9 @@ public class PhotonEnergyTest {
 	//------------------------------------------------------------------------------
 	@Test
 	public void testPhotonEnergyOfAngle() {
-		final Amount<Energy> expectedEnergy = Amount.valueOf(8932.6, ELECTRON_VOLT);
-		final Amount<Energy> result = QuantityConverters.photonEnergyFromBraggAngle(BRAGG_ANGLE, TWO_D);
-		assertEquals(expectedEnergy.doubleValue(Energy.UNIT), result.doubleValue(Energy.UNIT), 0.0000000000001);
+		final Quantity<Energy> expectedEnergy = Quantities.getQuantity(8932.6, ELECTRON_VOLT);
+		final Quantity<Energy> result = QuantityConverters.photonEnergyFromBraggAngle(BRAGG_ANGLE, TWO_D);
+		assertEquals(expectedEnergy.to(JOULE).getValue().doubleValue(), result.to(JOULE).getValue().doubleValue(), 0.0000000000001);
 	}
 
 	@Test
@@ -126,9 +132,9 @@ public class PhotonEnergyTest {
 	//------------------------------------------------------------------------------
 	@Test
 	public void testPhotonEnergyOfEdgeVector() {
-		final Amount<Energy> expectedEnergy = Amount.valueOf(9020.0, ELECTRON_VOLT);
-		final Amount<Energy> result = QuantityConverters.photonEnergyFromEdgeAndVector(EDGE, EDGE_LENGTH_VECTOR);
-		assertEquals(expectedEnergy.doubleValue(Energy.UNIT), result.doubleValue(Energy.UNIT), 0.0000000000001);
+		final Quantity<Energy> expectedEnergy = Quantities.getQuantity(9020.0, ELECTRON_VOLT);
+		final Quantity<Energy> result = QuantityConverters.photonEnergyFromEdgeAndVector(EDGE, EDGE_LENGTH_VECTOR);
+		assertEquals(expectedEnergy.to(JOULE).getValue().doubleValue(), result.to(JOULE).getValue().doubleValue(), 0.0000000000001);
 	}
 
 	@Test
@@ -158,7 +164,7 @@ public class PhotonEnergyTest {
 
 	@Test
 	public void testPhotonEnergyOfEdgeVectorZeroVector() {
-		assertNull(QuantityConverters.photonEnergyFromEdgeAndVector(EDGE, WaveVector.ZERO));
+		assertNull(QuantityConverters.photonEnergyFromEdgeAndVector(EDGE, ZERO_VECTOR));
 	}
 
 	//------------------------------------------------------------------------------
@@ -166,9 +172,9 @@ public class PhotonEnergyTest {
 	//------------------------------------------------------------------------------
 	@Test
 	public void testPhotonEnergyOfEdgeDouble() {
-		final Amount<Energy> expectedEnergy = Amount.valueOf(9014.0, ELECTRON_VOLT);
-		final Amount<Energy> result = QuantityConverters.photonEnergyFromEdgeAndValue(EDGE, DOUBLE_VALUE);
-		assertEquals(expectedEnergy.doubleValue(Energy.UNIT), result.doubleValue(Energy.UNIT), 0.0000000000001);
+		final Quantity<Energy> expectedEnergy = Quantities.getQuantity(9014.0, ELECTRON_VOLT);
+		final Quantity<Energy> result = QuantityConverters.photonEnergyFromEdgeAndValue(EDGE, DOUBLE_VALUE);
+		assertEquals(expectedEnergy.to(JOULE).getValue().doubleValue(), result.to(JOULE).getValue().doubleValue(), 0.0000000000001);
 	}
 
 	@Test
@@ -202,10 +208,10 @@ public class PhotonEnergyTest {
 	 * @param length
 	 *            a quantity compatible with {@link Length}.
 	 * @return the specified quantity or a new {@link Length} instance.
-	 * @throws ConversionException
+	 * @throws UnconvertibleException
 	 *             if the current model does not allow the specified quantity to be converted to {@link Length}.
 	 */
-	public static Amount<WaveVector> vectorOf(Amount<Length> length) {
-		return length.inverse().to(WaveVector.UNIT);
+	public static Quantity<WaveVector> vectorOf(Quantity<Length> length) {
+		return length.inverse().asType(WaveVector.class);
 	}
 }

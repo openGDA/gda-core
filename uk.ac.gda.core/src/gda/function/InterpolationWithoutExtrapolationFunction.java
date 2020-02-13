@@ -18,13 +18,13 @@
 
 package gda.function;
 
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
+import javax.measure.Quantity;
+import javax.measure.Unit;
 
-public class InterpolationWithoutExtrapolationFunction extends InterpolationFunction {
+public class InterpolationWithoutExtrapolationFunction<T extends Quantity<T>, R extends Quantity<R>> extends InterpolationFunction<T, R> {
 
 	public InterpolationWithoutExtrapolationFunction(double[] column, double[] column2,
-			Unit<? extends Quantity> columnUnits, Unit<? extends Quantity> columnUnits2) {
+			Unit<? extends Quantity<?>> columnUnits, Unit<? extends Quantity<?>> columnUnits2) {
 		super(column, column2, columnUnits, columnUnits2);
 	}
 

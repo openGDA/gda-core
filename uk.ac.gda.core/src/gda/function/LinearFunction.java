@@ -19,41 +19,38 @@
 
 package gda.function;
 
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
+import javax.measure.Quantity;
 
-import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tec.units.indriya.quantity.Quantities;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * LinearFunction (yValue = xValue * (slopeDividend / slopeDivisor) + interception)
  */
 @ServiceInterface(ILinearFunction.class)
-public class LinearFunction extends FindableFunction implements ILinearFunction {
+public class LinearFunction<T extends Quantity<T>, R extends Quantity<R>> extends FindableFunction<T, R> implements ILinearFunction<T, R> {
 	private static final Logger logger = LoggerFactory.getLogger(LinearFunction.class);
 
-	private Amount<? extends Quantity> slopeDividend;
+	private Quantity<R> slopeDividend;
 
-	private Amount<? extends Quantity> slopeDivisor;
+	private Quantity<T> slopeDivisor;
 
-	private Amount<? extends Quantity> interception;
+	private Quantity<R> interception;
 
 	/**
 	 * Constructor with no arguments. (Must exist or creation by Finder fails.)
 	 */
 	public LinearFunction() {
-		slopeDividend = Amount.valueOf(1.0, Unit.ONE);
-		slopeDivisor = Amount.valueOf(1.0, Unit.ONE);
-		interception = Amount.valueOf(0.0, Unit.ONE);
+		// nothing to do
 	}
 
 	/**
 	 * Constructor setting all values
 	 */
-	public LinearFunction(Amount<? extends Quantity> slopeDividend, Amount<? extends Quantity> slopeDivisor, Amount<? extends Quantity> interception) {
+	public LinearFunction(Quantity<R> slopeDividend, Quantity<T> slopeDivisor, Quantity<R> interception) {
 		this.slopeDividend = cloneAmount(slopeDividend);
 		this.slopeDivisor = cloneAmount(slopeDivisor);
 		this.interception = cloneAmount(interception);
@@ -65,7 +62,7 @@ public class LinearFunction extends FindableFunction implements ILinearFunction 
 	 * @return Returns the interception.
 	 */
 	@Override
-	public Amount<? extends Quantity> getInterception() {
+	public Quantity<R> getInterception() {
 		return cloneAmount(interception);
 	}
 
@@ -74,7 +71,7 @@ public class LinearFunction extends FindableFunction implements ILinearFunction 
 	 *            The interception to set.
 	 */
 	@Override
-	public void setInterception(Amount<? extends Quantity> interception) {
+	public void setInterception(Quantity<R> interception) {
 		this.interception = cloneAmount(interception);
 	}
 
@@ -82,7 +79,7 @@ public class LinearFunction extends FindableFunction implements ILinearFunction 
 	 * @return Returns the slopeDividend.
 	 */
 	@Override
-	public Amount<? extends Quantity> getSlopeDividend() {
+	public Quantity<R> getSlopeDividend() {
 		return cloneAmount(slopeDividend);
 	}
 
@@ -91,7 +88,7 @@ public class LinearFunction extends FindableFunction implements ILinearFunction 
 	 *            The slopeDividend to set.
 	 */
 	@Override
-	public void setSlopeDividend(Amount<? extends Quantity> slopeDividend) {
+	public void setSlopeDividend(Quantity<R> slopeDividend) {
 		this.slopeDividend = cloneAmount(slopeDividend);
 	}
 
@@ -99,7 +96,7 @@ public class LinearFunction extends FindableFunction implements ILinearFunction 
 	 * @return Returns the slopeDivisor.
 	 */
 	@Override
-	public Amount<? extends Quantity> getSlopeDivisor() {
+	public Quantity<T> getSlopeDivisor() {
 		return cloneAmount(slopeDivisor);
 	}
 
@@ -108,22 +105,23 @@ public class LinearFunction extends FindableFunction implements ILinearFunction 
 	 *            The slopeDivisor to set.
 	 */
 	@Override
-	public void setSlopeDivisor(Amount<? extends Quantity> slopeDivisor) {
+	public void setSlopeDivisor(Quantity<T> slopeDivisor) {
 		this.slopeDivisor = cloneAmount(slopeDivisor);
-
 	}
 
 	@Override
-	public Amount<? extends Quantity> apply(Amount<? extends Quantity> xValue) {
-		final Amount<? extends Quantity> slope = slopeDividend.divide(slopeDivisor);
-		final Amount<? extends Quantity> interim = xValue.times(slope).plus(interception);
-		logger.debug("apply(): xValue: {}, slope: {}, interception: {}, interim: {}", xValue, slope, interception, interim);
-		// The return value required from this method must have units compatible with those of the interception field.
-		return interim;
+	public Quantity<R> apply(Quantity<T> xValue) {
+		final double slopeFactor = xValue.divide(slopeDivisor).getValue().doubleValue();
+		final Quantity<R> result = slopeDividend.multiply(slopeFactor).add(interception);
+		logger.debug("apply(): xValue: {}, slope factor: {}, interception: {}, interim: {}", xValue, slopeFactor, interception, result);
+		return result;
 	}
 
-	private Amount<? extends Quantity> cloneAmount(Amount<? extends Quantity> quantity) {
-		return Amount.valueOf(quantity.getEstimatedValue(), quantity.getUnit());
+	private static <Q extends Quantity<Q>> Quantity<Q> cloneAmount(Quantity<Q> quantity) {
+		if (quantity == null) {
+			return null;
+		}
+		return Quantities.getQuantity(quantity.getValue().doubleValue(), quantity.getUnit());
 	}
 
 	@Override

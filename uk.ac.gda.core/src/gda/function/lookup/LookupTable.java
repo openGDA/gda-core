@@ -29,8 +29,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
+import javax.measure.Quantity;
+import javax.measure.Unit;
 
 import org.apache.commons.collections.map.MultiValueMap;
 import org.slf4j.Logger;
@@ -298,10 +298,10 @@ public class LookupTable extends FindableConfigurableBase implements Lookup {
 	 * @throws DeviceException
 	 */
 	@SuppressWarnings("unchecked")
-	public Unit<? extends Quantity> lookupUnit(String scannableName) throws DeviceException {
+	public Unit<? extends Quantity<?>> lookupUnit(String scannableName) throws DeviceException {
 		checkConfigured();
 		synchronized (lookupMap) {
-			return ((List<Unit<? extends Quantity>>) lookupMap.getCollection(getColumnUnit()))
+			return ((List<Unit<? extends Quantity<?>>>) lookupMap.getCollection(getColumnUnit()))
 					.get(indexOfScannable(getScannableNames(), scannableName));
 		}
 	}
@@ -311,7 +311,7 @@ public class LookupTable extends FindableConfigurableBase implements Lookup {
 	public synchronized String lookupUnitString(String scannableName) throws DeviceException {
 		checkConfigured();
 		synchronized (lookupMap) {
-			Unit<? extends Quantity> unit = ((List<Unit<? extends Quantity>>) lookupMap
+			Unit<? extends Quantity<?>> unit = ((List<Unit<? extends Quantity<?>>>) lookupMap
 					.getCollection(getColumnUnit())).get(indexOfScannable(getScannableNames(), scannableName));
 			return unit.toString();
 		}

@@ -20,25 +20,23 @@ package gda.function;
 
 import java.util.function.Function;
 
-import javax.measure.quantity.Quantity;
-
-import org.jscience.physics.amount.Amount;
+import javax.measure.Quantity;
 
 import gda.factory.Findable;
 
-public interface ILinearFunction extends Findable, Function<Amount<? extends Quantity>, Amount<? extends Quantity>> {
+public interface ILinearFunction<T extends Quantity<T>, R extends Quantity<R>> extends Findable, Function<Quantity<T>, Quantity<R>> {
 
-	Amount<? extends Quantity> getInterception();
+	Quantity<R> getInterception();
 
-	void setInterception(Amount<? extends Quantity> interception);
+	void setInterception(Quantity<R> interception);
 
-	Amount<? extends Quantity> getSlopeDividend();
+	Quantity<R> getSlopeDividend();
 
-	void setSlopeDividend(Amount<? extends Quantity> slopeDividend);
+	void setSlopeDividend(Quantity<R> slopeDividend);
 
-	Amount<? extends Quantity> getSlopeDivisor();
+	Quantity<T> getSlopeDivisor();
 
-	void setSlopeDivisor(Amount<? extends Quantity> slopeDivisor);
+	void setSlopeDivisor(Quantity<T> slopeDivisor);
 
 	/**
 	 * Allow client to get the string value through an RMI proxy

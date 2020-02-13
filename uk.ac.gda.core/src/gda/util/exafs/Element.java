@@ -18,6 +18,9 @@
 
 package gda.util.exafs;
 
+import static gda.jscience.physics.units.NonSIext.PER_ANGSTROM;
+import static si.uom.NonSI.ELECTRON_VOLT;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,17 +31,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.measure.Quantity;
 import javax.measure.quantity.Energy;
-import javax.measure.unit.NonSI;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.jscience.physics.quantities.QuantityConverters;
 import gda.jscience.physics.quantities.WaveVector;
-import gda.jscience.physics.units.NonSIext;
+import tec.units.indriya.quantity.Quantities;
 import uk.ac.gda.util.io.TokenFileParser;
 
 /**
@@ -458,9 +460,9 @@ public final class Element {
 
 		} else if ("L1".equals(edge)) { // L1
 			// fix L1 final energy at 15 A-1
-			Amount<Energy> edgeInEV = Amount.valueOf(edgeEnergy, NonSI.ELECTRON_VOLT);
-			Amount<WaveVector> k = Amount.valueOf(15, NonSIext.PER_ANGSTROM);
-			return QuantityConverters.photonEnergyFromEdgeAndVector(edgeInEV, k).getEstimatedValue();
+			Quantity<Energy> edgeInEV = Quantities.getQuantity(edgeEnergy, ELECTRON_VOLT);
+			Quantity<WaveVector> k = Quantities.getQuantity(15, PER_ANGSTROM);
+			return QuantityConverters.photonEnergyFromEdgeAndVector(edgeInEV, k).getValue().doubleValue();
 
 		} else if ("L2".equals(edge)) { // L2
 			return (getEdgeEnergy("L1")) - 10;

@@ -4,7 +4,11 @@ Bundle-Name: uk.ac.gda.core plugin
 Bundle-SymbolicName: uk.ac.gda.core;singleton:=true
 Bundle-Version: 9.16.0.qualifier
 Require-Bundle: org.aopalliance,
- uk.ac.diamond.org.jscience4,
+ javax.measure.unit-api;bundle-version="1.0.0",
+ si.uom.si-quantity;bundle-version="0.9.0",
+ si.uom.si-units;bundle-version="0.9.0",
+ tec.units.indriya,
+ tec.uom.lib.uom-lib-common,
  javax.servlet;bundle-version="2.5.0",
  uk.ac.gda.common,
  uk.ac.gda.nexus;bundle-version="1.0.0",

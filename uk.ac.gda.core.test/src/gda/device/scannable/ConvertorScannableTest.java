@@ -24,10 +24,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static tec.units.indriya.unit.MetricPrefix.MILLI;
+import static tec.units.indriya.unit.Units.METRE;
 
-import javax.measure.unit.SI;
-
-import org.jscience.physics.amount.Amount;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,6 +38,7 @@ import gda.util.converters.IQuantityConverter;
 import gda.util.converters.JEPConverterHolder;
 import gda.util.converters.LookupTableConverterHolder;
 import gda.util.converters.LookupTableQuantityConverter;
+import tec.units.indriya.quantity.Quantities;
 
 public class ConvertorScannableTest {
 	// Allow for inaccuracy in floating point values
@@ -62,7 +62,7 @@ public class ConvertorScannableTest {
 		when(bsx.getUserUnits()).thenReturn("mm");
 
 		scannable.asynchronousMoveTo(2);
-		verify(bsx).asynchronousMoveTo(Amount.valueOf(4.0, SI.MILLI(SI.METER)));
+		verify(bsx).asynchronousMoveTo(Quantities.getQuantity(4.0, MILLI(METRE)));
 
 		when(bsx.getPosition()).thenReturn(6.0);
 		assertEquals("beamstopToSample : 3.0000mm", scannable.toFormattedString());

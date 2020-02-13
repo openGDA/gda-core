@@ -18,15 +18,18 @@
 
 package gda.rcp.ncd.views;
 
+import static tec.units.indriya.unit.MetricPrefix.MILLI;
+import static tec.units.indriya.unit.Units.HOUR;
+import static tec.units.indriya.unit.Units.MINUTE;
+import static tec.units.indriya.unit.Units.SECOND;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.measure.quantity.Duration;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
+import javax.measure.Unit;
+import javax.measure.quantity.Time;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.BeanProperties;
@@ -86,9 +89,9 @@ public class SimpleTimerView extends ViewPart {
 	private Composite parent;
 
 	private Text numberOfFramesText;
-	private NumberAndUnitsComposite<Duration> exposureTime;
+	private NumberAndUnitsComposite<Time> exposureTime;
 	private Button delayCheckBox;
-	private NumberAndUnitsComposite<Duration> delayTime;
+	private NumberAndUnitsComposite<Time> delayTime;
 	private Label totalCollectionTimeLabel;
 
 	private Button saveButton;
@@ -184,7 +187,7 @@ public class SimpleTimerView extends ViewPart {
 		numberOfFramesModel.addChangeListener(changeListener);
 		dbc.bindValue(numberOfFramesTarget, numberOfFramesModel);
 
-		IObservableValue exposureTimeTarget = new NumberUnitsWidgetProperty<Duration>().observe(exposureTime);
+		IObservableValue exposureTimeTarget = new NumberUnitsWidgetProperty<Time>().observe(exposureTime);
 		IObservableValue exposureTimeModel = PojoProperties.value("exposure").observe(simpleTimerConfiguration);
 		exposureTimeModel.addChangeListener(changeListener);
 		dbc.bindValue(exposureTimeTarget, exposureTimeModel);
@@ -201,7 +204,7 @@ public class SimpleTimerView extends ViewPart {
 		});
 		dbc.bindValue(delayTarget, delayModel);
 
-		IObservableValue delayTimeTarget = new NumberUnitsWidgetProperty<Duration>().observe(delayTime);
+		IObservableValue delayTimeTarget = new NumberUnitsWidgetProperty<Time>().observe(delayTime);
 		IObservableValue delayTimeModel = PojoProperties.value("delayTime").observe(simpleTimerConfiguration);
 		delayTimeModel.addChangeListener(changeListener);
 		dbc.bindValue(delayTimeTarget, delayTimeModel);
@@ -215,11 +218,11 @@ public class SimpleTimerView extends ViewPart {
 		this.parent = parent;
 
 		Label label;
-		Set<Unit<Duration>> units = new HashSet<>();
-		units.add(SI.MILLI(SI.SECOND));
-		units.add(SI.SECOND);
-		units.add(NonSI.MINUTE);
-		units.add(NonSI.HOUR);
+		Set<Unit<Time>> units = new HashSet<>();
+		units.add(MILLI(SECOND));
+		units.add(SECOND);
+		units.add(MINUTE);
+		units.add(HOUR);
 
 		Composite panel = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(false).applyTo(panel);
@@ -238,7 +241,7 @@ public class SimpleTimerView extends ViewPart {
 		label.setText("Exposure Time");
 		GridDataFactory.swtDefaults().applyTo(label);
 
-		exposureTime = new NumberAndUnitsComposite<>(panel, SWT.None, SI.SECOND, units);
+		exposureTime = new NumberAndUnitsComposite<>(panel, SWT.None, SECOND, units);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).applyTo(exposureTime);
 
 		/* Delay **************************************************************************************/
@@ -254,7 +257,7 @@ public class SimpleTimerView extends ViewPart {
 		label.setText("Delay Time");
 		GridDataFactory.swtDefaults().applyTo(label);
 
-		delayTime = new NumberAndUnitsComposite<>(panel, SWT.None, SI.SECOND, units);
+		delayTime = new NumberAndUnitsComposite<>(panel, SWT.None, SECOND, units);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).applyTo(delayTime);
 
 		/* Total Exposure Row *************************************************************************/

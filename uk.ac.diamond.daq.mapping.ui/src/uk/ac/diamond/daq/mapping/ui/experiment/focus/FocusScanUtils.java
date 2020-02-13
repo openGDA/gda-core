@@ -19,18 +19,19 @@
 package uk.ac.diamond.daq.mapping.ui.experiment.focus;
 
 import static gda.configuration.properties.LocalProperties.GDA_INITIAL_LENGTH_UNITS;
-import static javax.measure.unit.SI.METER;
-import static javax.measure.unit.SI.MICRO;
-import static javax.measure.unit.SI.MILLI;
-import static javax.measure.unit.SI.NANO;
+import static tec.units.indriya.unit.MetricPrefix.MICRO;
+import static tec.units.indriya.unit.MetricPrefix.MILLI;
+import static tec.units.indriya.unit.MetricPrefix.NANO;
+import static tec.units.indriya.unit.Units.METRE;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
 
+import javax.measure.Unit;
+import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
-import javax.measure.unit.Unit;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -46,6 +47,7 @@ import com.google.common.collect.ImmutableSet;
 import gda.configuration.properties.LocalProperties;
 import gda.function.ILinearFunction;
 import gda.function.LinearFunctionSerializer;
+import gda.util.QuantityFactory;
 import uk.ac.gda.client.NumberAndUnitsComposite;
 
 /**
@@ -54,8 +56,8 @@ import uk.ac.gda.client.NumberAndUnitsComposite;
 public class FocusScanUtils {
 	private static final Logger logger = LoggerFactory.getLogger(FocusScanUtils.class);
 
-	private static final Unit<Length> MODEL_LENGTH_UNIT = MILLI(METER);
-	private static final Set<Unit<Length>> LENGTH_UNITS = ImmutableSet.of(MILLI(METER), MICRO(METER), NANO(METER));
+	private static final Unit<Length> MODEL_LENGTH_UNIT = MILLI(METRE);
+	private static final Set<Unit<Length>> LENGTH_UNITS = ImmutableSet.of(MILLI(METRE), MICRO(METRE), NANO(METRE));
 	private static final Unit<Length> INITIAL_LENGTH_UNIT = getInitialLengthUnit();
 
 	private static ObjectMapper objectMapper = new ObjectMapper();
@@ -79,7 +81,7 @@ public class FocusScanUtils {
 	 * @param logger
 	 *            for logging information or error messages
 	 */
-	public static void saveConfig(ILinearFunction energyFocusFunction, String energyFocusConfigPath, Logger logger) {
+	public static void saveConfig(ILinearFunction<Energy, Length> energyFocusFunction, String energyFocusConfigPath, Logger logger) {
 		final Path filePath = Paths.get(energyFocusConfigPath).normalize();
 		logger.debug("Saving energy focus configuration to {}", filePath);
 		logger.debug(energyFocusFunction.getAsString());
@@ -136,13 +138,12 @@ public class FocusScanUtils {
 	 *
 	 * @return the initial units
 	 */
-	@SuppressWarnings("unchecked")
 	public static Unit<Length> getInitialLengthUnit() {
 		final String unitString = LocalProperties.get(GDA_INITIAL_LENGTH_UNITS, "mm").toLowerCase();
 		try {
-			final Unit<?> unit = Unit.valueOf(unitString);
+			final Unit<Length> unit = QuantityFactory.createUnitFromString(unitString);
 			if (unit.isCompatible(MODEL_LENGTH_UNIT)) {
-				return (Unit<Length>) unit;
+				return unit;
 			}
 			logger.warn("Value '{}' of property '{}' is not a valid length unit: assuming millimetres", unitString, GDA_INITIAL_LENGTH_UNITS);
 			return MODEL_LENGTH_UNIT;

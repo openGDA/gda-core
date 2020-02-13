@@ -19,28 +19,28 @@
 
 package gda.util;
 
-import static javax.measure.unit.NonSI.DECIBEL;
-import static javax.measure.unit.NonSI.ELECTRON_VOLT;
-import static javax.measure.unit.NonSI.FARADAY;
-import static javax.measure.unit.NonSI.MINUTE;
-import static javax.measure.unit.SI.HERTZ;
-import static javax.measure.unit.SI.JOULE;
-import static javax.measure.unit.SI.KILOGRAM;
-import static javax.measure.unit.SI.METER;
-import static javax.measure.unit.SI.MILLI;
-import static javax.measure.unit.SI.RADIAN;
-import static javax.measure.unit.SI.SECOND;
 import static org.junit.Assert.assertEquals;
+import static si.uom.NonSI.ANGSTROM;
+import static si.uom.NonSI.ELECTRON_VOLT;
+import static tec.units.indriya.unit.MetricPrefix.MILLI;
+import static tec.units.indriya.unit.Units.HERTZ;
+import static tec.units.indriya.unit.Units.JOULE;
+import static tec.units.indriya.unit.Units.KILOGRAM;
+import static tec.units.indriya.unit.Units.METRE;
+import static tec.units.indriya.unit.Units.MINUTE;
+import static tec.units.indriya.unit.Units.RADIAN;
+import static tec.units.indriya.unit.Units.SECOND;
 
 import java.io.IOException;
+import java.io.Serializable;
 
-import javax.measure.quantity.Quantity;
+import javax.measure.Quantity;
 
-import org.jscience.physics.amount.Amount;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import tec.units.indriya.quantity.Quantities;
 
 /**
  * Test class for the Serializer class with Quantity objects.
@@ -55,37 +55,37 @@ public class SerializerQuantityTest {
 	//----------------------------------
 	@Test
 	public void testSerializeMetres() throws ClassNotFoundException, IOException {
-		testSerializer(Amount.valueOf(5.82, METER));
+		testSerializer(Quantities.getQuantity(5.82, METRE));
 	}
 
 	@Test
 	public void testSerializeMillimetres() throws ClassNotFoundException, IOException {
-		testSerializer(Amount.valueOf(1.0, MILLI(METER)));
+		testSerializer(Quantities.getQuantity(1.0, MILLI(METRE)));
 	}
 
 	@Test
 	public void testSerializeSeconds() throws ClassNotFoundException, IOException {
-		testSerializer(Amount.valueOf(45, SECOND));
+		testSerializer(Quantities.getQuantity(45, SECOND));
 	}
 
 	@Test
 	public void testSerializeRadians() throws ClassNotFoundException, IOException {
-		testSerializer(Amount.valueOf(2.74, RADIAN));
+		testSerializer(Quantities.getQuantity(2.74, RADIAN));
 	}
 
 	@Test
 	public void testSerializeHertz() throws ClassNotFoundException, IOException {
-		testSerializer(Amount.valueOf(1.3, HERTZ));
+		testSerializer(Quantities.getQuantity(1.3, HERTZ));
 	}
 
 	@Test
 	public void testSerializeJoule() throws ClassNotFoundException, IOException {
-		testSerializer(Amount.valueOf(0.35, JOULE));
+		testSerializer(Quantities.getQuantity(0.35, JOULE));
 	}
 
 	@Test
 	public void testSerializeKilogram() throws ClassNotFoundException, IOException {
-		testSerializer(Amount.valueOf(1.9, KILOGRAM));
+		testSerializer(Quantities.getQuantity(1.9, KILOGRAM));
 	}
 
 	//--------------------------------------
@@ -93,27 +93,21 @@ public class SerializerQuantityTest {
 	//--------------------------------------
 	@Test
 	public void testSerializeElectronVolts() throws ClassNotFoundException, IOException {
-		testSerializer(Amount.valueOf(3.22, ELECTRON_VOLT));
-	}
-
-	@Ignore("JScience4 serialisation/deserialisation does not preserve units")
-	@Test
-	public void testSerializeDecibels() throws ClassNotFoundException, IOException {
-		testSerializer(Amount.valueOf(65, DECIBEL));
+		testSerializer(Quantities.getQuantity(3.22, ELECTRON_VOLT));
 	}
 
 	@Test
 	public void testSerializeMinutes() throws ClassNotFoundException, IOException {
-		testSerializer(Amount.valueOf(3.6, MINUTE));
+		testSerializer(Quantities.getQuantity(3.6, MINUTE));
 	}
 
 	@Test
-	public void testSerializeFaradays() throws ClassNotFoundException, IOException {
-		testSerializer(Amount.valueOf(963, FARADAY));
+	public void testSerializeAngstroms() throws ClassNotFoundException, IOException {
+		testSerializer(Quantities.getQuantity(963, ANGSTROM));
 	}
 
-	private void testSerializer(Amount<? extends Quantity> origObject) throws ClassNotFoundException, IOException {
-		final byte[] origBuffer = Serializer.toByte(origObject);
+	private void testSerializer(Quantity<? extends Quantity<?>> origObject) throws ClassNotFoundException, IOException {
+		final byte[] origBuffer = Serializer.toByte((Serializable) origObject);
 		logger.debug("Object {} serialized ({} bytes)", origObject, origBuffer.length);
 
 		final Object restoredObject = Serializer.toObject(origBuffer);

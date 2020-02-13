@@ -19,26 +19,25 @@
 package gda.device.scannable;
 
 import static gda.jscience.physics.units.NonSIext.DEG_ANGLE_LOWERCASE_STRING;
+import static gda.jscience.physics.units.NonSIext.DEG_ANGLE_SYMBOL;
 import static gda.jscience.physics.units.NonSIext.MILLI_DEG_ANGLE_LOWERCASE_STRING;
-import static javax.measure.unit.NonSI.DEGREE_ANGLE;
-import static javax.measure.unit.SI.METER;
-import static javax.measure.unit.SI.MILLI;
-import static javax.measure.unit.SI.NANO;
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static si.uom.NonSI.DEGREE_ANGLE;
+import static tec.units.indriya.AbstractUnit.ONE;
+import static tec.units.indriya.unit.MetricPrefix.MILLI;
+import static tec.units.indriya.unit.MetricPrefix.NANO;
+import static tec.units.indriya.unit.Units.METRE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.measure.quantity.Dimensionless;
+import javax.measure.Quantity;
 import javax.measure.quantity.Length;
-import javax.measure.unit.Unit;
 
-import org.jscience.physics.amount.Amount;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -47,22 +46,23 @@ import org.python.core.PyTuple;
 
 import gda.device.DeviceException;
 import gda.device.scannable.component.UnitsComponent;
+import tec.units.indriya.quantity.Quantities;
 
 /**
  * Note: the tests in {@link ScannableMotionUnitsBaseTest} also test this class indirectly
  */
 public class UnitsComponentTest {
 	private UnitsComponent uc;
-	private static final Amount<Length> q1m = Amount.valueOf(1, METER);
-	private static final Amount<Length> q2m = Amount.valueOf(2, METER);
-	private static final Amount<Length> q1000mm = Amount.valueOf(1000, MILLI(METER));
-	private static final Amount<Length> q3000mm = Amount.valueOf(3000, MILLI(METER));
+	private static final Quantity<Length> q1m = Quantities.getQuantity(1, METRE);
+	private static final Quantity<Length> q2m = Quantities.getQuantity(2, METRE);
+	private static final Quantity<Length> q1000mm = Quantities.getQuantity(1000, MILLI(METRE));
+	private static final Quantity<Length> q3000mm = Quantities.getQuantity(3000, MILLI(METRE));
 
 	private static final List<String> LENGTH_UNITS = Arrays.asList(
 			"m", "nm", "mm", "\u00b5m", "\u03bcm", "micron", "um", "Ang", "Angstrom", "\u212b", "\u00c5", "microns");
 
 	private static final List<String> ANGLE_UNITS = Arrays.asList(
-			"rad", "Deg", "degrees", "°",
+			"rad", "Deg", "degrees", DEG_ANGLE_SYMBOL,
 			"mDeg", "deg", "mdeg", "mRad", "mrad",
 			"uDeg", "\u00b5Deg", "\u03bcDeg", "uRad", "urad", "\u00b5Rad", "\u03bcRad", "\u00b5rad", "\u03bcrad");
 
@@ -70,12 +70,12 @@ public class UnitsComponentTest {
 	private static final List<String> FORCE_UNITS = Arrays.asList("N");
 	private static final List<String> ELECTRICAL_POTENTIAL_UNITS = Arrays.asList("V");
 	private static final List<String> COUNT_UNITS = Arrays.asList("Kcount", "ct", "cts", "kct", "kcts");
-	private static final List<String> ENERGY_UNITS = Arrays.asList("keV", "eV", "GeV");
-	private static final List<String> DIMENSIONLESS_UNITS = Arrays.asList(Unit.ONE.toString());
+	private static final List<String> ENERGY_UNITS = Arrays.asList("J", "keV", "eV", "GeV");
+	private static final List<String> DIMENSIONLESS_UNITS = Arrays.asList(ONE.toString(), "");
 	private static final List<String> ELECTRIC_CURRENT_UNITS = Arrays.asList("A", "\u00b5A", "\u03bcA", "uA", "mA");
 	private static final List<String> DURATION_UNITS = Arrays.asList("s", "ms");
-	private static final List<String> VOLUME_UNITS = Arrays.asList("L", "m³", "\u00b5L", "uL", "\u03bcL");
-	private static final List<String> VOLUMETRIC_DENSITY_UNITS = Arrays.asList("mg/mL");
+	private static final List<String> VOLUME_UNITS = Arrays.asList("L", "l", "m\u00b3", "\u00b5L", "uL", "\u03bcL", "\u33a5");
+	private static final List<String> VOLUMETRIC_DENSITY_UNITS = Arrays.asList("mg/ml");
 	private static final List<String> PRESSURE_UNITS = Arrays.asList("Pa", "mPa", "kPa", "MPa");
 
 	@BeforeClass
@@ -105,9 +105,11 @@ public class UnitsComponentTest {
 		assertEquals("", uc.getUserUnitString());
 		assertEquals("", uc.getHardwareUnitString());
 		assertFalse(uc.unitHasBeenSet());
-		assertEquals(Dimensionless.UNIT, uc.getUserUnit());
-		assertEquals(Dimensionless.UNIT, uc.getHardwareUnit());
-		assertArrayEquals(new String[] { "" }, uc.getAcceptableUnits());
+		assertEquals(ONE, uc.getUserUnit());
+		assertEquals(ONE, uc.getHardwareUnit());
+		final List<String> acceptableUnits = Arrays.asList(uc.getAcceptableUnits());
+		Collections.sort(acceptableUnits);
+		assertEquals(DIMENSIONLESS_UNITS, acceptableUnits);
 	}
 
 	@Test
@@ -248,10 +250,9 @@ public class UnitsComponentTest {
 
 	@Test
 	public void testGetAcceptableUnitsDimensionless() throws DeviceException {
-		uc.setHardwareUnitString(Unit.ONE.toString());
-		final String[] acceptableUnits = uc.getAcceptableUnits();
-		assertEquals(1, acceptableUnits.length);
-		assertEquals("", acceptableUnits[0]);
+		for (String unit : DIMENSIONLESS_UNITS) {
+			testGetAcceptableUnits(unit, DIMENSIONLESS_UNITS);
+		}
 	}
 
 	@Test
@@ -306,9 +307,9 @@ public class UnitsComponentTest {
 		uc.setHardwareUnitString("mm");
 		assertTrue(uc.unitHasBeenSet());
 		assertEquals("mm", uc.getHardwareUnitString());
-		assertEquals(MILLI(METER), uc.getHardwareUnit());
+		assertEquals(MILLI(METRE), uc.getHardwareUnit());
 		assertEquals("mm", uc.getUserUnitString());
-		assertEquals(MILLI(METER), uc.getUserUnit());
+		assertEquals(MILLI(METRE), uc.getUserUnit());
 	}
 
 	@Test
@@ -316,9 +317,9 @@ public class UnitsComponentTest {
 		uc.setUserUnits("mm");
 		assertTrue(uc.unitHasBeenSet());
 		assertEquals("mm", uc.getUserUnitString());
-		assertEquals(MILLI(METER), uc.getUserUnit());
+		assertEquals(MILLI(METRE), uc.getUserUnit());
 		assertEquals("mm", uc.getHardwareUnitString());
-		assertEquals(MILLI(METER), uc.getHardwareUnit());
+		assertEquals(MILLI(METRE), uc.getHardwareUnit());
 	}
 
 	@Test
@@ -326,9 +327,9 @@ public class UnitsComponentTest {
 		uc.setHardwareUnitString("mm");
 		uc.setUserUnits("nm");
 		assertEquals("mm", uc.getHardwareUnitString());
-		assertEquals(MILLI(METER), uc.getHardwareUnit());
+		assertEquals(MILLI(METRE), uc.getHardwareUnit());
 		assertEquals("nm", uc.getUserUnitString());
-		assertEquals(NANO(METER), uc.getUserUnit());
+		assertEquals(NANO(METRE), uc.getUserUnit());
 	}
 
 	@Test
@@ -336,9 +337,9 @@ public class UnitsComponentTest {
 		uc.setUserUnits("nm");
 		uc.setHardwareUnitString("mm");
 		assertEquals("mm", uc.getHardwareUnitString());
-		assertEquals(MILLI(METER), uc.getHardwareUnit());
+		assertEquals(MILLI(METRE), uc.getHardwareUnit());
 		assertEquals("nm", uc.getUserUnitString());
-		assertEquals(NANO(METER), uc.getUserUnit());
+		assertEquals(NANO(METRE), uc.getUserUnit());
 	}
 
 	@Test
@@ -412,7 +413,7 @@ public class UnitsComponentTest {
 	@Test
 	public void testGetUserUnitStringOverridden() throws DeviceException {
 		// Units whose default string value is overridden in UnitsComponent
-		uc.setUserUnits("°");
+		uc.setUserUnits(DEG_ANGLE_SYMBOL);
 		assertEquals("deg", uc.getUserUnitString());
 
 		uc.setUserUnits("cts");

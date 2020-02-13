@@ -21,9 +21,7 @@ package gda.function;
 
 import java.util.function.Function;
 
-import javax.measure.quantity.Quantity;
-
-import org.jscience.physics.amount.Amount;
+import javax.measure.Quantity;
 
 import gda.factory.Findable;
 import gda.factory.FindableBase;
@@ -35,5 +33,5 @@ import gda.factory.FindableBase;
  * @since GDA 9.9
  */
 
-public abstract class FindableFunction extends FindableBase implements Function<Amount<? extends Quantity>, Amount<? extends Quantity>> {
+public abstract class FindableFunction<T extends Quantity<T>, R extends Quantity<R>> extends FindableBase implements Function<Quantity<T>, Quantity<R>> {
 }

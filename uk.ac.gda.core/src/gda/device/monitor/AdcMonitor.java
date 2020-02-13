@@ -19,7 +19,7 @@
 
 package gda.device.monitor;
 
-import javax.measure.unit.Unit;
+import static tec.units.indriya.AbstractUnit.ONE;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -144,6 +144,6 @@ public class AdcMonitor extends MonitorBase {
 	@Override
 	public String getUnit() throws DeviceException {
 		// just a number
-		return Unit.ONE.toString();
+		return ONE.toString();
 	}
 }

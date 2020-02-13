@@ -20,21 +20,20 @@
 package gda.device.scannable;
 
 import static java.util.Arrays.asList;
-import static javax.measure.unit.NonSI.ELECTRON_VOLT;
-import static javax.measure.unit.SI.CENTI;
-import static javax.measure.unit.SI.METER;
-import static javax.measure.unit.SI.NANO;
 import static org.hamcrest.Matchers.any;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static si.uom.NonSI.ELECTRON_VOLT;
+import static tec.units.indriya.unit.MetricPrefix.CENTI;
+import static tec.units.indriya.unit.MetricPrefix.NANO;
+import static tec.units.indriya.unit.Units.METRE;
 
 import java.util.function.Function;
 
-import javax.measure.quantity.Quantity;
+import javax.measure.Quantity;
 
-import org.jscience.physics.amount.Amount;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -46,6 +45,7 @@ import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.function.IdentityFunction;
 import gda.observable.IObserver;
+import tec.units.indriya.quantity.Quantities;
 
 public class CoupledScannableTest {
 	// Allow for inaccuracy in floating point values
@@ -64,8 +64,8 @@ public class CoupledScannableTest {
 		dummyScannable1 = new DummyUnitsScannable("s1", 0, "mm", "mm");
 		dummyScannable2 = new DummyUnitsScannable("s2", 0, "nm", "nm");
 
-		mockFunction1 = new MockFunction(Amount.valueOf(12.3, CENTI(METER)));
-		mockFunction2 = new MockFunction(Amount.valueOf(78.9, NANO(METER)));
+		mockFunction1 = new MockFunction(Quantities.getQuantity(12.3, CENTI(METRE)));
+		mockFunction2 = new MockFunction(Quantities.getQuantity(78.9, NANO(METRE)));
 	}
 
 	/*
@@ -128,7 +128,7 @@ public class CoupledScannableTest {
 
 		// Verify that the input units of the coupled scannable (i.e. eV) are passed to the evaluation function for the
 		// component scannable
-		assertEquals(798.34, mockFunction1.parameterPassed.getEstimatedValue(), FP_TOLERANCE);
+		assertEquals(798.34, mockFunction1.parameterPassed.getValue().doubleValue(), FP_TOLERANCE);
 		assertEquals(ELECTRON_VOLT, mockFunction1.parameterPassed.getUnit());
 
 		// Verify that the units for the component move have been handled correctly
@@ -256,16 +256,16 @@ public class CoupledScannableTest {
 	 * Mockito mocks do not work well with generics (at least with the Eclipse Mars compiler currently we are using with
 	 * Buckminster), so create a class to do something similar.
 	 */
-	private class MockFunction implements Function<Amount<? extends Quantity>, Amount<? extends Quantity>> {
-		private final Amount<? extends Quantity> valueToReturn;
-		private Amount<? extends Quantity> parameterPassed;
+	private class MockFunction implements Function<Quantity<? extends Quantity<?>>, Quantity<? extends Quantity<?>>> {
+		private final Quantity<? extends Quantity<?>> valueToReturn;
+		private Quantity<? extends Quantity<?>> parameterPassed;
 
-		public MockFunction(Amount<? extends Quantity> valueToReturn) {
+		public MockFunction(Quantity<? extends Quantity<?>> valueToReturn) {
 			this.valueToReturn = valueToReturn;
 		}
 
 		@Override
-		public Amount<? extends Quantity> apply(Amount<? extends Quantity> t) {
+		public Quantity<? extends Quantity<?>> apply(Quantity<? extends Quantity<?>> t) {
 			parameterPassed = t;
 			return valueToReturn;
 		}

@@ -18,9 +18,7 @@
 
 package gda.device;
 
-import javax.measure.quantity.Quantity;
-
-import org.jscience.physics.amount.Amount;
+import javax.measure.Quantity;
 
 /**
  * An interface for ScannableMotion classes which provide a unit conversion from lower level hardware to an 'user unit'
@@ -99,7 +97,7 @@ public interface ScannableMotionUnits extends ScannableMotion {
 	 */
 	public void addAcceptableUnit(String newUnit) throws DeviceException;
 
-	public Amount<? extends Quantity>[] getPositionAsQuantityArray() throws DeviceException;
+	public Quantity<? extends Quantity<?>>[] getPositionAsQuantityArray() throws DeviceException;
 
 	/**
 	 * Set offset(s) in amounts of external quantities as {@link ScannableMotion#setOffset(Double...)}, but allows any

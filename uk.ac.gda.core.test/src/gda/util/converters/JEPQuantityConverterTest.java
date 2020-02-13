@@ -22,14 +22,14 @@ package gda.util.converters;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
+import javax.measure.Quantity;
+import javax.measure.Unit;
 
-import org.jscience.physics.amount.Amount;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import gda.jscience.physics.units.NonSIext;
+import gda.util.QuantityFactory;
 
 /**
  * JEPQuantityConverterTest Class
@@ -102,27 +102,27 @@ public class JEPQuantityConverterTest {
 	public final void testUnits() {
 		final JEPQuantityConverter converter = new JEPQuantityConverter(TEST_FILE_FOLDER + "/mmToDeg.xml");
 		final JEPQuantityConverter dummyToGetUnits = new JEPQuantityConverter(TEST_FILE_FOLDER + "/DegToAngstrom.xml");
-		final Amount<? extends Quantity> targetBeforeConversion = Amount.valueOf(1.0, getAcceptableTargetUnits(dummyToGetUnits));
+		final Quantity<? extends Quantity<?>> targetBeforeConversion = QuantityFactory.createFromObjectUnknownUnit(1.0, getAcceptableTargetUnits(dummyToGetUnits));
 		try {
 			converter.toSource(targetBeforeConversion);
 			fail("Calling JEPQuantityConverter with incompatible units should throw exception");
 		} catch (IllegalArgumentException e) {
 			final String msg = e.getMessage();
 			assertEquals(
-					"JEPQuantityConverter.ToSource: target units (Å) do not match acceptableUnits (°)JEPQuantityConverter using details in "
+					"JEPQuantityConverter.ToSource: target units (Å) do not match acceptableUnits (deg)JEPQuantityConverter using details in "
 							+ converter.getExpressionFileName(), msg);
 		}
 	}
 
-	private Unit<? extends Quantity> getAcceptableTargetUnits(final IQuantityConverter converter) {
-		return Unit.valueOf(converter.getAcceptableTargetUnits().get(0));
+	private Unit<? extends Quantity<?>> getAcceptableTargetUnits(final IQuantityConverter converter) {
+		return QuantityFactory.createUnitFromString(converter.getAcceptableTargetUnits().get(0));
 	}
 
 	private void testConverter(final IQuantityConverter converter) throws Exception {
-		final Unit<? extends Quantity> acceptableTargetUnits = getAcceptableTargetUnits(converter);
-		final Amount<? extends Quantity> targetBeforeConversion = Amount.valueOf(1.0, acceptableTargetUnits);
-		final Amount<? extends Quantity> source = converter.toSource(targetBeforeConversion);
-		final Amount<? extends Quantity> targetAfterConversion = converter.toTarget(source);
+		final Unit<? extends Quantity<?>> acceptableTargetUnits = getAcceptableTargetUnits(converter);
+		final Quantity<? extends Quantity<?>> targetBeforeConversion = QuantityFactory.createFromObjectUnknownUnit(1.0, acceptableTargetUnits);
+		final Quantity<? extends Quantity<?>> source = converter.toSource(targetBeforeConversion);
+		final Quantity<? extends Quantity<?>> targetAfterConversion = converter.toTarget(source);
 		assertEquals(targetAfterConversion, targetBeforeConversion);
 	}
 }

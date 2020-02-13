@@ -21,16 +21,14 @@ package gda.util.converters;
 
 import java.util.List;
 
-import javax.measure.quantity.Quantity;
-
-import org.jscience.physics.amount.Amount;
+import javax.measure.Quantity;
 
 /**
  * Used by <code>gda.util.converters.GenQuantitiesConverter</code> to convert between two Quantities.
  *
  * Source is the value internal to GDa and target is the motor position.
  */
-public interface IQuantityConverter extends IConverter<Amount<? extends Quantity>, Amount<? extends Quantity>> {
+public interface IQuantityConverter extends IConverter<Quantity<? extends Quantity<?>>, Quantity<? extends Quantity<?>>> {
 	/**
 	 * @return AcceptableSourceUnits
 	 */

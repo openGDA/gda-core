@@ -18,7 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.ui.region;
 
-import javax.measure.quantity.Quantity;
+import javax.measure.Quantity;
 
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
 import org.eclipse.swt.SWT;
@@ -35,15 +35,15 @@ public class CircleRegionEditor extends AbstractRegionEditor {
 		final Composite composite = super.createEditorPart(parent);
 
 		new Label(composite, SWT.NONE).setText(getXAxisName() + " Centre");
-		NumberAndUnitsComposite<Quantity> xCentre = createNumberAndUnitsComposite(composite, getXAxisName(), X_CENTRE);
+		NumberAndUnitsComposite<? extends Quantity<?>> xCentre = createNumberAndUnitsComposite(composite, getXAxisName(), X_CENTRE);
 		grabHorizontalSpace.applyTo(xCentre);
 
 		new Label(composite, SWT.NONE).setText(getYAxisName() + " Centre");
-		NumberAndUnitsComposite<Quantity> yCentre = createNumberAndUnitsComposite(composite, getYAxisName(), Y_CENTRE);
+		NumberAndUnitsComposite<? extends Quantity<?>> yCentre = createNumberAndUnitsComposite(composite, getYAxisName(), Y_CENTRE);
 		grabHorizontalSpace.applyTo(yCentre);
 
 		new Label(composite, SWT.NONE).setText("Radius");
-		NumberAndUnitsComposite<Quantity> radius = createNumberAndUnitsComposite(composite, getXAxisName(), RADIUS);
+		NumberAndUnitsComposite<? extends Quantity<?>> radius = createNumberAndUnitsComposite(composite, getXAxisName(), RADIUS);
 		grabHorizontalSpace.applyTo(radius);
 
 		binder.bind(xCentre, X_CENTRE, getModel());

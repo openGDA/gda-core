@@ -21,9 +21,7 @@ package gda.util.converters;
 
 import java.util.List;
 
-import javax.measure.quantity.Quantity;
-
-import org.jscience.physics.amount.Amount;
+import javax.measure.Quantity;
 
 public interface IQuantitiesConverter {
 
@@ -37,7 +35,7 @@ public interface IQuantitiesConverter {
 	 * @return Array of calculated values in units of the source
 	 * @throws Exception
 	 */
-	public Amount<? extends Quantity>[] toSource(Amount<? extends Quantity>[] targets, Object[] moveables) throws Exception;
+	public Quantity<? extends Quantity<?>>[] toSource(Quantity<? extends Quantity<?>>[] targets, Object[] moveables) throws Exception;
 
 	/**
 	 * Calculates an array of values in units of the source given an array of quantities in units of the source
@@ -49,7 +47,7 @@ public interface IQuantitiesConverter {
 	 * @return Array of calculated values in units of the moveables
 	 * @throws Exception
 	 */
-	public Amount<? extends Quantity>[] calculateMoveables(Amount<? extends Quantity>[] sources, Object[] moveables) throws Exception;
+	public Quantity<? extends Quantity<?>>[] calculateMoveables(Quantity<? extends Quantity<?>>[] sources, Object[] moveables) throws Exception;
 
 	/**
 	 * Returns the units in which the sources quantities passed into calculateMoveables can be expressed

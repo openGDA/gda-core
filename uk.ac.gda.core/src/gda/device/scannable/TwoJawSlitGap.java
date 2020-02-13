@@ -21,11 +21,10 @@
  */
 package gda.device.scannable;
 
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
+import javax.measure.Quantity;
+import javax.measure.Unit;
 
 import org.apache.commons.configuration.FileConfiguration;
-import org.jscience.physics.amount.Amount;
 
 import gda.device.DeviceException;
 import gda.device.ScannableMotionUnits;
@@ -43,24 +42,26 @@ public class TwoJawSlitGap extends TwoJawSlitPosition {
 
 	private String xmlparametersfilename = null;
 
+	@SuppressWarnings("unchecked")
 	@Override
-	protected double[] getLimits(
-			Amount<? extends Quantity> firstJawMin,
-			Amount<? extends Quantity> firstJawMax,
-			Amount<? extends Quantity> secondJawMin,
-			Amount<? extends Quantity> secondJawMax)
+	protected <Q extends Quantity<Q>> double[] getLimits(
+			Quantity<Q> firstJawMin,
+			Quantity<Q> firstJawMax,
+			Quantity<Q> secondJawMin,
+			Quantity<Q> secondJawMax)
 	{
-		Unit<?> units = unitsComponent.getUserUnit();
-		double minimum = QuantityFactory.createFromObject(firstJawMin.minus(secondJawMax), units).getEstimatedValue();
-		double maximum = QuantityFactory.createFromObject(firstJawMax.minus(secondJawMin), units).getEstimatedValue();
+		Unit<Q> units = (Unit<Q>) unitsComponent.getUserUnit();
+		double minimum = QuantityFactory.createFromObject(firstJawMin.subtract(secondJawMax), units).getValue().doubleValue();
+		double maximum = QuantityFactory.createFromObject(firstJawMax.subtract(secondJawMin), units).getValue().doubleValue();
 		return new double[]{ minimum > 0. ? minimum : 0., maximum};
 	}
 
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Object rawGetPosition() throws DeviceException {
 		// return position as a double
-		return getCurrentGap().to(unitsComponent.getUserUnit()).getEstimatedValue();
+		return ((Quantity) getCurrentGap()).to(unitsComponent.getUserUnit()).getValue().doubleValue();
 	}
 
 	/**
@@ -83,11 +84,12 @@ public class TwoJawSlitGap extends TwoJawSlitPosition {
 		return xmlparametersfilename;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	protected Amount<? extends Quantity>[] calculateTargets(Object position) throws DeviceException {
+	protected <T extends Quantity<T>> Quantity<T>[] calculateTargets(Object position) throws DeviceException {
 		// convert what is supplied to Quantity in user units
-		Amount<? extends Quantity> target = QuantityFactory.createFromObject(position, this.unitsComponent.getUserUnit());
-		Amount<? extends Quantity>[] targets = new Amount<?>[2];
+		Quantity<T> target = QuantityFactory.createFromObjectUnknownUnit(position, this.unitsComponent.getUserUnit());
+		Quantity<T>[] targets = new Quantity[2];
 
 		if (xmlparametersfilename != null) {
 			// perform calculation based on the beam centre in the xml file
@@ -96,24 +98,22 @@ public class TwoJawSlitGap extends TwoJawSlitPosition {
 				LocalParameters.getXMLConfiguration(xmlparametersfilename, false);
 				FileConfiguration config = LocalParameters.getNewXMLConfiguration(xmlparametersfilename);
 				double xmlCentreDbl = config.getDouble(getName());
-				Amount<? extends Quantity> xmlCentre = QuantityFactory.createFromObject(xmlCentreDbl, this.unitsComponent.getUserUnit());
-				targets[0] = xmlCentre.plus(target.divide(2.0));
-				targets[1] = xmlCentre.minus(target.divide(2.0));
+				Quantity<T> xmlCentre = QuantityFactory.createFromObjectUnknownUnit(xmlCentreDbl, this.unitsComponent.getUserUnit());
+				targets[0] = xmlCentre.add(target.divide(2.0));
+				targets[1] = xmlCentre.subtract(target.divide(2.0));
 			} catch (Exception e) {
 				throw new DeviceException("Error calculating targets for " + position, e);
 			}
 			//
 		} else {
 			// perform the calculation based on the current beam centre i.e. current motor positions
-			Amount<? extends Quantity> currentGap = getCurrentGap();
-			Amount<? extends Quantity> delta = target.minus(currentGap).divide(2);
-			Amount<? extends Quantity> firstJawPosition = QuantityFactory.createFromObject(firstJaw.getPosition(), QuantityFactory
-					.createUnitFromString(this.firstJaw.getUserUnits()));
-			Amount<? extends Quantity> secondJawPosition = QuantityFactory.createFromObject(secondJaw.getPosition(), QuantityFactory
-					.createUnitFromString(this.firstJaw.getUserUnits()));
+			Quantity<T> currentGap = getCurrentGap();
+			Quantity<T> delta = target.subtract(currentGap).divide(2);
+			Quantity<T> firstJawPosition = QuantityFactory.createFromObject(firstJaw.getPosition(), this.firstJaw.getUserUnits());
+			Quantity<T> secondJawPosition = QuantityFactory.createFromObject(secondJaw.getPosition(), this.firstJaw.getUserUnits());
 
-			targets[0] = firstJawPosition.plus(delta);
-			targets[1] = secondJawPosition.minus(delta);
+			targets[0] = firstJawPosition.add(delta);
+			targets[1] = secondJawPosition.subtract(delta);
 		}
 		return targets;
 	}

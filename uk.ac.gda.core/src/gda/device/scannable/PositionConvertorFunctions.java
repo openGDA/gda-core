@@ -19,16 +19,15 @@
 package gda.device.scannable;
 
 import static java.math.RoundingMode.HALF_EVEN;
+import static tec.units.indriya.AbstractUnit.ONE;
 
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.List;
 
-import javax.measure.quantity.Dimensionless;
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
+import javax.measure.Quantity;
+import javax.measure.Unit;
 
-import org.jscience.physics.amount.Amount;
 import org.python.core.PyException;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
@@ -240,13 +239,12 @@ public final class PositionConvertorFunctions {
 	 * @param object
 	 * @return a Double
 	 */
-	@SuppressWarnings("unchecked")
 	public static Double toDouble(Object object) {
-
+		if (object == null) {
+			return null;
+		}
 		try {
-			if (object == null) {
-				return null;
-			} else if (object instanceof String) {
+			if (object instanceof String) {
 				return Double.parseDouble((String) object);
 			} else if (object instanceof Number) {
 				return ((Number) object).doubleValue();
@@ -254,8 +252,8 @@ public final class PositionConvertorFunctions {
 				return ((PyString) object).atof();
 			} else if (object instanceof PyObject) {
 				return (Double) ((PyObject) object).__tojava__(Double.class);
-			} else if (object instanceof Amount) {
-				return roundEstimatedValue(((Amount<? extends Quantity>) object).getEstimatedValue());
+			} else if (object instanceof Quantity) {
+				return roundEstimatedValue(((Quantity<?>) object).getValue().doubleValue());
 			}
 		} catch (PyException | NumberFormatException ex) {
 			// Ignore this error and throw generic error below
@@ -311,24 +309,26 @@ public final class PositionConvertorFunctions {
 		return toDoubleArray(toObjectArray(objectArray));
 	}
 
-	public static Amount<? extends Quantity>[] toQuantityArray(final Object[] objectArray, final Unit<?> targetUnit) {
+	@SuppressWarnings("unchecked")
+	public static <Q extends Quantity<Q>> Quantity<Q>[] toQuantityArray(final Object[] objectArray, final Unit<Q> targetUnit) {
 		if (objectArray == null) {
 			return null;
 		}
-		Amount<? extends Quantity>[] quantityArray = new Amount<?>[objectArray.length];
+		final Quantity<Q>[] quantityArray = new Quantity[objectArray.length];
 		for (int i = 0; i < objectArray.length; i++) {
 			quantityArray[i] = toQuantity(objectArray[i], targetUnit);
 		}
 		return quantityArray;
 	}
 
-	public static Amount<? extends Quantity>[] toQuantityArray(final Amount<? extends Quantity>[] quantityArray, final Unit<?> targetUnit) {
+	@SuppressWarnings("unchecked")
+	public static <Q extends Quantity<Q>> Quantity<Q>[] toQuantityArray(final Quantity<? extends Quantity<?>>[] quantityArray, final Unit<Q> targetUnit) {
 		if (quantityArray == null) {
 			return null;
 		}
-		Amount<? extends Quantity>[] targetQuantityArray = new Amount<?>[quantityArray.length];
+		final Quantity<Q>[] targetQuantityArray = new Quantity[quantityArray.length];
 		for (int i = 0; i < quantityArray.length; i++) {
-			targetQuantityArray[i] = (quantityArray[i]==null) ? null : quantityArray[i].to(targetUnit);
+			targetQuantityArray[i] = (quantityArray[i] == null) ? null : convertQuantity((quantityArray[i]), targetUnit);
 		}
 		return targetQuantityArray;
 	}
@@ -350,8 +350,8 @@ public final class PositionConvertorFunctions {
 		if (object instanceof PyObject) {
 			return (Integer) ((PyObject) object).__tojava__(Integer.class);
 		}
-		if (object instanceof Amount) {
-			return (int) ((Amount<?>) object).getEstimatedValue();
+		if (object instanceof Quantity) {
+			return ((Quantity<?>) object).getValue().intValue();
 		}
 
 		throw new IllegalArgumentException("Could not convert " + object.toString() + " to an integer.");
@@ -383,15 +383,15 @@ public final class PositionConvertorFunctions {
 	}
 
 
-	public static <Q extends Quantity> Amount<Q> toQuantity(final Object object, final Unit<Q> targetUnit) {
+	public static <Q extends Quantity<Q>> Quantity<Q> toQuantity(final Object object, final Unit<Q> targetUnit) {
 		if (object == null) {
 			return null;
 		}
 
-		if (object instanceof Amount) {
+		if (object instanceof Quantity) {
 			@SuppressWarnings("unchecked")
-			final Amount<? extends Quantity> amount = (Amount<? extends Quantity>) object;
-			return amountToQuantity(amount, targetUnit);
+			final Quantity<? extends Quantity<?>> quantity = (Quantity<? extends Quantity<?>>) object;
+			return convertQuantity(quantity, targetUnit);
 		}
 
 		if (object instanceof String) {
@@ -403,28 +403,29 @@ public final class PositionConvertorFunctions {
 		}
 
 		// Assume it is parseable to double. toDouble throws an IllegalArgumentException if it canot parse object
-		return Amount.valueOf(toDouble(object), targetUnit);
+		return QuantityFactory.createFromObject(toDouble(object), targetUnit);
 	}
 
-	private static <Q extends Quantity> Amount<Q> stringToQuantity(final String amountString, final Unit<Q> targetUnit) {
-		final Amount<? extends Quantity> amount = QuantityFactory.createFromString(amountString);
-		if (amount == null) {
+	private static <Q extends Quantity<Q>> Quantity<Q> stringToQuantity(final String amountString, final Unit<Q> targetUnit) {
+		final Quantity<? extends Quantity<?>> quantity = QuantityFactory.createFromString(amountString);
+		if (quantity == null) {
 			throw new IllegalArgumentException("Could not parse string '" + amountString + "' to a quantity.");
 		}
-		return amountToQuantity(amount, targetUnit);
+		return convertQuantity(quantity, targetUnit);
 	}
 
-	private static <Q extends Quantity> Amount<Q> amountToQuantity(final Amount<? extends Quantity> amount, final Unit<Q> targetUnit) {
-		if (amount.getUnit() == Dimensionless.UNIT) {
-			return Amount.valueOf(amount.getEstimatedValue(), targetUnit);
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static <Q extends Quantity<Q>> Quantity<Q> convertQuantity(final Quantity<? extends Quantity<?>> inputQuantity, final Unit<Q> targetUnit) {
+		if (inputQuantity.getUnit() == ONE) {
+			return QuantityFactory.createFromObjectUnknownUnit(inputQuantity.getValue().doubleValue(), targetUnit);
 		}
-		return amount.to(targetUnit);
+		return ((Quantity) inputQuantity).to(targetUnit);
 	}
 
-	public static Double[] toAmountArray(final Amount<? extends Quantity>[] quantityArray) {
+	public static Double[] toAmountArray(final Quantity<? extends Quantity<?>>[] quantityArray) {
 		final Double[] amountArray = new Double[quantityArray.length];
 		for (int i = 0; i < quantityArray.length; i++) {
-			amountArray[i] = (quantityArray[i]==null) ? null : roundEstimatedValue(quantityArray[i].getEstimatedValue());
+			amountArray[i] = (quantityArray[i]==null) ? null : roundEstimatedValue(quantityArray[i].getValue().doubleValue());
 		}
 		return amountArray;
 	}

@@ -1,6 +1,6 @@
 package uk.ac.gda.client;
 
-import javax.measure.quantity.Quantity;
+import javax.measure.Quantity;
 
 import org.eclipse.jface.databinding.swt.WidgetValueProperty;
 import org.eclipse.swt.SWT;
@@ -10,7 +10,7 @@ import org.eclipse.swt.SWT;
  *
  * @author James Mudd
  */
-public class NumberUnitsWidgetProperty<Q extends Quantity> extends WidgetValueProperty {
+public class NumberUnitsWidgetProperty<Q extends Quantity<Q>> extends WidgetValueProperty {
 
 	public NumberUnitsWidgetProperty() {
 		super(SWT.Modify);

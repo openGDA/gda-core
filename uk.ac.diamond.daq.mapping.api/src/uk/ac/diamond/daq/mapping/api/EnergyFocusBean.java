@@ -18,6 +18,9 @@
 
 package uk.ac.diamond.daq.mapping.api;
 
+import javax.measure.quantity.Energy;
+import javax.measure.quantity.Length;
+
 import gda.function.ILinearFunction;
 
 /**
@@ -33,7 +36,7 @@ public class EnergyFocusBean {
 	/**
 	 * Reference to a GDA object holding the function used to couple energy and focus position
 	 */
-	private ILinearFunction energyFocusFunction;
+	private ILinearFunction<Energy, Length> energyFocusFunction;
 
 	/**
 	 * Number of decimal places to show in the "Change interception" pop-up message
@@ -46,10 +49,10 @@ public class EnergyFocusBean {
 	public void setEnergyFocusConfigPath(String energyFocusConfigPath) {
 		this.energyFocusConfigPath = energyFocusConfigPath;
 	}
-	public ILinearFunction getEnergyFocusFunction() {
+	public ILinearFunction<Energy, Length> getEnergyFocusFunction() {
 		return energyFocusFunction;
 	}
-	public void setEnergyFocusFunction(ILinearFunction energyFocusFunction) {
+	public void setEnergyFocusFunction(ILinearFunction<Energy, Length> energyFocusFunction) {
 		this.energyFocusFunction = energyFocusFunction;
 	}
 	public int getChangeInterceptionDecimalPlaces() {

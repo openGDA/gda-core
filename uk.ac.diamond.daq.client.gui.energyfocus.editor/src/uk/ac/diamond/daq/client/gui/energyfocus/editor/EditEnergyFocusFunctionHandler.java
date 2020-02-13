@@ -18,6 +18,9 @@
 
 package uk.ac.diamond.daq.client.gui.energyfocus.editor;
 
+import javax.measure.quantity.Energy;
+import javax.measure.quantity.Length;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -28,9 +31,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.diamond.daq.mapping.api.FocusScanBean;
+
 import gda.factory.Finder;
 import gda.function.ILinearFunction;
+import uk.ac.diamond.daq.mapping.api.FocusScanBean;
 
 public class EditEnergyFocusFunctionHandler extends AbstractHandler {
 	private static final Logger logger = LoggerFactory.getLogger(EditEnergyFocusFunctionHandler.class);
@@ -39,7 +43,7 @@ public class EditEnergyFocusFunctionHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		final Shell activeShell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		try {
-			final ILinearFunction energyFocusFunction = Finder.getInstance().find("energyFocusFunction");
+			final ILinearFunction<Energy, Length> energyFocusFunction = Finder.getInstance().find("energyFocusFunction");
 			final FocusScanBean focusScanBean = PlatformUI.getWorkbench().getService(FocusScanBean.class);
 			final String energyFocusConfigPath = focusScanBean.getEnergyFocusBean().getEnergyFocusConfigPath();
 			final EditEnergyFocusDialog dialog = new EditEnergyFocusDialog(activeShell, energyFocusFunction, energyFocusConfigPath);

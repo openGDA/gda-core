@@ -18,7 +18,7 @@
 
 package gda.device.monitor;
 
-import javax.measure.unit.Unit;
+import static tec.units.indriya.AbstractUnit.ONE;
 
 import gda.device.DeviceException;
 import gda.device.Monitor;
@@ -73,7 +73,7 @@ public abstract class MonitorBase extends ScannableBase implements Monitor {
 	@Override
 	public String getUnit() throws DeviceException {
 		// just a number
-		return Unit.ONE.toString();
+		return ONE.toString();
 	}
 
 }

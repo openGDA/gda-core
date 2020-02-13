@@ -19,23 +19,23 @@
 
 package gda.device.scannable;
 
-import static javax.measure.unit.NonSI.ANGSTROM;
-import static javax.measure.unit.NonSI.DEGREE_ANGLE;
-import static javax.measure.unit.NonSI.ELECTRON_VOLT;
-import static javax.measure.unit.SI.KILO;
-import static javax.measure.unit.SI.METER;
-import static javax.measure.unit.SI.MILLI;
-import static javax.measure.unit.SI.NANO;
+import static si.uom.NonSI.ANGSTROM;
+import static si.uom.NonSI.DEGREE_ANGLE;
+import static si.uom.NonSI.ELECTRON_VOLT;
+import static tec.units.indriya.unit.MetricPrefix.KILO;
+import static tec.units.indriya.unit.MetricPrefix.MILLI;
+import static tec.units.indriya.unit.MetricPrefix.NANO;
+import static tec.units.indriya.unit.Units.JOULE;
+import static tec.units.indriya.unit.Units.METRE;
+import static tec.units.indriya.unit.Units.RADIAN;
 
+import javax.measure.Quantity;
+import javax.measure.Unit;
 import javax.measure.quantity.Angle;
 import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.Unit;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -45,6 +45,7 @@ import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.jscience.physics.quantities.QuantityConverters;
 import gda.util.QuantityFactory;
+import tec.units.indriya.quantity.Quantities;
 
 /**
  * Operates an angular motor controlling a mono
@@ -56,7 +57,7 @@ public class MonoScannable extends ScannableMotionUnitsBase {
 	private static final Logger logger = LoggerFactory.getLogger(MonoScannable.class);
 
 	// attributes describing the crystal in use
-	private Amount<Length> twoDee;
+	private Quantity<Length> twoDee;
 	private double[] twoDValues = { 3.275, 3.840, 6.271, 2.0903 };
 	private String crystalType = "unknown";
 	private String[] knownCrystalTypes = { "Si311", "Si220", "Si111", "Si333" };
@@ -67,11 +68,12 @@ public class MonoScannable extends ScannableMotionUnitsBase {
 
 	// handles user-unit to motor-unit conversion
 	private String motorUnitString;
-	private Unit<?> motorUnit;
-	private Unit<?>[] acceptableUnits = new Unit<?>[0];
-	private Unit<?> userUnits = QuantityFactory.createUnitFromString("nm");
+	private Unit<? extends Quantity<?>> motorUnit;
+	private Unit<? extends Quantity<?>>[] acceptableUnits = new Unit<?>[0];
+	private Unit<? extends Quantity<?>> userUnits = QuantityFactory.createUnitFromString("nm");
 	private String initialUserUnits = null;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void configure() throws FactoryException {
 		if (isConfigured()) {
@@ -94,7 +96,7 @@ public class MonoScannable extends ScannableMotionUnitsBase {
 			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, MILLI(DEGREE_ANGLE));
 			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, DEGREE_ANGLE);
 			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, ANGSTROM);
-			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, NANO(METER));
+			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, NANO(METRE));
 			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, ELECTRON_VOLT);
 			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, KILO(ELECTRON_VOLT));
 
@@ -109,16 +111,16 @@ public class MonoScannable extends ScannableMotionUnitsBase {
 	 *            2d expressed in Angstroms
 	 */
 	public void setTwoD(double twoD) {
-		twoDee = Amount.valueOf(twoD, NonSI.ANGSTROM);
+		twoDee = Quantities.getQuantity(twoD, ANGSTROM);
 	}
 
 	public void setCrystalType(String crystalType) {
 		this.crystalType = crystalType;
-		twoDee = Amount.valueOf(twoDFromCrystalType(crystalType), NonSI.ANGSTROM);
+		twoDee = Quantities.getQuantity(twoDFromCrystalType(crystalType), ANGSTROM);
 	}
 
 	public double getTwoD() {
-		return (twoDee != null) ? twoDee.to(NonSI.ANGSTROM).getEstimatedValue() : 0.0;
+		return (twoDee != null) ? twoDee.to(ANGSTROM).getValue().doubleValue() : 0.0;
 	}
 
 	public String getCrystalType() {
@@ -133,7 +135,7 @@ public class MonoScannable extends ScannableMotionUnitsBase {
 	@Override
 	public void setUserUnits(String userUnitsString) throws DeviceException {
 
-		Unit<?> newUnits = QuantityFactory.createUnitFromString(userUnitsString);
+		Unit<? extends Quantity<?>> newUnits = QuantityFactory.createUnitFromString(userUnitsString);
 		if (isConfigured()) {
 			if (ArrayUtils.contains(this.acceptableUnits, newUnits)) {
 				this.userUnits = newUnits;
@@ -145,7 +147,7 @@ public class MonoScannable extends ScannableMotionUnitsBase {
 
 	@Override
 	public void addAcceptableUnit(String newUnit) throws DeviceException {
-		Amount<? extends Quantity> newUnitClass = QuantityFactory.createFromTwoStrings("1.0", newUnit);
+		Quantity<? extends Quantity<?>> newUnitClass = QuantityFactory.createFromTwoStrings("1.0", newUnit);
 		if (newUnitClass.getUnit() instanceof Angle || newUnitClass.getUnit() instanceof Energy || newUnitClass.getUnit() instanceof Length) {
 			this.acceptableUnits = (Unit<?>[]) ArrayUtils.add(this.acceptableUnits, newUnitClass.getUnit());
 		}
@@ -179,78 +181,78 @@ public class MonoScannable extends ScannableMotionUnitsBase {
 		this.motorName = motorName;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
 
-		final Amount<? extends Quantity> newQuantity = QuantityFactory.createFromObject(position, userUnits);
+		final Quantity<? extends Quantity<?>> newQuantity = QuantityFactory.createFromObjectUnknownUnit(position, userUnits);
 
 		// for each of the allowed type of unit calculate the
 		// equivalent Angle, if the unit type is not allowed then
 		// null will be returned
-		Amount<Angle> angle = null;
-		final Unit<? extends Quantity> hardwareUnit = QuantityFactory.createUnitFromString(getHardwareUnitString());
-		if (newQuantity.getUnit().isCompatible(Angle.UNIT)) {
-			angle = newQuantity.to(Angle.UNIT);
-		} else if (newQuantity.getUnit().isCompatible(Length.UNIT)) {
-			final Amount<Angle> braggangle = QuantityConverters.braggAngleFromWavelength(newQuantity.to(Length.UNIT), twoDee);
-			angle = braggangle.to(hardwareUnit).to(Angle.UNIT);
-		} else if (newQuantity.getUnit().isCompatible(Energy.UNIT)) {
-			final Amount<Angle> braggangle = QuantityConverters.braggAngleFromEnergy(newQuantity.to(Energy.UNIT), twoDee);
-			angle = braggangle.to(hardwareUnit).to(Angle.UNIT);
+		Quantity<Angle> angle = null;
+		final Unit<? extends Quantity<?>> hardwareUnit = QuantityFactory.createUnitFromString(getHardwareUnitString());
+		if (newQuantity.getUnit().isCompatible(RADIAN)) {
+			angle = newQuantity.asType(Angle.class).to(RADIAN);
+		} else if (newQuantity.getUnit().isCompatible(METRE)) {
+			final Quantity<Angle> braggangle = QuantityConverters.braggAngleFromWavelength(newQuantity.asType(Length.class).to(METRE), twoDee);
+			angle = ((Quantity) braggangle).to(hardwareUnit).to(RADIAN);
+		} else if (newQuantity.getUnit().isCompatible(JOULE)) {
+			final Quantity<Angle> braggangle = QuantityConverters.braggAngleFromEnergy(((Quantity<Energy>) newQuantity).to(JOULE), twoDee);
+			angle = ((Quantity) braggangle).to(hardwareUnit).to(RADIAN);
 		}
 
 		if (angle != null) {
 			// move motor to the angle
-			this.theMotor.moveTo(angle.doubleValue(Angle.UNIT));
+			this.theMotor.moveTo(angle.to(RADIAN).getValue().doubleValue());
 		} else {
 			throw new DeviceException("MonoScannable.rawAsynchronousMoveTo(): Null position/quantity specified.");
 		}
 
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Object getPosition() throws DeviceException {
 		double[] angle;
 		angle = ScannableUtils.getCurrentPositionArray(this.theMotor);
 
-		Amount<? extends Quantity> currentPosition = QuantityFactory.createFromObject(angle[0], this.motorUnit);
-		Amount<? extends Quantity> toReturn = Amount.valueOf(1.0, userUnits);
+		Quantity<? extends Quantity<?>> currentPosition = QuantityFactory.createFromObjectUnknownUnit(angle[0], this.motorUnit);
+		Quantity<? extends Quantity<?>> toReturn = QuantityFactory.createFromObjectUnknownUnit(1.0, userUnits);
 		if (toReturn.getUnit() instanceof Angle) {
-			toReturn = currentPosition.to(userUnits);
+			toReturn = ((Quantity) currentPosition).to(userUnits);
 		} else if (toReturn.getUnit() instanceof Length) {
-			@SuppressWarnings("unchecked")
-			Amount<Length> wavelength = QuantityConverters.wavelengthOf((Amount<Angle>)currentPosition, twoDee);
-			toReturn = wavelength.to(userUnits);
+			Quantity<Length> wavelength = QuantityConverters.wavelengthOf((Quantity<Angle>)currentPosition, twoDee);
+			toReturn = ((Quantity) wavelength).to(userUnits);
 		} else if (toReturn.getUnit() instanceof Energy) {
-			@SuppressWarnings("unchecked")
-			Amount<Energy> energy = QuantityConverters.photonEnergyFromBraggAngle((Amount<Angle>) currentPosition, twoDee);
-			toReturn = energy.to(userUnits);
+			Quantity<Energy> energy = QuantityConverters.photonEnergyFromBraggAngle((Quantity<Angle>) currentPosition, twoDee);
+			toReturn = ((Quantity) energy).to(userUnits);
 		}
-		return toReturn.getEstimatedValue();
+		return toReturn.getValue().doubleValue();
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void setPosition(Object position) throws DeviceException {
-		final Amount<? extends Quantity> newQuantity = QuantityFactory.createFromObject(position, userUnits);
+		final Quantity<? extends Quantity<?>> newQuantity = QuantityFactory.createFromObjectUnknownUnit(position, userUnits);
 
 		// for each of the allowed type of unit calculate the
 		// equivalent Angle, if the unit type is not allowed then
 		// null will be returned
-		Amount<Angle> angle = null;
-		final Unit<? extends Quantity> hardwareUnit = QuantityFactory.createUnitFromString(getHardwareUnitString());
+		Quantity<Angle> angle = null;
+		final Unit<? extends Quantity<?>> hardwareUnit = QuantityFactory.createUnitFromString(getHardwareUnitString());
 		if (newQuantity.getUnit() instanceof Angle) {
-			angle = (Amount<Angle>) newQuantity;
+			angle = (Quantity<Angle>) newQuantity;
 		} else if (newQuantity.getUnit() instanceof Length) {
-			Amount<Angle> braggangle = QuantityConverters.braggAngleFromWavelength((Amount<Length>) newQuantity, twoDee);
-			angle = (Amount<Angle>) braggangle.to(hardwareUnit);
+			Quantity braggangle = QuantityConverters.braggAngleFromWavelength((Quantity<Length>) newQuantity, twoDee);
+			angle = braggangle.to(hardwareUnit);
 		} else if (newQuantity.getUnit() instanceof Energy) {
-			Amount<Angle> braggangle = QuantityConverters.braggAngleFromEnergy((Amount<Energy>) newQuantity, twoDee);
-			angle = (Amount<Angle>) braggangle.to(hardwareUnit);
+			Quantity braggangle = QuantityConverters.braggAngleFromEnergy((Quantity<Energy>) newQuantity, twoDee);
+			angle = braggangle.to(hardwareUnit);
 		}
 
 		if (angle != null) {
 			// move motor to the angle
-			this.theMotor.setPosition(angle.getEstimatedValue());
+			this.theMotor.setPosition(angle.getValue().doubleValue());
 		} else {
 			throw new DeviceException("MonoScannable.rawAsynchronousMoveTo(): Null position/quantity specified.");
 		}
@@ -281,7 +283,7 @@ public class MonoScannable extends ScannableMotionUnitsBase {
 		if (name.equals("twoD")) {
 			// Quantities seem not to be serializable so pass the double
 			// value
-			attribute = twoDee.to(NonSI.ANGSTROM).getEstimatedValue();
+			attribute = twoDee.to(ANGSTROM).getValue().doubleValue();
 		} else {
 			attribute = super.getAttribute(name);
 		}

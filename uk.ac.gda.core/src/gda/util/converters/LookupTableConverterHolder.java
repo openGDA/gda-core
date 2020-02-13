@@ -22,9 +22,7 @@ package gda.util.converters;
 import java.io.File;
 import java.util.List;
 
-import javax.measure.quantity.Quantity;
-
-import org.jscience.physics.amount.Amount;
+import javax.measure.Quantity;
 
 import gda.factory.FindableBase;
 
@@ -259,20 +257,20 @@ public final class LookupTableConverterHolder extends FindableBase implements IR
 	/**
 	 * Uses the lookup table to calculate values for the moveables given the values in sources.
 	 *
-	 * @see IQuantitiesConverter#calculateMoveables(Amount[], Object[])
+	 * @see IQuantitiesConverter#calculateMoveables(Quantity[], Object[])
 	 */
 	@Override
-	public Amount<? extends Quantity>[] calculateMoveables(Amount<? extends Quantity>[] sources, Object[] moveables) throws Exception {
+	public Quantity<? extends Quantity<?>>[] calculateMoveables(Quantity<? extends Quantity<?>>[] sources, Object[] moveables) throws Exception {
 		return getConverter().calculateMoveables(sources, moveables);
 	}
 
 	/**
 	 * Uses the lookup table to calculate values for the sources given the values in targets.
 	 *
-	 * @see IQuantitiesConverter#toSource(Amount[], Object[])
+	 * @see IQuantitiesConverter#toSource(Quantity[], Object[])
 	 */
 	@Override
-	public Amount<? extends Quantity>[] toSource(Amount<? extends Quantity>[] targets, Object[] moveables) throws Exception {
+	public Quantity<? extends Quantity<?>>[] toSource(Quantity<? extends Quantity<?>>[] targets, Object[] moveables) throws Exception {
 		return getConverter().toSource(targets, moveables);
 	}
 
@@ -310,12 +308,12 @@ public final class LookupTableConverterHolder extends FindableBase implements IR
 	}
 
 	@Override
-	public Amount<? extends Quantity> toSource(Amount<? extends Quantity> target) throws Exception {
+	public Quantity<? extends Quantity<?>> toSource(Quantity<? extends Quantity<?>> target) throws Exception {
 		return getConverter().toSource(target);
 	}
 
 	@Override
-	public Amount<? extends Quantity> toTarget(Amount<? extends Quantity> source) throws Exception {
+	public Quantity<? extends Quantity<?>> toTarget(Quantity<? extends Quantity<?>> source) throws Exception {
 		return getConverter().toTarget(source);
 	}
 

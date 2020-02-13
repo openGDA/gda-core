@@ -21,10 +21,10 @@ package gda.util.converters;
 
 import java.util.List;
 
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
+import javax.measure.Quantity;
+import javax.measure.Unit;
 
-import org.jscience.physics.amount.Amount;
+import gda.util.QuantityFactory;
 
 /**
  * class used to test the concept used in CoupoleConverterHolder without the need to instantiate an ObjectServer
@@ -59,19 +59,19 @@ final class CoupledQuantityConverter implements IQuantityConverter {
 	}
 
 	@Override
-	public Amount<? extends Quantity> toSource(Amount<? extends Quantity> target) throws Exception {
-		Amount<? extends Quantity> q = targetConverter.toSource(target);
+	public Quantity<? extends Quantity<?>> toSource(Quantity<? extends Quantity<?>> target) throws Exception {
+		Quantity<? extends Quantity<?>> q = targetConverter.toSource(target);
 		// check units are of the sort we expect for the conversion - else
 		// convert to it first
 		return sourceConverter.toSource(q);
 	}
 
 	@Override
-	public Amount<? extends Quantity> toTarget(Amount<? extends Quantity> source) throws Exception {
-		Amount<? extends Quantity> q = sourceConverter.toTarget(source);
+	public Quantity<? extends Quantity<?>> toTarget(Quantity<? extends Quantity<?>> source) throws Exception {
+		Quantity<? extends Quantity<?>> q = sourceConverter.toTarget(source);
 		// check units are of the sort we expect for the conversion - else
 		// convert to it first
-		final Unit<? extends Quantity> targetUnit = Unit.valueOf(getTargetConverterSourceUnit());
+		final Unit<? extends Quantity<?>> targetUnit = QuantityFactory.createUnitFromString(getTargetConverterSourceUnit());
 		if (!q.getUnit().equals(targetUnit)) {
 			throw new IllegalArgumentException("JEPQuantityConverter.ToSource: source units (" + q.getUnit()
 					+ ") do not match acceptableUnits (" + targetUnit + ")");
@@ -100,7 +100,4 @@ final class CoupledQuantityConverter implements IQuantityConverter {
 	public boolean handlesTtoS() {
 		return sourceConverter.handlesTtoS() && targetConverter.handlesTtoS();
 	}
-
-
-
 }

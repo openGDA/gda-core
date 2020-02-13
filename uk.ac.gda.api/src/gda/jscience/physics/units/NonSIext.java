@@ -19,51 +19,54 @@
 
 package gda.jscience.physics.units;
 
-import static javax.measure.unit.NonSI.ANGSTROM;
-import static javax.measure.unit.NonSI.DEGREE_ANGLE;
-import static javax.measure.unit.NonSI.ELECTRON_VOLT;
-import static javax.measure.unit.NonSI.LITRE;
-import static javax.measure.unit.SI.AMPERE;
-import static javax.measure.unit.SI.CELSIUS;
-import static javax.measure.unit.SI.GIGA;
-import static javax.measure.unit.SI.KILO;
-import static javax.measure.unit.SI.METRE;
-import static javax.measure.unit.SI.MICRO;
-import static javax.measure.unit.SI.MILLI;
-import static javax.measure.unit.SI.RADIAN;
-import static javax.measure.unit.SI.SECOND;
+import static si.uom.NonSI.ANGSTROM;
+import static si.uom.NonSI.DEGREE_ANGLE;
+import static si.uom.NonSI.ELECTRON_VOLT;
+import static tec.units.indriya.AbstractUnit.ONE;
+import static tec.units.indriya.unit.MetricPrefix.GIGA;
+import static tec.units.indriya.unit.MetricPrefix.KILO;
+import static tec.units.indriya.unit.MetricPrefix.MICRO;
+import static tec.units.indriya.unit.MetricPrefix.MILLI;
+import static tec.units.indriya.unit.Units.AMPERE;
+import static tec.units.indriya.unit.Units.CELSIUS;
+import static tec.units.indriya.unit.Units.CUBIC_METRE;
+import static tec.units.indriya.unit.Units.KILOGRAM;
+import static tec.units.indriya.unit.Units.LITRE;
+import static tec.units.indriya.unit.Units.METRE;
+import static tec.units.indriya.unit.Units.RADIAN;
+import static tec.units.indriya.unit.Units.SECOND;
 
 import java.util.Map;
 
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.Unit;
-import javax.measure.unit.UnitFormat;
+import javax.measure.Quantity;
+import javax.measure.Unit;
 
 import com.google.common.collect.ImmutableMap;
 
 import gda.jscience.physics.quantities.Count;
 import gda.jscience.physics.quantities.WaveVector;
+import si.uom.NonSI;
+import si.uom.quantity.Density;
+import tec.units.indriya.format.SimpleUnitFormat;
 
 /**
  * This class contains units that are not part of the {@link NonSI} set<br>
  * It is an extension to NonSI to customise unit usage in GDA.
  * <p>
- * In jscience 4, you can no longer create alternate forms non-standard units, so this class now just creates aliases.
- * Thus, for example <code>micron</code> and <code>um</code> refer to the same underlying unit and will both be displayed
- * as <code>µm</code>
+ * In the javax.measure classes, you can no longer create alternate forms non-standard units, so this class now just
+ * creates aliases. Thus, for example <code>micron</code> and <code>um</code> refer to the same underlying unit and will
+ * both be displayed as <code>µm</code>
  * <p>
  * The <code>Unit</code> objects are set in a static initialiser. This is necessary because we need to control the
  * order: the aliases must be defined to JScience before being used to create the objects.
  * <p>
  * When adding a unit to this class, please remember to update 'unitStrings' accordingly
  */
-@SuppressWarnings("unchecked")
 public final class NonSIext {
 	public static final String DEG_ANGLE_STRING = "Deg";
 	public static final String DEG_ANGLE_LOWERCASE_STRING = "deg";
 	public static final String DEGREES_ANGLE_STRING = "degrees";
-	public static final String DEG_ANGLE_SYMBOL = "°";
+	public static final String DEG_ANGLE_SYMBOL = "\u00b0";
 	public static final String MILLI_DEG_ANGLE_STRING = "mDeg";
 	public static final String MILLI_DEG_ANGLE_LOWERCASE_STRING = "mdeg";
 	public static final String MICRO_DEG_ANGLE_STRING = "\u00b5Deg";
@@ -113,24 +116,31 @@ public final class NonSIext {
 	public static final String KILOCOUNTS_STRING = "kcts";
 	public static final String KILOCOUNTS_UC_STRING = "Kcount";
 
+	public static final String LITRE_U_STRING = "L";
 	public static final String MICROLITRE_STRING = "\u00b5L";
 	public static final String MICROLITRE_U_STRING = "uL";
 	public static final String MICROLITRE_MU_STRING = "\u03bcL";
+	public static final String CUBIC_METRE_UNICODE_STRING = "\u33a5"; // single Unicode character
+	public static final String CUBIC_METRE_STRING = "m\u00b3"; // m followed by superscript 3
 
 	/** An alternative unit name for one over ANGSTROM (alternative name <code>Per_Angstrom</code>). */
-	public static final Unit<WaveVector> PER_ANGSTROM = (Unit<WaveVector>) ANGSTROM.inverse();
+	public static final Unit<WaveVector> PER_ANGSTROM = ANGSTROM.inverse().asType(WaveVector.class);
 
 	/** A unit of counts or motor steps. */
-	public static final Unit<Count> COUNTS = (Unit<Count>) METRE.inverse();
+	public static final Unit<Count> COUNTS = METRE.inverse().asType(Count.class);
 
 	/** A unit of counts or motor steps. */
-	public static final Unit<Count> KILOCOUNTS = (Unit<Count>) METRE.inverse().times(1e3);
+	public static final Unit<Count> KILOCOUNTS = METRE.inverse().multiply(1e3).asType(Count.class);
+
+	/** Milligrammes per millilitre */
+	public static final Unit<Density> MILLIGRAMS_PER_MILLILITRE = MICRO(KILOGRAM).divide(MILLI(LITRE)).asType(Density.class);
 
 	/** Static initialiser: see explanation at top of class */
 	static {
-		final UnitFormat unitFormat = UnitFormat.getInstance();
+		final SimpleUnitFormat unitFormat = SimpleUnitFormat.getInstance();
 
 		unitFormat.alias(DEGREE_ANGLE, DEG_ANGLE_STRING);
+		unitFormat.alias(DEGREE_ANGLE, DEG_ANGLE_SYMBOL);
 		unitFormat.alias(DEGREE_ANGLE, DEG_ANGLE_LOWERCASE_STRING);
 		unitFormat.alias(DEGREE_ANGLE, DEGREES_ANGLE_STRING);
 		unitFormat.alias(MILLI(DEGREE_ANGLE), MILLI_DEG_ANGLE_STRING);
@@ -181,9 +191,11 @@ public final class NonSIext {
 		unitFormat.alias(KILOCOUNTS, KILOCOUNTS_STRING);
 		unitFormat.alias(KILOCOUNTS, KILOCOUNTS_UC_STRING);
 
+		unitFormat.alias(LITRE, LITRE_U_STRING);
 		unitFormat.alias(MICRO(LITRE), MICROLITRE_STRING);
 		unitFormat.alias(MICRO(LITRE), MICROLITRE_U_STRING);
 		unitFormat.alias(MICRO(LITRE), MICROLITRE_MU_STRING);
+		unitFormat.alias(CUBIC_METRE, CUBIC_METRE_STRING);
 	}
 
 	/**
@@ -208,9 +220,11 @@ public final class NonSIext {
 			.put(COUNTS, COUNTS_STRING)
 			.put(KILOCOUNTS, KILOCOUNTS_STRING)
 			.put(MICRO(LITRE), MICROLITRE_STRING)
+			.put(CUBIC_METRE, CUBIC_METRE_STRING)
+			.put(ONE, "")
 			.build();
 
-	public static String getUnitString(Unit<? extends Quantity> unit) {
+	public static String getUnitString(Unit<? extends Quantity<?>> unit) {
 		return (String) unitStrings.getOrDefault(unit, unit.toString());
 	}
 

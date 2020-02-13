@@ -18,9 +18,7 @@
 
 package gda.device.scannable;
 
-import javax.measure.quantity.Quantity;
-
-import org.jscience.physics.amount.Amount;
+import javax.measure.Quantity;
 
 import gda.device.DeviceException;
 import gda.device.ScannableMotionUnits;
@@ -210,7 +208,7 @@ public class PassthroughScannableMotionUnitsDecorator implements ScannableMotion
 	}
 
 	@Override
-	public Amount<? extends Quantity>[] getPositionAsQuantityArray() throws DeviceException {
+	public Quantity<? extends Quantity<?>>[] getPositionAsQuantityArray() throws DeviceException {
 		return delegate.getPositionAsQuantityArray();
 	}
 

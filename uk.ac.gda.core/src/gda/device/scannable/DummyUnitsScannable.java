@@ -21,10 +21,8 @@ package gda.device.scannable;
 
 import java.util.Arrays;
 
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
-
-import org.jscience.physics.amount.Amount;
+import javax.measure.Quantity;
+import javax.measure.Unit;
 
 import gda.device.DeviceException;
 import gda.device.ScannableMotionUnits;
@@ -61,10 +59,12 @@ public class DummyUnitsScannable extends ScannableMotionUnitsBase {
 		setConfigured(true);
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void asynchronousMoveTo(Object externalPosition) throws DeviceException {
-		final Amount<? extends Quantity> targetInUserUnits = QuantityFactory.createFromObject(externalPosition, Unit.valueOf(getUserUnits()));
-		final double targetInHardwareUnits = targetInUserUnits.to(Unit.valueOf(getHardwareUnitString())).getEstimatedValue();
+		final Quantity targetInUserUnits = QuantityFactory.createFromObject(externalPosition, getUserUnits());
+		final Unit<? extends Quantity<?>> hardwareUnits = QuantityFactory.createUnitFromString(getHardwareUnitString());
+		final double targetInHardwareUnits = targetInUserUnits.to(hardwareUnits).getValue().doubleValue();
 		final String report = checkPositionValid(targetInHardwareUnits);
 		if (report != null) {
 			throw new DeviceException(report);
@@ -72,10 +72,12 @@ public class DummyUnitsScannable extends ScannableMotionUnitsBase {
 		currentPosition = targetInHardwareUnits;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Object getPosition() throws DeviceException {
-		final Amount<? extends Quantity> positionInHardwareUnits = QuantityFactory.createFromObject(currentPosition, Unit.valueOf(getHardwareUnitString()));
-		return positionInHardwareUnits.to(Unit.valueOf(getUserUnits())).getEstimatedValue();
+		final Quantity positionInHardwareUnits = QuantityFactory.createFromObject(currentPosition, getHardwareUnitString());
+		final Unit<? extends Quantity<?>> userUnits = QuantityFactory.createUnitFromString(getUserUnits());
+		return positionInHardwareUnits.to(userUnits).getValue().doubleValue();
 	}
 
 	@Override

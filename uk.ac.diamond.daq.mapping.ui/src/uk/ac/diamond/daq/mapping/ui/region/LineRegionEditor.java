@@ -18,7 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.ui.region;
 
-import javax.measure.quantity.Quantity;
+import javax.measure.Quantity;
 
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.MultiValidator;
@@ -41,19 +41,19 @@ public class LineRegionEditor extends AbstractRegionEditor {
 		final Composite composite = super.createEditorPart(parent);
 
 		new Label(composite, SWT.NONE).setText(getXAxisName() + " Start");
-		NumberAndUnitsComposite<Quantity> xStart = createNumberAndUnitsComposite(composite, getXAxisName(), X_START);
+		NumberAndUnitsComposite<? extends Quantity<?>> xStart = createNumberAndUnitsComposite(composite, getXAxisName(), X_START);
 		grabHorizontalSpace.applyTo(xStart);
 
 		new Label(composite, SWT.NONE).setText(getYAxisName() + " Start");
-		NumberAndUnitsComposite<Quantity> yStart = createNumberAndUnitsComposite(composite, getYAxisName(), Y_START);
+		NumberAndUnitsComposite<? extends Quantity<?>> yStart = createNumberAndUnitsComposite(composite, getYAxisName(), Y_START);
 		grabHorizontalSpace.applyTo(yStart);
 
 		new Label(composite, SWT.NONE).setText(getXAxisName() + " Stop");
-		NumberAndUnitsComposite<Quantity> xStop = createNumberAndUnitsComposite(composite, getXAxisName(), X_STOP);
+		NumberAndUnitsComposite<? extends Quantity<?>> xStop = createNumberAndUnitsComposite(composite, getXAxisName(), X_STOP);
 		grabHorizontalSpace.applyTo(xStop);
 
 		new Label(composite, SWT.NONE).setText(getYAxisName() + " Stop");
-		NumberAndUnitsComposite<Quantity> yStop = createNumberAndUnitsComposite(composite, getYAxisName(), Y_STOP);
+		NumberAndUnitsComposite<? extends Quantity<?>> yStop = createNumberAndUnitsComposite(composite, getYAxisName(), Y_STOP);
 		grabHorizontalSpace.applyTo(yStop);
 
 		validateAndBind(xStart, yStart, xStop, yStop);
@@ -61,10 +61,10 @@ public class LineRegionEditor extends AbstractRegionEditor {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void validateAndBind(NumberAndUnitsComposite<Quantity> xStart,
-								 NumberAndUnitsComposite<Quantity> yStart,
-								 NumberAndUnitsComposite<Quantity> xStop,
-								 NumberAndUnitsComposite<Quantity> yStop) {
+	private void validateAndBind(NumberAndUnitsComposite<? extends Quantity<?>> xStart,
+								 NumberAndUnitsComposite<? extends Quantity<?>> yStart,
+								 NumberAndUnitsComposite<? extends Quantity<?>> xStop,
+								 NumberAndUnitsComposite<? extends Quantity<?>> yStop) {
 
 		binder.bind(xStart, X_START, getModel());
 		binder.bind(yStart, Y_START, getModel());

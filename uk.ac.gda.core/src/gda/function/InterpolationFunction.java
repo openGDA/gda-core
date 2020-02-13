@@ -19,22 +19,22 @@
 
 package gda.function;
 
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
+import javax.measure.Quantity;
+import javax.measure.Unit;
 
-import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
+import gda.util.QuantityFactory;
 
 /**
  * To change the template for this generated type comment go to Window - Preferences - Java - Code Generation - Code and
  * Comments
  */
-public class InterpolationFunction extends FindableFunction implements Configurable {
+public class InterpolationFunction<T extends Quantity<T>, R extends Quantity<R>> extends FindableFunction<T, R> implements Configurable {
 	private static final Logger logger = LoggerFactory.getLogger(InterpolationFunction.class);
 
 	private double[] xValues;
@@ -51,9 +51,9 @@ public class InterpolationFunction extends FindableFunction implements Configura
 
 	private String cdfName;
 
-	private Unit<? extends Quantity> xUnits;
+	private Unit<? extends Quantity<?>> xUnits;
 
-	private Unit<? extends Quantity> yUnits;
+	private Unit<? extends Quantity<?>> yUnits;
 
 	private int yPlaces;
 
@@ -82,8 +82,8 @@ public class InterpolationFunction extends FindableFunction implements Configura
 	 *            number of decimal places . Use InterpolationFunction.decimalPlacesToPreventRounding to prevent
 	 *            rounding. Or use other constructor
 	 */
-	public InterpolationFunction(double[] xvalues, double[] yvalues, Unit<? extends Quantity> xunits,
-			Unit<? extends Quantity> yunits, int decimal) {
+	public InterpolationFunction(double[] xvalues, double[] yvalues, Unit<? extends Quantity<?>> xunits,
+			Unit<? extends Quantity<?>> yunits, int decimal) {
 		// TODO order the arrays in increasing value of x
 		numberOfXValues = xvalues.length;
 		xValues = xvalues;
@@ -110,21 +110,20 @@ public class InterpolationFunction extends FindableFunction implements Configura
 	 * @param yunits
 	 *            the y units
 	 */
-	public InterpolationFunction(double[] xvalues, double[] yvalues, Unit<? extends Quantity> xunits,
-			Unit<? extends Quantity> yunits) {
+	public InterpolationFunction(double[] xvalues, double[] yvalues, Unit<? extends Quantity<?>> xunits,
+			Unit<? extends Quantity<?>> yunits) {
 		this(xvalues, yvalues, xunits, yunits, decimalPlacesToPreventRounding);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void configure() {
 		if (!configured) {
-			cdf = (ColumnDataFile) Finder.getInstance().find(cdfName);
+			cdf = Finder.getInstance().find(cdfName);
 			numberOfXValues = cdf.getNumberOfXValues();
 			xValues = cdf.getColumn(xColumn);
-			xUnits = Unit.valueOf(cdf.getColumnUnits(xColumn));
+			xUnits = QuantityFactory.createUnitFromString(cdf.getColumnUnits(xColumn));
 			yValues = cdf.getColumn(yColumn);
-			yUnits = Unit.valueOf(cdf.getColumnUnits(yColumn));
+			yUnits = QuantityFactory.createUnitFromString(cdf.getColumnUnits(yColumn));
 			yPlaces = cdf.getColumnDecimalPlaces(yColumn);
 			configured = true;
 		}
@@ -235,9 +234,10 @@ public class InterpolationFunction extends FindableFunction implements Configura
 		return new int[] {before, after};
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public Amount<? extends Quantity> apply(Amount<? extends Quantity> xValue) {
-		final double x = xValue.to(xUnits).getEstimatedValue();
+	public Quantity<R> apply(Quantity<T> xValue) {
+		final double x = ((Quantity) xValue).to(xUnits).getValue().doubleValue();
 		if (Double.isNaN(x))
 			throw new IllegalArgumentException("Interpolation function does not handle a value that is Nan");
 
@@ -268,7 +268,7 @@ public class InterpolationFunction extends FindableFunction implements Configura
 			// accuracy of
 			// yValues[before]
 
-			return Amount.valueOf(roundTo(y, yPlaces), yUnits);
+			return QuantityFactory.createFromObjectUnknownUnit(roundTo(y, yPlaces), yUnits);
 		}
 
 		return null;

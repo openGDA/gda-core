@@ -22,9 +22,8 @@ package gda.function;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import javax.measure.quantity.Quantity;
+import javax.measure.Quantity;
 
-import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +32,7 @@ import gda.util.QuantityFactory;
 /**
  * Function of form: y = a * trigFunc( b + x) where trigFunc is sin, cos or tan
  */
-public class SimpleTrigFunction extends FindableFunction {
+public class SimpleTrigFunction<T extends Quantity<T>, R extends Quantity<R>> extends FindableFunction<T, R> {
 	private static final Logger logger = LoggerFactory.getLogger(SimpleTrigFunction.class);
 
 	// These are the values as specified in the xml
@@ -44,17 +43,18 @@ public class SimpleTrigFunction extends FindableFunction {
 	private String trigFunc;
 
 	// These are constructed from them
-	private Amount<? extends Quantity> constantA;
+	private Quantity<? extends Quantity<?>> constantA;
 
-	private Amount<? extends Quantity> constantB;
+	private Quantity<? extends Quantity<?>> constantB;
 
 	private Method trigMethod;
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public Amount<? extends Quantity> apply(Amount<? extends Quantity> xValue) {
+	public Quantity<R> apply(Quantity<T> xValue) {
 		try {
-			final double trigValue = (Double) trigMethod.invoke(null, constantB.times(xValue).getEstimatedValue());
-			return constantA.times(trigValue);
+			final double trigValue = (Double) trigMethod.invoke(null, constantB.multiply(xValue).getValue().doubleValue());
+			return (Quantity<R>) constantA.multiply(trigValue);
 		} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
 			logger.error("Error evaluating {}", xValue, e);
 		}

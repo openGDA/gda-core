@@ -22,6 +22,9 @@ import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.saveC
 
 import java.util.Objects;
 
+import javax.measure.quantity.Energy;
+import javax.measure.quantity.Length;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -44,7 +47,7 @@ import uk.ac.diamond.daq.mapping.api.EnergyFocusBean;
 public class EnergyFocusEditor {
 	private static final Logger logger = LoggerFactory.getLogger(EnergyFocusEditor.class);
 
-	private final ILinearFunction energyFocusFunction;
+	private final ILinearFunction<Energy, Length> energyFocusFunction;
 	private final String energyFocusConfigPath;
 
 	private final EnergyFocusFunctionDisplay energyFocusDisplay;

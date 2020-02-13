@@ -23,9 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.measure.quantity.Quantity;
-
-import org.jscience.physics.amount.Amount;
+import javax.measure.Quantity;
 
 /**
  * Package private class used by the public LookupTableConverterHolder and JEPConverterHolder This is a helper class to
@@ -48,17 +46,17 @@ final class GenQuantitiesConverter implements IQuantitiesConverter {
 	}
 
 	@Override
-	public Amount<? extends Quantity>[] calculateMoveables(Amount<? extends Quantity>[] sources, Object[] moveables) throws Exception {
-		Amount<? extends Quantity> target = converter.toTarget(sources[0]);
-		Amount<? extends Quantity>[] targets = new Amount<?>[moveables.length];
+	public Quantity<? extends Quantity<?>>[] calculateMoveables(Quantity<? extends Quantity<?>>[] sources, Object[] moveables) throws Exception {
+		Quantity<? extends Quantity<?>> target = converter.toTarget(sources[0]);
+		Quantity<? extends Quantity<?>>[] targets = new Quantity<?>[moveables.length];
 		Arrays.fill(targets, target);
 		return targets;
 	}
 
 	@Override
-	public Amount<? extends Quantity>[] toSource(Amount<? extends Quantity>[] targets, Object[] moveables) throws Exception {
-		Amount<? extends Quantity> source = converter.toSource(targets[0]);
-		Amount<? extends Quantity>[] sources = new Amount<?>[moveables.length];
+	public Quantity<? extends Quantity<?>>[] toSource(Quantity<? extends Quantity<?>>[] targets, Object[] moveables) throws Exception {
+		Quantity<? extends Quantity<?>> source = converter.toSource(targets[0]);
+		Quantity<? extends Quantity<?>>[] sources = new Quantity<?>[moveables.length];
 		Arrays.fill(sources, source);
 		return sources;
 	}
@@ -83,11 +81,11 @@ final class GenQuantitiesConverter implements IQuantitiesConverter {
 		return converter.getAcceptableTargetUnits();
 	}
 
-	public Amount<? extends Quantity> toSource(Amount<? extends Quantity> target) throws Exception {
+	public Quantity<? extends Quantity<?>> toSource(Quantity<? extends Quantity<?>> target) throws Exception {
 		return converter.toSource(target);
 	}
 
-	public Amount<? extends Quantity> toTarget(Amount<? extends Quantity> source) throws Exception {
+	public Quantity<? extends Quantity<?>> toTarget(Quantity<? extends Quantity<?>> source) throws Exception {
 		return converter.toTarget(source);
 	}
 

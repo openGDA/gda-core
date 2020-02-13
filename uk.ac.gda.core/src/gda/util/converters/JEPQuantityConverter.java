@@ -21,11 +21,12 @@ package gda.util.converters;
 
 import java.util.List;
 
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
+import javax.measure.Quantity;
+import javax.measure.Unit;
 
-import org.jscience.physics.amount.Amount;
 import org.nfunk.jep.JEP;
+
+import gda.util.QuantityFactory;
 
 /**
  * Class to perform conversion between a Source and Target quantity using a Java Expression Parser expression The
@@ -81,16 +82,16 @@ final class JEPQuantityConverter implements IQuantityConverter {
 	 * Need to be synchronized as we change the JEP during the call
 	 */
 	@Override
-	public synchronized Amount<? extends Quantity> toSource(Amount<? extends Quantity> target) {
-		final Unit<? extends Quantity> acceptableSourceUnits = Unit.valueOf(getAcceptableSourceUnits().get(0));
-		final Unit<? extends Quantity> acceptableTargetUnits = Unit.valueOf(getAcceptableTargetUnits().get(0));
+	public synchronized Quantity<? extends Quantity<?>> toSource(Quantity<? extends Quantity<?>> target) {
+		final Unit<? extends Quantity<?>> acceptableSourceUnits = QuantityFactory.createUnitFromString(getAcceptableSourceUnits().get(0));
+		final Unit<? extends Quantity<?>> acceptableTargetUnits = QuantityFactory.createUnitFromString(getAcceptableTargetUnits().get(0));
 
 		if (!target.getUnit().equals(acceptableTargetUnits)) {
 			throw new IllegalArgumentException("JEPQuantityConverter.ToSource: target units (" + target.getUnit()
 					+ ") do not match acceptableUnits (" + acceptableTargetUnits + ")" + this.toString());
 		}
 
-		jepTtoS.addVariable(VariableName, target.getEstimatedValue());
+		jepTtoS.addVariable(VariableName, target.getValue().doubleValue());
 		// returns in
 		// current units
 		// doubleValue
@@ -100,35 +101,35 @@ final class JEPQuantityConverter implements IQuantityConverter {
 		// against Nan.
 		if (Double.isNaN(val) /* || Double.isInfinite(val) */) {
 			throw new IllegalArgumentException("JEPQuantityConverter.ToSource: Error. Result = " + val + " target = "
-					+ target.getEstimatedValue() + " expression = " + expressionParameters.getExpressionTtoS() + " "
+					+ target.getValue().doubleValue() + " expression = " + expressionParameters.getExpressionTtoS() + " "
 					+ this.toString());
 		}
-		return Amount.valueOf(val, acceptableSourceUnits);
+		return QuantityFactory.createFromObjectUnknownUnit(val, acceptableSourceUnits);
 	}
 
 	/*
 	 * Need to be synchronized as we change the JEP during the call
 	 */
 	@Override
-	public synchronized Amount<? extends Quantity> toTarget(Amount<? extends Quantity> source) {
-		final Unit<? extends Quantity> acceptableSourceUnits = Unit.valueOf(getAcceptableSourceUnits().get(0));
-		final Unit<? extends Quantity> acceptableTargetUnits = Unit.valueOf(getAcceptableTargetUnits().get(0));
+	public synchronized Quantity<? extends Quantity<?>> toTarget(Quantity<? extends Quantity<?>> source) {
+		final Unit<? extends Quantity<?>> acceptableSourceUnits = QuantityFactory.createUnitFromString(getAcceptableSourceUnits().get(0));
+		final Unit<? extends Quantity<?>> acceptableTargetUnits = QuantityFactory.createUnitFromString(getAcceptableTargetUnits().get(0));
 
 		if (!source.getUnit().equals(acceptableSourceUnits)) {
 			throw new IllegalArgumentException("JEPQuantityConverter.ToTarget: source units (" + source.getUnit()
 					+ ") do not match acceptableUnits (" + acceptableSourceUnits + ") " + this.toString());
 		}
 
-		jepStoT.addVariable(VariableName, source.getEstimatedValue());
+		jepStoT.addVariable(VariableName, source.getValue().doubleValue());
 		double val = jepStoT.getValue();
 		// Infinite is a valid value for 1/X when X is 0. so only protect
 		// against Nan.
 		if (Double.isNaN(val) /* || Double.isInfinite(val) */) {
 			throw new IllegalArgumentException("JEPQuantityConverter.ToTarget: Error. Result = " + val + " source = "
-					+ source.getEstimatedValue() + " expression = " + expressionParameters.getExpressionStoT() + " "
+					+ source.getValue().doubleValue() + " expression = " + expressionParameters.getExpressionStoT() + " "
 					+ this.toString());
 		}
-		return Amount.valueOf(val, acceptableTargetUnits);
+		return QuantityFactory.createFromObjectUnknownUnit(val, acceptableTargetUnits);
 	}
 
 	@Override

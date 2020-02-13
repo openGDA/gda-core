@@ -18,29 +18,27 @@
 
 package gda.jscience.physics.quantities;
 
+import static gda.jscience.physics.quantities.QuantityConstants.ELECTRON_MASS;
 import static gda.jscience.physics.quantities.QuantityConstants.ELECTRON_MASS_TIMES_TWO;
+import static gda.jscience.physics.quantities.QuantityConstants.H_BAR;
 import static gda.jscience.physics.quantities.QuantityConstants.H_BAR_SQUARED;
 import static gda.jscience.physics.quantities.QuantityConstants.PLANCKS_CONSTANT;
 import static gda.jscience.physics.quantities.QuantityConstants.SPEED_OF_LIGHT;
-import static gda.jscience.physics.quantities.QuantityConstants.ZERO_ANGLE;
-import static gda.jscience.physics.quantities.QuantityConstants.ZERO_ENERGY;
-import static gda.jscience.physics.quantities.QuantityConstants.ZERO_LENGTH;
 import static gda.jscience.physics.units.NonSIext.PER_ANGSTROM;
-import static javax.measure.unit.SI.JOULE;
-import static javax.measure.unit.SI.KILOGRAM;
-import static javax.measure.unit.SI.RADIAN;
-import static org.jscience.physics.amount.Constants.me;
-import static org.jscience.physics.amount.Constants.ℏ;
+import static tec.units.indriya.unit.Units.JOULE;
+import static tec.units.indriya.unit.Units.RADIAN;
 
+import javax.measure.Quantity;
+import javax.measure.Unit;
 import javax.measure.quantity.Angle;
 import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
-import javax.measure.quantity.Quantity;
 
-import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tec.units.indriya.quantity.Quantities;
+import tec.units.indriya.unit.Units;
 import uk.ac.diamond.scisoft.analysis.diffraction.DSpacing;
 
 public class QuantityConverters {
@@ -63,32 +61,32 @@ public class QuantityConverters {
 	 *            the 2*d spacing of the crystal.
 	 * @return BraggAngle the Bragg Angle of the crystal.
 	 */
-	public static Amount<Angle> braggAngleFromWavelength(Amount<Length> wavelength, Amount<Length> twoD) {
+	public static Quantity<Angle> braggAngleFromWavelength(Quantity<Length> wavelength, Quantity<Length> twoD) {
 		logger.debug("braggAngleFromWavelength(wavelength = {}, twoD = {})", wavelength, twoD);
 		if (wavelength == null || twoD == null) {
 			return null;
 		}
-		final double wavelengthVal = wavelength.doubleValue(Length.UNIT);
-		final double twoDVal = twoD.doubleValue(Length.UNIT);
+		final double wavelengthVal = wavelength.to(Units.METRE).getValue().doubleValue();
+		final double twoDVal = twoD.to(Units.METRE).getValue().doubleValue();
 		if (wavelengthVal <= 0 || twoDVal <= 0) {
 			return null;
 		}
 		final double result = DSpacing.coneAngleFromDSpacing(wavelengthVal, twoDVal / 2.0) / 2.0;
-		return Amount.valueOf(result, RADIAN);
+		return Quantities.getQuantity(result, RADIAN);
 	}
 
 	/**
 	 * Returns the Bragg Angle for the specified X-Ray photon energy.
 	 *
 	 * @param photonEnergy
-	 *            PhotonEnergy the specified X-Ray photon energy.
+	 *            the specified X-Ray photon energy.
 	 * @param twoD
-	 *            Length the 2*d spacing of the crystal.
+	 *            the 2*d spacing of the crystal.
 	 * @return the Bragg Angle of the crystal.
 	 */
-	public static Amount<Angle> braggAngleFromEnergy(Amount<Energy> photonEnergy, Amount<Length> twoD) {
+	public static Quantity<Angle> braggAngleFromEnergy(Quantity<Energy> photonEnergy, Quantity<Length> twoD) {
 		logger.debug("braggAngleFromEnergy(photonEnergy = {}, twoD = {})", photonEnergy, twoD);
-		if (photonEnergy != null && twoD != null && photonEnergy.doubleValue(Energy.UNIT) > 0 && twoD.doubleValue(Length.UNIT) > 0) {
+		if (photonEnergy != null && twoD != null && photonEnergy.getValue().doubleValue() > 0 && twoD.getValue().doubleValue() > 0) {
 			return braggAngleFromWavelength(wavelengthOf(photonEnergy), twoD);
 		}
 		return null;
@@ -110,11 +108,11 @@ public class QuantityConverters {
 	 *            Wavelength the specified X-Ray wavelength.
 	 * @return the energy of the photon.
 	 */
-	public static Amount<Energy> photonEnergyFromWavelength(Amount<Length> wavelength) {
+	public static Quantity<Energy> photonEnergyFromWavelength(Quantity<Length> wavelength) {
 		logger.debug("photonEnergyFromWavelength(wavelength = {})", wavelength);
-		if (wavelength != null && wavelength.isGreaterThan(ZERO_LENGTH)) {
+		if (wavelength != null && wavelength.getValue().doubleValue() > 0) {
 			// returns (h*c/λ)
-			return PLANCKS_CONSTANT.times(SPEED_OF_LIGHT).divide(wavelength).to(Energy.UNIT);
+			return PLANCKS_CONSTANT.multiply(SPEED_OF_LIGHT).divide(wavelength).asType(Energy.class);
 		}
 		return null;
 	}
@@ -128,9 +126,9 @@ public class QuantityConverters {
 	 *            Length the 2*d spacing of the crystal.
 	 * @return the energy of the photon from the crystal.
 	 */
-	public static Amount<Energy> photonEnergyFromBraggAngle(Amount<Angle> braggAngle, Amount<Length> twoD) {
+	public static Quantity<Energy> photonEnergyFromBraggAngle(Quantity<Angle> braggAngle, Quantity<Length> twoD) {
 		logger.debug("photonEnergyFromBraggAngle(braggAngle = {}, twoD = {})", braggAngle, twoD);
-		if (braggAngle != null && twoD != null && braggAngle.isGreaterThan(ZERO_ANGLE) && twoD.isGreaterThan(ZERO_LENGTH)) {
+		if (braggAngle != null && twoD != null && braggAngle.getValue().doubleValue() > 0 && twoD.getValue().doubleValue() > 0) {
 			// calculate wavelength first then the photon energy
 			return photonEnergyFromWavelength(wavelengthOf(braggAngle, twoD));
 		}
@@ -141,15 +139,15 @@ public class QuantityConverters {
 	 * Returns the photon energy for the specified edge.
 	 *
 	 * @param edge
+	 *            photon edge
 	 * @param k
+	 *            wave vector
 	 * @return the energy of the photon from the crystal.
 	 */
-	public static Amount<Energy> photonEnergyFromEdgeAndVector(Amount<Energy> edge, Amount<WaveVector> k) {
+	public static Quantity<Energy> photonEnergyFromEdgeAndVector(Quantity<Energy> edge, Quantity<WaveVector> k) {
 		logger.debug("photonEnergyFromEdgeAndVector(edge = {}, k = {})", edge, k);
-		if (edge != null && k != null && edge.isGreaterThan(ZERO_ENERGY) && k.isGreaterThan(WaveVector.ZERO)) {
-			final Amount<? extends Quantity> a = H_BAR_SQUARED.divide(ELECTRON_MASS_TIMES_TWO);
-			final Amount<? extends Quantity> kSquared = k.times(k);
-			return edge.plus(kSquared.times(a));
+		if (edge != null && k != null && edge.getValue().doubleValue() > 0 && k.getValue().doubleValue() > 0) {
+			return edge.add((k.multiply(k).multiply(H_BAR_SQUARED.divide(ELECTRON_MASS_TIMES_TWO))).asType(Energy.class));
 		}
 		return null;
 	}
@@ -159,15 +157,16 @@ public class QuantityConverters {
 	 *
 	 * @param edge
 	 * @param value
-	 * @return PhotonEnergy the energy of the photon from the crystal.
+	 * @return the energy of the photon from the crystal.
 	 */
-	public static Amount<Energy> photonEnergyFromEdgeAndValue(Amount<Energy> edge, double value) {
+	public static Quantity<Energy> photonEnergyFromEdgeAndValue(Quantity<Energy> edge, double value) {
 		logger.debug("photonEnergyFromEdgeAndValue(edge = {}, double value = {})", edge, value);
-		if (edge != null && edge.isGreaterThan(ZERO_ENERGY) && value > 0.0) {
-			final double newValue = edge.doubleValue(Energy.UNIT)
-					+ (1.0E20 * value * value * H_BAR_SQUARED.getEstimatedValue() / ELECTRON_MASS_TIMES_TWO.doubleValue(KILOGRAM));
+		if (edge != null && edge.getValue().doubleValue() > 0 && value > 0.0) {
+			final double newValue = edge.to(JOULE).getValue().doubleValue()
+					+ (1.0E20 * value * value * H_BAR_SQUARED.getValue().doubleValue()
+							/ ELECTRON_MASS_TIMES_TWO.to(Units.KILOGRAM).getValue().doubleValue());
 
-			return Amount.valueOf(newValue, JOULE);
+			return Quantities.getQuantity(newValue, JOULE);
 		}
 		return null;
 	}
@@ -187,11 +186,11 @@ public class QuantityConverters {
 	 *            the energy of the photon.
 	 * @return the X-Ray wavelength of the specified photon energy.
 	 */
-	public static Amount<Length> wavelengthOf(Amount<Energy> photonEnergy) {
+	public static Quantity<Length> wavelengthOf(Quantity<Energy> photonEnergy) {
 		logger.debug("wavelengthOf(photonEnergy = {}", photonEnergy);
-		if (photonEnergy != null && photonEnergy.isGreaterThan(ZERO_ENERGY)) {
+		if (photonEnergy != null && photonEnergy.getValue().doubleValue() > 0) {
 			// Returns (h*c/E)
-			return PLANCKS_CONSTANT.times(SPEED_OF_LIGHT).divide(photonEnergy).to(Length.UNIT);
+			return PLANCKS_CONSTANT.multiply(SPEED_OF_LIGHT).divide(photonEnergy).asType(Length.class);
 		}
 		return null;
 	}
@@ -205,12 +204,11 @@ public class QuantityConverters {
 	 *            the 2d spacing of the crystal.
 	 * @return the X-Ray wavelength selected by the crystal.
 	 */
-	public static Amount<Length> wavelengthOf(Amount<Angle> braggAngle, Amount<Length> twoD) {
+	public static Quantity<Length> wavelengthOf(Quantity<Angle> braggAngle, Quantity<Length> twoD) {
 		logger.debug("wavelengthOf(braggAngle = {}, twoD = {})", braggAngle, twoD);
-		if (braggAngle != null && twoD != null && braggAngle.isGreaterThan(ZERO_ANGLE)
-				&& twoD.isGreaterThan(ZERO_LENGTH)) {
-			final double braggAngleSine = Math.sin(braggAngle.doubleValue(RADIAN));
-			return twoD.times(braggAngleSine);
+		if (braggAngle != null && twoD != null && braggAngle.getValue().doubleValue() > 0 && twoD.getValue().doubleValue() > 0) {
+			final double braggAngleSine = Math.sin(braggAngle.to(RADIAN).getValue().doubleValue());
+			return twoD.multiply(braggAngleSine);
 		}
 		return null;
 	}
@@ -225,12 +223,12 @@ public class QuantityConverters {
 	 * It is not entirely clear what equation this function is supposed to implement.<br>
 	 * In the previous version, in which the energy and electron mass values were not converted to their SI equivalents,
 	 * the intermediate quantity q had units eV^1:2·kg^1:2/(J·s) and the JScience2 function doubleValue() multiplied the
-	 * raw value by roughly a factor of 4 to return the double value. This does not work in JScience4, which complains
-	 * about the fractional exponents.
+	 * raw value by roughly a factor of 4 to return the double value. This does not work in Java Units API, which
+	 * complains about the fractional exponents.
 	 * <p>
 	 * In the absence of any clear documentation, this version converts the input quantities to SI units before
-	 * calculating q. The estimated value of q is then the same as the value returned by doubleValue() in JScience2. The
-	 * units are ignored and replaced by PER_ANGSTROM (as in the previous version).
+	 * calculating q. The double value of q then appears to correspond to a unit of "per metre". We therefore divide
+	 * this value by e10 and replace the units with PER_ANGSTROM (as in the previous version).
 	 * <p>
 	 * We think that this calculation is used in the EXAFS GUI to indicate wavelength to the user, rather than actually
 	 * being used in the scan.
@@ -241,11 +239,29 @@ public class QuantityConverters {
 	 *            Energy the energy of the electron.
 	 * @return WaveVector of the electron
 	 */
-	public static Amount<WaveVector> waveVectorOf(Amount<Energy> edgeEnergy, Amount<Energy> electronEnergy) {
+	public static Quantity<WaveVector> waveVectorOf(Quantity<Energy> edgeEnergy, Quantity<Energy> electronEnergy) {
 		logger.debug("waveVectorOf(edgeEnergy = {}, electronEnergy = {})", edgeEnergy, electronEnergy);
-		if (edgeEnergy != null && electronEnergy != null && edgeEnergy.isGreaterThan(ZERO_ENERGY) && electronEnergy.isGreaterThan(ZERO_ENERGY)) {
-			return electronEnergy.minus(edgeEnergy).to(Energy.UNIT).times(me).times(2.0).root(2).divide(ℏ).to(PER_ANGSTROM);
+		if (edgeEnergy != null && electronEnergy != null && edgeEnergy.getValue().doubleValue() > 0 && electronEnergy.getValue().doubleValue() > 0) {
+			final Quantity<? extends Quantity<?>> intermediate = electronEnergy.subtract(edgeEnergy).to(JOULE).multiply(ELECTRON_MASS).multiply(2.0);
+			final Quantity<? extends Quantity<?>> q = sqrt(intermediate).divide(H_BAR);
+			return Quantities.getQuantity(q.getValue().doubleValue() / 1.0e10, PER_ANGSTROM);
 		}
 		return null;
+	}
+
+	/**
+	 * Calculate the square root of the input Quantity
+	 * <p>
+	 * A much more sophisticated version of this function was built into the Amount class in JScience4.
+	 *
+	 * @param inputQuantity
+	 *            the quantity whose square root is required
+	 * @return the square root of the quantity
+	 */
+	private static <Q extends Quantity<Q>> Quantity<Q> sqrt(Quantity<? extends Quantity<?>> inputQuantity) {
+		final double resultValue = Math.sqrt(inputQuantity.getValue().doubleValue());
+		@SuppressWarnings("unchecked")
+		final Unit<Q> resultUnit = (Unit<Q>) inputQuantity.getUnit().root(2);
+		return Quantities.getQuantity(resultValue, resultUnit);
 	}
 }

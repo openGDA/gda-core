@@ -18,22 +18,20 @@
 
 package gda.device.scannable;
 
-import static javax.measure.unit.SI.METER;
-import static javax.measure.unit.SI.MILLI;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static tec.units.indriya.AbstractUnit.ONE;
+import static tec.units.indriya.unit.MetricPrefix.MILLI;
+import static tec.units.indriya.unit.Units.METRE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
+import javax.measure.Quantity;
 
-import org.jscience.physics.amount.Amount;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -44,6 +42,8 @@ import org.python.core.PyFloat;
 import org.python.core.PyInteger;
 import org.python.core.PyObject;
 import org.python.core.PyString;
+
+import tec.units.indriya.quantity.Quantities;
 
 @RunWith(Enclosed.class)
 public class PositionConvertorFunctionsTest {
@@ -72,31 +72,31 @@ public class PositionConvertorFunctionsTest {
 					{ PositionConvertorFunctions.toDouble(new PyInteger(1)), new Double(1.),
 							"toDouble(new PyInteger(1))" },
 					// testToQuantityWithQuantities
-					{ PositionConvertorFunctions.toQuantity(Amount.valueOf(1., MILLI(METER)), MILLI(METER)),
-							Amount.valueOf(1., MILLI(METER)),
-							"toQuantity(Amount.valueOf(1., MILLI(METER)), MILLI(METER))" },
-					{ PositionConvertorFunctions.toQuantity(Amount.valueOf(1000., MILLI(METER)), METER),
-							Amount.valueOf(1., METER), "toQuantity(Amount.valueOf(1000., MILLI(METER)), METER)" },
-					{ PositionConvertorFunctions.toQuantity(Amount.valueOf(1., Unit.ONE), METER),
-							Amount.valueOf(1., METER), "valueOf(1., Unit.ONE), METER)" },
+					{ PositionConvertorFunctions.toQuantity(Quantities.getQuantity(1., MILLI(METRE)), MILLI(METRE)),
+							Quantities.getQuantity(1., MILLI(METRE)),
+							"toQuantity(Quantities.getQuantity(1., MILLI(METRE)), MILLI(METRE))" },
+					{ PositionConvertorFunctions.toQuantity(Quantities.getQuantity(1000., MILLI(METRE)), METRE),
+							Quantities.getQuantity(1., METRE), "toQuantity(Quantities.getQuantity(1000., MILLI(METRE)), METRE)" },
+					{ PositionConvertorFunctions.toQuantity(Quantities.getQuantity(1., ONE), METRE),
+							Quantities.getQuantity(1., METRE), "valueOf(1., Unit.ONE), METRE)" },
 					// testToQuantityWithStrings
-					{ PositionConvertorFunctions.toQuantity("1 mm", MILLI(METER)), Amount.valueOf(1., MILLI(METER)),
-							"toQuantity(\"1 mm\", MILLI(METER))" },
-					{ PositionConvertorFunctions.toQuantity("1 m", METER), Amount.valueOf(1., METER),
-							"toQuantity(\"1 m\", METER)" },
-					{ PositionConvertorFunctions.toQuantity("1", METER), Amount.valueOf(1., METER),
-							"toQuantity(\"1\", METER)" },
+					{ PositionConvertorFunctions.toQuantity("1 mm", MILLI(METRE)), Quantities.getQuantity(1., MILLI(METRE)),
+							"toQuantity(\"1 mm\", MILLI(METRE))" },
+					{ PositionConvertorFunctions.toQuantity("1 m", METRE), Quantities.getQuantity(1., METRE),
+							"toQuantity(\"1 m\", METRE)" },
+					{ PositionConvertorFunctions.toQuantity("1", METRE), Quantities.getQuantity(1., METRE),
+							"toQuantity(\"1\", METRE)" },
 					// testToQuantityWithPyStrings
-					{ PositionConvertorFunctions.toQuantity(new PyString("1 mm"), MILLI(METER)),
-							Amount.valueOf(1., MILLI(METER)), "toQuantity(new PyString(\"1 mm\"), MILLI(METER))" },
-					{ PositionConvertorFunctions.toQuantity(new PyString("1 m"), METER), Amount.valueOf(1., METER),
-							"toQuantity(new PyString(\"1 m\"), METER)" },
-					{ PositionConvertorFunctions.toQuantity(new PyString("1"), METER), Amount.valueOf(1., METER),
-							"toQuantity(new PyString(\"1\"), METER)" },
+					{ PositionConvertorFunctions.toQuantity(new PyString("1 mm"), MILLI(METRE)),
+							Quantities.getQuantity(1., MILLI(METRE)), "toQuantity(new PyString(\"1 mm\"), MILLI(METRE))" },
+					{ PositionConvertorFunctions.toQuantity(new PyString("1 m"), METRE), Quantities.getQuantity(1., METRE),
+							"toQuantity(new PyString(\"1 m\"), METRE)" },
+					{ PositionConvertorFunctions.toQuantity(new PyString("1"), METRE), Quantities.getQuantity(1., METRE),
+							"toQuantity(new PyString(\"1\"), METRE)" },
 					// test with infinite/NaN values
-					{ PositionConvertorFunctions.toDouble(Amount.valueOf(Double.POSITIVE_INFINITY, METER)), Double.POSITIVE_INFINITY, "toDouble(Amount.valueOf(+Infinity, METER))" },
-					{ PositionConvertorFunctions.toDouble(Amount.valueOf(Double.NEGATIVE_INFINITY, METER)), Double.NEGATIVE_INFINITY, "toDouble(Amount.valueOf(-Infinity, METER))" },
-					{ PositionConvertorFunctions.toDouble(Amount.valueOf(Double.NaN, METER)), Double.NaN, "toDouble(Amount.valueOf(NaN, METER))" }});
+					{ PositionConvertorFunctions.toDouble(Quantities.getQuantity(Double.POSITIVE_INFINITY, METRE)), Double.POSITIVE_INFINITY, "toDouble(Quantities.getQuantity(+Infinity, METRE))" },
+					{ PositionConvertorFunctions.toDouble(Quantities.getQuantity(Double.NEGATIVE_INFINITY, METRE)), Double.NEGATIVE_INFINITY, "toDouble(Quantities.getQuantity(-Infinity, METRE))" },
+					{ PositionConvertorFunctions.toDouble(Quantities.getQuantity(Double.NaN, METRE)), Double.NaN, "toDouble(Quantities.getQuantity(NaN, METRE))" }});
 		}
 
 		@Parameter
@@ -108,13 +108,10 @@ public class PositionConvertorFunctionsTest {
 		@Parameter(2)
 		public String description;
 
-		@SuppressWarnings("unchecked")
 		@Test
 		public void test() {
 			if (expectedResult instanceof Double) {
 				assertEquals((double) expectedResult, (double) input, FP_TOLERANCE);
-			} else if (expectedResult instanceof Amount) {
-				assertTrue(((Amount<? extends Quantity>) expectedResult).approximates((Amount<? extends Quantity>) input));
 			} else {
 				assertEquals(expectedResult, input);
 			}
@@ -164,11 +161,11 @@ public class PositionConvertorFunctionsTest {
 							(new Double[] { 1. }), "toDoubleArray(new Object[] { new PyString(\"1.\") })" },
 					// test with infinite/NaN values
 					{ PositionConvertorFunctions.toAmountArray(
-							new Amount<?>[] { Amount.valueOf(Double.POSITIVE_INFINITY, METER), Amount.valueOf(Double.NEGATIVE_INFINITY, METER) }),
+							new Quantity<?>[] { Quantities.getQuantity(Double.POSITIVE_INFINITY, METRE), Quantities.getQuantity(Double.NEGATIVE_INFINITY, METRE) }),
 							(new Double[] { Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY }),
-							"toAmountArray(new Amount<?>[] { Amount.valueOf(+Infinity, METER), Amount.valueOf(-Infinity, METER) }" },
-					{ PositionConvertorFunctions.toAmountArray(new Amount<?>[] { Amount.valueOf(Double.NaN, METER) }), (new Double[] { Double.NaN }),
-							"toAmountArray(new Amount<?>[] { Amount.valueOf(NaN, METER) }" }
+							"toAmountArray(new Quantity<?>[] { Quantities.getQuantity(+Infinity, METRE), Quantities.getQuantity(-Infinity, METRE) }" },
+					{ PositionConvertorFunctions.toAmountArray(new Quantity<?>[] { Quantities.getQuantity(Double.NaN, METRE) }), (new Double[] { Double.NaN }),
+							"toAmountArray(new Quantity<?>[] { Quantities.getQuantity(NaN, METRE) }" }
 							});
 		}
 
@@ -240,20 +237,20 @@ public class PositionConvertorFunctionsTest {
 
 		@Test(expected = IllegalArgumentException.class)
 		public void testToQuantityWithStringsUnParsableString() {
-			PositionConvertorFunctions.toQuantity("closed", METER);
+			PositionConvertorFunctions.toQuantity("closed", METRE);
 		}
 
 		@Test
 		public void testToQuantityArray() {
-			final Amount<? extends Quantity>[] expected = new Amount<?>[] { Amount.valueOf(1., METER), Amount.valueOf(1., METER), null };
-			final Amount<? extends Quantity>[] actual = PositionConvertorFunctions.toQuantityArray(
-					new Amount<?>[] { Amount.valueOf(1., METER), Amount.valueOf(1000., MILLI(METER)), null }, METER);
+			final Quantity<?>[] expected = new Quantity<?>[] { Quantities.getQuantity(1., METRE), Quantities.getQuantity(1., METRE), null };
+			final Quantity<?>[] actual = PositionConvertorFunctions.toQuantityArray(
+					new Quantity<?>[] { Quantities.getQuantity(1., METRE), Quantities.getQuantity(1000., MILLI(METRE)), null }, METRE);
 			assertEquals(expected.length, actual.length);
 			for (int i = 0; i < expected.length; i++) {
 				if (expected[i] == null) {
 					assertNull(actual[i]);
 				} else {
-					assertEquals(expected[i].getEstimatedValue(), actual[i].getEstimatedValue(), FP_TOLERANCE);
+					assertEquals(expected[i].getValue().doubleValue(), actual[i].getValue().doubleValue(), FP_TOLERANCE);
 				}
 			}
 		}
@@ -261,7 +258,7 @@ public class PositionConvertorFunctionsTest {
 		@Test
 		public void testToAmountArray() {
 			final Double[] actual = PositionConvertorFunctions.toAmountArray(
-					new Amount<?>[] { Amount.valueOf(1., METER), Amount.valueOf(1000., MILLI(METER)), null });
+					new Quantity<?>[] { Quantities.getQuantity(1., METRE), Quantities.getQuantity(1000., MILLI(METRE)), null });
 			assertEquals(3, actual.length);
 			assertEquals(1., actual[0], FP_TOLERANCE);
 			assertEquals(1000., actual[1], FP_TOLERANCE);

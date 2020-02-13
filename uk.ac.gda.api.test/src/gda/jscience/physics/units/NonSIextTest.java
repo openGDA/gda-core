@@ -69,13 +69,22 @@ import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
+import javax.measure.Quantity;
+import javax.measure.Unit;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import tec.units.indriya.format.SimpleUnitFormat;
+
+/**
+ * NonSIext defines aliases for variants in unit specification e.g. <code>Deg</code>, <code>deg</code>, <code>degrees</code>
+ * <p>
+ * These test verify that the same object with the canonical form of the unit string is created in each case.
+ */
 public class NonSIextTest {
+
+	private static SimpleUnitFormat unitFormat = SimpleUnitFormat.getInstance();
 
 	@BeforeClass
 	public static void setUp() {
@@ -84,146 +93,145 @@ public class NonSIextTest {
 
 	@Test
 	public void testDegrees() {
-		final List<Unit<? extends Quantity>> degrees = Arrays.asList(
-				Unit.valueOf(DEG_ANGLE_STRING),
-				Unit.valueOf(DEG_ANGLE_LOWERCASE_STRING),
-				Unit.valueOf(DEGREES_ANGLE_STRING));
+		final List<Unit<? extends Quantity<?>>> degrees = Arrays.asList(
+				unitFormat.parse(DEG_ANGLE_STRING),
+				unitFormat.parse(DEG_ANGLE_LOWERCASE_STRING),
+				unitFormat.parse(DEGREES_ANGLE_STRING));
 		testUnitStrings(degrees, DEG_ANGLE_LOWERCASE_STRING);
 	}
 
 	@Test
 	public void testMilliDegrees() {
-		final List<Unit<? extends Quantity>> milliDegrees = Arrays.asList(
-				Unit.valueOf(MILLI_DEG_ANGLE_STRING),
-				Unit.valueOf(MILLI_DEG_ANGLE_LOWERCASE_STRING));
+		final List<Unit<? extends Quantity<?>>> milliDegrees = Arrays.asList(
+				unitFormat.parse(MILLI_DEG_ANGLE_STRING),
+				unitFormat.parse(MILLI_DEG_ANGLE_LOWERCASE_STRING));
 		testUnitStrings(milliDegrees, MILLI_DEG_ANGLE_LOWERCASE_STRING);
 	}
 
 	@Test
 	public void testMicroDegrees() {
-		final List<Unit<? extends Quantity>> microDegrees = Arrays.asList(
-				Unit.valueOf(MICRO_DEG_ANGLE_STRING),
-				Unit.valueOf(MICRO_DEG_MU_ANGLE_STRING),
-				Unit.valueOf(MICRO_DEG_U_ANGLE_STRING));
+		final List<Unit<? extends Quantity<?>>> microDegrees = Arrays.asList(
+				unitFormat.parse(MICRO_DEG_ANGLE_STRING),
+				unitFormat.parse(MICRO_DEG_MU_ANGLE_STRING),
+				unitFormat.parse(MICRO_DEG_U_ANGLE_STRING));
 		testUnitStrings(microDegrees, MICRO_DEG_ANGLE_STRING);
 	}
 
 	@Test
 	public void testMilliRadians() {
-		final List<Unit<? extends Quantity>> milliRadians = Arrays.asList(
-				Unit.valueOf(MILLI_RADIAN_ANGLE_STRING),
-				Unit.valueOf(MILLI_RADIAN_ANGLE_LOWERCASE_STRING));
+		final List<Unit<? extends Quantity<?>>> milliRadians = Arrays.asList(
+				unitFormat.parse(MILLI_RADIAN_ANGLE_STRING),
+				unitFormat.parse(MILLI_RADIAN_ANGLE_LOWERCASE_STRING));
 		testUnitStrings(milliRadians, MILLI_RADIAN_ANGLE_LOWERCASE_STRING);
 	}
 
 	@Test
 	public void testMicroRadians() {
-		final List<Unit<? extends Quantity>> microRadians = Arrays.asList(
-				Unit.valueOf(MICRO_RADIAN_ANGLE_STRING),
-				Unit.valueOf(MICRO_RADIAN_MU_ANGLE_STRING),
-				Unit.valueOf(MICRO_RADIAN_ANGLE_LOWERCASE_STRING),
-				Unit.valueOf(MICRO_RADIAN_MU_ANGLE_LOWERCASE_STRING),
-				Unit.valueOf(MICRO_RADIAN_U_ANGLE_STRING),
-				Unit.valueOf(MICRO_RADIAN_U_ANGLE_LOWERCASE_STRING));
+		final List<Unit<? extends Quantity<?>>> microRadians = Arrays.asList(
+				unitFormat.parse(MICRO_RADIAN_ANGLE_STRING),
+				unitFormat.parse(MICRO_RADIAN_MU_ANGLE_STRING),
+				unitFormat.parse(MICRO_RADIAN_ANGLE_LOWERCASE_STRING),
+				unitFormat.parse(MICRO_RADIAN_MU_ANGLE_LOWERCASE_STRING),
+				unitFormat.parse(MICRO_RADIAN_U_ANGLE_STRING),
+				unitFormat.parse(MICRO_RADIAN_U_ANGLE_LOWERCASE_STRING));
 		testUnitStrings(microRadians, MICRO_RADIAN_ANGLE_LOWERCASE_STRING);
 	}
 
 	@Test
 	public void testMicrons() {
-		final List<Unit<? extends Quantity>> microns = Arrays.asList(
-				Unit.valueOf(MICRON_STRING),
-				Unit.valueOf(MICRONS_STRING),
-				Unit.valueOf(MICRON_UM_STRING),
-				Unit.valueOf(MICRON_MU_STRING),
-				Unit.valueOf(MICRON_SYMBOL_STRING));
+		final List<Unit<? extends Quantity<?>>> microns = Arrays.asList(
+				unitFormat.parse(MICRON_STRING),
+				unitFormat.parse(MICRONS_STRING),
+				unitFormat.parse(MICRON_UM_STRING),
+				unitFormat.parse(MICRON_MU_STRING),
+				unitFormat.parse(MICRON_SYMBOL_STRING));
 		testUnitStrings(microns, MICRON_SYMBOL_STRING);
 	}
 
 	@Test
 	public void testMicroSeconds() {
-		final List<Unit<? extends Quantity>> microSeconds = Arrays.asList(
-				Unit.valueOf(MICROSECOND_STRING),
-				Unit.valueOf(MICROSECOND_U_STRING),
-				Unit.valueOf(MICROSECOND_MU_STRING),
-				Unit.valueOf(MICROSECOND_LOWERCASE_STRING),
-				Unit.valueOf(MICROSECOND_U_LOWERCASE_STRING),
-				Unit.valueOf(MICROSECOND_MU_LOWERCASE_STRING));
+		final List<Unit<? extends Quantity<?>>> microSeconds = Arrays.asList(
+				unitFormat.parse(MICROSECOND_STRING),
+				unitFormat.parse(MICROSECOND_U_STRING),
+				unitFormat.parse(MICROSECOND_MU_STRING),
+				unitFormat.parse(MICROSECOND_LOWERCASE_STRING),
+				unitFormat.parse(MICROSECOND_U_LOWERCASE_STRING),
+				unitFormat.parse(MICROSECOND_MU_LOWERCASE_STRING));
 		testUnitStrings(microSeconds, MICROSECOND_LOWERCASE_STRING);
 	}
 
 	@Test
 	public void testAnstroms() {
-		final List<Unit<? extends Quantity>> angstroms = Arrays.asList(
-				Unit.valueOf(ANG_STRING),
-				Unit.valueOf(ANGSTROM_STRING),
-				Unit.valueOf(ANGSTROM_SYMBOL),
-				Unit.valueOf(ANGSTROM_SYMBOL_ALTERNATIVE));
+		final List<Unit<? extends Quantity<?>>> angstroms = Arrays.asList(
+				unitFormat.parse(ANG_STRING),
+				unitFormat.parse(ANGSTROM_STRING),
+				unitFormat.parse(ANGSTROM_SYMBOL),
+				unitFormat.parse(ANGSTROM_SYMBOL_ALTERNATIVE));
 		testUnitStrings(angstroms, ANGSTROM_STRING);
 	}
 
 	@Test
 	public void testPerAnstrom() {
-		final List<Unit<? extends Quantity>> perAngstrom = Arrays.asList(Unit.valueOf(PER_ANGSTROM_STRING));
+		final List<Unit<? extends Quantity<?>>> perAngstrom = Arrays.asList(unitFormat.parse(PER_ANGSTROM_STRING));
 		testUnitStrings(perAngstrom, PER_ANGSTROM_STRING);
 	}
 
 	@Test
 	public void testCentigrade() {
-		final List<Unit<? extends Quantity>> centigrade = Arrays.asList(Unit.valueOf(CENTIGRADE_STRING));
+		final List<Unit<? extends Quantity<?>>> centigrade = Arrays.asList(unitFormat.parse(CENTIGRADE_STRING));
 		testUnitStrings(centigrade, CENTIGRADE_STRING);
 	}
 
 	@Test
 	public void testKiloElectronVolts() {
-		final List<Unit<? extends Quantity>> kiloElectronVolts = Arrays.asList(Unit.valueOf(KILOELECTRONVOLT_STRING));
+		final List<Unit<? extends Quantity<?>>> kiloElectronVolts = Arrays.asList(unitFormat.parse(KILOELECTRONVOLT_STRING));
 		testUnitStrings(kiloElectronVolts, KILOELECTRONVOLT_STRING);
 	}
 
 	@Test
 	public void testGigaElectronVolts() {
-		final List<Unit<? extends Quantity>> gigaElectronVolts = Arrays.asList(Unit.valueOf(GIGAELECTRONVOLT_STRING));
+		final List<Unit<? extends Quantity<?>>> gigaElectronVolts = Arrays.asList(unitFormat.parse(GIGAELECTRONVOLT_STRING));
 		testUnitStrings(gigaElectronVolts, GIGAELECTRONVOLT_STRING);
 	}
 
 	@Test
 	public void testMicroAmperes() {
-		final List<Unit<? extends Quantity>> microAmperes = Arrays.asList(
-				Unit.valueOf(MICROAMPERE_STRING),
-				Unit.valueOf(MICROAMPERE_U_STRING),
-				Unit.valueOf(MICROAMPERE_MU_STRING));
+		final List<Unit<? extends Quantity<?>>> microAmperes = Arrays.asList(
+				unitFormat.parse(MICROAMPERE_STRING),
+				unitFormat.parse(MICROAMPERE_U_STRING),
+				unitFormat.parse(MICROAMPERE_MU_STRING));
 		testUnitStrings(microAmperes, MICROAMPERE_STRING);
 	}
 
 	@Test
 	public void testCounts() {
-		final List<Unit<? extends Quantity>> counts = Arrays.asList(
-				Unit.valueOf(COUNT_STRING),
-				Unit.valueOf(COUNTS_STRING));
+		final List<Unit<? extends Quantity<?>>> counts = Arrays.asList(
+				unitFormat.parse(COUNT_STRING),
+				unitFormat.parse(COUNTS_STRING));
 		testUnitStrings(counts, COUNTS_STRING);
 	}
 
 	@Test
 	public void testKiloCounts() {
-		final List<Unit<? extends Quantity>> kiloCounts = Arrays.asList(
-				Unit.valueOf(KILOCOUNT_STRING),
-				Unit.valueOf(KILOCOUNTS_STRING),
-				Unit.valueOf(KILOCOUNTS_UC_STRING));
+		final List<Unit<? extends Quantity<?>>> kiloCounts = Arrays.asList(
+				unitFormat.parse(KILOCOUNT_STRING),
+				unitFormat.parse(KILOCOUNTS_STRING),
+				unitFormat.parse(KILOCOUNTS_UC_STRING));
 		testUnitStrings(kiloCounts, KILOCOUNTS_STRING);
 	}
 
 	@Test
 	public void testMicroLitres() {
-		final List<Unit<? extends Quantity>> microLitres = Arrays.asList(
-				Unit.valueOf(MICROLITRE_STRING),
-				Unit.valueOf(MICROLITRE_U_STRING),
-				Unit.valueOf(MICROLITRE_MU_STRING));
+		final List<Unit<? extends Quantity<?>>> microLitres = Arrays.asList(
+				unitFormat.parse(MICROLITRE_STRING),
+				unitFormat.parse(MICROLITRE_U_STRING),
+				unitFormat.parse(MICROLITRE_MU_STRING));
 		testUnitStrings(microLitres, MICROLITRE_STRING);
 	}
 
-	private void testUnitStrings(List<Unit<? extends Quantity>> units, String expectedString) {
-		for (Unit<? extends Quantity> unit : units) {
+	private void testUnitStrings(List<Unit<? extends Quantity<?>>> units, String expectedString) {
+		for (Unit<? extends Quantity<?>> unit : units) {
 			assertEquals(expectedString, NonSIext.getUnitString(unit));
 		}
 	}
-
 }

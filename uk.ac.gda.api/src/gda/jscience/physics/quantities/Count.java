@@ -19,30 +19,7 @@
 
 package gda.jscience.physics.quantities;
 
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.Unit;
+import javax.measure.Quantity;
 
-import org.jscience.physics.amount.Amount;
-
-import gda.jscience.physics.units.NonSIext;
-
-public class Count implements Quantity {
-	/**
-     * Holds the associated unit.
-     */
-	public static final Unit<Count> UNIT = NonSIext.COUNTS;
-
-	/**
-	 * Represents a {@link Count} amounting to nothing.
-	 */
-	public static final Amount<Count> ZERO = Amount.valueOf(0, UNIT);
-
-	/**
-	 * Default constructor (allows for derivation).
-	 */
-	protected Count() {
-	}
-
-    @SuppressWarnings("unused")
-	private static final long serialVersionUID = 1L;
+public interface Count extends Quantity<Count> {
 }

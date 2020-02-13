@@ -18,26 +18,30 @@
 
 package gda.jscience.physics.quantities;
 
-import javax.measure.quantity.Angle;
-import javax.measure.quantity.Energy;
-import javax.measure.quantity.Length;
+import static si.uom.SI.JOULE_SECOND;
+import static tec.units.indriya.unit.Units.KILOGRAM;
+import static tec.units.indriya.unit.Units.METRE_PER_SECOND;
+
+import javax.measure.Quantity;
 import javax.measure.quantity.Mass;
-import javax.measure.quantity.Quantity;
-import javax.measure.quantity.Velocity;
+import javax.measure.quantity.Speed;
 
-import org.jscience.physics.amount.Amount;
-import org.jscience.physics.amount.Constants;
+import si.uom.quantity.Action;
+import tec.units.indriya.quantity.Quantities;
 
+/**
+ * Easier-to-read names for some physical constants & derived values
+ */
 public final class QuantityConstants {
-	public static final Amount<Energy> ZERO_ENERGY = Amount.valueOf(0, Energy.UNIT);
-	public static final Amount<Length> ZERO_LENGTH = Amount.valueOf(0, Length.UNIT);
-	public static final Amount<Angle> ZERO_ANGLE = Amount.valueOf(0, Angle.UNIT);
+	// Physical constants from: https://physics.nist.gov/cuu/Constants/index.html
+	public static final Quantity<Action> PLANCKS_CONSTANT = Quantities.getQuantity(6.62607015e-34, JOULE_SECOND);
+	public static final Quantity<Mass> ELECTRON_MASS = Quantities.getQuantity(9.1093837015e-31, KILOGRAM);
+	public static final Quantity<Speed> SPEED_OF_LIGHT = Quantities.getQuantity(2.99792458e8, METRE_PER_SECOND);
 
-	// Easier-to-read names for some physical constants & derived values
-	public static final Amount<? extends Quantity> H_BAR_SQUARED = Constants.ℏ.times(Constants.ℏ); // Square of (Planck's constant over 2 pi)
-	public static final Amount<? extends Quantity> PLANCKS_CONSTANT = Constants.ℎ;
-	public static final Amount<Mass> ELECTRON_MASS_TIMES_TWO = Constants.me.times(2.0);
-	public static final Amount<Velocity> SPEED_OF_LIGHT = Constants.c;
+	// Derived values
+	public static final Quantity<? extends Quantity<?>> H_BAR = PLANCKS_CONSTANT.divide(Math.PI * 2.0);
+	public static final Quantity<? extends Quantity<?>> H_BAR_SQUARED = H_BAR.multiply(H_BAR); // Square of (Planck's constant over 2 pi)
+	public static final Quantity<Mass> ELECTRON_MASS_TIMES_TWO = ELECTRON_MASS.multiply(2.0);
 
 	private QuantityConstants() {
 		// prevent instantiation

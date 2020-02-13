@@ -20,6 +20,9 @@ package uk.ac.diamond.daq.client.gui.energyfocus.editor;
 
 import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.saveConfig;
 
+import javax.measure.quantity.Energy;
+import javax.measure.quantity.Length;
+
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
@@ -40,11 +43,11 @@ public class EditEnergyFocusDialog extends TitleAreaDialog {
 	private static final int INITIAL_WIDTH = 450;
 	private static final int INITIAL_HEIGHT = 300;
 
-	private final ILinearFunction energyFocusFunction;
+	private final ILinearFunction<Energy, Length> energyFocusFunction;
 	private final String energyFocusConfigPath;
 	private EnergyFocusFunctionDisplay energyFocusDisplay;
 
-	public EditEnergyFocusDialog(Shell parentShell, ILinearFunction energyFocusFunction, String energyFocusConfigPath) {
+	public EditEnergyFocusDialog(Shell parentShell, ILinearFunction<Energy, Length> energyFocusFunction, String energyFocusConfigPath) {
 		super(parentShell);
 		this.energyFocusFunction = energyFocusFunction;
 		this.energyFocusConfigPath = energyFocusConfigPath;
