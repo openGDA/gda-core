@@ -34,6 +34,8 @@ public enum ClientImages {
 	OPEN(ClientImagesGroup.GENERAL, "open-16.png"),
 	RUN(ClientImagesGroup.GENERAL, "run-16.png"),
 	SAVE(ClientImagesGroup.GENERAL, "save-16.png"),
+	START(ClientImagesGroup.GENERAL, "run-16.png"),
+	STOP(ClientImagesGroup.GENERAL, "stop-16.png"),
 
 	CAMERA(ClientImagesGroup.GENERAL, "camera-16.png"),
 

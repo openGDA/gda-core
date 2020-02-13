@@ -77,9 +77,20 @@ public class ScanManagementController extends AbstractMappingController {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanManagementController.class);
 
-	private boolean clickToScanArmed = false;
 	private MappingStageInfo stage;
 	private DescriptiveFilenameFactory filenameFactory = new DescriptiveFilenameFactory();
+
+	public enum DiffractionAcquisitionMode {DIFFRACTION, POINT_AND_SHOOT}
+
+	private DiffractionAcquisitionMode acquisitionMode;
+
+	public DiffractionAcquisitionMode getAcquisitionMode() {
+		return acquisitionMode;
+	}
+
+	public void setAcquisitionMode(DiffractionAcquisitionMode acquisitionMode) {
+		this.acquisitionMode = acquisitionMode;
+	}
 
 	private int gridModelIndex = 0;
 
@@ -96,8 +107,9 @@ public class ScanManagementController extends AbstractMappingController {
 	 * Loads the file specified by the supplied fully quAlified filename into a mapping bean which is then returned
 	 * within and {@link Optional}. An error dialog is displayed if the file could not be successfully loaded.
 	 *
-	 * @param filename	The fully qualified name of the required file
-	 * @return			An {@link Optional} of a mapping bean constructed from the contents of the file
+	 * @param filename
+	 *            The fully qualified name of the required file
+	 * @return An {@link Optional} of a mapping bean constructed from the contents of the file
 	 */
 	public Optional<IMappingExperimentBean> loadScanMappingBean(final String filename) {
 		checkInitialised();
@@ -124,15 +136,17 @@ public class ScanManagementController extends AbstractMappingController {
 	/**
 	 * Loads the Mapping Scan from the Persistence Service.
 	 *
-	 * @param id	The Persistence Id for the mapping Bean
-	 * @return		An {@link Optional} of a mapping bean constructed from the contents of the file
+	 * @param id
+	 *            The Persistence Id for the mapping Bean
+	 * @return An {@link Optional} of a mapping bean constructed from the contents of the file
 	 */
 	public Optional<IMappingExperimentBean> loadScanMappingBean(final long id) {
 		checkInitialised();
 		Optional<IMappingExperimentBean> result = Optional.empty();
 		try {
 			final PersistenceServiceWrapper persistenceService = getService(PersistenceServiceWrapper.class);
-			PersistableMappingExperimentBean persistedBean = persistenceService.get(id, PersistableMappingExperimentBean.class);
+			PersistableMappingExperimentBean persistedBean = persistenceService.get(id,
+					PersistableMappingExperimentBean.class);
 			IMappingExperimentBean mappingBean = persistedBean.getMappingBean();
 			stage.merge((MappingStageInfo) mappingBean.getStageInfoSnapshot());
 			result = Optional.of(mappingBean);
@@ -145,13 +159,13 @@ public class ScanManagementController extends AbstractMappingController {
 		return result;
 	}
 
-
 	/**
 	 * Writes the current contents of the mapping bean to a file specified by the supplied fully qualified filename.
 	 * This also includes the the current mapping stage positions. An error dialog is displayed if the file could not be
 	 * successfully saved.
 	 *
-	 * @param filename	The fully qualified name of the required file to store
+	 * @param filename
+	 *            The fully qualified name of the required file to store
 	 */
 	public void saveScan(final String filename) {
 		checkInitialised();
@@ -171,7 +185,8 @@ public class ScanManagementController extends AbstractMappingController {
 			}
 		}
 
-		SpringApplicationContextProxy.publishEvent(new ScanRequestSavedEvent(this, getShortName(filename), createScanBean().getScanRequest()));
+		SpringApplicationContextProxy.publishEvent(
+				new ScanRequestSavedEvent(this, getShortName(filename), createScanBean().getScanRequest()));
 
 	}
 
@@ -184,13 +199,14 @@ public class ScanManagementController extends AbstractMappingController {
 		mappingBean.setId(id);
 		PersistableMappingExperimentBean persistableBean = new PersistableMappingExperimentBean();
 		persistableBean.setMappingBean(mappingBean);
-		saveScan (persistableBean);
+		saveScan(persistableBean);
 	}
 
 	/**
 	 * Saves the current mapping bean as a new bean to the Persistence Service.
 	 *
-	 * @param scanName	the display name of the scan
+	 * @param scanName
+	 *            the display name of the scan
 	 */
 	public void saveScanAs(final String scanName) {
 		checkInitialised();
@@ -199,11 +215,11 @@ public class ScanManagementController extends AbstractMappingController {
 			mappingBean.setDisplayName(scanName);
 			PersistableMappingExperimentBean persistableBean = new PersistableMappingExperimentBean();
 			persistableBean.setMappingBean(mappingBean);
-			saveScan (persistableBean);
+			saveScan(persistableBean);
 		}
 	}
 
-	public void saveScan (PersistableMappingExperimentBean persistableBean) {
+	public void saveScan(PersistableMappingExperimentBean persistableBean) {
 		try {
 			captureStageInfoSnapshot();
 			final PersistenceServiceWrapper persistenceService = getService(PersistenceServiceWrapper.class);
@@ -237,8 +253,8 @@ public class ScanManagementController extends AbstractMappingController {
 	}
 
 	/**
-	 *  ExperimentService expects only the filename, Files.write expects the absolute path.
-	 *  ExperimentService also doesn't like non-alphanumeric characters, while the auto-generated section of the filename does
+	 * ExperimentService expects only the filename, Files.write expects the absolute path. ExperimentService also
+	 * doesn't like non-alphanumeric characters, while the auto-generated section of the filename does
 	 */
 
 	private String getShortName(String filename) {
@@ -247,7 +263,7 @@ public class ScanManagementController extends AbstractMappingController {
 
 	/**
 	 * Submits the scan described by the current mapping bean to the submission service. An error dialog is displayed if
-	 *  the scan could not be successfully submitted.
+	 * the scan could not be successfully submitted.
 	 */
 	public void submitScan() {
 		final ScanBeanSubmitter submitter = getService(ScanBeanSubmitter.class);
@@ -256,14 +272,15 @@ public class ScanManagementController extends AbstractMappingController {
 			submitter.submitScan(scanBean);
 		} catch (Exception e) {
 			logger.error("Scan submission failed", e);
-			MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error Submitting Scan", "The scan could not be submitted. See the error log for more details.");
+			MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error Submitting Scan",
+					"The scan could not be submitted. See the error log for more details.");
 		}
 	}
 
 	/**
 	 * Produces a textual command that could be submitted to perform the scan descvribed by the current mapping bean.
 	 *
-	 * @return	The parsed scan command or an error message is parsing fails
+	 * @return The parsed scan command or an error message is parsing fails
 	 */
 	public String createScanCommand() {
 		final ScanBean scanBean = createScanBean();
@@ -280,7 +297,7 @@ public class ScanManagementController extends AbstractMappingController {
 	/**
 	 * Transforms the current mapping bean into a {@link ScanBean} which can be submitted.
 	 *
-	 * @return	The resultant {@link ScanBean}
+	 * @return The resultant {@link ScanBean}
 	 */
 	public ScanBean createScanBean() {
 		checkInitialised();
@@ -323,19 +340,11 @@ public class ScanManagementController extends AbstractMappingController {
 	 * Manages indication of whether use of Ctrl-Click on the Map View should start a scan using the current mapping
 	 * bean settings
 	 *
-	 * @return	An {@link IObservableValue} indicating if Ctrl-Click scanning is enabled
+	 * @return An {@link IObservableValue} indicating if Ctrl-Click scanning is enabled
 	 */
 	@SuppressWarnings("unchecked")
 	public IObservableValue<Boolean> getClickToScanArmedObservableValue() {
 		return BeanProperties.value("clickToScanArmed").observe(this);
-	}
-
-	public boolean isClickToScanArmed() {
-		return clickToScanArmed;
-	}
-
-	public void setClickToScanArmed(boolean clickToScanArmed) {
-		this.clickToScanArmed = clickToScanArmed;
 	}
 
 	private void captureStageInfoSnapshot() {
@@ -345,13 +354,14 @@ public class ScanManagementController extends AbstractMappingController {
 
 	private void addMonitors(IMappingExperimentBean mappingBean) {
 		final IViewReference viewRef = PageUtil.getPage().findViewReference(MonitorView.ID);
-		if (viewRef == null) return;
+		if (viewRef == null)
+			return;
 		final MonitorView monitorView = (MonitorView) viewRef.getView(true); // TODO should we restore the view?
 
-		final BiFunction<Map<String, MonitorScanRole>, MonitorScanRole, Set<String>> getMonitorNamesForRole =
-				(map, role) -> map.entrySet().stream()
-									.filter(entry -> entry.getValue() == role)
-									.map(Map.Entry::getKey).collect(toSet());
+		final BiFunction<Map<String, MonitorScanRole>, MonitorScanRole, Set<String>> getMonitorNamesForRole = (map,
+				role) -> map.entrySet().stream()
+						.filter(entry -> entry.getValue() == role)
+						.map(Map.Entry::getKey).collect(toSet());
 
 		final Map<String, MonitorScanRole> monitors = monitorView.getEnabledMonitors();
 		mappingBean.setPerPointMonitorNames(getMonitorNamesForRole.apply(monitors, MonitorScanRole.PER_POINT));
@@ -362,8 +372,9 @@ public class ScanManagementController extends AbstractMappingController {
 	 * Produces a filename using the {@link DescriptiveFilenameFactory} which encodes a description of the scan elements
 	 * in it. The result will be of the form myfilename.<scan description>.map
 	 *
-	 * @param body	The base name of the file
-	 * @return		The filename containing the scan descriptor and extension
+	 * @param body
+	 *            The base name of the file
+	 * @return The filename containing the scan descriptor and extension
 	 */
 	public String buildDescriptiveFilename(final String body) {
 		return filenameFactory.getFilename(body, getMappingBean());
@@ -371,14 +382,14 @@ public class ScanManagementController extends AbstractMappingController {
 
 	/**
 	 * These methods below are a temporary bodge to manage the RandomOffsetGrid selection until it is replaced by a
-	 * mutator on the normal models.
-	 * TODO: delete these methods and the associated field once Random Offset mutator has been coded.
+	 * mutator on the normal models. TODO: delete these methods and the associated field once Random Offset mutator has
+	 * been coded.
 	 */
 
 	public void updateGridModelIndex() {
 		updateGridModelIndex(
 				getMappingBean().getScanDefinition().getMappingScanRegion().getScanPath().getClass()
-				.equals(TwoAxisGridPointsRandomOffsetModel.class));
+						.equals(TwoAxisGridPointsRandomOffsetModel.class));
 	}
 
 	public void updateGridModelIndex(boolean isRandom) {
