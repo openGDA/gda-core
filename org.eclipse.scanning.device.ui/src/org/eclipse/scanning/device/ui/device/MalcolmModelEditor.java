@@ -23,6 +23,7 @@ import java.util.Optional;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -182,9 +183,25 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 		IObservableValue<Double> textFieldValue = WidgetProperties.text(SWT.Modify).observe(stepTimeText);
 		IObservableValue<Double> modelValue = PojoProperties.value("exposureTime").observe(getModel());
 		// recalculate the derived values for the detectors when the step time changes
-		modelValue.addValueChangeListener(event -> updateValidatedModel(null));
+		modelValue.addValueChangeListener(this::stepTimeChanged);
 		dataBindingContext.bindValue(textFieldValue, modelValue);
 		dataBindingContext.updateTargets();
+	}
+
+	private void stepTimeChanged(ValueChangeEvent<?> event) {
+		// ensure that no detector has an exposure time greater than the overall step time
+		double newStepTime = (Double) event.getObservableValue().getValue();
+		if (newStepTime > 0) { // the value may temporarily be 0 while editing the field
+			getModel().getDetectorModels().stream().filter(det -> det.getExposureTime() > 0)
+				.forEach(detModel -> detModel.setExposureTime(
+						Math.min(detModel.getExposureTime(), calculateMaximumExposureTime(detModel, newStepTime))));
+		}
+
+		updateValidatedModel(null);
+	}
+
+	private static double calculateMaximumExposureTime(IMalcolmDetectorModel detModel, double stepTime) {
+		 return stepTime / detModel.getFramesPerStep();
 	}
 
 	private void createDiagram(final Composite parent) {
@@ -342,29 +359,45 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 		@Override
 		protected void setValue(Object element, Object value) {
 			final IMalcolmDetectorModel detectorModel = (IMalcolmDetectorModel) element;
-			final Object oldValue = getValue(element);
+			final String oldValueStr = (String) getValue(element);
+			final String newValueStr = (String) value;
 
-			switch (column) {
+			if (!value.equals(oldValueStr)) {
+				switch (column) {
 				case FRAMES_PER_STEP:
-					try {
-						detectorModel.setFramesPerStep(Integer.parseInt((String) value));
-					} catch (NumberFormatException e) {
-						// value is not a valid integer, ignore
-					}
+					setFramesPerStep(newValueStr, detectorModel);
 					break;
 				case EXPOSURE_TIME:
-					try {
-						detectorModel.setExposureTime(Double.parseDouble((String) value));
-					} catch (NumberFormatException e) {
-						// value is not a valid double, ignore
-					}
+					setExposureTime(newValueStr, detectorModel);
 					break;
 				default:
 					throw new IllegalArgumentException("Column should not be editable: " + column);
 			}
 			detectorsTable.update(detectorModel, null);
-			if (!value.equals(oldValue)) {
 				detectorsTable.getControl().getDisplay().asyncExec(() -> updateValidatedModel(null));
+			}
+		}
+
+		private void setExposureTime(String newValueStr, final IMalcolmDetectorModel detectorModel) {
+			try {
+				// only set the exposure time if it less than or equal to the overall step time
+				final double exposureTime = Double.parseDouble(newValueStr);
+				if (exposureTime <= calculateMaximumExposureTime(detectorModel, getModel().getExposureTime())) {
+					detectorModel.setExposureTime(Double.parseDouble(newValueStr));
+				}
+			} catch (NumberFormatException e) {
+				// value is not a valid double, ignore
+			}
+		}
+
+		private void setFramesPerStep(String newValueStr, final IMalcolmDetectorModel detectorModel) {
+			try {
+				final int framesPerStep = Integer.parseInt(newValueStr);
+				detectorModel.setFramesPerStep(framesPerStep);
+				detectorModel.setExposureTime(Math.min(detectorModel.getExposureTime(),
+						calculateMaximumExposureTime(detectorModel, getModel().getExposureTime())));
+			} catch (NumberFormatException e) {
+				// value is not a valid integer, ignore
 			}
 		}
 
