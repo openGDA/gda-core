@@ -122,7 +122,7 @@ public class EditDetectorModelDialog extends Dialog {
 	public EditDetectorModelDialog(final Shell parentShell, final IRunnableDeviceService runnableDeviceService,
 			final IDetectorModel detectorModel, final String detectorName) {
 		super(parentShell);
-		setShellStyle(getShellStyle() | SWT.RESIZE);
+		setShellStyle(getShellStyle() | SWT.RESIZE | SWT.APPLICATION_MODAL);
 		this.runnableDeviceService = runnableDeviceService;
 		this.detectorModel = detectorModel;
 		this.detectorLabel = detectorName;
@@ -547,12 +547,6 @@ public class EditDetectorModelDialog extends Dialog {
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
 		newShell.setText(detectorModel.getName());
-	}
-
-	@Override
-	protected void setShellStyle(int newShellStyle) {
-		super.setShellStyle(SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE);
-		setBlockOnOpen(false);
 	}
 
 	@Override
