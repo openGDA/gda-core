@@ -21,6 +21,7 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.URI;
+import java.util.Optional;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.dawnsci.plotting.api.IPlottingService;
@@ -38,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.Finder;
 import gda.observable.IObserver;
@@ -129,12 +131,26 @@ public class BeamPositionPlotter implements IObserver, PropertyChangeListener {
 			beamMarkerColour = new Color(null, 127, 127, 255); // light blue
 
 			xAxisScannable = Finder.getInstance().find(mappingStageInfo.getPlotXAxisName());
-			xAxisScannable.addIObserver(this);
-			lastXCoordinate = (double) xAxisScannable.getPosition();
+			Optional.ofNullable(xAxisScannable).ifPresent(axis -> {
+				xAxisScannable.addIObserver(this);
+				try {
+					lastXCoordinate = (double) xAxisScannable.getPosition();
+				} catch (DeviceException e) {
+					logger.error("Cannot set lastXCoordinate", e);
+				}
+			});
+
 
 			yAxisScannable = Finder.getInstance().find(mappingStageInfo.getPlotYAxisName());
-			yAxisScannable.addIObserver(this);
-			lastYCoordinate = (double) yAxisScannable.getPosition();
+			Optional.ofNullable(xAxisScannable).ifPresent(axis -> {
+				yAxisScannable.addIObserver(this);
+				try {
+					lastYCoordinate = (double) yAxisScannable.getPosition();
+				} catch (DeviceException e) {
+					logger.error("Cannot set lastYCoordinate", e);
+				}
+			});
+
 
 			initialised = true;
 			replot();

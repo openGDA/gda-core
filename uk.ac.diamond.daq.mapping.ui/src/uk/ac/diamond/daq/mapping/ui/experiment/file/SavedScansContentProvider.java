@@ -21,7 +21,7 @@ package uk.ac.diamond.daq.mapping.ui.experiment.file;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 
 /**
- * Provides content for the {@link DescriptiveFilenameBrowserComposite} scan definition loader control
+ * Provides content for the {@link DescriptiveFilenameBrowserCompositeFactory} scan definition loader control
  *
  * @since GDA 9.13
  */
