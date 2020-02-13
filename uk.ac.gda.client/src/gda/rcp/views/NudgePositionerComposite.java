@@ -24,7 +24,6 @@ import java.text.DecimalFormat;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
@@ -139,7 +138,6 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 			});
 		}
 
-		// Increment/decrement value
 		Composite nudgeAmountComposite = new Composite(this, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns(3).spacing(1, 1).applyTo(nudgeAmountComposite);
 		final GridDataFactory buttonDataFactory = GridDataFactory.fillDefaults().hint(NUDGE_BUTTON_WIDTH, SWT.DEFAULT).grab(true, false);
@@ -361,5 +359,46 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 	public void setIncrementTextWidth(int incrementTextWidth) {
 		this.incrementTextWidth = incrementTextWidth;
 		((GridData) incrementText.getLayoutData()).widthHint = incrementTextWidth;
+	}
+	/**
+	 * hides the increment control composite
+	 * <p>
+	 * This is useful if users don't use increment control and
+	 * want more screen estate to display other live control elements
+	 *
+	 * @see #showIncrementControl()
+	 */
+	public void hideIncrementControl() {
+		decrementButton.setVisible(false);
+		((GridData)decrementButton.getLayoutData()).exclude=true;
+		incrementButton.setVisible(false);
+		((GridData)incrementButton.getLayoutData()).exclude=true;
+		incrementText.setVisible(false);
+		((GridData)incrementText.getLayoutData()).exclude=true;
+		this.redraw();
+	}
+
+	/**
+	 * shows the increment control composite
+	 *
+	 * @see #hideIncrementControl()
+	 */
+	public void showIncrementControl() {
+		decrementButton.setVisible(true);
+		((GridData)decrementButton.getLayoutData()).exclude=false;
+		incrementButton.setVisible(true);
+		((GridData)incrementButton.getLayoutData()).exclude=false;
+		incrementText.setVisible(true);
+		((GridData)incrementText.getLayoutData()).exclude=false;
+		this.redraw();
+	}
+	/**
+	 * check if the Increment Control composite is visible
+	 * @return true if the increment control composite is visible
+	 * @see #hideIncrementControl()
+	 * @see #showIncrementControl()
+	 */
+	public boolean isIncrementControlVisible() {
+		return decrementButton.isVisible();
 	}
 }
