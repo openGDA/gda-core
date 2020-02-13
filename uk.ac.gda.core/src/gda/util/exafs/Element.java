@@ -36,8 +36,8 @@ import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.jscience.physics.quantities.PhotonEnergy;
-import gda.jscience.physics.quantities.Vector;
+import gda.jscience.physics.quantities.QuantityConverters;
+import gda.jscience.physics.quantities.WaveVector;
 import gda.jscience.physics.units.NonSIext;
 import uk.ac.gda.util.io.TokenFileParser;
 
@@ -459,8 +459,8 @@ public final class Element {
 		} else if ("L1".equals(edge)) { // L1
 			// fix L1 final energy at 15 A-1
 			Amount<Energy> edgeInEV = Amount.valueOf(edgeEnergy, NonSI.ELECTRON_VOLT);
-			Amount<Vector> k = Amount.valueOf(15, NonSIext.PER_ANGSTROM);
-			return PhotonEnergy.photonEnergyFromEdgeAndVector(edgeInEV, k).getEstimatedValue();
+			Amount<WaveVector> k = Amount.valueOf(15, NonSIext.PER_ANGSTROM);
+			return QuantityConverters.photonEnergyFromEdgeAndVector(edgeInEV, k).getEstimatedValue();
 
 		} else if ("L2".equals(edge)) { // L2
 			return (getEdgeEnergy("L1")) - 10;

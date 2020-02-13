@@ -50,9 +50,9 @@ public class PhotonEnergyTest {
 	private static final Amount<Energy> EDGE = Amount.valueOf(8980.197, ELECTRON_VOLT);
 	private static final Amount<Energy> NEGATIVE_EDGE = Amount.valueOf(-1.0, ELECTRON_VOLT);
 	private static final Amount<Length> EDGE_LENGTH = Amount.valueOf(3.0, ANGSTROM);
-	private static final Amount<Vector> EDGE_LENGTH_VECTOR = vectorOf(EDGE_LENGTH);
+	private static final Amount<WaveVector> EDGE_LENGTH_VECTOR = vectorOf(EDGE_LENGTH);
 	private static final Amount<Length> NEGATIVE_EDGE_LENGTH = Amount.valueOf(-3.0, ANGSTROM);
-	private static final Amount<Vector> NEGATIVE_EDGE_LENGTH_VECTOR = vectorOf(NEGATIVE_EDGE_LENGTH);
+	private static final Amount<WaveVector> NEGATIVE_EDGE_LENGTH_VECTOR = vectorOf(NEGATIVE_EDGE_LENGTH);
 
 	private static final double DOUBLE_VALUE = 3.0E-10;
 	private static final double NEGATIVE_DOUBLE_VALUE = -1.0;
@@ -63,23 +63,23 @@ public class PhotonEnergyTest {
 	@Test
 	public void testPhotonEnergyOfWavelength() {
 		final Amount<Energy> expectedEnergy = Amount.valueOf(2.34, ELECTRON_VOLT);
-		final Amount<Energy> result = PhotonEnergy.photonEnergyFromWavelength(WAVELENGTH);
+		final Amount<Energy> result = QuantityConverters.photonEnergyFromWavelength(WAVELENGTH);
 		assertEquals(expectedEnergy.doubleValue(Energy.UNIT), result.doubleValue(Energy.UNIT), 0.0000000000001);
 	}
 
 	@Test
 	public void testPhotonEnergyOfWavelengthNegativeWavelength() {
-		assertNull(PhotonEnergy.photonEnergyFromWavelength(NEGATIVE_LENGTH));
+		assertNull(QuantityConverters.photonEnergyFromWavelength(NEGATIVE_LENGTH));
 	}
 
 	@Test
 	public void testPhotonEnergyOfWavelengthNullWavelength() {
-		assertNull(PhotonEnergy.photonEnergyFromWavelength(null));
+		assertNull(QuantityConverters.photonEnergyFromWavelength(null));
 	}
 
 	@Test
 	public void testPhotonEnergyOfWavelengthZeroWavelength() {
-		assertNull(PhotonEnergy.photonEnergyFromWavelength(ZERO_LENGTH));
+		assertNull(QuantityConverters.photonEnergyFromWavelength(ZERO_LENGTH));
 	}
 
 	//------------------------------------------------------------------------------
@@ -88,37 +88,37 @@ public class PhotonEnergyTest {
 	@Test
 	public void testPhotonEnergyOfAngle() {
 		final Amount<Energy> expectedEnergy = Amount.valueOf(8932.6, ELECTRON_VOLT);
-		final Amount<Energy> result = PhotonEnergy.photonEnergyFromBraggAngle(BRAGG_ANGLE, TWO_D);
+		final Amount<Energy> result = QuantityConverters.photonEnergyFromBraggAngle(BRAGG_ANGLE, TWO_D);
 		assertEquals(expectedEnergy.doubleValue(Energy.UNIT), result.doubleValue(Energy.UNIT), 0.0000000000001);
 	}
 
 	@Test
 	public void testPhotonEnergyOfAngleNegativeTwoD() {
-		assertNull(PhotonEnergy.photonEnergyFromBraggAngle(BRAGG_ANGLE, NEGATIVE_LENGTH));
+		assertNull(QuantityConverters.photonEnergyFromBraggAngle(BRAGG_ANGLE, NEGATIVE_LENGTH));
 	}
 
 	@Test
 	public void testPhotonEnergyOfAngleNegativeAngle() {
-		assertNull(PhotonEnergy.photonEnergyFromBraggAngle(NEGATIVE_ANGLE, TWO_D));
+		assertNull(QuantityConverters.photonEnergyFromBraggAngle(NEGATIVE_ANGLE, TWO_D));
 	}
 
 	@Test
 	public void testPhotonEnergyOfAngleNullTwoD() {
-		assertNull(PhotonEnergy.photonEnergyFromBraggAngle(BRAGG_ANGLE, null));
+		assertNull(QuantityConverters.photonEnergyFromBraggAngle(BRAGG_ANGLE, null));
 	}
 
 	@Test
 	public void testPhotonEnergyOfAngleNullAngle() {
-		assertNull(PhotonEnergy.photonEnergyFromBraggAngle(null, TWO_D));
+		assertNull(QuantityConverters.photonEnergyFromBraggAngle(null, TWO_D));
 	}
 
 	@Test
 	public void testPhotonEnergyOfAngleZeroAngle() {
-		assertNull(PhotonEnergy.photonEnergyFromBraggAngle(ZERO_ANGLE, TWO_D));
+		assertNull(QuantityConverters.photonEnergyFromBraggAngle(ZERO_ANGLE, TWO_D));
 	}
 
 	public void testPhotonEnergyOfAngleZeroTwoD() {
-		assertNull(PhotonEnergy.photonEnergyFromBraggAngle(BRAGG_ANGLE, ZERO_LENGTH));
+		assertNull(QuantityConverters.photonEnergyFromBraggAngle(BRAGG_ANGLE, ZERO_LENGTH));
 	}
 
 	//------------------------------------------------------------------------------
@@ -127,38 +127,38 @@ public class PhotonEnergyTest {
 	@Test
 	public void testPhotonEnergyOfEdgeVector() {
 		final Amount<Energy> expectedEnergy = Amount.valueOf(9020.0, ELECTRON_VOLT);
-		final Amount<Energy> result = PhotonEnergy.photonEnergyFromEdgeAndVector(EDGE, EDGE_LENGTH_VECTOR);
+		final Amount<Energy> result = QuantityConverters.photonEnergyFromEdgeAndVector(EDGE, EDGE_LENGTH_VECTOR);
 		assertEquals(expectedEnergy.doubleValue(Energy.UNIT), result.doubleValue(Energy.UNIT), 0.0000000000001);
 	}
 
 	@Test
 	public void testPhotonEnergyOfEdgeVectorNegativeVector() {
-		assertNull(PhotonEnergy.photonEnergyFromEdgeAndVector(EDGE, NEGATIVE_EDGE_LENGTH_VECTOR));
+		assertNull(QuantityConverters.photonEnergyFromEdgeAndVector(EDGE, NEGATIVE_EDGE_LENGTH_VECTOR));
 	}
 
 	@Test
 	public void testPhotonEnergyOfEdgeVectorNegativeEdge() {
-		assertNull(PhotonEnergy.photonEnergyFromEdgeAndVector(NEGATIVE_EDGE, EDGE_LENGTH_VECTOR));
+		assertNull(QuantityConverters.photonEnergyFromEdgeAndVector(NEGATIVE_EDGE, EDGE_LENGTH_VECTOR));
 	}
 
 	@Test
 	public void testPhotonEnergyOfEdgeVectorNullVector() {
-		assertNull(PhotonEnergy.photonEnergyFromEdgeAndVector(EDGE, null));
+		assertNull(QuantityConverters.photonEnergyFromEdgeAndVector(EDGE, null));
 	}
 
 	@Test
 	public void testPhotonEnergyOfEdgeVectorNullEdge() {
-		assertNull(PhotonEnergy.photonEnergyFromEdgeAndVector(null, EDGE_LENGTH_VECTOR));
+		assertNull(QuantityConverters.photonEnergyFromEdgeAndVector(null, EDGE_LENGTH_VECTOR));
 	}
 
 	@Test
 	public void testPhotonEnergyOfEdgeVectorZeroEdge() {
-		assertNull(PhotonEnergy.photonEnergyFromEdgeAndVector(ZERO_ENERGY, EDGE_LENGTH_VECTOR));
+		assertNull(QuantityConverters.photonEnergyFromEdgeAndVector(ZERO_ENERGY, EDGE_LENGTH_VECTOR));
 	}
 
 	@Test
 	public void testPhotonEnergyOfEdgeVectorZeroVector() {
-		assertNull(PhotonEnergy.photonEnergyFromEdgeAndVector(EDGE, Vector.ZERO));
+		assertNull(QuantityConverters.photonEnergyFromEdgeAndVector(EDGE, WaveVector.ZERO));
 	}
 
 	//------------------------------------------------------------------------------
@@ -167,33 +167,33 @@ public class PhotonEnergyTest {
 	@Test
 	public void testPhotonEnergyOfEdgeDouble() {
 		final Amount<Energy> expectedEnergy = Amount.valueOf(9014.0, ELECTRON_VOLT);
-		final Amount<Energy> result = PhotonEnergy.photonEnergyFromEdgeAndValue(EDGE, DOUBLE_VALUE);
+		final Amount<Energy> result = QuantityConverters.photonEnergyFromEdgeAndValue(EDGE, DOUBLE_VALUE);
 		assertEquals(expectedEnergy.doubleValue(Energy.UNIT), result.doubleValue(Energy.UNIT), 0.0000000000001);
 	}
 
 	@Test
 	public void testPhotonEnergyOfEdgeDoubleNegativeK() {
-		assertNull(PhotonEnergy.photonEnergyFromEdgeAndValue(EDGE, NEGATIVE_DOUBLE_VALUE));
+		assertNull(QuantityConverters.photonEnergyFromEdgeAndValue(EDGE, NEGATIVE_DOUBLE_VALUE));
 	}
 
 	@Test
 	public void testPhotonEnergyOfEdgeDoubleNegativeEdge() {
-		assertNull(PhotonEnergy.photonEnergyFromEdgeAndValue(NEGATIVE_EDGE, DOUBLE_VALUE));
+		assertNull(QuantityConverters.photonEnergyFromEdgeAndValue(NEGATIVE_EDGE, DOUBLE_VALUE));
 	}
 
 	@Test
 	public void testPhotonEnergyOfEdgeDoubleNullEdge() {
-		assertNull(PhotonEnergy.photonEnergyFromEdgeAndValue(null, DOUBLE_VALUE));
+		assertNull(QuantityConverters.photonEnergyFromEdgeAndValue(null, DOUBLE_VALUE));
 	}
 
 	@Test
 	public void testPhotonEnergyOfEdgeDoubleZeroEdge() {
-		assertNull(PhotonEnergy.photonEnergyFromEdgeAndValue(ZERO_ENERGY, DOUBLE_VALUE));
+		assertNull(QuantityConverters.photonEnergyFromEdgeAndValue(ZERO_ENERGY, DOUBLE_VALUE));
 	}
 
 	@Test
 	public void testPhotonEnergyOfEdgeDoubleZeroK() {
-		assertNull(PhotonEnergy.photonEnergyFromEdgeAndValue(EDGE, 0.0));
+		assertNull(QuantityConverters.photonEnergyFromEdgeAndValue(EDGE, 0.0));
 	}
 
 	/**
@@ -205,7 +205,7 @@ public class PhotonEnergyTest {
 	 * @throws ConversionException
 	 *             if the current model does not allow the specified quantity to be converted to {@link Length}.
 	 */
-	public static Amount<Vector> vectorOf(Amount<Length> length) {
-		return length.inverse().to(Vector.UNIT);
+	public static Amount<WaveVector> vectorOf(Amount<Length> length) {
+		return length.inverse().to(WaveVector.UNIT);
 	}
 }

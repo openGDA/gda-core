@@ -36,7 +36,7 @@ import org.jscience.physics.amount.Amount;
 import org.junit.Test;
 
 /**
- * Test suite for {@link BraggAngle} class
+ * Test suite for Bragg Angle conversion functions
  */
 public class BraggAngleTest {
 	private static final Amount<Length> WAVELENGTH = Amount.valueOf(1.388, ANGSTROM);
@@ -51,38 +51,38 @@ public class BraggAngleTest {
 	@Test
 	public void testBraggAngleFromWavelength() {
 		final Amount<Angle> expectedAngle = Amount.valueOf(12787.5, MILLI(DEGREE_ANGLE));
-		final Amount<Angle> result = BraggAngle.braggAngleFromWavelength(WAVELENGTH, TWO_D);
+		final Amount<Angle> result = QuantityConverters.braggAngleFromWavelength(WAVELENGTH, TWO_D);
 		assertEquals(expectedAngle.doubleValue(Angle.UNIT), result.doubleValue(Angle.UNIT), 0.000001);
 	}
 
 	@Test
 	public void testBraggAngleFromWavelengthNullWavelength() {
-		assertNull(BraggAngle.braggAngleFromWavelength(null, TWO_D));
+		assertNull(QuantityConverters.braggAngleFromWavelength(null, TWO_D));
 	}
 
 	@Test
 	public void testBraggAngleFromWavelengthNullTwoD() {
-		assertNull(BraggAngle.braggAngleFromWavelength(WAVELENGTH, null));
+		assertNull(QuantityConverters.braggAngleFromWavelength(WAVELENGTH, null));
 	}
 
 	@Test
 	public void testBraggAngleFromWavelengthZeroWavelength() {
-		assertNull(BraggAngle.braggAngleFromWavelength(ZERO_LENGTH, TWO_D));
+		assertNull(QuantityConverters.braggAngleFromWavelength(ZERO_LENGTH, TWO_D));
 	}
 
 	@Test
 	public void testBraggAngleFromWavelengthZeroTwoD() {
-		assertNull(BraggAngle.braggAngleFromWavelength(WAVELENGTH, ZERO_LENGTH));
+		assertNull(QuantityConverters.braggAngleFromWavelength(WAVELENGTH, ZERO_LENGTH));
 	}
 
 	@Test
 	public void testBraggAngleFromWavelengthNegativeWavelength() {
-		assertNull(BraggAngle.braggAngleFromWavelength(NEGATIVE_LENGTH, TWO_D));
+		assertNull(QuantityConverters.braggAngleFromWavelength(NEGATIVE_LENGTH, TWO_D));
 	}
 
 	@Test
 	public void testBraggAngleFromWavelengthNegativeTwoD() {
-		assertNull(BraggAngle.braggAngleFromWavelength(WAVELENGTH, NEGATIVE_LENGTH));
+		assertNull(QuantityConverters.braggAngleFromWavelength(WAVELENGTH, NEGATIVE_LENGTH));
 	}
 
 	//------------------------------------------------------------------------------------------
@@ -91,37 +91,37 @@ public class BraggAngleTest {
 	@Test
 	public void testBraggAngleFromPhotonEnergy() {
 		final Amount<Angle> expectedAngle = Amount.valueOf(12787.5, MILLI(DEGREE_ANGLE));
-		final Amount<Angle> result = BraggAngle.braggAngleFromEnergy(PHOTON_ENERGY, TWO_D);
+		final Amount<Angle> result = QuantityConverters.braggAngleFromEnergy(PHOTON_ENERGY, TWO_D);
 		assertEquals(expectedAngle.doubleValue(Angle.UNIT), result.doubleValue(Angle.UNIT), 0.00001);
 	}
 
 	@Test
 	public void testBraggAngleFromPhotonEnergyNullEnergy() {
-		assertNull(BraggAngle.braggAngleFromEnergy(null, TWO_D));
+		assertNull(QuantityConverters.braggAngleFromEnergy(null, TWO_D));
 	}
 
 	@Test
 	public void testBraggAngleFromPhotonEnergyNullTwoD() {
-		assertNull(BraggAngle.braggAngleFromEnergy(PHOTON_ENERGY, null));
+		assertNull(QuantityConverters.braggAngleFromEnergy(PHOTON_ENERGY, null));
 	}
 
 	@Test
 	public void testBraggAngleFromPhotonEnergyZeroEnergy() {
-		assertNull(BraggAngle.braggAngleFromEnergy(ZERO_ENERGY, TWO_D));
+		assertNull(QuantityConverters.braggAngleFromEnergy(ZERO_ENERGY, TWO_D));
 	}
 
 	@Test
 	public void testBraggAngleFromPhotonEnergyZeroTwoD() {
-		assertNull(BraggAngle.braggAngleFromEnergy(PHOTON_ENERGY, ZERO_LENGTH));
+		assertNull(QuantityConverters.braggAngleFromEnergy(PHOTON_ENERGY, ZERO_LENGTH));
 	}
 
 	@Test
 	public void testBraggAngleFromPhotonEnergyNegativeEnergy() {
-		assertNull(BraggAngle.braggAngleFromEnergy(NEGATIVE_ENERGY, TWO_D));
+		assertNull(QuantityConverters.braggAngleFromEnergy(NEGATIVE_ENERGY, TWO_D));
 	}
 
 	@Test
 	public void testBraggAngleFromPhotonEnergyNegativeTwoD() {
-		assertNull(BraggAngle.braggAngleFromEnergy(PHOTON_ENERGY, NEGATIVE_LENGTH));
+		assertNull(QuantityConverters.braggAngleFromEnergy(PHOTON_ENERGY, NEGATIVE_LENGTH));
 	}
 }
