@@ -36,11 +36,7 @@ public class CheckCollisionTask implements ScanTask {
 		//collision avoidance check tth motor position only proceed if tth motor is at MAC Safe Position defined in Spring configuration
 		if (getCheckedScannable() != null) {
 			double currentPosition = (double)getCheckedScannable().getPosition();
-			double targetPosition = safePosition.getPosition();
-			double tolerance = safePosition.getTolerance();
-			if (Math.abs(currentPosition - targetPosition) > tolerance) {
-				throw new UnsafeOperationException(currentPosition, targetPosition, "Cannot proceed as MAC detector is not at safe position.");
-			}
+			safePosition.checkPosition("MAC detector", currentPosition);
 		}
 	}
 

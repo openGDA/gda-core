@@ -18,15 +18,29 @@
 
 package gda.hrpd.pmac;
 
+import java.util.function.Predicate;
+
 import gda.factory.FindableBase;
 
 /**
  * This data object defines the safe position to park a device when it is not in use while operating other devices around it.
  * It is used to store configurable positions for safe operation of devices on beamline so collision avoidance logic can be implemented elsewhere.
  */
-public class SafePosition extends FindableBase {
+public class SafePosition extends FindableBase implements Predicate<Double> {
 	private double position;
 	private double tolerance;
+
+	@Override
+	public boolean test(Double t) {
+		return Math.abs(position - t) < tolerance;
+	}
+
+	public void checkPosition(String motorName, double position) {
+		if (!test(position)) {
+			throw new UnsafeOperationException(position, position,
+					"Cannot proceed as " + motorName + "is not at safe position.");
+		}
+	}
 
 	public double getPosition() {
 		return position;
@@ -38,6 +52,9 @@ public class SafePosition extends FindableBase {
 		return tolerance;
 	}
 	public void setTolerance(double safePositionTolerance) {
+		if (safePositionTolerance < 0) {
+			throw new IllegalArgumentException("Tolerance must be non-negative");
+		}
 		this.tolerance = safePositionTolerance;
 	}
 

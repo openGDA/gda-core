@@ -36,7 +36,7 @@ public class ParkDetectorTask implements Callable<Boolean> {
 	@Override
 	public Boolean call() throws Exception {
 		if (active) {
-			if (Math.abs((double)motor.getPosition() - safePosition.getPosition()) < safePosition.getTolerance()) {
+			if (safePosition.test((double) motor.getPosition())) {
 				logger.debug("Motor {} already in correct position", motor.getName());
 				return false;
 			} else {

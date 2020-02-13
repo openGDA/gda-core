@@ -45,7 +45,6 @@ import gda.factory.FactoryException;
 import gda.hrpd.data.EpicsCVscanDataWriter;
 import gda.hrpd.pmac.EpicsCVScanController.CurrentState;
 import gda.hrpd.pmac.SafePosition;
-import gda.hrpd.pmac.UnsafeOperationException;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.jython.JythonStatus;
@@ -190,11 +189,8 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 		// collision avoidance check delta motor position only proceed if delta motor is at PSD Safe Position defined in
 		// Spring configuration
 		if (psdScannableMotor != null) {
-			if (Math.abs(Double.parseDouble(psdScannableMotor.getPosition().toString()) - psdSafePosition.getPosition()) > psdSafePosition
-					.getTolerance()) {
-				throw new UnsafeOperationException(psdScannableMotor.getPosition(), psdSafePosition.getPosition(),
-						"Cannot proceed as PSD detector is not at safe position.");
-			}
+			double position = (double)psdScannableMotor.getPosition();
+			psdSafePosition.checkPosition("PSD detector", position);
 		}
 	}
 

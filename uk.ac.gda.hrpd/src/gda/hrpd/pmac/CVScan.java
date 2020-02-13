@@ -166,12 +166,8 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 		// collision avoidance check delta motor position only proceed if delta motor is at PSD Safe Position defined in
 		// Spring configuration
 		if (psdScannableMotor != null) {
-			if (Math
-					.abs(Double.parseDouble(psdScannableMotor.getPosition().toString()) - psdSafePosition.getPosition()) > psdSafePosition
-					.getTolerance()) {
-				throw new UnsafeOperationException(psdScannableMotor.getPosition(), psdSafePosition.getPosition(),
-						"Cannot proceed as PSD detector is not at safe position.");
-			}
+			double position = (double)psdScannableMotor.getPosition();
+			psdSafePosition.checkPosition("PSD detector", position);
 		}
 	}
 
