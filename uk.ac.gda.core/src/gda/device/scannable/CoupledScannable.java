@@ -57,7 +57,7 @@ public class CoupledScannable extends ScannableMotionUnitsBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(CoupledScannable.class);
 
-	private List<Scannable> theScannables = new ArrayList<>();
+	protected List<Scannable> theScannables = new ArrayList<>();
 	private List<Function<Quantity<? extends Quantity<?>>, Quantity<? extends Quantity<?>>>> theFunctions = new ArrayList<>();
 	private List<String> scannableNames;
 
@@ -206,7 +206,7 @@ public class CoupledScannable extends ScannableMotionUnitsBase {
 		moveUnderlyingScannables(targets);
 	}
 
-	private void moveUnderlyingScannables(List<? extends Object> targets) throws DeviceException {
+	protected void moveUnderlyingScannables(List<? extends Object> targets) throws DeviceException {
 		Arrays.fill(scannablesMoving, true);
 		for (int i = 0; i < theScannables.size(); i++) {
 			theScannables.get(i).asynchronousMoveTo(targets.get(i));
@@ -242,7 +242,7 @@ public class CoupledScannable extends ScannableMotionUnitsBase {
 		return false;
 	}
 
-	private void handleUpdate(Object theObserved, Object changeCode) {
+	protected void handleUpdate(Object theObserved, Object changeCode) {
 
 		boolean scannableReady = true;
 		if (changeCode instanceof ScannableStatus) {
