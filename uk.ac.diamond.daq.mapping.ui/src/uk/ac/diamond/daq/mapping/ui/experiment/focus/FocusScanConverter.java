@@ -57,7 +57,7 @@ public class FocusScanConverter {
 		final IMapPathModel lineModel = createLineModel(focusScanBean);
 		final ILineMappingRegion lineRegion = focusScanBean.getLineRegion();
 		final ScanRegion scanRegion = new ScanRegion(lineRegion.toROI(),
-				lineModel.getyAxisName(), lineModel.getxAxisName());
+				lineModel.getxAxisName(), lineModel.getyAxisName());
 		final IScanPathModel focusModel = createFocusPathModel(focusScanBean);
 
 		final CompoundModel compoundModel = new CompoundModel(Arrays.asList(focusModel, lineModel));

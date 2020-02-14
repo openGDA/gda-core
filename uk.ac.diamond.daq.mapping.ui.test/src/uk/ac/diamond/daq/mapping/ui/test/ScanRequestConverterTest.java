@@ -44,9 +44,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ProcessingRequest;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
@@ -56,6 +58,7 @@ import org.eclipse.scanning.api.scan.models.ScanMetadata;
 import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.script.ScriptRequest;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
+import org.eclipse.scanning.points.PointGeneratorService;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
@@ -66,7 +69,6 @@ import gda.factory.Factory;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.mapping.api.ConfigWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
-import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScriptFiles;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
@@ -84,6 +86,14 @@ public class ScanRequestConverterTest {
 	private static final String Y_AXIS_NAME = "testing_stage_y";
 	private static final String Z_AXIS_NAME = "testing_z_axis";
 	private static final String BEAM_SIZE_NAME = "beamSize";
+
+	//Explicitly non-overlapping in each axis; 2<x<5, 7<y<13,
+	//Will catch if x-y mirroring occurs.
+	private static final double X_START = 5;
+	private static final double X_LENGTH = 2;
+	private static final double Y_START = 7;
+	private static final double Y_LENGTH = 6;
+	private static final double DIFF_LIMIT = 1e-7;
 
 	private static final String X_AXIS_UNITS = "mm";
 	private static final String Y_AXIS_UNITS = "mdeg";
@@ -128,7 +138,12 @@ public class ScanRequestConverterTest {
 		scanPath.setContinuous(true);
 		mappingBean.getScanDefinition().getMappingScanRegion().setScanPath(scanPath);
 
-		final IMappingScanRegionShape scanRegion = new RectangularMappingRegion();
+		final RectangularMappingRegion scanRegion = new RectangularMappingRegion();
+		scanRegion.setxStart(X_START);
+		scanRegion.setxStop(X_START + X_LENGTH);
+		scanRegion.setyStart(Y_START);
+		scanRegion.setyStop(Y_START + Y_LENGTH);
+
 		mappingBean.getScanDefinition().getMappingScanRegion().setRegion(scanRegion);
 
 		mappingBean.setDetectorParameters(Collections.emptyList());
@@ -385,6 +400,9 @@ public class ScanRequestConverterTest {
 
 	@Test
 	public void testRoiAxisNamesAreSet() throws Exception {
+
+		IPointGeneratorService pointGeneratorService = new PointGeneratorService();
+
 		// Act - convert mapping bean to scan request
 		final ScanRequest scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 		final Collection<ScanRegion> regions = scanRequest.getCompoundModel().getRegions();
@@ -393,14 +411,22 @@ public class ScanRequestConverterTest {
 		assertThat(regions.size(), is(equalTo(1)));
 		for (final ScanRegion scanRegion : regions) {
 			final List<String> scannables = scanRegion.getScannables();
-			assertThat(scannables.get(0), is(equalTo(Y_AXIS_NAME)));
-			assertThat(scannables.get(1), is(equalTo(X_AXIS_NAME)));
+			final RectangularROI roi = (RectangularROI) scanRegion.getRoi();
+			assertThat(scannables.get(0), is(equalTo(X_AXIS_NAME)));
+			assertThat(scannables.get(1), is(equalTo(Y_AXIS_NAME)));
+			assertEquals(X_START, roi.getPoint()[0], DIFF_LIMIT);
+			assertEquals(Y_START, roi.getPoint()[1], DIFF_LIMIT);
+			assertEquals(X_LENGTH, roi.getLengths()[0], DIFF_LIMIT);
+			assertEquals(Y_LENGTH, roi.getLengths()[1], DIFF_LIMIT);
 		}
 
 		// Act again - convert scan request back to mapping bean
 		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
 		assertEquals(mappingBean.getScanDefinition().getMappingScanRegion().getRegion(),
 				newMappingBean.getScanDefinition().getMappingScanRegion().getRegion());
+
+		List<IPosition> allPositions = pointGeneratorService.createCompoundGenerator(scanRequest.getCompoundModel()).createPoints();
+		assertEquals(25, allPositions.size());
 	}
 
 	@Test

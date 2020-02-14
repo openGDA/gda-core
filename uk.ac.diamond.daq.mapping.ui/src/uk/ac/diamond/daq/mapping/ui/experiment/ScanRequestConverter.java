@@ -136,7 +136,7 @@ public class ScanRequestConverter {
 
 		// Add the ROI for the mapping region
 		final ScanRegion region = new ScanRegion(scanRegion.getRegion().toROI(),
-				mapPath.getyAxisName(), mapPath.getxAxisName());
+				mapPath.getxAxisName(), mapPath.getyAxisName());
 
 		// Convert to a List of ScanRegion<IROI> containing one item to avoid unsafe varargs warning
 		compoundModel.setRegions(Arrays.asList(region));
