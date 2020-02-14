@@ -34,4 +34,25 @@
 
 	<xsd:element name="rmi-import" type="rmiImportType" />
 
+	<xsd:complexType name="motorType">
+		<xsd:attribute name="id" type="xsd:string" use="required"/>
+		<xsd:attribute name="pv" type="xsd:string" />
+		<xsd:attribute name="dummy-pv" type="xsd:string" />
+		<xsd:attribute name="dummyImplementation" type="xsd:string" />
+		<xsd:attribute name="liveImplementation" type="xsd:string" />
+		<xsd:attribute name="userUnits" type="xsd:string" />
+		<xsd:attribute name="configureAtStartup" type="xsd:string" />
+		<xsd:attribute name="hardwareUnitString" type="xsd:string" />
+		<xsd:attribute name="offset" type="xsd:string" />
+		<xsd:attribute name="outputFormat" type="xsd:string" />
+		<xsd:attribute name="scalingFactor" type="xsd:string" />
+		<xsd:attribute name="upperGdaLimits" type="xsd:string" />
+		<xsd:attribute name="lowerGdaLimits" type="xsd:string" />
+		<xsd:attribute name="speed" type="xsd:string" />
+		<xsd:attribute name="timeToVelocity" type="xsd:string" />
+		<xsd:attribute name="protectionLevel" type="xsd:string" />
+	</xsd:complexType>
+
+	<xsd:element name="motor" type="motorType" />
+
 </xsd:schema>

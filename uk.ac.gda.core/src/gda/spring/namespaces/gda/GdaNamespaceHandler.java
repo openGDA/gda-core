@@ -21,6 +21,8 @@ package gda.spring.namespaces.gda;
 import org.springframework.beans.factory.xml.NamespaceHandler;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
+import gda.spring.device.SpringMotorDefinitionParser;
+
 /**
  * Spring {@link NamespaceHandler} for the {@code gda} namespace.
  */
@@ -36,6 +38,8 @@ public class GdaNamespaceHandler extends NamespaceHandlerSupport {
 		RmiBeanDefinitionParser remoting = new RmiBeanDefinitionParser();
 		registerBeanDefinitionParser("export", remoting::exportBean);
 		registerBeanDefinitionParser("import", remoting::importBean);
+
+		registerBeanDefinitionParser("motor", new SpringMotorDefinitionParser());
 	}
 
 }
