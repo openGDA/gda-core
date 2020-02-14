@@ -270,7 +270,7 @@ public class EditDetectorModelDialog extends Dialog {
 		} catch (ScanningException e) {
 			logger.error("Could not get datasets for malcolm device {}", detectorModel.getName(), e);
 			getShell().getDisplay().asyncExec(() -> MessageDialog.openError(getShell(), "Error",
-					"Could not get datasets for malcolm device " + detectorModel.getName()));
+					"Could not get datasets for malcolm device " + detectorModel.getName() + "\nReason: " + e.getMessage()));
 		} finally {
 			if (malcolmDevice != null) {
 				try {
