@@ -26,6 +26,7 @@ import java.util.Map;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.EllipticalROI;
+import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -576,6 +577,28 @@ public class CompoundTest {
 		if (two.hasNext()) {
 			fail();
 		}
+	}
+
+	@Test
+	public void pyRoiFromScanRegion() throws GeneratorException {
+		CompoundModel cModel = new CompoundModel();
+
+		TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel();
+		gridModel.setBoundingBox(new BoundingBox(3, 7, 2, 6));
+		gridModel.setxAxisName("x");
+		gridModel.setyAxisName("y");
+
+		cModel.addModel(gridModel);
+
+		ScanRegion sr = new ScanRegion();
+		// Non-overlapping region, 3<x<5, 7<y<13
+		sr.setRoi(new RectangularROI(3, 7, 2, 6, 0));
+		sr.setScannables(Arrays.asList("x", "y"));
+
+		cModel.setRegions(Arrays.asList(sr));
+
+		List<IPosition> allPositions = service.createCompoundGenerator(cModel).createPoints();
+		assertEquals(25, allPositions.size());
 	}
 
 }
