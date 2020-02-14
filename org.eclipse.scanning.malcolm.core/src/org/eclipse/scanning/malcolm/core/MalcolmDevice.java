@@ -779,12 +779,6 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 
 	@Override
 	public MalcolmVersion getVersion() throws MalcolmDeviceException {
-//		getModel(); // call get model to ensure detectorsTableTypesMap has been initialized
-//		if (detectorsTableTypesMap.containsKey(DETECTORS_TABLE_COLUMN_ENABLE)) { // TODO remove these lines ***********
-//			return MalcolmVersion.VERSION_4_2;
-//		}
-//		return MalcolmVersion.VERSION_4_0;
-
 		// The version of a malcolm device can be retrieved from the tags of the 'meta' attribute
 		final StringArrayAttribute value = getEndpointValue(FIELD_NAME_META);
 		final String[] tags = value.getTags();
