@@ -18,30 +18,27 @@
 
 package uk.ac.gda.client.composites;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.rcp.views.AbstractPositionerComposite;
 import gda.rcp.views.CompositeFactory;
-import gda.rcp.views.StageCompositeDefinition;
-import gda.rcp.views.StageCompositeFactory;
-import uk.ac.gda.client.UIHelper;
+import gda.rcp.views.EnumPositionerComposite;
+import gda.rcp.views.SlimPositionerComposite;
 import uk.ac.gda.client.exception.GDAClientException;
-import uk.ac.gda.client.observablemodels.ScannableWrapper;
 import uk.ac.gda.client.properties.MotorProperties;
-import uk.ac.gda.ui.tool.ClientSWTElements;
 
 /**
- * Displays a motor position.
+ * A Composite to control a motor. This class automatically recognises Epics and ENUM motors displaying the proper layout.
  *
  * @author Maurizio Nagni
  */
 public class MotorCompositeFactory implements CompositeFactory {
 
 	private final MotorProperties motorProperties;
-	private StageCompositeDefinition stageCompositeDefinition;
 
 	protected static final Logger logger = LoggerFactory.getLogger(MotorCompositeFactory.class);
 
@@ -53,61 +50,41 @@ public class MotorCompositeFactory implements CompositeFactory {
 	 */
 	public MotorCompositeFactory(MotorProperties motorProperties) {
 		this.motorProperties = motorProperties;
-		this.stageCompositeDefinition = null;
-	}
-
-	/**
-	 * Creates a component based on previous {@link StageCompositeDefinition}, making this class suitable also for
-	 * {@link StageCompositeFactory}
-	 *
-	 * @param stageCompositeDefinition
-	 */
-	public MotorCompositeFactory(StageCompositeDefinition stageCompositeDefinition) {
-		this.motorProperties = null;
-		this.stageCompositeDefinition = stageCompositeDefinition;
 	}
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		if (stageCompositeDefinition == null) {
-			try {
-				stageCompositeDefinition = assembleStageComposite();
-			} catch (GDAClientException e) {
-				logger.error("Error", e);
-				return null;
+		Scannable scannable;
+		Object obj;
+		try {
+			scannable = getScannable();
+			obj = scannable.getPosition();
+			if (String.class.isInstance(obj)) {
+				return createEnumPositionComposite(parent, style, scannable);
+			} else if (Number.class.isInstance(obj)) {
+				return createSlimPositionerComposite(parent, style, scannable);
 			}
+		} catch (GDAClientException e1) {
+			logger.error("TODO put description of error here", e1);
+		} catch (DeviceException e) {
+			logger.error("TODO put description of error here", e);
 		}
-
-		Composite motorComp = ClientSWTElements.createComposite(parent, style, 2);
-		ClientSWTElements.createLabel(motorComp, SWT.NONE,
-				stageCompositeDefinition.getLabel() != null ? stageCompositeDefinition.getLabel()
-						: stageCompositeDefinition.getScannable().getName());
-		MotorPositionEditorControl motorPosControl;
-		try {
-			motorPosControl = new MotorPositionEditorControl(motorComp, SWT.NONE,
-					new ScannableWrapper(stageCompositeDefinition.getScannable()), true, false);
-		} catch (Exception e) {
-			UIHelper.showError("Motor creation error", "Cannot create motor MotorPositionEditorControl");
-			return null;
-		}
-		double d = stageCompositeDefinition.getStepSize() * Math.pow(10, stageCompositeDefinition.getDecimalPlaces());
-		motorPosControl.setDigits(stageCompositeDefinition.getDecimalPlaces());
-		try {
-			motorPosControl.setIncrement((int) d);
-		} catch (Exception e) {
-			UIHelper.showError("Motor update error", "Cannot set motor increment");
-			return null;
-		}
-		return motorComp;
+		return null;
 	}
 
-	private StageCompositeDefinition assembleStageComposite() throws GDAClientException {
-		StageCompositeDefinition scd = new StageCompositeDefinition();
-		scd.setScannable(
-				FinderHelper.getScannable(motorProperties.getController()).orElseThrow(GDAClientException::new));
-		scd.setStepSize(1);
-		scd.setDecimalPlaces(0);
-		scd.setLabel(motorProperties.getName());
-		return scd;
+	private Composite createEnumPositionComposite(Composite parent, int style, Scannable scannable) {
+		AbstractPositionerComposite abstractComposite = new EnumPositionerComposite(parent, style);
+		abstractComposite.setScannable(scannable);
+		return abstractComposite;
+	}
+
+	private Composite createSlimPositionerComposite(Composite parent, int style, Scannable scannable) {
+		AbstractPositionerComposite abstractComposite = new SlimPositionerComposite(parent, style);
+		abstractComposite.setScannable(scannable);
+		return abstractComposite;
+	}
+
+	private Scannable getScannable() throws GDAClientException {
+		return FinderHelper.getScannable(motorProperties.getController()).orElseThrow(GDAClientException::new);
 	}
 }

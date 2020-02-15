@@ -36,6 +36,8 @@ public enum ClientImages {
 	SAVE(ClientImagesGroup.GENERAL, "save-16.png"),
 	START(ClientImagesGroup.GENERAL, "run-16.png"),
 	STOP(ClientImagesGroup.GENERAL, "stop-16.png"),
+	TRIANGLE_DOWN(ClientImagesGroup.GENERAL, "triangle-down-16.png"),
+	TRIANGLE_UP(ClientImagesGroup.GENERAL, "triangle-up-16.png"),
 
 	CAMERA(ClientImagesGroup.GENERAL, "camera-16.png"),
 
