@@ -96,6 +96,7 @@ public class AcquireRequestHandler implements IRequestHandler<AcquireRequest> {
 				pointGenService.createCompoundGenerator((CompoundModel) model) : pointGenService.createGenerator(model);
 
 		scanModel.setPointGenerator(gen);
+		scanModel.setScanPathModel(model);
 		scanModel.setFilePath(getOutputFilePath(request));
 		scanModel.setDetectors(detector);
 		scanModel.setScannables(Collections.emptyList());
