@@ -31,9 +31,11 @@ import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
 import gda.factory.FactoryException;
+import gda.util.CrystalParameters.CrystalSpacing;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
+import uk.ac.diamond.scisoft.analysis.diffraction.DSpacing;
 
 /**
  * Under development for B18 only.
@@ -60,14 +62,14 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 	protected Channel maxSpeedChnl;
 	protected Channel energySwitchChnl;
 
-	protected double startAngle;
+	protected double startAngle; // all in degrees
 	protected double endAngle;
 	protected double stepSize;
 	protected double runupPosition;
 	protected double runDownPosition;
 
-	protected Double maxSpeed; // in deg/sec
-	protected Double desiredSpeed; // in deg/sec
+	protected double maxSpeed = Double.NaN; // in deg/sec
+	protected double desiredSpeed; // in deg/sec
 
 	protected double extraRunUp = 0;
 	private double runUpScaleFactor = 3.0;
@@ -78,26 +80,8 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 	protected double stepIncDemDeg;
 
 
-	private Double twoDValue;
+	private double dValue = Double.NaN; // in Angstroms
 
-	private enum CrystalSpacings {
-		Si_111("111", 0.62711e-9),
-		Si_311("311", 0.327e-9);
-
-		private final String label;
-		private final double val;
-
-		private CrystalSpacings(String label, double val) {
-			this.label = label;
-			this.val = val;
-		}
-		public String getLabel() {
-			return label;
-		}
-		public double getCrystal2d() {
-			return val;
-		}
-	}
 
 	@Override
 	public void configure() throws FactoryException {
@@ -122,7 +106,6 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 		setConfigured(true);
 	}
 
-
 	protected void checkDeadbandAndMove(double positionInEV) throws TimeoutException, CAException, InterruptedException {
 		double currentPositionInEV = 0;
 		try {
@@ -130,8 +113,8 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 		} catch (DeviceException e1) {
 			logger.error("Could not read scannable position", e1);
 		}
-		double demandDegrees = Math.toDegrees(convertEnergyToAngle(positionInEV, getTwoD()));
-		double currentDegrees = Math.toDegrees(convertEnergyToAngle(currentPositionInEV, getTwoD()));
+		double demandDegrees = convertEnergyToAngle(positionInEV);
+		double currentDegrees = convertEnergyToAngle(currentPositionInEV);
 		logger.debug("checkDeadbandAndMove : demand angle = {} deg, current angle = {} deg.", demandDegrees, currentDegrees);
 		// Use tolerance (in degrees) of underlying scannable to determine whether to move
 		if ( Math.abs(currentDegrees - demandDegrees) > getDemandPositionTolerance() ) {
@@ -144,9 +127,9 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 		}
 	}
 
-	protected Double getMaxSpeed() {
+	protected double getMaxSpeed() {
 		long timeAtMethodStart = System.currentTimeMillis();
-		if (maxSpeed == null) {
+		if (Double.isNaN(maxSpeed)) {
 			try {
 				maxSpeed = controller.cagetDouble(maxSpeedChnl);
 			} catch (Exception e) {
@@ -185,7 +168,7 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 	@Override
 	public void prepareForContinuousMove() throws DeviceException {
 		// clear this, so it has to be re-read once every scan to make sure the value has not changed.
-		twoDValue = null;
+		dValue = Double.NaN;
 	}
 
 	protected void resetDCMSpeed() throws DeviceException {
@@ -226,26 +209,26 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 	}
 
 	/**
-	 * @return 2*lattice spacing for the given Bragg crystal cut in use.
+	 * @return lattice spacing for the given Bragg crystal cut in use in Angstroms
 	 * @throws TimeoutException
 	 * @throws CAException
 	 * @throws InterruptedException
 	 */
-	protected double getTwoD() throws TimeoutException, CAException, InterruptedException {
+	protected double getD() throws TimeoutException, CAException, InterruptedException {
 
-		if (twoDValue == null){
+		if (Double.isNaN(dValue)) {
 			long timeAtMethodStart = System.currentTimeMillis();
 			String xtalSwitch = controller.cagetString(xtalSwitchChnl);
-			for(CrystalSpacings s : CrystalSpacings.values() ) {
+			for(CrystalSpacing s : CrystalSpacing.values() ) {
 				if (xtalSwitch.contains(s.getLabel()) ) {
-					return s.getCrystal2d();
+					return s.getCrystalD();
 				}
 			}
-			twoDValue = CrystalSpacings.Si_111.getCrystal2d();
+			dValue = CrystalSpacing.Si_111.getCrystalD();
 			long timeAtMethodEnd = System.currentTimeMillis();
-			logger.debug("Time spent in getTwoD = {} ms ", timeAtMethodEnd - timeAtMethodStart);
+			logger.debug("Time spent in getD = {} ms ", timeAtMethodEnd - timeAtMethodStart);
 		}
-		return twoDValue;
+		return dValue;
 	}
 
 	protected double getAcceleration() throws TimeoutException, CAException, InterruptedException {
@@ -258,28 +241,26 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 
 	protected void calculateMotionInDegrees() throws TimeoutException, CAException, InterruptedException {
 		long timeAtMethodStart = System.currentTimeMillis();
-		double twoD = getTwoD();
 
-		// Start, end step size angles are in radians
-		startAngle = convertEnergyToAngle(continuousParameters.getStartPosition(), twoD);
-		endAngle = convertEnergyToAngle(continuousParameters.getEndPosition(), twoD);
-		stepSize = (startAngle - endAngle)/continuousParameters.getNumberDataPoints();
+		// Start, end and step size angles are in degrees
+		startAngle = convertEnergyToAngle(continuousParameters.getStartPosition());
+		endAngle = convertEnergyToAngle(continuousParameters.getEndPosition());
+		stepSize = (startAngle - endAngle) / continuousParameters.getNumberDataPoints();
 
 		// v^2 = u^2 + 2as
 		double acceleration = getAcceleration(); // acceleration of the motor (degrees/sec/sec)
-		desiredSpeed = Math.abs(Math.toDegrees(endAngle) - Math.toDegrees(startAngle)) / continuousParameters.getTotalTime();
-		double runUp = (desiredSpeed * desiredSpeed) / (2 * acceleration); // degrees
-
+		desiredSpeed = Math.abs(endAngle - startAngle) / continuousParameters.getTotalTime();
+		double runUp = (desiredSpeed * desiredSpeed) / (2 * acceleration);
 		runUp *= runUpScaleFactor; // to be safe multiply by scale factor (>1)
 		// Angle runUpAngle = (Angle) QuantityFactory.createFromObject(runUp, NonSI.DEGREE_ANGLE);
 		// 1.165E-4 deg is a practical minimum to avoid the motor's deadband
-		double step = Math.abs(Math.toDegrees(stepSize));// controller.cagetDouble(this.stepIncDegChnl);
+		double step = Math.abs(stepSize);// controller.cagetDouble(this.stepIncDegChnl);
 
 		if (runUp < 2 * step) {// 0.0001165
 			runUp = 2 * step;
 		}
 		// Total runup
-		double runUpAngle = Math.toRadians(runUp + extraRunUp);
+		double runUpAngle = runUp + extraRunUp;
 		logger.debug("Run up size: {} degrees", runUpAngle);
 
 		// backwards
@@ -393,58 +374,24 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 	}
 
 	/**
-	 * Convert from bragg angle [radians] to energy [eV] using current 2d spacing set from Epics crystal type.
-	 * @param angleRad
-	 * @return bragg angle [radians]
+	 * @param energy in eV
+	 * @return angle in degrees
 	 * @throws TimeoutException
 	 * @throws CAException
 	 * @throws InterruptedException
 	 */
-	protected double convertAngleToEnergy(double angleRad) throws TimeoutException, CAException, InterruptedException {
-		return convertAngleToEnergy(angleRad, getTwoD());
+	protected double convertEnergyToAngle(double energy) throws TimeoutException, CAException, InterruptedException {
+		return Math.toDegrees(DSpacing.braggAngleFromDSpacing(DiffractionCrystalEnvironment.calculateWavelength(energy * 1e-3), getD()));
 	}
 
 	/**
-	 * Convert from bragg angle [radians] to energy [eV]
-	 * @param angleRad bragg angle [radians]
-	 * @param twoD crystal 2d spacing [metres]
-	 * @return energy [eV]
+	 * @param angle in degrees
+	 * @return energy in eV
+	 * @throws TimeoutException
+	 * @throws CAException
+	 * @throws InterruptedException
 	 */
-	protected double convertAngleToEnergy(double angleRad, double twoD) {
-		double wave = twoD*Math.sin(angleRad);
-		DiffractionCrystalEnvironment de = new DiffractionCrystalEnvironment(wave*1e10);
-		return de.getEnergy()*1000;
-	}
-
-	/**
-	 * Convert from energy [eV] to bragg angle [radians]
-	 * @param energyEv
- 	 * @param twoD
-	 * @return bragg angle [radians]
-	 */
-	private double convertEnergyToAngle(double energyEv, double twoD) {
-		double wave = convertEnergyToWavelength(energyEv);
-		return convertWavelengthToAngle(wave, twoD);
-	}
-
-	/**
-	 * Convert from energy [eV] to wavelength [metres]
-	 * @param energy [eV]
-	 * @return
-	 */
-	private double convertEnergyToWavelength(double energyEv) {
-		DiffractionCrystalEnvironment de = new DiffractionCrystalEnvironment();
-		de.setWavelengthFromEnergykeV(energyEv*0.001);
-		return de.getWavelength()*1e-10;
-	}
-
-	/**
-	 * Convert from wavelength [metres] to angle [radians] using bragg equation
-	 * @param wavelength [metres]
-	 * @param twoD crystal 2d spacing [metres]
-	 * @return
-	 */
-	private double convertWavelengthToAngle(double wavelengthM, double twoD) {
-		return Math.asin(wavelengthM/twoD);
+	protected double convertAngleToEnergy(double angle) throws TimeoutException, CAException, InterruptedException {
+		return 1e3 * DiffractionCrystalEnvironment.calculateEnergy(DSpacing.wavelengthFromBraggReflection(Math.toRadians(angle), getD()));
 	}
 }

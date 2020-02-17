@@ -20,26 +20,31 @@ package gda.device.scannable.zebra;
 
 import static org.junit.Assert.assertEquals;
 
-import org.eclipse.dawnsci.analysis.api.diffraction.DiffractionCrystalEnvironment;
 import org.junit.Before;
 import org.junit.Test;
 
 import gda.TestHelpers;
 import gda.device.ContinuousParameters;
+import gda.device.DeviceException;
+import gda.device.MotorException;
 import gda.device.motor.DummyMotor;
 import gda.device.zebra.controller.impl.ZebraDummy;
 
 public class ZebraQexafsTest {
 	private ZebraQexafsScannableForTest scn;
 
-	/** Crystal 2d spacing [metres] */
-	private double twoD = 0.62711e-9;
+	/** Crystal d spacing [Angstrom] */
+	private double d = 6.2711 / 2;
 
 	/** Motor acceleration [deg/s/s] - from DCM acceleration readback value (BL18B-OP-DCM-01:BRAGG:MPACCEL:RBV) */
 	private static final double ACCELERATION = 0.225;
 
 	private static final double TOLERANCE = 1e-6;
 
+	/**
+	 * Energy equivalent (1eV)/(h c) [m^-1] from NIST CODATA 2018
+	 */
+	private static final double CODATA_FACTOR = 8.065543937e5;
 
 	class ZebraQexafsScannableForTest extends ZebraQexafsScannable {
 
@@ -50,19 +55,36 @@ public class ZebraQexafsTest {
 			setOutputFormat(new String[] {"%.2f"});
 		}
 
-		@Override
-		protected void resetDCMSpeed() {
+		double initialPosition;
+
+		/**
+		 * The initial position of motor at start of scan in
+		 * @return motor position (eV)
+		 */
+		public double getInitialPosition() {
+			return initialPosition;
 		}
+
+		@Override
+		protected void checkDeadbandAndMove(double pos) {
+			initialPosition = pos;
+		}
+
+		@Override
+		protected void resetDCMSpeed() throws MotorException {
+		}
+
 		@Override
 		protected void setEnergySwitchOn() {
 		}
+
 		@Override
 		protected void toggleEnergyControl() {
 		}
 
 		@Override
-		protected double getTwoD() {
-			return twoD;
+		protected double getD() {
+			return d;
 		}
 
 		@Override
@@ -101,7 +123,7 @@ public class ZebraQexafsTest {
 	}
 
 	@Before
-	public void setup() {
+	public void setup() throws MotorException {
 		scn = new ZebraQexafsScannableForTest();
 		scn.setZebraDevice(new ZebraDummy());
 		scn.setMotor(new DummyMotor());
@@ -133,8 +155,8 @@ public class ZebraQexafsTest {
 	 */
 	private void checkZebraParameters(ContinuousParameters params) throws Exception {
 		// Start, end, step size angles for zebra are in degrees
-		double start = Math.toDegrees(getAngleFromEnergy(params.getStartPosition()));
-		double end = Math.toDegrees(getAngleFromEnergy(params.getEndPosition()));
+		double start = getAngleFromEnergy(params.getStartPosition());
+		double end = getAngleFromEnergy(params.getEndPosition());
 		double step = Math.abs(end - start)/params.getNumberDataPoints();
 
 		assertEquals(start, scn.getZebraDevice().getPCGateStart(), TOLERANCE);
@@ -145,9 +167,10 @@ public class ZebraQexafsTest {
 	/**
 	 * Test that the angle conversions, motor speed, position calculations done
 	 * by {@link QexafsScannable#calculateMotionInDegrees()} are correct.
+	 * @throws DeviceException
 	 * @throws Exception
 	 */
-	private void checkMotionParameters(ContinuousParameters params) {
+	private void checkMotionParameters(ContinuousParameters params) throws DeviceException {
 
 		double start = getAngleFromEnergy(params.getStartPosition());
 		double end = getAngleFromEnergy(params.getEndPosition());
@@ -157,50 +180,38 @@ public class ZebraQexafsTest {
 		assertEquals((start - end) / params.getNumberDataPoints(), scn.getStepSize(), TOLERANCE);
 
 		// Scan angular speed (degrees per second)
-		double speedDegrees = Math.toDegrees((end - start) / params.getTotalTime());
+		double speedDegrees = (start - end) / params.getTotalTime();
 		assertEquals(Math.abs(speedDegrees), scn.getDesiredSpeed(), TOLERANCE);
 
 		// Run up/down angle distance (degrees)
-		double runUpDegress = scn.getRunUpScaleFactor() * (speedDegrees * speedDegrees) / (2 * ACCELERATION);
+		double runUpDegrees = scn.getRunUpScaleFactor() * (speedDegrees * speedDegrees) / (2 * ACCELERATION);
 
-		// Runup angle distance (radians)
-		double runupRadians = Math.toRadians(runUpDegress);
-
-		// Start, end angles including runup, rundown (radians)
-		double startPosWithRunup = start + runupRadians;
-		double endPosWithRundown = end - runupRadians;
+		// Start, end angles including runup, rundown (degrees)
+		double startPosWithRunup = start + runUpDegrees;
+		double endPosWithRundown = end - runUpDegrees;
 
 		assertEquals(Math.abs(startPosWithRunup), scn.getRunupPosition(), TOLERANCE);
 		assertEquals(Math.abs(endPosWithRundown), scn.getRundownPosition(), TOLERANCE);
 	}
 
 	/**
-	 * Convert from energy [eV] to bragg angle [radians]
+	 * Convert from bragg angle [degrees] to energy [eV]
+	 * @param angle
+	 * @return
+	 */
+	private double getEnergyFromAngle(double angle) {
+		double wavelengthAngstroms = 2 * d * Math.sin(Math.toRadians(angle));
+		return 1.0 / (CODATA_FACTOR * wavelengthAngstroms * 1e-10);
+	}
+
+	/**
+	 * Convert from energy [eV] to bragg angle [degrees]
 	 * @param energyEv
 	 * @return
 	 */
 	private double getAngleFromEnergy(double energyEv) {
-		double wave = getWavelengthFromEnergy(energyEv);
-		return getAngleFromWavelength(wave);
+		double wavelengthAngstroms = 1e10 / (CODATA_FACTOR * energyEv);
+		return Math.toDegrees(Math.asin(wavelengthAngstroms / (2 * d)));
 	}
 
-	/**
-	 * Convert from energy [eV] to wavelength [metres]
-	 * @param energy [eV]
-	 * @return
-	 */
-	private double getWavelengthFromEnergy(double energyEv) {
-		DiffractionCrystalEnvironment de = new DiffractionCrystalEnvironment();
-		de.setWavelengthFromEnergykeV(energyEv*0.001);
-		return de.getWavelength()*1e-10;
-	}
-
-	/**
-	 * Convert from wavelength [metres] to angle [radians] using bragg equation
-	 * @param wavelength
-	 * @return
-	 */
-	private double getAngleFromWavelength(double wavelengthM) {
-		return Math.asin(wavelengthM/twoD);
-	}
 }

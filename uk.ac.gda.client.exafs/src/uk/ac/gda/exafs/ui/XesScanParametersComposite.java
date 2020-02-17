@@ -67,8 +67,8 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
 import gda.exafs.xes.XesUtils;
-import gda.exafs.xes.XesUtils.XesMaterial;
 import gda.factory.Finder;
+import gda.util.CrystalParameters.CrystalMaterial;
 import gda.util.exafs.Element;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
@@ -665,7 +665,7 @@ public final class XesScanParametersComposite extends Composite {
 	}
 
 	private void updateProperties() throws DeviceException {
-		XesMaterial material = "Si".equals(getAnalyserTypeValue()) ? XesMaterial.SILICON : XesMaterial.GERMANIUM;
+		CrystalMaterial material = "Si".equals(getAnalyserTypeValue()) ? CrystalMaterial.SILICON : CrystalMaterial.GERMANIUM;
 		double minXESEnergy= XesUtils.getFluoEnergy(XesUtils.MAX_THETA, material, getAnalyserCutValues());
 		double maxXESEnergy= XesUtils.getFluoEnergy(XesUtils.MIN_THETA, material, getAnalyserCutValues());
 		xesInitialEnergy.setMinimum(minXESEnergy);
@@ -688,7 +688,7 @@ public final class XesScanParametersComposite extends Composite {
 	}
 
 	private double updateXesTheta(ScaleBoxAndFixedExpression energyBox) throws DeviceException {
-		XesMaterial material = "Si".equals(getAnalyserTypeValue()) ? XesMaterial.SILICON : XesMaterial.GERMANIUM;
+		CrystalMaterial material = "Si".equals(getAnalyserTypeValue()) ? CrystalMaterial.SILICON : CrystalMaterial.GERMANIUM;
 		double energy = energyBox.getNumericValue();
 		double theta = XesUtils.getBragg(energy, material, getAnalyserCutValues());
 		energyBox.setFixedExpressionValue(theta);

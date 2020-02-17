@@ -18,26 +18,12 @@
 
 package gda.exafs.xes;
 
+import gda.util.CrystalParameters.CrystalMaterial;
+
 /**
  * Utility methods for the I20 XES spectrometer
  */
 public class XesUtils {
-
-	public enum XesMaterial {
-
-		// the lattice parameters
-		SILICON(5.431), GERMANIUM(5.658);
-
-		private final double a;
-
-		XesMaterial(double a) {
-			this.a = a;
-		}
-
-		public double getA() {
-			return a;
-		}
-	}
 
 	public static final double MIN_THETA = 60;
 	public static final double MAX_THETA = 86;
@@ -51,7 +37,7 @@ public class XesUtils {
 	 *            - int[] {1..3, 1..3, 1..3}
 	 * @return energy in eV
 	 */
-	public static double getFluoEnergy(final double theta, final XesMaterial material, final int[] crystallCut) {
+	public static double getFluoEnergy(final double theta, final CrystalMaterial material, final int[] crystallCut) {
 
 		final double sum = Math.pow(crystallCut[0], 2d) + Math.pow(crystallCut[1], 2d) + Math.pow(crystallCut[2], 2d);
 		final double root = 6.1993 * Math.pow(sum, 0.5);
@@ -69,7 +55,7 @@ public class XesUtils {
 	 *            - int[] {1..3, 1..3, 1..3}
 	 * @return theta - degrees
 	 */
-	public static double getBragg(final double requiredFluoEnergy, final XesMaterial material, final int[] crystallCut) {
+	public static double getBragg(final double requiredFluoEnergy, final CrystalMaterial material, final int[] crystallCut) {
 
 		final double sum = Math.pow(crystallCut[0], 2d) + Math.pow(crystallCut[1], 2) + Math.pow(crystallCut[2], 2d);
 		final double root = 6.1993 * Math.pow(sum, 0.5d);
@@ -207,14 +193,14 @@ public class XesUtils {
 	public static void main(String[] args) {
 
 		System.out.println("Theta 82 degress, Si-(1,1,1) ENERGY = "
-				+ XesUtils.getFluoEnergy(82, XesMaterial.SILICON, new int[] { 1, 1, 1 }) + " eV");
+				+ XesUtils.getFluoEnergy(82, CrystalMaterial.SILICON, new int[] { 1, 1, 1 }) + " eV");
 		System.out.println("Energy 1996.5eV, Si-(1,1,1) THETA = "
-				+ XesUtils.getBragg(1996.5, XesMaterial.SILICON, new int[] { 1, 1, 1 }));
+				+ XesUtils.getBragg(1996.5, CrystalMaterial.SILICON, new int[] { 1, 1, 1 }));
 		System.out.println("***");
 		System.out.println("Theta 82 degress, Si-(1,1,2) ENERGY = "
-				+ XesUtils.getFluoEnergy(82, XesMaterial.SILICON, new int[] { 1, 1, 2 }) + " eV");
+				+ XesUtils.getFluoEnergy(82, CrystalMaterial.SILICON, new int[] { 1, 1, 2 }) + " eV");
 		System.out.println("Energy 2823.5eV, Si-(1,1,2) THETA = "
-				+ XesUtils.getBragg(2823.5, XesMaterial.SILICON, new int[] { 1, 1, 2 }));
+				+ XesUtils.getBragg(2823.5, CrystalMaterial.SILICON, new int[] { 1, 1, 2 }));
 		System.out.println("***");
 		System.out.println("R 1000mm, Theta 82 L = " + XesUtils.getL(1000, 82));
 		System.out.println("R 1000mm, Theta 82 dx = " + XesUtils.getDx(1000, 82));

@@ -130,9 +130,9 @@ public class ZebraQexafsScannable extends QexafsScannable {
 
 			// variable settings
 			logger.debug("Time before variable zebra settings");
-			double startDeg = Math.toDegrees(startAngle);
-			double stopDeg = Math.toDegrees(endAngle);
-			double stepDeg = Math.abs(Math.toDegrees(stepSize));
+			double startDeg = startAngle;
+			double stopDeg = endAngle;
+			double stepDeg = Math.abs(stepSize);
 			double width = Math.abs(stopDeg - startDeg);
 
 			int positionDir = stopDeg > startDeg ? Zebra.PC_DIR_POSITIVE : Zebra.PC_DIR_NEGATIVE;
@@ -188,10 +188,10 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			double stepSize_counts = pvFactory.getPVDouble(PCPulseStepCountsRBV).get();
 			double width_counts = pvFactory.getPVDouble(PCGateWidthCountsRBV).get();
 
-			Double readbackNumberOfCounts_floored = Math.floor(width_counts / stepSize_counts);
-			Double readbackNumberOfCounts = width_counts / stepSize_counts;
+			double readbackNumberOfCounts_floored = Math.floor(width_counts / stepSize_counts);
+			double readbackNumberOfCounts = width_counts / stepSize_counts;
 
-			if (readbackNumberOfCounts.equals(readbackNumberOfCounts_floored)) {
+			if (readbackNumberOfCounts == readbackNumberOfCounts_floored) {
 				int expectedCounts = (int) Math.round(readbackNumberOfCounts_floored) -1;
 				logger.debug("Expecting " + expectedCounts + " points from Zebra.");
 				return expectedCounts;
