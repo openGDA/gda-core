@@ -19,6 +19,8 @@
 package uk.ac.diamond.daq.mapping.ui.experiment.saver;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -38,23 +40,11 @@ public class FileScanSaver extends ScanSaver {
 
 	public FileScanSaver(Consumer<Optional<IMappingExperimentBean>> postLoad,
 			ScanManagementController smController) {
-		super(postLoad);
+		super(new ArrayList<SavedScanMetaData>(), postLoad);
 
 		this.scanFilesDir = PlatformUI.getWorkbench().getService(IFilePathService.class).getVisitConfigDir();
 		this.smController = smController;
-	}
-
-	@Override
-	public SavedScanMetaData[] listScans() {
-		SavedScanMetaData[] result = null;
-		String[] list = new File(scanFilesDir).list((dir, name) -> name.endsWith(".map"));
-		if (list != null) {
-			result = new SavedScanMetaData[list.length];
-			for (int i=0;i<list.length;i++) {
-				result[i] = new SavedScanMetaData(list[i]);
-			}
-		}
-		return result;
+		refreshScanList();
 	}
 
 	@Override
@@ -63,14 +53,15 @@ public class FileScanSaver extends ScanSaver {
 	}
 
 	@Override
-	public void save () {
-        InputDialog dlg = new InputDialog(Display.getCurrent().getActiveShell(),
-                "Save Scan Definition", "Please enter a name for the current Scan Definition", "", null);
-        if (dlg.open() == Window.OK) {
-        	String filename = smController.buildDescriptiveFilename(dlg.getValue());
-        	filename = scanFilesDir + "/" + filename;
-        	smController.saveScan(filename);
-        }
+	public void save() {
+		InputDialog dlg = new InputDialog(Display.getCurrent().getActiveShell(),
+				"Save Scan Definition", "Please enter a name for the current Scan Definition", "", null);
+		if (dlg.open() == Window.OK) {
+			String filename = smController.buildDescriptiveFilename(dlg.getValue());
+			filename = scanFilesDir + "/" + filename;
+			smController.saveScan(filename);
+			refreshScanList();
+		}
 	}
 
 	@Override
@@ -78,13 +69,24 @@ public class FileScanSaver extends ScanSaver {
 		String filename = createFilename(savedScanMetaData);
 		if (filename != null) {
 			smController.deleteScan(filename);
+			refreshScanList();
 		}
 	}
 
-	private String createFilename (SavedScanMetaData savedScanMetaData) {
+	private String createFilename(SavedScanMetaData savedScanMetaData) {
 		if (savedScanMetaData != null && savedScanMetaData.getName() != null) {
 			return scanFilesDir + "/" + savedScanMetaData.getName();
 		}
 		return null;
+	}
+
+	private void refreshScanList() {
+		String[] fileNames = new File(scanFilesDir).list((dir, name) -> name.endsWith(".map"));
+		if (fileNames != null) {
+			getObservableList().clear();
+			Arrays.stream(fileNames).forEach(filaName -> {
+				getObservableList().add(new SavedScanMetaData(filaName));
+			});
+		}
 	}
 }

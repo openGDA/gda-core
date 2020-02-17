@@ -18,28 +18,45 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment.saver;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+
+import org.eclipse.core.databinding.observable.list.IListChangeListener;
+import org.eclipse.core.databinding.observable.list.ObservableList;
+import org.eclipse.core.databinding.observable.list.WritableList;
 
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.ui.experiment.file.SavedScanMetaData;
 
+/**
+ * Contains basic functionalities for save, load, delete {@link SavedScanMetaData}
+ *
+ */
 public abstract class ScanSaver {
 	private Consumer<Optional<IMappingExperimentBean>> postLoad;
+	private final ObservableList<SavedScanMetaData> ol;
 
-	public ScanSaver(Consumer<Optional<IMappingExperimentBean>> postLoad) {
+	protected ScanSaver(List<SavedScanMetaData> savedScans, Consumer<Optional<IMappingExperimentBean>> postLoad) {
+		ol = new WritableList<>(savedScans, null);
 		this.postLoad = postLoad;
 	}
 
-	public abstract SavedScanMetaData[] listScans ();
+	public ObservableList<SavedScanMetaData> getObservableList() {
+		return ol;
+	}
 
-	protected abstract Optional<IMappingExperimentBean> loadBean (SavedScanMetaData savedScanMetaData);
+	public void addListChangeListener(IListChangeListener<SavedScanMetaData> l) {
+		ol.addListChangeListener(l);
+	}
 
-	public void load (SavedScanMetaData savedScanMetaData) {
+	protected abstract Optional<IMappingExperimentBean> loadBean(SavedScanMetaData savedScanMetaData);
+
+	public void load(SavedScanMetaData savedScanMetaData) {
 		postLoad.accept(loadBean(savedScanMetaData));
 	}
 
-	public abstract void save ();
+	public abstract void save();
 
-	public abstract void delete (SavedScanMetaData savedScanMetaData);
+	public abstract void delete(SavedScanMetaData savedScanMetaData);
 }

@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment.saver;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -52,7 +53,7 @@ public class PersistenceScanSaver extends ScanSaver {
 
 	public PersistenceScanSaver (Consumer<Optional<IMappingExperimentBean>> postLoad,
 			ScanManagementController smController) {
-		super(postLoad);
+		super(new ArrayList<SavedScanMetaData>(), postLoad);
 
 		this.smController = smController;
 	}
@@ -71,7 +72,6 @@ public class PersistenceScanSaver extends ScanSaver {
 		return persistenceServiceWrapper;
 	}
 
-	@Override
 	public SavedScanMetaData[] listScans () {
 		try {
 			SearchResult searchResult = getPersistenceServiceWrapper().get(PersistableMappingExperimentBean.class);

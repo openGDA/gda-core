@@ -41,7 +41,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.scanning.event,
  uk.ac.diamond.daq.persistence.manager,
  uk.ac.diamond.daq.client.gui.persistence,
- uk.ac.diamond.daq.persistence.manager
+ uk.ac.diamond.daq.persistence.manager,
+ uk.ac.gda.common.rcp
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: com.ibm.icu.text,
