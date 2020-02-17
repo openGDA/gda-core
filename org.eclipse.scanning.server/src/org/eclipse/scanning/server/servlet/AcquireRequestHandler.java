@@ -85,28 +85,31 @@ public class AcquireRequestHandler implements IRequestHandler<AcquireRequest> {
 	private IRunnableDevice<?> createRunnableDevice(AcquireRequest request) throws Exception {
 		// get the services we need
 		final IRunnableDeviceService deviceService = Services.getRunnableDeviceService();
-		final IPointGeneratorService pointGenService = Services.getGeneratorService();
-
-		final ScanModel scanModel = new ScanModel();
-
 		final IRunnableDevice<?> detector = deviceService.getRunnableDevice(bean.getDetectorName());
 		if (detector == null) {
 			throw new ScanningException("No such detector: " + bean.getDetectorName());
 		}
 
+		final ScanModel scanModel = createScanModel(request, detector);
+		configureDetector(detector, request.getDetectorModel(), scanModel, scanModel.getPointGenerator());
+
+		return deviceService.createRunnableDevice(scanModel, null);
+	}
+
+	private ScanModel createScanModel(AcquireRequest request, final IRunnableDevice<?> detector) throws Exception {
+		final IPointGeneratorService pointGenService = Services.getGeneratorService();
 		final IScanPathModel model = detector instanceof IMalcolmDevice ?
 				new CompoundModel(new StaticModel()) :new StaticModel();
 		final IPointGenerator<?> gen = model instanceof CompoundModel ?
 				pointGenService.createCompoundGenerator((CompoundModel) model) : pointGenService.createGenerator(model);
 
+		final ScanModel scanModel = new ScanModel();
 		scanModel.setPointGenerator(gen);
 		scanModel.setScanPathModel(model);
 		scanModel.setFilePath(getOutputFilePath(request));
 		scanModel.setDetectors(detector);
 		scanModel.setScannables(Collections.emptyList());
-
-		configureDetector(detector, request.getDetectorModel(), scanModel, gen);
-		return deviceService.createRunnableDevice(scanModel, null);
+		return scanModel;
 	}
 
 	private String getOutputFilePath(AcquireRequest request) throws Exception {
