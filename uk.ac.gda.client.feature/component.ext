@@ -10,5 +10,5 @@
   <requirement
       name="uk.ac.diamond.screenshot.gui.survey"/>
   <requirement
-      name="uk.ac.diamond.screenshot.feature"/>
+      name="uk.ac.diamond.screenshot.feature.feature.group"/>
 </targlets:ComponentExtension>
