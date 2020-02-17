@@ -34,7 +34,6 @@ public class GTSStage extends CommonStage {
 		addToDevicesMap(StageDevices.MOTOR_STAGE_Y, "tomography.main.motor.linear.y");
 		addToDevicesMap(StageDevices.MOTOR_STAGE_Z, "tomography.main.motor.linear.z");
 		addToDevicesMap(StageDevices.MOTOR_STAGE_ROT_Y, "tomography.main.motor.rot.y");
-		addToDevicesMap(StageDevices.MOTOR_CAMERA_Z, "tomography.main.motor.camera.z");
 		addToDevicesMap(StageDevices.MALCOLM_TOMO, "tomography.malcolm.device.tomo");
 	}
 
@@ -42,7 +41,6 @@ public class GTSStage extends CommonStage {
 	protected TabCompositeFactory[] getTabsFactories() {
 		TabCompositionBuilder builder = new TabCompositionBuilder();
 		builder.assemble(createMotorAxesComposite(), ClientMessages.STAGE);
-		builder.assemble(createCameraMotorsComposite(), ClientMessages.CAMERA);
 		return builder.build();
 	}
 
@@ -52,12 +50,6 @@ public class GTSStage extends CommonStage {
 		builder.assemble(StageDevices.MOTOR_STAGE_Y, ClientMessages.AXIS_Y);
 		builder.assemble(StageDevices.MOTOR_STAGE_Z, ClientMessages.AXIS_Z);
 		builder.assemble(StageDevices.MOTOR_STAGE_ROT_Y, ClientMessages.THETA);
-		return builder.build();
-	}
-
-	private StageCompositeDefinition[] createCameraMotorsComposite() {
-		StageCompositeDefinitionBuilder builder = new StageCompositeDefinitionBuilder();
-		builder.assemble(StageDevices.MOTOR_CAMERA_Z, ClientMessages.CAMERA);
 		return builder.build();
 	}
 }

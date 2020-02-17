@@ -32,7 +32,6 @@ public class TR6Stage extends CommonStage {
 	protected void populateDevicesMap() {
 		addToDevicesMap(StageDevices.MOTOR_STAGE_X, "tomography.tr6.motor.linear.y");
 		addToDevicesMap(StageDevices.MOTOR_STAGE_ROT_Y, "tomography.tr6.motor.rot.y");
-		addToDevicesMap(StageDevices.MOTOR_CAMERA_Z, "tomography.main.motor.camera.z");
 		addToDevicesMap(StageDevices.MALCOLM_TOMO, "tomography.malcolm.device.tomo");
 	}
 
@@ -40,7 +39,6 @@ public class TR6Stage extends CommonStage {
 	protected TabCompositeFactory[] getTabsFactories() {
 		TabCompositionBuilder builder = new TabCompositionBuilder();
 		builder.assemble(createMotorAxesComposite(), ClientMessages.STAGE);
-		builder.assemble(createCameraMotorsComposite(), ClientMessages.CAMERA);
 		return builder.build();
 	}
 
@@ -48,12 +46,6 @@ public class TR6Stage extends CommonStage {
 		StageCompositeDefinitionBuilder builder = new StageCompositeDefinitionBuilder();
 		builder.assemble(StageDevices.MOTOR_STAGE_Y, ClientMessages.AXIS_Y);
 		builder.assemble(StageDevices.MOTOR_STAGE_ROT_Y, ClientMessages.THETA);
-		return builder.build();
-	}
-
-	private StageCompositeDefinition[] createCameraMotorsComposite() {
-		StageCompositeDefinitionBuilder builder = new StageCompositeDefinitionBuilder();
-		builder.assemble(StageDevices.MOTOR_CAMERA_Z, ClientMessages.CAMERA);
 		return builder.build();
 	}
 }
