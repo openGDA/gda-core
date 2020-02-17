@@ -27,11 +27,13 @@ import java.net.URL;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import uk.ac.gda.ClientManager;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.preferences.PreferenceConstants;
 
+@Ignore("DAQ-2717 We are not running plugin tests on Jenkins")
 public class ExafsScanDataPlotPluginTest  implements ViewTestObject.AscciLineParser{
 
 	private ViewTestObject testObject;
