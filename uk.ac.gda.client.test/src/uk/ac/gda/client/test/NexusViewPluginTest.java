@@ -33,6 +33,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import uk.ac.diamond.scisoft.analysis.rcp.results.navigator.DataNavigator;
 import uk.ac.gda.ClientManager;
@@ -42,6 +43,7 @@ import uk.ac.gda.common.rcp.util.EclipseUtils;
 /**
  * NOTE For this UI test to work properly we need to ensure that LD_LIBRARY_PATH is set.
  */
+@Ignore("DAQ-2717 We are not running plugin tests on Jenkins")
 public class NexusViewPluginTest implements IScanDataPointProvider {
 
 

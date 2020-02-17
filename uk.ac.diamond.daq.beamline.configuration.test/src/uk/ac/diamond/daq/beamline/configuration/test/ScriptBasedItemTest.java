@@ -24,6 +24,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.python.core.Options;
 import org.python.util.PythonInterpreter;
 
 import gda.device.Scannable;
@@ -219,7 +220,7 @@ public class ScriptBasedItemTest {
 	 */
 	@BeforeClass
 	public static void setup() {
-
+		Options.importSite = false;
 		Jython jython = mock(Jython.class);
 		python = new PythonInterpreter();
 
