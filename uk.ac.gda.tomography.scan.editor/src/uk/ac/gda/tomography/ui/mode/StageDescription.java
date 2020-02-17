@@ -38,7 +38,7 @@ import uk.ac.gda.tomography.model.DevicePosition;
 public interface StageDescription {
 
 	enum StageDevices {
-		MOTOR_STAGE_X, MOTOR_STAGE_Y, MOTOR_STAGE_Z, MOTOR_STAGE_ROT_Y, MOTOR_CAMERA_Z, MALCOLM_TOMO;
+		MOTOR_STAGE_X, MOTOR_STAGE_Y, MOTOR_STAGE_Z, MOTOR_STAGE_ROT_Y, MALCOLM_TOMO;
 	}
 
 	enum Stage {
