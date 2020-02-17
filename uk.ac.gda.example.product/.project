@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>uk.ac.gda.example.product</name>
+	<comment></comment>
+	<projects>
+		<project>uk.ac.gda.example.feature</project>
+	</projects>
+	<buildSpec>
+	</buildSpec>
+	<natures>
+	</natures>
+</projectDescription>
