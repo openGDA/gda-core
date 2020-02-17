@@ -16,16 +16,14 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.ui;
+package uk.ac.gda.tomography.stage;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
 import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
-import uk.ac.gda.tomography.model.DevicePosition;
-import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController.Positions;
-import uk.ac.gda.tomography.ui.mode.StageDescription;
+import uk.ac.gda.tomography.stage.enumeration.Position;
 
 /**
  * Represents both the acquisition and the hutch configuration
@@ -35,16 +33,16 @@ import uk.ac.gda.tomography.ui.mode.StageDescription;
 public class StageConfiguration {
 	private TomographyParameterAcquisition acquisition;
 	private StageDescription stageDescription;
-	private Map<Positions, Set<DevicePosition<Double>>> motorsPositions;
+	private Map<Position, Set<DevicePosition<Double>>> motorsPositions;
 
-	public StageConfiguration(TomographyParameterAcquisition acquisition, StageDescription mode, Map<Positions, Set<DevicePosition<Double>>> motorsPositions) {
+	public StageConfiguration(TomographyParameterAcquisition acquisition, StageDescription mode, Map<Position, Set<DevicePosition<Double>>> motorsPositions) {
 		super();
 		this.acquisition = acquisition;
 		this.stageDescription = mode;
 		this.motorsPositions = motorsPositions;
 	}
 
-	public StageConfiguration(StageDescription mode, Map<Positions, Set<DevicePosition<Double>>> motorsPositions) {
+	public StageConfiguration(StageDescription mode, Map<Position, Set<DevicePosition<Double>>> motorsPositions) {
 		super();
 		this.stageDescription = mode;
 		this.motorsPositions = motorsPositions;
@@ -62,7 +60,7 @@ public class StageConfiguration {
 		return stageDescription;
 	}
 
-	public Map<Positions, Set<DevicePosition<Double>>> getMotorsPositions() {
+	public Map<Position, Set<DevicePosition<Double>>> getMotorsPositions() {
 		return Collections.unmodifiableMap(motorsPositions);
 	}
 }

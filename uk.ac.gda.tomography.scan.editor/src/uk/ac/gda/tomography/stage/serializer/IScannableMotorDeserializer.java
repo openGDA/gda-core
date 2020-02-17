@@ -16,10 +16,9 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.base.serializer;
+package uk.ac.gda.tomography.stage.serializer;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -54,17 +53,6 @@ public class IScannableMotorDeserializer extends StdDeserializer<IScannableMotor
 	}
 
 	private IScannableMotor validateMotor(String scannableMotorName, JsonNode node) {
-		Optional<IScannableMotor> motorInstance = Finder.getInstance().findOptional(scannableMotorName);
-		if (motorInstance.isPresent() ) {
-			return motorInstance.get();
-		}
-//		if (scannableMotor.isPresent() && EpicsMotor.class.isInstance(scannableMotor.get().getMotor())) {
-//			EpicsMotor epicsMotor = EpicsMotor.class.cast(scannableMotor.get().getMotor());
-//			if (!node.get("pvName").asText().equals(epicsMotor.getPvName())) {
-//				return null;
-//			}
-//			return scannableMotor.get();
-//		}
-		return null;
+		return Finder.getInstance().find(scannableMotorName);
 	}
 }

@@ -16,27 +16,30 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.controller;
+package uk.ac.gda.tomography.stage;
 
-public class TomoIncompleteModeException extends AcquisitionControllerException {
+/**
+ * A general exception for a stage element
+ */
+public class StageException extends Exception {
 
-	public TomoIncompleteModeException() {
+	public StageException() {
 		super();
 	}
 
-	public TomoIncompleteModeException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+	public StageException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
-	public TomoIncompleteModeException(String message, Throwable cause) {
+	public StageException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public TomoIncompleteModeException(String message) {
+	public StageException(String message) {
 		super(message);
 	}
 
-	public TomoIncompleteModeException(Throwable cause) {
+	public StageException(Throwable cause) {
 		super(cause);
 	}
 

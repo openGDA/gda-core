@@ -3,13 +3,11 @@ package uk.ac.gda.tomography.ui.controller;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.EnumMap;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Controller;
@@ -29,7 +27,6 @@ import uk.ac.gda.tomography.controller.AcquisitionController;
 import uk.ac.gda.tomography.controller.AcquisitionControllerException;
 import uk.ac.gda.tomography.event.TomographyRunAcquisitionEvent;
 import uk.ac.gda.tomography.event.TomographySaveEvent;
-import uk.ac.gda.tomography.model.DevicePosition;
 import uk.ac.gda.tomography.model.EndAngle;
 import uk.ac.gda.tomography.model.ImageCalibration;
 import uk.ac.gda.tomography.model.MultipleScans;
@@ -43,8 +40,10 @@ import uk.ac.gda.tomography.service.TomographyService;
 import uk.ac.gda.tomography.service.TomographyServiceException;
 import uk.ac.gda.tomography.service.impl.TomographyServiceImpl;
 import uk.ac.gda.tomography.service.message.TomographyRunMessage;
-import uk.ac.gda.tomography.ui.StageConfiguration;
-import uk.ac.gda.tomography.ui.mode.StageDescription;
+import uk.ac.gda.tomography.stage.IStageController;
+import uk.ac.gda.tomography.stage.StageConfiguration;
+import uk.ac.gda.tomography.stage.enumeration.Metadata;
+import uk.ac.gda.tomography.stage.enumeration.Position;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
@@ -60,17 +59,9 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 public class TomographyParametersAcquisitionController implements AcquisitionController<TomographyParameterAcquisition>, ApplicationListener<ApplicationEvent> {
 	private static final Logger logger = LoggerFactory.getLogger(TomographyParametersAcquisitionController.class);
 
-	public enum Positions {
-		DEFAULT, OUT_OF_BEAM, START, END;
-	}
-
-	public enum METADATA {
-		EXPOSURE;
-	}
-
-	private StageDescription stageDescription;
+	@Autowired
+	private IStageController stageController;
 	private TomographyParameterAcquisition acquisition;
-	private final Map<Positions, Set<DevicePosition<Double>>> motorsPosition = new EnumMap<>(Positions.class);
 
 	private TomographyFileService fileService;
 
@@ -127,10 +118,6 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		publishSave(getAcquisitionParameters().getName(), acquisitionDocument, getAcquisitionScript().getAbsolutePath());
 	}
 
-	private void populateMetadata() {
-		getStageDescription().getMetadata().put(METADATA.EXPOSURE.name(), Double.toString(0.1));
-	}
-
 	/**
 	 * Verifies if a {@link Positions#OUT_OF_BEAM} is present, if the user wants to acquire flat images.
 	 *
@@ -141,7 +128,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	private boolean requiresOutOfBeamPosition(StageConfiguration sc) {
 		ImageCalibration ic = sc.getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters().getImageCalibration();
 		return ((ic.getNumberFlat() > 0 && (ic.isAfterAcquisition() || ic.isBeforeAcquisition()))
-				&& !sc.getMotorsPositions().containsKey(Positions.OUT_OF_BEAM));
+				&& !sc.getMotorsPositions().containsKey(Position.OUT_OF_BEAM));
 	}
 
 	// @Override
@@ -170,19 +157,6 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		return acquisition;
 	}
 
-	public StageDescription getStageDescription() {
-		return stageDescription;
-	}
-
-	public void setStageDescription(StageDescription stageDescription) {
-		this.stageDescription = stageDescription;
-	}
-
-	public Set<DevicePosition<Double>> savePosition(Positions position) {
-		motorsPosition.put(position, getStageDescription().getMotorsPosition());
-		return motorsPosition.get(position);
-	}
-
 	public TomographyParameters getAcquisitionParameters() {
 		return getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
 	}
@@ -190,12 +164,12 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	private StageConfiguration generateStageConfiguration(TomographyParameterAcquisition acquisition) throws AcquisitionControllerException {
 		try {
 			TomographyParametersAcquisitionControllerHelper.updateExposure(this);
+			stageController.getMetadata().put(Metadata.EXPOSURE.name(), Double.toString(TomographyParametersAcquisitionControllerHelper.getExposure()));
 		} catch (DeviceException e) {
 			throw new AcquisitionControllerException("Acquisition cannot acquire the active camera exposure time");
 		}
-		populateMetadata();
-		savePosition(Positions.START);
-		StageConfiguration sc = new StageConfiguration(acquisition, getStageDescription(), getMotorsPositions());
+		stageController.savePosition(Position.START);
+		StageConfiguration sc = new StageConfiguration(acquisition, stageController.getStageDescription(), stageController.getMotorsPositions());
 		if (requiresOutOfBeamPosition(sc)) {
 			throw new AcquisitionControllerException("Acquisition needs a OutOfBeam position to acquire flat images");
 		}
@@ -216,10 +190,6 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		} catch (JsonProcessingException e) {
 			throw new AcquisitionControllerException("Cannot parse json document", e);
 		}
-	}
-
-	private Map<Positions, Set<DevicePosition<Double>>> getMotorsPositions() {
-		return motorsPosition;
 	}
 
 	protected StageConfiguration parseJsonData(String jsonData) throws AcquisitionControllerException {

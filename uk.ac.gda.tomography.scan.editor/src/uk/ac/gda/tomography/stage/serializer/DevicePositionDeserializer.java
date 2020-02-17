@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.base.serializer;
+package uk.ac.gda.tomography.stage.serializer;
 
 import java.io.IOException;
 
@@ -26,7 +26,8 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
-import uk.ac.gda.tomography.model.DevicePosition;
+import uk.ac.gda.tomography.stage.DevicePosition;
+import uk.ac.gda.tomography.stage.enumeration.StageDevice;
 
 /**
  * Deserialises a {@link DevicePosition}
@@ -48,6 +49,6 @@ public class DevicePositionDeserializer extends StdDeserializer<DevicePosition<?
 		JsonNode node = jp.getCodec().readTree(jp);
         String name = node.get("name").asText();
         Double value = node.get("value").asDouble();
-        return new DevicePosition<Number>(name, value);
+        return new DevicePosition<Number>(StageDevice.valueOf(name), value);
 	}
 }

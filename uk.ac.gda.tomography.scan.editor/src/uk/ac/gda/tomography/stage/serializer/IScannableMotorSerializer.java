@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.base.serializer;
+package uk.ac.gda.tomography.stage.serializer;
 
 import java.io.IOException;
 
@@ -29,6 +29,12 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import gda.device.IScannableMotor;
+
+/**
+ * Serialises an {@link IScannableMotor}
+ *
+ * @author Maurizio Nagni
+ */
 
 public class IScannableMotorSerializer extends StdSerializer<IScannableMotor> {
 

@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.base.serializer;
+package uk.ac.gda.tomography.stage.serializer;
 
 import java.io.IOException;
 import java.util.Set;
@@ -27,7 +27,13 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import gda.device.Device;
+import uk.ac.gda.tomography.stage.DevicePosition;
 
+/**
+ * Serialises a {@link Set} of {@link DevicePosition}
+ *
+ * @author Maurizio Nagni
+ */
 public class DevicesCollectionSerializer extends StdSerializer<Set<Device>> {
 
 	public DevicesCollectionSerializer() {

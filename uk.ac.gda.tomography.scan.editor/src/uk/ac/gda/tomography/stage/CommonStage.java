@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.ui.mode;
+package uk.ac.gda.tomography.stage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,20 +47,24 @@ import gda.rcp.views.TabFolderBuilder;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.FinderHelper;
 import uk.ac.gda.client.exception.IncompleteModeException;
-import uk.ac.gda.tomography.controller.TomoIncompleteModeException;
-import uk.ac.gda.tomography.model.DevicePosition;
+import uk.ac.gda.tomography.stage.enumeration.Stage;
+import uk.ac.gda.tomography.stage.enumeration.StageDevice;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 
+/**
+ * Implements common methods for a {@link StageDescription}
+ *
+ * @author Maurizio Nagni
+ */
 public abstract class CommonStage implements StageDescription {
 
 	private Composite stageControls;
 	private Stage stage;
 
-	// this works for any number of elements:
-	private final Map<StageDevices, String> devicesMap = new EnumMap<>(StageDevices.class);
-	private final Map<StageDevices, IScannableMotor> motors = new EnumMap<>(StageDevices.class);
+	private final Map<StageDevice, String> devicesMap = new EnumMap<>(StageDevice.class);
+	private final Map<StageDevice, IScannableMotor> motors = new EnumMap<>(StageDevice.class);
 	private final Map<String, String> metadata = new HashMap<>();
 
 	protected static final Logger logger = LoggerFactory.getLogger(CommonStage.class);
@@ -71,7 +75,7 @@ public abstract class CommonStage implements StageDescription {
 	}
 
 	@Override
-	public Map<StageDevices, IScannableMotor> getMotors() {
+	public Map<StageDevice, IScannableMotor> getMotors() {
 		if (motors.isEmpty()) {
 			loadDevices();
 		}
@@ -94,14 +98,14 @@ public abstract class CommonStage implements StageDescription {
 	@Override
 	public Set<DevicePosition<Double>> getMotorsPosition() {
 		Set<DevicePosition<Double>> positions = new HashSet<>();
-		Map<StageDevices, IScannableMotor> intMotors = getMotors();
+		Map<StageDevice, IScannableMotor> intMotors = getMotors();
 		if (intMotors == null) {
 			return Collections.unmodifiableSet(positions);
 		}
-		for (Entry<StageDevices, IScannableMotor> entry : intMotors.entrySet()) {
+		for (Entry<StageDevice, IScannableMotor> entry : intMotors.entrySet()) {
 			try {
 				Double position = (Double) entry.getValue().getPosition();
-				positions.add(new DevicePosition<>(entry.getKey().name(), position));
+				positions.add(new DevicePosition<>(entry.getKey(), position));
 			} catch (DeviceException e) {
 				logger.error("TODO put description of error here", e);
 			}
@@ -109,7 +113,7 @@ public abstract class CommonStage implements StageDescription {
 		return Collections.unmodifiableSet(positions);
 	}
 
-	public Map<StageDevices, String> getDevicesMap() {
+	public Map<StageDevice, String> getDevicesMap() {
 		if (devicesMap.isEmpty()) {
 			populateDevicesMap();
 		}
@@ -120,12 +124,12 @@ public abstract class CommonStage implements StageDescription {
 		return getStageControls(parent);
 	}
 
-	void addToDevicesMap(StageDevices device, String propertyName) {
+	void addToDevicesMap(StageDevice device, String propertyName) {
 		devicesMap.put(device, propertyName);
 	}
 
 	private void loadDevices() {
-		for (Entry<StageDevices, String> entry : getDevicesMap().entrySet()) {
+		for (Entry<StageDevice, String> entry : getDevicesMap().entrySet()) {
 			if (entry.getKey().name().startsWith("MOTOR")) {
 				loadMotor(entry);
 			}
@@ -135,7 +139,7 @@ public abstract class CommonStage implements StageDescription {
 		}
 	}
 
-	private void loadMotor(Entry<StageDevices, String> entry) {
+	private void loadMotor(Entry<StageDevice, String> entry) {
 		try {
 			FinderHelper.getIScannableMotor(getBeanId(entry)).ifPresent(c -> motors.put(entry.getKey(), c));
 		} catch (IncompleteModeException e) {
@@ -145,7 +149,7 @@ public abstract class CommonStage implements StageDescription {
 		}
 	}
 
-	private void loadMalcolm(Entry<StageDevices, String> entry) {
+	private void loadMalcolm(Entry<StageDevice, String> entry) {
 		try {
 			metadata.put(entry.getKey().name(), getBeanId(entry));
 		} catch (IncompleteModeException e) {
@@ -153,7 +157,7 @@ public abstract class CommonStage implements StageDescription {
 		}
 	}
 
-	private String getBeanId(Entry<StageDevices, String> entry) throws IncompleteModeException {
+	private String getBeanId(Entry<StageDevice, String> entry) throws IncompleteModeException {
 		return Optional.ofNullable(LocalProperties.get(entry.getValue())).orElseThrow(IncompleteModeException::new);
 	}
 
@@ -179,11 +183,11 @@ public abstract class CommonStage implements StageDescription {
 		return group;
 	}
 
-	protected StageCompositeDefinition createMotorElement(StageDevices device, ClientMessages label) throws TomoIncompleteModeException {
+	protected StageCompositeDefinition createMotorElement(StageDevice device, ClientMessages label) throws StageException {
 		StageCompositeDefinition scd = new StageCompositeDefinition();
 		scd.setScannable(getMotors().get(device));
 		if (Objects.isNull(scd.getScannable())) {
-			throw new TomoIncompleteModeException(String.format("Device %s not found", device));
+			throw new StageException(String.format("Device %s not found", device));
 		}
 		scd.setStepSize(1);
 		scd.setDecimalPlaces(0);
@@ -215,11 +219,11 @@ public abstract class CommonStage implements StageDescription {
 	protected class StageCompositeDefinitionBuilder {
 		private List<StageCompositeDefinition> composite = new ArrayList<>();
 
-		public StageCompositeDefinitionBuilder assemble(StageDevices device, ClientMessages label) {
+		public StageCompositeDefinitionBuilder assemble(StageDevice device, ClientMessages label) {
 			StageCompositeDefinition scd;
 			try {
 				scd = createMotorElement(device, label);
-			} catch (TomoIncompleteModeException e) {
+			} catch (StageException e) {
 				return this;
 			}
 			if (Objects.nonNull(scd)) {
@@ -233,7 +237,17 @@ public abstract class CommonStage implements StageDescription {
 		}
 	}
 
+	/**
+	 * Using {@link #addToDevicesMap} defines the devices in the stage
+	 */
 	protected abstract void populateDevicesMap();
 
+	/**
+	 * Defines an array of factories each of which creates a tab describing a set of stage features. Usually a single tab is enough to contains all the stage
+	 * motors, but additional tabs may be created to describe further consistent, stage specific, sets of properties as temperature control or features as time
+	 * controller operations.
+	 *
+	 * @return
+	 */
 	protected abstract TabCompositeFactory[] getTabsFactories();
 }

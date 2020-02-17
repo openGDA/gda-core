@@ -8,6 +8,8 @@ import gda.device.DeviceException;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.ExposureChangeEvent;
+import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
+import uk.ac.gda.tomography.controller.AcquisitionController;
 
 /**
  * Handles {@link TomographyParametersAcquisitionController} events
@@ -22,7 +24,7 @@ class TomographyParametersAcquisitionControllerHelper {
 	private TomographyParametersAcquisitionControllerHelper() {
 	}
 
-	public static void onApplicationEvent(ApplicationEvent event, TomographyParametersAcquisitionController controller) {
+	public static void onApplicationEvent(ApplicationEvent event, AcquisitionController<TomographyParameterAcquisition> controller) {
 		if (ExposureChangeEvent.class.isInstance(event)) {
 			onApplicationEvent(ExposureChangeEvent.class.cast(event), controller);
 		} else if (ChangeActiveCameraEvent.class.isInstance(event)) {
@@ -30,27 +32,38 @@ class TomographyParametersAcquisitionControllerHelper {
 		}
 	}
 
-	private static void onApplicationEvent(ExposureChangeEvent event, TomographyParametersAcquisitionController controller) {
+	private static void onApplicationEvent(ExposureChangeEvent event, AcquisitionController<TomographyParameterAcquisition> controller) {
 		setAcquisitionExposure(event.getExposureTime(), controller);
 	}
 
-	private static void onApplicationEvent(ChangeActiveCameraEvent event, TomographyParametersAcquisitionController controller) {
+	private static void onApplicationEvent(ChangeActiveCameraEvent event, AcquisitionController<TomographyParameterAcquisition> controller) {
 		activeCamera = event.getActiveCamera().getIndex();
 	}
 
 	/**
 	 * Updates the acquisition exposure contacting the active camera
-	 * @param controller the controller that wants to be update its internal acquisition configuration
+	 *
+	 * @param controller
+	 *            the controller that wants to be update its internal acquisition configuration
 	 * @throws DeviceException
 	 */
-	public static void updateExposure(TomographyParametersAcquisitionController controller) throws DeviceException {
-		if (CameraHelper.getCameraControlInstance(activeCamera).isPresent()) {
-			setAcquisitionExposure(CameraHelper.getCameraControlInstance(activeCamera).get().getExposure(), controller);
-		}
-
+	public static void updateExposure(AcquisitionController<TomographyParameterAcquisition> controller) throws DeviceException {
+		setAcquisitionExposure(getExposure(), controller);
 	}
 
-	private static void setAcquisitionExposure(double exposure, TomographyParametersAcquisitionController controller) {
+	/**
+	 * Returns the acquisition exposure contacting the active camera
+	 *
+	 * @throws DeviceException
+	 */
+	public static double getExposure() throws DeviceException {
+		if (CameraHelper.getCameraControlInstance(activeCamera).isPresent()) {
+			return CameraHelper.getCameraControlInstance(activeCamera).get().getExposure();
+		}
+		throw new DeviceException("No exposure available");
+	}
+
+	private static void setAcquisitionExposure(double exposure, AcquisitionController<TomographyParameterAcquisition> controller) {
 		controller.getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters().getProjections().setAcquisitionExposure(exposure);
 	}
 }

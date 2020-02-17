@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.ui.mode;
+package uk.ac.gda.tomography.stage;
 
 import java.util.Map;
 import java.util.Set;
@@ -29,30 +29,44 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import gda.device.IScannableMotor;
-import uk.ac.gda.tomography.base.serializer.IScannableMotorDeserializer;
-import uk.ac.gda.tomography.base.serializer.IScannableMotorSerializer;
-import uk.ac.gda.tomography.model.DevicePosition;
+import uk.ac.gda.tomography.stage.enumeration.Stage;
+import uk.ac.gda.tomography.stage.enumeration.StageDevice;
+import uk.ac.gda.tomography.stage.serializer.IScannableMotorDeserializer;
+import uk.ac.gda.tomography.stage.serializer.IScannableMotorSerializer;
 
+/**
+ * Describes a stage by its components.
+ *
+ * @author Maurizio Nagni
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "stage")
 @JsonSubTypes({ @Type(value = GTSStage.class, name = "GTS"), @Type(value = TR6Stage.class, name = "TR6") })
 public interface StageDescription {
 
-	enum StageDevices {
-		MOTOR_STAGE_X, MOTOR_STAGE_Y, MOTOR_STAGE_Z, MOTOR_STAGE_ROT_Y, MALCOLM_TOMO;
-	}
-
-	enum Stage {
-		GTS, TR6
-	}
-
+	/**
+	 * A {@link Map} of the motors composing a stage
+	 * @return a map of devices and scannable motors
+	 */
 	@JsonSerialize(contentUsing = IScannableMotorSerializer.class)
 	@JsonDeserialize(contentUsing = IScannableMotorDeserializer.class)
-	public Map<StageDevices, IScannableMotor> getMotors();
+	public Map<StageDevice, IScannableMotor> getMotors();
 
+	/**
+	 * Returns the described {@link Stage}  type
+	 * @return the stage type
+	 */
 	public Stage getStage();
 
+	/**
+	 * Returns a {@link Set} of motors actual positions
+	 * @return the motors positions
+	 */
 	@JsonIgnore()
 	public Set<DevicePosition<Double>> getMotorsPosition();
 
+	/**
+	 * Any metadata associated with the stage. This definition may change in future.
+	 * @return
+	 */
 	public Map<String, String> getMetadata();
 }

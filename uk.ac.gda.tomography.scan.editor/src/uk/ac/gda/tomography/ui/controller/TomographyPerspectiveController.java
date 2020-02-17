@@ -21,6 +21,9 @@ package uk.ac.gda.tomography.ui.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
+import uk.ac.gda.tomography.controller.AcquisitionController;
+
 /**
  * Controls the tomography perspective delegating its subsections to other specialised controllers.
  *
@@ -30,9 +33,9 @@ import org.springframework.stereotype.Controller;
 public class TomographyPerspectiveController {
 
 	@Autowired
-	private TomographyParametersAcquisitionController tomographyAcquisitionController;
+	private AcquisitionController<TomographyParameterAcquisition> tomographyAcquisitionController;
 
-	public TomographyParametersAcquisitionController getTomographyAcquisitionController() {
+	public AcquisitionController<TomographyParameterAcquisition> getTomographyAcquisitionController() {
 		return tomographyAcquisitionController;
 	}
 }

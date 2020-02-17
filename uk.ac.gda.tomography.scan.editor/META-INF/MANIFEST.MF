@@ -9,9 +9,9 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: uk.ac.gda.tomography.scan.editor,
  uk.ac.gda.tomography.scan.editor.view,
  uk.ac.gda.tomography.scan.presentation,
- uk.ac.gda.tomography.ui,
- uk.ac.gda.tomography.ui.controller,
- uk.ac.gda.tomography.ui.mode
+ uk.ac.gda.tomography.stage,
+ uk.ac.gda.tomography.stage.enumeration,
+ uk.ac.gda.tomography.ui.controller
 Require-Bundle: uk.ac.gda.core;bundle-version="8.26.0",
  uk.ac.gda.client;bundle-version="1.0.0",
  org.eclipse.ui,
@@ -25,7 +25,8 @@ Require-Bundle: uk.ac.gda.core;bundle-version="8.26.0",
  org.eclipse.dawnsci.analysis.api,
  uk.ac.gda.common,
  uk.ac.gda.tomography,
- uk.ac.gda.api
+ uk.ac.gda.api,
+ com.fasterxml.jackson.core.jackson-databind
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-ActivationPolicy: lazy
 Import-Package: com.fasterxml.jackson.annotation;version="2.6.2",

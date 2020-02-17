@@ -23,7 +23,6 @@ import static uk.ac.gda.ui.tool.ClientVerifyListener.verifyOnlyIntegerText;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -42,34 +41,32 @@ import org.eclipse.swt.widgets.ExpandItem;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.rcp.views.CompositeFactory;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.ButtonGroupFactoryBuilder;
+import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
 import uk.ac.gda.tomography.base.TomographyParameters;
+import uk.ac.gda.tomography.controller.AcquisitionController;
 import uk.ac.gda.tomography.controller.AcquisitionControllerException;
-import uk.ac.gda.tomography.model.DevicePosition;
 import uk.ac.gda.tomography.model.MultipleScansType;
 import uk.ac.gda.tomography.model.RangeType;
 import uk.ac.gda.tomography.model.ScanType;
-import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
-import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController.Positions;
-import uk.ac.gda.tomography.ui.controller.TomographyPerspectiveController;
-import uk.ac.gda.tomography.ui.mode.StageDescription.StageDevices;
+import uk.ac.gda.tomography.stage.IStageController;
+import uk.ac.gda.tomography.stage.enumeration.StageDevice;
 import uk.ac.gda.ui.tool.ClientBindingElements;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.images.ClientImages;
-import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
  * This Composite allows to edit a {@link TomographyParameters} object.
  *
  * @author Maurizio Nagni
  */
-public class TomographyConfigurationView extends ViewPart {
+public class TomographyConfigurationCompositeFactory implements CompositeFactory {
 
 	/** Scan prefix **/
 	private Text name;
@@ -112,24 +109,29 @@ public class TomographyConfigurationView extends ViewPart {
 	private Button repeateMultipleScansType;
 	private Button switchbackMultipleScansType;
 
-	protected TomographyParametersAcquisitionController controller;
+	protected final AcquisitionController<TomographyParameterAcquisition> controller;
+	private final IStageController stageController;
 
-	private static final Logger logger = LoggerFactory.getLogger(TomographyConfigurationView.class);
+	private static final Logger logger = LoggerFactory.getLogger(TomographyConfigurationCompositeFactory.class);
+
+
+
+	public TomographyConfigurationCompositeFactory(AcquisitionController<TomographyParameterAcquisition> controller, IStageController stageController) {
+		super();
+		this.controller = controller;
+		this.stageController = stageController;
+	}
 
 	@Override
-	public void createPartControl(Composite parent) {
-		this.controller = getPerspectiveController().getTomographyAcquisitionController();
+	public Composite createComposite(Composite parent, int style) {
+		Composite composite = ClientSWTElements.createComposite(parent, SWT.NONE);
 		createElements(parent, SWT.NONE, SWT.BORDER);
 		bindElements();
 		initialiseElements();
+		return composite;
 	}
 
-	@Override
-	public void setFocus() {
-		// Do not necessary
-	}
-
-	private TomographyParametersAcquisitionController getController() {
+	private AcquisitionController<TomographyParameterAcquisition> getController() {
 		return controller;
 	}
 
@@ -472,14 +474,8 @@ public class TomographyConfigurationView extends ViewPart {
 	// };
 	// }
 
-	private double getMotorAngularPosition() {
-		Set<DevicePosition<Double>> start = getController().savePosition(Positions.START);
-		return start.stream().filter(dp -> dp.getName().equals(StageDevices.MOTOR_STAGE_ROT_Y.name())).findFirst()
-				.orElse(new DevicePosition<>(StageDevices.MOTOR_STAGE_ROT_Y.name(), 0.0)).getPosition();
-	}
-
 	private void updateCurrentAngularPosition() {
-		double currentMotorPostion = getMotorAngularPosition();
+		double currentMotorPostion = stageController.getMotorPosition(StageDevice.MOTOR_STAGE_ROT_Y);
 		getTemplateData().getStart().setCurrentAngle(currentMotorPostion);
 	}
 
@@ -549,9 +545,5 @@ public class TomographyConfigurationView extends ViewPart {
 
 	private TomographyParameters getTemplateData() {
 		return getController().getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
-	}
-
-	private TomographyPerspectiveController getPerspectiveController() {
-		return SpringApplicationContextProxy.getBean(TomographyPerspectiveController.class);
 	}
 }

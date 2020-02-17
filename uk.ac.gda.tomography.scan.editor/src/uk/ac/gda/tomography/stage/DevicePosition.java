@@ -16,14 +16,15 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.model;
+package uk.ac.gda.tomography.stage;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import gda.device.IScannableMotor;
-import uk.ac.gda.tomography.base.serializer.DevicePositionDeserializer;
-import uk.ac.gda.tomography.base.serializer.DevicePositionSerializer;
+import uk.ac.gda.tomography.stage.enumeration.StageDevice;
+import uk.ac.gda.tomography.stage.serializer.DevicePositionDeserializer;
+import uk.ac.gda.tomography.stage.serializer.DevicePositionSerializer;
 
 /**
  * Represents the position of a {@link IScannableMotor}
@@ -35,17 +36,23 @@ import uk.ac.gda.tomography.base.serializer.DevicePositionSerializer;
 @JsonDeserialize(using=DevicePositionDeserializer.class)
 public class DevicePosition<E> {
 
-	private final String name;
+	/**
+	 * The device connected with this position
+	 */
+	private final StageDevice stageDevice;
+	/**
+	 * The device position
+	 */
 	private final E position;
 
-	public DevicePosition(String name, E position) {
+	public DevicePosition(StageDevice stageDevice, E position) {
 		super();
-		this.name = name;
+		this.stageDevice = stageDevice;
 		this.position = position;
 	}
 
-	public String getName() {
-		return name;
+	public StageDevice getStageDevice() {
+		return stageDevice;
 	}
 
 	public E getPosition() {

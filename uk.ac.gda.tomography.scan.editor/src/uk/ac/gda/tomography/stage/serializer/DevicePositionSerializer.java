@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.base.serializer;
+package uk.ac.gda.tomography.stage.serializer;
 
 import java.io.IOException;
 
@@ -25,8 +25,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
-import uk.ac.gda.tomography.model.DevicePosition;
+import uk.ac.gda.tomography.stage.DevicePosition;
 
+/**
+ * Serialises a {@link DevicePosition}
+ *
+ * @author Maurizio Nagni
+ */
 public class DevicePositionSerializer extends StdSerializer<DevicePosition<? extends Number>> {
 
 	public DevicePositionSerializer() {
@@ -40,7 +45,7 @@ public class DevicePositionSerializer extends StdSerializer<DevicePosition<? ext
 	@Override
 	public void serialize(DevicePosition<? extends Number> value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
 		jgen.writeStartObject();
-		jgen.writeStringField("name", value.getName());
+		jgen.writeStringField("name", value.getStageDevice().name());
 		jgen.writeNumberField("value", (double)value.getPosition());
 		jgen.writeEndObject();
 	}

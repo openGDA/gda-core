@@ -16,25 +16,30 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.ui.mode;
+package uk.ac.gda.tomography.stage;
 
 import gda.rcp.views.StageCompositeDefinition;
 import gda.rcp.views.TabCompositeFactory;
+import uk.ac.gda.tomography.stage.enumeration.Stage;
+import uk.ac.gda.tomography.stage.enumeration.StageDevice;
 import uk.ac.gda.ui.tool.ClientMessages;
 
-public class GTSStage extends CommonStage {
+/**
+ * Describes a Testing rig stage
+ *
+ * @author Maurizio Nagni
+ */
+public class TR6Stage extends CommonStage {
 
-	public GTSStage() {
-		super(Stage.GTS);
+	public TR6Stage() {
+		super(Stage.TR6);
 	}
 
 	@Override
 	protected void populateDevicesMap() {
-		addToDevicesMap(StageDevices.MOTOR_STAGE_X, "tomography.main.motor.linear.x");
-		addToDevicesMap(StageDevices.MOTOR_STAGE_Y, "tomography.main.motor.linear.y");
-		addToDevicesMap(StageDevices.MOTOR_STAGE_Z, "tomography.main.motor.linear.z");
-		addToDevicesMap(StageDevices.MOTOR_STAGE_ROT_Y, "tomography.main.motor.rot.y");
-		addToDevicesMap(StageDevices.MALCOLM_TOMO, "tomography.malcolm.device.tomo");
+		addToDevicesMap(StageDevice.MOTOR_STAGE_X, "tomography.tr6.motor.linear.y");
+		addToDevicesMap(StageDevice.MOTOR_STAGE_ROT_Y, "tomography.tr6.motor.rot.y");
+		addToDevicesMap(StageDevice.MALCOLM_TOMO, "tomography.malcolm.device.tomo");
 	}
 
 	@Override
@@ -46,10 +51,8 @@ public class GTSStage extends CommonStage {
 
 	private StageCompositeDefinition[] createMotorAxesComposite() {
 		StageCompositeDefinitionBuilder builder = new StageCompositeDefinitionBuilder();
-		builder.assemble(StageDevices.MOTOR_STAGE_X, ClientMessages.AXIS_X);
-		builder.assemble(StageDevices.MOTOR_STAGE_Y, ClientMessages.AXIS_Y);
-		builder.assemble(StageDevices.MOTOR_STAGE_Z, ClientMessages.AXIS_Z);
-		builder.assemble(StageDevices.MOTOR_STAGE_ROT_Y, ClientMessages.THETA);
+		builder.assemble(StageDevice.MOTOR_STAGE_Y, ClientMessages.AXIS_Y);
+		builder.assemble(StageDevice.MOTOR_STAGE_ROT_Y, ClientMessages.THETA);
 		return builder.build();
 	}
 }

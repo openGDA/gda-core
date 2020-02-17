@@ -56,9 +56,10 @@ import uk.ac.gda.tomography.model.MultipleScansType;
 import uk.ac.gda.tomography.model.RangeType;
 import uk.ac.gda.tomography.model.ScanType;
 import uk.ac.gda.tomography.model.StartAngle;
-import uk.ac.gda.tomography.ui.mode.CommonStage;
-import uk.ac.gda.tomography.ui.mode.StageDescription;
-import uk.ac.gda.tomography.ui.mode.StageDescription.Stage;
+import uk.ac.gda.tomography.stage.CommonStage;
+import uk.ac.gda.tomography.stage.StageDescription;
+import uk.ac.gda.tomography.stage.enumeration.Stage;
+import uk.ac.gda.tomography.stage.enumeration.StageDevice;
 
 public class TomographyParametersConfigurationTest {
 
@@ -234,22 +235,22 @@ public class TomographyParametersConfigurationTest {
 	private StageDescription createBasicTomographyMode() {
 		return new CommonStage(Stage.GTS) {
 
-			private Map<StageDevices, IScannableMotor> intMotors() {
-				Map<StageDevices, IScannableMotor> motors = new EnumMap<>(StageDevices.class);
+			private Map<StageDevice, IScannableMotor> intMotors() {
+				Map<StageDevice, IScannableMotor> motors = new EnumMap<>(StageDevice.class);
 
 				IScannableMotor device = new DummyScannableMotor();
 				device.setName("MotorOne");
-				motors.put(StageDevices.MOTOR_STAGE_X, device);
+				motors.put(StageDevice.MOTOR_STAGE_X, device);
 
 				device = new DummyScannableMotor();
 				device.setName("MotorTwo");
-				motors.put(StageDevices.MOTOR_STAGE_Y, device);
+				motors.put(StageDevice.MOTOR_STAGE_Y, device);
 
 				return motors;
 			}
 
 			@Override
-			public Map<StageDevices, IScannableMotor> getMotors() {
+			public Map<StageDevice, IScannableMotor> getMotors() {
 				return intMotors();
 			}
 
