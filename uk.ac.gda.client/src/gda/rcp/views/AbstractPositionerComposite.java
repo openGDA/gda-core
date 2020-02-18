@@ -98,6 +98,7 @@ public abstract class AbstractPositionerComposite extends Composite {
 
 		// Name label
 		displayNameLabel = new CLabel(this, SWT.CENTER);
+		displayNameLabel.setLayoutData(new RowData());
 
 		// PositionerControl
 		createPositionerControl();
@@ -359,6 +360,9 @@ public abstract class AbstractPositionerComposite extends Composite {
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
 		displayNameLabel.setText(displayName);
+		if (displayName.isEmpty()) {
+			((RowData)displayNameLabel.getLayoutData()).exclude=true;
+		}
 		this.redraw();
 	}
 
