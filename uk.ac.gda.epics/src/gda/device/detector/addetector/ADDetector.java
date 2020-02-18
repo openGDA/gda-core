@@ -18,6 +18,8 @@
 
 package gda.device.detector.addetector;
 
+import static gda.device.detector.nexusprocessor.SwmrHdfDataSetProviderProcessor.FRAME_NO_DATASET_NAME;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -218,6 +220,9 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 	private boolean readAcquisitionPeriod = false;
 
 	private boolean readFilepath = false;
+
+	/** At each point record (in NXDetectorData) the total frames captured so far from the filewriter plugin */
+	private boolean readCapturedFramesCount = false;
 
 	/**
 	 * Controls whether the driver does callbacks with the array data to registered plugins. 0=No, 1=Yes. Setting this
@@ -486,6 +491,10 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			extraNames.add(FILEPATH_EXTRANAME);
 			// used to format the double that is put into the doubleVals array in this case
 			formats.add("%.2f");
+		}
+		if (isReadCapturedFramesCount()) {
+			formats.add("%.0f");
+			extraNames.add(FRAME_NO_DATASET_NAME);
 		}
 		if (isComputeStats() && statsGroup != null) {
 			extraNames.addAll(Arrays.asList(statsGroup.getFieldNames()));
@@ -881,6 +890,15 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 				}
 			}
 		}
+
+		if (readCapturedFramesCount) {
+			int frameNo = getNdFile().getNumCaptured_RBV();
+			NexusGroupData frameGrp =  new NexusGroupData(frameNo);
+			frameGrp.isDetectorEntryData = true;
+			data.addData(getName(), FRAME_NO_DATASET_NAME, frameGrp, null, null, null, true);
+			data.setPlottableValue(FRAME_NO_DATASET_NAME, (double) frameNo);
+		}
+
 	}
 
 	private void appendNXDetectorDataFromPlugins(NXDetectorData data) throws Exception {
@@ -893,6 +911,15 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			Double[] currentDoubleVals = centroidGroup.getCurrentDoubleVals();
 			addMultipleDoubleItemsToNXData(data, centroidGroup.getFieldNames(), currentDoubleVals);
 		}
+	}
+
+	public boolean isReadCapturedFramesCount() {
+		return readCapturedFramesCount;
+	}
+
+	public void setReadCapturedFramesCount(boolean readCapturedFramesCount) {
+		this.readCapturedFramesCount = readCapturedFramesCount;
+		configureExtraNamesAndOutputFormat();
 	}
 }
 
