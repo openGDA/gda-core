@@ -54,7 +54,7 @@ public class CameraConfigurationComposite extends Composite {
 		updateCamera(CameraHelper.getDefaultCameraProperties().getIndex());
 
 		GridLayoutFactory.swtDefaults().numColumns(4).equalWidth(false).applyTo(this);
-		GridDataFactory gdf = GridDataFactory.fillDefaults();
+		GridDataFactory gdf = GridDataFactory.fillDefaults().grab(true, true);
 
 		// Exposure Component
 		Composite exposureLengthComposite = new ExposureDurationComposite(cameraController).createComposite(this,
@@ -77,7 +77,7 @@ public class CameraConfigurationComposite extends Composite {
 		Arrays.stream(motorCompositeArea.getChildren()).forEach(Widget::dispose);
 		cameraConfiguration.getCameraProperties().getMotorProperties().stream().forEach(motor -> {
 			MotorCompositeFactory mc = new MotorCompositeFactory(motor);
-			mc.createComposite(motorCompositeArea, SWT.NONE);
+			mc.createComposite(motorCompositeArea, SWT.HORIZONTAL);
 		});
 		motorCompositeArea.layout(true, true);
 	}

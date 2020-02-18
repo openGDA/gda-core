@@ -179,11 +179,11 @@ public final class CameraHelper {
 
 	private static List<MotorProperties> getCameraConfigurationMotors(int index) {
 		return IntStream.range(0, 10).filter(motorIndex -> {
-			return getCameraConfigurationMotorControllerProperty(motorIndex, index) != null;
+			return getCameraConfigurationMotorControllerProperty(index, motorIndex) != null;
 		}).mapToObj(motorIndex -> {
 			MotorPropertiesBuilder motorBuilder = new MotorPropertiesBuilder();
-			motorBuilder.setName(getCameraConfigurationMotorNameProperty(motorIndex, index));
-			motorBuilder.setController(getCameraConfigurationMotorControllerProperty(motorIndex, index));
+			motorBuilder.setName(getCameraConfigurationMotorNameProperty(index, motorIndex));
+			motorBuilder.setController(getCameraConfigurationMotorControllerProperty(index, motorIndex));
 			return motorBuilder.build();
 		}).collect(Collectors.toList());
 	}

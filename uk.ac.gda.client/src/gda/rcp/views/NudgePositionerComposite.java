@@ -244,7 +244,7 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 		this.incrementText.setText(String.valueOf(increment));
 	}
 
-	private void setIncrement(String incrementText) {
+	protected void setIncrement(String incrementText) {
 		if (incrementText.isEmpty()) {
 			return;
 		}
@@ -400,5 +400,49 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 	 */
 	public boolean isIncrementControlVisible() {
 		return decrementButton.isVisible();
+	}
+
+	protected Text getPositionText() {
+		return positionText;
+	}
+
+	protected void setPositionText(Text positionText) {
+		this.positionText = positionText;
+	}
+
+	protected Text getIncrementText() {
+		return incrementText;
+	}
+
+	protected void setIncrementText(Text incrementText) {
+		this.incrementText = incrementText;
+	}
+
+	protected Button getDecrementButton() {
+		return decrementButton;
+	}
+
+	protected void setDecrementButton(Button decrementButton) {
+		this.decrementButton = decrementButton;
+	}
+
+	protected Button getIncrementButton() {
+		return incrementButton;
+	}
+
+	protected void setIncrementButton(Button incrementButton) {
+		this.incrementButton = incrementButton;
+	}
+
+	protected boolean isReadOnlyPosition() {
+		return readOnlyPosition;
+	}
+
+	protected void doIncrementValue() {
+		moveBy(incrementValue);
+	}
+
+	protected void doDecrementValue() {
+		moveBy(-incrementValue);
 	}
 }

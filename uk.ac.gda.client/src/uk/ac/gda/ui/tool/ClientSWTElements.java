@@ -272,7 +272,6 @@ public final class ClientSWTElements {
 			Image image = ClientSWTElements.getImage(i);
 			button.setImage(image);
 			button.setSize(image.getImageData().width, image.getImageData().height);
-			button.setSize(image.getImageData().width, image.getImageData().height);
 		});
 		if (!imageCode.isPresent()) {
 			button.setSize(DEFAULT_BUTTON_SIZE);
