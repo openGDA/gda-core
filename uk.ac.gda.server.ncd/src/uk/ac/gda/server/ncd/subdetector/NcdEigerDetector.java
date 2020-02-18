@@ -51,6 +51,7 @@ public class NcdEigerDetector extends NcdSubDetector {
 	@Override
 	public void atScanStart(ScanInformation info) throws DeviceException {
 		logger.debug("Start of scan");
+		super.atScanStart(info);
 		int scanNumber = info.getScanNumber();
 		int[] scanDimensions = info.getDimensions();
 		String beamline = LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME);
@@ -64,6 +65,7 @@ public class NcdEigerDetector extends NcdSubDetector {
 		// stop data writer
 		// stop acquire
 		logger.debug("End of scan");
+		super.atScanEnd();
 		controller.endRecording();
 		controller.stopCollection();
 	}

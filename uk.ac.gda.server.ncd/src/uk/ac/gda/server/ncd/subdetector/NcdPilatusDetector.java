@@ -92,6 +92,7 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 
 	@Override
 	public void atScanEnd() throws DeviceException {
+		super.atScanEnd();
 		try {
 			file.close();
 		} catch (NexusException e) {

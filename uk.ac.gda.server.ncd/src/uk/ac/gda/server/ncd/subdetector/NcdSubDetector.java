@@ -20,6 +20,7 @@ package uk.ac.gda.server.ncd.subdetector;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -43,8 +44,10 @@ import gda.device.DeviceException;
 import gda.device.detector.DataDimension;
 import gda.device.detector.NXDetectorData;
 import gda.factory.FactoryException;
+import gda.scan.ScanInformation;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 import uk.ac.gda.api.remoting.ServiceInterface;
+import uk.ac.gda.server.ncd.actions.NcdAction;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 import uk.ac.gda.server.ncd.meta.INcdMetaProvider;
 
@@ -66,6 +69,8 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 	private DetectorProperties dp = null;
 	protected FileConfiguration configuration;
 	private String serialNumber;
+	private Collection<NcdAction> preScanActions = new ArrayList<>();
+	private Collection<NcdAction> postScanActions = new ArrayList<>();
 
 	protected Collection<INcdMetaProvider> metaProviders = new ArrayList<>();
 
@@ -395,6 +400,17 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 		logger.error("{} - cannot set mask due to dimensions problem", getName());
 	}
 
+	@Override
+	public void atScanStart(ScanInformation info) throws DeviceException {
+		preScanActions.forEach(NcdAction::run);
+		atScanStart();
+	}
+
+	@Override
+	public void atScanEnd() throws DeviceException {
+		postScanActions.forEach(NcdAction::run);
+	}
+
 	public String getInterpretation() {
 		return interpretation;
 	}
@@ -431,5 +447,36 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 	@Override
 	public String toString() {
 		return String.format("%s(%s)", getClass().getSimpleName(), getName());
+	}
+
+	public Collection<NcdAction> getPreScanActions() {
+		return Collections.unmodifiableCollection(preScanActions);
+	}
+
+	public void setPreScanActions(Collection<NcdAction> actions) {
+		this.preScanActions = new ArrayList<>(actions);
+	}
+
+	public void addPreScanAction(NcdAction action) {
+		preScanActions.add(action);
+	}
+
+	public void removePreScanAction(NcdAction action) {
+		preScanActions.remove(action);
+	}
+	public Collection<NcdAction> getPostScanActions() {
+		return Collections.unmodifiableCollection(postScanActions);
+	}
+
+	public void setPostScanActions(Collection<NcdAction> actions) {
+		this.postScanActions = new ArrayList<>(actions);
+	}
+
+	public void addPostScanAction(NcdAction action) {
+		postScanActions.add(action);
+	}
+
+	public void removePostScanAction(NcdAction action) {
+		postScanActions.remove(action);
 	}
 }

@@ -59,15 +59,15 @@ public interface INcdSubDetector extends Device {
 	 * @throws DeviceException
 	 */
 	void writeout(int frames, NXDetectorData dataTree) throws DeviceException;
-	
+
 	public int getMemorySize() throws DeviceException;
-	
+
 	public List<DataDimension> getSupportedDimensions() throws DeviceException;
-	
+
 	public void setDataDimensions(int[] detectorSize) throws DeviceException;
-	
+
 	public int[] getDataDimensions() throws DeviceException;
-	
+
 	/**
 	 * Get the size of pixels in x (for 1d detectors) or x and y (for 2d detectors)
 	 * @return pixel size in metres
