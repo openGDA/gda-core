@@ -21,6 +21,8 @@ package gda.device.scannable;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import javax.measure.quantity.Length;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,11 +36,11 @@ public class DummyUnitsScannableTest {
 	// Tolerance for imprecision of floating-point calculations
 	private static final double FP_TOLERANCE = 0.00001;
 
-	private DummyUnitsScannable scannable;
+	private DummyUnitsScannable<Length> scannable;
 
 	@Before
 	public void setUp() throws DeviceException {
-		scannable = new DummyUnitsScannable(SCANNABLE_NAME, 0, HARDWARE_UNITS, USER_UNITS);
+		scannable = new DummyUnitsScannable<>(SCANNABLE_NAME, 0, HARDWARE_UNITS, USER_UNITS);
 	}
 
 	@Test

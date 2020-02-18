@@ -33,13 +33,13 @@ import static tec.units.indriya.unit.Units.METRE;
 import java.util.function.Function;
 
 import javax.measure.Quantity;
+import javax.measure.quantity.Length;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import gda.TestHelpers;
 import gda.device.DeviceException;
-import gda.device.ScannableMotionUnits;
 import gda.factory.Factory;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
@@ -51,8 +51,8 @@ public class CoupledScannableTest {
 	// Allow for inaccuracy in floating point values
 	private static final double FP_TOLERANCE = 0.00000001;
 
-	private ScannableMotionUnits dummyScannable1;
-	private ScannableMotionUnits dummyScannable2;
+	private DummyUnitsScannable<Length> dummyScannable1;
+	private DummyUnitsScannable<Length> dummyScannable2;
 
 	private MockFunction mockFunction1;
 	private MockFunction mockFunction2;
@@ -61,8 +61,8 @@ public class CoupledScannableTest {
 
 	@Before
 	public void setUp() throws Exception {
-		dummyScannable1 = new DummyUnitsScannable("s1", 0, "mm", "mm");
-		dummyScannable2 = new DummyUnitsScannable("s2", 0, "nm", "nm");
+		dummyScannable1 = new DummyUnitsScannable<>("s1", 0, "mm", "mm");
+		dummyScannable2 = new DummyUnitsScannable<>("s2", 0, "nm", "nm");
 
 		mockFunction1 = new MockFunction(Quantities.getQuantity(12.3, CENTI(METRE)));
 		mockFunction2 = new MockFunction(Quantities.getQuantity(78.9, NANO(METRE)));
@@ -245,10 +245,10 @@ public class CoupledScannableTest {
 		coupled.moveTo(15.7);
 
 		// Notifies observers only when all scannables are idle
-		((DummyUnitsScannable) dummyScannable1).notifyIObservers(dummyScannable1, ScannableStatus.IDLE);
+		dummyScannable1.notifyIObservers(dummyScannable1, ScannableStatus.IDLE);
 		verify(observer, never()).update(any(Object.class), any(Object.class));
 
-		((DummyUnitsScannable) dummyScannable2).notifyIObservers(dummyScannable2, ScannableStatus.IDLE);
+		dummyScannable2.notifyIObservers(dummyScannable2, ScannableStatus.IDLE);
 		verify(observer).update(coupled, ScannableStatus.IDLE);
 	}
 

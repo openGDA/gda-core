@@ -18,6 +18,8 @@
 
 package uk.ac.gda.server.ncd.scannable;
 
+import javax.measure.Quantity;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +34,7 @@ import gda.scan.Scan.ScanStatus;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 @ServiceInterface(Scannable.class)
-public class ScanResetDummyUnitScannable extends DummyUnitsScannable  implements IObserver {
+public class ScanResetDummyUnitScannable<Q extends Quantity<Q>> extends DummyUnitsScannable<Q> implements IObserver {
 
 	private double resetValue = Double.NaN;
 	private boolean scanRunning = false;

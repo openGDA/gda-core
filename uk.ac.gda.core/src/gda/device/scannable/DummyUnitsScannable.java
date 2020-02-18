@@ -33,7 +33,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * A dummy scannable for testing / simulations which uses units.
  */
 @ServiceInterface(ScannableMotionUnits.class)
-public class DummyUnitsScannable extends ScannableMotionUnitsBase {
+public class DummyUnitsScannable<Q extends Quantity<Q>> extends ScannableMotionUnitsBase {
 
 	private double currentPosition = 0;
 
@@ -59,11 +59,10 @@ public class DummyUnitsScannable extends ScannableMotionUnitsBase {
 		setConfigured(true);
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void asynchronousMoveTo(Object externalPosition) throws DeviceException {
-		final Quantity targetInUserUnits = QuantityFactory.createFromObject(externalPosition, getUserUnits());
-		final Unit<? extends Quantity<?>> hardwareUnits = QuantityFactory.createUnitFromString(getHardwareUnitString());
+		final Quantity<Q> targetInUserUnits = QuantityFactory.createFromObject(externalPosition, getUserUnits());
+		final Unit<Q> hardwareUnits = QuantityFactory.createUnitFromString(getHardwareUnitString());
 		final double targetInHardwareUnits = targetInUserUnits.to(hardwareUnits).getValue().doubleValue();
 		final String report = checkPositionValid(targetInHardwareUnits);
 		if (report != null) {
@@ -72,11 +71,10 @@ public class DummyUnitsScannable extends ScannableMotionUnitsBase {
 		currentPosition = targetInHardwareUnits;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Object getPosition() throws DeviceException {
-		final Quantity positionInHardwareUnits = QuantityFactory.createFromObject(currentPosition, getHardwareUnitString());
-		final Unit<? extends Quantity<?>> userUnits = QuantityFactory.createUnitFromString(getUserUnits());
+		final Quantity<Q> positionInHardwareUnits = QuantityFactory.createFromObject(currentPosition, getHardwareUnitString());
+		final Unit<Q> userUnits = QuantityFactory.createUnitFromString(getUserUnits());
 		return positionInHardwareUnits.to(userUnits).getValue().doubleValue();
 	}
 
