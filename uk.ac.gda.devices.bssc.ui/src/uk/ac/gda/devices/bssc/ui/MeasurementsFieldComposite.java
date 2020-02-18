@@ -214,18 +214,6 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				element.setSampleName(value);
 			}
 		});
-		columns.put("Concentration", new Column<TitrationBean, Double>(100, tableViewer, rbeditor, DOUBLE) {
-			@Override
-			public Double getRealValue(TitrationBean element) {
-				return element.getConcentration();
-			}
-			@Override
-			public void setNewValue(TitrationBean element, String value) {
-				double conc = Double.valueOf(value);
-				element.setConcentration(conc);
-			}
-		});
-		columns.get("Concentration").setOutputFormat("%5.5f mg/ml");
 		columns.put("Viscosity", new Column<TitrationBean, String>(100, tableViewer, rbeditor, "low", "medium", "high") {
 			@Override
 			public String getRealValue(TitrationBean element) {
@@ -236,18 +224,6 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				element.setViscosity(value);
 			}
 		});
-		columns.put("Molecular\n Weight", new Column<TitrationBean, Double>(70, tableViewer, rbeditor, DOUBLE) {
-			@Override
-			public Double getRealValue(TitrationBean element) {
-				return element.getMolecularWeight();
-			}
-			@Override
-			public void setNewValue(TitrationBean element, String value) {
-				double weight = Double.valueOf(value);
-				element.setMolecularWeight(weight);
-			}
-		});
-		columns.get("Molecular\n Weight").setOutputFormat("%s kDa");
 		columns.put("isBuffer", new Column<TitrationBean, Boolean>(40, tableViewer, rbeditor, BOOL) {
 			@Override
 			public Boolean getRealValue(TitrationBean element) {
