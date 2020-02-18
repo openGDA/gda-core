@@ -48,9 +48,9 @@ import gda.device.DeviceException;
 public class Apple2IDGapPolarPos extends Apple2IDScannableBase {
 
 	public Apple2IDGapPolarPos() {
-		setInputNames(new String[] { "gap", "polarisation", "motorPos" });
-		setExtraNames(new String[] { "mode", "enabled", "topOuterMotor", "topInnerMotor", "bottomOuterMotor", "bottomInnerMotor" });
-		setOutputFormat(new String[] { "%5.3fmm", "%s", "%5.3fmm", "%s", "%b", "%5.3fmm", "%5.3fmm", "%5.3fmm", "%5.3fmm" });
+		setInputNames(new String[] { "gap", "polarisation", "rowPhase" });
+		setExtraNames(new String[] { "mode", "enabled", "topOuter", "topInner", "bottomOuter", "bottomInner" });
+		setOutputFormat(new String[] { "%5.3f mm", "%s", "%5.3f mm", "%s", "%b", "%5.3f mm", "%5.3f mm", "%5.3f mm", "%5.3f mm" });
 	}
 
 	@Override
