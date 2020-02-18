@@ -106,9 +106,12 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 	protected DummyMalcolmModel createMalcolmModelTwoDetectors() {
 		DummyMalcolmModel model = new DummyMalcolmModel();
 		model.setTimeout(10 * 60); // increased timeout for debugging purposes
+		model.setExposureTime(0.1);
 
 		DummyMalcolmDetectorModel det1Model = new DummyMalcolmDetectorModel();
 		det1Model.setName("detector");
+		det1Model.setFramesPerStep(1);
+		det1Model.setExposureTime(0.08);
 
 		DummyMalcolmDatasetModel detector1dataset1 = new DummyMalcolmDatasetModel();
 		detector1dataset1.setName("detector");
@@ -123,6 +126,8 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 
 		DummyMalcolmDetectorModel det2Model = new DummyMalcolmDetectorModel();
 		det2Model.setName("detector2");
+		det1Model.setFramesPerStep(2);
+		det1Model.setExposureTime(0.4);
 
 		DummyMalcolmDatasetModel detector2dataset = new DummyMalcolmDatasetModel();
 		detector2dataset.setName("detector2");
@@ -137,13 +142,12 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 	protected void checkSize(IRunnableDevice<ScanModel> scanner, int[] shape) {
 		ScanBean bean =  ((AbstractRunnableDevice<ScanModel>) scanner).getModel().getBean();
 		int expectedSize = Arrays.stream(shape).reduce(1, (x, y) -> x * y);
-		System.err.println("Expected size = " + expectedSize + ", shape = " + Arrays.toString(shape));
 		assertEquals(expectedSize, bean.getSize());
 	}
 
 	private Map<String, List<String>> getExpectedPrimaryDataFieldsPerDetector() {
 		Map<String, List<String>> primaryDataFieldsPerDetector = new HashMap<>();
-		DummyMalcolmModel model = (DummyMalcolmModel) malcolmDevice.getModel();
+		DummyMalcolmModel model = malcolmDevice.getModel();
 		for (IMalcolmDetectorModel detectorModel : model.getDetectorModels()) {
 			List<String> list = ((DummyMalcolmDetectorModel) detectorModel).getDatasets().stream().map(d -> d.getName())
 				.collect(Collectors.toCollection(ArrayList::new));
@@ -167,7 +171,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 
 	@Override
 	protected NXroot checkNexusFile(IRunnableDevice<ScanModel> scanner, boolean snake, int... sizes) throws Exception {
-		final DummyMalcolmModel dummyMalcolmModel = (DummyMalcolmModel) malcolmDevice.getModel();
+		final DummyMalcolmModel dummyMalcolmModel = malcolmDevice.getModel();
 		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
 
 		NXroot rootNode = getNexusRoot(scanner);
@@ -187,8 +191,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		for (IMalcolmDetectorModel detectorModel : dummyMalcolmModel.getDetectorModels()) {
 			String detectorName = detectorModel.getName();
 			NXdetector detector = instrument.getDetector(detectorName);
-
-			assertEquals(dummyMalcolmModel.getExposureTime(), detector.getCount_timeScalar().doubleValue(), 1e-15);
+			assertEquals(detectorModel.getExposureTime(), detector.getCount_timeScalar().doubleValue(), 1e-15);
 
 			List<String> primaryDataFieldNames = primaryDataFieldNamesPerDetector.get(detectorName);
 			Map<String, String> expectedDataGroupNames = primaryDataFieldNames.stream().collect(Collectors.toMap(

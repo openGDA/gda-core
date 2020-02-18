@@ -33,6 +33,7 @@ import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType;
@@ -190,7 +191,7 @@ class MalcolmNexusObjectBuilder {
 		final NXobject nexusObject = NexusNodeFactory.createNXobjectForClass(nexusBaseClass);
 
 		if (nexusBaseClass == NexusBaseClass.NX_DETECTOR) {
-			((NXdetector) nexusObject).setCount_timeScalar(malcolmDevice.getModel().getExposureTime());
+			((NXdetector) nexusObject).setCount_timeScalar(getDetectorExposureTime(deviceName));
 		} else if (nexusBaseClass == NexusBaseClass.NX_MONITOR) {
 			((NXmonitor) nexusObject).setCount_timeScalar(malcolmDevice.getModel().getExposureTime());
 		}
@@ -200,5 +201,14 @@ class MalcolmNexusObjectBuilder {
 
 		return nexusWrapper;
 	}
+
+	private double getDetectorExposureTime(String detectorName) {
+		return malcolmDevice.getModel().getDetectorModels().stream()
+			.filter(det -> det.getName().equals(detectorName))
+			.findFirst()
+			.map(IMalcolmDetectorModel::getExposureTime)
+			.orElse(malcolmDevice.getModel().getExposureTime());
+	}
+
 
 }
