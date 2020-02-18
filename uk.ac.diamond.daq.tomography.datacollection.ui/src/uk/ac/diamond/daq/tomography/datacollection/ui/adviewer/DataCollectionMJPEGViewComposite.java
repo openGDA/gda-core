@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.tomography.datacollection.ui.adviewer;
 
+import javax.measure.quantity.Length;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -67,7 +69,7 @@ public class DataCollectionMJPEGViewComposite extends Composite {
 
 	private Label statusField;
 	private Group grpDrag;
-	
+
 	public DataCollectionMJPEGViewComposite(final Composite parent, CompositeFactory configTabsFactory) throws Exception {
 		super(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().spacing(1, 1).applyTo(this);
@@ -201,9 +203,9 @@ public class DataCollectionMJPEGViewComposite extends Composite {
 			}
 		});
 	}
-	
+
 	private CompositeFactory createDummyConfigCompositeFactory() throws Exception {
-		final DummyUnitsScannable scannable = new DummyUnitsScannable("test", 0.0, "mm", "mm");
+		final DummyUnitsScannable<Length> scannable = new DummyUnitsScannable<>("test", 0.0, "mm", "mm");
 		scannable.configure();
 
 		final StageCompositeDefinition definition = new StageCompositeDefinition();
@@ -212,7 +214,7 @@ public class DataCollectionMJPEGViewComposite extends Composite {
 
 		final StageCompositeFactory scf = new StageCompositeFactory();
 		scf.setStageCompositeDefinitions(new StageCompositeDefinition[] { definition });
-		
+
 		final TabCompositeFactoryImpl tab = new TabCompositeFactoryImpl();
 		tab.setCompositeFactory(scf);
 		tab.setLabel("tab");
@@ -228,7 +230,7 @@ public class DataCollectionMJPEGViewComposite extends Composite {
 		final Dialog dlg = new NormalisedImageDialog(Display.getCurrent().getActiveShell());
 		dlg.open();
 	}
-	
+
 	private Image createImage(final String imageLocation) {
 		final ImageDescriptor desc = TomoClientActivator.getImageDescriptor(imageLocation);
 		if (desc == null) {
