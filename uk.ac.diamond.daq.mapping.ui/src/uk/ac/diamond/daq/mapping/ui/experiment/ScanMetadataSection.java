@@ -18,11 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import org.eclipse.core.databinding.Binding;
-import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.beans.PojoProperties;
-import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
@@ -40,7 +35,21 @@ import uk.ac.diamond.daq.mapping.impl.SimpleSampleMetadata;
  */
 public class ScanMetadataSection extends AbstractMappingSection {
 
-	private Binding sampleNameBinding;
+	private Text sampleNameText;
+	private MetadataController controller;
+
+	private MetadataController getController() {
+		if (controller == null) {
+			controller = getService(MetadataController.class);
+			controller.initialise();
+			controller.addListener(update -> {
+				if (!update.getAcquisitionName().equals(sampleNameText.getText())) {
+					sampleNameText.setText(update.getAcquisitionName());
+				}
+			});
+		}
+		return controller;
+	}
 
 	@Override
 	public void createControls(Composite parent) {
@@ -51,13 +60,12 @@ public class ScanMetadataSection extends AbstractMappingSection {
 		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(essentialParametersComposite);
 		Label sampleNameLabel = new Label(essentialParametersComposite, SWT.NONE);
 		sampleNameLabel.setText("Sample Name");
-		Text sampleNameText = new Text(essentialParametersComposite, SWT.BORDER);
+		sampleNameText = new Text(essentialParametersComposite, SWT.BORDER);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(sampleNameText);
 
-		dataBindingContext = new DataBindingContext();
-		IObservableValue sampleNameTextValue = WidgetProperties.text(SWT.Modify).observe(sampleNameText);
-		IObservableValue sampleNameModelValue = PojoProperties.value("sampleName").observe(mappingBean.getSampleMetadata());
-		sampleNameBinding = dataBindingContext.bindValue(sampleNameTextValue, sampleNameModelValue);
+		sampleNameText.setText(getController().getAcquisitionName());
+		sampleNameText.addListener(SWT.Modify, event -> getController().setAcquisitionName(sampleNameText.getText()));
+
 		Button editMetadataButton = new Button(essentialParametersComposite, SWT.PUSH);
 		editMetadataButton.setText("Edit metadata...");
 
@@ -75,14 +83,7 @@ public class ScanMetadataSection extends AbstractMappingSection {
 
 	@Override
 	public void updateControls() {
-		// Note: the sample metadata object may be a new one, so we
-		final IObservableValue sampleNameTextValue = (IObservableValue) sampleNameBinding.getTarget();
-		dataBindingContext.removeBinding(sampleNameBinding);
-		sampleNameBinding.dispose();
-
-		IObservableValue sampleNameModelValue = PojoProperties.value("sampleName").observe(getMappingBean().getSampleMetadata());
-		sampleNameBinding = dataBindingContext.bindValue(sampleNameTextValue, sampleNameModelValue);
-		sampleNameBinding.updateModelToTarget();
+		sampleNameText.setText(getController().getAcquisitionName());
 	}
 
 }
