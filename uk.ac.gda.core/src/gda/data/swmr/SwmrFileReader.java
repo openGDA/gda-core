@@ -102,7 +102,7 @@ public class SwmrFileReader {
 	 */
 	public Dataset readDataset(String dataNodePath, int[] start, int[] shape, int[] step) throws NexusException {
 		logger.debug("Reading from dataset {} : start = {}, shape = {}, step = {}", dataNodePath, ArrayUtils.toString(start), ArrayUtils.toString(shape), ArrayUtils.toString(step));
-		return HDF5Utils.readDataset(hdfFile, dataNodePath, start, shape, step, -1, -1, false);
+		return HDF5Utils.readDataset(hdfFile, dataNodePath, start, shape, step, -1, -1, true);
 	}
 
 	/**
