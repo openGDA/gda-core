@@ -23,7 +23,6 @@ import org.eclipse.ui.PlatformUI;
 
 import gda.jython.InterfaceProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.results.navigator.DataNavigator;
-import uk.ac.gda.common.rcp.util.PathUtils;
 
 /**
  * This class currently asks the user for a different root file to 

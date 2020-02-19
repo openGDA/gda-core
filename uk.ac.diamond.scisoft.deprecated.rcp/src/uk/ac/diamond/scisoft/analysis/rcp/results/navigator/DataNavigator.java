@@ -61,7 +61,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.OpenDataFileAction;
 import uk.ac.gda.common.rcp.util.IFileUtils;
-import uk.ac.gda.common.rcp.util.PathUtils;
 import uk.ac.gda.ui.file.AlphaNumericFileSorter;
 import uk.ac.gda.ui.file.DateFileSorter;
 import uk.ac.gda.ui.file.IFileTreeColumnProvider;
