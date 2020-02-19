@@ -18,11 +18,11 @@
 
 package gda.device.detector.nexusprocessor;
 
-import gda.device.detector.GDANexusDetectorData;
-
 import java.util.Collection;
 
 import org.eclipse.january.dataset.Dataset;
+
+import gda.device.detector.GDANexusDetectorData;
 
 /**
  * interface for processing a dataset. Process method returns <code>ProcessorResults</code> if extraNames or
@@ -41,5 +41,11 @@ public interface DataSetProcessor {
 	boolean isEnabled();
 
 	void setEnable(boolean enable);
+
+	default void atScanStart() {}
+
+	default void atScanEnd() {}
+
+	default void stop() {}
 
 }

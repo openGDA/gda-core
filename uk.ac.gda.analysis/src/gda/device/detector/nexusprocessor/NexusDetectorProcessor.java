@@ -240,6 +240,7 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 
 	@Override
 	public void stop() throws DeviceException {
+		processor.stop();
 		detector.stop();
 	}
 
@@ -366,11 +367,13 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 	@Override
 	public void atScanStart() throws DeviceException {
 		clearProcessorCache(); //ensure extraNames/outputFormats match enabled processors
+		processor.atScanStart();
 		detector.atScanStart();
 	}
 
 	@Override
 	public void atScanEnd() throws DeviceException {
+		processor.atScanEnd();
 		detector.atScanEnd();
 	}
 

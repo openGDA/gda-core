@@ -18,9 +18,9 @@
 
 package gda.device.detector.nexusprocessor;
 
-import gda.device.detector.GDANexusDetectorData;
-
 import java.util.Collection;
+
+import gda.device.detector.GDANexusDetectorData;
 
 /**
  * interface for processing the NexusProvider if the result of getExtraNames or getOutputformat changes then observers
@@ -31,4 +31,7 @@ public interface NexusTreeProviderProcessor {
 	boolean isEnabled();
 	Collection<String> getExtraNames();
 	Collection<String> getOutputFormat();
+	default void atScanStart() {}
+	default void atScanEnd() {}
+	default void stop() {}
 }
