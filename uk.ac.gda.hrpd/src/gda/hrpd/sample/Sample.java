@@ -36,7 +36,6 @@ import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
-import uk.ac.gda.api.io.PathConstructor;
 
 /**
  * This class reads the sample information data from a table in an Excel spreadsheet (default to sheet 0) and/or writes
