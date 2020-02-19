@@ -50,12 +50,11 @@ public class TwoJawSlitGap extends TwoJawSlitPosition {
 			Quantity<Q> secondJawMin,
 			Quantity<Q> secondJawMax)
 	{
-		Unit<Q> units = (Unit<Q>) unitsComponent.getUserUnit();
-		double minimum = QuantityFactory.createFromObject(firstJawMin.subtract(secondJawMax), units).getValue().doubleValue();
-		double maximum = QuantityFactory.createFromObject(firstJawMax.subtract(secondJawMin), units).getValue().doubleValue();
-		return new double[]{ minimum > 0. ? minimum : 0., maximum};
+		final Unit<Q> units = (Unit<Q>) unitsComponent.getUserUnit();
+		final double minimum = QuantityFactory.createFromObject(firstJawMin.subtract(secondJawMax), units).getValue().doubleValue();
+		final double maximum = QuantityFactory.createFromObject(firstJawMax.subtract(secondJawMin), units).getValue().doubleValue();
+		return new double[] { minimum > 0. ? minimum : 0., maximum };
 	}
-
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
@@ -88,17 +87,17 @@ public class TwoJawSlitGap extends TwoJawSlitPosition {
 	@Override
 	protected <T extends Quantity<T>> Quantity<T>[] calculateTargets(Object position) throws DeviceException {
 		// convert what is supplied to Quantity in user units
-		Quantity<T> target = QuantityFactory.createFromObjectUnknownUnit(position, this.unitsComponent.getUserUnit());
-		Quantity<T>[] targets = new Quantity[2];
+		final Quantity<T> target = QuantityFactory.createFromObjectUnknownUnit(position, unitsComponent.getUserUnit());
+		final Quantity<T>[] targets = new Quantity[2];
 
 		if (xmlparametersfilename != null) {
 			// perform calculation based on the beam centre in the xml file
 			try {
 				//first check the file exists then load using the New version to ensure any changes outside the VM are picked up
 				LocalParameters.getXMLConfiguration(xmlparametersfilename, false);
-				FileConfiguration config = LocalParameters.getNewXMLConfiguration(xmlparametersfilename);
-				double xmlCentreDbl = config.getDouble(getName());
-				Quantity<T> xmlCentre = QuantityFactory.createFromObjectUnknownUnit(xmlCentreDbl, this.unitsComponent.getUserUnit());
+				final FileConfiguration config = LocalParameters.getNewXMLConfiguration(xmlparametersfilename);
+				final double xmlCentreDbl = config.getDouble(getName());
+				final Quantity<T> xmlCentre = QuantityFactory.createFromObjectUnknownUnit(xmlCentreDbl, unitsComponent.getUserUnit());
 				targets[0] = xmlCentre.add(target.divide(2.0));
 				targets[1] = xmlCentre.subtract(target.divide(2.0));
 			} catch (Exception e) {
@@ -107,10 +106,10 @@ public class TwoJawSlitGap extends TwoJawSlitPosition {
 			//
 		} else {
 			// perform the calculation based on the current beam centre i.e. current motor positions
-			Quantity<T> currentGap = getCurrentGap();
-			Quantity<T> delta = target.subtract(currentGap).divide(2);
-			Quantity<T> firstJawPosition = QuantityFactory.createFromObject(firstJaw.getPosition(), this.firstJaw.getUserUnits());
-			Quantity<T> secondJawPosition = QuantityFactory.createFromObject(secondJaw.getPosition(), this.firstJaw.getUserUnits());
+			final Quantity<T> currentGap = getCurrentGap();
+			final Quantity<T> delta = target.subtract(currentGap).divide(2);
+			final Quantity<T> firstJawPosition = QuantityFactory.createFromObject(firstJaw.getPosition(), firstJaw.getUserUnits());
+			final Quantity<T> secondJawPosition = QuantityFactory.createFromObject(secondJaw.getPosition(), firstJaw.getUserUnits());
 
 			targets[0] = firstJawPosition.add(delta);
 			targets[1] = secondJawPosition.subtract(delta);

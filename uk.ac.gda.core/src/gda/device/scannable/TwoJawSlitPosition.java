@@ -16,9 +16,6 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- *
- */
 package gda.device.scannable;
 
 import javax.measure.Quantity;
@@ -70,9 +67,9 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 		firstJaw.addIObserver(this);
 		secondJaw.addIObserver(this);
 
-		this.inputNames = new String[] { this.getName() };
+		inputNames = new String[] { getName() };
 
-		if( getInitialUserUnits() == null){
+		if (getInitialUserUnits() == null) {
 			try {
 				unitsComponent.setHardwareUnitString(firstJaw.getUserUnits());
 				unitsComponent.setUserUnits(firstJaw.getUserUnits());
@@ -81,7 +78,7 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 			}
 		}
 
-		//calculate the limits and give them to the limits component
+		// calculate the limits and give them to the limits component
 		calculateLimits();
 
 		setConfigured(true);
@@ -96,46 +93,43 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 	@Override
 	public void moveTo(Object position) throws DeviceException {
 
-		if (this.numberTries <= 1) {
+		if (numberTries <= 1) {
 			super.moveTo(position);
 		} else {
 
 			int numberAttempts = 0;
 
-			//note current value
+			// note current value
 			final Quantity<? extends Quantity<?>> initialPositionQuantity = getCurrentPosition();
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			final double initialPositionUserUnits = ((Quantity) initialPositionQuantity).to(unitsComponent.getUserUnit()).getValue().doubleValue();
 
 			try {
-				//calculate motor targets based on starting positions
-				Quantity<? extends Quantity<?>>[] targets = calculateTargets(position);
+				// calculate motor targets based on starting positions
+				final Quantity<? extends Quantity<?>>[] targets = calculateTargets(position);
 				// loop for numberTries times until current position is within tolerance of the target
-				while (numberAttempts < this.numberTries && !isAt(position)) {
+				while (numberAttempts < numberTries && !isAt(position)) {
 					numberAttempts++;
 					moveJaws(targets);
 					try {
-						this.waitWhileBusy(retryTimeout);
+						waitWhileBusy(retryTimeout);
 					} catch (DeviceException e) {
 						// call a halt to the motors as something's got stuck
-//						if (firstJaw instanceof EpicsMotor && secondJaw instanceof EpicsMotor){
-//							((EpicsMotor)firstJaw).stopGo(); //better method for epics motors
-//							((EpicsMotor)secondJaw).stopGo();
-//						} else {
-							firstJaw.stop();
-							secondJaw.stop();
-//						}
-						//but there might be a timeout waiting for the stop to work! Throw this exception.
-						this.waitWhileBusy(retryTimeout);
+						firstJaw.stop();
+						secondJaw.stop();
+						// but there might be a timeout waiting for the stop to work! Throw this exception.
+						waitWhileBusy(retryTimeout);
 					}
 				}
 			} catch (Exception e) {
-				throw new DeviceException("Exception while operating " + getName() + ". This may have moved the slit centre. The initial centre position was  " + initialPositionUserUnits + ". ", e);
+				throw new DeviceException("Exception while operating " + getName()
+						+ ". This may have moved the slit centre. The initial centre position was  "
+						+ initialPositionUserUnits + ". ", e);
 			}
 
 			// if tried too many times then throw an exception
-			if (numberAttempts >= this.numberTries) {
-				throw new DeviceException("Move failed after " + this.numberTries + " attempts");
+			if (numberAttempts >= numberTries) {
+				throw new DeviceException("Move failed after " + numberTries + " attempts");
 			}
 		}
 	}
@@ -147,47 +141,43 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 			Quantity<Q> secondJawMin,
 			Quantity<Q> secondJawMax)
 	{
-		Unit<Q> units = (Unit<Q>) unitsComponent.getUserUnit();
-		double minimum = QuantityFactory.createFromObject(firstJawMin.add(secondJawMin).divide(2.0), units).getValue().doubleValue();
-		double maximum = QuantityFactory.createFromObject(firstJawMax.add(secondJawMax).divide(2.0), units).getValue().doubleValue();
+		final Unit<Q> units = (Unit<Q>) unitsComponent.getUserUnit();
+		final double minimum = QuantityFactory.createFromObject(firstJawMin.add(secondJawMin).divide(2.0), units).getValue().doubleValue();
+		final double maximum = QuantityFactory.createFromObject(firstJawMax.add(secondJawMax).divide(2.0), units).getValue().doubleValue();
 		return new double[]{ minimum, maximum};
 	}
 
-	@SuppressWarnings("unchecked")
 	protected <Q extends Quantity<Q>> void calculateLimits() {
 		try {
-			Double firstLowerLimit=null;
-			Double firstUpperLimit=null;
-			Double secondLowerLimit=null;
-			Double secondUpperLimit=null;
-			{
-				Double[] limits = ScannableMotionBase.getInputLimits(firstJaw,0);
-				if( limits != null){
-					firstLowerLimit = limits[0];
-					firstUpperLimit = limits[1];
-				}
+			Double firstLowerLimit = null;
+			Double firstUpperLimit = null;
+			Double secondLowerLimit = null;
+			Double secondUpperLimit = null;
+
+			final Double[] firstJawLimits = ScannableMotionBase.getInputLimits(firstJaw, 0);
+			if (firstJawLimits != null) {
+				firstLowerLimit = firstJawLimits[0];
+				firstUpperLimit = firstJawLimits[1];
 			}
-			{
-				Double[] limits = ScannableMotionBase.getInputLimits(secondJaw,0);
-				if( limits != null){
-					secondLowerLimit = limits[0];
-					secondUpperLimit = limits[1];
-				}
+			final Double[] secondJawLimits = ScannableMotionBase.getInputLimits(secondJaw, 0);
+			if (secondJawLimits != null) {
+				secondLowerLimit = secondJawLimits[0];
+				secondUpperLimit = secondJawLimits[1];
 			}
-			if( firstLowerLimit != null || firstUpperLimit != null ||
-					secondLowerLimit != null || secondUpperLimit != null	)
-			{
-				if( firstLowerLimit == null  || firstUpperLimit == null ||
-						secondLowerLimit == null || secondUpperLimit == null	){
-					throw new Exception("Enable to set limuts for one of the dependent limits is null");
+
+			if (firstLowerLimit != null || firstUpperLimit != null || secondLowerLimit != null
+					|| secondUpperLimit != null) {
+				if (firstLowerLimit == null || firstUpperLimit == null || secondLowerLimit == null
+						|| secondUpperLimit == null) {
+					throw new DeviceException("Unable to set limits if one of the dependent limits is null");
 				}
-				Unit<Q> firstJawUnits = QuantityFactory.createUnitFromString(firstJaw.getUserUnits());
-				Unit<Q> secondJawUnits = QuantityFactory.createUnitFromString(secondJaw.getUserUnits());
-				Quantity<Q> firstJawMin = QuantityFactory.createFromObject(firstLowerLimit, firstJawUnits);
-				Quantity<Q> firstJawMax = QuantityFactory.createFromObject(firstUpperLimit, firstJawUnits);
-				Quantity<Q> secondJawMin = QuantityFactory.createFromObject(secondLowerLimit, secondJawUnits);
-				Quantity<Q> secondJawMax = QuantityFactory.createFromObject(secondUpperLimit, secondJawUnits);
-				double[] limits = getLimits(firstJawMin, firstJawMax, secondJawMin, secondJawMax);
+				final Unit<Q> firstJawUnits = QuantityFactory.createUnitFromString(firstJaw.getUserUnits());
+				final Unit<Q> secondJawUnits = QuantityFactory.createUnitFromString(secondJaw.getUserUnits());
+				final Quantity<Q> firstJawMin = QuantityFactory.createFromObject(firstLowerLimit, firstJawUnits);
+				final Quantity<Q> firstJawMax = QuantityFactory.createFromObject(firstUpperLimit, firstJawUnits);
+				final Quantity<Q> secondJawMin = QuantityFactory.createFromObject(secondLowerLimit, secondJawUnits);
+				final Quantity<Q> secondJawMax = QuantityFactory.createFromObject(secondUpperLimit, secondJawUnits);
+				final double[] limits = getLimits(firstJawMin, firstJawMax, secondJawMin, secondJawMax);
 				setLowerGdaLimits(limits[0]);
 				setUpperGdaLimits(limits[1]);
 			}
@@ -196,19 +186,18 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 		}
 	}
 
-
 	@Override
 	public String checkPositionValid(Object illDefinedPosObject) throws DeviceException {
 		// perform the calculation
-		Quantity<? extends Quantity<?>>[] targets = calculateTargets(illDefinedPosObject);
+		final Quantity<? extends Quantity<?>>[] targets = calculateTargets(illDefinedPosObject);
 
 		// move the Scannables
 		String reason = firstJaw.checkPositionValid(targets[0]);
-		if (reason != null){
+		if (reason != null) {
 			return reason;
 		}
 		reason = secondJaw.checkPositionValid(targets[1]);
-		if (reason != null){
+		if (reason != null) {
 			return reason;
 		}
 		return null;
@@ -216,15 +205,14 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
-
 		throwExceptionIfInvalidTarget(position);
 
 		// perform the calculation
-		Quantity<? extends Quantity<?>>[] targets = calculateTargets(position);
+		final Quantity<? extends Quantity<?>>[] targets = calculateTargets(position);
 		moveJaws(targets);
 	}
 
-	private void moveJaws(Quantity<? extends Quantity<?>>[] targets) throws DeviceException{
+	private void moveJaws(Quantity<? extends Quantity<?>>[] targets) throws DeviceException {
 		// move the Scannables
 		firstJaw.asynchronousMoveTo(targets[0]);
 		secondJaw.asynchronousMoveTo(targets[1]);
@@ -311,12 +299,12 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 	 * @throws DeviceException
 	 */
 	protected <Q extends Quantity<Q>> Quantity<Q>[] calculateTargets(Object position) throws DeviceException {
-		Quantity<Q> currentGap = getCurrentGap();
+		final Quantity<Q> currentGap = getCurrentGap();
 		// convert what is supplied to Quantity in user units
-		Quantity<Q> target = QuantityFactory.createFromObjectUnknownUnit(position, this.unitsComponent.getUserUnit());
+		final Quantity<Q> target = QuantityFactory.createFromObjectUnknownUnit(position, unitsComponent.getUserUnit());
 		// perform the calculation
 		@SuppressWarnings("unchecked")
-		Quantity<Q>[] targets = new Quantity[2];
+		final Quantity<Q>[] targets = new Quantity[2];
 		targets[0] = target.add(currentGap.divide(2));
 		targets[1] = target.subtract(currentGap.divide(2));
 		return targets;
@@ -330,8 +318,8 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 	 */
 	protected <Q extends Quantity<Q>> Quantity<Q> getCurrentPosition() throws DeviceException {
 		// get the current positions in this objects user units
-		Quantity<Q> p1 = QuantityFactory.createFromObject(firstJaw.getPosition(), this.firstJaw.getUserUnits());
-		Quantity<Q> p2 = QuantityFactory.createFromObject(secondJaw.getPosition(), this.secondJaw.getUserUnits());
+		final Quantity<Q> p1 = QuantityFactory.createFromObject(firstJaw.getPosition(), firstJaw.getUserUnits());
+		final Quantity<Q> p2 = QuantityFactory.createFromObject(secondJaw.getPosition(), secondJaw.getUserUnits());
 
 		// determine position as a quantity
 		return p1.add(p2).divide(2.0);
@@ -345,8 +333,8 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 	 */
 	protected <Q extends Quantity<Q>> Quantity<Q> getCurrentGap() throws DeviceException {
 		// get the current positions in this objects user units
-		Quantity<Q> p1 = QuantityFactory.createFromObject(firstJaw.getPosition(), this.firstJaw.getUserUnits());
-		Quantity<Q> p2 = QuantityFactory.createFromObject(secondJaw.getPosition(), this.secondJaw.getUserUnits());
+		final Quantity<Q> p1 = QuantityFactory.createFromObject(firstJaw.getPosition(), firstJaw.getUserUnits());
+		final Quantity<Q> p2 = QuantityFactory.createFromObject(secondJaw.getPosition(), secondJaw.getUserUnits());
 
 		// determine position as a quantity
 		return p1.subtract(p2); // TODO: may have to check for absolute position
@@ -354,8 +342,8 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 
 	@Override
 	public void stop() throws DeviceException {
-		this.firstJaw.stop();
-		this.secondJaw.stop();
+		firstJaw.stop();
+		secondJaw.stop();
 	}
 
 	@Override
