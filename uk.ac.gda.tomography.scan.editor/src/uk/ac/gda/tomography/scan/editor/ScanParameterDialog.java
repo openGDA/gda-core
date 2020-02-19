@@ -115,13 +115,14 @@ public class ScanParameterDialog extends Dialog {
 	private void updateOutputPath(ParametersComposite editor) {
 		String outputDirectoryPath = InterfaceProvider.getCommandRunner().evaluateCommand("InterfaceProvider.getPathConstructor().createFromDefaultProperty()");
 		final boolean tmpSelected = editor.getSendDataToTempDirectory().getSelection();
-		if (tmpSelected) {
-			final String outputPathSuffix = LocalProperties.get(DATADIR_SUFFIX_LIVE_PROPERTY);
-			if (outputPathSuffix != null) {
-				outputDirectoryPath = outputDirectoryPath.replaceAll(outputPathSuffix + "[/]{0,1}$", "");
-			}
-			outputDirectoryPath = Paths.get(outputDirectoryPath, DATADIR_SUFFIX_TEMP).toString();
-		}
+		final String outputPathSuffix = LocalProperties.get(DATADIR_SUFFIX_LIVE_PROPERTY, "");
+
+		// We have noted cases where the "tmp" suffix has been left on the path from a previous run, so remove any suffix first
+		outputDirectoryPath = outputDirectoryPath.replaceAll(DATADIR_SUFFIX_TEMP + "[/]{0,1}$", "");
+		outputDirectoryPath = outputDirectoryPath.replaceAll(outputPathSuffix + "[/]{0,1}$", "");
+
+		final String suffix = tmpSelected ? DATADIR_SUFFIX_TEMP : outputPathSuffix;
+		outputDirectoryPath = Paths.get(outputDirectoryPath, suffix).toString();
 		editor.getOutputDirectory().setText(outputDirectoryPath);
 	}
 
