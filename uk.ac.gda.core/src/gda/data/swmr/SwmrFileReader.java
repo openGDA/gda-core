@@ -72,7 +72,7 @@ public class SwmrFileReader {
 	}
 
 	public void releaseFile() throws ScanFileHolderException {
-		HDF5FileFactory.releaseFile(filename);
+		HDF5FileFactory.releaseFile(filename, true);
 	}
 
 	public String getFilename() {
