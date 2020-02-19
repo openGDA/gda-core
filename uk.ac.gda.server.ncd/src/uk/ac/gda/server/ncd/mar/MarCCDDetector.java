@@ -30,7 +30,6 @@ import gda.device.Timer;
 import gda.device.detector.DetectorBase;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
-import uk.ac.gda.api.io.PathConstructor;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**

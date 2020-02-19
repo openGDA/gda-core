@@ -15,7 +15,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
-import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.client.closeactions.ClientCloseOption;
 import uk.ac.gda.client.closeactions.UserOptionsMenuOnClose;
 

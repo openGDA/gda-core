@@ -1,6 +1,5 @@
 package uk.ac.diamond.daq.client.gui.camera.liveview.state;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;

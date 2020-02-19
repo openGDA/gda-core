@@ -1,6 +1,6 @@
 package uk.ac.diamond.daq.client.gui.camera;
 
-import java.util.Arrays;import java.util.Optional;
+import java.util.Arrays;
 import java.util.UUID;
 
 import org.eclipse.jface.layout.GridDataFactory;

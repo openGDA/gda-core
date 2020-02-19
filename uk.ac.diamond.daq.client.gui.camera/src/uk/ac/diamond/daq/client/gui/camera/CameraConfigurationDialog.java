@@ -6,7 +6,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import gda.device.DeviceException;
 import gda.rcp.views.CompositeFactory;
 import gda.rcp.views.TabCompositeFactory;
 import gda.rcp.views.TabCompositeFactoryImpl;

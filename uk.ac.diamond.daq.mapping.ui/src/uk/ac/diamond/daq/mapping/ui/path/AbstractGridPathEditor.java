@@ -27,7 +27,6 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
 import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel.Orientation;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 

@@ -45,7 +45,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.jython.InterfaceProvider;
-import uk.ac.gda.api.io.PathConstructor;
 
 /**
  * An implementation of a panel for time-frame configuration.

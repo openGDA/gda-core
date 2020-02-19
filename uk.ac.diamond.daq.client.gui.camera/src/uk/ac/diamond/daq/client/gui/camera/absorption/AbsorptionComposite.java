@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
 import gda.rcp.views.CompositeFactory;
-import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.event.ROIChangeEvent;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.ui.tool.ClientMessages;
