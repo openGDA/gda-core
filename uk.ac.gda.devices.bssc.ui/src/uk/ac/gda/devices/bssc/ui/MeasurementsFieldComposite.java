@@ -67,7 +67,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.jython.InterfaceProvider;
-import uk.ac.gda.api.io.PathConstructor;
 import uk.ac.gda.devices.bssc.beans.BSSCSessionBean;
 import uk.ac.gda.devices.bssc.beans.TitrationBean;
 import uk.ac.gda.devices.hatsaxs.beans.LocationBean;

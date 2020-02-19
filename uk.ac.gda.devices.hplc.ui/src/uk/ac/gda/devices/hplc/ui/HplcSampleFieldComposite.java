@@ -67,7 +67,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.jython.InterfaceProvider;
-import uk.ac.gda.api.io.PathConstructor;
 import uk.ac.gda.devices.hatsaxs.ui.Column;
 import uk.ac.gda.devices.hatsaxs.ui.HatsaxsMenu;
 import uk.ac.gda.devices.hplc.beans.HplcBean;

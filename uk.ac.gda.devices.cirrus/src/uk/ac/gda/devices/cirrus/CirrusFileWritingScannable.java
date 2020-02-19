@@ -32,7 +32,6 @@ import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 import gda.device.scannable.ScannableBase;
 import gda.jython.InterfaceProvider;
-import uk.ac.gda.api.io.PathConstructor;
 
 /**
  * Zero-input, zero-output scannable which will run the Cirrus Microreactor during scans asynchronously to the scan
