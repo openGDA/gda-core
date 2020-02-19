@@ -1,19 +1,9 @@
 package uk.ac.diamond.daq.client.gui.camera.samplealignment;
 
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
-import gda.factory.Finder;
-//import uk.ac.diamond.daq.client.gui.camera.PositionValueControlComposite;
-import uk.ac.diamond.daq.stage.MultipleStagePositioningService;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
-import uk.ac.gda.client.live.stream.view.LivePlottingComposite;
 
 public class SampleAlignmentDialog {
 	private static Shell instance;

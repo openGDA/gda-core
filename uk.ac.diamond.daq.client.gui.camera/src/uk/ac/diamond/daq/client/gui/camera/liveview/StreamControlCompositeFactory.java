@@ -1,6 +1,5 @@
 package uk.ac.diamond.daq.client.gui.camera.liveview;
 
-import java.sql.Types;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
