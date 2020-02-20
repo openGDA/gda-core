@@ -271,7 +271,7 @@ public class ConvertorScannable extends ScannableMotionUnitsBase implements IObs
 	 * A units component designed for use within a ConvertorScannable. For now the only difference is that it allows
 	 * incompatible user and hardware units to be set.
 	 */
-	private class UnitsComponentForConvertorScannable extends UnitsComponent {
+	private class UnitsComponentForConvertorScannable<Q extends Quantity<Q>> extends UnitsComponent<Q> {
 		@Override
 		protected void actuallySetUserUnits(String userUnitsString) throws DeviceException {
 			userUnit = QuantityFactory.createUnitFromString(userUnitsString);

@@ -53,13 +53,13 @@ public abstract class ScannableMotionUnitsBase extends ScannableMotionBase imple
 	private static final Logger logger = LoggerFactory.getLogger(ScannableMotionUnitsBase.class);
 
 	// handles user-unit to motor-unit conversion
-	protected UnitsComponent unitsComponent = new UnitsComponent();
+	protected UnitsComponent<? extends Quantity<?>> unitsComponent = new UnitsComponent<>();
 
 	private String initialUserUnits = null;
 
 	@Override
 	public Quantity<? extends Quantity<?>>[] getPositionAsQuantityArray() throws DeviceException {
-		throw new RuntimeException("Not implemented");
+		throw new UnsupportedOperationException("Not implemented");
 	}
 
 	@Override

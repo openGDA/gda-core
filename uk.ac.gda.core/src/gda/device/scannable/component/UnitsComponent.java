@@ -111,15 +111,15 @@ import gda.util.QuantityFactory;
  * This should not be used inside classes whose acceptable units are incompatible with each other e.g. a mono which
  * accepts angle, energy and wavelength as its position.
  */
-public class UnitsComponent implements PositionConvertor {
+public class UnitsComponent<Q extends Quantity<Q>> implements PositionConvertor {
 
 	private static final Logger logger = LoggerFactory.getLogger(UnitsComponent.class);
 
 	// the hardware's units
-	private Unit<? extends Quantity<?>> hardwareUnit;
+	private Unit<Q> hardwareUnit;
 
 	// user units
-	protected Unit<? extends Quantity<?>> userUnit = null;
+	protected Unit<Q> userUnit = null;
 	private List<String> acceptableUnits;
 
 	private boolean userUnitHasBeenExplicitlySet;
@@ -156,14 +156,14 @@ public class UnitsComponent implements PositionConvertor {
 	/**
 	 * @return the Unit object that is the current user unit
 	 */
-	public Unit<? extends Quantity<?>> getUserUnit() {
+	public Unit<Q> getUserUnit() {
 		return userUnit;
 	}
 
 	/**
 	 * @return the Unit object that is the current user unit
 	 */
-	public Unit<? extends Quantity<?>> getHardwareUnit() {
+	public Unit<Q> getHardwareUnit() {
 		return hardwareUnit;
 	}
 
@@ -268,14 +268,14 @@ public class UnitsComponent implements PositionConvertor {
 	 * @param hardwareUnitString
 	 */
 	public void addAcceptableUnit(String hardwareUnitString) {
-		final Unit<? extends Quantity<?>> newUnit = QuantityFactory.createUnitFromString(hardwareUnitString);
+		final Unit<Q> newUnit = QuantityFactory.createUnitFromString(hardwareUnitString);
 
 		if (newUnit.getSystemUnit() == this.hardwareUnit.getSystemUnit() && !this.acceptableUnits.contains(hardwareUnitString)) {
 			this.acceptableUnits.add(hardwareUnitString);
 		}
 	}
 
-	private List<String> generateCompatibleUnits(Unit<? extends Quantity<?>> unit) {
+	private List<String> generateCompatibleUnits(Unit<Q> unit) {
 		final List<String> unitList = new ArrayList<>();
 
 		if (unit.equals(ONE)) {
@@ -409,7 +409,6 @@ public class UnitsComponent implements PositionConvertor {
 	 * (hardware) unit. A String will be parsed into quantity. Otherwise it will take will take anything that {@link
 	 * ScannableMotionBase}'s will take (except an arbitrary String).
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	/**
 	 * Converts a position array to its representation in external (user) units, and returns the amount of each element
 	 * as a Double. Assumes the input, if not a quantity, or string parseable to a quantity, to be parseable to a Double
@@ -432,10 +431,10 @@ public class UnitsComponent implements PositionConvertor {
 		final Object[] internalObjectArray = PositionConvertorFunctions.toObjectArray(internalPosition);
 
 		// Amounts by definition are in internal (hardware) units, so make this explicit
-		final Quantity[] internalQuantityArray = PositionConvertorFunctions.toQuantityArray(internalObjectArray, (Unit) hardwareUnit);
+		final Quantity<Q>[] internalQuantityArray = PositionConvertorFunctions.toQuantityArray(internalObjectArray, hardwareUnit);
 
 		// Convert to external (user) units
-		final Quantity[] externalQuantityArray = PositionConvertorFunctions.toQuantityArray(internalQuantityArray, (Unit) userUnit);
+		final Quantity<Q>[] externalQuantityArray = PositionConvertorFunctions.toQuantityArray(internalQuantityArray, userUnit);
 
 		// Retrieve the amounts
 		final Double[] externalAmountArray = PositionConvertorFunctions.toAmountArray(externalQuantityArray);
@@ -452,7 +451,6 @@ public class UnitsComponent implements PositionConvertor {
 	 * @param externalPosition
 	 * @return internalPosition
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Object externalTowardInternal(Object externalPosition) {
 
@@ -467,10 +465,10 @@ public class UnitsComponent implements PositionConvertor {
 		final Object[] externalObjectArray = PositionConvertorFunctions.toObjectArray(externalPosition);
 
 		// Amounts by definition are in external (user) units, so make this explicit
-		final Quantity[] externalQuantityArray = PositionConvertorFunctions.toQuantityArray(externalObjectArray, (Unit) userUnit);
+		final Quantity<Q>[] externalQuantityArray = PositionConvertorFunctions.toQuantityArray(externalObjectArray, userUnit);
 
 		// Convert to internal (hardware) units
-		final Quantity[] internalQuantityArray = PositionConvertorFunctions.toQuantityArray(externalQuantityArray, (Unit) hardwareUnit);
+		final Quantity<Q>[] internalQuantityArray = PositionConvertorFunctions.toQuantityArray(externalQuantityArray, hardwareUnit);
 
 		// Retrieve the amounts
 		final Double[] internalAmountArray = PositionConvertorFunctions.toAmountArray(internalQuantityArray);
@@ -478,12 +476,11 @@ public class UnitsComponent implements PositionConvertor {
 		return PositionConvertorFunctions.toParticularContainer(internalAmountArray, externalPosition);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Object toExternalAmount(Object externalPosition) {
 		final Object[] externalObjectArray = PositionConvertorFunctions.toObjectArray(externalPosition);
 
 		// Amounts by definition are in external (user) units, so make this explicit
-		final Quantity[] externalQuantityArray = PositionConvertorFunctions.toQuantityArray(externalObjectArray, (Unit) userUnit);
+		final Quantity<Q>[] externalQuantityArray = PositionConvertorFunctions.toQuantityArray(externalObjectArray, userUnit);
 
 		// Retrieve the amounts
 		final Double[] externalAmountArray = PositionConvertorFunctions.toAmountArray(externalQuantityArray);

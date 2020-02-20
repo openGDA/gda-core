@@ -41,7 +41,7 @@ public class DummyScannableMotor extends DummyScannable implements IScannableMot
 
 	private Motor motor = new DummyMotor();
 	private String motorName = "DummyScannableMotor";
-	private UnitsComponent unitsComponent = new UnitsComponent();
+	private UnitsComponent<? extends Quantity<?>> unitsComponent = new UnitsComponent<>();
 
 	@Override
 	public double getSpeed() throws DeviceException {

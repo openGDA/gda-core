@@ -36,9 +36,9 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.measure.Quantity;
+import javax.measure.quantity.Angle;
 import javax.measure.quantity.Length;
 
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.python.core.PyFloat;
@@ -46,13 +46,13 @@ import org.python.core.PyTuple;
 
 import gda.device.DeviceException;
 import gda.device.scannable.component.UnitsComponent;
+import si.uom.quantity.Density;
 import tec.units.indriya.quantity.Quantities;
 
 /**
  * Note: the tests in {@link ScannableMotionUnitsBaseTest} also test this class indirectly
  */
 public class UnitsComponentTest {
-	private UnitsComponent uc;
 	private static final Quantity<Length> q1m = Quantities.getQuantity(1, METRE);
 	private static final Quantity<Length> q2m = Quantities.getQuantity(2, METRE);
 	private static final Quantity<Length> q1000mm = Quantities.getQuantity(1000, MILLI(METRE));
@@ -95,13 +95,9 @@ public class UnitsComponentTest {
 		Collections.sort(PRESSURE_UNITS);
 	}
 
-	@Before
-	public void setUp() {
-		uc = new UnitsComponent();
-	}
-
 	@Test
 	public void testInitialState() {
+		final UnitsComponent<? extends Quantity<?>> uc = new UnitsComponent<>();
 		assertEquals("", uc.getUserUnitString());
 		assertEquals("", uc.getHardwareUnitString());
 		assertFalse(uc.unitHasBeenSet());
@@ -114,18 +110,21 @@ public class UnitsComponentTest {
 
 	@Test
 	public void testExternalTowardInternalNoUnitsSet() {
+		final UnitsComponent<? extends Quantity<?>> uc = new UnitsComponent<>();
 		Object object = new Object();
 		assertEquals(object, uc.externalTowardInternal(object));
 	}
 
 	@Test
 	public void testInternalTowardExternal() {
+		final UnitsComponent<? extends Quantity<?>> uc = new UnitsComponent<>();
 		Object object = new Object();
 		assertEquals(object, uc.internalTowardExternal(object));
 	}
 
 	@Test
 	public void testExternalTowardInternalWithObjectArray() throws DeviceException {
+		final UnitsComponent<Length> uc = new UnitsComponent<>();
 		uc.setUserUnits("m");
 		uc.setHardwareUnitString("mm");
 		final double[] internalExpected = new double[] { 1000., 2000., 3000., 4000., 5000. };
@@ -138,6 +137,7 @@ public class UnitsComponentTest {
 
 	@Test
 	public void testExternalTowardInternalWithPyTuple() throws DeviceException {
+		final UnitsComponent<Length> uc = new UnitsComponent<>();
 		uc.setUserUnits("m");
 		uc.setHardwareUnitString("mm");
 		final PyTuple internalExpectedTuple = new PyTuple(new PyFloat(1000.), new PyFloat(2000.));
@@ -150,6 +150,7 @@ public class UnitsComponentTest {
 
 	@Test
 	public void testInternalTowardExternalWithPyTuple() throws DeviceException {
+		final UnitsComponent<Length> uc = new UnitsComponent<>();
 		uc.setHardwareUnitString("mm");
 		uc.setUserUnits("m");
 		final PyTuple externalExpectedTuple = new PyTuple(new PyFloat(1.), new PyFloat(2.));
@@ -162,6 +163,7 @@ public class UnitsComponentTest {
 
 	@Test
 	public void testExternalTowardInternalWithObject() throws DeviceException {
+		final UnitsComponent<Length> uc = new UnitsComponent<>();
 		uc.setUserUnits("m");
 		uc.setHardwareUnitString("mm");
 		assertEquals(1000.0, (double) uc.externalTowardInternal(1), 0.0001);
@@ -175,6 +177,7 @@ public class UnitsComponentTest {
 
 	@Test
 	public void testInternalTowardExternalWithObjectArray() throws DeviceException {
+		final UnitsComponent<Length> uc = new UnitsComponent<>();
 		uc.setHardwareUnitString("mm");
 		uc.setUserUnits("m");
 		final double[] externalExpected = new double[] { 1., 2., 3., 4., 5. };
@@ -187,6 +190,7 @@ public class UnitsComponentTest {
 
 	@Test
 	public void testInternalTowardExternalWithObject() throws DeviceException {
+		final UnitsComponent<Length> uc = new UnitsComponent<>();
 		uc.setHardwareUnitString("mm");
 		uc.setUserUnits("m");
 		assertEquals(1.0, (double) uc.internalTowardExternal(1000), 0.0001);
@@ -292,10 +296,12 @@ public class UnitsComponentTest {
 
 	@Test(expected = DeviceException.class)
 	public void testGetAcceptableUnitsVolumetricDensityGramsPerLitre() throws DeviceException {
+		final UnitsComponent<Density> uc = new UnitsComponent<>();
 		uc.setHardwareUnitString("g/L");
 	}
 
-	private void testGetAcceptableUnits(String hardwareUnitString, List<String> expectedAcceptableUnits) throws DeviceException {
+	private <Q extends Quantity<Q>> void testGetAcceptableUnits(String hardwareUnitString, List<String> expectedAcceptableUnits) throws DeviceException {
+		final UnitsComponent<Q> uc = new UnitsComponent<>();
 		uc.setHardwareUnitString(hardwareUnitString);
 		final List<String> acceptableUnits = Arrays.asList(uc.getAcceptableUnits());
 		Collections.sort(acceptableUnits);
@@ -304,6 +310,7 @@ public class UnitsComponentTest {
 
 	@Test
 	public void testSetHardwareUnitStringOnly() throws DeviceException {
+		final UnitsComponent<Length> uc = new UnitsComponent<>();
 		uc.setHardwareUnitString("mm");
 		assertTrue(uc.unitHasBeenSet());
 		assertEquals("mm", uc.getHardwareUnitString());
@@ -314,6 +321,7 @@ public class UnitsComponentTest {
 
 	@Test
 	public void testSetUserUnitStringOnly() throws DeviceException {
+		final UnitsComponent<Length> uc = new UnitsComponent<>();
 		uc.setUserUnits("mm");
 		assertTrue(uc.unitHasBeenSet());
 		assertEquals("mm", uc.getUserUnitString());
@@ -324,6 +332,7 @@ public class UnitsComponentTest {
 
 	@Test
 	public void testSetHardwareThenUserUnit() throws DeviceException {
+		final UnitsComponent<Length> uc = new UnitsComponent<>();
 		uc.setHardwareUnitString("mm");
 		uc.setUserUnits("nm");
 		assertEquals("mm", uc.getHardwareUnitString());
@@ -334,6 +343,7 @@ public class UnitsComponentTest {
 
 	@Test
 	public void testSetUserThenHardwareUnitLength() throws DeviceException {
+		final UnitsComponent<Length> uc = new UnitsComponent<>();
 		uc.setUserUnits("nm");
 		uc.setHardwareUnitString("mm");
 		assertEquals("mm", uc.getHardwareUnitString());
@@ -344,6 +354,7 @@ public class UnitsComponentTest {
 
 	@Test
 	public void testSetUserThenHardwareUnitAngle() throws DeviceException {
+		final UnitsComponent<Angle> uc = new UnitsComponent<>();
 		uc.setUserUnits("mDeg");
 		uc.setHardwareUnitString("Deg");
 		assertEquals(DEG_ANGLE_LOWERCASE_STRING, uc.getHardwareUnitString());
@@ -354,18 +365,21 @@ public class UnitsComponentTest {
 
 	@Test(expected = DeviceException.class)
 	public void testSetHardwareThenIncompatibleUserUnit() throws DeviceException {
+		final UnitsComponent<Length> uc = new UnitsComponent<>();
 		uc.setHardwareUnitString("mm");
 		uc.setUserUnits("deg");
 	}
 
 	@Test(expected = DeviceException.class)
 	public void testSetUserThenIncompatibleHardwareUnit() throws DeviceException {
+		final UnitsComponent<Angle> uc = new UnitsComponent<>();
 		uc.setUserUnits("deg");
 		uc.setHardwareUnitString("mm");
 	}
 
 	@Test
 	public void testAddAcceptableUnit() throws DeviceException {
+		final UnitsComponent<Length> uc = new UnitsComponent<>();
 		uc.setHardwareUnitString("mm");
 		uc.addAcceptableUnit("pm");
 
@@ -381,6 +395,7 @@ public class UnitsComponentTest {
 
 	@Test
 	public void testAddAcceptableUnitIncompatible() throws DeviceException {
+		final UnitsComponent<Length> uc = new UnitsComponent<>();
 		uc.setHardwareUnitString("mm");
 		uc.addAcceptableUnit("deg");
 
@@ -394,7 +409,8 @@ public class UnitsComponentTest {
 	@Test
 	public void testGetHardwareUnitStringOverridden() throws DeviceException {
 		// Units whose default string value is overridden in UnitsComponent
-		uc.setHardwareUnitString("°");
+		final UnitsComponent<? extends Quantity<?>> uc = new UnitsComponent<>();
+		uc.setHardwareUnitString(DEG_ANGLE_SYMBOL);
 		assertEquals("deg", uc.getHardwareUnitString());
 
 		uc.setHardwareUnitString("ct");
@@ -413,6 +429,7 @@ public class UnitsComponentTest {
 	@Test
 	public void testGetUserUnitStringOverridden() throws DeviceException {
 		// Units whose default string value is overridden in UnitsComponent
+		final UnitsComponent<? extends Quantity<?>> uc = new UnitsComponent<>();
 		uc.setUserUnits(DEG_ANGLE_SYMBOL);
 		assertEquals("deg", uc.getUserUnitString());
 
