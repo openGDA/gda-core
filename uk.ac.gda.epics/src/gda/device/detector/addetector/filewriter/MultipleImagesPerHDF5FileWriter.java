@@ -62,10 +62,15 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 	private int framesFlush=1;
 
 	private boolean firstReadoutInScan;
+	private String name;
 
 	@Override // interface NXPluginBase
 	public String getName() {
-		return "hdfwriter"; // TODO: Multiple filewriters require different names.
+		return name != null && !name.isEmpty() ? name : "hdfwriter";
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	@Override // class FileWriterBase
@@ -594,4 +599,5 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 	public void setAlwaysPrepare(boolean alwaysPrepare) {
 		this.alwaysPrepare = alwaysPrepare;
 	}
+
 }
