@@ -412,6 +412,9 @@ public class ScanRequestConverterTest {
 		for (final ScanRegion scanRegion : regions) {
 			final List<String> scannables = scanRegion.getScannables();
 			final RectangularROI roi = (RectangularROI) scanRegion.getRoi();
+			/* Post DAQ-2739, this ensures if x-y axes of regions are flipped again it will be noticed either here or in the num of point
+			 * [n.b. shortly before 2739, Regions were not passed to CompoundModels, then they were but reflected, which broke scanning]
+			 */
 			assertThat(scannables.get(0), is(equalTo(X_AXIS_NAME)));
 			assertThat(scannables.get(1), is(equalTo(Y_AXIS_NAME)));
 			assertEquals(X_START, roi.getPoint()[0], DIFF_LIMIT);
