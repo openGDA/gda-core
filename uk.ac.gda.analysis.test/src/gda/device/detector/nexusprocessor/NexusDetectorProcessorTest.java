@@ -19,11 +19,6 @@
 package gda.device.detector.nexusprocessor;
 
 import static org.mockito.Mockito.when;
-import gda.data.nexus.extractor.NexusGroupData;
-import gda.device.DeviceException;
-import gda.device.detector.GDANexusDetectorData;
-import gda.device.detector.NXDetectorData;
-import gda.device.detector.NexusDetector;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,6 +31,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
+
+import gda.data.nexus.extractor.NexusGroupData;
+import gda.device.DeviceException;
+import gda.device.detector.GDANexusDetectorData;
+import gda.device.detector.NXDetectorData;
+import gda.device.detector.NexusDetector;
 
 public class NexusDetectorProcessorTest {
 
@@ -419,7 +420,7 @@ public class NexusDetectorProcessorTest {
 		Assert.assertEquals(expected, sum, 0.);
 
 		NexusGroupData dataX = position.getData(DETNAME, "data.total", "SDS");
-		double sum_SDS = ((double[])dataX.getBuffer())[0];
+		double sum_SDS = dataX.toDataset().getDouble();
 		Assert.assertEquals(expected, sum_SDS, 0.);
 
 

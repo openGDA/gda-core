@@ -18,115 +18,84 @@
 
 package gda.device.detector.nexusprocessor;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.detector.GDANexusDetectorData;
 import gda.device.detector.NXDetectorData;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
-
-import org.eclipse.january.dataset.Dataset;
-
+/**
+ * Processor to take a Dataset and calculate some statistics on it
+ * The available statistics are defined in {@link Statistic}. Which
+ * statistics are enabled can be configured using {@link #setEnabledStats(List)}.
+ */
 public class DatasetStats extends DataSetProcessorBase {
 
-	static List<String> formats;
-	static{
-		formats = java.util.Arrays.asList(new String[] { "%5.5g",  "%5.5g" });
+	private static final String INT_FORMAT = "%.0f";
+	private static final String FLOAT_FORMAT = "%f";
+	private static final String GENERAL_FORMAT = "%5.5g";
+
+	private Set<Statistic> enabledStats = new LinkedHashSet<>();
+	private Map<Statistic, String> statsNames;
+	private Map<Statistic, String> statsFormats;
+	private List<String> extraNames = new ArrayList<>();
+	private List<String> outputFormats = new ArrayList<>();
+
+
+	/**
+	 * On creation the names and formats for each {@link Statistic} are set
+	 * from defaults but can be changed using e.g. {@link #setStatName(Statistic, String)}.
+	 */
+	public DatasetStats() {
+		statsNames = EnumSet.allOf(Statistic.class).stream()
+				.collect(Collectors.toMap(Function.identity(), Statistic::getDefaultName));
+		statsFormats = EnumSet.allOf(Statistic.class).stream()
+				.collect(Collectors.toMap(Function.identity(), Statistic::getDefaultFormat));
+
+		// Set sum and mean only as a default
+		enabledStats.add(Statistic.SUM);
+		enabledStats.add(Statistic.MEAN);
+
+		setNamesAndFormats();
 	}
-	String totalName="total";
-	String averageName="average";
 
-
-	public String getTotalName() {
-		return totalName;
-	}
-
-	public void setTotalName(String totalName) {
-		this.totalName = totalName;
-	}
-
-	public String getAverageName() {
-		return averageName;
-	}
-
-	public void setAverageName(String averageName) {
-		this.averageName = averageName;
-	}
-
-	List<String> outputNames;
-	private boolean profileX;
-	private boolean profileY;
 
 	@Override
 	public GDANexusDetectorData process(String detectorName, String dataName, Dataset dataset) throws Exception {
-		if(!enable)
+		if (!enable)
 			return null;
-		Object sum = dataset.sum();
-		Double vals[] = new Double[]{0.0, 0.0};
-		if( sum instanceof Number){
-			vals[0]= ((Number)sum).doubleValue();
-		} else {
-			return null;
+		NXDetectorData res = new NXDetectorData(extraNames.stream().toArray(String[]::new), outputFormats.stream().toArray(String[]::new), dataName);
+		for (Statistic stat : enabledStats) {
+			Number statistic = stat.applyFunction(dataset);
+			String statName = statsNames.get(stat);
+			// Convert to dataset here because there is no NexusGroupData constructor for general Number type
+			NexusGroupData data = new NexusGroupData(DatasetFactory.createFromObject(statistic, 1));
+			data.isDetectorEntryData = true;
+			res.addData(detectorName, dataName + "." + statName, data, null, 1);
+			res.setPlottableValue(statName, statistic.doubleValue());
 		}
-		int size = dataset.getSize();
-		if( size > 0)
-			vals[1] = vals[0]/dataset.getSize();
-
-		NXDetectorData res = new NXDetectorData();
-
-		//the NexusDataWriter requires that the number of entries must be the same for all scan data points in a scan.
-		List<String> names = getOutputNames();
-		for (int i = 0; i < names.size(); i++) {
-			String name = names.get(i);
-			res.addData(detectorName, dataName + "." + name, new NexusGroupData(vals[i]), null, 1);
-		}
-		if(profileX){
-			Dataset sum2 = dataset.sum(0);
-			Serializable buffer = sum2.getBuffer();
-			long[] sum0 = (long[] )buffer;//TODO must deal with other types
-			res.addData(detectorName, dataName + "." + "profileX", new NexusGroupData(sum0), null, 1);
-		}
-		if(profileY){
-			long[] sum1 = (long[] )dataset.sum(1).getBuffer();
-			res.addData(detectorName, dataName + "." + "profileY", new NexusGroupData(sum1), null, 1);
-		}
-
-		res.setDoubleVals(vals);
 		return res;
-	}
-
-	public boolean isProfileX() {
-		return profileX;
-	}
-
-	public void setProfileX(boolean profileX) {
-		this.profileX = profileX;
-	}
-
-	public boolean isProfileY() {
-		return profileY;
-	}
-
-	public void setProfileY(boolean profileY) {
-		this.profileY = profileY;
-	}
-
-	private List<String> getOutputNames(){
-		if( outputNames == null){
-			outputNames = java.util.Arrays.asList(new String[] { totalName, averageName });
-		}
-		return outputNames;
 	}
 
 	@Override
 	protected Collection<String> _getExtraNames() {
-		return getOutputNames();
+		return extraNames;
 	}
 
 	@Override
 	protected Collection<String> _getOutputFormat() {
-		return formats;
+		return outputFormats;
 	}
 
 	@Override
@@ -134,4 +103,74 @@ public class DatasetStats extends DataSetProcessorBase {
 		return "DatasetStats [enable=" + enable + "]";
 	}
 
+	private void setNamesAndFormats() {
+		extraNames.clear();
+		outputFormats.clear();
+		for (Statistic stat : enabledStats) {
+			extraNames.add(statsNames.get(stat));
+			outputFormats.add(statsFormats.get(stat));
+		}
+	}
+
+	public void setEnabledStats(List<Statistic> stats) {
+		enabledStats.clear();
+		enabledStats.addAll(stats);
+		setNamesAndFormats();
+	}
+
+	public Set<Statistic> getEnabledStats() {
+		return enabledStats;
+	}
+
+	public void setStatName(Statistic stat, String name) {
+		statsNames.put(stat, name);
+		setNamesAndFormats();
+	}
+
+	public void setStatFormat(Statistic stat, String format) {
+		statsFormats.put(stat, format);
+		setNamesAndFormats();
+	}
+
+
+	/**
+	 * Statistics for Dataset processing. Each is defined with a
+	 * default name and output format. The statistics are applied
+	 * using {@link #applyFunction(Dataset)}.
+	 */
+	public enum Statistic {
+		MIN_X("min_x", INT_FORMAT, dataset -> dataset.minPos()[0]),
+		MIN_Y("min_y", INT_FORMAT, dataset -> dataset.minPos()[1]),
+		MIN_VAL("min_val", INT_FORMAT, dataset -> dataset.min()),
+		MAX_X("max_x", INT_FORMAT, dataset -> dataset.maxPos()[0]),
+		MAX_Y("max_y", INT_FORMAT, dataset -> dataset.maxPos()[1]),
+		MAX_VAL("max_val", INT_FORMAT,	dataset -> dataset.max()),
+		MEAN("average", GENERAL_FORMAT, dataset -> (Number) dataset.mean()),
+		STDEV("std", FLOAT_FORMAT, dataset -> dataset.stdDeviation()),
+		SUM("total", GENERAL_FORMAT, dataset -> (Number) dataset.sum()),
+		PROFILE_X("profileX", INT_FORMAT, dataset -> (Number) dataset.sum(0).sum()),
+		PROFILE_Y("profileY", INT_FORMAT, dataset -> (Number) dataset.sum(1).sum());
+
+		private String defaultName;
+		private String defaultFormat;
+		private Function<Dataset, Number> function;
+
+		private Statistic(String defaultName, String defaultFormat, Function<Dataset, Number> function) {
+			this.defaultName = defaultName;
+			this.defaultFormat = defaultFormat;
+			this.function = function;
+		}
+
+		public Number applyFunction(Dataset dataset) {
+			return function.apply(dataset);
+		}
+
+		public String getDefaultName() {
+			return defaultName;
+		}
+
+		public String getDefaultFormat() {
+			return defaultFormat;
+		}
+	}
 }
