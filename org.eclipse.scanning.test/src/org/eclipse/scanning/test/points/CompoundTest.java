@@ -601,4 +601,46 @@ public class CompoundTest {
 		assertEquals(25, allPositions.size());
 	}
 
+	@Test(expected = GeneratorException.class)
+	public void regionForWrongAxis() throws GeneratorException {
+		CompoundModel cModel = new CompoundModel();
+
+		TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel();
+		gridModel.setBoundingBox(new BoundingBox(3, 7, 2, 6));
+		gridModel.setxAxisName("x");
+		gridModel.setyAxisName("y");
+
+		cModel.addModel(gridModel);
+
+		ScanRegion sr = new ScanRegion();
+		// Non-overlapping region, 3<x<5, 7<y<13
+		sr.setRoi(new RectangularROI(3, 7, 2, 6, 0));
+		sr.setScannables(Arrays.asList("x", "z"));
+
+		cModel.setRegions(Arrays.asList(sr));
+
+		service.createCompoundGenerator(cModel).createPoints();
+	}
+
+	@Test(expected = GeneratorException.class)
+	public void regionForWrongAxes() throws GeneratorException {
+		CompoundModel cModel = new CompoundModel();
+
+		TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel();
+		gridModel.setBoundingBox(new BoundingBox(3, 7, 2, 6));
+		gridModel.setxAxisName("x");
+		gridModel.setyAxisName("y");
+
+		cModel.addModel(gridModel);
+
+		ScanRegion sr = new ScanRegion();
+		// Non-overlapping region, 3<x<5, 7<y<13
+		sr.setRoi(new RectangularROI(3, 7, 2, 6, 0));
+		sr.setScannables(Arrays.asList("p", "z"));
+
+		cModel.setRegions(Arrays.asList(sr));
+
+		service.createCompoundGenerator(cModel).createPoints();
+	}
+
 }

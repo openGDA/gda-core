@@ -295,4 +295,13 @@ public class CompoundModel extends AbstractPointsModel implements Cloneable {
 		this.regions = tmp;
 	}
 
+	@Override
+	public List<String> getScannableNames(){
+		List<String> scannables = new ArrayList<>();
+		for (Object model : getModels()) {
+			scannables.addAll(AbstractPointsModel.getScannableNames(model));
+		}
+		return scannables;
+	}
+
 }

@@ -34,7 +34,6 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.jython.JythonObjectFactory;
-import org.python.core.PyDictionary;
 import org.python.core.PyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,16 +120,17 @@ public class CompoundGenerator extends AbstractScanPointGenerator<CompoundModel>
 				axes.add(axis);
 			}
 		}
+		if (model.getRegions() != null) for (ScanRegion region : model.getRegions()) {
+			if (!model.getScannableNames().containsAll(region.getScannables())) {
+				throw new ModelValidationException("CompoundModel contains regions that operate in scannable axes that it doesn't contain!",
+						model, "regions", "models");
+			}
+		}
 		/*
 		 * CompoundValidator from ValidatorService will validate all models after Regions have been applied
 		 * So here we just check that axes are mutually exclusive
 		 */
 	}
-
-    @Override
-	public PyDictionary toDict() {
-    	return ((PySerializable) pointGenerator).toDict();
-    }
 
 	public List<IScanPathModel> getModels(){
 		return (List<IScanPathModel>) Arrays.asList(generators).stream().map(IPointGenerator::getModel).collect(Collectors.toList());

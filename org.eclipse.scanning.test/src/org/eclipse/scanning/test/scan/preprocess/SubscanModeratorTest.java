@@ -20,6 +20,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
+import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.scanning.api.malcolm.MalcolmConstants;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -28,8 +30,10 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
@@ -470,6 +474,51 @@ public class SubscanModeratorTest {
 		checkModeratedScanSizes(moderator, 6, 6, 1);
 		checkModeratedModels(moderator, 1, 1);
 		checkHasSingleStaticPosition(moderator.getInnerPointGenerator());
+	}
+
+
+	/**
+	 * Post DAQ-2739 additional tests to ensure that such a disruptive change does not go unnnoticed again:
+	 *   If scan regions are trying to be applied to scans in axes they have no relation to, this test would break
+	 * And ScanRequestConverterTest.testRoiAxisNamesAreSet would break if regions try to be applied reflected in their x-y
+	 */
+	@Test
+	public void testMalcolmScanWithRegion() throws Exception {
+		CompoundModel cModel = new CompoundModel(new AxialStepModel("z", 1, 11, 5));
+		cModel.addData(new TwoAxisLissajousModel(), Arrays.asList(new RectangularROI(2, 6, 3, 5, 0)));
+		cModel.addRegions(Arrays.asList(new ScanRegion(new CircularROI(2.5, 3.5, 8.5), Arrays.asList("stage_x", "stage_y"))));
+
+		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cModel);
+
+		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
+		final DummyMalcolmDevice det = new DummyMalcolmDevice();
+		det.setModel(tmodel);
+		det.setAttributeValue(MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[] { "stage_x", "stage_y" });
+
+		final ScanModel scanModel = new ScanModel(gen, det);
+		SubscanModerator moderator = new SubscanModerator(scanModel);
+		checkModeratedScanSizes(moderator, 909, 3, 303);
+		checkModeratedModels(moderator, 1, 1);
+	}
+
+	@Test
+	public void testMalcolmScanWithRegion2d() throws Exception {
+		CompoundModel cModel = new CompoundModel();
+		cModel.addData(new TwoAxisLissajousModel(), Arrays.asList(new RectangularROI(2, 6, 3, 5, 0)));
+		cModel.addRegions(Arrays.asList(new ScanRegion(new CircularROI(2.5, 3.5, 8.5), Arrays.asList("stage_x", "stage_y"))));
+
+		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cModel);
+
+		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
+		final DummyMalcolmDevice det = new DummyMalcolmDevice();
+		det.setModel(tmodel);
+		det.setAttributeValue(MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[] { "stage_x", "stage_y" });
+
+		final ScanModel scanModel = new ScanModel(gen, det);
+		SubscanModerator moderator = new SubscanModerator(scanModel);
+		// One 303 point Lissajous scan performed once
+		checkModeratedScanSizes(moderator, 303, 1, 303);
+		checkModeratedModels(moderator, 0, 1);
 	}
 
 }
