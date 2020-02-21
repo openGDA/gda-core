@@ -69,7 +69,7 @@ public class LdapAuthoriser extends FileAuthoriser {
 		}
 		// else use defaults
 		if (isLocalStaff(username)) {
-			return LocalProperties.getInt(FileAuthoriser.DEFAULTSTAFFLEVELPROPERTY, 2);
+			return LocalProperties.getInt(FileAuthoriser.DEFAULTSTAFFLEVELPROPERTY, 3);
 		}
 		return LocalProperties.getInt(FileAuthoriser.DEFAULTLEVELPROPERTY, 1);
 
