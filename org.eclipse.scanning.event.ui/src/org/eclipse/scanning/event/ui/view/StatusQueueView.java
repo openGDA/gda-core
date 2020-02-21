@@ -321,8 +321,14 @@ public class StatusQueueView extends EventConnectionView {
 				final Instant jobStartTime = Instant.now();
 
 				if (queue.containsKey(bean.getUniqueId())) {
+					StatusBean oldBean = queue.get(bean.getUniqueId());
+					if (bean.getStatus().isStarted() && !runList.contains(oldBean)) {
+						runList.add(oldBean);
+						submittedList.remove(oldBean);
+					}
 					logger.trace("mergeBean(id={}) Merging existing bean: {}", bean.getUniqueId(), bean);
-					queue.get(bean.getUniqueId()).merge(bean);
+					oldBean.merge(bean);
+
 					/*
 					 * Not reliable without viewer.refresh()
 					 * Ought to update just relevant row, but seems to work intermittently: every ~40 points?
