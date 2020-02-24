@@ -35,13 +35,13 @@ import javax.jms.QueueConnectionFactory;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.command.ActiveMQQueue;
-import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.event.JmsQueueReader;
 import org.eclipse.scanning.test.BrokerTest;
+import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.Before;
@@ -63,10 +63,10 @@ public class JmsQueueReaderTest extends BrokerTest {
 
 		ServiceTestHelper.setupServices();
 		eventService = ServiceTestHelper.getEventService();
-		submitter = eventService.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE);
+		submitter = eventService.createSubmitter(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID);
 		IEventService eventServiceSpy = spy(eventService);
-		doReturn(mockJobQueue).when(eventServiceSpy).getJobQueue(EventConstants.SUBMISSION_QUEUE);
-		jmsQueueReader = new JmsQueueReader<>(uri, eventServiceSpy, EventConstants.SUBMISSION_QUEUE);
+		doReturn(mockJobQueue).when(eventServiceSpy).getJobQueue(ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID);
+		jmsQueueReader = new JmsQueueReader<>(uri, eventServiceSpy, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID);
 		jmsQueueReader.start();
 	}
 
@@ -86,7 +86,7 @@ public class JmsQueueReaderTest extends BrokerTest {
 		QueueConnectionFactory connectionFactory =
 				(QueueConnectionFactory) eventService.getEventConnectorService().createConnectionFactory(uri);
 		QueueConnection connection = connectionFactory.createQueueConnection();
-		((ActiveMQConnection) connection).destroyDestination(new ActiveMQQueue(EventConstants.SUBMISSION_QUEUE));
+		((ActiveMQConnection) connection).destroyDestination(new ActiveMQQueue(ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID));
 	}
 
 	@Test

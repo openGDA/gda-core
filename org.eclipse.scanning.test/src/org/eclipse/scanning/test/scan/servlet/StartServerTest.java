@@ -33,7 +33,7 @@ public class StartServerTest extends AbstractServletTest {
 
 	@Test
 	public void runServletEmptyQueue() throws Exception {
-		servlet = new ScanServlet();
+		servlet = new ScanServlet(true);
 		servlet.setBroker(uri.toString());
 		servlet.connect(); // Gets called by Spring automatically
 		servlet.getJobQueue().awaitStart();
@@ -45,7 +45,7 @@ public class StartServerTest extends AbstractServletTest {
 	@Ignore("Reinstate when queue persistence is reintroduced (DAQ-1704)")
 	public void runServletSomethingInQueue() throws Exception {
 		// We do not start it!
-		servlet = new ScanServlet();
+		servlet = new ScanServlet(true);
 		servlet.setBroker(uri.toString());
 
 		// Now there is something in the queue

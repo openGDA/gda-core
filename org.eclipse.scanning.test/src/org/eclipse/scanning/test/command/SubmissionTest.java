@@ -11,6 +11,10 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.command;
 
+import static org.eclipse.scanning.api.event.EventConstants.ACK_TOPIC;
+import static org.eclipse.scanning.api.event.EventConstants.CMD_TOPIC;
+import static org.eclipse.scanning.api.event.EventConstants.QUEUE_STATUS_TOPIC;
+import static org.eclipse.scanning.api.event.EventConstants.STATUS_TOPIC;
 import static org.junit.Assert.assertEquals;
 
 import java.util.concurrent.ArrayBlockingQueue;
@@ -18,13 +22,14 @@ import java.util.concurrent.BlockingQueue;
 
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.AbstractLockingPausableProcess;
-import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.IBeanProcess;
 import org.eclipse.scanning.api.event.core.IJmsQueueReader;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.IProcessCreator;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.status.Status;
+import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -47,7 +52,9 @@ public class SubmissionTest extends AbstractJythonTest {
 	public static void start() throws Exception {
 		ServiceTestHelper.setupServices();
 
-		jobQueue = ServiceTestHelper.getEventService().createJobQueue(uri);
+		// Cannot use createJobQueue(uri) as tests can run into each other with default submissionQueueName
+		jobQueue = ServiceTestHelper.getEventService().createJobQueue(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID,
+				STATUS_TOPIC, QUEUE_STATUS_TOPIC, CMD_TOPIC, ACK_TOPIC);
 
 		jobQueue.setRunner(new IProcessCreator<ScanBean>() {
 			@Override
@@ -112,7 +119,7 @@ public class SubmissionTest extends AbstractJythonTest {
 	}
 
 	private void submission(String name, boolean blocking) throws InterruptedException {
-		pi.exec("submit("+name+", block="+(blocking?"True":"False")+", broker_uri='"+uri+"')");
+		pi.exec("submitForTest("+name+", block="+(blocking?"True":"False")+", broker_uri='"+uri+"')");
 		testLog.put("Jython command returned.");
 
 		// Jython returns *after* scan is complete.

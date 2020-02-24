@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.server.servlet;
 
+import java.lang.management.ManagementFactory;
+
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -50,6 +52,23 @@ public class ScanServlet extends AbstractJobQueueServlet<ScanBean> {
 
 	public ScanServlet() {
 		setPauseOnStart(true);
+	}
+
+	/**
+	 * Utility constructor for test classes only- this forces the MVStore for JobQueueImpl (which uses
+	 * scanServlet.getSubmitQueue()) to be unique per JVM, ensuring that multiple sets of running tests
+	 * do not collide on trying to access their MVStores.
+	 * The creation of submission queues and of their submitters both use getSubmitQueue so parity is conserved.
+	 *
+	 * Special care should be taken by any test using this method to clean up any MVStore files that are produced.
+	 * See ScanningTestUtil.clearStore()
+	 *
+	 * @param forTest
+	 */
+	public ScanServlet(boolean forTest) {
+		this();
+		// Don't want to rely on ScanningTestUtils
+		if (forTest) submitQueue = submitQueue.concat(ManagementFactory.getRuntimeMXBean().getName());
 	}
 
 	@Override

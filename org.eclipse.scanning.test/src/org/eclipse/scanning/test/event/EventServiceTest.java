@@ -33,6 +33,7 @@ import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.example.file.MockFilePathService;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.test.BrokerTest;
+import org.eclipse.scanning.test.ScanningTestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -42,7 +43,7 @@ import org.junit.rules.ExpectedException;
 public class EventServiceTest extends BrokerTest {
 
 	private IEventService eventService;
-	private static final String QUEUE_NAME = "org.eclipse.scanning.test.event.queue";
+	private static final String QUEUE_NAME = "org.eclipse.scanning.test.event.queue".concat(ScanningTestUtils.JVM_UNIQUE_ID);
 
 	@Rule
 	public final ExpectedException exception = ExpectedException.none();

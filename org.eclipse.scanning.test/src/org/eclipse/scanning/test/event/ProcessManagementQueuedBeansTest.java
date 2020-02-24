@@ -40,6 +40,7 @@ import org.eclipse.scanning.api.event.dry.DryRunProcess;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.test.BrokerTest;
+import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.util.WaitingRunnable;
 import org.junit.After;
@@ -115,10 +116,10 @@ public class ProcessManagementQueuedBeansTest extends BrokerTest {
 		ServiceTestHelper.setupServices();
 
 		eservice = ServiceTestHelper.getEventService();
-		submitter = eservice.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE);
+		submitter = eservice.createSubmitter(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID);
 		publisher = eservice.createPublisher(uri, EventConstants.STATUS_TOPIC);
 
-		jobQueue = eservice.createJobQueue(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_TOPIC, EventConstants.QUEUE_STATUS_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
+		jobQueue = eservice.createJobQueue(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID, EventConstants.STATUS_TOPIC, EventConstants.QUEUE_STATUS_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		jobQueue.setName("Test Queue");
 		jobQueue.clearQueue();
 		jobQueue.clearRunningAndCompleted();

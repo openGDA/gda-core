@@ -62,6 +62,7 @@ import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.event.JobQueueImpl;
 import org.eclipse.scanning.event.ScanningEventsClassRegistry;
 import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
+import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.hamcrest.Matchers;
 import org.junit.After;
@@ -157,7 +158,7 @@ public abstract class AbstractJobQueueTest {
 	}
 
 	protected void createJobQueue() throws EventException {
-		jobQueue = new JobQueueImpl<>(uri, EventConstants.SUBMISSION_QUEUE,
+		jobQueue = new JobQueueImpl<>(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID,
 				EventConstants.STATUS_TOPIC, EventConstants.QUEUE_STATUS_TOPIC,
 				EventConstants.CMD_TOPIC,
 				EventConstants.ACK_TOPIC, eventConnectorService, eventService);

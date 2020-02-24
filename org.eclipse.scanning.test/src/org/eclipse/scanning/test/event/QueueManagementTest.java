@@ -47,6 +47,7 @@ import org.eclipse.scanning.api.event.dry.DryRunProcess;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.test.BrokerTest;
+import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.util.WaitingRunnable;
 import org.junit.After;
@@ -134,13 +135,13 @@ public class QueueManagementTest extends BrokerTest {
 
 		eservice = ServiceTestHelper.getEventService();
 
-		jobQueue = eservice.createJobQueue(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_TOPIC, EventConstants.QUEUE_STATUS_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
+		jobQueue = eservice.createJobQueue(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID, EventConstants.STATUS_TOPIC, EventConstants.QUEUE_STATUS_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		jobQueue.setName("Test Queue");
 		jobQueue.clearQueue();
 		jobQueue.clearRunningAndCompleted();
 
 		if (useProxy) {
-			jobQueueProxy = eservice.createJobQueueProxy(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
+			jobQueueProxy = eservice.createJobQueueProxy(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		}
 		if (startConsumerThread) {
 			startConsumerThread(true);

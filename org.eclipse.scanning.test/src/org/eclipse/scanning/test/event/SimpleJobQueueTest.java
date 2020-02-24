@@ -44,10 +44,11 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IBeanProcess;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.queue.QueueCommandBean;
-import org.eclipse.scanning.api.event.queue.QueueStatus;
 import org.eclipse.scanning.api.event.queue.QueueCommandBean.Command;
+import org.eclipse.scanning.api.event.queue.QueueStatus;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
+import org.eclipse.scanning.test.ScanningTestUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -57,7 +58,7 @@ public class SimpleJobQueueTest extends AbstractJobQueueTest {
 	@Test
 	public void testConsumerInitialized() {
 		assertThat(jobQueue, is(notNullValue()));
-		assertThat(jobQueue.getSubmitQueueName(), is(EventConstants.SUBMISSION_QUEUE));
+		assertThat(jobQueue.getSubmitQueueName(), is(ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID));
 		assertThat(jobQueue.getStatusTopicName(), is(EventConstants.STATUS_TOPIC));
 		assertThat(jobQueue.getCommandTopicName(), is(EventConstants.CMD_TOPIC));
 		assertThat(jobQueue.getQueueStatusTopicName(), is(EventConstants.QUEUE_STATUS_TOPIC));
