@@ -22,6 +22,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.Gson;
+
 import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
 import uk.ac.gda.devices.hatsaxs.beans.PlateConfig;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
@@ -34,6 +36,7 @@ public class BSSCSessionBean implements XMLRichBean{
 	static public PlateConfig BSSC_PLATES;
 
 	List<TitrationBean> measurements = new ArrayList<>();
+	private Gson gson = new Gson();
 
 	public PlateConfig getPlateSetup() {
 		return BSSC_PLATES;
@@ -76,5 +79,9 @@ public class BSSCSessionBean implements XMLRichBean{
 
 	public void clear() {
 		measurements.clear();
+	}
+
+	public String asJson() {
+		return gson.toJson(measurements);
 	}
 }

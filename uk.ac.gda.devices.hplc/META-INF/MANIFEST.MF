@@ -16,3 +16,4 @@ Bundle-ClassPath: .
 Bundle-Vendor: Diamond Light Source
 Eclipse-RegisterBuddy: uk.ac.gda.core
 Automatic-Module-Name: uk.ac.gda.devices.hplc
+Import-Package: com.google.gson

@@ -18,6 +18,7 @@
 
 package uk.ac.gda.devices.hplc.beans;
 
+import com.google.gson.Gson;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,8 @@ public class HplcSessionBean implements XMLRichBean {
 	public static PlateConfig HPLC_PLATES;
 	
 	List<HplcBean> measurements = new ArrayList<>();
+	private Gson gson = new Gson();
+
 
 	public static HplcSessionBean createFromXML(String filename) throws Exception {
 		return (HplcSessionBean) XMLHelpers.createFromXML(mappingURL, HplcSessionBean.class, schemaURL, filename);
@@ -69,4 +72,7 @@ public class HplcSessionBean implements XMLRichBean {
 		measurements.clear();
 	}
 
+	public String asJson() {
+		return gson.toJson(measurements);
+	}
 }
