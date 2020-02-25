@@ -41,6 +41,7 @@ import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.Detector;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
+import gda.device.Timer;
 import gda.device.detector.DataDimension;
 import gda.device.detector.NXDetectorData;
 import gda.factory.FactoryException;
@@ -398,6 +399,22 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 			//
 		}
 		logger.error("{} - cannot set mask due to dimensions problem", getName());
+	}
+
+	@Override
+	public void atScanStart() throws DeviceException {
+		// This method shouldn't be needed but a Jython bug means default methods can't be used.
+		// To let Jython classes use this base class, add this as a non-default method.
+		// https://bugs.jython.org/issue2403
+		INcdSubDetector.super.atScanStart();
+	}
+
+	@Override
+	public void setTimer(Timer timer) throws DeviceException {
+		// This method shouldn't be needed but a Jython bug means default methods can't be used.
+		// To let Jython classes use this base class, add this as a non-default method.
+		// https://bugs.jython.org/issue2403
+		INcdSubDetector.super.setTimer(timer);
 	}
 
 	@Override
