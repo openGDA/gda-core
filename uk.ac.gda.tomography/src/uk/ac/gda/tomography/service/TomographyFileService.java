@@ -1,6 +1,8 @@
 package uk.ac.gda.tomography.service;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,21 +19,35 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.scanning.FilePathService;
 
+/**
+ * In future this class may be merged to a more common one. For now it does the work.
+ *
+ * @author Maurizio Nagni
+ */
 public class TomographyFileService {
 
-	public static final String JSON_EXTENSION = "json";
+	public static final String TOMO_EXTENSION = "json";
 	private FilePathService filePathService;
 
 	private static final Logger logger = LoggerFactory.getLogger(TomographyFileService.class);
 
-	public void saveTextDocument(String text, String fileName, String extension) throws IOException {
+	public Path saveTextDocument(String text, String fileName, String extension) throws IOException {
 		Path path = createPath(fileName, extension);
 		path.toFile().getParentFile().mkdirs();
 		Files.write(path, text.getBytes(Charset.forName("UTF-8")), StandardOpenOption.CREATE);
+		return path;
 	}
 
 	public byte[] loadFileAsBytes(String fileName, String extension) throws IOException {
 		return Files.readAllBytes(createPath(fileName, extension));
+	}
+
+	public byte[] loadFileAsBytes(URL url) throws IOException {
+		try {
+			return Files.readAllBytes(Paths.get(url.toURI()));
+		} catch (URISyntaxException e) {
+			throw new IOException(e);
+		}
 	}
 
 	public Set<String> getSavedNames(String extension) throws IOException {

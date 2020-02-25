@@ -46,9 +46,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.rcp.views.CompositeFactory;
 import uk.ac.gda.api.acquisition.AcquisitionController;
-import uk.ac.gda.api.acquisition.AcquisitionControllerException;
-import uk.ac.gda.client.UIHelper;
-import uk.ac.gda.client.composites.ButtonGroupFactoryBuilder;
 import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
 import uk.ac.gda.tomography.base.TomographyParameters;
 import uk.ac.gda.tomography.model.MultipleScansType;
@@ -59,7 +56,6 @@ import uk.ac.gda.tomography.stage.enumeration.StageDevice;
 import uk.ac.gda.ui.tool.ClientBindingElements;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientSWTElements;
-import uk.ac.gda.ui.tool.images.ClientImages;
 
 /**
  * This Composite allows to edit a {@link TomographyParameters} object.
@@ -144,76 +140,27 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		projectionsContent(ClientSWTElements.createGroup(parent, 2, ClientMessages.PROJECTIONS), labelStyle, textStyle);
 		imagesCalibrationContent(ClientSWTElements.createGroup(parent, 2, ClientMessages.IMAGE_CALIBRATION), labelStyle, textStyle);
 		multipleScansContent(parent, labelStyle, textStyle);
-		buttonsGroup(parent);
 	}
 
-	private void buttonsGroup(Composite parent) {
-		ButtonGroupFactoryBuilder builder = new ButtonGroupFactoryBuilder();
-		builder.addButton(ClientMessages.LOAD, ClientMessages.LOAD_CONFIGURATION_TP, loadListener(), ClientImages.OPEN);
-		builder.addButton(ClientMessages.SAVE, ClientMessages.SAVE_CONFIGURATION_TP, saveListener(), ClientImages.SAVE);
-		builder.addButton(ClientMessages.RUN, ClientMessages.RUN_CONFIGURATION_TP, runListener(), ClientImages.RUN);
-		builder.build().createComposite(parent, SWT.NONE);
-	}
-
-	private SelectionListener saveListener() {
-		return new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				try {
-					controller.saveAcquisitionConfiguration();
-				} catch (AcquisitionControllerException e) {
-					UIHelper.showError("Cannot save the file", e);
-					logger.error("Cannot save the file", e);
-				}
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent event) {
-				//not necessary
-			}
-		};
-	}
-
-	private SelectionListener loadListener() {
-		return new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				try {
-					controller.loadAcquisitionConfiguration(name.getText());
-				} catch (AcquisitionControllerException e) {
-					UIHelper.showError("Cannot load the file", e);
-					logger.error("Cannot load the file", e);
-				}
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent event) {
-				//not necessary
-			}
-		};
-	}
-
-	private SelectionListener runListener() {
-		return new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				try {
-					controller.runAcquisition();
-				} catch (AcquisitionControllerException e) {
-					UIHelper.showError("Run Acquisition", e.getMessage());
-					logger.error("Cannot run the acquisition", e);
-				}
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent event) {
-				logger.debug("widgetDefaultSelected");
-			}
-		};
-	}
+//	private SelectionListener loadListener() {
+//		return new SelectionListener() {
+//
+//			@Override
+//			public void widgetSelected(SelectionEvent event) {
+//				try {
+//					controller.loadAcquisitionConfiguration(name.getText());
+//				} catch (AcquisitionControllerException e) {
+//					UIHelper.showError("Cannot load the file", e);
+//					logger.error("Cannot load the file", e);
+//				}
+//			}
+//
+//			@Override
+//			public void widgetDefaultSelected(SelectionEvent event) {
+//				//not necessary
+//			}
+//		};
+//	}
 
 	private void nameAndScanTypeContent(Composite parent, int labelStyle, int textStyle) {
 		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.NAME, new Point(2, 1));

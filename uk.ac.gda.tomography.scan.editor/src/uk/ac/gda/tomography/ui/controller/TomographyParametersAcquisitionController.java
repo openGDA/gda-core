@@ -3,6 +3,7 @@ package uk.ac.gda.tomography.ui.controller;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -21,6 +22,8 @@ import gda.device.DeviceException;
 import gda.jython.JythonServerFacade;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
+import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
+import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.tomography.base.TomographyConfiguration;
 import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
@@ -76,17 +79,6 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	}
 
 	@Override
-	public void loadAcquisitionConfiguration(String configurationFile) throws AcquisitionControllerException {
-		try {
-			byte[] data = getFileService().loadFileAsBytes(formatConfigurationFileName(configurationFile), "json");
-			StageConfiguration stageConfiguration = parseJsonData(data);
-			acquisition = stageConfiguration.getAcquisition();
-		} catch (IOException e) {
-			throw new AcquisitionControllerException("Cannot load the file", e);
-		}
-	}
-
-	@Override
 	public void saveAcquisitionConfiguration() throws AcquisitionControllerException {
 		StageConfiguration sc = generateStageConfiguration(getAcquisition());
 		String acquisitionDocument = dataToJson(sc);
@@ -111,7 +103,8 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 
 	private void save(String fileName, String acquisitionDocument) {
 		try {
-			getFileService().saveTextDocument(acquisitionDocument, fileName, TomographyFileService.JSON_EXTENSION);
+			Path path = getFileService().saveTextDocument(acquisitionDocument, fileName, AcquisitionConfigurationResourceType.TOMO.getExtension());
+			SpringApplicationContextProxy.publishEvent(new AcquisitionConfigurationResourceSaveEvent(path.toUri().toURL()));
 		} catch (IOException e) {
 			UIHelper.showError("Cannot save the configuration", e);
 		}
@@ -263,7 +256,35 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	}
 
 	@Override
-	public void deleteAcquisitionConfiguration(String data) throws AcquisitionControllerException {
+	public void deleteAcquisitionConfiguration(URL url) throws AcquisitionControllerException {
 		throw new AcquisitionControllerException("Delete not implemented");
+		//SpringApplicationContextProxy.publishEvent(new AcquisitionConfigurationResourceSaveEvent(url));
+	}
+
+	@Override
+	public void loadAcquisitionConfiguration(URL url) throws AcquisitionControllerException {
+		try {
+			setAcquisition(getAcquisitionBytes(url));
+		} catch (IOException e) {
+			throw new AcquisitionControllerException("Cannot load the file", e);
+		}
+	}
+
+	private byte[] getAcquisitionBytes(String configurationFile) throws IOException {
+		return getFileService().loadFileAsBytes(formatConfigurationFileName(configurationFile), "json");
+	}
+
+	private byte[] getAcquisitionBytes(URL url) throws IOException {
+		return getFileService().loadFileAsBytes(url);
+	}
+
+	private void setAcquisition(byte[] data) throws AcquisitionControllerException {
+		StageConfiguration stageConfiguration = parseJsonData(data);
+		acquisition = stageConfiguration.getAcquisition();
+	}
+
+	@Override
+	public void loadAcquisitionConfiguration(TomographyParameterAcquisition acquisition) throws AcquisitionControllerException {
+		this.acquisition = acquisition;
 	}
 }
