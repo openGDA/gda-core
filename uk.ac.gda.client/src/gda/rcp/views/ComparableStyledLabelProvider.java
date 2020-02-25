@@ -16,28 +16,20 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.experiment.file;
+package gda.rcp.views;
 
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
-
-import gda.rcp.views.ComparableStyledLabelProvider;
+import org.eclipse.jface.viewers.ViewerComparator;
 
 
 /**
  * Adds comparator retrival to the {@link IStyledLabelProvider} interface to support column
- * sorting in e.g. {@link TreeViewer} controls.
- * This implementation is specific for {@link SavedScanMetaData} elements
+ * sorting in e.g. {@link TreeViewer} controls
  *
- * @since GDA 9.13
+ * @author Maurizio Nagni
  */
-public interface IComparableStyledLabelProvider extends ComparableStyledLabelProvider {
+public interface ComparableStyledLabelProvider extends IStyledLabelProvider {
 
-	default String[] splitOnDot(Object element) {
-		return element.toString().split("\\.");
-	}
-
-	default String penultimateOf(String[] array) {
-		return array[array.length - 2];
-	}
+	ViewerComparator getComparator();
 }

@@ -65,7 +65,7 @@ public class DescriptiveFilenameFactory {
 	 * Partially maps {@link IMappingScanRegionShape}s to the id and encoded text for that shape. The general format is
 	 * S<id>(<dimensions>). Numeric ids are used to get round clashes in e.g. shape initials etc.
 	 */
-	enum RegionParameterSource {
+	public enum RegionParameterSource {
 		POINT(0, "", shape -> ""),
 		RECT(1,  "%s x %s", shape -> {RectangularMappingRegion rect = (RectangularMappingRegion)shape;
 			return enclose(format(rect.toROI().getLength(0)) + "," + format(rect.toROI().getLength(1)));
@@ -100,7 +100,7 @@ public class DescriptiveFilenameFactory {
 			return formatter.format(value);
 		}
 
-		static String getSummary(final String shapeId, final Object... args) {
+		public static String getSummary(final String shapeId, final Object... args) {
 			int id = Integer.valueOf(shapeId.substring(1));
 			String format = values[id].summaryFormat;
 			return String.format(format, args);
@@ -111,7 +111,7 @@ public class DescriptiveFilenameFactory {
 	 * Partially maps {@link IScanPathModel}s to the id and encoded text for that apth. The general format is
 	 * P<id>(<dimensions>)<mutator initials>. Numeric ids are used to get round clashes in e.g. shape initials etc.
 	 */
-	enum PathParameterSource {
+	public enum PathParameterSource {
 		POINT(0, "1 pt", path -> "", path -> ""),
 		RAST(1, "%s step per side, %s %s",
 			path -> enclose(((TwoAxisGridStepModel)path).getxAxisStep() + "," + ((TwoAxisGridStepModel)path).getyAxisStep()),
@@ -160,7 +160,7 @@ public class DescriptiveFilenameFactory {
 			return (path instanceof AbstractPointsModel && ((AbstractPointsModel)path).isAlternating()) ? "a" : "";
 		}
 
-		static String getSummary(final String shapeId, final Object... args) {
+		public static String getSummary(final String shapeId, final Object... args) {
 			int id = Integer.valueOf(shapeId.substring(1));
 			String format = values[id].summaryFormat;
 			return String.format(format, args);

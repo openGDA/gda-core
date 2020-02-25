@@ -39,6 +39,11 @@ public enum ClientImages {
 	TRIANGLE_DOWN(ClientImagesGroup.GENERAL, "triangle-down-16.png"),
 	TRIANGLE_UP(ClientImagesGroup.GENERAL, "triangle-up-16.png"),
 
+	// --- MAPPING IMAGES ---
+	CENTERED_RECTAGLE(ClientImagesGroup.GENERAL, "centred_rectangle.png"),
+	LINE(ClientImagesGroup.GENERAL, "line.png"),
+	POINT(ClientImagesGroup.GENERAL, "point.png"),
+
 	CAMERA(ClientImagesGroup.GENERAL, "camera-16.png"),
 
 	// --- ENERGY IMAGES ---

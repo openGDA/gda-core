@@ -63,7 +63,8 @@ Import-Package: com.ibm.icu.text,
  uk.ac.diamond.daq.application.persistence.service
 Service-Component: OSGI-INF/*.xml
 Eclipse-RegisterBuddy: uk.ac.gda.core
-Export-Package: uk.ac.diamond.daq.mapping.ui.experiment,
+Export-Package: uk.ac.diamond.daq.mapping.ui.browser,
+ uk.ac.diamond.daq.mapping.ui.experiment,
  uk.ac.diamond.daq.mapping.ui.experiment.file,
  uk.ac.diamond.daq.mapping.ui.experiment.focus,
  uk.ac.diamond.daq.mapping.ui.experiment.saver

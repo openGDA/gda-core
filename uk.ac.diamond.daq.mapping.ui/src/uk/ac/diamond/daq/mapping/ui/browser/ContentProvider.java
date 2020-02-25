@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2019 Diamond Light Source Ltd.
+ * Copyright © 2020 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,20 +16,21 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.experiment.file;
+package uk.ac.diamond.daq.mapping.ui.browser;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.TreeViewer;
+
+import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 
 /**
- * Provides content for the {@link DescriptiveFilenameBrowserCompositeFactory} scan definition loader control
- *
- * @since GDA 9.13
+ * Provides data for a {@link TreeViewer} instance
  */
-public class SavedScansContentProvider implements ITreeContentProvider {
+class ContentProvider implements ITreeContentProvider {
 
 	@Override
 	public Object[] getElements(Object inputElement) {
-		return inputElement instanceof SavedScanMetaData[] ? (SavedScanMetaData[]) inputElement : null;
+		return inputElement instanceof AcquisitionConfigurationResource[] ? (AcquisitionConfigurationResource[]) inputElement : null;
 	}
 
 	@Override
@@ -46,4 +47,5 @@ public class SavedScansContentProvider implements ITreeContentProvider {
 	public boolean hasChildren(Object element) {
 		return false;
 	}
+
 }

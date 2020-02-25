@@ -18,6 +18,10 @@
 
 package uk.ac.gda.api.acquisition;
 
+import java.net.URL;
+
+import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
+
 /**
  * A set of methods to load, save and delete {@link Acquisition}
  *
@@ -51,20 +55,50 @@ public interface AcquisitionController<T extends Acquisition<? extends Acquisiti
 	/**
 	 * Sets the controller active acquisition parsing a file
 	 *
-	 * @param filename
-	 *            the name of the file to load
+	 * @param url
+	 *            The location of the file to parse
 	 * @throws AcquisitionControllerException
-	 *             if file is not found or readable
+	 *             If the file is not found or cannot be parsed
 	 */
-	public void loadAcquisitionConfiguration(String filename) throws AcquisitionControllerException;
+	public void loadAcquisitionConfiguration(URL url) throws AcquisitionControllerException;
 
 	/**
-	 * Deletes an acquisition file
+	 * Sets the controller active acquisition using an existing instance
 	 *
-	 * @param filename
-	 *            the name of the file to delete
+	 * @param acquisition
+	 *            The acquisition to use
 	 * @throws AcquisitionControllerException
-	 *             if file is not found or readable
+	 *             If the acquisition cannot be used
 	 */
-	public void deleteAcquisitionConfiguration(String filename) throws AcquisitionControllerException;
+	public void loadAcquisitionConfiguration(T acquisition) throws AcquisitionControllerException;
+
+	/**
+	 * Sets the controller active acquisition using an {@link AcquisitionConfigurationResource} with the following priorities
+	 * <ol>
+	 * <li>If {@link AcquisitionConfigurationResource#getResource()} is not {@code null}, calls
+	 * {@link #loadAcquisitionConfiguration(AcquisitionConfigurationResource)}</li>
+	 * <li>If {@link AcquisitionConfigurationResource#getLocation()} is not {@code null}, calls
+	 * {@link #loadAcquisitionConfiguration(URL)}</li>
+	 * </ol>
+	 *
+	 * @param resource
+	 *            the resource object
+	 * @throws AcquisitionControllerException
+	 *             If the resource cannot be used
+	 */
+	default void loadAcquisitionConfiguration(AcquisitionConfigurationResource<T> resource) throws AcquisitionControllerException {
+		if (resource.getResource() == null) {
+			loadAcquisitionConfiguration(resource.getLocation());
+		} else {
+			loadAcquisitionConfiguration(resource.getResource());
+		}
+	}
+
+	/**
+	 * Deletes an acquisition on a specified {@link URL}
+	 *
+	 * @param url the configuration location
+	 * @throws AcquisitionControllerException
+	 */
+	public void deleteAcquisitionConfiguration(URL url) throws AcquisitionControllerException;
 }

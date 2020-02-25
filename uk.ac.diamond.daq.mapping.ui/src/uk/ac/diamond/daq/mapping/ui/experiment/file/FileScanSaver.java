@@ -16,9 +16,11 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.experiment.saver;
+package uk.ac.diamond.daq.mapping.ui.experiment.file;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
@@ -32,14 +34,15 @@ import org.eclipse.ui.PlatformUI;
 
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.ui.experiment.ScanManagementController;
-import uk.ac.diamond.daq.mapping.ui.experiment.file.SavedScanMetaData;
+import uk.ac.diamond.daq.mapping.ui.experiment.saver.ScanSaver;
+import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
+import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 public class FileScanSaver extends ScanSaver {
 	private final String scanFilesDir;
 	private final ScanManagementController smController;
 
-	public FileScanSaver(Consumer<Optional<IMappingExperimentBean>> postLoad,
-			ScanManagementController smController) {
+	public FileScanSaver(Consumer<Optional<IMappingExperimentBean>> postLoad, ScanManagementController smController) {
 		super(new ArrayList<SavedScanMetaData>(), postLoad);
 
 		this.scanFilesDir = PlatformUI.getWorkbench().getService(IFilePathService.class).getVisitConfigDir();
@@ -52,15 +55,25 @@ public class FileScanSaver extends ScanSaver {
 		return smController.loadScanMappingBean(createFilename(savedScanMetaData));
 	}
 
+	private void publishExposureChangeEvent(String filename) {
+		AcquisitionConfigurationResourceSaveEvent event;
+		try {
+			event = new AcquisitionConfigurationResourceSaveEvent(new URL("file", "localhost", filename));
+			SpringApplicationContextProxy.publishEvent(event);
+		} catch (MalformedURLException e) {
+		}
+	}
+
 	@Override
 	public void save() {
-		InputDialog dlg = new InputDialog(Display.getCurrent().getActiveShell(),
-				"Save Scan Definition", "Please enter a name for the current Scan Definition", "", null);
+		InputDialog dlg = new InputDialog(Display.getCurrent().getActiveShell(), "Save Scan Definition",
+				"Please enter a name for the current Scan Definition", "", null);
 		if (dlg.open() == Window.OK) {
 			String filename = smController.buildDescriptiveFilename(dlg.getValue());
 			filename = scanFilesDir + "/" + filename;
 			smController.saveScan(filename);
 			refreshScanList();
+			publishExposureChangeEvent(filename);
 		}
 	}
 
@@ -70,6 +83,7 @@ public class FileScanSaver extends ScanSaver {
 		if (filename != null) {
 			smController.deleteScan(filename);
 			refreshScanList();
+			publishExposureChangeEvent(filename);
 		}
 	}
 

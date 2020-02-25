@@ -16,13 +16,11 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.experiment.file;
+package gda.rcp.views;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.databinding.observable.list.IListChangeListener;
-import org.eclipse.core.databinding.observable.list.ObservableList;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
@@ -41,12 +39,24 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
+import org.springframework.context.ApplicationListener;
 
+import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceDeleteEvent;
+import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
+import uk.ac.gda.client.exception.GDAClientException;
+import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
+
+/**
+ * A builder for a {@link TreeViewer} which can be used as base for other GDA components
+ *
+ * @param <T>
+ *
+ * @author Maurizio Nagni
+ */
 public abstract class TreeViewerBuilder<T> {
 
 	private static final int FOUR_ROWS = 165;
 
-	private ObservableList<T> observableList;
 	private List<IntColumn> columns = new ArrayList<>();
 	private TreeViewer viewer;
 	private IContentProvider contentProvider;
@@ -57,11 +67,6 @@ public abstract class TreeViewerBuilder<T> {
 
 	public TreeViewerBuilder<T> addDoubleClickListener(IDoubleClickListener doubleClickListener) {
 		this.doubleClickListener = doubleClickListener;
-		return this;
-	}
-
-	public TreeViewerBuilder<T> addObservableList(ObservableList<T> observableList) {
-		this.observableList = observableList;
 		return this;
 	}
 
@@ -95,28 +100,46 @@ public abstract class TreeViewerBuilder<T> {
 
 		viewer.addDoubleClickListener(doubleClickListener);
 		viewer.addSelectionChangedListener(selectionChangeListener);
-		observableList.addListChangeListener(getListChangeListener(viewer));
 		columns.stream().forEachOrdered(this::addColumn);
-		viewer.setInput(getInputElements());
+		viewer.setInput(getInputElements(true));
 		viewer.refresh();
 
 		contextMenu.setRemoveAllWhenShown(true);
 		Menu menu = contextMenu.createContextMenu(viewer.getControl());
 		viewer.getControl().setMenu(menu);
+
+		try {
+			SpringApplicationContextProxy.addApplicationListener(saveResourcesListener);
+			SpringApplicationContextProxy.addApplicationListener(deleteResourcesListener);
+		} catch (GDAClientException e) {
+
+		}
 		return viewer;
 	}
 
-	private IListChangeListener<T> getListChangeListener(TreeViewer viewer) {
-		return e -> {
-			viewer.setInput(getInputElements());
-			viewer.refresh();
-		};
+	private ApplicationListener<AcquisitionConfigurationResourceSaveEvent> saveResourcesListener = new ApplicationListener<AcquisitionConfigurationResourceSaveEvent>() {
+		@Override
+		public void onApplicationEvent(AcquisitionConfigurationResourceSaveEvent event) {
+			refreshResources();
+		}
+	};
+
+	private ApplicationListener<AcquisitionConfigurationResourceDeleteEvent> deleteResourcesListener = new ApplicationListener<AcquisitionConfigurationResourceDeleteEvent>() {
+		@Override
+		public void onApplicationEvent(AcquisitionConfigurationResourceDeleteEvent event) {
+			refreshResources();
+		}
+	};
+
+	private void refreshResources() {
+		viewer.setInput(getInputElements(true));
+		viewer.refresh();
 	}
 
-	public abstract T[] getInputElements();
+	public abstract T[] getInputElements(boolean reload);
 
 	/**
-	 * Adds a column to the main {@link TreeViewer} using the supplied {@link IComparableStyledLabelProvider} and
+	 * Adds a column to the main {@link TreeViewer} using the supplied {@link ComparableStyledLabelProvider} and
 	 * settings.
 	 *
 	 * @param name
@@ -134,9 +157,9 @@ public abstract class TreeViewerBuilder<T> {
 		column.getColumn().addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				if (IComparableStyledLabelProvider.class.isInstance(intColumn.getProvider())) {
+				if (ComparableStyledLabelProvider.class.isInstance(intColumn.getProvider())) {
 					viewer.setComparator(
-							IComparableStyledLabelProvider.class.cast(intColumn.getProvider()).getComparator());
+							ComparableStyledLabelProvider.class.cast(intColumn.getProvider()).getComparator());
 					sorter(column.getColumn());
 				}
 			}
