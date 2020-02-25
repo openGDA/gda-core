@@ -8,8 +8,8 @@ import gda.device.DeviceException;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.ExposureChangeEvent;
+import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
-import uk.ac.gda.tomography.controller.AcquisitionController;
 
 /**
  * Handles {@link TomographyParametersAcquisitionController} events

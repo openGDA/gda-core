@@ -11,4 +11,5 @@ Export-Package: uk.ac.gda.tomography.scan
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: uk.ac.gda.core
 Automatic-Module-Name: uk.ac.gda.tomography.scan
-Import-Package: uk.ac.gda.tomography.model
+Import-Package: uk.ac.gda.api.acquisition,
+ uk.ac.gda.tomography.model

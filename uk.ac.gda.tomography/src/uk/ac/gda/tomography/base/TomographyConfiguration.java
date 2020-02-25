@@ -18,7 +18,7 @@
 
 package uk.ac.gda.tomography.base;
 
-import uk.ac.gda.tomography.model.AcquisitionConfigurationBase;
+import uk.ac.gda.api.acquisition.AcquisitionConfigurationBase;
 
 public class TomographyConfiguration extends AcquisitionConfigurationBase<TomographyParameters> {
 
