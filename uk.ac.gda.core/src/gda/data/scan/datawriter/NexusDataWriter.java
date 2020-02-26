@@ -905,7 +905,22 @@ public class NexusDataWriter extends DataWriterBase {
 			int length = ((PyList) object).__len__();
 			data = new double[length];
 			for (int i = 0; i < length; i++) {
-				data[i] = Py.py2double(((PyList) object).__getitem__(i));
+				try {
+					// This deals properly with Double, Long & Integer etc. but not BigInteger
+					data[i] = Double.valueOf(((PyList) object).__getitem__(i).toString());
+				}
+				catch (NumberFormatException nfe){
+					try {
+						// This deals with Double, BigInteger & Long literal etc. but not Long
+						data[i] = Py.py2double(((PyList) object).__getitem__(i));
+					}
+					catch (Exception e) {
+						logger.error("extractDoubleData({}, {}) Exception extracting element {}, data={} (object types={})",
+							detectorName, object, i, Arrays.toString(data),
+							((PyList) object).stream().map(o -> o.getClass()).collect(Collectors.toList()), e);
+						throw e;
+					}
+				}
 			}
 		} else if (object instanceof int[]) {
 			int[] idata = (int[]) object;
