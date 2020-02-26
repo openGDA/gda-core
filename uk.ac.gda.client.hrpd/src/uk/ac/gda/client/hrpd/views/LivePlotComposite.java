@@ -304,6 +304,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 						List<Dataset> plotDatasets = new ArrayList<Dataset>();
 						plotDatasets.add(y);
 						openView();
+						plottingSystem.getSelectedXAxis().setRange(xAxisMin, xAxisMax);
 						plottingSystem.createPlot1D(x, plotDatasets, "Reduced MAC data" , new NullProgressMonitor());
 					}
 				}
