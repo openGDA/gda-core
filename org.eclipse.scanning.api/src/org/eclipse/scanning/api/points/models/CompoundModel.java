@@ -75,7 +75,7 @@ import org.eclipse.scanning.api.points.IMutator;
  * @author Matthew Gerring
  *
  */
-public class CompoundModel extends AbstractPointsModel implements Cloneable {
+public class CompoundModel extends AbstractPointsModel {
 
 	private List<Object>               models;
 	private Collection<ScanRegion>  regions;
@@ -90,13 +90,11 @@ public class CompoundModel extends AbstractPointsModel implements Cloneable {
 	 * Returns a copy (clone) of the given {@link CompoundModel}.
 	 * @param toCopy the model to copy
 	 */
-	public static  CompoundModel copy(CompoundModel toCopy) {
-		final CompoundModel copy = new CompoundModel();
-		copy.models = toCopy.models;
-		copy.regions = toCopy.regions;
-		copy.mutators = toCopy.mutators;
-		copy.duration = toCopy.duration;
-		return copy;
+	public CompoundModel(CompoundModel toCopy) {
+		setModels(toCopy.getModels());
+		setRegions(toCopy.getRegions());
+		setMutators(toCopy.getMutators());
+		setDuration(toCopy.getDuration());
 	}
 
 	@SuppressWarnings("unchecked")

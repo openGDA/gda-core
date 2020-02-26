@@ -98,7 +98,7 @@ public class SubscanModerator {
 			// otherwise we create a new compound generator with the inner models and the same
 			// mutators, duration, etc. as the overall scan
 			// But only the regions that are relevant for these scans
-			CompoundModel innerC = CompoundModel.copy(compoundModel);
+			CompoundModel innerC = new CompoundModel(compoundModel);
 			innerC.setModels(innerModels);
 			if (compoundModel.getRegions() != null) {
 				innerC.setRegions(compoundModel.getRegions().stream().filter(x -> innerScanAxes.containsAll(x.getScannables())).collect(Collectors.toList()));
@@ -111,7 +111,7 @@ public class SubscanModerator {
 			this.outerPointGenerator = pointGenService.createGenerator(new StaticModel(1));
 			return;
 		}
-		CompoundModel outerC = CompoundModel.copy(compoundModel);
+		CompoundModel outerC = new CompoundModel(compoundModel);
 		outerC.setModels(outerModels);
 		if (compoundModel.getRegions() != null) {
 			outerC.setRegions(compoundModel.getRegions().stream().filter(x -> !innerScanAxes.containsAll(x.getScannables())).collect(Collectors.toList()));

@@ -119,7 +119,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		final CompoundModel model = pointGen == null ? new CompoundModel(new StaticModel()):
 					(CompoundModel) pointGen.getModel();
 
-		final CompoundModel copiedModel = CompoundModel.copy(model);
+		final CompoundModel copiedModel = new CompoundModel(model);
 		copiedModel.setDuration(0.1);
 		copiedModel.setMutators(Collections.emptyList());
 		pointGen = pointGenService.createCompoundGenerator(copiedModel);
