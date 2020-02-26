@@ -81,6 +81,15 @@ public interface Scriptcontroller extends IObservable, Findable, Configurable {
 	public void setParametersName(String parametersName);
 
 	/**
+	 * Add a parameter that will be used to format the script command to run.
+	 * Subsequent calls will extend the list of parameters.
+	 * Use reconfigure() method to erase parameters.
+	 *
+	 * @param parameter
+	 */
+	public void addParameter(Object parameter);
+
+	/**
 	 * Returns the command which should be run to load the script into the Jython namespace.
 	 *
 	 * @return the command to load the script
@@ -113,4 +122,5 @@ public interface Scriptcontroller extends IObservable, Findable, Configurable {
 	 *            the data to be sent to the observer.
 	 */
 	void update(Object o, Object arg);
+
 }
