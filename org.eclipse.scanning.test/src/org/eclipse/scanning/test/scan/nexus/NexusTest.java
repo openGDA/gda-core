@@ -58,10 +58,11 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
-import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
@@ -301,26 +302,23 @@ public abstract class NexusTest {
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 		gmodel.setAlternating(snake);
 
-		IPointGenerator<?> gen = pointGenService.createGenerator(gmodel,
+		IPointGenerator<CompoundModel> gen = pointGenService.createGenerator(gmodel,
 				region == null ? Collections.emptyList() : Arrays.asList(region));
 
-		IPointGenerator<?>[] gens = new IPointGenerator<?>[size.length - 1];
+		CompoundModel cModel = new CompoundModel();
 		// We add the outer scans, if any
 		if (size.length > 2) {
-			for (int dim = size.length-3; dim>-1; dim--) {
-				final AxialStepModel model;
-				if (size[dim]-1>0) {
-				    model = new AxialStepModel("neXusScannable"+(dim+1), 10,20,9.99d/(size[dim]-1));
+			for (int dim = 0; dim < size.length - 2; dim++) {
+				if (size[dim] > 1) {
+				    cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,9.99d/(size[dim]-1)));
 				} else {
-					model = new AxialStepModel("neXusScannable"+(dim+1), 10,20,30); // Will generate one value at 10
+					cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,30)); // Will generate one value at 10
 				}
-				final IPointGenerator<?> step = pointGenService.createGenerator(model);
-				gens[dim] = step;
 			}
 		}
-		gens[size.length - 2] = gen;
+		cModel.addData(gmodel, Arrays.asList(region));
 
-		gen = pointGenService.createCompoundGenerator(gens);
+		gen = pointGenService.createCompoundGenerator(cModel);
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
@@ -344,13 +342,10 @@ public abstract class NexusTest {
 		TwoAxisSpiralModel spmodel = new TwoAxisSpiralModel("xNex","yNex");
 		spmodel.setScale(2.0);
 		spmodel.setBoundingBox(new BoundingBox(0,0,1,1));
-
-		IPointGenerator<?> gen = pointGenService.createGenerator(spmodel);
-
 		final AxialStepModel  model = new AxialStepModel("neXusScannable1", 0,3,1);
-		final IPointGenerator<?> step = pointGenService.createGenerator(model);
 
-		gen = pointGenService.createCompoundGenerator(new IPointGenerator<?>[]{step,gen});
+		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(
+				new CompoundModel(model, spmodel));
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();

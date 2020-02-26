@@ -57,6 +57,7 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
@@ -291,21 +292,20 @@ public class AttributeTest extends NexusTest{
 		gmodel.setyAxisPoints(size[size.length-2]);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		IPointGenerator<?> gen = pointGenService.createGenerator(gmodel);
+		CompoundModel cModel = new CompoundModel();
 
 		// We add the outer scans, if any
 		if (size.length > 2) {
-			for (int dim = size.length-3; dim>-1; dim--) {
-				final AxialStepModel model;
+			for (int dim = 0; dim < size.length; dim++) {
 				if (size[dim]-1>0) {
-				    model = new AxialStepModel("neXusScannable"+(dim+1), 10,20,9.99d/(size[dim]-1));
+					cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,9.99d/(size[dim]-1)));
 				} else {
-					model = new AxialStepModel("neXusScannable"+(dim+1), 10,20,30); // Will generate one value at 10
+					cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,30)); // Will generate one value at 10
 				}
-				final IPointGenerator<?> step = pointGenService.createGenerator(model);
-				gen = pointGenService.createCompoundGenerator(step, gen);
 			}
 		}
+		cModel.addModel(gmodel);
+		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cModel);
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();

@@ -116,9 +116,9 @@ public class ConcurrentTest {
 		ConcurrentMultiModel cmm = new ConcurrentMultiModel();
 		cmm.addModel(lsm);
 		cmm.addModel(talpm);
-		IPointGenerator<?> lsg = service.createGenerator(lsm, Collections.emptyList(), Arrays.asList(stage_xRom));
-		IPointGenerator<?> talpg = service.createGenerator(talpm, Collections.emptyList(), Arrays.asList(pRom));
-		IPointGenerator<?> cmg = service.createGenerator(cmm, Collections.emptyList(), Arrays.asList(rom));
+		IPointGenerator<CompoundModel> lsg = service.createGenerator(lsm, Collections.emptyList(), Arrays.asList(stage_xRom));
+		IPointGenerator<CompoundModel> talpg = service.createGenerator(talpm, Collections.emptyList(), Arrays.asList(pRom));
+		IPointGenerator<CompoundModel> cmg = service.createGenerator(cmm, Collections.emptyList(), Arrays.asList(rom));
 		equalIterators(cmg.iterator(), lsg.iterator(), talpg.iterator());
 	}
 

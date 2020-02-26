@@ -14,6 +14,8 @@ package org.eclipse.scanning.test.points;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.Arrays;
+
 import org.eclipse.dawnsci.analysis.api.roi.IRectangularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.scanning.api.points.GeneratorException;
@@ -51,14 +53,14 @@ public class PointServiceTest {
 		model.setyAxisPoints(5);
 		model.setxAxisPoints(5);
 
-		pservice.createGenerator(model, roi1); // Sets the bounding box
+		pservice.setBounds(model, Arrays.asList(roi1)); // Sets the bounding box
 
 		BoundingBox box1 = model.getBoundingBox();
 		assertNotNull(box1);
 		checkSame(box1, roi1);
 
 		IRectangularROI roi2 = new RectangularROI(10,10,5,5,0);
-		pservice.createGenerator(model, roi2); // Sets the bounding box
+		pservice.setBounds(model, Arrays.asList(roi2)); // Sets the bounding box
 
 		BoundingBox box2 = model.getBoundingBox();
 		assertNotNull(box2);

@@ -52,6 +52,7 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
@@ -303,32 +304,30 @@ public class MonitorTest extends NexusTest {
 		// Create scan points for a grid and make a generator
 		AxialStepModel smodel;
 		int ySize = size[size.length-1];
-		if (ySize-1>0) {
+		if (ySize > 1) {
 			smodel = new AxialStepModel("yNex", 10,20,11d/ySize);
 		} else {
 			smodel = new AxialStepModel("yNex", 10,20,30); // Will generate one value at 10
 		}
 
-		IPointGenerator<?> stepGen = pointGenService.createGenerator(smodel);
+		IPointGenerator<AxialStepModel> stepGen = pointGenService.createGenerator(smodel);
 		assertEquals(ySize, stepGen.size());
 
-		IPointGenerator<?>[] gens = new IPointGenerator<?>[size.length];
+		CompoundModel cModel = new CompoundModel();
+
 		// We add the outer scans, if any
 		if (size.length > 1) {
-			for (int dim = size.length-2; dim>-1; dim--) {
-				final AxialStepModel model;
-				if (size[dim]-1>0) {
-				    model = new AxialStepModel("neXusScannable"+(dim+1), 10,20,11d/(size[dim]));
+			for (int dim = 0; dim < size.length -1; dim++) {
+				if (size[dim] > 1) {
+				    cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,11d/size[dim]));
 				} else {
-					model = new AxialStepModel("neXusScannable"+(dim+1), 10,20,30); // Will generate one value at 10
+					cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,30)); // Will generate one value at 10
 				}
-				final IPointGenerator<?> step = pointGenService.createGenerator(model);
-				gens[dim] = step;
 			}
 		}
 
-		gens[size.length - 1] = stepGen;
-		IPointGenerator<?> gen = pointGenService.createCompoundGenerator(gens);
+		cModel.addModel(smodel);
+		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cModel);
 
 		// Create the model for a scan.
 		final ScanModel  scanModel = new ScanModel();

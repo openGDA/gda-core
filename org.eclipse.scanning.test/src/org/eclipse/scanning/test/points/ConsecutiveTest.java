@@ -110,7 +110,7 @@ public class ConsecutiveTest {
 		cmm.setContinuous(false);
 		cmm.addModel(lsm);
 		cmm.addModel(talpm);
-		IPointGenerator<?> lsg = service.createGenerator(lsm, Collections.emptyList(), Arrays.asList(rom));
+		IPointGenerator<CompoundModel> lsg = service.createGenerator(lsm, Collections.emptyList(), Arrays.asList(rom));
 		Iterator<IPosition> talpiExtended = service
 				.createGenerator(talpmExtended, Collections.emptyList(), Arrays.asList(rom)).iterator();
 		Iterator<IPosition> cmi = service.createGenerator(cmm, Collections.emptyList(), Arrays.asList(rom)).iterator();
@@ -243,7 +243,7 @@ public class ConsecutiveTest {
 		CompoundModel cm = new CompoundModel(aam, cmm);
 		cm.setRegions(Arrays.asList(sr));
 		CompoundGenerator cg = (CompoundGenerator) service.createCompoundGenerator(cm);
-		IPointGenerator<?> lj1g = service.createGenerator(lsm1, roi);
+		IPointGenerator<CompoundModel> lj1g = service.createGenerator(lsm1, roi);
 		// 3* for each energy in energies, 2* because consecutived to each other
 		assertEquals(6 * lj1g.size(), cg.size());
 		assertArrayEquals(new int[] { 3, lj1g.size() * 2 }, cg.getShape());

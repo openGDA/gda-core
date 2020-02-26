@@ -31,6 +31,7 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
@@ -92,23 +93,19 @@ public class LegacyDeviceSupportScanTest {
 	}
 
 	private IRunnableDevice<ScanModel> createStepScan(int... size) throws Exception {
-		IPointGenerator<?> gen = null;
+
+		CompoundModel cModel = new CompoundModel();
 
 		// We add the outer scans, if any
-		for (int dim = size.length-1; dim>-1; dim--) {
-			final AxialStepModel model;
-			if (size[dim]-1>0) {
-				model = new AxialStepModel("neXusScannable"+(dim+1), 10,20,9.9d/(size[dim]-1));
+		for (int dim = 0; dim < size.length; dim++) {
+			if (size[dim] > 1) {
+				cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,9.9d/(size[dim]-1)));
 			} else {
-				model = new AxialStepModel("neXusScannable"+(dim+1), 10,20,30); // Will generate one value at 10
-			}
-			final IPointGenerator<?> step = pointGeneratorService.createGenerator(model);
-			if (gen!=null) {
-				gen = pointGeneratorService.createCompoundGenerator(step, gen);
-			} else {
-				gen = step;
+				cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,30)); // Will generate one value at 10
 			}
 		}
+
+		IPointGenerator<CompoundModel> gen = pointGeneratorService.createCompoundGenerator(cModel);
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();

@@ -766,8 +766,7 @@ public class PVDataSerializationTest {
 		AxialStepModel stepModel = new AxialStepModel("x", 3, 4, 0.25);
 		stepModel.setAlternating(true);
 		stepModel.setContinuous(false);
-		IPointGenerator<AxialStepModel> temp = pgService.createGenerator(stepModel);
-		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
+		IPointGenerator<CompoundModel> scan = pgService.createCompoundGenerator(new CompoundModel(stepModel));
 
 		// Create the expected PVStructure
 		FieldCreate fieldCreate = FieldFactory.getFieldCreate();
@@ -845,8 +844,7 @@ public class PVDataSerializationTest {
 		lissajousModel.setxAxisName("fan");
 		lissajousModel.setContinuous(false);
 		lissajousModel.setAlternating(true);
-		IPointGenerator<TwoAxisLissajousModel> temp = pgService.createGenerator(lissajousModel);
-		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
+		IPointGenerator<CompoundModel> scan = pgService.createCompoundGenerator(new CompoundModel(lissajousModel));
 
 		// Create the expected PVStructure
 		FieldCreate fieldCreate = FieldFactory.getFieldCreate();
@@ -928,8 +926,8 @@ public class PVDataSerializationTest {
 	public void testSpiralGenerator() throws Exception {
 
 		// Create test generator
-		IPointGenerator<TwoAxisSpiralModel> temp = pgService.createGenerator(new TwoAxisSpiralModel("x", "y", 2, new BoundingBox(0, 5, 2, 4)));
-		IPointGenerator<?> scan = pgService.createCompoundGenerator(temp);
+		IPointGenerator<?> scan = pgService.createCompoundGenerator(
+				new CompoundModel(new TwoAxisSpiralModel("x", "y", 2, new BoundingBox(0, 5, 2, 4))));
 
 		// Create the expected PVStructure
 		FieldCreate fieldCreate = FieldFactory.getFieldCreate();

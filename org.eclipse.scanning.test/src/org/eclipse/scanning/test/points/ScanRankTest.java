@@ -31,6 +31,7 @@ import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
@@ -76,16 +77,15 @@ public class ScanRankTest {
 		model.setyAxisName("y");
 
 		// Get the point list
-		IPointGenerator<?> gen = service.createGenerator(model, roi);
+		CompoundModel cModel = new CompoundModel();
 
-		IPointGenerator<?>[] gens = new IPointGenerator<?>[nestCount + 1];
 		for (int i = 0; i < nestCount; i++) {
-			gens[i] = service.createGenerator(new AxialStepModel("T"+(nestCount - 1 - i), 290, 300, 1));
+			cModel.addModel(new AxialStepModel("T"+(nestCount - 1 - i), 290, 300, 1));
 		}
-		gens[nestCount] = gen;
-		gen = service.createCompoundGenerator(gens);
 
-		checkOneGenerator(nestCount, gen);
+		cModel.addData(model,  Arrays.asList(roi));
+
+		checkOneGenerator(nestCount, service.createCompoundGenerator(cModel));
 	}
 
 	@Test
@@ -100,16 +100,13 @@ public class ScanRankTest {
 		model.setBoundingBox(box);
 
 		// Get the point list
-		IPointGenerator<?> gen = service.createGenerator(model);
-
-		IPointGenerator<?>[] gens = new IPointGenerator<?>[nestCount + 1];
+		CompoundModel cModel = new CompoundModel();
 		for (int i = 0; i < nestCount; i++) {
-			gens[i] = service.createGenerator(new AxialStepModel("T"+(nestCount -1 -i), 290, 300, 1));
+			cModel.addModel(new AxialStepModel("T"+(nestCount -1 -i), 290, 300, 1));
 		}
-		gens[nestCount] = gen;
-		gen = service.createCompoundGenerator(gens);
+		cModel.addModel(model);
 
-		checkOneGenerator(nestCount, gen);
+		checkOneGenerator(nestCount, service.createCompoundGenerator(cModel));
 
 	}
 
@@ -233,7 +230,7 @@ public class ScanRankTest {
 		}
 	}
 
-	private <R> IPointGenerator<?> createGridGenerator(int nestCount, IROI region) throws Exception {
+	private IPointGenerator<CompoundModel> createGridGenerator(int nestCount, IROI region) throws Exception {
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(0);
 		box.setyAxisStart(0);
@@ -245,17 +242,13 @@ public class ScanRankTest {
 		model.setxAxisPoints(20);
 		model.setBoundingBox(box);
 
-		// Get the point list
-		IPointGenerator<?> grid = service.createGenerator(model,
-				region == null ? Collections.<IROI>emptyList() : Arrays.<IROI>asList(region));
-
-		IPointGenerator<?>[] gens = new IPointGenerator<?>[nestCount + 1];
+		CompoundModel cModel = new CompoundModel();
 		for (int i = 0; i < nestCount; i++) {
-			gens[i] = service.createGenerator(new AxialStepModel("T"+(nestCount -1 -i), 290, 300, 1));
+			cModel.addModel(new AxialStepModel("T"+(nestCount -1 -i), 290, 300, 1));
 		}
-		gens[nestCount] = grid;
+		cModel.addData(model, region == null ? Collections.<IROI>emptyList() : Arrays.<IROI>asList(region));
 
-		return service.createCompoundGenerator(gens);
+		return service.createCompoundGenerator(cModel);
 	}
 
 }

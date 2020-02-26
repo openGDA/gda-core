@@ -37,6 +37,7 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.models.ScanModel;
@@ -324,10 +325,7 @@ public class BenchmarkScanTest extends BrokerTest {
 
 	private ScanModel createTestScanner(IRunnableDevice<?> detector, IScanPathModel... models) throws Exception {
 
-		final IPointGenerator<?>[] gens = new IPointGenerator[models.length];
-		for (int i = 0; i < models.length; i++)  gens[i] = gservice.createGenerator(models[i]);
-
-		IPointGenerator<?> gen = gservice.createCompoundGenerator(gens);
+		IPointGenerator<?> gen = gservice.createCompoundGenerator(new CompoundModel(models));
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();

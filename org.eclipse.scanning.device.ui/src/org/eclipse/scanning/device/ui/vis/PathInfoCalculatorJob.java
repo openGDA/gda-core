@@ -26,6 +26,7 @@ import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.device.ui.Activator;
@@ -99,7 +100,7 @@ class PathInfoCalculatorJob extends Job {
 				return Status.CANCEL_STATUS;// No path to draw.
 			}
 
-			final IPointGenerator<?> pointGen = pointGeneratorFactory.createGenerator(scanPathModel, rois);
+			final IPointGenerator<CompoundModel> pointGen = pointGeneratorFactory.createGenerator(scanPathModel, rois);
 			double lastX = Double.NaN;
 			double lastY = Double.NaN;
 			for (IPosition point : pointGen) {
