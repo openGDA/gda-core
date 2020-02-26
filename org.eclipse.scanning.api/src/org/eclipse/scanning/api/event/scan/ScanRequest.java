@@ -213,9 +213,11 @@ public class ScanRequest implements Serializable {
 		result = prime * result + (ignorePreprocess ? 1231 : 1237);
 		result = prime * result + ((monitorNamesPerPoint == null) ? 0 : monitorNamesPerPoint.hashCode());
 		result = prime * result + ((monitorNamesPerScan == null) ? 0 : monitorNamesPerScan.hashCode());
+		result = prime * result + ((processingRequest == null) ? 0 : processingRequest.hashCode());
 		result = prime * result + ((sampleData == null) ? 0 : sampleData.hashCode());
 		result = prime * result + ((scanMetadata == null) ? 0 : scanMetadata.hashCode());
 		result = prime * result + ((startPosition == null) ? 0 : startPosition.hashCode());
+		result = prime * result + ((templateFilePaths == null) ? 0 : templateFilePaths.hashCode());
 		return result;
 	}
 
@@ -272,6 +274,11 @@ public class ScanRequest implements Serializable {
 				return false;
 		} else if (!monitorNamesPerScan.equals(other.monitorNamesPerScan))
 			return false;
+		if (processingRequest == null) {
+			if (other.processingRequest != null)
+				return false;
+		} else if (!processingRequest.equals(other.processingRequest))
+			return false;
 		if (sampleData == null) {
 			if (other.sampleData != null)
 				return false;
@@ -287,6 +294,11 @@ public class ScanRequest implements Serializable {
 				return false;
 		} else if (!startPosition.equals(other.startPosition))
 			return false;
+		if (templateFilePaths == null) {
+			if (other.templateFilePaths != null)
+				return false;
+		} else if (!templateFilePaths.equals(other.templateFilePaths))
+			return false;
 		return true;
 	}
 
@@ -294,9 +306,11 @@ public class ScanRequest implements Serializable {
 	public String toString() {
 		return "ScanRequest [compoundModel=" + compoundModel + ", detectors=" + detectors + ", monitorNamesPerPoint="
 				+ monitorNamesPerPoint + ", monitorNamesPerScan=" + monitorNamesPerScan + ", sampleData=" + sampleData
-				+ ", scanMetadata=" + scanMetadata + ", filePath=" + filePath + ", startPosition=" + startPosition
-				+ ", beforeScript=" + beforeScript + ", endPosition=" + endPosition + ", afterScript=" + afterScript
-				+ ", alwaysRunAfterScript=" + alwaysRunAfterScript + ", ignorePreprocess=" + ignorePreprocess + "]";
+				+ ", scanMetadata=" + scanMetadata + ", filePath=" + filePath + ", templateFilePaths="
+				+ templateFilePaths + ", startPosition=" + startPosition + ", beforeScript=" + beforeScript
+				+ ", endPosition=" + endPosition + ", afterScript=" + afterScript + ", alwaysRunAfterScript="
+				+ alwaysRunAfterScript + ", ignorePreprocess=" + ignorePreprocess + ", processingRequest="
+				+ processingRequest + "]";
 	}
 
 	public Map<String, Object> getDetectors() {
