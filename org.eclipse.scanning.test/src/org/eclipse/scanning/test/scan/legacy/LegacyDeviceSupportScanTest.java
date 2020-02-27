@@ -95,14 +95,9 @@ public class LegacyDeviceSupportScanTest {
 	private IRunnableDevice<ScanModel> createStepScan(int... size) throws Exception {
 
 		CompoundModel cModel = new CompoundModel();
-
-		// We add the outer scans, if any
 		for (int dim = 0; dim < size.length; dim++) {
-			if (size[dim] > 1) {
-				cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,9.9d/(size[dim]-1)));
-			} else {
-				cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,30)); // Will generate one value at 10
-			}
+			cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,
+					size[dim] > 1 ? 9.9d/(size[dim]-1) : 30)); // Either N many points or 1 point at 10
 		}
 
 		IPointGenerator<CompoundModel> gen = pointGeneratorService.createCompoundGenerator(cModel);

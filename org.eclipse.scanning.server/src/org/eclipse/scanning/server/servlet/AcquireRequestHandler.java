@@ -26,11 +26,9 @@ import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IRequestHandler;
 import org.eclipse.scanning.api.event.scan.AcquireRequest;
 import org.eclipse.scanning.api.event.status.Status;
-import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.ScanInformation;
@@ -98,10 +96,8 @@ public class AcquireRequestHandler implements IRequestHandler<AcquireRequest> {
 
 	private ScanModel createScanModel(AcquireRequest request, final IRunnableDevice<?> detector) throws Exception {
 		final IPointGeneratorService pointGenService = Services.getGeneratorService();
-		final IScanPathModel model = detector instanceof IMalcolmDevice ?
-				new CompoundModel(new StaticModel()) :new StaticModel();
-		final IPointGenerator<?> gen = model instanceof CompoundModel ?
-				pointGenService.createCompoundGenerator((CompoundModel) model) : pointGenService.createGenerator(model);
+		final CompoundModel model = new CompoundModel(new StaticModel());
+		final IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(model);
 
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setPointGenerator(gen);

@@ -14,7 +14,7 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
@@ -64,8 +64,8 @@ public class MalcolmStaticScanTest extends AbstractMalcolmScanTest {
 
 	// Create a scan where the Malcolm device just does a static scan, but there may be outer scannables
 	private IRunnableDevice<ScanModel> createScanner(int... size) throws Exception {
-		final IPointGenerator<?> pointGenerator;
-		final IScanPathModel model;
+		final IPointGenerator<? extends IScanPointGeneratorModel> pointGenerator;
+		final IScanPointGeneratorModel model;
 		if (size.length == 0) {
 			// Static generator for the Malcolm device
 			model = new StaticModel();

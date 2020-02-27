@@ -552,7 +552,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		// use the point generator returned from malcolm
 		@SuppressWarnings("unchecked")
 		final Map<String, Object> result = (Map<String, Object>) reply.getValue();
-		final IPointGenerator<?> pointGen = (IPointGenerator<?>) result.get(FIELD_NAME_GENERATOR);
+		final IPointGenerator<CompoundModel> pointGen = (IPointGenerator<CompoundModel>) result.get(FIELD_NAME_GENERATOR);
 
 		// update the configured scan model to use the new point generator
 		// TODO: the reason we update the point generator only in the scan model, and not the pointGenerator field
@@ -638,7 +638,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		compoundModel.setDuration(model.getExposureTime());
 		compoundModel.setMutators(Collections.emptyList());
 		try {
-			IPointGenerator<?> pointGen = Services.getPointGeneratorService().createCompoundGenerator(compoundModel);
+			IPointGenerator<CompoundModel> pointGen = Services.getPointGeneratorService().createCompoundGenerator(compoundModel);
 			if (this.pointGenerator != null) this.pointGenerator = pointGen;
 			if (this.scanModel != null) this.scanModel.setPointGenerator(pointGen);
 			return pointGen;

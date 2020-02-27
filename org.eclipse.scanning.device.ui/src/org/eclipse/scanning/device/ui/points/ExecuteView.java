@@ -60,6 +60,7 @@ import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AbstractPointsModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.scan.IParserService;
 import org.eclipse.scanning.api.scan.ScanInformation;
@@ -583,8 +584,8 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 
 	private String getModelNames(CompoundModel compound) {
 		StringBuilder buf = new StringBuilder();
-		for (Iterator<Object> it = compound.getModels().iterator(); it.hasNext();) {
-			Object model = it.next();
+		for (Iterator<IScanPointGeneratorModel> it = compound.getModels().iterator(); it.hasNext();) {
+			IScanPointGeneratorModel model = it.next();
 			if (model instanceof AbstractPointsModel) {
 				buf.append(((AbstractPointsModel)model).getSummary());
 			} else {

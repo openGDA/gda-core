@@ -304,29 +304,15 @@ public class MonitorTest extends NexusTest {
 		// Create scan points for a grid and make a generator
 		AxialStepModel smodel;
 		int ySize = size[size.length-1];
-		if (ySize > 1) {
-			smodel = new AxialStepModel("yNex", 10,20,11d/ySize);
-		} else {
-			smodel = new AxialStepModel("yNex", 10,20,30); // Will generate one value at 10
-		}
+		smodel = new AxialStepModel("yNex", 10,20,
+				ySize > 1 ? 11d/ySize : 30); // N points or 1
 
 		IPointGenerator<AxialStepModel> stepGen = pointGenService.createGenerator(smodel);
 		assertEquals(ySize, stepGen.size());
 
-		CompoundModel cModel = new CompoundModel();
-
-		// We add the outer scans, if any
-		if (size.length > 1) {
-			for (int dim = 0; dim < size.length -1; dim++) {
-				if (size[dim] > 1) {
-				    cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,11d/size[dim]));
-				} else {
-					cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,30)); // Will generate one value at 10
-				}
-			}
-		}
-
+		CompoundModel cModel = createNestedStepScans(1, size);
 		cModel.addModel(smodel);
+
 		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cModel);
 
 		// Create the model for a scan.

@@ -302,23 +302,10 @@ public abstract class NexusTest {
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 		gmodel.setAlternating(snake);
 
-		IPointGenerator<CompoundModel> gen = pointGenService.createGenerator(gmodel,
-				region == null ? Collections.emptyList() : Arrays.asList(region));
-
-		CompoundModel cModel = new CompoundModel();
-		// We add the outer scans, if any
-		if (size.length > 2) {
-			for (int dim = 0; dim < size.length - 2; dim++) {
-				if (size[dim] > 1) {
-				    cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,9.99d/(size[dim]-1)));
-				} else {
-					cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,30)); // Will generate one value at 10
-				}
-			}
-		}
+		CompoundModel cModel = createNestedStepScans(2, size);
 		cModel.addData(gmodel, Arrays.asList(region));
 
-		gen = pointGenService.createCompoundGenerator(cModel);
+		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cModel);
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
@@ -356,6 +343,19 @@ public abstract class NexusTest {
 		smodel.setFilePath(file.getAbsolutePath());
 
 		return smodel;
+	}
+
+	/*
+	 * A utility method for tests extending this test that returns a CompoundModel with size.length - remainingAxes nested AxialStepModels
+	 * In a test that calls for a GridScan nested in N axial step models of size f(i) for example, this could be called with (2, [f(0), f(1)...])
+	 */
+	protected CompoundModel createNestedStepScans(int remainingAxes, int... size) {
+		CompoundModel cModel = new CompoundModel();
+		for (int dim = 0; dim < size.length - remainingAxes; dim++) {
+			cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,
+					size[dim] > 1 ? 9.9d/(size[dim] - 1) : 30)); // Either N many points or 1 point at 10
+		}
+		return cModel;
 	}
 
 }

@@ -20,6 +20,7 @@ import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.BoundingBox;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
@@ -102,7 +103,7 @@ public class RunnableDeviceServiceConfigureTest {
 		pmodel.setxAxisPoints(5);
 		pmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		IPointGenerator<?> gen = gservice.createGenerator(pmodel);
+		IPointGenerator<? extends IScanPointGeneratorModel> gen = gservice.createGenerator(pmodel);
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();

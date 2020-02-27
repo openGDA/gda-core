@@ -124,17 +124,12 @@ public class ScanExecutionTest extends BrokerTest {
 		gmodel.setBoundingBox(new BoundingBox(0,0,2,2));
 
 		CompoundModel cModel = new CompoundModel();
-		// We add the outer scans, if any
-		if (size.length > 2) {
-			for (int dim = 0; dim < size.length - 2; dim++) {
-				if (size[dim] > 1) {
-				    cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,11d/(size[dim]-1)));
-				} else {
-					cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,30)); // Will generate one value at 10
-				}
-			}
+		for (int dim = 0; dim < size.length - 2; dim++) {
+			cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,
+					size[dim] > 1 ? 9.9d/(size[dim]-1) : 30)); // Either N many points or 1 point at 10
 		}
 		cModel.addModel(gmodel);
+
 		IPointGenerator<CompoundModel> gen = generatorService.createCompoundGenerator(cModel);
 
 		// Create the model for a scan.

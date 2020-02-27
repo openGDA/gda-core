@@ -37,7 +37,7 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -116,7 +116,7 @@ public abstract class AbstractAcquisitionTest {
 		                                         List<String> axisNames,
 		                                         String filePath) throws Exception {
 
-		List<IScanPathModel> models = new ArrayList<>();
+		List<IScanPointGeneratorModel> models = new ArrayList<>();
 		if (dims>2) {
 			for (int i = dims; i>2; i--) {
 				String axisName = axisNames != null ? axisNames.get(i - 1) : "T" + i;
@@ -132,7 +132,7 @@ public abstract class AbstractAcquisitionTest {
 		models.add(gmodel);
 
 		final CompoundModel compoundModel = new CompoundModel(models);
-		final IPointGenerator<?> gen = ServiceTestHelper.getPointGeneratorService().createCompoundGenerator(compoundModel);
+		final IPointGenerator<CompoundModel> gen = ServiceTestHelper.getPointGeneratorService().createCompoundGenerator(compoundModel);
 
 
 		// Create the model for a scan.

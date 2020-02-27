@@ -13,8 +13,10 @@ package org.eclipse.scanning.test.points;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
@@ -24,6 +26,7 @@ import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
@@ -133,11 +136,11 @@ public class ScanShapeTest {
 		TwoAxisSpiralModel spiralModel = new TwoAxisSpiralModel("x", "y");
 		spiralModel.setBoundingBox(box);
 
-		Object[] models = new Object[nestCount + 1];
+		List<IScanPointGeneratorModel> models = new ArrayList<>();
 		for (int i = 0; i < nestCount; i++) {
-			models[i] = new AxialStepModel("T" + (nestCount - 1- i), 100, 100 + (10 * i), 10);
+			models.add(new AxialStepModel("T" + (nestCount - 1- i), 100, 100 + (10 * i), 10));
 		}
-		models[nestCount] = spiralModel;
+		models.add(spiralModel);
 		CompoundModel compoundModel = new CompoundModel(models);
 
 		ScanRequest req = new ScanRequest();
@@ -165,11 +168,11 @@ public class ScanShapeTest {
 		lineModel.setxAxisName("x");
 		lineModel.setyAxisName("y");
 
-		Object[] models = new Object[nestCount + 1];
+		List<IScanPointGeneratorModel> models = new ArrayList<>();
 		for (int i = 0; i < nestCount; i++) {
-			models[i] = new AxialStepModel("T" + (nestCount - 1- i), 100, 100 + (10 * i), 10);
+			models.add(new AxialStepModel("T" + (nestCount - 1- i), 100, 100 + (10 * i), 10));
 		}
-		models[nestCount] = lineModel;
+		models.add(lineModel);
 		CompoundModel compoundModel = new CompoundModel(models);
 		compoundModel.setRegions(Arrays.asList(region));
 
@@ -218,11 +221,11 @@ public class ScanShapeTest {
 		gridModel.setBoundingBox(box);
 		gridModel.setAlternating(snake);
 
-		Object[] models = new Object[nestCount + 1];
+		List<IScanPointGeneratorModel> models = new ArrayList<>();
 		for (int i = 0; i < nestCount; i++) {
-			models[i] = new AxialStepModel("T" + (nestCount - 1 - i), 100, 100 + (10 * i), 10);
+			models.add(new AxialStepModel("T" + (nestCount - 1 - i), 100, 100 + (10 * i), 10));
 		}
-		models[nestCount] = gridModel;
+		models.add(gridModel);
 		CompoundModel compoundModel = new CompoundModel(models);
 
 		//System.out.println("The number of points will be: "+gen.size());

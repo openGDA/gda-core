@@ -40,7 +40,7 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.scan.models.ScanModel;
@@ -106,7 +106,7 @@ public class LinearScanTest extends BrokerTest{
                                                     create1DModel(3));
 	}
 
-	private IScanPathModel create1DModel(int size) {
+	private IScanPointGeneratorModel create1DModel(int size) {
         TwoAxisLinePointsModel model = new TwoAxisLinePointsModel();
         model.setPoints(size);
         model.setxAxisName("xNex");
@@ -154,7 +154,7 @@ public class LinearScanTest extends BrokerTest{
 		return model;
 	}
 
-	private void doScan(LinearROI roi, int scanRank, int[]dshape, IScanPathModel... models) throws Exception {
+	private void doScan(LinearROI roi, int scanRank, int[]dshape, IScanPointGeneratorModel... models) throws Exception {
 		IRunnableDevice<ScanModel> scanner = createTestScanner(roi, models);
 		final List<IPosition> positions = new ArrayList<>();
 		subscriber.addListener(new IScanListener() {
@@ -188,7 +188,7 @@ public class LinearScanTest extends BrokerTest{
 		assertArrayEquals(dshape, mdata.getShape());
 	}
 
-	private IRunnableDevice<ScanModel> createTestScanner(IROI roi,  IScanPathModel... models) throws Exception {
+	private IRunnableDevice<ScanModel> createTestScanner(IROI roi,  IScanPointGeneratorModel... models) throws Exception {
 		// Configure a detector with a collection time.
 		MandelbrotModel dmodel = new MandelbrotModel();
 		dmodel.setExposureTime(0.01);

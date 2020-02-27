@@ -199,7 +199,7 @@ public class ConsecutiveTest {
 		cmm.setContinuous(false);
 		CompoundModel cm = new CompoundModel(aam, cmm);
 		CompoundGenerator cg = (CompoundGenerator) service.createCompoundGenerator(cm);
-		IPointGenerator<?> lj1g = service.createGenerator(lsm1);
+		IPointGenerator<TwoAxisLissajousModel> lj1g = service.createGenerator(lsm1);
 		assertEquals(180, cg.size());
 		assertArrayEquals(new int[] { 3, 60 }, cg.getShape());
 		int j = 0;

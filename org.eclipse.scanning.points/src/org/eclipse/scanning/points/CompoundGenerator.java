@@ -32,6 +32,7 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.python.core.PyObject;
@@ -79,10 +80,10 @@ public class CompoundGenerator extends AbstractScanPointGenerator<CompoundModel>
 	 * an incomplete representation of the scan, and any GeneratorException thrown may have less complete information.
 	 */
 
-	public CompoundGenerator(IPointGenerator<?>[] generators, IPointGeneratorService pgs) throws GeneratorException {
+	public CompoundGenerator(IPointGenerator<? extends IScanPointGeneratorModel>[] generators, IPointGeneratorService pgs) throws GeneratorException {
 		pointGeneratorService = pgs;
         CompoundModel model = new CompoundModel();
-        for (IPointGenerator<?> g : generators) {
+        for (IPointGenerator<? extends IScanPointGeneratorModel> g : generators) {
         	if (g instanceof NoModelGenerator) continue;
         	model.addModel(g.getModel());
         	if (g instanceof CompoundGenerator) {

@@ -288,7 +288,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 		final AxialStepModel stepModel = new AxialStepModel("stage_z", 0, 1, 1);
 		final CompoundModel compoundModel = new CompoundModel(stepModel, gmodel);
-		final IPointGenerator<?> gen = pointGenService.createCompoundGenerator(compoundModel);
+		final IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(compoundModel);
 
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setPointGenerator(gen);

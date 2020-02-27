@@ -51,7 +51,6 @@ import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
@@ -253,18 +252,9 @@ public class DarkCurrentTest extends NexusTest {
 		gmodel.setyAxisPoints(size[size.length-2]);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		CompoundModel cModel = new CompoundModel();
-		// We add the outer scans, if any
-		if (size.length > 2) {
-			for (int dim = 0; dim < size.length - 2; dim++) {
-				if (size[dim] > 1) {
-					cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,9.9d/(size[dim]-1)));
-				} else {
-					cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,30)); // Will generate one value at 10
-				}
-			}
-		}
+		CompoundModel cModel = createNestedStepScans(2, size);
 		cModel.addModel(gmodel);
+
 		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cModel);
 
 		// Create the model for a scan.

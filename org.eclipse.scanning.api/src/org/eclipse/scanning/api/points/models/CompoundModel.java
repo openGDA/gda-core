@@ -77,7 +77,7 @@ import org.eclipse.scanning.api.points.IMutator;
  */
 public class CompoundModel extends AbstractPointsModel {
 
-	private List<Object>               models;
+	private List<IScanPointGeneratorModel> models;
 	private Collection<ScanRegion>  regions;
 	private List<IMutator>	           mutators;
 	private double                     duration = -1;
@@ -98,25 +98,25 @@ public class CompoundModel extends AbstractPointsModel {
 	}
 
 	@SuppressWarnings("unchecked")
-	public CompoundModel(Object... models) {
+	public CompoundModel(IScanPointGeneratorModel... models) {
 		if (models !=null && models.length == 1 && models[0] instanceof List<?>) {
-			this.models = (List<Object>) models[0];
+			this.models = (List<IScanPointGeneratorModel>) models[0];
 		} else {
 		    this.models = Arrays.asList(models);
 		}
 	}
-	public CompoundModel(List<Object> ms) {
-		models = ms;
+	public CompoundModel(List<? extends IScanPointGeneratorModel> ms) {
+		setModels(ms);
 	}
-	public CompoundModel(IScanPathModel model, IROI region) {
+	public CompoundModel(IScanPointGeneratorModel model, IROI region) {
 		setData(model, region, model.getScannableNames());
 	}
 
-	public void setData(IScanPathModel model, IROI region) {
+	public void setData(IScanPointGeneratorModel model, IROI region) {
 		setData(model, region, model.getScannableNames());
 	}
 
-	public void setData(IScanPathModel model, IROI region, List<String> names) {
+	public void setData(IScanPointGeneratorModel model, IROI region, List<String> names) {
 		// We do it this way to make setData(...) fast. This means addData(...) has to deal with unmodifiable lists.
 		this.models  = Arrays.asList(model);
 	    this.regions = Arrays.asList(new ScanRegion(region, names));
@@ -129,25 +129,25 @@ public class CompoundModel extends AbstractPointsModel {
 	 * @param model
 	 * @param rois
 	 */
-	public void addData(Object model, Collection<IROI> rois) {
+	public void addData(IScanPointGeneratorModel model, Collection<IROI> rois) {
 
 		addModel(model);
 
 		// They are not really ordered but for now we maintain order.
 		Set<ScanRegion> newRegions = new LinkedHashSet<>(7);
 		if (rois!=null) for (IROI roi : rois) {
-			newRegions.add(new ScanRegion(roi, AbstractPointsModel.getScannableNames(model)));
+			newRegions.add(new ScanRegion(roi, model.getScannableNames()));
 		}
 		addRegions(newRegions);
 	}
 
-	public List<Object> getModels() {
+	public List<IScanPointGeneratorModel> getModels() {
 		return models;
 	}
-	public void setModels(List<Object> models) {
-		this.models = models;
+	public void setModels(List<? extends IScanPointGeneratorModel> models) {
+		this.models = new ArrayList<>(models);
 	}
-	public void setModelsVarArgs(Object... models) {
+	public void setModelsVarArgs(IScanPointGeneratorModel... models) {
 		this.models = Arrays.asList(models);
 	}
 	public Collection<ScanRegion> getRegions() {
@@ -263,15 +263,15 @@ public class CompoundModel extends AbstractPointsModel {
 
 	@Override
 	public boolean isContinuous() {
-		IScanPointGeneratorModel innermostModel = (IScanPointGeneratorModel) getModels().get(getModels().size()-1);
+		IScanPointGeneratorModel innermostModel = getModels().get(getModels().size()-1);
 		return innermostModel.isContinuous();
 	}
 
 	/*
 	 * Dealing with unmodifiable lists from setData
 	 */
-	public void addModel(Object model) {
-		List<Object> tmp = new ArrayList<>();
+	public void addModel(IScanPointGeneratorModel model) {
+		List<IScanPointGeneratorModel> tmp = new ArrayList<>();
 		if (models != null) tmp.addAll(models);
 		tmp.add(model);
 		models = tmp;
@@ -296,8 +296,8 @@ public class CompoundModel extends AbstractPointsModel {
 	@Override
 	public List<String> getScannableNames(){
 		List<String> scannables = new ArrayList<>();
-		for (Object model : getModels()) {
-			scannables.addAll(AbstractPointsModel.getScannableNames(model));
+		for (IScanPointGeneratorModel model : getModels()) {
+			scannables.addAll(model.getScannableNames());
 		}
 		return scannables;
 	}

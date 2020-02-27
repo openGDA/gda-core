@@ -510,7 +510,7 @@ public class CompoundTest {
 		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel("stage_x", "stage_y", 5, 5);
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		IPointGenerator<?> scan = service.createCompoundGenerator(new CompoundModel(mmodel, gmodel));
+		IPointGenerator<CompoundModel> scan = service.createCompoundGenerator(new CompoundModel(mmodel, gmodel));
 
 		assertEquals(50, scan.size());
 	}

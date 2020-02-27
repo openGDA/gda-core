@@ -70,7 +70,7 @@ public class ScanInformationTest {
 	@Test
 	public void testNewScanInformationFromPointGenAndDetectors() throws Exception {
 		CompoundModel compoundModel = createCompoundModel();
-		IPointGenerator<?> pointGen = pointGenService.createCompoundGenerator(compoundModel);
+		IPointGenerator<CompoundModel> pointGen = pointGenService.createCompoundGenerator(compoundModel);
 
 		String filePath = "/path/to/nexusFile.nxs";
 		Collection<Object> detModels = createDetectorModels().values();

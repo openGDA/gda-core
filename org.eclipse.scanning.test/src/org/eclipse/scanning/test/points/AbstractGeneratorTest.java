@@ -21,6 +21,7 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.junit.Before;
@@ -34,10 +35,10 @@ public abstract class AbstractGeneratorTest {
 		service = new PointGeneratorService();
 	}
 
-	public void checkWrtCompound(Object model, IROI roi, int size) throws Exception {
+	public void checkWrtCompound(IScanPointGeneratorModel model, IROI roi, int size) throws Exception {
 
 		// Get the point list
-		IPointGenerator<?> generator = roi!=null ? service.createGenerator(model, roi) : service.createGenerator(model);
+		IPointGenerator<? extends IScanPointGeneratorModel> generator = roi!=null ? service.createGenerator(model, roi) : service.createGenerator(model);
 	    List<IPosition> pointList = generator.createPoints();
 
 		assertEquals(size, pointList.size());
@@ -46,7 +47,7 @@ public abstract class AbstractGeneratorTest {
 		CompoundModel cmodel = new CompoundModel(model);
 		if (roi!=null) cmodel.setRegions(Arrays.asList(new ScanRegion(roi, Arrays.asList("x", "y"))));
 
-		IPointGenerator<?> cgenerator = service.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> cgenerator = service.createCompoundGenerator(cmodel);
 	    List<IPosition> cpointList = cgenerator.createPoints();
 		assertEquals(size, cpointList.size());
 		assertEquals(size, cgenerator.size());

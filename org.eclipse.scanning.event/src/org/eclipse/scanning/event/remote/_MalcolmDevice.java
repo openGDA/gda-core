@@ -36,6 +36,7 @@ import org.eclipse.scanning.api.malcolm.MalcolmVersion;
 import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 
@@ -160,12 +161,12 @@ public class _MalcolmDevice extends _RunnableDevice<IMalcolmModel> implements IM
 	}
 
 	@Override
-	public void setPointGenerator(IPointGenerator<?> pointGenerator) {
+	public void setPointGenerator(IPointGenerator<? extends IScanPointGeneratorModel> pointGenerator) {
 		throw new UnsupportedOperationException("This method is not supported on the client");
 	}
 
 	@Override
-	public IPointGenerator<?> getPointGenerator() {
+	public IPointGenerator<? extends IScanPointGeneratorModel> getPointGenerator() {
 		throw new UnsupportedOperationException("This method is not supported on the client");
 	}
 

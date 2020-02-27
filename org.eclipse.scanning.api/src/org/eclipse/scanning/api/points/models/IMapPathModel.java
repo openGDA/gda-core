@@ -14,7 +14,7 @@ package org.eclipse.scanning.api.points.models;
 /**
  * A model for a scan in two-dimensional space.
  */
-public interface IMapPathModel extends IScanPathModel {
+public interface IMapPathModel extends IScanPointGeneratorModel {
 
 	// Note: x and y must be in lower case in getter/setter names for JFace bindings to work correctly.
 	/**

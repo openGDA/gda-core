@@ -21,6 +21,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.scanning.api.IModelProvider;
 import org.eclipse.scanning.api.annotation.ui.FieldValue;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.scan.AxisConfiguration;
 import org.eclipse.scanning.device.ui.ScanningPerspective;
@@ -108,10 +109,10 @@ public class VisualiseView extends ViewPart implements IAdaptable, ISelectionLis
 		final Object object = ((StructuredSelection)selection).getFirstElement();
 		if (object==null) return;
 		if (object instanceof FieldValue) {
-			processModel(((FieldValue)object).getModel());
+			processModel((IScanPointGeneratorModel) ((FieldValue)object).getModel());
 		} else if (object instanceof IModelProvider<?>) {
 			try {
-				processModel(((IModelProvider<?>)object).getModel());
+				processModel((IScanPointGeneratorModel) ((IModelProvider<?>)object).getModel());
 			} catch (Exception e) {
 				logger.error("Problem getting model from "+object, e);
 			}
@@ -133,7 +134,7 @@ public class VisualiseView extends ViewPart implements IAdaptable, ISelectionLis
 		}
 	}
 
-	private void processModel(Object model) {
+	private void processModel(IScanPointGeneratorModel model) {
 		try {
 			if (controller!=null) controller.setModel(model);
 		} catch (Exception ignored) {

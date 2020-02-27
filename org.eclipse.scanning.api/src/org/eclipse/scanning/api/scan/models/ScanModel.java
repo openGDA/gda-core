@@ -24,7 +24,7 @@ import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,12 +51,12 @@ public class ScanModel {
 	 * The point generator to use to generate the points of the scan. Note that this may be updated
 	 * when configuring a malcolm device.
 	 */
-	private IPointGenerator<?> pointGenerator;
+	private IPointGenerator<? extends IScanPointGeneratorModel> pointGenerator;
 
 	/**
 	 * The scan path model that was used to create the point generator.
 	 */
-	private IScanPathModel scanPathModel;
+	private IScanPointGeneratorModel scanPathModel;
 
 	/**
 	 * This is the set of detectors which should be collected
@@ -118,14 +118,14 @@ public class ScanModel {
 		// do nothing
 	}
 
-	public ScanModel(IPointGenerator<?> positionIterator, IRunnableDevice<?>... detectors) {
+	public ScanModel(IPointGenerator<? extends IScanPointGeneratorModel> positionIterator, IRunnableDevice<?>... detectors) {
 		// this constructor is used by tests for convenience
 		this.pointGenerator = positionIterator;
-		scanPathModel = (IScanPathModel) positionIterator.getModel();
+		scanPathModel = positionIterator.getModel();
 		if (detectors!=null && detectors.length>0) this.detectors = Arrays.asList(detectors);
 	}
 
-	public ScanModel(IPointGenerator<?> positionIterator, File file) {
+	public ScanModel(IPointGenerator<? extends IScanPointGeneratorModel> positionIterator, File file) {
 		this(positionIterator);
 		this.filePath = file.getAbsolutePath();
 	}
@@ -218,19 +218,19 @@ public class ScanModel {
 		this.bean = bean;
 	}
 
-	public IScanPathModel getScanPathModel() {
+	public IScanPointGeneratorModel getScanPathModel() {
 		return scanPathModel;
 	}
 
-	public void setScanPathModel(IScanPathModel scanPathModel) {
+	public void setScanPathModel(IScanPointGeneratorModel scanPathModel) {
 		this.scanPathModel = scanPathModel;
 	}
 
-	public IPointGenerator<?> getPointGenerator() {
+	public IPointGenerator<? extends IScanPointGeneratorModel> getPointGenerator() {
 		return pointGenerator;
 	}
 
-	public void setPointGenerator(IPointGenerator<?> pointGenerator) {
+	public void setPointGenerator(IPointGenerator<? extends IScanPointGeneratorModel> pointGenerator) {
 		this.pointGenerator = pointGenerator;
 	}
 

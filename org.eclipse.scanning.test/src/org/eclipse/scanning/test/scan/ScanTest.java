@@ -52,6 +52,7 @@ import org.eclipse.scanning.api.points.models.AbstractPointsModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -490,7 +491,7 @@ public class ScanTest extends BrokerTest {
 			bmodel.setyAxisName(axes[1]);
 		}
 
-		IPointGenerator<?> gen = pointGenService.createGenerator(pmodel);
+		IPointGenerator<? extends IScanPointGeneratorModel> gen = pointGenService.createGenerator(pmodel);
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();

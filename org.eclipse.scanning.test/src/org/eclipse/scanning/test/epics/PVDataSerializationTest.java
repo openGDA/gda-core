@@ -926,7 +926,7 @@ public class PVDataSerializationTest {
 	public void testSpiralGenerator() throws Exception {
 
 		// Create test generator
-		IPointGenerator<?> scan = pgService.createCompoundGenerator(
+		IPointGenerator<CompoundModel> scan = pgService.createCompoundGenerator(
 				new CompoundModel(new TwoAxisSpiralModel("x", "y", 2, new BoundingBox(0, 5, 2, 4))));
 
 		// Create the expected PVStructure

@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 
 /**
@@ -79,11 +80,11 @@ public interface IPointGeneratorService {
 	 * @param region which implements IPointContainer (most useful) or IROI (less useful because IROI is in the data coordinates, no the motor coordinates)
 	 * @return
 	 */
-	default <T> IPointGenerator<CompoundModel> createGenerator(T model, IROI region) throws GeneratorException {
+	default <T extends IScanPointGeneratorModel> IPointGenerator<CompoundModel> createGenerator(T model, IROI region) throws GeneratorException {
 		return createGenerator(model, Arrays.asList(region));
 	}
 
-	default <T> IPointGenerator<CompoundModel> createGenerator(T model, Collection<IROI> regions) throws GeneratorException{
+	default <T extends IScanPointGeneratorModel> IPointGenerator<CompoundModel> createGenerator(T model, Collection<IROI> regions) throws GeneratorException{
 		return createGenerator(model, new ArrayList<>(regions), new ArrayList<>());
 	}
 
@@ -102,11 +103,11 @@ public interface IPointGeneratorService {
 	 * @throws GeneratorException
 	 */
 
-	default <T> IPointGenerator<CompoundModel> createGenerator(T model, List<IROI> regions, List<IMutator> mutators) throws GeneratorException {
+	default <T extends IScanPointGeneratorModel> IPointGenerator<CompoundModel> createGenerator(T model, List<IROI> regions, List<IMutator> mutators) throws GeneratorException {
 		return createGenerator(model, regions, mutators, -1f);
 	}
 
-	<T> IPointGenerator<CompoundModel> createGenerator(T model, List<IROI> regions, List<IMutator> mutators, float duration) throws GeneratorException;
+	<T extends IScanPointGeneratorModel> IPointGenerator<CompoundModel> createGenerator(T model, List<IROI> regions, List<IMutator> mutators, float duration) throws GeneratorException;
 
 
 	/**
@@ -117,7 +118,7 @@ public interface IPointGeneratorService {
 	 * @return
 	 * @throws GeneratorException
 	 */
-	IPointGenerator<CompoundModel> createCompoundGenerator(IPointGenerator<?>... generators) throws GeneratorException;
+	IPointGenerator<CompoundModel> createCompoundGenerator(IPointGenerator<? extends IScanPointGeneratorModel>... generators) throws GeneratorException;
 
 	/**
 	 * Create a nested or compound generator from a list of models.
@@ -155,5 +156,5 @@ public interface IPointGeneratorService {
 	@Deprecated
 	<T> IPointGenerator<T> createGenerator(String id) throws GeneratorException;
 
-	public <T, R> void setBounds(T model, List<R> regions);
+	public <T extends IScanPointGeneratorModel, R> void setBounds(T model, List<R> regions);
 }

@@ -46,7 +46,6 @@ import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
-import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
@@ -227,15 +226,7 @@ public class BasicScanTest extends NexusTest {
 			                                          IScannable<?> monitorPerScan,
 			                                          int... size) throws Exception {
 
-		CompoundModel cModel = new CompoundModel();
-		// We add the outer scans, if any
-		for (int dim = 0; dim < size.length; dim++) {
-			if (size[dim] > 1) {
-				cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,9.9d/(size[dim]-1)));
-			} else {
-				cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,30)); // Will generate one value at 10
-			}
-		}
+		CompoundModel cModel = createNestedStepScans(0, size);
 
 		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cModel);
 

@@ -28,6 +28,7 @@ import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.device.ui.Activator;
 import org.eclipse.scanning.device.ui.ServiceHolder;
@@ -42,8 +43,8 @@ class PathInfoCalculatorJob extends Job {
 	private IValidatorService      vservice;
 
 	// Model
-	private Object                   scanPathModel;
-	private List<ScanRegion>   scanRegions;
+	private IScanPointGeneratorModel scanPathModel;
+	private List<ScanRegion> scanRegions;
 
 	// Controller
 	private PlottingController controller;
@@ -59,7 +60,7 @@ class PathInfoCalculatorJob extends Job {
 		this.vservice              = ServiceHolder.getValidatorService();
 	}
 
-	protected void schedule(Object model, List<ScanRegion> scanRegions) {
+	protected void schedule(IScanPointGeneratorModel model, List<ScanRegion> scanRegions) {
 		this.scanPathModel = model;
 		this.scanRegions   = scanRegions;
 		schedule();

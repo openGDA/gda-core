@@ -24,7 +24,7 @@ import java.util.Set;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.models.ScanMetadata;
@@ -135,7 +135,7 @@ public class ScanRequest implements Serializable {
 
 	}
 
-	public ScanRequest(IScanPathModel m, String filePath, List<String> monitorNamesPerPoint, List<String> monitorNamesPerScan, ProcessingRequest processing) {
+	public ScanRequest(IScanPointGeneratorModel m, String filePath, List<String> monitorNamesPerPoint, List<String> monitorNamesPerScan, ProcessingRequest processing) {
 		super();
 		this.compoundModel = new CompoundModel(m);
 		this.monitorNamesPerPoint = monitorNamesPerPoint;
@@ -152,7 +152,7 @@ public class ScanRequest implements Serializable {
 		this.processingRequest = processingRequest;
 	}
 
-	public ScanRequest(IScanPathModel m, IROI region, String filePath, List<String> monitorNamesPerPoint, List<String> monitorNamesPerScan) {
+	public ScanRequest(IScanPointGeneratorModel m, IROI region, String filePath, List<String> monitorNamesPerPoint, List<String> monitorNamesPerScan) {
 		this(m, filePath, monitorNamesPerPoint, monitorNamesPerScan, null);
 		compoundModel.setRegions(Arrays.asList(new ScanRegion(region, m.getScannableNames())));
 	}

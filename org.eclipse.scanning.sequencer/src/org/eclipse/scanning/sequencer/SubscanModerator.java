@@ -22,7 +22,7 @@ import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
@@ -42,8 +42,8 @@ public class SubscanModerator {
 	private IPointGenerator<?> outerPointGenerator;
 	private IPointGenerator<?> innerPointGenerator;
 
-	private List<Object> outerModels;
-	private List<Object> innerModels;
+	private List<IScanPointGeneratorModel> outerModels;
+	private List<IScanPointGeneratorModel> innerModels;
 
 	public SubscanModerator(ScanModel scanModel) throws ScanningException {
 		this.pointGen = scanModel.getPointGenerator();
@@ -58,7 +58,7 @@ public class SubscanModerator {
 		outerPointGenerator = pointGen; // We will reassign it to the outer scan if there is one, otherwise it is the full scan.
 
 		// get the scan path model as a compound model
-		final IScanPathModel scanPathModel = scanModel.getScanPathModel();
+		final IScanPointGeneratorModel scanPathModel = scanModel.getScanPathModel();
 		final CompoundModel compoundModel = scanPathModel instanceof CompoundModel ? (CompoundModel) scanPathModel :
 				new CompoundModel(scanPathModel);
 
@@ -69,7 +69,7 @@ public class SubscanModerator {
 		}
 
 		// We need a compound model to moderate this stuff
-		List<Object> models = compoundModel.getModels();
+		List<IScanPointGeneratorModel> models = compoundModel.getModels();
 		if (models.isEmpty()) throw new ScanningException("No models are provided in the compound model!");
 
 		this.outerModels = new ArrayList<>();
@@ -78,8 +78,7 @@ public class SubscanModerator {
 		final IPointGeneratorService pointGenService = ServiceHolder.getGeneratorService();
 		final List<String> innerScanAxes = malcolmDevice.get().getAvailableAxes();
 		boolean reachedOuterScan = false;
-		for (int i = models.size()-1; i > -1; i--) {
-			IScanPathModel model = (IScanPathModel) models.get(i);
+		for (IScanPointGeneratorModel model : models) {
 			if (!reachedOuterScan) {
 				List<String> names = model.getScannableNames();
 				if (innerScanAxes.containsAll(names)) {// These will be deal with by malcolm
@@ -154,11 +153,11 @@ public class SubscanModerator {
 		return innerPointGenerator;
 	}
 
-	public List<Object> getOuterModels() {
+	public List<IScanPointGeneratorModel> getOuterModels() {
 		return outerModels;
 	}
 
-	public List<Object> getInnerModels() {
+	public List<IScanPointGeneratorModel> getInnerModels() {
 		return innerModels;
 	}
 

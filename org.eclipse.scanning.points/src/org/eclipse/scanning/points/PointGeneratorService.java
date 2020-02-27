@@ -47,6 +47,7 @@ import org.eclipse.scanning.api.points.models.ConsecutiveMultiModel;
 import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.IBoundingLineModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.JythonGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.StaticModel;
@@ -91,6 +92,7 @@ public class PointGeneratorService implements IPointGeneratorService {
 		gens.put(TwoAxisPointSingleModel.class, TwoAxisPointSingleGenerator.class);
 		gens.put(ConsecutiveMultiModel.class, ConsecutiveMultiGenerator.class);
 		gens.put(ConcurrentMultiModel.class, ConcurrentMultiGenerator.class);
+		gens.put(CompoundModel.class, CompoundGenerator.class);
 
 		Map<String, GeneratorInfo> tinfo = new TreeMap<>();
 		fillStaticGeneratorInfo(gens, tinfo);
@@ -110,7 +112,7 @@ public class PointGeneratorService implements IPointGeneratorService {
 	}
 
 	@Override
-	public <T, R> void setBounds(T model, List<R> regions) {
+	public <T extends IScanPointGeneratorModel, R> void setBounds(T model, List<R> regions) {
 		if (regions == null || regions.isEmpty()) return;
 		IRectangularROI rect = ((IROI) regions.get(0)).getBounds();
 		for (R roi : regions) {
@@ -193,7 +195,7 @@ public class PointGeneratorService implements IPointGeneratorService {
 	}
 
 	@Override
-	public IPointGenerator<CompoundModel> createCompoundGenerator(IPointGenerator<?>... generators) throws GeneratorException {
+	public IPointGenerator<CompoundModel> createCompoundGenerator(IPointGenerator<? extends IScanPointGeneratorModel>... generators) throws GeneratorException {
 		return new CompoundGenerator(generators, this);
 	}
 
@@ -251,7 +253,7 @@ public class PointGeneratorService implements IPointGeneratorService {
 	}
 
 	@Override
-	public <T> IPointGenerator<CompoundModel> createGenerator(T model, List<IROI> regions, List<IMutator> mutators, float duration) throws GeneratorException {
+	public <T extends IScanPointGeneratorModel> IPointGenerator<CompoundModel> createGenerator(T model, List<IROI> regions, List<IMutator> mutators, float duration) throws GeneratorException {
 		CompoundModel cModel = new CompoundModel();
 		cModel.addData(model, regions);
 		cModel.addMutators(mutators);
