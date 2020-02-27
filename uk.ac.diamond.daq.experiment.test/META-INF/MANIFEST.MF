@@ -15,3 +15,4 @@ Require-Bundle: org.junit,
  uk.ac.diamond.daq.experiment.ui
 Bundle-Vendor: Diamond Light Source
 Automatic-Module-Name: uk.ac.diamond.daq.experiment.test
+Import-Package: org.apache.commons.io
