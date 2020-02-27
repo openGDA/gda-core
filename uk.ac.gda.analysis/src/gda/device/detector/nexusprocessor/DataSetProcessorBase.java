@@ -20,9 +20,9 @@ package gda.device.detector.nexusprocessor;
 
 import java.util.Collection;
 
-import gda.factory.FindableBase;
+import gda.factory.FindableConfigurableBase;
 
-public abstract class DataSetProcessorBase extends FindableBase implements DataSetProcessor {
+public abstract class DataSetProcessorBase extends FindableConfigurableBase implements DataSetProcessor {
 
 	boolean enable=true;
 
