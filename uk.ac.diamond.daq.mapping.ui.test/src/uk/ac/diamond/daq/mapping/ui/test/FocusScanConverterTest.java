@@ -35,6 +35,7 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingLine;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
@@ -94,7 +95,7 @@ public class FocusScanConverterTest {
 		// test compound model
 		final CompoundModel compoundModel = scanRequest.getCompoundModel();
 		assertNotNull(compoundModel);
-		final List<Object> models = compoundModel.getModels();
+		final List<IScanPointGeneratorModel> models = compoundModel.getModels();
 		assertEquals(2, models.size());
 
 		// test outer model - the focus model

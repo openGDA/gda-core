@@ -62,7 +62,7 @@ import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -343,9 +343,9 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	 *            Energy of the edge selected by the user
 	 */
 	private void handleEdgeSelectionChanged(double edgeEnergy) {
-		final IScanPathModel scanPathModel = XanesScanningUtils.createModelFromEdgeSelection(edgeEnergy, energyScannableName);
+		final IScanPointGeneratorModel scanPathModel = XanesScanningUtils.createModelFromEdgeSelection(edgeEnergy, energyScannableName);
 
-		final IScanModelWrapper<IScanPathModel> energyScannable = getOuterScannable(getMappingBean(), energyScannableName);
+		final IScanModelWrapper<IScanPointGeneratorModel> energyScannable = getOuterScannable(getMappingBean(), energyScannableName);
 		if (energyScannable != null) {
 			energyScannable.setModel(scanPathModel);
 		}

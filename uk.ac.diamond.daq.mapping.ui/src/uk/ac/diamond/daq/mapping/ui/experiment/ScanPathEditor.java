@@ -39,6 +39,7 @@ import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -77,7 +78,7 @@ public class ScanPathEditor extends Composite implements IObservable {
 	private final Label currentValueLabel;
 	private Scannable scannable;
 
-	public ScanPathEditor(Composite parent, int style, IScanModelWrapper<IScanPathModel> scannableAxisParameters) {
+	public ScanPathEditor(Composite parent, int style, IScanModelWrapper<IScanPointGeneratorModel> scannableAxisParameters) {
 		super(parent, style);
 		final String scannableName = scannableAxisParameters.getName();
 		GridLayoutFactory.fillDefaults().numColumns(3).applyTo(this);
@@ -153,7 +154,7 @@ public class ScanPathEditor extends Composite implements IObservable {
 		observable.notifyIObservers(this, model);
 	}
 
-	private void bindScanPathModelToTextField(IScanModelWrapper<IScanPathModel> scannableAxisParameters, IObservableValue<?> axisTextValue) {
+	private void bindScanPathModelToTextField(IScanModelWrapper<IScanPointGeneratorModel> scannableAxisParameters, IObservableValue<?> axisTextValue) {
 		final String scannableName = scannableAxisParameters.getName();
 		@SuppressWarnings("unchecked")
 		final IObservableValue<?> axisValue = BeanProperties.value("model").observe(scannableAxisParameters);

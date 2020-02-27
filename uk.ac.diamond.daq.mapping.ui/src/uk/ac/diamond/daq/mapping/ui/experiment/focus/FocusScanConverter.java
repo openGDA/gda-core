@@ -30,7 +30,6 @@ import org.eclipse.scanning.api.points.models.BoundingLine;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IBoundingLineModel;
 import org.eclipse.scanning.api.points.models.IMapPathModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.slf4j.Logger;
@@ -58,7 +57,7 @@ public class FocusScanConverter {
 		final ILineMappingRegion lineRegion = focusScanBean.getLineRegion();
 		final ScanRegion scanRegion = new ScanRegion(lineRegion.toROI(),
 				lineModel.getxAxisName(), lineModel.getyAxisName());
-		final IScanPathModel focusModel = createFocusPathModel(focusScanBean);
+		final AxialStepModel focusModel = createFocusPathModel(focusScanBean);
 
 		final CompoundModel compoundModel = new CompoundModel(Arrays.asList(focusModel, lineModel));
 		compoundModel.setRegions(Arrays.asList(scanRegion));
@@ -73,7 +72,7 @@ public class FocusScanConverter {
 		return scanRequest;
 	}
 
-	private IScanPathModel createFocusPathModel(FocusScanBean focusScanBean) {
+	private AxialStepModel createFocusPathModel(FocusScanBean focusScanBean) {
 		final String zonePlateScannableName = focusScanBean.getFocusScannableName();
 		final double centre = focusScanBean.getFocusCentre();
 		final double range = focusScanBean.getFocusRange();
