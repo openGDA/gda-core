@@ -56,7 +56,7 @@ abstract class AbstractGridGenerator<T extends AbstractTwoAxisGridModel> extends
 		generators[0] = model.isVerticalOrientation() ? xLine : yLine;
 		generators[1] = model.isVerticalOrientation() ? yLine : xLine;
 		//Must use full CompoundGenerator for grids as 2/4 grid models use RandomOffsetMutator
-		return CompoundGenerator.createSpgCompoundGenerator(generators, new ArrayList<>(), axes, getMutator(),
+		return createSpgCompoundGenerator(generators, new ArrayList<>(), axes, getMutator(),
 				-1d, continuous);
 	}
 

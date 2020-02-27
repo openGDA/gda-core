@@ -44,6 +44,7 @@ public abstract class AbstractMultiGenerator<T extends AbstractMultiModel<?>> ex
 
 	private IPointGeneratorService service;
 	private List<IPointGenerator<?>> generators;
+	protected static final double DIFF_LIMIT = 1e-5;
 
 	public AbstractMultiGenerator(T model, IPointGeneratorService service) {
 		// Need service to be set before validating, so cannot use super()
@@ -86,7 +87,7 @@ public abstract class AbstractMultiGenerator<T extends AbstractMultiModel<?>> ex
 
         final PPointGenerator pointGen = generatorFactory.createObject(initGenerators(), alternating);
 
-        return CompoundGenerator.createWrappingCompoundGenerator(new PPointGenerator[] {pointGen}, continuous);
+        return createWrappingCompoundGenerator(pointGen, continuous);
 	}
 
 	protected abstract JythonObjectFactory<PPointGenerator> getFactory();

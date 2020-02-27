@@ -62,7 +62,7 @@ public abstract class AbstractLineGenerator<T extends AbstractBoundingLineModel>
 
 		PPointGenerator lineGen = lineGeneratorFactory.createObject(
 				axes, units, start, stop, numPoints, alternating);
-		return CompoundGenerator.createWrappingCompoundGenerator(new PPointGenerator[] {lineGen}, continuous);
+		return createWrappingCompoundGenerator(lineGen, continuous);
 
 	}
 

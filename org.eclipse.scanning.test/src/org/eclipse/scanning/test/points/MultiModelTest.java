@@ -34,7 +34,7 @@ import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.junit.Test;
 
-public class MultiModelTests {
+public class MultiModelTest {
 
 	private IPointGeneratorService service = new PointGeneratorService();
 

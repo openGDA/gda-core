@@ -52,6 +52,15 @@ public abstract class AbstractMultiModel<T extends IScanPointGeneratorModel> ext
 		models = newModels;
 	}
 
+	/**
+	 * Must implement clear() method on beans being used with BeanUI.
+	 */
+	public void clear() {
+		List<T> oldModels = new ArrayList<>(models);
+		models.clear();
+		pcs.firePropertyChange("models", oldModels, models);
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (!super.equals(obj)) {

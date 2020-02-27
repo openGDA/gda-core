@@ -502,7 +502,7 @@ public class CompoundTest {
 
 		final AxialMultiStepModel mmodel = new AxialMultiStepModel();
 		mmodel.setName("energy");
-		mmodel.addStepModel(new AxialStepModel("energy", 10000,20000,10000)); // 2 points
+		mmodel.addModel(new AxialStepModel("energy", 10000,20000,10000)); // 2 points
 
 		assertEquals(2, service.createGenerator(mmodel).size());
 

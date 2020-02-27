@@ -100,9 +100,9 @@ public class CompoundModel extends AbstractPointsModel {
 	@SuppressWarnings("unchecked")
 	public CompoundModel(IScanPointGeneratorModel... models) {
 		if (models !=null && models.length == 1 && models[0] instanceof List<?>) {
-			this.models = (List<IScanPointGeneratorModel>) models[0];
+			setModels((List<IScanPointGeneratorModel>) models[0]);
 		} else {
-		    this.models = Arrays.asList(models);
+		    setModels(Arrays.asList(models));
 		}
 	}
 	public CompoundModel(List<? extends IScanPointGeneratorModel> ms) {
@@ -117,9 +117,8 @@ public class CompoundModel extends AbstractPointsModel {
 	}
 
 	public void setData(IScanPointGeneratorModel model, IROI region, List<String> names) {
-		// We do it this way to make setData(...) fast. This means addData(...) has to deal with unmodifiable lists.
-		this.models  = Arrays.asList(model);
-	    this.regions = Arrays.asList(new ScanRegion(region, names));
+		setModels(Arrays.asList(model));
+	    setRegions(Arrays.asList(new ScanRegion(region, names)));
 	}
 
 	/**
@@ -145,19 +144,21 @@ public class CompoundModel extends AbstractPointsModel {
 		return models;
 	}
 	public void setModels(List<? extends IScanPointGeneratorModel> models) {
+		pcs.firePropertyChange("models", this.models, models);
 		this.models = new ArrayList<>(models);
 	}
 	public void setModelsVarArgs(IScanPointGeneratorModel... models) {
-		this.models = Arrays.asList(models);
+		setModels(Arrays.asList(models));
 	}
 	public Collection<ScanRegion> getRegions() {
 		return regions;
 	}
 	public void setRegions(Collection<ScanRegion> regions) {
-		this.regions = regions;
+		pcs.firePropertyChange("regions", this.regions, regions);
+		this.regions = new ArrayList<>(regions);
 	}
 	public void setRegionsVarArgs(ScanRegion... regions) {
-		this.regions = Arrays.asList(regions);
+		setRegions(Arrays.asList(regions));
 	}
 
 	public List<IMutator> getMutators() {
@@ -165,7 +166,8 @@ public class CompoundModel extends AbstractPointsModel {
 	}
 
 	public void setMutators(List<IMutator> mutators) {
-		this.mutators = mutators;
+		pcs.firePropertyChange("mutators", this.mutators, mutators);
+		this.mutators = new ArrayList<>(mutators);
 	}
 
 	public double getDuration() {
@@ -274,7 +276,7 @@ public class CompoundModel extends AbstractPointsModel {
 		List<IScanPointGeneratorModel> tmp = new ArrayList<>();
 		if (models != null) tmp.addAll(models);
 		tmp.add(model);
-		models = tmp;
+		setModels(tmp);
 	}
 
 	public void addMutators(List<IMutator> mutators) {
@@ -282,7 +284,7 @@ public class CompoundModel extends AbstractPointsModel {
 		List<IMutator> tmp = new ArrayList<>();
 		if (this.mutators != null) tmp.addAll(this.mutators);
 		tmp.addAll(mutators);
-		this.mutators = tmp;
+		setMutators(tmp);
 	}
 
 	public void addRegions(Collection<ScanRegion> regions) {
@@ -290,7 +292,7 @@ public class CompoundModel extends AbstractPointsModel {
 		List<ScanRegion> tmp = new ArrayList<>();
 		if (this.regions != null) tmp.addAll(this.regions);
 		tmp.addAll(regions);
-		this.regions = tmp;
+		setRegions(tmp);
 	}
 
 	@Override

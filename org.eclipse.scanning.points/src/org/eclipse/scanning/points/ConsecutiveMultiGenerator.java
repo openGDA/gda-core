@@ -24,17 +24,14 @@ import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.StaticPosition;
-import org.eclipse.scanning.api.points.models.AbstractPointsModel;
 import org.eclipse.scanning.api.points.models.ConsecutiveMultiModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 
 /**
  * A Generator for {@link ConsecutiveMultiModel}s
  */
 public class ConsecutiveMultiGenerator extends AbstractMultiGenerator<ConsecutiveMultiModel> {
-
-	private static final double DIFF_LIMIT = 1e-5;
 
 	public ConsecutiveMultiGenerator(ConsecutiveMultiModel model, IPointGeneratorService service) {
 		super(model, service);
@@ -50,12 +47,12 @@ public class ConsecutiveMultiGenerator extends AbstractMultiGenerator<Consecutiv
 		super.validate(model);
 		List<String> dimensions = model.getScannableNames();
 		List<String> units = model.getUnits();
-		for (IScanPathModel models : getModel().getModels()) {
+		for (IScanPointGeneratorModel models : getModel().getModels()) {
 			if (!models.getScannableNames().equals(dimensions)) {
 				throw new ModelValidationException("All models in ConsecutiveModel must be in the same axes!", model,
 						"models");
 			}
-			if (!(((AbstractPointsModel) models).getUnits().equals(units))) {
+			if (!(models.getUnits().equals(units))) {
 				throw new ModelValidationException("All models in ConsecutiveModel must be in the same units!", model,
 						"models");
 			}

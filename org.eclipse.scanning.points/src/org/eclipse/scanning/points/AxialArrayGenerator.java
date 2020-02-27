@@ -42,7 +42,7 @@ public class AxialArrayGenerator extends AbstractScanPointGenerator<AxialArrayMo
 
         PPointGenerator array = arrayGeneratorFactory.createObject(name, units, points, alternating);
 
-        return CompoundGenerator.createWrappingCompoundGenerator(new PPointGenerator[] {array}, continuous);
+        return createWrappingCompoundGenerator(array, continuous);
 	}
 
 }

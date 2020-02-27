@@ -27,16 +27,16 @@ import org.eclipse.dawnsci.analysis.dataset.roi.PolylineROI;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
+import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.OneAxisPointRepeatedModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
-import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
-import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsRandomOffsetModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
-import org.eclipse.scanning.api.points.models.OneAxisPointRepeatedModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
-import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.command.factory.PyExpressionFactory;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
@@ -316,7 +316,7 @@ public class PyExpresserTest {
 		smodel.setStop(10);
 		smodel.setStep(1);
 		smodel.setName("fred");
-		mmodel.addStepModel(smodel);
+		mmodel.addModel(smodel);
 
 		assertEquals(  // Concise.
 				"mstep('fred', [StepModel('fred', 0.0, 10.0, 1.0, False, True)], False, True)",
@@ -337,14 +337,14 @@ public class PyExpresserTest {
 		smodel.setStop(10);
 		smodel.setStep(1);
 		smodel.setName("fred");
-		mmodel.addStepModel(smodel);
+		mmodel.addModel(smodel);
 
 		smodel = new AxialStepModel();
 		smodel.setStart(20);
 		smodel.setStop(30);
 		smodel.setStep(2);
 		smodel.setName("bill");
-		mmodel.addStepModel(smodel);
+		mmodel.addModel(smodel);
 
 		assertEquals(  // Concise.
 				"mstep('fred', [StepModel('fred', 0.0, 10.0, 1.0, False, True), StepModel('bill', 20.0, 30.0, 2.0, False, True)], False, True)",
