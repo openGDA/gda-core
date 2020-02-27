@@ -31,17 +31,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class EpicsArchiverRecord {
 
-	private EpicsArchiverRecordMetadata meta;
+	private EpicsArchiverRecordMetadata metadata;
 	private List<EpicsArchiverRecordData> data;
 
 	@JsonProperty("meta")
-	public EpicsArchiverRecordMetadata getMeta() {
-		return meta;
+	public EpicsArchiverRecordMetadata getMetadata() {
+		return metadata;
 	}
 
 	@JsonProperty("meta")
-	public void setMeta(EpicsArchiverRecordMetadata meta) {
-		this.meta = meta;
+	public void setMetadata(EpicsArchiverRecordMetadata metadata) {
+		this.metadata = metadata;
 	}
 
 	@JsonProperty("data")

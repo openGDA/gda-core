@@ -23,8 +23,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -36,6 +35,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import gda.factory.Findable;
 
@@ -52,20 +53,17 @@ import gda.factory.Findable;
 public class EpicsArchiverClient implements Findable {
 
 	private String name;
-	private final String archiverUrl;
+	private final String dataRetrievalEndPointUrl;
 
 	private final RestTemplate restTemplate = new RestTemplate();
 
 	private static final DateTimeFormatter API_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 	private static final DateTimeFormatter INCOMING_DATE_TIME_PARSER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+	private static final String DATA_RETRIEVAL_ENDPOINT = "/getData.json";
 	private static final String PV_PARAMETER_NAME = "pv";
 	private static final String FROM_PARAMETER_NAME = "from";
 	private static final String TO_PARAMETER_NAME = "to";
-
-	private static final String DATA_RETRIEVAL_ENDPOINT = String.format("/getData.json?%s={%s}", PV_PARAMETER_NAME, PV_PARAMETER_NAME);
-	private static final String FROM_PARAMETER_SUFFIX = String.format("&%s={%s}", FROM_PARAMETER_NAME, FROM_PARAMETER_NAME);
-	private static final String TO_PARAMETER_SUFFIX = String.format("&%s={%s}", TO_PARAMETER_NAME, TO_PARAMETER_NAME);
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsArchiverClient.class);
 
@@ -75,7 +73,7 @@ public class EpicsArchiverClient implements Findable {
 		if (archiverUrl.isEmpty()) {
 			throw new IllegalArgumentException("Epics Archiver URL cannot be empty.");
 		}
-		this.archiverUrl = cleanArchiverUrl(archiverUrl);
+		this.dataRetrievalEndPointUrl = cleanArchiverUrl(archiverUrl) + DATA_RETRIEVAL_ENDPOINT;
 	}
 
 	private String cleanArchiverUrl(String url) {
@@ -104,14 +102,7 @@ public class EpicsArchiverClient implements Findable {
 	 */
 	public Optional<EpicsArchiverRecord> getRecordForPv(String pvName) throws EpicsArchiverClientException {
 
-		String apiUrl = archiverUrl + DATA_RETRIEVAL_ENDPOINT;
-
-		Map<String, String> parameters = new HashMap<>();
-		parameters.put(PV_PARAMETER_NAME, pvName);
-
-		EpicsArchiverRecord[] data = queryApi(apiUrl, parameters);
-
-		return firstRecordOrEmpty(data);
+		return queryApi(getUriBuilderFor(pvName));
 	}
 
 	/**
@@ -124,15 +115,10 @@ public class EpicsArchiverClient implements Findable {
 	 */
 	public Optional<EpicsArchiverRecord> getRecordForPv(String pvName, LocalDateTime from) throws EpicsArchiverClientException {
 
-		String apiUrl = archiverUrl + DATA_RETRIEVAL_ENDPOINT + FROM_PARAMETER_SUFFIX;
+		UriComponentsBuilder uriBuilder = getUriBuilderFor(pvName)
+				.queryParam(FROM_PARAMETER_NAME, convertLocalDateTimeToUtcApiString(from));
 
-		Map<String, String> parameters = new HashMap<>();
-		parameters.put(PV_PARAMETER_NAME, pvName);
-		parameters.put(FROM_PARAMETER_NAME, convertLocalDateTimeToUtcApiString(from));
-
-		EpicsArchiverRecord[] data = queryApi(apiUrl, parameters);
-
-		return firstRecordOrEmpty(data);
+		return queryApi(uriBuilder);
 	}
 
 	/**
@@ -146,16 +132,17 @@ public class EpicsArchiverClient implements Findable {
 	 */
 	public Optional<EpicsArchiverRecord> getRecordForPv(String pvName, LocalDateTime from, LocalDateTime to) throws EpicsArchiverClientException {
 
-		String apiUrl = archiverUrl + DATA_RETRIEVAL_ENDPOINT + FROM_PARAMETER_SUFFIX + TO_PARAMETER_SUFFIX;
+		UriComponentsBuilder uriBuilder = getUriBuilderFor(pvName)
+				.queryParam(FROM_PARAMETER_NAME, convertLocalDateTimeToUtcApiString(from))
+				.queryParam(TO_PARAMETER_NAME, convertLocalDateTimeToUtcApiString(to));
 
-		Map<String, String> parameters = new HashMap<>();
-		parameters.put(PV_PARAMETER_NAME, pvName);
-		parameters.put(FROM_PARAMETER_NAME, convertLocalDateTimeToUtcApiString(from));
-		parameters.put(TO_PARAMETER_NAME, convertLocalDateTimeToUtcApiString(to));
+		return queryApi(uriBuilder);
+	}
 
-		EpicsArchiverRecord[] data = queryApi(apiUrl, parameters);
+	private UriComponentsBuilder getUriBuilderFor(String pvName) {
 
-		return firstRecordOrEmpty(data);
+		return UriComponentsBuilder.fromUriString(dataRetrievalEndPointUrl)
+				.queryParam(PV_PARAMETER_NAME, pvName);
 	}
 
 	private String convertLocalDateTimeToUtcApiString(LocalDateTime dateTime) {
@@ -168,64 +155,19 @@ public class EpicsArchiverClient implements Findable {
 		return API_DATE_TIME_FORMATTER.format(utcDateTime);
 	}
 
-	private EpicsArchiverRecord[] queryApi(String url, Map<String, String> parameters) throws EpicsArchiverClientException {
-
-		ResponseEntity<EpicsArchiverRecord[]> response = null;
-		try {
-			response = restTemplate.getForEntity(url, EpicsArchiverRecord[].class, parameters);
-		} catch (HttpClientErrorException exception) {
-
-			if (exception.getStatusCode() == HttpStatus.NOT_FOUND) {
-				logger.warn("Either Archiver API not found, or PV {} not found in archiver. Impossible to tell which!", parameters.get(PV_PARAMETER_NAME));
-				return new EpicsArchiverRecord[0];
-			}
-
-			throw new EpicsArchiverClientException("Error contacting EPICS archiver API", exception);
-
-		} catch (RestClientException exception) {
-			throw new EpicsArchiverClientException("Error contacting EPICS archiver API", exception);
-		}
-
-		if (response.getStatusCode() == HttpStatus.OK) {
-			return response.getBody();
-		}
-
-		throw new EpicsArchiverClientException("Error from EPICS archiver API: " + response.getStatusCode(), null);
-	}
-
-	private Optional<EpicsArchiverRecord> firstRecordOrEmpty(EpicsArchiverRecord[] data) {
-
-		if (data.length > 0) {
-			return Optional.of(data[0]);
-		}
-
-		logger.warn("PV available in archive but no data for selected dates.");
-		return Optional.empty();
-	}
-
 	/**
 	 * Queries the EPICS archiver API for a specific PV's value on a specific date and time.
 	 *
 	 * @param pvName - The name of the PV you wish to query the archiver for.
 	 * @param dateTime - The date and time for which you would like the PV value.
-	 * @return An {@link OptionalDouble} representing the value.
+	 * @return An {@link Optional} of {@link Double} representing the value.
 	 * @throws EpicsArchiverClientException
 	 */
-	public OptionalDouble getOptionalValueForPv(String pvName, LocalDateTime dateTime) throws EpicsArchiverClientException {
-		Optional<EpicsArchiverRecord> record = getRecordForPv(pvName, dateTime, dateTime);
+	public Optional<Double> getOptionalValueForPv(String pvName, LocalDateTime dateTime) throws EpicsArchiverClientException {
 
-		if (record.isPresent()) {
-			Optional<EpicsArchiverRecordData> dataPoint = record.get()
-					.getData()
-					.stream()
-					.findFirst();
-
-			if (dataPoint.isPresent()) {
-				return OptionalDouble.of(dataPoint.get().getVal());
-			}
-		}
-
-		return OptionalDouble.empty();
+		return getRecordForPv(pvName, dateTime, dateTime)
+				.flatMap(r -> r.getData().stream().findFirst())
+				.map(EpicsArchiverRecordData::getVal);
 	}
 
 	/**
@@ -241,7 +183,7 @@ public class EpicsArchiverClient implements Findable {
 	 * @return An {@link OptionalDouble} representing the value.
 	 * @throws EpicsArchiverClientException
 	 */
-	public OptionalDouble getOptionalValueForPv(String pvName, int year, int month, int day, int hour, int minute, int second) throws EpicsArchiverClientException {
+	public Optional<Double> getOptionalValueForPv(String pvName, int year, int month, int day, int hour, int minute, int second) throws EpicsArchiverClientException {
 		return getOptionalValueForPv(pvName, LocalDateTime.of(year, month, day, hour, minute, second));
 	}
 
@@ -250,10 +192,10 @@ public class EpicsArchiverClient implements Findable {
 	 *
 	 * @param pvName - The name of the PV you wish to query the archiver for
 	 * @param dateTime - The date and time for which you would like the PV value, as a string in the format "yyyy-MM-dd HH:mm:ss".
-	 * @return An {@link OptionalDouble} representing the value.
+	 * @return An {@link Optional} of {@link Double} representing the value.
 	 * @throws EpicsArchiverClientException
 	 */
-	public OptionalDouble getOptionalValueForPv(String pvName, String dateTime) throws EpicsArchiverClientException {
+	public Optional<Double> getOptionalValueForPv(String pvName, String dateTime) throws EpicsArchiverClientException {
 		return getOptionalValueForPv(pvName, LocalDateTime.parse(dateTime, INCOMING_DATE_TIME_PARSER));
 	}
 
@@ -264,7 +206,7 @@ public class EpicsArchiverClient implements Findable {
 	 *
 	 * @param pvName - The name of the PV you wish to query the archiver for.
 	 * @param dateTime - The date and time for which you would like the PV value.
-	 * @return An {@link OptionalDouble} representing the value.
+	 * @return A double representing the value.
 	 * @throws EpicsArchiverClientException
 	 */
 	public double getValueForPv(String pvName, LocalDateTime dateTime) throws EpicsArchiverClientException {
@@ -285,7 +227,7 @@ public class EpicsArchiverClient implements Findable {
 	 * @param hour - The hour of the day for which you would like the PV value.
 	 * @param minute - The minute of the hour for which you would like the PV value.
 	 * @param second - The year for which you would like the PV value.
-	 * @return An {@link OptionalDouble} representing the value.
+	 * @return A double representing the value.
 	 * @throws EpicsArchiverClientException
 	 */
 	public double getValueForPv(String pvName, int year, int month, int day, int hour, int minute, int second) throws EpicsArchiverClientException {
@@ -299,10 +241,42 @@ public class EpicsArchiverClient implements Findable {
 	 *
 	 * @param pvName - The name of the PV you wish to query the archiver for
 	 * @param dateTime - The date and time for which you would like the PV value, as a string in the format "yyyy-MM-dd HH:mm:ss".
-	 * @return An {@link OptionalDouble} representing the value.
+	 * @return A double representing the value.
 	 * @throws EpicsArchiverClientException
 	 */
 	public double getValueForPv(String pvName, String dateTime) throws EpicsArchiverClientException {
 		return getValueForPv(pvName, LocalDateTime.parse(dateTime, INCOMING_DATE_TIME_PARSER));
+	}
+
+	private Optional<EpicsArchiverRecord> queryApi(UriComponentsBuilder uriBuilder) throws EpicsArchiverClientException {
+
+		ResponseEntity<EpicsArchiverRecord[]> response = null;
+		UriComponents uriComponents = uriBuilder.build();
+
+		try {
+			response = restTemplate.getForEntity(uriComponents.toUri(), EpicsArchiverRecord[].class);
+		} catch (HttpClientErrorException exception) {
+			if (exception.getStatusCode() == HttpStatus.NOT_FOUND) {
+				logger.warn("Either Archiver API not found, or PV {} not found in archiver. Impossible to tell which!", uriComponents.getQueryParams().getFirst(PV_PARAMETER_NAME));
+				return Optional.empty();
+			}
+			throw new EpicsArchiverClientException("Error contacting EPICS archiver API", exception);
+		} catch (RestClientException exception) {
+			throw new EpicsArchiverClientException("Error contacting EPICS archiver API", exception);
+		}
+
+		if (response.getStatusCode() == HttpStatus.OK) {
+			// The archiver's REST API returns a JSON array of records, because you can query for multiple PVs (not implemented in this class).
+			// If you just query a single PV, you still get an array, with one item. If the PV is not in the archiver at all, you'll get
+			// HTTP 404. However, if the PV is present in the archiver but there's no data for the date range you asked for,
+			// instead of returning a record for the PV with its metadata but no specific values, or giving you a 404, for some reason it will
+			// instead respond 200 OK, but then return a single empty JSON array, i.e. "[]".
+			//
+			// Therefore getting a response back doesn't guarantee that there is any data in it. Hence the call to findFirst() here as the body
+			// might actually be empty.
+			return Arrays.stream(response.getBody()).findFirst();
+		}
+
+		throw new EpicsArchiverClientException("Error from EPICS archiver API: " + response.getStatusCode(), null);
 	}
 }
