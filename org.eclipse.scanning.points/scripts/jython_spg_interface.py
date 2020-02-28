@@ -141,8 +141,8 @@ class ScalarPointGeneratorWrapper(GeneratorWrapper):
     def __iter__(self):
         for point in self.generator.iterator():
             index = point.indexes[0]
-            position = point.positions[self.name]
-            yield Scalar(self.name, index, position)
+            position = point.positions[self.getNames()[0]]
+            yield Scalar(self.getNames()[0], index, position)
 
 
 class TwoDPointGeneratorWrapper(GeneratorWrapper):
@@ -191,7 +191,6 @@ class JLineGenerator1D(ScalarPointGeneratorWrapper):
     """
 
     def __init__(self, name, units, start, stop, num_points, alternate_direction=False):
-        self.name = name
         line_gen = LineGenerator(name, units, start, stop, num_points, alternate_direction)
         self.generator = CompoundGenerator([line_gen], [], [])
         self.generator.prepare()
@@ -218,7 +217,6 @@ class JArrayGenerator(ScalarPointGeneratorWrapper):
     """
 
     def __init__(self, name, units, points, alternate_direction=False):
-        self.name = name
         array_gen = ArrayGenerator(name, units, points, alternate_direction)
         self.generator = CompoundGenerator([array_gen], [], [])
         self.generator.prepare()

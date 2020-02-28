@@ -51,6 +51,24 @@ public class AxialMultiStepModel extends AbstractMultiModel<AxialStepModel> {
 		addModel(new AxialStepModel(getName(), start, stop, step));
 	}
 
+	/**
+	 *  Utility method to ensure backwards compatibility of user scripts.
+	 *  Encourage use of {@link #getModels()}
+	 */
+	@Deprecated
+	public List<AxialStepModel> getStepModels(){
+		return getModels();
+	}
+
+	/**
+	 *  Utility method to ensure backwards compatibility of user scripts.
+	 *  Encourage use of {@link #setModels()}
+	 */
+	@Deprecated
+	public void setStepModels(List<AxialStepModel> models){
+		setModels(models);
+	}
+
 	public void addRange(AxialStepModel stepModel) {
 		if (!getName().equals(stepModel.getName())) {
 			throw new IllegalArgumentException(MessageFormat.format(

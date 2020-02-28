@@ -116,7 +116,7 @@ public class CompoundModel extends AbstractMultiModel<IScanPointGeneratorModel> 
 
 	public void setData(IScanPointGeneratorModel model, IROI region, List<String> names) {
 		setModels(Arrays.asList(model));
-	    setRegions(Arrays.asList(new ScanRegion(region, names)));
+		if (region != null) setRegions(Arrays.asList(new ScanRegion(region, names)));
 	}
 
 	/**
@@ -133,7 +133,7 @@ public class CompoundModel extends AbstractMultiModel<IScanPointGeneratorModel> 
 		// They are not really ordered but for now we maintain order.
 		Set<ScanRegion> newRegions = new LinkedHashSet<>(7);
 		if (rois!=null) for (IROI roi : rois) {
-			newRegions.add(new ScanRegion(roi, model.getScannableNames()));
+			if (roi != null) newRegions.add(new ScanRegion(roi, model.getScannableNames()));
 		}
 		addRegions(newRegions);
 	}
