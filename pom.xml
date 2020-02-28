@@ -11,10 +11,11 @@
 		<groupId>uk.ac.diamond</groupId>
 		<artifactId>uk.ac.diamond.aggregator</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
+		<relativePath>../daq-aggregator</relativePath>
 	</parent>
 
 	<modules>
 		<module>uk.ac.gda.nexus</module>
-		<!-- module>uk.ac.gda.nexus.test</module -->
+		<module>uk.ac.gda.nexus.test</module>
 	</modules>
 </project>
