@@ -209,8 +209,6 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			}
 		}
 
-		xspress4Controller.stopTimeSeries();
-
 		// create link to hdf file...
 		if (writeHdfFiles) {
 			String path = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getFilename();
@@ -280,7 +278,6 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 //		detector.setFramesRead(0);
 		xspress3Controller.setSavingFiles(writeHdfFiles);
 		xspress3Controller.doErase();
-		xspress4Controller.startTimeSeries();
 		// Start Acquire if using hardware triggering (i.e. detector waits for external trigger for each frame)
 		if (currentTriggerMode != TriggerMode.Software) {
 			xspress3Controller.doStart();

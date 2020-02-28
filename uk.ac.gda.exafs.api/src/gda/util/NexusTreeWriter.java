@@ -298,6 +298,11 @@ public class NexusTreeWriter {
 
 		logger.info("Writing data to file {}", fullpathToDetectorNexusFile);
 
+		if (dataToWrite.isEmpty()) {
+			logger.warn("No new data added to treewriter - nothing to write");
+			return;
+		}
+
 		// Open/create the Nexus file, create lazy datasets from the dataset map
 		if (firstWrite) {
 			detectorNexusFile = openCreateNexusFile(fullpathToDetectorNexusFile);
@@ -463,7 +468,7 @@ public class NexusTreeWriter {
 			NexusTreeNode treeNode = (NexusTreeNode) nexusTreeProvider.getNexusTree().getNode(detectorName);
 			NexusTreeNode childNode = treeNode.findNode(datasetName);
 			childNode.setParentNode(null);
-			nexusTreeProvider.getNexusTree().getNode(detectorName).removeChildNode(childNode);
+			treeNode.removeChildNode(childNode);
 		}
 	}
 
