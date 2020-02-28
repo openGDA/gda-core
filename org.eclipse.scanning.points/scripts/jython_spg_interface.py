@@ -164,22 +164,25 @@ class TwoDPointGeneratorWrapper(GeneratorWrapper):
 
 class MapPositionWrapper(GeneratorWrapper):
     """
-    Wraps points into n-dimensional MapPosition objects
+    Wraps points into n-dimensional MapPosition objects, or StaticPositions if n = 0
     """
 
     def __iter__(self):
         names = [d.axes for d in self.generator.dimensions]
         axes_ordered = sum(names, [])
         index_locations = {axis: [axis in name for name in names].index(True) for axis in axes_ordered}
-        for point in self.generator.iterator():
-            map_point = MapPosition()
-            for axis in axes_ordered:
-                index = index_locations[axis]
-                value = point.positions[axis]
-                map_point.put(axis, value)
-                map_point.putIndex(axis, point.indexes[index])
-            map_point.setDimensionNames(names)
-            yield map_point
+        if len(axes_ordered) != 0:
+            for point in self.generator.iterator():
+                map_point = MapPosition()
+                for axis in axes_ordered:
+                    index = index_locations[axis]
+                    value = point.positions[axis]
+                    map_point.put(axis, value)
+                    map_point.putIndex(axis, point.indexes[index])
+                map_point.setDimensionNames(names)
+                yield map_point
+        else:
+            yield StaticPosition()
 
 
 class JLineGenerator1D(ScalarPointGeneratorWrapper):
@@ -287,7 +290,7 @@ class JConcatGenerator(MapPositionWrapper):
 
 class JCompoundGenerator(MapPositionWrapper):
     """
-    Create a CompoundGenerator and wrap the points into java Point objects
+    Create a CompoundGenerator and wrap the points into java MapPosition objects
     """
 
     def __init__(self, iterators, excluders, mutators, duration=-1, continuous=True, delay_after=0):

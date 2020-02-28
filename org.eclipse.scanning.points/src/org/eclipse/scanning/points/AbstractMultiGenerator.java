@@ -44,6 +44,8 @@ public abstract class AbstractMultiGenerator<T extends AbstractMultiModel<?>> ex
 
 	private IPointGeneratorService service;
 	private List<IPointGenerator<?>> generators;
+	// Used when validating a model that is not the model of this generator. Usually blank.
+	protected List<IPointGenerator<?>> cachedGenerators;
 	protected static final double DIFF_LIMIT = 1e-5;
 
 	public AbstractMultiGenerator(T model, IPointGeneratorService service) {
@@ -57,10 +59,10 @@ public abstract class AbstractMultiGenerator<T extends AbstractMultiModel<?>> ex
 	@Override
 	public void validate(T model) {
 		super.validate(model);
-		generators = new ArrayList<>();
-		if (getModel().getModels() == null || getModel().getModels().isEmpty())
+		cachedGenerators = new ArrayList<>();
+		if (model.getModels() == null || model.getModels().isEmpty())
 			throw new ModelValidationException("MultiModel requires at least one internal model!", model, "models");
-		for (IScanPointGeneratorModel models : getModel().getModels()) {
+		for (IScanPointGeneratorModel models : model.getModels()) {
 			if (models instanceof AbstractTwoAxisGridModel) {
 				throw new ModelValidationException("MultiGenerators cannot operate on already Compounded models, like grids.",
 						model, "models");
@@ -71,10 +73,13 @@ public abstract class AbstractMultiGenerator<T extends AbstractMultiModel<?>> ex
 			}
 			// Validates and adds generator to generators
 			try {
-				generators.add(service.createGenerator(models));
+				cachedGenerators.add(service.createGenerator(models));
 			} catch (GeneratorException e) {
 				throw new ModelValidationException(e);
 			}
+		}
+		if (model == this.model) {
+			generators = cachedGenerators;
 		}
 	}
 

@@ -91,6 +91,12 @@ public class CompoundGenerator extends AbstractScanPointGenerator<CompoundModel>
         	}
         }
         this.model = model;
+        try {
+        	// Not guaranteed to catch all non-valid models because of NoModelGenerators
+           	validateModel();
+    	} catch(ModelValidationException e) {
+    		throw new GeneratorException(e);
+    	}
         this.generators = generators;
         pointGenerator = createPythonPointGenerator();
 	}

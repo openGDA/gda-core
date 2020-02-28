@@ -175,7 +175,7 @@ public class LinearScanTest extends BrokerTest{
 		scanner.run(null);
 
 		Thread.sleep(100);
-		int size = ((IPointGenerator)scanner.getModel().getPointGenerator()).size();
+		int size = scanner.getModel().getPointGenerator().size();
 		assertEquals("The model size was "+size+" and the points found were "+positions.size(), size, positions.size());
 
 		for (IPosition iPosition : positions) {
@@ -202,10 +202,10 @@ public class LinearScanTest extends BrokerTest{
 
 		// Generate the last model using the roi then work back up creating compounds
 		CompoundModel cModel = new CompoundModel();
-		for (int i = 0; i < models.length - 2; i++)  {
+		for (int i = 0; i < models.length - 1; i++)  {
 			cModel.addModel(models[i]);
 		}
-		cModel.addData(models[models.length-1], Arrays.asList(roi));
+		cModel.addData(models[models.length-1], roi == null ? new ArrayList<>() : Arrays.asList(roi));
 
 		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cModel);
 

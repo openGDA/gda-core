@@ -76,8 +76,8 @@ import org.eclipse.scanning.api.points.IMutator;
  */
 public class CompoundModel extends AbstractMultiModel<IScanPointGeneratorModel> {
 
-	private Collection<ScanRegion>  regions;
-	private List<IMutator>	           mutators;
+	private Collection<ScanRegion>  regions = new ArrayList<>();
+	private List<IMutator>	           mutators = new ArrayList<>();
 	private double                     duration = -1;
 
 	public CompoundModel() {
@@ -146,7 +146,7 @@ public class CompoundModel extends AbstractMultiModel<IScanPointGeneratorModel> 
 	}
 	public void setRegions(Collection<ScanRegion> regions) {
 		pcs.firePropertyChange("regions", this.regions, regions);
-		this.regions = new ArrayList<>(regions);
+		this.regions = regions == null ? new ArrayList<>() : new ArrayList<>(regions);
 	}
 	public void setRegionsVarArgs(ScanRegion... regions) {
 		setRegions(Arrays.asList(regions));
@@ -158,7 +158,7 @@ public class CompoundModel extends AbstractMultiModel<IScanPointGeneratorModel> 
 
 	public void setMutators(List<IMutator> mutators) {
 		pcs.firePropertyChange("mutators", this.mutators, mutators);
-		this.mutators = new ArrayList<>(mutators);
+		this.mutators = mutators == null ? new ArrayList<>() : new ArrayList<>(mutators);
 	}
 
 	public double getDuration() {
@@ -186,15 +186,11 @@ public class CompoundModel extends AbstractMultiModel<IScanPointGeneratorModel> 
 		CompoundModel other = (CompoundModel) obj;
 		if (duration != other.duration) return false;
 		if (regions == null) {
-			if (other.regions != null)
-				return false;
+			if (other.regions != null) return false;
 		}
-		else {
-			if (!regions.equals(other.regions)) return false;
-		}
+		else if (!regions.equals(other.regions)) return false;
 		if (mutators == null) {
-			if (other.mutators != null)
-				return false;
+			return other.mutators == null;
 		}
 		return mutators.equals(other.mutators);
 	}

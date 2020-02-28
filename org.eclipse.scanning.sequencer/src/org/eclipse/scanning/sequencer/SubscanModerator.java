@@ -78,7 +78,8 @@ public class SubscanModerator {
 		final IPointGeneratorService pointGenService = ServiceHolder.getGeneratorService();
 		final List<String> innerScanAxes = malcolmDevice.get().getAvailableAxes();
 		boolean reachedOuterScan = false;
-		for (IScanPointGeneratorModel model : models) {
+		for (int i = models.size() - 1; i > -1; i--) {
+			IScanPointGeneratorModel model = models.get(i);
 			if (!reachedOuterScan) {
 				List<String> names = model.getScannableNames();
 				if (innerScanAxes.containsAll(names)) {// These will be deal with by malcolm

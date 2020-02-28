@@ -322,7 +322,7 @@ def mstep(axis=None, stepModels=None, **kwargs):
     model = _instantiate(
                 AxialMultiStepModel,
                 {'name'       : axis,
-                 'stepModels' : stepModels})
+                 'models' : stepModels})
 
     return model, _listify(roi)
 

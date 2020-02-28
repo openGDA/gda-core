@@ -185,7 +185,7 @@ public abstract class AbstractMalcolmDeviceTest {
 		final TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel("stage_x", "stage_y", 10, 10);
 		gridModel.setBoundingBox(new BoundingBox(0, 0, 1, 1));
 
-		return pointGenService.createGenerator(new CompoundModel(gridModel));
+		return pointGenService.createCompoundGenerator(new CompoundModel(gridModel));
 	}
 
 	protected MalcolmMessage createExpectedMalcolmMessage(long id, Type type, String endpoint) {

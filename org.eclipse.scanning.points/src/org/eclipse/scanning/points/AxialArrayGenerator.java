@@ -36,7 +36,7 @@ public class AxialArrayGenerator extends AbstractScanPointGenerator<AxialArrayMo
 
 		final AxialArrayModel model = getModel();
 
-		final String name = model.getName();
+		final List<String> name = model.getScannableNames();
         final List<String> units = model.getUnits();
         final boolean alternating = model.isAlternating();
         final boolean continuous = model.isContinuous();

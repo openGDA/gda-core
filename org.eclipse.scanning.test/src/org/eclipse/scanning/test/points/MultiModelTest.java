@@ -41,7 +41,9 @@ public class MultiModelTest {
 	@Test
 	public void ConsecutiveOfConcurrent() throws GeneratorException {
 		AxialArrayModel x = new AxialArrayModel("x");
+		// Bounds 2.5 -> 19
 		x.setPositions(new double[] { 2, 3, 5, 7, 11, 13, 17 });
+		// Bounds -0.5 -> 6.5
 		AxialStepModel y = new AxialStepModel("y", 0, 6, 1);
 		ConcurrentMultiModel concurrent = new ConcurrentMultiModel();
 		concurrent.addModel(x);
@@ -50,10 +52,12 @@ public class MultiModelTest {
 		TwoAxisLissajousModel xy = new TwoAxisLissajousModel();
 		xy.setxAxisName("x");
 		xy.setyAxisName("y");
-		xy.setPoints(8);
-		xy.setBoundingBox(new BoundingBox(17, 6, 5, 5));
+//		xy.setScale(1);
+		// Bounds (19, 6.5) -> (24, 11.5)
+		xy.setBoundingBox(new BoundingBox(17, 6, 4, 1));
 		consecutive.addModel(concurrent);
 		consecutive.addModel(xy);
+		consecutive.setContinuous(false);
 		IPointGenerator<ConsecutiveMultiModel> gen = service.createGenerator(consecutive);
 		assertArrayEquals(new int[] { 15 }, gen.getShape());
 		Iterator<IPosition> one = service.createGenerator(concurrent).iterator();

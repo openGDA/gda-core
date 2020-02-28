@@ -108,6 +108,7 @@ public class ScanTimeoutTest  extends NexusTest {
 		model.addRange(10, 20, 2); // Te = 0.0015
 		model.addRange(25, 50, 5);  // Te = 0.002
 		model.addRange(100, 500, 50);  // Te = 0.003
+		model.setContinuous(false);
 
 		IPointGenerator<? extends IScanPointGeneratorModel> gen = pointGenService.createGenerator(model);
 		assertEquals(21, gen.size());

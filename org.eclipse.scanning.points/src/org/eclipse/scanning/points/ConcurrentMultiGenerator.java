@@ -44,8 +44,8 @@ public class ConcurrentMultiGenerator extends AbstractMultiGenerator<ConcurrentM
 	public void validate(ConcurrentMultiModel model) {
 		super.validate(model);
 		final List<String> dimensions = new ArrayList<>();
-		final int size = getGenerators().get(0).size();
-		for (IPointGenerator<?> gen : getGenerators()) {
+		final int size = cachedGenerators.get(0).size();
+		for (IPointGenerator<?> gen : cachedGenerators) {
 			if (gen.size() != size) {
 				throw new ModelValidationException("All models must be the same length in ConcurrentMultiGenerator!", model, "models");
 			}
@@ -55,6 +55,7 @@ public class ConcurrentMultiGenerator extends AbstractMultiGenerator<ConcurrentM
 				dimensions.add(axis);
 			}
 		}
+		cachedGenerators = null;
 	}
 
 }

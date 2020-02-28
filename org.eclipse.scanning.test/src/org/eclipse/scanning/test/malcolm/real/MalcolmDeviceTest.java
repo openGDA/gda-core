@@ -116,7 +116,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 
 		// create a copy of the compound model, so that we're not cheating when comparing the
 		// expected model with the one actually used
-		final CompoundModel model = (pointGen == null || pointGen.getModel() == null) ? new CompoundModel(new StaticModel()):
+		final CompoundModel model = pointGen == null ? new CompoundModel(new StaticModel()):
 					pointGen.getModel();
 
 		final CompoundModel copiedModel = new CompoundModel(model);
@@ -321,7 +321,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		verify(malcolmConnection).send(malcolmDevice, expectedValidateMessage);
 	}
 
-	private IMalcolmModel createExpectedValidateReturnModel(MalcolmModel malcolmModel, IPointGenerator<?> pointGen) {
+	private IMalcolmModel createExpectedValidateReturnModel(MalcolmModel malcolmModel, IPointGenerator<CompoundModel> pointGen) {
 		// the value expected
 		MalcolmModel model = new MalcolmModel(malcolmModel);
 		model.setAxesToMove(pointGen != null ? pointGen.getNames() : Collections.emptyList());
@@ -404,7 +404,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		verify(malcolmConnection).send(malcolmDevice, expectedConfigureMessage);
 
 		// test duration of pointGen's model has been set to exposure time of malcolm model
-		assertThat(((CompoundModel) pointGen.getModel()).getDuration(), is(equalTo(malcolmModel.getExposureTime())));
+		assertThat(pointGen.getModel().getDuration(), is(equalTo(malcolmModel.getExposureTime())));
 		assertThat(scanModel.getPointGenerator(), is(equalTo(expectedReceivedPointGen)));
 	}
 

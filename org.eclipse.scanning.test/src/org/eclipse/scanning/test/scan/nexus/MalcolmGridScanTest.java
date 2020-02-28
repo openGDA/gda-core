@@ -96,7 +96,7 @@ public class MalcolmGridScanTest extends AbstractMalcolmScanTest {
 
 		final List<IScanPointGeneratorModel> models = new ArrayList<>();
 		for (int dim = 0; dim < size.length - 2; dim++) {
-			final double step = size[dim] - 1 > 0 ? 9.99d / (size[dim] - 1) : 30;
+			final double step = size[dim] > 1 ? 9.99d / (size[dim] - 1) : 30;
 			models.add(new AxialStepModel("neXusScannable"+(dim+1), 10, 20, step));
 		}
 

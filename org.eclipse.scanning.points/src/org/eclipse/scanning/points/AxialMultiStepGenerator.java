@@ -36,7 +36,7 @@ class AxialMultiStepGenerator extends AbstractMultiGenerator<AxialMultiStepModel
 		super.validate(model);
 		String axis = model.getScannableNames().get(0);
 		List<String> units = model.getUnits();
-		for (AxialStepModel models : getModel().getModels()) {
+		for (AxialStepModel models : model.getModels()) {
 			if (!models.getScannableNames().get(0).equals(axis)) {
 				throw new ModelValidationException("All models in ConsecutiveModel must be in the same axes!", model,
 						"models");
@@ -48,20 +48,21 @@ class AxialMultiStepGenerator extends AbstractMultiGenerator<AxialMultiStepModel
 		}
 		if (model.isContinuous()) {
 
-			for (int i = 1; i < getGenerators().size(); i++) {
-				IPosition previousModel = ((AbstractScanPointGenerator<?>) getGenerators().get(i - 1)).finalBounds();
-				IPosition nextModel = ((AbstractScanPointGenerator<?>) getGenerators().get(i)).initialBounds();
+			for (int i = 1; i < cachedGenerators.size(); i++) {
+				IPosition previousModel = ((AbstractScanPointGenerator<?>) cachedGenerators.get(i - 1)).finalBounds();
+				IPosition nextModel = ((AbstractScanPointGenerator<?>) cachedGenerators.get(i)).initialBounds();
 				if (Math.abs(previousModel.getValue(axis) - nextModel.getValue(axis)) > DIFF_LIMIT)
 					throw new ModelValidationException(
 							String.format("Continuous ConsecutiveModels must have the final bounds of each model"
 								+ " within %s of the initial bounds of the next.", DIFF_LIMIT), model, "models");
 			}
 		}
+		cachedGenerators = null;
 	}
 
 	@Override
 	protected JythonObjectFactory<PPointGenerator> getFactory() {
-		return ScanPointGeneratorFactory.JZipGeneratorFactory();
+		return ScanPointGeneratorFactory.JConcatGeneratorFactory();
 	}
 
 }

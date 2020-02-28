@@ -55,7 +55,7 @@ public class CompoundTest {
 		service = new PointGeneratorService();
 	}
 
-	@Test(expected=org.python.core.PyException.class)
+	@Test(expected=GeneratorException.class)
 	public void testCompoundCompoundException() throws Exception {
 
 		BoundingBox box = new BoundingBox();
@@ -75,12 +75,20 @@ public class CompoundTest {
 		service.createCompoundGenerator(compoundedCompound);
 	}
 
-	@Test(expected=org.python.core.PyException.class)
+	@Test(expected=GeneratorException.class)
 	public void testDuplicateAxisNameException() throws Exception {
 
 		IPointGenerator<AxialStepModel> pos1 = service.createGenerator(new AxialStepModel("Position", 1, 4, 0.6));
 		IPointGenerator<AxialStepModel> pos2 = service.createGenerator(new AxialStepModel("Position", 1, 4, 0.6));
 		service.createCompoundGenerator(pos1, pos2);
+	}
+
+	@Test(expected=GeneratorException.class)
+	public void testDuplicateAxisNameExceptionForModel() throws Exception {
+
+		CompoundModel cModel = new CompoundModel(new AxialStepModel("Position", 1, 4, 0.6));
+		cModel.addModel(cModel.getModels().get(0));
+		service.createCompoundGenerator(cModel);
 	}
 
 	@Test
@@ -170,8 +178,8 @@ public class CompoundTest {
 		PyList gens = (PyList) dict.get("generators");
 		PyDictionary line1 = (PyDictionary) gens.get(0);
 
-		assertEquals("Temperature", ((PyList) line1.get("axes")).get(0));
-		assertEquals("mm", ((ArrayList<String>) line1.get("units")).get(0));
+		assertEquals("Temperature", ((List<String>) line1.get("axes")).get(0));
+		assertEquals("mm", ((List<String>) line1.get("units")).get(0));
 		assertEquals(290.0, (double) ((PyList) line1.get("start")).get(0), 1E-10);
 		assertEquals(295.0, (double) ((PyList) line1.get("stop")).get(0), 1E-10);
 		assertEquals(6, (int) line1.get("size"));
@@ -195,14 +203,14 @@ public class CompoundTest {
 		PyDictionary line1 = (PyDictionary) gens.get(0);
 		PyDictionary line2 = (PyDictionary) gens.get(1);
 
-		assertEquals("Temperature", ((PyList) line1.get("axes")).get(0));
-		assertEquals("mm", ((ArrayList<String>) line1.get("units")).get(0));
+		assertEquals("Temperature", ((List<String>) line1.get("axes")).get(0));
+		assertEquals("mm", ((List<String>) line1.get("units")).get(0));
 		assertEquals(290.0, (double) ((PyList) line1.get("start")).get(0), 1E-10);
 		assertEquals(295.0, (double) ((PyList) line1.get("stop")).get(0), 1E-10);
 		assertEquals(6, (int) line1.get("size"));
 
-		assertEquals("Position", ((PyList) line2.get("axes")).get(0));
-		assertEquals("mm", ((ArrayList<String>) line2.get("units")).get(0));
+		assertEquals("Position", ((List<String>) line2.get("axes")).get(0));
+		assertEquals("mm", ((List<String>) line2.get("units")).get(0));
 		assertEquals(1.0, (double) ((PyList) line2.get("start")).get(0), 1E-10);
 		assertEquals(4.0, (double) ((PyList) line2.get("stop")).get(0), 1E-10);
 		assertEquals(6, (int) line2.get("size"));

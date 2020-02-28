@@ -47,7 +47,7 @@ public class ConsecutiveMultiGenerator extends AbstractMultiGenerator<Consecutiv
 		super.validate(model);
 		List<String> dimensions = model.getScannableNames();
 		List<String> units = model.getUnits();
-		for (IScanPointGeneratorModel models : getModel().getModels()) {
+		for (IScanPointGeneratorModel models : model.getModels()) {
 			if (!models.getScannableNames().equals(dimensions)) {
 				throw new ModelValidationException("All models in ConsecutiveModel must be in the same axes!", model,
 						"models");
@@ -59,9 +59,9 @@ public class ConsecutiveMultiGenerator extends AbstractMultiGenerator<Consecutiv
 		}
 		if (model.isContinuous()) {
 
-			for (int i = 1; i < getGenerators().size(); i++) {
-				IPosition previousModel = ((AbstractScanPointGenerator<?>) getGenerators().get(i - 1)).finalBounds();
-				IPosition nextModel = ((AbstractScanPointGenerator<?>) getGenerators().get(i)).initialBounds();
+			for (int i = 1; i < cachedGenerators.size(); i++) {
+				IPosition previousModel = ((AbstractScanPointGenerator<?>) cachedGenerators.get(i - 1)).finalBounds();
+				IPosition nextModel = ((AbstractScanPointGenerator<?>) cachedGenerators.get(i)).initialBounds();
 				if (previousModel instanceof StaticPosition || nextModel instanceof StaticPosition) {
 					throw new ModelValidationException(
 							"All models within a Continuous ConsecutiveModel must be capable of continuousness", model,
@@ -76,5 +76,6 @@ public class ConsecutiveMultiGenerator extends AbstractMultiGenerator<Consecutiv
 				}
 			}
 		}
+		cachedGenerators = null;
 	}
 }
