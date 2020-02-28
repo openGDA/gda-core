@@ -38,9 +38,9 @@ import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.exafs.xes.IXesOffsets;
 import gda.exafs.xes.XesUtils;
-import gda.exafs.xes.XesUtils.XesMaterial;
 import gda.factory.FactoryException;
 import gda.factory.FindableConfigurableBase;
+import gda.util.CrystalParameters.CrystalMaterial;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.beamline.i20.scannable.XESEnergyScannable;
@@ -260,9 +260,9 @@ public class XesOffsets extends FindableConfigurableBase implements IXesOffsets 
 		Scannable radiusScannable = xesEnergyScannable.getXes().getRadiusScannable();
 		double rowlandRadius = Double.parseDouble(radiusScannable.getPosition().toString());
 
-		XesMaterial xesmaterial = XesUtils.XesMaterial.GERMANIUM;
+		CrystalMaterial xesmaterial = CrystalMaterial.GERMANIUM;
 		if (material.equals("Si")) {
-			xesmaterial = XesUtils.XesMaterial.SILICON;
+			xesmaterial = CrystalMaterial.SILICON;
 		}
 
 		double bragg = XesUtils.getBragg(energy, xesmaterial, crystalCut);

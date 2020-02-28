@@ -24,8 +24,8 @@ import gda.device.ScannableMotionUnits;
 import gda.device.scannable.ScannableMotionUnitsBase;
 import gda.device.scannable.ScannableStatus;
 import gda.exafs.xes.XesUtils;
-import gda.exafs.xes.XesUtils.XesMaterial;
 import gda.observable.IObserver;
+import gda.util.CrystalParameters.CrystalMaterial;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 @ServiceInterface(ScannableMotionUnits.class)
@@ -77,7 +77,7 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
-		XesMaterial material = getCurrentMaterial();
+		CrystalMaterial material = getCurrentMaterial();
 		String stringPosition = position.toString();
 		double doublePosition = Double.parseDouble(stringPosition);
 		double bragg = XesUtils.getBragg(doublePosition, material, getCrystalCut());
@@ -89,7 +89,7 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 
 	@Override
 	public Object rawGetPosition() throws DeviceException {
-		XesMaterial material = getCurrentMaterial();
+		CrystalMaterial material = getCurrentMaterial();
 		double energy = XesUtils.getFluoEnergy(Double.parseDouble(xes.getPosition().toString()), material, getCrystalCut());
 		if(energy<100000){
 			String en = String.valueOf(energy);
@@ -102,10 +102,10 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 		return 0;
 	}
 
-	private XesMaterial getCurrentMaterial() throws DeviceException {
-		XesMaterial material = null;
-		XesUtils.XesMaterial silicon = XesUtils.XesMaterial.SILICON;
-		XesUtils.XesMaterial germanium = XesUtils.XesMaterial.GERMANIUM;
+	private CrystalMaterial getCurrentMaterial() throws DeviceException {
+		CrystalMaterial material = null;
+		CrystalMaterial silicon = CrystalMaterial.SILICON;
+		CrystalMaterial germanium = CrystalMaterial.GERMANIUM;
 		if (getMaterialType() == 0)
 			material = silicon;
 		else if (getMaterialType() == 1)
