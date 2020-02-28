@@ -14,7 +14,6 @@ package org.eclipse.scanning.api.points.models;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -75,9 +74,8 @@ import org.eclipse.scanning.api.points.IMutator;
  * @author Matthew Gerring
  *
  */
-public class CompoundModel extends AbstractPointsModel {
+public class CompoundModel extends AbstractMultiModel<IScanPointGeneratorModel> {
 
-	private List<IScanPointGeneratorModel> models;
 	private Collection<ScanRegion>  regions;
 	private List<IMutator>	           mutators;
 	private double                     duration = -1;
@@ -106,7 +104,7 @@ public class CompoundModel extends AbstractPointsModel {
 		}
 	}
 	public CompoundModel(List<? extends IScanPointGeneratorModel> ms) {
-		setModels(ms);
+		setModels(new ArrayList<>(ms));
 	}
 	public CompoundModel(IScanPointGeneratorModel model, IROI region) {
 		setData(model, region, model.getScannableNames());
@@ -140,13 +138,6 @@ public class CompoundModel extends AbstractPointsModel {
 		addRegions(newRegions);
 	}
 
-	public List<IScanPointGeneratorModel> getModels() {
-		return models;
-	}
-	public void setModels(List<? extends IScanPointGeneratorModel> models) {
-		pcs.firePropertyChange("models", this.models, models);
-		this.models = new ArrayList<>(models);
-	}
 	public void setModelsVarArgs(IScanPointGeneratorModel... models) {
 		setModels(Arrays.asList(models));
 	}
@@ -181,8 +172,7 @@ public class CompoundModel extends AbstractPointsModel {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((models == null) ? 0 : models.hashCode());
+		int result = super.hashCode();
 		result = prime * result + ((regions == null) ? 0 : regions.hashCode());
 		result = prime * result + ((mutators == null) ? 0 : mutators.hashCode());
 		long durationBits = Double.doubleToLongBits(duration);
@@ -192,74 +182,26 @@ public class CompoundModel extends AbstractPointsModel {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+		if (!super.equals(obj)) return false;
 		CompoundModel other = (CompoundModel) obj;
 		if (duration != other.duration) return false;
-		if (models == null) {
-			if (other.models != null)
-				return false;
-		} else if (!equals(models, other.models))
-			return false;
 		if (regions == null) {
 			if (other.regions != null)
 				return false;
-		} else if (!equals(regions, other.regions))
-			return false;
+		}
+		else {
+			if (!regions.equals(other.regions)) return false;
+		}
 		if (mutators == null) {
 			if (other.mutators != null)
 				return false;
-		} else if (!equals(mutators, other.mutators))
-			return false;
-		return true;
-	}
-
-	/**
-	 * This equals does an equals on two collections
-	 * as if they were two lists because order matters with the names.
-	 * @param o
-	 * @param t
-	 * @return
-	 */
-    private boolean equals(Collection<?> o, Collection<?> t) {
-
-	if (o == t)
-            return true;
-	if (o == null && t == null)
-            return true;
-	if (o == null || t == null)
-            return false;
-
-        Iterator<?> e1 = o.iterator();
-        Iterator<?> e2 = t.iterator();
-        while (e1.hasNext() && e2.hasNext()) {
-            Object o1 = e1.next();
-            Object o2 = e2.next();
-
-            // Collections go down to the same equals.
-            if (o1 instanceof Collection && o2 instanceof Collection) {
-		boolean collectionsEqual = equals((Collection<?>)o1,(Collection<?>)o2);
-		if (!collectionsEqual) {
-			return false;
-		} else {
-			continue;
 		}
-            }
-
-            // Otherwise we use object equals.
-            if (!(o1==null ? o2==null : o1.equals(o2)))
-                return false;
-        }
-        return !(e1.hasNext() || e2.hasNext());
-    }
+		return mutators.equals(other.mutators);
+	}
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + " [models=" + models + ", regions=" + regions + ", mutators=" + mutators +
+		return getClass().getSimpleName() + " [models=" + getModels() + ", regions=" + regions + ", mutators=" + mutators +
 				", duration=" + duration + "]";
 	}
 
@@ -267,16 +209,6 @@ public class CompoundModel extends AbstractPointsModel {
 	public boolean isContinuous() {
 		IScanPointGeneratorModel innermostModel = getModels().get(getModels().size()-1);
 		return innermostModel.isContinuous();
-	}
-
-	/*
-	 * Dealing with unmodifiable lists from setData
-	 */
-	public void addModel(IScanPointGeneratorModel model) {
-		List<IScanPointGeneratorModel> tmp = new ArrayList<>();
-		if (models != null) tmp.addAll(models);
-		tmp.add(model);
-		setModels(tmp);
 	}
 
 	public void addMutators(List<IMutator> mutators) {

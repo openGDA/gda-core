@@ -42,7 +42,7 @@ public abstract class AbstractMultiModel<T extends IScanPointGeneratorModel> ext
 
 	public void setModels(List<T> models) {
 		pcs.firePropertyChange("models", this.models, models);
-		this.models = models;
+		this.models = new ArrayList<>(models);
 	}
 
 	public void addModel(T model) {
