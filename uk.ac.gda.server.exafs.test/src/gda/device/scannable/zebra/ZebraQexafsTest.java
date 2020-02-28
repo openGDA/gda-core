@@ -22,13 +22,19 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 
 import gda.TestHelpers;
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
-import gda.device.MotorException;
 import gda.device.motor.DummyMotor;
 import gda.device.zebra.controller.impl.ZebraDummy;
+import gda.epics.CachedLazyPVFactory;
+import gda.epics.DummyPV;
+import gda.epics.connection.EpicsController;
+import gov.aps.jca.Channel;
 
 public class ZebraQexafsTest {
 	private ZebraQexafsScannableForTest scn;
@@ -48,30 +54,46 @@ public class ZebraQexafsTest {
 
 	class ZebraQexafsScannableForTest extends ZebraQexafsScannable {
 
+		private double demandPosition;
+
 		public ZebraQexafsScannableForTest() {
 			channelsConfigured = true;
 			setConfigured(true);
 			setName("ZebraQexafsScannableForTest");
 			setOutputFormat(new String[] {"%.2f"});
+
+			// Setup the Mocks for channel access
+			controller = Mockito.mock(EpicsController.class);
+			currentSpeedChnl = Mockito.mock(Channel.class);
+			setPvFactory(Mockito.mock(CachedLazyPVFactory.class));
+			Mockito.when(getPvFactory().getPVDouble(Matchers.any())).thenReturn(new DummyPV<Double>("dummy", 0.0));
 		}
 
-		double initialPosition;
+		public EpicsController getController() {
+			return controller;
+		}
+
+		public Channel getSpeedChannel() {
+			return currentSpeedChnl;
+		}
+
+		@Override
+		public double getMaxSpeed() {
+			return 100000;
+		}
 
 		/**
 		 * The initial position of motor at start of scan in
 		 * @return motor position (eV)
 		 */
-		public double getInitialPosition() {
-			return initialPosition;
+		@Override
+		public Object getDemandPosition() {
+			return demandPosition;
 		}
 
 		@Override
-		protected void checkDeadbandAndMove(double pos) {
-			initialPosition = pos;
-		}
-
-		@Override
-		protected void resetDCMSpeed() throws MotorException {
+		public void asynchronousMoveTo(Object demandPosition) throws DeviceException {
+			this.demandPosition = (double) demandPosition;
 		}
 
 		@Override
@@ -123,33 +145,52 @@ public class ZebraQexafsTest {
 	}
 
 	@Before
-	public void setup() throws MotorException {
+	public void setup() throws Exception {
 		scn = new ZebraQexafsScannableForTest();
 		scn.setZebraDevice(new ZebraDummy());
 		scn.setMotor(new DummyMotor());
 		scn.setDemandPositionTolerance(0.01);
-	}
-
-	@Test
-	public void testMotionCalculation() throws Exception {
-		TestHelpers.setUpTest(ZebraQexafsTest.class, "testParams", false);
+		scn.setPosition(10500.0);
 
 		ContinuousParameters params = new ContinuousParameters();
 		params.setStartPosition(10000);
 		params.setEndPosition(12000);
 		params.setNumberDataPoints(1000);
 		params.setTotalTime(5);
-
 		scn.setContinuousParameters(params);
-		scn.setPosition(10500.0);
-		scn.prepareForContinuousMove();
+	}
 
+
+	@Test
+	public void checkMotionParameters() throws Exception {
+		TestHelpers.setUpTest(ZebraQexafsTest.class, "checkMotion", false);
+
+		scn.prepareForContinuousMove();
+		ContinuousParameters params = scn.getContinuousParameters();
+
+		// Check position calculation has been done correctly and applied to Zebra
 		checkMotionParameters(params);
 		checkZebraParameters(params);
+
+		// Check speed has been set to max, and DCM is has been moved to start position
+		InOrder inOrder = Mockito.inOrder(scn.getController());
+		inOrder.verify(scn.getController()).caput(scn.getSpeedChannel(), scn.getMaxSpeed());
+		assertEquals("DCM run up energy is not correct", getEnergyFromAngle(scn.getRunupPosition()), (double)scn.getDemandPosition(), TOLERANCE);
+
+		// Check scan speed has been set, zebra is armed, and DCM is being moved to correct rundown position
+		scn.performContinuousMove();
+		inOrder.verify(scn.getController()).caput(scn.getSpeedChannel(), scn.getDesiredSpeed());
+		assertEquals(true, scn.getZebraDevice().isPCArmed());
+		assertEquals("DCM run down energy is not correct", getEnergyFromAngle(scn.getRundownPosition()), (double)scn.getDemandPosition(), TOLERANCE);
+
+		// Check DCM speed has been reset at end of scan and the zebra has been disarmed
+		scn.continuousMoveComplete();
+		inOrder.verify(scn.getController()).caput(scn.getSpeedChannel(), scn.getMaxSpeed());
+		assertEquals(false, scn.getZebraDevice().isPCArmed());
 	}
 
 	/**
-	 * Test that zebra gat start, width and pulse step have been set correctly
+	 * Test that zebra gate start, width and pulse step have been set correctly
 	 * @param params
 	 * @throws Exception
 	 */

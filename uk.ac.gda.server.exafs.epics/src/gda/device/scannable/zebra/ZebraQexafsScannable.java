@@ -251,9 +251,9 @@ public class ZebraQexafsScannable extends QexafsScannable {
 				InterfaceProvider.getTerminalPrinter().print("Mono move started.");
 				logger.info("Mono move started.");
 				if (runDownOn) {
-					super.asynchronousMoveTo(convertAngleToEnergy(runDownPosition));
+					asynchronousMoveTo(convertAngleToEnergy(runDownPosition));
 				} else {
-					super.asynchronousMoveTo(convertAngleToEnergy(endAngle));
+					asynchronousMoveTo(convertAngleToEnergy(endAngle));
 				}
 			} catch (Exception e) {
 				throw new DeviceException(e.getMessage(), e);
@@ -334,5 +334,13 @@ public class ZebraQexafsScannable extends QexafsScannable {
 
 	public void setZebraDevice(Zebra zebraDevice) {
 		this.zebraDevice = zebraDevice;
+	}
+
+	public void setPvFactory(CachedLazyPVFactory pvFactory) {
+		this.pvFactory = pvFactory;
+	}
+
+	public CachedLazyPVFactory getPvFactory() {
+		return this.pvFactory;
 	}
 }
