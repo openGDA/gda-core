@@ -10,7 +10,7 @@
  *    Matthew Gerring - initial API and implementation and/or initial documentation
  *******************************************************************************/
 
-package org.eclipse.scanning.test.scan.mock;
+package org.eclipse.scanning.test.utilities.scan.mock;
 
 import java.io.IOException;
 import java.io.Serializable;

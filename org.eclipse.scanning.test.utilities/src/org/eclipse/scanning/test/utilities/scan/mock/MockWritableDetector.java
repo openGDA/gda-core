@@ -9,7 +9,7 @@
  * Contributors:
  *    Matthew Gerring - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.scanning.test.scan.mock;
+package org.eclipse.scanning.test.utilities.scan.mock;
 
 import org.eclipse.january.dataset.Random;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;

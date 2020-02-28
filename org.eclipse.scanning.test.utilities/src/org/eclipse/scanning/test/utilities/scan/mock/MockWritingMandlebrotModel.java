@@ -9,12 +9,12 @@
  * Contributors:
  *    Matthew Gerring - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.scanning.test.scan.mock;
+package org.eclipse.scanning.test.utilities.scan.mock;
 
 import java.io.IOException;
 
 import org.eclipse.dawnsci.nexus.NexusFile;
-import org.eclipse.scanning.test.scan.mock.MockWritingMandelbrotDetector.OutputDimensions;
+import org.eclipse.scanning.test.utilities.scan.mock.MockWritingMandelbrotDetector.OutputDimensions;
 
 public class MockWritingMandlebrotModel {
 

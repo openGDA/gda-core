@@ -42,7 +42,7 @@ import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class AbstractPauseTest extends BrokerTest {
+public abstract class AbstractPauseTest extends BrokerTest {
 
 
 	protected IEventService eservice;

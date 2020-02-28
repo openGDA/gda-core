@@ -29,7 +29,7 @@ import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
-import org.eclipse.dawnsci.remotedataset.test.mock.LoaderServiceMock;
+import org.eclipse.dawnsci.remotedataset.test.utilities.mock.LoaderServiceMock;
 import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
@@ -75,14 +75,14 @@ import org.eclipse.scanning.sequencer.analysis.ProcessingRunnableDevice;
 import org.eclipse.scanning.sequencer.watchdog.DeviceWatchdogService;
 import org.eclipse.scanning.test.event.BillStatusBean;
 import org.eclipse.scanning.test.event.FredStatusBean;
-import org.eclipse.scanning.test.scan.mock.AnnotatedMockDetectorModel;
-import org.eclipse.scanning.test.scan.mock.AnnotatedMockWritableDetector;
-import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
-import org.eclipse.scanning.test.scan.mock.MockOperationService;
-import org.eclipse.scanning.test.scan.mock.MockWritableDetector;
-import org.eclipse.scanning.test.scan.mock.MockWritingMandelbrotDetector;
-import org.eclipse.scanning.test.scan.mock.MockWritingMandlebrotModel;
 import org.eclipse.scanning.test.scan.servlet.MockScriptService;
+import org.eclipse.scanning.test.utilities.scan.mock.AnnotatedMockDetectorModel;
+import org.eclipse.scanning.test.utilities.scan.mock.AnnotatedMockWritableDetector;
+import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
+import org.eclipse.scanning.test.utilities.scan.mock.MockOperationService;
+import org.eclipse.scanning.test.utilities.scan.mock.MockWritableDetector;
+import org.eclipse.scanning.test.utilities.scan.mock.MockWritingMandelbrotDetector;
+import org.eclipse.scanning.test.utilities.scan.mock.MockWritingMandlebrotModel;
 
 /**
  * <p>

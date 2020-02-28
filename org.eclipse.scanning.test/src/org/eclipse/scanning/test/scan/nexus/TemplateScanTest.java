@@ -18,7 +18,7 @@
 
 package org.eclipse.scanning.test.scan.nexus;
 
-import static org.eclipse.dawnsci.nexus.test.util.NexusTestUtils.getNode;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusTestUtils.getNode;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
