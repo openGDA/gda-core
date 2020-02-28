@@ -82,6 +82,7 @@ public class RmiRemotingIntegrationTest {
 		// Need to find a free port as this test might be running simultaneously on the same machine
 		portForTesting = SocketUtils.findAvailableTcpPort(1099, 10000);
 		// Set properties
+		System.setProperty("GDA/gda.activemq.broker.status.uri", "http://localhost:8161");
 		LocalProperties.set(RMI_PORT_PROPERTY, Integer.toString(portForTesting));
 		LocalProperties.set(GDA_SERVER_HOST, "localhost");
 		// Ensure no previous tests have left factories attached to the Finder
@@ -92,6 +93,7 @@ public class RmiRemotingIntegrationTest {
 	public static void tearDownAfterClass() throws Exception {
 		// Cleanup properties set
 		LocalProperties.unsetActiveMQBrokerURI();
+		System.clearProperty("GDA/gda.activemq.broker.status.uri");
 		LocalProperties.clearProperty(RMI_PORT_PROPERTY);
 		LocalProperties.clearProperty(GDA_SERVER_HOST);
 	}

@@ -24,14 +24,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
+import gda.spring.context.SpringContext;
 import gda.util.findableHashtable.Hashtable;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 /**
  * A Class for performing junit tests on GDA FindableHashtable. Separate Java properties and object server XML files are
@@ -72,7 +73,7 @@ public class FindableHashtableTest {
 		System.setProperty(LocalProperties.GDA_PROPERTIES_FILE, TestUtils.getResourceAsFile(FindableHashtableTest.class, "java_findableHashtable.properties")
 				.getAbsolutePath());
 
-		ObjectServer.createLocalImpl(TestUtils.getResourceAsFile(FindableHashtableTest.class, "server_findableHashtable.xml").getAbsolutePath());
+		SpringContext.registerFactory(TestUtils.getResourceAsFile(FindableHashtableTest.class, "server_findableHashtable.xml").getAbsolutePath());
 		hashtable = (Hashtable) Finder.find("GDAHashtable");
 	}
 

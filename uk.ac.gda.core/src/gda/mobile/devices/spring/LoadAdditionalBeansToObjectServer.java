@@ -46,7 +46,6 @@ import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
 import gda.spring.SpringApplicationContextBasedObjectFactory;
 import gda.util.LocalPropertiesPropertySource;
-import gda.util.SpringObjectServer;
 import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
 
 /**
@@ -59,7 +58,7 @@ import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
  *
  * Usage:
  * <ol>
- * <li>This bean must be created in the root application context of the GDA server @see {@link SpringObjectServer}.</li>
+ * <li>This bean must be created in the root application context of the GDA server.</li>
  * <li>use this instance's {@link #loadAdditionalBeans(List)} to load bean definition file in a script to add new beans into GDA server</li>
  * <li>if the new beans has reference to existing beans in parent context, the script has to inject these references into new beans in the child context</li>
  * <li>run this script after mobile device has been installed on the beamline</li>

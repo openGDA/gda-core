@@ -18,11 +18,11 @@
 
 package uk.ac.gda.remoting.client;
 
-import gda.util.SpringObjectServer;
+import gda.factory.Factory;
 
 /**
  * Marker interface that is implemented by RMI proxies created by {@link GdaRmiProxyFactoryBean}. Allows
- * {@link SpringObjectServer} to determine if an object is an RMI proxy - in which case, its {@code configure()} method
+ * {@link Factory Factories} to determine if an object is an RMI proxy - in which case, its {@code configure()} method
  * will not be called at client/server startup time.
  */
 public interface RmiProxyMarker {
