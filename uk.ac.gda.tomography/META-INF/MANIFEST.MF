@@ -7,7 +7,6 @@ Bundle-ClassPath: .
 Bundle-Vendor: Diamond Light Source
 Export-Package: uk.ac.gda.tomography;uses:="org.osgi.framework,uk.ac.gda.tomography.parameters,org.eclipse.emf.ecore.resource",
  uk.ac.gda.tomography.base,
- uk.ac.gda.tomography.controller,
  uk.ac.gda.tomography.devices;uses:="gda.factory",
  uk.ac.gda.tomography.event,
  uk.ac.gda.tomography.model,

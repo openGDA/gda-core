@@ -40,8 +40,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.tomography.base.TomographyParameters;
-import uk.ac.gda.tomography.controller.AcquisitionControllerException;
 import uk.ac.gda.tomography.model.EndAngle;
 import uk.ac.gda.tomography.model.ImageCalibration;
 import uk.ac.gda.tomography.model.MultipleScans;

@@ -45,12 +45,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.rcp.views.CompositeFactory;
+import uk.ac.gda.api.acquisition.AcquisitionController;
+import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.ButtonGroupFactoryBuilder;
 import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
 import uk.ac.gda.tomography.base.TomographyParameters;
-import uk.ac.gda.tomography.controller.AcquisitionController;
-import uk.ac.gda.tomography.controller.AcquisitionControllerException;
 import uk.ac.gda.tomography.model.MultipleScansType;
 import uk.ac.gda.tomography.model.RangeType;
 import uk.ac.gda.tomography.model.ScanType;

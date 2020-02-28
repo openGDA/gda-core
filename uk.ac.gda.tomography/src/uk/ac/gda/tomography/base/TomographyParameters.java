@@ -1,6 +1,6 @@
 package uk.ac.gda.tomography.base;
 
-import uk.ac.gda.tomography.model.AcquisitionParameters;
+import uk.ac.gda.api.acquisition.AcquisitionParameters;
 import uk.ac.gda.tomography.model.EndAngle;
 import uk.ac.gda.tomography.model.ImageCalibration;
 import uk.ac.gda.tomography.model.MultipleScans;

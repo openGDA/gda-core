@@ -19,12 +19,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import gda.device.DeviceException;
 import gda.jython.JythonServerFacade;
+import uk.ac.gda.api.acquisition.AcquisitionController;
+import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.tomography.base.TomographyConfiguration;
 import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
 import uk.ac.gda.tomography.base.TomographyParameters;
-import uk.ac.gda.tomography.controller.AcquisitionController;
-import uk.ac.gda.tomography.controller.AcquisitionControllerException;
 import uk.ac.gda.tomography.event.TomographyRunAcquisitionEvent;
 import uk.ac.gda.tomography.event.TomographySaveEvent;
 import uk.ac.gda.tomography.model.EndAngle;
