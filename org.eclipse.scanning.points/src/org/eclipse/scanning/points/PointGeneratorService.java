@@ -34,7 +34,6 @@ import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AbstractMultiModel;
-import org.eclipse.scanning.api.points.models.AbstractPointsModel;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.AxialCollatedStepModel;
 import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
@@ -210,11 +209,11 @@ public class PointGeneratorService implements IPointGeneratorService {
 	}
 
 	@Override
-	public List<IROI> findRegions(Object model, Collection<ScanRegion> sregions) throws GeneratorException {
+	public List<IROI> findRegions(IScanPointGeneratorModel model, Collection<ScanRegion> sregions) throws GeneratorException {
 		if (sregions == null || sregions.isEmpty())
 			return Collections.emptyList();
 
-		final Collection<String> names = AbstractPointsModel.getScannableNames(model);
+		final Collection<String> names = model.getScannableNames();
 		final Predicate<ScanRegion> shouldAddRoi = scanRegion -> {
 			final List<String> scannables = scanRegion.getScannables();
 			return scannables == null || scannables.containsAll(names) || findNamesAsEntry(scannables, names);

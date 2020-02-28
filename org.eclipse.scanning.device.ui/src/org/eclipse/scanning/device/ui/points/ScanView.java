@@ -694,7 +694,7 @@ public class ScanView  extends ViewPart implements SeriesItemView, SeriesItemLis
 		}
 		final GeneratorDescriptor desc = (GeneratorDescriptor) evt.getDescriptor();
 		final IPointGenerator<?> generator = (IPointGenerator<?>)desc.getSeriesObject();
-		final Object model = generator.getModel();
+		final IScanPointGeneratorModel model = (IScanPointGeneratorModel) generator.getModel();
 
 		if (!ScanRegions.getScanRegions(system).isEmpty()) {
 			IViewReference ref = PageUtil.getPage().findViewReference(ScanRegionView.ID);

@@ -51,7 +51,7 @@ public class MultiModelTest {
 		xy.setxAxisName("x");
 		xy.setyAxisName("y");
 		xy.setPoints(8);
-		xy.setBoundingBox(new BoundingBox(0, 0, 5, 5));
+		xy.setBoundingBox(new BoundingBox(17, 6, 5, 5));
 		consecutive.addModel(concurrent);
 		consecutive.addModel(xy);
 		IPointGenerator<ConsecutiveMultiModel> gen = service.createGenerator(consecutive);
@@ -64,15 +64,21 @@ public class MultiModelTest {
 	@Test
 	public void ConsecutiveOfConsecutive() throws GeneratorException {
 		AxialArrayModel x1 = new AxialArrayModel("x");
+		// Bounds 1.5 -> 19
 		x1.setPositions(new double[] { 2, 3, 5, 7, 11, 13, 17 });
-		AxialStepModel x2 = new AxialStepModel("x", 0, 6, 1);
+		// Bounds 19 -> 26
+		AxialStepModel x2 = new AxialStepModel("x", 19.5, 25.5, 1);
+		// => Bounds 1.5 -> 26
 		ConsecutiveMultiModel innerConsecutive = new ConsecutiveMultiModel();
 		innerConsecutive.addModel(x1);
 		innerConsecutive.addModel(x2);
 		ConsecutiveMultiModel outerConsecutive = new ConsecutiveMultiModel();
-		AxialStepModel x3 = new AxialStepModel("x", 0, 6, 1);
+		// Bounds 26 -> 32
+		AxialStepModel x3 = new AxialStepModel("x", 26.5, 32, 1);
+		// => Bounds 1.5 -> 32
 		outerConsecutive.addModel(innerConsecutive);
 		outerConsecutive.addModel(x3);
+		outerConsecutive.setContinuous(false);
 		IPointGenerator<ConsecutiveMultiModel> gen = service.createGenerator(outerConsecutive);
 		Iterator<IPosition> one = service.createGenerator(innerConsecutive).iterator();
 		Iterator<IPosition> two = service.createGenerator(x3).iterator();
@@ -104,15 +110,14 @@ public class MultiModelTest {
 	@Test
 	public void ConcurrentOfConsecutive() throws GeneratorException {
 		AxialArrayModel x1 = new AxialArrayModel("x");
+		// Bounds 2.5 -> 19
 		x1.setPositions(new double[] { 2, 3, 5, 7, 11, 13, 17 });
-		AxialStepModel x2 = new AxialStepModel("x", 0, 6, 1);
+		// Bounds 19 -> 33
+		AxialStepModel x2 = new AxialStepModel("x", 20, 32, 2);
 		ConsecutiveMultiModel consecutive = new ConsecutiveMultiModel();
 		consecutive.addModel(x1);
 		consecutive.addModel(x2);
 		ConcurrentMultiModel concurrent = new ConcurrentMultiModel();
-		// all models with a ConcurrentModel can only be continuous if the concurrent model can be
-		// Currently not implemented
-		concurrent.setContinuous(false);
 		AxialStepModel y = new AxialStepModel("y", 0, 6.5, 0.5);
 		concurrent.addModel(consecutive);
 		concurrent.addModel(y);

@@ -31,7 +31,7 @@ import org.eclipse.scanning.api.points.models.AbstractBoundingLineModel;
 import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.BoundingLine;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
@@ -393,7 +393,7 @@ public class EnforcedShapeTest {
 	 * Points of a PointsModel should lie where the points of the stepmodel that created it do, and should produce
 	 * only the same steps, no additional ones.
 	 */
-	private void testPoints(IScanPathModel stepModel, IScanPathModel actualPointsModel) throws GeneratorException {
+	private void testPoints(IScanPointGeneratorModel stepModel, IScanPointGeneratorModel actualPointsModel) throws GeneratorException {
 		final Iterator<IPosition> stepIt = pgs.createGenerator(stepModel).iterator();
 		final Iterator<IPosition> pointIt = pgs.createGenerator(actualPointsModel).iterator();
 

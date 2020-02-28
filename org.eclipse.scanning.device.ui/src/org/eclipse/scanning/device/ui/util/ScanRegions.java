@@ -27,6 +27,7 @@ import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.eclipse.dawnsci.plotting.api.region.RegionUtils;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.models.BoundingBox;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.device.ui.ServiceHolder;
 
@@ -59,7 +60,7 @@ public class ScanRegions {
 	 * @return null if there arn't any regions with a user object set to a ScanRegion
 	 * @throws GeneratorException
 	 */
-	public static final BoundingBox createBoxFromPlot(Object model) throws GeneratorException {
+	public static final BoundingBox createBoxFromPlot(IScanPointGeneratorModel model) throws GeneratorException {
 
 		IPlottingSystem<?> system  = PlotUtil.getRegionSystem();
 		if (system==null) return null;

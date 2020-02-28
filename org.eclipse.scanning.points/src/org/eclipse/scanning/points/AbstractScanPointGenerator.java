@@ -21,6 +21,7 @@ package org.eclipse.scanning.points;
 import static org.eclipse.scanning.points.ROIGenerator.EMPTY_PY_ARRAY;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -145,7 +146,7 @@ public abstract class AbstractScanPointGenerator<T extends AbstractPointsModel> 
 		final JythonObjectFactory<PPointGenerator> compoundGeneratorFactory = ScanPointGeneratorFactory.JCompoundGeneratorFactory();
 
 	    return compoundGeneratorFactory.createObject(
-	    		generators, EMPTY_PY_ARRAY, EMPTY_PY_ARRAY, -1, continuous);
+	    		Arrays.asList(generators), EMPTY_PY_ARRAY, EMPTY_PY_ARRAY, -1, continuous);
 	}
 
 	/**

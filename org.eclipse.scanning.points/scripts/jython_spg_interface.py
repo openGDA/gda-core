@@ -115,9 +115,9 @@ class GeneratorWrapper(PPointGenerator):
         return [name for dimension in self.generator.dimensions for name in dimension.axes]
     
     def getInitialBounds(self):
-        return MapPosition(self.__getitem__(0).lower)
+        return MapPosition(self.generator.get_point(0).lower)
     def getFinalBounds(self):
-        return MapPosition(self.__getitem__(len(self)-1).upper)
+        return MapPosition(self.generator.get_point(-1).upper)
 
     def toDict(self):
         return self.generator.to_dict()

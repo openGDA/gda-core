@@ -136,7 +136,7 @@ public interface IPointGeneratorService {
 	 * @return regions, never <code>null</code>
 	 * @throws GeneratorException
 	 */
-	List<IROI> findRegions(Object model, Collection<ScanRegion> regions) throws GeneratorException;
+	List<IROI> findRegions(IScanPointGeneratorModel model, Collection<ScanRegion> regions) throws GeneratorException;
 
 	/**
 	 * Each IPointGenerator must have a unique id which is used to refer to it in the user interface.

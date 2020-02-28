@@ -13,10 +13,8 @@ package org.eclipse.scanning.api.points.models;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.scanning.api.annotation.UiHidden;
@@ -122,23 +120,6 @@ public abstract class AbstractPointsModel implements IScanPointGeneratorModel {
 		return (name.equals(other.name));
 	}
 
-
-	public static List<String> getScannableNames(Object model) {
-		if (model instanceof IScanPathModel) return ((IScanPathModel)model).getScannableNames();
-		try {
-			Method method = model.getClass().getMethod("getScannableNames");
-			Object ret    = method.invoke(model);
-			if (ret instanceof List) {
-				@SuppressWarnings("unchecked")
-				final List<String> names = (List<String>) ret;
-				return names;
-			}
-		} catch (Exception ne) {
-			// fall through to return empty list
-		}
-
-		return Collections.emptyList();
-	}
 	@Override
 	public String toString() {
 		return "name=" + name + ", continuous="+ continuous + ", alternating=" + alternating;
@@ -182,13 +163,13 @@ public abstract class AbstractPointsModel implements IScanPointGeneratorModel {
 		this.pcs.firePropertyChange("alternating", oldValue, alternating);
 	}
 
-	public static boolean supportsAlternating(Class<? extends IScanPathModel> model) {
+	public static boolean supportsAlternating(Class<? extends IScanPointGeneratorModel> model) {
 		return !(model.equals(OneAxisPointRepeatedModel.class) || model.equals(TwoAxisPointSingleModel.class) || model.equals(StaticModel.class));
 	}
-	public static boolean supportsContinuous(Class<? extends IScanPathModel> model) {
+	public static boolean supportsContinuous(Class<? extends IScanPointGeneratorModel> model) {
 		return !(model.equals(OneAxisPointRepeatedModel.class) || model.equals(TwoAxisPointSingleModel.class) || model.equals(StaticModel.class));
 	}
-	public static boolean supportsRandomOffset(Class<? extends IScanPathModel> model) {
+	public static boolean supportsRandomOffset(Class<? extends IScanPointGeneratorModel> model) {
 		return (model.equals(TwoAxisGridPointsModel.class));
 	}
 

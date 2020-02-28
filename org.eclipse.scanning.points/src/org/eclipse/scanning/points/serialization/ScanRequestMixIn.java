@@ -14,18 +14,18 @@ package org.eclipse.scanning.points.serialization;
 
 import java.util.Collection;
 
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public abstract class ScanRequestMixIn {
 
-	@JsonProperty abstract Collection<IScanPathModel> getModels();
+	@JsonProperty abstract Collection<IScanPointGeneratorModel> getModels();
 
-	@JsonProperty abstract void setModels(Collection<IScanPathModel> models);
+	@JsonProperty abstract void setModels(Collection<IScanPointGeneratorModel> models);
 
-	@JsonIgnore abstract void setModels(IScanPathModel... models);
+	@JsonIgnore abstract void setModels(IScanPointGeneratorModel... models);
 
 	@JsonProperty abstract Collection<String> getMonitorNames();
 

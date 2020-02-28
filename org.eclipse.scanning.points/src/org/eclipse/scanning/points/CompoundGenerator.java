@@ -30,7 +30,6 @@ import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.jython.JythonObjectFactory;
@@ -62,7 +61,7 @@ public class CompoundGenerator extends AbstractScanPointGenerator<CompoundModel>
 
 	private static Logger logger = LoggerFactory.getLogger(CompoundGenerator.class);
 
-	private IPointGenerator<IScanPointGeneratorModel>[]     generators;
+	private IPointGenerator<? extends IScanPointGeneratorModel>[]     generators;
 
 	private IPointGeneratorService pointGeneratorService;
 
@@ -79,7 +78,7 @@ public class CompoundGenerator extends AbstractScanPointGenerator<CompoundModel>
 	 * an incomplete representation of the scan, and any GeneratorException thrown may have less complete information.
 	 */
 
-	public CompoundGenerator(IPointGenerator<IScanPointGeneratorModel>[] generators, IPointGeneratorService pgs) throws GeneratorException {
+	public CompoundGenerator(IPointGenerator<? extends IScanPointGeneratorModel>[] generators, IPointGeneratorService pgs) throws GeneratorException {
 		pointGeneratorService = pgs;
         CompoundModel model = new CompoundModel();
         for (IPointGenerator<? extends IScanPointGeneratorModel> g : generators) {
@@ -111,8 +110,7 @@ public class CompoundGenerator extends AbstractScanPointGenerator<CompoundModel>
 	@Override
 	public void validate(CompoundModel model) {
 		List<String> axes = new ArrayList<>();
-		for (Object smodel : model.getModels()) {
-			IScanPathModel imodel = (IScanPathModel) smodel;
+		for (IScanPointGeneratorModel imodel : model.getModels()) {
 			for (String axis : imodel.getScannableNames()) {
 				if (axes.contains(axis)) {
 					throw new ModelValidationException("Cannot have repeated axis within CompoundModel", model, "models");
@@ -132,7 +130,7 @@ public class CompoundGenerator extends AbstractScanPointGenerator<CompoundModel>
 		 */
 	}
 
-	public List<IScanPathModel> getModels(){
+	public List<IScanPointGeneratorModel> getModels(){
 		return Arrays.asList(generators).stream().map(IPointGenerator::getModel).collect(Collectors.toList());
 	}
 
@@ -220,7 +218,7 @@ public class CompoundGenerator extends AbstractScanPointGenerator<CompoundModel>
 			}).filter(Objects::nonNull).toArray(IPointGenerator[]::new);
 	}
 
-	public IPointGenerator<IScanPointGeneratorModel>[] getGenerators() {
+	public IPointGenerator<? extends IScanPointGeneratorModel>[] getGenerators() {
 		return generators;
 	}
 
