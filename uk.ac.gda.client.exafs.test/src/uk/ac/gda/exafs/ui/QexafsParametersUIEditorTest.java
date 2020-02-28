@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 import java.text.DecimalFormat;
 import java.util.Random;
 
-import org.eclipse.richbeans.test.ui.ShellTest;
+import org.eclipse.richbeans.test.utilities.ui.ShellTest;
 import org.eclipse.richbeans.widgets.scalebox.NumberBox;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
