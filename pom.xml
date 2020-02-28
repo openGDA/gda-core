@@ -11,6 +11,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 <groupId>uk.ac.diamond</groupId>
 <artifactId>uk.ac.diamond.aggregator</artifactId>
 <version>1.0.0-SNAPSHOT</version>
+<relativePath>../daq-aggregator</relativePath>
 </parent>
 
 <modules>
@@ -46,8 +47,8 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 <module>uk.ac.diamond.daq.thirdparty.network.feature</module>
 <module>uk.ac.diamond.daq.thirdparty.rpc.feature</module>
 <module>uk.ac.diamond.daq.thirdparty.springbase.feature</module>
-<module>uk.ac.diamond.daq.thirdparty.test.feature</module>
 <module>uk.ac.diamond.daq.thirdparty.utils.feature</module>
+<module>uk.ac.diamond.daq.thirdparty.test.feature</module>
 <module>uk.ac.diamond.daq.thirdparty.xml.feature</module>
 <module>uk.ac.diamond.daq.tomography.datacollection.ui</module>
 <module>uk.ac.diamond.daq.vmxi.server.feature</module>
