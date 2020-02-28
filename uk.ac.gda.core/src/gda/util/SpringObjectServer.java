@@ -35,7 +35,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -362,11 +361,7 @@ public class SpringObjectServer extends ObjectServer {
 
 	private void injectBeansIntoOsgiServiceRegister(ApplicationContext applicationContext) {
 		Map<String, Object> allBeans = applicationContext.getBeansOfType(Object.class);
-		for (Entry<String, Object> entry : allBeans.entrySet()) {
-			String beanName = entry.getKey();
-			Object bean = entry.getValue();
-			osgiServiceBeanHandler.processBean(bean, beanName);
-		}
+		allBeans.forEach(osgiServiceBeanHandler::processBean);
 	}
 
 	/**

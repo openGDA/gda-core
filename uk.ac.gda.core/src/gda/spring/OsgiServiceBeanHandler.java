@@ -50,7 +50,7 @@ public class OsgiServiceBeanHandler {
 
 	private final BundleContext bundleContext = GDACoreActivator.getBundleContext();
 
-	public void processBean(Object bean, String beanName) {
+	public void processBean(String beanName, Object bean) {
 		logger.trace("Processing bean '{}'", beanName);
 		final OsgiService[] osgiServiceAnnotations = bean.getClass().getAnnotationsByType(OsgiService.class);
 		for (OsgiService osgiService : osgiServiceAnnotations) {
@@ -85,5 +85,4 @@ public class OsgiServiceBeanHandler {
 			return false;
 		}
 	}
-
 }
