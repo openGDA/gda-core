@@ -46,7 +46,7 @@
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.example/bin" />
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.event/bin" />
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.server/bin" />
-				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.test/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.test.utilities/bin"/>
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.hdf5/bin" />
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.api/bin" />
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.tree/bin" />

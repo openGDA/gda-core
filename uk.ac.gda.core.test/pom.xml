@@ -1,0 +1,123 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>uk.ac.diamond</groupId>
+	<artifactId>uk.ac.gda.core.test</artifactId>
+	<version>9.16.0-SNAPSHOT</version>
+	<packaging>eclipse-test-plugin</packaging>
+
+	<parent>
+		<artifactId>gda-core</artifactId>
+		<groupId>uk.ac.diamond</groupId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+
+	<!--dependencies>
+	    <dependency>
+	      <groupId>junit</groupId>
+	      <artifactId>junit</artifactId>
+	      <version>4.12</version>
+	      <scope>test</scope>
+	    </dependency>
+    </dependencies-->
+
+	<!-- This pom is requied to allow mockito to resolve
+	hamcrest properly, see https://stackoverflow.com/a/18125491
+	might be able to remove after updating to new versions -->
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<dependency-resolution>
+						<extraRequirements>
+							<requirement>
+								<type>eclipse-plugin</type>
+								<id>org.hamcrest</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+						</extraRequirements>
+					</dependency-resolution>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<excludes>
+						<!-- powermock test -->
+						<exclude>LdapAuthoriserTest</exclude>
+						<exclude>HighlightersTest</exclude>
+						<exclude>JythonShellParserTest</exclude>
+						<exclude>JythonShellTest</exclude>
+						<exclude>GDAJythonClassloaderTest</exclude>
+						<exclude>GDAJythonInterpreterTest</exclude>
+			          	<exclude>BeamConditionBaseTest</exclude>
+			          	<exclude>BeamConditionWrapperTest</exclude>
+			          	<exclude>BeamMonitorTest</exclude>
+			          	<exclude>EnumPositionCheckTest</exclude>
+			          	<exclude>ScannableThresholdConditionTest</exclude>
+			          	<!-- Tests trying to read/write test files -->
+			          	<exclude>PropertyPlaceholderConfigurerTest</exclude>
+			          	<exclude>FindableHashtableTest</exclude>
+			          	<exclude>PropertyPlaceholderConfigurerTest</exclude>
+			          	<exclude>XMLIcatTest</exclude>
+			          	<exclude>PathConstructorTest</exclude>
+			          	<exclude>CrysalisRunListTest</exclude>
+			          	<exclude>SimpleHighestExistingFileMonitorTest</exclude>
+			          	<!-- Tests Fail due to some hidden setup issue -->
+			          	<exclude>RmiAutomatedExporterTest</exclude>
+			          	<exclude>TfgScalerTest</exclude>
+			          	<exclude>ScannableNexusWrapperScanTest</exclude>
+			          	<!-- Mockito can't create package private items -->
+			          	<exclude>ScannableMotionWithScannableFieldsBaseTest</exclude>
+			          	<exclude>PositionInputStreamCombinerTest</exclude>
+			          	<exclude>CoordinatedScannableGroupTest</exclude>
+			          	<exclude>ConcurrentScanWithConcurrentReadoutTest</exclude>
+			          	<exclude>MultiScanTest</exclude>
+			          	<exclude>MultithreadedScanDataPointPipelineTest</exclude>
+			          	<exclude>RepeatScanTest</exclude>
+			          	<exclude>PositionStreamIndexerTest</exclude>
+			          	<exclude>MScanSubmitterTest</exclude>
+			          	<exclude>ConcurrentScanTest</exclude>
+			          	<!-- Mockito can't create it in different plugin -->
+			          	<exclude>JythonCompleterTest</exclude>
+			          	<!-- trying to connect to an external server -->
+			          	<exclude>ODCCDControllerTest</exclude>
+			          	<!-- Local Properties file is not found -->
+			          	<exclude>LocalPropertiesTest</exclude>
+			          	<exclude>Gda3879Test</exclude>
+			          	<!-- Access by reflections of class in different plugin not allowed by OSGI -->
+			          	<exclude>DeviceInterceptorTest</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+	        <!--plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.22.2</version>
+				<configuration>
+	                <testSourceDirectory>${basedir}/src</testSourceDirectory>
+	                <testClassesDirectory>${basedir}/bin</testClassesDirectory>
+					<includes>
+						<include>LdapAuthoriserTest</include>
+						<include>HighlightersTest</include>
+						<include>JythonShellParserTest</include>
+						<include>JythonShellTest</include>
+						<include>GDAJythonClassloaderTest</include>
+						<include>GDAJythonInterpreterTest</include>
+			          	<include>BeamConditionBaseTest</include>
+			          	<include>BeamConditionWrapperTest</include>
+			          	<include>BeamMonitorTest</include>
+			          	<include>EnumPositionCheckTest</include>
+			          	<include>ScannableThresholdConditionTest</include>
+				    </includes>
+				</configuration>
+			  </plugin-->
+		</plugins>
+	</build>
+</project>
