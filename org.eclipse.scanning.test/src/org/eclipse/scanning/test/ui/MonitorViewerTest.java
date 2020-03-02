@@ -18,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
 
-import org.eclipse.richbeans.test.ui.ShellTest;
+import org.eclipse.richbeans.test.utilities.ui.ShellTest;
 import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement.MonitorScanRole;
 import org.eclipse.scanning.device.ui.device.MonitorViewer;
 import org.eclipse.swt.layout.GridLayout;

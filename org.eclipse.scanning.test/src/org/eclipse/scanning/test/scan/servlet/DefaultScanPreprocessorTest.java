@@ -24,11 +24,11 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 import org.eclipse.scanning.api.event.scan.ScanRequest;
-import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.server.servlet.DefaultScanConfiguration;
 import org.eclipse.scanning.server.servlet.DefaultScanPreprocessor;
-import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
+import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
 import org.junit.Before;
 import org.junit.Test;
 

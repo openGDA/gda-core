@@ -18,7 +18,7 @@ import static org.junit.Assert.assertNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.richbeans.test.ui.ShellTest;
+import org.eclipse.richbeans.test.utilities.ui.ShellTest;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.ui.auto.IInterfaceService;
 import org.eclipse.scanning.api.ui.auto.IModelDialog;

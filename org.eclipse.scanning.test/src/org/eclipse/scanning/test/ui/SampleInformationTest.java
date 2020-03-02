@@ -17,7 +17,7 @@ import static org.junit.Assert.assertNotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.richbeans.test.ui.ShellTest;
+import org.eclipse.richbeans.test.utilities.ui.ShellTest;
 import org.eclipse.scanning.api.event.scan.SampleData;
 import org.eclipse.scanning.api.ui.auto.IInterfaceService;
 import org.eclipse.scanning.api.ui.auto.IModelDialog;

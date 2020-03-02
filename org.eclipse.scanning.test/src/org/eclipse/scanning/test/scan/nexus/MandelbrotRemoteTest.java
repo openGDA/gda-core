@@ -58,7 +58,7 @@ import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.remotedataset.client.RemoteDatasetServiceImpl;
 import org.eclipse.dawnsci.remotedataset.server.DataServer;
-import org.eclipse.dawnsci.remotedataset.test.mock.LoaderServiceMock;
+import org.eclipse.dawnsci.remotedataset.test.utilities.mock.LoaderServiceMock;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DataEvent;
 import org.eclipse.january.dataset.IDataListener;

@@ -37,7 +37,7 @@ import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.test.BrokerTest;
-import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
+import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
 import org.junit.Ignore;
 import org.junit.Test;
 

@@ -51,7 +51,7 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.models.ScanModel;
-import org.eclipse.scanning.test.scan.mock.DummyOperationBean;
+import org.eclipse.scanning.test.utilities.scan.mock.DummyOperationBean;
 
 public class ScanClusterProcessingChecker {
 

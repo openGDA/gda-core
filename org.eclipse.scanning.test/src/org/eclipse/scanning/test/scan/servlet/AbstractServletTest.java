@@ -39,7 +39,7 @@ import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.server.servlet.AbstractJobQueueServlet;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
+import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;

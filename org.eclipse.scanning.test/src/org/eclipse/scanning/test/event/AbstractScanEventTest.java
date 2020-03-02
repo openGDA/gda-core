@@ -41,7 +41,7 @@ import org.eclipse.scanning.test.BrokerTest;
 import org.junit.After;
 import org.junit.Test;
 
-public class AbstractScanEventTest extends BrokerTest {
+public abstract class AbstractScanEventTest extends BrokerTest {
 
 	private static class TestScanListener implements IScanListener {
 

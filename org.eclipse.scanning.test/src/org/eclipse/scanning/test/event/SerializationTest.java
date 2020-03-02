@@ -62,7 +62,7 @@ import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.server.application.PseudoSpringParser;
 import org.eclipse.scanning.test.ScanningTestClassRegistry;
-import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
+import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

@@ -19,7 +19,7 @@ import java.util.Map;
 
 import org.eclipse.scanning.api.annotation.scan.FileDeclared;
 import org.eclipse.scanning.api.scan.IScanParticipant;
-import org.eclipse.scanning.test.scan.mock.AnnotationRecorder;
+import org.eclipse.scanning.test.utilities.scan.mock.AnnotationRecorder;
 
 /**
  *

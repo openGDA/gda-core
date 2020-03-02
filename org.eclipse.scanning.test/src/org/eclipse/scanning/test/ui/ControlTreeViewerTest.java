@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.richbeans.test.ui.ShellTest;
+import org.eclipse.richbeans.test.utilities.ui.ShellTest;
 import org.eclipse.scanning.api.ISpringParser;
 import org.eclipse.scanning.api.scan.ui.ControlTree;
 import org.eclipse.scanning.device.ui.ServiceHolder;

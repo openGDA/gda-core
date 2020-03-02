@@ -47,7 +47,7 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.malcolm.core.AbstractMalcolmDevice;
 import org.eclipse.scanning.server.application.Activator;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
+import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
 import org.junit.After;
 import org.junit.Before;
 

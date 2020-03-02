@@ -22,7 +22,7 @@ import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ScanningTestClassRegistry;
-import org.eclipse.scanning.test.scan.mock.DummyOperationBean;
+import org.eclipse.scanning.test.utilities.scan.mock.DummyOperationBean;
 import org.python.util.PythonInterpreter;
 
 

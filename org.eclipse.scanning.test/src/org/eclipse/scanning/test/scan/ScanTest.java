@@ -61,7 +61,7 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
+import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -391,7 +391,7 @@ public class ScanTest extends BrokerTest {
 			IPointGenerator<?> gen = ((ScanModel)((AbstractRunnableDevice)scanner).getModel()).getPointGenerator();
 			assertEquals(Arrays.asList(Status.SUBMITTED, Status.PREPARING, Status.RUNNING), states);
 			/*
-			 * DAQ-1967 removed deviceStatus from ScanBean, changing final Scan Complete message, 
+			 * DAQ-1967 removed deviceStatus from ScanBean, changing final Scan Complete message,
 			 * (which doesn't change the state from running as ScanProcess may have to perform e.g. after scan)
 			 * The total number of message (25+4) sent before is maintained, but more events and less state changes.
 			 * Only non test implementation of IScanListener (SubmitterImpl) reads all State and Event messages

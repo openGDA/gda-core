@@ -16,10 +16,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IClassRegistry;
-import org.eclipse.scanning.test.scan.mock.AnnotatedMockDetectorModel;
-import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
-import org.eclipse.scanning.test.scan.mock.MockWritingMandlebrotModel;
 import org.eclipse.scanning.test.scan.real.TestScanBean;
+import org.eclipse.scanning.test.utilities.scan.mock.AnnotatedMockDetectorModel;
+import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
+import org.eclipse.scanning.test.utilities.scan.mock.MockWritingMandlebrotModel;
 
 public class ScanningTestClassRegistry implements IClassRegistry {
 

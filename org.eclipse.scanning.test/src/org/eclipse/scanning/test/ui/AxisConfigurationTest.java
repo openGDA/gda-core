@@ -18,7 +18,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.richbeans.test.ui.ShellTest;
+import org.eclipse.richbeans.test.utilities.ui.ShellTest;
 import org.eclipse.scanning.api.scan.AxisConfiguration;
 import org.eclipse.scanning.api.ui.auto.IInterfaceService;
 import org.eclipse.scanning.api.ui.auto.IModelDialog;
@@ -37,7 +37,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(SWTBotJunit4ClassRunner.class)
-public class AxisConfigurationTest extends ShellTest{
+public class AxisConfigurationTest extends ShellTest {
 
 	private static IInterfaceService interfaceService; // We really get this from OSGi services!
 
