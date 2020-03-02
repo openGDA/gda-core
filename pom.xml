@@ -11,6 +11,7 @@
 		<groupId>uk.ac.diamond</groupId>
 		<artifactId>uk.ac.diamond.aggregator</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
+		<relativePath>../daq-aggregator</relativePath>
 	</parent>
 
 	<modules>
@@ -25,7 +26,7 @@
 		<module>org.opengda.lde.model</module>
 		<module>org.opengda.lde.model.edit</module>
 		<module>org.opengda.lde.model.editor</module>
-		<!-- module>org.opengda.lde.model.tests</module-->
+		<!--module>org.opengda.lde.model.tests</module-->
 		<module>org.opengda.lde.ui</module>
 		<module>uk.ac.diamond.daq.beamline.configuration</module>
 		<module>uk.ac.diamond.daq.beamline.configuration.api</module>
@@ -68,7 +69,7 @@
 		<module>uk.ac.diamond.daq.stage.test</module>
 		<module>uk.ac.diamond.scisoft.gda.feature</module>
 		<module>uk.ac.gda.analysis</module>
-		<!-- module>uk.ac.gda.analysis.test</module -->
+		<module>uk.ac.gda.analysis.test</module>
 		<module>uk.ac.gda.api</module>
 		<module>uk.ac.gda.api.test</module>
 		<module>uk.ac.gda.beamline.synoptics</module>
@@ -83,7 +84,7 @@
 		<module>uk.ac.gda.client.test</module>
 		<module>uk.ac.gda.common.client</module>
 		<module>uk.ac.gda.core</module>
-		<!-- module>uk.ac.gda.core.test</module -->
+		<module>uk.ac.gda.core.test</module>
 		<module>uk.ac.gda.edxd.calibration</module>
 		<module>uk.ac.gda.edxd.common</module>
 		<module>uk.ac.gda.edxd.detector</module>
@@ -94,7 +95,6 @@
 		<module>uk.ac.gda.example.feature</module>
 		<module>uk.ac.gda.example.server</module>
 		<module>uk.ac.gda.example.site</module>
-		<!-- module>uk.ac.gda.example.test</module -->
 		<module>uk.ac.gda.logging.dependencies.fragment</module>
 		<module>uk.ac.gda.server.ncd</module>
 		<module>uk.ac.gda.server.ncd.epics</module>

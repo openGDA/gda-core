@@ -18,10 +18,10 @@
 
 package uk.ac.diamond.daq.scanning;
 
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertAxes;
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertIndices;
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertSolsticeScanGroup;
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertTarget;
+import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertAxes;
+import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertIndices;
+import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertSolsticeScanGroup;
+import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertTarget;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -117,11 +117,11 @@ import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.sequencer.analysis.ProcessingRunnableDevice;
 import org.eclipse.scanning.server.servlet.Services;
-import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
-import org.eclipse.scanning.test.scan.mock.MockOperationService;
-import org.eclipse.scanning.test.scan.mock.MockWritableDetector;
-import org.eclipse.scanning.test.scan.mock.MockWritingMandelbrotDetector;
-import org.eclipse.scanning.test.scan.mock.MockWritingMandlebrotModel;
+import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
+import org.eclipse.scanning.test.utilities.scan.mock.MockOperationService;
+import org.eclipse.scanning.test.utilities.scan.mock.MockWritableDetector;
+import org.eclipse.scanning.test.utilities.scan.mock.MockWritingMandelbrotDetector;
+import org.eclipse.scanning.test.utilities.scan.mock.MockWritingMandlebrotModel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
