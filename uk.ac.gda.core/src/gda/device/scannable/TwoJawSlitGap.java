@@ -83,7 +83,7 @@ public class TwoJawSlitGap extends TwoJawSlitPosition {
 	@Override
 	protected Quantity<Length>[] calculateTargets(Object position) throws DeviceException {
 		// convert what is supplied to Quantity in user units
-		final Quantity<Length> target = QuantityFactory.createFromObjectUnknownUnit(position, userUnitFromUnitsComponent());
+		final Quantity<Length> target = QuantityFactory.createFromObject(position, userUnitFromUnitsComponent());
 		@SuppressWarnings("unchecked")
 		final Quantity<Length>[] targets = new Quantity[2];
 

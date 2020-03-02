@@ -407,7 +407,7 @@ public final class PositionConvertorFunctions {
 	}
 
 	private static <Q extends Quantity<Q>> Quantity<Q> stringToQuantity(final String amountString, final Unit<Q> targetUnit) {
-		final Quantity<? extends Quantity<?>> quantity = QuantityFactory.createFromString(amountString);
+		final Quantity<Q> quantity = QuantityFactory.createFromString(amountString);
 		if (quantity == null) {
 			throw new IllegalArgumentException("Could not parse string '" + amountString + "' to a quantity.");
 		}
@@ -417,7 +417,7 @@ public final class PositionConvertorFunctions {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static <Q extends Quantity<Q>> Quantity<Q> convertQuantity(final Quantity<? extends Quantity<?>> inputQuantity, final Unit<Q> targetUnit) {
 		if (inputQuantity.getUnit() == ONE) {
-			return QuantityFactory.createFromObjectUnknownUnit(inputQuantity.getValue().doubleValue(), targetUnit);
+			return QuantityFactory.createFromObject(inputQuantity.getValue().doubleValue(), targetUnit);
 		}
 		return ((Quantity) inputQuantity).to(targetUnit);
 	}

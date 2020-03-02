@@ -65,12 +65,12 @@ public class QuantityFactory {
 
 		// convert input into Quantity objects
 		if (position instanceof String) {
-			final Quantity<Q> positionAsQuantity = (Quantity<Q>) createFromString((String) position);
+			final Quantity<Q> positionAsQuantity = createFromString((String) position);
 			if (positionAsQuantity != null){
 				return positionAsQuantity.to(unit);
 			}
 		} else if (position instanceof PyString) {
-			final Quantity<Q> positionAsQuantity = (Quantity<Q>) createFromString(((PyString) position).toString());
+			final Quantity<Q> positionAsQuantity = createFromString(((PyString) position).toString());
 			if (positionAsQuantity != null){
 				return positionAsQuantity.to(unit);
 			}
@@ -120,7 +120,7 @@ public class QuantityFactory {
 	 *            of the form '1.0 mm'
 	 * @return the Quantity created (or null)
 	 */
-	public static Quantity<? extends Quantity<?>> createFromString(String string) {
+	public static <Q extends Quantity<Q>> Quantity<Q> createFromString(String string) {
 		final String valueString;
 		final String unitString;
 		if (string != null) {
