@@ -120,6 +120,11 @@ public class StatusQueueView extends EventConnectionView {
 
 	private static final Logger logger = LoggerFactory.getLogger(StatusQueueView.class);
 
+	private static final String DEFAULT_QUEUE_ARGUMENTS = createId(
+					"org.eclipse.scanning.api",
+					StatusBean.class.getSimpleName(),
+					EventConstants.STATUS_TOPIC,
+					EventConstants.SUBMISSION_QUEUE);
 	// UI
 	private TableViewer viewer;
 	private DelegatingSelectionProvider selectionProvider;
@@ -1385,5 +1390,16 @@ public class StatusQueueView extends EventConnectionView {
 			finishedBeans.stream().map(StatusBean::getUniqueId).forEach(queue::remove);
 			warnIfDelayed(jobStartTime, "removeOutdatedBeans()", "remove old beans");
 		}
+	}
+
+	@Override
+	protected String getSecondaryIdAttribute(String key) {
+		if (idProperties == null) idProperties = parseString(DEFAULT_QUEUE_ARGUMENTS);
+		if (super.getSecondaryIdAttribute(key) == null) {
+			// If secondaryId doesn't contain field/secondaryId is null, return default
+			return (String) parseString(DEFAULT_QUEUE_ARGUMENTS).get(key);
+		}
+		return super.getSecondaryIdAttribute(key);
+
 	}
 }
