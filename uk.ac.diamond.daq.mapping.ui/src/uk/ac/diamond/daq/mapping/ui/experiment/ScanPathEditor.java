@@ -38,7 +38,6 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
@@ -149,7 +148,7 @@ public class ScanPathEditor extends Composite implements IObservable {
 		return axisText.getText();
 	}
 
-	public void setScanPathModel(IScanPathModel model) {
+	public void setScanPathModel(IScanPointGeneratorModel model) {
 		axisText.setText((String) new ScanPathToStringConverter().convert(model));
 		observable.notifyIObservers(this, model);
 	}
@@ -163,8 +162,8 @@ public class ScanPathEditor extends Composite implements IObservable {
 		final UpdateValueStrategy axisTextToModelStrategy = new UpdateValueStrategy();
 		axisTextToModelStrategy.setConverter(new StringToScanPathConverter(scannableName));
 		axisTextToModelStrategy.setBeforeSetValidator(value -> {
-			// the value created by the converter will be an IScanPathModel if the text value is valid, or null if not
-			if (value instanceof IScanPathModel) {
+			// the value created by the converter will be an IScanPointGeneratorModel if the text value is valid, or null if not
+			if (value instanceof IScanPointGeneratorModel) {
 				return ValidationStatus.ok();
 			}
 			final boolean isEmpty = ((String) axisTextValue.getValue()).isEmpty();
@@ -215,12 +214,12 @@ public class ScanPathEditor extends Composite implements IObservable {
 			if (oldModel instanceof AxialMultiStepModel) {
 				multiAxialStepModel = (AxialMultiStepModel) oldModel;
 			} else if (oldModel instanceof AxialStepModel) {
-				multiAxialStepModel.getStepModels().add((AxialStepModel) oldModel);
+				multiAxialStepModel.getModels().add((AxialStepModel) oldModel);
 			} else if (oldModel instanceof AxialArrayModel) {
 				final double[] positions = ((AxialArrayModel) oldModel).getPositions();
 				for (int i = 0; i < positions.length - 1; i++) {
 					final AxialStepModel stepModel = new AxialStepModel(scannableName, positions[i], positions[i + 1], positions[i + 1] - positions[i]);
-					multiAxialStepModel.getStepModels().add(stepModel);
+					multiAxialStepModel.getModels().add(stepModel);
 				}
 			}
 		}
@@ -242,7 +241,7 @@ public class ScanPathEditor extends Composite implements IObservable {
 	private static class ScanPathToStringConverter extends Converter {
 
 		public ScanPathToStringConverter() {
-			super(IScanPathModel.class, String.class);
+			super(IScanPointGeneratorModel.class, String.class);
 		}
 
 		@Override
@@ -277,7 +276,7 @@ public class ScanPathEditor extends Composite implements IObservable {
 		}
 
 		private String convertMultiAxialStepModel(AxialMultiStepModel multiAxialStepModel) {
-			final Iterator<AxialStepModel> iter = multiAxialStepModel.getStepModels().iterator();
+			final Iterator<AxialStepModel> iter = multiAxialStepModel.getModels().iterator();
 
 			final StringBuilder stringBuilder = new StringBuilder();
 			while (iter.hasNext()) {
@@ -327,7 +326,7 @@ public class ScanPathEditor extends Composite implements IObservable {
 		private final String scannableName;
 
 		private StringToScanPathConverter(String scannableName) {
-			super(String.class, IScanPathModel.class);
+			super(String.class, IScanPointGeneratorModel.class);
 			this.scannableName = scannableName;
 		}
 
@@ -364,7 +363,7 @@ public class ScanPathEditor extends Composite implements IObservable {
 			return null;
 		}
 
-		private IScanPathModel convertStringToMultiAxialStepModel(String text) {
+		private IScanPointGeneratorModel convertStringToMultiAxialStepModel(String text) {
 			final String[] stepModelStrs = text.split(";");
 
 			// If there is only one step specified, return a AxialStepModel
