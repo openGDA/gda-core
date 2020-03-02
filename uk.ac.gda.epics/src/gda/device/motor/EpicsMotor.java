@@ -993,15 +993,22 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	}
 
 	/**
-	 * This method sets the current position of the motor without moving it, in user coordinates.
+	 * This method sets the offset value (= base PV name + ".OFF") for the motor, without moving it.
+	 * <p>
+	 * Note therefore that calling this function, despite its name, is not equivalent to entering Set mode for the motor and setting it position.<br>
+	 * See Jira ticket DAQ-2801
+	 * <p>
+	 * To move a motor, call {@link #moveTo(double)} or one of its overloads.
+	 * <p>
+	 * We will review what this function should do when we have gathered some information from logging as to how it is currently called.
 	 *
 	 * @param position
-	 *            - the new position in motor units
+	 *            the new offset in motor units
 	 */
 	@Override
 	public void setPosition(double position) throws MotorException {
 		try {
-			// set the drive field without moving motor
+			logger.debug("Called setPosition({}) on motor {}", position, getName());
 			controller.caput(offset, position);
 		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to set offset position", ex);
