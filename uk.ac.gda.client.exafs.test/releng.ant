@@ -46,7 +46,7 @@
 				<pathelement location="${workspace.git.loc}/richbeans.git/org.eclipse.richbeans.binding/bin" />
 				<pathelement location="${workspace.git.loc}/richbeans.git/org.eclipse.richbeans.widgets/bin" />
 				<pathelement location="${workspace.git.loc}/richbeans.git/org.eclipse.richbeans.xml/bin" />
-				<pathelement location="${workspace.git.loc}/richbeans.git/org.eclipse.richbeans.test/bin" />
+				<pathelement location="${workspace.git.loc}/richbeans.git/org.eclipse.richbeans.test.utilities/bin" />
 				<pathelement location="${workspace.git.loc}/dawn-ui.git/org.dawnsci.common.widgets/bin" />
 				<path refid="tp.slf4j.path" />  <!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
 				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->
