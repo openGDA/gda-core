@@ -34,6 +34,7 @@ import gda.factory.Finder;
 import gda.observable.IObserver;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveUpdate;
 
 public abstract class SpecsLivePlot extends ViewPart implements IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(SpecsLivePlot.class);
@@ -66,9 +67,8 @@ public abstract class SpecsLivePlot extends ViewPart implements IObserver {
 
 		// Setup the basics of the plotting
 		try {
-			plottingSystem = plottingService.createPlottingSystem();
 			actionBars = getViewSite().getActionBars();
-			actionBars.getToolBarManager().add(new KeBeSwich());
+			plottingSystem = plottingService.createPlottingSystem();
 			plottingSystem.setShowLegend(false);
 		} catch (Exception e) {
 			logger.error("Couldn't setup plotting system", e);
@@ -101,14 +101,14 @@ public abstract class SpecsLivePlot extends ViewPart implements IObserver {
 	public void update(Object source, Object arg) {
 		logger.trace("Received update from analyser");
 
-		if (arg instanceof SpecsPhoibosLiveDataUpdate) {
-			updatePlot((SpecsPhoibosLiveDataUpdate) arg);
+		if (arg instanceof SpecsPhoibosLiveUpdate) {
+			updatePlot((SpecsPhoibosLiveUpdate) arg);
 		}
 	}
 
-	abstract void updatePlot(SpecsPhoibosLiveDataUpdate update);
+	abstract void updatePlot(SpecsPhoibosLiveUpdate update);
 
-	private class KeBeSwich extends Action {
+	class KeBeSwich extends Action {
 
 		@Override
 		public void run() {

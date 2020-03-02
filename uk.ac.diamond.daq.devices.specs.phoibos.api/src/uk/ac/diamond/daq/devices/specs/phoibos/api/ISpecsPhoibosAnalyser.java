@@ -60,6 +60,8 @@ public interface ISpecsPhoibosAnalyser extends Findable, IObservable {
 
 	double[] getYAxis();
 
+	double[] getSpectrum(int index);
+
 	double[] getSpectrum();
 
 	int getSlices();

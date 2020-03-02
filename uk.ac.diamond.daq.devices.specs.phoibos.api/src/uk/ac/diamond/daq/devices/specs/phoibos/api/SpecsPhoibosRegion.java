@@ -61,6 +61,8 @@ public class SpecsPhoibosRegion implements Serializable {
 	/** Non-energy channels */
 	private int slices = 100;
 
+	private double centreEnergy;
+
 	private final transient PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
 	// Optional scannables
@@ -92,6 +94,7 @@ public class SpecsPhoibosRegion implements Serializable {
 		this.bindingEnergy = region.isBindingEnergy();
 		this.values = region.getValues();
 		this.slices = region.getSlices();
+		this.centreEnergy = region.getCentreEnergy();
 
 		for (SpecsPhoibosScannableValue scannableValue : region.getScannableValues()) {
 			addScannableValue(new SpecsPhoibosScannableValue(scannableValue));
@@ -318,6 +321,16 @@ public class SpecsPhoibosRegion implements Serializable {
 		}
 	}
 
+	public double getCentreEnergy() {
+		return centreEnergy;
+	}
+
+	public void setCentreEnergy(double energy) {
+		double oldValue = this.centreEnergy;
+		this.centreEnergy = energy;
+		pcs.firePropertyChange("centreEnergy", oldValue, energy);
+	}
+
 
 	@Override
 	public String toString() {
@@ -325,7 +338,7 @@ public class SpecsPhoibosRegion implements Serializable {
 				+ ", lensMode=" + lensMode + ", startEnergy=" + startEnergy + ", endEnergy=" + endEnergy
 				+ ", stepEnergy=" + stepEnergy + ", passEnergy=" + passEnergy + ", iterations=" + iterations
 				+ ", exposureTime=" + exposureTime + ", enabled=" + enabled + ", bindingEnergy=" + bindingEnergy
-				+ ", values=" + values + ", slices=" + slices + "]";
+				+ ", values=" + values + ", slices=" + slices + ", centreEnergy=" + centreEnergy +"]";
 	}
 
 	@Override
@@ -352,6 +365,8 @@ public class SpecsPhoibosRegion implements Serializable {
 		temp = Double.doubleToLongBits(stepEnergy);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + values;
+		temp = Double.doubleToLongBits(centreEnergy);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + scannableValues.hashCode();
 		return result;
 	}
@@ -407,7 +422,8 @@ public class SpecsPhoibosRegion implements Serializable {
 			return false;
 		if (!scannableValues.equals(other.getScannableValues()))
 			return false;
-
+		if (Double.doubleToLongBits(centreEnergy) != Double.doubleToLongBits(other.centreEnergy))
+			return false;
 		return true;
 	}
 }

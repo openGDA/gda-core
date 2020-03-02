@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.observable.IObserver;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveUpdate;
 
 public class SpecsLiveSpectrumPlot extends SpecsLivePlot implements IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(SpecsLiveSpectrumPlot.class);
@@ -39,55 +40,60 @@ public class SpecsLiveSpectrumPlot extends SpecsLivePlot implements IObserver {
 		super.createPartControl(parent);
 
 		try {
+			actionBars.getToolBarManager().add(new KeBeSwich());
 			plottingSystem.createPlotPart(parent, "Spectrum", actionBars, PlotType.XY, this);
 			plottingSystem.setTitle("Analyser Spectrum");
 			plottingSystem.setShowLegend(false);
 		} catch (Exception e) {
 			logger.error("Couldn't setup plotting system", e);
+			throw e;
 		}
 	}
 
+
 	@Override
-	void updatePlot(SpecsPhoibosLiveDataUpdate update) {
-		if (update == null) {
-			return; // Can't do anything n this case - should only happen before any updates are received and if KE BE is pressed.
-		}
+	void updatePlot(SpecsPhoibosLiveUpdate update) {
 
-		// Cache the update in case we want to switch KE and BE
-		lastUpdate = update;
+		if (update instanceof SpecsPhoibosLiveDataUpdate) {
+			SpecsPhoibosLiveDataUpdate dataUpdate = (SpecsPhoibosLiveDataUpdate) update;
 
-		// Energy axis
-		final double[] energyAxis;
-		if (displayInBindingEnergy) {
-			energyAxis = update.getBeEnergyAxis();
-		}
-		else {
-			energyAxis = update.getKeEnergyAxis();
-		}
-		final IDataset energyAxisDataset = DatasetFactory.createFromObject(energyAxis);
+			// Cache the update in case we want to switch KE and BE
+			lastUpdate = dataUpdate;
 
-		// Data
-		IDataset spectrum = DatasetFactory.createFromObject(update.getSpectrum());
-		spectrum.setName("spectrum");
-
-		// Something in the plotting system here isn't thread safe so do in UI thread
-		PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
-			// Thread safe so don't need to be in the UI thread
-			plottingSystem.updatePlot1D(energyAxisDataset, Arrays.asList(spectrum), null);
-			plottingSystem.getSelectedYAxis().setTitle("Intesnity (arb. units)");
-
+			// Energy axis
+			final double[] energyAxis;
 			if (displayInBindingEnergy) {
-				plottingSystem.getSelectedXAxis().setTitle("Binding Energy (eV)");
-				plottingSystem.getSelectedXAxis().setInverted(true);
-			} else {
-				plottingSystem.getSelectedXAxis().setTitle("Kinetic Energy (eV)");
-				plottingSystem.getSelectedXAxis().setInverted(false);
+				energyAxis = dataUpdate.getBeEnergyAxis();
 			}
+			else {
+				energyAxis = dataUpdate.getKeEnergyAxis();
+			}
+			final IDataset energyAxisDataset = DatasetFactory.createFromObject(energyAxis);
 
-			plottingSystem.repaint();
-		});
+			// Data
+			IDataset spectrum = DatasetFactory.createFromObject(dataUpdate.getSpectrum());
+			spectrum.setName("spectrum");
 
-		logger.trace("Updated plotting system");
+			// Something in the plotting system here isn't thread safe so do in UI thread
+			PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+				// Thread safe so don't need to be in the UI thread
+				plottingSystem.updatePlot1D(energyAxisDataset, Arrays.asList(spectrum), null);
+				plottingSystem.getSelectedYAxis().setTitle("Intesnity (arb. units)");
+
+				if (displayInBindingEnergy) {
+					plottingSystem.getSelectedXAxis().setTitle("Binding Energy (eV)");
+					plottingSystem.getSelectedXAxis().setInverted(true);
+				} else {
+					plottingSystem.getSelectedXAxis().setTitle("Kinetic Energy (eV)");
+					plottingSystem.getSelectedXAxis().setInverted(false);
+				}
+
+				plottingSystem.repaint();
+			});
+
+			logger.trace("Updated plotting system");
+		}
+
 	}
 
 }

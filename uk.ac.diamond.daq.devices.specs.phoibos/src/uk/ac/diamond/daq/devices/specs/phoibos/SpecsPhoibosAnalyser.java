@@ -50,6 +50,7 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceFileUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceHelper;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceValidation;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSpectrumUpdate;
 
 /**
  * <p>
@@ -120,10 +121,14 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	 */
 	private final transient RateLimiter updateLimiter = RateLimiter.create(10.0);
 
+	private final String FIXED_ENERGY = "Fixed Energy";
+	private final String FIXED_TRANSMISSION = "Fixed Transmission";
+
 	private String currentlyRunningRegionName;
 
 	private transient SpecsPhoibosConfigurableScannable configurablePhotonEnergyScannable;
 	private final transient List<SpecsPhoibosConfigurableScannable> additionalConfigurableScannables = new ArrayList<>();
+
 
 	@Override
 	public void configure() throws FactoryException {
@@ -348,6 +353,28 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		}
 	}
 
+	@Override
+	public double[] getSpectrum(int index) {
+		try {
+			return controller.getSpectrum(index);
+		} catch (Exception e) {
+			final String msg = "Error getting spectrum data";
+			logger.error(msg, e);
+			throw new RuntimeException(msg, e);
+		}
+	}
+
+
+	public void setCentreEnergy(double value) {
+		try {
+			controller.setCentreEnergy(value);
+		} catch (Exception e) {
+			final String msg = "Error setting centre energy to: " + value;
+			logger.error(msg, e);
+			throw new RuntimeException(msg, e);
+		}
+	}
+
 	public IDataset getSpectrumAsDataset() {
 		return DatasetFactory.createFromObject(getSpectrum());
 	}
@@ -512,7 +539,6 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 			startKe = region.getStartEnergy();
 			endKe = region.getEndEnergy();
 		}
-
 		if (startKe <= endKe) { // Use <= here even though the = case is probably an error
 			setLowEnergy(startKe);
 			setHighEnergy(endKe);
@@ -522,10 +548,13 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 			setLowEnergy(endKe);
 			setHighEnergy(startKe);
 		}
-
 		// Energy step - for swept style modes
-		if("Fixed Transmission".equals(region.getAcquisitionMode())){
+		if(region.getAcquisitionMode().equals(FIXED_TRANSMISSION)){
 			setEnergyStep(region.getStepEnergy());
+		}
+		// Kinetic energy - for alignment mode
+		if(region.getAcquisitionMode().equals(FIXED_ENERGY)){
+			setCentreEnergy(region.getCentreEnergy());
 		}
 
 		// Pass energy settings (~energy resolution)
@@ -1021,11 +1050,19 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		}
 		// If the update rate is too high just drop this one
 		if(updateLimiter.tryAcquire()) {
-			notifyIObservers(this, getLiveDataUpdate());
+			if(getAcquisitionMode().equals(FIXED_ENERGY)) {
+				notifyIObservers(this, getSpectrumUpdate());
+			}else {
+				notifyIObservers(this, getLiveDataUpdate());
+			}
 		}
 		else {
 			logger.trace("Update suppressed. Rate was too high");
 		}
+	}
+
+	private SpecsPhoibosSpectrumUpdate getSpectrumUpdate() {
+		return new SpecsPhoibosSpectrumUpdate(getSpectrum(0));
 	}
 
 	private SpecsPhoibosLiveDataUpdate getLiveDataUpdate() {

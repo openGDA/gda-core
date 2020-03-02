@@ -18,6 +18,12 @@
             restorable="true">
       </view>
       <view
+            class="uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsLiveAlignmentPlot"
+            id="uk.ac.diamond.daq.devices.specs.phoibos.ui.part.alignmentspectrum"
+            name="Alignment Spectrum"
+            restorable="true">
+      </view>
+      <view
             class="uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsLiveImagePlot"
             icon="icons/analyser_image_icon.png"
             id="uk.ac.diamond.daq.devices.specs.phoibos.ui.image"
