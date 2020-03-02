@@ -40,6 +40,7 @@ import org.eclipse.scanning.api.event.queue.QueueStatusBean;
 import org.eclipse.scanning.api.event.queue.QueueStatusBeanEvent;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.event.JobQueueProxy;
+import org.eclipse.scanning.test.ScanningTestUtils;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -84,7 +85,7 @@ public class ConsumerProxyControlTest extends QueueControlTest {
 		});
 
 		// create the job queue proxy
-		jobQueueProxy = new JobQueueProxy<>(uri, EventConstants.SUBMISSION_QUEUE,
+		jobQueueProxy = new JobQueueProxy<>(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID,
 				EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC, eventConnectorService, eventService);
 
 		// capture the job queue proxy's listener to queue status events

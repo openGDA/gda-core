@@ -18,6 +18,7 @@ import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.dry.DryRunProcessCreator;
 import org.eclipse.scanning.api.event.scan.ScanBean;
+import org.eclipse.scanning.test.ScanningTestUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -35,7 +36,7 @@ public class ScanRequestWithProcessingTest extends AbstractScanCommandsTest {
 	@BeforeClass
 	public static void createProcessingQueue() throws EventException {
 
-		pjobQueue = eservice.createJobQueue(uri, PROCESSING_QUEUE_NAME, "scisoft.operation.STATUS_TOPIC");
+		pjobQueue = eservice.createJobQueue(uri, PROCESSING_QUEUE_NAME.concat(ScanningTestUtils.JVM_UNIQUE_ID), "scisoft.operation.STATUS_TOPIC");
 		// we need a runner, but it doesn't have to do anything
 		pjobQueue.setRunner(new DryRunProcessCreator(0, 1, 1, 10, false));
 		pjobQueue.start();

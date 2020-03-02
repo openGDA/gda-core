@@ -68,4 +68,13 @@ public abstract class BrokerTest {
 		if (delegate!=null) delegate.stop();
 	}
 
+	/*
+	 *  With multiple AfterClass methods, they are run alphabetically.
+	 *  Store comes after Stop so this is final thing to happen
+	 */
+	@AfterClass
+	public final static void storeClose() {
+		ScanningTestUtils.clearMVStore();
+	}
+
 }

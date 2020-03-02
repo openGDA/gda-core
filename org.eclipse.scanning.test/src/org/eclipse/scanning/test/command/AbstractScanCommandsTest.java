@@ -86,7 +86,7 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 		    {@literal </bean>}
 
 		 */
-		servlet = new ScanServlet();
+		servlet = new ScanServlet(true);
 		servlet.setBroker(uri.toString());
 		servlet.connect(); // Gets called by Spring automatically
 	}
@@ -164,7 +164,7 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 
 
 			// Ok done that, now we sent it off...
-			pi.exec("submit("+name+", block="+(blocking?"True":"False")+", broker_uri='"+uri+"')");
+			pi.exec("submitForTest("+name+", block="+(blocking?"True":"False")+", broker_uri='"+uri+"')");
 
 			Thread.sleep(100);
 			boolean ok = latch.await(maxScanTimeS, TimeUnit.SECONDS);

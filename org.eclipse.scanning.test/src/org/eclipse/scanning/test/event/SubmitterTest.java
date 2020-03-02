@@ -29,13 +29,14 @@ import java.util.List;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
-import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.IJmsQueueReader;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.event.EventTimingsHelper;
 import org.eclipse.scanning.test.BrokerTest;
+import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.Before;
@@ -56,12 +57,12 @@ public class SubmitterTest extends BrokerTest {
 
 		// We use the long winded constructor because we need to pass in the connector.
 		// In production we would normally
-		submitter = eventService.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE);
+		submitter = eventService.createSubmitter(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID);
 		submitter.setStatusTopicName(null);
-		jobQueue = eventService.createJobQueue(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_TOPIC);
+		jobQueue = eventService.createJobQueue(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID, EventConstants.STATUS_TOPIC);
 		jobQueue.clearQueue();
 
-		jmsQueueReader = eventService.createJmsQueueReader(uri, EventConstants.SUBMISSION_QUEUE);
+		jmsQueueReader = eventService.createJmsQueueReader(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID);
 		jmsQueueReader.start();
 
 		subscriber = eventService.createSubscriber(uri, EventConstants.STATUS_TOPIC);

@@ -27,6 +27,7 @@ import org.eclipse.scanning.api.scan.process.ProcessingException;
 import org.eclipse.scanning.server.servlet.AbstractJobQueueServlet;
 import org.eclipse.scanning.server.servlet.ScanServlet;
 import org.eclipse.scanning.server.servlet.Services;
+import org.eclipse.scanning.test.ScanningTestUtils;
 import org.junit.Test;
 
 /**
@@ -40,7 +41,8 @@ public class ScanServletTest extends AbstractServletTest {
 
 		ScanServlet servlet = new ScanServlet();
 		servlet.setBroker(uri.toString());
-		servlet.setSubmitQueue("org.eclipse.scanning.test.servlet.submitQueue");
+		// Unique per JVM -> One MVStore per JVM
+		servlet.setSubmitQueue("org.eclipse.scanning.test.servlet.submitQueue".concat(ScanningTestUtils.JVM_UNIQUE_ID));
 		servlet.setStatusTopic("org.eclipse.scanning.test.servlet.statusTopic");
 		servlet.setPauseOnStart(false);
 		servlet.connect(); // Gets called by Spring automatically

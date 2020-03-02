@@ -12,7 +12,6 @@
 package org.eclipse.scanning.test.messaging;
 
 import static org.eclipse.scanning.api.event.EventConstants.STATUS_TOPIC;
-import static org.eclipse.scanning.api.event.EventConstants.SUBMISSION_QUEUE;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -48,6 +47,7 @@ import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.server.servlet.DeviceServlet;
 import org.eclipse.scanning.server.servlet.ScanServlet;
 import org.eclipse.scanning.test.BrokerTest;
+import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.Before;
@@ -143,7 +143,11 @@ public class ScanBeanMessagingAPITest extends BrokerTest {
 	protected void startScanServlet() throws EventException, URISyntaxException {
 
 		scanServlet = new ScanServlet();
-		scanServlet.setSubmitQueue(SUBMISSION_QUEUE);
+		/*
+		 *  Unique per JVM -> one MVStore per JVM
+		 *  Cleared up by BrokerTest @AfterClass storeClose
+		 */
+		scanServlet.setSubmitQueue(ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID);
 		scanServlet.setStatusTopic(STATUS_TOPIC);
 		scanServlet.setBroker(uri.toString());
 		scanServlet.setPauseOnStart(false);
@@ -153,7 +157,7 @@ public class ScanBeanMessagingAPITest extends BrokerTest {
 		dservlet.setBroker(uri.toString());
 		dservlet.connect();
 
-		submitter = eservice.createSubmitter(uri, SUBMISSION_QUEUE);
+		submitter = eservice.createSubmitter(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID);
 	}
 
 	protected void disconnect(IConnection service) throws EventException {

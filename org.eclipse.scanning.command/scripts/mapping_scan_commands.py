@@ -43,13 +43,14 @@ interest (ROI) when using grid(). They are: circ(), rect(), poly().
 
 import sys
 
-from java.lang import System
+from java.lang import System, String
 from java.net import URI
 from java.util import HashMap, ArrayList
 from org.eclipse.dawnsci.analysis.dataset.roi import (
     CircularROI, RectangularROI, PolygonalROI, PolylineROI, PointROI)
 from org.eclipse.scanning.api.event.EventConstants import (
     SUBMISSION_QUEUE, STATUS_TOPIC)
+from org.eclipse.scanning.test.ScanningTestUtils import SUBMISSION_QUEUE_WITH_ID
 from org.eclipse.scanning.api.event.scan import (ScanBean, ScanRequest)
 
 from org.eclipse.scanning.api.points.models import (
@@ -69,11 +70,16 @@ import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType as Metadat
 
 from org.eclipse.scanning.api.event.scan import ProcessingRequest
 
+def mscanForTest(path=None, monitorsPerPoint=None, monitorsPerScan=None, det=None, metadata=None, now=False, block=True,
+          allow_preprocess=False, broker_uri=None, proc=None):
+    return mscan(path, monitorsPerPoint, monitorsPerScan, det, metadata, now, block,
+          allow_preprocess, broker_uri, proc, True)
 
 # Grepping for 'mscan' in a GDA workspace shows up nothing, so it seems that
 # mscan is a free name.
+
 def mscan(path=None, monitorsPerPoint=None, monitorsPerScan=None, det=None, metadata=None, now=False, block=True,
-          allow_preprocess=False, broker_uri=None, proc=None):
+          allow_preprocess=False, broker_uri=None, proc=None, isTest=False):
     """Create a ScanRequest and submit it to the GDA server.
 
     A simple usage of this function is as follows:
@@ -116,14 +122,16 @@ def mscan(path=None, monitorsPerPoint=None, monitorsPerScan=None, det=None, meta
         broker_uri = getScanningBrokerUri()
 
     submit(request=scan_request(path=path, monitorsPerPoint=monitorsPerPoint, monitorsPerScan=monitorsPerScan, det=det, metadata=metadata, allow_preprocess=allow_preprocess, proc=proc),
-           now=now, block=block, broker_uri=broker_uri)
+           now=now, block=block, broker_uri=broker_uri, isTest=isTest)
 
 def getScannable(name):
 
     return getScannableDeviceService().getScannable(name)
 
+def submitForTest(request, now=False, block=True, broker_uri=None, name=None, proc=None):
+    return submit(request, now, block, broker_uri, name, proc, True)
 
-def submit(request, now=False, block=True, broker_uri=None, name=None, proc=None):
+def submit(request, now=False, block=True, broker_uri=None, name=None, proc=None, isTest=False):
 
     if (broker_uri is None):
         broker_uri = getScanningBrokerUri()
@@ -144,8 +152,10 @@ def submit(request, now=False, block=True, broker_uri=None, name=None, proc=None
     if now:
         raise NotImplementedError()  # TODO: Raise priority.
 
-
-    submitter = getEventService().createSubmitter(URI(broker_uri), SUBMISSION_QUEUE)
+    if isTest:
+        submitter = getEventService().createSubmitter(URI(broker_uri), SUBMISSION_QUEUE_WITH_ID)
+    else:
+        submitter = getEventService().createSubmitter(URI(broker_uri), SUBMISSION_QUEUE)
     submitter.setStatusTopicName(STATUS_TOPIC)
 
     if block:
