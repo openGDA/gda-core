@@ -16,14 +16,6 @@
             name="Queue"
             restorable="true">
       </view>
-      <view
-            category="org.dawnsci.commandserver.category"
-            class="org.eclipse.scanning.event.ui.view.StatusQueueLaunchView"
-            icon="icons/computer--pencil.png"
-            id="org.dawnsci.commandserver.ui.statusQueueLaunchView"
-            name="Queue Launcher"
-            restorable="true">
-      </view>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">
