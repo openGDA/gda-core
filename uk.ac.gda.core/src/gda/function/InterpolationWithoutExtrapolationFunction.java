@@ -23,8 +23,7 @@ import javax.measure.Unit;
 
 public class InterpolationWithoutExtrapolationFunction<T extends Quantity<T>, R extends Quantity<R>> extends InterpolationFunction<T, R> {
 
-	public InterpolationWithoutExtrapolationFunction(double[] column, double[] column2,
-			Unit<? extends Quantity<?>> columnUnits, Unit<? extends Quantity<?>> columnUnits2) {
+	public InterpolationWithoutExtrapolationFunction(double[] column, double[] column2,	Unit<T> columnUnits, Unit<R> columnUnits2) {
 		super(column, column2, columnUnits, columnUnits2);
 	}
 

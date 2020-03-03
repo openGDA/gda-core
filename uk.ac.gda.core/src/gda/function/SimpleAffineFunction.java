@@ -34,7 +34,7 @@ public class SimpleAffineFunction <R extends Quantity<R>> extends FindableFuncti
 	 */
 	@Override
 	public Quantity<R> apply(Quantity<R> amount) {
-		Unit<R> unit = amount.getUnit();
+		final Unit<R> unit = amount.getUnit();
 		return amount.multiply(scaler).add(Quantities.getQuantity(offset, unit));
 	}
 

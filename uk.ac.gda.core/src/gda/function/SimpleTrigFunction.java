@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 import gda.util.QuantityFactory;
 
 /**
- * Function of form: y = a * trigFunc( b + x) where trigFunc is sin, cos or tan
+ * Function of form: y = a * trigFunc( b * x) where trigFunc is sin, cos or tan
  */
 public class SimpleTrigFunction<T extends Quantity<T>, R extends Quantity<R>> extends FindableFunction<T, R> {
 	private static final Logger logger = LoggerFactory.getLogger(SimpleTrigFunction.class);
@@ -42,19 +42,18 @@ public class SimpleTrigFunction<T extends Quantity<T>, R extends Quantity<R>> ex
 
 	private String trigFunc;
 
-	// These are constructed from them
-	private Quantity<? extends Quantity<?>> constantA;
+	// These are constructed from the Strings above
+	private Quantity<R> constantA;
 
-	private Quantity<? extends Quantity<?>> constantB;
+	private Quantity<?> constantB;
 
 	private Method trigMethod;
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Quantity<R> apply(Quantity<T> xValue) {
 		try {
 			final double trigValue = (Double) trigMethod.invoke(null, constantB.multiply(xValue).getValue().doubleValue());
-			return (Quantity<R>) constantA.multiply(trigValue);
+			return constantA.multiply(trigValue);
 		} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
 			logger.error("Error evaluating {}", xValue, e);
 		}
@@ -118,7 +117,7 @@ public class SimpleTrigFunction<T extends Quantity<T>, R extends Quantity<R>> ex
 	 *            the trig function
 	 */
 	public void setTrigFunc(String trigFunc) {
-		Class<?>[] argumentsList = { double.class };
+		final Class<?>[] argumentsList = { double.class };
 		this.trigFunc = trigFunc;
 
 		try {

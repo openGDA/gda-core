@@ -26,10 +26,10 @@ import javax.measure.Quantity;
 /**
  * Identity function (yValue = xValue).
  */
-public class IdentityFunction implements Function<Quantity<? extends Quantity<?>>, Quantity<? extends Quantity<?>>> {
+public class IdentityFunction<Q extends Quantity<Q>> implements Function<Quantity<Q>, Quantity<Q>> {
 
 	@Override
-	public Quantity<? extends Quantity<?>> apply(Quantity<? extends Quantity<?>> xValue) {
+	public Quantity<Q> apply(Quantity<Q> xValue) {
 		return xValue;
 	}
 }

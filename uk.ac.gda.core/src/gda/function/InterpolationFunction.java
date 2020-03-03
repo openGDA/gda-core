@@ -30,10 +30,6 @@ import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.util.QuantityFactory;
 
-/**
- * To change the template for this generated type comment go to Window - Preferences - Java - Code Generation - Code and
- * Comments
- */
 public class InterpolationFunction<T extends Quantity<T>, R extends Quantity<R>> extends FindableFunction<T, R> implements Configurable {
 	private static final Logger logger = LoggerFactory.getLogger(InterpolationFunction.class);
 
@@ -51,9 +47,9 @@ public class InterpolationFunction<T extends Quantity<T>, R extends Quantity<R>>
 
 	private String cdfName;
 
-	private Unit<? extends Quantity<?>> xUnits;
+	private Unit<T> xUnits;
 
-	private Unit<? extends Quantity<?>> yUnits;
+	private Unit<R> yUnits;
 
 	private int yPlaces;
 
@@ -75,15 +71,14 @@ public class InterpolationFunction<T extends Quantity<T>, R extends Quantity<R>>
 	 * @param yvalues
 	 *            the y values
 	 * @param xunits
-	 *            the x uinits
+	 *            the x units
 	 * @param yunits
 	 *            the y units
 	 * @param decimal
 	 *            number of decimal places . Use InterpolationFunction.decimalPlacesToPreventRounding to prevent
 	 *            rounding. Or use other constructor
 	 */
-	public InterpolationFunction(double[] xvalues, double[] yvalues, Unit<? extends Quantity<?>> xunits,
-			Unit<? extends Quantity<?>> yunits, int decimal) {
+	public InterpolationFunction(double[] xvalues, double[] yvalues, Unit<T> xunits, Unit<R> yunits, int decimal) {
 		// TODO order the arrays in increasing value of x
 		numberOfXValues = xvalues.length;
 		xValues = xvalues;
@@ -106,12 +101,11 @@ public class InterpolationFunction<T extends Quantity<T>, R extends Quantity<R>>
 	 * @param yvalues
 	 *            the y values
 	 * @param xunits
-	 *            the x uinits
+	 *            the x units
 	 * @param yunits
 	 *            the y units
 	 */
-	public InterpolationFunction(double[] xvalues, double[] yvalues, Unit<? extends Quantity<?>> xunits,
-			Unit<? extends Quantity<?>> yunits) {
+	public InterpolationFunction(double[] xvalues, double[] yvalues, Unit<T> xunits, Unit<R> yunits) {
 		this(xvalues, yvalues, xunits, yunits, decimalPlacesToPreventRounding);
 	}
 
@@ -228,16 +222,15 @@ public class InterpolationFunction<T extends Quantity<T>, R extends Quantity<R>>
 				}
 			}
 		} else {
-			//should never get here, should have been caught by constructor
+			// should never get here, should have been caught by constructor
 			throw new IllegalArgumentException("InterpolationFunction. xValues must be increasing or decreasing");
 		}
 		return new int[] {before, after};
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Quantity<R> apply(Quantity<T> xValue) {
-		final double x = ((Quantity) xValue).to(xUnits).getValue().doubleValue();
+		final double x = xValue.to(xUnits).getValue().doubleValue();
 		if (Double.isNaN(x))
 			throw new IllegalArgumentException("Interpolation function does not handle a value that is Nan");
 
@@ -246,8 +239,7 @@ public class InterpolationFunction<T extends Quantity<T>, R extends Quantity<R>>
 		int after = -1;
 
 		if (xValues != null && yValues != null) {
-			// UA 1 - the xValues either ascend or descend but do not change
-			// direction
+			// UA 1 - the xValues either ascend or descend but do not change direction
 
 			int[] pair = calculateBeforeAfterPair(x, isAscending(), isDescending(), xValues, numberOfXValues);
 			before = pair[0];
@@ -255,20 +247,15 @@ public class InterpolationFunction<T extends Quantity<T>, R extends Quantity<R>>
 			y = yValues[before] + (x - xValues[before]) * (yValues[after] - yValues[before])
 					/ (xValues[after] - xValues[before]);
 
-			// handle case where xValues are the same - a plateau -
-			// isInfinite
-			// handle case where diff and xValues AND diff in yValues are
-			// both zero
-			// - Nan
+			// handle case where xValues are the same - a plateau - isInfinite
+			// handle case where diff and xValues AND diff in yValues are both zero - Nan
 			if (Double.isInfinite(y) || Double.isNaN(y)) {
 				y = yValues[before];
 			}
 
-			// FIXME: at this point accuracy of y should be reduced to
-			// accuracy of
-			// yValues[before]
+			// FIXME: at this point accuracy of y should be reduced to accuracy of yValues[before]
 
-			return QuantityFactory.createFromObjectUnknownUnit(roundTo(y, yPlaces), yUnits);
+			return QuantityFactory.createFromObject(roundTo(y, yPlaces), yUnits);
 		}
 
 		return null;
@@ -288,6 +275,7 @@ public class InterpolationFunction<T extends Quantity<T>, R extends Quantity<R>>
 
 	/**
 	 * Make sure each point is greater than or equal to next
+	 *
 	 * @return isAscending
 	 */
 	private boolean isAscending() {
@@ -300,8 +288,10 @@ public class InterpolationFunction<T extends Quantity<T>, R extends Quantity<R>>
 		}
 		return true;
 	}
+
 	/**
 	 * Make sure each point is smaller than or equal to next
+	 *
 	 * @return isDescending
 	 **/
 	private boolean isDescending() {
