@@ -119,7 +119,8 @@ public class SubmissionTest extends AbstractJythonTest {
 	}
 
 	private void submission(String name, boolean blocking) throws InterruptedException {
-		pi.exec("submitForTest("+name+", block="+(blocking?"True":"False")+", broker_uri='"+uri+"')");
+		pi.exec(String.format("submit(%s, block=%s, broker_uri='%s', submissionQueue='%s')",
+				name, blocking ? "True" : "False", uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID));
 		testLog.put("Jython command returned.");
 
 		// Jython returns *after* scan is complete.

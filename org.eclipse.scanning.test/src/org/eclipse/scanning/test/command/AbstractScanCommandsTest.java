@@ -32,6 +32,7 @@ import org.eclipse.scanning.points.ScanPointGeneratorFactory;
 import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.server.servlet.ScanServlet;
 import org.eclipse.scanning.server.servlet.Services;
+import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.scan.nexus.ScanClusterProcessingChecker;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
@@ -164,7 +165,8 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 
 
 			// Ok done that, now we sent it off...
-			pi.exec("submitForTest("+name+", block="+(blocking?"True":"False")+", broker_uri='"+uri+"')");
+			pi.exec(String.format("submit(%s, block=%s, broker_uri='%s', submissionQueue='%s')",
+					name, blocking ? "True" : "False", uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID));
 
 			Thread.sleep(100);
 			boolean ok = latch.await(maxScanTimeS, TimeUnit.SECONDS);
