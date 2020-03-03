@@ -147,6 +147,7 @@ import gov.aps.jca.event.MonitorListener;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 
+@SuppressWarnings("restriction")
 public class SequenceView extends ViewPart implements ISelectionProvider, IRegionDefinitionView, ISaveablePart, IObserver, InitializationListener {
 	public static final String ID = "org.opengda.detector.electronanalyser.client.sequenceeditor";
 
@@ -202,7 +203,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private Button btnSoftShutter;
 	private Composite softShutterState;
 
+	@SuppressWarnings("unused")
 	private Channel analyserStateChannel;
+	@SuppressWarnings("unused")
 	private Channel analyserTotalTimeRemainingChannel;
 	private Channel hardShutterChannel;
 	private Channel softShutterChannel;
@@ -236,7 +239,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private Region currentRegion;
 	protected int currentRegionNumber;
 	private double totalScanTime;
-	private double time4ScanPointsDone;
+	private double time4ScanPointsDoneANdStarted;
 	private double time4RegionsToDo;
 
 	private double hardXRayEnergy;
@@ -1383,7 +1386,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		refreshTable(changeEvent.getFilename(), false);
 	}
 
-	@SuppressWarnings("restriction")
 	private void handleRegionChange(RegionChangeEvent event) {
 		logger.debug("region update to {}", event.getRegionName());
 		String regionId = event.getRegionId();
@@ -1444,13 +1446,14 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			updateScanPointNumber(currentPointNumber, totalNumberOfPoints);
 			txtDataFilePath.setText(scanFilename);
 			txtScanNumberValue.setText(String.valueOf(scanNumber));
+			txtTimeRemaining.setText(String.format("%.3f", totalScanTime));
 		});
 		firstTime = true;
 		Async.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
 				Display.getDefault().asyncExec(() -> {
-					double scanTimeRemaining = totalScanTime - time4ScanPointsDone + time4RegionsToDo + currentregiontimeremaining;
+					double scanTimeRemaining = totalScanTime - time4ScanPointsDoneANdStarted + currentregiontimeremaining;
 					if (scanTimeRemaining < 1) {
 						scanTimeRemaining = 0;
 					}
@@ -1468,8 +1471,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private void handleScanPointStart(ScanPointStartEvent event) {
 		currentPointNumber = event.getCurrentPointNumber();
-		time4ScanPointsDone = currentPointNumber * totalTimes;
-		time4RegionsToDo = getRemainingRegionsTimeTotal(0);
+		time4ScanPointsDoneANdStarted = currentPointNumber * totalTimes;
+		time4RegionsToDo = getRemainingRegionsTimeTotal(currentRegionNumber);
 		Display.getDefault().asyncExec(() -> updateScanPointNumber(currentPointNumber, totalNumberOfPoints));
 	}
 
