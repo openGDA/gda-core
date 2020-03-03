@@ -57,6 +57,9 @@ public class ZebraImpl extends FindableBase implements Zebra, InitializingBean {
 	private static final String PCDisArm = "PC_DISARM";
 	private static final String PCArmOut = "PC_ARM_OUT";
 	private static final String PCDir = "PC_DIR";
+	private static final String configPath = "CONFIG_FILE";
+	private static final String configLoad = "CONFIG_READ.PROC";
+	private static final String configStatus = "CONFIG_STATUS";
 
 	private static final double PCGateStartMin = -214881.9984;
 	private static final double PCGateStartMax =  214881.9984;
@@ -767,5 +770,26 @@ public class ZebraImpl extends FindableBase implements Zebra, InitializingBean {
 	@Override
 	public double getDivDivisor(int divId) throws Exception {
 		return pvFactory.getDoublePVValueCache("DIV" + divId + "_DIV").get();
+	}
+
+	@Override
+	public void applyZebraConfig() throws IOException {
+		final PV<Integer> pv = pvFactory.getPVInteger(configLoad);
+		pv.putWait(1);
+	}
+
+	@Override
+	public String getZebraConfigPath() throws IOException {
+		return pvFactory.getPVStringAsBytes(configPath).get();
+	}
+
+	@Override
+	public void setZebraConfigPath(String zebraConfigPath) throws IOException {
+		pvFactory.getPVString(configPath).putWait(zebraConfigPath, 15.0);
+	}
+
+	@Override
+	public String getZebraConfigStatus() throws IOException {
+		return pvFactory.getPVStringAsBytes(configStatus).get();
 	}
 }

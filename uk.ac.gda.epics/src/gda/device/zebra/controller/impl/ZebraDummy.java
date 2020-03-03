@@ -65,6 +65,7 @@ public class ZebraDummy extends FindableBase implements Zebra, InitializingBean 
 	private double pcPulseStart;
 	private boolean useAvalField;
 	private String zebraPrefix;
+	private String configPath;
 
 	private Map<Integer, Integer> pulseInputs = new HashMap<>();
 	private Map<Integer, Double> pulseDelays = new HashMap<>();
@@ -524,5 +525,25 @@ public class ZebraDummy extends FindableBase implements Zebra, InitializingBean 
 	public double getDivDivisor(int divId) throws Exception {
 		final Double divisor = divDivisors.get(divId);
 		return divisor == null ? 0.0 : divisor;
+	}
+
+	@Override
+	public void applyZebraConfig() throws IOException {
+		// Do nothing
+	}
+
+	@Override
+	public String getZebraConfigPath() throws IOException {
+		return this.configPath;
+	}
+
+	@Override
+	public void setZebraConfigPath(String zebraConfigPath) throws IOException {
+		this.configPath = zebraConfigPath;
+	}
+
+	@Override
+	public String getZebraConfigStatus() throws IOException {
+		return Zebra.CONFIG_LOAD_OK;
 	}
 }
