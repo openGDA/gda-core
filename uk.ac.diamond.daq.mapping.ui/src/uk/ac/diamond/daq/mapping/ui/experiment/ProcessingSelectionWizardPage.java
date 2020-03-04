@@ -600,9 +600,13 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 		case OTHER:
 			final String conf = existingConfigText.getText();
 			final String app = appText.getText();
-			if (!conf.isEmpty() && !app.isEmpty()) {
-				final File file = new File(conf);
-				pageComplete = file.exists() && file.isFile();
+			if (!app.isEmpty()) {
+				if (!conf.isEmpty()) {
+					final File file = new File(conf);
+					pageComplete = file.exists() && file.isFile();
+				} else {
+					pageComplete = true;
+				}
 			}
 			break;
 		}
