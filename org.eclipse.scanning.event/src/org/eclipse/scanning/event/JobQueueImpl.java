@@ -36,6 +36,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
@@ -318,6 +319,7 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 					break;
 				case CLEAR_QUEUE:
 					clearQueue();
+					sendQueueModifiedMessage();
 					break;
 				case CLEAR_COMPLETED:
 					clearRunningAndCompleted();
@@ -336,12 +338,15 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 					break;
 				case MOVE_FORWARD:
 					result = findBeanAndPerformAction(commandBean.getJobBean(), this::moveForward);
+					sendQueueModifiedMessage();
 					break;
 				case MOVE_BACKWARD:
 					result = findBeanAndPerformAction(commandBean.getJobBean(), this::moveBackward);
+					sendQueueModifiedMessage();
 					break;
 				case REMOVE_FROM_QUEUE:
 					result = findBeanAndPerformAction(commandBean.getJobBean(), this::remove);
+					sendQueueModifiedMessage();
 					break;
 				case REMOVE_COMPLETED:
 					removeCompleted((U) commandBean.getJobBean());
@@ -385,6 +390,20 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 		}
 	}
 
+	private void sendQueueModifiedMessage() {
+		if (queueStatusBean != null) {
+			QueueStatus previous = queueStatusBean.getQueueStatus();
+			queueStatusBean.setQueueStatus(QueueStatus.MODIFIED);
+			try {
+				queueStatusPublisher.broadcast(queueStatusBean);
+			} catch (EventException e) {
+				LOGGER.error("Could not publish queue status bean", e);
+			}
+			queueStatusBean.setQueueStatus(previous);
+		}
+
+	}
+
 	@Override
 	public List<U> getSubmissionQueue() {
 		synchronized (submissionQueue) {
@@ -394,7 +413,7 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 
 	@Override
 	public List<U> getRunningAndCompleted() throws EventException {
-		return statusQueue.getElements();
+		return statusQueue.getElements().stream().filter(x -> !x.getStatus().isTerminated()).collect(Collectors.toList());
 	}
 
 	@Override

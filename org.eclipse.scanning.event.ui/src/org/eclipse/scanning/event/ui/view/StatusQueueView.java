@@ -54,6 +54,7 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.IJobQueue;
+import org.eclipse.scanning.api.event.core.IJobQueue.IQueueStatusListener;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.core.JobQueueConfiguration;
 import org.eclipse.scanning.api.event.queue.QueueStatus;
@@ -413,6 +414,15 @@ public class StatusQueueView extends EventConnectionView {
 
 		final Action refreshAction = refreshActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, refreshAction);
+		jobQueueProxy.addQueueStatusListener(new IQueueStatusListener() {
+			@Override
+			public void queueStatusChanged(QueueStatus newStatus) {
+				if (newStatus.equals(QueueStatus.MODIFIED)) {
+					refreshAction.run();
+				}
+			}
+
+		});
 
 		final Action configureAction = configureActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, configureAction);

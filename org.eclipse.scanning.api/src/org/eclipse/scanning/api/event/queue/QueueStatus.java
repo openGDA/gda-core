@@ -31,6 +31,11 @@ public enum QueueStatus {
 	/**
 	 * A constant to indicate that the consumer is either stopped, or has not yet been started.
 	 */
-	STOPPED
+	STOPPED,
+
+	/**
+	 * A constant to indicate that the consumer's internal queue has been modified and proxies of it should refresh
+	 */
+	MODIFIED
 
 }
