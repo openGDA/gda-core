@@ -131,24 +131,35 @@ public final class JobQueueProxy<U extends StatusBean> extends AbstractConnectio
 		queueStatusTopicSubscriber.disconnect();
 	}
 
+	/*
+	 *  Only called when a StatusBean is re-submitted, not on initial submit (see SubmitScanSection.submit()) or from mscan (old or new)
+	 *  Therefore, probably want to refresh the queue of all clients watching the JobQueueImpl
+	 */
 	@Override
 	public void submit(U bean) throws EventException {
 		sendCommand(Command.SUBMIT_JOB, bean);
+		sendCommand(Command.REFRESH_QUEUE_VIEW);
 	}
 
 	@Override
 	public boolean moveForward(U bean) throws EventException {
-		return sendCommand(Command.MOVE_FORWARD, bean) == Boolean.TRUE;
+		boolean result = sendCommand(Command.MOVE_FORWARD, bean) == Boolean.TRUE;
+		if (result) sendCommand(Command.REFRESH_QUEUE_VIEW);
+		return result;
 	}
 
 	@Override
 	public boolean moveBackward(U bean) throws EventException {
-		return sendCommand(Command.MOVE_BACKWARD, bean) == Boolean.TRUE;
+		boolean result = sendCommand(Command.MOVE_BACKWARD, bean) == Boolean.TRUE;
+		if (result) sendCommand(Command.REFRESH_QUEUE_VIEW);
+		return result;
 	}
 
 	@Override
 	public boolean remove(U bean) throws EventException {
-		return sendCommand(Command.REMOVE_FROM_QUEUE, bean) == Boolean.TRUE;
+		boolean result = sendCommand(Command.REMOVE_FROM_QUEUE, bean) == Boolean.TRUE;
+		if (result) sendCommand(Command.REFRESH_QUEUE_VIEW);
+		return result;
 	}
 
 	@Override

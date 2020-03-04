@@ -138,7 +138,12 @@ public class QueueCommandBean  extends IdBean {
 		/**
 		 * A command to get the current state of the {@link IJobQueue}.
 		 */
-		GET_INFO;
+		GET_INFO,
+
+		/**
+		 * A command to force all {@link JobQueueProxy} listening to this {@link JobQueueImpl} to refresh any {@link StatusQueueView} listening to them
+		 */
+		REFRESH_QUEUE_VIEW;
 
 	}
 

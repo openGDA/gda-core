@@ -360,6 +360,9 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 				case GET_INFO:
 					result = queueStatusBean;
 					break;
+				case REFRESH_QUEUE_VIEW:
+					sendQueueModifiedMessage();
+					break;
 				default:
 					throw new IllegalArgumentException("Unknown command " + commandBean.getCommand());
 			}

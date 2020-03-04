@@ -241,8 +241,8 @@ public class StatusQueueView extends EventConnectionView {
 
 		// Some sanity checks
 		warnIfListContainsStatus("null status found in selection:       ", selection,     null);
-		warnIfListContainsStatus("queued status found in submittedList: ", submittedList, org.eclipse.scanning.api.event.status.Status.PREPARING);
-		warnIfListContainsStatus("queued status found in runList:       ", runList,       org.eclipse.scanning.api.event.status.Status.PREPARING);
+		warnIfListContainsStatus("RUNNING status found in submittedList: ", submittedList, org.eclipse.scanning.api.event.status.Status.RUNNING);
+		warnIfListContainsStatus("SUBMITTED status found in runList:       ", runList,       org.eclipse.scanning.api.event.status.Status.SUBMITTED);
 	}
 
 	private void warnIfListContainsStatus(String description, List<StatusBean> list, org.eclipse.scanning.api.event.status.Status status) {
@@ -328,7 +328,7 @@ public class StatusQueueView extends EventConnectionView {
 
 				if (queue.containsKey(bean.getUniqueId())) {
 					StatusBean oldBean = queue.get(bean.getUniqueId());
-					if (bean.getStatus().isStarted() && !runList.contains(oldBean)) {
+					if (bean.getStatus().isRunning() && !runList.contains(oldBean)) {
 						runList.add(oldBean);
 						submittedList.remove(oldBean);
 					}
@@ -342,7 +342,7 @@ public class StatusQueueView extends EventConnectionView {
 					 */
 //					viewer.update(queue.get(bean.getUniqueId()), null);
 					warnIfDelayed(jobStartTime, "mergeBean() asyncExec()", "merge complete");
-				} else {
+				} else if (bean.getStatus().equals(org.eclipse.scanning.api.event.status.Status.SUBMITTED)) {
 					logger.trace("mergeBean(id={}) Adding new bean:       {}", bean.getUniqueId(), bean);
 					queue.put(bean.getUniqueId(), bean);
 					// Necessary for toolbar actions to work
