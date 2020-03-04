@@ -39,10 +39,10 @@ import org.eclipse.swt.widgets.Label;
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- * 
+ *
  * @since 3.4
  */
-public class LinkContributionItem extends ContributionItem {
+public final class LinkContributionItem extends ContributionItem {
 
 	private final static int DEFAULT_CHAR_WIDTH = 40;
 
@@ -51,9 +51,7 @@ public class LinkContributionItem extends ContributionItem {
 	private CLabel link;
 
 	/**
-	 * The composite into which this contribution item has been placed. This
-	 * will be <code>null</code> if this instance has not yet been
-	 * initialized.
+	 * The composite into which this contribution item has been placed. This will be <code>null</code> if this instance has not yet been initialized.
 	 */
 	private Composite statusLine = null;
 
@@ -68,24 +66,22 @@ public class LinkContributionItem extends ContributionItem {
 	private Image image;
 
 	private String tooltip;
+
 	/**
 	 * Creates a status line contribution item with the given id.
-	 * 
+	 *
 	 * @param id
-	 *            the contribution item's id, or <code>null</code> if it is to
-	 *            have no id
+	 *            the contribution item's id, or <code>null</code> if it is to have no id
 	 */
 	public LinkContributionItem(String id) {
 		this(id, DEFAULT_CHAR_WIDTH);
 	}
 
 	/**
-	 * Creates a status line contribution item with the given id that displays
-	 * the given number of characters.
-	 * 
+	 * Creates a status line contribution item with the given id that displays the given number of characters.
+	 *
 	 * @param id
-	 *            the contribution item's id, or <code>null</code> if it is to
-	 *            have no id
+	 *            the contribution item's id, or <code>null</code> if it is to have no id
 	 * @param charWidth
 	 *            the number of characters to display
 	 */
@@ -99,58 +95,55 @@ public class LinkContributionItem extends ContributionItem {
 	public void fill(Composite parent) {
 		statusLine = parent;
 
-		Label sep = new Label(parent, SWT.SEPARATOR);
+		final Label sep = new Label(parent, SWT.SEPARATOR);
 		link = new CLabel(statusLine, SWT.SHADOW_NONE);
 
-		if (mouseListener!=null) {
+		if (mouseListener != null) {
 			link.addMouseListener(mouseListener);
 		}
-		
-		if (image !=null) {
+
+		if (image != null) {
 			link.setImage(image);
 		}
-		
-		if (tooltip !=null) {
+
+		if (tooltip != null) {
 			link.setToolTipText(tooltip);
 		}
-		
+
 		if (widthHint < 0) {
-			GC gc = new GC(statusLine);
+			final GC gc = new GC(statusLine);
 			gc.setFont(statusLine.getFont());
-			FontMetrics fm = gc.getFontMetrics();
+			final FontMetrics fm = gc.getFontMetrics();
 			widthHint = fm.getAverageCharWidth() * charWidth;
 			heightHint = fm.getHeight();
 			gc.dispose();
 		}
 
-		StatusLineLayoutData data = new StatusLineLayoutData();
-		data.widthHint = widthHint;
-		link.setLayoutData(data);
+		final StatusLineLayoutData linkLayoutData = new StatusLineLayoutData();
+		linkLayoutData.widthHint = widthHint;
+		link.setLayoutData(linkLayoutData);
 		link.setText(text);
 
-		data = new StatusLineLayoutData();
-		data.heightHint = heightHint;
-		sep.setLayoutData(data);
+		final StatusLineLayoutData separatorLayoutData = new StatusLineLayoutData();
+		separatorLayoutData.heightHint = heightHint;
+		sep.setLayoutData(separatorLayoutData);
 	}
 
 	/**
-	 * An accessor for the current location of this status line contribution
-	 * item -- relative to the display.
-	 * 
-	 * @return The current location of this status line; <code>null</code> if
-	 *         not yet initialized.
+	 * An accessor for the current location of this status line contribution item -- relative to the display.
+	 *
+	 * @return The current location of this status line; <code>null</code> if not yet initialized.
 	 */
 	public Point getDisplayLocation() {
 		if ((link != null) && (statusLine != null)) {
 			return statusLine.toDisplay(link.getLocation());
 		}
-
 		return null;
 	}
 
 	/**
 	 * Retrieves the text that is being displayed in the status line.
-	 * 
+	 *
 	 * @return the text that is currently being displayed
 	 */
 	public String getText() {
@@ -159,7 +152,7 @@ public class LinkContributionItem extends ContributionItem {
 
 	/**
 	 * Sets the text to be displayed in the status line.
-	 * 
+	 *
 	 * @param text
 	 *            the text to be displayed, must not be <code>null</code>
 	 */
@@ -182,11 +175,10 @@ public class LinkContributionItem extends ContributionItem {
 	}
 
 	private void updateManager() {
-		if (this.text.length() == 0) {
+		if (text.length() == 0) {
 			if (isVisible()) {
 				setVisible(false);
-				IContributionManager contributionManager = getParent();
-
+				final IContributionManager contributionManager = getParent();
 				if (contributionManager != null) {
 					contributionManager.update(true);
 				}
@@ -194,8 +186,7 @@ public class LinkContributionItem extends ContributionItem {
 		} else {
 			if (!isVisible()) {
 				setVisible(true);
-				IContributionManager contributionManager = getParent();
-
+				final IContributionManager contributionManager = getParent();
 				if (contributionManager != null) {
 					contributionManager.update(true);
 				}
@@ -204,17 +195,14 @@ public class LinkContributionItem extends ContributionItem {
 	}
 
 	private String escape(String text) {
-		return Util.replaceAll(text, "&", "&&");  //$NON-NLS-1$//$NON-NLS-2$
+		return Util.replaceAll(text, "&", "&&");
 	}
 
-	/**
-	 * @param txt
-	 */
 	public void setToolTipText(String txt) {
 		Assert.isNotNull(text);
-		
+
 		tooltip = escape(txt);
-		
+
 		if (link != null && !link.isDisposed()) {
 			link.setToolTipText(txt);
 		}
@@ -222,31 +210,21 @@ public class LinkContributionItem extends ContributionItem {
 
 	}
 
-	/**
-	 * @param image
-	 */
 	public void setImage(Image image) {
-		
 		this.image = image;
-		
+
 		if (link != null && !link.isDisposed()) {
-			this.link.setImage(image);
-		} 
+			link.setImage(image);
+		}
 		updateManager();
-	
 	}
 
-	/**
-	 * @param l
-	 */
 	public void addMouseListener(MouseListener l) {
-		if (link!=null) {
-			this.link.addMouseListener(l);
-			this.mouseListener = null;
+		if (link != null) {
+			link.addMouseListener(l);
+			mouseListener = null;
 		} else {
-			this.mouseListener = l;
+			mouseListener = l;
 		}
 	}
-	
-	
 }
