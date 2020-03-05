@@ -92,13 +92,27 @@
 		<module>uk.ac.gda.eventbus</module>
 		<module>uk.ac.gda.eventbus.api</module>
 		<module>uk.ac.gda.example</module>
-		<module>uk.ac.gda.example.feature</module>
 		<module>uk.ac.gda.example.server</module>
-		<module>uk.ac.gda.example.site</module>
 		<module>uk.ac.gda.logging.dependencies.fragment</module>
 		<module>uk.ac.gda.server.ncd</module>
 		<module>uk.ac.gda.server.ncd.epics</module>
 		<module>uk.ac.gda.server.ncd.test</module>
 		<module>uk.ac.gda.xmleditor.feature</module>
 	</modules>
+	
+	<profiles>
+    	<profile>
+			<id>example</id>
+			<modules>
+				<module>uk.ac.gda.example.feature</module>
+				<module>products/uk.ac.gda.example.product</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>client</id>
+			<modules>
+				<module>products/uk.ac.gda.client.product</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>
