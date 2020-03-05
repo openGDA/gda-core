@@ -47,7 +47,7 @@ public class TwoAxisPointSingleModel extends AbstractMapModel {
 
 	@Override
 	public String toString() {
-		return "SinglePointModel [x=" + x + ", y=" + y + ", " + super.toString() + "]";
+		return getClass().getSimpleName() + " [x=" + x + ", y=" + y + ", " + super.toString() + "]";
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public class TwoAxisPointSingleModel extends AbstractMapModel {
 	@Override
 	public void setContinuous(boolean continuous) {
 		if (continuous) {
-			throw new ModelValidationException("SinglePointModel does not support continuous operation", this, "continuous");
+			throw new ModelValidationException(getClass().getSimpleName() + " does not support continuous operation", this, "continuous");
 		}
 	}
 
@@ -95,7 +95,7 @@ public class TwoAxisPointSingleModel extends AbstractMapModel {
 	@Override
 	public void setAlternating(boolean alternating) {
 		if (alternating) {
-			throw new ModelValidationException("SinglePointModel does not support alternating operation", this, "alternating");
+			throw new ModelValidationException(getClass().getSimpleName() + " does not support alternating operation", this, "alternating");
 		}
 	}
 
