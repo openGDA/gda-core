@@ -18,8 +18,11 @@
 
 package uk.ac.gda.ui.tool.spring;
 
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
@@ -91,6 +94,14 @@ public class SpringApplicationContextProxy implements ApplicationEventPublisherA
 
 	public static <T> T getBean(Class<T> bean) {
 		return SpringApplicationContextProxy.applicationContext.getBean(bean);
+	}
+
+	public static <T> Optional<T> getOptionalBean(Class<T> bean) {
+		try {
+			return Optional.ofNullable(SpringApplicationContextProxy.applicationContext.getBean(bean));
+		} catch (BeansException e) {
+			return Optional.empty();
+		}
 	}
 
 	private static void springApplicationDidNotScanClass() {

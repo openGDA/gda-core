@@ -22,6 +22,7 @@ import static java.util.stream.Collectors.toSet;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -266,9 +267,24 @@ public class ScanManagementController extends AbstractMappingController {
 	 * the scan could not be successfully submitted.
 	 */
 	public void submitScan() {
+		submitScan(Optional.empty());
+	}
+
+	public void submitScan(URL url) {
+		submitScan(Optional.ofNullable(url.getPath()));
+	}
+
+	/**
+	 * Submits the scan described by the current mapping bean to the submission service.
+	 * An error dialog is displayed if the scan could not be successfully submitted.
+	 *
+	 * @param filePath The filepath of the output NeXus file.
+	 * If {@code null} it is generated through default properties.
+	 */
+	public void submitScan(Optional<String> filePath) {
 		final ScanBeanSubmitter submitter = getService(ScanBeanSubmitter.class);
 		try {
-			ScanBean scanBean = createScanBean();
+			ScanBean scanBean = createScanBean(filePath);
 			submitter.submitScan(scanBean);
 		} catch (Exception e) {
 			logger.error("Scan submission failed", e);
@@ -300,6 +316,14 @@ public class ScanManagementController extends AbstractMappingController {
 	 * @return The resultant {@link ScanBean}
 	 */
 	public ScanBean createScanBean() {
+		return createScanBean(Optional.empty());
+	}
+
+	/**
+	 * Transforms the current mapping bean into a a {@link ScanBean} which can be submitted.
+	 * The given filePath is set in the intermediate {@link ScanRequest}.
+	 */
+	public ScanBean createScanBean(Optional<String> filePath) {
 		checkInitialised();
 		final IMappingExperimentBean mappingBean = getMappingBean();
 		addMonitors(mappingBean);
@@ -315,6 +339,7 @@ public class ScanManagementController extends AbstractMappingController {
 
 		final ScanRequestConverter converter = getService(ScanRequestConverter.class);
 		final ScanRequest scanRequest = converter.convertToScanRequest(mappingBean);
+		scanRequest.setFilePath(filePath.orElse(null));
 		scanBean.setScanRequest(scanRequest);
 		return scanBean;
 	}

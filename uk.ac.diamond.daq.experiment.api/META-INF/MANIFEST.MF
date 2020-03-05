@@ -11,6 +11,7 @@ Export-Package: uk.ac.diamond.daq.experiment.api,
  uk.ac.diamond.daq.experiment.api.plan,
  uk.ac.diamond.daq.experiment.api.plan.event,
  uk.ac.diamond.daq.experiment.api.remote,
+ uk.ac.diamond.daq.experiment.api.structure,
  uk.ac.diamond.daq.experiment.api.ui
 Require-Bundle: uk.ac.gda.api,
  org.eclipse.scanning.api,
@@ -20,4 +21,4 @@ Require-Bundle: uk.ac.gda.api,
  org.apache.commons.io
 Bundle-Vendor: Diamond Light Source
 Service-Component: OSGI-INF/*.xml
-Automatic-Module-Name: uk.ac.diamond.daq.experiment.api
+Automatic-Module-Name: uk.ac.diamond.daq.experiment.api 
