@@ -109,6 +109,7 @@ public class RotationViewer {
 
 	private boolean showFixedSteps;
 	private boolean showResetToZero;
+	private boolean showFixedStepSizeButtons = false;
 	private boolean singleLineLayout = false;
 	private double standardStep;
 	private double littleStep;
@@ -124,6 +125,10 @@ public class RotationViewer {
 	private Button posNudgeButton;
 	private Button negNudgeButton;
 	private Button resetToZeroButton;
+	private Button fixedStepSizeButton05;
+	private Button fixedStepSizeButton1;
+	private Button fixedStepSizeButton5;
+	private Button fixedStepSizeButton10;
 
 	private MotorPositionViewer motorPositionViewer;
 
@@ -150,6 +155,7 @@ public class RotationViewer {
 		}
 		this.scannable = scannable;
 		this.showFixedSteps = false;
+		this.showFixedStepSizeButtons = false;
 		this.standardStep = stepSize;
 	}
 
@@ -186,6 +192,10 @@ public class RotationViewer {
 		this.showFixedSteps = true;
 		this.littleStep = smallStep;
 		this.bigStep = bigStep;
+	}
+
+	public void configureFixedStepSizeButtons(boolean showFixedStepSizeButtons) {
+		this.showFixedStepSizeButtons = showFixedStepSizeButtons;
 	}
 
 	/**
@@ -499,6 +509,7 @@ public class RotationViewer {
 		if (showFixedSteps || showResetToZero) {
 			Composite buttonGroup = new Composite(otherControls, SWT.NONE);
 			GridLayoutFactory.swtDefaults().numColumns(2).margins(1,1).spacing(2,2).applyTo(buttonGroup);
+			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.FILL).applyTo(buttonGroup);
 
 			if (DEBUG_LAYOUT) {
 				buttonGroup.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW));
@@ -531,6 +542,10 @@ public class RotationViewer {
 
 		Composite inOutButtonsComp = new Composite(otherControls, SWT.NONE);
 
+		if (DEBUG_LAYOUT) {
+			inOutButtonsComp.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_GREEN));
+		}
+
 		if (singleLineNudgeControls) {
 
 			GridLayoutFactory.swtDefaults().numColumns(3).equalWidth(false).margins(1,1).spacing(2,2).applyTo(inOutButtonsComp);
@@ -546,8 +561,26 @@ public class RotationViewer {
 			negNudgeButton  = createButton(inOutButtonsComp, "-", null, data);
 			posNudgeButton  = createButton(inOutButtonsComp, "+", null, data);
 
+			if (showFixedStepSizeButtons) {
+				Composite fixedStepSizeComposite = new Composite(inOutButtonsComp, SWT.NONE);
+				GridLayoutFactory.swtDefaults().numColumns(4).equalWidth(true).margins(1,1).spacing(2,2).applyTo(fixedStepSizeComposite);
+				GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).span(2,1).applyTo(fixedStepSizeComposite);
+
+				if (DEBUG_LAYOUT) {
+					fixedStepSizeComposite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_CYAN));
+				}
+
+				data.widthHint = 40;
+				fixedStepSizeButton05  = createButton(fixedStepSizeComposite, "0.5", null, data);
+				fixedStepSizeButton1  = createButton(fixedStepSizeComposite, "1", null, data);
+				fixedStepSizeButton5  = createButton(fixedStepSizeComposite, "5", null, data);
+				fixedStepSizeButton10  = createButton(fixedStepSizeComposite, "10", null, data);
+
+				addFixedStepSizeButtonsListeners();
+			}
+
 			Composite sizeComposite = new Composite(inOutButtonsComp, SWT.NONE);
-			GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(true).margins(1,1).spacing(2,2).applyTo(sizeComposite);
+			GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(false).margins(1,1).spacing(2,2).applyTo(sizeComposite);
 			GridDataFactory.swtDefaults().span(2, 1).grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(sizeComposite);
 
 			if (DEBUG_LAYOUT) {
@@ -561,6 +594,39 @@ public class RotationViewer {
 			GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(nudgeSizeBox);
 		}
 		nudgeSizeBox.setDecimalPlaces(nudgeSizeBoxDecimalPlaces);
+	}
+
+	/**
+	 * Add the fixed step size button listeners
+	 */
+	private void addFixedStepSizeButtonsListeners() {
+		fixedStepSizeButton05.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				nudgeSizeBox.setValue(0.5);
+			}
+		});
+
+		fixedStepSizeButton1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				nudgeSizeBox.setValue(1);
+			}
+		});
+
+		fixedStepSizeButton5.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				nudgeSizeBox.setValue(5);
+			}
+		});
+
+		fixedStepSizeButton10.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				nudgeSizeBox.setValue(10);
+			}
+		});
 	}
 
 	/**
@@ -642,6 +708,12 @@ public class RotationViewer {
 			resetToZeroButton.setEnabled(enabled);
 		if (motorPositionViewer != null)
 			motorPositionViewer.setEnabled(enabled);
+		if (fixedStepSizeButton05 != null) {
+			fixedStepSizeButton05.setEnabled(enabled);
+			fixedStepSizeButton1.setEnabled(enabled);
+			fixedStepSizeButton5.setEnabled(enabled);
+			fixedStepSizeButton10.setEnabled(enabled);
+		}
 	}
 
 	public void dispose() {
@@ -662,5 +734,12 @@ public class RotationViewer {
 			resetToZeroButton.dispose();
 		if (motorPositionViewer != null)
 			motorPositionViewer.dispose();
+		if (fixedStepSizeButton05 != null) {
+			fixedStepSizeButton05.dispose();
+			fixedStepSizeButton1.dispose();
+			fixedStepSizeButton5.dispose();
+			fixedStepSizeButton10.dispose();
+		}
 	}
+
 }
