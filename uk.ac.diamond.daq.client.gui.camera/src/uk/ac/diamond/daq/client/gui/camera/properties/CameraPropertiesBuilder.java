@@ -1,6 +1,7 @@
 package uk.ac.diamond.daq.client.gui.camera.properties;
 
 import java.util.List;
+import java.util.Optional;
 
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.gda.client.properties.CameraProperties;
@@ -29,6 +30,10 @@ public class CameraPropertiesBuilder {
 		cameraProperties.setIndex(index);
 	}
 
+	public void setId(String id) {
+		cameraProperties.setId(Optional.ofNullable(id));
+	}
+	
 	public void setName(String name) {
 		cameraProperties.setName(name);
 	}
@@ -48,6 +53,7 @@ public class CameraPropertiesBuilder {
 	private class CameraPropertiesImpl implements CameraProperties {
 
 		private int index;
+		private Optional<String> id;
 		private String name;
 		private String cameraControl;
 		private String cameraConfiguration;
@@ -60,6 +66,15 @@ public class CameraPropertiesBuilder {
 
 		public void setIndex(int index) {
 			this.index = index;
+		}
+
+		@Override
+		public Optional<String> getId() {
+			return id;
+		}
+
+		public void setId(Optional<String> id) {
+			this.id = id;
 		}
 
 		@Override

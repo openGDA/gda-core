@@ -13,6 +13,7 @@ import uk.ac.diamond.daq.client.gui.camera.event.DrawableRegionRegisteredEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.RegisterDrawableRegionEvent;
 import uk.ac.diamond.daq.client.gui.camera.roi.ROIListener;
 import uk.ac.gda.client.exception.GDAClientException;
+import uk.ac.gda.client.live.stream.LiveStreamConnection;
 import uk.ac.gda.client.live.stream.view.LivePlottingComposite;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 import uk.ac.gda.ui.tool.ClientSWTElements;
@@ -29,20 +30,50 @@ public class CameraImageComposite extends Composite {
 	private LivePlottingComposite plottingComposite;
 	private IPlottingSystem<Composite> plottingSystem;
 
-	public CameraImageComposite(Composite parent, int style) throws GDAClientException {
+	/**
+	 * Integrates a {@link LiveStreamConnection} into composite element. Can be used
+	 * to display a fixed camera live stream.
+	 * 
+	 * @param parent               where this Composite will live
+	 * @param style                the composite style
+	 * @param liveStreamConnection the streaming associated with this composite
+	 * @throws GDAClientException if problems occur in the composite creation or
+	 *                            with the live stream
+	 */
+	public CameraImageComposite(Composite parent, int style, LiveStreamConnection liveStreamConnection)
+			throws GDAClientException {
 		super(parent, style);
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(this);
 
-		plottingComposite = new LivePlottingComposite(this, SWT.NONE, "Live View", null);
+		plottingComposite = new LivePlottingComposite(this, SWT.NONE, "Live View", liveStreamConnection);
 		plottingComposite.setShowTitle(true);
 		plottingSystem = plottingComposite.getPlottingSystem();
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(plottingComposite);
 
-		// Registers the region into the camera  
+		// Registers the region into the camera
 		SpringApplicationContextProxy.addApplicationListener(registerDrawableRegionListener(this));
 
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(this);
 		logger.debug("CameraImageComposite created");
+	}
+
+	/**
+	 * Integrates a {@link LiveStreamConnection} into composite element but is
+	 * handled by the {@code parent} composite. It does not explicitly accept
+	 * directly a {@link LiveStreamConnection} because the internal code is
+	 * listening for {@link ListenToConnectionEvent} published through Spring by the
+	 * {@code parent}
+	 * 
+	 * @see LiveViewCompositeFactory
+	 * 
+	 * @param parent               where this Composite will live
+	 * @param style                the composite style
+	 * @param liveStreamConnection the streaming associated with this composite
+	 * @throws GDAClientException if problems occur in the composite creation or
+	 *                            with the live stream
+	 */
+	public CameraImageComposite(Composite parent, int style) throws GDAClientException {
+		this(parent, style, null);
 	}
 
 	public IPlottingSystem<Composite> getPlottingSystem() {
@@ -61,8 +92,7 @@ public class CameraImageComposite extends Composite {
 						new ROIListener(parent, plottingComposite, event.getName()));
 				roiSelectionRegion.setActive(true);
 
-				SpringApplicationContextProxy.publishEvent(new DrawableRegionRegisteredEvent(parent,
-						plottingSystem,
+				SpringApplicationContextProxy.publishEvent(new DrawableRegionRegisteredEvent(parent, plottingSystem,
 						ClientSWTElements.findParentUUID(parent)));
 			}
 		};

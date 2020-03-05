@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.client.gui.camera.event;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import uk.ac.diamond.daq.client.gui.camera.CameraComboItem;
@@ -40,7 +41,7 @@ public class ChangeActiveCameraEvent extends RootCompositeEvent {
      * @param activeCamera the component active camera
      * @param rootComposite the component id
      */
-    public ChangeActiveCameraEvent(Object source, CameraComboItem activeCamera, UUID rootComposite) {
+    public ChangeActiveCameraEvent(Object source, CameraComboItem activeCamera, Optional<UUID> rootComposite) {
 		super(source, rootComposite);
 		this.activeCamera = activeCamera; 
 	}

@@ -35,7 +35,7 @@ public class ROIListener implements IROIListener {
 	 *                              between multiple {@link ROIChangeEvent}
 	 * @param livePlottingComposite the graphical object where the ROI has been
 	 *                              drawn
-	 * @param roiName the roi name used to register the region
+	 * @param roiName               the roi name used to register the region
 	 */
 	public ROIListener(Composite parent, LivePlottingComposite livePlottingComposite, ClientMessages roiName) {
 		this.parent = parent;
@@ -86,8 +86,8 @@ public class ROIListener implements IROIListener {
 			return;
 		}
 		RectangularROI roi = ((RectangularROI) event.getROI().getBounds()).copy();
-		UUID rootUUID = ClientSWTElements.findParentUUID(parent);
-		ROIChangeEvent intEvent = new ROIChangeEvent(this, roi, livePlottingComposite.getITrace().getData(), rootUUID);
+		ROIChangeEvent intEvent = new ROIChangeEvent(this, roi, livePlottingComposite.getITrace().getData(),
+				ClientSWTElements.findParentUUID(parent));
 		SpringApplicationContextProxy.publishEvent(intEvent);
 	}
 }

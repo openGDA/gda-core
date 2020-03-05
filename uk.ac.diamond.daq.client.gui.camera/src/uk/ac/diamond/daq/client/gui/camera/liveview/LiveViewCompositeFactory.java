@@ -11,11 +11,12 @@ import gda.rcp.views.CompositeFactory;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 
 /**
- * Displays a live stream and its histogram.
+ * Displays a live stream and its histogram. For a full description see in
+ * Confluence <a href="https://confluence.diamond.ac.uk/x/kZdzBg">Camera
+ * Configuration View</a>
  * 
  * @author Maurizio Nagni
  *
- * @param <T>
  */
 public class LiveViewCompositeFactory implements CompositeFactory {
 
@@ -31,7 +32,6 @@ public class LiveViewCompositeFactory implements CompositeFactory {
 
 	public LiveViewCompositeFactory() {
 		super();
-		//this.controller = controller;
 	}
 
 	@Override

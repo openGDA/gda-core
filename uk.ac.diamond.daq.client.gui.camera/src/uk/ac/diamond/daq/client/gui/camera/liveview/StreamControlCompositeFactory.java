@@ -79,7 +79,7 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 
 	private void initialiseComposite(Composite parent) {
 		// initialises the state
-		UUID rootUUID = ClientSWTElements.findParentUUID(parent);
+		UUID rootUUID = ClientSWTElements.findParentUUID(parent).orElse(null);
 		streamController = new StreamController(new StreamControlData(comboItems.get(0), StreamType.EPICS_ARRAY),
 				rootUUID);
 		// initialises the camera combo

@@ -390,15 +390,22 @@ public final class ClientSWTElements {
 		control.setToolTipText(ClientMessagesUtility.getMessage(tooltip));
 	}
 
-	public static UUID findParentUUID(Composite composite) {
+	/**
+	 * Queries either in {@code composite} or its parents then upward, {@link Composite#getData(String)} for
+	 * CompositeFactory.COMPOSITE_ROOT
+	 *
+	 * @param composite
+	 * @return the {@link UUID} of the parent, eventually {@code Optional.empty()}
+	 */
+	public static Optional<UUID> findParentUUID(Composite composite) {
 		Composite old = composite;
 		while (true) {
 			if (UUID.class.isInstance(old.getData(CompositeFactory.COMPOSITE_ROOT))) {
-				return UUID.class.cast(old.getData(CompositeFactory.COMPOSITE_ROOT));
+				return Optional.ofNullable(UUID.class.cast(old.getData(CompositeFactory.COMPOSITE_ROOT)));
 			}
 			old = old.getParent();
 			if (old == null) {
-				return null;
+				return Optional.empty();
 			}
 		}
 	}

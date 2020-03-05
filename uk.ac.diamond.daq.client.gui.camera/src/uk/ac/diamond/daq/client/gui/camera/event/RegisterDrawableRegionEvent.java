@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.client.gui.camera.event;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
@@ -50,7 +51,7 @@ public class RegisterDrawableRegionEvent extends RootCompositeEvent {
 	 * @param regionName how the region is identified both in the GUI and the plotting system
 	 * @param rootComposite the parent unique ID  
 	 */
-	public RegisterDrawableRegionEvent(Object source, Color color, ClientMessages regionName, UUID rootComposite) {
+	public RegisterDrawableRegionEvent(Object source, Color color, ClientMessages regionName, Optional<UUID> rootComposite) {
 		super(source, rootComposite);
 		this.color = color;
 		this.name = regionName;

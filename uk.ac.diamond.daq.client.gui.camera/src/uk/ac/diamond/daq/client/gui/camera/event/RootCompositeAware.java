@@ -1,5 +1,6 @@
 package uk.ac.diamond.daq.client.gui.camera.event;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -15,6 +16,6 @@ public interface RootCompositeAware {
 	 * Returns the root component for the element which publishes this event
 	 * @return a component unique id
 	 */
-	public UUID getRootComposite();
+	public Optional<UUID> getRootComposite();
 
 }
