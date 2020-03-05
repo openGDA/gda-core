@@ -173,6 +173,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private TableViewer sequenceTableViewer;
 	private List<Region> regions;
+	private List<Region> regionsCompleted = new ArrayList<>();
 
 	private Sequence sequence;
 	private Spectrum spectrum;
@@ -230,7 +231,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private IVGScientaAnalyserRMI analyser;
 
-	double totalTimes = 0.0;
+	double totalSequenceTimes = 0.0;
 	int numActives = 0;
 	private String invalidRegionName;
 
@@ -238,9 +239,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private Region currentRegion;
 	protected int currentRegionNumber;
-	private double totalScanTime;
-	private double time4ScanPointsDoneANdStarted;
-	private double time4RegionsToDo;
+	private volatile double totalScanTime;
+	private volatile double time4ScanPointsCompleted;
+	protected volatile double time4RegionsCompletedInCurrentPoint;
+
 
 	private double hardXRayEnergy;
 	private double softXRayEnergy;
@@ -998,7 +1000,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 		txtNumberActives.setText(String.format("%d", newNumActivesValue));
 		txtEstimatedTime.setText(String.format("%.3f", newTotalTimesValue));
-		totalTimes = newTotalTimesValue;
+		totalSequenceTimes = newTotalTimesValue;
 		numActives = newNumActivesValue;
 	}
 
@@ -1393,6 +1395,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			if (region.getRegionId().equalsIgnoreCase(regionId)) {
 				if (currentRegion != region) {
 					updateRegionStatus(currentRegion, STATUS.COMPLETED);
+					regionsCompleted.add(currentRegion);
 				}
 				currentRegion = region;
 			}
@@ -1417,11 +1420,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		final String regionId = event.getRegionId();
 		final STATUS status = event.getStatus();
 		currentRegionNumber = event.getRegionNumber();
-		if (status == STATUS.RUNNING) {
-			time4RegionsToDo = getRemainingRegionsTimeTotal(currentRegionNumber);
-		} else if (status == STATUS.COMPLETED) {
-			time4RegionsToDo = getRemainingRegionsTimeTotal(currentRegionNumber + 1);
-		}
+
 		Display.getDefault().asyncExec(() -> {
 			updateRegionNumber(currentRegionNumber, numActives);
 			logger.debug("region {} update to {}", regionId, status);
@@ -1441,7 +1440,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		totalNumberOfPoints = event.getNumberOfPoints();
 		final String scanFilename = event.getScanFilename();
 		final int scanNumber = event.getScanNumber();
-		totalScanTime = totalNumberOfPoints * totalTimes;
+		totalScanTime = totalNumberOfPoints * totalSequenceTimes;
+
 		Display.getDefault().asyncExec(() -> {
 			updateScanPointNumber(currentPointNumber, totalNumberOfPoints);
 			txtDataFilePath.setText(scanFilename);
@@ -1449,16 +1449,18 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			txtTimeRemaining.setText(String.format("%.3f", totalScanTime));
 		});
 		firstTime = true;
+		time4ScanPointsCompleted=0.0;
+		time4RegionsCompletedInCurrentPoint=0.0;
 		Async.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
 				Display.getDefault().asyncExec(() -> {
-					double scanTimeRemaining = totalScanTime - time4ScanPointsDoneANdStarted + currentregiontimeremaining;
+					double scanTimeRemaining = totalScanTime - time4ScanPointsCompleted - getCompletedRegionsTimeTotal(regionsCompleted) - currentRegion.getTotalTime() + currentregiontimeremaining;
 					if (scanTimeRemaining < 1) {
 						scanTimeRemaining = 0;
 					}
 					if (firstTime) {
-						txtTimeRemaining.setText(String.format("%.3f", scanTimeRemaining));
+						txtTimeRemaining.setText(String.format("%.3f", totalScanTime));
 						firstTime = false;
 					} else if (scanTimeRemaining < Double.valueOf(txtTimeRemaining.getText().trim())) {
 						txtTimeRemaining.setText(String.format("%.3f", scanTimeRemaining));
@@ -1470,9 +1472,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	}
 
 	private void handleScanPointStart(ScanPointStartEvent event) {
+		regionsCompleted.clear();
 		currentPointNumber = event.getCurrentPointNumber();
-		time4ScanPointsDoneANdStarted = currentPointNumber * totalTimes;
-		time4RegionsToDo = getRemainingRegionsTimeTotal(currentRegionNumber);
+		time4ScanPointsCompleted = (currentPointNumber-1) * totalSequenceTimes;
 		Display.getDefault().asyncExec(() -> updateScanPointNumber(currentPointNumber, totalNumberOfPoints));
 	}
 
@@ -1486,6 +1488,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			if (animation != null) {
 				animation.cancelAnimation();
 			}
+			txtTimeRemaining.setText(String.format("%.3f", 0.0));
+			progressBar.setSelection(100);
 		});
 	}
 
@@ -1541,19 +1545,12 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 	}
 
-	private double getRemainingRegionsTimeTotal(int currentRegionNumber2) {
-		double timeToGo = 0.0;
-		int i = 0;
-		for (Region region : regions) {
-			if (region.isEnabled()) {
-				i++;
-				if (i > currentRegionNumber2) {
-					timeToGo += region.getTotalTime();
-				}
+	private double getCompletedRegionsTimeTotal(List<Region> regionsCompleted) {
+		double timeCompleted = 0.0;
+		for (Region region : regionsCompleted) {
+				timeCompleted += region.getTotalTime();
 			}
-		}
-		logger.warn("=========regions to do time {}, current region number {}", timeToGo, currentRegionNumber2);
-		return timeToGo;
+		return timeCompleted;
 	}
 
 	private class AnalyserStateListener implements MonitorListener {
