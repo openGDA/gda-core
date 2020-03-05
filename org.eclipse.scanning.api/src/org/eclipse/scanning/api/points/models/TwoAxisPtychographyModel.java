@@ -20,6 +20,9 @@ package org.eclipse.scanning.api.points.models;
 
 import java.util.Random;
 
+/**
+ * Previously PtychographyGridModel
+ */
 public class TwoAxisPtychographyModel extends AbstractOverlapModel {
 
 	private int seed = new Random().nextInt();

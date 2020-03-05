@@ -18,6 +18,7 @@ import org.eclipse.scanning.api.ModelValidationException;
  *
  * @author Colin Palmer
  *
+ * Previously SinglePointModel
  */
 public class TwoAxisPointSingleModel extends AbstractMapModel {
 

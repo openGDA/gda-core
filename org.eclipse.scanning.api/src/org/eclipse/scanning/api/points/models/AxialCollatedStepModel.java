@@ -17,6 +17,8 @@ import java.util.List;
 
 /**
  * A model for a scan along multiple axes with the same start and stop positions and step size.
+ *
+ * Previously CollatedStepModel
  */
 public class AxialCollatedStepModel extends AxialStepModel {
 

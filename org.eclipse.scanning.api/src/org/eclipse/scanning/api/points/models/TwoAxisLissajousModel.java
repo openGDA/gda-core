@@ -13,6 +13,9 @@ package org.eclipse.scanning.api.points.models;
 
 import org.eclipse.scanning.api.ModelValidationException;
 
+/**
+ * Previously LissajousModel
+ */
 public class TwoAxisLissajousModel extends AbstractBoundingBoxModel {
 
 	private double a = 1;
