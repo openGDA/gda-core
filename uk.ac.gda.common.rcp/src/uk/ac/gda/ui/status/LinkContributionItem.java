@@ -24,7 +24,6 @@ import org.eclipse.jface.action.IContributionManager;
 import org.eclipse.jface.action.StatusLineLayoutData;
 import org.eclipse.jface.util.Util;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.FontMetrics;
@@ -48,7 +47,7 @@ public final class LinkContributionItem extends ContributionItem {
 
 	private int charWidth;
 
-	private CLabel link;
+	private final LinkContributionWidget widget;
 
 	/**
 	 * The composite into which this contribution item has been placed. This will be <code>null</code> if this instance has not yet been initialized.
@@ -72,9 +71,11 @@ public final class LinkContributionItem extends ContributionItem {
 	 *
 	 * @param id
 	 *            the contribution item's id, or <code>null</code> if it is to have no id
+	 * @param widget
+	 *            object that wraps the required widget (CLabel, Button etc.
 	 */
-	public LinkContributionItem(String id) {
-		this(id, DEFAULT_CHAR_WIDTH);
+	public LinkContributionItem(String id, LinkContributionWidget widget) {
+		this(id, widget, DEFAULT_CHAR_WIDTH);
 	}
 
 	/**
@@ -82,11 +83,14 @@ public final class LinkContributionItem extends ContributionItem {
 	 *
 	 * @param id
 	 *            the contribution item's id, or <code>null</code> if it is to have no id
+	 * @param widget
+	 *            object that wraps the required widget (CLabel, Button etc.
 	 * @param charWidth
 	 *            the number of characters to display
 	 */
-	public LinkContributionItem(String id, int charWidth) {
+	public LinkContributionItem(String id, LinkContributionWidget widget, int charWidth) {
 		super(id);
+		this.widget = widget;
 		this.charWidth = charWidth;
 		setVisible(false); // no text to start with
 	}
@@ -96,18 +100,18 @@ public final class LinkContributionItem extends ContributionItem {
 		statusLine = parent;
 
 		final Label sep = new Label(parent, SWT.SEPARATOR);
-		link = new CLabel(statusLine, SWT.SHADOW_NONE);
+		widget.create(parent);
 
 		if (mouseListener != null) {
-			link.addMouseListener(mouseListener);
+			widget.addMouseListener(mouseListener);
 		}
 
 		if (image != null) {
-			link.setImage(image);
+			widget.setImage(image);
 		}
 
 		if (tooltip != null) {
-			link.setToolTipText(tooltip);
+			widget.setToolTipText(tooltip);
 		}
 
 		if (widthHint < 0) {
@@ -121,8 +125,8 @@ public final class LinkContributionItem extends ContributionItem {
 
 		final StatusLineLayoutData linkLayoutData = new StatusLineLayoutData();
 		linkLayoutData.widthHint = widthHint;
-		link.setLayoutData(linkLayoutData);
-		link.setText(text);
+		widget.setLayoutData(linkLayoutData);
+		widget.setText(text);
 
 		final StatusLineLayoutData separatorLayoutData = new StatusLineLayoutData();
 		separatorLayoutData.heightHint = heightHint;
@@ -135,8 +139,8 @@ public final class LinkContributionItem extends ContributionItem {
 	 * @return The current location of this status line; <code>null</code> if not yet initialized.
 	 */
 	public Point getDisplayLocation() {
-		if ((link != null) && (statusLine != null)) {
-			return statusLine.toDisplay(link.getLocation());
+		if (widget.isCreated() && statusLine != null) {
+			return statusLine.toDisplay(widget.getLocation());
 		}
 		return null;
 	}
@@ -161,16 +165,16 @@ public final class LinkContributionItem extends ContributionItem {
 
 		this.text = escape(text);
 
-		if (link != null && !link.isDisposed()) {
-			link.setText(this.text);
+		if (widget.isCreated() && !widget.isDisposed()) {
+			widget.setText(this.text);
 		}
 
 		updateManager();
 	}
 
 	public void setBackground(Color background) {
-		if (link != null && !link.isDisposed()) {
-			link.setBackground(background);
+		if (widget.isCreated() && !widget.isDisposed()) {
+			widget.setBackground(background);
 		}
 	}
 
@@ -203,8 +207,8 @@ public final class LinkContributionItem extends ContributionItem {
 
 		tooltip = escape(txt);
 
-		if (link != null && !link.isDisposed()) {
-			link.setToolTipText(txt);
+		if (widget.isCreated() && !widget.isDisposed()) {
+			widget.setToolTipText(txt);
 		}
 		updateManager();
 
@@ -213,15 +217,15 @@ public final class LinkContributionItem extends ContributionItem {
 	public void setImage(Image image) {
 		this.image = image;
 
-		if (link != null && !link.isDisposed()) {
-			link.setImage(image);
+		if (widget.isCreated() && !widget.isDisposed()) {
+			widget.setImage(image);
 		}
 		updateManager();
 	}
 
 	public void addMouseListener(MouseListener l) {
-		if (link != null) {
-			link.addMouseListener(l);
+		if (widget.isCreated()) {
+			widget.addMouseListener(l);
 			mouseListener = null;
 		} else {
 			mouseListener = l;
