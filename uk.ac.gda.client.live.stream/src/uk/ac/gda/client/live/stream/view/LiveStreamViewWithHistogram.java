@@ -103,6 +103,8 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 
 	private static final Logger logger = LoggerFactory.getLogger(LiveStreamViewWithHistogram.class);
 
+	private ComboViewer defaultViewer;
+
 	/**
 	 * Use this method to add custom UI to the stream view with histogram
 	 *
@@ -243,6 +245,8 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 		low.setText(doubleToStringWithPrecision(lower));
 		high.setText(doubleToStringWithPrecision(upper));
 
+		HistoDefaultRange firstElement = (HistoDefaultRange)((StructuredSelection)defaultViewer.getSelection()).getFirstElement();
+		histogramViewer.getHistogramPlot().getSelectedXAxis().setRange(firstElement.getLower(), firstElement.getUpper());
 	}
 
 	@Override
@@ -337,7 +341,7 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 		HistoDefaultRange[] defaults = new HistoDefaultRange[] { new HistoDefaultRange(0, 1600),
 				new HistoDefaultRange(0, 16000) };
 
-		ComboViewer defaultViewer = new ComboViewer(histoGroup);
+		defaultViewer = new ComboViewer(histoGroup);
 		defaultViewer.setContentProvider(new ArrayContentProvider());
 		defaultViewer.setLabelProvider(new LabelProvider());
 		defaultViewer.setInput(defaults);
