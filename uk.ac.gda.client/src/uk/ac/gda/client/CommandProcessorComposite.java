@@ -55,6 +55,7 @@ import gda.commandqueue.JythonCommandCommandProvider;
 import gda.commandqueue.Processor;
 import gda.commandqueue.ProcessorCurrentItem;
 import gda.commandqueue.QueueChangeEvent;
+import gda.configuration.properties.LocalProperties;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 import gda.rcp.GDAClientActivator;
@@ -81,7 +82,6 @@ public class CommandProcessorComposite extends Composite {
 	private Action btnRunPause;
 	private boolean btnRunPause_Run = false;
 	private Action btnStopAfterCurrent;
-	private Action btnPassBaton;
 	private Action btnStop;
 	private Action btnAddToQueue;
 	IWorkbenchPartSite iWorkbenchPartSite;
@@ -181,23 +181,25 @@ public class CommandProcessorComposite extends Composite {
 		btnStopAfterCurrent.setImageDescriptor(stopAfterCurrentImage);
 		toolBarManager.add(btnStopAfterCurrent);
 
-		btnPassBaton = new Action(null, SWT.NONE) {
-			@Override
-			public void run() {
-				try {
-					iWorkbenchPartSite.getService(IHandlerService.class).executeCommand(
-							CommandQueueContributionFactory.UK_AC_GDA_CLIENT_PASS_BATON, new Event());
-				} catch (Exception ex) {
-					logger.error("Error executing command "
-							+ CommandQueueContributionFactory.UK_AC_GDA_CLIENT_PASS_BATON, ex);
+		if (LocalProperties.isBatonManagementEnabled()) {
+			Action btnPassBaton = new Action(null, SWT.NONE) {
+				@Override
+				public void run() {
+					try {
+						iWorkbenchPartSite.getService(IHandlerService.class).executeCommand(
+								CommandQueueContributionFactory.UK_AC_GDA_CLIENT_PASS_BATON, new Event());
+					} catch (Exception ex) {
+						logger.error("Error executing command "
+								+ CommandQueueContributionFactory.UK_AC_GDA_CLIENT_PASS_BATON, ex);
+					}
 				}
-			}
-		};
-		btnPassBaton.setToolTipText("Pass the baton to another client");
-		btnPassBaton.setId(CommandQueueViewFactory.ID + ".passbaton");
-		btnPassBaton.setText("Insert Baton Pass");
-		btnPassBaton.setImageDescriptor(passBatonImage);
-		toolBarManager.add(btnPassBaton);
+			};
+			btnPassBaton.setToolTipText("Pass the baton to another client");
+			btnPassBaton.setId(CommandQueueViewFactory.ID + ".passbaton");
+			btnPassBaton.setText("Insert Baton Pass");
+			btnPassBaton.setImageDescriptor(passBatonImage);
+			toolBarManager.add(btnPassBaton);
+		}
 
 		btnAddToQueue = new Action(null, SWT.NONE) {
 			@Override
