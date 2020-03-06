@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +21,9 @@ import gda.device.DeviceException;
 import gda.jython.JythonServerFacade;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
+import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
+import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.tomography.base.TomographyConfiguration;
@@ -79,14 +80,18 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	}
 
 	@Override
+	public TomographyParameterAcquisition getAcquisition() {
+		if (acquisition == null) {
+			acquisition = TomographyParametersAcquisitionController.createNewAcquisition();
+		}
+		return acquisition;
+	}
+
+	@Override
 	public void saveAcquisitionConfiguration() throws AcquisitionControllerException {
 		StageConfiguration sc = generateStageConfiguration(getAcquisition());
 		String acquisitionDocument = dataToJson(sc);
 		save(formatConfigurationFileName(getAcquisitionParameters().getName()), acquisitionDocument);
-	}
-
-	private String formatConfigurationFileName(String fileName) {
-		return String.format("TOMOGRAPHY_%s", Optional.ofNullable(fileName.replaceAll("\\s", "")).orElse("noNameConfiguration"));
 	}
 
 	@Override
@@ -101,10 +106,70 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		}
 	}
 
+	@Override
+	public void loadAcquisitionConfiguration(URL url) throws AcquisitionControllerException {
+		acquisition = parseAcquisitionConfiguration(url).getResource();
+		SpringApplicationContextProxy.publishEvent(new AcquisitionConfigurationResourceLoadEvent(this, url));
+	}
+
+	@Override
+	public void loadAcquisitionConfiguration(TomographyParameterAcquisition acquisition) throws AcquisitionControllerException {
+		this.acquisition = acquisition;
+	}
+
+	@Override
+	public AcquisitionConfigurationResource<TomographyParameterAcquisition> parseAcquisitionConfiguration(URL url) throws AcquisitionControllerException {
+		return new AcquisitionConfigurationResource(url, parseJsonData(getAcquisitionBytes(url)).getAcquisition());
+	}
+
+	@Override
+	public void onApplicationEvent(ApplicationEvent event) {
+		TomographyParametersAcquisitionControllerHelper.onApplicationEvent(event, this);
+	}
+
+	@Override
+	public void deleteAcquisitionConfiguration(URL url) throws AcquisitionControllerException {
+		throw new AcquisitionControllerException("Delete not implemented");
+		// SpringApplicationContextProxy.publishEvent(new AcquisitionConfigurationResourceSaveEvent(url));
+	}
+
+	public static TomographyParameterAcquisition createNewAcquisition() {
+		TomographyParameterAcquisition newConfiguration = new TomographyParameterAcquisition();
+		newConfiguration.setAcquisitionConfiguration(new TomographyConfiguration());
+		TomographyParameters tp = new TomographyParameters();
+
+		tp.setName("Default name");
+		tp.setScanType(ScanType.FLY);
+		tp.setStart(new StartAngle(0.0, false, Double.MIN_VALUE));
+		tp.setEnd(new EndAngle(RangeType.RANGE_180, 1, 0.0));
+		tp.setProjections(new Projections(1, 0));
+		tp.setImageCalibration(new ImageCalibration());
+
+		MultipleScans multipleScan = new MultipleScans();
+		multipleScan.setMultipleScansType(MultipleScansType.REPEAT_SCAN);
+		multipleScan.setNumberRepetitions(1);
+		multipleScan.setWaitingTime(0);
+		tp.setMultipleScans(multipleScan);
+
+		newConfiguration.getAcquisitionConfiguration().setAcquisitionParameters(tp);
+		return newConfiguration;
+	}
+
+	private String formatConfigurationFileName(String fileName) {
+		String fn = "";
+		if (fileName != null) {
+			fn = fileName.replaceAll("\\s", "");
+		}
+		if (fn.length() == 0) {
+			fn = "noNameConfiguration";
+		}
+		return String.format("TOMOGRAPHY_%s", fn);
+	}
+
 	private void save(String fileName, String acquisitionDocument) {
 		try {
 			Path path = getFileService().saveTextDocument(acquisitionDocument, fileName, AcquisitionConfigurationResourceType.TOMO.getExtension());
-			SpringApplicationContextProxy.publishEvent(new AcquisitionConfigurationResourceSaveEvent(path.toUri().toURL()));
+			SpringApplicationContextProxy.publishEvent(new AcquisitionConfigurationResourceSaveEvent(this, path.toUri().toURL()));
 		} catch (IOException e) {
 			UIHelper.showError("Cannot save the configuration", e);
 		}
@@ -140,14 +205,6 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		} catch (TomographyServiceException e) {
 			throw new AcquisitionControllerException("Error acquiring Dark Image", e);
 		}
-	}
-
-	@Override
-	public TomographyParameterAcquisition getAcquisition() {
-		if (acquisition == null) {
-			acquisition = TomographyParametersAcquisitionController.createNewAcquisition();
-		}
-		return acquisition;
 	}
 
 	public TomographyParameters getAcquisitionParameters() {
@@ -220,28 +277,6 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		return fileService;
 	}
 
-	public static TomographyParameterAcquisition createNewAcquisition() {
-		TomographyParameterAcquisition newConfiguration = new TomographyParameterAcquisition();
-		newConfiguration.setAcquisitionConfiguration(new TomographyConfiguration());
-		TomographyParameters tp = new TomographyParameters();
-
-		tp.setName("Default name");
-		tp.setScanType(ScanType.FLY);
-		tp.setStart(new StartAngle(0.0, false, Double.MIN_VALUE));
-		tp.setEnd(new EndAngle(RangeType.RANGE_180, 1, 0.0));
-		tp.setProjections(new Projections(1, 0));
-		tp.setImageCalibration(new ImageCalibration());
-
-		MultipleScans multipleScan = new MultipleScans();
-		multipleScan.setMultipleScansType(MultipleScansType.REPEAT_SCAN);
-		multipleScan.setNumberRepetitions(1);
-		multipleScan.setWaitingTime(0);
-		tp.setMultipleScans(multipleScan);
-
-		newConfiguration.getAcquisitionConfiguration().setAcquisitionParameters(tp);
-		return newConfiguration;
-	}
-
 	private void publishSave(String name, String acquisition, String scriptPath) {
 		SpringApplicationContextProxy.publishEvent(new TomographySaveEvent(this, name, acquisition, scriptPath));
 	}
@@ -250,41 +285,11 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		SpringApplicationContextProxy.publishEvent(new TomographyRunAcquisitionEvent(this, tomographyRunMessage));
 	}
 
-	@Override
-	public void onApplicationEvent(ApplicationEvent event) {
-		TomographyParametersAcquisitionControllerHelper.onApplicationEvent(event, this);
-	}
-
-	@Override
-	public void deleteAcquisitionConfiguration(URL url) throws AcquisitionControllerException {
-		throw new AcquisitionControllerException("Delete not implemented");
-		//SpringApplicationContextProxy.publishEvent(new AcquisitionConfigurationResourceSaveEvent(url));
-	}
-
-	@Override
-	public void loadAcquisitionConfiguration(URL url) throws AcquisitionControllerException {
+	private byte[] getAcquisitionBytes(URL url) throws AcquisitionControllerException {
 		try {
-			setAcquisition(getAcquisitionBytes(url));
+			return getFileService().loadFileAsBytes(url);
 		} catch (IOException e) {
 			throw new AcquisitionControllerException("Cannot load the file", e);
 		}
-	}
-
-	private byte[] getAcquisitionBytes(String configurationFile) throws IOException {
-		return getFileService().loadFileAsBytes(formatConfigurationFileName(configurationFile), "json");
-	}
-
-	private byte[] getAcquisitionBytes(URL url) throws IOException {
-		return getFileService().loadFileAsBytes(url);
-	}
-
-	private void setAcquisition(byte[] data) throws AcquisitionControllerException {
-		StageConfiguration stageConfiguration = parseJsonData(data);
-		acquisition = stageConfiguration.getAcquisition();
-	}
-
-	@Override
-	public void loadAcquisitionConfiguration(TomographyParameterAcquisition acquisition) throws AcquisitionControllerException {
-		this.acquisition = acquisition;
 	}
 }

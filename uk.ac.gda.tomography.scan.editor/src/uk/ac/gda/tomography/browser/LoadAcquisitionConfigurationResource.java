@@ -37,7 +37,7 @@ class LoadAcquisitionConfigurationResource extends Action {
 
 	public LoadAcquisitionConfigurationResource(AcquisitionConfigurationResource<TomographyParameterAcquisition> resource,
 			AcquisitionController<TomographyParameterAcquisition> controller) {
-		super("Deleted resource");
+		super("Load resource");
 		this.resource = resource;
 		this.controller = controller;
 	}

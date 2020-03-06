@@ -18,8 +18,8 @@
 
 package uk.ac.gda.tomography.browser;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.MenuManager;
@@ -61,15 +61,13 @@ public class TomoBrowser extends Browser<TomographyParameterAcquisition> {
 		return new TreeViewerBuilder<AcquisitionConfigurationResource<TomographyParameterAcquisition>>() {
 			@Override
 			public AcquisitionConfigurationResource<TomographyParameterAcquisition>[] getInputElements(boolean reload) {
-				final List<AcquisitionConfigurationResource<TomographyParameterAcquisition>> ret = new ArrayList<>();
-				getAcquisitionConfigurationResources(reload).stream().forEachOrdered(acq -> {
+				return getAcquisitionConfigurationResources(reload).stream().map(resource -> {
 					try {
-						getTomographyAcquisitionController().loadAcquisitionConfiguration(acq.getLocation());
-						ret.add(new AcquisitionConfigurationResource<>(acq.getLocation(), getTomographyAcquisitionController().getAcquisition()));
+						return getTomographyAcquisitionController().parseAcquisitionConfiguration(resource.getLocation());
 					} catch (AcquisitionControllerException e) {
+						return null;
 					}
-				});
-				return ret.toArray(new AcquisitionConfigurationResource[0]);
+				}).filter(Objects::nonNull). collect(Collectors.toList()).toArray(new AcquisitionConfigurationResource[0]);
 			}
 		};
 	}

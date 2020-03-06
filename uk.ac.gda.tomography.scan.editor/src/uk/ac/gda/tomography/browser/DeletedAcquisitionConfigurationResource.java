@@ -24,6 +24,7 @@ import gda.rcp.views.Browser;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
+import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
 
 /**
@@ -35,10 +36,9 @@ class DeletedAcquisitionConfigurationResource extends Action {
 	private final AcquisitionConfigurationResource<TomographyParameterAcquisition> resource;
 	private final AcquisitionController<TomographyParameterAcquisition> controller;
 
-	public DeletedAcquisitionConfigurationResource(
-			AcquisitionConfigurationResource<TomographyParameterAcquisition> resource,
+	public DeletedAcquisitionConfigurationResource(AcquisitionConfigurationResource<TomographyParameterAcquisition> resource,
 			AcquisitionController<TomographyParameterAcquisition> controller) {
-		super("Deleted resource");
+		super("Delete resource");
 		this.resource = resource;
 		this.controller = controller;
 	}
@@ -46,7 +46,9 @@ class DeletedAcquisitionConfigurationResource extends Action {
 	@Override
 	public void run() {
 		try {
-			controller.deleteAcquisitionConfiguration(resource.getLocation());
+			if (UIHelper.showConfirm("Are youo sure you want to delete the file?")) {
+				controller.deleteAcquisitionConfiguration(resource.getLocation());
+			}
 		} catch (AcquisitionControllerException e) {
 			// TODO Auto-generated catch block
 		}

@@ -43,9 +43,13 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationListener;
 
 import gda.rcp.views.CompositeFactory;
 import uk.ac.gda.api.acquisition.AcquisitionController;
+import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
+import uk.ac.gda.client.UIHelper;
+import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
 import uk.ac.gda.tomography.base.TomographyParameters;
 import uk.ac.gda.tomography.model.MultipleScansType;
@@ -56,6 +60,7 @@ import uk.ac.gda.tomography.stage.enumeration.StageDevice;
 import uk.ac.gda.ui.tool.ClientBindingElements;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientSWTElements;
+import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
  * This Composite allows to edit a {@link TomographyParameters} object.
@@ -124,6 +129,11 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		createElements(parent, SWT.NONE, SWT.BORDER);
 		bindElements();
 		initialiseElements();
+		try {
+			SpringApplicationContextProxy.addApplicationListener(new LoadListener(composite));
+		} catch (GDAClientException e) {
+			UIHelper.showWarning("Loading a file will not refresh the gui", "Spring application listener not registered");
+		}
 		return composite;
 	}
 
@@ -245,7 +255,6 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		bindScanType(dbc);
 		bindMultipleScanType(dbc);
 		binRangeType(dbc);
-
 		ClientBindingElements.bindText(dbc, name, String.class, "name", getTemplateData());
 
 		ClientBindingElements.bindCheckBox(dbc, currentAngleButton, "start.useCurrentAngle", getTemplateData());
@@ -493,4 +502,20 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 	private TomographyParameters getTemplateData() {
 		return getController().getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
 	}
+
+	private class LoadListener implements ApplicationListener<AcquisitionConfigurationResourceLoadEvent> {
+
+		private final Composite composite;
+
+		public LoadListener(Composite composite) {
+			super();
+			this.composite = composite;
+		}
+
+		@Override
+		public void onApplicationEvent(AcquisitionConfigurationResourceLoadEvent event) {
+			bindElements();
+			composite.layout(true, true);
+		}
+	};
 }
