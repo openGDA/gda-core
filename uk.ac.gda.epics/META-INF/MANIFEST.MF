@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
+Eclipse-BundleShape: dir
 Bundle-ManifestVersion: 2
 Bundle-Name: Epics Plug-in
 Bundle-SymbolicName: uk.ac.gda.epics;singleton:=true
