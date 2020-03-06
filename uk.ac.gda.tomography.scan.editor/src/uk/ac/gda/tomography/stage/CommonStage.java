@@ -46,7 +46,7 @@ import gda.rcp.views.TabCompositeFactoryImpl;
 import gda.rcp.views.TabFolderBuilder;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.FinderHelper;
-import uk.ac.gda.client.exception.IncompleteModeException;
+import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.tomography.stage.enumeration.Stage;
 import uk.ac.gda.tomography.stage.enumeration.StageDevice;
 import uk.ac.gda.ui.tool.ClientMessages;
@@ -142,7 +142,7 @@ public abstract class CommonStage implements StageDescription {
 	private void loadMotor(Entry<StageDevice, String> entry) {
 		try {
 			FinderHelper.getIScannableMotor(getBeanId(entry)).ifPresent(c -> motors.put(entry.getKey(), c));
-		} catch (IncompleteModeException e) {
+		} catch (LoadException e) {
 			String errMsg = String.format("Cannot load motor %s", entry.getKey());
 			UIHelper.showError(errMsg, e);
 			logger.error(errMsg, e);
@@ -152,13 +152,15 @@ public abstract class CommonStage implements StageDescription {
 	private void loadMalcolm(Entry<StageDevice, String> entry) {
 		try {
 			metadata.put(entry.getKey().name(), getBeanId(entry));
-		} catch (IncompleteModeException e) {
-			logger.error("Error", e);
+		} catch (LoadException e) {
+			String errMsg = String.format("Cannot load Malcolm %s", entry.getKey());
+			UIHelper.showError(errMsg, e);
+			logger.error(errMsg, e);
 		}
 	}
 
-	private String getBeanId(Entry<StageDevice, String> entry) throws IncompleteModeException {
-		return Optional.ofNullable(LocalProperties.get(entry.getValue())).orElseThrow(IncompleteModeException::new);
+	private String getBeanId(Entry<StageDevice, String> entry) throws LoadException {
+		return Optional.ofNullable(LocalProperties.get(entry.getValue())).orElseThrow(LoadException::new);
 	}
 
 	private Composite getStageControls(Composite parent) {
@@ -250,4 +252,8 @@ public abstract class CommonStage implements StageDescription {
 	 * @return
 	 */
 	protected abstract TabCompositeFactory[] getTabsFactories();
+
+	private class LoadException extends GDAClientException {
+
+	}
 }
