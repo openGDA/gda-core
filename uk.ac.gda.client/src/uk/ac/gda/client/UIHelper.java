@@ -52,6 +52,10 @@ public class UIHelper {
 		showMessage(MessageDialog.WARNING, message, cause.getMessage());
 	}
 
+	public static boolean showConfirm(final String message) {
+		return MessageDialog.openConfirm(Display.getDefault().getActiveShell(), "Confirm", message);
+	}
+
 	private static void showMessage(final int messageDialogType, final String message, final String reason) {
 		Display.getDefault().syncExec(new Runnable() {
 			@Override

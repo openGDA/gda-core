@@ -73,7 +73,20 @@ public interface AcquisitionController<T extends Acquisition<? extends Acquisiti
 	public void loadAcquisitionConfiguration(T acquisition) throws AcquisitionControllerException;
 
 	/**
-	 * Sets the controller active acquisition using an {@link AcquisitionConfigurationResource} with the following priorities
+	 * Parse only an acquisition file. Similar to {@link #loadAcquisitionConfiguration(URL)} but does not set the parsed
+	 * acquisition as the active one.
+	 *
+	 * @param url
+	 *            The location of the file to parse
+	 * @return an acquisition resource
+	 * @throws AcquisitionControllerException
+	 *             If the file is not found or cannot be parsed
+	 */
+	public AcquisitionConfigurationResource<T> parseAcquisitionConfiguration(URL url) throws AcquisitionControllerException;
+
+	/**
+	 * Sets the controller active acquisition using an {@link AcquisitionConfigurationResource} with the following
+	 * priorities
 	 * <ol>
 	 * <li>If {@link AcquisitionConfigurationResource#getResource()} is not {@code null}, calls
 	 * {@link #loadAcquisitionConfiguration(AcquisitionConfigurationResource)}</li>
@@ -86,7 +99,8 @@ public interface AcquisitionController<T extends Acquisition<? extends Acquisiti
 	 * @throws AcquisitionControllerException
 	 *             If the resource cannot be used
 	 */
-	default void loadAcquisitionConfiguration(AcquisitionConfigurationResource<T> resource) throws AcquisitionControllerException {
+	default void loadAcquisitionConfiguration(AcquisitionConfigurationResource<T> resource)
+			throws AcquisitionControllerException {
 		if (resource.getResource() == null) {
 			loadAcquisitionConfiguration(resource.getLocation());
 		} else {
@@ -97,7 +111,8 @@ public interface AcquisitionController<T extends Acquisition<? extends Acquisiti
 	/**
 	 * Deletes an acquisition on a specified {@link URL}
 	 *
-	 * @param url the configuration location
+	 * @param url
+	 *            the configuration location
 	 * @throws AcquisitionControllerException
 	 */
 	public void deleteAcquisitionConfiguration(URL url) throws AcquisitionControllerException;

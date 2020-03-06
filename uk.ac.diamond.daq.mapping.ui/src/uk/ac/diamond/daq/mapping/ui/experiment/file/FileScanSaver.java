@@ -58,7 +58,7 @@ public class FileScanSaver extends ScanSaver {
 	private void publishExposureChangeEvent(String filename) {
 		AcquisitionConfigurationResourceSaveEvent event;
 		try {
-			event = new AcquisitionConfigurationResourceSaveEvent(new URL("file", "localhost", filename));
+			event = new AcquisitionConfigurationResourceSaveEvent(this, new URL("file", "localhost", filename));
 			SpringApplicationContextProxy.publishEvent(event);
 		} catch (MalformedURLException e) {
 		}

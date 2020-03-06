@@ -20,8 +20,10 @@ package uk.ac.gda.api.acquisition.resource.event;
 
 import java.net.URL;
 
+import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
+
 /**
- *  Describes a camera exposure change event.
+ * This event is published when a {@link AcquisitionConfigurationResource} is saved.
  *
  * @author Maurizio Nagni
  */
@@ -32,8 +34,13 @@ public class AcquisitionConfigurationResourceSaveEvent extends AcquisitionConfig
 	 */
 	private static final long serialVersionUID = -454684975840133320L;
 
-    public AcquisitionConfigurationResourceSaveEvent(URL url) {
-		super(url);
-	}
 
+	/**
+	 * Instantiates a save event.
+	 * @param source the object which published this event
+	 * @param url the location of the acquisition configuration has been saved
+	 */
+    public AcquisitionConfigurationResourceSaveEvent(Object source, URL url) {
+		super(source, url);
+	}
 }

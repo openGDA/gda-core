@@ -20,17 +20,39 @@ package uk.ac.gda.api.acquisition.resource;
 
 import java.net.URL;
 
+/**
+ * Pairs an acquisition configuration object with the {@code location} where it is serialised.
+ *
+ * @param <T> the java acquisition configuration implementation class
+ *
+ * @author Maurizio Nagni
+ */
 public class AcquisitionConfigurationResource<T> {
 
+	/**
+	 * The location where the resource is serialised
+	 */
 	private final URL location;
+	/**
+	 * An instance of the resource
+	 */
 	private final T resource;
 
+	/**
+	 *
+	 * @param location where the configuration is, or will be, serialised
+	 * @param resource the instance of the configuration
+	 */
 	public AcquisitionConfigurationResource(URL location, T resource) {
 		super();
 		this.location = location;
 		this.resource = resource;
 	}
 
+	/**
+	 * Returns the location where the configuration is serialised
+	 * @return the location
+	 */
 	public URL getLocation() {
 		return location;
 	}
