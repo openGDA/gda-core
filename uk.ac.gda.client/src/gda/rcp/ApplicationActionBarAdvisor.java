@@ -18,6 +18,8 @@
 
 package gda.rcp;
 
+import static gda.configuration.properties.LocalProperties.GDA_GUI_STOP_ALL_COMMAND_ID;
+
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
@@ -45,6 +47,7 @@ import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 import org.eclipse.ui.actions.ContributionItemFactory;
 import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
+import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.internal.IWorkbenchHelpContextIds;
 import org.eclipse.ui.internal.Workbench;
 import org.eclipse.ui.internal.WorkbenchMessages;
@@ -79,7 +82,9 @@ import gda.observable.IObserver;
 import gda.rcp.views.GdaImages;
 import gda.scan.ScanEvent;
 import uk.ac.gda.client.CommandQueueViewFactory;
+import uk.ac.gda.ui.status.LinkContributionButton;
 import uk.ac.gda.ui.status.LinkContributionItem;
+import uk.ac.gda.ui.status.LinkContributionLabel;
 import uk.ac.gda.views.baton.BatonView;
 
 /**
@@ -90,8 +95,14 @@ import uk.ac.gda.views.baton.BatonView;
 // and need access to IDEWorkbenchMessages
 @SuppressWarnings("restriction")
 public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
-	public static final String NEW_GDA_EXT = "new.gda.ext"; // Group. //$NON-NLS-1$
 	private static final Logger logger = LoggerFactory.getLogger(ApplicationActionBarAdvisor.class);
+
+	private static final String NEW_GDA_EXT = "new.gda.ext";
+	private static final String STOP_ALL_TEXT = "Stop All";
+	private static final String STOP_ALL_TOOLTIP = "Stops all GDA devices, including motors and detectors.\n"
+			+ "Also aborts scans and scripts and kills threads.\n"
+			+ "Warning: this might leave GDA in an inconsistent state.";
+	private static final String DEFAULT_STOP_ALL_COMMAND_ID = "uk.ac.gda.client.StopAllCommand";
 
 	/** Flag to add a developer test item to the File menu. The Action can be modified below. */
 	private static final boolean USE_TEST_ACTION = false;
@@ -347,7 +358,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		logStatus.setImage(GdaImages.getImage("user_gray.png"));
 		manager.add(logStatus);
 
-		final LinkContributionItem batonStatus = new LinkContributionItem("uk.ac.gda.baton.status",18);
+		final LinkContributionItem batonStatus = new LinkContributionItem("uk.ac.gda.baton.status", new LinkContributionLabel(), 18);
 		batonStatus.setToolTipText("Double click status to bring up baton manager.");
 		batonStatus.setText("GDA-Baton");
 		manager.add(batonStatus);
@@ -370,13 +381,16 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		final StatusLineContributionItem scriptStatus = new StatusLineContributionItem("GDA-ScriptStatus", true, 20);
 		manager.add(scriptStatus);
 
+		// Stop all
+		createStopAllButton(manager);
+
 		/*
 		 * add contribution to show the state of the queue if one exists
 		 */
 		Queue queue = CommandQueueViewFactory.getQueue();
 		final Processor processor = CommandQueueViewFactory.getProcessor();
 		if (queue != null && processor != null) {
-			final LinkContributionItem queueStatus = new LinkContributionItem("uk.ac.gda.queue.status",20);
+			final LinkContributionItem queueStatus = new LinkContributionItem("uk.ac.gda.queue.status", new LinkContributionLabel(), 20);
 			queueStatus.setToolTipText("Double click status to bring up command queue.");
 			queueStatus.setText("GDA-QueueStatus");
 			manager.add(queueStatus);
@@ -496,6 +510,31 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		}
 
 		ApplicationWorkbenchAdvisor.addCleanupWork(() -> InterfaceProvider.getJSFObserver().deleteIObserver(serverObserver));
+	}
+
+	private void createStopAllButton(final IStatusLineManager manager) {
+		final LinkContributionItem stopAll = new LinkContributionItem("uk.ac.diamond.daq.stopall", new LinkContributionButton(), 15);
+		stopAll.setText(STOP_ALL_TEXT);
+		stopAll.setToolTipText(STOP_ALL_TOOLTIP);
+		stopAll.setImage(GdaImages.getImage("stop.png"));
+		stopAll.setVisible(true);
+		stopAll.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseUp(MouseEvent ev) {
+				try {
+					final String stopAllCommandId = LocalProperties.get(GDA_GUI_STOP_ALL_COMMAND_ID, DEFAULT_STOP_ALL_COMMAND_ID);
+					final IHandlerService handlerService = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(IHandlerService.class);
+					handlerService.executeCommand(stopAllCommandId, null);
+				} catch (Exception e) {
+					logger.error("Error executing Stop All command", e);
+				}
+			}
+		});
+		manager.add(stopAll);
+
+		// Add a bit of space after the button so it is not too close to the end marker
+		final StatusLineContributionItem spacer = new StatusLineContributionItem("uk.ac.diamond.daq.stopall.spacer", true, 0);
+		manager.add(spacer);
 	}
 
 	private void updateScanDetails(StatusLineContributionItem status, ScanEvent changeCode) {

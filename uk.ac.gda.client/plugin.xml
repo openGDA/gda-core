@@ -901,31 +901,6 @@
  </menuContribution>
  <menuContribution
        allPopups="false"
-       locationURI="toolbar:org.eclipse.ui.trim.status">
-    <toolbar
-          id="uk.ac.gda.server.toolbar"
-          label="GDA Server Toolbar">
-       <command
-             commandId="uk.ac.gda.client.StopAllCommand"
-             icon="icons/stop.png"
-             label="Stop All"
-             mode="FORCE_TEXT"
-             style="push"
-             tooltip="Stops all GDA devices, including motors and detectors. Also aborts scans and scripts and kills threads. Warning this might leave GDA in an inconsistent state.">
-          <visibleWhen
-                checkEnabled="false">
-             <not>
-                <systemTest
-                      property="uk.ac.gda.client.local_stop_all"
-                      value="true">
-                </systemTest>
-             </not>
-          </visibleWhen>
-       </command>
-    </toolbar>
- </menuContribution>
- <menuContribution
-       allPopups="false"
        locationURI="toolbar:uk.ac.gda.client.livecontrol.LiveControlsView">
     <command
           commandId="uk.ac.gda.client.livecontrol.increment.toggle"

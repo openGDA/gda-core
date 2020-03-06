@@ -18,8 +18,6 @@
 
 package gda.rcp.views;
 
-import gda.rcp.GDAClientActivator;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -27,6 +25,8 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
+
+import gda.rcp.GDAClientActivator;
 
 public class GdaImages {
 
@@ -44,6 +44,7 @@ public class GdaImages {
 			createImage("", "control_pause_blue.png");
 			createImage("", "delete.png");
 			createImage("", "arrow_right.png");
+			createImage("", "stop.png");
 		} catch (MalformedURLException e) {
 		}
 	}
