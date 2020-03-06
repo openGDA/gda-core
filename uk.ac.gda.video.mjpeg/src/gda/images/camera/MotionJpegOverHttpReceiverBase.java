@@ -62,6 +62,9 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 
 	private Set<ImageListener<E>> listeners = new LinkedHashSet<ImageListener<E>>();
 
+	/** Defaults true for all OAVs. Should be set to false in Spring config for secondarys */
+	private boolean autoConnect = true;
+
 	@Override
 	public void addImageListener(ImageListener<E> listener) {
 		listeners.add(listener);
@@ -112,7 +115,9 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 		if (isConfigured()) {
 			return;
 		}
-		createConnection();
+		if (autoConnect) {
+			createConnection();
+		}
 		setConfigured(true);
 	}
 
@@ -233,6 +238,10 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 	 */
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
+	}
+
+	public void setAutoConnect(boolean auto) {
+		this.autoConnect = auto;
 	}
 
 	static class DecoderThreadFactory implements ThreadFactory {
