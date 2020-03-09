@@ -25,6 +25,7 @@ import javax.annotation.PostConstruct;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -76,8 +77,15 @@ public class SpecsAlignmentView implements IObserver {
 
 		parent.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
-		Composite controlsArea = new Composite(parent, SWT.NONE);
+		ScrolledComposite scrollComp = new ScrolledComposite(parent, SWT.V_SCROLL | SWT.H_SCROLL);
+		Composite child = new Composite(scrollComp, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(child);
+		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(child);
+		child.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+
+		Composite controlsArea = new Composite(child, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(2).spacing(10, 10).applyTo(controlsArea);
+		controlsArea.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
 		Label kineticEnergy = new Label(controlsArea, SWT.NONE);
 		kineticEnergy.setText("Ekin");
@@ -99,22 +107,12 @@ public class SpecsAlignmentView implements IObserver {
 		exposureText = new Text(controlsArea, SWT.BORDER);
 		GridDataFactory.swtDefaults().grab(true, false).hint(50, SWT.DEFAULT).applyTo(exposureText);
 
-		// Start button
-		startButton = new Button(controlsArea, SWT.DEFAULT);
-		startButton.setLayoutData(new GridData(100, SWT.DEFAULT));
-		startButton.setText("Start");
-		startButton.setToolTipText("Start alignment process");
-		startButton.setEnabled(false);
-		startButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-					// Start Acquiring
-					analyser.startContinuous();
-				}
-			});
+		Composite buttonsArea = new Composite(child, SWT.NONE);
+		GridLayoutFactory.swtDefaults().numColumns(2).spacing(10, 10).applyTo(buttonsArea);
+		buttonsArea.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
 		// Set button
-		setButton = new Button(controlsArea, SWT.DEFAULT);
+		setButton = new Button(buttonsArea, SWT.DEFAULT);
 		setButton.setLayoutData(new GridData(100, SWT.DEFAULT));
 		setButton.setText("Set");
 		setButton.setToolTipText("Set Analyser");
@@ -131,11 +129,25 @@ public class SpecsAlignmentView implements IObserver {
 				customRegion.setExposureTime(Double.valueOf(exposureText.getText()));
 				customRegion.setValues(Integer.parseInt(valuesText.getText()));
 				analyser.setRegion(customRegion);
+				}
+		});
+
+		// Start button
+		startButton = new Button(buttonsArea, SWT.DEFAULT);
+		startButton.setLayoutData(new GridData(100, SWT.DEFAULT));
+		startButton.setText("Start");
+		startButton.setToolTipText("Start alignment process");
+		startButton.setEnabled(false);
+		startButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				// Start Acquiring
+				analyser.startContinuous();
 			}
 		});
 
 		// Stop button
-		stopButton = new Button(controlsArea, SWT.DEFAULT);
+		stopButton = new Button(buttonsArea, SWT.DEFAULT);
 		stopButton.setLayoutData(new GridData(100, SWT.DEFAULT));
 		stopButton.setText("Stop");
 		stopButton.setToolTipText("End alignment process");
@@ -145,10 +157,11 @@ public class SpecsAlignmentView implements IObserver {
 			public void widgetSelected(SelectionEvent e) {
 				analyser.stopAcquiring();
 				}
-			});
+		});
 
-		Composite displayArea = new Composite(parent, SWT.NONE);
+		Composite displayArea = new Composite(child, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(1).spacing(10, 10).applyTo(displayArea);
+		displayArea.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
 		// Display counts from analyser
 		Label counts = new Label(displayArea, SWT.NONE);
@@ -179,6 +192,12 @@ public class SpecsAlignmentView implements IObserver {
 				textControl.addVerifyListener(this::checkInputIsNumerical);
 			}
 		}
+
+		// Setup scroll composite
+		scrollComp.setContent(child);
+		scrollComp.setExpandHorizontal(true);
+		scrollComp.setExpandVertical(true);
+		scrollComp.setMinSize(child.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 
 	/**
