@@ -47,6 +47,7 @@
 						<!-- dependencies outside of plugin -->
 						<exclude>PseudoSpringParserTest</exclude>
 						<exclude>SpringXmlTest</exclude>
+						<exclude>PosDetectorScanTest</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
