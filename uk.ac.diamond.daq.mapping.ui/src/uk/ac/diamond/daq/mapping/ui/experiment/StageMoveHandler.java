@@ -24,6 +24,7 @@ import static uk.ac.gda.ui.tool.ClientMessages.CANNOT_MOVE_STAGES;
 import static uk.ac.gda.ui.tool.ClientMessages.CANNOT_MOVE_STAGES_SCAN_RUNNING_OR_PENDING;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -134,10 +135,13 @@ public class StageMoveHandler implements EventHandler {
 	 * Finds the position of a per-scan monitor in the given NeXus file
 	 * @param scannable name of the per-scan monitor
 	 * @param filePath
-	 * @return the position; or {@code null} if either argument is {@code null}, or the position is not found.
+	 * @return the position; or the current scannable position if not found in file;
+	 * 		or {@code null} if either argument is {@code null}
 	 */
 	private Double getScannablePositionInNexus(String scannable, String filePath) {
-		if (scannable == null || filePath == null || filePath.isEmpty()) return null;
+		if (scannable == null) return null;
+		if (!validFilePath(filePath)) return currentPosition(scannable);
+
 		logger.debug("Looking for position of scannable {} in file {}", scannable, filePath);
 		try {
 
@@ -146,6 +150,12 @@ public class StageMoveHandler implements EventHandler {
 
 			IFindInTree perScanMonitorFinder = new PerScanMonitorFinder(scannable);
 			Map<String, NodeLink> nodeMap = TreeUtils.treeBreadthFirstSearch(tree.getGroupNode(), perScanMonitorFinder, true, null);
+			if (nodeMap.isEmpty()) {
+				logger.warn("Could not find position for scannable {} in file {}. Returning its current position",
+					scannable, filePath);
+				return currentPosition(scannable);
+			}
+
 			Entry<String, NodeLink> entry = nodeMap.entrySet().iterator().next();
 
 			String datasetPath = "/" + entry.getKey() + "/" + NXpositioner.NX_VALUE;
@@ -153,10 +163,25 @@ public class StageMoveHandler implements EventHandler {
 			return dataset.getDouble();
 
 		} catch (Exception e) {
-			logger.error("Could not find position for scannable {} in file {}", scannable, filePath, e);
-			return null;
+			logger.error("Error searching for scannable {} in file {}. Returning its current position",
+					scannable, filePath, e);
+			return currentPosition(scannable);
 		}
 
+	}
+
+	private boolean validFilePath(String filePath) {
+		return filePath != null && Paths.get(filePath).toFile().exists();
+	}
+
+	private Double currentPosition(String scannableName) {
+		Scannable scannable = Finder.getInstance().find(scannableName);
+		try {
+			return (Double) scannable.getPosition();
+		} catch (DeviceException e) {
+			logger.error("Could not read position of scannable {}", scannableName);
+			return null;
+		}
 	}
 
 	/**
