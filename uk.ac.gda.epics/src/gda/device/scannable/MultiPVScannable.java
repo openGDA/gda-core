@@ -48,6 +48,7 @@ public class MultiPVScannable extends ScannableMotionUnitsBase {
 		if (isConfigured()) {
 			return;
 		}
+		this.setInputNames(new String[] { getName() });
 		if (readPVname != null && !readPVname.isEmpty()) {
 			pvRead = LazyPVFactory.newReadOnlyDoublePV(readPVname);
 		} else {
