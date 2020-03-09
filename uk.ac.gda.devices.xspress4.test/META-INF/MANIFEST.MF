@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Xspress4Test
 Bundle-SymbolicName: uk.ac.gda.devices.xspress4.test
 Bundle-Version: 1.0.0.qualifier
-Fragment-Host: uk.ac.gda.devices.xspress4;bundle-version="1.0.0.qualifier"
+Fragment-Host: uk.ac.gda.devices.xspress4
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: Diamond Light Source
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework

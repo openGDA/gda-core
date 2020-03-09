@@ -39,6 +39,7 @@
 				<artifactId>tycho-surefire-plugin</artifactId>
 				<version>${tycho.version}</version>
 				<configuration>
+					<skipTests>true</skipTests>
 					<excludes>
 						<!-- Powermock test -->
 						<exclude>HidenRGATest</exclude>
