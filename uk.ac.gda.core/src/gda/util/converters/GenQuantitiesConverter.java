@@ -31,10 +31,10 @@ import javax.measure.Quantity;
  * between two single Quantities is used to create a conversion between two collections of Quantities where the
  * conversion is the same.
  */
-final class GenQuantitiesConverter implements IQuantitiesConverter {
-	private final IQuantityConverter converter;
+final class GenQuantitiesConverter<S extends Quantity<S>, T extends Quantity<T>> implements IQuantitiesConverter<S, T> {
+	private final IQuantityConverter<S, T> converter;
 
-	GenQuantitiesConverter(IQuantityConverter converter) {
+	GenQuantitiesConverter(IQuantityConverter<S, T> converter) {
 		this.converter = converter;
 	}
 
@@ -46,17 +46,19 @@ final class GenQuantitiesConverter implements IQuantitiesConverter {
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>>[] calculateMoveables(Quantity<? extends Quantity<?>>[] sources, Object[] moveables) throws Exception {
-		Quantity<? extends Quantity<?>> target = converter.toTarget(sources[0]);
-		Quantity<? extends Quantity<?>>[] targets = new Quantity<?>[moveables.length];
+	public Quantity<T>[] calculateMoveables(Quantity<S>[] sources, Object[] moveables) throws Exception {
+		Quantity<T> target = converter.toTarget(sources[0]);
+		@SuppressWarnings("unchecked")
+		Quantity<T>[] targets = new Quantity[moveables.length];
 		Arrays.fill(targets, target);
 		return targets;
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>>[] toSource(Quantity<? extends Quantity<?>>[] targets, Object[] moveables) throws Exception {
-		Quantity<? extends Quantity<?>> source = converter.toSource(targets[0]);
-		Quantity<? extends Quantity<?>>[] sources = new Quantity<?>[moveables.length];
+	public Quantity<S>[] toSource(Quantity<T>[] targets, Object[] moveables) throws Exception {
+		Quantity<S> source = converter.toSource(targets[0]);
+		@SuppressWarnings("unchecked")
+		Quantity<S>[] sources = new Quantity[moveables.length];
 		Arrays.fill(sources, source);
 		return sources;
 	}
@@ -81,11 +83,11 @@ final class GenQuantitiesConverter implements IQuantitiesConverter {
 		return converter.getAcceptableTargetUnits();
 	}
 
-	public Quantity<? extends Quantity<?>> toSource(Quantity<? extends Quantity<?>> target) throws Exception {
+	public Quantity<S> toSource(Quantity<T> target) throws Exception {
 		return converter.toSource(target);
 	}
 
-	public Quantity<? extends Quantity<?>> toTarget(Quantity<? extends Quantity<?>> source) throws Exception {
+	public Quantity<T> toTarget(Quantity<S> source) throws Exception {
 		return converter.toTarget(source);
 	}
 

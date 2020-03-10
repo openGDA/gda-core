@@ -28,7 +28,7 @@ import javax.measure.Quantity;
  *
  * Source is the value internal to GDa and target is the motor position.
  */
-public interface IQuantityConverter extends IConverter<Quantity<? extends Quantity<?>>, Quantity<? extends Quantity<?>>> {
+public interface IQuantityConverter<S extends Quantity<S>, T extends Quantity<T>> extends IConverter<Quantity<S>, Quantity<T>> {
 	/**
 	 * @return AcceptableSourceUnits
 	 */

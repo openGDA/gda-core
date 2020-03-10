@@ -38,13 +38,14 @@ import gda.util.QuantityFactory;
  * @see gda.util.converters.LookupTableConverterHolder
  * @see org.nfunk.jep.JEP
  */
-public final class LookupTableQuantityConverter implements IQuantityConverter {
-	@SuppressWarnings("rawtypes")
-	private final InterpolationFunction interpolateFunctionStoT, interpolateFunctionTtoS;
+public final class LookupTableQuantityConverter<S extends Quantity<S>, T extends Quantity<T>> implements IQuantityConverter<S, T> {
+	private final InterpolationFunction<S, T> interpolateFunctionStoT;
+	private final InterpolationFunction<T, S> interpolateFunctionTtoS;
 
 	private final ColumnDataFile columnDataFile;
 
-	private final int sColumn, tColumn;
+	private final int sColumn;
+	private final int tColumn;
 
 	private final List<String> acceptableSourceUnits;
 	private final List<String> acceptableTargetUnits;
@@ -192,9 +193,8 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 		return acceptableTargetUnits;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public Quantity<? extends Quantity<?>> toSource(Quantity<? extends Quantity<?>> target) throws Exception {
+	public Quantity<S> toSource(Quantity<T> target) throws Exception {
 		if (!performTtoS()) {
 			throw new UnsupportedConversionException(
 					"LookupTableQuantityConverter.toSource: Mode does not allow T→S conversion. "
@@ -217,9 +217,8 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public Quantity<? extends Quantity<?>> toTarget(Quantity<? extends Quantity<?>> source) throws Exception {
+	public Quantity<T> toTarget(Quantity<S> source) throws Exception {
 		if (!performStoT()) {
 			throw new UnsupportedConversionException(
 					"LookupTableQuantityConverter.toTarget: Mode does not allow S→T conversion. "

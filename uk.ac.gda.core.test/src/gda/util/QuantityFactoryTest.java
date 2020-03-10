@@ -69,7 +69,7 @@ public class QuantityFactoryTest {
 		final double value = 12.34;
 		final String valueUnitString = "12.34 mm";
 		final Quantity<Length> expected = Quantities.getQuantity(Double.valueOf(value), MILLI(METRE));
-		final Quantity<Length> result = QuantityFactory.createFromString(valueUnitString).asType(Length.class);
+		final Quantity<Length> result = QuantityFactory.createFromString(valueUnitString);
 		assertEquals(expected, result);
 
 		// SI unit for length is metres

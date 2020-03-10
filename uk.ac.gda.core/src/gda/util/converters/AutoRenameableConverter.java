@@ -30,9 +30,9 @@ import gda.util.converters.util.ConverterNameProvider;
 /**
  * AutoRenameableConverter Class
  */
-public class AutoRenameableConverter extends FindableBase implements IReloadableQuantitiesConverter, IQuantityConverter {
+public class AutoRenameableConverter<S extends Quantity<S>, T extends Quantity<T>> extends FindableBase implements IReloadableQuantitiesConverter<S, T>, IQuantityConverter<S, T> {
 
-	private IReloadableQuantitiesConverter converter = null;
+	private IReloadableQuantitiesConverter<S, T> converter = null;
 
 	private boolean autoConversion = false;
 
@@ -55,7 +55,7 @@ public class AutoRenameableConverter extends FindableBase implements IReloadable
 		getConverter().reloadConverter();
 	}
 
-	private synchronized IReloadableQuantitiesConverter getConverter() {
+	private synchronized IReloadableQuantitiesConverter<S, T> getConverter() {
 		if (converter == null) {
 			converter = CoupledConverterHolder.FindReloadableQuantitiesConverter(getProvider().getConverterName());
 		}
@@ -77,8 +77,7 @@ public class AutoRenameableConverter extends FindableBase implements IReloadable
 		if (getName().equals(converterName)) {
 			throw new IllegalArgumentException("RenameableConverter. name and converterName cannot be the same");
 		}
-		IReloadableQuantitiesConverter newConverter = CoupledConverterHolder
-				.FindReloadableQuantitiesConverter(converterName);
+		final IReloadableQuantitiesConverter<S, T> newConverter = CoupledConverterHolder.FindReloadableQuantitiesConverter(converterName);
 		if (converter != null) {
 			LookupTableConverterHolder.CheckUnitsAreEqual(converter, newConverter);
 		}
@@ -87,8 +86,7 @@ public class AutoRenameableConverter extends FindableBase implements IReloadable
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>>[] calculateMoveables(Quantity<? extends Quantity<?>>[] sources, Object[] moveables) throws Exception {
-
+	public Quantity<T>[] calculateMoveables(Quantity<S>[] sources, Object[] moveables) throws Exception {
 		if (autoConversion) {
 			setConverterName(getProvider().getConverterName(sources[0].getValue().doubleValue()));
 			reloadConverter();
@@ -97,7 +95,7 @@ public class AutoRenameableConverter extends FindableBase implements IReloadable
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>>[] toSource(Quantity<? extends Quantity<?>>[] targets, Object[] moveables) throws Exception {
+	public Quantity<S>[] toSource(Quantity<T>[] targets, Object[] moveables) throws Exception {
 		return getConverter().toSource(targets, moveables);
 	}
 
@@ -130,17 +128,19 @@ public class AutoRenameableConverter extends FindableBase implements IReloadable
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>> toSource(Quantity<? extends Quantity<?>> target) throws Exception {
-		return CoupledConverterHolder.getIQuantityConverter(getConverter()).toSource(target);
+	public Quantity<S> toSource(Quantity<T> target) throws Exception {
+		final IQuantityConverter<S, T> quantityConverter = CoupledConverterHolder.getIQuantityConverter(getConverter());
+		return quantityConverter.toSource(target);
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>> toTarget(Quantity<? extends Quantity<?>> source) throws Exception {
+	public Quantity<T> toTarget(Quantity<S> source) throws Exception {
 		if (autoConversion) {
 			setConverterName(getProvider().getConverterName(source.getValue().doubleValue()));
 			reloadConverter();
 		}
-		return CoupledConverterHolder.getIQuantityConverter(getConverter()).toTarget(source);
+		final IQuantityConverter<S, T> quantityConverter = CoupledConverterHolder.getIQuantityConverter(getConverter());
+		return quantityConverter.toTarget(source);
 	}
 
 	@Override
@@ -155,7 +155,6 @@ public class AutoRenameableConverter extends FindableBase implements IReloadable
 	public void disableAutoConversion() {
 		autoConversion = false;
 	}
-
 
 	private ConverterNameProvider getProvider() {
 		return provider;

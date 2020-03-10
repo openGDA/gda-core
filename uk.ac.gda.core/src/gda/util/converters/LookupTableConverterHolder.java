@@ -74,14 +74,16 @@ import gda.factory.FindableBase;
  *
  * @see gda.util.converters.LookupTableQuantityConverter#getMode( String modeString )
  */
-public final class LookupTableConverterHolder extends FindableBase implements IReloadableQuantitiesConverter, IQuantityConverter {
-	private GenQuantitiesConverter converter = null;
+public final class LookupTableConverterHolder<S extends Quantity<S>, T extends Quantity<T>> extends FindableBase implements IReloadableQuantitiesConverter<S, T>, IQuantityConverter<S, T> {
+	private GenQuantitiesConverter<S, T> converter = null;
 
-	private final String columnDataFileName, modeString;
+	private final String columnDataFileName;
+	private final String modeString;
 
-	private final int sColumn, tColumn;
+	private final int sColumn;
+	private final int tColumn;
 
-	private  boolean interpolateNotExtrapolate = false;
+	private boolean interpolateNotExtrapolate = false;
 
 	/**
 	 * @param name
@@ -191,7 +193,8 @@ public final class LookupTableConverterHolder extends FindableBase implements IR
 		return true;
 	}
 
-	static void CheckUnitsAreEqual(IQuantitiesConverter o, IQuantitiesConverter n) {
+	static void CheckUnitsAreEqual(IQuantitiesConverter<? extends Quantity<?>, ? extends Quantity<?>> o,
+			IQuantitiesConverter<? extends Quantity<?>, ? extends Quantity<?>> n) {
 		if (o == null || n == null) {
 			throw new IllegalArgumentException("LookupTableConverterHolder.CheckUnitsAreEqual() : o or n is null ");
 		}
@@ -223,8 +226,10 @@ public final class LookupTableConverterHolder extends FindableBase implements IR
 		try {
 
 			final boolean filenameIsFull = checkWhetherFilenameIsFull(columnDataFileName);
-			GenQuantitiesConverter newConverter = new GenQuantitiesConverter(new LookupTableQuantityConverter(
-					columnDataFileName, filenameIsFull, sColumn, tColumn, LookupTableQuantityConverter.getMode(modeString), !interpolateNotExtrapolate));
+			final LookupTableQuantityConverter<S, T> lookupTableQuantityConverter = new LookupTableQuantityConverter<>(
+					columnDataFileName, filenameIsFull, sColumn, tColumn,
+					LookupTableQuantityConverter.getMode(modeString), !interpolateNotExtrapolate);
+			final GenQuantitiesConverter<S, T> newConverter = new GenQuantitiesConverter<>(lookupTableQuantityConverter);
 			if (converter != null) {
 				CheckUnitsAreEqual(converter, newConverter);
 			}
@@ -260,7 +265,7 @@ public final class LookupTableConverterHolder extends FindableBase implements IR
 	 * @see IQuantitiesConverter#calculateMoveables(Quantity[], Object[])
 	 */
 	@Override
-	public Quantity<? extends Quantity<?>>[] calculateMoveables(Quantity<? extends Quantity<?>>[] sources, Object[] moveables) throws Exception {
+	public Quantity<T>[] calculateMoveables(Quantity<S>[] sources, Object[] moveables) throws Exception {
 		return getConverter().calculateMoveables(sources, moveables);
 	}
 
@@ -270,7 +275,7 @@ public final class LookupTableConverterHolder extends FindableBase implements IR
 	 * @see IQuantitiesConverter#toSource(Quantity[], Object[])
 	 */
 	@Override
-	public Quantity<? extends Quantity<?>>[] toSource(Quantity<? extends Quantity<?>>[] targets, Object[] moveables) throws Exception {
+	public Quantity<S>[] toSource(Quantity<T>[] targets, Object[] moveables) throws Exception {
 		return getConverter().toSource(targets, moveables);
 	}
 
@@ -308,12 +313,12 @@ public final class LookupTableConverterHolder extends FindableBase implements IR
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>> toSource(Quantity<? extends Quantity<?>> target) throws Exception {
+	public Quantity<S> toSource(Quantity<T> target) throws Exception {
 		return getConverter().toSource(target);
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>> toTarget(Quantity<? extends Quantity<?>> source) throws Exception {
+	public Quantity<T> toTarget(Quantity<S> source) throws Exception {
 		return getConverter().toTarget(source);
 	}
 
@@ -322,7 +327,7 @@ public final class LookupTableConverterHolder extends FindableBase implements IR
 	 *
 	 * @return QuantityConverter
 	 */
-	private synchronized GenQuantitiesConverter getConverter() {
+	private synchronized GenQuantitiesConverter<S, T> getConverter() {
 		if (converter == null) {
 			reloadConverter();
 		}

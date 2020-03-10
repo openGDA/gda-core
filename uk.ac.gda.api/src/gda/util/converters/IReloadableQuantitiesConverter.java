@@ -19,13 +19,15 @@
 
 package gda.util.converters;
 
+import javax.measure.Quantity;
+
 import gda.factory.Findable;
 
 /**
  * Allows a object that supports IQuantitiesConverter to reload its state from any resource on which it may depend e.g.
  * re-read a lookup table.
  */
-public interface IReloadableQuantitiesConverter extends IQuantitiesConverter, Findable {
+public interface IReloadableQuantitiesConverter<S extends Quantity<S>, T extends Quantity<T>> extends IQuantitiesConverter<S, T>, Findable {
 	/**
 	 * Reload its state from any resource on which it may depend e.g. re-read a lookup table.
 	 */

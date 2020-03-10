@@ -18,15 +18,17 @@
 
 package gda.util.converters;
 
+import javax.measure.Quantity;
+
 /**
  * 'Simple' converter that allows the underlying converter to be specified as a property.
  */
-public class SimpleConverter extends SimpleConverterBase {
+public class SimpleConverter<S extends Quantity<S>, T extends Quantity<T>> extends SimpleConverterBase<S, T> {
 
 	public SimpleConverter() {
 	}
 
-	public void setConverter(IReloadableQuantitiesConverter converter) {
+	public void setConverter(IReloadableQuantitiesConverter<S, T> converter) {
 		this.converter = converter;
 	}
 

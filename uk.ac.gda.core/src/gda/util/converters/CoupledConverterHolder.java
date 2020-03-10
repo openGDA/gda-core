@@ -23,7 +23,6 @@ import java.util.List;
 
 import javax.measure.Quantity;
 
-import gda.factory.Findable;
 import gda.factory.FindableBase;
 import gda.factory.Finder;
 
@@ -57,12 +56,14 @@ import gda.factory.Finder;
  * <p>
  * The object implements IQuantitiesConverter so that the object can be referenced by CombinedDOF.
  */
-public final class CoupledConverterHolder extends FindableBase implements IReloadableQuantitiesConverter, IQuantityConverter {
-	private String sourceConverterName, targetConverterName;
+public final class CoupledConverterHolder<S extends Quantity<S>, T extends Quantity<T>, I extends Quantity<I>> extends FindableBase implements IReloadableQuantitiesConverter<S, T>, IQuantityConverter<S, T> {
+	private String sourceConverterName;
+	private String targetConverterName;
 
-	private IQuantitiesConverter converter = null;
+	private CoupledQuantitiesConverter<S, T, I> converter = null;
 
-	private IReloadableQuantitiesConverter sourceConverter = null, targetConverter = null;
+	private IReloadableQuantitiesConverter<S, I> sourceConverter = null;
+	private IReloadableQuantitiesConverter<I, T> targetConverter = null;
 
 	/**
 	 * @param name
@@ -87,7 +88,7 @@ public final class CoupledConverterHolder extends FindableBase implements IReloa
 	 * @param sourceConverter the source converter
 	 * @param targetConverter the target converter
 	 */
-	public CoupledConverterHolder(String name, IReloadableQuantitiesConverter sourceConverter, IReloadableQuantitiesConverter targetConverter) {
+	public CoupledConverterHolder(String name, IReloadableQuantitiesConverter<S, I> sourceConverter, IReloadableQuantitiesConverter<I, T> targetConverter) {
 		super.setName(name);
 		this.sourceConverter = sourceConverter;
 		this.targetConverter = targetConverter;
@@ -131,10 +132,10 @@ public final class CoupledConverterHolder extends FindableBase implements IReloa
 		}
 		sourceConverter.reloadConverter();
 		targetConverter.reloadConverter();
-		converter = new CoupledQuantitiesConverter(sourceConverter, targetConverter);
+		converter = new CoupledQuantitiesConverter<>(sourceConverter, targetConverter);
 	}
 
-	private synchronized IQuantitiesConverter getConverter() {
+	private synchronized CoupledQuantitiesConverter<S, T, I> getConverter() {
 		if (converter == null) {
 			reloadConverter();
 		}
@@ -142,12 +143,12 @@ public final class CoupledConverterHolder extends FindableBase implements IReloa
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>>[] calculateMoveables(Quantity<? extends Quantity<?>>[] sources, Object[] moveables) throws Exception {
+	public Quantity<T>[] calculateMoveables(Quantity<S>[] sources, Object[] moveables) throws Exception {
 		return getConverter().calculateMoveables(sources, moveables);
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>>[] toSource(Quantity<? extends Quantity<?>>[] targets, Object[] moveables) throws Exception {
+	public Quantity<S>[] toSource(Quantity<T>[] targets, Object[] moveables) throws Exception {
 		return getConverter().toSource(targets, moveables);
 	}
 
@@ -165,40 +166,29 @@ public final class CoupledConverterHolder extends FindableBase implements IReloa
 	 * @param converterName
 	 * @return IReloadableQuantitiesConverter
 	 */
-	static public IReloadableQuantitiesConverter FindReloadableQuantitiesConverter(String converterName) {
-		if (converterName == null || converterName.equals("")) {
+	public static <Q extends Quantity<Q>, R extends Quantity<R>> IReloadableQuantitiesConverter<Q, R> FindReloadableQuantitiesConverter(String converterName) {
+		if (converterName == null || converterName.length() == 0) {
 			throw new IllegalArgumentException("CoupledQuantitiesConverterHolder.FindReloadableQuantitiesConverter : "
 					+ converterName + " is null or empty");
 		}
-		Findable findable = Finder.getInstance().find(converterName);
-		if (findable == null || !(findable instanceof IReloadableQuantitiesConverter)) {
-			throw new IllegalArgumentException("CoupledQuantitiesConverterHolder.FindReloadableQuantitiesConverter: "
-					+ converterName + " is not a findable IReloadableQuantitiesConverter");
-		}
-		return (IReloadableQuantitiesConverter) findable;
+		return Finder.getInstance().find(converterName.trim());
 	}
 
 	/**
 	 * @param converterName
 	 * @return IQuantitiesConverter
 	 */
-	static public IQuantitiesConverter FindQuantitiesConverter(String converterName) {
-		if (converterName == null || converterName.equals("")) {
+	public static <Q extends Quantity<Q>, R extends Quantity<R>> IQuantitiesConverter<Q, R> FindQuantitiesConverter(String converterName) {
+		if (converterName == null || converterName.length() == 0) {
 			throw new IllegalArgumentException("CoupledQuantitiesConverterHolder.FindQuantitiesConverter : "
 					+ converterName + " is null or empty");
 		}
-		Findable findable = Finder.getInstance().find(converterName.trim());
-		if (findable == null || !(findable instanceof IQuantitiesConverter)) {
-			throw new IllegalArgumentException("CoupledQuantitiesConverterHolder.FindQuantitiesConverter: "
-					+ converterName + " is not a findable IReloadableQuantitiesConverter");
-		}
-		return (IReloadableQuantitiesConverter) findable;
+		return Finder.getInstance().find(converterName.trim());
 	}
 
 	@Override
 	public String toString() {
-		// Do not call getConverter as toString should not change the state of
-		// the class
+		// Do not call getConverter as toString should not change the state of the class
 		return "CoupledQuantitiesConverter using source converter name " + getSourceConverterName()
 				+ " and target converter " + getTargetConverterName() + ". Constructed converter is "
 				+ ((converter != null) ? converter.toString() : " - converter not yet loaded");
@@ -208,12 +198,13 @@ public final class CoupledConverterHolder extends FindableBase implements IReloa
 	 * @param obj
 	 * @return IQuantityConverter
 	 */
-	public static IQuantityConverter getIQuantityConverter(Object obj) {
+	@SuppressWarnings("unchecked")
+	public static <Q extends Quantity<Q>, R extends Quantity<R>> IQuantityConverter<Q, R> getIQuantityConverter(Object obj) {
 		if (!(obj instanceof IQuantityConverter)) {
 			throw new IllegalArgumentException(
 					"CoupledQuantitiesConverterHolder.getIQuantityConverter: converter does not support IQuantityConverter ");
 		}
-		return (IQuantityConverter) obj;
+		return (IQuantityConverter<Q, R>) obj;
 	}
 
 	@Override
@@ -227,13 +218,15 @@ public final class CoupledConverterHolder extends FindableBase implements IReloa
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>> toSource(Quantity<? extends Quantity<?>> target) throws Exception {
-		return getIQuantityConverter(getConverter()).toSource(target);
+	public Quantity<S> toSource(Quantity<T> target) throws Exception {
+		final IQuantityConverter<S, T> quantityConverter = getIQuantityConverter(getConverter());
+		return quantityConverter.toSource(target);
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>> toTarget(Quantity<? extends Quantity<?>> source) throws Exception {
-		return getIQuantityConverter(getConverter()).toTarget(source);
+	public Quantity<T> toTarget(Quantity<S> source) throws Exception {
+		final IQuantityConverter<S, T> quantityConverter = getIQuantityConverter(getConverter());
+		return quantityConverter.toTarget(source);
 	}
 
 	@Override

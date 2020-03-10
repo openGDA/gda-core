@@ -55,13 +55,15 @@ import gda.factory.FindableBase;
  * <p>
  * The object implements IQuantitiesConverter so that the object can be referenced by CombinedDOF.
  */
-public final class SplitConverterHolder extends FindableBase implements IReloadableQuantitiesConverter, IQuantityConverter {
+public final class SplitConverterHolder<S extends Quantity<S>, T extends Quantity<T>> extends FindableBase
+		implements IReloadableQuantitiesConverter<S, T>, IQuantityConverter<S, T> {
 
 	private final String toSourceConverterName, calculateMoveablesConverterName;
 
-	private IQuantitiesConverter converter = null;
+	private IQuantitiesConverter<S, T> converter = null;
 
-	private IReloadableQuantitiesConverter toSourceConverter = null, calculateMoveablesConverter = null;
+	private IReloadableQuantitiesConverter<S, T> toSourceConverter = null;
+	private IReloadableQuantitiesConverter<S, T> calculateMoveablesConverter = null;
 
 	/**
 	 * @param name
@@ -112,10 +114,10 @@ public final class SplitConverterHolder extends FindableBase implements IReloada
 		}
 		toSourceConverter.reloadConverter();
 		calculateMoveablesConverter.reloadConverter();
-		converter = new SplitQuantitiesConverter(toSourceConverter, calculateMoveablesConverter);
+		converter = new SplitQuantitiesConverter<>(toSourceConverter, calculateMoveablesConverter);
 	}
 
-	private synchronized IQuantitiesConverter getConverter() {
+	private synchronized IQuantitiesConverter<S, T> getConverter() {
 		if (converter == null) {
 			reloadConverter();
 		}
@@ -123,12 +125,12 @@ public final class SplitConverterHolder extends FindableBase implements IReloada
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>>[] calculateMoveables(Quantity<? extends Quantity<?>>[] sources, Object[] moveables) throws Exception {
+	public Quantity<T>[] calculateMoveables(Quantity<S>[] sources, Object[] moveables) throws Exception {
 		return getConverter().calculateMoveables(sources, moveables);
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>>[] toSource(Quantity<? extends Quantity<?>>[] targets, Object[] moveables) throws Exception {
+	public Quantity<S>[] toSource(Quantity<T>[] targets, Object[] moveables) throws Exception {
 		return getConverter().toSource(targets, moveables);
 	}
 
@@ -163,15 +165,16 @@ public final class SplitConverterHolder extends FindableBase implements IReloada
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>> toSource(Quantity<? extends Quantity<?>> target) throws Exception {
-		return CoupledConverterHolder.getIQuantityConverter(getConverter()).toSource(target);
+	public Quantity<S> toSource(Quantity<T> target) throws Exception {
+		final IQuantityConverter<S, T> conv = CoupledConverterHolder.getIQuantityConverter(getConverter());
+		return conv.toSource(target);
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>> toTarget(Quantity<? extends Quantity<?>> source) throws Exception {
-		return CoupledConverterHolder.getIQuantityConverter(getConverter()).toTarget(source);
+	public Quantity<T> toTarget(Quantity<S> source) throws Exception {
+		final IQuantityConverter<S, T> conv = CoupledConverterHolder.getIQuantityConverter(getConverter());
+		return conv.toTarget(source);
 	}
-
 	@Override
 	public boolean sourceMinIsTargetMax() {
 		return getConverter().sourceMinIsTargetMax();
@@ -186,5 +189,4 @@ public final class SplitConverterHolder extends FindableBase implements IReloada
 	public boolean handlesTtoS() {
 		return CoupledConverterHolder.getIQuantityConverter(getConverter()).handlesTtoS();
 	}
-
 }

@@ -100,13 +100,13 @@ public class EnergyFocusFunctionDisplay {
 	 * Update display from energyFocusFunction
 	 */
 	public void update() {
-		final Quantity<Length> slopeDividend = energyFocusFunction.getSlopeDividend().asType(Length.class);
+		final Quantity<Length> slopeDividend = energyFocusFunction.getSlopeDividend();
 		slopeDividendComposite.setValue(slopeDividend.to(MODEL_LENGTH_UNIT).getValue().doubleValue());
 
-		final Quantity<Length> interception = energyFocusFunction.getInterception().asType(Length.class);
+		final Quantity<Length> interception = energyFocusFunction.getInterception();
 		interceptionComposite.setValue(interception.to(MODEL_LENGTH_UNIT).getValue().doubleValue());
 
-		final Quantity<Energy> slopeDivisor = energyFocusFunction.getSlopeDivisor().asType(Energy.class);
+		final Quantity<Energy> slopeDivisor = energyFocusFunction.getSlopeDivisor();
 		slopeDivisorComposite.setValue(slopeDivisor.to(MODEL_ENERGY_UNIT).getValue().doubleValue());
 	}
 

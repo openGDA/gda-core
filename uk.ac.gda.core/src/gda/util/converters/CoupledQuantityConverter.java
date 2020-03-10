@@ -29,10 +29,18 @@ import gda.util.QuantityFactory;
 /**
  * class used to test the concept used in CoupoleConverterHolder without the need to instantiate an ObjectServer
  */
-final class CoupledQuantityConverter implements IQuantityConverter {
-	private final IQuantityConverter sourceConverter, targetConverter;
+final class CoupledQuantityConverter<S extends Quantity<S>, T extends Quantity<T>, Q extends Quantity<Q>> implements IQuantityConverter<S, T> {
+	/**
+	 * Converter to be used to convert between Source and an intermediate quantity
+	 */
+	private final IQuantityConverter<S, Q> sourceConverter;
 
-	CoupledQuantityConverter(IQuantityConverter sourceConverter, IQuantityConverter targetConverter) {
+	/**
+	 * Converter to be used to convert between an intermediate quantity and Target
+	 */
+	private final IQuantityConverter<Q, T> targetConverter;
+
+	CoupledQuantityConverter(IQuantityConverter<S, Q> sourceConverter, IQuantityConverter<Q, T> targetConverter) {
 		if (targetConverter == null || sourceConverter == null) {
 			throw new IllegalArgumentException(
 					"CoupledQuantityConverter.CoupledQuantityConverter: converters cannot be null");
@@ -59,19 +67,17 @@ final class CoupledQuantityConverter implements IQuantityConverter {
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>> toSource(Quantity<? extends Quantity<?>> target) throws Exception {
-		Quantity<? extends Quantity<?>> q = targetConverter.toSource(target);
-		// check units are of the sort we expect for the conversion - else
-		// convert to it first
+	public Quantity<S> toSource(Quantity<T> target) throws Exception {
+		final Quantity<Q> q = targetConverter.toSource(target);
+		// check units are of the sort we expect for the conversion - else convert to it first
 		return sourceConverter.toSource(q);
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>> toTarget(Quantity<? extends Quantity<?>> source) throws Exception {
-		Quantity<? extends Quantity<?>> q = sourceConverter.toTarget(source);
-		// check units are of the sort we expect for the conversion - else
-		// convert to it first
-		final Unit<? extends Quantity<?>> targetUnit = QuantityFactory.createUnitFromString(getTargetConverterSourceUnit());
+	public Quantity<T> toTarget(Quantity<S> source) throws Exception {
+		final Quantity<Q> q = sourceConverter.toTarget(source);
+		// check units are of the sort we expect for the conversion - else convert to it first
+		final Unit<T> targetUnit = QuantityFactory.createUnitFromString(getTargetConverterSourceUnit());
 		if (!q.getUnit().equals(targetUnit)) {
 			throw new IllegalArgumentException("JEPQuantityConverter.ToSource: source units (" + q.getUnit()
 					+ ") do not match acceptableUnits (" + targetUnit + ")");

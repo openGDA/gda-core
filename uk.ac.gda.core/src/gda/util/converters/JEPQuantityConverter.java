@@ -35,7 +35,7 @@ import gda.util.QuantityFactory;
  * @see gda.util.converters.JEPConverterHolder
  * @see org.nfunk.jep.JEP
  */
-final class JEPQuantityConverter implements IQuantityConverter {
+final class JEPQuantityConverter<S extends Quantity<S>, T extends Quantity<T>> implements IQuantityConverter<S, T> {
 	private final JEP jepStoT, jepTtoS;
 
 	private final JEPQuantityConverterParameters expressionParameters;
@@ -82,9 +82,9 @@ final class JEPQuantityConverter implements IQuantityConverter {
 	 * Need to be synchronized as we change the JEP during the call
 	 */
 	@Override
-	public synchronized Quantity<? extends Quantity<?>> toSource(Quantity<? extends Quantity<?>> target) {
-		final Unit<? extends Quantity<?>> acceptableSourceUnits = QuantityFactory.createUnitFromString(getAcceptableSourceUnits().get(0));
-		final Unit<? extends Quantity<?>> acceptableTargetUnits = QuantityFactory.createUnitFromString(getAcceptableTargetUnits().get(0));
+	public synchronized Quantity<S> toSource(Quantity<T> target) {
+		final Unit<S> acceptableSourceUnits = QuantityFactory.createUnitFromString(getAcceptableSourceUnits().get(0));
+		final Unit<T> acceptableTargetUnits = QuantityFactory.createUnitFromString(getAcceptableTargetUnits().get(0));
 
 		if (!target.getUnit().equals(acceptableTargetUnits)) {
 			throw new IllegalArgumentException("JEPQuantityConverter.ToSource: target units (" + target.getUnit()
@@ -92,28 +92,24 @@ final class JEPQuantityConverter implements IQuantityConverter {
 		}
 
 		jepTtoS.addVariable(VariableName, target.getValue().doubleValue());
-		// returns in
-		// current units
-		// doubleValue
-		// converts it
+		// returns in current units doubleValue converts it
 		double val = jepTtoS.getValue();
-		// Infinite is a valid value for 1/X when X is 0. so only protect
-		// against Nan.
+		// Infinite is a valid value for 1/X when X is 0. so only protect against Nan.
 		if (Double.isNaN(val) /* || Double.isInfinite(val) */) {
 			throw new IllegalArgumentException("JEPQuantityConverter.ToSource: Error. Result = " + val + " target = "
 					+ target.getValue().doubleValue() + " expression = " + expressionParameters.getExpressionTtoS() + " "
 					+ this.toString());
 		}
-		return QuantityFactory.createFromObjectUnknownUnit(val, acceptableSourceUnits);
+		return QuantityFactory.createFromObject(val, acceptableSourceUnits);
 	}
 
 	/*
 	 * Need to be synchronized as we change the JEP during the call
 	 */
 	@Override
-	public synchronized Quantity<? extends Quantity<?>> toTarget(Quantity<? extends Quantity<?>> source) {
-		final Unit<? extends Quantity<?>> acceptableSourceUnits = QuantityFactory.createUnitFromString(getAcceptableSourceUnits().get(0));
-		final Unit<? extends Quantity<?>> acceptableTargetUnits = QuantityFactory.createUnitFromString(getAcceptableTargetUnits().get(0));
+	public synchronized Quantity<T> toTarget(Quantity<S> source) {
+		final Unit<S> acceptableSourceUnits = QuantityFactory.createUnitFromString(getAcceptableSourceUnits().get(0));
+		final Unit<T> acceptableTargetUnits = QuantityFactory.createUnitFromString(getAcceptableTargetUnits().get(0));
 
 		if (!source.getUnit().equals(acceptableSourceUnits)) {
 			throw new IllegalArgumentException("JEPQuantityConverter.ToTarget: source units (" + source.getUnit()
@@ -122,14 +118,13 @@ final class JEPQuantityConverter implements IQuantityConverter {
 
 		jepStoT.addVariable(VariableName, source.getValue().doubleValue());
 		double val = jepStoT.getValue();
-		// Infinite is a valid value for 1/X when X is 0. so only protect
-		// against Nan.
+		// Infinite is a valid value for 1/X when X is 0. so only protect against Nan.
 		if (Double.isNaN(val) /* || Double.isInfinite(val) */) {
 			throw new IllegalArgumentException("JEPQuantityConverter.ToTarget: Error. Result = " + val + " source = "
 					+ source.getValue().doubleValue() + " expression = " + expressionParameters.getExpressionStoT() + " "
 					+ this.toString());
 		}
-		return QuantityFactory.createFromObjectUnknownUnit(val, acceptableTargetUnits);
+		return QuantityFactory.createFromObject(val, acceptableTargetUnits);
 	}
 
 	@Override

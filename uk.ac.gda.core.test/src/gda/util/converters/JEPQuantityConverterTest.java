@@ -24,6 +24,8 @@ import static org.junit.Assert.fail;
 
 import javax.measure.Quantity;
 import javax.measure.Unit;
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Length;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -46,36 +48,36 @@ public class JEPQuantityConverterTest {
 
 	@Test
 	public void testToSource() throws Exception {
-		final JEPQuantityConverter converter = new JEPQuantityConverter(JEPQuantityConverterParameters.jUnitTestFileName);
+		final JEPQuantityConverter<Length, Length> converter = new JEPQuantityConverter<>(JEPQuantityConverterParameters.jUnitTestFileName);
 		testConverter(converter);
 	}
 
 	@Test
 	public final void testReal() throws Exception {
-		final JEPQuantityConverter converter = new JEPQuantityConverter(TEST_FILE_FOLDER + "/Simple.xml");
+		final JEPQuantityConverter<Angle, Length> converter = new JEPQuantityConverter<>(TEST_FILE_FOLDER + "/Simple.xml");
 		testConverter(converter);
 	}
 
 	@Test
 	public final void testSourceMinIsTargetMax() {
-		assertEquals(false, new JEPQuantityConverter(TEST_FILE_FOLDER + "/Simple.xml").sourceMinIsTargetMax());
-		assertEquals(true, new JEPQuantityConverter(TEST_FILE_FOLDER + "/SourceMinIsTargetMax.xml")
+		assertEquals(false, new JEPQuantityConverter<Angle, Length>(TEST_FILE_FOLDER + "/Simple.xml").sourceMinIsTargetMax());
+		assertEquals(true, new JEPQuantityConverter<Angle, Length>(TEST_FILE_FOLDER + "/SourceMinIsTargetMax.xml")
 				.sourceMinIsTargetMax());
-		assertEquals(false, new JEPQuantityConverter(TEST_FILE_FOLDER + "/SourceMinIsNOTTargetMax.xml")
+		assertEquals(false, new JEPQuantityConverter<Angle, Length>(TEST_FILE_FOLDER + "/SourceMinIsNOTTargetMax.xml")
 				.sourceMinIsTargetMax());
 	}
 
 	@Test
 	public final void testComplex() throws Exception {
-		final JEPQuantityConverter converter = new JEPQuantityConverter(TEST_FILE_FOLDER + "/Complex.xml");
+		final JEPQuantityConverter<Angle, Length> converter = new JEPQuantityConverter<>(TEST_FILE_FOLDER + "/Complex.xml");
 		testConverter(converter);
 	}
 
 	@Test
 	public final void testCoupled() throws Exception {
-		final JEPQuantityConverter converterTarget = new JEPQuantityConverter(TEST_FILE_FOLDER + "/DegToAngstrom.xml");
-		final JEPQuantityConverter converterSource = new JEPQuantityConverter(TEST_FILE_FOLDER + "/mmToDeg.xml");
-		final CoupledQuantityConverter converter = new CoupledQuantityConverter(converterSource, converterTarget);
+		final JEPQuantityConverter<Angle, Length> converterTarget = new JEPQuantityConverter<>(TEST_FILE_FOLDER + "/DegToAngstrom.xml");
+		final JEPQuantityConverter<Length, Angle> converterSource = new JEPQuantityConverter<>(TEST_FILE_FOLDER + "/mmToDeg.xml");
+		final CoupledQuantityConverter<Length, Length, Angle> converter = new CoupledQuantityConverter<>(converterSource, converterTarget);
 		// target in Angstrom, source should be in mm
 		testConverter(converter);
 	}
@@ -83,10 +85,10 @@ public class JEPQuantityConverterTest {
 	@SuppressWarnings("unused")
 	@Test
 	public final void testBadCoupled() {
-		final JEPQuantityConverter converterTarget = new JEPQuantityConverter(TEST_FILE_FOLDER + "/mmToDeg.xml");
-		final JEPQuantityConverter converterSource = new JEPQuantityConverter(TEST_FILE_FOLDER + "/DegToAngstrom.xml");
+		final JEPQuantityConverter<Length, Angle> converterTarget = new JEPQuantityConverter<>(TEST_FILE_FOLDER + "/mmToDeg.xml");
+		final JEPQuantityConverter<Angle, Length> converterSource = new JEPQuantityConverter<>(TEST_FILE_FOLDER + "/DegToAngstrom.xml");
 		try {
-			new CoupledQuantityConverter(converterSource, converterTarget);
+			new CoupledQuantityConverter<Angle, Angle, Length>(converterSource, converterTarget);
 			fail("Creating CoupledQuantityConverter with incompatible units should throw exception");
 		} catch (IllegalArgumentException e) {
 			final String msg = e.getMessage();
@@ -98,11 +100,14 @@ public class JEPQuantityConverterTest {
 		}
 	}
 
+	/*
+	 * The Java compiler used by Buckminster treats the call to QuantityFactory.createFromObject() as an compilation error
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public final void testUnits() {
 		final JEPQuantityConverter converter = new JEPQuantityConverter(TEST_FILE_FOLDER + "/mmToDeg.xml");
 		final JEPQuantityConverter dummyToGetUnits = new JEPQuantityConverter(TEST_FILE_FOLDER + "/DegToAngstrom.xml");
-		final Quantity<? extends Quantity<?>> targetBeforeConversion = QuantityFactory.createFromObjectUnknownUnit(1.0, getAcceptableTargetUnits(dummyToGetUnits));
+		final Quantity targetBeforeConversion = QuantityFactory.createFromObject(1.0, getAcceptableTargetUnits(dummyToGetUnits));
 		try {
 			converter.toSource(targetBeforeConversion);
 			fail("Calling JEPQuantityConverter with incompatible units should throw exception");
@@ -113,16 +118,17 @@ public class JEPQuantityConverterTest {
 							+ converter.getExpressionFileName(), msg);
 		}
 	}
+	*/
 
-	private Unit<? extends Quantity<?>> getAcceptableTargetUnits(final IQuantityConverter converter) {
+	private <S extends Quantity<S>, T extends Quantity<T>> Unit<T> getAcceptableTargetUnits(final IQuantityConverter<S, T> converter) {
 		return QuantityFactory.createUnitFromString(converter.getAcceptableTargetUnits().get(0));
 	}
 
-	private void testConverter(final IQuantityConverter converter) throws Exception {
-		final Unit<? extends Quantity<?>> acceptableTargetUnits = getAcceptableTargetUnits(converter);
-		final Quantity<? extends Quantity<?>> targetBeforeConversion = QuantityFactory.createFromObjectUnknownUnit(1.0, acceptableTargetUnits);
-		final Quantity<? extends Quantity<?>> source = converter.toSource(targetBeforeConversion);
-		final Quantity<? extends Quantity<?>> targetAfterConversion = converter.toTarget(source);
+	private <S extends Quantity<S>, T extends Quantity<T>> void testConverter(final IQuantityConverter<S, T> converter) throws Exception {
+		final Unit<T> acceptableTargetUnits = getAcceptableTargetUnits(converter);
+		final Quantity<T> targetBeforeConversion = QuantityFactory.createFromObject(1.0, acceptableTargetUnits);
+		final Quantity<S> source = converter.toSource(targetBeforeConversion);
+		final Quantity<T> targetAfterConversion = converter.toTarget(source);
 		assertEquals(targetAfterConversion, targetBeforeConversion);
 	}
 }

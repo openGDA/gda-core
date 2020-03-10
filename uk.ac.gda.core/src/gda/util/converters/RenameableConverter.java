@@ -27,10 +27,11 @@ import gda.factory.FindableBase;
 /**
  * RenameableConverter Class
  */
-public class RenameableConverter extends FindableBase implements IReloadableQuantitiesConverter, IQuantityConverter {
+public class RenameableConverter<S extends Quantity<S>, T extends Quantity<T>> extends FindableBase
+		implements IReloadableQuantitiesConverter<S, T>, IQuantityConverter<S, T> {
 	private String converterName = "";
 
-	private IReloadableQuantitiesConverter converter = null;
+	private IReloadableQuantitiesConverter<S, T> converter = null;
 
 	/**
 	 * @param name
@@ -52,7 +53,7 @@ public class RenameableConverter extends FindableBase implements IReloadableQuan
 		getConverter().reloadConverter();
 	}
 
-	private synchronized IReloadableQuantitiesConverter getConverter() {
+	private synchronized IReloadableQuantitiesConverter<S, T> getConverter() {
 		if (converter == null) {
 			converter = CoupledConverterHolder.FindReloadableQuantitiesConverter(converterName);
 		}
@@ -84,8 +85,7 @@ public class RenameableConverter extends FindableBase implements IReloadableQuan
 		if (getName().equals(converterName)) {
 			throw new IllegalArgumentException("RenameableConverter. name and converterName cannot be the same");
 		}
-		IReloadableQuantitiesConverter newConverter = CoupledConverterHolder
-				.FindReloadableQuantitiesConverter(converterName);
+		final IReloadableQuantitiesConverter<S, T> newConverter = CoupledConverterHolder.FindReloadableQuantitiesConverter(converterName);
 		if (converter != null) {
 			LookupTableConverterHolder.CheckUnitsAreEqual(converter, newConverter);
 		}
@@ -97,7 +97,7 @@ public class RenameableConverter extends FindableBase implements IReloadableQuan
 	 * @see gda.util.converters.IQuantitiesConverter#calculateMoveables(Quantity[], Object[])
 	 */
 	@Override
-	public Quantity<? extends Quantity<?>>[] calculateMoveables(Quantity<? extends Quantity<?>>[] sources, Object[] moveables) throws Exception {
+	public Quantity<T>[] calculateMoveables(Quantity<S>[] sources, Object[] moveables) throws Exception {
 		return getConverter().calculateMoveables(sources, moveables);
 	}
 
@@ -105,7 +105,7 @@ public class RenameableConverter extends FindableBase implements IReloadableQuan
 	 * @see gda.util.converters.IQuantitiesConverter#toSource(Quantity[], Object[])
 	 */
 	@Override
-	public Quantity<? extends Quantity<?>>[] toSource(Quantity<? extends Quantity<?>>[] targets, Object[] moveables) throws Exception {
+	public Quantity<S>[] toSource(Quantity<T>[] targets, Object[] moveables) throws Exception {
 		return getConverter().toSource(targets, moveables);
 	}
 
@@ -153,13 +153,15 @@ public class RenameableConverter extends FindableBase implements IReloadableQuan
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>> toSource(Quantity<? extends Quantity<?>> target) throws Exception {
-		return CoupledConverterHolder.getIQuantityConverter(getConverter()).toSource(target);
+	public Quantity<S> toSource(Quantity<T> target) throws Exception {
+		final IQuantityConverter<S, T> conv = (CoupledConverterHolder.getIQuantityConverter(getConverter()));
+		return conv.toSource(target);
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>> toTarget(Quantity<? extends Quantity<?>> source) throws Exception {
-		return CoupledConverterHolder.getIQuantityConverter(getConverter()).toTarget(source);
+	public Quantity<T> toTarget(Quantity<S> source) throws Exception {
+		final IQuantityConverter<S, T> conv = (CoupledConverterHolder.getIQuantityConverter(getConverter()));
+		return conv.toTarget(source);
 	}
 
 	/**
@@ -169,6 +171,7 @@ public class RenameableConverter extends FindableBase implements IReloadableQuan
 	public boolean sourceMinIsTargetMax() {
 		return getConverter().sourceMinIsTargetMax();
 	}
+
 	@Override
 	public boolean handlesStoT() {
 		return true;
@@ -178,5 +181,4 @@ public class RenameableConverter extends FindableBase implements IReloadableQuan
 	public boolean handlesTtoS() {
 		return true;
 	}
-
 }

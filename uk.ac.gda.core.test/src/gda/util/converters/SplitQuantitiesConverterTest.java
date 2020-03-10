@@ -19,49 +19,34 @@
 
 package gda.util.converters;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.List;
 
-import junit.framework.TestCase;
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Length;
+
+import org.junit.Test;
 
 /**
  * SplitQuantitiesConverterTest Class. It is assumed the that working directory points to the test folder above gda
  */
-public class SplitQuantitiesConverterTest extends TestCase {
-	final static String testFileFolder = "testfiles/gda/util/converters/JEPQuantityConverterTest";
+public class SplitQuantitiesConverterTest {
+	private final static String testFileFolder = "testfiles/gda/util/converters/JEPQuantityConverterTest";
 
-	/**
-	 * @param arg0
-	 */
-	public SplitQuantitiesConverterTest(String arg0) {
-		super(arg0);
-	}
+	@Test
+	public void testUnits() {
+		final GenQuantitiesConverter<Angle, Length> toSourceConverter = new GenQuantitiesConverter<>(
+				new JEPQuantityConverter<Angle, Length>(testFileFolder + "/DegToAngstrom.xml"));
+		final GenQuantitiesConverter<Angle, Length> calcMoveablesConverter = new GenQuantitiesConverter<>(
+				new JEPQuantityConverter<Angle, Length>(testFileFolder + "/mmToDeg.xml"));
+		final SplitQuantitiesConverter<Angle, Length> splitConverter = new SplitQuantitiesConverter<>(toSourceConverter, calcMoveablesConverter);
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-	}
+		final List<List<String>> acceptableUnits = splitConverter.getAcceptableUnits();
+		final List<List<String>> acceptableMoveableUnits = splitConverter.getAcceptableMoveableUnits();
 
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
-
-	/**
-	 *
-	 */
-	public final void testUnits() {
-		GenQuantitiesConverter toSourceConverter = new GenQuantitiesConverter(new JEPQuantityConverter(testFileFolder
-				+ "/DegToAngstrom.xml"));
-		GenQuantitiesConverter calcMoveablesConverter = new GenQuantitiesConverter(new JEPQuantityConverter(
-				testFileFolder + "/mmToDeg.xml"));
-		SplitQuantitiesConverter splitConverter = new SplitQuantitiesConverter(toSourceConverter,
-				calcMoveablesConverter);
-
-		List<List<String>> acceptableUnits = splitConverter.getAcceptableUnits();
-		List<List<String>> acceptableMoveableUnits = splitConverter.getAcceptableMoveableUnits();
-
-		List<List<String>> acceptableCalcMoveablesUnits = calcMoveablesConverter.getAcceptableUnits();
-		List<List<String>> acceptableToSourceMoveableUnits = toSourceConverter.getAcceptableMoveableUnits();
+		final List<List<String>> acceptableCalcMoveablesUnits = calcMoveablesConverter.getAcceptableUnits();
+		final List<List<String>> acceptableToSourceMoveableUnits = toSourceConverter.getAcceptableMoveableUnits();
 
 		assertTrue(LookupTableConverterHolder.UnitsAreEqual(acceptableCalcMoveablesUnits, acceptableUnits));
 		assertTrue(LookupTableConverterHolder.UnitsAreEqual(acceptableToSourceMoveableUnits, acceptableMoveableUnits));

@@ -25,22 +25,25 @@ import javax.measure.Quantity;
  * {@link Quantity} to another {@link Quantity}, using an object that implements the
  * {@link IReloadableQuantitiesConverter} interface.
  */
-public abstract class SimpleConverterBase implements IConverter<Quantity<? extends Quantity<?>>, Quantity<? extends Quantity<?>>> {
+public abstract class SimpleConverterBase<S extends Quantity<S>, T extends Quantity<T>>
+		implements IConverter<Quantity<S>, Quantity<T>> {
 
-	protected IReloadableQuantitiesConverter converter;
+	protected IReloadableQuantitiesConverter<S, T> converter;
 
 	@Override
-	public Quantity<? extends Quantity<?>> toTarget(Quantity<? extends Quantity<?>> source) throws Exception {
-		Quantity<?>[] sources = { source };
-		Object[] moveables = { null }; // this means we get a result set with 1 entry
+	public Quantity<T> toTarget(Quantity<S> source) throws Exception {
+		@SuppressWarnings("unchecked")
+		final Quantity<S>[] sources = new Quantity[] { source };
+		final Object[] moveables = { null }; // this means we get a result set with 1 entry
 		return converter.calculateMoveables(sources, moveables)[0];
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>> toSource(Quantity<? extends Quantity<?>> target) throws Exception {
-		Quantity<?>[] targets = { target };
-		Object[] moveables = { null }; // this means we get a result set with 1 entry
-		return converter.calculateMoveables(targets, moveables)[0];
+	public Quantity<S> toSource(Quantity<T> target) throws Exception {
+		@SuppressWarnings("unchecked")
+		final Quantity<T>[] targets = new Quantity[] { target };
+		final Object[] moveables = { null }; // this means we get a result set with 1 entry
+		return converter.toSource(targets, moveables)[0];
 	}
 
 	@Override
@@ -48,7 +51,7 @@ public abstract class SimpleConverterBase implements IConverter<Quantity<? exten
 		return converter.sourceMinIsTargetMax();
 	}
 
-	public IReloadableQuantitiesConverter getConverter() {
+	public IReloadableQuantitiesConverter<S, T> getConverter() {
 		return converter;
 	}
 

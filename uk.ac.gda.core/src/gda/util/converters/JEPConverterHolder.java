@@ -46,7 +46,7 @@ import gda.factory.FindableBase;
  * <p>
  * The object implements IQuantitiesConverter so that the object can be referenced by CombinedDOF.
  * <p>
- * The object implements IQuantityConverter to allow the conversion to be easilty tested using the commands:
+ * The object implements IQuantityConverter to allow the conversion to be easily tested using the commands:
  * <p>
  *
  * <pre>
@@ -71,9 +71,9 @@ import gda.factory.FindableBase;
  *   &lt;/JEPQuantityConverter&gt;
  * </pre>
  */
-public final class JEPConverterHolder extends FindableBase implements IReloadableQuantitiesConverter, IQuantityConverter
+public final class JEPConverterHolder<S extends Quantity<S>, T extends Quantity<T>> extends FindableBase implements IReloadableQuantitiesConverter<S, T>, IQuantityConverter<S, T>
 {
-	private GenQuantitiesConverter converter = null;
+	private GenQuantitiesConverter<S, T> converter = null;
 
 	private final String expressionFileName;
 
@@ -125,7 +125,8 @@ public final class JEPConverterHolder extends FindableBase implements IReloadabl
 		// To reduce race conditions create a brand new converter rather than
 		// change existing which may be already being accessed on other threads
 		try {
-			GenQuantitiesConverter newJEPConverter = new GenQuantitiesConverter(new JEPQuantityConverter(expressionFileName));
+			final JEPQuantityConverter<S, T> jepQuantityConverter = new JEPQuantityConverter<>(expressionFileName);
+			final GenQuantitiesConverter<S, T> newJEPConverter = new GenQuantitiesConverter<>(jepQuantityConverter);
 			if (converter != null) {
 				LookupTableConverterHolder.CheckUnitsAreEqual(converter, newJEPConverter);
 			}
@@ -138,7 +139,7 @@ public final class JEPConverterHolder extends FindableBase implements IReloadabl
 		}
 	}
 
-	private synchronized GenQuantitiesConverter getConverter() {
+	private synchronized GenQuantitiesConverter<S, T> getConverter() {
 		if (converter == null) {
 			reloadConverter();
 		}
@@ -156,12 +157,12 @@ public final class JEPConverterHolder extends FindableBase implements IReloadabl
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>>[] calculateMoveables(Quantity<? extends Quantity<?>>[] sources, Object[] moveables) throws Exception {
+	public Quantity<T>[] calculateMoveables(Quantity<S>[] sources, Object[] moveables) throws Exception {
 		return getConverter().calculateMoveables(sources, moveables);
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>>[] toSource(Quantity<? extends Quantity<?>>[] targets, Object[] moveables) throws Exception {
+	public Quantity<S>[] toSource(Quantity<T>[] targets, Object[] moveables) throws Exception {
 		return getConverter().toSource(targets, moveables);
 	}
 
@@ -189,12 +190,12 @@ public final class JEPConverterHolder extends FindableBase implements IReloadabl
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>> toSource(Quantity<? extends Quantity<?>> target) throws Exception {
+	public Quantity<S> toSource(Quantity<T> target) throws Exception {
 		return getConverter().toSource(target);
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>> toTarget(Quantity<? extends Quantity<?>> source) throws Exception {
+	public Quantity<T> toTarget(Quantity<S> source) throws Exception {
 		return getConverter().toTarget(source);
 	}
 

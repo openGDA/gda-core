@@ -26,11 +26,12 @@ import javax.measure.Quantity;
 /**
  * class used to test the concept used in SplitConverterHolder without the need to instantiate an ObjectServer
  */
-final class SplitQuantitiesConverter implements IQuantitiesConverter, IQuantityConverter {
+final class SplitQuantitiesConverter<S extends Quantity<S>, T extends Quantity<T>> implements IQuantitiesConverter<S, T>, IQuantityConverter<S, T> {
 
-	private final IQuantitiesConverter toSourceConverter, calculateMoveablesConverter;
+	private final IQuantitiesConverter<S, T> toSourceConverter;
+	private final IQuantitiesConverter<S, T> calculateMoveablesConverter;
 
-	SplitQuantitiesConverter(IQuantitiesConverter toSourceConverter, IQuantitiesConverter calculateMoveablesConverter) {
+	SplitQuantitiesConverter(IQuantitiesConverter<S, T> toSourceConverter, IQuantitiesConverter<S, T> calculateMoveablesConverter) {
 		if (toSourceConverter == null || calculateMoveablesConverter == null) {
 			throw new IllegalArgumentException(
 					"SplitQuantitiesConverter.SplitQuantitiesConverter: converters cannot be null");
@@ -43,7 +44,7 @@ final class SplitQuantitiesConverter implements IQuantitiesConverter, IQuantityC
 	 * @see gda.util.converters.IQuantitiesConverter#calculateMoveables(Quantity[], Object[])
 	 */
 	@Override
-	public Quantity<? extends Quantity<?>>[] calculateMoveables(Quantity<? extends Quantity<?>>[] sources, Object[] moveables) throws Exception {
+	public Quantity<T>[] calculateMoveables(Quantity<S>[] sources, Object[] moveables) throws Exception {
 		return calculateMoveablesConverter.calculateMoveables(sources, moveables);
 	}
 
@@ -51,7 +52,7 @@ final class SplitQuantitiesConverter implements IQuantitiesConverter, IQuantityC
 	 * @see gda.util.converters.IQuantitiesConverter#toSource(Quantity[], Object[])
 	 */
 	@Override
-	public Quantity<? extends Quantity<?>>[] toSource(Quantity<? extends Quantity<?>>[] targets, Object[] moveables) throws Exception {
+	public Quantity<S>[] toSource(Quantity<T>[] targets, Object[] moveables) throws Exception {
 		return toSourceConverter.toSource(targets, moveables);
 	}
 
@@ -89,21 +90,25 @@ final class SplitQuantitiesConverter implements IQuantitiesConverter, IQuantityC
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>> toSource(Quantity<? extends Quantity<?>> target) throws Exception {
+	public Quantity<S> toSource(Quantity<T> target) throws Exception {
 		if (!(toSourceConverter instanceof IQuantityConverter)) {
 			throw new IllegalArgumentException(
 					"SplitQuantitiesConverter.toSource: toSourceConverter does not support IQuantityConverter ");
 		}
-		return ((IQuantityConverter) toSourceConverter).toSource(target);
+		@SuppressWarnings("unchecked")
+		final IQuantityConverter<S, T> sourceConv = (IQuantityConverter<S, T>) toSourceConverter;
+		return sourceConv.toSource(target);
 	}
 
 	@Override
-	public Quantity<? extends Quantity<?>> toTarget(Quantity<? extends Quantity<?>> source) throws Exception {
+	public Quantity<T> toTarget(Quantity<S> source) throws Exception {
 		if (!(calculateMoveablesConverter instanceof IQuantityConverter)) {
 			throw new IllegalArgumentException(
 					"SplitQuantitiesConverter.toTarget: calculateMoveablesConverter does not support IQuantityConverter ");
 		}
-		return ((IQuantityConverter) calculateMoveablesConverter).toTarget(source);
+		@SuppressWarnings("unchecked")
+		final IQuantityConverter<S, T> moveablesConv = (IQuantityConverter<S, T>) calculateMoveablesConverter;
+		return moveablesConv.toTarget(source);
 	}
 
 	@Override
@@ -112,7 +117,9 @@ final class SplitQuantitiesConverter implements IQuantitiesConverter, IQuantityC
 			throw new IllegalArgumentException(
 					"SplitQuantitiesConverter.getAcceptableSourceUnits: calculateMoveablesConverter does not support IQuantityConverter ");
 		}
-		return ((IQuantityConverter) calculateMoveablesConverter).getAcceptableSourceUnits();
+		@SuppressWarnings("unchecked")
+		final IQuantityConverter<S, T> moveablesConv = (IQuantityConverter<S, T>) calculateMoveablesConverter;
+		return moveablesConv.getAcceptableSourceUnits();
 	}
 
 	@Override
@@ -121,7 +128,9 @@ final class SplitQuantitiesConverter implements IQuantitiesConverter, IQuantityC
 			throw new IllegalArgumentException(
 					"SplitQuantitiesConverter.getAcceptableTargetUnits: toSourceConverter does not support IQuantityConverter ");
 		}
-		return ((IQuantityConverter) toSourceConverter).getAcceptableTargetUnits();
+		@SuppressWarnings("unchecked")
+		final IQuantityConverter<S, T> sourceConv = (IQuantityConverter<S, T>) toSourceConverter;
+		return sourceConv.getAcceptableTargetUnits();
 	}
 
 	@Override
@@ -130,7 +139,9 @@ final class SplitQuantitiesConverter implements IQuantitiesConverter, IQuantityC
 			throw new IllegalArgumentException(
 					"SplitQuantitiesConverter.handlesStoT: calculateMoveablesConverter does not support IQuantityConverter ");
 		}
-		return ((IQuantityConverter) calculateMoveablesConverter).handlesStoT();
+		@SuppressWarnings("unchecked")
+		final IQuantityConverter<S, T> moveablesConv = (IQuantityConverter<S, T>) calculateMoveablesConverter;
+		return moveablesConv.handlesStoT();
 	}
 
 	@Override
@@ -139,7 +150,9 @@ final class SplitQuantitiesConverter implements IQuantitiesConverter, IQuantityC
 			throw new IllegalArgumentException(
 					"SplitQuantitiesConverter.handlesTtoS: toSourceConverter does not support IQuantityConverter ");
 		}
-		return ((IQuantityConverter) toSourceConverter).handlesTtoS();
+		@SuppressWarnings("unchecked")
+		final IQuantityConverter<S, T> sourceConv = (IQuantityConverter<S, T>) toSourceConverter;
+		return sourceConv.handlesTtoS();
 	}
 
 }

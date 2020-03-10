@@ -19,6 +19,9 @@
 
 package gda.device.scannable;
 
+import static gda.function.ColumnDataFile.GDA_FUNCTION_COLUMN_DATA_FILE_LOOKUP_DIR;
+import static gda.util.converters.LookupTableQuantityConverter.Mode_Both;
+import static gda.util.converters.LookupTableQuantityConverter.Mode_StoT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -27,8 +30,11 @@ import static org.mockito.Mockito.when;
 import static tec.units.indriya.unit.MetricPrefix.MILLI;
 import static tec.units.indriya.unit.Units.METRE;
 
+import javax.measure.Quantity;
+import javax.measure.quantity.Angle;
 import javax.measure.quantity.Length;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,29 +45,32 @@ import gda.device.ScannableMotionUnits;
 import gda.util.converters.IQuantityConverter;
 import gda.util.converters.JEPConverterHolder;
 import gda.util.converters.LookupTableConverterHolder;
-import gda.util.converters.LookupTableQuantityConverter;
 import tec.units.indriya.quantity.Quantities;
 
 public class ConvertorScannableTest {
 	// Allow for inaccuracy in floating point values
-	private static final double FP_TOLERANCE = 0.000000000001;
+	private static final double FP_TOLERANCE = 1e-12;
 
-	private ConvertorScannable scannable;
-	private ScannableMotionUnits bsx;
-	private LookupTableConverterHolder converterx;
+	private String saveLookupDir;
 
 	@Before
-	public void setUp() throws Exception {
-		bsx = MockFactory.createMockScannableMotionUnits("bsx");
+	public void setUp() {
+		saveLookupDir = LocalProperties.get(GDA_FUNCTION_COLUMN_DATA_FILE_LOOKUP_DIR);
+		LocalProperties.set(GDA_FUNCTION_COLUMN_DATA_FILE_LOOKUP_DIR, "testfiles/gda/device/scannable/ConvertorScannableTest");
+	}
 
-		LocalProperties.set("gda.function.columnDataFile.lookupDir", "testfiles/gda/device/scannable/ConvertorScannableTest");
-		converterx = new LookupTableConverterHolder("converterx", "beamstop_to_sample.txt", 0, 1, null);
-		scannable = createConvertorScannable("beamstopToSample", bsx, converterx);
+	@After
+	public void tearDown() throws Exception {
+		LocalProperties.set(GDA_FUNCTION_COLUMN_DATA_FILE_LOOKUP_DIR, saveLookupDir);
 	}
 
 	@Test
 	public void testMoveTo() throws DeviceException {
+		final ScannableMotionUnits bsx = MockFactory.createMockScannableMotionUnits("bsx");
 		when(bsx.getUserUnits()).thenReturn("mm");
+
+		final LookupTableConverterHolder<Length, Length> converterx = new LookupTableConverterHolder<>("converterx", "beamstop_to_sample.txt", 0, 1, null);
+		final ConvertorScannable<Length, Length> scannable = createConvertorScannable("beamstopToSample", bsx, converterx);
 
 		scannable.asynchronousMoveTo(2);
 		verify(bsx).asynchronousMoveTo(Quantities.getQuantity(4.0, MILLI(METRE)));
@@ -80,10 +89,12 @@ public class ConvertorScannableTest {
 
 	@Test
 	public void testCheckPositionValid() throws DeviceException, Exception {
-		bsx = new DummyUnitsScannable<Length>("bsx", 0, "mm", "mm");
+		final ScannableMotionUnits bsx = new DummyUnitsScannable<Length>("bsx", 0, "mm", "mm");
 		bsx.setUpperGdaLimits(10.0);
 		bsx.setLowerGdaLimits(0.0);
-		scannable = createConvertorScannable("beamstopToSample", bsx, converterx);
+
+		final LookupTableConverterHolder<Length, Length> converterx = new LookupTableConverterHolder<>("converterx", "beamstop_to_sample.txt", 0, 1, null);
+		final ConvertorScannable<Length, Length> scannable = createConvertorScannable("beamstopToSample", bsx, converterx);
 		assertNull(scannable.checkPositionValid(4.5));
 		assertNotNull(scannable.checkPositionValid(5.5));
 
@@ -94,11 +105,10 @@ public class ConvertorScannableTest {
 
 	@Test
 	public void testWithDifferingUnits() throws DeviceException {
-		bsx = new DummyUnitsScannable<Length>("bsx", 0, "mm", "mm");
+		final ScannableMotionUnits bsx = new DummyUnitsScannable<Length>("bsx", 0, "mm", "mm");
 
-		LocalProperties.set("gda.function.columnDataFile.lookupDir", "testfiles/gda/device/scannable/ConvertorScannableTest");
-		final JEPConverterHolder jepConverterx = new JEPConverterHolder("testconverter", "mDeg_dcm_perp_mm_converter.xml");
-		scannable = createConvertorScannable("beamstopToSample", bsx, jepConverterx);
+		final JEPConverterHolder<Angle, Length> jepConverterx = new JEPConverterHolder<>("testconverter", "mDeg_dcm_perp_mm_converter.xml");
+		final ConvertorScannable<Angle, Length> scannable = createConvertorScannable("beamstopToSample", bsx, jepConverterx);
 		// hardware units set to scannable's hw unit already (mm)
 		scannable.setInitialUserUnits("mDeg");
 		scannable.setConvertorUnitString("mDeg");
@@ -106,11 +116,10 @@ public class ConvertorScannableTest {
 
 	@Test
 	public void testMoveWithDifferingUnits() throws DeviceException {
-		bsx = new DummyUnitsScannable<Length>("bsx", 0, "mm", "mm");
+		final ScannableMotionUnits bsx = new DummyUnitsScannable<Length>("bsx", 0, "mm", "mm");
 
-		LocalProperties.set("gda.function.columnDataFile.lookupDir", "testfiles/gda/device/scannable/ConvertorScannableTest");
-		final JEPConverterHolder jepConverterx = new JEPConverterHolder("testconverter", "mDeg_dcm_perp_mm_converter.xml");
-		scannable = createConvertorScannable("beamstopToSample", bsx, jepConverterx);
+		final JEPConverterHolder<Angle, Length> jepConverterx = new JEPConverterHolder<>("testconverter", "mDeg_dcm_perp_mm_converter.xml");
+		final ConvertorScannable<Angle, Length> scannable = createConvertorScannable("beamstopToSample", bsx, jepConverterx);
 		// hardware units set to scannable's hw unit already (mm)
 		scannable.setInitialUserUnits("mDeg");
 		// scannable.setConvertorUnitString("mDeg");
@@ -120,12 +129,11 @@ public class ConvertorScannableTest {
 
 	@Test
 	public void testConverterDoesNotHandleTtoS() throws DeviceException {
-		bsx = new DummyUnitsScannable<Length>("bsx", 0, "mm", "mm");
+		final ScannableMotionUnits bsx = new DummyUnitsScannable<Length>("bsx", 0, "mm", "mm");
 
-		LocalProperties.set("gda.function.columnDataFile.lookupDir", "testfiles/gda/device/scannable/ConvertorScannableTest");
-		converterx = new LookupTableConverterHolder("converterx", "beamstop_to_sample.txt", 0, 1, LookupTableQuantityConverter.Mode_StoT);
+		final LookupTableConverterHolder<Length, Length> converterx = new LookupTableConverterHolder<>("converterx", "beamstop_to_sample.txt", 0, 1, Mode_StoT);
+		final ConvertorScannable<Length, Length> scannable = createConvertorScannable("beamstopToSample", bsx, converterx);
 
-		scannable = createConvertorScannable("beamstopToSample", bsx, converterx);
 		final double valToSend = 5000.0;
 		scannable.asynchronousMoveTo(valToSend);
 
@@ -138,12 +146,10 @@ public class ConvertorScannableTest {
 
 	@Test
 	public void testConverterDoesHandleTtoS() throws DeviceException {
-		bsx = new DummyUnitsScannable<Length>("bsx", 0, "mm", "mm");
+		final ScannableMotionUnits bsx = new DummyUnitsScannable<Length>("bsx", 0, "mm", "mm");
 
-		LocalProperties.set("gda.function.columnDataFile.lookupDir", "testfiles/gda/device/scannable/ConvertorScannableTest");
-		converterx = new LookupTableConverterHolder("converterx", "beamstop_to_sample.txt", 0, 1, LookupTableQuantityConverter.Mode_Both);
-
-		scannable = createConvertorScannable("beamstopToSample", bsx, converterx);
+		final LookupTableConverterHolder<Length, Length> converterx = new LookupTableConverterHolder<>("converterx", "beamstop_to_sample.txt", 0, 1, Mode_Both);
+		final ConvertorScannable<Length, Length> scannable = createConvertorScannable("beamstopToSample", bsx, converterx);
 
 		final double valToSendToBSX = 10.0;
 		bsx.asynchronousMoveTo(valToSendToBSX);
@@ -158,8 +164,8 @@ public class ConvertorScannableTest {
 		assertEquals(valForBSX10, (double) scannable.getPosition(), FP_TOLERANCE);
 	}
 
-	private static ConvertorScannable createConvertorScannable(String name, ScannableMotionUnits theScannable, IQuantityConverter theConvertor) {
-		final ConvertorScannable scannable = new ConvertorScannable();
+	private static <S extends Quantity<S>, T extends Quantity<T>> ConvertorScannable<S, T> createConvertorScannable(String name, ScannableMotionUnits theScannable, IQuantityConverter<S, T> theConvertor) {
+		final ConvertorScannable<S, T> scannable = new ConvertorScannable<>();
 		scannable.setName(name);
 		scannable.setInputNames(new String[] { name });
 		scannable.setScannable(theScannable);
