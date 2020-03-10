@@ -57,6 +57,7 @@ public final class CameraHelper {
 
 	private static final Map<Integer, AbstractCameraConfigurationController> cameraControllers = new HashMap<>();
 	private static final List<CameraProperties> cameraProperties = new ArrayList<>();
+	private static final Map<String, CameraProperties> cameraPropertiesByID = new HashMap<>();
 	private static final List<CameraComboItem> cameraComboItems = new ArrayList<>();
 
 	private static final Map<Integer, ICameraConfiguration> cameraConfigurations = new HashMap<>();
@@ -132,6 +133,10 @@ public final class CameraHelper {
 		return cameraProperties.get(cameraIndex);
 	}
 
+	public static Optional<CameraProperties> getCameraPropertiesByID(String id) {
+		return Optional.ofNullable(cameraPropertiesByID.get(id));
+	}
+	
 	/**
 	 * Returns the default camera properties. The actual implementation returns the
 	 * first camera as default but this should change in future.
@@ -169,12 +174,15 @@ public final class CameraHelper {
 	private static void parseCameraProperties(int index) {
 		CameraPropertiesBuilder builder = new CameraPropertiesBuilder();
 		builder.setIndex(index);
+		builder.setId(getCameraId(index));
 		builder.setName(getCameraNameProperty(index));
 		builder.setCameraConfiguration(getCameraConfigurationProperty(index));
 		builder.setCameraControl(getCameraControlProperty(index));
 
 		builder.setMotorProperties(getCameraConfigurationMotors(index));
-		cameraProperties.add(builder.build());
+		CameraProperties cp = builder.build();		
+		cp.getId().ifPresent(id -> cameraPropertiesByID.putIfAbsent(id, cp));
+		cameraProperties.add(cp);
 	}
 
 	private static List<MotorProperties> getCameraConfigurationMotors(int index) {
@@ -221,6 +229,19 @@ public final class CameraHelper {
 				ClientMessagesUtility.getMessage(ClientMessages.NOT_AVAILABLE));
 	}
 
+	/**
+	 * Extracts properties formatted like "client.cameraConfiguration.INDEX.name"
+	 * 
+	 * @param index the camera index
+	 * @return
+	 */
+	private static String getCameraId(int index) {
+		return LocalProperties.get(formatPropertyKey(CAMERA_CONFIGURATION_PREFIX, index, "id"),
+				ClientMessagesUtility.getMessage(ClientMessages.NOT_AVAILABLE));
+	}
+	
+	
+	
 	//
 	/**
 	 * Assemble a string formatted like something like "PREFIX.INDEX.PROPERTY"

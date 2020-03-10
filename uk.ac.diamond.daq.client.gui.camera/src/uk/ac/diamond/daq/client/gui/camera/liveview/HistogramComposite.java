@@ -1,6 +1,7 @@
 package uk.ac.diamond.daq.client.gui.camera.liveview;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.dawnsci.plotting.histogram.ImageHistogramProvider;
@@ -96,8 +97,8 @@ public class HistogramComposite extends Composite {
 	ApplicationListener<PlottingSystemUpdateEvent> plottingSystemUpdateListener = new ApplicationListener<PlottingSystemUpdateEvent>() {
 		@Override
 		public void onApplicationEvent(PlottingSystemUpdateEvent event) {
-			UUID uuid = ClientSWTElements.findParentUUID(getParent());
-			if (!event.getRootComposite().equals(uuid)) {
+			Optional<UUID> uuid = ClientSWTElements.findParentUUID(getParent());
+			if (uuid.isPresent() && !event.getRootComposite().equals(uuid.get())) {
 				return;
 			}
 			if (LivePlottingComposite.class.isAssignableFrom(event.getSource().getClass())) {

@@ -19,6 +19,7 @@
 package uk.ac.gda.client.properties;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Defines the camera properties required by the GUI to expose a camera
@@ -33,6 +34,13 @@ public interface CameraProperties {
 	 * @return the camera index number
 	 */
 	int getIndex();
+
+	/**
+	 * Identifies a camera by its ID. As the {@link Optional} return type indicate, this is still not a required property
+	 *
+	 * @return the camera index number
+	 */
+	Optional<String> getId();
 
 	/**
 	 * The context specific camera label.

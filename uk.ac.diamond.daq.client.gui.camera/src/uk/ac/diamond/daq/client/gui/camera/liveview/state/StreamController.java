@@ -1,5 +1,6 @@
 package uk.ac.diamond.daq.client.gui.camera.liveview.state;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
@@ -69,6 +70,6 @@ public class StreamController {
 	
 	private void publishCameraChange() {
 		SpringApplicationContextProxy.publishEvent(
-				new ChangeActiveCameraEvent(getState(), getControlData().getCamera(), rootUUID));
+				new ChangeActiveCameraEvent(getState(), getControlData().getCamera(), Optional.ofNullable(rootUUID)));
 	}
 }

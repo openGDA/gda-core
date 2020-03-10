@@ -50,7 +50,7 @@ public class CameraConfigurationComposite extends Composite {
 	
 	public CameraConfigurationComposite(Composite parent, int style) throws GDAClientException {
 		super(parent, style);
-		uuidRoot = ClientSWTElements.findParentUUID(getParent());
+		uuidRoot = ClientSWTElements.findParentUUID(getParent()).orElse(null);
 		updateCamera(CameraHelper.getDefaultCameraProperties().getIndex());
 
 		GridLayoutFactory.swtDefaults().numColumns(4).equalWidth(false).applyTo(this);

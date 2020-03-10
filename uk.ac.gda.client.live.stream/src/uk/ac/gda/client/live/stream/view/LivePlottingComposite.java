@@ -21,6 +21,7 @@ package uk.ac.gda.client.live.stream.view;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -148,7 +149,8 @@ public class LivePlottingComposite extends Composite {
 	 *
 	 * @throws GDAClientException
 	 */
-	public LivePlottingComposite(Composite parent, int style, String plotName, LiveStreamConnection liveStreamConnection) throws GDAClientException {
+	public LivePlottingComposite(Composite parent, int style, String plotName,
+			LiveStreamConnection liveStreamConnection) throws GDAClientException {
 		this(parent, style, liveStreamConnection);
 		preparePlottingSystem(plotName, null, null);
 	}
@@ -156,7 +158,6 @@ public class LivePlottingComposite extends Composite {
 	public LivePlottingComposite(Composite parent, int style, String plotName, IActionBars actionBars,
 			LiveStreamConnection liveStreamConnection) throws Exception {
 		this(parent, style, liveStreamConnection);
-		this.liveStreamConnection = liveStreamConnection;
 		preparePlottingSystem(plotName, actionBars, null);
 	}
 
@@ -183,7 +184,8 @@ public class LivePlottingComposite extends Composite {
 		preparePlottingSystem(plotName, actionBars, part);
 	}
 
-	private LivePlottingComposite(Composite parent, int style, LiveStreamConnection liveStreamConnection) throws GDAClientException {
+	private LivePlottingComposite(Composite parent, int style, LiveStreamConnection liveStreamConnection)
+			throws GDAClientException {
 		super(parent, style);
 		this.liveStreamConnection = liveStreamConnection;
 		setLayout(new FillLayout());
@@ -286,8 +288,8 @@ public class LivePlottingComposite extends Composite {
 
 		// Plot the new trace.
 		plottingSystem.addTrace(iTrace);
-		UUID uuidRoot = ClientSWTElements.findParentUUID(getParent());
-		SpringApplicationContextProxy.publishEvent(new PlottingSystemUpdateEvent(LivePlottingComposite.this, uuidRoot));
+		ClientSWTElements.findParentUUID(getParent()).ifPresent(uuidRoot -> SpringApplicationContextProxy
+				.publishEvent(new PlottingSystemUpdateEvent(LivePlottingComposite.this, uuidRoot)));
 		connected = true;
 	}
 
@@ -385,15 +387,17 @@ public class LivePlottingComposite extends Composite {
 		}
 	}
 
-	private boolean processEvent(RootEvent event, UUID uuidRoot) {
-		return event.getRootComposite() != null && event.getRootComposite().equals(uuidRoot);
+	private boolean processEvent(RootEvent event, Optional<UUID> uuidRoot) {
+		if (uuidRoot.isPresent()) {
+			return uuidRoot.get().equals(event.getRootComposite());
+		}
+		return false;
 	}
 
 	ApplicationListener<ListenToConnectionEvent> openConnectionListener = new ApplicationListener<ListenToConnectionEvent>() {
 		@Override
 		public void onApplicationEvent(ListenToConnectionEvent event) {
-			UUID uuidRoot = ClientSWTElements.findParentUUID(getParent());
-			if (!processEvent(event, uuidRoot)) {
+			if (!processEvent(event, ClientSWTElements.findParentUUID(getParent()))) {
 				return;
 			}
 			if (LiveStreamConnection.class.isAssignableFrom(event.getSource().getClass())) {
@@ -410,12 +414,11 @@ public class LivePlottingComposite extends Composite {
 	ApplicationListener<StopListenToConnectionEvent> closeConnectionListener = new ApplicationListener<StopListenToConnectionEvent>() {
 		@Override
 		public void onApplicationEvent(StopListenToConnectionEvent event) {
-			//Avoids disposed widget
+			// Avoids disposed widget
 			if (isDisposed() || getParent().isDisposed()) {
 				return;
 			}
-			UUID uuidRoot = ClientSWTElements.findParentUUID(getParent());
-			if (!processEvent(event, uuidRoot)) {
+			if (!processEvent(event, ClientSWTElements.findParentUUID(getParent()))) {
 				return;
 			}
 			if (LiveStreamConnection.class.isAssignableFrom(event.getSource().getClass())) {
