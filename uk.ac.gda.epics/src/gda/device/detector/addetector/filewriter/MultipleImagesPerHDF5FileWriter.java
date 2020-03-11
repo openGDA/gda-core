@@ -61,7 +61,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 	private int framesChunks=1;
 	private int framesFlush=1;
 
-	private boolean firstReadoutInScan;
+	protected boolean firstReadoutInScan;
 	private String name;
 
 	@Override // interface NXPluginBase
@@ -169,9 +169,9 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 
 	protected String expectedFullFileName;
 
-	private int numToBeCaptured;
+	protected int numToBeCaptured;
 
-	private int numCaptured;
+	protected int numCaptured;
 
 	private Double xPixelSize=null;
 
