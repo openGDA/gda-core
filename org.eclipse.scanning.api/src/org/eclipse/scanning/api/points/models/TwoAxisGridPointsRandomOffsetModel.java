@@ -14,6 +14,9 @@ package org.eclipse.scanning.api.points.models;
 import org.eclipse.scanning.api.annotation.UiTooltip;
 import org.eclipse.scanning.api.annotation.Units;
 
+/**
+ * Previously RandomOffsetGridModel
+ */
 public class TwoAxisGridPointsRandomOffsetModel extends TwoAxisGridPointsModel {
 
 

@@ -17,6 +17,7 @@ package org.eclipse.scanning.api.points.models;
  *
  * @author Colin Palmer
  *
+ * Previously OneDEqualSpacingModel
  */
 public class TwoAxisLinePointsModel extends AbstractBoundingLineModel {
 

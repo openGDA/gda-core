@@ -21,6 +21,7 @@ import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
  *
  * @author Colin Palmer
  *
+ * Previously RasterModel
  */
 public class TwoAxisGridStepModel extends AbstractTwoAxisGridModel {
 

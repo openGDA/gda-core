@@ -19,6 +19,7 @@ import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
  * A model for a generator which repeats the same position a set number of times.
  * @author Matthew Gerring
  *
+ * Previously RepeatedPointModel
  */
 public class OneAxisPointRepeatedModel extends AbstractPointsModel {
 

@@ -21,6 +21,7 @@ import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
  *
  * @author Colin Palmer
  *
+ * Previously GridModel
  */
 public class TwoAxisGridPointsModel extends AbstractTwoAxisGridModel {
 

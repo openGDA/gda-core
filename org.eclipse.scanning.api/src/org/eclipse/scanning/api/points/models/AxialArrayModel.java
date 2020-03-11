@@ -18,6 +18,7 @@ import java.util.Arrays;
  *
  * @author Colin Palmer
  *
+ * Previously ArrayModel
  */
 public class AxialArrayModel extends AbstractPointsModel {
 

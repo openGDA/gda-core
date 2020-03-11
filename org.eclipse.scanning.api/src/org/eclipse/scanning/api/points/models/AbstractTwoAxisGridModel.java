@@ -25,6 +25,8 @@ import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 
 /**
  * Abstract superclass for models representing a raster scan within a rectangular box in two-dimensional space.
+ *
+ * Previously AbstractGridModel
  */
 public abstract class AbstractTwoAxisGridModel extends AbstractBoundingBoxModel {
 

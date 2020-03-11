@@ -16,6 +16,8 @@ import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 
 /**
  * A model for a scan along one axis with start and stop positions and a step size.
+ *
+ * Previously StepModel
  */
 public class AxialStepModel extends AbstractPointsModel {
 

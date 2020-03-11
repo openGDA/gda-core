@@ -12,6 +12,9 @@
 
 package org.eclipse.scanning.api.points.models;
 
+/**
+ * Previously SpiralModel
+ */
 public class TwoAxisSpiralModel extends AbstractBoundingBoxModel {
 
 	private double scale = 1;
