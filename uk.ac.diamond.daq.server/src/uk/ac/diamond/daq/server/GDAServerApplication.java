@@ -78,7 +78,7 @@ public class GDAServerApplication implements IApplication {
 		} catch (Exception ex) {
 			logger.error("GDA server startup failure", ex);
 			ex.printStackTrace();
-			stop(); // N.B. this method does not exit the app, it just cleans up resources.
+			clearUp();
 		}
 
 		if (!objectServers.isEmpty()) {
@@ -142,10 +142,7 @@ public class GDAServerApplication implements IApplication {
 		}
 	}
 
-	/**
-	 * Clears up all the resources created by start and then clears the {@link #shutdownLatch}
-	 * allowing the {@link #start(IApplicationContext)} to complete.
-	 */
+	/** Display message to any clients, then clear up resources */
 	public void stop() {
 		logger.info("GDA application stopping");
 		ITerminalPrinter printer = InterfaceProvider.getTerminalPrinter();
@@ -154,7 +151,14 @@ public class GDAServerApplication implements IApplication {
 			// Notify via Jython console this is useful as dead clients will display the message
 			printer.print("GDA server is shutting down");
 		}
+		clearUp();
+	}
 
+	/**
+	 * Clears up all the resources created by start and then clears the {@link #shutdownLatch}
+	 * allowing the {@link #start(IApplicationContext)} to complete.
+	 */
+	private void clearUp() {
 		closeStatusPort();
 
 		if (objectServers.size() > 0) {
