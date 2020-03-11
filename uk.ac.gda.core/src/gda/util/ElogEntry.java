@@ -18,44 +18,54 @@
 
 package gda.util;
 
+import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
+import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.metadata.GDAMetadataProvider;
-import gda.device.DeviceException;
 import uk.ac.diamond.daq.concurrent.Async;
 
+/** A builder and publisher for creating automated ELog entries */
 public class ElogEntry {
 
-	private static final String IMG_UPLOAD_URL = "http://rdb.pri.diamond.ac.uk/devl/php/elog/cs_logonlyimageupload_ext_bl.php";
-	private static final String POST_UPLOAD_URL = "http://rdb.pri.diamond.ac.uk/devl/php/elog/cs_logentryext_bl.php";
-
 	private static final Logger logger = LoggerFactory.getLogger(ElogEntry.class);
+	public static final String GDA_ELOG_IMAGEURL_PROPERTY = "gda.elog.imageurl";
+	public static final String GDA_ELOG_TARGETURL_PROPERTY = "gda.elog.targeturl";
+	public static final String ENCODING = "UTF-8";
+
+	/** String included in response of successful uploads */
+	private static final String POST_SUCCESS_MARKER = "New Log Entry ID:";
+
+	/** Log entries are added via type {@value #LOG_ENTRY_TYPE} */
+	private static final String LOG_ENTRY_TYPE = "41";
+
+	/** Marker to indicate start of user entry in final uploaded html */
+	private static final String START_LINE = "\n\n<!-- ==== Start of Elog Entry Content ==== -->\n";
+	/** Marker to indicate end of user entry in final uploaded html */
+	private static final String END_LINE = "\n<!-- ==== End of Elog Entry Content ==== -->\n\n";
 
 	private String targetPostURL;
 	private String imagePostURL;
 
-	//the html output to be posted - Stops post being buried in unknown html
-	private String startLine = "\n\n<!-- ==== Start of Elog Entry Content ==== -->\n";
-	private ArrayList<PostPart> parts;
-	private String endLine = "\n<!-- ==== End of Elog Entry Content ==== -->\n\n";
+	private Collection<PostPart> parts;
 
 	//parameters to be given as headers
 	private String title;
@@ -64,113 +74,132 @@ public class ElogEntry {
 	private String logID;
 	private String groupID;
 
+	/** Flag to prevent post being sent multiple times */
+	private AtomicBoolean posted = new AtomicBoolean();
+
+	/**
+	 * Creates an ELog entry. Default ELog server is the development database.<br>
+	 * The property {@value #GDA_ELOG_TARGETURL_PROPERTY} can be used to set to database to use for posts.<br>
+	 * The property {@value #GDA_ELOG_IMAGEURL_PROPERTY} can be used to set to database to use for image uploads.
+	 *
+	 * @param title The ELog title
+	 * @param content The ELog content
+	 * @param userID The user ID e.g. epics or gda or abc12345
+	 * @param visit The visit number
+	 * @param logID The log book ID:<br>
+	 *            Beam Lines: - BLB16, BLB23, BLI02, BLI03, BLI04, BLI06, BLI11,
+	 *            BLI16, BLI18, BLI19, BLI22, BLI24, BLI15<br>
+	 *            DAG = Data Acquisition<br>
+	 *            EHC = Experimental Hall Coordinators,<br>
+	 *            OM = Optics and Meteorology,<br>
+	 *            OPR = Operations
+	 * @param groupID
+	 *            The group sending the ELog<br>
+	 *            DA = Data Acquisition, EHC = Experimental Hall Coordinators, OM = Optics
+	 *            and Meteorology, OPR = Operations CS = Control Systems<br>
+	 *            GroupID Can also be a beam line,
+	 * @param fileLocations The image file names with path to upload
+	 * @throws ElogException
+	 */
+	public static String post(String title, String content, String userID, String visit, String logID, String groupID,
+			String[] fileLocations) throws ElogException {
+		ElogEntry entry = new ElogEntry(title, userID, visit, logID, groupID);
+		entry.addText(content);
+		entry.addImages(fileLocations);
+		return entry.post();
+	}
+
+	/**
+	 * Post ElogEntry in a background thread
+	 * @see #post(String, String, String, String, String, String, String[])
+	 */
+	public static Future<String> postAsyn(final String title, final String content, final String userID, final String visit,
+			final String logID, final String groupID, final String[] fileLocations) {
+		return Async.submit(() -> post(title, content, userID, visit, logID, groupID, fileLocations),
+				"ElogEntry: %s", title);
+	}
+
 	public ElogEntry(String title, String userID, String visit, String logID,
 			String groupID) {
-		this.parts = new ArrayList<ElogEntry.PostPart>();
+		this.parts = new ArrayList<>();
 		this.title = title;
 		this.userID = userID;
 		this.visit = visit;
 		this.logID = logID;
 		this.groupID = groupID;
-		this.targetPostURL  = LocalProperties.get("gda.elog.targeturl", POST_UPLOAD_URL);
-		this.imagePostURL = LocalProperties.get("gda.elog.imageurl", IMG_UPLOAD_URL);
-
+		this.targetPostURL  = LocalProperties.get(GDA_ELOG_TARGETURL_PROPERTY);
+		this.imagePostURL = LocalProperties.get(GDA_ELOG_IMAGEURL_PROPERTY);
 	}
 
 	/**
 	 * Post eLog Entry
+	 * @return The id of the post (if successful)
 	 */
-	public void post() throws ELogEntryException {
-
-		String entryType = "41";// entry type is always a log (41)
+	public String post() throws ElogException {
+		if (targetPostURL == null) {
+			throw new IllegalStateException("No elog url found. Set property " + GDA_ELOG_TARGETURL_PROPERTY);
+		}
+		if (posted.getAndSet(true)) {
+			throw new ElogException("Post has already been uploaded");
+		}
 
 		String titleForPost = visit == null ? title : "Visit: " + visit + " - " + title;
 
-		String content = buildContent();
+		String content = buildContent(false);
 
 		MultipartEntityBuilder request = MultipartEntityBuilder.create()
 			.addTextBody("txtTITLE", titleForPost)
 			.addTextBody("txtCONTENT", content)
 			.addTextBody("txtLOGBOOKID", logID)
 			.addTextBody("txtGROUPID", groupID)
-			.addTextBody("txtENTRYTYPEID", entryType)
+			.addTextBody("txtENTRYTYPEID", LOG_ENTRY_TYPE)
 			.addTextBody("txtUSERID", userID);
 
 		HttpEntity entity = request.build();
-		HttpPost httpPost = new HttpPost(targetPostURL);
-		httpPost.setEntity(entity);
-
-		CloseableHttpClient httpClient = null;
-		CloseableHttpResponse response = null;
 
 		try {
-			httpClient = HttpClients.createDefault();
-			response = httpClient.execute(httpPost);
-			String responseString = EntityUtils.toString(response.getEntity());
-			System.out.println(responseString);
-			if (!responseString.contains("New Log Entry ID")) {
-				throw new ELogEntryException("Upload failed, status=" + response.getStatusLine().getStatusCode()
-					+ " response="+responseString
-					+ " targetURL = " + targetPostURL
-					+ " titleForPost = " + titleForPost
-					+ " logID = " + logID
-					+ " groupID = " + groupID
-					+ " entryType = " + entryType
-					+ " userID = " + userID);
+			String response = Request.Post(targetPostURL)
+					.body(entity)
+					.execute()
+					.returnContent()
+					.asString();
+			if (!response.startsWith(POST_SUCCESS_MARKER)) {
+				return response.substring(POST_SUCCESS_MARKER.length());
+			} else {
+				throw new ElogException("Unexpected response: " + response);
 			}
-		} catch (ELogEntryException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new ELogEntryException("Error in ELogger.  Database:" + targetPostURL, e);
-		} finally {
-			try {
-				if (httpClient != null) httpClient.close();
-				if (response != null) response.close();
-			} catch (IOException e) {
-				logger.error("Could not close connections", e);
-			}
+		} catch (IOException e1) {
+			throw new ElogException("Could not post to elog", e1);
 		}
-
 	}
 
-	public void postFile(String file) throws ELogEntryException {
-//			if (new File(fileURI).exists()) {
-//				System.out.println("fileExists");
-//				return;
-//			}
-		PrintWriter writer;
-		try {
-			writer = new PrintWriter(file, "UTF-8");
-			writer.println(buildContent());
-			writer.close();
+	/** Write post out to file as html - mainly useful for testing */
+	public void postToFile(String file) {
+		try (PrintWriter writer = new PrintWriter(file, ENCODING)) {
+			writer.println(buildContent(true));
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			logger.error("Could not find file ({}) to write to", file, e);
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			logger.error("Could not find {} charset", ENCODING);
 		}
 	}
 
 	/**
 	 * Async version of post @see ElogEntry.post
-	 *
 	 */
-	public void postAsync() {
-		Async.execute(() -> {
-				try {
-					post();
-				} catch (Exception e) {
-					logger.error("Error posting ElogEntry", e);
-				}},
-				"ElogEntry: %s", title);
+	public Future<String> postAsync() {
+		// needs cast to distinguish from submit(Runnable, ...)
+		return Async.submit((Callable<String>)this::post, "ElogEntry: %s", title);
 	}
 
-	private String buildContent() throws ELogEntryException {
-		StringBuffer content = new StringBuffer(startLine);
-		for (PostPart part : parts) {
-			content.append(part.getHTML());
-		}
-		content.append(endLine);
-		return content.toString();
+	private String buildContent(boolean offline) {
+		return parts.stream().map(p -> {
+			try {
+				return offline ? p.getOfflineHTML() : p.getHTML();
+			} catch (ElogException e) {
+				logger.error("Could not extract html from {}", p);
+				return "";
+			}}).collect(Collectors.joining("", START_LINE, END_LINE));
 	}
 
 	/**
@@ -179,8 +208,9 @@ public class ElogEntry {
 	 *
 	 * @param html html string to add
 	 */
-	public void addHtml(String html) {
-		this.parts.add(new htmlPart(html));
+	public ElogEntry addHtml(String html) {
+		this.parts.add(new HtmlPart(html));
+		return this;
 	}
 
 	/**
@@ -189,10 +219,9 @@ public class ElogEntry {
 	 *
 	 * @param html Array of html strings to add
 	 */
-	public void addHtml(String[] html) {
-		for (String string : html) {
-			addHtml(string);
-		}
+	public ElogEntry addHtml(String[] html) {
+		Arrays.stream(html).forEach(this::addHtml);
+		return this;
 	}
 
 	/**
@@ -201,8 +230,9 @@ public class ElogEntry {
 	 *
 	 * @param text String to add
 	 */
-	public void addText(String text) {
-		this.parts.add(new textPart(text));
+	public ElogEntry addText(String text) {
+		this.parts.add(new TextPart(text));
+		return this;
 	}
 
 	/**
@@ -211,20 +241,20 @@ public class ElogEntry {
 	 *
 	 * @param texts Array of strings to add
 	 */
-	public void addText(String[] texts) {
-		for (String text : texts) {
-			addText(text);
-		}
+	public ElogEntry addText(String[] texts) {
+		Arrays.stream(texts).forEach(this::addText);
+		return this;
 	}
 
 	/**
 	 * Add single image to the eLog Entry
 	 *
 	 * @param fileURI The location of image to add
-	 * @throws ELogEntryException if file does not exist
+	 * @throws ElogException if file does not exist
 	 */
-	public void addImage(String fileURI) throws ELogEntryException {
+	public ElogEntry addImage(String fileURI) throws ElogException {
 		addImage(fileURI, null);
+		return this;
 	}
 
 	/**
@@ -232,150 +262,29 @@ public class ElogEntry {
 	 *
 	 * @param fileURI The list of file locations of images to add
 	 * @param caption A caption to be displayed below the image
-	 * @throws ELogEntryException if file does not exist
+	 * @throws ElogException if file does not exist
 	 */
-	public void addImage(String fileURI, String caption) throws ELogEntryException {
+	public ElogEntry addImage(String fileURI, String caption) throws ElogException {
 		File img = new File(fileURI);
 		if (img.exists()) {
-			this.parts.add(new imagePart(fileURI, caption));
+			this.parts.add(new ImagePart(fileURI, caption));
 		} else {
-			throw new ELogEntryException("File \"" + fileURI + "\" does not exist");
+			throw new ElogException("File \"" + fileURI + "\" does not exist");
 		}
+		return this;
 	}
 
 	/**
 	 * Add multiple images to the eLog Entry
 	 *
 	 * @param fileURIs The list of file locations of images to add
-	 * @throws ELogEntryException if file does not exist
+	 * @throws ElogException if file does not exist
 	 */
-	public void addImage(String[] fileURIs) throws ELogEntryException {
+	public ElogEntry addImages(String[] fileURIs) throws ElogException {
 		for (String file : fileURIs) {
 			addImage(file, null);
 		}
-	}
-
-
-	/**
-	 * Creates an ELog entry. Default ELog server is "http://rdb.pri.diamond.ac.uk/devl/php/elog/cs_logentryext_bl.php"
-	 * which is the development database. "http://rdb.pri.diamond.ac.uk/php/elog/cs_logentryext_bl.php" is the
-	 * production database. The java.properties file contains the property "gda.elog.targeturl" which can be set to be
-	 * either the development or production databases.
-	 *
-	 * @param title
-	 *            The ELog title
-	 * @param content
-	 *            The ELog content
-	 * @param userID
-	 *            The user ID e.g. epics or gda or abc12345
-	 * @param visit
-	 *            The visit number
-	 * @param logID
-	 *            The type of log book, The log book ID: Beam Lines: - BLB16, BLB23, BLI02, BLI03, BLI04, BLI06, BLI11,
-	 *            BLI16, BLI18, BLI19, BLI22, BLI24, BLI15, DAG = Data Acquisition, EHC = Experimental Hall
-	 *            Coordinators, OM = Optics and Meteorology, OPR = Operations, E
-	 * @param groupID
-	 *            The group sending the ELog, DA = Data Acquisition, EHC = Experimental Hall Coordinators, OM = Optics
-	 *            and Meteorology, OPR = Operations CS = Control Systems, GroupID Can also be a beam line,
-	 * @param fileLocations
-	 *            The image file names with path to upload
-	 * @throws ELogEntryException
-	 */
-	public static void post(String title, String content, String userID, String visit, String logID, String groupID,
-			String[] fileLocations) throws ELogEntryException {
-		String targetURL = POST_UPLOAD_URL;
-		try {
-			String entryType = "41";// entry type is always a log (41)
-			String titleForPost = visit == null ? title : "Visit: " + visit + " - " + title;
-
-			MultipartEntityBuilder request = MultipartEntityBuilder.create()
-					.addTextBody("txtTITLE", titleForPost)
-					.addTextBody("txtCONTENT", content)
-					.addTextBody("txtLOGBOOKID", logID)
-					.addTextBody("txtGROUPID", groupID)
-					.addTextBody("txtENTRYTYPEID", entryType)
-					.addTextBody("txtUSERID", userID);
-
-			if(fileLocations != null){
-				for (int i = 1; i < fileLocations.length + 1; i++) {
-					File targetFile = new File(fileLocations[i - 1]);
-					request = request.addBinaryBody("userfile" + i,
-							targetFile,
-							ContentType.create("image/png"),
-							targetFile.getName());
-				}
-			}
-
-			HttpEntity entity = request.build();
-			targetURL  = LocalProperties.get("gda.elog.targeturl", POST_UPLOAD_URL);
-			HttpPost httpPost = new HttpPost(targetURL);
-			httpPost.setEntity(entity);
-			CloseableHttpClient httpClient = HttpClients.createDefault();
-			CloseableHttpResponse response = httpClient.execute(httpPost);
-
-			try {
-				String responseString = EntityUtils.toString(response.getEntity());
-				System.out.println(responseString);
-				if (!responseString.contains("New Log Entry ID")) {
-					throw new ELogEntryException("Upload failed, status=" + response.getStatusLine().getStatusCode()
-						+ " response="+responseString
-						+ " targetURL = " + targetURL
-						+ " titleForPost = " + titleForPost
-						+ " logID = " + logID
-						+ " groupID = " + groupID
-						+ " entryType = " + entryType
-						+ " userID = " + userID);
-				}
-			} finally {
-				response.close();
-				httpClient.close();
-			}
-		} catch (ELogEntryException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new ELogEntryException("Error in ELogger.  Database:" + targetURL, e);
-		}
-	}
-
-	/**
-	 * Async version of post @see ElogEntry.post
-	 *
-	 * @param title
-	 * @param content
-	 * @param userID
-	 * @param visit
-	 * @param logID
-	 * @param groupID
-	 * @param fileLocations
-	 */
-	public static void postAsyn(final String title, final String content, final String userID, final String visit,
-			final String logID, final String groupID, final String[] fileLocations) {
-
-		Async.execute(() -> {
-				try {
-					ElogEntry.post(title, content, userID, visit, logID, groupID, fileLocations);
-				} catch (Exception e) {
-					logger.error("Error posting ElogEntry", e);
-				}},
-				"ElogEntry: %s", title);
-	}
-
-	/**
-	 * Create a logger event of the class gda.util.ElogEntry which can be used
-	 * as a filter in logback configuration
-	 * The resultant message is of the form visit + "%%" + title + "%%" + content
-	 * which is understood by the associated ELogAppender class.
-	 * @param title
-	 * @param content
-	 */
-	public static void postViaLogger(String title, String content) {
-		String visit;
-		try {
-			visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
-		} catch (DeviceException e) {
-			visit = "unknown";
-		}
-		logger.info("{}%%{}%%{}", visit, title, content);
+		return this;
 	}
 
 	public void setTitle(String title) {
@@ -398,103 +307,156 @@ public class ElogEntry {
 		this.groupID = groupID;
 	}
 
+	/**
+	 * A representation of a section of an entry
+	 */
+	@FunctionalInterface
 	private interface PostPart {
-		String getHTML() throws ELogEntryException;
+		/** Convert this part into its HTML representation */
+		String getHTML() throws ElogException;
+		default String getOfflineHTML() throws ElogException {return getHTML();}
 	}
 
-	private class textPart implements PostPart {
+	/**
+	 * Part representing plain text. Text is escaped so that it appears as entered in the final
+	 * HTML form.
+	 *
+	 * @see StringEscapeUtils#escapeHtml(String)
+	 */
+	private class TextPart implements PostPart {
+		private static final String TEMPLATE = "<p>%s</p>\n";
+		private static final String NEWLINE = "\n";
+		private static final String HTML_NEWLINE = "<br>\n\t";
+
 		private String text;
-		public textPart(String text) {
+
+		public TextPart(String text) {
 			this.text = text;
 		}
 		@Override
 		public String getHTML() {
-			return "<p>" + StringEscapeUtils.escapeHtml(text).replace("\n", "<br>\n\t") + "</p>";
+			return String.format(TEMPLATE, escapeHtml(text).replace(NEWLINE, HTML_NEWLINE));
 		}
 	}
 
-	private class htmlPart implements PostPart {
+	/**
+	 * Part representing raw HTML. Text is uploaded as submitted with nothing being escaped
+	 */
+	private class HtmlPart implements PostPart {
+		private static final String TEMPLATE = "\n<!-- html submitted as is - not rendered by ElogEntry -->\n%s<br>\n";
+
 		private String html;
-		public htmlPart(String html) {
+
+		public HtmlPart(String html) {
 			this.html = html;
 		}
-		@Override
-		public String getHTML() throws ELogEntryException {
-			return "\n<!-- html submitted as is - not rendered by ElogEntry -->\n" + html + "<br>\n";
-		}
 
+		@Override
+		public String getHTML() {
+			return String.format(TEMPLATE, html);
+		}
 	}
 
-	private class imagePart implements PostPart {
+	/**
+	 * Part to represent an image. The given image is lazily uploaded when the HTML is generated.
+	 */
+	private class ImagePart implements PostPart {
+		/** Marker string included in response to indicate start of uploaded URL */
+		private static final String IMAGE_UPLOAD_MARKER = "FULL URL:";
+		/** Template for the caption part of the HTML. Should be formatted with the HTML-escaped caption */
+		private static final String IMAGE_CAPTION_TEMPLATE =
+				"\n<span style=\"" +
+						"max-width:600px; " +
+						"margin: 0 auto; " +
+						"text-align:inherited; " +
+						"word-wrap:break-word;" +
+				"\">%s</span>\n";
+		/** Template for the whole HTML. Should be formatted with the image URL and the caption part */
+		private static final String TEMPLATE =
+				"\n" +
+				"<div style=\"display:inline-block;\">\n"+
+					"<img alt=\"%1$s\" src=\"%1$s\"/><br>" + // HTML for image
+					"%2$s" + // HTML for caption
+				"</div>" +
+				"<br><br>\n";
 		private final String fileURI;
 		private final String caption;
 		private String imageURL = null;
 
-		public imagePart(String fileURI, String caption) {
+		public ImagePart(String fileURI, String caption) {
 			this.fileURI = fileURI;
 			this.caption = caption;
 		}
 
 		@Override
-		public String getHTML() throws ELogEntryException {
+		public String getHTML() throws ElogException {
 			if (imageURL == null) {
-				imageURL = uploadImage();
+				imageURL = extractAttachmentUrl(uploadImage());
 			}
 			return imageHtml();
 		}
 
+		@Override
+		public String getOfflineHTML() throws ElogException {
+			if (imageURL == null) {
+				imageURL = fileURI;
+			}
+			return imageHtml();
+		}
+
+		/**
+		 * Format image URI into an HTML <code>&lt;div&gt;</code> containing the image and caption
+		 */
 		private String imageHtml() {
 			if (imageURL != null) {
 				String captionText = caption == null || caption.isEmpty()
 						? ""
-						: "\n<span style=\"max-width:600px; margin: 0 auto; text-align:inherited; word-wrap:break-word;\">" + StringEscapeUtils.escapeHtml(caption) + "</span>\n";
-				String style = "display:inline-block;";
-				String imageHtml = "\n" +
-						"<img alt =\"" + imageURL + "\" src=\"" + imageURL + "\"/><br>" +
-						captionText;
-				return "\n<div style=\"" + style + "\">" + imageHtml + "</div><br><br>\n";
+						: String.format(IMAGE_CAPTION_TEMPLATE, escapeHtml(caption));
+				return String.format(TEMPLATE, imageURL, captionText);
 			}
 			return null;
 		}
 
-//		private String uploadImage() {
-//			return fileURI;
-//		}
-
-		//upload image to eLog and get attachment URL
-		private String uploadImage() throws ELogEntryException {
+		/** Upload image to eLog and return response */
+		private String uploadImage() throws ElogException {
+			if (imagePostURL == null) {
+				throw new ElogException("This server is not configured to upload images to elog. See property "
+						+ GDA_ELOG_IMAGEURL_PROPERTY);
+			}
 			MultipartEntityBuilder request = MultipartEntityBuilder.create()
 					.addTextBody("txtUSERID", userID)
 					.addBinaryBody("userfile1", new File(fileURI));
 
 			HttpEntity entity = request.build();
-			HttpPost httpPost = new HttpPost(imagePostURL);
-			httpPost.setEntity(entity);
-			CloseableHttpClient httpClient = null;
-			CloseableHttpResponse response = null;
+
 			try {
-				httpClient = HttpClients.createDefault();
-				response = httpClient.execute(httpPost);
-				String responseString = EntityUtils.toString(response.getEntity());
-				int index = responseString.indexOf("FULL URL:");
-				if (index > 0) {
-					return responseString.substring(index + 9);
-				}
-				throw new ELogEntryException("Image upload failed: " + fileURI + " not found");
-			} catch (ELogEntryException e) {
-				throw e;
-			} catch (Exception e) {
-				throw new ELogEntryException("Image upload failed", e);
-			}
-			finally {
-				try {
-					if (httpClient != null) httpClient.close();
-					if (response != null) response.close();
-				} catch (IOException e) {
-					logger.error("Could not close connections", e);
-				}
+				return Request.Post(imagePostURL).body(entity).execute().returnContent().asString();
+			} catch (IOException e) {
+				throw new ElogException("Image upload failed", e);
 			}
 		}
 
+		/**
+		 * Extract attachment URL from upload response
+		 * @param response Response from {@link #uploadImage()}
+		 * @throws ElogException if response does not include URL
+		 */
+		private String extractAttachmentUrl(String response) throws ElogException {
+			int index = response.indexOf(IMAGE_UPLOAD_MARKER);
+			if (index < 0) {
+				throw new ElogException("Image upload failed: " + fileURI + " not found");
+			}
+			return response.substring(index + IMAGE_UPLOAD_MARKER.length());
+		}
+	}
+
+	public static class ElogException extends Exception {
+		public ElogException(String msg) {
+			super(msg);
+		}
+
+		public ElogException(String msg, Throwable e) {
+			super(msg, e);
+		}
 	}
 }
