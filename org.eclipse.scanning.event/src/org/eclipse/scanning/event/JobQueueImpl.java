@@ -134,10 +134,29 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 		// create the status queue and submission queue,
 		final String dbDir = connectorService.getPersistenceDir();
 		persistentStorePath = Paths.get(dbDir, submitQueueName + ".db").toString();
-		new File(persistentStorePath).getParentFile().mkdirs();
-		final MVStore store = MVStore.open(persistentStorePath);
-		submissionQueue = new SynchronizedModifiableIdQueue<>(connectorService, store, QUEUE_NAME_SUBMISSION_QUEUE);
-		statusQueue = new SynchronizedModifiableIdQueue<>(connectorService, store, QUEUE_NAME_STARTED_BEANS);
+		final File persistentStoreFile = new File(persistentStorePath);
+		persistentStoreFile.getParentFile().mkdirs();
+
+		IPersistentModifiableIdQueue<U> submissionQueue;
+		IPersistentModifiableIdQueue<U> statusQueue;
+		MVStore store = MVStore.open(persistentStorePath);
+		try {
+			submissionQueue = new SynchronizedModifiableIdQueue<>(connectorService, store, QUEUE_NAME_SUBMISSION_QUEUE);
+			statusQueue = new SynchronizedModifiableIdQueue<>(connectorService, store, QUEUE_NAME_STARTED_BEANS);
+		} catch (Exception e) {
+			// An error may occur loading the queue into memory from the file. This can happen when we change GDA version where
+			// the model names have changed, e.g. 9.15 to 9.16 many model names were renamed such as GridModel to TwoAxisGridPointsModel
+			// in this case, close the MVstore, delete the file and try again.
+			LOGGER.error("Error loading scanning queue from file: {}. This file will be deleted and recreated.", persistentStorePath, e);
+			store.closeImmediately();
+			persistentStoreFile.delete();
+
+			store = MVStore.open(persistentStorePath);
+			submissionQueue = new SynchronizedModifiableIdQueue<>(connectorService, store, QUEUE_NAME_SUBMISSION_QUEUE);
+			statusQueue = new SynchronizedModifiableIdQueue<>(connectorService, store, QUEUE_NAME_STARTED_BEANS);
+		}
+		this.submissionQueue = submissionQueue;
+		this.statusQueue = statusQueue;
 
 		connect();
 	}
