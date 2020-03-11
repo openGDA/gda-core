@@ -72,4 +72,47 @@ class DummySEVTrigger extends TriggerBase {
 		return false;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		long temp;
+		temp = Double.doubleToLongBits(positionInterval);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(previousTrigger);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + ((registrar == null) ? 0 : registrar.hashCode());
+		result = prime * result + ((thesev == null) ? 0 : thesev.hashCode());
+		result = prime * result + triggerCount;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DummySEVTrigger other = (DummySEVTrigger) obj;
+		if (Double.doubleToLongBits(positionInterval) != Double.doubleToLongBits(other.positionInterval))
+			return false;
+		if (Double.doubleToLongBits(previousTrigger) != Double.doubleToLongBits(other.previousTrigger))
+			return false;
+		if (registrar == null) {
+			if (other.registrar != null)
+				return false;
+		} else if (!registrar.equals(other.registrar))
+			return false;
+		if (thesev == null) {
+			if (other.thesev != null)
+				return false;
+		} else if (!thesev.equals(other.thesev))
+			return false;
+		if (triggerCount != other.triggerCount)
+			return false;
+		return true;
+	}
+
 }

@@ -141,7 +141,15 @@ public class InputTextComposite extends Composite {
 			} catch (DeviceException e) {
 				logger.error("Error while trying to move {}", scannableName, e);
 			}
+		} else {
+			showInputErrorBox();
 		}
+	}
+
+	private void showInputErrorBox() {
+		MessageDialog dialog = new MessageDialog(Display.getDefault().getActiveShell(), "Input Outside Limits", null,
+				"Your input value is outside the limits allowed.", MessageDialog.ERROR, new String[] { "Ok" }, 0);
+		dialog.open();
 	}
 
 	private void openMessageBox() {
@@ -380,5 +388,13 @@ public class InputTextComposite extends Composite {
 
 	public void setReadOnly(boolean readOnly) {
 		this.readOnly = readOnly;
+	}
+
+	public void setLowerLimit(Double lowerLimit2) {
+		lowerLimit = lowerLimit2;
+	}
+
+	public void setUpperLimit(Double upperlimit2) {
+		upperLimit = upperlimit2;
 	}
 }
