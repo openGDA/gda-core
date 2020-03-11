@@ -68,7 +68,7 @@ public class DetectorPreparerFunctions {
 	}
 
 	public FluorescenceDetectorParameters getDetectorParametersBean(String xmlFileName) throws Exception {
-		return XMLHelpers.readBean(new File(xmlFileName), FluorescenceDetectorParameters.class);
+		return (FluorescenceDetectorParameters) XMLHelpers.getBean(new File(xmlFileName));
 	}
 
 	public void setConfigFilename(Detector det, String xmlFilename) {
