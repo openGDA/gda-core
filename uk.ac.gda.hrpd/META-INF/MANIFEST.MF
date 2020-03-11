@@ -9,6 +9,7 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.epics;bundle-version="1.0.0",
  uk.ac.gda.common,
  org.apache.poi;bundle-version="[3.9.0,4.0.0)",
+ org.apache.poi.ooxml;bundle-version="[3.9.0,4.0.0)",
  org.eclipse.january;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.analysis;bundle-version="1.0.0",
  uk.ac.gda.api,
@@ -16,7 +17,8 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.devices.mythen;bundle-version="1.0.0",
  org.apache.commons.lang;bundle-version="2.6.0",
  org.eclipse.dawnsci.nexus;bundle-version="1.0.0",
- org.apache.commons.collections;bundle-version="3.2.1"
+ org.apache.commons.collections;bundle-version="3.2.1",
+ org.yaml.snakeyaml
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
@@ -27,6 +29,9 @@ Import-Package: com.google.common.base;version="15.0.0",
 Eclipse-RegisterBuddy: uk.ac.gda.api,
  uk.ac.diamond.org.springframework
 Export-Package: gda.hrpd.pmac,
+ gda.hrpd.sample,
+ gda.hrpd.sample.api,
+ gda.hrpd.sample.scans,
  uk.ac.gda.hrpd.cvscan,
  uk.ac.gda.hrpd.cvscan.event
 Automatic-Module-Name: uk.ac.gda.hrpd
