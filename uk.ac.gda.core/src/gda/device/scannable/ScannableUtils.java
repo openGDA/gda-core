@@ -34,6 +34,7 @@ import javax.measure.Quantity;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
@@ -528,7 +529,6 @@ public final class ScannableUtils {
 		return outputArray;
 	}
 
-	@SuppressWarnings("rawtypes")
 	private static Double getDouble(Object val, int index) {
 		if (val instanceof Number[]) {
 			return ((Number[]) val)[index].doubleValue();
@@ -537,13 +537,17 @@ public final class ScannableUtils {
 			return Array.getDouble(val, index);
 		}
 		if (val instanceof PySequence) {
-			if (((PySequence) val).__finditem__(index) instanceof PyNone) {
+			PyObject item = ((PySequence) val).__finditem__(index);
+			if (item instanceof PyNone) {
 				return null;
 			}
-			return Double.parseDouble(((PySequence) val).__finditem__(index).toString());
+			if (item instanceof PyString) {
+				return Double.parseDouble(item.toString());
+			}
+			return Py.tojava(item, Number.class).doubleValue();
 		}
-		if (val instanceof List) {
-			return Double.parseDouble(((List) val).get(index).toString());
+		if (val instanceof List<?>) {
+			return Double.parseDouble(((List<?>) val).get(index).toString());
 		}
 		throw new IllegalArgumentException("getDouble. Object cannot be converted to Double");
 	}
