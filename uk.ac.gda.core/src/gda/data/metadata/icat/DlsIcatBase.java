@@ -21,13 +21,13 @@ package gda.data.metadata.icat;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 
 import gda.configuration.properties.LocalProperties;
 import gda.jython.authoriser.AuthoriserProvider;
@@ -89,10 +89,7 @@ public abstract class DlsIcatBase extends IcatBase {
 			// append to the list extra options if local staff
 			if (AuthoriserProvider.getAuthoriser().isLocalStaff(user)) {
 				// allow beamline staff to use the current visit ID
-				for (String visitPrefix : new String[] {"CM", "NR"}) {
-					final Optional<String> extraVisit = getLatestVisitWithPrefix(connection, visitPrefix);
-					visits.addAll(extraVisit.asSet());
-				}
+				getLatestVisitWithPrefix(connection, "CM").ifPresent(visits::add);
 			}
 
 			return visits;
