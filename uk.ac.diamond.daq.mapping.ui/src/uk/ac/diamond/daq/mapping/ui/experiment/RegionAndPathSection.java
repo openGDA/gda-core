@@ -37,6 +37,7 @@ import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
@@ -170,7 +171,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 
 			// Get the new selection.
 			IStructuredSelection selection = (IStructuredSelection) event.getSelection();
-			IScanPathModel selectedPath = (IScanPathModel) selection.getFirstElement();
+			IScanPointGeneratorModel selectedPath = (IScanPointGeneratorModel) selection.getFirstElement();
 			controller.changePath(selectedPath);
 			rebuildMappingSection();
 		});

@@ -42,7 +42,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -96,7 +96,7 @@ public class OuterScannablesSection extends AbstractMappingSection {
 	 * Initially empty, the user can add and remove scannables to/from the list.<br>
 	 * The choice will be saved when the client is closed and restored when opened, unless the client is reset.
 	 */
-	private List<IScanModelWrapper<IScanPathModel>> scannablesToShow;
+	private List<IScanModelWrapper<IScanPointGeneratorModel>> scannablesToShow;
 
 	/**
 	 * Names of the scannables that the user can choose
@@ -156,7 +156,7 @@ public class OuterScannablesSection extends AbstractMappingSection {
 		scannablesToShow = new ArrayList<>(getMappingBean().getScanDefinition().getOuterScannables());
 
 		// Ensure scannables are shown in alphabetical order (case insensitive)
-		scannablesToShow.sort(comparing(IScanModelWrapper<IScanPathModel>::getName, CASE_INSENSITIVE_ORDER));
+		scannablesToShow.sort(comparing(IScanModelWrapper<IScanPointGeneratorModel>::getName, CASE_INSENSITIVE_ORDER));
 
 		if (scannablesComposite != null) {
 			scannablesComposite.dispose();
@@ -169,7 +169,7 @@ public class OuterScannablesSection extends AbstractMappingSection {
 		GridLayoutFactory.swtDefaults().numColumns(4).margins(0, 0).applyTo(scannablesComposite);
 
 		// Create a control for each scannable to be shown
-		for (IScanModelWrapper<IScanPathModel> scannableAxisParameters : scannablesToShow) {
+		for (IScanModelWrapper<IScanPointGeneratorModel> scannableAxisParameters : scannablesToShow) {
 			final String scannableName = scannableAxisParameters.getName();
 
 			// Create checkbox and bind to "includeInScan" in the model
@@ -217,7 +217,7 @@ public class OuterScannablesSection extends AbstractMappingSection {
 		updateStatusLabel();
 	}
 
-	private void deleteScannable(IScanModelWrapper<IScanPathModel> scannable) {
+	private void deleteScannable(IScanModelWrapper<IScanPointGeneratorModel> scannable) {
 		if (MessageDialog.openQuestion(getShell(), "Confirm deletion", String.format("Do you want to delete %s?", scannable.getName()))) {
 			scannablesToShow.remove(scannable);
 			updateControls();
@@ -248,9 +248,9 @@ public class OuterScannablesSection extends AbstractMappingSection {
 		}
 	}
 
-	private static List<String> extractScannableNames(Collection<IScanModelWrapper<IScanPathModel>> scannables) {
+	private static List<String> extractScannableNames(Collection<IScanModelWrapper<IScanPointGeneratorModel>> scannables) {
 		return scannables.stream()
-				.map(IScanModelWrapper<IScanPathModel>::getName)
+				.map(IScanModelWrapper<IScanPointGeneratorModel>::getName)
 				.collect(Collectors.toList());
 	}
 
@@ -276,7 +276,7 @@ public class OuterScannablesSection extends AbstractMappingSection {
 	 *            name of the scannable
 	 * @return wrapper for the scannable or <code>null</code>
 	 */
-	private IScanModelWrapper<IScanPathModel> getScannableWrapper(String scannableName) {
+	private IScanModelWrapper<IScanPointGeneratorModel> getScannableWrapper(String scannableName) {
 		return scannablesToShow.stream()
 				.filter(item -> item.getName().equals(scannableName))
 				.findFirst()
@@ -293,7 +293,7 @@ public class OuterScannablesSection extends AbstractMappingSection {
 	 *            <code>true</code> if the scannable is to be included in scans, <code>false</code> otherwise
 	 */
 	public void showScannable(String scannableName, boolean includeInScan) {
-		final IScanModelWrapper<IScanPathModel> wrapper = getScannableWrapper(scannableName);
+		final IScanModelWrapper<IScanPointGeneratorModel> wrapper = getScannableWrapper(scannableName);
 		if (wrapper != null) {
 			wrapper.setIncludeInScan(includeInScan);
 			return;

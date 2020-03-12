@@ -28,6 +28,7 @@ import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -122,8 +123,8 @@ public class StatusPanel extends AbstractMappingSection {
 		int points2d = get2DPoints();
 		int otherAxesPoints = getOuterScannables()
 								.stream()
-								.filter(IScanModelWrapper<IScanPathModel>::isIncludeInScan)
-								.map(IScanModelWrapper<IScanPathModel>::getModel)
+								.filter(IScanModelWrapper<IScanPointGeneratorModel>::isIncludeInScan)
+								.map(IScanModelWrapper<IScanPointGeneratorModel>::getModel)
 								.filter(Objects::nonNull)
 								.mapToInt(this::calculatePathPoints)
 								.reduce(1, (a, b) -> a * b);
@@ -131,7 +132,7 @@ public class StatusPanel extends AbstractMappingSection {
 		return points2d * otherAxesPoints;
 	}
 
-	protected List<IScanModelWrapper<IScanPathModel>> getOuterScannables() {
+	protected List<IScanModelWrapper<IScanPointGeneratorModel>> getOuterScannables() {
 		return mappingBean.getScanDefinition().getOuterScannables();
 	}
 

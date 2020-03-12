@@ -23,7 +23,7 @@ import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 
 import gda.device.Scannable;
@@ -44,7 +44,7 @@ public interface ScanpathModelFactoryFunction {
 	 * @return								A model constructed using the supplied parameters
 	 * @throws IllegalArgumentException		If the required number of scannables or parameters are not supplied
 	 */
-	public IScanPathModel createScanpathModel(final List<Scannable> scannables,
+	public IScanPointGeneratorModel createScanpathModel(final List<Scannable> scannables,
 						 final List<Number> scanParameters,
 						 final List<Number> bboxParameters,
 						 final Map<Mutator, List<Number>> mutatorUses) throws IllegalArgumentException;

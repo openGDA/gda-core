@@ -53,6 +53,7 @@ import org.eclipse.scanning.api.event.status.OpenRequest;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.widgets.Composite;
@@ -230,7 +231,7 @@ public class MappingExperimentView implements IAdaptable {
 				if (defaultOuterScannables.isEmpty()) {
 					return;
 				}
-				final List<IScanModelWrapper<IScanPathModel>> scanModels = defaultOuterScannables.stream()
+				final List<IScanModelWrapper<IScanPointGeneratorModel>> scanModels = defaultOuterScannables.stream()
 						.map(scannable -> new ScanPathModelWrapper(scannable, null, false))
 						.collect(Collectors.toList());
 				scanDefinition.setOuterScannables(scanModels);
@@ -297,10 +298,10 @@ public class MappingExperimentView implements IAdaptable {
 
 	private boolean isMappingScanBean(StatusBean statusBean) {
 		if (!(statusBean instanceof ScanBean)) return false;
-		List<Object> models = ((ScanBean) statusBean).getScanRequest().getCompoundModel().getModels();
+		List<IScanPointGeneratorModel> models = ((ScanBean) statusBean).getScanRequest().getCompoundModel().getModels();
 		boolean innerPathIs2D = models.get(models.size()-1) instanceof IMapPathModel;
 		boolean outerPathsHave1Scannable = models.subList(0, models.size()-1).stream()
-											.map(path -> ((IScanPathModel) path).getScannableNames())
+											.map(IScanPathModel::getScannableNames)
 											.allMatch(scannables -> scannables.size() == 1);
 
 		return innerPathIs2D && outerPathsHave1Scannable;

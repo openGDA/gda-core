@@ -48,7 +48,7 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IMapPathModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.scan.models.ScanMetadata;
 import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
@@ -122,9 +122,9 @@ public class ScanRequestConverter {
 
 		// Build the list of models for the scan
 		// first get the models for any outer scannables to be included
-		final List<IScanPathModel> models = mappingBean.getScanDefinition().getOuterScannables().stream().
-			filter(IScanModelWrapper<IScanPathModel>::isIncludeInScan).
-			map(IScanModelWrapper<IScanPathModel>::getModel).
+		final List<IScanPointGeneratorModel> models = mappingBean.getScanDefinition().getOuterScannables().stream().
+			filter(IScanModelWrapper<IScanPointGeneratorModel>::isIncludeInScan).
+			map(IScanModelWrapper<IScanPointGeneratorModel>::getModel).
 			filter(Objects::nonNull).
 			collect(toCollection(ArrayList::new)); // use array list as we're going to add an element
 
@@ -381,9 +381,9 @@ public class ScanRequestConverter {
 	}
 
 	private IMapPathModel checkMapModelAndUpdateMappingStage(final CompoundModel compoundModel) {
-		final List<Object> models = compoundModel.getModels();
+		final List<IScanPointGeneratorModel> models = compoundModel.getModels();
 		// check that the inner most model is an IMapPathModel, i.e. for a mapping scan
-		final Object innerModelObj = models.get(models.size() - 1);
+		final IScanPointGeneratorModel innerModelObj = models.get(models.size() - 1);
 		if (!(innerModelObj instanceof IMapPathModel)) {
 			throw new IllegalArgumentException("The inner most model is not a map model. This is not mapping scan");
 		}
@@ -421,21 +421,16 @@ public class ScanRequestConverter {
 	}
 
 	private void mergeOuterScannables(CompoundModel compoundModel, IMappingExperimentBean mappingBean) {
-		final List<IScanModelWrapper<IScanPathModel>> outerScannables = mappingBean.getScanDefinition().getOuterScannables();
-		final List<Object> models = compoundModel.getModels();
-		final List<Object> outerScannableModels = new ArrayList<>(models.subList(0, models.size() - 1));
-		for (Object model : outerScannableModels) {
-			if (!(model instanceof IScanPathModel)) {
-				throw new IllegalArgumentException("Model is not an IScanPathModel: " + model);
-			}
-		}
+		final List<IScanModelWrapper<IScanPointGeneratorModel>> outerScannables = mappingBean.getScanDefinition().getOuterScannables();
+		final List<IScanPointGeneratorModel> models = compoundModel.getModels();
+		final List<IScanPointGeneratorModel> outerScannableModels = new ArrayList<>(models.subList(0, models.size() - 1));
 
 		// We assume that models have the same name as the wrapper
-		final Iterator<Object> modelIter = outerScannableModels.iterator();
-		IScanPathModel currentModel =  modelIter.hasNext() ? (IScanPathModel) modelIter.next() : null;
+		final Iterator<IScanPointGeneratorModel> modelIter = outerScannableModels.iterator();
+		IScanPointGeneratorModel currentModel =  modelIter.hasNext() ? modelIter.next() : null;
 		// iterate through the list of outer scannable wrappers to find the wrapper for the
 		// current model. If we find a match, then we move on to the next model
-		for (IScanModelWrapper<IScanPathModel> outerScannable : outerScannables) {
+		for (IScanModelWrapper<IScanPointGeneratorModel> outerScannable : outerScannables) {
 			if (currentModel == null || !outerScannable.getName().equals(currentModel.getName())) {
 				// this outer scannable wrapper isn't in the scan request
 				((ScanPathModelWrapper) outerScannable).setIncludeInScan(false);
@@ -444,14 +439,14 @@ public class ScanRequestConverter {
 				// with the outer scannable model
 				((ScanPathModelWrapper) outerScannable).setIncludeInScan(true);
 				((ScanPathModelWrapper) outerScannable).setModel(currentModel);
-				currentModel = modelIter.hasNext() ? (IScanPathModel) modelIter.next() : null;
+				currentModel = modelIter.hasNext() ? modelIter.next() : null;
 			}
 		}
 
 		// We didn't find a wrapper for this model; let's create one
 		if (currentModel != null) {
-			IScanModelWrapper<IScanPathModel> wrapper = new ScanPathModelWrapper(currentModel.getName(), currentModel, true);
-			List<IScanModelWrapper<IScanPathModel>> updatedOuterScannables = new ArrayList<>(outerScannables);
+			IScanModelWrapper<IScanPointGeneratorModel> wrapper = new ScanPathModelWrapper(currentModel.getName(), currentModel, true);
+			List<IScanModelWrapper<IScanPointGeneratorModel>> updatedOuterScannables = new ArrayList<>(outerScannables);
 			updatedOuterScannables.add(wrapper);
 			mappingBean.getScanDefinition().setOuterScannables(updatedOuterScannables);
 		}

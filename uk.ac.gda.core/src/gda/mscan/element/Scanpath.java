@@ -36,6 +36,7 @@ import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.BoundingLine;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsRandomOffsetModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
@@ -165,7 +166,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 	 *
 	 * @throws 					IllegalArgumentException if the validation of parameters or {@link Mutator}s fails
 	 */
-	public IScanPathModel createModel(final List<Scannable> scannables, final List<Number> pathParams,
+	public IScanPointGeneratorModel createModel(final List<Scannable> scannables, final List<Number> pathParams,
 										final List<Number> bboxParams, final Map<Mutator, List<Number>> mutatorUses) {
 		validateInputs(ImmutableMap.of(scannables, axisCount,
 										pathParams, axisCount == 1 ? valueCount + 2 : valueCount,
@@ -252,7 +253,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
-		private static IScanPathModel createTwoAxisGridPointsModel ( final List<Scannable> scannables,
+		private static IScanPointGeneratorModel createTwoAxisGridPointsModel ( final List<Scannable> scannables,
 				 										final List<Number> scanParameters,
 				 										final List<Number> bboxParameters,
 				 										final Map<Mutator, List<Number>> mutatorUses) {
@@ -293,7 +294,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
-		private static IScanPathModel createTwoAxisGridStepModel (final List<Scannable> scannables,
+		private static IScanPointGeneratorModel createTwoAxisGridStepModel (final List<Scannable> scannables,
 														 final List<Number> scanParameters,
 														 final List<Number> bboxParameters,
 														 final Map<Mutator, List<Number>> mutatorUses) {
@@ -320,7 +321,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
-		private static IScanPathModel createTwoAxisSpiralModel (final List<Scannable> scannables,
+		private static IScanPointGeneratorModel createTwoAxisSpiralModel (final List<Scannable> scannables,
 														 final List<Number> scanParameters,
 														 final List<Number> bboxParameters,
 														 final Map<Mutator, List<Number>> mutatorUses) {
@@ -344,7 +345,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
-		private static IScanPathModel createTwoAxisLissajousModel (final List<Scannable> scannables,
+		private static IScanPointGeneratorModel createTwoAxisLissajousModel (final List<Scannable> scannables,
 															final List<Number> scanParameters,
 															final List<Number> bboxParameters,
 															final Map<Mutator, List<Number>> mutatorUses) {
@@ -369,7 +370,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
-		private static IScanPathModel createTwoAxisLineStepModel (final List<Scannable> scannables,
+		private static IScanPointGeneratorModel createTwoAxisLineStepModel (final List<Scannable> scannables,
 														   final List<Number> scanParameters,
 														   final List<Number> blineParameters,
 														   final Map<Mutator, List<Number>> mutatorUses) {
@@ -394,7 +395,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
-		private static IScanPathModel createTwoAxisLinePointsModel (final List<Scannable> scannables,
+		private static IScanPointGeneratorModel createTwoAxisLinePointsModel (final List<Scannable> scannables,
 				   													final List<Number> scanParameters,
 				   													final List<Number> blineParameters,
 				   													final Map<Mutator, List<Number>> mutatorUses) {
@@ -419,7 +420,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 		 * @param notUsedMap		An empty {@link Map} not used for this path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
-		private static IScanPathModel createSinglePointModel (final List<Scannable> scannables,
+		private static IScanPointGeneratorModel createSinglePointModel (final List<Scannable> scannables,
 																final List<Number> scanParameters,
 																final List<Number> notUsed,
 																final Map<Mutator, List<Number>> notUsedMap) {
@@ -440,7 +441,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
-		private static IScanPathModel createAxialStepModel (final List<Scannable> scannables,
+		private static IScanPointGeneratorModel createAxialStepModel (final List<Scannable> scannables,
 														   final List<Number> scanParameters,
 														   final List<Number> notUsed,
 														   final Map<Mutator, List<Number>> mutatorUses) {
@@ -472,7 +473,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
-		private static IScanPathModel createAxialPointsModel (final List<Scannable> scannables,
+		private static IScanPointGeneratorModel createAxialPointsModel (final List<Scannable> scannables,
 														   final List<Number> scanParameters,
 														   final List<Number> notUsed,
 														   final Map<Mutator, List<Number>> mutatorUses) {

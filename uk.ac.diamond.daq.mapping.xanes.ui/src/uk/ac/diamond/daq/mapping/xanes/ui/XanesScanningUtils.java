@@ -25,7 +25,7 @@ import java.util.List;
 
 import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
@@ -57,10 +57,10 @@ public class XanesScanningUtils {
 	 *            name of the scannable to return
 	 * @return {@link IScanModelWrapper} for the scannable
 	 */
-	public static IScanModelWrapper<IScanPathModel> getOuterScannable(IMappingExperimentBean mappingBean, String scannableName) {
+	public static IScanModelWrapper<IScanPointGeneratorModel> getOuterScannable(IMappingExperimentBean mappingBean, String scannableName) {
 		if (scannableName != null && scannableName.length() > 0) {
-			final List<IScanModelWrapper<IScanPathModel>> outerScannables = mappingBean.getScanDefinition().getOuterScannables();
-			for (IScanModelWrapper<IScanPathModel> scannable : outerScannables) {
+			final List<IScanModelWrapper<IScanPointGeneratorModel>> outerScannables = mappingBean.getScanDefinition().getOuterScannables();
+			for (IScanModelWrapper<IScanPointGeneratorModel> scannable : outerScannables) {
 				if (scannable.getName().equals(scannableName)) {
 					return scannable;
 				}
@@ -78,7 +78,7 @@ public class XanesScanningUtils {
 	 *            name of the scannable to control the energy
 	 * @return corresponding step model
 	 */
-	public static IScanPathModel createModelFromEdgeSelection(double edgeEnergy, String energyScannableName) {
+	public static IScanPointGeneratorModel createModelFromEdgeSelection(double edgeEnergy, String energyScannableName) {
 		final List<AxialStepModel> stepModels = new ArrayList<>(xanesStepRanges.length);
 
 		// Create a step model for each range of energies around the edge

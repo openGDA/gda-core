@@ -32,6 +32,7 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.AbstractBoundingLineModel;
 import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
 import org.eclipse.scanning.api.script.IScriptService;
@@ -81,10 +82,10 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 		final ScanRequest scanRequest = getScanRequest(getMappingBean());
 		final XanesEdgeParametersSection paramsSection = getMappingView().getSection(XanesEdgeParametersSection.class);
 		if (paramsSection.isEnforcedShape()) {
-			CompoundModel newModel = CompoundModel.copy(scanRequest.getCompoundModel());
-			List<Object> models = newModel.getModels();
-			List<Object> enforcedShapes = new ArrayList<>(models.size());
-			for (Object model : models) {
+			CompoundModel newModel = new CompoundModel(scanRequest.getCompoundModel());
+			List<IScanPointGeneratorModel> models = newModel.getModels();
+			List<IScanPointGeneratorModel> enforcedShapes = new ArrayList<>(models.size());
+			for (IScanPointGeneratorModel model : models) {
 				enforcedShapes.add(enforce(model));
 			}
 			newModel.setModels(enforcedShapes);
@@ -106,7 +107,7 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 		Async.execute(() -> runScript(scriptFilePath, "XANES scanning script"));
 	}
 
-	private Object enforce(Object model) {
+	private IScanPointGeneratorModel enforce(IScanPointGeneratorModel model) {
 		if (model instanceof TwoAxisLineStepModel) {
 			return AbstractBoundingLineModel.enforceShape((TwoAxisLineStepModel) model);
 		}

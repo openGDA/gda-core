@@ -23,7 +23,7 @@ import static java.util.stream.Collectors.toList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 
 import uk.ac.diamond.daq.mapping.api.IMappingRegionManager;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
@@ -34,9 +34,9 @@ public class MappingRegionManager implements IMappingRegionManager {
 
 	// Initialise with empty lists - the real contents should be configured using Spring
 	private List<IMappingScanRegionShape> regions = Collections.emptyList();
-	private List<IScanPathModel> twoDPaths = Collections.emptyList();
-	private List<IScanPathModel> oneDPaths = Collections.emptyList();
-	private List<IScanPathModel> zeroDPaths = Collections.emptyList();
+	private List<IScanPointGeneratorModel> twoDPaths = Collections.emptyList();
+	private List<IScanPointGeneratorModel> oneDPaths = Collections.emptyList();
+	private List<IScanPointGeneratorModel> zeroDPaths = Collections.emptyList();
 
 	@Override
 	public List<IMappingScanRegionShape> getTemplateRegions() {
@@ -54,7 +54,7 @@ public class MappingRegionManager implements IMappingRegionManager {
 	}
 
 	@Override
-	public List<IScanPathModel> getValidPaths(IMappingScanRegionShape scanRegion) {
+	public List<IScanPointGeneratorModel> getValidPaths(IMappingScanRegionShape scanRegion) {
 		// If a point, return the zero-dimensional single point path
 		if (scanRegion instanceof PointMappingRegion) {
 			return zeroDPaths;
@@ -71,15 +71,15 @@ public class MappingRegionManager implements IMappingRegionManager {
 		this.regions = regions;
 	}
 
-	public void setTwoDPaths(List<IScanPathModel> twoDPaths) {
+	public void setTwoDPaths(List<IScanPointGeneratorModel> twoDPaths) {
 		this.twoDPaths = twoDPaths;
 	}
 
-	public void setOneDPaths(List<IScanPathModel> oneDPaths) {
+	public void setOneDPaths(List<IScanPointGeneratorModel> oneDPaths) {
 		this.oneDPaths = oneDPaths;
 	}
 
-	public void setZeroDPaths(List<IScanPathModel> zeroDPaths) {
+	public void setZeroDPaths(List<IScanPointGeneratorModel> zeroDPaths) {
 		this.zeroDPaths = zeroDPaths;
 	}
 }

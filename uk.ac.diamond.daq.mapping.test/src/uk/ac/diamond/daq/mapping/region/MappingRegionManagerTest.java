@@ -13,7 +13,7 @@ import static org.mockito.Mockito.mock;
 import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
@@ -34,10 +34,10 @@ public class MappingRegionManagerTest {
 			rectangle, new CentredRectangleMappingRegion(),
 			new CircularMappingRegion(), new LineMappingRegion(), new PointMappingRegion(),
 			new PolygonMappingRegion() };
-	private IScanPathModel[] twoDPaths = new IScanPathModel[] { new TwoAxisGridPointsModel(), new TwoAxisGridStepModel(),
+	private IScanPointGeneratorModel[] twoDPaths = new IScanPointGeneratorModel[] { new TwoAxisGridPointsModel(), new TwoAxisGridStepModel(),
 			new TwoAxisSpiralModel(), new TwoAxisLissajousModel() };
-	private IScanPathModel[] oneDPaths = new IScanPathModel[] { new TwoAxisLinePointsModel(), new TwoAxisLineStepModel() };
-	private IScanPathModel[] zeroDPaths = new IScanPathModel[] { new TwoAxisPointSingleModel() };
+	private IScanPointGeneratorModel[] oneDPaths = new IScanPointGeneratorModel[] { new TwoAxisLinePointsModel(), new TwoAxisLineStepModel() };
+	private IScanPointGeneratorModel[] zeroDPaths = new IScanPointGeneratorModel[] { new TwoAxisPointSingleModel() };
 
 	private MappingRegionManager mappingRegionManager;
 
@@ -82,35 +82,35 @@ public class MappingRegionManagerTest {
 
 	@Test
 	public void getValidPathsForRectangleShouldReturnAll2DPaths() throws Exception {
-		List<IScanPathModel> paths = mappingRegionManager.getValidPaths(new RectangularMappingRegion());
+		List<IScanPointGeneratorModel> paths = mappingRegionManager.getValidPaths(new RectangularMappingRegion());
 		assertThat("All 2D paths should be returned", paths, hasItems(twoDPaths));
 		assertEquals("No other paths should be returned", paths.size(), (twoDPaths.length));
 	}
 
 	@Test
 	public void getValidPathsForCentredRectangleShouldReturnAll2DPaths() throws Exception {
-		List<IScanPathModel> paths = mappingRegionManager.getValidPaths(new CentredRectangleMappingRegion());
+		List<IScanPointGeneratorModel> paths = mappingRegionManager.getValidPaths(new CentredRectangleMappingRegion());
 		assertThat("All 2D paths should be returned", paths, hasItems(twoDPaths));
 		assertEquals("No other paths should be returned", paths.size(), (twoDPaths.length));
 	}
 
 	@Test
 	public void getValidPathsForCircleShouldReturnAll2DPaths() throws Exception {
-		List<IScanPathModel> paths = mappingRegionManager.getValidPaths(new CircularMappingRegion());
+		List<IScanPointGeneratorModel> paths = mappingRegionManager.getValidPaths(new CircularMappingRegion());
 		assertThat("All 2D paths should be returned", paths, hasItems(twoDPaths));
 		assertEquals("No other paths should be returned", paths.size(), twoDPaths.length);
 	}
 
 	@Test
 	public void getValidPathsForLineShouldReturnAll1DPaths() throws Exception {
-		List<IScanPathModel> paths = mappingRegionManager.getValidPaths(new LineMappingRegion());
+		List<IScanPointGeneratorModel> paths = mappingRegionManager.getValidPaths(new LineMappingRegion());
 		assertThat("All 1D paths should be returned", paths, hasItems(oneDPaths));
 		assertEquals("No other paths should be returned", paths.size(), oneDPaths.length);
 	}
 
 	@Test
 	public void getValidPathsForPointShouldReturnSinglePointPath() throws Exception {
-		List<IScanPathModel> paths = mappingRegionManager.getValidPaths(new PointMappingRegion());
+		List<IScanPointGeneratorModel> paths = mappingRegionManager.getValidPaths(new PointMappingRegion());
 		assertThat("Only a single point path should be valid for a point region", paths, hasItems(zeroDPaths));
 		assertEquals("No other paths should be returned", paths.size(), zeroDPaths.length);
 	}

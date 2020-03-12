@@ -41,7 +41,7 @@ import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -114,7 +114,7 @@ public class StandardsScanView {
 		nameLabel.setText(energyScannableName);
 
 		// Scan path editor to display & edit energy values
-		final IScanModelWrapper<IScanPathModel> scannableWrapper = new ScanPathModelWrapper(energyScannableName, null, false);
+		final IScanModelWrapper<IScanPointGeneratorModel> scannableWrapper = new ScanPathModelWrapper(energyScannableName, null, false);
 		scanPathEditor = new ScanPathEditor(editorComposite, SWT.NONE, scannableWrapper);
 
 		final Composite edgeAndExposureComposite = new Composite(parent, SWT.NONE);
@@ -124,7 +124,7 @@ public class StandardsScanView {
 		// List of energy/edge combinations
 		final XanesEdgeCombo edgeCombo = new XanesEdgeCombo(edgeAndExposureComposite);
 		edgeCombo.addSelectionChangedListener(e -> {
-			final IScanPathModel scanPathModel = createModelFromEdgeSelection(edgeCombo.getSelectedEnergy(), energyScannableName);
+			final IScanPointGeneratorModel scanPathModel = createModelFromEdgeSelection(edgeCombo.getSelectedEnergy(), energyScannableName);
 			scanPathEditor.setScanPathModel(scanPathModel);
 		});
 

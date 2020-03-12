@@ -21,7 +21,7 @@ package uk.ac.diamond.daq.mapping.impl;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
@@ -29,7 +29,7 @@ import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 public class MappingScanRegion implements IMappingScanRegion {
 
 	private IMappingScanRegionShape region;
-	private IScanPathModel scanPath;
+	private IScanPointGeneratorModel scanPath;
 
     private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 
@@ -56,12 +56,12 @@ public class MappingScanRegion implements IMappingScanRegion {
 	}
 
 	@Override
-	public IScanPathModel getScanPath() {
+	public IScanPointGeneratorModel getScanPath() {
 		return scanPath;
 	}
 
 	@Override
-	public void setScanPath(IScanPathModel scanPath) {
+	public void setScanPath(IScanPointGeneratorModel scanPath) {
 		firePropertyChange("scanPath", this.scanPath, this.scanPath = scanPath);
 	}
 

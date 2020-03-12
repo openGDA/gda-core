@@ -1094,7 +1094,7 @@ public class ClausesContextTest {
 		assertThat(((CircularROI)compoundModel.getRegions().iterator().next().getRoi()).getCentre()[0], is(1.0));
 		assertThat(((CircularROI)compoundModel.getRegions().iterator().next().getRoi()).getCentre()[1], is(2.0));
 		assertThat(((CircularROI)compoundModel.getRegions().iterator().next().getRoi()).getRadius(), is(3.0));
-		assertNull(compoundModel.getMutators());
+		assertThat(compoundModel.getMutators(), is(new ArrayList<>()));
 	}
 
 	@Test

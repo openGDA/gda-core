@@ -51,7 +51,7 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.models.ScanMetadata;
@@ -435,8 +435,8 @@ public class ScanRequestConverterTest {
 	@Test
 	public void testOuterScannableIsSet() throws Exception {
 		// Arrange
-		final IScanPathModel outerModel = new AxialStepModel(Z_AXIS_NAME, -3, 2, 0.5);
-		final List<IScanModelWrapper<IScanPathModel>> outerScannables = Arrays.asList(new ScanPathModelWrapper(
+		final IScanPointGeneratorModel outerModel = new AxialStepModel(Z_AXIS_NAME, -3, 2, 0.5);
+		final List<IScanModelWrapper<IScanPointGeneratorModel>> outerScannables = Arrays.asList(new ScanPathModelWrapper(
 				Z_AXIS_NAME, outerModel, true));
 
 		mappingBean.getScanDefinition().setOuterScannables(outerScannables);
@@ -461,7 +461,7 @@ public class ScanRequestConverterTest {
 		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
 
 		// Assert again - check the new mapping bean is the same as the old one
-		List<IScanModelWrapper<IScanPathModel>> newOuterScannables = newMappingBean.getScanDefinition().getOuterScannables();
+		List<IScanModelWrapper<IScanPointGeneratorModel>> newOuterScannables = newMappingBean.getScanDefinition().getOuterScannables();
 		assertThat(newOuterScannables.size(), is(2));
 		assertThat(newOuterScannables.get(0).getName(), is(equalTo(Z_AXIS_NAME)));
 		assertThat(newOuterScannables.get(0).getModel(), is(equalTo(outerModel)));
@@ -473,8 +473,8 @@ public class ScanRequestConverterTest {
 	@Test
 	public void testOuterScannableAddedToMappingBeanIfNotThereAlready() {
 		// Arrange
-		final IScanPathModel outerModel = new AxialStepModel(Z_AXIS_NAME, -3, 2, 0.5);
-		final List<IScanModelWrapper<IScanPathModel>> outerScannables = Arrays.asList(new ScanPathModelWrapper(
+		final IScanPointGeneratorModel outerModel = new AxialStepModel(Z_AXIS_NAME, -3, 2, 0.5);
+		final List<IScanModelWrapper<IScanPointGeneratorModel>> outerScannables = Arrays.asList(new ScanPathModelWrapper(
 				Z_AXIS_NAME, outerModel, true));
 
 		mappingBean.getScanDefinition().setOuterScannables(outerScannables);

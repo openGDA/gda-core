@@ -38,7 +38,7 @@ import org.eclipse.scanning.api.points.models.BoundingLine;
 import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.IBoundingLineModel;
 import org.eclipse.scanning.api.points.models.IMapPathModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 
@@ -54,7 +54,7 @@ public class PathInfoCalculatorJob extends Job {
 	@Inject
 	private IEventBroker eventBroker;
 
-	private IScanPathModel scanPathModel;
+	private IScanPointGeneratorModel scanPathModel;
 	private IMappingScanRegionShape scanRegion;
 
 	private Consumer<PathInfo> consumer;
@@ -69,7 +69,7 @@ public class PathInfoCalculatorJob extends Job {
 		this.consumer = consumer;
 	}
 
-	public void setScanPathModel(IScanPathModel scanPathModel) {
+	public void setScanPathModel(IScanPointGeneratorModel scanPathModel) {
 		this.scanPathModel = scanPathModel;
 	}
 

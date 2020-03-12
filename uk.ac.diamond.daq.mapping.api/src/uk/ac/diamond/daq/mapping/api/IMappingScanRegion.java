@@ -18,7 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.api;
 
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 
 /**
  * This interface should be implemented by any class which can represent a mapping scan region. It includes the region shape (e.g. rectangle, circle) and a scan
@@ -46,7 +46,7 @@ public interface IMappingScanRegion {
 	 *
 	 * @return scanPath
 	 */
-	public IScanPathModel getScanPath();
+	public IScanPointGeneratorModel getScanPath();
 
 	/**
 	 * Sets the scan path to use in the mapping scan to fill the region. This will typically be a path type (e.g. raster) and parameters defining it (e.g.
@@ -54,7 +54,7 @@ public interface IMappingScanRegion {
 	 *
 	 * @param scanPath
 	 */
-	public void setScanPath(IScanPathModel scanPath);
+	public void setScanPath(IScanPointGeneratorModel scanPath);
 
 	// /**
 	// * Gets a dataset representing the context of the scan region. In the anticipated usage, this will be an RGB screenshot of the map visualisation plot,
