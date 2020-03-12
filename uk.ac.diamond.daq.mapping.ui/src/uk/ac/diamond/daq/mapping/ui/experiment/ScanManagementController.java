@@ -61,6 +61,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.application.persistence.service.PersistenceException;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
+import uk.ac.diamond.daq.mapping.api.IScanBeanSubmitter;
 import uk.ac.diamond.daq.mapping.api.PersistableMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.ScanRequestSavedEvent;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
@@ -289,7 +290,7 @@ public class ScanManagementController extends AbstractMappingController {
 	 * If {@code null} it is generated through default properties.
 	 */
 	public void submitScan(Optional<String> filePath, DiffractionParameters acquisitionParameters) {
-		final ScanBeanSubmitter submitter = getService(ScanBeanSubmitter.class);
+		final IScanBeanSubmitter submitter = getService(IScanBeanSubmitter.class);
 		try {
 			ScanBean scanBean = createScanBean(filePath, acquisitionParameters);
 			submitter.submitScan(scanBean);
@@ -459,10 +460,10 @@ public class ScanManagementController extends AbstractMappingController {
 	}
 
 	/**
-	 * This method clones a similar one present in {@link ScanRequestConverter#convertToScanRequest}. 
-	 * The reason is to mitigate the replacement of the {@link MetadataController} properties so that 
+	 * This method clones a similar one present in {@link ScanRequestConverter#convertToScanRequest}.
+	 * The reason is to mitigate the replacement of the {@link MetadataController} properties so that
 	 * can be again written as {@link ScanMetadata}
-	 * 
+	 *
 	 * @param scanRequest
 	 * @param sampleName
 	 */

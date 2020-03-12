@@ -18,19 +18,10 @@
 
 package uk.ac.diamond.daq.experiment.scans.tomography;
 
-import java.io.File;
-
-import uk.ac.diamond.daq.experiment.api.ExperimentException;
 import uk.ac.diamond.daq.experiment.api.TriggerableScan;
-import uk.ac.gda.tomography.service.TomographyService;
-import uk.ac.gda.tomography.service.TomographyServiceException;
-import uk.ac.gda.tomography.service.impl.TomographyServiceImpl;
 import uk.ac.gda.tomography.service.message.TomographyRunMessage;
 
 public class TriggerableTomography implements TriggerableScan {
-
-	/** not serialised */
-	private TomographyService service;
 
 	private String tomographyParams;
 	private String acquisitionScriptPath;
@@ -42,20 +33,9 @@ public class TriggerableTomography implements TriggerableScan {
 
 	@Override
 	public Object trigger() {
-		if (service == null) initialise();
-		TomographyRunMessage tomo = new TomographyRunMessage(tomographyParams);
-
-		try {
-			service.runAcquisition(tomo, new File(acquisitionScriptPath), null, null);
-		} catch (TomographyServiceException e) {
-			throw new ExperimentException("Failed to trigger tomography", e);
-		}
-
+		TomographyRunMessage tomographyRunMessage = new TomographyRunMessage(tomographyParams);
+		//SpringApplicationContextProxy.publishEvent(new TomographyRunAcquisitionEvent(this, tomographyRunMessage));
 		return null;
-	}
-
-	private void initialise() {
-		service = new TomographyServiceImpl();
 	}
 
 	/**

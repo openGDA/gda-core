@@ -46,7 +46,8 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.diamond.daq.persistence.manager,
  uk.ac.diamond.daq.client.gui.persistence,
  uk.ac.diamond.daq.persistence.manager,
- uk.ac.gda.common.rcp
+ uk.ac.gda.common.rcp,
+ com.fasterxml.jackson.core.jackson-annotations
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: com.ibm.icu.text,
@@ -63,8 +64,11 @@ Import-Package: com.ibm.icu.text,
  uk.ac.diamond.daq.application.persistence.service
 Service-Component: OSGI-INF/*.xml
 Eclipse-RegisterBuddy: uk.ac.gda.core
-Export-Package: uk.ac.diamond.daq.mapping.ui.browser,
+Export-Package: uk.ac.diamond.daq.mapping.ui,
+ uk.ac.diamond.daq.mapping.ui.browser,
  uk.ac.diamond.daq.mapping.ui.diffraction.base,
+ uk.ac.diamond.daq.mapping.ui.document,
+ uk.ac.diamond.daq.mapping.ui.document.scanpath,
  uk.ac.diamond.daq.mapping.ui.experiment,
  uk.ac.diamond.daq.mapping.ui.experiment.file,
  uk.ac.diamond.daq.mapping.ui.experiment.focus,

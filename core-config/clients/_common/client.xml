@@ -11,6 +11,7 @@
 	<context:component-scan base-package="uk.ac.gda.ui.tool.spring"></context:component-scan>
 	<context:component-scan base-package="uk.ac.diamond.daq.client.gui.camera.event"></context:component-scan>
 	<context:component-scan base-package="uk.ac.diamond.daq.experiment.structure"></context:component-scan>
+	<context:component-scan base-package="uk.ac.diamond.daq.mapping.ui.document"></context:component-scan>
 		
 	<context:property-placeholder />
 </beans>
