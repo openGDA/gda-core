@@ -26,17 +26,18 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
+import org.eclipse.scanning.api.points.models.OneAxisPointRepeatedModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
-import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
-import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
-import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsRandomOffsetModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
-import org.eclipse.scanning.api.points.models.OneAxisPointRepeatedModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
 import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
-import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.Before;
@@ -78,7 +79,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 
 		ScanRequest request = pi.get("sr", ScanRequest.class);
 
-		Collection<Object> models = request.getCompoundModel().getModels();
+		Collection<IScanPointGeneratorModel> models = request.getCompoundModel().getModels();
 		assertEquals(1, models.size());  // I.e. this is not a compound scan.
 
 		TwoAxisGridPointsModel model = (TwoAxisGridPointsModel) models.iterator().next();
@@ -103,7 +104,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 
 		ScanRequest request = pi.get("sr", ScanRequest.class);
 
-		Collection<Object> models = request.getCompoundModel().getModels();
+		Collection<IScanPointGeneratorModel> models = request.getCompoundModel().getModels();
 		assertEquals(1, models.size());  // I.e. this is not a compound scan.
 
 		TwoAxisGridStepModel model = (TwoAxisGridStepModel) models.iterator().next();
@@ -125,10 +126,10 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	")                                ");
 		ScanRequest request = pi.get("sr", ScanRequest.class);
 
-		Collection<Object> models = request.getCompoundModel().getModels();
+		Collection<IScanPointGeneratorModel> models = request.getCompoundModel().getModels();
 		assertEquals(1, models.size());  // I.e. this is not a compound scan.
 
-		Object model = models.iterator().next();
+		IScanPointGeneratorModel model = models.iterator().next();
 		assertEquals(TwoAxisGridPointsModel.class, model.getClass());
 
 		TwoAxisGridPointsModel gmodel = (TwoAxisGridPointsModel) model;
@@ -179,10 +180,10 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	")                                ");
 		ScanRequest request = pi.get("sr", ScanRequest.class);
 
-		Collection<Object> models = request.getCompoundModel().getModels();
+		Collection<IScanPointGeneratorModel> models = request.getCompoundModel().getModels();
 		assertEquals(1, models.size());  // I.e. this is not a compound scan.
 
-		Object model = models.iterator().next();
+		IScanPointGeneratorModel model = models.iterator().next();
 		assertEquals(TwoAxisGridPointsModel.class, model.getClass());
 
 		TwoAxisGridPointsModel gmodel = (TwoAxisGridPointsModel) model;
@@ -224,12 +225,12 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	")                                ");
 		ScanRequest request = pi.get("sr", ScanRequest.class);
 
-		Collection<Object> models = request.getCompoundModel().getModels();
+		Collection<IScanPointGeneratorModel> models = request.getCompoundModel().getModels();
 		assertEquals(1, models.size());  // I.e. this is not a compound scan.
 
-		Object model = models.iterator().next();
+		IScanPointGeneratorModel model = models.iterator().next();
 
-		Collection<IROI> regions = service.findRegions((TwoAxisGridPointsModel) model, request.getCompoundModel().getRegions());
+		Collection<IROI> regions = service.findRegions(model, request.getCompoundModel().getRegions());
 		assertEquals(1, regions.size());
 
 		IROI region = regions.iterator().next();
@@ -262,10 +263,10 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 				+	")                                ");
 			ScanRequest request = pi.get("sr", ScanRequest.class);
 
-			Collection<Object> models = request.getCompoundModel().getModels();
+			Collection<IScanPointGeneratorModel> models = request.getCompoundModel().getModels();
 			assertEquals(1, models.size());  // I.e. this is not a compound scan.
 
-			Object model = models.iterator().next();
+			IScanPointGeneratorModel model = models.iterator().next();
 			assertEquals(TwoAxisGridPointsRandomOffsetModel.class, model.getClass());
 
 			TwoAxisGridPointsRandomOffsetModel rogmodel = (TwoAxisGridPointsRandomOffsetModel) model;
@@ -293,10 +294,10 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 				+	")                                ");
 			ScanRequest request = pi.get("sr", ScanRequest.class);
 
-			Collection<Object> models = request.getCompoundModel().getModels();
+			Collection<IScanPointGeneratorModel> models = request.getCompoundModel().getModels();
 			assertEquals(1, models.size());  // I.e. this is not a compound scan.
 
-			Object model = models.iterator().next();
+			IScanPointGeneratorModel model = models.iterator().next();
 			assertEquals(TwoAxisSpiralModel.class, model.getClass());
 
 			TwoAxisSpiralModel spiral = (TwoAxisSpiralModel) model;
@@ -319,10 +320,10 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 				+	")                                ");
 			ScanRequest request = pi.get("sr", ScanRequest.class);
 
-			Collection<Object> models = request.getCompoundModel().getModels();
+			Collection<IScanPointGeneratorModel> models = request.getCompoundModel().getModels();
 			assertEquals(1, models.size());  // I.e. this is not a compound scan.
 
-			Object model = models.iterator().next();
+			IScanPointGeneratorModel model = models.iterator().next();
 			assertEquals(TwoAxisLissajousModel.class, model.getClass());
 
 			TwoAxisLissajousModel lissajous = (TwoAxisLissajousModel) model;
@@ -635,10 +636,10 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	")                                                                                    ");
 		ScanRequest request = pi.get("sr", ScanRequest.class);
 
-		Collection<Object> models = request.getCompoundModel().getModels();
+		Collection<IScanPointGeneratorModel> models = request.getCompoundModel().getModels();
 		assertEquals(2, models.size());  // I.e. this is a compound scan with two components.
 
-		Iterator<Object> modelIterator = models.iterator();
+		Iterator<IScanPointGeneratorModel> modelIterator = models.iterator();
 		TwoAxisGridPointsModel gmodel = (TwoAxisGridPointsModel) modelIterator.next();
 		assertEquals(5, gmodel.getyAxisPoints());
 
@@ -655,10 +656,10 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	")                                                 ");
 		ScanRequest request = pi.get("sr", ScanRequest.class);
 
-		Collection<Object> models = request.getCompoundModel().getModels();
+		Collection<IScanPointGeneratorModel> models = request.getCompoundModel().getModels();
 		assertEquals(2, models.size());
 
-		Iterator<Object> modelIterator = models.iterator();
+		Iterator<IScanPointGeneratorModel> modelIterator = models.iterator();
 		modelIterator.next();  // Throw away the step model.
 
 		AxialArrayModel amodel = (AxialArrayModel) modelIterator.next();
@@ -674,10 +675,10 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 			+	")                                                 ");
 		ScanRequest request = pi.get("sr", ScanRequest.class);
 
-		Collection<Object> models = request.getCompoundModel().getModels();
+		Collection<IScanPointGeneratorModel> models = request.getCompoundModel().getModels();
 		assertEquals(2, models.size());
 
-		Iterator<Object> modelIterator = models.iterator();
+		Iterator<IScanPointGeneratorModel> modelIterator = models.iterator();
 		modelIterator.next();  // Throw away the step model.
 
 		AxialArrayModel amodel = (AxialArrayModel) modelIterator.next();

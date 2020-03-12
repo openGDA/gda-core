@@ -83,6 +83,7 @@ import org.eclipse.scanning.api.malcolm.attributes.TableAttribute;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.api.scan.rank.IScanRankService;
@@ -544,12 +545,12 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 
 	@Override
 	@PreConfigure
-	public void setPointGenerator(IPointGenerator<?> pointGenerator) {
+	public void setPointGenerator(IPointGenerator<? extends IScanPointGeneratorModel> pointGenerator) {
 		super.setPointGenerator(pointGenerator);
 
 		if (pointGenerator!=null) { // Some tests end up using the configure call of
 			                        // RunnableDeviceService which does not have a pointGenerator
-			scanRank = pointGenerator.iterator().next().getScanRank();
+			scanRank = pointGenerator.getRank();
 			if (scanRank < 0) {
 				scanRank = 1;
 			}

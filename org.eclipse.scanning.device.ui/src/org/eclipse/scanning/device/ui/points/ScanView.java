@@ -61,6 +61,7 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.scan.ui.ControlEnumNode;
 import org.eclipse.scanning.api.scan.ui.ControlFileNode;
@@ -177,7 +178,7 @@ public class ScanView  extends ViewPart implements SeriesItemView, SeriesItemLis
 		super.saveState(memento);
 
 		try {
-			final List<IScanPathModel> models = getPath();
+			final List<IScanPointGeneratorModel> models = getPath();
 			final String scanModelsJson = ServiceHolder.getMarshallerService().marshal(models);
 			memento.putString(MEMENTO_KEY_SCAN_MODELS, scanModelsJson);
 
@@ -378,7 +379,7 @@ public class ScanView  extends ViewPart implements SeriesItemView, SeriesItemLis
 	public <T> T getAdapter(Class<T> clazz) {
 
 		if (CompoundModel.class == clazz) {
-			List<IScanPathModel> models = getPath();
+			List<IScanPointGeneratorModel> models = getPath();
 			if (models==null) return null;
 			CompoundModel cm = new CompoundModel(models);
 			final List<ScanRegion> regions = ScanRegions.getScanRegions(PlotUtil.getRegionSystem());
@@ -505,7 +506,7 @@ public class ScanView  extends ViewPart implements SeriesItemView, SeriesItemLis
 			@Override
 			public void run() {
 
-				List<IScanPathModel> models = getPath();
+				List<IScanPointGeneratorModel> models = getPath();
 
 				if (models == null) return;
 				FileSelectionDialog dialog = new FileSelectionDialog(site.getShell());
@@ -601,7 +602,7 @@ public class ScanView  extends ViewPart implements SeriesItemView, SeriesItemLis
 		}
 	}
 
-	private void saveScans(String filename, List<IScanPathModel> models) {
+	private void saveScans(String filename, List<IScanPointGeneratorModel> models) {
 		FileSerializationUtil.saveToFile(models, filename);
 	}
 
@@ -693,7 +694,7 @@ public class ScanView  extends ViewPart implements SeriesItemView, SeriesItemLis
 		}
 		final GeneratorDescriptor desc = (GeneratorDescriptor) evt.getDescriptor();
 		final IPointGenerator<?> generator = (IPointGenerator<?>)desc.getSeriesObject();
-		final Object model = generator.getModel();
+		final IScanPointGeneratorModel model = (IScanPointGeneratorModel) generator.getModel();
 
 		if (!ScanRegions.getScanRegions(system).isEmpty()) {
 			IViewReference ref = PageUtil.getPage().findViewReference(ScanRegionView.ID);
@@ -739,7 +740,7 @@ public class ScanView  extends ViewPart implements SeriesItemView, SeriesItemLis
 		// do nothing
 	}
 
-	private List<IScanPathModel> getPath() {
+	private List<IScanPointGeneratorModel> getPath() {
 		return pointsFilter.getModels(seriesTable.getSeriesItems());
 	}
 

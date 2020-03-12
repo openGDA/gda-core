@@ -14,20 +14,21 @@ package org.eclipse.scanning.test.points;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.junit.Before;
 import org.junit.Test;
 
 public class CompoundTestLarge {
+
+	 // Currently not run because releng.ant only includes tests ending in *Test.java
 
 	private IPointGeneratorService service;
 
@@ -39,17 +40,19 @@ public class CompoundTestLarge {
 	@Test
 	public void test2Pow24() throws Exception {
 
-		List<IPointGenerator<?>> gens = new ArrayList<>(20);
+		IPointGenerator<AxialStepModel> two = service.createGenerator(new AxialStepModel("Temperature", 290,291,1));
+		assertEquals(2, two.size());
+		assertEquals(1, two.getRank());
+		assertArrayEquals(new int[] { 2 }, two.getShape());
+
+		CompoundModel cModel = new CompoundModel();
+
 		for (int i = 0; i < 24; i++) {
-			IPointGenerator<AxialStepModel> two = service.createGenerator(new AxialStepModel("Temperature"+i, 290,291,1));
-			assertEquals(2, two.size());
-			assertEquals(1, two.getRank());
-			assertArrayEquals(new int[] { 2 }, two.getShape());
-			gens.add(two);
+			cModel.addModel(new AxialStepModel("Temperature"+i, 290,291,1));
 		}
 
 		long start = System.currentTimeMillis();
-		IPointGenerator<?> scan = service.createCompoundGenerator(gens.toArray(new IPointGenerator[gens.size()]));
+		IPointGenerator<CompoundModel> scan = service.createCompoundGenerator(cModel);
 		int size = scan.size();
 		int expectedSize = (int) Math.pow(2, 24);
 		assertEquals(expectedSize, size);

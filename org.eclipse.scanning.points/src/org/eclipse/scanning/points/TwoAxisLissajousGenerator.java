@@ -53,7 +53,7 @@ public class TwoAxisLissajousGenerator extends AbstractScanPointGenerator<TwoAxi
 
 		final PPointGenerator pointGen = lissajousGeneratorFactory.createObject(axes, units, box, numLobes, numPoints,
 				alternating);
-		return CompoundGenerator.createWrappingCompoundGenerator(new PPointGenerator[] { pointGen }, continuous);
+		return createWrappingCompoundGenerator(pointGen, continuous);
 	}
 
 }

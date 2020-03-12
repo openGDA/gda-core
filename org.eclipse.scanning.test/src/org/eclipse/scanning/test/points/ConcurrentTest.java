@@ -116,9 +116,9 @@ public class ConcurrentTest {
 		ConcurrentMultiModel cmm = new ConcurrentMultiModel();
 		cmm.addModel(lsm);
 		cmm.addModel(talpm);
-		IPointGenerator<?> lsg = service.createGenerator(lsm, Collections.emptyList(), Arrays.asList(stage_xRom));
-		IPointGenerator<?> talpg = service.createGenerator(talpm, Collections.emptyList(), Arrays.asList(pRom));
-		IPointGenerator<?> cmg = service.createGenerator(cmm, Collections.emptyList(), Arrays.asList(rom));
+		IPointGenerator<CompoundModel> lsg = service.createGenerator(lsm, Collections.emptyList(), Arrays.asList(stage_xRom));
+		IPointGenerator<CompoundModel> talpg = service.createGenerator(talpm, Collections.emptyList(), Arrays.asList(pRom));
+		IPointGenerator<CompoundModel> cmg = service.createGenerator(cmm, Collections.emptyList(), Arrays.asList(rom));
 		equalIterators(cmg.iterator(), lsg.iterator(), talpg.iterator());
 	}
 
@@ -140,9 +140,9 @@ public class ConcurrentTest {
 		double[] energies = new double[] { 0, 1, 2, 6 };
 		aam.setPositions(energies);
 		CompoundModel cm = new CompoundModel(aam, cmm);
-		IPointGenerator<?> lsg = service.createGenerator(lsm);
-		IPointGenerator<?> talpg = service.createGenerator(talpm);
-		IPointGenerator<?> cmg = service.createCompoundGenerator(cm);
+		IPointGenerator<TwoAxisLissajousModel> lsg = service.createGenerator(lsm);
+		IPointGenerator<TwoAxisLinePointsModel> talpg = service.createGenerator(talpm);
+		IPointGenerator<CompoundModel> cmg = service.createCompoundGenerator(cm);
 		assertEquals(160, cmg.size());
 		assertArrayEquals(new int[] { 4, 40 }, cmg.getShape());
 		int i = 0;
@@ -189,9 +189,9 @@ public class ConcurrentTest {
 		CompoundModel cm = new CompoundModel(aam, cmm);
 		// Will cut off some points in Lissajous pattern, but connecting generators happens before regions so valid
 		cm.addRegions(Arrays.asList(new ScanRegion(roi, "stage_x", "stage_y")));
-		IPointGenerator<?> lsg = service.createGenerator(lsm);
-		IPointGenerator<?> talpg = service.createGenerator(talpm);
-		IPointGenerator<?> cmg = service.createCompoundGenerator(cm);
+		IPointGenerator<TwoAxisLissajousModel> lsg = service.createGenerator(lsm);
+		IPointGenerator<TwoAxisLinePointsModel> talpg = service.createGenerator(talpm);
+		IPointGenerator<CompoundModel> cmg = service.createCompoundGenerator(cm);
 		int j = 0;
 		Iterator<IPosition> cmi = cmg.iterator();
 		for (double energy : energies) {

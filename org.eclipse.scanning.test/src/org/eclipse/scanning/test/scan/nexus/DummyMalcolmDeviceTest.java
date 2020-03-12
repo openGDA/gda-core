@@ -55,8 +55,8 @@ import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.StaticPosition;
 import org.eclipse.scanning.api.points.models.BoundingBox;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
-import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDatasetModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDetectorModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
@@ -94,7 +94,7 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 		malcolmOutputDir.delete();
 	}
 
-	private IPointGenerator<?> getGenerator(int... size) throws GeneratorException {
+	private IPointGenerator<CompoundModel> getGenerator(int... size) throws GeneratorException {
 		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
 		gmodel.setxAxisName("stage_x");
 		gmodel.setxAxisPoints(size[size.length - 1]);
@@ -102,29 +102,10 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 		gmodel.setyAxisPoints(size[size.length - 2]);
 		gmodel.setBoundingBox(new BoundingBox(0, 0, 3, 3));
 
-		IPointGenerator<?> gen = pointGenService.createGenerator(gmodel);
+		CompoundModel cModel = createNestedStepScans(2, size);
+		cModel.addModel(gmodel);
 
-		IPointGenerator<?>[] gens = new IPointGenerator<?>[size.length - 1];
-		// We add the outer scans, if any
-		if (size.length > 2) {
-			for (int dim = size.length - 3; dim > -1; dim--) {
-				final AxialStepModel model;
-				if (size[dim] - 1 > 0) {
-					model = new AxialStepModel("neXusScannable" + (dim + 1), 10, 20,
-							9.99d / (size[dim] - 1));
-				} else {
-					// Will generate one value at 10
-					model = new AxialStepModel("neXusScannable" + (dim + 1), 10, 20, 30);
-				}
-				final IPointGenerator<?> step = pointGenService.createGenerator(model);
-				gens[dim] = step;
-			}
-		}
-		gens[size.length - 2] = gen;
-
-		gen = pointGenService.createCompoundGenerator(gens);
-
-		return gen;
+		return pointGenService.createCompoundGenerator(cModel);
 	}
 
 	public static DummyMalcolmModel createModel() {

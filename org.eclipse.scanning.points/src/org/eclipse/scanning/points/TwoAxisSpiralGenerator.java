@@ -51,7 +51,7 @@ class TwoAxisSpiralGenerator extends AbstractScanPointGenerator<TwoAxisSpiralMod
 
         final PPointGenerator pointGen = spiralGeneratorFactory.createObject(
 				axes, units, centre, maxRadius, scale, alternating);
-        return CompoundGenerator.createWrappingCompoundGenerator(new PPointGenerator[] { pointGen }, continuous);
+        return createWrappingCompoundGenerator(pointGen, continuous);
         }
 
 }

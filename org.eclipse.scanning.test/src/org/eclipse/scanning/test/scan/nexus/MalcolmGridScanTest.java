@@ -18,7 +18,7 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
@@ -94,16 +94,16 @@ public class MalcolmGridScanTest extends AbstractMalcolmScanTest {
 		gridModel.setBoundingBox(new BoundingBox(0,0,3,3));
 		gridModel.setAlternating(snake);
 
-		final List<IScanPathModel> models = new ArrayList<>();
+		final List<IScanPointGeneratorModel> models = new ArrayList<>();
 		for (int dim = 0; dim < size.length - 2; dim++) {
-			final double step = size[dim] - 1 > 0 ? 9.99d / (size[dim] - 1) : 30;
+			final double step = size[dim] > 1 ? 9.99d / (size[dim] - 1) : 30;
 			models.add(new AxialStepModel("neXusScannable"+(dim+1), 10, 20, step));
 		}
 
 		models.add(gridModel);
 		final CompoundModel compoundModel = new CompoundModel(models);
 
-		final IPointGenerator<?> pointGen = pointGenService.createCompoundGenerator(compoundModel);
+		final IPointGenerator<CompoundModel> pointGen = pointGenService.createCompoundGenerator(compoundModel);
 
 		// Create the model for a scan.
 		final ScanModel scanModel = new ScanModel();

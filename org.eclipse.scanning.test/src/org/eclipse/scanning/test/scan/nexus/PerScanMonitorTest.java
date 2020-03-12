@@ -51,6 +51,7 @@ import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
@@ -280,20 +281,18 @@ public class PerScanMonitorTest extends NexusTest {
 	private IRunnableDevice<ScanModel> createStepScan(IScannable<?> perPointMonitor,
 			IScannable<?> perScanMonitor, int... size) throws Exception {
 
-		IPointGenerator<?>[] gens = new IPointGenerator<?>[size.length];
+		CompoundModel cModel = new CompoundModel();
+
 		// We add the outer scans, if any
-		for (int dim = size.length-1; dim>-1; dim--) {
-			final AxialStepModel model;
-			if (size[dim]-1>0) {
-				model = new AxialStepModel("neXusScannable"+(dim+1), 10,20,9.9d/(size[dim]-1));
+		for (int dim = 0; dim < size.length; dim ++) {
+			if (size[dim] > 1) {
+				cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,9.9d/(size[dim]-1)));
 			} else {
-				model = new AxialStepModel("neXusScannable"+(dim+1), 10,20,30); // Will generate one value at 10
+				cModel.addModel(new AxialStepModel("neXusScannable"+(dim+1), 10,20,30)); // Will generate one value at 10
 			}
-			final IPointGenerator<?> step = pointGenService.createGenerator(model);
-			gens[dim] = step;
 		}
 
-		IPointGenerator<?> gen = pointGenService.createCompoundGenerator(gens);
+		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cModel);
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
@@ -311,7 +310,7 @@ public class PerScanMonitorTest extends NexusTest {
 		// Create a scan and run it without publishing events
 		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(smodel, null);
 
-		final IPointGenerator<?> fgen = gen;
+		final IPointGenerator<CompoundModel> fgen = gen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
 			@Override
 			public void runWillPerform(RunEvent evt) throws ScanningException{

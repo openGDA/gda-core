@@ -115,9 +115,9 @@ class GeneratorWrapper(PPointGenerator):
         return [name for dimension in self.generator.dimensions for name in dimension.axes]
     
     def getInitialBounds(self):
-        return MapPosition(self.__getitem__(0).lower)
+        return MapPosition(self.generator.get_point(0).lower)
     def getFinalBounds(self):
-        return MapPosition(self.__getitem__(len(self)-1).upper)
+        return MapPosition(self.generator.get_point(-1).upper)
 
     def toDict(self):
         return self.generator.to_dict()
@@ -141,8 +141,8 @@ class ScalarPointGeneratorWrapper(GeneratorWrapper):
     def __iter__(self):
         for point in self.generator.iterator():
             index = point.indexes[0]
-            position = point.positions[self.name]
-            yield Scalar(self.name, index, position)
+            position = point.positions[self.getNames()[0]]
+            yield Scalar(self.getNames()[0], index, position)
 
 
 class TwoDPointGeneratorWrapper(GeneratorWrapper):
@@ -164,22 +164,25 @@ class TwoDPointGeneratorWrapper(GeneratorWrapper):
 
 class MapPositionWrapper(GeneratorWrapper):
     """
-    Wraps points into n-dimensional MapPosition objects
+    Wraps points into n-dimensional MapPosition objects, or StaticPositions if n = 0
     """
 
     def __iter__(self):
         names = [d.axes for d in self.generator.dimensions]
         axes_ordered = sum(names, [])
         index_locations = {axis: [axis in name for name in names].index(True) for axis in axes_ordered}
-        for point in self.generator.iterator():
-            map_point = MapPosition()
-            for axis in axes_ordered:
-                index = index_locations[axis]
-                value = point.positions[axis]
-                map_point.put(axis, value)
-                map_point.putIndex(axis, point.indexes[index])
-            map_point.setDimensionNames(names)
-            yield map_point
+        if len(axes_ordered) != 0:
+            for point in self.generator.iterator():
+                map_point = MapPosition()
+                for axis in axes_ordered:
+                    index = index_locations[axis]
+                    value = point.positions[axis]
+                    map_point.put(axis, value)
+                    map_point.putIndex(axis, point.indexes[index])
+                map_point.setDimensionNames(names)
+                yield map_point
+        else:
+            yield StaticPosition()
 
 
 class JLineGenerator1D(ScalarPointGeneratorWrapper):
@@ -188,7 +191,6 @@ class JLineGenerator1D(ScalarPointGeneratorWrapper):
     """
 
     def __init__(self, name, units, start, stop, num_points, alternate_direction=False):
-        self.name = name
         line_gen = LineGenerator(name, units, start, stop, num_points, alternate_direction)
         self.generator = CompoundGenerator([line_gen], [], [])
         self.generator.prepare()
@@ -215,7 +217,6 @@ class JArrayGenerator(ScalarPointGeneratorWrapper):
     """
 
     def __init__(self, name, units, points, alternate_direction=False):
-        self.name = name
         array_gen = ArrayGenerator(name, units, points, alternate_direction)
         self.generator = CompoundGenerator([array_gen], [], [])
         self.generator.prepare()
@@ -287,7 +288,7 @@ class JConcatGenerator(MapPositionWrapper):
 
 class JCompoundGenerator(MapPositionWrapper):
     """
-    Create a CompoundGenerator and wrap the points into java Point objects
+    Create a CompoundGenerator and wrap the points into java MapPosition objects
     """
 
     def __init__(self, iterators, excluders, mutators, duration=-1, continuous=True, delay_after=0):

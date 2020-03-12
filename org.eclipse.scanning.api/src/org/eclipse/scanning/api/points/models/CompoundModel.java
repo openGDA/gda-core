@@ -14,7 +14,6 @@ package org.eclipse.scanning.api.points.models;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -75,11 +74,10 @@ import org.eclipse.scanning.api.points.IMutator;
  * @author Matthew Gerring
  *
  */
-public class CompoundModel extends AbstractPointsModel implements Cloneable {
+public class CompoundModel extends AbstractMultiModel<IScanPointGeneratorModel> {
 
-	private List<Object>               models;
-	private Collection<ScanRegion>  regions;
-	private List<IMutator>	           mutators;
+	private Collection<ScanRegion>  regions = new ArrayList<>();
+	private List<IMutator>	           mutators = new ArrayList<>();
 	private double                     duration = -1;
 
 	public CompoundModel() {
@@ -90,38 +88,35 @@ public class CompoundModel extends AbstractPointsModel implements Cloneable {
 	 * Returns a copy (clone) of the given {@link CompoundModel}.
 	 * @param toCopy the model to copy
 	 */
-	public static  CompoundModel copy(CompoundModel toCopy) {
-		final CompoundModel copy = new CompoundModel();
-		copy.models = toCopy.models;
-		copy.regions = toCopy.regions;
-		copy.mutators = toCopy.mutators;
-		copy.duration = toCopy.duration;
-		return copy;
+	public CompoundModel(CompoundModel toCopy) {
+		setModels(toCopy.getModels());
+		setRegions(toCopy.getRegions());
+		setMutators(toCopy.getMutators());
+		setDuration(toCopy.getDuration());
 	}
 
 	@SuppressWarnings("unchecked")
-	public CompoundModel(Object... models) {
+	public CompoundModel(IScanPointGeneratorModel... models) {
 		if (models !=null && models.length == 1 && models[0] instanceof List<?>) {
-			this.models = (List<Object>) models[0];
+			setModels((List<IScanPointGeneratorModel>) models[0]);
 		} else {
-		    this.models = Arrays.asList(models);
+		    setModels(Arrays.asList(models));
 		}
 	}
-	public CompoundModel(List<Object> ms) {
-		models = ms;
+	public CompoundModel(List<? extends IScanPointGeneratorModel> ms) {
+		setModels(new ArrayList<>(ms));
 	}
-	public CompoundModel(IScanPathModel model, IROI region) {
+	public CompoundModel(IScanPointGeneratorModel model, IROI region) {
 		setData(model, region, model.getScannableNames());
 	}
 
-	public void setData(IScanPathModel model, IROI region) {
+	public void setData(IScanPointGeneratorModel model, IROI region) {
 		setData(model, region, model.getScannableNames());
 	}
 
-	public void setData(IScanPathModel model, IROI region, List<String> names) {
-		// We do it this way to make setData(...) fast. This means addData(...) has to deal with unmodifiable lists.
-		this.models  = Arrays.asList(model);
-	    this.regions = Arrays.asList(new ScanRegion(region, names));
+	public void setData(IScanPointGeneratorModel model, IROI region, List<String> names) {
+		setModels(Arrays.asList(model));
+		if (region != null) setRegions(Arrays.asList(new ScanRegion(region, names)));
 	}
 
 	/**
@@ -131,35 +126,30 @@ public class CompoundModel extends AbstractPointsModel implements Cloneable {
 	 * @param model
 	 * @param rois
 	 */
-	public void addData(Object model, Collection<IROI> rois) {
+	public void addData(IScanPointGeneratorModel model, Collection<IROI> rois) {
 
 		addModel(model);
 
 		// They are not really ordered but for now we maintain order.
 		Set<ScanRegion> newRegions = new LinkedHashSet<>(7);
 		if (rois!=null) for (IROI roi : rois) {
-			newRegions.add(new ScanRegion(roi, AbstractPointsModel.getScannableNames(model)));
+			if (roi != null) newRegions.add(new ScanRegion(roi, model.getScannableNames()));
 		}
 		addRegions(newRegions);
 	}
 
-	public List<Object> getModels() {
-		return models;
-	}
-	public void setModels(List<Object> models) {
-		this.models = models;
-	}
-	public void setModelsVarArgs(Object... models) {
-		this.models = Arrays.asList(models);
+	public void setModelsVarArgs(IScanPointGeneratorModel... models) {
+		setModels(Arrays.asList(models));
 	}
 	public Collection<ScanRegion> getRegions() {
 		return regions;
 	}
 	public void setRegions(Collection<ScanRegion> regions) {
-		this.regions = regions;
+		pcs.firePropertyChange("regions", this.regions, regions);
+		this.regions = regions == null ? new ArrayList<>() : new ArrayList<>(regions);
 	}
 	public void setRegionsVarArgs(ScanRegion... regions) {
-		this.regions = Arrays.asList(regions);
+		setRegions(Arrays.asList(regions));
 	}
 
 	public List<IMutator> getMutators() {
@@ -167,7 +157,8 @@ public class CompoundModel extends AbstractPointsModel implements Cloneable {
 	}
 
 	public void setMutators(List<IMutator> mutators) {
-		this.mutators = mutators;
+		pcs.firePropertyChange("mutators", this.mutators, mutators);
+		this.mutators = mutators == null ? new ArrayList<>() : new ArrayList<>(mutators);
 	}
 
 	public double getDuration() {
@@ -181,8 +172,7 @@ public class CompoundModel extends AbstractPointsModel implements Cloneable {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((models == null) ? 0 : models.hashCode());
+		int result = super.hashCode();
 		result = prime * result + ((regions == null) ? 0 : regions.hashCode());
 		result = prime * result + ((mutators == null) ? 0 : mutators.hashCode());
 		long durationBits = Double.doubleToLongBits(duration);
@@ -192,91 +182,29 @@ public class CompoundModel extends AbstractPointsModel implements Cloneable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+		if (!super.equals(obj)) return false;
 		CompoundModel other = (CompoundModel) obj;
 		if (duration != other.duration) return false;
-		if (models == null) {
-			if (other.models != null)
-				return false;
-		} else if (!equals(models, other.models))
-			return false;
 		if (regions == null) {
-			if (other.regions != null)
-				return false;
-		} else if (!equals(regions, other.regions))
-			return false;
-		if (mutators == null) {
-			if (other.mutators != null)
-				return false;
-		} else if (!equals(mutators, other.mutators))
-			return false;
-		return true;
-	}
-
-	/**
-	 * This equals does an equals on two collections
-	 * as if they were two lists because order matters with the names.
-	 * @param o
-	 * @param t
-	 * @return
-	 */
-    private boolean equals(Collection<?> o, Collection<?> t) {
-
-	if (o == t)
-            return true;
-	if (o == null && t == null)
-            return true;
-	if (o == null || t == null)
-            return false;
-
-        Iterator<?> e1 = o.iterator();
-        Iterator<?> e2 = t.iterator();
-        while (e1.hasNext() && e2.hasNext()) {
-            Object o1 = e1.next();
-            Object o2 = e2.next();
-
-            // Collections go down to the same equals.
-            if (o1 instanceof Collection && o2 instanceof Collection) {
-		boolean collectionsEqual = equals((Collection<?>)o1,(Collection<?>)o2);
-		if (!collectionsEqual) {
-			return false;
-		} else {
-			continue;
+			if (other.regions != null) return false;
 		}
-            }
-
-            // Otherwise we use object equals.
-            if (!(o1==null ? o2==null : o1.equals(o2)))
-                return false;
-        }
-        return !(e1.hasNext() || e2.hasNext());
-    }
+		else if (!regions.equals(other.regions)) return false;
+		if (mutators == null) {
+			return other.mutators == null;
+		}
+		return mutators.equals(other.mutators);
+	}
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + " [models=" + models + ", regions=" + regions + ", mutators=" + mutators +
+		return getClass().getSimpleName() + " [models=" + getModels() + ", regions=" + regions + ", mutators=" + mutators +
 				", duration=" + duration + "]";
 	}
 
 	@Override
 	public boolean isContinuous() {
-		IScanPointGeneratorModel innermostModel = (IScanPointGeneratorModel) getModels().get(getModels().size()-1);
+		IScanPointGeneratorModel innermostModel = getModels().get(getModels().size()-1);
 		return innermostModel.isContinuous();
-	}
-
-	/*
-	 * Dealing with unmodifiable lists from setData
-	 */
-	public void addModel(Object model) {
-		List<Object> tmp = new ArrayList<>();
-		if (models != null) tmp.addAll(models);
-		tmp.add(model);
-		models = tmp;
 	}
 
 	public void addMutators(List<IMutator> mutators) {
@@ -284,7 +212,7 @@ public class CompoundModel extends AbstractPointsModel implements Cloneable {
 		List<IMutator> tmp = new ArrayList<>();
 		if (this.mutators != null) tmp.addAll(this.mutators);
 		tmp.addAll(mutators);
-		this.mutators = tmp;
+		setMutators(tmp);
 	}
 
 	public void addRegions(Collection<ScanRegion> regions) {
@@ -292,14 +220,14 @@ public class CompoundModel extends AbstractPointsModel implements Cloneable {
 		List<ScanRegion> tmp = new ArrayList<>();
 		if (this.regions != null) tmp.addAll(this.regions);
 		tmp.addAll(regions);
-		this.regions = tmp;
+		setRegions(tmp);
 	}
 
 	@Override
 	public List<String> getScannableNames(){
 		List<String> scannables = new ArrayList<>();
-		for (Object model : getModels()) {
-			scannables.addAll(AbstractPointsModel.getScannableNames(model));
+		for (IScanPointGeneratorModel model : getModels()) {
+			scannables.addAll(model.getScannableNames());
 		}
 		return scannables;
 	}

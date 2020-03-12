@@ -43,6 +43,8 @@ import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -216,7 +218,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 	private ScanModel prepareScan() throws EventException {
 		try {
 			setFilePath(bean);
-			final IPointGenerator<?> pointGenerator = Services.getGeneratorService().createCompoundGenerator(
+			final IPointGenerator<CompoundModel> pointGenerator = Services.getGeneratorService().createCompoundGenerator(
 					bean.getScanRequest().getCompoundModel());
 			checkAndFixMonitors(pointGenerator); // removes monitors that are also in the scan as scannables
 			return createScanModel(pointGenerator);
@@ -474,7 +476,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		}
 	}
 
-	private ScanModel createScanModel(IPointGenerator<?> generator)
+	private ScanModel createScanModel(IPointGenerator<? extends IScanPointGeneratorModel> generator)
 			throws GeneratorException, EventException {
 		// converts the ScanBean to a ScanModel
 		final ScanModel scanModel = new ScanModel();

@@ -56,9 +56,9 @@ public class AxialCollatedStepGenerator extends AbstractScanPointGenerator<Axial
         	stops[i] = stop;
         }
 
-        PPointGenerator pointGen = lineGeneratorFactory.createObject(axes, units, starts, stops, points, alternating);
+        final PPointGenerator pointGen = lineGeneratorFactory.createObject(axes, units, starts, stops, points, alternating);
 
-        return CompoundGenerator.createWrappingCompoundGenerator(new PPointGenerator[] {pointGen}, continuous);
+        return createWrappingCompoundGenerator(pointGen, continuous);
 	}
 
 	private int size(AxialStepModel model) {

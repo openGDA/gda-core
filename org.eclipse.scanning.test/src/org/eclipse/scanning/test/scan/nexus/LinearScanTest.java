@@ -17,6 +17,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EventListener;
 import java.util.List;
 
@@ -38,7 +39,8 @@ import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.scan.models.ScanModel;
@@ -104,7 +106,7 @@ public class LinearScanTest extends BrokerTest{
                                                     create1DModel(3));
 	}
 
-	private IScanPathModel create1DModel(int size) {
+	private IScanPointGeneratorModel create1DModel(int size) {
         TwoAxisLinePointsModel model = new TwoAxisLinePointsModel();
         model.setPoints(size);
         model.setxAxisName("xNex");
@@ -152,7 +154,7 @@ public class LinearScanTest extends BrokerTest{
 		return model;
 	}
 
-	private void doScan(LinearROI roi, int scanRank, int[]dshape, IScanPathModel... models) throws Exception {
+	private void doScan(LinearROI roi, int scanRank, int[]dshape, IScanPointGeneratorModel... models) throws Exception {
 		IRunnableDevice<ScanModel> scanner = createTestScanner(roi, models);
 		final List<IPosition> positions = new ArrayList<>();
 		subscriber.addListener(new IScanListener() {
@@ -173,7 +175,7 @@ public class LinearScanTest extends BrokerTest{
 		scanner.run(null);
 
 		Thread.sleep(100);
-		int size = ((IPointGenerator)scanner.getModel().getPointGenerator()).size();
+		int size = scanner.getModel().getPointGenerator().size();
 		assertEquals("The model size was "+size+" and the points found were "+positions.size(), size, positions.size());
 
 		for (IPosition iPosition : positions) {
@@ -186,7 +188,7 @@ public class LinearScanTest extends BrokerTest{
 		assertArrayEquals(dshape, mdata.getShape());
 	}
 
-	private IRunnableDevice<ScanModel> createTestScanner(IROI roi,  IScanPathModel... models) throws Exception {
+	private IRunnableDevice<ScanModel> createTestScanner(IROI roi,  IScanPointGeneratorModel... models) throws Exception {
 		// Configure a detector with a collection time.
 		MandelbrotModel dmodel = new MandelbrotModel();
 		dmodel.setExposureTime(0.01);
@@ -199,16 +201,13 @@ public class LinearScanTest extends BrokerTest{
 		IRunnableDevice<MandelbrotModel>	detector = runnableDeviceService.createRunnableDevice(dmodel);
 
 		// Generate the last model using the roi then work back up creating compounds
-		final IPointGenerator<?>[] gens = new IPointGenerator[models.length];
-		for (int i = 0; i < models.length; i++)  {
-			if (i==models.length-1) { // Last one uses roi
-				gens[i] = roi!=null ? pointGenService.createGenerator(models[i], roi) : pointGenService.createGenerator(models[i]);
-			} else {
-				gens[i] = pointGenService.createGenerator(models[i]);
-			}
+		CompoundModel cModel = new CompoundModel();
+		for (int i = 0; i < models.length - 1; i++)  {
+			cModel.addModel(models[i]);
 		}
+		cModel.addData(models[models.length-1], roi == null ? new ArrayList<>() : Arrays.asList(roi));
 
-		IPointGenerator<?> gen = pointGenService.createCompoundGenerator(gens);
+		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cModel);
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();

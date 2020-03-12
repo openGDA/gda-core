@@ -140,8 +140,7 @@ public class MandelbrotAcquireTest extends NexusTest {
 
 	private IRunnableDevice<ScanModel> createAcquireScan(final IRunnableDevice<?> detector, File file) throws Exception {
 		StaticModel emptyModel = new StaticModel();
-		IPointGenerator<?> gen = pointGenService.createGenerator(emptyModel);
-//		gen = gservice.createCompoundGenerator(gen); // not required for this test, fails as EmptyGenerator not implemented in Jython
+		IPointGenerator<StaticModel> gen = pointGenService.createGenerator(emptyModel);
 
 		// Create the model for an acquire scan
 		ScanModel smodel = new ScanModel();

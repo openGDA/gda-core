@@ -68,7 +68,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), gmodel));
 
-		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -100,7 +100,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(gmodel, new AxialStepModel("T", 290, 300, 2)));
 
-		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -144,7 +144,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(gmodel));
 
-		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -169,7 +169,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(gmodel));
 
-		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
 
 		final MandelbrotModel mmodel = new MandelbrotModel();
 		final MandelbrotDetector det = new MandelbrotDetector();
@@ -193,7 +193,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), gmodel));
 
-		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
 
 		final MandelbrotModel mmodel = new MandelbrotModel();
 		final MandelbrotDetector det = new MandelbrotDetector();
@@ -219,7 +219,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(gmodel));
 
-		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -255,7 +255,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), gmodel));
 
-		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -281,7 +281,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), gmodel));
 
-		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -308,7 +308,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), gmodel));
 
-		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -336,7 +336,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), gmodel));
 
-		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -364,7 +364,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(new AxialStepModel("z", 290, 300, 2), gmodel));
 
-		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -393,7 +393,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), gmodel));
 
-		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -414,7 +414,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(smodel));
 
-		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -438,7 +438,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(smodel));
 
-		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
@@ -462,7 +462,7 @@ public class SubscanModeratorTest {
 
 		cmodel.setModels(Arrays.asList(new AxialStepModel("T", 290, 300, 2), smodel));
 
-		IPointGenerator<?> gen = gservice.createCompoundGenerator(cmodel);
+		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cmodel);
 
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();

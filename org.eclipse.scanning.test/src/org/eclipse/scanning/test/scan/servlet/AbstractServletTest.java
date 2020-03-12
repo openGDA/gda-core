@@ -33,7 +33,7 @@ import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.server.servlet.AbstractJobQueueServlet;
@@ -122,12 +122,12 @@ public abstract class AbstractServletTest extends BrokerTest {
 		gmodel.setyAxisName("yNex");
 
 		// 2 models
-		List<IScanPathModel> models = new ArrayList<>(outerScanNum+1);
+		List<IScanPointGeneratorModel> models = new ArrayList<>(outerScanNum+1);
 		for (int i = 0; i < outerScanNum; i++) {
 			models.add(new AxialStepModel("neXusScannable"+i, 1, 2, 1));
 		}
 		models.add(gmodel);
-		req.setCompoundModel(new CompoundModel(models.toArray(new IScanPathModel[models.size()])));
+		req.setCompoundModel(new CompoundModel(models));
 		req.setMonitorNamesPerPoint(Arrays.asList("monitor"));
 
 		final File tmp = File.createTempFile("scan_servlet_test", ".nxs");

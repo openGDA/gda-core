@@ -19,7 +19,7 @@ import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 
 class CompoundValidator implements IValidator<CompoundModel> {
 
@@ -32,7 +32,7 @@ class CompoundValidator implements IValidator<CompoundModel> {
 
 		// Each model is ok
 		final IValidatorService vservice = new ValidatorService();
-		for (Object mod : model.getModels()) vservice.validate(mod);
+		for (IScanPointGeneratorModel mod : model.getModels()) vservice.validate(mod);
 
 		// Models are separate axes
 		validateAxes(model.getModels());
@@ -40,17 +40,15 @@ class CompoundValidator implements IValidator<CompoundModel> {
 	}
 
 
-	private void validateAxes(List<Object> models) throws ValidationException {
+	private void validateAxes(List<IScanPointGeneratorModel> models) throws ValidationException {
 
-        List<String> usedAxes = new ArrayList<String>();
-        for (Object model : models) {
-			if (model instanceof IScanPathModel) {
-				List<String> axes = ((IScanPathModel)model).getScannableNames();
-				if (axes!=null && axes.size()>0 && usedAxes.size()>0 && axes.stream().anyMatch(usedAxes::contains)) {
-					throw new ValidationException("One or more of the axes '"+axes+"' are used in a previous model!");
-				}
-				usedAxes.addAll(axes);
+        List<String> usedAxes = new ArrayList<>();
+        for (IScanPointGeneratorModel model : models) {
+			List<String> axes = model.getScannableNames();
+			if (axes!=null && !axes.isEmpty() && !usedAxes.isEmpty() && axes.stream().anyMatch(usedAxes::contains)) {
+				throw new ValidationException("One or more of the axes '"+axes+"' are used in a previous model!");
 			}
+			usedAxes.addAll(axes);
 		}
 	}
 

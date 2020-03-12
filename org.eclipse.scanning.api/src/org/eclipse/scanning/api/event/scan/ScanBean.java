@@ -21,6 +21,7 @@ import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.points.models.AbstractPointsModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 
 
 /**
@@ -98,8 +99,8 @@ public final class ScanBean extends StatusBean {
 		StringBuilder buf = new StringBuilder();
 		buf.append(sname);
 		buf.append(" [");
-		for (Iterator<Object> it = req.getCompoundModel().getModels().iterator(); it.hasNext();) {
-			Object model = it.next();
+		for (Iterator<IScanPointGeneratorModel> it = req.getCompoundModel().getModels().iterator(); it.hasNext();) {
+			IScanPointGeneratorModel model = it.next();
 			if (model instanceof AbstractPointsModel) {
 				buf.append(((AbstractPointsModel)model).getSummary());
 			} else {

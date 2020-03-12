@@ -18,6 +18,7 @@ import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
 import org.eclipse.scanning.api.points.IPointGenerator;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 
 
@@ -96,13 +97,13 @@ public interface IMalcolmDevice extends IRunnableEventDevice<IMalcolmModel>, IVa
 	 * Set the point generator for the malcolm device.
 	 * @param pointGenerator point generator
 	 */
-	public void setPointGenerator(IPointGenerator<?> pointGenerator);
+	public void setPointGenerator(IPointGenerator<? extends IScanPointGeneratorModel> pointGenerator);
 
 	/**
 	 * Get the point generator that this malcolm device has been configured with
 	 * @return
 	 */
-	public IPointGenerator<?> getPointGenerator();
+	public IPointGenerator<? extends IScanPointGeneratorModel> getPointGenerator();
 
 	/**
 	 * Set the directory where malcolm will write its h5 files to. The directory should exist at

@@ -25,7 +25,7 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.process.IPreprocessor;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
@@ -109,7 +109,7 @@ public class PreprocessTest {
 		gmodel.setyAxisName("yNex");
 
 		// 2 models
-		List<IScanPathModel> models = new ArrayList<>(outerScanNum+1);
+		List<IScanPointGeneratorModel> models = new ArrayList<>(outerScanNum+1);
 		for (int i = 0; i < outerScanNum; i++) {
 			models.add(new AxialStepModel("neXusScannable"+i, 1, 2, 1));
 		}

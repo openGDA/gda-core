@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.points;
 
+import java.util.List;
+
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
@@ -34,15 +36,15 @@ public class AxialArrayGenerator extends AbstractScanPointGenerator<AxialArrayMo
 
 		final AxialArrayModel model = getModel();
 
-		final String name = model.getName();
-        final String units = model.getUnits().get(0);
+		final List<String> name = model.getScannableNames();
+        final List<String> units = model.getUnits();
         final boolean alternating = model.isAlternating();
         final boolean continuous = model.isContinuous();
         final double[] points = model.getPositions();
 
-        PPointGenerator array = arrayGeneratorFactory.createObject(name, units, points, alternating);
+        final PPointGenerator array = arrayGeneratorFactory.createObject(name, units, points, alternating);
 
-        return CompoundGenerator.createWrappingCompoundGenerator(new PPointGenerator[] {array}, continuous);
+        return createWrappingCompoundGenerator(array, continuous);
 	}
 
 }

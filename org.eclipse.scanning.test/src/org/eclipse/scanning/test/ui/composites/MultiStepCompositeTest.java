@@ -193,7 +193,7 @@ public class MultiStepCompositeTest extends ShellTest{
 
 			assertEquals(9, bot.table(0).rowCount());
 			synchExec(()->controller.uiToBean());
-			assertEquals(9, model.getStepModels().size());
+			assertEquals(9, model.getModels().size());
 
 		} finally {
 			model.clear();
@@ -209,7 +209,7 @@ public class MultiStepCompositeTest extends ShellTest{
 
 			assertEquals(10, bot.table(0).rowCount());
 			synchExec(()->controller.uiToBean());
-			assertEquals(10, model.getStepModels().size());
+			assertEquals(10, model.getModels().size());
 
 
 		} finally {
@@ -229,7 +229,7 @@ public class MultiStepCompositeTest extends ShellTest{
 
 			assertEquals(6, bot.table(0).rowCount());
 			synchExec(()->controller.uiToBean());
-			assertEquals(6, model.getStepModels().size());
+			assertEquals(6, model.getModels().size());
 
 
 		} finally {
@@ -249,7 +249,7 @@ public class MultiStepCompositeTest extends ShellTest{
 
 			assertEquals(7, bot.table(0).rowCount()); // 7 not 8 because 10 is the limit.
 			synchExec(()->controller.uiToBean());
-			assertEquals(7, model.getStepModels().size());
+			assertEquals(7, model.getModels().size());
 
 
 		} finally {

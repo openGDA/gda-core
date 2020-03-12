@@ -32,7 +32,7 @@ class AxialMultiStepModelExpresser extends AbstractPointsModelExpresser<AxialMul
 		ret.append(verbose?", stepModels=[":", [");
 
 
-		for (Iterator<AxialStepModel> it = mmodel.getStepModels().iterator(); it.hasNext();) {
+		for (Iterator<AxialStepModel> it = mmodel.getModels().iterator(); it.hasNext();) {
 			String step = getString(it.next(), verbose);
 			ret.append(step);
             if (it.hasNext()) ret.append(", ");

@@ -56,6 +56,7 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.ui.CommandConstants;
 import org.eclipse.scanning.api.ui.auto.IModelViewer;
 import org.eclipse.scanning.device.ui.Activator;
@@ -514,7 +515,7 @@ public class ModelViewer<T> implements IModelViewer<T>, ISelectionListener, ISel
 
 			if (ob instanceof IROI && getModel() instanceof IBoundingBoxModel) {
 				try {
-	                BoundingBox box = ScanRegions.createBoxFromPlot(model);
+	                BoundingBox box = ScanRegions.createBoxFromPlot((IScanPointGeneratorModel) model);
 				((IBoundingBoxModel)getModel()).setBoundingBox(box);
 				refresh();
 				} catch (Exception ne) {

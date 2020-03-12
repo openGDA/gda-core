@@ -34,7 +34,7 @@ class AxialStepGenerator extends AbstractScanPointGenerator<AxialStepModel> {
 		if (model.getStep() == 0) {
 			throw new ModelValidationException("Model step size must be nonzero!", model, "step");
 		}
-		int dir = Integer.signum(BigDecimal.valueOf(model.getStop()-model.getStart()).divideToIntegralValue(BigDecimal.valueOf(model.getStep())).intValue());
+		final int dir = Integer.signum(BigDecimal.valueOf(model.getStop()-model.getStart()).divideToIntegralValue(BigDecimal.valueOf(model.getStep())).intValue());
 		if (dir < 0) {
 			throw new ModelValidationException("Model step is directed in the wrong direction!", model, "start", "stop", "step");
 		}
@@ -46,7 +46,7 @@ class AxialStepGenerator extends AbstractScanPointGenerator<AxialStepModel> {
 
 		final AxialStepModel model = getModel();
 
-        final String name = model.getName();
+		final List<String> name = model.getScannableNames();
         final List<String> units = model.getUnits();
         final boolean alternating = model.isAlternating();
         final boolean continuous = model.isContinuous();
@@ -54,9 +54,9 @@ class AxialStepGenerator extends AbstractScanPointGenerator<AxialStepModel> {
         final double start  = model.getStart();
         final double stop   = start + model.getStep() * (numPoints-1);
 
-        PPointGenerator pointGen = lineGeneratorFactory.createObject(name, units, start, stop, numPoints, alternating);
+        final PPointGenerator pointGen = lineGeneratorFactory.createObject(name, units, start, stop, numPoints, alternating);
 
-        return CompoundGenerator.createWrappingCompoundGenerator(new PPointGenerator[] {pointGen}, continuous);
+        return createWrappingCompoundGenerator(pointGen, continuous);
 	}
 
 	private int size(AxialStepModel model) {

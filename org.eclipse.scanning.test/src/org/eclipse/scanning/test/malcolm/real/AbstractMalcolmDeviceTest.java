@@ -64,6 +64,7 @@ import org.eclipse.scanning.api.malcolm.message.Type;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.BoundingBox;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.malcolm.core.Services;
@@ -180,12 +181,11 @@ public abstract class AbstractMalcolmDeviceTest {
 //		verifyNoMoreInteractions(malcolmConnection); // This doesn't work, not sure why
 	}
 
-	protected IPointGenerator<?> createPointGenerator() throws Exception {
+	protected IPointGenerator<CompoundModel> createPointGenerator() throws Exception {
 		final TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel("stage_x", "stage_y", 10, 10);
 		gridModel.setBoundingBox(new BoundingBox(0, 0, 1, 1));
 
-		final IPointGenerator<TwoAxisGridPointsModel> gridGen = pointGenService.createGenerator(gridModel);
-		return pointGenService.createCompoundGenerator(gridGen);
+		return pointGenService.createCompoundGenerator(new CompoundModel(gridModel));
 	}
 
 	protected MalcolmMessage createExpectedMalcolmMessage(long id, Type type, String endpoint) {

@@ -52,6 +52,7 @@ import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.IBoundingLineModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.scan.AxisConfiguration;
 import org.eclipse.scanning.api.ui.CommandConstants;
@@ -94,7 +95,7 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 	private   final IViewSite    site;
 
 	// Data
-	private   volatile Object    model; // We make accessing the model single threaded because worker threads are involved.
+	private   volatile IScanPointGeneratorModel model; // We make accessing the model single threaded because worker threads are involved.
 
 	// Events
 	private   IRegionListener    regionListener;
@@ -417,7 +418,7 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 		job.schedule(model, ScanRegions.getScanRegions(system));
 	}
 
-	public void setModel(Object model) {
+	public void setModel(IScanPointGeneratorModel model) {
 		this.model = model;
 		if (isScanPathModel()) {
 			job.schedule(model, ScanRegions.getScanRegions(system));

@@ -11,12 +11,11 @@
  *******************************************************************************/
 package org.eclipse.scanning.points;
 
-import java.math.BigDecimal;
-import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.scanning.api.ModelValidationException;
+import org.eclipse.scanning.api.points.IPointGeneratorService;
+import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
@@ -26,117 +25,44 @@ import org.eclipse.scanning.jython.JythonObjectFactory;
  *
  * @author Matthew Dickie
  */
-class AxialMultiStepGenerator extends AbstractScanPointGenerator<AxialMultiStepModel> {
+class AxialMultiStepGenerator extends AbstractMultiGenerator<AxialMultiStepModel> {
 
-	protected AxialMultiStepGenerator(AxialMultiStepModel model) {
-		super(model);
+	protected AxialMultiStepGenerator(AxialMultiStepModel model, IPointGeneratorService pgs) {
+		super(model, pgs);
 	}
 
 	@Override
 	public void validate(AxialMultiStepModel model) {
 		super.validate(model);
-
-		AxialStepGenerator stepGen = new AxialStepGenerator(); // to validate step models
-		double dir = 0; // +1 for forwards, -1 for backwards, 0 when not yet calculated
-		double lastStop = 0;
-
-		if (model.getStepModels().isEmpty()) {
-			throw new ModelValidationException("At least one step model must be specified", model, "stepModels");
-		}
-
-		for (AxialStepModel stepModel : model.getStepModels()) {
-			stepGen.validate(stepModel);
-
-			// check the inner step model has the same sign
-			if (!model.getName().equals(stepModel.getName())) {
-				throw new ModelValidationException(MessageFormat.format(
-						"Child step model must have the same name as the MultiStepModel. Expected ''{0}'', was ''{1}''", model.getName(), stepModel.getName()),
-						model, "name");
+		String axis = model.getScannableNames().get(0);
+		List<String> units = model.getUnits();
+		for (AxialStepModel models : model.getModels()) {
+			if (!models.getScannableNames().get(0).equals(axis)) {
+				throw new ModelValidationException("All models in ConsecutiveModel must be in the same axes!", model,
+						"models");
 			}
+			if (!models.getUnits().equals(units)) {
+				throw new ModelValidationException("All models in ConsecutiveModel must be in the same units!", model,
+						"models");
+			}
+		}
+		if (model.isContinuous()) {
 
-			// check the inner step model is valid according to StepGenerator.validate()
-
-			double stepDir = Math.signum(stepModel.getStop() - stepModel.getStart());
-			if (dir == 0) {
-				dir = stepDir;
-			} else {
-				// check this step model starts ahead (in same direction) of previous one
-				if (stepDir != dir) {
+			for (int i = 1; i < cachedGenerators.size(); i++) {
+				IPosition previousModel = ((AbstractScanPointGenerator<?>) cachedGenerators.get(i - 1)).finalBounds();
+				IPosition nextModel = ((AbstractScanPointGenerator<?>) cachedGenerators.get(i)).initialBounds();
+				if (Math.abs(previousModel.getValue(axis) - nextModel.getValue(axis)) > DIFF_LIMIT)
 					throw new ModelValidationException(
-							"Each step model must have the the same direction", model, "stepModels");
-				}
-				double gapDir = Math.signum(stepModel.getStart() - lastStop);
-				// check this step model is in same direction as previous ones
-				if (gapDir != dir && gapDir != 0) {
-					throw new ModelValidationException(MessageFormat.format(
-							"A step model must start at a point with a {0} (or equal) value than the stop value of the previous step model.",
-							dir > 0 ? "higher" : "lower") , model, "stepModels");
-				}
+							String.format("Continuous ConsecutiveModels must have the final bounds of each model"
+								+ " within %s of the initial bounds of the next.", DIFF_LIMIT), model, "models");
 			}
-
-			// check the start of the next step is in the same direction as the
-			lastStop = stepModel.getStop();
 		}
+		cachedGenerators = null;
 	}
 
 	@Override
-	public PPointGenerator createPythonPointGenerator() {
-		final JythonObjectFactory<PPointGenerator> arrayGeneratorFactory = ScanPointGeneratorFactory.JOneAxisArrayGeneratorFactory();
-
-		final AxialMultiStepModel model = getModel();
-
-		int totalSize = 0;
-		boolean finalPosWasEnd = false;
-		final List<double[]> positionArrays = new ArrayList<>(model.getStepModels().size());
-		double previousEnd = 0;
-		for (AxialStepModel stepModel : model.getStepModels()) {
-			int size = size(stepModel);
-			double pos = stepModel.getStart();
-
-			// if the start of this model is the end of the previous one, and the end of the
-			// previous was was its final point, skip the first point
-			if (finalPosWasEnd &&
-					Math.abs(stepModel.getStart() - previousEnd) < Math.abs(stepModel.getStep() / 100)) {
-				pos += stepModel.getStep();
-				size--;
-			}
-			double[] positions = new double[size];
-
-			for (int i = 0; i < size; i++) {
-				positions[i] = pos;
-				pos += stepModel.getStep();
-			}
-			positionArrays.add(positions);
-			totalSize += size;
-
-			// record if the final position of this model is its end position (within a tolerance of step/100)
-			// this is not always the case, e.g. if start=0, stop=10 and step=3
-			double finalPos = positions[positions.length - 1];
-			finalPosWasEnd = Math.abs(stepModel.getStop() - finalPos) < Math.abs(stepModel.getStep() / 100);
-			previousEnd = stepModel.getStop();
-		}
-
-		final double[] points = new double[totalSize];
-
-		int pos = 0;
-		for (double[] positions : positionArrays) {
-			System.arraycopy(positions, 0, points, pos, positions.length);
-			pos += positions.length;
-		}
-
-		final List<String> axes = model.getScannableNames();
-		final List<String> units = model.getUnits();
-		final boolean alternating = model.isAlternating();
-		final boolean continuous = model.isContinuous();
-
-        PPointGenerator pointGen = arrayGeneratorFactory.createObject(axes, units, points, alternating);
-
-        return CompoundGenerator.createWrappingCompoundGenerator(new PPointGenerator[] {pointGen}, continuous);
-	}
-
-	private int size(AxialStepModel model) {
-		// Includes point if would be within 1% (of step length) of end
-		return 1 + BigDecimal.valueOf(0.01*model.getStep()+model.getStop()-model.getStart()).divideToIntegralValue(BigDecimal.valueOf(model.getStep())).intValue();
+	protected JythonObjectFactory<PPointGenerator> getFactory() {
+		return ScanPointGeneratorFactory.JConcatGeneratorFactory();
 	}
 
 }

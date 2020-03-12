@@ -15,6 +15,7 @@ import java.util.Collection;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.command.ParserServiceImpl;
 
 class ScanRequestExpresser extends PyModelExpresser<ScanRequest> {
@@ -35,9 +36,9 @@ class ScanRequestExpresser extends PyModelExpresser<ScanRequest> {
 			if (verbose || request.getCompoundModel().getModels().size() > 1) fragment.append("[");
 			boolean listPartiallyWritten = false;
 
-			for (Object model : request.getCompoundModel().getModels()) {  // Order is important.
+			for (IScanPointGeneratorModel model : request.getCompoundModel().getModels()) {  // Order is important.
 				if (listPartiallyWritten) fragment.append(", ");
-				Collection<IROI> rois = (Collection<IROI>) ParserServiceImpl.getPointGeneratorService().findRegions(model, request.getCompoundModel().getRegions());
+				Collection<IROI> rois = ParserServiceImpl.getPointGeneratorService().findRegions(model, request.getCompoundModel().getRegions());
 
 				String smodel = factory.pyExpress(model, rois, verbose);
 				fragment.append(smodel);

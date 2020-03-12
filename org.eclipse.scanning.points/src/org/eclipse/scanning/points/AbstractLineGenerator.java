@@ -60,9 +60,9 @@ public abstract class AbstractLineGenerator<T extends AbstractBoundingLineModel>
 		final boolean alternating = model.isAlternating();
 		final boolean continuous = model.isContinuous();
 
-		PPointGenerator lineGen = lineGeneratorFactory.createObject(
+		final PPointGenerator lineGen = lineGeneratorFactory.createObject(
 				axes, units, start, stop, numPoints, alternating);
-		return CompoundGenerator.createWrappingCompoundGenerator(new PPointGenerator[] {lineGen}, continuous);
+		return createWrappingCompoundGenerator(lineGen, continuous);
 
 	}
 

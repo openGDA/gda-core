@@ -42,7 +42,7 @@ public abstract class AbstractMultiModel<T extends IScanPointGeneratorModel> ext
 
 	public void setModels(List<T> models) {
 		pcs.firePropertyChange("models", this.models, models);
-		this.models = models;
+		this.models = models == null ? new ArrayList<>() : new ArrayList<>(models);
 	}
 
 	public void addModel(T model) {
@@ -50,6 +50,15 @@ public abstract class AbstractMultiModel<T extends IScanPointGeneratorModel> ext
 		newModels.add(model);
 		pcs.firePropertyChange("models", models, newModels);
 		models = newModels;
+	}
+
+	/**
+	 * Must implement clear() method on beans being used with BeanUI.
+	 */
+	public void clear() {
+		List<T> oldModels = new ArrayList<>(models);
+		models.clear();
+		pcs.firePropertyChange("models", oldModels, models);
 	}
 
 	@Override

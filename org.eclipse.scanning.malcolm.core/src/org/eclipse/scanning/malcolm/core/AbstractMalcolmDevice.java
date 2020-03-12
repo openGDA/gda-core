@@ -34,6 +34,7 @@ import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.slf4j.Logger;
@@ -53,7 +54,7 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 	private MalcolmEventDelegate eventDelegate;
 
 	protected ScanModel scanModel;
-	protected IPointGenerator<?> pointGenerator;
+	protected IPointGenerator<? extends IScanPointGeneratorModel> pointGenerator;
 	protected String outputDir;
 
 	public AbstractMalcolmDevice(IRunnableDeviceService runnableDeviceService) {
@@ -96,12 +97,12 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 	}
 
 	@Override
-	public void setPointGenerator(IPointGenerator<?> pointGenerator) {
+	public void setPointGenerator(IPointGenerator<? extends IScanPointGeneratorModel> pointGenerator) {
 		this.pointGenerator = pointGenerator;
 	}
 
 	@Override
-	public IPointGenerator<?> getPointGenerator() {
+	public IPointGenerator<? extends IScanPointGeneratorModel> getPointGenerator() {
 		return pointGenerator;
 	}
 

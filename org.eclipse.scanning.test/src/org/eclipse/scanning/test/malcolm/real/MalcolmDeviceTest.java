@@ -107,7 +107,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		return malcolmModel;
 	}
 
-	private EpicsMalcolmModel createExpectedEpicsMalcolmModel(IPointGenerator<?> pointGen, String outputDir,
+	private EpicsMalcolmModel createExpectedEpicsMalcolmModel(IPointGenerator<CompoundModel> pointGen, String outputDir,
 			List<MalcolmDetectorInfo> detectorInfos) throws Exception {
 		if (outputDir == null) {
 			outputDir = Services.getFilePathService().getTempDir();
@@ -117,9 +117,9 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		// create a copy of the compound model, so that we're not cheating when comparing the
 		// expected model with the one actually used
 		final CompoundModel model = pointGen == null ? new CompoundModel(new StaticModel()):
-					(CompoundModel) pointGen.getModel();
+					pointGen.getModel();
 
-		final CompoundModel copiedModel = CompoundModel.copy(model);
+		final CompoundModel copiedModel = new CompoundModel(model);
 		copiedModel.setDuration(0.1);
 		copiedModel.setMutators(Collections.emptyList());
 		pointGen = pointGenService.createCompoundGenerator(copiedModel);
@@ -206,7 +206,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		testValidate(createPointGenerator(), OUTPUT_DIR);
 	}
 
-	public void testValidate(IPointGenerator<?> pointGen, String fileDir) throws Exception {
+	public void testValidate(IPointGenerator<CompoundModel> pointGen, String fileDir) throws Exception {
 		// Arrange
 		final MalcolmModel malcolmModel = createMalcolmModel();
 
@@ -277,7 +277,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		testValidateWithReturn(createPointGenerator(), OUTPUT_DIR, true);
 	}
 
-	public void testValidateWithReturn(IPointGenerator<?> pointGen, String fileDir, boolean modifiedModel) throws Exception {
+	public void testValidateWithReturn(IPointGenerator<CompoundModel> pointGen, String fileDir, boolean modifiedModel) throws Exception {
 		// Arrange
 		final MalcolmModel malcolmModel = createMalcolmModel();
 
@@ -321,7 +321,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		verify(malcolmConnection).send(malcolmDevice, expectedValidateMessage);
 	}
 
-	private IMalcolmModel createExpectedValidateReturnModel(MalcolmModel malcolmModel, IPointGenerator<?> pointGen) {
+	private IMalcolmModel createExpectedValidateReturnModel(MalcolmModel malcolmModel, IPointGenerator<CompoundModel> pointGen) {
 		// the value expected
 		MalcolmModel model = new MalcolmModel(malcolmModel);
 		model.setAxesToMove(pointGen != null ? pointGen.getNames() : Collections.emptyList());
@@ -359,7 +359,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 
 		// Arrange
 		final MalcolmModel malcolmModel = createMalcolmModel();
-		final IPointGenerator<?> pointGen = createPointGenerator();
+		final IPointGenerator<CompoundModel> pointGen = createPointGenerator();
 		final String fileDir = OUTPUT_DIR;
 
 		// create the expected abort, reset and configure message and configure the mock connection to reply as expected
@@ -384,7 +384,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		when(malcolmConnection.send(malcolmDevice, expectedAbortMessage)).thenReturn(createExpectedMalcolmOkReply(null));
 		when(malcolmConnection.send(malcolmDevice, expectedResetMessage)).thenReturn(createExpectedMalcolmOkReply(null));
 		final MalcolmMessage expectedConfigureMessage = createExpectedCallMessage(id++, MalcolmMethod.CONFIGURE, expectedSentEpicsMalcolmModel);
-		final IPointGenerator<?> expectedReceivedPointGen = modified ? createLineGenerator() : pointGen;
+		final IPointGenerator<CompoundModel> expectedReceivedPointGen = modified ? createLineGenerator() : pointGen;
 		final EpicsMalcolmModel expectedReceivedEpicsMalcolmModel = createExpectedEpicsMalcolmModel(expectedReceivedPointGen, fileDir, detectorInfos);
 		when(malcolmConnection.send(malcolmDevice, expectedConfigureMessage)).thenReturn(createExpectedMalcolmOkReply(
 				createExpectedMalcolmConfigureValidateReturnValue(expectedReceivedEpicsMalcolmModel)));
@@ -404,11 +404,11 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		verify(malcolmConnection).send(malcolmDevice, expectedConfigureMessage);
 
 		// test duration of pointGen's model has been set to exposure time of malcolm model
-		assertThat(((CompoundModel) pointGen.getModel()).getDuration(), is(equalTo(malcolmModel.getExposureTime())));
+		assertThat(pointGen.getModel().getDuration(), is(equalTo(malcolmModel.getExposureTime())));
 		assertThat(scanModel.getPointGenerator(), is(equalTo(expectedReceivedPointGen)));
 	}
 
-	private IPointGenerator<?> createLineGenerator() throws Exception {
+	private IPointGenerator<CompoundModel> createLineGenerator() throws Exception {
 		final TwoAxisLinePointsModel lineModel = new TwoAxisLinePointsModel();
 		lineModel.setPoints(18);
 		lineModel.setBoundingLine(new BoundingLine(0, 0, 1, 1));

@@ -34,7 +34,6 @@ import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AbstractMultiModel;
-import org.eclipse.scanning.api.points.models.AbstractPointsModel;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.AxialCollatedStepModel;
 import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
@@ -47,6 +46,7 @@ import org.eclipse.scanning.api.points.models.ConsecutiveMultiModel;
 import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.IBoundingLineModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.JythonGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.StaticModel;
@@ -91,6 +91,7 @@ public class PointGeneratorService implements IPointGeneratorService {
 		gens.put(TwoAxisPointSingleModel.class, TwoAxisPointSingleGenerator.class);
 		gens.put(ConsecutiveMultiModel.class, ConsecutiveMultiGenerator.class);
 		gens.put(ConcurrentMultiModel.class, ConcurrentMultiGenerator.class);
+		gens.put(CompoundModel.class, CompoundGenerator.class);
 
 		Map<String, GeneratorInfo> tinfo = new TreeMap<>();
 		fillStaticGeneratorInfo(gens, tinfo);
@@ -110,7 +111,7 @@ public class PointGeneratorService implements IPointGeneratorService {
 	}
 
 	@Override
-	public <T, R> void setBounds(T model, List<R> regions) {
+	public <T extends IScanPointGeneratorModel, R> void setBounds(T model, List<R> regions) {
 		if (regions == null || regions.isEmpty()) return;
 		IRectangularROI rect = ((IROI) regions.get(0)).getBounds();
 		for (R roi : regions) {
@@ -193,7 +194,7 @@ public class PointGeneratorService implements IPointGeneratorService {
 	}
 
 	@Override
-	public IPointGenerator<CompoundModel> createCompoundGenerator(IPointGenerator<?>... generators) throws GeneratorException {
+	public IPointGenerator<CompoundModel> createCompoundGenerator(IPointGenerator<? extends IScanPointGeneratorModel>... generators) throws GeneratorException {
 		return new CompoundGenerator(generators, this);
 	}
 
@@ -208,11 +209,11 @@ public class PointGeneratorService implements IPointGeneratorService {
 	}
 
 	@Override
-	public List<IROI> findRegions(Object model, Collection<ScanRegion> sregions) throws GeneratorException {
+	public List<IROI> findRegions(IScanPointGeneratorModel model, Collection<ScanRegion> sregions) throws GeneratorException {
 		if (sregions == null || sregions.isEmpty())
 			return Collections.emptyList();
 
-		final Collection<String> names = AbstractPointsModel.getScannableNames(model);
+		final Collection<String> names = model.getScannableNames();
 		final Predicate<ScanRegion> shouldAddRoi = scanRegion -> {
 			final List<String> scannables = scanRegion.getScannables();
 			return scannables == null || scannables.containsAll(names) || findNamesAsEntry(scannables, names);
@@ -251,7 +252,7 @@ public class PointGeneratorService implements IPointGeneratorService {
 	}
 
 	@Override
-	public <T> IPointGenerator<CompoundModel> createGenerator(T model, List<IROI> regions, List<IMutator> mutators, float duration) throws GeneratorException {
+	public <T extends IScanPointGeneratorModel> IPointGenerator<CompoundModel> createGenerator(T model, List<IROI> regions, List<IMutator> mutators, float duration) throws GeneratorException {
 		CompoundModel cModel = new CompoundModel();
 		cModel.addData(model, regions);
 		cModel.addMutators(mutators);
