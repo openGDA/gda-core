@@ -21,6 +21,9 @@ package uk.ac.gda.tomography.model;
 /**
  * Defines the end angle for a rotation.
  */
+/**
+ *
+ */
 public class EndAngle {
 
 	/**
@@ -75,5 +78,22 @@ public class EndAngle {
 	}
 	public void setCustomAngle(double customAngle) {
 		this.customAngle = customAngle;
+	}
+
+	/**
+	 * Returns the end angle based on the {@link #getRangeType()} value.
+	 * @return either 180.0, 360.0 or the {@code #getCustomAngle()} value
+	 */
+	public double getEndAngle() {
+		switch (getRangeType()) {
+		case RANGE_180:
+			return 180.0;
+		case RANGE_360:
+			return 360.0;
+		case CUSTOM:
+			return getCustomAngle();
+		default:
+			return getCustomAngle();
+		}
 	}
 }

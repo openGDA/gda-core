@@ -27,7 +27,11 @@ Require-Bundle: uk.ac.gda.core;bundle-version="8.26.0",
  uk.ac.gda.common,
  uk.ac.gda.tomography,
  uk.ac.gda.api,
- com.fasterxml.jackson.core.jackson-databind
+ com.fasterxml.jackson.core.jackson-databind,
+ uk.ac.diamond.daq.mapping.ui,
+ uk.ac.diamond.daq.mapping.api,
+ org.eclipse.scanning.api,
+ org.eclipse.e4.core.contexts
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-ActivationPolicy: lazy
 Import-Package: com.fasterxml.jackson.annotation;version="2.6.2",
@@ -41,6 +45,9 @@ Import-Package: com.fasterxml.jackson.annotation;version="2.6.2",
  org.eclipse.scanning.api.device,
  org.eclipse.scanning.api.device.models,
  org.eclipse.scanning.api.event.core,
+ org.eclipse.scanning.api.event.scan,
+ org.eclipse.scanning.api.event.status,
+ org.eclipse.scanning.command,
  org.junit;version="4.12.0",
  org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans;version="4.0.6.RELEASE",

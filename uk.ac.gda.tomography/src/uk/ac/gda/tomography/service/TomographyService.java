@@ -21,6 +21,9 @@ package uk.ac.gda.tomography.service;
 import java.io.File;
 import java.net.URL;
 
+import org.springframework.context.ApplicationListener;
+
+import uk.ac.gda.tomography.event.TomographyRunAcquisitionEvent;
 import uk.ac.gda.tomography.service.message.TomographyRunMessage;
 
 /**
@@ -29,7 +32,7 @@ import uk.ac.gda.tomography.service.message.TomographyRunMessage;
  * @author Maurizio Nagni
  *
  */
-public interface TomographyService {
+public interface TomographyService extends ApplicationListener<TomographyRunAcquisitionEvent> {
 
 	void resetInstruments(Arrangement arrangement) throws TomographyServiceException;
 
