@@ -205,6 +205,11 @@ public class QueueCommandBean  extends IdBean {
 		this.jobBean = jobBean;
 	}
 
+	public QueueCommandBean(String queueName, Command command, String commandParam) {
+		this(queueName, command);
+		this.message = commandParam;
+	}
+
 	public UUID getJobQueueId() {
 		return jobQueueId;
 	}

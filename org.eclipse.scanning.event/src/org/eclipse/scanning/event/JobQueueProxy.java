@@ -90,6 +90,10 @@ public final class JobQueueProxy<U extends StatusBean> extends AbstractConnectio
 		return sendCommandBean(commandBean);
 	}
 
+	private Object sendCommand(Command command, String commandParam) throws EventException {
+		return sendCommandBean(new QueueCommandBean(getSubmitQueueName(), command, commandParam));
+	}
+
 	private synchronized Object sendCommandBean(QueueCommandBean commandBean) throws EventException {
 		if (queueCommandRequestor == null) {
 			queueCommandRequestor = eventService.createRequestor(uri, getCommandTopicName(), getCommandAckTopicName());
@@ -112,6 +116,12 @@ public final class JobQueueProxy<U extends StatusBean> extends AbstractConnectio
 	@Override
 	public List<U> getRunningAndCompleted() throws EventException {
 		return (List<U>) sendCommand(Command.GET_RUNNING_AND_COMPLETED);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<U> getRunningAndCompleted(String optionalArgument) throws EventException {
+		return (List<U>) sendCommand(Command.GET_RUNNING_AND_COMPLETED, optionalArgument);
 	}
 
 	@Override

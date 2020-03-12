@@ -21,6 +21,8 @@ import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -355,7 +357,7 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 					result = getSubmissionQueue();
 					break;
 				case GET_RUNNING_AND_COMPLETED:
-					result = getRunningAndCompleted();
+					result = getRunningAndCompleted(commandBean.getMessage());
 					break;
 				case GET_INFO:
 					result = queueStatusBean;
@@ -416,7 +418,55 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 
 	@Override
 	public List<U> getRunningAndCompleted() throws EventException {
-		return statusQueue.getElements().stream().filter(x -> !x.getStatus().isTerminated()).collect(Collectors.toList());
+		return statusQueue.getElements();
+	}
+
+	private List<U> getRunning() throws EventException{
+		return getRunningAndCompleted().stream().filter(x -> x.getStatus().isRunning()).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<U> getRunningAndCompleted(String optionalArgument) throws EventException {
+		int maxQueueSize = -1;
+		try {
+			maxQueueSize = Integer.parseInt(optionalArgument);
+			// For negative numbers and unparseable, treat the same: as infinite length
+			if (maxQueueSize < 0) throw new NumberFormatException();
+		} catch(NumberFormatException e) {
+			return getRunningAndCompleted();
+		}
+		// Queue limit includes submitted items. If enough submitted items to not want completed items, just return running
+		maxQueueSize -= getSubmissionQueue().size();
+		if (maxQueueSize < 2) {
+			return getRunning();
+		}
+		List<U> runningAndCompleted = getRunningAndCompleted();
+		if (runningAndCompleted.size() < maxQueueSize) {
+			return runningAndCompleted;
+		}
+		// maxQueueSize > 0, < runningAndCompleted.size, remove the oldest finished beans
+		// Cannot serialise subList so must construct new ArrayList
+		runningAndCompleted = new ArrayList<>(runningAndCompleted.stream()
+				.sorted(new ComparingByStatusThenByAge())
+				.collect(Collectors.toList())
+				.subList(0, maxQueueSize));
+		// Sorting returns (running scan, newest finished scan... oldest finished scan),
+		// view expects (oldest finished ... newest finished, running) to let newly running add to end -> must reverse
+		Collections.reverse(runningAndCompleted);
+		return runningAndCompleted;
+	}
+
+	private class ComparingByStatusThenByAge implements Comparator<U> {
+
+		@Override
+		public int compare(U bean1, U bean2) {
+			// First, any running beans
+			int statusCompare = Boolean.compare(bean1.getStatus().isActive(), bean2.getStatus().isActive());
+			if (statusCompare != 0) return statusCompare;
+			// Then the newest beans
+			return Long.compare(bean1.getStartTime(), bean2.getStartTime());
+		}
+
 	}
 
 	@Override
