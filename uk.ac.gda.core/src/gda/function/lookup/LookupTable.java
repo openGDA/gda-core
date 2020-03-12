@@ -279,8 +279,6 @@ public class LookupTable extends FindableConfigurableBase implements Lookup {
 			int index = indexOfScannable(getScannableNames(), scannableName);
 			double energyDouble = Double.parseDouble(energy.toString());
 			String value = String.format("%.3f", energyDouble);
-			logger.debug("energy is : {}", value);
-
 			ArrayList<Double> list = (ArrayList<Double>) lookupMap.getCollection(value);
 			if (list == null) {
 				logger.error("{}: list is null", getName());
