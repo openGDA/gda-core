@@ -23,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,8 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
-
-import com.google.common.base.Optional;
 
 import gda.configuration.properties.LocalProperties;
 
@@ -78,7 +77,7 @@ public class SpyCat extends DlsIcatBase {
 
 		logger.debug("SQL query '{}' with parameters {} returned {}", sql, Arrays.toString(parameters), visits);
 
-		return (visits.isEmpty()) ? Optional.<String>absent() : Optional.of(visits.get(0));
+		return visits.stream().findFirst();
 	}
 
 	private static final RowMapper<String> VISIT_MAPPER = new RowMapper<String>() {
