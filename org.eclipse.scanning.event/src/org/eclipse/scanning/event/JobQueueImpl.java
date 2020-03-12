@@ -324,7 +324,8 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 					sendQueueModifiedMessage();
 					break;
 				case CLEAR_COMPLETED:
-					clearRunningAndCompleted();
+					// null -> False
+					clearRunningAndCompleted(Boolean.parseBoolean(commandBean.getMessage()));
 					break;
 				case SUBMIT_JOB:
 					submit((U) commandBean.getJobBean());
@@ -437,7 +438,7 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 		}
 		// Queue limit includes submitted items. If enough submitted items to not want completed items, just return running
 		maxQueueSize -= getSubmissionQueue().size();
-		if (maxQueueSize < 2) {
+		if (maxQueueSize <= getRunning().size()) {
 			return getRunning();
 		}
 		List<U> runningAndCompleted = getRunningAndCompleted();
@@ -461,10 +462,10 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 		@Override
 		public int compare(U bean1, U bean2) {
 			// First, any running beans
-			int statusCompare = Boolean.compare(bean1.getStatus().isActive(), bean2.getStatus().isActive());
+			int statusCompare = Boolean.compare(bean2.getStatus().isActive(), bean1.getStatus().isActive());
 			if (statusCompare != 0) return statusCompare;
-			// Then the newest beans
-			return Long.compare(bean1.getStartTime(), bean2.getStartTime());
+			// Then the newest beans: i.e. the ones with the highest start time
+			return Long.compare(bean2.getStartTime(), bean1.getStartTime());
 		}
 
 	}
@@ -477,6 +478,18 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 	@Override
 	public void clearRunningAndCompleted() throws EventException {
 		statusQueue.clear();
+	}
+
+	@Override
+	public void clearRunningAndCompleted(boolean bool) throws EventException {
+		if (bool) {
+			for (U bean : getRunning()) terminateJob(bean);
+			clearRunningAndCompleted();
+		} else {
+			List<U> runningBeans = getRunning();
+			clearRunningAndCompleted();
+			statusQueue.addAll(runningBeans);
+		}
 	}
 
 	@Override

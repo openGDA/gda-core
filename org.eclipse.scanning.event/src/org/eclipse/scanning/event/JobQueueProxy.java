@@ -135,6 +135,11 @@ public final class JobQueueProxy<U extends StatusBean> extends AbstractConnectio
 	}
 
 	@Override
+	public void clearRunningAndCompleted(boolean bool) throws EventException {
+		sendCommand(Command.CLEAR_COMPLETED, String.valueOf(bool));
+	}
+
+	@Override
 	public synchronized void disconnect() throws EventException {
 		super.disconnect();
 		queueCommandRequestor.disconnect();

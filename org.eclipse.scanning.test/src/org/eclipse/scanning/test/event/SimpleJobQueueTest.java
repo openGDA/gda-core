@@ -25,6 +25,8 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -34,6 +36,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -195,6 +198,130 @@ public class SimpleJobQueueTest extends AbstractJobQueueTest {
 
 		beans.forEach(wrap(bean -> verify(runner).createProcess(bean, statusTopicPublisher)));
 		processes.forEach(wrap(process -> verify(process).start()));
+	}
+
+	@Test
+	public void testLimitingManyReturnedBeans() throws Exception {
+		// Send 5 beans to the Queue
+		List<StatusBean> beans = createAndSubmitBeans();
+		CountDownLatch latch = new CountDownLatch(beans.size());
+		setupMockProcesses(beans, latch);
+		startJobQueue();
+		latch.await(10, TimeUnit.SECONDS);
+		List<StatusBean> returnedBeans = jobQueue.getRunningAndCompleted("3");
+		// Get 3 latest beans
+		assertEquals(3, returnedBeans.size());
+		assertEquals("three", returnedBeans.get(0).getName());
+		assertEquals("five", returnedBeans.get(2).getName());
+
+		returnedBeans = jobQueue.getRunningAndCompleted("6");
+		// Get all 5 beans that have been completed
+		assertEquals(5, returnedBeans.size());
+
+		returnedBeans = jobQueue.getRunningAndCompleted("-1");
+		// Get all beans that have been completed
+		assertEquals(5, returnedBeans.size());
+
+		returnedBeans = jobQueue.getRunningAndCompleted("NaN");
+		// Get all beans that have been completed
+		assertEquals(5, returnedBeans.size());
+	}
+
+	@Test
+	public void testLimitingManyReturnedBeansWhileBeansSubmitted() throws Exception {
+		// Send 5 beans that 'will run' to the Queue
+		List<StatusBean> beans = createAndSubmitBeans();
+		CountDownLatch latch = new CountDownLatch(beans.size());
+		setupMockProcesses(beans, latch);
+		startJobQueue();
+		latch.await(10, TimeUnit.SECONDS);
+		// 5 completed scans + 2 submitted (but not running) scan
+		jobQueue.pause();
+		jobQueue.submit(new StatusBean("notRunning"));
+		jobQueue.submit(new StatusBean("notRunning2"));
+		List<StatusBean> returnedBeans = jobQueue.getRunningAndCompleted("3");
+		// The 2 submitted beans would have been returned, so we only want 1 more to get 3 latest beans
+		assertEquals(1, returnedBeans.size());
+		assertEquals("five", returnedBeans.get(0).getName());
+
+		returnedBeans = jobQueue.getRunningAndCompleted("6");
+		// Get 4 beans to add the to the 2 that have been submitted to make 6
+		assertEquals(4, returnedBeans.size());
+
+		returnedBeans = jobQueue.getRunningAndCompleted("8");
+		// 5 + 2 < 8 so return all 5
+		assertEquals(5, returnedBeans.size());
+
+		returnedBeans = jobQueue.getRunningAndCompleted("-1");
+		// Get all beans that have been completed
+		assertEquals(5, returnedBeans.size());
+
+		returnedBeans = jobQueue.getRunningAndCompleted("NaN");
+		// Get all beans that have been completed
+		assertEquals(5, returnedBeans.size());
+	}
+
+	@Test
+	public void testLimitingManyReturnedBeansWhileBeanRunning() throws Exception {
+		// Send 5 beans that 'will run' to the Queue
+		List<StatusBean> completeBeans = createAndSubmitBeans();
+		List<StatusBean> nonCompleteBeans = createAndSubmitBeans("Running", "notRunning");
+		CountDownLatch latch = new CountDownLatch(completeBeans.size() + 10 * nonCompleteBeans.size());
+		// Default time (100ms)
+		setupMockProcesses(completeBeans, latch);
+		setMockProcessTime(10000);
+		// (1s)
+		setupMockProcesses(nonCompleteBeans, latch);
+
+		startJobQueue();
+		// Should be enough that all 100ms beans are done, but 1s beans not
+		latch.await(2, TimeUnit.SECONDS);
+
+		// 5 completed scans + 1 submitted (but not running) + 1 running scan
+		List<StatusBean> submittedBeans = jobQueue.getSubmissionQueue();
+		List<StatusBean> returnedBeans = jobQueue.getRunningAndCompleted("3");
+		// (Submitted +) Running + Last Complete
+		assertEquals(3, submittedBeans.size() + returnedBeans.size());
+		assertEquals(2, returnedBeans.size());
+		assertEquals("five", returnedBeans.get(0).getName());
+		assertEquals("Running", returnedBeans.get(1).getName());
+		assertEquals("notRunning", submittedBeans.get(0).getName());
+		assertFalse(submittedBeans.get(0).getStatus().isActive());
+
+		submittedBeans = jobQueue.getSubmissionQueue();
+		returnedBeans = jobQueue.getRunningAndCompleted("6");
+		// Get 5 beans to add the to the submitted one to make 6
+		assertEquals(5, returnedBeans.size());
+
+		submittedBeans = jobQueue.getSubmissionQueue();
+		returnedBeans = jobQueue.getRunningAndCompleted("8");
+		// 5 + 2 < 8 so return all 5
+		assertEquals(6, returnedBeans.size());
+	}
+
+	@Test
+	public void testWhenRunNotInOrderOfSubmission() throws Exception {
+		List<StatusBean> completeBeans = Arrays.asList(new StatusBean("runSecond"), new StatusBean("runFirst"), new StatusBean("runThird"));
+		completeBeans.get(0).setStartTime(2);
+		completeBeans.get(1).setStartTime(1);
+		completeBeans.get(2).setStartTime(3);
+
+		for (StatusBean bean : completeBeans) {
+			jobQueue.submit(bean);
+		}
+
+		CountDownLatch latch = new CountDownLatch(completeBeans.size());
+		// Default time (100ms)
+		setupMockProcesses(completeBeans, latch);
+		// (1s)
+		startJobQueue();
+		// Should be enough that all beans are done
+		latch.await(2, TimeUnit.SECONDS);
+
+		List<StatusBean> returnedBeans = jobQueue.getRunningAndCompleted("2");
+		assertEquals("runSecond", returnedBeans.get(0).getName());
+		assertEquals("runThird", returnedBeans.get(1).getName());
+
 	}
 
 }

@@ -146,6 +146,15 @@ public interface IJobQueue<T> extends IConnection, IBeanClass<T> {
 	void clearRunningAndCompleted() throws EventException;
 
 	/**
+	 * Clears the set of beans for running and completed jobs, with an optional argument for whether to clear the
+	 * currently running scan (if there is one)
+	 *
+	 * @throws EventException
+	 *             if the set of running and completed
+	 */
+	void clearRunningAndCompleted(boolean bool) throws EventException;
+
+	/**
 	 * Cleans up the set of beans for running and completed job by removing certain beans.
 	 * Specifically, the beans that are removed are those that meet one of the following criteria:
 	 * <ul>

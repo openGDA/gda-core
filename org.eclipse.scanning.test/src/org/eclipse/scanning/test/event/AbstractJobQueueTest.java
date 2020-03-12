@@ -208,9 +208,12 @@ public abstract class AbstractJobQueueTest {
 		return createAndSubmitBeans("one", "two", "three", "four", "five");
 	}
 
+	static long startTimeDummy = 1;
+
 	protected List<StatusBean> createAndSubmitBeans(String... names) throws Exception {
 		final List<StatusBean> beans = Arrays.stream(names).map(StatusBean::new).collect(toList());
 		for (StatusBean bean : beans) {
+			bean.setStartTime(startTimeDummy++);
 			jobQueue.submit(bean);
 		}
 
