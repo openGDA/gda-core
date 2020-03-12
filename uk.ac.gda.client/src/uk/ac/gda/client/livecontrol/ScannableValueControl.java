@@ -43,6 +43,9 @@ public class ScannableValueControl extends FindableBase implements LiveControl {
 	private String userUnits; // Use to override the scannable units (if required)
 	private Integer textWidth; // If set, passed down to InputTextComposite
 	private Boolean readOnly=false;
+	// support input limit checking on GUI component if set
+	private Double lowerLimit;
+	private Double upperlimit;
 
 	public String getDisplayName() {
 		return displayName;
@@ -86,68 +89,6 @@ public class ScannableValueControl extends FindableBase implements LiveControl {
 	}
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((displayName == null) ? 0 : displayName.hashCode());
-		result = prime * result + ((group == null) ? 0 : group.hashCode());
-		result = prime * result + ((textWidth == null) ? 0 : textWidth.hashCode());
-		result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
-		result = prime * result + ((scannableName == null) ? 0 : scannableName.hashCode());
-		result = prime * result + ((userUnits == null) ? 0 : userUnits.hashCode());
-		result = prime * result + ((readOnly == null) ? 0 : readOnly.hashCode());
-
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ScannableValueControl other = (ScannableValueControl) obj;
-		if (displayName == null) {
-			if (other.displayName != null)
-				return false;
-		} else if (!displayName.equals(other.displayName))
-			return false;
-		if (group == null) {
-			if (other.group != null)
-				return false;
-		} else if (!group.equals(other.group))
-			return false;
-		if (textWidth == null) {
-			if (other.textWidth != null)
-				return false;
-		} else if (!textWidth.equals(other.textWidth))
-			return false;
-		if (getName() == null) {
-			if (other.getName() != null)
-				return false;
-		} else if (!getName().equals(other.getName()))
-			return false;
-		if (scannableName == null) {
-			if (other.scannableName != null)
-				return false;
-		} else if (!scannableName.equals(other.scannableName))
-			return false;
-		if (userUnits == null) {
-			if (other.userUnits != null)
-				return false;
-		} else if (!userUnits.equals(other.userUnits))
-			return false;
-		if (readOnly == null) {
-			if (other.readOnly != null)
-				return false;
-		} else if (!readOnly.equals(other.readOnly))
-			return false;
-		return true;
-	}
-
-	@Override
 	public void createControl(Composite composite) {
 		// Get the scannable with the finder
 		final Scannable scannable = Finder.getInstance().find(getScannableName());
@@ -172,13 +113,12 @@ public class ScannableValueControl extends FindableBase implements LiveControl {
 		if (textWidth != null) {
 			itc.setTextWidth(textWidth);
 		}
-	}
-
-	@Override
-	public String toString() {
-		return "ScannablePositionerControl [name=" + getName() + ", displayName=" + displayName + ", group=" + group
-				+ ", scannableName=" + scannableName + ", userUnits=" + userUnits
-				+ ", textWidth=" + textWidth + "]";
+		if (lowerLimit != null) {
+			itc.setLowerLimit(lowerLimit);
+		}
+		if (upperlimit != null) {
+			itc.setUpperLimit(upperlimit);
+		}
 	}
 
 	public boolean isReadOnly() {
@@ -188,5 +128,97 @@ public class ScannableValueControl extends FindableBase implements LiveControl {
 	public void setReadOnly(boolean readOnly) {
 		this.readOnly = readOnly;
 	}
+
+	public Double getLowerLimit() {
+		return lowerLimit;
+	}
+
+	public void setLowerLimit(Double lowerLimit) {
+		this.lowerLimit = lowerLimit;
+	}
+
+	public Double getUpperlimit() {
+		return upperlimit;
+	}
+
+	public void setUpperlimit(Double upperlimit) {
+		this.upperlimit = upperlimit;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((displayName == null) ? 0 : displayName.hashCode());
+		result = prime * result + ((group == null) ? 0 : group.hashCode());
+		result = prime * result + ((lowerLimit == null) ? 0 : lowerLimit.hashCode());
+		result = prime * result + ((readOnly == null) ? 0 : readOnly.hashCode());
+		result = prime * result + ((scannableName == null) ? 0 : scannableName.hashCode());
+		result = prime * result + ((textWidth == null) ? 0 : textWidth.hashCode());
+		result = prime * result + ((upperlimit == null) ? 0 : upperlimit.hashCode());
+		result = prime * result + ((userUnits == null) ? 0 : userUnits.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ScannableValueControl other = (ScannableValueControl) obj;
+		if (displayName == null) {
+			if (other.displayName != null)
+				return false;
+		} else if (!displayName.equals(other.displayName))
+			return false;
+		if (group == null) {
+			if (other.group != null)
+				return false;
+		} else if (!group.equals(other.group))
+			return false;
+		if (lowerLimit == null) {
+			if (other.lowerLimit != null)
+				return false;
+		} else if (!lowerLimit.equals(other.lowerLimit))
+			return false;
+		if (readOnly == null) {
+			if (other.readOnly != null)
+				return false;
+		} else if (!readOnly.equals(other.readOnly))
+			return false;
+		if (scannableName == null) {
+			if (other.scannableName != null)
+				return false;
+		} else if (!scannableName.equals(other.scannableName))
+			return false;
+		if (textWidth == null) {
+			if (other.textWidth != null)
+				return false;
+		} else if (!textWidth.equals(other.textWidth))
+			return false;
+		if (upperlimit == null) {
+			if (other.upperlimit != null)
+				return false;
+		} else if (!upperlimit.equals(other.upperlimit))
+			return false;
+		if (userUnits == null) {
+			if (other.userUnits != null)
+				return false;
+		} else if (!userUnits.equals(other.userUnits))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "ScannableValueControl [displayName=" + displayName + ", group=" + group + ", scannableName="
+				+ scannableName + ", userUnits=" + userUnits + ", textWidth=" + textWidth + ", readOnly=" + readOnly
+				+ ", lowerLimit=" + lowerLimit + ", upperlimit=" + upperlimit + "]";
+	}
+
+
 
 }
