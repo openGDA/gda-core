@@ -71,13 +71,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.monte.media"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.dawnsci.datavis.live"
          download-size="0"
          install-size="0"
