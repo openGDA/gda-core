@@ -49,7 +49,7 @@ public class ZebraScannableMotorForQexafs extends ScannableMotor implements Cont
 	private ZebraConstantVelocityMoveControllerForQexafs continuousMoveController;
 	private ZebraScannableMotor zebraScannableMotor;
 	private ScannableMotor braggScannableMotor;
-	private JEPConverterHolder converter;
+	private JEPConverterHolder<Energy, Angle> converter;
 
 	@Override
 	public void configure() {
@@ -99,11 +99,11 @@ public class ZebraScannableMotorForQexafs extends ScannableMotor implements Cont
 		return zebraScannableMotor.getPosition();
 	}
 
-	public JEPConverterHolder getConverter() {
+	public JEPConverterHolder<Energy, Angle> getConverter() {
 		return converter;
 	}
 
-	public void setConverter(JEPConverterHolder converter) {
+	public void setConverter(JEPConverterHolder<Energy, Angle> converter) {
 		this.converter = converter;
 	}
 
@@ -151,13 +151,13 @@ public class ZebraScannableMotorForQexafs extends ScannableMotor implements Cont
 
 	protected double convertEnergyToBraggAngle(double energy) throws Exception {
 		Quantity<Energy> energyEV = Quantities.getQuantity(energy, ELECTRON_VOLT);
-		Quantity<Angle> angle = converter.toTarget(energyEV).asType(Angle.class).to(DEGREE_ANGLE);
+		Quantity<Angle> angle = converter.toTarget(energyEV).to(DEGREE_ANGLE);
 		return angle.getValue().doubleValue();
 	}
 
 	protected double convertBraggAngleToEnergy(double angle) throws Exception {
 		Quantity<Angle> angleDegree = Quantities.getQuantity(Math.abs(angle), DEGREE_ANGLE);
-		Quantity<Energy> energyEV = converter.toSource(angleDegree).asType(Energy.class).to(ELECTRON_VOLT);
+		Quantity<Energy> energyEV = converter.toSource(angleDegree).to(ELECTRON_VOLT);
 		return energyEV.getValue().doubleValue();
 	}
 

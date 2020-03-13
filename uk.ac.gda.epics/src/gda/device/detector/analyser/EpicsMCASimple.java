@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.measure.Quantity;
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Energy;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
@@ -131,7 +133,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 
 	private String epicsDeviceName;
 
-	private IQuantityConverter channelToEnergyConverter = null;
+	private IQuantityConverter<Energy, Dimensionless> channelToEnergyConverter = null;
 
 	private String converterName = "mca_roi_conversion";
 
@@ -915,6 +917,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void ensureQuantityConverterExists() throws DeviceException {
 		if (channelToEnergyConverter != null) {
 			return;
@@ -922,12 +925,12 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 		if (converterName == null || converterName.length() == 0) {
 			throw new DeviceException("Cannot create channel/energy converter: no name specified");
 		}
-		final IQuantitiesConverter converter = CoupledConverterHolder.FindQuantitiesConverter(converterName);
+		final IQuantitiesConverter<Energy, Dimensionless> converter = CoupledConverterHolder.FindQuantitiesConverter(converterName);
 		if (converter == null) {
 			throw new DeviceException(String.format("Cannot create channel/energy converter: %s not found", converterName));
 		}
 		if (converter instanceof IQuantityConverter) {
-			channelToEnergyConverter = (IQuantityConverter) converter;
+			channelToEnergyConverter = (IQuantityConverter<Energy, Dimensionless>) converter;
 		} else {
 			throw new DeviceException(String.format("Cannot create channel/energy converter: %s is of the wrong type", converterName));
 		}

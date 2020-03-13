@@ -50,6 +50,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import gda.TestHelpers;
+import gda.device.DeviceException;
 import gda.device.epicsdevice.FindableEpicsDevice;
 import gda.device.epicsdevice.ReturnType;
 import gda.factory.Factory;
@@ -82,11 +83,14 @@ public class EpicsMCASimpleTest {
 	/**
 	 * Allow creation of mock quantities converters that can be added to Finder
 	 */
-	private interface FindableConverter extends IQuantityConverter, IReloadableQuantitiesConverter, Findable { }
-	private FindableConverter channelToEnergyConverter;
+	private interface FindableConverter<S extends Quantity<S>, T extends Quantity<T>>
+			extends IQuantityConverter<S, T>, IReloadableQuantitiesConverter<S, T>, Findable {
+	}
+
+	private FindableConverter<Energy, Dimensionless> channelToEnergyConverter;
 	private Factory testFactory;
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings("unchecked")
 	@Before
 	public void setUp() throws Exception {
 		epicsDevice = createEpicsDevice();
@@ -99,15 +103,15 @@ public class EpicsMCASimpleTest {
 		// Create mock converters but don't add to finder at this point
 		channelToEnergyConverter = mock(FindableConverter.class);
 		when(channelToEnergyConverter.getName()).thenReturn(CALIBRATION_NAME);
-		when(channelToEnergyConverter.toSource(CHANNEL_QUANTITY)).thenAnswer(new Answer<Quantity>() {
+		when(channelToEnergyConverter.toSource(CHANNEL_QUANTITY)).thenAnswer(new Answer<Quantity<Energy>>() {
 			@Override
-			public Quantity<? extends Quantity<?>> answer(InvocationOnMock invocation) throws Throwable {
+			public Quantity<Energy> answer(InvocationOnMock invocation) throws Throwable {
 				return ENERGY_QUANTITY;
 			}
 		});
-		when(channelToEnergyConverter.toTarget(any(Quantity.class))).thenAnswer(new Answer<Quantity>() {
+		when(channelToEnergyConverter.toTarget(any(Quantity.class))).thenAnswer(new Answer<Quantity<Dimensionless>>() {
 			@Override
-			public Quantity<? extends Quantity<?>> answer(InvocationOnMock invocation) throws Throwable {
+			public Quantity<Dimensionless> answer(InvocationOnMock invocation) throws Throwable {
 				final Quantity<Energy> energy = invocation.getArgumentAt(0, Quantity.class).to(ELECTRON_VOLT);
 				if (Math.abs(energy.subtract(ENERGY_QUANTITY).getValue().doubleValue()) < 0.001) {
 					return CHANNEL_QUANTITY;
@@ -387,7 +391,7 @@ public class EpicsMCASimpleTest {
 		verify(epicsDevice).setValueNoWait("", ".ERST", 1);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = DeviceException.class)
 	public void testGetAttributeChannelToEnergyNoConverter() throws Exception {
 		Finder.getInstance().removeAllFactories();
 		mcaSimpleDevice.getAttribute(CHANNEL_TO_ENERGY_STRING);
@@ -411,7 +415,7 @@ public class EpicsMCASimpleTest {
 		Finder.getInstance().removeAllFactories();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = DeviceException.class)
 	public void testGetAttributeEnergyToChannelNoConverter() throws Exception {
 		Finder.getInstance().removeAllFactories();
 		mcaSimpleDevice.getAttribute(ENERGY_TO_CHANNEL_STRING);

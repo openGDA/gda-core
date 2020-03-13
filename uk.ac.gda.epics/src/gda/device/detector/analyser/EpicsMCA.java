@@ -21,6 +21,8 @@ package gda.device.detector.analyser;
 import java.util.Vector;
 
 import javax.measure.Quantity;
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Energy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +38,7 @@ import gda.epics.interfaceSpec.InterfaceException;
 import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
+import gda.util.QuantityFactory;
 import gda.util.converters.CoupledConverterHolder;
 import gda.util.converters.IQuantitiesConverter;
 import gda.util.converters.IQuantityConverter;
@@ -49,7 +52,6 @@ import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.dbr.DBR_String;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-import tec.units.indriya.quantity.Quantities;
 
 /**
  * Class to communicate with an epics MCA record. The MCA record controls and acquires data from a multichannel analyser
@@ -61,7 +63,7 @@ public class EpicsMCA extends AnalyserBase implements IEpicsMCA, InitializationL
 
 	private static final long serialVersionUID = 1L;
 
-	private IQuantitiesConverter channelToEnergyConverter = null;
+	private IQuantitiesConverter<Energy, Dimensionless> channelToEnergyConverter = null;
 
 	private String converterName = "mca_roi_conversion";
 
@@ -1162,20 +1164,19 @@ public class EpicsMCA extends AnalyserBase implements IEpicsMCA, InitializationL
 	 */
 	public static final String energyToChannelPrefix = "energyToChannel";
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object getAttribute(String attributeName) throws DeviceException {
 
 		if (attributeName.startsWith(channelToEnergyPrefix)) {
-			String energy = null;
 			if (channelToEnergyConverter == null && converterName != null) {
 				channelToEnergyConverter = CoupledConverterHolder.FindQuantitiesConverter(converterName);
 			}
 			if (channelToEnergyConverter != null && channelToEnergyConverter instanceof IQuantityConverter) {
-				String channelString = attributeName.substring(channelToEnergyPrefix.length());
-				Quantity<? extends Quantity<?>> channel = Quantities.getQuantity(channelString);
+				final String channelString = attributeName.substring(channelToEnergyPrefix.length());
+				final Quantity<Dimensionless> channel = QuantityFactory.createFromString(channelString);
 				try {
-					energy = ((IQuantityConverter) channelToEnergyConverter).toSource(channel).toString();
-					return energy;
+					return ((IQuantityConverter<Energy, Dimensionless>) channelToEnergyConverter).toSource(channel).toString();
 				} catch (Exception e) {
 					throw new DeviceException("EpicsMCA.getAttribute exception", e);
 				}
@@ -1189,10 +1190,10 @@ public class EpicsMCA extends AnalyserBase implements IEpicsMCA, InitializationL
 				channelToEnergyConverter = CoupledConverterHolder.FindQuantitiesConverter(converterName);
 			}
 			if (channelToEnergyConverter != null && channelToEnergyConverter instanceof IQuantityConverter) {
-				String energyString = attributeName.substring(energyToChannelPrefix.length());
-				Quantity<? extends Quantity<?>> energy = Quantities.getQuantity(energyString);
+				final String energyString = attributeName.substring(energyToChannelPrefix.length());
+				final Quantity<Energy> energy = QuantityFactory.createFromString(energyString);
 				try {
-					long ichannel = (long) ((IQuantityConverter) channelToEnergyConverter).toTarget(energy).getValue().doubleValue();
+					final long ichannel = (long) ((IQuantityConverter<Energy, Dimensionless>) channelToEnergyConverter).toTarget(energy).getValue().doubleValue();
 					return Long.toString(Math.max(Math.min(ichannel, getNumberOfChannels() - 1), 0));
 				} catch (Exception e) {
 					throw new DeviceException("EpicsMCA.getAttribute exception", e);

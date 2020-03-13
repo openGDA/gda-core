@@ -19,6 +19,8 @@
 package gda.device;
 
 import javax.measure.Quantity;
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Energy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,13 +33,13 @@ import gda.epics.interfaceSpec.InterfaceException;
 import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
+import gda.util.QuantityFactory;
 import gda.util.converters.CoupledConverterHolder;
 import gda.util.converters.IQuantitiesConverter;
 import gda.util.converters.IQuantityConverter;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
-import tec.units.indriya.quantity.Quantities;
 
 /**
  *
@@ -71,7 +73,7 @@ public class EpicsTca extends DeviceBase implements InitializationListener {
 	private Channel statusChannel;
 	private Channel thresholdChannel;
 	private EpicsController controller;
-	private IQuantitiesConverter channelToEnergyConverter = null;
+	private IQuantitiesConverter<Energy, Dimensionless> channelToEnergyConverter = null;
 	private String converterName = "tca_roi_conversion";
 	/**
 	 * EPICS Channel Manager
@@ -266,6 +268,7 @@ public class EpicsTca extends DeviceBase implements InitializationListener {
 	 */
 	public static final String energyToChannelPrefix = "energyToChannel";
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object getAttribute(String attributeName) throws DeviceException {
 		try {
@@ -312,29 +315,25 @@ public class EpicsTca extends DeviceBase implements InitializationListener {
 			else if (attributeName.equalsIgnoreCase("ROISCAENABLE"))
 				return ((roiScaEnableEnum) getRoiScaEnable()).toString();
 			else if (attributeName.startsWith(channelToEnergyPrefix)) {
-				String energy = null;
 				if (channelToEnergyConverter == null && converterName != null) {
 					channelToEnergyConverter = CoupledConverterHolder.FindQuantitiesConverter(converterName);
 				}
 				if (channelToEnergyConverter != null && channelToEnergyConverter instanceof IQuantityConverter) {
-					String channelString = attributeName.substring(channelToEnergyPrefix.length());
-					Quantity<? extends Quantity<?>> channel = Quantities.getQuantity(channelString);
-					energy = ((IQuantityConverter) channelToEnergyConverter).toSource(channel).toString();
-					return energy;
+					final String channelString = attributeName.substring(channelToEnergyPrefix.length());
+					final Quantity<Dimensionless> channel = QuantityFactory.createFromString(channelString);
+					return ((IQuantityConverter<Energy, Dimensionless>) channelToEnergyConverter).toSource(channel).toString();
 				}
 				throw new DeviceException(
 						"EpicsTCA : unable to find suitable converter to convert channel to energy. converterName  "
 								+ ((converterName == null) ? "not given" : converterName));
 			} else if (attributeName.startsWith(energyToChannelPrefix)) {
-				String channel = null;
 				if (channelToEnergyConverter == null && converterName != null) {
 					channelToEnergyConverter = CoupledConverterHolder.FindQuantitiesConverter(converterName);
 				}
 				if (channelToEnergyConverter != null && channelToEnergyConverter instanceof IQuantityConverter) {
-					String energyString = attributeName.substring(energyToChannelPrefix.length());
-					Quantity<? extends Quantity<?>> energy = Quantities.getQuantity(energyString);
-					channel = ((IQuantityConverter) channelToEnergyConverter).toTarget(energy).toString();
-					return channel;
+					final String energyString = attributeName.substring(energyToChannelPrefix.length());
+					final Quantity<Energy> energy = QuantityFactory.createFromString(energyString);
+					return ((IQuantityConverter<Energy, Dimensionless>) channelToEnergyConverter).toTarget(energy).toString();
 				}
 				throw new DeviceException(
 						"EpicsTCA : unable to find suitable converter to convert energy to channel. converterName  "
