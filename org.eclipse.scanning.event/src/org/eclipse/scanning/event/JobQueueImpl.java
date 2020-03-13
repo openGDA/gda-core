@@ -139,8 +139,9 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 
 		IPersistentModifiableIdQueue<U> submissionQueue;
 		IPersistentModifiableIdQueue<U> statusQueue;
-		MVStore store = MVStore.open(persistentStorePath);
+		MVStore store = null;
 		try {
+			store = MVStore.open(persistentStorePath);
 			submissionQueue = new SynchronizedModifiableIdQueue<>(connectorService, store, QUEUE_NAME_SUBMISSION_QUEUE);
 			statusQueue = new SynchronizedModifiableIdQueue<>(connectorService, store, QUEUE_NAME_STARTED_BEANS);
 		} catch (Exception e) {
@@ -148,7 +149,7 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 			// the model names have changed, e.g. 9.15 to 9.16 many model names were renamed such as GridModel to TwoAxisGridPointsModel
 			// in this case, close the MVstore, delete the file and try again.
 			LOGGER.error("Error loading scanning queue from file: {}. This file will be deleted and recreated.", persistentStorePath, e);
-			store.closeImmediately();
+			if (store != null) store.closeImmediately();
 			persistentStoreFile.delete();
 
 			store = MVStore.open(persistentStorePath);

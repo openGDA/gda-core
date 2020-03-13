@@ -21,15 +21,36 @@ package org.eclipse.scanning.test.event;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.scanning.api.event.EventConstants;
+import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.status.StatusBean;
+import org.eclipse.scanning.event.JobQueueImpl;
+import org.h2.mvstore.MVStore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(MVStore.class)
 public class QueuePersistenceTest extends AbstractJobQueueTest {
 
 	@Test
@@ -72,6 +93,45 @@ public class QueuePersistenceTest extends AbstractJobQueueTest {
 		// let's add some more jobs to the queue to be extra sure
 		beans2.addAll(createAndSubmitBeans("seven", "eight"));
 		assertThat(jobQueue.getSubmissionQueue(), is(equalTo(beans2)));
+	}
+
+	/**
+	 * This test checks that if an exception is thrown loading the queue then the
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testQueueVersionChange() throws Exception {
+		final String queueName = "testQueue";
+		final Path queueFilePath = Paths.get(eventConnectorService.getPersistenceDir(), queueName + ".db");
+		assertThat(queueFilePath.toFile().exists(), is(false));
+		queueFilePath.toFile().deleteOnExit();
+
+		final MVStore mockMvStore = mock(MVStore.class);
+
+		mockStatic(MVStore.class);
+		when(MVStore.open(anyString())).thenReturn(mockMvStore).thenCallRealMethod();
+		when(mockMvStore.openMap(anyString())).thenThrow(IllegalArgumentException.class);
+
+		assertThat(queueFilePath.toFile().exists(), is(false));
+		final Instant startTime = Instant.now();
+
+		final IJobQueue<StatusBean> jobQueue = new JobQueueImpl<>(uri, "testQueue",
+				EventConstants.STATUS_TOPIC, EventConstants.QUEUE_STATUS_TOPIC,
+				EventConstants.CMD_TOPIC,
+				EventConstants.ACK_TOPIC, eventConnectorService, eventService);
+
+		verify(mockMvStore).closeImmediately();
+
+		// verify that a new file was created
+		assertThat(queueFilePath.toFile().exists(), is(true));
+		final Instant fileCreationTime = Files.readAttributes(queueFilePath, BasicFileAttributes.class).creationTime().toInstant();
+		assertThat(fileCreationTime, is(greaterThanOrEqualTo(startTime.truncatedTo(ChronoUnit.SECONDS))));
+
+		assertThat(jobQueue.getSubmissionQueue(), is(empty()));
+		assertThat(jobQueue.getRunningAndCompleted(), is(empty()));
+
+		jobQueue.close();
 	}
 
 }

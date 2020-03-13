@@ -53,7 +53,8 @@ Require-Bundle:
  org.eclipse.dawnsci.remotedataset.client,
  org.eclipse.dawnsci.remotedataset.core,
  org.eclipse.richbeans.test.utilities,
- org.eclipse.dawnsci.remotedataset.test.utilities
+ org.eclipse.dawnsci.remotedataset.test.utilities,
+ uk.ac.diamond.org.powermock
 Service-Component: OSGI-INF/*.xml
 Import-Package: javax.jms,
  org.apache.activemq;version="5.15.6",
