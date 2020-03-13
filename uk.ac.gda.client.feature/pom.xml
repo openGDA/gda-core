@@ -6,7 +6,7 @@
 -->
 	<groupId>uk.ac.diamond</groupId>
 	<artifactId>uk.ac.gda.client.feature</artifactId>
-	<version>9.16.0-SNAPSHOT</version>
+	<version>9.17.0-SNAPSHOT</version>
 	<packaging>eclipse-feature</packaging>
 
 	<parent>
