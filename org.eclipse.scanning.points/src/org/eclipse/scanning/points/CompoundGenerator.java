@@ -20,7 +20,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -213,18 +212,12 @@ public class CompoundGenerator extends AbstractScanPointGenerator<CompoundModel>
 	 * Create IPointGenerators from all models
 	 */
 	private IPointGenerator<IScanPointGeneratorModel>[] initGenerators() throws GeneratorException {
-			return model.getModels().stream().map(t -> {
-				try {
-					pointGeneratorService.setBounds(t, pointGeneratorService.findRegions(t, model.getRegions()));
-					return pointGeneratorService.createGenerator(t);
-				} catch (GeneratorException e) {
-					logger.error(String.format("Unable to create generator for %s in %s", t, model), e);
-					return null;
-				}
-			}).filter(Objects::nonNull).toArray(IPointGenerator[]::new);
-	}
-
-	public IPointGenerator<? extends IScanPointGeneratorModel>[] getGenerators() {
+		IPointGenerator<IScanPointGeneratorModel>[] generators = new IPointGenerator[model.getModels().size()];
+		for (int i = 0; i < model.getModels().size(); i++) {
+			IScanPointGeneratorModel submodel = model.getModels().get(i);
+			pointGeneratorService.setBounds(submodel, pointGeneratorService.findRegions(submodel, model.getRegions()));
+			generators[i] = pointGeneratorService.createGenerator(submodel);
+		}
 		return generators;
 	}
 

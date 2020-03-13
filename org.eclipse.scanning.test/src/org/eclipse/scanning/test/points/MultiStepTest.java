@@ -22,6 +22,8 @@ import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.junit.Before;
 import org.junit.Test;
@@ -125,7 +127,6 @@ public class MultiStepTest {
 		model.addRange(10, 20, 2);
 		model.addRange(25, 50, 5);
 		model.addRange(100, 500, 50);
-		model.setContinuous(false);
 
 		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen);
@@ -154,7 +155,6 @@ public class MultiStepTest {
 		model.addRange(500, 100, -50);
 		model.addRange(50, 25, -5);
 		model.addRange(20, 10, -2);
-		model.setContinuous(false);
 
 		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen);
@@ -180,25 +180,29 @@ public class MultiStepTest {
 	public void testForwardNoGap() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
+		model.setContinuous(true);
 
 		model.addRange(10, 20, 2); // Bounds 9 -> 21, 6 points
 		model.addRange(23.5, 103.5, 5); // Bounds 21 -> 106, 17 points
 
-		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
-		GeneratorUtil.testGeneratorPoints(gen);
+		for (boolean bool : new boolean[] {true, false}) {
+			model.setContinuous(bool);
+			IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+			GeneratorUtil.testGeneratorPoints(gen);
 
-		final int expectedSize = 23; // 6 + 17
-		assertEquals(expectedSize, gen.size());
-		assertEquals(1, gen.getRank());
-		assertArrayEquals(new int[] { expectedSize }, gen.getShape());
+			final int expectedSize = 23; // 6 + 17
+			assertEquals(expectedSize, gen.size());
+			assertEquals(1, gen.getRank());
+			assertArrayEquals(new int[] { expectedSize }, gen.getShape());
 
-		List<IPosition> pointList = gen.createPoints();
-		assertEquals(expectedSize, pointList.size());
-		for (int i = 0; i < pointList.size(); i++) {
-			double expected;
-			if (i < 6) expected = 10 + 2 * i;
-			else expected = 23.5 + 5 * (i - 6);
-			assertEquals(new Scalar<>("x", i, expected), pointList.get(i));
+			List<IPosition> pointList = gen.createPoints();
+			assertEquals(expectedSize, pointList.size());
+			for (int i = 0; i < pointList.size(); i++) {
+				double expected;
+				if (i < 6) expected = 10 + 2 * i;
+				else expected = 23.5 + 5 * (i - 6);
+				assertEquals(new Scalar<>("x", i, expected), pointList.get(i));
+			}
 		}
 	}
 
@@ -206,6 +210,7 @@ public class MultiStepTest {
 	public void testForwardContinuousWithGap() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
+		model.setContinuous(true);
 
 		model.addRange(0, 20, 2); // Bounds -1 -> 21
 		model.addRange(20, 100, 5); // Bounds 17.5 -> 102.5
@@ -217,25 +222,29 @@ public class MultiStepTest {
 	public void testBackwardNoGap() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
+		model.setContinuous(true);
 
 		model.addRange(100, 20, -5); // Bounds 102.5 -> 17.5 (17 points)
 		model.addRange(16.5, 6.5, -2); // Bounds 17.5 -> 5.5 (6 points)
 
-		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
-		GeneratorUtil.testGeneratorPoints(gen);
+		for (boolean bool : new boolean[]{true, false}){
+			model.setContinuous(bool);
+			IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+			GeneratorUtil.testGeneratorPoints(gen);
 
-		final int expectedSize = 23; // 6 + 17
-		assertEquals(expectedSize, gen.size());
-		assertEquals(1, gen.getRank());
-		assertArrayEquals(new int[] { expectedSize }, gen.getShape());
+			final int expectedSize = 23; // 6 + 17
+			assertEquals(expectedSize, gen.size());
+			assertEquals(1, gen.getRank());
+			assertArrayEquals(new int[] { expectedSize }, gen.getShape());
 
-		List<IPosition> pointList = gen.createPoints();
-		assertEquals(expectedSize, pointList.size());
-		for (int i = 0; i < pointList.size(); i++) {
-			double expected;
-			if (i < 17) expected = 100 - 5 * i;
-			else expected = 16.5 - 2 * (i - 17);
-			assertEquals(new Scalar<>("x", i, expected), pointList.get(i));
+			List<IPosition> pointList = gen.createPoints();
+			assertEquals(expectedSize, pointList.size());
+			for (int i = 0; i < pointList.size(); i++) {
+				double expected;
+				if (i < 17) expected = 100 - 5 * i;
+				else expected = 16.5 - 2 * (i - 17);
+				assertEquals(new Scalar<>("x", i, expected), pointList.get(i));
+			}
 		}
 	}
 
@@ -243,6 +252,7 @@ public class MultiStepTest {
 	public void testBackwardContinuousWithGap() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
+		model.setContinuous(true);
 
 		model.addRange(100, 20, -5); // Bounds 102.5 -> 17.5
 		model.addRange(20, 0, -2); // Bounds 21 -> -1
@@ -250,7 +260,7 @@ public class MultiStepTest {
 		service.createGenerator(model);
 	}
 
-	@Test(expected = GeneratorException.class)
+	@Test
 	public void testForwardOverlapping() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
@@ -263,6 +273,19 @@ public class MultiStepTest {
 	}
 
 	@Test(expected = GeneratorException.class)
+	public void testForwardOverlappingContinuous() throws Exception {
+		AxialMultiStepModel model = new AxialMultiStepModel();
+		model.setName("x");
+		model.setContinuous(true);
+
+		model.addRange(10, 20, 2);
+		model.addRange(15, 50, 5);
+
+		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		GeneratorUtil.testGeneratorPoints(gen);
+	}
+
+	@Test
 	public void testBackwardOverlapping() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
@@ -274,7 +297,20 @@ public class MultiStepTest {
 		GeneratorUtil.testGeneratorPoints(gen);
 	}
 
-	@Test(expected = GeneratorException.class)
+	@Test(expected=GeneratorException.class)
+	public void testBackwardOverlappingContinuous() throws Exception {
+		AxialMultiStepModel model = new AxialMultiStepModel();
+		model.setName("x");
+		model.setContinuous(true);
+
+		model.addRange(50, 20, -5);
+		model.addRange(22, 10, -2);
+
+		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		GeneratorUtil.testGeneratorPoints(gen);
+	}
+
+	@Test
 	public void testForwardThenBackward() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
@@ -286,7 +322,33 @@ public class MultiStepTest {
 		GeneratorUtil.testGeneratorPoints(gen);
 	}
 
+	@Test
+	public void testForwardThenBackwardContinuous() throws Exception {
+		AxialMultiStepModel model = new AxialMultiStepModel();
+		model.setName("x");
+		model.setContinuous(true);
+
+		model.addRange(10, 20, 2);
+		model.addRange(20, 10, -2);
+
+		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		GeneratorUtil.testGeneratorPoints(gen);
+	}
+
 	@Test(expected = GeneratorException.class)
+	public void testForwardThenBackwardContinuousWithGap() throws Exception {
+		AxialMultiStepModel model = new AxialMultiStepModel();
+		model.setName("x");
+		model.setContinuous(true);
+
+		model.addRange(10, 20, 2);
+		model.addRange(25, 15, -2);
+
+		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		GeneratorUtil.testGeneratorPoints(gen);
+	}
+
+	@Test
 	public void testBackwardThenForward() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
@@ -296,6 +358,77 @@ public class MultiStepTest {
 
 		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen);
+	}
+
+	@Test
+	public void testBackwardThenForwardContinuous() throws Exception {
+		AxialMultiStepModel model = new AxialMultiStepModel();
+		model.setName("x");
+		model.setContinuous(true);
+
+		model.addRange(20, 10, -2);
+		model.addRange(10, 20, 2);
+
+		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		GeneratorUtil.testGeneratorPoints(gen);
+	}
+
+	@Test(expected = GeneratorException.class)
+	public void testBackwardThenForwardContinuousWithGap() throws Exception {
+		AxialMultiStepModel model = new AxialMultiStepModel();
+		model.setName("x");
+		model.setContinuous(true);
+
+		model.addRange(50, 25, -5);
+		model.addRange(10, 20, 2);
+
+		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		GeneratorUtil.testGeneratorPoints(gen);
+	}
+
+	@Test
+	public void alternatingCapable() throws GeneratorException {
+		AxialMultiStepModel model = new AxialMultiStepModel();
+		model.setName("x");
+		// Bounds 9-21: 6 positions
+		model.addRange(10, 20, 2);
+		// Bounds 21-30: 9 positions
+		model.addRange(21.5, 30, 1);
+		model.setAlternating(true);
+
+		for (boolean bool : new boolean[] {true, false}) {
+			model.setContinuous(bool);
+			// 2 positions: 0, 1
+			CompoundModel cModel = new CompoundModel(new AxialStepModel("axis", 0, 1, 1));
+			cModel.addModel(model);
+			IPointGenerator<CompoundModel> gen = service.createGenerator(cModel);
+			assertEquals(30, gen.size());
+			List<IPosition> positions = gen.createPoints();
+			assertEquals(30, positions.size());
+			for (int i = 0; i < 15; i++) {
+				assertEquals(positions.get(i).get("x"), positions.get(29-i).get("x"));
+			}
+		}
+
+	}
+
+	@Test(expected = GeneratorException.class)
+	public void submodelAlternateIncapable() throws GeneratorException {
+		CompoundModel cModel = new CompoundModel();
+		// 2 positions: 0, 1
+		cModel.addModel(new AxialStepModel("axis", 0, 1, 1));
+		AxialMultiStepModel model = new AxialMultiStepModel();
+		model.setName("x");
+		model.setContinuous(true);
+
+		// Bounds 9-21: 6 positions
+		model.addRange(10, 20, 2);
+		model.getModels().get(0).setAlternating(true);
+		// Bounds 21-30: 9 positions
+		model.addRange(21.5, 30, 1);
+		model.setAlternating(true);
+		cModel.addModel(model);
+		service.createGenerator(cModel);
 	}
 
 

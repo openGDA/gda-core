@@ -298,10 +298,10 @@ public class PyExpresserTest {
 		mmodel.setName("fred");
 
 		assertEquals(  // Concise.
-				"mstep('fred', [], False, True)",
+				"mstep('fred', [], False, False)",
 				factory.pyExpress(mmodel, false));
 		assertEquals(  // Verbose.
-				"mstep(axis='fred', stepModels=[], alternating=False, continuous=True)",
+				"mstep(axis='fred', stepModels=[], alternating=False, continuous=False)",
 				factory.pyExpress(mmodel, true));
 	}
 
@@ -317,6 +317,7 @@ public class PyExpresserTest {
 		smodel.setStep(1);
 		smodel.setName("fred");
 		mmodel.addModel(smodel);
+		mmodel.setContinuous(true);
 
 		assertEquals(  // Concise.
 				"mstep('fred', [StepModel('fred', 0.0, 10.0, 1.0, False, True)], False, True)",
@@ -347,10 +348,10 @@ public class PyExpresserTest {
 		mmodel.addModel(smodel);
 
 		assertEquals(  // Concise.
-				"mstep('fred', [StepModel('fred', 0.0, 10.0, 1.0, False, True), StepModel('bill', 20.0, 30.0, 2.0, False, True)], False, True)",
+				"mstep('fred', [StepModel('fred', 0.0, 10.0, 1.0, False, True), StepModel('bill', 20.0, 30.0, 2.0, False, True)], False, False)",
 				factory.pyExpress(mmodel, false));
 
-		String expected = "mstep(axis='fred', stepModels=[StepModel(axis='fred', start=0.0, stop=10.0, step=1.0, alternating=False, continuous=True), StepModel(axis='bill', start=20.0, stop=30.0, step=2.0, alternating=False, continuous=True)], alternating=False, continuous=True)";
+		String expected = "mstep(axis='fred', stepModels=[StepModel(axis='fred', start=0.0, stop=10.0, step=1.0, alternating=False, continuous=True), StepModel(axis='bill', start=20.0, stop=30.0, step=2.0, alternating=False, continuous=True)], alternating=False, continuous=False)";
 		String actual   = factory.pyExpress(mmodel, true);
 		assertEquals(expected, actual);
 	}

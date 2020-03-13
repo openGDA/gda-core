@@ -29,12 +29,14 @@ public class AxialMultiStepModel extends AbstractMultiModel<AxialStepModel> {
 	private String name;
 
 	public AxialMultiStepModel() {
+		setContinuous(false);
 		setName("energy");
 	}
 
 	public AxialMultiStepModel(String name, double start, double stop, double step) {
 		setName(name);
 		addRange(start, stop, step);
+		setContinuous(false);
 	}
 
 	/**
