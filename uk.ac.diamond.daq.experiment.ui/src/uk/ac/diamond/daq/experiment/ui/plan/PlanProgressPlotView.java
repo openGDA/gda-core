@@ -55,6 +55,7 @@ import uk.ac.diamond.daq.experiment.api.plan.event.TriggerRecord;
 
 public class PlanProgressPlotView extends ViewPart {
 
+	public static final String ID = "uk.ac.diamond.daq.experiment.ui.plan.PlanProgressPlotView";
 	private static final Logger logger = LoggerFactory.getLogger(PlanProgressPlotView.class);
 	
 	private ISubscriber<IBeanListener<PlanStatusBean>> subscriber;

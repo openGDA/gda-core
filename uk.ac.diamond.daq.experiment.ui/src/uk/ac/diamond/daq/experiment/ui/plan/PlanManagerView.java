@@ -50,6 +50,7 @@ import uk.ac.diamond.daq.experiment.api.remote.PlanRequestHandler;
 
 public class PlanManagerView extends ViewPart {
 
+	public static final String ID = "uk.ac.diamond.daq.experiment.ui.plan.PlanManagerView";
 	private static final String PLAN_SELECT_TOOLTIP = "Click on a plan below to select it";
 	private final String EXPERIMENT_ID = "";
 

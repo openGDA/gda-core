@@ -47,6 +47,8 @@ import uk.ac.diamond.daq.experiment.ui.plan.tree.SegmentNode;
 import uk.ac.diamond.daq.experiment.ui.plan.tree.TriggerNode;
 
 public class PlanOverview extends ViewPart {
+	
+	public static final String ID = "uk.ac.diamond.daq.experiment.ui.plan.PlanOverview";
 
 	private static final Logger logger = LoggerFactory.getLogger(PlanOverview.class);
 

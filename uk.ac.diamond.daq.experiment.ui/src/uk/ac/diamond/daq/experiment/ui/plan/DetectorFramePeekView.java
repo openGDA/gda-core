@@ -28,6 +28,8 @@ import uk.ac.diamond.daq.experiment.api.ExperimentException;
  */
 public class DetectorFramePeekView extends ViewPart {
 	
+	public static final String ID = "uk.ac.diamond.daq.experiment.ui.plan.DetectorFramePeekView";
+	
 	private ComboViewer detectorSelector;
 	private IPlottingSystem<Composite> plot;
 	
