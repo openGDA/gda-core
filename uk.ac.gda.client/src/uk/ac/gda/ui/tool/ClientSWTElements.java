@@ -204,7 +204,7 @@ public final class ClientSWTElements {
 
 	private static final Text createText(final Composite parent, int textStyle, final VerifyListener listener,
 			final Point span, final String tooltip, final Point minSize, GridDataFactory gdf) {
-		textStyle = textStyle == 0 ? SWT.RIGHT | SWT.BORDER : 0;
+		textStyle = textStyle == 0 ? SWT.RIGHT | SWT.BORDER : textStyle;
 		Text text = new Text(parent, textStyle);
 		text.setFont(ClientResourceManager.getInstance().getTextDefaultFont());
 		text.setToolTipText(tooltip);
