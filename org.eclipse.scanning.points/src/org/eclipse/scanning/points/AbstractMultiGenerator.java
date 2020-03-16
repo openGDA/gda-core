@@ -42,18 +42,22 @@ import org.eclipse.scanning.jython.JythonObjectFactory;
  */
 public abstract class AbstractMultiGenerator<T extends AbstractMultiModel<?>> extends AbstractScanPointGenerator<T> {
 
-	private IPointGeneratorService service;
-	private List<IPointGenerator<?>> generators;
+	protected IPointGeneratorService service;
+	protected List<IPointGenerator<?>> generators;
 	// Used when validating a model that is not the model of this generator. Usually blank.
 	protected List<IPointGenerator<?>> cachedGenerators;
 	protected static final double DIFF_LIMIT = 1e-5;
 
-	public AbstractMultiGenerator(T model, IPointGeneratorService service) {
+	protected AbstractMultiGenerator(T model, IPointGeneratorService service) {
 		// Need service to be set before validating, so cannot use super()
-		this.service = service;
+		this(service);
 		this.model = model;
 		validateModel();
 		pointGenerator = createPythonPointGenerator();
+	}
+
+	protected AbstractMultiGenerator(IPointGeneratorService service) {
+		this.service = service;
 	}
 
 	@Override
@@ -97,7 +101,7 @@ public abstract class AbstractMultiGenerator<T extends AbstractMultiModel<?>> ex
 
 	protected abstract JythonObjectFactory<PPointGenerator> getFactory();
 
-	private PPointGenerator[] initGenerators() {
+	protected PPointGenerator[] initGenerators() {
 		return generators.stream().map(AbstractScanPointGenerator.class::cast).map(AbstractScanPointGenerator::getPointGenerator)
 				.toArray(PPointGenerator[]::new);
 	}

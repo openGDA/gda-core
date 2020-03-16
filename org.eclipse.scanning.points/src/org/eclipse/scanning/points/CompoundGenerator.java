@@ -21,8 +21,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IMutator;
@@ -32,6 +32,7 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.jython.JythonObjectFactory;
+import org.eclipse.scanning.points.mutators.RandomOffsetMutator;
 import org.python.core.PyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,13 +57,9 @@ import org.slf4j.LoggerFactory;
  * @author Joseph Ware
  *
  */
-public class CompoundGenerator extends AbstractScanPointGenerator<CompoundModel> {
+public class CompoundGenerator extends AbstractMultiGenerator<CompoundModel> {
 
 	private static Logger logger = LoggerFactory.getLogger(CompoundGenerator.class);
-
-	private IPointGenerator<? extends IScanPointGeneratorModel>[]     generators;
-
-	private IPointGeneratorService pointGeneratorService;
 
 	/**
 	 * @param generators an array of IPointGenerator[s], which are compounded together to produce a new PPointGenerator
@@ -78,7 +75,7 @@ public class CompoundGenerator extends AbstractScanPointGenerator<CompoundModel>
 	 */
 
 	public CompoundGenerator(IPointGenerator<? extends IScanPointGeneratorModel>[] generators, IPointGeneratorService pgs) throws GeneratorException {
-		pointGeneratorService = pgs;
+		super(pgs);
         CompoundModel model = new CompoundModel();
         for (IPointGenerator<? extends IScanPointGeneratorModel> g : generators) {
         	if (g instanceof NoModelGenerator) continue;
@@ -96,25 +93,18 @@ public class CompoundGenerator extends AbstractScanPointGenerator<CompoundModel>
     	} catch(ModelValidationException e) {
     		throw new GeneratorException(e);
     	}
-        this.generators = generators;
+        this.generators = Arrays.asList(generators);
         pointGenerator = createPythonPointGenerator();
 	}
 
-	public CompoundGenerator(CompoundModel model, IPointGeneratorService pgs) throws GeneratorException {
-		pointGeneratorService = pgs;
-		this.model = model;
-		try {
-        validateModel();
-		} catch(ModelValidationException e) {
-			throw new GeneratorException(e);
-		}
-		this.generators = initGenerators();
-		pointGenerator = createPythonPointGenerator();
+	public CompoundGenerator(CompoundModel model, IPointGeneratorService pgs) {
+		super(model, pgs);
 	}
 
 	@Override
 	public void validate(CompoundModel model) {
 		List<String> axes = new ArrayList<>();
+		cachedGenerators = new ArrayList<>();
 		for (IScanPointGeneratorModel imodel : model.getModels()) {
 			for (String axis : imodel.getScannableNames()) {
 				if (axes.contains(axis)) {
@@ -122,30 +112,41 @@ public class CompoundGenerator extends AbstractScanPointGenerator<CompoundModel>
 				}
 				axes.add(axis);
 			}
+			try {
+				// Validates constituent models
+				service.setBounds(imodel, service.findRegions(imodel, model.getRegions()));
+				cachedGenerators.add(service.createGenerator(imodel));
+			} catch (GeneratorException e) {
+				throw new ModelValidationException(e);
+			}
 		}
+		// Generators could have been set by generator constructor, in which case model generators might not be complete representation
+		if (model == this.model && generators == null) generators = cachedGenerators;
 		if (model.getRegions() != null) for (ScanRegion region : model.getRegions()) {
 			if (!model.getScannableNames().containsAll(region.getScannables())) {
 				throw new ModelValidationException("CompoundModel contains regions that operate in scannable axes that it doesn't contain!",
 						model, "regions", "models");
 			}
 		}
-		/*
-		 * CompoundValidator from ValidatorService will validate all models after Regions have been applied
-		 * So here we just check that axes are mutually exclusive
-		 */
-	}
-
-	public List<IScanPointGeneratorModel> getModels(){
-		return Arrays.asList(generators).stream().map(IPointGenerator::getModel).collect(Collectors.toList());
+		if (model.getMutators() != null) for (IMutator mutator : model.getMutators()) {
+			if (mutator instanceof RandomOffsetMutator) {
+				RandomOffsetMutator rMut = (RandomOffsetMutator) mutator;
+				if (!model.getScannableNames().containsAll(rMut.getAxes()) || !CollectionUtils.isEqualCollection(rMut.getAxes(), rMut.getMaxOffsets().keySet())) {
+					throw new ModelValidationException("CompoundModel contains mutators that operate in scannable axes that it doesn't contain!",
+						model, "mutators", "models");
+				}
+			}
+		}
+		cachedGenerators = null;
 	}
 
 	@Override
 	public PPointGenerator createPythonPointGenerator() {
-		final JythonObjectFactory<PPointGenerator> compoundGeneratorFactory = ScanPointGeneratorFactory.JCompoundGeneratorFactory();
+		final JythonObjectFactory<PPointGenerator> compoundGeneratorFactory = getFactory();
 
 		final CompoundModel model = getModel();
 
-		final PPointGenerator[] pyGenerators = initGenerators(generators);
+		final PPointGenerator[] pyGenerators = initGenerators();
 	    final PyObject[] mutators = getMutators(model.getMutators());
 	    final PyObject[] excluders = getExcluders(model.getRegions());
 	    final double duration = model.getDuration();
@@ -199,26 +200,9 @@ public class CompoundGenerator extends AbstractScanPointGenerator<CompoundModel>
 				.toArray(), e.getKey())).toArray(PyObject[]::new);
 	}
 
-	/*
-	 * Extract PPointGenerators from IPointGenerators
-	 */
-	private PPointGenerator[] initGenerators(IPointGenerator<? extends IScanPointGeneratorModel>[] gens) {
-		return Arrays.stream(gens).map(AbstractScanPointGenerator.class::cast)
-				.map(AbstractScanPointGenerator::getPointGenerator)
-				.toArray(PPointGenerator[]::new);
-	}
-
-	/*
-	 * Create IPointGenerators from all models
-	 */
-	private IPointGenerator<IScanPointGeneratorModel>[] initGenerators() throws GeneratorException {
-		IPointGenerator<IScanPointGeneratorModel>[] generators = new IPointGenerator[model.getModels().size()];
-		for (int i = 0; i < model.getModels().size(); i++) {
-			IScanPointGeneratorModel submodel = model.getModels().get(i);
-			pointGeneratorService.setBounds(submodel, pointGeneratorService.findRegions(submodel, model.getRegions()));
-			generators[i] = pointGeneratorService.createGenerator(submodel);
-		}
-		return generators;
+	@Override
+	protected JythonObjectFactory<PPointGenerator> getFactory() {
+		return ScanPointGeneratorFactory.JCompoundGeneratorFactory();
 	}
 
 }

@@ -29,7 +29,7 @@ import java.util.List;
 */
 public class ConsecutiveMultiModel extends AbstractMultiModel<IScanPointGeneratorModel> {
 
-	ConsecutiveMultiModel(){
+	public ConsecutiveMultiModel(){
 		setContinuous(false);
 	}
 
