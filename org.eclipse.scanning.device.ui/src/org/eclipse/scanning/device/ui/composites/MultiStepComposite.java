@@ -74,7 +74,6 @@ public class MultiStepComposite extends Composite {
 		steps.setListHeight(80);
 		steps.setRequireSelectionPack(false);
 		steps.setTemplateName("Step");
-		steps.setNameField("label");
 
 		stepComposite = new StepModelComposite(this, SWT.NONE);
 		stepComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
