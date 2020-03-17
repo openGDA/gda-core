@@ -112,6 +112,12 @@ public class DatasetStats extends DataSetProcessorBase {
 		}
 	}
 
+	/**
+	 * Set the {@link Statistic}s that should be computed. Note that
+	 * only those included in the provided list parameter will be used,
+	 * the defaults will be cleared.
+	 * @param stats list of {@link Statistic} to compute for each point
+	 */
 	public void setEnabledStats(List<Statistic> stats) {
 		enabledStats.clear();
 		enabledStats.addAll(stats);
@@ -129,6 +135,16 @@ public class DatasetStats extends DataSetProcessorBase {
 
 	public void setStatFormat(Statistic stat, String format) {
 		statsFormats.put(stat, format);
+		setNamesAndFormats();
+	}
+
+	public void setStatNames(Map<Statistic, String> names) {
+		names.forEach(statsNames::put);
+		setNamesAndFormats();
+	}
+
+	public void setStatFormats(Map<Statistic, String> formats) {
+		formats.forEach(statsFormats::put);
 		setNamesAndFormats();
 	}
 
