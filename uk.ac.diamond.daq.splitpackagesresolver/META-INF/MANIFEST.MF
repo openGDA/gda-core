@@ -4,6 +4,7 @@ Comment: This is a special bundle used to resolve the split packages in GDA. The
  supplier of part of the split package, a merged attributed is added to allow the package to be preferentially
  imported.
 Manifest-Version: 1.0
+Eclipse-BundleShape: dir
 Bundle-ManifestVersion: 2
 Bundle-Name: Split Packages Resolver
 Bundle-SymbolicName: uk.ac.diamond.daq.splitpackagesresolver;singleton:=true
