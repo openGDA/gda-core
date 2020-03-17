@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
+Eclipse-BundleShape: dir
 Bundle-ManifestVersion: 2
 Bundle-Name: JPA Toplink/Derby Persistence classes
 Bundle-SymbolicName: uk.ac.diamond.daq.persistence;singleton:=true
