@@ -664,8 +664,6 @@
 <unit id="uk.ac.diamond.org.apache.xmlrpc.server"/>
 <unit id="uk.ac.diamond.org.jfree"/>
 <unit id="uk.ac.diamond.org.jfree.chart"/>
-<unit id="uk.ac.diamond.org.jscience"/>
-<unit id="uk.ac.diamond.org.jscience4"/>
 <unit id="uk.ac.diamond.org.nfunk.jep"/>
 <unit id="uk.ac.diamond.org.powermock"/>
 <unit id="uk.ac.diamond.org.springframework"/>
