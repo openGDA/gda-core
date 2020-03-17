@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
+Eclipse-BundleShape: dir
 Bundle-ManifestVersion: 2
 Bundle-Name: Mythen
 Bundle-SymbolicName: uk.ac.gda.epics.client.mythen; singleton:=true

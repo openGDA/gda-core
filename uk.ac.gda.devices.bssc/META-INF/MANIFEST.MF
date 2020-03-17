@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
+Eclipse-BundleShape: dir
 Bundle-ManifestVersion: 2
 Bundle-Name: BioSAXS Sample Changer Control Software Plugin
 Bundle-SymbolicName: uk.ac.gda.devices.bssc;singleton:=true

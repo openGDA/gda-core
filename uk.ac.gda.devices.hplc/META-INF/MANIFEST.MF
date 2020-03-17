@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
+Eclipse-BundleShape: dir
 Bundle-ManifestVersion: 2
 Bundle-Name: Hplc
 Bundle-SymbolicName: uk.ac.gda.devices.hplc;singleton:=true
