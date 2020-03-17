@@ -18,16 +18,41 @@
 
 package uk.ac.gda.api.acquisition.resource.event;
 
+import java.net.URL;
+
 import org.springframework.context.ApplicationEvent;
 
-public class AcquisitionConfigurationResourceEvent extends ApplicationEvent {
+import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
+
+/**
+ * Classes extending this one are published on events related to {@link AcquisitionConfigurationResource}.
+ * Abstract reflects that it shall be not used as generic event
+ *
+ * @author Maurizio Nagni
+ */
+public abstract class AcquisitionConfigurationResourceEvent extends ApplicationEvent {
 
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = -5094032542760128396L;
+	private final URL url;
 
-	public AcquisitionConfigurationResourceEvent(Object object) {
-		super(object);
+	/**
+	 * Instantiates a resource event defining its {@code source} and {@code url} location
+	 * @param source the object which published this event
+	 * @param url the location of the acquisition configuration it is referring to
+	 */
+	public AcquisitionConfigurationResourceEvent(Object source, URL url) {
+		super(source);
+		this.url = url;
+	}
+
+	/**
+	 * The location of the acquisition configuration resource for this event
+	 * @return a location
+	 */
+	public final URL getUrl() {
+		return url;
 	}
 }

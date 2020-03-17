@@ -23,11 +23,11 @@ import java.net.URL;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 
 /**
- * This event is published when a {@link AcquisitionConfigurationResource} is deleted.
+ * This event is published when a {@link AcquisitionConfigurationResource} is loaded.
  *
  * @author Maurizio Nagni
  */
-public class AcquisitionConfigurationResourceDeleteEvent extends AcquisitionConfigurationResourceEvent {
+public class AcquisitionConfigurationResourceLoadEvent extends AcquisitionConfigurationResourceEvent {
 
 	/**
 	 *
@@ -35,11 +35,12 @@ public class AcquisitionConfigurationResourceDeleteEvent extends AcquisitionConf
 	private static final long serialVersionUID = -454684975840133320L;
 
 	/**
-	 * Instantiates a delete event.
+	 * Instantiates a load event.
 	 * @param source the object which published this event
-	 * @param url the location from where the acquisition configuration has been deleted
+	 * @param url the location from where the acquisition configuration has been loaded
 	 */
-    public AcquisitionConfigurationResourceDeleteEvent(Object source, URL url) {
+    public AcquisitionConfigurationResourceLoadEvent(Object source, URL url) {
 		super(source, url);
 	}
+
 }
