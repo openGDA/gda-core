@@ -18,7 +18,6 @@
 
 package gda.device.detector.addetector.triggering;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,20 +31,17 @@ import gda.scan.ScanInformation;
 
 public class MultipleExposureHardwareTriggeredStrategy extends SimpleAcquire {
 
-	private static final ArrayList<String> EMPTY_LIST = new ArrayList<String>();
-
-	private double collectionTime;
+	private double collectionTime = 0.1; // collection time in seconds
 
 	public MultipleExposureHardwareTriggeredStrategy(ADBase adBase, double readoutTime) {
 		super(adBase, readoutTime);
 	}
 
 	@Override
-	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
-		this.collectionTime = collectionTime;
+	public void prepareForCollection(double time, int numImages, ScanInformation scanInfo) throws Exception {
 		getAdBase().stopAcquiring(); // Stop acquiring first (in case live mode is already be running).
 		enableOrDisableCallbacks();
-		setTimeFrames(scanInfo); // set time frames for I1 and ionchambers
+		setTimeFrames(scanInfo, time); // set time frames for I1 and ionchambers
 		configureAcquireAndPeriodTimes(collectionTime);
 		configureTriggerMode();
 		getAdBase().setImageModeWait(ImageMode.MULTIPLE);
@@ -74,21 +70,22 @@ public class MultipleExposureHardwareTriggeredStrategy extends SimpleAcquire {
 	 * I1.setTimes has not explicitly been called before scan start).
 	 *
 	 * @param scanInfo
+	 * @param frametime - length of each time frame
 	 * @throws DeviceException
 	 * @since 11/11/2015
 	 *
 	 */
-	private void setTimeFrames(ScanInformation scanInfo) throws DeviceException {
+	private void setTimeFrames(ScanInformation scanInfo, double frametime) throws DeviceException {
 		// Names of tfgScalers we want to try and set the time frames for
 		List<String> tfgScalerNameList = Arrays.asList("ionchambers", "I1");
 
-		String detectorNames[] = scanInfo.getDetectorNames();
+		String[] detectorNames = scanInfo.getDetectorNames();
 		for (int i = 0; i < detectorNames.length; i++) {
 
 			// Get ref to TfgScaler object from detector name
 			TfgScalerWithFrames tfgScaler = null;
 			if (tfgScalerNameList.contains(detectorNames[i])) {
-				tfgScaler = (TfgScalerWithFrames) Finder.getInstance().find(detectorNames[i]);
+				tfgScaler = Finder.getInstance().find(detectorNames[i]);
 			}
 
 			// Set TfgScaler frame times. NB. Don't do this if frame times have already been
@@ -97,10 +94,10 @@ public class MultipleExposureHardwareTriggeredStrategy extends SimpleAcquire {
 				double collectionTimeTfg = tfgScaler.getCollectionTime();
 				// Set frametime from medipix collection time if frame time hasn't been specified for I1, ionchambers. imh 13/6/2017
 				if (collectionTimeTfg < 1e-6) {
-					collectionTimeTfg = collectionTime;
+					collectionTimeTfg = frametime;
 				}
 				int numImages = getTotalNumberScanImages(scanInfo);
-				Double times[] = new Double[numImages];
+				Double[] times = new Double[numImages];
 				Arrays.fill(times, collectionTimeTfg); // each frame has same duration...
 				tfgScaler.clearFrameSets();
 				tfgScaler.setTimes(times);
@@ -109,26 +106,15 @@ public class MultipleExposureHardwareTriggeredStrategy extends SimpleAcquire {
 	}
 
 	@Override
-	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
-		getAdBase().setAcquireTime(0.1);
+	public void configureAcquireAndPeriodTimes(double time) throws Exception {
+		getAdBase().setAcquireTime(time);
 		getAdBase().setAcquirePeriod(0);
 	}
 
 	@Override
 	public void collectData() throws Exception {
-		//System.out.println("test");
-	//	getAdBase().startAcquiring();
 	}
 
-//	@Override
-//	public List<String> getInputStreamNames() {
-//		return EMPTY_LIST;
-//	}
-//
-//	@Override
-//	public List<String> getInputStreamFormats() {
-//		return EMPTY_LIST;
-//	}
 	@Override
 	public int getStatus() throws DeviceException {
 		return 0;
@@ -136,9 +122,8 @@ public class MultipleExposureHardwareTriggeredStrategy extends SimpleAcquire {
 
 	@Override
 	public void waitWhileBusy() throws InterruptedException, DeviceException {
-		// getAdBase().waitWhileStatusBusy();
-		return;
 	}
+
 	private void configureTriggerMode() throws Exception {
 		getAdBase().setTriggerMode(StandardTriggerMode.EXTERNAL.ordinal());
 	}
@@ -156,5 +141,13 @@ public class MultipleExposureHardwareTriggeredStrategy extends SimpleAcquire {
 		getAdBase().stopAcquiring();
 		// Trigger mode needs to be set back to internal so that live mode can be started correctly from GUI at end of scan
 		getAdBase().setTriggerMode(StandardTriggerMode.INTERNAL.ordinal());
+	}
+
+	public double getCollectionTime() {
+		return collectionTime;
+	}
+
+	public void setCollectionTime(double collectionTime) {
+		this.collectionTime = collectionTime;
 	}
 }
