@@ -56,6 +56,8 @@ public class NcdTetrammDetector extends NcdSubDetector {
 	private int targetValuesPerFrame = 1_000;
 	/** The base sampling rate of the detector - should not change */
 	private int baseSampleRate = 10_000;
+	/** The nexus path to the data in the detector file */
+	private String innerPath = "#entry/instrument/detector/data";
 
 	/** Event handler to respond to frame length changes from the timer */
 	@SuppressWarnings("unchecked") // unchecked cast to Collection<FrameSet>
@@ -133,7 +135,7 @@ public class NcdTetrammDetector extends NcdSubDetector {
 	public void writeout(int frames, NXDetectorData dataTree) throws DeviceException {
 		if (inactive()) return;
 		logger.debug("{} - Writing out {} frames", getName(), frames);
-		dataTree.addScanFileLink(getTreeName(), "nxfile://" + controller.getLastFilePath() + "#entry/instrument/detector/data");
+		dataTree.addScanFileLink(getTreeName(), "nxfile://" + controller.getLastFilePath() + innerPath);
 
 		addMetadata(dataTree);
 	}
@@ -225,5 +227,13 @@ public class NcdTetrammDetector extends NcdSubDetector {
 
 	public void setBaseSampleRate(int baseSampleRate) {
 		this.baseSampleRate = baseSampleRate;
+	}
+
+	public String getInnerPath() {
+		return innerPath;
+	}
+
+	public void setInnerPath(String path) {
+		innerPath = path;
 	}
 }
