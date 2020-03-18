@@ -90,6 +90,10 @@ public final class JobQueueProxy<U extends StatusBean> extends AbstractConnectio
 		return sendCommandBean(commandBean);
 	}
 
+	private Object sendCommand(Command command, String commandParam) throws EventException {
+		return sendCommandBean(new QueueCommandBean(getSubmitQueueName(), command, commandParam));
+	}
+
 	private synchronized Object sendCommandBean(QueueCommandBean commandBean) throws EventException {
 		if (queueCommandRequestor == null) {
 			queueCommandRequestor = eventService.createRequestor(uri, getCommandTopicName(), getCommandAckTopicName());
@@ -114,6 +118,12 @@ public final class JobQueueProxy<U extends StatusBean> extends AbstractConnectio
 		return (List<U>) sendCommand(Command.GET_RUNNING_AND_COMPLETED);
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<U> getRunningAndCompleted(String optionalArgument) throws EventException {
+		return (List<U>) sendCommand(Command.GET_RUNNING_AND_COMPLETED, optionalArgument);
+	}
+
 	@Override
 	public void clearQueue() throws EventException {
 		sendCommand(Command.CLEAR_QUEUE);
@@ -125,30 +135,46 @@ public final class JobQueueProxy<U extends StatusBean> extends AbstractConnectio
 	}
 
 	@Override
+	public void clearRunningAndCompleted(boolean bool) throws EventException {
+		sendCommand(Command.CLEAR_COMPLETED, String.valueOf(bool));
+	}
+
+	@Override
 	public synchronized void disconnect() throws EventException {
 		super.disconnect();
 		queueCommandRequestor.disconnect();
 		queueStatusTopicSubscriber.disconnect();
 	}
 
+	/*
+	 *  Only called when a StatusBean is re-submitted, not on initial submit (see SubmitScanSection.submit()) or from mscan (old or new)
+	 *  Therefore, probably want to refresh the queue of all clients watching the JobQueueImpl
+	 */
 	@Override
 	public void submit(U bean) throws EventException {
 		sendCommand(Command.SUBMIT_JOB, bean);
+		sendCommand(Command.REFRESH_QUEUE_VIEW);
 	}
 
 	@Override
 	public boolean moveForward(U bean) throws EventException {
-		return sendCommand(Command.MOVE_FORWARD, bean) == Boolean.TRUE;
+		boolean result = sendCommand(Command.MOVE_FORWARD, bean) == Boolean.TRUE;
+		if (result) sendCommand(Command.REFRESH_QUEUE_VIEW);
+		return result;
 	}
 
 	@Override
 	public boolean moveBackward(U bean) throws EventException {
-		return sendCommand(Command.MOVE_BACKWARD, bean) == Boolean.TRUE;
+		boolean result = sendCommand(Command.MOVE_BACKWARD, bean) == Boolean.TRUE;
+		if (result) sendCommand(Command.REFRESH_QUEUE_VIEW);
+		return result;
 	}
 
 	@Override
 	public boolean remove(U bean) throws EventException {
-		return sendCommand(Command.REMOVE_FROM_QUEUE, bean) == Boolean.TRUE;
+		boolean result = sendCommand(Command.REMOVE_FROM_QUEUE, bean) == Boolean.TRUE;
+		if (result) sendCommand(Command.REFRESH_QUEUE_VIEW);
+		return result;
 	}
 
 	@Override

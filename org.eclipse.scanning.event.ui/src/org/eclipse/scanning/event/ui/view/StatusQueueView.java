@@ -54,6 +54,7 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.IJobQueue;
+import org.eclipse.scanning.api.event.core.IJobQueue.IQueueStatusListener;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.core.JobQueueConfiguration;
 import org.eclipse.scanning.api.event.queue.QueueStatus;
@@ -240,8 +241,8 @@ public class StatusQueueView extends EventConnectionView {
 
 		// Some sanity checks
 		warnIfListContainsStatus("null status found in selection:       ", selection,     null);
-		warnIfListContainsStatus("queued status found in submittedList: ", submittedList, org.eclipse.scanning.api.event.status.Status.PREPARING);
-		warnIfListContainsStatus("queued status found in runList:       ", runList,       org.eclipse.scanning.api.event.status.Status.PREPARING);
+		warnIfListContainsStatus("RUNNING status found in submittedList: ", submittedList, org.eclipse.scanning.api.event.status.Status.RUNNING);
+		warnIfListContainsStatus("SUBMITTED status found in runList:       ", runList,       org.eclipse.scanning.api.event.status.Status.SUBMITTED);
 	}
 
 	private void warnIfListContainsStatus(String description, List<StatusBean> list, org.eclipse.scanning.api.event.status.Status status) {
@@ -327,7 +328,7 @@ public class StatusQueueView extends EventConnectionView {
 
 				if (queue.containsKey(bean.getUniqueId())) {
 					StatusBean oldBean = queue.get(bean.getUniqueId());
-					if (bean.getStatus().isStarted() && !runList.contains(oldBean)) {
+					if (bean.getStatus().isRunning() && !runList.contains(oldBean)) {
 						runList.add(oldBean);
 						submittedList.remove(oldBean);
 					}
@@ -341,7 +342,7 @@ public class StatusQueueView extends EventConnectionView {
 					 */
 //					viewer.update(queue.get(bean.getUniqueId()), null);
 					warnIfDelayed(jobStartTime, "mergeBean() asyncExec()", "merge complete");
-				} else {
+				} else if (bean.getStatus().equals(org.eclipse.scanning.api.event.status.Status.SUBMITTED)) {
 					logger.trace("mergeBean(id={}) Adding new bean:       {}", bean.getUniqueId(), bean);
 					queue.put(bean.getUniqueId(), bean);
 					// Necessary for toolbar actions to work
@@ -352,7 +353,6 @@ public class StatusQueueView extends EventConnectionView {
 					 * addition to the irregular and spaced out update rate.
 					 */
 //					viewer.refresh();
-					removeOldestBeans(queue, jobStartTime);
 					warnIfDelayed(jobStartTime, "mergeBean() asyncExec()", "bean added");
 				}
 				viewer.refresh();
@@ -413,6 +413,15 @@ public class StatusQueueView extends EventConnectionView {
 
 		final Action refreshAction = refreshActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, refreshAction);
+		jobQueueProxy.addQueueStatusListener(new IQueueStatusListener() {
+			@Override
+			public void queueStatusChanged(QueueStatus newStatus) {
+				if (newStatus.equals(QueueStatus.MODIFIED)) {
+					refreshAction.run();
+				}
+			}
+
+		});
 
 		final Action configureAction = configureActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, configureAction);
@@ -685,9 +694,11 @@ public class StatusQueueView extends EventConnectionView {
 			"Are you sure you would like to remove all items from the queue "+getQueueName()+" and "+
 			getSubmissionQueueName()+"?\n\nThis could abort or disconnect runs of other users.");
 		if (!ok) return;
+		boolean terminateRunningScan = MessageDialog.openQuestion(getSite().getShell(),
+				"Confirm scan termination", "Would you like to terminate the currently running scan?");
 
 		jobQueueProxy.clearQueue();
-		jobQueueProxy.clearRunningAndCompleted();
+		jobQueueProxy.clearRunningAndCompleted(terminateRunningScan);
 
 		// Still reconnect to ensure that queue reflects state of server queue, is empty
 		reconnect();
@@ -1055,7 +1066,7 @@ public class StatusQueueView extends EventConnectionView {
 					monitor.beginTask("Connect to command server", 10);
 					updateProgress(jobStartTime, monitor, "Queue connection set");
 
-					runList = jobQueueProxy.getRunningAndCompleted();
+					runList = jobQueueProxy.getRunningAndCompleted(idProperties.getProperty("maxQueueSize"));
 					updateProgress(jobStartTime, monitor, "List of running and completed jobs retrieved");
 
 					submittedList = jobQueueProxy.getSubmissionQueue();
@@ -1071,7 +1082,6 @@ public class StatusQueueView extends EventConnectionView {
 					for (StatusBean bean : submittedList) {
 						ret.put(bean.getUniqueId(), bean);
 					}
-					removeOldestBeans(ret, jobStartTime);
 					updateProgress(jobStartTime, monitor, "Submitted jobs added to view list");
 
 					getSite().getShell().getDisplay().syncExec(() -> {
@@ -1359,36 +1369,6 @@ public class StatusQueueView extends EventConnectionView {
 		@Override
 		public String getToolTipText(Object element) {
 			return WordUtils.wrap(getText(element), WRAP_LENGTH, null, true);
-		}
-	}
-
-	/**
-	 * If "Max Queue Size" parameter set to a positive integer in the Queue Configuration Parameters,
-	 * removes the oldest Finished beans from the queue view until the queue's size is under the max.
-	 * @param queue
-	 */
-	private void removeOldestBeans(Map<String, StatusBean> queue, Instant jobStartTime) {
-		String maxQueue = idProperties.getProperty("maxQueueSize");
-		int maxQueueSize;
-		try {
-			maxQueueSize = Integer.parseInt(maxQueue);
-		} catch(NumberFormatException e) {
-			// null or NaN
-			return;
-		}
-		// Negative numbers = infinite queue size
-		if (maxQueueSize < 0) return;
-		if (queue.size() > maxQueueSize) {
-			List<StatusBean> finishedBeans = queue.values().stream().filter(x -> x.getStatus().isFinal()).collect(Collectors.toList());
-			// Removing all the finished beans puts us under our cap, so we only want to remove the ones which started the longest ago
-			if (queue.size() - finishedBeans.size() < maxQueueSize) {
-				int numberNeededToRemove = queue.size() - maxQueueSize;
-				finishedBeans = finishedBeans.stream().sorted((b1, b2) -> Long.compare(b1.getStartTime(), b2.getStartTime()))
-				.collect(Collectors.toList()).subList(0, numberNeededToRemove);
-			}
-			warnIfDelayed(jobStartTime, "removeOutdatedBeans()", "sort old beans");
-			finishedBeans.stream().map(StatusBean::getUniqueId).forEach(queue::remove);
-			warnIfDelayed(jobStartTime, "removeOutdatedBeans()", "remove old beans");
 		}
 	}
 

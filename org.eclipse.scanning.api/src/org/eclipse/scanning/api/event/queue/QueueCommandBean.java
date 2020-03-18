@@ -11,11 +11,16 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.event.queue;
 
+import java.util.EnumMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.IdBean;
 import org.eclipse.scanning.api.event.core.IJobQueue;
+import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 
 /**
@@ -133,7 +138,12 @@ public class QueueCommandBean  extends IdBean {
 		/**
 		 * A command to get the current state of the {@link IJobQueue}.
 		 */
-		GET_INFO;
+		GET_INFO,
+
+		/**
+		 * A command to force all {@link JobQueueProxy} listening to this {@link JobQueueImpl} to refresh any {@link StatusQueueView} listening to them
+		 */
+		REFRESH_QUEUE_VIEW;
 
 	}
 
@@ -193,6 +203,11 @@ public class QueueCommandBean  extends IdBean {
 	public QueueCommandBean(String queueName, Command command, StatusBean jobBean) {
 		this(queueName, command);
 		this.jobBean = jobBean;
+	}
+
+	public QueueCommandBean(String queueName, Command command, String commandParam) {
+		this(queueName, command);
+		this.message = commandParam;
 	}
 
 	public UUID getJobQueueId() {
@@ -313,7 +328,29 @@ public class QueueCommandBean  extends IdBean {
 	public String toString() {
 		return "QueueCommandBean [jobQueueId=" + jobQueueId + ", queueName=" + queueName + ", message=" + message
 				+ ", command=" + command + ", jobBean=" + jobBean + ", errorMessage=" + errorMessage + ", result="
-				+ result + "]";
+				+ (result instanceof List ? abridgeIfExcessive((List) result) : result) + "]";
+	}
+
+	private Object abridgeIfExcessive(List result) {
+		if (result.size() < 5) {
+			return result;
+		}
+		StringBuilder sb = new StringBuilder();
+		sb.append(String.format("%s containing ids: [", result.get(0).getClass().getSimpleName()));
+		Iterator<StatusBean> it = result.iterator();
+		Map<Status, Integer> numPerStatus = new EnumMap<>(Status.class);
+		while (it.hasNext()) {
+			StatusBean bean = it.next();
+			Status status = bean.getStatus();
+			sb.append(bean.getUniqueId());
+			numPerStatus.put(status, numPerStatus.containsKey(status) ? numPerStatus.get(status) + 1 : 1);
+			if (it.hasNext()) {
+				sb.append(", ");
+			}
+		}
+		sb.append(String.format(" of statuses: %s", numPerStatus.toString()));
+		sb.append("]");
+		return sb.toString();
 	}
 
 }

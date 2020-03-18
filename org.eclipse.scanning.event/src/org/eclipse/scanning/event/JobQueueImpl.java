@@ -21,6 +21,8 @@ import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +38,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
@@ -319,9 +322,11 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 					break;
 				case CLEAR_QUEUE:
 					clearQueue();
+					sendQueueModifiedMessage();
 					break;
 				case CLEAR_COMPLETED:
-					clearRunningAndCompleted();
+					// null -> False
+					clearRunningAndCompleted(Boolean.parseBoolean(commandBean.getMessage()));
 					break;
 				case SUBMIT_JOB:
 					submit((U) commandBean.getJobBean());
@@ -337,12 +342,15 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 					break;
 				case MOVE_FORWARD:
 					result = findBeanAndPerformAction(commandBean.getJobBean(), this::moveForward);
+					sendQueueModifiedMessage();
 					break;
 				case MOVE_BACKWARD:
 					result = findBeanAndPerformAction(commandBean.getJobBean(), this::moveBackward);
+					sendQueueModifiedMessage();
 					break;
 				case REMOVE_FROM_QUEUE:
 					result = findBeanAndPerformAction(commandBean.getJobBean(), this::remove);
+					sendQueueModifiedMessage();
 					break;
 				case REMOVE_COMPLETED:
 					removeCompleted((U) commandBean.getJobBean());
@@ -351,10 +359,13 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 					result = getSubmissionQueue();
 					break;
 				case GET_RUNNING_AND_COMPLETED:
-					result = getRunningAndCompleted();
+					result = getRunningAndCompleted(commandBean.getMessage());
 					break;
 				case GET_INFO:
 					result = queueStatusBean;
+					break;
+				case REFRESH_QUEUE_VIEW:
+					sendQueueModifiedMessage();
 					break;
 				default:
 					throw new IllegalArgumentException("Unknown command " + commandBean.getCommand());
@@ -386,6 +397,20 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 		}
 	}
 
+	private void sendQueueModifiedMessage() {
+		if (queueStatusBean != null) {
+			QueueStatus previous = queueStatusBean.getQueueStatus();
+			queueStatusBean.setQueueStatus(QueueStatus.MODIFIED);
+			try {
+				queueStatusPublisher.broadcast(queueStatusBean);
+			} catch (EventException e) {
+				LOGGER.error("Could not publish queue status bean", e);
+			}
+			queueStatusBean.setQueueStatus(previous);
+		}
+
+	}
+
 	@Override
 	public List<U> getSubmissionQueue() {
 		synchronized (submissionQueue) {
@@ -398,6 +423,54 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 		return statusQueue.getElements();
 	}
 
+	private List<U> getRunning() throws EventException{
+		return getRunningAndCompleted().stream().filter(x -> x.getStatus().isRunning()).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<U> getRunningAndCompleted(String optionalArgument) throws EventException {
+		int maxQueueSize = -1;
+		try {
+			maxQueueSize = Integer.parseInt(optionalArgument);
+			// For negative numbers and unparseable, treat the same: as infinite length
+			if (maxQueueSize < 0) throw new NumberFormatException();
+		} catch(NumberFormatException e) {
+			return getRunningAndCompleted();
+		}
+		// Queue limit includes submitted items. If enough submitted items to not want completed items, just return running
+		maxQueueSize -= getSubmissionQueue().size();
+		if (maxQueueSize <= getRunning().size()) {
+			return getRunning();
+		}
+		List<U> runningAndCompleted = getRunningAndCompleted();
+		if (runningAndCompleted.size() < maxQueueSize) {
+			return runningAndCompleted;
+		}
+		// maxQueueSize > 0, < runningAndCompleted.size, remove the oldest finished beans
+		// Cannot serialise subList so must construct new ArrayList
+		runningAndCompleted = new ArrayList<>(runningAndCompleted.stream()
+				.sorted(new ComparingByStatusThenByAge())
+				.collect(Collectors.toList())
+				.subList(0, maxQueueSize));
+		// Sorting returns (running scan, newest finished scan... oldest finished scan),
+		// view expects (oldest finished ... newest finished, running) to let newly running add to end -> must reverse
+		Collections.reverse(runningAndCompleted);
+		return runningAndCompleted;
+	}
+
+	private class ComparingByStatusThenByAge implements Comparator<U> {
+
+		@Override
+		public int compare(U bean1, U bean2) {
+			// First, any running beans
+			int statusCompare = Boolean.compare(bean2.getStatus().isActive(), bean1.getStatus().isActive());
+			if (statusCompare != 0) return statusCompare;
+			// Then the newest beans: i.e. the ones with the highest start time
+			return Long.compare(bean2.getStartTime(), bean1.getStartTime());
+		}
+
+	}
+
 	@Override
 	public void clearQueue() throws EventException {
 		submissionQueue.clear();
@@ -406,6 +479,18 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 	@Override
 	public void clearRunningAndCompleted() throws EventException {
 		statusQueue.clear();
+	}
+
+	@Override
+	public void clearRunningAndCompleted(boolean bool) throws EventException {
+		if (bool) {
+			for (U bean : getRunning()) terminateJob(bean);
+			clearRunningAndCompleted();
+		} else {
+			List<U> runningBeans = getRunning();
+			clearRunningAndCompleted();
+			statusQueue.addAll(runningBeans);
+		}
 	}
 
 	@Override

@@ -123,11 +123,36 @@ public interface IJobQueue<T> extends IConnection, IBeanClass<T> {
 	public List<T> getRunningAndCompleted() throws EventException;
 
 	/**
+	 * Returns either the list returned by {@link #getRunningAndCompleted()} or a sublist of that list, limited by the
+	 * argument. Currently the optional argument may be a non-negative integer in which case if the number of submitted
+	 * + running + completed scans exceeds the argument, completed scans are removed until either none remain or the
+	 * number of scans being returned is less than the argument. If a scan is running it must always be returned. If any
+	 * String that would not parse to a non-negative integer is passed, then the argument is taken to be unlimited, and
+	 * this method should return {@link #getRunningAndCompleted()}
+	 *
+	 * @param optionalArgument
+	 *            a String representation of a non-negative integer ("0", "1", "2"...)
+	 * @return list containing the running bean and optionally some completed beans
+	 * @throws EventException
+	 */
+
+	public List<T> getRunningAndCompleted(String optionalArgument) throws EventException;
+
+	/**
 	 * Clears the set of beans for running and completed jobs.
 	 *
 	 * @throws EventException if the set of running and completed
 	 */
 	void clearRunningAndCompleted() throws EventException;
+
+	/**
+	 * Clears the set of beans for running and completed jobs, with an optional argument for whether to clear the
+	 * currently running scan (if there is one)
+	 *
+	 * @throws EventException
+	 *             if the set of running and completed
+	 */
+	void clearRunningAndCompleted(boolean bool) throws EventException;
 
 	/**
 	 * Cleans up the set of beans for running and completed job by removing certain beans.
