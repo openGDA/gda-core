@@ -56,7 +56,6 @@ import gda.device.epicsdevice.ReturnType;
 import gda.factory.Factory;
 import gda.factory.Findable;
 import gda.factory.Finder;
-import gda.util.converters.IQuantityConverter;
 import gda.util.converters.IReloadableQuantitiesConverter;
 import tec.units.indriya.quantity.Quantities;
 
@@ -83,8 +82,7 @@ public class EpicsMCASimpleTest {
 	/**
 	 * Allow creation of mock quantities converters that can be added to Finder
 	 */
-	private interface FindableConverter<S extends Quantity<S>, T extends Quantity<T>>
-			extends IQuantityConverter<S, T>, IReloadableQuantitiesConverter<S, T>, Findable {
+	private interface FindableConverter<S extends Quantity<S>, T extends Quantity<T>> extends IReloadableQuantitiesConverter<S, T>, Findable {
 	}
 
 	private FindableConverter<Energy, Dimensionless> channelToEnergyConverter;
