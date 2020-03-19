@@ -35,6 +35,9 @@ import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DOUBLE;
+import gov.aps.jca.dbr.FLOAT;
+import gov.aps.jca.dbr.INT;
+import gov.aps.jca.dbr.SHORT;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
@@ -187,19 +190,24 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 
 	@Override
 	public void monitorChanged(MonitorEvent event) {
-
+		Number newPosition;
 		final DBR dbr = event.getDBR();
 
-		if (!dbr.isDOUBLE()) {
+		if (dbr.isDOUBLE()) {
+			newPosition = ((DOUBLE) dbr).getDoubleValue()[0];
+		} else if (dbr.isINT()) {
+			newPosition = ((INT)dbr).getIntValue()[0];
+		} else if (dbr.isFLOAT()) {
+			newPosition = ((FLOAT)dbr).getFloatValue()[0];
+		} else if (dbr.isSHORT()) {
+			newPosition = ((SHORT)dbr).getShortValue()[0];
+		} else {
 			return;
 		}
 
-		final DOUBLE doubleDbr = (DOUBLE) dbr;
-		final double newPosition = doubleDbr.getDoubleValue()[0];
-
 		// if there is a deadband then test if change is great enough
 		if (this.deadband > 0) {
-			if (Math.abs(newPosition - this.lastKnownValue) > this.deadband) {
+			if (Math.abs(newPosition.doubleValue() - this.lastKnownValue) > this.deadband) {
 				notifyObserversOfNewPosition(newPosition);
 			}
 		} else {
