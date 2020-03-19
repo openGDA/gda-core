@@ -23,7 +23,7 @@ import java.util.List;
 
 import javax.measure.Quantity;
 
-public interface IQuantitiesConverter<S extends Quantity<S>, T extends Quantity<T>> {
+public interface IQuantitiesConverter<S extends Quantity<S>, T extends Quantity<T>> extends IQuantityConverter<S, T> {
 
 	/**
 	 * Calculates an array of values in units of the source given an array of quantities in units of the moveables
@@ -64,13 +64,5 @@ public interface IQuantitiesConverter<S extends Quantity<S>, T extends Quantity<
 	 *         to ToSource
 	 */
 	public List<List<String>> getAcceptableMoveableUnits();
-
-	/**
-	 * Returns true is the conversion reverses the sense. So that to get the max of the source you convert the min of
-	 * the target and vice versa This is used when evaluating the min and max of the source - not the target.
-	 *
-	 * @return true is the conversion reverses the sense.
-	 */
-	public boolean sourceMinIsTargetMax();
 
 }

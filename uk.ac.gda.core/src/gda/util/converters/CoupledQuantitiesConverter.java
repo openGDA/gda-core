@@ -23,7 +23,7 @@ import java.util.List;
 
 import javax.measure.Quantity;
 
-final class CoupledQuantitiesConverter<S extends Quantity<S>, T extends Quantity<T>, I extends Quantity<I>> implements IQuantitiesConverter<S, T>, IQuantityConverter<S, T> {
+final class CoupledQuantitiesConverter<S extends Quantity<S>, T extends Quantity<T>, I extends Quantity<I>> implements IQuantitiesConverter<S, T> {
 	/**
 	 * Converter to be used to convert between Source and an intermediate quantity
 	 */
@@ -95,82 +95,34 @@ final class CoupledQuantitiesConverter<S extends Quantity<S>, T extends Quantity
 
 	@Override
 	public Quantity<S> toSource(Quantity<T> target) throws Exception {
-		if (!(targetConverter instanceof IQuantityConverter)) {
-			throw new IllegalArgumentException(
-					"CoupledQuantitiesConverter.toSource: targetConverter does not support IQuantityConverter ");
-		}
-		if (!(sourceConverter instanceof IQuantityConverter)) {
-			throw new IllegalArgumentException(
-					"CoupledQuantitiesConverter.toSource: sourceConverter does not support IQuantityConverter ");
-		}
-
-		@SuppressWarnings("unchecked")
-		final IQuantityConverter<S, I> sourceConv = (IQuantityConverter<S, I>) sourceConverter;
-		@SuppressWarnings("unchecked")
-		final IQuantityConverter<I, T> targetConv = (IQuantityConverter<I, T>) targetConverter;
-
-		final Quantity<I> intermediate = targetConv.toSource(target);
-		return sourceConv.toSource(intermediate);
+		final Quantity<I> intermediate = targetConverter.toSource(target);
+		return sourceConverter.toSource(intermediate);
 	}
 
 	@Override
 	public Quantity<T> toTarget(Quantity<S> source) throws Exception {
-		if (!(targetConverter instanceof IQuantityConverter)) {
-			throw new IllegalArgumentException(
-					"CoupledQuantitiesConverter.toSource: targetConverter does not support IQuantityConverter ");
-		}
-		if (!(sourceConverter instanceof IQuantityConverter)) {
-			throw new IllegalArgumentException(
-					"CoupledQuantitiesConverter.toSource: sourceConverter does not support IQuantityConverter ");
-		}
-
-		@SuppressWarnings("unchecked")
-		final IQuantityConverter<S, I> sourceConv = (IQuantityConverter<S, I>) sourceConverter;
-		@SuppressWarnings("unchecked")
-		final IQuantityConverter<I, T> targetConv = (IQuantityConverter<I, T>) targetConverter;
-
-		final Quantity<I> intermediate = sourceConv.toTarget(source);
-		return targetConv.toTarget(intermediate);
+		final Quantity<I> intermediate = sourceConverter.toTarget(source);
+		return targetConverter.toTarget(intermediate);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> getAcceptableSourceUnits() {
-		if (!(sourceConverter instanceof IQuantityConverter)) {
-			throw new IllegalArgumentException(
-					"CoupledQuantitiesConverter.getAcceptableSourceUnits: sourceConverter does not support IQuantityConverter ");
-		}
-		return ((IQuantityConverter<S, I>) sourceConverter).getAcceptableSourceUnits();
+		return sourceConverter.getAcceptableSourceUnits();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> getAcceptableTargetUnits() {
-		if (!(targetConverter instanceof IQuantityConverter)) {
-			throw new IllegalArgumentException(
-					"getAcceptableTargetUnits: targetConverter does not support IQuantityConverter ");
-		}
-		return ((IQuantityConverter<I, T>) targetConverter).getAcceptableTargetUnits();
+		return targetConverter.getAcceptableTargetUnits();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean handlesStoT() {
-		if (!(sourceConverter instanceof IQuantityConverter)) {
-			throw new IllegalArgumentException(
-					"CoupledQuantitiesConverter.getAcceptableSourceUnits: sourceConverter does not support IQuantityConverter ");
-		}
-		return ((IQuantityConverter<S, I>) sourceConverter).handlesStoT();
+		return sourceConverter.handlesStoT();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean handlesTtoS() {
-		if (!(targetConverter instanceof IQuantityConverter)) {
-			throw new IllegalArgumentException(
-					"getAcceptableTargetUnits: targetConverter does not support IQuantityConverter ");
-		}
-		return ((IQuantityConverter<I, T>) targetConverter).handlesTtoS();
+		return targetConverter.handlesTtoS();
 	}
 
 }

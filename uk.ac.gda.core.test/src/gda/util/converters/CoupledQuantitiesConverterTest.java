@@ -54,7 +54,7 @@ public class CoupledQuantitiesConverterTest {
 
 	@Before
 	public void setUp() {
-		coupledConverter = new CoupledQuantitiesConverter<>(new SourceToIntermediateConverter2(), new IntermediateToTargetConverter2());
+		coupledConverter = new CoupledQuantitiesConverter<>(new SourceToIntermediateConverter(), new IntermediateToTargetConverter());
 	}
 
 	@Test
@@ -78,13 +78,6 @@ public class CoupledQuantitiesConverterTest {
 		assertEquals(MILLI(METRE), result[1].getUnit());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testToSourceNotQuantityConverter() throws Exception {
-		coupledConverter = new CoupledQuantitiesConverter<>(new SourceToIntermediateConverter(), new IntermediateToTargetConverter());
-		final Quantity<Energy> targetEnergy = Quantities.getQuantity(73.9, ELECTRON_VOLT);
-		coupledConverter.toSource(targetEnergy);
-	}
-
 	@Test
 	public void testToTarget() throws Exception {
 		final Quantity<Length> sourceLength = Quantities.getQuantity(12.3167, MILLI(METRE));
@@ -104,13 +97,6 @@ public class CoupledQuantitiesConverterTest {
 		assertEquals(ELECTRON_VOLT, result[0].getUnit());
 		assertEquals(0.04338, result[1].getValue().doubleValue(), FP_TOLERANCE);
 		assertEquals(ELECTRON_VOLT, result[1].getUnit());
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void testToTargetNotQuantityConverter() throws Exception {
-		coupledConverter = new CoupledQuantitiesConverter<>(new SourceToIntermediateConverter(), new IntermediateToTargetConverter());
-		final Quantity<Length> sourceLength = Quantities.getQuantity(12.3167, MILLI(METRE));
-		coupledConverter.toTarget(sourceLength);
 	}
 
 	@Test
@@ -172,9 +158,7 @@ public class CoupledQuantitiesConverterTest {
 		public boolean sourceMinIsTargetMax() {
 			return false;
 		}
-	}
 
-	private static class SourceToIntermediateConverter2 extends SourceToIntermediateConverter implements IQuantityConverter<Length, Angle> {
 		@Override
 		public Quantity<Length> toSource(Quantity<Angle> target) throws Exception {
 			final double numDegrees = target.to(DEGREE_ANGLE).getValue().doubleValue();
@@ -255,9 +239,6 @@ public class CoupledQuantitiesConverterTest {
 		public boolean sourceMinIsTargetMax() {
 			return false;
 		}
-	}
-
-	private class IntermediateToTargetConverter2 extends IntermediateToTargetConverter implements IQuantityConverter<Angle, Energy> {
 
 		@Override
 		public Quantity<Angle> toSource(Quantity<Energy> target) throws Exception {

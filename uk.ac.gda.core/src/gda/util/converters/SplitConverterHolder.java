@@ -56,7 +56,7 @@ import gda.factory.FindableBase;
  * The object implements IQuantitiesConverter so that the object can be referenced by CombinedDOF.
  */
 public final class SplitConverterHolder<S extends Quantity<S>, T extends Quantity<T>> extends FindableBase
-		implements IReloadableQuantitiesConverter<S, T>, IQuantityConverter<S, T> {
+		implements IReloadableQuantitiesConverter<S, T> {
 
 	private final String toSourceConverterName, calculateMoveablesConverterName;
 

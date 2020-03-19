@@ -28,7 +28,7 @@ import gda.factory.FindableBase;
  * RenameableConverter Class
  */
 public class RenameableConverter<S extends Quantity<S>, T extends Quantity<T>> extends FindableBase
-		implements IReloadableQuantitiesConverter<S, T>, IQuantityConverter<S, T> {
+		implements IReloadableQuantitiesConverter<S, T> {
 	private String converterName = "";
 
 	private IReloadableQuantitiesConverter<S, T> converter = null;

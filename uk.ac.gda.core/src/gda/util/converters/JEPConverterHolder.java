@@ -71,7 +71,7 @@ import gda.factory.FindableBase;
  *   &lt;/JEPQuantityConverter&gt;
  * </pre>
  */
-public final class JEPConverterHolder<S extends Quantity<S>, T extends Quantity<T>> extends FindableBase implements IReloadableQuantitiesConverter<S, T>, IQuantityConverter<S, T>
+public final class JEPConverterHolder<S extends Quantity<S>, T extends Quantity<T>> extends FindableBase implements IReloadableQuantitiesConverter<S, T>
 {
 	private GenQuantitiesConverter<S, T> converter = null;
 

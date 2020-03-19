@@ -74,7 +74,7 @@ import gda.factory.FindableBase;
  *
  * @see gda.util.converters.LookupTableQuantityConverter#getMode( String modeString )
  */
-public final class LookupTableConverterHolder<S extends Quantity<S>, T extends Quantity<T>> extends FindableBase implements IReloadableQuantitiesConverter<S, T>, IQuantityConverter<S, T> {
+public final class LookupTableConverterHolder<S extends Quantity<S>, T extends Quantity<T>> extends FindableBase implements IReloadableQuantitiesConverter<S, T> {
 	private GenQuantitiesConverter<S, T> converter = null;
 
 	private final String columnDataFileName;

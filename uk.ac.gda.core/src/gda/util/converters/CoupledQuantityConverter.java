@@ -27,7 +27,7 @@ import javax.measure.Unit;
 import gda.util.QuantityFactory;
 
 /**
- * class used to test the concept used in CoupoleConverterHolder without the need to instantiate an ObjectServer
+ * Class used to test the concept used in {@link CoupledConverterHolder} without the need to instantiate an ObjectServer
  */
 final class CoupledQuantityConverter<S extends Quantity<S>, T extends Quantity<T>, Q extends Quantity<Q>> implements IQuantityConverter<S, T> {
 	/**

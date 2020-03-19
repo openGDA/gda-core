@@ -75,18 +75,22 @@ final class GenQuantitiesConverter<S extends Quantity<S>, T extends Quantity<T>>
 		return "GenQuantitiesConverter wrapper of  " + converter.toString();
 	}
 
+	@Override
 	public List<String> getAcceptableSourceUnits() {
 		return converter.getAcceptableSourceUnits();
 	}
 
+	@Override
 	public List<String> getAcceptableTargetUnits() {
 		return converter.getAcceptableTargetUnits();
 	}
 
+	@Override
 	public Quantity<S> toSource(Quantity<T> target) throws Exception {
 		return converter.toSource(target);
 	}
 
+	@Override
 	public Quantity<T> toTarget(Quantity<S> source) throws Exception {
 		return converter.toTarget(source);
 	}
@@ -96,11 +100,12 @@ final class GenQuantitiesConverter<S extends Quantity<S>, T extends Quantity<T>>
 		return converter.sourceMinIsTargetMax();
 	}
 
-
+	@Override
 	public boolean handlesStoT(){
 		return converter.handlesStoT();
 	}
 
+	@Override
 	public boolean handlesTtoS(){
 		return converter.handlesTtoS();
 	}

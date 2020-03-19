@@ -26,7 +26,7 @@ import javax.measure.Quantity;
 /**
  * class used to test the concept used in SplitConverterHolder without the need to instantiate an ObjectServer
  */
-final class SplitQuantitiesConverter<S extends Quantity<S>, T extends Quantity<T>> implements IQuantitiesConverter<S, T>, IQuantityConverter<S, T> {
+final class SplitQuantitiesConverter<S extends Quantity<S>, T extends Quantity<T>> implements IQuantitiesConverter<S, T> {
 
 	private final IQuantitiesConverter<S, T> toSourceConverter;
 	private final IQuantitiesConverter<S, T> calculateMoveablesConverter;
@@ -91,68 +91,32 @@ final class SplitQuantitiesConverter<S extends Quantity<S>, T extends Quantity<T
 
 	@Override
 	public Quantity<S> toSource(Quantity<T> target) throws Exception {
-		if (!(toSourceConverter instanceof IQuantityConverter)) {
-			throw new IllegalArgumentException(
-					"SplitQuantitiesConverter.toSource: toSourceConverter does not support IQuantityConverter ");
-		}
-		@SuppressWarnings("unchecked")
-		final IQuantityConverter<S, T> sourceConv = (IQuantityConverter<S, T>) toSourceConverter;
-		return sourceConv.toSource(target);
+		return toSourceConverter.toSource(target);
 	}
 
 	@Override
 	public Quantity<T> toTarget(Quantity<S> source) throws Exception {
-		if (!(calculateMoveablesConverter instanceof IQuantityConverter)) {
-			throw new IllegalArgumentException(
-					"SplitQuantitiesConverter.toTarget: calculateMoveablesConverter does not support IQuantityConverter ");
-		}
-		@SuppressWarnings("unchecked")
-		final IQuantityConverter<S, T> moveablesConv = (IQuantityConverter<S, T>) calculateMoveablesConverter;
-		return moveablesConv.toTarget(source);
+		return calculateMoveablesConverter.toTarget(source);
 	}
 
 	@Override
 	public List<String> getAcceptableSourceUnits() {
-		if (!(calculateMoveablesConverter instanceof IQuantityConverter)) {
-			throw new IllegalArgumentException(
-					"SplitQuantitiesConverter.getAcceptableSourceUnits: calculateMoveablesConverter does not support IQuantityConverter ");
-		}
-		@SuppressWarnings("unchecked")
-		final IQuantityConverter<S, T> moveablesConv = (IQuantityConverter<S, T>) calculateMoveablesConverter;
-		return moveablesConv.getAcceptableSourceUnits();
+		return calculateMoveablesConverter.getAcceptableSourceUnits();
 	}
 
 	@Override
 	public List<String> getAcceptableTargetUnits() {
-		if (!(toSourceConverter instanceof IQuantityConverter)) {
-			throw new IllegalArgumentException(
-					"SplitQuantitiesConverter.getAcceptableTargetUnits: toSourceConverter does not support IQuantityConverter ");
-		}
-		@SuppressWarnings("unchecked")
-		final IQuantityConverter<S, T> sourceConv = (IQuantityConverter<S, T>) toSourceConverter;
-		return sourceConv.getAcceptableTargetUnits();
+		return toSourceConverter.getAcceptableTargetUnits();
 	}
 
 	@Override
 	public boolean handlesStoT() {
-		if (!(calculateMoveablesConverter instanceof IQuantityConverter)) {
-			throw new IllegalArgumentException(
-					"SplitQuantitiesConverter.handlesStoT: calculateMoveablesConverter does not support IQuantityConverter ");
-		}
-		@SuppressWarnings("unchecked")
-		final IQuantityConverter<S, T> moveablesConv = (IQuantityConverter<S, T>) calculateMoveablesConverter;
-		return moveablesConv.handlesStoT();
+		return calculateMoveablesConverter.handlesStoT();
 	}
 
 	@Override
 	public boolean handlesTtoS() {
-		if (!(toSourceConverter instanceof IQuantityConverter)) {
-			throw new IllegalArgumentException(
-					"SplitQuantitiesConverter.handlesTtoS: toSourceConverter does not support IQuantityConverter ");
-		}
-		@SuppressWarnings("unchecked")
-		final IQuantityConverter<S, T> sourceConv = (IQuantityConverter<S, T>) toSourceConverter;
-		return sourceConv.handlesTtoS();
+		return toSourceConverter.handlesTtoS();
 	}
 
 }

@@ -56,7 +56,7 @@ import gda.factory.Finder;
  * <p>
  * The object implements IQuantitiesConverter so that the object can be referenced by CombinedDOF.
  */
-public final class CoupledConverterHolder<S extends Quantity<S>, T extends Quantity<T>, I extends Quantity<I>> extends FindableBase implements IReloadableQuantitiesConverter<S, T>, IQuantityConverter<S, T> {
+public final class CoupledConverterHolder<S extends Quantity<S>, T extends Quantity<T>, I extends Quantity<I>> extends FindableBase implements IReloadableQuantitiesConverter<S, T> {
 	private String sourceConverterName;
 	private String targetConverterName;
 

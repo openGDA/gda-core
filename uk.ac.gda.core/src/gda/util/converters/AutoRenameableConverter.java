@@ -30,7 +30,7 @@ import gda.util.converters.util.ConverterNameProvider;
 /**
  * AutoRenameableConverter Class
  */
-public class AutoRenameableConverter<S extends Quantity<S>, T extends Quantity<T>> extends FindableBase implements IReloadableQuantitiesConverter<S, T>, IQuantityConverter<S, T> {
+public class AutoRenameableConverter<S extends Quantity<S>, T extends Quantity<T>> extends FindableBase implements IReloadableQuantitiesConverter<S, T> {
 
 	private IReloadableQuantitiesConverter<S, T> converter = null;
 
