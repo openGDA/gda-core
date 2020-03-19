@@ -321,7 +321,7 @@ public class InputTextComposite extends Composite {
 			Object[] argArray;
 			if (arg instanceof ScannablePositionChangeEvent) {
 				Display.getDefault().asyncExec(
-						() -> positionText.setText(((ScannablePositionChangeEvent) arg).newPosition.toString()));
+						() -> positionText.setText(String.format(scannable.getOutputFormat()[0], (Double)((ScannablePositionChangeEvent) arg).newPosition)));
 			} else if (arg.getClass().isArray()) {
 				// EPICS monitor by default always sending array
 				argArray = (Object[]) arg;
@@ -330,7 +330,7 @@ public class InputTextComposite extends Composite {
 					if (isTextInput()) {
 						positionText.setText(argArray[0].toString());
 					} else {
-						positionText.setText(String.valueOf(argArray[0]));
+						positionText.setText(String.format(scannable.getOutputFormat()[0], argArray[0]));
 					}
 				});
 			} else {
@@ -339,7 +339,7 @@ public class InputTextComposite extends Composite {
 					if (isTextInput()) {
 						positionText.setText(arg.toString());
 					} else {
-						positionText.setText(String.valueOf(arg));
+						positionText.setText(String.format(scannable.getOutputFormat()[0], arg));
 					}
 				});
 			}
