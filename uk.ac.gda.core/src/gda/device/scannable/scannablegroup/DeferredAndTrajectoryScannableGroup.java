@@ -34,7 +34,7 @@ import gda.device.scannable.ScannableMotor;
 import gda.factory.FactoryException;
 
 public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup
-		implements ContinuouslyScannableViaController {
+		implements ICoordinatedParentContinuouslyScannable {
 
 	private TrajectoryMoveController controller;
 
@@ -81,9 +81,9 @@ public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup
 	@Override
 	protected ICoordinatedChildScannable wrapScannable(Scannable delegate) {
 		if (ScannableMotionUnits.class.isAssignableFrom(delegate.getClass())) {
-			return new CoordinatedChildContinuousScannableMotionUnits(delegate, this);
+			return new CoordinatedChildContinuousScannableMotionUnits((ScannableMotionUnits) delegate, this);
 		} else if (ScannableMotion.class.isAssignableFrom(delegate.getClass())) {
-			return new CoordinatedChildContinuousScannableMotion(delegate, this);
+			return new CoordinatedChildContinuousScannableMotion((ScannableMotion) delegate, this);
 		}
 		// else it is at least Scannable
 		return new CoordinatedChildContinuousScannable(delegate, this);
@@ -265,26 +265,27 @@ public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup
 	}
 }
 
-class CoordinatedChildContinuousScannable extends CoordinatedChildScannable
-		implements ContinuouslyScannableViaController {
+class CoordinatedChildContinuousScannable extends CoordinatedChildScannable implements ContinuouslyScannableViaController {
+	private ICoordinatedParentContinuouslyScannable continuouslyScannableGroup;
 
-	public CoordinatedChildContinuousScannable(Scannable delegate, ICoordinatedParentScannable group) {
+	public CoordinatedChildContinuousScannable(Scannable delegate, ICoordinatedParentContinuouslyScannable group) {
 		super(delegate, group);
+		continuouslyScannableGroup = group;
 	}
 
 	@Override
 	public void setOperatingContinuously(boolean b) throws DeviceException {
-		((ContinuouslyScannableViaController) group).setOperatingContinuously(b);
+		continuouslyScannableGroup.setOperatingContinuously(b);
 	}
 
 	@Override
 	public boolean isOperatingContinously() {
-		return ((ContinuouslyScannableViaController) group).isOperatingContinously();
+		return continuouslyScannableGroup.isOperatingContinously();
 	}
 
 	@Override
 	public ContinuousMoveController getContinuousMoveController() {
-		return ((ContinuouslyScannableViaController) group).getContinuousMoveController();
+		return continuouslyScannableGroup.getContinuousMoveController();
 	}
 
 	@Override
@@ -303,26 +304,27 @@ class CoordinatedChildContinuousScannable extends CoordinatedChildScannable
 
 }
 
-class CoordinatedChildContinuousScannableMotion extends CoordinatedChildScannableMotion
-		implements ContinuouslyScannableViaController {
+class CoordinatedChildContinuousScannableMotion extends CoordinatedChildScannableMotion implements ContinuouslyScannableViaController {
+	private ContinuouslyScannableViaController continuouslyScannableGroup;
 
-	public CoordinatedChildContinuousScannableMotion(Scannable delegate, ICoordinatedParentScannable group) {
+	public CoordinatedChildContinuousScannableMotion(ScannableMotion delegate, ICoordinatedParentContinuouslyScannable group) {
 		super(delegate, group);
+		continuouslyScannableGroup = group;
 	}
 
 	@Override
 	public void setOperatingContinuously(boolean b) throws DeviceException {
-		((ContinuouslyScannableViaController) group).setOperatingContinuously(b);
+		continuouslyScannableGroup.setOperatingContinuously(b);
 	}
 
 	@Override
 	public boolean isOperatingContinously() {
-		return ((ContinuouslyScannableViaController) group).isOperatingContinously();
+		return continuouslyScannableGroup.isOperatingContinously();
 	}
 
 	@Override
 	public ContinuousMoveController getContinuousMoveController() {
-		return ((ContinuouslyScannableViaController) group).getContinuousMoveController();
+		return continuouslyScannableGroup.getContinuousMoveController();
 	}
 
 	@Override
@@ -343,24 +345,26 @@ class CoordinatedChildContinuousScannableMotion extends CoordinatedChildScannabl
 
 class CoordinatedChildContinuousScannableMotionUnits extends CoordinatedChildScannableMotionUnits
 		implements ContinuouslyScannableViaController {
+	private ContinuouslyScannableViaController continuouslyScannableGroup;
 
-	public CoordinatedChildContinuousScannableMotionUnits(Scannable delegate, ICoordinatedParentScannable group) {
+	public CoordinatedChildContinuousScannableMotionUnits(ScannableMotionUnits delegate, ICoordinatedParentContinuouslyScannable group) {
 		super(delegate, group);
+		continuouslyScannableGroup = group;
 	}
 
 	@Override
 	public void setOperatingContinuously(boolean b) throws DeviceException {
-		((ContinuouslyScannableViaController) group).setOperatingContinuously(b);
+		continuouslyScannableGroup.setOperatingContinuously(b);
 	}
 
 	@Override
 	public boolean isOperatingContinously() {
-		return ((ContinuouslyScannableViaController) group).isOperatingContinously();
+		return continuouslyScannableGroup.isOperatingContinously();
 	}
 
 	@Override
 	public ContinuousMoveController getContinuousMoveController() {
-		return ((ContinuouslyScannableViaController) group).getContinuousMoveController();
+		return continuouslyScannableGroup.getContinuousMoveController();
 	}
 
 	@Override

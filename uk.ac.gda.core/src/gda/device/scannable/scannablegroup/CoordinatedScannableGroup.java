@@ -35,6 +35,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotion;
 import gda.device.ScannableMotionUnits;
+import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.component.PositionValidator;
@@ -81,8 +82,10 @@ interface ICoordinatedParent {
 }
 
 
-interface ICoordinatedParentScannable extends ICoordinatedParent, Scannable{
+interface ICoordinatedParentScannable extends ICoordinatedParent, Scannable {
+}
 
+interface ICoordinatedParentContinuouslyScannable extends ICoordinatedParentScannable, ContinuouslyScannableViaController {
 }
 
 
@@ -157,9 +160,9 @@ public class CoordinatedScannableGroup extends ScannableGroup implements ICoordi
 	 */
 	protected ICoordinatedChildScannable wrapScannable(Scannable delegate) {
 		if (ScannableMotionUnits.class.isAssignableFrom(delegate.getClass())) {
-			return new CoordinatedChildScannableMotionUnits(delegate, this);
+			return new CoordinatedChildScannableMotionUnits((ScannableMotionUnits) delegate, this);
 		} else if (ScannableMotion.class.isAssignableFrom(delegate.getClass())) {
-			return new CoordinatedChildScannableMotion(delegate, this);
+			return new CoordinatedChildScannableMotion((ScannableMotion) delegate, this);
 		}
 		// else it is at least Scannable
 		return new CoordinatedChildScannable(delegate, this);
@@ -788,83 +791,85 @@ class CoordinatedChildScannable extends ScannableBase implements ICoordinatedSca
  * hidden.
  */
 class CoordinatedChildScannableMotion extends CoordinatedChildScannable implements ScannableMotion {
+	private ScannableMotion scannableMotionDelegate;
 
 	/**
 	 * @param delegate
 	 * @param group
 	 */
-	public CoordinatedChildScannableMotion(Scannable delegate, ICoordinatedParent group) {
-		super(delegate, (ICoordinatedParentScannable) group);
+	public CoordinatedChildScannableMotion(ScannableMotion delegate, ICoordinatedParentScannable group) {
+		super(delegate, group);
+		scannableMotionDelegate = delegate;
 	}
 
 	@Override
 	public String checkPositionValid(Object position) throws DeviceException {
-		return ((ScannableMotion) delegate).checkPositionValid(position);
+		return scannableMotionDelegate.checkPositionValid(position);
 	}
 
 	@Override
 	public String checkPositionWithinGdaLimits(Double[] pos) {
-		return ((ScannableMotion) delegate).checkPositionWithinGdaLimits(pos);
+		return scannableMotionDelegate.checkPositionWithinGdaLimits(pos);
 	}
 
 	@Override
 	public String checkPositionWithinGdaLimits(Object illDefinedPosObject) {
-		return ((ScannableMotion) delegate).checkPositionWithinGdaLimits(illDefinedPosObject);
+		return scannableMotionDelegate.checkPositionWithinGdaLimits(illDefinedPosObject);
 	}
 
 	@Override
 	public Double[] getLowerGdaLimits() {
-		return ((ScannableMotion) delegate).getLowerGdaLimits();
+		return scannableMotionDelegate.getLowerGdaLimits();
 	}
 
 	@Override
 	public int getNumberTries() {
-		return ((ScannableMotion) delegate).getNumberTries();
+		return scannableMotionDelegate.getNumberTries();
 	}
 
 	@Override
 	public Double[] getTolerances() throws DeviceException {
-		return ((ScannableMotion) delegate).getTolerances();
+		return scannableMotionDelegate.getTolerances();
 	}
 
 	@Override
 	public Double[] getUpperGdaLimits() {
-		return ((ScannableMotion) delegate).getUpperGdaLimits();
+		return scannableMotionDelegate.getUpperGdaLimits();
 	}
 
 	@Override
 	public void setLowerGdaLimits(Double lowerLim) throws Exception {
-		((ScannableMotion) delegate).setLowerGdaLimits(lowerLim);
+		scannableMotionDelegate.setLowerGdaLimits(lowerLim);
 	}
 
 	@Override
 	public void setLowerGdaLimits(Double[] lowerLim) throws Exception {
-		((ScannableMotion) delegate).setLowerGdaLimits(lowerLim);
+		scannableMotionDelegate.setLowerGdaLimits(lowerLim);
 	}
 
 	@Override
 	public void setNumberTries(int numberTries) {
-		((ScannableMotion) delegate).setNumberTries(numberTries);
+		scannableMotionDelegate.setNumberTries(numberTries);
 	}
 
 	@Override
 	public void setTolerance(Double tolerence) throws DeviceException {
-		((ScannableMotion) delegate).setTolerance(tolerence);
+		scannableMotionDelegate.setTolerance(tolerence);
 	}
 
 	@Override
 	public void setTolerances(Double[] tolerence) throws DeviceException {
-		((ScannableMotion) delegate).setTolerances(tolerence);
+		scannableMotionDelegate.setTolerances(tolerence);
 	}
 
 	@Override
 	public void setUpperGdaLimits(Double upperLim) throws Exception {
-		((ScannableMotion) delegate).setUpperGdaLimits(upperLim);
+		scannableMotionDelegate.setUpperGdaLimits(upperLim);
 	}
 
 	@Override
 	public void setUpperGdaLimits(Double[] upperLim) throws Exception {
-		((ScannableMotion) delegate).setUpperGdaLimits(upperLim);
+		scannableMotionDelegate.setUpperGdaLimits(upperLim);
 	}
 
 	@Override
@@ -875,32 +880,32 @@ class CoordinatedChildScannableMotion extends CoordinatedChildScannable implemen
 
 	@Override
 	public void ar(Object position) throws DeviceException {
-		((ScannableMotion) delegate).ar(position);
+		scannableMotionDelegate.ar(position);
 	}
 
 	@Override
 	public void r(Object position) throws DeviceException {
-		((ScannableMotion) delegate).r(position);
+		scannableMotionDelegate.r(position);
 	}
 
 	@Override
 	public Double[] getOffset() {
-		return ((ScannableMotion) delegate).getOffset();
+		return scannableMotionDelegate.getOffset();
 	}
 
 	@Override
 	public Double[] getScalingFactor() {
-		return ((ScannableMotion) delegate).getScalingFactor();
+		return scannableMotionDelegate.getScalingFactor();
 	}
 
 	@Override
 	public void setOffset(Double... offsetArray) {
-		((ScannableMotion) delegate).setOffset(offsetArray);
+		scannableMotionDelegate.setOffset(offsetArray);
 	}
 
 	@Override
 	public void setScalingFactor(Double... scaleArray) {
-		((ScannableMotion) delegate).setScalingFactor(scaleArray);
+		scannableMotionDelegate.setScalingFactor(scaleArray);
 	}
 
 }
@@ -909,55 +914,56 @@ class CoordinatedChildScannableMotion extends CoordinatedChildScannable implemen
  * Wraps a ScannableMotionUnits to make it work with an ICoordinatedScannableGroup. Methods not in ScannableMotionUnits
  * will be hidden.
  */
-class CoordinatedChildScannableMotionUnits extends CoordinatedChildScannableMotion implements
-		ScannableMotionUnits {
+class CoordinatedChildScannableMotionUnits extends CoordinatedChildScannableMotion implements ScannableMotionUnits {
+	private ScannableMotionUnits scannableMotionUnitsDelegate;
 
 	/**
 	 * @param delegate
 	 * @param group
 	 */
-	public CoordinatedChildScannableMotionUnits(Scannable delegate, ICoordinatedParent group) {
+	public CoordinatedChildScannableMotionUnits(ScannableMotionUnits delegate, ICoordinatedParentScannable group) {
 		super(delegate, group);
+		scannableMotionUnitsDelegate = delegate;
 	}
 
 	@Override
 	public void addAcceptableUnit(String newUnit) throws DeviceException {
-		((ScannableMotionUnits) delegate).addAcceptableUnit(newUnit);
+		scannableMotionUnitsDelegate.addAcceptableUnit(newUnit);
 	}
 
 	@Override
 	public String[] getAcceptableUnits() {
-		return ((ScannableMotionUnits) delegate).getAcceptableUnits();
+		return scannableMotionUnitsDelegate.getAcceptableUnits();
 	}
 
 	@Override
 	public String getHardwareUnitString() {
-		return ((ScannableMotionUnits) delegate).getHardwareUnitString();
+		return scannableMotionUnitsDelegate.getHardwareUnitString();
 	}
 
 	@Override
 	public String getUserUnits() {
-		return ((ScannableMotionUnits) delegate).getUserUnits();
+		return scannableMotionUnitsDelegate.getUserUnits();
 	}
 
 	@Override
 	public void setHardwareUnitString(String hardwareUnitString) throws DeviceException {
-		((ScannableMotionUnits) delegate).setHardwareUnitString(hardwareUnitString);
+		scannableMotionUnitsDelegate.setHardwareUnitString(hardwareUnitString);
 	}
 
 	@Override
 	public void setUserUnits(String userUnitsString) throws DeviceException {
-		((ScannableMotionUnits) delegate).setUserUnits(userUnitsString);
+		scannableMotionUnitsDelegate.setUserUnits(userUnitsString);
 	}
 
 	@Override
 	public Quantity<? extends Quantity<?>>[] getPositionAsQuantityArray() throws DeviceException {
-		return ((ScannableMotionUnits) delegate).getPositionAsQuantityArray();
+		return scannableMotionUnitsDelegate.getPositionAsQuantityArray();
 	}
 
 	@Override
 	public void setOffset(Object offsetPositionInExternalUnits) {
-		((ScannableMotionUnits) delegate).setOffset(offsetPositionInExternalUnits);
+		scannableMotionUnitsDelegate.setOffset(offsetPositionInExternalUnits);
 
 	}
 }
