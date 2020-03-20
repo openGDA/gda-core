@@ -27,6 +27,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -45,6 +46,8 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsRandomOffsetModel;
 import org.eclipse.scanning.api.scan.IParserService;
+import org.eclipse.scanning.api.scan.models.ScanMetadata;
+import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement.MonitorScanRole;
 import org.eclipse.scanning.device.ui.device.MonitorView;
 import org.eclipse.scanning.device.ui.util.PageUtil;
@@ -63,6 +66,7 @@ import uk.ac.diamond.daq.mapping.api.ScanRequestSavedEvent;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
+import uk.ac.diamond.daq.mapping.ui.diffraction.base.DiffractionParameters;
 import uk.ac.diamond.daq.mapping.ui.experiment.file.DescriptiveFilenameFactory;
 import uk.ac.diamond.daq.osgi.OsgiService;
 import uk.ac.diamond.daq.persistence.manager.PersistenceServiceWrapper;
@@ -77,6 +81,9 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 public class ScanManagementController extends AbstractMappingController {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanManagementController.class);
+
+	public static final String DEFAULT_SAMPLE_NAME = "Unnamed Sample";
+	public static final String DEFAULT_SAMPLE_DESCRIPTION = "No description provided.";
 
 	private MappingStageInfo stage;
 	private DescriptiveFilenameFactory filenameFactory = new DescriptiveFilenameFactory();
@@ -267,11 +274,11 @@ public class ScanManagementController extends AbstractMappingController {
 	 * the scan could not be successfully submitted.
 	 */
 	public void submitScan() {
-		submitScan(Optional.empty());
+		submitScan(Optional.empty(), null);
 	}
 
-	public void submitScan(URL url) {
-		submitScan(Optional.ofNullable(url.getPath()));
+	public void submitScan(URL url, DiffractionParameters acquisitionParameters) {
+		submitScan(Optional.ofNullable(url.getPath()), acquisitionParameters);
 	}
 
 	/**
@@ -281,10 +288,10 @@ public class ScanManagementController extends AbstractMappingController {
 	 * @param filePath The filepath of the output NeXus file.
 	 * If {@code null} it is generated through default properties.
 	 */
-	public void submitScan(Optional<String> filePath) {
+	public void submitScan(Optional<String> filePath, DiffractionParameters acquisitionParameters) {
 		final ScanBeanSubmitter submitter = getService(ScanBeanSubmitter.class);
 		try {
-			ScanBean scanBean = createScanBean(filePath);
+			ScanBean scanBean = createScanBean(filePath, acquisitionParameters);
 			submitter.submitScan(scanBean);
 		} catch (Exception e) {
 			logger.error("Scan submission failed", e);
@@ -316,7 +323,7 @@ public class ScanManagementController extends AbstractMappingController {
 	 * @return The resultant {@link ScanBean}
 	 */
 	public ScanBean createScanBean() {
-		return createScanBean(Optional.empty());
+		return createScanBean(Optional.empty(), new DiffractionParameters());
 	}
 
 	/**
@@ -324,21 +331,34 @@ public class ScanManagementController extends AbstractMappingController {
 	 * The given filePath is set in the intermediate {@link ScanRequest}.
 	 */
 	public ScanBean createScanBean(Optional<String> filePath) {
+		return createScanBean(filePath, null);
+	}
+
+	/**
+	 * Transforms the current mapping bean into a a {@link ScanBean} which can be submitted.
+	 * The given filePath is set in the intermediate {@link ScanRequest}.
+	 *
+	 * @param filePath the output path
+	 * @param acquisitionParameters the acquisition parameters
+	 * @return a scan bean
+	 */
+	public ScanBean createScanBean(Optional<String> filePath, DiffractionParameters acquisitionParameters) {
 		checkInitialised();
 		final IMappingExperimentBean mappingBean = getMappingBean();
 		addMonitors(mappingBean);
 
-		final ScanBean scanBean = new ScanBean();
-		String sampleName = mappingBean.getSampleMetadata().getSampleName();
-		if (sampleName == null || sampleName.length() == 0) {
-			sampleName = "unknown sample";
-		}
+		String sampleName = getSampleName(mappingBean, acquisitionParameters);
 		final String pathName = mappingBean.getScanDefinition().getMappingScanRegion().getScanPath().getName();
+
+		final ScanBean scanBean = new ScanBean();
 		scanBean.setName(String.format("%s - %s Scan", sampleName, pathName));
 		scanBean.setBeamline(System.getProperty("BEAMLINE"));
 
 		final ScanRequestConverter converter = getService(ScanRequestConverter.class);
 		final ScanRequest scanRequest = converter.convertToScanRequest(mappingBean);
+		if (acquisitionParameters != null) {
+			setSampleMetadata(scanRequest, sampleName);
+		}
 		scanRequest.setFilePath(filePath.orElse(null));
 		scanBean.setScanRequest(scanRequest);
 		return scanBean;
@@ -423,5 +443,39 @@ public class ScanManagementController extends AbstractMappingController {
 
 	public int getGridModelIndex() {
 		return gridModelIndex;
+	}
+
+	private String getSampleName(IMappingExperimentBean mappingBean, DiffractionParameters acquisitionParameters) {
+		String sampleName;
+		if (acquisitionParameters != null) {
+			sampleName = acquisitionParameters.getName();
+		} else {
+			sampleName = mappingBean.getSampleMetadata().getSampleName();
+		}
+		if (sampleName == null || sampleName.length() == 0) {
+			return DEFAULT_SAMPLE_NAME;
+		}
+		return sampleName;
+	}
+
+	/**
+	 * This method clones a similar one present in {@link ScanRequestConverter#convertToScanRequest}. 
+	 * The reason is to mitigate the replacement of the {@link MetadataController} properties so that 
+	 * can be again written as {@link ScanMetadata}
+	 * 
+	 * @param scanRequest
+	 * @param sampleName
+	 */
+	private void setSampleMetadata(ScanRequest scanRequest, String sampleName) {
+		final ScanMetadata scanMetadata = new ScanMetadata(MetadataType.SAMPLE);
+		scanMetadata.addField(ScanRequestConverter.FIELD_NAME_SAMPLE_NAME, sampleName);
+//		if (sampleMetadata instanceof SimpleSampleMetadata) {
+//			String description = ((SimpleSampleMetadata) sampleMetadata).getDescription();
+//			if (description == null || description.trim().isEmpty()) {
+//				description = DEFAULT_SAMPLE_DESCRIPTION;
+//			}
+//			scanMetadata.addField(ScanRequestConverter.FIELD_NAME_SAMPLE_DESCRIPTION, description);
+//		}
+		scanRequest.setScanMetadata(Arrays.asList(scanMetadata));
 	}
 }
