@@ -2,16 +2,16 @@ package uk.ac.diamond.daq.experiment.api.structure;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Optional;
 
 import org.apache.commons.io.FilenameUtils;
 
 /**
- * An experiment represents a collection of acquisitions performed during a
+ * An experiment represents a collection of acquisitions performed dURLng a
  * defined period of time. When called, {@link #startExperiment(String)} defines
  * or creates a location where all the following acquisitions will be stored.
  */
 public interface ExperimentController {
+
 
 	/**
 	 * Starts a new named experiment
@@ -26,8 +26,9 @@ public interface ExperimentController {
 	 */
 	URL startExperiment(String experimentName) throws ExperimentControllerException;
 
+
 	/**
-	 * Creates a new location within {@link #getExperimentLocation()}
+	 * Creates a new location within the experiment structure.
 	 *
 	 * @param acquisitionName A user-friendly identifier for the acquisition
 	 *
@@ -38,6 +39,7 @@ public interface ExperimentController {
 	 */
 	URL createAcquisitionLocation(String acquisitionName) throws ExperimentControllerException;
 
+
 	/**
 	 * Closes the active experiment.
 	 *
@@ -47,6 +49,7 @@ public interface ExperimentController {
 	 */
 	void stopExperiment() throws ExperimentControllerException;
 
+
 	/**
 	 * Returns the state of the experiment
 	 *
@@ -54,71 +57,31 @@ public interface ExperimentController {
 	 */
 	boolean isStarted();
 
+
 	/**
-	 * Returns the controller root location. All calls to
-	 * {@link #startExperiment(String)} create sub-locations of this URL.
+	 * Generates a URL for a future acquisition without creating the file itself.
+	 * The <code>acquisitionName</code> is used both for the folder name and the main acquisition file.
 	 *
-	 * @return a valid URL for the root location
-	 * @throws ExperimentControllerException if the root location doesn't exist and
-	 *                                       it cannot be created
-	 */
-	URL getControllerRootLocation() throws ExperimentControllerException;
-
-	/**
-	 * Returns the {@link URL} created by the last {@link #startExperiment(String)}
-	 *
-	 * @return a valid URL if {@link #isStarted()} is {@code true}, {@code null}
-	 *         otherwise
-	 */
-	URL getExperimentLocation();
-
-	/**
-	 * Returns the {@link URL} created by the last
-	 * {@link #createAcquisitionLocation(String)}
-	 *
-	 * @return a valid URL if {@link #isStarted()} is {@code true}, {@code null}
-	 *         otherwise
-	 */
-	URL getLastAcquisitionLocation();
-
-	/**
-	 * Returns the default experiment name
-	 */
-	String getDefaultExperimentName();
-
-	/**
-	 * Returns the default acquisition name
-	 */
-	String getDefaultAcquisitionName();
-
-	/**
-	 * Generates a new folder where the experiment can be saved. The
-	 * <code>acquisitionName</code> is used both for the folder name and the main
-	 * acquisition nexus file.
+	 * The default implementation creates a URL for NeXus file.
 	 *
 	 * @param acquisitionName the acquisition name
-	 * @return the path of the acquisition nexus file
+	 * @return the path of the acquisition file
 	 * @throws ExperimentControllerException if the experiment has not started or
 	 *                                       problem occur creating the folder or
 	 *                                       the file URL
 	 */
-	default URL prepareAcquisitionOutput(String acquisitionName) throws ExperimentControllerException {
+	default URL createAcquisitionUrl(String acquisitionName) throws ExperimentControllerException {
 		if (!isStarted()) {
 			throw new ExperimentControllerException("You have to start first the experiment before ask URLs for it");
 		}
-		URL acquisitionFolder;
+
 		try {
-			acquisitionFolder = createAcquisitionLocation(
-					Optional.ofNullable(acquisitionName).orElse(getDefaultAcquisitionName()));
-		} catch (ExperimentControllerException e) {
-			throw new ExperimentControllerException("Cannot create acquisition folder", e);
-		}
-		try {
-			String fileName = FilenameUtils
-					.getBaseName(FilenameUtils.getFullPathNoEndSeparator(acquisitionFolder.getPath()));
+			URL acquisitionFolder = createAcquisitionLocation(acquisitionName);
+			String fileName = FilenameUtils.getBaseName(FilenameUtils.getFullPathNoEndSeparator(acquisitionFolder.getPath()));
 			return new URL(acquisitionFolder, fileName + ".nxs");
 		} catch (MalformedURLException e) {
-			throw new ExperimentControllerException("Cannot create URL", e);
+			throw new ExperimentControllerException("Could not create URL for acquisition output", e);
 		}
 	}
+
 }
