@@ -22,7 +22,7 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.junit.Before;
 import org.junit.Rule;
@@ -31,8 +31,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import uk.ac.diamond.daq.experiment.scans.mapping.QueuePreventingScanSubmitter;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QueuePreventingScanSubmitterTest {
@@ -113,7 +111,7 @@ public class QueuePreventingScanSubmitterTest {
 	}
 
 	private ScanBean getTestScanBean() throws UnknownHostException {
-		IScanPathModel model = mock(IScanPathModel.class);
+		IScanPointGeneratorModel model = mock(IScanPointGeneratorModel.class);
 		CompoundModel compoundModel = mock(CompoundModel.class);
 		when(compoundModel.getModels()).thenReturn(Arrays.asList(model));
 
