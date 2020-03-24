@@ -18,6 +18,8 @@
 
 package uk.ac.gda.tomography.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * Defines the end angle for a rotation.
  */
@@ -84,6 +86,7 @@ public class EndAngle {
 	 * Returns the end angle based on the {@link #getRangeType()} value.
 	 * @return either 180.0, 360.0 or the {@code #getCustomAngle()} value
 	 */
+	@JsonIgnore
 	public double getEndAngle() {
 		switch (getRangeType()) {
 		case RANGE_180:

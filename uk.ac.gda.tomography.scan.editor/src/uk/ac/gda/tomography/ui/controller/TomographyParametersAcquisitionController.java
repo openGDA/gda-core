@@ -2,12 +2,18 @@ package uk.ac.gda.tomography.ui.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +26,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.jython.JythonServerFacade;
 import gda.mscan.element.Mutator;
+import uk.ac.diamond.daq.mapping.api.ScanRequestSavedEvent;
 import uk.ac.diamond.daq.mapping.api.document.DetectorDocument;
 import uk.ac.diamond.daq.mapping.api.document.ScanRequestDocument;
+import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.diamond.daq.mapping.ui.document.DocumentMapper;
@@ -76,20 +85,15 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	private TomographyParameterAcquisition acquisition;
 
 	private TomographyFileService fileService;
-	//@Autowired
-	//private TomographyService tomographyService;
+	// @Autowired
+	// private TomographyService tomographyService;
 
 	@Autowired
 	private DocumentMapper documentMapper;
 
-
 	public TomographyParametersAcquisitionController() {
 
 	}
-
-//	public TomographyParametersAcquisitionController(TomographyService tomographyService) {
-//		this.tomographyService = tomographyService;
-//	}
 
 	@Override
 	public TomographyParameterAcquisition getAcquisition() {
@@ -111,14 +115,8 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		if (outputPath == null) {
 			throw new AcquisitionControllerException("You have not specified the outputPath");
 		}
-//		try {
-			StageConfiguration sc = generateStageConfiguration(getAcquisition());
-			TomographyRunMessage tomographyRunMessage = createTomographyRunMessage(sc, outputPath);
-			//tomographyService.runAcquisition(tomographyRunMessage, getAcquisitionScript(), null, null);
-			publishRun(tomographyRunMessage);
-//		} catch (TomographyServiceException e) {
-//			logger.error("Error submitting tomoscan to queue", e);
-//		}
+		TomographyRunMessage tomographyRunMessage = createTomographyRunMessage(outputPath);
+		publishRun(tomographyRunMessage);
 	}
 
 	@Override
@@ -185,10 +183,21 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		try {
 			Path path = getFileService().saveTextDocument(acquisitionDocument, fileName, AcquisitionConfigurationResourceType.TOMO.getExtension());
 			SpringApplicationContextProxy.publishEvent(new AcquisitionConfigurationResourceSaveEvent(this, path.toUri().toURL()));
+			publishScanRequestSavedEvent(fileName);
 		} catch (IOException e) {
 			UIHelper.showError("Cannot save the configuration", e);
 		}
 		publishSave(getAcquisitionParameters().getName(), acquisitionDocument, getAcquisitionScript().getAbsolutePath());
+	}
+
+	private void publishScanRequestSavedEvent(String fileName) {
+		try {
+			ScanRequestFactory srf = new ScanRequestFactory(createScanRequestDocument(null));
+			ScanRequest scanRequest = srf.createScanRequest(getIRunnableDeviceService());
+			SpringApplicationContextProxy.publishEvent(new ScanRequestSavedEvent(this, fileName, scanRequest));
+		} catch (AcquisitionControllerException | ScanningException e) {
+			logger.error("Canot create scanRequest", e);
+		}
 	}
 
 	/**
@@ -205,22 +214,22 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	}
 
 	// @Override
-//	public URL takeFlatImage(TomographyParameterAcquisition acquisition, URL outputPath) throws AcquisitionControllerException {
-//		try {
-//			return tomographyService.takeFlatImage(createTomographyRunMessage(generateStageConfiguration(acquisition), outputPath), getAcquisitionScript());
-//		} catch (TomographyServiceException e) {
-//			throw new AcquisitionControllerException("Error acquiring Flat Image", e);
-//		}
-//	}
+	// public URL takeFlatImage(TomographyParameterAcquisition acquisition, URL outputPath) throws AcquisitionControllerException {
+	// try {
+	// return tomographyService.takeFlatImage(createTomographyRunMessage(generateStageConfiguration(acquisition), outputPath), getAcquisitionScript());
+	// } catch (TomographyServiceException e) {
+	// throw new AcquisitionControllerException("Error acquiring Flat Image", e);
+	// }
+	// }
 
 	// @Override
-//	public URL takeDarkImage(TomographyParameterAcquisition acquisition, URL outputPath) throws AcquisitionControllerException {
-//		try {
-//			return tomographyService.takeDarkImage(createTomographyRunMessage(generateStageConfiguration(acquisition), outputPath), getAcquisitionScript());
-//		} catch (TomographyServiceException e) {
-//			throw new AcquisitionControllerException("Error acquiring Dark Image", e);
-//		}
-//	}
+	// public URL takeDarkImage(TomographyParameterAcquisition acquisition, URL outputPath) throws AcquisitionControllerException {
+	// try {
+	// return tomographyService.takeDarkImage(createTomographyRunMessage(generateStageConfiguration(acquisition), outputPath), getAcquisitionScript());
+	// } catch (TomographyServiceException e) {
+	// throw new AcquisitionControllerException("Error acquiring Dark Image", e);
+	// }
+	// }
 
 	public TomographyParameters getAcquisitionParameters() {
 		return getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
@@ -274,17 +283,21 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		throw new AcquisitionControllerException("Cannot parse json document");
 	}
 
-	private TomographyRunMessage createTomographyRunMessage(StageConfiguration acquisition, URL outputPath) throws AcquisitionControllerException {
-		TomographyParameters tp = acquisition.getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
-		DetectorDocument dd = new DetectorDocument(acquisition.getStageDescription().getMetadata().get(StageDevice.MALCOLM_TOMO.name()),
+	private ScanRequestDocument createScanRequestDocument(URL outputPath) throws AcquisitionControllerException {
+		StageConfiguration stageConfiguration = generateStageConfiguration(getAcquisition());
+		TomographyParameters tp = stageConfiguration.getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
+		DetectorDocument dd = new DetectorDocument(stageConfiguration.getStageDescription().getMetadata().get(StageDevice.MALCOLM_TOMO.name()),
 				tp.getProjections().getAcquisitionExposure());
 		DetectorDocument[] detectors = { dd };
-		ScannableTrackDocument sd = new ScannableTrackDocument(acquisition.getStageDescription().getMotors().get(StageDevice.MOTOR_STAGE_ROT_Y).getName(),
+		ScannableTrackDocument sd = new ScannableTrackDocument(stageConfiguration.getStageDescription().getMotors().get(StageDevice.MOTOR_STAGE_ROT_Y).getName(),
 				tp.getStart().getStart(), tp.getEnd().getEndAngle(), tp.getProjections().getAngularStep());
 		Map<Mutator, List<Number>> mutators = new EnumMap<>(Mutator.class);
 		ScanpathDocument scanpath = new AxialStepModelDocument(sd, mutators);
-		ScanRequestDocument srd = new ScanRequestDocument(outputPath, detectors, scanpath);
-		return new TomographyRunMessage(intDataToJson(srd));
+		return new ScanRequestDocument(outputPath, detectors, scanpath);
+	}
+
+	private TomographyRunMessage createTomographyRunMessage(URL outputPath) throws AcquisitionControllerException {
+		return new TomographyRunMessage(intDataToJson(createScanRequestDocument(outputPath)));
 	}
 
 	private File getAcquisitionScript() {
@@ -315,4 +328,20 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 			throw new AcquisitionControllerException("Cannot load the file", e);
 		}
 	}
+
+	//--- temporary solution ---//
+	private static IRunnableDeviceService getIRunnableDeviceService() {
+		return getRemoteService(IRunnableDeviceService.class);
+	}
+
+	private static <T> T getRemoteService(Class<T> klass) {
+		IEventService eventService = PlatformUI.getWorkbench().getService(IEventService.class);
+		try {
+			URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
+			return eventService.createRemoteService(jmsURI, klass);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	//--- temporary solution ---//
 }
