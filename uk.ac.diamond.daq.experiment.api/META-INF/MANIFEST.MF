@@ -21,5 +21,4 @@ Require-Bundle: uk.ac.gda.api,
  org.eclipse.core.runtime;bundle-version="3.7.0",
  org.apache.commons.io
 Bundle-Vendor: Diamond Light Source
-Service-Component: OSGI-INF/*.xml
 Automatic-Module-Name: uk.ac.diamond.daq.experiment.api 

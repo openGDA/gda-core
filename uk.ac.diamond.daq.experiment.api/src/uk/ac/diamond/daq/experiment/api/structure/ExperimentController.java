@@ -1,43 +1,49 @@
 package uk.ac.diamond.daq.experiment.api.structure;
 
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
+
+import org.apache.commons.io.FilenameUtils;
 
 /**
- * An experiment represents a collection of acquisitions performed during a defined period of time.
- * When called, {@link #startExperiment(String)} defines or creates a location where all the following acquisitions will be stored.
+ * An experiment represents a collection of acquisitions performed during a
+ * defined period of time. When called, {@link #startExperiment(String)} defines
+ * or creates a location where all the following acquisitions will be stored.
  */
 public interface ExperimentController {
 
 	/**
 	 * Starts a new named experiment
 	 *
-	 * @param experimentName
-	 *            A user-friendly identifier for the experiment.
-	 *            If {@code null} {@link #getDefaultExperimentName()} is used
+	 * @param experimentName A user-friendly identifier for the experiment. If
+	 *                       {@code null} {@link #getDefaultExperimentName()} is
+	 *                       used
 	 *
 	 * @return the experiment root URL
-	 * @throws ExperimentControllerException
-	 *             if methods fails to create the experiment location
+	 * @throws ExperimentControllerException if methods fails to create the
+	 *                                       experiment location
 	 */
 	URL startExperiment(String experimentName) throws ExperimentControllerException;
 
 	/**
 	 * Creates a new location within {@link #getExperimentLocation()}
 	 *
-	 * @param acquisitionName
-	 *            A user-friendly identifier for the acquisition
+	 * @param acquisitionName A user-friendly identifier for the acquisition
 	 *
-	 * @return a valid URL if {@link #isStarted()} is {@code true}, {@code null} otherwise
-	 * @throws ExperimentControllerException
-	 *             if methods fails to create the acquisition location
+	 * @return a valid URL if {@link #isStarted()} is {@code true}, {@code null}
+	 *         otherwise
+	 * @throws ExperimentControllerException if methods fails to create the
+	 *                                       acquisition location
 	 */
 	URL createAcquisitionLocation(String acquisitionName) throws ExperimentControllerException;
 
 	/**
 	 * Closes the active experiment.
 	 *
-	 * @throws ExperimentControllerException
-	 *             if methods fails or {@link #isStarted()} returns {@code false}
+	 * @throws ExperimentControllerException if methods fails or
+	 *                                       {@link #isStarted()} returns
+	 *                                       {@code false}
 	 */
 	void stopExperiment() throws ExperimentControllerException;
 
@@ -49,24 +55,29 @@ public interface ExperimentController {
 	boolean isStarted();
 
 	/**
-	 * Returns the controller root location. All calls to {@link #startExperiment(String)} create sub-locations of this URL.
+	 * Returns the controller root location. All calls to
+	 * {@link #startExperiment(String)} create sub-locations of this URL.
 	 *
 	 * @return a valid URL for the root location
-	 * @throws ExperimentControllerException if the root location doesn't exist and it cannot be created
+	 * @throws ExperimentControllerException if the root location doesn't exist and
+	 *                                       it cannot be created
 	 */
 	URL getControllerRootLocation() throws ExperimentControllerException;
 
 	/**
 	 * Returns the {@link URL} created by the last {@link #startExperiment(String)}
 	 *
-	 * @return a valid URL if {@link #isStarted()} is {@code true}, {@code null} otherwise
+	 * @return a valid URL if {@link #isStarted()} is {@code true}, {@code null}
+	 *         otherwise
 	 */
 	URL getExperimentLocation();
 
 	/**
-	 * Returns the {@link URL} created by the last {@link #createAcquisitionLocation(String)}
+	 * Returns the {@link URL} created by the last
+	 * {@link #createAcquisitionLocation(String)}
 	 *
-	 * @return a valid URL if {@link #isStarted()} is {@code true}, {@code null} otherwise
+	 * @return a valid URL if {@link #isStarted()} is {@code true}, {@code null}
+	 *         otherwise
 	 */
 	URL getLastAcquisitionLocation();
 
@@ -80,4 +91,34 @@ public interface ExperimentController {
 	 */
 	String getDefaultAcquisitionName();
 
+	/**
+	 * Generates a new folder where the experiment can be saved. The
+	 * <code>acquisitionName</code> is used both for the folder name and the main
+	 * acquisition nexus file.
+	 *
+	 * @param acquisitionName the acquisition name
+	 * @return the path of the acquisition nexus file
+	 * @throws ExperimentControllerException if the experiment has not started or
+	 *                                       problem occur creating the folder or
+	 *                                       the file URL
+	 */
+	default URL prepareAcquisitionOutput(String acquisitionName) throws ExperimentControllerException {
+		if (!isStarted()) {
+			throw new ExperimentControllerException("You have to start first the experiment before ask URLs for it");
+		}
+		URL acquisitionFolder;
+		try {
+			acquisitionFolder = createAcquisitionLocation(
+					Optional.ofNullable(acquisitionName).orElse(getDefaultAcquisitionName()));
+		} catch (ExperimentControllerException e) {
+			throw new ExperimentControllerException("Cannot create acquisition folder", e);
+		}
+		try {
+			String fileName = FilenameUtils
+					.getBaseName(FilenameUtils.getFullPathNoEndSeparator(acquisitionFolder.getPath()));
+			return new URL(acquisitionFolder, fileName + ".nxs");
+		} catch (MalformedURLException e) {
+			throw new ExperimentControllerException("Cannot create URL", e);
+		}
+	}
 }

@@ -45,12 +45,14 @@ public interface AcquisitionController<T extends Acquisition<? extends Acquisiti
 	 */
 	void saveAcquisitionConfiguration() throws AcquisitionControllerException;
 
+
 	/**
-	 * Runs the controller acquisition associated {@link #getAcquisition()}
+	 * Runs the acquisition storing the result in the given {@code outputPath}
 	 *
-	 * @throws AcquisitionControllerException
+	 * @param outputPath where acquisition will be stored
+	 * @throws AcquisitionControllerException if {@code outputPath} is {@code null}
 	 */
-	void runAcquisition() throws AcquisitionControllerException;
+	void runAcquisition(URL outputPath) throws AcquisitionControllerException;
 
 	/**
 	 * Sets the controller active acquisition parsing a file

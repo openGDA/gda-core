@@ -70,7 +70,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import uk.ac.diamond.daq.mapping.ui.experiment.ScanBeanSubmitter;
+import uk.ac.diamond.daq.mapping.api.IScanBeanSubmitter;
 
 /**
  * A view to set up a time series scan. This is a malcolm scan of one or more steps (scan points),
@@ -271,7 +271,7 @@ public class TimeSeriesScanView {
 	}
 
 	private void submitScan() {
-		final ScanBeanSubmitter submitter = eclipseContext.get(ScanBeanSubmitter.class);
+		final IScanBeanSubmitter submitter = eclipseContext.get(IScanBeanSubmitter.class);
 		try {
 			submitter.submitScan(createScanBean());
 		} catch (EventException e) {
