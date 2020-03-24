@@ -59,7 +59,9 @@ public class ScanRequestFactory {
 
 		// Populate the {@link ScanRequest} with the assembled objects
 		ScanRequest scanRequest = new ScanRequest();
-		scanRequest.setFilePath(srd.getFilePath().getPath());
+		if (srd.getFilePath() != null) {
+			scanRequest.setFilePath(srd.getFilePath().getPath());
+		}
 		scanRequest.setCompoundModel(scanModel);
 		scanRequest.setDetectors(parseDetectors(srd.getDetectors(), runnableDeviceService));
 		scanRequest.setMonitorNamesPerPoint(parseMonitorNamesPerPoint(srd));
