@@ -8,8 +8,10 @@ import gda.device.DeviceException;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.ExposureChangeEvent;
+import uk.ac.diamond.daq.mapping.api.document.DetectorDocument;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
+import uk.ac.gda.tomography.base.TomographyParameters;
 
 /**
  * Handles {@link TomographyParametersAcquisitionController} events
@@ -64,6 +66,7 @@ class TomographyParametersAcquisitionControllerHelper {
 	}
 
 	private static void setAcquisitionExposure(double exposure, AcquisitionController<TomographyParameterAcquisition> controller) {
-		controller.getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters().getProjections().setAcquisitionExposure(exposure);
+		TomographyParameters tp = controller.getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
+		tp.setDetector(new DetectorDocument(tp.getDetector().getName(), exposure));
 	}
 }

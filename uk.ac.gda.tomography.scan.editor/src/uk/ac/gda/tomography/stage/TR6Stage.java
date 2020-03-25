@@ -39,7 +39,6 @@ public class TR6Stage extends CommonStage {
 	protected void populateDevicesMap() {
 		addToDevicesMap(StageDevice.MOTOR_STAGE_X, "tomography.tr6.motor.linear.y");
 		addToDevicesMap(StageDevice.MOTOR_STAGE_ROT_Y, "tomography.tr6.motor.rot.y");
-		addToDevicesMap(StageDevice.MALCOLM_TOMO, "tomography.malcolm.device.tomo");
 	}
 
 	@Override

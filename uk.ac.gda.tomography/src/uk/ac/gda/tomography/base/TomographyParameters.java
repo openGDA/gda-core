@@ -1,5 +1,6 @@
 package uk.ac.gda.tomography.base;
 
+import uk.ac.diamond.daq.mapping.api.document.DetectorDocument;
 import uk.ac.gda.api.acquisition.AcquisitionParameters;
 import uk.ac.gda.tomography.model.EndAngle;
 import uk.ac.gda.tomography.model.ImageCalibration;
@@ -26,6 +27,8 @@ public class TomographyParameters implements AcquisitionParameters {
 
 	private MultipleScans multipleScans;
 
+	private DetectorDocument detector;
+
 	public TomographyParameters() {
 		super();
 	}
@@ -39,6 +42,7 @@ public class TomographyParameters implements AcquisitionParameters {
 		this.projections = new Projections(configuration.getProjections());
 		this.imageCalibration = new ImageCalibration(configuration.getImageCalibration());
 		this.multipleScans = new MultipleScans(configuration.getMultipleScans());
+		this.detector = new DetectorDocument(configuration.getDetector());
 	}
 
 	public String getName() {
@@ -95,5 +99,13 @@ public class TomographyParameters implements AcquisitionParameters {
 
 	public void setMultipleScans(MultipleScans multipleScans) {
 		this.multipleScans = multipleScans;
+	}
+
+	public DetectorDocument getDetector() {
+		return detector;
+	}
+
+	public void setDetector(DetectorDocument detector) {
+		this.detector = detector;
 	}
 }

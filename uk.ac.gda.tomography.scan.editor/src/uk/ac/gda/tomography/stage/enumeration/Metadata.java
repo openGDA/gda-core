@@ -23,8 +23,5 @@ package uk.ac.gda.tomography.stage.enumeration;
  * @author Maurizio Nagni
  */
 public enum Metadata {
-	/**
-	 * The exposure duration
-	 */
-	EXPOSURE;
+
 }

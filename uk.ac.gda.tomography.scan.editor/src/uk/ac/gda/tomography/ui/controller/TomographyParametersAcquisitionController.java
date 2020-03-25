@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.IEventService;
@@ -38,6 +39,8 @@ import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.diamond.daq.mapping.ui.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.ui.document.scanpath.AxialStepModelDocument;
+import uk.ac.diamond.daq.mapping.ui.properties.DetectorHelper;
+import uk.ac.diamond.daq.mapping.ui.properties.DetectorHelper.AcquisitionType;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
@@ -45,6 +48,7 @@ import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
 import uk.ac.gda.client.UIHelper;
+import uk.ac.gda.client.properties.DetectorProperties;
 import uk.ac.gda.tomography.base.TomographyConfiguration;
 import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
 import uk.ac.gda.tomography.base.TomographyParameters;
@@ -62,7 +66,6 @@ import uk.ac.gda.tomography.service.TomographyFileService;
 import uk.ac.gda.tomography.service.message.TomographyRunMessage;
 import uk.ac.gda.tomography.stage.IStageController;
 import uk.ac.gda.tomography.stage.StageConfiguration;
-import uk.ac.gda.tomography.stage.enumeration.Metadata;
 import uk.ac.gda.tomography.stage.enumeration.Position;
 import uk.ac.gda.tomography.stage.enumeration.StageDevice;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
@@ -149,22 +152,27 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	public static TomographyParameterAcquisition createNewAcquisition() {
 		TomographyParameterAcquisition newConfiguration = new TomographyParameterAcquisition();
 		newConfiguration.setAcquisitionConfiguration(new TomographyConfiguration());
-		TomographyParameters tp = new TomographyParameters();
-
-		tp.setName("Default name");
-		tp.setScanType(ScanType.FLY);
-		tp.setStart(new StartAngle(0.0, false, Double.MIN_VALUE));
-		tp.setEnd(new EndAngle(RangeType.RANGE_180, 1, 0.0));
-		tp.setProjections(new Projections(1, 0));
-		tp.setImageCalibration(new ImageCalibration());
+		TomographyParameters acquisitionParameters = new TomographyParameters();
+		Optional<List<DetectorProperties>> dp = DetectorHelper.getAcquistionDetector(AcquisitionType.TOMOGRAPHY);
+		int index = 0; // in future may be parametrised
+		if (dp.isPresent()) {
+			DetectorDocument dd = new DetectorDocument(dp.get().get(index).getDetectorBean(), 0);
+			acquisitionParameters.setDetector(dd);
+		}
+		acquisitionParameters.setName("Default name");
+		acquisitionParameters.setScanType(ScanType.FLY);
+		acquisitionParameters.setStart(new StartAngle(0.0, false, Double.MIN_VALUE));
+		acquisitionParameters.setEnd(new EndAngle(RangeType.RANGE_180, 1, 0.0));
+		acquisitionParameters.setProjections(new Projections(1, 0));
+		acquisitionParameters.setImageCalibration(new ImageCalibration());
 
 		MultipleScans multipleScan = new MultipleScans();
 		multipleScan.setMultipleScansType(MultipleScansType.REPEAT_SCAN);
 		multipleScan.setNumberRepetitions(1);
 		multipleScan.setWaitingTime(0);
-		tp.setMultipleScans(multipleScan);
+		acquisitionParameters.setMultipleScans(multipleScan);
 
-		newConfiguration.getAcquisitionConfiguration().setAcquisitionParameters(tp);
+		newConfiguration.getAcquisitionConfiguration().setAcquisitionParameters(acquisitionParameters);
 		return newConfiguration;
 	}
 
@@ -238,7 +246,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	private StageConfiguration generateStageConfiguration(TomographyParameterAcquisition acquisition) throws AcquisitionControllerException {
 		try {
 			TomographyParametersAcquisitionControllerHelper.updateExposure(this);
-			stageController.getMetadata().put(Metadata.EXPOSURE.name(), Double.toString(TomographyParametersAcquisitionControllerHelper.getExposure()));
+			//stageController.getMetadata().put(Metadata.EXPOSURE.name(), Double.toString(TomographyParametersAcquisitionControllerHelper.getExposure()));
 		} catch (DeviceException e) {
 			throw new AcquisitionControllerException("Acquisition cannot acquire the active camera exposure time");
 		}
@@ -286,11 +294,11 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	private ScanRequestDocument createScanRequestDocument(URL outputPath) throws AcquisitionControllerException {
 		StageConfiguration stageConfiguration = generateStageConfiguration(getAcquisition());
 		TomographyParameters tp = stageConfiguration.getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
-		DetectorDocument dd = new DetectorDocument(stageConfiguration.getStageDescription().getMetadata().get(StageDevice.MALCOLM_TOMO.name()),
-				tp.getProjections().getAcquisitionExposure());
+		DetectorDocument dd = tp.getDetector();
 		DetectorDocument[] detectors = { dd };
-		ScannableTrackDocument sd = new ScannableTrackDocument(stageConfiguration.getStageDescription().getMotors().get(StageDevice.MOTOR_STAGE_ROT_Y).getName(),
-				tp.getStart().getStart(), tp.getEnd().getEndAngle(), tp.getProjections().getAngularStep());
+		ScannableTrackDocument sd = new ScannableTrackDocument(
+				stageConfiguration.getStageDescription().getMotors().get(StageDevice.MOTOR_STAGE_ROT_Y).getName(), tp.getStart().getStart(),
+				tp.getEnd().getEndAngle(), tp.getProjections().getAngularStep());
 		Map<Mutator, List<Number>> mutators = new EnumMap<>(Mutator.class);
 		ScanpathDocument scanpath = new AxialStepModelDocument(sd, mutators);
 		return new ScanRequestDocument(outputPath, detectors, scanpath);
@@ -329,7 +337,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		}
 	}
 
-	//--- temporary solution ---//
+	// --- temporary solution ---//
 	private static IRunnableDeviceService getIRunnableDeviceService() {
 		return getRemoteService(IRunnableDeviceService.class);
 	}
@@ -343,5 +351,5 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 			return null;
 		}
 	}
-	//--- temporary solution ---//
+	// --- temporary solution ---//
 }

@@ -41,7 +41,6 @@ public class GTSStage extends CommonStage {
 		addToDevicesMap(StageDevice.MOTOR_STAGE_Y, "tomography.main.motor.linear.y");
 		addToDevicesMap(StageDevice.MOTOR_STAGE_Z, "tomography.main.motor.linear.z");
 		addToDevicesMap(StageDevice.MOTOR_STAGE_ROT_Y, "tomography.main.motor.rot.y");
-		addToDevicesMap(StageDevice.MALCOLM_TOMO, "tomography.malcolm.device.tomo");
 	}
 
 	@Override

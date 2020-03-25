@@ -41,9 +41,4 @@ public enum StageDevice {
 	 * A motor rotating axis Y
 	 */
 	MOTOR_STAGE_ROT_Y,
-	/**
-	 *
-	 */
-	MALCOLM_TOMO;
-
 }

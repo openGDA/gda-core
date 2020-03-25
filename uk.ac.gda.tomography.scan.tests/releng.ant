@@ -26,7 +26,7 @@
 				<pathelement location="${workspace.git.loc}/gda-tomography.git//uk.ac.gda.tomography.scan.editor/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />				
 				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
-				<!-- <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.client/bin" /> -->
+				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.diamond.daq.mapping.api/bin" />
 				<!-- <pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/main" /> -->
 				<!-- <pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" /> -->
 				<!--
