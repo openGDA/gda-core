@@ -694,7 +694,8 @@ public class StatusQueueView extends EventConnectionView {
 			"Are you sure you would like to remove all items from the queue "+getQueueName()+" and "+
 			getSubmissionQueueName()+"?\n\nThis could abort or disconnect runs of other users.");
 		if (!ok) return;
-		boolean terminateRunningScan = MessageDialog.openQuestion(getSite().getShell(),
+		boolean terminateRunningScan = runList.stream().noneMatch(b -> b.getStatus().isRunning()) ||
+				MessageDialog.openQuestion(getSite().getShell(),
 				"Confirm scan termination", "Would you like to terminate the currently running scan?");
 
 		jobQueueProxy.clearQueue();
