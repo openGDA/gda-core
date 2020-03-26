@@ -205,7 +205,7 @@ public class LivePlottingComposite extends Composite {
 			createScriptingConnection(plotName);
 
 			// Fix the aspect ratio as is typically required for visible cameras
-			// plottingSystem.setKeepAspect(false);
+			plottingSystem.setKeepAspect(false);
 			// Disable auto rescale as the live stream is constantly refreshing
 			plottingSystem.setRescale(false);
 			if (this.liveStreamConnection != null && this.liveStreamConnection.isConnected()) {
@@ -272,7 +272,7 @@ public class LivePlottingComposite extends Composite {
 			iTrace.setAxes(liveStreamConnection.getAxes(), false);
 			liveStreamConnection.addAxisMoveListener(axisChangeListener);
 		}
-
+		setShowAxes(liveStreamConnection.getCameraConfig().getCalibratedAxesProvider() != null);
 		updateAxesVisibility();
 		updateTitleVisibility();
 
