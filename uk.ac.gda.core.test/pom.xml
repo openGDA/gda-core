@@ -61,6 +61,7 @@
 			          	<exclude>BeamMonitorTest</exclude>
 			          	<exclude>EnumPositionCheckTest</exclude>
 			          	<exclude>ScannableThresholdConditionTest</exclude>
+						<exclude>SpringMotorDefinitionParserTest</exclude>
 			          	<!-- Tests trying to read/write test files -->
 			          	<exclude>PropertyPlaceholderConfigurerTest</exclude>
 			          	<exclude>FindableHashtableTest</exclude>
@@ -69,6 +70,7 @@
 			          	<exclude>PathConstructorTest</exclude>
 			          	<exclude>CrysalisRunListTest</exclude>
 			          	<exclude>SimpleHighestExistingFileMonitorTest</exclude>
+			          	<exclude>ElogEntryTest</exclude>
 			          	<!-- Tests Fail due to some hidden setup issue -->
 			          	<exclude>RmiAutomatedExporterTest</exclude>
 			          	<exclude>TfgScalerTest</exclude>
