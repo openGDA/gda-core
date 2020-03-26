@@ -199,9 +199,11 @@ public class BeamPositionPlotter implements IObserver, PropertyChangeListener {
 	public void propertyChange(PropertyChangeEvent event) {
 		String propertyName = event.getPropertyName();
 		if (propertyName.equals("beamSize")) {
+			// Force to refresh cached value
+			beamSize = -1;
 			// If the beam size has changed, replot the position marker to show the new size
 			replot();
-		} else if (propertyName.equals("activeFastScanAxis") || propertyName.equals("activeSlowScanAxis")) {
+		} else if (propertyName.equals("plotXAxisName") || propertyName.equals("plotYAxisName")) {
 			// If the motor names have changed, we need to stop observing the old motors and start observing the new
 			// ones. The easiest way to achieve this is to call dispose() to remove all observers and listeners, and
 			// call initialise() again to reconnect to the new motors.
@@ -259,9 +261,12 @@ public class BeamPositionPlotter implements IObserver, PropertyChangeListener {
 					return;
 				}
 			}
-			markerRegion.setVisible(showBeamPosition);
 			try {
-				markerRegion.setROI(new CircularROI(getBeamSize(), lastXCoordinate, lastYCoordinate));
+				// Sets this.beamSize to beamsize, or -1 if no scannable/scannableName
+				getBeamSize();
+				markerRegion.setVisible(showBeamPosition && beamSize > 0);
+				if (beamSize < 0) return;
+				markerRegion.setROI(new CircularROI(beamSize, lastXCoordinate, lastYCoordinate));
 			} catch (ScanningException e) {
 				logger.error("Error drawing ROI", e);
 			}
@@ -269,20 +274,19 @@ public class BeamPositionPlotter implements IObserver, PropertyChangeListener {
 	}
 
 	private double getBeamSize() throws ScanningException {
-		 if (beamSize < 0) {
-			 try {
-					 final URI jmsUri = new URI(LocalProperties.getActiveMQBrokerURI());
-					 final IScannableDeviceService scannableDeviceService =
-							 eventService.createRemoteService(jmsUri, IScannableDeviceService.class);
-					 IScannable<Double> beamScannable = scannableDeviceService.getScannable(mappingStageInfo.getBeamSize());
-					 beamSize = beamScannable.getPosition();
-			 } catch (ScanningException e) {
-				 throw e;
-			 } catch (Exception e) {
-				 throw new ScanningException(e);
-			 }
-		 }
-
-		 return beamSize;
+		if (beamSize < 0 && mappingStageInfo.getBeamSize() != null) {
+			try {
+				final URI jmsUri = new URI(LocalProperties.getActiveMQBrokerURI());
+				final IScannableDeviceService scannableDeviceService =
+						eventService.createRemoteService(jmsUri, IScannableDeviceService.class);
+				IScannable<Double> beamScannable = scannableDeviceService.getScannable(mappingStageInfo.getBeamSize());
+				if (beamScannable != null) beamSize = beamScannable.getPosition();
+			} catch (ScanningException e) {
+				throw e;
+			} catch (Exception e) {
+				throw new ScanningException(e);
+			}
+		}
+		return beamSize;
 	}
 }
