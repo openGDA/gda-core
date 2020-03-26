@@ -73,7 +73,7 @@ final class ScannablePositioner extends LevelRunner<IScannable<?>> implements IP
 
 	@Override
 	public boolean setPosition(IPosition position) throws ScanningException, InterruptedException {
-		if (scannables != null) {
+		if (scannables != null && !scannables.isEmpty()) {
 			clearCachedLevelObjects();
 		}
 
@@ -101,7 +101,7 @@ final class ScannablePositioner extends LevelRunner<IScannable<?>> implements IP
 	protected Collection<IScannable<?>> getDevices() throws ScanningException {
 		final List<IScannable<?>> devices = new ArrayList<>();
 
-		if (scannables == null) {
+		if (scannables == null || scannables.isEmpty()) {
 			for (String name : position.getNames()) {
 				devices.add(connectorService.getScannable(name));
 			}

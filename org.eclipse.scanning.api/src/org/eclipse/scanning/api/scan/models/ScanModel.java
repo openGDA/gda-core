@@ -235,7 +235,7 @@ public class ScanModel {
 	}
 
 	public List<IScannable<?>> getScannables() {
-		return scannables;
+		return scannables != null ? scannables : Collections.emptyList();
 	}
 
 	public void setScannables(List<IScannable<?>> scannables) {
