@@ -29,6 +29,10 @@ import java.util.List;
 */
 public class ConsecutiveMultiModel extends AbstractMultiModel<IScanPointGeneratorModel> {
 
+	public ConsecutiveMultiModel(){
+		setContinuous(false);
+	}
+
 	@Override
 	public List<String> getScannableNames() {
 		return getFirstModel().getScannableNames();

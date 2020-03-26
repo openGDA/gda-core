@@ -27,6 +27,7 @@ import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.EllipticalROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
+import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -55,7 +56,7 @@ public class CompoundTest {
 		service = new PointGeneratorService();
 	}
 
-	@Test(expected=GeneratorException.class)
+	@Test(expected=ModelValidationException.class)
 	public void testCompoundCompoundException() throws Exception {
 
 		BoundingBox box = new BoundingBox();
@@ -83,7 +84,7 @@ public class CompoundTest {
 		service.createCompoundGenerator(pos1, pos2);
 	}
 
-	@Test(expected=GeneratorException.class)
+	@Test(expected=ModelValidationException.class)
 	public void testDuplicateAxisNameExceptionForModel() throws Exception {
 
 		CompoundModel cModel = new CompoundModel(new AxialStepModel("Position", 1, 4, 0.6));
@@ -607,7 +608,7 @@ public class CompoundTest {
 		assertEquals(25, allPositions.size());
 	}
 
-	@Test(expected = GeneratorException.class)
+	@Test(expected = ModelValidationException.class)
 	public void regionForWrongAxis() throws GeneratorException {
 		CompoundModel cModel = new CompoundModel();
 
@@ -628,7 +629,7 @@ public class CompoundTest {
 		service.createCompoundGenerator(cModel).createPoints();
 	}
 
-	@Test(expected = GeneratorException.class)
+	@Test(expected = ModelValidationException.class)
 	public void regionForWrongAxes() throws GeneratorException {
 		CompoundModel cModel = new CompoundModel();
 

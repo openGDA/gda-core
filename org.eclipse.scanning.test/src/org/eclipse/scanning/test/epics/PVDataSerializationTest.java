@@ -698,9 +698,9 @@ public class PVDataSerializationTest {
 
 		List<IMutator> mutators = new LinkedList<>();
 		List<String> axes = new LinkedList<String>();
-		axes.add("x");
+		axes.add("stage_x");
 		Map<String,Double> offsets = new LinkedHashMap<String, Double>();
-		offsets.put("x", 34d);
+		offsets.put("stage_x", 34d);
 		RandomOffsetMutator rom = new RandomOffsetMutator(3456, axes, offsets);
 		mutators.add(rom);
 
@@ -736,7 +736,7 @@ public class PVDataSerializationTest {
 		PVInt seedVal = expectedMutatorPVStructure.getSubField(PVInt.class, "seed");
 		seedVal.put(3456);
 		PVStringArray axesVal = expectedMutatorPVStructure.getSubField(PVStringArray.class, "axes");
-		String[] axesStr = new String[] {"x"};
+		String[] axesStr = new String[] {"stage_x"};
 		axesVal.put(0, axesStr.length, axesStr, 0);
 
 		PVDoubleArray maxOffsetPVfield = expectedMutatorPVStructure.getSubField(PVDoubleArray.class, "max_offset");
