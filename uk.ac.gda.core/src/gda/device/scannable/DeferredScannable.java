@@ -29,24 +29,18 @@ import gda.factory.Finder;
 
 public class DeferredScannable extends ScannableMotionUnitsBase {
 	private static final Logger logger = LoggerFactory.getLogger(DeferredScannable.class);
-	Scannable controlPointScannable;
+
+	private Scannable controlPointScannable;
+	private ControlPoint deferredControlPoint;
+	private String deferredControlPointName;
+	private String controlPointScannableName;
+
 	public Scannable getControlPointScannable() {
 		return controlPointScannable;
 	}
 
 	public void setControlPointScannable(Scannable controlPointScannable) {
 		this.controlPointScannable = controlPointScannable;
-	}
-
-	ControlPoint deferredControlPoint;
-	String deferredControlPointName;
-	private String controlPointScannableName;
-
-	/**
-	 *
-	 */
-	public DeferredScannable() {
-
 	}
 
 	@Override

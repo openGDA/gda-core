@@ -53,8 +53,8 @@ public class TwoJawSlitPositionTest {
 	private static final double SECOND_JAW_LOWER_LIMIT = -7.0;
 	private static final double SECOND_JAW_UPPER_LIMIT = 5.0;
 
-	private static ScannableMotionUnits firstJaw;
-	private static ScannableMotionUnits secondJaw;
+	private ScannableMotionUnits firstJaw;
+	private ScannableMotionUnits secondJaw;
 
 	private TwoJawSlitPosition slitPosition;
 

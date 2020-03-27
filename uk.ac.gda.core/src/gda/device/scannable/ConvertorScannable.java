@@ -51,7 +51,7 @@ public class ConvertorScannable<S extends Quantity<S>, T extends Quantity<T>> ex
 	private String theScannableName;
 	private String convertorUnitString;
 
-	private Quantity<? extends Quantity<?>> lastmoveTo_internalPositionQuantity = null;
+	private Quantity<S> lastmoveTo_internalPositionQuantity = null;
 
 	public ConvertorScannable() {
 		unitsComponent = new UnitsComponentForConvertorScannable<T>();

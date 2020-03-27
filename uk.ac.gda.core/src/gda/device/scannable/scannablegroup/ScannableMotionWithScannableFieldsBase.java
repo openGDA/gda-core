@@ -427,13 +427,11 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableMotionWithScannableFieldsBase.class);
 
-	List<ScannableField> children;
+	private List<ScannableField> children;
 
-	Map<String, ScannableField> scannableFieldByName;
+	private Map<String, ScannableField> scannableFieldByName;
 
-	Map<Integer, Object> targetMap;
-
-	CoordinatedParentScannableComponent coordinatedScannableComponent;
+	private CoordinatedParentScannableComponent coordinatedScannableComponent;
 
 	private boolean awaitingScanEnd = false;
 

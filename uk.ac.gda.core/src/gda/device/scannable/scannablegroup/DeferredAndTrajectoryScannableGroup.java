@@ -40,10 +40,6 @@ public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup
 
 	private boolean operatingContinuousely;
 
-	public DeferredAndTrajectoryScannableGroup() {
-
-	}
-
 	@Override
 	public void setGroupMembers(List<Scannable> groupMembers) throws FactoryException {
 		for (Scannable scn : groupMembers) {
@@ -54,8 +50,8 @@ public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup
 		super.setGroupMembers(groupMembers);
 	}
 
-	public ArrayList<ScannableMotor> getScannableMotors() {
-		ArrayList<ScannableMotor> members = new ArrayList<ScannableMotor>();
+	public List<ScannableMotor> getScannableMotors() {
+		final List<ScannableMotor> members = new ArrayList<>();
 		for (Scannable wrappedScannable : getGroupMembersAsArray()) {
 			Scannable scannableMotor = ((CoordinatedChildContinuousScannableMotionUnits) wrappedScannable)
 					.getPhysicalScannable();
@@ -126,7 +122,7 @@ public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup
 	}
 
 	private void checkGroupMembersPositionValids(Double[] posForScannableMotors) throws DeviceException {
-		ArrayList<ScannableMotor> scannableMotors = getScannableMotors();
+		final List<ScannableMotor> scannableMotors = getScannableMotors();
 		for (int i = 0; i < scannableMotors.size(); i++) {
 			Double externalPosition = posForScannableMotors[i];
 			if (externalPosition != null) {
@@ -139,8 +135,8 @@ public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup
 	}
 
 	private Double[] positionForScannablesToUnderlyingMotors(Double[] posForScannableMotors) {
-		Double[] posForUnderlyingMotors = new Double[posForScannableMotors.length];
-		ArrayList<ScannableMotor> scannableMotors = getScannableMotors();
+		final Double[] posForUnderlyingMotors = new Double[posForScannableMotors.length];
+		final List<ScannableMotor> scannableMotors = getScannableMotors();
 		for (int i = 0; i < scannableMotors.size(); i++) {
 			Object motorPos = scannableMotors.get(i).externalToInternal(posForScannableMotors[i]);
 			posForUnderlyingMotors[i] = PositionConvertorFunctions.toDouble(motorPos);
@@ -149,8 +145,8 @@ public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup
 	}
 
 	public Double[] positionForUnderlyingMotorsToScannable(Double[] posForUnderlyingMotors) {
-		Double[] posForScannableMotors = new Double[posForUnderlyingMotors.length];
-		ArrayList<ScannableMotor> scannableMotors = getScannableMotors();
+		final Double[] posForScannableMotors = new Double[posForUnderlyingMotors.length];
+		final List<ScannableMotor> scannableMotors = getScannableMotors();
 		for (int i = 0; i < scannableMotors.size(); i++) {
 			Object scannablePos = scannableMotors.get(i).internalToExternal(posForUnderlyingMotors[i]);
 			posForScannableMotors[i] = PositionConvertorFunctions.toDouble(scannablePos);

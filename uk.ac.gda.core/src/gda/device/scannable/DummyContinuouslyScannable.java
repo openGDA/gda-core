@@ -33,8 +33,8 @@ import uk.ac.diamond.daq.concurrent.Async;
  */
 public class DummyContinuouslyScannable extends ScannableMotionUnitsBase implements SimulatedContinuouslyScannable {
 
-	ContinuousParameters continuousParameters;
-	SimulatedBufferedDetector[] observers = new SimulatedBufferedDetector[0];
+	private ContinuousParameters continuousParameters;
+	private SimulatedBufferedDetector[] observers = new SimulatedBufferedDetector[0];
 
 	private volatile double currentPosition = 0;
 	private volatile boolean busy = false;

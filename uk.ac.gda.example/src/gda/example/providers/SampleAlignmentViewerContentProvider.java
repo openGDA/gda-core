@@ -23,7 +23,7 @@ import uk.ac.gda.example.device.collection.SampleAlignmentDeviceCollection;
 
 public class SampleAlignmentViewerContentProvider implements ISampleAlignmentViewerProvider {
 
-	SampleAlignmentDeviceCollection collection;
+	private SampleAlignmentDeviceCollection collection;
 
 	public SampleAlignmentViewerContentProvider(SampleAlignmentDeviceCollection collection) {
 		this.collection = collection;

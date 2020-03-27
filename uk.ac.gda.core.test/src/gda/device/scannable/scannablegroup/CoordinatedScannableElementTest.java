@@ -21,6 +21,7 @@ package gda.device.scannable.scannablegroup;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import gda.MockFactory;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -31,9 +32,9 @@ import junit.framework.TestCase;
  */
 public class CoordinatedScannableElementTest extends TestCase{
 
-	Scannable wrapped;
-	CoordinatedScannableGroup mockedGroup;
-	CoordinatedChildScannable element;
+	private Scannable wrapped;
+	private CoordinatedScannableGroup mockedGroup;
+	private CoordinatedChildScannable element;
 
 	@Override
 	public void setUp() throws Exception {
