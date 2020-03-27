@@ -62,7 +62,7 @@ import org.h2.mvstore.MVStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection implements IJobQueue<U> {
+public class JobQueueImpl<U extends StatusBean> extends AbstractConnection implements IJobQueue<U> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JobQueueImpl.class);
 
@@ -140,13 +140,16 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 		final File persistentStoreFile = new File(persistentStorePath);
 		persistentStoreFile.getParentFile().mkdirs();
 
+		// load the submission queue and status queues, handling any failures by deleting and recreating the MVStore persistence file
 		IPersistentModifiableIdQueue<U> submissionQueue;
 		IPersistentModifiableIdQueue<U> statusQueue;
 		MVStore store = null;
 		try {
 			store = MVStore.open(persistentStorePath);
-			submissionQueue = new SynchronizedModifiableIdQueue<>(connectorService, store, QUEUE_NAME_SUBMISSION_QUEUE);
-			statusQueue = new SynchronizedModifiableIdQueue<>(connectorService, store, QUEUE_NAME_STARTED_BEANS);
+			submissionQueue = createQueue(connectorService, store, QUEUE_NAME_SUBMISSION_QUEUE);
+			LOGGER.info("Loaded submission queue {} with {} beans", getSubmitQueueName(), submissionQueue.stream().count());
+			statusQueue = createQueue(connectorService, store, QUEUE_NAME_STARTED_BEANS);
+			LOGGER.info("Loaded status queue for submission queue {} with {} beans",  getSubmitQueueName(), statusQueue.stream().count());
 		} catch (Exception e) {
 			// An error may occur loading the queue into memory from the file. This can happen when we change GDA version where
 			// the model names have changed, e.g. 9.15 to 9.16 many model names were renamed such as GridModel to TwoAxisGridPointsModel
@@ -163,6 +166,10 @@ public final class JobQueueImpl<U extends StatusBean> extends AbstractConnection
 		this.statusQueue = statusQueue;
 
 		connect();
+	}
+
+	protected IPersistentModifiableIdQueue<U> createQueue(IEventConnectorService connectorService, MVStore store, String queueName) {
+		return new SynchronizedModifiableIdQueue<>(connectorService, store, queueName);
 	}
 
 	public String getPersistentStorePath() {

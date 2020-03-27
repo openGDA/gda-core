@@ -35,14 +35,19 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.scanning.api.event.EventConstants;
+import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.event.JobQueueImpl;
+import org.eclipse.scanning.event.queue.IPersistentModifiableIdQueue;
+import org.eclipse.scanning.event.queue.SynchronizedModifiableIdQueue;
 import org.h2.mvstore.MVStore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -96,7 +101,10 @@ public class QueuePersistenceTest extends AbstractJobQueueTest {
 	}
 
 	/**
-	 * This test checks that if an exception is thrown loading the queue then the
+	 * This test checks that if an exception is thrown loading the queue then the JobQueueImpl
+	 * recovers (i.e. doesn't throw an exception itself), but instead deletes the queue persistence file
+	 * used by MVStore and new empty queues (submission queue and status queue) are created backed
+	 * by a new persistence file at the same path.
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
@@ -122,6 +130,61 @@ public class QueuePersistenceTest extends AbstractJobQueueTest {
 				EventConstants.ACK_TOPIC, eventConnectorService, eventService);
 
 		verify(mockMvStore).closeImmediately();
+
+		// verify that a new file was created
+		assertThat(queueFilePath.toFile().exists(), is(true));
+		final Instant fileCreationTime = Files.readAttributes(queueFilePath, BasicFileAttributes.class).creationTime().toInstant();
+		assertThat(fileCreationTime, is(greaterThanOrEqualTo(startTime.truncatedTo(ChronoUnit.SECONDS))));
+
+		assertThat(jobQueue.getSubmissionQueue(), is(empty()));
+		assertThat(jobQueue.getRunningAndCompleted(), is(empty()));
+
+		jobQueue.close();
+	}
+
+	/**
+	 * This test check that if an exception is thrown when iterating over an apparently successfully
+	 * loaded queue, then the JobQueueImpl constructor recovers (i.e. doesn't throw an exception itself),
+	 * but instead deletes the queue persistence file used by MVStore and new empty
+	 * queues (submission queue and status queue) are created backed by a new persistence file at the same path.
+	 *
+	 * @throws Exception
+	 */
+	@Test
+	public void testQueueVersionChange2() throws Exception {
+		final String queueName = "testQueue2";
+		final Path queueFilePath = Paths.get(eventConnectorService.getPersistenceDir(), queueName + ".db");
+		assertThat(queueFilePath.toFile().exists(), is(false));
+		queueFilePath.toFile().deleteOnExit();
+
+		assertThat(queueFilePath.toFile().exists(), is(false));
+		final Instant startTime = Instant.now();
+
+		final AtomicBoolean firstCall = new AtomicBoolean(true);
+		final IJobQueue<StatusBean> jobQueue = new JobQueueImpl<StatusBean>(uri, queueName,
+				EventConstants.STATUS_TOPIC, EventConstants.QUEUE_STATUS_TOPIC,
+				EventConstants.CMD_TOPIC,
+				EventConstants.ACK_TOPIC, eventConnectorService, eventService) {
+
+				// the aim is to trigger an exception when the queue is iterated over
+				// this is done by anonymously subclassing both JobQueueImp and SynchronizedModifiableIdQueue
+				// because unfortunately I wasn't able to get this working with mockito/powermock.
+				@Override
+				protected IPersistentModifiableIdQueue<StatusBean> createQueue(
+						IEventConnectorService connectorService, MVStore store, String queueName) {
+					if (firstCall.getAndSet(false)) {
+						return new SynchronizedModifiableIdQueue<StatusBean>(connectorService, store, queueName) {
+
+							@Override
+							public Iterator<StatusBean> iterator() {
+								throw new RuntimeException();
+							}
+						};
+					}
+
+					return super.createQueue(connectorService, store, queueName);
+				}
+		};
 
 		// verify that a new file was created
 		assertThat(queueFilePath.toFile().exists(), is(true));
