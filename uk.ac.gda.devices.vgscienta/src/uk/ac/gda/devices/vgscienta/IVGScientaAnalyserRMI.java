@@ -18,6 +18,8 @@
 
 package uk.ac.gda.devices.vgscienta;
 
+import java.util.List;
+
 import gda.device.Device;
 import gda.device.DeviceException;
 
@@ -86,6 +88,12 @@ public interface IVGScientaAnalyserRMI extends Device {
 	void setLensMode(String lensMode) throws Exception;
 
 	/**
+	 * Gets the list of available lens modes
+	 */
+
+	List<String> getLensModes();
+
+	/**
 	 * This can be called to change the number of iterations scheduled during a scan.
 	 *
 	 * @param newScheduledIterations
@@ -125,6 +133,11 @@ public interface IVGScientaAnalyserRMI extends Device {
 	 */
 	// TODO This should probably be changed to double to become consistent with SPECS analysers
 	void setPassEnergy(Integer passEnergy) throws Exception;
+
+	/**
+	 * Gets the available pass energies
+	 */
+	List<String> getPassEnergies();
 
 	/**
 	 * Gets the current centre energy
@@ -234,4 +247,8 @@ public interface IVGScientaAnalyserRMI extends Device {
 	double getExcitationEnergy() throws Exception;
 
 	double[] getExtIO(int length) throws Exception;
+
+	void setAcquisitionMode(String acquisitionMode) throws Exception;
+
+	void start() throws Exception;
 }

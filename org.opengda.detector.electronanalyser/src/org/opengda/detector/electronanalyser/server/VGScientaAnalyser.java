@@ -19,6 +19,7 @@
 package org.opengda.detector.electronanalyser.server;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
@@ -767,6 +768,12 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 		return controller.getLensMode();
 	}
 
+	@Override
+	public List<String> getLensModes() {
+		return controller.getLensModes();
+	}
+
+	@Override
 	public void setAcquisitionMode(String value) throws Exception {
 		controller.setAcquisitionMode(value);
 	}
@@ -826,10 +833,14 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 		return controller.getPassEnergy();
 	}
 
+	@Override
+	public List<String> getPassEnergies() {
+		return controller.getPassEnergies();
+	}
+
 	public void setStartEnergy(Double value) throws Exception {
 		controller.setStartEnergy(value);
 	}
-
 
 	public void setStartEnergy(Double value, double timeout) throws Exception {
 		controller.setStartEnergy(value);
@@ -952,6 +963,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 		this.ndProc = ndProc;
 	}
 
+	@Override
 	public void start() throws Exception {
 		getCollectionStrategy().collectData();
 	}

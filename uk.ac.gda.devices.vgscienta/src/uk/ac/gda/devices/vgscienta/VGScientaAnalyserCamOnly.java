@@ -18,6 +18,8 @@
 
 package uk.ac.gda.devices.vgscienta;
 
+import java.util.List;
+
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.january.dataset.Dataset;
 import org.slf4j.Logger;
@@ -581,6 +583,11 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	}
 
 	@Override
+	public List<String> getLensModes() {
+		return controller.getLensModes();
+	}
+
+	@Override
 	public String getPsuMode() throws Exception {
 		return controller.getPsuMode();
 	}
@@ -602,6 +609,11 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	@Override
 	public Integer getPassEnergy() throws Exception {
 		return controller.getPassEnergy();
+	}
+
+	@Override
+	public List<String> getPassEnergies() {
+		return controller.getPassEnergies();
 	}
 
 	public void setStartEnergy(Double value) throws Exception {
@@ -912,5 +924,15 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	@Override
 	public int getFrames() throws Exception {
 		return controller.getFrames();
+	}
+
+	@Override
+	public void setAcquisitionMode(String value) throws Exception {
+		controller.setAcquisitionMode(value);
+	}
+
+	@Override
+	public void start() throws Exception {
+		getCollectionStrategy().collectData();
 	}
 }

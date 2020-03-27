@@ -50,6 +50,7 @@ import com.swtdesigner.SWTResourceManager;
 import gda.device.Scannable;
 import gda.factory.Finder;
 import gda.rcp.views.NudgePositionerComposite;
+import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 
 public class AnalyserControlPart {
 
@@ -64,14 +65,14 @@ public class AnalyserControlPart {
 	private Combo passEnergyCombo;
 	private Text centreEnergyText;
 
-	private IVGScientaAnalyser analyser;
+	private IVGScientaAnalyserRMI analyser;
 
 	@Inject
 	public AnalyserControlPart() {
 		logger.trace("Constructor called");
 
 		// Get an analyser
-		List<IVGScientaAnalyser> analysers = Finder.getInstance().listLocalFindablesOfType(IVGScientaAnalyser.class);
+		List<IVGScientaAnalyserRMI> analysers = Finder.getInstance().listLocalFindablesOfType(IVGScientaAnalyserRMI.class);
 		if (analysers.size() != 1) {
 			String msg = "No Analyser was found! (Or more than 1)";
 			logger.error(msg);
@@ -110,7 +111,7 @@ public class AnalyserControlPart {
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).applyTo(lensModeCombo);
 		// Setup lens modes and select currently selected one
 		try {
-			lensModeCombo.setItems(analyser.getLensModes());
+			lensModeCombo.setItems(analyser.getLensModes().toArray(new String[0]));
 			String activeLensMode = analyser.getLensMode();
 			lensModeCombo.select(Arrays.asList(lensModeCombo.getItems()).indexOf(activeLensMode));
 		} catch (Exception ex) {
@@ -269,7 +270,7 @@ public class AnalyserControlPart {
 
 	private void updatePassEnergyCombo() {
 		try {
-			final String[] passEnergyStrings = analyser.getPassENergies();
+			final String[] passEnergyStrings = analyser.getPassEnergies().toArray(new String[0]);
 
 			logger.debug("Setting items in pass energy combo box");
 			passEnergyCombo.setItems(passEnergyStrings);
