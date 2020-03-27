@@ -27,7 +27,7 @@ import gda.device.scannable.EpicsScannable;
 public class CalibratedAmplifier extends EpicsScannable {
 	private static final Logger logger = LoggerFactory.getLogger(CalibratedAmplifier.class);
 
-	GainWithScalingAndOffset scalingAndOffset;
+	private GainWithScalingAndOffset scalingAndOffset;
 	private double upperThreshold = 0.3;
 	private long settletime = 150;
 	private boolean autoGain = true;

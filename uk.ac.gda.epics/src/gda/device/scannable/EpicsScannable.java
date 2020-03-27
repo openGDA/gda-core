@@ -67,54 +67,23 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  */
 @ServiceInterface(ScannableMotionUnits.class)
 public class EpicsScannable extends ScannableMotionUnitsBase implements InitializingBean{
-	public boolean isHasUnits() {
-		return hasUnits;
-	}
-
-	public void setHasUnits(boolean hasUnits) {
-		this.hasUnits = hasUnits;
-	}
-
 	private static final Logger logger = LoggerFactory.getLogger(EpicsScannable.class);
 
-	@Override
-	public boolean isBusy() throws DeviceException {
-		return busy;
-	}
-
-	boolean hasUnits=true; //set false to not convert value to units - useful for enum with getAsString=true
-
-	PVProvider pvProvider;
-	String pvName="";
-	private boolean getAsString=false;
-
-	public String getPvName() {
-		return pvName;
-	}
-
-	public void setPvName(String pvName) {
-		this.pvName = pvName;
-	}
-
-	public void setGetAsString(boolean getAsString) {
-		this.getAsString = getAsString;
-	}
-
-	public void setPvProvider(PVProvider pvProvider) {
-		this.pvProvider = pvProvider;
-	}
-
-	EpicsController controller = EpicsController.getInstance();
 	private Channel channel;
-	Boolean busy = false;
+	private Boolean busy = false;
 	private PutListener putListener;
 	private MonitorListener monitorListener;
 	private Monitor monitor;
 	private String units;
-	int elementCount=1;
+	private int elementCount=1;
 
-	boolean useNameAsInputName=false;
-	boolean useNameAsExtraName=false;
+	private boolean useNameAsInputName=false;
+	private boolean useNameAsExtraName=false;
+
+	private boolean hasUnits = true; // set false to not convert value to units - useful for enum with getAsString=true
+	private PVProvider pvProvider;
+	private String pvName = "";
+	private boolean getAsString = false;
 
 	public EpicsScannable() {
 		super();
@@ -210,12 +179,12 @@ public class EpicsScannable extends ScannableMotionUnitsBase implements Initiali
 		if( !isBeingObserved() && channel != null){
 			Channel tmp = channel;
 			channel = null;
-			controller.destroy(tmp);
+			EpicsController.getInstance().destroy(tmp);
 		}
 	}
 	private Channel getChannel() throws CAException, TimeoutException {
 		if (channel == null) {
-			channel = controller.createChannel(getPV());
+			channel = EpicsController.getInstance().createChannel(getPV());
 		}
 		return channel;
 	}
@@ -224,6 +193,7 @@ public class EpicsScannable extends ScannableMotionUnitsBase implements Initiali
 	public void rawAsynchronousMoveTo(Object value) throws DeviceException {
 		try {
 			busy = true;
+			final EpicsController controller = EpicsController.getInstance();
 			if (value instanceof Double) {
 				controller.caput(getChannel(), (Double) value, putListener);
 			} else if (value instanceof Integer) {
@@ -278,8 +248,10 @@ public class EpicsScannable extends ScannableMotionUnitsBase implements Initiali
 	private Object getNativeValue() throws DeviceException {
 		try {
 			Object value = null;
-			Channel ch = getChannel();
-			DBRType fieldType = ch.getFieldType();
+			final Channel ch = getChannel();
+			final DBRType fieldType = ch.getFieldType();
+			final EpicsController controller = EpicsController.getInstance();
+
 			if (fieldType.isBYTE()) {
 				byte[] val = controller.cagetByteArray(ch, elementCount);
 				if (elementCount == 1) {
@@ -343,7 +315,7 @@ public class EpicsScannable extends ScannableMotionUnitsBase implements Initiali
 
 	public String getValueAsString() throws TimeoutException, CAException, InterruptedException {
 		Channel ch = getChannel();
-		DBR dbr = controller.getCTRL(ch);
+		DBR dbr = EpicsController.getInstance().getCTRL(ch);
 		return convertDBRToString(dbr);
 	}
 
@@ -358,7 +330,7 @@ public class EpicsScannable extends ScannableMotionUnitsBase implements Initiali
 	private void addMonitor() {
 		if (monitor == null) {
 			try {
-				monitor = controller.setMonitor(getChannel(), monitorListener, getAsString ? MonitorType.CTRL
+				monitor = EpicsController.getInstance().setMonitor(getChannel(), monitorListener, getAsString ? MonitorType.CTRL
 						: MonitorType.NATIVE);
 			} catch (Exception e) {
 				logger.error("Error adding monitor of " + getPV() + " for " + getName(),e);
@@ -377,7 +349,7 @@ public class EpicsScannable extends ScannableMotionUnitsBase implements Initiali
 	private void delMonitor() {
 		if (monitor != null) {
 			try {
-				controller.clearMonitor(monitor);
+				EpicsController.getInstance().clearMonitor(monitor);
 				monitor = null;
 			} catch (Exception e) {
 				logger.error("Error clearing monitor of " + getPV() + " for " + getName(),e);
@@ -397,7 +369,7 @@ public class EpicsScannable extends ScannableMotionUnitsBase implements Initiali
 		if( units == null){
 			DBR dbr;
 			try {
-				dbr = controller.getCTRL(getChannel());
+				dbr = EpicsController.getInstance().getCTRL(getChannel());
 			} catch (Exception e) {
 				throw new DeviceException("Error calling getCTRL for " + getPV(),e);
 			}
@@ -439,6 +411,35 @@ public class EpicsScannable extends ScannableMotionUnitsBase implements Initiali
 		}
 		if( pvName ==null)
 			throw new Exception("pvName or pvProvider not configured");
+	}
+
+	public boolean isHasUnits() {
+		return hasUnits;
+	}
+
+	public void setHasUnits(boolean hasUnits) {
+		this.hasUnits = hasUnits;
+	}
+
+	@Override
+	public boolean isBusy() throws DeviceException {
+		return busy;
+	}
+
+	public String getPvName() {
+		return pvName;
+	}
+
+	public void setPvName(String pvName) {
+		this.pvName = pvName;
+	}
+
+	public void setGetAsString(boolean getAsString) {
+		this.getAsString = getAsString;
+	}
+
+	public void setPvProvider(PVProvider pvProvider) {
+		this.pvProvider = pvProvider;
 	}
 
 }
