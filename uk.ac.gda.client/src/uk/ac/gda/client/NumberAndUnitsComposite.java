@@ -205,4 +205,10 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 			text.setText(decimalFormat.format(valueInCurrentUnits));
 		}
 	}
+
+	@Override
+	public String toString() {
+		return "NumberAndUnitsComposite [text=" + text + ", modelUnit=" + modelUnit + ", currentUnit=" + currentUnit
+				+ "]";
+	}
 }

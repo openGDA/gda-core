@@ -20,7 +20,7 @@ package uk.ac.diamond.daq.mapping.ui.path;
 
 import static uk.ac.diamond.daq.mapping.ui.experiment.DataBinder.GREATER_THAN_ZERO;
 
-import javax.measure.Quantity;
+import javax.measure.quantity.Length;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -36,13 +36,13 @@ public class GridStepPathEditor extends AbstractGridPathEditor {
 		final Composite composite = super.createEditorPart(parent);
 
 		new Label(composite, SWT.NONE).setText(getXAxisName() + " Step");
-		NumberAndUnitsComposite<? extends Quantity<?>> xStep = createNumberAndUnitsComposite(composite, getXAxisName(), X_AXIS_STEP);
+		final NumberAndUnitsComposite<Length> xStep = createNumberAndUnitsComposite(composite, getXAxisName(), X_AXIS_STEP);
 		grabHorizontalSpace.applyTo(xStep);
 
 		binder.bind(xStep, X_AXIS_STEP, getModel(), GREATER_THAN_ZERO);
 
 		new Label(composite, SWT.NONE).setText(getYAxisName() + " Step");
-		NumberAndUnitsComposite<? extends Quantity<?>> yStep = createNumberAndUnitsComposite(composite, getYAxisName(), Y_AXIS_STEP);
+		final NumberAndUnitsComposite<Length> yStep = createNumberAndUnitsComposite(composite, getYAxisName(), Y_AXIS_STEP);
 		grabHorizontalSpace.applyTo(yStep);
 
 		binder.bind(yStep, Y_AXIS_STEP, getModel(), GREATER_THAN_ZERO);

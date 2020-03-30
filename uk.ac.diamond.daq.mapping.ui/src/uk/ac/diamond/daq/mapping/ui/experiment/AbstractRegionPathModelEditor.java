@@ -131,7 +131,7 @@ public abstract class AbstractRegionPathModelEditor<T> extends AbstractModelEdit
 	 * @return a {@link NumberAndUnitsComposite} initialised for the scannable
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected NumberAndUnitsComposite<? extends Quantity<?>> createNumberAndUnitsComposite(Composite parent, String axisName, String modelPropertyName) {
+	protected <Q extends Quantity<Q>> NumberAndUnitsComposite<Q> createNumberAndUnitsComposite(Composite parent, String axisName, String modelPropertyName) {
 		return new NumberAndUnitsComposite(parent, SWT.NONE, getUnitsProvider().getScannableUnit(axisName),
 				getUnitsProvider().getCompatibleUnits(axisName), getUnitsProvider().getInitialUnit(axisName, modelPropertyName));
 	}
