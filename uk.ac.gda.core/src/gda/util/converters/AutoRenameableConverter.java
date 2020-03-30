@@ -79,7 +79,7 @@ public class AutoRenameableConverter<S extends Quantity<S>, T extends Quantity<T
 		}
 		final IReloadableQuantitiesConverter<S, T> newConverter = CoupledConverterHolder.FindReloadableQuantitiesConverter(converterName);
 		if (converter != null) {
-			LookupTableConverterHolder.CheckUnitsAreEqual(converter, newConverter);
+			ConverterUtils.checkUnitsAreEqual(converter, newConverter);
 		}
 		converter = newConverter;
 		getProvider().setConverterName(converterName);

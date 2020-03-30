@@ -128,7 +128,7 @@ public final class JEPConverterHolder<S extends Quantity<S>, T extends Quantity<
 			final JEPQuantityConverter<S, T> jepQuantityConverter = new JEPQuantityConverter<>(expressionFileName);
 			final GenQuantitiesConverter<S, T> newJEPConverter = new GenQuantitiesConverter<>(jepQuantityConverter);
 			if (converter != null) {
-				LookupTableConverterHolder.CheckUnitsAreEqual(converter, newJEPConverter);
+				ConverterUtils.checkUnitsAreEqual(converter, newJEPConverter);
 			}
 
 			converter = newJEPConverter;

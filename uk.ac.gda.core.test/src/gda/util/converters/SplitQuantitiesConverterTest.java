@@ -48,8 +48,8 @@ public class SplitQuantitiesConverterTest {
 		final List<List<String>> acceptableCalcMoveablesUnits = calcMoveablesConverter.getAcceptableUnits();
 		final List<List<String>> acceptableToSourceMoveableUnits = toSourceConverter.getAcceptableMoveableUnits();
 
-		assertTrue(LookupTableConverterHolder.UnitsAreEqual(acceptableCalcMoveablesUnits, acceptableUnits));
-		assertTrue(LookupTableConverterHolder.UnitsAreEqual(acceptableToSourceMoveableUnits, acceptableMoveableUnits));
+		assertTrue(ConverterUtils.unitsAreEqual(acceptableCalcMoveablesUnits, acceptableUnits));
+		assertTrue(ConverterUtils.unitsAreEqual(acceptableToSourceMoveableUnits, acceptableMoveableUnits));
 	}
 
 }

@@ -169,51 +169,6 @@ public final class LookupTableConverterHolder<S extends Quantity<S>, T extends Q
 		throw new IllegalArgumentException("LookupTableConverterHolder.setName() : Error this should not be called");
 	}
 
-	static boolean UnitsAreEqual1(List<String> o, List<String> n) {
-		if (o.size() != n.size())
-			return false;
-
-		for (int i = 0; i < o.size(); i++) {
-			if (!o.get(i).equals(n.get(i))) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	static boolean UnitsAreEqual(List<List<String>> o, List<List<String>> n) {
-		if (o.size() != n.size())
-			return false;
-
-		for (int i = 0; i < o.size(); i++) {
-			if (!UnitsAreEqual1(o.get(i), n.get(0))) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	static void CheckUnitsAreEqual(IQuantitiesConverter<? extends Quantity<?>, ? extends Quantity<?>> o,
-			IQuantitiesConverter<? extends Quantity<?>, ? extends Quantity<?>> n) {
-		if (o == null || n == null) {
-			throw new IllegalArgumentException("LookupTableConverterHolder.CheckUnitsAreEqual() : o or n is null ");
-		}
-		List<List<String>> newAcceptableUnits = n.getAcceptableUnits();
-		if (!UnitsAreEqual(newAcceptableUnits, o.getAcceptableUnits())) {
-			throw new IllegalArgumentException(
-					"LookupTableConverterHolder.CheckUnitsAreEqual() : AcceptableUnits have changed from "
-							+ o.getAcceptableUnits().toString() + " to " + newAcceptableUnits.toString());
-		}
-
-		List<List<String>> newAcceptableMoveableUnits = n.getAcceptableMoveableUnits();
-		if (!UnitsAreEqual(newAcceptableMoveableUnits, o.getAcceptableMoveableUnits())) {
-			throw new IllegalArgumentException(
-					"LookupTableConverterHolder.CheckUnitsAreEqual() : AcceptableMoveableUnits have changed from "
-							+ o.getAcceptableMoveableUnits().toString() + " to "
-							+ newAcceptableMoveableUnits.toString());
-		}
-	}
-
 	/**
 	 * Re-reads the lookup table. Note that the units of the lookup must not change. {@inheritDoc}
 	 *
@@ -231,7 +186,7 @@ public final class LookupTableConverterHolder<S extends Quantity<S>, T extends Q
 					LookupTableQuantityConverter.getMode(modeString), !interpolateNotExtrapolate);
 			final GenQuantitiesConverter<S, T> newConverter = new GenQuantitiesConverter<>(lookupTableQuantityConverter);
 			if (converter != null) {
-				CheckUnitsAreEqual(converter, newConverter);
+				ConverterUtils.checkUnitsAreEqual(converter, newConverter);
 			}
 			converter = newConverter;
 		} catch (Exception e) {
@@ -239,7 +194,7 @@ public final class LookupTableConverterHolder<S extends Quantity<S>, T extends Q
 		}
 	}
 
-	protected static boolean checkWhetherFilenameIsFull(String filename) {
+	private static boolean checkWhetherFilenameIsFull(String filename) {
 		return new File(filename).isAbsolute();
 	}
 

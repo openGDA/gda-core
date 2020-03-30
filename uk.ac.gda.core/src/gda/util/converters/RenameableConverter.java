@@ -87,7 +87,7 @@ public class RenameableConverter<S extends Quantity<S>, T extends Quantity<T>> e
 		}
 		final IReloadableQuantitiesConverter<S, T> newConverter = CoupledConverterHolder.FindReloadableQuantitiesConverter(converterName);
 		if (converter != null) {
-			LookupTableConverterHolder.CheckUnitsAreEqual(converter, newConverter);
+			ConverterUtils.checkUnitsAreEqual(converter, newConverter);
 		}
 		converter = newConverter;
 		this.converterName = converterName;
