@@ -21,6 +21,7 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.StaticPosition;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.junit.Before;
@@ -70,6 +71,29 @@ public class StaticTest {
 			assertEquals(0, position.size());
 			assertEquals(expectedPosition, position);
 		}
+	}
+
+	@Test
+	public void testCompoundStaticScanRank() throws Exception {
+		final double exposureTime = 0.123;
+		final IPointGenerator<?> outerGen = service.createGenerator(new StaticModel());
+		final CompoundModel innerCompoundModel = new CompoundModel(new StaticModel(10));
+		innerCompoundModel.setDuration(exposureTime);
+		IPointGenerator<?> innerGen = service.createCompoundGenerator(innerCompoundModel);
+
+		final IPosition outerPos = outerGen.getFirstPoint();
+		assertEquals(outerPos.getScanRank(), 1);
+//		final IPosition innerPos = innerGen.createPoints().get(8); // TODO reinstate once DAQ-2862 is fixed
+		final IPosition innerPos = innerGen.getFirstPoint();
+		assertEquals(innerPos.getScanRank(), 1);
+//		assertEquals(innerPos.getIndex(0), 7); // TODO reinstate once DAQ-2862 is fixed
+		assertEquals(innerPos.getIndex(0), 0);
+//		assertEquals(innerPos.getExposureTime(), exposureTime, 1e-15); // TODO reinstate once DAQ-2868 is fixed
+		final IPosition overallPos = innerPos.compound(outerPos);
+		assertEquals(overallPos.getScanRank(), 1, 1e-15);
+//		assertEquals(overallPos.getIndex(0), 7); // TODO reinstate once DAQ-2862 is fixed
+		assertEquals(overallPos.getIndex(0), 0);
+//		assertEquals(overallPos.getExposureTime(), exposureTime, 1e-15);  // TODO reinstate once DAQ-2868 is fixed
 	}
 
 	@Test(expected = GeneratorException.class)

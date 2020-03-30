@@ -102,19 +102,15 @@ public interface IPosition {
 	 * and the values of the passed in position. The passed in position
 	 * is assumed to be the parent in the scan.
 	 *
-	 * This position's values take precedence if the names conflict.
-	 * It is like an implementation of Map where the putAll does not
-	 * overwrite.
-	 *
+	 * <p>
 	 * NOTE The scan names are not calculated on the call to compound
 	 * because maintaining the list of names in each dimension is inefficient
 	 * to calculate for each point (they do not change). Instead the names are
 	 * created once and set into the position using setDimensionNames(...)
-	 * available on abstract position. If generators producing positions
-	 * are to be used within a cponound generator
+	 * available on abstract position.
 	 *
 	 * @param parent
-	 * @return
+	 * @return the compounded position
 	 */
 	IPosition compound(IPosition parent);
 

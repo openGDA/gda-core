@@ -32,7 +32,7 @@ public abstract class AbstractPosition implements IPosition, Serializable {
 	protected List<Collection<String>> dimensionNames; // Dimension->Names@dimension
 
 	@Override
-	public final IPosition compound(IPosition parent) {
+	public IPosition compound(IPosition parent) {
 		if (parent==null) return this; // this+null = this
 		final MapPosition ret = new MapPosition();
 		ret.putAll(parent);

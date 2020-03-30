@@ -71,4 +71,13 @@ public class StaticPosition extends AbstractPosition {
 		return index;
 	}
 
+	@Override
+	public IPosition compound(IPosition parent) {
+		if (parent instanceof StaticPosition) {
+			return this;
+		}
+
+		return super.compound(parent);
+	}
+
 }
