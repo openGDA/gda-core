@@ -28,10 +28,10 @@ import static org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType.PRI
 import static org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType.SECONDARY;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -215,7 +215,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 				addDataset(datasetName,  dataGroup.initializeLazyDataset(datasetName,
 						scanRank + datasetModel.getRank(), datasetModel.getDtype()), getDataShape(datasetModel));
 				// add the demand values for the axes
-				for (String axisName : getModel().getAxesToMove()) {
+				for (String axisName : axesToMove) {
 					DataNode axisDemandDataNode = axesDemandDataNodes.get(axisName);
 					String dataNodeName = axisName + "_set";
 					if (axisDemandDataNode == null) {
@@ -257,7 +257,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 			}
 
 			// write the demand position for each malcolm controlled axis
-			for (String axisName : getModel().getAxesToMove()) {
+			for (String axisName : axesToMove) {
 				writeDemandData(axisName, position);
 			}
 
@@ -288,7 +288,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 			treeFile.setGroupNode(root);
 			NXentry entry = NexusNodeFactory.createNXentry();
 			root.setEntry(entry);
-			final DummyMalcolmModel model = (DummyMalcolmModel) getModel();
+			final DummyMalcolmModel model = getModel();
 
 			// add the positioners to the entry
 			for (String positionerName : model.getPositionerNames()) {
@@ -366,6 +366,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 	private StringArrayAttribute availableAxes;
 	private TableAttribute datasets;
 	private TableAttribute layout;
+	private List<String> axesToMove;
 
 	private Map<String, MalcolmAttribute<?>> allAttributes;
 
@@ -382,7 +383,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 	// the dummy devices are responsible for writing the nexus files
 	private Map<String, IDummyMalcolmControlledDevice> devices = null;
 
-	public DummyMalcolmDevice() throws IOException, ScanningException {
+	public DummyMalcolmDevice() {
 		super(Services.getRunnableDeviceService()); // Necessary if you are going to spring it
 		this.model = new DummyMalcolmModel();
 		setupAttributes();
@@ -450,6 +451,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 		availableAxes.setDescription("Default axis names to scan for configure()");
 		availableAxes.setWriteable(false);
 		allAttributes.put(availableAxes.getName(), availableAxes);
+		axesToMove = new ArrayList<>(model.getAxesToMove());
 
 		// set scanRank to the size of axesToMove initially. this will be overwritten before a scan starts
 		scanRank = availableAxes.getValue().length;
@@ -458,7 +460,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 	@Override
 	public void setModel(IMalcolmModel model) {
 		super.setModel(model);
-		availableAxes.setValue(model.getAxesToMove().toArray(new String[model.getAxesToMove().size()]));
+		axesToMove = model.getAxesToMove();
 	}
 
 	@Override
@@ -498,10 +500,14 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 		totalSteps.setValue(64);
 		configuredSteps.setValue(64);
 		stepIndex = 0;
-		List<String> axesToMoveList = model.getAxesToMove();
-		if (axesToMoveList != null) {
-			this.availableAxes.setValue((axesToMoveList.toArray(new String[axesToMoveList.size()])));
+
+		// check that all the axes in axesToMove are in the set of available axes
+		final List<String> availableAxes = getAvailableAxes();
+		if (!availableAxes.containsAll(model.getAxesToMove())) {
+			throw new MalcolmDeviceException("Unknown axis: " + model.getAxesToMove().stream()
+					.filter(axisName -> !availableAxes.contains(axisName)).findFirst().get());
 		}
+		axesToMove = model.getAxesToMove();
 
 		// super.configure sets device state to ready
 		super.configure(model);
@@ -550,10 +556,8 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 
 		if (pointGenerator!=null) { // Some tests end up using the configure call of
 			                        // RunnableDeviceService which does not have a pointGenerator
-			scanRank = pointGenerator.getRank();
-			if (scanRank < 0) {
-				scanRank = 1;
-			}
+			scanRank = pointGenerator.getRank(); // note, scanRank of a static generator is 1 (i.e. acquire scan)
+			axesToMove = calculateAxesToMove(axesToMove, pointGenerator);
 		}
 	}
 
@@ -585,7 +589,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 		return scanRank;
 	}
 
-	private TableAttribute createDatasetsAttribute(DummyMalcolmModel model) throws MalcolmDeviceException {
+	private TableAttribute createDatasetsAttribute(DummyMalcolmModel model) {
 		final LinkedHashMap<String, Class<?>> types = new LinkedHashMap<>();
 		types.put(DATASETS_TABLE_COLUMN_NAME, String.class);
 		types.put(DATASETS_TABLE_COLUMN_FILENAME, String.class);
@@ -618,7 +622,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 		// are all the same, the datasets attribute only returns the first one
 		if (!model.getDetectorModels().isEmpty()) {
 			final String firstDetectorName = model.getDetectorModels().get(0).getName();
-			for (String axisToMove : model.getAxesToMove()) {
+			for (String axisToMove : axesToMove) {
 				final String datasetName = "value_set";
 				final String path = String.format("/entry/%s/%s_set", firstDetectorName, axisToMove); // e.g. /entry/detector/x_set
 				table.addRow(createDatasetRow(axisToMove, datasetName,
@@ -663,7 +667,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 		return datasetRow;
 	}
 
-	private TableAttribute createLayoutAttribute() throws MalcolmDeviceException {
+	private TableAttribute createLayoutAttribute() {
 		final LinkedHashMap<String, Class<?>> types = new LinkedHashMap<>();
 		types.put("name", String.class);
 		types.put("mri", String.class);

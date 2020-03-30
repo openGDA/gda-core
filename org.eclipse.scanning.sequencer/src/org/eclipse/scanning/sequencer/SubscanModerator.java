@@ -13,6 +13,7 @@ package org.eclipse.scanning.sequencer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -58,7 +59,9 @@ public class SubscanModerator {
 		outerPointGenerator = pointGen; // We will reassign it to the outer scan if there is one, otherwise it is the full scan.
 
 		// get the scan path model as a compound model
-		final IScanPointGeneratorModel scanPathModel = scanModel.getScanPathModel();
+		final IScanPointGeneratorModel scanPathModel = (scanModel.getScanPathModel() != null ?
+				scanModel.getScanPathModel() : (IScanPointGeneratorModel) pointGen.getModel());
+		Objects.requireNonNull(scanPathModel);
 		final CompoundModel compoundModel = scanPathModel instanceof CompoundModel ? (CompoundModel) scanPathModel :
 				new CompoundModel(scanPathModel);
 

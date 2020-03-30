@@ -143,16 +143,17 @@ public class MandelbrotAcquireTest extends NexusTest {
 		IPointGenerator<StaticModel> gen = pointGenService.createGenerator(emptyModel);
 
 		// Create the model for an acquire scan
-		ScanModel smodel = new ScanModel();
-		smodel.setDetectors(detector);
+		ScanModel scanModel = new ScanModel();
+		scanModel.setDetectors(detector);
 
 		// Create a file to scan into.
-		smodel.setFilePath(file.getAbsolutePath());
-		smodel.setPointGenerator(gen);
-		System.out.println("File writing to "+smodel.getFilePath());
+		scanModel.setFilePath(file.getAbsolutePath());
+		scanModel.setPointGenerator(gen);
+		scanModel.setScanPathModel(emptyModel);
+		System.out.println("File writing to "+scanModel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(smodel, null);
+		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(scanModel, null);
 
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
 			@Override

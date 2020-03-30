@@ -141,7 +141,7 @@ public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
 	private DummyMalcolmModel createDummyMalcolmModel() {
 		DummyMalcolmModel model = DummyMalcolmDeviceTest.createModel();
 		model.setExposureTime(0.005);
-		model.setAxesToMove(Arrays.asList("x", "y"));
+		model.setAxesToMove(Arrays.asList("stage_x", "stage_y"));
 		return model;
 	}
 
@@ -161,7 +161,7 @@ public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
 
 		final IMalcolmDevice malcolmDevice =
 				(IMalcolmDevice) ServiceTestHelper.getRunnableDeviceService().createRunnableDevice(model, false);
-		final List<String> axisNames = Arrays.asList("x", "y", "outer");
+		final List<String> axisNames = Arrays.asList("stage_x", "stage_y", "outer");
 		IDeviceController controller = createTestScanner(null, null, malcolmDevice, model, 3, axisNames, null);
 		IRunnableEventDevice<?> scanner = (IRunnableEventDevice<?>)controller.getDevice();
 

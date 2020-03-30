@@ -60,6 +60,7 @@ import org.eclipse.scanning.example.malcolm.DummyMalcolmDetectorModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.malcolm.core.AbstractMalcolmDevice;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.Before;
 
@@ -74,7 +75,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 	@Before
 	public void before() throws Exception {
 		// create a temp directory for the dummy malcolm device to write hdf files into
-		malcolmOutputDir = org.eclipse.scanning.sequencer.ServiceHolder.getFilePathService().createFolderForLinkedFiles(output.getName());
+		malcolmOutputDir = ServiceTestHelper.getFilePathService().createFolderForLinkedFiles(output.getName());
 		final DummyMalcolmModel model = createMalcolmModel();
 
 		malcolmDevice = (DummyMalcolmDevice) (IRunnableDevice<?>) runnableDeviceService.createRunnableDevice(model);

@@ -600,14 +600,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		// get the axes to move
 		List<String> axesToMove = model.getAxesToMove();
 		if (axesToMove == null && pointGen != null) {
-			final List<String> scannableNames = pointGen.getNames();
-			final List<String> availableAxes = getAvailableAxes();
-			int i = scannableNames.size() - 1;
-			while (i >= 0 && availableAxes.contains(scannableNames.get(i))) {
-				i--;
-			}
-			// i is now the index of the first non-malcolm axis, or -1 if all axes malcolm controlled
-			axesToMove = scannableNames.subList(i + 1, scannableNames.size());
+			axesToMove = calculateAxesToMove(getAvailableAxes(), pointGen);
 		}
 
 		// convert the detector models to a MalcolmTable

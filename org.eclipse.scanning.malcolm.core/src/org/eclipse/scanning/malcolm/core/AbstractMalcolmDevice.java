@@ -106,6 +106,16 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 		return pointGenerator;
 	}
 
+	protected List<String> calculateAxesToMove(List<String> availableAxes, IPointGenerator<?> pointGen) {
+		final List<String> scannableNames = pointGen.getNames();
+		int i = scannableNames.size() - 1;
+		while (i >= 0 && availableAxes.contains(scannableNames.get(i))) {
+			i--;
+		}
+		// i is now the index of the first non-malcolm axis, or -1 if all axes are malcolm controlled
+		return new ArrayList<>(scannableNames.subList(i + 1, scannableNames.size()));
+	}
+
 	@Override
 	public void setOutputDir(String outputDir) {
 		this.outputDir = outputDir;
