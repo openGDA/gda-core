@@ -25,6 +25,15 @@ import java.util.List;
 public class StaticPosition extends AbstractPosition {
 
 	private static final long serialVersionUID = 8325962136123756800L;
+	private final int index;
+
+	public StaticPosition() {
+		this(0);
+	}
+
+	public StaticPosition(int index) {
+		this.index = index;
+	}
 
 	@Override
 	public int size() {
@@ -59,8 +68,7 @@ public class StaticPosition extends AbstractPosition {
 
 	@Override
 	public int getIndex(int dimension) {
-		// TODO: how do we get the index when the number of StaticPositions is > 1?
-		return 0;
+		return index;
 	}
 
 }

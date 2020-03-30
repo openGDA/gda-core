@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import org.eclipse.scanning.api.ModelValidationException;
+import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
@@ -24,10 +24,8 @@ import org.eclipse.scanning.api.points.StaticPosition;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore("This test does not run on Travis")
 public class StaticTest {
 
 	private IPointGeneratorService service;
@@ -39,52 +37,51 @@ public class StaticTest {
 
 	@Test
 	public void testSingleStatic() throws Exception {
-		StaticModel model = new StaticModel();
-		IPointGenerator<StaticModel> gen = service.createGenerator(model);
+		final StaticModel model = new StaticModel();
+		final IPointGenerator<StaticModel> gen = service.createGenerator(model);
 		assertEquals(1, gen.size());
-		assertEquals(0, gen.getRank());
+		assertEquals(1, gen.getRank());
 		assertArrayEquals(new int[0], gen.getShape());
 
-		List<IPosition> positionList = gen.createPoints();
+		final List<IPosition> positionList = gen.createPoints();
 		assertEquals(1, positionList.size());
-		IPosition position = positionList.get(0);
+		final IPosition position = positionList.get(0);
+		final IPosition expectedPosition = new StaticPosition();
+		expectedPosition.setStepIndex(0);
 		assertEquals(0, position.size());
-		assertEquals(new StaticPosition(), position);
+		assertEquals(expectedPosition, position);
 	}
 
 	@Test
 	public void testMultipleStatic() throws Exception {
 		final int size = 8;
-		StaticModel model = new StaticModel();
-		model.setSize(size);
-		IPointGenerator<StaticModel> gen = service.createGenerator(model);
+		final StaticModel model = new StaticModel(size);
+		final IPointGenerator<StaticModel> gen = service.createGenerator(model);
 		assertEquals(size, gen.size());
 		assertEquals(1, gen.getRank());
 		assertArrayEquals(new int[] { size }, gen.getShape());
 
-		final StaticPosition expected = new StaticPosition();
-		List<IPosition> positionList = gen.createPoints();
+		final List<IPosition> positionList = gen.createPoints();
 		assertEquals(size, positionList.size());
+		int i = 0;
 		for (IPosition position : positionList) {
+			StaticPosition expectedPosition = new StaticPosition(i);
+			expectedPosition.setStepIndex(i++);
 			assertEquals(0, position.size());
-			assertEquals(expected, position);
+			assertEquals(expectedPosition, position);
 		}
 	}
 
-	@Test(expected = ModelValidationException.class)
+	@Test(expected = GeneratorException.class)
 	public void testInvalidZeroSize() throws Exception {
-		StaticModel model = new StaticModel();
-		model.setSize(0);
-		IPointGenerator<StaticModel> gen = service.createGenerator(model);
-		gen.iterator();
+		StaticModel model = new StaticModel(0);
+		service.createGenerator(model);
 	}
 
-	@Test(expected = ModelValidationException.class)
+	@Test(expected = GeneratorException.class)
 	public void testInvalidNegativeSize() throws Exception {
-		StaticModel model = new StaticModel();
-		model.setSize(-3);
-		IPointGenerator<StaticModel> gen = service.createGenerator(model);
-		gen.iterator();
+		StaticModel model = new StaticModel(-3);
+		service.createGenerator(model);
 	}
 
 }

@@ -106,10 +106,7 @@ class GeneratorWrapper(PPointGenerator):
         return len(self.getShape())
 
     def getSize(self):
-        size = 1
-        for _ in self.getShape():
-            size = size * _
-        return size
+        return self.generator.size
 
     def getNames(self):
         return [name for dimension in self.generator.dimensions for name in dimension.axes]
@@ -129,8 +126,8 @@ class StaticPositionGeneratorWrapper(GeneratorWrapper):
     """
 
     def __iter__(self):
-        for _ in self.generator.iterator():
-            yield StaticPosition()
+        for i in range(self.generator.size):
+            yield StaticPosition(i)
 
 
 class ScalarPointGeneratorWrapper(GeneratorWrapper):
