@@ -106,6 +106,7 @@ public class AnnotationManager {
 		this.annotationMap = new ConcurrentHashMap<>();
 		this.cachedClasses = new ConcurrentHashMap<>();
 		this.annotations = a;
+		this.services = Collections.emptyMap();
 
 		if (resolver!=null) {
 			try {
@@ -266,11 +267,7 @@ public class AnnotationManager {
 				for (int i = 0; i < args.length; i++) {
 					if (args[i] == IPosition.class) continue;
 				    // Find OSGi service for it, if any.
-					try {
-						arguments[i] = getService(args[i]);
-					} catch (Exception ne) {
-						continue;
-					}
+					arguments[i] = getService(args[i]);
 				}
 			}
 		}
