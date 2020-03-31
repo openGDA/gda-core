@@ -88,7 +88,7 @@ public final class LookupTableQuantityConverter<S extends Quantity<S>, T extends
 
 	public static String Mode_StoT = "StoT";
 
-	static public Mode getMode(String modeString) {
+	public static Mode getMode(String modeString) {
 		if (modeString == null)
 			throw new IllegalArgumentException("LookupTableQuantityConverter.getMode. modeString is null");
 		if (modeString.equals(Mode_Both))
@@ -109,7 +109,6 @@ public final class LookupTableQuantityConverter<S extends Quantity<S>, T extends
 		this(columnDataFileName, filenameIsFull, sColumn, tColumn, mode, true);
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public LookupTableQuantityConverter(String columnDataFileName, boolean filenameIsFull, int sColumn, int tColumn,
 			Mode mode, boolean extrapolate) {
 		this.sColumn = sColumn;
@@ -131,14 +130,14 @@ public final class LookupTableQuantityConverter<S extends Quantity<S>, T extends
 			// and max source.
 			final String sColumnUnitsString = columnDataFile.getColumnUnits(sColumn);
 			final String tColumnUnitsString = columnDataFile.getColumnUnits(tColumn);
-			final Unit<? extends Quantity<?>> sColumnUnits = QuantityFactory.createUnitFromString(sColumnUnitsString);
-			final Unit<? extends Quantity<?>> tColumnUnits = QuantityFactory.createUnitFromString(tColumnUnitsString);
+			final Unit<S> sColumnUnits = QuantityFactory.createUnitFromString(sColumnUnitsString);
+			final Unit<T> tColumnUnits = QuantityFactory.createUnitFromString(tColumnUnitsString);
 			if (performStoT()) {
 				if (extrapolate) {
-					interpolateFunctionStoT = new InterpolationFunction(columnDataFile.getColumn(sColumn),
+					interpolateFunctionStoT = new InterpolationFunction<>(columnDataFile.getColumn(sColumn),
 							columnDataFile.getColumn(tColumn), sColumnUnits, tColumnUnits);
 				} else {
-					interpolateFunctionStoT = new InterpolationWithoutExtrapolationFunction(columnDataFile.getColumn(sColumn),
+					interpolateFunctionStoT = new InterpolationWithoutExtrapolationFunction<>(columnDataFile.getColumn(sColumn),
 							columnDataFile.getColumn(tColumn), sColumnUnits, tColumnUnits);
 				}
 			} else
@@ -146,10 +145,10 @@ public final class LookupTableQuantityConverter<S extends Quantity<S>, T extends
 
 			if (performTtoS()) {
 				if (extrapolate) {
-					interpolateFunctionTtoS = new InterpolationFunction(columnDataFile.getColumn(tColumn),
+					interpolateFunctionTtoS = new InterpolationFunction<>(columnDataFile.getColumn(tColumn),
 							columnDataFile.getColumn(sColumn), tColumnUnits, sColumnUnits);
 				} else {
-					interpolateFunctionTtoS = new InterpolationWithoutExtrapolationFunction(columnDataFile.getColumn(tColumn),
+					interpolateFunctionTtoS = new InterpolationWithoutExtrapolationFunction<>(columnDataFile.getColumn(tColumn),
 							columnDataFile.getColumn(sColumn), tColumnUnits, sColumnUnits);
 				}
 
