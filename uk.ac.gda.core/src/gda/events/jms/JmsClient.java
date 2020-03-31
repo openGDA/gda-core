@@ -24,6 +24,8 @@ import javax.jms.JMSException;
 import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 
@@ -31,6 +33,8 @@ import gda.configuration.properties.LocalProperties;
  * Base class implemented by classes that send and receive messages using JMS.
  */
 public abstract class JmsClient {
+
+	private static final Logger logger = LoggerFactory.getLogger(JmsClient.class);
 
 	protected static final String TOPIC_PREFIX = "gda.event.";
 
@@ -45,6 +49,7 @@ public abstract class JmsClient {
 			connection = factory.createConnection();
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		} catch (JMSException e) {
+			logger.error("Failed to connect to ActiveMQ", e);
 			throw new RuntimeException("Failed to connect to ActiveMQ, is it running?", e);
 		}
 	}

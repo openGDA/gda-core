@@ -43,6 +43,7 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
@@ -100,7 +101,12 @@ public class SpringObjectServer extends ObjectServer {
 		applicationContext.setAllowBeanDefinitionOverriding(false);
 
 		// Load the context
-		applicationContext.refresh();
+		try {
+			applicationContext.refresh();
+		} catch (BeanCreationException e) {
+			logger.error("Unable to create all beans - is ActiveMQ Running?", e);
+			throw e;
+		}
 
 		dumpListOfBeans();
 	}

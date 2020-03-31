@@ -71,7 +71,9 @@ public class GdaRmiProxy implements BeanNameAware, FactoryBean<Object>, Initiali
 		object = Finder.getInstance().find(name);
 		// If it can't be imported throw
 		Objects.requireNonNull(object,
-				String.format("Could not import '%s' - are you sure it is exported from the server?", name));
+				String.format(
+						"Could not import '%s' - are you sure it is exported from the server and ActiveMQ is running?",
+						name));
 
 		logger.debug("Imported '{}' (Proxy={})", name, object);
 	}

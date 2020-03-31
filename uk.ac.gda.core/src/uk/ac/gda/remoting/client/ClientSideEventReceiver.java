@@ -71,9 +71,14 @@ public class ClientSideEventReceiver implements InitializingBean {
 		EventSubscriber eventSubscriber = new SimpleEventSubscriber(proxy, observableComponent);
 
 		// Register to receive events from the event system
-		final EventService eventService = EventService.getInstance();
-		eventService.subscribe(eventSubscriber, objectName);
-		logger.debug("Now subscribed to events from '{}'", objectName);
+		try {
+			final EventService eventService = EventService.getInstance();
+			eventService.subscribe(eventSubscriber, objectName);
+			logger.debug("Now subscribed to events from '{}'", objectName);
+		} catch(NoClassDefFoundError e) {
+			logger.error("Could not find class EventService, is ActiveMQ running?", e);
+			throw e;
+		}
 	}
 
 }
