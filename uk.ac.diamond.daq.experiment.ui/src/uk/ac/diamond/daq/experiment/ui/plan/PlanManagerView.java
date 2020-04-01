@@ -2,7 +2,7 @@ package uk.ac.diamond.daq.experiment.ui.plan;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.diamond.daq.experiment.api.Services.getExperimentService;
-import static uk.ac.diamond.daq.experiment.api.plan.event.EventConstants.EXPERIMENT_PLAN_TOPIC;
+import static uk.ac.diamond.daq.experiment.api.remote.EventConstants.EXPERIMENT_PLAN_TOPIC;
 import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.CONFIGURE_ICON;
 import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.MINUS_ICON;
 import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.PLUS_ICON;

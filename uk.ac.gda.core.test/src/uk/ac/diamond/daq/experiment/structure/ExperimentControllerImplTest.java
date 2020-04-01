@@ -2,28 +2,43 @@ package uk.ac.diamond.daq.experiment.structure;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static uk.ac.diamond.daq.experiment.structure.ExperimentControllerImpl.DEFAULT_ACQUISITION_PREFIX;
+import static uk.ac.diamond.daq.experiment.structure.ExperimentControllerImpl.DEFAULT_EXPERIMENT_PREFIX;
 
 import java.io.File;
 import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
+import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
-
+import uk.ac.diamond.daq.experiment.api.structure.IndexFileCreationRequest;
 public class ExperimentControllerImplTest {
 
 	private ExperimentController controller;
+
+	@Mock
+	private IRequester<IndexFileCreationRequest> jobRequestor;
 
 	private static final String EXPERIMENT_NAME = "MyExperiment";
 	private static final String ACQUISITION_NAME = "MyMeasurement";
@@ -41,20 +56,22 @@ public class ExperimentControllerImplTest {
 
 	@Before
 	public void before() throws Exception {
+		MockitoAnnotations.initMocks(this);
 		IFilePathService filePathService = mock(IFilePathService.class);
 		Mockito.when(filePathService.getVisitDir()).thenReturn(tempFolder.getRoot().getAbsolutePath());
-		controller = new ExperimentControllerImpl(filePathService);
+		Mockito.when(jobRequestor.post(any())).thenReturn(mock(IndexFileCreationRequest.class));
+		controller = new ExperimentControllerImpl(filePathService, jobRequestor);
 	}
 
-	private String extractBase(URL url) {
-		return FilenameUtils.getBaseName(FilenameUtils.getFullPathNoEndSeparator(url.getPath()));
+	private String extractBase(URL URL) {
+		return FilenameUtils.getBaseName(FilenameUtils.getFullPathNoEndSeparator(URL.getPath()));
 	}
 
 	@Test
 	public void testNullExperimentName() throws ExperimentControllerException {
 		URL experimentFolder = controller.startExperiment(null);
 		assertTrue("Experiment URL is malformed",
-				extractBase(experimentFolder).startsWith(controller.getDefaultExperimentName()));
+				extractBase(experimentFolder).startsWith(DEFAULT_EXPERIMENT_PREFIX));
 	}
 
 	@Test
@@ -74,8 +91,7 @@ public class ExperimentControllerImplTest {
 	public void testNullMeasurementIdentifier() throws ExperimentControllerException {
 		controller.startExperiment(EXPERIMENT_NAME);
 		URL acquisitionFolder = controller.createAcquisitionLocation(null);
-		assertTrue("Acquisition URL is malformed",
-				extractBase(acquisitionFolder).startsWith(controller.getDefaultAcquisitionName()));
+		assertThat(extractBase(acquisitionFolder), startsWith(DEFAULT_ACQUISITION_PREFIX));
 	}
 
 	@Test
@@ -128,6 +144,40 @@ public class ExperimentControllerImplTest {
 		} finally {
 			getAndSetRootProperty(previousRoot);
 		}
+	}
+
+	@Test
+	public void closingExperimentCallsIndexFileCreator() throws Exception {
+
+		URL experimentRoot = controller.startExperiment("My experiment!");
+		URL firstUrl = controller.createAcquisitionLocation(ACQUISITION_NAME + "1");
+		URL secondUrl = controller.createAcquisitionLocation(ACQUISITION_NAME + "2");
+		URL firstNxs = createNxs(firstUrl, ACQUISITION_NAME + "1");
+		URL secondNxs = createNxs(secondUrl, ACQUISITION_NAME + "2");
+
+		controller.stopExperiment();
+
+		Set<URL> nxsUrls = new HashSet<>();
+		nxsUrls.add(firstNxs);
+		nxsUrls.add(secondNxs);
+
+		ArgumentCaptor<IndexFileCreationRequest> jobCaptor = ArgumentCaptor.forClass(IndexFileCreationRequest.class);
+		verify(jobRequestor).post(jobCaptor.capture());
+
+		IndexFileCreationRequest job = jobCaptor.getValue();
+
+		assertThat(job.getExperimentName(), is(equalTo("MyExperiment")));
+		assertThat(job.getExperimentLocation(), is(equalTo(experimentRoot)));
+		assertThat(job.getAcquisitions(), is(equalTo(nxsUrls)));
+	}
+
+	private URL createNxs(URL rootUrl, String name) throws Exception {
+		URL nxsUrl = new URL(rootUrl, name + ".nxs");
+		File nxs = new File(nxsUrl.getFile());
+		if (!nxs.createNewFile()) {
+			throw new Exception("Could not create test NeXus file");
+		}
+		return nxs.toURI().toURL();
 	}
 
 	private String getAndSetRootProperty(String newProperty) {

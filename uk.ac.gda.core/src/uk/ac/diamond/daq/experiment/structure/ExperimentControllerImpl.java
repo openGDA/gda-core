@@ -1,23 +1,33 @@
 package uk.ac.diamond.daq.experiment.structure;
 
+import static uk.ac.diamond.daq.experiment.api.remote.EventProperties.EXPERIMENT_STRUCTURE_JOB_REQUEST_TOPIC;
+import static uk.ac.diamond.daq.experiment.api.remote.EventProperties.EXPERIMENT_STRUCTURE_JOB_RESPONSE_TOPIC;
+
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.time.Instant;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Optional;
+import java.util.Date;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.event.core.IRequester;
+import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.scan.IFilePathService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.experiment.api.Activator;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
+import uk.ac.diamond.daq.experiment.api.structure.IndexFileCreationRequest;
 
 @Controller("experimentController")
 public class ExperimentControllerImpl implements ExperimentController {
@@ -42,24 +52,30 @@ public class ExperimentControllerImpl implements ExperimentController {
 	 * </blockquote> All the missing directories are created.
 	 */
 	public static final String EXPERIMENT_CONTROLLER_ROOT = "experiment.root";
-	private static final String DEFAULT_EXPERIMENT_PREFIX = "UntitledExperiment";
-	private static final String DEFAULT_ACQUISITION_PREFIX = "UntitledAcquisition";
 
-	private static final Logger logger = LoggerFactory.getLogger(ExperimentControllerImpl.class);
+	public static final String DEFAULT_EXPERIMENT_PREFIX = "UntitledExperiment";
+	public static final String DEFAULT_ACQUISITION_PREFIX = "UntitledAcquisition";
 
-	private URL controllerRootFolder;
-	private Optional<URL> experimentFolder = Optional.empty();
-	private Optional<URL> lastAcquisitionFolder = Optional.empty();
+	private static final Pattern INVALID_CHARACTERS_PATTERN = Pattern.compile("[^a-zA-Z0-9\\.\\-\\_]");
+
+	private final SimpleDateFormat timestampFormat = new SimpleDateFormat("yyyy_mm_dd_HH_mm_ss");
+
+	private ExperimentResource experiment;
 
 	private IFilePathService filePathService;
+	private IRequester<IndexFileCreationRequest> experimentStructureJobRequester;
 
 	public ExperimentControllerImpl() {
-		super();
+		// No-arg constructor for Spring
 	}
 
-	public ExperimentControllerImpl(IFilePathService filePathService) {
+	/**
+	 * Constructor for tests
+	 */
+	ExperimentControllerImpl(IFilePathService filePathService, IRequester<IndexFileCreationRequest> submitter) {
 		super();
 		this.filePathService = filePathService;
+		this.experimentStructureJobRequester = submitter;
 	}
 
 	@Override
@@ -67,11 +83,9 @@ public class ExperimentControllerImpl implements ExperimentController {
 		if (isStarted()) {
 			throw new ExperimentControllerException("Experiment already running");
 		}
-		String validPath = validate(experimentName, DEFAULT_EXPERIMENT_PREFIX);
-		URL experimentUrl = createExperiment(validPath);
-		logger.info("created experiment url: {}", experimentUrl);
-		experimentFolder = Optional.of(experimentUrl);
-		return experimentUrl;
+		String validatedName = validateName(experimentName, DEFAULT_EXPERIMENT_PREFIX);
+		experiment = new ExperimentResource(validatedName, createLocation(validatedName, getRootFolder()));
+		return experiment.getExperimentURL();
 	}
 
 	@Override
@@ -79,10 +93,9 @@ public class ExperimentControllerImpl implements ExperimentController {
 		if (!isStarted()) {
 			throw new ExperimentControllerException("Start Experiment first.");
 		}
-		String validPath = validate(acquisitionName, DEFAULT_ACQUISITION_PREFIX);
-		URL acquisitionUrl = createAcquisition(validPath);
-		logger.info("created acquisition url: {}", acquisitionUrl);
-		lastAcquisitionFolder = Optional.of(acquisitionUrl);
+		String validatedName = validateName(acquisitionName, DEFAULT_ACQUISITION_PREFIX);
+		URL acquisitionUrl = createLocation(validatedName, experiment.getExperimentURL());
+		experiment.addAcquisition(acquisitionUrl);
 		return acquisitionUrl;
 	}
 
@@ -91,72 +104,17 @@ public class ExperimentControllerImpl implements ExperimentController {
 		if (!isStarted()) {
 			throw new ExperimentControllerException("Start Experiment first.");
 		}
-		experimentFolder = Optional.empty();
-		lastAcquisitionFolder = Optional.empty();
-		wrapUpExperiment();
+		try {
+			createIndexFile();
+		} catch (EventException | InterruptedException e) {
+			throw new ExperimentControllerException("Could not create index file", e);
+		}
+		experiment = null;
 	}
 
 	@Override
 	public boolean isStarted() {
-		return experimentFolder.isPresent();
-	}
-
-	@Override
-	public URL getControllerRootLocation() throws ExperimentControllerException {
-		if (controllerRootFolder == null) {
-			controllerRootFolder = getRootFolder();
-		}
-		return controllerRootFolder;
-	}
-
-	@Override
-	public URL getExperimentLocation() {
-		return experimentFolder.orElse(null);
-	}
-
-	@Override
-	public URL getLastAcquisitionLocation() {
-		return lastAcquisitionFolder.orElse(null);
-	}
-
-	private static final Pattern INVALID_CHARACTERS_PATTERN = Pattern.compile("[^a-zA-Z0-9\\.\\-\\_]");
-
-	private String validate(String value, String defaultValue) throws ExperimentControllerException {
-		value = (value == null ? defaultValue : value) + getTimestamp();
-		String alphaNumericOnly = INVALID_CHARACTERS_PATTERN.matcher(value).replaceAll(" ");
-		return Arrays.stream(alphaNumericOnly.split(" "))
-			.map(String::trim)
-			.filter(word -> !word.isEmpty())
-			.map(word -> {
-				String initial = word.substring(0, 1);
-				return word.replaceFirst(initial, initial.toUpperCase());
-			}).reduce((a, b) -> a + b).orElseThrow(ExperimentControllerException::new);
-	}
-
-	private String getTimestamp() {
-		return Instant.now().toString();
-	}
-
-	private URL createExperiment(String spec) throws ExperimentControllerException {
-		return createFolder(getRootFolder(), formatAsDirectory(spec));
-	}
-
-	private URL createAcquisition(String spec) throws ExperimentControllerException {
-		return createFolder(getExperimentLocation(), formatAsDirectory(spec));
-	}
-
-	private URL createFolder(URL base, String spec) throws ExperimentControllerException {
-		try {
-			URL newUrl = new URL(base, spec);
-			if (new File(newUrl.toURI()).mkdirs()) {
-				return newUrl;
-			}
-			throw new ExperimentControllerException("Cannot create folder " + newUrl.getPath());
-		} catch (MalformedURLException e) {
-			throw new ExperimentControllerException("Malformed path", e);
-		} catch (URISyntaxException e) {
-			throw new ExperimentControllerException("Path syntax error", e);
-		}
+		return experiment != null;
 	}
 
 	private URL getRootFolder() throws ExperimentControllerException {
@@ -174,9 +132,25 @@ public class ExperimentControllerImpl implements ExperimentController {
 		return root;
 	}
 
-	private URL createURL(String protocol, String host, String path) throws ExperimentControllerException {
+
+	private String validateName(String value, String defaultValue) {
+		value = value == null ? defaultValue : value;
+		String alphaNumericOnly = INVALID_CHARACTERS_PATTERN.matcher(value).replaceAll(" ");
+		return Arrays.stream(alphaNumericOnly.split(" "))
+			.map(String::trim)
+			.filter(word -> !word.isEmpty())
+			.map(this::capitalise)
+			.collect(Collectors.joining());
+	}
+
+	private String capitalise(String word) {
+		String initial = word.substring(0, 1);
+		return word.replaceFirst(initial, initial.toUpperCase());
+	}
+
+	private URL createURL(String scheme, String host, String path) throws ExperimentControllerException {
 		try {
-			return new URL(protocol, host, path);
+			return new URL(scheme, host, path);
 		} catch (MalformedURLException e) {
 			throw new ExperimentControllerException("Path syntax error", e);
 		}
@@ -190,6 +164,22 @@ public class ExperimentControllerImpl implements ExperimentController {
 		}
 	}
 
+	private URL createLocation(String name, URL root) throws ExperimentControllerException {
+		try {
+			URL newURL = new URL(root, name + timestamp() + "/");
+			if (new File(newURL.toURI()).mkdirs()) {
+				return newURL;
+			}
+			throw new ExperimentControllerException("Cannot create location '" + newURL.getFile() + "'");
+		} catch (URISyntaxException | MalformedURLException e) {
+			throw new ExperimentControllerException("Error creating URL", e);
+		}
+	}
+
+	private String timestamp() {
+		return timestampFormat.format(new Date());
+	}
+
 	private final IFilePathService getFilePathService() {
 		if (filePathService == null) {
 			filePathService = Activator.getService(IFilePathService.class);
@@ -197,8 +187,68 @@ public class ExperimentControllerImpl implements ExperimentController {
 		return filePathService;
 	}
 
-	private void wrapUpExperiment() {
-		// TODO
+	private void createIndexFile() throws EventException, InterruptedException, ExperimentControllerException {
+		IndexFileCreationRequest job = new IndexFileCreationRequest();
+		job.setExperimentName(experiment.getExperimentName());
+		job.setExperimentLocation(experiment.getExperimentURL());
+		job.setAcquisitions(getNeXusLocations());
+		IndexFileCreationRequest response = getExperimentStructureJobRequester().post(job);
+		if (response.getStatus() == Status.FAILED) {
+			throw new ExperimentControllerException(response.getMessage());
+		}
+	}
+
+	/**
+	 * Returns the URLs of NeXus files created as part of this resource.
+	 * Traverses all acquisitions locations registered with {@link #addAcquisition(URL)}
+	 * looking for those containing exactly one NeXus file.
+	 */
+	private Set<URL> getNeXusLocations() {
+		return experiment.getAcquisitions().stream()
+			.map(URL::getFile)
+			.map(File::new)
+			.map(dir -> dir.listFiles(this::nexusFilter))
+			.filter(nxsFiles -> nxsFiles.length == 1)
+			.map(nxsFiles -> nxsFiles[0])
+			.map(File::toURI)
+			.map(this::uriToUrl)
+			.filter(Objects::nonNull)
+			.collect(Collectors.toSet());
+	}
+
+	/**
+	 * Stream-safe URI to URL conversion
+	 * Returns null if fails; remember to filter!
+	 */
+	private URL uriToUrl(URI uri) {
+		try {
+			return uri.toURL();
+		} catch (MalformedURLException e) {
+			return null;
+		}
+	}
+
+	private boolean nexusFilter(@SuppressWarnings("unused") File directory, String filename) {
+		if (filename.lastIndexOf('.') > 0) {
+			int lastIndex = filename.lastIndexOf('.');
+			return filename.substring(lastIndex).equals(".nxs");
+        }
+        return false;
+	}
+
+	private IRequester<IndexFileCreationRequest> getExperimentStructureJobRequester() throws EventException {
+		if (experimentStructureJobRequester == null) {
+			try {
+				URI activemqURL = new URI(LocalProperties.getActiveMQBrokerURI());
+				IEventService eventService = Activator.getService(IEventService.class);
+				experimentStructureJobRequester = eventService.createRequestor(activemqURL,
+														 LocalProperties.get(EXPERIMENT_STRUCTURE_JOB_REQUEST_TOPIC),
+														 LocalProperties.get(EXPERIMENT_STRUCTURE_JOB_RESPONSE_TOPIC));
+			} catch (URISyntaxException e) {
+				throw new EventException("Cannot create submitter", e);
+			}
+		}
+		return experimentStructureJobRequester;
 	}
 
 	private String formatAsDirectory(String dir) {
@@ -209,13 +259,4 @@ public class ExperimentControllerImpl implements ExperimentController {
 		return ret;
 	}
 
-	@Override
-	public String getDefaultExperimentName() {
-		return DEFAULT_EXPERIMENT_PREFIX;
-	}
-
-	@Override
-	public String getDefaultAcquisitionName() {
-		return DEFAULT_ACQUISITION_PREFIX;
-	}
 }

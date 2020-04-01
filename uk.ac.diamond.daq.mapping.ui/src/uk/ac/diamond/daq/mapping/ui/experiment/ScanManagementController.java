@@ -278,8 +278,8 @@ public class ScanManagementController extends AbstractMappingController {
 		submitScan(Optional.empty(), null);
 	}
 
-	public void submitScan(URL url, DiffractionParameters acquisitionParameters) {
-		submitScan(Optional.ofNullable(url.getPath()), acquisitionParameters);
+	public void submitScan(URL acquisitionFile, DiffractionParameters acquisitionParameters) {
+		submitScan(Optional.ofNullable(acquisitionFile.getPath()), acquisitionParameters);
 	}
 
 	/**

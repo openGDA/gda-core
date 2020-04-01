@@ -22,6 +22,8 @@ import uk.ac.gda.api.exception.GDAException;
 
 public class ExperimentControllerException extends GDAException {
 
+	private static final long serialVersionUID = 2674426638977323584L;
+
 	public ExperimentControllerException() {
 		super();
 	}
