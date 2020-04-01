@@ -255,7 +255,7 @@ public class LiveStreamView extends ViewPart {
 		try {
 			UUID streamID = LiveStreamConnectionManager.getInstance().getIStreamConnection(camConfig, streamType);
 			liveStreamConnection = (LiveStreamConnection) LiveStreamConnectionManager.getInstance().getIStreamConnection(streamID);
-			plottingComposite = new LivePlottingComposite(parent, SWT.NONE, getPartName(), actionBars, liveStreamConnection);
+			plottingComposite = new LivePlottingComposite(parent, SWT.NONE, getPartName(), actionBars, liveStreamConnection, this);
 			plottingComposite.setShowAxes(camConfig.getCalibratedAxesProvider() != null);
 			plottingComposite.setShowTitle(true);
 			plottingComposite.activatePlottingSystem();
