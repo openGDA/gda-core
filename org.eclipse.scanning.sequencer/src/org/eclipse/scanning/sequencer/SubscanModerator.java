@@ -59,9 +59,8 @@ public class SubscanModerator {
 		outerPointGenerator = pointGen; // We will reassign it to the outer scan if there is one, otherwise it is the full scan.
 
 		// get the scan path model as a compound model
-		final IScanPointGeneratorModel scanPathModel = (scanModel.getScanPathModel() != null ?
-				scanModel.getScanPathModel() : (IScanPointGeneratorModel) pointGen.getModel());
-		Objects.requireNonNull(scanPathModel);
+		final IScanPointGeneratorModel scanPathModel = scanModel.getScanPathModel();
+		Objects.requireNonNull(scanPathModel, "The scanPathModel of the ScanModel must be set");
 		final CompoundModel compoundModel = scanPathModel instanceof CompoundModel ? (CompoundModel) scanPathModel :
 				new CompoundModel(scanPathModel);
 

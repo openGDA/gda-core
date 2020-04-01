@@ -13,7 +13,6 @@ package org.eclipse.scanning.test.scan;
 
 import static org.junit.Assert.assertEquals;
 
-import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
@@ -91,34 +90,35 @@ public class RunnableDeviceServiceConfigureTest {
 
 	private IRunnableDevice<ScanModel> createTestScanner(String... names) throws Exception {
 
-		IRunnableDevice<?>[] detectors = new IRunnableDevice[names.length];
+		final IRunnableDevice<?>[] detectors = new IRunnableDevice[names.length];
 		for (int i = 0; i < names.length; i++) {
 			detectors[i] = dservice.getRunnableDevice(names[i]);
 
 		}
 
 		// If none passed, create scan points for a grid.
-		TwoAxisGridPointsModel pmodel = new TwoAxisGridPointsModel("x", "y");
-		pmodel.setyAxisPoints(5);
-		pmodel.setxAxisPoints(5);
-		pmodel.setBoundingBox(new BoundingBox(0,0,3,3));
+		final TwoAxisGridPointsModel gridPointsModel = new TwoAxisGridPointsModel("x", "y");
+		gridPointsModel.setyAxisPoints(5);
+		gridPointsModel.setxAxisPoints(5);
+		gridPointsModel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		IPointGenerator<? extends IScanPointGeneratorModel> gen = gservice.createGenerator(pmodel);
+		final IPointGenerator<? extends IScanPointGeneratorModel> pointGen = gservice.createGenerator(gridPointsModel);
 
 		// Create the model for a scan.
-		final ScanModel  smodel = new ScanModel();
-		smodel.setPointGenerator(gen);
-		smodel.setDetectors(detectors);
+		final ScanModel scanModel = new ScanModel();
+		scanModel.setPointGenerator(pointGen);
+		scanModel.setScanPathModel(gridPointsModel);
+		scanModel.setDetectors(detectors);
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(smodel);
+		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(scanModel);
 		return scanner;
 	}
 
-	private void checkRun(IRunnableDevice<ScanModel> scanner, int size) throws Exception {
+	private void checkRun(IRunnableDevice<ScanModel> scanner, int size) {
 		// Bit of a hack to get the generator from the model - should this be easier?
 		// Do not copy this code
-		ScanModel smodel = (ScanModel)((AbstractRunnableDevice)scanner).getModel();
+		ScanModel smodel = scanner.getModel();
 		IPointGenerator<?> gen = smodel.getPointGenerator();
 		assertEquals(gen.size(), size);
 	}

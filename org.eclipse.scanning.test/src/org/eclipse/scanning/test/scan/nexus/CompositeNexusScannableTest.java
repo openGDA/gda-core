@@ -335,34 +335,35 @@ public class CompositeNexusScannableTest extends NexusTest {
 	}
 
 	private IRunnableDevice<ScanModel> createGridScan(IScannable<?> perScanMonitor) throws Exception {
-		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
-		gmodel.setxAxisName("xNex");
-		gmodel.setxAxisPoints(SCAN_SIZE[1]);
-		gmodel.setyAxisName("yNex");
-		gmodel.setyAxisPoints(SCAN_SIZE[0]);
-		gmodel.setBoundingBox(new BoundingBox(0, 0, 3, 3));
-		gmodel.setAlternating(false);
+		TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel();
+		gridModel.setxAxisName("xNex");
+		gridModel.setxAxisPoints(SCAN_SIZE[1]);
+		gridModel.setyAxisName("yNex");
+		gridModel.setyAxisPoints(SCAN_SIZE[0]);
+		gridModel.setBoundingBox(new BoundingBox(0, 0, 3, 3));
+		gridModel.setAlternating(false);
 
-		IPointGenerator<? extends IScanPointGeneratorModel> gen = pointGenService.createGenerator(gmodel);
+		IPointGenerator<? extends IScanPointGeneratorModel> pointGen = pointGenService.createGenerator(gridModel);
 
 		// Create the model for a scan.
-		final ScanModel smodel = new ScanModel();
-		smodel.setPointGenerator(gen);
+		final ScanModel scanModel = new ScanModel();
+		scanModel.setPointGenerator(pointGen);
+		scanModel.setScanPathModel(gridModel);
 		if (perScanMonitor != null) {
 			perScanMonitor.setActivated(true);
 		}
-		smodel.setDetectors(detector);
+		scanModel.setDetectors(detector);
 
-		smodel.setMonitorsPerScan(perScanMonitor);
+		scanModel.setMonitorsPerScan(perScanMonitor);
 
 		// Create a file to scan into.
-		smodel.setFilePath(output.getAbsolutePath());
-		System.out.println("File writing to " + smodel.getFilePath());
+		scanModel.setFilePath(output.getAbsolutePath());
+		System.out.println("File writing to " + scanModel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(smodel, null);
+		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(scanModel, null);
 
-		final IPointGenerator<?> fgen = gen;
+		final IPointGenerator<?> fgen = pointGen;
 		((IRunnableEventDevice<ScanModel>) scanner).addRunListener(new IRunListener() {
 			@Override
 			public void runWillPerform(RunEvent evt) throws ScanningException {

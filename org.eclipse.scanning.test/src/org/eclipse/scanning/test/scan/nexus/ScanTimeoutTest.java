@@ -103,22 +103,23 @@ public class ScanTimeoutTest  extends NexusTest {
 
 	private IRunnableDevice<ScanModel> createMultiStepScanner(IRunnableDevice<?> device) throws Exception {
 
-		AxialMultiStepModel model = new AxialMultiStepModel();
-		model.setName("x");
-		model.addRange(10, 20, 2); // Te = 0.0015
-		model.addRange(25, 50, 5);  // Te = 0.002
-		model.addRange(100, 500, 50);  // Te = 0.003
-		model.setContinuous(false);
+		final AxialMultiStepModel multiStepModel = new AxialMultiStepModel();
+		multiStepModel.setName("x");
+		multiStepModel.addRange(10, 20, 2); // Te = 0.0015
+		multiStepModel.addRange(25, 50, 5);  // Te = 0.002
+		multiStepModel.addRange(100, 500, 50);  // Te = 0.003
+		multiStepModel.setContinuous(false);
 
-		IPointGenerator<? extends IScanPointGeneratorModel> gen = pointGenService.createGenerator(model);
-		assertEquals(21, gen.size());
+		final IPointGenerator<? extends IScanPointGeneratorModel> pointGen = pointGenService.createGenerator(multiStepModel);
+		assertEquals(21, pointGen.size());
 
-		ScanModel smodel = new ScanModel();
-		smodel.setPointGenerator(gen);
-		smodel.setDetectors(device);
-		smodel.setFilePath(output.getCanonicalPath());
+		final ScanModel scanModel = new ScanModel();
+		scanModel.setPointGenerator(pointGen);
+		scanModel.setScanPathModel(multiStepModel);
+		scanModel.setDetectors(device);
+		scanModel.setFilePath(output.getCanonicalPath());
 
-		return runnableDeviceService.createRunnableDevice(smodel, null);
+		return runnableDeviceService.createRunnableDevice(scanModel, null);
 	}
 
 }

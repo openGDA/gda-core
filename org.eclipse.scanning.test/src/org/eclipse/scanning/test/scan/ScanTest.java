@@ -461,7 +461,7 @@ public class ScanTest extends BrokerTest {
 		return createTestScanner(pmodel, bean, publisher, monitorsPerPoint, monitorsPerScan, detector, null);
 	}
 
-	private IRunnableDevice<ScanModel> createTestScanner(AbstractPointsModel pmodel,
+	private IRunnableDevice<ScanModel> createTestScanner(AbstractPointsModel gridPointsModel,
 														final ScanBean bean,
 														final IPublisher<ScanBean> publisher,
 														IScannable<?> monitorsPerPoint,
@@ -471,38 +471,39 @@ public class ScanTest extends BrokerTest {
 
 		// Configure a detector with a collection time.
 		if (detector == null) {
-			MockDetectorModel dmodel = new MockDetectorModel();
-			dmodel.setExposureTime(0.001);
-			dmodel.setName("detector");
-			detector = runnableDeviceService.createRunnableDevice(dmodel);
+			final MockDetectorModel detModel = new MockDetectorModel();
+			detModel.setExposureTime(0.001);
+			detModel.setName("detector");
+			detector = runnableDeviceService.createRunnableDevice(detModel);
 		}
 
 		// If none passed, create scan points for a grid.
-		if (pmodel == null) {
-			pmodel = new TwoAxisGridPointsModel("x", "y");
-			((TwoAxisGridPointsModel) pmodel).setyAxisPoints(5);
-			((TwoAxisGridPointsModel) pmodel).setxAxisPoints(5);
-			((TwoAxisGridPointsModel) pmodel).setBoundingBox(new BoundingBox(0,0,3,3));
+		if (gridPointsModel == null) {
+			gridPointsModel = new TwoAxisGridPointsModel("x", "y");
+			((TwoAxisGridPointsModel) gridPointsModel).setyAxisPoints(5);
+			((TwoAxisGridPointsModel) gridPointsModel).setxAxisPoints(5);
+			((TwoAxisGridPointsModel) gridPointsModel).setBoundingBox(new BoundingBox(0,0,3,3));
 		}
 
-		if (axes!=null && pmodel instanceof IBoundingBoxModel) {
-			IBoundingBoxModel bmodel = (IBoundingBoxModel)pmodel;
-			bmodel.setxAxisName(axes[0]);
-			bmodel.setyAxisName(axes[1]);
+		if (axes!=null && gridPointsModel instanceof IBoundingBoxModel) {
+			IBoundingBoxModel boundingBoxModel = (IBoundingBoxModel) gridPointsModel;
+			boundingBoxModel.setxAxisName(axes[0]);
+			boundingBoxModel.setyAxisName(axes[1]);
 		}
 
-		IPointGenerator<? extends IScanPointGeneratorModel> gen = pointGenService.createGenerator(pmodel);
+		IPointGenerator<? extends IScanPointGeneratorModel> gen = pointGenService.createGenerator(gridPointsModel);
 
 		// Create the model for a scan.
-		final ScanModel  smodel = new ScanModel();
-		smodel.setPointGenerator(gen);
-		smodel.setDetectors(detector);
-		smodel.setBean(bean);
-		if (monitorsPerPoint!=null) smodel.setMonitorsPerPoint(monitorsPerPoint);
-		if (monitorsPerScan!=null) smodel.setMonitorsPerScan(monitorsPerScan);
+		final ScanModel scanModel = new ScanModel();
+		scanModel.setPointGenerator(gen);
+		scanModel.setScanPathModel(gridPointsModel);
+		scanModel.setDetectors(detector);
+		scanModel.setBean(bean);
+		if (monitorsPerPoint!=null) scanModel.setMonitorsPerPoint(monitorsPerPoint);
+		if (monitorsPerScan!=null) scanModel.setMonitorsPerScan(monitorsPerScan);
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(smodel, publisher);
+		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(scanModel, publisher);
 		return scanner;
 	}
 

@@ -226,27 +226,28 @@ public class BasicScanTest extends NexusTest {
 			                                          IScannable<?> monitorPerScan,
 			                                          int... size) throws Exception {
 
-		CompoundModel cModel = createNestedStepScans(0, size);
+		final CompoundModel compoundModel = createNestedStepScans(0, size);
 
-		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cModel);
+		final IPointGenerator<CompoundModel> pointGen = pointGenService.createCompoundGenerator(compoundModel);
 
 		// Create the model for a scan.
-		final ScanModel  smodel = new ScanModel();
-		smodel.setPointGenerator(gen);
+		final ScanModel  scanModel = new ScanModel();
+		scanModel.setPointGenerator(pointGen);
+		scanModel.setScanPathModel(compoundModel);
 		if (monitorPerScan != null) {
 			monitorPerScan.setActivated(true);
 		}
-		smodel.setMonitorsPerPoint(monitorPerPoint);
-		smodel.setMonitorsPerScan(monitorPerScan);
+		scanModel.setMonitorsPerPoint(monitorPerPoint);
+		scanModel.setMonitorsPerScan(monitorPerScan);
 
 		// Create a file to scan into.
-		smodel.setFilePath(output.getAbsolutePath());
-		System.out.println("File writing to " + smodel.getFilePath());
+		scanModel.setFilePath(output.getAbsolutePath());
+		System.out.println("File writing to " + scanModel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(smodel, null);
+		final IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(scanModel, null);
 
-		final IPointGenerator<CompoundModel> fgen = gen;
+		final IPointGenerator<CompoundModel> fgen = pointGen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
 			@Override
 			public void runWillPerform(RunEvent evt) throws ScanningException{

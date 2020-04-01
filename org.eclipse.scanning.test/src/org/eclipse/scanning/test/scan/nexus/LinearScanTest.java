@@ -190,34 +190,35 @@ public class LinearScanTest extends BrokerTest{
 
 	private IRunnableDevice<ScanModel> createTestScanner(IROI roi,  IScanPointGeneratorModel... models) throws Exception {
 		// Configure a detector with a collection time.
-		MandelbrotModel dmodel = new MandelbrotModel();
-		dmodel.setExposureTime(0.01);
-		dmodel.setName("detector");
-		dmodel.setColumns(64);
-		dmodel.setRows(64);
-		dmodel.setRealAxisName("xNex");
-		dmodel.setImaginaryAxisName("yNex");
+		final MandelbrotModel detModel = new MandelbrotModel();
+		detModel.setExposureTime(0.01);
+		detModel.setName("detector");
+		detModel.setColumns(64);
+		detModel.setRows(64);
+		detModel.setRealAxisName("xNex");
+		detModel.setImaginaryAxisName("yNex");
 
-		IRunnableDevice<MandelbrotModel>	detector = runnableDeviceService.createRunnableDevice(dmodel);
+		final IRunnableDevice<MandelbrotModel> detector = runnableDeviceService.createRunnableDevice(detModel);
 
 		// Generate the last model using the roi then work back up creating compounds
-		CompoundModel cModel = new CompoundModel();
+		final CompoundModel compoundModel = new CompoundModel();
 		for (int i = 0; i < models.length - 1; i++)  {
-			cModel.addModel(models[i]);
+			compoundModel.addModel(models[i]);
 		}
-		cModel.addData(models[models.length-1], roi == null ? new ArrayList<>() : Arrays.asList(roi));
+		compoundModel.addData(models[models.length-1], roi == null ? new ArrayList<>() : Arrays.asList(roi));
 
-		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cModel);
+		final IPointGenerator<CompoundModel> pointGen = pointGenService.createCompoundGenerator(compoundModel);
 
 		// Create the model for a scan.
-		final ScanModel  smodel = new ScanModel();
-		smodel.setPointGenerator(gen);
-		smodel.setDetectors(detector);
+		final ScanModel scanModel = new ScanModel();
+		scanModel.setPointGenerator(pointGen);
+		scanModel.setScanPathModel(compoundModel);
+		scanModel.setDetectors(detector);
 
-		smodel.setFilePath(tmp.getAbsolutePath());
+		scanModel.setFilePath(tmp.getAbsolutePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(smodel, publisher);
+		final IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(scanModel, publisher);
 
 		return scanner;
 	}

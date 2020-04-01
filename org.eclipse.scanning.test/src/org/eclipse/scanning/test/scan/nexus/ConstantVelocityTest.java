@@ -192,17 +192,18 @@ public class ConstantVelocityTest extends NexusTest {
 		smodel = new AxialStepModel("yNex", 10,20,
 				ySize > 1 ? 11d/ySize : 30); // N many points or 1
 
-		IPointGenerator<AxialStepModel> stepGen = pointGenService.createGenerator(smodel);
+		final IPointGenerator<AxialStepModel> stepGen = pointGenService.createGenerator(smodel);
 		assertEquals(ySize, stepGen.size());
 
-		CompoundModel cModel = createNestedStepScans(1, size);
-		cModel.addModel(smodel);
+		final CompoundModel compoundModel = createNestedStepScans(1, size);
+		compoundModel.addModel(smodel);
 
-		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cModel);
+		IPointGenerator<CompoundModel> pointGen = pointGenService.createCompoundGenerator(compoundModel);
 
 		// Create the model for a scan.
 		final ScanModel  scanModel = new ScanModel();
-		scanModel.setPointGenerator(gen);
+		scanModel.setPointGenerator(pointGen);
+		scanModel.setScanPathModel(compoundModel);
 		scanModel.setDetectors(detector);
 
 		// Create a file to scan into.
@@ -212,7 +213,7 @@ public class ConstantVelocityTest extends NexusTest {
 		// Create a scan and run it without publishing events
 		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(scanModel, null);
 
-		final IPointGenerator<?> fgen = gen;
+		final IPointGenerator<?> fgen = pointGen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
 			@Override
 			public void runWillPerform(RunEvent evt) throws ScanningException{

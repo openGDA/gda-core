@@ -294,29 +294,30 @@ public abstract class NexusTest {
 
 	protected ScanModel createGridScanModel(final IRunnableDevice<?> detector, File file, IROI region, boolean snake, int... size) throws Exception {
 		// Create scan points for a grid and make a generator
-		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
-		gmodel.setxAxisName("xNex");
-		gmodel.setxAxisPoints(size[size.length-1]);
-		gmodel.setyAxisName("yNex");
-		gmodel.setyAxisPoints(size[size.length-2]);
-		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
-		gmodel.setAlternating(snake);
+		final TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel();
+		gridModel.setxAxisName("xNex");
+		gridModel.setxAxisPoints(size[size.length-1]);
+		gridModel.setyAxisName("yNex");
+		gridModel.setyAxisPoints(size[size.length-2]);
+		gridModel.setBoundingBox(new BoundingBox(0,0,3,3));
+		gridModel.setAlternating(snake);
 
-		CompoundModel cModel = createNestedStepScans(2, size);
-		cModel.addData(gmodel, Arrays.asList(region));
+		final CompoundModel compoundModel = createNestedStepScans(2, size);
+		compoundModel.addData(gridModel, Arrays.asList(region));
 
-		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(cModel);
+		final IPointGenerator<CompoundModel> pointGen = pointGenService.createCompoundGenerator(compoundModel);
 
 		// Create the model for a scan.
-		final ScanModel  smodel = new ScanModel();
-		smodel.setPointGenerator(gen);
-		smodel.setDetectors(detector);
+		final ScanModel scanModel = new ScanModel();
+		scanModel.setPointGenerator(pointGen);
+		scanModel.setScanPathModel(compoundModel);
+		scanModel.setDetectors(detector);
 
 		// Create a file to scan into.
-		smodel.setFilePath(file.getAbsolutePath());
-		System.out.println("File writing to "+smodel.getFilePath());
+		scanModel.setFilePath(file.getAbsolutePath());
+		System.out.println("File writing to "+scanModel.getFilePath());
 
-		return smodel;
+		return scanModel;
 	}
 
 	protected IRunnableDevice<ScanModel> createSpiralScan(final IRunnableDevice<?> detector, File file) throws Exception {
@@ -326,23 +327,24 @@ public abstract class NexusTest {
 	}
 
 	protected ScanModel createSpiralScanModel(final IRunnableDevice<?> detector, File file) throws Exception {
-		TwoAxisSpiralModel spmodel = new TwoAxisSpiralModel("xNex","yNex");
-		spmodel.setScale(2.0);
-		spmodel.setBoundingBox(new BoundingBox(0,0,1,1));
-		final AxialStepModel  model = new AxialStepModel("neXusScannable1", 0,3,1);
+		final TwoAxisSpiralModel spiralModel = new TwoAxisSpiralModel("xNex","yNex");
+		spiralModel.setScale(2.0);
+		spiralModel.setBoundingBox(new BoundingBox(0,0,1,1));
+		final AxialStepModel stepModel = new AxialStepModel("neXusScannable1", 0,3,1);
 
-		IPointGenerator<CompoundModel> gen = pointGenService.createCompoundGenerator(
-				new CompoundModel(model, spmodel));
+		final CompoundModel compoundModel = new CompoundModel(stepModel, spiralModel);
+		final IPointGenerator<CompoundModel> pointGen = pointGenService.createCompoundGenerator(compoundModel);
 
 		// Create the model for a scan.
-		final ScanModel  smodel = new ScanModel();
-		smodel.setPointGenerator(gen);
-		smodel.setDetectors(detector);
+		final ScanModel scanModel = new ScanModel();
+		scanModel.setPointGenerator(pointGen);
+		scanModel.setScanPathModel(compoundModel);
+		scanModel.setDetectors(detector);
 
 		// Create a file to scan into.
-		smodel.setFilePath(file.getAbsolutePath());
+		scanModel.setFilePath(file.getAbsolutePath());
 
-		return smodel;
+		return scanModel;
 	}
 
 	/*
