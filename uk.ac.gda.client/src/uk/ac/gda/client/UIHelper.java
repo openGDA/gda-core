@@ -32,6 +32,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ExpandBar;
 import org.eclipse.swt.widgets.ExpandItem;
 
+import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.ClientMessagesUtility;
+
 public class UIHelper {
 
 	private UIHelper() {}
@@ -40,12 +43,20 @@ public class UIHelper {
 		showMessage(MessageDialog.ERROR, message, cause.getMessage());
 	}
 
+	public static void showError(final ClientMessages message, final Exception cause) {
+		showMessage(MessageDialog.ERROR, ClientMessagesUtility.getMessage(message), cause.getMessage());
+	}
+
 	public static void showError(final String message, final String reason) {
 		showMessage(MessageDialog.ERROR, message, reason);
 	}
 
 	public static void showWarning(final String message, final String reason) {
 		showMessage(MessageDialog.WARNING, message, reason);
+	}
+
+	public static void showWarning(final ClientMessages message, final Exception cause) {
+		showMessage(MessageDialog.WARNING, ClientMessagesUtility.getMessage(message), cause.getMessage());
 	}
 
 	public static void showWarning(final String message, final Exception cause) {

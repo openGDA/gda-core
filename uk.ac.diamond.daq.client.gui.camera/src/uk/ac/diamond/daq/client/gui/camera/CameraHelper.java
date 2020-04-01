@@ -1,5 +1,11 @@
 package uk.ac.diamond.daq.client.gui.camera;
 
+import static uk.ac.gda.client.properties.ClientPropertiesHelper.SIMPLE_FORMAT;
+import static uk.ac.gda.client.properties.ClientPropertiesHelper.formatPropertyKey;
+import static uk.ac.gda.client.properties.ClientPropertiesHelper.getConfigurationBeanProperty;
+import static uk.ac.gda.client.properties.ClientPropertiesHelper.getId;
+import static uk.ac.gda.client.properties.ClientPropertiesHelper.getNameProperty;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,8 +19,10 @@ import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
+import uk.ac.diamond.daq.client.gui.camera.beam.BeamCameraMap;
 import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
 import uk.ac.diamond.daq.client.gui.camera.controller.ImagingCameraConfigurationController;
+import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
 import uk.ac.diamond.daq.client.gui.camera.properties.CameraPropertiesBuilder;
 import uk.ac.diamond.daq.client.gui.camera.properties.MotorPropertiesBuilder;
 import uk.ac.gda.api.camera.CameraControl;
@@ -27,30 +35,70 @@ import uk.ac.gda.client.properties.CameraProperties;
 import uk.ac.gda.client.properties.MotorProperties;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
-
-import static uk.ac.gda.client.properties.ClientPropertiesHelper.*;
+import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
- * Hides the configuration structural design. A typical configuration defining
- * two camera would look like below
+ * Hides the configuration structural design. A typical configuration defining a
+ * camera would look like below
  * 
- * <code>
+ * <pre>
+ * {@code
  * client.cameraConfiguration.0=d2_cam_config
  * client.cameraConfiguration.0.name=Camera Zero
+ * client.cameraConfiguration.0.id=PCO_CAMERA 
  * client.cameraConfiguration.0.cameraControl=imaging_camera_control
+ * client.cameraConfiguration.0.beam_mapping_active=true
  * client.cameraConfiguration.0.motor.0.controller = stagez
  * client.cameraConfiguration.0.motor.0.name = Camera Axis Z
  * client.cameraConfiguration.0.motor.1.controller = stagey
- * client.cameraConfiguration.0.motor.1.name = Camera Axis Y 
- * client.cameraControl.0=imaging_camera_control 
- * </code>
+ * client.cameraConfiguration.0.motor.1.name = Camera Axis Y
+ * }
+ * </pre>
  * 
- * where
+ * where the fields meaning represent
  * 
  * <ul>
- * <li>client.cameraConfiguration.INDEX - represents the camera index</li>
- * <li>motor.INDEX - represents a motor index</li>
+ * <li><i>client.cameraConfiguration.INDEX</i>
+ * <ul>
+ * <li>the camera index</li>
  * </ul>
+ * </li>
+ * <li><i>name</i>
+ * <ul>
+ * <li>a label used in the GUI for this camera</li>
+ * </ul>
+ * </li>
+ * <li><i>id</i>
+ * <ul>
+ * <li>an optional unique (among other similar caeraConfiguration ids) to
+ * identify a specific cameraConfiguration</li>
+ * </ul>
+ * </li>
+ * <li><i>cameraControl</i>
+ * <ul>
+ * <li>the server side camera control</li>
+ * <li>the value, i.e. imaging_camera_control, is a bean id, instance of
+ * uk.ac.gda.epics.camera.EpicsCameraControl, defined in the GDA Server Spring
+ * Configuration (TBD)</li>
+ * </ul>
+ * </li>
+ * <li><i>beam_mapping_active</i>
+ * <ul>
+ * <li>marks this camera as eligible for beam-to-camera mapping</li>
+ * </ul>
+ * </li>
+ * <li><i>motor.INDEX</i>
+ * <ul>
+ * <li>the top element identifying a motor associated with this camera</li>
+ * </ul>
+ * </li>
+ * </ul>
+ * 
+ * <p>
+ * For mor information read in Confluence about the <a href=
+ * "https://confluence.diamond.ac.uk/display/DIAD/K11+GDA+Properties">Camera
+ * Configuration Properties</a>
+ * </p>
  * 
  * @author Maurizio Nagni
  *
@@ -155,6 +203,21 @@ public final class CameraHelper {
 		return cameraConfigurations.computeIfAbsent(cameraIndex, ICameraConfigurationImpl::new);
 	}
 
+	/**
+	 * Adds a mapping between the motors moving the beam, if any, and the camera
+	 * array. The method publishes a {@link BeamCameraMappingEvent} to inform any
+	 * listener of the camera update.
+	 * 
+	 * @param cameraIndex   the camera index
+	 * @param beamCameraMap the camera to beam mapping
+	 */
+	public static void addBeamCameraMap(int cameraIndex, BeamCameraMap beamCameraMap) {
+		ICameraConfigurationImpl.class.cast(createICameraConfiguration(cameraIndex)).setBeamCameraMap(beamCameraMap);
+		// resets the status to mark the end of the mapping
+		BeamCameraMappingEvent cmEvent = new BeamCameraMappingEvent(CameraHelper.class, cameraIndex);
+		SpringApplicationContextProxy.publishEvent(cmEvent);
+	}
+
 	private static void createCameraComboItems() {
 		getAllCameraProperties().stream().forEach(k -> cameraComboItems.add(new CameraComboItem(k)));
 	}
@@ -179,6 +242,7 @@ public final class CameraHelper {
 		builder.setName(getNameProperty(CAMERA_CONFIGURATION_PREFIX, index));
 		builder.setCameraConfiguration(getConfigurationBeanProperty(CAMERA_CONFIGURATION_PREFIX, index));
 		builder.setCameraControl(getCameraControlProperty(index));
+		builder.setBeamMappingActive(getBeamMappingProperty(index));
 
 		builder.setMotorProperties(getCameraConfigurationMotors(index));
 		CameraProperties cp = builder.build();
@@ -206,6 +270,18 @@ public final class CameraHelper {
 	 */
 	private static String getCameraControlProperty(int index) {
 		return LocalProperties.get(formatPropertyKey(CAMERA_CONFIGURATION_PREFIX, index, "cameraControl"), null);
+	}
+
+	/**
+	 * Extracts properties formatted like
+	 * "client.cameraConfiguration.INDEX.beam_mapping_active"
+	 * 
+	 * @param index the camera index
+	 * @return
+	 */
+	private static boolean getBeamMappingProperty(int index) {
+		return Boolean.parseBoolean(LocalProperties
+				.get(formatPropertyKey(CAMERA_CONFIGURATION_PREFIX, index, "beam_mapping_active"), "false"));
 	}
 
 	// -- motors -- //
@@ -237,6 +313,10 @@ public final class CameraHelper {
 	private static class ICameraConfigurationImpl implements ICameraConfiguration {
 
 		private final int cameraIndex;
+		/**
+		 * The mapping from camera array space to the beam drivers, if any
+		 */
+		private Optional<BeamCameraMap> beamCameraMap;
 
 		public ICameraConfigurationImpl(int cameraIndex) {
 			super();
@@ -276,6 +356,15 @@ public final class CameraHelper {
 		@Override
 		public CameraProperties getCameraProperties() {
 			return getAllCameraProperties().get(cameraIndex);
+		}
+
+		@Override
+		public Optional<BeamCameraMap> getBeamCameraMap() {
+			return beamCameraMap;
+		}
+
+		public void setBeamCameraMap(BeamCameraMap beamCameraMap) {
+			this.beamCameraMap = Optional.ofNullable(beamCameraMap);
 		}
 	}
 }

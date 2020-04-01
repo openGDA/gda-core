@@ -9,11 +9,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
+import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
+import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.DrawableRegionRegisteredEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.RegisterDrawableRegionEvent;
+import uk.ac.diamond.daq.client.gui.camera.event.handler.DrawCameraMappingArea;
 import uk.ac.diamond.daq.client.gui.camera.roi.ROIListener;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
+import uk.ac.gda.client.live.stream.event.ListenToConnectionEvent;
 import uk.ac.gda.client.live.stream.view.LivePlottingComposite;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 import uk.ac.gda.ui.tool.ClientSWTElements;
@@ -27,8 +31,8 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 public class CameraImageComposite extends Composite {
 	private static final Logger logger = LoggerFactory.getLogger(CameraImageComposite.class);
 
-	private LivePlottingComposite plottingComposite;
-	private IPlottingSystem<Composite> plottingSystem;
+	private final LivePlottingComposite plottingComposite;
+	private final IPlottingSystem<Composite> plottingSystem;
 
 	/**
 	 * Integrates a {@link LiveStreamConnection} into composite element. Can be used
@@ -52,6 +56,7 @@ public class CameraImageComposite extends Composite {
 
 		// Registers the region into the camera
 		SpringApplicationContextProxy.addApplicationListener(registerDrawableRegionListener(this));
+		SpringApplicationContextProxy.addApplicationListener(cameraMappingEventListener);
 
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(this);
 		logger.debug("CameraImageComposite created");
@@ -97,4 +102,15 @@ public class CameraImageComposite extends Composite {
 			}
 		};
 	}
+
+	/** 
+	 * Handles {@link BeamCameraMappingEvent}
+	 * @see CameraHelper#addBeamCameraMap(int, uk.ac.diamond.daq.client.gui.camera.beam.BeamCameraMap)
+	 */
+	private ApplicationListener<BeamCameraMappingEvent> cameraMappingEventListener = new ApplicationListener<BeamCameraMappingEvent>() {
+		@Override
+		public void onApplicationEvent(BeamCameraMappingEvent event) {
+			DrawCameraMappingArea.handleEvent(plottingSystem, event);
+		}
+	};
 }

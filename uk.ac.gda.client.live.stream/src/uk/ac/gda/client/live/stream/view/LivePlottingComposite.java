@@ -89,57 +89,8 @@ public class LivePlottingComposite extends Composite {
 	private boolean connected;
 
 	private final IAxisChangeListener axisChangeListener = this::updateAxes;
-
-	private final IDataListener dataShapeChangeListener = new IDataListener() {
-		private int[] oldShape;
-
-		@Override
-		public void dataChangePerformed(DataEvent evt) {
-			final Display display = PlatformUI.getWorkbench().getDisplay();
-			// Check if the shape has changed, if so rescale
-			if (!Arrays.equals(evt.getShape(), oldShape)) {
-				oldShape = evt.getShape();
-				// Need to be in the UI thread to do rescaling
-				display.asyncExec(() -> {
-					if (plottingSystem != null && !plottingSystem.isDisposed()) {
-						plottingSystem.autoscaleAxes();
-						iTrace.rehistogram();
-					}
-				});
-				updateAxes();
-			}
-		}
-	};
-
-	private final IDataListener titleUpdateListener = new IDataListener() {
-		private long lastUpdateTime = System.nanoTime(); // Initialise to make first call to getFps more reasonable
-
-		@Override
-		public void dataChangePerformed(DataEvent evt) {
-			// Build the new title while not in the UI thread
-			final String newTitle = buildTitle();
-			// Update the plot title in the UI thread
-			Display.getDefault().asyncExec(() -> {
-				if (plottingSystem != null && !plottingSystem.isDisposed()) {
-					plottingSystem.setTitle(newTitle);
-				}
-			});
-		}
-
-		private String buildTitle() {
-			final double fps = getFps();
-			final String cameraName = liveStreamConnection.getCameraConfig().getName();
-			return String.format("%s: %s - Frame: %d (%.1f fps)", cameraName, liveStreamConnection.getStreamType(),
-					frameCounter.incrementAndGet(), fps);
-		}
-
-		private double getFps() {
-			final long now = System.nanoTime();
-			final long timeDiff = now - lastUpdateTime;
-			lastUpdateTime = now; // Cache for next frame
-			return 1 / (timeDiff * 1e-9);
-		}
-	};
+	private IDataListener dataShapeChangeListener;
+	private IDataListener titleUpdateListener;
 
 	/**
 	 * Simple constructor for use in wizard pages etc. where there are no action bars or workspace part
@@ -231,7 +182,7 @@ public class LivePlottingComposite extends Composite {
 				// Use the full camera name from the camera configuration, if available, for the plot title as it should
 				// better describe the camera and we should have plenty of space for it.
 				plottingSystem.setTitle(camConfig.getName() + ": " + streamType + " - No data yet");
-				liveStreamConnection.addDataListenerToStream(titleUpdateListener);
+				liveStreamConnection.addDataListenerToStream(updateTitleUpdateListener());
 			} else {
 				plottingSystem.setTitle("");
 				liveStreamConnection.removeDataListenerFromStream(titleUpdateListener);
@@ -277,7 +228,7 @@ public class LivePlottingComposite extends Composite {
 		updateTitleVisibility();
 
 		// Add the listener for updating the frame counter
-		dataset.addDataListener(dataShapeChangeListener);
+		dataset.addDataListener(updateDataShapeChangeListener());
 
 		// Reset the frame counter
 		frameCounter.set(0);
@@ -335,7 +286,9 @@ public class LivePlottingComposite extends Composite {
 			plottingSystem.removeTrace(iTrace);
 			if (dataset != null) {
 				dataset.removeDataListener(dataShapeChangeListener);
+				dataShapeChangeListener = null;
 				dataset.removeDataListener(titleUpdateListener);
+				titleUpdateListener = null;
 				dataset = null;
 			}
 			liveStreamConnection.removeAxisMoveListener(axisChangeListener);
@@ -392,6 +345,74 @@ public class LivePlottingComposite extends Composite {
 			return uuidRoot.get().equals(event.getRootComposite());
 		}
 		return false;
+	}
+
+	private IDataListener updateDataShapeChangeListener() {
+		dataShapeChangeListener = new IDataListener() {
+			private int[] oldShape;
+
+			@Override
+			public void dataChangePerformed(DataEvent evt) {
+				final Display display = PlatformUI.getWorkbench().getDisplay();
+				// Check if the shape has changed, if so rescale
+				if (!Arrays.equals(evt.getShape(), oldShape)) {
+					oldShape = evt.getShape();
+					// Need to be in the UI thread to do rescaling
+					display.asyncExec(() -> {
+						if (plottingSystem != null && !plottingSystem.isDisposed()) {
+							plottingSystem.autoscaleAxes();
+							iTrace.rehistogram();
+						}
+					});
+					updateAxes();
+				}
+			}
+		};
+		return dataShapeChangeListener;
+	}
+
+	private IDataListener updateTitleUpdateListener() {
+		titleUpdateListener = new IDataListener() {
+			private long lastUpdateTime = System.nanoTime(); // Initialise
+																// to
+																// make
+																// first
+																// call
+																// to
+																// getFps
+																// more
+																// reasonable
+
+			@Override
+			public void dataChangePerformed(DataEvent evt) {
+				// Build the new title while not in the UI thread
+				final String newTitle = buildTitle();
+				// Update the plot title in the UI thread
+				Display.getDefault().asyncExec(() -> {
+					if (plottingSystem != null && !plottingSystem.isDisposed()) {
+						plottingSystem.setTitle(newTitle);
+					}
+				});
+			}
+
+			private String buildTitle() {
+				final double fps = getFps();
+				final String cameraName = liveStreamConnection.getCameraConfig().getName();
+				return String.format("%s: %s - Frame: %d (%.1f fps)", cameraName, liveStreamConnection.getStreamType(),
+						frameCounter.incrementAndGet(), fps);
+			}
+
+			private double getFps() {
+				final long now = System.nanoTime();
+				final long timeDiff = now - lastUpdateTime;
+				lastUpdateTime = now; // Cache
+										// for
+										// next
+										// frame
+				return 1 / (timeDiff * 1e-9);
+			}
+		};
+		return titleUpdateListener;
 	}
 
 	ApplicationListener<ListenToConnectionEvent> openConnectionListener = new ApplicationListener<ListenToConnectionEvent>() {

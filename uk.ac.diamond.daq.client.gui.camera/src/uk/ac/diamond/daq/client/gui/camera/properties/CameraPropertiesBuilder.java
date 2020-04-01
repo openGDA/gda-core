@@ -50,6 +50,10 @@ public class CameraPropertiesBuilder {
 		cameraProperties.setMotorProperties(motorProperties);
 	}
 
+	public void setBeamMappingActive(boolean beamMappingActive) {
+		cameraProperties.setBeamMappingActive(beamMappingActive);
+	}
+	
 	private class CameraPropertiesImpl implements CameraProperties {
 
 		private int index;
@@ -58,6 +62,7 @@ public class CameraPropertiesBuilder {
 		private String cameraControl;
 		private String cameraConfiguration;
 		private List<MotorProperties> motorProperties;
+		private boolean beamMappingActive;
 
 		@Override
 		public int getIndex() {
@@ -111,6 +116,15 @@ public class CameraPropertiesBuilder {
 
 		public void setMotorProperties(List<MotorProperties> motorProperties) {
 			this.motorProperties = motorProperties;
+		}
+
+		@Override
+		public boolean isBeamMappingActive() {
+			return beamMappingActive;
+		}
+
+		public void setBeamMappingActive(boolean beamMappingActive) {
+			this.beamMappingActive = beamMappingActive;
 		}
 	}
 }

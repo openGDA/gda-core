@@ -36,7 +36,8 @@ public interface CameraProperties {
 	int getIndex();
 
 	/**
-	 * Identifies a camera by its ID. As the {@link Optional} return type indicate, this is still not a required property
+	 * Identifies a camera by its ID. As the {@link Optional} return type indicate, this is still not a required
+	 * property
 	 *
 	 * @return the camera index number
 	 */
@@ -50,8 +51,8 @@ public interface CameraProperties {
 	String getName();
 
 	/**
-	 * The client side Spring bean associated with a <i>uk.ac.gda.client.live.stream.view.CameraConfiguration</i> (already defined
-	 * in XML or programmatically)
+	 * The client side Spring bean associated with a <i>uk.ac.gda.client.live.stream.view.CameraConfiguration</i>
+	 * (already defined in XML or programmatically)
 	 *
 	 * @return the bean id
 	 */
@@ -67,8 +68,16 @@ public interface CameraProperties {
 
 	/**
 	 * The motors associated with the camera
+	 *
 	 * @return a list of motors in the camera context
 	 */
 	List<MotorProperties> getMotorProperties();
 
+	/**
+	 * Makes the camera eligible for beam mapping. For more information read
+	 * <a href="https://confluence.diamond.ac.uk/display/DIAD/Beam-Camera+mapping">this documentation</a>.
+	 *
+	 * @return {@code true} if enabled, {@code false} otherwise
+	 */
+	boolean isBeamMappingActive();
 }

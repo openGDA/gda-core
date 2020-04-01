@@ -29,12 +29,15 @@ import org.eclipse.ui.PlatformUI;
 
 import uk.ac.diamond.daq.epics.connector.EpicsV3DynamicDatasetConnector;
 import uk.ac.diamond.daq.epics.connector.EpicsV4DynamicDatasetConnector;
+import uk.ac.gda.client.live.stream.simulator.connector.BeamSimulationCamera;
+import uk.ac.gda.client.live.stream.simulator.connector.BeamSimulationCameraConnector;
+import uk.ac.gda.client.live.stream.simulator.connector.ImageDatasetConnector;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
 
 /**
- * Creates a brand new IDatasetConnector then open the connection.
- * This class is restricted to the package because its use is supposed to be limited to {@link LiveStreamConnection} class
+ * Creates a brand new IDatasetConnector then open the connection. This class is restricted to the package because its
+ * use is supposed to be limited to {@link LiveStreamConnection} class
  *
  * @author Maurizio Nagni
  */
@@ -42,8 +45,7 @@ class IDatasetConnectorFactory {
 
 	private static final long MJPEG_DEFAULT_SLEEP_TIME = 50; // ms i.e. 20 fps
 	private static final int MJPEG_DEFAULT_CACHE_SIZE = 3; // frames
-
-
+	private static final String GDA_DATASET_SIMULATOR = "gdaSimulator";
 
 	/**
 	 * Hides constructor
@@ -52,7 +54,8 @@ class IDatasetConnectorFactory {
 		super();
 	}
 
-	public static IDatasetConnector getDatasetConnector(final CameraConfiguration cameraConfiguration, final StreamType streamType) throws LiveStreamException {
+	public static IDatasetConnector getDatasetConnector(final CameraConfiguration cameraConfiguration,
+			final StreamType streamType) throws LiveStreamException {
 		IDatasetConnectorGenerator generator = new IDatasetConnectorGenerator(cameraConfiguration, streamType);
 		return generator.createDatasetConnector();
 	}
@@ -61,7 +64,8 @@ class IDatasetConnectorFactory {
 		private final CameraConfiguration cameraConfiguration;
 		private final StreamType streamType;
 
-		public IDatasetConnectorGenerator(CameraConfiguration cameraConfiguration, StreamType streamType) throws LiveStreamException {
+		public IDatasetConnectorGenerator(CameraConfiguration cameraConfiguration, StreamType streamType)
+				throws LiveStreamException {
 			super();
 			this.cameraConfiguration = cameraConfiguration;
 			this.streamType = streamType;
@@ -78,7 +82,8 @@ class IDatasetConnectorFactory {
 						"EPICS stream requested but no array PV defined for " + cameraConfiguration.getName());
 			}
 			if (streamType == StreamType.EPICS_PVA && cameraConfiguration.getPvAccessPv() == null) {
-				throw new LiveStreamException("EPICS PVA stream requested but no PVA PV defined for " + cameraConfiguration.getName());
+				throw new LiveStreamException(
+						"EPICS PVA stream requested but no PVA PV defined for " + cameraConfiguration.getName());
 			}
 		}
 
@@ -89,7 +94,11 @@ class IDatasetConnectorFactory {
 				newStream = createMpegStream();
 				break;
 			case EPICS_ARRAY:
-				newStream = createEpicsArrayStream();
+				if (cameraConfiguration.getArrayPv().startsWith(GDA_DATASET_SIMULATOR)) {
+					newStream = createSimulatorDatasetConnector();
+				} else {
+					newStream = createEpicsArrayStream();
+				}
 				break;
 			case EPICS_PVA:
 				newStream = createEpicsPvaStream();
@@ -128,8 +137,8 @@ class IDatasetConnectorFactory {
 					return PlatformUI.getWorkbench().getService(IRemoteDatasetService.class).createMJPGDataset(url,
 							sleepTime, cacheSize);
 				} else {
-					return PlatformUI.getWorkbench().getService(IRemoteDatasetService.class).createGrayScaleMJPGDataset(url,
-							sleepTime, cacheSize);
+					return PlatformUI.getWorkbench().getService(IRemoteDatasetService.class)
+							.createGrayScaleMJPGDataset(url, sleepTime, cacheSize);
 				}
 			} catch (Exception e) {
 				throw new LiveStreamException("Cannot retrieve IRemoteDatasetService for: " + url, e);
@@ -141,6 +150,21 @@ class IDatasetConnectorFactory {
 				dataConnector.connect(5, TimeUnit.SECONDS);
 			} catch (DatasetException e) {
 				throw new LiveStreamException("Cannot connect to DataConnector", e);
+			}
+		}
+
+		/**
+		 * Returns a {@link IDatasetConnector} generated internally by GDA for simulation purposes.
+		 * The stream depends on the specific implementation
+		 * @see {@link BeamSimulationCameraConnector}, {@link ImageDatasetConnector}
+		 * @return
+		 */
+		private IDatasetConnector createSimulatorDatasetConnector() {
+			String cameraName = cameraConfiguration.getArrayPv().split(":")[1];
+			if (BeamSimulationCamera.class.isInstance(cameraConfiguration)) {
+				return new BeamSimulationCameraConnector(cameraName, BeamSimulationCamera.class.cast(cameraConfiguration));
+			} else {
+				return new ImageDatasetConnector(cameraName);
 			}
 		}
 	}

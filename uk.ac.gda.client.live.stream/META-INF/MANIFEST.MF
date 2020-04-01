@@ -31,12 +31,17 @@ Require-Bundle: uk.ac.gda.api,
  org.apache.commons.lang3;bundle-version="3.1.0",
  uk.ac.gda.client,
  uk.ac.diamond.daq.persistence,
- org.apache.commons.lang;bundle-version="2.6.0"
+ org.apache.commons.lang;bundle-version="2.6.0",
+ org.apache.commons.math3,
+ uk.ac.diamond.org.springframework
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Export-Package: uk.ac.gda.client.live.stream,
  uk.ac.gda.client.live.stream.api,
+ uk.ac.gda.client.live.stream.calibration,
  uk.ac.gda.client.live.stream.event,
  uk.ac.gda.client.live.stream.handlers,
+ uk.ac.gda.client.live.stream.simulator.connector,
+ uk.ac.gda.client.live.stream.simulator.stream,
  uk.ac.gda.client.live.stream.view,
  uk.ac.gda.client.live.stream.view.customui
 Automatic-Module-Name: uk.ac.gda.client.live.stream

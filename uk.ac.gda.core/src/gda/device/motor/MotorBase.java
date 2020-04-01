@@ -69,6 +69,8 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 
 	private boolean limitsSettable = false;
 
+	private double motorResolution = Double.NaN;
+
 	protected double minPosition = Double.NaN;
 
 	protected double maxPosition = Double.NaN;
@@ -451,9 +453,13 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 		this.isInitialised = initialised;
 	}
 
+	public void setMotorResolution(double motorResolution) throws MotorException {
+		this.motorResolution = motorResolution;
+	}
+
 	@Override
 	public double getMotorResolution() throws MotorException {
-		return Double.NaN;
+		return motorResolution;
 	}
 
 	@Override
