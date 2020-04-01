@@ -398,7 +398,10 @@ public final class LocalProperties {
 	private static PropertiesConfig propConfig = new JakartaPropertiesConfig();
 
 	static {
+		loadProperties();
+	}
 
+	private static void loadProperties() {
 		// Try to get the location of the property file from a existing property (e.g. from system property)
 		String propertiesFile = propConfig.getString(GDA_PROPERTIES_FILE, null);
 		if (propertiesFile == null || propertiesFile.isEmpty()) {
@@ -439,6 +442,17 @@ public final class LocalProperties {
 				logger.error("Cannot parse to system properties: {}", propertiesFile, ne);
 			}
 		}
+	}
+
+	/**
+	 * <b>WARNING!</b> This method reloads ALL the properties. The reason of this method is double:
+	 * <ol>
+	 * <li>It solves the problem when different Junit tests use different properties files</li>
+	 * <li>May allow, despite is untested, a hot reload of properties without restarting the server</li>
+	 * </ol>
+	 */
+	public static void reloadAllProperties() {
+		loadProperties();
 	}
 
 	/**
@@ -688,7 +702,7 @@ public final class LocalProperties {
 	/**
 	 * @return if the persistence service is available
 	 */
-	public static boolean isPersistenceServiceAvailable () {
+	public static boolean isPersistenceServiceAvailable() {
 		return check(LocalProperties.GDA_PERSISTENCE_SERVICE_ENABLED, false);
 	}
 
