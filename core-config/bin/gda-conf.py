@@ -135,6 +135,11 @@ class Config(tk.Tk):
             self._conf.write(out)
         pass
 
+    def store_and_launch(self):
+        '''Store the selection and then launch GDA'''
+        self.store_defaults()
+        self.launch()
+
     @property
     def selected(self):
         return [k for k, v in self.selections.items() if v.get()]
@@ -160,7 +165,7 @@ class Config(tk.Tk):
 
         i = max(len(self.devices), 4) # image is 4 rows
         tk.Button(self, text='Launch', command=self.launch).grid(row=i, column=0)
-        tk.Button(self, text='Set as default', command=self.store_defaults).grid(row=i, column=1)
+        tk.Button(self, text='Launch (save selection)', command=self.store_and_launch).grid(row=i, column=1)
         tk.Button(self, text='Cancel', command=self.quit).grid(row=i, column=2)
 
     def _get_option(self, key, default):
