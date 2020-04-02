@@ -41,7 +41,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +62,7 @@ public class AnalyserControlPart {
 	private Composite child;
 	private Combo lensModeCombo;
 	private Combo passEnergyCombo;
+	private Combo elementCombo;
 	private Text centreEnergyText;
 
 	private IVGScientaAnalyserRMI analyser;
@@ -104,7 +104,7 @@ public class AnalyserControlPart {
 		Label lensModeLabel = new Label(analyserGroup, SWT.NONE);
 		setTextToBold(lensModeLabel);
 		lensModeLabel.setText("Lens Mode");
-		GridDataFactory.swtDefaults().align(SWT.END, SWT.CENTER).grab(false, true).applyTo(lensModeLabel);
+		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(false, true).applyTo(lensModeLabel);
 
 		lensModeCombo = new Combo(analyserGroup, SWT.READ_ONLY);
 		lensModeCombo.setToolTipText("Analyser Lens Mode");
@@ -135,7 +135,7 @@ public class AnalyserControlPart {
 		Label passEnergyLabel = new Label(analyserGroup, SWT.NONE);
 		setTextToBold(passEnergyLabel);
 		passEnergyLabel.setText("Pass Energy");
-		GridDataFactory.swtDefaults().align(SWT.END, SWT.CENTER).grab(false, true).applyTo(passEnergyLabel);
+		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(false, true).applyTo(passEnergyLabel);
 
 		passEnergyCombo = new Combo(analyserGroup, SWT.READ_ONLY);
 		// Call update to setup passEnergyCombo
@@ -155,7 +155,40 @@ public class AnalyserControlPart {
 			}
 		});
 
+		// Element control
+		Label elementLabel = new Label(analyserGroup, SWT.NONE);
+		setTextToBold(elementLabel);
+		elementLabel.setText("Element");
+		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(false, true).applyTo(elementLabel);
+		
+		elementCombo = new Combo(analyserGroup, SWT.READ_ONLY);
+		updateElementCombo();
+		elementCombo.setToolTipText("Select an element (PSU mode)");
+		elementCombo.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String selectedPsuMode = elementCombo.getText();
+				logger.info("Changing element set to {}", selectedPsuMode);
+				try {
+					analyser.setPsuMode(selectedPsuMode);
+				} catch (Exception exception) {
+					logger.error("Failed to set PSU mode", exception);
+				}
+			}
+		});
+		
+		// energy width display
+		ScannableDisplayComposite maxCount = new ScannableDisplayComposite(analyserGroup, SWT.NONE);
+		GridDataFactory.swtDefaults().span(2, 1).applyTo(maxCount);
+		maxCount.setScannable((Scannable) Finder.getInstance().find("energy_width"));
+		maxCount.setTextWidth(265);
+		maxCount.setDisplayName("Energy width:");
+		maxCount.setValueSize(14);
+		maxCount.setValueColour(SWT.COLOR_DARK_BLUE);
+		maxCount.setLabelSize(14);
+		
 		NudgePositionerComposite centreEnergyNPC = new NudgePositionerComposite(analyserGroup, SWT.NONE);
+		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.CENTER).applyTo(centreEnergyNPC);
 		centreEnergyNPC.setScannable((Scannable) Finder.getInstance().find("raw_centre_energy"));
 		centreEnergyNPC.setDisplayName("Centre Energy");
 		centreEnergyNPC.hideStopButton();
@@ -169,7 +202,7 @@ public class AnalyserControlPart {
 		setTextToBold(startButton);
 		startButton.setBackground(green);
 		startButton.setToolTipText("Apply voltages and start acquiring");
-		GridDataFactory.swtDefaults().span(1, 2).align(SWT.END, SWT.CENTER).hint(100, SWT.DEFAULT).applyTo(startButton);
+		GridDataFactory.swtDefaults().span(1, 2).align(SWT.BEGINNING, SWT.CENTER).hint(100, SWT.DEFAULT).applyTo(startButton);
 		startButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -193,7 +226,7 @@ public class AnalyserControlPart {
 		setTextToBold(stopButton);
 		stopButton.setBackground(red);
 		stopButton.setToolTipText("Stop acquiring and zero supplies");
-		GridDataFactory.swtDefaults().span(1, 2).align(SWT.END, SWT.CENTER).hint(100, SWT.DEFAULT).applyTo(stopButton);
+		GridDataFactory.swtDefaults().span(1, 2).align(SWT.BEGINNING, SWT.CENTER).hint(100, SWT.DEFAULT).applyTo(stopButton);
 		stopButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -280,6 +313,17 @@ public class AnalyserControlPart {
 			passEnergyCombo.select(Arrays.asList(passEnergyStrings).indexOf(Integer.toString(activePassEnergy)));
 		} catch (Exception e) {
 			logger.error("Failed to get PSU mode", e);
+		}
+	}
+	
+	private void updateElementCombo() {
+		try {
+			List<String> psuModes = analyser.getPsuModes();
+			elementCombo.setItems(psuModes.toArray(new String[0]));
+			String psuMode = analyser.getPsuMode();
+			elementCombo.select(psuModes.indexOf(psuMode));
+		} catch (Exception exception) {
+			
 		}
 	}
 

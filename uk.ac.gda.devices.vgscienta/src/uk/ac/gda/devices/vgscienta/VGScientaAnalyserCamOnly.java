@@ -18,6 +18,7 @@
 
 package uk.ac.gda.devices.vgscienta;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
@@ -590,6 +591,16 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	@Override
 	public String getPsuMode() throws Exception {
 		return controller.getPsuMode();
+	}
+
+	@Override
+	public List<String> getPsuModes() {
+		return new ArrayList<>(controller.getPsuModes());
+	}
+
+	@Override
+	public void setPsuMode(String value) throws Exception {
+		controller.setPsuMode(value);
 	}
 
 	@Override

@@ -72,9 +72,9 @@ public class ImageStatsDisplayPart {
 		maxCount.setScannable((Scannable) Finder.getInstance().find("eavImageMax"));
 		maxCount.setTextWidth(265);
 		maxCount.setDisplayName("Max Count:");
-		maxCount.setValueSize(32);
+		maxCount.setValueSize(24);
 		maxCount.setValueColour(SWT.COLOR_DARK_BLUE);
-		maxCount.setLabelSize(10);
+		maxCount.setLabelSize(24);
 
 		// Stats group2
 		Group imageStatsGroup2 = new Group(child, SWT.CENTER);
@@ -85,9 +85,9 @@ public class ImageStatsDisplayPart {
 		totalCount.setScannable((Scannable) Finder.getInstance().find("eavImageTotal"));
 		totalCount.setTextWidth(260);
 		totalCount.setDisplayName("Total Count:");
-		totalCount.setValueSize(32);
+		totalCount.setValueSize(24);
 		totalCount.setValueColour(SWT.COLOR_DARK_BLUE);
-		totalCount.setLabelSize(10);
+		totalCount.setLabelSize(24);
 
 		// Stats group2
 		Group imageStatsGroup3 = new Group(child, SWT.CENTER);
@@ -98,9 +98,9 @@ public class ImageStatsDisplayPart {
 		meanCount.setScannable((Scannable) Finder.getInstance().find("eavImageMean"));
 		meanCount.setTextWidth(260);
 		meanCount.setDisplayName("Count/Pixel:");
-		meanCount.setValueSize(32);
+		meanCount.setValueSize(24);
 		meanCount.setValueColour(SWT.COLOR_DARK_BLUE);
-		meanCount.setLabelSize(10);
+		meanCount.setLabelSize(24);
 		
 		// Set the child as the scrolled content of the ScrolledComposite
 		scrollComp.setContent(child);

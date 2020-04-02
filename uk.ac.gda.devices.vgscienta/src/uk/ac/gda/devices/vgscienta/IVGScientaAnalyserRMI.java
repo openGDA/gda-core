@@ -72,6 +72,18 @@ public interface IVGScientaAnalyserRMI extends Device {
 	String getPsuMode() throws Exception;
 
 	/**
+	 * Gets the available PSU modes (also known as element set)
+	 * @return The list of available PSU modes
+	 */
+	List<String> getPsuModes();
+
+	/**
+	 * Sets the PSU mode (aka element set)
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	void setPsuMode(String psuMode) throws Exception;
+
+	/**
 	 * Gets the current lens mode.
 	 *
 	 * @return The current lens mode

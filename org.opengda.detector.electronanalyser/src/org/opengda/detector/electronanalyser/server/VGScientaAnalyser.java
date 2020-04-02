@@ -18,6 +18,7 @@
 
 package org.opengda.detector.electronanalyser.server;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -810,6 +811,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 		return controller.getDetectorMode();
 	}
 
+	@Override
 	public void setPsuMode(String value) throws Exception {
 		controller.setPsuMode(value);
 	}
@@ -817,6 +819,11 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 	@Override
 	public String getPsuMode() throws Exception {
 		return controller.getPsuMode();
+	}
+
+	@Override
+	public List<String> getPsuModes() {
+		return new ArrayList<>(controller.getPsuModes());
 	}
 
 	@Override
