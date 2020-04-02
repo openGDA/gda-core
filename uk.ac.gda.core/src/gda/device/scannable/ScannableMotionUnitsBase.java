@@ -58,11 +58,6 @@ public abstract class ScannableMotionUnitsBase extends ScannableMotionBase imple
 	private String initialUserUnits = null;
 
 	@Override
-	public Quantity<? extends Quantity<?>>[] getPositionAsQuantityArray() throws DeviceException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	@Override
 	public Object internalToExternal(Object internalPosition) {
 		// 1. Apply offset (which is kept in internal units)
 		Object internalPositionwithOffsetAppled = super.internalToExternal(internalPosition);

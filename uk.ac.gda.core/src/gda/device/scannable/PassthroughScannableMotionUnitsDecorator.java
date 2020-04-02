@@ -18,8 +18,6 @@
 
 package gda.device.scannable;
 
-import javax.measure.Quantity;
-
 import gda.device.DeviceException;
 import gda.device.ScannableMotionUnits;
 import gda.factory.FactoryException;
@@ -205,11 +203,6 @@ public class PassthroughScannableMotionUnitsDecorator implements ScannableMotion
 	@Override
 	public boolean isAt(Object positionToTest) throws DeviceException {
 		return delegate.isAt(positionToTest);
-	}
-
-	@Override
-	public Quantity<? extends Quantity<?>>[] getPositionAsQuantityArray() throws DeviceException {
-		return delegate.getPositionAsQuantityArray();
 	}
 
 	@Override

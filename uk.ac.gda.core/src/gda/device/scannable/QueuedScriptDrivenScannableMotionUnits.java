@@ -18,8 +18,6 @@
 
 package gda.device.scannable;
 
-import javax.measure.Quantity;
-
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.commandqueue.JythonCommandCommandProvider;
@@ -259,11 +257,6 @@ public class QueuedScriptDrivenScannableMotionUnits implements ScannableMotionUn
 	@Override
 	public void setUpperGdaLimits(Double[] externalUpperLim) throws Exception {
 		scannable.setUpperGdaLimits(externalUpperLim);
-	}
-
-	@Override
-	public Quantity<? extends Quantity<?>>[] getPositionAsQuantityArray() throws DeviceException {
-		return scannable.getPositionAsQuantityArray();
 	}
 
 	@Override

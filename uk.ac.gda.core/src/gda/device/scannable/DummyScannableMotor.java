@@ -25,7 +25,6 @@ import gda.device.IScannableMotor;
 import gda.device.Motor;
 import gda.device.motor.DummyMotor;
 import gda.device.scannable.component.UnitsComponent;
-import gda.util.QuantityFactory;
 
 public class DummyScannableMotor extends DummyScannable implements IScannableMotor {
 
@@ -159,11 +158,6 @@ public class DummyScannableMotor extends DummyScannable implements IScannableMot
 	@Override
 	public void addAcceptableUnit(String newUnit) throws DeviceException {
 		unitsComponent.addAcceptableUnit(newUnit);
-	}
-
-	@Override
-	public Quantity<? extends Quantity<?>>[] getPositionAsQuantityArray() throws DeviceException {
-		return new Quantity<?>[] { QuantityFactory.createFromObjectUnknownUnit(motor.getPosition(), unitsComponent.getUserUnit()) };
 	}
 
 	@Override

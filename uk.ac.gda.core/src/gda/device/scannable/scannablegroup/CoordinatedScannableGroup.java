@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.measure.Quantity;
-
 import org.python.core.PyString;
 
 import gda.device.DeviceException;
@@ -954,11 +952,6 @@ class CoordinatedChildScannableMotionUnits extends CoordinatedChildScannableMoti
 	@Override
 	public void setUserUnits(String userUnitsString) throws DeviceException {
 		scannableMotionUnitsDelegate.setUserUnits(userUnitsString);
-	}
-
-	@Override
-	public Quantity<? extends Quantity<?>>[] getPositionAsQuantityArray() throws DeviceException {
-		return scannableMotionUnitsDelegate.getPositionAsQuantityArray();
 	}
 
 	@Override
