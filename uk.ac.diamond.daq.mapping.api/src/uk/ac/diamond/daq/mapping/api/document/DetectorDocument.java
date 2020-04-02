@@ -29,7 +29,11 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = DetectorDocument.Builder.class)
 public class DetectorDocument {
 	/**
-	 * An identifier, usually a Spring bean name, to allow an acquisition controller to retrieve a real instance of the detector
+	 * The detector identifier. The value may be:
+	 * <ul>
+	 * <li><code>a detector bean ID</code>, see , i.e. elements 1 an 2 in the tree</li>
+	 * <li><code>malcom device EPICS id</code>, i.e. element 0 in the tree</li>
+	 * </ul>
 	 */
 	private final String name;
 
@@ -42,6 +46,12 @@ public class DetectorDocument {
 		super();
 		this.name = name;
 		this.exposure = exposure;
+	}
+
+	public DetectorDocument(DetectorDocument detectorDocument) {
+		super();
+		this.name = detectorDocument.getName();
+		this.exposure = detectorDocument.getExposure();
 	}
 
 	public String getName() {

@@ -89,7 +89,9 @@ public class ScanManagementController extends AbstractMappingController {
 	private MappingStageInfo stage;
 	private DescriptiveFilenameFactory filenameFactory = new DescriptiveFilenameFactory();
 
-	public enum DiffractionAcquisitionMode {DIFFRACTION, POINT_AND_SHOOT}
+	public enum DiffractionAcquisitionMode {
+		DIFFRACTION, POINT_AND_SHOOT
+	}
 
 	private DiffractionAcquisitionMode acquisitionMode;
 
@@ -283,11 +285,11 @@ public class ScanManagementController extends AbstractMappingController {
 	}
 
 	/**
-	 * Submits the scan described by the current mapping bean to the submission service.
-	 * An error dialog is displayed if the scan could not be successfully submitted.
+	 * Submits the scan described by the current mapping bean to the submission service. An error dialog is displayed if
+	 * the scan could not be successfully submitted.
 	 *
-	 * @param filePath The filepath of the output NeXus file.
-	 * If {@code null} it is generated through default properties.
+	 * @param filePath
+	 *            The filepath of the output NeXus file. If {@code null} it is generated through default properties.
 	 */
 	public void submitScan(Optional<String> filePath, DiffractionParameters acquisitionParameters) {
 		final IScanBeanSubmitter submitter = getService(IScanBeanSubmitter.class);
@@ -328,24 +330,31 @@ public class ScanManagementController extends AbstractMappingController {
 	}
 
 	/**
-	 * Transforms the current mapping bean into a a {@link ScanBean} which can be submitted.
-	 * The given filePath is set in the intermediate {@link ScanRequest}.
+	 * Transforms the current mapping bean into a a {@link ScanBean} which can be submitted. The given filePath is set
+	 * in the intermediate {@link ScanRequest}.
 	 */
 	public ScanBean createScanBean(Optional<String> filePath) {
 		return createScanBean(filePath, null);
 	}
 
 	/**
-	 * Transforms the current mapping bean into a a {@link ScanBean} which can be submitted.
-	 * The given filePath is set in the intermediate {@link ScanRequest}.
+	 * Transforms the current mapping bean into a a {@link ScanBean} which can be submitted. The given filePath is set
+	 * in the intermediate {@link ScanRequest}.
 	 *
-	 * @param filePath the output path
-	 * @param acquisitionParameters the acquisition parameters
+	 * @param filePath
+	 *            the output path
+	 * @param acquisitionParameters
+	 *            the acquisition parameters
 	 * @return a scan bean
 	 */
 	public ScanBean createScanBean(Optional<String> filePath, DiffractionParameters acquisitionParameters) {
 		checkInitialised();
 		final IMappingExperimentBean mappingBean = getMappingBean();
+		if (acquisitionParameters != null) {
+			mappingBean.getDetectorParameters().stream()
+					.filter(d -> d.getModel().getName().contentEquals(acquisitionParameters.getDetector().getName()))
+					.forEach(d -> d.setIncludeInScan(true));
+		}
 		addMonitors(mappingBean);
 
 		String sampleName = getSampleName(mappingBean, acquisitionParameters);
@@ -470,13 +479,6 @@ public class ScanManagementController extends AbstractMappingController {
 	private void setSampleMetadata(ScanRequest scanRequest, String sampleName) {
 		final ScanMetadata scanMetadata = new ScanMetadata(MetadataType.SAMPLE);
 		scanMetadata.addField(ScanRequestConverter.FIELD_NAME_SAMPLE_NAME, sampleName);
-//		if (sampleMetadata instanceof SimpleSampleMetadata) {
-//			String description = ((SimpleSampleMetadata) sampleMetadata).getDescription();
-//			if (description == null || description.trim().isEmpty()) {
-//				description = DEFAULT_SAMPLE_DESCRIPTION;
-//			}
-//			scanMetadata.addField(ScanRequestConverter.FIELD_NAME_SAMPLE_DESCRIPTION, description);
-//		}
 		scanRequest.setScanMetadata(Arrays.asList(scanMetadata));
 	}
 }

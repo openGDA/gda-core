@@ -28,6 +28,8 @@ import uk.ac.gda.client.properties.MotorProperties;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 
+import static uk.ac.gda.client.properties.ClientPropertiesHelper.*;
+
 /**
  * Hides the configuration structural design. A typical configuration defining
  * two camera would look like below
@@ -72,9 +74,6 @@ public final class CameraHelper {
 	 */
 	private static final String CAMERA_CONFIGURATION_PREFIX = "client.cameraConfiguration";
 
-	private static final String CAMERA_PROPERTY_FORMAT = "%s.%s.%s";
-	private static final String CAMERA_SIMPLE_FORMAT = "%s.%s";
-
 	private CameraHelper() {
 	}
 
@@ -109,18 +108,20 @@ public final class CameraHelper {
 
 	/**
 	 * Returns the available {@link StreamType}s for a specific camera
+	 * 
 	 * @param cameraIndex the camera index
-	 * @return the available stream types, eventually {@link Optional#empty()} if the camera is missing
+	 * @return the available stream types, eventually {@link Optional#empty()} if
+	 *         the camera is missing
 	 */
 	public static Optional<List<StreamType>> getCameraStreamTypes(int cameraIndex) {
 		Optional<CameraConfiguration> cc = getCameraConfiguration(cameraIndex);
 		if (cc.isPresent()) {
-			return Optional.ofNullable(cc.get().cameraStreamTypes());	
+			return Optional.ofNullable(cc.get().cameraStreamTypes());
 		}
 		return Optional.empty();
-		
+
 	}
-	
+
 	public static List<CameraComboItem> getCameraComboItems() {
 		return Collections.unmodifiableList(cameraComboItems);
 	}
@@ -136,7 +137,7 @@ public final class CameraHelper {
 	public static Optional<CameraProperties> getCameraPropertiesByID(String id) {
 		return Optional.ofNullable(cameraPropertiesByID.get(id));
 	}
-	
+
 	/**
 	 * Returns the default camera properties. The actual implementation returns the
 	 * first camera as default but this should change in future.
@@ -174,13 +175,13 @@ public final class CameraHelper {
 	private static void parseCameraProperties(int index) {
 		CameraPropertiesBuilder builder = new CameraPropertiesBuilder();
 		builder.setIndex(index);
-		builder.setId(getCameraId(index));
-		builder.setName(getCameraNameProperty(index));
-		builder.setCameraConfiguration(getCameraConfigurationProperty(index));
+		builder.setId(getId(CAMERA_CONFIGURATION_PREFIX, index));
+		builder.setName(getNameProperty(CAMERA_CONFIGURATION_PREFIX, index));
+		builder.setCameraConfiguration(getConfigurationBeanProperty(CAMERA_CONFIGURATION_PREFIX, index));
 		builder.setCameraControl(getCameraControlProperty(index));
 
 		builder.setMotorProperties(getCameraConfigurationMotors(index));
-		CameraProperties cp = builder.build();		
+		CameraProperties cp = builder.build();
 		cp.getId().ifPresent(id -> cameraPropertiesByID.putIfAbsent(id, cp));
 		cameraProperties.add(cp);
 	}
@@ -196,17 +197,6 @@ public final class CameraHelper {
 		}).collect(Collectors.toList());
 	}
 
-	//
-	/**
-	 * Extracts properties formatted like "client.cameraConfiguration.INDEX"
-	 * 
-	 * @param index the camera index
-	 * @return
-	 */
-	private static String getCameraConfigurationProperty(int index) {
-		return LocalProperties.get(String.format(CAMERA_SIMPLE_FORMAT, CAMERA_CONFIGURATION_PREFIX, index), null);
-	}
-
 	/**
 	 * Extracts properties formatted like
 	 * "client.cameraConfiguration.INDEX.cameraControl"
@@ -218,43 +208,6 @@ public final class CameraHelper {
 		return LocalProperties.get(formatPropertyKey(CAMERA_CONFIGURATION_PREFIX, index, "cameraControl"), null);
 	}
 
-	/**
-	 * Extracts properties formatted like "client.cameraConfiguration.INDEX.name"
-	 * 
-	 * @param index the camera index
-	 * @return
-	 */
-	private static String getCameraNameProperty(int index) {
-		return LocalProperties.get(formatPropertyKey(CAMERA_CONFIGURATION_PREFIX, index, "name"),
-				ClientMessagesUtility.getMessage(ClientMessages.NOT_AVAILABLE));
-	}
-
-	/**
-	 * Extracts properties formatted like "client.cameraConfiguration.INDEX.name"
-	 * 
-	 * @param index the camera index
-	 * @return
-	 */
-	private static String getCameraId(int index) {
-		return LocalProperties.get(formatPropertyKey(CAMERA_CONFIGURATION_PREFIX, index, "id"),
-				ClientMessagesUtility.getMessage(ClientMessages.NOT_AVAILABLE));
-	}
-	
-	
-	
-	//
-	/**
-	 * Assemble a string formatted like something like "PREFIX.INDEX.PROPERTY"
-	 * 
-	 * @param prefix   a string identifying a property
-	 * @param index    an index identifying the prefix index
-	 * @param property a subproperty of the prefix
-	 * @return
-	 */
-	private static String formatPropertyKey(String prefix, int index, String property) {
-		return String.format(CAMERA_PROPERTY_FORMAT, prefix, index, property);
-	}
-
 	// -- motors -- //
 	/**
 	 * Returns a string like
@@ -264,12 +217,12 @@ public final class CameraHelper {
 	 * @return
 	 */
 	private static String formatMotorProperty(int cameraIndex, int motorIndex) {
-		return String.format(CAMERA_SIMPLE_FORMAT, formatPropertyKey(CAMERA_CONFIGURATION_PREFIX, cameraIndex, "motor"),
+		return String.format(SIMPLE_FORMAT, formatPropertyKey(CAMERA_CONFIGURATION_PREFIX, cameraIndex, "motor"),
 				motorIndex);
 	}
 
 	private static String formatMotorPropertyKey(int cameraIndex, int motorIndex, String property) {
-		return String.format(CAMERA_SIMPLE_FORMAT, formatMotorProperty(cameraIndex, motorIndex), property);
+		return String.format(SIMPLE_FORMAT, formatMotorProperty(cameraIndex, motorIndex), property);
 	}
 
 	private static String getCameraConfigurationMotorNameProperty(int cameraIndex, int motorIndex) {

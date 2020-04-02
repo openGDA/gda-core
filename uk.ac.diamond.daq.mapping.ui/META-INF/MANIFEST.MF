@@ -72,6 +72,8 @@ Export-Package: uk.ac.diamond.daq.mapping.ui,
  uk.ac.diamond.daq.mapping.ui.experiment,
  uk.ac.diamond.daq.mapping.ui.experiment.file,
  uk.ac.diamond.daq.mapping.ui.experiment.focus,
- uk.ac.diamond.daq.mapping.ui.experiment.saver
+ uk.ac.diamond.daq.mapping.ui.experiment.saver,
+ uk.ac.diamond.daq.mapping.ui.properties,
+ uk.ac.diamond.daq.mapping.ui.services
 Bundle-Activator: uk.ac.diamond.daq.mapping.ui.Activator
 Automatic-Module-Name: uk.ac.diamond.daq.mapping.ui
