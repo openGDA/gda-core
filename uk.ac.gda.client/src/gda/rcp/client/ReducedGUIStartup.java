@@ -18,14 +18,6 @@
 
 package gda.rcp.client;
 
-import gda.configuration.properties.LocalProperties;
-import gda.jython.IBatonStateProvider;
-import gda.jython.InterfaceProvider;
-import gda.jython.JythonServerFacade;
-import gda.jython.authenticator.UserAuthentication;
-import gda.jython.authoriser.AuthoriserProvider;
-import gda.rcp.BatonManagerOnlyPerspective;
-
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IPerspectiveListener;
 import org.eclipse.ui.IStartup;
@@ -33,6 +25,14 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.jython.IBatonStateProvider;
+import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
+import gda.jython.authenticator.UserAuthentication;
+import gda.jython.authoriser.AuthoriserProvider;
+import gda.rcp.BatonManagerOnlyPerspective;
 
 public class ReducedGUIStartup implements IStartup {
 
@@ -105,7 +105,7 @@ public class ReducedGUIStartup implements IStartup {
 		}
 
 		// If baton management is enabled and the baton is held by someone on a different visit then *do not* run full gui.
-		if (LocalProperties.isBatonManagementEnabled()){
+		if (LocalProperties.isBatonManagementEnabled() && LocalProperties.useReducedGUI()){
 
 			// return false if not beamline staff and the baton is held by someone on a different visit
 			IBatonStateProvider batonStateProvider = InterfaceProvider.getBatonStateProvider();
