@@ -18,11 +18,21 @@
 
 package uk.ac.diamond.daq.mapping.ui.path;
 
+import static tec.units.indriya.unit.MetricPrefix.MILLI;
+import static tec.units.indriya.unit.Units.METRE;
+
+import javax.measure.Unit;
+import javax.measure.quantity.Length;
+
 import org.eclipse.core.databinding.validation.ValidationStatus;
+import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
+
+import gda.util.QuantityFactory;
+import uk.ac.diamond.daq.mapping.ui.experiment.UnitsProvider;
+import uk.ac.gda.client.NumberAndUnitsComposite;
 
 public class SpiralPathEditor extends AbstractPathEditor {
 
@@ -30,17 +40,28 @@ public class SpiralPathEditor extends AbstractPathEditor {
 	public Composite createEditorPart(Composite parent) {
 
 		final Composite composite = super.createEditorPart(parent);
-		Label scaleLabel = new Label(composite, SWT.NONE);
+		final Label scaleLabel = new Label(composite, SWT.NONE);
 		scaleLabel.setText("Scale");
-		Text scaleText = new Text(composite, SWT.BORDER);
+
+		/*
+		 * Scale is not backed by an actual scannable, but its value is treated approximately as millimetres, so simulate
+		 * this here.
+		 */
+		final TwoAxisSpiralModel model = (TwoAxisSpiralModel) getModel();
+		final Unit<Length> modelUnit = MILLI(METRE);
+		final Unit<Length> initialScaleUnit = QuantityFactory.createUnitFromString(model.getInitialScaleUnit());
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		final NumberAndUnitsComposite<Length> scaleText = new NumberAndUnitsComposite(composite, SWT.NONE, modelUnit,
+				UnitsProvider.getCompatibleUnits(modelUnit), initialScaleUnit);
+
 		grabHorizontalSpace.applyTo(scaleText);
 
-		binder.bind(scaleText, "scale", getModel(),
+		binder.bind(scaleText, "scale", model,
 				val -> ((double) val == 0.0) ? ValidationStatus.error("Scale cannot be zero!") : ValidationStatus.ok());
 
 		makeCommonOptionsControls(composite);
 
-		String scaleDescription = "This parameter gives approximately both "
+		final String scaleDescription = "This parameter gives approximately both "
 				+ "the distance between arcs and the arclength between consecutive points.";
 
 		scaleLabel.setToolTipText(scaleDescription);

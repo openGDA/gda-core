@@ -78,7 +78,18 @@ public class UnitsProvider {
 	 * Returns 'sensible' (subjective) alternative units for the scannable with the given name
 	 */
 	public Set<Unit<? extends Quantity<?>>> getCompatibleUnits(String scannableName) {
-		Unit<? extends Quantity<?>> scannableUnit = getScannableUnit(scannableName);
+		final Unit<? extends Quantity<?>> scannableUnit = getScannableUnit(scannableName);
+		return getCompatibleUnits(scannableUnit);
+	}
+
+	/**
+	 * Returns all units deemed compatible with the given input unit
+	 *
+	 * @param scannableUnit
+	 *            the unit for which we want to find compatible units
+	 * @return set of compatible units
+	 */
+	public static Set<Unit<? extends Quantity<?>>> getCompatibleUnits(Unit<? extends Quantity<?>> scannableUnit) {
 		if (scannableUnit.isCompatible(METRE)) {
 			return LENGTH_UNITS;
 		} else if (scannableUnit.isCompatible(RADIAN)) {
