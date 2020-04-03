@@ -19,6 +19,11 @@ public class TwoAxisSpiralModel extends AbstractBoundingBoxModel {
 
 	private double scale = 1;
 
+	/**
+	 * The unit to be shown initially in the drop-down box by the scale parameter
+	 */
+	private String initialScaleUnit = "mm";
+
 	public TwoAxisSpiralModel() {
 		setName("Spiral");
 	}
@@ -40,6 +45,14 @@ public class TwoAxisSpiralModel extends AbstractBoundingBoxModel {
 		double oldValue = this.scale;
 		this.scale = newValue;
 		this.pcs.firePropertyChange("scale", oldValue, newValue);
+	}
+
+	public String getInitialScaleUnit() {
+		return initialScaleUnit;
+	}
+
+	public void setInitialScaleUnit(String initialScaleUnit) {
+		this.initialScaleUnit = initialScaleUnit;
 	}
 
 	@Override
