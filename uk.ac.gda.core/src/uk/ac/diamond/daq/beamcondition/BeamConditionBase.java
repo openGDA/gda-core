@@ -19,6 +19,9 @@
 package uk.ac.diamond.daq.beamcondition;
 
 import static java.lang.String.format;
+import static java.util.Optional.empty;
+
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,31 +34,46 @@ public abstract class BeamConditionBase implements BeamCondition, Findable {
 	private static Logger logger = LoggerFactory.getLogger(BeamConditionBase.class);
 	private static final String TEMPLATE = "%s - %s";
 
-	private String name;
+	/** Name of this beam condition */
+	private Optional<String> name = empty();
+	/** Name to use if one has not been set explicitly */
+	private String fallbackName = "BeamCondition";
 
 	@Override
 	public void waitForBeam() throws InterruptedException {
 		RateLimiter logLimit = RateLimiter.create(0.1);
 		while (!beamOn()) {
 			if (logLimit.tryAcquire()) {
-				logger.debug("{} - Waiting for correct beamline conditions", name);
+				logger.debug("{} - Waiting for correct beamline conditions", getName());
 			}
 			Thread.sleep(50);
 		}
 	}
 
+	/**
+	 * Set the name of this beam condition.
+	 * Setting the name to null or empty will make this condition revert to its default name.
+	 */
 	@Override
 	public void setName(String name) {
-		this.name = name;
+		this.name = Optional.ofNullable(name).filter(s -> !s.isEmpty());
+	}
+
+	/** Set the name of this condition if it hasn't been named explicitly */
+	protected void setFallbackName(String fallback) {
+		if (fallback == null || fallback.isEmpty()) {
+			throw new IllegalArgumentException("Fallback name must not be null or empty");
+		}
+		fallbackName = fallback;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return name.orElse(fallbackName);
 	}
 
 	@Override
 	public String toString() {
-		return format(TEMPLATE, name, beamOn() ? "✔" : "✘");
+		return format(TEMPLATE, getName(), beamOn() ? "✔" : "✘");
 	}
 }
