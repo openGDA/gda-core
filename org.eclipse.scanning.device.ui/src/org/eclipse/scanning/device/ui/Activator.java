@@ -12,6 +12,7 @@
 package org.eclipse.scanning.device.ui;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -111,16 +112,17 @@ public class Activator extends AbstractUIPlugin implements IServiceResolver {
 	@Override
 	public <T> T getService(Class<T> serviceClass) {
 		if (context==null) return null;
-		ServiceReference<T> ref = context.getServiceReference(serviceClass);
+		final ServiceReference<T> ref = context.getServiceReference(serviceClass);
+		if (ref == null) return null;
 		return context.getService(ref);
 	}
 
 	@Override
 	public <T> Collection<T> getServices(Class<T> serviceClass) throws InvalidSyntaxException {
-		if (context==null) return null;
-		Collection<ServiceReference<T>> refs = context.getServiceReferences(serviceClass, null);
-		if (refs==null) return null;
-		Collection<T> ret = new LinkedHashSet<T>(refs.size());
+		if (context==null) return Collections.emptySet();
+		final Collection<ServiceReference<T>> refs = context.getServiceReferences(serviceClass, null);
+		if (refs==null) return Collections.emptySet();
+		final Collection<T> ret = new LinkedHashSet<T>(refs.size());
 		for (ServiceReference<T> ref : refs) ret.add(context.getService(ref));
 		return ret;
 	}
