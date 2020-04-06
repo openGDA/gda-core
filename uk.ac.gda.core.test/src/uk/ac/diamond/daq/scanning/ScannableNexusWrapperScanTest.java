@@ -925,47 +925,48 @@ public class ScannableNexusWrapperScanTest {
 	private IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<?> detector,
 			String outerScannableName, int... size) throws Exception {
 		// Create scan points for a grid and make a generator
-		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
-		gmodel.setxAxisName("salong");
-		gmodel.setxAxisPoints(size[size.length-1]);
-		gmodel.setyAxisName("saperp");
-		gmodel.setyAxisPoints(size[size.length-2]);
-		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
+		final TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel();
+		gridModel.setxAxisName("salong");
+		gridModel.setxAxisPoints(size[size.length-1]);
+		gridModel.setyAxisName("saperp");
+		gridModel.setyAxisPoints(size[size.length-2]);
+		gridModel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		CompoundModel cModel = new CompoundModel();
+		final CompoundModel compoundModel = new CompoundModel();
 
 		// We add the outer scans, if any
 		if (outerScannableName != null) {
 			for (int dim = 0; dim < size.length - 2; dim++) {
 				if (size[dim] > 1) { // TODO outer scannable name(s)? could use cryostat temperature as an outer scan
-				    cModel.addModel(new AxialStepModel(outerScannableName, 10000,20000,9999.99d/(size[dim]-1)));
+				    compoundModel.addModel(new AxialStepModel(outerScannableName, 10000,20000,9999.99d/(size[dim]-1)));
 				} else {
-					cModel.addModel(new AxialStepModel(outerScannableName + (dim+1), 10, 20, 30)); // Will generate one value at 10
+					compoundModel.addModel(new AxialStepModel(outerScannableName + (dim+1), 10, 20, 30)); // Will generate one value at 10
 				}
 			}
 		}
-		cModel.addModel(gmodel);
-		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(cModel);
+		compoundModel.addModel(gridModel);
+		final IPointGenerator<CompoundModel> pointGen = gservice.createCompoundGenerator(compoundModel);
 
 		// Create the model for a scan
 		final ScanModel scanModel = new ScanModel();
-		scanModel.setPointGenerator(gen);
+		scanModel.setPointGenerator(pointGen);
+		scanModel.setScanPathModel(compoundModel);
 		scanModel.setDetectors(detector);
 
-		IScannable<?> attributeScannable = connector.getScannable("attributes");
-		IScannable<?> beamSizeScannable = connector.getScannable("beam");
+		final IScannable<?> attributeScannable = connector.getScannable("attributes");
+		final IScannable<?> beamSizeScannable = connector.getScannable("beam");
 		scanModel.setMonitorsPerScan(attributeScannable, beamSizeScannable);
 
 		// Create a file to scan into
-		File output = File.createTempFile("test_legacy_nexus", ".nxs");
+		final File output = File.createTempFile("test_legacy_nexus", ".nxs");
 		output.deleteOnExit();
 		scanModel.setFilePath(output.getAbsolutePath());
 		System.out.println("File writing to " + scanModel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(scanModel, null);
+		final IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(scanModel, null);
 
-		final IPointGenerator<?> fgen = gen;
+		final IPointGenerator<?> fgen = pointGen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
 			@Override
 			public void runWillPerform(RunEvent evt) throws ScanningException {
