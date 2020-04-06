@@ -92,6 +92,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		super.setUp();
 		when(zAxisScannable.getLevel()).thenReturn(1);
 		doReturn(zAxisScannable).when(scannableDeviceService).getScannable("stage_z");
+		when(zAxisScannable.getName()).thenReturn("stage_z");
 		RunnableDeviceServiceImpl.setDeviceConnectorService(scannableDeviceService);
 		initializeMalcolmDevice();
 	}
@@ -314,7 +315,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES))).thenReturn(axesToMoveReply);
 		MalcolmMessage expectedGetConfigureMessage = createExpectedMalcolmMessage(id++, Type.GET, MalcolmMethod.CONFIGURE.toString());
 		when(malcolmConnection.send(malcolmDevice, expectedGetConfigureMessage)).thenReturn(createExpectedMalcolmGetConfigureReply());
-
+		System.out.println(id);
 		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES))).thenReturn(axesToMoveReply); // This is called at 2 different points
 
 		return runnableDeviceService.createRunnableDevice(scanModel, publisher);

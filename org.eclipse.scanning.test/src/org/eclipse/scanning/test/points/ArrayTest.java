@@ -13,14 +13,17 @@ package org.eclipse.scanning.test.points;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +47,7 @@ public class ArrayTest {
 	}
 
 	@Test
-	public void testArray() throws Exception {
+	public void testArray() {
 
 		// Get the point list
 		assertEquals(5, generator.size());
@@ -60,6 +63,18 @@ public class ArrayTest {
 		assertEquals(new Scalar<>("x", 2, 3.0), pointList.get(2));
 		assertEquals(new Scalar<>("x", 3, 4.0), pointList.get(3));
 		assertEquals(new Scalar<>("x", 4, 5.0), pointList.get(4));
+		assertTrue(pointList.get(0) instanceof Scalar);
+	}
+
+	@Test
+	public void testExposureSet() throws GeneratorException {
+		AxialArrayModel arrayModel = new AxialArrayModel("x", new double[] {1, 4, 6});
+		CompoundModel compoundModel = new CompoundModel(arrayModel);
+		compoundModel.setDuration(8);
+		IPointGenerator<CompoundModel> gen = pgs.createCompoundGenerator(compoundModel);
+		IPosition firstPos = gen.getFirstPoint();
+		assertEquals(8, firstPos.getExposureTime(), 0.01);
+
 	}
 
 }

@@ -11,18 +11,12 @@
 #    Charles Mita - initial API and implementation and/or initial documentation
 #
 # ##
-from java.util import Iterator
-
 from scanpointgenerator import CompoundGenerator
-
-from jython_spg_interface import MapPositionWrapper
 
 from jython_spg_interface import GeneratorWrapper
 
 from JythonGeneratorExamples import FixedValueGenerator
 from JythonGeneratorExamples import MultipliedValueGenerator
-
-from org.eclipse.scanning.points import PPointGenerator
 
 # # Logging
 import logging
@@ -32,7 +26,7 @@ import logging
 
 
 # < -- Example/TestGenerators
-class FixedValueWrapper(MapPositionWrapper):
+class FixedValueWrapper(GeneratorWrapper):
     """
     Create a fixed series of points
     """
@@ -42,7 +36,7 @@ class FixedValueWrapper(MapPositionWrapper):
         self.generator.prepare()
         super(FixedValueWrapper, self).__init__(self.generator)
 
-class MultipliedValueWrapper(MapPositionWrapper):
+class MultipliedValueWrapper(GeneratorWrapper):
     """
     Create a series of points linear in an axis relative to its index
     """

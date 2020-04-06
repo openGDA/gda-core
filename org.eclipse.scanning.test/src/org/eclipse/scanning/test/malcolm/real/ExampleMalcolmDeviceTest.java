@@ -375,7 +375,10 @@ public class ExampleMalcolmDeviceTest {
 		// modify the model to match the changes made in DummyMalcolmRecord.RPCServiceAsyncImpl.modifyConfigureValidatePVStructure
 		spiral.setScale(1.5);
 		spiral.setContinuous(true);
-		final IPointGenerator<?> expectedPointGen = pointGenService.createGenerator(spiral, regions);
+		final CompoundModel compoundModel = new CompoundModel();
+		compoundModel.addData(spiral, regions);
+		compoundModel.setDuration(0.2);
+		final IPointGenerator<?> expectedPointGen = pointGenService.createGenerator(compoundModel);
 
 		// check that the modified point is as expected. Note: we can't directly compare two generators for equality
 		assertThat(modifiedPointGen.size(), is(equalTo(expectedPointGen.size())));

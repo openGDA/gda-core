@@ -13,6 +13,7 @@ package org.eclipse.scanning.test.points;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
@@ -22,7 +23,6 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Point;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class SpiralTest extends AbstractGeneratorTest {
@@ -50,6 +50,8 @@ public class SpiralTest extends AbstractGeneratorTest {
 		List<IPosition> pointList = generator.createPoints();
 		assertEquals(expectedSize, pointList.size());
 
+		assertTrue(pointList.get(0) instanceof Point);
+
 		// Test a few points
 		// TODO check x and y index values - currently these are not tested by AbstractPosition.equals()
 		assertEquals(new Point("x", 0, -8.263367850554253, "y", 0, 6.678814432234913, 0, false), pointList.get(0));
@@ -73,8 +75,6 @@ public class SpiralTest extends AbstractGeneratorTest {
 	}
 
 
-	// FIXME
-	@Ignore("This should pass because compound of a model should equal the points from that model directly")
 	@Test
 	public void testSpiralWrtCompound() throws Exception {
 

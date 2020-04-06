@@ -32,6 +32,11 @@ public class AxialArrayModel extends AbstractPointsModel {
 		setName(scannableName);
 	}
 
+	public AxialArrayModel(String scannableName, double... positions) {
+		this(scannableName);
+		this.positions = positions;
+	}
+
 	public AxialArrayModel(double... positions) {
 		this.positions = positions;
 	}

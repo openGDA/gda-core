@@ -13,6 +13,7 @@ package org.eclipse.scanning.test.points;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class StaticTest {
 	private IPointGeneratorService service;
 
 	@Before
-	public void before() throws Exception {
+	public void before() {
 		service = new PointGeneratorService();
 	}
 
@@ -70,6 +71,7 @@ public class StaticTest {
 			expectedPosition.setStepIndex(i++);
 			assertEquals(0, position.size());
 			assertEquals(expectedPosition, position);
+			assertTrue(position instanceof StaticPosition);
 		}
 	}
 
@@ -82,18 +84,18 @@ public class StaticTest {
 		IPointGenerator<?> innerGen = service.createCompoundGenerator(innerCompoundModel);
 
 		final IPosition outerPos = outerGen.getFirstPoint();
-		assertEquals(outerPos.getScanRank(), 1);
-//		final IPosition innerPos = innerGen.createPoints().get(8); // TODO reinstate once DAQ-2862 is fixed
-		final IPosition innerPos = innerGen.getFirstPoint();
-		assertEquals(innerPos.getScanRank(), 1);
-//		assertEquals(innerPos.getIndex(0), 7); // TODO reinstate once DAQ-2862 is fixed
-		assertEquals(innerPos.getIndex(0), 0);
-//		assertEquals(innerPos.getExposureTime(), exposureTime, 1e-15); // TODO reinstate once DAQ-2868 is fixed
+		assertEquals(1, outerPos.getScanRank());
+		final IPosition innerPos = innerGen.createPoints().get(7);
+		assertEquals(1, innerPos.getScanRank());
+		assertEquals(7, innerPos.getIndex(0));
+		assertEquals(exposureTime, innerPos.getExposureTime(), 1e-15);
 		final IPosition overallPos = innerPos.compound(outerPos);
-		assertEquals(overallPos.getScanRank(), 1, 1e-15);
-//		assertEquals(overallPos.getIndex(0), 7); // TODO reinstate once DAQ-2862 is fixed
-		assertEquals(overallPos.getIndex(0), 0);
-//		assertEquals(overallPos.getExposureTime(), exposureTime, 1e-15);  // TODO reinstate once DAQ-2868 is fixed
+		assertTrue(outerPos instanceof StaticPosition);
+		assertTrue(innerPos instanceof StaticPosition);
+		assertTrue(overallPos instanceof StaticPosition);
+		assertEquals(1, overallPos.getScanRank());
+		assertEquals(7, overallPos.getIndex(0));
+		assertEquals(exposureTime, overallPos.getExposureTime(), 1e-15);
 	}
 
 	@Test(expected = GeneratorException.class)
