@@ -386,6 +386,9 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 
 	protected void setPointsUpdate(boolean isUpdate) {
 		updateValueAllowed = isUpdate;
+		if (edge == null || element == null) {
+			return;
+		}
 		if (isUpdate) {
 			updatePointsLabels();
 			edge.on();

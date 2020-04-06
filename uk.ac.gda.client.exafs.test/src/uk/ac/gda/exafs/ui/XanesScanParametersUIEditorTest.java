@@ -18,6 +18,7 @@
 
 package uk.ac.gda.exafs.ui;
 
+import static org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable.syncExec;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -128,7 +129,7 @@ public class XanesScanParametersUIEditorTest extends ShellTest {
 
 		assertNotNull(ui.getEdgeEnergy());
 		assertNotNull(ui.getCoreHole());
-		assertNotNull(ui.getFinalEnergy());
+		assertNotNull(syncExec(()->ui.getFinalEnergy()));
 
 		assertNotNull(bot.button("             Get Defaults            "));
 		assertNotNull(bot.button("           Add Region           "));

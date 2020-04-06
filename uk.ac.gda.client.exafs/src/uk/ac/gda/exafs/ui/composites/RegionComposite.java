@@ -121,6 +121,9 @@ public class RegionComposite extends Composite {
 				if (selectedIndex == bean.getRegions().size() - 1) {
 					// Last region is selected : energy = last region energy + a bit
 					energyForRegion = selectedRegion.getEnergy() + 100.0;
+					if (energyForRegion > bean.getFinalEnergy()) {
+						energyForRegion = (selectedRegion.getEnergy() + bean.getFinalEnergy())*0.5;
+					}
 				} else {
 					// energy = central energy between selected and next region.
 					Region nextRegion = bean.getRegions().get(selectedIndex + 1);

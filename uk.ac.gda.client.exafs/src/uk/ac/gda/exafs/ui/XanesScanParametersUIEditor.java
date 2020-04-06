@@ -23,8 +23,6 @@ import java.util.List;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -33,6 +31,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import gda.configuration.properties.LocalProperties;
 import gda.jython.JythonServerFacade;
@@ -58,6 +57,9 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 	private double edgeVal = 0;
 	private Button updateTable;
 	private ELEMENT_EVENT_TYPE type;
+	private double maxAllowedFinalEnergy = 30000; // Maximum allowed final energy; the value in the 'finalEnergy' box will be constrained to be <= to this value.
+	private boolean showElementEdge = true;
+
 	/**
 	 * @param path
 	 * @param containingEditor
@@ -67,6 +69,62 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 			final Object xanesScanParameters) {
 		super(path, containingEditor.getMappingUrl(), containingEditor, xanesScanParameters);
 		editingBean = xanesScanParameters;
+
+		// Set flag to hide element and edge controls if the values are set to null in the bean.
+		if (editingBean instanceof XanesScanParameters) {
+			XanesScanParameters param = (XanesScanParameters) editingBean;
+			if (StringUtils.isEmpty(param.getElement()) && StringUtils.isEmpty(param.getEdge()) ) {
+				showElementEdge = false;
+			}
+		}
+	}
+
+	private void createDefaultsButton(Composite parent) {
+		new Label(parent, SWT.NONE);
+		new Label(parent, SWT.NONE);
+
+		updateTable = new Button(parent, SWT.NONE);
+		updateTable.setText("             Get Defaults            ");
+
+		updateTable.addListener(SWT.Selection, e -> {
+
+			for(int i=0;i<((XanesScanParameters) editingBean).getRegions().size();i++){
+				if(i>4)
+					((XanesScanParameters) editingBean).getRegions().remove(i);
+			}
+			try {
+				if (getEdgeValue()!=edgeVal) {
+					List<uk.ac.gda.beans.exafs.Region> regions = regionsEditor.getBeanRegions();
+					double coreHole = getSelectedElement(type).getCoreHole(getEdgeUseBean());
+					edgeVal = getEdgeValue();
+					for (int i = 0; i < regions.size(); i++) {
+						Region obj = regions.get(i);
+						if (i == 0) {
+							obj.setEnergy(edgeVal - 100 * coreHole);
+							obj.setStep(5 * coreHole);
+						} else if (i == 1) {
+							obj.setEnergy(edgeVal - 20 * coreHole);
+							obj.setStep(coreHole);
+						} else if (i == 2) {
+							obj.setEnergy(edgeVal - 10 * coreHole);
+							obj.setStep(coreHole / 5);
+						} else if (i == 3) {
+							obj.setEnergy(edgeVal + 10 * coreHole);
+							obj.setStep(coreHole);
+						} else if (i == 4) {
+							obj.setEnergy(edgeVal + 20 * coreHole);
+							obj.setStep(2 * coreHole);
+						}
+					}
+					getFinalEnergy().setValue(getFinalEnergyFromElement());
+					((XanesScanParameters) editingBean).setRegions(regions);
+					regionsEditor.updateTable();
+				}
+
+			} catch (Exception e1) {
+				logger.warn("Problem setting default region parameters", e);
+			}
+		});
 	}
 
 	/**
@@ -88,68 +146,20 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 
 		Group exafsScanParametersGroup = new Group(container, SWT.NONE);
 		exafsScanParametersGroup.setLayoutData(BorderLayout.NORTH);
-		exafsScanParametersGroup.setText("XANES/ANGLE Parameters");
 		GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 3;
 		exafsScanParametersGroup.setLayout(gridLayout);
 
-		createElementEdgeArea(exafsScanParametersGroup);
-
-		new Label(exafsScanParametersGroup, SWT.NONE);
-		new Label(exafsScanParametersGroup, SWT.NONE);
-
-		updateTable = new Button(exafsScanParametersGroup, SWT.NONE);
-		updateTable.setText("             Get Defaults            ");
+		if (showElementEdge) {
+			exafsScanParametersGroup.setText("XANES/ANGLE Parameters");
+			createElementEdgeArea(exafsScanParametersGroup);
+			createDefaultsButton(exafsScanParametersGroup);
+		} else {
+			exafsScanParametersGroup.setText("Energy Region Parameters");
+		}
 
 		regionsEditor = new RegionComposite(exafsScanParametersGroup, SWT.NONE, getSite(), (XanesScanParameters) editingBean, this);
 		regionsEditor.setLayoutData(new GridData(SWT.FILL, SWT.LEFT, false, false));
-
-		updateTable.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				for(int i=0;i<((XanesScanParameters) editingBean).getRegions().size();i++){
-					if(i>4)
-						((XanesScanParameters) editingBean).getRegions().remove(i);
-				}
-				Region obj = null;
-				try {
-					List<uk.ac.gda.beans.exafs.Region> regions = regionsEditor.getBeanRegions();
-					double coreHole = getSelectedElement(type).getCoreHole(getEdgeUseBean());
-
-					if (getEdgeValue()!=edgeVal) {
-						edgeVal = getEdgeValue();
-						for (int i = 0; i < regions.size(); i++) {
-							obj = regions.get(i);
-							if (i == 0) {
-								obj.setEnergy(edgeVal - 100 * coreHole);
-								obj.setStep(5 * coreHole);
-							} else if (i == 1) {
-								obj.setEnergy(edgeVal - 20 * coreHole);
-								obj.setStep(coreHole);
-							} else if (i == 2) {
-								obj.setEnergy(edgeVal - 10 * coreHole);
-								obj.setStep(coreHole / 5);
-							} else if (i == 3) {
-								obj.setEnergy(edgeVal + 10 * coreHole);
-								obj.setStep(coreHole);
-							} else if (i == 4) {
-								obj.setEnergy(edgeVal + 20 * coreHole);
-								obj.setStep(2 * coreHole);
-							}
-						}
-						getFinalEnergy().setValue(getFinalEnergyFromElement());
-						((XanesScanParameters) editingBean).setRegions(regions);
-						regionsEditor.updateTable();
-					}
-
-				} catch (Exception e1) {
-				}
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
 
 		new Label(exafsScanParametersGroup, SWT.NONE);
 
@@ -175,9 +185,9 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 				finalEnergy.setMaximum(40000.0);
 			}
 		}
-		else
-			finalEnergy.setMaximum(120000.0);
-
+		else {
+			finalEnergy.setMaximum(maxAllowedFinalEnergy);
+		}
 		finalEnergy.setUnit("eV");
 		finalEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		expandContainer = container;
@@ -189,10 +199,12 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 	public void linkUI(final boolean isPageChange) {
 		try {
 			setPointsUpdate(false);
-			try {
-				setupElementAndEdge("XanesScanParameters");
-			} catch (Exception e) {
-				e.printStackTrace();
+			if (showElementEdge) {
+				try {
+					setupElementAndEdge("XanesScanParameters");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 			super.linkUI(isPageChange);
 			try {
@@ -229,6 +241,15 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 	}
 
 	public ScaleBox getFinalEnergy() {
+		// If necessary.adjust the value so that is is less than the maximum allowed
+		Double val = (Double) finalEnergy.getValue();
+		if (val != null && val > finalEnergy.getMaximum()) {
+			logger.info("Final energy {} exceeds maximum value. Setting to max allowed value ({})", val, finalEnergy.getMaximum());
+			finalEnergy.off();
+			finalEnergy.setValue( Math.min(finalEnergy.getMaximum(), val));
+			finalEnergy.on();
+
+		}
 		return finalEnergy;
 	}
 

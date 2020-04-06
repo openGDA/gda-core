@@ -19,7 +19,10 @@
 package uk.ac.gda.exafs.ui;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +30,9 @@ import java.util.function.Consumer;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.richbeans.api.event.ValueAdapter;
@@ -51,6 +57,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
@@ -60,6 +67,7 @@ import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import com.swtdesigner.SWTResourceManager;
 
@@ -74,10 +82,11 @@ import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.beans.exafs.XesScanParameters;
-import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.util.beans.BeansFactory;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
+import uk.ac.gda.util.io.FileUtils;
 
 public final class XesScanParametersComposite extends Composite {
 
@@ -274,6 +283,100 @@ public final class XesScanParametersComposite extends Composite {
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(offsetsStoreName);
 	}
 
+	/**
+	 * Return list of all scan bean files of scan type in specified folder
+	 * @param xesScanType
+	 * @param folder
+	 * @return
+	 * @throws Exception
+	 */
+	private List<String> getBeanFileNames(int xesScanType, File folder) throws Exception {
+		// Set Xas/Xanes class type for the different scan types
+		Class<? extends IScanParameters> beanClass = getScanBeanClass(xesScanType);
+
+		// Get File object for each xml bean of particular type
+		List<File> beanFiles = getBeanFiles(folder, beanClass);
+
+		// Make list of filenames for scan type
+		List<String> filenames = new ArrayList<>();
+		for(File beanFile : beanFiles) {
+			IScanParameters params = (IScanParameters) XMLHelpers.getBean(beanFile);
+			boolean isRegionParams = isRegionParameters(params);
+
+			if  ( (isRegionParams && xesScanType == XesScanParameters.SCAN_XES_REGION_FIXED_MONO) ||
+				  (!isRegionParams && (xesScanType == XesScanParameters.FIXED_XES_SCAN_XAS || xesScanType == XesScanParameters.FIXED_XES_SCAN_XANES) ) ) {
+
+				filenames.add(beanFile.getName());
+			}
+		}
+		return filenames;
+	}
+
+	private Class<? extends IScanParameters> getScanBeanClass(int xesScanType) {
+		if (xesScanType == XesScanParameters.FIXED_XES_SCAN_XAS) {
+			return XasScanParameters.class;
+		} else if (xesScanType == XesScanParameters.FIXED_XES_SCAN_XANES ||
+				xesScanType == XesScanParameters.SCAN_XES_REGION_FIXED_MONO) {
+			return XanesScanParameters.class;
+		}
+		return null;
+	}
+
+	private boolean requiresXmlFile(int xesScanType) {
+		return getScanBeanClass(xesScanType) != null;
+	}
+
+	/**
+	 * Return list of all files of particular bean type in a folder
+	 * @param beanClass
+	 * @param folder
+	 * @return
+	 * @throws Exception
+	 */
+	private List<File> getBeanFiles(File folder, Class<? extends IScanParameters> beanClass) throws Exception {
+		List<File> beanFiles = new ArrayList<>();
+		final File[] allFiles = folder.listFiles();
+		for (int i = 0; i < allFiles.length; i++) {
+			if (BeansFactory.isBean(allFiles[i], beanClass)) {
+				beanFiles.add(allFiles[i]);
+			}
+		}
+		return beanFiles;
+	}
+
+	private boolean isRegionParameters(IScanParameters params) {
+		if (params instanceof XanesScanParameters) {
+			XanesScanParameters xanesParams = (XanesScanParameters)params;
+			return StringUtils.isEmpty(xanesParams.getElement()) && StringUtils.isEmpty(xanesParams.getEdge());
+		}
+		return false;
+	}
+
+	/**
+	 * Copy template xml for specified scan type from template directory into current editor folder.
+	 * @param scanType
+	 * @return
+	 * @throws Exception
+	 */
+	private String copyTemplate(int scanType) throws Exception {
+		String templateFilename = getTemplateFileName(scanType);
+		File newFile = FileUtils.getUnique(null, templateFilename.replace(".xml", ""), ".xml");
+		return copyTemplate(scanType, newFile);
+	}
+
+	private String getTemplateFileName(int scanType) throws Exception {
+		File templateDir = new File(ExperimentFactory.getTemplatesFolderPath());
+		List<String> templateFiles = getBeanFileNames(scanType, templateDir);
+		return Paths.get(templateDir.getAbsolutePath(), templateFiles.get(0)).toString();
+	}
+
+	private String copyTemplate(int scanType, File newFile) throws Exception {
+		String templateFilename = getTemplateFileName(scanType);
+		File sourceTemplate = Paths.get(templateFilename).toFile();
+		FileUtils.copy(sourceTemplate, newFile);
+		return newFile.getName();
+	}
+
 	private void createScanTypeCombo(Composite parent) {
 		scanType = new ComboWrapper(parent, SWT.READ_ONLY);
 		GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
@@ -289,29 +392,25 @@ public final class XesScanParametersComposite extends Composite {
 
 		scanType.setItems(items);
 		addValueListener(scanType, e -> {
+			int xesScanType = (Integer) e.getValue();
+			if (requiresXmlFile(xesScanType)) {
 				try {
-					int xesScanType = (Integer) e.getValue();
-					// Set Xas/Xanes class type for the different scan types
-					Class<? extends IScanParameters> clazz = null;
-					if (xesScanType == XesScanParameters.FIXED_XES_SCAN_XAS) {
-						clazz = XasScanParameters.class;
-					} else if (xesScanType == XesScanParameters.FIXED_XES_SCAN_XANES ||
-							   xesScanType == XesScanParameters.SCAN_XES_REGION_FIXED_MONO) {
-						clazz = XanesScanParameters.class;
+					// Set filename to name of first suitable Xas/Xanes/Region XML file
+					List<String> beanFileNames = getBeanFileNames(xesScanType, editorFolder);
+					String fileName = "";
+					if (!beanFileNames.isEmpty()) {
+						fileName = beanFileNames.get(0);
+					} else {
+						// Create one from the template if there is no file
+						fileName = copyTemplate(xesScanType);
 					}
-					if (clazz != null) {
-						// Set filename of Xas/Xanes XML file
-						String fileName = BeansFactory.getFirstFileName(editorFolder, clazz);
-						if (fileName == null) {// Create one if not there
-							fileName = ExperimentBeanManager.INSTANCE.getXmlCommandHandler(clazz).doCopy((IFolder) editingFile.getParent()).getName();
-						}
-						scanFileName.setText(fileName);
-					}
+					scanFileName.setText(fileName);
+
 				} catch (Exception ne) {
 					logger.error("Cannot get bean file", ne);
 				}
 			}
-		);
+		});
 
 		scanType.addValueListener(updateListener);
 	}
@@ -330,43 +429,12 @@ public final class XesScanParametersComposite extends Composite {
 		gridFactory.applyTo(scanFileName);
 		scanFileName.setChoiceType(ChoiceType.NAME_ONLY);
 		scanFileName.setFilterExtensions(new String[] { "*.xml" });
-		addValueListener(scanFileName, e-> {
-				String name = (String) e.getValue();
-				File file = new File(scanFileName.getFolder(), name);
-				if (!file.exists())
-					return;
-				try {
-					int scanTypeNum = (int) scanType.getValue();
-
-					if (BeansFactory.isBean(file, XasScanParameters.class)
-							&& scanTypeNum == XesScanParameters.FIXED_XES_SCAN_XAS) {
-						scanFileName.setError(false, null);
-					} else if (BeansFactory.isBean(file, XanesScanParameters.class)
-						&& (scanTypeNum == XesScanParameters.FIXED_XES_SCAN_XANES ||
-						    scanTypeNum == XesScanParameters.SCAN_XES_REGION_FIXED_MONO)) {
-						scanFileName.setError(false, null);
-					} else {
-						String fileType = scanType.getValue().equals(XesScanParameters.FIXED_XES_SCAN_XAS) ? "XAS" : "XANES";
-						scanFileName.setError(true,	"File chosen is not of a scan type. It must be a " + fileType + " file.");
-					}
-					if (file.getParent().equals(editorFolder)) {
-						scanFileName.setError(true, "Please choose a detector file in the same folder.");
-					}
-				} catch (Exception e1) {
-					logger.error("Cannot get bean type of '" + file.getName() + "'.", e1);
-				}
-			}
-		);
+		addValueListener(scanFileName, this::checkScanParameterFileType);
 
 		Link openFile = new Link(scanFileComposite, SWT.NONE);
 		openFile.setText("    <a>Open</a>");
-		openFile.setToolTipText("Open monochromator scan file.");
-		openFile.addListener(SWT.Selection, e -> {
-				final IFolder folder = (IFolder) XesScanParametersComposite.this.editingFile.getParent();
-				final IFile scanFile = folder.getFile(scanFileName.getText());
-				ExperimentFactory.getExperimentEditorManager().openEditor(scanFile);
-			}
-		);
+		openFile.setToolTipText("Open scan parameter file.");
+		openFile.addListener(SWT.Selection, this::openFile);
 
 		scanFileSpectrometerEnergyComp = new Composite(scanFileComposite, SWT.NONE);
 		gridFactory.span(3, 1).applyTo(scanFileSpectrometerEnergyComp);
@@ -405,6 +473,81 @@ public final class XesScanParametersComposite extends Composite {
 
 		gridFactory.applyTo(monoEnergyXesXanes);
 		gridFactory.applyTo(monoEnergyXesXanes.getWidget());
+	}
+
+	/**
+	 * Check that the currently named scan in scanFileName box is of the the correct type.
+	 * (i.e. XAS for Xas scan, Region or XANES for Region or Xanes scan)
+	 * The scanFileName box is turned red with tooltip showing a warning if type is incorrect.
+	 * @param event
+	 */
+	private void checkScanParameterFileType(ValueEvent event) {
+		String name = (String) event.getValue();
+		File file = new File(scanFileName.getFolder(), name);
+		if (!file.exists())
+			return;
+		try {
+			int scanTypeNum = (int) scanType.getValue();
+
+			if (BeansFactory.isBean(file, XasScanParameters.class)
+					&& scanTypeNum == XesScanParameters.FIXED_XES_SCAN_XAS) {
+				scanFileName.setError(false, null);
+			} else if (BeansFactory.isBean(file, XanesScanParameters.class)
+					&& (scanTypeNum == XesScanParameters.FIXED_XES_SCAN_XANES ||
+					scanTypeNum == XesScanParameters.SCAN_XES_REGION_FIXED_MONO)) {
+				scanFileName.setError(false, null);
+			} else {
+				String fileType = scanType.getValue().equals(XesScanParameters.FIXED_XES_SCAN_XAS) ? "XAS" : "XANES";
+				scanFileName.setError(true,	"File chosen is not of a scan type. It must be a " + fileType + " file.");
+			}
+			if (file.getParent().equals(editorFolder)) {
+				scanFileName.setError(true, "Please choose a detector file in the same folder.");
+			}
+		} catch (Exception e) {
+			logger.error("Cannot get bean type of '{}'.", file.getName(), e);
+		}
+	}
+
+	/**
+	 * Try to open currently named scan parameter file in an editor.
+	 * If the file doesn't exist, the user can optionally create a new one from the template settings.
+	 * @param event
+	 */
+	private void openFile(Event event) {
+		String paramFileName = scanFileName.getText();
+		Path paramPath = Paths.get(editorFolder.getPath(), paramFileName);
+
+		// Create new file if it doesn't exist
+		if (!paramPath.toFile().isFile()) {
+			if (MessageDialog.openQuestion(this.getParent().getShell(), "Create new scan parameter file",
+					"Scan parameter file "+paramFileName+" was not found. Do you want to create a new one from the default parameters?")) {
+				try {
+					int type = (int) scanType.getValue();
+					String newFileName;
+					if (paramFileName.isEmpty()) {
+						newFileName = copyTemplate(type);
+					} else {
+						newFileName = copyTemplate(type, paramPath.toFile());
+					}
+					logger.info("New scan parameters file written to {}", newFileName);
+					scanFileName.setText(newFileName);
+				} catch (Exception e) {
+					logger.warn("Problem creating new scan parameters file", e);
+				}
+			}
+		}
+
+		final IFolder folder = (IFolder) XesScanParametersComposite.this.editingFile.getParent();
+		try {
+			// refresh the folder so eclipse is aware of newly created file
+			folder.refreshLocal(IResource.DEPTH_ONE, null);
+		} catch (CoreException e1) {
+			logger.warn("Problem updating directroy {}", editingFile.getFullPath().toString(), e1);
+		}
+		final IFile scanFile = folder.getFile(scanFileName.getText());
+		if (scanFile.exists()) {
+			ExperimentFactory.getExperimentEditorManager().openEditor(scanFile);
+		}
 	}
 
 	private void createScanStepComposite(Composite parent) {
@@ -660,7 +803,7 @@ public final class XesScanParametersComposite extends Composite {
 		try {
 			updateProperties();
 		} catch (DeviceException e) {
-			logger.error("Error trying to get latest XES spectrometer crysal values./n XES Editor will not run its calculations correctly.", e);
+			logger.error("Error trying to get latest XES spectrometer crystal values.\n XES Editor will not run its calculations correctly.", e);
 		}
 	}
 
@@ -795,7 +938,7 @@ public final class XesScanParametersComposite extends Composite {
 		return Element.getElement(symbol);
 	}
 
-	private void  addValueListener(IFieldWidget widget, Consumer<ValueEvent> supplier) {
+	private void addValueListener(IFieldWidget widget, Consumer<ValueEvent> supplier) {
 		ValueAdapter listener = new ValueAdapter() {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
