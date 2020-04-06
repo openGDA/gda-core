@@ -22,11 +22,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.scanning.api.IServiceResolver;
-import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.IScanParticipant;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -64,7 +62,7 @@ public class AnnotationManager {
 	private Collection<Object>                                          extraContext;
 
 	private Collection<Class<? extends Annotation>> annotations;
-	private IServiceResolver resolver;
+	private IServiceResolver serviceResolver;
 
 	public AnnotationManager() {
 		this((IServiceResolver)null, DeviceAnnotations.getAllAnnotations());
@@ -102,7 +100,7 @@ public class AnnotationManager {
 	 * @param a
 	 */
 	private AnnotationManager(IServiceResolver resolver, Collection<Class<? extends Annotation>> a) {
-		this.resolver = resolver;
+		this.serviceResolver = resolver;
 		this.annotationMap = new ConcurrentHashMap<>();
 		this.cachedClasses = new ConcurrentHashMap<>();
 		this.annotations = a;
@@ -171,31 +169,25 @@ public class AnnotationManager {
 		if (devices != null && !devices.isEmpty()) {
 			// Make a copy of the list and sort it
 			List<Object> sortedDevices = new ArrayList<>(devices);
-			Collections.sort(sortedDevices, new LevelComparitor());
+			Collections.sort(sortedDevices, new LevelComparator<Object>());
 			addOrderedDevices(sortedDevices);
 		}
 	}
 
-	private void addOrderedDevices(Collection<Object> ds) {
-		for (Object object : ds) processAnnotations(object);
+	private void addOrderedDevices(Collection<?> devices) {
+		for (Object object : devices) processAnnotations(object);
 	}
 
 	private void processAnnotations(Object device) {
-
 		if (device==null) return;
 
-		final Method[] methods = device.getClass().getMethods();
-		for (int i = 0; i < methods.length; i++) {
-			final Annotation[] as = methods[i].getAnnotations();
-			if (as!=null) for (Annotation annotation : as) {
-				Class<? extends Annotation> clazz = annotation.annotationType();
-				if (this.annotations.contains(clazz)) {
-					Collection<MethodWrapper> ms = annotationMap.get(clazz);
-					if (ms == null) {
-						ms = new ArrayList<>(31);
-						annotationMap.put(clazz, ms);
-					}
-					ms.add(new MethodWrapper(clazz, device, methods[i]));
+		for (Method method : device.getClass().getMethods()) {
+			for (Annotation annotation : method.getAnnotations()) {
+				final Class<? extends Annotation> annotationType = annotation.annotationType();
+				if (annotations.contains(annotationType)) {
+					annotationMap.computeIfAbsent(annotationType, klass -> new ArrayList<>());
+					final Collection<MethodWrapper> methodWrappers = annotationMap.get(annotationType);
+					methodWrappers.add(new MethodWrapper(annotationType, device, method));
 				}
 			}
 		}
@@ -237,57 +229,44 @@ public class AnnotationManager {
 
 	private class MethodWrapper {
 
-		private Object          instance;
-		private Method          method;
-		private List<Class<?>>  argClasses;
-		private Object[]        arguments; // Must be object[] for speed and is not variable
+		private final Object instance;
+		private final Method method;
+		private final List<Class<?>> argClasses;
+		private final Object[] arguments; // Must be object[] for speed and is not variable
 
 		MethodWrapper(final Class<? extends Annotation> aclass, Object instance, Method method) throws IllegalArgumentException {
 			this.instance = instance;
-			this.method   = method;
+			this.method = method;
 
-			final Class<?>[] args = method.getParameterTypes();
-			this.argClasses = args!=null?Arrays.asList(args):null;
+			this.argClasses = Arrays.asList(method.getParameterTypes());
+			 // We do not allow duplications in the classes list because a given service or
+			 // information object should be required once. Type is used to determine argument
+			 // position as well, therefore duplicates do not work with the current algorithm
+			if (argClasses.stream().distinct().count() < argClasses.size())
+		    	throw new IllegalArgumentException("Duplicated types are not allowed in injected methods!\n"
+		    			+ "Your annotation of @"+aclass.getSimpleName()+" sits over a method '"+method.getName()+"' on class '"+instance.getClass().getSimpleName()+"' with duplicated types!\n"
+		    			+ "More than one of any given type is not allowed. Have you seen '"+ScanInformation.class.getSimpleName()+"' class, which can be used to provide various metrics about the scan?");
 
-			if (argClasses!=null) {
-				final Set<?> unique = new HashSet<>(argClasses);
-
-				/**
-				 * We do not allow duplications in the classes list because a given service or
-				 * information object should be required once. Type is used to determine argument
-				 * position as well, therefore duplicates do not work with the current alg.
-				 */
-			    if (unique.size()!=argClasses.size()) throw new IllegalArgumentException("Duplicated types are not allowed in injected methods!\n"
-					+ "Your annotation of @"+aclass.getSimpleName()+" sits over a method '"+method.getName()+"' on class '"+instance.getClass().getSimpleName()+"' with duplicated types!\n"
-				    + "More than one of any given type is not allowed. Have you seen '"+ScanInformation.class.getSimpleName()+"' class, which can be used to provide various metrics about the scan?");
-			}
-
-			if (args!=null) {
-				this.arguments= new Object[args.length];
-				for (int i = 0; i < args.length; i++) {
-					if (args[i] == IPosition.class) continue;
-				    // Find OSGi service for it, if any.
-					arguments[i] = getService(args[i]);
-				}
-			}
+		    this.arguments = this.argClasses.stream()
+		    					.map(arg -> getService(arg)).toArray();
 		}
 
 		public void invoke(Object... objects) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-
-			if (arguments!=null) { // Put the context into the args (if there are any)
-
-				List<Object> context = getContext(objects);
+			if (arguments.length == 0) {
+				method.invoke(instance);
+			} else {
+				// Put the context into the args (if there are any)
+				final List<Object> context = getContext(objects);
 				for (int i = 0; i < context.size(); i++) {
+					final Collection<Class<?>> classes = getCachedClasses(context.get(i));
 
-				    final Collection<Class<?>> classes = getCachedClasses(context.get(i));
-
-				    // Find the first class in classes which is in argClasses
-				    // NOTE this is why duplicates are not supported, type of argument used to map to injected class.
-			Optional<Class<?>> contained = classes.stream().filter(x -> argClasses.contains(x)).findFirst();
-			if (contained.isPresent()) {
-			    final int index = argClasses.indexOf(contained.get());
-			    arguments[index] = context.get(i);
-                    }
+					// Find the first class in classes which is in argClasses
+					// NOTE this is why duplicates are not supported, type of argument used to map to injected class.
+					final Optional<Class<?>> contained = classes.stream().filter(x -> argClasses.contains(x)).findFirst();
+					if (contained.isPresent()) {
+						final int index = argClasses.indexOf(contained.get());
+						arguments[index] = context.get(i);
+					}
 				}
 				boolean accessible = method.isAccessible();
 				try {
@@ -296,8 +275,6 @@ public class AnnotationManager {
 				} finally {
 					method.setAccessible(accessible);
 				}
-			} else {
-				method.invoke(instance);
 			}
 		}
 	}
@@ -362,8 +339,8 @@ public class AnnotationManager {
 
 	private Object getService(Class<?> class1) {
 		Object object=null;
-		if (resolver!=null) object = resolver.getService(class1);
-		if (object==null)   object = services.get(class1);
+		if (serviceResolver!=null) object = serviceResolver.getService(class1);
+		if (object==null) object = services.get(class1);
 		return object;
 	}
 
