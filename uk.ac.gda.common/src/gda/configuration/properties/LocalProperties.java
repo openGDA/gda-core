@@ -163,6 +163,14 @@ public final class LocalProperties {
 	 */
 	private static final String GDA_BATON_SHARING_ENABLED = "gda.accesscontrol.sameUserVisitShareBaton";
 
+
+	/**
+	 * Boolean property that indicates that client should when started [if baton control is active
+	 * AND the baton is held by another client on a different visit] use the reduced GUI start up
+	 */
+
+	private static final String GDA_GUI_REDUCED_ENABLED = "gda.accesscontrol.useReducedGUI";
+
 	/**
 	 * Property that specifies the server-side XML file.
 	 */
@@ -628,6 +636,16 @@ public final class LocalProperties {
 	 */
 	public static boolean canShareBaton() {
 		return check(LocalProperties.GDA_BATON_SHARING_ENABLED, false);
+	}
+
+	/**
+	 * @return true if the client should use the reduced gui when the baton control is enabled
+	 * and another client on a different visit holds the baton.
+	 * True by default.
+	 */
+
+	public static boolean useReducedGUI() {
+		return check(LocalProperties.GDA_GUI_REDUCED_ENABLED, true);
 	}
 
 	/**
