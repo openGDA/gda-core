@@ -48,4 +48,9 @@ public class BinningFormat implements Serializable {
 	public void setY(int y) {
 		this.y = y;
 	}
+
+	@Override
+	public String toString() {
+		return "BinningFormat [x=" + x + ", y=" + y + "]";
+	}
 }

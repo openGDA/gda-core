@@ -48,4 +48,10 @@ public class CameraControllerEvent implements Serializable {
 	public void setCameraState(CameraState cameraState) {
 		this.cameraState = cameraState;
 	}
+
+	@Override
+	public String toString() {
+		return "CameraControllerEvent [acquireTime=" + acquireTime + ", binningFormat=" + binningFormat
+				+ ", cameraState=" + cameraState + "]";
+	}
 }

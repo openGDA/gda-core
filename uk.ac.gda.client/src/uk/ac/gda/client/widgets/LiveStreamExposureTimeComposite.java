@@ -18,17 +18,26 @@
 
 package uk.ac.gda.client.widgets;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.Objects;
 
+import org.eclipse.core.databinding.Binding;
+import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.UpdateValueStrategy;
+import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.core.databinding.validation.ValidationStatus;
+import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
+import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +52,6 @@ import uk.ac.gda.api.camera.CameraControllerEvent;
 public class LiveStreamExposureTimeComposite extends Composite {
 	private static final Logger logger = LoggerFactory.getLogger(LiveStreamExposureTimeComposite.class);
 
-	private static final Color COLOUR_RED = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
-
 	/**
 	 * Width of {@link #exposureTimeText}
 	 */
@@ -55,17 +62,11 @@ public class LiveStreamExposureTimeComposite extends Composite {
 	 */
 	private final Text exposureTimeText;
 
-	/**
-	 * Width of {@link #exposureTimeMessage}
-	 */
-	private static final int MESSAGE_WIDTH = 150;
-
-	/**
-	 * 	Label to show error message if exposure time is invalid
-	 */
-	private final Label exposureTimeMessage;
-
 	private final CameraControl cameraControl;
+
+	private final CameraControlBinding cameraControlBinding;
+
+	private final DataBindingContext dataBindingContext;
 
 	public LiveStreamExposureTimeComposite(Composite parent, int style, CameraControl cameraControl) {
 		super(parent, style);
@@ -73,93 +74,125 @@ public class LiveStreamExposureTimeComposite extends Composite {
 		this.cameraControl = cameraControl;
 		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(this);
 
+		dataBindingContext = new DataBindingContext();
+		cameraControlBinding = new CameraControlBinding();
+
 		final Label label = new Label(this, SWT.NONE);
 		GridDataFactory.swtDefaults().applyTo(label);
 		label.setText("Exposure time");
 
 		exposureTimeText = new Text(this, SWT.BORDER);
 		GridDataFactory.swtDefaults().hint(TEXT_WIDTH, SWT.DEFAULT).applyTo(exposureTimeText);
-		exposureTimeText.addModifyListener(e -> {
-			if (exposureTimeValid()) {
-				clearError();
-				setExposureTime();
-			} else {
-				displayError("Invalid exposure time");
-			}
-		});
 
-		IObserver updateMethod = (source, arg) -> {
-			if (arg instanceof CameraControllerEvent) {
-				updateExposureTime((CameraControllerEvent) arg);
-			}
-		};
-		cameraControl.addIObserver(updateMethod);
-		parent.addDisposeListener(e -> cameraControl.deleteIObserver(updateMethod));
-
-		// Label to show error message if exposure time is invalid
-		exposureTimeMessage = new Label(this, SWT.NONE);
-		GridDataFactory.swtDefaults().hint(MESSAGE_WIDTH, SWT.DEFAULT).applyTo(exposureTimeMessage);
-		exposureTimeMessage.setForeground(COLOUR_RED);
-		exposureTimeMessage.setVisible(false);
-
-		// Get the current exposure time from the camera and display in the page
+		// Get the initial exposure time from the camera and display in the page
 		try {
-			exposureTimeText.setText(Double.toString(cameraControl.getAcquireTime()));
+			final double acquireTime = cameraControl.getAcquireTime();
+			exposureTimeText.setText(Double.toString(acquireTime));
+			cameraControlBinding.setAcquireTime(acquireTime);
+			logger.debug("Acquire time set initially to {}", acquireTime);
 		} catch (DeviceException e) {
 			final String message = String.format("Error getting exposure time from camera %s", cameraControl.getName());
 			logger.error(message, e);
 			exposureTimeText.setText("#ERR");
 			displayError(message);
 		}
-	}
 
-	private void updateExposureTime(CameraControllerEvent event) {
-		final double acqTime = event.getAcquireTime();
-		PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
-			// Update the widget if the exposure time from Epics is different from the current GUI value.
-			if (acqTime != parseExposureTime()) {
-				logger.debug("Updating Exposure time from Epics event : value = {}", acqTime);
-				exposureTimeText.setText(Double.toString(acqTime));
+		// Check the value entered for exposure time
+		final UpdateValueStrategy setAcquireTimeStrategy = new UpdateValueStrategy();
+		setAcquireTimeStrategy.setBeforeSetValidator(value -> {
+			try {
+				final double exposureTime = Double.parseDouble(exposureTimeText.getText());
+				return exposureTime > 0.0 ? ValidationStatus.ok() : ValidationStatus.error("Exposure time cannot be zero");
+			} catch (Exception e) {
+				return ValidationStatus.error("Invalid number for exposure time");
 			}
 		});
+
+		// Nothing particular to check when binding from hardware value to text box
+		final UpdateValueStrategy setTextBoxStrategy = new UpdateValueStrategy();
+
+		// Set up data binding to keep camera and text box in sync
+		@SuppressWarnings("unchecked")
+		final IObservableValue<Double> cameraControlObservable = BeanProperties.value(CameraControlBinding.class, "acquireTime").observe(cameraControlBinding);
+		@SuppressWarnings("unchecked")
+		final IObservableValue<String> exposureTimeObservable = WidgetProperties.text(SWT.Modify).observe(exposureTimeText);
+		final Binding exposureTimeBinding = dataBindingContext.bindValue(exposureTimeObservable, cameraControlObservable, setAcquireTimeStrategy, setTextBoxStrategy);
+		ControlDecorationSupport.create(exposureTimeBinding, SWT.LEFT | SWT.TOP);
+
+		// cameraControlBinding needs to listen for changes from the hardware
+		cameraControl.addIObserver(cameraControlBinding);
+		parent.addDisposeListener(e -> cameraControl.deleteIObserver(cameraControlBinding));
 	}
 
-	private double parseExposureTime() {
-		return Double.parseDouble(exposureTimeText.getText());
-	}
-
-	private boolean exposureTimeValid() {
-		try {
-			final double exposureTime = parseExposureTime();
-			return exposureTime > 0.0;
-		} catch (Exception e) {
-			return false;
-		}
+	private void displayError(final String message) {
+		MessageDialog.openError(Display.getDefault().getActiveShell(), "Camera error", message);
 	}
 
 	/**
-	 * Set the exposure time on the camera to the value entered by the user
+	 * Class for data binding to use to mediate between the camera control and the "Exposure time" text box
+	 * <p>
+	 * Functions marked as "unused" are in fact required for data binding to work.
+	 * <p>
+	 * As the acquisition time can also be set in the console or directly in Epics, this class needs to observe the
+	 * hardware and respond to {@link CameraControllerEvent}s.
 	 */
-	private void setExposureTime() {
-		try {
-			final double exposureTime = parseExposureTime();
-			cameraControl.setAcquireTime(exposureTime);
-		} catch (Exception ex) {
-			final String message = String.format("Error setting exposure time on camera %s", cameraControl.getName());
-			logger.error(message, ex);
-			displayError(message);
+	private class CameraControlBinding implements IObserver {
+		// Allow for inaccuracy in floating point values
+		private static final double FP_TOLERANCE = 1e-12;
+
+		private double acquireTime;
+
+		private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
+
+	    @SuppressWarnings("unused")
+		public void addPropertyChangeListener(PropertyChangeListener listener) {
+	        changeSupport.addPropertyChangeListener(listener);
+	    }
+
+	    @SuppressWarnings("unused")
+		public void removePropertyChangeListener(PropertyChangeListener listener) {
+	        changeSupport.removePropertyChangeListener(listener);
+	    }
+
+	    @SuppressWarnings("unused")
+		public double getAcquireTime() {
+			try {
+				// Always refresh acquireTime from the hardware
+				acquireTime = cameraControl.getAcquireTime();
+			} catch (DeviceException e) {
+				final String message = String.format("Error getting acquire time on camera %s", cameraControl.getName());
+				logger.error(message, e);
+				displayError(message);
+			}
+			return acquireTime;
 		}
-	}
 
-	private void displayError(String message) {
-		exposureTimeMessage.setText(message);
-		exposureTimeMessage.setToolTipText(message);
-		exposureTimeMessage.setVisible(true);
-		update();
-	}
+		public void setAcquireTime(double acquireTime) {
+			try {
+				cameraControl.setAcquireTime(acquireTime);
+			} catch (Exception e) {
+				final String message = String.format("Error setting acquire time on camera %s", cameraControl.getName());
+				logger.error(message, e);
+				displayError(message);
+			}
+		}
 
-	private void clearError() {
-		exposureTimeMessage.setVisible(false);
-		update();
+		@Override
+		public void update(Object source, Object arg) {
+			if (arg instanceof CameraControllerEvent) {
+				final double oldAcquireTime = acquireTime;
+				acquireTime = ((CameraControllerEvent) arg).getAcquireTime();
+				// Update the text box if the exposure has been changed by an external event e.g. on the command line
+				if (Math.abs(acquireTime - oldAcquireTime) > FP_TOLERANCE) {
+					logger.debug("Acquire time changed from {} to {}", oldAcquireTime, acquireTime);
+					changeSupport.firePropertyChange("acquireTime", oldAcquireTime, acquireTime);
+				}
+			}
+		}
+
+		@Override
+		public String toString() {
+			return "CameraControlBinding [acquireTime=" + acquireTime + "]";
+		}
 	}
 }
