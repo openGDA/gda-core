@@ -85,7 +85,6 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 			scannable.addIObserver(this);
 		}
 
-		setArrays();
 		setConfigured(true);
 	}
 
@@ -164,7 +163,7 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 	 */
 	@Override
 	public void setGroupMembersWithList(List<Scannable> groupMembers, boolean toConfigure) throws FactoryException {
-		for (Scannable groupMember : groupMembers) {
+		for (Scannable groupMember : this.groupMembers) {
 			groupMember.deleteIObserver(this);
 		}
 		this.groupMembers = new ArrayList<>(groupMembers);
@@ -524,50 +523,6 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 		return null;
 	}
 
-	/**
-	 * Updates the input names array, extra names array and format array to match the group members.
-	 */
-	protected void setArrays() {
-		// assume that the groupMembers array has been filled
-		// create array of correct length
-		int inputLength = 0;
-		int extraLength = 0;
-		int formatLength = 0;
-		for (Scannable member : groupMembers) {
-			inputLength += member.getInputNames().length;
-			extraLength += member.getExtraNames().length;
-			formatLength += member.getOutputFormat().length;
-		}
-		this.inputNames = new String[inputLength];
-		this.extraNames = new String[extraLength];
-		this.outputFormat = new String[formatLength];
-		int input = 0;
-		int extra = 0;
-		int format = 0;
-		for (Scannable member : groupMembers) {
-			String[] thisInputNames = member.getInputNames();
-			if (thisInputNames.length == 1) {
-				this.inputNames[input] = member.getName();
-				input++;
-			} else {
-				for (String element : thisInputNames) {
-					this.inputNames[input] = element;
-					input++;
-				}
-			}
-			String[] thisExtraNames = member.getExtraNames();
-			for (String element : thisExtraNames) {
-				this.extraNames[extra] = element;
-				extra++;
-			}
-			String[] thisFormats = member.getOutputFormat();
-			for (String element : thisFormats) {
-				this.outputFormat[format] = element;
-				format++;
-			}
-		}
-	}
-
 	@Override
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
 		for (Scannable scannable : groupMembers) {
@@ -577,13 +532,14 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 
 	@Override
 	public void removeGroupMemberByIndex(int index) {
-		groupMembers.remove(index);
+		removeGroupMemberByScannable(groupMembers.get(index));
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("ScannableGroup "+getName()+ ": ")
+		sb.append(getClass().getSimpleName() + " ")
+		.append(getName()+ ": ")
 		.append(groupMembers);
 		return sb.toString();
 	}
