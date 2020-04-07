@@ -35,7 +35,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * Implementation of IScannableGroupNamed which manages names exlusively with the Finder i.e. the groupMemberNames are
  * the names of the group members, and each name is irrevocably tied to a group member, vice versa.
  */
-@ServiceInterface(IScannableGroup.class)
+@ServiceInterface(IScannableGroupNamed.class)
 public class ScannableGroupNamed extends ScannableGroup implements IScannableGroupNamed {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableGroupNamed.class);

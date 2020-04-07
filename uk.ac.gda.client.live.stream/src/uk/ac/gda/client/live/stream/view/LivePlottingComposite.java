@@ -156,9 +156,9 @@ public class LivePlottingComposite extends Composite {
 	}
 
 	public LivePlottingComposite(Composite parent, int style, String plotName, IActionBars actionBars,
-			LiveStreamConnection liveStreamConnection) throws Exception {
+			LiveStreamConnection liveStreamConnection, IWorkbenchPart workbenchPart) throws GDAClientException {
 		this(parent, style, liveStreamConnection);
-		preparePlottingSystem(plotName, actionBars, null);
+		preparePlottingSystem(plotName, actionBars, workbenchPart);
 	}
 
 	/**
