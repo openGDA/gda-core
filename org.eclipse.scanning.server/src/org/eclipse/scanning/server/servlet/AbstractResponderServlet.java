@@ -27,13 +27,13 @@ import org.eclipse.scanning.api.event.core.IResponseCreator;
 import org.eclipse.scanning.api.event.servlet.IResponderServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.beans.factory.annotation.Value;
 
 /**
-
-    Class used to register a servlet
-
-    S
+ *
+ * Class used to register a servlet
+ *
+ * S
  *
  * @author Matthew Gerring
  *
@@ -44,16 +44,20 @@ public abstract class AbstractResponderServlet<B extends IdBean> implements IRes
 	protected static final Logger logger = LoggerFactory.getLogger(AbstractResponderServlet.class);
 
 	protected IEventService eventService;
-	protected String        broker;
 
+	/**
+	 * Represents the ActveMQ broker URL. The {@link Value} annotation is activate, at the moment, by the classes
+	 * extending this class and using the Spring <code></code>@Component</code> annotation.
+	 */
+	@Value("${gda.activemq.broker.uri:${gda.activemq.broker.uri.failover}}")
+	protected String broker;
 
 	// Recommended to configure these as
-	protected String        requestTopic;
-	protected String        responseTopic;
+	protected String requestTopic;
+	protected String responseTopic;
 
 	// The responder for requests to this servlet.
-	protected IResponder<B>   responder;
-
+	protected IResponder<B> responder;
 
 	protected AbstractResponderServlet() {
 		this.eventService = Services.getEventService();
@@ -61,21 +65,22 @@ public abstract class AbstractResponderServlet<B extends IdBean> implements IRes
 
 	protected AbstractResponderServlet(String requestTopic, String responseTopic) {
 		this();
-		this.requestTopic  = requestTopic;
+		this.requestTopic = requestTopic;
 		this.responseTopic = responseTopic;
 	}
 
 	@Override
-	@PostConstruct  // Requires spring 3 or better
-    public void connect() throws EventException, URISyntaxException {
-
+	@PostConstruct // Requires spring 3 or better
+	public void connect() throws EventException, URISyntaxException {
 		responder = eventService.createResponder(new URI(broker), requestTopic, responseTopic);
 		responder.setResponseCreator(createResponseCreator());
-	logger.info("Started "+getClass().getSimpleName());
-    }
+		logger.info("Started {} with params {}", getClass().getSimpleName(),
+				"[broker=" + broker + ", requestTopic=" + requestTopic + ", responseTopic=" + responseTopic + "]");
+	}
 
 	/**
 	 * Override to change the behaviour of the IResponseCreator
+	 *
 	 * @return
 	 */
 	protected IResponseCreator<B> createResponseCreator() {
@@ -124,5 +129,10 @@ public abstract class AbstractResponderServlet<B extends IdBean> implements IRes
 		this.responseTopic = responseTopic;
 	}
 
+	@Override
+	public String toString() {
+		return "AbstractResponderServlet [broker=" + broker + ", requestTopic=" + requestTopic + ", responseTopic="
+				+ responseTopic + "]";
+	}
 
 }
