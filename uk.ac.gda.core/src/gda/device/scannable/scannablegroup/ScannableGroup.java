@@ -38,7 +38,24 @@ import gda.observable.IObserver;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
- * A logical group of scannables
+ * A logical group of Scannables that allows multiple Scannables to be moved at the same time, or allows further
+ * validation for movement, e.g. {@link MotomanRobotScannableGroup}'s validation on simultaneous KTheta, KPhi movement.
+ *
+ * inputNames, extraNames and outputFormat are taken from the constituent Scannables, not maintained as a field of the
+ * Group.
+ *
+ * A ScannableGroup is a logical group of Scannables that can be created through Spring instantiation or by adding
+ * Scannables from the Jython console.
+ *
+ * Configuring a ScannableGroup configures all of its component Scannables and adds itself as an IObserver, and the
+ * default behaviour of adding a Scannable to an already configured ScannableGroup is to configure the Scannable
+ * (although it can instead un-configure the group, allowing it to be configured again).
+ *
+ * ScannableGroups can add, remove or set Scannables by using the Scannables, and additionally can remove Scannables by
+ * their index.
+ *
+ * See also {@link ScannableGroupNamed}, which additionally uses the Finder to manage Scannables by name, a
+ * former function of this class
  */
 @ServiceInterface(IScannableGroup.class)
 public class ScannableGroup extends ScannableBase implements IScannableGroup, IObserver {
@@ -104,8 +121,8 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 	 * Adds a scannable to this group. This will not add a Scannable if it is already included
 	 *
 	 * @param groupMember
-	 * @param toConfigure - controls behaviour when the ScannableGroup is configured:
-	 * 			whether to configure the scannable IF this group is already configured (true)
+	 * @param toConfigure - controls behaviour if the ScannableGroup is already configured:
+	 * 			whether to configure the scannable (true)
 	 * 			or set the ScannableGroue to be unconfigured (false)
 	 * @throws FactoryException
 	 */
@@ -142,8 +159,8 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 	}
 
 	/**
-	 * Sets the group members that make up this scannable group.
-	 * Sets this ScannableGroup to unconfigured.
+	 * Sets the group members that make up this scannable group. If this ScannableGroup is configured, sets it to
+	 * unconfigured, to allow all the scannables to be configured by call this.configure()
 	 *
 	 * @param groupMembers
 	 *            the group members
@@ -182,7 +199,7 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 	 * <p>
 	 * This is final, as for historical reasons there are two setters on here, and it is natural to extend just one.
 	 * <p>
-	 *
+	 * See setGroupMembersWithList for configuration behaviour
 	 * @param groupMembers
 	 * @throws FactoryException
 	 */

@@ -25,6 +25,7 @@ import gda.factory.FactoryException;
 
 /**
  * Distributed interface for the ScannableGroup which provides a logical group of scannables
+ * See {@link IScannableGroupNamed} for additional Finder/Findable name support
  */
 
 public interface IScannableGroup extends Scannable {

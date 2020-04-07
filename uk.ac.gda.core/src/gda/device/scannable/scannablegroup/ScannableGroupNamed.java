@@ -32,8 +32,26 @@ import gda.factory.Finder;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
- * Implementation of IScannableGroupNamed which manages names exlusively with the Finder i.e. the groupMemberNames are
- * the names of the group members, and each name is irrevocably tied to a group member, vice versa.
+ * A logical group of Scannables that allows multiple Scannables to be moved at the same time, or allows further
+ * validation for movement, e.g. {@link MotomanRobotScannableGroup}'s validation on simultaneous KTheta, KPhi movement,
+ * that can additionally be managed through the Finder.
+ *
+ * inputNames, extraNames and outputFormat are taken from the constituent Scannables, not maintained as a field of the
+ * Group.
+ *
+ * A ScannableGroupNamed is a logical group of Scannables that can be created through Spring instantiation or by adding
+ * Scannables from the Jython console, or through the use of Scannable names with the Finder.
+ *
+ * Configuring a ScannableGroup configures all of its component Scannables and adds itself as an IObserver, and the
+ * default behaviour of adding a Scannable to an already configured ScannableGroup is to configure the Scannable
+ * (although it can instead un-configure the group, allowing it to be configured again).
+ *
+ * ScannableGroups can add, remove or set Scannables by using the Scannables or their names, and additionally can remove
+ * Scannables by their index.
+ *
+ * The names within a ScannableGroupNamed are simply taken from the Scannables, not maintained seperately. For a more
+ * lightweight Name/Scannable group management object, see AssemblyBase, which maintains Scannables and Names
+ * seperately until configured.
  */
 @ServiceInterface(IScannableGroupNamed.class)
 public class ScannableGroupNamed extends ScannableGroup implements IScannableGroupNamed {
@@ -85,9 +103,14 @@ public class ScannableGroupNamed extends ScannableGroup implements IScannableGro
 	}
 
 	/**
-	 * The default (scannableNames, false) implementation of setGroupMembersNamesWithArray(names, toConfigure)
-	 * @param scannableNames - the names of the scannables to add to the group
-	 * @throws FactoryException if configuring a Scannable throws this Exception
+	 * The default (scannableNames, false) implementation of setGroupMembersNames(names, toConfigure): if this group is
+	 * already configured, it will be unconfigured to allow all group members to be configured by calling
+	 * this.configure()
+	 *
+	 * @param scannableNames
+	 *            a List of the names of the scannables to add to the group
+	 * @throws FactoryException
+	 *             if configuring a Scannable throws this Exception
 	 */
 
 	@Override
@@ -97,8 +120,9 @@ public class ScannableGroupNamed extends ScannableGroup implements IScannableGro
 
 	/**
 	 * @param scannableNames - the names of the scannables to add to the group
-	 * @param toConfigure - Should the ScannableGroup configure itself after setting the names?
-	 * 						This would also configure all the members
+	 * @param toConfigure
+	 * 			behaviour if this group is already configured: whether to configure the new members (true)
+	 * 			or unconfigure this group (false)
 	 * @throws FactoryException if configuring a Scannable throws this Exception
 	 */
 
@@ -114,8 +138,9 @@ public class ScannableGroupNamed extends ScannableGroup implements IScannableGro
 
 	/**
 	 * @param scannableNames - the names of the scannables to add to the group
-	 * @param toConfigure - Should the ScannableGroup configure itself after setting the names?
-	 * 						This would also configure all the members
+	 * @param toConfigure
+	 * 			behaviour if this group is already configured: whether to configure the new members (true)
+	 * 			or unconfigure this group (false)
 	 * @throws FactoryException if configuring a Scannable throws this Exception
 	 */
 
