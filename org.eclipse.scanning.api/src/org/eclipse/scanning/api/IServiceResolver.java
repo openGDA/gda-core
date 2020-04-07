@@ -27,18 +27,18 @@ import java.util.Collection;
 public interface IServiceResolver {
 
 	/**
-	 * Method comparible to getting a service from OSGi without making a dependency
+	 * Method comparable to getting a service from OSGi without making a dependency
 	 * on OGSi in this bundle.
 	 *
-	 * @param serviceClass
-	 * @return
+	 * @param serviceClass the class to get the service for
+	 * @return the service for the given class, or <code>null</code> if no such service exists
 	 */
 	<T> T getService(Class<T> serviceClass);
 
 	/**
 	 * Try and get all the declaring instances of a given service.
-	 * @param serviceClass
-	 * @return
+	 * @param serviceClass the class to get the services for
+	 * @return the services for the given class, or an empty collection if no such services exist
 	 */
 	<T> Collection<T> getServices(Class<T> serviceClass) throws Exception;
 }

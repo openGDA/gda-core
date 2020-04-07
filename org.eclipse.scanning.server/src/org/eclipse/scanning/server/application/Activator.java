@@ -12,6 +12,7 @@
 package org.eclipse.scanning.server.application;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 
 import org.eclipse.scanning.api.IServiceResolver;
@@ -48,14 +49,15 @@ public class Activator implements BundleActivator {
 			@Override
 			public <T> T getService(Class<T> serviceClass) {
 				ServiceReference<T> ref = context.getServiceReference(serviceClass);
+				if (ref == null) return null;
 				return context.getService(ref);
 			}
 
 			@Override
 			public <T> Collection<T> getServices(Class<T> serviceClass) throws Exception {
-				if (context==null) return null;
+				if (context==null) return Collections.emptySet();
 				Collection<ServiceReference<T>> refs = context.getServiceReferences(serviceClass, null);
-				if (refs==null) return null;
+				if (refs==null) return Collections.emptySet();
 				Collection<T> ret = new LinkedHashSet<T>(refs.size());
 				for (ServiceReference<T> ref : refs) ret.add(context.getService(ref));
 				return ret;
