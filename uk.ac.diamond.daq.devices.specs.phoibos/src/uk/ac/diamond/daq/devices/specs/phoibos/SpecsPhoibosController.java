@@ -149,6 +149,10 @@ public class SpecsPhoibosController extends ConfigurableBase implements IObserva
 	/** Spectrum is the integrated energy spectrum (sum of all y channels) the size is TOTAL_DATA_POINTS_RBV */
 	private static final String SPECTRUM_DATA = "INT_SPECTRUM";
 
+	// Region validation PVs
+	private static final String VALIDATE_SPECTRUM = "VALIDATE_SPECTRUM";
+	private static final String VALIDATE_SPECTRUM_SEVR = "VALIDATE_SPECTRUM.SEVR";
+
 	// Lists for holding valid values of the enum PVs
 	private final Set<String> lensModes = new LinkedHashSet<>();
 	private final Set<String> psuModes = new LinkedHashSet<>();
@@ -893,6 +897,14 @@ public class SpecsPhoibosController extends ConfigurableBase implements IObserva
 
 	public int getPointInIteration() throws Exception {
 		return epicsController.cagetInt(getChannel(CURRENT_POINT_RBV));
+	}
+
+	public void validateScanConfiguration() throws Exception {
+		epicsController.caputWait(getChannel(VALIDATE_SPECTRUM), 1, 20);
+	}
+
+	public String getScanValidityStatus() throws Exception {
+		return epicsController.cagetString(getChannel(VALIDATE_SPECTRUM_SEVR));
 	}
 }
 

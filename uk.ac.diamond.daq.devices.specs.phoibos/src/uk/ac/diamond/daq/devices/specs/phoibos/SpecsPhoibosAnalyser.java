@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.devices.specs.phoibos;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -45,6 +46,7 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosConfigurableScannableInfo;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegionValidation;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosScannableValue;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceFileUpdate;
@@ -575,16 +577,17 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 
 		// Fill the region with the current analyser parameters
 		region.setAcquisitionMode(getAcquisitionMode());
+		region.setPsuMode(getPsuMode());
+		region.setLensMode(getLensMode());
+		region.setStartEnergy(getLowEnergy());
 		region.setEndEnergy(getHighEnergy());
+		region.setPassEnergy(getPassEnergy());
+		region.setStepEnergy(getEnergyStep());
 		region.setExposureTime(getExposureTime());
 		region.setIterations(getIterations());
-		region.setLensMode(getLensMode());
-		region.setPassEnergy(getPassEnergy());
-		region.setPsuMode(getPsuMode());
 		region.setBindingEnergy(false); // Always readback from analyser KE
-		region.setStartEnergy(getLowEnergy());
-		region.setStepEnergy(getEnergyStep());
 		region.setValues(getValues());
+		region.setSlices(getSlices());
 
 		return region;
 	}
@@ -944,31 +947,6 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		}
 	}
 
-	@Override
-	public SpecsPhoibosSequenceValidation validateSequence(SpecsPhoibosSequence sequence) throws DeviceException {
-		updatePhotonEnergy();
-
-		SpecsPhoibosSequenceValidation validationErrors = new SpecsPhoibosSequenceValidation();
-
-		for (SpecsPhoibosRegion enabledRegion : sequence.getEnabledRegions()) {
-			List<String> regionErrors = validateRegion(enabledRegion);
-			if (!regionErrors.isEmpty()) {
-				validationErrors.addValidationErrors(enabledRegion, regionErrors);
-			}
-		}
-		return validationErrors;
-	}
-
-
-	private List<String> validateRegion(SpecsPhoibosRegion region) throws DeviceException {
-		List<String> validationErrors = new ArrayList<>();
-
-		validationErrors.addAll(validateRegionEnergy(region));
-		validationErrors.addAll(validateScannablePositions(region));
-
-		return validationErrors;
-	}
-
 	/**
 	 * Tests that energy values for a region are acceptable by comparing
 	 * high and low energy limit against the pass energy
@@ -1217,5 +1195,32 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 				.stream()
 				.filter(s -> s.isCalled(name))
 				.findFirst();
+	}
+
+	private SpecsPhoibosRegionValidation validateRegion(SpecsPhoibosRegion region) throws DeviceException {
+		setRegion(region);
+		SpecsPhoibosRegionValidation validationForRegion = new SpecsPhoibosRegionValidation(region);
+		try {
+			controller.validateScanConfiguration();
+			String validityStatus = controller.getScanValidityStatus();
+			if (validityStatus.equals("INVALID")) {
+				validationForRegion.addErrors(Arrays.asList(getStatusMessage()));
+			}
+			validationForRegion.addErrors(validateScannablePositions(region));
+			return validationForRegion;
+		} catch (Exception e) {
+			final String msg = "Error validating scan configuration";
+			logger.error(msg, e);
+			throw new DeviceException(msg, e);
+		}
+	}
+
+	@Override
+	public SpecsPhoibosSequenceValidation validateSequence(SpecsPhoibosSequence sequence) throws DeviceException {
+		ArrayList<SpecsPhoibosRegionValidation> allValidationErrors = new ArrayList<>();
+		for (SpecsPhoibosRegion userSpecifiedRegion : sequence.getEnabledRegions()) {
+			allValidationErrors.add(validateRegion(userSpecifiedRegion));
+		}
+		return new SpecsPhoibosSequenceValidation(allValidationErrors);
 	}
 }

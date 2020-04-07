@@ -24,6 +24,7 @@ import static uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsUiConstants.REGION
 import static uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsUiConstants.SAVED_SEQUENCE_HASH;
 
 import java.beans.PropertyChangeListener;
+import java.util.Arrays;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -49,11 +50,14 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +67,7 @@ import com.swtdesigner.SWTResourceManager;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceHelper;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceValidation;
 import uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsUiConstants;
 import uk.ac.diamond.daq.devices.specs.phoibos.ui.helpers.SpecsPhoibosTimeEstimator;
 
@@ -389,6 +394,27 @@ public class SpecsSequenceEditor {
 	private void openSequence(@UIEventTopic(OPEN_SEQUENCE_EVENT) SpecsPhoibosSequence sequence) {
 		String path = part.getPersistedState().get(SpecsUiConstants.OPEN_SEQUENCE_FILE_PATH);
 		setSequence(sequence, path);
+	}
+
+	@Optional
+	@Inject
+	private void markInvalidRegions(
+		@UIEventTopic(SpecsUiConstants.REGION_VALIDATION_EVENT) SpecsPhoibosSequenceValidation sequenceValidationResult) {
+		unhighlightRegions();
+		if (!sequenceValidationResult.isValid()) {
+			// Highlight invalid regions in yellow
+			Color yellow = Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW);
+			sequenceValidationResult
+				.getRegionsWithErrors()
+				.stream()
+				.forEach(region -> ((TableItem)(sequenceTableViewer.testFindItem(region))).setBackground(yellow));
+		}
+	}
+
+	private void unhighlightRegions() {
+		Color transparent = Display.getCurrent().getSystemColor(SWT.COLOR_TRANSPARENT);
+		TableItem[] regionItems = sequenceTableViewer.getTable().getItems();
+		Arrays.stream(regionItems).forEach(item -> item.setBackground(transparent));
 	}
 
 	private class EnabledEditingSupport extends EditingSupport {

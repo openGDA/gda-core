@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2019 Diamond Light Source Ltd.
+ * Copyright © 2020 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -19,52 +19,40 @@
 package uk.ac.diamond.daq.devices.specs.phoibos.api;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SpecsPhoibosSequenceValidation implements Serializable {
 
-	private HashMap<SpecsPhoibosRegion, List<String>> validationErrors;
-
+	private final List<SpecsPhoibosRegionValidation> regionValidations;
 
 	/**
 	 * Constructor
 	 */
-	public SpecsPhoibosSequenceValidation(){
-		validationErrors = new HashMap<SpecsPhoibosRegion, List<String>>();
+	public SpecsPhoibosSequenceValidation(List<SpecsPhoibosRegionValidation> regionValidations){
+		this.regionValidations = regionValidations;
 	}
 
-
-	public void addValidationErrors(SpecsPhoibosRegion region, List<String> errors) {
-		validationErrors.put(region, errors );
+	public List<SpecsPhoibosRegionValidation> getRegionValidations() {
+		return regionValidations;
 	}
 
-	public HashMap<SpecsPhoibosRegion, List<String>> getValidationErrors() {
-		return validationErrors;
+	public List<SpecsPhoibosRegion> getRegionsWithErrors() {
+		return regionValidations.stream()
+				.filter(item -> !item.isValid())
+				.map(SpecsPhoibosRegionValidation::getInvalidRegion)
+				.collect(Collectors.toList());
+	}
+
+	public List<String> getErrorMessagesforRegion(SpecsPhoibosRegion region) {
+		return regionValidations.stream()
+				.filter(item -> item.hasRegion(region))
+				.findFirst()
+				.map(result -> result.getErrorMessages())
+				.orElse(null);
 	}
 
 	public boolean isValid() {
-		return validationErrors.isEmpty();
+		return getRegionsWithErrors().isEmpty();
 	}
-
-	@Override
-	/**
-	 * Create a pretty, readable message from the validation HashMap
-	 * @param validationErrors
-	 * @return A string
-	 */
-	public String toString(){
-		String validationSummary = "";
-		for (SpecsPhoibosRegion r : validationErrors.keySet()) {
-			List<String> regionErrors = validationErrors.get(r);
-			String regionErrorsPretty = "";
-			for (String item : regionErrors) {
-				regionErrorsPretty += item + System.lineSeparator();
-			}
-			validationSummary += "Region: " + r.getName() + System.lineSeparator() + regionErrorsPretty + System.lineSeparator();
-		}
-		return validationSummary;
-	}
-
-
 }

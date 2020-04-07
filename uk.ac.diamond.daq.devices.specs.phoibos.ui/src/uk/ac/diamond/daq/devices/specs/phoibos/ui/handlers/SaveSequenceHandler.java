@@ -18,29 +18,57 @@
 
 package uk.ac.diamond.daq.devices.specs.phoibos.ui.handlers;
 
+import javax.inject.Named;
+
 import org.eclipse.e4.core.di.annotations.CanExecute;
 import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
+import org.eclipse.e4.ui.services.IServiceConstants;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceHelper;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceValidation;
 import uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsUiConstants;
 
-public class SaveSequenceHandler {
+public class SaveSequenceHandler extends HandlerBase {
+
+	private static final Logger logger = LoggerFactory.getLogger(SaveSequenceHandler.class);
 
 	@Execute
-	public void execute(MPart part) {
+	public void execute(MPart part, @Named(IServiceConstants.ACTIVE_SHELL) Shell shell) throws DeviceException {
 		// Get the sequence open in the editor
 		SpecsPhoibosSequence sequence = (SpecsPhoibosSequence) part.getTransientData().get(SpecsUiConstants.OPEN_SEQUENCE);
 
-		// Save the sequence to the existing file path
-		SpecsPhoibosSequenceHelper.saveSequence(sequence, part.getPersistedState().get(SpecsUiConstants.OPEN_SEQUENCE_FILE_PATH));
+		SpecsPhoibosSequenceValidation sequenceValidationResult = validateSequence(shell, sequence, analyser);
 
-		// Update the hash of the saved sequence
-		part.getTransientData().put(SpecsUiConstants.SAVED_SEQUENCE_HASH, sequence.hashCode());
+		presentValidationResults(sequenceValidationResult, eventBroker, partService, shell);
 
-		// Set dirty false its just been saved.
-		part.setDirty(false);
+		// Save sequence
+		if (sequenceValidationResult.isValid()) {
+			try {
+				// Save the sequence to the existing file path
+				SpecsPhoibosSequenceHelper.saveSequence(sequence, part.getPersistedState().get(SpecsUiConstants.OPEN_SEQUENCE_FILE_PATH));
+
+				// Update the hash of the saved sequence
+				part.getTransientData().put(SpecsUiConstants.SAVED_SEQUENCE_HASH, sequence.hashCode());
+
+				// Set dirty false its just been saved.
+				part.setDirty(false);
+			} catch (RuntimeException e) {
+				MessageBox dialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+				dialog.setText("Problem with saving sequence");
+				dialog.setMessage(e.getMessage());
+				dialog.open();
+				throw e;
+			}
+
+		}
 	}
 
 	@CanExecute

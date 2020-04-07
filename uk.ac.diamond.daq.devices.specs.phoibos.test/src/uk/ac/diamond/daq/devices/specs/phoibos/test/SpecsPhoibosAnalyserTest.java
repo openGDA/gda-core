@@ -13,7 +13,6 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 
-import gda.device.DeviceException;
 import gda.device.Scannable;
 import uk.ac.diamond.daq.devices.specs.phoibos.SpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.SpecsPhoibosCollectionStrategy;
@@ -139,30 +138,26 @@ public class SpecsPhoibosAnalyserTest {
 	}
 
 	@Test
-	public void testValidateSequenceWithInvalidRegion() throws DeviceException {
-		// Create invalid region
+	public void testValidateSequenceWithValidRegion() throws Exception {
+		// Create valid region
 		SpecsPhoibosRegion region  = new SpecsPhoibosRegion();
-		region.setStartEnergy(50);
-		region.setEndEnergy(60);
-		region.setPassEnergy(70);
 		SpecsPhoibosSequence sequence = new SpecsPhoibosSequence();
 		sequence.addRegion(region);
-		SpecsPhoibosSequenceValidation validationResult = analyser.validateSequence(sequence);
-		assertFalse(validationResult.isValid());
+		when(controller.getScanValidityStatus()).thenReturn("NO_ALARM");
+		SpecsPhoibosSequenceValidation validationErrors = analyser.validateSequence(sequence);
+		assertTrue(validationErrors.isValid());
+
 	}
 
 	@Test
-	public void testValidateSequenceWithValidRegion() throws DeviceException {
-		// Create valid region
+	public void testValidateSequenceWithInvalidRegion() throws Exception {
+		// Create invalid region
 		SpecsPhoibosRegion region  = new SpecsPhoibosRegion();
-		region.setStartEnergy(50);
-		region.setEndEnergy(60);
-		region.setPassEnergy(5);
 		SpecsPhoibosSequence sequence = new SpecsPhoibosSequence();
 		sequence.addRegion(region);
-		SpecsPhoibosSequenceValidation validationErrors = new SpecsPhoibosSequenceValidation();
-		validationErrors = analyser.validateSequence(sequence);
-		assertTrue(validationErrors.isValid());
+		when(controller.getScanValidityStatus()).thenReturn("INVALID");
+		SpecsPhoibosSequenceValidation validationErrors = analyser.validateSequence(sequence);
+		assertFalse(validationErrors.isValid());
 
 	}
 

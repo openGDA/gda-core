@@ -40,6 +40,9 @@ public final class SpecsUiConstants {
 	public static final String SAVED_SEQUENCE_HASH = "uk/ac/diamond/daq/devices/specs/phoibos/ui/editors/savedFileSequenceHash";
 	public static final String SELECTED_REGION = "uk/ac/diamond/daq/devices/specs/phoibos/ui/editors/selectedRegion";
 
+	// Region validation related events
+	public static final String REGION_VALIDATION_EVENT = "uk/ac/diamond/daq/devices/specs/phoibos/ui/regionValidationEvent";
+
 	private SpecsUiConstants() {
 		// Prevent instances
 	}

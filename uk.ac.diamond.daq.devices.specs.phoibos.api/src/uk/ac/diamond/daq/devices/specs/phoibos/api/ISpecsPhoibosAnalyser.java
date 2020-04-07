@@ -69,7 +69,7 @@ public interface ISpecsPhoibosAnalyser extends Findable, IObservable {
 	double[][] getImage();
 
 	/**
-	 * Validates a sequence
+	 * Performs EPICS validation and scannable position validation for all regions in a sequence
 	 *
 	 * @param sequence
 	 * @return SpecsPhoibosSequenceValidation
