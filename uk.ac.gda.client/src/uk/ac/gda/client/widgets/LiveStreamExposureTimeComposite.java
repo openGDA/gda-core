@@ -36,6 +36,7 @@ import gda.device.DeviceException;
 import gda.observable.IObserver;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraControllerEvent;
+import uk.ac.gda.api.camera.CameraState;
 
 /**
  * Control the exposure time of a camera, warning the user if they have input an invalid exposure time
@@ -142,8 +143,12 @@ public class LiveStreamExposureTimeComposite extends Composite {
 	 */
 	private void setExposureTime() {
 		try {
-			final double exposureTime = parseExposureTime();
-			cameraControl.setAcquireTime(exposureTime);
+			if (cameraControl.getAcquireState() == CameraState.IDLE) {
+				final double exposureTime = parseExposureTime();
+				cameraControl.setAcquireTime(exposureTime);
+			} else {
+				displayError("Cannot set exposure time\n- camera is busy");
+			}
 		} catch (Exception ex) {
 			final String message = String.format("Error setting exposure time on camera %s", cameraControl.getName());
 			logger.error(message, ex);
