@@ -133,13 +133,16 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 			initCameraCombo(cameraCombo.getSelectionIndex());
 		}
 		streamController.setControlData(new StreamControlData(comboItems.get(cameraCombo.getSelectionIndex()),
-				StreamType.values()[streamTypeCombo.getSelectionIndex()]));
+				(StreamType)streamTypeCombo.getData(streamTypeCombo.getText())));
 	}
 
 	private void initCameraCombo(int cameraIndex) {
 		streamTypeCombo.removeAll();
 		CameraHelper.getCameraStreamTypes(cameraIndex)
-				.ifPresent(types -> types.forEach(type -> streamTypeCombo.add(type.toString())));
+				.ifPresent(types -> types.forEach(type -> {
+					streamTypeCombo.add(type.toString());
+					streamTypeCombo.setData(type.toString(), type);
+				}));
 		if (streamTypeCombo.getItemCount() > 0) {
 			streamTypeCombo.select(0);
 		}
