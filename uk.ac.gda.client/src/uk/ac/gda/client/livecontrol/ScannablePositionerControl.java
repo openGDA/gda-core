@@ -46,6 +46,7 @@ public class ScannablePositionerControl extends FindableBase implements LiveCont
 	private Double increment; // The increment to set when then control is created Double allows null i.e. default
 	private int incrementTextWidth = 60; // Passed down to NudgePositionerComposite
 	private Boolean showIncrement;
+	private boolean boldLabel;
 
 	public Boolean isShowIncrement() {
 		return showIncrement;
@@ -112,6 +113,14 @@ public class ScannablePositionerControl extends FindableBase implements LiveCont
 
 	public void setIncrementTextWidth(Integer incrementTextWidth) {
 		this.incrementTextWidth = incrementTextWidth;
+	}
+
+	public boolean getBoldLabel() {
+		return this.boldLabel;
+	}
+
+	public void setBoldLabel(boolean boldLabel) {
+		this.boldLabel = boldLabel;
 	}
 
 	@Override
@@ -196,6 +205,9 @@ public class ScannablePositionerControl extends FindableBase implements LiveCont
 
 		if (scannable instanceof EnumPositioner) {
 			positionerComposite = new EnumPositionerComposite(composite, SWT.NONE);
+			if (boldLabel) {
+				((EnumPositionerComposite)positionerComposite).setLabelToBold();
+			}
 		} else {
 		// Create the NudgePositionerComposite and set the scannable
 		positionerComposite = new NudgePositionerComposite(composite, SWT.NONE);
@@ -209,6 +221,9 @@ public class ScannablePositionerControl extends FindableBase implements LiveCont
 			npc.setIncrementTextWidth(incrementTextWidth);
 			if (showIncrement != null && !showIncrement) {
 				npc.hideIncrementControl();
+			}
+			if (boldLabel) {
+				npc.setLabelToBold();
 			}
 		}
 		positionerComposite.setScannable(scannable);

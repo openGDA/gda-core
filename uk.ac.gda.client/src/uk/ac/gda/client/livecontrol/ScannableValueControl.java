@@ -47,6 +47,8 @@ public class ScannableValueControl extends FindableBase implements LiveControl {
 	private Double lowerLimit;
 	private Double upperlimit;
 
+	private boolean boldLabel;
+
 	public String getDisplayName() {
 		return displayName;
 	}
@@ -119,6 +121,9 @@ public class ScannableValueControl extends FindableBase implements LiveControl {
 		if (upperlimit != null) {
 			itc.setUpperLimit(upperlimit);
 		}
+		if (boldLabel) {
+			itc.setLabelToBold();
+		}
 	}
 
 	public boolean isReadOnly() {
@@ -143,6 +148,14 @@ public class ScannableValueControl extends FindableBase implements LiveControl {
 
 	public void setUpperlimit(Double upperlimit) {
 		this.upperlimit = upperlimit;
+	}
+
+	public boolean getBoldLabel() {
+		return boldLabel;
+	}
+
+	public void setBoldLabel(boolean boldLabel) {
+		this.boldLabel = boldLabel;
 	}
 
 	@Override

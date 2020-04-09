@@ -22,9 +22,11 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.util.Arrays;
 
+import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -89,6 +91,15 @@ public class EnumPositionerComposite extends AbstractPositionerComposite {
 		positionsCombo.removeSelectionListener(selectionListener);
 		super.dispose();
 	}
+
+	/**
+	 * Sets the description label for the composite to a bold font
+	 */
+	public void setLabelToBold() {
+    	FontDescriptor boldDescriptor = FontDescriptor.createFrom(displayNameLabel.getFont()).setStyle(SWT.BOLD);
+		Font boldFont = boldDescriptor.createFont(displayNameLabel.getDisplay());
+		displayNameLabel.setFont(boldFont);
+    }
 
 	private void selectionChanged(SelectionEvent event) {
 		final String newPosition = ((Combo)event.widget).getText();
