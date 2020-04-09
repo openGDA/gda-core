@@ -38,7 +38,24 @@ import gda.observable.IObserver;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
- * A logical group of scannables
+ * A logical group of Scannables that allows multiple Scannables to be moved at the same time, or allows further
+ * validation for movement, e.g. {@link MotomanRobotScannableGroup}'s validation on simultaneous KTheta, KPhi movement.
+ *
+ * inputNames, extraNames and outputFormat are taken from the constituent Scannables, not maintained as a field of the
+ * Group.
+ *
+ * A ScannableGroup is a logical group of Scannables that can be created through Spring instantiation or by adding
+ * Scannables from the Jython console.
+ *
+ * Configuring a ScannableGroup configures all of its component Scannables and adds itself as an IObserver, and the
+ * default behaviour of adding a Scannable to an already configured ScannableGroup is to configure the Scannable
+ * (although it can instead un-configure the group, allowing it to be configured again).
+ *
+ * ScannableGroups can add, remove or set Scannables by using the Scannables, and additionally can remove Scannables by
+ * their index.
+ *
+ * See also {@link ScannableGroupNamed}, which additionally uses the Finder to manage Scannables by name, a
+ * former function of this class
  */
 @ServiceInterface(IScannableGroup.class)
 public class ScannableGroup extends ScannableBase implements IScannableGroup, IObserver {
@@ -85,7 +102,6 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 			scannable.addIObserver(this);
 		}
 
-		setArrays();
 		setConfigured(true);
 	}
 
@@ -105,8 +121,8 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 	 * Adds a scannable to this group. This will not add a Scannable if it is already included
 	 *
 	 * @param groupMember
-	 * @param toConfigure - controls behaviour when the ScannableGroup is configured:
-	 * 			whether to configure the scannable IF this group is already configured (true)
+	 * @param toConfigure - controls behaviour if the ScannableGroup is already configured:
+	 * 			whether to configure the scannable (true)
 	 * 			or set the ScannableGroue to be unconfigured (false)
 	 * @throws FactoryException
 	 */
@@ -143,8 +159,8 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 	}
 
 	/**
-	 * Sets the group members that make up this scannable group.
-	 * Sets this ScannableGroup to unconfigured.
+	 * Sets the group members that make up this scannable group. If this ScannableGroup is configured, sets it to
+	 * unconfigured, to allow all the scannables to be configured by call this.configure()
 	 *
 	 * @param groupMembers
 	 *            the group members
@@ -164,7 +180,7 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 	 */
 	@Override
 	public void setGroupMembersWithList(List<Scannable> groupMembers, boolean toConfigure) throws FactoryException {
-		for (Scannable groupMember : groupMembers) {
+		for (Scannable groupMember : this.groupMembers) {
 			groupMember.deleteIObserver(this);
 		}
 		this.groupMembers = new ArrayList<>(groupMembers);
@@ -183,7 +199,7 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 	 * <p>
 	 * This is final, as for historical reasons there are two setters on here, and it is natural to extend just one.
 	 * <p>
-	 *
+	 * See setGroupMembersWithList for configuration behaviour
 	 * @param groupMembers
 	 * @throws FactoryException
 	 */
@@ -524,50 +540,6 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 		return null;
 	}
 
-	/**
-	 * Updates the input names array, extra names array and format array to match the group members.
-	 */
-	protected void setArrays() {
-		// assume that the groupMembers array has been filled
-		// create array of correct length
-		int inputLength = 0;
-		int extraLength = 0;
-		int formatLength = 0;
-		for (Scannable member : groupMembers) {
-			inputLength += member.getInputNames().length;
-			extraLength += member.getExtraNames().length;
-			formatLength += member.getOutputFormat().length;
-		}
-		this.inputNames = new String[inputLength];
-		this.extraNames = new String[extraLength];
-		this.outputFormat = new String[formatLength];
-		int input = 0;
-		int extra = 0;
-		int format = 0;
-		for (Scannable member : groupMembers) {
-			String[] thisInputNames = member.getInputNames();
-			if (thisInputNames.length == 1) {
-				this.inputNames[input] = member.getName();
-				input++;
-			} else {
-				for (String element : thisInputNames) {
-					this.inputNames[input] = element;
-					input++;
-				}
-			}
-			String[] thisExtraNames = member.getExtraNames();
-			for (String element : thisExtraNames) {
-				this.extraNames[extra] = element;
-				extra++;
-			}
-			String[] thisFormats = member.getOutputFormat();
-			for (String element : thisFormats) {
-				this.outputFormat[format] = element;
-				format++;
-			}
-		}
-	}
-
 	@Override
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
 		for (Scannable scannable : groupMembers) {
@@ -577,13 +549,14 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 
 	@Override
 	public void removeGroupMemberByIndex(int index) {
-		groupMembers.remove(index);
+		removeGroupMemberByScannable(groupMembers.get(index));
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("ScannableGroup "+getName()+ ": ")
+		sb.append(getClass().getSimpleName() + " ")
+		.append(getName()+ ": ")
 		.append(groupMembers);
 		return sb.toString();
 	}
