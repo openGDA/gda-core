@@ -29,6 +29,8 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -39,6 +41,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IPausableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
@@ -74,6 +77,8 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 
 	@Mock
 	private IScannableDeviceService scannableDeviceService;
+	@Mock
+	private IScannable<Double> zAxisScannable = mock(IScannable.class);
 
 	@Mock
 	private IPublisher<ScanBean> publisher;
@@ -85,6 +90,8 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
+		when(zAxisScannable.getLevel()).thenReturn(1);
+		doReturn(zAxisScannable).when(scannableDeviceService).getScannable("stage_z");
 		RunnableDeviceServiceImpl.setDeviceConnectorService(scannableDeviceService);
 		initializeMalcolmDevice();
 	}

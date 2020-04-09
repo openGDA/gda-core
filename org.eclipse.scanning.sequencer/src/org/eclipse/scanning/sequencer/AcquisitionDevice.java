@@ -245,7 +245,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 
 	private void setScannables(ScanModel model) throws ScanningException {
 		List<IScannable<?>> scannables = model.getScannables();
-		if (scannables == null) {
+		if (scannables == null || scannables.isEmpty()) {
 			final List<String> malcolmControlledAxisNames =
 					malcolmDevice.isPresent() ? malcolmDevice.get().getAvailableAxes() : Collections.emptyList();
 			final List<String> allScannableNames = getScannableNames(model.getPointGenerator());
