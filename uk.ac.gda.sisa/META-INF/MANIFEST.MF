@@ -24,6 +24,8 @@ Import-Package: org.apache.log4j;version="1.2.17",
  org.eclipse.dawnsci.plotting.api.trace,
  org.eclipse.january.dataset;version="2.1.5",
  org.eclipse.ui.internal.e4.compatibility,
+ org.springframework.beans.factory;version="4.0.6.RELEASE",
  uk.ac.gda.client.live.stream,
  uk.ac.gda.client.live.stream.view,
  uk.ac.gda.devices.vgscienta
+Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
