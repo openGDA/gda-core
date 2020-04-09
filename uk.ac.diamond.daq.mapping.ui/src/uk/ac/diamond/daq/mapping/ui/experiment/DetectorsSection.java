@@ -23,6 +23,8 @@ import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
+import static uk.ac.gda.ui.tool.ClientMessages.DETECTOR_PARAMETERS_EDIT_TP;
+import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -178,7 +180,7 @@ public class DetectorsSection extends AbstractMappingSection {
 			GridLayoutFactory.fillDefaults().applyTo(configComposite);
 			final Button configButton = new Button(configComposite, SWT.PUSH);
 			configButton.setImage(getImage("icons/camera.png"));
-			configButton.setToolTipText("Edit parameters");
+			configButton.setToolTipText(getMessage(DETECTOR_PARAMETERS_EDIT_TP));
 			configButton.addListener(SWT.Selection, event -> editDetectorParameters(detectorParameters));
 		}
 

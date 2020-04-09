@@ -18,6 +18,10 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import static uk.ac.gda.ui.tool.ClientMessages.PROCESSING_MODEL_CONFIG;
+import static uk.ac.gda.ui.tool.ClientMessages.PROCESSING_MODEL_CONFIG_TP;
+import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.nio.file.Files;
@@ -102,7 +106,8 @@ public class ProcessingSection extends AbstractMappingSection {
 
 		// Button to add a processing model
 		Button addProcessingModelButton = new Button(rowComposite, SWT.PUSH);
-		addProcessingModelButton.setText("Add Processing...");
+		addProcessingModelButton.setText(getMessage(PROCESSING_MODEL_CONFIG));
+		addProcessingModelButton.setToolTipText(getMessage(PROCESSING_MODEL_CONFIG_TP));
 		GridDataFactory.swtDefaults().align(SWT.END, SWT.CENTER).grab(true, false).applyTo(addProcessingModelButton);
 
 		addProcessingModelButton.addSelectionListener(new SelectionAdapter() {

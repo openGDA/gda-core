@@ -18,6 +18,9 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import static uk.ac.gda.ui.tool.ClientMessages.SCAN_PATH_SHAPE_TP;
+import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -124,6 +127,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		Label pathLabel = new Label(pathComboComposite, SWT.NONE);
 		pathLabel.setText("Scan path:");
 		pathSelector = new ComboViewer(pathComboComposite);
+		pathSelector.getCombo().setToolTipText(getMessage(SCAN_PATH_SHAPE_TP));
 		horizontalGrabGridData.applyTo(pathSelector.getControl());
 
 		Button configureStageButton = new Button(pathComboComposite, SWT.PUSH);

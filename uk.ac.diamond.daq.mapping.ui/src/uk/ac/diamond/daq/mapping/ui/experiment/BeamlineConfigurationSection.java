@@ -18,6 +18,10 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import static uk.ac.gda.ui.tool.ClientMessages.BEAMLINE_CONFIGURATION_TP;
+import static uk.ac.gda.ui.tool.ClientMessages.FOCUS_SCAN_CONFIGURE_TP;
+import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
+
 import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.List;
@@ -88,12 +92,13 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 
 		Button editBeamlineConfigButton = new Button(beamlineConfigComposite, SWT.PUSH);
 		editBeamlineConfigButton.setImage(getImage("icons/pencil.png"));
-		editBeamlineConfigButton.setToolTipText("Edit Beamline Configuration");
+		editBeamlineConfigButton.setToolTipText(getMessage(BEAMLINE_CONFIGURATION_TP));
 		editBeamlineConfigButton.addListener(SWT.Selection, event -> editBeamlineConfiguration());
 
 		if (addFocusScanButton) {
 			Button configureFocusButton = new Button(beamlineConfigComposite, SWT.PUSH);
 			configureFocusButton.setText("Configure Focus"); // TODO use image
+			configureFocusButton.setToolTipText(getMessage(FOCUS_SCAN_CONFIGURE_TP));
 			configureFocusButton.addListener(SWT.Selection, event -> configureFocus());
 		}
 

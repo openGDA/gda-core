@@ -18,6 +18,10 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import static uk.ac.gda.ui.tool.ClientMessages.SAMPLE_METADATA_EDIT;
+import static uk.ac.gda.ui.tool.ClientMessages.SAMPLE_METADATA_EDIT_TP;
+import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
@@ -67,7 +71,8 @@ public class ScanMetadataSection extends AbstractMappingSection {
 		sampleNameText.addListener(SWT.Modify, event -> getController().setAcquisitionName(sampleNameText.getText()));
 
 		Button editMetadataButton = new Button(essentialParametersComposite, SWT.PUSH);
-		editMetadataButton.setText("Edit metadata...");
+		editMetadataButton.setText(getMessage(SAMPLE_METADATA_EDIT));
+		editMetadataButton.setToolTipText(getMessage(SAMPLE_METADATA_EDIT_TP));
 
 		editMetadataButton.addListener(SWT.Selection, event -> {
 			SimpleSampleMetadata metadata = (SimpleSampleMetadata) mappingBean.getSampleMetadata();

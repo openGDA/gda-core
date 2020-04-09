@@ -20,6 +20,8 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static java.util.Comparator.comparing;
+import static uk.ac.gda.ui.tool.ClientMessages.OUTER_SCANNABLES_CONFIGURE_TP;
+import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -139,7 +141,7 @@ public class OuterScannablesSection extends AbstractMappingSection {
 		// button to add a new scannable
 		final Button btnAdd = new Button(sectionComposite, SWT.PUSH);
 		btnAdd.setImage(getImage("icons/plus.png"));
-		btnAdd.setToolTipText("Add scannables");
+		btnAdd.setToolTipText(getMessage(OUTER_SCANNABLES_CONFIGURE_TP));
 		GridDataFactory.fillDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(btnAdd);
 		btnAdd.addListener(SWT.Selection, event -> addScannables());
 

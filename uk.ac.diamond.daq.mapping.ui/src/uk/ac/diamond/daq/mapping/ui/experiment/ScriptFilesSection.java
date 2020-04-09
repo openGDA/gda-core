@@ -18,6 +18,9 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import static uk.ac.gda.ui.tool.ClientMessages.SCRIPT_FILES_SELECT_TP;
+import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
+
 import java.nio.file.Paths;
 import java.util.Objects;
 
@@ -58,7 +61,7 @@ public class ScriptFilesSection extends AbstractMappingSection {
 
 		final Button editScriptsButton = new Button(scriptsComposite, SWT.PUSH);
 		editScriptsButton.setImage(getImage("icons/pencil.png"));
-		editScriptsButton.setToolTipText("Select Script Files");
+		editScriptsButton.setToolTipText(getMessage(SCRIPT_FILES_SELECT_TP));
 		GridDataFactory.swtDefaults().align(SWT.TRAIL, SWT.CENTER).applyTo(editScriptsButton);
 
 		editScriptsButton.addListener(SWT.Selection, event -> openDialog());
