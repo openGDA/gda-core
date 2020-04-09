@@ -126,11 +126,15 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 			return;
 		}
 
-		final FocusScanWizard focusScanWizard = ContextInjectionFactory.make(FocusScanWizard.class, getEclipseContext());
-		final WizardDialog wizardDialog = new WizardDialog(getShell(), focusScanWizard);
-		wizardDialog.setPageSize(focusScanWizard.getPreferredPageSize());
-		wizardDialog.open();
-		// note: no action to take here as the zone plate is moved in FocusScanWizard.performFinish() if OK pressed
+		try {
+			final FocusScanWizard focusScanWizard = ContextInjectionFactory.make(FocusScanWizard.class, getEclipseContext());
+			final WizardDialog wizardDialog = new WizardDialog(getShell(), focusScanWizard);
+			wizardDialog.setPageSize(focusScanWizard.getPreferredPageSize());
+			wizardDialog.open();
+			// note: no action to take here as the zone plate is moved in FocusScanWizard.performFinish() if OK pressed
+		} catch (Exception e) {
+			LOGGER.error("Error opening focus scan wizard", e);
+		}
 	}
 
 	private void updateConfiguredScannableSummary() {

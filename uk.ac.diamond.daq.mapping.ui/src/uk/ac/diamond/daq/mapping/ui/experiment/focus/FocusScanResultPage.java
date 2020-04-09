@@ -99,7 +99,7 @@ import tec.units.indriya.quantity.Quantities;
 import uk.ac.diamond.daq.mapping.api.EnergyFocusBean;
 import uk.ac.diamond.daq.mapping.api.FocusScanBean;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
-import uk.ac.diamond.daq.mapping.ui.ScanBeanSubmitter;
+import uk.ac.diamond.daq.mapping.api.IScanBeanSubmitter;
 import uk.ac.gda.client.NumberAndUnitsComposite;
 
 /**
@@ -126,7 +126,7 @@ public class FocusScanResultPage extends WizardPage {
 	private IMapFileEventListener mapFileEventListener = null;
 
 	@Inject
-	private ScanBeanSubmitter submitter;
+	private IScanBeanSubmitter submitter;
 
 	@Inject
 	private FocusScanBean focusScanBean;
