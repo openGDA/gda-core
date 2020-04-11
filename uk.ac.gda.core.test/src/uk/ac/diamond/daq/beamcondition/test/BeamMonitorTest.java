@@ -63,10 +63,11 @@ import gda.jython.JythonServerStatus;
 import uk.ac.diamond.daq.beamcondition.BeamCondition;
 import uk.ac.diamond.daq.beamcondition.BeamMonitor;
 import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.diamond.daq.test.powermock.PowerMockBase;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Async.class)
-public class BeamMonitorTest {
+public class BeamMonitorTest extends PowerMockBase {
 
 	@Mock private ITerminalPrinter printer;
 	@Mock private IJythonServerStatusProvider jythonServerStatus;

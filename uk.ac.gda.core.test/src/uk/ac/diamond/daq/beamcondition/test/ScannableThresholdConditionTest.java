@@ -36,10 +36,11 @@ import gda.device.Scannable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import uk.ac.diamond.daq.beamcondition.ScannableThresholdCheck;
+import uk.ac.diamond.daq.test.powermock.PowerMockBase;
 
 
 @RunWith(PowerMockRunner.class)
-public class ScannableThresholdConditionTest {
+public class ScannableThresholdConditionTest extends PowerMockBase {
 	@Mock Scannable scannable;
 
 	private ScannableThresholdCheck condition;

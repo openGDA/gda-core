@@ -39,6 +39,12 @@
 								<id>org.hamcrest</id>
 								<versionRange>0.0.0</versionRange>
 							</requirement>
+							<!-- This is required until split packages have been resolved -->
+							<requirement>
++								<type>eclipse-plugin</type>
++								<id>uk.ac.diamond.daq.splitpackagesresolver</id>
++								<versionRange>0.0.0</versionRange>
++							</requirement>
 						</extraRequirements>
 					</dependency-resolution>
 				</configuration>
@@ -49,19 +55,8 @@
 				<version>${tycho.version}</version>
 				<configuration>
 					<excludes>
-						<!-- powermock test -->
-						<exclude>LdapAuthoriserTest</exclude>
-						<exclude>HighlightersTest</exclude>
-						<exclude>JythonShellParserTest</exclude>
-						<exclude>JythonShellTest</exclude>
+						<!-- Needs paths to be sorted out -->
 						<exclude>GDAJythonClassloaderTest</exclude>
-						<exclude>GDAJythonInterpreterTest</exclude>
-			          	<exclude>BeamConditionBaseTest</exclude>
-			          	<exclude>BeamConditionWrapperTest</exclude>
-			          	<exclude>BeamMonitorTest</exclude>
-			          	<exclude>EnumPositionCheckTest</exclude>
-			          	<exclude>ScannableThresholdConditionTest</exclude>
-						<exclude>SpringMotorDefinitionParserTest</exclude>
 			          	<!-- Tests trying to read/write test files -->
 			          	<exclude>PropertyPlaceholderConfigurerTest</exclude>
 			          	<exclude>FindableHashtableTest</exclude>

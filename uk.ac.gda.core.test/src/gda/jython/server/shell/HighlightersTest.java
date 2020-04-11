@@ -44,11 +44,13 @@ import org.python.core.PySystemState;
 import org.python.core.PyUnicode;
 import org.python.util.InteractiveInterpreter;
 
+import uk.ac.diamond.daq.test.powermock.PowerMockBase;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({AttributedString.class,
 	Highlighters.class,
 })
-public class HighlightersTest {
+public class HighlightersTest extends PowerMockBase{
 
 	@Mock private InteractiveInterpreter interpreter;
 	@Mock private PyObject highlighter;

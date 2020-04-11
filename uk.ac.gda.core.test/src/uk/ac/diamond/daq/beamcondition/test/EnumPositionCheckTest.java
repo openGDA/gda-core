@@ -36,10 +36,11 @@ import gda.device.EnumPositioner;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import uk.ac.diamond.daq.beamcondition.EnumPositionCheck;
+import uk.ac.diamond.daq.test.powermock.PowerMockBase;
 
 
 @RunWith(PowerMockRunner.class)
-public class EnumPositionCheckTest {
+public class EnumPositionCheckTest extends PowerMockBase {
 	EnumPositioner scannable;
 
 	private EnumPositionCheck condition;

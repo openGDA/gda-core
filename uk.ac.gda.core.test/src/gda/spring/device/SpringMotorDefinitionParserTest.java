@@ -60,10 +60,11 @@ import org.w3c.dom.Element;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.scannable.ScannableMotor;
+import uk.ac.diamond.daq.test.powermock.PowerMockBase;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ParserContext.class, LocalProperties.class, XmlReaderContext.class})
-public class SpringMotorDefinitionParserTest {
+public class SpringMotorDefinitionParserTest extends PowerMockBase {
 	private static final String EPICS_MOTOR = "gda.device.motor.EpicsMotor";
 	private static final String DUMMY_MOTOR = "gda.device.motor.DummyMotor";
 

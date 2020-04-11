@@ -59,6 +59,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 
+import uk.ac.diamond.daq.test.powermock.PowerMockBase;
+
 
 /**
  * Can't use direct type comparison in these tests as we would necessarily have to load the Classes to compare to those loaded by
@@ -68,7 +70,7 @@ import com.google.common.collect.ImmutableMap;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(LoggerFactory.class)
-public class GDAJythonClassloaderTest {
+public class GDAJythonClassloaderTest extends PowerMockBase {
 
 	private static final String PKG_1 = "bbc.python.monty.lumberjack";
 	private static final String PKG_2 = "bbc.python.monty.gumby";

@@ -33,10 +33,11 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import uk.ac.diamond.daq.beamcondition.BeamCondition;
 import uk.ac.diamond.daq.beamcondition.BeamConditionBase;
+import uk.ac.diamond.daq.test.powermock.PowerMockBase;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(BeamConditionBase.class)
-public class BeamConditionBaseTest {
+public class BeamConditionBaseTest extends PowerMockBase {
 	BeamCondition condition = spy(BeamConditionBase.class);
 
 	@Before

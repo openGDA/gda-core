@@ -66,6 +66,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.jython.JythonServerFacade;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanDataPoint;
+import uk.ac.diamond.daq.test.powermock.PowerMockBase;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({LocalProperties.class,
@@ -73,7 +74,7 @@ import gda.scan.ScanDataPoint;
 	Highlighters.class,
 	LineReaderBuilder.class,
 	})
-public class JythonShellTest {
+public class JythonShellTest extends PowerMockBase {
 
 	@Mock JythonServerFacade jsf;
 	@Mock Terminal terminal;

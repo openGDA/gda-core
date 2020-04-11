@@ -34,10 +34,11 @@ import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import uk.ac.diamond.daq.beamcondition.BeamConditionWrapper;
+import uk.ac.diamond.daq.test.powermock.PowerMockBase;
 
 
 @RunWith(PowerMockRunner.class)
-public class BeamConditionWrapperTest {
+public class BeamConditionWrapperTest extends PowerMockBase {
 	@Mock BooleanSupplier function;
 
 	private BeamConditionWrapper condition;

@@ -44,10 +44,12 @@ import org.python.core.PyException;
 import org.python.core.PyObject;
 import org.python.core.ThreadState;
 
+import uk.ac.diamond.daq.test.powermock.PowerMockBase;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Py.class,
 })
-public class JythonShellParserTest {
+public class JythonShellParserTest extends PowerMockBase {
 
 	@Mock private Function<String, String> translate;
 

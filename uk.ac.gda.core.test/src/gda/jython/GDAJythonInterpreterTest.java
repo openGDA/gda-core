@@ -35,11 +35,12 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import gda.jython.GDAJythonInterpreter.OverwriteLock;
+import uk.ac.diamond.daq.test.powermock.PowerMockBase;
 import uk.ac.gda.common.util.EclipseUtils;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({EclipseUtils.class})
-public class GDAJythonInterpreterTest {
+public class GDAJythonInterpreterTest extends PowerMockBase {
 
 	OverwriteLock overwriting;
 

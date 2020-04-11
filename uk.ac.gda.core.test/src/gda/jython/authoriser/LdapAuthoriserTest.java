@@ -43,10 +43,11 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import gda.configuration.properties.LocalProperties;
 import gda.jython.authenticator.LdapMixin;
 import gda.util.TestUtils;
+import uk.ac.diamond.daq.test.powermock.PowerMockBase;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(LdapAuthoriser.class)
-public class LdapAuthoriserTest {
+public class LdapAuthoriserTest extends PowerMockBase {
 
 	private static final String STAFF_FED_ID = "staffFedID";
 	private static final String NON_STAFF_FED_ID = "nonStaffFedID";
