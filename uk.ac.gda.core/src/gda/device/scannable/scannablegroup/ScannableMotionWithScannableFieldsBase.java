@@ -311,20 +311,6 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 		}
 
 		@Override
-		@Deprecated
-		public void atEnd() throws DeviceException {
-			throw new RuntimeException("Call to deprecated method atEnd() on " + getName()
-					+ ". Use atScanEnd() instead");
-		}
-
-		@Override
-		@Deprecated
-		public void atStart() throws DeviceException {
-			throw new RuntimeException("Call to deprecated method atStart() on " + getName()
-					+ ". Use atScanStart() instead");
-		}
-
-		@Override
 		public Double[] getLowerGdaLimits() {
 			Double[] limit = parent.getLowerGdaLimits();
 			return limit == null ? null : new Double[] { limit[index]};

@@ -71,15 +71,6 @@ public class SimpleScannable extends ScannableBase {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @see gda.device.Scannable#atEnd()
-	 */
-	@Override
-	public void atEnd() throws DeviceException {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 *
 	 * @see gda.device.Scannable#atPointEnd()
 	 */
 	@Override
@@ -129,15 +120,6 @@ public class SimpleScannable extends ScannableBase {
 	 */
 	@Override
 	public void atScanStart() throws DeviceException {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @see gda.device.Scannable#atStart()
-	 */
-	@Override
-	public void atStart() throws DeviceException {
 	}
 
 	/**

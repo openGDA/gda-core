@@ -157,12 +157,6 @@ public class DummyNXDetector extends ConfigurableBase implements NexusDetector {
 	}
 
 	@Override
-	public void atEnd() throws DeviceException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void atLevelMoveStart() throws DeviceException {
 		// TODO Auto-generated method stub
 
@@ -210,12 +204,6 @@ public class DummyNXDetector extends ConfigurableBase implements NexusDetector {
 
 	@Override
 	public void atScanStart() throws DeviceException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void atStart() throws DeviceException {
 		// TODO Auto-generated method stub
 
 	}

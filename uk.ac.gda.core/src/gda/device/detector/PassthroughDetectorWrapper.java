@@ -251,16 +251,6 @@ public class PassthroughDetectorWrapper implements Detector {
 	}
 
 	@Override
-	public void atStart() throws DeviceException {
-		getDelegate().atStart();
-	}
-
-	@Override
-	public void atEnd() throws DeviceException {
-		getDelegate().atEnd();
-	}
-
-	@Override
 	public void atScanStart() throws DeviceException {
 		getDelegate().atScanStart();
 	}

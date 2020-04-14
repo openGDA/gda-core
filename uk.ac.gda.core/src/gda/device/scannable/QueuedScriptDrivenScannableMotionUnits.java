@@ -334,21 +334,9 @@ public class QueuedScriptDrivenScannableMotionUnits implements ScannableMotionUn
 		scannable.setTolerance(tolerence);
 	}
 
-	@SuppressWarnings("deprecation")
-	@Override
-	public void atStart() throws DeviceException {
-		scannable.atStart();
-	}
-
 	@Override
 	public void setTolerances(Double[] tolerence) throws DeviceException {
 		scannable.setTolerances(tolerence);
-	}
-
-	@SuppressWarnings("deprecation")
-	@Override
-	public void atEnd() throws DeviceException {
-		scannable.atEnd();
 	}
 
 	@Override

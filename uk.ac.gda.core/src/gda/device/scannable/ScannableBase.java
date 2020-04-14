@@ -279,31 +279,6 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	}
 
 	/**
-	 * Replaced by atScanGroupStart Default behaviour is to do nothing. Inheriting classes have the option to implement
-	 * this if their specific behaviour requires it.
-	 *
-	 * @throws DeviceException
-	 * @deprecated
-	 */
-	@Override
-	@Deprecated
-	public void atStart() throws DeviceException {
-		this.atScanLineStart();
-	}
-
-	/**
-	 * {@inheritDoc} Default behaviour is to do nothing. Inheriting classes have the option to implement this if their
-	 * specific behaviour requires it.
-	 *
-	 * @see gda.device.Scannable#atEnd()
-	 */
-	@Override
-	@Deprecated
-	public void atEnd() throws DeviceException {
-		this.atScanLineEnd();
-	}
-
-	/**
 	 * {@inheritDoc} Default behaviour is to do nothing. Inheriting classes have the option to implement this if their
 	 * specific behaviour requires it.
 	 *

@@ -108,16 +108,6 @@ public class TogglerScannable extends ScannableBase {
 	}
 
 	@Override
-	public void atStart() throws DeviceException {
-		atScanStart();
-	}
-
-	@Override
-	public void atEnd() throws DeviceException {
-		atScanEnd();
-	}
-
-	@Override
 	public void atScanStart() throws DeviceException {
 		if (hook == Hook.AT_SCAN) {
 			togglePositionStart();
