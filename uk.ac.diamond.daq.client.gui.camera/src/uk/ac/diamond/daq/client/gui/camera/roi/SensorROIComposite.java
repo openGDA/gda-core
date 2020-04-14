@@ -2,6 +2,7 @@ package uk.ac.diamond.daq.client.gui.camera.roi;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
 import org.eclipse.dawnsci.analysis.api.roi.IRectangularROI;
@@ -34,6 +35,7 @@ import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.DrawableRegionRegisteredEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.ROIChangeEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.RegisterDrawableRegionEvent;
+import uk.ac.diamond.daq.client.gui.camera.liveview.DrawableRegion;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
@@ -53,12 +55,9 @@ public class SensorROIComposite implements CompositeFactory {
 	private ICameraConfiguration cameraConfiguration;
 	private IRectangularROI roiFromPlottingSystem;
 	private final List<ROIRow> rows = new ArrayList<>();
-
-	/**
-	 * The plotting system containing this Composite DrawableRegion (Camera ROI)
-	 */
-	private IPlottingSystem<Composite> plottingSystem;
-
+	private final UUID sensorRegionID = UUID.randomUUID();
+	private DrawableRegion sensorDrawableRegion;
+	
 	@Override
 	public Composite createComposite(final Composite parent, int style) {
 		Table table = new Table(parent, SWT.VIRTUAL | SWT.BORDER);
@@ -81,7 +80,7 @@ public class SensorROIComposite implements CompositeFactory {
 
 			SpringApplicationContextProxy
 					.publishEvent(new RegisterDrawableRegionEvent(this, SWTResourceManager.getColor(SWT.COLOR_GREEN),
-							ClientMessages.ROI, ClientSWTElements.findParentUUID(parent)));
+							ClientMessages.ROI, ClientSWTElements.findParentUUID(parent), sensorRegionID));
 		} catch (GDAClientException e) {
 			logger.error("Error", e);
 		}
@@ -115,7 +114,7 @@ public class SensorROIComposite implements CompositeFactory {
 			return roiFromPlottingSystem;
 		};
 		RegionCallback rc = () -> {
-			return plottingSystem.getRegion(ClientMessagesUtility.getMessage(ClientMessages.ROI));
+			return sensorDrawableRegion.getIRegion();
 		};
 		rows.add(new ROIRow(table, ClientMessages.ROI, false, 1, nuc, rc));
 	}
@@ -281,7 +280,7 @@ public class SensorROIComposite implements CompositeFactory {
 		return new ApplicationListener<ROIChangeEvent>() {
 			@Override
 			public void onApplicationEvent(ROIChangeEvent event) {
-				if (!event.hasSameParent(parent)) {
+				if (!event.getRoi().getName().equals(sensorDrawableRegion.getRegionID().toString())) {
 					return;
 				}
 				roiFromPlottingSystem = event.getRoi();
@@ -328,7 +327,7 @@ public class SensorROIComposite implements CompositeFactory {
 				if (!event.hasSameParent(parent)) {
 					return;
 				}
-				plottingSystem = event.getPlottingSystem();
+				sensorDrawableRegion = event.getDrawableRegion();
 			}
 		};
 	}

@@ -89,11 +89,10 @@ public class CameraImageComposite extends Composite {
 				}
 				DrawableRegion roiSelectionRegion = new DrawableRegion(plottingSystem, event.getColor(),
 						ClientMessagesUtility.getMessage(event.getName()),
-						new ROIListener(parent, plottingComposite, event.getName()));
+						new ROIListener(parent, plottingComposite, event.getRegionID()), event.getRegionID());
 				roiSelectionRegion.setActive(true);
 
-				SpringApplicationContextProxy.publishEvent(new DrawableRegionRegisteredEvent(parent, plottingSystem,
-						ClientSWTElements.findParentUUID(parent)));
+				SpringApplicationContextProxy.publishEvent(new DrawableRegionRegisteredEvent(parent, ClientSWTElements.findParentUUID(parent), roiSelectionRegion));
 			}
 		};
 	}
