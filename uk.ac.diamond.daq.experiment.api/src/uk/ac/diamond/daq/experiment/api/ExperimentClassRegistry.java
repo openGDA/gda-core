@@ -10,7 +10,7 @@ import uk.ac.diamond.daq.experiment.api.plan.event.PlanStatusBean;
 import uk.ac.diamond.daq.experiment.api.plan.event.SegmentRecord;
 import uk.ac.diamond.daq.experiment.api.plan.event.TriggerEvent;
 import uk.ac.diamond.daq.experiment.api.plan.event.TriggerRecord;
-import uk.ac.diamond.daq.experiment.api.structure.IndexFileCreationRequest;
+import uk.ac.diamond.daq.experiment.api.structure.NodeFileCreationRequest;
 
 public class ExperimentClassRegistry implements IClassRegistry {
 
@@ -24,7 +24,7 @@ public class ExperimentClassRegistry implements IClassRegistry {
 		tmp.put(TriggerRecord.class.getCanonicalName(), TriggerRecord.class);
 		tmp.put(TriggerEvent.class.getCanonicalName(), TriggerEvent.class);
 
-		tmp.put(IndexFileCreationRequest.class.getCanonicalName(), IndexFileCreationRequest.class);
+		tmp.put(NodeFileCreationRequest.class.getCanonicalName(), NodeFileCreationRequest.class);
 
 		idToClassMap = Collections.unmodifiableMap(tmp);
 	}

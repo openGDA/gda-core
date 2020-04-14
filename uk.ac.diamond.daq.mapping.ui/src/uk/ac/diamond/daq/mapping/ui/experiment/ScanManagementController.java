@@ -89,20 +89,6 @@ public class ScanManagementController extends AbstractMappingController {
 	private MappingStageInfo stage;
 	private DescriptiveFilenameFactory filenameFactory = new DescriptiveFilenameFactory();
 
-	public enum DiffractionAcquisitionMode {
-		DIFFRACTION, POINT_AND_SHOOT
-	}
-
-	private DiffractionAcquisitionMode acquisitionMode;
-
-	public DiffractionAcquisitionMode getAcquisitionMode() {
-		return acquisitionMode;
-	}
-
-	public void setAcquisitionMode(DiffractionAcquisitionMode acquisitionMode) {
-		this.acquisitionMode = acquisitionMode;
-	}
-
 	private int gridModelIndex = 0;
 
 	public ScanManagementController() {

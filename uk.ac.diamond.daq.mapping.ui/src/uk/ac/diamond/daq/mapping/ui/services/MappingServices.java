@@ -53,6 +53,7 @@ import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
+import uk.ac.diamond.daq.mapping.ui.experiment.RegionAndPathController;
 import uk.ac.diamond.daq.mapping.ui.experiment.ScanManagementController;
 
 /**
@@ -74,6 +75,10 @@ public class MappingServices {
 
 	public static ScanManagementController getScanManagementController() {
 		return getWorkbench().getService(ScanManagementController.class);
+	}
+
+	public static RegionAndPathController getRegionAndPathController() {
+		return getWorkbench().getService(RegionAndPathController.class);
 	}
 
 	public static Optional<IRunnableDeviceService> getIRunnableDeviceService() {

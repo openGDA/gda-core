@@ -1,9 +1,6 @@
 package uk.ac.diamond.daq.experiment.api.structure;
 
-import java.net.MalformedURLException;
 import java.net.URL;
-
-import org.apache.commons.io.FilenameUtils;
 
 /**
  * An experiment represents a collection of acquisitions performed dURLng a
@@ -16,11 +13,11 @@ public interface ExperimentController {
 	/**
 	 * Starts a new named experiment
 	 *
-	 * @param experimentName A user-friendly identifier for the experiment. If
-	 *                       {@code null} {@link #getDefaultExperimentName()} is
-	 *                       used
+	 * @param experimentName A user-friendly identifier for the experiment
 	 *
-	 * @return the experiment root URL
+	 * @return the experiment file URL;
+	 * 		   created at the end of the experiment ({@link #stopExperiment()}
+	 *
 	 * @throws ExperimentControllerException if methods fails to create the
 	 *                                       experiment location
 	 */
@@ -28,60 +25,59 @@ public interface ExperimentController {
 
 
 	/**
-	 * Creates a new location within the experiment structure.
-	 *
-	 * @param acquisitionName A user-friendly identifier for the acquisition
-	 *
-	 * @return a valid URL if {@link #isStarted()} is {@code true}, {@code null}
-	 *         otherwise
-	 * @throws ExperimentControllerException if methods fails to create the
-	 *                                       acquisition location
-	 */
-	URL createAcquisitionLocation(String acquisitionName) throws ExperimentControllerException;
-
-
-	/**
-	 * Closes the active experiment.
+	 * Closes the active experiment. Closes also any open multipart acquisition.
 	 *
 	 * @throws ExperimentControllerException if methods fails or
-	 *                                       {@link #isStarted()} returns
+	 *                                       {@link #isExperimentInProgress()} returns
 	 *                                       {@code false}
 	 */
 	void stopExperiment() throws ExperimentControllerException;
 
 
+
 	/**
 	 * Returns the state of the experiment
 	 *
-	 * @return {@code true} if the experiment is started, otherwise {@code false}
+	 * @return {@code true} if the experiment is in progress, otherwise {@code false}
 	 */
-	boolean isStarted();
+	boolean isExperimentInProgress();
+
 
 
 	/**
-	 * Generates a URL for a future acquisition without creating the file itself.
-	 * The <code>acquisitionName</code> is used both for the folder name and the main acquisition file.
+	 * Creates a new location within the experiment structure.
 	 *
-	 * The default implementation creates a URL for NeXus file.
+	 * @param acquisitionName A user-friendly identifier for the acquisition
 	 *
-	 * @param acquisitionName the acquisition name
-	 * @return the path of the acquisition file
-	 * @throws ExperimentControllerException if the experiment has not started or
-	 *                                       problem occur creating the folder or
-	 *                                       the file URL
+	 * @return The URL for the acquisition file
+	 *
+	 * @throws ExperimentControllerException if methods fails to create the
+	 *                                       acquisition location
 	 */
-	default URL createAcquisitionUrl(String acquisitionName) throws ExperimentControllerException {
-		if (!isStarted()) {
-			throw new ExperimentControllerException("You have to start first the experiment before ask URLs for it");
-		}
+	URL prepareAcquisition(String acquisitionName) throws ExperimentControllerException;
 
-		try {
-			URL acquisitionFolder = createAcquisitionLocation(acquisitionName);
-			String fileName = FilenameUtils.getBaseName(FilenameUtils.getFullPathNoEndSeparator(acquisitionFolder.getPath()));
-			return new URL(acquisitionFolder, fileName + ".nxs");
-		} catch (MalformedURLException e) {
-			throw new ExperimentControllerException("Could not create URL for acquisition output", e);
-		}
-	}
+
+	/**
+	 * Prepares the controller for an acquisition composed of multiple parts.
+	 * Each part should then be given a URL by calling {@link #prepareAcquisition(String)},
+	 * and the overall acquisition should be ended with {@link #stopMultipartAcquisition()}
+	 *
+	 * @param acquisitionName A user-friendly identifier for the acquisition
+	 *
+	 * @return the URL of the acquisition file,
+	 * 		   created when the multipart acquisition is stopped
+	 *
+	 * @throws ExperimentControllerException
+	 */
+	URL startMultipartAcquisition(String acquisitionName) throws ExperimentControllerException;
+
+
+	/**
+	 * Closes the current multipart acquisition is complete.
+	 *
+	 * @throws ExperimentControllerException if no open multipart acquisition exists
+	 */
+	void stopMultipartAcquisition() throws ExperimentControllerException;
+
 
 }

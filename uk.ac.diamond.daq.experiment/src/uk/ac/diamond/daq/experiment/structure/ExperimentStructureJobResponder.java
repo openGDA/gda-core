@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import uk.ac.diamond.daq.experiment.api.structure.ExperimentStructureJobRequest;
+import uk.ac.diamond.daq.experiment.api.structure.NodeFileCreationRequest;
 
 /**
  * Responds to all experiment-related NeXus job requests (i.e. children of
@@ -16,9 +16,7 @@ import uk.ac.diamond.daq.experiment.api.structure.ExperimentStructureJobRequest;
  */
 
 @Component
-public class ExperimentStructureJobResponder extends AbstractResponderServlet<ExperimentStructureJobRequest> {
-
-	private final ExperimentStructureJobHandlerFactory factory = new ExperimentStructureJobHandlerFactory();
+public class ExperimentStructureJobResponder extends AbstractResponderServlet<NodeFileCreationRequest> {
 
 	@Autowired
 	public ExperimentStructureJobResponder(
@@ -28,17 +26,8 @@ public class ExperimentStructureJobResponder extends AbstractResponderServlet<Ex
 	}
 
 	@Override
-	public IRequestHandler<ExperimentStructureJobRequest> createResponder(ExperimentStructureJobRequest request,
-			IPublisher<ExperimentStructureJobRequest> response) throws EventException {
-
-		try {
-			ExperimentStructureJobHandler<ExperimentStructureJobRequest> handler = factory.getHandler(request);
-			handler.setBean(request);
-			handler.setPublisher(response);
-			return handler;
-		} catch (InstantiationException | IllegalAccessException e) {
-			throw new EventException("Could not handle request", e);
-		}
-
+	public IRequestHandler<NodeFileCreationRequest> createResponder(NodeFileCreationRequest request,
+			IPublisher<NodeFileCreationRequest> publisher) throws EventException {
+		return new NodeFileCreator(request, publisher);
 	}
 }
