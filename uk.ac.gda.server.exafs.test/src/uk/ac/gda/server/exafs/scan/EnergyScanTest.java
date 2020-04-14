@@ -20,7 +20,6 @@ package uk.ac.gda.server.exafs.scan;
 
 import static org.junit.Assert.fail;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -31,11 +30,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.powermock.api.mockito.PowerMockito;
-import org.powermock.api.support.membermodification.MemberModifier;
-import org.powermock.api.support.membermodification.strategy.MethodStubStrategy;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -68,8 +65,9 @@ import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.server.exafs.scan.iterators.SampleEnvironmentIterator;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ ScannableCommands.class, ConcurrentScan.class })
+@PrepareForTest({ ScannableCommands.class})
 public class EnergyScanTest {
+
 
 	private BeamlinePreparer beamlinePreparer;
 	private DetectorPreparer detectorPreparer;
@@ -117,10 +115,9 @@ public class EnergyScanTest {
 
 	@Before
 	public void setup() throws DeviceException {
-
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "DummyDataWriter");
 
-		ionchambers = PowerMockito.mock(TfgScalerWithFrames.class);
+		ionchambers = Mockito.mock(TfgScalerWithFrames.class);
 		Mockito.when(ionchambers.getName()).thenReturn("ionchambers");
 		Mockito.when(ionchambers.readout()).thenReturn(new double[] { 1.0, 2.0, 3.0 });
 		Mockito.when(ionchambers.getExtraNames()).thenReturn(new String[] { "i0", "it", "iref" });
@@ -139,7 +136,7 @@ public class EnergyScanTest {
 		InterfaceProvider.setScanStatusHolderForTesting(jythonserverfacade);
 		Mockito.when(jythonserverfacade.getFromJythonNamespace("ionchambers")).thenReturn(ionchambers);
 
-		JythonServer jythonserver = Mockito.mock(JythonServer.class);
+		JythonServer jythonserver = PowerMockito.mock(JythonServer.class);
 		InterfaceProvider.setDefaultScannableProviderForTesting(jythonserver);
 		InterfaceProvider.setCurrentScanInformationHolderForTesting(jythonserver);
 		InterfaceProvider.setJythonServerNotiferForTesting(jythonserver);
@@ -148,14 +145,14 @@ public class EnergyScanTest {
 		InterfaceProvider.setScanDataPointProviderForTesting(jythonserverfacade);
 
 		// create the preparers
-		beamlinePreparer = PowerMockito.mock(BeamlinePreparer.class);
-		detectorPreparer = PowerMockito.mock(DetectorPreparer.class);
-		samplePreparer = PowerMockito.mock(SampleEnvironmentPreparer.class);
-		outputPreparer = PowerMockito.mock(OutputPreparer.class);
+		beamlinePreparer = Mockito.mock(BeamlinePreparer.class);
+		detectorPreparer = Mockito.mock(DetectorPreparer.class);
+		samplePreparer = Mockito.mock(SampleEnvironmentPreparer.class);
+		outputPreparer = Mockito.mock(OutputPreparer.class);
 		metashop = new NXMetaDataProvider();
-		loggingScriptController = PowerMockito.mock(LoggingScriptController.class);
+		loggingScriptController = Mockito.mock(LoggingScriptController.class);
 
-		energy_scannable = PowerMockito.mock(ScannableMotor.class);
+		energy_scannable = Mockito.mock(ScannableMotor.class);
 		Mockito.when(energy_scannable.getName()).thenReturn("energy_scannable");
 		Mockito.when(energy_scannable.getInputNames()).thenReturn(new String[] { "energy_scannable" });
 		Mockito.when(energy_scannable.getExtraNames()).thenReturn(new String[] {});
@@ -205,11 +202,11 @@ public class EnergyScanTest {
 		detParams.setExperimentType(DetectorParameters.TRANSMISSION_TYPE);
 		detParams.setDetectorGroups(detectorGroups);
 
-		sampleParams = PowerMockito.mock(ISampleParameters.class);
+		sampleParams = Mockito.mock(ISampleParameters.class);
 		Mockito.when(sampleParams.getName()).thenReturn("My Sample");
 		Mockito.when(sampleParams.getDescriptions()).thenReturn(new ArrayList<String>());
 
-		outputParams = PowerMockito.mock(IOutputParameters.class);
+		outputParams = Mockito.mock(IOutputParameters.class);
 		Mockito.when(outputParams.getAsciiFileName()).thenReturn("");
 		Mockito.when(outputParams.getAsciiDirectory()).thenReturn("ascii");
 		Mockito.when(outputParams.getNexusDirectory()).thenReturn("nexus");
@@ -227,7 +224,7 @@ public class EnergyScanTest {
 
 			prepareMockScan();
 
-			SampleEnvironmentIterator it = PowerMockito.mock(SampleEnvironmentIterator.class);
+			SampleEnvironmentIterator it = Mockito.mock(SampleEnvironmentIterator.class);
 			Mockito.when(it.getNumberOfRepeats()).thenReturn(1);
 			Mockito.when(it.getNextSampleName()).thenReturn("My sample");
 			Mockito.when(it.getNextSampleDescriptions()).thenReturn(new ArrayList<String>());
@@ -278,30 +275,17 @@ public class EnergyScanTest {
 		}
 	}
 
-	private void prepareMockScan() throws NoSuchMethodException, SecurityException {
+	private void prepareMockScan() throws Exception {
 		// create mock scan
-		mockScan = PowerMockito.mock(ConcurrentScan.class);
+		mockScan = Mockito.mock(ConcurrentScan.class);
 
-		// runScan is a void method, so have to make an Answer for just that method
-		try {
-			PowerMockito.doAnswer(new org.mockito.stubbing.Answer<Void>() {
-				@Override
-				public Void answer(InvocationOnMock invocation) throws Throwable {
-					return null;
-				}
+		Mockito.doNothing().when(mockScan).runScan();
 
-			}).when(mockScan).runScan();
-		} catch (Exception e) {
-			fail(e.getMessage());
-		}
-
-		mockPlotSettings = PowerMockito.mock(ScanPlotSettings.class);
+		mockPlotSettings = Mockito.mock(ScanPlotSettings.class);
 		Mockito.when(mockScan.getScanPlotSettings()).thenReturn(mockPlotSettings);
 
-		// then stub the factory method and make sure that it always retruns the stub
-		Method staticMethod = ScannableCommands.class.getMethod("createConcurrentScan", Object[].class);
-		MethodStubStrategy<Object> stubbedMethod = MemberModifier.stub(staticMethod);
-		stubbedMethod.toReturn(mockScan);
+		PowerMockito.mockStatic(ScannableCommands.class);
+		PowerMockito.when(ScannableCommands.createConcurrentScan(Matchers.anyVararg())).thenReturn(mockScan);
 
 	}
 
@@ -311,7 +295,7 @@ public class EnergyScanTest {
 
 			prepareMockScan();
 
-			SampleEnvironmentIterator it = PowerMockito.mock(SampleEnvironmentIterator.class);
+			SampleEnvironmentIterator it = Mockito.mock(SampleEnvironmentIterator.class);
 			Mockito.when(it.getNumberOfRepeats()).thenReturn(1);
 			Mockito.when(it.getNextSampleName()).thenReturn("My sample");
 			Mockito.when(it.getNextSampleDescriptions()).thenReturn(new ArrayList<String>());
@@ -369,7 +353,7 @@ public class EnergyScanTest {
 
 			prepareMockScan();
 
-			SampleEnvironmentIterator it = PowerMockito.mock(SampleEnvironmentIterator.class);
+			SampleEnvironmentIterator it = Mockito.mock(SampleEnvironmentIterator.class);
 			Mockito.when(it.getNumberOfRepeats()).thenReturn(2);
 			Mockito.when(it.getNextSampleName()).thenReturn("My sample");
 			Mockito.when(it.getNextSampleDescriptions()).thenReturn(new ArrayList<String>());
@@ -422,4 +406,5 @@ public class EnergyScanTest {
 			fail(e.getMessage());
 		}
 	}
+
 }

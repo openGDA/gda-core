@@ -25,7 +25,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
 
 import gda.TestHelpers;
 import gda.data.metadata.NXMetaDataProvider;
@@ -50,7 +49,7 @@ public class OutputPreparerTest {
 		datawriterconfig = new AsciiDataWriterConfiguration();
 		metashop = new NXMetaDataProvider();
 
-		mocked_sxcryo_scannable = PowerMockito.mock(ScannableMotor.class);
+		mocked_sxcryo_scannable = Mockito.mock(ScannableMotor.class);
 		Mockito.when(mocked_sxcryo_scannable.getName()).thenReturn("mocked_sxcryo_scannable");
 
 

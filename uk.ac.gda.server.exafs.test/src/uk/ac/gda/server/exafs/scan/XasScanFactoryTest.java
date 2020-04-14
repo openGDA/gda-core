@@ -18,10 +18,11 @@
 
 package uk.ac.gda.server.exafs.scan;
 
+import static org.mockito.Mockito.mock;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.powermock.api.mockito.PowerMockito;
 
 import gda.data.metadata.NXMetaDataProvider;
 import gda.device.Scannable;
@@ -45,15 +46,15 @@ public class XasScanFactoryTest {
 		// mock all the objects which would be used to create the XasScan objects
 
 		// have not mocked ArrayList<AsciiMetadataConfig> original_header
-		beamlinePreparer = PowerMockito.mock(BeamlinePreparer.class);
-		detectorPreparer = PowerMockito.mock(DetectorPreparer.class);
-		qexafsDetectorPreparer = PowerMockito.mock(QexafsDetectorPreparer.class);
-		samplePreparer = PowerMockito.mock(SampleEnvironmentPreparer.class);
-		outputPreparer = PowerMockito.mock(OutputPreparer.class);
-		loggingScriptController = PowerMockito.mock(LoggingScriptController.class);
-		energyScannable = PowerMockito.mock(Scannable.class);
-		qexafsEnergyScannable = PowerMockito.mock(ContinuouslyScannable.class);
-		metashop = PowerMockito.mock(NXMetaDataProvider.class);
+		beamlinePreparer = mock(BeamlinePreparer.class);
+		detectorPreparer = mock(DetectorPreparer.class);
+		qexafsDetectorPreparer = mock(QexafsDetectorPreparer.class);
+		samplePreparer = mock(SampleEnvironmentPreparer.class);
+		outputPreparer = mock(OutputPreparer.class);
+		loggingScriptController = mock(LoggingScriptController.class);
+		energyScannable = mock(Scannable.class);
+		qexafsEnergyScannable = mock(ContinuouslyScannable.class);
+		metashop = mock(NXMetaDataProvider.class);
 	}
 
 	@Test

@@ -19,6 +19,7 @@
 package uk.ac.gda.server.exafs.scan;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.mockito.Mockito.mock;
 
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -39,7 +40,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
 
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
@@ -346,9 +346,9 @@ public class ScansSetupUsingXmlTest {
 
 	private void setupScanFactory() {
 
-		BeamlinePreparer beamlinePreparer = PowerMockito.mock(BeamlinePreparer.class);
-		SampleEnvironmentPreparer samplePreparer = PowerMockito.mock(SampleEnvironmentPreparer.class);
-		LoggingScriptController loggingScriptController = PowerMockito.mock(LoggingScriptController.class);
+		BeamlinePreparer beamlinePreparer = mock(BeamlinePreparer.class);
+		SampleEnvironmentPreparer samplePreparer = mock(SampleEnvironmentPreparer.class);
+		LoggingScriptController loggingScriptController = mock(LoggingScriptController.class);
 
 		// Mock the sample environment preparer method would normally return the sample environment iterator
 		Mockito.when(samplePreparer.createIterator(DetectorParameters.FLUORESCENCE_TYPE)).thenReturn(sampleEnvironmentIterator);
