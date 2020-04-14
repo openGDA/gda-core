@@ -33,8 +33,11 @@ import org.mockito.InOrder;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.ClassPathAdjuster;
 import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.core.classloader.annotations.UseClassPathAdjuster;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.python.core.Py;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.NXMetaDataProvider;
@@ -52,6 +55,8 @@ import gda.jython.commands.ScannableCommands;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
 import gda.scan.ConcurrentScan;
 import gda.scan.ScanPlotSettings;
+import javassist.ClassPool;
+import javassist.LoaderClassPath;
 import uk.ac.gda.beans.exafs.DetectorGroup;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
@@ -65,8 +70,22 @@ import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.server.exafs.scan.iterators.SampleEnvironmentIterator;
 
 @RunWith(PowerMockRunner.class)
+@UseClassPathAdjuster(EnergyScanTest.JythonCPAdjuster.class)
 @PrepareForTest({ ScannableCommands.class})
 public class EnergyScanTest {
+
+	/**
+	 * Required for PowerMock to find classes in Tycho OSGi environment
+	 */
+	public static class JythonCPAdjuster implements ClassPathAdjuster {
+
+		@Override
+		public void adjustClassPath(ClassPool classPool) {
+			classPool.insertClassPath(new LoaderClassPath(Py.class.getClassLoader()));
+
+		}
+
+	}
 
 
 	private BeamlinePreparer beamlinePreparer;

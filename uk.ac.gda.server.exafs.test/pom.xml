@@ -30,6 +30,12 @@
 								<id>org.hamcrest</id>
 								<versionRange>0.0.0</versionRange>
 							</requirement>
+							<!-- This is required until split packages have been resolved -->
+							<requirement>
+								<type>eclipse-plugin</type>
+								<id>uk.ac.diamond.daq.splitpackagesresolver</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
 						</extraRequirements>
 					</dependency-resolution>
 				</configuration>
@@ -40,8 +46,6 @@
 				<version>${tycho.version}</version>
 				<configuration>
 					<excludes>
-						<!-- Powermock test -->
-						<exclude>EnergyScanTest</exclude>
 						<!-- Split Package Issue -->
 						<exclude>AsciiDataWriterTest</exclude>
 						<!-- Mockito and reflections in another plugin -->

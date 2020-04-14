@@ -40,8 +40,6 @@
 				<version>${tycho.version}</version>
 				<configuration>
 					<excludes>
-						<!-- Powermock -->
-						<exclude>XmapAcquisitionBaseTest</exclude>
 						<!-- reads local files -->
 						<exclude>XmapBufferedHdf5FileLoaderTest</exclude>
 						<exclude>XmapNexusFileLoaderTest</exclude>
