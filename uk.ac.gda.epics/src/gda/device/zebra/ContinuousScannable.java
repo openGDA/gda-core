@@ -187,16 +187,6 @@ public class ContinuousScannable implements ContinuouslyScannableViaController {
 	}
 
 	@Override
-	public void atStart() throws DeviceException {
-		delegate.atStart();
-	}
-
-	@Override
-	public void atEnd() throws DeviceException {
-		delegate.atEnd();
-	}
-
-	@Override
 	public void atScanStart() throws DeviceException {
 		delegate.atScanStart();
 		posAtScanStart = delegate.getPosition();
