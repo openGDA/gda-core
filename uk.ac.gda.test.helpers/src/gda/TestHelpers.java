@@ -217,10 +217,6 @@ class SimpleScannable extends FindableConfigurableBase implements Scannable, INe
 	}
 
 	@Override
-	public void atEnd() throws DeviceException {
-	}
-
-	@Override
 	public void atPointEnd() throws DeviceException {
 	}
 
@@ -242,10 +238,6 @@ class SimpleScannable extends FindableConfigurableBase implements Scannable, INe
 
 	@Override
 	public void atScanStart() throws DeviceException {
-	}
-
-	@Override
-	public void atStart() throws DeviceException {
 	}
 
 	@Override
@@ -512,10 +504,6 @@ class SimpleDetector extends ConfigurableBase implements Detector {
 	}
 
 	@Override
-	public void atEnd() throws DeviceException {
-	}
-
-	@Override
 	public void atPointEnd() throws DeviceException {
 	}
 
@@ -537,10 +525,6 @@ class SimpleDetector extends ConfigurableBase implements Detector {
 
 	@Override
 	public void atScanStart() throws DeviceException {
-	}
-
-	@Override
-	public void atStart() throws DeviceException {
 	}
 
 	@Override
