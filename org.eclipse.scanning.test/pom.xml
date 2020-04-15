@@ -48,6 +48,8 @@
 						<exclude>PseudoSpringParserTest</exclude>
 						<exclude>SpringXmlTest</exclude>
 						<exclude>PosDetectorScanTest</exclude>
+						<!-- Powermock issues -->
+						<exclude>QueuePersistenceTest</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
