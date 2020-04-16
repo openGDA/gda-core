@@ -28,6 +28,7 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.LevelInformation;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,13 +110,13 @@ public class AreaDetectorRunnableDeviceProxy extends AbstractAreaDetectorRunnabl
 	// Delegated annotated methods
 
 	@PreConfigure
-	public void preConfigure(Object model, ScanBean scanBean, IPublisher<?> publisher) throws ScanningException {
+	public void preConfigure(ScanModel model, ScanBean scanBean, IPublisher<?> publisher) throws ScanningException {
 		logger.trace("preConfigure({}, {}, {}) on {}", model, scanBean, publisher, getName());
 		delegate.preConfigure(model, scanBean, publisher);
 	}
 
 	@PostConfigure
-	public void postConfigure(Object model, ScanBean scanBean, IPublisher<?> publisher) throws ScanningException {
+	public void postConfigure(ScanModel model, ScanBean scanBean, IPublisher<?> publisher) throws ScanningException {
 		logger.trace("postConfigure({}, {}, {}) on {}", model, scanBean, publisher, getName());
 		delegate.postConfigure(model, scanBean, publisher);
 	}
