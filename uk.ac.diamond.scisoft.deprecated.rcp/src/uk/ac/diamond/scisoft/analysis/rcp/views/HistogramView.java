@@ -28,8 +28,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.collections.map.AbstractReferenceMap;
-import org.apache.commons.collections.map.ReferenceMap;
+import org.apache.commons.collections4.map.AbstractReferenceMap.ReferenceStrength;
+import org.apache.commons.collections4.map.ReferenceMap;
 import org.dawnsci.plotting.jreality.tick.TickFormatting;
 import org.dawnsci.plotting.jreality.tool.AreaSelectEvent;
 import org.eclipse.dawnsci.analysis.api.downsample.DownsampleMode;
@@ -159,8 +159,7 @@ public class HistogramView extends ViewPart implements SelectionListener,
 		public double min = Double.NaN;
 	}
 	private MaxMin currentMaxMin;
-	//private Map<Integer, MaxMin> cachedMaxMin;
-	private ReferenceMap cachedMaxMin;
+	private ReferenceMap<Integer, MaxMin> cachedMaxMin;
 
 	private boolean autoContrast = true;
 	private boolean lockRange = false;
@@ -181,7 +180,7 @@ public class HistogramView extends ViewPart implements SelectionListener,
 	public HistogramView() {
 		histogramFunc = new Histogram(histogramSize);
 		xAxis = new AxisValues();
-		cachedMaxMin = new ReferenceMap(AbstractReferenceMap.SOFT, AbstractReferenceMap.SOFT);
+		cachedMaxMin = new ReferenceMap<>(ReferenceStrength.SOFT, ReferenceStrength.SOFT);
 	}
 
 	@Override
@@ -728,7 +727,7 @@ public class HistogramView extends ViewPart implements SelectionListener,
 			return;
 
 		MaxMin oldMM = currentMaxMin;
-		currentMaxMin = (MaxMin) cachedMaxMin.get(data.hashCode());
+		currentMaxMin = cachedMaxMin.get(data.hashCode());
 		if (currentMaxMin == null) {
 			currentMaxMin = new MaxMin();
 			cachedMaxMin.put(data.hashCode(), currentMaxMin);
