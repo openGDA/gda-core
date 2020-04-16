@@ -89,6 +89,11 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 		setConfigured(true);
 	}
 
+	@Override
+	public String[] getGroupMemberNames() {
+		return groupMembers.stream().map(Scannable::getName).toArray(String[]::new);
+	}
+
 	/**
 	 * Adds a scannable to this group. This will not add a Scannable if it is already included
 	 * Will configure the Scannable if the ScannableGroup is already configured
@@ -140,6 +145,14 @@ public class ScannableGroup extends ScannableBase implements IScannableGroup, IO
 	@Override
 	public Scannable[] getGroupMembersAsArray() {
 		return groupMembers.toArray(new Scannable[0]);
+	}
+
+	/**
+	 * @param name
+	 * @return the Scannable of the given name
+	 */
+	public Scannable getGroupMember(String name) {
+		return groupMembers.stream().filter(member -> member.getName().equals(name)).findFirst().orElse(null);
 	}
 
 	/**

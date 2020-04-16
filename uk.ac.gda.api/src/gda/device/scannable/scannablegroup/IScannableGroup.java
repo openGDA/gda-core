@@ -46,4 +46,9 @@ public interface IScannableGroup extends Scannable {
 	void addGroupMember(Scannable groupMember, boolean toConfigure) throws FactoryException;
 
 	void setGroupMembersWithList(List<Scannable> groupMembers, boolean toConfigure) throws FactoryException;
+
+	/**
+	 * @return the names of the members of this group
+	 */
+	String[] getGroupMemberNames();
 }

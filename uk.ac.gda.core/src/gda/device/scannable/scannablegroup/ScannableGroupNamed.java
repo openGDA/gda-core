@@ -72,7 +72,7 @@ public class ScannableGroupNamed extends ScannableGroup implements IScannableGro
 
 	@Override
 	public final String[] getGroupMembersNamesAsArray() {
-		return getGroupMembersNames().toArray(new String[0]);
+		return getGroupMemberNames();
 	}
 
 	@Override
@@ -149,11 +149,8 @@ public class ScannableGroupNamed extends ScannableGroup implements IScannableGro
 
 	@Override
 	public Scannable getGroupMemberByName(String name) throws DeviceException {
-		for (Scannable groupMember : groupMembers) {
-			if (groupMember.getName().equals(name)) {
-				return groupMember;
-			}
-		}
+		Scannable groupMember = getGroupMember(name);
+		if (groupMember != null) return groupMember;
 		throw new DeviceException(name, getName() + " does not contain " + name);
 	}
 
