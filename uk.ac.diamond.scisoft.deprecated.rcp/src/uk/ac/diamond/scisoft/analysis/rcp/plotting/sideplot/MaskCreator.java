@@ -18,7 +18,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.analysis.dataset.roi.MaskingBean;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.Overlay2DConsumer;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.Overlay2DProvider2;
