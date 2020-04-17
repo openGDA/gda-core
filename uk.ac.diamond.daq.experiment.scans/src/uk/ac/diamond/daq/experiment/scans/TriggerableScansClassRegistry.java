@@ -7,7 +7,6 @@ import java.util.Map;
 import org.eclipse.dawnsci.analysis.api.persistence.IClassRegistry;
 
 import uk.ac.diamond.daq.experiment.scans.mapping.TriggerableMap;
-import uk.ac.diamond.daq.experiment.scans.tomography.TriggerableTomography;
 
 /**
  * Enables marshalling of the triggerable scans defined in this plugin
@@ -19,7 +18,6 @@ public class TriggerableScansClassRegistry implements IClassRegistry {
 	static {
 		Map<String, Class<?>> registry = new HashMap<>();
 		register(registry, TriggerableMap.class);
-		register(registry, TriggerableTomography.class);
 
 		REGISTRY = Collections.unmodifiableMap(registry);
 	}

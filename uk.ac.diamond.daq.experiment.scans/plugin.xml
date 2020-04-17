@@ -17,13 +17,5 @@
             id="uk.ac.diamond.daq.experiment.scans.mapping.TriggerableMapMarshaller">
       </marshaller>
    </extension>
-   
-   <extension
-      point="org.eclipse.dawnsci.analysis.api.marshaller">
-      <marshaller
-            class="uk.ac.diamond.daq.experiment.scans.tomography.TriggerableTomographyMarshaller"
-            id="uk.ac.diamond.daq.experiment.scans.tomography.TriggerableTomographyMarshaller">
-      </marshaller>
-   </extension>
 
 </plugin>
