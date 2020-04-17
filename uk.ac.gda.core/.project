@@ -4,7 +4,6 @@
 	<comment></comment>
 	<projects>
 		<project>org.eclipse.dawnsci.analysis.api</project>
-		<project>tp</project>
 		<project>uk.ac.diamond.org.springframework</project>
 		<project>uk.ac.diamond.scisoft.analysis</project>
 		<project>uk.ac.diamond.scisoft.analysis.plotserver</project>
