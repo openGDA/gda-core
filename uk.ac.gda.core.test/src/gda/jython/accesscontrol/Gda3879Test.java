@@ -33,6 +33,7 @@ public class Gda3879Test extends TestCase {
 
 		DummyMotor motor = new DummyMotor();
 		motor.setName("motor");
+		motor.configure();
 		motor.setPosition(0.0);
 		motor.setSpeed(10.0);
 
@@ -44,7 +45,6 @@ public class Gda3879Test extends TestCase {
 		ScannableMotor bragg2 = (ScannableMotor) RbacUtils.wrapFindableWithInterceptor(bragg);
 		assertTrue(RbacUtils.objectIsCglibProxy(bragg2));
 
-		motor.configure();
 		bragg2.configure();
 
 		assertEquals(0.0, (Double) bragg2.getPosition(), DELTA);
