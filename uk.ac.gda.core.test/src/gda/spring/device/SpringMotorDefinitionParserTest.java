@@ -35,12 +35,12 @@ import static org.mockito.Mockito.when;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.stubbing.Answer;
@@ -372,11 +372,12 @@ public class SpringMotorDefinitionParserTest {
 	}
 
 	/** Bean matching base class - checks name and class are correct. Lets subclasses check properties */
-	private abstract class BeanMatcher extends ArgumentMatcher<BeanDefinition> {
+	private abstract class BeanMatcher extends BaseMatcher<BeanDefinition> {
 		private final String fqcn;
 		private final String name;
 		private String resourceDescription;
-		private String message;
+		private String expected;
+		private String actual;
 
 		private MutablePropertyValues props;
 		public BeanMatcher(String name, String fqcn) {
@@ -395,13 +396,15 @@ public class SpringMotorDefinitionParserTest {
 
 		protected boolean matchBean(BeanDefinition def) {
 			if (!fqcn.equals(def.getBeanClassName())) {
-				message = "class was " + def.getBeanClassName() + " instead of " + fqcn + ".";
+				expected = "class to be " + fqcn;
+				actual = "class was " + def.getBeanClassName();
 				return false;
 			} else {
-				String beanDesc = def.getResourceDescription();
-				if ((resourceDescription == null && beanDesc != null) ||
-						(resourceDescription != null && !resourceDescription.equals(beanDesc))) {
-					message = "Resource was '" + beanDesc + "' instead of '" + resourceDescription + "'";
+				String resDesc = def.getResourceDescription();
+				if ((resourceDescription == null && resDesc != null) ||
+						(resourceDescription != null && !resourceDescription.equals(resDesc))) {
+					expected = "resource to be " + resourceDescription;
+					actual = "resource was " + resDesc;
 					return false;
 				}
 			}
@@ -412,13 +415,19 @@ public class SpringMotorDefinitionParserTest {
 			if (match(expected, actual)) {
 				return true;
 			} else {
-				this.message = "property '" + field + "' was '" + actual + "' instead of '" + expected + "'";
+				this.expected = "property '" + field + "' to be " + expected;
+				this.actual = field + " was " + actual;
 				return false;
 			}
 		}
 		@Override
 		public void describeMismatch(Object item, Description description) {
-			description.appendText(message);
+			description.appendText(actual);
+		}
+
+		@Override
+		public void describeTo(Description description) {
+			description.appendText(expected);
 		}
 		protected BeanMatcher withResource(Resource res) {
 			resourceDescription = requireNonNull(res, "Resource must be non null if specified. Leave unspecified for null")
