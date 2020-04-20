@@ -144,6 +144,15 @@ public final class XesScanParametersComposite extends Composite {
 	private static final double minMonoEnergy = 2000;
 	private static final double maxMonoEnergy = 35000;
 
+	private static final double minMonoStep = 0.05;
+	private static final double maxMonoStep = 100;
+
+	private static final double minXesStep = 0.01;
+	private static final double maxXesStep = 1000.0;
+
+	private static final double minIntegrationTime = 0.01;
+	private static final double maxIntegrationTime = 30.0;
+
 	public XesScanParametersComposite(Composite parent, int style) {
 		super(parent, style);
 		setLayout(new GridLayout(2, false));
@@ -640,9 +649,7 @@ public final class XesScanParametersComposite extends Composite {
 		gridData = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 		gridData.widthHint = 150;
 		monoEnergy.setLayoutData(gridData);
-
-		monoEnergy.setMinimum(minMonoEnergy);
-		monoEnergy.setMaximum(maxMonoEnergy);
+		setMinMax(monoEnergy, minMonoEnergy, maxMonoEnergy);
 		monoEnergy.setUnit("eV");
 
 		lblElement = new Label(monoFixedEnergyComposite, SWT.NONE);
@@ -811,12 +818,9 @@ public final class XesScanParametersComposite extends Composite {
 		CrystalMaterial material = "Si".equals(getAnalyserTypeValue()) ? CrystalMaterial.SILICON : CrystalMaterial.GERMANIUM;
 		double minXESEnergy= XesUtils.getFluoEnergy(XesUtils.MAX_THETA, material, getAnalyserCutValues());
 		double maxXESEnergy= XesUtils.getFluoEnergy(XesUtils.MIN_THETA, material, getAnalyserCutValues());
-		xesInitialEnergy.setMinimum(minXESEnergy);
-		xesInitialEnergy.setMaximum(xesFinalEnergy.getNumericValue());
-		xesFinalEnergy.setMinimum(xesInitialEnergy.getNumericValue());
-		xesFinalEnergy.setMaximum(maxXESEnergy);
-		xesEnergy.setMinimum(minXESEnergy);
-		xesEnergy.setMaximum(maxXESEnergy);
+		setMinMax(xesInitialEnergy, minXESEnergy, xesFinalEnergy.getNumericValue());
+		setMinMax(xesFinalEnergy,xesInitialEnergy.getNumericValue(), maxXESEnergy);
+		setMinMax(xesEnergy, minXESEnergy, maxXESEnergy);
 		double thetaE = updateXesTheta(xesEnergy);
 		double thetaS = updateXesTheta(xesInitialEnergy);
 		updateXesTheta(xesFinalEnergy);
@@ -887,14 +891,13 @@ public final class XesScanParametersComposite extends Composite {
 	private void createBounds() {
 		xesInitialEnergy.setMaximum(xesFinalEnergy);
 		xesFinalEnergy.setMinimum(xesInitialEnergy);
-		xesStepSize.setMinimum(0.01);
-		xesStepSize.setMaximum(1000);
-		monoInitialEnergy.setMinimum(2000d);
+		setMinMax(xesStepSize, minXesStep, maxXesStep);
+		setMinMax(xesIntegrationTime, minIntegrationTime, maxIntegrationTime);
+		monoInitialEnergy.setMinimum(minMonoEnergy);
 		monoInitialEnergy.setMaximum(monoFinalEnergy);
 		monoFinalEnergy.setMinimum(monoInitialEnergy);
-		monoFinalEnergy.setMaximum(35000d);
-		monoStepSize.setMinimum(0.01);
-		monoStepSize.setMaximum(1000);
+		monoFinalEnergy.setMaximum(maxMonoEnergy);
+		setMinMax(monoStepSize, minMonoStep, maxMonoStep);
 	}
 
 	private void updateElement() {
@@ -1028,5 +1031,10 @@ public final class XesScanParametersComposite extends Composite {
 		editingFile = EclipseUtils.getIFile(editing);
 		editorFolder = EclipseUtils.getFile(editing).getParentFile();
 		scanFileName.setFolder(editorFolder);
+	}
+
+	private void setMinMax(ScaleBox widget, double min, double max) {
+		widget.setMinimum(min);
+		widget.setMaximum(max);
 	}
 }
