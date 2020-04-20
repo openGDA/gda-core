@@ -18,10 +18,10 @@
 
 package uk.ac.diamond.daq.test.powermock;
 
-import org.powermock.core.classloader.ClassPathAdjuster;
 import org.powermock.core.classloader.MockClassLoader;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.UseClassPathAdjuster;
+import org.powermock.core.classloader.javassist.ClassPathAdjuster;
 import org.python.core.Py;
 
 import gda.jython.server.shell.JythonShellParserTest;

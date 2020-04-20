@@ -19,8 +19,8 @@
 package gda.jython.server.shell;
 
 import static org.junit.Assert.assertSame;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -96,7 +96,7 @@ public class HighlightersTest extends PowerMockBase{
 
 		high.highlight(reader, "abcd");
 
-		PowerMockito.verifyStatic();
+		PowerMockito.verifyStatic(AttributedString.class);
 		AttributedString.fromAnsi("abcd");
 	}
 
@@ -116,7 +116,7 @@ public class HighlightersTest extends PowerMockBase{
 		Highlighters.getHighlighter("theme_one");
 		Highlighters.getHighlighter("theme_one");
 
-		PowerMockito.verifyNew(InteractiveInterpreter.class, times(2));
+		PowerMockito.verifyNew(InteractiveInterpreter.class, times(2)).withArguments(any(), any());
 	}
 
 	@Test
@@ -127,7 +127,7 @@ public class HighlightersTest extends PowerMockBase{
 		Highlighter high1 = Highlighters.getHighlighter("theme_one");
 		Highlighter high2 = Highlighters.getHighlighter("theme_one");
 
-		PowerMockito.verifyNew(InteractiveInterpreter.class, times(1));
+		PowerMockito.verifyNew(InteractiveInterpreter.class, times(1)).withArguments(any(), any());
 		assertSame(high1, high2);
 	}
 
@@ -152,9 +152,9 @@ public class HighlightersTest extends PowerMockBase{
 		high1.highlight(reader, "abcd");
 		high2.highlight(reader, "abcd");
 
-		PowerMockito.verifyStatic();
+		PowerMockito.verifyStatic(AttributedString.class);
 		AttributedString.fromAnsi("theme1");
-		PowerMockito.verifyStatic();
+		PowerMockito.verifyStatic(AttributedString.class);
 		AttributedString.fromAnsi("theme2");
 	}
 }

@@ -22,7 +22,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 
 import java.util.concurrent.CountDownLatch;
@@ -169,7 +169,7 @@ public class SingleCommandRunnerTest {
 		private String command = null;
 		@Override
 		public Void answer(InvocationOnMock invocation) throws Exception {
-			command = invocation.getArgumentAt(0, String.class);
+			command = invocation.getArgument(0);
 			started.countDown();
 			complete.await();
 			if (e != null) {

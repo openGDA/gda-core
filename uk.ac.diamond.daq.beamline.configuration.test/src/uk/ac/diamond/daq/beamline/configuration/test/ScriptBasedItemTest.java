@@ -6,7 +6,8 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -225,12 +226,12 @@ public class ScriptBasedItemTest {
 		python = new PythonInterpreter();
 
 		doAnswer(invocation -> {
-			python.exec(invocation.getArgumentAt(0, String.class));
+			python.exec(invocation.getArgument(0, String.class));
 			return null;
 		}).when(jython).exec(anyString());
 
-		doAnswer(invocation -> python.get(invocation.getArgumentAt(0, String.class)))
-			.when(jython).getFromJythonNamespace(anyString(), anyString());
+		doAnswer(invocation -> python.get(invocation.getArgument(0)))
+			.when(jython).getFromJythonNamespace(nullable(String.class), nullable(String.class));
 
 		Factory factory = mock(Factory.class);
 		when(factory.getFindablesOfType(Jython.class)).thenReturn(singletonMap(Jython.SERVER_NAME, jython));

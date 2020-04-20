@@ -21,7 +21,7 @@ package uk.ac.diamond.daq.beamcondition.test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -33,7 +33,6 @@ import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import gda.device.EnumPositioner;
-import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import uk.ac.diamond.daq.beamcondition.EnumPositionCheck;
 import uk.ac.diamond.daq.test.powermock.PowerMockBase;
@@ -55,11 +54,11 @@ public class EnumPositionCheckTest extends PowerMockBase {
 		when(scannable.getPosition()).thenReturn("Closed");
 
 		doAnswer(i -> {
-			observable.addIObserver(i.getArgumentAt(0, IObserver.class));
+			observable.addIObserver(i.getArgument(0));
 			return null;
 		}).when(scannable).addIObserver(eq(condition));
 		doAnswer(i -> {
-			observable.deleteIObserver(i.getArgumentAt(0, IObserver.class));
+			observable.deleteIObserver(i.getArgument(0));
 			return null;
 		}).when(scannable).deleteIObserver(eq(condition));
 

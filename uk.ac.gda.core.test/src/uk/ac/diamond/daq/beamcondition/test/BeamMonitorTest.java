@@ -27,10 +27,10 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyObject;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
@@ -127,7 +127,7 @@ public class BeamMonitorTest extends PowerMockBase {
 		monitor.on();
 		monitor.off();
 
-		PowerMockito.verifyStatic(times(1));
+		PowerMockito.verifyStatic(Async.class, times(1));
 		Async.scheduleWithFixedDelay(anyObject(), eq(1L), eq(1L), eq(TimeUnit.MILLISECONDS));
 		PowerMockito.verifyNoMoreInteractions(Async.class);
 	}
@@ -137,7 +137,7 @@ public class BeamMonitorTest extends PowerMockBase {
 		monitor = new BeamMonitor();
 		monitor.on();
 
-		PowerMockito.verifyStatic(times(1));
+		PowerMockito.verifyStatic(Async.class, times(1));
 		Async.scheduleWithFixedDelay(anyObject(), eq(100L), eq(100L), eq(TimeUnit.MILLISECONDS));
 		PowerMockito.verifyNoMoreInteractions(Async.class);
 	}
@@ -446,10 +446,10 @@ public class BeamMonitorTest extends PowerMockBase {
 		}
 		public MockFuture(InvocationOnMock i) {
 			this(
-					i.getArgumentAt(0, Runnable.class),
-					i.getArgumentAt(1, Long.class),
-					i.getArgumentAt(2, Long.class),
-					i.getArgumentAt(3, TimeUnit.class)
+					i.getArgument(0),
+					i.getArgument(1),
+					i.getArgument(2),
+					i.getArgument(3)
 			);
 		}
 		public void call() {

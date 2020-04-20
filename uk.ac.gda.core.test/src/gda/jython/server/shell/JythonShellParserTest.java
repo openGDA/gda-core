@@ -21,10 +21,10 @@ package gda.jython.server.shell;
 import static org.jline.reader.Parser.ParseContext.ACCEPT_LINE;
 import static org.jline.reader.Parser.ParseContext.COMPLETE;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -57,14 +57,14 @@ public class JythonShellParserTest extends PowerMockBase {
 
 	@Before
 	public void setup() throws Exception {
-		when(translate.apply(anyString())).thenAnswer(i -> i.getArgumentAt(0, String.class));
+		when(translate.apply(anyString())).thenAnswer(i -> i.getArgument(0));
 		parser = new JythonShellParser(translate);
 		PowerMockito.whenNew(GdaJythonLine.class)
 				.withAnyArguments()
 				.thenAnswer(i -> {
 					GdaJythonLine line = mock(GdaJythonLine.class);
-					when(line.line()).thenReturn(i.getArgumentAt(0, String.class));
-					when(line.cursor()).thenReturn(i.getArgumentAt(1, Integer.class));
+					when(line.line()).thenReturn(i.getArgument(0));
+					when(line.cursor()).thenReturn(i.getArgument(1));
 					return line;
 				});
 		PowerMockito.mockStatic(Py.class);
@@ -143,7 +143,7 @@ public class JythonShellParserTest extends PowerMockBase {
 		when(translate.apply("abcd")).thenReturn("dcba");
 		parser.parse("abcd", 4, ACCEPT_LINE);
 
-		PowerMockito.verifyStatic();
+		PowerMockito.verifyStatic(Py.class);
 		Py.compile_command_flags(eq("dcba"), anyString(), any(), any(), anyBoolean());
 		PowerMockito.verifyNoMoreInteractions(Py.class);
 	}
@@ -154,7 +154,7 @@ public class JythonShellParserTest extends PowerMockBase {
 
 		parser = new JythonShellParser();
 		parser.parse("abcd", 4, ACCEPT_LINE);
-		PowerMockito.verifyStatic();
+		PowerMockito.verifyStatic(Py.class);
 		Py.compile_command_flags(eq("abcd"), anyString(), any(), any(), anyBoolean());
 	}
 

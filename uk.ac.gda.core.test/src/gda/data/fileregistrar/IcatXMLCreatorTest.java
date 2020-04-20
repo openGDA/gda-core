@@ -20,8 +20,8 @@ package gda.data.fileregistrar;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -84,7 +84,7 @@ public class IcatXMLCreatorTest {
 	@Test(expected = FactoryException.class)
 	public void testFilePrefixNotSetAndMetadataFails() throws Exception {
 		final Metadata metadata = createMetadata("ixx", "Test scan", "cm19664-1");
-		when(metadata.getMetadataValue(eq("instrument"), anyString(), anyString()))
+		when(metadata.getMetadataValue(eq("instrument"), nullable(String.class), nullable(String.class)))
 				.thenThrow(new DeviceException("Metadata error"));
 
 		xmlCreator.setDirectory("/scratch/temp/cm19664-1");
@@ -287,7 +287,7 @@ public class IcatXMLCreatorTest {
 
 	private Metadata createMetadata(String instrument, String title, String visitId) throws Exception {
 		final Metadata metadata = mock(Metadata.class);
-		when(metadata.getMetadataValue(eq("instrument"), anyString(), anyString())).thenReturn(instrument);
+		when(metadata.getMetadataValue(eq("instrument"), nullable(String.class), nullable(String.class))).thenReturn(instrument);
 		when(metadata.getMetadataValue("title")).thenReturn(title);
 		when(metadata.getMetadataValue("visit")).thenReturn(visitId);
 		return metadata;

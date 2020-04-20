@@ -33,7 +33,6 @@ import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import gda.device.Scannable;
-import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import uk.ac.diamond.daq.beamcondition.ScannableThresholdCheck;
 import uk.ac.diamond.daq.test.powermock.PowerMockBase;
@@ -51,7 +50,7 @@ public class ScannableThresholdConditionTest extends PowerMockBase {
 		when(scannable.getName()).thenReturn("scannable");
 		when(scannable.getPosition()).thenReturn(42.0);
 		doAnswer(i -> {
-			observable.addIObserver(i.getArgumentAt(0, IObserver.class));
+			observable.addIObserver(i.getArgument(0));
 			return null;
 		}).when(scannable).addIObserver(condition);
 		condition = new ScannableThresholdCheck();

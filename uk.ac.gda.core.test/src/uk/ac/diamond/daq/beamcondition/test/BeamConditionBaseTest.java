@@ -18,7 +18,7 @@
 
 package uk.ac.diamond.daq.beamcondition.test;
 
-import static org.mockito.Matchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -63,7 +63,7 @@ public class BeamConditionBaseTest extends PowerMockBase {
 	public void testWaitForBeam() throws Exception {
 		condition.waitForBeam();
 		verify(condition, times(9)).beamOn();
-		PowerMockito.verifyStatic(times(8));
+		PowerMockito.verifyStatic(Thread.class, times(8));
 		Thread.sleep(50);
 	}
 

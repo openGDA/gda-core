@@ -18,9 +18,9 @@
 
 package gda.jython.server.shell;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.RETURNS_DEFAULTS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -73,6 +73,7 @@ import uk.ac.diamond.daq.test.powermock.PowerMockBase;
 	JythonServerFacade.class,
 	Highlighters.class,
 	LineReaderBuilder.class,
+	JythonShell.class,
 	})
 public class JythonShellTest extends PowerMockBase {
 
@@ -88,7 +89,7 @@ public class JythonShellTest extends PowerMockBase {
 	public void setup() throws Exception {
 		PowerMockito.mockStatic(LocalProperties.class);
 		PowerMockito.when(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)).thenReturn("example");
-		PowerMockito.when(LocalProperties.get(anyString(), anyString())).thenAnswer(i -> i.getArgumentAt(1, String.class));
+		PowerMockito.when(LocalProperties.get(anyString(), anyString())).thenAnswer(i -> i.getArgument(1, String.class));
 
 		// For running commands
 		PowerMockito.mockStatic(JythonServerFacade.class);
@@ -118,15 +119,15 @@ public class JythonShellTest extends PowerMockBase {
 
 	@Test
 	public void testCreation() throws Exception {
-		PowerMockito.verifyStatic(times(1));
+		PowerMockito.verifyStatic(Highlighters.class, times(1));
 		Highlighters.getHighlighter(null);
 		PowerMockito.verifyNoMoreInteractions(Highlighters.class);
 
-		PowerMockito.verifyStatic(times(1));
+		PowerMockito.verifyStatic(JythonServerFacade.class, times(1));
 		JythonServerFacade.getCurrentInstance();
 		PowerMockito.verifyNoMoreInteractions(JythonServerFacade.class);
 
-		PowerMockito.verifyNew(JythonShellParser.class);
+		PowerMockito.verifyNew(JythonShellParser.class).withArguments(any());
 	}
 
 	@Test
@@ -135,7 +136,7 @@ public class JythonShellTest extends PowerMockBase {
 		env.put("GDA_THEME", "user_theme");
 		new JythonShell(terminal, env).close();
 
-		PowerMockito.verifyStatic(times(1));
+		PowerMockito.verifyStatic(Highlighters.class, times(1));
 		Highlighters.getHighlighter("user_theme");
 	}
 

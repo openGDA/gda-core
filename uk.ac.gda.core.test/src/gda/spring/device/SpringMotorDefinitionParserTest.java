@@ -25,8 +25,8 @@ import static java.util.Optional.ofNullable;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.RETURNS_SMART_NULLS;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -337,9 +337,9 @@ public class SpringMotorDefinitionParserTest extends PowerMockBase {
 
 	private void setupElement(Map<String, String> attributes) {
 		when(element.hasAttribute(anyString()))
-				.thenAnswer(inv -> attributes.containsKey(inv.getArgumentAt(0, String.class)));
+				.thenAnswer(inv -> attributes.containsKey(inv.getArgument(0)));
 		when(element.getAttribute(anyString()))
-				.thenAnswer(inv -> attributes.getOrDefault(inv.getArgumentAt(0, String.class), ""));
+				.thenAnswer(inv -> attributes.getOrDefault(inv.getArgument(0), ""));
 	}
 
 	private void initDummy() {
@@ -361,7 +361,7 @@ public class SpringMotorDefinitionParserTest extends PowerMockBase {
 
 	/** Mock the LocalProperties lookup, if the value is null use the given fallback, else use our value */
 	private Answer<String> answerProperty(String value) {
-		return invocation -> ofNullable(value).orElse(invocation.getArgumentAt(1, String.class));
+		return invocation -> ofNullable(value).orElse(invocation.getArgument(1));
 	}
 
 	private MotorMatcher matchesMotor(String name, String motorName) {
