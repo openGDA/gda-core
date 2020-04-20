@@ -33,9 +33,9 @@ import org.mockito.InOrder;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.ClassPathAdjuster;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.core.classloader.annotations.UseClassPathAdjuster;
+import org.powermock.core.classloader.javassist.ClassPathAdjuster;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.python.core.Py;
 
