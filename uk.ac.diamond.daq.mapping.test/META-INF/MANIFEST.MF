@@ -12,6 +12,8 @@ Require-Bundle: org.junit;bundle-version="4.0.0",
  org.eclipse.dawnsci.json;bundle-version="1.0.0",
  org.eclipse.scanning.points,
  org.mockito.mockito-core,
+ net.bytebuddy.byte-buddy,
+ net.bytebuddy.byte-buddy-agent,
  org.objenesis
 Import-Package: org.osgi.framework
 Automatic-Module-Name: uk.ac.diamond.daq.mapping.test

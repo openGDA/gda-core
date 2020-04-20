@@ -8,5 +8,7 @@ Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.junit;bundle-version="4.12.0",
  org.mockito.mockito-core,
+ net.bytebuddy.byte-buddy,
+ net.bytebuddy.byte-buddy-agent,
  org.objenesis
 Automatic-Module-Name: uk.ac.gda.api.test
