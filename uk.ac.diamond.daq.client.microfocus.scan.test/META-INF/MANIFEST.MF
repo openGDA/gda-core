@@ -9,6 +9,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.junit;bundle-version="4.12.0",
  uk.ac.gda.test.helpers;bundle-version="1.0.0",
  org.mockito.mockito-core,
+ net.bytebuddy.byte-buddy,
+ net.bytebuddy.byte-buddy-agent,
  uk.ac.diamond.org.powermock,
  javassist
 Automatic-Module-Name: uk.ac.diamond.daq.client.microfocus.scan.test
