@@ -20,7 +20,7 @@ package gda.device.detector.xmap.edxd;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -75,7 +75,7 @@ public class EDXDMappingElementTest {
 		when(simpleMca.isConfigured()).thenReturn(true);
 		when(simpleMca.getRegionsOfInterest()).thenReturn(initialRois);
 		when(simpleMca.getNthRegionOfInterest(anyInt())).thenAnswer(invocation -> {
-			final int index = invocation.getArgumentAt(0, Integer.class);
+			final int index = invocation.getArgument(0);
 			if (index < initialRois.length) {
 				return initialRois[index];
 			}

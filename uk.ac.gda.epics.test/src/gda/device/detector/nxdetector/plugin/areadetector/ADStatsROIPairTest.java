@@ -22,11 +22,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
-import gda.device.detector.areadetector.v18.NDStatsPVs;
-import gda.device.detector.areadetector.v18.NDStatsPVs.BasicStat;
-import gda.device.detector.areadetector.v18.NDStatsPVs.Stat;
-import gda.device.detector.nxdetector.roi.ImutableRectangularIntegerROI;
-import gda.device.detector.nxdetector.roi.SimpleRectangularROIProvider;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +32,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import gda.device.detector.areadetector.v18.NDStatsPVs;
+import gda.device.detector.areadetector.v18.NDStatsPVs.BasicStat;
+import gda.device.detector.areadetector.v18.NDStatsPVs.Stat;
+import gda.device.detector.nxdetector.roi.ImutableRectangularIntegerROI;
+import gda.device.detector.nxdetector.roi.SimpleRectangularROIProvider;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ADStatsROIPairTest {
@@ -58,7 +59,6 @@ public class ADStatsROIPairTest {
 
 	@Test
 	public void testPrepareForCollectionAndWillRequireCallbacksOff() throws Exception {
-		when(roiPlugin.getRoi()).thenReturn(null);
 		when(statsPlugin.getEnabledStats()).thenReturn(new ArrayList<Stat>());
 		assertFalse(pair.willRequireCallbacks());
 		pair.prepareForCollection(1, null);
@@ -66,7 +66,6 @@ public class ADStatsROIPairTest {
 
 	@Test
 	public void testPrepareForCollectionAndWillRequireCallbacksOn() throws Exception {
-		when(roiPlugin.getRoi()).thenReturn(new ImutableRectangularIntegerROI(0, 0, 0, 0, "name"));
 		List<Stat> stats = new ArrayList<NDStatsPVs.Stat>();
 		stats.add(BasicStat.MaxValue);
 		when(statsPlugin.getEnabledStats()).thenReturn(stats);
@@ -77,7 +76,6 @@ public class ADStatsROIPairTest {
 
 	@Test
 	public void testPrepareForCollectionAndWillRequireCallbacksInconsitant1() throws Exception {
-		when(roiPlugin.getRoi()).thenReturn(null);
 		List<Stat> stats = new ArrayList<NDStatsPVs.Stat>();
 		stats.add(BasicStat.MaxValue);
 		when(statsPlugin.getEnabledStats()).thenReturn(stats);
@@ -87,7 +85,6 @@ public class ADStatsROIPairTest {
 
 	@Test
 	public void testPrepareForCollectionAndWillRequireCallbacksInconsitant2() throws Exception {
-		when(roiPlugin.getRoi()).thenReturn(new ImutableRectangularIntegerROI(0, 0, 0, 0, "name"));
 		List<Stat> stats = new ArrayList<NDStatsPVs.Stat>();
 		when(statsPlugin.getEnabledStats()).thenReturn(stats);
 		assertFalse(pair.willRequireCallbacks());
@@ -96,7 +93,6 @@ public class ADStatsROIPairTest {
 
 	@Test
 	public void testGetInputStreamNamesOff() throws IllegalArgumentException, IndexOutOfBoundsException, Exception {
-		when(roiPlugin.getRoi()).thenReturn(new ImutableRectangularIntegerROI(0, 0, 0, 0, "ignored_for_better_or_worse"));
 		when(statsPlugin.getInputStreamNames()).thenReturn(Arrays.asList("middle_maxvalue", "middle_total"));
 		assertEquals(Arrays.asList("middle_maxvalue", "middle_total"), pair.getInputStreamNames());
 	}

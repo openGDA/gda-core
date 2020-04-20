@@ -23,11 +23,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyDouble;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.startsWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -128,7 +129,7 @@ public class EDXDControllerTest {
 	@Test
 	public void testCollectDataAcquireError() throws Exception {
 		final double collectionTime = 0.5;
-		doThrow(new DeviceException("Error in acquire")).when(xmapDevice).setValue(any(Object.class), eq("ACQUIRE"), anyString(), any(Object.class),
+		doThrow(new DeviceException("Error in acquire")).when(xmapDevice).setValue(isNull(), eq("ACQUIRE"), anyString(), any(Object.class),
 				anyDouble());
 
 		controller.configure();
@@ -521,7 +522,7 @@ public class EDXDControllerTest {
 
 		final String dataRecordName = "DATA";
 		when(xmapDevice.getValue(eq(ReturnType.DBR_NATIVE), startsWith(dataRecordName), eq(""))).thenAnswer(invocation -> {
-			final String record = invocation.getArgumentAt(1, String.class);
+			final String record = invocation.getArgument(1);
 			final int elementIndex = Integer.parseInt(record.substring(dataRecordName.length())) - 1;
 			return data[elementIndex];
 		});
@@ -543,7 +544,7 @@ public class EDXDControllerTest {
 	public void testGetEvents() throws Exception {
 		final String eventsRecordName = "EVENTS";
 		when(xmapDevice.getValue(eq(ReturnType.DBR_NATIVE), startsWith(eventsRecordName), eq(""))).thenAnswer(invocation -> {
-			final String record = invocation.getArgumentAt(1, String.class);
+			final String record = invocation.getArgument(1);
 			return 100 * Integer.parseInt(record.substring(eventsRecordName.length()));
 		});
 
@@ -559,7 +560,7 @@ public class EDXDControllerTest {
 	public void testGetICR() throws Exception {
 		final String inputCountRateRecordName = "INPUTCOUNTRATE";
 		when(xmapDevice.getValue(eq(ReturnType.DBR_NATIVE), startsWith(inputCountRateRecordName), eq(""))).thenAnswer(invocation -> {
-			final String record = invocation.getArgumentAt(1, String.class);
+			final String record = invocation.getArgument(1);
 			return 2.5 * Double.parseDouble(record.substring(inputCountRateRecordName.length()));
 		});
 
@@ -575,7 +576,7 @@ public class EDXDControllerTest {
 	public void testGetOCR() throws Exception {
 		final String outputCountRateRecordName = "OUTPUTCOUNTRATE";
 		when(xmapDevice.getValue(eq(ReturnType.DBR_NATIVE), startsWith(outputCountRateRecordName), eq(""))).thenAnswer(invocation -> {
-			final String record = invocation.getArgumentAt(1, String.class);
+			final String record = invocation.getArgument(1);
 			return 4.7 * Double.parseDouble(record.substring(outputCountRateRecordName.length()));
 		});
 

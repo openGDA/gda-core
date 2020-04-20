@@ -23,8 +23,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -110,7 +110,7 @@ public class EpicsMCASimpleTest {
 		when(channelToEnergyConverter.toTarget(any(Quantity.class))).thenAnswer(new Answer<Quantity<Dimensionless>>() {
 			@Override
 			public Quantity<Dimensionless> answer(InvocationOnMock invocation) throws Throwable {
-				final Quantity<Energy> energy = invocation.getArgumentAt(0, Quantity.class).to(ELECTRON_VOLT);
+				final Quantity<Energy> energy = invocation.getArgument(0, Quantity.class).to(ELECTRON_VOLT);
 				if (Math.abs(energy.subtract(ENERGY_QUANTITY).getValue().doubleValue()) < 0.001) {
 					return CHANNEL_QUANTITY;
 				}
@@ -161,7 +161,7 @@ public class EpicsMCASimpleTest {
 		when(device.getValue(any(ReturnType.class), anyString(), anyString())).thenAnswer(new Answer<Object>() {
 			@Override
 			public Object answer(InvocationOnMock invocation) {
-				final String field = invocation.getArgumentAt(2, String.class);
+				final String field = invocation.getArgument(2);
 
 				// Handle specifiers that include region number
 				if (Pattern.matches(".R[0-9]+N?", field)) { // Rn or RnN

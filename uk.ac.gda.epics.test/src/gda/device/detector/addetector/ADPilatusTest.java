@@ -23,13 +23,21 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.util.concurrent.Callable;
+
+import org.junit.Test;
+import org.mockito.InOrder;
+
 import gda.TestHelpers;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
@@ -43,12 +51,6 @@ import gda.device.detector.areadetector.v17.ADDriverPilatus;
 import gda.device.detector.areadetector.v17.ADDriverPilatus.PilatusTriggerMode;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.areadetector.v17.NDFile;
-
-import java.io.File;
-import java.util.concurrent.Callable;
-
-import org.junit.Test;
-import org.mockito.InOrder;
 
 // TODO: Move these tests up into ADDetectorTest
 
@@ -206,7 +208,7 @@ public class ADPilatusTest extends ADDetectorTest {
 		pil().setExposureCompleteWhenArrayCounterSaysSo(true);
 		setupGetPositionCallableInAHardwareTriggeredScan("/full/path/to/");
 		pil().getPositionCallable().call();
-		verify(adBase).waitForArrayCounterToReach(anyInt(), anyInt());
+		verify(adBase).waitForArrayCounterToReach(anyInt(), anyDouble());
 		// Will hang if waiting for file
 
 	}
