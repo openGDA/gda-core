@@ -67,7 +67,6 @@ public class ScannableReadoutElementProcessorTest {
 		when(context.grammar()).thenCallRealMethod();
 		when(context.isScanPathSeen()).thenReturn(true);
 		when(device.getName()).thenReturn("mon");
-		when(rds.getRunnableDevice("mon")).thenReturn(rDevice);
 	}
 
 	@Test

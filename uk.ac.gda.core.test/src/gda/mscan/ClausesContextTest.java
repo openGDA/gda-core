@@ -118,7 +118,6 @@ public class ClausesContextTest {
 		when(runnableDeviceService.getRunnableDevice("present")).thenReturn(runnableDevice);
 		when(runnableDevice.getModel()).thenReturn(model);
 		when(runnableDevice.getName()).thenReturn("detector");
-		when(model.getName()).thenReturn("grid");
 	}
 
 	/**

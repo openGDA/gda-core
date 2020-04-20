@@ -59,7 +59,6 @@ public class ScanpathElementProcessorTest {
 	 */
 	@Test(expected = UnsupportedOperationException.class)
 	public void processLookUpTrapsScanpathAtElementZero() throws Exception {
-		doReturn(Scannable.class).when(context).getPreviousType();
 		processor.process(context, emptyList, 0);
 	}
 

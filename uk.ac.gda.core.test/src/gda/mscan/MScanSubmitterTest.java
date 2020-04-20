@@ -32,7 +32,6 @@ import java.util.List;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
-import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
@@ -124,7 +123,6 @@ public class MScanSubmitterTest {
 		when(runnableDeviceService.getRunnableDevice("Detector")).thenReturn(runnableDevice);
 		when(runnableDevice.getModel()).thenReturn(detectorModel);
 		when(detectorRunnableDevice.getModel()).thenReturn(detectorModel);
-		when(detectorRunnableDevice.getRole()).thenReturn(DeviceRole.HARDWARE);
 		when(monitor.getName()).thenReturn("monitor");
 		when(scannable.getName()).thenReturn("scannable");
 	}
@@ -795,18 +793,6 @@ public class MScanSubmitterTest {
 
 		Object[] arr = {scannable, anotherScannable,
 				t3, Scanpath.LINE_POINTS, t4, detectorRunnableDevice};
-		when(resolver.resolveScanClauses()).thenReturn(
-				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
-											new ScannableElementProcessor(anotherScannable),
-											new RegionShapeElementProcessor(RegionShape.RECTANGLE),
-											new NumberElementProcessor(2),
-											new NumberElementProcessor(2),
-											new NumberElementProcessor(3),
-											new NumberElementProcessor(3),
-											new ScanpathElementProcessor(Scanpath.GRID_POINTS),
-											new NumberElementProcessor(10),
-											new NumberElementProcessor(20)),
-							  Arrays.asList(new IRunnableDeviceDetectorElementProcessor(detectorRunnableDevice))));
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Only numeric parameters can be enclosed in brackets");
 		builder.buildAndSubmitBlockingScanRequest(arr);

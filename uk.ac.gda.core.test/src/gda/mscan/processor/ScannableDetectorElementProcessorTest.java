@@ -68,7 +68,6 @@ public class ScannableDetectorElementProcessorTest {
 		when(context.grammar()).thenCallRealMethod();
 		when(context.isScanPathSeen()).thenReturn(true);
 		when(device.getName()).thenReturn("det");
-		when(rds.getRunnableDevice("det")).thenReturn(rDevice);
 	}
 
 	@Test

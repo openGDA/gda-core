@@ -58,14 +58,12 @@ public class NumberElementProcessorTest {
 	 */
 	@Test(expected = UnsupportedOperationException.class)
 	public void processLookUpTrapsNumberAtElementZero() throws Exception {
-		doReturn(Scannable.class).when(context).getPreviousType();
 		processor.process(context, emptyList, 0);
 	}
 
 	@Test
 	public void processAddsValidSuccessorToContextParametersList() throws Exception {
 		doReturn(Scannable.class).when(context).getPreviousType();
-		when(context.paramsFull()).thenReturn(false);
 		processor.process(context, emptyList, 1);
 		verify(context).addParam(tenPointFour);
 	}

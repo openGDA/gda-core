@@ -204,9 +204,7 @@ public class NXDetectorTest {
 	@Test
 	public void testAtScanStartWithCallbacksRequired() throws Exception {
 
-		when(collectionStrategy.willRequireCallbacks()).thenReturn(false);
 		when(fileWriter.willRequireCallbacks()).thenReturn(true);
-		when(plugin.willRequireCallbacks()).thenReturn(false);
 
 		det.atScanStart();
 

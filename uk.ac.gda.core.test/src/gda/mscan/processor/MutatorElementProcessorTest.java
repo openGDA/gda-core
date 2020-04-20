@@ -59,7 +59,6 @@ public class MutatorElementProcessorTest {
 	 */
 	@Test(expected = UnsupportedOperationException.class)
 	public void processLookUpTrapsMutatorAtElementZero() throws Exception {
-		doReturn(Scannable.class).when(context).getPreviousType();
 		processor.process(context, emptyList, 0);
 	}
 

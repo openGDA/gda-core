@@ -59,7 +59,6 @@ public class RegionShapeElementProcessorTest {
 	 */
 	@Test(expected = UnsupportedOperationException.class)
 	public void processLookUpTrapsRoiAtElementZero() throws Exception {
-		doReturn(Scannable.class).when(context).getPreviousType();
 		processor.process(context, emptyList, 0);
 	}
 

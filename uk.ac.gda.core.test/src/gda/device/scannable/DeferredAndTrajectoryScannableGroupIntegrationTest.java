@@ -81,7 +81,6 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 		scnb = mockScannableMotor(motorb, "b");
 		scnc = mockScannableMotor(motorc, "c");
 		mockedControlPoint = mock(ControlPoint.class);
-		when(mockedControlPoint.getPosition()).thenReturn(0);
 
 		createGroup();
 		trajgroup.configure();
@@ -178,7 +177,6 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 	public void testIsBusy() throws DeviceException {
 		when(motora.getStatus()).thenReturn(MotorStatus.READY);
 		when(motorb.getStatus()).thenReturn(MotorStatus.BUSY);
-		when(motorc.getStatus()).thenReturn(MotorStatus.READY);
 		assertTrue(trajgroup.isBusy());
 	}
 
@@ -288,7 +286,6 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 
 	@Test(expected=DeviceException.class)
 	public void testTrajectoryScanOperationViolatesMotorLimitViaElement() throws Exception {
-		when(motora.getMaxPosition()).thenReturn(0.);
 		scna.setUpperGdaLimits(0.);
 
 		ContinuouslyScannableViaController wrapperaa = (ContinuouslyScannableViaController) trajgroup.getGroupMembers().get(0);
