@@ -22,7 +22,8 @@ import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -71,13 +72,12 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 /**
  * Abstract superclass for new mockito-based unit tests for {@link JobQueueImpl}.
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(org.mockito.junit.MockitoJUnitRunner.Silent.class)
 public abstract class AbstractJobQueueTest {
 
 	protected static final long DEFAULT_MOCK_PROCESS_TIME_MS = 100;
@@ -149,10 +149,10 @@ public abstract class AbstractJobQueueTest {
 		marshallerService = new MarshallerService(new ScanningAPIClassRegistry(),
 				new ScanningEventsClassRegistry());
 		when(eventConnectorService.marshal(any(Object.class))).thenAnswer(
-				invocation -> marshallerService.marshal(invocation.getArgumentAt(0, Object.class)));
-		when(eventConnectorService.unmarshal(any(String.class), any(Class.class))).thenAnswer(
-				invocation -> marshallerService.unmarshal(invocation.getArgumentAt(0, String.class),
-						invocation.getArgumentAt(1, Class.class)));
+				invocation -> marshallerService.marshal(invocation.getArgument(0)));
+		when(eventConnectorService.unmarshal(any(String.class), nullable(Class.class))).thenAnswer(
+				invocation -> marshallerService.unmarshal(invocation.getArgument(0),
+						invocation.getArgument(1)));
 
 		createJobQueue();
 	}

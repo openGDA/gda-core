@@ -18,8 +18,9 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
@@ -265,7 +266,7 @@ public class ScanProcessTest {
 		when(mockDeviceController.getDevice()).thenReturn(mockDevice);
 		when(mockDevice.getModel()).thenReturn(mocks.get(ScanModel.class)); // prevents an NPE in ScanProcess.runScript
 
-		when(mockRunnableDeviceService.createRunnableDevice(any(ScanModel.class), any(IPublisher.class), eq(false))).thenReturn(mockDevice);
+		when(mockRunnableDeviceService.createRunnableDevice(nullable(ScanModel.class), nullable(IPublisher.class), eq(false))).thenReturn(mockDevice);
 		when(mocks.get(IDeviceWatchdogService.class).create(any(IPausableDevice.class), any(ScanBean.class))).thenReturn(mockDeviceController);
 		when(mockRunnableDeviceService.createPositioner(ScanProcess.class.getSimpleName())).thenReturn(mocks.get(IPositioner.class));
 		when(mocks.get(IPointGeneratorService.class).createCompoundGenerator(any(CompoundModel.class))).thenReturn(mockPointGen);

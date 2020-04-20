@@ -18,7 +18,7 @@
 
 package org.eclipse.scanning.test.event;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -78,7 +78,7 @@ public class ConsumerProxyControlTest extends QueueControlTest {
 		when(commandRequester.post(any())).thenAnswer(new Answer<QueueCommandBean>() {
 			@Override
 			public QueueCommandBean answer(InvocationOnMock invocation) throws Throwable {
-				final QueueCommandBean commandBean = invocation.getArgumentAt(0, QueueCommandBean.class);
+				final QueueCommandBean commandBean = invocation.getArgument(0);
 				commandTopicListener.beanChangePerformed(new BeanEvent<>(commandBean));
 				return commandBean;
 			}
@@ -98,7 +98,7 @@ public class ConsumerProxyControlTest extends QueueControlTest {
 		doAnswer(new Answer<Void>() {
 			@Override
 			public Void answer(InvocationOnMock invocation) throws Throwable {
-				QueueStatusBean bean = invocation.getArgumentAt(0, QueueStatusBean.class);
+				QueueStatusBean bean = invocation.getArgument(0);
 				heartbeatListener.queueStatusChanged(new QueueStatusBeanEvent(bean));
 				return null;
 			}

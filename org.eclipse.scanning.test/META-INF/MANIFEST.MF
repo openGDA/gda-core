@@ -20,7 +20,7 @@ Require-Bundle:
  org.apache.log4j;bundle-version="1.2.15",
  org.apache.commons.beanutils;bundle-version="1.8.0",
  org.junit;bundle-version="4.12.0",
- org.objenesis;bundle-version="2.6.0",
+ org.objenesis,
  org.mockito.mockito-core,
  net.bytebuddy.byte-buddy,
  net.bytebuddy.byte-buddy-agent,
