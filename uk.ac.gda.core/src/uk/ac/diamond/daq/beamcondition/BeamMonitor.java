@@ -143,6 +143,12 @@ public class BeamMonitor extends BeamConditionBase {
 		pausedByThisMonitor = false;
 	}
 
+	/** Set the checks this monitor will use */
+	public void setChecks(Collection<BeamCondition> conditions) {
+		checks.clear();
+		checks.addAll(conditions);
+	}
+
 	/** Add a condition to be checked when determining whether the beam is acceptable */
 	public void addCheck(BeamCondition check) {
 		checks.add(check);

@@ -148,7 +148,7 @@ public class EnumPositionCheck extends BeamConditionBase implements IObserver {
 			sb.append(" (no restrictions)");
 		}
 		sb.append(")");
-		setName(sb.toString());
+		setFallbackName(sb.toString());
 	}
 
 	private String positionList() {

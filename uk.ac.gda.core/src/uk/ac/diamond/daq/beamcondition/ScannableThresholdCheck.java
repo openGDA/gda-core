@@ -99,6 +99,6 @@ public class ScannableThresholdCheck extends BeamConditionBase implements IObser
 		}
 		sb.insert(0, "ScannableThresholdCheck(");
 		sb.append(")");
-		setName(sb.toString());
+		setFallbackName(sb.toString());
 	}
 }
