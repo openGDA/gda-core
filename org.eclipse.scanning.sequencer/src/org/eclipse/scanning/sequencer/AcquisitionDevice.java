@@ -72,8 +72,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.event.IPositioner;
 import org.eclipse.scanning.api.scan.models.ScanModel;
-import org.eclipse.scanning.sequencer.nexus.INexusScanFileManager;
-import org.eclipse.scanning.sequencer.nexus.NexusScanFileManagerFactory;
+import org.eclipse.scanning.sequencer.nexus.NexusScanFileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,7 +108,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 
 
 	// the nexus file
-	private INexusScanFileManager nexusScanFileManager = null;
+	private NexusScanFileManager nexusScanFileManager = null;
 
 	private static Logger logger = LoggerFactory.getLogger(AcquisitionDevice.class);
 
@@ -218,7 +217,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		exposureManager.addDevices(model.getDetectors());
 
 		// create the nexus file, if appropriate
-		nexusScanFileManager = NexusScanFileManagerFactory.createNexusScanFileManager(this);
+		nexusScanFileManager = new NexusScanFileManager(this);
 		nexusScanFileManager.configure(model);
 		nexusScanFileManager.createNexusFile(Boolean.getBoolean("org.eclipse.scanning.sequencer.nexus.async"));
 

@@ -12,326 +12,89 @@
 package org.eclipse.scanning.sequencer.nexus;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.nexus.IMultipleNexusDevice;
 import org.eclipse.dawnsci.nexus.INexusDevice;
-import org.eclipse.dawnsci.nexus.NXdata;
-import org.eclipse.dawnsci.nexus.NXentry;
-import org.eclipse.dawnsci.nexus.NXobject;
-import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
-import org.eclipse.dawnsci.nexus.builder.CustomNexusEntryModification;
-import org.eclipse.dawnsci.nexus.builder.NexusEntryBuilder;
-import org.eclipse.dawnsci.nexus.builder.NexusFileBuilder;
-import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusScanFile;
-import org.eclipse.dawnsci.nexus.builder.data.AxisDataDevice;
-import org.eclipse.dawnsci.nexus.builder.data.DataDevice;
-import org.eclipse.dawnsci.nexus.builder.data.DataDeviceBuilder;
-import org.eclipse.dawnsci.nexus.builder.data.NexusDataBuilder;
-import org.eclipse.dawnsci.nexus.builder.data.PrimaryDataDevice;
-import org.eclipse.dawnsci.nexus.builder.impl.MapBasedMetadataProvider;
-import org.eclipse.dawnsci.nexus.template.NexusTemplate;
-import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IScanDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.points.AbstractPosition;
-import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.api.scan.event.IPositionListener;
-import org.eclipse.scanning.api.scan.models.ScanMetadata;
-import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.sequencer.ServiceHolder;
+import org.eclipse.scanning.sequencer.SubscanModerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Builds and manages the NeXus file for a scan given a {@link ScanModel}.
  */
-public class NexusScanFileManager implements INexusScanFileManager, IPositionListener {
+public class NexusScanFileManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(NexusScanFileManager.class);
 
 	private final IScanDevice scanDevice;
-	private ScanModel model;
-	private NexusScanInfo scanInfo;
-	private NexusFileBuilder fileBuilder;
+	private boolean isWritingNexus;
+	private NexusScanFileBuilder nexusScanFileBuilder = null;
 	private NexusScanFile nexusScanFile;
-	private SolsticeScanMonitor solsticeScanMonitor;
-	private NXEntryFieldBuilder entryFieldBuilder;
-
-	// we need to cache various things as they are used more than once
-	/**
-	 * A list of the nexus devices for each category of device.
-	 */
-	private Map<ScanRole, Collection<INexusDevice<?>>> nexusDevices = null;
-
-	/**
-	 * A list of the nexus object providers for each category of device.
-	 */
-	private Map<ScanRole, List<NexusObjectProvider<?>>> nexusObjectProviders = null;
-
-	/**
-	 * A map from nexus object provider to the axis data device for that.
-	 * This is used for devices added to an NXdata group other than the primary device
-	 * (the one that supplies the signal field.)
-	 */
-	private Map<NexusObjectProvider<?>, AxisDataDevice<?>> dataDevices = new HashMap<>();
-
-	/**
-	 * A map from scannable name to the index of the scan for that scannable,
-	 * or <code>null</code> if none
-	 */
-	private Map<String, Integer> defaultAxisIndexForScannable = null;
 
 	public NexusScanFileManager(IScanDevice scanDevice) {
 		this.scanDevice = scanDevice;
 	}
 
 	/**
-	 * Creates the nexus file for the given {@link ScanModel}.
-	 * The structure of the nexus file is determined by model and the
-	 * devices that the model references - these are retrieved from the
-	 * {@link IScannableDeviceService}.
-	 *
-	 * @param model model of scan
+	 * Configures this {@link NexusScanFileManager} with the given {@link ScanModel}. This
+	 * determines the structure of the nexus file that will be created when {@link #createNexusFile(boolean)}
+	 * is called.
+	 * @param scanModel the {@link ScanModel} describing the scan
 	 * @throws ScanningException
 	 */
-	@Override
-	public void configure(ScanModel model) throws ScanningException {
-		if (fileBuilder != null) {
-			throw new IllegalStateException("The nexus file has already been created");
-		}
+	public void configure(ScanModel scanModel) throws ScanningException {
+		isWritingNexus = scanModel.getFilePath() != null && ServiceHolder.getFactory() != null;
 
-		this.model = model;
-
-		final List<String> scannableNames = model.getPointGenerator().getNames();
-		addLegacyPerScanMonitors(model, scannableNames);
-
-		this.scanInfo = createScanInfo(model, scannableNames);
-
-		// create the solstice scan monitor which writes unique keys. This is not added as
-		// a monitor to the scan as it part of the scan framework and must always write last
-		solsticeScanMonitor = createSolsticeScanMonitor(model);
-
-		nexusDevices = extractNexusDevices(model);
-
-		// convert this to a map of nexus object providers for each type
-		nexusObjectProviders = extractNexusProviders();
-		solsticeScanMonitor.setNexusObjectProviders(nexusObjectProviders);
-	}
-
-	/**
-	 *
-	 * @return the paths of all the external files to which we will be writing.
-	 */
-	@Override
-	public Set<String> getExternalFilePaths() {
-		Set<String> paths = new HashSet<>();
-		// Big looking loop over small number of things.
-		for (List<NexusObjectProvider<?>> provList : nexusObjectProviders.values()) {
-			for (NexusObjectProvider<?> prov : provList) {
-				paths.addAll(prov.getExternalFileNames());
-			}
-		}
-		return paths;
-	}
-
-	@Override
-	public String createNexusFile(boolean async) throws ScanningException {
-		// We use the new nexus framework to join everything up into the scan
-		// Create a builder
-		fileBuilder = ServiceHolder.getFactory().newNexusFileBuilder(model.getFilePath());
-		try {
-			createEntry(fileBuilder);
-			applyTemplates(fileBuilder.getNexusTree());
-			// create the file from the builder and open it
-			nexusScanFile = fileBuilder.createFile(async);
-			nexusScanFile.openToWrite();
-			return model.getFilePath();
-		} catch (NexusException e) {
-			throw new ScanningException("Cannot create nexus file", e);
+		addLegacyPerScanMonitors(scanModel);
+		if (isWritingNexus) {
+			final NexusScanModel nexusScanModel = createNexusScanModel(scanModel);
+			nexusScanFileBuilder = new NexusScanFileBuilder(scanDevice, scanModel, nexusScanModel);
 		}
 	}
 
 	/**
-	 * Flushes the wrapped nexus file.
-	 * @throws ScanningException if the nexus file could not be flushed for any reason
-	 */
-	@Override
-	public void flushNexusFile() throws ScanningException {
-		try {
-			int code = nexusScanFile.flush();
-			if (code < 0) {
-				logger.warn("Problem flushing during scan! Flush code is "+code);
-			}
-		} catch (NexusException e) {
-			throw new ScanningException("Cannot create nexus file", e);
-		}
-	}
-
-	/**
-	 * Writes scan finished and closes the wrapped nexus file.
-	 * @throws ScanningException
-	 */
-	@Override
-	public void scanFinished() throws ScanningException {
-		entryFieldBuilder.end();
-		solsticeScanMonitor.scanFinished();
-		try {
-			nexusScanFile.close();
-		} catch (NexusException e) {
-			throw new ScanningException("Could not close nexus file", e);
-		} finally {
-			scanDevice.removePositionListener(this);
-		}
-	}
-
-	private void applyTemplates(Tree tree) throws NexusException {
-		final NexusTemplateService templateService = ServiceHolder.getTemplateService();
-		for (String templateFilePath : model.getTemplateFilePath()) {
-			final String fullPath = getAbsoluteFilePath(templateFilePath);
-			final NexusTemplate template = templateService.loadTemplate(fullPath);
-			template.apply(tree);
-		}
-	}
-
-	private String getAbsoluteFilePath(String templateFilePath) {
-		final Path filePath = Paths.get(templateFilePath);
-		if (filePath.isAbsolute()) {
-			return templateFilePath;
-		}
-
-		final String templateRoot = ServiceHolder.getFilePathService().getPersistenceDir();
-		return Paths.get(templateRoot).resolve(templateFilePath).toString();
-	}
-
-	@Override
-	public boolean isNexusWritingEnabled() {
-		return true;
-	}
-
-	@Override
-	public NexusScanInfo getNexusScanInfo() {
-		return scanInfo;
-	}
-
-	@Override
-	public void positionPerformed(PositionEvent event) throws ScanningException {
-		solsticeScanMonitor.setPosition(null, event.getPosition());
-		solsticeScanMonitor.pointFinished(event.getPosition());
-	}
-
-	@Override
-	public void positionMovePerformed(PositionEvent event) throws ScanningException {
-		if (solsticeScanMonitor.writeAfterMovePerformed()) {
-			solsticeScanMonitor.setPosition(null, event.getPosition());
-		}
-		solsticeScanMonitor.pointStarted(event.getPosition());
-	}
-
-	protected SolsticeScanMonitor createSolsticeScanMonitor(ScanModel model) {
-		SolsticeScanMonitor solsticeScanMonitor = new SolsticeScanMonitor(model);
-		scanDevice.addPositionListener(this);
-		return solsticeScanMonitor;
-	}
-
-	protected Map<ScanRole, Collection<INexusDevice<?>>> extractNexusDevices(ScanModel model) throws ScanningException {
-
-		Map<ScanRole, Collection<INexusDevice<?>>> nexusDevices = new EnumMap<>(ScanRole.class);
-		nexusDevices.put(ScanRole.DETECTOR,  getNexusDevices(model.getDetectors()));
-		nexusDevices.put(ScanRole.SCANNABLE, getNexusDevices(model.getScannables()));
-		nexusDevices.put(ScanRole.MONITOR_PER_POINT, getNexusDevices(model.getMonitorsPerPoint()));
-		nexusDevices.put(ScanRole.MONITOR_PER_SCAN, getNexusDevices(model.getMonitorsPerScan()));
-		nexusDevices.put(ScanRole.NONE, Collections.emptyList());
-
-		return nexusDevices;
-	}
-
-	protected Map<ScanRole, List<NexusObjectProvider<?>>> extractNexusProviders() throws ScanningException {
-		logger.trace("extractNexusProviders() called");
-		Map<ScanRole, List<NexusObjectProvider<?>>> nexusObjectProviders = new EnumMap<>(ScanRole.class);
-		for (ScanRole deviceType: ScanRole.values()) {
-			logger.trace("extractNexusProviders deviceType={}", deviceType);
-			final Collection<INexusDevice<?>> nexusDevicesForType = nexusDevices.get(deviceType);
-			final List<NexusObjectProvider<?>> nexusObjectProvidersForType =
-					new ArrayList<>(nexusDevicesForType.size());
-			for (INexusDevice<?> nexusDevice : nexusDevicesForType) {
-				logger.trace("extractNexusProviders nexusDevice={}", nexusDevice);
-				try {
-					NexusObjectProvider<?> nexusProvider = nexusDevice.getNexusProvider(scanInfo);
-					if (nexusProvider != null) {
-						logger.trace("extractNexusProviders nexusProvider={}", nexusProvider);
-						nexusObjectProvidersForType.add(nexusProvider);
-					}
-					if (nexusDevice instanceof IMultipleNexusDevice) {
-						List<NexusObjectProvider<?>> nexusProviders = ((IMultipleNexusDevice) nexusDevice).getNexusProviders(scanInfo);
-						logger.trace("extractNexusProviders nexusProviders={}", nexusProviders);
-						// Do we want to only extract nexusProviders with matching scan roles?
-						for (NexusObjectProvider<?> nexusProvider2: nexusProviders) {
-							nexusObjectProvidersForType.add(nexusProvider2);
-						}
-					}
-				} catch (NexusException e) {
-					final String deviceName = (nexusDevice instanceof INameable) ? ((INameable) nexusDevice).getName() : "(unknown device)";
-					if (deviceType == ScanRole.MONITOR_PER_SCAN) {
-						// A failure to get a Nexus object for a per-scan monitor is not regarded as fatal,
-						// so just warn the user.
-						logger.warn("Cannot create per-scan monitor {}: {}", deviceName, e.getMessage());
-					} else {
-						// For all other types of device throw an exception
-						throw new ScanningException("Cannot create device: " + deviceName, e);
-					}
-				}
-			}
-
-			nexusObjectProviders.put(deviceType, nexusObjectProvidersForType);
-		}
-
-		return nexusObjectProviders;
-	}
-
-	/**
-	 * Augments the set of monitors in the model with: <ul>
+	 * Augments the set of per-scan monitors in the model with: <ul>
 	 * <li>any metadata scannables (called per-scan monitors in GDA9) from the legacy spring configuration;</li>
 	 * <li>the required scannables (as per-scan monitors) point of any scannables in the scan;</li>
 	 * </ul>
+	 * The scannable services gets these from {@code gda.data.scan.datawriter.NexusDataWriter}
 	 * @param model
-	 * @throws ScanningException
 	 */
-	@SuppressWarnings("deprecation")
-	private void addLegacyPerScanMonitors(ScanModel model, Collection<String> scannableNames) throws ScanningException {
-		IScannableDeviceService scannableDeviceService = ((AbstractRunnableDevice<?>) scanDevice).getConnectorService();
+	private void addLegacyPerScanMonitors(ScanModel model) {
+		final IScannableDeviceService scannableDeviceService = ((AbstractRunnableDevice<?>) scanDevice).getConnectorService();
 
 		// build up the set of all metadata scannables
+		final List<String> scannableNames = model.getPointGenerator().getNames();
 		final Set<String> perScanMonitorNames = new HashSet<>();
 
 		// add the names of the metadata scannables already in the model
-		Set<String> existingPerScanMonitorNames = model.getMonitorsPerScan().stream()
+		final Set<String> existingPerScanMonitorNames = model.getMonitorsPerScan().stream()
 				.map(m -> m.getName()).collect(Collectors.toSet());
 		perScanMonitorNames.addAll(existingPerScanMonitorNames);
 
@@ -380,328 +143,136 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 		}
 	}
 
-	private NexusScanInfo createScanInfo(ScanModel scanModel, List<String> scannableNames) throws ScanningException {
-		final NexusScanInfo nexusScanInfo = new NexusScanInfo(scannableNames);
+	private NexusScanModel createNexusScanModel(ScanModel scanModel) throws ScanningException {
+		final Map<ScanRole, List<INexusDevice<?>>> nexusDevices = extractNexusDevices(scanModel);
+		final Optional<IMultipleNexusDevice> multiNexusDevice = scanModel.getDetectors().stream()
+				.filter(IMultipleNexusDevice.class::isInstance)
+				.map(IMultipleNexusDevice.class::cast).findFirst();
 
-		nexusScanInfo.setRank(getScanRank(scanModel));
+		final NexusScanModel nexusScanModel = new NexusScanModel(nexusDevices);
+		nexusScanModel.setFilePath(scanModel.getFilePath());
+		nexusScanModel.setMultipleNexusDevice(multiNexusDevice);
+		nexusScanModel.setTemplateFilePaths(scanModel.getTemplateFilePaths());
+		nexusScanModel.setNexusScanInfo(createScanInfo(scanModel));
+		final AbstractPosition firstPosition = (AbstractPosition) scanModel.getPointGenerator().getFirstPoint();
+		nexusScanModel.setDimensionNamesByIndex(firstPosition.getDimensionNames());
+		nexusScanModel.setScanMetadata(scanModel.getScanMetadata());
+
+		return nexusScanModel;
+	}
+
+	private NexusScanInfo createScanInfo(ScanModel scanModel) throws ScanningException {
+		final NexusScanInfo nexusScanInfo = new NexusScanInfo();
+		nexusScanInfo.setScannableNames(scanModel.getPointGenerator().getNames());
+		nexusScanInfo.setRank(getOuterScanRank(scanModel));
 		nexusScanInfo.setShape(scanModel.getScanInformation().getShape());
-
 		nexusScanInfo.setDetectorNames(getDeviceNames(scanModel.getDetectors()));
-
-		Collection<IScannable<?>> perPoint = model.getMonitorsPerPoint().stream().collect(Collectors.toList());
-		Collection<IScannable<?>> perScan  = model.getMonitorsPerScan().stream().collect(Collectors.toList());
-        nexusScanInfo.setPerPointMonitorNames(getDeviceNames(perPoint));
-		nexusScanInfo.setPerScanMonitorNames(getDeviceNames(perScan));
-
+        nexusScanInfo.setPerPointMonitorNames(getDeviceNames(scanModel.getMonitorsPerPoint()));
+		nexusScanInfo.setPerScanMonitorNames(getDeviceNames(scanModel.getMonitorsPerScan()));
 		nexusScanInfo.setFilePath(scanModel.getFilePath());
 
 		return nexusScanInfo;
 	}
 
-	protected int getScanRank(ScanModel model) throws ScanningException {
-		// we have a method for this as it needs to be overriden by MalcolmNexusScanFileManager
-		return model.getScanInformation().getRank();
-	}
-
 	private Set<String> getDeviceNames(Collection<? extends INameable> devices) {
-		return devices.stream().map(d -> d.getName()).collect(Collectors.toSet());
+		return devices.stream().map(INameable::getName).collect(toSet());
+	}
+
+	protected int getOuterScanRank(ScanModel scanModel) throws ScanningException {
+		if (isMalcolmScan(scanModel)) {
+			SubscanModerator moderator = new SubscanModerator(scanModel);
+			return moderator.getOuterPointGenerator().getRank();
+		}
+
+		// we have a method for this as it needs to be overriden by MalcolmNexusScanFileManager
+		return scanModel.getScanInformation().getRank();
+	}
+
+	private boolean isMalcolmScan(ScanModel scanModel) {
+		return scanModel.getDetectors().stream().anyMatch(det -> (det instanceof IMultipleNexusDevice));
+	}
+
+	protected Map<ScanRole, List<INexusDevice<?>>> extractNexusDevices(ScanModel model) {
+		final Function<Collection<?>, List<INexusDevice<?>>> toNexusDevices =
+				devices -> devices.stream()
+				.filter(INexusDevice.class::isInstance)
+				.map(INexusDevice.class::cast).collect(toList());
+
+		final Map<ScanRole, List<INexusDevice<?>>> nexusDevices = new EnumMap<>(ScanRole.class);
+		nexusDevices.put(ScanRole.DETECTOR, toNexusDevices.apply(model.getDetectors()));
+		nexusDevices.put(ScanRole.SCANNABLE, toNexusDevices.apply(model.getScannables()));
+		nexusDevices.put(ScanRole.MONITOR_PER_POINT, toNexusDevices.apply(model.getMonitorsPerPoint()));
+		nexusDevices.put(ScanRole.MONITOR_PER_SCAN, toNexusDevices.apply(model.getMonitorsPerScan()));
+		nexusDevices.put(ScanRole.NONE, Collections.emptyList());
+
+		return nexusDevices;
 	}
 
 	/**
-	 * Creates and populates the {@link NXentry} for the NeXus file.
-	 * @param fileBuilder a {@link NexusFileBuilder}
-	 * @throws NexusException
-	 */
-	private void createEntry(NexusFileBuilder fileBuilder) throws NexusException {
-		final NexusEntryBuilder entryBuilder  = fileBuilder.newEntry();
-		entryBuilder.addDefaultGroups();
-
-		addScanMetadata(entryBuilder, model.getScanMetadata());
-
-		entryFieldBuilder = new NXEntryFieldBuilder(entryBuilder.getNXentry());
-		entryFieldBuilder.start();
-
-		// add all the devices to the entry. Per-scan monitors are added first.
-		for (ScanRole deviceType : EnumSet.allOf(ScanRole.class)) {
-			addDevicesToEntry(entryBuilder, deviceType);
-		}
-		entryBuilder.add(solsticeScanMonitor.getNexusProvider(scanInfo));
-
-		// create the NXdata groups
-		createNexusDataGroups(entryBuilder);
-	}
-
-	private void addDevicesToEntry(NexusEntryBuilder entryBuilder, ScanRole deviceType) throws NexusException {
-		entryBuilder.addAll(nexusObjectProviders.get(deviceType));
-
-		List<CustomNexusEntryModification> customModifications =
-				nexusDevices.get(deviceType).stream().
-				map(d -> d.getCustomNexusModification()).
-				filter(Objects::nonNull).
-				collect(Collectors.toList());
-		for (CustomNexusEntryModification customModification : customModifications) {
-			entryBuilder.modifyEntry(customModification);
-		}
-	}
-
-	private void addScanMetadata(NexusEntryBuilder entryBuilder, List<ScanMetadata> scanMetadataList) throws NexusException {
-		if (scanMetadataList != null) {
-			for (ScanMetadata scanMetadata : scanMetadataList) {
-				// convert the ScanMetadata into a MapBasedMetadataProvider and add to the entry builder
-				NexusBaseClass category = getBaseClassForMetadataType(scanMetadata.getType());
-				MapBasedMetadataProvider metadataProvider = new MapBasedMetadataProvider(category);
-				Map<String, Object> metadataFields = scanMetadata.getFields();
-				for (String metadataFieldName : metadataFields.keySet()) {
-					Object value = scanMetadata.getFieldValue(metadataFieldName);
-					metadataProvider.addMetadataEntry(metadataFieldName, value);
-				}
-
-				entryBuilder.addMetadata(metadataProvider);
-			}
-		}
-	}
-
-	private NexusBaseClass getBaseClassForMetadataType(MetadataType metadataType) {
-		if (metadataType == null) {
-			return null;
-		}
-		switch (metadataType) {
-			case ENTRY:
-				return NexusBaseClass.NX_ENTRY;
-			case INSTRUMENT:
-				return NexusBaseClass.NX_INSTRUMENT;
-			case SAMPLE:
-				return NexusBaseClass.NX_SAMPLE;
-			case USER:
-				return NexusBaseClass.NX_USER;
-			default:
-				throw new IllegalArgumentException("Unknown metadata type : " + metadataType);
-		}
-	}
-
-	private List<INexusDevice<?>> getNexusDevices(Collection<?> devices) {
-		return devices.stream().filter(d -> d instanceof INexusDevice<?>).map(
-				d -> (INexusDevice<?>) d).collect(Collectors.toList());
-	}
-
-	/**
-	 * Create the {@link NXdata} groups for the scan
-	 * @param entryBuilder
-	 * @throws NexusException
-	 */
-	private void createNexusDataGroups(final NexusEntryBuilder entryBuilder) throws NexusException {
-
-		Set<ScanRole> deviceTypes = EnumSet.of(ScanRole.DETECTOR, ScanRole.SCANNABLE, ScanRole.MONITOR_PER_POINT);
-		if (deviceTypes.stream().allMatch(t -> nexusObjectProviders.get(t).isEmpty())) {
-			throw new NexusException("The scan must include at least one device in order to write a NeXus file.");
-		}
-
-		List<NexusObjectProvider<?>> detectors = nexusObjectProviders.get(ScanRole.DETECTOR);
-		if (detectors.isEmpty()) {
-			// create a NXdata groups when there is no detector
-			// (uses first monitor, or first scannable if there is no monitor either)
-			createNXDataGroups(entryBuilder, null);
-		} else {
-			// create NXdata groups for each detector
-			for (NexusObjectProvider<?> detector : detectors) {
-				createNXDataGroups(entryBuilder, detector);
-			}
-		}
-	}
-
-	private void createNXDataGroups(NexusEntryBuilder entryBuilder, NexusObjectProvider<?> detector) throws NexusException {
-		List<NexusObjectProvider<?>> scannables = nexusObjectProviders.get(ScanRole.SCANNABLE);
-		List<NexusObjectProvider<?>> monitors = new LinkedList<>(nexusObjectProviders.get(ScanRole.MONITOR_PER_POINT));
-		monitors.remove(solsticeScanMonitor.getNexusProvider(scanInfo));
-
-		// determine the primary device - i.e. the device whose primary dataset to make the @signal field
-		NexusObjectProvider<?> primaryDevice = null;
-		final ScanRole primaryDeviceType;
-		if (detector != null) {
-			// if there's a detector then it is the primary device
-			primaryDevice = detector;
-			primaryDeviceType = ScanRole.DETECTOR;
-		} else if (!monitors.isEmpty()) {
-			// otherwise the first monitor is the primary device (and therefore is not a data device)
-			primaryDevice = monitors.remove(0);
-			primaryDeviceType = ScanRole.MONITOR_PER_POINT;
-		} else if (!scannables.isEmpty()) {
-			// if there are no monitors either (a rare edge case), where we use the first scannable
-			// note that this scannable is also added as data device
-			for (NexusObjectProvider<?> scannable : scannables) {
-				if (scannable.getPrimaryDataFieldName() != null) {
-					primaryDevice = scannable;
-					break;
-				}
-			}
-			if (primaryDevice == null) {
-				throw new IllegalArgumentException("No suitable dataset could be found to use as the signal dataset of an NXdata group.");
-			}
-			primaryDeviceType = ScanRole.SCANNABLE;
-		} else {
-			// the scan has no devices at all (sanity check as this should already have been checked for)
-			throw new IllegalStateException("There must be at least one device to create a Nexus file.");
-		}
-
-		// create the NXdata group for the primary data field
-		String primaryDeviceName = primaryDevice.getName();
-		String primaryDataFieldName = primaryDevice.getPrimaryDataFieldName();
-		createNXDataGroup(entryBuilder, primaryDevice, primaryDeviceType, monitors,
-				scannables, primaryDeviceName, primaryDataFieldName);
-
-		// create an NXdata group for each additional primary data field (if any)
-		for (String dataFieldName : primaryDevice.getAdditionalPrimaryDataFieldNames()) {
-			String dataGroupName = primaryDeviceName + "_" + dataFieldName;
-			createNXDataGroup(entryBuilder, primaryDevice, primaryDeviceType, monitors,
-					scannables, dataGroupName, dataFieldName);
-		}
-	}
-
-	/**
-	 * Create the {@link NXdata} groups for the given primary device.
-	 * @param entryBuilder the entry builder to add to
-	 * @param primaryDevice the primary device (e.g. a detector or monitor)
-	 * @param primaryDeviceType the type of the primary device
-	 * @param monitors the monitors
-	 * @param scannable the scannables
-	 * @param dataGroupName the name of the {@link NXdata} group within the parent {@link NXentry}
-	 * @param primaryDataFieldName the name that the primary data field name
-	 *   (i.e. the <code>@signal</code> field) should have within the NXdata group
-	 * @throws NexusException
-	 */
-	private void createNXDataGroup(NexusEntryBuilder entryBuilder,
-			NexusObjectProvider<?> primaryDevice,
-			ScanRole primaryDeviceType,
-			List<NexusObjectProvider<?>> monitors,
-			List<NexusObjectProvider<?>> scannables,
-			String dataGroupName,
-			String primaryDataFieldName)
-			throws NexusException {
-		if (entryBuilder.getNXentry().containsNode(dataGroupName)) {
-			dataGroupName += "_data"; // append _data if the node already exists
-		}
-
-		// create the data builder and add the primary device
-		final NexusDataBuilder dataBuilder = entryBuilder.newData(dataGroupName);
-
-		PrimaryDataDevice<?> primaryDataDevice = createPrimaryDataDevice(
-				primaryDevice, primaryDeviceType, primaryDataFieldName);
-		dataBuilder.setPrimaryDevice(primaryDataDevice);
-
-		// add the monitors (excludes the first monitor if the scan has no detectors)
-		for (NexusObjectProvider<?> monitor : monitors) {
-			dataBuilder.addAxisDevice(getAxisDataDevice(monitor, null));
-		}
-
-		// Create the map from scannable name to default index of that scannable in the scan
-		if (defaultAxisIndexForScannable == null) {
-			defaultAxisIndexForScannable = createDefaultAxisMap(scannables);
-		}
-
-		// add the scannables to the data builder
-		Iterator<NexusObjectProvider<?>> scannablesIter = scannables.iterator();
-		while (scannablesIter.hasNext()) {
-			final NexusObjectProvider<?> scannable = scannablesIter.next();
-			final Integer defaultAxisForDimensionIndex =
-					defaultAxisIndexForScannable.get(scannable.getName());
-			dataBuilder.addAxisDevice(getAxisDataDevice(scannable, defaultAxisForDimensionIndex));
-		}
-	}
-
-	/**
-	 * Creates a map from scannable names to the index of the scan
-	 * (and therefore the index of the signal dataset of each NXdata) that this
-	 * scannable is the default axis for.
+	 * Creates the nexus file.
+	 * The structure of the nexus file is determined by the devices contained within the
+	 * {@link ScanModel} that {@link #configure(ScanModel)} was previously called with.
 	 *
-	 * @param scannables list of scannables
-	 * @return map from scannable name to index that this scannable is the index for
+	 * @throws ScanningException if the nexus file could not be created for any reason
 	 */
-	private Map<String, Integer> createDefaultAxisMap(List<NexusObjectProvider<?>> scannables) {
-		final Map<String, Integer> defaultAxisIndexForScannableMap = new HashMap<>();
+	public String createNexusFile(boolean async) throws ScanningException {
+		if (!isWritingNexus) return null;
 
-		AbstractPosition firstPosition = (AbstractPosition) model.getPointGenerator().iterator().next();
-		// A collection of dimension (scannable) names for each index of the scan
-		List<Collection<String>> dimensionNames = firstPosition.getDimensionNames();
+		nexusScanFile = nexusScanFileBuilder.createNexusFile(async);
+		return nexusScanFile.getFilePath();
+	}
 
-		// Convert the list into a map from scannable name to index in scan, only including
-		// scannable names which are the dimension name for exactly one index of the scan
-		int dimensionIndex = 0;
-		Iterator<Collection<String>> dimensionNamesIter = dimensionNames.iterator();
-		while (dimensionNamesIter.hasNext()) {
-			Collection<String> dimensionNamesForIndex = dimensionNamesIter.next();
-			//need to iterate or the _indices attibute defaults to [0]
-			Iterator<String> it = dimensionNamesForIndex.iterator();
-			while (it.hasNext()){
-				String scannableName = it.next();
-				if (defaultAxisIndexForScannableMap.containsKey(scannableName)) {
-					// already seen this scannable name for another index,
-					// so this scannable should not be the default axis for any index
-					// note: we put null instead of removing the entry in case the scannable
-					// because we don't want to add it again if the scannable is encountered again
-					defaultAxisIndexForScannableMap.put(scannableName, null);
-				}else {
-					defaultAxisIndexForScannableMap.put(scannableName, dimensionIndex);
-				}
+	/**
+	 * Flushes any pending data into the nexus file.
+	 * @throws ScanningException
+	 */
+	public void flushNexusFile() throws ScanningException {
+		if (!isWritingNexus) return;
+
+		try {
+			int code = nexusScanFile.flush();
+			if (code < 0) {
+				logger.warn("Problem flushing nexus file, error code = {}", code);
 			}
-
-			dimensionIndex++;
+		} catch (NexusException e) {
+			throw new ScanningException("Could not flush nexus file", e);
 		}
-
-		return defaultAxisIndexForScannableMap;
-	}
-
-	private <N extends NXobject> PrimaryDataDevice<N> createPrimaryDataDevice(
-			NexusObjectProvider<N> nexusObjectProvider,
-			ScanRole primaryDeviceType, String signalDataFieldName) throws NexusException {
-
-		if (primaryDeviceType == ScanRole.SCANNABLE) {
-			// using scannable as primary device as well as a scannable
-			// only use main data field (e.g. value for an NXpositioner)
-			DataDeviceBuilder<N> dataDeviceBuilder = DataDeviceBuilder.newPrimaryDataDeviceBuilder(
-					nexusObjectProvider);
-			dataDeviceBuilder.setAxisFields();
-			return (PrimaryDataDevice<N>) dataDeviceBuilder.build();
-		}
-
-		return DataDeviceBuilder.newPrimaryDataDevice(nexusObjectProvider, signalDataFieldName);
 	}
 
 	/**
-	 * Gets the data device for the given {@link NexusObjectProvider},
-	 * creating it if it doesn't exist.
-	 *
-	 * @param nexusObjectProvider nexus object provider
-	 * @param scannableIndex index in scan for {@link IScannable}s, or <code>null</code>
-	 *    if the scannable is being scanned (i.e. is a monitor or metadata scannable).
-	 * @param isPrimaryDevice <code>true</code> if this is the primary device for
-	 *    the scan, <code>false</code> otherwise
-	 * @return the data device
-	 * @throws NexusException
+	 * Informs the manager that the scan has finished. This will
+	 * cause the scanFinished dataset to be updated and the nexus file to be closed.
+	 * @throws ScanningException
 	 */
-	private AxisDataDevice<?> getAxisDataDevice(NexusObjectProvider<?> nexusObjectProvider,
-			Integer scannableIndex) throws NexusException {
-		AxisDataDevice<?> dataDevice = dataDevices.get(nexusObjectProvider);
-		if (dataDevice == null) {
-			dataDevice = createAxisDataDevice(nexusObjectProvider, scannableIndex);
-			// cache the non-primary devices for any other NXdata groups
-			dataDevices.put(nexusObjectProvider, dataDevice);
-		}
+	public void scanFinished() throws ScanningException {
+		if (!isWritingNexus) return;
 
-		return dataDevice;
+		nexusScanFileBuilder.scanFinished(); // need to write some final data into the file
+		try {
+			nexusScanFile.close();
+		} catch (NexusException e) {
+			throw new ScanningException("Could not close nexus file", e);
+		}
 	}
 
 	/**
-	 * Creates the {@link DataDevice} for the given {@link NexusObjectProvider},
-	 * @param nexusObjectProvider
-	 * @param scannableIndex if the {@link NexusObjectProvider} represents an
-	 *    {@link IScannable} then the index of that scannable in the list of scannables,
-	 *    otherwise <code>null</code>
-	 * @return
-	 * @throws NexusException
+	 * Returns whether this nexus file manager actually writes a nexus files.
+	 * @return <code>true</code> if a nexus file is written, <code>false</code> otherwise
 	 */
-	private <N extends NXobject> AxisDataDevice<N> createAxisDataDevice(
-			NexusObjectProvider<N> nexusObjectProvider, Integer scannableIndex) throws NexusException {
-		return DataDeviceBuilder.newAxisDataDevice(nexusObjectProvider, scannableIndex);
+	public boolean isNexusWritingEnabled() {
+		return isWritingNexus;
 	}
+
+	/**
+	 * The file paths of all the external files written to during this scan. For example, this
+	 * may be used to trigger archiving.
+	 * @return file paths of external files written to during this scan
+	 */
+	public Set<String> getExternalFilePaths() {
+		if (!isWritingNexus) return null;
+
+		return nexusScanFileBuilder.getExternalFilePaths();
+	}
+
 
 }

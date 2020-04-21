@@ -305,7 +305,7 @@ public class ScanModel {
 		this.filePath = filePath;
 	}
 
-	public Set<String> getTemplateFilePath() {
+	public Set<String> getTemplateFilePaths() {
 		if (templateFilePaths == null) {
 			return Collections.emptySet();
 		}
