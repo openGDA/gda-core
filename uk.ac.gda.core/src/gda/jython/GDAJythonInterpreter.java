@@ -67,6 +67,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.device.Scannable;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
+import gda.jython.commands.GeneralCommands;
 import gda.jython.logging.JythonLogHandler;
 import gda.jython.logging.PythonException;
 import gda.jython.translator.Translator;
@@ -282,6 +283,7 @@ public class GDAJythonInterpreter {
 		PyModule mod = imp.addModule("__main__");
 
 		PySystemState.getDefaultBuiltins().__setitem__("overwriting", overwriteLock);
+		GdaBuiltin.registerBuiltinsFrom(GeneralCommands.class);
 
 		// Replace globals dict to prevent scannables and aliases being overwritten
 		GdaGlobals globals = new GdaGlobals(overwriteLock);
@@ -441,7 +443,6 @@ public class GDAJythonInterpreter {
 				interactiveConsole.runsource("from gda.jython.commands import ScannableCommands");
 				interactiveConsole.runsource("from gda.jython.commands.ScannableCommands import *");
 				interactiveConsole.runsource("from gda.jython.commands import GeneralCommands");
-				interactiveConsole.runsource("from gda.jython.commands.GeneralCommands import *");
 				interactiveConsole.runsource("from gda.jython.commands import InputCommands");
 				interactiveConsole.runsource("from gda.jython.commands.InputCommands import *");
 
