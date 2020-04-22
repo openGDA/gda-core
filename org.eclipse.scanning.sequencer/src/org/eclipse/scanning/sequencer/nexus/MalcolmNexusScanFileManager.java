@@ -71,8 +71,7 @@ public class MalcolmNexusScanFileManager extends NexusScanFileManager {
 	@Override
 	protected int getScanRank(ScanModel model) throws ScanningException {
 		SubscanModerator moderator = new SubscanModerator(model);
-		int scanRank = moderator.getOuterPointGenerator().getRank();
-		return scanRank == 0 ? 1 : scanRank; // TODO fix this, see DAQ-2004
+		return moderator.getOuterPointGenerator().getRank(); // should always be >= 1
 	}
 
 	private ScanRole getScanRole(NexusObjectProvider<?> nexusProvider) throws ScanningException {
