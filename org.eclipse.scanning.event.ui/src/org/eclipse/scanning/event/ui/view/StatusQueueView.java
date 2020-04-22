@@ -155,6 +155,7 @@ public class StatusQueueView extends EventConnectionView {
 	private Action openAction;
 	private Action detailsAction;
 	private Action clearQueueAction;
+	private Action pauseQueueAction;
 
 	private IEventService service;
 
@@ -228,6 +229,9 @@ public class StatusQueueView extends EventConnectionView {
 
 		boolean anyFinalSelectedInRunList = selectedInRunList.stream().anyMatch(sb -> sb.getStatus().isFinal());
 		boolean anySelectedInSubmittedList = !selectedInSubmittedList.isEmpty();
+		boolean anyNonFinalSelected = selectedInRunList.stream().anyMatch(sb -> !sb.getStatus().isFinal()) || anySelectedInSubmittedList;
+		boolean allPaused = selectedInSubmittedList.stream().allMatch(sb -> sb.getStatus().isPaused()) &&
+				selectedInRunList.stream().allMatch(sb -> (sb.getStatus().isFinal() || sb.getStatus().isPaused()));
 
 		removeActionUpdate(selectedInSubmittedList, selectedInRunList);
 		rerunActionUpdate(selection);
@@ -235,15 +239,14 @@ public class StatusQueueView extends EventConnectionView {
 		editActionUpdate(anySelectedInSubmittedList);
 		downActionUpdate(anySelectedInSubmittedList);
 
-		boolean anyRunning = queue.values().stream().anyMatch(x -> (x.getStatus().isRunning() || x.getStatus().isResumed()));
-		boolean anyPaused = queue.values().stream().anyMatch(x -> x.getStatus().isPaused() );
-
 		stopActionUpdate(selectedInRunList);
-		pauseActionUpdate(anyRunning, anyPaused, anySelectedInSubmittedList);
+		pauseActionUpdate(anyNonFinalSelected, allPaused);
 
 		openResultsActionUpdate(anyFinalSelectedInRunList);
 		openActionUpdate(selection);
 		detailsActionUpdate(selectedInSubmittedList, selectedInRunList);
+
+		pauseQueueAction.setChecked(jobQueueProxy.isPaused());
 
 		// Some sanity checks
 		warnIfListContainsStatus("null status found in selection:       ", selection,     null);
@@ -391,7 +394,7 @@ public class StatusQueueView extends EventConnectionView {
 		stopAction = stopActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, stopAction);
 
-		final Action pauseQueueAction = pauseQueueActionCreate();
+		pauseQueueAction = pauseQueueActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, pauseQueueAction);
 		jobQueueProxy.addQueueStatusListener(status -> pauseQueueAction.setChecked(status == QueueStatus.PAUSED));
 
@@ -544,10 +547,10 @@ public class StatusQueueView extends EventConnectionView {
 		pauseQueue.setChecked(jobQueueProxy.isPaused());
 	}
 
-	private void pauseActionUpdate(boolean anyRunning, boolean anyPaused, boolean anySelectedSubmitted) {
-		pauseAction.setEnabled(anyRunning || anyPaused || anySelectedSubmitted);
-		pauseAction.setChecked(anyPaused);
-		pauseAction.setText(anyPaused?"Resume job":"Pause job");
+	private void pauseActionUpdate(boolean anySelectedNonFinal, boolean allPaused) {
+		pauseAction.setEnabled(anySelectedNonFinal);
+		pauseAction.setChecked(allPaused);
+		pauseAction.setText(allPaused?"Resume job":"Pause job");
 	}
 
 	private Action pauseActionCreate() {
@@ -564,18 +567,15 @@ public class StatusQueueView extends EventConnectionView {
 	}
 
 	private void pauseActionRun() {
+		pauseAction.setEnabled(false);
 
 		for(StatusBean bean : getSelection()) {
 
-			if (bean.getStatus().isFinal()) {
-				MessageDialog.openInformation(getViewSite().getShell(), "Run '"+bean.getName()+"' inactive",
-					"Run '"+bean.getName()+"' is inactive and cannot be paused.");
-				continue;
-			}
+			if (bean.getStatus().isFinal()) continue;
 
 			try {
-				pauseAction.setEnabled(false);
-				if (bean.getStatus().isPaused()) {
+				// Invert as JFace bindings toggle state first...
+				if (!pauseAction.isChecked()) {
 					jobQueueProxy.resumeJob(bean);
 				} else {
 					jobQueueProxy.pauseJob(bean);
@@ -584,8 +584,6 @@ public class StatusQueueView extends EventConnectionView {
 				ErrorDialog.openError(getViewSite().getShell(), "Cannot pause "+bean.getName(),
 					"Cannot pause "+bean.getName()+"\n\nPlease contact your support representative.",
 					new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()));
-			} finally {
-				pauseAction.setEnabled(true);
 			}
 		}
 	}
