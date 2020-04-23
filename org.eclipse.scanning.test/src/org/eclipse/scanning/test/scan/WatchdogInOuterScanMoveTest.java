@@ -217,7 +217,6 @@ public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
 		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
 		assertEquals(3, scanPositionListener.getNumPositionsPerformed());
 		final Scalar<Double> expectedOuterPos = new Scalar<>("outer", 2, 292.0);
-		expectedOuterPos.setStepIndex(INNER_SCAN_SIZE * 3 - 1);
 		assertEquals(expectedOuterPos, scanPositionListener.getLastPositionPerformed());
 
 		malcolmEvents.clear();
