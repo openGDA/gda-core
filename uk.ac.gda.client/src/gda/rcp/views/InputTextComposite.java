@@ -20,9 +20,11 @@ package gda.rcp.views;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -397,4 +399,13 @@ public class InputTextComposite extends Composite {
 	public void setUpperLimit(Double upperlimit2) {
 		upperLimit = upperlimit2;
 	}
+
+	/**
+	 * Sets the description label for the composite to a bold font
+	 */
+	public void setLabelToBold() {
+    	FontDescriptor boldDescriptor = FontDescriptor.createFrom(displayNameLabel.getFont()).setStyle(SWT.BOLD);
+		Font boldFont = boldDescriptor.createFont(displayNameLabel.getDisplay());
+		displayNameLabel.setFont(boldFont);
+    }
 }

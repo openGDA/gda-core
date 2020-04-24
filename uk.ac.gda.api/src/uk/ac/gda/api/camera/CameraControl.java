@@ -125,4 +125,18 @@ public interface CameraControl extends Findable, IObservable {
 	 * @return The Y-coordinate of the overlay
 	 */
 	int getOverlayCentreY() throws DeviceException;
+
+	/**
+	 * Sets the {@link ImageMode} of the camera
+	 *
+	 * @param imageMode
+	 * @throws Exception
+	 */
+	void setImageMode(ImageMode imageMode) throws Exception;
+
+	/**
+	 * Gets the {@link ImageMode} of the camera
+	 * @throws Exception
+	 */
+	ImageMode getImageMode() throws Exception;
 }
