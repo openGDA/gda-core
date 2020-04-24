@@ -276,11 +276,6 @@ public class PassthroughScannableMotionUnitsDecorator implements ScannableMotion
 	}
 
 	@Override
-	public void atStart() throws DeviceException {
-		delegate.atStart();
-	}
-
-	@Override
 	public void setTolerances(Double[] tolerence) throws DeviceException {
 		delegate.setTolerances(tolerence);
 	}
@@ -288,11 +283,6 @@ public class PassthroughScannableMotionUnitsDecorator implements ScannableMotion
 	@Override
 	public int getNumberTries() {
 		return delegate.getNumberTries();
-	}
-
-	@Override
-	public void atEnd() throws DeviceException {
-		delegate.atEnd();
 	}
 
 	@Override

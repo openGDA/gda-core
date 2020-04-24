@@ -185,24 +185,6 @@ public interface Scannable extends Device {
 	public String[] getOutputFormat();
 
 	/**
-	 * Replaced by atScanStart
-	 *
-	 * @throws DeviceException
-	 * @deprecated
-	 */
-	@Deprecated
-	public void atStart() throws DeviceException;
-
-	/**
-	 * Replaced by atScanEnd
-	 *
-	 * @throws DeviceException
-	 * @deprecated
-	 */
-	@Deprecated
-	public void atEnd() throws DeviceException;
-
-	/**
 	 * Called for every Scannable at the start of a group of nested scans (or a single scan if that is the case)
 	 *
 	 * @throws DeviceException

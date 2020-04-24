@@ -364,16 +364,6 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 	}
 
 	@Override
-	public void atStart() throws DeviceException {
-		// deprecated
-	}
-
-	@Override
-	public void atEnd() throws DeviceException {
-		// deprecated
-	}
-
-	@Override
 	public void atScanStart() throws DeviceException {
 		clearProcessorCache(); //ensure extraNames/outputFormats match enabled processors
 		detector.atScanStart();

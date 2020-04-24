@@ -590,12 +590,6 @@ class CoordinatedChildScannable extends ScannableBase implements ICoordinatedSca
 		delegate.addIObserver(anIObserver);
 	}
 
-	@SuppressWarnings("deprecation")
-	@Override
-	public void atEnd() throws DeviceException {
-		delegate.atEnd();
-	}
-
 	@Override
 	public void atPointEnd() throws DeviceException {
 		delegate.atPointEnd();
@@ -624,12 +618,6 @@ class CoordinatedChildScannable extends ScannableBase implements ICoordinatedSca
 	@Override
 	public void atScanStart() throws DeviceException {
 		delegate.atScanStart();
-	}
-
-	@SuppressWarnings("deprecation")
-	@Override
-	public void atStart() throws DeviceException {
-		delegate.atStart();
 	}
 
 	@Override
