@@ -72,7 +72,7 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 	private boolean enableValueMonitoring = true;
 	private boolean poll=false;
 	private boolean acdcAvailable=true; // keep the original default behaviour if not set in Spring bean definition
-
+	private boolean initialised = false;
 	private Monitor monitor;
 
 	/**
@@ -227,6 +227,7 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 			} else {
 				enableValueMonitoring();
 			}
+			initialised = true;
 			logger.info(getName() + " - initialisation completed.");
 		} catch (DeviceException e) {
 			logger.warn(getName() + " - initialisation failed.");
@@ -294,11 +295,13 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 		DBR dbr = mev.getDBR();
 		if (dbr.isENUM()) {
 			int value = ((DBR_CTRL_Enum) dbr).getEnumValue()[0];
-			if (value >= modePositions.size()) {
-				logger.warn("Unexpected mode position: {}", value);
-				return;
+			if (initialised) {
+				if (value >= modePositions.size()) {
+					logger.warn("Unexpected mode position: {}", value);
+					return;
+				}
+				notifyIObservers(this, mode=modePositions.get(value));
 			}
-			notifyIObservers(this, mode=modePositions.get(value));
 		} else {
 			logger.error("Mode does not return Enum type.");
 		}
@@ -311,11 +314,13 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 		DBR dbr = mev.getDBR();
 		if (dbr.isENUM()) {
 			int value = ((DBR_CTRL_Enum) dbr).getEnumValue()[0];
-			if (value >= gainPositions.size()) {
-				logger.warn("Unexpected gain position: {}", value);
-				return;
+			if (initialised) {
+				if (value >= gainPositions.size()) {
+					logger.warn("Unexpected gain position: {}", value);
+					return;
+				}
+				notifyIObservers(this, gain=gainPositions.get(value));
 			}
-			notifyIObservers(this, gain=gainPositions.get(value));
 		} else {
 			logger.error("Gain does not return Enum type.");
 		}
