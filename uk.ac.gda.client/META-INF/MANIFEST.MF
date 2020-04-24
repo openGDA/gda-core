@@ -72,7 +72,8 @@ Require-Bundle: org.eclipse.help.ui,
  si.uom.si-quantity;bundle-version="0.9.0",
  si.uom.si-units;bundle-version="0.9.0",
  tec.units.indriya,
- uk.ac.diamond.daq.persistence.classloader
+ uk.ac.diamond.daq.persistence.classloader,
+ uk.ac.diamond.org.springframework
 Export-Package: com.swtdesigner,
  gda.gui.scriptcontroller.logging,
  gda.rcp,
@@ -126,6 +127,7 @@ Import-Package: com.google.gson.annotations;version="2.2.4",
  org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans;version="4.0.6.RELEASE",
  org.springframework.beans.factory;version="3.0.4",
+ org.springframework.beans.factory.config;version="4.0.6.RELEASE",
  org.springframework.context;version="3.0.4",
  org.springframework.stereotype;version="4.0.6.RELEASE",
  org.springframework.util;version="3.0.4"

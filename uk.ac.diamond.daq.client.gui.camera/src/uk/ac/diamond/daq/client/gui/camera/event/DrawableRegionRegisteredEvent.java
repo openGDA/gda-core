@@ -24,6 +24,8 @@ import java.util.UUID;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.swt.widgets.Composite;
 
+import uk.ac.diamond.daq.client.gui.camera.liveview.DrawableRegion;
+
 /**
  * This event is published when a DrawableRegion has been successfully
  * registered in an {@link IPlottingSystem}
@@ -36,7 +38,7 @@ public class DrawableRegionRegisteredEvent extends RootCompositeEvent {
 	 * 
 	 */
 	private static final long serialVersionUID = 4530246537809378671L;
-	private final IPlottingSystem<Composite> plottingSystem;
+	private final transient DrawableRegion drawableRegion;
 
 	/**
 	 * Creates an instance for this class
@@ -45,15 +47,12 @@ public class DrawableRegionRegisteredEvent extends RootCompositeEvent {
 	 * @param plottingSystem   the plottingSystem where the region is registered 
 	 * @param rootComposite the parent unique ID
 	 */
-	public DrawableRegionRegisteredEvent(Object source, IPlottingSystem<Composite> plottingSystem, Optional<UUID> rootComposite) {
+	public DrawableRegionRegisteredEvent(Object source, Optional<UUID> rootComposite, DrawableRegion drawableRegion) {
 		super(source, rootComposite);
-		this.plottingSystem = plottingSystem;
+		this.drawableRegion = drawableRegion;
 	}
 
-	/**
-	 * @return the region plotting system
-	 */
-	public IPlottingSystem<Composite> getPlottingSystem() {
-		return plottingSystem;
+	public DrawableRegion getDrawableRegion() {
+		return drawableRegion;
 	}
 }

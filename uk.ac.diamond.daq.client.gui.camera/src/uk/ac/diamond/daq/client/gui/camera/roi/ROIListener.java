@@ -26,7 +26,7 @@ public class ROIListener implements IROIListener {
 
 	private final Composite parent;
 	private final LivePlottingComposite livePlottingComposite;
-	private final String name;
+	private final UUID regionID;
 
 	/**
 	 * 
@@ -35,12 +35,12 @@ public class ROIListener implements IROIListener {
 	 *                              between multiple {@link ROIChangeEvent}
 	 * @param livePlottingComposite the graphical object where the ROI has been
 	 *                              drawn
-	 * @param roiName               the roi name used to register the region
+	 * @param regionID              The UUID of the region generating this event
 	 */
-	public ROIListener(Composite parent, LivePlottingComposite livePlottingComposite, ClientMessages roiName) {
+	public ROIListener(Composite parent, LivePlottingComposite livePlottingComposite, UUID regionID) {
 		this.parent = parent;
 		this.livePlottingComposite = livePlottingComposite;
-		this.name = ClientMessagesUtility.getMessage(roiName);
+		this.regionID = regionID;
 	}
 
 	@Override
@@ -78,7 +78,7 @@ public class ROIListener implements IROIListener {
 		if (event.getROI() == null || event.getROI().getName() == null) {
 			return false;
 		}
-		return event.getROI().getName().equals(name);
+		return event.getROI().getName().equals(regionID.toString());
 	}
 
 	private void publishEvent(ROIEvent event) {

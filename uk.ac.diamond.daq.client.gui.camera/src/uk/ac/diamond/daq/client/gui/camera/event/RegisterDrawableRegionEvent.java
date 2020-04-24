@@ -40,21 +40,33 @@ public class RegisterDrawableRegionEvent extends RootCompositeEvent {
 	 * 
 	 */
 	private static final long serialVersionUID = 4530246537809378671L;
+	/**
+	 * The UUID to use as name for the region to be created
+	 */
+	private final UUID regionID;
+	/**
+	 * The ROI color
+	 */
 	private final Color color;
+	/**
+	 * The label to use in the GUI to identify to be created
+	 */
 	private final ClientMessages name;
 
 	/**
 	 * Creates an instance for this class
 	 * 
 	 * @param source  the Object which published this event
-	 * @param color   the color to use when drawing the region
+	 * @param color   the colour to use when drawing the region
 	 * @param regionName how the region is identified both in the GUI and the plotting system
-	 * @param rootComposite the parent unique ID  
+	 * @param rootComposite the parent unique ID. Used to filter cross components messages
+	 * @param regionID the identificator to use for the region to be created 
 	 */
-	public RegisterDrawableRegionEvent(Object source, Color color, ClientMessages regionName, Optional<UUID> rootComposite) {
+	public RegisterDrawableRegionEvent(Object source, Color color, ClientMessages regionName, Optional<UUID> rootComposite, UUID regionID) {
 		super(source, rootComposite);
 		this.color = color;
 		this.name = regionName;
+		this.regionID = regionID;
 	}
 
 	/**
@@ -71,5 +83,13 @@ public class RegisterDrawableRegionEvent extends RootCompositeEvent {
 	 */
 	public ClientMessages getName() {
 		return name;
+	}
+
+	/**
+	 * The unique id to be used when creating the region
+	 * @return
+	 */
+	public UUID getRegionID() {
+		return regionID;
 	}
 }

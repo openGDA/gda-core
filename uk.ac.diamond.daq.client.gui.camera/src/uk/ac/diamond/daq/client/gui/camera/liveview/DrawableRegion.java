@@ -1,8 +1,7 @@
 package uk.ac.diamond.daq.client.gui.camera.liveview;
 
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
-import org.eclipse.dawnsci.analysis.api.roi.IRectangularROI;
-import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
+import java.util.UUID;
+
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.region.IROIListener;
 import org.eclipse.dawnsci.plotting.api.region.IRegion;
@@ -13,41 +12,106 @@ import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ *  Creates an {@link Action} into the {@link IPlottingSystem} context menu to draw ROI. 
+ */
 public class DrawableRegion {
 	private static final Logger log = LoggerFactory.getLogger(DrawableRegion.class);
+
+	private enum RegionActionMode {
+		CREATE, REMOVE
+	}
+
+	private final UUID regionID;
+	private final Color color;
+	private final String name;
+	private IROIListener roiListener;
+	private IPlottingSystem<Composite> plottingSystem;
+	private boolean active;
+
+	private RegionAction regionAction;
+
+	/**
+	 * @param plottingSystem the plotting system where append the new action
+	 * @param color the 
+	 * @param name
+	 * @param roiListener
+	 * @param regionID
+	 */
+	public DrawableRegion(IPlottingSystem<Composite> plottingSystem, Color color, String name, IROIListener roiListener,
+			UUID regionID) {
+		this.plottingSystem = plottingSystem;
+		this.color = color;
+		this.name = name;
+		this.roiListener = roiListener;
+		this.active = false;
+		this.regionID = regionID;
+
+		regionAction = new RegionAction(name, regionID);
+	}
 	
-	private enum RegionActionMode { CREATE, REMOVE }
-	
+	public UUID getRegionID() {
+		return regionID;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		if (active == this.active) {
+			return;
+		}
+		if (active) {
+			regionAction.create(false);
+			regionAction.register();
+		} else {
+			regionAction.remove(false);
+			regionAction.unregister();
+		}
+		this.active = active;
+	}
+
+	public IRegion getIRegion() {
+		return plottingSystem.getRegion(getRegionID().toString());
+	}
+
+	public String getName() {
+		return name;
+	}
+
 	private class RegionAction extends Action {
 		private RegionActionMode mode;
-		
-		private RegionAction (String name) {
-			this.setId(name);
+		private final String name;		
+
+		private RegionAction(String name, UUID actionID) {
+			this.setId(actionID.toString());
+			this.name = name;
 			setMode(RegionActionMode.CREATE);
 		}
-		
-		private void setMode (RegionActionMode mode) {
+
+		private void setMode(RegionActionMode mode) {
 			if (this.mode == mode) {
 				return;
 			}
 			if (mode == RegionActionMode.CREATE) {
-				setText ("Create Region " + getId());
+				setText("Create Region " + name);
 			}
 			if (mode == RegionActionMode.REMOVE) {
-				setText ("Remove Region " + getId());
+				setText("Remove Region " + name);
 			}
 			this.mode = mode;
 		}
-		
-		private void register () {
+
+		private void register() {
 			unregister();
 			plottingSystem.getPlotActionSystem().addPopupAction(this);
 		}
-		
-		private void unregister () {
+
+		private void unregister() {
 			plottingSystem.getPlotActionSystem().remove(getId());
 		}
-		
+
 		@Override
 		public void run() {
 			if (mode == RegionActionMode.CREATE) {
@@ -57,115 +121,43 @@ public class DrawableRegion {
 				remove(true);
 			}
 		}
-	}
-
-	private Color color;
-	private String name;
-	private IROIListener roiListener;
-	private IPlottingSystem<Composite> plottingSystem;
-	private boolean active;
-	
-	private RegionAction regionAction;
-	
-	public DrawableRegion(IPlottingSystem<Composite> plottingSystem, Color color, 
-			String name, IROIListener roiListener) {
-		this.plottingSystem = plottingSystem;
-		this.color = color;
-		this.name = name;
-		this.roiListener = roiListener;
-		this.active = false;
 		
-		regionAction = new RegionAction(name);
-	}
-	
-	public boolean isActive() {
-		return active;
-	}
-	
-	public void setActive (boolean active) {
-		if (active == this.active) {
-			return;
-		}
-		if (active) {
-			create(false);
-			regionAction.register();
-		} else {
-			remove(false);
-			regionAction.unregister();
-		}
-		this.active = active;
-	}
-	
-	private void create (boolean newRegion) {
-		try {
-			remove(newRegion);
-			IRegion region = getIRegion();
-			if (region == null && newRegion) {
-				region = plottingSystem.createRegion(name, RegionType.BOX);
-				region.setRegionColor(color);
-				if (roiListener != null) {
-					region.addROIListener(roiListener);
+		private void create(boolean newRegion) {
+			try {
+				remove(newRegion);
+				IRegion region = getIRegion();
+				if (region == null && newRegion) {
+					region = plottingSystem.createRegion(getRegionID().toString(), RegionType.BOX);
+					region.setRegionColor(color);
+					if (roiListener != null) {
+						region.addROIListener(roiListener);
+					}
+					log.trace("Creating ROI: {}", getRegionID());
+					regionAction.setMode(RegionActionMode.REMOVE);
+				} else if (region != null) {
+					log.trace("Showing ROI: {}", getRegionID());
+					region.setVisible(true);
+					regionAction.setMode(RegionActionMode.REMOVE);
 				}
-				log.trace("Creating ROI: {}", name);
-				regionAction.setMode(RegionActionMode.REMOVE);
-			} else if (region != null) {
-				log.trace("Showing ROI: {}", name);
-				region.setVisible(true);
-				regionAction.setMode(RegionActionMode.REMOVE);
+			} catch (Exception e) {
+				log.error("Unable to create ROI", e);
 			}
-		} catch (Exception e) {
-			log.error("Unable to create ROI", e);
 		}
-	}
-	
-	private void remove(boolean delete) {
-		IRegion region = getIRegion();
-		if (region != null) {
-			if (delete) {
-				log.trace("Deleting ROI: {}", name);
-				plottingSystem.removeRegion(region);
-				regionAction.setMode(RegionActionMode.CREATE);
+
+		private void remove(boolean delete) {
+			IRegion region = getIRegion();
+			if (region != null) {
+				if (delete) {
+					log.trace("Deleting ROI: {}", getRegionID());
+					plottingSystem.removeRegion(region);
+					regionAction.setMode(RegionActionMode.CREATE);
+				} else {
+					log.trace("Hiding ROI: {}", getRegionID());
+					region.setVisible(false);
+				}
 			} else {
-				log.trace("Hiding ROI: {}", name);
-				region.setVisible(false);
+				log.trace("region {} not found", getRegionID());
 			}
-		} else {
-			log.trace("region {} not found", name);
 		}
-	}
-	
-	public void clear () {
-		remove (true);
-	}
-	
-	public void setRegion (IRectangularROI roi) {
-		IRegion region = getIRegion();
-		if (region != null) {
-			IROI iroi = region.getROI();
-			if (iroi instanceof RectangularROI) {
-				RectangularROI rectangularROI = (RectangularROI)iroi;
-				rectangularROI.setPoint(roi.getPoint());
-				rectangularROI.setLengths(roi.getLength(0), roi.getLength(1));
-			}
-			regionAction.setMode(RegionActionMode.REMOVE);
-		} else {
-			regionAction.setMode(RegionActionMode.CREATE);
-		}
-	}
-	
-	public String getName() {
-		return name;
-	}
-	
-	private IRegion getIRegion () {
-		return plottingSystem.getRegion(name);
-	}
-	
-	public IRectangularROI getRegion () {
-		IRegion region = getIRegion ();
-		if (region == null) {
-			return null;
-		}
-		return region.getROI().getBounds();
 	}
 }
