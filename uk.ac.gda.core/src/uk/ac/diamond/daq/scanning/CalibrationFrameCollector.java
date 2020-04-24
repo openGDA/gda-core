@@ -25,20 +25,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.dawnsci.analysis.api.tree.DataNode;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
-import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
-import org.eclipse.january.DatasetException;
-import org.eclipse.january.dataset.IDataset;
-import org.eclipse.january.dataset.SliceND;
 import org.eclipse.scanning.api.AbstractScannable;
 import org.eclipse.scanning.api.annotation.scan.PrepareScan;
 import org.eclipse.scanning.api.device.IRunnableDevice;
@@ -81,7 +75,12 @@ public class CalibrationFrameCollector extends AbstractScannable<Object> impleme
 	private final Map<String, String> malcolmDetectorNames;
 
 	private IRunnableDevice<?> detector;
-	private IDataset frame;
+
+	/** File path of the NeXus file corresponding to the single frame scan  */
+	private String frameFilePath;
+
+	/** NeXus node path to frame dataset */
+	private String nexusNodePath;
 
 	private Map<String, Object> previousConfiguration;
 
@@ -113,8 +112,15 @@ public class CalibrationFrameCollector extends AbstractScannable<Object> impleme
 
 	@Override
 	public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo info) throws NexusException {
+
+		// sanity check (if frame collection failed the failure should have escalated earlier)
+		if (nexusFieldName == null || frameFilePath == null || nexusNodePath == null) {
+			throw new NexusException("Calibration frame collection failed");
+		}
+
 		NXdetector nxDet = NexusNodeFactory.createNXdetector();
-		nxDet.setField(nexusFieldName, frame);
+		nxDet.addExternalLink(nexusFieldName, frameFilePath, nexusNodePath);
+
 		NexusObjectWrapper<NXdetector> prov = new NexusObjectWrapper<>(getName(), nxDet);
 		prov.setCategory(NexusBaseClass.NX_INSTRUMENT);
 		return prov;
@@ -123,9 +129,10 @@ public class CalibrationFrameCollector extends AbstractScannable<Object> impleme
 	private void acquire() throws ScanningException {
 		try {
 			configureBeamline();
-			frame = collectFrame();
+			frameFilePath = collectFrame();
+			nexusNodePath = generateNodePath();
 			restoreBeamline();
-		} catch (EventException | NexusException e) {
+		} catch (EventException e) {
 			throw new ScanningException("Problem taking snapshot", e);
 		}
 	}
@@ -143,7 +150,9 @@ public class CalibrationFrameCollector extends AbstractScannable<Object> impleme
 	}
 
 	private void move(Map.Entry<String, Object> scannableInstruction) throws ScanningException {
-		ScannableDeviceConnectorService.getInstance().getScannable(scannableInstruction.getKey()).setPosition(scannableInstruction.getValue());
+		ScannableDeviceConnectorService.getInstance()
+			.getScannable(scannableInstruction.getKey())
+			.setPosition(scannableInstruction.getValue());
 	}
 
 	private void restoreBeamline() throws ScanningException {
@@ -152,7 +161,11 @@ public class CalibrationFrameCollector extends AbstractScannable<Object> impleme
 		}
 	}
 
-	private IDataset collectFrame() throws NexusException, EventException {
+	/**
+	 * Performs an acquire request (single-frame scan);
+	 * returns path of resulting NeXus file
+	 */
+	private String collectFrame() throws EventException {
 		if (detector == null) {
 			logger.warn("Detector not set when getPosition() called");
 			return null;
@@ -170,28 +183,26 @@ public class CalibrationFrameCollector extends AbstractScannable<Object> impleme
 		}
 
 		if (request.getStatus() == Status.COMPLETE) {
-			return getDataset(request.getFilePath());
-		} else return null;
+			return request.getFilePath();
+		} else {
+			logger.error("Request not processed successfully: {}", request.getMessage());
+			return null;
+		}
 	}
 
-	private IDataset getDataset(String filePath) throws NexusException {
-		try (NexusFile file = NexusFileHDF5.openNexusFile(filePath)) {
-			final String detectorName;
-			if (detector instanceof MalcolmDevice) {
-				detectorName = malcolmDetectorNames.get(detector.getName());
-				Objects.requireNonNull(detectorName, "A detector name entry is required for malcolm scan " + detector.getName());
-			} else {
-				detectorName = detector.getName();
-			}
-
-			final String snapshotDatasetPath = "/entry/instrument/" + detectorName + "/data";
-			DataNode node = file.getData(snapshotDatasetPath);
-			try {
-				return node.getDataset().getSlice((SliceND)null).squeeze();
-			} catch (DatasetException e) {
-				throw new NexusException(e);
-			}
+	/**
+	 * Based on the scan's configured detector
+	 * generates the node path to the frame dataset
+	 */
+	private String generateNodePath() {
+		final String detectorName;
+		if (detector instanceof MalcolmDevice) {
+			detectorName = malcolmDetectorNames.get(detector.getName());
+			Objects.requireNonNull(detectorName, "A detector name entry is required for malcolm scan " + detector.getName());
+		} else {
+			detectorName = detector.getName();
 		}
+		return "/entry/instrument/" + detectorName + "/data";
 	}
 
 	private IRequester<AcquireRequest> getRequester() throws EventException {

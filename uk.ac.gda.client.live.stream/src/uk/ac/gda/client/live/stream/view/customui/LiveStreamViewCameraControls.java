@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import uk.ac.gda.api.camera.CameraControl;
+import uk.ac.gda.api.camera.CameraState;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.widgets.LiveStreamExposureTimeComposite;
 
@@ -124,7 +125,11 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 
 	private void startAcquiring(@SuppressWarnings("unused") SelectionEvent e) {
 		try {
-			cameraControl.startAcquiring();
+			if (cameraControl.getAcquireState() == CameraState.IDLE ) {
+				cameraControl.startAcquiring();
+			} else {
+				logger.debug("Detector is not idle - not starting it!");
+			}
 		} catch (DeviceException ex) {
 			logger.error("Error starting data acquisition", ex);
 		}

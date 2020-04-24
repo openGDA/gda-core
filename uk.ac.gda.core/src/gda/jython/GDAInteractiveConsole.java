@@ -21,6 +21,7 @@ package gda.jython;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
 import java.util.Arrays;
 
 import org.python.core.Py;
@@ -96,6 +97,7 @@ public class GDAInteractiveConsole extends InteractiveConsole {
 			// super.showexception handles SystemExit as a special case and shuts down the JVM
 			blockExit();
 		} else {
+			InterfaceProvider.getTerminalPrinter().print("Error time: " + Instant.now());
 			if (arg0.type instanceof PyJavaType) {
 				// in this case the jython code is just way too verbose for users
 				// we cut it down to the jython stack trace and the exception message (and class)
