@@ -39,6 +39,7 @@ import uk.ac.gda.api.camera.BinningFormat;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraControllerEvent;
 import uk.ac.gda.api.camera.CameraState;
+import uk.ac.gda.api.camera.ImageMode;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 @ServiceInterface(CameraControl.class)
@@ -280,5 +281,15 @@ public class EpicsCameraControl extends FindableConfigurableBase implements Came
 		} catch (DeviceException e) {
 			logger.error("Problem notifying observers", e);
 		}
+	}
+
+	@Override
+	public void setImageMode(ImageMode imageMode) throws Exception {
+		adBase.setImageMode(gda.device.detector.areadetector.v17.ImageMode.valueOf(imageMode.name()));
+	}
+
+	@Override
+	public ImageMode getImageMode() throws Exception {
+		return ImageMode.values()[adBase.getImageMode_RBV()];
 	}
 }
