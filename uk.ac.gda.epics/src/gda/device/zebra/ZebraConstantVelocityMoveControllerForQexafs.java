@@ -627,16 +627,6 @@ public class ZebraConstantVelocityMoveControllerForQexafs extends FindableConfig
 	}
 
 	@Override
-	public void atStart() throws DeviceException {
-		zebraController.atScanStart();
-	}
-
-	@Override
-	public void atEnd() throws DeviceException {
-		zebraController.atScanEnd();
-	}
-
-	@Override
 	public void atScanStart() throws DeviceException {
 		zebraController.atScanStart();
 	}
