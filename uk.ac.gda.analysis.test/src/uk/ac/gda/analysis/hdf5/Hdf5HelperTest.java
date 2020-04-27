@@ -18,6 +18,8 @@
 
 package uk.ac.gda.analysis.hdf5;
 
+import static org.junit.Assume.assumeNotNull;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.Vector;
@@ -42,10 +44,8 @@ public class Hdf5HelperTest {
 	static String TestFileFolder;
 	@BeforeClass
 	static public void setUpClass() {
+		assumeNotNull(TestUtils.getGDALargeTestFilesLocation()); // Skip test if property not set
 		TestFileFolder = TestUtils.getGDALargeTestFilesLocation()+File.separator;
-		if( TestFileFolder == null){
-			Assert.fail("TestUtils.getGDALargeTestFilesLocation() returned null - test aborted");
-		}
 	}
 	/**
 	 * @throws Exception

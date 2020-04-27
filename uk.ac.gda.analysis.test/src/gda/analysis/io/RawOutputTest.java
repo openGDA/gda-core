@@ -18,12 +18,13 @@
 
 package gda.analysis.io;
 
+import static org.junit.Assume.assumeNotNull;
+
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DoubleDataset;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -52,9 +53,7 @@ public class RawOutputTest {
 	@BeforeClass
 	static public void setUpClass() throws Exception {
 		TestFileFolder = TestUtils.getGDALargeTestFilesLocation();
-		if( TestFileFolder == null){
-			Assert.fail("TestUtils.getGDALargeTestFilesLocation() returned null - test aborted");
-		}
+		assumeNotNull(TestFileFolder); // Skip test if property not set
 		testScratchDirectoryName = TestUtils
 				.generateDirectorynameFromClassname(RawOutputTest.class
 						.getCanonicalName());
