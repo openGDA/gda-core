@@ -18,6 +18,8 @@
 
 package gda.data.nexus.tree;
 
+import static org.junit.Assume.assumeNotNull;
+
 import java.io.File;
 import java.io.StringReader;
 import java.net.URL;
@@ -42,9 +44,7 @@ public class NexusTreeBuilderTest {
 	@BeforeClass
 	static public void setUpClass() {
 		TestFileFolder = TestUtils.getGDALargeTestFilesLocation();
-		if( TestFileFolder == null){
-			Assert.fail("TestUtils.getGDALargeTestFilesLocation() returned null - test aborted");
-		}
+		assumeNotNull(TestFileFolder); // Skip test if property not set
 	}
 	@Before
 	public void setUp() throws Exception {

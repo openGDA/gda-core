@@ -34,18 +34,6 @@
 					</dependency-resolution>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-surefire-plugin</artifactId>
-				<version>${tycho.version}</version>
-				<configuration>
-					<excludes>
-						<!-- Read of files dls_sw-->
-						<exclude>NexusExtractorTest</exclude>
-						<exclude>NexusTreeBuilderTest</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
 		</plugins>
 	</build>
 </project>

@@ -18,6 +18,8 @@
 
 package gda.data.nexus.extractor;
 
+import static org.junit.Assume.assumeNotNull;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -42,9 +44,7 @@ public class NexusExtractorTest {
 	@BeforeClass
 	static public void setUpClass() {
 		TestFileFolder = TestUtils.getGDALargeTestFilesLocation();
-		if( TestFileFolder == null){
-			Assert.fail("TestUtils.getGDALargeTestFilesLocation() returned null - test aborted");
-		}
+		assumeNotNull(TestFileFolder); // Skip test if property not set
 	}
 
 	@Before
