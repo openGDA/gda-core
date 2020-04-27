@@ -25,8 +25,7 @@ import static gda.configuration.properties.LocalProperties.GDA_VISIT_DIR;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -79,8 +78,6 @@ public class PathConstructor implements IPathConstructor{
 		INSTRUMENT(LocalProperties.GDA_INSTRUMENT, ""),
 
 		FACILITY(LocalProperties.GDA_FACILITY, ""),
-
-		YEAR("", new SimpleDateFormat("yyyy").format(new Date())),
 
 		SUBDIRECTORY("", ""),
 
@@ -209,6 +206,8 @@ public class PathConstructor implements IPathConstructor{
 	 * @return The canonical form of the constructed path.
 	 */
 	public String createFromTemplate(String template, Map<String, String> overrides) {
+		overrides = overrides == null ? new HashMap<>() : new HashMap<>(overrides);
+		overrides.computeIfAbsent("year", s -> String.valueOf(LocalDate.now().getYear()));
 		StringTokenizer st = new StringTokenizer(template, "$");
 		StringBuilder path = new StringBuilder();
 
