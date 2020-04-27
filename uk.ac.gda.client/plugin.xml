@@ -289,11 +289,6 @@
             name="Abort all commands">
       </command>
       <command
-            defaultHandler="uk.ac.gda.actions.BeamlineHaltHandler"
-            id="uk.ac.gda.client.StopAll"
-            name="Stop All Command and Hardware">
-      </command>
-      <command
             defaultHandler="uk.ac.gda.actions.HaltScanHandler"
             id="uk.ac.gda.client.jython.HaltScan"
             name="Halt Scan">

@@ -42,8 +42,8 @@ import gda.observable.IObserver;
  * StopAll command implementation that displays a blocking dialog to user until this command process on GDA server is
  * finished.
  *
- * It intended to replace {@link BeamlineHaltHandler} which returns before server process completed, thus allow users to
- * multiple click this.
+ * It replaces BeamlineHaltHandler (now deleted) which returned before server process completed, thus allowing users
+ * to multiple click this.
  */
 public class StopAllHandler extends AbstractHandler {
 
