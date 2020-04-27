@@ -19,7 +19,7 @@
 package gda.device.detector.xmap.util;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeNotNull;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -33,9 +33,7 @@ public class XmapNexusFileLoaderTest {
 	@BeforeClass
 	public static void beforeClass() {
 		TestFileFolder = TestUtils.getGDALargeTestFilesLocation();
-		if( TestFileFolder == null){
-			fail("TestUtils.getGDALargeTestFilesLocation() returned null - test aborted");
-		}
+		assumeNotNull(TestFileFolder); // Skip test if property not set
 	}
 
 	@Test

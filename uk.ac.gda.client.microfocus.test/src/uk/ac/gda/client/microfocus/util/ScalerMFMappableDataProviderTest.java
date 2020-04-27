@@ -22,7 +22,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeNotNull;
 
 import org.junit.After;
 import org.junit.Before;
@@ -76,9 +76,7 @@ public class ScalerMFMappableDataProviderTest {
 	@Test
 	public void testLoadData() throws Exception
 	{
-		if( TestFileFolder == null){
-			fail("TestUtils.getGDALargeTestFilesLocation() returned null - test aborted");
-		}
+		assumeNotNull(TestFileFolder); // Skip test if property not set
 		scalerDataProvider.loadData(TestFileFolder + "uk.ac.gda.client.microfocus.util/vortex_map_1_8472.nxs");
 		Double[] x = scalerDataProvider.getXarray();
 		assertEquals(11, x.length);
@@ -94,9 +92,7 @@ public class ScalerMFMappableDataProviderTest {
 	@Test
 	public void testConstructMappableDatafromCounter() throws Exception
 	{
-		if( TestFileFolder == null){
-			fail("TestUtils.getGDALargeTestFilesLocation() returned null - test aborted");
-		}
+		assumeNotNull(TestFileFolder); // Skip test if property not set
 		scalerDataProvider.loadData(TestFileFolder + "uk.ac.gda.client.microfocus.util/i18-284.nxs");
 		double d[][] = scalerDataProvider.constructMappableData();
 		assertEquals(99379.0, d[0][0], 0.0);
