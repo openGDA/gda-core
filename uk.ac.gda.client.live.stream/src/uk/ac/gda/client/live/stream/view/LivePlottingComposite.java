@@ -185,7 +185,9 @@ public class LivePlottingComposite extends Composite {
 				liveStreamConnection.addDataListenerToStream(updateTitleUpdateListener());
 			} else {
 				plottingSystem.setTitle("");
-				liveStreamConnection.removeDataListenerFromStream(titleUpdateListener);
+				if (titleUpdateListener != null) {
+					liveStreamConnection.removeDataListenerFromStream(titleUpdateListener);
+				}
 			}
 		} catch (LiveStreamException e) {
 			// This will probably never happen, as getStream() should not fail once the stream is connected
@@ -329,10 +331,23 @@ public class LivePlottingComposite extends Composite {
 		}
 	}
 
+	/**
+	 * See comment on {@link #setShowTitle(boolean)}
+	 *
+	 * @return {@code true} if title is shown, {@code false} if it is not shown
+	 */
 	public boolean isShowTitle() {
 		return showTitle;
 	}
 
+	/**
+	 * TODO: Consider whether we should remove this function and specify in the constructor whether the title should be
+	 * shown.<br>
+	 * There is probably no reason to allow the title to be added or removed after the view is shown.
+	 *
+	 * @param showTitle
+	 *            {@code true} to show the title, {@code false} to hide it
+	 */
 	public void setShowTitle(boolean showTitle) {
 		this.showTitle = showTitle;
 		if (connected) {
