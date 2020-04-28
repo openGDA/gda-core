@@ -331,7 +331,6 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 			while (positionIterator.hasNext()) {
 
 				pos = positionIterator.next();
-				pos.setStepIndex(location.getStepNumber());
 
 				if (!firedFirst) {
 					fireFirst(pos);
@@ -385,19 +384,20 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	}
 
 	private void positionComplete(IPosition pos) throws EventException, ScanningException {
-		int count = location.getOuterCount();
-		int size = location.getOuterSize();
+		//TODO: LocationManager increment is invoked for Malcolm scans, requiring this temp fix, should just location.getStepIndex
+		final int count = (pos.getStepIndex() + 1) * (location.getInnerSize() == 0 ? 1 : location.getInnerSize());
+		final int size = location.getTotalSize();
 		firePositionComplete(pos);
 
 		final ScanBean bean = getScanBean();
 		bean.setPoint(count);
 		bean.setPosition(pos);
-		if (size>-1) bean.setPercentComplete(((double)(count)/size)*100);
-		if (bean.getStatus()==Status.RUNNING) { // Only set this message if we are still running.
-			bean.setMessage("Point " + (pos.getStepIndex() + 1) +" of " + size);
+		if (size > 0) bean.setPercentComplete(((double)(count)/size)*100);
+		if (bean.getStatus().isRunning()) { // Only set this message if we are still running.
+			bean.setMessage("Point " + count + " of " + size);
 		}
 
-		IPublisher<ScanBean> publisher = getPublisher();
+		final IPublisher<ScanBean> publisher = getPublisher();
 		if (publisher != null) {
 			publisher.broadcast(bean);
 		}
