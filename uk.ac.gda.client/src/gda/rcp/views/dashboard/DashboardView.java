@@ -54,8 +54,10 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.factory.Finder;
 import gda.rcp.GDAClientActivator;
 import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.gda.rcp.dashboard.configuration.DashboardScannables;
 import uk.ac.gda.ui.modifiers.DoubleClickModifier;
 
 public final class DashboardView extends ViewPart {
@@ -298,7 +300,7 @@ public final class DashboardView extends ViewPart {
 	 */
 	protected List<ScannableObject> getDefaultServerObjects() throws Exception {
 
-		final List<ScannableObject> data = new ArrayList<ScannableObject>(5);
+		final List<ScannableObject> data = new ArrayList<ScannableObject>();
 
 		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor(
 				"uk.ac.gda.client.dashboard.objects");
@@ -309,6 +311,15 @@ public final class DashboardView extends ViewPart {
 			ob.setToolTip(e.getAttribute("tooltip"));
 
 			data.add(ob);
+		}
+
+		try {
+			DashboardScannables dashboardScannables = Finder.getInstance().findSingleton(DashboardScannables.class);
+			List<String> scannableNames = dashboardScannables.getDashboardScannableNames();
+			scannableNames.stream()
+						  .forEach(item -> data.add(new ScannableObject(item, new JythonSnapshotProvider())));
+		} catch (IllegalArgumentException e) {
+			logger.info("No dashboard scannables were defined via Spring xml");
 		}
 
 		return data;
