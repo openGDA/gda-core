@@ -22,6 +22,7 @@ package gda.data.nexus;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeNotNull;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -414,9 +415,7 @@ public class ScanToNexusTest {
 		String testScratchDirectoryName = TestHelpers.setUpTest(ScanToNexusTest.class, "testNXTomoEntryLinkCreator", true);
 
 		String testFilesLocation = TestUtils.getGDALargeTestFilesLocation();
-		if( testFilesLocation == null){
-			Assert.fail("TestUtils.getGDALargeTestFilesLocation() returned null - test aborted");
-		}
+		assumeNotNull(testFilesLocation); // Skip test if property not set
 
 		NXTomoEntryLinkCreator nxLinkCreator = new NXTomoEntryLinkCreator();
 		nxLinkCreator.setInstrument_detector_data_target("!entry1:NXentry/instrument:NXinstrument/pco1_hw_hdf:NXdetector/data:SDS");
