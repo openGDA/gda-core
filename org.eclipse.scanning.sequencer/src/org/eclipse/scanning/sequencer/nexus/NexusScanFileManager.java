@@ -62,9 +62,6 @@ import org.eclipse.scanning.api.points.AbstractPosition;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
-import org.eclipse.scanning.api.scan.models.ScanDataModel;
-import org.eclipse.scanning.api.scan.models.ScanDeviceModel;
-import org.eclipse.scanning.api.scan.models.ScanDeviceModel.ScanFieldModel;
 import org.eclipse.scanning.api.scan.models.ScanMetadata;
 import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.scan.models.ScanModel;
@@ -704,67 +701,7 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 	 */
 	private <N extends NXobject> AxisDataDevice<N> createAxisDataDevice(
 			NexusObjectProvider<N> nexusObjectProvider, Integer scannableIndex) throws NexusException {
-		if (model instanceof ScanDataModel) {
-			// using a ScanDataModel allows for customization of how the data fields
-			// of the device are added to the NXdata
-			ScanDeviceModel scanDeviceModel = ((ScanDataModel) model).getScanDevice(
-					nexusObjectProvider.getName());
-			if (scanDeviceModel != null) {
-				createCustomAxisDataDevice(nexusObjectProvider, scanDeviceModel, scannableIndex);
-			}
-		}
-
 		return DataDeviceBuilder.newAxisDataDevice(nexusObjectProvider, scannableIndex);
-	}
-
-	/**
-	 * Configures the {@link DataDevice} according to the given {@link ScanDeviceModel}.
-	 * @param nexusObjectProvider
-	 * @param scanDeviceModel scan device model
-	 */
-	private <N extends NXobject> void createCustomAxisDataDevice(
-			NexusObjectProvider<N> nexusObjectProvider, ScanDeviceModel scanDeviceModel,
-			Integer scannableIndex) {
-		DataDeviceBuilder<N> builder = DataDeviceBuilder.newAxisDataDeviceBuilder(
-				nexusObjectProvider, scannableIndex);
-
-		// add named fields only means only add fields
-		if (scanDeviceModel.getAddNamedFieldsOnly()) {
-			builder.clearAxisFields();
-		}
-
-		// set the default dimension mappings
-		builder.setDefaultDimensionMappings(scanDeviceModel.getDefaultDimensionMappings());
-		builder.setDefaultAxisDimension(scanDeviceModel.getDefaultAxisDimension());
-
-		// configure the information for any fields
-		Map<String, ScanFieldModel> fieldDimensionModels = scanDeviceModel.getFieldDimensionModels();
-		for (String sourceFieldName : fieldDimensionModels.keySet()) {
-			ScanFieldModel fieldDimensionModel = fieldDimensionModels.get(sourceFieldName);
-			builder.addAxisField(sourceFieldName);
-			if (fieldDimensionModel != null) {
-				// add the field info from the ScanModel to the DataDevice
-
-				// the name of the field in the NXdata
-				String destinationFieldName = scanDeviceModel.getDestinationFieldName(sourceFieldName);
-				if (destinationFieldName != null) {
-					builder.setDestinationFieldName(sourceFieldName, destinationFieldName);
-				}
-
-				// the index of the dimension of the signal field that this field is a default axis for
-				Integer fieldDefaultAxisDimension = fieldDimensionModel.getDefaultAxisDimension();
-				if (fieldDefaultAxisDimension != null) {
-					builder.setDefaultAxisDimension(fieldDefaultAxisDimension);
-				}
-
-				// the dimension mappings between this field and the signal field
-				int[] dimensionMappings = fieldDimensionModel.getDimensionMappings();
-				if (dimensionMappings != null) {
-					builder.setDimensionMappings(sourceFieldName, dimensionMappings);
-				}
-
-			}
-		}
 	}
 
 }
