@@ -390,7 +390,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 
 		IEventService service = ServiceHolder.getEventService();
 
-		try {
+		try  {
 			ISubscriber<IBeanListener<StatusBean>> statusTopicSubscriber = service.createSubscriber(getActiveMqUri(), EventConstants.STATUS_TOPIC);
 			statusTopicSubscriber.addListener(evt -> {
 				if (evt.getBean() instanceof ScanBean) {
@@ -406,6 +406,13 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 					logger.error("Error removing listener from STATUS_TOPIC", e1);
 				}
 			});
+		} catch (NullPointerException e) {
+			// Handling for non-StatusQueueView/Mapping beamlines, prevent stack trace being printed to console
+			if (service == null) {
+				logger.warn("EventService null when adding listener to STATUS_TOPIC, ScanBean status bar progress disabled. If this beamline uses the Queue, this will cause errors elsewhere");
+			} else {
+				throw e;
+			}
 
 		} catch (Exception e2) {
 			logger.error("Error adding listener to STATUS_TOPIC", e2);
