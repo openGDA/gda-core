@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.NDOverlaySimple;
+import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.NDROI;
 import gda.device.detector.areadetector.v17.impl.ADBaseImpl;
 import gda.epics.connection.EpicsController;
@@ -50,6 +51,7 @@ public class EpicsCameraControl extends FindableConfigurableBase implements Came
 	private final ADBase adBase;
 	private final NDROI ndRoi;
 	private NDOverlaySimple ndOverlay;
+	private NDProcess ndProcess;
 	private boolean iocHasOverlayCentrePvs;
 	private boolean useAcquireTimeMonitor;
 
@@ -291,5 +293,43 @@ public class EpicsCameraControl extends FindableConfigurableBase implements Came
 	@Override
 	public ImageMode getImageMode() throws Exception {
 		return ImageMode.values()[adBase.getImageMode_RBV()];
+	}
+
+	public NDProcess getNdProcess() {
+		return ndProcess;
+	}
+
+	public void setNdProcess(NDProcess ndProcess) {
+		this.ndProcess = ndProcess;
+	}
+
+	@Override
+	public void enableProcessingFilter() throws Exception {
+		throwExceptionIfNoProcessingConfigured();
+		ndProcess.setEnableFilter(1);
+	}
+
+	@Override
+	public void disableProcessingFilter() throws Exception {
+		throwExceptionIfNoProcessingConfigured();
+		ndProcess.setEnableFilter(0);
+	}
+
+	@Override
+	public void setProcessingFilterType(int filterType) throws Exception {
+		throwExceptionIfNoProcessingConfigured();
+		ndProcess.setFilterType(filterType);
+	}
+
+	@Override
+	public void resetFilter() throws Exception {
+		throwExceptionIfNoProcessingConfigured();
+		ndProcess.setResetFilter(1);
+	}
+
+	private void throwExceptionIfNoProcessingConfigured() throws Exception {
+		if (ndProcess == null) {
+			throw new DeviceException("Processing not configured for EpicsCameraControl");
+		}
 	}
 }
