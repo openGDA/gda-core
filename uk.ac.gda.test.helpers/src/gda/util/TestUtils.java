@@ -22,7 +22,14 @@ import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Enumeration;
+
+import org.eclipse.core.runtime.FileLocator;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 
 public class TestUtils {
 
@@ -142,18 +149,42 @@ public class TestUtils {
 	 * specified class.
 	 *
 	 * @param clazz the class with which the resource is associated
-	 * @param name the desired resource
+	 * @param name  the desired resource
 	 *
 	 * @return a {@link File} for the resource, if it is found
 	 *
 	 * @throws FileNotFoundException if the resource cannot be found
 	 */
 	public static File getResourceAsFile(Class<?> clazz, String name) throws FileNotFoundException {
-		URL url = clazz.getResource(name);
-		if (url == null) {
-			throw new FileNotFoundException(name + " (resource not found)");
+		Bundle bundle = FrameworkUtil.getBundle(clazz);
+		// Buckminster test run is outside OSGi
+		if (bundle== null) {
+			URL url = clazz.getResource(name);
+			if (url == null) {
+				throw new FileNotFoundException(name + " (resource not found)");
+			}
+			return new File(url.getFile());
 		}
-		return new File(url.getFile());
+		URL urlToResource = null;
+		Enumeration<URL> findEntries = bundle.findEntries("/", name, true);
+		while (findEntries != null && findEntries.hasMoreElements()) {
+			URL nextElement = findEntries.nextElement();
+			String packageAsPath = clazz.getPackage().getName().replace(".", File.separator);
+			if (nextElement.getPath().contains(packageAsPath)) {
+				urlToResource = nextElement;
+			}
+
+		}
+		if (urlToResource == null) {
+			throw new FileNotFoundException(name + " not found in " + clazz.getPackage().getName());
+		}
+		try {
+			File file = new File(FileLocator.resolve(urlToResource).toURI());
+			return file;
+		} catch (URISyntaxException | IOException e) {
+			throw new FileNotFoundException(e.getMessage());
+		}
+
 	}
 
 	/**
