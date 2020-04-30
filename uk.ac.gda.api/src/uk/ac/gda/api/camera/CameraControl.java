@@ -139,4 +139,26 @@ public interface CameraControl extends Findable, IObservable {
 	 * @throws Exception
 	 */
 	ImageMode getImageMode() throws Exception;
+
+	/**
+	 * Enables the processing filter
+	 */
+	void enableProcessingFilter() throws Exception;
+
+	/**
+	 * Disables the processing filter
+	 */
+	void disableProcessingFilter() throws Exception;
+
+	/**
+	 * Selects the type of recursive filter to be used by the processing plugin
+	 *
+	 * @throws Exception
+	 */
+	void setProcessingFilterType(int filterType) throws Exception;
+
+	/**
+	 * Resets the filter
+	 */
+	void resetFilter() throws Exception;
 }
