@@ -31,7 +31,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -42,23 +42,21 @@ import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
+import gda.device.detector.areadetector.v17.NDProcess;
 import gda.factory.Finder;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.ImageMode;
 import uk.ac.gda.client.livecontrol.ControlSet;
-import uk.ac.gda.client.livecontrol.LiveControl;
 import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 
 public class AnalyserControlPart {
 
 	private static final Logger logger = LoggerFactory.getLogger(AnalyserControlPart.class);
 	final Color red = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
-	final Color green = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GREEN);
+	final Color green = Display.getCurrent().getSystemColor(SWT.COLOR_GREEN);
+	final Color transparent = SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT);
 
 	private Composite parent;
-	private Composite child;
-	
-	Group analyserGroup;
 	
 	private AlignmentControls alignmentControls;
 	private IVGScientaAnalyserRMI analyser;
@@ -85,46 +83,42 @@ public class AnalyserControlPart {
 		logger.trace("postConstruct called");
 		this.parent = parent;
 		
-		ScrolledComposite scrollComp = new ScrolledComposite(parent, SWT.V_SCROLL);
-		scrollComp.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+		ScrolledComposite scroller = new ScrolledComposite(parent, SWT.V_SCROLL);
+		scroller.setBackground(transparent);
 
-		this.child = new Composite(scrollComp, SWT.NONE);
-		child.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(child);
-		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(child);
+		Composite scrollerContent = new Composite(scroller, SWT.NONE);
+		scrollerContent.setBackground(transparent);
+		RowLayout rowLayout = new RowLayout(SWT.VERTICAL);
+		rowLayout.fill = true;
+		scrollerContent.setLayout(rowLayout);
 		
-		createAnalyserControlsGroup();
-		addLiveControls();
-						
+		addButtons(scrollerContent);
+		addLiveControls(scrollerContent);
+
 		// Set the child as the scrolled content of the ScrolledComposite
-		scrollComp.setContent(child);
-		scrollComp.setExpandHorizontal(true);
-		scrollComp.setExpandVertical(true);
-		scrollComp.setMinSize(child.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		scroller.setContent(scrollerContent);
+		scroller.setExpandHorizontal(true);
+		scroller.setExpandVertical(true);
+		scroller.setMinSize(scrollerContent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 	
-	private void createAnalyserControlsGroup() {
-		analyserGroup = new Group(child, SWT.NONE);
-		analyserGroup.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-		GridLayoutFactory.swtDefaults().numColumns(3).spacing(10, 20).applyTo(analyserGroup);
+	private void addButtons(Composite composite) {
+		RowLayout groupRowLayout = new RowLayout(SWT.HORIZONTAL);
+		groupRowLayout.pack = false;
+		groupRowLayout.justify = true;
 		
-		addAnalyserButtons(analyserGroup);
+		Group group = new Group(composite, SWT.NONE);
+		group.setLayout(groupRowLayout);
+		
+		addAnalyserStartButton(group);
+		addAnalyserStopButton(group);
+		addAccumulationStartButton(group);
+		addAccumulationStopButton(group);
 	}
-	
-	private void addAnalyserButtons(Group analyserGroup) {
-		Group analyserButtonsGroup = new Group(analyserGroup, SWT.NONE);
-		analyserButtonsGroup.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-		GridDataFactory.fillDefaults().grab(true,  true).span(3,  1).applyTo(analyserButtonsGroup);
-		analyserButtonsGroup.setLayout(new FillLayout(SWT.HORIZONTAL));
-			
-		addAnalyserStartButton(analyserButtonsGroup);
-		addAnalyserStopButton(analyserButtonsGroup);
-	}
-	
-	private void addAnalyserStartButton(Group analyserButtonsGroup) {
-		Button startButton = new Button(analyserButtonsGroup, SWT.DEFAULT);
-		startButton.setText("Start");
+				
+	private void addAnalyserStartButton(Composite composite) {
+		Button startButton = new Button(composite, SWT.PUSH);
+		startButton.setText("Start Camera");
 		setTextToBold(startButton);
 		startButton.setBackground(green);
 		startButton.setToolTipText("Apply voltages and start acquiring");
@@ -144,9 +138,9 @@ public class AnalyserControlPart {
 		});
 	}
 	
-	private void addAnalyserStopButton(Group analyserButtonsGroup) {
-		Button stopButton = new Button(analyserButtonsGroup, SWT.DEFAULT);
-		stopButton.setText("Stop");
+	private void addAnalyserStopButton(Composite composite) {
+		Button stopButton = new Button(composite, SWT.PUSH);
+		stopButton.setText("Stop Camera");
 		setTextToBold(stopButton);
 		stopButton.setBackground(red);
 		stopButton.setToolTipText("Stop acquiring and zero supplies");
@@ -163,26 +157,65 @@ public class AnalyserControlPart {
 			}
 		});	
 	}
+	
+	private void addAccumulationStartButton(Composite composite) {
+		Button accumulationStartButton = new Button(composite, SWT.PUSH);
+		accumulationStartButton.setText("Start/Reset Accumulation");
+		setTextToBold(accumulationStartButton);
+		accumulationStartButton.setBackground(green);
+		accumulationStartButton.setToolTipText("Enable accumulation or reset the current accumulation");
+		accumulationStartButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				logger.info("Starting accumulation");
+				try {
+					eavCameraControl.setProcessingFilterType(NDProcess.FilterTypeV1_8_Sum);
+					eavCameraControl.resetFilter();
+					eavCameraControl.enableProcessingFilter();				
+				} catch (Exception ex) {
+					logger.error("Failed to stop analyser or live viewer", ex);
+				}
+			}
+		});	
+	}
+	
+	private void addAccumulationStopButton(Composite composite) {
+		Button accumulationStopButton = new Button(composite, SWT.PUSH);
+		accumulationStopButton.setText("Stop Accumulation");
+		setTextToBold(accumulationStopButton);
+		accumulationStopButton.setBackground(red);
+		accumulationStopButton.setToolTipText("Disable accumulation");
+		accumulationStopButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				logger.info("Stopping accumulation");
+				try {
+					eavCameraControl.disableProcessingFilter();
+					eavCameraControl.resetFilter();
+				} catch (Exception ex) {
+					logger.error("Failed to stop analyser or live viewer", ex);
+				}
+			}
+		});	
+	}
 		
-	private void addLiveControls() {
+	private void addLiveControls(Composite composite) {
 		if (alignmentControls.hasAnalyserControls()) {
-			alignmentControls.getAnalyserControls()
-				.getControls()
-				.stream()
-				.forEachOrdered(c -> c.createControl(analyserGroup));
-
+			addControlGroup(composite, "Analyser Controls", alignmentControls.getAnalyserControls());
 		}
 		
 		if (alignmentControls.hasSampleControls()) {
-			Group sampleControlGroup = new Group(child, SWT.NONE);
-			sampleControlGroup.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-			GridLayoutFactory.swtDefaults().numColumns(3).spacing(10, 20).applyTo(sampleControlGroup);
-			
-			alignmentControls.getSampleControls()
-				.getControls()
-				.stream()
-				.forEachOrdered(c -> c.createControl(sampleControlGroup));
+			addControlGroup(composite, "Sample Controls", alignmentControls.getSampleControls());
 		}
+	}
+	
+	private void addControlGroup(Composite composite, String groupName, ControlSet controlSet) {
+		Group group = new Group(composite, SWT.NONE);
+		group.setText(groupName);
+		group.setBackground(transparent);
+		GridLayoutFactory.swtDefaults().numColumns(5).spacing(10, 20).applyTo(group);
+		
+		controlSet.getControls().stream().forEachOrdered(c -> c.createControl(group));
 	}
 	
 	private void setTextToBold(Control control) {
