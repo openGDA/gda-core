@@ -75,11 +75,8 @@ public class DeviceRunnerTest {
 
 	@Before
 	public void setUp() {
-		when(scan.getName()).thenReturn("Test DeviceRunner");
 
-		when(deviceNotTimeoutable.getName()).thenReturn("deviceNotTimeoutable");
 		when(detector1.getName()).thenReturn("detector1");
-		when(detector2.getName()).thenReturn("detector2");
 
 		when(modelTimeoutZero.getTimeout()).thenReturn(0L);
 		when(modelTimeoutZero.getExposureTime()).thenReturn(3.4);
