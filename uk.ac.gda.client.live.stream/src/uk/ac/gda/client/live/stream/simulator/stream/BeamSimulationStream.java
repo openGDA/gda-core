@@ -29,8 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.IScannableMotor;
-import gda.device.scannable.ScannableStatus;
-import gda.observable.IObserver;
 import uk.ac.gda.client.composites.FinderHelper;
 import uk.ac.gda.client.live.stream.simulator.connector.BeamSimulationCamera;
 
@@ -81,23 +79,20 @@ public class BeamSimulationStream implements Runnable {
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
 				Thread.sleep(100);
+				refreshImage();
 			} catch (InterruptedException e) {
 				logger.info("Thread {} interrupted.", Thread.currentThread().getName());
 				Thread.currentThread().interrupt();
 			}
 		}
-		driverX.deleteIObserver(driverObserver);
-		driverY.deleteIObserver(driverObserver);
 	}
 
 	private void setDriverX(IScannableMotor driverX) {
 		this.driverX = driverX;
-		driverX.addIObserver(driverObserver);
 	}
 
 	private void setDriverY(IScannableMotor driverY) {
 		this.driverY = driverY;
-		driverY.addIObserver(driverObserver);
 	}
 
 	private void initalise() {
@@ -106,30 +101,28 @@ public class BeamSimulationStream implements Runnable {
 		FinderHelper.getIScannableMotor(beamCamera.getDriverY()).ifPresent(this::setDriverY);
 	}
 
-	private IObserver driverObserver = (source, arg) -> {
-		if (ScannableStatus.IDLE.equals(arg)) {
-			try {
-				long x = Math.round(getBeamCamera().getScaleX() * Double.class.cast(driverX.getPosition()));
-				long y = Math.round(getBeamCamera().getScaleY() * Double.class.cast(driverY.getPosition()));
-				if (x >= 0 && y >= 0) {
-					logger.debug("KBx:{} KBy:{}", driverX.getPosition(), driverY.getPosition());
-					logger.debug("X:{} Y:{}", x, y);
-					updateDataArray(x, y);
-				}
-				dataUpdate();
-			} catch (DeviceException e) {
-				logger.error("TODO put description of error here", e);
+	private void refreshImage() {
+		try {
+			long x = Math.round(getBeamCamera().getScaleX() * Double.class.cast(driverX.getPosition()));
+			long y = Math.round(getBeamCamera().getScaleY() * Double.class.cast(driverY.getPosition()));
+			// Sets all array pixels as black
+			Arrays.fill(dataArray, -128);
+			if (x >= 0 && y >= 0) {
+				updateDataArray(x, y);
 			}
+			//logger.debug("KBx:{} KBy:{}", driverX.getPosition(), driverY.getPosition());
+			//logger.debug("X:{} Y:{}", x, y);
+			dataUpdate();
+		} catch (DeviceException e) {
+			logger.error("TODO put description of error here", e);
 		}
-	};
+	}
 
 	private void updateDataArray(long x, long y) {
 		// The half width of the beam size. It could be parametrised in future.
 		int beamHalfWidth = 3;
 		// The beam brightness. It could be parametrised in future.
 		int elementValue = 50;
-		// Sets all array pixels as black
-		Arrays.fill(dataArray, -128);
 		int reducedWidth = (beamHalfWidth - 1);
 		//loops around the pixel it thickness
 		for (int indexY = -1 * reducedWidth; indexY < beamHalfWidth; indexY++) {

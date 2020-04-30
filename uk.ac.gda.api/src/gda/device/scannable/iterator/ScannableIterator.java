@@ -73,14 +73,14 @@ public class ScannableIterator {
 	}
 
 	public void moveToRandom() throws DeviceException {
-		double rndPoint = getLowerLimit() + (getUpperLimit() - getLowerLimit()) * Math.random();
+		double rndPoint = getLowerLimit() + Math.abs((getUpperLimit() - getLowerLimit())) * Math.random();
 		driver.set(rndPoint);
 		set(rndPoint);
 	}
 
 	public void forceToPosition(double position) throws DeviceException {
-		driver.set(position);
 		set(position);
+		driver.set(position);
 	}
 
 	public boolean hasNext() {
@@ -101,9 +101,13 @@ public class ScannableIterator {
 		return driver.previous();
 	}
 
+	public String getScannableName() {
+		return motor.getName();
+	}
+
 	public void set(Double position) throws DeviceException {
 		try {
-			motor.setPosition(position);
+			motor.moveTo(position);
 			while (isBusy()) {
 				Thread.sleep(100);
 			}

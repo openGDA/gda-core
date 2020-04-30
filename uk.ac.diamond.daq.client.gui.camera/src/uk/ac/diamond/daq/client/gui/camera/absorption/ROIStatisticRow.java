@@ -113,7 +113,7 @@ class ROIStatisticRow {
 		int[] step = new int[] { 1, 1 };
 
 		Dataset intDataset = DatasetUtils.convertToDataset(dataset.getSliceView(start, end, step));
-		this.value = (int) intDataset.sum(true);
+		this.value = (long) intDataset.sum(true);
 		this.valueLabel.setText(Long.toString(this.value));
 	}
 }
