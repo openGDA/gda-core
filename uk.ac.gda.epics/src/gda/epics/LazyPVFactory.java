@@ -133,6 +133,12 @@ public class LazyPVFactory {
 		return new LazyPV<String>(EPICS_CONTROLLER, pvName, String.class);
 	}
 
+	public static PV<String> newStringFromEnumPV(String pvName) {
+		LazyPV<String> pv = new LazyPV<String>(EPICS_CONTROLLER, pvName, String.class);
+		pv.setShowTypeMismatchWarnings(false);
+		return pv;
+	}
+
 	public static PV<String> newStringFromWaveformPV(String pvName) {
 		return new StringFromWaveform(newByteArrayPV(pvName));
 	}
