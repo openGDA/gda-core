@@ -195,8 +195,6 @@ public class ADTimeSeriesStatsPluginTest {
 
 	@Test
 	public void testPrepareForLineWhileDisabled() throws Exception {
-		when(tsNumPointsPV.get()).thenReturn(3);
-		when(scanInfo.getDimensions()).thenReturn(new int[] {99, 9, 3});
 		plugin.prepareForCollection(1, scanInfo);
 		plugin.prepareForLine();
 		verify(tsControlPV, never()).putWait(TSControlCommands.ERASE_AND_START);
@@ -214,8 +212,6 @@ public class ADTimeSeriesStatsPluginTest {
 
 	@Test(expected = IllegalStateException.class)
 	public void testPrepareForLineWithNoPrepareForCollectionFails() throws Exception {
-		when(tsNumPointsPV.get()).thenReturn(3);
-		when(scanInfo.getDimensions()).thenReturn(new int[] {99, 9, 3});
 		plugin.prepareForLine();
 	}
 
