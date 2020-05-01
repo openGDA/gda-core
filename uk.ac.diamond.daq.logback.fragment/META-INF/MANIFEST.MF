@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GDA Logback Fragment
+Bundle-SymbolicName: uk.ac.diamond.daq.logback.fragment
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: DLS
+Fragment-Host: ch.qos.logback.core;bundle-version="1.2.3"
+Automatic-Module-Name: uk.ac.diamond.daq.logback.fragment
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: ch.qos.logback.classic;bundle-version="1.2.3"
+Note: This fragment is required because logback-core can't
+ see classes from logback-classic however it needs to for
+ the socket receiver to work. This fragment can be deleted
+ after switching to the versions of logback and slf4j
+ provided from an Eclipse Orbit p2
