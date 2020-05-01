@@ -195,16 +195,16 @@ http://www.eclipse.org/legal/epl-v10.html
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-         
+
    <plugin
          id="uk.ac.diamond.daq.beamline.i21.server"
          download-size="0"
          install-size="0"
          version="0.0.0"
-		 unpack="false"/>
+         unpack="false"/>
 
    <plugin
-	     id="uk.ac.diamond.daq.beamline.configuration.api"
+         id="uk.ac.diamond.daq.beamline.configuration.api"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -222,6 +222,14 @@ http://www.eclipse.org/legal/epl-v10.html
          download-size="0"
          install-size="0"
          version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.diamond.daq.logback.fragment"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"
          unpack="false"/>
 
 </feature>
