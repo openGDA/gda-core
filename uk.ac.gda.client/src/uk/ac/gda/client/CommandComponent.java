@@ -35,6 +35,7 @@ import gda.commandqueue.Queue;
 import gda.configuration.properties.LocalProperties;
 import gda.factory.Finder;
 import gda.jython.ICommandRunner;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
@@ -56,30 +57,50 @@ public class CommandComponent {
 
 	private CommandComponent() { /* Do not instantiate */ }
 
-	public static void enqueueCommandProvider(CommandProvider provider) throws Exception {
-		// Alternate could be return getQueue().addToTail(provider)
-		String jobLabel = String.format("Queue Job: %s", provider.getCommand().getDescription());
-		CommandComponent.runJob(new Job(jobLabel) {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				boolean success = false;
-				try {
-					success = null != CommandComponent.getQueue().addToTail(provider);
-				} catch (Exception e) {
-					logger.error(String.format("FAIL to queue: %s", jobLabel),e);
+	public static boolean amIBatonHolder() {
+		return InterfaceProvider.getBatonStateProvider().amIBatonHolder();
+	}
+
+	public static boolean enqueueCommandProvider(CommandProvider provider) throws Exception {
+		return enqueueCommandProvider(provider, true);
+	}
+
+	public static boolean enqueueCommandProvider(CommandProvider provider, boolean doBatonCheck) throws Exception {
+		boolean doContinue = !doBatonCheck || (doBatonCheck && amIBatonHolder());
+		if (doContinue) {
+			// Alternate could be return getQueue().addToTail(provider)
+			String jobLabel = String.format("Queue Job: %s", provider.getCommand().getDescription());
+			CommandComponent.runJob(new Job(jobLabel) {
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					boolean success = false;
+					try {
+						success = null != CommandComponent.getQueue().addToTail(provider);
+					} catch (Exception e) {
+						logger.error(String.format("FAIL to queue: %s", jobLabel),e);
+					}
+					return success ? Status.OK_STATUS : Status.CANCEL_STATUS;
 				}
-				return success ? Status.OK_STATUS : Status.CANCEL_STATUS;
-			}
-		});
+			});
+		}
+		return doContinue;
 	}
 
-	public static void enqueueJythonCommand(String command, String description, String settingsPath) throws Exception {
+	public static boolean enqueueJythonCommand(String command, String description, String settingsPath) throws Exception {
+		return enqueueJythonCommand(command, description, settingsPath, true);
+	}
+
+	public static boolean enqueueJythonCommand(String command, String description, String settingsPath, boolean doBatonCheck) throws Exception {
 		CommandProvider provider = new JythonCommandCommandProvider(command, description, settingsPath);
-		CommandComponent.enqueueCommandProvider(provider);
+		return CommandComponent.enqueueCommandProvider(provider, doBatonCheck);
 	}
 
-	public static void enqueueScriptController(Scriptcontroller controller) throws Exception {
-		CommandComponent.enqueueJythonCommand(controller.getCommand(), controller.getName(), controller.getParametersName());
+	public static boolean enqueueScriptController(Scriptcontroller controller) throws Exception {
+		return enqueueScriptController(controller, true);
+	}
+
+	public static boolean enqueueScriptController(Scriptcontroller controller, boolean doBatonCheck) throws Exception {
+		return CommandComponent.enqueueJythonCommand(controller.getCommand(), controller.getName(), controller.getParametersName(), doBatonCheck);
 	}
 
 	public static String evaluateJythonCommand(String command) {
