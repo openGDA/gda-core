@@ -299,6 +299,11 @@ class JCompoundGenerator(GeneratorWrapper):
                           excluder.to_dict() not in e_dict])
         mutators.extend([mutator for wrapper in iterators for mutator in wrapper.generator.mutators if
                          mutator.to_dict() not in m_dict])
+        
+        if duration == -1:
+            duration = wrapper.generator.duration
+        if delay_after == 0:
+            delay_after = wrapper.generator.delay_after
 
         self.generator = CompoundGenerator(generators, excluders, mutators, duration, continuous, delay_after)
         self.generator.prepare()

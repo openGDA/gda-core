@@ -203,6 +203,8 @@ public class CompoundModel extends AbstractMultiModel<IScanPointGeneratorModel> 
 
 	@Override
 	public boolean isContinuous() {
+		// Has only noModel generators
+		if (getModels().isEmpty()) return true;
 		IScanPointGeneratorModel innermostModel = getModels().get(getModels().size()-1);
 		return innermostModel.isContinuous();
 	}

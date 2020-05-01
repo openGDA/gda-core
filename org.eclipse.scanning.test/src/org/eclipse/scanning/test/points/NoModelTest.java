@@ -37,16 +37,19 @@ import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.StaticPosition;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.BoundingLine;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.scanning.points.AbstractScanPointGenerator;
+import org.eclipse.scanning.points.CompoundGenerator;
 import org.eclipse.scanning.points.NoModelGenerator;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.mutators.RandomOffsetMutator;
@@ -208,6 +211,26 @@ public class NoModelTest {
 		NoModelGenerator pointsWithoutModel = new NoModelGenerator(pointsGen.getPointGenerator());
 
 		assertEquals(stepWithoutModel, pointsWithoutModel);
+	}
+
+	@Test
+	public void StaticWithDuration() throws GeneratorException {
+		StaticModel staticModel = new StaticModel();
+		CompoundModel compoundModel = new CompoundModel(staticModel);
+		compoundModel.setDuration(0.1);
+
+		AbstractScanPointGenerator<CompoundModel> stepGen = (AbstractScanPointGenerator<CompoundModel>) pgs.createGenerator(compoundModel);
+		NoModelGenerator staticNoModel = new NoModelGenerator(stepGen.getPointGenerator());
+		CompoundGenerator genFromGenerators = new CompoundGenerator(new IPointGenerator[] {staticNoModel}, pgs);
+
+		StaticPosition expected = new StaticPosition();
+		expected.setExposureTime(0.1);
+		expected.setStepIndex(0);
+		assertEquals(expected, staticNoModel.getFirstPoint());
+		assertEquals(expected, stepGen.getFirstPoint());
+		assertEquals(expected, genFromGenerators.getFirstPoint());
+
+
 	}
 
 	private void compareIterators(Iterator<IPosition> creator, Iterator<IPosition> created) {
