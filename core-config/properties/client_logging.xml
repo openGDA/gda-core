@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration scan="true" scanPeriod="10 seconds" debug="true">
+
+	<include file="${gda.core.dir}/properties/client_and_server_logging.xml" />
+
+	<!-- Appender to send log messages to the server -->
+	<appender name="GDAServer_async" class="ch.qos.logback.classic.AsyncAppender">
+		<!-- Wrap the SocketAppender with an AsyncAppender to ensure logging never
+			reduces client performance http://logback.qos.ch/manual/appenders.html#SocketAppender
+			http://logback.qos.ch/manual/appenders.html#AsyncAppender http://blog.takipi.com/how-to-instantly-improve-your-java-logging-with-7-logback-tweaks/
+			Also AsyncAppender ensures threadName is populated, so %thread never
+			falls back to showing the logback thread.-->
+		<appender name="GDAServer" class="ch.qos.logback.classic.net.SocketAppender">
+			<remoteHost>${gda.logserver.host}</remoteHost>
+			<port>${gda.server.logging.port}</port>
+			<reconnectionDelay>10000</reconnectionDelay>
+			<includeCallerData>true</includeCallerData>
+			<queueSize>4096</queueSize>
+		</appender>
+		<queueSize>1000</queueSize>
+		<discardingThreshold>0</discardingThreshold> <!-- This wont drop any messages unless the queue becomes full -->
+		<neverBlock>true</neverBlock> <!-- If the message queue becomes full this will drop messages instead of
+			blocking -->
+	</appender>
+
+	<!-- Send debug and higher level logging messages to the server by default.
+		In general filtering messages at the source is the best way as this prevents
+		performance issues. NOTE: Before using the logging system to filter out messages
+		from a noisy class, consider editing the class itself to improve how it logs
+		its activity. -->
+	<root>
+		<level value="${gda.logging.root.level}" />
+		<appender-ref ref="GDAServer_async" />
+	</root>
+
+</configuration>
