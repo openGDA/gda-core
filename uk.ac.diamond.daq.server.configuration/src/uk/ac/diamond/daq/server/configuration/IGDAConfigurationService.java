@@ -3,7 +3,6 @@ package uk.ac.diamond.daq.server.configuration;
 import java.util.List;
 
 import uk.ac.diamond.daq.server.configuration.commands.ObjectServerCommand;
-import uk.ac.diamond.daq.server.configuration.commands.SubProcessCommand;
 
 public interface IGDAConfigurationService {
 
@@ -12,8 +11,6 @@ public interface IGDAConfigurationService {
 	String getMode();
 
 	String[] getProfiles();
-
-	SubProcessCommand getLogServerCommand();
 
 	List<ObjectServerCommand> getObjectServerCommands();
 

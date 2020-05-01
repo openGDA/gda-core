@@ -1,10 +1,6 @@
 package uk.ac.diamond.daq.server.configuration.services;
 
 import static uk.ac.diamond.daq.server.configuration.ConfigurationDefaults.*;
-import static uk.ac.gda.common.util.EclipseUtils.URI_SEPARATOR;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,29 +8,14 @@ import org.osgi.service.component.ComponentContext;
 
 import uk.ac.diamond.daq.server.configuration.IGDAConfigurationService;
 import uk.ac.diamond.daq.server.configuration.commands.ObjectServerCommand;
-import uk.ac.diamond.daq.server.configuration.commands.SubProcessCommand;
-import uk.ac.gda.common.util.EclipseUtils;
 
 
 public class BasicConfigurationService implements IGDAConfigurationService {
-	private SubProcessCommand logCommand;
 	private final List<ObjectServerCommand> objectServerCommands = new ArrayList<ObjectServerCommand>();
 	private String instanceConfigRoot;
 
 	@Override
 	public void loadConfiguration() {
-		try {
-			final String log_server_classpath = String.join(File.pathSeparator,
-					String.join(File.separator, System.getProperty("osgi.syspath"), "*"),
-					resolvePath("uk.ac.diamond.org.springframework/jars", true),
-					resolvePath("uk.ac.gda.api", false),
-					resolvePath("uk.ac.gda.common", false),
-					resolvePath("uk.ac.gda.core", false));
-
-			logCommand = new SubProcessCommand(buildLogServerCommand(), log_server_classpath);
-		} catch (IOException e) {
-			throw new RuntimeException("Could not locate subprocess server classpath component:", e);
-		}
 		final String[] profiles = getProfiles();
 		final String[] springPathsStrings = APP_SPRING_XML_FILE_PATHS.toString().split(",");
 
@@ -47,29 +28,6 @@ public class BasicConfigurationService implements IGDAConfigurationService {
 		// of the individual object servers. Currently they are loaded statically when the object server initialises its logging.
 	}
 
-	/**
-	 * Returns the absolute path corresponding to the supplied partial bundle path (of the form <bundlename>/<path inside bundle>)
-	 * regardless of whether running from eclipse or an exported product build. If the paths corresponds to a folder of jars (as
-	 * indicated by the second parameter), "/*" is appended. It also takes care of the different classes path for uk.ac.gda.core.
-	 *
-	 * @param bundlePath		Partial path to a file within a bundle of the form <bundlename>/<path inside bundle>
-	 * @param isJarFolder		Should "/*" be added to the resolved absolute path
-	 * @return					The absolute path corresponding to the bundlePath determined at runtime
-	 * @throws IOException		If the underlying resolveBundleFolderFile cannot find the bundle or the specified file
-	 */
-	private String resolvePath(String bundlePath, final boolean isJarFolder) throws IOException {
-		if (isJarFolder) {
-			return String.join(File.separator, EclipseUtils.resolveBundleFolderFile(bundlePath).getAbsolutePath(), "*");
-		} else {
-			if (System.getProperty("gda.eclipse.launch").equals("true")) {
-				final String[] elements = (bundlePath.contains("uk.ac.gda.core")) ?
-						new String[] {bundlePath, "classes", "main"} :
-						new String[] {bundlePath, "bin"};
-				bundlePath = String.join(URI_SEPARATOR, elements);
-			}
-			return EclipseUtils.resolveBundleFolderFile(bundlePath).getAbsolutePath();
-		}
-	}
 
 	@Override
 	public String getMode() {
@@ -84,11 +42,6 @@ public class BasicConfigurationService implements IGDAConfigurationService {
 	@Override
 	public List<ObjectServerCommand> getObjectServerCommands() {
 		return objectServerCommands;
-	}
-
-	@Override
-	public SubProcessCommand getLogServerCommand() {
-		return logCommand;
 	}
 
 	@Override

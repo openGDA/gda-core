@@ -50,7 +50,6 @@ public enum ConfigurationDefaults {
 	EXPECTED_P2_PROFILE("GDA-server"),
 	INI_FILE_PROFILE_PROPERTY("eclipse.p2.profile"),
 	INI_FILE_INSTALL_AREA_PROPERTY("osgi.install.area"),
-	LOG_SERVER_CLASS("gda.util.LogServer"),
 	OBJECT_SERVER_CLASS("gda.util.ObjectServer"),
 	WORKSPACE_LOCATION(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString()),	// read in from -data option
 
@@ -136,9 +135,6 @@ public enum ConfigurationDefaults {
 	private static final String[] OBJECT_SERVER_VM_ARGS =  {"-Dgov.aps.jca.JCALibrary.properties=" + APP_JCA_LIBRARY_FILE,
 															"-Dderby.stream.error.field=uk.ac.diamond.daq.persistence.jythonshelf.LocalObjectShelfManager.DerbyLogStream"};
 
-	private static final String[] LOGSERVER_LOCAL_PROPERTY_KEYS = {	"gda.logserver.xml",
-																	"gda.logserver.port",
-																	"gda.server.logging.port"};
 
 	private static final Logger logger = LoggerFactory.getLogger(ConfigurationDefaults.class);
 
@@ -176,47 +172,6 @@ public enum ConfigurationDefaults {
 		LocalProperties.load();
 		logger.info("LocalProperties loaded");
 		LoggingUtils.setLogDirectory();
-	}
-
-	// These command array builder methods are all called after initialiseObjectServerEnvironment and thus can make use of Local Properties
-
-	/**
-	 * Build composite command array for use by {@link ProcessBuilder#ProcessBuilder(String... command)} when starting the
-	 * {@link gda.util.LogServer}. Supplies all the required parameters as System properties for the VM that runs it.
-	 *
-	 * @return		The required composite command array including all the above elements.
-	 */
-	public static String[] buildLogServerCommand(final String... optionalVMArgs) {
-		String[] logServerArgs = ArrayUtils.isNotEmpty(optionalVMArgs) ? optionalVMArgs: OPTIONAL_VM_ARGS;
-		for (String key : LOGSERVER_LOCAL_PROPERTY_KEYS) {
-			if (LocalProperties.contains(key)) {
-				logServerArgs = (String[])ArrayUtils.add(logServerArgs, String.format("-D%s=%s", key, LocalProperties.get(key)));
-			} else {
-				if ("gda.logserver.xml".equals(key)) {
-					logger.warn("{} property not specified, Log Server may not start correctly", key);
-				} else {
-					logger.info("Log Server will start listening on default port (6000)");
-				}
-			}
-		}
-		return buildCommand(arrayOf(LOG_SERVER_CLASS.value), standardBasicArgs(), logServerArgs);
-	}
-
-	/**
-	 * Build composite command array for use by {@link ProcessBuilder#ProcessBuilder(String... command)} to embody
-	 * the form: java <some vm args> <class to run> <params for class>.
-	 *
-	 * @param classNamePlusArgs		The fully qualified class name plus any arguments for its main method as an Array.
-	 * @param vmArgs				Any common -D arguments for the VM executing the target class as an Array.
-	 * @param optionalVMArgs		Any beamline specific -D arguments for the VM executing the target class as an Array;
-	 * 								if this is not specified orn null, the default values for the beamline will be used.
-	 * 								N.B. this is not the case if an empty array is supplied as this is a valid (empty) set.
-	 *
-	 * @return						The composite command array including all the above elements.
-	 */
-	private static String[] buildCommand(final String[] classNamePlusArgs, final String[] vmArgs, final String... optionalVMArgs){
-		final String[] optionalArgs = optionalVMArgs != null ? optionalVMArgs: OPTIONAL_VM_ARGS;
-		return concat(concat("java", concat(vmArgs, optionalArgs, String.class)), classNamePlusArgs, String.class);
 	}
 
 	// utility methods to handle the defaulting of value that might be set by environment variables/system properties

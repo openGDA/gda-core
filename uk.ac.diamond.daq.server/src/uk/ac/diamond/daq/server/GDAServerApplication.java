@@ -8,14 +8,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.LoggerContext;
 import gda.jython.GDAJythonClassLoader;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
@@ -38,8 +35,6 @@ public class GDAServerApplication implements IApplication {
 	private final CountDownLatch shutdownLatch = new CountDownLatch(1);
 	private final Map<String, ObjectServer> objectServers = new HashMap<>();
 
-	private Process logServerProcess;
-
 	private ServerSocket statusPort;
 
 	/**
@@ -59,13 +54,6 @@ public class GDAServerApplication implements IApplication {
 		configurationService.loadConfiguration();
 
 		try {
-			try {
-				logServerProcess =  configurationService.getLogServerCommand().execute();
-				logger.info("Log server starting");
-			} catch (Exception subEx) {
-				logger.error("Unable to start log server, GDA server shutting down");
-				throw subEx;
-			}
 
 			for (ObjectServerCommand command : configurationService.getObjectServerCommands()) {
 				ObjectServer server = command.execute();
@@ -169,18 +157,6 @@ public class GDAServerApplication implements IApplication {
 				((SpringObjectServer)entry.getValue()).shutdown();
 			}
 			objectServers.clear();
-		}
-
-		try {
-			logger.info("Log Server shutting down");
-			((LoggerContext)LoggerFactory.getILoggerFactory()).stop();
-			if (!logServerProcess.destroyForcibly().waitFor(1000, TimeUnit.MILLISECONDS)) {
-				logger.error("Shutdown of log server timed out, check for orphaned process");
-			}
-		} catch (InterruptedException e) {
-			logger.error("Shutdown of log server interrupted, check for orphaned process", e);
-			e.printStackTrace(); // log server might be dead
-			Thread.currentThread().interrupt();
 		}
 
 		GDAJythonClassLoader.closeJarClassLoaders();
