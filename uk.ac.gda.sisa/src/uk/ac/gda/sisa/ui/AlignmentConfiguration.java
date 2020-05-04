@@ -1,17 +1,20 @@
 package uk.ac.gda.sisa.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import gda.factory.Findable;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.livecontrol.ControlSet;
 import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 
-public class AlignmentControls implements Findable {
+public class AlignmentConfiguration implements Findable {
 	
 	private String name;
 	private ControlSet analyserControls;
 	private ControlSet sampleControls;
-	private IVGScientaAnalyserRMI analyser;
 	private CameraControl analyserEavControl;
+	private List<AlignmentStat> alignmentStats = new ArrayList<AlignmentStat>();
 	
 	@Override
 	public void setName(String name) {
@@ -47,19 +50,19 @@ public class AlignmentControls implements Findable {
 		return getSampleControls() != null;
 	}
 
-	public IVGScientaAnalyserRMI getAnalyser() {
-		return analyser;
-	}
-
-	public void setAnalyser(IVGScientaAnalyserRMI analyser) {
-		this.analyser = analyser;
-	}
-
 	public CameraControl getAnalyserEavControl() {
 		return analyserEavControl;
 	}
 
 	public void setAnalyserEavControl(CameraControl analyserEavControl) {
 		this.analyserEavControl = analyserEavControl;
+	}
+
+	public List<AlignmentStat> getAlignmentStats() {
+		return alignmentStats;
+	}
+
+	public void setAlignmentStats(List<AlignmentStat> alignmentStats) {
+		this.alignmentStats = alignmentStats;
 	}
 }

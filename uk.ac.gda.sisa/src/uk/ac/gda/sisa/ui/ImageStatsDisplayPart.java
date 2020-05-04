@@ -40,13 +40,22 @@ public class ImageStatsDisplayPart {
 	private static final Logger logger = LoggerFactory.getLogger(ImageStatsDisplayPart.class);
 
 	private Composite parent;
-
-	private Composite child;
+	
+	private AlignmentConfiguration alignmentConfig;
 
 	@Inject
 	public ImageStatsDisplayPart() {
 		logger.trace("Constructor called");
+		
+		try {
+			alignmentConfig = Finder.getInstance().findSingleton(AlignmentConfiguration.class);
+		} catch (IllegalArgumentException exception) {
+			String msg = "No AlignmentConfiguration was found! (Or more than 1)";
+			logger.error(msg);
+			throw new RuntimeException(msg);
+		}
 	}
+	
 
 	@PostConstruct
     public void postConstruct(Composite parent) {
@@ -56,56 +65,32 @@ public class ImageStatsDisplayPart {
 		ScrolledComposite scrollComp = new ScrolledComposite(parent, SWT.V_SCROLL);
 		scrollComp.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
-		this.child = new Composite(scrollComp, SWT.NONE);
+		Composite child = new Composite(scrollComp, SWT.NONE);
 		child.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(child);
 		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(child);
-
-
-		// Stats group1
-		Group imageStatsGroup1 = new Group(child, SWT.CENTER);
-		imageStatsGroup1.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-		GridLayoutFactory.swtDefaults().numColumns(2).spacing(10, 20).applyTo(imageStatsGroup1);
-
-		ScannableDisplayComposite maxCount = new ScannableDisplayComposite(imageStatsGroup1, SWT.NONE);
-		maxCount.setScannable((Scannable) Finder.getInstance().find("eavImageMax"));
-		maxCount.setTextWidth(265);
-		maxCount.setDisplayName("Max Count:");
-		maxCount.setValueSize(24);
-		maxCount.setValueColour(SWT.COLOR_DARK_BLUE);
-		maxCount.setLabelSize(24);
-
-		// Stats group2
-		Group imageStatsGroup2 = new Group(child, SWT.CENTER);
-		imageStatsGroup2.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-		GridLayoutFactory.swtDefaults().numColumns(2).spacing(10, 20).applyTo(imageStatsGroup2);
-
-		ScannableDisplayComposite totalCount = new ScannableDisplayComposite(imageStatsGroup2, SWT.NONE);
-		totalCount.setScannable((Scannable) Finder.getInstance().find("eavImageTotal"));
-		totalCount.setTextWidth(260);
-		totalCount.setDisplayName("Total Count:");
-		totalCount.setValueSize(24);
-		totalCount.setValueColour(SWT.COLOR_DARK_BLUE);
-		totalCount.setLabelSize(24);
-
-		// Stats group2
-		Group imageStatsGroup3 = new Group(child, SWT.CENTER);
-		imageStatsGroup3.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-		GridLayoutFactory.swtDefaults().numColumns(2).spacing(10, 20).applyTo(imageStatsGroup3);
-
-		ScannableDisplayComposite meanCount = new ScannableDisplayComposite(imageStatsGroup3, SWT.NONE);
-		meanCount.setScannable((Scannable) Finder.getInstance().find("eavImageMean"));
-		meanCount.setTextWidth(260);
-		meanCount.setDisplayName("Count/Pixel:");
-		meanCount.setValueSize(24);
-		meanCount.setValueColour(SWT.COLOR_DARK_BLUE);
-		meanCount.setLabelSize(24);
+		
+		alignmentConfig.getAlignmentStats().stream().forEachOrdered(stat -> addAlignmentStat(child, stat));
 		
 		// Set the child as the scrolled content of the ScrolledComposite
 		scrollComp.setContent(child);
 		scrollComp.setExpandHorizontal(true);
 		scrollComp.setExpandVertical(true);
+	}
+	
+	private void addAlignmentStat(Composite composite, AlignmentStat alignmentStat) {
+		Group group = new Group(composite, SWT.CENTER);
+		group.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+		GridLayoutFactory.swtDefaults().numColumns(2).spacing(10, 20).applyTo(group);
+		
+		ScannableDisplayComposite meanCount = new ScannableDisplayComposite(group, SWT.NONE);
+		meanCount.setScannable(alignmentStat.getScannable());
+		meanCount.setTextWidth(260);
+		meanCount.setDisplayName(alignmentStat.getLabel());
+		meanCount.setValueSize(24);
+		meanCount.setValueColour(SWT.COLOR_DARK_BLUE);
+		meanCount.setLabelSize(24);
 	}
 
 	 @Focus

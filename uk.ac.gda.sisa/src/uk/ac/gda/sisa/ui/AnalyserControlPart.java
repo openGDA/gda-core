@@ -58,23 +58,21 @@ public class AnalyserControlPart {
 
 	private Composite parent;
 	
-	private AlignmentControls alignmentControls;
-	private IVGScientaAnalyserRMI analyser;
-	private CameraControl eavCameraControl;
+	private final AlignmentConfiguration alignmentControls;
+	private final CameraControl eavCameraControl;
 
 	@Inject
 	public AnalyserControlPart() {
 		logger.trace("Constructor called");
 
 		try {
-			alignmentControls = Finder.getInstance().findSingleton(AlignmentControls.class);
+			alignmentControls = Finder.getInstance().findSingleton(AlignmentConfiguration.class);
 		} catch (IllegalArgumentException exception) {
-			String msg = "No AlignmentControls was found! (Or more than 1)";
+			String msg = "No AlignmentConfiguration was found! (Or more than 1)";
 			logger.error(msg);
 			throw new RuntimeException(msg);
 		}
 		
-		analyser = alignmentControls.getAnalyser();
 		eavCameraControl = alignmentControls.getAnalyserEavControl();
 	}
 
@@ -110,13 +108,13 @@ public class AnalyserControlPart {
 		Group group = new Group(composite, SWT.NONE);
 		group.setLayout(groupRowLayout);
 		
-		addAnalyserStartButton(group);
+		addCameraStartButton(group);
 		addAnalyserStopButton(group);
 		addAccumulationStartButton(group);
 		addAccumulationStopButton(group);
 	}
 				
-	private void addAnalyserStartButton(Composite composite) {
+	private void addCameraStartButton(Composite composite) {
 		Button startButton = new Button(composite, SWT.PUSH);
 		startButton.setText("Start Camera");
 		setTextToBold(startButton);
@@ -127,8 +125,6 @@ public class AnalyserControlPart {
 			public void widgetSelected(SelectionEvent e) {
 				logger.debug("Starting fixed mode acquistion");
 				try {
-					analyser.setAcquisitionMode("Fixed");
-					analyser.start();
 					eavCameraControl.setImageMode(ImageMode.CONTINUOUS);
 					eavCameraControl.startAcquiring();
 				} catch (Exception ex) {
@@ -150,7 +146,6 @@ public class AnalyserControlPart {
 				logger.info("Stopping continuous acquistion");
 				try {
 					eavCameraControl.stopAcquiring();
-					analyser.zeroSupplies();
 				} catch (Exception ex) {
 					logger.error("Failed to stop analyser or live viewer", ex);
 				}
