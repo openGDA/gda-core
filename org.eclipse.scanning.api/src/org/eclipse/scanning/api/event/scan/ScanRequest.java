@@ -83,6 +83,10 @@ public class ScanRequest implements Serializable {
 
 	/**
 	 * Part or all of the file path to be used for this scan.
+	 * <p>
+	 * Code that processes this should assume that a file path ending in {@code "<a>.<b>"} denotes a complete path for
+	 * the file, otherwise it should be treated as a directory specification.
+	 * </p>
 	 */
 	private String filePath;
 
@@ -132,16 +136,20 @@ public class ScanRequest implements Serializable {
 	private ProcessingRequest processingRequest;
 
 	public ScanRequest() {
-
+		// default constructor for use by Spring etc.
 	}
 
 	public ScanRequest(IScanPointGeneratorModel m, String filePath, List<String> monitorNamesPerPoint, List<String> monitorNamesPerScan, ProcessingRequest processing) {
-		super();
 		this.compoundModel = new CompoundModel(m);
 		this.monitorNamesPerPoint = monitorNamesPerPoint;
 		this.monitorNamesPerScan = monitorNamesPerScan;
 		this.filePath = filePath;
 		this.processingRequest = processing;
+	}
+
+	public ScanRequest(IScanPointGeneratorModel m, IROI region, String filePath, List<String> monitorNamesPerPoint, List<String> monitorNamesPerScan) {
+		this(m, filePath, monitorNamesPerPoint, monitorNamesPerScan, null);
+		compoundModel.setRegions(Arrays.asList(new ScanRegion(region, m.getScannableNames())));
 	}
 
 	public ProcessingRequest getProcessingRequest() {
@@ -150,11 +158,6 @@ public class ScanRequest implements Serializable {
 
 	public void setProcessingRequest(ProcessingRequest processingRequest) {
 		this.processingRequest = processingRequest;
-	}
-
-	public ScanRequest(IScanPointGeneratorModel m, IROI region, String filePath, List<String> monitorNamesPerPoint, List<String> monitorNamesPerScan) {
-		this(m, filePath, monitorNamesPerPoint, monitorNamesPerScan, null);
-		compoundModel.setRegions(Arrays.asList(new ScanRegion(region, m.getScannableNames())));
 	}
 
 	public SampleData getSampleData() {

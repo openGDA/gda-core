@@ -14,6 +14,7 @@ package org.eclipse.scanning.server.servlet;
 import static java.util.stream.Collectors.toList;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -37,6 +38,7 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IBeanProcess;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.DeviceState;
+import org.eclipse.scanning.api.event.scan.SampleData;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.Status;
@@ -399,24 +401,44 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 
 	private void setFilePath(ScanBean bean) throws EventException {
 		final ScanRequest req = bean.getScanRequest();
+		final String filePath = req.getFilePath();
 
-		// Set the file path to the next scan file path from the service which manages scan names.
-		if (req.getFilePath() == null) {
-			final IFilePathService fservice = Services.getFilePathService();
-			if (fservice != null) {
-				try {
-					final String template = req.getSampleData() != null ? req.getSampleData().getName() : null;
-					bean.setFilePath(fservice.getNextPath(template));
-				} catch (Exception e) {
-					throw new EventException(e);
-				}
-			} else {
-				bean.setFilePath(null); // It is allowable to run a scan without a nexus file
-			}
+		if (filePath != null && isFileSpecification(filePath)) {
+			// File path is a complete file name: just set this in the bean
+			bean.setFilePath(filePath);
 		} else {
-			bean.setFilePath(req.getFilePath());
+			bean.setFilePath(getNexusFilePath(filePath, req.getSampleData()));
 		}
 		logger.debug("Nexus file path set to {}", bean.getFilePath());
+	}
+
+	/**
+	 * A file path ending in {@code "<a>.<b>"} is regarded as denoting an output file (rather than a directory)
+	 *
+	 * @param path
+	 *            the file path to test
+	 * @return {@code true} if path denotes a file, {@code false} otherwise
+	 */
+	private static boolean isFileSpecification(String path) {
+		final String filenameCharacters = "A-Za-z0-9_-";
+		final String filenameRegex = String.format("[%s]*\\.[%s]*", filenameCharacters, filenameCharacters);
+		final String lastElement = Paths.get(path).getFileName().toString();
+		return lastElement.matches(filenameRegex);
+	}
+
+	private static String getNexusFilePath(String filePath, SampleData sampleData) throws EventException {
+		final IFilePathService fservice = Services.getFilePathService();
+		if (fservice == null) {
+			// It is allowable to run a scan without a nexus file
+			return null;
+		}
+		// Set the file path to the next scan file path from the service which manages scan names.
+		final String template = sampleData != null ? sampleData.getName() : null;
+		try {
+			return filePath == null ? fservice.getNextPath(template) : fservice.getNextPath(filePath, template);
+		} catch (Exception e) {
+			throw new EventException(e);
+		}
 	}
 
 	private void runScript(ScriptRequest req, ScanModel scanModel, boolean runEvenIfScanTerminated) throws UnsupportedLanguageException, ScriptExecutionException, EventException, InterruptedException {
