@@ -256,6 +256,9 @@ public class LogbackUtils {
 		// If anything goes wrong from here onwards, we should throw an exception. It's not worth trying to log the
 		// error, since there may be no appenders.
 
+		// Set source property early so that it can be used in the xml config files
+		addSourcePropertyAndListener(context, processName);
+
 		// Configure using the default logging configuration, if it can be found.
 		if (defaultConfigFile != null) {
 			try {
@@ -279,8 +282,6 @@ public class LogbackUtils {
 			final String msg = String.format("Unable to configure logging using %s", configFilename);
 			throw new RuntimeException(msg, e);
 		}
-
-		addSourcePropertyAndListener(context, processName);
 
 		setEventDelayToZeroInAllSocketAppenders(context);
 
