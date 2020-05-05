@@ -221,7 +221,8 @@ public class NexusScanFileBuilder implements IPositionListener {
 			for (INexusDevice<?> nexusDevice : nexusDevicesForType) {
 				logger.trace("extractNexusProviders nexusDevice={}", nexusDevice);
 				try {
-					NexusObjectProvider<?> nexusProvider = nexusDevice.getNexusProvider(scanInfo);
+					final INexusDevice<?> decoratedNexusDevice = getDecoratedNexusDevice(nexusDevice);
+					NexusObjectProvider<?> nexusProvider = decoratedNexusDevice.getNexusProvider(scanInfo);
 					if (nexusProvider != null) {
 						logger.trace("extractNexusProviders nexusProvider={}", nexusProvider);
 						nexusObjectProvidersForType.add(nexusProvider);
@@ -259,6 +260,10 @@ public class NexusScanFileBuilder implements IPositionListener {
 		}
 
 		return nexusObjectProviders;
+	}
+
+	private INexusDevice<?> getDecoratedNexusDevice(INexusDevice<?> nexusDevice) {
+		return ServiceHolder.getNexusDeviceService().decorateNexusDevice(nexusDevice);
 	}
 
 	private void addNexusObjectForMultipleNexusDevice(IMultipleNexusDevice multiNexusDevice, Map<ScanRole, List<NexusObjectProvider<?>>> nexusObjectProviders) throws ScanningException {
