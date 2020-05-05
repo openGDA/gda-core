@@ -27,6 +27,7 @@ import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.json.MarshallerService;
 import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
+import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
 import org.eclipse.dawnsci.remotedataset.test.utilities.mock.LoaderServiceMock;
@@ -203,6 +204,7 @@ public final class ServiceTestHelper {
 		final org.eclipse.scanning.sequencer.ServiceHolder serviceHolder = new org.eclipse.scanning.sequencer.ServiceHolder();
 		serviceHolder.setEventService(eventServiceImpl);
 		serviceHolder.setFactory(new DefaultNexusBuilderFactory());
+		serviceHolder.setNexusDeviceService(new NexusDeviceService());
 		serviceHolder.setFilePathService(filePathService);
 		serviceHolder.setGeneratorService(pointGeneratorService);
 		serviceHolder.setLoaderService(loaderService);

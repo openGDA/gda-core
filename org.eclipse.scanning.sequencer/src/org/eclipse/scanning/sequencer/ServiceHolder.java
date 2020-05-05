@@ -16,6 +16,7 @@ import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.analysis.api.persistence.IPersistenceService;
 import org.eclipse.dawnsci.analysis.api.processing.IOperationService;
 import org.eclipse.dawnsci.nexus.builder.NexusBuilderFactory;
+import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
@@ -37,6 +38,16 @@ public class ServiceHolder {
 
 	public void setFactory(NexusBuilderFactory factory) {
 		ServiceHolder.factory = factory;
+	}
+
+	private static INexusDeviceService nexusDeviceService;
+
+	public static INexusDeviceService getNexusDeviceService() {
+		return nexusDeviceService;
+	}
+
+	public void setNexusDeviceService(INexusDeviceService nexusDeviceService) {
+		ServiceHolder.nexusDeviceService = nexusDeviceService;
 	}
 
     private static IOperationService operationService;
