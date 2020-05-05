@@ -791,7 +791,23 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 	}
 
 	private U getNextBean() {
-		return submissionQueue.poll();
+		synchronized(submissionQueue) {
+			boolean queueReordered = false;
+			Iterator<U> iter = submissionQueue.iterator();
+			while (iter.hasNext()) {
+				U peekBean = iter.next();
+				if (peekBean.getStatus() != null && peekBean.getStatus().isPaused()) {
+					peekBean.setStatus(Status.PAUSED);
+					// At least one paused scan, re-order to move running scan below queued
+					queueReordered = true;
+				} else {
+					if (queueReordered) sendQueueModifiedMessage();
+					submissionQueue.remove(peekBean);
+					return peekBean;
+				}
+			}
+		return null;
+		}
 	}
 
 	private void init() throws EventException {

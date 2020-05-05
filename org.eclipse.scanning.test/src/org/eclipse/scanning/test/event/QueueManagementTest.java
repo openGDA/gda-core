@@ -502,4 +502,37 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(actualNames, containsInAnyOrder(expectedNames.toArray()));
 	}
 
+
+	@Test
+	/*
+	 * Submitted scans that have not yet been run should, when paused, be passed over, allowing
+	 * scans submitted after them to run first. This allows for the situation where e.g.:
+	 * The results of Scan A may determine which of scans A_1, A_2, A_3 is run
+	 * But Scan B is run independent of A, and the results of Scan A can
+	 * be inspected while Scan B is running:
+	 * The queue is paused
+	 * Scans A, A_1, A_2, A_3, B are queued.
+	 * Scans A_1-A_3 are paused.
+	 * The queue is unpaused and Scan A runs. Scan B starts.
+	 * Results A are examined and Scan A_2 is unpaused, running when Scan B finishes (before e.g. Scan C)
+	 * Scans A_1, A_3 are removed.
+	 */
+	public void pausedSubmittedScansAreSkipped() throws Exception {
+		List<StatusBean> beans = createAndSubmitBeans();
+		StatusBean firstBean = beans.get(0);
+		getJobQueue().pauseJob(firstBean);
+		StatusBean thirdBean = beans.get(2);
+		getJobQueue().pauseJob(thirdBean);
+		beans.remove(2);
+		beans.remove(0);
+		// Scans 2, 4, 5 should have been run
+		runBeans(beans);
+		getJobQueue().resumeJob(firstBean);
+		getJobQueue().resumeJob(thirdBean);
+		beans.add(firstBean);
+		beans.add(thirdBean);
+		// Scans 2, 4, 5, 1, 3 should have run.
+		runBeans(beans);
+	}
+
 }
