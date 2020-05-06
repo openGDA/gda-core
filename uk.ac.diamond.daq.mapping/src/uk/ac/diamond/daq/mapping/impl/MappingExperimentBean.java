@@ -34,6 +34,8 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	private MappingStageInfo stageInfoSnapshot;
 	private List<ConfigWrapper> processingConfigs;
 	private List<String> templateFilePaths;
+	private boolean useAlternativeDirectory = false;
+	private String alternativeDirectory = "";
 
 	public MappingExperimentBean() {
 		id = -1;
@@ -171,118 +173,6 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	}
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((beamlineConfiguration == null) ? 0 : beamlineConfiguration.hashCode());
-		result = prime * result
-				+ ((clusterProcessingConfiguration == null) ? 0 : clusterProcessingConfiguration.hashCode());
-		result = prime * result + ((detectorParameters == null) ? 0 : detectorParameters.hashCode());
-		result = prime * result + ((perPointMonitorNames == null) ? 0 : perPointMonitorNames.hashCode());
-		result = prime * result + ((perScanMonitorNames == null) ? 0 : perScanMonitorNames.hashCode());
-		result = prime * result + ((sampleMetadata == null) ? 0 : sampleMetadata.hashCode());
-		result = prime * result + ((scanDefinition == null) ? 0 : scanDefinition.hashCode());
-		result = prime * result + ((scriptFiles == null) ? 0 : scriptFiles.hashCode());
-		result = prime * result + ((templateFilePaths == null) ? 0 : templateFilePaths.hashCode());
-		result = prime * result + ((stageInfoSnapshot == null) ? 0 : stageInfoSnapshot.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		MappingExperimentBean other = (MappingExperimentBean) obj;
-		if (beamlineConfiguration == null) {
-			if (other.beamlineConfiguration != null) {
-				return false;
-			}
-		} else if (!beamlineConfiguration.equals(other.beamlineConfiguration)) {
-			return false;
-		}
-		if (clusterProcessingConfiguration == null) {
-			if (other.clusterProcessingConfiguration != null) {
-				return false;
-			}
-		} else if (!clusterProcessingConfiguration.equals(other.clusterProcessingConfiguration)) {
-			return false;
-		}
-		if (detectorParameters == null) {
-			if (other.detectorParameters != null) {
-				return false;
-			}
-		} else if (!detectorParameters.equals(other.detectorParameters)) {
-			return false;
-		}
-		if (perPointMonitorNames == null) {
-			if (other.perPointMonitorNames != null) {
-				return false;
-			}
-		} else if (!perPointMonitorNames.equals(other.perPointMonitorNames)) {
-			return false;
-		}
-		if (perScanMonitorNames == null) {
-			if (other.perScanMonitorNames != null) {
-				return false;
-			}
-		} else if (!perScanMonitorNames.equals(other.perScanMonitorNames)) {
-			return false;
-		}
-		if (sampleMetadata == null) {
-			if (other.sampleMetadata != null) {
-				return false;
-			}
-		} else if (!sampleMetadata.equals(other.sampleMetadata)) {
-			return false;
-		}
-		if (scanDefinition == null) {
-			if (other.scanDefinition != null) {
-				return false;
-			}
-		} else if (!scanDefinition.equals(other.scanDefinition)) {
-			return false;
-		}
-		if (scriptFiles == null) {
-			if (other.scriptFiles != null) {
-				return false;
-			}
-		} else if (!scriptFiles.equals(other.scriptFiles)) {
-			return false;
-		}
-		if (templateFilePaths == null) {
-			if (other.templateFilePaths != null) {
-				return false;
-			}
-		} else if (!templateFilePaths.equals(other.templateFilePaths)) {
-			return false;
-		}
-		if (stageInfoSnapshot == null) {
-			if (other.stageInfoSnapshot != null) {
-				return false;
-			}
-		} else if (!stageInfoSnapshot.equals(other.stageInfoSnapshot)) {
-			return false;
-		}
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		return "MappingExperimentBean [sampleMetadata=" + sampleMetadata + ", detectorParameters=" + detectorParameters
-				+ ", clusterProcessingConfiguration=" + clusterProcessingConfiguration + ", beamlineConfiguration="
-				+ beamlineConfiguration + ", scanDefinition=" + scanDefinition + ", scriptFiles=" + scriptFiles
-				+ ", templateFilePaths=" + templateFilePaths + ", perScanMonitorNames=" + perScanMonitorNames +
-				", perPointMonitorNames=" + perPointMonitorNames + "]";
-	}
-
-	@Override
 	public List<ConfigWrapper> getProcessingConfigs() {
 		return processingConfigs;
 	}
@@ -296,5 +186,141 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	public void addProcessingRequest(ConfigWrapper wrapper) {
 		if (wrapper == null) return;
 		processingConfigs.add(wrapper);
+	}
+
+	@Override
+	public boolean isUseAlternativeDirectory() {
+		return useAlternativeDirectory;
+	}
+
+	@Override
+	public void setUseAlternativeDirectory(boolean use) {
+		useAlternativeDirectory = use;
+	}
+
+	@Override
+	public String getAlternativeDirectory() {
+		return alternativeDirectory;
+	}
+
+	@Override
+	public void setAlternativeDirectory(String directory) {
+		alternativeDirectory = directory;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((alternativeDirectory == null) ? 0 : alternativeDirectory.hashCode());
+		result = prime * result + ((beamlineConfiguration == null) ? 0 : beamlineConfiguration.hashCode());
+		result = prime * result
+				+ ((clusterProcessingConfiguration == null) ? 0 : clusterProcessingConfiguration.hashCode());
+		result = prime * result + ((detectorParameters == null) ? 0 : detectorParameters.hashCode());
+		result = prime * result + ((displayName == null) ? 0 : displayName.hashCode());
+		result = prime * result + (int) (id ^ (id >>> 32));
+		result = prime * result + ((perPointMonitorNames == null) ? 0 : perPointMonitorNames.hashCode());
+		result = prime * result + ((perScanMonitorNames == null) ? 0 : perScanMonitorNames.hashCode());
+		result = prime * result + ((processingConfigs == null) ? 0 : processingConfigs.hashCode());
+		result = prime * result + ((sampleMetadata == null) ? 0 : sampleMetadata.hashCode());
+		result = prime * result + ((scanDefinition == null) ? 0 : scanDefinition.hashCode());
+		result = prime * result + ((scriptFiles == null) ? 0 : scriptFiles.hashCode());
+		result = prime * result + ((stageInfoSnapshot == null) ? 0 : stageInfoSnapshot.hashCode());
+		result = prime * result + ((templateFilePaths == null) ? 0 : templateFilePaths.hashCode());
+		result = prime * result + (useAlternativeDirectory ? 1231 : 1237);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MappingExperimentBean other = (MappingExperimentBean) obj;
+		if (alternativeDirectory == null) {
+			if (other.alternativeDirectory != null)
+				return false;
+		} else if (!alternativeDirectory.equals(other.alternativeDirectory))
+			return false;
+		if (beamlineConfiguration == null) {
+			if (other.beamlineConfiguration != null)
+				return false;
+		} else if (!beamlineConfiguration.equals(other.beamlineConfiguration))
+			return false;
+		if (clusterProcessingConfiguration == null) {
+			if (other.clusterProcessingConfiguration != null)
+				return false;
+		} else if (!clusterProcessingConfiguration.equals(other.clusterProcessingConfiguration))
+			return false;
+		if (detectorParameters == null) {
+			if (other.detectorParameters != null)
+				return false;
+		} else if (!detectorParameters.equals(other.detectorParameters))
+			return false;
+		if (displayName == null) {
+			if (other.displayName != null)
+				return false;
+		} else if (!displayName.equals(other.displayName))
+			return false;
+		if (id != other.id)
+			return false;
+		if (perPointMonitorNames == null) {
+			if (other.perPointMonitorNames != null)
+				return false;
+		} else if (!perPointMonitorNames.equals(other.perPointMonitorNames))
+			return false;
+		if (perScanMonitorNames == null) {
+			if (other.perScanMonitorNames != null)
+				return false;
+		} else if (!perScanMonitorNames.equals(other.perScanMonitorNames))
+			return false;
+		if (processingConfigs == null) {
+			if (other.processingConfigs != null)
+				return false;
+		} else if (!processingConfigs.equals(other.processingConfigs))
+			return false;
+		if (sampleMetadata == null) {
+			if (other.sampleMetadata != null)
+				return false;
+		} else if (!sampleMetadata.equals(other.sampleMetadata))
+			return false;
+		if (scanDefinition == null) {
+			if (other.scanDefinition != null)
+				return false;
+		} else if (!scanDefinition.equals(other.scanDefinition))
+			return false;
+		if (scriptFiles == null) {
+			if (other.scriptFiles != null)
+				return false;
+		} else if (!scriptFiles.equals(other.scriptFiles))
+			return false;
+		if (stageInfoSnapshot == null) {
+			if (other.stageInfoSnapshot != null)
+				return false;
+		} else if (!stageInfoSnapshot.equals(other.stageInfoSnapshot))
+			return false;
+		if (templateFilePaths == null) {
+			if (other.templateFilePaths != null)
+				return false;
+		} else if (!templateFilePaths.equals(other.templateFilePaths))
+			return false;
+		if (useAlternativeDirectory != other.useAlternativeDirectory)
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "MappingExperimentBean [id=" + id + ", displayName=" + displayName + ", sampleMetadata=" + sampleMetadata
+				+ ", detectorParameters=" + detectorParameters + ", clusterProcessingConfiguration="
+				+ clusterProcessingConfiguration + ", beamlineConfiguration=" + beamlineConfiguration
+				+ ", scanDefinition=" + scanDefinition + ", scriptFiles=" + scriptFiles + ", perScanMonitorNames="
+				+ perScanMonitorNames + ", perPointMonitorNames=" + perPointMonitorNames + ", stageInfoSnapshot="
+				+ stageInfoSnapshot + ", processingConfigs=" + processingConfigs + ", templateFilePaths="
+				+ templateFilePaths + ", useAlternativeDirectory=" + useAlternativeDirectory + ", alternativeDirectory="
+				+ alternativeDirectory + "]";
 	}
 }

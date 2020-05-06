@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import static java.util.stream.Collectors.toCollection;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -190,7 +191,16 @@ public class ScanRequestConverter {
 			scanRequest.setTemplateFilePaths(allTemplateFilePaths);
 		}
 
-		scanRequest.getTemplateFilePaths();
+		// Add alternative output directory if selected and valid
+		if (mappingBean.isUseAlternativeDirectory()) {
+			final String outputDirString = mappingBean.getAlternativeDirectory();
+			final File outputDir = new File(outputDirString);
+			if (outputDir.isDirectory()) {
+				scanRequest.setFilePath(outputDirString);
+			} else {
+				logger.warn("Cannot write output to {}: it is not a directory", outputDirString);
+			}
+		}
 
 		return scanRequest;
 	}

@@ -165,4 +165,23 @@ public interface IMappingExperimentBean {
 
 	void setTemplateFilePaths(List<String> templateFilePaths);
 
+	/**
+	 * Returns a flag to indicate whether output should be written to an alternative directory specified by the user<br>
+	 * If this returns {@code true}, {@link #getAlternativeDirectory()} will return the directory to be used.
+	 *
+	 * @return {@code true} if an alternative directory should be used, {@code false} if not
+	 */
+	boolean isUseAlternativeDirectory();
+
+	void setUseAlternativeDirectory(boolean use);
+
+	/**
+	 * An alternative directory to be used for output<br>
+	 * See also {{@link #isUseAlternativeDirectory()}
+	 *
+	 * @return the path to the directory to be used for output
+	 */
+	String getAlternativeDirectory();
+
+	void setAlternativeDirectory(String directory);
 }
