@@ -276,7 +276,7 @@ public interface Xspress3Controller extends Findable {
 
 	public void setPointsPerRow(Integer pointsPerRow) throws DeviceException;
 
-	public int monitorUpdateArraysAvailableFrame(int desiredPoint) throws DeviceException;
+	public int waitUntilFrameAvailable(int scanPoint) throws DeviceException;
 
 	public ReadyForNextRow monitorReadyForNextRow(ReadyForNextRow readyForNextRow) throws DeviceException;
 

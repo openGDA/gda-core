@@ -49,7 +49,7 @@ public class Xspress3DataOperations {
 
 	private Xspress3Controller controller;
 	private int firstChannelToRead;
-	private int framesRead;
+	private int scanPoint;
 	private String configFileName;
 	private DetectorROI[] rois;
 	private boolean[] isChannelEnabled;
@@ -83,17 +83,17 @@ public class Xspress3DataOperations {
 			// we are in a Continuous / Fly scan, so data will be readback from
 			// the HDF file at the end of each scan line
 		}
-		framesRead = 0;
+		scanPoint = 0;
 	}
 
 	protected void atScanLineStart() {
 		if (readDataFromFile)
-			framesRead = 0;
+			scanPoint = 0;
 		reader = null;
 	}
 
-	protected void atPointEnd() {
-		framesRead++;
+	protected void incrementScanPoint() {
+		scanPoint++;
 	}
 
 	protected String getConfigFileName() {
@@ -139,11 +139,10 @@ public class Xspress3DataOperations {
 	}
 
 	protected NexusTreeProvider readoutLatest(String detectorName) throws DeviceException {
-		int numPointAvailableInArrays = 0;
-		// the numPointAvailableInArrays is the array index so framesRead - 1
-		numPointAvailableInArrays = controller.monitorUpdateArraysAvailableFrame(framesRead) - 1;
-		logger.debug("framesRead={}, numPointAvailableInArrays={}", framesRead, numPointAvailableInArrays);
-		if (framesRead != numPointAvailableInArrays) {
+		int numPointAvailableInArrays = controller.waitUntilFrameAvailable(scanPoint);
+		logger.debug("scanPoint={}, numPointAvailableInArrays={}", scanPoint, numPointAvailableInArrays);
+
+		if (scanPoint != numPointAvailableInArrays) {
 			throw new DeviceException("Xspress3 arrays are not updated correctly!");
 		}
 
@@ -307,12 +306,8 @@ public class Xspress3DataOperations {
 	}
 
 	/**
-	 * @param time
-	 *            - milliseconds
-	 * @return
-	 * @throws DeviceException
+	 * @param time in milliseconds
 	 */
-	@Deprecated
 	protected int[][] getMCData(double time) throws DeviceException {
 		getMCAData(time);
 

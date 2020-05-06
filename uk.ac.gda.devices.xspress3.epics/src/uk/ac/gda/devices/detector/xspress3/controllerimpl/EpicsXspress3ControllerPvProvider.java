@@ -111,6 +111,7 @@ public class EpicsXspress3ControllerPvProvider {
 	private static String MCA_TEMPLATE = ":ARR%1d:ArrayData";// channel (1-8) this points towards a waveform
 	private static String MCA_SUM_TEMPLATE = ":ARRSUM%1d:ArrayData";// channel (1-8) this points towards a waveform
 	private static String CHANNEL_ENABLE_TEMPLATE = ":C%1d_PluginControlVal";
+	private static String CHANNEL_ENABLE_V3_TEMPLATE = ":MCA%1d:Enable";
 
 	// SCA
 	private static String SCA_WIN1_LOW_BIN_TEMPLATE = ":C%1d_SCA5_LLM";// channel (1-8)
@@ -138,6 +139,7 @@ public class EpicsXspress3ControllerPvProvider {
 	private static String ALL_GOOD_EVT_OFFSET_TEMPLATE = ":C%1d_DTC_AEO_RBV";// channel (1-8)
 	private static String IN_WIN_EVT_GRAD_TEMPLATE = ":C%1d_DTC_IWG_RBV";// channel (1-8)
 	private static String INWIN_EVT_OFFSET_TEMPLATE = ":C%1d_DTC_IWO_RBV";// channel (1-8)
+	private static String SQUASH_AUX_DIM_TEMPLATE = ":DTC:SquashAuxDim"; // since IOC version 3-0
 
 	// the shared PVs with the Controller which uses this object
 	protected String epicsTemplate;
@@ -230,6 +232,10 @@ public class EpicsXspress3ControllerPvProvider {
 	private static String SCA_UPDATE_ARRAY_TEMPLATE = ":C%d_SCAS:TSControl"; // channel (1-8),
 	private static String SCA_ATTR_NAME_TEMPLATE = ":C%d_SCAS:%d:AttrName_RBV"; // channel (1-8),
 	protected ReadOnlyPV<String>[][] pvsSCAttrName;
+
+	// PVs introduced in IOC v 3-0
+	protected PV<UPDATE_RBV>[] pvsChannelEnableIocV3;
+	protected PV<UPDATE_RBV> pvSquashAuxDim;
 
 	public boolean getUseNewEpicsInterface() {
 		return useNewEpicsInterface;
@@ -340,10 +346,17 @@ public class EpicsXspress3ControllerPvProvider {
 		pvGetMaxNumChannels = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(MAX_NUM_CHANNELS));
 
 		pvsChannelEnable = new PV[numberOfDetectorChannels];
+		pvsChannelEnableIocV3 = new PV[numberOfDetectorChannels];
+
 		for (int channel = 1; channel <= numberOfDetectorChannels; channel++) {
 			pvsChannelEnable[channel - 1] = LazyPVFactory.newEnumPV(generatePVName(CHANNEL_ENABLE_TEMPLATE, channel),
 					UPDATE_RBV.class);
+
+			pvsChannelEnableIocV3[channel - 1] = LazyPVFactory.newEnumPV(generatePVName(CHANNEL_ENABLE_V3_TEMPLATE, channel),
+					UPDATE_RBV.class);
 		}
+
+		pvSquashAuxDim = LazyPVFactory.newEnumPV(generatePVName(SQUASH_AUX_DIM_TEMPLATE), UPDATE_RBV.class);
 	}
 
 	@SuppressWarnings("unchecked")

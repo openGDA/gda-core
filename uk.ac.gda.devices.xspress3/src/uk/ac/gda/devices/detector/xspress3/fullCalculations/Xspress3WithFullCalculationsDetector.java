@@ -48,14 +48,11 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	private static final int MCA_SIZE = 4096;
 	private static final int MAX_NUMBER_OF_ROIS = Integer.MAX_VALUE; // calculations are done in software so no limit to number of ROIs
 
-	Xspress3Controller controller;
+	private Xspress3Controller controller;
 	private Xspress3ScanOperations scanOperations;
 	private Xspress3DataOperations dataOperations;
 	private int firstChannelToRead = 0;
 	private boolean readDataFromFile = false;
-
-	public Xspress3WithFullCalculationsDetector() {
-	}
 
 	@Override
 	public void configure() throws FactoryException {
@@ -93,8 +90,8 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	}
 
 	@Override
-	public void atPointEnd() throws DeviceException {
-		dataOperations.atPointEnd();
+	public void atPointStart() throws DeviceException {
+		dataOperations.incrementScanPoint();
 	}
 
 	@Override
@@ -147,7 +144,6 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	}
 
 	@Override
-	@Deprecated
 	public int[][] getMCData(double time) throws DeviceException {
 		return dataOperations.getMCData(time);
 	}

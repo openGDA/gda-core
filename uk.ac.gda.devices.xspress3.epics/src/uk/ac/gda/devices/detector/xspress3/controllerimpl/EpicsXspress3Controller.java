@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.zebra.GreaterThanOrEqualTo;
+import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
 import gda.factory.FactoryException;
 import gda.factory.FindableConfigurableBase;
@@ -62,11 +62,9 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 
 	private int numRoiToRead = 1;
 
-//	private int[] dimensionsOfLastFile;
-
 	private int numberOfDetectorChannels = 4;
 
-	private boolean epicsVersion2 = false;
+	private boolean iocVersion3 = false;
 
 	private boolean useNewEpicsInterface = false;
 
@@ -129,6 +127,9 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 				for(int i=0; i<numChannels; i++) {
 					pvProvider.pvsSCA5UpdateArrays[i].putWait(UPDATE_CTRL.Disable);
 				}
+			}
+			if (iocVersion3) {
+				pvProvider.pvSquashAuxDim.putWait(UPDATE_RBV.Enabled);
 			}
 			// nowait as the IOC does not send a callback (until all data
 			// collection finished I suppose, which is not what we want here)
@@ -555,7 +556,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 		// no need to call updateArrays()
 		// updateArrays();
 
-		if (!epicsVersion2)
+		if (!iocVersion3)
 			updateArrays();
 
 		double[][] mcas = new double[finalChannel - startChannel + 1][];
@@ -758,7 +759,6 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	public void setFilePath(String path) throws DeviceException {
 		try {
 			pvProvider.pvSetFilePath.putWait(path);
-//			pvProvider.pvAllElementSumSetFilePath.putWait(path);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting filepath", e);
 		}
@@ -769,7 +769,6 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	public void setFilePrefix(String template) throws DeviceException {
 		try {
 			pvProvider.pvSetFilePrefix.putWait(template);
-//			pvProvider.pvAllElementSumSetFilePrefix.putWait(Xspress3Detector.ALL_ELEMENT_SUM_LABEL +template);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting file prefix", e);
 		}
@@ -780,7 +779,6 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	public void setNextFileNumber(int nextNumber) throws DeviceException {
 		try {
 			pvProvider.pvNextFileNumber.putWait(nextNumber);
-//			pvProvider.pvAllElementSumNextFileNumber.putWait(nextNumber);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting file number", e);
 		}
@@ -888,14 +886,15 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	}
 
 	@Override
-	public void enableChannel(int channel, boolean doEnable)
-			throws DeviceException {
+	public void enableChannel(int channel, boolean doEnable) throws DeviceException {
+
+		PV<UPDATE_RBV> enablePv = iocVersion3 ? pvProvider.pvsChannelEnableIocV3[channel]
+											  : pvProvider.pvsChannelEnable[channel];
+
+		UPDATE_RBV value = doEnable ? UPDATE_RBV.Enabled : UPDATE_RBV.Disabled;
+
 		try {
-			if (doEnable) {
-				pvProvider.pvsChannelEnable[channel].putWait(UPDATE_RBV.Enabled);
-			} else {
-				pvProvider.pvsChannelEnable[channel].putWait(UPDATE_RBV.Disabled);
-			}
+			enablePv.putWait(value);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting channel enabled", e);
 		}
@@ -913,9 +912,9 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	}
 
 	@Override
-	public int monitorUpdateArraysAvailableFrame(int desiredPoint) throws DeviceException {
+	public int waitUntilFrameAvailable(int desiredPoint) throws DeviceException {
 		try {
-			return pvProvider.pvGetNumFramesAvailableToReadout.waitForValue(new GreaterThanOrEqualTo(desiredPoint), TIMEOUTS_MONITORING);
+			return pvProvider.pvGetNumFramesAvailableToReadout.waitForValue(frames -> frames == desiredPoint, TIMEOUTS_MONITORING);
 		} catch (Exception e) {
 			throw new DeviceException("Problem while waiting for point: " + desiredPoint, e);
 		}
@@ -934,12 +933,8 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 		return isReadyForNextRow;
 	}
 
-	public boolean isEpicsVersion2() {
-		return epicsVersion2;
-	}
-
-	public void setEpicsVersion2(boolean epicsVersion2) {
-		this.epicsVersion2 = epicsVersion2;
+	public void setIocVersion3(boolean version3) {
+		this.iocVersion3 = version3;
 	}
 
 	public String getSCAAttrName(int channel, int scaler) throws IOException {
