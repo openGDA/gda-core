@@ -105,8 +105,7 @@ public class NexusExperimentController implements ExperimentController {
 			throw new ExperimentControllerException("An experiment is already running");
 		}
 
-		tree = new TreeNavigator();
-		tree.point(createNode(experimentName, DEFAULT_EXPERIMENT_PREFIX, null));
+		tree = new TreeNavigator(createNode(experimentName, DEFAULT_EXPERIMENT_PREFIX, null));
 		return tree.getCurrentNode().getFileLocation();
 	}
 
@@ -147,8 +146,7 @@ public class NexusExperimentController implements ExperimentController {
 	}
 
 	private boolean isMultipartAcquisitionInProgress() {
-		return !tree.getCurrentNode().isRoot()
-			&& tree.getCurrentNode().hasChildren();
+		return !tree.getCurrentNode().isRoot();
 	}
 
 	@Override
@@ -193,6 +191,10 @@ public class NexusExperimentController implements ExperimentController {
 	}
 
 	private void closeNode(ExperimentNode node) throws ExperimentControllerException {
+
+		// no need to create a node file if the node is childless
+		if (!node.hasChildren()) return;
+
 		NodeFileCreationRequest job = new NodeFileCreationRequest();
 		job.setNodeLocation(node.getFileLocation());
 		job.setChildren(node.getChildren().stream()

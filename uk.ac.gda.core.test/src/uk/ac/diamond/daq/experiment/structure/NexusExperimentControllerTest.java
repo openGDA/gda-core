@@ -6,10 +6,11 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static uk.ac.diamond.daq.experiment.structure.NexusExperimentController.DEFAULT_ACQUISITION_PREFIX;
 import static uk.ac.diamond.daq.experiment.structure.NexusExperimentController.DEFAULT_EXPERIMENT_PREFIX;
 
@@ -187,6 +188,19 @@ public class NexusExperimentControllerTest {
 		scans.add(scan1);
 		scans.add(scan2);
 		assertThat(job.getChildren(), is(equalTo(scans)));
+	}
+
+	@Test
+	public void multiPartIsAbleToCloseWithoutChildren() throws Exception {
+		controller.startExperiment(EXPERIMENT_NAME);
+
+		// start multipart acquisition...
+		controller.startMultipartAcquisition(ACQUISITION_NAME);
+
+		// on second thoughts... stop it (without generating acquisitions inside it)
+		controller.stopMultipartAcquisition();
+
+		verifyNoMoreInteractions(jobRequestor);
 	}
 
 	private boolean isFile(URL url) throws Exception {
