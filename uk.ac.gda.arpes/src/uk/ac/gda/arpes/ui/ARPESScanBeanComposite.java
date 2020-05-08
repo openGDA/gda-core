@@ -499,6 +499,10 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		return endEnergy;
 	}
 
+	public IFieldWidget getCentreEnergy() {
+		return centreEnergy;
+	}
+
 	public IFieldWidget getStepEnergy() {
 		return stepEnergy;
 	}
@@ -640,8 +644,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	}
 
 	public void beanUpdated() {
-		// Centre energy is not saved in the XML so need to be calculated from start and stop
-		centreEnergy.setValue((getValue(startEnergy) + getValue(endEnergy)) / 2.0);
+		// Centre energy is now obtained from XML
+		centreEnergy.setValue(getValue(centreEnergy));
 
 		updateFixedSweptMode();
 		updateEnergyLimits();

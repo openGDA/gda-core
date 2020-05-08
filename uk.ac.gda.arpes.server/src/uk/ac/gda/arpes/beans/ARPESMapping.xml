@@ -17,6 +17,9 @@
 		<field name="endEnergy" type="double">
 			<bind-xml name="endEnergy" node="element"/>
 		</field>
+		<field name="centreEnergy" type="double">
+			<bind-xml name="centreEnergy" node="element"/>
+		</field>
 		<field name="stepEnergy" type="double">
 			<bind-xml name="stepEnergy" node="element"/>
 		</field>

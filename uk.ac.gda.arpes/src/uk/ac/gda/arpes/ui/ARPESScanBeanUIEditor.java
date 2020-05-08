@@ -89,6 +89,10 @@ public final class ARPESScanBeanUIEditor extends RichBeanEditorPart {
 		return beanComposite.getEndEnergy();
 	}
 
+	public IFieldWidget getCentreEnergy() {
+		return beanComposite.getCentreEnergy();
+	}
+
 	public IFieldWidget getStepEnergy() {
 		return beanComposite.getStepEnergy();
 	}
