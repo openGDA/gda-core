@@ -72,6 +72,7 @@ public class DetectorMetadataTest extends NexusTest {
 	private void checkNexusFile(IRunnableDevice<ScanModel> scanner, int[] shape, Map<String, Object> metadata) throws Exception {
 		checkNexusFile(scanner, false, shape);
 
+		// check that the metadata has been added to the mandlebrot NXdetector object for the instrument
 		final NXinstrument instrument = getNexusRoot(scanner).getEntry().getInstrument();
 		final NXdetector detector = instrument.getDetector("mandelbrot");
 		assertNotNull(detector);

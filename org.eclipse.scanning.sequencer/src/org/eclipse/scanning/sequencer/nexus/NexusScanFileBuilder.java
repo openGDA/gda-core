@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -55,6 +56,8 @@ import org.eclipse.dawnsci.nexus.builder.data.DataDeviceBuilder;
 import org.eclipse.dawnsci.nexus.builder.data.NexusDataBuilder;
 import org.eclipse.dawnsci.nexus.builder.data.PrimaryDataDevice;
 import org.eclipse.dawnsci.nexus.builder.impl.MapBasedMetadataProvider;
+import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
+import org.eclipse.dawnsci.nexus.device.SimpleNexusDevice;
 import org.eclipse.dawnsci.nexus.template.NexusTemplate;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.scanning.api.INameable;
@@ -112,6 +115,8 @@ public class NexusScanFileBuilder implements IPositionListener {
 	 */
 	private Map<String, Integer> defaultAxisIndexForScannable = null;
 
+	private final INexusDeviceService nexusDeviceService = ServiceHolder.getNexusDeviceService();
+
 	public NexusScanFileBuilder(IScanDevice scanDevice, ScanModel model, NexusScanModel nexusScanModel) throws ScanningException {
 		this.scanDevice = scanDevice;
 		this.nexusScanModel = nexusScanModel;
@@ -123,6 +128,7 @@ public class NexusScanFileBuilder implements IPositionListener {
 		// create the solstice scan monitor which writes unique keys. This is not added as
 		// a monitor to the scan as it part of the scan framework and must always write last
 		solsticeScanMonitor = createSolsticeScanMonitor(model);
+
 		// convert this to a map of nexus object providers for each type
 		nexusObjectProviders = extractNexusProviders();
 		solsticeScanMonitor.setNexusObjectProviders(nexusObjectProviders);
@@ -211,31 +217,22 @@ public class NexusScanFileBuilder implements IPositionListener {
 
 	protected Map<ScanRole, List<NexusObjectProvider<?>>> extractNexusProviders() throws ScanningException {
 		logger.trace("extractNexusProviders() called");
-		final Map<ScanRole, List<NexusObjectProvider<?>>> nexusObjectProviders = new EnumMap<>(ScanRole.class);
 		final NexusScanInfo scanInfo = nexusScanModel.getNexusScanInfo();
+		final Map<ScanRole, List<INexusDevice<?>>> nexusDevices = getNexusDevices(scanInfo);
+
+		final Map<ScanRole, List<NexusObjectProvider<?>>> nexusObjectProviders = new EnumMap<>(ScanRole.class);
 		for (ScanRole deviceType: ScanRole.values()) {
 			logger.trace("extractNexusProviders deviceType={}", deviceType);
-			final List<INexusDevice<?>> nexusDevicesForType = nexusScanModel.getNexusDevices().get(deviceType);
+			final List<INexusDevice<?>> nexusDevicesForType = nexusDevices.get(deviceType);
 			final List<NexusObjectProvider<?>> nexusObjectProvidersForType =
 					new ArrayList<>(nexusDevicesForType.size());
 			for (INexusDevice<?> nexusDevice : nexusDevicesForType) {
 				logger.trace("extractNexusProviders nexusDevice={}", nexusDevice);
 				try {
-					final INexusDevice<?> decoratedNexusDevice = getDecoratedNexusDevice(nexusDevice);
-					NexusObjectProvider<?> nexusProvider = decoratedNexusDevice.getNexusProvider(scanInfo);
+					final NexusObjectProvider<?> nexusProvider = nexusDevice.getNexusProvider(scanInfo);
 					if (nexusProvider != null) {
 						logger.trace("extractNexusProviders nexusProvider={}", nexusProvider);
 						nexusObjectProvidersForType.add(nexusProvider);
-					}
-					if (nexusDevice instanceof IMultipleNexusDevice) {
-						// any nexusDevice may also be an IMultipleNexusDevice. This allows a per-scan monitor wrapped by
-						// ScannableNexusWrapper to provide multiple nexus objects
-						List<NexusObjectProvider<?>> nexusProviders = ((IMultipleNexusDevice) nexusDevice).getNexusProviders(scanInfo);
-						logger.trace("extractNexusProviders nexusProviders={}", nexusProviders);
-						// Do we want to only extract nexusProviders with matching scan roles?
-						for (NexusObjectProvider<?> nexusProvider2: nexusProviders) {
-							nexusObjectProvidersForType.add(nexusProvider2);
-						}
 					}
 				} catch (NexusException e) {
 					final String deviceName = (nexusDevice instanceof INameable) ? ((INameable) nexusDevice).getName() : "(unknown device)";
@@ -253,33 +250,90 @@ public class NexusScanFileBuilder implements IPositionListener {
 			nexusObjectProviders.put(deviceType, nexusObjectProvidersForType);
 		}
 
-		// add nexus object from a multiple nexus device (assumed to be a malcolm device)
-		if (nexusScanModel.getMultipleNexusDevice().isPresent()) {
-			addNexusObjectForMultipleNexusDevice(nexusScanModel.getMultipleNexusDevice().get(),
-					nexusObjectProviders);
-		}
-
 		return nexusObjectProviders;
 	}
 
-	private INexusDevice<?> getDecoratedNexusDevice(INexusDevice<?> nexusDevice) {
-		return ServiceHolder.getNexusDeviceService().decorateNexusDevice(nexusDevice);
+	private Map<ScanRole, List<INexusDevice<?>>> getNexusDevices(NexusScanInfo info) throws ScanningException {
+		// expand any IMultipleNexusDevices
+		// TODO: This may be easier if IMultipleNexusDevice returned multiple INexusDevices, but this would be a breaking API change
+		// (although the old method could be kept as deprecated and a default implementation provided
+		final Map<ScanRole, List<INexusDevice<?>>> oldNexusDevices = nexusScanModel.getNexusDevices();
+		final Map<ScanRole, List<INexusDevice<?>>> newNexusDevices = new EnumMap<ScanRole, List<INexusDevice<?>>>(ScanRole.class);
+
+		// if an IMultipleNexusDevice is present in a list of devices by scan role, all nexus objects are assume to have the same role
+		for (Map.Entry<ScanRole, List<INexusDevice<?>>> nexusDevicesForScanRoleEntry : oldNexusDevices.entrySet()) {
+			final ScanRole scanRole = nexusDevicesForScanRoleEntry.getKey();
+			final List<INexusDevice<?>> oldNexusDevicesForScanRole = nexusDevicesForScanRoleEntry.getValue();
+			if (oldNexusDevicesForScanRole == null) {
+				newNexusDevices.put(scanRole, new ArrayList<>());
+				continue;
+			}
+
+			try {
+				// decorate all nexus devices, expand any multiple nexus devices in the list of devices by scan role
+				final List<INexusDevice<?>> newNexusDevicesForScanRole = new ArrayList<>();
+				for (INexusDevice<?> nexusDevice : oldNexusDevicesForScanRole) {
+					newNexusDevicesForScanRole.add(nexusDeviceService.decorateNexusDevice(nexusDevice));
+					if (nexusDevice instanceof IMultipleNexusDevice) {
+						newNexusDevicesForScanRole.addAll(createNexusDevicesForMultiple((IMultipleNexusDevice) nexusDevice, info));
+					}
+				}
+
+				newNexusDevices.put(scanRole, newNexusDevicesForScanRole);
+			} catch (Exception e) {
+				if (e instanceof RuntimeException && e.getCause() instanceof ScanningException) {
+					throw (ScanningException) ((RuntimeException) e).getCause();
+				}
+				throw new ScanningException("Error getting nexus devices", e);
+			}
+		}
+
+		// if an IMultipleNexusDevice is present in the ScanModel directly (usuually this will be a malcolm device)
+		// then we decide the ScanRole for each nexus device based on the nexus base class of the provider
+		if (nexusScanModel.getMultipleNexusDevice().isPresent()) {
+			final IMultipleNexusDevice multipleNexusDevice = nexusScanModel.getMultipleNexusDevice().get();
+			try {
+				for (NexusObjectProvider<?> nexusProvider : multipleNexusDevice.getNexusProviders(info)) {
+					final ScanRole scanRole = DEFAULT_SCAN_ROLES.get(nexusProvider.getNexusBaseClass());
+					if (scanRole == null) {
+						throw new ScanningException("Unable to determine scan role for nexus object of type " +
+								nexusProvider.getNexusBaseClass());
+					}
+					// create a new SimpleNexusDevice to wrap the NexusObjectProvider and get the decorated
+					final SimpleNexusDevice<?> nexusDevice = new SimpleNexusDevice<>(nexusProvider);
+					final INexusDevice<?> decoratedNexusDevice = nexusDeviceService.decorateNexusDevice(nexusDevice);
+					newNexusDevices.get(scanRole).add(decoratedNexusDevice);
+				}
+			} catch (NexusException e) {
+				throw new ScanningException("Could not get nexus object providers for device: " + multipleNexusDevice.getName(), e);
+			}
+		}
+
+		return newNexusDevices;
 	}
 
-	private void addNexusObjectForMultipleNexusDevice(IMultipleNexusDevice multiNexusDevice, Map<ScanRole, List<NexusObjectProvider<?>>> nexusObjectProviders) throws ScanningException {
+	private List<INexusDevice<?>> createNexusDevicesForMultiple(IMultipleNexusDevice multiNexusDevice, NexusScanInfo info) {
+		// convert a multiNexusDevice into multiple INexusDevices wrapping the returned NexusObjectProviders
+		// note, this method is only used when all the devices are assumed to have the same role, i.e. not for a malcolm device
 		try {
-			for (NexusObjectProvider<?> nexusProvider : multiNexusDevice.getNexusProviders(nexusScanModel.getNexusScanInfo())) {
-				// note for a malcolm device we assume a positioner is a Scannable.
-				final ScanRole scanRole = DEFAULT_SCAN_ROLES.get(nexusProvider.getNexusBaseClass());
-				if (scanRole == null) {
-					throw new ScanningException("Unable to determine scan role for nexus object of type " +
-							nexusProvider.getNexusBaseClass());
-				}
-				nexusObjectProviders.get(scanRole).add(nexusProvider);
+			final List<NexusObjectProvider<?>> nexusObjectProviders = multiNexusDevice.getNexusProviders(info);
+			if (nexusObjectProviders == null || nexusObjectProviders.isEmpty()) {
+				return Collections.emptyList();
 			}
+
+			final List<INexusDevice<?>> nexusDevices = new ArrayList<>(nexusObjectProviders.size());
+			for (NexusObjectProvider<?> nexusObjectProvider : nexusObjectProviders) {
+				nexusDevices.add(createSimpleNexusDevice(nexusObjectProvider));
+			}
+			return nexusDevices;
 		} catch (NexusException e) {
-			throw new ScanningException("Could not get nexus providers for malcolm device", e);
+			throw new RuntimeException(new ScanningException("Could not get nexus provider for device: " + multiNexusDevice.getName(), e));
 		}
+	}
+
+	private <N extends NXobject> INexusDevice<N> createSimpleNexusDevice(NexusObjectProvider<N> nexusObjectProvider) {
+		final INexusDevice<N> nexusDevice = new SimpleNexusDevice<>(nexusObjectProvider);
+		return nexusDeviceService.decorateNexusDevice(nexusDevice);
 	}
 
 	/**
