@@ -51,3 +51,10 @@ def list_watchdogs():
     Calls listWatchdogs()
     """
     listWatchdogs()
+
+# Allow access to individual watchdogs
+def set_watchdog_enabled(watchdog_name, enabled):
+    watchdogService.getWatchdog(watchdog_name).setEnabled(enabled)
+
+def is_watchdog_enabled(watchdog_name):
+    return watchdogService.getWatchdog(watchdog_name).isEnabled()

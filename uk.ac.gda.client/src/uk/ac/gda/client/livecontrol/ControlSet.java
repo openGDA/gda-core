@@ -34,5 +34,9 @@ public class ControlSet extends FindableBase {
 		this.controls = controls;
 	}
 
-
+	public void dispose() {
+		for (LiveControl control : controls) {
+			control.dispose();
+		}
+	}
 }

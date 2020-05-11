@@ -44,4 +44,9 @@ public interface LiveControl extends Findable {
 	 */
 	public String getGroup();
 
+	/**
+	 * Terminate use of this control
+	 */
+	public void dispose();
+
 }

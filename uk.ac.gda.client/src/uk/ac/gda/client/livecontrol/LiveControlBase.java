@@ -33,6 +33,11 @@ public abstract class LiveControlBase extends FindableBase implements LiveContro
 	}
 
 	@Override
+	public void dispose() {
+		// do nothing by default - subclasses may override
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();

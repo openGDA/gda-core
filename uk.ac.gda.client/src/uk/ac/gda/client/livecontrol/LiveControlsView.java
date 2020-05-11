@@ -45,13 +45,15 @@ public class LiveControlsView extends ViewPart {
 
 	private Composite parent;
 
+	private List<ControlSet> controlSets;
+
 	@Override
 	public void createPartControl(Composite parent) {
 
 		// Cache the composite for setFocus()
 		this.parent = parent;
 
-		List<ControlSet> controlSets = Finder.getInstance().listLocalFindablesOfType(ControlSet.class);
+		controlSets = Finder.getInstance().listLocalFindablesOfType(ControlSet.class);
 
 		if (controlSets.isEmpty()) {
 			displayAndLogError(parent, "No controls sets were found");
@@ -133,6 +135,14 @@ public class LiveControlsView extends ViewPart {
 	@Override
 	public void setFocus() {
 		parent.setFocus();
+	}
+
+	@Override
+	public void dispose() {
+		for (ControlSet controlSet : controlSets) {
+			controlSet.dispose();
+		}
+		super.dispose();
 	}
 
 	private void displayAndLogError(final Composite parent, final String errorMessage) {
