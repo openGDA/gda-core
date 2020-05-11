@@ -328,7 +328,8 @@ public class ScanManagementController extends AbstractMappingController {
 	 * in the intermediate {@link ScanRequest}.
 	 *
 	 * @param filePath
-	 *            the output path
+	 *            the output path. This will override any path set in the {@link ScanRequest} created from the mapping
+	 *            bean.
 	 * @param acquisitionParameters
 	 *            the acquisition parameters
 	 * @return a scan bean
@@ -355,7 +356,9 @@ public class ScanManagementController extends AbstractMappingController {
 		if (acquisitionParameters != null) {
 			setSampleMetadata(scanRequest, sampleName);
 		}
-		scanRequest.setFilePath(filePath.orElse(null));
+		if (filePath.isPresent()) {
+			scanRequest.setFilePath(filePath.get());
+		}
 		scanBean.setScanRequest(scanRequest);
 		return scanBean;
 	}
