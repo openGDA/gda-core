@@ -9,11 +9,8 @@ public class TreeNavigator {
 
 	private ExperimentNode currentNode;
 
-	/**
-	 * Sets the pointer to the given node
-	 */
-	public void point(ExperimentNode node) {
-		this.currentNode = node;
+	public TreeNavigator(ExperimentNode rootNode) {
+		this.currentNode = rootNode;
 	}
 
 	/**
