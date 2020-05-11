@@ -32,6 +32,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cglib.proxy.Factory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.Device;
@@ -106,7 +107,7 @@ public class RbacUtils {
 	 * Returns {@code true} if the object is a cglib proxy.
 	 */
 	public static boolean objectIsCglibProxy(Object o) {
-		return (o instanceof net.sf.cglib.proxy.Factory);
+		return (o instanceof Factory);
 	}
 
 }

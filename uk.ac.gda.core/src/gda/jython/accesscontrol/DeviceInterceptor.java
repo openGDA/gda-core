@@ -23,14 +23,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.python.core.PyObject;
+import org.springframework.cglib.proxy.Callback;
+import org.springframework.cglib.proxy.Enhancer;
+import org.springframework.cglib.proxy.Factory;
+import org.springframework.cglib.proxy.MethodInterceptor;
+import org.springframework.cglib.proxy.MethodProxy;
 import org.springframework.context.ApplicationContext;
 
 import gda.device.Device;
 import gda.jython.JythonServer.JythonServerThread;
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.Factory;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
 
 /**
  * Implementation of the CGLIB MethodInterceptor interface. This object acts as a proxy around other objects and
@@ -113,8 +114,7 @@ public class DeviceInterceptor extends PyObject implements MethodInterceptor {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @see net.sf.cglib.proxy.MethodInterceptor#intercept(java.lang.Object, java.lang.reflect.Method,
-	 *      java.lang.Object[], net.sf.cglib.proxy.MethodProxy)
+	 * @see MethodInterceptor#intercept(Object, Method,Object[], MethodProxy)
 	 */
 	@Override
 	public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
@@ -160,12 +160,12 @@ public class DeviceInterceptor extends PyObject implements MethodInterceptor {
 		if (obj == this) {
 			return true;
 		}
-		if (!(obj instanceof net.sf.cglib.proxy.Factory)) {
+		if (!(obj instanceof Factory)) {
 			return false;
 		}
 
-		net.sf.cglib.proxy.Factory other = (net.sf.cglib.proxy.Factory) obj;
-		net.sf.cglib.proxy.Callback callback = other.getCallback(0);
+		Factory other = (Factory) obj;
+		Callback callback = other.getCallback(0);
 		if (!(callback instanceof DeviceInterceptor)) {
 			return false;
 		}
