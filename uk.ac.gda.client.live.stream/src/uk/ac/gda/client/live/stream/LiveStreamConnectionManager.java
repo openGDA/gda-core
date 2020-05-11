@@ -24,13 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import org.dawnsci.mapping.ui.datamodel.LiveStreamMapObject;
-import org.eclipse.scanning.api.ui.IStageScanConfiguration;
-import org.eclipse.ui.PlatformUI;
-
-import gda.factory.Finder;
 import uk.ac.gda.client.live.stream.api.ILiveStreamConnectionManager;
-import uk.ac.gda.client.live.stream.handlers.LiveStreamPlottable;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
 
@@ -70,8 +64,8 @@ public class LiveStreamConnectionManager implements ILiveStreamConnectionManager
 		return getStreamConnection(cameraConfig, streamType).getId();
 	}
 
-	private LiveStreamConnection getStreamConnection(final CameraConfiguration cameraConfig,
-			final StreamType streamType) throws LiveStreamException {
+	private LiveStreamConnection getStreamConnection(final CameraConfiguration cameraConfig, final StreamType streamType)
+			throws LiveStreamException {
 		Optional<LiveStreamConnection> optional = liveStreamConnections.stream()
 				.filter(s -> s.sameConfiguration(cameraConfig, streamType)).findFirst();
 		// Same Configuration and StreamType
@@ -115,52 +109,6 @@ public class LiveStreamConnectionManager implements ILiveStreamConnectionManager
 		LiveStreamConnection newLiveStream = new LiveStreamConnection(cameraConfig, liveStream);
 		liveStreamConnections.add(newLiveStream);
 		return liveStream;
-	}
-
-	private LiveStreamConnection getSharedLiveStreamConnection(final CameraConfiguration cameraConfig,
-			final StreamType streamType) throws LiveStreamException {
-		return liveStreamConnections.stream().filter(s -> s.sameConfiguration(cameraConfig, streamType)).findFirst()
-				.orElse(doIStreamConnection(cameraConfig, streamType));
-	}
-
-	/**
-	 * Obtains the packaged stream source using the identified connection
-	 *
-	 * @return An mappable version of the stream source of the connection
-	 * @throws LiveStreamException
-	 *             If the connection to the source is unsuccessful
-	 */
-	@Override
-	public LiveStreamMapObject getLiveStreamMapObjectUsingConnection(final LiveStreamConnection liveStreamConnection)
-			throws LiveStreamException {
-		return new LiveStreamPlottable(liveStreamConnection);
-	}
-
-	/**
-	 * Obtains the packaged stream source identified as the default for the beamline
-	 *
-	 * @return An {@link Optional} of the mappable version of the default stream source, empty if none has been set.
-	 * @throws LiveStreamException
-	 *             If the connection to the source is unsuccessful
-	 */
-	@Override
-	public Optional<LiveStreamMapObject> getDefaultStreamSource() throws LiveStreamException {
-		IStageScanConfiguration stageConfig = PlatformUI.getWorkbench().getService(IStageScanConfiguration.class);
-		if (null == stageConfig) {
-			throw new IllegalStateException("Could not retrieve the IStageScanConfiguration Service");
-		}
-
-		Optional<LiveStreamMapObject> source = Optional.empty();
-		String defaultConfigName = stageConfig.getDefaultStreamSourceConfig();
-		if (!defaultConfigName.isEmpty()) {
-			CameraConfiguration config = Finder.getInstance().find(defaultConfigName);
-			if (null != config) {
-				StreamType streamType = config.getArrayPv() != null ? StreamType.EPICS_ARRAY : StreamType.MJPEG;
-				LiveStreamConnection connection = getSharedLiveStreamConnection(config, streamType);
-				source = Optional.of(getLiveStreamMapObjectUsingConnection(connection));
-			}
-		}
-		return source;
 	}
 
 	private LiveStreamConnection findStreamConnection(UUID uuid) {
