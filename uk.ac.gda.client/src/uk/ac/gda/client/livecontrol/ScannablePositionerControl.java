@@ -27,19 +27,17 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.EnumPositioner;
 import gda.device.Scannable;
-import gda.factory.FindableBase;
 import gda.factory.Finder;
 import gda.rcp.views.AbstractPositionerComposite;
 import gda.rcp.views.EnumPositionerComposite;
 import gda.rcp.views.NudgePositionerComposite;
 
-public class ScannablePositionerControl extends FindableBase implements LiveControl {
+public class ScannablePositionerControl extends LiveControlBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannablePositionerControl.class);
 
 	// Use the wrapper classes to allow null ie default if not set.
 	private String displayName;
-	private String group;
 	private String scannableName; // Used by the finder to get the scannable
 	private Boolean showStop; // Show stop by default
 	private String userUnits; // Use to override the scannable units (if required)
@@ -64,15 +62,6 @@ public class ScannablePositionerControl extends FindableBase implements LiveCont
 
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
-	}
-
-	@Override
-	public String getGroup() {
-		return group;
-	}
-
-	public void setGroup(String group) {
-		this.group = group;
 	}
 
 	public String getScannableName() {
@@ -126,15 +115,16 @@ public class ScannablePositionerControl extends FindableBase implements LiveCont
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
+		int result = super.hashCode();
+		result = prime * result + (boldLabel ? 1231 : 1237);
 		result = prime * result + ((displayName == null) ? 0 : displayName.hashCode());
-		result = prime * result + ((group == null) ? 0 : group.hashCode());
 		result = prime * result + ((increment == null) ? 0 : increment.hashCode());
-		result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
+		result = prime * result + incrementTextWidth;
+		result = prime * result + ((positionerComposite == null) ? 0 : positionerComposite.hashCode());
 		result = prime * result + ((scannableName == null) ? 0 : scannableName.hashCode());
+		result = prime * result + ((showIncrement == null) ? 0 : showIncrement.hashCode());
 		result = prime * result + ((showStop == null) ? 0 : showStop.hashCode());
 		result = prime * result + ((userUnits == null) ? 0 : userUnits.hashCode());
-		result = prime * result + ((showIncrement == null) ? 0 : showIncrement.hashCode());
 		return result;
 	}
 
@@ -142,38 +132,39 @@ public class ScannablePositionerControl extends FindableBase implements LiveCont
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
 		ScannablePositionerControl other = (ScannablePositionerControl) obj;
+		if (boldLabel != other.boldLabel)
+			return false;
 		if (displayName == null) {
 			if (other.displayName != null)
 				return false;
 		} else if (!displayName.equals(other.displayName))
-			return false;
-		if (group == null) {
-			if (other.group != null)
-				return false;
-		} else if (!group.equals(other.group))
 			return false;
 		if (increment == null) {
 			if (other.increment != null)
 				return false;
 		} else if (!increment.equals(other.increment))
 			return false;
-		if (incrementTextWidth != other.incrementTextWidth) {
+		if (incrementTextWidth != other.incrementTextWidth)
 			return false;
-		}
-		if (getName() == null) {
-			if (other.getName() != null)
+		if (positionerComposite == null) {
+			if (other.positionerComposite != null)
 				return false;
-		} else if (!getName().equals(other.getName()))
+		} else if (!positionerComposite.equals(other.positionerComposite))
 			return false;
 		if (scannableName == null) {
 			if (other.scannableName != null)
 				return false;
 		} else if (!scannableName.equals(other.scannableName))
+			return false;
+		if (showIncrement == null) {
+			if (other.showIncrement != null)
+				return false;
+		} else if (!showIncrement.equals(other.showIncrement))
 			return false;
 		if (showStop == null) {
 			if (other.showStop != null)
@@ -184,11 +175,6 @@ public class ScannablePositionerControl extends FindableBase implements LiveCont
 			if (other.userUnits != null)
 				return false;
 		} else if (!userUnits.equals(other.userUnits))
-			return false;
-		if (showIncrement == null) {
-			if (other.showIncrement != null)
-				return false;
-		} else if (!showIncrement.equals(other.showIncrement))
 			return false;
 		return true;
 	}
@@ -255,9 +241,10 @@ public class ScannablePositionerControl extends FindableBase implements LiveCont
 
 	@Override
 	public String toString() {
-		return "ScannablePositionerControl [name=" + getName() + ", displayName=" + displayName + ", group=" + group
-				+ ", scannableName=" + scannableName + ", showStop=" + showStop + ", userUnits=" + userUnits
-				+ ", increment=" + increment + ", incrementTextWidth=" + incrementTextWidth + " , showIncrement=" + showIncrement + "]";
+		return "ScannablePositionerControl [displayName=" + displayName + ", scannableName=" + scannableName
+				+ ", showStop=" + showStop + ", userUnits=" + userUnits + ", increment=" + increment
+				+ ", incrementTextWidth=" + incrementTextWidth + ", showIncrement=" + showIncrement + ", boldLabel="
+				+ boldLabel + ", positionerComposite=" + positionerComposite + "]";
 	}
 
 }

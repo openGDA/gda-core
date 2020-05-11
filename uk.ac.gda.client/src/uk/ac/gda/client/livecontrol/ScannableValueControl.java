@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.Scannable;
-import gda.factory.FindableBase;
 import gda.factory.Finder;
 import gda.rcp.views.InputTextComposite;
 /**
@@ -32,13 +31,12 @@ import gda.rcp.views.InputTextComposite;
  * It just has 3 parts: a display name, a group name, and input data unit if exist which must be
  * respected as there is no unit conversion built in.
  */
-public class ScannableValueControl extends FindableBase implements LiveControl {
+public class ScannableValueControl extends LiveControlBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableValueControl.class);
 
 	// Use the wrapper classes to allow null i.e. default if not set.
 	private String displayName;
-	private String group;
 	private String scannableName; // Used by the finder to get the scannable
 	private String userUnits; // Use to override the scannable units (if required)
 	private Integer textWidth; // If set, passed down to InputTextComposite
@@ -55,15 +53,6 @@ public class ScannableValueControl extends FindableBase implements LiveControl {
 
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
-	}
-
-	@Override
-	public String getGroup() {
-		return group;
-	}
-
-	public void setGroup(String group) {
-		this.group = group;
 	}
 
 	public String getScannableName() {
@@ -162,8 +151,8 @@ public class ScannableValueControl extends FindableBase implements LiveControl {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
+		result = prime * result + (boldLabel ? 1231 : 1237);
 		result = prime * result + ((displayName == null) ? 0 : displayName.hashCode());
-		result = prime * result + ((group == null) ? 0 : group.hashCode());
 		result = prime * result + ((lowerLimit == null) ? 0 : lowerLimit.hashCode());
 		result = prime * result + ((readOnly == null) ? 0 : readOnly.hashCode());
 		result = prime * result + ((scannableName == null) ? 0 : scannableName.hashCode());
@@ -182,15 +171,12 @@ public class ScannableValueControl extends FindableBase implements LiveControl {
 		if (getClass() != obj.getClass())
 			return false;
 		ScannableValueControl other = (ScannableValueControl) obj;
+		if (boldLabel != other.boldLabel)
+			return false;
 		if (displayName == null) {
 			if (other.displayName != null)
 				return false;
 		} else if (!displayName.equals(other.displayName))
-			return false;
-		if (group == null) {
-			if (other.group != null)
-				return false;
-		} else if (!group.equals(other.group))
 			return false;
 		if (lowerLimit == null) {
 			if (other.lowerLimit != null)
@@ -227,11 +213,9 @@ public class ScannableValueControl extends FindableBase implements LiveControl {
 
 	@Override
 	public String toString() {
-		return "ScannableValueControl [displayName=" + displayName + ", group=" + group + ", scannableName="
-				+ scannableName + ", userUnits=" + userUnits + ", textWidth=" + textWidth + ", readOnly=" + readOnly
-				+ ", lowerLimit=" + lowerLimit + ", upperlimit=" + upperlimit + "]";
+		return "ScannableValueControl [displayName=" + displayName + ", scannableName=" + scannableName + ", userUnits="
+				+ userUnits + ", textWidth=" + textWidth + ", readOnly=" + readOnly + ", lowerLimit=" + lowerLimit
+				+ ", upperlimit=" + upperlimit + ", boldLabel=" + boldLabel + "]";
 	}
-
-
 
 }

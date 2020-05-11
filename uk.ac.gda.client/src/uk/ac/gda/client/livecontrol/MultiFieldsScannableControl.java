@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.Scannable;
-import gda.factory.FindableBase;
 import gda.factory.Finder;
 import gda.rcp.views.ScannableFieldsComposite;
 /**
@@ -39,11 +38,10 @@ import gda.rcp.views.ScannableFieldsComposite;
  * @since 9.16
  * @author Fajin Yuan
  */
-public class MultiFieldsScannableControl extends FindableBase implements LiveControl {
+public class MultiFieldsScannableControl extends LiveControlBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(MultiFieldsScannableControl.class);
 	private String displayName;
-	private String group;
 	private String scannableName;
 	private Boolean showStop; // Show stop by default
 
@@ -66,15 +64,6 @@ public class MultiFieldsScannableControl extends FindableBase implements LiveCon
 		}
 	}
 
-	@Override
-	public String getGroup() {
-		return group;
-	}
-
-	public void setGroup(String group) {
-		this.group = group;
-	}
-
 	public String getScannableName() {
 		return scannableName;
 	}
@@ -85,19 +74,23 @@ public class MultiFieldsScannableControl extends FindableBase implements LiveCon
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(group, scannableName, displayName, showStop);
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Objects.hash(displayName, scannableName, showStop);
+		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof MultiFieldsScannableControl) {
-			final MultiFieldsScannableControl other = (MultiFieldsScannableControl)obj;
-			return Objects.equals(group, other.group)
-					&& Objects.equals(scannableName, other.scannableName)
-					&& Objects.equals(displayName, other.displayName)
-					&& Objects.equals(showStop, other.showStop);
-		}
-		return false;
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MultiFieldsScannableControl other = (MultiFieldsScannableControl) obj;
+		return Objects.equals(displayName, other.displayName) && Objects.equals(scannableName, other.scannableName)
+				&& Objects.equals(showStop, other.showStop);
 	}
 
 	public String getDisplayName() {

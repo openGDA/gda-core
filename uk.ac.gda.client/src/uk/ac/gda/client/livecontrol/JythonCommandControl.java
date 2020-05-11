@@ -26,24 +26,13 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.swtdesigner.SWTResourceManager;
 
-import gda.factory.FindableBase;
 import gda.jython.ICommandRunner;
 import gda.jython.InterfaceProvider;
 
-public class JythonCommandControl extends FindableBase implements LiveControl {
+public class JythonCommandControl extends LiveControlBase {
 
-	private String group;
 	private String buttonText;
 	private String jythonCommand;
-
-	@Override
-	public String getGroup() {
-		return group;
-	}
-
-	public void setGroup(String group) {
-		this.group = group;
-	}
 
 	public String getButtonText() {
 		return buttonText;
@@ -83,11 +72,9 @@ public class JythonCommandControl extends FindableBase implements LiveControl {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
+		int result = super.hashCode();
 		result = prime * result + ((buttonText == null) ? 0 : buttonText.hashCode());
-		result = prime * result + ((group == null) ? 0 : group.hashCode());
 		result = prime * result + ((jythonCommand == null) ? 0 : jythonCommand.hashCode());
-		result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
 		return result;
 	}
 
@@ -95,7 +82,7 @@ public class JythonCommandControl extends FindableBase implements LiveControl {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
@@ -105,28 +92,17 @@ public class JythonCommandControl extends FindableBase implements LiveControl {
 				return false;
 		} else if (!buttonText.equals(other.buttonText))
 			return false;
-		if (group == null) {
-			if (other.group != null)
-				return false;
-		} else if (!group.equals(other.group))
-			return false;
 		if (jythonCommand == null) {
 			if (other.jythonCommand != null)
 				return false;
 		} else if (!jythonCommand.equals(other.jythonCommand))
-			return false;
-		if (getName() == null) {
-			if (other.getName() != null)
-				return false;
-		} else if (!getName().equals(other.getName()))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "JythonCommandControl [name=" + getName() + ", group=" + group + ", buttonText=" + buttonText
-				+ ", jythonCommand=" + jythonCommand + "]";
+		return "JythonCommandControl [buttonText=" + buttonText + ", jythonCommand=" + jythonCommand + "]";
 	}
 
 }
