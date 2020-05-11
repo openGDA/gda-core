@@ -18,8 +18,6 @@
 package uk.ac.diamond.daq.mapping.ui;
 
 import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 
 import org.dawnsci.mapping.ui.api.IMapFileController;
 import org.dawnsci.mapping.ui.datamodel.LiveStreamMapObject;
@@ -29,23 +27,10 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
 import org.eclipse.core.commands.IHandlerListener;
 import org.eclipse.core.commands.State;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.scanning.api.ui.IStageScanConfiguration;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.handlers.RegistryToggleState;
 import org.eclipse.ui.menus.UIElement;
-
-import gda.factory.Finder;
-import uk.ac.gda.client.live.stream.LiveStreamConnection;
-import uk.ac.gda.client.live.stream.LiveStreamConnectionManager;
-import uk.ac.gda.client.live.stream.LiveStreamException;
-import uk.ac.gda.client.live.stream.handlers.LiveStreamPlottable;
-import uk.ac.gda.client.live.stream.view.CameraConfiguration;
-import uk.ac.gda.client.live.stream.view.StreamType;
 
 /**
  * Handler for toolbar {@link Button} to enable a live stream background in the mapping view if one is configured. In
@@ -57,12 +42,8 @@ import uk.ac.gda.client.live.stream.view.StreamType;
  * @since GDA9.12
  */
 public class EnableLiveBackgroundHandler implements IHandler, IElementUpdater {
-	private boolean initialised = false;
 	private State toggleState;
-	private LiveStreamMapObject liveStreamMap;
-	private IWorkbench workbench = PlatformUI.getWorkbench();
-	private IMapFileController mapFileController = workbench.getService(IMapFileController.class);
-	private ICommandService commandService = workbench.getService(ICommandService.class);
+	private final BackgroundStateHelper helper = new BackgroundStateHelper();
 
 	/**
 	 * Handles the button press. The stream connection is first initialised; if this is the first time execute has been
@@ -79,10 +60,8 @@ public class EnableLiveBackgroundHandler implements IHandler, IElementUpdater {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		Command buttonCommand = event.getCommand();
 		toggleState = buttonCommand.getState(RegistryToggleState.STATE_ID);
-		if (!initialised) {
-			initialiseStream();
-		}
-		commandService.refreshElements(buttonCommand.getId(), null);
+		toggleState.setValue(!toggleStateAsBool());
+		helper.show(toggleStateAsBool());
 		return null;
 	}
 
@@ -106,10 +85,6 @@ public class EnableLiveBackgroundHandler implements IHandler, IElementUpdater {
 
 	@Override
 	public void dispose() {
-		liveStreamMap = null;
-		commandService = null;
-		mapFileController = null;
-		workbench = null;
 		toggleState = null;
 	}
 
@@ -126,67 +101,6 @@ public class EnableLiveBackgroundHandler implements IHandler, IElementUpdater {
 		if (toggleState != null) {
 			element.setChecked(toggleStateAsBool());
 		}
-	}
-
-	/**
-	 * Establishes the Live stream connection and links it to the mapping view. If no suitable default connection has
-	 * been defined a dialog is displayed informing the user what should be done to correct this.
-	 *
-	 * @throws ExecutionException
-	 *             if the attempt to connect to the live stream fails
-	 */
-	private void initialiseStream() {
-		getDefaultStreamSource().ifPresent(ls -> {
-			liveStreamMap = ls;
-			workbench.getService(IMapFileController.class).addLiveStream(liveStreamMap);
-			toggleState.setValue(!toggleStateAsBool());
-			liveStreamMap.setPlotted(toggleStateAsBool());
-			mapFileController.registerUpdates(null);
-			initialised = true;
-		});
-
-		if (!initialised) {
-			MessageDialog.openWarning(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-					"Missing Camera Configuration",
-					"No default Camera Configuration is set,\n"
-							+ "Please add the name of a valid CameraConfiguration bean\n"
-							+ "to the mapping_stage_info bean in your mapping.xml file");
-		}
-	}
-
-	/**
-	 * Obtains the packaged stream source identified as the default for the beamline
-	 *
-	 * @return An {@link Optional} of the mappable version of the default stream source, empty if none has been set.
-	 * @throws LiveStreamException
-	 *             If the connection to the source is unsuccessful
-	 */
-	private Optional<LiveStreamMapObject> getDefaultStreamSource() {
-		String defaultConfigName = null;
-		IStageScanConfiguration stageConfig = PlatformUI.getWorkbench().getService(IStageScanConfiguration.class);
-		if (stageConfig != null) {
-			defaultConfigName = stageConfig.getDefaultStreamSourceConfig();
-		}
-
-		if (defaultConfigName == null) {
-			return Optional.empty();
-		}
-
-		Optional<CameraConfiguration> config = Finder.getInstance().findOptional(defaultConfigName);
-		return config.map(this::getLiveStreamObject).orElse(Optional.empty());
-	}
-
-	private Optional<LiveStreamMapObject> getLiveStreamObject(CameraConfiguration config) {
-		StreamType streamType = config.getArrayPv() != null ? StreamType.EPICS_ARRAY : StreamType.MJPEG;
-		UUID uuid;
-		try {
-			uuid = LiveStreamConnectionManager.getInstance().getIStreamConnection(config, streamType);
-		} catch (LiveStreamException e) {
-			return Optional.empty();
-		}
-		LiveStreamConnection connection = LiveStreamConnection.class
-				.cast(LiveStreamConnectionManager.getInstance().getIStreamConnection(uuid));
-		return Optional.of(new LiveStreamPlottable(connection));
 	}
 
 	/**
