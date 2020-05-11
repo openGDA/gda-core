@@ -23,18 +23,17 @@ import java.util.Observable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
-import gda.factory.FindableBase;
 import uk.ac.gda.client.livecontrol.LiveControl;
+import uk.ac.gda.client.livecontrol.LiveControlBase;
 import uk.ac.gda.client.livecontrol.LiveControlsView;
 /**
  * A Spring configure bean for {@link LiveControl} used to populate items in {@link LiveControlsView}.
  * It has 5 properties: a group name, a display name, an {@link Observable} to providing count down time, a time unit, and text width.
  * Among these, only the {@link Observable} instance is essential.
  */
-public class CountDownControl extends FindableBase implements LiveControl {
+public class CountDownControl extends LiveControlBase {
 
 	// Use the wrapper classes to allow null i.e. default if not set.
-	private String group;
 	private String displayName;
 	private Observable observable; // this observable providing count down time data
 	private String userUnits; // the unit for the displayed data.
@@ -46,15 +45,6 @@ public class CountDownControl extends FindableBase implements LiveControl {
 
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
-	}
-
-	@Override
-	public String getGroup() {
-		return group;
-	}
-
-	public void setGroup(String group) {
-		this.group = group;
 	}
 
 	public String getUserUnits() {
@@ -76,12 +66,10 @@ public class CountDownControl extends FindableBase implements LiveControl {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
+		int result = super.hashCode();
 		result = prime * result + ((displayName == null) ? 0 : displayName.hashCode());
-		result = prime * result + ((group == null) ? 0 : group.hashCode());
+		result = prime * result + ((observable == null) ? 0 : observable.hashCode());
 		result = prime * result + ((textWidth == null) ? 0 : textWidth.hashCode());
-		result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
-		result = prime * result + ((getObservable() == null) ? 0 : getObservable().hashCode());
 		result = prime * result + ((userUnits == null) ? 0 : userUnits.hashCode());
 		return result;
 	}
@@ -90,7 +78,7 @@ public class CountDownControl extends FindableBase implements LiveControl {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
@@ -100,25 +88,15 @@ public class CountDownControl extends FindableBase implements LiveControl {
 				return false;
 		} else if (!displayName.equals(other.displayName))
 			return false;
-		if (group == null) {
-			if (other.group != null)
+		if (observable == null) {
+			if (other.observable != null)
 				return false;
-		} else if (!group.equals(other.group))
+		} else if (!observable.equals(other.observable))
 			return false;
 		if (textWidth == null) {
 			if (other.textWidth != null)
 				return false;
 		} else if (!textWidth.equals(other.textWidth))
-			return false;
-		if (getName() == null) {
-			if (other.getName() != null)
-				return false;
-		} else if (!getName().equals(other.getName()))
-			return false;
-		if (getObservable() == null) {
-			if (other.getObservable() != null)
-				return false;
-		} else if (!getObservable().equals(other.getObservable()))
 			return false;
 		if (userUnits == null) {
 			if (other.userUnits != null)
@@ -144,18 +122,17 @@ public class CountDownControl extends FindableBase implements LiveControl {
 			itc.setTextWidth(textWidth);
 		}
 	}
-	
+
 	public void init() {
 		if (getObservable() == null) {
 			throw new IllegalStateException("observable is not set.");
-		} 
+		}
 	}
-	
+
 	@Override
 	public String toString() {
-		return "ScannablePositionerControl [name=" + getName() + ", displayName=" + displayName + ", group=" + group
-				+ ", observable=" + getObservable().toString() + ", userUnits=" + userUnits
-				+ ", textWidth=" + textWidth + "]";
+		return "CountDownControl [displayName=" + displayName + ", observable=" + observable + ", userUnits="
+				+ userUnits + ", textWidth=" + textWidth + "]";
 	}
 
 	public Observable getObservable() {

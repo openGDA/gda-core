@@ -23,18 +23,17 @@ import java.util.Observable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
-import gda.factory.FindableBase;
 import uk.ac.gda.client.livecontrol.LiveControl;
+import uk.ac.gda.client.livecontrol.LiveControlBase;
 import uk.ac.gda.client.livecontrol.LiveControlsView;
 /**
  * A Spring configure bean for {@link LiveControl} used to populate items in {@link LiveControlsView}.
  * It has 5 properties: a group name, a display name, an {@link Observable} to providing count down time, a time unit, and text width.
  * Among these, only the {@link Observable} instance is essential.
  */
-public class CountDownProgressBarControl extends FindableBase implements LiveControl {
+public class CountDownProgressBarControl extends LiveControlBase {
 
 	// Use the wrapper classes to allow null i.e. default if not set.
-	private String group;
 	private String displayName;
 	private Observable observable; // this observable providing count down time data
 	private Integer barWidth; // If set, passed down to CountdownProgressComposite
@@ -48,23 +47,12 @@ public class CountDownProgressBarControl extends FindableBase implements LiveCon
 	}
 
 	@Override
-	public String getGroup() {
-		return group;
-	}
-
-	public void setGroup(String group) {
-		this.group = group;
-	}
-
-	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
+		int result = super.hashCode();
+		result = prime * result + ((barWidth == null) ? 0 : barWidth.hashCode());
 		result = prime * result + ((displayName == null) ? 0 : displayName.hashCode());
-		result = prime * result + ((group == null) ? 0 : group.hashCode());
-		result = prime * result + ((getBarWidth() == null) ? 0 : getBarWidth().hashCode());
-		result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
-		result = prime * result + ((getObservable() == null) ? 0 : getObservable().hashCode());
+		result = prime * result + ((observable == null) ? 0 : observable.hashCode());
 		return result;
 	}
 
@@ -72,35 +60,25 @@ public class CountDownProgressBarControl extends FindableBase implements LiveCon
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
 		CountDownProgressBarControl other = (CountDownProgressBarControl) obj;
+		if (barWidth == null) {
+			if (other.barWidth != null)
+				return false;
+		} else if (!barWidth.equals(other.barWidth))
+			return false;
 		if (displayName == null) {
 			if (other.displayName != null)
 				return false;
 		} else if (!displayName.equals(other.displayName))
 			return false;
-		if (group == null) {
-			if (other.group != null)
+		if (observable == null) {
+			if (other.observable != null)
 				return false;
-		} else if (!group.equals(other.group))
-			return false;
-		if (getBarWidth() == null) {
-			if (other.getBarWidth() != null)
-				return false;
-		} else if (!getBarWidth().equals(other.getBarWidth()))
-			return false;
-		if (getName() == null) {
-			if (other.getName() != null)
-				return false;
-		} else if (!getName().equals(other.getName()))
-			return false;
-		if (getObservable() == null) {
-			if (other.getObservable() != null)
-				return false;
-		} else if (!getObservable().equals(other.getObservable()))
+		} else if (!observable.equals(other.observable))
 			return false;
 		return true;
 	}
@@ -119,18 +97,17 @@ public class CountDownProgressBarControl extends FindableBase implements LiveCon
 			itc.setBarWidth(getBarWidth());
 		}
 	}
-	
+
 	public void init() {
 		if (getObservable() == null) {
 			throw new IllegalStateException("observable is not set.");
-		} 
+		}
 	}
-	
+
 	@Override
 	public String toString() {
-		return "ScannablePositionerControl [name=" + getName() + ", displayName=" + displayName + ", group=" + group
-				+ ", observable=" + getObservable().toString() 
-				+ ", barWidth=" + getBarWidth() + "]";
+		return "CountDownProgressBarControl [displayName=" + displayName + ", observable=" + observable + ", barWidth="
+				+ barWidth + "]";
 	}
 
 	public Observable getObservable() {
