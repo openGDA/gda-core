@@ -38,6 +38,9 @@ public class ConcreteItemA extends AbstractItem {
         this.property3 = property3;
     }
 
+    public void setProperty1(int property1) {
+    	this.property1 = property1;
+    }
 
     public int getProperty1() {
         return property1;

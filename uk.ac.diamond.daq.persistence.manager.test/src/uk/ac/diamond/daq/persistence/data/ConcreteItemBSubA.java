@@ -8,15 +8,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import uk.ac.diamond.daq.application.persistence.annotation.Listable;
 
-public class ConcreteItemBsubA extends ConcreteItemB {
+public class ConcreteItemBSubA extends ConcreteItemB {
 
     public static final String UNIQUE_FIELD = "prop4";
-    private static final Logger log = LoggerFactory.getLogger(ConcreteItemBsubA.class);
+    private static final Logger log = LoggerFactory.getLogger(ConcreteItemBSubA.class);
 
     @Listable(UNIQUE_FIELD)
     private int property4;
 
-    public ConcreteItemBsubA(String name, int property1,
+    public ConcreteItemBSubA(String name, int property1,
                              double property3, int property4) {
         super(name, property1, property3);
 
@@ -24,8 +24,9 @@ public class ConcreteItemBsubA extends ConcreteItemB {
     }
 
     @JsonCreator
-    public ConcreteItemBsubA(@JsonProperty("name") String name, @JsonProperty("property1") int property1,
-                             @JsonProperty("property3") double property3, @JsonProperty("property4") int property4, @JsonProperty("id") long id, @JsonProperty("version") long version) {
+    public ConcreteItemBSubA(@JsonProperty("name") String name, @JsonProperty("property1") int property1,
+                             @JsonProperty("property3") double property3, @JsonProperty("property4") int property4,
+                             @JsonProperty("id") long id, @JsonProperty("version") long version) {
         super(name, property1, property3, id, version);
 
         this.property4 = property4;
@@ -37,7 +38,7 @@ public class ConcreteItemBsubA extends ConcreteItemB {
 
     @Override
     public void execute() {
-        log.info("Executing ConcreteItemBsubA {} (id: {}, version: {}) property1: {}, property3: {}, property4: {}", getName(), getId(),
+        log.info("Executing ConcreteItemBSubA {} (id: {}, version: {}) property1: {}, property3: {}, property4: {}", getName(), getId(),
                 getVersion(), getProperty1(), getProperty3(), getProperty4());
     }
 
@@ -46,7 +47,7 @@ public class ConcreteItemBsubA extends ConcreteItemB {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        ConcreteItemBsubA that = (ConcreteItemBsubA) o;
+        ConcreteItemBSubA that = (ConcreteItemBSubA) o;
         return (getProperty4() == that.getProperty4());
     }
 

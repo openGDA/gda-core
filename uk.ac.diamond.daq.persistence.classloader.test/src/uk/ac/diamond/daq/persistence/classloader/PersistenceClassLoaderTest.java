@@ -27,6 +27,7 @@ import java.lang.reflect.Constructor;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.ac.diamond.daq.application.persistence.service.PersistenceException;
 import uk.ac.diamond.daq.persistence.testdata.PersistenceTestClass;
 
 public class PersistenceClassLoaderTest {
@@ -34,8 +35,9 @@ public class PersistenceClassLoaderTest {
 	private PersistenceClassLoader classLoader;
 
 	@Before
-	public void setUp() {
-		classLoader = new PersistenceClassLoader ();
+	public void setUp() throws PersistenceException {
+		classLoader = new PersistenceClassLoader();
+		classLoader.initialise();
 	}
 
 	@Test

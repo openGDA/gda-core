@@ -5,21 +5,23 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import uk.ac.diamond.daq.application.persistence.annotation.Id;
 import uk.ac.diamond.daq.application.persistence.annotation.Listable;
-import uk.ac.diamond.daq.application.persistence.annotation.PersistableItem;
+import uk.ac.diamond.daq.application.persistence.annotation.Persistable;
+import uk.ac.diamond.daq.application.persistence.annotation.Version;
 
-@PersistableItem
-public abstract class AbstractItem {
+@Persistable
+public abstract class AbstractItem extends Item {
 
     public static final String SEARCH_NAME_FIELD = "name";
 
-    @Listable(value = Listable.ID, priority = Listable.ID_PRIORITY)
+    @Id
     private long id;
 
-    @Listable(value = Listable.VERSION, priority = Listable.VERSION_PRIORITY)
+    @Version
     private long version;
 
-    @Listable(value = SEARCH_NAME_FIELD, key = true)
+    @Listable(value = SEARCH_NAME_FIELD, primary = true)
     private String name;
 
     @JsonCreator

@@ -26,7 +26,7 @@ import uk.ac.diamond.daq.persistence.classloader.PersistenceClassLoader;
 public class PersistenceManagerTestActivator extends Plugin {
 	@Override
 	public void start(BundleContext context) throws Exception {
-		PersistenceClassLoader.getInstance().initialise(context.getBundles());
+		new PersistenceClassLoader().initialise();
 		super.start(context);
 	}
 

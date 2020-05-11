@@ -25,28 +25,28 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.ac.diamond.daq.application.persistence.json.impl.DefaultJsonSerialisationFactory;
+import uk.ac.diamond.daq.application.persistence.factory.impl.InMemoryPersistenceServiceFactory;
 import uk.ac.diamond.daq.application.persistence.service.PersistenceException;
 import uk.ac.diamond.daq.application.persistence.service.PersistenceService;
 import uk.ac.diamond.daq.persistence.classloader.PersistenceClassLoader;
 import uk.ac.diamond.daq.persistence.data.AbstractItem;
 import uk.ac.diamond.daq.persistence.data.ConcreteItemA;
 import uk.ac.diamond.daq.persistence.data.ConcreteItemB;
-import uk.ac.diamond.daq.persistence.data.ConcreteItemBsubA;
+import uk.ac.diamond.daq.persistence.data.ConcreteItemBSubA;
 
 public class PersistenceManagerTest {
 
 	private static final String CONCRETE_ITEM_B_NAME_1 = "Tomo Scan 1";
 
-	private PersistenceService persistenceManager;
+	private PersistenceService persistenceService;
 
 	private ConcreteItemB concreteItemB = new ConcreteItemB(CONCRETE_ITEM_B_NAME_1, 100, 360.0);
 
 	@Before
 	public void setUp() {
-		persistenceManager = new PersistenceManager(new DefaultJsonSerialisationFactory(),
-				PersistenceClassLoader.getInstance(),
-				new TestVisitService("current"));
+
+		 persistenceService = new InMemoryPersistenceServiceFactory(new PersistenceClassLoader(),
+				new TestVisitService("current")).getPersistenceService();
 	}
 
 	/**
@@ -58,13 +58,15 @@ public class PersistenceManagerTest {
 	 */
 	@Test
 	public void testSearchById() throws PersistenceException {
-		final ConcreteItemBsubA concreteItemB_A = new ConcreteItemBsubA("Name", 1, 1, 1);
+		ConcreteItemBSubA concreteItemB_A = new ConcreteItemBSubA("Name", 1, 1, 1);
 
-		persistenceManager.save(concreteItemB_A);
+		persistenceService.save(concreteItemB_A);
 
-		final ConcreteItemBsubA retrievedSameClass = persistenceManager.get(concreteItemB_A.getId(), ConcreteItemBsubA.class);
-		final ConcreteItemB retrievedSuperClass = persistenceManager.get(concreteItemB_A.getId(), ConcreteItemB.class);
-		final AbstractItem retrievedAbstractSuperClass = persistenceManager.get(concreteItemB_A.getId(), AbstractItem.class);
+		final ConcreteItemBSubA retrievedSameClass = persistenceService.get(concreteItemB_A.getId(),
+				ConcreteItemBSubA.class);
+		final ConcreteItemB retrievedSuperClass = persistenceService.get(concreteItemB_A.getId(), ConcreteItemB.class);
+		final AbstractItem retrievedAbstractSuperClass = persistenceService.get(concreteItemB_A.getId(),
+				AbstractItem.class);
 
 		assertNotSame("Different references required", concreteItemB_A, retrievedSameClass);
 		assertEquals("Retrieved item must equals()", concreteItemB_A, retrievedSameClass);
@@ -79,15 +81,16 @@ public class PersistenceManagerTest {
 		assertNotSame("Different references required", retrievedSameClass, retrievedAbstractSuperClass);
 		assertNotSame("Different references required", retrievedSuperClass, retrievedAbstractSuperClass);
 
-		assertTrue("Not deserialised as B_A", retrievedSuperClass instanceof ConcreteItemBsubA);
-		assertTrue("Not deserialised as B_A", retrievedAbstractSuperClass instanceof ConcreteItemBsubA);
+		assertTrue("Not deserialised as B_A", retrievedSuperClass instanceof ConcreteItemBSubA);
+		assertTrue("Not deserialised as B_A", retrievedAbstractSuperClass instanceof ConcreteItemBSubA);
 
 	}
+
 
 	@Test(expected = PersistenceException.class)
 	public void testWrongClassResults() throws PersistenceException {
 		// Searches for wrong class, so no objects found (but object with that ID does
 		// exist in database)
-		persistenceManager.get(concreteItemB.getId(), ConcreteItemA.class);
+		persistenceService.get(concreteItemB.getId(), ConcreteItemA.class);
 	}
 }
