@@ -75,15 +75,13 @@ public final class LocationManager {
 	}
 
 	/**
-	 * Called during the scan to increment counts.
-	 * (Note: this currently doesn't seem to be the case. stepNumber and outerCount are used only
-	 * in a malcolm scan and are accessed via getters/setters). If we call this we should only
-	 * do so in a software scan.
+	 * Called during Software scans to increment counts.
+	 * outerCount only relevant in Malcolm scans, changed with setter/getters
+	 * stepNumber for Malcolm scans changed with setter/getters 
 	 */
 	@PointEnd
 	public void increment() {
-	outerCount++;
-		stepNumber+=Math.max(innerSize, 1);
+		if (innerSize == 0) stepNumber++;
 	}
 
 	/**

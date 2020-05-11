@@ -384,15 +384,14 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	}
 
 	private void positionComplete(IPosition pos) throws EventException, ScanningException {
-		//TODO: LocationManager increment is invoked for Malcolm scans, requiring this temp fix, should just location.getStepIndex
-		final int count = (pos.getStepIndex() + 1) * (location.getInnerSize() == 0 ? 1 : location.getInnerSize());
+		final int count = location.getOverallCount();
 		final int size = location.getTotalSize();
 		firePositionComplete(pos);
 
 		final ScanBean bean = getScanBean();
 		bean.setPoint(count);
 		bean.setPosition(pos);
-		if (size > 0) bean.setPercentComplete(((double)(count)/size)*100);
+		if (size > 0) bean.setPercentComplete(location.getOuterPercent());
 		if (bean.getStatus().isRunning()) { // Only set this message if we are still running.
 			bean.setMessage("Point " + count + " of " + size);
 		}
