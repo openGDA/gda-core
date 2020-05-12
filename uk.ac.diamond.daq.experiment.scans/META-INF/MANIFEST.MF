@@ -18,6 +18,5 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: uk.ac.diamond.daq.experiment.scans
 Bundle-ActivationPolicy: lazy
-Export-Package: uk.ac.diamond.daq.experiment.scans.mapping,
- uk.ac.diamond.daq.experiment.scans.tomography
+Export-Package: uk.ac.diamond.daq.experiment.scans.mapping
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
