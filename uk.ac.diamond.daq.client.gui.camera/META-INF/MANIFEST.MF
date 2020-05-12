@@ -33,8 +33,6 @@ Require-Bundle: org.eclipse.jface,
 Export-Package: uk.ac.diamond.daq.client.gui.camera,
  uk.ac.diamond.daq.client.gui.camera.beam,
  uk.ac.diamond.daq.client.gui.camera.controller,
- uk.ac.diamond.daq.client.gui.camera.diffraction,
  uk.ac.diamond.daq.client.gui.camera.event,
- uk.ac.diamond.daq.client.gui.camera.liveview,
- uk.ac.diamond.daq.client.gui.camera.samplealignment
+ uk.ac.diamond.daq.client.gui.camera.liveview
 Automatic-Module-Name: uk.ac.diamond.daq.client.gui.camera
