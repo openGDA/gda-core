@@ -54,13 +54,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
 import uk.ac.diamond.scisoft.analysis.plotclient.ScriptingConnection;
+import uk.ac.gda.client.event.RootCompositeAware;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
 import uk.ac.gda.client.live.stream.LiveStreamConnection.IAxisChangeListener;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.event.ListenToConnectionEvent;
 import uk.ac.gda.client.live.stream.event.PlottingSystemUpdateEvent;
-import uk.ac.gda.client.live.stream.event.RootEvent;
 import uk.ac.gda.client.live.stream.event.StopListenToConnectionEvent;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
@@ -185,9 +185,7 @@ public class LivePlottingComposite extends Composite {
 				liveStreamConnection.addDataListenerToStream(updateTitleUpdateListener());
 			} else {
 				plottingSystem.setTitle("");
-				if (titleUpdateListener != null) {
-					liveStreamConnection.removeDataListenerFromStream(titleUpdateListener);
-				}
+				Optional.ofNullable(titleUpdateListener).ifPresent(liveStreamConnection::removeDataListenerFromStream);
 			}
 		} catch (LiveStreamException e) {
 			// This will probably never happen, as getStream() should not fail once the stream is connected
@@ -242,7 +240,7 @@ public class LivePlottingComposite extends Composite {
 		// Plot the new trace.
 		plottingSystem.addTrace(iTrace);
 		ClientSWTElements.findParentUUID(getParent()).ifPresent(uuidRoot -> SpringApplicationContextProxy
-				.publishEvent(new PlottingSystemUpdateEvent(LivePlottingComposite.this, uuidRoot)));
+				.publishEvent(new PlottingSystemUpdateEvent(LivePlottingComposite.this, uuidRoot, plottingSystem)));
 		connected = true;
 	}
 
@@ -355,11 +353,8 @@ public class LivePlottingComposite extends Composite {
 		}
 	}
 
-	private boolean processEvent(RootEvent event, Optional<UUID> uuidRoot) {
-		if (uuidRoot.isPresent()) {
-			return uuidRoot.get().equals(event.getRootComposite());
-		}
-		return false;
+	private boolean processEvent(RootCompositeAware event, UUID uuidRoot) {
+			return uuidRoot.equals(event.getRootComposite());
 	}
 
 	private IDataListener updateDataShapeChangeListener() {
@@ -433,7 +428,7 @@ public class LivePlottingComposite extends Composite {
 	ApplicationListener<ListenToConnectionEvent> openConnectionListener = new ApplicationListener<ListenToConnectionEvent>() {
 		@Override
 		public void onApplicationEvent(ListenToConnectionEvent event) {
-			if (!processEvent(event, ClientSWTElements.findParentUUID(getParent()))) {
+			if (!ClientSWTElements.findParentUUID(getParent()).map(uuid -> processEvent(event, uuid)).orElse(false)) {
 				return;
 			}
 			if (LiveStreamConnection.class.isAssignableFrom(event.getSource().getClass())) {
@@ -454,7 +449,7 @@ public class LivePlottingComposite extends Composite {
 			if (isDisposed() || getParent().isDisposed()) {
 				return;
 			}
-			if (!processEvent(event, ClientSWTElements.findParentUUID(getParent()))) {
+			if (!ClientSWTElements.findParentUUID(getParent()).map(uuid -> processEvent(event, uuid)).orElse(false)) {
 				return;
 			}
 			if (LiveStreamConnection.class.isAssignableFrom(event.getSource().getClass())) {

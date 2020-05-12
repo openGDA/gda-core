@@ -1,9 +1,17 @@
 package uk.ac.diamond.daq.client.gui.camera.beam;
 
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
+import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.linear.SingularMatrixException;
+import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.axis.ClickEvent;
+import org.eclipse.dawnsci.plotting.api.axis.IClickListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -18,7 +26,6 @@ import org.eclipse.swt.widgets.TableItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
-import org.springframework.stereotype.Component;
 
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
@@ -27,22 +34,31 @@ import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.GDAClientException;
+import uk.ac.gda.client.live.stream.event.PlottingSystemUpdateEvent;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
- * Displays a button to execute
- * {@link BeamCameraMapping_#calibrate(ICameraConfiguration)} on a
- * {@link ICameraConfiguration}. This class listen to
- * {@link ChangeActiveCameraEvent} in order to know on which camera execute the
- * mapping.
+ * GUI to maps camera pixels to the motors driving the beam. This class listen
+ * to events (published by the container it belongs)
+ * <ul>
+ * <li>{@link ChangeActiveCameraEvent} to set the active camera</li>
+ * <li>{@link PlottingSystemUpdateEvent} to set the active plotting system</li>
+ * <li>{@link BeamCameraMappingEvent} to draw the camera area where mapping
+ * exists</li>
+ * </ul>
+ * The first two events have to be published by the top parent container or any
+ * of its children. See <a href=
+ * "https://confluence.diamond.ac.uk/display/DIAD/Camera+Configuration+View">Camera
+ * Configuration</a> in Confluence.
+ * </p>
+ * 
  * <p>
- * Note that the {@link Composite} returned by
- * {@link #createComposite(Composite, int)} and the one publishing the
- * {@link ChangeActiveCameraEvent} have to be part of the same root
- * {@link Component}.
+ * See <a href=
+ * "https://confluence.diamond.ac.uk/display/DIAD/BeamCameraMapping">CameraBeamMapping</a>
+ * in Confluence
  * </p>
  * 
  * @author Maurizio Nagni
@@ -53,6 +69,7 @@ public class BeamCameraCalibrationComposite implements CompositeFactory {
 	private UUID uuidRoot;
 	private ICameraConfiguration cameraConfiguration;
 	private CameraMappingTable mappingTable;
+	private IPlottingSystem<Composite> plottingSystem;
 
 	private static final Logger logger = LoggerFactory.getLogger(BeamCameraCalibrationComposite.class);
 
@@ -82,6 +99,8 @@ public class BeamCameraCalibrationComposite implements CompositeFactory {
 		SelectionListener listener = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				doCalibration.setText("Please wait....");
+				doCalibration.setEnabled(false);
 				BeamCameraMapping ic = SpringApplicationContextProxy.getBean(BeamCameraMapping.class);
 				ic.calibrate(cameraConfiguration);
 			}
@@ -90,6 +109,7 @@ public class BeamCameraCalibrationComposite implements CompositeFactory {
 		try {
 			SpringApplicationContextProxy.addApplicationListener(changeCameraListener);
 			SpringApplicationContextProxy.addApplicationListener(cameraMappingEventListener);
+			SpringApplicationContextProxy.addApplicationListener(plottingSystemUpdateListener);
 		} catch (GDAClientException e) {
 			String msg = ClientMessagesUtility.getMessage(ClientMessages.CANNOT_LISTEN_CAMERA_PUBLISHER);
 			logger.error(msg, e);
@@ -113,7 +133,30 @@ public class BeamCameraCalibrationComposite implements CompositeFactory {
 		@Override
 		public void onApplicationEvent(BeamCameraMappingEvent event) {
 			CameraHelper.createICameraConfiguration(event.getCameraIndex()).getBeamCameraMap()
-					.ifPresent(c -> Display.getDefault().asyncExec(() -> mappingTable.displayMatrix(c)));
+					.ifPresent(c -> Display.getDefault().asyncExec(() -> {
+						updateComposite(c);
+						DrawCameraMappingArea.handleEvent(plottingSystem, event);
+					}));
+		}
+
+		private void updateComposite(BeamCameraMap beamCameraMap) {
+			// Displays the matrix
+			mappingTable.displayMatrix(beamCameraMap);
+			// Enables the mapping button
+			ClientSWTElements.updateButton(doCalibration, ClientMessages.BEAM_CAMERA_MAPPING,
+					ClientMessages.BEAM_CAMERA_MAPPING_TP, null);
+			doCalibration.setEnabled(true);
+		}
+	};
+
+	private ApplicationListener<PlottingSystemUpdateEvent> plottingSystemUpdateListener = new ApplicationListener<PlottingSystemUpdateEvent>() {
+		@Override
+		public void onApplicationEvent(PlottingSystemUpdateEvent event) {
+			if (!event.getRootComposite().map(id -> id.equals(uuidRoot)).orElse(false)) {
+				return;
+			}
+			plottingSystem = event.getPlottingSystem();
+			clickEvents(plottingSystem);
 		}
 	};
 
@@ -159,6 +202,56 @@ public class BeamCameraCalibrationComposite implements CompositeFactory {
 
 			row2.setText(0, Double.toString(transformation.getEntry(1, 0)));
 			row2.setText(1, Double.toString(transformation.getEntry(1, 1)));
+		}
+	}
+
+	private void clickEvents(IPlottingSystem<Composite> plottingSystem) {
+		plottingSystem.addClickListener(new IClickListener() {
+
+			@Override
+			public void doubleClickPerformed(final ClickEvent evt) {
+				sendEvent(evt, true);
+			}
+
+			@Override
+			public void clickPerformed(final ClickEvent evt) {
+				sendEvent(evt, false);
+			}
+
+			private void sendEvent(final ClickEvent event, boolean isDoubleClick) {
+				if (event.isShiftDown()) {
+					onClickEvent(event);
+				}
+			}
+		});
+	}
+
+	private void onClickEvent(ClickEvent event) {
+		moveBeam(cameraConfiguration, event);
+	}
+
+	private void moveBeam(ICameraConfiguration iConfiguration, ClickEvent event) {
+		if (Objects.isNull(iConfiguration.getBeamCameraMap())) {
+			return;
+		}
+		iConfiguration.getBeamCameraMap().ifPresent(bcm -> moveMotors(bcm, event));
+	}
+
+	private void moveMotors(BeamCameraMap bcm, ClickEvent event) {
+		RealMatrix transformation = bcm.getAffineTransformation();
+		LUDecomposition luDecompositionBeamToCamera = new LUDecomposition(transformation);
+		LUDecomposition luDecompositionCameraToBeam = new LUDecomposition(
+				luDecompositionBeamToCamera.getSolver().getInverse());
+		RealVector cameraVector = new ArrayRealVector(new double[] { event.getxValue(), event.getyValue() }, false);
+		try {
+			SpringApplicationContextProxy.getBean(BeamCameraMapping.class)
+					.moveKB(luDecompositionCameraToBeam.getSolver().solve(cameraVector));
+		} catch (SingularMatrixException e) {
+			e.printStackTrace();
+		} catch (GDAClientException e) {
+			Display.getDefault().asyncExec(() -> {
+				UIHelper.showError(ClientMessages.MOTOR_OUT_OF_RANGE, e);
+			});			
 		}
 	}
 }

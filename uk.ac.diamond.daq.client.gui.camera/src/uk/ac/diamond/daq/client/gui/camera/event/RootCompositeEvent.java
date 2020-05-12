@@ -23,6 +23,7 @@ import java.util.UUID;
 
 import org.eclipse.swt.widgets.Composite;
 
+import uk.ac.gda.client.event.RootCompositeAware;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 
 /**

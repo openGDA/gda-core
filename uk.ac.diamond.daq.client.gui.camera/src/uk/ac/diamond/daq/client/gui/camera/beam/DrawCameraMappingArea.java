@@ -1,4 +1,4 @@
-package uk.ac.diamond.daq.client.gui.camera.event.handler;
+package uk.ac.diamond.daq.client.gui.camera.beam;
 
 import java.util.Optional;
 
@@ -19,7 +19,6 @@ import gda.device.DeviceException;
 import gda.device.IScannableMotor;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
-import uk.ac.diamond.daq.client.gui.camera.beam.BeamCameraMap;
 import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
 import uk.ac.diamond.daq.client.gui.camera.liveview.CameraImageComposite;
 import uk.ac.gda.api.camera.CameraControl;
@@ -39,7 +38,7 @@ public class DrawCameraMappingArea {
 	private final BeamCameraMappingEvent event;
 	private IScannableMotor driverX;
 	private IScannableMotor driverY;
-	
+
 	private DrawCameraMappingArea(IPlottingSystem<Composite> plottingSystem, BeamCameraMappingEvent event) {
 		super();
 		this.plottingSystem = plottingSystem;
@@ -87,7 +86,7 @@ public class DrawCameraMappingArea {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+
 		if ((driverX == null && driverY == null) || cameraSize == null) {
 			return;
 		}
@@ -97,8 +96,10 @@ public class DrawCameraMappingArea {
 		RealMatrix transformation = beamCameraMap.getAffineTransformation();
 		LUDecomposition luDecompositionCameraToBeam = new LUDecomposition(transformation);
 		try {
-			RealVector constantsMin = new ArrayRealVector(new double[] { driverX.getLowerInnerLimit(), driverY.getLowerInnerLimit() }, false);
-			RealVector constantsMax = new ArrayRealVector(new double[] { driverX.getUpperInnerLimit(), driverY.getUpperInnerLimit() }, false);
+			RealVector constantsMin = new ArrayRealVector(
+					new double[] { driverX.getLowerInnerLimit(), driverY.getLowerInnerLimit() }, false);
+			RealVector constantsMax = new ArrayRealVector(
+					new double[] { driverX.getUpperInnerLimit(), driverY.getUpperInnerLimit() }, false);
 			solutionMin = luDecompositionCameraToBeam.getSolver().solve(constantsMin);
 			solutionMax = luDecompositionCameraToBeam.getSolver().solve(constantsMax);
 		} catch (DeviceException e) {
@@ -111,42 +112,40 @@ public class DrawCameraMappingArea {
 		double pyMin = 0;
 		double pxMax = 0;
 		double pyMax = 0;
-		
+
 		if (solutionMax.getEntry(0) > 0) {
-			pxMax = solutionMax.getEntry(0) >= cameraSize[0] ? cameraSize[0] : solutionMax.getEntry(0);		
+			pxMax = solutionMax.getEntry(0) >= cameraSize[0] ? cameraSize[0] : solutionMax.getEntry(0);
 		}
 		if (solutionMax.getEntry(0) < 0) {
-			pxMax = Double.MIN_VALUE;	
+			pxMax = Double.MIN_VALUE;
 		}
 		if (solutionMin.getEntry(0) < 0 && pxMax > 0) {
-			pxMin = 0;	
+			pxMin = 0;
 		}
 		if (solutionMin.getEntry(0) >= 0 && pxMax > 0) {
-			pxMin = solutionMin.getEntry(0);	
+			pxMin = solutionMin.getEntry(0);
 		}
-		
+
 		if (solutionMax.getEntry(1) > 0) {
-			pyMax = solutionMax.getEntry(1) >= cameraSize[1] ? cameraSize[1] : solutionMax.getEntry(1);	
+			pyMax = solutionMax.getEntry(1) >= cameraSize[1] ? cameraSize[1] : solutionMax.getEntry(1);
 		}
 		if (solutionMax.getEntry(1) < 0) {
-			pyMax = Double.MIN_VALUE;	
+			pyMax = Double.MIN_VALUE;
 		}
 		if (solutionMin.getEntry(1) < 0 && pyMax > 0) {
-			pyMin = 0;	
+			pyMin = 0;
 		}
 		if (solutionMin.getEntry(1) >= 0 && pyMax > 0) {
-			pyMin = solutionMin.getEntry(1);	
+			pyMin = solutionMin.getEntry(1);
 		}
 
 		double pxMn = pxMin;
 		double pyMn = pyMin;
-		
+
 		double pxMx = pxMax;
 		double pyMx = pyMax;
-		
-		Display.getDefault().asyncExec(
-				() -> addRegion(pxMn, pyMn, pxMx - pxMn, pyMx - pyMn));
 
+		Display.getDefault().asyncExec(() -> addRegion(pxMn, pyMn, pxMx - pxMn, pyMx - pyMn));
 	}
 
 	private int[] cameraSize(Optional<CameraControl> cameraControl) throws DeviceException {

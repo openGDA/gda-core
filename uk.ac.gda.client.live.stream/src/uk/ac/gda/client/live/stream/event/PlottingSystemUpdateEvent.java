@@ -18,25 +18,42 @@
 
 package uk.ac.gda.client.live.stream.event;
 
+import java.util.Optional;
 import java.util.UUID;
 
+import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.swt.widgets.Composite;
+
+import uk.ac.gda.client.event.RootCompositeAware;
+
 /**
- *  Published when a component requires any child plotting system to update its data
+ *  Published by a component to communicate it created a {@link IPlottingSystem}.
  *
  * @author Maurizio Nagni
  */
-public class PlottingSystemUpdateEvent extends LiveStreamEvent implements RootEvent {
+public class PlottingSystemUpdateEvent extends LiveStreamEvent implements RootCompositeAware {
 	private static final long serialVersionUID = -933748166416333930L;
 
-	private final UUID rootComposite;
+	private final Optional<UUID> rootComposite;
+	private final IPlottingSystem<Composite> plottingSystem;
 
-    public PlottingSystemUpdateEvent(Object source, UUID rootComposite) {
+    /**
+     * @param source the object which published the event
+     * @param rootComposite the id of the root parent composite, eventually {@code null} if the composite has no root parent
+     * @param plottingSystem the new plotting system
+     */
+    public PlottingSystemUpdateEvent(Object source, UUID rootComposite, IPlottingSystem<Composite> plottingSystem) {
 		super(source);
-		this.rootComposite = rootComposite;
+		this.rootComposite = Optional.ofNullable(rootComposite);
+		this.plottingSystem = plottingSystem;
 	}
 
-    @Override
-	public UUID getRootComposite() {
+	@Override
+	public Optional<UUID> getRootComposite() {
 		return rootComposite;
+	}
+
+	public IPlottingSystem<Composite> getPlottingSystem() {
+		return plottingSystem;
 	}
 }

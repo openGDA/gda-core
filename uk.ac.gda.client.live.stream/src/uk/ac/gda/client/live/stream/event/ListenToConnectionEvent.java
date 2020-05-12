@@ -18,10 +18,12 @@
 
 package uk.ac.gda.client.live.stream.event;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.eclipse.swt.widgets.Composite;
 
+import uk.ac.gda.client.event.RootCompositeAware;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
 
 /**
@@ -30,9 +32,9 @@ import uk.ac.gda.client.live.stream.LiveStreamConnection;
  *
  * @author Maurizio Nagni
  */
-public class ListenToConnectionEvent extends LiveStreamEvent implements RootEvent {
+public class ListenToConnectionEvent extends LiveStreamEvent implements RootCompositeAware {
 
-	private final UUID rootComposite;
+	private final Optional<UUID> rootComposite;
 
 	/**
 	 * @param source the liveStream instance to listen to
@@ -40,11 +42,11 @@ public class ListenToConnectionEvent extends LiveStreamEvent implements RootEven
 	 */
 	public ListenToConnectionEvent(Object source, UUID rootComposite) {
 		super(source);
-		this.rootComposite = rootComposite;
+		this.rootComposite = Optional.ofNullable(rootComposite);
 	}
 
 	@Override
-	public UUID getRootComposite() {
+	public Optional<UUID> getRootComposite() {
 		return rootComposite;
 	}
 }
