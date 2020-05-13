@@ -26,7 +26,7 @@ import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IDeviceWatchdog;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
-import org.eclipse.scanning.api.device.models.DeviceWatchdogModel;
+import org.eclipse.scanning.api.device.models.ExpressionWatchdogModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
@@ -42,8 +42,7 @@ import org.junit.Test;
 @Ignore("DAQ-1484 This test is flakey and so is being ignored for now. It will be investigated as part of DAQ-1147")
 public class WatchdogShutterTest extends AbstractWatchdogTest {
 
-
-	private static IDeviceWatchdog dog;
+	private static IDeviceWatchdog<ExpressionWatchdogModel> dog;
 
 	@BeforeClass
 	public static void createWatchdogs() throws Exception {
@@ -54,7 +53,7 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 		ExpressionWatchdog.setTestExpressionService(new ServerExpressionService());
 
 		// We create a device watchdog (done in spring for real server)
-		DeviceWatchdogModel model = new DeviceWatchdogModel();
+		final ExpressionWatchdogModel model = new ExpressionWatchdogModel();
 		model.setExpression("beamcurrent >= 1.0 && !portshutter.equalsIgnoreCase(\"Closed\")");
 
 		dog = new ExpressionWatchdog(model);

@@ -32,7 +32,7 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
     <h3>Adding in Spring</h3>
     <pre>
     {@literal <!--  Watchdog Example -->}
-	{@literal <bean id="topupModel" class="org.eclipse.scanning.api.device.models.DeviceWatchdogModel">}
+	{@literal <bean id="topupModel" class="org.eclipse.scanning.api.device.models.TopupWatchdogModel">}
 	{@literal 	<property name="countdownName"          value="topup"/>}
 	{@literal 	<property name="periodName"             value="period"/>}
 	{@literal 	<property name="cooloff"                value="4000"/>}

@@ -20,7 +20,7 @@ import java.util.Objects;
 import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IDeviceWatchdog;
 import org.eclipse.scanning.api.device.IPausableDevice;
-import org.eclipse.scanning.api.device.models.DeviceWatchdogModel;
+import org.eclipse.scanning.api.device.models.IDeviceWatchdogModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -28,18 +28,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
  * <pre>
 	  Rules for controller:
 	  o Pause proceeds and sets preference to pause.
 	  o Resume is allowed if none of the states are paused.
 	  o Seek is allowed if all names bar the current device are not paused.
 	  o Abort is allowed regardless.
-   </pre>
-
- * @author Matthew Gerring
+ * </pre>
  *
- * @param <T>
+ * @author Matthew Gerring
  */
 class DeviceController implements IDeviceController {
 
@@ -57,7 +54,7 @@ class DeviceController implements IDeviceController {
 	 * Abort is allowed regardless.
 	 */
 	private Map<String, DeviceState>         states;
-	private Map<String, DeviceWatchdogModel> models;
+	private Map<String, IDeviceWatchdogModel> models;
 
 	public DeviceController(IPausableDevice<?> device) {
 		this.device = device;
@@ -70,7 +67,7 @@ class DeviceController implements IDeviceController {
 	 * silently.
 	 */
 	@Override
-	public void pause(String id, DeviceWatchdogModel model) throws ScanningException, InterruptedException {
+	public void pause(String id, IDeviceWatchdogModel model) throws ScanningException, InterruptedException {
 		states.put(id, DeviceState.PAUSED);
 		models.put(id, model); // May be null
 		if (device.getDeviceState() != DeviceState.RUNNING) {
@@ -116,7 +113,7 @@ class DeviceController implements IDeviceController {
 					.filter(entry -> entry.getValue() == DeviceState.PAUSED)
 					.map(Map.Entry::getKey) // get id of first paused watchdog
 					.map(models::get).filter(Objects::nonNull).findFirst()
-					.map(DeviceWatchdogModel::getMessage)
+					.map(IDeviceWatchdogModel::getMessage)
 					.ifPresent(message -> getBean().setMessage(message));
 			}
 		}

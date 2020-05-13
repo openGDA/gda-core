@@ -32,8 +32,8 @@ import java.util.List;
 
 import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
-import org.eclipse.scanning.api.device.models.DeviceWatchdogModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
+import org.eclipse.scanning.api.device.models.TopupWatchdogModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
@@ -126,7 +126,7 @@ public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
 		connector.register(outerScannable);
 
 		// Create the topup watchdog
-		DeviceWatchdogModel model = new DeviceWatchdogModel();
+		final TopupWatchdogModel model = new TopupWatchdogModel();
 		model.setCountdownName("topup");
 		model.setCooloff(500); // all values in ms
 		model.setWarmup(200);

@@ -13,7 +13,7 @@ package org.eclipse.scanning.api.device;
 
 import org.eclipse.scanning.api.IModelProvider;
 import org.eclipse.scanning.api.INameable;
-import org.eclipse.scanning.api.device.models.DeviceWatchdogModel;
+import org.eclipse.scanning.api.device.models.IDeviceWatchdogModel;
 
 /**
  *
@@ -48,7 +48,7 @@ time before the end of the next TopUp fill.
 Example XML configuration
 	<pre>
 	{@literal <!--  Watchdog Example -->}
-	{@literal <bean id="topupModel" class="org.eclipse.scanning.api.device.models.DeviceWatchdogModel">}
+	{@literal <bean id="topupModel" class="org.eclipse.scanning.api.device.models.TopupWatchdogModel">}
 	{@literal 	<property name="countdownName"          value="topup"/>}
 	{@literal 	<property name="cooloff"                value="4000"/>}
 	{@literal 	<property name="warmup"                 value="5000"/>}
@@ -61,7 +61,7 @@ Example XML configuration
  * @author Matthew Gerring
  *
  */
-public interface IDeviceWatchdog extends IModelProvider<DeviceWatchdogModel>, INameable {
+public interface IDeviceWatchdog<T extends IDeviceWatchdogModel> extends IModelProvider<T>, INameable {
 
     /**
 	 * Make this device active, it will then be used in any scans run
@@ -99,18 +99,5 @@ public interface IDeviceWatchdog extends IModelProvider<DeviceWatchdogModel>, IN
 	 * @param device
 	 */
 	void setController(IDeviceController controller);
-
-	/**
-	 *
-	 */
-	@Override
-	DeviceWatchdogModel getModel();
-
-	/**
-	 *
-	 * @param model
-	 */
-	@Override
-	void setModel(DeviceWatchdogModel model);
 
 }

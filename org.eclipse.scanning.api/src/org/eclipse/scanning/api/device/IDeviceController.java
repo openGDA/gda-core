@@ -13,7 +13,7 @@ package org.eclipse.scanning.api.device;
 
 import java.util.List;
 
-import org.eclipse.scanning.api.device.models.DeviceWatchdogModel;
+import org.eclipse.scanning.api.device.models.IDeviceWatchdogModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 
 /**
@@ -53,7 +53,7 @@ public interface IDeviceController {
 	 * Make a pause
 	 * @param id
 	 */
-	void pause(String id, DeviceWatchdogModel model) throws ScanningException, InterruptedException;
+	void pause(String id, IDeviceWatchdogModel model) throws ScanningException, InterruptedException;
 
 	/**
 	 * Make a resume

@@ -25,7 +25,8 @@ import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IDeviceWatchdog;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
-import org.eclipse.scanning.api.device.models.DeviceWatchdogModel;
+import org.eclipse.scanning.api.device.models.ExpressionWatchdogModel;
+import org.eclipse.scanning.api.device.models.TopupWatchdogModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
@@ -43,7 +44,8 @@ import org.junit.Test;
 @Ignore("DAQ-1484 This test is flakey and so is being ignored for now. It will be investigated as part of DAQ-1147")
 public class WatchdogCombinedTest extends AbstractWatchdogTest {
 
-	private static IDeviceWatchdog edog, tdog;
+	private static IDeviceWatchdog<ExpressionWatchdogModel> expressionWatchdog;
+	private static IDeviceWatchdog<TopupWatchdogModel> topupWatchdog;
 
 	@BeforeClass
 	public static void createWatchdogs() throws Exception {
@@ -54,14 +56,14 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 		ExpressionWatchdog.setTestExpressionService(new ServerExpressionService());
 
 		// We create a device watchdog (done in spring for real server)
-		DeviceWatchdogModel model = new DeviceWatchdogModel();
-		model.setExpression("beamcurrent >= 1.0 && !portshutter.equalsIgnoreCase(\"Closed\")");
+		final ExpressionWatchdogModel expressionModel = new ExpressionWatchdogModel();
+		expressionModel.setExpression("beamcurrent >= 1.0 && !portshutter.equalsIgnoreCase(\"Closed\")");
 
-		edog = new ExpressionWatchdog(model);
-		edog.activate();
+		expressionWatchdog = new ExpressionWatchdog(expressionModel);
+		expressionWatchdog.activate();
 
-		final IScannable<Number>   topups  = connector.getScannable("topup");
-		final MockTopupScannable   topup   = (MockTopupScannable)topups;
+		final IScannable<Number> topups = connector.getScannable("topup");
+		final MockTopupScannable topup = (MockTopupScannable) topups;
 		assertNotNull(topup);
 		topup.disconnect();
 		Thread.sleep(120); // Make sure it stops, it sets value every 100ms but it should get interrupted
@@ -70,22 +72,20 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 		assertTrue("Topup is "+topup.getPosition(), topup.getPosition().doubleValue()>=1000);
 
 		// We create a device watchdog (done in spring for real server)
-		model = new DeviceWatchdogModel();
-		model.setCountdownName("topup");
-		model.setCooloff(500); // Pause 500ms before
-		model.setWarmup(200);  // Unpause 200ms after
-		model.setTopupTime(150);
-		model.setPeriod(5000);
+		final TopupWatchdogModel topupModel = new TopupWatchdogModel();
+		topupModel.setCountdownName("topup");
+		topupModel.setCooloff(500); // Pause 500ms before
+		topupModel.setWarmup(200);  // Unpause 200ms after
+		topupModel.setTopupTime(150);
+		topupModel.setPeriod(5000);
 
-		tdog = new TopupWatchdog(model);
-		tdog.activate();
+		topupWatchdog = new TopupWatchdog(topupModel);
+		topupWatchdog.activate();
 
 	}
 
-
 	@Before
 	public void before() throws Exception {
-
 		final IScannable<Number>   topups  = connector.getScannable("topup");
 		final MockTopupScannable   topup   = (MockTopupScannable)topups;
 		assertNotNull(topup);
@@ -104,31 +104,29 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 
 	@Test
 	public void dogsSame() {
-		assertEquals(edog, Services.getWatchdogService().getWatchdog("ExpressionWatchdog"));
-		assertEquals(tdog, Services.getWatchdogService().getWatchdog("TopupWatchdog"));
+		assertEquals(expressionWatchdog, Services.getWatchdogService().getWatchdog("ExpressionWatchdog"));
+		assertEquals(topupWatchdog, Services.getWatchdogService().getWatchdog("TopupWatchdog"));
 	}
 
 	@Test
 	public void deactivated() throws Exception {
-
 		try {
 			// Deactivate!=disabled because deactivate removes it from the service.
-			edog.deactivate(); // Are a testing a pausing monitor here
-			tdog.deactivate(); // Are a testing a pausing monitor here
+			expressionWatchdog.deactivate(); // Are a testing a pausing monitor here
+			topupWatchdog.deactivate(); // Are a testing a pausing monitor here
 			runQuickie();
 		} finally {
-			edog.activate();
-			tdog.activate();
+			expressionWatchdog.activate();
+			topupWatchdog.activate();
 		}
 	}
 
 
 	@Test
 	public void disabled() throws Exception {
-
 		try {
-			edog.setEnabled(false); // Are a testing a pausing monitor here
-			tdog.setEnabled(false); // Are a testing a pausing monitor here
+			expressionWatchdog.setEnabled(false); // Are a testing a pausing monitor here
+			topupWatchdog.setEnabled(false); // Are a testing a pausing monitor here
 			IRunnableEventDevice<?> scanner = runQuickie(true);
 			final IScannable<String>   mon  = connector.getScannable("portshutter");
 			mon.setPosition("Closed");
@@ -137,47 +135,44 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 			assertTrue(scanner.latch(10, TimeUnit.SECONDS));
 
 		} finally {
-			edog.setEnabled(true);
-			tdog.setEnabled(true);
+			expressionWatchdog.setEnabled(true);
+			topupWatchdog.setEnabled(true);
 		}
 	}
 
 	@Test
 	public void deactivatedExpression() throws Exception {
-
 		try {
 			// Deactivate!=disabled because deactivate removes it from the service.
-			edog.deactivate(); // Are a testing a pausing monitor here
+			expressionWatchdog.deactivate(); // Are a testing a pausing monitor here
 			runQuickie();
 		} finally {
-			edog.activate();
+			expressionWatchdog.activate();
 		}
 	}
 
-
 	@Test
 	public void disabledExpression() throws Exception {
-
 		try {
 			// Deactivate!=disabled because deactivate removes it from the service.
-			edog.setEnabled(false); // Are a testing a pausing monitor here
+			expressionWatchdog.setEnabled(false); // Are a testing a pausing monitor here
 			IRunnableEventDevice<?> scanner = runQuickie(true);
 			final IScannable<String>   mon  = connector.getScannable("portshutter");
 			mon.setPosition("Closed");
 			assertTrue(scanner.latch(10, TimeUnit.SECONDS));
 		} finally {
-			edog.setEnabled(true);
+			expressionWatchdog.setEnabled(true);
 		}
 	}
+
 	@Test
 	public void deactivatedTopup() throws Exception {
-
 		try {
 			// Deactivate!=disabled because deactivate removes it from the service.
-			tdog.deactivate(); // Are a testing a pausing monitor here
+			topupWatchdog.deactivate(); // Are a testing a pausing monitor here
 			runQuickie();
 		} finally {
-			tdog.activate();
+			topupWatchdog.activate();
 		}
 	}
 
@@ -196,10 +191,8 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 		assertEquals(DeviceState.PAUSED, scanner.getDeviceState());
 	}
 
-
 	@Test
 	public void disabledTopup() throws Exception {
-
 		final IScannable<Number>   topups  = connector.getScannable("topup");
 		final MockTopupScannable   topup   = (MockTopupScannable)topups;
 		assertNotNull(topup);
@@ -211,19 +204,17 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 		Thread.sleep(100);
 		try {
 			// Deactivate!=disabled because deactivate removes it from the service.
-			tdog.setEnabled(false); // Are a testing a pausing monitor here
+			topupWatchdog.setEnabled(false); // Are a testing a pausing monitor here
 			IRunnableEventDevice<?> scanner = runQuickie(true);
 			assertTrue(scanner.latch(10, TimeUnit.SECONDS));
 		} finally {
-			tdog.setEnabled(true);
+			topupWatchdog.setEnabled(true);
 			topup.setPeriod(orig);
 		}
 	}
 
-
 	@Test
 	public void shutterWithExternalPause() throws Exception {
-
 		// x and y are level 3
 		IDeviceController controller = createTestScanner(null);
 		IRunnableEventDevice<?> scanner = (IRunnableEventDevice<?>)controller.getDevice();
@@ -267,7 +258,6 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 
 	@Test
 	public void topupWithExternalPause() throws Exception {
-
 		// Stop topup, we want to controll it programmatically.
 		final IScannable<Number>   topups  = connector.getScannable("topup");
 		final MockTopupScannable   topup   = (MockTopupScannable)topups;
@@ -391,6 +381,5 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 
 		Thread.sleep(100);       // Ensure watchdog event has fired and it did something.
 		assertNotEquals(DeviceState.PAUSED, scanner.getDeviceState());
-
 	}
 }

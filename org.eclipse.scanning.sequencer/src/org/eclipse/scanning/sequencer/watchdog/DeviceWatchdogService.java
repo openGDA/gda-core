@@ -81,7 +81,7 @@ public class DeviceWatchdogService implements IDeviceWatchdogService {
 			IDeviceWatchdog newWatchdog = template.getClass().newInstance();
 			newWatchdog.setModel(template.getModel());
 			return newWatchdog;
-		} catch (InstantiationException | IllegalAccessException e) {
+		} catch (Exception e) {
 			logger.error("Could not create watchdog {}", template.getName(), e);
 			return null;
 		}

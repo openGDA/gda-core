@@ -32,8 +32,8 @@ import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IDeviceWatchdog;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
-import org.eclipse.scanning.api.device.models.DeviceWatchdogModel;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.device.models.TopupWatchdogModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -61,15 +61,14 @@ import org.junit.runners.MethodSorters;
 @Ignore("DAQ-1484 This test is flakey and so is being ignored for now. It will be investigated as part of DAQ-2087")
 public class WatchdogTopupTest extends AbstractWatchdogTest {
 
-
-	private static IDeviceWatchdog dog;
+	private static IDeviceWatchdog<TopupWatchdogModel> dog;
 	private File dir;
 
 	@BeforeClass
-	public static void createWatchdogs() throws Exception {
+	public static void createWatchdogs() {
 
 		// We create a device watchdog (done in spring for real server)
-		DeviceWatchdogModel model = new DeviceWatchdogModel();
+		final TopupWatchdogModel model = new TopupWatchdogModel();
 		model.setCountdownName("topup");
 		model.setCooloff(500); // Pause 500ms before
 		model.setWarmup(200);  // Unpause 200ms after

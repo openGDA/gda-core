@@ -15,7 +15,7 @@ import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.annotation.scan.PointEnd;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.annotation.scan.ScanStart;
-import org.eclipse.scanning.api.device.models.DeviceWatchdogModel;
+import org.eclipse.scanning.api.device.models.TopupWatchdogModel;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.PositionEvent;
@@ -59,22 +59,22 @@ it resets to time before next TopUp fill,
 
 <pre>
     {@literal <!--  Watchdog Example -->}
-	{@literal <bean id="topupModel" class="org.eclipse.scanning.api.device.models.DeviceWatchdogModel">}
-	{@literal 	<property name="countdownName"          value="topup"/>}
-	{@literal 	<property name="cooloff"                value="4000"/>}
-	{@literal 	<property name="warmup"                 value="5000"/>}
+	{@literal <bean id="topupModel" class="org.eclipse.scanning.api.device.models.TopupWatchdogModel">}
+	{@literal     <property name="countdownName" value="topup" />}
+	{@literal     <property name="cooloff" value="4000" />}
+	{@literal     <property name="warmup" value="5000" />}
 
-    {@literal   <!-- Optional, recommended but not compulsory a scannable linked to SR-CS-FILL-01:TOPUPMODE, checks the mode is right -->}
-    {@literal 	<property name="modeName"               value="mode"/>}
+    {@literal     <!-- Optional, recommended but not compulsory a scannable linked to SR-CS-FILL-01:TOPUPMODE, checks the mode is right -->}
+    {@literal 	  <property name="modeName" value="mode" />}
 
-	{@literal   <!-- Optional, do not usually need to set -->}
-    {@literal 	<property name="period"                 value="600000"/>}
-	{@literal 	<property name="topupTime"              value="15000"/>}
-	{@literal   <!-- End optional, do not usually need to set -->}
-
+	{@literal     <!-- Optional, do not usually need to set -->}
+    {@literal     <property name="period" value="600000"/>}
+	{@literal     <property name="topupTime" value="15000"/>}
+	{@literal     <!-- End optional, do not usually need to set -->}
 	{@literal </bean>}
-	{@literal <bean id="topupWatchdog"    class="org.eclipse.scanning.sequencer.watchdog.TopupWatchdog" init-method="activate">}
-	{@literal 	<property name="model"    ref="topupModel"/>}
+
+	{@literal <bean id="topupWatchdog" class="org.eclipse.scanning.sequencer.watchdog.TopupWatchdog" init-method="activate">}
+	{@literal     <property name="model" ref="topupModel"/>}
 	{@literal </bean>}
 </pre>
 
@@ -130,32 +130,35 @@ The Topup watchdog should only be used when we are in 'Normal' mode.
  * @author Matthew Gerring
  *
  */
-public class TopupWatchdog extends AbstractWatchdog implements IPositionListener {
+public class TopupWatchdog extends AbstractWatchdog<TopupWatchdogModel> implements IPositionListener {
 
 	private static Logger logger = LoggerFactory.getLogger(TopupWatchdog.class);
 
 	private static final String NORMAL_TOPUP_MODE_VALUE = "Normal";
 
-	private String             countdownUnit;
+	private String countdownUnit;
 	private volatile IPosition lastCompletedPoint;
 
-	private volatile boolean busy   = false;
+	private volatile boolean busy = false;
 	private volatile boolean rewind = false;
 
 	public TopupWatchdog() {
 		super();
 	}
-	public TopupWatchdog(DeviceWatchdogModel model) {
-		super(model);
+
+	public TopupWatchdog(TopupWatchdogModel model) {
+		super();
+		setModel(model);
 	}
 
 	@Override
-	String getId() {
+	protected String getId() {
 		return getClass().getName();
 	}
+
 	/**
 	 * Called on a thread when the position changes.
-	 * The coutndown is likely to report at 10Hz. TODO Check if this is ok during a scan and does not
+	 * The countdown is likely to report at 10Hz. TODO Check if this is ok during a scan and does not
 	 * use too much CPU.
 	 */
 	@Override
@@ -170,8 +173,7 @@ public class TopupWatchdog extends AbstractWatchdog implements IPositionListener
 	protected void checkPosition(IPosition pos) {
 		try {
 			// Topup is currently 10Hz which is the rate that the scannable should call positionChanged(...) at.
-			long time = getValueMs(pos, model.getCountdownName(), countdownUnit);
-			//logger.info("Topup time is "+time+" ms");
+			final long time = getValueMs(pos, model.getCountdownName(), countdownUnit);
 			processPosition(time);
 		} catch (Exception ne) {
 			logger.error("Cannot process position {}", pos, ne);
@@ -204,9 +206,7 @@ public class TopupWatchdog extends AbstractWatchdog implements IPositionListener
 			if (!isPositionValid(t)) {
 				rewind = t<0; // We did not detect it before loosing beam
 				controller.pause(getId(), getModel());
-
 			} else { // We are a valid place in the topup, see if we can resume
-
 				// the warmup period has ended, we can resume the scan
 				if (rewind && lastCompletedPoint!=null) {
 					controller.seek(getId(), lastCompletedPoint.getStepIndex()); // Probably only does something useful for malcolm
@@ -274,8 +274,8 @@ public class TopupWatchdog extends AbstractWatchdog implements IPositionListener
 	public void stop() {
 		logger.debug("Watchdog stopping on {}", controller.getName());
 		try {
-		    IScannable<?> topup = getScannable(model.getCountdownName());
-		    ((IPositionListenable)topup).removePositionListener(this);
+			final IScannable<?> topup = getScannable(model.getCountdownName());
+			((IPositionListenable) topup).removePositionListener(this);
 
 			logger.info("Watchdog stopped on {}", controller.getName());
 		} catch (ScanningException ne) {

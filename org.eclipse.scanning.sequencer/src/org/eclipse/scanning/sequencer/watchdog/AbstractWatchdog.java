@@ -19,14 +19,14 @@ import org.eclipse.scanning.api.annotation.scan.ScanStart;
 import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IDeviceWatchdog;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
-import org.eclipse.scanning.api.device.models.DeviceWatchdogModel;
+import org.eclipse.scanning.api.device.models.IDeviceWatchdogModel;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.sequencer.ServiceHolder;
 
-public abstract class AbstractWatchdog implements IDeviceWatchdog {
+public abstract class AbstractWatchdog<T extends IDeviceWatchdogModel> implements IDeviceWatchdog<T> {
 
-	protected DeviceWatchdogModel model;
+	protected T model;
 	protected IDeviceController  controller;
 	protected boolean active = false;
 
@@ -41,37 +41,29 @@ public abstract class AbstractWatchdog implements IDeviceWatchdog {
 	 */
 	private boolean enabled=true;
 
-	public AbstractWatchdog() {
-		this(null);
-	}
-	public AbstractWatchdog(DeviceWatchdogModel model2) {
-		this.model = model2;
-	}
-
-	abstract String getId();
+	protected abstract String getId();
 
 	@Override
-	public DeviceWatchdogModel getModel() {
+	public T getModel() {
 		return model;
 	}
 	@Override
-	public void setModel(DeviceWatchdogModel model) {
+	public void setModel(T model) {
 		this.model = model;
 	}
 
-
 	protected long getValueMs(IPosition ipos, String name, String unit) {
-		double pos = ipos.getValue(name);
+		final double pos = ipos.getValue(name);
 		return getValueMs(pos, unit);
 	}
 
 	protected long getValueMs(String name, String unit) throws Exception {
-	    IScannable<Number> scannable = getScannable(name);
+	    final IScannable<Number> scannable = getScannable(name);
 		return getValueMs(scannable.getPosition().doubleValue(), unit);
 	}
 
 	protected long getValueMs(double pos, String unit) {
-		TimeUnit tu = getTimeUnit(unit);
+		final TimeUnit tu = getTimeUnit(unit);
 		switch (tu) {
 			case MINUTES: return Math.round(pos * 1000 * 60);
 			case SECONDS: return Math.round(pos * 1000);
@@ -80,12 +72,13 @@ public abstract class AbstractWatchdog implements IDeviceWatchdog {
 				// sanity check: not actually possible as getTimeUnit only return the units above
 				throw new RuntimeException("Unexpected unit " + tu);
 		}
-
 	}
 
-	protected <T> IScannable<T> getScannable(String name) throws ScanningException {
-		if (ServiceHolder.getRunnableDeviceService()==null) return null;
-		IScannableDeviceService cservice = ServiceHolder.getRunnableDeviceService().getDeviceConnectorService();
+	protected <S> IScannable<S> getScannable(String name) throws ScanningException {
+		if (ServiceHolder.getRunnableDeviceService() == null) {
+			return null;
+		}
+		final IScannableDeviceService cservice = ServiceHolder.getRunnableDeviceService().getDeviceConnectorService();
 		return cservice.getScannable(name);
 	}
 
@@ -109,13 +102,16 @@ public abstract class AbstractWatchdog implements IDeviceWatchdog {
 	public void activate() {
 		ServiceHolder.getWatchdogService().register(this);
 	}
+
 	@Override
 	public void deactivate() {
 		ServiceHolder.getWatchdogService().unregister(this);
 	}
+
 	public IDeviceController getController() {
 		return controller;
 	}
+
 	@Override
 	public void setController(IDeviceController controller) {
 		this.controller = controller;
@@ -135,18 +131,22 @@ public abstract class AbstractWatchdog implements IDeviceWatchdog {
 	public boolean isActive() {
 		return active;
 	}
+
 	@Override
 	public String getName() {
 		return name;
 	}
+
 	@Override
 	public void setName(String name) {
 		this.name = name;
 	}
+
 	@Override
 	public boolean isEnabled() {
 		return enabled;
 	}
+
 	@Override
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
