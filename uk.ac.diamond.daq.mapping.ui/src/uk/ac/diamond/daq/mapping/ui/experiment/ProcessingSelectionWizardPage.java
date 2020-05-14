@@ -214,7 +214,8 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 		List<Control> selectTemplateControls = createSelectTemplateControls(composite);
 		createNewButton.addSelectionListener(new RadioButtonHandler(createNewButton, selectTemplateControls, ProcessingMode.NEW_DAWN));
-		createNewButton.setSelection(true);
+		createNewButton.setSelection(!getTemplateFiles().isEmpty());
+		createNewButton.setEnabled(!getTemplateFiles().isEmpty());
 
 		useExistingButton = new Button(composite, SWT.RADIO);
 		useExistingButton.setText("Use an existing processing file:");
@@ -224,7 +225,7 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 		RadioButtonHandler existingControlsButtonHandler =
 				new RadioButtonHandler(useExistingButton, useExistingControls, ProcessingMode.EXISTING_DAWN);
 		useExistingButton.addSelectionListener(existingControlsButtonHandler);
-		useExistingButton.setSelection(false);
+		useExistingButton.setSelection(getTemplateFiles().isEmpty());
 		existingControlsButtonHandler.setControlsEnabled(false);
 
 		useOtherButton = new Button(composite, SWT.RADIO);
@@ -406,6 +407,7 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 		File toSelect = newTemplateFiles.contains(currentlySelectedFile) ? currentlySelectedFile :
 			(newTemplateFiles.isEmpty() ? null : newTemplateFiles.get(0));
 		templatesComboViewer.setSelection(new StructuredSelection(toSelect));
+		createNewButton.setEnabled(!newTemplateFiles.isEmpty());
 	}
 
 	private File getSelectedTemplateFile() {
