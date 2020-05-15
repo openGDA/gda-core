@@ -18,27 +18,30 @@
 
 package gda.rcp;
 
-import gda.configuration.properties.LocalProperties;
-import gda.jython.IJythonContext;
-
 import org.eclipse.ui.IWorkbenchWindow;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
+import gda.configuration.properties.LocalProperties;
+import gda.jython.IJythonContext;
 import uk.ac.gda.client.test.MockJythonContext;
 
 public class OpenLocalFileActionTest {
 
 	private OpenLocalFileAction action;
+
+	@Mock
 	private IWorkbenchWindow window;
 	private IJythonContext context;
 
 	@Before
 	public void setUp() {
 		LocalProperties.set("gda.jython.userScriptDir", "gda.jython.userScriptDir");
-		window = new MockWorkbenchWindow();
+		window = Mockito.mock(IWorkbenchWindow.class);
 		context = new NullJythonContext();
 		action = new OpenLocalFileAction();
 		action.setJythonContextForTesting(context);
