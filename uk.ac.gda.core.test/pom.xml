@@ -60,7 +60,6 @@
 						<exclude>GDAJythonClassloaderTest</exclude>
 			          	<!-- Tests trying to read/write test files -->
 			          	<exclude>XMLIcatTest</exclude>
-			          	<exclude>PathConstructorTest</exclude>
 			          	<exclude>CrysalisRunListTest</exclude>
 			          	<exclude>SimpleHighestExistingFileMonitorTest</exclude>
 			          	<exclude>ElogEntryTest</exclude>
