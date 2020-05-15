@@ -59,7 +59,6 @@
 						<!-- Needs paths to be sorted out -->
 						<exclude>GDAJythonClassloaderTest</exclude>
 			          	<!-- Tests trying to read/write test files -->
-			          	<exclude>FindableHashtableTest</exclude>
 			          	<exclude>XMLIcatTest</exclude>
 			          	<exclude>PathConstructorTest</exclude>
 			          	<exclude>CrysalisRunListTest</exclude>
