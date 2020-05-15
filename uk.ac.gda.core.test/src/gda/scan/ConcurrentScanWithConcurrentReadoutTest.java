@@ -18,7 +18,7 @@
 
 package gda.scan;
 
-import static org.mockito.Matchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
