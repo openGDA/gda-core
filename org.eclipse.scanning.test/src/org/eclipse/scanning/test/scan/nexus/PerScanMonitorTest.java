@@ -24,21 +24,28 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
+import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NXslit;
+import org.eclipse.dawnsci.nexus.NXuser;
+import org.eclipse.dawnsci.nexus.NexusBaseClass;
+import org.eclipse.dawnsci.nexus.device.NexusMetadataDevice;
+import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.DoubleDataset;
@@ -58,7 +65,9 @@ import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.scannable.MockScannableConfiguration;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
+import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.server.application.PseudoSpringParser;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -70,11 +79,22 @@ public class PerScanMonitorTest extends NexusTest {
 		PseudoSpringParser parser = new PseudoSpringParser();
 		parser.parse(PerScanMonitorTest.class.getResourceAsStream("test_scannables.xml"));
 
+		((MockScannableConnector) connector).setCreateIfNotThere(false);
 		// TODO See this scannable which is a MockNeXusSlit
 		// Use NexusNodeFactory to create children as correct for http://confluence.diamond.ac.uk/pages/viewpage.action?pageId=37814632
 		IScannable<Number> dcs = connector.getScannable("dcs"); // Scannable created by spring with a model.
 		dcs.setPosition(10.0);
 		((MockScannableConnector) connector).setGlobalPerScanMonitorNames();
+
+		final NexusMetadataDevice<NXuser> userNexusDevice = new NexusMetadataDevice("user", NexusBaseClass.NX_USER);
+		final Map<String, Object> userData = new HashMap<>();
+		userData.put(NXuser.NX_NAME, "John Smith");
+		userData.put(NXuser.NX_ROLE, "Beamline Scientist");
+		userData.put(NXuser.NX_ADDRESS, "Diamond Light Source, Didcot, Oxfordshire, OX11 0DE");
+		userData.put(NXuser.NX_EMAIL, "john.smith@diamond.ac.uk");
+		userData.put(NXuser.NX_FACILITY_USER_ID, "wgp76868");
+		userNexusDevice.setNexusMetadata(userData);
+		ServiceHolder.getNexusDeviceService().register(userNexusDevice);
 	}
 
 	@Test
@@ -117,6 +137,11 @@ public class PerScanMonitorTest extends NexusTest {
 	@Test
 	public void testScanWithConfiguredScannable() throws Exception {
 		test("monitor1", "dcs");
+	}
+
+	@Test
+	public void testBasicScanWithNexusDevice() throws Exception {
+		test(null, "user");
 	}
 
 	private void test(String perPointMonitorName, String perScanMonitorName,
@@ -165,11 +190,10 @@ public class PerScanMonitorTest extends NexusTest {
 		int[] shape = null;
 
 		// check metadata scannables
-		checkPerScanMonitors(scanModel, instrument,
-				new HashSet<>(Arrays.asList(expectedPerScanMonitorNames)));
+		checkPerScanMonitors(scanModel, entry, new HashSet<>(Arrays.asList(expectedPerScanMonitorNames)));
 
 		final IPosition pos = scanModel.getPointGenerator().iterator().next();
-		final Collection<String> scannableNames = pos.getNames();
+		final List<String> scannableNames = pos.getNames();
 
 		List<IScannable<?>> perPoint  = scanModel.getMonitorsPerPoint().stream()
 				.filter(scannable -> !scannable.getName().equals(SCANNABLE_NAME_SOLSTICE_SCAN_MONITOR))
@@ -185,11 +209,8 @@ public class PerScanMonitorTest extends NexusTest {
 		assertAxes(nxData, expectedAxesNames);
 
 		int[] defaultDimensionMappings = IntStream.range(0, sizes.length).toArray();
-		int i = -1;
-		for (String  scannableName : scannableNames) {
-
-		    i++;
-
+		for (int i = 0; i < scannableNames.size(); i++) {
+			final String scannableName = scannableNames.get(i);
 			NXpositioner positioner = instrument.getPositioner(scannableName);
 			assertNotNull(positioner);
 
@@ -219,62 +240,97 @@ public class PerScanMonitorTest extends NexusTest {
 		}
 	}
 
-	private void checkPerScanMonitors(final ScanModel scanModel, NXinstrument instrument,
+	private void checkPerScanMonitors(final ScanModel scanModel, NXentry entry,
 			Set<String> expectedPerScanMonitorNames) throws Exception {
-		DataNode dataNode;
-		Dataset dataset;
-		Set<String> perScanMonitorNames = scanModel.getMonitorsPerScan().stream()
+		final Set<String> perScanMonitorNames = scanModel.getMonitorsPerScan().stream()
 				.map(scannable -> scannable.getName()).collect(Collectors.toSet());
-		assertEquals(expectedPerScanMonitorNames, perScanMonitorNames);
+		final Set<String> nexusDeviceNames = scanModel.getAnnotationParticipants().stream()
+				.filter(INexusDevice.class::isInstance).map(INexusDevice.class::cast)
+				.map(INexusDevice::getName).collect(Collectors.toSet());
 
-		for (String perScanMonitorName : perScanMonitorNames) {
-			NXpositioner positioner = instrument.getPositioner(perScanMonitorName);
-			if (positioner != null) {
-				assertEquals(perScanMonitorName, positioner.getNameScalar());
+		final Set<String> perScanAndNexusDeviceNames = new HashSet<>(perScanMonitorNames);
+		perScanAndNexusDeviceNames.addAll(nexusDeviceNames);
 
-				if (perScanMonitorName.startsWith("string")) {
-					String expectedValue = (String) connector.getScannable(perScanMonitorName).getPosition();
-//					positioner.getDataNode(
-				} else {
-					int num = Integer.parseInt(perScanMonitorName.substring("perScanMonitor".length()));
-					double expectedValue = num * 10.0;
+		assertEquals(expectedPerScanMonitorNames, perScanAndNexusDeviceNames);
 
-					dataNode = positioner.getDataNode("value_set"); // TODO should not be here for per scan monitor
-					assertNotNull(dataNode);
-					dataset = DatasetUtils.sliceAndConvertLazyDataset(dataNode.getDataset());
-					assertEquals(1, dataset.getSize());
-					assertTrue(dataset instanceof DoubleDataset);
-					assertEquals(expectedValue, dataset.getElementDoubleAbs(0), 1e-15);
-
-					dataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
-					assertNotNull(dataNode);
-					dataset = DatasetUtils.sliceAndConvertLazyDataset(dataNode.getDataset());
-					assertEquals(1, dataset.getSize());
-					assertTrue(dataset instanceof DoubleDataset);
-					assertEquals(expectedValue, dataset.getElementDoubleAbs(0), 1e-15);
-				}
-			} else {
-				NXslit slit = instrument.getChild(perScanMonitorName, NXslit.class);
-
-				assertNotNull(slit);
-				assertEquals(perScanMonitorName, slit.getString("name")); // There is no NXslit.getNameScaler() or NXslit.NX_NAME
-
-				double expectedValue = 10.0;
-
-				dataNode = slit.getDataNode(NXslit.NX_X_GAP);
-				assertNotNull(dataNode);
-				dataset = DatasetUtils.sliceAndConvertLazyDataset(dataNode.getDataset());
-				assertEquals(1, dataset.getSize());
-				assertTrue(dataset instanceof DoubleDataset);
-				assertEquals(expectedValue, dataset.getElementDoubleAbs(0), 1e-15);
-
-				dataNode = slit.getDataNode(NXslit.NX_Y_GAP);
-				assertNotNull(dataNode);
-				dataset = DatasetUtils.sliceAndConvertLazyDataset(dataNode.getDataset());
-				assertEquals(1, dataset.getSize());
-				assertTrue(dataset instanceof DoubleDataset);
-				assertEquals(expectedValue, dataset.getElementDoubleAbs(0), 1e-15);
+		for (String perScanMonitorName : perScanAndNexusDeviceNames) {
+			final NXobject parentGroup = nexusDeviceNames.contains(perScanMonitorName) ?
+					entry : entry.getInstrument(); // NXuser is added to the entry, other devices to instrument
+			final NXobject nexusObjectForDevice = (NXobject) parentGroup.getGroupNode(perScanMonitorName);
+			assertNotNull(nexusObjectForDevice);
+			switch (nexusObjectForDevice.getNexusBaseClass()) {
+			case NX_POSITIONER:
+				checkMetadataPositioner((NXpositioner) nexusObjectForDevice, perScanMonitorName);
+				break;
+			case NX_SLIT:
+				checkSlit((NXslit) nexusObjectForDevice, perScanMonitorName);
+				break;
+			case NX_USER:
+				checkUser((NXuser) nexusObjectForDevice, perScanMonitorName);
+				break;
+			default:
+				Assert.fail("Unexpected nexus base class: " + nexusObjectForDevice.getNexusBaseClass());
 			}
+		}
+	}
+
+	private void checkMetadataPositioner(final NXpositioner positioner, String perScanMonitorName)
+			throws ScanningException, DatasetException {
+		assertNotNull(positioner);
+		assertEquals(perScanMonitorName, positioner.getNameScalar());
+
+		if (perScanMonitorName.startsWith("string")) {
+			final String expectedValue = (String) connector.getScannable(perScanMonitorName).getPosition();
+			final DataNode dataNode = positioner.getDataNode("value");
+			assertNotNull(dataNode);
+			assertEquals(expectedValue, dataNode.getString());
+		} else {
+			int num = Integer.parseInt(perScanMonitorName.substring("perScanMonitor".length()));
+			double expectedValue = num * 10.0;
+
+			DataNode dataNode = positioner.getDataNode("value_set"); // TODO should not be here for per scan monitor
+			assertNotNull(dataNode);
+			Dataset dataset = DatasetUtils.sliceAndConvertLazyDataset(dataNode.getDataset());
+			assertEquals(1, dataset.getSize());
+			assertTrue(dataset instanceof DoubleDataset);
+			assertEquals(expectedValue, dataset.getElementDoubleAbs(0), 1e-15);
+
+			dataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
+			assertNotNull(dataNode);
+			dataset = DatasetUtils.sliceAndConvertLazyDataset(dataNode.getDataset());
+			assertEquals(1, dataset.getSize());
+			assertTrue(dataset instanceof DoubleDataset);
+			assertEquals(expectedValue, dataset.getElementDoubleAbs(0), 1e-15);
+		}
+	}
+
+	private void checkSlit(NXslit slit, String perScanMonitorName) throws DatasetException {
+		assertNotNull(slit);
+		assertEquals(perScanMonitorName, slit.getString("name")); // There is no NXslit.getNameScaler() or NXslit.NX_NAME
+
+		final double expectedValue = 10.0;
+		DataNode dataNode = slit.getDataNode(NXslit.NX_X_GAP);
+		assertNotNull(dataNode);
+		Dataset dataset = DatasetUtils.sliceAndConvertLazyDataset(dataNode.getDataset());
+		assertEquals(1, dataset.getSize());
+		assertTrue(dataset instanceof DoubleDataset);
+		assertEquals(expectedValue, dataset.getElementDoubleAbs(0), 1e-15);
+
+		dataNode = slit.getDataNode(NXslit.NX_Y_GAP);
+		assertNotNull(dataNode);
+		dataset = DatasetUtils.sliceAndConvertLazyDataset(dataNode.getDataset());
+		assertEquals(1, dataset.getSize());
+		assertTrue(dataset instanceof DoubleDataset);
+		assertEquals(expectedValue, dataset.getElementDoubleAbs(0), 1e-15);
+	}
+
+	private void checkUser(NXuser user, String perScanMonitorName) {
+		final NexusMetadataDevice<NXuser> metadataDevice =
+				(NexusMetadataDevice<NXuser>) ServiceHolder.getNexusDeviceService().<NXuser>getNexusDevice(perScanMonitorName);
+		final Map<String, Object> metadata = metadataDevice.getNexusMetadata();
+		assertEquals(metadata.size(), user.getNumberOfDataNodes());
+		for (Map.Entry<String, Object> metadataEntry : metadata.entrySet()) {
+			assertEquals(metadataEntry.getValue(), user.getString(metadataEntry.getKey()));
 		}
 	}
 
@@ -283,6 +339,9 @@ public class PerScanMonitorTest extends NexusTest {
 
 		final IScannable<?> perPointMonitor = perPointMonitorName == null ? null : connector.getScannable(perPointMonitorName);
 		final IScannable<?> perScanMonitor = perScanMonitorName == null ? null : connector.getScannable(perScanMonitorName);
+		// if there's no scannable for the perScanMonitorName, see if there's a nexus device
+		final INexusDevice<?> nexusDevice = (perScanMonitorName == null || perScanMonitor != null) ?
+				null : ServiceHolder.getNexusDeviceService().getNexusDevice(perScanMonitorName);
 
 		final CompoundModel compoundModel = new CompoundModel();
 
@@ -306,6 +365,7 @@ public class PerScanMonitorTest extends NexusTest {
 		}
 		scanModel.setMonitorsPerPoint(perPointMonitor);
 		scanModel.setMonitorsPerScan(perScanMonitor);
+		scanModel.setAnnotationParticipants(nexusDevice == null ? null : Arrays.asList(nexusDevice));
 
 		// Create a file to scan into.
 		scanModel.setFilePath(output.getAbsolutePath());

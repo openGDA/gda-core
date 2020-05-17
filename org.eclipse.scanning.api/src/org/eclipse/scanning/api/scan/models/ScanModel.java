@@ -101,8 +101,10 @@ public class ScanModel {
 	private List<ScanMetadata> scanMetadata;
 
 	/**
-	 * A list of objects which participant in the scan by having
-	 * annotated methods which the scan should call at different points.
+	 * A list of additional devices that participate in the scan. These are objects
+	 * that can participate in the scan by having annotated methods which the scan
+	 * should call at different points. They can also implement INexusDevice to provide
+	 * a nexus object to be added to the nexus file for the scan.
 	 */
 	private List<?> annotationParticipants;
 

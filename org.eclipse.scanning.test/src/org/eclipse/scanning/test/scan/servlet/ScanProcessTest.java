@@ -18,6 +18,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
@@ -51,8 +52,11 @@ import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
+import org.eclipse.dawnsci.nexus.NXuser;
+import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
+import org.eclipse.dawnsci.nexus.device.NexusMetadataDevice;
 import org.eclipse.dawnsci.nexus.template.NexusTemplate;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.january.dataset.IDataset;
@@ -129,6 +133,16 @@ public class ScanProcessTest {
 		model.setName("mandelbrot");
 		model.setExposureTime(0.00001);
 		dserviceImpl.createRunnableDevice(model);
+
+		NexusMetadataDevice userNexusDevice = new NexusMetadataDevice("user", NexusBaseClass.NX_USER);
+		final Map<String, Object> userData = new HashMap<>();
+		userData.put(NXuser.NX_NAME, "John Smith");
+		userData.put(NXuser.NX_ROLE, "Beamline Scientist");
+		userData.put(NXuser.NX_ADDRESS, "Diamond Light Source, Didcot, Oxfordshire, OX11 0DE");
+		userData.put(NXuser.NX_EMAIL, "john.smith@diamond.ac.uk");
+		userData.put(NXuser.NX_FACILITY_USER_ID, "wgp76868");
+		userNexusDevice.setNexusMetadata(userData);
+		ServiceHolder.getNexusDeviceService().register(userNexusDevice);
 	}
 
 	@Test
@@ -570,7 +584,7 @@ public class ScanProcessTest {
 	}
 
 	@Test
-	public void testScannableAndMonitor() throws Exception {
+	public void testScannableAndMonitors() throws Exception {
 		// Arrange
 		final ScanBean scanBean = new ScanBean();
 		final ScanRequest scanRequest = new ScanRequest();
@@ -586,6 +600,7 @@ public class ScanProcessTest {
 		dmodels.put("mandelbrot", model);
 		scanRequest.setDetectors(dmodels);
 		scanRequest.setMonitorNamesPerPoint(Arrays.asList("T"));
+		scanRequest.setMonitorNamesPerScan(Arrays.asList("perScanMonitor1", "perScanMonitor2", "user"));
 
 		final File tmp = File.createTempFile("scan_nested_test", ".nxs");
 		tmp.deleteOnExit();
@@ -602,14 +617,38 @@ public class ScanProcessTest {
 			nf.openToRead();
 
 			final TreeFile nexusTree = NexusUtils.loadNexusTree(nf);
-			nf.close();
 			final NXroot root = (NXroot) nexusTree.getGroupNode();
 			final NXentry entry = root.getEntry();
 			final NXinstrument instrument = entry.getInstrument();
+
+			// check the NXpositioner for the monitor 'T' is present
 			final NXpositioner tPos = instrument.getPositioner("T");
-			final IDataset tempDataset = tPos.getValue();
-			assertThat(tempDataset, is(notNullValue()));
-			assertThat(tempDataset.getShape(), is(equalTo(new int[] { 6, 2, 2 })));
+			assertThat(tPos, is(notNullValue()));
+			final IDataset tPosValueDataset = tPos.getValue();
+			assertThat(tPosValueDataset, is(notNullValue()));
+			assertThat(tPosValueDataset.getRank(), is(3));
+			assertThat(tPosValueDataset.getShape(), is(equalTo(new int[] { 6, 2, 2 })));
+
+			for (String perScanMonitorName : scanRequest.getMonitorNamesPerScan()) {
+				if (perScanMonitorName.equals("user")) {
+					final NXuser user = entry.getUser(perScanMonitorName);
+					assertThat(user, is(notNullValue()));
+					final NexusMetadataDevice metadataDevice =
+							(NexusMetadataDevice) ServiceHolder.getNexusDeviceService().getNexusDevice(perScanMonitorName);
+					final Map<String, Object> userData = metadataDevice.getNexusMetadata();
+					assertEquals(userData.size(), user.getNumberOfDataNodes());
+					for (Map.Entry<String, Object> metadataEntry : userData.entrySet()) {
+						assertEquals(metadataEntry.getValue(), user.getString(metadataEntry.getKey()));
+					}
+				} else {
+					final NXpositioner pos = instrument.getPositioner(perScanMonitorName);
+					assertThat(pos, is(notNullValue()));
+					final IDataset posValueDataset = pos.getValue();
+					assertThat(posValueDataset, is(notNullValue()));
+					assertThat(posValueDataset.getRank(), is(0));
+					assertThat(posValueDataset.getShape(), is(new int[0]));
+				}
+			}
 
 			final NXdata mandelbrot = entry.getData("mandelbrot");
 			assertThat(mandelbrot, is(notNullValue()));

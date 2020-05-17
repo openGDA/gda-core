@@ -27,6 +27,7 @@ import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.json.MarshallerService;
 import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
+import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
@@ -106,6 +107,7 @@ public final class ServiceTestHelper {
 	private static ActivemqConnectorService activemqConnectorService;
 	private static EventServiceImpl eventServiceImpl;
 	private static IScannableDeviceService scannableDeviceService;
+	private static INexusDeviceService nexusDeviceService;
 	private static RunnableDeviceServiceImpl runnableDeviceServiceImpl;
 	private static IPointGeneratorService pointGeneratorService;
 	private static ValidatorService validatorService;
@@ -141,6 +143,7 @@ public final class ServiceTestHelper {
 		scannableDeviceService = createScannableConnectorService(remote);
 		runnableDeviceServiceImpl = new RunnableDeviceServiceImpl(scannableDeviceService);
 		pointGeneratorService = new PointGeneratorService();
+		nexusDeviceService = new NexusDeviceService();
 		validatorService = createValidatorService();
 		scriptService = new MockScriptService();
 		loaderService = new LoaderServiceMock();
@@ -169,6 +172,7 @@ public final class ServiceTestHelper {
 	private static void setupOESSSServices() {
 		final org.eclipse.scanning.server.servlet.Services services = new org.eclipse.scanning.server.servlet.Services();
 		services.setConnector(scannableDeviceService);
+		services.setNexusDeviceService(nexusDeviceService);
 		services.setEventService(eventServiceImpl);
 		services.setFilePathService(filePathService);
 		services.setGeneratorService(pointGeneratorService);
@@ -204,7 +208,7 @@ public final class ServiceTestHelper {
 		final org.eclipse.scanning.sequencer.ServiceHolder serviceHolder = new org.eclipse.scanning.sequencer.ServiceHolder();
 		serviceHolder.setEventService(eventServiceImpl);
 		serviceHolder.setFactory(new DefaultNexusBuilderFactory());
-		serviceHolder.setNexusDeviceService(new NexusDeviceService());
+		serviceHolder.setNexusDeviceService(nexusDeviceService);
 		serviceHolder.setFilePathService(filePathService);
 		serviceHolder.setGeneratorService(pointGeneratorService);
 		serviceHolder.setLoaderService(loaderService);

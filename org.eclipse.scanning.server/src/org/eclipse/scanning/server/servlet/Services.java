@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
@@ -43,6 +44,7 @@ public class Services {
 	private static IPointGeneratorService  generatorService;
 	private static IRunnableDeviceService  runnableDeviceService;
 	private static IScannableDeviceService connector;
+	private static INexusDeviceService     nexusDeviceService;
 	private static IFilePathService        filePathService;
 	private static IScriptService          scriptService;
 	private static IMessagingService       messagingService;
@@ -90,6 +92,14 @@ public class Services {
 
 	public void setConnector(IScannableDeviceService connector) {
 		Services.connector = connector;
+	}
+
+	public static INexusDeviceService getNexusDeviceService() {
+		return nexusDeviceService;
+	}
+
+	public void setNexusDeviceService(INexusDeviceService nexusDeviceService) {
+		Services.nexusDeviceService = nexusDeviceService;
 	}
 
 	public static IScriptService getScriptService() {

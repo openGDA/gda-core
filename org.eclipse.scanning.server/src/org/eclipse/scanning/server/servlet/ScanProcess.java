@@ -11,20 +11,24 @@
  *******************************************************************************/
 package org.eclipse.scanning.server.servlet;
 
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
+import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
 import org.eclipse.scanning.api.annotation.scan.PostConfigure;
@@ -225,6 +229,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 			checkAndFixMonitors(pointGenerator); // removes monitors that are also in the scan as scannables
 			return createScanModel(pointGenerator);
 		} catch (Exception e) {
+			if (e instanceof RuntimeException && e.getCause() instanceof Exception) e = (Exception) e.getCause();
 			// throw an exception when something goes wrong preparing the scan
 			final String errorMessage = "Could not run scan: " + e.getMessage();
 			updateBean(Status.FAILED, errorMessage);
@@ -479,15 +484,20 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 			configureDetectors(scanRequest.getDetectors(), scanModel);
 
 			final IPausableDevice<ScanModel> device = (IPausableDevice<ScanModel>) Services.getRunnableDeviceService().createRunnableDevice(scanModel, publisher, false);
-			final IDeviceController theController = Services.getWatchdogService().create(device, bean);
-			if (theController.getObjects() != null) {
-				scanModel.setAnnotationParticipants(theController.getObjects());
+			final IDeviceController deviceController = Services.getWatchdogService().create(device, bean);
+			if (deviceController.getObjects() != null && !deviceController.getObjects().isEmpty()) {
+				final List<Object> newAnnotationParticipants = new ArrayList<>();
+				if (scanModel.getAnnotationParticipants() != null) {
+					newAnnotationParticipants.addAll(scanModel.getAnnotationParticipants());
+				}
+				newAnnotationParticipants.add(deviceController.getObjects());
+				scanModel.setAnnotationParticipants(newAnnotationParticipants);
 			}
 
 			logger.debug("Configuring {} with {}", device.getName(), scanModel);
 			device.configure(scanModel);
 			logger.debug("Configured {}", device.getName());
-			return theController;
+			return deviceController;
 
 		} catch (EventException e) {
 			updateBean(Status.FAILED, e.getMessage());
@@ -499,7 +509,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 	}
 
 	private ScanModel createScanModel(IPointGenerator<? extends IScanPointGeneratorModel> generator)
-			throws GeneratorException, EventException {
+			throws GeneratorException, EventException, ScanningException {
 		// converts the ScanBean to a ScanModel
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setFilePath(bean.getFilePath());
@@ -512,7 +522,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 
 		// Note: no need to set the scannables as AcquisitionDevice can determine them from the point generator
 		scanModel.setMonitorsPerPoint(getScannables(req.getMonitorNamesPerPoint()));
-		scanModel.setMonitorsPerScan(getScannables(req.getMonitorNamesPerScan()));
+		configureMetadataDevices(scanModel, req);
 		scanModel.setScanMetadata(req.getScanMetadata());
 		scanModel.setTemplateFilePaths(req.getTemplateFilePaths());
 		scanModel.setBean(bean);
@@ -520,6 +530,17 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		final ScanInformation scanInfo = new ScanInformation(generator, req.getDetectors().values(), bean.getFilePath());
 		scanModel.setScanInformation(scanInfo);
 		return scanModel;
+	}
+
+	private void configureMetadataDevices(final ScanModel scanModel, final ScanRequest req) throws ScanningException {
+		if (req.getMonitorNamesPerScan() == null || req.getMonitorNamesPerScan().isEmpty()) return;
+
+		final Set<String> scannableNames = new HashSet<>(Services.getConnector().getScannableNames());
+		final Map<Boolean, List<String>> metadataNamesByIsScannable = req.getMonitorNamesPerScan().stream()
+				.collect(groupingBy(name -> scannableNames.contains(name)));
+
+		scanModel.setMonitorsPerScan(getScannables(metadataNamesByIsScannable.get(true)));
+		scanModel.setAnnotationParticipants(getNexusDevices(metadataNamesByIsScannable.get(false)));
 	}
 
 	private void configureDetectors(Map<String, Object> detectorModels, ScanModel model) throws Exception {
@@ -574,19 +595,22 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		}
 	}
 
-	private List<IScannable<?>> getScannables(Collection<String> scannableNames) throws EventException {
-		// used to get the monitors and the metadata scannables
-		if (scannableNames == null) {
-			return null;
-		}
+	private List<IScannable<?>> getScannables(Collection<String> scannableNames) {
+		if (scannableNames == null) return null;
+		return scannableNames.stream().map(this::getScannable).collect(toList());
+	}
+
+	private List<INexusDevice<?>> getNexusDevices(Collection<String> nexusDeviceNames) {
+		if (nexusDeviceNames == null) return null;
+		return nexusDeviceNames.stream().map(Services.getNexusDeviceService()::getNexusDevice).collect(toList());
+	}
+
+	private IScannable<?> getScannable(String name) {
+		// ScanningExceptions are wrapped in a RuntimeException so we this method with streams
 		try {
-			final List<IScannable<?>> ret = new ArrayList<>(3);
-			for (String name : scannableNames) {
-				ret.add(Services.getConnector().getScannable(name));
-			}
-			return ret;
-		} catch (ScanningException ne) {
-			throw new EventException(ne);
+			return Services.getConnector().getScannable(name);
+		} catch (ScanningException e) {
+			throw new RuntimeException(e);
 		}
 	}
 

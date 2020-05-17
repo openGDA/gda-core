@@ -16,7 +16,6 @@ import static java.util.stream.Collectors.toSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
@@ -203,7 +202,7 @@ public class NexusScanFileManager {
 		nexusDevices.put(ScanRole.SCANNABLE, toNexusDevices.apply(model.getScannables()));
 		nexusDevices.put(ScanRole.MONITOR_PER_POINT, toNexusDevices.apply(model.getMonitorsPerPoint()));
 		nexusDevices.put(ScanRole.MONITOR_PER_SCAN, toNexusDevices.apply(model.getMonitorsPerScan()));
-		nexusDevices.put(ScanRole.NONE, Collections.emptyList());
+		nexusDevices.put(ScanRole.NONE, toNexusDevices.apply(model.getAnnotationParticipants()));
 
 		return nexusDevices;
 	}
