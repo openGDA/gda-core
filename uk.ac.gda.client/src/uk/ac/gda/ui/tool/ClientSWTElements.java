@@ -359,7 +359,12 @@ public final class ClientSWTElements {
 	 * @return the required image
 	 */
 	public static Image getImage(ClientImages image) {
-		return GDAClientActivator.getImageDescriptor(image.getImagePath()).createImage();
+		try {
+			return Optional.ofNullable(GDAClientActivator.getImageDescriptor(image.getImagePath()))
+					.orElseThrow(Exception::new).createImage();
+		} catch (Exception e) {
+			return getImage(ClientImages.NO_IMAGE);
+		}
 	}
 
 	public static void changeVAlignement(Control control, int vAlignement) {
@@ -477,6 +482,21 @@ public final class ClientSWTElements {
 		gdf.minSize(minSize.orElse(DEFAULT_BUTTON_SIZE));
 		gdf.applyTo(control);
 		return gdf;
+	}
+
+	/**
+	 * Change a {@link Composite} item minSize using its existing {@link GridDataFactory}
+	 *
+	 * @param composite
+	 * @param width
+	 * @param height
+	 */
+	public static void gridMargin(final Composite composite, final int width, final int height) {
+		if (GridLayoutFactory.class.isInstance(composite.getLayout())) {
+			GridLayoutFactory glf = GridLayoutFactory.class.cast(composite.getLayout());
+			glf.margins(width, height);
+			glf.applyTo(composite);
+		}
 	}
 
 }

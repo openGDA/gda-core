@@ -68,6 +68,7 @@ Eclipse-RegisterBuddy: uk.ac.gda.core
 Export-Package: uk.ac.diamond.daq.mapping.ui,
  uk.ac.diamond.daq.mapping.ui.browser,
  uk.ac.diamond.daq.mapping.ui.diffraction.base,
+ uk.ac.diamond.daq.mapping.ui.diffraction.model,
  uk.ac.diamond.daq.mapping.ui.document,
  uk.ac.diamond.daq.mapping.ui.document.scanpath,
  uk.ac.diamond.daq.mapping.ui.experiment,
