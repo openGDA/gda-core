@@ -26,6 +26,7 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyDataset;
 import org.junit.Test;
 
+import uk.ac.diamond.scisoft.analysis.IOTestUtils;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.SliceUtils;
 
@@ -42,7 +43,7 @@ public class SliceTest {
 		final SliceObject currentSlice = new SliceObject();
 		currentSlice.setAxes(Arrays.asList(new IDataset[]{SliceUtils.createAxisDataset(61), SliceUtils.createAxisDataset(171)}));
 		currentSlice.setName("NXdata.data");
-        currentSlice.setPath(System.getProperty("GDALargeTestFilesLocation")+"NexusUITest/DCT_201006-good.h5");
+		currentSlice.setPath(IOTestUtils.getGDALargeTestFilesLocation() + "NexusUITest/DCT_201006-good.h5");
 		currentSlice.setSliceStart(new int[]{0, 0, 500});
 		currentSlice.setSliceStop(new int[]{61, 171, 600});
 		currentSlice.setSliceStep(new int[]{1, 1, 10});
@@ -73,7 +74,7 @@ public class SliceTest {
 		final SliceObject currentSlice = new SliceObject();
 		currentSlice.setAxes(Arrays.asList(new IDataset[]{SliceUtils.createAxisDataset(61), SliceUtils.createAxisDataset(171)}));
 		currentSlice.setName("NXdata.data");
-		currentSlice.setPath(System.getProperty("GDALargeTestFilesLocation")+"NexusUITest/DCT_201006-good.h5");
+		currentSlice.setPath(IOTestUtils.getGDALargeTestFilesLocation() + "NexusUITest/DCT_201006-good.h5");
 		currentSlice.setSliceStart(new int[]{0, 0, 600});
 		currentSlice.setSliceStop(new int[]{61, 171, 500});
 		currentSlice.setSliceStep(new int[]{1, 1, -5});
@@ -106,7 +107,7 @@ public class SliceTest {
 		final SliceObject currentSlice = new SliceObject();
 		currentSlice.setAxes(Arrays.asList(new IDataset[]{SliceUtils.createAxisDataset(225), SliceUtils.createAxisDataset(1481)}));
 		currentSlice.setName("NXdata.data");
-		currentSlice.setPath(System.getProperty("GDALargeTestFilesLocation")+"NexusUITest/sino.h5");
+		currentSlice.setPath(IOTestUtils.getGDALargeTestFilesLocation() + "NexusUITest/sino.h5");
 		currentSlice.setSliceStart(new int[]{4, 0, 0});
 		currentSlice.setSliceStop(new int[]{5, 225, 1481});
 		currentSlice.setSliceStep(new int[]{1, 1, 1});
