@@ -22,7 +22,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.eclipse.e4.ui.di.Focus;
-import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
@@ -31,6 +30,9 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -42,12 +44,14 @@ import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
+import gda.device.DeviceException;
+import gda.device.Monitor;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.factory.Finder;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.ImageMode;
 import uk.ac.gda.client.livecontrol.ControlSet;
-import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
+import uk.ac.gda.sisa.Activator;
 
 public class AnalyserControlPart {
 
@@ -55,25 +59,31 @@ public class AnalyserControlPart {
 	final Color red = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
 	final Color green = Display.getCurrent().getSystemColor(SWT.COLOR_GREEN);
 	final Color transparent = SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT);
+	final Image lightOn = Activator.getImage("/icons/red-dome-light-on.png");
+	final Image lightOff = Activator.getImage("/icons/red-dome-light-off.png");
+	
 
 	private Composite parent;
 	
-	private final AlignmentConfiguration alignmentControls;
+	private final AlignmentConfiguration alignmentConfig;
 	private final CameraControl eavCameraControl;
+	
+	Button cameraButton;
+	Button accumulationButton;
 
 	@Inject
 	public AnalyserControlPart() {
 		logger.trace("Constructor called");
 
 		try {
-			alignmentControls = Finder.getInstance().findSingleton(AlignmentConfiguration.class);
+			alignmentConfig = Finder.getInstance().findSingleton(AlignmentConfiguration.class);
 		} catch (IllegalArgumentException exception) {
 			String msg = "No AlignmentConfiguration was found! (Or more than 1)";
 			logger.error(msg);
 			throw new RuntimeException(msg);
 		}
 		
-		eavCameraControl = alignmentControls.getAnalyserEavControl();
+		eavCameraControl = alignmentConfig.getAnalyserEavControl();
 	}
 
 	@PostConstruct
@@ -107,100 +117,162 @@ public class AnalyserControlPart {
 		
 		Group group = new Group(composite, SWT.NONE);
 		group.setLayout(groupRowLayout);
-		
-		addCameraStartButton(group);
-		addAnalyserStopButton(group);
-		addAccumulationStartButton(group);
-		addAccumulationStopButton(group);
-	}
 				
-	private void addCameraStartButton(Composite composite) {
-		Button startButton = new Button(composite, SWT.PUSH);
-		startButton.setText("Start Camera");
-		setTextToBold(startButton);
-		startButton.setBackground(green);
-		startButton.setToolTipText("Apply voltages and start acquiring");
-		startButton.addSelectionListener(new SelectionAdapter() {
+		addCameraButton(group);
+		addAccumulationButton(group);
+	}
+			
+	private void addCameraButton(Composite composite) {
+		cameraButton = new Button(composite, SWT.TOGGLE);
+		cameraButton.setText("Camera");
+		setTextToBold(cameraButton);
+		
+		RowData rowData = new RowData();
+		rowData.width = 200;
+		cameraButton.setLayoutData(rowData);
+		
+		cameraButton.addSelectionListener(new SelectionAdapter() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				logger.debug("Starting fixed mode acquistion");
-				try {
-					eavCameraControl.setImageMode(ImageMode.CONTINUOUS);
-					eavCameraControl.startAcquiring();
-				} catch (Exception ex) {
-					logger.error("Failed to start fixed mode acquisition or live viewer", ex);
+			public void widgetSelected(SelectionEvent e) {	
+				if (cameraButton.getSelection()) {
+					startCameraAcquisition();
+				} else {
+					stopCameraAcquisition();
 				}
-			}
+			}	
 		});
+	
+		Monitor acquireStatus = alignmentConfig.getEavAcquiringStatusMonitor();
+		acquireStatus.addIObserver(this::updateCameraButtonState);
+		
+		try {
+			updateCameraButtonState((String)(acquireStatus).getPosition());
+		} catch (DeviceException exception) {
+			logger.error("Unable to set initial status of camera button - error getting current status.", exception);
+		}
+	}
+		
+	private void startCameraAcquisition() {
+		try {
+			logger.info("Starting continuous acquisition.");
+			eavCameraControl.setImageMode(ImageMode.CONTINUOUS);
+			eavCameraControl.startAcquiring();
+		} catch (Exception ex) {
+			logger.error("Failed to start fixed mode acquisition or live viewer", ex);
+		}
 	}
 	
-	private void addAnalyserStopButton(Composite composite) {
-		Button stopButton = new Button(composite, SWT.PUSH);
-		stopButton.setText("Stop Camera");
-		setTextToBold(stopButton);
-		stopButton.setBackground(red);
-		stopButton.setToolTipText("Stop acquiring and zero supplies");
-		stopButton.addSelectionListener(new SelectionAdapter() {
+	private void stopCameraAcquisition() {
+		try {
+			logger.info("Stopping continuous acquisition.");
+			eavCameraControl.stopAcquiring();
+		} catch (Exception ex) {
+			logger.error("Failed to stop analyser or live viewer", ex);
+		}
+	}
+	
+	private void updateCameraButtonState(Object source, Object arg) {
+		if (arg instanceof String) {
+			updateCameraButtonState((String)arg);
+		}
+	}
+	
+	private void updateCameraButtonState(String acquireStatus) {
+		if (acquireStatus.equals("Acquire")) {
+			Display.getDefault().asyncExec(() -> {
+				cameraButton.setSelection(true);
+				cameraButton.setImage(lightOn);
+				cameraButton.setToolTipText("Stop analyser live stream");
+			});
+		} else {
+			Display.getDefault().asyncExec(() -> {
+				cameraButton.setSelection(false);
+				cameraButton.setImage(lightOff);				
+				cameraButton.setToolTipText("Start analyser live stream");
+			});			
+		}	
+	}
+		
+	private void addAccumulationButton(Composite composite) {
+		accumulationButton = new Button(composite, SWT.TOGGLE);
+		accumulationButton.setText("Accumulation");
+		setTextToBold(accumulationButton);
+		
+		RowData rowData = new RowData();
+		rowData.width = 200;
+		accumulationButton.setLayoutData(rowData);
+		
+		accumulationButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				logger.info("Stopping continuous acquistion");
-				try {
-					eavCameraControl.stopAcquiring();
-				} catch (Exception ex) {
-					logger.error("Failed to stop analyser or live viewer", ex);
+				if (accumulationButton.getSelection()) {
+					startAccumulation();
+				} else {
+					stopAccumulation();
 				}
 			}
 		});	
+		
+		Monitor accumulationStatus = alignmentConfig.getEavAccumulationStatusMonitor();
+		accumulationStatus.addIObserver(this::updateAccumulationButtonState);
+		
+		try {
+			updateAccumulationButtonState((String)(accumulationStatus).getPosition());
+		} catch (DeviceException exception) {
+			logger.error("Unable to set initial status of accumulation button - error getting current status.", exception);
+		}
 	}
 	
-	private void addAccumulationStartButton(Composite composite) {
-		Button accumulationStartButton = new Button(composite, SWT.PUSH);
-		accumulationStartButton.setText("Start/Reset Accumulation");
-		setTextToBold(accumulationStartButton);
-		accumulationStartButton.setBackground(green);
-		accumulationStartButton.setToolTipText("Enable accumulation or reset the current accumulation");
-		accumulationStartButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				logger.info("Starting accumulation");
-				try {
-					eavCameraControl.setProcessingFilterType(NDProcess.FilterTypeV1_8_Sum);
-					eavCameraControl.resetFilter();
-					eavCameraControl.enableProcessingFilter();				
-				} catch (Exception ex) {
-					logger.error("Failed to stop analyser or live viewer", ex);
-				}
-			}
-		});	
+	private void updateAccumulationButtonState(Object source, Object arg) {
+		if (arg instanceof String) {
+			updateAccumulationButtonState((String)arg);
+		}
 	}
 	
-	private void addAccumulationStopButton(Composite composite) {
-		Button accumulationStopButton = new Button(composite, SWT.PUSH);
-		accumulationStopButton.setText("Stop Accumulation");
-		setTextToBold(accumulationStopButton);
-		accumulationStopButton.setBackground(red);
-		accumulationStopButton.setToolTipText("Disable accumulation");
-		accumulationStopButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				logger.info("Stopping accumulation");
-				try {
-					eavCameraControl.disableProcessingFilter();
-					eavCameraControl.resetFilter();
-				} catch (Exception ex) {
-					logger.error("Failed to stop analyser or live viewer", ex);
-				}
-			}
-		});	
+	private void updateAccumulationButtonState(String accumulationStatus) {
+		if (accumulationStatus.equals("Enable")) {
+			Display.getDefault().asyncExec(() -> {
+				accumulationButton.setSelection(true);
+				accumulationButton.setImage(lightOn);
+				accumulationButton.setToolTipText("Disable the accumulation filter");
+			});
+		} else {
+			Display.getDefault().asyncExec(() -> {
+				accumulationButton.setSelection(false);
+				accumulationButton.setImage(lightOff);
+				accumulationButton.setToolTipText("Enable the accumulation filter");
+			});
+		}
+	}
+	
+	private void startAccumulation() {
+		logger.info("Starting accumulation");
+		try {
+			eavCameraControl.setProcessingFilterType(NDProcess.FilterTypeV1_8_Sum);
+			eavCameraControl.resetFilter();
+			eavCameraControl.enableProcessingFilter();				
+		} catch (Exception ex) {
+			logger.error("Failed to stop analyser or live viewer", ex);
+		}
+	}
+	
+	private void stopAccumulation() {
+		logger.info("Stopping accumulation");
+		try {
+			eavCameraControl.disableProcessingFilter();
+			eavCameraControl.resetFilter();
+		} catch (Exception ex) {
+			logger.error("Failed to stop analyser or live viewer", ex);
+		}
 	}
 		
 	private void addLiveControls(Composite composite) {
-		if (alignmentControls.hasAnalyserControls()) {
-			addControlGroup(composite, "Analyser Controls", alignmentControls.getAnalyserControls());
+		if (alignmentConfig.hasAnalyserControls()) {
+			addControlGroup(composite, "Analyser Controls", alignmentConfig.getAnalyserControls());
 		}
 		
-		if (alignmentControls.hasSampleControls()) {
-			addControlGroup(composite, "Sample Controls", alignmentControls.getSampleControls());
+		if (alignmentConfig.hasSampleControls()) {
+			addControlGroup(composite, "Sample Controls", alignmentConfig.getSampleControls());
 		}
 	}
 	

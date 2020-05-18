@@ -3,6 +3,9 @@ package uk.ac.gda.sisa.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import gda.device.Monitor;
+import gda.device.Scannable;
+import gda.device.monitor.EpicsMonitor;
 import gda.factory.Findable;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.livecontrol.ControlSet;
@@ -14,7 +17,9 @@ public class AlignmentConfiguration implements Findable {
 	private ControlSet analyserControls;
 	private ControlSet sampleControls;
 	private CameraControl analyserEavControl;
-	private List<AlignmentStat> alignmentStats = new ArrayList<AlignmentStat>();
+	private List<AlignmentStat> alignmentStats = new ArrayList<>();
+	private Monitor eavAcquiringStatusMonitor;
+	private Monitor eavAccumulationStatusMonitor;
 	
 	@Override
 	public void setName(String name) {
@@ -64,5 +69,21 @@ public class AlignmentConfiguration implements Findable {
 
 	public void setAlignmentStats(List<AlignmentStat> alignmentStats) {
 		this.alignmentStats = alignmentStats;
+	}
+
+	public Monitor getEavAcquiringStatusMonitor() {
+		return eavAcquiringStatusMonitor;
+	}
+
+	public void setEavAcquiringStatusMonitor(Monitor eavAcquiringStatusMonitor) {
+		this.eavAcquiringStatusMonitor = eavAcquiringStatusMonitor;
+	}
+
+	public Monitor getEavAccumulationStatusMonitor() {
+		return eavAccumulationStatusMonitor;
+	}
+
+	public void setEavAccumulationStatusMonitor(Monitor eavAccumulationStatusMonitor) {
+		this.eavAccumulationStatusMonitor = eavAccumulationStatusMonitor;
 	}
 }

@@ -16,7 +16,8 @@ Require-Bundle: org.eclipse.swt;bundle-version="3.104.2",
  uk.ac.gda.core;bundle-version="9.4.0",
  uk.ac.gda.client;bundle-version="9.7.0",
  slf4j.api,
- org.opengda.detector.electronanalyser
+ org.opengda.detector.electronanalyser,
+ uk.ac.gda.epics
 Bundle-ManifestVersion: 2
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: gda.device.detector.areadetector.v17,
@@ -30,3 +31,5 @@ Import-Package: gda.device.detector.areadetector.v17,
  uk.ac.gda.client.live.stream.view,
  uk.ac.gda.devices.vgscienta
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
+Bundle-Activator: uk.ac.gda.sisa.Activator
+Bundle-ActivationPolicy: lazy

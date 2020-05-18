@@ -26,6 +26,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.slf4j.Logger;
@@ -88,9 +89,13 @@ public class ImageStatsDisplayPart {
 		meanCount.setScannable(alignmentStat.getScannable());
 		meanCount.setTextWidth(260);
 		meanCount.setDisplayName(alignmentStat.getLabel());
-		meanCount.setValueSize(24);
+		meanCount.setValueSize(18);
 		meanCount.setValueColour(SWT.COLOR_DARK_BLUE);
-		meanCount.setLabelSize(24);
+		meanCount.setLabelSize(18);
+		
+		GridData gridData = GridDataFactory.swtDefaults().hint(500,  30).create();
+		meanCount.setLayoutData(gridData);
+		
 	}
 
 	 @Focus
