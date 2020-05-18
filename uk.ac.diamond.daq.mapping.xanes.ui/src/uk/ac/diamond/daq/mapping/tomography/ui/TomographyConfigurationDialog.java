@@ -93,6 +93,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.IScannableMotor;
 import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
@@ -584,6 +585,7 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 	private String selectPositionsFile(int style) {
 		final FileDialog fileDialog = new FileDialog(getShell(), style);
 		fileDialog.setText(getClientMessage(SELECT_CONFIGURATION));
+		fileDialog.setFilterPath(InterfaceProvider.getPathConstructor().getClientVisitDirectory());
 		fileDialog.setFilterExtensions(new String[] { "*.pos", "*.*" });
         fileDialog.setFilterNames(new String[] { "Stage positions(*.pos)", "All files(*.*)" });
 
