@@ -53,7 +53,7 @@ public class CameraImageComposite extends Composite {
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(plottingComposite);
 
 		// Registers the region into the camera
-		SpringApplicationContextProxy.addApplicationListener(registerDrawableRegionListener(this));
+		SpringApplicationContextProxy.addDisposableApplicationListener(this, registerDrawableRegionListener(this));
 
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(this);
 		logger.debug("CameraImageComposite created");

@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.XAxisLineBoxROI;
@@ -54,7 +53,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
 import uk.ac.diamond.scisoft.analysis.plotclient.ScriptingConnection;
-import uk.ac.gda.client.event.RootCompositeAware;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
 import uk.ac.gda.client.live.stream.LiveStreamConnection.IAxisChangeListener;
@@ -140,11 +138,8 @@ public class LivePlottingComposite extends Composite {
 		super(parent, style);
 		this.liveStreamConnection = liveStreamConnection;
 		setLayout(new FillLayout());
-		SpringApplicationContextProxy.addApplicationListener(openConnectionListener);
-		SpringApplicationContextProxy.addApplicationListener(closeConnectionListener);
-		addDisposeListener(e -> {
-			this.dispose();
-		});
+		SpringApplicationContextProxy.addDisposableApplicationListener(this, openConnectionListener);
+		SpringApplicationContextProxy.addDisposableApplicationListener(this, closeConnectionListener);
 	}
 
 	private void preparePlottingSystem(String plotName, IActionBars actionBars, IWorkbenchPart part)
@@ -162,6 +157,7 @@ public class LivePlottingComposite extends Composite {
 			if (this.liveStreamConnection != null && this.liveStreamConnection.isConnected()) {
 				activatePlottingSystem();
 			}
+
 		} catch (Exception e) {
 			throw new GDAClientException(e);
 		}
@@ -353,10 +349,6 @@ public class LivePlottingComposite extends Composite {
 		}
 	}
 
-	private boolean processEvent(RootCompositeAware event, UUID uuidRoot) {
-			return uuidRoot.equals(event.getRootComposite());
-	}
-
 	private IDataListener updateDataShapeChangeListener() {
 		dataShapeChangeListener = new IDataListener() {
 			private int[] oldShape;
@@ -428,7 +420,7 @@ public class LivePlottingComposite extends Composite {
 	ApplicationListener<ListenToConnectionEvent> openConnectionListener = new ApplicationListener<ListenToConnectionEvent>() {
 		@Override
 		public void onApplicationEvent(ListenToConnectionEvent event) {
-			if (!ClientSWTElements.findParentUUID(getParent()).map(uuid -> processEvent(event, uuid)).orElse(false)) {
+			if (!event.haveSameParent(getParent())) {
 				return;
 			}
 			if (LiveStreamConnection.class.isAssignableFrom(event.getSource().getClass())) {
@@ -449,7 +441,7 @@ public class LivePlottingComposite extends Composite {
 			if (isDisposed() || getParent().isDisposed()) {
 				return;
 			}
-			if (!ClientSWTElements.findParentUUID(getParent()).map(uuid -> processEvent(event, uuid)).orElse(false)) {
+			if (!event.haveSameParent(getParent())) {
 				return;
 			}
 			if (LiveStreamConnection.class.isAssignableFrom(event.getSource().getClass())) {
@@ -457,4 +449,5 @@ public class LivePlottingComposite extends Composite {
 			}
 		}
 	};
+
 }

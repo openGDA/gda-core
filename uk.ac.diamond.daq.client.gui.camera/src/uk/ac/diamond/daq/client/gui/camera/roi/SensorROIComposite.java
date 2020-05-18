@@ -74,9 +74,9 @@ public class SensorROIComposite implements CompositeFactory {
 		updateCamera(CameraHelper.getDefaultCameraProperties().getIndex());
 
 		try {
-			SpringApplicationContextProxy.addApplicationListener(regionRegisteredEventListener(parent));
-			SpringApplicationContextProxy.addApplicationListener(getROIChangeListener(parent));
-			SpringApplicationContextProxy.addApplicationListener(getChangeCameraListener(parent));
+			SpringApplicationContextProxy.addDisposableApplicationListener(table, regionRegisteredEventListener(parent));
+			SpringApplicationContextProxy.addDisposableApplicationListener(table, getROIChangeListener(parent));
+			SpringApplicationContextProxy.addDisposableApplicationListener(table, getChangeCameraListener(parent));
 
 			SpringApplicationContextProxy
 					.publishEvent(new RegisterDrawableRegionEvent(this, SWTResourceManager.getColor(SWT.COLOR_GREEN),

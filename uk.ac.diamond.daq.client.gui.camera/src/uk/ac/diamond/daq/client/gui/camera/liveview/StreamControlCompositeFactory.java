@@ -48,7 +48,7 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		Composite streamControlArea = ClientSWTElements.createComposite(parent, SWT.NONE, 3);
+		Composite streamControlArea = ClientSWTElements.createComposite(parent, SWT.NONE);
 
 		Composite cameraComboArea = ClientSWTElements.createComposite(streamControlArea, SWT.NONE);
 		ClientSWTElements.createLabel(cameraComboArea, SWT.NONE, ClientMessages.CAMERA, new Point(2, 1));
