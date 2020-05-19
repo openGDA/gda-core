@@ -16,9 +16,6 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- *
- */
 package gda.device.scannable;
 
 import static tec.units.indriya.AbstractUnit.ONE;
@@ -39,7 +36,6 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 import gda.util.QuantityFactory;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
@@ -59,7 +55,6 @@ public class CoupledScannable extends ScannableMotionUnitsBase {
 
 	protected List<Scannable> theScannables = new ArrayList<>();
 	private List<Function<Quantity<? extends Quantity<?>>, Quantity<? extends Quantity<?>>>> theFunctions = new ArrayList<>();
-	private List<String> scannableNames;
 
 	/**
 	 * Keeps track of whether each of the underlying scannables is moving, if this scannable is moved.
@@ -75,18 +70,6 @@ public class CoupledScannable extends ScannableMotionUnitsBase {
 	public void configure() throws FactoryException {
 		if (isConfigured()) {
 			return;
-		}
-		// fill the array of Scannables
-		final Finder finder = Finder.getInstance();
-		if (scannableNames != null && !scannableNames.isEmpty()) {
-			for (String name : scannableNames) {
-				final Scannable scannable = finder.find(name);
-
-				if (scannable == null) {
-					logger.warn("Error during configure of {}: scannable {} could not be found!", getName(), name);
-				}
-				theScannables.add(scannable);
-			}
 		}
 
 		// If functions are defined (which is preferred), check that there are the same number of functions & scannables
@@ -156,30 +139,10 @@ public class CoupledScannable extends ScannableMotionUnitsBase {
 		return theFunctions;
 	}
 
-	/**
-	 * @return the names of the Scannables this uses
-	 */
-	public List<String> getScannableNames() {
-		return scannableNames;
-	}
-
-	/**
-	 * Sets the scannable names for this coupled scannable.
-	 *
-	 * @param scannableNames
-	 *            the scannable names
-	 */
-	public void setScannableNames(List<String> scannableNames) {
-		logger.warn("Call to setScannableNames() in '{}' is deprecated. This function will be removed in GDA 9.11", getName());
-		logger.warn("Use setScannables() instead and pass in actual Scannable objects");
-		this.scannableNames = new ArrayList<>(scannableNames);
-	}
-
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		asynchronousMoveTo(position);
 	}
-
 
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {

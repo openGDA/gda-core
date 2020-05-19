@@ -21,7 +21,6 @@ package gda.util;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.function.Function;
@@ -62,14 +61,6 @@ public class CollectionSetterTest {
 		NexusMetadataEntry entry = new NexusMetadataEntry();
 		nmr.setNexusMetadataEntries(asList(entry));
 		assertEquals(1, nmr.getNexusMetadataEntries().size());
-	}
-
-	@Test
-	public void testCoupledScannableScannableNames() {
-		CoupledScannable cs = new CoupledScannable();
-		assertNull(cs.getScannableNames());
-		cs.setScannableNames(asList("one", "two", "three"));
-		assertEquals(3, cs.getScannableNames().size());
 	}
 
 	@Test

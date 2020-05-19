@@ -38,11 +38,8 @@ import javax.measure.quantity.Length;
 import org.junit.Before;
 import org.junit.Test;
 
-import gda.TestHelpers;
 import gda.device.DeviceException;
-import gda.factory.Factory;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 import gda.function.IdentityFunction;
 import gda.observable.IObserver;
 import tec.units.indriya.quantity.Quantities;
@@ -142,30 +139,6 @@ public class CoupledScannableTest {
 		coupled.setName("testCoupledScannable");
 		coupled.setUserUnits("mm");
 		coupled.setScannables(asList(dummyScannable1, dummyScannable2));
-		coupled.setFunctions(asList(mockFunction1, mockFunction2));
-		coupled.configure();
-
-		coupled.moveTo(15.7);
-
-		assertEquals("mm", dummyScannable1.getHardwareUnitString());
-		assertEquals(123.0, (double) dummyScannable1.getPosition(), FP_TOLERANCE);
-
-		assertEquals("nm", dummyScannable2.getHardwareUnitString());
-		assertEquals(78.9, (double) dummyScannable2.getPosition(), FP_TOLERANCE);
-	}
-
-	@Test
-	public void testSetScannablesFromFinder() throws Exception {
-		final Factory testFactory = TestHelpers.createTestFactory();
-		testFactory.addFindable(dummyScannable1);
-		testFactory.addFindable(dummyScannable2);
-
-		Finder.getInstance().addFactory(testFactory);
-
-		final CoupledScannable coupled = new CoupledScannable();
-		coupled.setName("testCoupledScannable");
-		coupled.setUserUnits("mm");
-		coupled.setScannableNames(asList("s1", "s2"));
 		coupled.setFunctions(asList(mockFunction1, mockFunction2));
 		coupled.configure();
 
