@@ -130,7 +130,7 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		bindElements();
 		initialiseElements();
 		try {
-			SpringApplicationContextProxy.addApplicationListener(new LoadListener(composite));
+			SpringApplicationContextProxy.addDisposableApplicationListener(composite, new LoadListener(composite));
 		} catch (GDAClientException e) {
 			UIHelper.showWarning("Loading a file will not refresh the gui", "Spring application listener not registered");
 		}
