@@ -7,18 +7,18 @@ from __future__ import print_function
 from org.eclipse.scanning.sequencer import ServiceHolder
 
 watchdogService = ServiceHolder.getWatchdogService()
-topupWatchdog = watchdogService.getWatchdog("TopupWatchdog")
-expressionWatchdog = watchdogService.getWatchdog("ExpressionWatchdog")
+topup_watchdog = watchdogService.getWatchdog("topup_watchdog")
+beam_available_watchdog = watchdogService.getWatchdog("beam_available_watchdog")
 
 def enableWatchdogs():
     """Enables TopUp and Expression watchdogs"""
-    topupWatchdog.setEnabled(True)
-    expressionWatchdog.setEnabled(True)
+    topup_watchdog.setEnabled(True)
+    beam_available_watchdog.setEnabled(True)
 
 def disableWatchdogs():
     """Disables TopUp and Expression watchdogs"""
-    topupWatchdog.setEnabled(False)
-    expressionWatchdog.setEnabled(False)
+    topup_watchdog.setEnabled(False)
+    beam_available_watchdog.setEnabled(False)
 
 def listWatchdogs():
     """Function to print a list of watchdogs, highlighting those that are enabled
