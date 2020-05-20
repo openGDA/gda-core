@@ -116,7 +116,6 @@ public class LazyPVFactory {
 
 	public static PV<Integer> newIntegerFromEnumPV(String pvName) {
 		LazyPV<Integer> pv = new LazyPV<Integer>(EPICS_CONTROLLER, pvName, Integer.class);
-		pv.setShowTypeMismatchWarnings(false);
 		return pv;
 	}
 
@@ -135,7 +134,6 @@ public class LazyPVFactory {
 
 	public static PV<String> newStringFromEnumPV(String pvName) {
 		LazyPV<String> pv = new LazyPV<String>(EPICS_CONTROLLER, pvName, String.class);
-		pv.setShowTypeMismatchWarnings(false);
 		return pv;
 	}
 
@@ -178,7 +176,6 @@ public class LazyPVFactory {
 	// NOTE: just uses a short under the covers, so there is no enumType parameter
 	public static PV<Boolean> newBooleanFromEnumPV(String pvName) {
 		LazyPV<Short> pv = new LazyPV<Short>(EPICS_CONTROLLER, pvName, Short.class);
-		pv.setShowTypeMismatchWarnings(false);
 		return new BooleanFromShort(pv);
 	}
 
@@ -295,7 +292,6 @@ public class LazyPVFactory {
 
 	public static ReadOnlyPV<String> newReadOnlyStringFromEnumPV(String pvName) {
 		final LazyPV<String> pv = new LazyPV<String>(EPICS_CONTROLLER, pvName, String.class);
-		pv.setShowTypeMismatchWarnings(false);
 		final ReadOnly<String> readOnlyPv = new ReadOnly<String>(pv);
 		return readOnlyPv;
 	}
@@ -384,8 +380,6 @@ public class LazyPVFactory {
 
 		private PVMonitor<T> observableMonitor;
 
-		private boolean showTypeMismatchWarnings = true;
-
 		LazyPV(EpicsController controller, String pvName, Class<T> javaType) {
 			this.controller = controller;
 			this.pvName = pvName;
@@ -407,10 +401,6 @@ public class LazyPVFactory {
 					logger.error("Could not connect to channel  : '" + pvName + "'", e);
 				}
 			}
-		}
-
-		void setShowTypeMismatchWarnings(boolean showTypeMismatchWarnings) {
-			this.showTypeMismatchWarnings = showTypeMismatchWarnings;
 		}
 
 		@Override
@@ -620,11 +610,6 @@ public class LazyPVFactory {
 			if (channel == null) {
 				try {
 					channel = (controller.createChannel(pvName));
-					if (showTypeMismatchWarnings && channel.getFieldType() != dbrType) {
-						logger.warn(format(
-								"The pv ''{0}'' was expecting a channel of DBR type {1}, but the channel was discovered at runtime to be of DBR type {2}",
-								pvName, javaType, channel.getFieldType()));
-					}
 				} catch (CAException e) {
 					throw new IOException("Epics problem creating channel for pv '" + pvName + "'", e);
 				} catch (gov.aps.jca.TimeoutException e) {
