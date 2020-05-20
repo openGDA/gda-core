@@ -150,11 +150,11 @@ class DeviceController implements IDeviceController {
 
 	@Override
 	public boolean isActive() {
-		boolean is = true;
-		for (Object object : objects) {
-			if (object instanceof IDeviceWatchdog) is = is && ((IDeviceWatchdog)object).isActive();
-		}
-		return is;
+		// All watchdogs must be active for the overall controller to be active
+		return objects.stream()
+				.filter(IDeviceWatchdog.class::isInstance)
+				.map(IDeviceWatchdog.class::cast)
+				.allMatch(IDeviceWatchdog::isActive);
 	}
 
 	@Override

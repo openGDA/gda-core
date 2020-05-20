@@ -13,6 +13,7 @@ package org.eclipse.scanning.api.device;
 
 import java.util.List;
 
+import org.eclipse.scanning.api.device.models.IDeviceWatchdogModel;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 
 /**
@@ -61,13 +62,13 @@ public interface IDeviceWatchdogService {
 	 * Call to add a watchdog to a scan
 	 * @param dog
 	 */
-	void register(IDeviceWatchdog dog);
+	void register(IDeviceWatchdog<? extends IDeviceWatchdogModel> dog);
 
 	/**
 	 * Call to remove a watchdog from a scan
 	 * @param dog
 	 */
-	void unregister(IDeviceWatchdog dog);
+	void unregister(IDeviceWatchdog<? extends IDeviceWatchdogModel> dog);
 
 	/**
 	 * Initiate a list of dogs to run with
@@ -91,7 +92,7 @@ public interface IDeviceWatchdogService {
 	 * @param name
 	 * @return the watchdog with this name
 	 */
-	IDeviceWatchdog getWatchdog(String name);
+	IDeviceWatchdog<? extends IDeviceWatchdogModel> getWatchdog(String name);
 
 	/**
 	 *

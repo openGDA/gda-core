@@ -24,6 +24,7 @@ import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IDeviceWatchdog;
 import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IPausableDevice;
+import org.eclipse.scanning.api.device.models.IDeviceWatchdogModel;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ public class DeviceWatchdogService implements IDeviceWatchdogService {
 
 	private static final String WATCHDOGS_ACTIVE_PROPERTY_NAME = "org.eclipse.scanning.watchdogs.active";
 
-	private Map<String, IDeviceWatchdog> templates = Collections.synchronizedMap(new LinkedHashMap<>(3));
+	private Map<String, IDeviceWatchdog<? extends IDeviceWatchdogModel>> templates = Collections.synchronizedMap(new LinkedHashMap<>(3));
 
 	static {
 		if (System.getProperty(WATCHDOGS_ACTIVE_PROPERTY_NAME)==null) {
@@ -43,14 +44,14 @@ public class DeviceWatchdogService implements IDeviceWatchdogService {
 	}
 
 	@Override
-	public void register(IDeviceWatchdog dog) {
+	public void register(IDeviceWatchdog<? extends IDeviceWatchdogModel> dog) {
 		if (templates.containsKey(dog.getName()))
 			throw new IllegalArgumentException("The watchdog name '"+dog.getName()+"' is already registered! A watchdog with a given name may only be registered once.");
 		templates.put(dog.getName(), dog);
 	}
 
 	@Override
-	public void unregister(IDeviceWatchdog dog) {
+	public void unregister(IDeviceWatchdog<? extends IDeviceWatchdogModel> dog) {
 		templates.remove(dog.getName());
 	}
 
@@ -62,7 +63,7 @@ public class DeviceWatchdogService implements IDeviceWatchdogService {
 
 		try {
 			DeviceController controller = new DeviceController(device);
-			final List<IDeviceWatchdog> watchdogs = templates.values().stream()
+			final List<IDeviceWatchdog<? extends IDeviceWatchdogModel>> watchdogs = templates.values().stream()
 				.filter(IDeviceWatchdog::isEnabled)
 				.map(this::cloneWatchdogTemplate)
 				.filter(Objects::nonNull)
@@ -76,9 +77,10 @@ public class DeviceWatchdogService implements IDeviceWatchdogService {
 		}
 	}
 
-	private IDeviceWatchdog cloneWatchdogTemplate(IDeviceWatchdog template) {
+	private <T extends IDeviceWatchdogModel> IDeviceWatchdog<T> cloneWatchdogTemplate(IDeviceWatchdog<T> template) {
 		try {
-			IDeviceWatchdog newWatchdog = template.getClass().newInstance();
+			@SuppressWarnings("unchecked")
+			final IDeviceWatchdog<T> newWatchdog = template.getClass().newInstance();
 			newWatchdog.setModel(template.getModel());
 			return newWatchdog;
 		} catch (Exception e) {
@@ -88,7 +90,7 @@ public class DeviceWatchdogService implements IDeviceWatchdogService {
 	}
 
 	@Override
-	public IDeviceWatchdog getWatchdog(String name) {
+	public IDeviceWatchdog<? extends IDeviceWatchdogModel> getWatchdog(String name) {
 		return templates.get(name);
 	}
 
