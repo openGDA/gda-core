@@ -29,7 +29,8 @@ Require-Bundle: org.eclipse.jface,
  org.eclipse.core.databinding.property,
  org.eclipse.core.databinding.beans,
  org.eclipse.dawnsci.analysis.dataset,
- org.eclipse.swt
+ org.eclipse.swt,
+ org.apache.commons.lang3
 Export-Package: uk.ac.diamond.daq.client.gui.camera,
  uk.ac.diamond.daq.client.gui.camera.beam,
  uk.ac.diamond.daq.client.gui.camera.controller,

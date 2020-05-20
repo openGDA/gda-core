@@ -80,6 +80,9 @@ public class CameraConfigurationFactory implements CompositeFactory {
 		menuBar = ClientSWTElements.createGroup(container, 1, ClientMessages.EMPTY_MESSAGE);
 		GridData gridData = new GridData(GridData.FILL, GridData.FILL, true, true, 100, 8);
 		menuBar.setLayoutData(gridData);
+		CompositeFactory cf = new StreamControlCompositeFactory();
+		cf.createComposite(menuBar, SWT.HORIZONTAL);
+		
 		
 		viewStream = ClientSWTElements.createComposite(container, style);
 		gridData = new GridData(GridData.FILL, GridData.FILL, true, true, 100, 124);
@@ -109,7 +112,7 @@ public class CameraConfigurationFactory implements CompositeFactory {
 
 	private CompositeFactory createTabFactory() throws GDAClientException {
 		TabFolderBuilder builder = new TabFolderBuilder();
-		builder.addTab(createStreamControlCompositeFactory());
+		//builder.addTab(createStreamControlCompositeFactory());
 		builder.addTab(createExposureCompositeFactory());
 		builder.addTab(createAbsorptionCompositeFactory());
 		builder.addTab(createROICompositeFactory());
