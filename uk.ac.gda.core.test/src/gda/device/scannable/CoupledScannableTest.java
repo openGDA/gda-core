@@ -26,6 +26,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static si.uom.NonSI.ELECTRON_VOLT;
+import static tec.units.indriya.AbstractUnit.ONE;
 import static tec.units.indriya.unit.MetricPrefix.CENTI;
 import static tec.units.indriya.unit.MetricPrefix.NANO;
 import static tec.units.indriya.unit.Units.METRE;
@@ -50,9 +51,11 @@ public class CoupledScannableTest {
 
 	private DummyUnitsScannable<Length> dummyScannable1;
 	private DummyUnitsScannable<Length> dummyScannable2;
+	private DummyScannable dummyScannable3;
 
 	private MockFunction mockFunction1;
 	private MockFunction mockFunction2;
+	private MockFunction mockFunction3;
 
 	private final IdentityFunction identityFunction = new IdentityFunction();
 
@@ -60,9 +63,11 @@ public class CoupledScannableTest {
 	public void setUp() throws Exception {
 		dummyScannable1 = new DummyUnitsScannable<>("s1", 0, "mm", "mm");
 		dummyScannable2 = new DummyUnitsScannable<>("s2", 0, "nm", "nm");
+		dummyScannable3 = new DummyScannable("s3", 15.3);
 
 		mockFunction1 = new MockFunction(Quantities.getQuantity(12.3, CENTI(METRE)));
 		mockFunction2 = new MockFunction(Quantities.getQuantity(78.9, NANO(METRE)));
+		mockFunction3 = new MockFunction(Quantities.getQuantity(93.4, ONE));
 	}
 
 	/*
@@ -187,6 +192,23 @@ public class CoupledScannableTest {
 
 		assertEquals("nm", dummyScannable2.getHardwareUnitString());
 		assertEquals(1.57e7, (double) dummyScannable2.getPosition(), FP_TOLERANCE);
+	}
+
+	@Test
+	public void testScannableWithoutUnits() throws Exception {
+		final CoupledScannable coupled = new CoupledScannable();
+		coupled.setName("testCoupledScannable");
+		coupled.setUserUnits("mm");
+		coupled.setScannables(asList(dummyScannable1, dummyScannable3));
+		coupled.setFunctions(asList(identityFunction, mockFunction3));
+		coupled.configure();
+
+		coupled.moveTo(15.7);
+
+		assertEquals("mm", dummyScannable1.getHardwareUnitString());
+		assertEquals(15.7, (double) dummyScannable1.getPosition(), FP_TOLERANCE);
+
+		assertEquals(93.4, (double) dummyScannable3.getPosition(), FP_TOLERANCE);
 	}
 
 	@Test(expected = DeviceException.class)

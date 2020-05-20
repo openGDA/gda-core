@@ -18,16 +18,14 @@
 
 package gda.device.scannable;
 
-import static tec.units.indriya.AbstractUnit.ONE;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.measure.Quantity;
-import javax.measure.Unit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,14 +154,10 @@ public class CoupledScannable extends ScannableMotionUnitsBase {
 		}
 
 		// loop through all functions, calculate and send command to Scannable
-		final List<Quantity<?>> targets = new ArrayList<>(theFunctions.size());
-		final Unit<? extends Quantity<?>> userUnits = QuantityFactory.createUnitFromString(getUserUnits());
-
-		for (int i = 0; i < theFunctions.size(); i++) {
-			// If scannable cannot use units, treat position as a dimensionless number
-			final Unit<? extends Quantity<?>> unit = (theScannables.get(i) instanceof ScannableMotionUnits) ? userUnits : ONE;
-			targets.add(theFunctions.get(i).apply(QuantityFactory.createFromObjectUnknownUnit(position, unit)));
-		}
+		final Quantity<? extends Quantity<?>> sourceQuantity = QuantityFactory.createFromObjectUnknownUnit(position, unitsComponent.getUserUnit());
+		final List<Quantity<?>> targets = theFunctions.stream()
+			.map(f -> f.apply(sourceQuantity))
+			.collect(Collectors.toCollection(ArrayList::new));
 
 		// if get here without an exception then perform the moves
 		moveUnderlyingScannables(targets);
