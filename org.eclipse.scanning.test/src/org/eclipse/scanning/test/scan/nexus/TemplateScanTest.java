@@ -90,7 +90,7 @@ public class TemplateScanTest extends NexusTest {
 
 	private IRunnableDevice<ScanModel> createAndRunTemplateScan(String templateFile) throws Exception {
 		final ScanModel scanModel = createGridScanModel(detector, output, false, 8, 5);
-		scanModel.setTemplateFilePath(new HashSet<>(Arrays.asList(templateFile)));
+		scanModel.setTemplateFilePaths(new HashSet<>(Arrays.asList(templateFile)));
 		final IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(scanModel, null);
 		scanner.run();
 		return scanner;

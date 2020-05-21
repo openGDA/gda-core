@@ -312,8 +312,8 @@ public class ScanModel {
 		return templateFilePaths;
 	}
 
-	public void setTemplateFilePath(Set<String> templateFilePath) {
-		this.templateFilePaths = templateFilePath;
+	public void setTemplateFilePaths(Set<String> templateFilePaths) {
+		this.templateFilePaths = templateFilePaths;
 	}
 
 	public List<ScanMetadata> getScanMetadata() {

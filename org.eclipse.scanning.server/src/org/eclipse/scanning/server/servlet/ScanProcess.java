@@ -514,7 +514,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		scanModel.setMonitorsPerPoint(getScannables(req.getMonitorNamesPerPoint()));
 		scanModel.setMonitorsPerScan(getScannables(req.getMonitorNamesPerScan()));
 		scanModel.setScanMetadata(req.getScanMetadata());
-		scanModel.setTemplateFilePath(req.getTemplateFilePaths());
+		scanModel.setTemplateFilePaths(req.getTemplateFilePaths());
 		scanModel.setBean(bean);
 
 		final ScanInformation scanInfo = new ScanInformation(generator, req.getDetectors().values(), bean.getFilePath());
