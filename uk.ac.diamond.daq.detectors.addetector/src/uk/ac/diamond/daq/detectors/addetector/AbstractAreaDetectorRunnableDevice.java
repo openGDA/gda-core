@@ -41,6 +41,7 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.LevelInformation;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,28 +61,20 @@ public abstract class AbstractAreaDetectorRunnableDevice extends AbstractRunnabl
 	/**
 	 * NOTE: Arguments are filled with annotations using introspection. OSGi services may be requested (null if not found)
 	 * NOTE: More than one method may be annotated.
-	 * @param model - TODO: This should probably have a type which is more specific than Object. Currently in a scan
-	 *        it gets populated with a ScanInformation object, but RunnableDeviceServiceImpl.createRunnableDevice(),
-	 *        AcquireRequestHandler.configureDetector() and ScanProcess.configureDetectors() all explicitly invoke
-	 *        it with a model, hence the param name here.
 	 */
 	@SuppressWarnings("unused")
 	@PreConfigure
-	public void preConfigure(Object model) throws ScanningException {
+	public void preConfigure(ScanModel model) throws ScanningException {
 		logger.trace("preConfigure({})", model);
 	}
 
 	/**
 	 * NOTE: Arguments are filled with annotations using introspection. OSGi services may be requested (null if not found)
 	 * NOTE: More than one method may be annotated.
-	 * @param model - TODO: This should probably have a type which is more specific than Object. Currently in a scan
-	 *        it gets populated with a ScanInformation object, but RunnableDeviceServiceImpl.createRunnableDevice(),
-	 *        AcquireRequestHandler.configureDetector() and ScanProcess.configureDetectors() all explicitly invoke
-	 *        it with a model, hence the param name here.
 	 */
 	@SuppressWarnings("unused")
 	@PostConfigure
-	public void postConfigure(Object model) throws ScanningException {
+	public void postConfigure(ScanModel model) throws ScanningException {
 		logger.trace("postConfigure({})", model);
 	}
 
