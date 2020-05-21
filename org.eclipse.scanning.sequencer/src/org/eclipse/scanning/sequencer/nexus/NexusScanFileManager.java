@@ -202,7 +202,7 @@ public class NexusScanFileManager {
 		nexusDevices.put(ScanRole.SCANNABLE, toNexusDevices.apply(model.getScannables()));
 		nexusDevices.put(ScanRole.MONITOR_PER_POINT, toNexusDevices.apply(model.getMonitorsPerPoint()));
 		nexusDevices.put(ScanRole.MONITOR_PER_SCAN, toNexusDevices.apply(model.getMonitorsPerScan()));
-		nexusDevices.put(ScanRole.NONE, toNexusDevices.apply(model.getAnnotationParticipants()));
+		nexusDevices.put(ScanRole.NONE, toNexusDevices.apply(model.getAdditionalScanObjects()));
 
 		return nexusDevices;
 	}

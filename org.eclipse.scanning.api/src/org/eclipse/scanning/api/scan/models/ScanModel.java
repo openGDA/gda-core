@@ -106,7 +106,7 @@ public class ScanModel {
 	 * should call at different points. They can also implement INexusDevice to provide
 	 * a nexus object to be added to the nexus file for the scan.
 	 */
-	private List<?> annotationParticipants;
+	private List<?> additionalScanObjects;
 
 	/**
 	 * A set of template file to apply to the scan output.
@@ -336,15 +336,15 @@ public class ScanModel {
 		this.scanMetadata.add(scanMetadata);
 	}
 
-	public List<?> getAnnotationParticipants() {
-		if (annotationParticipants == null) {
+	public List<?> getAdditionalScanObjects() {
+		if (additionalScanObjects == null) {
 			return Collections.emptyList();
 		}
-		return annotationParticipants;
+		return additionalScanObjects;
 	}
 
-	public void setAnnotationParticipants(List<?> annotationParticipants) {
-		this.annotationParticipants = annotationParticipants;
+	public void setAdditionalScanObjects(List<?> scanObjects) {
+		this.additionalScanObjects = scanObjects;
 	}
 
 	public ScanInformation getScanInformation() {
@@ -361,7 +361,7 @@ public class ScanModel {
 				+ ", compoundModel=" + scanPathModel + ", detectors=" + detectors
 				+ ", scannables=" + scannables + ", monitorsPerPoint=" + monitorsPerPoint
 				+ ", monitorsPerScan=" + monitorsPerScan + ", scanMetadata=" + scanMetadata
-				+ ", annotationParticipants=" + annotationParticipants + ", templateFilePaths=" + templateFilePaths
+				+ ", annotationParticipants=" + additionalScanObjects + ", templateFilePaths=" + templateFilePaths
 				+ ", scanInformation=" + scanInformation
 				+ ", bean=" + bean + "]";
 	}

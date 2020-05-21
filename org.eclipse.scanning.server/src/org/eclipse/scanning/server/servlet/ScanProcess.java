@@ -207,7 +207,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		manager.addDevices(scanModel.getMonitorsPerPoint());
 		manager.addDevices(scanModel.getMonitorsPerScan());
 		manager.addDevices(scanModel.getDetectors());
-		manager.addDevices(scanModel.getAnnotationParticipants());
+		manager.addDevices(scanModel.getAdditionalScanObjects());
 		return manager;
 	}
 	private void handleException(Exception e) throws EventException {
@@ -486,12 +486,12 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 			final IPausableDevice<ScanModel> device = (IPausableDevice<ScanModel>) Services.getRunnableDeviceService().createRunnableDevice(scanModel, publisher, false);
 			final IDeviceController deviceController = Services.getWatchdogService().create(device, bean);
 			if (deviceController.getObjects() != null && !deviceController.getObjects().isEmpty()) {
-				final List<Object> newAnnotationParticipants = new ArrayList<>();
-				if (scanModel.getAnnotationParticipants() != null) {
-					newAnnotationParticipants.addAll(scanModel.getAnnotationParticipants());
+				final List<Object> scanObjects = new ArrayList<>();
+				if (scanModel.getAdditionalScanObjects() != null) {
+					scanObjects.addAll(scanModel.getAdditionalScanObjects());
 				}
-				newAnnotationParticipants.add(deviceController.getObjects());
-				scanModel.setAnnotationParticipants(newAnnotationParticipants);
+				scanObjects.add(deviceController.getObjects());
+				scanModel.setAdditionalScanObjects(scanObjects);
 			}
 
 			logger.debug("Configuring {} with {}", device.getName(), scanModel);
@@ -540,7 +540,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 				.collect(groupingBy(name -> scannableNames.contains(name)));
 
 		scanModel.setMonitorsPerScan(getScannables(metadataNamesByIsScannable.get(true)));
-		scanModel.setAnnotationParticipants(getNexusDevices(metadataNamesByIsScannable.get(false)));
+		scanModel.setAdditionalScanObjects(getNexusDevices(metadataNamesByIsScannable.get(false)));
 	}
 
 	private void configureDetectors(Map<String, Object> detectorModels, ScanModel model) throws Exception {

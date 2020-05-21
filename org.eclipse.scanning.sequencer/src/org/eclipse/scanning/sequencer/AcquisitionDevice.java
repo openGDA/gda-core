@@ -279,7 +279,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		manager.addDevices(model.getScannables());
 		manager.addDevices(model.getMonitorsPerPoint());
 		manager.addDevices(model.getMonitorsPerScan());
-		manager.addDevices(model.getAnnotationParticipants());
+		manager.addDevices(model.getAdditionalScanObjects());
 		manager.addDevices(globalParticipants);
 		manager.addDevices(model.getDetectors());
 

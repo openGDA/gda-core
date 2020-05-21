@@ -167,7 +167,7 @@ public abstract class AbstractAcquisitionTest {
 		// Create a scan and run it without publishing events
 		IRunnableDevice<ScanModel> scanner = ServiceTestHelper.getRunnableDeviceService().createRunnableDevice(scanModel, null, false);
 		IDeviceController controller = ServiceTestHelper.getDeviceWatchdogService().create((IPausableDevice<?>)scanner, scanModel.getBean());
-		scanModel.setAnnotationParticipants(controller.getObjects());
+		scanModel.setAdditionalScanObjects(controller.getObjects());
 		scanner.configure(scanModel);
 
 		return controller;

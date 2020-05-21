@@ -244,7 +244,7 @@ public class PerScanMonitorTest extends NexusTest {
 			Set<String> expectedPerScanMonitorNames) throws Exception {
 		final Set<String> perScanMonitorNames = scanModel.getMonitorsPerScan().stream()
 				.map(scannable -> scannable.getName()).collect(Collectors.toSet());
-		final Set<String> nexusDeviceNames = scanModel.getAnnotationParticipants().stream()
+		final Set<String> nexusDeviceNames = scanModel.getAdditionalScanObjects().stream()
 				.filter(INexusDevice.class::isInstance).map(INexusDevice.class::cast)
 				.map(INexusDevice::getName).collect(Collectors.toSet());
 
@@ -365,7 +365,7 @@ public class PerScanMonitorTest extends NexusTest {
 		}
 		scanModel.setMonitorsPerPoint(perPointMonitor);
 		scanModel.setMonitorsPerScan(perScanMonitor);
-		scanModel.setAnnotationParticipants(nexusDevice == null ? null : Arrays.asList(nexusDevice));
+		scanModel.setAdditionalScanObjects(nexusDevice == null ? null : Arrays.asList(nexusDevice));
 
 		// Create a file to scan into.
 		scanModel.setFilePath(output.getAbsolutePath());
