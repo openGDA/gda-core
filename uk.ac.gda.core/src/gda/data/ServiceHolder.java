@@ -18,6 +18,8 @@
 
 package gda.data;
 
+import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
+import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.scan.IFilePathService;
@@ -59,6 +61,16 @@ public class ServiceHolder {
 
 	public void setNexusTemplateService(NexusTemplateService nexusTemplateService) {
 		ServiceHolder.nexusTemplateService = nexusTemplateService;
+	}
+
+	private static INexusDeviceService nexusDeviceService;
+
+	public static INexusDeviceService getNexusDeviceService() {
+		return nexusDeviceService;
+	}
+
+	public void setNexusDeviceService(NexusDeviceService nexusDeviceService) {
+		ServiceHolder.nexusDeviceService = nexusDeviceService;
 	}
 
 }

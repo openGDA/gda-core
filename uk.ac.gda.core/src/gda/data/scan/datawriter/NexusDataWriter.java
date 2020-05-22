@@ -50,9 +50,12 @@ import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
+import org.eclipse.dawnsci.nexus.INexusDevice;
+import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
+import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.template.NexusTemplate;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.january.DatasetException;
@@ -1959,20 +1962,27 @@ public class NexusDataWriter extends DataWriterBase {
 	}
 
 	private void makeMetadataScannables(GroupNode group, Set<String> metadatascannablestowrite) throws NexusException {
-		for(String scannableName: metadatascannablestowrite) {
+		for (String scannableName : metadatascannablestowrite) {
 			try {
-				Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
-				if(scannable == null) {
-					logger.error("Failed to get '{}' from Jython namespace. It will not be written", scannableName);
-					continue; // Move onto the next scannable
-				}
-				logger.debug("Getting scannable '{}' data for writing to NeXus file.", scannable.getName());
-				Object position = scannable.getPosition();
-				if (weKnowTheLocationFor(scannableName)) {
-					locationmap.get(scannableName).makeScannable(file, group, scannable, position, new int[] {1}, false);
+				final Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
+				if (scannable == null) {
+					// see if there is a nexus device registered with the nexus device service with the given name. This allows custom
+					// metadata to be added without having to create a scannable.
+					final INexusDevice<? extends NXobject> nexusDevice = ServiceHolder.getNexusDeviceService().getNexusDevice(scannableName);
+					if (nexusDevice == null) {
+						logger.error("No such scannable or nexus device '{}'. It will not be written", scannableName);
+					} else {
+						writeNexusDevice(group, nexusDevice);
+					}
 				} else {
-					// put in default location (NXcollection with name metadata)
-					makeMetadataScannableFallback(group, scannable, position);
+					logger.debug("Getting scannable '{}' data for writing to NeXus file.", scannable.getName());
+					Object position = scannable.getPosition();
+					if (weKnowTheLocationFor(scannableName)) {
+						locationmap.get(scannableName).makeScannable(file, group, scannable, position, new int[] {1}, false);
+					} else {
+						// put in default location (NXcollection with name metadata)
+						makeMetadataScannableFallback(group, scannable, position);
+					}
 				}
 			} catch (NexusException e) {
 				logger.error("Nexus error while adding '{}' metadata to NeXus file at '{}'.", scannableName, file.getPath(group), e);
@@ -1981,6 +1991,13 @@ public class NexusDataWriter extends DataWriterBase {
 				logger.error("Error writing '{}' to NeXus file.", scannableName, e);
 			}
 		}
+	}
+
+	private <N extends NXobject> void writeNexusDevice(GroupNode group, INexusDevice<N> nexusDevice) throws NexusException {
+		final NexusObjectProvider<N> nexusObjectProvider = nexusDevice.getNexusProvider(null);
+		final String name = nexusObjectProvider.getName();
+		final N nexusObject = nexusObjectProvider.getNexusObject();
+		file.addNode(group, name, nexusObject);
 	}
 
 	public static Set<String> getMetadatascannables() {
