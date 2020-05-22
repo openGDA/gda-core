@@ -18,6 +18,7 @@
 
 package gda.data;
 
+import org.eclipse.dawnsci.nexus.appender.INexusFileAppenderService;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
@@ -71,6 +72,16 @@ public class ServiceHolder {
 
 	public void setNexusDeviceService(NexusDeviceService nexusDeviceService) {
 		ServiceHolder.nexusDeviceService = nexusDeviceService;
+	}
+
+	private static INexusFileAppenderService nexusFileAppenderService;
+
+	public static INexusFileAppenderService getNexusFileAppenderService() {
+		return nexusFileAppenderService;
+	}
+
+	public void setNexusFileAppenderService(INexusFileAppenderService nexusFileAppenderService) {
+		ServiceHolder.nexusFileAppenderService = nexusFileAppenderService;
 	}
 
 }
