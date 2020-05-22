@@ -31,6 +31,7 @@ public enum ClientImages {
 	// --- GENERAL IMAGES ---
 	ADD(ClientImagesGroup.GENERAL, "add-16.png"),
 	DELETE(ClientImagesGroup.GENERAL, "delete-16.png"),
+	NO_IMAGE(ClientImagesGroup.GENERAL, "no-image-16.png"),
 	OPEN(ClientImagesGroup.GENERAL, "open-16.png"),
 	RUN(ClientImagesGroup.GENERAL, "run-16.png"),
 	SAVE(ClientImagesGroup.GENERAL, "save-16.png"),
@@ -39,6 +40,7 @@ public enum ClientImages {
 	TARGET(ClientImagesGroup.GENERAL, "target-16.png"),
 	TRIANGLE_DOWN(ClientImagesGroup.GENERAL, "triangle-down-16.png"),
 	TRIANGLE_UP(ClientImagesGroup.GENERAL, "triangle-up-16.png"),
+	EXCLAMATION_RED(ClientImagesGroup.GENERAL, "exclamation-red.png"),
 
 	// --- MAPPING IMAGES ---
 	CENTERED_RECTAGLE(ClientImagesGroup.GENERAL, "centred_rectangle.png"),

@@ -19,10 +19,14 @@
 package uk.ac.gda.ui.tool;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.UpdateSetStrategy;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.PojoProperties;
+import org.eclipse.core.databinding.observable.set.IObservableSet;
+import org.eclipse.core.databinding.observable.set.WritableSet;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.SelectObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
@@ -71,5 +75,13 @@ public final class ClientBindingElements {
 		UpdateValueStrategy iTargetToModelStrategy = new UpdateValueStrategy();
 		UpdateValueStrategy iModelToTargetStrategy = new UpdateValueStrategy();
 		dbc.bindValue(iTarget, iModel, iTargetToModelStrategy, iModelToTargetStrategy);
+	}
+
+	public static final <T> void bindCheckBoxToSet(DataBindingContext dbc, Set target, String modelProperty, final Object model, final Class<T> clazz) {
+		IObservableSet<T> iTarget = new WritableSet<>(target, clazz);
+		IObservableSet<T> iModel = PojoProperties.set(modelProperty, clazz).observe(model);
+		UpdateSetStrategy iTargetToModelStrategy = new UpdateSetStrategy();
+		UpdateSetStrategy iModelToTargetStrategy = new UpdateSetStrategy();
+		dbc.bindSet(iTarget, iModel, iTargetToModelStrategy, iModelToTargetStrategy);
 	}
 }
