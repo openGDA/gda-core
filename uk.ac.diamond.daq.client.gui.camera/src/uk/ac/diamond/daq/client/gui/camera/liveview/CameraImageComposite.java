@@ -86,7 +86,7 @@ public class CameraImageComposite extends Composite {
 		return new ApplicationListener<RegisterDrawableRegionEvent>() {
 			@Override
 			public void onApplicationEvent(RegisterDrawableRegionEvent event) {
-				if (!event.hasSameParent(parent)) {
+				if (!event.haveSameParent(parent)) {
 					return;
 				}
 				DrawableRegion roiSelectionRegion = new DrawableRegion(plottingSystem, event.getColor(),

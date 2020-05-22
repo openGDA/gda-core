@@ -312,7 +312,7 @@ public class SensorROIComposite implements CompositeFactory {
 		return new ApplicationListener<ChangeActiveCameraEvent>() {
 			@Override
 			public void onApplicationEvent(ChangeActiveCameraEvent event) {
-				if (!event.hasSameParent(parent)) {
+				if (!event.haveSameParent(parent)) {
 					return;
 				}
 				updateCamera(event.getActiveCamera().getIndex());
@@ -324,7 +324,7 @@ public class SensorROIComposite implements CompositeFactory {
 		return new ApplicationListener<DrawableRegionRegisteredEvent>() {
 			@Override
 			public void onApplicationEvent(DrawableRegionRegisteredEvent event) {
-				if (!event.hasSameParent(parent)) {
+				if (!event.haveSameParent(parent)) {
 					return;
 				}
 				sensorDrawableRegion = event.getDrawableRegion();

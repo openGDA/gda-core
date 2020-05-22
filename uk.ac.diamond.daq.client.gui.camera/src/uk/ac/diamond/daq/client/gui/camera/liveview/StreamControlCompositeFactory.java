@@ -43,9 +43,16 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 
 	private SmartCombo<StreamType> streamTypeCombo;
 
-	private Button streamActivationButton;
+	//private Button streamActivationButton;
 
-	private StreamController streamController;
+	private final StreamController streamController;
+	
+	public StreamControlCompositeFactory(StreamController streamController) {
+		super();
+		this.streamController = streamController;
+	}
+
+
 
 	private static final Logger logger = LoggerFactory.getLogger(LiveViewCompositeFactory.class);
 
@@ -63,16 +70,11 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 		streamTypeCombo = new SmartCombo<>(streamComboArea, style, Optional.of(ClientMessages.STAGE_TP),
 				Optional.of(this::changeStreamController));
 
-		streamActivationButton = ClientSWTElements.createButton(streamControlArea, SWT.NONE,
-				ClientMessages.START_STREAM, ClientMessages.START_STREAM);
-		streamActivationButton.setData(ClientMessages.START_STREAM);
-
 		// initialise composite
 		initialiseComposite(parent);
 
 		// add listeners
-		cameraCombo.addListener(SWT.Selection, this::changeStreamController);
-		streamActivationButton.addListener(SWT.Selection, this::changeStreamState);
+		cameraCombo.addListener(SWT.Selection, this::changeStreamController);		
 
 		return streamControlArea;
 	}
@@ -85,10 +87,6 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 	}
 
 	private void initialiseComposite(Composite parent) {
-		// initialises the state
-		UUID rootUUID = ClientSWTElements.findParentUUID(parent).orElse(null);
-		streamController = new StreamController(new StreamControlData(comboItems.get(0), StreamType.EPICS_ARRAY),
-				rootUUID);
 		// initialises the camera combo
 		cameraCombo.select(0);
 		// initialises the streamType combo
@@ -110,24 +108,10 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 		} catch (LiveStreamException ex) {
 			handleException(ex);
 		}
-		updateStreamActivationButton();
-
+		//updateStreamActivationButton();
 	}
 
-	private void changeStreamState(Event e) {
-		try {
-			// Is it listening?
-			if (ListeningState.class.isInstance(streamController.getState())) {
-				streamController.idle();
-			} else {
-				// then was idle
-				streamController.listen();
-			}
-		} catch (LiveStreamException ex) {
-			handleException(ex);
-		}
-		updateStreamActivationButton();
-	}
+
 
 	private void updateStreamController() {
 		// Changes camera
@@ -138,13 +122,7 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 				.setControlData(new StreamControlData(comboItems.get(cameraCombo.getSelectionIndex()), st.getValue())));
 	}
 
-	private void updateStreamActivationButton() {
-		if (ListeningState.class.isInstance(streamController.getState())) {
-			streamActivationButton.setText(ClientMessagesUtility.getMessage(ClientMessages.STOP_STREAM));
-		} else {
-			streamActivationButton.setText(ClientMessagesUtility.getMessage(ClientMessages.START_STREAM));
-		}
-	}
+
 
 	private void handleException(LiveStreamException ex) {
 		try {
