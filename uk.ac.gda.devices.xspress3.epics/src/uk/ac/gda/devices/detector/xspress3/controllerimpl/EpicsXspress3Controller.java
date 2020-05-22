@@ -36,6 +36,7 @@ import uk.ac.gda.devices.detector.xspress3.CAPTURE_MODE;
 import uk.ac.gda.devices.detector.xspress3.ReadyForNextRow;
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 import uk.ac.gda.devices.detector.xspress3.UPDATE_CTRL;
+import uk.ac.gda.devices.detector.xspress3.XSPRESS3_TRIGGER_MODE;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 
 /**
@@ -56,13 +57,13 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 
 	private static final double TIMEOUTS_MONITORING = 60;
 
-	private String epicsTemplate;
+	protected String epicsTemplate;
 
-	private EpicsXspress3ControllerPvProvider pvProvider;
+	private EpicsXspress3ControllerPvProvider pvProviderCached;
 
 	private int numRoiToRead = 1;
 
-	private int numberOfDetectorChannels = 4;
+	protected int numberOfDetectorChannels = 4;
 
 	private boolean iocVersion3 = false;
 
@@ -78,12 +79,9 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 		if (epicsTemplate == null || epicsTemplate.isEmpty()) {
 			throw new FactoryException("Epics template has not been set!");
 		}
-		pvProvider = new EpicsXspress3ControllerPvProvider(epicsTemplate, numberOfDetectorChannels);
-		pvProvider.setUseNewEpicsInterface(useNewEpicsInterface);
-		pvProvider.createPVs();
 
 		try {
-			Boolean epicsConnectionToHardware = pvProvider.pvIsConnected.get() == CONNECTION_STATE.Connected;
+			Boolean epicsConnectionToHardware = getPvProvider().pvIsConnected.get() == CONNECTION_STATE.Connected;
 			if (!epicsConnectionToHardware) {
 				logger.error("EPICS is not connected to underlying Xspress3 hardware.\\nConnect EPICS to Xspreess3 before doing any more in GDA.");
 			}
@@ -91,6 +89,19 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 			throw new FactoryException("Excpetion trying to connect to Xspress3 EPICS template", e);
 		}
 		setConfigured(true);
+	}
+
+	protected EpicsXspress3ControllerPvProvider getPvProvider() {
+		if (pvProviderCached == null) {
+			pvProviderCached = createPvProvider(epicsTemplate, numberOfDetectorChannels);
+			pvProviderCached.setUseNewEpicsInterface(useNewEpicsInterface);
+			pvProviderCached.createPVs();
+		}
+		return pvProviderCached;
+	}
+
+	protected EpicsXspress3ControllerPvProvider createPvProvider(String epicsTemplate, int numberOfDetectorChannels) {
+		return new EpicsXspress3ControllerPvProvider(epicsTemplate, numberOfDetectorChannels);
 	}
 
 	@Override
@@ -120,7 +131,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	public void doStart() throws DeviceException {
 		try {
 			doErase();
-
+			EpicsXspress3ControllerPvProvider pvProvider = getPvProvider();
 			if (pvProvider.getUseNewEpicsInterface()) {
 				// call 'Erase/Start' on SCAS time series data for each channel/detector element
 				int numChannels = pvProvider.pvGetMaxNumChannels.get();
@@ -145,7 +156,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public boolean isSavingFiles() throws DeviceException {
 		try {
-			return pvProvider.pvIsFileWriting.get() == CAPTURE_CTRL_RBV.Capture;
+			return getPvProvider().pvIsFileWriting.get() == CAPTURE_CTRL_RBV.Capture;
 		} catch (IOException e) {
 			throw new DeviceException("IOException while reading save files flag", e);
 		}
@@ -154,6 +165,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void setSavingFiles(Boolean saveFiles) throws DeviceException {
 		try {
+			EpicsXspress3ControllerPvProvider pvProvider = getPvProvider();
 			if (saveFiles) {
 				pvProvider.pvStartStopFileWriting.putNoWait(CAPTURE_CTRL_RBV.Capture);
 				pvProvider.pvIsFileWriting.waitForValue(value-> value==CAPTURE_CTRL_RBV.Capture, TIMEOUTS_MONITORING);
@@ -171,7 +183,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void doStopSavingFiles() throws DeviceException {
 		try {
-			pvProvider.pvStartStopFileWriting.putNoWait(CAPTURE_CTRL_RBV.Done);
+			getPvProvider().pvStartStopFileWriting.putNoWait(CAPTURE_CTRL_RBV.Done);
 		}catch (IOException e) {
 			throw new DeviceException("IOException while stopping hdf file writer", e);
 		}
@@ -180,7 +192,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void doStop() throws DeviceException {
 		try {
-			pvProvider.pvAcquire.putNoWait(ACQUIRE_STATE.Done);
+			getPvProvider().pvAcquire.putNoWait(ACQUIRE_STATE.Done);
 			Thread.sleep(100);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while stopping acquisition", e);
@@ -196,7 +208,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 			return;
 		}
 		try {
-			pvProvider.pvErase.putWait(ERASE_STATE.Erase);
+			getPvProvider().pvErase.putWait(ERASE_STATE.Erase);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while erasing memory", e);
 		}
@@ -205,7 +217,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void doReset() throws DeviceException {
 		try {
-			pvProvider.pvReset.putWait(1);
+			getPvProvider().pvReset.putWait(1);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while resetting", e);
 		}
@@ -214,7 +226,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void setArrayCounter(int n) throws DeviceException {
 		try {
-			pvProvider.pvSetArrayCounter.putWait(n);
+			getPvProvider().pvSetArrayCounter.putWait(n);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting ArrayCounter", e);
 		}
@@ -223,7 +235,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public Integer getNumFramesToAcquire() throws DeviceException {
 		try {
-			return pvProvider.pvGetNumImages.get();
+			return getPvProvider().pvGetNumImages.get();
 		} catch (IOException e) {
 			throw new DeviceException("IOException while fetching number of frames to acquire", e);
 		}
@@ -232,7 +244,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void setNumFramesToAcquire(Integer numFrames) throws DeviceException {
 		try {
-			pvProvider.pvSetNumImages.putWait(numFrames);
+			getPvProvider().pvSetNumImages.putWait(numFrames);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while resetting", e);
 		}
@@ -241,7 +253,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void setPointsPerRow(Integer pointsPerRow) throws DeviceException {
 		try {
-			pvProvider.pvPointsPerRow.putWait(pointsPerRow);
+			getPvProvider().pvPointsPerRow.putWait(pointsPerRow);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting points perRow", e);
 		}
@@ -254,7 +266,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 			if (doCalcs) {
 				setValue = UPDATE_CTRL.Enable;
 			}
-			pvProvider.pvSetRoiCalc.putWait(setValue);
+			getPvProvider().pvSetRoiCalc.putWait(setValue);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting ROI calculations on/off", e);
 		}
@@ -262,7 +274,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 
 	public Boolean getPerformROICalculations() throws DeviceException {
 		try {
-			UPDATE_RBV getValue = pvProvider.pvGetRoiCalc.get();
+			UPDATE_RBV getValue = getPvProvider().pvGetRoiCalc.get();
 			if (getValue == UPDATE_RBV.Enabled) {
 				return true;
 			}
@@ -275,26 +287,61 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void setTriggerMode(TRIGGER_MODE mode) throws DeviceException {
 		try {
-			pvProvider.pvSetTrigMode.putWait(mode);
+			XSPRESS3_TRIGGER_MODE x3TM = convertToXspress3TriggerMode(mode);
+
+			if (x3TM != null) {
+				getPvProvider().pvSetTrigMode.putWait(x3TM);
+			} else {
+				throw new DeviceException("Attempt to set trigger mode to an invalid value");
+			}
+
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting trigger mode", e);
 		}
 
 	}
 
+	private XSPRESS3_TRIGGER_MODE convertToXspress3TriggerMode(TRIGGER_MODE triggerMode) {
+		XSPRESS3_TRIGGER_MODE convertedX3TM = null;
+		for (XSPRESS3_TRIGGER_MODE x3tm : XSPRESS3_TRIGGER_MODE.values()) {
+			if (triggerMode.name().equals(x3tm.name())){
+				convertedX3TM = x3tm;
+				break;
+			}
+		}
+		return convertedX3TM;
+	}
+
 	@Override
 	public TRIGGER_MODE getTriggerMode() throws DeviceException {
 		try {
-			return pvProvider.pvGetTrigMode.get();
+			XSPRESS3_TRIGGER_MODE x3tm = getPvProvider().pvGetTrigMode.get();
+			TRIGGER_MODE tm = convertToTriggerMode(x3tm);
+
+			if (tm != null) {
+				throw new DeviceException(String.format("Error converting %s to TRIGGER_MODE", x3tm.name()));
+			}
+			return tm;
 		} catch (IOException e) {
 			throw new DeviceException("IOException while getting trigger mode", e);
 		}
 	}
 
+	private TRIGGER_MODE convertToTriggerMode(XSPRESS3_TRIGGER_MODE x3TriggerMode) {
+		TRIGGER_MODE convertedTriggerMode = null;
+		for (TRIGGER_MODE tm : TRIGGER_MODE.values()) {
+			if (x3TriggerMode.name().equals(tm.name())){
+				convertedTriggerMode = tm;
+				break;
+			}
+		}
+		return convertedTriggerMode;
+	}
+
 	@Override
 	public void setFileEnableCallBacks(UPDATE_CTRL callback) throws DeviceException {
 		try {
-			pvProvider.pvSetFileEnableCallbacks.putWait(callback);
+			getPvProvider().pvSetFileEnableCallbacks.putWait(callback);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting File EnableCallbacks", e);
 		}
@@ -304,7 +351,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void setFileCaptureMode(CAPTURE_MODE captureMode) throws DeviceException {
 		try {
-			pvProvider.pvSetFileCaptureMode.putWait(captureMode);
+			getPvProvider().pvSetFileCaptureMode.putWait(captureMode);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting File Capture Mode", e);
 		}
@@ -314,7 +361,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void setFileArrayCounter(int arrayCounter) throws DeviceException {
 		try {
-			pvProvider.pvSetFileArrayCounter.putWait(arrayCounter);
+			getPvProvider().pvSetFileArrayCounter.putWait(arrayCounter);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting File array counter", e);
 		}
@@ -323,7 +370,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public Boolean isBusy() throws DeviceException {
 		try {
-			return pvProvider.pvIsBusy.get();
+			return getPvProvider().pvIsBusy.get();
 		} catch (IOException e) {
 			throw new DeviceException("IOException while getting isBusy value", e);
 		}
@@ -332,7 +379,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public Boolean isConnected() throws DeviceException {
 		try {
-			return pvProvider.pvIsConnected.get() == CONNECTION_STATE.Connected;
+			return getPvProvider().pvIsConnected.get() == CONNECTION_STATE.Connected;
 		} catch (IOException e) {
 			throw new DeviceException("IOException while getting isConnected value", e);
 		}
@@ -341,7 +388,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public String getStatusMessage() throws DeviceException {
 		try {
-			return pvProvider.pvGetStatusMsg.get();
+			return getPvProvider().pvGetStatusMsg.get();
 		} catch (IOException e) {
 			throw new DeviceException("IOException while getting status message", e);
 		}
@@ -350,7 +397,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public int getStatus() throws DeviceException {
 		try {
-			XSPRESS3_EPICS_STATUS currentStatus = pvProvider.pvGetState.get();
+			XSPRESS3_EPICS_STATUS currentStatus = getPvProvider().pvGetState.get();
 			if (currentStatus == XSPRESS3_EPICS_STATUS.Idle || currentStatus == XSPRESS3_EPICS_STATUS.Aborted) {
 				return Detector.IDLE;
 			}
@@ -383,7 +430,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public int getNumFramesPerReadout() throws DeviceException {
 		try {
-			return pvProvider.pvGetNumFramesPerReadout.get();
+			return getPvProvider().pvGetNumFramesPerReadout.get();
 		} catch (IOException e) {
 			throw new DeviceException("IOException while number of frames per readout", e);
 		}
@@ -392,7 +439,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public int getTotalFramesAvailable() throws DeviceException {
 		try {
-			return pvProvider.pvGetNumFramesAvailableToReadout.get();
+			return getPvProvider().pvGetNumFramesAvailableToReadout.get();
 		} catch (IOException e) {
 			throw new DeviceException("IOException while number of frames available", e);
 		}
@@ -401,7 +448,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public int getTotalHDFFramesAvailable() throws DeviceException {
 		try {
-			return pvProvider.pvHDFNumCaptureRBV.get();
+			return getPvProvider().pvHDFNumCaptureRBV.get();
 		} catch (IOException e) {
 			throw new DeviceException("IOException while number of frames available", e);
 		}
@@ -410,7 +457,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public Integer getMaxNumberFrames() throws DeviceException {
 		try {
-			return pvProvider.pvGetMaxFrames.get();
+			return getPvProvider().pvGetMaxFrames.get();
 		} catch (IOException e) {
 			throw new DeviceException("IOException while maximum number of frames", e);
 		}
@@ -422,7 +469,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 			if (doUpdates) {
 				setValue = UPDATE_CTRL.Enable;
 			}
-			pvProvider.pvSetRoiCalc.putWait(setValue);
+			getPvProvider().pvSetRoiCalc.putWait(setValue);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting roi updates on/off", e);
 		}
@@ -430,7 +477,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 
 	public Boolean getPerformROIUpdates() throws DeviceException {
 		try {
-			UPDATE_RBV getValue = pvProvider.pvGetRoiCalc.get();
+			UPDATE_RBV getValue = getPvProvider().pvGetRoiCalc.get();
 			if (getValue == UPDATE_RBV.Enabled) {
 				return true;
 			}
@@ -445,7 +492,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 			throws DeviceException {
 		updateArrays();
 
-		return readDoubleWaveform(pvProvider.pvsScalerWindow1, startFrame, finalFrame, startChannel, finalChannel);
+		return readDoubleWaveform(getPvProvider().pvsScalerWindow1, startFrame, finalFrame, startChannel, finalChannel);
 	}
 
 	@Override
@@ -453,13 +500,15 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 			throws DeviceException {
 		updateArrays();
 
-		return readDoubleWaveform(pvProvider.pvsScalerWindow2, startFrame, finalFrame, startChannel, finalChannel);
+		return readDoubleWaveform(getPvProvider().pvsScalerWindow2, startFrame, finalFrame, startChannel, finalChannel);
 	}
 
 	@Override
 	public Integer[][][] readoutScalerValues(int startFrame, int finalFrame, int startChannel, int finalChannel)
 			throws DeviceException {
 		updateArrays();
+
+		EpicsXspress3ControllerPvProvider pvProvider = getPvProvider();
 
 		// there are six types of scaler values to return
 		Integer[][][] returnValuesWrongOrder = new Integer[6][][]; // scaler
@@ -500,6 +549,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 
 	@Override
 	public Integer[][] readoutDTCParameters(int startChannel, int finalChannel) throws DeviceException {
+		EpicsXspress3ControllerPvProvider pvProvider = getPvProvider();
 		Integer[][] valuesWrongOrder = new Integer[4][]; // 4 values per channel
 		valuesWrongOrder[0] = readIntegerArray(pvProvider.pvsGoodEventGradient, startChannel, finalChannel);
 		valuesWrongOrder[1] = readIntegerArray(pvProvider.pvsGoodEventOffset, startChannel, finalChannel);
@@ -524,7 +574,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 			Double[][][] valuesWrongOrder = new Double[numROIs][][];
 			for (int roi = 0; roi < numROIs; roi++) {
 				// [frame][channel]
-				valuesWrongOrder[roi] = readDoubleWaveform(pvProvider.pvsROIs[roi], startFrame, finalFrame,
+				valuesWrongOrder[roi] = readDoubleWaveform(getPvProvider().pvsROIs[roi], startFrame, finalFrame,
 						startChannel, finalChannel);
 			}
 			return reorderROIValues(valuesWrongOrder);
@@ -562,7 +612,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 		double[][] mcas = new double[finalChannel - startChannel + 1][];
 		for (int i = startChannel; i <= finalChannel; i++) {
 			try {
-			    Double[] array = pvProvider.pvsLatestMCA[i].get();
+			    Double[] array = getPvProvider().pvsLatestMCA[i].get();
 				mcas[i] = ArrayUtils.toPrimitive(array,0.0);
 			} catch (IOException e) {
 				throw new DeviceException("IOException while fetching mca array data", e);
@@ -571,9 +621,14 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 		return mcas;
 	}
 
-	private synchronized void updateArrays() throws DeviceException {
+	protected void updateArrays() throws DeviceException {
+		updateArraysImpl();
+	}
+
+	private synchronized void updateArraysImpl() throws DeviceException {
 		int maxNumChannels;
 		try {
+			EpicsXspress3ControllerPvProvider pvProvider = getPvProvider();
 			pvProvider.pvUpdate.putWait(1);
 			maxNumChannels = pvProvider.pvGetMaxNumChannels.get();
 			// With the EPICs upgrade, it seems that the update arrays does not work as
@@ -599,7 +654,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 		double[][] mcas = new double[finalChannel - startChannel + 1][];
 		for (int i = startChannel; i <= finalChannel; i++) {
 			try {
-				mcas[i] = ArrayUtils.toPrimitive(pvProvider.pvsLatestMCASummed[i].get());
+				mcas[i] = ArrayUtils.toPrimitive(getPvProvider().pvsLatestMCASummed[i].get());
 			} catch (IOException e) {
 				throw new DeviceException("IOException while fetching mca array data", e);
 			}
@@ -610,6 +665,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void setROILimits(int channel, int roiNumber, int[] lowHighMCAChannels) throws DeviceException {
 		try {
+			EpicsXspress3ControllerPvProvider pvProvider = getPvProvider();
 			pvProvider.pvsROIHLM[roiNumber][channel].putWait(lowHighMCAChannels[1]);
 			pvProvider.pvsROILLM[roiNumber][channel].putWait(lowHighMCAChannels[0]);
 		} catch (IOException e) {
@@ -620,6 +676,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public Integer[] getROILimits(int channel, int roiNumber) throws DeviceException {
 		try {
+			EpicsXspress3ControllerPvProvider pvProvider = getPvProvider();
 			Integer[] limits = new Integer[2];
 			limits[0] = pvProvider.pvsROILLM[roiNumber][channel].get();
 			limits[1] = pvProvider.pvsROIHLM[roiNumber][channel].get();
@@ -632,6 +689,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void setWindows(int channel, int windowNumber, int[] lowHighScalerWindowChannels) throws DeviceException {
 		try {
+			EpicsXspress3ControllerPvProvider pvProvider = getPvProvider();
 			switch (windowNumber) {
 			case 0:
 				pvProvider.pvsScaWin1Low[channel].putNoWait(0);
@@ -654,6 +712,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public Integer[] getWindows(int channel, int windowNumber) throws DeviceException {
 		try {
+			EpicsXspress3ControllerPvProvider pvProvider = getPvProvider();
 			Integer[] limits = new Integer[2];
 			switch (windowNumber) {
 			case 1:
@@ -681,7 +740,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 		this.epicsTemplate = epicsTemplate;
 	}
 
-	private Double[][] readDoubleWaveform(ReadOnlyPV<Double[]>[] pvs, int startFrame, int finalFrame, int startChannel,
+	protected Double[][] readDoubleWaveform(ReadOnlyPV<Double[]>[] pvs, int startFrame, int finalFrame, int startChannel,
 			int finalChannel) throws DeviceException {
 		// this is [channel][frame]
 		Double[][] returnValuesWrongOrder = new Double[finalChannel - startChannel + 1][];
@@ -758,7 +817,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void setFilePath(String path) throws DeviceException {
 		try {
-			pvProvider.pvSetFilePath.putWait(path);
+			getPvProvider().pvSetFilePath.putWait(path);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting filepath", e);
 		}
@@ -768,7 +827,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void setFilePrefix(String template) throws DeviceException {
 		try {
-			pvProvider.pvSetFilePrefix.putWait(template);
+			getPvProvider().pvSetFilePrefix.putWait(template);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting file prefix", e);
 		}
@@ -778,7 +837,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void setNextFileNumber(int nextNumber) throws DeviceException {
 		try {
-			pvProvider.pvNextFileNumber.putWait(nextNumber);
+			getPvProvider().pvNextFileNumber.putWait(nextNumber);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting file number", e);
 		}
@@ -788,7 +847,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public String getFilePath() throws DeviceException {
 		try {
-			return pvProvider.pvGetFilePath.get();
+			return getPvProvider().pvGetFilePath.get();
 		} catch (IOException e) {
 			throw new DeviceException("IOException while getting filepath", e);
 		}
@@ -797,7 +856,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public String getFilePrefix() throws DeviceException {
 		try {
-			return pvProvider.pvGetFilePrefix.get();
+			return getPvProvider().pvGetFilePrefix.get();
 		} catch (IOException e) {
 			throw new DeviceException("IOException while getting file prefix", e);
 		}
@@ -806,7 +865,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public int getNextFileNumber() throws DeviceException {
 		try {
-			return pvProvider.pvNextFileNumber.get();
+			return getPvProvider().pvNextFileNumber.get();
 		} catch (IOException e) {
 			throw new DeviceException("IOException while getting file number", e);
 		}
@@ -815,7 +874,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public String getFullFileName() throws DeviceException {
 		try {
-			return pvProvider.pvHDFFullFileName.get();
+			return getPvProvider().pvHDFFullFileName.get();
 		} catch (IOException e) {
 			throw new DeviceException("IOException while getting file name", e);
 		}
@@ -825,7 +884,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void setHDFFileAutoIncrement(boolean b) throws DeviceException {
 		try {
-			pvProvider.pvHDFAutoIncrement.putNoWait(b);
+			getPvProvider().pvHDFAutoIncrement.putNoWait(b);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting auto increment", e);
 		}
@@ -834,7 +893,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void setHDFAttributes(boolean b) throws DeviceException {
 		try {
-			pvProvider.pvHDFAttributes.putNoWait(b);
+			getPvProvider().pvHDFAttributes.putNoWait(b);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting auto increment", e);
 		}
@@ -843,7 +902,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void setHDFPerformance(boolean b) throws DeviceException {
 		try {
-			pvProvider.pvHDFPerformance.putNoWait(b);
+			getPvProvider().pvHDFPerformance.putNoWait(b);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting auto increment", e);
 		}
@@ -852,7 +911,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void setHDFLazyOpen(boolean b) throws DeviceException {
 		try {
-			pvProvider.pvHDFLazyOpen.putNoWait(b);
+			getPvProvider().pvHDFLazyOpen.putNoWait(b);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting auto increment", e);
 		}
@@ -861,7 +920,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void setHDFNumFramesChunks(int i) throws DeviceException {
 		try {
-			pvProvider.pvHDFNumFramesChunks.putNoWait(i);
+			getPvProvider().pvHDFNumFramesChunks.putNoWait(i);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting num HDF frames to acquire", e);
 		}
@@ -870,7 +929,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void setHDFNumFramesToAcquire(int i) throws DeviceException {
 		try {
-			pvProvider.pvHDFNumCapture.putNoWait(i);
+			getPvProvider().pvHDFNumCapture.putNoWait(i);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting num HDF frames to acquire", e);
 		}
@@ -879,7 +938,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public boolean isChannelEnabled(int channel) throws DeviceException {
 		try {
-			return pvProvider.pvsChannelEnable[channel].get() == UPDATE_RBV.Enabled;
+			return getPvProvider().pvsChannelEnable[channel].get() == UPDATE_RBV.Enabled;
 		} catch (IOException e) {
 			throw new DeviceException("IOException while checking channel enabled", e);
 		}
@@ -888,6 +947,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void enableChannel(int channel, boolean doEnable) throws DeviceException {
 
+		EpicsXspress3ControllerPvProvider pvProvider = getPvProvider();
 		PV<UPDATE_RBV> enablePv = iocVersion3 ? pvProvider.pvsChannelEnableIocV3[channel]
 											  : pvProvider.pvsChannelEnable[channel];
 
@@ -914,7 +974,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public int waitUntilFrameAvailable(int desiredPoint) throws DeviceException {
 		try {
-			return pvProvider.pvGetNumFramesAvailableToReadout.waitForValue(frames -> frames == desiredPoint, TIMEOUTS_MONITORING);
+			return getPvProvider().pvGetNumFramesAvailableToReadout.waitForValue(frames -> frames == desiredPoint, TIMEOUTS_MONITORING);
 		} catch (Exception e) {
 			throw new DeviceException("Problem while waiting for point: " + desiredPoint, e);
 		}
@@ -925,7 +985,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	public ReadyForNextRow monitorReadyForNextRow(ReadyForNextRow readyForNextRow) throws DeviceException {
 		ReadyForNextRow isReadyForNextRow;
 		try {
-			isReadyForNextRow = pvProvider.pvReadyForNextRow.waitForValue(new ReadyForNextRowPredicate(readyForNextRow), TIMEOUTS_MONITORING);
+			isReadyForNextRow = getPvProvider().pvReadyForNextRow.waitForValue(new ReadyForNextRowPredicate(readyForNextRow), TIMEOUTS_MONITORING);
 		} catch (Exception e) {
 			throw new DeviceException("Problem while waiting for ready for next row: " + readyForNextRow, e);
 		}
@@ -938,7 +998,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	}
 
 	public String getSCAAttrName(int channel, int scaler) throws IOException {
-		return pvProvider.pvsSCAttrName[channel][scaler].get();
+		return getPvProvider().pvsSCAttrName[channel][scaler].get();
 	}
 
 	public boolean getUseNewEpicsInterface() {
@@ -957,6 +1017,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 
 				//For 2d, 3d scans, set the extra dimensions to match the scan shape
 				if (scanDimensions.length>1 && scanDimensions.length<4) {
+					EpicsXspress3ControllerPvProvider pvProvider = getPvProvider();
 					pvProvider.pvExtraDimN.putWait(scanDimensions[0]);
 					pvProvider.pvExtraDimX.putWait(scanDimensions[1]);
 					if (scanDimensions.length==3) {
@@ -974,7 +1035,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void setHDFExtraDimensions(int extraDimensions) throws DeviceException {
 		try {
-			pvProvider.pvExtraDimensions.putWait(extraDimensions);
+			getPvProvider().pvExtraDimensions.putWait(extraDimensions);
 		} catch (IOException e) {
 			throw new DeviceException("Error encountered while setting HDF extra dimensions", e);
 		}
@@ -982,13 +1043,13 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 
 	@Override
 	public void setStoreAttributesUsingExraDims(boolean useExtraDims) throws IOException {
-		pvProvider.pvDimAttDatasets.putWait(useExtraDims ? 1 : 0);
+		getPvProvider().pvDimAttDatasets.putWait(useExtraDims ? 1 : 0);
 	}
 
 	@Override
 	public void setHDFNDArrayPort(String port) throws DeviceException {
 		try {
-			pvProvider.pvHDFNDArrayPort.putWait(port);
+			getPvProvider().pvHDFNDArrayPort.putWait(port);
 		} catch (IOException e) {
 			throw new DeviceException("Error encountered while setting HDF NDArray port", e);
 		}
@@ -998,7 +1059,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void setFileTemplate(String fileTemplate) throws DeviceException {
 		try {
-			pvProvider.pvSetFileTemplate.putWait(fileTemplate);
+			getPvProvider().pvSetFileTemplate.putWait(fileTemplate);
 		} catch (IOException e) {
 			throw new DeviceException("Error encountered while setting file template", e);
 		}
@@ -1007,7 +1068,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void setHDFXML(String xml) throws DeviceException {
 		try {
-			pvProvider.pvHDFXML.putWait(xml);
+			getPvProvider().pvHDFXML.putWait(xml);
 		} catch (IOException e) {
 			throw new DeviceException("Error encountered while setting HDF XML", e);
 		}
@@ -1016,7 +1077,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void setHDFNDAttributeChunk(int chunk) throws DeviceException {
 		try {
-			pvProvider.pvHDFNDAttributeChunk.putWait(chunk);
+			getPvProvider().pvHDFNDAttributeChunk.putWait(chunk);
 		} catch (IOException e) {
 			throw new DeviceException("Error encountered while setting HDF NDAttribute chunk", e);
 		}
@@ -1025,7 +1086,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void setHDFPositionMode(boolean positionMode) throws DeviceException {
 		try {
-			pvProvider.pvHDFPositionMode.putWait(positionMode);
+			getPvProvider().pvHDFPositionMode.putWait(positionMode);
 		} catch (IOException e) {
 			throw new DeviceException("Error encountered while toggling HDF position mode", e);
 		}

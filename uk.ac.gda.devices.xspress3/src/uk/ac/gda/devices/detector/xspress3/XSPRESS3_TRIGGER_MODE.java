@@ -18,28 +18,13 @@
 
 package uk.ac.gda.devices.detector.xspress3;
 
-public enum TRIGGER_MODE {
+public enum XSPRESS3_TRIGGER_MODE {
 
-	//Both standard and mini
-	IDC,
-	TTL_Both,
-	LVDS_Veto_Only,
-	LVDS_Both,
-
-	// standard only
 	Fixed,
 	Internal,
+	IDC,
 	TTl_Veto_Only,
-
-	// mini only
-	Software,
-	Hardware,
-	Burst,
-	TTL_Veto_Only,
-	Software_Start_Stop {
-		@Override
-		public String toString() {
-			return "Software_Start/Stop";
-		}
-	}
+	TTL_Both,
+	LVDS_Veto_Only,
+	LVDS_Both
 }
