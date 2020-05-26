@@ -263,10 +263,12 @@ public class SimpleMotor extends FindableConfigurableBase implements Motor, Init
 		this.smc = smc;
 	}
 
+	@Override
 	public void setMinPosition(double minPosition) {
 		this.minPosition = minPosition;
 	}
 
+	@Override
 	public void setMaxPosition(double maxPosition) {
 		this.maxPosition = maxPosition;
 	}

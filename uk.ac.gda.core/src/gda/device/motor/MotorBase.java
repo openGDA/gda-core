@@ -19,16 +19,6 @@
 
 package gda.device.motor;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import org.slf4j.Logger;
@@ -50,14 +40,6 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 
 	private static final long POLL_TIME_MILLIS = LocalProperties.getAsInt(LocalProperties.GDA_SCANNABLEBASE_POLLTIME, 100);
 
-	private ObjectOutputStream out = null;
-
-	private ObjectInputStream in = null;
-
-	private String separator = System.getProperty("file.separator");
-
-	private String filePath = ".";
-
 	private double backlashSteps = 0.0;
 
 	// README: protected as some subclasses need access to it
@@ -76,14 +58,6 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 	protected double maxPosition = Double.NaN;
 
 	protected volatile boolean isInitialised = false;
-
-	/**
-	 * Constructor.
-	 */
-	public MotorBase() {
-		if ((filePath = LocalProperties.get("gda.motordir")) == null)
-			filePath = ".";
-	}
 
 	/**
 	 * Changes the maximum velocity fast speed setting.
@@ -177,135 +151,6 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 		this.limitsSettable = limitsSettable;
 	}
 
-	/**
-	 * saves motor's current position, the persistence path is fixed by java.properties
-	 *
-	 * @param name
-	 *            of file for position save
-	 */
-	public void savePosition(String name) {
-		try {
-			savePosition(name, getPosition());
-		} catch (MotorException e) {
-			logger.error("{} Could not save position as '{}'", getName(), name, e);
-		}
-	}
-
-	/**
-	 * saves motor's current position, the persistence path is fixed by java.properties
-	 *
-	 * @param name
-	 *            of file for position save
-	 * @param currentPosition
-	 */
-	public void savePosition(String name, double currentPosition) {
-		try {
-			// work out the file name
-			String filename = filePath + separator + name;
-			File saveFile = new File(filename);
-
-			// check if file exists
-			if (!saveFile.exists()) {
-				// if not, first test if the motorPositions folder has been
-				// created
-				String dirName = filePath;
-				File motorDir = new File(dirName);
-
-				// create motorPositions folder if necessary
-				if (!motorDir.exists()) {
-					logger.info("Motor positions folder not found. Creating new folder:" + motorDir);
-					motorDir.mkdir();
-				}
-
-				// then create a new file
-				logger.info("Motor positions file for motor " + name + " not found. Creating new file:" + filename);
-				saveFile.createNewFile();
-			}
-
-			// open and write the file
-			out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(saveFile)));
-			out.writeDouble(currentPosition);
-			out.flush();
-			out.close();
-		} catch (IOException ex) {
-			logger.debug("{}: Could not save position {} as {}", getName(), currentPosition, name, ex);
-		}
-	}
-
-	/**
-	 * loads motor's current position, the persistence path is fixed by java.properties FIXME perhaps loadPosition
-	 * should throw MotorBaseException but may have big impact on code base
-	 *
-	 * @param name
-	 *            persistent filename
-	 * @param defaultPosition
-	 *            default position if the motor position file does not exist or is empty
-	 */
-	public void loadPosition(String name, double defaultPosition) {
-
-		if (!checkFilePathExistsOrCreate()) {
-			logger.error("Motor Positions folder " + filePath + " does not exist and could not be created.");
-			return;
-		}
-
-		String fullName = filePath + separator + name;
-		FileInputStream fis = null;
-		try {
-			fis = new FileInputStream(fullName);
-			in = new ObjectInputStream(new BufferedInputStream(fis));
-			setPosition(in.readDouble());
-			logger.debug("Loaded motor position {} for {}", getPosition(), name);
-			in.close();
-		} catch (FileNotFoundException fnfe) {
-			logger.info("Motor Position File " + fullName + " not found - setting " + name + " position to "
-					+ defaultPosition + " and creating new file.");
-			try {
-				setPosition(defaultPosition);
-				savePosition(name);
-			} catch (MotorException e) {
-				logger.error("Could not set position to {}", defaultPosition, e);
-			}
-		} catch (EOFException eofe) {
-			logger.error("unexpected EOF in Motor Position File '{}' trying to read position as int", fullName, eofe);
-			try {
-				// have already asserted EOFException so OK to do this
-				if (fis.available() > 0) {
-					in = new ObjectInputStream(new BufferedInputStream(fis));
-					setPosition(in.readInt());
-					in.close();
-					savePosition(name);
-				} else {
-					logger.info("Motor Position File empty setting posn to " + defaultPosition);
-					setPosition(defaultPosition);
-					savePosition(name);
-				}
-			} catch (IOException ioe) {
-				logger.error("IOException in MotorBase.loadPosition", ioe);
-				logger.debug(ioe.getStackTrace().toString());
-			} catch (MotorException e) {
-				logger.debug(e.getStackTrace().toString());
-			}
-		} catch (IOException ioe) {
-			logger.debug(ioe.getStackTrace().toString());
-		} catch (MotorException e) {
-			logger.debug(e.getStackTrace().toString());
-		}
-	}
-
-	public void loadPosition(String name) {
-		loadPosition(name, 0);
-	}
-
-	private boolean checkFilePathExistsOrCreate() {
-		// to avoid later FileNotFoundExceptions
-		File filePathFolder = new File(filePath);
-		if (!filePathFolder.exists()) {
-			return filePathFolder.mkdirs();
-		}
-
-		return true;
-	}
-
 	@Override
 	public double getTimeToVelocity() throws MotorException {
 		throw new UnsupportedOperationException("Getting this motor's time to velocity is not supported");
@@ -392,6 +237,7 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 		return minPosition;
 	}
 
+	@Override
 	public void setMinPosition(double minPosition) throws MotorException {
 		this.minPosition = minPosition;
 	}
@@ -401,6 +247,7 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 		return maxPosition;
 	}
 
+	@Override
 	public void setMaxPosition(double maxPosition) throws MotorException {
 		this.maxPosition = maxPosition;
 	}

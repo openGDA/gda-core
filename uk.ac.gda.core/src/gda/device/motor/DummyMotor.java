@@ -19,11 +19,23 @@
 
 package gda.device.motor;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.nio.file.Paths;
 import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.MotorException;
 import gda.device.MotorProperties.MotorEvent;
 import gda.device.MotorStatus;
@@ -106,6 +118,11 @@ public class DummyMotor extends MotorBase {
 	private boolean homed = false;
 
 	private boolean homing = false;
+
+	/**
+	 * Directory where motor positions are saved/restored
+	 */
+	private final String filePath = LocalProperties.get("gda.motordir", ".");
 
 	@Override
 	public void configure() {
@@ -296,6 +313,108 @@ public class DummyMotor extends MotorBase {
 	@Override
 	public double getPosition() {
 		return currentPosition + ( randomPositionVariation ? (random.nextGaussian()-0.5)*randomPositionVariationAmount : 0.);
+	}
+
+	/**
+	 * saves motor's current position, the persistence path is fixed by java.properties
+	 *
+	 * @param name
+	 *            of file for position save
+	 * @param currentPosition
+	 */
+	private void savePosition(String name) {
+		final double currentPos = getPosition();
+		try {
+			// work out the file name
+			final String filename = Paths.get(filePath, name).toString();
+			final File saveFile = new File(filename);
+
+			// check if file exists
+			if (!saveFile.exists()) {
+				// if not, first test if the motorPositions folder has been created
+				final File motorDir = new File(filePath);
+
+				// create motorPositions folder if necessary
+				if (!motorDir.exists()) {
+					logger.info("Motor positions folder not found. Creating new folder:" + motorDir);
+					motorDir.mkdir();
+				}
+
+				// then create a new file
+				logger.info("Motor positions file for motor " + name + " not found. Creating new file:" + filename);
+				saveFile.createNewFile();
+			}
+
+			// open and write the file
+			final ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(saveFile)));
+			out.writeDouble(currentPos);
+			out.flush();
+			out.close();
+		} catch (IOException ex) {
+			logger.debug("{}: Could not save position {} as {}", getName(), currentPos, name, ex);
+		}
+	}
+
+	/**
+	 * loads motor's current position, the persistence path is fixed by java.properties FIXME perhaps loadPosition
+	 * should throw MotorBaseException but may have big impact on code base
+	 *
+	 * @param name
+	 *            persistent filename
+	 * @param defaultPosition
+	 *            default position if the motor position file does not exist or is empty
+	 */
+	private void loadPosition(String name, double defaultPosition) {
+
+		if (!checkFilePathExistsOrCreate()) {
+			logger.error("Motor Positions folder " + filePath + " does not exist and could not be created.");
+			return;
+		}
+
+		final String fullName = Paths.get(filePath, name).toString();
+		FileInputStream fis = null;
+		ObjectInputStream in = null;
+		try {
+			fis = new FileInputStream(fullName);
+			in = new ObjectInputStream(new BufferedInputStream(fis));
+			setPosition(in.readDouble());
+			logger.debug("Loaded motor position {} for {}", getPosition(), name);
+			in.close();
+		} catch (FileNotFoundException fnfe) {
+			logger.info("Motor Position File " + fullName + " not found - setting " + name + " position to "
+					+ defaultPosition + " and creating new file.");
+			setPosition(defaultPosition);
+			savePosition(name);
+		} catch (EOFException eofe) {
+			logger.error("unexpected EOF in Motor Position File '{}' trying to read position as int", fullName, eofe);
+			try {
+				// have already asserted EOFException so OK to do this
+				if (fis.available() > 0) {
+					in = new ObjectInputStream(new BufferedInputStream(fis));
+					setPosition(in.readInt());
+					in.close();
+					savePosition(name);
+				} else {
+					logger.info("Motor Position File empty setting posn to " + defaultPosition);
+					setPosition(defaultPosition);
+					savePosition(name);
+				}
+			} catch (IOException ioe) {
+				logger.error("IOException in MotorBase.loadPosition", ioe);
+			}
+		} catch (IOException ioe) {
+			logger.error("IOException in MotorBase.loadPosition", ioe);
+		}
+	}
+
+	private boolean checkFilePathExistsOrCreate() {
+		// to avoid later FileNotFoundExceptions
+		final File filePathFolder = new File(filePath);
+		if (!filePathFolder.exists()) {
+			return filePathFolder.mkdirs();
+		}
+
+		return true;
 	}
 
 	/**

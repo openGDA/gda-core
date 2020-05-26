@@ -212,6 +212,15 @@ public interface Motor extends Device {
 	public double getMinPosition() throws MotorException;
 
 	/**
+	 * Set the lower soft limit of the motor
+	 *
+	 * @param minPosition
+	 *            the lower limit to set
+	 * @throws MotorException
+	 */
+	void setMinPosition(double minPosition) throws MotorException;
+
+	/**
 	 * Gets the maximum or upper soft limits of the motor itself (i.e. NOT limits cached in GDA software). By convention
 	 * return NaN if not set.
 	 *
@@ -219,6 +228,15 @@ public interface Motor extends Device {
 	 * @throws MotorException
 	 */
 	public double getMaxPosition() throws MotorException;
+
+	/**
+	 * Set the upper soft limit of the motor
+	 *
+	 * @param maxPosition
+	 *            upper limit to set
+	 * @throws MotorException
+	 */
+	void setMaxPosition(double maxPosition) throws MotorException;
 
 	/**
 	 * Returns whether or not limits are settable (in the motor itself).

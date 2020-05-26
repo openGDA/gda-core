@@ -34,6 +34,7 @@ public class DummyShutteredScannableMotorTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		dummyMotor = new DummyMotor();
+		dummyMotor.setName("test_motor");
 		dummyMotor.configure();
 		scannableMotor = new ScannableMotor();
 		scannableMotor.setMotor(dummyMotor);
