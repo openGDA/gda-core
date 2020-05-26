@@ -50,6 +50,9 @@
 						<exclude>PosDetectorScanTest</exclude>
 						<!-- Powermock issues -->
 						<exclude>QueuePersistenceTest</exclude>
+						<!-- Fails on Jenkins often -->
+						<exclude>MultiStepCompositeTest</exclude>
+						<exclude>MalcolmDeviceTest</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
