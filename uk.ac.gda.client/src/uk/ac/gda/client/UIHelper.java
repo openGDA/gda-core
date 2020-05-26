@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ExpandBar;
 import org.eclipse.swt.widgets.ExpandItem;
+import org.slf4j.Logger;
 
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
@@ -41,6 +42,29 @@ public class UIHelper {
 
 	public static void showError(final String message, final Exception cause) {
 		showMessage(MessageDialog.ERROR, message, cause.getMessage());
+	}
+
+	/**
+	 * Utility to both log an error and show an error dialog
+	 * @param message the message to log and display
+	 * @param cause the exception responsible for the error
+	 * @param logger the logging instance to use
+	 */
+	public static void showError(final String message, final Exception cause, Logger logger) {
+		logger.error(message, cause);
+		showError(message, cause);
+	}
+
+	/**
+	 * Utility to both log an error and show an error dialog
+	 * @param message the message to log and display
+	 * @param cause the exception responsible for the error
+	 * @param logger the logging instance to use
+	 */
+	public static void showError(final ClientMessages message, final Exception cause, Logger logger) {
+		String strMessage = ClientMessagesUtility.getMessage(message);
+		logger.error(strMessage, cause);
+		showError(strMessage, cause);
 	}
 
 	public static void showError(final ClientMessages message, final Exception cause) {

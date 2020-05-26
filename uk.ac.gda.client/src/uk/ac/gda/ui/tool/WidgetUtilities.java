@@ -21,11 +21,14 @@ package uk.ac.gda.ui.tool;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Widget;
@@ -81,5 +84,27 @@ public class WidgetUtilities {
 	public static final void addWidgetDisposableListener(Widget widget, int eventType, Listener listener) {
 		widget.addListener(eventType, listener);
 		widget.addDisposeListener(ev -> widget.removeListener(eventType, listener));
+	}
+
+	/**
+	 * Adds a {@link FocusListener} to a {@link Control} and removes it before the {@code Control} is disposed.
+	 * @param control  the element to which the listener is add
+	 * @param focusLost the listener when {@code control} looses focus
+	 * @param focusGained the listener when {@code control} gains focus
+	 */
+	public static final void addControlDisposableFocusListener(Control control, Consumer<FocusEvent> focusLost, Consumer<FocusEvent> focusGained) {
+		FocusListener listener = new FocusListener() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				focusLost.accept(e);
+			}
+
+			@Override
+			public void focusGained(FocusEvent e) {
+				focusGained.accept(e);
+			}
+		};
+		control.addFocusListener(listener);
+		control.addDisposeListener(ev -> control.removeFocusListener(listener));
 	}
 }

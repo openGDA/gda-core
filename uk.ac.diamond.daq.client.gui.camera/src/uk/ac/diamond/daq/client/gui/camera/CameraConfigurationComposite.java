@@ -61,10 +61,8 @@ public class CameraConfigurationComposite implements CompositeFactory {
 		GridDataFactory gdf = GridDataFactory.fillDefaults().grab(true, true);
 
 		// Exposure Component
-		getCameraConfigurationController().ifPresent(c -> {
-			Composite exposureLengthComposite = new ExposureDurationComposite(c).createComposite(container, SWT.NONE);
-			gdf.applyTo(exposureLengthComposite);
-		});
+		Composite exposureLengthComposite = new ExposureDurationComposite().createComposite(container, style);
+		gdf.applyTo(exposureLengthComposite);
 
 		getCameraConfigurationController().ifPresent(c -> {
 			// Binning Component
@@ -82,7 +80,8 @@ public class CameraConfigurationComposite implements CompositeFactory {
 		buildMotorsGUI();
 		gdf.applyTo(motorCompositeArea);
 		try {
-			SpringApplicationContextProxy.addDisposableApplicationListener(container, getChangeCameraListener(container));
+			SpringApplicationContextProxy.addDisposableApplicationListener(container,
+					getChangeCameraListener(container));
 		} catch (GDAClientException e) {
 			UIHelper.showError("Cannot add camera change listener to CameraConfiguration", e);
 		}
@@ -136,7 +135,7 @@ public class CameraConfigurationComposite implements CompositeFactory {
 	private Optional<AbstractCameraConfigurationController> getCameraConfigurationController() {
 		return activeCameraIndex.map(CameraHelper::getCameraControlInstance).orElse(Optional.empty());
 	}
-	
+
 	private ApplicationListener<ChangeActiveCameraEvent> getChangeCameraListener(Composite container) {
 		return new ApplicationListener<ChangeActiveCameraEvent>() {
 			@Override
