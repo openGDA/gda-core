@@ -78,16 +78,6 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		FAULT;
 	}
 
-	@Override
-	public void savePosition(String name, double currentPosition) {
-		// do nothing
-	}
-
-	@Override
-	public void savePosition(String name) {
-		// do nothing
-	}
-
 	private static final Logger logger = LoggerFactory.getLogger(EpicsMotor.class);
 
 	private boolean assertHomedBeforeMoving = false;
