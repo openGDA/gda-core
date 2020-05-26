@@ -33,6 +33,7 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.LevelInformation;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,12 +120,12 @@ public abstract class AbstractRunnableDeviceDelegate {
 	// Delegated annotated methods
 
 	@SuppressWarnings("unused")
-	public void preConfigure(Object scanModel, ScanBean scanBean, IPublisher<?> publisher) throws ScanningException {
+	public void preConfigure(ScanModel scanModel, ScanBean scanBean, IPublisher<?> publisher) throws ScanningException {
 		logger.trace("preConfigure({}, {}, {}) on {}", scanModel, scanBean, publisher, runnableDeviceProxy.getName());
 	}
 
 	@SuppressWarnings("unused")
-	public void postConfigure(Object scanModel, ScanBean scanBean, IPublisher<?> publisher) throws ScanningException {
+	public void postConfigure(ScanModel scanModel, ScanBean scanBean, IPublisher<?> publisher) throws ScanningException {
 		logger.trace("postConfigure({}, {}, {}) on {}", scanModel, scanBean, publisher, runnableDeviceProxy.getName());
 	}
 
