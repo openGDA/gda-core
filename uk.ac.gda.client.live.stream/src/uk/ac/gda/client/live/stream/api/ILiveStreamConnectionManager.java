@@ -33,7 +33,7 @@ import uk.ac.gda.client.live.stream.view.StreamType;
  * @author Maurizio Nagni
  *
  */
-public interface ILiveStreamConnectionManager extends IMappableLiveStreamConnectionSource {
+public interface ILiveStreamConnectionManager {
 
 	/**
 	 * Returns the {@link ILiveStreamConnection} associated with this service
@@ -53,14 +53,14 @@ public interface ILiveStreamConnectionManager extends IMappableLiveStreamConnect
 	 */
 	boolean isILiveStreamConnectionAvailable(UUID uuid);
 
-
 	/**
 	 * Returns the connection associated with the (config, type) pair configuration, otherwise creates a new one.
+	 *
 	 * @param cameraConfig
 	 * @param streamType
 	 * @return a stream connection
-	 * @throws LiveStreamException if error occurs during the connection creation
+	 * @throws LiveStreamException
+	 *             if error occurs during the connection creation
 	 */
 	UUID getIStreamConnection(CameraConfiguration cameraConfig, StreamType streamType) throws LiveStreamException;
-
 }
