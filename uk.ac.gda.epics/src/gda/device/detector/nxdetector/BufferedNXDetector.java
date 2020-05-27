@@ -75,6 +75,8 @@ public class BufferedNXDetector extends DetectorBase implements BufferedDetector
 
 	private boolean continuousMode = false;
 
+	private int maximumReadFrames = 100000;
+
 	@Override
 	public void configure() throws FactoryException {
 		if (isConfigured()) {
@@ -217,7 +219,11 @@ public class BufferedNXDetector extends DetectorBase implements BufferedDetector
 
 	@Override
 	public int maximumReadFrames() throws DeviceException {
-		return 100000;
+		return maximumReadFrames;
+	}
+
+	public void setMaximumReadFrames(int numFrames) {
+		maximumReadFrames = numFrames;
 	}
 
 	@Override
