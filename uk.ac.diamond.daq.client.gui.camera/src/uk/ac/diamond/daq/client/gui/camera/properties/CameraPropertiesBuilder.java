@@ -54,6 +54,11 @@ public class CameraPropertiesBuilder {
 		cameraProperties.setBeamMappingActive(beamMappingActive);
 	}
 	
+	public void setPixelBinningEditable(boolean pixelBinningEditable) {
+		cameraProperties.setPixelBinningEditable(pixelBinningEditable);
+	}
+	
+	
 	private class CameraPropertiesImpl implements CameraProperties {
 
 		private int index;
@@ -63,6 +68,7 @@ public class CameraPropertiesBuilder {
 		private String cameraConfiguration;
 		private List<MotorProperties> motorProperties;
 		private boolean beamMappingActive;
+		private boolean pixelBinningEditable;
 
 		@Override
 		public int getIndex() {
@@ -126,5 +132,14 @@ public class CameraPropertiesBuilder {
 		public void setBeamMappingActive(boolean beamMappingActive) {
 			this.beamMappingActive = beamMappingActive;
 		}
+
+		@Override
+		public boolean isPixelBinningEditable() {
+			return pixelBinningEditable;
+		}
+
+		public void setPixelBinningEditable(boolean pixelBinningEditable) {
+			this.pixelBinningEditable = pixelBinningEditable;
+		}		
 	}
 }

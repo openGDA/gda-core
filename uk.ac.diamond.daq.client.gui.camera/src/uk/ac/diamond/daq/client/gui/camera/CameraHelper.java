@@ -243,6 +243,7 @@ public final class CameraHelper {
 		builder.setCameraConfiguration(getConfigurationBeanProperty(CAMERA_CONFIGURATION_PREFIX, index));
 		builder.setCameraControl(getCameraControlProperty(index));
 		builder.setBeamMappingActive(getBeamMappingProperty(index));
+		builder.setPixelBinningEditable(getPixelBinningEditableProperty(index));
 
 		builder.setMotorProperties(getCameraConfigurationMotors(index));
 		CameraProperties cp = builder.build();
@@ -284,6 +285,18 @@ public final class CameraHelper {
 				.get(formatPropertyKey(CAMERA_CONFIGURATION_PREFIX, index, "beam_mapping_active"), "false"));
 	}
 
+	/**
+	 * Extracts properties formatted like
+	 * "client.cameraConfiguration.INDEX.pixelBinningEditable"
+	 * 
+	 * @param index the camera index
+	 * @return
+	 */
+	private static boolean getPixelBinningEditableProperty(int index) {
+		return Boolean.parseBoolean(LocalProperties
+				.get(formatPropertyKey(CAMERA_CONFIGURATION_PREFIX, index, "pixelBinningEditable"), "false"));
+	}
+	
 	// -- motors -- //
 	/**
 	 * Returns a string like
