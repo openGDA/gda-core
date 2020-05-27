@@ -155,45 +155,44 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	/**
 	 * monitor EPICS motor position
 	 */
-	protected RBVMonitorListener positionMonitor;
+	protected MonitorListener positionMonitor;
 
 	/**
 	 * Monitor EPICS motor's DMOV - EPICS motor motion completion status
 	 */
-	protected DMOVMonitorListener statusMonitor;
+	protected MonitorListener statusMonitor;
 
 	/**
 	 * Monitor EPICS motor lower limit
 	 */
-	protected LLMMonitorListener lowLimitMonitor;
+	protected MonitorListener lowLimitMonitor;
 
 	/**
 	 * Monitor EPICS motor higher limit
 	 */
-	protected HLMMonitorListener highLimitMonitor;
+	protected MonitorListener highLimitMonitor;
 
 	/**
 	 * Monitor EPICS motor dial higher limit
 	 */
-	protected DHLMMonitorListener dialHighLimitMonitor;
+	protected MonitorListener dialHighLimitMonitor;
 
 	/**
 	 * Monitor EPICS motor dial lower limit
 	 */
-	protected DLLMMonitorListener dialLowLimitMonitor;
+	protected MonitorListener dialLowLimitMonitor;
 
-	protected MSTAMonitorListener mstaMonitorListener;
+	protected MonitorListener mstaMonitorListener;
 	/**
 	 * Monitor EPICS motor limit violation
 	 */
-	protected LVIOMonitorListener lvioMonitor;
+	protected MonitorListener lvioMonitor;
 
 	/**
-	* Monitors for the limit switch states .LLS and .HLS
-	*/
-	protected LLSMonitorListener lowLimitStateMonitor;
-	protected HLSMonitorListener highLimitStateMonitor;
-
+	 * Monitors for the limit switch states .LLS and .HLS
+	 */
+	protected MonitorListener lowLimitStateMonitor;
+	protected MonitorListener highLimitStateMonitor;
 
 	protected Channel setPv;
 	protected SetUseMonitorListener setUseListener;
@@ -201,15 +200,17 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	/**
 	 * EPICS Put call back handler
 	 */
-	protected PutCallbackListener putCallbackListener;
-
-	// private MSTAMonitorListener mstaMonitorListener;
+	protected PutListener putCallbackListener;
 
 	private Status status = Status.NO_ALARM;
 	private Severity severity = Severity.NO_ALARM;
 	private TimeStamp timestamp = null;
 
 	protected String pvName;
+
+	private boolean alarmRaised = false;
+
+	private MotorStatus mstaStatus = MotorStatus.READY;
 
 	/**
 	 * EPICS controller
@@ -257,18 +258,29 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	public EpicsMotor() {
 		controller = EpicsController.getInstance();
 		channelManager = new EpicsChannelManager(this);
-		positionMonitor = new RBVMonitorListener();
-		statusMonitor = new DMOVMonitorListener();
-		putCallbackListener = new PutCallbackListener();
-		highLimitMonitor = new HLMMonitorListener();
-		lowLimitMonitor = new LLMMonitorListener();
-		highLimitStateMonitor = new HLSMonitorListener();
-		lowLimitStateMonitor = new LLSMonitorListener();
-		dialHighLimitMonitor = new DHLMMonitorListener();
-		dialLowLimitMonitor = new DLLMMonitorListener();
-		lvioMonitor = new LVIOMonitorListener();
-		mstaMonitorListener = new MSTAMonitorListener();
+		positionMonitor = this::rbvMonitorChanged;
+		statusMonitor = this::dmovMonitorChanged;
+		putCallbackListener = this::putCompleted;
+		highLimitMonitor = this::hlmMonitorChanged;
+		lowLimitMonitor = this::llmMonitorChanged;
+		highLimitStateMonitor = this::hlsMonitorChanged;
+		lowLimitStateMonitor = this::llsMonitorChanged;
+		dialHighLimitMonitor = this::dhlmMonitorChanged;
+		dialLowLimitMonitor = this::dllmMonitorChanged;
+		lvioMonitor = this::lvioMonitorChanged;
+		mstaMonitorListener = this::mstaMonitorChanged;
 		setUseListener = new SetUseMonitorListener();
+	}
+
+	/**
+	 * Constructor taking a motor name
+	 *
+	 * @param name
+	 *            name of the motor
+	 */
+	public EpicsMotor(String name) {
+		this();
+		setName(name);
 	}
 
 	/**
@@ -350,7 +362,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			llm = channelManager.createChannel(pvName + ".LLM", lowLimitMonitor, false);
 
 			dhlm = channelManager.createChannel(pvName + ".DHLM", dialHighLimitMonitor, false);
-			dllm = channelManager.createChannel(pvName + ".DLLM", dialLowLimitMonitor,false);
+			dllm = channelManager.createChannel(pvName + ".DLLM", dialLowLimitMonitor, false);
 			homf = channelManager.createChannel(pvName + ".HOMF", false);
 
 			rdbd = channelManager.createChannel(pvName + ".RDBD", false);
@@ -370,9 +382,9 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 
 	private void waitForInitialisation() throws TimeoutException, FactoryException {
 		configure();
-		long startTime_ms = System.currentTimeMillis();
-		double timeout_s = EpicsGlobals.getTimeout();
-		long timeout_ms = (long) (timeout_s * 1000.);
+		final long startTime_ms = System.currentTimeMillis();
+		final double timeout_s = EpicsGlobals.getTimeout();
+		final long timeout_ms = (long) (timeout_s * 1000.);
 
 		while (!isInitialised() && (System.currentTimeMillis() - startTime_ms < timeout_ms)) {
 			try {
@@ -408,7 +420,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	@Override
 	public void setSpeed(double mmPerSec) throws MotorException {
 		try {
-			//must use caputWait to ensure the speed is set before we start moving
+			// must use caputWait to ensure the speed is set before we start moving
 			controller.caputWait(velo, mmPerSec);
 			currentSpeed = mmPerSec;
 		} catch (Exception ex) {
@@ -523,7 +535,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	 * checks motor Status
 	 */
 	protected MotorStatus checkStatus() throws MotorException {
-		MotorStatus status = getStatus();
+		final MotorStatus status = getStatus();
 		logger.trace("checking status {}", status);
 		if (status == MotorStatus.UNKNOWN || status == MotorStatus.FAULT) {
 			logger.error("throwing motor exception for {} or {}", MotorStatus.UNKNOWN, MotorStatus.FAULT);
@@ -537,7 +549,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	 */
 	@Override
 	public MotorStatus getStatus() throws MotorException {
-		return get_motorStatus();
+		return _motorStatus;
 	}
 
 	/**
@@ -551,7 +563,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			if (controller.cagetShort(dmov) == 0) {
 				ms = MotorStatus.BUSY;
 			}
-			String statusString = Long.toBinaryString((long) (Double.parseDouble(controller.caget(msta))));
+			final String statusString = Long.toBinaryString((long) (Double.parseDouble(controller.caget(msta))));
 			if (statusString.charAt(0) == '1' || statusString.charAt(3) == '1' || statusString.charAt(6) == '1') {
 				logger.info("There is a hardware problem");
 				ms = MotorStatus.FAULT;
@@ -562,7 +574,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 				ms = MotorStatus.SOFT_LIMIT_VIOLATION;
 			}
 			// add to queue so that the status is cleared
-			if (!ms.equals(get_motorStatus())) {
+			if (!ms.equals(getStatus())) {
 				moveEventQueue.addMoveCompleteEvent(EpicsMotor.this, ms, STATUSCHANGE_REASON.NEWSTATUS);
 			}
 		} catch (Exception ex) {
@@ -610,24 +622,6 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 
 	}
 
-	static String reasonAsString(STATUSCHANGE_REASON reason) {
-		if (reason == STATUSCHANGE_REASON.START_MOVETO)
-			return "START_MOVETO";
-		if (reason == STATUSCHANGE_REASON.MOVETO)
-			return "MOVETO";
-		if (reason == STATUSCHANGE_REASON.INITIALISE)
-			return "INITIALISE";
-		if (reason == STATUSCHANGE_REASON.CAPUT_MOVECOMPLETE)
-			return "CAPUT_MOVECOMPLETE";
-		if (reason == STATUSCHANGE_REASON.CAPUT_MOVECOMPLETE_IN_ERROR)
-			return "CAPUT_MOVECOMPLETE_IN_ERROR";
-		if (reason == STATUSCHANGE_REASON.DMOV_MOVECOMPLETE)
-			return "DMOV_MOVECOMPLETE";
-		if (reason == STATUSCHANGE_REASON.NEWSTATUS)
-			return "NEWSTATUS";
-		return "unknown";
-	}
-
 	/*
 	 * This is where the observers are updated with status. It is only called by the single thread so no need for
 	 * synchronisation objects. DO NOT CALL DIRECTLY - use MoveEventQueue.addMoveCompleteEvent instead
@@ -637,7 +631,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			logger.trace("{} changeStatusAndNotify started.. newStatus = {}. reason = {}", getName(), newStatus, reason);
 			switch (reason) {
 			case INITIALISE:
-				set_motorStatus(MotorStatus.READY);
+				setMotorStatus(MotorStatus.READY);
 				notifyIObservers(MotorProperty.STATUS, getStatus());
 				setInitialised(true);
 				DMOVRefreshEnabled = true;
@@ -645,15 +639,14 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 				break;
 			case START_MOVETO:
 				DMOVRefreshEnabled = false; // prevent DMOV listener update
-				MotorStatus oldStatus = get_motorStatus();
-				set_motorStatus(MotorStatus.BUSY);
+				final MotorStatus oldStatus = getStatus();
+				setMotorStatus(MotorStatus.BUSY);
 				try {
 					logger.debug("{}: caput with callback {} <<<", getName(), targetPosition);
-
 					controller.caput(val, targetPosition, putCallbackListener);
 				} catch (Exception ex) {
 					DMOVRefreshEnabled = true;
-					set_motorStatus(oldStatus);
+					setMotorStatus(oldStatus);
 					throw ex;
 				}
 				break;
@@ -663,9 +656,9 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 				break;
 			case CAPUT_MOVECOMPLETE:
 				if (newStatus != null)
-					set_motorStatus(newStatus);
+					setMotorStatus(newStatus);
 				notifyIObservers(EpicsMotor.this, MotorEvent.MOVE_COMPLETE);
-				logger.debug("{} notifying CAPUT_MOVECOMPLETE {}", getName(), get_motorStatus());
+				logger.debug("{} notifying CAPUT_MOVECOMPLETE {}", getName(), getStatus());
 				DMOVRefreshEnabled = true; // allow DMOV listener to refresh
 				break;
 			case CAPUT_MOVECOMPLETE_IN_ERROR:
@@ -683,19 +676,19 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 				// MoveEvent queue
 				if (DMOVRefreshEnabled) {
 					if (newStatus != null)
-						set_motorStatus(newStatus);
+						setMotorStatus(newStatus);
 					notifyIObservers(EpicsMotor.this, MotorEvent.MOVE_COMPLETE);
-					logger.trace("{} notifying DMOV_MOVECOMPLETE. New Status: {}", getName(), get_motorStatus());
+					logger.trace("{} notifying DMOV_MOVECOMPLETE. New Status: {}", getName(), getStatus());
 				}
 				break;
 			case NEWSTATUS:
 				// DMOVRefreshEnabled could have been changed to false by START_MOVETO since the event was added to the
 				// MoveEvent queue
 				if (DMOVRefreshEnabled) {
-					if (newStatus != null && !newStatus.equals(get_motorStatus())) {
-						set_motorStatus(newStatus);
+					if (newStatus != null && !newStatus.equals(getStatus())) {
+						setMotorStatus(newStatus);
 						notifyIObservers(EpicsMotor.this, MotorEvent.REFRESH);
-						logger.trace("{} notifying NEWSTATUS {}", getName(), get_motorStatus());
+						logger.trace("{} notifying NEWSTATUS {}", getName(), getStatus());
 					}
 				}
 				break;
@@ -703,7 +696,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		} catch (MotorException me) {
 			throw me;
 		} catch (Exception ex) {
-			throw new MotorException(get_motorStatus(), "Error in changeStatusAndNotify", ex);
+			throw new MotorException(getStatus(), "Error in changeStatusAndNotify", ex);
 		} finally {
 			logger.trace("{} changeStatusAndNotify complete", getName());
 		}
@@ -732,11 +725,9 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		if (getStatus() == MotorStatus.BUSY)
 			throw new MotorException(getStatus(), "moveTo aborted because previous move not yet completed");
 		if (getStatus() == MotorStatus.FAULT)
-			throw new MotorException(getStatus(),
-					"moveTo aborted because EPICS Motor is at Fault status. Please check EPICS Screen.");
+			throw new MotorException(getStatus(), "moveTo aborted because EPICS Motor is at Fault status. Please check EPICS Screen.");
 		if (isAssertHomedBeforeMoving() && !isHomed()) {
-			throw new MotorException(getStatus(),
-					"moveTo aborted because EPICS Motor is not homed (and assertHomedBeforeMoving is set)");
+			throw new MotorException(getStatus(), "moveTo aborted because EPICS Motor is not homed (and assertHomedBeforeMoving is set)");
 		}
 
 		moveEventQueue.addMoveCompleteEvent(EpicsMotor.this, null, STATUSCHANGE_REASON.MOVETO);
@@ -830,7 +821,6 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	 *            absolute requested target to validate within limits
 	 */
 	private void targetRangeCheck(double requestedPosition) throws MotorException {
-
 		if (!hasLimitsToCheck()) {
 			return;
 		}
@@ -839,13 +829,11 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		final double upperLimit = getMaxPosition();
 
 		if (requestedPosition < lowerLimit) {
-			throw (new MotorException(MotorStatus.LOWER_LIMIT, requestedPosition + " outside lower hardware limit of "
-					+ lowerLimit));
+			throw (new MotorException(MotorStatus.LOWER_LIMIT, requestedPosition + " outside lower hardware limit of " + lowerLimit));
 		}
 
 		else if (requestedPosition > upperLimit) {
-			throw (new MotorException(MotorStatus.UPPER_LIMIT, requestedPosition + " outside upper hardware limit of "
-					+ upperLimit));
+			throw (new MotorException(MotorStatus.UPPER_LIMIT, requestedPosition + " outside upper hardware limit of " + upperLimit));
 		}
 	}
 
@@ -889,7 +877,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			return Double.NaN;
 		}
 		try {
-			return Double.isNaN(minPosition) ? (minPosition=controller.cagetDouble(llm)) : minPosition;
+			return Double.isNaN(minPosition) ? (minPosition = controller.cagetDouble(llm)) : minPosition;
 		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to get min position", ex);
 		}
@@ -922,7 +910,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			return Double.NaN;
 		}
 		try {
-			return Double.isNaN(maxPosition) ? (maxPosition=controller.cagetDouble(hlm)) : maxPosition;
+			return Double.isNaN(maxPosition) ? (maxPosition = controller.cagetDouble(hlm)) : maxPosition;
 		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to get max position", ex);
 		}
@@ -1054,37 +1042,31 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		}
 	}
 
-	private class RBVMonitorListener implements MonitorListener {
-
-		private boolean alarmRaised = false;
-
-		@Override
-		public void monitorChanged(MonitorEvent mev) {
-			try {
-				DBR dbr = mev.getDBR();
-				if (dbr.isTIME()) {
-					currentPosition = CompoundDataTypeHandler.getDouble(dbr)[0];
-					status = STSHandler.getStatus(dbr);
-					severity = STSHandler.getSeverity(dbr);
-					timestamp = TIMEHandler.getTimeStamp(dbr);
-					notifyIObservers(MotorProperty.POSITION, new Double(currentPosition));
-				} else {
-					logger.error("Motor Alarm should return DBRTime value.");
-				}
-
-				if (status != Status.NO_ALARM || severity != Severity.NO_ALARM) {
-					if (!alarmRaised) {
-						logger.error("{} raises Alarm at {} : Status={}; Severity={}",
-								getName(), timestamp.toMONDDYYYY(), status.getName(), severity.getName());
-						alarmRaised = true;
-					}
-				} else {
-					alarmRaised = false;
-				}
-
-			} catch (Exception ex) {
-				logger.error("{} - Error in RBVMonitor", getName(), ex);
+	private void rbvMonitorChanged(MonitorEvent mev) {
+		try {
+			final DBR dbr = mev.getDBR();
+			if (dbr.isTIME()) {
+				currentPosition = CompoundDataTypeHandler.getDouble(dbr)[0];
+				status = STSHandler.getStatus(dbr);
+				severity = STSHandler.getSeverity(dbr);
+				timestamp = TIMEHandler.getTimeStamp(dbr);
+				notifyIObservers(MotorProperty.POSITION, new Double(currentPosition));
+			} else {
+				logger.error("Motor Alarm should return DBRTime value.");
 			}
+
+			if (status != Status.NO_ALARM || severity != Severity.NO_ALARM) {
+				if (!alarmRaised) {
+					logger.error("{} raises Alarm at {} : Status={}; Severity={}", getName(), timestamp.toMONDDYYYY(), status.getName(),
+							severity.getName());
+					alarmRaised = true;
+				}
+			} else {
+				alarmRaised = false;
+			}
+
+		} catch (Exception ex) {
+			logger.error("{} - Error in RBVMonitor", getName(), ex);
 		}
 	}
 
@@ -1109,9 +1091,9 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	 */
 	private MotorStatus lastMotorStatus = MotorStatus.UNKNOWN;
 
-	public double dialHighLimit=Double.NaN;
+	public double dialHighLimit = Double.NaN;
 
-	public double dialLowLimit=Double.NaN;
+	public double dialLowLimit = Double.NaN;
 
 	private MotorStatus getMotorStatusFromMSTAValue(double msta) {
 		MotorStatus status = MotorStatus.UNKNOWN;
@@ -1150,7 +1132,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		try {
 			homed = isHomedFromMSTAValue(readMsta());
 		} catch (Exception e) {
-			logger.error("{} could not read MSTA record to get homed status (swallowed exception--RETURNING UNHOMED)",getName(), e);
+			logger.error("{} could not read MSTA record to get homed status (swallowed exception--RETURNING UNHOMED)", getName(), e);
 			return false;
 		}
 		return homed;
@@ -1160,40 +1142,34 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		return controller.cagetShort(msta);
 	}
 
-	private class DMOVMonitorListener implements MonitorListener {
-		@Override
-		public void monitorChanged(MonitorEvent mev) {
+	private void dmovMonitorChanged(MonitorEvent mev) {
 
-			try {
-				int dmovValue = -1;
-				DBR dbr = mev.getDBR();
-				if (dbr.isSHORT()) {
-					dmovValue = ((DBR_Short) dbr).getShortValue()[0];
-				} else {
-					logger.error(".DMOV should return SHORT type value.");
-				}
-				if (getStatus() == MotorStatus.BUSY) {
-					if (dmovValue == 0) {
-						logger.trace("Motor {} is moving ", getName());
-					} else if (dmovValue == 1) {
-						logger.trace("Motor {} is stopped at {}.", getName(),
-								currentPosition);
-					} else {
-						logger.error("Illegal .DMOV value. {}", dmovValue);
-					}
-				} else {
-					/*
-					 * We cannot change the status as that is only to be looked after by the caput listener. Instead we
-					 * simply cause the positioner to refresh.
-					 */
-					if (dmovValue == 1 && DMOVRefreshEnabled) {
-						MotorStatus ms = mstaMonitorListener.getStatus();
-						moveEventQueue.addMoveCompleteEvent(EpicsMotor.this, ms, STATUSCHANGE_REASON.DMOV_MOVECOMPLETE);
-					}
-				}
-			} catch (Exception e) {
-				logger.error("{} - Error in DMOV monitor", getName(), e);
+		try {
+			int dmovValue = -1;
+			final DBR dbr = mev.getDBR();
+			if (dbr.isSHORT()) {
+				dmovValue = ((DBR_Short) dbr).getShortValue()[0];
+			} else {
+				logger.error(".DMOV should return SHORT type value.");
 			}
+			if (getStatus() == MotorStatus.BUSY) {
+				if (dmovValue == 0) {
+					logger.trace("Motor {} is moving ", getName());
+				} else if (dmovValue == 1) {
+					logger.trace("Motor {} is stopped at {}.", getName(), currentPosition);
+				} else {
+					logger.error("Illegal .DMOV value. {}", dmovValue);
+				}
+			} else {
+				/*
+				 * We cannot change the status as that is only to be looked after by the caput listener. Instead we simply cause the positioner to refresh.
+				 */
+				if (dmovValue == 1 && DMOVRefreshEnabled) {
+					moveEventQueue.addMoveCompleteEvent(EpicsMotor.this, mstaStatus, STATUSCHANGE_REASON.DMOV_MOVECOMPLETE);
+				}
+			}
+		} catch (Exception e) {
+			logger.error("{} - Error in DMOV monitor", getName(), e);
 		}
 	}
 
@@ -1212,23 +1188,18 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	}
 
 	private class SetUseMonitorListener implements MonitorListener {
-
 		private static final short SET_USE_PV_USE_VALUE = 0;
-
 		private static final short SET_USE_PV_SET_VALUE = 1;
 
 		private SetUseState setUseMode = SetUseState.UNKNOWN;
-
 		private final ReadWriteLock setUseLock = new ReentrantReadWriteLock();
 
 		@Override
 		public void monitorChanged(MonitorEvent event) {
-
 			final DBR dbr = event.getDBR();
 
 			if (!dbr.isENUM()) {
-				logger.error("New value for {} SET PV has type {}; expected {}",
-						getName(), dbr.getType().getName(), DBRType.ENUM.getName());
+				logger.error("New value for {} SET PV has type {}; expected {}", getName(), dbr.getType().getName(), DBRType.ENUM.getName());
 				return;
 			}
 
@@ -1241,10 +1212,8 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			}
 
 			final short newValue = values[0];
-
 			if (newValue != SET_USE_PV_USE_VALUE && newValue != SET_USE_PV_SET_VALUE) {
-				logger.error("New value for {} SET PV is {}; expected {} or {}",
-						getName(), newValue, SET_USE_PV_USE_VALUE, SET_USE_PV_SET_VALUE);
+				logger.error("New value for {} SET PV is {}; expected {} or {}", getName(), newValue, SET_USE_PV_USE_VALUE, SET_USE_PV_SET_VALUE);
 				return;
 			}
 
@@ -1252,93 +1221,71 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 				setUseLock.writeLock().lock();
 
 				final boolean firstUpdate = (setUseMode == SetUseState.UNKNOWN);
-
 				final SetUseState newState = (newValue == SET_USE_PV_USE_VALUE) ? SetUseState.USE : SetUseState.SET;
-
 				final boolean stateChanged = !firstUpdate && (setUseMode != newState);
-
 				final boolean logNewState = (firstUpdate && newState == SetUseState.SET) || stateChanged;
 
 				if (logNewState) {
-
 					if (newState == SetUseState.USE) {
 						logger.info("Motor {} is now in 'Use' mode", getName());
 					}
-
 					else if (newState == SetUseState.SET) {
 						logger.error("Motor {} is now in 'Set' mode - this will cause moves to fail", getName());
 					}
 				}
-
 				setUseMode = newState;
 			}
-
 			finally {
 				setUseLock.writeLock().unlock();
 			}
 		}
 
 		private void checkMotorIsInUseMode() throws MotorException {
-
 			try {
 				setUseLock.readLock().lock();
-
 				if (setUseMode == SetUseState.SET) {
-					throw new MotorException(getStatus(), String.format("Motor %s is in 'Set' mode - check the Set/Use PV in the motor's EDM screen", getName()));
+					throw new MotorException(getStatus(),
+							String.format("Motor %s is in 'Set' mode - check the Set/Use PV in the motor's EDM screen", getName()));
 				}
 			}
-
 			finally {
 				setUseLock.readLock().unlock();
 			}
 		}
-
 	}
 
-	private class MSTAMonitorListener implements MonitorListener {
-		private MotorStatus mstaStatus = MotorStatus.READY;
+	private void mstaMonitorChanged(MonitorEvent mev) {
+		try {
+			final DBR dbr = mev.getDBR();
+			if (dbr.isDOUBLE()) {
+				final double msta = ((DBR_Double) dbr).getDoubleValue()[0]; // TODO why doubkle !!??
+				final MotorStatus status = getMotorStatusFromMSTAValue(msta);
+				if ((status == MotorStatus.READY || status == MotorStatus.LOWER_LIMIT || status == MotorStatus.UPPER_LIMIT
+						|| status == MotorStatus.FAULT)) {
+					mstaStatus = status;
+					moveEventQueue.addMoveCompleteEvent(EpicsMotor.this, status, STATUSCHANGE_REASON.NEWSTATUS);
 
-		public MotorStatus getStatus() {
-			return mstaStatus;
-		}
-
-		@Override
-		public void monitorChanged(MonitorEvent mev) {
-			try {
-				DBR dbr = mev.getDBR();
-				if (dbr.isDOUBLE()) {
-					double msta = ((DBR_Double) dbr).getDoubleValue()[0]; // TODO why doubkle !!??
-					MotorStatus status = getMotorStatusFromMSTAValue(msta);
-					if ((status == MotorStatus.READY || status == MotorStatus.LOWER_LIMIT
-							|| status == MotorStatus.UPPER_LIMIT || status == MotorStatus.FAULT)) {
-						mstaStatus = status;
-						moveEventQueue.addMoveCompleteEvent(EpicsMotor.this, status, STATUSCHANGE_REASON.NEWSTATUS);
-
-					}
-					homed = isHomedFromMSTAValue(msta);
-				} else {
-					logger.error(".RBV should return DOUBLE type value. Instead returned {} type.", dbr.getType());
 				}
-			} catch (Exception ex) {
-				logger.error("{} - Error in MSTA monitor", getName(), ex);
+				homed = isHomedFromMSTAValue(msta);
+			} else {
+				logger.error(".RBV should return DOUBLE type value. Instead returned {} type.", dbr.getType());
 			}
+		} catch (Exception ex) {
+			logger.error("{} - Error in MSTA monitor", getName(), ex);
 		}
 	}
 
 	/**
 	 * update upper soft limit when and if it changes in EPICS.
 	 */
-	private class HLMMonitorListener implements MonitorListener {
-		@Override
-		public void monitorChanged(MonitorEvent mev) {
-			DBR dbr = mev.getDBR();
-			if (dbr.isFLOAT()) {
-				setMaxPositionFromListener(new Float(((DBR_Float) dbr).getFloatValue()[0]).doubleValue());
-			} else if (dbr.isDOUBLE()) {
-				setMaxPositionFromListener(((DBR_Double) dbr).getDoubleValue()[0]);
-			} else {
-				logger.error("Illegal .HLM value. Expecting float or double, got {}", dbr.getType());
-			}
+	private void hlmMonitorChanged(MonitorEvent mev) {
+		final DBR dbr = mev.getDBR();
+		if (dbr.isFLOAT()) {
+			setMaxPositionFromListener(new Float(((DBR_Float) dbr).getFloatValue()[0]).doubleValue());
+		} else if (dbr.isDOUBLE()) {
+			setMaxPositionFromListener(((DBR_Double) dbr).getDoubleValue()[0]);
+		} else {
+			logger.error("Illegal .HLM value. Expecting float or double, got {}", dbr.getType());
 		}
 	}
 
@@ -1355,185 +1302,153 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	/**
 	 * updates the lower soft limit when and if it changes in EPICS.
 	 */
-	private class LLMMonitorListener implements MonitorListener {
-		@Override
-		public void monitorChanged(MonitorEvent mev) {
-			DBR dbr = mev.getDBR();
-			if (dbr.isFLOAT()) {
-				setMinPositionFromListener(new Float(((DBR_Float) dbr).getFloatValue()[0]).doubleValue());
-			} else if (dbr.isDOUBLE()) {
-				setMinPositionFromListener(((DBR_Double) dbr).getDoubleValue()[0]);
-			} else {
-				logger.error("Illegal .LLM value.");
-			}
-
+	private void llmMonitorChanged(MonitorEvent mev) {
+		final DBR dbr = mev.getDBR();
+		if (dbr.isFLOAT()) {
+			setMinPositionFromListener(new Float(((DBR_Float) dbr).getFloatValue()[0]).doubleValue());
+		} else if (dbr.isDOUBLE()) {
+			setMinPositionFromListener(((DBR_Double) dbr).getDoubleValue()[0]);
+		} else {
+			logger.error("Illegal .LLM value.");
 		}
 	}
 
 	/**
 	 * update upper dial limit when and if it changes in EPICS.
 	 */
-	private class DHLMMonitorListener implements MonitorListener {
-		@Override
-		public void monitorChanged(MonitorEvent mev) {
-			DBR dbr = mev.getDBR();
-			if  (dbr.isDOUBLE()) {
-				dialHighLimit = ((DBR_Double) dbr).getDoubleValue()[0];
-			} else {
-				logger.error("Illegal .DHLM value.");
-			}
+	private void dhlmMonitorChanged(MonitorEvent mev) {
+		final DBR dbr = mev.getDBR();
+		if (dbr.isDOUBLE()) {
+			dialHighLimit = ((DBR_Double) dbr).getDoubleValue()[0];
+		} else {
+			logger.error("Illegal .DHLM value.");
 		}
 	}
 
 	/**
 	 * update lower dial limit when and if it changes in EPICS.
 	 */
-	private class DLLMMonitorListener implements MonitorListener {
-		@Override
-		public void monitorChanged(MonitorEvent mev) {
-			DBR dbr = mev.getDBR();
-			if  (dbr.isDOUBLE()) {
-				dialLowLimit = ((DBR_Double) dbr).getDoubleValue()[0];
-			} else {
-				logger.error("Illegal .DLLM value.");
-			}
+	private void dllmMonitorChanged(MonitorEvent mev) {
+		final DBR dbr = mev.getDBR();
+		if (dbr.isDOUBLE()) {
+			dialLowLimit = ((DBR_Double) dbr).getDoubleValue()[0];
+		} else {
+			logger.error("Illegal .DLLM value.");
 		}
 	}
 
-		/**
-		 * update upper dial alarm when and if it changes in EPICS.
-		 */
-		private class HLSMonitorListener implements MonitorListener {
-			@Override
-			public void monitorChanged(MonitorEvent mev) {
-				DBR dbr = mev.getDBR();
-				if (dbr.isSHORT()) {
-					short value = ((DBR_Short) dbr).getShortValue()[0];
-					if (value == 1) {
-						set_motorStatus(MotorStatus.UPPER_LIMIT);
-					}
-				} else {
-					logger.error("Expecting Int type but got {} type.", dbr.getType());
-				}
+	/**
+	 * update upper dial alarm when and if it changes in EPICS.
+	 */
+	private void hlsMonitorChanged(MonitorEvent mev) {
+		final DBR dbr = mev.getDBR();
+		if (dbr.isSHORT()) {
+			final short value = ((DBR_Short) dbr).getShortValue()[0];
+			if (value == 1) {
+				setMotorStatus(MotorStatus.UPPER_LIMIT);
 			}
+		} else {
+			logger.error("Expecting Int type but got {} type.", dbr.getType());
 		}
-
-		/**
-		 * update lower dial alarm when and if it changes in EPICS.
-		 */
-		private class LLSMonitorListener implements MonitorListener {
-			@Override
-			public void monitorChanged(MonitorEvent mev) {
-				DBR dbr = mev.getDBR();
-				if (dbr.isSHORT()) {
-					short value = ((DBR_Short) dbr).getShortValue()[0];
-					if (value == 1) {
-						set_motorStatus(MotorStatus.LOWER_LIMIT);
-					}
-				} else {
-					logger.error("Expecting Int type but got {} type.", dbr.getType());
-				}
-			}
 	}
+
+	/**
+	 * update lower dial alarm when and if it changes in EPICS.
+	 */
+	private void llsMonitorChanged(MonitorEvent mev) {
+		final DBR dbr = mev.getDBR();
+		if (dbr.isSHORT()) {
+			final short value = ((DBR_Short) dbr).getShortValue()[0];
+			if (value == 1) {
+				setMotorStatus(MotorStatus.LOWER_LIMIT);
+			}
+		} else {
+			logger.error("Expecting Int type but got {} type.", dbr.getType());
+		}
+	}
+
 	/**
 	 * updates limit violation status from EPICS.
 	 */
-	private class LVIOMonitorListener implements MonitorListener {
-		@Override
-		public void monitorChanged(MonitorEvent mev) {
-			int value = -1;
-			DBR dbr = mev.getDBR();
-			if (dbr.isSHORT()) {
-				value = ((DBR_Short) dbr).getShortValue()[0];
-			} else {
-				logger.error("Expecting Int type but got {} type.", dbr.getType());
-			}
+	private void lvioMonitorChanged(MonitorEvent mev) {
+		int value = -1;
+		final DBR dbr = mev.getDBR();
+		if (dbr.isSHORT()) {
+			value = ((DBR_Short) dbr).getShortValue()[0];
+		} else {
+			logger.error("Expecting Int type but got {} type.", dbr.getType());
+		}
 
-			if (value == 1) {
-				logger.warn("EPICS motor {} raises Limit Violation.", getName());
-			}
-			// notifyIObservers(MotorProperty.STATUS, motorStatus);
+		if (value == 1) {
+			logger.warn("EPICS motor {} raises Limit Violation.", getName());
 		}
 	}
 
 	/**
-	 * This class defines the call back handler for an asynchronous motor move request. It sets motor status to FAULT if
-	 * put failed, or target is missed when missing target is not permitted. It also check the motor access status, if
+	 * This function defines the call back handler for an asynchronous motor move request. It sets motor status to FAULT if
+	 * put failed, or target is missed when missing target is not permitted. It also checks the motor access status, if
 	 * its access is DISABLED, it will suspend the current scan or script before setting motor status to READY in order
 	 * to prevent sending next point request to a already disabled motor. It notifies all its observers of these motor
-	 * status (critical to GDA DOF locking release). This class is designed to support both scan and GUI driven
+	 * status (critical to GDA DOF locking release). This function is designed to support both scan and GUI driven
 	 * processes.
 	 */
-	private class PutCallbackListener implements PutListener {
-		volatile PutEvent event = null;
-
-		@Override
-		public void putCompleted(PutEvent ev) {
-			MotorStatus newStatus = MotorStatus.READY;
-			try {
-				logger.debug("{}: callback received >>>", getName());
-				event = ev;
-				if (isCallbackWait()) { // delay is needed to DCM energy update in EPICS
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						logger.error("Interrupted waiting for callback", e);
-					}
+	private void putCompleted(PutEvent ev) {
+		MotorStatus newStatus = MotorStatus.READY;
+		try {
+			logger.debug("{}: callback received >>>", getName());
+			if (isCallbackWait()) { // delay is needed to DCM energy update in EPICS
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					logger.error("Interrupted waiting for callback", e);
 				}
-
-				if (event.getStatus() != CAStatus.NORMAL) {
-					logger.error("Put failed. Channel {} : Status {}", ((Channel) event.getSource()).getName(),
-							event.getStatus());
-					newStatus = MotorStatus.FAULT;
-				} else {
-					// if access is disabled we must pause before set motor status
-					// to READY to prevent sending the next scan point request. This
-					// also ensure the current point reading complete before pausing
-					if (acs == AccessControl.Status.DISABLED) {
-						if (JythonServerFacade.getInstance().getScanStatus() == JythonStatus.RUNNING) {
-							JythonServerFacade.getInstance().pauseCurrentScan();
-							JythonServerFacade.getInstance().print(
-									"current scan paused after motor " + getName() + " is disabled.");
-						}
-						if (JythonServerFacade.getInstance().getScriptStatus() == JythonStatus.RUNNING) {
-							JythonServerFacade.getInstance().pauseCurrentScript();
-							JythonServerFacade.getInstance().print(
-									"current script paused after motor " + getName() + " is disabled.");
-						}
-					}
-					if (missedTargetAction != MissedTargetLevel.IGNORE) {
-						double deadband = getRetryDeadband();
-						double current = getPosition();
-						if (deadband > 0 && !Double.isNaN(deadband)) {
-							if (abs(targetPosition - current) > deadband) {
-								logger.error("{} : target requested is missed (target: {}, actual: {}, deadband: {}). Report to Controls Engineer",
-										getName(), targetPosition, currentPosition, retryDeadband);
-								if (missedTargetAction == MissedTargetLevel.FAULT) {
-									newStatus = MotorStatus.FAULT;
-								}
-							}
-						} else {
-							logger.warn("{} motor's retry deadband is {}. Motor may miss its target.", getName(),
-									retryDeadband);
-						}
-					}
-					logger.trace("{} - At end of move: target={}, position={}, deadband={}", getName(), targetPosition, currentPosition, retryDeadband);
-				}
-
-				if (status == Status.NO_ALARM && severity == Severity.NO_ALARM) {
-					moveEventQueue.addMoveCompleteEvent(EpicsMotor.this, newStatus,
-							STATUSCHANGE_REASON.CAPUT_MOVECOMPLETE);
-				} else {
-					// if Alarmed, check and report MSTA status
-					moveEventQueue.addMoveCompleteEvent(EpicsMotor.this, null,
-							STATUSCHANGE_REASON.CAPUT_MOVECOMPLETE_IN_ERROR);
-				}
-
-			} catch (Exception ex) {
-				logger.error("Error in putCompleted for {}", getName(), ex);
 			}
-		}
 
+			if (ev.getStatus() != CAStatus.NORMAL) {
+				logger.error("Put failed. Channel {} : Status {}", ((Channel) ev.getSource()).getName(), ev.getStatus());
+				newStatus = MotorStatus.FAULT;
+			} else {
+				// if access is disabled we must pause before set motor status
+				// to READY to prevent sending the next scan point request. This
+				// also ensure the current point reading complete before pausing
+				if (acs == AccessControl.Status.DISABLED) {
+					if (JythonServerFacade.getInstance().getScanStatus() == JythonStatus.RUNNING) {
+						JythonServerFacade.getInstance().pauseCurrentScan();
+						JythonServerFacade.getInstance().print("current scan paused after motor " + getName() + " is disabled.");
+					}
+					if (JythonServerFacade.getInstance().getScriptStatus() == JythonStatus.RUNNING) {
+						JythonServerFacade.getInstance().pauseCurrentScript();
+						JythonServerFacade.getInstance().print("current script paused after motor " + getName() + " is disabled.");
+					}
+				}
+				if (missedTargetAction != MissedTargetLevel.IGNORE) {
+					double deadband = getRetryDeadband();
+					double current = getPosition();
+					if (deadband > 0 && !Double.isNaN(deadband)) {
+						if (abs(targetPosition - current) > deadband) {
+							logger.error("{} : target requested is missed (target: {}, actual: {}, deadband: {}). Report to Controls Engineer", getName(),
+									targetPosition, currentPosition, retryDeadband);
+							if (missedTargetAction == MissedTargetLevel.FAULT) {
+								newStatus = MotorStatus.FAULT;
+							}
+						}
+					} else {
+						logger.warn("{} motor's retry deadband is {}. Motor may miss its target.", getName(), retryDeadband);
+					}
+				}
+				logger.trace("{} - At end of move: target={}, position={}, deadband={}", getName(), targetPosition, currentPosition, retryDeadband);
+			}
+
+			if (status == Status.NO_ALARM && severity == Severity.NO_ALARM) {
+				moveEventQueue.addMoveCompleteEvent(EpicsMotor.this, newStatus, STATUSCHANGE_REASON.CAPUT_MOVECOMPLETE);
+			} else {
+				// if Alarmed, check and report MSTA status
+				moveEventQueue.addMoveCompleteEvent(EpicsMotor.this, null, STATUSCHANGE_REASON.CAPUT_MOVECOMPLETE_IN_ERROR);
+			}
+
+		} catch (Exception ex) {
+			logger.error("Error in putCompleted for {}", getName(), ex);
+		}
 	}
 
 	/**
@@ -1561,30 +1476,17 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 				logger.info("Beamline control of the device {} is enabled.", getName());
 				if (JythonServerFacade.getInstance().getScanStatus() == JythonStatus.PAUSED) {
 					JythonServerFacade.getInstance().resumeCurrentScan();
-					JythonServerFacade.getInstance().print(
-							"current scan resumed after motor: " + getName() + " is enabled.");
+					JythonServerFacade.getInstance().print("current scan resumed after motor: " + getName() + " is enabled.");
 				}
 				if (JythonServerFacade.getInstance().getScriptStatus() == JythonStatus.PAUSED) {
 					JythonServerFacade.getInstance().resumeCurrentScript();
-					JythonServerFacade.getInstance().print(
-							"current script resumed after motor: " + getName() + " is enabled.");
+					JythonServerFacade.getInstance().print("current script resumed after motor: " + getName() + " is enabled.");
 				}
 			} else if ((AccessControl.Status) changeCode == AccessControl.Status.DISABLED) {
 				logger.warn("Beamline control of the device {} is disabled.", getName());
 			}
 		}
 		notifyIObservers(theObserved, changeCode);
-	}
-
-	/**
-	 * Constructor taking a PV name
-	 *
-	 * @param name
-	 *            - String, the PV name
-	 */
-	public EpicsMotor(String name) {
-		this();
-		setName(name);
 	}
 
 	@Override
@@ -1608,15 +1510,11 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		return assertHomedBeforeMoving;
 	}
 
-	public void set_motorStatus(MotorStatus _motorStatus) {
+	private void setMotorStatus(MotorStatus _motorStatus) {
 		synchronized (_motorStatusMonitor) {
 			this._motorStatus = _motorStatus;
 			this._motorStatusMonitor.notifyAll();
 		}
-	}
-
-	public MotorStatus get_motorStatus() {
-		return _motorStatus;
 	}
 
 	@Override
@@ -1628,6 +1526,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			return _motorStatus;
 		}
 	}
+
 	@Override
 	public void reconfigure() throws FactoryException {
 		if (!isConfigured()) {
