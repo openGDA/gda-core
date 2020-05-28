@@ -180,9 +180,6 @@
                      variable="activeWorkbenchWindow.activePerspective">
                      <or>
                         <equals
-                              value="uk.ac.diamond.daq.beamline.k11.perspective.PointAndShootPerspective">
-                        </equals>
-                        <equals
                               value="uk.ac.diamond.daq.mapping.ui.experiment.MappingPerspective">
                         </equals>
                      </or>
