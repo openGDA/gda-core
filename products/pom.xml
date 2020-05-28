@@ -13,9 +13,144 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
-  <!-- This ensures the built server product(s) will be installed in the usual servers directory alongside workspace_git -->
-  <!-- The ${server-product-root} property is defined in the daq-aggregator/releng/pom.xml file -->
-  <build>
-    <directory>${server-product-root}</directory>
-  </build>
+	<!-- This pom contains specific steps to copy the built product outside of the Maven target directory
+	into the standard location above workspace_git. The steps are:
+	* Attach build product zip as artifact so it can be used in the Maven Dependency Plugin
+	* Unzip the product in the location we want it
+	* Recreate the symlink if desired
+
+	Could be nicer to replace the first two steps with a single copy using the Maven Resources plugin but
+	the current version does not preserve executable permissions (required on the product entry point) -->
+
+	<profiles>
+		<profile>
+			<id>recreate-symlink</id>
+			<properties>
+				<exec.skip>false</exec.skip>
+			</properties>
+		</profile>
+	</profiles>
+	<properties>
+		<exec.skip>true</exec.skip>
+	</properties>
+
+	<build>
+		<!-- Main declaration and configuration for unzip and symlink of products
+			Will be inherited by children but isn't added to their lifecycles (as it's
+			pluginManagement) -->
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>${maven.dependency.plugin.version}</version>
+					<executions>
+						<execution>
+							<id>unzip-product</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>unpack</goal>
+							</goals>
+							<configuration>
+								<artifactItems>
+									<artifactItem>
+										<groupId>${project.groupId}</groupId>
+										<artifactId>${project.artifactId}</artifactId>
+										<version>${project.version}</version>
+										<type>zip</type>
+										<classifier>gda-product-zip</classifier>
+										<outputDirectory>${project.basedir}/../../../../${server-product-root}</outputDirectory>
+									</artifactItem>
+								</artifactItems>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+
+				<!-- Update the symlink to point to new product -->
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>exec-maven-plugin</artifactId>
+					<version>${exec.maven.plugin.version}</version>
+					<executions>
+						<execution>
+							<id>recreate-symlink</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>exec</goal>
+							</goals>
+							<configuration>
+								<executable>ln</executable>
+								<arguments>
+									<argument>-fnsv</argument>
+									<argument>${server-product-root}</argument>
+									<argument>${project.basedir}/../../../../server</argument>
+								</arguments>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
+		<plugins>
+			<!-- This plugin doesn't cause errors so can just be configured here (i.e.
+				can run for this parent pom) -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>${build.helper.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>attach-artifacts</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>attach-artifact</goal>
+						</goals>
+						<configuration>
+							<artifacts>
+								<artifact>
+									<file>${project.build.directory}/products/${project.artifactId}-linux.gtk.x86_64.zip</file>
+									<type>zip</type>
+									<classifier>gda-product-zip</classifier>
+								</artifact>
+							</artifacts>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- These two plugins shouldn't run for this parent pom but should run
+				for all children (with config defined above in pluginManagement) -->
+			<plugin>
+				<!-- This declaration makes sure children get plugin in their lifecycle -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>${maven.dependency.plugin.version}</version>
+				<!-- Configuration won't be propagated to children -->
+				<inherited>false</inherited>
+				<executions>
+					<execution>
+						<!--This matches and thus overrides execution defined in pluginManagement -->
+						<id>unzip-product</id>
+						<!-- Unbind from lifecycle for this POM -->
+						<phase>none</phase>
+					</execution>
+				</executions>
+			</plugin>
+				<plugin>
+					<artifactId>exec-maven-plugin</artifactId>
+					<groupId>org.codehaus.mojo</groupId>
+					<version>${exec.maven.plugin.version}</version>
+					<inherited>false</inherited>
+					<executions>
+						<execution>
+							<id>recreate-symlink</id>
+							<phase>none</phase>
+						</execution>
+					</executions>
+				</plugin>
+		</plugins>
+	</build>
 </project>
+
