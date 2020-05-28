@@ -70,7 +70,6 @@
 			          	<!-- Mockito can't create package private items -->
 			          	<exclude>ScannableMotionWithScannableFieldsBaseTest</exclude>
 			          	<exclude>PositionInputStreamCombinerTest</exclude>
-			          	<exclude>CoordinatedScannableGroupTest</exclude>
 			          	<exclude>ConcurrentScanWithConcurrentReadoutTest</exclude>
 			          	<exclude>MultiScanTest</exclude>
 			          	<exclude>MultithreadedScanDataPointPipelineTest</exclude>
