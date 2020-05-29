@@ -966,20 +966,15 @@ public class ScannableCommands {
 	 * Set a Scannable to be used by default
 	 */
 	@GdaJythonBuiltin("Add a scannable (or scannables) to the list of default scannables included in all scans.")
-	public static void add_default(Object... args) {
+	public static void add_default(Scannable... args) {
 		logger.debug("Called 'add_default' with args: {}", Arrays.asList(args));
 
 		JythonServer server = Finder.findSingleton(JythonServer.class);
-		for (Object arg : args) {
-			if (arg instanceof Scannable) {
-				Scannable scannable = (Scannable) arg;
-				if (server.addDefault(scannable)) {
-					JythonServerFacade
-							.getInstance()
-							.print(scannable.getName()
-									+ " added to the list of default Scannables. Remove from the list by using command: remove_default "
-									+ scannable.getName());
-				}
+		for (Scannable scannable : args) {
+			if (server.addDefault(scannable)) {
+				server.print(scannable.getName()
+						+ " added to the list of default Scannables. Remove from the list by using command: remove_default "
+						+ scannable.getName());
 			}
 		}
 	}
@@ -988,19 +983,14 @@ public class ScannableCommands {
 	 * Remove a Scannable from the list of defaults
 	 */
 	@GdaJythonBuiltin("Remove a scannable (or scannables) from the list of default scannables included in all scans.")
-	public static void remove_default(Object... args) {
+	public static void remove_default(Scannable... args) {
 		logger.debug("Called 'remove_default' with args: {}", Arrays.asList(args));
 		JythonServer server = Finder.findSingleton(JythonServer.class);
-		for (Object arg : args) {
-			if (arg instanceof Scannable) {
-				Scannable scannable = (Scannable) arg;
-				if (server.removeDefault(scannable)) {
-					JythonServerFacade
-							.getInstance()
-							.print(scannable.getName()
-									+ " removed from list of default Scannables. Add back to the list by using command: add_default "
-									+ scannable.getName());
-				}
+		for (Scannable scannable : args) {
+			if (server.removeDefault(scannable)) {
+				server.print(scannable.getName()
+						+ " removed from list of default Scannables. Add back to the list by using command: add_default "
+						+ scannable.getName());
 			}
 		}
 	}
