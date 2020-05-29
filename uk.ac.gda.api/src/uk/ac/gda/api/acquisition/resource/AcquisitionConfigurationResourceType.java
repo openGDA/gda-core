@@ -33,7 +33,11 @@ public enum AcquisitionConfigurationResourceType {
 	/**
 	 * Identifies a mapping scan configuration
 	 */
-	MAP("map");
+	MAP("map"),
+	/**
+	 * Identifies an experiment plan configuration
+	 */
+	PLAN("plan");
 
 	private final String extension;
 
