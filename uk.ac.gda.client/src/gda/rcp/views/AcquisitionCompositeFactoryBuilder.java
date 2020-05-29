@@ -24,12 +24,10 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.ButtonGroupFactoryBuilder;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.images.ClientImages;
@@ -55,10 +53,12 @@ import uk.ac.gda.ui.tool.images.ClientImages;
  */
 public class AcquisitionCompositeFactoryBuilder {
 
-	private CompositeFactory top;
-	private CompositeFactory bottom;
-	private SelectionListener runSelectionListener;
-	private SelectionListener saveSelectionListener;
+	private Optional<CompositeFactory> top = Optional.empty();
+	private Optional<CompositeFactory> bottom = Optional.empty();
+
+	private Optional<SelectionListener> runListener = Optional.empty();
+	private Optional<SelectionListener> newListener = Optional.empty();
+	private Optional<SelectionListener> saveListener = Optional.empty();
 
 	public CompositeFactory build() {
 
@@ -66,37 +66,42 @@ public class AcquisitionCompositeFactoryBuilder {
 				GridLayoutFactory.fillDefaults().applyTo(parent);
 				GridDataFactory.fillDefaults().applyTo(parent);
 
-				createTop(parent);
+				top.ifPresent(factory -> createTop(factory, parent));
 
 				buttonsGroup(parent);
 
-				Optional.ofNullable(bottom).ifPresent(e -> e.createComposite(parent, style));
+				bottom.ifPresent(factory -> factory.createComposite(parent, style));
 
 				return parent;
 		};
 	}
 
 	public AcquisitionCompositeFactoryBuilder addTopArea(CompositeFactory compositeFactory) {
-		this.top = compositeFactory;
+		this.top = Optional.of(compositeFactory);
 		return this;
 	}
 
 	public AcquisitionCompositeFactoryBuilder addBottomArea(CompositeFactory compositeFactory) {
-		this.bottom = compositeFactory;
+		this.bottom = Optional.of(compositeFactory);
 		return this;
 	}
 
 	public AcquisitionCompositeFactoryBuilder addRunSelectionListener(SelectionListener selectionListener) {
-		this.runSelectionListener = selectionListener;
+		this.runListener = Optional.of(selectionListener);
+		return this;
+	}
+
+	public AcquisitionCompositeFactoryBuilder addNewSelectionListener(SelectionListener selectionListener) {
+		this.newListener = Optional.of(selectionListener);
 		return this;
 	}
 
 	public AcquisitionCompositeFactoryBuilder addSaveSelectionListener(SelectionListener selectionListener) {
-		this.saveSelectionListener = selectionListener;
+		this.saveListener = Optional.of(selectionListener);
 		return this;
 	}
 
-	private void createTop(Composite parent) {
+	private void createTop(CompositeFactory factory, Composite parent) {
 		ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
@@ -106,45 +111,21 @@ public class AcquisitionCompositeFactoryBuilder {
 		final Composite container = new Composite(scrolledComposite, SWT.NONE);
 		container.setLayout(new GridLayout());
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(container);
-		top.createComposite(container, SWT.NONE);
+		factory.createComposite(container, SWT.NONE);
 		scrolledComposite.setContent(container);
-	}
-
-	private SelectionListener getRunSelectionListener() {
-		if (runSelectionListener == null) {
-			return dummyLoadListener();
-		}
-		return runSelectionListener;
-	}
-
-	private SelectionListener getSaveSelectionListener() {
-		if (saveSelectionListener == null) {
-			return dummyLoadListener();
-		}
-		return saveSelectionListener;
 	}
 
 	private void buttonsGroup(Composite parent) {
 		ButtonGroupFactoryBuilder builder = new ButtonGroupFactoryBuilder();
-		builder.addButton(ClientMessages.SAVE, ClientMessages.SAVE_CONFIGURATION_TP, getSaveSelectionListener(),
-				ClientImages.SAVE);
-		builder.addButton(ClientMessages.RUN, ClientMessages.RUN_CONFIGURATION_TP, getRunSelectionListener(),
-				ClientImages.RUN);
+
+		newListener.ifPresent(listener -> builder.addButton(ClientMessages.NEW, ClientMessages.NEW_CONFIGURATION_TP,
+										  listener, ClientImages.ADD));
+		saveListener.ifPresent(listener -> builder.addButton(ClientMessages.SAVE, ClientMessages.SAVE_CONFIGURATION_TP,
+										   listener, ClientImages.SAVE));
+		runListener.ifPresent(listener -> builder.addButton(ClientMessages.RUN, ClientMessages.RUN_CONFIGURATION_TP,
+										  listener, ClientImages.RUN));
+
 		builder.build().createComposite(parent, SWT.NONE);
 	}
 
-	private SelectionListener dummyLoadListener() {
-		return new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				UIHelper.showWarning("Action invalid", "No action associated with the button");
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent event) {
-				// not necessary
-			}
-		};
-	}
 }
