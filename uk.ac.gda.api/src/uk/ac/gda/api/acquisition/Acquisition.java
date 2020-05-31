@@ -63,7 +63,7 @@ public interface Acquisition<T extends AcquisitionConfiguration<? extends Acquis
 	 *
 	 * @return the location where find the script
 	 */
-	public URL getScript();
+	public URL getAcquisitionLocation();
 
 	/**
 	 * The data necessary to execute the acquisition

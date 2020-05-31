@@ -18,41 +18,103 @@
 
 package uk.ac.diamond.daq.mapping.api.document.scanpath;
 
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
-import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
+import gda.mscan.element.Mutator;
+import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
+import uk.ac.diamond.daq.mapping.api.document.deserializer.MutatorDeserializer;
 
 /**
- * Describes a generic acquisition model. Classes extending this realise specific acquisition configuration as, one line scanning or raster scanning
+ * Describes a generic acquisition model. Classes extending this realise specific acquisition configuration.
  *
  * @author Maurizio Nagni
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-public abstract class ScanpathDocument {
+@JsonDeserialize(builder = ScanpathDocument.Builder.class)
+public class ScanpathDocument {
 
-	// Constants to reference the available parameters for a {@link RandomOffsetTwoAxisGridPointsModel}
-	protected static final int OFFSET = 0;
-	protected static final int SEED = 1;
+	protected final AcquisitionTemplateType modelDocument;
 
-	protected IScanPointGeneratorModel pathModel;
-	protected IROI roi;
+	@JsonDeserialize(keyUsing = MutatorDeserializer.class)
+	protected final Map<Mutator, List<Number>> mutators;
 
-	public ScanpathDocument() {
-		super();
+	protected final List<ScannableTrackDocument> scannableTrackDocuments;
+
+	public ScanpathDocument(AcquisitionTemplateType modelDocument, List<ScannableTrackDocument> scannableTrackDocuments,
+			Map<Mutator, List<Number>> mutators) {
+		this.modelDocument = modelDocument;
+		this.scannableTrackDocuments = scannableTrackDocuments;
+		this.mutators = mutators;
 	}
 
-	protected final void setPathModel(IScanPointGeneratorModel pathModel) {
-		this.pathModel = pathModel;
+	public AcquisitionTemplateType getModelDocument() {
+		return modelDocument;
 	}
 
-	protected final void setRoi(IROI roi) {
-		this.roi = roi;
+	public List<ScannableTrackDocument> getScannableTrackDocuments() {
+		return Collections.unmodifiableList(Optional.ofNullable(scannableTrackDocuments).orElse(new ArrayList<>()));
 	}
 
-	@JsonIgnore
-	public abstract IScanPointGeneratorModel getIScanPointGeneratorModel();
-	@JsonIgnore
-	public abstract IROI getROI();
+	public Map<Mutator, List<Number>> getMutators() {
+		return Collections.unmodifiableMap(Optional.ofNullable(mutators).orElse(new EnumMap<>(Mutator.class)));
+	}
+
+	@JsonPOJOBuilder
+	public static class Builder {
+		private AcquisitionTemplateType modelDocument;
+		private List<ScannableTrackDocument> scannableTrackDocuments;
+		@JsonDeserialize(keyUsing = MutatorDeserializer.class)
+		private Map<Mutator, List<Number>> mutators;
+
+		public static Builder cloneScanpathDocument(ScanpathDocument scanpathDocument) {
+			Builder builder = new Builder();
+			if (Objects.isNull(scanpathDocument)) {
+				return builder;
+			}
+			builder.withModelDocument(scanpathDocument.modelDocument);
+			builder.withScannableTrackDocuments(scanpathDocument.scannableTrackDocuments);
+			builder.withMutators(scanpathDocument.mutators);
+			return builder;
+		}
+
+		public Builder withModelDocument(AcquisitionTemplateType modelDocument) {
+			this.modelDocument = modelDocument;
+			return this;
+		}
+
+		public Builder withScannableTrackDocuments(List<ScannableTrackDocument> scannableTrackDocuments) {
+			this.scannableTrackDocuments = scannableTrackDocuments;
+			return this;
+		}
+
+		public Builder withMutators(Map<Mutator, List<Number>> mutators) {
+			this.mutators = mutators;
+			return this;
+		}
+
+		public Builder addMutator(Mutator key, List<Number> value) {
+			if (mutators == null) {
+				withMutators(new EnumMap<>(Mutator.class));
+			}
+			mutators.put(key, value);
+			return this;
+		}
+
+		public Builder removeMutator(Mutator key) {
+			Optional.ofNullable(mutators).ifPresent(m -> m.remove(key));
+			return this;
+		}
+
+		public ScanpathDocument build() {
+			return new ScanpathDocument(modelDocument, scannableTrackDocuments, mutators);
+		}
+	}
 }

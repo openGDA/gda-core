@@ -33,20 +33,27 @@ import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 @JsonDeserialize(builder = ScanRequestDocument.Builder.class)
 public class ScanRequestDocument {
 
+	private final String name;
 	private final URL filePath;
 	private final DetectorDocument[] detectors;
 	private final ScanpathDocument scanpath;
 
 	/**
+	 * @param name the acquisition name
 	 * @param filePath the path where the acquisition will be written
 	 * @param detectors the elements which perform the acquisition
 	 * @param scanpath the acquisition trajectory
 	 */
-	public ScanRequestDocument(URL filePath, DetectorDocument[] detectors, ScanpathDocument scanpath) {
+	public ScanRequestDocument(String name, URL filePath, DetectorDocument[] detectors, ScanpathDocument scanpath) {
 		super();
+		this.name = name;
 		this.filePath = filePath;
 		this.detectors = detectors;
 		this.scanpath = scanpath;
+	}
+
+	public final String getName() {
+		return name;
 	}
 
 	public final URL getFilePath() {
@@ -63,9 +70,15 @@ public class ScanRequestDocument {
 
 	@JsonPOJOBuilder
 	public static class Builder {
+		private String name;
 		private URL filePath;
 		private DetectorDocument[] detectors;
 		private ScanpathDocument scanpath;
+
+	    Builder withName(String name) {
+	        this.name = name;
+	        return this;
+	    }
 
 	    Builder withFilePath(URL filePath) {
 	        this.filePath = filePath;
@@ -83,7 +96,7 @@ public class ScanRequestDocument {
 	    }
 
 	    public ScanRequestDocument build() {
-	        return new ScanRequestDocument(filePath, detectors, scanpath);
+	        return new ScanRequestDocument(name, filePath, detectors, scanpath);
 	    }
 	}
 }
