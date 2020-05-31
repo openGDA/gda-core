@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -32,13 +33,13 @@ import gda.device.DeviceException;
 import gda.jython.JythonServerFacade;
 import gda.mscan.element.Mutator;
 import uk.ac.diamond.daq.mapping.api.ScanRequestSavedEvent;
+import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.DetectorDocument;
+import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.ScanRequestDocument;
 import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.diamond.daq.mapping.ui.document.DocumentMapper;
-import uk.ac.diamond.daq.mapping.ui.document.scanpath.AxialStepModelDocument;
 import uk.ac.diamond.daq.mapping.ui.properties.DetectorHelper;
 import uk.ac.diamond.daq.mapping.ui.properties.DetectorHelper.AcquisitionType;
 import uk.ac.gda.api.acquisition.AcquisitionController;
@@ -115,10 +116,12 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 
 	@Override
 	public void runAcquisition(URL outputPath) throws AcquisitionControllerException {
-		if (outputPath == null) {
-			throw new AcquisitionControllerException("You have not specified the outputPath");
-		}
-		TomographyRunMessage tomographyRunMessage = createTomographyRunMessage(outputPath);
+		runAcquisition();
+	}
+
+	@Override
+	public void runAcquisition() throws AcquisitionControllerException {
+		TomographyRunMessage tomographyRunMessage = createTomographyRunMessage();
 		publishRun(tomographyRunMessage);
 	}
 
@@ -200,7 +203,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 
 	private void publishScanRequestSavedEvent(String fileName) {
 		try {
-			ScanRequestFactory srf = new ScanRequestFactory(createScanRequestDocument(null));
+			ScanRequestFactory srf = new ScanRequestFactory(createScanRequestDocument());
 			ScanRequest scanRequest = srf.createScanRequest(getIRunnableDeviceService());
 			SpringApplicationContextProxy.publishEvent(new ScanRequestSavedEvent(this, fileName, scanRequest));
 		} catch (AcquisitionControllerException | ScanningException e) {
@@ -291,21 +294,25 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		throw new AcquisitionControllerException("Cannot parse json document");
 	}
 
-	private ScanRequestDocument createScanRequestDocument(URL outputPath) throws AcquisitionControllerException {
+	private ScanRequestDocument createScanRequestDocument() throws AcquisitionControllerException {
 		StageConfiguration stageConfiguration = generateStageConfiguration(getAcquisition());
 		TomographyParameters tp = stageConfiguration.getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
 		DetectorDocument dd = tp.getDetector();
 		DetectorDocument[] detectors = { dd };
-		ScannableTrackDocument sd = new ScannableTrackDocument(
-				stageConfiguration.getStageDescription().getMotors().get(StageDevice.MOTOR_STAGE_ROT_Y).getName(), tp.getStart().getStart(),
-				tp.getEnd().getEndAngle(), tp.getProjections().getAngularStep());
+		List<ScannableTrackDocument> scannables = new ArrayList<>();
+		ScannableTrackDocument.Builder builder = new ScannableTrackDocument.Builder();
+		builder.withScannable(stageConfiguration.getStageDescription().getMotors().get(StageDevice.MOTOR_STAGE_ROT_Y).getName());
+		builder.withStart(tp.getStart().getStart());
+		builder.withStop(tp.getEnd().getEndAngle());
+		builder.withStep(tp.getProjections().getAngularStep());
+		scannables.add(builder.build());
 		Map<Mutator, List<Number>> mutators = new EnumMap<>(Mutator.class);
-		ScanpathDocument scanpath = new AxialStepModelDocument(sd, mutators);
-		return new ScanRequestDocument(outputPath, detectors, scanpath);
+		ScanpathDocument scanpath = new ScanpathDocument(AcquisitionTemplateType.ONE_DIMENSION_LINE, scannables, mutators);
+		return new ScanRequestDocument(getAcquisition().getName(), getAcquisition().getAcquisitionLocation(), detectors, scanpath);
 	}
 
-	private TomographyRunMessage createTomographyRunMessage(URL outputPath) throws AcquisitionControllerException {
-		return new TomographyRunMessage(intDataToJson(createScanRequestDocument(outputPath)));
+	private TomographyRunMessage createTomographyRunMessage() throws AcquisitionControllerException {
+		return new TomographyRunMessage(intDataToJson(createScanRequestDocument()));
 	}
 
 	private File getAcquisitionScript() {

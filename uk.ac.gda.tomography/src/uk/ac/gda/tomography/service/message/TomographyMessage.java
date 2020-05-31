@@ -18,6 +18,10 @@
 
 package uk.ac.gda.tomography.service.message;
 
-public interface TomographyMessage {
+import java.io.Serializable;
+
+import uk.ac.diamond.daq.api.messaging.Message;
+
+public interface TomographyMessage extends Message, Serializable {
 
 }

@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.service.impl;
+package uk.ac.gda.tomography.service;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -41,13 +41,10 @@ import gda.configuration.properties.LocalProperties;
 import gda.jython.JythonServerFacade;
 import gda.jython.commandinfo.CommandThreadEvent;
 import uk.ac.diamond.daq.mapping.api.IScanBeanSubmitter;
+import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.ScanRequestDocument;
 import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
-import uk.ac.diamond.daq.mapping.ui.document.DocumentMapper;
 import uk.ac.gda.tomography.event.TomographyRunAcquisitionEvent;
-import uk.ac.gda.tomography.service.Arrangement;
-import uk.ac.gda.tomography.service.TomographyService;
-import uk.ac.gda.tomography.service.TomographyServiceException;
 import uk.ac.gda.tomography.service.message.TomographyRunMessage;
 
 /**

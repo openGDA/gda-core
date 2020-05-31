@@ -20,7 +20,7 @@ package uk.ac.gda.tomography.service.message;
 
 import java.io.Serializable;
 
-public class TomographyRunMessage implements TomographyMessage, Serializable {
+public class TomographyRunMessage implements TomographyMessage {
 	private final Serializable configuration;
 
 	public TomographyRunMessage(Serializable configuration) {
