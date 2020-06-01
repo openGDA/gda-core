@@ -44,12 +44,15 @@ import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXentry;
+import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NXroot;
+import org.eclipse.dawnsci.nexus.builder.data.NexusDataBuilder;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.BooleanDataset;
 import org.eclipse.january.dataset.ByteDataset;
@@ -75,7 +78,7 @@ import org.eclipse.january.dataset.StringDataset;
  *
  */
 public class NexusAssert {
-
+	
 	public static void assertAxes(NXdata nxData, String... expectedValues) {
 		if (expectedValues.length == 0) return; // axes not written if no axes to write (a scalar signal field)
 		Attribute axesAttr = nxData.getAttribute(ATTR_NAME_AXES);
@@ -528,6 +531,70 @@ public class NexusAssert {
 		assertArrayEquals(new int[] {1}, dataset.getShape());
 		assertEquals(finished, dataset.getBoolean(0));
 	}
+	
+	public static void assertGroupNodesEqual(String path,
+			final GroupNode expectedGroup, final GroupNode actualGroup) throws Exception {
+		if (expectedGroup == actualGroup) {
+			return; // same object, trivial case
+		}
+
+		// check the groups have the same NXclass
+		if (expectedGroup instanceof NXobject) {
+			assertTrue(path, actualGroup instanceof NXobject);
+			assertEquals(path, ((NXobject) expectedGroup).getNXclass(), ((NXobject) actualGroup).getNXclass());
+		}
+		
+		// check numbers of data nodes and group nodes are the same
+		assertEquals(path, expectedGroup.getNumberOfDataNodes(), actualGroup.getNumberOfDataNodes());
+		assertEquals(path, expectedGroup.getNumberOfGroupNodes(), actualGroup.getNumberOfGroupNodes());
+
+		// check number of attributes same (i.e. actualGroup has no additional attributes)
+		// The additional attribute "target" is allowed.
+		int expectedNumAttributes = expectedGroup.getNumberOfAttributes();
+		if (expectedGroup.containsAttribute(ATTR_NAME_TARGET)) {
+			if (!actualGroup.containsAttribute(ATTR_NAME_TARGET)) {
+				expectedNumAttributes--;
+			}
+		} else if (actualGroup.containsAttribute(ATTR_NAME_TARGET)) {
+			expectedNumAttributes++;
+		}
+		assertEquals(path, expectedNumAttributes, actualGroup.getNumberOfAttributes());
+		
+		// check attribute properties same for each attribute
+		Iterator<String> attributeNameIterator = expectedGroup.getAttributeNameIterator();
+		while (attributeNameIterator.hasNext()) {
+			String attributeName = attributeNameIterator.next();
+			String attrPath = path + Node.ATTRIBUTE + attributeName;
+			Attribute expectedAttr = expectedGroup.getAttribute(attributeName);
+			Attribute actualAttr = actualGroup.getAttribute(attributeName);
+			if (!expectedAttr.getName().equals(ATTR_NAME_TARGET) && !expectedAttr.getName().equals("file_name")) {
+				assertNotNull(attrPath, actualAttr);
+				assertAttributesEquals(attrPath, expectedAttr, actualAttr);
+			}
+		}
+
+		// check child nodes same
+		final Iterator<String> nodeNameIterator = expectedGroup.getNodeNameIterator();
+		while (nodeNameIterator.hasNext()) {
+			String nodeName = nodeNameIterator.next();
+			String nodePath = path + "/" + nodeName;
+			// node is either a group node or data node
+			if (expectedGroup.containsGroupNode(nodeName)) {
+				assertTrue(nodePath, actualGroup.containsGroupNode(nodeName));
+				assertGroupNodesEqual(nodePath, expectedGroup.getGroupNode(nodeName), actualGroup.getGroupNode(nodeName));
+			} else if (expectedGroup.containsDataNode(nodeName)) {
+				// node is a data node
+				assertTrue(nodePath, actualGroup.containsDataNode(nodeName));
+				assertDataNodesEqual(nodePath, expectedGroup.getDataNode(nodeName), actualGroup.getDataNode(nodeName));
+			} else if (expectedGroup.containsSymbolicNode(nodeName)) {
+				assertTrue(nodePath, actualGroup.containsSymbolicNode(nodeName));
+//				assertSymbolicNodesEqual(nodePath, expectedGroup.getDataNode(nodeName), actualGroup.getDataNode(nodeName));
+				// TODO merge this into a single assertNodesEqual method, which delegates
+				// to the appropriate method
+			}
+		}
+	}
+
 
 	public static void assertDataNodesEqual(final String path,
 			final DataNode expectedDataNode, final DataNode actualDataNode) {
