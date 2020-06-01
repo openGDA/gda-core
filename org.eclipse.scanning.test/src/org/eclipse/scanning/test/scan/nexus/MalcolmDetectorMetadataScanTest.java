@@ -30,7 +30,7 @@ import java.util.Map;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXinstrument;
-import org.eclipse.dawnsci.nexus.device.NexusMetadataAppender;
+import org.eclipse.dawnsci.nexus.appender.NexusMetadataAppender;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
