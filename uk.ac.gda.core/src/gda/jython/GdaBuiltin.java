@@ -39,10 +39,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.python.core.Py;
 import org.python.core.PyBuiltinFunction;
+import org.python.core.PyClass;
+import org.python.core.PyException;
+import org.python.core.PyInstance;
 import org.python.core.PyObject;
+import org.python.core.PyObjectDerived;
 import org.python.core.PyReflectedFunction;
 import org.python.core.PySystemState;
+import org.python.core.PyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,7 +149,23 @@ public class GdaBuiltin extends PyBuiltinFunction {
 	@Override
 	public PyObject __call__(PyObject[] args, String[] keywords) {
 		logger.debug("Calling {}.{} with {} args", source.getCanonicalName(), getName(), args.length);
-		return function.__call__((PyObject)null, args, keywords);
+		try {
+			return function.__call__((PyObject)null, args, keywords);
+		} catch (PyException pe) {
+			if (keywords.length > 0) {
+				throw new UsageException("Unexpected keywords passed to builtin: ",
+						Stream.of(keywords).collect(joining(", ")));
+			}
+			if (pe.match(Py.TypeError)) {
+				String arglist = Stream.of(args)
+						.map(GdaBuiltin::describe)
+						.collect(joining(", "));
+				throw new UsageException("Unexpected arguments to builtin method: ",
+					 arglist);
+			} else {
+				throw pe;
+			}
+		}
 	}
 
 	/**
@@ -251,6 +273,49 @@ public class GdaBuiltin extends PyBuiltinFunction {
 			return className(array.getGenericComponentType()) + "[]";
 		} else { // For anything else just return the name - generally type variables eg T
 			return type.getTypeName();
+		}
+	}
+
+	/**
+	 * Get the class name for a PyObject. If the object is an instance of a Java class, return {@link #className},
+	 * else extract the python class name. Used for reporting usage errors.
+	 *
+	 * @param obj the instance
+	 * @return A string describing the class of the instance
+	 */
+	private static String describe(PyObject obj) {
+		if (obj instanceof PyInstance) { // old style python class
+			PyClass ins = ((PyInstance) obj).instclass;
+			return ins.__str__().asString();
+		} else if (obj instanceof PyObjectDerived) { // new style python class (extends object)
+			PyType type = obj.getType();
+			return type.getModule() + "." + type.getName();
+		} else {
+			return className(Py.tojava(obj, Object.class).getClass());
+		}
+	}
+
+	public class UsageException extends RuntimeException {
+		private String actualUsage;
+
+		public UsageException(String message, String actual) {
+			super(message);
+			actualUsage = actual;
+		}
+
+		public String getError() {
+			return actualUsage;
+		}
+
+		public String getUsage() {
+			return getDoc();
+		}
+
+		@Override
+		public String getMessage() {
+			return super.getMessage() + "'" + getName() + "'\n"
+					+ "Received: " + actualUsage + "\n"
+					+ "Usage: " + getUsage();
 		}
 	}
 
