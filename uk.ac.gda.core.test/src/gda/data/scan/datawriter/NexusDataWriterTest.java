@@ -35,11 +35,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.tree.TreeFactory;
 import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NXdetector;
+import org.eclipse.dawnsci.nexus.NXnote;
 import org.eclipse.dawnsci.nexus.NXuser;
+import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.appender.NexusMetadataAppender;
@@ -74,7 +78,221 @@ public class NexusDataWriterTest {
 
 	private static final String TEMPLATE_FILE_PATH = "testfiles/gda/scan/datawriter/NexusDataWriterTest/simple-template.yaml";
 
-	private static final String DETECTOR_NAME = "detector";
+	private enum DetectorType {
+
+		/**
+		 * This detector is written to in makeGenericDetector (including if/then blocks for NexusDetetctor)
+		 */
+		NEXUS_DETECTOR("nexusDetector") {
+			@Override
+			public Detector getDetector() {
+				final Detector nexusDetector = mock(NexusDetector.class);
+				when(nexusDetector.getName()).thenReturn(DetectorType.NEXUS_DETECTOR.getName());
+				return nexusDetector;
+			}
+
+			@Override
+			public Object getDetectorData() {
+				final NexusTreeProvider nexusTreeProvider = mock(NexusTreeProvider.class);
+				final INexusTree nexusTreeRoot = new NexusTreeNode("", NexusExtractor.NXInstrumentClassName, null);
+				nexusTreeRoot.addChildNode(new NexusTreeNode(DetectorType.NEXUS_DETECTOR.getName(), NexusExtractor.NXDetectorClassName, null));
+				when(nexusTreeProvider.getNexusTree()).thenReturn(nexusTreeRoot);
+				return nexusTreeProvider;
+			}
+
+			@Override
+			public void addExpectedDataField(NXdetector expectedDetectorGroup, NexusFile nexusFile) {
+				expectedDetectorGroup.setLocal_nameScalar(getName());
+			}
+
+			@Override
+			protected Set<String> getMetadataFieldsWrittenByNexusDataWriter() {
+				return new HashSet<>(Arrays.asList(NXdetector.NX_LOCAL_NAME));
+			}
+
+		},
+
+		/**
+		 * This detector is written to in makeFileCreatorDetector
+		 */
+		FILE_CREATOR_DETECTOR("fileCreatorDetector") {
+			@Override
+			public Detector getDetector() throws Exception {
+				final Detector ownFilesDetector = mock(Detector.class);
+				when(ownFilesDetector.getName()).thenReturn(DetectorType.FILE_CREATOR_DETECTOR.getName());
+				when(ownFilesDetector.createsOwnFiles()).thenReturn(true);
+				return ownFilesDetector;
+			}
+
+			@Override
+			public Object getDetectorData() {
+				return "det-file.nxs";
+			}
+
+			@Override
+			public void addExpectedDataField(NXdetector expectedDetectorGroup, NexusFile nexusFile) {
+				expectedDetectorGroup.setTypeScalar("Detector");
+				expectedDetectorGroup.setDescriptionScalar("Generic GDA Detector - External Files");
+				final NXnote dataFileNote = NexusNodeFactory.createNXnote();
+				// Note: makeFileCreatorDetector calls nexusFile.addData for the dataset below, which gets written to disk, but doesn't change the GroupNode in memory
+				// ILazyWriteableDataset dataFileDataset = NexusUtils.createLazyWriteableDataset("file_name", String.class, new int[] { 1 }, null, null);
+				// dataFileNote.initializeLazyDataset("file_name", 1, String.class);
+				dataFileNote.addAttribute(TreeFactory.createAttribute("data_filename", new int[] { 1 }));
+				expectedDetectorGroup.addGroupNode("data_file", dataFileNote);
+			}
+
+		},
+
+		/**
+		 * This detector is written to in makeCounterTimer
+		 */
+		COUNTER_TIMER("counterTimer") {
+
+			private String[] extraNames = { "extra1", "extra2" };
+
+			@Override
+			public Detector getDetector() throws Exception {
+				final Detector counterTimer = mock(Detector.class);
+				when(counterTimer.getExtraNames()).thenReturn(extraNames);
+				when(counterTimer.getName()).thenReturn(DetectorType.COUNTER_TIMER.getName());
+				when(counterTimer.getDescription()).thenReturn("counter timer description");
+				when(counterTimer.getDetectorType()).thenReturn("counter timer");
+				when(counterTimer.getDetectorID()).thenReturn("counterTimer");
+				return counterTimer;
+			}
+
+			@Override
+			public Object getDetectorData() {
+				return new double[] { 1.234, 5.678 };
+			}
+
+			@Override
+			public void addExpectedDataField(NXdetector expectedDetectorGroup, NexusFile nexusFile) throws NexusException {
+				expectedDetectorGroup.setDescriptionScalar("counter timer description");
+				expectedDetectorGroup.setTypeScalar("counter timer");
+				expectedDetectorGroup.setField("id", "counterTimer");
+				for (String extraName : extraNames) {
+					// for these fields, its easiest to just add the actual dataNodes added by makeCounterTimer
+					expectedDetectorGroup.addDataNode(extraName, nexusFile.getData("/entry1/instrument/counterTimer/" + extraName));
+				}
+			}
+		},
+
+		/**
+		 * This detector is written to in makeGenericDetector, including the else blocks for if instanceof NexusDetector / else tests
+		 */
+		GENERIC_DETECTOR("genericDetector") {
+			@Override
+			public Detector getDetector() throws Exception {
+				final Detector genericDetector = mock(Detector.class);
+				when(genericDetector.getName()).thenReturn(DetectorType.GENERIC_DETECTOR.getName());
+				when(genericDetector.getExtraNames()).thenReturn(new String[0]);
+				when(genericDetector.getDataDimensions()).thenReturn(new int[] { 3 });
+				when(genericDetector.getDescription()).thenReturn("generic detector description");
+				when(genericDetector.getDetectorType()).thenReturn("generic detector");
+				when(genericDetector.getDetectorID()).thenReturn("genericDetector");
+				return genericDetector;
+			}
+
+			@Override
+			public Object getDetectorData() {
+				return new double[] { 1.23, 4.56, 7.89 };
+			}
+
+			@Override
+			public void addExpectedDataField(NXdetector expectedDetectorGroup, NexusFile nexusFile) throws NexusException {
+				expectedDetectorGroup.addDataNode(NXdetector.NX_DATA, nexusFile.getData("/entry1/instrument/genericDetector/data"));
+				expectedDetectorGroup.setDescriptionScalar("generic detector description");
+				expectedDetectorGroup.setTypeScalar("generic detector");
+				expectedDetectorGroup.setField("id", "genericDetector");
+			}
+
+		};
+
+		private String name;
+
+		private DetectorType(String name) {
+			this.name = name;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		/**
+		 * Returns the detector to be written, a Mockito mock
+		 * @return detector
+		 * @throws Exception
+		 */
+		public abstract Detector getDetector() throws Exception;
+
+		/**
+		 * The detector data to be added to the single scan point.
+		 * The type of this data varies for each detector type
+		 * @return detector data
+		 */
+		public abstract Object getDetectorData();
+
+		public void createAndRegisterAppender() {
+			final NexusMetadataAppender<NXdetector> appender = new NexusMetadataAppender<>(getName());
+			final Map<String, Object> detMetadata = createAppenderMetadata();
+			appender.setNexusMetadata(detMetadata);
+			ServiceHolder.getNexusFileAppenderService().register(appender);
+		}
+
+		protected Map<String, Object> createAppenderMetadata() {
+			final Map<String, Object> metadata = new HashMap<>();
+			metadata.put(NXdetector.NX_DESCRIPTION, "description of detector " + (ordinal() + 1));
+			metadata.put(NXdetector.NX_LAYOUT, "area");
+			metadata.put(NXdetector.NX_LOCAL_NAME, getName());
+			metadata.put(NXdetector.NX_DETECTOR_NUMBER, ordinal() + 1);
+			metadata.put(NXdetector.NX_DETECTOR_READOUT_TIME, 0.012);
+
+			// remove nodes created by NexusDataWriter from the metadata used by the appender
+			metadata.keySet().removeIf(getMetadataFieldsWrittenByNexusDataWriter()::contains);
+
+			return metadata;
+		}
+
+		/**
+		 * Returns the names of metadata fields written to the nexus file by NexusDataWriter for this type
+		 * of detector. createAppenderMetadata
+		 * @return metdata
+		 */
+		protected Set<String> getMetadataFieldsWrittenByNexusDataWriter() {
+			// NexusDataWriter writes 'description' for most types of detectors
+			return new HashSet<>(Arrays.asList(NXdetector.NX_DESCRIPTION));
+		}
+
+		/**
+		 * Add the expected data to the given group
+		 * @param expectedDetectorGroup
+		 * @param nexusFile
+		 * @throws NexusException
+		 */
+		public abstract void addExpectedDataField(NXdetector expectedDetectorGroup, NexusFile nexusFile) throws NexusException;
+
+		private NXdetector createExpectedDetectorGroup(NexusFile nexusFile) throws NexusException {
+			final NXdetector expectedDetectorGroup = NexusNodeFactory.createNXdetector();
+			final Map<String, Object> expectedMetadata = createAppenderMetadata();
+			// add the fields added by the the appender to the expected detector group
+			for (Map.Entry<String, Object> metadataEntry : expectedMetadata.entrySet()) {
+				expectedDetectorGroup.setField(metadataEntry.getKey(), metadataEntry.getValue());
+			}
+
+			// add fields written by NexusDataWriter rather than the appender
+			addExpectedDataField(expectedDetectorGroup, nexusFile);
+			return expectedDetectorGroup;
+		}
+
+		public void checkNexusFile(NexusFile nexusFile) throws Exception {
+			final String detectorGroupPath = "/entry1/instrument/" + getName();
+			final GroupNode detectorGroup = nexusFile.getGroup(detectorGroupPath, false);
+			final NXdetector expectedDetectorGroup = createExpectedDetectorGroup(nexusFile);
+			assertGroupNodesEqual(detectorGroupPath, expectedDetectorGroup, detectorGroup);
+		}
+
+	}
 
 	private String testScratchDirectoryName;
 
@@ -124,23 +342,17 @@ public class NexusDataWriterTest {
 
 		final NexusObjectProvider<NXuser> userProvider = new NexusObjectWrapper<>("user", user);
 		final SimpleNexusDevice<NXuser> userNexusDevice = new SimpleNexusDevice<NXuser>(userProvider);
-
 		ServiceHolder.getNexusDeviceService().register(userNexusDevice);
 		NexusDataWriter.setMetadatascannables(new HashSet<>(Arrays.asList(userNexusDevice.getName())));
-
-		// Create a nexus appender and register it with the nexus file appender service
-		final NexusMetadataAppender<NXdetector> appender = new NexusMetadataAppender<>(DETECTOR_NAME);
-		final Map<String, Object> detectorMetadata = new HashMap<>();
-		detectorMetadata.put(NXdetector.NX_DESCRIPTION, "a description of a detector");
-		detectorMetadata.put(NXdetector.NX_LAYOUT, "area");
-		detectorMetadata.put(NXdetector.NX_DETECTOR_NUMBER, 1);
-		detectorMetadata.put(NXdetector.NX_DETECTOR_READOUT_TIME, 0.012);
-		appender.setNexusMetadata(detectorMetadata);
-		ServiceHolder.getNexusFileAppenderService().register(appender);
 
 		// Set the location of the template file
 		final String templateFileAbsolutePath = Paths.get(TEMPLATE_FILE_PATH).toAbsolutePath().toString();
 		NexusDataWriter.setNexusTemplateFiles(Arrays.asList(templateFileAbsolutePath));
+
+		// Create a nexus appender for each detector and register it with the nexus file appender service
+		for (DetectorType detectorType : DetectorType.values()) {
+			detectorType.createAndRegisterAppender();
+		}
 
 		// Act: write a point. Writing the first point causes the nexus file to be created.
 		final ScanDataPoint firstPoint = createScanDataPoint();
@@ -168,36 +380,21 @@ public class NexusDataWriterTest {
 			assertThat(user, is(not(sameInstance(userGroup))));
 			assertGroupNodesEqual(userGroupPath, user, userGroup);
 
-			// check that the metadata has been added for the detector
-			final String detectorGroupPath = "/entry1/instrument/" + DETECTOR_NAME;
-			final GroupNode detectorGroup = nexusFile.getGroup(detectorGroupPath, false);
-			final NXdetector expectedDetectorGroup = createExpectedDetectorGroup(detectorMetadata);
-			expectedDetectorGroup.setLocal_nameScalar(DETECTOR_NAME);
-			assertGroupNodesEqual(detectorGroupPath, expectedDetectorGroup, detectorGroup);
+			// check that the metadata has been added for each detector
+			for (DetectorType detectorType : DetectorType.values()) {
+				detectorType.checkNexusFile(nexusFile);
+			}
 		}
 	}
 
-	private NXdetector createExpectedDetectorGroup(Map<String, Object> detectorMetadata) {
-		final NXdetector detGroup = NexusNodeFactory.createNXdetector();
-		for (Map.Entry<String, Object> metadataEntry : detectorMetadata.entrySet()) {
-			detGroup.setField(metadataEntry.getKey(), metadataEntry.getValue());
-		}
-		return detGroup;
-	}
-
-	private ScanDataPoint createScanDataPoint() {
-
-		final Detector detector = mock(NexusDetector.class);
-		when(detector.getName()).thenReturn(DETECTOR_NAME);
-		final NexusTreeProvider nexusTreeProvider = mock(NexusTreeProvider.class);
-		final INexusTree nexusTreeRoot = new NexusTreeNode("", NexusExtractor.NXInstrumentClassName, null);
-		nexusTreeRoot.addChildNode(new NexusTreeNode(DETECTOR_NAME, NexusExtractor.NXDetectorClassName, null));
-		when(nexusTreeProvider.getNexusTree()).thenReturn(nexusTreeRoot);
-
+	private ScanDataPoint createScanDataPoint() throws Exception {
 		final ScanDataPoint firstPoint = new ScanDataPoint();
 		firstPoint.setScanDimensions(new int[] { 5 });
-		firstPoint.addDetector(detector);
-		firstPoint.addDetectorData(nexusTreeProvider, null);
+
+		for (DetectorType detectorType : DetectorType.values()) {
+			firstPoint.addDetector(detectorType.getDetector());
+			firstPoint.addDetectorData(detectorType.getDetectorData(), null);
+		}
 
 		return firstPoint;
 	}
