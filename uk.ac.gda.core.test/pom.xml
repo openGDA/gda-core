@@ -76,7 +76,6 @@
 			          	<exclude>RepeatScanTest</exclude>
 			          	<exclude>PositionStreamIndexerTest</exclude>
 			          	<exclude>MScanSubmitterTest</exclude>
-			          	<exclude>ConcurrentScanTest</exclude>
 			          	<!-- Mockito can't create it in different plugin -->
 			          	<exclude>JythonCompleterTest</exclude>
 			          	<!-- trying to connect to an external server -->

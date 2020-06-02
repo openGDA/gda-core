@@ -65,11 +65,11 @@ import gda.scan.ScanInformation.ScanInformationBuilder;
 public class ConcurrentScanTest {
 	private static final Logger logger = LoggerFactory.getLogger(ConcurrentScanTest.class);
 	@SuppressWarnings("rawtypes")
-	interface PositionCallableProvidingScannable extends PositionCallableProvider, Scannable {
+	public interface PositionCallableProvidingScannable extends PositionCallableProvider, Scannable {
 	}
 
 	@SuppressWarnings("rawtypes")
-	interface PositionCallableProvidingDetector extends PositionCallableProvider, Detector {
+	public interface PositionCallableProvidingDetector extends PositionCallableProvider, Detector {
 	}
 
 	class NamedObject {
