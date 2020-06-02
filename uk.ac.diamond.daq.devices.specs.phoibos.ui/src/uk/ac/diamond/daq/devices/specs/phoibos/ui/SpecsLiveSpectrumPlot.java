@@ -33,6 +33,7 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveUpdate;
 
 public class SpecsLiveSpectrumPlot extends SpecsLivePlot implements IObserver {
+
 	private static final Logger logger = LoggerFactory.getLogger(SpecsLiveSpectrumPlot.class);
 
 	@Override
@@ -78,7 +79,7 @@ public class SpecsLiveSpectrumPlot extends SpecsLivePlot implements IObserver {
 			PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
 				// Thread safe so don't need to be in the UI thread
 				plottingSystem.updatePlot1D(energyAxisDataset, Arrays.asList(spectrum), null);
-				plottingSystem.getSelectedYAxis().setTitle("Intesnity (arb. units)");
+				plottingSystem.getSelectedYAxis().setTitle("Intensity (arb. units)");
 
 				if (displayInBindingEnergy) {
 					plottingSystem.getSelectedXAxis().setTitle("Binding Energy (eV)");
@@ -95,5 +96,4 @@ public class SpecsLiveSpectrumPlot extends SpecsLivePlot implements IObserver {
 		}
 
 	}
-
 }

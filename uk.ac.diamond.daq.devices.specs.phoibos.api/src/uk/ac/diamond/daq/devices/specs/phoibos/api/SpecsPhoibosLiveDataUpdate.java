@@ -44,7 +44,7 @@ public class SpecsPhoibosLiveDataUpdate extends SpecsPhoibosLiveUpdate {
 	private final double[] yAxis;
 	private final String yAxisUnits;
 
-	private SpecsPhoibosLiveDataUpdate(Builder builder) {
+	protected SpecsPhoibosLiveDataUpdate(Builder builder) {
 		super(builder.spectrum);
 		regionName = builder.regionName;
 		positionString = builder.positionString;

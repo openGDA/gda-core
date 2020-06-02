@@ -173,4 +173,6 @@ public interface ISpecsPhoibosAnalyser extends Findable, IObservable {
 	SpecsPhoibosConfigurableScannableInfo getConfigurablePhotonEnergyScannableInfo();
 	List<SpecsPhoibosConfigurableScannableInfo> getAllConfigurableScannablesInfo();
 	List<SpecsPhoibosConfigurableScannableInfo> getAdditionalConfigurableScannablesInfo();
+
+	void stopAfterCurrentIteration();
 }
