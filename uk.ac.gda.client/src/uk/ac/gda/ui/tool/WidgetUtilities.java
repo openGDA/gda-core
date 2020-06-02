@@ -27,8 +27,8 @@ import org.eclipse.jface.fieldassist.FieldDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Control;
-
-import uk.ac.gda.ui.tool.ClientMessages;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Widget;
 
 public class WidgetUtilities {
 
@@ -70,5 +70,16 @@ public class WidgetUtilities {
 		}
 		decoratorMap.remove(control.hashCode()).hide();
 		control.pack();
+	}
+
+	/**
+	 * Adds a {@link Listener} to a {@link Widget} and removes it before the {@code Widget} is disposed.
+	 * @param widget  the element to which the listener is add
+	 * @param eventType the type of event to listen for
+	 * @param listener the type of event to listen for
+	 */
+	public static final void addWidgetDisposableListener(Widget widget, int eventType, Listener listener) {
+		widget.addListener(eventType, listener);
+		widget.addDisposeListener(ev -> widget.removeListener(eventType, listener));
 	}
 }
