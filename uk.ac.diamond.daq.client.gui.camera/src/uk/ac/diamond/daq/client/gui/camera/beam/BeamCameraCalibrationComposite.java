@@ -106,10 +106,10 @@ public class BeamCameraCalibrationComposite implements CompositeFactory {
 			}
 		};
 		doCalibration.addSelectionListener(listener);
-		try {
-			SpringApplicationContextProxy.addApplicationListener(changeCameraListener);
-			SpringApplicationContextProxy.addApplicationListener(cameraMappingEventListener);
-			SpringApplicationContextProxy.addApplicationListener(plottingSystemUpdateListener);
+		try {			
+			SpringApplicationContextProxy.addDisposableApplicationListener(container, changeCameraListener);
+			SpringApplicationContextProxy.addDisposableApplicationListener(container, cameraMappingEventListener);
+			SpringApplicationContextProxy.addDisposableApplicationListener(container, plottingSystemUpdateListener);
 		} catch (GDAClientException e) {
 			String msg = ClientMessagesUtility.getMessage(ClientMessages.CANNOT_LISTEN_CAMERA_PUBLISHER);
 			logger.error(msg, e);

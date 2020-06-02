@@ -57,7 +57,7 @@ public class AbsorptionComposite implements CompositeFactory {
 
 		try {
 			// Listens to ROIChangeEvent
-			SpringApplicationContextProxy.addApplicationListener(getROIChangeListener(brigthenssProcessor));
+			SpringApplicationContextProxy.addDisposableApplicationListener(table, getROIChangeListener(brigthenssProcessor));
 		} catch (GDAClientException e) {
 			logger.error("Cannot append ROIChangeListener to Spring");
 		}

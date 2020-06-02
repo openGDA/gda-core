@@ -1,8 +1,6 @@
 package uk.ac.diamond.daq.client.gui.camera.liveview;
 
 import java.util.Collection;
-import java.util.Optional;
-import java.util.UUID;
 
 import org.dawnsci.plotting.histogram.ImageHistogramProvider;
 import org.dawnsci.plotting.histogram.ui.HistogramViewer;
@@ -18,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
+import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.event.PlottingSystemUpdateEvent;
 import uk.ac.gda.client.live.stream.view.LivePlottingComposite;
@@ -37,17 +36,19 @@ public class HistogramComposite extends Composite {
 
 	private static final Logger logger = LoggerFactory.getLogger(HistogramComposite.class);
 	
-	private IPlottingSystem plottingSystem;
+	private IPlottingSystem<?> plottingSystem;
 	private Composite histogramArea;
 	
-	public HistogramComposite(Composite parent, @SuppressWarnings("rawtypes") IPlottingSystem plottingSystem, int style) {
+	public HistogramComposite(Composite parent, IPlottingSystem<?> plottingSystem, int style) {
 		super(parent, style);
 		this.plottingSystem = plottingSystem;
 		
 		try {
-			SpringApplicationContextProxy.addApplicationListener(plottingSystemUpdateListener);
+			SpringApplicationContextProxy.addDisposableApplicationListener(this, plottingSystemUpdateListener);
 		} catch (GDAClientException e) {
-			logger.error("Error", e);
+			String msg = "Cannot create histogram listener";
+			UIHelper.showError(msg, e);
+			logger.error(msg, e);
 		}
 		
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(this);
@@ -74,37 +75,36 @@ public class HistogramComposite extends Composite {
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(this);
 	}
 
-	private void refreshData() {
-		try {
-			if (histogram == null) {
-				histogram = new HistogramViewer(histogramArea);	
-				histogram.setContentProvider(new ImageHistogramProvider());
-			} 			
-			Collection<ITrace> traces = plottingSystem.getTraces(IPaletteTrace.class);			
-			if (!traces.isEmpty()) {
-				IImageTrace trace = (IImageTrace)traces.iterator().next();
-				trace.getImageServiceBean().setMax(260.0);
-				histogram.setInput(trace);
-				histogram.refresh();
-				layout(true, true);
-			}
-			GridDataFactory.fillDefaults().grab(true, true).applyTo(histogram.getComposite());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
 	ApplicationListener<PlottingSystemUpdateEvent> plottingSystemUpdateListener = new ApplicationListener<PlottingSystemUpdateEvent>() {
 		@Override
 		public void onApplicationEvent(PlottingSystemUpdateEvent event) {
-			Optional<UUID> uuid = ClientSWTElements.findParentUUID(getParent());
-			if (uuid.isPresent() && !event.getRootComposite().equals(uuid.get())) {
+			if (!event.haveSameParent(getParent())) {
 				return;
 			}
 			if (LivePlottingComposite.class.isAssignableFrom(event.getSource().getClass())) {
 				refreshData();				
 			}
 		}
-	};
-	
+		
+		private void refreshData() {
+			try {
+				if (histogram == null) {
+					histogram = new HistogramViewer(histogramArea);	
+					histogram.setContentProvider(new ImageHistogramProvider());
+				} 			
+				Collection<ITrace> traces = plottingSystem.getTraces(IPaletteTrace.class);			
+				if (!traces.isEmpty()) {
+					IImageTrace trace = (IImageTrace)traces.iterator().next();
+					trace.getImageServiceBean().setMax(260.0);
+					histogram.setInput(trace);
+					histogram.refresh();
+					layout(true, true);
+				}
+				GridDataFactory.fillDefaults().grab(true, true).applyTo(histogram.getComposite());
+			} catch (Exception e) {
+				UIHelper.showError("Cannot create CameraConfiguration", e);
+				logger.error("Cannot create CameraConfiguration", e);
+			}
+		}
+	};	
 }

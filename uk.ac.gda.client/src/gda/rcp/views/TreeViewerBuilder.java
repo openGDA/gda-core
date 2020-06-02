@@ -109,8 +109,8 @@ public abstract class TreeViewerBuilder<T> {
 		viewer.getControl().setMenu(menu);
 
 		try {
-			SpringApplicationContextProxy.addApplicationListener(saveResourcesListener);
-			SpringApplicationContextProxy.addApplicationListener(deleteResourcesListener);
+			SpringApplicationContextProxy.addDisposableApplicationListener(tree, saveResourcesListener);
+			SpringApplicationContextProxy.addDisposableApplicationListener(tree, saveResourcesListener);
 		} catch (GDAClientException e) {
 
 		}

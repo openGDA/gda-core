@@ -36,11 +36,10 @@ public class CameraConfigurationView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		try {
-			CameraConfigurationDialog ccd = new CameraConfigurationDialog(
-					ClientSWTElements.createComposite(parent, SWT.NONE, 1),
+			CameraConfigurationFactory ccd = new CameraConfigurationFactory(
 					(ImagingCameraConfigurationController) CameraHelper.getCameraControlInstance(cameraIndex)
 							.orElseThrow(GDAClientException::new));
-			ccd.createComposite();
+			ccd.createComposite(parent, SWT.NONE);
 		} catch (GDAClientException e) {
 			logger.error("Cannot find Cameraconfiguration for camera index {}", cameraIndex);
 		}
@@ -52,15 +51,20 @@ public class CameraConfigurationView extends ViewPart {
 	}
 
 	/**
-	 * Creates a {@link Button} to open a CameraConfigurationView.
-	 * This elements standardises the look and feel how the view is open.
-	 * The listener attached to the button opens the view using the Eclipse generic viewId
-	 * <pre>{@link #CAMERA_CONTROLLER_VIEW}:secondaryId</pre>
-	 * where the secondaryId is generated internally as random string. This makes the button suitable to be used
-	 * to open multiple instances of the CameraConfigurationView
-	 *  
+	 * Creates a {@link Button} to open a CameraConfigurationView. This elements
+	 * standardises the look and feel how the view is open. The listener attached to
+	 * the button opens the view using the Eclipse generic viewId
+	 * 
+	 * <pre>
+	 * {@link #CAMERA_CONTROLLER_VIEW}:secondaryId
+	 * </pre>
+	 * 
+	 * where the secondaryId is generated internally as random string. This makes
+	 * the button suitable to be used to open multiple instances of the
+	 * CameraConfigurationView
+	 * 
 	 * @param parent the button container
-	 * @return a {@link Button} instance 
+	 * @return a {@link Button} instance
 	 */
 	public static final Button openCameraConfigurationViewButton(Composite parent) {
 		Button cameras = ClientSWTElements.createButton(parent, SWT.None, ClientMessages.CAMERAS,
@@ -69,13 +73,12 @@ public class CameraConfigurationView extends ViewPart {
 		cameras.addListener(SWT.Selection, event -> {
 			IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 			try {
-				activePage
-						.showView(CameraConfigurationView.CAMERA_CONTROLLER_VIEW + ":" + UUID.randomUUID().toString());
+				activePage.showView(CameraConfigurationView.CAMERA_CONTROLLER_VIEW, UUID.randomUUID().toString(),
+						IWorkbenchPage.VIEW_ACTIVATE);
 			} catch (PartInitException e) {
 				UIHelper.showError("Cannot open Camera Controller View", e);
 			}
-		});		
+		});
 		return cameras;
 	}
-
 }

@@ -18,8 +18,10 @@
 
 package uk.ac.gda.ui.tool.spring;
 
+import java.util.Objects;
 import java.util.Optional;
 
+import org.eclipse.swt.widgets.Widget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -30,6 +32,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.event.ApplicationEventMulticaster;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.stereotype.Component;
 
 import uk.ac.gda.client.exception.GDAClientException;
@@ -76,20 +80,22 @@ public class SpringApplicationContextProxy implements ApplicationEventPublisherA
 
 	/**
 	 * Attached a listener to the application context in order to be notified when new events occur
+	 *
 	 * @param listener
-	 * @throws GDAClientException
 	 */
-	public static final void addApplicationListener(ApplicationListener<?> listener) throws GDAClientException {
+	private static final void addApplicationListener(ApplicationListener<?> listener) {
 		// This condition is necessary until the client call Spring "component-scan" by default (DAQ-2645)
 		if (SpringApplicationContextProxy.configurableApplicationContext == null) {
 			springApplicationDidNotScanClass();
 			return;
 		}
-
-//		if (configurableApplicationContext == null) {
-//			throw new GDAClientException("This class has no valid ConfigurableApplicationContext instance");
-//		}
 		SpringApplicationContextProxy.configurableApplicationContext.addApplicationListener(listener);
+	}
+
+	private static final void removeApplicationListener(ApplicationListener<?> listener) {
+		ApplicationEventMulticaster aem = applicationContext.getBean(
+				AbstractApplicationContext.APPLICATION_EVENT_MULTICASTER_BEAN_NAME, ApplicationEventMulticaster.class);
+		aem.removeApplicationListener(listener);
 	}
 
 	public static <T> T getBean(Class<T> bean) {
@@ -104,7 +110,35 @@ public class SpringApplicationContextProxy implements ApplicationEventPublisherA
 		}
 	}
 
-	private static void springApplicationDidNotScanClass() {
-		logger.warn("The Spring Application may have not initialized uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy class");
+	/**
+	 * Registers a {@code listener} and removes it when the related {@code composite} is disposed.
+	 *
+	 * @param widget the element publishing the dispose event which causes {@code listener} to be removed
+	 * @param listener the application lister to
+	 * @throws GDAClientException if the widget is {@code null} or {@link Widget#isDisposed()} returns {@code true}
+	 */
+	public static final void addDisposableApplicationListener(Widget widget, ApplicationListener<?> listener) throws GDAClientException {
+		validateWidget(widget);
+		SpringApplicationContextProxy.addApplicationListener(listener);
+		widget.addDisposeListener(disposedEvent -> {
+			if (Objects.equals(disposedEvent.getSource(), widget)) {
+				SpringApplicationContextProxy.removeApplicationListener(listener);
+			}
+		});
 	}
+
+	private static void validateWidget(Widget widget) throws GDAClientException {
+		if (Objects.isNull(widget)) {
+			throw new GDAClientException("Cannot listen to a null widget");
+		}
+		if (widget.isDisposed()) {
+			throw new GDAClientException("Cannot listen to a disposed widget");
+		}
+	}
+
+	private static void springApplicationDidNotScanClass() {
+		logger.warn(
+				"The Spring Application may have not initialized uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy class");
+	}
+
 }

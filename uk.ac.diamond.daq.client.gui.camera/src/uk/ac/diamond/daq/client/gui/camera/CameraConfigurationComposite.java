@@ -10,10 +10,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Widget;
 import org.springframework.context.ApplicationListener;
 
+import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.binning.BinningComposite;
 import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
 import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
 import uk.ac.diamond.daq.client.gui.camera.exposure.ExposureDurationComposite;
+import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.MotorCompositeFactory;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.ui.tool.ClientSWTElements;
@@ -26,16 +28,16 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
  * 
  * @author Maurizio Nagni
  */
-public class CameraConfigurationComposite extends Composite {
+public class CameraConfigurationComposite implements CompositeFactory {
 
 	private ICameraConfiguration cameraConfiguration;
 	private Composite motorCompositeArea;
 	private AbstractCameraConfigurationController cameraController;
-	private final UUID uuidRoot;
+	private UUID uuidRoot;
 
 	private ApplicationListener<ChangeActiveCameraEvent> changeCameraListener = new ApplicationListener<ChangeActiveCameraEvent>() {
 		@Override
-		public void onApplicationEvent(ChangeActiveCameraEvent event) { 
+		public void onApplicationEvent(ChangeActiveCameraEvent event) {
 			if (!processEvent(event, uuidRoot)) {
 				return;
 			}
@@ -47,30 +49,41 @@ public class CameraConfigurationComposite extends Composite {
 			return event.getRootComposite() != null && event.getRootComposite().equals(uuidRoot);
 		}
 	};
-	
-	public CameraConfigurationComposite(Composite parent, int style) throws GDAClientException {
-		super(parent, style);
-		uuidRoot = ClientSWTElements.findParentUUID(getParent()).orElse(null);
+
+	@Override
+	public Composite createComposite(Composite parent, int style) {
+		Composite container = ClientSWTElements.createComposite(parent, style);
+		uuidRoot = ClientSWTElements.findParentUUID(container).orElse(null);
 		updateCamera(CameraHelper.getDefaultCameraProperties().getIndex());
 
-		GridLayoutFactory.swtDefaults().numColumns(4).equalWidth(false).applyTo(this);
+		GridLayoutFactory.swtDefaults().numColumns(4).equalWidth(false).applyTo(container);
 		GridDataFactory gdf = GridDataFactory.fillDefaults().grab(true, true);
 
 		// Exposure Component
-		Composite exposureLengthComposite = new ExposureDurationComposite(cameraController).createComposite(this,
+		Composite exposureLengthComposite = new ExposureDurationComposite(cameraController).createComposite(container,
 				SWT.NONE);
 		gdf.applyTo(exposureLengthComposite);
 
 		// Binning Component
-		Composite binningCompositeArea = ClientSWTElements.createComposite(this, style);
-		new BinningComposite(binningCompositeArea, cameraController, SWT.NONE);
+		Composite binningCompositeArea = ClientSWTElements.createComposite(container, style);
+		try {
+			new BinningComposite(binningCompositeArea, cameraController, SWT.NONE);
+		} catch (GDAClientException e) {
+			UIHelper.showError("Cannot create CameraConfiguration", e);
+			return null;
+		}
 		gdf.applyTo(binningCompositeArea);
 
 		// Motors Components
-		motorCompositeArea = ClientSWTElements.createComposite(this, style);
+		motorCompositeArea = ClientSWTElements.createComposite(container, style);
 		buildMotorsGUI();
 		gdf.applyTo(motorCompositeArea);
-		SpringApplicationContextProxy.addApplicationListener(changeCameraListener);
+		try {
+			SpringApplicationContextProxy.addDisposableApplicationListener(container, changeCameraListener);
+		} catch (GDAClientException e) {
+			UIHelper.showError("Cannot add camera change listener to CameraConfiguration", e);
+		}
+		return container;
 	}
 
 	private void buildMotorsGUI() {
@@ -84,6 +97,6 @@ public class CameraConfigurationComposite extends Composite {
 
 	private void updateCamera(int cameraIndex) {
 		cameraConfiguration = CameraHelper.createICameraConfiguration(cameraIndex);
-		cameraController = CameraHelper.getCameraControlInstance(cameraIndex).orElse(null);	
+		cameraController = CameraHelper.getCameraControlInstance(cameraIndex).orElse(null);
 	}
 }
