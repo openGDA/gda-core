@@ -51,9 +51,8 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * the following format:
  * <ul>
  * <li>Comments: Any line beginning with # is ignored</li>
- * <li>Column Heading: the name of scannable objects, both Java Scannable and Jython PseudoDevice objects are supported,
- * starting with a Marker string constant "ScannableNames" (the default) or Spring configured property "columnHead" used
- * as key</li>
+ * <li>Column Heading: the name of scannable objects, starting with a Marker string constant "ScannableNames" (the
+ * default) or Spring configured property "columnHead" used as key</li>
  * <li>Unit String: the physical units used by each of the scannables, starting with a Marker string constant
  * "ScannableUnits" (the default) or Spring configure property "columnUnit"</li>
  * <li>Lookup Values: Multiple rows and columns of data with NO Marker, instead, the first column of data (i.e. the

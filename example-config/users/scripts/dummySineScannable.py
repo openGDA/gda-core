@@ -1,7 +1,7 @@
-from gda.device.scannable import PseudoDevice
+from gda.device.scannable import ScannableMotionBase
 from java.lang import Math as Math
 
-class DummySineScannable(PseudoDevice):
+class DummySineScannable(ScannableMotionBase):
 	def __init__(self, name, initialValue):
 		self.name = name
 		self.currentposition = initialValue 

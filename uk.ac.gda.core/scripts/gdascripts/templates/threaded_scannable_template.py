@@ -1,11 +1,11 @@
-from gda.device.scannable import PseudoDevice
+from gda.device.scannable import ScannableMotionBase
 from java.lang import Thread, Runnable
 
 #
 # Threaded version of the class in scannable_template in case the work performed
 # within the rawAsynchronousMoveTo takes a long time.
 #
-class threadedScannableTemplate(PseudoDevice):
+class threadedScannableTemplate(ScannableMotionBase):
 
 	#
 	# The constructor. 

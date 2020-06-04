@@ -2,7 +2,7 @@ from gdascripts.scannable.epics.PvManager import PvManager
 
 
 from time import sleep
-from gda.device.detector import PseudoDetector
+from gda.device.detector import DetectorBase
 from gda.device.Detector import BUSY, IDLE
 
 # test = ScanFileContainer()
@@ -11,7 +11,7 @@ from gda.device.Detector import BUSY, IDLE
 # matrix = test.getImage().doubleMatrix()
 
 
-class EpicsPilatus(PseudoDetector):
+class EpicsPilatus(DetectorBase):
 	'''Pilatus PD
 	obj=PilatusClass(name,pvroot,filepath,filename)
 	e.g. pilatus=PilatusClass('P100k','BL16I-EA-PILAT-01:','/dls/i16/data/Pilatus/','p')

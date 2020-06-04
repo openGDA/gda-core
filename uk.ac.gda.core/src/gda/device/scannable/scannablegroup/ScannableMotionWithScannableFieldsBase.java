@@ -606,7 +606,7 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 
 
 	/**
-	 * Returns the ScannableField with the given name. As PseudoDevice does not extend PyObject, it is an 'old style'
+	 * Returns the ScannableField with the given name. As ScannableMotionBase does not extend PyObject, it is an 'old style'
 	 * class and the more appropriate __getattribute__ method won't get called. The problem with __getattr__ is that
 	 * defined methods (such as Scannable.a()) will block it. Then again, maybe this is not a problem!
 	 *

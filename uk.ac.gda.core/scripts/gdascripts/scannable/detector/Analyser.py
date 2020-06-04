@@ -3,11 +3,8 @@ import os;
 from java.lang import IllegalArgumentException;
 from java.util import ArrayList;
 
-#from gda.device.scannable import PseudoDevice;
-#from gda.device.detector import PseudoDetector
-#from gda.device import Detector;
 from gda.device.detector import DetectorBase
-#
+
 from gda.analysis.io import JPEGLoader, TIFFImageLoader, PNGLoader
 
 from gda.analysis import ScanFileHolder

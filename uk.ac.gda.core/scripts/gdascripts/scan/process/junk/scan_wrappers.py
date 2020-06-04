@@ -50,7 +50,7 @@ class ScanWrapperClass:
 
 	def isPD(self,obj):
 		# test if object is a Pseudodevice
-		return isinstance(obj, PseudoDevice) or isinstance(obj, ScannableBase) 
+		return isinstance(obj, ScannableMotionBase) or isinstance(obj, ScannableBase) 
 
 	def get_scan_params(self,params):
 #		print len(params), params
@@ -65,7 +65,7 @@ class ScanWrapperClass:
 			elif isinstance(token, (int, float, list)):		#paramemer is a number
 				currentlist+=[token];				#add parameter to current parameter list
 			else:
-				raise TypeError('=== Parameter must be a PseudoDevice, number or list. Found {}'.format(type(token)))
+				raise TypeError('=== Parameter must be a ScannableMotionBase, number or list. Found {}'.format(type(token)))
 		paramlist+=[currentlist];					#append last one to list	
 		return [devlist, paramlist]
 

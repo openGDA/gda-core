@@ -1,7 +1,7 @@
-from gda.device.scannable import PseudoDevice
+from gda.device.scannable import ScannableMotionBase
 import math
 
-class ScannableGaussian(PseudoDevice):
+class ScannableGaussian(ScannableMotionBase):
 
 	def __init__(self, name, initialValue):
 		self.name = name

@@ -880,7 +880,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 			// Note: Jython won't find interfaces (such as Scannable) on classes of objects that extend PyObject. Hence
 			// the two classes below.
 			String jythonCommand = "dontuse=None\n" + "for dontuse in globals().values(): \n"
-					+ "\tif isinstance(dontuse,(PseudoDevice, ScannableBase)):\n" + "\t\ttry:\n" + "\t\t\tdontuse.stop()\n"
+					+ "\tif isinstance(dontuse,(ScannableMotionBase, ScannableBase)):\n" + "\t\ttry:\n" + "\t\t\tdontuse.stop()\n"
 					+ "\t\texcept:\n" + "\t\t\tprint '    problem stopping ' + dontuse.getName()\n" + "\n"
 					+ "del dontuse\n" + "\n";
 			interp.exec(jythonCommand);

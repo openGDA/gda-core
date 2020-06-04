@@ -1,4 +1,4 @@
-from gda.device.scannable import PseudoDevice
+from gda.device.scannable import ScannableMotionBase
 
 #
 # A template for all Scannable classes. 
@@ -29,7 +29,7 @@ from gda.device.scannable import PseudoDevice
 #
 # ******************************************************************************
 #
-class scannableTemplate(PseudoDevice):
+class scannableTemplate(ScannableMotionBase):
 
 	#
 	# The constructor. 

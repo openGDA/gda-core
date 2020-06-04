@@ -3,7 +3,7 @@
 from gdascripts.scannable.epics.PvManager import PvManager
 from time import sleep
 import time
-from gda.device.detector import PseudoDetector
+from gda.device.detector import DetectorBase
 from gda.device.Detector import BUSY, IDLE
 from gda.analysis import ScanFileHolder
 from org.eclipse.january.dataset import DatasetFactory
@@ -28,7 +28,7 @@ def unsign2(x):
     else:
         return x
 
-class EpicsGigECamera(PseudoDetector):
+class EpicsGigECamera(DetectorBase):
 
     #TODO: Known bug: only works when epics zoom turned off (read the zoom value)
     def __init__(self, name, pvroot, filepath=None,

@@ -114,10 +114,10 @@ implement three methods relating to returning the position, performing
 the operation and returning the status. A template for this most
 simple case is shown below::
 
-    from gda.device.scannable import PseudoDevice
+    from gda.device.scannable import ScannableMotionBase
     from gda.device.scannable import ScannableUtils
      
-    class MyScannable(PseudoDevice):
+    class MyScannable(ScannableMotionBase):
         def __init__(self, name):
 	    self.setName(name)
 	    self.setInputNames([name])
@@ -173,7 +173,7 @@ used in the three methods which the class implements.
 The other lines in the constructor are obligatory for the Scannable to
 work properly and are designed to enable this class to interact
 properly with the base class which this class extends (namely
-PseudoDevice ).The first of these lines sets the Scannable's name.
+ScannableMotionBase ).The first of these lines sets the Scannable's name.
 This name is used when pretty-printing the class to the Jython
 terminal. The other three lines set up three arrays which define what
 numbers this Scannable represents, what they are called and what
@@ -279,7 +279,7 @@ A fuller version of the basic template shown before:
 .. sourcecode:: python
 
     
-    	from gda.device.scannable import PseudoDevice
+    	from gda.device.scannable import ScannableMotionBase
     
     	#
     	# A template for all Scannable classes.
@@ -310,7 +310,7 @@ A fuller version of the basic template shown before:
     	#
     	#******************************************************************************
     	#
-    	class scannableTemplate(PseudoDevice):
+    	class scannableTemplate(ScannableMotionBase):
     
     	    #
     	    # The constructor.
@@ -417,14 +417,14 @@ separate thread:
 .. sourcecode:: python
 
     
-    	from gda.device.scannable import PseudoDevice
+    	from gda.device.scannable import ScannableMotionBase
     	from java.lang import Thread, Runnable
     	    
     	#
     	# Threaded version of the class in scannable_template in case the work performed
     	# within the rawAsynchronousMoveTo takes a long time.
     	#
-    	class threadedScannableTemplate(PseudoDevice):
+    	class threadedScannableTemplate(ScannableMotionBase):
     	    
     	    #
     	    # The constructor. 
@@ -498,7 +498,7 @@ For an object which you wish to act like a Detector:
 .. sourcecode:: python
 
     
-    	from gda.device.detector import PseudoDevice
+    	from gda.device.detector import ScannableMotionBase
     	    
     	#
     	# A template class to use as a basis to create your own Detector objects.
@@ -513,7 +513,7 @@ For an object which you wish to act like a Detector:
     	#       external classes to collect the data.
     	#
     	#
-    	class templateDetectorClass(PseudoDevice):
+    	class templateDetectorClass(ScannableMotionBase):
     	    
     	    #
     	    # The constructor.
@@ -559,7 +559,7 @@ A threaded version of the Detector template:
 
     
     	from java.lang import Thread, Runnable
-    	from gda.device.detector import PseudoDevice
+    	from gda.device.detector import ScannableMotionBase
     	    
     	#
     	# A more complex template for detectors in which the work to perform the data
@@ -567,7 +567,7 @@ A threaded version of the Detector template:
     	#
     	#
     	#
-    	class threadedTemplateDetectorClass(PseudoDevice):
+    	class threadedTemplateDetectorClass(ScannableMotionBase):
     	    
     	    #
     	    # The constructor.
@@ -631,9 +631,9 @@ received by the move method:
 .. sourcecode:: python
 
     
-    	from gda.device.scannable import PseudoDevice
+    	from gda.device.scannable import ScannableMotionBase
     	    
-    	class MultiElementTestClass(PseudoDevice):
+    	class MultiElementTestClass(ScannableMotionBase):
     	    
     	    def __init__(self):
     	        self.setName("y")

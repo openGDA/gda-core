@@ -1,4 +1,4 @@
-from gda.device.scannable import ScannableBase, PseudoDevice
+from gda.device.scannable import ScannableBase, ScannableMotionBase
 import time
 import java.lang.Exception  # @UnresolvedImport
 from gdascripts.metadata.metadata_commands import meta_add, meta_rm #, setTitle, getTitle, meta_ll, meta_ls
@@ -9,7 +9,7 @@ KEY = 'SRSWriteAtFileCreation'
 
 
 def _is_scannable(obj):
-    return isinstance(obj, PseudoDevice) or isinstance(obj, ScannableBase)
+    return isinstance(obj, ScannableMotionBase) or isinstance(obj, ScannableBase)
 
 
 def _check_all_scannable(objects):

@@ -1,5 +1,4 @@
 from gda.device.scannable import DottedAccessScannableMotionBase
-#from gda.device.scannable import PseudoDevice
 import unittest
 
 class SimpleDottedAccessPseudoDevice(DottedAccessScannableMotionBase):

@@ -1,10 +1,10 @@
-from gda.device.scannable import PseudoDevice
+from gda.device.scannable import ScannableMotionBase
 from gdascripts.scan.process.ScanDataProcessor import ScanDataProcessor
 from gda.data import NumTracker
 
 from gda.jython.commands import ScannableCommands
 
-class ScannableScan(PseudoDevice):
+class ScannableScan(ScannableMotionBase):
 	
 	def __init__(self, name, datasetProcessor, scanClass, *args):
 		self.name = name

@@ -11,7 +11,7 @@ from gdascripts.scannable.preloadedArray import PreloadedArray
 from gda.scan import ConcurrentScan
 from gda.scan import ScanPlotSettings
 
-from gda.device.scannable import PseudoDevice, ScannableBase
+from gda.device.scannable import ScannableMotionBase, ScannableBase
 from copy import copy
 import math
 from java.util import Vector
@@ -190,7 +190,7 @@ def parseArgsIntoArgStruct(args):
 			# add to the current list
 			currentList.append(arg)
 		else:
-			raise Exception("Arguments to scan must be a PseudoDevice/Scannable, number, or token. Problem with: ",arg)
+			raise Exception("Arguments to scan must be a ScannableMotionBase/Scannable, number, or token. Problem with: ",arg)
 	return listOfLists
 
 # CODE COPIED from ConcurrentScanWrapper:
@@ -205,7 +205,7 @@ def flattenArgStructToArgs(argStruct):
 
 # CODE COPIED from ConcurrentScanWrapper:
 def isObjectScannable(obj):
-	return isinstance(obj, (Scannable, PseudoDevice, ScannableBase))
+	return isinstance(obj, (Scannable, ScannableMotionBase, ScannableBase))
 
 def isDetector(obj):
 	return isinstance(obj, Detector)

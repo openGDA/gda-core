@@ -437,7 +437,7 @@ public class GDAJythonInterpreter {
 				interactiveConsole.runsource("from gda.device.scannable import DummyScannable");
 				interactiveConsole.runsource("from gda.device.scannable import ContinuouslyScannable");
 				interactiveConsole.runsource("from gda.device.scannable import SimulatedContinuouslyScannable");
-				interactiveConsole.runsource("from gda.device.scannable import PseudoDevice");
+				interactiveConsole.runsource("from gda.device.scannable import ScannableMotionBase");
 				interactiveConsole.runsource("from gda.jython.commands import ScannableCommands");
 				interactiveConsole.runsource("from gda.jython.commands.ScannableCommands import *");
 				interactiveConsole.runsource("from gda.jython.commands import GeneralCommands");

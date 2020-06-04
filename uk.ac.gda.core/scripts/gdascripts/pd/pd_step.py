@@ -6,7 +6,7 @@ from math import exp, sqrt
 class StepX(ScannableMotionBase):
     """Device to allow control and read back of slit positions"""
     def __init__(self, name):
-        PseudoDevice.__init__(self) #@UndefinedVariable
+        ScannableMotionBase.__init__(self) #@UndefinedVariable
         self.setName(name)
         self.setInputNames([name])
         self.X = 0
@@ -27,7 +27,7 @@ class StepY(ScannableMotionBase):
         scan slitPos -10 10 1 detRead
         """
     def __init__(self, name, slitPos, centre, width, height):
-        PseudoDevice.__init__(self) #@UndefinedVariable
+        ScannableMotionBase.__init__(self) #@UndefinedVariable
         self.setName(name)
         self.setInputNames([name])
         self.slitPos = slitPos

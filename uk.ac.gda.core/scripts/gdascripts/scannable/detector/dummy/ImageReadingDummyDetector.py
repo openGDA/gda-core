@@ -1,10 +1,10 @@
-from gda.device.detector import PseudoDetector
+from gda.device.detector import DetectorBase
 from gda.device import Detector
 import time
 
 
 # TODO: Make a real detector!
-class ImageReadingDummyDetector(PseudoDetector):
+class ImageReadingDummyDetector(DetectorBase):
 	
 	def __init__(self, name, idxscannable, collectionFolder, posToFileDict, infoString):
 		self.name = name

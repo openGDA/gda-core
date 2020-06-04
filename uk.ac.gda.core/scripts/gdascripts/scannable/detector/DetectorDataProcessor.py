@@ -1,4 +1,4 @@
-from gda.device.scannable import PseudoDevice
+from gda.device.scannable import ScannableMotionBase
 from gda.device.scannable import PositionCallableProvider
 from gdascripts.scannable.detector.ProcessingDetectorWrapper import BasicDataSetProvider
 from java.util.concurrent import Callable
@@ -46,7 +46,7 @@ class DetectorDataProcessorPositionCallable(Callable):
 # 			return dataset[min(y1, y2):max(y1, y2), min(x1, x2):max(x1, x2)]
 
 
-class DetectorDataProcessor(PseudoDevice, PositionCallableProvider):
+class DetectorDataProcessor(ScannableMotionBase, PositionCallableProvider):
 
 	def __init__(self, name, processingDetector, twodDatasetProcessors, prefix_name_to_extranames=True):
 		self.name = name

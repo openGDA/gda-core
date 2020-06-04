@@ -2,12 +2,12 @@ from testjy.gdascripts_test.analysis_test.io_test.images import TESTFILE
 from gdascripts.scannable.detector.ProcessingDetectorWrapper import ProcessingDetectorWrapper, BasicDataSetProvider
 from gdascripts.scannable.detector.DatasetShapeRenderer import LinePainter, RectPainter
 from mock import Mock
-from gda.device.scannable import PseudoDevice
-from gda.device.detector import PseudoDetector
+from gda.device.scannable import ScannableMotionBase
+from gda.device.detector import DetectorBase
 from gdascripts.analysis.io.dataLoaders import loadImageIntoSFH
 import unittest
 
-class MockDetector(PseudoDetector):
+class MockDetector(DetectorBase):
 	
 	def __init__(self, path):
 		self.path = path
@@ -41,7 +41,7 @@ class NonFileCreatingMockDetector(MockDetector):
 		return loadImageIntoSFH(self.path)[0]#, self.iFileLoader)[0]
 
 
-class MockDetectorDataProcessor(PseudoDevice):
+class MockDetectorDataProcessor(ScannableMotionBase):
 	
 	def __init__(self, name, keys, vals):
 		self.name = name

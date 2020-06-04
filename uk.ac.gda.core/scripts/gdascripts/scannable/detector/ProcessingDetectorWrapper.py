@@ -14,7 +14,7 @@ import java.lang.Long #@UnresolvedImport
 
 from gda.data.fileregistrar import IFileRegistrar
 from gda.device.Detector import BUSY
-from gda.device.scannable import PseudoDevice
+from gda.device.scannable import ScannableMotionBase
 from gda.device.scannable import PositionCallableProvider
 from gda.factory import Finder
 from gdascripts.scannable.detector.DatasetShapeRenderer import DatasetShapeRenderer
@@ -96,7 +96,7 @@ class ProcessingDetectorWrapperPositionCallable(Callable):
 		return position + metricsResults + processorResults
 		
 
-class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
+class ProcessingDetectorWrapper(ScannableMotionBase, PositionCallableProvider):
 	def __init__(self,
 				name,
 				detector,

@@ -116,9 +116,9 @@ Using CAClient to make a Scannable
 
 * Defined class in epics_scannables.py::
 
-    from gda.device.scannable import PseudoDevice	
+    from gda.device.scannable import ScannableMotionBase
     from gda.epics import CAClient
-    class SimpleEPICSMonitor(PseudoDevice):
+    class SimpleEPICSMonitor(ScannableMotionBase):
     	def __init__(self, name, pvstring, unitstring, formatstring):
     		self.setName(name);
     		self.setInputNames([])

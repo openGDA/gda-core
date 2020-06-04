@@ -1,7 +1,7 @@
 from gdascripts.testing.livetest.TestGroup import TestGroup, Test
 
 
-from gda.device.scannable import PseudoDevice, ScannableBase
+from gda.device.scannable import ScannableMotionBase, ScannableBase
 from gda.jython.commands.GeneralCommands import pause
 from time import clock, sleep
 import sys
@@ -205,7 +205,7 @@ class AllScannablesTestGroup(TestGroup):
 		scannables = {}
 		print dictionary.keys()
 		for name in dictionary.keys():
-			if isinstance(dictionary[name], PseudoDevice) or isinstance(dictionary[name], ScannableBase):
+			if isinstance(dictionary[name], ScannableMotionBase) or isinstance(dictionary[name], ScannableBase):
 				scannables[name] = dictionary[name]
 		return scannables
 	

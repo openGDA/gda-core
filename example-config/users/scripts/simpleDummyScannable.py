@@ -43,6 +43,6 @@ class VerboseDummyScannable(ScannableBase):
 		print " "*30 + self.name + ".atScanEnd()"
 
 	def getLevel(self):
-		level = PseudoDevice.getLevel(self)
+		level = ScannableMotionBase.getLevel(self)
 		print " "*30 + self.name + ".getLevel() --> " + str(level)
 		return level

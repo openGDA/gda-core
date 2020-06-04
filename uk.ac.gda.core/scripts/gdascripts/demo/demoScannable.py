@@ -8,9 +8,9 @@
 # y=demoScannableClass(10)
 
 import java
-from gda.jython.scannable import PseudoDevice
+from gda.jython.scannable import ScannableMotionBase
 
-class demoScannableClass(PseudoDevice):
+class demoScannableClass(ScannableMotionBase):
 
 	def __init__(self, initialValue):
 		self.currentposition = initialValue

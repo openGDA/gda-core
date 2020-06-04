@@ -6,7 +6,6 @@ from java.io import File;
 
 from gda.device import Detector
 from gda.device.detector import DetectorBase
-#from gda.device.detector import PseudoDetector
 
 from gda.jython import InterfaceProvider
 
@@ -27,7 +26,6 @@ FILELOADERS={
 			'JPEG' : JPEGLoader
 			}
 
-#class DummyAreaDetectorClass(PseudoDetector):
 class DummyAreaDetectorClass(DetectorBase):
 	def __init__(self, name, panelName, zippedImageSource, fileImageExtension):
 		self.setName(name);

@@ -1,4 +1,4 @@
-from gda.device.scannable import PseudoDevice
+from gda.device.scannable import ScannableMotionBase
 from org.eclipse.january.dataset import DatasetFactory
 
 
@@ -7,7 +7,7 @@ try:
 except ImportError:
 	Plotter = None
 
-class PreloadedArray(PseudoDevice):
+class PreloadedArray(ScannableMotionBase):
 	"""Scannanle to hold a table of data, one column per extraField. The single
 	input-field acts as an index to this table. The scannable's position will be
 	the currently indexed row.

@@ -7,11 +7,11 @@
 #
 
 
-from gda.device.scannable import PseudoDevice
+from gda.device.scannable import ScannableMotionBase
 from gda.device.scannable import ScannableMotor
 from gda.device.motor import DummyMotor
 
-class twojawslits(PseudoDevice):
+class twojawslits(ScannableMotionBase):
 
     def __init__(self,name,slit1,slit2):
         self.setName(name)                                         # required

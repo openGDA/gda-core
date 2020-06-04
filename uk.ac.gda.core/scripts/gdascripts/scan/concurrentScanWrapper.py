@@ -1,5 +1,5 @@
 from copy import copy
-from gda.device.scannable import PseudoDevice, ScannableBase
+from gda.device.scannable import ScannableMotionBase, ScannableBase
 from gda.device import Scannable
 from gda.jython.commands.ScannableCommands import createScanPlotSettings, pos, configureScanPipelineParameters
 from gda.scan import ConcurrentScan, ScanBase, ScanPositionProvider
@@ -39,7 +39,7 @@ def add(a,b):
     return result
 
 def isObjectScannable(obj):
-    return isinstance(obj, (PseudoDevice, ScannableBase, Scannable))
+    return isinstance(obj, (ScannableMotionBase, ScannableBase, Scannable))
 
 def sampleScannablesInputPosition(scannable):
     """
@@ -223,7 +223,7 @@ class ConcurrentScanWrapper(object):
                 # add to the current list
                 currentList.append(arg)
             else:
-                raise Exception("Arguments to scan must be a PseudoDevice/Scannable, number, or token. Problem with: ",arg)
+                raise Exception("Arguments to scan must be a ScannableMotionBase/Scannable, number, or token. Problem with: ",arg)
         return listOfLists
     
     def checkArgStructForScannableScan(self, argStruct):

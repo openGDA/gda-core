@@ -2,7 +2,7 @@
 import math
 import os
 
-from gda.device.scannable import PseudoDevice, ScannableBase
+from gda.device.scannable import ScannableMotionBase, ScannableBase
 from gda.device import Scannable
 
 from gda.scan import ConcurrentScan
@@ -138,7 +138,7 @@ class BasicScanClass(object):
 		return L
 
 	def isScannable(self, obj):
-		return isinstance(obj, (PseudoDevice, ScannableBase, Scannable))
+		return isinstance(obj, (ScannableMotionBase, ScannableBase, Scannable))
 	
 	def getLastCommand(self):
 		#jsf=InterfaceProvider.getJythonNamespace()

@@ -6,7 +6,7 @@ import random
 class GaussianX(ScannableMotionBase):
 	"""Device to allow control and readback of X value"""
 	def __init__(self, name):
-#		PseudoDevice.__init__(self) #do not required as it will be called at end of this __init__ by default
+#		ScannableMotionBase.__init__(self) #do not required as it will be called at end of this __init__ by default
 		self.setName(name)
 		self.setInputNames([name])
 		self.X = 0
@@ -29,7 +29,7 @@ class GaussianY(ScannableMotionBase):
 	scan x -10 10 1 y
 	"""
 	def __init__(self, name, gaussianX, centre, width, height, background, noise=0):
-#		PseudoDevice.__init__(self)
+#		ScannableMotionBase.__init__(self)
 		self.setName(name)
 		self.setInputNames([name])
 		#self.setExtraNames([name])

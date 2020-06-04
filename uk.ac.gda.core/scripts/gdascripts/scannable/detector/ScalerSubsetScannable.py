@@ -1,8 +1,8 @@
-from gda.device.scannable import PseudoDevice
+from gda.device.scannable import ScannableMotionBase
 from gda.epics import CAClient
 
 
-class ScalerSubsetScannable(PseudoDevice):
+class ScalerSubsetScannable(ScannableMotionBase):
 	"""The class holds a scaler wrapping a scalar card. It will return 
 	the counts from a number of channels given in channelList.
 	"""
