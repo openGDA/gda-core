@@ -1,5 +1,5 @@
 '''
-module provides a class definition for creating a PseudoDevice from a EPICS PV name with an EPICS Monitor Listener and a monitoring thread.
+module provides a class definition for creating a ScannableMotionBase from a EPICS PV name with an EPICS Monitor Listener and a monitoring thread.
 The thread is used to control the scan process that this object involved in. When this object reaches a specified maximum scan pauses; 
 the scan would resume again only if this object reaches a specified minimum value.
  usage:
@@ -18,12 +18,12 @@ from gov.aps.jca.event import MonitorEvent
 from gov.aps.jca.event import MonitorListener
 from time import sleep
 from gda.epics import CAClient
-from gda.device.scannable import PseudoDevice
+from gda.device.scannable import ScannableMotionBase
 from java import lang
 from java.lang import Thread, Runnable
 from gda.jython import JythonServerFacade, JythonStatus
 
-class EpicsPVWithMonitorListener(PseudoDevice, MonitorListener, Runnable):
+class EpicsPVWithMonitorListener(ScannableMotionBase, MonitorListener, Runnable):
 	'''create a scannable that monitors the EPICS PV value changes and update its value passively. 
 	This value is used by a running thread to control the scan processing this object participates in.
 	'''

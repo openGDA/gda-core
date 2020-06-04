@@ -8,7 +8,7 @@ Usage:
 
 '''
 
-from gda.device.scannable import PseudoDevice
+from gda.device.scannable import ScannableMotionBase
 from gda.epics import CAClient
 from time import sleep
 
@@ -72,7 +72,7 @@ class HexapodAxisStatus(object):
 			print err.__str__()
 			return 0
 
-class Hexapod(PseudoDevice):
+class Hexapod(ScannableMotionBase):
 	'''hexapod controller class that implements interlock behaviour among the 6 axes. It's updateStatus() method will return 1 if any of the axes is busy, otherwise return 0.'''
 	def __init__(self, name, x_inputPV, x_readbackPV, x_tolerance, y_inputPV, y_readbackPV, y_tolerance, z_inputPV, z_readbackPV, z_tolerance, c_inputPV, c_readbackPV, c_tolerance, b_inputPV, b_readbackPV, b_tolerance, a_inputPV, a_readbackPV, a_tolerance):
 		self.setName(name);
@@ -118,7 +118,7 @@ class Hexapod(PseudoDevice):
 			return 0
 
 
-class HexapodAxis(PseudoDevice):
+class HexapodAxis(ScannableMotionBase):
 	'''scannable or pseudo device for an individual, single Hexapod axis, it takes 8 inputs in the following order:
 		1. the name string of this object
 		2. the PV string for input target value
