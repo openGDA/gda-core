@@ -650,11 +650,30 @@ public class NexusDataWriter extends DataWriterBase {
 		return Integer.parseInt(buf.toString());
 	}
 
-	void writeHere(NexusFile file, GroupNode group, INexusTree tree, boolean makeData, boolean attrOnly,
+	/**
+	 * Writes the data encapsulated in the given {@link INexusTree} node into the given {@link NexusFile} within the
+	 * given {@link GroupNode}. If {@code makeData} is <code>true</code>, the data structure is created, otherwise it
+	 * is assumed to already exist and is written to for the current point.
+	 * <p>
+	 * If the return value is not <code>null</code>, it is the group node created for the given sub-tree.
+	 *
+	 * @param file the nexus file to write to
+	 * @param group the parent group to write to
+	 * @param tree the tree containing the data to write
+	 * @param makeData <code>true</code> to create the nexus nodes, <code>false</code> otherwise
+	 * @param attrOnly
+	 * @param links
+	 * @return the group node created, if any, <code>null</code> otherwise
+	 * @throws NexusException
+	 */
+	private GroupNode writeHere(NexusFile file, GroupNode group, INexusTree tree, boolean makeData, boolean attrOnly,
 			List<SelfCreatingLink> links) throws NexusException {
+		// TODO: this method is huge and is seriously is need of refactoring
 		if (!tree.isPointDependent() && !makeData) {
-			return;
+			return null;
 		}
+
+		GroupNode newGroup = null;
 		String name = tree.getName();
 		String nxClass = tree.getNxClass();
 		boolean loopNodes = true;
@@ -664,6 +683,7 @@ public class NexusDataWriter extends DataWriterBase {
 		boolean nxClassIsExternalSDS = nxClass.equals(NexusExtractor.ExternalSDSLink);
 		if (nxClassIsExternalSDS) {
 			if (makeData) {
+				// link to an external SDS file (whatever that is)
 				NexusGroupData data = tree.getData();
 
 				/**
@@ -703,10 +723,11 @@ public class NexusDataWriter extends DataWriterBase {
 				links.add(new ExternalNXlink(name, relativeLink));
 
 			}
-			return;
+			return null;
 		}
 		if (nxClassIsAttr) {
 			if (makeData) {
+				// create an attribute for the current node
 				NexusGroupData data = tree.getData();
 				if (data != null && data.getBuffer() != null) {
 					INexusTree parent = tree.getParentNode();
@@ -729,14 +750,18 @@ public class NexusDataWriter extends DataWriterBase {
 					}
 				}
 			}
-			return;
+			return null;
 		}
 		if (attrOnly) {
-			return;
+			// we're only allowed to create attributes at this point, so return here
+			return null;
 		}
+
 		if (!name.isEmpty() && !nxClass.isEmpty()) {
+			// write the data as a group, creating the group first if not SDS
 			if (!nxClassIsSDS) {
 				group = file.getGroup(group, name, nxClass, true);
+				newGroup = group;
 			}
 
 			NexusGroupData sds = tree.getData();
@@ -859,6 +884,8 @@ public class NexusDataWriter extends DataWriterBase {
 				writeHere(file, group, branch, makeData, attrBelowThisOnly, links);
 			}
 		}
+
+		return newGroup;
 	}
 
 	private void writeNexusDetector(NexusDetector detector) throws NexusException {
@@ -1388,7 +1415,7 @@ public class NexusDataWriter extends DataWriterBase {
 	 */
 	private void makeDetectors() {
 		try {
-			Collection<Detector> detectors = thisPoint.getDetectors();
+			final Collection<Detector> detectors = thisPoint.getDetectors();
 
 			if (detectors.isEmpty()) {
 				makeFallbackNXData();
@@ -1419,27 +1446,41 @@ public class NexusDataWriter extends DataWriterBase {
 	private void makeDetectorEntry(Detector detector) throws DeviceException, NexusException {
 		logger.debug("Making NXdetector for {} in NeXus file.", detector.getName());
 
+		final GroupNode detectorGroup;
 		if (detector instanceof NexusDetector) {
-			logger.debug("Creating NexusTree entry in NeXus file.");
-			INexusTree detTree = extractNexusTree(detector.getName());
-			for (INexusTree det : detTree) {
-				if (det.getNxClass().equals(NexusExtractor.NXDetectorClassName)) {
-					makeGenericDetector(det.getName(), null, Double.class, detector, det);
-				} else if (det.getNxClass().equals(NexusExtractor.NXMonitorClassName)) {
-					// FIXME -- if this doesn't explode I am truly surprised
-					GroupNode group = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), false);
-					writeHere(file, group, det, firstData, false, null);
-				}
-			}
+			makeNexusDetectorGroups(detector); // a nexus detector may make multiple groups as some subclasses can control multiple actual detectors
+			detectorGroup = null;
 		} else if (detector.createsOwnFiles()) {
 			logger.debug("Creating File Creator Detector entry in NeXus file.");
-			makeFileCreatorDetector(detector.getName(), detector.getDataDimensions(), detector);
+			detectorGroup = makeFileCreatorDetector(detector.getName(), detector.getDataDimensions(), detector);
 		} else if (detector.getExtraNames().length > 0) {
 			logger.debug("Creating Detector entry in NeXus file.");
-			makeCounterTimer(detector);
+			detectorGroup = makeCounterTimer(detector);
 		} else {
 			logger.debug("Creating Generic Detector entry in NeXus file.");
-			makeGenericDetector(detector.getName(), detector.getDataDimensions(), Double.class, detector, null);
+			detectorGroup = makeGenericDetector(detector.getName(), detector.getDataDimensions(), Double.class, detector, null);
+		}
+
+		if (detectorGroup != null) {
+			addDeviceMetadata(detector.getName(), detectorGroup);
+		}
+	}
+
+	private void makeNexusDetectorGroups(Detector detector) throws NexusException {
+		logger.debug("Creating NexusTree entry in NeXus file.");
+		INexusTree detTree = extractNexusTree(detector.getName());
+		for (INexusTree det : detTree) {
+			GroupNode deviceGroup = null;
+			if (det.getNxClass().equals(NexusExtractor.NXDetectorClassName)) {
+				deviceGroup = makeGenericDetector(det.getName(), null, Double.class, detector, det);
+			} else if (det.getNxClass().equals(NexusExtractor.NXMonitorClassName)) {
+				// FIXME -- if this doesn't explode I am truly surprised
+				GroupNode entryGroup = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), false);
+				deviceGroup = writeHere(file, entryGroup, det, firstData, false, null);
+			}
+			if (deviceGroup != null) {
+				addDeviceMetadata(det.getName(), deviceGroup);
+			}
 		}
 	}
 
@@ -1489,25 +1530,24 @@ public class NexusDataWriter extends DataWriterBase {
 		NexusUtils.writeIntegerAttribute(file, group, "data_filename", 1);
 	}
 
-	private void makeFileCreatorDetector(String detectorName, @SuppressWarnings("unused") int[] dataDimensions,
+	private GroupNode makeFileCreatorDetector(String detectorName, @SuppressWarnings("unused") int[] dataDimensions,
 			Object detector) throws NexusException {
 		// Navigate to the relevant section in file...
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
 		NexusUtils.addToAugmentPath(path, INSTRUMENT, NexusExtractor.NXInstrumentClassName);
 		NexusUtils.addToAugmentPath(path, detectorName, NexusExtractor.NXDetectorClassName);
-		final GroupNode group = file.getGroup(path.toString(), true);
-		addDeviceMetadata(detectorName, group);
+		final GroupNode detectorGroup = file.getGroup(path.toString(), true);
 
 		// Metadata items
-		NexusUtils.writeString(file, group, "description", "Generic GDA Detector - External Files");
-		NexusUtils.writeString(file, group, "type", "Detector");
+		NexusUtils.writeString(file, detectorGroup, "description", "Generic GDA Detector - External Files");
+		NexusUtils.writeString(file, detectorGroup, "type", "Detector");
 
 		// Check to see if the detector will write its own info into NeXus
 		if (detector instanceof INeXusInfoWriteable) {
-			((INeXusInfoWriteable) detector).writeNeXusInformation(file, group);
+			((INeXusInfoWriteable) detector).writeNeXusInformation(file, detectorGroup);
 		}
 
-		final GroupNode dataFileGroup = file.getGroup(group, "data_file", NexusExtractor.NXNoteClassName, true);
+		final GroupNode dataFileGroup = file.getGroup(detectorGroup, "data_file", NexusExtractor.NXNoteClassName, true);
 
 		int[] dataDim = generateDataDim(true, scanDimensions, null);
 
@@ -1527,21 +1567,22 @@ public class NexusDataWriter extends DataWriterBase {
 		final GroupNode dataGroup = file.getGroup(path.toString(), true);
 
 		makeAxesLinks(dataGroup);
+
+		return detectorGroup;
 	}
 
 	/**
-	 * Creates an NXdetector for a generic detector (ie one without a special create routine).
+	 * Creates an NXdetector group for a generic detector (i.e. one that isn't dealt with by special case methods)
 	 */
-	private void makeGenericDetector(String detectorName, int[] dataDimensions, Class<?> clazz, Detector detector,
+	private GroupNode makeGenericDetector(String detectorName, int[] dataDimensions, Class<?> clazz, Detector detector,
 			INexusTree detectorData) throws NexusException {
 		// Navigate to the relevant section in file...
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
 		NexusUtils.addToAugmentPath(path, INSTRUMENT, NexusExtractor.NXInstrumentClassName);
 		NexusUtils.addToAugmentPath(path, detectorName, NexusExtractor.NXDetectorClassName);
 		// Create NXdetector
-		final GroupNode group = file.getGroup(path.toString(), true);
+		final GroupNode detectorGroup = file.getGroup(path.toString(), true);
 		// add metadata according to a metadata appender, if one is registered
-		addDeviceMetadata(detectorName, group);
 
 		// Metadata items
 		try {
@@ -1550,16 +1591,16 @@ public class NexusDataWriter extends DataWriterBase {
 				String detType = detector.getDetectorType();
 				String detId = detector.getDetectorID();
 				if (detDescription != null && detDescription.length() > 0) {
-					NexusUtils.writeString(file, group, "description", detDescription);
+					NexusUtils.writeString(file, detectorGroup, "description", detDescription);
 				}
 				if (detType != null && detType.length() > 0) {
-					NexusUtils.writeString(file, group, "type", detType);
+					NexusUtils.writeString(file, detectorGroup, "type", detType);
 				}
 				if (detId != null && detId.length() > 0) {
-					NexusUtils.writeString(file, group, "id", detId);
+					NexusUtils.writeString(file, detectorGroup, "id", detId);
 				}
 			} else {
-				NexusUtils.writeString(file, group, "local_name", detectorName);
+				NexusUtils.writeString(file, detectorGroup, "local_name", detectorName);
 			}
 		} catch (DeviceException e) {
 			logger.error("Error writing detector metadata", e);
@@ -1567,13 +1608,13 @@ public class NexusDataWriter extends DataWriterBase {
 
 		// Check to see if the detector will write its own info into NeXus
 		if (detector instanceof INeXusInfoWriteable) {
-			((INeXusInfoWriteable) detector).writeNeXusInformation(file, group);
+			((INeXusInfoWriteable) detector).writeNeXusInformation(file, detectorGroup);
 		}
 
 		List<SelfCreatingLink> links = new ArrayList<>();
 		if (detectorData != null) {
 			for (INexusTree subTree : detectorData) {
-				writeHere(file, group, subTree, true, false, links);
+				writeHere(file, detectorGroup, subTree, true, false, links);
 			}
 		} else if (detector.getExtraNames().length > 0) {
 			// Detectors with multiple extra names can act like counter-timers
@@ -1584,7 +1625,7 @@ public class NexusDataWriter extends DataWriterBase {
 
 				ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(extra, Double.class, dataDim, null, null);
 				lazy.setFillValue(getFillValue(Double.class));
-				DataNode data = file.createData(group, lazy);
+				DataNode data = file.createData(detectorGroup, lazy);
 
 				NexusUtils.writeStringAttribute(file, data, "local_name", String.format("%s.%s", detectorName, extra));
 
@@ -1613,7 +1654,7 @@ public class NexusDataWriter extends DataWriterBase {
 			// make the data array to store the data...
 			ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("data", clazz, dataDim, null, null);
 			lazy.setFillValue(getFillValue(clazz));
-			DataNode data = file.createData(group, lazy);
+			DataNode data = file.createData(detectorGroup, lazy);
 			NexusUtils.writeStringAttribute(file, data, "local_name", String.format("%s.%s", detectorName, detectorName));
 
 			// Get a link ID to this data set.
@@ -1632,20 +1673,21 @@ public class NexusDataWriter extends DataWriterBase {
 		}
 
 		makeAxesLinks(dataGroup);
+
+		return detectorGroup;
 	}
 
 	/**
 	 * Creates an NXdetector for a CounterTimer.
 	 */
-	private void makeCounterTimer(Detector detector) throws NexusException, DeviceException {
+	private GroupNode makeCounterTimer(Detector detector) throws NexusException, DeviceException {
 		SelfCreatingLink detectorID;
 
 		// Navigate to the relevant section in file...
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
 		NexusUtils.addToAugmentPath(path, INSTRUMENT, NexusExtractor.NXInstrumentClassName);
 		NexusUtils.addToAugmentPath(path, detector.getName(), NexusExtractor.NXDetectorClassName);
-		GroupNode group = file.getGroup(path.toString(), true);
-		addDeviceMetadata(detector.getName(), group);
+		final GroupNode detectorGroup = file.getGroup(path.toString(), true);
 
 		// Metadata items
 		String description = detector.getDescription();
@@ -1653,18 +1695,18 @@ public class NexusDataWriter extends DataWriterBase {
 		String id = detector.getDetectorID();
 
 		if (description != null && description.length() > 0) {
-			NexusUtils.writeString(file, group, "description", detector.getDescription());
+			NexusUtils.writeString(file, detectorGroup, "description", detector.getDescription());
 		}
 		if (type != null && type.length() > 0) {
-			NexusUtils.writeString(file, group, "type", detector.getDetectorType());
+			NexusUtils.writeString(file, detectorGroup, "type", detector.getDetectorType());
 		}
 		if (id != null && id.length() > 0) {
-			NexusUtils.writeString(file, group, "id", detector.getDetectorID());
+			NexusUtils.writeString(file, detectorGroup, "id", detector.getDetectorID());
 		}
 
 		// Check to see if the detector will write its own info into NeXus
 		if (detector instanceof INeXusInfoWriteable) {
-			((INeXusInfoWriteable) detector).writeNeXusInformation(file, group);
+			((INeXusInfoWriteable) detector).writeNeXusInformation(file, detectorGroup);
 		}
 		int[] dataDim = generateDataDim(true, scanDimensions, null);
 
@@ -1674,7 +1716,7 @@ public class NexusDataWriter extends DataWriterBase {
 			// this can fail if the list of names contains duplicates
 			ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(extraNames[j], Double.class, dataDim, null, null);
 			lazy.setChunking(NexusUtils.estimateChunking(scanDimensions, 8));
-			DataNode data = file.createData(group, lazy);
+			DataNode data = file.createData(detectorGroup, lazy);
 
 			// Get a link ID to this data set
 			detectorID = new SelfCreatingLink(data);
@@ -1693,6 +1735,8 @@ public class NexusDataWriter extends DataWriterBase {
 			// Make a link to the data array
 			detectorID.create(file, g);
 		}
+
+		return detectorGroup;
 	}
 
 	/**

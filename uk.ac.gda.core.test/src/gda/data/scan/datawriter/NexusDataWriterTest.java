@@ -41,6 +41,7 @@ import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.tree.TreeFactory;
 import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NXdetector;
+import org.eclipse.dawnsci.nexus.NXmonitor;
 import org.eclipse.dawnsci.nexus.NXnote;
 import org.eclipse.dawnsci.nexus.NXuser;
 import org.eclipse.dawnsci.nexus.NexusException;
@@ -81,9 +82,13 @@ public class NexusDataWriterTest {
 	private enum DetectorType {
 
 		/**
-		 * This detector is written to in makeGenericDetector (including if/then blocks for NexusDetetctor)
+		 * This detector is written to in makeGenericDetector (including if/then blocks for NexusDetetctor),
+		 * it also has a monitor (NexusDetector can return multiple nexus objects, as some subclasses can control multiple devices).
 		 */
 		NEXUS_DETECTOR("nexusDetector") {
+
+			private static final String MONITOR_NAME = "nexusDetectorMonitor";
+
 			@Override
 			public Detector getDetector() {
 				final Detector nexusDetector = mock(NexusDetector.class);
@@ -96,6 +101,7 @@ public class NexusDataWriterTest {
 				final NexusTreeProvider nexusTreeProvider = mock(NexusTreeProvider.class);
 				final INexusTree nexusTreeRoot = new NexusTreeNode("", NexusExtractor.NXInstrumentClassName, null);
 				nexusTreeRoot.addChildNode(new NexusTreeNode(DetectorType.NEXUS_DETECTOR.getName(), NexusExtractor.NXDetectorClassName, null));
+				nexusTreeRoot.addChildNode(new NexusTreeNode(MONITOR_NAME, NexusExtractor.NXMonitorClassName, null));
 				when(nexusTreeProvider.getNexusTree()).thenReturn(nexusTreeRoot);
 				return nexusTreeProvider;
 			}
@@ -108,6 +114,30 @@ public class NexusDataWriterTest {
 			@Override
 			protected Set<String> getMetadataFieldsWrittenByNexusDataWriter() {
 				return new HashSet<>(Arrays.asList(NXdetector.NX_LOCAL_NAME));
+			}
+
+			@Override
+			public void createAndRegisterAppender() {
+				super.createAndRegisterAppender();
+
+				// also create and register an appender for the monitor
+				final NexusMetadataAppender<NXdetector> appender = new NexusMetadataAppender<>(MONITOR_NAME);
+				final Map<String, Object> metadata = new HashMap<>();
+				metadata.put("name", MONITOR_NAME);
+				appender.setNexusMetadata(metadata);
+				ServiceHolder.getNexusFileAppenderService().register(appender);
+			}
+
+			@Override
+			public void checkNexusFile(NexusFile nexusFile) throws Exception {
+				super.checkNexusFile(nexusFile);
+
+				// Also check the monitor group for the monitor subtree
+				final String monitorGroupPath = "/entry1/" + MONITOR_NAME;
+				final GroupNode monitorGroup = nexusFile.getGroup(monitorGroupPath, false);
+				final NXmonitor expectedMonitorGroup = NexusNodeFactory.createNXmonitor();
+				expectedMonitorGroup.setField("name", MONITOR_NAME);
+				assertGroupNodesEqual(monitorGroupPath, expectedMonitorGroup, monitorGroup);
 			}
 
 		},
