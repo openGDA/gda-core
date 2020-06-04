@@ -55,6 +55,8 @@ import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
+import org.eclipse.dawnsci.nexus.appender.INexusFileAppender;
+import org.eclipse.dawnsci.nexus.appender.INexusFileAppenderService;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.template.NexusTemplate;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
@@ -1536,7 +1538,9 @@ public class NexusDataWriter extends DataWriterBase {
 		NexusUtils.addToAugmentPath(path, INSTRUMENT, NexusExtractor.NXInstrumentClassName);
 		NexusUtils.addToAugmentPath(path, detectorName, NexusExtractor.NXDetectorClassName);
 		// Create NXdetector
-		GroupNode group = file.getGroup(path.toString(), true);
+		final GroupNode group = file.getGroup(path.toString(), true);
+		// add metadata according to a metadata appender, if one is registered
+		addDeviceMetadata(detectorName, group);
 
 		// Metadata items
 		try {
@@ -1591,14 +1595,14 @@ public class NexusDataWriter extends DataWriterBase {
 				NexusUtils.addToAugmentPath(path, detector.getName(), NexusExtractor.NXDataClassName);
 				// If this is the first channel then we need to create (and
 				// open) the NXdata item and link to the scannables.
-				GroupNode g = file.getGroup(path.toString(), first);
+				final GroupNode dataGroup = file.getGroup(path.toString(), first);
 				if (first) {
 					first = false;
-					makeAxesLinks(g);
+					makeAxesLinks(dataGroup);
 				}
 
 				// Make a link to the data array
-				detectorID.create(file, g);
+				detectorID.create(file, dataGroup);
 			}
 
 		} else {
@@ -1619,14 +1623,14 @@ public class NexusDataWriter extends DataWriterBase {
 		path.setLength(0);
 		NexusUtils.addToAugmentPath(path, entryName, NexusExtractor.NXEntryClassName);
 		NexusUtils.addToAugmentPath(path, detectorName, NexusExtractor.NXDataClassName);
-		group = file.getGroup(path.toString(), true);
+		final GroupNode dataGroup = file.getGroup(path.toString(), true);
 
 		// Make a link to the data array
 		for (SelfCreatingLink link : links) {
-			link.create(file, group);
+			link.create(file, dataGroup);
 		}
 
-		makeAxesLinks(group);
+		makeAxesLinks(dataGroup);
 	}
 
 	/**
@@ -1686,6 +1690,20 @@ public class NexusDataWriter extends DataWriterBase {
 
 			// Make a link to the data array
 			detectorID.create(file, g);
+		}
+	}
+
+	/**
+	 * Use the {@link INexusFileAppenderService} to add metadata to the given group according to
+	 * any {@link INexusFileAppender} registered with that service for the given device name.
+	 * @param deviceName device name
+	 * @param group group to append to
+	 * @throws NexusException
+	 */
+	private void addDeviceMetadata(String deviceName, GroupNode group) throws NexusException {
+		final INexusFileAppenderService appenderService = ServiceHolder.getNexusFileAppenderService();
+		if (appenderService != null) { // the service should exist in GDA, not all Junit tests will need it
+			appenderService.appendMetadata(deviceName, file, group);
 		}
 	}
 
