@@ -1495,7 +1495,8 @@ public class NexusDataWriter extends DataWriterBase {
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
 		NexusUtils.addToAugmentPath(path, INSTRUMENT, NexusExtractor.NXInstrumentClassName);
 		NexusUtils.addToAugmentPath(path, detectorName, NexusExtractor.NXDetectorClassName);
-		GroupNode group = file.getGroup(path.toString(), true);
+		final GroupNode group = file.getGroup(path.toString(), true);
+		addDeviceMetadata(detectorName, group);
 
 		// Metadata items
 		NexusUtils.writeString(file, group, "description", "Generic GDA Detector - External Files");
@@ -1506,7 +1507,7 @@ public class NexusDataWriter extends DataWriterBase {
 			((INeXusInfoWriteable) detector).writeNeXusInformation(file, group);
 		}
 
-		GroupNode g = file.getGroup(group, "data_file", NexusExtractor.NXNoteClassName, true);
+		final GroupNode dataFileGroup = file.getGroup(group, "data_file", NexusExtractor.NXNoteClassName, true);
 
 		int[] dataDim = generateDataDim(true, scanDimensions, null);
 
@@ -1514,7 +1515,7 @@ public class NexusDataWriter extends DataWriterBase {
 		int dataByteSize = 8; // vlen strings are sizeof(char*), need to handle fixed length case
 		int[] chunk = NexusUtils.estimateChunking(scanDimensions, dataByteSize);
 		lazy.setChunking(chunk);
-		file.createData(g, lazy);
+		file.createData(dataFileGroup, lazy);
 
 		// FIXME this data group does not contain detector data,
 		// we should not create this
@@ -1523,9 +1524,9 @@ public class NexusDataWriter extends DataWriterBase {
 		path.setLength(0);
 		NexusUtils.addToAugmentPath(path, entryName, NexusExtractor.NXEntryClassName);
 		NexusUtils.addToAugmentPath(path, detectorName, NexusExtractor.NXDataClassName);
-		group = file.getGroup(path.toString(), true);
+		final GroupNode dataGroup = file.getGroup(path.toString(), true);
 
-		makeAxesLinks(group);
+		makeAxesLinks(dataGroup);
 	}
 
 	/**
@@ -1644,6 +1645,7 @@ public class NexusDataWriter extends DataWriterBase {
 		NexusUtils.addToAugmentPath(path, INSTRUMENT, NexusExtractor.NXInstrumentClassName);
 		NexusUtils.addToAugmentPath(path, detector.getName(), NexusExtractor.NXDetectorClassName);
 		GroupNode group = file.getGroup(path.toString(), true);
+		addDeviceMetadata(detector.getName(), group);
 
 		// Metadata items
 		String description = detector.getDescription();
