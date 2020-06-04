@@ -1,10 +1,10 @@
-from gda.device.scannable import PseudoDevice
+from gda.device.scannable import ScannableMotionBase
 from gda.factory import Finder
 from time import sleep
 from gda.epics import CAClient
 import time
 
-class Bimorph(PseudoDevice ):
+class Bimorph(ScannableMotionBase ):
     """
     bimorph controller for Epics bimorph controller developed in house
     To create if not already in localStation.py:
@@ -23,7 +23,7 @@ class Bimorph(PseudoDevice ):
         LocalProperties.set("gda.plot.ScanPlotSettings.YFieldIndicesInvisible","0")
     """
     def __init__(self, name, startChan,numofChans):
-        PseudoDevice.__init__(self)
+        ScannableMotionBase.__init__(self)
         self.numOfChans=numofChans
         self.startChan=startChan
         self.channelIndexes = tuple(range(startChan, startChan+numofChans))

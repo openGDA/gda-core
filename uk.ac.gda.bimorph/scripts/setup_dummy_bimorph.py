@@ -8,7 +8,6 @@ from gdascripts.analysis.datasetprocessor.twod.SumMaxPositionAndValue import Sum
 from gdascripts.pd.dummy_pds import DummyPD
 from gdascripts.scannable.detector.dummy.focused_beam_dataset import CreateImageReadingDummyDetector
 from gda.util import VisitPath
-from gda.device.scannable import PseudoDevice
 from time import sleep
 import java.lang.InterruptedException
 

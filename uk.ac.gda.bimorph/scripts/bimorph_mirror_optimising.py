@@ -13,14 +13,14 @@
 #        to the constructor of SlitScanner.
 
 import java.lang.InterruptedException
-from gda.device.scannable import PseudoDevice
+from gda.device.scannable import ScannableMotionBase
 from time import sleep
 from gdascripts.pd.dummy_pds import DummyPD
 from gda.scan import ConcurrentScan
 from gda.epics import CAClient
 from gdascripts.scannable.installStandardScannableMetadataCollection import meta
 
-class TopupCountdown(PseudoDevice):
+class TopupCountdown(ScannableMotionBase):
 
     def __init__(self, name):
         self.setName(name)
@@ -55,7 +55,7 @@ class TopupCountdown(PseudoDevice):
 
 bm_topup = TopupCountdown("bm_topup")
 
-class ScanAborter(PseudoDevice):
+class ScanAborter(ScannableMotionBase):
     def __init__(self, name, mon, minValue):
         self.name = name
         self.inputNames = []
