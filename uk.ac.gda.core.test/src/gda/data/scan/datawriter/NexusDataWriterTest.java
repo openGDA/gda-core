@@ -37,12 +37,15 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.tree.TreeFactory;
 import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXmonitor;
 import org.eclipse.dawnsci.nexus.NXnote;
+import org.eclipse.dawnsci.nexus.NXobject;
+import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXuser;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
@@ -67,7 +70,10 @@ import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNode;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.device.detector.NexusDetector;
+import gda.jython.InterfaceProvider;
 import gda.scan.ScanDataPoint;
 
 /**
@@ -264,10 +270,8 @@ public class NexusDataWriterTest {
 		public abstract Object getDetectorData();
 
 		public void createAndRegisterAppender() {
-			final NexusMetadataAppender<NXdetector> appender = new NexusMetadataAppender<>(getName());
 			final Map<String, Object> detMetadata = createAppenderMetadata();
-			appender.setNexusMetadata(detMetadata);
-			ServiceHolder.getNexusFileAppenderService().register(appender);
+			NexusDataWriterTest.createAndRegisterAppender(getName(), detMetadata);
 		}
 
 		protected Map<String, Object> createAppenderMetadata() {
@@ -324,6 +328,10 @@ public class NexusDataWriterTest {
 
 	}
 
+	private static final String USER_DEVICE_NAME = "user";
+	private static final String SCANNABLE_NAME = "scannable";
+	private static final String METADATA_SCANNABLE_NAME = "metadataScannable";
+
 	private String testScratchDirectoryName;
 
 	private NexusDataWriter nexusDataWriter;
@@ -360,20 +368,10 @@ public class NexusDataWriterTest {
 	@Test
 	public void testNexusDataWriter() throws Exception {
 		// Arrange: create a nexus device and register it with the nexus device service
-		final NXuser user = NexusNodeFactory.createNXuser();
-		user.setNameScalar("John Smith");
-		user.setRoleScalar("Beamline Scientist");
-		user.setAddressScalar("Diamond Light Source, Didcot, Oxfordshire, OX11 0DE");
-		user.setEmailScalar("john.smith@diamond.ac.uk");
-		user.setFacility_user_idScalar("abc12345");
-		final NXcollection collection = NexusNodeFactory.createNXcollection(); // to check that child groups are added
-		collection.setField("foo", "bar");
-		user.addGroupNode("collection", collection);
-
-		final NexusObjectProvider<NXuser> userProvider = new NexusObjectWrapper<>("user", user);
+		final NXuser user = createUserGroup();
+		final NexusObjectProvider<NXuser> userProvider = new NexusObjectWrapper<>(USER_DEVICE_NAME, user);
 		final SimpleNexusDevice<NXuser> userNexusDevice = new SimpleNexusDevice<NXuser>(userProvider);
 		ServiceHolder.getNexusDeviceService().register(userNexusDevice);
-		NexusDataWriter.setMetadatascannables(new HashSet<>(Arrays.asList(userNexusDevice.getName())));
 
 		// Set the location of the template file
 		final String templateFileAbsolutePath = Paths.get(TEMPLATE_FILE_PATH).toAbsolutePath().toString();
@@ -383,6 +381,15 @@ public class NexusDataWriterTest {
 		for (DetectorType detectorType : DetectorType.values()) {
 			detectorType.createAndRegisterAppender();
 		}
+
+		// Create a nexus appender for the scannable
+		createAndRegisterAppender(SCANNABLE_NAME, createScannableMetadata(SCANNABLE_NAME));
+
+		final Scannable metadataScannable = createMockScannable(METADATA_SCANNABLE_NAME);
+		createAndRegisterAppender(METADATA_SCANNABLE_NAME, createScannableMetadata(METADATA_SCANNABLE_NAME));
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace(METADATA_SCANNABLE_NAME, metadataScannable);
+
+		NexusDataWriter.setMetadatascannables(new HashSet<>(Arrays.asList(USER_DEVICE_NAME, METADATA_SCANNABLE_NAME)));
 
 		// Act: write a point. Writing the first point causes the nexus file to be created.
 		final ScanDataPoint firstPoint = createScanDataPoint();
@@ -400,7 +407,7 @@ public class NexusDataWriterTest {
 
 			// check that the scan entry group created by the template has been added (note: we don't test the content here)
 			assertThat(nexusFile.getGroup("/scan", false), is(notNullValue()));
-			final String userGroupPath = entryPath + userNexusDevice.getName() + "/";
+			final String userGroupPath = entryPath + USER_DEVICE_NAME + "/";
 			assertThat(nexusFile.getGroup(userGroupPath, false), is(notNullValue()));
 			final String userCollectionPath = userGroupPath + "collection";
 			assertThat(nexusFile.getGroup(userCollectionPath, false), is(notNullValue()));
@@ -414,19 +421,90 @@ public class NexusDataWriterTest {
 			for (DetectorType detectorType : DetectorType.values()) {
 				detectorType.checkNexusFile(nexusFile);
 			}
+
+			checkScannableInNexusFile(nexusFile, SCANNABLE_NAME, false);
+			checkScannableInNexusFile(nexusFile, METADATA_SCANNABLE_NAME, true);
 		}
 	}
 
+	private NXuser createUserGroup() {
+		final NXuser user = NexusNodeFactory.createNXuser();
+		user.setNameScalar("John Smith");
+		user.setRoleScalar("Beamline Scientist");
+		user.setAddressScalar("Diamond Light Source, Didcot, Oxfordshire, OX11 0DE");
+		user.setEmailScalar("john.smith@diamond.ac.uk");
+		user.setFacility_user_idScalar("abc12345");
+		final NXcollection collection = NexusNodeFactory.createNXcollection(); // to check that child groups are added
+		collection.setField("foo", "bar");
+		user.addGroupNode("collection", collection);
+		return user;
+	}
+
+	private void checkScannableInNexusFile(NexusFile nexusFile, String scannableName, boolean isMetadata) throws NexusException, Exception {
+		final String scannableGroupPath = getScannableGroupPath(scannableName, isMetadata);
+		final GroupNode scannableGroup = nexusFile.getGroup(scannableGroupPath, false);
+		final NXobject expectedScannableGroup = createExpectedScannableGroup(nexusFile, scannableName, isMetadata);
+		assertGroupNodesEqual(scannableGroupPath, expectedScannableGroup, scannableGroup);
+	}
+
+	private NXobject createExpectedScannableGroup(NexusFile nexusFile, String scannableName, boolean isMetadata) throws NexusException {
+		final NXobject expectedScannableGroup = isMetadata ? NexusNodeFactory.createNXcollection() : NexusNodeFactory.createNXpositioner();
+		final Map<String, Object> expectedMetadata = createScannableMetadata(scannableName);
+		// add the fields added by the the appender to the expected detector group
+		for (Map.Entry<String, Object> metadataEntry : expectedMetadata.entrySet()) {
+			expectedScannableGroup.setField(metadataEntry.getKey(), metadataEntry.getValue());
+		}
+
+		// add the value fields written the NexusDataWriter
+		final String scannableGroupPath = getScannableGroupPath(scannableName, isMetadata);
+		final DataNode valueDataNode = nexusFile.getData(scannableGroupPath + "/" + NXpositioner.NX_VALUE);
+		expectedScannableGroup.addDataNode(NXpositioner.NX_VALUE, valueDataNode);
+		return expectedScannableGroup;
+	}
+
+	private String getScannableGroupPath(String scannableName, boolean isMetadata) {
+		final String parentGroupPath = "/entry1/" + (isMetadata ? "before_scan/" : "instrument/");
+		return parentGroupPath + scannableName;
+	}
+
+	private Map<String, Object> createScannableMetadata(String name) {
+		final Map<String, Object> metadata = new HashMap<>();
+		metadata.put(NXpositioner.NX_NAME, name);
+		metadata.put(NXpositioner.NX_DESCRIPTION, "description of " + name);
+		return metadata;
+	}
+
+	public static void createAndRegisterAppender(String name, Map<String, Object> metadata) {
+		final NexusMetadataAppender<NXdetector> appender = new NexusMetadataAppender<>(name);
+		appender.setNexusMetadata(metadata);
+		ServiceHolder.getNexusFileAppenderService().register(appender);
+	}
+
 	private ScanDataPoint createScanDataPoint() throws Exception {
+		// NexusDataWriter writes nexus structure the first data point is added, according to the devices in that point
 		final ScanDataPoint firstPoint = new ScanDataPoint();
 		firstPoint.setScanDimensions(new int[] { 5 });
 
+		// add detectors to the the point
 		for (DetectorType detectorType : DetectorType.values()) {
 			firstPoint.addDetector(detectorType.getDetector());
 			firstPoint.addDetectorData(detectorType.getDetectorData(), null);
 		}
 
+		final Scannable scannable = createMockScannable(SCANNABLE_NAME);
+		firstPoint.addScannable(scannable);
+		firstPoint.addScannablePosition(scannable.getPosition(), null);
 		return firstPoint;
+	}
+
+	private Scannable createMockScannable(String scannableName) throws DeviceException {
+		final Scannable scannable = mock(Scannable.class);
+		when(scannable.getName()).thenReturn(scannableName);
+		when(scannable.getInputNames()).thenReturn(new String[] { NXpositioner.NX_VALUE });
+		when(scannable.getExtraNames()).thenReturn(new String[0]);
+		when(scannable.getPosition()).thenReturn(0.01);
+
+		return scannable;
 	}
 
 }
