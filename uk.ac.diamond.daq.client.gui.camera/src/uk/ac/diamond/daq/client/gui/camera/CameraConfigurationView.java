@@ -12,9 +12,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.client.gui.camera.controller.ImagingCameraConfigurationController;
 import uk.ac.gda.client.UIHelper;
-import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.images.ClientImages;
@@ -29,25 +27,17 @@ public class CameraConfigurationView extends ViewPart {
 
 	public static final String CAMERA_CONTROLLER_VIEW = "uk.ac.diamond.daq.client.gui.camera.CameraConfigurationView";
 
-	private int cameraIndex = CameraHelper.getDefaultCameraProperties().getIndex();
-
 	private static final Logger logger = LoggerFactory.getLogger(CameraConfigurationView.class);
 
 	@Override
 	public void createPartControl(Composite parent) {
-		try {
-			CameraConfigurationFactory ccd = new CameraConfigurationFactory(
-					(ImagingCameraConfigurationController) CameraHelper.getCameraControlInstance(cameraIndex)
-							.orElseThrow(GDAClientException::new));
-			ccd.createComposite(parent, SWT.NONE);
-		} catch (GDAClientException e) {
-			logger.error("Cannot find Cameraconfiguration for camera index {}", cameraIndex);
-		}
+		CameraConfigurationFactory ccd = new CameraConfigurationFactory();
+		ccd.createComposite(parent, SWT.NONE);
 	}
 
 	@Override
 	public void setFocus() {
-
+		// Not necessary
 	}
 
 	/**
@@ -76,7 +66,9 @@ public class CameraConfigurationView extends ViewPart {
 				activePage.showView(CameraConfigurationView.CAMERA_CONTROLLER_VIEW, UUID.randomUUID().toString(),
 						IWorkbenchPage.VIEW_ACTIVATE);
 			} catch (PartInitException e) {
-				UIHelper.showError("Cannot open Camera Controller View", e);
+				String errMsg = "Cannot open Camera Controller View";
+				UIHelper.showError(errMsg, e);
+				logger.error(errMsg, e);
 			}
 		});
 		return cameras;

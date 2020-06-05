@@ -49,11 +49,11 @@ public class RootCompositeEvent extends CameraEvent implements RootCompositeAwar
 		return rootComposite;
 	}
 	
-	public final boolean hasSameParent(Composite other) {
-		//Avoids disposed widget
-		if (other == null || other.isDisposed() || getRootComposite() == null) {
-			return false;
-		}
-		return getRootComposite().equals(ClientSWTElements.findParentUUID(other));
-	}
+//	public final boolean hasSameParent(Composite other) {
+//		//Avoids disposed widget
+//		if (other == null || other.isDisposed() || getRootComposite() == null) {
+//			return false;
+//		}
+//		return getRootComposite().equals(ClientSWTElements.findParentUUID(other));
+//	}
 }
