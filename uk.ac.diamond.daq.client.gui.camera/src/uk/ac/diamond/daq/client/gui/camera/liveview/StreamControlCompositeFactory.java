@@ -43,8 +43,6 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 
 	private SmartCombo<StreamType> streamTypeCombo;
 
-	//private Button streamActivationButton;
-
 	private final StreamController streamController;
 	
 	public StreamControlCompositeFactory(StreamController streamController) {
@@ -108,7 +106,6 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 		} catch (LiveStreamException ex) {
 			handleException(ex);
 		}
-		//updateStreamActivationButton();
 	}
 
 
