@@ -63,7 +63,7 @@ public class EpicsCameraControl extends FindableConfigurableBase implements Came
 	@Override
 	public void configure() throws FactoryException {
 		if (useAcquireTimeMonitor) {
-			addAcquireTimeMonitor();
+			setEpicsControllerMonitors();
 		}
 		super.configure();
 	}
@@ -263,7 +263,7 @@ public class EpicsCameraControl extends FindableConfigurableBase implements Came
 		this.useAcquireTimeMonitor = useAcquireTimeMonitor;
 	}
 
-	private void addAcquireTimeMonitor() {
+	private void setEpicsControllerMonitors() {
 		if (!(adBase instanceof ADBaseImpl)) {
 			logger.warn("Cannot add AcquireTime Monitor - ADBase object is not an instanceof ADBaseImpl");
 			return;
@@ -272,6 +272,8 @@ public class EpicsCameraControl extends FindableConfigurableBase implements Came
 			final EpicsController epicsController = EpicsController.getInstance();
 			ADBaseImpl adbaseImpl = (ADBaseImpl) adBase;
 			epicsController.setMonitor(epicsController.createChannel(adbaseImpl.getBasePVName()+ADBase.AcquireTime), this::onMonitorChanged);
+			epicsController.setMonitor(epicsController.createChannel(adbaseImpl.getBasePVName()+ADBase.BinX), this::onMonitorChanged);
+			epicsController.setMonitor(epicsController.createChannel(adbaseImpl.getBasePVName()+ADBase.BinY), this::onMonitorChanged);
 		} catch (Exception e) {
 			logger.warn("Problem setting up AcquireTime Monitor", ADBase.AcquireTime, e);
 		}
