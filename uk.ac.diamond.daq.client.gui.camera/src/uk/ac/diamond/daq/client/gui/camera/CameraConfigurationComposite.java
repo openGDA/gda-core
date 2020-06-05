@@ -14,8 +14,7 @@ import org.eclipse.swt.widgets.Widget;
 import org.springframework.context.ApplicationListener;
 
 import gda.rcp.views.CompositeFactory;
-import uk.ac.diamond.daq.client.gui.camera.binning.BinningComposite;
-import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
+import uk.ac.diamond.daq.client.gui.camera.binning.BinningCompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
 import uk.ac.diamond.daq.client.gui.camera.exposure.ExposureDurationComposite;
 import uk.ac.diamond.daq.client.gui.camera.liveview.state.ListeningState;
@@ -64,16 +63,9 @@ public class CameraConfigurationComposite implements CompositeFactory {
 		Composite exposureLengthComposite = new ExposureDurationComposite().createComposite(container, style);
 		gdf.applyTo(exposureLengthComposite);
 
-		getCameraConfigurationController().ifPresent(c -> {
-			// Binning Component
-			Composite binningCompositeArea = ClientSWTElements.createComposite(container, style);
-			try {
-				new BinningComposite(binningCompositeArea, c, SWT.NONE);
-			} catch (GDAClientException e) {
-				UIHelper.showError("Cannot create CameraConfiguration", e);
-			}
-			gdf.applyTo(binningCompositeArea);
-		});
+		// Binning Component
+		Composite binningCompositeArea = new BinningCompositeFactory().createComposite(container, style);
+		gdf.applyTo(binningCompositeArea);
 
 		// Motors Components
 		motorCompositeArea = ClientSWTElements.createComposite(container, style);
@@ -130,10 +122,6 @@ public class CameraConfigurationComposite implements CompositeFactory {
 
 	private Optional<ICameraConfiguration> getICameraConfiguration() {
 		return activeCameraIndex.map(CameraHelper::createICameraConfiguration);
-	}
-
-	private Optional<AbstractCameraConfigurationController> getCameraConfigurationController() {
-		return activeCameraIndex.map(CameraHelper::getCameraControlInstance).orElse(Optional.empty());
 	}
 
 	private ApplicationListener<ChangeActiveCameraEvent> getChangeCameraListener(Composite container) {

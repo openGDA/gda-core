@@ -262,7 +262,7 @@ public final class ClientSWTElements {
 		button.getParent().layout(true, true);
 	}
 
-	private static final Button createButton(final Composite parent, int style, String message, String tooltip,
+	public static final Button createButton(final Composite parent, int style, String message, String tooltip,
 			final Optional<Point> span, final Optional<ClientImages> imageCode) {
 		Button button = new Button(parent, style);
 		button.setFont(ClientResourceManager.getInstance().getButtonDefaultFont());
