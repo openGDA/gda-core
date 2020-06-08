@@ -1325,13 +1325,13 @@ public class NexusDataWriter extends DataWriterBase {
 				String[] inputNames = scannable.getInputNames();
 				String[] extraNames = scannable.getExtraNames();
 
-				String groupName = getGroupClassFor(scannable);
-				StringBuilder p = NexusUtils.addToAugmentPath(new StringBuilder(path), scannable.getName(), groupName);
-				GroupNode g = file.getGroup(p.toString(), true);
+				final String groupName = getGroupClassFor(scannable);
+				final StringBuilder groupPath = NexusUtils.addToAugmentPath(new StringBuilder(path), scannable.getName(), groupName);
+				final GroupNode groupNode = file.getGroup(groupPath.toString(), true);
 
 				// Check to see if the scannable will write its own info into NeXus
 				if (scannable instanceof INeXusInfoWriteable) {
-					((INeXusInfoWriteable) scannable).writeNeXusInformation(file, g);
+					((INeXusInfoWriteable) scannable).writeNeXusInformation(file, groupNode);
 				}
 
 				// loop over input names...
@@ -1341,7 +1341,7 @@ public class NexusDataWriter extends DataWriterBase {
 					int[] chunking = NexusUtils.estimateChunking(scanDimensions, 8);
 					ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(element, Double.class, dataDim, null, chunking);
 					lazy.setFillValue(getFillValue(Double.class));
-					DataNode data = file.createData(g, lazy);
+					DataNode data = file.createData(groupNode, lazy);
 
 					// Get a link ID to this data set.
 					NexusUtils.writeStringAttribute(file, data, "local_name", String.format("%s.%s", scannable.getName(), element));
@@ -1370,7 +1370,7 @@ public class NexusDataWriter extends DataWriterBase {
 					// dimension)
 					ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(element, Double.class, dataDim, null, null);
 					lazy.setFillValue(getFillValue(Double.class));
-					DataNode data = file.createData(g, lazy);
+					DataNode data = file.createData(groupNode, lazy);
 
 					// Get a link ID to this data set.
 					NexusUtils.writeStringAttribute(file, data, "local_name", String.format("%s.%s", scannable.getName(), element));
@@ -1382,6 +1382,8 @@ public class NexusDataWriter extends DataWriterBase {
 					scannableID.add(new SelfCreatingLink(data));
 					extranameindex++;
 				}
+
+				addDeviceMetadata(scannable.getName(), groupNode);
 			}
 
 		} catch (NexusException e) {
@@ -1984,21 +1986,21 @@ public class NexusDataWriter extends DataWriterBase {
 		logger.debug("Writing data for scannable ({}) to NeXus file.", scannable.getName());
 
 		// Navigate to correct location in the file.
-		String nxDirName = "before_scan";
-		String nxClass = "NXcollection";
+		final String nxDirName = "before_scan";
+		final String nxClass = NexusExtractor.NXCollectionClassName;
 		// Navigate to correct location in the file.
-		String augmentedPath = NexusUtils.addToAugmentPath(
+		final String augmentedPath = NexusUtils.addToAugmentPath(
 				NexusUtils.addToAugmentPath(new StringBuilder(file.getPath(group)), nxDirName, nxClass),
 				scannable.getName(), nxClass).toString();
 		logger.debug("Writing data for scannable ({}) to NeXus file at {}.", scannable.getName(), augmentedPath);
-		GroupNode groupNode = file.getGroup(augmentedPath, true);
+		final GroupNode groupNode = file.getGroup(augmentedPath, true);
 
 		// handle String value that cannot be converted to Quantity
 		if (position instanceof String && QuantityFactory.createFromString((String) position) == null) {
 			// If position is a single String then just have one name regardless whether input or extra
 			NexusUtils.writeString(file, groupNode, allNames[0], (String) position);
 		} else if (position instanceof String[]) {
-			String[] positions = (String[]) position;
+			final String[] positions = (String[]) position;
 			for (int i = 0; i < allNames.length; i++) {
 				NexusUtils.writeString(file, groupNode, allNames[i], positions[i]);
 			}
@@ -2007,22 +2009,21 @@ public class NexusDataWriter extends DataWriterBase {
 			for (int i = 0; i < allNames.length; i++) {
 				NexusUtils.write(file, groupNode, allNames[i], Array.get(position, i));
 			}
-
 		} else if (position instanceof Iterable<?>) {
-			Iterator<?> positions = ((Iterable<?>) position).iterator();
+			final Iterator<?> positions = ((Iterable<?>) position).iterator();
 		    for (int i = 0; i < allNames.length; i++) {
 		        NexusUtils.write(file, groupNode, allNames[i], positions.next());
 		    }
-		}
-
-		else {
+		} else {
 			// FIXME this needs to bring in the units
-			Double[] positions = ScannableUtils.objectToArray(position);
+			final Double[] positions = ScannableUtils.objectToArray(position);
 
 			for (int i = 0; i < allNames.length; i++) {
 				NexusUtils.writeDouble(file, groupNode, allNames[i], positions[i]);
 			}
 		}
+
+		addDeviceMetadata(scannable.getName(), groupNode);
 	}
 
 	private void makeMetadataScannables(GroupNode group, Set<String> metadatascannablestowrite) throws NexusException {
