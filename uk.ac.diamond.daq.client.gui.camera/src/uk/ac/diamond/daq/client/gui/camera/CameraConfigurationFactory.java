@@ -17,7 +17,7 @@ import uk.ac.diamond.daq.client.gui.camera.liveview.HistogramComposite;
 import uk.ac.diamond.daq.client.gui.camera.liveview.StreamControlCompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.liveview.StreamControlData;
 import uk.ac.diamond.daq.client.gui.camera.liveview.state.StreamController;
-import uk.ac.diamond.daq.client.gui.camera.roi.SensorROIComposite;
+import uk.ac.diamond.daq.client.gui.camera.roi.SensorSelectionComposite;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.view.StreamType;
@@ -119,9 +119,9 @@ public class CameraConfigurationFactory implements CompositeFactory {
 
 	private final TabCompositeFactory createROICompositeFactory() {
 		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
-		CompositeFactory cf = new SensorROIComposite();
+		CompositeFactory cf = new SensorSelectionComposite();
 		group.setCompositeFactory(cf);
-		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.ROI));
+		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.SELECTION));
 		return group;
 	}
 

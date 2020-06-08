@@ -38,7 +38,6 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 public class CameraConfigurationComposite implements CompositeFactory {
 
 	private Composite motorCompositeArea;
-	private UUID uuidRoot;
 	private Optional<Integer> activeCameraIndex;
 
 	private final StreamController streamController;
@@ -53,7 +52,6 @@ public class CameraConfigurationComposite implements CompositeFactory {
 	@Override
 	public Composite createComposite(Composite parent, int style) {
 		Composite container = ClientSWTElements.createComposite(parent, style);
-		uuidRoot = ClientSWTElements.findParentUUID(container).orElse(null);
 		activeCameraIndex = Optional.ofNullable(CameraHelper.getDefaultCameraProperties().getIndex());
 
 		GridLayoutFactory.swtDefaults().numColumns(4).equalWidth(false).applyTo(container);
