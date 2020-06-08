@@ -55,7 +55,7 @@ public class ThreadlessDummyMotor extends MotorBase {
 	private static final Random random = new Random();
 
 	/** The default time in ms between position or status updates */
-	private static final long DEFAULT_UPDATE_INTERVAL_MS = 500;
+	private static final long DEFAULT_UPDATE_INTERVAL_MS = 50;
 
 	/** The time (in ms) between updates for this motor - default {@value #DEFAULT_UPDATE_INTERVAL_MS} */
 	private long updateInterval = DEFAULT_UPDATE_INTERVAL_MS;
