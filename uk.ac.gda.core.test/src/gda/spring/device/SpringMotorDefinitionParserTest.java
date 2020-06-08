@@ -18,22 +18,26 @@
 
 package gda.spring.device;
 
-import static gda.spring.device.SpringMotorDefinitionParser.DEFAULT_DUMMY_MOTOR_PROPERTY;
-import static gda.spring.device.SpringMotorDefinitionParser.DEFAULT_LIVE_MOTOR_PROPERTY;
+import static gda.spring.device.SpringMotorDefinitionParser.DEFAULT_MOTOR_CLASS_PROPERTY_BASE;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.RETURNS_SMART_NULLS;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -57,6 +61,8 @@ import org.springframework.beans.factory.xml.XmlReaderContext;
 import org.springframework.core.io.PathResource;
 import org.springframework.core.io.Resource;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.scannable.ScannableMotor;
@@ -65,8 +71,12 @@ import uk.ac.diamond.daq.test.powermock.PowerMockBase;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ParserContext.class, LocalProperties.class, XmlReaderContext.class})
 public class SpringMotorDefinitionParserTest extends PowerMockBase {
+	private static final String LIVE = "live";
+	private static final String DUMMY = "dummy";
 	private static final String EPICS_MOTOR = "gda.device.motor.EpicsMotor";
 	private static final String DUMMY_MOTOR = "gda.device.motor.DummyMotor";
+	private static final String DEFAULT_DUMMY_MOTOR_PROPERTY = DEFAULT_MOTOR_CLASS_PROPERTY_BASE + DUMMY;
+	private static final String DEFAULT_LIVE_MOTOR_PROPERTY = DEFAULT_MOTOR_CLASS_PROPERTY_BASE + LIVE;
 
 	private BeanDefinitionParser parser;
 
@@ -125,7 +135,7 @@ public class SpringMotorDefinitionParserTest extends PowerMockBase {
 	public void normalLiveUsageWorksAsExpected() {
 		initLive();
 		set("id", "stage");
-		set("pv", "pvValue");
+		set("live-pvName", "pvValue");
 		parse();
 
 		verifyRegisteredBean(0, matchesController("stage_motor", EPICS_MOTOR)
@@ -148,6 +158,7 @@ public class SpringMotorDefinitionParserTest extends PowerMockBase {
 	public void dummyMotorInLiveMode() {
 		initLive();
 		set("id", "stage");
+		set("liveClass", "#dummy");
 		parse();
 
 		verifyRegisteredBean(0, matchesController("stage_motor", DUMMY_MOTOR));
@@ -158,8 +169,9 @@ public class SpringMotorDefinitionParserTest extends PowerMockBase {
 	public void liveMotorInDummyMode() {
 		initDummy();
 		set("id", "stage");
-		set("pv", "pvValue");
-		set("dummy-pv", "dummyPV");
+		set("live-pvName", "pvValue");
+		set("dummy-pvName", "dummyPV");
+		set("dummyClass", "#live");
 		parse();
 
 		verifyRegisteredBean(0, matchesController("stage_motor", EPICS_MOTOR)
@@ -180,8 +192,8 @@ public class SpringMotorDefinitionParserTest extends PowerMockBase {
 		set("scalingFactor", "3.2");
 		set("upperGdaLimits", "17.4");
 		set("lowerGdaLimits", "-3.21");
-		set("speed", "42");
-		set("timeToVelocity", "1.2");
+		set("dummy-speed", "42");
+		set("dummy-timeToVelocity", "1.2");
 		set("protectionLevel", "3");
 		parse();
 
@@ -205,7 +217,7 @@ public class SpringMotorDefinitionParserTest extends PowerMockBase {
 	public void fullyCustomisedLive() {
 		initLive();
 		set("id", "stage");
-		set("pv", "pvValue");
+		set("live-pvName", "pvValue");
 		set("userUnits", "um");
 		set("configureAtStartup", "false");
 		set("hardwareUnitString", "m");
@@ -214,8 +226,8 @@ public class SpringMotorDefinitionParserTest extends PowerMockBase {
 		set("scalingFactor", "3.2");
 		set("upperGdaLimits", "17.4");
 		set("lowerGdaLimits", "-3.21");
-		set("speed", "42");
-		set("timeToVelocity", "1.2");
+		set("live-speed", "42");
+		set("live-timeToVelocity", "1.2");
 		set("protectionLevel", "3");
 		parse();
 
@@ -240,9 +252,9 @@ public class SpringMotorDefinitionParserTest extends PowerMockBase {
 	public void customDummyClass() {
 		initDummy();
 		set("id", "stage");
-		set("pv", "pvValue");
+		set("live-pvName", "pvValue");
 		String customClass = "made.up.motor.class";
-		set("dummyImplementation", customClass);
+		set("dummyClass", customClass);
 		parse();
 
 		verifyRegisteredBean(0, matchesController("stage_motor", customClass));
@@ -250,28 +262,12 @@ public class SpringMotorDefinitionParserTest extends PowerMockBase {
 	}
 
 	@Test
-	public void customDummyClassWithDummyPv() {
-		initDummy();
-		set("id", "stage");
-		set("pv", "pvValue");
-		set("dummy-pv", "dummyPV");
-		String customClass = "made.up.motor.class";
-		set("dummyImplementation", customClass);
-		parse();
-
-		// Shoudn't use custom dummy class even in dummy mode if pv is specified
-		verifyRegisteredBean(0, matchesController("stage_motor", EPICS_MOTOR)
-				.withPv("dummyPV"));
-		verifyRegisteredBean(1, matchesMotor("stage", "stage_motor"));
-	}
-
-	@Test
 	public void customLiveClass() {
 		initLive();
 		set("id", "stage");
-		set("pv", "pvValue");
+		set("live-pvName", "pvValue");
 		String customClass = "made.up.motor.class";
-		set("liveImplementation", customClass);
+		set("liveClass", customClass);
 		parse();
 
 		verifyRegisteredBean(0, matchesController("stage_motor", customClass)
@@ -280,22 +276,9 @@ public class SpringMotorDefinitionParserTest extends PowerMockBase {
 	}
 
 	@Test
-	public void customLiveClassWithoutPv() {
-		initLive();
-		set("id", "stage");
-		String customClass = "made.up.motor.class";
-		set("liveImplementation", customClass);
-		parse();
-
-		// Without a PV it should still be a dummy motor
-		verifyRegisteredBean(0, matchesController("stage_motor", DUMMY_MOTOR));
-		verifyRegisteredBean(1, matchesMotor("stage", "stage_motor"));
-	}
-
-	@Test
 	public void customDummyClassProperty() {
 		String customClass = "made.up.default.motor";
-		init(true, null, customClass);
+		init(DUMMY, null, customClass);
 		set("id", "stage");
 		set("pv", "pvValue");
 		parse();
@@ -307,14 +290,66 @@ public class SpringMotorDefinitionParserTest extends PowerMockBase {
 	@Test
 	public void customLiveClassProperty() {
 		String customClass = "made.up.default.motor";
-		init(false, customClass, null);
+		init(LIVE, customClass, null);
 		set("id", "stage");
-		set("pv", "pvValue");
+		set("live-pvName", "pvValue");
 		parse();
 
 		verifyRegisteredBean(0, matchesController("stage_motor", customClass)
 				.withPv("pvValue"));
 		verifyRegisteredBean(1, matchesMotor("stage", "stage_motor"));
+	}
+
+	@Test
+	public void modeOverridesForScannableFields() throws Exception {
+		// Fields for top level scannable can be overridded for certain modes.
+		// These should be set for that mode but not set on the mode specific implementation
+		init(DUMMY, null, null);
+		set("id", "stage");
+		set("offset", "32.1");
+		set("dummy-offset", "12.3");
+		parse();
+		verifyRegisteredBean(0, matchesController("stage_motor", DUMMY_MOTOR));
+		verifyRegisteredBean(1, matchesMotor("stage", "stage_motor").withOffset("12.3"));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void missingClassForUnknownMode() throws Exception {
+		// If no class is specified and mode is not live/dummy, the controller has no class
+		init("unknown", null, null);
+		set("id", "missing_class");
+		parse();
+	}
+
+	@Test
+	public void chainedClassReferences() throws Exception {
+		initDummy();
+		set("id", "stage");
+		set("dummyClass", "#foo");
+		set("fooClass", "#bar");
+		set("barClass", "made.up.motor");
+		parse();
+
+		verifyRegisteredBean(0, matchesController("stage_motor", "made.up.motor"));
+		verifyRegisteredBean(1, matchesMotor("stage", "stage_motor"));
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void circularClassChainsAreCaught() throws Exception {
+		initDummy();
+		set("id", "stage");
+		set("dummyClass", "#foo");
+		set("fooClass", "#bar");
+		set("barClass", "#dummy");
+		parse();
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void classNameIsRequired() throws Exception {
+		initDummy();
+		set("id", "stage");
+		set("dummyClass", "");
+		parse();
 	}
 
 	private void set(String key, String value) {
@@ -340,22 +375,35 @@ public class SpringMotorDefinitionParserTest extends PowerMockBase {
 				.thenAnswer(inv -> attributes.containsKey(inv.getArgument(0)));
 		when(element.getAttribute(anyString()))
 				.thenAnswer(inv -> attributes.getOrDefault(inv.getArgument(0), ""));
+
+		List<Entry<String, String>> entries = new ArrayList<>(attributes.entrySet());
+		NamedNodeMap nodes = mock(NamedNodeMap.class);
+		when(element.getAttributes()).thenReturn(nodes);
+		when(nodes.item(anyInt()))
+				.thenAnswer(inv -> {
+					Entry<String, String> entry = entries.get(inv.getArgument(0, Integer.class));
+					Node node = mock(Node.class);
+					when(node.getLocalName()).thenReturn(entry.getKey());
+					when(node.getNodeValue()).thenReturn(entry.getValue());
+					return node;
+				});
+		when(nodes.getLength()).thenReturn(attributes.size());
 	}
 
 	private void initDummy() {
-		init(true, null, null);
+		init(DUMMY, null, null);
 	}
 
 	private void initLive() {
-		init(false, null, null);
+		init(LIVE, null, null);
 	}
 
-	private void init(boolean dummyMode, String live, String dummy) {
+	private void init(String mode, String live, String dummy) {
 		PowerMockito.mockStatic(LocalProperties.class, RETURNS_SMART_NULLS);
-		when(LocalProperties.isDummyModeEnabled()).thenReturn(dummyMode);
+		when(LocalProperties.get(anyString())).thenCallRealMethod();
+		when(LocalProperties.get(eq("gda.mode"))).thenReturn(mode);
 		when(LocalProperties.get(eq(DEFAULT_DUMMY_MOTOR_PROPERTY), anyString())).then(answerProperty(dummy));
 		when(LocalProperties.get(eq(DEFAULT_LIVE_MOTOR_PROPERTY), anyString())).then(answerProperty(live));
-		when(LocalProperties.get(anyString())).thenCallRealMethod();
 		parser = new SpringMotorDefinitionParser();
 	}
 
