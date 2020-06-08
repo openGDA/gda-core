@@ -343,6 +343,7 @@ public class ThreadlessDummyMotor extends MotorBase {
 		if (getSpeed() > maxSpeed) {
 			logger.info("{} - current speed ({}) is higher than new max speed ({}). Setting speed to {}",
 					getName(), getSpeed(), maxSpeed, maxSpeed);
+			setSpeed(maxSpeed);
 		}
 		this.maxSpeed = maxSpeed;
 	}
