@@ -2,15 +2,19 @@ package uk.ac.diamond.daq.client.gui.camera.roi;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import org.eclipse.dawnsci.analysis.api.roi.IRectangularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.region.IRegion;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
@@ -29,13 +33,12 @@ import gda.device.DeviceException;
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
-import uk.ac.diamond.daq.client.gui.camera.RegionCallback;
-import uk.ac.diamond.daq.client.gui.camera.RoiCallback;
 import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.DrawableRegionRegisteredEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.ROIChangeEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.RegisterDrawableRegionEvent;
 import uk.ac.diamond.daq.client.gui.camera.liveview.DrawableRegion;
+import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
@@ -49,17 +52,19 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
  * 
  * @author Maurizio Nagni
  */
-public class SensorROIComposite implements CompositeFactory {
-	private static final Logger logger = LoggerFactory.getLogger(SensorROIComposite.class);
+public class SensorSelectionComposite implements CompositeFactory {
+	private static final Logger logger = LoggerFactory.getLogger(SensorSelectionComposite.class);
 
 	private ICameraConfiguration cameraConfiguration;
 	private IRectangularROI roiFromPlottingSystem;
 	private final List<ROIRow> rows = new ArrayList<>();
 	private final UUID sensorRegionID = UUID.randomUUID();
 	private DrawableRegion sensorDrawableRegion;
-	
+
 	@Override
 	public Composite createComposite(final Composite parent, int style) {
+		cameraConfiguration = CameraHelper
+				.createICameraConfiguration(CameraHelper.getDefaultCameraProperties().getIndex());
 		Table table = new Table(parent, SWT.VIRTUAL | SWT.BORDER);
 		table.setLinesVisible(true);
 		table.setHeaderVisible(true);
@@ -74,15 +79,20 @@ public class SensorROIComposite implements CompositeFactory {
 		updateCamera(CameraHelper.getDefaultCameraProperties().getIndex());
 
 		try {
-			SpringApplicationContextProxy.addDisposableApplicationListener(table, regionRegisteredEventListener(parent));
-			SpringApplicationContextProxy.addDisposableApplicationListener(table, getROIChangeListener(parent));
 			SpringApplicationContextProxy.addDisposableApplicationListener(table, getChangeCameraListener(parent));
 
-			SpringApplicationContextProxy
-					.publishEvent(new RegisterDrawableRegionEvent(this, SWTResourceManager.getColor(SWT.COLOR_GREEN),
-							ClientMessages.ROI, ClientSWTElements.findParentUUID(parent), sensorRegionID));
+			table.setEnabled(false); // as per K11-685
+			if (table.isEnabled()) {
+				SpringApplicationContextProxy.addDisposableApplicationListener(table,
+						regionRegisteredEventListener(parent));
+				SpringApplicationContextProxy.addDisposableApplicationListener(table, getROIChangeListener(parent));
+				SpringApplicationContextProxy.publishEvent(
+						new RegisterDrawableRegionEvent(this, SWTResourceManager.getColor(SWT.COLOR_GREEN),
+								ClientMessages.SELECTION, ClientSWTElements.findParentUUID(parent), sensorRegionID));
+			}
+
 		} catch (GDAClientException e) {
-			logger.error("Error", e);
+			UIHelper.showError("Spring Error", e, logger);
 		}
 		return table;
 	}
@@ -93,14 +103,13 @@ public class SensorROIComposite implements CompositeFactory {
 	 * @param table
 	 */
 	private void createCameraRow(Table table) {
-		RoiCallback uc = () -> {
-			try {
-				return cameraConfiguration.getMaximumSizedROI();
-			} catch (GDAClientException e) {
-				logger.error("Error", e);
-				return null;
-			}
-		};
+		IRectangularROI uc;
+		try {
+			uc = cameraConfiguration.getMaximumSizedROI();
+		} catch (GDAClientException e) {
+			logger.error("Camera Error", e);
+			uc = null;
+		}
 		rows.add(new ROIRow(table, ClientMessages.CAMERA_AREA, false, 0, uc, null));
 	}
 
@@ -110,30 +119,28 @@ public class SensorROIComposite implements CompositeFactory {
 	 * @param table
 	 */
 	private void createROIRow(Table table) {
-		RoiCallback nuc = () -> {
-			return roiFromPlottingSystem;
-		};
-		RegionCallback rc = () -> {
-			return sensorDrawableRegion.getIRegion();
-		};
-		rows.add(new ROIRow(table, ClientMessages.ROI, false, 1, nuc, rc));
+		rows.add(new ROIRow(table, ClientMessages.ROI, false, 1, roiFromPlottingSystem, getIRegion));
 	}
+
+	private Function<DrawableRegion, IRegion> getIRegion = drawable -> drawable.getIRegion();
 
 	private void createTableColumn(Table table) {
 		ClientMessages[] headers = { ClientMessages.REGION, ClientMessages.X_MIN, ClientMessages.Y_MIN,
 				ClientMessages.WIDTH, ClientMessages.HEIGHT };
-		IntStream.range(0, headers.length).forEach(c -> {
-			TableColumn column = new TableColumn(table, SWT.NONE);
-			column.setWidth(120);
-			column.setText(ClientMessagesUtility.getMessage(headers[c]));
-		});
+		IntStream.range(0, headers.length).forEach(c -> createTableColumn.accept(table, headers[c]));
 	}
+
+	private BiConsumer<Table, ClientMessages> createTableColumn = (table, header) -> {
+		TableColumn column = new TableColumn(table, SWT.NONE);
+		column.setWidth(120);
+		column.setText(ClientMessagesUtility.getMessage(header));
+	};
 
 	private class ROIRow {
 		private final TableItem tableItem;
 		private final ClientMessages name;
-		private final RoiCallback roiCallback;
-		private final RegionCallback regionCallback;
+		private final IRectangularROI rectangularROI;
+		private final Function<DrawableRegion, IRegion> iRegionFunction;
 		private boolean editable;
 
 		private Label regionName;
@@ -142,13 +149,13 @@ public class SensorROIComposite implements CompositeFactory {
 		private Text width;
 		private Text height;
 
-		public ROIRow(Table table, ClientMessages name, boolean editable, int index, RoiCallback roiCallback,
-				RegionCallback regionCallback) {
+		public ROIRow(Table table, ClientMessages name, boolean editable, int index, IRectangularROI rectangularROI,
+				Function<DrawableRegion, IRegion> regionCallback) {
 			this.tableItem = new TableItem(table, SWT.NONE, index);
 			this.name = name;
 			this.editable = editable;
-			this.roiCallback = roiCallback;
-			this.regionCallback = regionCallback;
+			this.rectangularROI = rectangularROI;
+			this.iRegionFunction = regionCallback;
 			addColumns();
 		}
 
@@ -193,15 +200,16 @@ public class SensorROIComposite implements CompositeFactory {
 			editor.horizontalAlignment = SWT.LEFT;
 		}
 
-		public void updateRow() throws DeviceException {
-			if (roiCallback.getROI() == null) {
-				return;
-			}
-			xMin.setText(Integer.toString((int) roiCallback.getROI().getPointX()));
-			yMin.setText(Integer.toString((int) roiCallback.getROI().getPointY()));
-			width.setText(Integer.toString((int) roiCallback.getROI().getLength(0)));
-			height.setText(Integer.toString((int) roiCallback.getROI().getLength(1)));
+		public void updateRow() {
+			Optional.ofNullable(rectangularROI).ifPresent(updateRow);
 		}
+
+		private Consumer<IRectangularROI> updateRow = roi -> {
+			xMin.setText(Integer.toString((int) roi.getPointX()));
+			yMin.setText(Integer.toString((int) roi.getPointY()));
+			width.setText(Integer.toString((int) roi.getLength(0)));
+			height.setText(Integer.toString((int) roi.getLength(1)));
+		};
 
 		public void isEditable(boolean editable) {
 			xMin.setEditable(editable);
@@ -242,35 +250,31 @@ public class SensorROIComposite implements CompositeFactory {
 		}
 
 		public void updateDrawableRegion() {
-			if (regionCallback == null || regionCallback.getRegion() == null) {
-				return;
-			}
-			RectangularROI rectangularROI = new RectangularROI(Integer.parseInt(xMin.getText()),
+			Optional.ofNullable(iRegionFunction.apply(sensorDrawableRegion)).ifPresent(updateDrawableRegion);
+		}
+
+		private Consumer<IRegion> updateDrawableRegion = region -> {
+			RectangularROI rROI = new RectangularROI(Integer.parseInt(xMin.getText()),
 					Integer.parseInt(yMin.getText()), Integer.parseInt(width.getText()),
 					Integer.parseInt(height.getText()), 0);
-			regionCallback.getRegion().setROI(rectangularROI);
-		}
+			region.setROI(rROI);
+		};
 	}
 
 	private void updateCameraROI() {
 		try {
 			rows.get(1).submitROI();
-		} catch (NumberFormatException e) {
-			logger.error("Error", e);
-		} catch (GDAClientException e) {
-			logger.error("Error", e);
+		} catch (NumberFormatException | GDAClientException e) {
+			UIHelper.showError("Widget Error", e, logger);
 		}
 	}
 
 	/**
 	 * Events from Text Fields
 	 */
-	private ModifyListener ml = new ModifyListener() {
-		@Override
-		public void modifyText(ModifyEvent e) {
-			updateCameraROI();
-			getCameraROIRow().updateDrawableRegion();
-		}
+	private ModifyListener ml = event -> {
+		updateCameraROI();
+		getCameraROIRow().updateDrawableRegion();
 	};
 
 	/**
@@ -289,20 +293,16 @@ public class SensorROIComposite implements CompositeFactory {
 
 			private void updateROIRow() {
 				getCameraROIRow().removeModifyListener();
-				try {
-					getCameraRow().updateRow();
-					getCameraROIRow().updateRow();
-					getCameraROIRow().isEditable(true);
-					updateCameraROI(); // sets
-										// the
-										// ROI
-										// in
-										// the
-										// camera
-										// control
-				} catch (DeviceException e) {
-					e.printStackTrace();
-				}
+				getCameraRow().updateRow();
+				getCameraROIRow().updateRow();
+				getCameraROIRow().isEditable(true);
+				updateCameraROI(); // sets
+									// the
+									// ROI
+									// in
+									// the
+									// camera
+									// control
 				rows.get(1).addModifyListener();
 			}
 		};
@@ -338,13 +338,7 @@ public class SensorROIComposite implements CompositeFactory {
 	}
 
 	private void updateRoi() {
-		rows.stream().forEach(i -> {
-			try {
-				i.updateRow();
-			} catch (DeviceException e) {
-				logger.error("Error", e);
-			}
-		});
+		rows.stream().forEach(ROIRow::updateRow);
 	}
 
 	private ROIRow getCameraRow() {
