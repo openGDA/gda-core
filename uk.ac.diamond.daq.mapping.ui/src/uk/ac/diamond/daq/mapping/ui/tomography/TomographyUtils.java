@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.tomography.ui;
+package uk.ac.diamond.daq.mapping.ui.tomography;
 
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_SCAN_REQUEST_JSON;
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_TOMO_PARAMS_JSON;

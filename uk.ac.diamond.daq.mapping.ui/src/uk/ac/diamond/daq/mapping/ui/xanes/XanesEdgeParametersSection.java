@@ -16,11 +16,12 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.xanes.ui;
+package uk.ac.diamond.daq.mapping.ui.xanes;
 
 import static uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod.EDGE;
 import static uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod.REFERENCE;
-import static uk.ac.diamond.daq.mapping.xanes.ui.XanesScanningUtils.getOuterScannable;
+import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.createModelFromEdgeSelection;
+import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.getOuterScannable;
 import static uk.ac.gda.ui.tool.ClientMessages.XANES_ENFORCE_SHAPE;
 import static uk.ac.gda.ui.tool.ClientMessages.XANES_LINES_TO_TRACK;
 import static uk.ac.gda.ui.tool.ClientMessages.XANES_LINES_TO_TRACK_TOOLTIP;
@@ -343,7 +344,7 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	 *            Energy of the edge selected by the user
 	 */
 	private void handleEdgeSelectionChanged(double edgeEnergy) {
-		final IScanPointGeneratorModel scanPathModel = XanesScanningUtils.createModelFromEdgeSelection(edgeEnergy, energyScannableName);
+		final IScanPointGeneratorModel scanPathModel = createModelFromEdgeSelection(edgeEnergy, energyScannableName);
 
 		final IScanModelWrapper<IScanPointGeneratorModel> energyScannable = getOuterScannable(getMappingBean(), energyScannableName);
 		if (energyScannable != null) {

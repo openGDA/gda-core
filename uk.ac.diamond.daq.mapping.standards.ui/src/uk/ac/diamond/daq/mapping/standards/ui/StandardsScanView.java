@@ -20,7 +20,7 @@ package uk.ac.diamond.daq.mapping.standards.ui;
 
 import static gda.jython.JythonStatus.RUNNING;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
-import static uk.ac.diamond.daq.mapping.xanes.ui.XanesScanningUtils.createModelFromEdgeSelection;
+import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.createModelFromEdgeSelection;
 
 import java.net.URI;
 import java.util.List;
@@ -63,7 +63,7 @@ import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.ui.experiment.ScanPathEditor;
-import uk.ac.diamond.daq.mapping.xanes.ui.XanesEdgeCombo;
+import uk.ac.diamond.daq.mapping.ui.xanes.XanesEdgeCombo;
 
 public class StandardsScanView {
 	private static final Logger logger = LoggerFactory.getLogger(StandardsScanView.class);

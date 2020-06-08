@@ -47,7 +47,11 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.diamond.daq.client.gui.persistence,
  uk.ac.diamond.daq.persistence.manager,
  uk.ac.gda.common.rcp,
- com.fasterxml.jackson.core.jackson-annotations
+ com.fasterxml.jackson.core.jackson-annotations,
+ com.github.tschoonj.xraylib,
+ uk.ac.diamond.scisoft.analysis,
+ com.google.guava,
+ com.google.gson
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: com.ibm.icu.text,
@@ -76,6 +80,7 @@ Export-Package: uk.ac.diamond.daq.mapping.ui,
  uk.ac.diamond.daq.mapping.ui.experiment.focus,
  uk.ac.diamond.daq.mapping.ui.experiment.saver,
  uk.ac.diamond.daq.mapping.ui.properties,
- uk.ac.diamond.daq.mapping.ui.services
+ uk.ac.diamond.daq.mapping.ui.services,
+ uk.ac.diamond.daq.mapping.ui.xanes
 Bundle-Activator: uk.ac.diamond.daq.mapping.ui.Activator
 Automatic-Module-Name: uk.ac.diamond.daq.mapping.ui

@@ -16,15 +16,15 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.tomography.ui;
+package uk.ac.diamond.daq.mapping.ui.tomography;
 
 import static gda.jython.JythonStatus.RUNNING;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
-import static uk.ac.diamond.daq.mapping.tomography.ui.TomographyUtils.CALIBRATION_DIRECTORY_PATH;
-import static uk.ac.diamond.daq.mapping.tomography.ui.TomographyUtils.CALIBRATION_FILE_PATH;
-import static uk.ac.diamond.daq.mapping.tomography.ui.TomographyUtils.getClientMessage;
-import static uk.ac.diamond.daq.mapping.tomography.ui.TomographyUtils.populateScriptService;
+import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.CALIBRATION_DIRECTORY_PATH;
+import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.CALIBRATION_FILE_PATH;
+import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.getClientMessage;
+import static uk.ac.diamond.daq.mapping.ui.tomography.TomographyUtils.populateScriptService;
 import static uk.ac.gda.ui.tool.ClientMessages.CONFIRM_FILE_OVERWRITE;
 import static uk.ac.gda.ui.tool.ClientMessages.CONFIRM_FILE_OVERWRITE_TITLE;
 import static uk.ac.gda.ui.tool.ClientMessages.ERROR;
@@ -620,7 +620,7 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 	}
 
 	private void handleException(String errorMessage, Exception e) {
-		final IStatus status = new Status(IStatus.ERROR, "uk.ac.diamond.daq.mapping.xanes.ui", errorMessage, e);
+		final IStatus status = new Status(IStatus.ERROR, "uk.ac.diamond.daq.mapping.ui", errorMessage, e);
 		ErrorDialog.openError(getShell(), getClientMessage(ERROR), errorMessage, status);
 		logger.error(errorMessage, e);
 	}

@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.xanes.ui;
+package uk.ac.diamond.daq.mapping.ui.xanes;
 
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_SCAN_REQUEST_JSON;
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_XANES_EDGE_PARAMS_JSON;

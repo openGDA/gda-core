@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.xanes.ui;
+package uk.ac.diamond.daq.mapping.ui.xanes;
 
 import static com.github.tschoonj.xraylib.Xraylib.K_SHELL;
 import static com.github.tschoonj.xraylib.Xraylib.L3_SHELL;

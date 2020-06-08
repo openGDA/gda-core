@@ -55,7 +55,6 @@
 		<module>uk.ac.diamond.daq.mapping.ui</module>
 		<module>uk.ac.diamond.daq.mapping.ui.feature</module>
 		<module>uk.ac.diamond.daq.mapping.ui.test</module>
-		<module>uk.ac.diamond.daq.mapping.xanes.ui</module>
 		<module>uk.ac.diamond.daq.messaging</module>
 		<module>uk.ac.diamond.daq.messaging.test</module>
 		<module>uk.ac.diamond.daq.msgbus</module>
