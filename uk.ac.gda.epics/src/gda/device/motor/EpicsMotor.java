@@ -80,6 +80,9 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsMotor.class);
 
+	private static final short SET_USE_PV_USE_VALUE = 0;
+	private static final short SET_USE_PV_SET_VALUE = 1;
+
 	private boolean assertHomedBeforeMoving = false;
 
 	/**
@@ -195,7 +198,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	protected MonitorListener highLimitStateMonitor;
 
 	protected Channel setPv;
-	protected SetUseMonitorListener setUseListener;
+	protected MonitorListener setUseListener;
 
 	/**
 	 * EPICS Put call back handler
@@ -211,6 +214,10 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	private boolean alarmRaised = false;
 
 	private MotorStatus mstaStatus = MotorStatus.READY;
+
+	private SetUseState setUseMode = SetUseState.UNKNOWN;
+	private final ReadWriteLock setUseLock = new ReentrantReadWriteLock();
+
 
 	/**
 	 * EPICS controller
@@ -269,7 +276,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		dialLowLimitMonitor = this::dllmMonitorChanged;
 		lvioMonitor = this::lvioMonitorChanged;
 		mstaMonitorListener = this::mstaMonitorChanged;
-		setUseListener = new SetUseMonitorListener();
+		setUseListener = this::setUseMonitorChanged;
 	}
 
 	/**
@@ -713,7 +720,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	@Override
 	public void moveTo(double position) throws MotorException {
 
-		setUseListener.checkMotorIsInUseMode();
+		checkMotorIsInUseMode();
 
 		targetPosition = position;
 		targetRangeCheck(position);
@@ -741,7 +748,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	 */
 	public void moveTo(double position, double timeout) throws MotorException, TimeoutException, InterruptedException {
 
-		setUseListener.checkMotorIsInUseMode();
+		checkMotorIsInUseMode();
 		targetPosition = position;
 		targetRangeCheck(position);
 		/*
@@ -767,7 +774,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	 */
 	public void moveTo(double position, PutListener moveListener) throws MotorException {
 
-		setUseListener.checkMotorIsInUseMode();
+		checkMotorIsInUseMode();
 
 		try {
 			targetRangeCheck(position);
@@ -1187,70 +1194,57 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		USE
 	}
 
-	private class SetUseMonitorListener implements MonitorListener {
-		private static final short SET_USE_PV_USE_VALUE = 0;
-		private static final short SET_USE_PV_SET_VALUE = 1;
+	private void setUseMonitorChanged(MonitorEvent event) {
+		final DBR dbr = event.getDBR();
 
-		private SetUseState setUseMode = SetUseState.UNKNOWN;
-		private final ReadWriteLock setUseLock = new ReentrantReadWriteLock();
-
-		@Override
-		public void monitorChanged(MonitorEvent event) {
-			final DBR dbr = event.getDBR();
-
-			if (!dbr.isENUM()) {
-				logger.error("New value for {} SET PV has type {}; expected {}", getName(), dbr.getType().getName(), DBRType.ENUM.getName());
-				return;
-			}
-
-			final DBR_Enum dbrEnum = (DBR_Enum) dbr;
-			final short[] values = dbrEnum.getEnumValue();
-
-			if (values.length != 1) {
-				logger.error("New value for {} SET PV has {} value(s); expected 1", getName(), values.length);
-				return;
-			}
-
-			final short newValue = values[0];
-			if (newValue != SET_USE_PV_USE_VALUE && newValue != SET_USE_PV_SET_VALUE) {
-				logger.error("New value for {} SET PV is {}; expected {} or {}", getName(), newValue, SET_USE_PV_USE_VALUE, SET_USE_PV_SET_VALUE);
-				return;
-			}
-
-			try {
-				setUseLock.writeLock().lock();
-
-				final boolean firstUpdate = (setUseMode == SetUseState.UNKNOWN);
-				final SetUseState newState = (newValue == SET_USE_PV_USE_VALUE) ? SetUseState.USE : SetUseState.SET;
-				final boolean stateChanged = !firstUpdate && (setUseMode != newState);
-				final boolean logNewState = (firstUpdate && newState == SetUseState.SET) || stateChanged;
-
-				if (logNewState) {
-					if (newState == SetUseState.USE) {
-						logger.info("Motor {} is now in 'Use' mode", getName());
-					}
-					else if (newState == SetUseState.SET) {
-						logger.error("Motor {} is now in 'Set' mode - this will cause moves to fail", getName());
-					}
-				}
-				setUseMode = newState;
-			}
-			finally {
-				setUseLock.writeLock().unlock();
-			}
+		if (!dbr.isENUM()) {
+			logger.error("New value for {} SET PV has type {}; expected {}", getName(), dbr.getType().getName(), DBRType.ENUM.getName());
+			return;
 		}
 
-		private void checkMotorIsInUseMode() throws MotorException {
-			try {
-				setUseLock.readLock().lock();
-				if (setUseMode == SetUseState.SET) {
-					throw new MotorException(getStatus(),
-							String.format("Motor %s is in 'Set' mode - check the Set/Use PV in the motor's EDM screen", getName()));
+		final DBR_Enum dbrEnum = (DBR_Enum) dbr;
+		final short[] values = dbrEnum.getEnumValue();
+
+		if (values.length != 1) {
+			logger.error("New value for {} SET PV has {} value(s); expected 1", getName(), values.length);
+			return;
+		}
+
+		final short newValue = values[0];
+		if (newValue != SET_USE_PV_USE_VALUE && newValue != SET_USE_PV_SET_VALUE) {
+			logger.error("New value for {} SET PV is {}; expected {} or {}", getName(), newValue, SET_USE_PV_USE_VALUE, SET_USE_PV_SET_VALUE);
+			return;
+		}
+
+		try {
+			setUseLock.writeLock().lock();
+
+			final boolean firstUpdate = (setUseMode == SetUseState.UNKNOWN);
+			final SetUseState newState = (newValue == SET_USE_PV_USE_VALUE) ? SetUseState.USE : SetUseState.SET;
+			final boolean stateChanged = !firstUpdate && (setUseMode != newState);
+			final boolean logNewState = (firstUpdate && newState == SetUseState.SET) || stateChanged;
+
+			if (logNewState) {
+				if (newState == SetUseState.USE) {
+					logger.info("Motor {} is now in 'Use' mode", getName());
+				} else if (newState == SetUseState.SET) {
+					logger.error("Motor {} is now in 'Set' mode - this will cause moves to fail", getName());
 				}
 			}
-			finally {
-				setUseLock.readLock().unlock();
+			setUseMode = newState;
+		} finally {
+			setUseLock.writeLock().unlock();
+		}
+	}
+
+	private void checkMotorIsInUseMode() throws MotorException {
+		try {
+			setUseLock.readLock().lock();
+			if (setUseMode == SetUseState.SET) {
+				throw new MotorException(getStatus(), String.format("Motor %s is in 'Set' mode - check the Set/Use PV in the motor's EDM screen", getName()));
 			}
+		} finally {
+			setUseLock.readLock().unlock();
 		}
 	}
 
