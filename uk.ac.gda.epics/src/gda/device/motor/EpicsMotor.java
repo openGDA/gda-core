@@ -978,14 +978,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	}
 
 	/**
-	 * This method sets the offset value (= base PV name + ".OFF") for the motor, without moving it.
-	 * <p>
-	 * Note therefore that calling this function, despite its name, is not equivalent to entering Set mode for the motor and setting it position.<br>
-	 * See Jira ticket DAQ-2801
-	 * <p>
-	 * To move a motor, call {@link #moveTo(double)} or one of its overloads.
-	 * <p>
-	 * We will review what this function should do when we have gathered some information from logging as to how it is currently called.
+	 * Set the position of the motor without moving it
 	 *
 	 * @param position
 	 *            the new offset in motor units
@@ -993,10 +986,12 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	@Override
 	public void setPosition(double position) throws MotorException {
 		try {
-			logger.debug("Called setPosition({}) on motor {}", position, getName());
-			controller.caput(offset, position);
+			final short initialSetUse = controller.cagetShort(setPv);
+			controller.caput(setPv, SET_USE_PV_SET_VALUE);
+			controller.caput(val, position);
+			controller.caput(setPv, initialSetUse);
 		} catch (Exception ex) {
-			throw new MotorException(getStatus(), "failed to set offset position", ex);
+			throw new MotorException(getStatus(), "failed to set motor position", ex);
 		}
 	}
 
@@ -1228,7 +1223,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 				if (newState == SetUseState.USE) {
 					logger.info("Motor {} is now in 'Use' mode", getName());
 				} else if (newState == SetUseState.SET) {
-					logger.error("Motor {} is now in 'Set' mode - this will cause moves to fail", getName());
+					logger.warn("Motor {} is now in 'Set' mode - this will cause moves to fail", getName());
 				}
 			}
 			setUseMode = newState;
