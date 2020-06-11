@@ -58,7 +58,8 @@ class MalcolmNexusObjectBuilder {
 
 	private final IMalcolmDevice malcolmDevice;
 
-	// The name (last segment only) of the malcolm output dir
+	// The name (last segment only) of the malcolm output dir. This is used to create the relative path, as the main
+	// scan file is in the parent directory of the malcolm output dir.
 	private final String malcolmOutputDirName;
 
 	private final Map<String, NexusObjectWrapper<NXobject>> nexusWrappers;
@@ -113,7 +114,6 @@ class MalcolmNexusObjectBuilder {
 				final NXobject nexusObject = nexusWrapper.getNexusObject();
 
 				// create the external link to the hdf5 file written by the malcolm device
-				// TODO: use relative path when bug with loading relative external links is fixed
 				final String externalFilePath = malcolmOutputDirName + "/" + externalFileName; // path relative to parent dir of scan file
 				nexusWrapper.addExternalLink(nexusObject, datasetName, externalFilePath,
 						datasetPath, datasetRank);
