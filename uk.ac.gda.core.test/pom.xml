@@ -67,15 +67,6 @@
 			          	<exclude>RmiAutomatedExporterTest</exclude>
 			          	<exclude>TfgScalerTest</exclude>
 			          	<exclude>ScannableNexusWrapperScanTest</exclude>
-			          	<!-- Mockito can't create package private items -->
-			          	<exclude>ScannableMotionWithScannableFieldsBaseTest</exclude>
-			          	<exclude>PositionInputStreamCombinerTest</exclude>
-			          	<exclude>ConcurrentScanWithConcurrentReadoutTest</exclude>
-			          	<exclude>MultiScanTest</exclude>
-			          	<exclude>MultithreadedScanDataPointPipelineTest</exclude>
-			          	<exclude>RepeatScanTest</exclude>
-			          	<exclude>PositionStreamIndexerTest</exclude>
-			          	<exclude>MScanSubmitterTest</exclude>
 			          	<!-- Mockito can't create it in different plugin -->
 			          	<exclude>JythonCompleterTest</exclude>
 			          	<!-- trying to connect to an external server -->

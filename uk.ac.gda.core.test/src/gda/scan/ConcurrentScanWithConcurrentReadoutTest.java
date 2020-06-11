@@ -63,7 +63,7 @@ public class ConcurrentScanWithConcurrentReadoutTest extends ConcurrentScanTest 
 	/**
 	 * Used here to emulate e.g. slow readout() method.
 	 */
-	private class DelayedAnswer implements Answer<Object> {
+	public class DelayedAnswer implements Answer<Object> {
 
 		private final double delayS;
 		private final Object result;

@@ -32,11 +32,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class PositionStreamIndexerTest {
-	interface SimplePositionInputStream extends PositionInputStream<Object> {
+	public interface SimplePositionInputStream extends PositionInputStream<Object> {
 
 	}
 
-	class NamedObject {
+	public class NamedObject {
 		final private String name;
 
 		public NamedObject(String name) {

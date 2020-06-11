@@ -43,7 +43,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InOrder;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +64,8 @@ import gda.scan.ScanInformation.ScanInformationBuilder;
 /**
  * Class to test writing of nexus files during a scan
  */
+// As using MockFactory to create mock scannables, must be lenient with unused stubbing
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class ConcurrentScanTest {
 	private static final Logger logger = LoggerFactory.getLogger(ConcurrentScanTest.class);
 	@SuppressWarnings("rawtypes")
@@ -72,7 +76,7 @@ public class ConcurrentScanTest {
 	public interface PositionCallableProvidingDetector extends PositionCallableProvider, Detector {
 	}
 
-	class NamedObject {
+	public class NamedObject {
 		private String name;
 
 		NamedObject(String name) {

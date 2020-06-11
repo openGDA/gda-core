@@ -122,7 +122,7 @@ public class MultiScanTest {
 	//-----------------------------------------------------------------------------------------------
 	// Mock NXCollectionStrategyPlugin
 	//-----------------------------------------------------------------------------------------------
-	private interface MyCollectionStrategyPlugin extends NXCollectionStrategyPlugin, NXPlugin {}
+	public interface MyCollectionStrategyPlugin extends NXCollectionStrategyPlugin, NXPlugin {}
 	private NXCollectionStrategyPlugin createCollectionStrategyPlugin() throws Exception {
 		final MyCollectionStrategyPlugin strategy = mock(MyCollectionStrategyPlugin.class);
 		when(strategy.getInputStreamNames()).thenReturn(inputStreamNames());
@@ -144,7 +144,7 @@ public class MultiScanTest {
 
 	//--------------------------------------------------------------------------------------------------------------
 
-	private static class MyScannableMotor extends ScannableMotor implements ContinuouslyScannableViaController, PositionCallableProvider<Double>{
+	public static class MyScannableMotor extends ScannableMotor implements ContinuouslyScannableViaController, PositionCallableProvider<Double>{
 		private static final Logger logger = LoggerFactory.getLogger(MyScannableMotor.class);
 		private ContinuousMoveController cmc;
 		private List<Double> points = null;
@@ -221,7 +221,7 @@ public class MultiScanTest {
 
 	//--------------------------------------------------------------------------------------------------------------
 
-	private static class MyMoveController extends ScannableBase implements ConstantVelocityMoveController{
+	public static class MyMoveController extends ScannableBase implements ConstantVelocityMoveController{
 		private static final Logger logger = LoggerFactory.getLogger(MyMoveController.class);
 
 		private double triggerPeriod;
@@ -323,7 +323,7 @@ public class MultiScanTest {
 
 	//--------------------------------------------------------------------------------------------------------------
 
-	private static class MyMotor extends MotorBase {
+	public static class MyMotor extends MotorBase {
 
 		private double posn = 0.0;
 		private double speed = 2;

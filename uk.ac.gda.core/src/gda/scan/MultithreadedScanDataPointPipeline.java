@@ -267,7 +267,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 		return broadcaster;
 	}
 
-	private class NamedThreadFactory implements ThreadFactory {
+	public class NamedThreadFactory implements ThreadFactory {
 
 		private final ThreadFactory defaultThreadFactory;
 
