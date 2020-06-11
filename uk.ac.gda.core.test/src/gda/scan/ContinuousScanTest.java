@@ -18,10 +18,13 @@
 
 package gda.scan;
 
+import static gda.configuration.properties.LocalProperties.GDA_SCAN_SETS_SCANNUMBER;
+import static gda.scan.ScanBase.GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 
+import org.junit.AfterClass;
 import org.junit.Test;
 
 import gda.TestHelpers;
@@ -71,7 +74,7 @@ public class ContinuousScanTest {
 
 		String dir = TestHelpers.setUpTest(ContinuousScanTest.class, "simpleScanScanBaseSetsScanNumber", true);
 		LocalProperties.setScanSetsScanNumber(true);
-		LocalProperties.set("gda.scanbase.firstScanNumber", Integer.toString(ScanBaseFirstScanNumber));
+		LocalProperties.set(GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST, Integer.toString(ScanBaseFirstScanNumber));
 		Scan scan = beforeEachTest();
 		assertEquals(-1,scan.getScanNumber());
 		scan.runScan();
@@ -212,7 +215,7 @@ public class ContinuousScanTest {
 	public void multiDimensionalScanCount() throws Exception{
 		String dir = TestHelpers.setUpTest(ContinuousScanTest.class, "multiDimensionalScanCount", true);
 		LocalProperties.setScanSetsScanNumber(true);
-		LocalProperties.set(ScanBase.GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST, Integer.toString(ScanBaseFirstScanNumber));
+		LocalProperties.set(GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST, Integer.toString(ScanBaseFirstScanNumber));
 		beforeEachTest();
 
 		DummyBufferedDetector detector = new DummyBufferedDetector();
@@ -314,5 +317,11 @@ public class ContinuousScanTest {
 		assertEquals(1, point.getScanIdentifier());
 		assertEquals(new File(dir + "/Data/1.dat").getAbsolutePath(), point.getCurrentFilename());
 
+	}
+
+	@AfterClass
+	public static void cleanUp() {
+		LocalProperties.clearProperty(GDA_SCAN_SETS_SCANNUMBER);
+		LocalProperties.clearProperty(GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST);
 	}
 }

@@ -18,6 +18,8 @@
 
 package gda.scan;
 
+import static gda.configuration.properties.LocalProperties.GDA_SCAN_SETS_SCANNUMBER;
+import static gda.scan.ScanBase.GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -30,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -83,7 +86,7 @@ public class RepeatScanTest {
 	@Before
 	public void setUp() throws Exception {
 		LocalProperties.setScanSetsScanNumber(true);
-		LocalProperties.set("gda.scanbase.firstScanNumber", ScanBaseFirstScanNumber);
+		LocalProperties.set(GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST, ScanBaseFirstScanNumber);
 		s1 = mock(Scannable.class);
 		when(s1.getName()).thenReturn("s1");
 		when(s1.getInputNames()).thenReturn(new String[] { "s1" });
@@ -115,6 +118,13 @@ public class RepeatScanTest {
 		Mockito.doCallRealMethod().when(d3).getNumberOfFrames();
 		when(d3PositionCallableProvider.getPositionCallable()).thenReturn(new CallableImpl(new Double(1.0)));
 
+	}
+
+
+	@After
+	public void cleanUp() {
+		LocalProperties.clearProperty(GDA_SCAN_SETS_SCANNUMBER);
+		LocalProperties.clearProperty(GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST);
 	}
 
 	@Test
