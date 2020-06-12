@@ -410,14 +410,10 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		fluorescenceDetectorComposite.setDetectorElementOrder(order);
 
 		// Try to set order using FluoDetectorElementConfig object (client side, created in spring).
-		// (Do it this way, since getFindablesOfType(...) method is very slow and hangs the client while it's busy...)
-		List<Findable> findables = Finder.getInstance().listAllLocalObjects(Findable.class.getSimpleName());
-		for(Findable f : findables) {
-			if (f instanceof FluoDetectorElementConfig) {
-				FluoDetectorElementConfig conf = (FluoDetectorElementConfig)f;
-				if (conf.getDetectorName().equals(theDetector.getName())) {
-					fluorescenceDetectorComposite.setDetectorElementConfiguration(conf);
-				}
+		final List<FluoDetectorElementConfig> elementConfigs = Finder.getInstance().listLocalFindablesOfType(FluoDetectorElementConfig.class);
+		for (FluoDetectorElementConfig conf : elementConfigs) {
+			if (conf.getDetectorName().equals(theDetector.getName())) {
+				fluorescenceDetectorComposite.setDetectorElementConfiguration(conf);
 			}
 		}
 	}

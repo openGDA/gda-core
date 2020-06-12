@@ -25,7 +25,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanDataPointFormatter;
@@ -44,10 +43,10 @@ public class AsciiDataWriter extends IncrementalFile implements ConfigurableAsci
 	protected String columnHeader = "";
 
 	public AsciiDataWriter() throws InstantiationException {
-		List<Findable> configs = Finder.getInstance().listAllObjects(FindableAsciiDataWriterConfiguration.class.getSimpleName());
+		final List<AsciiDataWriterConfiguration> configs = Finder.getInstance().listFindablesOfType(AsciiDataWriterConfiguration.class);
 		if (configs.size() == 0)
 			throw new InstantiationException("No configuration object for " + this.getClass().getName() + " found");
-		configuration = ((AsciiDataWriterConfiguration) configs.get(0));
+		configuration = configs.get(0);
 	}
 
 	public AsciiDataWriter(AsciiDataWriterConfiguration configuration) {
