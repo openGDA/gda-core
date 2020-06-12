@@ -29,10 +29,9 @@ public class AwtFrameCaptureTask extends FrameCaptureTask<Image> {
 	public AwtFrameCaptureTask(String urlSpec, ExecutorService imageDecodingService, BlockingQueue<Future<Image>> receivedImages) {
 		super(urlSpec, imageDecodingService, receivedImages);
 	}
-	
+
 	@Override
-	public Image convertImage(BufferedImage imageData) throws Exception {
-//		return ImageIO.read(new ByteArrayInputStream(imageData));
+	protected Image convertImage(BufferedImage imageData) {
 		return imageData;
 	}
 

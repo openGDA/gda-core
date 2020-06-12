@@ -18,7 +18,8 @@
 
 package gda.images.camera;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -35,7 +36,7 @@ import gda.images.camera.mjpeg.SwtFrameCaptureTask;
 
 public class MotionJpegOverHttpReceiverSwt extends MotionJpegOverHttpReceiverBase<ImageData> implements Findable {
 
-	public class LatestDecoderserviceFactory implements ExecutorServiceFactory {
+	public static class LatestDecoderserviceFactory implements ExecutorServiceFactory {
 
 		@Override
 		public ExecutorService create(ThreadFactory decoderThreadFactory) {
@@ -91,37 +92,36 @@ public class MotionJpegOverHttpReceiverSwt extends MotionJpegOverHttpReceiverBas
 		this.acceptReadTimeouts = acceptReadTimeouts;
 	}
 
-}
-class LatestLinkedBlockingQueue<E> extends LinkedBlockingQueue<E>{
 
-	LatestLinkedBlockingQueue(){
-		super(1);
-	}
+	public static class LatestLinkedBlockingQueue<E> extends LinkedBlockingQueue<E> {
 
-	@Override
-	public boolean offer(E e) {
-		super.clear();
-		return super.offer(e);
-	}
-
-}
-class LatestImageDataBlockingQueue extends LinkedBlockingQueue<Future<ImageData>>{
-
-	LatestImageDataBlockingQueue(){
-		super(1);
-	}
-
-	@Override
-	public boolean offer(Future<ImageData> e) {
-		Vector<Future<ImageData>> c = new Vector<Future<ImageData>>();
-		super.drainTo(c);
-		for( Future<ImageData> f : c){
-			//we need to cancel all futures so that threads
-			//accessing the result will not wait forever now that they
-			//will no longer be processed.
-			f.cancel(true);
+		LatestLinkedBlockingQueue() {
+			super(1);
 		}
-		return super.offer(e);
+
+		@Override
+		public boolean offer(E e) {
+			super.clear();
+			return super.offer(e);
+		}
 	}
 
+	public static class LatestImageDataBlockingQueue extends LinkedBlockingQueue<Future<ImageData>> {
+
+		LatestImageDataBlockingQueue() {
+			super(1);
+		}
+
+		@Override
+		public boolean offer(Future<ImageData> e) {
+			Collection<Future<ImageData>> itemsToCancel = new ArrayList<>();
+			super.drainTo(itemsToCancel);
+
+			// we need to cancel all futures so that threads
+			// accessing the result will not wait forever now that they
+			// will no longer be processed.
+			itemsToCancel.forEach(future -> future.cancel(true));
+			return super.offer(e);
+		}
+	}
 }

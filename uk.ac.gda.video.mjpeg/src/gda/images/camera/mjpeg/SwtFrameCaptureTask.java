@@ -43,19 +43,18 @@ public class SwtFrameCaptureTask extends FrameCaptureTask<ImageData> {
 	}
 
 	public ImageData convertByteArrayToImage(byte[] imageData) {
-		ImageData data = new ImageData(new ByteArrayInputStream(imageData));
-		return data;
+		return new ImageData(new ByteArrayInputStream(imageData));
 	}
 
 	@Override
-	public ImageData convertImage(BufferedImage image) throws Exception {
-		if (bufferedImage != null && bufferedImage.getColorModel() instanceof DirectColorModel) {
-			DirectColorModel colorModel = (DirectColorModel) bufferedImage.getColorModel();
+	protected ImageData convertImage(BufferedImage image) {
+		if (image != null && image.getColorModel() instanceof DirectColorModel) {
+			DirectColorModel colorModel = (DirectColorModel) image.getColorModel();
 			PaletteData palette = new PaletteData(colorModel.getRedMask(), colorModel.getGreenMask(),
 					colorModel.getBlueMask());
-			ImageData data = new ImageData(bufferedImage.getWidth(), bufferedImage.getHeight(),
+			ImageData data = new ImageData(image.getWidth(), image.getHeight(),
 					colorModel.getPixelSize(), palette);
-			WritableRaster raster = bufferedImage.getRaster();
+			WritableRaster raster = image.getRaster();
 			RGB rgb = new RGB(255, 255, 255);
 			int pixel = 0;
 			int[] pixelArray = new int[3];
@@ -70,8 +69,8 @@ public class SwtFrameCaptureTask extends FrameCaptureTask<ImageData> {
 				}
 			}
 			return data;
-		} else if (bufferedImage != null && bufferedImage.getColorModel() instanceof IndexColorModel) {
-			IndexColorModel colorModel = (IndexColorModel) bufferedImage.getColorModel();
+		} else if (image != null && image.getColorModel() instanceof IndexColorModel) {
+			IndexColorModel colorModel = (IndexColorModel) image.getColorModel();
 			int size = colorModel.getMapSize();
 			byte[] reds = new byte[size];
 			byte[] greens = new byte[size];
@@ -84,10 +83,10 @@ public class SwtFrameCaptureTask extends FrameCaptureTask<ImageData> {
 				rgbs[i] = new RGB(reds[i] & 0xFF, greens[i] & 0xFF, blues[i] & 0xFF);
 			}
 			PaletteData palette = new PaletteData(rgbs);
-			ImageData data = new ImageData(bufferedImage.getWidth(), bufferedImage.getHeight(),
+			ImageData data = new ImageData(image.getWidth(), image.getHeight(),
 					colorModel.getPixelSize(), palette);
 			data.transparentPixel = colorModel.getTransparentPixel();
-			WritableRaster raster = bufferedImage.getRaster();
+			WritableRaster raster = image.getRaster();
 			int[] pixelArray = new int[1];
 			for (int y = 0; y < data.height; y++) {
 				for (int x = 0; x < data.width; x++) {
@@ -96,8 +95,8 @@ public class SwtFrameCaptureTask extends FrameCaptureTask<ImageData> {
 				}
 			}
 			return data;
-		} else if (bufferedImage != null && bufferedImage.getColorModel() instanceof ComponentColorModel) {
-			ComponentColorModel colorModel = (ComponentColorModel) bufferedImage.getColorModel();
+		} else if (image != null && image.getColorModel() instanceof ComponentColorModel) {
+			ComponentColorModel colorModel = (ComponentColorModel) image.getColorModel();
 
 			if(colorModel.getNumColorComponents()!=3 ){
 				return null;
@@ -105,13 +104,13 @@ public class SwtFrameCaptureTask extends FrameCaptureTask<ImageData> {
 			// ASSUMES: 3 BYTE BGR IMAGE TYPE
 
 			PaletteData palette = new PaletteData(0x0000FF, 0x00FF00, 0xFF0000);
-			ImageData data = new ImageData(bufferedImage.getWidth(), bufferedImage.getHeight(),
+			ImageData data = new ImageData(image.getWidth(), image.getHeight(),
 					colorModel.getPixelSize(), palette);
 
 			// This is valid because we are using a 3-byte Data model with no transparent pixels
 			data.transparentPixel = -1;
 
-			WritableRaster raster = bufferedImage.getRaster();
+			WritableRaster raster = image.getRaster();
 			for (int y = 0; y < data.height; y++) {
 				for (int x = 0; x < data.width; x++) {
 					int[] pixelArray = raster.getPixel(x, y, (int[]) null);

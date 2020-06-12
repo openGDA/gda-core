@@ -18,9 +18,6 @@
 
 package gda.images.camera.mjpeg;
 
-import gda.images.camera.FrameStatistics;
-import gda.images.camera.MotionJpegOverHttpReceiverBase;
-
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -31,18 +28,18 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageDecoder;
+
+import gda.images.camera.FrameStatistics;
+import gda.images.camera.MotionJpegOverHttpReceiverBase;
 
 /**
  * Task that captures frames from the MJPEG stream. A task is created to decode each frame, and the frame is added to a
@@ -70,20 +67,30 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 	private ExecutorService imageDecodingService;
 
 	private BlockingQueue<Future<E>> receivedImages;
-	// The byte array is to represent the string - Content-Length:&nbsp
-	final static byte[] contentLength = new byte[] { 67, 111, 110, 116, 101, 110, 116, 45, 76, 101, 110, 103, 116, 104,
-			58, 32 };
+
+	/** The byte array is to represent the string - Content-Length:&nbsp */
+	private static final byte[] CONTENT_LENGTH_AS_BYTES = "Content-Length: ".getBytes();
 
 	private final int readTimeout;
 
 	private final boolean acceptReadTimeout;
+
+	private BufferedImage bufferedImage;
+
+	private DataInputStream dis;
+
+	private volatile boolean keepRunning;
+
+	private FrameStatistics frameCaptureStatistics = new FrameStatistics("MJPEG capture", 300, 15);
+
+	private FrameStatistics frameDecodeStatistics = new FrameStatistics("MJPEG decoding", 300, 15);
 
 	public FrameCaptureTask(String urlSpec, ExecutorService imageDecodingService,
 			BlockingQueue<Future<E>> receivedImages) {
 		this(urlSpec, imageDecodingService, receivedImages,0,false);
 	}
 	/**
-	 * 
+	 *
 	 * @param urlSpec
 	 * @param imageDecodingService
 	 * @param receivedImages
@@ -98,12 +105,6 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 		this.readTimeout = readTimeout;
 		this.acceptReadTimeout = acceptReadTimeout;
 	}
-
-	private volatile boolean keepRunning;
-
-	private FrameStatistics frameCaptureStatistics = new FrameStatistics("MJPEG capture", 300, 15);
-
-	private FrameStatistics frameDecodeStatistics = new FrameStatistics("MJPEG decoding", 300, 15);
 
 	@Override
 	public void run() {
@@ -125,15 +126,6 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 		}
 	}
 
-	byte[] imageData;
-	int counter = 0;
-
-	URLConnection conn = null;
-
-	BufferedImage bufferedImage = null;
-
-	DataInputStream dis=null;
-
 	private void receiveImages() throws Exception {
 		logger.debug("Frame capture starting");
 
@@ -141,7 +133,7 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 		frameDecodeStatistics.reset();
 
 		URL url = new URL(urlSpec);
-		conn = url.openConnection();
+		URLConnection conn = url.openConnection();
 		conn.setReadTimeout(readTimeout);
 		InputStream instream = conn.getInputStream();
 		BufferedInputStream bis = new BufferedInputStream(instream);
@@ -160,11 +152,11 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 		keepRunning = true;
 		while (keepRunning) {
 			readLine(4, dis);
-			
+
 			if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
 				frameCaptureStatistics.startProcessingFrame();
 			}
-			
+
 			BufferedImage readJPG = readJPG(dis);
 			readLine(1, dis);
 			if( readJPG != null){
@@ -174,54 +166,23 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 					frameCaptureStatistics.finishProcessingFrame();
 				}
 
-				Callable<E> imageDecoderTask = new Callable<E>() {
-					@Override
-					public E call() throws Exception {
-						
-						if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
-							frameDecodeStatistics.startProcessingFrame();
-						}
-						
-						final E decodedImage = convertImage(bufferedImage);
-						
-						if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
-							frameDecodeStatistics.finishProcessingFrame();
-						}
-
-						//once the frame has been decoded add it to the receivedImages queue
-						//Do it here rather than adding the result of imageDecodingService.submit(imageDecoderTask);
-						//to allow the decode task to be cancelled without the need to clear the associated future on the 
-						//receivedImages queue.
-						receivedImages.offer(new Future<E>(){
-
-							@Override
-							public boolean cancel(boolean mayInterruptIfRunning) {
-								return false;
-							}
-
-							@Override
-							public boolean isCancelled() {
-								return false;
-							}
-
-							@Override
-							public boolean isDone() {
-								return true;
-							}
-
-							@Override
-							public E get() throws InterruptedException, ExecutionException {
-								return decodedImage;
-							}
-
-							@Override
-							public E get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException,
-									TimeoutException {
-								return decodedImage;
-							}});
-						
-						return decodedImage;
+				Callable<Void> imageDecoderTask = () -> {
+					if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
+						frameDecodeStatistics.startProcessingFrame();
 					}
+
+					final E decodedImage = convertImage(bufferedImage);
+
+					if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
+						frameDecodeStatistics.finishProcessingFrame();
+					}
+
+					// once the frame has been decoded add it to the receivedImages queue
+					// Do it here rather than adding the result of imageDecodingService.submit(imageDecoderTask);
+					// to allow the decode task to be cancelled without the need to clear the associated future on the
+					// receivedImages queue.
+					receivedImages.offer(CompletableFuture.completedFuture(decodedImage));
+					return null;
 				};
 
 				// We might be in the middle of capturing a frame from the stream when the image decoding service
@@ -231,16 +192,16 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 
 				}
 			}
-			
+
 		}
 
 		logger.debug("Frame capture stopping");
 	}
 
 	private boolean readFirstLineAndIsLegal(DataInputStream dis) throws IOException {
-		for (int i = 0; i < contentLength.length; i++) {
+		for (int i = 0; i < CONTENT_LENGTH_AS_BYTES.length; i++) {
 			byte readByte = dis.readByte();
-			if (!(readByte == contentLength[i])) {
+			if (readByte != CONTENT_LENGTH_AS_BYTES[i]) {
 				return false;
 			}
 		}
@@ -248,7 +209,7 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 		return true;
 	}
 
-	public BufferedImage readJPG(DataInputStream dis) { // read the embedded jpeg image
+	private BufferedImage readJPG(DataInputStream dis) { // read the embedded jpeg image
 		BufferedImage image = null;
 		try {
 			//ImageIO.read fails to decode all images
@@ -263,7 +224,7 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 		return image;
 	}
 
-	public void disconnect(DataInputStream dis) {
+	private void disconnect(DataInputStream dis) {
 		try {
 			if( dis != null)
 				dis.close();
@@ -273,14 +234,14 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 		}
 	}
 
-	public void readLine(int n, DataInputStream dis) throws Exception { // used to strip out the
+	private void readLine(int n, DataInputStream dis) throws Exception { // used to strip out the
 		// header lines
 		for (int i = 0; i < n; i++) {
 			readLine(dis);
 		}
 	}
 
-	public void readLine(DataInputStream dis) throws Exception {
+	private void readLine(DataInputStream dis) throws Exception {
 		boolean end = false;
 		String lineEnd = "\n"; // assumes that the end of the line is marked
 		// with this
@@ -296,8 +257,8 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 		}
 	}
 
-	public String getContentLength(DataInputStream dis) {
-		StringBuffer strBuffer = new StringBuffer();
+	private String getContentLength(DataInputStream dis) {
+		StringBuilder strBuffer = new StringBuilder();
 		try {
 			boolean end = false;
 			String lineEnd = "\n"; // assumes that the end of the line is marked
@@ -321,16 +282,12 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 	}
 
 	/**
-	 * Should be implemented by subclasses to convert the specified byte array to an image.
+	 * Should be implemented by subclasses to convert the specified {@link BufferedImage} to desired image type.
 	 */
-	public abstract E convertImage(BufferedImage imageData) throws Exception;
+	protected abstract E convertImage(BufferedImage imageData);
 
 	public void shutdown() {
 		this.keepRunning = false;
 		disconnect(dis);
-	}
-
-	public boolean isRunning() {
-		return this.keepRunning;
 	}
 }
