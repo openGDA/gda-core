@@ -65,7 +65,6 @@
 			          	<exclude>ElogEntryTest</exclude>
 			          	<!-- Tests Fail due to some hidden setup issue -->
 			          	<exclude>RmiAutomatedExporterTest</exclude>
-			          	<exclude>ScannableNexusWrapperScanTest</exclude>
 			          	<!-- Mockito can't create it in different plugin -->
 			          	<exclude>JythonCompleterTest</exclude>
 			          	<!-- trying to connect to an external server -->
