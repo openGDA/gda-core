@@ -103,7 +103,10 @@ public class JythonInterpreterManager {
 	        File loc = getBundleLocation(jythonBundleName); // TODO Name the jython OSGi bundle without Diamond in it!
 	        if (loc ==null) return;
 	        File jythonDir = find(loc, "jython");
-	        if (jythonDir ==null) return;
+	        if (jythonDir ==null) {
+	        	logger.warn("JythonDir not found while initializing PythonPath");
+	        	return;
+	        }
 
 	        Properties props = new Properties();
 		props.setProperty("python.home", jythonDir.getAbsolutePath());
@@ -148,44 +151,49 @@ public class JythonInterpreterManager {
 
 	private static void setJythonPaths(PySystemState state) {
 
-        try {
-		// Search for the Libs directory which should have been expanded out either
-		// directly into the bundle or into the 'jython2.7' folder.
-		String jythonBundleName = getJythonBundleName();
+		try {
+			// Search for the Libs directory which should have been expanded out either
+			// directly into the bundle or into the 'jython2.7' folder.
+			String jythonBundleName = getJythonBundleName();
 
-            File lib = getBundleLocation(jythonBundleName); // TODO Name the jython OSGi bundle without Diamond in it!
-		Iterator<Object> it = state.path.iterator();
-		while (it.hasNext()) {
-			Object ob = it.next();
-			if (ob instanceof String && ((String)ob).endsWith(File.separator+"Lib")) {
-				lib = new File((String)ob);
+			File loc = getBundleLocation(jythonBundleName); // TODO Name the jython OSGi bundle without Diamond in it!
+			File lib = null;
+			Iterator<Object> it = state.path.iterator();
+			while (it.hasNext()) {
+				Object ob = it.next();
+				if (ob instanceof String && ((String) ob).endsWith(File.separator + "Lib")) {
+					lib = new File((String) ob);
+				}
 			}
+
+			if (lib == null) {
+				logger.debug("Jython Lib not found on PySystemState path");
+				File jythonDir = find(loc, "jython");
+				lib = find(jythonDir, "Lib");
+				if (lib == null) {
+					logger.warn("Jython Lib not found in jythonDir {}, necessary scripts will not be added to path", jythonDir);
+				} else {
+					logger.info("Adding Jython Lib to PythonPath");
+					state.path.add(new PyString(lib.getAbsolutePath()));
+				}
+			}
+
+			if (lib != null) {
+				File site = find(lib, "site-packages");
+				state.path.add(new PyString(site.getAbsolutePath())); // Resolves the collections
+
+				File[] fa = site.listFiles();
+				for (File dir : fa) {
+					if (!dir.isDirectory()) continue;
+					if (dir.getName().endsWith("-info")) continue;
+					state.path.add(new PyString(dir.getAbsolutePath())); // Resolves the collections
+				}
+
+			}
+
+		} catch (Exception ne) {
+			logger.debug("Problem setting jython path to include scripts!", ne);
 		}
-
-		if (lib==null) {
-	            File loc = getBundleLocation(jythonBundleName); // TODO Name the jython OSGi bundle without Diamond in it!
-		    File jythonDir = find(loc, "jython");
-		lib       = find(jythonDir, "Lib");
-		}
-
-            if (lib != null) {
-		File site       = find(lib, "site-packages");
-		state.path.add(new PyString(site.getAbsolutePath())); // Resolves the collections
-
-		File[] fa = site.listFiles();
-		for (File dir : fa) {
-			if (!dir.isDirectory()) continue;
-			if (dir.getName().endsWith("-info")) continue;
-			state.path.add(new PyString(dir.getAbsolutePath())); // Resolves the collections
-		}
-
-		state.toString();
-
-             }
-
-        } catch (Exception ne) {
-		logger.debug("Problem setting jython path to include scripts!", ne);
-        }
 	}
 
 	private static ClassLoader getBundleLoader(String name) {
