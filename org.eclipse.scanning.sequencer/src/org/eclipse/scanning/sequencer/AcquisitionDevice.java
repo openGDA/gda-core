@@ -686,9 +686,6 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		writers.abort();
 		runners.abort();
 
-		for (IRunnableDevice<?> device : getModel().getDetectors()) {
-			device.abort();
-		}
 		setDeviceState(DeviceState.ABORTED);
 		annotationManager.invoke(ScanAbort.class);
 		RunnableDeviceServiceImpl.setCurrentScanningDevice(null);

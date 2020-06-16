@@ -14,4 +14,5 @@ Require-Bundle:
  org.objenesis;bundle-version="2.6.0",
  org.mockito.mockito-core,
  net.bytebuddy.byte-buddy,
- net.bytebuddy.byte-buddy-agent
+ net.bytebuddy.byte-buddy-agent,
+ org.eclipse.scanning.test.utilities

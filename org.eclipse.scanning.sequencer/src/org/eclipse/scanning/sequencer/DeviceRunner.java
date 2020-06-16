@@ -11,9 +11,11 @@
  *******************************************************************************/
 package org.eclipse.scanning.sequencer;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.ITimeoutable;
@@ -23,6 +25,7 @@ import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.LevelRole;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +42,8 @@ import org.slf4j.LoggerFactory;
 class DeviceRunner extends LevelRunner<IRunnableDevice<?>> {
 
 	private static final Logger logger = LoggerFactory.getLogger(DeviceRunner.class);
+
+	private static final Duration SHUTDOWN_TIMEOUT = Duration.ofSeconds(10);
 
 	private Collection<IRunnableDevice<?>>  devices;
 
@@ -97,6 +102,31 @@ class DeviceRunner extends LevelRunner<IRunnableDevice<?>> {
 	@Override
 	protected Collection<IRunnableDevice<?>> getDevices() {
 		return devices;
+	}
+
+	@Override
+	protected void doAbort() {
+		// Call abort on each device
+		for (IRunnableDevice<?> device : devices) {
+			try {
+				device.abort();
+			} catch (ScanningException e) {
+				logger.error("Could not abort device {}", device.getName(), e);
+			} catch (InterruptedException e) { // this shouldn't happen
+				logger.error("Interrupted aborting device {}", device.getName(), e);
+				Thread.currentThread().interrupt();
+			}
+		}
+
+		shutdownThreadPool();
+	}
+
+	@Override
+	protected void shutdownThreadPool() {
+		if (!threadPool.isShutdown()) {
+			threadPool.awaitQuiescence(SHUTDOWN_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS);
+			threadPool.shutdownNow();
+		}
 	}
 
 	private final class RunTask implements Callable<IPosition> {

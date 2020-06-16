@@ -65,12 +65,12 @@ abstract class LevelRunner<L extends ILevel> {
 
 	private static Logger logger = LoggerFactory.getLogger(LevelRunner.class);
 
-	private final ForkJoinPool executorService;
+	protected final ForkJoinPool threadPool;
 	private final PositionDelegate pDelegate;
 
 	protected IPosition position;
 
-	private Exception abortException;
+	private volatile Exception abortException;
 
 	private SortedMap<Integer, List<L>> devicesByLevel;
 	private SortedMap<Integer, AnnotationManager> annotationManagers;
@@ -82,10 +82,10 @@ abstract class LevelRunner<L extends ILevel> {
 
 	protected LevelRunner(INameable device) {
 		pDelegate = new PositionDelegate(device);
-		executorService = createExecutorService();
+		threadPool = createThreadPool();
 	}
 
-	private ForkJoinPool createExecutorService() {
+	private ForkJoinPool createThreadPool() {
 		final UncaughtExceptionHandler uncaughtExceptionHandler =
 				(t, e) -> logger.error("Unhandled exception from thread: {}", t.getName(), e);
 
@@ -223,7 +223,7 @@ abstract class LevelRunner<L extends ILevel> {
 			throws InterruptedException, ScanningException, ExecutionException {
 		// Normally we block until done.
 		logger.debug("running blocking {} tasks for level {}", getLevelRole(), level);
-		final List<Future<IPosition>> taskFutures = executorService.invokeAll(tasks, getTimeout(), TimeUnit.SECONDS); // blocks until timeout
+		final List<Future<IPosition>> taskFutures = threadPool.invokeAll(tasks, getTimeout(), TimeUnit.SECONDS); // blocks until timeout
 		checkAborted(); // first check if we were aborted in the meantime
 		checkForCancelledTasks(level, devicesForLevel, taskFutures); // any timed-out tasks will have been cancelled
 		pDelegate.fireLevelPerformed(level, devicesForLevel, getPosition(loc, taskFutures));
@@ -233,7 +233,7 @@ abstract class LevelRunner<L extends ILevel> {
 		// The last one and we are non-blocking
 		logger.debug("running non-blocking {} tasks for level {}", getLevelRole(), level);
 		for (Callable<IPosition> callable : tasks) {
-			executorService.submit(callable);
+			threadPool.submit(callable);
 		}
 	}
 
@@ -291,11 +291,11 @@ abstract class LevelRunner<L extends ILevel> {
 	protected IPosition await(long time) throws ScanningException, InterruptedException {
 		checkAborted();
 
-		if (executorService.isTerminated()) {
+		if (threadPool.isTerminated()) {
 			logger.warn("await() called when executorService is terminated");
 			return position;
 		}
-		if (!executorService.awaitQuiescence(time, TimeUnit.SECONDS)) { // Might have nullified service during wait.
+		if (!threadPool.awaitQuiescence(time, TimeUnit.SECONDS)) { // Might have nullified service during wait.
 			final String message = String.format("The timeout of %d seconds has been reached waiting for the scan to complete, scan aborting.", timeout);
 			logger.error(message);
 			throw new ScanningException(message);
@@ -344,16 +344,37 @@ abstract class LevelRunner<L extends ILevel> {
 
 	private void abort(String message, Throwable ne) {
 		logger.debug("Abort called while performing {}: {}", getLevelRole(), message, ne);
+
+		synchronized (this) {
+			// check we haven't already aborted. abort will be called multiple times if the thread
+			// pool is shut down
+			if (abortException != null) {
+				return;
+			}
+
+			setAbortException(ne);
+		}
+
+		doAbort();
+	}
+	
+	protected void doAbort() {
+		shutdownThreadPool();
+	}
+
+	protected void shutdownThreadPool() {
+		if (!threadPool.isShutdown()) {
+			threadPool.shutdownNow();
+		}
+	}
+
+	protected void setAbortException(Throwable ne) {
 		if (ne instanceof InterruptedException) {
 			abortException = (InterruptedException) ne;
 		} else if (ne instanceof ScanningException) {
 			abortException = (ScanningException) ne;
 		} else {
 			abortException = new ScanningException(ne.getMessage(), ne);
-		}
-
-		if (!executorService.isShutdown()) {
-			executorService.shutdownNow();
 		}
 	}
 
@@ -362,11 +383,9 @@ abstract class LevelRunner<L extends ILevel> {
 	 */
 	public void close() {
 		try {
-			if (!executorService.isShutdown()) {
-				executorService.shutdownNow();
-			}
-			if (!executorService.isTerminated()) {
-				executorService.awaitTermination(getTimeout(), TimeUnit.SECONDS);
+			shutdownThreadPool();
+			if (!threadPool.isTerminated()) {
+				threadPool.awaitTermination(getTimeout(), TimeUnit.SECONDS);
 			}
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();

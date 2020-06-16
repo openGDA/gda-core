@@ -54,6 +54,7 @@ import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.status.Status;
+import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.attributes.ChoiceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.NumberAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
@@ -65,11 +66,11 @@ import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.test.util.WaitingAnswer;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -134,13 +135,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 
 	@Test
 	public void testMalcolmScanAborted() throws Exception {
-		try {
-			testMalcolmScan(true);
-		} catch (Exception e) {
-			System.err.println("Exception caught"); // TODO REMOVE - DO NOT COMMIT!!!
-			e.printStackTrace();
-			Assert.fail();
-		}
+		testMalcolmScan(true);
 	}
 
 	public void testMalcolmScan(boolean abort) throws Exception {
@@ -200,43 +195,10 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 
 		// Set the second inner scan to wait until released (the same WaitingAnswer object is used for both inner scans)
 		run2Answer.waitUntilCalled();
-		System.err.println("waitUntilCalled returned for 2nd inner scan"); // TODO REMOVE - DO NOT COMMIT!!!
 
 		if (abort) {
-			// TODO refactor each case into its own method i.e. abortScan / completeScanNormally
-			MalcolmMessage expectedAbortMessage = createExpectedCallMessage(id++, MalcolmMethod.ABORT, null);
-			System.err.println("expected abort message " + expectedAbortMessage);
-			when(malcolmConnection.send(malcolmDevice, expectedAbortMessage)).thenReturn(createExpectedMalcolmOkReply(null));
-			// TODO expected get state 2 can be moved once the bug has been fixed?
-			final MalcolmMessage expectedGetStateMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_STATE);
-			System.err.println("expected get state message " + expectedGetStateMessage);
-			when(malcolmConnection.send(malcolmDevice, expectedGetStateMessage)).thenReturn(
-					createExpectedMalcolmStateReply(DeviceState.ABORTED));
-
-			scanner.abort();
-
-			// ensure that aborting the scan doesn't cause the scan to complete before the malcolm run method has returned
-			try {
-				// check the scan hasn't finished by latching on to it, it should time out.
-				final boolean scanCompleted = scanner.latch(5, TimeUnit.SECONDS);
-				assertThat(scanCompleted, is(false)); // latch returns false if it times out, which we expect
-				assertThat(scanner.getDeviceState(), is(DeviceState.ABORTED));
-			} catch (Exception e) {
-				// if the scan aborted, latch will rethrow the InterruptedException
-				fail("Scan finished with exception: " + e.getMessage());
-			}
-
-			// now release run and make sure the scan has finished
-			run2Answer.resume();
-
-			try {
-				scanner.latch(5, TimeUnit.SECONDS); // latch will rethrow any exception AcquistionDevice.run threw
-				fail("An InterruptedException was expected to be thrown");
-			} catch (Exception e) {
-				assertThat(e, is(instanceOf(InterruptedException.class)));
-			}
-
-			assertThat(scanner.getDeviceState(), is(DeviceState.ABORTED));
+			// tests aborting the scan during the second inner-scan
+			testAbortScan(scanner, run2Answer);
 		} else {
 			final MalcolmMessage expectedGetStateMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_STATE);
 			when(malcolmConnection.send(malcolmDevice, expectedGetStateMessage)).thenReturn(
@@ -253,6 +215,41 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 			verify(malcolmConnection).send(malcolmDevice, expectedRunMessage2);
 			assertThat(scanner.getDeviceState(), is(DeviceState.ARMED));
 		}
+	}
+
+	private void testAbortScan(final IRunnableDevice<ScanModel> scanner, final WaitingAnswer<MalcolmMessage> run2Answer)
+			throws MalcolmDeviceException, ScanningException, InterruptedException {
+		final MalcolmMessage expectedAbortMessage = createExpectedCallMessage(id++, MalcolmMethod.ABORT, null);
+		when(malcolmConnection.send(malcolmDevice, expectedAbortMessage)).thenReturn(createExpectedMalcolmOkReply(null));
+
+		final MalcolmMessage expectedGetStateMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_STATE);
+		when(malcolmConnection.send(malcolmDevice, expectedGetStateMessage)).thenReturn(
+				createExpectedMalcolmStateReply(DeviceState.ABORTED));
+
+		scanner.abort();
+
+		// ensure that aborting the scan doesn't cause the scan to complete before the malcolm run method has returned
+		try {
+			// check the scan hasn't finished by latching on to it, it should time out.
+			final boolean scanCompleted = scanner.latch(5, TimeUnit.SECONDS);
+			assertThat(scanCompleted, is(false)); // latch returns false if it times out, which we expect
+			assertThat(scanner.getDeviceState(), is(DeviceState.ABORTED));
+		} catch (Exception e) {
+			// if the scan aborted, latch will rethrow the InterruptedException
+			fail("Scan finished with exception: " + e.getMessage());
+		}
+
+		// now release run and make sure the scan has finished
+		run2Answer.resume();
+
+		try {
+			scanner.latch(5, TimeUnit.SECONDS); // latch will rethrow any exception AcquistionDevice.run threw
+			fail("An InterruptedException was expected to be thrown");
+		} catch (Exception e) {
+			assertThat(e, is(instanceOf(InterruptedException.class)));
+		}
+
+		assertThat(scanner.getDeviceState(), is(DeviceState.ABORTED));
 	}
 
 	private void checkCompletedSteps(BeanCollectingAnswer<ScanBean> beanCaptor)

@@ -19,15 +19,24 @@
 package org.eclipse.scanning.sequencer;
 
 import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
@@ -36,11 +45,14 @@ import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.LevelRole;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceRunnerTest {
@@ -75,9 +87,7 @@ public class DeviceRunnerTest {
 
 	@Before
 	public void setUp() {
-
 		when(detector1.getName()).thenReturn("detector1");
-
 		when(modelTimeoutZero.getTimeout()).thenReturn(0L);
 		when(modelTimeoutZero.getExposureTime()).thenReturn(3.4);
 		when(modelTimeout1second.getTimeout()).thenReturn(1L);
@@ -146,6 +156,63 @@ public class DeviceRunnerTest {
 		doThrow(new ScanningException("Failure in scanning")).when(detector1).run(any(IPosition.class));
 		deviceRunner = new DeviceRunner(scan, asList(detector1));
 		deviceRunner.run(position);
+	}
+	
+	@Test
+	public void testAbortDevicesAbortedBeforeThreadInterrupted() throws Exception {
+		deviceRunner = new DeviceRunner(scan, asList(detector1));
+	
+		// DeviceRunner.RunTask sets detector busy to true immediately before calling run
+		// and to false in immediately after run returns or throws (i.e. in a finally block)
+		final AtomicBoolean detectorBusy = new AtomicBoolean(false);
+		doAnswer(invocation -> {
+			detectorBusy.set((Boolean) invocation.getArgument(0)); return null; 
+		}).when(detector1).setBusy(anyBoolean());
+
+		
+		final WaitingAnswer<Void> runAnswer = new WaitingAnswer<>(null); 
+		doAnswer(runAnswer).when(detector1).run(position);
+		
+		// run the DeviceRunner in a different thread
+		final AtomicReference<Exception> exception = new AtomicReference<>();
+		final AtomicBoolean runReturned = new AtomicBoolean(false);
+		final Thread runThread = new Thread(() -> {
+			try {
+				deviceRunner.run(position);
+			} catch (ScanningException | InterruptedException e) {
+				exception.set(e);
+			} finally {
+				runReturned.set(true);
+			}
+		});
+		
+		assertThat(detectorBusy.get(), is(false));
+		
+		// start the thread and wait until our run answer is called
+		runThread.start();
+		runAnswer.waitUntilCalled();
+		
+		// verify that run was called and busy set to true 
+		assertThat(detectorBusy.get(), is(true));
+		verify(detector1).run(position);
+
+		// abort the device runner in a different thread - as it waits with a timeout for the tasks to  
+		Thread abortThread = new Thread(() -> {
+			deviceRunner.abort();
+		});
+		abortThread.start();
+		
+		// verify that abort was called, but that setBusy is still true, i.e.
+		// the thread has not been interrupted
+		verify(detector1, timeout(2000)).abort();
+		assertThat(detectorBusy.get(), is(true));
+		assertThat(exception.get(), is(nullValue()));
+		
+		// resume the run answer and wait for the device runner to finish
+		runAnswer.resume();
+		abortThread.join(5000); 
+		assertThat(detectorBusy.get(), is(false));
+		assertThat(exception.get(), is(nullValue())); // no InterruptedException because run completed before the time out
 	}
 
 	@Test

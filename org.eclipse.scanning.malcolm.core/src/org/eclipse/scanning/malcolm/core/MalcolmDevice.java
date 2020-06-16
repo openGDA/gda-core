@@ -656,7 +656,6 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	private MalcolmMessage sendMessageWithTimeout(MalcolmMessage message, long timeout) throws MalcolmDeviceException {
 		try {
 			logger.debug("Sending message to malcolm device: {}", message);
-			System.err.println("Sending message: (id=" + message.getId() + ") " + message); // TODO REMOVE - DO NOT COMMIT!!!
 
 			final Future<MalcolmMessage> malcolmReplyFuture = executor.submit(() -> malcolmConnection.send(this, message));
 
@@ -682,7 +681,6 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 				Thread.currentThread().interrupt();
 			}
 
-			System.err.println("Received reply: (id=" + message.getId() + ") " + message); // TODO REMOVE - DO NOT COMMIT!!!
 			logger.debug("Received reply from malcolm device: {}", reply);
 			exceptionOnError(reply);
 			return reply;
