@@ -251,7 +251,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		double finalAngle = DSpacing.braggAngleFromDSpacing(DiffractionCrystalEnvironment.calculateWavelength(finalEnergyVal*1e-3), crystal);
 
 		double range = initialAngle - finalAngle;
-		double time = (range / speedVal) * 1000;
+		double time = (range / Math.toRadians(speedVal)) * 1000;
 		totalTime.setUnit("s");
 		if (time > 0) {
 			totalTime.setValue(time);
