@@ -33,10 +33,10 @@ class BSSCRun:
         self.samplevolume = 35
         self.beanFile = beanFile
         self.bean = BSSCSessionBean.createFromXML(beanFile)
-        self.bssc = finder.listAllLocalObjects("uk.ac.gda.devices.bssc.BioSAXSSampleChanger")[0]
-        self.tfg = finder.listAllLocalObjects("gda.device.Timer")[0]
         self.jsf = JythonServerFacade.getInstance()
-        self.detector = finder.listAllLocalObjects("uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem")[0]
+        self.bssc = find('bssc')
+        self.detector = find('ncddetectors')
+        self.tfg = self.detector.timer
         self.shutter = find("shutter")
         self.bsscscannable = find("bsscscannable")
         self.processing = find("bssc_proc")

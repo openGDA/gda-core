@@ -40,8 +40,8 @@ class HPLC(object):
         self.sample_type = find('sample_type')
         self.sampleName = find("samplename")
         self.environment = find("sample_environment")
-        self.tfg = finder.listAllLocalObjects("gda.device.Timer")[0]
-        self.ncddetectors = finder.listAllLocalObjects("uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem")[0]
+        self.ncddetectors = find('ncddetectors')
+        self.tfg = self.ncddetectors.timer
         self.jsf = JythonServerFacade.getInstance()
         self.readout_time = 0.1
         #CREATE A LOGGER
