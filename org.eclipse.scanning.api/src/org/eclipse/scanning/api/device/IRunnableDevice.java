@@ -134,7 +134,7 @@ public interface IRunnableDevice<T> extends INameable, IDeviceRoleActor, ILevel,
 		thread.start();
 
 		// Re-throw any exception from the thread.
-		createException(exceptions);
+		throwFirstRunException(exceptions);
 	}
 
 	/**
@@ -145,31 +145,25 @@ public interface IRunnableDevice<T> extends INameable, IDeviceRoleActor, ILevel,
 	 * @throws ScanningException
 	 * @throws InterruptedException
 	 */
-	default void createException(List<Throwable> exceptions) throws ScanningException, InterruptedException, TimeoutException, ExecutionException {
+	default void throwFirstRunException(List<Throwable> exceptions) throws ScanningException, InterruptedException, TimeoutException, ExecutionException {
+		if (exceptions.isEmpty()) return;
 
-		if (!exceptions.isEmpty()) {
-			Throwable ex = exceptions.get(0);
+		final Throwable firstException = exceptions.get(0);
 
-			// We must manually match the possible exception types because Java
-			// doesn't let us do List<Either<ScanningException, InterruptedException>>.
-			if (ex.getClass() == ScanningException.class) {
-				throw (ScanningException) ex;
-
-			} else if (ex.getClass() == InterruptedException.class) {
-				throw (InterruptedException) ex;
-
-			} else if (ex.getClass() == TimeoutException.class) {
-				throw (TimeoutException) ex;
-
-			} else  if (ex.getClass() == ExecutionException.class) {
-				throw (ExecutionException) ex;
-			} else  if (ex instanceof RuntimeException) {
-				throw (RuntimeException) ex;
-			} else {
-				throw new IllegalStateException(ex);
-			}
+		// We must manually match the possible exception types
+		if (firstException.getClass() == ScanningException.class) {
+			throw (ScanningException) firstException;
+		} else if (firstException.getClass() == InterruptedException.class) {
+			throw (InterruptedException) firstException;
+		} else if (firstException.getClass() == TimeoutException.class) {
+			throw (TimeoutException) firstException;
+		} else  if (firstException.getClass() == ExecutionException.class) {
+			throw (ExecutionException) firstException;
+		} else  if (firstException instanceof RuntimeException) {
+			throw (RuntimeException) firstException;
+		} else {
+			throw new RuntimeException(firstException);
 		}
-
 	}
 
 	/**

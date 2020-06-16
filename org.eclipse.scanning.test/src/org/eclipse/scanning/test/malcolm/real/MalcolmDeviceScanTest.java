@@ -26,7 +26,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -67,6 +69,7 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.test.util.WaitingAnswer;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -126,9 +129,24 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 
 	@Test
 	public void testMalcolmScan() throws Exception {
+		testMalcolmScan(false);
+	}
+
+	@Test
+	public void testMalcolmScanAborted() throws Exception {
+		try {
+			testMalcolmScan(true);
+		} catch (Exception e) {
+			System.err.println("Exception caught"); // TODO REMOVE - DO NOT COMMIT!!!
+			e.printStackTrace();
+			Assert.fail();
+		}
+	}
+
+	public void testMalcolmScan(boolean abort) throws Exception {
 		// Arrange. Use a special answer that collects
 		// creates a answer that collects and clones the beans its called with - TODO move to setUp?
-		BeanCollectingAnswer<ScanBean> beanCaptor = BeanCollectingAnswer.forClass(ScanBean.class, ScanBean::new);
+		final BeanCollectingAnswer<ScanBean> beanCaptor = BeanCollectingAnswer.forClass(ScanBean.class, ScanBean::new);
 		doAnswer(beanCaptor).when(publisher).broadcast(any(ScanBean.class));
 
 		// Act: create and configure the scan
@@ -137,7 +155,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		// Assert: verify the correct events have been fired while configuring the scan
 		expectedNumPublishedBeans = 2;
 		verify(publisher, times(expectedNumPublishedBeans)).broadcast(any(ScanBean.class));
-		List<ScanBean> beans = beanCaptor.getAllValues();
+		final List<ScanBean> beans = beanCaptor.getAllValues();
 		// TODO for the moment the assertion below verifies what AcqusitionDevice currently does, so that the test passes
 		// Before refactoring, these should be updated to reflect what we think the correct seqeuence is of
 		// Status and DeviceState changes should be. Then the code should be refactored and fixed to pass the updated test
@@ -147,20 +165,20 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		// TODO replace with assertThat collection contains?
 
 		// Arrange: set up the malcolm connection to respond to the run message with a WaitingAnswer
-		MalcolmMessage expectedRunMessage1 = createExpectedCallMessage(id++, MalcolmMethod.RUN, null);
-		WaitingAnswer<MalcolmMessage> runAnswer = new WaitingAnswer<MalcolmMessage>(
+		final MalcolmMessage expectedRunMessage1 = createExpectedCallMessage(id++, MalcolmMethod.RUN, null);
+		final WaitingAnswer<MalcolmMessage> run1Answer = new WaitingAnswer<MalcolmMessage>(
 				createExpectedMalcolmOkReply(null));
-		when(malcolmConnection.send(malcolmDevice, expectedRunMessage1)).thenAnswer(runAnswer);
+		when(malcolmConnection.send(malcolmDevice, expectedRunMessage1)).thenAnswer(run1Answer);
 
 		// Act
 		assertThat(scanner.getDeviceState(), is(DeviceState.ARMED));
 		scanner.start(null); // runs the scan in a separate thread
 
 		// First inner scan
-		runAnswer.waitUntilCalled();
+		run1Answer.waitUntilCalled();
 		verify(publisher, times(++expectedNumPublishedBeans)).broadcast(any(ScanBean.class));
 		assertThat(beans, hasSize(2));
-		ScanBean bean = beanCaptor.getValue();
+		final ScanBean bean = beanCaptor.getValue();
 		scanBean.setSize(200); // AcquisitionDevice has now set scan size and start time in the ScanBean
 		scanBean.setStartTime(bean.getStartTime());
 		assertThat(bean, is(equalTo(createExpectedStateChangeBean(Status.RUNNING, Status.PREPARING))));
@@ -172,27 +190,69 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		checkPauseAndResumeScan(beanCaptor, scanner);
 
 		// set up the malcolm connection to create a respond to the second run message
-		MalcolmMessage expectedRunMessage2 = createExpectedCallMessage(id++, MalcolmMethod.RUN, null);
-		when(malcolmConnection.send(malcolmDevice, expectedRunMessage2)).thenAnswer(runAnswer);
-		MalcolmMessage expectedGetStateMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_STATE);
-		when(malcolmConnection.send(malcolmDevice, expectedGetStateMessage)).thenReturn(
-				createExpectedMalcolmStateReply(DeviceState.ARMED));
+		final MalcolmMessage expectedRunMessage2 = createExpectedCallMessage(id++, MalcolmMethod.RUN, null);
+		final WaitingAnswer<MalcolmMessage> run2Answer = new WaitingAnswer<MalcolmMessage>(
+				createExpectedMalcolmOkReply(null));
+		when(malcolmConnection.send(malcolmDevice, expectedRunMessage2)).thenAnswer(run2Answer);
 
 		// Resume the Answer, will cause the MalcolmDevice.run method to return and the first inner scan to end
-		runAnswer.resume();
+		run1Answer.resume();
 
-		// Second inner scan
-		runAnswer.waitUntilCalled();
+		// Set the second inner scan to wait until released (the same WaitingAnswer object is used for both inner scans)
+		run2Answer.waitUntilCalled();
+		System.err.println("waitUntilCalled returned for 2nd inner scan"); // TODO REMOVE - DO NOT COMMIT!!!
 
-		runAnswer.resume();
+		if (abort) {
+			// TODO refactor each case into its own method i.e. abortScan / completeScanNormally
+			MalcolmMessage expectedAbortMessage = createExpectedCallMessage(id++, MalcolmMethod.ABORT, null);
+			System.err.println("expected abort message " + expectedAbortMessage);
+			when(malcolmConnection.send(malcolmDevice, expectedAbortMessage)).thenReturn(createExpectedMalcolmOkReply(null));
+			// TODO expected get state 2 can be moved once the bug has been fixed?
+			final MalcolmMessage expectedGetStateMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_STATE);
+			System.err.println("expected get state message " + expectedGetStateMessage);
+			when(malcolmConnection.send(malcolmDevice, expectedGetStateMessage)).thenReturn(
+					createExpectedMalcolmStateReply(DeviceState.ABORTED));
 
-		boolean scanCompleted = scanner.latch(10, TimeUnit.SECONDS);
-		assertThat(scanCompleted, is(true));
+			scanner.abort();
 
-		// Assert
-		verify(malcolmConnection).send(malcolmDevice, expectedRunMessage1);
-		verify(malcolmConnection).send(malcolmDevice, expectedRunMessage2);
-		assertThat(scanner.getDeviceState(), is(DeviceState.ARMED));
+			// ensure that aborting the scan doesn't cause the scan to complete before the malcolm run method has returned
+			try {
+				// check the scan hasn't finished by latching on to it, it should time out.
+				final boolean scanCompleted = scanner.latch(5, TimeUnit.SECONDS);
+				assertThat(scanCompleted, is(false)); // latch returns false if it times out, which we expect
+				assertThat(scanner.getDeviceState(), is(DeviceState.ABORTED));
+			} catch (Exception e) {
+				// if the scan aborted, latch will rethrow the InterruptedException
+				fail("Scan finished with exception: " + e.getMessage());
+			}
+
+			// now release run and make sure the scan has finished
+			run2Answer.resume();
+
+			try {
+				scanner.latch(5, TimeUnit.SECONDS); // latch will rethrow any exception AcquistionDevice.run threw
+				fail("An InterruptedException was expected to be thrown");
+			} catch (Exception e) {
+				assertThat(e, is(instanceOf(InterruptedException.class)));
+			}
+
+			assertThat(scanner.getDeviceState(), is(DeviceState.ABORTED));
+		} else {
+			final MalcolmMessage expectedGetStateMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_STATE);
+			when(malcolmConnection.send(malcolmDevice, expectedGetStateMessage)).thenReturn(
+					createExpectedMalcolmStateReply(DeviceState.ARMED));
+
+			// now release run and make sure the scan has finished
+			run2Answer.resume();
+
+			boolean scanCompleted = scanner.latch(10, TimeUnit.SECONDS);
+			assertThat(scanCompleted, is(true));
+
+			// Assert
+			verify(malcolmConnection).send(malcolmDevice, expectedRunMessage1);
+			verify(malcolmConnection).send(malcolmDevice, expectedRunMessage2);
+			assertThat(scanner.getDeviceState(), is(DeviceState.ARMED));
+		}
 	}
 
 	private void checkCompletedSteps(BeanCollectingAnswer<ScanBean> beanCaptor)

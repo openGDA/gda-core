@@ -495,16 +495,18 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		if (scanFinishedLatch==null) return;
 		logger.debug("latch() called");
 		scanFinishedLatch.await();
-		createException(runExceptions);
+		throwFirstRunException(runExceptions);
 	}
 
 	@Override
 	public boolean latch(long time, TimeUnit unit) throws ScanningException, InterruptedException, TimeoutException, ExecutionException {
 		if (scanFinishedLatch==null) return true;
 		logger.debug("latch() called with timeout {} {}", time, unit);
-		boolean ok = scanFinishedLatch.await(time, unit);
-		createException(runExceptions);
-		return ok;
+		boolean scanFinished = scanFinishedLatch.await(time, unit);
+		if (scanFinished) {
+			throwFirstRunException(runExceptions);
+		}
+		return scanFinished;
 	}
 
 	private void processException(Exception e) throws ScanningException {

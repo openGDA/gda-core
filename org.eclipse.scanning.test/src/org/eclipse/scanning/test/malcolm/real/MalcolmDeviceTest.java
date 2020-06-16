@@ -36,6 +36,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.eq;
@@ -48,6 +49,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
@@ -75,11 +80,13 @@ import org.eclipse.scanning.api.points.models.BoundingLine;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.malcolm.core.AbstractMalcolmDevice;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice.EpicsMalcolmModel;
 import org.eclipse.scanning.malcolm.core.Services;
+import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.junit.Test;
 
 /**
@@ -453,6 +460,62 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	@Test
 	public void testRunWithPosition() throws Exception {
 		testCall(malc -> malc.run(new Scalar<>("outer", 2, 0.5)), MalcolmMethod.RUN, null);
+	}
+
+	@Test
+	public void testAbortRun() throws Exception {
+		// set up a WaitingAnswer for the run method
+		final MalcolmMessage expectedRunMessage = createExpectedCallMessage(id++, MalcolmMethod.RUN, null);
+		final WaitingAnswer<MalcolmMessage> runAnswer = new WaitingAnswer<>(
+				createExpectedMalcolmOkReply(null));
+		when(malcolmConnection.send(malcolmDevice, expectedRunMessage)).thenAnswer(runAnswer);
+
+		// run the malcolm device in a new thread
+		final AtomicReference<Exception> exception = new AtomicReference<>();
+		final AtomicBoolean runReturned = new AtomicBoolean(false);
+		final AtomicBoolean interruptedFlagSet = new AtomicBoolean(false);
+		final Thread runThread = new Thread(() -> {
+			try {
+				malcolmDevice.run();
+			} catch (ScanningException | InterruptedException | TimeoutException | ExecutionException e) {
+				exception.set(e);
+			} finally {
+				runReturned.set(true);
+				interruptedFlagSet.set(Thread.currentThread().isInterrupted());
+			}
+		});
+		runThread.start();
+
+		// wait until malcolm has called run on the connection
+		runAnswer.waitUntilCalled();
+
+		// interrupt the thread
+		runThread.interrupt();
+
+		// give some time for malcolm to return if its going to
+		Thread.sleep(2000);
+
+		// check that malcolm.run() hasn't returned and no exception has been thrown
+		assertThat(runReturned.get(), is(false));
+		assertThat(exception.get(), is(nullValue()));
+
+		// call abort on the malcolm device while the run method is waiting
+		final MalcolmMessage expectedAbortMessage = createExpectedCallMessage(id++, MalcolmMethod.ABORT, null);
+		when(malcolmConnection.send(malcolmDevice, expectedAbortMessage)).thenReturn(createExpectedMalcolmOkReply(null));
+
+		malcolmDevice.abort();
+
+		// release the run method (i.e. simulate malcolm run method return)
+		runAnswer.resume();
+
+		// give some time for malcolm to return if its going to
+		Thread.sleep(2000);
+
+		assertThat(runReturned.get(), is(true));
+		assertThat(exception.get(), is(nullValue()));
+		assertThat(interruptedFlagSet.get(), is(true));
+
+		verify(malcolmConnection).send(malcolmDevice, expectedRunMessage);
 	}
 
 	@Test

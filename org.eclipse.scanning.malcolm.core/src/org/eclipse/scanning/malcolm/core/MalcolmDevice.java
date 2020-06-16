@@ -36,12 +36,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
 import org.eclipse.scanning.api.ValidationException;
@@ -658,7 +656,33 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	private MalcolmMessage sendMessageWithTimeout(MalcolmMessage message, long timeout) throws MalcolmDeviceException {
 		try {
 			logger.debug("Sending message to malcolm device: {}", message);
-			final MalcolmMessage reply = executeWithTimeout(() -> malcolmConnection.send(this, message), timeout);
+			System.err.println("Sending message: (id=" + message.getId() + ") " + message); // TODO REMOVE - DO NOT COMMIT!!!
+
+			final Future<MalcolmMessage> malcolmReplyFuture = executor.submit(() -> malcolmConnection.send(this, message));
+
+			// Calling a malcolm method is not cancellable, so we ignore interrupts until malcolm has returned.
+			// To do this we need to retry in a loop. Note, malcolm has only one long-running method, RUN. To cause this to
+			// return, call abort() on this MalcolmDevice.
+			boolean callCompleted = false;
+			MalcolmMessage reply = null;
+			InterruptedException interruptedException = null;
+			do {
+				try {
+					reply = malcolmReplyFuture.get(timeout, TimeUnit.MILLISECONDS);
+					callCompleted = true;
+				} catch (InterruptedException e) {
+					logger.warn("Ignored interrupt waiting for reply to message, retrying: {}", message);
+					interruptedException = e;
+				}
+			} while (!callCompleted);
+
+			if (interruptedException != null) {
+				// set the interrupted flag on this thread. This is preferable to throwing an exception as that may give the
+				// impression that the call was interrupted. It wasn't, because we ignore it.
+				Thread.currentThread().interrupt();
+			}
+
+			System.err.println("Received reply: (id=" + message.getId() + ") " + message); // TODO REMOVE - DO NOT COMMIT!!!
 			logger.debug("Received reply from malcolm device: {}", reply);
 			exceptionOnError(reply);
 			return reply;
@@ -670,17 +694,16 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	}
 
 	private void exceptionOnError(MalcolmMessage reply) throws MalcolmDeviceException {
-		if (reply.getType()==Type.ERROR) {
+		if (reply == null) {
+			// the real malcolm device should never return a null reply, but Mockito tests can if not configured correctly
+			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + " got null reply");
+		} else if (reply.getType()==Type.ERROR) {
 			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
 		}
 	}
 
 	private MalcolmMessage callMethodWithTimeout(MalcolmMethod method, long timeout) throws MalcolmDeviceException{
 		return sendMessageWithTimeout(messageGenerator.createCallMessage(method), timeout);
-	}
-
-	private MalcolmMessage executeWithTimeout(final Callable<MalcolmMessage> callable, long timeout) throws InterruptedException, ExecutionException, TimeoutException {
-		return executor.submit(callable).get(timeout, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
