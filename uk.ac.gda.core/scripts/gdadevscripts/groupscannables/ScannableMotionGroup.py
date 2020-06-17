@@ -8,7 +8,6 @@ class ScannableMotionGroupAssembler:
 	a component scannable name within that group.'''
 	
 	def Assemble(self):
-		nameList=Finder.getInstance().listAllNames('Scannable')
 		nameList=['ab__a', 'ab__b', 'xyz__x', 'xyz__y', 'xyz__z', 'blarghh']
 		
 		# Filter out those containing __
