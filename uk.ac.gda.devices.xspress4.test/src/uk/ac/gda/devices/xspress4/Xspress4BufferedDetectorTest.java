@@ -108,6 +108,7 @@ public class Xspress4BufferedDetectorTest extends TestBase {
 	public void tearDown() {
 		// Remove factories from Finder so they do not affect other tests
 		Finder.removeAllFactories();
+		tearDownDetectorObjects();
 	}
 
 	// @Test

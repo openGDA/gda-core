@@ -461,4 +461,8 @@ public class TestBase {
 	protected String getAsciiNameFromNexusName(String nexusFilename) {
 		return nexusFilename.replace(".nxs", ".dat");
 	}
+
+	protected void tearDownDetectorObjects() {
+		tfg.shutdown();
+	}
 }

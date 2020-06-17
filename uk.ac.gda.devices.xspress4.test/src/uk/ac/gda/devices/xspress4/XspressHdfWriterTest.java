@@ -177,5 +177,6 @@ public class XspressHdfWriterTest extends TestBase {
 			assertNotNull(detTree.getNode("FF"));
 			assertEquals(detTree.getNode("FF").getData().toDataset().getShape()[0], 1);
 		}
+		tearDownDetectorObjects();
 	}
 }
