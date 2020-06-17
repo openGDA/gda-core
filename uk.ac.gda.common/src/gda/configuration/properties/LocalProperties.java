@@ -339,7 +339,7 @@ public final class LocalProperties {
 	 */
 	public static final String GDA_GUI_STOP_ALL_COMMAND_ID = "gda.gui.stop.all.command.id";
 
-	private static final String GDA_SCAN_SETS_SCANNUMBER = "gda.scan.sets.scannumber";
+	public static final String GDA_SCAN_SETS_SCANNUMBER = "gda.scan.sets.scannumber";
 
 	public static final String GDA_ACTIVEMQ_BROKER_URI = "gda.activemq.broker.uri";
 	/**
