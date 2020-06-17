@@ -36,6 +36,7 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -345,13 +346,9 @@ public class EtfgTest {
 		assertEquals(Timer.IDLE, tfg.getStatus());
 	}
 
-	/**
-	 * Test method for {@link gda.device.timer.Tfg#close()}. This is this last test as it kills the internal
-	 * TimeFrameGenerator in DAServer.
-	 */
-	@Test
-	public void testClose() {
-		tfg.close();
+	@After
+	public void cleanupTfg() {
+		tfg.shutdown();
 	}
 
 }

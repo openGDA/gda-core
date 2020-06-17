@@ -59,6 +59,9 @@ public class DummyTfg extends DeviceBase implements Timer {
 
 	private Thread runner;
 
+	/** Flag to allow the runner thread to be shutdown */
+	private boolean runnerActive = true;
+
 	private TimeFrameGenerator timeFrameGenerator;
 
 	private boolean started = false;
@@ -328,7 +331,7 @@ public class DummyTfg extends DeviceBase implements Timer {
 	}
 
 	private synchronized void runTfg() {
-		while (true) {
+		while (runnerActive) {
 			completed = false;
 			try {
 				while (!started)
@@ -434,5 +437,15 @@ public class DummyTfg extends DeviceBase implements Timer {
 		synchronized (this) {
 			wait((int) mS, (int) nS);
 		}
+	}
+
+	/**
+	 * Stop the runner thread
+	 */
+	public synchronized void shutdown() {
+		runnerActive = false;
+		setConfigured(false);
+		notifyAll();
+
 	}
 }

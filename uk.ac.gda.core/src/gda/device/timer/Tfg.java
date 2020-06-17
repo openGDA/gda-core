@@ -78,6 +78,8 @@ public class Tfg extends DeviceBase implements Timer {
 	protected int totalFrames = 0;
 	protected Vector<FrameSet> timeFrameProfile = new Vector<FrameSet>();
 	protected Thread runner;
+	/** Flag to allow the runner thread to be shutdown */
+	private boolean runnerActive = true;
 	protected boolean started = false;
 	protected long startTime = 0;
 	protected long totalExptTime;
@@ -614,7 +616,7 @@ public class Tfg extends DeviceBase implements Timer {
 	 * Do not use this method - it is used by the TFG object to create a monitor thread. Instead add an observer to the object
 	 */
 	private synchronized void runTfg() {
-		while (true) {
+		while (runnerActive) {
 			try {
 				wait();
 				while (started && monitorInBackground) {
@@ -701,6 +703,15 @@ public class Tfg extends DeviceBase implements Timer {
 	 */
 	public void setMonitorInBackground(boolean monitorInBackground) {
 		this.monitorInBackground = monitorInBackground;
+	}
+
+	/**
+	 * Stop the runner thread
+	 */
+	public synchronized void shutdown() {
+		setConfigured(false);
+		runnerActive = false;
+		notifyAll();
 	}
 
 
