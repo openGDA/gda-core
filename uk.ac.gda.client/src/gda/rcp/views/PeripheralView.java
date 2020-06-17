@@ -18,8 +18,12 @@
 
 package gda.rcp.views;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -269,13 +273,28 @@ public class PeripheralView extends ViewPart {
 			p1.addChild(to2);
 			p1.addChild(to3);
 
-			List<String> interfaces = Finder.getInstance().listAllInterfaces();
-			TreeParent[] parents = new TreeParent[interfaces.size()];
+			// Map of interface name -> objects that implement it
+			final Map<String, Set<Findable>> interfaceMap = new HashMap<>();
+
+			// Loop for each Findable the Finder knows about
+			for (Findable findable : Finder.getInstance().listFindablesOfType(Findable.class)) {
+				// For each interface implemented by the Findable, add the Findable to the map
+				for (String interfaceName : getInterfaces(findable)) {
+					final Set<Findable> findableSet = interfaceMap.get(interfaceName);
+					if (findableSet == null) {
+						interfaceMap.put(interfaceName, new HashSet<>(Arrays.asList(findable)));
+					} else {
+						findableSet.add(findable);
+					}
+				}
+			}
+
+			TreeParent[] parents = new TreeParent[interfaceMap.size()];
 			int i = 0;
-			for (String intfc : interfaces) {
-				parents[i] = new TreeParent(intfc);
-				List<Findable> objects2 = Finder.getInstance().listAllObjects(intfc);
-				TreeObject[] objects = new TreeObject[objects2.size()];
+			for (Map.Entry<String, Set<Findable>> interfaceEntry : interfaceMap.entrySet()) {
+				parents[i] = new TreeParent(interfaceEntry.getKey());
+
+				Set<Findable> objects2 = interfaceEntry.getValue();				TreeObject[] objects = new TreeObject[objects2.size()];
 				int j = 0;
 				for (Iterator<Findable> iterator = objects2.iterator(); iterator.hasNext();) {
 					Findable findable = iterator.next();
@@ -303,6 +322,18 @@ public class PeripheralView extends ViewPart {
 
 			invisibleRoot = new TreeParent("");
 			invisibleRoot.addChild(root);
+		}
+
+		// Get the names of all interfaces implemented by a Findable
+		private Set<String> getInterfaces(Findable findable) {
+			final Set<String> result = new HashSet<>();
+
+			for (Class<?> superclass = findable.getClass(); superclass != null; superclass = superclass.getSuperclass()) {
+				for (Class<?> interfaceClass : superclass.getInterfaces()) {
+					result.add(interfaceClass.getSimpleName());
+				}
+			}
+			return result;
 		}
 	}
 }
