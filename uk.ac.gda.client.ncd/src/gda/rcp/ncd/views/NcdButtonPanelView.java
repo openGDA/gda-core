@@ -50,7 +50,6 @@ import gda.data.metadata.GDAMetadataProvider;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.Scannable;
-import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.JythonServerFacade;
 import gda.rcp.ncd.Activator;
@@ -266,9 +265,9 @@ public class NcdButtonPanelView extends ViewPart {
 		Composite shutterComp = new Composite(parent, SWT.NONE);
 		shutterComp.setLayout(new GridLayout(1, false));
 		shutterComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1,2));
-		List<Findable> shutters = Finder.getInstance().listAllObjects("EnumPositioner");
-		for (Findable shutter : shutters) {
-			new ShutterGroup(shutterComp, SWT.NONE, (EnumPositioner) shutter);
+		List<EnumPositioner> shutters = Finder.getInstance().listFindablesOfType(EnumPositioner.class);
+		for (EnumPositioner shutter : shutters) {
+			new ShutterGroup(shutterComp, SWT.NONE, shutter);
 		}
 
 		{

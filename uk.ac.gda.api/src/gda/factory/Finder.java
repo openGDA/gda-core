@@ -238,7 +238,7 @@ public enum Finder {
 	 *
 	 * @param interfaceName
 	 * @return the list of Findable objects supporting the named interface.
-	 * @deprecated use {@link #getLocalFindablesOfType(Class)} instead.
+	 * @deprecated use {@link #listLocalFindablesOfType(Class)} instead.
 	 */
 	@Deprecated
 	public List<Findable> listAllLocalObjects(String interfaceName) {

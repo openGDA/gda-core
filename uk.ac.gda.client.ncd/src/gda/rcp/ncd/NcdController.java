@@ -18,13 +18,6 @@
 
 package gda.rcp.ncd;
 
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.Timer;
-import gda.factory.Findable;
-import gda.factory.Finder;
-import gda.jython.JythonServerFacade;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
@@ -32,6 +25,11 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.Timer;
+import gda.factory.Finder;
+import gda.jython.JythonServerFacade;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetector;
 import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
 
@@ -47,7 +45,7 @@ public class NcdController {
 
 	/**
 	 * Returns the singleton instance of this class.
-	 * 
+	 *
 	 * @return NcdController
 	 */
 	public static NcdController getInstance() {
@@ -64,12 +62,11 @@ public class NcdController {
 
 	private void configure() {
 		try {
-			List<Findable> allDetectors;
-			allDetectors = finder.listAllObjects("NcdDetector");
-			for (Findable detector : allDetectors) {
+			final List<NcdDetector> allDetectors = finder.listFindablesOfType(NcdDetector.class);
+			for (NcdDetector detector : allDetectors) {
 				String detectorType = ((Detector) detector).getDetectorType();
 				if ("SYS".equals(detectorType)) {
-					ncdDetectorSystem = (NcdDetector) detector;
+					ncdDetectorSystem = detector;
 					break;
 				}
 			}
@@ -110,10 +107,10 @@ public class NcdController {
 	public Collection<String> getDetectorNames(String type) {
 		List<String> result = new Vector<String>();
 
-		List<Findable> allNcdDetectors = finder.listAllObjects("INcdSubDetector");
-		for (Findable detector : allNcdDetectors) {
+		final List<INcdSubDetector> allNcdDetectors = finder.listFindablesOfType(INcdSubDetector.class);
+		for (INcdSubDetector detector : allNcdDetectors) {
 			try {
-				String detectorType = ((INcdSubDetector) detector).getDetectorType();
+				String detectorType = detector.getDetectorType();
 				if (type.equals(detectorType)) {
 					result.add(detector.getName());
 				}
@@ -163,7 +160,7 @@ public class NcdController {
 	/**
 	 * set the named detector as the only one of that type on the ncddetectorsystem in principle the ncddetectorsystem
 	 * can have any number of waxs detectors (for example) this limits that.
-	 * 
+	 *
 	 * @param type
 	 *            detector type
 	 * @param name
@@ -175,7 +172,7 @@ public class NcdController {
 		JythonServerFacade.getInstance().runsource(script);
 		addDetector(name);
 	}
-	
+
 	public boolean isDetectorConfigured(String name) {
 		if (name != null && !"None".equalsIgnoreCase(name)) {
 			String result = JythonServerFacade.getInstance().evaluateCommand(
@@ -184,11 +181,11 @@ public class NcdController {
 		}
 		return false;
 	}
-	
+
 	public INcdSubDetector getDetectorByName(String name) {
 		if (name != null && !NODETECTOR.equals(name)) {
 			return finder.find(name);
-		}		
+		}
 		return null;
 	}
 }

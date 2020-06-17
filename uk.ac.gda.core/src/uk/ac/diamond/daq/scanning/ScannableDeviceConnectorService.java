@@ -226,12 +226,12 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 		final List<String> scannableNames = new ArrayList<>();
 
 		// add the names of findable scannables
-		final List<Findable> findableRefs = Finder.getInstance().listAllObjects(Scannable.class.getName());
-		for (Findable findable : findableRefs) {
-			if (!(findable instanceof Detector)) { // exclude detectors
-				String findableName = findable.getName();
-				findableName = findableName.substring(findableName.lastIndexOf('.') + 1);
-				scannableNames.add(findableName);
+		final List<Scannable> scannableRefs = Finder.getInstance().listFindablesOfType(Scannable.class);
+		for (Scannable scannable : scannableRefs) {
+			if (!(scannable instanceof Detector)) { // exclude detectors
+				String scannableName = scannable.getName();
+				scannableName = scannableName.substring(scannableName.lastIndexOf('.') + 1);
+				scannableNames.add(scannableName);
 			}
 		}
 
