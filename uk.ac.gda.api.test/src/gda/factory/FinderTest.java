@@ -125,17 +125,6 @@ public class FinderTest {
 	}
 
 	@Test
-	public void listAllNamesCorrectlyListsAllNames() throws FactoryException {
-		prepareLocalAndRemoteFactory();
-
-		List<String> names = Finder.getInstance().listAllNames("gda.factory.FinderTest$Interface1");
-
-		assertTrue(names.contains("findable1"));
-		assertTrue(names.contains("findable2"));
-		assertEquals(2, names.size());
-	}
-
-	@Test
 	public void getFindablesOfTypeReturnsCorrectFindables() throws FactoryException {
 		prepareLocalAndRemoteFactory();
 

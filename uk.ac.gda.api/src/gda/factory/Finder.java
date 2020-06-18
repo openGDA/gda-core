@@ -21,7 +21,6 @@ package gda.factory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -183,7 +182,6 @@ public enum Finder {
 		logger.debug("Cleared factories");
 	}
 
-
 	/**
 	 * List all the interfaces available on the Finder. This method is aimed at users of the scripting environment for
 	 * searching for available hardware by using the 'list' command.
@@ -211,156 +209,6 @@ public enum Finder {
 			}
 		}
 		return usedInterfaces;
-	}
-
-	/**
-	 * Returns an array of the names of all the objects in this Finder's factories which use the supplied interface
-	 * name, as defined by the XML.
-	 *
-	 * @param interfaceName
-	 *            the required interface to search for.
-	 * @return the list of Findable object names supporting the named interface.
-	 */
-	public List<String> listAllNames(String interfaceName) {
-		final List<Findable> findableRefs = listAllObjects(interfaceName);
-		final List<String> findableNames = new ArrayList<>();
-		for (Findable findable : findableRefs) {
-			String findableName = findable.getName();
-			findableName = findableName.substring(findableName.lastIndexOf('.') + 1);
-			findableNames.add(findableName);
-		}
-		return findableNames;
-	}
-
-
-	/**
-	 * Local version of listAllObjects
-	 *
-	 * @param interfaceName
-	 * @return the list of Findable objects supporting the named interface.
-	 * @deprecated use {@link #listLocalFindablesOfType(Class)} instead.
-	 */
-	@Deprecated
-	public List<Findable> listAllLocalObjects(String interfaceName) {
-		logger.debug("Using deprecated method 'listAllLocalObjects'. Called with '{}'", interfaceName);
-		return listAllObjects(interfaceName,true);
-	}
-
-	/**
-	 * Returns an array of the references of all the objects in this Finder's factories which use the supplied interface
-	 * name as defined by the XML.
-	 *
-	 * @param interfaceName
-	 *            the required interface to search for.
-	 * @return the list of Findable objects supporting the named interface.
-	 * @deprecated use {@link #listFindablesOfType(Class)} instead.
-	 */
-	@Deprecated
-	public List<Findable> listAllObjects(String interfaceName) {
-		logger.debug("Using deprecated method 'listAllObjects'. Called with '{}'", interfaceName);
-		return listAllObjects(interfaceName, false);
-	}
-
-	/**
-	 *
-	 *
-	 * @param interfaceName
-	 *            the required interface to search for.
-	 * @param localObjectsOnly <code>true</code> to only search local factories
-	 * @return the list of Findable objects supporting the named interface.
-	 * @deprecated This should be removed once the deprecated public methods have been removed.
-	 */
-	@Deprecated
-	private List<Findable> listAllObjects(String interfaceName, boolean localObjectsOnly) {
-		// if no class name given, then supply all objects
-		if (interfaceName == null) {
-			return listAllObjects();
-		}
-
-		List<Findable> objectRefs = new ArrayList<>();
-
-		for (Factory factory : getFactoriesToSearch(localObjectsOnly)) {
-			Set<Findable> objectsInFactory = getAllObjectsFromFactory(factory, interfaceName);
-			objectRefs.addAll(objectsInFactory);
-		}
-
-		return objectRefs;
-	}
-
-	/**
-	 *
-	 * @param factory
-	 *            the factory to search in
-	 * @param interfaceName
-	 *            the required interface to search for.
-	 * @return the Set of Findable objects supporting the named interface.
-	 * @deprecated This should be removed once the deprecated public methods have been removed.
-	 */
-	@Deprecated
-	private Set<Findable> getAllObjectsFromFactory(Factory factory, String interfaceName) {
-		Set<Findable> objectsInFactory = new HashSet<>();
-
-		for (Findable findable : factory.getFindables()) {
-			// for this findable, check its class and interfaces to see if they match the requested interface
-			if (classOrInterfacesMatchesString(findable.getClass(), interfaceName)) {
-				objectsInFactory.add(findable);
-			}
-
-			// else loop over superclasses up the hierarchy until java.lang.Object reached, testing each in turn
-			else {
-				Class<?> superclass = findable.getClass().getSuperclass();
-				boolean found = false;
-
-				while (!found && superclass != null) {
-					found = classOrInterfacesMatchesString(superclass, interfaceName);
-					superclass = superclass.getSuperclass();
-				}
-
-				if (found) {
-					objectsInFactory.add(findable);
-				}
-			}
-		}
-
-		return objectsInFactory;
-	}
-
-	/**
-	 * Tests the given class to see if its name, or the name of any interface it uses, matches the given interface name.
-	 *
-	 * @param classToTest
-	 * @param interfaceName
-	 * @return true if the same else false
-	 */
-	private boolean classOrInterfacesMatchesString(Class<?> classToTest, String interfaceName) {
-		// first check the actual class
-		if (classNameMatchesString(classToTest, interfaceName)) {
-			return true;
-		}
-
-		// then loop through all the interfaces that object uses
-		for (Class<?> objInterface : classToTest.getInterfaces()) {
-			if (classOrInterfacesMatchesString(objInterface, interfaceName)) {
-				return true;
-			}
-		}
-
-		// if get here then nothing found
-		return false;
-	}
-
-	/**
-	 * Tests if the given Class has a name which matches the given interface name. This works if the interface name is
-	 * either fully resolved or not.
-	 *
-	 * @param theClass
-	 * @param interfaceName
-	 * @return true if the same else false
-	 */
-	private boolean classNameMatchesString(Class<?> theClass, String interfaceName) {
-		String className = theClass.getName();
-		String shortName = className.substring(className.lastIndexOf('.') + 1);
-		return className.compareTo(interfaceName) == 0 || shortName.compareTo(interfaceName) == 0;
 	}
 
 	/**
