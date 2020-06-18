@@ -156,7 +156,6 @@ public class BatonManager implements IBatonManager {
 			// skip this part if an object server
 			if (!info.isServer()) {
 				renewLease(uniqueID);
-				notifyServerOfBatonChange();
 			}
 			logger.info("Added new facade id='{}' client details='{}'", uniqueID, info);
 			logger.info("Now have {} facades", facadeNames.size());
@@ -170,16 +169,13 @@ public class BatonManager implements IBatonManager {
 		// overwrite the entry in facadeNames
 		ClientInfo info = getClientInfo(uniqueFacadeName);
 
-		boolean changeMade = false;
 		//only change if information is supplied
 		if (username != null && !username.equals("")){
 			info.setUserID(username);
 			info.setAuthorisationLevel(accessLevel);
-			changeMade = true;
 		}
 		if (visitID != null && !visitID.equals("")){
 			info.setVisitID(visitID);
-			changeMade = true;
 		}
 
 		facadeNames.put(uniqueFacadeName, info);
@@ -187,9 +183,6 @@ public class BatonManager implements IBatonManager {
 		// if the baton holder then ensure all information is refreshed
 		if (amIBatonHolder(uniqueFacadeName,false)){
 			changeBatonHolder(uniqueFacadeName);
-		} else if (changeMade){
-			//do a refresh anyway if any changes had been made
-			notifyServerOfBatonChange();
 		}
 		logger.info("Switched user. uniqueFacadeName='{}' username='{}' accessLevel='{}' visitID='{}'",
 				uniqueFacadeName, username, accessLevel, visitID);
@@ -200,7 +193,6 @@ public class BatonManager implements IBatonManager {
 		returnBaton(uniqueID);
 		facadeNames.remove(uniqueID);
 		leaseHolders.remove(uniqueID);
-		notifyServerOfBatonChange();
 		logger.info("Removed facade '{}' now have {} facades", uniqueID, facadeNames.size());
 	}
 
@@ -415,6 +407,7 @@ public class BatonManager implements IBatonManager {
 		if (this.batonHolder.equals(uniqueIdentifier) && isJSFRegistered(uniqueIdentifier)) {
 			changeBatonHolder("");
 			renewLease(uniqueIdentifier);
+			notifyServerOfBatonChange();
 			logger.info("Baton returned by: {}", uniqueIdentifier);
 		} else {
 			logger.warn("Baton was not returned by: {}", uniqueIdentifier);
