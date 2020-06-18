@@ -22,16 +22,6 @@ print "vertgapwidth01 now: "+vertgapwidth01.pos()
 #This function allows the user to intervene and pause and resume the script at this point
 ScriptBase.checkForPauses()
 
-#list all oe's
-print "finder.listAllNames(\"OE\")"
-names = finder.listAllNames("OE")
-print names
-
-#list all detectors
-print "finder.listAllNames(\"Detector\")"
-names = finder.listAllNames("Detector")
-print names
-
 #list all detectors another way
 print "DetectorBase.getAllDetectors()"
 names = DetectorBase.getAllDetectors()
