@@ -20,11 +20,11 @@ package gda.images.camera.mjpeg;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -119,45 +119,51 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 				if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
 					frameCaptureStatistics.startProcessingFrame();
 				}
-				BufferedImage jpegImage = null;
 				try (ByteArrayInputStream jpegBytes = new ByteArrayInputStream(mjpegStream.getNextFrame())) {
-					jpegImage = ImageIO.read(jpegBytes);
-				}
-				if (jpegImage != null) {
-					final BufferedImage bufferedImage = jpegImage;
-					if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
-						frameCaptureStatistics.finishProcessingFrame();
-					}
-
-					Callable<Void> imageDecoderTask = () -> {
-						if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
-							frameDecodeStatistics.startProcessingFrame();
-						}
-						final E decodedImage = convertImage(bufferedImage);
-						if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
-							frameDecodeStatistics.finishProcessingFrame();
-						}
-
-						// once the frame has been decoded add it to the receivedImages queue
-						// Do it here rather than adding the result of imageDecodingService.submit(imageDecoderTask);
-						// to allow the decode task to be cancelled without the need to clear the associated future on the
-						// receivedImages queue.
-						receivedImages.offer(CompletableFuture.completedFuture(decodedImage));
-						return null;
-					};
+					Runnable decodeTask = () -> convertBytesToImage(jpegBytes);
 
 					// We might be in the middle of capturing a frame from the stream when the image decoding service
 					// is shut down
 					if (!imageDecodingService.isShutdown()) {
-						imageDecodingService.submit(imageDecoderTask);
+						imageDecodingService.submit(decodeTask);
+					}
+
+					if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
+						frameCaptureStatistics.finishProcessingFrame();
 					}
 				}
 			}
-
 		} finally {
 			logger.debug("Frame capture stopping");
 			shutdown();
 
+		}
+	}
+
+	/**
+	 * The resulting image is not returned but rather added to the received images queue.
+	 * <p>
+	 * Once the frame has been decoded add it to the receivedImages queue Do it here rather
+	 * than adding the result of imageDecodingService.submit(decodeTask);
+	 * to allow the decode task to be cancelled without the need to clear the associated
+	 * future on the receivedImages queue.
+	 */
+	private void convertBytesToImage(final ByteArrayInputStream bias) {
+		if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
+			frameDecodeStatistics.startProcessingFrame();
+		}
+		try {
+			BufferedImage bufferedImage = ImageIO.read(bias);
+			E decodedImage = convertImage(bufferedImage);
+			receivedImages.offer(CompletableFuture.completedFuture(decodedImage));
+		} catch (IOException e) {
+			// Shutdown if we get an unencodable image
+			logger.error("Failed to convert image", e);
+			shutdown();
+		}
+
+		if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
+			frameDecodeStatistics.finishProcessingFrame();
 		}
 	}
 
