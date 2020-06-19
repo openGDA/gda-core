@@ -100,7 +100,7 @@ public final class BSSCSessionBeanComposite extends Composite {
 		btnQueueExperiment.setText("Run Experiment");
 		btnQueueExperiment.setToolTipText("Save file and run experiment");
 		btnQueueExperiment.addSelectionListener(new SelectionAdapter() {
-			private RemoteCommandRunner runner  = Finder.getInstance().find("BSSCRunner");
+			private RemoteCommandRunner runner  = Finder.find("BSSCRunner");
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try {

@@ -110,7 +110,7 @@ public class CirrusSetup extends ViewPart {
 	}
 
 	private boolean findRGA() {
-		cirrus = (Cirrus) Finder.getInstance().find("rga");
+		cirrus = (Cirrus) Finder.find("rga");
 		return cirrus != null;
 	}
 

@@ -98,7 +98,7 @@ public final class HplcSessionBeanComposite extends Composite {
 		btnQueueExperiment.setText("Run Experiment");
 		btnQueueExperiment.setToolTipText("Save file and run experiment");
 		btnQueueExperiment.addSelectionListener(new SelectionAdapter() {
-			private RemoteCommandRunner runner  = Finder.getInstance().find("HPLCRunner");
+			private RemoteCommandRunner runner  = Finder.find("HPLCRunner");
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try {

@@ -244,7 +244,7 @@ public class BSSCStatus extends ViewPart implements IObserver {
 	}
 
 	private void setupMonitoring() {
-		Scannable findable = (Scannable) Finder.getInstance().find(bsscscannablename);
+		Scannable findable = (Scannable) Finder.find(bsscscannablename);
 		findable.addIObserver(this);
 		try {
 			update(findable, findable.getPosition());

@@ -60,7 +60,7 @@ public class BioSAXSProgressController extends ConfigurableBase implements IObse
 			return;
 		}
 		if (udpListenerName != null && simpleUDPServer == null) {
-			simpleUDPServer = Finder.getInstance().find(udpListenerName);
+			simpleUDPServer = Finder.find(udpListenerName);
 			simpleUDPServer.addIObserver(new SimpleUDPReceiver(this));
 		}
 		try {
