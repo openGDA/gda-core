@@ -758,13 +758,13 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		} catch (Exception e1) {
 			logger.error("Cannot get regions from resource: ", e1);
 		}
-		dcmenergy = Finder.getInstance().find("dcmenergy");
+		dcmenergy = Finder.find("dcmenergy");
 		if (dcmenergy == null) {
 			logger.error("Finder failed to find 'dcmenergy'");
 		} else {
 			dcmenergy.addIObserver(this);
 		}
-		pgmenergy = Finder.getInstance().find("pgmenergy");
+		pgmenergy = Finder.find("pgmenergy");
 		if (pgmenergy == null) {
 			logger.error("Finder failed to find 'pgmenergy'");
 		} else {

@@ -54,8 +54,7 @@ public abstract class SpecsLivePlot extends ViewPart implements IObserver {
 	@Override
 	public void createPartControl(Composite parent) {
 
-		List<ISpecsPhoibosAnalyser> analysers = Finder.getInstance()
-				.listLocalFindablesOfType(ISpecsPhoibosAnalyser.class);
+		List<ISpecsPhoibosAnalyser> analysers = Finder.listLocalFindablesOfType(ISpecsPhoibosAnalyser.class);
 		if (analysers.size() != 1) {
 			logger.error("No Analyser was found! (Or more than 1)");
 			throw new RuntimeException("No Analyser was found! (Or more than 1)");

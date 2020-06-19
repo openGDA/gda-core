@@ -926,7 +926,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 		updateCalculatedData();
 		// server event admin or handler
-		scriptcontroller = Finder.getInstance().find("SequenceFileObserver");
+		scriptcontroller = Finder.find("SequenceFileObserver");
 		scriptcontroller.addIObserver(this);
 		// EPICS monitor to update current region status
 		channelmanager = new EpicsChannelManager(this);
@@ -942,13 +942,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		comboElementSet.addSelectionListener(elementSetSelAdaptor);
 		updateRegionNumber(crrentRegionNumber, numActives);
 		images = loadAnimatedGIF(sequenceTableViewer.getControl().getDisplay(), ImageConstants.ICON_RUNNING);
-		dcmenergy = Finder.getInstance().find("dcmenergy");
+		dcmenergy = Finder.find("dcmenergy");
 		if (dcmenergy == null) {
 			logger.error("Finder failed to find 'dcmenergy'");
 		} else {
 			dcmenergy.addIObserver(this);
 		}
-		pgmenergy = Finder.getInstance().find("pgmenergy");
+		pgmenergy = Finder.find("pgmenergy");
 		if (pgmenergy == null) {
 			logger.error("Finder failed to find 'pgmenergy'");
 		} else {

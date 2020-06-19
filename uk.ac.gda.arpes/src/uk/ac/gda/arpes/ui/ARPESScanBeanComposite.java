@@ -121,7 +121,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		editor.setUndoStackActive(false);
 
 		// Should be local as its already imported by Spring
-		final List<IVGScientaAnalyserRMI> analyserRmiList = Finder.getInstance().listLocalFindablesOfType(IVGScientaAnalyserRMI.class);
+		final List<IVGScientaAnalyserRMI> analyserRmiList = Finder.listLocalFindablesOfType(IVGScientaAnalyserRMI.class);
 		if (analyserRmiList.isEmpty()) {
 			throw new RuntimeException("No analyser was found over RMI");
 		}
@@ -348,7 +348,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 		// This is to allow dynamic updates of PSU mode from EPICS
 		// Create a scannable to allow an observer to be added
-		Scannable psuModeScannable = Finder.getInstance().find("psu_mode");
+		Scannable psuModeScannable = Finder.find("psu_mode");
 
 		// Add an observer that updates the PSU mode when fired
 		psuModeScannable.addIObserver((source, arg) -> Display.getDefault().asyncExec(this::updatePsuMode));

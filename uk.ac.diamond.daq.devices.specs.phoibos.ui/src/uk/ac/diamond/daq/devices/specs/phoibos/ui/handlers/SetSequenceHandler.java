@@ -31,8 +31,7 @@ public class SetSequenceHandler {
 		logger.trace("Constructor called");
 
 		// Get an analyser
-		List<ISpecsPhoibosAnalyser> analysers = Finder.getInstance()
-				.listLocalFindablesOfType(ISpecsPhoibosAnalyser.class);
+		List<ISpecsPhoibosAnalyser> analysers = Finder.listLocalFindablesOfType(ISpecsPhoibosAnalyser.class);
 		if (analysers.size() != 1) {
 			String msg = "No Analyser was found! (Or more than 1)";
 			logger.error(msg);

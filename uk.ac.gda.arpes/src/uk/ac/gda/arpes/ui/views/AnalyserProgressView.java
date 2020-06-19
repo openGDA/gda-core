@@ -98,7 +98,7 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 		scheduledIterTxt.setToolTipText("The number of iterations requested");
 		scheduledIterTxt.setLayoutData(new GridData(40, SWT.DEFAULT));
 
-		List<IVGScientaAnalyserRMI> analysers = Finder.getInstance().listFindablesOfType(IVGScientaAnalyserRMI.class);
+		List<IVGScientaAnalyserRMI> analysers = Finder.listFindablesOfType(IVGScientaAnalyserRMI.class);
 		if (analysers.size() != 1) {
 			logger.error("Didn't find 1 analyser");
 		}
@@ -143,7 +143,7 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 			}
 		});
 
-		sweepUpdater = Finder.getInstance().find("sweepupdater");
+		sweepUpdater = Finder.find("sweepupdater");
 		if (sweepUpdater != null) {
 			sweepUpdater.addIObserver(this);
 		}
