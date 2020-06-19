@@ -101,7 +101,7 @@ public class ParametersComposite extends Composite {
 
 	private void loadTomographyOptions() {
 		// Read in options for Comboboxes
-		final List<TomographyOptions> options = Finder.getInstance().listLocalFindablesOfType(TomographyOptions.class);
+		final List<TomographyOptions> options = Finder.listLocalFindablesOfType(TomographyOptions.class);
 		if (options.isEmpty()) {
 			logger.error("No TomographyOptions object found: drop-down lists will not be available");
 		} else {

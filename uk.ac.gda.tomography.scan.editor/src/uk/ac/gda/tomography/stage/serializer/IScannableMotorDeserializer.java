@@ -53,6 +53,6 @@ public class IScannableMotorDeserializer extends StdDeserializer<IScannableMotor
 	}
 
 	private IScannableMotor validateMotor(String scannableMotorName, JsonNode node) {
-		return Finder.getInstance().find(scannableMotorName);
+		return Finder.find(scannableMotorName);
 	}
 }
