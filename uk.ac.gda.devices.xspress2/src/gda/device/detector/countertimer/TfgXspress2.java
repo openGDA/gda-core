@@ -50,7 +50,7 @@ public class TfgXspress2 extends TFGCounterTimer {
 			return;
 		}
 		if (xspress == null) {
-			if ((xspress = (XspressDetector) Finder.getInstance().find(xspressSystemName)) == null) {
+			if ((xspress = (XspressDetector) Finder.find(xspressSystemName)) == null) {
 				logger.error("XspressSystem " + xspressSystemName + " not found");
 			}
 		}

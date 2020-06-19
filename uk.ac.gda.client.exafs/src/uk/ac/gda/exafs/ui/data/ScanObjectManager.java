@@ -62,7 +62,7 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 		String[] controllerNames = controllers.split(",");
 
 		for (String name : controllerNames) {
-			Findable objRef = Finder.getInstance().find(name.trim());
+			Findable objRef = Finder.find(name.trim());
 			if (objRef instanceof ILoggingScriptController) {
 				ILoggingScriptController newcontroller = (ILoggingScriptController) objRef;
 				try {

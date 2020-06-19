@@ -60,7 +60,7 @@ public class SampleParameterMotorMover {
 				continue;
 			}
 
-			Scannable scn = Finder.getInstance().find(motorPos.getScannableName());
+			Scannable scn = Finder.find(motorPos.getScannableName());
 			if (scn==null) {
 				logger.warn("Unable to find scannable called {}", motorPos.getScannableName());
 				continue;

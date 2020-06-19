@@ -56,13 +56,13 @@ public class XasScanParametersTest {
 		DummyScannable energy = new DummyScannable();
 		energy.setName("energy");
 		testFactory.addFindable(energy);
-		Finder.getInstance().addFactory(testFactory);
+		Finder.addFactory(testFactory);
 	}
 
 	@AfterClass
 	public static void afterClass() {
 		// Remove factories from Finder so they do not affect other tests
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 	}
 
 	@Test

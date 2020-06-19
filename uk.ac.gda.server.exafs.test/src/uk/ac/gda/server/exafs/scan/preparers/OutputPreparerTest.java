@@ -55,7 +55,7 @@ public class OutputPreparerTest {
 
 		Factory finderfactory = TestHelpers.createTestFactory();
 		finderfactory.addFindable(mocked_sxcryo_scannable);
-		Finder.getInstance().addFactory(finderfactory);
+		Finder.addFactory(finderfactory);
 
 		JythonServerFacade jythonserverfacade = Mockito.mock(JythonServerFacade.class);
 		InterfaceProvider.setJythonNamespaceForTesting(jythonserverfacade);
@@ -65,7 +65,7 @@ public class OutputPreparerTest {
 	@After
 	public void tearDown() {
 		// Remove factories from Finder so they do not affect other tests
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 	}
 
 	@Test

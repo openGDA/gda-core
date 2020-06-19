@@ -43,7 +43,7 @@ abstract class ParametersManager {
 	public abstract void init() throws Exception;
 
 	protected void setScannable(final String name, final Object value) throws DeviceException {
-		final Scannable scannable = (Scannable) Finder.getInstance().find(name);
+		final Scannable scannable = (Scannable) Finder.find(name);
 		scannable.asynchronousMoveTo(value);
 		scannables.add(scannable);
 	}

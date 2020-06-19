@@ -140,8 +140,8 @@ public class TestBase {
 		}
 
 		// Need to add objectfactory to Finder if using
-		// Finder.getInstance().find(...) to get at scannables.
-		Finder.getInstance().addFactory(factory);
+		// Finder.find(...) to get at scannables.
+		Finder.addFactory(factory);
 	}
 
 	protected void setupForTest(Class<?> classType, String testName) throws Exception {

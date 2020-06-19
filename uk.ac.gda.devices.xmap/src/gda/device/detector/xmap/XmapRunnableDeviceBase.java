@@ -48,7 +48,7 @@ public abstract class XmapRunnableDeviceBase extends AbstractRunnableDevice<Xmap
 
 		// Get the detector named in the model
 		xmapDetectorName = model.getName();
-		xmapDetector = Finder.getInstance().find(xmapDetectorName);
+		xmapDetector = Finder.find(xmapDetectorName);
 		if (xmapDetector == null) {
 			final String message = "Could not find XMAP detector: " + xmapDetectorName;
 			logger.error(message);

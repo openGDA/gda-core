@@ -73,7 +73,7 @@ public class ScannableValueListener implements MouseListener, SelectionListener 
 
 	private void setValue() {
 
-		final Scannable scannable = (Scannable) Finder.getInstance().find(scannableName);
+		final Scannable scannable = (Scannable) Finder.find(scannableName);
 		if (scannable == null) {
 			ui.setValue("Scannable " + scannableName + " cannot be found");
 			return;

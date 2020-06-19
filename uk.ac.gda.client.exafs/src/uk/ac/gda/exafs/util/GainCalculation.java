@@ -86,7 +86,7 @@ public class GainCalculation {
 	 */
 	public static double getIntensity(final GainBean bean) throws Exception {
 
-		final Scannable monocromator = (Scannable) Finder.getInstance().find(bean.getScannableName());
+		final Scannable monocromator = (Scannable) Finder.find(bean.getScannableName());
 		while (monocromator.isBusy() && !bean.isCancelled()) {
 			bean.setMonitorMessage("Waiting for monochromator to be available");
 			Thread.sleep(1000);
@@ -109,7 +109,7 @@ public class GainCalculation {
 		}
 
 		bean.setMonitorMessage("Collecting intensity at '" + bean.getEnergy() + "' eV");
-		final Detector timer = (Detector) Finder.getInstance().find(bean.getCounterTimerName());
+		final Detector timer = (Detector) Finder.find(bean.getCounterTimerName());
 		timer.setCollectionTime(bean.getCollectionTime() / 1000.0);
 		timer.readout();
 
@@ -250,7 +250,7 @@ public class GainCalculation {
 
 	private static double getIntensityAtGain(final GainBean bean, final String gain) throws Exception {
 
-		final CurrentAmplifier amp = (CurrentAmplifier) Finder.getInstance().find(bean.getCurrentAmplifierName());
+		final CurrentAmplifier amp = (CurrentAmplifier) Finder.find(bean.getCurrentAmplifierName());
 		amp.setGain(getGainValue(gain));
 		amp.setGainUnit(getGainUnit(gain));
 

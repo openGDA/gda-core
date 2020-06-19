@@ -320,7 +320,7 @@ public class Xspress3DataOperations {
 		controller.setTriggerMode(TRIGGER_MODE.TTl_Veto_Only);
 		controller.doStart();
 
-		Timer tfg = Finder.getInstance().find("tfg");
+		Timer tfg = Finder.find("tfg");
 		tfg.clearFrameSets(); // we only want to collect a frame at a time
 		tfg.countAsync(time); // run tfg for time
 		do {

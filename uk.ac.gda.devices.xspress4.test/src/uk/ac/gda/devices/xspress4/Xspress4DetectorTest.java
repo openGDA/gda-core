@@ -43,7 +43,7 @@ public class Xspress4DetectorTest extends TestBase {
 	@After
 	public void tearDown() {
 		// Remove factories from Finder so they do not affect other tests
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 	}
 
 	private String runScan(XspressParameters xspressParams) throws Exception {

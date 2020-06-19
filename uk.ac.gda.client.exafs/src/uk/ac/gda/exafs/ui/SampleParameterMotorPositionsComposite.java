@@ -192,7 +192,7 @@ public class SampleParameterMotorPositionsComposite implements IFieldWidget {
 		 * Update demand position textbox with current value from scannable
 		 */
 		private void updateWithCurrentValue() {
-			Scannable scn = Finder.getInstance().find(param.getScannableName());
+			Scannable scn = Finder.find(param.getScannableName());
 			if (scn==null) {
 				logger.warn("No scannable called {} found on server");
 				return;

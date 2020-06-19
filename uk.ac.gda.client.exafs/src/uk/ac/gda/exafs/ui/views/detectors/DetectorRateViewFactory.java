@@ -56,7 +56,7 @@ public class DetectorRateViewFactory implements IExecutableExtensionFactory, IEx
 
 	@Override
 	public ViewPart create() {
-		DetectorRateViewConfig viewConfig = Finder.getInstance().find(viewName);
+		DetectorRateViewConfig viewConfig = Finder.find(viewName);
 		DetectorRateView detectorRateView = new DetectorRateView();
 		detectorRateView.setViewConfig(viewConfig);
 		return detectorRateView;

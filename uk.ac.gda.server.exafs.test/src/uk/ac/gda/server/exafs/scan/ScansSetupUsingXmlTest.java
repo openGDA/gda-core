@@ -145,7 +145,7 @@ public class ScansSetupUsingXmlTest {
 		}
 
 		// Need to add objectfactory to Finder if using Finder.getIntance().find(...) to get at scannables.
-		Finder.getInstance().addFactory(factory);
+		Finder.addFactory(factory);
 	}
 
 	/**
@@ -394,7 +394,7 @@ public class ScansSetupUsingXmlTest {
 	@After
 	public void tearDown() {
 		// Remove factories from Finder so they do not affect other tests
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 	}
 
 	/**

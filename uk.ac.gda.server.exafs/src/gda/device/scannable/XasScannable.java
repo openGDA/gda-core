@@ -128,7 +128,7 @@ public class XasScannable extends ScannableBase {
 
 	@Override
 	public void atScanStart() throws DeviceException {
-		final Object server = Finder.getInstance().find("DAServer");
+		final Object server = Finder.find("DAServer");
 		if (server!=null&&server instanceof DummyDAServer) {
 			final DummyDAServer daServer = (DummyDAServer)server;
 			daServer.resetScanPointCount();

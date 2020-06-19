@@ -50,7 +50,7 @@ public class StanfordAmplifierComposite {
 
 	public StanfordAmplifierComposite(Composite parent, @SuppressWarnings("unused") int style, String name, String scannable) {
 
-		stanfordScannable = (StanfordAmplifier) Finder.getInstance().find(scannable);
+		stanfordScannable = (StanfordAmplifier) Finder.find(scannable);
 
 		Group group = new Group(parent, SWT.NONE);
 		group.setText(name);

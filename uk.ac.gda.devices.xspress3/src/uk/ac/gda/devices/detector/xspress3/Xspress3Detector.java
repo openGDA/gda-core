@@ -580,8 +580,8 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		try {
 			controller.doErase();
 			controller.doStart();
-			((Timer) Finder.getInstance().find("tfg")).clearFrameSets(); // we only want to collect a frame at a time
-			((Timer) Finder.getInstance().find("tfg")).countAsync(time); // run tfg for time
+			((Timer) Finder.find("tfg")).clearFrameSets(); // we only want to collect a frame at a time
+			((Timer) Finder.find("tfg")).countAsync(time); // run tfg for time
 			do {
 				synchronized (this) {
 					try {
@@ -589,7 +589,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 					} catch (InterruptedException e) {
 					}
 				}
-			} while (((Timer) Finder.getInstance().find("tfg")).getStatus() == Timer.ACTIVE);
+			} while (((Timer) Finder.find("tfg")).getStatus() == Timer.ACTIVE);
 
 			controller.doStop();
 

@@ -46,7 +46,7 @@ public class XasScannableDetectorWithHarmonics extends XasScannable {
 		if (isConfigured()) {
 			return;
 		}
-		energyHarmonicConverter = Finder.getInstance().find(harmonicConverterName);
+		energyHarmonicConverter = Finder.find(harmonicConverterName);
 		setConfigured(true);
 	}
 

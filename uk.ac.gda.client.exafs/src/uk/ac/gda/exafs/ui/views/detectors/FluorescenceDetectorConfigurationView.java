@@ -123,7 +123,7 @@ public class FluorescenceDetectorConfigurationView extends ViewPart {
 					Thread finderThread = new Thread(new Runnable() {
 						@Override
 						public void run() {
-							allDetectors.addAll(Finder.getInstance().listFindablesOfType(FluorescenceDetector.class));
+							allDetectors.addAll(Finder.listFindablesOfType(FluorescenceDetector.class));
 						}
 					});
 					finderThread.start();
@@ -246,7 +246,7 @@ public class FluorescenceDetectorConfigurationView extends ViewPart {
 	 * Get a named FluorescenceDetector from the Finder
 	 */
 	private FluorescenceDetector findNamedDetector(String detectorName) {
-		return Finder.getInstance().find(detectorName);
+		return Finder.find(detectorName);
 	}
 
 	@Override

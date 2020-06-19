@@ -238,11 +238,9 @@ public class I18SampleParametersUIEditor extends FauxRichBeansEditor<I18SamplePa
 
 		fetchPosition.addListener(SWT.Selection, event -> {
 
-			Finder finder = Finder.getInstance();
-
-			Scannable xAxis = finder.find(bean.getXName());
-			Scannable yAxis = finder.find(bean.getYName());
-			Scannable zAxis = finder.find(bean.getZName());
+			Scannable xAxis = Finder.find(bean.getXName());
+			Scannable yAxis = Finder.find(bean.getYName());
+			Scannable zAxis = Finder.find(bean.getZName());
 
 			try {
 				double xPos = (double) xAxis.getPosition();
@@ -301,11 +299,9 @@ public class I18SampleParametersUIEditor extends FauxRichBeansEditor<I18SamplePa
 		STRETCH.applyTo(fetch);
 
 		fetch.addListener(SWT.Selection, event -> {
-			Finder finder = Finder.getInstance();
-
 			for (AttenuatorParameters attenuatorBean : getBean().getAttenuators()) {
 				String attenuatorName = attenuatorBean.getName();
-				Scannable attenuator = finder.find(attenuatorName);
+				Scannable attenuator = Finder.find(attenuatorName);
 				try {
 					String position = (String) attenuator.getPosition();
 					attenuators.get(attenuatorName).select(attenuatorBean.getPosition().indexOf(position));
@@ -368,7 +364,7 @@ public class I18SampleParametersUIEditor extends FauxRichBeansEditor<I18SamplePa
 		});
 
 		fetch.addListener(SWT.Selection, event -> {
-			Scannable xMotor = Finder.getInstance().find("kb_vfm_x");
+			Scannable xMotor = Finder.find("kb_vfm_x");
 			try {
 				double position = (double) xMotor.getPosition();
 				x.setText(String.valueOf(position));

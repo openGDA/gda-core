@@ -55,12 +55,12 @@ public class TfgXMapFFoverI0 extends DetectorBase implements NexusDetector {
 			return;
 		}
 		if (xmap == null) {
-			if ((xmap = (XmapDetector) Finder.getInstance().find(xmapSystemName)) == null)
+			if ((xmap = (XmapDetector) Finder.find(xmapSystemName)) == null)
 				logger.error("XspressSystem " + xmapSystemName + " not found");
 		}
 		if (ct == null) {
 			logger.debug("Finding: " + ctName);
-			if ((ct = (CounterTimer) Finder.getInstance().find(ctName)) == null)
+			if ((ct = (CounterTimer) Finder.find(ctName)) == null)
 				logger.error("Scaler " + ctName + " not found");
 		}
 

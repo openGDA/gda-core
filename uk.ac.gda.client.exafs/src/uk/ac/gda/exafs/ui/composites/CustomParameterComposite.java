@@ -77,7 +77,7 @@ public class CustomParameterComposite extends Composite {
 				final String name = deviceName.getValue() != null ? deviceName.getValue().toString() : null;
 				if (name == null)  return;
 
-				final Scannable scannable = Finder.getInstance().find(name);
+				final Scannable scannable = Finder.find(name);
 				try {
 					value.setValue(scannable.getPosition());
 				} catch (Exception e1) {

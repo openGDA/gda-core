@@ -87,7 +87,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 	public MicroFocusElementListView() {
 		super();
 		displayController = new MicroFocusDisplayController();
-		Scriptcontroller find = (Scriptcontroller) Finder.getInstance().find("elementListScriptController");
+		Scriptcontroller find = (Scriptcontroller) Finder.find("elementListScriptController");
 		find.addIObserver(this);
 	}
 

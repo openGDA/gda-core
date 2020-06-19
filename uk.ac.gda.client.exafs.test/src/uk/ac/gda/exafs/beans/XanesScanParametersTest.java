@@ -59,13 +59,13 @@ public class XanesScanParametersTest {
 		DummyScannable qcm_energy = new DummyScannable();
 		qcm_energy.setName("qcm_energy");
 		testFactory.addFindable(qcm_energy);
-		Finder.getInstance().addFactory(testFactory);
+		Finder.addFactory(testFactory);
 	}
 
 	@AfterClass
 	public static void afterClass() {
 		// Remove factories from Finder so they do not affect other tests
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 	}
 
 	@Test

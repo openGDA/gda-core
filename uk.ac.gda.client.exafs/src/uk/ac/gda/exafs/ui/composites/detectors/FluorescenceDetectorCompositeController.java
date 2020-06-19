@@ -193,7 +193,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		if (theDetector == null && detectorParameters != null) {
 			String detectorName = detectorParameters.getDetectorName();
 			logger.debug("No detector set; trying to get detector named in parameters: '{}'", detectorName);
-			Findable namedObject = Finder.getInstance().find(detectorName);
+			Findable namedObject = Finder.find(detectorName);
 			if (namedObject instanceof FluorescenceDetector) {
 				theDetector = (FluorescenceDetector) namedObject;
 			}
@@ -214,7 +214,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			}
 		}
 
-		Map<String, FluorescenceDetectorMcaProvider> mcaProverObj = Finder.getInstance().getFindablesOfType(FluorescenceDetectorMcaProvider.class);
+		Map<String, FluorescenceDetectorMcaProvider> mcaProverObj = Finder.getFindablesOfType(FluorescenceDetectorMcaProvider.class);
 		if (!mcaProverObj.values().isEmpty()) {
 			mcaProvider = mcaProverObj.values().iterator().next();
 			logger.info("Use FluorescenceDetectorMcaProvider object {} to retrieve MCA data from detector", mcaProvider.getName());
@@ -410,7 +410,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		fluorescenceDetectorComposite.setDetectorElementOrder(order);
 
 		// Try to set order using FluoDetectorElementConfig object (client side, created in spring).
-		final List<FluoDetectorElementConfig> elementConfigs = Finder.getInstance().listLocalFindablesOfType(FluoDetectorElementConfig.class);
+		final List<FluoDetectorElementConfig> elementConfigs = Finder.listLocalFindablesOfType(FluoDetectorElementConfig.class);
 		for (FluoDetectorElementConfig conf : elementConfigs) {
 			if (conf.getDetectorName().equals(theDetector.getName())) {
 				fluorescenceDetectorComposite.setDetectorElementConfiguration(conf);

@@ -723,7 +723,7 @@ public final class XesScanParametersComposite extends Composite {
 	}
 
 	private String getScannableSinglePosition(String scannableName) throws DeviceException {
-		final Scannable scannable = (Scannable) Finder.getInstance().find(scannableName);
+		final Scannable scannable = (Scannable) Finder.find(scannableName);
 		if (scannable == null)
 			throw new DeviceException( "Scannable " + scannableName + " cannot be found");
 		String[] position;

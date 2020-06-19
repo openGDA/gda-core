@@ -50,11 +50,11 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 			return;
 		}
 		if (xspress == null)
-			if ((xspress = (NexusDetector) Finder.getInstance().find(xspressSystemName)) == null)
+			if ((xspress = (NexusDetector) Finder.find(xspressSystemName)) == null)
 				logger.error("XspressSystem " + xspressSystemName + " not found");
 		if (ct == null) {
 			logger.debug("Finding: " + ctName);
-			if ((ct = (TfgScaler) Finder.getInstance().find(ctName)) == null)
+			if ((ct = (TfgScaler) Finder.find(ctName)) == null)
 				logger.error("Scaler " + ctName + " not found");
 		}
 		this.setExtraNames(new String[] { outputName });

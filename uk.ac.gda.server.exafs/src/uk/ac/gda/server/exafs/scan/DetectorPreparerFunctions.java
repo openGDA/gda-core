@@ -91,7 +91,7 @@ public class DetectorPreparerFunctions {
 	 */
 	public Detector configureDetector(FluorescenceDetectorParameters params) throws Exception {
 		String detName = params.getDetectorName();
-		Optional<FluorescenceDetector> det = Finder.getInstance().findOptional(detName);
+		Optional<FluorescenceDetector> det = Finder.findOptional(detName);
 		if (!det.isPresent()) {
 			throw new NoSuchElementException("Unable to find detector called "+detName+" on server\n");
 		}

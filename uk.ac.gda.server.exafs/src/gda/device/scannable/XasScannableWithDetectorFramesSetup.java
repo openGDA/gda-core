@@ -51,7 +51,7 @@ public class XasScannableWithDetectorFramesSetup extends XasScannable {
 		if (isConfigured()) {
 			return;
 		}
-		energyHarmonicConverter = Finder.getInstance().find(harmonicConverterName);
+		energyHarmonicConverter = Finder.find(harmonicConverterName);
 		setConfigured(true);
 	}
 
@@ -70,7 +70,7 @@ public class XasScannableWithDetectorFramesSetup extends XasScannable {
 	@Override
 	public void atScanStart() throws DeviceException {
 		scanPointCounter = 0;
-		final Object server = Finder.getInstance().find("DAServer");
+		final Object server = Finder.find("DAServer");
 		if (server!=null&&server instanceof DummyDAServer) {
 			final DummyDAServer daServer = (DummyDAServer)server;
 			daServer.resetScanPointCount();

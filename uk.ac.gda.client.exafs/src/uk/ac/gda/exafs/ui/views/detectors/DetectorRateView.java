@@ -94,7 +94,7 @@ public class DetectorRateView extends ViewPart implements IPartListener2, IObser
 	 * @return Selected view config, or null if none have been selected or none are available.
 	 */
 	public DetectorRateViewConfig askUserToSelectViewConfig(Composite parent) {
-		Map<String, DetectorRateViewConfig> rateViewConfigObjects = Finder.getInstance().getLocalFindablesOfType(DetectorRateViewConfig.class);
+		Map<String, DetectorRateViewConfig> rateViewConfigObjects = Finder.getLocalFindablesOfType(DetectorRateViewConfig.class);
 
 		if (rateViewConfigObjects.isEmpty()) {
 			MessageDialog.openInformation(parent.getShell(), "Problem opening detector rates",

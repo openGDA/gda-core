@@ -146,7 +146,7 @@ public class ExafsSelectionHandler implements EventHandler {
 	}
 
 	private Double currentPosition(String scannableName) {
-		Scannable scannable = Finder.getInstance().find(scannableName);
+		Scannable scannable = Finder.find(scannableName);
 		try {
 			return (Double) scannable.getPosition();
 		} catch (DeviceException deviceException) {

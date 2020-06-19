@@ -43,7 +43,7 @@ public class AsciiDataWriter extends IncrementalFile implements ConfigurableAsci
 	protected String columnHeader = "";
 
 	public AsciiDataWriter() throws InstantiationException {
-		final List<AsciiDataWriterConfiguration> configs = Finder.getInstance().listFindablesOfType(AsciiDataWriterConfiguration.class);
+		final List<AsciiDataWriterConfiguration> configs = Finder.listFindablesOfType(AsciiDataWriterConfiguration.class);
 		if (configs.size() == 0)
 			throw new InstantiationException("No configuration object for " + this.getClass().getName() + " found");
 		configuration = configs.get(0);

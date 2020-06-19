@@ -475,7 +475,7 @@ public abstract class XasScanBase implements XasScan {
 			dataWriter.setConfiguration(asciidatawriterconfig);
 		}
 
-		Map<String, FileRegistrar> fileRegistrar = Finder.getInstance().getFindablesOfType(FileRegistrar.class);
+		Map<String, FileRegistrar> fileRegistrar = Finder.getFindablesOfType(FileRegistrar.class);
 		if (fileRegistrar != null && fileRegistrar.size() > 0) {
 			if (fileRegistrar.size() > 1) {
 				logger.warn("{} FileRegistar objects found on server. Only one expected.", fileRegistrar.size());

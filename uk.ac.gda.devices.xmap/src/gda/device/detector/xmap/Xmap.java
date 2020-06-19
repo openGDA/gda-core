@@ -73,7 +73,7 @@ public class Xmap extends DetectorBase implements XmapDetector, IObserver {
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
 			if (controller == null) {
-				if ((controller = (XmapController) Finder.getInstance().find(xmapControllerName)) != null) {
+				if ((controller = (XmapController) Finder.find(xmapControllerName)) != null) {
 					logger.debug("controller {} found", xmapControllerName);
 				} else {
 					logger.error("XmapController {} not found", xmapControllerName);

@@ -165,7 +165,7 @@ public class RGASetup extends ViewPart implements IObserver {
 	}
 
 	private boolean findRGA() {
-		rga = Finder.getInstance().find("rga");
+		rga = Finder.find("rga");
 		if (rga != null) {
 			rga.addIObserver(this);
 		}

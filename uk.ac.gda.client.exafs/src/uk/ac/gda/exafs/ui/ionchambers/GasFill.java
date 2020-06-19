@@ -77,7 +77,7 @@ public class GasFill {
 			return;
 		}
 
-		final Scannable gasInjector = Finder.getInstance().find(injectorName);
+		final Scannable gasInjector = Finder.find(injectorName);
 		if ( gasInjector == null ) {
 			logger.warn("Gas injector for "+ionc_name+" not found - was expecting "+injectorName);
 			return;

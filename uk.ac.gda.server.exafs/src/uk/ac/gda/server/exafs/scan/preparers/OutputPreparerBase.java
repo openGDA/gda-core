@@ -134,7 +134,7 @@ public abstract class OutputPreparerBase implements OutputPreparer, Initializing
 	}
 
 	private Scannable retrieveScannable(String scannableName) {
-		Scannable scannableFromFinder = Finder.getInstance().find(scannableName);
+		Scannable scannableFromFinder = Finder.find(scannableName);
 		if (scannableFromFinder!= null){
 			return scannableFromFinder;
 		}

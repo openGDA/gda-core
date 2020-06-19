@@ -40,7 +40,7 @@ public class FluorescenceDetectorMcaProviderImpl extends FindableBase implements
 			logger.debug("Returning empty MCA data - scan or script is running");
 			return new double[0][0];
 		}
-		FluorescenceDetector detector = Finder.getInstance().find(detectorName);
+		FluorescenceDetector detector = Finder.find(detectorName);
 		if (detector != null) {
 			logger.debug("Returning MCA data from {}", detector.getName());
 			return detector.getMCAData(time);

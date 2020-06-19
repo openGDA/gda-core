@@ -507,7 +507,7 @@ public class MedipixParametersUIEditor extends RichBeanEditorPart {
 	 * @return true if warning was shown (i.e. config was not found), false otherwise.
 	 */
 	private boolean showLiveStreamWarning() {
-		final Map<String, CameraConfiguration> cameras = Finder.getInstance().getLocalFindablesOfType(CameraConfiguration.class);
+		final Map<String, CameraConfiguration> cameras = Finder.getLocalFindablesOfType(CameraConfiguration.class);
 		if (!cameras.containsKey(MEDIPIX_CAMERA_CONFIG_NAME)) {
 			String msg = "Could not open Medipix camera view - camera configuration called "+MEDIPIX_CAMERA_CONFIG_NAME+" was not found";
 			MessageDialog.openWarning(Display.getDefault().getActiveShell(), "Could not open medipix camera view", msg);

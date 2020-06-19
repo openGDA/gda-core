@@ -77,7 +77,7 @@ public class SpreadsheetViewComposite {
 	}
 
 	private void setConfigFromSpring() {
-		Map<String, SpreadsheetViewConfig> spreadSheetConfigs = Finder.getInstance().getLocalFindablesOfType(SpreadsheetViewConfig.class);
+		Map<String, SpreadsheetViewConfig> spreadSheetConfigs = Finder.getLocalFindablesOfType(SpreadsheetViewConfig.class);
 		if (spreadSheetConfigs.isEmpty()) {
 			logger.warn("No spreadsheet configurations found.");
 		} else {

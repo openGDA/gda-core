@@ -97,7 +97,7 @@ public class Xspress2SystemOutputTest {
 	 */
 	@AfterClass
 	public static void clearUpAfterClass() {
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 	}
 
 	@Test

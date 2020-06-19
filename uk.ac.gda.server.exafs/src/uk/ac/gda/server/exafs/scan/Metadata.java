@@ -41,12 +41,10 @@ public class Metadata {
 	private static final Logger logger = LoggerFactory.getLogger(Metadata.class);
 	AsciiDataWriterConfiguration dataWriterConfig;
 	NXMetaDataProvider metashop;
-	Finder finder;
 
 	public Metadata(FindableAsciiDataWriterConfiguration dataWriterConfig) {
 		this.dataWriterConfig = (AsciiDataWriterConfiguration) dataWriterConfig;
-		finder = Finder.getInstance();
-		metashop = finder.find("metashop");
+		metashop = Finder.find("metashop");
 	}
 
 	public void add_to_metadata(List<MetadataParameters> metadataList) {
@@ -56,7 +54,7 @@ public class Metadata {
 			AsciiMetadataConfig asciiConfig = new AsciiMetadataConfig();
 			String name = metadata.getScannableName();
 			asciiConfig.setLabel(name + ": %4.1f");
-			Scannable scannable = finder.find(name);
+			Scannable scannable = Finder.find(name);
 			if (scannable == null) {
 				scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(name);
 			}
@@ -74,7 +72,7 @@ public class Metadata {
 
 	public void removeNexusMetadataList(List<String> removeList) {
 		for (String s : removeList) {
-			Scannable scannable = finder.find(s);
+			Scannable scannable = Finder.find(s);
 			if (scannable != null && metashop != null) {
 				metashop.remove(scannable);
 			}
@@ -83,7 +81,7 @@ public class Metadata {
 
 	public void addNexusMetadataList(List<String> addList) {
 		for (String s : addList) {
-			Scannable scannable = finder.find(s);
+			Scannable scannable = Finder.find(s);
 			if (scannable != null && metashop != null) {
 				metashop.add(scannable);
 			}
@@ -91,7 +89,7 @@ public class Metadata {
 	}
 
 	public String clearAlldynamical() {
-		NXMetaDataProvider metashop = Finder.getInstance().find("metashop");
+		NXMetaDataProvider metashop = Finder.find("metashop");
 
 		if (metashop == null) {
 			return null;

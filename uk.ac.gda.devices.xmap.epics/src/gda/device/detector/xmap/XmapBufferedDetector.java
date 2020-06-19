@@ -118,7 +118,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		}
 		if (daServer == null) {
 			logger.debug("XmapBuffereddetector configure(): finding: " + daServerName);
-			if ((daServer = (DAServer) Finder.getInstance().find(daServerName)) == null) {
+			if ((daServer = (DAServer) Finder.find(daServerName)) == null) {
 				logger.error("XmapBufferedDetector.configure(): Server " + daServerName + " not found");
 			}
 		}
