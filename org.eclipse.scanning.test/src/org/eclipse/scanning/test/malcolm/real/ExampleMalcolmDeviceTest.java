@@ -105,7 +105,9 @@ public class ExampleMalcolmDeviceTest {
 		// Not required in OSGi mode (do not add this to your real code GET THE SERVICE FROM OSGi!)
 		this.service = new RunnableDeviceServiceImpl();
 		this.connectorService = new MalcolmEpicsV4Connection();
+		pointGenService = new PointGeneratorService();
 		new Services().setFilePathService(new MockFilePathService());
+		new Services().setPointGeneratorService(pointGenService);
 
 		// Start the dummy test device
 		DeviceRunner runner = new DeviceRunner();
@@ -113,7 +115,6 @@ public class ExampleMalcolmDeviceTest {
 
 		// Create the device
 		malcolmDevice = new MalcolmDevice(epicsv4Device.getRecordName(), connectorService, service);
-		pointGenService = new PointGeneratorService();
 	}
 
 	@After
