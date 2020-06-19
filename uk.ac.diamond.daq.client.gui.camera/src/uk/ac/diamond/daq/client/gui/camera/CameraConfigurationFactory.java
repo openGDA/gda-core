@@ -110,7 +110,7 @@ public class CameraConfigurationFactory implements CompositeFactory {
 
 	private CompositeFactory createTabFactory() throws GDAClientException {
 		TabFolderBuilder builder = new TabFolderBuilder();
-		builder.addTab(createExposureCompositeFactory());
+		builder.addTab(createSettingsCompositeFactory());
 		builder.addTab(createAbsorptionCompositeFactory());
 		builder.addTab(createROICompositeFactory());
 		builder.addTab(createCalibrationFactory());
@@ -125,9 +125,9 @@ public class CameraConfigurationFactory implements CompositeFactory {
 		return group;
 	}
 
-	private final TabCompositeFactory createExposureCompositeFactory() {
+	private final TabCompositeFactory createSettingsCompositeFactory() {
 		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
-		CompositeFactory cf = new CameraConfigurationComposite(streamController);
+		CompositeFactory cf = new CameraSettingsComposite();
 		group.setCompositeFactory(cf);
 		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.CAMERA));
 		return group;

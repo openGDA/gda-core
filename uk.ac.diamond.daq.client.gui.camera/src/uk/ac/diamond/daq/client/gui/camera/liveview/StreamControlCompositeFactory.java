@@ -3,7 +3,6 @@ package uk.ac.diamond.daq.client.gui.camera.liveview;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -42,6 +41,8 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 	private List<CameraComboItem> comboItems;
 
 	private SmartCombo<StreamType> streamTypeCombo;
+	
+	private Button streamActivationButton;
 
 	private final StreamController streamController;
 	
@@ -56,7 +57,7 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		Composite streamControlArea = ClientSWTElements.createComposite(parent, SWT.NONE, 3);
+		Composite streamControlArea = ClientSWTElements.createGridLayoutComposite(parent, style, 3);
 
 		Composite cameraComboArea = ClientSWTElements.createComposite(streamControlArea, SWT.NONE);
 		ClientSWTElements.createLabel(cameraComboArea, SWT.NONE, ClientMessages.CAMERA, new Point(2, 1));
@@ -67,7 +68,14 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 		ClientSWTElements.createLabel(streamComboArea, SWT.NONE, ClientMessages.STREAM, new Point(2, 1));
 		streamTypeCombo = new SmartCombo<>(streamComboArea, style, Optional.of(ClientMessages.STAGE_TP),
 				Optional.of(this::changeStreamController));
-
+		
+		Composite activationArea = ClientSWTElements.createGridLayoutComposite(streamControlArea, SWT.NONE, 1);
+		ClientSWTElements.createLabel(activationArea, SWT.NONE, ClientMessages.EMPTY_MESSAGE, new Point(2, 1));
+		streamActivationButton = ClientSWTElements.createButton(activationArea, SWT.NONE, ClientMessages.START_STREAM,
+				ClientMessages.START_STREAM);
+		streamActivationButton.setData(ClientMessages.START_STREAM);
+		streamActivationButton.addListener(SWT.Selection, this::changeStreamState);
+		
 		// initialise composite
 		initialiseComposite(parent);
 
@@ -108,7 +116,28 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 		}
 	}
 
-
+	private void changeStreamState(Event e) {
+		try {
+			// Is it listening?
+			if (ListeningState.class.isInstance(streamController.getState())) {
+				streamController.idle();
+			} else {
+				// then was idle
+				streamController.listen();
+			}
+		} catch (LiveStreamException ex) {
+			// handleException(ex);
+		}
+		updateStreamActivationButton();
+	}
+	
+	private void updateStreamActivationButton() {
+		if (ListeningState.class.isInstance(streamController.getState())) {
+			streamActivationButton.setText(ClientMessagesUtility.getMessage(ClientMessages.STOP_STREAM));
+		} else {
+			streamActivationButton.setText(ClientMessagesUtility.getMessage(ClientMessages.START_STREAM));
+		}
+	}
 
 	private void updateStreamController() {
 		// Changes camera
