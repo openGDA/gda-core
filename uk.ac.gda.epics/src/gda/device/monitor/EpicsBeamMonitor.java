@@ -120,7 +120,7 @@ public class EpicsBeamMonitor extends MonitorBase implements MonitorListener {
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
 			if (detectorName != null) {
-				detector = (Detector) Finder.getInstance().find(detectorName);
+				detector = (Detector) Finder.find(detectorName);
 				if (detector != null) {
 					if (detector instanceof ETLDetector) {
 						ETLDetector d = (ETLDetector) detector;

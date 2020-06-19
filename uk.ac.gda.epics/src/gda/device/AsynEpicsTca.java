@@ -189,7 +189,7 @@ public class AsynEpicsTca extends DeviceBase implements MonitorListener, Connect
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
-			if ((epicsTcaRecord = Finder.getInstance().find(epicsTcaRecordName)) != null) {
+			if ((epicsTcaRecord = Finder.find(epicsTcaRecordName)) != null) {
 				monitorInstalledSet = new HashSet<>();
 
 				tcaRecordName = epicsTcaRecord.getFullRecordName();

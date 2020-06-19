@@ -310,7 +310,7 @@ public class EpicsMCA extends AnalyserBase implements IEpicsMCA, InitializationL
 			try {
 				if (pvName == null) {
 					if (epicsMcaRecordName != null) {
-						EpicsRecord epicsRecord = (EpicsRecord) Finder.getInstance().find(epicsMcaRecordName);
+						EpicsRecord epicsRecord = (EpicsRecord) Finder.find(epicsMcaRecordName);
 						if (epicsRecord != null) {
 							pvName = epicsRecord.getFullRecordName();
 						}

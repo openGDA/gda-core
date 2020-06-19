@@ -87,7 +87,7 @@ public class OxfordCryostream700 extends TemperatureBase implements IObserver {
 				dataFileWriter = new DataFileWriter(filePrefix, fileSuffix);
 			}
 			if (cryoController == null) { // CASTOR configuration
-				if ((cryoController = Finder.getInstance().find(cryoControllerName)) != null) {
+				if ((cryoController = Finder.find(cryoControllerName)) != null) {
 					logger.debug("CryoController {} found", cryoControllerName);
 				} else {
 					logger.error("Cryo controller {} not found", cryoControllerName);

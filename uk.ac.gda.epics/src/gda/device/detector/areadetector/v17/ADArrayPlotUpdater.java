@@ -46,9 +46,9 @@ import uk.ac.diamond.scisoft.analysis.SDAPlotter;
  * 	<property name="arrayPlugin" ref="ndarray" />
  * </bean>
  *
- * Finder.getInstance().find("ad_plot_update").start()
+ * Finder.find("ad_plot_update").start()
  * ...
- * Finder.getInstance().find("ad_plot_update").stop()
+ * Finder.find("ad_plot_update").stop()
  * }
  * </pre>
  * </p>

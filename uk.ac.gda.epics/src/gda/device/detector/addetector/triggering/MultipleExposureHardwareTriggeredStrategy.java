@@ -85,7 +85,7 @@ public class MultipleExposureHardwareTriggeredStrategy extends SimpleAcquire {
 			// Get ref to TfgScaler object from detector name
 			TfgScalerWithFrames tfgScaler = null;
 			if (tfgScalerNameList.contains(detectorNames[i])) {
-				tfgScaler = Finder.getInstance().find(detectorNames[i]);
+				tfgScaler = Finder.find(detectorNames[i]);
 			}
 
 			// Set TfgScaler frame times. NB. Don't do this if frame times have already been

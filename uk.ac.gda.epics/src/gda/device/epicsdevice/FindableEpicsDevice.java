@@ -86,7 +86,7 @@ public class FindableEpicsDevice extends DeviceBase implements IFindableEpicsDev
 			gda.epics.interfaceSpec.Device device = null;
 			if (!epicsRecordNames.isEmpty()) {
 				for (String epicsRecordName : epicsRecordNames) {
-					EpicsRecord epicsRecord = Finder.getInstance().find(epicsRecordName);
+					EpicsRecord epicsRecord = Finder.find(epicsRecordName);
 					if (epicsRecord == null)
 						throw new IllegalArgumentException("EpicsDevice:" + getName() + " unable to find record  "
 								+ epicsRecordName);
@@ -311,7 +311,7 @@ public class FindableEpicsDevice extends DeviceBase implements IFindableEpicsDev
 
 	public static IEpicsChannel createSimpleScannable(String device, String record, String field) {
 		IEpicsChannel epicsChannel = null;
-		IEpicsDevice epicsDevice = (IEpicsDevice) Finder.getInstance().find(device);
+		IEpicsDevice epicsDevice = (IEpicsDevice) Finder.find(device);
 		if (epicsDevice == null) {
 			logger.error("Unable to find device " + device);
 		} else {
@@ -321,7 +321,7 @@ public class FindableEpicsDevice extends DeviceBase implements IFindableEpicsDev
 	}
 
 	public static IEpicsChannel createChannel(ReturnType returnType, String device, String record, String field) {
-		Object findable = Finder.getInstance().find(device);
+		Object findable = Finder.find(device);
 		if (findable == null || !(findable instanceof IEpicsDevice)) {
 			throw new IllegalArgumentException("FindableEpicsDevice.createChannel.Unable to find IEpicsDevice called "
 					+ device);

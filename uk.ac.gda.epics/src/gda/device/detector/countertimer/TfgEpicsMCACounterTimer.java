@@ -65,11 +65,11 @@ public class TfgEpicsMCACounterTimer extends TFGCounterTimer {
 			return;
 		}
 		for (int i = 0; i < epicsMcaNameList.size(); i++) {
-			epicsMcaList.add((IEpicsMCASimple) Finder.getInstance().find(epicsMcaNameList.get(i)));
+			epicsMcaList.add((IEpicsMCASimple) Finder.find(epicsMcaNameList.get(i)));
 		}
 
 		logger.debug("Finding ADC: " + adcName);
-		if ((adc = (EpicsADC) Finder.getInstance().find(adcName)) == null) {
+		if ((adc = (EpicsADC) Finder.find(adcName)) == null) {
 			logger.error("EpicsADC " + adcName + " not found.");
 		}
 

@@ -103,7 +103,7 @@ public class EpicsMultiChannelScaler extends DetectorBase implements IObserver, 
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
 			if (controller == null) {
-				if ((controller = (EpicsDlsMcsSis3820Controller) Finder.getInstance().find(controllerName)) != null) {
+				if ((controller = (EpicsDlsMcsSis3820Controller) Finder.find(controllerName)) != null) {
 					logger.debug("controller {} found", controllerName);
 
 				} else {

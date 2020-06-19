@@ -117,7 +117,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements IObserver, IBe
 		if (!isConfigured()) {
 			if (monitor == null) {
 				if (monitorName != null) {
-					monitor = (CurrentAmplifier) Finder.getInstance().find(monitorName);
+					monitor = (CurrentAmplifier) Finder.find(monitorName);
 				}
 			}
 			if (monitor != null) {

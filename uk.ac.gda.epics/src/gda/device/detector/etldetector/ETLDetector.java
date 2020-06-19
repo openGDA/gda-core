@@ -92,7 +92,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector {
 		if (!isConfigured()) {
 			//wire up objects
 			if (detectorName != null) {
-				if ((detector = (EpicsETLController) Finder.getInstance().find(detectorName)) == null) {
+				if ((detector = (EpicsETLController) Finder.find(detectorName)) == null) {
 					logger.error("Scintillation sensor control - " + detectorName + " - for Detector " + getName()
 							+ " not found");
 					throw new FactoryException("Scintillation sensor control - " + detectorName + " - for Detector "
@@ -100,7 +100,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector {
 				}
 			}
 			if (scalerName != null) {
-				if ((scaler = (EpicsScaler) Finder.getInstance().find(scalerName)) == null) {
+				if ((scaler = (EpicsScaler) Finder.find(scalerName)) == null) {
 					logger.error("Detector " + scaler + " not found");
 					throw new FactoryException("Scaler - " + scalerName + " - for detector " + getName()
 							+ " not found.");

@@ -239,7 +239,7 @@ public class EpicsTca extends DeviceBase implements InitializationListener {
 		if (!isConfigured()) {
 			try {
 				if (epicsTcaRecordName != null) {
-					EpicsRecord epicsTcaRecord = (EpicsRecord) Finder.getInstance().find(epicsTcaRecordName);
+					EpicsRecord epicsTcaRecord = (EpicsRecord) Finder.find(epicsTcaRecordName);
 					if (epicsTcaRecord != null) {
 						configure(epicsTcaRecord.getFullRecordName());
 					}

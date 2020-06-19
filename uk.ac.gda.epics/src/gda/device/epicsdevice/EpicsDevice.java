@@ -917,7 +917,7 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 	 * @throws DeviceException
 	 */
 	public static Double getValue(String deviceName, String record, String field) throws DeviceException {
-		Object obj = Finder.getInstance().find(deviceName);
+		Object obj = Finder.find(deviceName);
 		if (obj == null || !(obj instanceof EpicsDevice))
 			throw new DeviceException("EpicsDevice.getValue. unable to find EpicsDevice " + deviceName);
 		EpicsDevice experimentEpicsDevice = (EpicsDevice) obj;

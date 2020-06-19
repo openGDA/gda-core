@@ -330,7 +330,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 
 			// If no access control object has been set, but a name has been specified, look up the name
 			if (accessControl == null && getAccessControlName() != null) {
-				accessControl = Finder.getInstance().find(accessControlName);
+				accessControl = Finder.find(accessControlName);
 				if (accessControl == null) {
 					throw new FactoryException("Can not find access control object " + accessControl.getName());
 				}

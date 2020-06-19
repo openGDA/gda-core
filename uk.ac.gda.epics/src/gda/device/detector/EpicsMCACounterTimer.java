@@ -49,7 +49,7 @@ public class EpicsMCACounterTimer extends DetectorBase {
 		//use the name list. If only nameList, find the EpicsMCASimple objects.
 		if (epicsMcaList.isEmpty() && !epicsMcaNameList.isEmpty()) {
 			for (int i = 0; i < epicsMcaNameList.size(); i++) {
-				epicsMcaList.add((IEpicsMCASimple) Finder.getInstance().find(epicsMcaNameList.get(i)));
+				epicsMcaList.add((IEpicsMCASimple) Finder.find(epicsMcaNameList.get(i)));
 			}
 		}
 		setConfigured(true);

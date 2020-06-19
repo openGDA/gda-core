@@ -85,7 +85,7 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 			}
 
 			if (controller == null) {
-				setController( (EpicsEurotherm2kController)Finder.getInstance().find(controllerName) );
+				setController( (EpicsEurotherm2kController)Finder.find(controllerName) );
 			}
 
 			if (controller != null) {

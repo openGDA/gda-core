@@ -119,13 +119,13 @@ public class EpicsMCASimpleTest {
 		});
 		testFactory = TestHelpers.createTestFactory();
 		testFactory.addFindable(channelToEnergyConverter);
-		Finder.getInstance().addFactory(testFactory);
+		Finder.addFactory(testFactory);
 	}
 
 	@After
 	public void tearDown() {
 		// Remove factories from Finder so they do not affect other tests
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 	}
 
 	private FindableEpicsDevice createEpicsDevice() throws Exception {
@@ -391,14 +391,14 @@ public class EpicsMCASimpleTest {
 
 	@Test(expected = DeviceException.class)
 	public void testGetAttributeChannelToEnergyNoConverter() throws Exception {
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 		mcaSimpleDevice.getAttribute(CHANNEL_TO_ENERGY_STRING);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetAttributeChannelToEnergyConversion() throws Exception {
-		Finder.getInstance().addFactory(testFactory);
+		Finder.addFactory(testFactory);
 
 		final String energyAttr = (String) (mcaSimpleDevice.getAttribute(CHANNEL_TO_ENERGY_STRING));
 		// Compare energy, ignoring excess digits after decimal point
@@ -410,19 +410,19 @@ public class EpicsMCASimpleTest {
 		verify(channelToEnergyConverter).toSource(quantityCaptor.capture());
 		assertEquals(CHANNEL, quantityCaptor.getValue().getValue());
 
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 	}
 
 	@Test(expected = DeviceException.class)
 	public void testGetAttributeEnergyToChannelNoConverter() throws Exception {
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 		mcaSimpleDevice.getAttribute(ENERGY_TO_CHANNEL_STRING);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetAttributeEnergyToChannelConversion() throws Exception {
-		Finder.getInstance().addFactory(testFactory);
+		Finder.addFactory(testFactory);
 
 		final String channelAttr = (String) (mcaSimpleDevice.getAttribute(ENERGY_TO_CHANNEL_STRING));
 		assertEquals(CHANNEL, Integer.parseInt(channelAttr));
@@ -434,7 +434,7 @@ public class EpicsMCASimpleTest {
 		assertEquals(ENERGY, quantityCaptor.getValue().getValue().doubleValue(), 0.001);
 		assertEquals(ELECTRON_VOLT, quantityCaptor.getValue().getUnit());
 
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 	}
 
 	@Test
@@ -449,13 +449,13 @@ public class EpicsMCASimpleTest {
 
 	@Test
 	public void testGetChannelForEnergy() throws Exception {
-		Finder.getInstance().addFactory(testFactory);
+		Finder.addFactory(testFactory);
 		assertEquals(CHANNEL, mcaSimpleDevice.getChannelForEnergy(ENERGY));
 	}
 
 	@Test
 	public void testGetEnergyForChannel() throws Exception {
-		Finder.getInstance().addFactory(testFactory);
+		Finder.addFactory(testFactory);
 		assertEquals(ENERGY, mcaSimpleDevice.getEnergyForChannel(CHANNEL), 0.001);
 	}
 

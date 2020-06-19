@@ -54,7 +54,7 @@ public class TfgXmap extends TFGCounterTimer {
 		}
 		// TODO remove finder
 		if (xmap == null)
-			if ((xmap = Finder.getInstance().find(xmapName)) == null)
+			if ((xmap = Finder.find(xmapName)) == null)
 				throw new FactoryException("XmapDetector " + xmapName + " not found");
 		super.configure();
 		setConfigured(true);

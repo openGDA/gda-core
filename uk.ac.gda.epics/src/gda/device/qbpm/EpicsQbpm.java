@@ -52,8 +52,6 @@ public class EpicsQbpm extends EnumPositionerBase implements Monitor, Initializa
 
 	private EpicsBpmController bpmController;
 
-	private Finder finder = Finder.getInstance();
-
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
@@ -63,7 +61,7 @@ public class EpicsQbpm extends EnumPositionerBase implements Monitor, Initializa
 
 			if (currAmpController == null) {
 				if (getCurrAmpQuadName() != null) {
-					currAmpController = (EpicsCurrAmpQuadController) finder.find(getCurrAmpQuadName());
+					currAmpController = (EpicsCurrAmpQuadController) Finder.find(getCurrAmpQuadName());
 					// set Input Names
 				} else {
 					logger.error("Missing EPICS interface configuration for the current amplifier " + getName());
@@ -76,7 +74,7 @@ public class EpicsQbpm extends EnumPositionerBase implements Monitor, Initializa
 
 			if (bpmController == null) {
 				if (getBpmName() != null) {
-					bpmController = (EpicsBpmController) finder.find(getBpmName());
+					bpmController = (EpicsBpmController) Finder.find(getBpmName());
 					extraNames = bpmController.getInputNames();
 				} else {
 					logger.error("Missing EPICS interface configuration for the BPM device " + getBpmName());

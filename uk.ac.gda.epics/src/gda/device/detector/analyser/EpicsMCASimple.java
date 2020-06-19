@@ -177,7 +177,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 		if (!isConfigured()) {
 			if (epicsDevice == null) {
 				if (epicsDeviceName != null) {
-					final Findable object = Finder.getInstance().find(epicsDeviceName);
+					final Findable object = Finder.find(epicsDeviceName);
 					if (object != null && object instanceof FindableEpicsDevice) {
 						epicsDevice = (FindableEpicsDevice) object;
 						epicsDevice.configure();

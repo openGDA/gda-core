@@ -85,7 +85,7 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements MonitorLi
 
 		if (!isConfigured()) {
 			if (pvBase == null) {
-				if ((epicsRecord = Finder.getInstance().find(epicsRecordName)) != null) {
+				if ((epicsRecord = Finder.find(epicsRecordName)) != null) {
 					pvBase = epicsRecord.getFullRecordName();
 				} else {
 					return;

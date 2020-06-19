@@ -91,7 +91,7 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 				dataFileWriter = new DataFileWriter(filePrefix, fileSuffix);
 			}
 			if (controller == null)
-				setController((EpicsLakeshore340Controller) Finder.getInstance().find(epicsLakeshore340ControllerName));
+				setController((EpicsLakeshore340Controller) Finder.find(epicsLakeshore340ControllerName));
 
 			if (controller != null) {
 				logger.debug("Controller {} found", controller.getName());

@@ -103,7 +103,7 @@ public class Epics8512CounterTimer extends gda.device.detector.DetectorBase impl
 
 		// Set up the PRESET, STARTCOUNT and n x CHn EPICS channels
 		if (!isConfigured() && !dummy) {
-			if ((epicsRecord = (EpicsRecord) Finder.getInstance().find(
+			if ((epicsRecord = (EpicsRecord) Finder.find(
 					epicsRecordName)) != null) {
 				epicsRecordName = epicsRecord.getFullRecordName();
 				try {
