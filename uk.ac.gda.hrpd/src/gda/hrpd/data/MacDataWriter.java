@@ -127,7 +127,6 @@ public class MacDataWriter extends DataWriterBase implements Findable, Configura
 
 	private Vector<Scannable> allScannables = new Vector<Scannable>();
 	private Vector<Detector> allDetectors = new Vector<Detector>();
-	private Finder finder = Finder.getInstance();
 	private double temp = Double.NaN;
 	private int numberOfDetectors;
 	private double scantime;
@@ -149,11 +148,11 @@ public class MacDataWriter extends DataWriterBase implements Findable, Configura
 			logger.warn("Can not find 'GDAMetadata' object.");
 		}
 
-		if ((beam = (Beam) finder.find("beam")) == null) {
+		if ((beam = (Beam) Finder.find("beam")) == null) {
 			logger.warn("Can not find beam information object 'beam'");
 		}
 
-		if ((bli = (BeamlineInfo) finder.find("beamline")) == null) {
+		if ((bli = (BeamlineInfo) Finder.find("beamline")) == null) {
 			logger.warn("Can not find beamline information object 'beamline'");
 		}
 		// if (bli != null) {
@@ -161,7 +160,7 @@ public class MacDataWriter extends DataWriterBase implements Findable, Configura
 		// } else {
 		// dataDir = PathConstructor.createFromDefaultProperty();
 		// }
-		if ((saminfo = (SampleInfo) finder.find("SampleInfo")) == null) {
+		if ((saminfo = (SampleInfo) Finder.find("SampleInfo")) == null) {
 			logger.warn("Cannot find sample information data object 'SampleInfo'");
 		}
 		configured = true;

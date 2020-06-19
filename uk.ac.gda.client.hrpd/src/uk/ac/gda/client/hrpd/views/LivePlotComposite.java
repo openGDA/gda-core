@@ -158,7 +158,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 	public void initialise() {
 		if (getDataFilenameObserverName() != null) {
 			// optional file name observing
-			scriptController = Finder.getInstance().find(getDataFilenameObserverName());
+			scriptController = Finder.find(getDataFilenameObserverName());
 			if (scriptController != null) {
 				scriptController.addIObserver(this); // observe server cvscan process for data file name changes.
 				logger.debug("Data filename observer added via script controller {}", getDataFilenameObserverName());

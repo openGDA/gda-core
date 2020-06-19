@@ -69,7 +69,7 @@ public abstract class CVScanBase extends ScanBase {
 			// create a data handler object
 			DataWriter dataHandler = (DataWriter) dataHandlerType.newInstance();
 			((MacDataWriter)dataHandler).configure();
-			Findable filereg = Finder.getInstance().find("FileRegistrar");
+			Findable filereg = Finder.find("FileRegistrar");
 			if (filereg != null) {
 				((MacDataWriter) dataHandler).addDataWriterExtender((IDataWriterExtender) filereg);
 			}
