@@ -20,14 +20,6 @@
 package gda.scan;
 
 import static org.junit.Assert.assertTrue;
-import gda.configuration.properties.LocalProperties;
-import gda.device.Scannable;
-import gda.factory.FactoryException;
-import gda.factory.Finder;
-import gda.util.ObjectServer;
-import gda.util.TestUtils;
-import gda.util.findableHashtable.FindableHashtable;
-import gda.util.findableHashtable.Hashtable;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -43,6 +35,14 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
+import gda.configuration.properties.LocalProperties;
+import gda.device.Scannable;
+import gda.factory.FactoryException;
+import gda.factory.Finder;
+import gda.util.ObjectServer;
+import gda.util.TestUtils;
+import gda.util.findableHashtable.FindableHashtable;
+import gda.util.findableHashtable.Hashtable;
 
 /**
  * A Class for performing TestNG unit tests on ....... Separate Java properties and object server XML files are
@@ -88,8 +88,7 @@ public class ScanTest {
 		configureLogging();
 		ObjectServer.createLocalImpl(TestUtils.getResourceAsFile(ScanTest.class, "scanTest_server.xml").getAbsolutePath());
 
-		finder = Finder.getInstance();
-		hashtable = (gda.util.findableHashtable.Hashtable) finder.find("GDAHashtable");
+		hashtable = (Hashtable) Finder.find("GDAHashtable");
 
 		cleanUp();
 

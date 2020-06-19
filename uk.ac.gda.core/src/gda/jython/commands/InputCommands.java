@@ -53,7 +53,7 @@ public class InputCommands {
 
 	private static JythonServer getServer() {
 		if (server == null) {
-			server = Finder.getInstance().findSingleton(JythonServer.class);
+			server = Finder.findSingleton(JythonServer.class);
 		}
 		return server;
 	}

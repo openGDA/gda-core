@@ -387,7 +387,7 @@ public class ScannableNexusWrapperScanTest {
 		beam.setScanMetadataAttribute(Scannable.ATTR_NEXUS_CATEGORY, "NXsample");
 		factory.addFindable(beam);
 
-		Finder.getInstance().addFactory(factory);
+		Finder.addFactory(factory);
 	}
 
 	@Before
@@ -400,7 +400,7 @@ public class ScannableNexusWrapperScanTest {
 	public void deleteFile() {
 		output.delete();
 		// Remove factories from Finder so they do not affect other tests
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 	}
 
 	public void readLegacySpringConfig(String path) throws Exception {
@@ -697,7 +697,7 @@ public class ScannableNexusWrapperScanTest {
 	}
 
 	private Scannable getScannable(String scannableName) {
-		Findable found = Finder.getInstance().find(scannableName);
+		Findable found = Finder.find(scannableName);
 		if (found instanceof Scannable && !(found instanceof Detector)) {
 			return (Scannable) found;
 		}
@@ -746,7 +746,7 @@ public class ScannableNexusWrapperScanTest {
 
 		// check each metadata scannable has been written correctly
 		for (String metadataScannableName : metadataScannableNames) {
-			Scannable scannable = Finder.getInstance().find(metadataScannableName);
+			Scannable scannable = Finder.find(metadataScannableName);
 			if (scannable.getScanMetadataAttribute(Scannable.ATTR_NEXUS_CATEGORY) != null) {
 				// the nexus object for a scannable with a nexus category won't be under NXinstrument
 				continue;
@@ -836,7 +836,7 @@ public class ScannableNexusWrapperScanTest {
 	}
 
 	private void checkAttributeScannable(NXinstrument instrument) throws Exception {
-		Scannable attributeScannable = Finder.getInstance().find("attributes");
+		Scannable attributeScannable = Finder.find("attributes");
 		NXpositioner positioner = instrument.getPositioner(attributeScannable.getName());
 		assertNotNull(positioner);
 

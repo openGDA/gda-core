@@ -57,7 +57,7 @@ public class OxfordDanfysikQBPM extends BPMBase {
 		if (isConfigured()) {
 			return;
 		}
-		if ((serial = (Serial) Finder.getInstance().find(serialDeviceName)) == null) {
+		if ((serial = (Serial) Finder.find(serialDeviceName)) == null) {
 			logger.error("Serial Device " + serialDeviceName + " not found");
 		} else {
 			try {

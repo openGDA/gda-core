@@ -123,7 +123,7 @@ public class ProfileManagerPage extends WizardPage {
 	private void sendProfileToDriver() {
 		if (selectedProfile.isPresent()) {
 			DriverModel model = selectedProfile.get();
-			IExperimentDriver<DriverModel> driver = Finder.getInstance().find(driverName);
+			IExperimentDriver<DriverModel> driver = Finder.find(driverName);
 			try {
 				driver.setModel(model);
 				updateLabel.setText("Sent '" + model.getName() + "'");
@@ -144,7 +144,7 @@ public class ProfileManagerPage extends WizardPage {
 
 			if (MessageDialog.openConfirm(getShell(), "Run profile?",
 					"Do you want to run profile '" + profileName + "' now?")) {
-				IExperimentDriver<DriverModel> driver = Finder.getInstance().find(driverName);
+				IExperimentDriver<DriverModel> driver = Finder.find(driverName);
 				colourState.setRed();
 				updateLabel.setText("Running '" + profileName + "'");
 				loadButton.setEnabled(false);
@@ -173,7 +173,7 @@ public class ProfileManagerPage extends WizardPage {
 	}
 
 	private void initiateColourState() {
-		IExperimentDriver<DriverModel> driver = Finder.getInstance().find(driverName);
+		IExperimentDriver<DriverModel> driver = Finder.find(driverName);
 		switch (driver.getState()) {
 		case IDLE:
 			colourState.setGreen();
@@ -215,7 +215,7 @@ public class ProfileManagerPage extends WizardPage {
 	public IWizardPage getNextPage() {
 		IWizardPage page = super.getNextPage();
 		if (page instanceof ProfileEditorPage && selectedProfile.isPresent()) {
-			IExperimentDriver<DriverModel> driver = Finder.getInstance().find(driverName);
+			IExperimentDriver<DriverModel> driver = Finder.find(driverName);
 			((ProfileEditorPage) page).setProfile((SingleAxisLinearSeries) selectedProfile.get(),
 					driver.getQuantityName(), driver.getQuantityUnits());
 		}

@@ -131,7 +131,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 			if (motorName == null || motorName.length() == 0) {
 				throw new FactoryException("No motor configured and no motor name set");
 			}
-			final Motor motorFromFinder = Finder.getInstance().find(motorName);
+			final Motor motorFromFinder = Finder.find(motorName);
 			if (motorFromFinder == null) {
 				throw new FactoryException(String.format("Motor %s not found", motorName));
 			}

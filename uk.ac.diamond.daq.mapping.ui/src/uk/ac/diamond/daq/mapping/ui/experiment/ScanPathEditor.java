@@ -93,7 +93,7 @@ public class ScanPathEditor extends Composite implements IObservable {
 		// Box to show current value
 		currentValueLabel = new Label(this, SWT.NONE);
 		GridDataFactory.swtDefaults().hint(50, SWT.DEFAULT).applyTo(currentValueLabel);
-		final Optional<Scannable> optScannable = Finder.getInstance().findOptional(scannableName);
+		final Optional<Scannable> optScannable = Finder.findOptional(scannableName);
 		if (optScannable.isPresent()) {
 			scannable = optScannable.get();
 			updateCurrentValue();

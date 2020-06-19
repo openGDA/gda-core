@@ -170,7 +170,7 @@ public class SyringeControlView extends ViewPart implements IObserver {
 	};
 
 	public SyringeControlView() {
-		pumps = Finder.getInstance().listFindablesOfType(Syringe.class);
+		pumps = Finder.listFindablesOfType(Syringe.class);
 	}
 
 	@Override

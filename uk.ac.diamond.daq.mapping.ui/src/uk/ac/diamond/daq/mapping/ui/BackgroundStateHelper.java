@@ -95,7 +95,7 @@ class BackgroundStateHelper {
 		if (defaultConfigName == null) {
 			return Optional.empty();
 		}
-		Optional<CameraConfiguration> config = Finder.getInstance().findOptional(defaultConfigName);
+		Optional<CameraConfiguration> config = Finder.findOptional(defaultConfigName);
 		return config.map(this::getLiveStreamObject).orElse(Optional.empty());
 	}
 	private Optional<LiveStreamMapObject> getLiveStreamObject(CameraConfiguration config) {

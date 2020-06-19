@@ -39,13 +39,13 @@ public class FinderTest {
 
 	@After
 	public void cleanUpFinder() {
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 	}
 
 	@Test
 	public void findSingleton() {
 		prepareFactoryForSingletonTests();
-		SingletonService found = Finder.getInstance().findSingleton(SingletonService.class);
+		SingletonService found = Finder.findSingleton(SingletonService.class);
 		assertNotNull(found);
 		assertEquals("singleton", found.getName());
 	}
@@ -53,20 +53,20 @@ public class FinderTest {
 	@Test(expected=IllegalArgumentException.class)
 	public void findSingletonMultipleInstancesThrows() {
 		prepareFactoryForSingletonTests();
-		Finder.getInstance().findSingleton(SomeOtherFindable.class);
+		Finder.findSingleton(SomeOtherFindable.class);
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void findSingletonNoInstancesThrows() {
 		// not adding anything to the Finder factories
-		Finder.getInstance().findSingleton(SingletonService.class);
+		Finder.findSingleton(SingletonService.class);
 	}
 
 	@Test
 	public void findOptionalReturnsOptionalWithCorrectFindable() throws FactoryException {
 		prepareFactoryForFindAndFindOptionalTests();
 
-		Optional<Findable> findable = Finder.getInstance().findOptional("findable1");
+		Optional<Findable> findable = Finder.findOptional("findable1");
 
 		assertTrue(findable.isPresent());
 		assertEquals("findable1", findable.get().getName());
@@ -76,7 +76,7 @@ public class FinderTest {
 	public void findOptionalReturnsOptionalWithNoFindable() throws FactoryException {
 		prepareFactoryForFindAndFindOptionalTests();
 
-		Optional<Findable> findable = Finder.getInstance().findOptional("findable3");
+		Optional<Findable> findable = Finder.findOptional("findable3");
 
 		assertFalse(findable.isPresent());
 	}
@@ -85,7 +85,7 @@ public class FinderTest {
 	public void findReturnsCorrectFindable() throws FactoryException {
 		prepareFactoryForFindAndFindOptionalTests();
 
-		Findable findable = Finder.getInstance().find("findable1");
+		Findable findable = Finder.find("findable1");
 
 		assertTrue(findable != null);
 		assertEquals("findable1", findable.getName());
@@ -95,7 +95,7 @@ public class FinderTest {
 	public void findReturnsNullWhenNotFound() throws FactoryException {
 		prepareFactoryForFindAndFindOptionalTests();
 
-		Findable findable = Finder.getInstance().find("findable3");
+		Findable findable = Finder.find("findable3");
 
 		assertTrue(findable == null);
 	}
@@ -104,7 +104,7 @@ public class FinderTest {
 	public void finderFindsLocalFindableFirst() throws FactoryException {
 		prepareLocalAndRemoteFactoryWithSameNameFindables();
 
-		Findable findable = Finder.getInstance().find("findable1");
+		Findable findable = Finder.find("findable1");
 
 		assertNotNull(findable);
 		assertEquals(SomeOtherFindable.class, findable.getClass());
@@ -114,7 +114,7 @@ public class FinderTest {
 	public void listAllInterfacesCorrectlyListsAllInterfaces() {
 		prepareFactoryForListAllInterfacesTest();
 
-		List<String> interfaces = Finder.getInstance().listAllInterfaces();
+		List<String> interfaces = Finder.listAllInterfaces();
 
 		assertTrue(interfaces.contains("FinderTest$Interface1"));
 		assertTrue(interfaces.contains("FinderTest$Interface2"));
@@ -128,7 +128,7 @@ public class FinderTest {
 	public void getFindablesOfTypeReturnsCorrectFindables() throws FactoryException {
 		prepareLocalAndRemoteFactory();
 
-		Map<String, SomeFindable> findables = Finder.getInstance().getFindablesOfType(SomeFindable.class);
+		Map<String, SomeFindable> findables = Finder.getFindablesOfType(SomeFindable.class);
 
 		assertNotNull(findables.get("findable1"));
 		assertEquals("findable1", findables.get("findable1").getName());
@@ -141,7 +141,7 @@ public class FinderTest {
 	public void getLocalFindablesOfTypeReturnsLocalFindablesOnly() throws FactoryException {
 		prepareLocalAndRemoteFactory();
 
-		Map<String, SomeFindable> findables = Finder.getInstance().getLocalFindablesOfType(SomeFindable.class);
+		Map<String, SomeFindable> findables = Finder.getLocalFindablesOfType(SomeFindable.class);
 
 		assertNotNull(findables.get("findable1"));
 		assertEquals("findable1", findables.get("findable1").getName());
@@ -153,7 +153,7 @@ public class FinderTest {
 	public void listFindablesOfTypeReturnsCorrectFindables() throws FactoryException {
 		prepareLocalAndRemoteFactory();
 
-		List<SomeFindable> findables = Finder.getInstance().listFindablesOfType(SomeFindable.class);
+		List<SomeFindable> findables = Finder.listFindablesOfType(SomeFindable.class);
 
 		assertEquals(2, findables.size());
 
@@ -168,7 +168,7 @@ public class FinderTest {
 	public void listLocalFindablesOfTypeReturnsCorrectLocalFindables() throws FactoryException {
 		prepareLocalAndRemoteFactory();
 
-		List<SomeFindable> findables = Finder.getInstance().listLocalFindablesOfType(SomeFindable.class);
+		List<SomeFindable> findables = Finder.listLocalFindablesOfType(SomeFindable.class);
 
 		assertEquals(1, findables.size());
 		assertEquals("findable1", findables.get(0).getName());
@@ -187,7 +187,7 @@ public class FinderTest {
 			.thenReturn(Arrays.asList(singleton, notSingleton1, notSingleton2));
 		when(testFactory.getFindablesOfType(SingletonService.class)).thenReturn(singletonServices);
 
-		Finder.getInstance().addFactory(testFactory);
+		Finder.addFactory(testFactory);
 	}
 
 	private void prepareFactoryForFindAndFindOptionalTests() throws FactoryException {
@@ -206,7 +206,7 @@ public class FinderTest {
 		when(testFactory.getFindable("findable1"))
 			.thenReturn(findable1);
 
-		Finder.getInstance().addFactory(testFactory);
+		Finder.addFactory(testFactory);
 	}
 
 	private void prepareFactoryForListAllInterfacesTest() {
@@ -223,7 +223,7 @@ public class FinderTest {
 		when(testFactory.getFindablesOfType(Findable.class))
 			.thenReturn(findables);
 
-		Finder.getInstance().addFactory(testFactory);
+		Finder.addFactory(testFactory);
 	}
 
 	private void prepareLocalAndRemoteFactory() throws FactoryException {
@@ -256,9 +256,8 @@ public class FinderTest {
 		when(remoteFactory.getFindable("findable2"))
 			.thenReturn(findable2);
 
-		Finder finder = Finder.getInstance();
-		finder.addFactory(localFactory);
-		finder.addFactory(remoteFactory);
+		Finder.addFactory(localFactory);
+		Finder.addFactory(remoteFactory);
 	}
 
 	private void prepareLocalAndRemoteFactoryWithSameNameFindables() throws FactoryException {
@@ -291,9 +290,8 @@ public class FinderTest {
 		when(localFactory.getFindable("findable1"))
 		.thenReturn(remoteFindable);
 
-		Finder finder = Finder.getInstance();
-		finder.addFactory(localFactory);
-		finder.addFactory(remoteFactory);
+		Finder.addFactory(localFactory);
+		Finder.addFactory(remoteFactory);
 	}
 
 	private class SingletonService extends FindableBase {

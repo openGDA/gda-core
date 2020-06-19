@@ -115,7 +115,7 @@ public final class GeneralCommands {
 	public static void ls(String interfaceName) {
 
 		if (interfaceName == null || interfaceName.compareTo("") == 0 || interfaceName.compareTo("all") == 0) {
-			List<String> availableInterfaces = Finder.getInstance().listAllInterfaces();
+			List<String> availableInterfaces = Finder.listAllInterfaces();
 
 			availableInterfaces.remove("Findable");
 			availableInterfaces.remove("Hashtable");
@@ -257,7 +257,7 @@ public final class GeneralCommands {
 	public static void run(String scriptName) throws Exception {
 		// NOTE: ideally this method would try the entire python sys.path, but this would
 		//       require making a breaking change and possibly be overkill!
-		JythonServer server = Finder.getInstance().findSingleton(JythonServer.class);
+		JythonServer server = Finder.findSingleton(JythonServer.class);
 
 		// allow full paths to be given to this method
 		String path = scriptName;
@@ -280,7 +280,7 @@ public final class GeneralCommands {
 			+ "Can be used for cleaning up resources/deregistering listeners etc.")
 	public static void add_reset_hook(Runnable hook) {
 		logger.info("Adding reset hook to JythonServer");
-		Finder.getInstance().findSingleton(JythonServer.class).addResetHook(hook);
+		Finder.findSingleton(JythonServer.class).addResetHook(hook);
 	}
 
 	/**
@@ -291,12 +291,12 @@ public final class GeneralCommands {
 	@GdaJythonBuiltin("Reset the Jython environment")
 	public static void reset_namespace() {
 		logger.info("Resetting Jython namespace");
-		Finder.getInstance().findSingleton(JythonServer.class).restart();
+		Finder.findSingleton(JythonServer.class).restart();
 		reconfigureScriptControllers();
 	}
 
 	private static void reconfigureScriptControllers() {
-		Map<String, Scriptcontroller> scriptControllers = Finder.getInstance().getFindablesOfType(Scriptcontroller.class);
+		Map<String, Scriptcontroller> scriptControllers = Finder.getFindablesOfType(Scriptcontroller.class);
 		for (Scriptcontroller sc : scriptControllers.values()) {
 			logger.debug("Reconfiguring '{}' script controller", sc.getName());
 			try {

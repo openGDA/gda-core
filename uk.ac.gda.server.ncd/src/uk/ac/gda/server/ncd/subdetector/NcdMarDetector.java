@@ -49,7 +49,7 @@ public class NcdMarDetector extends NcdSubDetector implements LastImageProvider 
 			return;
 		}
 		if (detector == null && marName != null)
-			detector = Finder.getInstance().find(marName);
+			detector = Finder.find(marName);
 		setConfigured(true);
 	}
 

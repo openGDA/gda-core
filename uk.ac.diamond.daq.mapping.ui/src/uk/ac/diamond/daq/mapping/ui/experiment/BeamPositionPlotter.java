@@ -130,7 +130,7 @@ public class BeamPositionPlotter implements IObserver, PropertyChangeListener {
 
 			beamMarkerColour = new Color(null, 127, 127, 255); // light blue
 
-			xAxisScannable = Finder.getInstance().find(mappingStageInfo.getPlotXAxisName());
+			xAxisScannable = Finder.find(mappingStageInfo.getPlotXAxisName());
 			Optional.ofNullable(xAxisScannable).ifPresent(axis -> {
 				xAxisScannable.addIObserver(this);
 				try {
@@ -141,7 +141,7 @@ public class BeamPositionPlotter implements IObserver, PropertyChangeListener {
 			});
 
 
-			yAxisScannable = Finder.getInstance().find(mappingStageInfo.getPlotYAxisName());
+			yAxisScannable = Finder.find(mappingStageInfo.getPlotYAxisName());
 			Optional.ofNullable(xAxisScannable).ifPresent(axis -> {
 				yAxisScannable.addIObserver(this);
 				try {

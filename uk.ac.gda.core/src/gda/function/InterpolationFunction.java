@@ -113,7 +113,7 @@ public class InterpolationFunction<T extends Quantity<T>, R extends Quantity<R>>
 	public void configure() throws FactoryException {
 		if (!configured) {
 			if (cdf == null) {
-				cdf = Finder.getInstance().find(cdfName);
+				cdf = Finder.find(cdfName);
 			}
 			numberOfXValues = cdf.getNumberOfXValues();
 			try {

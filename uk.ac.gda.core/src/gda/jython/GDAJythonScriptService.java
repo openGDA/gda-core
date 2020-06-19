@@ -84,7 +84,7 @@ public class GDAJythonScriptService implements IScriptService {
 		// which calls Thread.stop() on every thread running a jython script that the
 		// JythonServer knows about
 		logger.info("Aborting running jython scripts");
-		Finder.getInstance().findSingleton(JythonServer.class).abortCommands(null);
+		Finder.findSingleton(JythonServer.class).abortCommands(null);
 	}
 
 }

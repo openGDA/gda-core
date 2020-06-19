@@ -160,7 +160,7 @@ public class SampleGroupView extends ViewPart implements IObserver {
 		ProgressLabelProvider progressLabelProvider = new ProgressLabelProvider(viewer, samples);
 		
 		if (getEventAdminName()!=null) {
-			eventAdmin = Finder.getInstance().find(getEventAdminName());
+			eventAdmin = Finder.find(getEventAdminName());
 			if (eventAdmin!=null) {
 				eventAdmin.addIObserver(this);
 				progressLabelProvider.setEventAdmin(eventAdmin);

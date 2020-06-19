@@ -125,7 +125,7 @@ public class DummyCounterTimer extends TFGCounterTimer implements Runnable, IObs
 		// situation it creates a DummyTfg for itself. In that situation the XML
 		// set value of slave is overriden.
 		if (tfgName != null) {
-			timer = (Timer) Finder.getInstance().find(tfgName);
+			timer = (Timer) Finder.find(tfgName);
 		} else {
 			timer = new DummyTfg();
 			((Configurable) timer).configure();

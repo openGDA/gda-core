@@ -37,7 +37,7 @@ public class HardwareUI {
 	 * @throws Exception
 	 */
 	public static void setHardwareLimits(final NumberBox box, final String motorName) throws Exception {
-		HardwareUI.setHardwareLimits(box, Finder.getInstance().find(motorName));
+		HardwareUI.setHardwareLimits(box, Finder.find(motorName));
 	}
 
 	/**

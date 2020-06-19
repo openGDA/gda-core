@@ -43,7 +43,7 @@ public class EditEnergyFocusFunctionHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		final Shell activeShell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		try {
-			final ILinearFunction<Energy, Length> energyFocusFunction = Finder.getInstance().find("energyFocusFunction");
+			final ILinearFunction<Energy, Length> energyFocusFunction = Finder.find("energyFocusFunction");
 			final FocusScanBean focusScanBean = PlatformUI.getWorkbench().getService(FocusScanBean.class);
 			final String energyFocusConfigPath = focusScanBean.getEnergyFocusBean().getEnergyFocusConfigPath();
 			final EditEnergyFocusDialog dialog = new EditEnergyFocusDialog(activeShell, energyFocusFunction, energyFocusConfigPath);

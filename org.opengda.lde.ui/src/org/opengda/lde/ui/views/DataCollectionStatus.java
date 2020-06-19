@@ -319,7 +319,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		updateTotalNumberOfCollections();
 
 		if (getEventAdminName()!=null) {
-			eventAdmin = Finder.getInstance().find(getEventAdminName());
+			eventAdmin = Finder.find(getEventAdminName());
 			if (eventAdmin!=null) {
 				eventAdmin.addIObserver(this);
 			}

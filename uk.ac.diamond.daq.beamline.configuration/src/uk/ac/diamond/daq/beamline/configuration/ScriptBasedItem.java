@@ -95,7 +95,7 @@ public class ScriptBasedItem extends WorkflowItemBase {
 	}
 
 	private Jython getJythonInterpreter() {
-		return Finder.getInstance().findSingleton(Jython.class);
+		return Finder.findSingleton(Jython.class);
 	}
 
 	/**

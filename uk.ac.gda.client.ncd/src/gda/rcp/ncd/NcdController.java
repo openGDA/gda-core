@@ -40,7 +40,6 @@ public class NcdController {
 	private static final Logger logger = LoggerFactory.getLogger(NcdController.class);
 	private static NcdController instance = new NcdController();
 	private NcdDetector ncdDetectorSystem;
-	private Finder finder;
 	public static final String NODETECTOR = "None";
 
 	/**
@@ -56,13 +55,12 @@ public class NcdController {
 	 * private constructor to ensure we are a singleton
 	 */
 	private NcdController() {
-		finder = Finder.getInstance();
 		configure();
 	}
 
 	private void configure() {
 		try {
-			final List<NcdDetector> allDetectors = finder.listFindablesOfType(NcdDetector.class);
+			final List<NcdDetector> allDetectors = Finder.listFindablesOfType(NcdDetector.class);
 			for (NcdDetector detector : allDetectors) {
 				String detectorType = ((Detector) detector).getDetectorType();
 				if ("SYS".equals(detectorType)) {
@@ -83,8 +81,7 @@ public class NcdController {
 		if (ncdDetectorSystem != null) {
 			try {
 				String tfgName = ncdDetectorSystem.getTfgName();
-				Finder finder = Finder.getInstance();
-				tfg = (gda.device.Timer) finder.find(tfgName);
+				tfg = (Timer) Finder.find(tfgName);
 			} catch (DeviceException e) {
 				logger.error("DeviceException in getTfg", e);
 			}
@@ -107,7 +104,7 @@ public class NcdController {
 	public Collection<String> getDetectorNames(String type) {
 		List<String> result = new Vector<String>();
 
-		final List<INcdSubDetector> allNcdDetectors = finder.listFindablesOfType(INcdSubDetector.class);
+		final List<INcdSubDetector> allNcdDetectors = Finder.listFindablesOfType(INcdSubDetector.class);
 		for (INcdSubDetector detector : allNcdDetectors) {
 			try {
 				String detectorType = detector.getDetectorType();
@@ -184,7 +181,7 @@ public class NcdController {
 
 	public INcdSubDetector getDetectorByName(String name) {
 		if (name != null && !NODETECTOR.equals(name)) {
-			return finder.find(name);
+			return Finder.find(name);
 		}
 		return null;
 	}

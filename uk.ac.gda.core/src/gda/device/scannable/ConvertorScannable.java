@@ -64,13 +64,13 @@ public class ConvertorScannable<S extends Quantity<S>, T extends Quantity<T>> ex
 		}
 		// find the scannable objects
 		if (theScannable == null) {
-			theScannable = Finder.getInstance().find(theScannableName);
+			theScannable = Finder.find(theScannableName);
 		}
 		this.inputNames = new String[] { getName() };
 
 		// find the convertor object
 		if (theConvertor == null && convertorName != null) {
-			theConvertor = Finder.getInstance().find(convertorName);
+			theConvertor = Finder.find(convertorName);
 		}
 		configureHardwareUnits();
 		theScannable.addIObserver(this);

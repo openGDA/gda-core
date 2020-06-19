@@ -60,7 +60,7 @@ public class AreaDetectorRunnableDeviceProxy extends AbstractAreaDetectorRunnabl
 		setDeviceState(DeviceState.CONFIGURING);
 
 		// Get the detector by name defined in the model
-		detector = Finder.getInstance().find(model.getName());
+		detector = Finder.find(model.getName());
 		if (detector == null) throw new ScanningException("Could not find detector for " + model.getName());
 		if (delegate == null) throw new ScanningException("No delegate defined for " + model.getName());
 

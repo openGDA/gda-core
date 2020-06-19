@@ -126,7 +126,7 @@ public class LoadAdditionalBeansToObjectServer extends FindableConfigurableBase 
 	 */
 	private void addSpringBackedFactoryToFinder(ApplicationContext applicationContext) {
 		SpringApplicationContextBasedObjectFactory springObjectFactory = new SpringApplicationContextBasedObjectFactory(applicationContext);
-		Finder.getInstance().addFactory(springObjectFactory);
+		Finder.addFactory(springObjectFactory);
 	}
 
 

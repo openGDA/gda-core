@@ -149,8 +149,8 @@ public class MetadataUpdater implements IObserver, IScanDataPointObserver, IJyth
 		try {
 			metadata = GDAMetadataProvider.getInstance();
 
-			new MetadataListener(client.subDirectory, "subdirectory", (Device) Finder.getInstance().find("observableSubdirectory"));
-			new MetadataListener(client.sampleName, "samplename", (Device) Finder.getInstance().find("observableSamplename"));
+			new MetadataListener(client.subDirectory, "subdirectory", (Device) Finder.find("observableSubdirectory"));
+			new MetadataListener(client.sampleName, "samplename", (Device) Finder.find("observableSamplename"));
 
 		} catch (Exception e) {
 			logger.warn("could not find required metadata", e);

@@ -27,7 +27,7 @@ public class PersistenceClassLoaderTestActivator extends Plugin {
 
 	@Override
 	public void start(BundleContext context) throws Exception {
-		PersistenceClassLoader classLoader = Finder.getInstance().find("classLoaderService");
+		PersistenceClassLoader classLoader = Finder.find("classLoaderService");
 		classLoader.initialise();
 		super.start(context);
 	}

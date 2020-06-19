@@ -84,7 +84,7 @@ public class Application implements IApplication {
 			}
 
 
-			Finder.getInstance().addFactory(new RmiProxyFactory());
+			Finder.addFactory(new RmiProxyFactory());
 			// Start watchdog checking whether the server can be reached.
 			if(!serverAvailableWatchdog.startServerAvailableWatchdog()) {
 				// Could not connect to the server - dialog has been displayed to the user.

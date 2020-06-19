@@ -41,7 +41,7 @@ public class ToggleIncrementControlDisplay extends AbstractHandler  {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
 		LiveControlsView liveControlsView = getLiveControlsView(event);
-		List<ControlSet> controlSets = Finder.getInstance().listLocalFindablesOfType(ControlSet.class);
+		List<ControlSet> controlSets = Finder.listLocalFindablesOfType(ControlSet.class);
 		List<LiveControl> controls = controlSets.get(0).getControls();
 		controls.stream().filter(e -> e instanceof ScannablePositionerControl).map(e->(ScannablePositionerControl) e)
 				.forEach(e -> e.toggleIncrementControlDisplay());

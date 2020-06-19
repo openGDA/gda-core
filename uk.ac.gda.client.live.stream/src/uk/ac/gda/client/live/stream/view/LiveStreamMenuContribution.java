@@ -57,7 +57,7 @@ public class LiveStreamMenuContribution extends ExtensionContributionFactory {
 		logger.debug("Adding menu items for live streams...");
 
 		// Find all the implemented cameras. This is currently using the finder but could use OSGi instead.
-		final List<CameraConfiguration> cameras = Finder.getInstance().listLocalFindablesOfType(CameraConfiguration.class);
+		final List<CameraConfiguration> cameras = Finder.listLocalFindablesOfType(CameraConfiguration.class);
 		final Map<String, CameraConfiguration> cameraMap = new HashMap<>();
 		for (CameraConfiguration camConfig : cameras) {
 			if (camConfig.getDisplayName() != null) {

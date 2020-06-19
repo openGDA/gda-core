@@ -126,7 +126,7 @@ public class ScanRequestConverterTest {
 		when(testFactory.getFindable(X_AXIS_NAME)).thenReturn(xAxis);
 		when(testFactory.getFindable(Y_AXIS_NAME)).thenReturn(yAxis);
 
-		Finder.getInstance().addFactory(testFactory);
+		Finder.addFactory(testFactory);
 
 		scanRequestConverter = new ScanRequestConverter();
 		scanRequestConverter.setMappingStageInfo(mappingStageInfo);
@@ -158,7 +158,7 @@ public class ScanRequestConverterTest {
 	public void tearDown() throws Exception {
 		mappingStageInfo = null;
 		scanRequestConverter = null;
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 	}
 
 	@Test

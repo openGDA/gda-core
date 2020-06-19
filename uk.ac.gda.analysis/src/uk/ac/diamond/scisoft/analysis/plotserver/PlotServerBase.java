@@ -58,7 +58,7 @@ public class PlotServerBase extends DeviceBase implements PlotServerDevice {
 	}
 
 	public static PlotServer getPlotServer() {
-		return Finder.getInstance().find("plot_server");
+		return Finder.find("plot_server");
 	}
 
 	@Override

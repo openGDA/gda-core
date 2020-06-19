@@ -77,7 +77,7 @@ public class QueuePreventingScanSubmitter {
 		scanBean.getScanRequest().getCompoundModel().getModels().stream()
 			.filter(IScanPathModel.class::isInstance).map(IScanPathModel.class::cast)
 			.map(IScanPathModel::getScannableNames).flatMap(List::stream)
-			.distinct().map(Finder.getInstance()::find)
+			.distinct().map(Finder::find)
 			.filter(Scannable.class::isInstance).map(Scannable.class::cast)
 			.forEach(scannable -> {
 				try {

@@ -98,7 +98,7 @@ public class LinkamCI extends TemperatureBase {
 		super.configure();
 		if (serial == null) {
 			logger.debug("Finding: {}", serialDeviceName);
-			if ((serial = Finder.getInstance().find(serialDeviceName)) == null) {
+			if ((serial = Finder.find(serialDeviceName)) == null) {
 				logger.error("Serial Device {} not found", serialDeviceName);
 			}
 		}

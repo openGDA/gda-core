@@ -12,7 +12,7 @@ public class Services {
 
 	public static synchronized ExperimentService getExperimentService() {
 		if (experimentService == null) {
-			experimentService = Finder.getInstance().findSingleton(ExperimentService.class);
+			experimentService = Finder.findSingleton(ExperimentService.class);
 		}
 		return experimentService;
 	}

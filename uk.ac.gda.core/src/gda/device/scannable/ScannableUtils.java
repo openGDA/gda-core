@@ -939,7 +939,7 @@ public final class ScannableUtils {
 	 */
 	public static String getScannablePosition(String name) throws DeviceException {
 
-		final Scannable s = (Scannable) Finder.getInstance().find(name);
+		final Scannable s = (Scannable) Finder.find(name);
 
 		// If there is a getUnit method we try that
 		String unit = null;
@@ -973,7 +973,7 @@ public final class ScannableUtils {
 	 * @return true if busy
 	 */
 	public static boolean isScannableBusy(String scannableName) {
-		final Scannable s = (Scannable) Finder.getInstance().find(scannableName);
+		final Scannable s = (Scannable) Finder.find(scannableName);
 		try {
 			return s.isBusy();
 		} catch (DeviceException e) {

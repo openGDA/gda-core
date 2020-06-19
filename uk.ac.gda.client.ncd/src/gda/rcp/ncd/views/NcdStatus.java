@@ -356,7 +356,7 @@ public class NcdStatus extends ViewPart {
 		Composite shutters = new Composite(parent, SWT.NONE);
 		shutters.setLayout(new GridLayout());
 		shutters.setLayoutData(gdf.grab(false, false).create());
-		for (EnumPositioner posn : Finder.getInstance().listFindablesOfType(EnumPositioner.class)) {
+		for (EnumPositioner posn : Finder.listFindablesOfType(EnumPositioner.class)) {
 			if (posn.getName() != null && posn.getName().contains("shutter")) {
 				new ShutterGroup(shutters, SWT.NONE, posn);
 			}

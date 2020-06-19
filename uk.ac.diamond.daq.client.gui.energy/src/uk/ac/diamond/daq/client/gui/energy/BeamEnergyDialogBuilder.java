@@ -79,16 +79,16 @@ public class BeamEnergyDialogBuilder {
 	private EnergyWorkflowController imagingController;
 
 	private EnergyWorkflowController getDiffractionEnergyController() {
-		ConfigurationWorkflow diffractionMono = (ConfigurationWorkflow) Finder.getInstance()
-				.findOptional(DIFFRACTION_MONO_WORKFLOW).orElse(null);
-		ConfigurationWorkflow diffractionPoly = (ConfigurationWorkflow) Finder.getInstance()
-				.findOptional(DIFFRACTION_PINK_WORKFLOW).orElse(null);
+		ConfigurationWorkflow diffractionMono =
+				(ConfigurationWorkflow) Finder.findOptional(DIFFRACTION_MONO_WORKFLOW).orElse(null);
+		ConfigurationWorkflow diffractionPoly =
+				(ConfigurationWorkflow) Finder.findOptional(DIFFRACTION_PINK_WORKFLOW).orElse(null);
 		return new EnergyWorkflowController(EnergySelectionType.BOTH, diffractionMono, diffractionPoly);
 	}
 
 	private final EnergyWorkflowController getImagingEnergyController() {
-		ConfigurationWorkflow imagingMono = (ConfigurationWorkflow) Finder.getInstance()
-				.findOptional(IMAGING_MONO_WORKFLOW).orElse(null);
+		ConfigurationWorkflow imagingMono =
+				(ConfigurationWorkflow) Finder.findOptional(IMAGING_MONO_WORKFLOW).orElse(null);
 		return new EnergyWorkflowController(EnergySelectionType.MONO, imagingMono, null);
 	}
 

@@ -116,7 +116,7 @@ public class LiveStreamView extends ViewPart {
 
 	private void createCameraSelector(final Composite parent) {
 		// Find all the implemented cameras. This is currently using the finder but could use OSGi instead.
-		final List<CameraConfiguration> cameras = Finder.getInstance().listLocalFindablesOfType(CameraConfiguration.class);
+		final List<CameraConfiguration> cameras = Finder.listLocalFindablesOfType(CameraConfiguration.class);
 		final Map<String, CameraConfiguration> cameraMap = new TreeMap<>();
 		for (CameraConfiguration cam : cameras) {
 			if (cam.getDisplayName() != null) {
@@ -222,7 +222,7 @@ public class LiveStreamView extends ViewPart {
 		StreamType streamType = streamTypeFromSecondaryId(secondaryId);
 
 		// Get the camera config from the finder
-		camConfig = Finder.getInstance().find(cameraId);
+		camConfig = Finder.find(cameraId);
 
 		if (camConfig == null) {
 			displayAndLogError(logger, parent, "Camera configuration could not be found for camera ID " + cameraId);

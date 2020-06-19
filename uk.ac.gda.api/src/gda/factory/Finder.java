@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * 	// .. set up mocks first
  * 	Factory testFactory = TestHelpers.createTestFactory("test");
  * 	testFactory.addFindable(mockFindable);
- * 	Finder.getInstance().addFactory(testFactory);
+ * 	Finder.addFactory(testFactory);
  * }
  * </code>
  * </pre>
@@ -60,10 +60,14 @@ public enum Finder {
 	 * Getter to construct and/or return single instance of the finder.
 	 * <p>
 	 * This can be used in unit tests independently of the rest of the GDA framework.
+	 * <p>
+	 * @deprecated No longer needed because all functions are now static. Will be removed in GDA 9.20.
 	 *
 	 * @return the instance of finder.
 	 */
+	@Deprecated
 	public static Finder getInstance() {
+		logger.warn("getInstance() is deprecated and will be removed in GDA 9.20. Please use static access to all Finder functions");
 		return INSTANCE;
 	}
 
@@ -76,7 +80,7 @@ public enum Finder {
 	 *            object to find.
 	 * @return the findable object or null if it cannot be found
 	 */
-	public <T extends Findable> T find(String name) {
+	public static <T extends Findable> T find(String name) {
 		T findable = findObjectByName(name, true);
 
 		if (findable == null) {
@@ -95,7 +99,7 @@ public enum Finder {
 	 *            object to find.
 	 * @return the Optional<T> findable object
 	 */
-	public <T extends Findable> Optional<T> findOptional(String name) {
+	public static <T extends Findable> Optional<T> findOptional(String name) {
 		return Optional.ofNullable(findObjectByName(name, false));
 	}
 
@@ -108,17 +112,17 @@ public enum Finder {
 	 *            True to log a warning message in the case of a FactoryException
 	 * @return the findable object or null if it cannot be found
 	 */
-	private <T extends Findable> T findObjectByName(String name, boolean warn) {
+	private static <T extends Findable> T findObjectByName(String name, boolean warn) {
 		T findable = null;
 
-		for (Factory factory : localFactories) {
+		for (Factory factory : INSTANCE.localFactories) {
 			findable = findObjectByNameInFactory(factory, name, warn);
 			if (findable != null) {
 				return findable;
 			}
 		}
 
-		for (Factory factory : remoteFactories) {
+		for (Factory factory : INSTANCE.remoteFactories) {
 			findable = findObjectByNameInFactory(factory, name, warn);
 			if (findable != null) {
 				return findable;
@@ -139,7 +143,7 @@ public enum Finder {
 	 *            True to log a warning message in the case of a FactoryException
 	 * @return the findable object or null if it cannot be found
 	 */
-	private <T extends Findable> T findObjectByNameInFactory(Factory factory, String name, boolean warn) {
+	private static <T extends Findable> T findObjectByNameInFactory(Factory factory, String name, boolean warn) {
 		T findable = null;
 
 		try {
@@ -163,22 +167,22 @@ public enum Finder {
 	 * @param factory
 	 *            the factory to add to the list.
 	 */
-	public void addFactory(Factory factory) {
-		allFactories.add(factory);
+	public static void addFactory(Factory factory) {
+		INSTANCE.allFactories.add(factory);
 
 		if (factory.isLocal()) {
-			localFactories.add(factory);
+			INSTANCE.localFactories.add(factory);
 		} else {
-			remoteFactories.add(factory);
+			INSTANCE.remoteFactories.add(factory);
 		}
 
-		logger.debug("Added factory '{}' now have {} factories", factory, allFactories.size());
+		logger.debug("Added factory '{}' now have {} factories", factory, INSTANCE.allFactories.size());
 	}
 
-	public void removeAllFactories(){
-		allFactories.clear();
-		localFactories.clear();
-		remoteFactories.clear();
+	public static void removeAllFactories(){
+		INSTANCE.allFactories.clear();
+		INSTANCE.localFactories.clear();
+		INSTANCE.remoteFactories.clear();
 		logger.debug("Cleared factories");
 	}
 
@@ -188,7 +192,7 @@ public enum Finder {
 	 *
 	 * @return array of interface names
 	 */
-	public List<String> listAllInterfaces() {
+	public static List<String> listAllInterfaces() {
 		List<Findable> objects = listAllObjects();
 		List<String> usedInterfaces = new ArrayList<>();
 
@@ -216,9 +220,9 @@ public enum Finder {
 	 *
 	 * @return a list of all known Findable objects.
 	 */
-	private List<Findable> listAllObjects() {
+	private static List<Findable> listAllObjects() {
 		List<Findable> allFindables = new ArrayList<>();
-		for (Factory factory : allFactories) {
+		for (Factory factory : INSTANCE.allFactories) {
 			allFindables.addAll(factory.getFindables());
 		}
 		return allFindables;
@@ -232,7 +236,7 @@ public enum Finder {
 	 *            the class or interface to match
 	 * @return a map of matching {@code Findable}s, with the object names as keys and the objects as values
 	 */
-	public <T extends Findable> Map<String, T> getFindablesOfType(Class<T> clazz) {
+	public static <T extends Findable> Map<String, T> getFindablesOfType(Class<T> clazz) {
 		return getFindablesOfType(clazz, false);
 	}
 
@@ -243,7 +247,7 @@ public enum Finder {
 	 *            the class or interface to match
 	 * @return a map of matching {@code Findable}s, with the object names as keys and the objects as values
 	 */
-	public <T extends Findable> Map<String, T> getLocalFindablesOfType(Class<T> clazz) {
+	public static <T extends Findable> Map<String, T> getLocalFindablesOfType(Class<T> clazz) {
 		return getFindablesOfType(clazz, true);
 	}
 
@@ -255,7 +259,7 @@ public enum Finder {
 	 * @param local True if only local objects are to be returned
 	 * @return a map of matching {@code Findable}s, with the object names as keys and the objects as values
 	 */
-	private <T extends Findable> Map<String, T> getFindablesOfType(Class<T> clazz, boolean local) {
+	private static <T extends Findable> Map<String, T> getFindablesOfType(Class<T> clazz, boolean local) {
 		Map<String, T> findables = new HashMap<>();
 		for (Factory factory : getFactoriesToSearch(local)) {
 			findables.putAll(factory.getFindablesOfType(clazz));
@@ -270,7 +274,7 @@ public enum Finder {
 	 *            the class or interface to match
 	 * @return a list of matching {@code Findable}s
 	 */
-	public <T extends Findable> List<T> listFindablesOfType(Class<T> clazz) {
+	public static <T extends Findable> List<T> listFindablesOfType(Class<T> clazz) {
 		return listFindablesOfType(clazz, false);
 	}
 
@@ -281,7 +285,7 @@ public enum Finder {
 	 *            the class or interface to match
 	 * @return a list of matching {@code Findable}s
 	 */
-	public <T extends Findable> List<T> listLocalFindablesOfType(Class<T> clazz) {
+	public static <T extends Findable> List<T> listLocalFindablesOfType(Class<T> clazz) {
 		return listFindablesOfType(clazz, true);
 	}
 
@@ -294,7 +298,7 @@ public enum Finder {
 	 *            True to only search local factories
 	 * @return a list of matching {@code Findable}s
 	 */
-	private <T extends Findable> List<T> listFindablesOfType(Class<T> clazz, boolean local) {
+	private static <T extends Findable> List<T> listFindablesOfType(Class<T> clazz, boolean local) {
 		return new ArrayList<>(getFindablesOfType(clazz, local).values());
 	}
 
@@ -305,7 +309,7 @@ public enum Finder {
 	 * @return the singleton
 	 * @throws IllegalArgumentException if multiple/no instances of specified type found
 	 */
-	public <T extends Findable> T findSingleton(Class<T> singletonClass) {
+	public static <T extends Findable> T findSingleton(Class<T> singletonClass) {
 		Map<String, T> instances = getFindablesOfType(singletonClass);
 		if (instances.size() != 1) {
 			throw new IllegalArgumentException("Class '" + singletonClass.getName() + "' is not a singleton: " +
@@ -314,11 +318,11 @@ public enum Finder {
 		return instances.values().iterator().next();
 	}
 
-	private Set<Factory> getFactoriesToSearch(boolean localOnly) {
+	private static Set<Factory> getFactoriesToSearch(boolean localOnly) {
 		if (localOnly) {
-			return localFactories;
+			return INSTANCE.localFactories;
 		} else {
-			return allFactories;
+			return INSTANCE.allFactories;
 		}
 	}
 }

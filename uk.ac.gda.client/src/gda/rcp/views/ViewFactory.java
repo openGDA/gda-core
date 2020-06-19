@@ -60,7 +60,7 @@ public class ViewFactory implements IExecutableExtensionFactory, IExecutableExte
 
 	@Override
 	public Object create() throws CoreException {
-		Findable findable = Finder.getInstance().find(nameOfFindableExecutableExtension);
+		Findable findable = Finder.find(nameOfFindableExecutableExtension);
 		if( findable == null || !(findable instanceof FindableExecutableExtension))
 			throw new CoreException(new Status(IStatus.ERROR, GDAClientActivator.PLUGIN_ID,
 					"Unable to find a FindableExecutableExtension called '" + nameOfFindableExecutableExtension + "'"));

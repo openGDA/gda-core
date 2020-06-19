@@ -26,7 +26,7 @@ public class PlanRequestParser {
 		plan = new Plan(planRequest.getPlanName());
 
 		if (planRequest.isDriverUsed()) {
-			driver = Finder.getInstance().find(planRequest.getDriverBean().getDriver());
+			driver = Finder.find(planRequest.getDriverBean().getDriver());
 			driver.setModel(getExperimentService().getDriverProfile(driver.getName(),
 					planRequest.getDriverBean().getProfile(), planRequest.getPlanName()));
 			plan.setDriver(driver);

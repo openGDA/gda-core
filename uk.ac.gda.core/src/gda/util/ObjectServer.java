@@ -262,7 +262,7 @@ public abstract class ObjectServer {
 	 */
 
 	public Findable getFindable(String name) {
-		return Finder.getInstance().find(name);
+		return Finder.find(name);
 	}
 
 	/**

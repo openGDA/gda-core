@@ -171,7 +171,7 @@ public class DefaultDataWriterFactory extends FindableConfigurableBase implement
 	}
 
 	private IDataWriterExtender findByName(String dweName) {
-		Object tmp = Finder.getInstance().find(dweName);
+		Object tmp = Finder.find(dweName);
 		if (tmp instanceof IDataWriterExtender) {
 			return (IDataWriterExtender) tmp;
 		}
@@ -185,7 +185,7 @@ public class DefaultDataWriterFactory extends FindableConfigurableBase implement
 	 */
 	static public DataWriter createDataWriterFromFactory() throws Exception {
 
-		Map<String, DataWriterFactory> factoryMap = Finder.getInstance().getFindablesOfType(DataWriterFactory.class);
+		Map<String, DataWriterFactory> factoryMap = Finder.getFindablesOfType(DataWriterFactory.class);
 
 		if (factoryMap.size() == 0) {
 			// no factory configured - default for now

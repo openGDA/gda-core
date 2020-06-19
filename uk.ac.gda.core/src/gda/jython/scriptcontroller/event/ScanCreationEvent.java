@@ -30,7 +30,7 @@ import java.io.Serializable;
  * Example usage in a Jython script:
  * <pre>
  * {@code
- * controller = Finder.getInstance().find("MyScriptObserver")
+ * controller = Finder.find("MyScriptObserver")
  * controller.update(None,ScriptProgressEvent("Running scan"))
  * thisscan = ConcurrentScan(scan_args)
  * controller.update(None,ScanCreationEvent(thisscan.getName()))

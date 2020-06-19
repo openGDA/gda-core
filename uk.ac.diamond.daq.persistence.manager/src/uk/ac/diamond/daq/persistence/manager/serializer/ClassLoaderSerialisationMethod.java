@@ -60,7 +60,7 @@ public class ClassLoaderSerialisationMethod implements CustomSerialisationMethod
 	@Override
 	public Object deserialise(ObjectNode node) throws PersistenceException {
 		try {
-			PersistenceClassLoader classLoader = Finder.getInstance().find("classLoaderService");
+			PersistenceClassLoader classLoader = Finder.find("classLoaderService");
 			Class<?> clazz = classLoader.forName(node.get(TYPE_INFO_FIELD_NAME).textValue());
 
 			return marshallingService.unmarshal(node.toString(), clazz);

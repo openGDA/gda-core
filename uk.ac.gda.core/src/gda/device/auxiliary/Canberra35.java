@@ -95,7 +95,7 @@ public class Canberra35 extends DeviceBase {
 			return;
 		}
 		logger.debug("Finding: " + serialDeviceName);
-		if ((serial = (Serial) Finder.getInstance().find(serialDeviceName)) == null) {
+		if ((serial = (Serial) Finder.find(serialDeviceName)) == null) {
 			logger.error("Serial Device " + serialDeviceName + " not found");
 		} else {
 			try {

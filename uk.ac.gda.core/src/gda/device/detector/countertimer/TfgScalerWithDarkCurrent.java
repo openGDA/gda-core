@@ -89,7 +89,7 @@ public abstract class TfgScalerWithDarkCurrent extends TfgScaler implements Dark
 
 	private DarkCurrentResults collectDarkCurrent(final DarkCurrentBean bean) throws Exception {
 
-		final Scannable shutter = (Scannable) Finder.getInstance().find(bean.getShutterName());
+		final Scannable shutter = (Scannable) Finder.find(bean.getShutterName());
 		String originalShutterPosition = shutter.getPosition().toString();
 
 		if (!originalShutterPosition.equalsIgnoreCase("Close")) {

@@ -81,7 +81,7 @@ public class AsciiWriterExtender extends DataWriterExtenderBase {
 	 */
 	public void addVariable(String varName, String scannableName, int fieldIndex) {
 
-		final Scannable scannable = Finder.getInstance().find(scannableName);
+		final Scannable scannable = Finder.find(scannableName);
 		final String    fieldName;
 		if (scannable != null) {
 			if (scannable instanceof Detector) {

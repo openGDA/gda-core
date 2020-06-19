@@ -35,7 +35,7 @@ public class FileRegistrarHelper {
 
 	private static void fillRegistrars() {
 		if (registrars == null || registrars.isEmpty()) {
-			Map<String, IFileRegistrar> findables = Finder.getInstance().getFindablesOfType(IFileRegistrar.class);
+			Map<String, IFileRegistrar> findables = Finder.getFindablesOfType(IFileRegistrar.class);
 
 			registrars = new Vector<IFileRegistrar>(findables.values());
 		}

@@ -49,8 +49,8 @@ public class GdaRmiProxyTest {
 	public void setUp() throws Exception {
 		gdaRmiProxy = new GdaRmiProxy();
 		MockitoAnnotations.initMocks(this);
-		Finder.getInstance().removeAllFactories();
-		Finder.getInstance().addFactory(rmiProxyFactory);
+		Finder.removeAllFactories();
+		Finder.addFactory(rmiProxyFactory);
 	}
 
 	@Test(expected=NullPointerException.class)

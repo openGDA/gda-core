@@ -79,7 +79,7 @@ public class NcdButtonPanelView extends ViewPart {
 	public NcdButtonPanelView() {
 		this.titleString = "";
 		titleList = new String[] {};
-		thicknessScannable = Finder.getInstance().find(THICKNESS_METADATA);
+		thicknessScannable = Finder.find(THICKNESS_METADATA);
 		if (thicknessScannable == null) {
 			logger.error("NCD Acquisition panel could not find thickness scannable");
 		}
@@ -265,7 +265,7 @@ public class NcdButtonPanelView extends ViewPart {
 		Composite shutterComp = new Composite(parent, SWT.NONE);
 		shutterComp.setLayout(new GridLayout(1, false));
 		shutterComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1,2));
-		List<EnumPositioner> shutters = Finder.getInstance().listFindablesOfType(EnumPositioner.class);
+		List<EnumPositioner> shutters = Finder.listFindablesOfType(EnumPositioner.class);
 		for (EnumPositioner shutter : shutters) {
 			new ShutterGroup(shutterComp, SWT.NONE, shutter);
 		}

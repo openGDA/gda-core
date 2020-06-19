@@ -148,7 +148,7 @@ public class NXMetaDataProviderTest {
 	public void tearDown() {
 		LocalProperties.set("gda.nexus.metadata.provider.name", "");
 		// Remove factories from Finder so they do not affect other tests
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 	}
 
 	private void populateNXMetaDataProvider(NXMetaDataProvider metaDataProvider, int numEntries, String entryKeyRoot,
@@ -295,7 +295,7 @@ public class NXMetaDataProviderTest {
 
 		Factory factory = TestHelpers.createTestFactory();
 		factory.addFindable(metaDataProvider);
-		// Finder.getInstance().addFactory(factory);
+		// Finder.addFactory(factory);
 
 		Scannable smplScn1 = TestHelpers.createTestScannable("mySimpleScannable_In1Ex0", 13., new String[] {},
 				new String[] { "mySimpleScannable_In1Ex0_input1" }, 0, new String[] { "%1.1f" },
@@ -364,7 +364,7 @@ public class NXMetaDataProviderTest {
 		metaDataProvider.add(testScn);
 		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("testScn", testScn);
 
-		Finder.getInstance().addFactory(factory);
+		Finder.addFactory(factory);
 
 		// add_default(metaDataProvider);
 		// setup property to be read by NexusDataWriter

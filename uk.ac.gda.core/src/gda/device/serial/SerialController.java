@@ -68,7 +68,7 @@ public class SerialController extends DeviceBase {
 			return;
 		}
 		logger.debug("SerialController: Finding: " + serialDeviceName);
-		if ((serial = (Serial) Finder.getInstance().find(serialDeviceName)) == null) {
+		if ((serial = (Serial) Finder.find(serialDeviceName)) == null) {
 			logger.error("Serial Device " + serialDeviceName + " not found");
 		} else {
 			try {

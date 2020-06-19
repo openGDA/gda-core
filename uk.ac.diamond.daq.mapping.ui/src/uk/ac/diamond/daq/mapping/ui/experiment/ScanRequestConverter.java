@@ -233,10 +233,10 @@ public class ScanRequestConverter {
 			mapPath.setxAxisName(xAxisName);
 			mapPath.setyAxisName(yAxisName);
 
-			ScannableMotionUnits xAxis = Finder.getInstance().find(xAxisName);
+			ScannableMotionUnits xAxis = Finder.find(xAxisName);
 			Optional.ofNullable(xAxis).ifPresent(axis -> mapPath.setxAxisUnits(axis.getHardwareUnitString()));
 
-			ScannableMotionUnits yAxis = Finder.getInstance().find(yAxisName);
+			ScannableMotionUnits yAxis = Finder.find(yAxisName);
 			Optional.ofNullable(yAxis).ifPresent(axis -> mapPath.setyAxisUnits(axis.getHardwareUnitString()));
 		} else {
 			// Otherwise we use the default axis in the map path model

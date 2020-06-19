@@ -277,7 +277,7 @@ public class PeripheralView extends ViewPart {
 			final Map<String, Set<Findable>> interfaceMap = new HashMap<>();
 
 			// Loop for each Findable the Finder knows about
-			for (Findable findable : Finder.getInstance().listFindablesOfType(Findable.class)) {
+			for (Findable findable : Finder.listFindablesOfType(Findable.class)) {
 				// For each interface implemented by the Findable, add the Findable to the map
 				for (String interfaceName : getInterfaces(findable)) {
 					final Set<Findable> findableSet = interfaceMap.get(interfaceName);

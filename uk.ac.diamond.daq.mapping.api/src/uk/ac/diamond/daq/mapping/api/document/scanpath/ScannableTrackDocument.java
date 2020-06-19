@@ -124,7 +124,7 @@ public class ScannableTrackDocument {
 
 	@JsonIgnore
 	public Optional<Scannable> getScannableBean() {
-		return Finder.getInstance().findOptional(getScannable());
+		return Finder.findOptional(getScannable());
 	}
 
 	@Override

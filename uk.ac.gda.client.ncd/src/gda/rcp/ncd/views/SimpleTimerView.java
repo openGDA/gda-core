@@ -145,7 +145,7 @@ public class SimpleTimerView extends ViewPart {
 
 		listener = new TimerControllerListener();
 
-		timerController = Finder.getInstance().findSingleton(TimerController.class);
+		timerController = Finder.findSingleton(TimerController.class);
 		timerController.addIObserver(listener);
 		SimpleTimerConfiguration.copy(timerController.getLastUsedConfiguration(), simpleTimerConfiguration);
 	}

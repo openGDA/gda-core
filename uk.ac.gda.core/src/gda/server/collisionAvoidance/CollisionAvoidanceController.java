@@ -56,7 +56,7 @@ public class CollisionAvoidanceController extends FindableBase {
 	 */
 	static public CollisionAvoidanceController getInstanceFromFinder() throws CacException {
 
-		CollisionAvoidanceController toReturn = (CollisionAvoidanceController) gda.factory.Finder.getInstance().find(
+		CollisionAvoidanceController toReturn = (CollisionAvoidanceController) gda.factory.Finder.find(
 				"collision_avoidance_controller");
 		if (toReturn == null) {
 			throw new CacException(

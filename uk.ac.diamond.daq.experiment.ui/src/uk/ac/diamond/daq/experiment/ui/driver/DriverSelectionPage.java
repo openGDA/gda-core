@@ -54,7 +54,7 @@ public class DriverSelectionPage extends WizardPage {
 			setPageComplete(driverName != null);
 		});
 		driverCombo.setContentProvider(ArrayContentProvider.getInstance());
-		driverCombo.setInput(Finder.getInstance().getFindablesOfType(IExperimentDriver.class).keySet());
+		driverCombo.setInput(Finder.getFindablesOfType(IExperimentDriver.class).keySet());
 		
 		Composite details = new Composite(driverComposite, SWT.BORDER);
 		GridLayoutFactory.swtDefaults().numColumns(3).margins(20, 20).equalWidth(true).applyTo(details);
@@ -80,7 +80,7 @@ public class DriverSelectionPage extends WizardPage {
 	}
 	
 	private void updateDetails() {
-		final IExperimentDriver<DriverModel> driver = Finder.getInstance().find(driverName);
+		final IExperimentDriver<DriverModel> driver = Finder.find(driverName);
 
 		stateLabel.setText(driver.getState().toString());
 		
@@ -88,7 +88,7 @@ public class DriverSelectionPage extends WizardPage {
 		
 		readouts.setText(
 			driver.getReadoutNames().stream()
-				.map(Finder.getInstance()::find)
+				.map(Finder::find)
 				.filter(Scannable.class::isInstance)
 				.map(Scannable.class::cast)
 				.map(scannable -> scannable.getName() + "\t:\t\t" + getScannablePosition(scannable))

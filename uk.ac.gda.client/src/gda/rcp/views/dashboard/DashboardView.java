@@ -314,7 +314,7 @@ public final class DashboardView extends ViewPart {
 		}
 
 		try {
-			DashboardScannables dashboardScannables = Finder.getInstance().findSingleton(DashboardScannables.class);
+			DashboardScannables dashboardScannables = Finder.findSingleton(DashboardScannables.class);
 			List<String> scannableNames = dashboardScannables.getDashboardScannableNames();
 			scannableNames.stream()
 						  .forEach(item -> data.add(new ScannableObject(item, new JythonSnapshotProvider())));

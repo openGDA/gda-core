@@ -111,12 +111,12 @@ public class StageMoveHandler implements EventHandler {
 
 		// Do the move
 		try {
-			Scannable fastAxis = Finder.getInstance().find(fastName);
+			Scannable fastAxis = Finder.find(fastName);
 			fastAxis.asynchronousMoveTo(xLocation);
-			Scannable slowAxis = Finder.getInstance().find(slowName);
+			Scannable slowAxis = Finder.find(slowName);
 			slowAxis.asynchronousMoveTo(yLocation);
 			if (associatedLocation != null) {
-				Scannable thirdAxis = Finder.getInstance().find(associatedName);
+				Scannable thirdAxis = Finder.find(associatedName);
 				thirdAxis.asynchronousMoveTo(associatedLocation);
 			}
 		} catch (DeviceException e) {
@@ -175,7 +175,7 @@ public class StageMoveHandler implements EventHandler {
 	}
 
 	private Double currentPosition(String scannableName) {
-		Scannable scannable = Finder.getInstance().find(scannableName);
+		Scannable scannable = Finder.find(scannableName);
 		try {
 			return (Double) scannable.getPosition();
 		} catch (DeviceException e) {

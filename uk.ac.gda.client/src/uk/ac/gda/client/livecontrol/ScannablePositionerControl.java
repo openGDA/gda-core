@@ -182,7 +182,7 @@ public class ScannablePositionerControl extends LiveControlBase {
 	@Override
 	public void createControl(Composite composite) {
 		// Get the scannable with the finder
-		final Optional<Scannable> optionalScannable = Finder.getInstance().findOptional(getScannableName());
+		final Optional<Scannable> optionalScannable = Finder.findOptional(getScannableName());
 		if (!optionalScannable.isPresent()) {
 			logger.warn("Could not get scannable '{}' for live control", getScannableName());
 			return;

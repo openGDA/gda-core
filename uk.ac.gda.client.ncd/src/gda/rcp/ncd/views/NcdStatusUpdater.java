@@ -84,9 +84,9 @@ public class NcdStatusUpdater implements IScanDataPointObserver {
 			subdirectory = metadata.getMetadataValue("subdirectory");
 			scanTitle = metadata.getMetadataValue("title");
 
-			subDirBlaster = Finder.getInstance().find("observableSubdirectory");
+			subDirBlaster = Finder.find("observableSubdirectory");
 			subDirBlaster.addIObserver(this);
-			scanTitleBlaster = Finder.getInstance().find("observableScanTitle");
+			scanTitleBlaster = Finder.find("observableScanTitle");
 			scanTitleBlaster.addIObserver(this);
 
 			meUpdate();

@@ -98,7 +98,7 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 
 	public void initialise() {
 		if (eventAdminName!=null) {
-			eventAdmin=Finder.getInstance().find(eventAdminName);
+			eventAdmin=Finder.find(eventAdminName);
 			if (eventAdmin != null) eventAdmin.addIObserver(this);
 		}
 		if (resUtil!=null) {

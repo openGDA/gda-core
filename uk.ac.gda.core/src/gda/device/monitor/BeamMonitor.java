@@ -105,7 +105,7 @@ public class BeamMonitor extends MonitorBase implements IObserver {
 			return;
 		}
 		if (detectorName != null) {
-			detector = Finder.getInstance().find(detectorName);
+			detector = Finder.find(detectorName);
 			if (detector != null)
 				detector.addIObserver(this);
 		}

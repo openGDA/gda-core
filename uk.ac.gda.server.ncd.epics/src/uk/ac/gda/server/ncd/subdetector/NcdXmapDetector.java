@@ -128,7 +128,7 @@ public class NcdXmapDetector extends NcdSubDetector  {
 		}
 		if (xmapControllerName == null) throw new FactoryException("no controller defined");
 		if (xmapcontroller == null) {
-			if ((xmapcontroller = (XmapController) Finder.getInstance().find(xmapControllerName)) != null)
+			if ((xmapcontroller = (XmapController) Finder.find(xmapControllerName)) != null)
 				logger.debug("{} - controller {} found", getName(), xmapControllerName);
 			else {
 				logger.error("EpicsXmapController {} not found", xmapControllerName);

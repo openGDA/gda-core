@@ -84,12 +84,12 @@ public class PlanPreviewerTest {
     	when(testFactory.getFindablesOfType(ExperimentService.class)).thenReturn(map);
     	when(testFactory.isLocal()).thenReturn(true);
 
-    	Finder.getInstance().addFactory(testFactory);
+    	Finder.addFactory(testFactory);
     }
 
     @AfterClass
     public static void cleanupFinder() {
-    	Finder.getInstance().removeAllFactories();
+    	Finder.removeAllFactories();
     }
 
     /* SEGMENT TESTS */

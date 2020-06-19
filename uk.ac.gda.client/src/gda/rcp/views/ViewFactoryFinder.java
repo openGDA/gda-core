@@ -62,7 +62,7 @@ public class ViewFactoryFinder implements IExecutableExtensionFactory, IExecutab
 			throw new CoreException(new Status(IStatus.ERROR, GDAClientActivator.PLUGIN_ID, msg));
 		}
 
-		Findable findable = Finder.getInstance().find(factoryBeanName);
+		Findable findable = Finder.find(factoryBeanName);
 		if (findable == null) {
 			final String msg = String.format("No view factory bean with the name %s", StringUtils.quote(factoryBeanName));
 			throw new CoreException(new Status(IStatus.ERROR, GDAClientActivator.PLUGIN_ID, msg));

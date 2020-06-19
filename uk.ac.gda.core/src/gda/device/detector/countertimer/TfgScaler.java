@@ -83,7 +83,7 @@ public class TfgScaler extends TFGCounterTimer {
 		}
 		if (scaler == null) {
 			logger.debug("Finding: " + scalerName);
-			if ((scaler = (Memory) Finder.getInstance().find(scalerName)) == null) {
+			if ((scaler = (Memory) Finder.find(scalerName)) == null) {
 				logger.error("Scaler " + scalerName + " not found");
 			}
 		}

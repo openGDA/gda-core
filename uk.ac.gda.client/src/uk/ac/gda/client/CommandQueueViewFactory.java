@@ -61,7 +61,7 @@ public class CommandQueueViewFactory implements IExecutableExtensionFactory {
 
 	private static IFindableQueueProcessor getQueueProcessor() {
 		if (queueProcessor == null && !openQueueProcessorAlreadyAttempted) {
-			queueProcessor = Finder.getInstance().listFindablesOfType(IFindableQueueProcessor.class).stream().findFirst().orElse(null);
+			queueProcessor = Finder.listFindablesOfType(IFindableQueueProcessor.class).stream().findFirst().orElse(null);
 		}
 		return queueProcessor;
 	}

@@ -153,7 +153,7 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 		}
 
 		// if not, see if we can find a gda.device.Scannable with this name using the Finder mechanism
-		Optional<Scannable> found = Finder.getInstance().findOptional(name);
+		Optional<Scannable> found = Finder.findOptional(name);
 		Scannable scannable = found.filter(s -> !(s instanceof Detector)).orElse(null);
 
 		if (scannable == null) {
@@ -226,7 +226,7 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 		final List<String> scannableNames = new ArrayList<>();
 
 		// add the names of findable scannables
-		final List<Scannable> scannableRefs = Finder.getInstance().listFindablesOfType(Scannable.class);
+		final List<Scannable> scannableRefs = Finder.listFindablesOfType(Scannable.class);
 		for (Scannable scannable : scannableRefs) {
 			if (!(scannable instanceof Detector)) { // exclude detectors
 				String scannableName = scannable.getName();

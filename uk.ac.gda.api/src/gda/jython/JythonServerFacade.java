@@ -126,7 +126,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	 * @throws InstantiationException
 	 */
 	private JythonServerFacade() throws InstantiationException {
-		this(Finder.getInstance().find(Jython.SERVER_NAME));
+		this(Finder.find(Jython.SERVER_NAME));
 	}
 
 	/**
@@ -247,7 +247,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	 */
 	private static JythonServerFacade createUnattendedClientFacade() throws InstantiationException {
 		unattendedDataCollectionClient =  new JythonServerFacade(
-				Finder.getInstance().findSingleton(Jython.class),
+				Finder.findSingleton(Jython.class),
 				"UDC",
 				"Unattended Data Collection");
 		return unattendedDataCollectionClient;

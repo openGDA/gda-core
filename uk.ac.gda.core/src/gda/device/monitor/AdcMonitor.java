@@ -60,7 +60,7 @@ public class AdcMonitor extends MonitorBase {
 		}
 		this.setInputNames(new String[]{adcName});
 		logger.debug("Finding: " + adcName);
-		if ((adc = (Adc) Finder.getInstance().find(adcName)) == null) {
+		if ((adc = (Adc) Finder.find(adcName)) == null) {
 			throw new FactoryException("Adc " + adcName + " not found");
 		} else {
 			new Thread(this::run, getClass().getName()).start();

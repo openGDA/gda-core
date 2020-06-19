@@ -110,7 +110,7 @@ public class ShutterPanel extends JPanel implements IObserver, Runnable,Configur
 		}
 		try {
 			if (shutter == null) {
-				Optional<EnumPositioner> optionalShutter = Finder.getInstance().findOptional(shutterName);
+				Optional<EnumPositioner> optionalShutter = Finder.findOptional(shutterName);
 				if (!optionalShutter.isPresent()) {
 					return;
 				}

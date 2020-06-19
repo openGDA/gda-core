@@ -54,7 +54,7 @@ public class DeferredScannableGroup extends CoordinatedScannableGroup {
 			return;
 		}
 		if (deferredControlPoint == null) {
-			deferredControlPoint = Finder.getInstance().find(deferredControlPointName);
+			deferredControlPoint = Finder.find(deferredControlPointName);
 		}
 		super.configure();
 		setConfigured(true);

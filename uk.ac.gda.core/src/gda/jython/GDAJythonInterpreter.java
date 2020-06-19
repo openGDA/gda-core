@@ -558,7 +558,7 @@ public class GDAJythonInterpreter {
 	private void populateNamespace() {
 		logger.info("Populating Jython namespace...");
 
-		final Map<String, Scannable> nameToScannable = Finder.getInstance().getFindablesOfType(Scannable.class);
+		final Map<String, Scannable> nameToScannable = Finder.getFindablesOfType(Scannable.class);
 		nameToScannable.forEach(this::placeInJythonNamespace);
 
 		logger.info("Finished populating Jython namespace, added {} Scannables", nameToScannable.size());

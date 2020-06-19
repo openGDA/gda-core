@@ -154,7 +154,7 @@ public class NewFileListener extends ConfigurableBase implements DataDirectoryMo
 		if (newFileProvider != null) {
 			newFileProvider.deleteIObserver(this);
 		}
-		IObservable fileProvider = Finder.getInstance().find(fileProviderName);
+		IObservable fileProvider = Finder.find(fileProviderName);
 		newFileProvider = fileProvider;
 		if (newFileProvider != null) {
 			newFileProvider.addIObserver(this);

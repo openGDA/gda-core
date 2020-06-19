@@ -45,7 +45,7 @@ public class TfgEncoderCounter extends TFGCounterTimer {
 			return;
 		}
 		logger.debug("Finding: " + encoderCounterName);
-		if ((encoderCounter = (Memory) Finder.getInstance().find(encoderCounterName)) == null) {
+		if ((encoderCounter = (Memory) Finder.find(encoderCounterName)) == null) {
 			logger.error("encoderCounter " + encoderCounterName + " not found");
 		}
 		super.configure();

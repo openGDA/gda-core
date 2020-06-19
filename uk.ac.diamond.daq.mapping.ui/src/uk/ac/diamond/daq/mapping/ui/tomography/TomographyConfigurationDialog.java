@@ -178,11 +178,10 @@ public class TomographyConfigurationDialog extends TitleAreaDialog {
 		super(parentShell);
 		setShellStyle(SWT.RESIZE);
 
-		final Finder finder = Finder.getInstance();
-		this.rotationMotor = finder.find(rotationMotor);
-		this.xMotor = finder.find(xMotor);
-		this.yMotor = finder.find(yMotor);
-		this.zMotor = finder.find(zMotor);
+		this.rotationMotor = Finder.find(rotationMotor);
+		this.xMotor = Finder.find(xMotor);
+		this.yMotor = Finder.find(yMotor);
+		this.zMotor = Finder.find(zMotor);
 		this.mappingView = mappingView;
 		this.tomoScript = tomoScript;
 	}

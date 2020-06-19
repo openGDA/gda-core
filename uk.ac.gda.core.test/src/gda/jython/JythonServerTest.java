@@ -74,7 +74,7 @@ public class JythonServerTest {
 		pathsArray = null;
 
 		// Remove factories from Finder so they do not affect other tests
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 	}
 
 // TODO; 14 Nov 2016 Rework this test so that it is a unit test of JythonServer and can cope with
@@ -121,7 +121,7 @@ public class JythonServerTest {
 		testFactory.addFindable(mockMotor2);
 		testFactory.addFindable(mockMotor3);
 
-		Finder.getInstance().addFactory(testFactory);
+		Finder.addFactory(testFactory);
 
 		jythonServer.beamlineHalt("Unused JSFIdentifier");
 		Thread.sleep(1000);
@@ -155,7 +155,7 @@ public class JythonServerTest {
 		testFactory.addFindable(mockMotor1);
 		testFactory.addFindable(mockMotor2);
 		testFactory.addFindable(mockMotor3);
-		Finder.getInstance().addFactory(testFactory);
+		Finder.addFactory(testFactory);
 
 		jythonServer.beamlineHalt("Unused JSFIdentifier");
 		Thread.sleep(3000);

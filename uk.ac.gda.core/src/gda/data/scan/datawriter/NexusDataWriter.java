@@ -253,7 +253,7 @@ public class NexusDataWriter extends DataWriterBase {
 		if (beforeScanMetaData == null) {
 			String metaDataProviderName = LocalProperties.get(GDA_NEXUS_METADATAPROVIDER_NAME);
 			if (StringUtils.hasLength(metaDataProviderName)) {
-				NexusTreeAppender metaDataProvider = Finder.getInstance().find(metaDataProviderName);
+				NexusTreeAppender metaDataProvider = Finder.find(metaDataProviderName);
 				InterfaceProvider.getTerminalPrinter().print("Getting meta data before scan");
 				beforeScanMetaData = new NexusTreeNode("before_scan", NexusExtractor.NXCollectionClassName, null);
 				metaDataProvider.appendToTopNode(beforeScanMetaData);

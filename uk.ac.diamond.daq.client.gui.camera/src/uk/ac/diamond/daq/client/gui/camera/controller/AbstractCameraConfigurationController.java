@@ -39,7 +39,7 @@ public abstract class AbstractCameraConfigurationController implements IObserver
 	private CameraConfigurationMode cameraConfigurationMode;
 
 	public AbstractCameraConfigurationController(String findableInstance) {
-		cameraControl = Finder.getInstance().find(findableInstance);
+		cameraControl = Finder.find(findableInstance);
 		cameraControl.addIObserver(this);
 	}
 

@@ -58,11 +58,11 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 		}
 		// use the finder to get the Scannable objects
 		if (firstJaw == null) {
-			firstJaw = Finder.getInstance().find(firstJawName);
+			firstJaw = Finder.find(firstJawName);
 		}
 
 		if (secondJaw == null) {
-			secondJaw = Finder.getInstance().find(secondJawName);
+			secondJaw = Finder.find(secondJawName);
 		}
 
 		firstJaw.addIObserver(this);

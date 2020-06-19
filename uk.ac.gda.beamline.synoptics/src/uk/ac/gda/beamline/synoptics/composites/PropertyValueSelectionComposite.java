@@ -120,7 +120,7 @@ public class PropertyValueSelectionComposite extends Composite implements Proper
 
 	public void initialisation() {
 		if (eventAdminName!=null) {
-			eventAdmin=Finder.getInstance().find(eventAdminName);
+			eventAdmin=Finder.find(eventAdminName);
 		}
 		property.addPropertyChangeListener(this);
 		if (eventAdmin!=null) {

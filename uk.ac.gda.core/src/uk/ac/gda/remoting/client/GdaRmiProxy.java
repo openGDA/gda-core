@@ -68,7 +68,7 @@ public class GdaRmiProxy implements BeanNameAware, FactoryBean<Object>, Initiali
 		Objects.requireNonNull(name, "name not set");
 
 		// Get the actual proxy object
-		object = Finder.getInstance().find(name);
+		object = Finder.find(name);
 		// If it can't be imported throw
 		Objects.requireNonNull(object,
 				String.format(

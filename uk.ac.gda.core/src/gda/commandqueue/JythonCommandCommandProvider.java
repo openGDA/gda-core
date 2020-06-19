@@ -56,7 +56,7 @@ public class JythonCommandCommandProvider implements CommandProvider {
 			String[] split = trim.split(" ");
 			if( split.length ==2){
 				String scriptName = split[1].replaceAll("[\"\']", "");
-				JythonServer server = Finder.getInstance().findSingleton(JythonServer.class);
+				JythonServer server = Finder.findSingleton(JythonServer.class);
 				scriptPath = server.getJythonScriptPaths().pathToScript(scriptName);
 				if (scriptPath == null) {
 					throw new FileNotFoundException("Could not run " + scriptName + " script. File not found in " + server.getJythonScriptPaths().description() + ".");

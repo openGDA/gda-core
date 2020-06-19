@@ -46,7 +46,7 @@ public abstract class CounterTimerBase extends DetectorBase implements CounterTi
 		}
 		if (timer == null) {
 			logger.debug("Finding: " + timerName);
-			if ((timer = (gda.device.Timer) Finder.getInstance().find(timerName)) == null) {
+			if ((timer = (gda.device.Timer) Finder.find(timerName)) == null) {
 				logger.error("Tfg " + timerName + " not found");
 			}
 		}

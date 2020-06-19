@@ -102,7 +102,7 @@ public class Tfg extends DeviceBase implements Timer {
 		// find daserver if not set
 		if (daServer == null) {
 			logger.debug("Finding: {}", daServerName);
-			if ((daServer = Finder.getInstance().find(daServerName)) == null) {
+			if ((daServer = Finder.find(daServerName)) == null) {
 				logger.error("Server '{}' not found", daServerName);
 			}
 		}

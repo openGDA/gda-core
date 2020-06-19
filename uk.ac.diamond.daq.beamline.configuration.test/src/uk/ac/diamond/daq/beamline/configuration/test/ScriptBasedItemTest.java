@@ -235,13 +235,13 @@ public class ScriptBasedItemTest {
 
 		Factory factory = mock(Factory.class);
 		when(factory.getFindablesOfType(Jython.class)).thenReturn(singletonMap(Jython.SERVER_NAME, jython));
-		Finder.getInstance().addFactory(factory);
+		Finder.addFactory(factory);
 	}
 
 	@AfterClass
 	public static void cleanUp() {
 		// clean up Finder
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 
 		// close python
 		python.close();

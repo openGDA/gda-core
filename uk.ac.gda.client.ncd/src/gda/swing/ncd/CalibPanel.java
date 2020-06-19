@@ -134,7 +134,7 @@ public class CalibPanel extends JPanel implements TableModelListener {
 		JPanel panel = new JPanel();
 
 		String name = NcdController.getInstance().getDetectorName(NcdDetectorSystem.CALIBRATION_DETECTOR);
-		calibDetector = (INcdSubDetector) Finder.getInstance().find(name);
+		calibDetector = (INcdSubDetector) Finder.find(name);
 
 		int[] dims = calibDetector.getDataDimensions();
 

@@ -62,14 +62,14 @@ public class ScannableGroupTest extends TestCase {
 		factory.addFindable(s1);
 		factory.addFindable(s2);
 
-		Finder.getInstance().removeAllFactories();
-		Finder.getInstance().addFactory(factory);
+		Finder.removeAllFactories();
+		Finder.addFactory(factory);
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
 		// Remove factories from Finder so they do not affect other tests
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 	}
 
 	/**

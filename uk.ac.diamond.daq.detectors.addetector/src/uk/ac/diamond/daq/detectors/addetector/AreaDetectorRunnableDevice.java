@@ -85,7 +85,7 @@ public class AreaDetectorRunnableDevice extends AbstractAreaDetectorRunnableDevi
 
 	protected void configureAreaDetector(AreaDetectorRunnableDeviceModel model) throws ScanningException {
 		// Get the detector by name defined in the model
-		adDetector = Finder.getInstance().find(model.getName());
+		adDetector = Finder.find(model.getName());
 		if (adDetector == null) {
 			throw new ScanningException("Could not find detector: " + model.getName());
 		}

@@ -80,7 +80,7 @@ public class ServerFileListener extends ConfigurableBase implements IObserver {
 		}
 		findDataProject();
 		if (clientFileAnnouncer == null) {
-			clientFileAnnouncer = Finder.getInstance().find(clientFileAnnouncerName);
+			clientFileAnnouncer = Finder.find(clientFileAnnouncerName);
 		}
 		clientFileAnnouncer.addIObserver(this);
 		setConfigured(true);

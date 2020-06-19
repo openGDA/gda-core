@@ -73,13 +73,13 @@ public class XMLIcatTest {
 		Jython jython = mock(Jython.class);
 		Factory factory = mock(Factory.class);
 		when(factory.getFindables()).thenReturn(Arrays.asList(jython));
-		Finder.getInstance().addFactory(factory);
+		Finder.addFactory(factory);
 
 	}
 
 	@After
 	public void cleanUpFinder() {
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 	}
 
 	/**

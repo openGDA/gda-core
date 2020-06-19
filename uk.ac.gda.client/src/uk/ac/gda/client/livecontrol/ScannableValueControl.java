@@ -82,7 +82,7 @@ public class ScannableValueControl extends LiveControlBase {
 	@Override
 	public void createControl(Composite composite) {
 		// Get the scannable with the finder
-		final Scannable scannable = Finder.getInstance().find(getScannableName());
+		final Scannable scannable = Finder.find(getScannableName());
 		if (scannable == null) {
 			logger.warn("Could not get scannable '{}' for live control", getScannableName());
 			return;

@@ -98,7 +98,7 @@ public class NcdStatusModel implements IObserver {
 	private NcdMsgFactory waxsMaskMsg = new NcdMsgFactory("WAXS", NcdMetaType.MASK);
 
 	public NcdStatusModel() {
-		Findable thickness = Finder.getInstance().find(THICKNESS_METADATA);
+		Findable thickness = Finder.find(THICKNESS_METADATA);
 		if (thickness instanceof Scannable) {
 			setThicknessScannable(((Scannable) thickness));
 		} else {

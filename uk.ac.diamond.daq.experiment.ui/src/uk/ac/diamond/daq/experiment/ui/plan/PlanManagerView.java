@@ -123,7 +123,7 @@ public class PlanManagerView extends ViewPart {
 		}
 		try {
 			if (handler == null) {
-				handler = Finder.getInstance().findSingleton(PlanRequestHandler.class);
+				handler = Finder.findSingleton(PlanRequestHandler.class);
 			}
 			handler.submit(plan);
 		} catch (DeviceException e) {

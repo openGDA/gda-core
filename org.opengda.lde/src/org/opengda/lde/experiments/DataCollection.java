@@ -559,7 +559,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		}
 
 		//move calibrant into beam
-		SampleStage stage=Finder.getInstance().find(cell.getStage().getStageID());
+		SampleStage stage=Finder.find(cell.getStage().getStageID());
 		try {
 			stage.getXMotor().asynchronousMoveTo(cell.getCalibrant_x());
 		} catch (DeviceException e) {
@@ -659,7 +659,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		updateMessage(null, message);
 
 		String stageID = sample.getCell().getStage().getStageID();
-		SampleStage stage = Finder.getInstance().find(stageID);
+		SampleStage stage = Finder.find(stageID);
 		checkForPauseAndInterruption();
 		currentSampleName = sample.getName();
 		currentSample=sample;

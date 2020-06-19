@@ -269,7 +269,7 @@ public class SpringObjectServer extends ObjectServer {
 
 			writer.println("# get function (finder.find for now)");
 			writer.println("from gda.factory import Finder");
-			writer.println("get = Finder.getInstance().find");
+			writer.println("get = Finder.find");
 			writer.println("del Finder");
 			writer.println();
 
@@ -355,7 +355,7 @@ public class SpringObjectServer extends ObjectServer {
 	private void addSpringBackedFactoryToFinder(ApplicationContext applicationContext) {
 		SpringApplicationContextBasedObjectFactory springObjectFactory = new SpringApplicationContextBasedObjectFactory(applicationContext);
 		factories.add(springObjectFactory);
-		Finder.getInstance().addFactory(springObjectFactory);
+		Finder.addFactory(springObjectFactory);
 	}
 
 	private void configureAllConfigurablesInApplicationContext(ApplicationContext applicationContext)

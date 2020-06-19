@@ -969,7 +969,7 @@ public class ScannableCommands {
 	public static void add_default(Object... args) {
 		logger.debug("Called 'add_default' with args: {}", Arrays.asList(args));
 
-		JythonServer server = Finder.getInstance().findSingleton(JythonServer.class);
+		JythonServer server = Finder.findSingleton(JythonServer.class);
 		for (Object arg : args) {
 			if (arg instanceof Scannable) {
 				Scannable scannable = (Scannable) arg;
@@ -990,7 +990,7 @@ public class ScannableCommands {
 	@GdaJythonBuiltin("Remove a scannable (or scannables) from the list of default scannables included in all scans.")
 	public static void remove_default(Object... args) {
 		logger.debug("Called 'remove_default' with args: {}", Arrays.asList(args));
-		JythonServer server = Finder.getInstance().findSingleton(JythonServer.class);
+		JythonServer server = Finder.findSingleton(JythonServer.class);
 		for (Object arg : args) {
 			if (arg instanceof Scannable) {
 				Scannable scannable = (Scannable) arg;

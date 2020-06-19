@@ -79,7 +79,7 @@ public class BeamPositionPlotterTest {
 
 			when(plotService.getPlottingSystem("Map")).thenReturn(mockMapPlotServ);
 			when(mockMapPlotServ.getRegion(BeamPositionPlotter.POSITION_MARKER_NAME)).thenReturn(mockRegion);
-			Finder.getInstance().addFactory(mockFactory);
+			Finder.addFactory(mockFactory);
 			setUp = true;
 		}
 		mapInfo = new MappingStageInfo();
@@ -100,7 +100,7 @@ public class BeamPositionPlotterTest {
 
 	@After
 	public void tearDown() {
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 		LocalProperties.clearProperty(GDA_ACTIVEMQ_BROKER_URI);
 	}
 

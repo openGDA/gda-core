@@ -96,7 +96,7 @@ public class RmiProxyFactoryTest {
 		LocalProperties.set(RMI_PORT_PROPERTY, Integer.toString(portForTesting));
 		LocalProperties.set("gda.server.host", "localhost");
 		// Ensure no previous tests have left factories attached to the Finder
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 	}
 
 	@AfterClass
@@ -126,7 +126,7 @@ public class RmiProxyFactoryTest {
 		// Make object under test
 		rmiProxyFactory = new RmiProxyFactory();
 		rmiProxyFactory.configure();
-		Finder.getInstance().addFactory(rmiProxyFactory);
+		Finder.addFactory(rmiProxyFactory);
 	}
 
 	@After
@@ -137,7 +137,7 @@ public class RmiProxyFactoryTest {
 		}
 
 		// Clean out the Finder
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 	}
 
 	private void exportObject(Object obj, String name, Class<?> serviceInterface) throws RemoteException {
@@ -210,7 +210,7 @@ public class RmiProxyFactoryTest {
 		exportObject(mockScannable, "mockScannable", Scannable.class);
 
 		// Also check through the finder
-		final Scannable foundMockScannable = Finder.getInstance().find("mockScannable");
+		final Scannable foundMockScannable = Finder.find("mockScannable");
 		assertThat(foundMockScannable, is(notNullValue()));
 		assertThat(foundMockScannable.getName(), is(equalTo("mockScannable")));
 

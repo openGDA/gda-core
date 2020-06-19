@@ -159,7 +159,7 @@ public final class InterfaceProvider {
 	 * @return JythonServer
 	 */
 	private static LocalJython getLocalJythonServerFromFinder() {
-		return Finder.getInstance().findSingleton(LocalJython.class);
+		return Finder.findSingleton(LocalJython.class);
 	}
 
 	/**

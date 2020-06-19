@@ -73,7 +73,7 @@ public class FindableHashtableTest {
 				.getAbsolutePath());
 
 		ObjectServer.createLocalImpl(TestUtils.getResourceAsFile(FindableHashtableTest.class, "server_findableHashtable.xml").getAbsolutePath());
-		hashtable = (Hashtable) Finder.getInstance().find("GDAHashtable");
+		hashtable = (Hashtable) Finder.find("GDAHashtable");
 	}
 
 	/**

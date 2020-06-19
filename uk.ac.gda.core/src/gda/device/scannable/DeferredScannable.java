@@ -49,10 +49,10 @@ public class DeferredScannable extends ScannableMotionUnitsBase {
 			return;
 		}
 		if (deferredControlPoint == null) {
-			deferredControlPoint = (ControlPoint) Finder.getInstance().find(deferredControlPointName);
+			deferredControlPoint = (ControlPoint) Finder.find(deferredControlPointName);
 		}
 		if (controlPointScannable == null) {
-			controlPointScannable = (Scannable) Finder.getInstance().find(controlPointScannableName);
+			controlPointScannable = (Scannable) Finder.find(controlPointScannableName);
 		}
 		this.inputNames = new String[] { getName() };
 		super.configure();

@@ -82,7 +82,7 @@ public class Gdhist extends DeviceBase implements Memory {
 			return;
 		}
 		if (daServer == null) {
-			if ((daServer = (DAServer) Finder.getInstance().find(daServerName)) == null) {
+			if ((daServer = (DAServer) Finder.find(daServerName)) == null) {
 				throw new FactoryException("DAServer " + daServerName + " not found");
 			}
 		}

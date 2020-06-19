@@ -80,7 +80,7 @@ public class Lauda extends TemperatureBase {
 		}
 		super.configure();
 		logger.debug("Finding: {}", serialDeviceName);
-		if ((serial = Finder.getInstance().find(serialDeviceName)) == null) {
+		if ((serial = Finder.find(serialDeviceName)) == null) {
 			logger.error("Serial Device {} not found", serialDeviceName);
 		} else {
 			try {

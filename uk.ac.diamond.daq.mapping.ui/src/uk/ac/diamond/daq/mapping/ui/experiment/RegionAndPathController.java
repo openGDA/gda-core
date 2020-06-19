@@ -585,7 +585,7 @@ public class RegionAndPathController extends AbstractMappingController {
 	}
 
 	private double getAxisPosition(String axisName) {
-		Scannable axis = Finder.getInstance().find(axisName);
+		Scannable axis = Finder.find(axisName);
 		try {
 			return (double) axis.getPosition();
 		} catch (DeviceException e) {

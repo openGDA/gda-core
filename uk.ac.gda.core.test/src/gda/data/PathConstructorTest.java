@@ -62,10 +62,10 @@ public class PathConstructorTest {
 	@Before
 	public void setUpBeforeEachTest() throws Exception {
 
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 		GDAMetadataProvider.setInstanceForTesting(null);
 		ObjectServer.createLocalImpl(TestUtils.getResourceAsFile(PathConstructorTest.class, "metadata_test_beans.xml").getAbsolutePath());
-		metadata = (Metadata) Finder.getInstance().find("GDAMetadata");
+		metadata = (Metadata) Finder.find("GDAMetadata");
 
 		Date date = new Date();
 		Format formatter = new SimpleDateFormat("yyyy");
@@ -185,7 +185,7 @@ public class PathConstructorTest {
 	@After
 	public void cleanUpAfterEachTest() {
 
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 		GDAMetadataProvider.setInstanceForTesting(null);
 
 		System.clearProperty(LocalProperties.GDA_DEF_VISIT);

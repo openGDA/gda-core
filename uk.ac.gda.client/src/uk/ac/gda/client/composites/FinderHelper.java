@@ -36,14 +36,14 @@ public final class FinderHelper {
 	private FinderHelper() {}
 
 	public static synchronized <T extends Findable> Optional<T> getFindableDevice(String beanId) {
-		return Finder.getInstance().findOptional(beanId);
+		return Finder.findOptional(beanId);
 	}
 
 	public static synchronized Optional<Scannable> getScannable(String beanId) {
-		return Finder.getInstance().findOptional(beanId);
+		return Finder.findOptional(beanId);
 	}
 
 	public static synchronized Optional<IScannableMotor> getIScannableMotor(String beanId) {
-		return Finder.getInstance().findOptional(beanId);
+		return Finder.findOptional(beanId);
 	}
 }

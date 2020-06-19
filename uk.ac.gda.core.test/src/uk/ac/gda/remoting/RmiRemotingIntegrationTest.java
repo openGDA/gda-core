@@ -79,7 +79,7 @@ public class RmiRemotingIntegrationTest {
 		LocalProperties.set(RMI_PORT_PROPERTY, Integer.toString(portForTesting));
 		LocalProperties.set("gda.server.host", "localhost");
 		// Ensure no previous tests have left factories attached to the Finder
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 	}
 
 	@AfterClass
@@ -104,14 +104,14 @@ public class RmiRemotingIntegrationTest {
 
 		// Add the mockFactory second this is dubious and relies on the actual set implementation in the Finder being
 		// ordered
-		Finder.getInstance().addFactory(mockFactory);
+		Finder.addFactory(mockFactory);
 	}
 
 	@After
 	public void tearDown() throws Exception {
 		rmiAutoExporter.shutdown();
 		// Clean out the Finder
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 	}
 
 	@Test
@@ -119,7 +119,7 @@ public class RmiRemotingIntegrationTest {
 		Findable testObj = new TestScannable("testObj");
 		when(mockFactory.getFindable("testObj")).thenReturn(testObj);
 
-		final Scannable foundScannable = Finder.getInstance().find("testObj");
+		final Scannable foundScannable = Finder.find("testObj");
 		assertThat(foundScannable, is(notNullValue()));
 		assertThat(foundScannable, isA(Scannable.class)); // Check type is that of @ServiceInterface
 	}
@@ -133,9 +133,9 @@ public class RmiRemotingIntegrationTest {
 		when(mockFactory.getFindable("testObj")).thenReturn(testObj);
 
 		// Reorder the finder so the rmi factory is last
-		Finder.getInstance().removeAllFactories();
-		Finder.getInstance().addFactory(mockFactory);
-		Finder.getInstance().addFactory(rmiProxyFactory);
+		Finder.removeAllFactories();
+		Finder.addFactory(mockFactory);
+		Finder.addFactory(rmiProxyFactory);
 
 		// New search order for Finder (local first) meant that we will not get the scannables
 		// from the remote factory first, so use the factory directly

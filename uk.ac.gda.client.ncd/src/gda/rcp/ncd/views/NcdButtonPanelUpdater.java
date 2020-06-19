@@ -46,7 +46,7 @@ public class NcdButtonPanelUpdater implements IObserver {
 		try {
 			metadata = GDAMetadataProvider.getInstance();
 			title = metadata.getMetadataValue("title");
-			blaster = Finder.getInstance().find("observableScanTitle");
+			blaster = Finder.find("observableScanTitle");
 			blaster.addIObserver(this);
 			client.thicknessScannable.addIObserver(this);
 			update(new Object(), new Object());

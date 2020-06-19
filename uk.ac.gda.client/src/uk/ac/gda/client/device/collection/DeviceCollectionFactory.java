@@ -35,26 +35,6 @@ public enum DeviceCollectionFactory {
 	 * @return An instance of the IDeviceCollection or null if not found
 	 */
 	public IDeviceCollection getDeviceCollection(String id){
-			return (IDeviceCollection)Finder.getInstance().find(id);
+			return (IDeviceCollection)Finder.find(id);
 	}
-
-	/**
-	 * Returns a specific IDeviceCollection for a view based on the unique id of the view
-	 * or null if one is not found
-	 *
-	 * @param viewId view identifier
-	 * @return An instance of the IDeviceCollection or null if not found
-	 */
-/*	public IDeviceCollection getDeviceCollectionForView(String viewId){
-		Finder finder = Finder.getInstance();
-		Map<String, Findable> findablesOfType = finder.getFindablesOfType(DeviceCollectionMapping.class);
-		for (Findable findable : findablesOfType.values()) {
-			DeviceCollectionMapping deviceCollectionMapping = (DeviceCollectionMapping)findable;
-			if (deviceCollectionMapping.getId().equals(viewId)){
-				return deviceCollectionMapping.getCollection();
-			}
-		}
-		return null;
-	}*/
-
 }

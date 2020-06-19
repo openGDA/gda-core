@@ -72,7 +72,7 @@ public class SegmentListEditor {
 	
 	private void updateReadouts(String driverName) {
 		if (driverName != null) {
-			IExperimentDriver<?> driver = Finder.getInstance().find(driverName);
+			IExperimentDriver<?> driver = Finder.find(driverName);
 			segmentEditor.setReadouts(driver.getReadoutNames());
 		} else {
 			segmentEditor.setReadouts(Collections.emptySet());

@@ -97,13 +97,13 @@ public class RmiAutomatedExporterTest {
 		rmiRegistryFactoryBean.afterPropertiesSet();
 		rmiRegistry = rmiRegistryFactoryBean.getObject();
 
-		Finder.getInstance().addFactory(mockFactory);
+		Finder.addFactory(mockFactory);
 	}
 
 	@After
 	public void tearDown() {
 		rmiAutoExporter.shutdown();
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 	}
 
 	@AfterClass

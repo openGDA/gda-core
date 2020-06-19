@@ -192,7 +192,7 @@ public class RmiAutomatedExporter implements RmiRemoteObjectProvider {
 
 	private RmiObjectInfo findAndExport(String name) {
 		// Find using local we are about to export something so it should not be remote already
-		final Optional<Findable> optionalFindable = Finder.getInstance().findOptional(name);
+		final Optional<Findable> optionalFindable = Finder.findOptional(name);
 		if (!optionalFindable.isPresent()) { // there is no object available in the server with this name
 			logger.debug("No object with name '{}' found", name);
 			return null;
@@ -217,7 +217,7 @@ public class RmiAutomatedExporter implements RmiRemoteObjectProvider {
 			if (Findable.class.isAssignableFrom(type)) {
 				@SuppressWarnings("unchecked") // It will extend Findable here we just checked
 				Class<? extends Findable> findableType = (Class<? extends Findable>) type;
-				Map<String, ? extends Findable> findablesOfType = Finder.getInstance().getLocalFindablesOfType(findableType);
+				Map<String, ? extends Findable> findablesOfType = Finder.getLocalFindablesOfType(findableType);
 
 				return findablesOfType.entrySet().stream()
 						.filter(this::hasServiceInterfaceAnnotation) // Remove objects which can't be exported

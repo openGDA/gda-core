@@ -140,8 +140,8 @@ public class PlanProgressPlotView extends ViewPart {
 	private void initialiseDriverPlottingComponents() {
 		plotDriverProfile();
 		
-		IExperimentDriver<? extends DriverModel> driver = Finder.getInstance().find(activePlan.getDriverName());
-		signalSource = Finder.getInstance().find(driver.getMainReadoutName());
+		IExperimentDriver<? extends DriverModel> driver = Finder.find(activePlan.getDriverName());
+		signalSource = Finder.find(driver.getMainReadoutName());
 		trajectory = new DynamicTraceMaintainer("actual trajectory", true);
 		
 		startTrajectoryJob();

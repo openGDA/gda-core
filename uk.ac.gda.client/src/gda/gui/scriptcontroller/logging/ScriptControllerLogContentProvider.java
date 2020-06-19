@@ -59,7 +59,7 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 		String[] controllerNames = scriptControllerNames.split(",");
 
 		for (String name : controllerNames) {
-			Findable objRef = Finder.getInstance().find(name.trim());
+			Findable objRef = Finder.find(name.trim());
 			if (objRef instanceof ILoggingScriptController) {
 				ILoggingScriptController newcontroller = (ILoggingScriptController) objRef;
 				controllers = (ILoggingScriptController[]) ArrayUtils.add(controllers, newcontroller);

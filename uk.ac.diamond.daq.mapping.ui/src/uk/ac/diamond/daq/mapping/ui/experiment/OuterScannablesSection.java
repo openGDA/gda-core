@@ -117,7 +117,7 @@ public class OuterScannablesSection extends AbstractMappingSection {
 		availableScannables = new HashSet<>(getMappingBean().getScanDefinition().getPermittedOuterScannables());
 		if (availableScannables.isEmpty()) {
 			try {
-				availableScannables.addAll(Finder.getInstance().getFindablesOfType(ScannableMotion.class).keySet());
+				availableScannables.addAll(Finder.getFindablesOfType(ScannableMotion.class).keySet());
 			} catch (Exception e) {
 				logger.error("Exception getting list of scannables", e);
 			}

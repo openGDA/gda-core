@@ -224,7 +224,7 @@ public class DriverAndProfileSelectionSection extends ValidatablePart {
 
 	@SuppressWarnings("rawtypes")
 	private Map<String, IExperimentDriver> getDrivers() {
-		return Finder.getInstance().getFindablesOfType(IExperimentDriver.class);
+		return Finder.getFindablesOfType(IExperimentDriver.class);
 	}
 
 	private void updatePlot() {

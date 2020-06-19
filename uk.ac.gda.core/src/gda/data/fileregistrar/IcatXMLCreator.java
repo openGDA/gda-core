@@ -356,7 +356,7 @@ public class IcatXMLCreator extends ConfigurableBase implements ArchiveFileCreat
 	}
 
 	private void getMetadataObject() throws DeviceException {
-		final Map<String, Metadata> findables = Finder.getInstance().getFindablesOfType(Metadata.class);
+		final Map<String, Metadata> findables = Finder.getFindablesOfType(Metadata.class);
 
 		if (findables.size() == 0) {
 			logger.error("cannot find a metadata object");

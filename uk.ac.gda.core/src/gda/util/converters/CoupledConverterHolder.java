@@ -171,7 +171,7 @@ public final class CoupledConverterHolder<S extends Quantity<S>, T extends Quant
 			throw new IllegalArgumentException("CoupledQuantitiesConverterHolder.FindReloadableQuantitiesConverter : "
 					+ converterName + " is null or empty");
 		}
-		return Finder.getInstance().find(converterName.trim());
+		return Finder.find(converterName.trim());
 	}
 
 	/**
@@ -183,7 +183,7 @@ public final class CoupledConverterHolder<S extends Quantity<S>, T extends Quant
 			throw new IllegalArgumentException("CoupledQuantitiesConverterHolder.FindQuantitiesConverter : "
 					+ converterName + " is null or empty");
 		}
-		return Finder.getInstance().find(converterName.trim());
+		return Finder.find(converterName.trim());
 	}
 
 	@Override

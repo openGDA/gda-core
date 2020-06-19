@@ -72,9 +72,8 @@ public class TwoJawSlitsTest {
 	@Before
 	public void setUp() throws Exception {
 		factory = TestHelpers.createTestFactory();
-		Finder.getInstance().removeAllFactories();
-		Finder finder = Finder.getInstance();
-		finder.addFactory(factory);
+		Finder.removeAllFactories();
+		Finder.addFactory(factory);
 
 		motor1 = createMotor(motorName1);
 		factory.addFindable(motor1);
@@ -124,7 +123,7 @@ public class TwoJawSlitsTest {
 	@After
 	public void tearDown() {
 		// Remove factories from Finder so they do not affect other tests
-		Finder.getInstance().removeAllFactories();
+		Finder.removeAllFactories();
 	}
 
 	private Motor createMotor(String name) throws MotorException {

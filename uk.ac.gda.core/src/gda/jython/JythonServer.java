@@ -522,7 +522,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 		Async.execute(() -> {
 				try {
 					// first stop any command queue that might be running
-					List<IFindableQueueProcessor> commandQueue = Finder.getInstance().listFindablesOfType(
+					List<IFindableQueueProcessor> commandQueue = Finder.listFindablesOfType(
 							IFindableQueueProcessor.class);
 					// unlikely to ever have more than one processor, but have this loop just in case
 					for (IFindableQueueProcessor queue : commandQueue) {
@@ -888,7 +888,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 			logger.info("Configured *not* to stop Scannables found in Jython namespace.");
 		}
 
-		List<Stoppable> stoppables = Finder.getInstance().listFindablesOfType(Stoppable.class);
+		List<Stoppable> stoppables = Finder.listFindablesOfType(Stoppable.class);
 		if (!stoppables.isEmpty()) {
 			InterfaceProvider.getTerminalPrinter().print("!!! Stopping stoppables");
 			for (Stoppable s : stoppables) {
@@ -927,7 +927,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 		// Don't use an executor or thread pool so that we can name the threads with the motor name
 		LinkedList<Future<Void>> futureTasks = new LinkedList<>();
 
-		List<Motor> motors = Finder.getInstance().listFindablesOfType(Motor.class);
+		List<Motor> motors = Finder.listFindablesOfType(Motor.class);
 		logger.info("Stopping the {} Motor instances registered in Finder", motors.size());
 
 		for (Motor motor : motors) {

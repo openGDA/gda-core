@@ -87,7 +87,7 @@ public class XanesEdgeCombo implements ISelectionProvider {
 	 * @return list of EdgeToEnergy to set in the combo viewer
 	 */
 	private List<EdgeToEnergy> createEdgeToEnergyList() {
-		final Map<String, ElementAndEdgesList> elementsAndEdgesMap = Finder.getInstance().getLocalFindablesOfType(ElementAndEdgesList.class);
+		final Map<String, ElementAndEdgesList> elementsAndEdgesMap = Finder.getLocalFindablesOfType(ElementAndEdgesList.class);
 		if (elementsAndEdgesMap == null || elementsAndEdgesMap.isEmpty()) {
 			logger.error("No element/edge combinations have been set");
 			return Collections.emptyList();

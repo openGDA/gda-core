@@ -130,8 +130,7 @@ public class Beam extends FindableConfigurableBase implements BeamInfo {
 	 */
 	@Override
 	public void setEnergy() throws DeviceException {
-		Finder finder = Finder.getInstance();
-		IScannableGroupNamed sdcm = (ScannableGroupNamed)finder.find("DCM");
+		IScannableGroupNamed sdcm = (ScannableGroupNamed)Finder.find("DCM");
 		ScannableMotor energy1=(ScannableMotor)sdcm.getGroupMemberByName("energy");
 		if (energy1.getHardwareUnitString().isEmpty() || energy1.getHardwareUnitString()== null) {
 			logger.warn("{} has no unit being set. Treat the value as in 'keV' here.", energy1.getName());

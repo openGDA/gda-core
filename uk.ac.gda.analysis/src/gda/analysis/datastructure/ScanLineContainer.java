@@ -19,12 +19,12 @@
 
 package gda.analysis.datastructure;
 
+import java.util.Vector;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.motor.MotorBase;
 import gda.factory.Finder;
-
-import java.util.Vector;
 
 /**
  * ScanLineContainer Class
@@ -51,12 +51,10 @@ public class ScanLineContainer {
 		title = new Vector<String>();
 		data = new Vector<DataVector>();
 
-		Finder finder = Finder.getInstance();
-
 		int counter = 0;
 
 		for (int i = 0; i < vals.length; i++) {
-			Object found = finder.find(vals[i]);
+			Object found = Finder.find(vals[i]);
 
 			title.add(vals[i]);
 
