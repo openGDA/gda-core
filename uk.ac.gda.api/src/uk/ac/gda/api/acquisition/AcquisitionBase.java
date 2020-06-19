@@ -27,13 +27,14 @@ import java.util.UUID;
  *
  * @author Maurizio Nagni
  */
-public class AcquisitionBase<T extends AcquisitionConfiguration<?>> implements Acquisition<T>{
+public class AcquisitionBase<T extends AcquisitionConfiguration<?>> implements Acquisition<T> {
 
 	private UUID uuid;
 	private String name;
 	private String description;
 	private Period executionPeriod;
-	private URL script;
+	private URL acquisitionLocation;
+
 	private T acquisitionConfiguration;
 
 	@Override
@@ -44,38 +45,48 @@ public class AcquisitionBase<T extends AcquisitionConfiguration<?>> implements A
 	public void setUuid(UUID uuid) {
 		this.uuid = uuid;
 	}
+
 	@Override
 	public String getName() {
 		return name;
 	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
+
 	@Override
 	public String getDescription() {
 		return description;
 	}
+
 	public void setDescription(String description) {
 		this.description = description;
 	}
+
 	@Override
 	public Period getExecutionPeriod() {
 		return executionPeriod;
 	}
+
 	public void setExecutionPeriod(Period executionPeriod) {
 		this.executionPeriod = executionPeriod;
 	}
+
 	@Override
-	public URL getScript() {
-		return script;
+	public URL getAcquisitionLocation() {
+		return acquisitionLocation;
 	}
-	public void setScript(URL script) {
-		this.script = script;
+
+	public void setAcquisitionLocation(URL acquisitionLocation) {
+		this.acquisitionLocation = acquisitionLocation;
 	}
+
 	@Override
 	public T getAcquisitionConfiguration() {
 		return acquisitionConfiguration;
 	}
+
 	public void setAcquisitionConfiguration(T acquisitionConfiguration) {
 		this.acquisitionConfiguration = acquisitionConfiguration;
 	}

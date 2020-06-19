@@ -15,5 +15,7 @@ Require-Bundle: org.junit;bundle-version="4.0.0",
  net.bytebuddy.byte-buddy,
  net.bytebuddy.byte-buddy-agent,
  org.objenesis
-Import-Package: org.osgi.framework
+Import-Package: com.fasterxml.jackson.core.json;version="2.6.2",
+ com.fasterxml.jackson.databind;version="2.6.2",
+ org.osgi.framework
 Automatic-Module-Name: uk.ac.diamond.daq.mapping.test

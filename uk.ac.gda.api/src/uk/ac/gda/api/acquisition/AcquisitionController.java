@@ -45,14 +45,20 @@ public interface AcquisitionController<T extends Acquisition<? extends Acquisiti
 	 */
 	void saveAcquisitionConfiguration() throws AcquisitionControllerException;
 
-
 	/**
 	 * Runs the acquisition storing the result in the given {@code outputPath}
 	 *
-	 * @param outputPath where acquisition will be stored
-	 * @throws AcquisitionControllerException if {@code outputPath} is {@code null}
+	 * @param outputPath
+	 *            where acquisition will be stored
+	 * @throws AcquisitionControllerException
+	 *             if {@code outputPath} is {@code null}
+	 * @deprecated Use {@link #runAcquisition()} instead. The {@code outputPath} should be provided by
+	 *             {@code getAcquisition().getAcquisitionLocation()}
 	 */
+	@Deprecated
 	void runAcquisition(URL outputPath) throws AcquisitionControllerException;
+
+	void runAcquisition() throws AcquisitionControllerException;
 
 	/**
 	 * Sets the controller active acquisition parsing a file
@@ -84,7 +90,8 @@ public interface AcquisitionController<T extends Acquisition<? extends Acquisiti
 	 * @throws AcquisitionControllerException
 	 *             If the file is not found or cannot be parsed
 	 */
-	public AcquisitionConfigurationResource<T> parseAcquisitionConfiguration(URL url) throws AcquisitionControllerException;
+	public AcquisitionConfigurationResource<T> parseAcquisitionConfiguration(URL url)
+			throws AcquisitionControllerException;
 
 	/**
 	 * Sets the controller active acquisition using an {@link AcquisitionConfigurationResource} with the following

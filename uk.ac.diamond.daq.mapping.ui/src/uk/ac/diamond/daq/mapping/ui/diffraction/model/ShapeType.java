@@ -19,25 +19,32 @@
 package uk.ac.diamond.daq.mapping.ui.diffraction.model;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
+import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.region.CentredRectangleMappingRegion;
 import uk.ac.diamond.daq.mapping.region.LineMappingRegion;
 import uk.ac.diamond.daq.mapping.region.PointMappingRegion;
 
 public enum ShapeType {
-	POINT(PointMappingRegion.class, new String[] {}),
-	LINE(LineMappingRegion.class, new String[] { "points" }),
-	CENTRED_RECTANGLE(CentredRectangleMappingRegion.class, new String[] { "xAxisPoints", "yAxisPoints" });
+	POINT(PointMappingRegion.class, AcquisitionTemplateType.TWO_DIMENSION_POINT,new String[] {}),
+	LINE(LineMappingRegion.class, AcquisitionTemplateType.TWO_DIMENSION_LINE, new String[] { "points" }),
+	CENTRED_RECTANGLE(CentredRectangleMappingRegion.class, AcquisitionTemplateType.TWO_DIMENSION_GRID, new String[] { "xAxisPoints", "yAxisPoints" });
 
 	private final Class<? extends IMappingScanRegionShape> mappingShape;
+	private final AcquisitionTemplateType acquisitionTemplateType;
 	private final String[] properties;
 
-	private ShapeType(Class<? extends IMappingScanRegionShape> mappingShape, String[] properties) {
+	private ShapeType(Class<? extends IMappingScanRegionShape> mappingShape, AcquisitionTemplateType acquisitionTemplateType, String[] properties) {
 		this.mappingShape = mappingShape;
+		this.acquisitionTemplateType = acquisitionTemplateType;
 		this.properties = properties;
 	}
 
 	public boolean hasMappedShape(IMappingScanRegionShape regionShape) {
 		return mappingShape.isInstance(regionShape);
+	}
+
+	public AcquisitionTemplateType getAcquisitionTemplateType() {
+		return acquisitionTemplateType;
 	}
 
 	public String[] getProperties() {

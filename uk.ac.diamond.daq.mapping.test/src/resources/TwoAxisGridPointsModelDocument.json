@@ -1,0 +1,23 @@
+{
+	"modelDocument": "TWO_DIMENSION_GRID",
+	"scannableTrackDocuments": [
+		{
+			"scannable": "motor_x",
+			"start": 2.0,
+			"stop": 5.0,
+			"step": 1.0
+		},
+		{
+			"scannable": "motor_y",
+			"start": 3.0,
+			"stop": 6.0,
+			"step": 2.0
+		}
+	],
+	"mutators": {
+		"alternating": [
+			1,
+			2
+		]
+	}
+}

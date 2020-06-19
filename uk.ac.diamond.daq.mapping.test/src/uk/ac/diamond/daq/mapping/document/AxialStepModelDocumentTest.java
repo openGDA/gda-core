@@ -16,12 +16,12 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.document;
+package uk.ac.diamond.daq.mapping.document;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
@@ -34,15 +34,18 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import gda.mscan.element.Mutator;
+import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
+import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
+import uk.ac.diamond.daq.mapping.api.document.model.AxialStepModelDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
-import uk.ac.diamond.daq.mapping.ui.document.scanpath.AxialStepModelDocument;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 
 /**
  * Tests for the {@link AxialStepModelDocument}
  *
  * @author Maurizio Nagni
  */
-public class AxialStepModelDocumentTest {
+public class AxialStepModelDocumentTest extends DocumentTestBase {
 
 	private final ObjectMapper objectMapper = DocumentMapper.getObjectMapper();
 
@@ -52,46 +55,28 @@ public class AxialStepModelDocumentTest {
 
 	@Test
 	public void serialiseDocumentTest() {
-		ScannableTrackDocument scannableDocument = new ScannableTrackDocument("motor_x", 2.0, 5.0, 1.0);
+		List<ScannableTrackDocument> scannableTrackDocuments = new ArrayList<>();
+		ScannableTrackDocument.Builder builder = new ScannableTrackDocument.Builder();
+		builder.withScannable("motor_x");
+		builder.withStart(2.0);
+		builder.withStop(2.0);
+		builder.withPoints(5);
+		scannableTrackDocuments.add(builder.build());
 		Map<Mutator, List<Number>> mutators = new EnumMap<>(Mutator.class);
 		mutators.put(Mutator.ALTERNATING, Arrays.asList(1, 2));
-		AxialStepModelDocument axialStepModelDocument = new AxialStepModelDocument(scannableDocument, mutators);
-		String document = serialiseDocument(axialStepModelDocument);
+		ScanpathDocument modelDocument = new ScanpathDocument(AcquisitionTemplateType.ONE_DIMENSION_LINE,
+				scannableTrackDocuments, mutators);
+		String document = serialiseDocument(modelDocument);
 		assertThat(document, containsString("motor_x"));
 		assertThat(document, containsString("\"alternating\":[1,2]"));
 	}
 
 	@Test
 	public void deserialiseDocumentTest() {
-		AxialStepModelDocument axialStepModelDocument = deserialiseDocument(getJsonDocument());
-		Assert.assertEquals("motor_x", axialStepModelDocument.getScannable().getScannable());
-		Assert.assertTrue(axialStepModelDocument.getMutators().containsKey(Mutator.ALTERNATING));
-		Assert.assertTrue(axialStepModelDocument.getMutators().containsValue(Arrays.asList(1, 2)));
+		ScanpathDocument modelDocument = deserialiseDocument("/resources/AxialStepModelDocument.json",
+				ScanpathDocument.class);
+		Assert.assertEquals("motor_x", modelDocument.getScannableTrackDocuments().get(0).getScannable());
+		Assert.assertTrue(modelDocument.getMutators().containsKey(Mutator.ALTERNATING));
+		Assert.assertTrue(modelDocument.getMutators().containsValue(Arrays.asList(1, 2)));
 	}
-
-	private AxialStepModelDocument deserialiseDocument(String json) {
-		try {
-			return objectMapper.readValue(json, AxialStepModelDocument.class);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	private String serialiseDocument(AxialStepModelDocument axialStepModelDocument) {
-		try {
-			return new ObjectMapper().writeValueAsString(axialStepModelDocument);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	private String getJsonDocument() {
-
-		return "{\"type\":\"AxialStep\","
-				+ "\"scannable\":{\"scannable\":\"motor_x\",\"start\":2.0,\"stop\":5.0,\"step\":1.0},"
-				+ "\"mutators\":{\"alternating\":[1,2]}}";
-	}
-
 }

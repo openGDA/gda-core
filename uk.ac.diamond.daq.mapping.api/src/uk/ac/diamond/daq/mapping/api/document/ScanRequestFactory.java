@@ -35,6 +35,9 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 
+import uk.ac.diamond.daq.mapping.api.document.model.ModelDocumentFactory;
+import uk.ac.gda.api.exception.GDAException;
+
 /**
  * A helper class to generate a {@link ScanRequest} from a {@link ScanRequestDocument}.
  *
@@ -77,7 +80,6 @@ public class ScanRequestFactory {
 			IRunnableDevice<?> detector = runnableDeviceService.getRunnableDevice(det.getName());
 
 			double exposure = det.getExposure();
-			// nullCheck(detector, IRunnableDevice.class.getSimpleName());
 			IDetectorModel model = (IDetectorModel) detector.getModel();
 			if (model == null) {
 				throw new ScanningException(String.format("Could not get model for detector %s", detector.getName()));
@@ -115,6 +117,11 @@ public class ScanRequestFactory {
 	 */
 	private void addPathDefinitionToCompoundModel(ScanRequestDocument srd, final CompoundModel scanModel)
 			throws ScanningException {
-		scanModel.setData(srd.getScanpath().getIScanPointGeneratorModel(), srd.getScanpath().getROI());
+		try {
+			AcquisitionTemplate modelDocument = ModelDocumentFactory.buildModelDocument(srd.getScanpath());
+			scanModel.setData(modelDocument.getIScanPointGeneratorModel(), modelDocument.getROI());
+		} catch (GDAException e) {
+			throw new ScanningException(e.getMessage(), e);
+		}
 	}
 }

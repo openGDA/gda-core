@@ -16,26 +16,28 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.diffraction.model;
+package uk.ac.diamond.daq.mapping.api.document;
 
-import gda.mscan.element.Mutator;
-
-public enum MutatorType {
-	CONTINUOUS("continuous", Mutator.CONTINUOUS), ALTERNATING("alternating", Mutator.ALTERNATING), RANDOM("random", Mutator.RANDOM_OFFSET);
-
-	private final String fieldName;
-	private final Mutator mscanMutator;
-
-	private MutatorType(String fieldName, Mutator mscanMutator) {
-		this.fieldName = fieldName;
-		this.mscanMutator = mscanMutator;
-	}
-
-	public String getFieldName() {
-		return fieldName;
-	}
-
-	public Mutator getMscanMutator() {
-		return mscanMutator;
-	}
+/**
+ * Defines some keys to identifies different types of {@link AcquisitionTemplate}
+ *
+ * @author Maurizio Nagni
+ */
+public enum AcquisitionTemplateType {
+	/**
+	 * Identifies a point in a 2D space
+	 */
+	TWO_DIMENSION_POINT,
+	/**
+	 * Identifies a line in a 2D space
+	 */
+	TWO_DIMENSION_LINE,
+	/**
+	 * Identifies a rectangle in a 2D space
+	 */
+	TWO_DIMENSION_GRID,
+	/**
+	 * Identifies a line in a 1D space
+	 */
+	ONE_DIMENSION_LINE
 }
