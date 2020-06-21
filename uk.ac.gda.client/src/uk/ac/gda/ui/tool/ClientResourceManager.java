@@ -61,13 +61,20 @@ public class ClientResourceManager {
 		return textFont;
 	}
 
+	public synchronized Font getTextDefaultItalicFont() {
+		if (textFont == null) {
+			textFont = getFont(FontDescriptor.createFrom(FONT, 10, SWT.ITALIC));
+		}
+		return textFont;
+	}
+
 	public synchronized Font getFont(final FontDescriptor fontDescriptor) {
 		return getResourceManager().createFont(fontDescriptor);
 	}
 
 	public Font getLabelDefaultFont() {
 		if (labelFont == null) {
-			labelFont = getFont(FontDescriptor.createFrom(FONT, 10, SWT.BOLD));
+			labelFont = getFont(FontDescriptor.createFrom(FONT, 10, SWT.NORMAL));
 		}
 		return labelFont;
 	}

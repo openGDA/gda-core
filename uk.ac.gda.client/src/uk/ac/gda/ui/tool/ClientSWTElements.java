@@ -57,6 +57,7 @@ public final class ClientSWTElements {
 	public static final Point DEFAULT_COMPOSITE_SIZE = new Point(500, SWT.DEFAULT);
 	public static final Point DEFAULT_BUTTON_SIZE = new Point(100, 50);
 	public static final Point SMALL_BUTTON_SIZE = new Point(60, 30);
+	public static final Point DEFAULT_TEXT_SIZE = new Point(80, SWT.DEFAULT);
 	public static final Point DEFAULT_SPAN = new Point(1, 1);
 
 	private ClientSWTElements() {
@@ -70,10 +71,22 @@ public final class ClientSWTElements {
 		return createComposite(parent, style, columns, SWT.LEFT, SWT.TOP);
 	}
 
+	/**
+	 * @param parent
+	 * @param style
+	 * @param columns
+	 * @param hAlign
+	 * @param vAlign
+	 * @return a new {@code composite}
+	 * @deprecated use {@link #createClientCompositeWithGridLayout(Composite, int, int)}. This has been done to support
+	 *             a more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static final Composite createComposite(final Composite parent, int style, int columns, int hAlign,
 			int vAlign) {
-		Composite composite = createGridLayoutComposite(parent, style, columns);
-		GridDataFactory gdf = createGridDataFactory(hAlign, vAlign);
+		Composite composite = createClientCompositeWithGridLayout(parent, style, columns);
+		GridDataFactory gdf = createGridDataFactory(hAlign, vAlign).grab(true, false);
 		if (columns == 1) {
 			gdf = GridDataFactory.fillDefaults();
 		}
@@ -81,36 +94,52 @@ public final class ClientSWTElements {
 		return composite;
 	}
 
-	public static final Composite createGridLayoutComposite(final Composite parent, int style, int columns) {
-		Composite composite = new Composite(parent, style);
-		GridLayoutFactory glf = GridLayoutFactory.swtDefaults();
-		if (columns == 1) {
-			glf = GridLayoutFactory.fillDefaults();
-		}
-		if (columns > 0) {
-			glf.numColumns(columns);
-		}
-		glf.applyTo(composite);
-		return composite;
-	}
-
+	/**
+	 * @deprecated use {@link #createClientCompositeWithGridLayout(Composite, int, int)}. This has been done to support
+	 *             a more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static final GridDataFactory createGridDataFactory() {
-		return GridDataFactory.swtDefaults().grab(true, true).align(SWT.LEFT, SWT.TOP);
+		return GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.END);
 	}
 
+	/**
+	 * @deprecated use {@link #createGridDataFactory()}. This has been done to support a more consistent approach
+	 *             described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static final GridDataFactory createGridDataFactory(int hAlign, int vAlign) {
 		return GridDataFactory.swtDefaults().grab(true, true).align(hAlign, vAlign);
 	}
 
-
+	/**
+	 * @deprecated use {@link #createClientCompositeWithGridLayout(Composite, int, int)}. This has been done to support
+	 *             a more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static final Composite createComposite(final Composite parent, int style) {
 		return createComposite(parent, style, 1);
 	}
 
+	/**
+	 * @deprecated use {@link #createClientGroup(Composite, int, int, ClientMessages)}. This has been done to support a
+	 *             more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static final Group createGroup(final Composite parent, int columns, final ClientMessages message) {
 		return createGroup(parent, columns, message, true);
 	}
 
+	/**
+	 * @deprecated use {@link #createClientGroup(Composite, int, int, ClientMessages)}. This has been done to support a
+	 *             more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static final Group createGroup(final Composite parent, int columns, final ClientMessages message,
 			boolean equalWidth) {
 		GridLayoutFactory glf = getGroupDefaultGridLayoutFactory(columns, equalWidth);
@@ -122,6 +151,7 @@ public final class ClientSWTElements {
 		return createGroup(parent, columns, message, glf, gdf);
 	}
 
+	@Deprecated
 	private static final GridLayoutFactory getGroupDefaultGridLayoutFactory(int columns, boolean equalWidth) {
 		GridLayoutFactory glf = GridLayoutFactory.swtDefaults();
 		if (columns == 1) {
@@ -131,6 +161,12 @@ public final class ClientSWTElements {
 		return glf;
 	}
 
+	/**
+	 * @deprecated use {@link #createClientGroup(Composite, int, int, ClientMessages)}. This has been done to support a
+	 *             more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static final Group createGroup(final Composite parent, int columns, final ClientMessages message,
 			GridLayoutFactory glf, GridDataFactory gdf) {
 		Group group = new Group(parent, SWT.NONE);
@@ -147,33 +183,75 @@ public final class ClientSWTElements {
 		return group;
 	}
 
+	/**
+	 * @deprecated use {@link #createClientLabel(Composite, int, ClientMessages, Optional)}. This has been done to
+	 *             support a more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static final Label createLabel(final Composite parent, int labelStyle) {
 		return createLabel(parent, labelStyle, ClientMessages.EMPTY_MESSAGE, null);
 	}
 
+	/**
+	 * @deprecated use {@link #createClientLabel(Composite, int, ClientMessages, Optional)}. This has been done to
+	 *             support a more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static final Label createLabel(final Composite parent, int labelStyle, final ClientMessages message,
 			final Point span) {
 		return createLabel(parent, labelStyle, message, span, null);
 	}
 
+	/**
+	 * @deprecated use {@link #createClientLabel(Composite, int, ClientMessages, Optional)}. This has been done to
+	 *             support a more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static final Label createLabel(final Composite parent, int labelStyle, final ClientMessages message) {
 		return createLabel(parent, labelStyle, ClientMessagesUtility.getMessage(message), DEFAULT_SPAN, null);
 	}
 
+	/**
+	 * @deprecated use {@link #createClientLabel(Composite, int, ClientMessages, Optional)}. This has been done to
+	 *             support a more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static final Label createLabel(final Composite parent, int labelStyle, String message) {
 		return createLabel(parent, labelStyle, message, DEFAULT_SPAN, null);
 	}
 
+	/**
+	 * @deprecated use {@link #createClientLabel(Composite, int, ClientMessages, Optional)}. This has been done to
+	 *             support a more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static final Label createLabel(final Composite parent, int labelStyle, String message,
 			final FontDescriptor fontDescriptor) {
 		return createLabel(parent, labelStyle, message, DEFAULT_SPAN, fontDescriptor);
 	}
 
+	/**
+	 * @deprecated use {@link #createClientLabel(Composite, int, ClientMessages, Optional)}. This has been done to
+	 *             support a more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static final Label createLabel(final Composite parent, int labelStyle, final ClientMessages message,
 			final Point span, final FontDescriptor fontDescriptor) {
 		return createLabel(parent, labelStyle, ClientMessagesUtility.getMessage(message), span, fontDescriptor);
 	}
 
+	/**
+	 * @deprecated use {@link #createClientLabel(Composite, int, ClientMessages, Optional)}. This has been done to
+	 *             support a more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static final Label createLabel(final Composite parent, int labelStyle, String message, final Point span,
 			final FontDescriptor fontDescriptor) {
 		Label label = new Label(parent, labelStyle);
@@ -192,29 +270,65 @@ public final class ClientSWTElements {
 		return label;
 	}
 
+	/**
+	 * @deprecated use {@link #createEmptyCell(Composite, int)}. This has been done to support a more consistent
+	 *             approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static final Label createEmptyCell(final Composite parent, int labelStyle) {
 		return createLabel(parent, labelStyle, "", DEFAULT_SPAN, null);
 	}
 
+	/**
+	 * @deprecated use {@link #createClientText(Composite, int, ClientMessages, Optional)}. This has been done to
+	 *             support a more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static final Text createText(final Composite parent, int textStyle, final VerifyListener listener) {
 		return createText(parent, textStyle, listener, null);
 	}
 
+	/**
+	 * @deprecated use {@link #createClientText(Composite, int, ClientMessages, Optional)}. This has been done to
+	 *             support a more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static final Text createText(final Composite parent, int textStyle, final VerifyListener listener,
 			final Point span) {
 		return createText(parent, textStyle, listener, span, null, null);
 	}
 
+	/**
+	 * @deprecated use {@link #createClientText(Composite, int, ClientMessages, Optional)}. This has been done to
+	 *             support a more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static final Text createText(final Composite parent, int textStyle, final VerifyListener listener,
 			final Point span, final ClientMessages tooltip, GridDataFactory gdf) {
 		return createText(parent, textStyle, listener, span, tooltip, null, gdf);
 	}
 
+	/**
+	 * @deprecated use {@link #createClientText(Composite, int, ClientMessages, Optional)}. This has been done to
+	 *             support a more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static final Text createText(final Composite parent, int textStyle, final VerifyListener listener,
 			final Point span, final ClientMessages tooltip, Point minSize, GridDataFactory gdf) {
 		return createText(parent, textStyle, listener, span, ClientMessagesUtility.getMessage(tooltip), minSize, gdf);
 	}
 
+	/**
+	 * @deprecated use {@link #createClientText(Composite, int, ClientMessages, Optional)}. This has been done to
+	 *             support a more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	private static final Text createText(final Composite parent, int textStyle, final VerifyListener listener,
 			final Point span, final String tooltip, final Point minSize, GridDataFactory gdf) {
 		textStyle = textStyle == 0 ? SWT.RIGHT | SWT.BORDER : textStyle;
@@ -229,22 +343,46 @@ public final class ClientSWTElements {
 		return text;
 	}
 
+	/**
+	 * @deprecated use {@link #createClientButton(Composite, int, ClientMessages, ClientMessages, Optional)}. This has
+	 *             been done to support a more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static final Button createButton(final Composite parent, int style, final ClientMessages message,
 			final ClientMessages tooltip) {
 		return createButton(parent, style, message, tooltip, Optional.empty(), Optional.empty());
 	}
 
+	/**
+	 * @deprecated use {@link #createClientButton(Composite, int, ClientMessages, ClientMessages, Optional)}. This has
+	 *             been done to support a more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static final Button createButton(final Composite parent, int style, final ClientMessages message,
 			final ClientMessages tooltip, ClientImages image) {
 		return createButton(parent, style, ClientMessagesUtility.getMessage(message),
 				ClientMessagesUtility.getMessage(tooltip), Optional.empty(), Optional.ofNullable(image));
 	}
 
+	/**
+	 * @deprecated use {@link #createClientButton(Composite, int, ClientMessages, ClientMessages, Optional)}. This has
+	 *             been done to support a more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static final Button createButton(final Composite parent, int style, final ClientMessages message,
 			final ClientMessages tooltip, final Point span) {
 		return createButton(parent, style, message, tooltip, Optional.ofNullable(span), Optional.empty());
 	}
 
+	/**
+	 * @deprecated use {@link #createClientButton(Composite, int, ClientMessages, ClientMessages, Optional)}. This has
+	 *             been done to support a more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	private static final Button createButton(final Composite parent, int style, final ClientMessages message,
 			final ClientMessages tooltip, final Optional<Point> span, final Optional<ClientImages> image) {
 		return createButton(parent, style, ClientMessagesUtility.getMessage(message),
@@ -275,6 +413,12 @@ public final class ClientSWTElements {
 		button.getParent().layout(true, true);
 	}
 
+	/**
+	 * @deprecated use {@link #createClientButton(Composite, int, ClientMessages, ClientMessages, Optional)}. This has
+	 *             been done to support a more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static final Button createButton(final Composite parent, int style, String message, String tooltip,
 			final Optional<Point> span, final Optional<ClientImages> imageCode) {
 		Button button = new Button(parent, style);
@@ -380,24 +524,48 @@ public final class ClientSWTElements {
 		}
 	}
 
+	/**
+	 * @deprecated use {@link #createClientGridDataFactory()} to define the layout. This has been done to support a more
+	 *             consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static void changeVAlignement(Control control, int vAlignement) {
 		if (GridData.class.isInstance(control.getLayoutData())) {
 			GridData.class.cast(control.getLayoutData()).verticalAlignment = vAlignement;
 		}
 	}
 
+	/**
+	 * @deprecated use {@link #createClientGridDataFactory()} to define the layout. This has been done to support a more
+	 *             consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static void changeHAlignment(Control control, int hAlignement) {
 		if (GridData.class.isInstance(control.getLayoutData())) {
 			GridData.class.cast(control.getLayoutData()).horizontalAlignment = hAlignement;
 		}
 	}
 
+	/**
+	 * @deprecated use {@link #createClientGridDataFactory()} to define the layout. This has been done to support a more
+	 *             consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static void changeHIndent(Control control, int hIndent) {
 		if (GridData.class.isInstance(control.getLayoutData())) {
 			GridData.class.cast(control.getLayoutData()).horizontalIndent = hIndent;
 		}
 	}
 
+	/**
+	 * @deprecated use {@link #createClientGridDataFactory()} to define the layout. This has been done to support a more
+	 *             consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static void changeVerticalAlign(Control control, int vAlignement) {
 		if (GridData.class.isInstance(control.getLayoutData())) {
 			GridData.class.cast(control.getLayoutData()).verticalAlignment = vAlignement;
@@ -428,6 +596,12 @@ public final class ClientSWTElements {
 		}
 	}
 
+	/**
+	 * @deprecated use {@link #createClientGridDataFactory()} to define the layout. This has been done to support a more
+	 *             consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	public static void gridDataSpan(final Composite composite, final int hSpan, final int vSpan) {
 		if (GridDataFactory.class.isInstance(composite.getLayoutData())) {
 			GridDataFactory gdf = GridDataFactory.class.cast(composite.getLayoutData());
@@ -442,7 +616,11 @@ public final class ClientSWTElements {
 	 * @param composite
 	 * @param hAlign
 	 * @param vAlign
+	 * @deprecated use {@link #createClientGridDataFactory()} to define the layout. This has been done to support a more
+	 *             consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
 	 */
+	@Deprecated
 	public static void gridDataAlign(final Composite composite, final int hAlign, final int vAlign) {
 		if (GridDataFactory.class.isInstance(composite.getLayoutData())) {
 			GridDataFactory gdf = GridDataFactory.class.cast(composite.getLayoutData());
@@ -472,7 +650,11 @@ public final class ClientSWTElements {
 	 * @param composite
 	 * @param minX
 	 * @param minY
+	 * @deprecated use {@link #createClientGridDataFactory()} to define the layout. This has been done to support a more
+	 *             consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
 	 */
+	@Deprecated
 	public static void gridDataMinSize(final Composite composite, final int minX, final int minY) {
 		if (GridDataFactory.class.isInstance(composite.getLayoutData())) {
 			GridDataFactory gdf = GridDataFactory.class.cast(composite.getLayoutData());
@@ -481,11 +663,23 @@ public final class ClientSWTElements {
 		}
 	}
 
+	/**
+	 * @deprecated use {@link #createClientGridDataFactory()} to define the layout. This has been done to support a more
+	 *             consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	private static GridDataFactory applySpan(final Control control, final Optional<Point> span,
 			final Optional<Point> minSize) {
 		return applySpan(control, span, minSize, null);
 	}
 
+	/**
+	 * @deprecated use {@link #createClientGridDataFactory()} to define the layout. This has been done to support a more
+	 *             consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 */
+	@Deprecated
 	private static GridDataFactory applySpan(final Control control, final Optional<Point> span,
 			final Optional<Point> minSize, GridDataFactory gdf) {
 		if (gdf == null) {
@@ -503,7 +697,11 @@ public final class ClientSWTElements {
 	 * @param composite
 	 * @param width
 	 * @param height
+	 * @deprecated use {@link #createClientGridDataFactory()} to define the layout. This has been done to support a more
+	 *             consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
 	 */
+	@Deprecated
 	public static void gridMargin(final Composite composite, final int width, final int height) {
 		if (GridLayoutFactory.class.isInstance(composite.getLayout())) {
 			GridLayoutFactory glf = GridLayoutFactory.class.cast(composite.getLayout());
@@ -512,4 +710,158 @@ public final class ClientSWTElements {
 		}
 	}
 
+	/**
+	 * Creates basic a {@link GridDataFactory} filling horizontal space and bottom aligned. This supports the approach
+	 * described in <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 *
+	 * @return a grid data factory
+	 */
+	public static final GridDataFactory createClientGridDataFactory() {
+		return GridDataFactory.swtDefaults().align(SWT.FILL, SWT.END);
+	}
+
+	/**
+	 * Creates a basic @{@code Composite} component, applying a simple {@link GridLayoutFactory}. This supports the approach
+	 * described in <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 *
+	 * @param parent
+	 *            where materialise the component
+	 * @param style
+	 *            the style to apply to the component
+	 * @param columns
+	 *            the number of columns in the grid layout
+	 * @return a new Component
+	 */
+	public static final Composite createClientCompositeWithGridLayout(final Composite parent, int style, int columns) {
+		Composite composite = new Composite(parent, style);
+		GridLayoutFactory glf = GridLayoutFactory.fillDefaults();
+		if (columns > 0) {
+			glf.numColumns(columns);
+		}
+		glf.applyTo(composite);
+		return composite;
+	}
+
+	/**
+	 * Creates a basic {@link Label} component. This supports the approach
+	 * described in <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 *
+	 * @param parent
+	 *            where materialise the component
+	 * @param style
+	 *            the style to apply to the the label
+	 * @param message
+	 *            the text to display
+	 * @param fontDescriptor
+	 *            the label font. If empty uses {@link ClientResourceManager#getLabelDefaultFont()}
+	 * @return a new label
+	 */
+	public static final Label createClientLabel(final Composite parent, int style, final ClientMessages message,
+			Optional<FontDescriptor> fontDescriptor) {
+		Label label = new Label(parent, style);
+		label.setText(ClientMessagesUtility.getMessage(message));
+		if (!fontDescriptor.isPresent()) {
+			label.setFont(ClientResourceManager.getInstance().getLabelDefaultFont());
+		} else {
+			label.setFont(ClientResourceManager.getInstance().getFont(fontDescriptor.get()));
+		}
+		return label;
+	}
+
+	/**
+	 * Creates a basic {@link Button} component. This supports the approach
+	 * described in <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 *
+	 * @param parent
+	 *            where materialise the component
+	 * @param style
+	 *            the style to apply to the the button (SWP.PUSH, SWT.CHECK, SWT.RADIO, ...)
+	 * @param message
+	 *            the text to display in the button
+	 * @param tooltip
+	 *            the tooltip to display
+	 * @param imageCode
+	 *            the button image. May be empty
+	 * @return a new Label component
+	 */
+	public static final Button createClientButton(final Composite parent, int style, ClientMessages message,
+			ClientMessages tooltip, final Optional<ClientImages> imageCode) {
+		Button button = new Button(parent, style);
+		button.setFont(ClientResourceManager.getInstance().getButtonDefaultFont());
+		button.setText(ClientMessagesUtility.getMessage(message));
+		button.setToolTipText(ClientMessagesUtility.getMessage(tooltip));
+		imageCode.ifPresent(i -> {
+			Image image = ClientSWTElements.getImage(i);
+			button.setImage(image);
+			button.setSize(image.getImageData().width, image.getImageData().height);
+		});
+		return button;
+	}
+
+	/**
+	 * Creates a basic {@link Text} component. This supports the approach
+	 * described in <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 *
+	 * @param parent
+	 *            where materialise the component
+	 * @param style
+	 *            the style to apply to the the button. If SWT.NONE applies SWT.RIGHT | SWT.BORDER.
+	 * @param tooltip
+	 *            the tooltip to display
+	 * @param listener
+	 *            a listener to validate the text
+	 * @return a new Text component
+	 */
+	public static final Text createClientText(final Composite parent, int style, final ClientMessages tooltip,
+			final Optional<VerifyListener> listener) {
+		style = style == 0 ? SWT.RIGHT | SWT.BORDER : style;
+		Text text = new Text(parent, style);
+		text.setFont(ClientResourceManager.getInstance().getTextDefaultFont());
+		text.setToolTipText(ClientMessagesUtility.getMessage(tooltip));
+		listener.ifPresent(text::addVerifyListener);
+		return text;
+	}
+
+	/**
+	 * Creates an empty {@link Label} component to use a separator. This supports the approach
+	 * described in <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 *
+	 * @param parent
+	 *            where materialise the component
+	 * @param hint
+	 *            the horizontal/vertical space
+	 */
+	public static final void createClientEmptyCell(final Composite parent, Point hint) {
+		Label label = createClientLabel(parent, SWT.NONE, ClientMessages.EMPTY_MESSAGE, Optional.empty());
+		ClientSWTElements.createClientGridDataFactory().hint(hint).applyTo(label);
+	}
+
+	/**
+	 * Creates a basic {@link Group} component. This supports the approach
+	 * described in <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 *
+	 * @param parent
+	 *            where materialise the component
+	 * @param style
+	 *            the style to apply to the component
+	 * @param columns
+	 *            the number of columns in the group
+	 * @param message
+	 *            the group header text
+	 * @return a new group component
+	 */
+	public static final Group createClientGroup(final Composite parent, int style, int columns,
+			final ClientMessages message) {
+		Group group = new Group(parent, style);
+		GridLayoutFactory glf = GridLayoutFactory.fillDefaults();
+		if (message != null) {
+			group.setText(ClientMessagesUtility.getMessage(message));
+			group.setFont(ClientResourceManager.getInstance().getGroupDefaultFont());
+		}
+		if (columns > 0) {
+			glf.numColumns(columns);
+		}
+		glf.applyTo(group);
+		return group;
+	}
 }

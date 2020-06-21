@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.gda.client.composites.ButtonGroupFactoryBuilder;
 import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.images.ClientImages;
 
 /**
@@ -63,14 +64,14 @@ public class AcquisitionCompositeFactoryBuilder {
 	public CompositeFactory build() {
 
 		return (parent, style) -> {
-				GridLayoutFactory.fillDefaults().applyTo(parent);
-				GridDataFactory.fillDefaults().applyTo(parent);
+				Composite composite = ClientSWTElements.createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
+				ClientSWTElements.createGridDataFactory().align(SWT.FILL, SWT.FILL).applyTo(composite);
 
-				top.ifPresent(factory -> createTop(factory, parent));
+				top.ifPresent(factory -> createTop(factory, composite));
 
-				buttonsGroup(parent);
+				buttonsGroup(composite);
 
-				bottom.ifPresent(factory -> factory.createComposite(parent, style));
+				bottom.ifPresent(factory -> factory.createComposite(composite, style));
 
 				return parent;
 		};

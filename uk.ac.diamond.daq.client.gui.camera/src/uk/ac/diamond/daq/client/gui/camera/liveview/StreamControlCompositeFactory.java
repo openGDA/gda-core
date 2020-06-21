@@ -57,7 +57,7 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		Composite streamControlArea = ClientSWTElements.createGridLayoutComposite(parent, style, 3);
+		Composite streamControlArea = ClientSWTElements.createClientCompositeWithGridLayout(parent, style, 3);
 
 		Composite cameraComboArea = ClientSWTElements.createComposite(streamControlArea, SWT.NONE);
 		ClientSWTElements.createLabel(cameraComboArea, SWT.NONE, ClientMessages.CAMERA, new Point(2, 1));
@@ -69,7 +69,7 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 		streamTypeCombo = new SmartCombo<>(streamComboArea, style, Optional.of(ClientMessages.STAGE_TP),
 				Optional.of(this::changeStreamController));
 		
-		Composite activationArea = ClientSWTElements.createGridLayoutComposite(streamControlArea, SWT.NONE, 1);
+		Composite activationArea = ClientSWTElements.createClientCompositeWithGridLayout(streamControlArea, SWT.NONE, 1);
 		ClientSWTElements.createLabel(activationArea, SWT.NONE, ClientMessages.EMPTY_MESSAGE, new Point(2, 1));
 		streamActivationButton = ClientSWTElements.createButton(activationArea, SWT.NONE, ClientMessages.START_STREAM,
 				ClientMessages.START_STREAM);
