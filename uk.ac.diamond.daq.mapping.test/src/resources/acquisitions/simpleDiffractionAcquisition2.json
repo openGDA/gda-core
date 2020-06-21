@@ -1,0 +1,16 @@
+{
+	"type": "tomographyAcquisition",
+	"uuid": null,
+	"name": "Tomography Acquisition Test",
+	"description": "SimpleTest",
+	"executionPeriod": null,
+	"acquisitionLocation": null,
+	"acquisitionConfiguration": {
+		"acquisitionParameters": {
+			"shapeType": "POINT",
+			"detector": null,
+			"scanpathDocument": null
+		},
+		"metadata": null
+	}
+}

@@ -71,9 +71,8 @@ Service-Component: OSGI-INF/*.xml
 Eclipse-RegisterBuddy: uk.ac.gda.core
 Export-Package: uk.ac.diamond.daq.mapping.ui,
  uk.ac.diamond.daq.mapping.ui.browser,
- uk.ac.diamond.daq.mapping.ui.diffraction.base,
  uk.ac.diamond.daq.mapping.ui.diffraction.model,
-  uk.ac.diamond.daq.mapping.ui.experiment,
+ uk.ac.diamond.daq.mapping.ui.experiment,
  uk.ac.diamond.daq.mapping.ui.experiment.file,
  uk.ac.diamond.daq.mapping.ui.experiment.focus,
  uk.ac.diamond.daq.mapping.ui.experiment.saver,

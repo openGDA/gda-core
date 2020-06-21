@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2019 Diamond Light Source Ltd.
+ * Copyright © 2020 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,10 +16,18 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.diffraction.base;
+package uk.ac.diamond.daq.mapping.api.document;
 
-import uk.ac.gda.api.acquisition.AcquisitionBase;
+import uk.ac.diamond.daq.mapping.api.document.diffraction.ShapeType;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
+import uk.ac.gda.api.acquisition.AcquisitionParameters;
 
-public class DiffractionParameterAcquisition extends AcquisitionBase<DiffractionConfiguration> {
+public interface AcquisitionParametersBase extends AcquisitionParameters {
+
+	ShapeType getShapeType();
+
+	DetectorDocument getDetector();
+
+	ScanpathDocument getScanpathDocument();
 
 }

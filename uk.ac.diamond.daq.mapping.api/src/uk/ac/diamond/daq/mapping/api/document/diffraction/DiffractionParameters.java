@@ -1,16 +1,15 @@
-package uk.ac.diamond.daq.mapping.ui.diffraction.base;
+package uk.ac.diamond.daq.mapping.api.document.diffraction;
 
+import uk.ac.diamond.daq.mapping.api.document.AcquisitionParametersBase;
 import uk.ac.diamond.daq.mapping.api.document.DetectorDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.diamond.daq.mapping.ui.diffraction.model.ShapeType;
-import uk.ac.gda.api.acquisition.AcquisitionParameters;
 
 /**
  * The base class for describe a diffraction acquisition.
  *
  * @author Maurzio Nagni
  */
-public class DiffractionParameters implements AcquisitionParameters {
+public class DiffractionParameters implements AcquisitionParametersBase {
 
 	private ShapeType shapeType;
 
@@ -30,6 +29,7 @@ public class DiffractionParameters implements AcquisitionParameters {
 		this.scanpathDocument = configuration.getScanpathDocument();
 	}
 
+	@Override
 	public ShapeType getShapeType() {
 		return shapeType;
 	}
@@ -38,6 +38,7 @@ public class DiffractionParameters implements AcquisitionParameters {
 		this.shapeType = shapeType;
 	}
 
+	@Override
 	public DetectorDocument getDetector() {
 		return detector;
 	}
@@ -46,6 +47,7 @@ public class DiffractionParameters implements AcquisitionParameters {
 		this.detector = detector;
 	}
 
+	@Override
 	public ScanpathDocument getScanpathDocument() {
 		return scanpathDocument;
 	}

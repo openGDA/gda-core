@@ -52,7 +52,7 @@ public class TwoAxisPointSingleModelDocumentTest extends DocumentTestBase {
 	}
 
 	@Test
-	public void serialiseDocumentTest() {
+	public void serialiseDocumentTest() throws GDAException {
 		List<ScannableTrackDocument> scannableTrackDocuments = new ArrayList<>();
 
 		ScannableTrackDocument.Builder builder = new ScannableTrackDocument.Builder();
@@ -76,11 +76,11 @@ public class TwoAxisPointSingleModelDocumentTest extends DocumentTestBase {
 		String document = serialiseDocument(modelDocument);
 		assertThat(document, containsString("motor_x"));
 		assertThat(document, containsString("motor_y"));
-		assertThat(document, containsString("\"alternating\":[1,2]"));
+		assertThat(document, containsString("\"alternating\" : [ 1, 2 ]"));
 	}
 
 	@Test
-	public void deserialiseDocumentTest() {
+	public void deserialiseDocumentTest() throws GDAException {
 		ScanpathDocument modelDocument = deserialiseDocument("/resources/TwoAxisPointSingleModelDocument.json",
 				ScanpathDocument.class);
 

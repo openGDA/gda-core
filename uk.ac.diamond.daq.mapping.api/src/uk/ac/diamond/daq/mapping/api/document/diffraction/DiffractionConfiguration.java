@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.diffraction.base;
+package uk.ac.diamond.daq.mapping.api.document.diffraction;
 
 import uk.ac.gda.api.acquisition.AcquisitionConfigurationBase;
 

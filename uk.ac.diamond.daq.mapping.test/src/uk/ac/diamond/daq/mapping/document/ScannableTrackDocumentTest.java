@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
+import uk.ac.gda.api.exception.GDAException;
 
 /**
  * Tests for the {@link ScannableTrackDocument}
@@ -39,7 +40,7 @@ public class ScannableTrackDocumentTest extends DocumentTestBase {
 	}
 
 	@Test
-	public void serialiseDocumentTest() {
+	public void serialiseDocumentTest() throws GDAException {
 		ScannableTrackDocument.Builder builder = new ScannableTrackDocument.Builder();
 		builder.withScannable("motor_x");
 		builder.withStart(2.0);
@@ -48,13 +49,13 @@ public class ScannableTrackDocumentTest extends DocumentTestBase {
 		ScannableTrackDocument scannableDocument = builder.build();
 		String document = serialiseDocument(scannableDocument);
 		assertThat(document, containsString("motor_x"));
-		assertThat(document, containsString("\"start\":2.0"));
-		assertThat(document, containsString("\"stop\":5.0"));
-		assertThat(document, containsString("\"points\":5"));
+		assertThat(document, containsString("\"start\" : 2.0"));
+		assertThat(document, containsString("\"stop\" : 5.0"));
+		assertThat(document, containsString("\"points\" : 5"));
 	}
 
 	@Test
-	public void deserialiseDocumentWithStepTest() {
+	public void deserialiseDocumentWithStepTest() throws GDAException {
 		ScannableTrackDocument scannableDocument = deserialiseDocument("/resources/ScannableTrackDocumentWithStep.json",
 				ScannableTrackDocument.class);
 		Assert.assertEquals("motor_y", scannableDocument.getScannable());
@@ -65,7 +66,7 @@ public class ScannableTrackDocumentTest extends DocumentTestBase {
 	}
 
 	@Test
-	public void deserialiseDocumentTestWithPoints() {
+	public void deserialiseDocumentTestWithPoints() throws GDAException {
 		ScannableTrackDocument scannableDocument = deserialiseDocument("/resources/ScannableTrackDocumentWithPoints.json",
 				ScannableTrackDocument.class);
 		Assert.assertEquals("motor_y", scannableDocument.getScannable());

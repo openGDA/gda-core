@@ -16,31 +16,21 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.diffraction.model;
+package uk.ac.diamond.daq.mapping.api.document.diffraction;
 
-import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
-import uk.ac.diamond.daq.mapping.region.CentredRectangleMappingRegion;
-import uk.ac.diamond.daq.mapping.region.LineMappingRegion;
-import uk.ac.diamond.daq.mapping.region.PointMappingRegion;
 
 public enum ShapeType {
-	POINT(PointMappingRegion.class, AcquisitionTemplateType.TWO_DIMENSION_POINT,new String[] {}),
-	LINE(LineMappingRegion.class, AcquisitionTemplateType.TWO_DIMENSION_LINE, new String[] { "points" }),
-	CENTRED_RECTANGLE(CentredRectangleMappingRegion.class, AcquisitionTemplateType.TWO_DIMENSION_GRID, new String[] { "xAxisPoints", "yAxisPoints" });
+	POINT(AcquisitionTemplateType.TWO_DIMENSION_POINT, new String[] {}),
+	LINE(AcquisitionTemplateType.TWO_DIMENSION_LINE, new String[] { "points" }),
+	CENTRED_RECTANGLE(AcquisitionTemplateType.TWO_DIMENSION_GRID, new String[] { "xAxisPoints", "yAxisPoints" });
 
-	private final Class<? extends IMappingScanRegionShape> mappingShape;
 	private final AcquisitionTemplateType acquisitionTemplateType;
 	private final String[] properties;
 
-	private ShapeType(Class<? extends IMappingScanRegionShape> mappingShape, AcquisitionTemplateType acquisitionTemplateType, String[] properties) {
-		this.mappingShape = mappingShape;
+	private ShapeType(AcquisitionTemplateType acquisitionTemplateType, String[] properties) {
 		this.acquisitionTemplateType = acquisitionTemplateType;
 		this.properties = properties;
-	}
-
-	public boolean hasMappedShape(IMappingScanRegionShape regionShape) {
-		return mappingShape.isInstance(regionShape);
 	}
 
 	public AcquisitionTemplateType getAcquisitionTemplateType() {

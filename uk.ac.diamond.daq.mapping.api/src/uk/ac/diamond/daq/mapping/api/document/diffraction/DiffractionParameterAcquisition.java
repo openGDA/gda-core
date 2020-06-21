@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2020 Diamond Light Source Ltd.
+ * Copyright © 2019 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,21 +16,13 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.document;
+package uk.ac.diamond.daq.mapping.api.document.diffraction;
 
-import java.net.URL;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
-import uk.ac.gda.api.exception.GDAException;
+import uk.ac.diamond.daq.mapping.api.document.AcquisitionBase;
 
-public class DocumentTestBase {
+@JsonTypeName("diffractionAcquisition")
+public class DiffractionParameterAcquisition extends AcquisitionBase<DiffractionConfiguration> {
 
-	protected <T> T deserialiseDocument(String resourcePath, Class<T> clazz) throws GDAException {
-		URL resource = DocumentTestBase.class.getResource(resourcePath);
-		return DocumentMapper.fromJSON(resource, clazz);
-	}
-
-	protected String serialiseDocument(Object modelDocument) throws GDAException {
-		return DocumentMapper.toJSON(modelDocument);
-	}
 }
