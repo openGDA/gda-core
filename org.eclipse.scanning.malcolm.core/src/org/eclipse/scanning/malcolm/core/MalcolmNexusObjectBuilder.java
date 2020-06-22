@@ -24,6 +24,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXmonitor;
@@ -203,11 +204,20 @@ class MalcolmNexusObjectBuilder {
 	}
 
 	private double getDetectorExposureTime(String detectorName) {
-		return malcolmDevice.getModel().getDetectorModels().stream()
-			.filter(det -> det.getName().equals(detectorName))
-			.findFirst()
-			.map(IMalcolmDetectorModel::getExposureTime)
-			.orElse(malcolmDevice.getModel().getExposureTime());
+		if (malcolmDevice.getModel().getDetectorModels() != null) {
+			final Optional<IMalcolmDetectorModel> detectorModel =
+					malcolmDevice.getModel().getDetectorModels().stream()
+					.filter(det -> det.getName().equals(detectorName))
+					.findFirst();
+			if (detectorModel.isPresent()) {
+				return detectorModel.get().getExposureTime();
+			}
+		}
+
+		// if we have no detector model for the given detector name, use the overall
+		// malcolm device exposure time as a default.
+		logger.warn("No detector model for detector: {}", detectorName);
+		return malcolmDevice.getModel().getExposureTime();
 	}
 
 

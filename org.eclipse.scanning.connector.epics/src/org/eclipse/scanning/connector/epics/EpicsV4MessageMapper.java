@@ -54,6 +54,7 @@ import org.eclipse.scanning.connector.epics.custommarshallers.CircularROISeriali
 import org.eclipse.scanning.connector.epics.custommarshallers.CompoundGeneratorDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.EllipticalROIDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.EllipticalROISerialiser;
+import org.eclipse.scanning.connector.epics.custommarshallers.EpicsMalcolmModelSerialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.FreeDrawROIDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.FreeDrawROISerialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.GridROISerialiser;
@@ -94,6 +95,7 @@ import org.eclipse.scanning.connector.epics.custommarshallers.XAxisBoxROIDeseria
 import org.eclipse.scanning.connector.epics.custommarshallers.XAxisBoxROISerialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.YAxisBoxROIDeserialiser;
 import org.eclipse.scanning.connector.epics.custommarshallers.YAxisBoxROISerialiser;
+import org.eclipse.scanning.malcolm.core.EpicsMalcolmModel;
 import org.epics.pvdata.pv.PVField;
 import org.epics.pvdata.pv.PVString;
 import org.epics.pvdata.pv.PVStructure;
@@ -161,6 +163,7 @@ public class EpicsV4MessageMapper {
 		marshaller.registerDeserialiser(TYPE_ID_METHOD, new MalcolmMethodDeserialiser());
 		marshaller.registerSerialiser(MalcolmTable.class, new MalcolmTableSerialiser());
 		marshaller.registerDeserialiser(TYPE_ID_TABLE, new MalcolmTableDeserialiser());
+		marshaller.registerSerialiser(EpicsMalcolmModel.class, new EpicsMalcolmModelSerialiser());
 		marshaller.registerDeserialiser("scanpointgenerator:generator/CompoundGenerator:1.0", new CompoundGeneratorDeserialiser());
 
 	}

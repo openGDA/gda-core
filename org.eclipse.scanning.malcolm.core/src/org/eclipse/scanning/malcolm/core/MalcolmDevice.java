@@ -377,7 +377,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		if (detectorInfos == null) {
 			// initialize the detector infos, and use those
 			detectorInfos = fetchMalcolmDetectorInfos();
-			if (model.getDetectorModels() == null) {
+			if (model.getDetectorModels() == null && detectorInfos != null) {
 				model.setDetectorModels(detectorInfos.values().stream().map(this::detectorInfoToModel).collect(toList()));
 			}
 		}
@@ -390,16 +390,22 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 			final Map<String, Object> configureDefaults = configureMethodMeta.getDefaults();
 			final MalcolmTable defaultDetectorsTable = (MalcolmTable) configureDefaults.get(FIELD_NAME_DETECTORS);
 			if (defaultDetectorsTable == null) {
-				throw new MalcolmDeviceException("No Malcolm detectors table found for " + getName());
+				// malcolm can return a null detectors table if it can't talk to the geobrick, or if it has been configured
+				// without detectors. We need to treat this differently than an empty list of detectors
+				logger.warn("Malcolm device {} has no detectors configured, it may not be configured correctly.", getName());
+				return null;
 			}
+
+			// initialize the map of detector columns names to type, if it hasn't already been done
 			if (detectorsTableTypesMap == null) {
 				detectorsTableTypesMap = defaultDetectorsTable.getTableDataTypes();
 			}
+			// convert each row of the table to a MalcolmDetectorInfo, and build a map keyed by detector names
 			return defaultDetectorsTable.stream().map(this::malcolmTableRowToDetectorInfo).collect(
 					toMap(MalcolmDetectorInfo::getName, Function.identity(), (x, y) -> x, LinkedHashMap::new));
-		} catch (Exception e) { // catch all exceptions in case of NullPointerException if malcolm isn't configured correctly
+		} catch (MalcolmDeviceException e) {
 			logger.error("Error getting malcolm detectors", e);
-			return new LinkedHashMap<>();
+			return null;
 		}
 	}
 
@@ -432,12 +438,14 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	@Override
 	public List<MalcolmDetectorInfo> getDetectorInfos() throws MalcolmDeviceException {
 		detectorInfos = fetchMalcolmDetectorInfos();
+		if (detectorInfos == null) return null;
 		return detectorInfos.values().stream().collect(toList());
 	}
 
 	private MalcolmTable detectorModelsToTable(List<IMalcolmDetectorModel> detectorModels) throws MalcolmDeviceException {
 		if (detectorInfos == null) { // ensure the cached map of detector mri maps is non-null
 			detectorInfos = fetchMalcolmDetectorInfos();
+			if (detectorInfos == null) return null; // this can happen if malcolm can't talk to the geobrick
 		}
 
 		// create a list for each property of the model, corresponding to a table column
@@ -864,133 +872,6 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		if (getDeviceState() == DeviceState.FINISHED) { // TODO remove check when all beamlines are on Malcolm 4+
 			reset();
 		}
-	}
-
-	/**
-	 * Instances of {@link EpicsMalcolmModel} are used to configure the actual malcolm device.
-	 * This class should be distinguished from the {@link IMalcolmModel} that this
-	 * class is configured with. The majority of the information contained in
-	 * an {@link EpicsMalcolmModel} describes the scan, e.g. the scan path
-	 * defined by the {@link IPointGenerator} and the directory to write to.
-	 * <p>
-	 * Note: the field names within this class are as required by malcolm.
-	 * They cannot be changed without breaking their deserialization by malcolm.
-	 */
-	public static final class EpicsMalcolmModel {
-
-		/**
-		 * A point generator describing the scan path.
-		 */
-		private final IPointGenerator<?> generator;
-
-		/**
-		 * The axes of the scan that malcolm should control. Can be <code>null</code>
-		 * in which case malcolm will control all the axes that it knows about.
-		 */
-		private final List<String> axesToMove;
-
-		/**
-		 * The directory in which malcolm should write its files for the scan,
-		 * typically something like e.g. {@code /dls/ixx/data/2018/cm12345-1/ixx-123456/}
-		 * where the final segment identifies the scan.
-		 */
-		private final String fileDir;
-
-		/**
-		 * A file template for the files that malcolm creates, e.g.
-		 * {@code ixx-123456-%s.h5}, where '%s' is the placeholder for malcolm to
-		 * insert the device name, e.g. {@code PANDABOX}.
-		 */
-		private final String fileTemplate;
-
-		/**
-		 * A {@link MalcolmTable} to configure the detectors controlled by malcolm.
-		 * The column headings are 'name', 'mri', 'exposure' and 'framesPerStep'.
-		 */
-		private final MalcolmTable detectors;
-
-		public EpicsMalcolmModel(String fileDir, String fileTemplate,
-				List<String> axesToMove, IPointGenerator<?> generator, MalcolmTable detectors) {
-			this.fileDir = fileDir;
-			this.fileTemplate = fileTemplate;
-			this.axesToMove = axesToMove;
-			this.generator = generator;
-			this.detectors = detectors;
-		}
-
-		public String getFileDir() {
-			return fileDir;
-		}
-
-		public String getFileTemplate() {
-			return fileTemplate;
-		}
-
-		public List<String> getAxesToMove() {
-			return axesToMove;
-		}
-
-		public IPointGenerator<?> getGenerator() {
-			return generator;
-		}
-
-		public MalcolmTable getDetectors() {
-			return detectors;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((axesToMove == null) ? 0 : axesToMove.hashCode());
-			result = prime * result + ((fileDir == null) ? 0 : fileDir.hashCode());
-			result = prime * result + ((fileTemplate == null) ? 0 : fileTemplate.hashCode());
-			result = prime * result + ((generator == null) ? 0 : generator.hashCode());
-			result = prime * result + ((detectors == null) ? 0 : detectors.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			EpicsMalcolmModel other = (EpicsMalcolmModel) obj;
-			if (axesToMove == null) {
-				if (other.axesToMove != null)
-					return false;
-			} else if (!axesToMove.equals(other.axesToMove))
-				return false;
-			if (fileDir == null) {
-				if (other.fileDir != null)
-					return false;
-			} else if (!fileDir.equals(other.fileDir))
-				return false;
-			if (fileTemplate == null) {
-				if (other.fileTemplate != null)
-					return false;
-			} else if (!fileTemplate.equals(other.fileTemplate))
-				return false;
-			if (generator == null) {
-				if (other.generator != null)
-					return false;
-			} else if (!generator.equals(other.generator))
-				return false;
-			if (detectors == null)
-				if (other.detectors != null)
-					return false;
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return "EpicsMalcolmModel [generator=" + generator + ", axesToMove=" + axesToMove + ", fileDir=" + fileDir
-					+ ", fileTemplate=" + fileTemplate + ", detectors=" + detectors + "]";
-		}
-
 	}
 
 }
