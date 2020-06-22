@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.api.document;
+package uk.ac.diamond.daq.mapping.api.document.base;
 
 import java.net.URL;
 import java.time.Period;
@@ -24,24 +24,16 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import uk.ac.gda.api.acquisition.Acquisition;
-import uk.ac.gda.api.acquisition.AcquisitionConfiguration;
 
 /**
- * Implements a {@link Acquisition} subclass for mapping-specific documents. Classes extending this one may define
- * domain specific acquisitions (diffraction, tomography, etc) inside the mapping framework.
+ * Describes a specific tomography execution
  *
- * <p>
- * The class is annotated with {@link JsonTypeInfo} consequently is possible to serialise/deserialize subclasses that
- * are registered with the jackson {@link ObjectMapper}
- * </p>
- * @see DocumentMapper DiffractionParameterAcquisition
  * @author Maurizio Nagni
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = As.PROPERTY, property = "type")
-public class AcquisitionBase<T extends AcquisitionConfiguration<?>> implements Acquisition<T> {
+public class AcquisitionBase<T extends AcquisitionConfigurationBase<? extends AcquisitionParametersBase>> implements Acquisition<T> {
 
 	private UUID uuid;
 	private String name;

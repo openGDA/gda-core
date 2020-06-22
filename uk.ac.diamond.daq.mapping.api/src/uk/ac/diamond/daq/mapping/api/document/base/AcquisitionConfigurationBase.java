@@ -16,11 +16,13 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.api.acquisition;
+package uk.ac.diamond.daq.mapping.api.document.base;
 
 import java.util.Map;
 
-public class AcquisitionConfigurationBase<T extends AcquisitionParameters> implements AcquisitionConfiguration<T> {
+import uk.ac.gda.api.acquisition.AcquisitionConfiguration;
+
+public class AcquisitionConfigurationBase<T extends AcquisitionParametersBase> implements AcquisitionConfiguration<T> {
 
 	private T acquisitionParameters;
 	private Map<String, String> metadata;

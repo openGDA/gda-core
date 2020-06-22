@@ -23,12 +23,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
-
 import org.junit.Test;
 
-import uk.ac.diamond.daq.mapping.api.document.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
+import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.diffraction.DiffractionConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.diffraction.DiffractionParameterAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.diffraction.DiffractionParameters;
@@ -40,10 +38,10 @@ import uk.ac.gda.api.exception.GDAException;
 public class AcquisitionBaseTest extends DocumentTestBase {
 
 	@Test
-	public void serializeThenDeserializeDiffractionParameterAcquisition() throws IOException {
-		AcquisitionBase<?> acquisition = new DiffractionParameterAcquisition();
-	    final String json = DocumentMapper.getObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(acquisition);
-	    final AcquisitionBase<?> read = DocumentMapper.getObjectMapper().readValue(json, AcquisitionBase.class);
+	public void serializeThenDeserializeDiffractionParameterAcquisition() throws GDAException {
+		Acquisition<?> acquisition = new DiffractionParameterAcquisition();
+	    final String json = DocumentMapper.toJSON(acquisition);
+	    final Acquisition<?> read = DocumentMapper.fromJSON(json, AcquisitionBase.class);
 	    assertTrue(DiffractionParameterAcquisition.class.isInstance(read));
 	}
 

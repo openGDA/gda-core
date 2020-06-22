@@ -116,7 +116,8 @@ public class AxialStepModelDocument implements AcquisitionTemplate {
 		return roi;
 	};
 
-	private ScanpathDocument getScanpathDocument() {
+	@Override
+	public ScanpathDocument getScanpathDocument() {
 		return scanpathDocument;
 	}
 }

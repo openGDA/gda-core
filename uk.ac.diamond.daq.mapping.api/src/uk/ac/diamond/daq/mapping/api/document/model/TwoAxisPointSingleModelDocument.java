@@ -70,9 +70,9 @@ public class TwoAxisPointSingleModelDocument implements AcquisitionTemplate {
 
 	private void executeValidation() {
 		// Has to define two axes
-		Assert.isTrue(scanpathDocument.getScannableTrackDocuments().size() == 2);
-		ScannableTrackDocument std1 = scanpathDocument.getScannableTrackDocuments().get(0);
-		ScannableTrackDocument std2 = scanpathDocument.getScannableTrackDocuments().get(1);
+		Assert.isTrue(getScanpathDocument().getScannableTrackDocuments().size() == 2);
+		ScannableTrackDocument std1 = getScanpathDocument().getScannableTrackDocuments().get(0);
+		ScannableTrackDocument std2 = getScanpathDocument().getScannableTrackDocuments().get(1);
 		// Each axis need to have start equal stop (is a point on each line)
 		Assert.isTrue(std1.getStart() == std1.getStop());
 		Assert.isTrue(std2.getStart() == std2.getStop());
@@ -106,7 +106,8 @@ public class TwoAxisPointSingleModelDocument implements AcquisitionTemplate {
 		return this.roi;
 	};
 
-	private ScanpathDocument getScanpathDocument() {
+	@Override
+	public ScanpathDocument getScanpathDocument() {
 		return scanpathDocument;
 	}
 }
