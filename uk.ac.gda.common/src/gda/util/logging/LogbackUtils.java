@@ -22,6 +22,7 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -32,6 +33,7 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.classic.net.SocketAppender;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.Duration;
 import gda.configuration.properties.LocalProperties;
@@ -335,6 +337,45 @@ public class LogbackUtils {
 					final SocketAppender sockAppender = (SocketAppender) appender;
 					sockAppender.setEventDelayLimit(Duration.buildByMilliseconds(0));
 				}
+			}
+		}
+	}
+
+	/**
+	 * Logback uses a {@link ScheduledThreadPoolExecutor} for {@code ServerSocket[Receiver,Appender]} connections which uses a thread
+	 * to listen for clients and also a thread for each client. As documented in the Javadoc, {@link ScheduledThreadPoolExecutor}
+	 * behaves as a fixed thread pool. Logback has coded this to 8 threads (see {@link CoreConstants#SCHEDULED_EXECUTOR_POOL_SIZE}).
+	 * When more than 6 clients/log panels are connected a major issue arises as a backlog of tasks is created - each of which
+	 * has ownership of a socket stuck in {@code CLOSE_WAIT} state. As clients time out and attempt to reconnect the queue increases
+	 * and more sockets are used until the process reaches its quota for max open files.
+	 * <p>
+	 * This method can be scheduled to run regularly as a workaround which monitors the queue and adjusts the thread count
+	 * to match demand, scaling it both up and down.
+	 * <p>
+	 * This technique was taken from GDA's {@code Async} class.
+	 */
+	public static void monitorAndAdjustLogbackExecutor() {
+		LoggerContext context = getLoggerContext();
+		ScheduledThreadPoolExecutor executor = (ScheduledThreadPoolExecutor) context.getScheduledExecutorService();
+		// SCHEDULER stats
+		int scheduleThreadCount = executor.getActiveCount();
+		int schedulerPoolSize = executor.getCorePoolSize();
+		int scheduleQueueSize = executor.getQueue().size();
+		if (scheduleThreadCount >= schedulerPoolSize) {
+			logger.warn("Logback scheduled thread pool using {}/{} threads. Queue size: {}", scheduleThreadCount, schedulerPoolSize, scheduleQueueSize);
+			int newThreadPoolSize = schedulerPoolSize + 4; // Ramp up quickly to combat rising sockets
+			logger.info("Increasing Logback scheduler pool size to {}", newThreadPoolSize);
+			executor.setCorePoolSize(newThreadPoolSize);
+		} else {
+			logger.trace("Logback scheduled pool thread using {}/{} threads. Queue size: {}", scheduleThreadCount, schedulerPoolSize, scheduleQueueSize);
+			if (schedulerPoolSize > scheduleThreadCount + 2 && schedulerPoolSize > CoreConstants.SCHEDULED_EXECUTOR_POOL_SIZE) {
+				/*
+				 * Reducing the core pool size while all threads are active will not kill the threads It only kills them when they become idle so in the case
+				 * where new tasks have been added since the threads were counted, no processes will be affected
+				 */
+				int newSize = schedulerPoolSize - 1;
+				logger.info("Reducing the Logback scheduler pool size to {}", newSize);
+				executor.setCorePoolSize(newSize);
 			}
 		}
 	}
