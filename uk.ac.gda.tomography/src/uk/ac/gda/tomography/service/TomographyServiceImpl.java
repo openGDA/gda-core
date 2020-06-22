@@ -42,8 +42,11 @@ import gda.jython.JythonServerFacade;
 import gda.jython.commandinfo.CommandThreadEvent;
 import uk.ac.diamond.daq.mapping.api.IScanBeanSubmitter;
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
-import uk.ac.diamond.daq.mapping.api.document.ScanRequestDocument;
 import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
+import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
+import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
+import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
+import uk.ac.gda.api.exception.GDAException;
 import uk.ac.gda.tomography.event.TomographyRunAcquisitionEvent;
 import uk.ac.gda.tomography.service.message.TomographyRunMessage;
 
@@ -152,10 +155,11 @@ public class TomographyServiceImpl implements TomographyService {
 		}
 	}
 
-	private ScanRequestDocument createSRD(TomographyRunMessage message) throws TomographyServiceException {
+	private AcquisitionBase<? extends AcquisitionConfigurationBase<? extends AcquisitionParametersBase>> deserializeAcquisition(
+			TomographyRunMessage message) throws TomographyServiceException {
 		try {
-			return documentMapper.getObjectMapper().readValue((String) message.getConfiguration(), ScanRequestDocument.class);
-		} catch (IOException e) {
+			return documentMapper.fromJSON((String) message.getConfiguration(), AcquisitionBase.class);
+		} catch (GDAException e) {
 			throw new TomographyServiceException("Json error", e);
 		}
 	}
@@ -176,7 +180,7 @@ public class TomographyServiceImpl implements TomographyService {
 			scanBean.setName(String.format("%s - %s Scan", sampleName, pathName));
 			scanBean.setBeamline(System.getProperty("BEAMLINE", "dummy"));
 
-			ScanRequestFactory tsr = new ScanRequestFactory(createSRD(message));
+			ScanRequestFactory tsr = new ScanRequestFactory(deserializeAcquisition(message));
 			scanBean.setScanRequest(tsr.createScanRequest(getRunnableDeviceService()));
 			submitter.submitScan(scanBean);
 		} catch (Exception e) {

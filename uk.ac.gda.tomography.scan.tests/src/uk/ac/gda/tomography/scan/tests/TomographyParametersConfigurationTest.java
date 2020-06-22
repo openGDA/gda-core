@@ -47,6 +47,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gda.device.IScannableMotor;
 import gda.device.scannable.DummyScannableMotor;
 import gda.rcp.views.TabCompositeFactory;
+import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
 import uk.ac.gda.tomography.base.TomographyConfiguration;
 import uk.ac.gda.tomography.base.TomographyParameters;
 import uk.ac.gda.tomography.model.EndAngle;
@@ -79,7 +80,7 @@ public class TomographyParametersConfigurationTest {
 	@Test
 	public void basicDeserialization() throws JsonParseException, JsonMappingException, IOException {
 		String jsonData = getResourceAsString("/resources/simpleTomographyParametersConfiguration.json");
-		TomographyConfiguration configuration = mapper.readValue(jsonData, TomographyConfiguration.class);
+		AcquisitionConfigurationBase<TomographyParameters> configuration = mapper.readValue(jsonData, TomographyConfiguration.class);
 		TomographyParameters tp = configuration.getAcquisitionParameters();
 
 		Assert.assertEquals(false, tp.getStart().isUseCurrentAngle());
