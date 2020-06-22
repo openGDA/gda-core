@@ -148,9 +148,9 @@ public final class CameraHelper {
 	 * @return the camera or <code>null</code> if the camera does not exists
 	 */
 	public static Optional<AbstractCameraConfigurationController> getCameraControlInstance(int activeCamera) {
-		if (!cameraConfigurations.containsKey(activeCamera) || activeCamera >= getAllCameraProperties().size()) {
+		if (activeCamera >= getAllCameraProperties().size()) 
 			return Optional.empty();
-		}
+
 		return Optional
 				.ofNullable(cameraControllers.computeIfAbsent(activeCamera, createCameraConfigurationController));
 	}
