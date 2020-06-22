@@ -19,6 +19,8 @@
 
 package gda.util;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -40,6 +42,7 @@ import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.util.logging.LogbackUtils;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * A utility class which creates objects for local or remote access.
@@ -337,6 +340,10 @@ public abstract class ObjectServer {
 	 */
 	public static ObjectServer spawn(String[] args) {
 		LogbackUtils.configureLoggingForServerProcess("objectserver", LocalProperties.get(LogbackUtils.GDA_SERVER_LOGGING_XML));
+
+		// DAQ-2994 Ensure that the server's Logback executor is operating sufficiently
+		Async.scheduleAtFixedRate(LogbackUtils::monitorAndAdjustLogbackExecutor, 1, 10, SECONDS, "monitor-logback");
+
 		ObjectServer server = null;
 
 		// Log some basic information about the server we are about to start
