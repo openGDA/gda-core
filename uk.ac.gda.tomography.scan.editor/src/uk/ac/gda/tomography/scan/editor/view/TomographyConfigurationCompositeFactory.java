@@ -49,15 +49,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
 import gda.rcp.views.CompositeFactory;
+import uk.ac.diamond.daq.mapping.api.document.base.configuration.MultipleScansType;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.GDAClientException;
+import uk.ac.gda.tomography.base.TomographyConfiguration;
 import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
 import uk.ac.gda.tomography.base.TomographyParameters;
 import uk.ac.gda.tomography.base.TomographyTemplateDataHelper;
-import uk.ac.gda.tomography.model.MultipleScansType;
 import uk.ac.gda.tomography.model.ScanType;
 import uk.ac.gda.tomography.stage.IStageController;
 import uk.ac.gda.tomography.stage.enumeration.StageDevice;
@@ -224,7 +225,7 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 				ClientMessages.SWITCHBACK_SCAN_TOOLTIP);
 
 		// --- this is a workaround to expand the bar ---//
-		multipleScans.setSelection(getTemplateData().getMultipleScans().isEnabled());
+		multipleScans.setSelection(getConfigurationData().getMultipleScans().isEnabled());
 
 		expandBar(customBar, multipleScan, multipleScans);
 	}
@@ -300,17 +301,17 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		customRotationRangeType.addSelectionListener(predefinedAngleListener);
 		totalProjections.addModifyListener(this::totalProjectionsListener);
 
-		ClientBindingElements.bindCheckBox(dbc, beforeAcquisition, "imageCalibration.beforeAcquisition", getTemplateData());
-		ClientBindingElements.bindCheckBox(dbc, afterAcquisition, "imageCalibration.afterAcquisition", getTemplateData());
-		ClientBindingElements.bindText(dbc, numberDark, Integer.class, "imageCalibration.numberDark", getTemplateData());
-		ClientBindingElements.bindText(dbc, numberFlat, Integer.class, "imageCalibration.numberFlat", getTemplateData());
-		ClientBindingElements.bindText(dbc, darkExposure, Integer.class, "imageCalibration.darkExposure", getTemplateData());
-		ClientBindingElements.bindText(dbc, flatExposure, Integer.class, "imageCalibration.flatExposure", getTemplateData());
+		ClientBindingElements.bindCheckBox(dbc, beforeAcquisition, "imageCalibration.beforeAcquisition", getConfigurationData());
+		ClientBindingElements.bindCheckBox(dbc, afterAcquisition, "imageCalibration.afterAcquisition", getConfigurationData());
+		ClientBindingElements.bindText(dbc, numberDark, Integer.class, "imageCalibration.numberDark", getConfigurationData());
+		ClientBindingElements.bindText(dbc, numberFlat, Integer.class, "imageCalibration.numberFlat", getConfigurationData());
+		ClientBindingElements.bindText(dbc, darkExposure, Integer.class, "imageCalibration.darkExposure", getConfigurationData());
+		ClientBindingElements.bindText(dbc, flatExposure, Integer.class, "imageCalibration.flatExposure", getConfigurationData());
 
-		ClientBindingElements.bindCheckBox(dbc, multipleScans, "multipleScans.enabled", getTemplateData());
+		ClientBindingElements.bindCheckBox(dbc, multipleScans, "multipleScans.enabled", getConfigurationData());
 		multipleScans.setSelection(multipleScans.getSelection());
-		ClientBindingElements.bindText(dbc, numberRepetitions, Integer.class, "multipleScans.numberRepetitions", getTemplateData());
-		ClientBindingElements.bindText(dbc, waitingTime, Integer.class, "multipleScans.waitingTime", getTemplateData());
+		ClientBindingElements.bindText(dbc, numberRepetitions, Integer.class, "multipleScans.numberRepetitions", getConfigurationData());
+		ClientBindingElements.bindText(dbc, waitingTime, Integer.class, "multipleScans.waitingTime", getConfigurationData());
 	}
 
 	private void bindScanType(DataBindingContext dbc) {
@@ -324,7 +325,7 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		Map<MultipleScansType, Object> enumRadioMap = new EnumMap<>(MultipleScansType.class);
 		enumRadioMap.put(MultipleScansType.REPEAT_SCAN, repeateMultipleScansType);
 		enumRadioMap.put(MultipleScansType.SWITCHBACK_SCAN, switchbackMultipleScansType);
-		ClientBindingElements.bindEnumToRadio(dbc, MultipleScansType.class, "multipleScans.multipleScansType", getTemplateData(), enumRadioMap);
+		ClientBindingElements.bindEnumToRadio(dbc, MultipleScansType.class, "multipleScans.multipleScansType", getConfigurationData(), enumRadioMap);
 	}
 
 	private void initialiseElements() {
@@ -345,10 +346,10 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		configureWhenShown();
 		totalProjections.setText(Integer.toString(getScannableTrackDocument().getPoints()));
 
-		forceFocusOnEmpty(numberDark, Integer.toString(getTemplateData().getImageCalibration().getNumberDark()));
-		forceFocusOnEmpty(numberFlat, Integer.toString(getTemplateData().getImageCalibration().getNumberFlat()));
-		forceFocusOnEmpty(numberRepetitions, Integer.toString(getTemplateData().getMultipleScans().getNumberRepetitions()));
-		forceFocusOnEmpty(waitingTime, Integer.toString(getTemplateData().getMultipleScans().getWaitingTime()));
+		forceFocusOnEmpty(numberDark, Integer.toString(getConfigurationData().getImageCalibration().getNumberDark()));
+		forceFocusOnEmpty(numberFlat, Integer.toString(getConfigurationData().getImageCalibration().getNumberFlat()));
+		forceFocusOnEmpty(numberRepetitions, Integer.toString(getConfigurationData().getMultipleScans().getNumberRepetitions()));
+		forceFocusOnEmpty(waitingTime, Integer.toString(getConfigurationData().getMultipleScans().getWaitingTime()));
 	}
 
 	private void endGroupsListeners() {
@@ -447,6 +448,10 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		bar.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		bar.setVisible(false);
 		return bar;
+	}
+
+	private TomographyConfiguration getConfigurationData() {
+		return getController().getAcquisition().getAcquisitionConfiguration();
 	}
 
 	private TomographyParameters getTemplateData() {

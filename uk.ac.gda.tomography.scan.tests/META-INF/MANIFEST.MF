@@ -30,5 +30,6 @@ Import-Package: com.fasterxml.jackson.core;version="2.6.2",
  gda.rcp.views,
  uk.ac.diamond.daq.mapping.api.document,
  uk.ac.diamond.daq.mapping.api.document.base,
+ uk.ac.diamond.daq.mapping.api.document.base.configuration,
  uk.ac.diamond.daq.mapping.api.document.scanpath,
  uk.ac.gda.api.acquisition

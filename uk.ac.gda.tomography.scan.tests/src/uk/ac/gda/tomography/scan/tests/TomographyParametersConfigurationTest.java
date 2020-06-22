@@ -51,14 +51,14 @@ import gda.device.scannable.DummyScannableMotor;
 import gda.rcp.views.TabCompositeFactory;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
+import uk.ac.diamond.daq.mapping.api.document.base.configuration.ImageCalibration;
+import uk.ac.diamond.daq.mapping.api.document.base.configuration.MultipleScans;
+import uk.ac.diamond.daq.mapping.api.document.base.configuration.MultipleScansType;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.gda.tomography.base.TomographyConfiguration;
 import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
 import uk.ac.gda.tomography.base.TomographyParameters;
-import uk.ac.gda.tomography.model.ImageCalibration;
-import uk.ac.gda.tomography.model.MultipleScans;
-import uk.ac.gda.tomography.model.MultipleScansType;
 import uk.ac.gda.tomography.model.ScanType;
 import uk.ac.gda.tomography.stage.CommonStage;
 import uk.ac.gda.tomography.stage.StageDescription;
@@ -88,8 +88,6 @@ public class TomographyParametersConfigurationTest {
 		ScannableTrackDocument std = tp.getScanpathDocument().getScannableTrackDocuments().get(0);
 		Assert.assertEquals(2.0, std.getStart(), 0.0);
 		Assert.assertEquals(5.0, std.getStop(), 0.0);
-		Assert.assertEquals(2, tp.getImageCalibration().getNumberDark());
-		Assert.assertEquals(3, tp.getMultipleScans().getNumberRepetitions());
 	}
 
 	/**
@@ -137,8 +135,6 @@ public class TomographyParametersConfigurationTest {
 		ScannableTrackDocument std = tp.getScanpathDocument().getScannableTrackDocuments().get(0);
 		Assert.assertEquals(2.0, std.getStart(), 0.0);
 		Assert.assertEquals(5.0, std.getStop(), 0.0);
-		Assert.assertEquals(2, tp.getImageCalibration().getNumberDark());
-		Assert.assertEquals(3, tp.getMultipleScans().getNumberRepetitions());
 		Assert.assertEquals("uno", configuration.getMetadata().get("one"));
 		Assert.assertEquals("due", configuration.getMetadata().get("two"));
 	}
@@ -185,12 +181,13 @@ public class TomographyParametersConfigurationTest {
 
 	private TomographyConfiguration createBasicTomographyParametersConfiguration() {
 		TomographyParameterAcquisition newConfiguration = new TomographyParameterAcquisition();
-		newConfiguration.setAcquisitionConfiguration(new TomographyConfiguration());
+		TomographyConfiguration configuration = new TomographyConfiguration();
+		newConfiguration.setAcquisitionConfiguration(configuration);
 		newConfiguration.setName("Default name");
 		TomographyParameters acquisitionParameters = new TomographyParameters();
 
 		acquisitionParameters.setScanType(ScanType.FLY);
-		acquisitionParameters.setImageCalibration(new ImageCalibration());
+		configuration.setImageCalibration(new ImageCalibration());
 
 		ScanpathDocument.Builder scanpathBuilder = new ScanpathDocument.Builder();
 		scanpathBuilder.withModelDocument(AcquisitionTemplateType.ONE_DIMENSION_LINE);
@@ -207,8 +204,7 @@ public class TomographyParametersConfigurationTest {
 		multipleScan.setMultipleScansType(MultipleScansType.REPEAT_SCAN);
 		multipleScan.setNumberRepetitions(1);
 		multipleScan.setWaitingTime(0);
-		acquisitionParameters.setMultipleScans(multipleScan);
-
+		configuration.setMultipleScans(multipleScan);
 		newConfiguration.getAcquisitionConfiguration().setAcquisitionParameters(acquisitionParameters);
 		return newConfiguration.getAcquisitionConfiguration();
 	}

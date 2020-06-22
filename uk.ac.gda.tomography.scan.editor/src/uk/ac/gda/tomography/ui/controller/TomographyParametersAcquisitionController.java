@@ -34,6 +34,9 @@ import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.DetectorDocument;
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
+import uk.ac.diamond.daq.mapping.api.document.base.configuration.ImageCalibration;
+import uk.ac.diamond.daq.mapping.api.document.base.configuration.MultipleScans;
+import uk.ac.diamond.daq.mapping.api.document.base.configuration.MultipleScansType;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.diamond.daq.mapping.ui.properties.DetectorHelper;
@@ -51,9 +54,6 @@ import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
 import uk.ac.gda.tomography.base.TomographyParameters;
 import uk.ac.gda.tomography.event.TomographyRunAcquisitionEvent;
 import uk.ac.gda.tomography.event.TomographySaveEvent;
-import uk.ac.gda.tomography.model.ImageCalibration;
-import uk.ac.gda.tomography.model.MultipleScans;
-import uk.ac.gda.tomography.model.MultipleScansType;
 import uk.ac.gda.tomography.model.ScanType;
 import uk.ac.gda.tomography.service.TomographyFileService;
 import uk.ac.gda.tomography.service.message.TomographyRunMessage;
@@ -145,7 +145,8 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 
 	public static TomographyParameterAcquisition createNewAcquisition() {
 		TomographyParameterAcquisition newConfiguration = new TomographyParameterAcquisition();
-		newConfiguration.setAcquisitionConfiguration(new TomographyConfiguration());
+		TomographyConfiguration configuration = new TomographyConfiguration();
+		newConfiguration.setAcquisitionConfiguration(configuration);
 		newConfiguration.setName("Default name");
 		TomographyParameters acquisitionParameters = new TomographyParameters();
 		Optional<List<DetectorProperties>> dp = DetectorHelper.getAcquistionDetector(AcquisitionType.TOMOGRAPHY);
@@ -155,7 +156,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 			acquisitionParameters.setDetector(dd);
 		}
 		acquisitionParameters.setScanType(ScanType.FLY);
-		acquisitionParameters.setImageCalibration(new ImageCalibration());
+		configuration.setImageCalibration(new ImageCalibration());
 
 		ScanpathDocument.Builder scanpathBuilder = new ScanpathDocument.Builder();
 		scanpathBuilder.withModelDocument(AcquisitionTemplateType.ONE_DIMENSION_LINE);
@@ -172,7 +173,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		multipleScan.setMultipleScansType(MultipleScansType.REPEAT_SCAN);
 		multipleScan.setNumberRepetitions(1);
 		multipleScan.setWaitingTime(0);
-		acquisitionParameters.setMultipleScans(multipleScan);
+		configuration.setMultipleScans(multipleScan);
 
 		newConfiguration.getAcquisitionConfiguration().setAcquisitionParameters(acquisitionParameters);
 		return newConfiguration;
@@ -218,7 +219,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	 * @return true if the stage configuration is consistent, false otherwise
 	 */
 	private boolean requiresOutOfBeamPosition(StageConfiguration sc) {
-		ImageCalibration ic = sc.getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters().getImageCalibration();
+		ImageCalibration ic = sc.getAcquisition().getAcquisitionConfiguration().getImageCalibration();
 		return ((ic.getNumberFlat() > 0 && (ic.isAfterAcquisition() || ic.isBeforeAcquisition()))
 				&& !sc.getMotorsPositions().containsKey(Position.OUT_OF_BEAM));
 	}
@@ -273,7 +274,6 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		}
 		throw new AcquisitionControllerException("Cannot parse json document");
 	}
-
 
 	private TomographyRunMessage createTomographyRunMessage() throws AcquisitionControllerException {
 		return new TomographyRunMessage(intDataToJson(getAcquisition()));

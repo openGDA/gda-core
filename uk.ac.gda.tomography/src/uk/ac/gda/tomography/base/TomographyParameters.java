@@ -4,8 +4,6 @@ import uk.ac.diamond.daq.mapping.api.document.DetectorDocument;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
 import uk.ac.diamond.daq.mapping.api.document.diffraction.ShapeType;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.gda.tomography.model.ImageCalibration;
-import uk.ac.gda.tomography.model.MultipleScans;
 import uk.ac.gda.tomography.model.ScanType;
 
 /**
@@ -16,10 +14,6 @@ import uk.ac.gda.tomography.model.ScanType;
 public class TomographyParameters implements AcquisitionParametersBase {
 
 	private ScanType scanType;
-
-	private ImageCalibration imageCalibration;
-
-	private MultipleScans multipleScans;
 
 	private ShapeType shapeType;
 
@@ -34,8 +28,6 @@ public class TomographyParameters implements AcquisitionParametersBase {
 	public TomographyParameters(TomographyParameters configuration) {
 		super();
 		this.scanType = configuration.getScanType();
-		this.imageCalibration = new ImageCalibration(configuration.getImageCalibration());
-		this.multipleScans = new MultipleScans(configuration.getMultipleScans());
 		this.detector = configuration.getDetector();
 		this.scanpathDocument = configuration.getScanpathDocument();
 	}
@@ -46,26 +38,6 @@ public class TomographyParameters implements AcquisitionParametersBase {
 
 	public void setScanType(ScanType scanType) {
 		this.scanType = scanType;
-	}
-
-	public ImageCalibration getImageCalibration() {
-		return imageCalibration;
-	}
-
-	public void setImageCalibration(ImageCalibration imageCalibration) {
-		this.imageCalibration = imageCalibration;
-	}
-
-	public MultipleScans getMultipleScans() {
-		return multipleScans;
-	}
-
-	public void setMultipleScans(MultipleScans multipleScans) {
-		this.multipleScans = multipleScans;
-	}
-
-	public void setDetector(DetectorDocument detector) {
-		this.detector = detector;
 	}
 
 	public void setShapeType(ShapeType shapeType) {
@@ -80,6 +52,10 @@ public class TomographyParameters implements AcquisitionParametersBase {
 	@Override
 	public DetectorDocument getDetector() {
 		return detector;
+	}
+
+	public void setDetector(DetectorDocument detector) {
+		this.detector = detector;
 	}
 
 	@Override
