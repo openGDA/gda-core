@@ -110,7 +110,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	public void saveAcquisitionConfiguration() throws AcquisitionControllerException {
 		StageConfiguration sc = generateStageConfiguration(getAcquisition());
 		String acquisitionDocument = dataToJson(sc);
-		save(formatConfigurationFileName(getAcquisitionParameters().getName()), acquisitionDocument);
+		save(formatConfigurationFileName(getAcquisition().getName()), acquisitionDocument);
 	}
 
 	@Override
@@ -154,6 +154,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	public static TomographyParameterAcquisition createNewAcquisition() {
 		TomographyParameterAcquisition newConfiguration = new TomographyParameterAcquisition();
 		newConfiguration.setAcquisitionConfiguration(new TomographyConfiguration());
+		newConfiguration.setName("Default name");
 		TomographyParameters acquisitionParameters = new TomographyParameters();
 		Optional<List<DetectorProperties>> dp = DetectorHelper.getAcquistionDetector(AcquisitionType.TOMOGRAPHY);
 		int index = 0; // in future may be parametrised
@@ -161,7 +162,6 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 			DetectorDocument dd = new DetectorDocument(dp.get().get(index).getDetectorBean(), 0);
 			acquisitionParameters.setDetector(dd);
 		}
-		acquisitionParameters.setName("Default name");
 		acquisitionParameters.setScanType(ScanType.FLY);
 		acquisitionParameters.setStart(new StartAngle(0.0, false, Double.MIN_VALUE));
 		acquisitionParameters.setEnd(new EndAngle(RangeType.RANGE_180, 1, 0.0));
@@ -197,7 +197,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		} catch (IOException e) {
 			UIHelper.showError("Cannot save the configuration", e);
 		}
-		publishSave(getAcquisitionParameters().getName(), acquisitionDocument, getAcquisitionScript().getAbsolutePath());
+		publishSave(getAcquisition().getName(), acquisitionDocument, getAcquisitionScript().getAbsolutePath());
 	}
 
 	private void publishScanRequestSavedEvent(String fileName) {

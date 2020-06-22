@@ -1,6 +1,5 @@
 {
 	"acquisitionParameters": {
-		"name": "tomoTest",
 		"scanType": "FLY",
 		"start": {
 			"start": 2.3,

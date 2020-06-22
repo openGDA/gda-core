@@ -1,13 +1,12 @@
 {
 	"acquisition": {
 		"uuid": null,
-		"name": null,
+		"name": "Default name",
 		"description": null,
 		"executionPeriod": null,
 		"script": null,
 		"acquisitionConfiguration": {
 			"acquisitionParameters": {
-				"name": "Default name",
 				"scanType": "FLY",
 				"start": {
 					"start": 0.0,

@@ -17,7 +17,6 @@ import uk.ac.gda.tomography.model.StartAngle;
  *  @author Maurzio Nagni
  */
 public class TomographyParameters implements AcquisitionParametersBase {
-	private String name;
 
 	private ScanType scanType;
 	private StartAngle start;
@@ -39,7 +38,6 @@ public class TomographyParameters implements AcquisitionParametersBase {
 
 	public TomographyParameters(TomographyParameters configuration) {
 		super();
-		this.name = configuration.getName();
 		this.scanType = configuration.getScanType();
 		this.start = new StartAngle(configuration.getStart());
 		this.end = new EndAngle(configuration.getEnd());
@@ -47,14 +45,6 @@ public class TomographyParameters implements AcquisitionParametersBase {
 		this.imageCalibration = new ImageCalibration(configuration.getImageCalibration());
 		this.multipleScans = new MultipleScans(configuration.getMultipleScans());
 		this.detector = new DetectorDocument(configuration.getDetector());
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public ScanType getScanType() {

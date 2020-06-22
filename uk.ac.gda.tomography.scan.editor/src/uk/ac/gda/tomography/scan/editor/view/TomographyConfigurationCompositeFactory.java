@@ -255,7 +255,7 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		bindScanType(dbc);
 		bindMultipleScanType(dbc);
 		binRangeType(dbc);
-		ClientBindingElements.bindText(dbc, name, String.class, "name", getTemplateData());
+		ClientBindingElements.bindText(dbc, name, String.class, "name", getController().getAcquisition());
 
 		ClientBindingElements.bindCheckBox(dbc, currentAngleButton, "start.useCurrentAngle", getTemplateData());
 		ClientBindingElements.bindText(dbc, startAngleText, Double.class, "start.start", getTemplateData());

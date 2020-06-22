@@ -1,6 +1,5 @@
 {
 	"acquisitionParameters": {
-		"name": null,
 		"scanType": "FLY",
 		"start": {
 			"start": 2.3,
