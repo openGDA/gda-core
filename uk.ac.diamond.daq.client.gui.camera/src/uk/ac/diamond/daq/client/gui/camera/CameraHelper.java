@@ -150,7 +150,6 @@ public final class CameraHelper {
 	public static Optional<AbstractCameraConfigurationController> getCameraControlInstance(int activeCamera) {
 		if (activeCamera >= getAllCameraProperties().size()) 
 			return Optional.empty();
-
 		return Optional
 				.ofNullable(cameraControllers.computeIfAbsent(activeCamera, createCameraConfigurationController));
 	}

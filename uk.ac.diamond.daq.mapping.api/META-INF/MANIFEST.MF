@@ -20,6 +20,7 @@ Bundle-ActivationPolicy: lazy
 Export-Package: uk.ac.diamond.daq.mapping.api;uses:="org.osgi.framework,org.eclipse.dawnsci.plotting.api.region",
  uk.ac.diamond.daq.mapping.api.document,
  uk.ac.diamond.daq.mapping.api.document.base,
+ uk.ac.diamond.daq.mapping.api.document.base.configuration,
  uk.ac.diamond.daq.mapping.api.document.deserializer,
  uk.ac.diamond.daq.mapping.api.document.diffraction,
  uk.ac.diamond.daq.mapping.api.document.model,
