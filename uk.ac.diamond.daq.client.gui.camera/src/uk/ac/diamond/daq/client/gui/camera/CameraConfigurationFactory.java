@@ -121,7 +121,7 @@ public class CameraConfigurationFactory implements CompositeFactory {
 		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
 		CompositeFactory cf = new SensorSelectionComposite();
 		group.setCompositeFactory(cf);
-		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.SELECTION));
+		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.ROI));
 		return group;
 	}
 
@@ -129,7 +129,7 @@ public class CameraConfigurationFactory implements CompositeFactory {
 		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
 		CompositeFactory cf = new CameraConfigurationComposite(streamController);
 		group.setCompositeFactory(cf);
-		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.CAMERA));
+		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.SETTINGS));
 		return group;
 	}
 
