@@ -25,6 +25,7 @@ import org.eclipse.jface.viewers.ViewerComparator;
 
 import gda.rcp.views.Browser;
 import gda.rcp.views.ComparableStyledLabelProvider;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.gda.tomography.base.TomographyParameters;
 
 /**
@@ -37,21 +38,9 @@ class RangeProvider extends LabelProvider implements ComparableStyledLabelProvid
 	@Override
 	public StyledString getStyledText(Object element) {
 		TomographyParameters parameters = TomoBrowser.getTomographyParameters(element);
-		double start = parameters.getStart().getStart();
-		double end;
-		switch (parameters.getEnd().getRangeType()) {
-		case RANGE_180:
-			end = 180.0;
-			break;
-		case RANGE_360:
-			end = 360.0;
-			break;
-		case CUSTOM:
-			end = parameters.getEnd().getCustomAngle();
-			break;
-		default:
-			end = Double.NaN;
-		}
+		ScannableTrackDocument std = parameters.getScanpathDocument().getScannableTrackDocuments().get(0);
+		double start = std.getStart();
+		double end = std.getStop();
 		return new StyledString(String.format("%1$.2f : %2$.2f", start, end));
 	}
 

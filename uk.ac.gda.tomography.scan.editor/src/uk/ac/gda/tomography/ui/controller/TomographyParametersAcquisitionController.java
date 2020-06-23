@@ -6,9 +6,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
@@ -31,7 +29,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.jython.JythonServerFacade;
-import gda.mscan.element.Mutator;
 import uk.ac.diamond.daq.mapping.api.ScanRequestSavedEvent;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.DetectorDocument;
@@ -54,20 +51,15 @@ import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
 import uk.ac.gda.tomography.base.TomographyParameters;
 import uk.ac.gda.tomography.event.TomographyRunAcquisitionEvent;
 import uk.ac.gda.tomography.event.TomographySaveEvent;
-import uk.ac.gda.tomography.model.EndAngle;
 import uk.ac.gda.tomography.model.ImageCalibration;
 import uk.ac.gda.tomography.model.MultipleScans;
 import uk.ac.gda.tomography.model.MultipleScansType;
-import uk.ac.gda.tomography.model.Projections;
-import uk.ac.gda.tomography.model.RangeType;
 import uk.ac.gda.tomography.model.ScanType;
-import uk.ac.gda.tomography.model.StartAngle;
 import uk.ac.gda.tomography.service.TomographyFileService;
 import uk.ac.gda.tomography.service.message.TomographyRunMessage;
 import uk.ac.gda.tomography.stage.IStageController;
 import uk.ac.gda.tomography.stage.StageConfiguration;
 import uk.ac.gda.tomography.stage.enumeration.Position;
-import uk.ac.gda.tomography.stage.enumeration.StageDevice;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
@@ -163,10 +155,18 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 			acquisitionParameters.setDetector(dd);
 		}
 		acquisitionParameters.setScanType(ScanType.FLY);
-		acquisitionParameters.setStart(new StartAngle(0.0, false, Double.MIN_VALUE));
-		acquisitionParameters.setEnd(new EndAngle(RangeType.RANGE_180, 1, 0.0));
-		acquisitionParameters.setProjections(new Projections(1, 0));
 		acquisitionParameters.setImageCalibration(new ImageCalibration());
+
+		ScanpathDocument.Builder scanpathBuilder = new ScanpathDocument.Builder();
+		scanpathBuilder.withModelDocument(AcquisitionTemplateType.ONE_DIMENSION_LINE);
+		ScannableTrackDocument.Builder scannableTrackBuilder = new ScannableTrackDocument.Builder();
+		scannableTrackBuilder.withStart(0.0);
+		scannableTrackBuilder.withStop(180.0);
+		scannableTrackBuilder.withPoints(1);
+		List<ScannableTrackDocument> scannableTrackDocuments = new ArrayList<>();
+		scannableTrackDocuments.add(scannableTrackBuilder.build());
+		scanpathBuilder.withScannableTrackDocuments(scannableTrackDocuments);
+		acquisitionParameters.setScanpathDocument(scanpathBuilder.build());
 
 		MultipleScans multipleScan = new MultipleScans();
 		multipleScan.setMultipleScansType(MultipleScansType.REPEAT_SCAN);
@@ -202,11 +202,10 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 
 	private void publishScanRequestSavedEvent(String fileName) {
 		try {
-			createScanpathDocument();
 			ScanRequestFactory srf = new ScanRequestFactory(getAcquisition());
 			ScanRequest scanRequest = srf.createScanRequest(getIRunnableDeviceService());
 			SpringApplicationContextProxy.publishEvent(new ScanRequestSavedEvent(this, fileName, scanRequest));
-		} catch (AcquisitionControllerException | ScanningException e) {
+		} catch (ScanningException e) {
 			logger.error("Canot create scanRequest", e);
 		}
 	}
@@ -224,24 +223,6 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 				&& !sc.getMotorsPositions().containsKey(Position.OUT_OF_BEAM));
 	}
 
-	// @Override
-	// public URL takeFlatImage(TomographyParameterAcquisition acquisition, URL outputPath) throws AcquisitionControllerException {
-	// try {
-	// return tomographyService.takeFlatImage(createTomographyRunMessage(generateStageConfiguration(acquisition), outputPath), getAcquisitionScript());
-	// } catch (TomographyServiceException e) {
-	// throw new AcquisitionControllerException("Error acquiring Flat Image", e);
-	// }
-	// }
-
-	// @Override
-	// public URL takeDarkImage(TomographyParameterAcquisition acquisition, URL outputPath) throws AcquisitionControllerException {
-	// try {
-	// return tomographyService.takeDarkImage(createTomographyRunMessage(generateStageConfiguration(acquisition), outputPath), getAcquisitionScript());
-	// } catch (TomographyServiceException e) {
-	// throw new AcquisitionControllerException("Error acquiring Dark Image", e);
-	// }
-	// }
-
 	public TomographyParameters getAcquisitionParameters() {
 		return getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
 	}
@@ -249,7 +230,6 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	private StageConfiguration generateStageConfiguration(TomographyParameterAcquisition acquisition) throws AcquisitionControllerException {
 		try {
 			TomographyParametersAcquisitionControllerHelper.updateExposure(this);
-			// stageController.getMetadata().put(Metadata.EXPOSURE.name(), Double.toString(TomographyParametersAcquisitionControllerHelper.getExposure()));
 		} catch (DeviceException e) {
 			throw new AcquisitionControllerException("Acquisition cannot acquire the active camera exposure time");
 		}
@@ -294,25 +274,8 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		throw new AcquisitionControllerException("Cannot parse json document");
 	}
 
-	private void createScanpathDocument() throws AcquisitionControllerException {
-		StageConfiguration stageConfiguration = generateStageConfiguration(getAcquisition());
-		TomographyParameters tp = stageConfiguration.getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
-		DetectorDocument dd = tp.getDetector();
-		List<ScannableTrackDocument> scannables = new ArrayList<>();
-		ScannableTrackDocument.Builder builder = new ScannableTrackDocument.Builder();
-		builder.withScannable(stageConfiguration.getStageDescription().getMotors().get(StageDevice.MOTOR_STAGE_ROT_Y).getName());
-		builder.withStart(tp.getStart().getStart());
-		builder.withStop(tp.getEnd().getEndAngle());
-		builder.withStep(tp.getProjections().getAngularStep());
-		scannables.add(builder.build());
-		Map<Mutator, List<Number>> mutators = new EnumMap<>(Mutator.class);
-		getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters()
-				.setScanpathDocument(new ScanpathDocument(AcquisitionTemplateType.ONE_DIMENSION_LINE, scannables, mutators));
-		getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters().setDetector(dd);
-	}
 
 	private TomographyRunMessage createTomographyRunMessage() throws AcquisitionControllerException {
-		createScanpathDocument();
 		return new TomographyRunMessage(intDataToJson(getAcquisition()));
 	}
 

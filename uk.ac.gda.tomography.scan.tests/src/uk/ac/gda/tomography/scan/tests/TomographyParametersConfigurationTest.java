@@ -28,8 +28,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -47,16 +49,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gda.device.IScannableMotor;
 import gda.device.scannable.DummyScannableMotor;
 import gda.rcp.views.TabCompositeFactory;
+import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.gda.tomography.base.TomographyConfiguration;
+import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
 import uk.ac.gda.tomography.base.TomographyParameters;
-import uk.ac.gda.tomography.model.EndAngle;
 import uk.ac.gda.tomography.model.ImageCalibration;
 import uk.ac.gda.tomography.model.MultipleScans;
 import uk.ac.gda.tomography.model.MultipleScansType;
-import uk.ac.gda.tomography.model.RangeType;
 import uk.ac.gda.tomography.model.ScanType;
-import uk.ac.gda.tomography.model.StartAngle;
 import uk.ac.gda.tomography.stage.CommonStage;
 import uk.ac.gda.tomography.stage.StageDescription;
 import uk.ac.gda.tomography.stage.enumeration.Stage;
@@ -82,9 +85,9 @@ public class TomographyParametersConfigurationTest {
 		String jsonData = getResourceAsString("/resources/simpleTomographyParametersConfiguration.json");
 		AcquisitionConfigurationBase<TomographyParameters> configuration = mapper.readValue(jsonData, TomographyConfiguration.class);
 		TomographyParameters tp = configuration.getAcquisitionParameters();
-
-		Assert.assertEquals(false, tp.getStart().isUseCurrentAngle());
-		Assert.assertEquals(RangeType.RANGE_360, tp.getEnd().getRangeType());
+		ScannableTrackDocument std = tp.getScanpathDocument().getScannableTrackDocuments().get(0);
+		Assert.assertEquals(2.0, std.getStart(), 0.0);
+		Assert.assertEquals(5.0, std.getStop(), 0.0);
 		Assert.assertEquals(2, tp.getImageCalibration().getNumberDark());
 		Assert.assertEquals(3, tp.getMultipleScans().getNumberRepetitions());
 	}
@@ -131,9 +134,9 @@ public class TomographyParametersConfigurationTest {
 		String jsonData = getResourceAsString("/resources/tomographyParametersConfigurationWithMetadata.json");
 		TomographyConfiguration configuration = mapper.readValue(jsonData, TomographyConfiguration.class);
 		TomographyParameters tp = configuration.getAcquisitionParameters();
-
-		Assert.assertEquals(false, tp.getStart().isUseCurrentAngle());
-		Assert.assertEquals(RangeType.RANGE_360, tp.getEnd().getRangeType());
+		ScannableTrackDocument std = tp.getScanpathDocument().getScannableTrackDocuments().get(0);
+		Assert.assertEquals(2.0, std.getStart(), 0.0);
+		Assert.assertEquals(5.0, std.getStop(), 0.0);
 		Assert.assertEquals(2, tp.getImageCalibration().getNumberDark());
 		Assert.assertEquals(3, tp.getMultipleScans().getNumberRepetitions());
 		Assert.assertEquals("uno", configuration.getMetadata().get("one"));
@@ -156,26 +159,6 @@ public class TomographyParametersConfigurationTest {
 
 		System.out.println(confAsString);
 	}
-
-	/**
-	 * This test is ignored at the moment as it is not possible to deserialise a Device. To do this would be necessary to add Jackson annotations
-	 * like @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = As.PROPERTY, property = "class").
-	 *
-	 * @throws JsonParseException
-	 * @throws JsonMappingException
-	 * @throws IOException
-	 */
-	// @Ignore
-	// @Test
-	// public void deserializationWithDevices() throws JsonParseException, JsonMappingException, IOException {
-	// String jsonData = getResourceAsString("/resources/tomographyParametersConfigurationWithDevices.json");
-	// TomographyConfiguration configuration = mapper.readValue(jsonData, TomographyConfiguration.class);
-	//
-	// long devicesNum = configuration.getDevices().stream().filter(d -> {
-	// return d.getName().equals("MotorOne") || d.getName().equals("MotorTwo");
-	// }).count();
-	// Assert.assertEquals(2, devicesNum);
-	// }
 
 	private String getResourceAsString(String resource) {
 		tempFile = getResourceAsFile(resource);
@@ -201,36 +184,33 @@ public class TomographyParametersConfigurationTest {
 	}
 
 	private TomographyConfiguration createBasicTomographyParametersConfiguration() {
-		TomographyParameters tp = new TomographyParameters();
-		tp.setScanType(ScanType.FLY);
+		TomographyParameterAcquisition newConfiguration = new TomographyParameterAcquisition();
+		newConfiguration.setAcquisitionConfiguration(new TomographyConfiguration());
+		newConfiguration.setName("Default name");
+		TomographyParameters acquisitionParameters = new TomographyParameters();
 
-		StartAngle startAngle = new StartAngle();
-		startAngle.setStart(2.3);
-		startAngle.setUseCurrentAngle(false);
-		tp.setStart(startAngle);
+		acquisitionParameters.setScanType(ScanType.FLY);
+		acquisitionParameters.setImageCalibration(new ImageCalibration());
 
-		EndAngle endAngle = new EndAngle();
-		endAngle.setRangeType(RangeType.RANGE_360);
-		endAngle.setNumberRotation(3);
-		endAngle.setCustomAngle(25.2);
-		tp.setEnd(endAngle);
+		ScanpathDocument.Builder scanpathBuilder = new ScanpathDocument.Builder();
+		scanpathBuilder.withModelDocument(AcquisitionTemplateType.ONE_DIMENSION_LINE);
+		ScannableTrackDocument.Builder scannableTrackBuilder = new ScannableTrackDocument.Builder();
+		scannableTrackBuilder.withStart(0.0);
+		scannableTrackBuilder.withStop(180.0);
+		scannableTrackBuilder.withPoints(1);
+		List<ScannableTrackDocument> scannableTrackDocuments = new ArrayList<>();
+		scannableTrackDocuments.add(scannableTrackBuilder.build());
+		scanpathBuilder.withScannableTrackDocuments(scannableTrackDocuments);
+		acquisitionParameters.setScanpathDocument(scanpathBuilder.build());
 
-		ImageCalibration imageCalibration = new ImageCalibration();
-		imageCalibration.setAfterAcquisition(true);
-		imageCalibration.setBeforeAcquisition(false);
-		imageCalibration.setNumberDark(2);
-		imageCalibration.setNumberFlat(2);
-		tp.setImageCalibration(imageCalibration);
+		MultipleScans multipleScan = new MultipleScans();
+		multipleScan.setMultipleScansType(MultipleScansType.REPEAT_SCAN);
+		multipleScan.setNumberRepetitions(1);
+		multipleScan.setWaitingTime(0);
+		acquisitionParameters.setMultipleScans(multipleScan);
 
-		MultipleScans multipleScans = new MultipleScans();
-		multipleScans.setMultipleScansType(MultipleScansType.SWITCHBACK_SCAN);
-		multipleScans.setNumberRepetitions(3);
-		multipleScans.setWaitingTime(1000);
-		tp.setMultipleScans(multipleScans);
-
-		TomographyConfiguration configuration = new TomographyConfiguration();
-		configuration.setAcquisitionParameters(tp);
-		return configuration;
+		newConfiguration.getAcquisitionConfiguration().setAcquisitionParameters(acquisitionParameters);
+		return newConfiguration.getAcquisitionConfiguration();
 	}
 
 	private StageDescription createBasicTomographyMode() {
@@ -265,5 +245,4 @@ public class TomographyParametersConfigurationTest {
 			}
 		};
 	}
-
 }

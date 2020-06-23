@@ -1,16 +1,6 @@
 {
 	"acquisitionParameters": {
 		"scanType": "FLY",
-		"start": {
-			"start": 2.3,
-			"useCurrentAngle": false,
-			"currentAngle": 0.0
-		},
-		"end": {
-			"rangeType": "RANGE_360",
-			"numberRotation": 3,
-			"customAngle": 25.2
-		},
 		"imageCalibration": {
 			"numberDark": 2,
 			"numberFlat": 2,
@@ -21,6 +11,23 @@
 			"multipleScansType": "SWITCHBACK_SCAN",
 			"numberRepetitions": 3,
 			"waitingTime": 1000
+		},
+		"scanpathDocument": {
+			"modelDocument": "ONE_DIMENSION_LINE",
+			"scannableTrackDocuments": [
+				{
+					"scannable": "motor_x",
+					"start": 2.0,
+					"stop": 5.0,
+					"step": 1.0
+				}
+			],
+			"mutators": {
+				"alternating": [
+					1,
+					2
+				]
+			}
 		}
 	},
 	"metadata": {
@@ -28,5 +35,6 @@
 		"two": "due"
 	}
 }
+
 
 
