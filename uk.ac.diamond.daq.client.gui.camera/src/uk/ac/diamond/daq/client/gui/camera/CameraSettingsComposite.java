@@ -2,14 +2,11 @@ package uk.ac.diamond.daq.client.gui.camera;
 
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Widget;
 import org.springframework.context.ApplicationListener;
 
@@ -17,14 +14,9 @@ import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.binning.BinningCompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
 import uk.ac.diamond.daq.client.gui.camera.exposure.ExposureDurationComposite;
-import uk.ac.diamond.daq.client.gui.camera.liveview.state.ListeningState;
-import uk.ac.diamond.daq.client.gui.camera.liveview.state.StreamController;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.MotorCompositeFactory;
 import uk.ac.gda.client.exception.GDAClientException;
-import uk.ac.gda.client.live.stream.LiveStreamException;
-import uk.ac.gda.ui.tool.ClientMessages;
-import uk.ac.gda.ui.tool.ClientMessagesUtility;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
@@ -35,19 +27,14 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
  * 
  * @author Maurizio Nagni
  */
-public class CameraConfigurationComposite implements CompositeFactory {
+public class CameraSettingsComposite implements CompositeFactory {
 
 	private Composite motorCompositeArea;
 	private Optional<Integer> activeCameraIndex;
 
-	private final StreamController streamController;
-
-	public CameraConfigurationComposite(StreamController streamController) {
+	public CameraSettingsComposite() {
 		super();
-		this.streamController = streamController;
 	}
-
-	private Button streamActivationButton;
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
@@ -75,13 +62,6 @@ public class CameraConfigurationComposite implements CompositeFactory {
 		} catch (GDAClientException e) {
 			UIHelper.showError("Cannot add camera change listener to CameraConfiguration", e);
 		}
-
-		streamActivationButton = ClientSWTElements.createButton(container, SWT.NONE, ClientMessages.START_STREAM,
-				ClientMessages.START_STREAM);
-		streamActivationButton.setData(ClientMessages.START_STREAM);
-
-		streamActivationButton.addListener(SWT.Selection, this::changeStreamState);
-
 		return container;
 	}
 
@@ -93,29 +73,6 @@ public class CameraConfigurationComposite implements CompositeFactory {
 					mc.createComposite(motorCompositeArea, SWT.HORIZONTAL);
 				}));
 		motorCompositeArea.layout(true, true);
-	}
-
-	private void changeStreamState(Event e) {
-		try {
-			// Is it listening?
-			if (ListeningState.class.isInstance(streamController.getState())) {
-				streamController.idle();
-			} else {
-				// then was idle
-				streamController.listen();
-			}
-		} catch (LiveStreamException ex) {
-			// handleException(ex);
-		}
-		updateStreamActivationButton();
-	}
-
-	private void updateStreamActivationButton() {
-		if (ListeningState.class.isInstance(streamController.getState())) {
-			streamActivationButton.setText(ClientMessagesUtility.getMessage(ClientMessages.STOP_STREAM));
-		} else {
-			streamActivationButton.setText(ClientMessagesUtility.getMessage(ClientMessages.START_STREAM));
-		}
 	}
 
 	private Optional<ICameraConfiguration> getICameraConfiguration() {

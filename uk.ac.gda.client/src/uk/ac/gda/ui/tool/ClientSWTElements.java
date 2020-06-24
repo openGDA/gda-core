@@ -72,6 +72,16 @@ public final class ClientSWTElements {
 
 	public static final Composite createComposite(final Composite parent, int style, int columns, int hAlign,
 			int vAlign) {
+		Composite composite = createGridLayoutComposite(parent, style, columns);
+		GridDataFactory gdf = createGridDataFactory(hAlign, vAlign);
+		if (columns == 1) {
+			gdf = GridDataFactory.fillDefaults();
+		}
+		gdf.applyTo(composite);
+		return composite;
+	}
+
+	public static final Composite createGridLayoutComposite(final Composite parent, int style, int columns) {
 		Composite composite = new Composite(parent, style);
 		GridLayoutFactory glf = GridLayoutFactory.swtDefaults();
 		if (columns == 1) {
@@ -81,14 +91,17 @@ public final class ClientSWTElements {
 			glf.numColumns(columns);
 		}
 		glf.applyTo(composite);
-
-		GridDataFactory gdf = GridDataFactory.swtDefaults();
-		if (columns == 1) {
-			gdf = GridDataFactory.fillDefaults();
-		}
-		gdf.grab(true, true).align(hAlign, vAlign).applyTo(composite);
 		return composite;
 	}
+
+	public static final GridDataFactory createGridDataFactory() {
+		return GridDataFactory.swtDefaults().grab(true, true).align(SWT.LEFT, SWT.TOP);
+	}
+
+	public static final GridDataFactory createGridDataFactory(int hAlign, int vAlign) {
+		return GridDataFactory.swtDefaults().grab(true, true).align(hAlign, vAlign);
+	}
+
 
 	public static final Composite createComposite(final Composite parent, int style) {
 		return createComposite(parent, style, 1);
