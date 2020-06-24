@@ -15,8 +15,9 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 
 	<!-- This pom contains specific steps to copy the built product outside of the Maven target directory
 	into the standard location above workspace_git. The steps are:
-	* Attach build product zip as artifact so it can be used in the Maven Dependency Plugin
+	* Attach built product zip as artifact so it can be used in the Maven Dependency Plugin
 	* Unzip the product in the location we want it
+	* Run the linkrewrite script to fix up script links to the workspace
 	* Recreate the symlink if desired
 
 	Could be nicer to replace the first two steps with a single copy using the Maven Resources plugin but
@@ -25,17 +26,40 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 	<profiles>
 		<profile>
 			<id>recreate-symlink</id>
-			<properties>
-				<exec.skip>false</exec.skip>
-			</properties>
+			<build>
+				<pluginManagement>
+					<plugins>
+						<!-- Update the symlink to point to new product -->
+						<plugin>
+							<groupId>org.codehaus.mojo</groupId>
+							<artifactId>exec-maven-plugin</artifactId>
+							<version>${exec.maven.plugin.version}</version>
+							<executions>
+								<execution>
+									<id>recreate-symlink</id>
+									<phase>verify</phase>
+									<goals>
+										<goal>exec</goal>
+									</goals>
+									<configuration>
+										<executable>ln</executable>
+										<arguments>
+											<argument>-fnsv</argument>
+											<argument>${server-product-root}</argument>
+											<argument>${project.basedir}/../../../../server</argument>
+										</arguments>
+									</configuration>
+								</execution>
+							</executions>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
 		</profile>
 	</profiles>
-	<properties>
-		<exec.skip>true</exec.skip>
-	</properties>
 
 	<build>
-		<!-- Main declaration and configuration for unzip and symlink of products
+		<!-- Main declaration and configuration for unzip and symlink of script folders
 			Will be inherited by children but isn't added to their lifecycles (as it's
 			pluginManagement) -->
 		<pluginManagement>
@@ -67,24 +91,25 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 					</executions>
 				</plugin>
 
-				<!-- Update the symlink to point to new product -->
+				<!-- Add links back to the workspace for the script folders -->
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>exec-maven-plugin</artifactId>
 					<version>${exec.maven.plugin.version}</version>
 					<executions>
 						<execution>
-							<id>recreate-symlink</id>
+							<id>link-rewrite</id>
 							<phase>verify</phase>
 							<goals>
 								<goal>exec</goal>
 							</goals>
 							<configuration>
-								<executable>ln</executable>
+								<!-- set the working directory to the one containing this file and devlinks.py -->
+								<workingDirectory>..</workingDirectory>
+								<executable>python</executable>
 								<arguments>
-									<argument>-fnsv</argument>
-									<argument>${server-product-root}</argument>
-									<argument>${project.basedir}/../../../../server</argument>
+									<argument>./devlinks.py</argument>
+									<argument>../../../${server-product-root}/plugins</argument>
 								</arguments>
 							</configuration>
 						</execution>
@@ -138,18 +163,22 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 					</execution>
 				</executions>
 			</plugin>
-				<plugin>
-					<artifactId>exec-maven-plugin</artifactId>
-					<groupId>org.codehaus.mojo</groupId>
-					<version>${exec.maven.plugin.version}</version>
-					<inherited>false</inherited>
-					<executions>
-						<execution>
-							<id>recreate-symlink</id>
-							<phase>none</phase>
-						</execution>
-					</executions>
-				</plugin>
+			<plugin>
+				<artifactId>exec-maven-plugin</artifactId>
+				<groupId>org.codehaus.mojo</groupId>
+				<version>${exec.maven.plugin.version}</version>
+				<inherited>false</inherited>
+				<executions>
+					<execution>
+						<id>recreate-symlink</id>
+						<phase>none</phase>
+					</execution>
+					<execution>
+						<id>link-rewrite</id>
+						<phase>none</phase>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 </project>
