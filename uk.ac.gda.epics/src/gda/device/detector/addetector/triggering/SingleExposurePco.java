@@ -18,14 +18,18 @@
 
 package gda.device.detector.addetector.triggering;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADDriverPco;
 import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
 import gda.scan.ScanInformation;
 import gda.util.LiveModeUtil;
-import org.slf4j.LoggerFactory;
 
 public class SingleExposurePco extends SingleExposureStandard {
+
+	private static final Logger logger = LoggerFactory.getLogger(SingleExposurePco.class);
 
 	private final ADDriverPco adDriverPco;
 
@@ -42,7 +46,7 @@ public class SingleExposurePco extends SingleExposureStandard {
 			adDriverPco.getArmModePV().putWait(true);
 		}
 		else {
-			LoggerFactory.getLogger("SingleExposurePco:"+this.getName()).info("prepareForCollection: Not live, but Arming anyway!");
+			logger.info("{}: prepareForCollection: Not live, but Arming anyway!", getName());
 			adDriverPco.getArmModePV().putWait(true);
 		}
 	}
@@ -54,7 +58,7 @@ public class SingleExposurePco extends SingleExposureStandard {
 			adDriverPco.getArmModePV().putWait(false);
 		}
 		else {
-			LoggerFactory.getLogger("SingleExposurePco:"+this.getName()).info("completeCollection: Not live, but Disarming anyway!");
+			logger.info("{}: completeCollection: Not live, but Disarming anyway!", getName());
 			adDriverPco.getArmModePV().putWait(false);
 		}
 	}
