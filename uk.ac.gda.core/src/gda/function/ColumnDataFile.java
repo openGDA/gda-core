@@ -110,6 +110,7 @@ public class ColumnDataFile extends AbstractColumnFile {
 		for (i = 0; i < numberOfXValues; i++) {
 			stringLine = data.get(i);
 			doubleLine = stream(stringLine).mapToDouble(Double::parseDouble).toArray();
+			// TODO check doubleLine.length matches nColumns
 			for (j = 0; j < doubleLine.length; j++)
 				columnData[j][i] = doubleLine[j];
 		}

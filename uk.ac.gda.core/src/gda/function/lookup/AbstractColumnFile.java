@@ -109,10 +109,15 @@ public abstract class AbstractColumnFile extends FindableConfigurableBase implem
 		return new File(lookupTableFolder).getAbsolutePath();
 	}
 
+	/**
+	 * Read the column file, filtering out comment lines and empty lines.
+	 * @return stream of lines each of which split by {@link #COLUMN_DELIMETER}
+	 */
 	protected Stream<String[]> readLines() throws IOException {
 		return Files.lines(Paths.get(getPath()))
 				.filter(line -> !line.isEmpty())
 				.filter(line -> !line.startsWith(COMMENT_MARK))
+				.map(String::trim)
 				.map(line -> line.split(COLUMN_DELIMETER));
 	}
 }
