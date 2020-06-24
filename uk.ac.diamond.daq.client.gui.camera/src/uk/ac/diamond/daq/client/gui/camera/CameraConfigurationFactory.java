@@ -17,7 +17,9 @@ import uk.ac.diamond.daq.client.gui.camera.liveview.HistogramComposite;
 import uk.ac.diamond.daq.client.gui.camera.liveview.StreamControlCompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.liveview.StreamControlData;
 import uk.ac.diamond.daq.client.gui.camera.liveview.state.StreamController;
+import uk.ac.diamond.daq.client.gui.camera.positioning.CameraPositioningComposite;
 import uk.ac.diamond.daq.client.gui.camera.roi.SensorSelectionComposite;
+import uk.ac.diamond.daq.client.gui.camera.settings.CameraSettingsComposite;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.view.StreamType;
@@ -111,6 +113,7 @@ public class CameraConfigurationFactory implements CompositeFactory {
 	private CompositeFactory createTabFactory() throws GDAClientException {
 		TabFolderBuilder builder = new TabFolderBuilder();
 		builder.addTab(createSettingsCompositeFactory());
+		builder.addTab(createPositioningCompositeFactory());
 		builder.addTab(createAbsorptionCompositeFactory());
 		builder.addTab(createROICompositeFactory());
 		builder.addTab(createCalibrationFactory());
@@ -133,6 +136,14 @@ public class CameraConfigurationFactory implements CompositeFactory {
 		return group;
 	}
 
+	private final TabCompositeFactory createPositioningCompositeFactory() {
+		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
+		CompositeFactory cf = new CameraPositioningComposite();
+		group.setCompositeFactory(cf);
+		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.POSITIONING));
+		return group;
+	}
+	
 	private final TabCompositeFactory createAbsorptionCompositeFactory() {
 		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
 		group.setCompositeFactory(new AbsorptionComposite());
