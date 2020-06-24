@@ -38,6 +38,7 @@ import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
+import gda.jython.GdaJythonBuiltin;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServer;
 import gda.jython.JythonServerFacade;
@@ -58,6 +59,7 @@ public final class GeneralCommands {
 	/**
 	 * Print the default help message
 	 */
+	@GdaJythonBuiltin("Print the GDA specific help")
 	public static void gdahelp() {
 		final List<String> helpString = new ArrayList<>();
 
@@ -98,6 +100,8 @@ public final class GeneralCommands {
 	/**
 	 * List all the types of objects (interfaces) in use on this beamline
 	 */
+	@GdaJythonBuiltin("List all the interfaces of all the objects available from the finder.\n"
+			+ "(Except a selection of common ones)")
 	public static void ls() {
 		ls("");
 	}
@@ -107,6 +111,7 @@ public final class GeneralCommands {
 	 *
 	 * @param interfaceName
 	 */
+	@GdaJythonBuiltin("List all available types of objects or objects of a given type")
 	public static void ls(String interfaceName) {
 
 		if (interfaceName == null || interfaceName.compareTo("") == 0 || interfaceName.compareTo("all") == 0) {
@@ -162,6 +167,7 @@ public final class GeneralCommands {
 	 * @param theInterface
 	 * @throws DeviceException
 	 */
+	@GdaJythonBuiltin("List all the Findables in the Jython namespace")
 	public static void ls(Class<Findable> theInterface) throws DeviceException {
 		Map<String, Object> map = InterfaceProvider.getJythonNamespace().getAllFromJythonNamespace();
 
@@ -185,6 +191,7 @@ public final class GeneralCommands {
 	 * List the names of all Scannables whose name does not startwith __
 	 * @throws DeviceException
 	 */
+	@GdaJythonBuiltin("List all the scannables in the namespace")
 	public static void ls_names() throws DeviceException {
 		ls_names(Scannable.class);
 	}
@@ -194,7 +201,9 @@ public final class GeneralCommands {
 	 * @param theInterface
 	 * @throws DeviceException
 	 */
-	public static void ls_names(Class<? extends Object> theInterface) throws DeviceException {
+	@GdaJythonBuiltin("List all the Findables in the namespace that are instances of\n"
+			+ "the given interface")
+	public static void ls_names(Class<?> theInterface) throws DeviceException {
 		Map<String, Object> map = InterfaceProvider.getJythonNamespace().getAllFromJythonNamespace();
 
 		String output = "\n";
@@ -215,6 +224,7 @@ public final class GeneralCommands {
 	 *
 	 * @param theScannable
 	 */
+	@GdaJythonBuiltin("Print the name of a scannable")
 	public static void ls(Scannable theScannable) {
 		InterfaceProvider.getTerminalPrinter().print(theScannable.getName());
 	}
@@ -226,9 +236,10 @@ public final class GeneralCommands {
 	 * If the interrupt flag has been set then an exception will be thrown. This will still be thrown if this method is
 	 * in the middle of waiting to resume.
 	 *
-	 * @throws Exception
+	 * @throws InterruptedException
 	 */
-	public static void pause() throws Exception {
+	@GdaJythonBuiltin("Check if the script has been paused and wait if it has")
+	public static void pause() throws InterruptedException {
 		ScriptBase.checkForPauses();
 	}
 
@@ -241,6 +252,8 @@ public final class GeneralCommands {
 	 * @param scriptName
 	 * @throws Exception
 	 */
+	@GdaJythonBuiltin("Run a script from one of the configured script projects.\n"
+			+ "Absolute script paths are also accepted.")
 	public static void run(String scriptName) throws Exception {
 		// NOTE: ideally this method would try the entire python sys.path, but this would
 		//       require making a breaking change and possibly be overkill!
@@ -263,6 +276,8 @@ public final class GeneralCommands {
 
 	}
 
+	@GdaJythonBuiltin("Add a runnable to be executed before the namespace is reset.\n"
+			+ "Can be used for cleaning up resources/deregistering listeners etc.")
 	public static void add_reset_hook(Runnable hook) {
 		logger.info("Adding reset hook to JythonServer");
 		Finder.getInstance().findSingleton(JythonServer.class).addResetHook(hook);
@@ -273,6 +288,7 @@ public final class GeneralCommands {
 	 * localStation re-run. However, connections to hardware are not re-established i.e. Object Servers are not
 	 * reconfigured.
 	 */
+	@GdaJythonBuiltin("Reset the Jython environment")
 	public static void reset_namespace() {
 		logger.info("Resetting Jython namespace");
 		Finder.getInstance().findSingleton(JythonServer.class).restart();
@@ -296,6 +312,14 @@ public final class GeneralCommands {
 	 *
 	 * @param commandName
 	 */
+	@GdaJythonBuiltin("Add a command as an alias\n"
+			+ "This allows it to be called without the parentheses, eg\n"
+			+ "    >>> def add(a, b): return a + b\n"
+			+ "    ... \n"
+			+ "    >>> alias('add')\n"
+			+ "    >>> add 1 3\n"
+			+ "    4\n"
+			+ "    >>>")
 	public static void alias(String commandName) {
 		gda.jython.JythonServerFacade.getInstance().addAliasedCommand(commandName);
 	}
@@ -307,6 +331,7 @@ public final class GeneralCommands {
 	 * @deprecated Use {@link #vararg_alias(String)} instead
 	 */
 	@Deprecated
+	@GdaJythonBuiltin("This method is deprecated. Please use vararg_alias.")
 	public static void vararg_regex(String commandName) {
 		logger.warn("'vararg_regex' is deprecated and will be removed, replace with 'vararg_alias'");
 		JythonServerFacade.getInstance().addAliasedVarargCommand(commandName);
@@ -317,6 +342,14 @@ public final class GeneralCommands {
 	 *
 	 * @param commandName
 	 */
+	@GdaJythonBuiltin("Add a command as an alias\n"
+			+ "This allows it to be called without the parentheses, eg\n"
+			+ "    >>> def add(*a): return sum(a)\n"
+			+ "    ... \n"
+			+ "    >>> alias('add')\n"
+			+ "    >>> add 1 2 3 4 5\n"
+			+ "    15\n"
+			+ "    >>>")
 	public static void vararg_alias(String commandName) {
 		JythonServerFacade.getInstance().addAliasedVarargCommand(commandName);
 	}
@@ -326,6 +359,7 @@ public final class GeneralCommands {
 	 *
 	 * @param command
 	 */
+	@GdaJythonBuiltin("Run a system command")
 	public static void cmd(String command) {
 		logger.info("About to execute '{}' in a new system process", command);
 		String s = null;
