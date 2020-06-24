@@ -102,7 +102,7 @@ import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
 /**
  * DataWriter that outputs NeXus files and optionally a SRS/Text file as well.
  */
-public class NexusDataWriter extends DataWriterBase {
+public class NexusDataWriter extends DataWriterBase implements INexusDataWriter {
 	private static final String INSTRUMENT = "instrument";
 
 	private static final Logger logger = LoggerFactory.getLogger(NexusDataWriter.class);
@@ -282,10 +282,7 @@ public class NexusDataWriter extends DataWriterBase {
 		}
 	}
 
-	public INexusTree getBeforeScanMetaData() {
-		return beforeScanMetaData;
-	}
-
+	@Override
 	public void setBeforeScanMetaData(INexusTree beforeScanMetaData) {
 		this.beforeScanMetaData = beforeScanMetaData;
 	}
@@ -325,7 +322,7 @@ public class NexusDataWriter extends DataWriterBase {
 		constructFileName();
 	}
 
-	static final int[] generateStartPosPrefix(int currentPoint, int[] scanDimensions) {
+	protected static final int[] generateStartPosPrefix(int currentPoint, int[] scanDimensions) {
 		if (scanDimensions.length == 1) {
 			return new int[] { currentPoint };
 		}
@@ -348,7 +345,7 @@ public class NexusDataWriter extends DataWriterBase {
 		return scanNumbers;
 	}
 
-	static final int[] generateDataStartPos(int[] dataStartPosPrefix, int[] dataDimensions) {
+	protected static final int[] generateDataStartPos(int[] dataStartPosPrefix, int[] dataDimensions) {
 		int[] dataStartPos = null;
 		if (dataStartPosPrefix != null) {
 			// Do not add to the dimensions if we are dealing with a single points
@@ -1049,7 +1046,7 @@ public class NexusDataWriter extends DataWriterBase {
 	/**
 	 * Releases the file handle.
 	 */
-	public void releaseFile() {
+	protected void releaseFile() {
 		try {
 			if (file != null) {
 				file.flush();
@@ -1072,10 +1069,6 @@ public class NexusDataWriter extends DataWriterBase {
 	@Override
 	public String getCurrentFileName() {
 		return nexusFileUrl;
-	}
-
-	public Object getData() {
-		return file;
 	}
 
 	private void prepareFileAndStructure() throws Exception {
@@ -1772,7 +1765,7 @@ public class NexusDataWriter extends DataWriterBase {
 	 * {@link NexusFileFactory}.
 	 * @throws Exception
 	 */
-	public void createNextFile() throws Exception {
+	protected void createNextFile() throws Exception {
 		try {
 			if (file != null) {
 				try {
@@ -1842,11 +1835,7 @@ public class NexusDataWriter extends DataWriterBase {
 		logger.debug("Nexus file to be written to '{}'", nexusFileUrl);
 	}
 
-	/**
-	 * Returns the full path of the folder which data files are written to.
-	 *
-	 * @return the full path of the folder which data files are written
-	 */
+	@Override
 	public String getDataDir() {
 		return dataDir;
 	}
@@ -1953,6 +1942,7 @@ public class NexusDataWriter extends DataWriterBase {
 		return -1;
 	}
 
+	@Override
 	public void setNexusFileNameTemplate(String nexusFileNameTemplate) {
 		this.nexusFileNameTemplate = nexusFileNameTemplate;
 		// We calculate some probable paths now so that the probable
@@ -1963,12 +1953,8 @@ public class NexusDataWriter extends DataWriterBase {
 		this.nexusFileUrl = dataDir + nexusFileName;
 	}
 
-	public String getNexusFileNameTemplate() {
+	protected String getNexusFileNameTemplate() {
 		return this.nexusFileNameTemplate;
-	}
-
-	public boolean isFirstData() {
-		return firstData;
 	}
 
 	private boolean weKnowTheLocationFor(String scannableName) {
@@ -2146,6 +2132,7 @@ public class NexusDataWriter extends DataWriterBase {
 		return NexusDataWriter.nexusTemplateFiles;
 	}
 
+	@Override
 	public String getNexusFileName() {
 		return nexusFileName;
 	}
@@ -2202,6 +2189,7 @@ public class NexusDataWriter extends DataWriterBase {
 		}
 	}
 
+	@Override
 	public SwmrStatus getSwmrStatus() {
 		return swmrStatus;
 	}

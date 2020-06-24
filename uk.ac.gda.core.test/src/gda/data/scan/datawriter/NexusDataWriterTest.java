@@ -334,7 +334,7 @@ public class NexusDataWriterTest {
 
 	private String testScratchDirectoryName;
 
-	private NexusDataWriter nexusDataWriter;
+	private INexusDataWriter nexusDataWriter;
 
 	private String nexusFilePath;
 
@@ -395,7 +395,6 @@ public class NexusDataWriterTest {
 		final ScanDataPoint firstPoint = createScanDataPoint();
 		nexusDataWriter.addData(firstPoint);
 		nexusDataWriter.completeCollection();
-		nexusDataWriter.releaseFile();
 
 		// check that the file has been created as expected
 		assertThat(new File(nexusFilePath).exists(), is(true));
