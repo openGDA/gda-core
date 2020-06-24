@@ -160,10 +160,10 @@ public class NexusDataWriter extends DataWriterBase {
 	// file names
 	private String nexusFileNameTemplate = null;
 
-	protected String nexusFileName = null;
+	private String nexusFileName = null;
 
 	// Fully qualified filenames
-	protected String nexusFileUrl = null;
+	private String nexusFileUrl = null;
 
 	// Relative filenames
 	protected String nexusRelativeUrl = null;
@@ -182,15 +182,15 @@ public class NexusDataWriter extends DataWriterBase {
 
 	private final ZonedDateTime startTime = ZonedDateTime.now();
 
-	protected Collection<SelfCreatingLink> scannableID;
+	private Collection<SelfCreatingLink> scannableID;
 
-	boolean firstData = true;
+	private boolean firstData = true;
 
 	private boolean writingMeasurementGroup = false;
 
-	protected int scanPointNumber = -1;
+	private int scanPointNumber = -1;
 
-	IScanDataPoint thisPoint;
+	private IScanDataPoint thisPoint;
 
 	private Metadata metadata = null;
 
@@ -421,7 +421,8 @@ public class NexusDataWriter extends DataWriterBase {
 	/**
 	 * The dimensions of the scan {@link Scan#getDimension()}
 	 */
-	int[] scanDimensions;
+	private int[] scanDimensions;
+
 	/**
 	 * Fields present for convenience The location within data at which data is to be written - not taking into account
 	 * the dimensions of the data itself The length of this array should match the length of scanDimensions and the
@@ -429,13 +430,14 @@ public class NexusDataWriter extends DataWriterBase {
 	 * scan simpleScannable1, 0., 3, 1., simpleScannable2, 0., 2, 1. the values of scanPointNumbers will be [0,0],
 	 * [0,1], [0,2], [1,0], [1,1], [1,2], [2,0], [2,1], [2,2], [3,0], [3,1], [3,2]
 	 */
-	int[] dataStartPosPrefix;
+	private int[] dataStartPosPrefix;
+
 	/**
 	 * Fields present for convenience The dimensions of the to be written - not taking into account the dimensions of
 	 * the data itself The length of this array should match the length of scanDimensions and the values are all 1 but
 	 * for the first which is ILazyWriteableDataset.UNLIMITED.
 	 */
-	int[] dataDimPrefix;
+	private int[] dataDimPrefix;
 
 	private INexusTree beforeScanMetaData;
 
