@@ -103,20 +103,7 @@ public class DefaultDataWriterFactory extends FindableConfigurableBase implement
 	 * @param dataWriterExtender
 	 */
 	public void removeDataWriterExtender(IDataWriterExtender dataWriterExtender) {
-		this.dataWriterExtenders.remove(dataWriterExtender);
-		String itsname = null;
-		for (String dweName : dataWriterExtenders.keySet()) {
-			IDataWriterExtender dwe = dataWriterExtenders.get(dweName);
-
-			if (dwe == dataWriterExtender) {
-				// TODO find out if we are allowed to remove in that loop
-				itsname = dweName;
-				break;
-			}
-		}
-		if (itsname != null) {
-			dataWriterExtenders.remove(itsname);
-		}
+		dataWriterExtenders.entrySet().removeIf(entry -> entry.getValue() == dataWriterExtender);
 	}
 
 	/**
