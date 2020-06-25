@@ -64,7 +64,10 @@ import gda.scan.IScanDataPoint;
 
 /**
  * DataWriter that outputs NeXus files and optionally a SRS/Text file as well.
+ *
+ * @deprecated Use {@link NexusDataWriter}, this class will be removed in GDA 9.20
  */
+@Deprecated
 public class SixdNexusDataWriter extends DataWriterBase {
 
 	/**
@@ -153,10 +156,12 @@ public class SixdNexusDataWriter extends DataWriterBase {
 	 */
 	public SixdNexusDataWriter(){
 		super();
+		logger.warn("DAQ-2370 - Instantiated deprecated datawriter: {}", this.getClass().getName());
 	}
 
 	public SixdNexusDataWriter(int fileNumber) {
 		scanNumber = fileNumber;
+		logger.warn("DAQ-2370 - Instantiated deprecated datawriter: {}", this.getClass().getName());
 	}
 
 	protected void setupProperties() throws InstantiationException {

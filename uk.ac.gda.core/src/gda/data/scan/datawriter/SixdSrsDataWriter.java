@@ -52,7 +52,10 @@ import gda.scan.IScanDataPoint;
  * <p>
  * The columns may be automatically aligned to the headers by setting the java property
  * gda.data.scan.datawriter.dataFormat.SixdSrsDataWriter.aligncolumns to true
+ *
+ * @deprecated Use {@link SrsDataFile}, this class will be removed in GDA 9.20
  */
+@Deprecated
 public class SixdSrsDataWriter extends IncrementalFile {
 
 	private static final Logger logger = LoggerFactory.getLogger(SixdSrsDataWriter.class);
@@ -72,6 +75,7 @@ public class SixdSrsDataWriter extends IncrementalFile {
 
 		alignColumns = LocalProperties.get("gda.data.scan.datawriter.dataFormat.SixdSrsDataWriter.aligncolumns", "false")
 				.toLowerCase().equals("true");
+		logger.warn("DAQ-2370 - Instantiated deprecated datawriter: {}", this.getClass().getName());
 	}
 
 	IScanDataPoint latestPoint;
