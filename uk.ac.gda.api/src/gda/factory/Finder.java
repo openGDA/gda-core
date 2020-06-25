@@ -318,6 +318,23 @@ public enum Finder {
 		return instances.values().iterator().next();
 	}
 
+	/**
+	 * Returns the singleton of specified type.
+	 * This method removes the need for singletons to have a specific name.
+	 * @param singletonClass the singleton type
+	 * @return the singleton
+	 * @throws IllegalArgumentException if multiple/no instances of specified type found
+	 */
+	public static <T extends Findable> Optional<T> findOptionalSingleton(Class<T> singletonClass) {
+		final Map<String, T> instances = getFindablesOfType(singletonClass);
+		if (instances.size() > 1) {
+			throw new IllegalArgumentException("Class '" + singletonClass.getName() + "' is not a singleton: " +
+					instances.size() + " instances found");
+		}
+
+		return instances.values().stream().findFirst();
+	}
+
 	private static Set<Factory> getFactoriesToSearch(boolean localOnly) {
 		if (localOnly) {
 			return INSTANCE.localFactories;

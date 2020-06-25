@@ -20,6 +20,7 @@
 package gda.data.scan.datawriter;
 
 import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+import static java.util.Collections.emptySet;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,7 +33,6 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -40,7 +40,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Vector;
 import java.util.stream.Collectors;
@@ -196,15 +196,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 
 	private boolean fileNumberConfigured = false;
 
-	private static Set<String> metadatascannables = new LinkedHashSet<>();
-
-	private static Map<String, ScannableWriter> locationmap = new HashMap<>();
-
-	private static Map<String, Set<String>> metadataScannablesPerDetector = new HashMap<>();
-
-	private static Map<String, String> metadataEntries;
-
-	private static List<String> nexusTemplateFiles = Collections.emptyList();
+	private static NexusDataWriterConfiguration configuration = null;
 
 	/**
 	 * Constructor. This attempts to read the java.property which defines the beamline name.
@@ -1192,30 +1184,28 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 			writeHere(file, g, beforeScanMetaData, true, false, null);
 		}
 
-		if (metadataEntries != null) {
-			metadataEntries.entrySet().stream().forEach(e -> {
-				try {
-					String data = metadata.getMetadataValue(e.getKey());
-					String aPath = file.getPath(g) + e.getValue();
-					final String name = NexusUtils.getName(aPath);
-					if (name != null && !name.isEmpty()) {
-						aPath = aPath.substring(0, aPath.lastIndexOf(name));
-					}
-					if (data != null && !data.isEmpty()) {
-						NexusUtils.writeString(
-								file,
-								file.getGroup(aPath, true),
-								name,
-								data);
-						logger.debug("Wrote {} to '{}'", e.getKey(), aPath);
-					} else {
-						logger.trace("Not writing '{}' as metadata not set", e.getKey());
-					}
-				} catch (DeviceException | NexusException | IllegalArgumentException e1) {
-					logger.error("Could not write entry for {}", e.getKey(), e1);
+		getConfiguration().getMetadata().entrySet().stream().forEach(e -> {
+			try {
+				String data = metadata.getMetadataValue(e.getKey());
+				String aPath = file.getPath(g) + e.getValue();
+				final String name = NexusUtils.getName(aPath);
+				if (name != null && !name.isEmpty()) {
+					aPath = aPath.substring(0, aPath.lastIndexOf(name));
 				}
-			});
-		}
+				if (data != null && !data.isEmpty()) {
+					NexusUtils.writeString(
+							file,
+							file.getGroup(aPath, true),
+							name,
+							data);
+					logger.debug("Wrote {} to '{}'", e.getKey(), aPath);
+				} else {
+					logger.trace("Not writing '{}' as metadata not set", e.getKey());
+				}
+			} catch (DeviceException | NexusException | IllegalArgumentException e1) {
+				logger.error("Could not write entry for {}", e.getKey(), e1);
+			}
+		});
 	}
 
 	protected String getGroupClassFor(@SuppressWarnings("unused") Scannable s) {
@@ -1239,17 +1229,12 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	 * we add all the one off metadata here
 	 */
 	protected Collection<Scannable> makeConfiguredScannablesAndMonitors(Collection<Scannable> scannablesAndMonitors) {
-		Set<String> metadatascannablestowrite = new HashSet<>(metadatascannables);
+		Set<String> metadatascannablestowrite = new HashSet<>(getMetadatascannables());
 
 		for (Detector det : thisPoint.getDetectors()) {
 			logger.info("found detector named: {}", det.getName());
 			String detname = det.getName();
-			if (metadataScannablesPerDetector.containsKey(detname)) {
-				Set<String> metasPerDet = metadataScannablesPerDetector.get(detname);
-				if (metasPerDet != null && !metasPerDet.isEmpty()) {
-					metadatascannablestowrite.addAll(metasPerDet);
-				}
-			}
+			metadatascannablestowrite.addAll(getMetadataScannablesForDetector(detname));
 		}
 
 		try {
@@ -1259,10 +1244,11 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 			boolean isFirstScannable = true;
 			for (Scannable scannable : scannablesAndMonitors) {
 				String scannableName = scannable.getName();
-				if (weKnowTheLocationFor(scannableName)) {
+				final Optional<ScannableWriter> optScannableWriter = getWriterForScannable(scannableName);
+				if (optScannableWriter.isPresent()) {
 					wehavewritten.add(scannable);
-					ScannableWriter writer = locationmap.get(scannableName);
-					Collection<String> prerequisites = writer.getPrerequisiteScannableNames();
+					final ScannableWriter writer = optScannableWriter.get();
+					final Collection<String> prerequisites = writer.getPrerequisiteScannableNames();
 					if (prerequisites != null) {
 						metadatascannablestowrite.addAll(prerequisites);
 					}
@@ -1276,11 +1262,9 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 			do { // add dependencies of metadata scannables
 				aux.clear();
 				for (String s : metadatascannablestowrite) {
-					if (weKnowTheLocationFor(s)) {
-						Collection<String> prerequisites = locationmap.get(s).getPrerequisiteScannableNames();
-						if (prerequisites != null)
-							aux.addAll(prerequisites);
-					}
+					final Collection<String> prerequisites = getWriterForScannable(s)
+							.map(ScannableWriter::getPrerequisiteScannableNames).orElse(emptySet());
+					aux.addAll(prerequisites);
 				}
 			} while (metadatascannablestowrite.addAll(aux));
 
@@ -1848,11 +1832,12 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	}
 
 	protected void writeScannable(Scannable scannable) throws NexusException {
-		if (!weKnowTheLocationFor(scannable.getName())) {
-			writePlainDoubleScannable(scannable);
-		} else {
+		final Optional<ScannableWriter> optScannableWriter = getWriterForScannable(scannable.getName());
+		if (optScannableWriter.isPresent()) {
 			GroupNode group = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), false);
-			locationmap.get(scannable.getName()).writeScannable(file, group, scannable, getSDPositionFor(scannable.getName()), generateDataStartPos(dataStartPosPrefix, null));
+			optScannableWriter.get().writeScannable(file, group, scannable, getSDPositionFor(scannable.getName()), generateDataStartPos(dataStartPosPrefix, null));
+		} else {
+			writePlainDoubleScannable(scannable);
 		}
 	}
 
@@ -1957,8 +1942,8 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 		return this.nexusFileNameTemplate;
 	}
 
-	private boolean weKnowTheLocationFor(String scannableName) {
-		return locationmap.containsKey(scannableName);
+	private Optional<ScannableWriter> getWriterForScannable(String scannableName) {
+		return Optional.ofNullable(getConfiguration().getLocationMap().get(scannableName));
 	}
 
 	private Object getSDPositionFor(String scannableName) {
@@ -2030,8 +2015,9 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 				} else {
 					logger.debug("Getting scannable '{}' data for writing to NeXus file.", scannable.getName());
 					Object position = scannable.getPosition();
-					if (weKnowTheLocationFor(scannableName)) {
-						locationmap.get(scannableName).makeScannable(file, group, scannable, position, new int[] {1}, false);
+					final Optional<ScannableWriter> optScannableWriter = getWriterForScannable(scannableName);
+					if (optScannableWriter.isPresent()) {
+						optScannableWriter.get().makeScannable(file, group, scannable, position, new int[] {1}, false);
 					} else {
 						// put in default location (NXcollection with name metadata)
 						makeMetadataScannableFallback(group, scannable, position);
@@ -2053,15 +2039,26 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 		file.addNode(group, name, nexusObject);
 	}
 
-	public static Set<String> getMetadatascannables() {
-		return metadatascannables;
+	private static NexusDataWriterConfiguration getConfiguration() {
+		return ServiceHolder.getNexusDataWriterConfiguration();
 	}
 
+	/**
+	 * @return metadata scannables
+	 * @deprecated use {@link NexusDataWriterConfiguration#getMetadataScannables()}. This method will be removed in GDA 9.20.
+	 */
+	@Deprecated
+	public static Set<String> getMetadatascannables() {
+		return getConfiguration().getMetadataScannables();
+	}
+
+	/**
+	 * @param metadatascannables
+	 * @deprecated use {@link NexusDataWriterConfiguration#setMetadataScannables(Set)}. This method will be removed in GDA 9.20.
+	 */
+	@Deprecated
 	public static void setMetadatascannables(Set<String> metadatascannables) {
-		if (metadatascannables == null)
-			NexusDataWriter.metadatascannables = new HashSet<String>();
-		else
-			NexusDataWriter.metadatascannables = metadatascannables;
+		getConfiguration().setMetadataScannables(metadatascannables);
 	}
 
 	/**
@@ -2070,66 +2067,110 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	 * To add an entry (eg sample_background) to each file as a note in the "sample" group,
 	 * set the entries as {'sample_background': 'sample:NXsample/sample_background'}
 	 *
-	 * @param entries should be a map of metadata names to nexus paths (relative to the top level
+	 * @param metadata should be a map of metadata names to nexus paths (relative to the top level
 	 * /entry1/ node.
+	 *
+	 * @deprecated use {@link NexusDataWriterConfiguration#setMetadata(Map)}. This method will be removed in GDA 9.20.
 	 */
-	public static void setMetadata(Map<String, String> entries) {
-		if (entries.containsKey(null) || entries.containsValue(null)) {
-			throw new IllegalArgumentException("Metadata entries and paths must not be null");
-		}
-		// Don't just set metaEntries = entries to avoid caller keeping a reference
-		metadataEntries = new HashMap<>(entries);
+	@Deprecated
+	public static void setMetadata(Map<String, String> metadata) {
+		getConfiguration().setMetadata(metadata);
 	}
 
-	public static void updateMetadata(Map<String, String> entries) {
-		Map<String, String> meta = new HashMap<>();
-		meta.putAll(metadataEntries);
-		meta.putAll(entries);
-		setMetadata(meta);
+	/**
+	 * @return metadata map
+	 * @deprecated use {@link NexusDataWriterConfiguration#getMetadata()}. This method will be removed in GDA 9.20.
+	 */
+	@Deprecated
+	public static Map<String, String> getMetadata() {
+		return getConfiguration().getMetadata();
 	}
 
-	public static void removeMetadata(Collection<String> entries) {
-		if (entries == null) {
-			throw new IllegalArgumentException("Can't remove null metadata");
-		}
-		entries.stream().forEach(metadataEntries::remove);
+	/**
+	 * @param newMetadata
+	 * @deprecated use {@link NexusDataWriterConfiguration#setMetadata(Map)} with a new map. This method will be removed in GDA 9.20.
+	 */
+	@Deprecated
+	public static void updateMetadata(Map<String, String> newMetadata) {
+		final Map<String, String> updatedMetadata = new HashMap<>();
+		updatedMetadata.putAll(getMetadata());
+		updatedMetadata.putAll(newMetadata);
+		setMetadata(newMetadata);
 	}
 
+	/**
+	 * @param metadataKeys
+	 * @deprecated use {@link NexusDataWriterConfiguration#setMetadata(Map)} with a new map. This method will be removed in GDA 9.20.
+	 */
+	@Deprecated
+	public static void removeMetadata(Collection<String> metadataKeys) {
+		final Map<String, String> metadata = getMetadata();
+		metadata.keySet().removeAll(metadataKeys);
+		setMetadata(metadata);
+	}
+
+	/**
+	 * @return location map
+	 * @deprecated use {@link NexusDataWriterConfiguration#getLocationMap()}. This method will be removed in GDA 9.20.
+	 */
+	@Deprecated
 	public static Map<String, ScannableWriter> getLocationmap() {
-		return locationmap;
+		return getConfiguration().getLocationMap();
 	}
 
-	public static void setLocationmap(Map<String, ScannableWriter> locationmap) {
-		if (locationmap == null)
-			NexusDataWriter.locationmap = new HashMap<String, ScannableWriter>();
-		else
-			NexusDataWriter.locationmap = locationmap;
-		logger.debug("Set location map");
+	/**
+	 * @param locationMap
+	 * @deprecated use {@link NexusDataWriterConfiguration#setLocationMap(Map)}. This method will be removed in GDA 9.20.
+	 */
+	@Deprecated
+	public static void setLocationmap(Map<String, ScannableWriter> locationMap) {
+		getConfiguration().setLocationMap(locationMap);
 	}
 
+	/**
+	 * @return map of metadata scannable names per detector
+	 * @deprecated use {@link NexusDataWriterConfiguration#getMetadataScannablesPerDetectorMap()}. This method will be removed in GDA 9.20.
+	 */
+	@Deprecated
 	public static Map<String, Set<String>> getMetadataScannablesPerDetector() {
-		return metadataScannablesPerDetector;
+		return getConfiguration().getMetadataScannablesPerDetectorMap();
 	}
 
+	/**
+	 * @param metadataScannablesPerDetector
+	 * @deprecated use {@link NexusDataWriterConfiguration#setMetadataScannablesForDetector(String, Set)}. This method will be removed in GDA 9.20.
+	 */
+	@Deprecated
 	public static void setMetadataScannablesPerDetector(Map<String, Collection<String>> metadataScannablesPerDetector) {
-		if (metadataScannablesPerDetector == null) {
-			NexusDataWriter.metadataScannablesPerDetector = new HashMap<>();
-		} else {
-			NexusDataWriter.metadataScannablesPerDetector = metadataScannablesPerDetector.entrySet().stream()
-					.collect(Collectors.toMap(Entry::getKey, e -> new HashSet<>(e.getValue())));
-		}
+		getConfiguration().setMetadataScannablesPerDetectorMap(metadataScannablesPerDetector);
 	}
 
+	/**
+	 * @param detectorName
+	 * @return metadata scannable names for the given detector name
+	 * @deprecated use {@link NexusDataWriterConfiguration#getMetadataScannablesForDetector(String)}. This method will be removed in GDA 9.20.
+	 */
+	@Deprecated
+	private static Set<String> getMetadataScannablesForDetector(String detectorName) {
+		return getConfiguration().getMetadataScannablesForDetector(detectorName);
+	}
+
+	/**
+	 * @param nexusTemplateFiles
+	 * @deprecated use {@link NexusDataWriterConfiguration#setNexusTemplateFiles(List)}. This method will be removed in GDA 9.20.
+	 */
+	@Deprecated
 	public static void setNexusTemplateFiles(List<String> nexusTemplateFiles) {
-		if (nexusTemplateFiles == null) {
-			NexusDataWriter.nexusTemplateFiles = Collections.emptyList();
-		} else {
-			NexusDataWriter.nexusTemplateFiles = nexusTemplateFiles;
-		}
+		getConfiguration().setNexusTemplateFiles(nexusTemplateFiles);
 	}
 
+	/**
+	 * @return nexus template files
+	 * @deprecated use {@link NexusDataWriterConfiguration#getNexusTemplateFiles()}. This method will be removed in GDA 9.20.
+	 */
+	@Deprecated
 	public static List<String> getNexusTemplateFiles() {
-		return NexusDataWriter.nexusTemplateFiles;
+		return getConfiguration().getNexusTemplateFiles();
 	}
 
 	@Override

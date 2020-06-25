@@ -25,6 +25,8 @@ import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.scan.IFilePathService;
 
+import gda.data.scan.datawriter.NexusDataWriterConfiguration;
+
 /**
  * Holds the IRunnableDeviceService which the file registrar uses
  * to register itself with.
@@ -82,6 +84,28 @@ public class ServiceHolder {
 
 	public void setNexusFileAppenderService(INexusFileAppenderService nexusFileAppenderService) {
 		ServiceHolder.nexusFileAppenderService = nexusFileAppenderService;
+	}
+
+	private static volatile NexusDataWriterConfiguration nexusDataWriterConfiguration;
+
+	public static NexusDataWriterConfiguration getNexusWriterConfiguration() {
+		return nexusDataWriterConfiguration;
+	}
+
+	public void setNexusWriterConfiguration(NexusDataWriterConfiguration nexusDataWriterConfiguration) {
+		ServiceHolder.nexusDataWriterConfiguration = nexusDataWriterConfiguration;
+	}
+
+	public static NexusDataWriterConfiguration getNexusDataWriterConfiguration() {
+		if (nexusDataWriterConfiguration == null) {
+			synchronized (ServiceHolder.class) { // safe double-checked locking idiom
+				if (nexusDataWriterConfiguration == null) {
+					nexusDataWriterConfiguration = new NexusDataWriterConfiguration();
+				}
+			}
+		}
+
+		return nexusDataWriterConfiguration;
 	}
 
 }
