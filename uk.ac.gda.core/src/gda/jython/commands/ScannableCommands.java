@@ -19,6 +19,7 @@
 package gda.jython.commands;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.joining;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +30,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.python.core.PyList;
 import org.slf4j.Logger;
@@ -76,6 +78,15 @@ public class ScannableCommands {
 
 	private static volatile boolean posCommandIsInTheProcessOfListingAllScannables = false;
 
+
+	@GdaJythonBuiltin("Print the position of the given scannables")
+	public static void pos(Scannable... scannables) {
+		String positions = Stream.of(scannables)
+				.map(Scannable::toFormattedString)
+				.collect(joining("\n"));
+		InterfaceProvider.getTerminalPrinter().print(positions);
+	}
+
 	/**
 	 * The pos command. Reports the current position of a scannable or moves one or more scannables concurrently. It
 	 * prints the output to the terminal.
@@ -84,8 +95,7 @@ public class ScannableCommands {
 	 * @throws Exception
 	 *             - any exception within this method
 	 */
-	@GdaJythonBuiltin("Return the position of a scannable or move a scannable to a given position.\n"
-			+ "With a single scannable, print the position of the scannable.\n"
+	@GdaJythonBuiltin("Move a scannables or scannables.\n"
 			+ "To move a single scannable, pass the scannable and the target position, eg\n"
 			+ ">>> pos motor_x 1\n"
 			+ "Multiple scannables can be moved at once by passing alternating scannables and positions, eg\n"
@@ -96,12 +106,7 @@ public class ScannableCommands {
 			if (args[0] == null) {// example: pos None, Jython command: pos([None])
 				throw new Exception(
 						"Usage: pos [ScannableName] - returns the position of all Scannables [or the given scannable]");
-			} else if (args[0] instanceof IScannableGroup) {
-				InterfaceProvider.getTerminalPrinter().print(ScannableUtils.prettyPrintScannableGroup((IScannableGroup) args[0]));
-			} else if (args[0] instanceof Scannable) {// example: pos pseudoDeviceName, Jython command: pos([pseudoDeviceName])
-				InterfaceProvider.getTerminalPrinter().print(((Scannable) args[0]).toFormattedString());
-			}
-			else {
+			} else {
 				InterfaceProvider.getTerminalPrinter().print(args[0].toString());
 			}
 		} else if (args.length >= 2) {// example pos pseudoDeviceName newPosition, Jython command: pos([pseudoDeviceName, newPosition]
