@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Formally a base class for Scannable objects written in Jython and instantiated within the Jython environment. This
+ * Formerly a base class for Scannable objects written in Jython and instantiated within the Jython environment. This
  * was required when DeviceBase extended PyObject as there was a problem instantiating classes in Jython which were Java
  * classes extending PyObject. This problem has gone away now that DeviceBase does not extend PyObject anymore -so this
  * class is no longer required.
@@ -36,8 +36,7 @@ public abstract class PseudoDevice extends ScannableMotionBase {
 
 	public PseudoDevice() {
 		// Log the actual class name so we can see what the classes extending this are
-		logger.debug("DAQ-1579 - Instantiated a class '{}' extending the deprecated PseudoDevice",
+		logger.warn("DAQ-3008 - '{}' extends PseudoDevice, which is deprecated and will be removed in GDA 9.19. Use ScannableMotionBase instead.",
 				this.getClass().getName());
 	}
-
 }

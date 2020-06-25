@@ -19,10 +19,25 @@
 
 package gda.device.detector;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * PseudoDetector Abstract Class
+ * Formerly a base class for detector objects written in Jython and instantiated within the Jython environment. This was
+ * required when DeviceBase extended PyObject as there was a problem instantiating classes in Jython which were Java
+ * classes extending PyObject. This problem has gone away now that DeviceBase does not extend PyObject anymore -so this
+ * class is no longer required.
+ *
+ * @see gda.device.detector.DetectorBase
+ * @deprecated Classes should extend {@link DetectorBase} or one of its subclasses.
  */
 @Deprecated
 public abstract class PseudoDetector extends DetectorBase {
+	private static final Logger logger = LoggerFactory.getLogger(PseudoDetector.class);
 
+	public PseudoDetector() {
+		// Log the actual class name so we can see what the classes extending this are
+		logger.warn("DAQ-3008 - '{}' extends PseudoDetector, which is deprecated and will be removed in GDA 9.19. Use DetectorBase instead.",
+				this.getClass().getName());
+	}
 }
