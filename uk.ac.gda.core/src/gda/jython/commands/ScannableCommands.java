@@ -18,6 +18,8 @@
 
 package gda.jython.commands;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,7 +30,6 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.python.core.PyInteger;
 import org.python.core.PyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -908,37 +909,21 @@ public class ScannableCommands {
 		theScan.runScan();
 	}
 
-	/**
-	 * Accessor method for the level attribute of Scannables. This dictates the order in which Scannables are operated
-	 * at each node of a scan.
-	 *
-	 * @param args
-	 * @return null or the level of the scannable
-	 * @throws IllegalArgumentException
-	 */
-	@GdaJythonBuiltin("Get or set the level of a scannable")
-	public static Object level(Object... args) throws IllegalArgumentException {
-		logger.debug("Called 'level' with args: {}", Arrays.asList(args));
+	/** Get the level of a single scannable */
+	@GdaJythonBuiltin("Get the level of a scannable - equivalent to scannable.getLevel()")
+	public static int level(Scannable scannable) {
+		requireNonNull(scannable, "Can't get level of null scannable");
+		logger.debug("Using level to get level for {}", scannable.getName());
+		return scannable.getLevel();
+	}
 
-		if (args.length == 0 || (!(args[0] instanceof Scannable))) {
-			throw new IllegalArgumentException("level() usage: level scannable [new level]");
-		}
-
-		if (args.length == 2) {
-			try {
-				int newLevel = (Integer) args[1];
-				((Scannable) args[0]).setLevel(newLevel);
-				return ((Scannable) args[0]).getName() + " set to level: " + newLevel;
-			} catch (ClassCastException e) {
-				if (!(args[1] instanceof PyInteger)) {
-					throw new IllegalArgumentException("level() usage: level scannable [new level]");
-				}
-				((Scannable) args[0]).setLevel(((PyInteger) args[1]).getValue());
-				return ((Scannable) args[0]).getName() + " set to level: " + ((PyInteger) args[1]).getValue();
-			}
-		}
-		return ((Scannable) args[0]).getLevel();
-
+	/** Set the level of a single scannable */
+	@GdaJythonBuiltin("Set the level of a scannable. This is equivalent to scannable.setLevel(x)")
+	public static void level(Scannable scannable, int level) {
+		requireNonNull(scannable, "Can't set level of null scannable");
+		logger.debug("Using level to set the level of {} to {}", scannable.getName(), level);
+		scannable.setLevel(level);
+		InterfaceProvider.getTerminalPrinter().print(scannable.getName() + " set to level " + level);
 	}
 
 	/**
