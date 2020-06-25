@@ -52,7 +52,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.scan.datawriter.DataWriter;
 import gda.data.scan.datawriter.DefaultDataWriterFactory;
-import gda.data.scan.datawriter.NexusDataWriter;
+import gda.data.scan.datawriter.INexusDataWriter;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.ProcessingRequestProvider;
@@ -718,16 +718,13 @@ public abstract class ScanBase implements NestableScan {
 
 	private SwmrStatus getSwmrStatus() {
 		if (isDataWriterAvaliable()) {
-			DataWriter dataWriter = getDataWriter();
-			if (dataWriter instanceof NexusDataWriter) {
-				NexusDataWriter ndw = (NexusDataWriter) dataWriter;
-				return ndw.getSwmrStatus();
-			} else {
-				return SwmrStatus.DISABLED;
+			final DataWriter dataWriter = getDataWriter();
+			if (dataWriter instanceof INexusDataWriter) {
+				return ((INexusDataWriter) dataWriter).getSwmrStatus();
 			}
-		} else {
-			return SwmrStatus.DISABLED;
 		}
+
+		return SwmrStatus.DISABLED;
 	}
 
 	@Override
