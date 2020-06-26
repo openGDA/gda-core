@@ -1,0 +1,76 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package uk.ac.diamond.daq.mapping.document.acquisition;
+
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+
+import org.junit.Test;
+
+import uk.ac.diamond.daq.mapping.api.document.AcquisitionBase;
+import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
+import uk.ac.diamond.daq.mapping.api.document.diffraction.DiffractionConfiguration;
+import uk.ac.diamond.daq.mapping.api.document.diffraction.DiffractionParameterAcquisition;
+import uk.ac.diamond.daq.mapping.api.document.diffraction.DiffractionParameters;
+import uk.ac.diamond.daq.mapping.api.document.diffraction.ShapeType;
+import uk.ac.diamond.daq.mapping.document.DocumentTestBase;
+import uk.ac.gda.api.acquisition.Acquisition;
+import uk.ac.gda.api.exception.GDAException;
+
+public class AcquisitionBaseTest extends DocumentTestBase {
+
+	@Test
+	public void serializeThenDeserializeDiffractionParameterAcquisition() throws IOException {
+		AcquisitionBase<?> acquisition = new DiffractionParameterAcquisition();
+	    final String json = DocumentMapper.getObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(acquisition);
+	    final AcquisitionBase<?> read = DocumentMapper.getObjectMapper().readValue(json, AcquisitionBase.class);
+	    assertTrue(DiffractionParameterAcquisition.class.isInstance(read));
+	}
+
+	@Test
+	public void serializeDiffractionParameterAcquisition() throws GDAException {
+		DiffractionParameterAcquisition acquisition = new DiffractionParameterAcquisition();
+		DiffractionConfiguration acquisitionConfiguration = new DiffractionConfiguration();
+		acquisition.setAcquisitionConfiguration(acquisitionConfiguration);
+
+		DiffractionParameters acquisitionParameters = new DiffractionParameters();
+		acquisitionConfiguration.setAcquisitionParameters(acquisitionParameters);
+		String document = serialiseDocument(acquisition);
+		assertThat(document, containsString("\"type\" : \"diffractionAcquisition\""));
+	}
+
+	@Test
+	public void deserializeDiffractionParameterAcquisition() throws GDAException {
+		Acquisition<?> modelDocument = deserialiseDocument("/resources/acquisitions/simpleDiffractionAcquisition.json",
+				DiffractionParameterAcquisition.class);
+
+		assertEquals("SimpleTest", modelDocument.getDescription());
+		assertEquals(DiffractionConfiguration.class, modelDocument.getAcquisitionConfiguration().getClass());
+		assertEquals(DiffractionParameters.class,
+				modelDocument.getAcquisitionConfiguration().getAcquisitionParameters().getClass());
+		DiffractionParameters dp = DiffractionParameters.class
+				.cast(modelDocument.getAcquisitionConfiguration().getAcquisitionParameters());
+		assertEquals(ShapeType.POINT, dp.getShapeType());
+	}
+
+}

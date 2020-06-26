@@ -36,6 +36,7 @@ import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.model.AxialStepModelDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
+import uk.ac.gda.api.exception.GDAException;
 
 /**
  * Tests for the {@link AxialStepModelDocument}
@@ -49,7 +50,7 @@ public class TwoAxisLinePointsModelDocumentTest extends DocumentTestBase {
 	}
 
 	@Test
-	public void serialiseDocumentTest() {
+	public void serialiseDocumentTest() throws GDAException {
 		List<ScannableTrackDocument> scannableTrackDocuments = new ArrayList<>();
 
 		ScannableTrackDocument.Builder builder = new ScannableTrackDocument.Builder();
@@ -73,11 +74,11 @@ public class TwoAxisLinePointsModelDocumentTest extends DocumentTestBase {
 		String document = serialiseDocument(modelDocument);
 		assertThat(document, containsString("motor_x"));
 		assertThat(document, containsString("motor_y"));
-		assertThat(document, containsString("\"alternating\":[1,2]"));
+		assertThat(document, containsString("\"alternating\" : [ 1, 2 ]"));
 	}
 
 	@Test
-	public void deserialiseDocumentTest() {
+	public void deserialiseDocumentTest() throws GDAException {
 		ScanpathDocument modelDocument = deserialiseDocument("/resources/TwoAxisLinePointsModelDocument.json",
 				ScanpathDocument.class);
 		Assert.assertEquals(2, modelDocument.getScannableTrackDocuments().size());
