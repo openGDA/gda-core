@@ -50,9 +50,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceRunnerTest {
@@ -205,14 +203,15 @@ public class DeviceRunnerTest {
 		// verify that abort was called, but that setBusy is still true, i.e.
 		// the thread has not been interrupted
 		verify(detector1, timeout(2000)).abort();
-		assertThat(detectorBusy.get(), is(true));
+		assertThat(detectorBusy.get(), is(true)); 
 		assertThat(exception.get(), is(nullValue()));
 		
-		// resume the run answer and wait for the device runner to finish
+		// resume the run answer and wait for both the run and abort threads to finish
 		runAnswer.resume();
-		abortThread.join(5000); 
+		abortThread.join(5000);
+		runThread.join(5000);
 		assertThat(detectorBusy.get(), is(false));
-		assertThat(exception.get(), is(nullValue())); // no InterruptedException because run completed before the time out
+		assertThat(exception.get(), is(instanceOf(InterruptedException.class)));
 	}
 
 	@Test

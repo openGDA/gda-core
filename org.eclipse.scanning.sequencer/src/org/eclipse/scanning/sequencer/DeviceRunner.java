@@ -157,6 +157,9 @@ class DeviceRunner extends LevelRunner<IRunnableDevice<?>> {
 				if (detector instanceof AbstractRunnableDevice) {
 					((AbstractRunnableDevice<?>) detector).setBusy(false);
 				}
+				if (Thread.currentThread().isInterrupted()) {
+					throw new InterruptedException("Running detector thread was interrupted");
+				}
 			}
 			if (detector instanceof IRunnableEventDevice) {
 				((IRunnableEventDevice<?>) detector).fireRunPerformed(position);
