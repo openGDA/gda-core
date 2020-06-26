@@ -290,6 +290,8 @@ public class GdaBuiltin extends PyBuiltinFunction {
 		} else if (obj instanceof PyObjectDerived) { // new style python class (extends object)
 			PyType type = obj.getType();
 			return type.getModule() + "." + type.getName();
+		} else if (obj == Py.None) {
+			return Py.None.toString();
 		} else {
 			return className(Py.tojava(obj, Object.class).getClass());
 		}
