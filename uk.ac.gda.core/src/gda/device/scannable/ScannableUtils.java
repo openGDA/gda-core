@@ -208,7 +208,7 @@ public final class ScannableUtils {
 			throw new DeviceException("error formatting position string of '" + scannable.getName() + "'", e);
 		}
 
-		// most of the time its a single number
+		// most of the time it's a single number
 		if (scannable.getInputNames().length == 1
 				&& scannable.getExtraNames().length == 0
 				&& (scannable.getName().equals(scannable.getInputNames()[0]) || scannable.getInputNames()[0]
@@ -444,7 +444,7 @@ public final class ScannableUtils {
 		// get object returned by getPosition
 		Object currentPositionObj = scannable.getPosition();
 
-		// if its null or were expecting it to be null from the arrays, return
+		// if it's null or we're expecting it to be null from the arrays, return
 		// null
 		if (currentPositionObj == null || scannable.getInputNames().length == 0) {
 			return null;
@@ -748,7 +748,7 @@ public final class ScannableUtils {
 			}
 			return posArray;
 		}
-		// if its a Java array
+		// if it's a Java array
 		else if (position.getClass().isArray()) {
 			int length = ArrayUtils.getLength(position);
 			for (int i = 0; i < length; i++) {
@@ -756,14 +756,14 @@ public final class ScannableUtils {
 			}
 			return posArray;
 		}
-		// if its a Jython array
+		// if it's a Jython sequence
 		else if (position instanceof PySequence) {
 			int length = ((PySequence) position).__len__();
 			for (int i = 0; i < length; i++) {
 				posArray = (Double[]) ArrayUtils.add(posArray, getDouble(position, i));
 			}
 		}
-		// if its a Jython array
+		// if it's a Java List
 		else if (position instanceof List) {
 			@SuppressWarnings("rawtypes")
 			int length = ((List) position).size();
@@ -771,17 +771,17 @@ public final class ScannableUtils {
 				posArray = (Double[]) ArrayUtils.add(posArray, getDouble(position, i));
 			}
 		}
-		// if its a Quantity
+		// if it's a Quantity
 		else if (position instanceof Quantity) {
 			posArray = (Double[]) ArrayUtils.add(posArray, ((Quantity<?>) position).getValue().doubleValue());
 		}
-		// if its a String, then try to convert to a double
+		// if it's a String, then try to convert to a double
 		else if (position instanceof String) {
 			Quantity<? extends Quantity<?>> posAsQ = QuantityFactory.createFromString((String) position);
 			Double posAsDouble = posAsQ != null ? posAsQ.getValue().doubleValue() : Double.parseDouble((String) position);
 			posArray = (Double[]) ArrayUtils.add(posArray, posAsDouble);
 		}
-		// else assume its some object whose toString() method returns a String which can be converted
+		// else assume it's some object whose toString() method returns a String which can be converted
 		else {
 			posArray = (Double[]) ArrayUtils.add(posArray, Double.parseDouble(position.toString()));
 		}
