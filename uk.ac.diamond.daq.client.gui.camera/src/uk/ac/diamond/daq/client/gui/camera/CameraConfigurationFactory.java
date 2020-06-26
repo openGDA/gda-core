@@ -146,7 +146,7 @@ public class CameraConfigurationFactory implements CompositeFactory {
 	
 	private final TabCompositeFactory createAbsorptionCompositeFactory() {
 		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
-		group.setCompositeFactory(new AbsorptionComposite());
+		group.setCompositeFactory(new AbsorptionComposite(cameraImageComposite));
 		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.ABSORPTION));
 		group.setTooltip(ClientMessagesUtility.getMessage(ClientMessages.ABSORPTION_TP));
 		return group;

@@ -1,6 +1,7 @@
 package uk.ac.diamond.daq.client.gui.camera.liveview;
 
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -25,11 +26,13 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
  * 
  * @author Maurzio Nagni
  */
-public class CameraImageComposite extends Composite {
+public class CameraImageComposite extends Composite implements CameraPlotter {
+	
+	public static final String CAMERA_IMAGE_PLOTTING_SYSTEM_NAME = "CameraImagePlottingSystem";
+	
 	private static final Logger logger = LoggerFactory.getLogger(CameraImageComposite.class);
 
 	private final LivePlottingComposite plottingComposite;
-	private final IPlottingSystem<Composite> plottingSystem;
 
 	/**
 	 * Integrates a {@link LiveStreamConnection} into composite element. Can be used
@@ -46,10 +49,9 @@ public class CameraImageComposite extends Composite {
 		super(parent, style);
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(this);
 
-		plottingComposite = new LivePlottingComposite(this, SWT.NONE, "Live View", liveStreamConnection);
+		plottingComposite = new LivePlottingComposite(this, SWT.NONE, CAMERA_IMAGE_PLOTTING_SYSTEM_NAME, liveStreamConnection);
 		plottingComposite.setShowTitle(true);
-		plottingSystem = plottingComposite.getPlottingSystem();
-		
+
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(plottingComposite);
 
 		// Registers the region into the camera
@@ -78,10 +80,16 @@ public class CameraImageComposite extends Composite {
 		this(parent, style, null);
 	}
 
+	@Override
 	public IPlottingSystem<Composite> getPlottingSystem() {
-		return plottingSystem;
+		return plottingComposite.getPlottingSystem();
 	}
 
+	@Override
+	public IImageTrace getImageTrace() {
+		return plottingComposite.getITrace();
+	}
+	
 	private ApplicationListener<RegisterDrawableRegionEvent> registerDrawableRegionListener(Composite parent) {
 		return new ApplicationListener<RegisterDrawableRegionEvent>() {
 			@Override
@@ -89,7 +97,7 @@ public class CameraImageComposite extends Composite {
 				if (!event.haveSameParent(parent)) {
 					return;
 				}
-				DrawableRegion roiSelectionRegion = new DrawableRegion(plottingSystem, event.getColor(),
+				DrawableRegion roiSelectionRegion = new DrawableRegion(getPlottingSystem(), event.getColor(),
 						ClientMessagesUtility.getMessage(event.getName()),
 						new ROIListener(parent, plottingComposite, event.getRegionID()), event.getRegionID());
 				roiSelectionRegion.setActive(true);
