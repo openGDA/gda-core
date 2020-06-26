@@ -46,13 +46,17 @@
 						<exclude>PerScanMonitorTest</exclude>
 						<!-- PsuedoSpringParser to be removed -->
 						<exclude>PseudoSpringParserTest</exclude>
-						<!-- Flaky new-scanning test, currently excluded -->
-						<exclude>PosDetectorScanTest</exclude>
 						<!-- Powermock issues -->
 						<exclude>QueuePersistenceTest</exclude>
-						<!-- Fails on Jenkins often -->
+						<!-- Flaky new-scanning tests, currently excluded -->
+						<exclude>PosDetectorScanTest</exclude>
+						<exclude>JmsQueueReaderTest</exclude>
 						<exclude>MultiStepCompositeTest</exclude>
 						<exclude>MalcolmDeviceTest</exclude>
+						<exclude>MalcolmDeviceEventTest</exclude>
+						<exclude>MalcolmDeviceScanTest</exclude>
+						<exclude>SubmitterTest</exclude>
+						<exclude>WatchdogInOuterScanMoveTest</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
