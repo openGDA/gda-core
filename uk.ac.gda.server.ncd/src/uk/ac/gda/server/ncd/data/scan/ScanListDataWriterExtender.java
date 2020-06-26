@@ -78,7 +78,8 @@ public class ScanListDataWriterExtender extends DataWriterExtenderBase implement
 
 	@Override
 	public void reconfigure() throws FactoryException {
-		logger.debug("Empty reconfigure() called");
+		configured = false;
+		configure();
 	}
 
 	@Override
@@ -95,7 +96,7 @@ public class ScanListDataWriterExtender extends DataWriterExtenderBase implement
 	public void addData(IDataWriterExtender parent, IScanDataPoint dataPoint) throws Exception {
 		if (lastScanDataPoint == null) {
 			lastScanDataPoint = dataPoint;
-			configure();
+			reconfigure();
 		}
 	}
 
