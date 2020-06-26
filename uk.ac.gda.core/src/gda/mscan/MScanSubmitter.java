@@ -331,7 +331,7 @@ public class MScanSubmitter extends ValidationUtils {
 	/**
 	 * Very Basic factory to support mocking of {@link ScanClausesResolver}
 	 */
-	static class ResolverFactory {
+	public static class ResolverFactory {
 		public ScanClausesResolver getResolver(final List<IClauseElementProcessor> elementProcessors) {
 			return new ScanClausesResolver(elementProcessors);
 		}

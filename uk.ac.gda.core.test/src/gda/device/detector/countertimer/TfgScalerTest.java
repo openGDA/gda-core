@@ -46,7 +46,7 @@ public class TfgScalerTest {
 	public void setup() throws FactoryException, DeviceException{
 
 		daserver = new DummyDAServer();
-		daserver.setDataFile(TfgScalerTest.class.getResource("Mofoil2.dat").getFile());
+		daserver.setDataFile("testfiles/gda/device/detector/countertimer/Mofoil2.dat");
 		daserver.configure();
 
 		tfg = new Etfg();

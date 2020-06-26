@@ -31,7 +31,9 @@ import java.util.concurrent.Callable;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InOrder;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import gda.MockFactory;
 import gda.data.scan.datawriter.DataWriter;
@@ -41,15 +43,17 @@ import gda.device.Scannable;
 import gda.device.scannable.PositionCallableProvider;
 import gda.jython.IJythonServerNotifer;
 
+//Uses MockFactory to create scannables, so must be lenient with unused stubbing
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class MultithreadedScanDataPointPipelineTest {
 
-	interface PositionCallableProvidingScannable extends PositionCallableProvider<Object>, Scannable {
+	public interface PositionCallableProvidingScannable extends PositionCallableProvider<Object>, Scannable {
 	}
 
-	interface PositionCallableProvidingDetector extends PositionCallableProvider<Object>, Detector {
+	public interface PositionCallableProvidingDetector extends PositionCallableProvider<Object>, Detector {
 	}
 
-	class NamedObject {
+	public class NamedObject {
 		private final String name;
 
 		NamedObject(final String name) {

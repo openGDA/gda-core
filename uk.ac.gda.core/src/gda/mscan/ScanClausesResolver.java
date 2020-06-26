@@ -65,7 +65,7 @@ public class ScanClausesResolver {
 	 *
 	 * @throws	IllegalArgumentException if an invalid set of {@link IClauseElementProcessor}s is supplied
 	 */
-	List<List<IClauseElementProcessor>> resolveScanClauses() {
+	public List<List<IClauseElementProcessor>> resolveScanClauses() {
 		if (!(processors.get(0).hasScannable())) {
 			throw new IllegalArgumentException("First term must be a scannable");
 		}

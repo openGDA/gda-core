@@ -30,7 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class PositionInputStreamCombinerTest {
-	interface SimplePositionInputStream extends PositionInputStream<Object> {
+	public interface SimplePositionInputStream extends PositionInputStream<Object> {
 
 	}
 

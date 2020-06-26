@@ -49,7 +49,7 @@ import gda.jython.commands.ScannableCommands;
 
 public class RepeatScanTest {
 
-	private class DetectorFrameControllerImpl implements RepScanScannable {
+	public class DetectorFrameControllerImpl implements RepScanScannable {
 		int numberOfFrames=0;
 		@Override
 		public void atRepScanStart(int numberOfFrames) throws DeviceException {
