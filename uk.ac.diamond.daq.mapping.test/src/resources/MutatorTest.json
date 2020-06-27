@@ -1,0 +1,6 @@
+{
+  "mutators" : {
+    "alternating" : "One",
+    "continuous" : "Two"
+  }
+}
