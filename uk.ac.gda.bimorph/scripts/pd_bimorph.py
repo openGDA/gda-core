@@ -47,7 +47,7 @@ class Bimorph(ScannableMotionBase):
 		self.IAmBusy=False
 
 	def configure(self):
-		self.beamline=Finder.getInstance().find("Beamline")
+		self.beamline=Finder.find("Beamline")
 
 	def rawIsBusy(self):
 		return self.IAmBusy
