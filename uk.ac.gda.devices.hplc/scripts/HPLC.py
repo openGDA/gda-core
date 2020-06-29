@@ -13,7 +13,7 @@ from gda.scan import StaticScan
 from tfgsetup import fs
 from time import sleep
 import logging
-import gda.factory.Finder
+from gda.factory import Finder
 import sys
 from cStringIO import StringIO
 from math import ceil
@@ -33,8 +33,7 @@ class HPLC(object):
         self.__version__ = '1.01'
         self.hplcFile = filename
         self.bean = HplcSessionBean.createFromXML(filename)
-        finder = gda.factory.Finder.getInstance()
-        find = finder.find
+        find = Finder.find
         self.shutter = find('shutter')
         self.bsdiode = find('bsdiode')
         self.sample_type = find('sample_type')

@@ -3,7 +3,7 @@ import uk.ac.gda.excalibur.config.model.util.NexusTreeHelper
 from gda.factory import Finder
 '''file extension is excaliburconfig'''
 def getExcaliburConfigModelFromDetector():
-    c = Finder.getInstance().find("excalibur_config")
+    c = Finder.find("excalibur_config")
     print "excalibur Config read from detector" + `c`
     nodes = c.get("nodes")
     print "nodes present" + `nodes`
@@ -42,7 +42,7 @@ def getNexusTree(exconf):
     return data.getNexusTree()
 
 def getSummaryNodeModel():
-    summ = Finder.getInstance().find("excalibur_summary")
+    summ = Finder.find("excalibur_summary")
     summaryFem = summ.get("fem")
     return uk.ac.gda.excalibur.config.model.util.ExcaliburConfigModelHelper.INSTANCE.createSummaryAdBaseModel(summaryFem)
 
@@ -50,7 +50,7 @@ def createExcaliburConfigFromNexusTree(tree):
     return uk.ac.gda.excalibur.config.model.util.NexusTreeHelper.INSTANCE.createModelFromNexus(tree)
 
 def sendToDetector(exconf):
-    c = Finder.getInstance().find("excalibur_config")
+    c = Finder.find("excalibur_config")
     nodes = c.get("readoutFems")
     print "Sending to detector"
     uk.ac.gda.excalibur.config.model.util.ExcaliburConfigModelHelper.INSTANCE.sendToExcalibur(nodes, exconf)

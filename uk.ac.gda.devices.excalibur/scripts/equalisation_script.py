@@ -8,7 +8,6 @@ from uk.ac.gda.analysis.hdf5 import Hdf5Helper
 from gda.configuration.properties import LocalProperties
 
 from gda.factory import Finder
-finder = Finder.getInstance()
 import os
 import recordConfig        
 from  dac_scan import dacscan
@@ -152,7 +151,7 @@ class ExcaliburEqualiser:
         self.threshold0 = jms.threshold0
         self.thresholdN = jms.thresholdN
         self.dacPixel = jms.dacPixel
-        excalibur_config = finder.find("excalibur_config")
+        excalibur_config = Finder.find("excalibur_config")
         self.readoutFems = excalibur_config.get("readoutFems")
         self.chipRows = 6
         self.chipCols = 8

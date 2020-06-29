@@ -37,7 +37,7 @@ def loadTestPattern(on=True):
     else:
         handle_messages.log(None,"Clearing test pattern...")
     testPulse=_getTestPattern(on)
-    config= Finder.getInstance().find("excalibur_config")
+    config= Finder.find("excalibur_config")
     nodes = config.get("readoutFems")
     for node in nodes:
         for j in range(8):
@@ -64,7 +64,7 @@ def get_mask_from_csvfile(file_path):
 
 def loadMask(mask=[0]*3709717): #size of ACQUIRE:PixelMask
     handle_messages.log(None,"Loading mask...")
-    config= Finder.getInstance().find("excalibur_config")
+    config= Finder.find("excalibur_config")
     configAdBase = config.get("configAdBase")
     configAdBase.setPixelMask(mask)
     handle_messages.log(None,"Loading mask done")
@@ -81,7 +81,7 @@ def setOperationModeToNormal(dev):
     dev.set("CONFIG:ACQUIRE:OperationMode", 0) #normal
     
 def runContinuous(exposureTime):
-    config= Finder.getInstance().find("excalibur_config")
+    config= Finder.find("excalibur_config")
     dev=config.get("excaliburDev")
     setOperationModeToNormal(dev)
     dev.set("CONFIG:ACQUIRE:AcquireTime", exposureTime)
@@ -106,7 +106,7 @@ def checkFEMInitOK(dev):
     return False
 
 def loadDefaultConfig():
-    config= Finder.getInstance().find("excalibur_config")
+    config= Finder.find("excalibur_config")
     dev=config.get("excaliburDev")
     config_filepath = LocalProperties.getVarDir() + "excalibur_default_calibration.excaliburconfig"
     handle_messages.log(None,"Loading default config from " + `config_filepath`)
@@ -116,7 +116,7 @@ def loadDefaultConfig():
     setOperationModeToNormal(dev) #sendConfigInFileToDetector may have changed readout node states
 
 def setBiasOn():
-    config= Finder.getInstance().find("excalibur_config")
+    config= Finder.find("excalibur_config")
     dev=config.get("excaliburDev")
     handle_messages.log(None,"Turning on HV and ramping to desired level")
     dev.set('1:HK:BIAS_ON_OFF',1) #on
@@ -136,14 +136,14 @@ def setBiasOn():
     handle_messages.log(None,"POWER OK")
 
 def setBiasOff():
-    config= Finder.getInstance().find("excalibur_config")
+    config= Finder.find("excalibur_config")
     dev=config.get("excaliburDev")
     dev.set('1:HK:BIAS_ON_OFF',0) #off
     if dev.getInteger('1:HK:BIAS_ON_OFF') != 0:
         handle_messages.log(None,"HV is ON", Raise=True)
 
 def switch_on(vds=False):
-    config= Finder.getInstance().find("excalibur_config")
+    config= Finder.find("excalibur_config")
     dev=config.get("excaliburDev")
 
     handle_messages.log(None,"Checking interlocks")
@@ -209,7 +209,7 @@ def switch_on(vds=False):
     handle_messages.log(None,"Switch on done")
 
 def measureTestPattern():
-    config= Finder.getInstance().find("excalibur_config")
+    config= Finder.find("excalibur_config")
     dev=config.get("excaliburDev")
     
     loadTestPattern()
@@ -242,7 +242,7 @@ def measureTestPattern():
     loadTestPattern(False)
     
 def switch_off():
-    config= Finder.getInstance().find("excalibur_config")
+    config= Finder.find("excalibur_config")
     dev=config.get("excaliburDev")
 
     handle_messages.log(None,"Turning power off")
@@ -278,7 +278,7 @@ def set_threshold_from_energy(energy, dryRun=False):
     The nth line in a csv file contains the values for the 8 chips in the nth readoutNode
     
     
-    config= Finder.getInstance().find("excalibur_config")
+    config= Finder.find("excalibur_config")
     nodes = config.get("readoutFems")
     offsets= get_values_from_csvfile(LocalProperties.getVarDir() + "threhold0_energy_offsets.csv")
     if dryRun:
@@ -302,7 +302,7 @@ def set_threshold_from_energy(energy, dryRun=False):
 class ExcaliburConfigurator():
     def __init__(self, fix=True, gap=True, arr=False, master=True, hdf5=False, phdf5=True, vds=False):
         self.vds=vds
-        self.config= Finder.getInstance().find("excalibur_config")
+        self.config= Finder.find("excalibur_config")
         self.dev=self.config.get("excaliburDev")
         self.configSync=self.config.get("sync")
         self.configFem=self.config.get("fem")
@@ -322,7 +322,7 @@ class ExcaliburConfigurator():
             self.configPhdf=self.config.get("phdf")
             self.configPhdfBase = self.configPhdf.getPluginBase()
 
-        self.summ=Finder.getInstance().find("excalibur_summary")
+        self.summ=Finder.find("excalibur_summary")
         self.summFem=self.summ.get("fem")
         self.summProc=self.summ.get("proc")
         self.summProcBase = self.summProc.getPluginBase()

@@ -1,7 +1,7 @@
 import datetime, time, sys, os
 from java.util import HashMap
 from gda.jython import InterfaceProvider
-import gda.factory.Finder
+from gda.factory import Finder
 from uk.ac.gda.devices.bssc.beans import BSSCSessionBean
 from gda.data.metadata import GDAMetadataProvider
 import gda.jython.commands.ScannableCommands
@@ -26,8 +26,7 @@ DELAY_REGEX = re.compile('delay:\s*(\d+)')
 class BSSCRun:
     def __init__(self, beanFile):
         self.__version__ = '1.02'
-        finder = gda.factory.Finder.getInstance()
-        find = finder.find
+        find = Finder.find
         self.simulate = False
         self.holdsample = SAMPLE_HOLD
         self.samplevolume = 35
@@ -60,7 +59,7 @@ class BSSCRun:
             print "running in simulation mode"
             self.scannables = [self.detector, self.bsscscannable]
         else:
-            self.cam = gda.factory.Finder.getInstance().find("bsaxscam")
+            self.cam = find("bsaxscam")
             self.scannables = [self.detector, self.bsscscannable, self.cam]
 
         currentVisit = GDAMetadataProvider.getInstance().getMetadataValue("visit")
