@@ -50,7 +50,7 @@ class MutatorsProvider extends LabelProvider implements ComparableStyledLabelPro
 	}
 
 	private String reportMutators(Object element) {
-		return TomoBrowser.getTomographyParameters(element).getScanpathDocument().getMutators().keySet().stream().map(Mutator::name).reduce("",
+		return TomoBrowser.getAcquisitionParameters(element).getScanpathDocument().getMutators().keySet().stream().map(Mutator::name).reduce("",
 				(a, b) -> a + ", " + b);
 	}
 

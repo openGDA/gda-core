@@ -31,8 +31,8 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 
 import gda.rcp.views.Browser;
 import gda.rcp.views.TreeViewerBuilder;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
-import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameters;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
@@ -111,7 +111,7 @@ public class TomoBrowser extends Browser<TomographyParameterAcquisition> {
 		};
 	}
 
-	static final TomographyParameters getTomographyParameters(Object element) {
+	static final ScanningParameters getAcquisitionParameters(Object element) {
 		return TomographyParameterAcquisition.class.cast(AcquisitionConfigurationResource.class.cast(element).getResource()).getAcquisitionConfiguration()
 				.getAcquisitionParameters();
 	}

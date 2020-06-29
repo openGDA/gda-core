@@ -28,13 +28,12 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.mapping.api.document.diffraction.DiffractionParameters;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameters;
 
 /**
- * Collection of methods to update a {@link DiffractionParameters} instance. Constructor and methods are protected
+ * Collection of methods to update a {@link ScanningParameters} instance. Constructor and methods are protected
  * because this class is not supposed to be used alone.
  *
  * @author Maurizio Nagni
@@ -46,9 +45,9 @@ public class TemplateHelperBase {
 	/**
 	 * The tomography acquisition configuration data
 	 */
-	private final Supplier<TomographyParameters> templateDataSupplier;
+	private final Supplier<ScanningParameters> templateDataSupplier;
 
-	protected TemplateHelperBase(Supplier<TomographyParameters> templateDataSupplier) {
+	protected TemplateHelperBase(Supplier<ScanningParameters> templateDataSupplier) {
 		super();
 		this.templateDataSupplier = templateDataSupplier;
 	}
@@ -119,7 +118,7 @@ public class TemplateHelperBase {
 		updateTemplate(getBuilder().withScannableTrackDocuments(scannableTrackDocuments));
 	}
 
-	protected TomographyParameters getTemplateData() {
+	protected ScanningParameters getTemplateData() {
 		return templateDataSupplier.get();
 	}
 

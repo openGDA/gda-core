@@ -22,7 +22,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -37,11 +36,11 @@ import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
 import uk.ac.diamond.daq.mapping.api.document.base.configuration.ImageCalibration;
 import uk.ac.diamond.daq.mapping.api.document.base.configuration.MultipleScans;
 import uk.ac.diamond.daq.mapping.api.document.base.configuration.MultipleScansType;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
-import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameters;
 import uk.ac.diamond.daq.mapping.ui.properties.DetectorHelper;
 import uk.ac.diamond.daq.mapping.ui.properties.DetectorHelper.AcquisitionType;
 import uk.ac.gda.api.acquisition.AcquisitionController;
@@ -50,6 +49,7 @@ import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
+import uk.ac.gda.api.exception.GDAException;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.properties.DetectorProperties;
 import uk.ac.gda.tomography.event.TomographyRunAcquisitionEvent;
@@ -59,6 +59,7 @@ import uk.ac.gda.tomography.service.message.TomographyRunMessage;
 import uk.ac.gda.tomography.stage.IStageController;
 import uk.ac.gda.tomography.stage.StageConfiguration;
 import uk.ac.gda.tomography.stage.enumeration.Position;
+import uk.ac.gda.tomography.stage.enumeration.StageDevice;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
@@ -92,7 +93,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	@Override
 	public TomographyParameterAcquisition getAcquisition() {
 		if (acquisition == null) {
-			acquisition = TomographyParametersAcquisitionController.createNewAcquisition();
+			acquisition = createNewAcquisition();
 		}
 		return acquisition;
 	}
@@ -100,8 +101,13 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	@Override
 	public void saveAcquisitionConfiguration() throws AcquisitionControllerException {
 		StageConfiguration sc = generateStageConfiguration(getAcquisition());
-		String acquisitionDocument = dataToJson(sc);
-		save(formatConfigurationFileName(getAcquisition().getName()), acquisitionDocument);
+		String acquisitionDocument;
+		try {
+			acquisitionDocument = DocumentMapper.toJSON(getAcquisition());
+			save(formatConfigurationFileName(getAcquisition().getName()), acquisitionDocument);
+		} catch (GDAException e) {
+			throw new AcquisitionControllerException(e);
+		}
 	}
 
 	@Override
@@ -128,7 +134,11 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 
 	@Override
 	public AcquisitionConfigurationResource<TomographyParameterAcquisition> parseAcquisitionConfiguration(URL url) throws AcquisitionControllerException {
-		return new AcquisitionConfigurationResource(url, parseJsonData(getAcquisitionBytes(url)).getAcquisition());
+		try {
+			return new AcquisitionConfigurationResource<>(url, DocumentMapper.fromJSON(url, TomographyParameterAcquisition.class));
+		} catch (GDAException e) {
+			throw new AcquisitionControllerException(e);
+		}
 	}
 
 	@Override
@@ -142,12 +152,12 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		// SpringApplicationContextProxy.publishEvent(new AcquisitionConfigurationResourceSaveEvent(url));
 	}
 
-	public static TomographyParameterAcquisition createNewAcquisition() {
+	private TomographyParameterAcquisition createNewAcquisition() {
 		TomographyParameterAcquisition newConfiguration = new TomographyParameterAcquisition();
 		TomographyConfiguration configuration = new TomographyConfiguration();
 		newConfiguration.setAcquisitionConfiguration(configuration);
 		newConfiguration.setName("Default name");
-		TomographyParameters acquisitionParameters = new TomographyParameters();
+		ScanningParameters acquisitionParameters = new ScanningParameters();
 		Optional<List<DetectorProperties>> dp = DetectorHelper.getAcquistionDetector(AcquisitionType.TOMOGRAPHY);
 		int index = 0; // in future may be parametrised
 		if (dp.isPresent()) {
@@ -162,6 +172,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		scannableTrackBuilder.withStart(0.0);
 		scannableTrackBuilder.withStop(180.0);
 		scannableTrackBuilder.withPoints(1);
+		scannableTrackBuilder.withScannable(stageController.getStageDescription().getMotors().get(StageDevice.MOTOR_STAGE_ROT_Y).getName());
 		List<ScannableTrackDocument> scannableTrackDocuments = new ArrayList<>();
 		scannableTrackDocuments.add(scannableTrackBuilder.build());
 		scanpathBuilder.withScannableTrackDocuments(scannableTrackDocuments);
@@ -222,7 +233,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 				&& !sc.getMotorsPositions().containsKey(Position.OUT_OF_BEAM));
 	}
 
-	public TomographyParameters getAcquisitionParameters() {
+	public ScanningParameters getAcquisitionParameters() {
 		return getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
 	}
 
@@ -238,21 +249,6 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 			throw new AcquisitionControllerException("Acquisition needs a OutOfBeam position to acquire flat images");
 		}
 		return sc;
-	}
-
-	private String dataToJson(StageConfiguration acquisition) throws AcquisitionControllerException {
-		return intDataToJson(acquisition);
-	}
-
-	private String intDataToJson(Object acquisition) throws AcquisitionControllerException {
-		// --- all this should be externalised to a service
-		try {
-			String json = documentMapper.getObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(acquisition);
-			logger.debug(String.format("Saving acquisition: %s", json));
-			return json;
-		} catch (JsonProcessingException e) {
-			throw new AcquisitionControllerException("Cannot parse json document", e);
-		}
 	}
 
 	protected StageConfiguration parseJsonData(String jsonData) throws AcquisitionControllerException {
@@ -274,7 +270,12 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	}
 
 	private TomographyRunMessage createTomographyRunMessage() throws AcquisitionControllerException {
-		return new TomographyRunMessage(intDataToJson(getAcquisition()));
+		try {
+			TomographyParametersAcquisitionControllerHelper.updateExposure(this);
+			return new TomographyRunMessage(DocumentMapper.toJSON(getAcquisition()));
+		} catch (GDAException | DeviceException e) {
+			throw new AcquisitionControllerException(e);
+		}
 	}
 
 	private File getAcquisitionScript() {
@@ -296,14 +297,6 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 
 	private void publishRun(TomographyRunMessage tomographyRunMessage) {
 		SpringApplicationContextProxy.publishEvent(new TomographyRunAcquisitionEvent(this, tomographyRunMessage));
-	}
-
-	private byte[] getAcquisitionBytes(URL url) throws AcquisitionControllerException {
-		try {
-			return getFileService().loadFileAsBytes(url);
-		} catch (IOException e) {
-			throw new AcquisitionControllerException("Cannot load the file", e);
-		}
 	}
 
 	// --- temporary solution ---//

@@ -52,10 +52,10 @@ import org.springframework.context.ApplicationListener;
 import gda.mscan.element.Mutator;
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.mapping.api.document.base.configuration.MultipleScansType;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
-import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameters;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
 import uk.ac.gda.client.UIHelper;
@@ -68,7 +68,7 @@ import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
- * This Composite allows to edit a {@link TomographyParameters} object.
+ * This Composite allows to edit a {@link ScanningParameters} object.
  *
  * @author Maurizio Nagni
  */
@@ -473,7 +473,7 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		return getController().getAcquisition().getAcquisitionConfiguration();
 	}
 
-	private TomographyParameters getTemplateData() {
+	private ScanningParameters getTemplateData() {
 		return getController().getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
 	}
 

@@ -22,11 +22,11 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import gda.mscan.element.Mutator;
-import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameters;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 
 public class TomographyTemplateDataHelper extends TemplateHelperBase {
 
-	public TomographyTemplateDataHelper(Supplier<TomographyParameters> templateDataSupplier) {
+	public TomographyTemplateDataHelper(Supplier<ScanningParameters> templateDataSupplier) {
 		super(templateDataSupplier);
 	}
 
