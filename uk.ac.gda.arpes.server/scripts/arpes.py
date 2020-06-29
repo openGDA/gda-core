@@ -11,7 +11,7 @@ class ARPESRun:
 
     def __init__(self, beanFile):
         self.bean = uk.ac.gda.arpes.beans.ARPESScanBean.createFromXML(beanFile)
-        self.scienta = gda.factory.Finder.getInstance().find('analyser')
+        self.scienta = gda.factory.Finder.find('analyser')
         self.progresscounter = 0
         self.totalSteps = 3
         self.lastreportedmeasurement = None

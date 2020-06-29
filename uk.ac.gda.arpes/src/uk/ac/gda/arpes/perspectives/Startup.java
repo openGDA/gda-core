@@ -61,7 +61,7 @@ public class Startup implements IStartup {
 	private IVGScientaAnalyserRMI analyser;
 
 	public Startup() {
-		analyser = Finder.getInstance().find("analyser");
+		analyser = Finder.find("analyser");
 		if (analyser == null) {
 			throw new RuntimeException("No analyser was found!");
 		}
