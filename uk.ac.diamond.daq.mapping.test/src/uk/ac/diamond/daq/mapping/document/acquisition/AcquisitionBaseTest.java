@@ -29,11 +29,10 @@ import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.diffraction.DiffractionConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.diffraction.DiffractionParameterAcquisition;
-import uk.ac.diamond.daq.mapping.api.document.diffraction.DiffractionParameters;
-import uk.ac.diamond.daq.mapping.api.document.diffraction.ShapeType;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ShapeType;
 import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
-import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameters;
 import uk.ac.diamond.daq.mapping.document.DocumentTestBase;
 import uk.ac.gda.api.acquisition.Acquisition;
 import uk.ac.gda.api.exception.GDAException;
@@ -54,7 +53,7 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 		DiffractionConfiguration acquisitionConfiguration = new DiffractionConfiguration();
 		acquisition.setAcquisitionConfiguration(acquisitionConfiguration);
 
-		DiffractionParameters acquisitionParameters = new DiffractionParameters();
+		ScanningParameters acquisitionParameters = new ScanningParameters();
 		acquisitionConfiguration.setAcquisitionParameters(acquisitionParameters);
 		String document = serialiseDocument(acquisition);
 		assertThat(document, containsString("\"type\" : \"diffractionAcquisition\""));
@@ -74,7 +73,7 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 		TomographyConfiguration acquisitionConfiguration = new TomographyConfiguration();
 		acquisition.setAcquisitionConfiguration(acquisitionConfiguration);
 
-		TomographyParameters acquisitionParameters = new TomographyParameters();
+		ScanningParameters acquisitionParameters = new ScanningParameters();
 		acquisitionConfiguration.setAcquisitionParameters(acquisitionParameters);
 		String document = serialiseDocument(acquisition);
 		assertThat(document, containsString("\"type\" : \"tomographyAcquisition\""));
@@ -87,9 +86,9 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 
 		assertEquals("SimpleTest", modelDocument.getDescription());
 		assertEquals(DiffractionConfiguration.class, modelDocument.getAcquisitionConfiguration().getClass());
-		assertEquals(DiffractionParameters.class,
+		assertEquals(ScanningParameters.class,
 				modelDocument.getAcquisitionConfiguration().getAcquisitionParameters().getClass());
-		DiffractionParameters dp = DiffractionParameters.class
+		ScanningParameters dp = ScanningParameters.class
 				.cast(modelDocument.getAcquisitionConfiguration().getAcquisitionParameters());
 		assertEquals(ShapeType.POINT, dp.getShapeType());
 	}
@@ -101,9 +100,9 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 
 		assertEquals("SimpleTest", modelDocument.getDescription());
 		assertEquals(DiffractionConfiguration.class, modelDocument.getAcquisitionConfiguration().getClass());
-		assertEquals(DiffractionParameters.class,
+		assertEquals(ScanningParameters.class,
 				modelDocument.getAcquisitionConfiguration().getAcquisitionParameters().getClass());
-		DiffractionParameters dp = DiffractionParameters.class
+		ScanningParameters dp = ScanningParameters.class
 				.cast(modelDocument.getAcquisitionConfiguration().getAcquisitionParameters());
 		assertEquals(ShapeType.POINT, dp.getShapeType());
 	}

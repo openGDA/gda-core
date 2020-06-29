@@ -1,16 +1,15 @@
-package uk.ac.diamond.daq.mapping.api.document.tomography;
+package uk.ac.diamond.daq.mapping.api.document.scanning;
 
 import uk.ac.diamond.daq.mapping.api.document.DetectorDocument;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
-import uk.ac.diamond.daq.mapping.api.document.diffraction.ShapeType;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 
 /**
- * The base class for describe a tomography acquisition.
+ * The base class for describe a diffraction acquisition.
  *
- *  @author Maurzio Nagni
+ * @author Maurzio Nagni
  */
-public class TomographyParameters implements AcquisitionParametersBase {
+public class ScanningParameters implements AcquisitionParametersBase {
 
 	private ShapeType shapeType;
 
@@ -18,24 +17,25 @@ public class TomographyParameters implements AcquisitionParametersBase {
 
 	private ScanpathDocument scanpathDocument;
 
-	public TomographyParameters() {
+	public ScanningParameters() {
 		super();
 	}
 
-	public TomographyParameters(TomographyParameters configuration) {
+	public ScanningParameters(ScanningParameters configuration) {
 		super();
 		this.shapeType = configuration.getShapeType();
 		this.detector = configuration.getDetector();
-		this.scanpathDocument = configuration.getScanpathDocument();
-	}
 
-	public void setShapeType(ShapeType shapeType) {
-		this.shapeType = shapeType;
+		this.scanpathDocument = configuration.getScanpathDocument();
 	}
 
 	@Override
 	public ShapeType getShapeType() {
 		return shapeType;
+	}
+
+	public void setShapeType(ShapeType shapeType) {
+		this.shapeType = shapeType;
 	}
 
 	@Override
@@ -54,5 +54,11 @@ public class TomographyParameters implements AcquisitionParametersBase {
 
 	public void setScanpathDocument(ScanpathDocument scanpathDocument) {
 		this.scanpathDocument = scanpathDocument;
+	}
+
+	@Override
+	public String toString() {
+		return "DiffractionParameters [" + ", shapeType=" + shapeType + ", detector=" + detector
+				+ ", scanpathDocument=" + scanpathDocument + "]";
 	}
 }

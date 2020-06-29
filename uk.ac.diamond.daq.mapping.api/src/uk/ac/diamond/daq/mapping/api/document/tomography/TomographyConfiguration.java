@@ -19,8 +19,9 @@
 package uk.ac.diamond.daq.mapping.api.document.tomography;
 
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 
-public class TomographyConfiguration extends AcquisitionConfigurationBase<TomographyParameters> {
+public class TomographyConfiguration extends AcquisitionConfigurationBase<ScanningParameters> {
 
 
 }

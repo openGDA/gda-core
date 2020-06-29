@@ -19,7 +19,7 @@
 package uk.ac.diamond.daq.mapping.api.document.base;
 
 import uk.ac.diamond.daq.mapping.api.document.DetectorDocument;
-import uk.ac.diamond.daq.mapping.api.document.diffraction.ShapeType;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ShapeType;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.gda.api.acquisition.AcquisitionParameters;
 
