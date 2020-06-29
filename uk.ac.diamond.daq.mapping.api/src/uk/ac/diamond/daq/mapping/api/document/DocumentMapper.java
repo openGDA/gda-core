@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.diffraction.DiffractionParameterAcquisition;
+import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
 import uk.ac.gda.api.exception.GDAException;
 
 /**
@@ -61,6 +62,7 @@ public class DocumentMapper {
 
 	static {
 		objectMapper.registerSubtypes(new NamedType(DiffractionParameterAcquisition.class));
+		objectMapper.registerSubtypes(new NamedType(TomographyParameterAcquisition.class));
 	}
 
 	private DocumentMapper() {
