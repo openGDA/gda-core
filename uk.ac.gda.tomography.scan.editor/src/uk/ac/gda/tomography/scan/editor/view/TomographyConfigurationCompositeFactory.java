@@ -21,6 +21,7 @@ package uk.ac.gda.tomography.scan.editor.view;
 import static uk.ac.gda.ui.tool.ClientVerifyListener.verifyOnlyDoubleText;
 import static uk.ac.gda.ui.tool.ClientVerifyListener.verifyOnlyIntegerText;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
@@ -48,6 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
+import gda.mscan.element.Mutator;
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.mapping.api.document.base.configuration.MultipleScansType;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
@@ -161,10 +163,29 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.NAME, new Point(2, 1));
 		this.name = ClientSWTElements.createText(parent, textStyle, null, new Point(2, 1), ClientMessages.NAME_TOOLTIP, new Point(500, SWT.DEFAULT), null);
 		flyScanType = ClientSWTElements.createButton(parent, SWT.RADIO, ClientMessages.FLY_SCAN, ClientMessages.FLY_SCAN_TOOLTIP);
-		flyScanType.setData(ScanType.FLY);
 		stepScanType = ClientSWTElements.createButton(parent, SWT.RADIO, ClientMessages.STEP_SCAN, ClientMessages.STEP_SCAN_TOOLTIP);
-		stepScanType.setData(ScanType.STEP);
+
+		flyScanType.addSelectionListener(mutatorsListener);
+		stepScanType.addSelectionListener(mutatorsListener);
 	}
+
+	private SelectionListener mutatorsListener = new SelectionListener() {
+		@Override
+		public void widgetSelected(SelectionEvent event) {
+			if (!Button.class.isInstance(event.getSource()))
+				return;
+			if (event.getSource().equals(flyScanType)) {
+				dataHelper.addMutators(Mutator.CONTINUOUS, new ArrayList<>());
+			} else {
+				dataHelper.removeMutators(Mutator.CONTINUOUS);
+			}
+		}
+
+		@Override
+		public void widgetDefaultSelected(SelectionEvent event) {
+			// do nothing
+		}
+	};
 
 	private void startAngleContent(Composite parent, int labelStyle, int textStyle) {
 		ClientSWTElements.createLabel(parent, labelStyle, ClientMessages.ANGLE, new Point(2, 1));

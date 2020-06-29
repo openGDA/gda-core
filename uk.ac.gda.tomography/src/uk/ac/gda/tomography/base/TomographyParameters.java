@@ -4,7 +4,6 @@ import uk.ac.diamond.daq.mapping.api.document.DetectorDocument;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
 import uk.ac.diamond.daq.mapping.api.document.diffraction.ShapeType;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.gda.tomography.model.ScanType;
 
 /**
  * The base class for describe a tomography acquisition.
@@ -12,8 +11,6 @@ import uk.ac.gda.tomography.model.ScanType;
  *  @author Maurzio Nagni
  */
 public class TomographyParameters implements AcquisitionParametersBase {
-
-	private ScanType scanType;
 
 	private ShapeType shapeType;
 
@@ -27,17 +24,9 @@ public class TomographyParameters implements AcquisitionParametersBase {
 
 	public TomographyParameters(TomographyParameters configuration) {
 		super();
-		this.scanType = configuration.getScanType();
+		this.shapeType = configuration.getShapeType();
 		this.detector = configuration.getDetector();
 		this.scanpathDocument = configuration.getScanpathDocument();
-	}
-
-	public ScanType getScanType() {
-		return scanType;
-	}
-
-	public void setScanType(ScanType scanType) {
-		this.scanType = scanType;
 	}
 
 	public void setShapeType(ShapeType shapeType) {

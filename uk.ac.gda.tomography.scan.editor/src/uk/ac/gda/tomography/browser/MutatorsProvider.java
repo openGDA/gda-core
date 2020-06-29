@@ -23,19 +23,20 @@ import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 
+import gda.mscan.element.Mutator;
 import gda.rcp.views.Browser;
 import gda.rcp.views.ComparableStyledLabelProvider;
 
 /**
- * Formats the tomography type for a {@link Browser} column.
+ * Formats the tomography mutators for a {@link Browser} column.
  *
  * @author Maurizio Nagni
  */
-class ScanTypeProvider extends LabelProvider implements ComparableStyledLabelProvider {
+class MutatorsProvider extends LabelProvider implements ComparableStyledLabelProvider {
 
 	@Override
 	public StyledString getStyledText(Object element) {
-		return new StyledString(TomoBrowser.getTomographyParameters(element).getScanType().toString());
+		return new StyledString(reportMutators(element));
 	}
 
 	@Override
@@ -46,6 +47,11 @@ class ScanTypeProvider extends LabelProvider implements ComparableStyledLabelPro
 				return -1;
 			}
 		};
+	}
+
+	private String reportMutators(Object element) {
+		return TomoBrowser.getTomographyParameters(element).getScanpathDocument().getMutators().keySet().stream().map(Mutator::name).reduce("",
+				(a, b) -> a + ", " + b);
 	}
 
 }

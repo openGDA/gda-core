@@ -1,6 +1,5 @@
 {
 	"acquisitionParameters": {
-		"scanType": "FLY",
 		"scanpathDocument": {
 			"modelDocument": "ONE_DIMENSION_LINE",
 			"scannableTrackDocuments": [

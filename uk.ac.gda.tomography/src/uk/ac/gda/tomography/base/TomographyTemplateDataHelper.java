@@ -18,12 +18,23 @@
 
 package uk.ac.gda.tomography.base;
 
+import java.util.List;
 import java.util.function.Supplier;
+
+import gda.mscan.element.Mutator;
 
 public class TomographyTemplateDataHelper extends TemplateHelperBase {
 
 	public TomographyTemplateDataHelper(Supplier<TomographyParameters> templateDataSupplier) {
 		super(templateDataSupplier);
+	}
+
+	public void addMutators(Mutator mutator, List<Number> value) {
+		updateTemplate(getBuilder().addMutator(mutator, value));
+	}
+
+	public void removeMutators(Mutator mutator) {
+		updateTemplate(getBuilder().removeMutator(mutator));
 	}
 
 	public void updatePoints(int points) {

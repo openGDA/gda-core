@@ -48,6 +48,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import gda.device.IScannableMotor;
 import gda.device.scannable.DummyScannableMotor;
+import gda.mscan.element.Mutator;
 import gda.rcp.views.TabCompositeFactory;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
@@ -59,7 +60,6 @@ import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.gda.tomography.base.TomographyConfiguration;
 import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
 import uk.ac.gda.tomography.base.TomographyParameters;
-import uk.ac.gda.tomography.model.ScanType;
 import uk.ac.gda.tomography.stage.CommonStage;
 import uk.ac.gda.tomography.stage.StageDescription;
 import uk.ac.gda.tomography.stage.enumeration.Stage;
@@ -186,10 +186,14 @@ public class TomographyParametersConfigurationTest {
 		newConfiguration.setName("Default name");
 		TomographyParameters acquisitionParameters = new TomographyParameters();
 
-		acquisitionParameters.setScanType(ScanType.FLY);
 		configuration.setImageCalibration(new ImageCalibration());
 
 		ScanpathDocument.Builder scanpathBuilder = new ScanpathDocument.Builder();
+		// add mutators
+		Map<Mutator, List<Number>> mutators = new EnumMap(Mutator.class);
+		mutators.put(Mutator.CONTINUOUS, new ArrayList<Number>());
+		scanpathBuilder.withMutators(mutators);
+
 		scanpathBuilder.withModelDocument(AcquisitionTemplateType.ONE_DIMENSION_LINE);
 		ScannableTrackDocument.Builder scannableTrackBuilder = new ScannableTrackDocument.Builder();
 		scannableTrackBuilder.withStart(0.0);

@@ -54,7 +54,6 @@ import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
 import uk.ac.gda.tomography.base.TomographyParameters;
 import uk.ac.gda.tomography.event.TomographyRunAcquisitionEvent;
 import uk.ac.gda.tomography.event.TomographySaveEvent;
-import uk.ac.gda.tomography.model.ScanType;
 import uk.ac.gda.tomography.service.TomographyFileService;
 import uk.ac.gda.tomography.service.message.TomographyRunMessage;
 import uk.ac.gda.tomography.stage.IStageController;
@@ -155,7 +154,6 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 			DetectorDocument dd = new DetectorDocument(dp.get().get(index).getDetectorBean(), 0);
 			acquisitionParameters.setDetector(dd);
 		}
-		acquisitionParameters.setScanType(ScanType.FLY);
 		configuration.setImageCalibration(new ImageCalibration());
 
 		ScanpathDocument.Builder scanpathBuilder = new ScanpathDocument.Builder();

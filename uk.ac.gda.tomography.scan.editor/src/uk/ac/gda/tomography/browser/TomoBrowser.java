@@ -76,7 +76,7 @@ public class TomoBrowser extends Browser<TomographyParameterAcquisition> {
 	public void addColumns(TreeViewerBuilder<AcquisitionConfigurationResource<TomographyParameterAcquisition>> builder) {
 		builder.addColumn("Name", NAME_WIDTH, new NameProvider());
 		builder.addColumn("Range", RANGE_WIDTH, new RangeProvider());
-		builder.addColumn("Type", TYPE_WIDTH, new ScanTypeProvider());
+		builder.addColumn("Type", TYPE_WIDTH, new MutatorsProvider());
 	}
 
 	@Override
