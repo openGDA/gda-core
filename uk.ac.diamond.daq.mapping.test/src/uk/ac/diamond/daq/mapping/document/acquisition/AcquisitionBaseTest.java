@@ -40,9 +40,9 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 	@Test
 	public void serializeThenDeserializeDiffractionParameterAcquisition() throws GDAException {
 		Acquisition<?> acquisition = new DiffractionParameterAcquisition();
-	    final String json = DocumentMapper.toJSON(acquisition);
-	    final Acquisition<?> read = DocumentMapper.fromJSON(json, AcquisitionBase.class);
-	    assertTrue(DiffractionParameterAcquisition.class.isInstance(read));
+		final String json = DocumentMapper.toJSON(acquisition);
+		final Acquisition<?> read = DocumentMapper.fromJSON(json, AcquisitionBase.class);
+		assertTrue(DiffractionParameterAcquisition.class.isInstance(read));
 	}
 
 	@Test
@@ -71,4 +71,30 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 		assertEquals(ShapeType.POINT, dp.getShapeType());
 	}
 
+	@Test
+	public void deserializeDiffractionParameterAcquisition2() throws GDAException {
+		Acquisition<?> modelDocument = deserialiseDocument("/resources/acquisitions/simpleDiffractionAcquisition2.json",
+				DiffractionParameterAcquisition.class);
+
+		assertEquals("SimpleTest", modelDocument.getDescription());
+		assertEquals(DiffractionConfiguration.class, modelDocument.getAcquisitionConfiguration().getClass());
+		assertEquals(DiffractionParameters.class,
+				modelDocument.getAcquisitionConfiguration().getAcquisitionParameters().getClass());
+		DiffractionParameters dp = DiffractionParameters.class
+				.cast(modelDocument.getAcquisitionConfiguration().getAcquisitionParameters());
+		assertEquals(ShapeType.POINT, dp.getShapeType());
+	}
+
+	@Test
+	public void deserializeEmptyAcquisition() throws GDAException {
+		Acquisition<?> modelDocument = deserialiseDocument("/resources/acquisitions/emptyAcquisition.json",
+				AcquisitionBase.class);
+		assertTrue(DiffractionParameterAcquisition.class.isInstance(modelDocument));
+	}
+
+	@Test(expected=GDAException.class)
+	public void deserializeUnknownEmptyAcquisition() throws GDAException {
+		deserialiseDocument("/resources/acquisitions/emptyUnknownAcquisition.json",
+				AcquisitionBase.class);
+	}
 }
