@@ -22,6 +22,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
@@ -117,11 +118,9 @@ public class ScanListDataWriterExtender extends DataWriterExtenderBase implement
 			}
 			logger.debug("Writing to {}", file.getAbsolutePath());
 			if (file.canWrite()) {
-				Writer writer = null;
-				try {
-					writer = new BufferedWriter(
-							new OutputStreamWriter(
-							new FileOutputStream(file.getAbsolutePath(), true)));
+				try (OutputStream os = new FileOutputStream(file.getAbsolutePath(), true);
+						Writer osw = new OutputStreamWriter(os);
+						Writer writer = new BufferedWriter(osw)){
 					writer.write(outputLine);
 					logger.debug("Written to scanlist: {}", outputLine);
 				} catch (FileNotFoundException e) {
@@ -130,8 +129,6 @@ public class ScanListDataWriterExtender extends DataWriterExtenderBase implement
 					logger.error("Unsupported encoding", e);
 				} catch (Exception e) {
 					logger.error("Could not write to scan list", e);
-				}  finally {
-					if (writer != null) writer.close();
 				}
 			} else {
 				logger.error("Cannot write to scan list file. Check permissions");
