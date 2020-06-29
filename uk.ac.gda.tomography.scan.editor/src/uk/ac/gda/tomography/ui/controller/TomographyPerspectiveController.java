@@ -21,8 +21,8 @@ package uk.ac.gda.tomography.ui.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
 import uk.ac.gda.api.acquisition.AcquisitionController;
-import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
 
 /**
  * Controls the tomography perspective delegating its subsections to other specialised controllers.

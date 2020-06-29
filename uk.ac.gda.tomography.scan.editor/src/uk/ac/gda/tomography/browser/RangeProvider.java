@@ -26,7 +26,7 @@ import org.eclipse.jface.viewers.ViewerComparator;
 import gda.rcp.views.Browser;
 import gda.rcp.views.ComparableStyledLabelProvider;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
-import uk.ac.gda.tomography.base.TomographyParameters;
+import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameters;
 
 /**
  * Formats the tomography range for a {@link Browser} column.

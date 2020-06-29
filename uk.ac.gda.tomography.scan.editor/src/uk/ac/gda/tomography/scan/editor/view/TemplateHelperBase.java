@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.base;
+package uk.ac.gda.tomography.scan.editor.view;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.daq.mapping.api.document.diffraction.DiffractionParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
+import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameters;
 
 /**
  * Collection of methods to update a {@link DiffractionParameters} instance. Constructor and methods are protected

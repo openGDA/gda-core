@@ -21,10 +21,10 @@ package uk.ac.gda.tomography.browser;
 import org.eclipse.jface.action.Action;
 
 import gda.rcp.views.Browser;
+import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
-import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
 
 /**
  * Defines a load operation to be used by a {@link Browser} row.

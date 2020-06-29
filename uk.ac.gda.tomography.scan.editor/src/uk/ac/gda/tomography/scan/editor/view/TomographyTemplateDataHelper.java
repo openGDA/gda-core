@@ -16,12 +16,13 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.base;
+package uk.ac.gda.tomography.scan.editor.view;
 
 import java.util.List;
 import java.util.function.Supplier;
 
 import gda.mscan.element.Mutator;
+import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameters;
 
 public class TomographyTemplateDataHelper extends TemplateHelperBase {
 

@@ -31,13 +31,13 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 
 import gda.rcp.views.Browser;
 import gda.rcp.views.TreeViewerBuilder;
+import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
+import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameters;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
-import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
-import uk.ac.gda.tomography.base.TomographyParameters;
 import uk.ac.gda.tomography.ui.controller.TomographyPerspectiveController;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 

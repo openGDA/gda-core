@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
+import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
 import uk.ac.gda.tomography.stage.enumeration.Position;
 
 /**

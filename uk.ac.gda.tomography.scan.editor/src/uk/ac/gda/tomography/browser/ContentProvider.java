@@ -21,8 +21,8 @@ package uk.ac.gda.tomography.browser;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 
+import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
-import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
 
 /**
  * Provides data for a {@link TreeViewer} instance

@@ -29,8 +29,8 @@ import org.eclipse.swt.SWT;
 
 import gda.rcp.views.Browser;
 import gda.rcp.views.ComparableStyledLabelProvider;
+import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
-import uk.ac.gda.tomography.base.TomographyParameterAcquisition;
 
 /**
  * Formats the tomography name for a {@link Browser} column.
