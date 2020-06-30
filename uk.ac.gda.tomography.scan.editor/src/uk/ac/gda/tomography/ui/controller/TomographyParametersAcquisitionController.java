@@ -36,11 +36,14 @@ import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
 import uk.ac.diamond.daq.mapping.api.document.base.configuration.ImageCalibration;
 import uk.ac.diamond.daq.mapping.api.document.base.configuration.MultipleScans;
 import uk.ac.diamond.daq.mapping.api.document.base.configuration.MultipleScansType;
-import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
+import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionRunEvent;
+import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionSaveEvent;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
+import uk.ac.diamond.daq.mapping.api.document.service.message.ScanningMessage;
 import uk.ac.diamond.daq.mapping.ui.properties.DetectorHelper;
 import uk.ac.diamond.daq.mapping.ui.properties.DetectorHelper.AcquisitionType;
 import uk.ac.gda.api.acquisition.AcquisitionController;
@@ -52,10 +55,7 @@ import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResource
 import uk.ac.gda.api.exception.GDAException;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.properties.DetectorProperties;
-import uk.ac.gda.tomography.event.TomographyRunAcquisitionEvent;
-import uk.ac.gda.tomography.event.TomographySaveEvent;
 import uk.ac.gda.tomography.service.TomographyFileService;
-import uk.ac.gda.tomography.service.message.TomographyRunMessage;
 import uk.ac.gda.tomography.stage.IStageController;
 import uk.ac.gda.tomography.stage.StageConfiguration;
 import uk.ac.gda.tomography.stage.enumeration.Position;
@@ -65,8 +65,8 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 /**
  * The basic controller for Tomography scan. Uses Spring to publish
  * <ul>
- * <li>{@link TomographySaveEvent} when an acquisition configuration is saved</li>
- * <li>{@link TomographyRunAcquisitionEvent} when an acquisition starts</li>
+ * <li>{@link ScanningAcquisitionSaveEvent} when an acquisition configuration is saved</li>
+ * <li>{@link ScanningAcquisitionRunEvent} when an acquisition starts</li>
  * </ul>
  *
  * @author Maurizio Nagni
@@ -117,7 +117,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 
 	@Override
 	public void runAcquisition() throws AcquisitionControllerException {
-		TomographyRunMessage tomographyRunMessage = createTomographyRunMessage();
+		ScanningMessage tomographyRunMessage = createScanningMessage();
 		publishRun(tomographyRunMessage);
 	}
 
@@ -269,10 +269,10 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		throw new AcquisitionControllerException("Cannot parse json document");
 	}
 
-	private TomographyRunMessage createTomographyRunMessage() throws AcquisitionControllerException {
+	private ScanningMessage createScanningMessage() throws AcquisitionControllerException {
 		try {
 			TomographyParametersAcquisitionControllerHelper.updateExposure(this);
-			return new TomographyRunMessage(DocumentMapper.toJSON(getAcquisition()));
+			return new ScanningMessage(DocumentMapper.toJSON(getAcquisition()));
 		} catch (GDAException | DeviceException e) {
 			throw new AcquisitionControllerException(e);
 		}
@@ -292,11 +292,11 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	}
 
 	private void publishSave(String name, String acquisition, String scriptPath) {
-		SpringApplicationContextProxy.publishEvent(new TomographySaveEvent(this, name, acquisition, scriptPath));
+		SpringApplicationContextProxy.publishEvent(new ScanningAcquisitionSaveEvent(this, name, acquisition));
 	}
 
-	private void publishRun(TomographyRunMessage tomographyRunMessage) {
-		SpringApplicationContextProxy.publishEvent(new TomographyRunAcquisitionEvent(this, tomographyRunMessage));
+	private void publishRun(ScanningMessage tomographyRunMessage) {
+		SpringApplicationContextProxy.publishEvent(new ScanningAcquisitionRunEvent(this, tomographyRunMessage));
 	}
 
 	// --- temporary solution ---//

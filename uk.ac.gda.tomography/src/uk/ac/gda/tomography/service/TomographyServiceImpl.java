@@ -46,9 +46,9 @@ import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
+import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionRunEvent;
+import uk.ac.diamond.daq.mapping.api.document.service.message.ScanningMessage;
 import uk.ac.gda.api.exception.GDAException;
-import uk.ac.gda.tomography.event.TomographyRunAcquisitionEvent;
-import uk.ac.gda.tomography.service.message.TomographyRunMessage;
 
 /**
  * @author Maurizio Nagni
@@ -65,16 +65,16 @@ public class TomographyServiceImpl implements TomographyService {
 	}
 
 	@Override
-	public void onApplicationEvent(TomographyRunAcquisitionEvent event) {
+	public void onApplicationEvent(ScanningAcquisitionRunEvent event) {
 		try {
-			runAcquisition(event.getRunTomographyMessage(), null, null, null);
+			runAcquisition(event.getScanningMessage(), null, null, null);
 		} catch (TomographyServiceException e) {
 			logger.error("TODO put description of error here", e);
 		}
 	}
 
 	@Override
-	public void runAcquisition(TomographyRunMessage message, File script, File onError, File onSuccess) throws TomographyServiceException {
+	public void runAcquisition(ScanningMessage message, File script, File onError, File onSuccess) throws TomographyServiceException {
 		executeCommand(message, script, onError, onSuccess, "doAcquisition");
 	}
 
@@ -84,7 +84,7 @@ public class TomographyServiceImpl implements TomographyService {
 	}
 
 	@Override
-	public URL takeDarkImage(TomographyRunMessage message, File script) throws TomographyServiceException {
+	public URL takeDarkImage(ScanningMessage message, File script) throws TomographyServiceException {
 		CommandThreadEvent event = runScript(message, script, "doDark");
 		try {
 			// do something with the event (?)
@@ -95,7 +95,7 @@ public class TomographyServiceImpl implements TomographyService {
 	}
 
 	@Override
-	public URL takeFlatImage(TomographyRunMessage message, File script) throws TomographyServiceException {
+	public URL takeFlatImage(ScanningMessage message, File script) throws TomographyServiceException {
 		CommandThreadEvent event = runScript(message, script, "doFlat");
 		try {
 			// do something with the event (?)
@@ -105,15 +105,15 @@ public class TomographyServiceImpl implements TomographyService {
 		}
 	}
 
-	private void executeCommand(TomographyRunMessage message, File script, File onError, File onSuccess, String command) throws TomographyServiceException {
+	private void executeCommand(ScanningMessage message, File script, File onError, File onSuccess, String command) throws TomographyServiceException {
 		submitScan(message);
 	}
 
-	private File insertConfiguration(TomographyRunMessage message, File script, String command) throws IOException {
+	private File insertConfiguration(ScanningMessage message, File script, String command) throws IOException {
 		File tmp = File.createTempFile("tomo", ".py");
 		try (OutputStream os = new FileOutputStream(tmp)) {
-			if (String.class.isInstance(message.getConfiguration())) {
-				os.write(String.format("tomographyServiceMessage = '%s'%n", message.getConfiguration()).getBytes());
+			if (String.class.isInstance(message.getAcquisition())) {
+				os.write(String.format("tomographyServiceMessage = '%s'%n", message.getAcquisition()).getBytes());
 				if (command != null) {
 					os.write(String.format("cmd = '%s'%n", command).getBytes());
 				}
@@ -133,7 +133,7 @@ public class TomographyServiceImpl implements TomographyService {
 		};
 	}
 
-	private CommandThreadEvent runScript(TomographyRunMessage message, File script, String cmd) throws TomographyServiceException {
+	private CommandThreadEvent runScript(ScanningMessage message, File script, String cmd) throws TomographyServiceException {
 		if (message != null) {
 			try {
 				script = insertConfiguration(message, script, cmd);
@@ -156,9 +156,9 @@ public class TomographyServiceImpl implements TomographyService {
 	}
 
 	private AcquisitionBase<? extends AcquisitionConfigurationBase<? extends AcquisitionParametersBase>> deserializeAcquisition(
-			TomographyRunMessage message) throws TomographyServiceException {
+			ScanningMessage message) throws TomographyServiceException {
 		try {
-			return documentMapper.fromJSON((String) message.getConfiguration(), AcquisitionBase.class);
+			return documentMapper.fromJSON((String) message.getAcquisition(), AcquisitionBase.class);
 		} catch (GDAException e) {
 			throw new TomographyServiceException("Json error", e);
 		}
@@ -171,7 +171,7 @@ public class TomographyServiceImpl implements TomographyService {
 	 * @param filePath
 	 *            The filepath of the output NeXus file. If {@code null} it is generated through default properties.
 	 */
-	private void submitScan(TomographyRunMessage message) {
+	private void submitScan(ScanningMessage message) {
 		final IScanBeanSubmitter submitter = PlatformUI.getWorkbench().getService(IScanBeanSubmitter.class);
 		try {
 			String sampleName = "MysampleName";

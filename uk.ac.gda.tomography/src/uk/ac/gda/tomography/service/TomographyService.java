@@ -23,8 +23,8 @@ import java.net.URL;
 
 import org.springframework.context.ApplicationListener;
 
-import uk.ac.gda.tomography.event.TomographyRunAcquisitionEvent;
-import uk.ac.gda.tomography.service.message.TomographyRunMessage;
+import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionRunEvent;
+import uk.ac.diamond.daq.mapping.api.document.service.message.ScanningMessage;
 
 /**
  * Defines service operation for Tomography process.
@@ -32,7 +32,7 @@ import uk.ac.gda.tomography.service.message.TomographyRunMessage;
  * @author Maurizio Nagni
  *
  */
-public interface TomographyService extends ApplicationListener<TomographyRunAcquisitionEvent> {
+public interface TomographyService extends ApplicationListener<ScanningAcquisitionRunEvent> {
 
 	void resetInstruments(Arrangement arrangement) throws TomographyServiceException;
 
@@ -46,12 +46,12 @@ public interface TomographyService extends ApplicationListener<TomographyRunAcqu
 	 * @param onSuccess
 	 * @throws TomographyServiceException
 	 */
-	void runAcquisition(TomographyRunMessage message, File script, File onError, File onSuccess)
+	void runAcquisition(ScanningMessage message, File script, File onError, File onSuccess)
 			throws TomographyServiceException;
 
-	URL takeDarkImage(TomographyRunMessage message, File script)
+	URL takeDarkImage(ScanningMessage message, File script)
 			throws TomographyServiceException;
 
-	URL takeFlatImage(TomographyRunMessage message, File script)
+	URL takeFlatImage(ScanningMessage message, File script)
 			throws TomographyServiceException;
 }
