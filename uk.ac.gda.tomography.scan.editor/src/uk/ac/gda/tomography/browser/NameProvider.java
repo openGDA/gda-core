@@ -29,7 +29,7 @@ import org.eclipse.swt.SWT;
 
 import gda.rcp.views.Browser;
 import gda.rcp.views.ComparableStyledLabelProvider;
-import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 
 /**
@@ -60,7 +60,7 @@ class NameProvider extends LabelProvider implements ComparableStyledLabelProvide
 	}
 
 	private String getURLLastPath(Object element) {
-		return Browser.getURLLastPathSegment((AcquisitionConfigurationResource<TomographyParameterAcquisition>) element);
+		return Browser.getURLLastPathSegment((AcquisitionConfigurationResource<ScanningAcquisition>) element);
 	}
 
 }

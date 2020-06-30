@@ -31,8 +31,8 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 
 import gda.rcp.views.Browser;
 import gda.rcp.views.TreeViewerBuilder;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
@@ -46,7 +46,7 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
  *
  * @author Maurizio Nagni
  */
-public class TomoBrowser extends Browser<TomographyParameterAcquisition> {
+public class TomoBrowser extends Browser<ScanningAcquisition> {
 
 	private static final int NAME_WIDTH = 250;
 	private static final int TYPE_WIDTH = 70;
@@ -57,10 +57,10 @@ public class TomoBrowser extends Browser<TomographyParameterAcquisition> {
 	}
 
 	@Override
-	public TreeViewerBuilder<AcquisitionConfigurationResource<TomographyParameterAcquisition>> getTreeViewBuilder() {
-		return new TreeViewerBuilder<AcquisitionConfigurationResource<TomographyParameterAcquisition>>() {
+	public TreeViewerBuilder<AcquisitionConfigurationResource<ScanningAcquisition>> getTreeViewBuilder() {
+		return new TreeViewerBuilder<AcquisitionConfigurationResource<ScanningAcquisition>>() {
 			@Override
-			public AcquisitionConfigurationResource<TomographyParameterAcquisition>[] getInputElements(boolean reload) {
+			public AcquisitionConfigurationResource<ScanningAcquisition>[] getInputElements(boolean reload) {
 				return getAcquisitionConfigurationResources(reload).stream().map(resource -> {
 					try {
 						return getTomographyAcquisitionController().parseAcquisitionConfiguration(resource.getLocation());
@@ -73,7 +73,7 @@ public class TomoBrowser extends Browser<TomographyParameterAcquisition> {
 	}
 
 	@Override
-	public void addColumns(TreeViewerBuilder<AcquisitionConfigurationResource<TomographyParameterAcquisition>> builder) {
+	public void addColumns(TreeViewerBuilder<AcquisitionConfigurationResource<ScanningAcquisition>> builder) {
 		builder.addColumn("Name", NAME_WIDTH, new NameProvider());
 		builder.addColumn("Range", RANGE_WIDTH, new RangeProvider());
 		builder.addColumn("Type", TYPE_WIDTH, new MutatorsProvider());
@@ -87,7 +87,7 @@ public class TomoBrowser extends Browser<TomographyParameterAcquisition> {
 	@Override
 	public IDoubleClickListener getDoubleClickListener() {
 		return event -> {
-			AcquisitionConfigurationResource<TomographyParameterAcquisition> resource = (AcquisitionConfigurationResource<TomographyParameterAcquisition>) ((TreeSelection) event
+			AcquisitionConfigurationResource<ScanningAcquisition> resource = (AcquisitionConfigurationResource<ScanningAcquisition>) ((TreeSelection) event
 					.getSelection()).getFirstElement();
 			try {
 				getTomographyAcquisitionController().loadAcquisitionConfiguration(resource.getLocation());
@@ -107,16 +107,16 @@ public class TomoBrowser extends Browser<TomographyParameterAcquisition> {
 			});
 		}
 		return event -> {
-			this.setSelected((AcquisitionConfigurationResource<TomographyParameterAcquisition>) event.getStructuredSelection().getFirstElement());
+			this.setSelected((AcquisitionConfigurationResource<ScanningAcquisition>) event.getStructuredSelection().getFirstElement());
 		};
 	}
 
 	static final ScanningParameters getAcquisitionParameters(Object element) {
-		return TomographyParameterAcquisition.class.cast(AcquisitionConfigurationResource.class.cast(element).getResource()).getAcquisitionConfiguration()
+		return ScanningAcquisition.class.cast(AcquisitionConfigurationResource.class.cast(element).getResource()).getAcquisitionConfiguration()
 				.getAcquisitionParameters();
 	}
 
-	private AcquisitionController<TomographyParameterAcquisition> getTomographyAcquisitionController() {
-		return SpringApplicationContextProxy.getBean(TomographyPerspectiveController.class).getTomographyAcquisitionController();
+	private AcquisitionController<ScanningAcquisition> getTomographyAcquisitionController() {
+		return SpringApplicationContextProxy.getBean(TomographyPerspectiveController.class).getScanningAcquisitionController();
 	}
 }

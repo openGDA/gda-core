@@ -21,7 +21,7 @@ package uk.ac.gda.tomography.browser;
 import org.eclipse.jface.action.Action;
 
 import gda.rcp.views.Browser;
-import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
@@ -32,11 +32,11 @@ import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
  * @author Maurizio Nagni
  */
 class LoadAcquisitionConfigurationResource extends Action {
-	private final AcquisitionConfigurationResource<TomographyParameterAcquisition> resource;
-	private final AcquisitionController<TomographyParameterAcquisition> controller;
+	private final AcquisitionConfigurationResource<ScanningAcquisition> resource;
+	private final AcquisitionController<ScanningAcquisition> controller;
 
-	public LoadAcquisitionConfigurationResource(AcquisitionConfigurationResource<TomographyParameterAcquisition> resource,
-			AcquisitionController<TomographyParameterAcquisition> controller) {
+	public LoadAcquisitionConfigurationResource(AcquisitionConfigurationResource<ScanningAcquisition> resource,
+			AcquisitionController<ScanningAcquisition> controller) {
 		super("Load resource");
 		this.resource = resource;
 		this.controller = controller;

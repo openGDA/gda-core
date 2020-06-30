@@ -9,8 +9,8 @@ import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.ExposureChangeEvent;
 import uk.ac.diamond.daq.mapping.api.document.DetectorDocument;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 
 /**
@@ -26,7 +26,7 @@ class TomographyParametersAcquisitionControllerHelper {
 	private TomographyParametersAcquisitionControllerHelper() {
 	}
 
-	public static void onApplicationEvent(ApplicationEvent event, AcquisitionController<TomographyParameterAcquisition> controller) {
+	public static void onApplicationEvent(ApplicationEvent event, AcquisitionController<ScanningAcquisition> controller) {
 		if (ExposureChangeEvent.class.isInstance(event)) {
 			onApplicationEvent(ExposureChangeEvent.class.cast(event), controller);
 		} else if (ChangeActiveCameraEvent.class.isInstance(event)) {
@@ -34,11 +34,11 @@ class TomographyParametersAcquisitionControllerHelper {
 		}
 	}
 
-	private static void onApplicationEvent(ExposureChangeEvent event, AcquisitionController<TomographyParameterAcquisition> controller) {
+	private static void onApplicationEvent(ExposureChangeEvent event, AcquisitionController<ScanningAcquisition> controller) {
 		setAcquisitionExposure(event.getExposureTime(), controller);
 	}
 
-	private static void onApplicationEvent(ChangeActiveCameraEvent event, AcquisitionController<TomographyParameterAcquisition> controller) {
+	private static void onApplicationEvent(ChangeActiveCameraEvent event, AcquisitionController<ScanningAcquisition> controller) {
 		activeCamera = event.getActiveCamera().getIndex();
 	}
 
@@ -49,7 +49,7 @@ class TomographyParametersAcquisitionControllerHelper {
 	 *            the controller that wants to be update its internal acquisition configuration
 	 * @throws DeviceException
 	 */
-	public static void updateExposure(AcquisitionController<TomographyParameterAcquisition> controller) throws DeviceException {
+	public static void updateExposure(AcquisitionController<ScanningAcquisition> controller) throws DeviceException {
 		setAcquisitionExposure(getExposure(), controller);
 	}
 
@@ -65,7 +65,7 @@ class TomographyParametersAcquisitionControllerHelper {
 		throw new DeviceException("No exposure available");
 	}
 
-	private static void setAcquisitionExposure(double exposure, AcquisitionController<TomographyParameterAcquisition> controller) {
+	private static void setAcquisitionExposure(double exposure, AcquisitionController<ScanningAcquisition> controller) {
 		ScanningParameters tp = controller.getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
 		tp.setDetector(new DetectorDocument(tp.getDetector().getName(), exposure));
 	}

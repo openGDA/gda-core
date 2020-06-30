@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.gda.tomography.stage.enumeration.Position;
 
 /**
@@ -31,11 +31,11 @@ import uk.ac.gda.tomography.stage.enumeration.Position;
  * @author Maurizio Nagni
  */
 public class StageConfiguration {
-	private TomographyParameterAcquisition acquisition;
+	private ScanningAcquisition acquisition;
 	private StageDescription stageDescription;
 	private Map<Position, Set<DevicePosition<Double>>> motorsPositions;
 
-	public StageConfiguration(TomographyParameterAcquisition acquisition, StageDescription mode, Map<Position, Set<DevicePosition<Double>>> motorsPositions) {
+	public StageConfiguration(ScanningAcquisition acquisition, StageDescription mode, Map<Position, Set<DevicePosition<Double>>> motorsPositions) {
 		super();
 		this.acquisition = acquisition;
 		this.stageDescription = mode;
@@ -52,7 +52,7 @@ public class StageConfiguration {
 		super();
 	}
 
-	public TomographyParameterAcquisition getAcquisition() {
+	public ScanningAcquisition getAcquisition() {
 		return acquisition;
 	}
 

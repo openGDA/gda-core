@@ -53,9 +53,9 @@ import gda.mscan.element.Mutator;
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.mapping.api.document.base.configuration.MultipleScansType;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
-import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
 import uk.ac.gda.client.UIHelper;
@@ -115,13 +115,13 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 	private Button repeateMultipleScansType;
 	private Button switchbackMultipleScansType;
 
-	protected final AcquisitionController<TomographyParameterAcquisition> controller;
+	protected final AcquisitionController<ScanningAcquisition> controller;
 	private final IStageController stageController;
 	private TomographyTemplateDataHelper dataHelper;
 
 	private static final Logger logger = LoggerFactory.getLogger(TomographyConfigurationCompositeFactory.class);
 
-	public TomographyConfigurationCompositeFactory(AcquisitionController<TomographyParameterAcquisition> controller, IStageController stageController) {
+	public TomographyConfigurationCompositeFactory(AcquisitionController<ScanningAcquisition> controller, IStageController stageController) {
 		super();
 		this.controller = controller;
 		this.stageController = stageController;
@@ -142,7 +142,7 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		return composite;
 	}
 
-	private AcquisitionController<TomographyParameterAcquisition> getController() {
+	private AcquisitionController<ScanningAcquisition> getController() {
 		return controller;
 	}
 

@@ -21,7 +21,7 @@ package uk.ac.gda.tomography.browser;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 
-import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 
 /**
@@ -31,7 +31,7 @@ class ContentProvider implements ITreeContentProvider {
 
 	@Override
 	public Object[] getElements(Object inputElement) {
-		return (AcquisitionConfigurationResource<TomographyParameterAcquisition>[]) inputElement;
+		return (AcquisitionConfigurationResource<ScanningAcquisition>[]) inputElement;
 	}
 
 	@Override

@@ -21,7 +21,7 @@ package uk.ac.gda.tomography.browser;
 import org.eclipse.jface.action.Action;
 
 import gda.rcp.views.Browser;
-import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
@@ -33,11 +33,11 @@ import uk.ac.gda.client.UIHelper;
  * @author Maurizio Nagni
  */
 class DeletedAcquisitionConfigurationResource extends Action {
-	private final AcquisitionConfigurationResource<TomographyParameterAcquisition> resource;
-	private final AcquisitionController<TomographyParameterAcquisition> controller;
+	private final AcquisitionConfigurationResource<ScanningAcquisition> resource;
+	private final AcquisitionController<ScanningAcquisition> controller;
 
-	public DeletedAcquisitionConfigurationResource(AcquisitionConfigurationResource<TomographyParameterAcquisition> resource,
-			AcquisitionController<TomographyParameterAcquisition> controller) {
+	public DeletedAcquisitionConfigurationResource(AcquisitionConfigurationResource<ScanningAcquisition> resource,
+			AcquisitionController<ScanningAcquisition> controller) {
 		super("Delete resource");
 		this.resource = resource;
 		this.controller = controller;

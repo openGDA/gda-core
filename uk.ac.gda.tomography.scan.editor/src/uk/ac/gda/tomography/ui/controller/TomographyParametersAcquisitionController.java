@@ -37,10 +37,10 @@ import uk.ac.diamond.daq.mapping.api.document.base.configuration.ImageCalibratio
 import uk.ac.diamond.daq.mapping.api.document.base.configuration.MultipleScans;
 import uk.ac.diamond.daq.mapping.api.document.base.configuration.MultipleScansType;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
 import uk.ac.diamond.daq.mapping.ui.properties.DetectorHelper;
 import uk.ac.diamond.daq.mapping.ui.properties.DetectorHelper.AcquisitionType;
 import uk.ac.gda.api.acquisition.AcquisitionController;
@@ -72,12 +72,12 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
  * @author Maurizio Nagni
  */
 @Component
-public class TomographyParametersAcquisitionController implements AcquisitionController<TomographyParameterAcquisition>, ApplicationListener<ApplicationEvent> {
+public class TomographyParametersAcquisitionController implements AcquisitionController<ScanningAcquisition>, ApplicationListener<ApplicationEvent> {
 	private static final Logger logger = LoggerFactory.getLogger(TomographyParametersAcquisitionController.class);
 
 	@Autowired
 	private IStageController stageController;
-	private TomographyParameterAcquisition acquisition;
+	private ScanningAcquisition acquisition;
 
 	private TomographyFileService fileService;
 	// @Autowired
@@ -91,7 +91,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	}
 
 	@Override
-	public TomographyParameterAcquisition getAcquisition() {
+	public ScanningAcquisition getAcquisition() {
 		if (acquisition == null) {
 			acquisition = createNewAcquisition();
 		}
@@ -128,14 +128,14 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	}
 
 	@Override
-	public void loadAcquisitionConfiguration(TomographyParameterAcquisition acquisition) throws AcquisitionControllerException {
+	public void loadAcquisitionConfiguration(ScanningAcquisition acquisition) throws AcquisitionControllerException {
 		this.acquisition = acquisition;
 	}
 
 	@Override
-	public AcquisitionConfigurationResource<TomographyParameterAcquisition> parseAcquisitionConfiguration(URL url) throws AcquisitionControllerException {
+	public AcquisitionConfigurationResource<ScanningAcquisition> parseAcquisitionConfiguration(URL url) throws AcquisitionControllerException {
 		try {
-			return new AcquisitionConfigurationResource<>(url, DocumentMapper.fromJSON(url, TomographyParameterAcquisition.class));
+			return new AcquisitionConfigurationResource<>(url, DocumentMapper.fromJSON(url, ScanningAcquisition.class));
 		} catch (GDAException e) {
 			throw new AcquisitionControllerException(e);
 		}
@@ -152,8 +152,8 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		// SpringApplicationContextProxy.publishEvent(new AcquisitionConfigurationResourceSaveEvent(url));
 	}
 
-	private TomographyParameterAcquisition createNewAcquisition() {
-		TomographyParameterAcquisition newConfiguration = new TomographyParameterAcquisition();
+	private ScanningAcquisition createNewAcquisition() {
+		ScanningAcquisition newConfiguration = new ScanningAcquisition();
 		ScanningConfiguration configuration = new ScanningConfiguration();
 		newConfiguration.setAcquisitionConfiguration(configuration);
 		newConfiguration.setName("Default name");
@@ -237,7 +237,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		return getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
 	}
 
-	private StageConfiguration generateStageConfiguration(TomographyParameterAcquisition acquisition) throws AcquisitionControllerException {
+	private StageConfiguration generateStageConfiguration(ScanningAcquisition acquisition) throws AcquisitionControllerException {
 		try {
 			TomographyParametersAcquisitionControllerHelper.updateExposure(this);
 		} catch (DeviceException e) {

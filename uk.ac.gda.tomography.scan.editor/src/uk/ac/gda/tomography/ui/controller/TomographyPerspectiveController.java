@@ -21,7 +21,7 @@ package uk.ac.gda.tomography.ui.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 
 /**
@@ -33,9 +33,9 @@ import uk.ac.gda.api.acquisition.AcquisitionController;
 public class TomographyPerspectiveController {
 
 	@Autowired
-	private AcquisitionController<TomographyParameterAcquisition> tomographyAcquisitionController;
+	private AcquisitionController<ScanningAcquisition> scanningAcquisitionController;
 
-	public AcquisitionController<TomographyParameterAcquisition> getTomographyAcquisitionController() {
-		return tomographyAcquisitionController;
+	public AcquisitionController<ScanningAcquisition> getScanningAcquisitionController() {
+		return scanningAcquisitionController;
 	}
 }
