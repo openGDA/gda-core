@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.january.dataset.DataEvent;
 import org.eclipse.january.dataset.IDataListener;
 import org.eclipse.january.dataset.IDataset;
@@ -37,7 +38,6 @@ import uk.ac.gda.client.live.stream.calibration.CalibratedAxesProvider;
 import uk.ac.gda.client.live.stream.event.OpenConnectionEvent;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
-import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
  * An instance of this class encapsulates a connection to a live stream, i.e. a camera, as defined by a
@@ -122,7 +122,6 @@ public class LiveStreamConnection implements IConnection, ILiveStreamConnection 
 		setupAxes();
 		if (this.isConnected()) {
 			increaseConnectionCount();
-			SpringApplicationContextProxy.publishEvent(new OpenConnectionEvent(this));
 		}
 		return getStream();
 	}
@@ -256,20 +255,30 @@ public class LiveStreamConnection implements IConnection, ILiveStreamConnection 
 	}
 
 	/**
-	 * Compares the similarity of this instance. The assumption is that {@link CameraConfiguration#getArrayPv()} is
-	 * essential for a connection, while other parameters can change. This case happens when in Spring are configured
-	 * two different CameraConfiguration bean with the same arrayPv value
+	 * Compares the similarity of this instance. This methods guarantees that {@link #getCameraConfig()} and another
+	 * {@code CameraConfiguration} have, at least, different properties for the required {@code streamType}, that is
 	 * <ol>
-	 * <li>{@link #getCameraConfig()}.getArrayPv() against another instance</li>
-	 * <li>{@link #getStreamType()} against instance</li>
+	 * <li>for @{@link StreamType#EPICS_ARRAY}, the two {@link CameraConfiguration#getArrayPv()} are different</li>
+	 * <li>for @{@link StreamType#EPICS_PVA}, the two {@link CameraConfiguration#getPvAccessPv()} are different</li>
+	 * <li>for @{@link StreamType#MJPEG}, the two {@link CameraConfiguration#getUrl()} are different</li>
 	 * </ol>
+	 * Can handle the {@code null} case.
 	 *
-	 * @param cameraConfig
-	 * @param streamType
-	 * @return <code>true</code> if the configuration is the same, <code>false</code> in any other case
+	 * @param other the configuration to compare with the one in this class
+	 * @param streamType the reference stream type
+	 * @return <code>true</code> if the configuration is the similar, <code>false</code> in any other case
 	 */
-	public final boolean similarConfiguration(final CameraConfiguration cameraConfig, final StreamType streamType) {
-		return cameraConfig.getArrayPv().equals(getCameraConfig().getArrayPv()) && streamType.equals(getStreamType());
+	public final boolean similarConfiguration(final CameraConfiguration other, final StreamType streamType) {
+		if (StreamType.MJPEG.equals(streamType)) {
+			return StringUtils.equals(other.getUrl(), getCameraConfig().getUrl());
+		}
+		if (StreamType.EPICS_ARRAY.equals(streamType)) {
+			return StringUtils.equals(other.getArrayPv(), getCameraConfig().getArrayPv());
+		}
+		if (StreamType.EPICS_PVA.equals(streamType)) {
+			return StringUtils.equals(other.getPvAccessPv(), getCameraConfig().getPvAccessPv());
+		}
+		return false;
 	}
 
 	private void setStream(IDatasetConnector stream) {
