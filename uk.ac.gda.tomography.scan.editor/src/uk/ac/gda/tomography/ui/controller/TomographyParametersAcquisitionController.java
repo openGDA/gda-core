@@ -36,7 +36,6 @@ import uk.ac.diamond.daq.mapping.api.ScanRequestSavedEvent;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.DetectorDocument;
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
-import uk.ac.diamond.daq.mapping.api.document.ScanRequestDocument;
 import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
@@ -203,7 +202,8 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 
 	private void publishScanRequestSavedEvent(String fileName) {
 		try {
-			ScanRequestFactory srf = new ScanRequestFactory(createScanRequestDocument());
+			createScanpathDocument();
+			ScanRequestFactory srf = new ScanRequestFactory(getAcquisition());
 			ScanRequest scanRequest = srf.createScanRequest(getIRunnableDeviceService());
 			SpringApplicationContextProxy.publishEvent(new ScanRequestSavedEvent(this, fileName, scanRequest));
 		} catch (AcquisitionControllerException | ScanningException e) {
@@ -249,7 +249,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 	private StageConfiguration generateStageConfiguration(TomographyParameterAcquisition acquisition) throws AcquisitionControllerException {
 		try {
 			TomographyParametersAcquisitionControllerHelper.updateExposure(this);
-			//stageController.getMetadata().put(Metadata.EXPOSURE.name(), Double.toString(TomographyParametersAcquisitionControllerHelper.getExposure()));
+			// stageController.getMetadata().put(Metadata.EXPOSURE.name(), Double.toString(TomographyParametersAcquisitionControllerHelper.getExposure()));
 		} catch (DeviceException e) {
 			throw new AcquisitionControllerException("Acquisition cannot acquire the active camera exposure time");
 		}
@@ -294,11 +294,10 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		throw new AcquisitionControllerException("Cannot parse json document");
 	}
 
-	private ScanRequestDocument createScanRequestDocument() throws AcquisitionControllerException {
+	private void createScanpathDocument() throws AcquisitionControllerException {
 		StageConfiguration stageConfiguration = generateStageConfiguration(getAcquisition());
 		TomographyParameters tp = stageConfiguration.getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
 		DetectorDocument dd = tp.getDetector();
-		DetectorDocument[] detectors = { dd };
 		List<ScannableTrackDocument> scannables = new ArrayList<>();
 		ScannableTrackDocument.Builder builder = new ScannableTrackDocument.Builder();
 		builder.withScannable(stageConfiguration.getStageDescription().getMotors().get(StageDevice.MOTOR_STAGE_ROT_Y).getName());
@@ -307,12 +306,14 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		builder.withStep(tp.getProjections().getAngularStep());
 		scannables.add(builder.build());
 		Map<Mutator, List<Number>> mutators = new EnumMap<>(Mutator.class);
-		ScanpathDocument scanpath = new ScanpathDocument(AcquisitionTemplateType.ONE_DIMENSION_LINE, scannables, mutators);
-		return new ScanRequestDocument(getAcquisition().getName(), getAcquisition().getAcquisitionLocation(), detectors, scanpath);
+		getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters()
+				.setScanpathDocument(new ScanpathDocument(AcquisitionTemplateType.ONE_DIMENSION_LINE, scannables, mutators));
+		getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters().setDetector(dd);
 	}
 
 	private TomographyRunMessage createTomographyRunMessage() throws AcquisitionControllerException {
-		return new TomographyRunMessage(intDataToJson(createScanRequestDocument()));
+		createScanpathDocument();
+		return new TomographyRunMessage(intDataToJson(getAcquisition()));
 	}
 
 	private File getAcquisitionScript() {

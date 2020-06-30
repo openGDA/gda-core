@@ -18,7 +18,7 @@
 
 package uk.ac.gda.tomography.base;
 
-import uk.ac.diamond.daq.mapping.api.document.AcquisitionBase;
+import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 
 public class TomographyParameterAcquisition extends AcquisitionBase<TomographyConfiguration> {
 
