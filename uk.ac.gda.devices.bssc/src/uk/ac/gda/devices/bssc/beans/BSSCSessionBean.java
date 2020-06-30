@@ -18,9 +18,14 @@
 
 package uk.ac.gda.devices.bssc.beans;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.google.gson.Gson;
 
@@ -45,7 +50,7 @@ public class BSSCSessionBean implements XMLRichBean{
 	public static void setPlates(PlateConfig plates) {
 		BSSC_PLATES = plates;
 	}
-	
+
 	public void setPlateSetup(PlateConfig plates) {
 		if (!plates.equals(BSSC_PLATES)) {
 			throw new IllegalArgumentException("BSSC robot plates do not match machine setup");
@@ -60,9 +65,18 @@ public class BSSCSessionBean implements XMLRichBean{
 		XMLHelpers.writeToXML(mappingURL, bean, filename);
 	}
 
+	public BSSCSessionBean() {
+		this(new ArrayList<>());
+	}
+
+	public BSSCSessionBean(List<TitrationBean> titrations) {
+		setMeasurements(titrations);
+	}
+
 	public List<TitrationBean> getMeasurements() {
 		return measurements;
 	}
+
 	public void setMeasurements(List<TitrationBean> measurements) {
 		this.measurements = measurements;
 		for (TitrationBean tb : measurements) {
@@ -75,6 +89,14 @@ public class BSSCSessionBean implements XMLRichBean{
 				rec.setConfig(BSSC_PLATES);
 			}
 		}
+	}
+
+	public Map<String, BSSCSessionBean> byVisit() {
+		return measurements.stream()
+				.collect(groupingBy(TitrationBean::getVisit))
+				.entrySet()
+				.stream()
+				.collect(toMap(Entry::getKey, e -> new BSSCSessionBean(e.getValue())));
 	}
 
 	public void clear() {

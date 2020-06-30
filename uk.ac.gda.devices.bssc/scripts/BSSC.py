@@ -1,4 +1,5 @@
 import datetime, time, sys, os
+from os.path import basename, splitext
 from java.util import HashMap
 from gda.jython import InterfaceProvider
 import gda.factory.Finder
@@ -393,14 +394,19 @@ class BSSCRun:
         """The samples are updated to include the datafile paths
 
         export readonly version of .biosaxs file to keep record of experiment"""
-        fname = self.beanFile.split(os.path.sep)[-1].rsplit('.', 1)[0]
+
+        base, ext = splitext(basename(self.beanFile))
         now = datetime.datetime.now().strftime('_%Y%m%d_%H%M%S')
+        new_name = base + now + ext
 
-        user_visit = InterfaceProvider.getBatonStateProvider().getBatonHolder().getVisitID()
+        for visit in self.bean.byVisit().entrySet():
+            self.writeBeans(visit.key, visit.value, new_name)
+
+    def writeBeans(self, visit, bean, f):
         prop = InterfaceProvider.getPathConstructor().getDefaultPropertyName()
-        path = InterfaceProvider.getPathConstructor().createFromProperty(prop, HashMap({'visit': user_visit}))
+        path = InterfaceProvider.getPathConstructor().createFromProperty(prop, HashMap({'visit': visit}))
 
-        full_path = os.path.join(path, fname + now + '.biosaxs')
-        BSSCSessionBean.writeToXML(self.bean, full_path)
+        full_path = os.path.join(path, f)
+        BSSCSessionBean.writeToXML(bean, full_path)
         os.chmod(full_path, 0444)
 
