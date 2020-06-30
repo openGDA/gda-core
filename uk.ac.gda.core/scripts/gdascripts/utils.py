@@ -7,6 +7,10 @@ from gda.factory import Finder
 from contextlib import contextmanager
 from gda.jython import Jython
 from gda.jython.commands import ScannableCommands
+from java.lang.reflect import Modifier
+from java.lang import FunctionalInterface
+from org.python.core import Py
+from functools import wraps, partial
 
 import logging
 logger = logging.getLogger("uk.ac.gda.core.scripts.gdascripts.utils.py")
@@ -107,4 +111,28 @@ def jobs():
 			intrpt = '     X     ' if t.isInterrupted() else ''
 			s += "%(date)-10s %(time)-12s %(thread_type)-8s %(intrpt)-11s %(cmd)s\n" % locals()
 	print s
+
+def _functional_name(inter):
+	"""Get the name of the funnction required by a functional interface"""
+	if not inter.getAnnotation(FunctionalInterface):
+		raise ValueError(inter.name + ' is not a FunctionalInterface')
+	for m in inter.getMethods():
+		if Modifier.isAbstract(m.modifiers):
+			return m.name
+
+def _convert_to_java(fn, inter):
+	try:
+		func_name = _functional_name(inter)
+		return type(fn.__name__+inter.simpleName, (inter,), {func_name: fn.__call__})()
+	except Exception:
+		return Py.NoConversion
+
+def functional(fn, inst=None):
+	"""Decorate a function to allow it to be used in java where a functional interface is required"""
+	return type(fn.__name__, (object,), {'__call__': fn.__call__,
+			'__tojava__': _convert_to_java,
+			'__name__': fn.__name__,
+			'__module__': fn.__module__,
+			'__class__': fn.__class__,
+			'__get__': lambda s,i,o:functional(wraps(fn)(partial(fn, i)))})()
 
