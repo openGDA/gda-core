@@ -471,7 +471,7 @@ public class GDAJythonInterpreter {
 				exec("alias list_defaults");
 				exec("vararg_alias add_default");
 				exec("vararg_alias remove_default");
-				exec("vararg_alias level");
+				exec("alias level");
 				exec("alias pause");
 				exec("alias reset_namespace");
 				exec("alias run");
