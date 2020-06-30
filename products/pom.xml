@@ -115,6 +115,30 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 						</execution>
 					</executions>
 				</plugin>
+
+				<!-- Copy diffcalc -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>${maven.resources.plugin.version}</version>
+					<executions>
+						<execution>
+							<id>copy-diffcalc</id>
+							<phase>prepare-package</phase> <!-- make sure this happends before archive-products (package phase) -->
+							<goals>
+								<goal>copy-resources</goal>
+							</goals>
+							<configuration>
+								<outputDirectory>${project.build.directory}/products/${project.artifactId}/linux/gtk/x86_64/utilities/diffcalc.git</outputDirectory>
+								<resources>
+									<resource>
+										<directory>${project.basedir}/../../../diffcalc.git</directory>
+									</resource>
+								</resources>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 
@@ -175,6 +199,18 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 					</execution>
 					<execution>
 						<id>link-script-projects</id>
+						<phase>none</phase>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>${maven.resources.plugin.version}</version>
+				<inherited>false</inherited>
+				<executions>
+					<execution>
+						<id>copy-diffcalc</id>
 						<phase>none</phase>
 					</execution>
 				</executions>
