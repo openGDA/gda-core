@@ -30,8 +30,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
-import uk.ac.diamond.daq.mapping.api.document.diffraction.DiffractionParameterAcquisition;
-import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.gda.api.exception.GDAException;
 
 /**
@@ -45,7 +44,7 @@ import uk.ac.gda.api.exception.GDAException;
  * <li>Any class extending the base class one will
  * <ul>
  * <li>be annotated with {@link JsonTypeName} to assign a key name to the class, i.e.
- * {@link DiffractionParameterAcquisition}</li>
+ * {@link ScanningAcquisition}</li>
  * <li>be registered into the {@code DocumentMapper} (at the moment no dynamic registration is implemented, consequently
  * the registration has to be done updating the class itself)</li>
  * </ul>
@@ -61,8 +60,7 @@ public class DocumentMapper {
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 
 	static {
-		objectMapper.registerSubtypes(new NamedType(DiffractionParameterAcquisition.class));
-		objectMapper.registerSubtypes(new NamedType(TomographyParameterAcquisition.class));
+		objectMapper.registerSubtypes(new NamedType(ScanningAcquisition.class));
 	}
 
 	private DocumentMapper() {

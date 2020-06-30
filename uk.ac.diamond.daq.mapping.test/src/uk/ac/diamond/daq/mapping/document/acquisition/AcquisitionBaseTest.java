@@ -27,11 +27,10 @@ import org.junit.Test;
 
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
-import uk.ac.diamond.daq.mapping.api.document.diffraction.DiffractionParameterAcquisition;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ShapeType;
-import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
 import uk.ac.diamond.daq.mapping.document.DocumentTestBase;
 import uk.ac.gda.api.acquisition.Acquisition;
 import uk.ac.gda.api.exception.GDAException;
@@ -40,48 +39,28 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 
 	@Test
 	public void serializeThenDeserializeDiffractionParameterAcquisition() throws GDAException {
-		Acquisition<?> acquisition = new DiffractionParameterAcquisition();
+		Acquisition<?> acquisition = new ScanningAcquisition();
 		final String json = DocumentMapper.toJSON(acquisition);
 		final Acquisition<?> read = DocumentMapper.fromJSON(json, AcquisitionBase.class);
-		assertTrue(DiffractionParameterAcquisition.class.isInstance(read));
+		assertTrue(ScanningAcquisition.class.isInstance(read));
 	}
 
 	@Test
 	public void serializeDiffractionParameterAcquisition() throws GDAException {
-		DiffractionParameterAcquisition acquisition = new DiffractionParameterAcquisition();
+		ScanningAcquisition acquisition = new ScanningAcquisition();
 		ScanningConfiguration acquisitionConfiguration = new ScanningConfiguration();
 		acquisition.setAcquisitionConfiguration(acquisitionConfiguration);
 
 		ScanningParameters acquisitionParameters = new ScanningParameters();
 		acquisitionConfiguration.setAcquisitionParameters(acquisitionParameters);
 		String document = serialiseDocument(acquisition);
-		assertThat(document, containsString("\"type\" : \"diffractionAcquisition\""));
+		assertThat(document, containsString("\"type\" : \"scanningAcquisition\""));
 	}
 
 	@Test
-	public void serializeThenDeserializeTomographyParameterAcquisition() throws GDAException {
-		Acquisition<?> acquisition = new TomographyParameterAcquisition();
-		final String json = DocumentMapper.toJSON(acquisition);
-		final Acquisition<?> read = DocumentMapper.fromJSON(json, AcquisitionBase.class);
-		assertTrue(TomographyParameterAcquisition.class.isInstance(read));
-	}
-
-	@Test
-	public void serializeTomographyParameterAcquisition() throws GDAException {
-		TomographyParameterAcquisition acquisition = new TomographyParameterAcquisition();
-		ScanningConfiguration acquisitionConfiguration = new ScanningConfiguration();
-		acquisition.setAcquisitionConfiguration(acquisitionConfiguration);
-
-		ScanningParameters acquisitionParameters = new ScanningParameters();
-		acquisitionConfiguration.setAcquisitionParameters(acquisitionParameters);
-		String document = serialiseDocument(acquisition);
-		assertThat(document, containsString("\"type\" : \"tomographyAcquisition\""));
-	}
-
-	@Test
-	public void deserializeDiffractionParameterAcquisition() throws GDAException {
-		Acquisition<?> modelDocument = deserialiseDocument("/resources/acquisitions/simpleDiffractionAcquisition.json",
-				DiffractionParameterAcquisition.class);
+	public void deserializeScanningAcquisition() throws GDAException {
+		Acquisition<?> modelDocument = deserialiseDocument("/resources/acquisitions/simpleScanningAcquisition.json",
+				ScanningAcquisition.class);
 
 		assertEquals("SimpleTest", modelDocument.getDescription());
 		assertEquals(ScanningConfiguration.class, modelDocument.getAcquisitionConfiguration().getClass());
@@ -93,9 +72,9 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 	}
 
 	@Test
-	public void deserializeDiffractionParameterAcquisition2() throws GDAException {
-		Acquisition<?> modelDocument = deserialiseDocument("/resources/acquisitions/simpleDiffractionAcquisition2.json",
-				DiffractionParameterAcquisition.class);
+	public void deserializeScanningAcquisition2() throws GDAException {
+		Acquisition<?> modelDocument = deserialiseDocument("/resources/acquisitions/simpleScanningAcquisition2.json",
+				ScanningAcquisition.class);
 
 		assertEquals("SimpleTest", modelDocument.getDescription());
 		assertEquals(ScanningConfiguration.class, modelDocument.getAcquisitionConfiguration().getClass());
@@ -110,7 +89,7 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 	public void deserializeEmptyAcquisition() throws GDAException {
 		Acquisition<?> modelDocument = deserialiseDocument("/resources/acquisitions/emptyAcquisition.json",
 				AcquisitionBase.class);
-		assertTrue(DiffractionParameterAcquisition.class.isInstance(modelDocument));
+		assertTrue(ScanningAcquisition.class.isInstance(modelDocument));
 	}
 
 	@Test(expected=GDAException.class)
