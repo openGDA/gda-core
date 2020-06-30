@@ -21,8 +21,9 @@ package uk.ac.diamond.daq.mapping.api.document.tomography;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 
 @JsonTypeName("tomographyAcquisition")
-public class TomographyParameterAcquisition extends AcquisitionBase<TomographyConfiguration> {
+public class TomographyParameterAcquisition extends AcquisitionBase<ScanningConfiguration> {
 
 }
