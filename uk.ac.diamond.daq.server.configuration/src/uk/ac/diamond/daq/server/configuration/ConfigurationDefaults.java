@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.function.BiFunction;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Platform;
@@ -47,8 +46,6 @@ public enum ConfigurationDefaults {
 	EMPTY(""),
 	DEPLOY_TYPE("1"),
 	JAVA_OPTS("-Dgda.deploytype=1"),
-	EXPECTED_P2_PROFILE("GDA-server"),
-	INI_FILE_PROFILE_PROPERTY("eclipse.p2.profile"),
 	INI_FILE_INSTALL_AREA_PROPERTY("osgi.install.area"),
 	OBJECT_SERVER_CLASS("gda.util.ObjectServer"),
 	WORKSPACE_LOCATION(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString()),	// read in from -data option
@@ -64,7 +61,6 @@ public enum ConfigurationDefaults {
 	PROFILE("main"),
 	APP_PROFILES(getFromApplicationArgsUsingKeySetWithDefault(PROFILE, "-p")),
 
-	IS_ECLIPSE_LAUNCH(checkForEclipseLaunch()),
 	GDA_WORKSPACE_PARENT(Paths.get(WORKSPACE_LOCATION.value).getParent().toString()),		// Default
 	APP_PATHS_ROOT(getHierarchicalValueWithDefault(GDA_WORKSPACE_PARENT)),
 
@@ -251,21 +247,6 @@ public enum ConfigurationDefaults {
 		final Path pathsRoot = Paths.get(APP_PATHS_ROOT.value);
 		final Path override = Paths.get(configOverride);
 		return pathsRoot.relativize(override).toString();
-	}
-
-	/**
-	 * Check if the server is running from an exported product or within eclipse and
-	 * set the eclipseLaunch system property as appropriate. The p2 profile
-	 * property in the ini file will only be set for the exported product. Set a 
-	 * System Property so that the rest of the application can easily find this out.
-	 *
-	 * @return	"true" if this is an eclipse based launch otherwise "false"
-	 */
-
-	private static String checkForEclipseLaunch() {
-		boolean eclipseLaunch = !EXPECTED_P2_PROFILE.value.equalsIgnoreCase(System.getProperty(INI_FILE_PROFILE_PROPERTY.value));
-		System.getProperties().setProperty("gda.eclipse.launch", String.valueOf(eclipseLaunch));
-		return String.valueOf(eclipseLaunch);
 	}
 
 	private static String[] standardBasicArgs() {
