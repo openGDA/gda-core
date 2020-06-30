@@ -55,10 +55,10 @@ import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
 import uk.ac.diamond.daq.mapping.api.document.base.configuration.ImageCalibration;
 import uk.ac.diamond.daq.mapping.api.document.base.configuration.MultipleScans;
 import uk.ac.diamond.daq.mapping.api.document.base.configuration.MultipleScansType;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
 import uk.ac.gda.tomography.stage.CommonStage;
 import uk.ac.gda.tomography.stage.StageDescription;
@@ -83,7 +83,7 @@ public class TomographyParametersConfigurationTest {
 	@Test
 	public void basicDeserialization() throws JsonParseException, JsonMappingException, IOException {
 		String jsonData = getResourceAsString("/resources/simpleTomographyParametersConfiguration.json");
-		AcquisitionConfigurationBase<ScanningParameters> configuration = mapper.readValue(jsonData, TomographyConfiguration.class);
+		AcquisitionConfigurationBase<ScanningParameters> configuration = mapper.readValue(jsonData, ScanningConfiguration.class);
 		ScanningParameters tp = configuration.getAcquisitionParameters();
 		ScannableTrackDocument std = tp.getScanpathDocument().getScannableTrackDocuments().get(0);
 		Assert.assertEquals(2.0, std.getStart(), 0.0);
@@ -97,7 +97,7 @@ public class TomographyParametersConfigurationTest {
 	 */
 	@Test
 	public void basicSerialization() throws JsonProcessingException {
-		TomographyConfiguration configuration = createBasicTomographyParametersConfiguration();
+		ScanningConfiguration configuration = createBasicTomographyParametersConfiguration();
 
 		String confAsString = mapper.writeValueAsString(configuration);
 
@@ -112,7 +112,7 @@ public class TomographyParametersConfigurationTest {
 	 */
 	@Test
 	public void basicWithMetadataSerialization() throws JsonProcessingException {
-		TomographyConfiguration configuration = createBasicTomographyParametersConfiguration();
+		ScanningConfiguration configuration = createBasicTomographyParametersConfiguration();
 
 		Map<String, String> metadata = new HashMap<>();
 		metadata.put("one", "uno");
@@ -130,7 +130,7 @@ public class TomographyParametersConfigurationTest {
 	@Test
 	public void deserializationWithMetadata() throws JsonParseException, JsonMappingException, IOException {
 		String jsonData = getResourceAsString("/resources/tomographyParametersConfigurationWithMetadata.json");
-		TomographyConfiguration configuration = mapper.readValue(jsonData, TomographyConfiguration.class);
+		ScanningConfiguration configuration = mapper.readValue(jsonData, ScanningConfiguration.class);
 		ScanningParameters tp = configuration.getAcquisitionParameters();
 		ScannableTrackDocument std = tp.getScanpathDocument().getScannableTrackDocuments().get(0);
 		Assert.assertEquals(2.0, std.getStart(), 0.0);
@@ -179,9 +179,9 @@ public class TomographyParametersConfigurationTest {
 		return tempFile;
 	}
 
-	private TomographyConfiguration createBasicTomographyParametersConfiguration() {
+	private ScanningConfiguration createBasicTomographyParametersConfiguration() {
 		TomographyParameterAcquisition newConfiguration = new TomographyParameterAcquisition();
-		TomographyConfiguration configuration = new TomographyConfiguration();
+		ScanningConfiguration configuration = new ScanningConfiguration();
 		newConfiguration.setAcquisitionConfiguration(configuration);
 		newConfiguration.setName("Default name");
 		ScanningParameters acquisitionParameters = new ScanningParameters();

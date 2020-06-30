@@ -52,9 +52,9 @@ import org.springframework.context.ApplicationListener;
 import gda.mscan.element.Mutator;
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.mapping.api.document.base.configuration.MultipleScansType;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
-import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
@@ -469,7 +469,7 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		return bar;
 	}
 
-	private TomographyConfiguration getConfigurationData() {
+	private ScanningConfiguration getConfigurationData() {
 		return getController().getAcquisition().getAcquisitionConfiguration();
 	}
 

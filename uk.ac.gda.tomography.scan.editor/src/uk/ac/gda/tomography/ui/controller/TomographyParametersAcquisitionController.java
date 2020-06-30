@@ -36,10 +36,10 @@ import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
 import uk.ac.diamond.daq.mapping.api.document.base.configuration.ImageCalibration;
 import uk.ac.diamond.daq.mapping.api.document.base.configuration.MultipleScans;
 import uk.ac.diamond.daq.mapping.api.document.base.configuration.MultipleScansType;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
 import uk.ac.diamond.daq.mapping.ui.properties.DetectorHelper;
 import uk.ac.diamond.daq.mapping.ui.properties.DetectorHelper.AcquisitionType;
@@ -154,7 +154,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 
 	private TomographyParameterAcquisition createNewAcquisition() {
 		TomographyParameterAcquisition newConfiguration = new TomographyParameterAcquisition();
-		TomographyConfiguration configuration = new TomographyConfiguration();
+		ScanningConfiguration configuration = new ScanningConfiguration();
 		newConfiguration.setAcquisitionConfiguration(configuration);
 		newConfiguration.setName("Default name");
 		ScanningParameters acquisitionParameters = new ScanningParameters();
