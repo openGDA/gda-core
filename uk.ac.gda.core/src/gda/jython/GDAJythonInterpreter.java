@@ -45,6 +45,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Platform;
 import org.python.core.ContextManager;
 import org.python.core.Py;
 import org.python.core.PyException;
@@ -200,7 +201,7 @@ public class GDAJythonInterpreter {
 		// discovering which packages are available in the JVM does not
 		// work. Therefore to support "from XXXX import *" Jython has to be
 		// told about the bundle locations.
-		final boolean eclipseLaunch = Boolean.valueOf(sysProps.getProperty("gda.eclipse.launch"));
+		final boolean eclipseLaunch = Platform.inDevelopmentMode();
 		final String bundlesRoot;
 		if (eclipseLaunch) {
 			bundlesRoot = LocalProperties.get(LocalProperties.GDA_GIT_LOC);
