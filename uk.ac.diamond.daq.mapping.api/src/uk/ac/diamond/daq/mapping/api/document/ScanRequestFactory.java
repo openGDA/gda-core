@@ -35,6 +35,9 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 
+import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
+import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
+import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
 import uk.ac.diamond.daq.mapping.api.document.model.ModelDocumentFactory;
 import uk.ac.gda.api.exception.GDAException;
 
@@ -45,11 +48,12 @@ import uk.ac.gda.api.exception.GDAException;
  */
 public class ScanRequestFactory {
 
-	private final ScanRequestDocument srd;
+	private final AcquisitionBase<? extends AcquisitionConfigurationBase<? extends AcquisitionParametersBase>> acquisition;
 
-	public ScanRequestFactory(ScanRequestDocument srd) {
+	public ScanRequestFactory(
+			AcquisitionBase<? extends AcquisitionConfigurationBase<? extends AcquisitionParametersBase>> acquisition) {
 		super();
-		this.srd = srd;
+		this.acquisition = acquisition;
 	}
 
 	public ScanRequest createScanRequest(IRunnableDeviceService runnableDeviceService) throws ScanningException {
@@ -58,22 +62,24 @@ public class ScanRequestFactory {
 		scanModel.setRegions(new ArrayList<>());
 		scanModel.setMutators(new ArrayList<>());
 
-		addPathDefinitionToCompoundModel(srd, scanModel);
+		addPathDefinitionToCompoundModel(scanModel);
 
 		// Populate the {@link ScanRequest} with the assembled objects
 		ScanRequest scanRequest = new ScanRequest();
-		if (srd.getFilePath() != null) {
-			scanRequest.setFilePath(srd.getFilePath().getPath());
+		if (acquisition.getAcquisitionLocation() != null) {
+			scanRequest.setFilePath(acquisition.getAcquisitionLocation().getPath());
 		}
 		scanRequest.setCompoundModel(scanModel);
-		scanRequest.setDetectors(parseDetectors(srd.getDetectors(), runnableDeviceService));
-		scanRequest.setMonitorNamesPerPoint(parseMonitorNamesPerPoint(srd));
-		scanRequest.setTemplateFilePaths(parseTemplateFilePaths(srd));
-		scanRequest.setProcessingRequest(parseProcessingRequest(srd));
+		scanRequest.setDetectors(parseDetectors(new DetectorDocument[] { getAcquisitionParameters().getDetector() },
+				runnableDeviceService));
+		scanRequest.setMonitorNamesPerPoint(parseMonitorNamesPerPoint());
+		scanRequest.setTemplateFilePaths(parseTemplateFilePaths());
+		scanRequest.setProcessingRequest(parseProcessingRequest());
 		return scanRequest;
 	}
 
-	private Map<String, Object> parseDetectors(DetectorDocument[] detectors, IRunnableDeviceService runnableDeviceService) throws ScanningException {
+	private Map<String, Object> parseDetectors(DetectorDocument[] detectors,
+			IRunnableDeviceService runnableDeviceService) throws ScanningException {
 		Map<String, Object> ret = new HashMap<>();
 
 		for (DetectorDocument det : detectors) {
@@ -92,15 +98,15 @@ public class ScanRequestFactory {
 		return ret;
 	}
 
-	private Collection<String> parseMonitorNamesPerPoint(ScanRequestDocument document) {
+	private Collection<String> parseMonitorNamesPerPoint() {
 		return new ArrayList<>();
 	}
 
-	private Set<String> parseTemplateFilePaths(ScanRequestDocument document) {
+	private Set<String> parseTemplateFilePaths() {
 		return new HashSet<>();
 	}
 
-	private ProcessingRequest parseProcessingRequest(ScanRequestDocument document) {
+	private ProcessingRequest parseProcessingRequest() {
 		return new ProcessingRequest();
 	}
 
@@ -115,13 +121,18 @@ public class ScanRequestFactory {
 	 * @throws IllegalArgumentException
 	 *             if the {@link IROI} fails to validate the supplied parameters on creation
 	 */
-	private void addPathDefinitionToCompoundModel(ScanRequestDocument srd, final CompoundModel scanModel)
+	private void addPathDefinitionToCompoundModel(final CompoundModel scanModel)
 			throws ScanningException {
 		try {
-			AcquisitionTemplate modelDocument = ModelDocumentFactory.buildModelDocument(srd.getScanpath());
+			AcquisitionTemplate modelDocument = ModelDocumentFactory
+					.buildModelDocument(getAcquisitionParameters().getScanpathDocument());
 			scanModel.setData(modelDocument.getIScanPointGeneratorModel(), modelDocument.getROI());
 		} catch (GDAException e) {
 			throw new ScanningException(e.getMessage(), e);
 		}
+	}
+
+	private AcquisitionParametersBase getAcquisitionParameters() {
+		return acquisition.getAcquisitionConfiguration().getAcquisitionParameters();
 	}
 }

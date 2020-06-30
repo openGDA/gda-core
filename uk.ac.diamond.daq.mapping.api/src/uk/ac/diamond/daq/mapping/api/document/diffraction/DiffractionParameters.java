@@ -1,7 +1,7 @@
 package uk.ac.diamond.daq.mapping.api.document.diffraction;
 
-import uk.ac.diamond.daq.mapping.api.document.AcquisitionParametersBase;
 import uk.ac.diamond.daq.mapping.api.document.DetectorDocument;
+import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 
 /**

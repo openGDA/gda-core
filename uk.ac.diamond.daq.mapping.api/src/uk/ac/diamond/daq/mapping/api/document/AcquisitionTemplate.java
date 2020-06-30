@@ -44,6 +44,12 @@ import uk.ac.gda.api.exception.GDAException;
 public interface AcquisitionTemplate {
 
 	/**
+	 * The acquisition configuration
+	 * @return the acquisition configuration
+	 */
+	ScanpathDocument getScanpathDocument();
+
+	/**
 	 * Defines how traverse the space defined {@link ScanpathDocument}
 	 * @return a point generator
 	 */

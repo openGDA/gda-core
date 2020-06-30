@@ -16,8 +16,9 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.api.document;
+package uk.ac.diamond.daq.mapping.api.document.base;
 
+import uk.ac.diamond.daq.mapping.api.document.DetectorDocument;
 import uk.ac.diamond.daq.mapping.api.document.diffraction.ShapeType;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.gda.api.acquisition.AcquisitionParameters;

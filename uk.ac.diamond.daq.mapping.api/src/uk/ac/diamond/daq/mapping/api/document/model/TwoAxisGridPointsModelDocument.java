@@ -146,7 +146,8 @@ public class TwoAxisGridPointsModelDocument implements AcquisitionTemplate {
 				scannableTwo.getStop() - scannableTwo.getStart());
 	}
 
-	private ScanpathDocument getScanpathDocument() {
+	@Override
+	public ScanpathDocument getScanpathDocument() {
 		return scanpathDocument;
 	}
 }

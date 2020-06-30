@@ -29,6 +29,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 
+import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.diffraction.DiffractionParameterAcquisition;
 import uk.ac.gda.api.exception.GDAException;
 

@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -147,12 +148,15 @@ public final class CameraHelper {
 	 * @return the camera or <code>null</code> if the camera does not exists
 	 */
 	public static Optional<AbstractCameraConfigurationController> getCameraControlInstance(int activeCamera) {
-		if (!cameraConfigurations.containsKey(activeCamera) && activeCamera < getAllCameraProperties().size()) {
-			cameraControllers.put(activeCamera, new ImagingCameraConfigurationController(
-					getAllCameraProperties().get(activeCamera).getCameraControl()));
+		if (!cameraConfigurations.containsKey(activeCamera) || activeCamera >= getAllCameraProperties().size()) {
+			return Optional.empty();
 		}
-		return Optional.ofNullable(cameraControllers.get(activeCamera));
+		return Optional
+				.ofNullable(cameraControllers.computeIfAbsent(activeCamera, createCameraConfigurationController));
 	}
+
+	private static Function<Integer, AbstractCameraConfigurationController> createCameraConfigurationController = cameraID -> new ImagingCameraConfigurationController(
+			getAllCameraProperties().get(cameraID).getCameraControl());
 
 	/**
 	 * Returns the available {@link StreamType}s for a specific camera
@@ -296,7 +300,7 @@ public final class CameraHelper {
 		return Boolean.parseBoolean(LocalProperties
 				.get(formatPropertyKey(CAMERA_CONFIGURATION_PREFIX, index, "pixelBinningEditable"), "false"));
 	}
-	
+
 	// -- motors -- //
 	/**
 	 * Returns a string like
