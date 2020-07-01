@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -43,7 +43,7 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.diamond.daq.mapping.api.document.service.message.ScanningMessage;
+import uk.ac.diamond.daq.mapping.api.document.service.message.ScanningAcquisitionMessage;
 import uk.ac.diamond.daq.mapping.ui.properties.DetectorHelper;
 import uk.ac.diamond.daq.mapping.ui.properties.DetectorHelper.AcquisitionType;
 import uk.ac.gda.api.acquisition.AcquisitionController;
@@ -71,7 +71,7 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
  *
  * @author Maurizio Nagni
  */
-@Component(value="tomographyParametersAcquisitionController")
+@Controller(value="tomographyParametersAcquisitionController")
 public class TomographyParametersAcquisitionController implements AcquisitionController<ScanningAcquisition>, ApplicationListener<ApplicationEvent> {
 	private static final Logger logger = LoggerFactory.getLogger(TomographyParametersAcquisitionController.class);
 
@@ -117,7 +117,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 
 	@Override
 	public void runAcquisition() throws AcquisitionControllerException {
-		ScanningMessage tomographyRunMessage = createScanningMessage();
+		ScanningAcquisitionMessage tomographyRunMessage = createScanningMessage();
 		publishRun(tomographyRunMessage);
 	}
 
@@ -269,10 +269,10 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		throw new AcquisitionControllerException("Cannot parse json document");
 	}
 
-	private ScanningMessage createScanningMessage() throws AcquisitionControllerException {
+	private ScanningAcquisitionMessage createScanningMessage() throws AcquisitionControllerException {
 		try {
 			TomographyParametersAcquisitionControllerHelper.updateExposure(this);
-			return new ScanningMessage(DocumentMapper.toJSON(getAcquisition()));
+			return new ScanningAcquisitionMessage(DocumentMapper.toJSON(getAcquisition()));
 		} catch (GDAException | DeviceException e) {
 			throw new AcquisitionControllerException(e);
 		}
@@ -295,7 +295,7 @@ public class TomographyParametersAcquisitionController implements AcquisitionCon
 		SpringApplicationContextProxy.publishEvent(new ScanningAcquisitionSaveEvent(this, name, acquisition));
 	}
 
-	private void publishRun(ScanningMessage tomographyRunMessage) {
+	private void publishRun(ScanningAcquisitionMessage tomographyRunMessage) {
 		SpringApplicationContextProxy.publishEvent(new ScanningAcquisitionRunEvent(this, tomographyRunMessage));
 	}
 
