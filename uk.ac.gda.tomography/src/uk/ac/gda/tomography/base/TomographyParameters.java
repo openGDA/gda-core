@@ -4,12 +4,9 @@ import uk.ac.diamond.daq.mapping.api.document.DetectorDocument;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
 import uk.ac.diamond.daq.mapping.api.document.diffraction.ShapeType;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.gda.tomography.model.EndAngle;
 import uk.ac.gda.tomography.model.ImageCalibration;
 import uk.ac.gda.tomography.model.MultipleScans;
-import uk.ac.gda.tomography.model.Projections;
 import uk.ac.gda.tomography.model.ScanType;
-import uk.ac.gda.tomography.model.StartAngle;
 
 /**
  * The base class for describe a tomography acquisition.
@@ -19,14 +16,12 @@ import uk.ac.gda.tomography.model.StartAngle;
 public class TomographyParameters implements AcquisitionParametersBase {
 
 	private ScanType scanType;
-	private StartAngle start;
-	private EndAngle end;
-
-	private Projections projections;
 
 	private ImageCalibration imageCalibration;
 
 	private MultipleScans multipleScans;
+
+	private ShapeType shapeType;
 
 	private DetectorDocument detector;
 
@@ -39,12 +34,10 @@ public class TomographyParameters implements AcquisitionParametersBase {
 	public TomographyParameters(TomographyParameters configuration) {
 		super();
 		this.scanType = configuration.getScanType();
-		this.start = new StartAngle(configuration.getStart());
-		this.end = new EndAngle(configuration.getEnd());
-		this.projections = new Projections(configuration.getProjections());
 		this.imageCalibration = new ImageCalibration(configuration.getImageCalibration());
 		this.multipleScans = new MultipleScans(configuration.getMultipleScans());
-		this.detector = new DetectorDocument(configuration.getDetector());
+		this.detector = configuration.getDetector();
+		this.scanpathDocument = configuration.getScanpathDocument();
 	}
 
 	public ScanType getScanType() {
@@ -53,30 +46,6 @@ public class TomographyParameters implements AcquisitionParametersBase {
 
 	public void setScanType(ScanType scanType) {
 		this.scanType = scanType;
-	}
-
-	public StartAngle getStart() {
-		return start;
-	}
-
-	public void setStart(StartAngle start) {
-		this.start = start;
-	}
-
-	public EndAngle getEnd() {
-		return end;
-	}
-
-	public void setEnd(EndAngle end) {
-		this.end = end;
-	}
-
-	public Projections getProjections() {
-		return projections;
-	}
-
-	public void setProjections(Projections projections) {
-		this.projections = projections;
 	}
 
 	public ImageCalibration getImageCalibration() {
@@ -99,10 +68,13 @@ public class TomographyParameters implements AcquisitionParametersBase {
 		this.detector = detector;
 	}
 
+	public void setShapeType(ShapeType shapeType) {
+		this.shapeType = shapeType;
+	}
+
 	@Override
 	public ShapeType getShapeType() {
-		// TBD
-		return null;
+		return shapeType;
 	}
 
 	@Override
@@ -112,8 +84,7 @@ public class TomographyParameters implements AcquisitionParametersBase {
 
 	@Override
 	public ScanpathDocument getScanpathDocument() {
-		// TBD
-		return null;
+		return scanpathDocument;
 	}
 
 	public void setScanpathDocument(ScanpathDocument scanpathDocument) {
