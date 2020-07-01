@@ -39,6 +39,7 @@ import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
 import uk.ac.diamond.daq.mapping.api.document.model.AcquisitionTemplateFactory;
+import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 import uk.ac.gda.api.exception.GDAException;
 
 /**

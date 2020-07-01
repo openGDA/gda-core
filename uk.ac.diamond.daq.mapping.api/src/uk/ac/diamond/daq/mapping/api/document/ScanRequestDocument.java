@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
+import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 
 /**
  * A document describing an acquisition performed by one or more {@code detectors} on a defined {@code scanpath}.

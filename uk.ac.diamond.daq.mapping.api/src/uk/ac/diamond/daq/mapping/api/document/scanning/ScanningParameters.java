@@ -1,8 +1,8 @@
 package uk.ac.diamond.daq.mapping.api.document.scanning;
 
-import uk.ac.diamond.daq.mapping.api.document.DetectorDocument;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
+import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 
 /**
  * The base class for describe a diffraction acquisition.

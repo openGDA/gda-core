@@ -19,11 +19,14 @@
 package uk.ac.gda.api.acquisition;
 
 import java.net.URL;
+import java.util.function.Supplier;
 
+import uk.ac.gda.api.acquisition.configuration.AcquisitionConfiguration;
+import uk.ac.gda.api.acquisition.parameters.AcquisitionParameters;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 
 /**
- * A set of methods to load, save and delete {@link Acquisition}
+ * Controls how create, load, save run an {@link Acquisition}
  *
  * @param <T>
  * @author Maurizio Nagni
@@ -35,7 +38,21 @@ public interface AcquisitionController<T extends Acquisition<? extends Acquisiti
 	 *
 	 * @return an acquisition
 	 */
-	public T getAcquisition();
+	T getAcquisition();
+
+	/**
+	 * Creates a new acquisition based on the function defined with {@link #createNewAcquisition()}. If the function is
+	 * absent, returns an default instance of {@code T}
+	 */
+	void createNewAcquisition();
+
+	/**
+	 * Sets the controller function to create a new acquisition
+	 *
+	 * @param newAcquisitionSupplier
+	 *            the provided function
+	 */
+	void setDefaultNewAcquisitionSupplier(Supplier<T> newAcquisitionSupplier);
 
 	/**
 	 * Saves the acquisition actually set in the controller
@@ -46,18 +63,11 @@ public interface AcquisitionController<T extends Acquisition<? extends Acquisiti
 	void saveAcquisitionConfiguration() throws AcquisitionControllerException;
 
 	/**
-	 * Runs the acquisition storing the result in the given {@code outputPath}
+	 * Runs the acquisition
 	 *
-	 * @param outputPath
-	 *            where acquisition will be stored
 	 * @throws AcquisitionControllerException
-	 *             if {@code outputPath} is {@code null}
-	 * @deprecated Use {@link #runAcquisition()} instead. The {@code outputPath} should be provided by
-	 *             {@code getAcquisition().getAcquisitionLocation()}
+	 *             if the request fails
 	 */
-	@Deprecated
-	void runAcquisition(URL outputPath) throws AcquisitionControllerException;
-
 	void runAcquisition() throws AcquisitionControllerException;
 
 	/**

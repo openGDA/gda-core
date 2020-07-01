@@ -16,31 +16,15 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.api.acquisition;
-
-import java.util.Map;
-
+package uk.ac.gda.api.acquisition.parameters;
 
 /**
- * An acquisition includes three components.
- * <ol>
- * <li>a set of devices involved in the execution, i.e. cameras, motors, beam</li>
- * <li>a class containing the parameters necessary to the required acquisition</li>
- * <li>a map of key, values which are not required for the acquisition process but are useful to be stored</li>
- * </ol>
+ * Defines an acquisition geometry and detectors
  *
  * @author Maurizio Nagni
  */
-public interface AcquisitionConfiguration<T extends AcquisitionParameters> {
+public interface AcquisitionParameters {
 
-	/**
-	 * @return the parameters defining the acquisition execution
-	 */
-	public T getAcquisitionParameters();
-
-	/**
-	 * @return a dictionary of text data
-	 */
-	public Map<String, String> getMetadata();
+	DetectorDocument getDetector();
 
 }

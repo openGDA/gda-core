@@ -51,7 +51,8 @@ Require-Bundle: org.eclipse.ui,
  com.github.tschoonj.xraylib,
  uk.ac.diamond.scisoft.analysis,
  com.google.guava,
- com.google.gson
+ com.google.gson,
+ uk.ac.diamond.daq.client.gui.camera
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: com.ibm.icu.text,
@@ -71,6 +72,7 @@ Service-Component: OSGI-INF/*.xml
 Eclipse-RegisterBuddy: uk.ac.gda.core
 Export-Package: uk.ac.diamond.daq.mapping.ui,
  uk.ac.diamond.daq.mapping.ui.browser,
+ uk.ac.diamond.daq.mapping.ui.controller,
  uk.ac.diamond.daq.mapping.ui.diffraction.model,
  uk.ac.diamond.daq.mapping.ui.experiment,
  uk.ac.diamond.daq.mapping.ui.experiment.file,
@@ -78,6 +80,9 @@ Export-Package: uk.ac.diamond.daq.mapping.ui,
  uk.ac.diamond.daq.mapping.ui.experiment.saver,
  uk.ac.diamond.daq.mapping.ui.properties,
  uk.ac.diamond.daq.mapping.ui.services,
+ uk.ac.diamond.daq.mapping.ui.stage,
+ uk.ac.diamond.daq.mapping.ui.stage.enumeration,
+ uk.ac.diamond.daq.mapping.ui.stage.serializer,
  uk.ac.diamond.daq.mapping.ui.xanes
 Bundle-Activator: uk.ac.diamond.daq.mapping.ui.Activator
 Automatic-Module-Name: uk.ac.diamond.daq.mapping.ui

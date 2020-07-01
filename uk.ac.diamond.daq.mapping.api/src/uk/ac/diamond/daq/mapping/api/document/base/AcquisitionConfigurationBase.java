@@ -20,9 +20,9 @@ package uk.ac.diamond.daq.mapping.api.document.base;
 
 import java.util.Map;
 
-import uk.ac.diamond.daq.mapping.api.document.base.configuration.ImageCalibration;
-import uk.ac.diamond.daq.mapping.api.document.base.configuration.MultipleScans;
-import uk.ac.gda.api.acquisition.AcquisitionConfiguration;
+import uk.ac.gda.api.acquisition.configuration.AcquisitionConfiguration;
+import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
+import uk.ac.gda.api.acquisition.configuration.MultipleScans;
 
 public class AcquisitionConfigurationBase<T extends AcquisitionParametersBase> implements AcquisitionConfiguration<T> {
 
@@ -45,12 +45,14 @@ public class AcquisitionConfigurationBase<T extends AcquisitionParametersBase> i
 	public void setMetadata(Map<String, String> metadata) {
 		this.metadata = metadata;
 	}
+	@Override
 	public ImageCalibration getImageCalibration() {
 		return imageCalibration;
 	}
 	public void setImageCalibration(ImageCalibration imageCalibration) {
 		this.imageCalibration = imageCalibration;
 	}
+	@Override
 	public MultipleScans getMultipleScans() {
 		return multipleScans;
 	}
