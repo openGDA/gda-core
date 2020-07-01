@@ -122,9 +122,9 @@ public class TwoAxisGridPointsModelDocument implements AcquisitionTemplate {
 		TwoAxisGridPointsRandomOffsetModel model = new TwoAxisGridPointsRandomOffsetModel();
 
 		List<Number> params = getScanpathDocument().getMutators().get(RANDOM_OFFSET);
-		model.setOffset(params.get(ModelDocumentFactory.OFFSET_INDEX).doubleValue());
+		model.setOffset(params.get(AcquisitionTemplateFactory.OFFSET_INDEX).doubleValue());
 		if (params.size() > 1) {
-			model.setSeed(getScanpathDocument().getMutators().get(RANDOM_OFFSET).get(ModelDocumentFactory.SEED_INDEX).intValue());
+			model.setSeed(getScanpathDocument().getMutators().get(RANDOM_OFFSET).get(AcquisitionTemplateFactory.SEED_INDEX).intValue());
 		}
 		return model;
 	}

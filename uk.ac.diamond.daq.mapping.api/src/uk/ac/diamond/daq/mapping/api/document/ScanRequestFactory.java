@@ -38,7 +38,7 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
-import uk.ac.diamond.daq.mapping.api.document.model.ModelDocumentFactory;
+import uk.ac.diamond.daq.mapping.api.document.model.AcquisitionTemplateFactory;
 import uk.ac.gda.api.exception.GDAException;
 
 /**
@@ -62,7 +62,7 @@ public class ScanRequestFactory {
 		scanModel.setRegions(new ArrayList<>());
 		scanModel.setMutators(new ArrayList<>());
 
-		addPathDefinitionToCompoundModel(scanModel);
+		setDataToCompoundModel(scanModel);
 
 		// Populate the {@link ScanRequest} with the assembled objects
 		ScanRequest scanRequest = new ScanRequest();
@@ -121,10 +121,10 @@ public class ScanRequestFactory {
 	 * @throws IllegalArgumentException
 	 *             if the {@link IROI} fails to validate the supplied parameters on creation
 	 */
-	private void addPathDefinitionToCompoundModel(final CompoundModel scanModel)
+	private void setDataToCompoundModel(final CompoundModel scanModel)
 			throws ScanningException {
 		try {
-			AcquisitionTemplate modelDocument = ModelDocumentFactory
+			AcquisitionTemplate modelDocument = AcquisitionTemplateFactory
 					.buildModelDocument(getAcquisitionParameters().getScanpathDocument());
 			scanModel.setData(modelDocument.getIScanPointGeneratorModel(), modelDocument.getROI());
 		} catch (GDAException e) {

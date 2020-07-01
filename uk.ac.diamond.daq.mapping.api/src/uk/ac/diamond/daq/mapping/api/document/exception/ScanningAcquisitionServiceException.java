@@ -16,24 +16,20 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.api.document.event;
+package uk.ac.diamond.daq.mapping.api.document.exception;
 
-import uk.ac.diamond.daq.mapping.api.document.service.message.ScanningAcquisitionMessage;
+public class ScanningAcquisitionServiceException extends Exception {
 
-/**
- * Notifies to a listener, most commonly a ScanningService, a request to run an acquisition.
- *
- * @author Maurizio Nagni
- */
-public class ScanningAcquisitionRunEvent extends ScanningAcquisitionEvent {
-	private final ScanningAcquisitionMessage scanningMessage;
-
-	public ScanningAcquisitionRunEvent(Object source, ScanningAcquisitionMessage scanningMessage) {
-		super(source);
-		this.scanningMessage = scanningMessage;
+	public ScanningAcquisitionServiceException() {
+		super();
 	}
 
-	public ScanningAcquisitionMessage getScanningMessage() {
-		return scanningMessage;
+	public ScanningAcquisitionServiceException(String message, Throwable cause) {
+		super(message, cause);
 	}
+
+	public ScanningAcquisitionServiceException(String message) {
+		super(message);
+	}
+
 }
