@@ -19,6 +19,7 @@
 package uk.ac.gda.devices.bssc.ui;
 
 import gda.factory.Finder;
+import gda.rcp.GDAClientActivator;
 import gda.util.RemoteCommandRunner;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -113,6 +114,24 @@ public final class BSSCSessionBeanComposite extends Composite {
 				} catch (Exception ex) {
 					logger.error("Couldn't run BSSC experiment", ex);
 					UIHelper.showError("Couldn't run BSSC experiment", ex);
+				}
+			}
+		});
+
+		layoutData = new GridData(SWT.TRAIL, SWT.CENTER, true, false, 1, 1);
+		Button btnStopExperiment = new Button(runControls, SWT.NONE);
+		btnStopExperiment.setLayoutData(layoutData);
+		btnStopExperiment.setImage(GDAClientActivator.getImageDescriptor("icons/stop.png").createImage());
+		btnStopExperiment.setToolTipText("Stop current experiment");
+		btnStopExperiment.addSelectionListener(new SelectionAdapter() {
+			private RemoteCommandRunner runner  = Finder.find("BSSCRunner");
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					runner.stop();
+				} catch (Exception ex) {
+					logger.error("Couldn't stop BSSC experiment", ex);
+					UIHelper.showError("Couldn't stop BSSC experiment", ex);
 				}
 			}
 		});
