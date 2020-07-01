@@ -38,8 +38,6 @@ import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
-import uk.ac.gda.tomography.ui.controller.TomographyPerspectiveController;
-import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
  * Generates a {@link Browser} for the tomography configuration files, suitable for an {@link AcquisitionsBrowserCompositeFactory}
@@ -52,8 +50,11 @@ public class TomoBrowser extends Browser<ScanningAcquisition> {
 	private static final int TYPE_WIDTH = 70;
 	private static final int RANGE_WIDTH = 200;
 
-	public TomoBrowser() {
+	private final AcquisitionController<ScanningAcquisition> controller;
+
+	public TomoBrowser(AcquisitionController<ScanningAcquisition> controller) {
 		super(AcquisitionConfigurationResourceType.TOMO);
+		this.controller = controller;
 	}
 
 	@Override
@@ -63,7 +64,7 @@ public class TomoBrowser extends Browser<ScanningAcquisition> {
 			public AcquisitionConfigurationResource<ScanningAcquisition>[] getInputElements(boolean reload) {
 				return getAcquisitionConfigurationResources(reload).stream().map(resource -> {
 					try {
-						return getTomographyAcquisitionController().parseAcquisitionConfiguration(resource.getLocation());
+						return getController().parseAcquisitionConfiguration(resource.getLocation());
 					} catch (AcquisitionControllerException e) {
 						return null;
 					}
@@ -90,7 +91,7 @@ public class TomoBrowser extends Browser<ScanningAcquisition> {
 			AcquisitionConfigurationResource<ScanningAcquisition> resource = (AcquisitionConfigurationResource<ScanningAcquisition>) ((TreeSelection) event
 					.getSelection()).getFirstElement();
 			try {
-				getTomographyAcquisitionController().loadAcquisitionConfiguration(resource.getLocation());
+				getController().loadAcquisitionConfiguration(resource.getLocation());
 			} catch (AcquisitionControllerException e) {
 
 			}
@@ -102,8 +103,8 @@ public class TomoBrowser extends Browser<ScanningAcquisition> {
 		if (contextMenu != null) {
 			contextMenu.addMenuListener(manager -> {
 				manager.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
-				manager.add(new LoadAcquisitionConfigurationResource(this.getSelected(), getTomographyAcquisitionController()));
-				manager.add(new DeletedAcquisitionConfigurationResource(this.getSelected(), getTomographyAcquisitionController()));
+				manager.add(new LoadAcquisitionConfigurationResource(this.getSelected(), getController()));
+				manager.add(new DeletedAcquisitionConfigurationResource(this.getSelected(), getController()));
 			});
 		}
 		return event -> {
@@ -116,7 +117,7 @@ public class TomoBrowser extends Browser<ScanningAcquisition> {
 				.getAcquisitionParameters();
 	}
 
-	private AcquisitionController<ScanningAcquisition> getTomographyAcquisitionController() {
-		return SpringApplicationContextProxy.getBean(TomographyPerspectiveController.class).getScanningAcquisitionController();
+	private AcquisitionController<ScanningAcquisition> getController() {
+		return controller;
 	}
 }

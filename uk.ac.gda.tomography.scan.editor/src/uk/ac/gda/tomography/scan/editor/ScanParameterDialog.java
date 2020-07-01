@@ -54,7 +54,6 @@ import gda.jython.InterfaceProvider;
 import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.tomography.scan.TomoScanParameters;
 import uk.ac.gda.tomography.scan.presentation.ParametersComposite;
-import uk.ac.gda.tomography.ui.controller.TomographyParametersAcquisitionController;
 
 public class ScanParameterDialog extends Dialog {
 
@@ -70,7 +69,7 @@ public class ScanParameterDialog extends Dialog {
 
 	private TomoScanParameters model;
 	private DataBindingContext ctx;
-	private TomographyParametersAcquisitionController controller;
+	//private TomographyParametersAcquisitionController controller;
 
 	/**
 	 * This constructor assumes 1) no controller 2) the model is stored in IDialogSettings
@@ -78,11 +77,6 @@ public class ScanParameterDialog extends Dialog {
 	 */
 	public ScanParameterDialog(Shell parentShell) {
 		super(parentShell);
-	}
-
-	public ScanParameterDialog(Shell parentShell, TomographyParametersAcquisitionController controller) {
-		this(parentShell);
-		this.controller = controller;
 	}
 
 	@Override
@@ -230,10 +224,6 @@ public class ScanParameterDialog extends Dialog {
 		}
 
 		super.okPressed();
-	}
-
-	private TomographyParametersAcquisitionController getController() {
-		return this.controller;
 	}
 
 	private TomoScanParameters getModel() {
