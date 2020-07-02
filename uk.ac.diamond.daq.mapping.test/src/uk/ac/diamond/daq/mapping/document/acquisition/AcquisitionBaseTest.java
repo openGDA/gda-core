@@ -31,6 +31,9 @@ import uk.ac.diamond.daq.mapping.api.document.diffraction.DiffractionConfigurati
 import uk.ac.diamond.daq.mapping.api.document.diffraction.DiffractionParameterAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.diffraction.DiffractionParameters;
 import uk.ac.diamond.daq.mapping.api.document.diffraction.ShapeType;
+import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyConfiguration;
+import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
+import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameters;
 import uk.ac.diamond.daq.mapping.document.DocumentTestBase;
 import uk.ac.gda.api.acquisition.Acquisition;
 import uk.ac.gda.api.exception.GDAException;
@@ -55,6 +58,26 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 		acquisitionConfiguration.setAcquisitionParameters(acquisitionParameters);
 		String document = serialiseDocument(acquisition);
 		assertThat(document, containsString("\"type\" : \"diffractionAcquisition\""));
+	}
+
+	@Test
+	public void serializeThenDeserializeTomographyParameterAcquisition() throws GDAException {
+		Acquisition<?> acquisition = new TomographyParameterAcquisition();
+		final String json = DocumentMapper.toJSON(acquisition);
+		final Acquisition<?> read = DocumentMapper.fromJSON(json, AcquisitionBase.class);
+		assertTrue(TomographyParameterAcquisition.class.isInstance(read));
+	}
+
+	@Test
+	public void serializeTomographyParameterAcquisition() throws GDAException {
+		TomographyParameterAcquisition acquisition = new TomographyParameterAcquisition();
+		TomographyConfiguration acquisitionConfiguration = new TomographyConfiguration();
+		acquisition.setAcquisitionConfiguration(acquisitionConfiguration);
+
+		TomographyParameters acquisitionParameters = new TomographyParameters();
+		acquisitionConfiguration.setAcquisitionParameters(acquisitionParameters);
+		String document = serialiseDocument(acquisition);
+		assertThat(document, containsString("\"type\" : \"tomographyAcquisition\""));
 	}
 
 	@Test
