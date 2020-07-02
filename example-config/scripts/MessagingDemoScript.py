@@ -6,13 +6,14 @@
 from gda.example.scriptcontroller.logging import ExampleLoggingMessage
 from gda.example.scriptcontroller.logging import OtherExampleLoggingMessage
 from gda.jython.scriptcontroller.logging import LoggingScriptController
+from gda.factory import Finder
 from time import sleep
 
 scriptName          = "My data collection script"
 percentComplete     = "0%"
 progress            = "Haven't started yet"
 sampleTemperature   = "20.0C"
-controller          = finder.find("MyLoggingScriptController")
+controller          = Finder.find("MyLoggingScriptController")
 unique_id           = LoggingScriptController.createUniqueID(scriptName); # unique for this use of this script
 
 msg = ExampleLoggingMessage(unique_id,scriptName,progress,percentComplete,sampleTemperature)
@@ -79,7 +80,7 @@ scriptName          = "Other collection script"
 percentComplete     = "0%"
 progress            = "Haven't started yet"
 sampleTemperature   = "20.0C"
-controller          = finder.find("MyLoggingScriptController")
+controller          = Finder.find("MyLoggingScriptController")
 unique_id           = LoggingScriptController.createUniqueID(scriptName); # unique for this use of this script
 
 msg = ExampleLoggingMessage(unique_id,scriptName,progress,percentComplete,sampleTemperature)
@@ -141,7 +142,7 @@ controller.update(None,msg)
 print "Third script, using a different script controller"
 scriptName          = "Third collection script"
 progress            = "Haven't started yet"
-controller          = finder.find("MyOtherLoggingScriptController")
+controller          = Finder.find("MyOtherLoggingScriptController")
 unique_id           = LoggingScriptController.createUniqueID(scriptName); # unique for this use of this script
 
 msg = OtherExampleLoggingMessage(unique_id,scriptName,progress)

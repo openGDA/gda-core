@@ -44,10 +44,10 @@ from dna.xml import Sample_reference
 from sample_control import changeSample, enableSampleChanger, unloadSample, centrelid
 import CreateSampleImages
 
-scriptAction=Finder.getInstance().find(LocalProperties.get(MxProperties.GDA_SAMPLECONTROLSCRIPT_ACTION))
-scriptState=Finder.getInstance().find(LocalProperties.get(MxProperties.GDA_HUTCHUTILSSCRIPT_STATE))
-activeDataCollectionScript=Finder.getInstance().find(LocalProperties.get(MxProperties.GDA_DATACOLLECTION_SCRIPT))
-scriptController=Finder.getInstance().find(LocalProperties.get(MxProperties.GDA_MX_SAMPLE_CHANGER_SCRIPT_CONTROLLER))
+scriptAction=Finder.find(LocalProperties.get(MxProperties.GDA_SAMPLECONTROLSCRIPT_ACTION))
+scriptState=Finder.find(LocalProperties.get(MxProperties.GDA_HUTCHUTILSSCRIPT_STATE))
+activeDataCollectionScript=Finder.find(LocalProperties.get(MxProperties.GDA_DATACOLLECTION_SCRIPT))
+scriptController=Finder.find(LocalProperties.get(MxProperties.GDA_MX_SAMPLE_CHANGER_SCRIPT_CONTROLLER))
 
 def incScriptState():
 	val = int(scriptState())
@@ -71,10 +71,10 @@ s1_xsize = JythonNameSpaceMapping().S1XGAP
 s1_ysize = JythonNameSpaceMapping().S1YGAP
 s1_xcentre = JythonNameSpaceMapping().S1XCENTRE
 s1_ycentre = JythonNameSpaceMapping().S1YCENTRE
-s4_xsize = Finder.getInstance().find("s4_xsize")
-s4_ysize = Finder.getInstance().find("s4_ysize")
-gonp = Finder.getInstance().find("gonp")
-gony = Finder.getInstance().find("gony")
+s4_xsize = Finder.find("s4_xsize")
+s4_ysize = Finder.find("s4_ysize")
+gonp = Finder.find("gonp")
+gony = Finder.find("gony")
 detz = JythonNameSpaceMapping().detz
 detx = JythonNameSpaceMapping().detx
 detyaw = JythonNameSpaceMapping().detyaw
@@ -95,11 +95,11 @@ DCM_Bragg = JythonNameSpaceMapping().DCM_Bragg
 DCM_Pitch = JythonNameSpaceMapping().DCM_Pitch
 DCM_Roll = JythonNameSpaceMapping().DCM_Roll
 Undulator_Gap = JythonNameSpaceMapping().Undulator_Gap
-energyToQBPM1_converter=Finder.getInstance().find("energyToQBPM1_converter")
-energyToQBPM2_converter=Finder.getInstance().find("energyToQBPM2_converter")
-energyToQBPM3_converter=Finder.getInstance().find("energyToQBPM3_converter")
-energyToQBPM4_converter=Finder.getInstance().find("energyToQBPM4_converter")
-scriptcontroller=Finder.getInstance().find("samplechangerController")
+energyToQBPM1_converter=Finder.find("energyToQBPM1_converter")
+energyToQBPM2_converter=Finder.find("energyToQBPM2_converter")
+energyToQBPM3_converter=Finder.find("energyToQBPM3_converter")
+energyToQBPM4_converter=Finder.find("energyToQBPM4_converter")
+scriptcontroller=Finder.find("samplechangerController")
 
 #beamlineParameters values
 MinIPin = float(beamLineMap.MinIPin)
@@ -177,7 +177,7 @@ def go():
 		#	Open shutter if needed
 		if isOptimiseBeam() or isMeasureFlux() or isScanVerticalBeamProfile() or isScanHorizontalBeamProfile():
 			shutterMonitorName = LocalProperties.get("gda.mx.exptShutter")
-			shutterPositioner = Finder.getInstance().find(shutterMonitorName)
+			shutterPositioner = Finder.find(shutterMonitorName)
 			if shutterPositioner.getPosition() == "Closed":
 				print "Opening Experimental shutter"
 				shutterPositioner.moveTo("Reset")

@@ -2,7 +2,7 @@ from gda.factory import Finder
 from gda.util.userOptions import UserOptionsManager
 
 def getUserOptionsManager():
-	manager = Finder.getInstance().findSingleton(UserOptionsManager)
+	manager = Finder.findSingleton(UserOptionsManager)
 	if not manager:
 		manager = UserOptionsManager()
 		manager.configure()

@@ -93,7 +93,7 @@ def jobs():
 
 	Only shows the live threads.
 	"""
-	command_server = Finder.getInstance().find(Jython.SERVER_NAME)
+	command_server = Finder.find(Jython.SERVER_NAME)
 	
 	logger.debug("jobs() called")
 

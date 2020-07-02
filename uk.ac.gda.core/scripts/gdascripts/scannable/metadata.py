@@ -58,14 +58,14 @@ class MetadataCollector(ScannableBase):
         return self.ls()
 
     def ls(self):
-        metascannables = Finder.getInstance().find("metashop").getMetaScannables() \
+        metascannables = Finder.find("metashop").getMetaScannables() \
             if self.readFromNexus else self.scannables_to_read
         # meta_ls and meta_ll enforce their own formatting, so return their
         # list of metadata scannables in our format.
         return ' '.join([scn.name for scn in metascannables])
 
     def getMeta(self):
-        return Finder.getInstance().find("metashop").getMetaScannables() \
+        return Finder.find("metashop").getMetaScannables() \
             if self.readFromNexus else self.scannables_to_read
 
     def add(self, *args):
@@ -186,7 +186,7 @@ class MetadataCollector(ScannableBase):
 
     def _createHeaderStringForScannables(self, fmt='%s=%s\n'):
         s = ""
-        metascannables = Finder.getInstance().find("metashop").getMetaScannables() \
+        metascannables = Finder.find("metashop").getMetaScannables() \
             if self.readFromNexus else self.scannables_to_read
 
         for scn in metascannables:

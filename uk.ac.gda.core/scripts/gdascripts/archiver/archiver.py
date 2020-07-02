@@ -1,6 +1,6 @@
 from gda.factory import Finder
 
-archiver = Finder.getInstance().find("archiver")
+archiver = Finder.find("archiver")
 
 def archive(pvName, dateString):
 	try:

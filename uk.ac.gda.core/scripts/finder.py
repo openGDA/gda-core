@@ -12,7 +12,7 @@ def __getattr__(self, name):
 		value = FinderNameMapping()[name]
 	except AttributeError:
 		value = None
-	# equivalent to:	from gda.factory import Finder; value = Finder.getInstance().findNoWarn(name)
+	# equivalent to:	from gda.factory import Finder; value = Finder.findNoWarn(name)
 	if value is None:
 		raise AttributeError("'%s' object has no attribute '%s'" % (__name__, name))
 	return value

@@ -6,7 +6,7 @@ from uk.ac.diamond.daq.persistence.jythonshelf import LocalParameters
 from gda.data.metadata import GDAMetadataProvider
 BSL_CONVERSION_CONFIGURED = 'gda.scan.processing.bsl.configured'
 
-RUNNER = Finder.getInstance().find('bslConversion')
+RUNNER = Finder.find('bslConversion')
 
 class BslConversionUpdater(IObserver):
     def update(self, source, arg):

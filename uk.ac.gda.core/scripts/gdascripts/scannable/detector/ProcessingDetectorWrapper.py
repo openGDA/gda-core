@@ -42,7 +42,7 @@ def _appendStringToSRSFileHeader(self, s):
 class FileRegistrar(object):
 	
 	def __init__(self):
-		resistrarDict = Finder.getInstance().getFindablesOfType(IFileRegistrar)
+		resistrarDict = Finder.getFindablesOfType(IFileRegistrar)
 		self.registrars = resistrarDict.values()
 	
 	def registerFile(self, filepath):

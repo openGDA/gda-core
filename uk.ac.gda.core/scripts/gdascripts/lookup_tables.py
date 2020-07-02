@@ -1,5 +1,5 @@
 import sys;
-import gda.factory.Finder as Finder;
+from gda.factory import Finder;
 from gdascripts.messages import handle_messages
 from gda.util.converters import IReloadableQuantitiesConverter
 
@@ -10,8 +10,7 @@ def reload_tables(logInfo=True):
     prefix = "reload_tables:"
     if( logInfo ):
         handle_messages.log(controller, prefix + " - started")
-    finder = Finder.getInstance()
-    converters = finder.listFindablesOfType(IReloadableQuantitiesConverter)
+    converters = Finder.listFindablesOfType(IReloadableQuantitiesConverter)
     for converter in converters:
         try:
             if( logInfo ):

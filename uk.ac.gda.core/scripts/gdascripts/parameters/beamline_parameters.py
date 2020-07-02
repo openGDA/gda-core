@@ -102,18 +102,12 @@ class JythonNameSpaceMapping:
 
 class FinderNameMapping:
 	''''''
-	def __init__(self, finder=None):
-		if finder == None:
-			finder = Finder.getInstance()
-		self.reload(finder)
+	def __init__(self):
+		self.reload()
 
 
 	def __getitem__(self, item_name):
 		return self.__getattr__(item_name)
-
-
-	def __repr__(self):
-		return "FinderNameMapping(finder=%s)" % self.finder
 
 
 	def __getattr__(self, attr_name):
@@ -124,7 +118,7 @@ class FinderNameMapping:
 		else:
 			name_to_find = attr_name
 		try:
-			obj = self.finder.find(name_to_find)
+			obj = Finder.find(name_to_find)
 		except:
 			# print out now as it is not output by the Jython terminal
 			msg = "Error getting value for item named " + name_to_find + " in finderNameMap for attribute " + attr_name
@@ -137,8 +131,7 @@ class FinderNameMapping:
 		return obj
 
 
-	def reload(self,finder):
-		self.finder = finder
+	def reload(self):
 		self.finderNameMapping={}
 		self.finderNameMapFilePath = LocalProperties.get(FINDER_NAME_MAPPING_FILE_PROPERTY)
 		if(self.finderNameMapFilePath != None):

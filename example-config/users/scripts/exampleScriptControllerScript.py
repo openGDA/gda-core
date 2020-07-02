@@ -20,7 +20,7 @@ class MyExperiment():
         print "I am now running the experiment using parameters in the bean",str(self.bean),"..."
         time.sleep(2)
         print "...and now the experiment is over."
-        scriptController = Finder.getInstance().find("MyExperimentScriptController")
+        scriptController = Finder.find("MyExperimentScriptController")
         if scriptController != None:
             print "Broadcasting experiment complete message..."
             scriptController.update("MyExperiment Script", "Experiment Complete!")

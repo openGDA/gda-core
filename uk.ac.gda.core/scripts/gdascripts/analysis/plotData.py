@@ -65,5 +65,5 @@ def testXY(numOfPoint=1000):
     return plotXY("x",xData,"y",yData)
 
 def testMCA():
-    beamline = Finder.getInstance().find("Beamline")
+    beamline = Finder.find("Beamline")
     return plotY("Point","Counts",beamline.getValue(ReturnType.DBR_NATIVE,"","-EA-DET-01:MCA-01:mca3"))

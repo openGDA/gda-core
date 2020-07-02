@@ -47,7 +47,7 @@ class monitorCheckGenerator:
 		print '''def checkOE(oeName,expectedDOFNames):
 	ok = True
 	try:
-		oe=finder.find(oeName)
+		oe=Finder.find(oeName)
 		#oe = jythonNameMap.__getattr__(oeName)
 		dofNames = oe.getDOFNames()
 		if(len(dofNames) != len(expectedDOFNames)):

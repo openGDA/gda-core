@@ -18,13 +18,13 @@ class VisitSetter():
 
     def visit(self, new_visit = None):
         if new_visit:
-            Finder.getInstance().find("GDAMetadata").setMetadataValue("visit", new_visit)
-            Finder.getInstance().find("GDAMetadata").setMetadataValue("defaultVisit", new_visit)
+            Finder.find("GDAMetadata").setMetadataValue("visit", new_visit)
+            Finder.find("GDAMetadata").setMetadataValue("defaultVisit", new_visit)
 
             if not os.path.exists(self.getVisitDirectory()):
                 print "!!! Warning !!!  The directory '%s' does NOT exist! (pointing to it anyway though)" %self.getVisitDirectory()
             self.setDetectorDirectories()
-        return Finder.getInstance().find("GDAMetadata").getMetadataValue("visit")
+        return Finder.find("GDAMetadata").getMetadataValue("visit")
 
     def getVisitDirectory(self):
         return InterfaceProvider.getPathConstructor().createFromDefaultProperty()
