@@ -26,8 +26,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.jython.InterfaceProvider;
-
 /**
  * An abstract class to provide a translation facility for GDA scripting syntax.
  * <p>
@@ -96,36 +94,6 @@ public class GeneralTranslator extends TranslatorBase {
 					addAliasedVarargCommand(args[1]);
 					thisGroup = "";
 				}
-			}
-			// prevent overwriting of scannables
-			else if (thisGroup.contains("=")) {
-				// extract the string we are interested in
-				String leftOfOperator = thisGroup.substring(0, thisGroup.indexOf("="));
-				String test = "'" + leftOfOperator.trim() + "'";
-
-				String eval = InterfaceProvider.getCommandRunner().evaluateCommand("dir()");
-				// test we are not trying to overwrite an aliased command
-				if (hasAlias(leftOfOperator.trim())) {
-					if (eval.contains(test)){
-						thisGroup = "raise Exception(\"Trying to overwrite an aliased method: " + leftOfOperator.trim()
-						+ "\")";
-					}
-				}
-
-				// then test if our object is in the namespace
-				if (eval.contains(test)) {
-					// if it is, is it a Scannable?
-					String result = InterfaceProvider.getCommandRunner().evaluateCommand(
-							"isinstance(" + leftOfOperator + " ,Scannable)");
-
-					// if so, the raise an error rather than completing the
-					// code
-					if (result.equals("True")) {
-						thisGroup = "raise Exception(\"Trying to overwrite a Scannable: " + leftOfOperator.trim()
-								+ "\")";
-					}
-				}
-				// else do nothing
 			}
 			// else test for a dynamically added commands
 			else if (aliases.contains(args[0]) && args.length >= 1) {

@@ -290,7 +290,7 @@ public class GDAJythonInterpreter {
 		GdaBuiltin.registerBuiltinsFrom(ScannableCommands.class);
 
 		// Replace globals dict to prevent scannables and aliases being overwritten
-		GdaGlobals globals = new GdaGlobals(overwriteLock);
+		GdaGlobals globals = new GdaGlobals();
 		globals.update(mod.__dict__);
 		mod.__dict__ = globals;
 
@@ -760,36 +760,26 @@ public class GDAJythonInterpreter {
 		return interactiveConsole;
 	}
 
+	/**
+	 * This class was created as a workaround for when overwriting scannables was fully blocked.
+	 * After further discussion, this is no longer a requirement and this class is now deprecated.
+	 * It is left for the cases where beamline scripts still reference it but should be removed in
+	 * version 9.20
+	 * @see <a href="https://jira.diamond.ac.uk/browse/DAQ-704">DAQ-704</a>
+	 * @deprecated
+	 */
+	@Deprecated
 	protected static class OverwriteLock extends PyObject implements ContextManager {
-		private transient ThreadLocal<Integer> locks = ThreadLocal.withInitial(() -> 0);
 		@Override
 		public PyObject __enter__(ThreadState ts) {
-			logger.trace("Allowing scannable overwriting");
-			updateLock(1);
+			logger.warn("overwriting context manager is deprecated and will be removed in 9.20 - see DAQ-704");
 			return Py.None;
 		}
 
 		@Override
 		public boolean __exit__(ThreadState ts, PyException exception) {
 			logger.trace("Preventing scannable overwriting");
-			updateLock(-1);
 			return false;
-		}
-
-		private void updateLock(int change) {
-			int previous = locks.get();
-			int next = previous + change;
-			if (next >= 0) {
-				logger.trace("Setting overwriting lock from {} -> {}", previous, next);
-				locks.set(next);
-			} else {
-				logger.warn("Trying to set overwrite lock to {} - resetting to 0", next);
-				locks.set(0);
-			}
-		}
-
-		protected boolean enabled() {
-			return locks.get() > 0;
 		}
 
 		@Override
@@ -805,34 +795,11 @@ public class GDAJythonInterpreter {
 	 * Deletions are intercepted so that deleting an aliased command also removes the alias
 	 */
 	protected static class GdaGlobals extends PyStringMap {
-		private final OverwriteLock overwriting;
-
-		public GdaGlobals(OverwriteLock lock) {
-			overwriting = lock;
-		}
 		@Override
 		public void __setitem__(String key, PyObject value) {
-			// TODO: DAQ-704 This should be reviewed to either allow all aliasing
-			// or made stricter to prevent it. Currently just log occasions where
-			// workarounds are used to avoid current checks
-
 			// Check if we're trying to overwrite an aliased command
-			if (translator != null
-					&& (translator.getAliasedCommands().contains(key)
-							|| translator.getAliasedVarargCommands().contains(key))) {
+			if (translator != null && translator.hasAlias(key)) {
 				logger.debug("Overwriting aliased command '{}' with '{}'", key, value);
-			}
-
-			// Try and get existing object from namespace
-			PyObject obj = get(new PyString(key), Py.None);
-			// Check if it's a scannable
-			if (obj != Py.None && obj.__tojava__(Scannable.class) != Py.NoConversion) {
-				if (overwriting.enabled()) {
-					logger.debug("Overwriting scannable '{}' with '{}'", key, value);
-				} else {
-					// TODO: Throw exception instead of logging a warning
-					logger.warn("Overwriting scannable '{}' with '{}' without overwriting enabled", key, value);
-				}
 			}
 			super.__setitem__(key, value);
 		}

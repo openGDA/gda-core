@@ -857,7 +857,7 @@ def calibrateDCM():
 			correctBragg = 19.27967
 			print "Doing a quick pitch scan on qbpm1..."
 			a = goToPeak.goToPeak2(None,DCM_Pitch,qbpm1,DCM_Pitch(),0.025, 0.002)
-			raise Exception("Trying to overwrite an aliased method: scan")
+			scan([=,gda.scan.ConcurrentScan([DCM_Bragg,19.2,19.36,0.001,qbpm1,])])
 			ca.caput(beamline + "-DI-QBPM-01:Y:MP:SELECT", "2") 
 		elif Beamline == "i04":
 			bl(11564)
@@ -865,7 +865,7 @@ def calibrateDCM():
 			foil = "Pt"
 			print "Doing a quick pitch scan on qbpm1..."
 			a = goToPeak.goToPeak2(None,DCM_Pitch,qbpm1,DCM_Pitch(),0.025, 0.002)
-			raise Exception("Trying to overwrite an aliased method: scan")
+			scan([=,gda.scan.ConcurrentScan([DCM_Bragg,10,9.65,0.0005,qbpm1,])])
 			ca.caput(beamline + "-DI-QBPM-01:Y:MP:SELECT", "3") 
 		else:
 			return "An error occurred running the calibrateDCM script, Beamline is unknown!", files
@@ -999,7 +999,7 @@ def undulatorMonitoring():
 	
 	try:
 		Undulator_Gap(7.0)
-		raise Exception("Trying to overwrite an aliased method: scan")
+		scan([=,gda.scan.ConcurrentScan([DCM_Bragg,BraggStart,BraggEnd,BraggStep,qbpm1,])])
 		scan.runScan()
 		scanNumber = str(getScanNumber())
 		text = text + "First Bragg scan with Undulator Gap at 7mm: " + directory + scanNumber + ".dat\n"
@@ -1014,7 +1014,7 @@ def undulatorMonitoring():
 	
 	try:
 		Undulator_Gap(9.0)
-		raise Exception("Trying to overwrite an aliased method: scan")
+		scan([=,gda.scan.ConcurrentScan([DCM_Bragg,BraggStart,BraggEnd,BraggStep,qbpm1,])])
 		scan.runScan()
 		scanNumber = str(getScanNumber())
 		text = text + "Second Bragg scan with Undulator Gap at 9mm: " + directory + scanNumber + ".dat\n"
@@ -1029,7 +1029,7 @@ def undulatorMonitoring():
 	
 	try:
 		bl(12700)
-		raise Exception("Trying to overwrite an aliased method: scan")
+		scan([=,gda.scan.ConcurrentScan([Undulator_Gap,GapStart,GapEnd,GapStep,qbpm1,])])
 		scan.runScan()
 		scanNumber = str(getScanNumber())
 		text = text + "First Gap scan at 12.7keV: " + directory + scanNumber + ".dat\n"
@@ -1044,7 +1044,7 @@ def undulatorMonitoring():
 	
 	try:
 		bl(18000)
-		raise Exception("Trying to overwrite an aliased method: scan")
+		scan([=,gda.scan.ConcurrentScan([Undulator_Gap,GapStart,GapEnd,GapStep,qbpm1,])])
 		scan.runScan()
 		scanNumber = str(getScanNumber())
 		text = text + "Second Gap scan at 18.0keV: " + directory + scanNumber + ".dat\n\n"
