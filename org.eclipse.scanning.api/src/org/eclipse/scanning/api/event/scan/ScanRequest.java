@@ -60,7 +60,7 @@ public class ScanRequest implements Serializable {
 	private CompoundModel compoundModel;
 
 	/**
-	 * The names of the detectors to use in the scan
+	 * Map the names of the detectors used in the scan to their respective models
 	 */
 	private Map<String, Object> detectors = new HashMap<>(); // not emptyMap as we have a put method
 
@@ -104,7 +104,7 @@ public class ScanRequest implements Serializable {
 	/**
 	 * The script run before the data collection but after the start position has been set.
 	 */
-	private ScriptRequest     beforeScript;
+	private ScriptRequest beforeScript;
 
 	/**
 	 * The end position or null if there is no start position to move to.
@@ -139,17 +139,12 @@ public class ScanRequest implements Serializable {
 		// default constructor for use by Spring etc.
 	}
 
-	public ScanRequest(IScanPointGeneratorModel m, String filePath, List<String> monitorNamesPerPoint, List<String> monitorNamesPerScan, ProcessingRequest processing) {
+	public ScanRequest(IScanPointGeneratorModel m, IROI region, String filePath, List<String> monitorNamesPerPoint, List<String> monitorNamesPerScan) {
 		this.compoundModel = new CompoundModel(m);
+		compoundModel.setRegions(Arrays.asList(new ScanRegion(region, m.getScannableNames())));
+		this.filePath = filePath;
 		this.monitorNamesPerPoint = monitorNamesPerPoint;
 		this.monitorNamesPerScan = monitorNamesPerScan;
-		this.filePath = filePath;
-		this.processingRequest = processing;
-	}
-
-	public ScanRequest(IScanPointGeneratorModel m, IROI region, String filePath, List<String> monitorNamesPerPoint, List<String> monitorNamesPerScan) {
-		this(m, filePath, monitorNamesPerPoint, monitorNamesPerScan, null);
-		compoundModel.setRegions(Arrays.asList(new ScanRegion(region, m.getScannableNames())));
 	}
 
 	public ProcessingRequest getProcessingRequest() {
