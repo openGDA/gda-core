@@ -18,14 +18,22 @@
 
 package gda.jython.scriptcontroller.logging;
 
+import static uk.ac.diamond.daq.api.messaging.messages.DestinationConstants.GDA_MESSAGES_SCAN_TOPIC;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import gda.configuration.properties.LocalProperties;
 import gda.exafs.scan.ExafsTimeEstimator;
 import gda.exafs.scan.RepetitionsProperties;
+import uk.ac.diamond.daq.api.messaging.Destination;
+import uk.ac.diamond.daq.api.messaging.Message;
 import uk.ac.gda.beans.exafs.IScanParameters;
 
-public class XasLoggingMessage implements ScriptControllerLoggingMessage {
+@Destination(GDA_MESSAGES_SCAN_TOPIC)
+public class XasLoggingMessage implements ScriptControllerLoggingMessage, Message {
 
 	private String visitID;
 	private String id;
@@ -42,6 +50,7 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 	private String outputFolder;
 	private String sampleName;
 	private int scanNumber;
+	private List<String> completedScanFileNames = Collections.emptyList();
 
 	public XasLoggingMessage(String visit_id,String id, String scriptName, String message, String repetition, String scanRepetitions, String sampleEnvironmentRepetitionNumber, String sampleEnvironmentRepetitions, String percentComplete, String elaspedScanTime, String elaspedTotalTime, String predictedTotalTime, String outputFolder, String sampleName, int scanNumber) {
 		super();
@@ -185,5 +194,13 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 	@ScriptControllerLogColumn(columnName = "Visit ID", refresh = false, columnIndex = 0)
 	public String getVisitID() {
 		return this.visitID;
+	}
+
+	public void setCompletedScanFileNames(List<String> completedScanFileNames) {
+		this.completedScanFileNames = new ArrayList<>(completedScanFileNames);
+	}
+
+	public List<String> getCompletedScanFileNames() {
+		return completedScanFileNames;
 	}
 }

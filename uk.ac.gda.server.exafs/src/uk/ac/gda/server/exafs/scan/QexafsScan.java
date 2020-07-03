@@ -26,8 +26,6 @@ import gda.exafs.scan.ScanStartedMessage;
 import gda.jython.scriptcontroller.event.ScanCreationEvent;
 import gda.jython.scriptcontroller.event.ScanFinishEvent;
 import gda.jython.scriptcontroller.event.ScriptProgressEvent;
-import gda.jython.scriptcontroller.logging.XasLoggingMessage;
-import gda.jython.scriptcontroller.logging.XasProgressUpdater;
 import gda.scan.ContinuousScan;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
 
@@ -46,8 +44,7 @@ public class QexafsScan extends EnergyScan {
 	}
 
 	@Override
-	protected void createAndRunScan(String sampleName, List<String> descriptions, XasLoggingMessage logmsg)
-			throws Exception {
+	protected void createAndRunScan(String sampleName, List<String> descriptions) throws Exception {
 
 		BufferedDetector[] detectorList = _getQEXAFSDetectors();
 
@@ -58,9 +55,6 @@ public class QexafsScan extends EnergyScan {
 		double scan_time = ((QEXAFSParameters) scanBean).getTime();
 
 		loggingScriptController.update(null, new ScanStartedMessage(scanBean, detectorBean));
-
-		XasProgressUpdater loggingbean = new XasProgressUpdater(loggingScriptController, logmsg,
-				timeRepetitionsStarted);
 
 		double current_energy = (Double) energyScannable.getPosition();
 		double dist_to_init = Math.abs(initial_energy - current_energy);

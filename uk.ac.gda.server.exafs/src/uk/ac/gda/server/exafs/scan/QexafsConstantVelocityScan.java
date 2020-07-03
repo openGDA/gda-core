@@ -27,8 +27,6 @@ import gda.exafs.scan.ScanStartedMessage;
 import gda.jython.scriptcontroller.event.ScanCreationEvent;
 import gda.jython.scriptcontroller.event.ScanFinishEvent;
 import gda.jython.scriptcontroller.event.ScriptProgressEvent;
-import gda.jython.scriptcontroller.logging.XasLoggingMessage;
-import gda.jython.scriptcontroller.logging.XasProgressUpdater;
 import gda.scan.ConstantVelocityScanLine;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
 
@@ -70,15 +68,13 @@ public class QexafsConstantVelocityScan extends EnergyScan {
 	}
 
 	@Override
-	protected void createAndRunScan(String sampleName, List<String> descriptions, XasLoggingMessage logmsg) throws Exception {
+	protected void createAndRunScan(String sampleName, List<String> descriptions) throws Exception {
 		prepareForCollection();
 
 		loggingScriptController.update(null, new ScanStartedMessage(scanBean, detectorBean));
-		XasProgressUpdater loggingbean = new XasProgressUpdater(loggingScriptController, logmsg, timeRepetitionsStarted);
 
 		log("Scan: " + qexafsScannable.getName() + " " + start + " " + end + " " + numberPoints + " " + scanTime + " " + nxDetectorList);
 		loggingScriptController.update(null, new ScriptProgressEvent("Running QEXAFS scan"));
-
 
 		// parse arguments for ConstantVelocityScan
 		Object[] args = parseArguments();
