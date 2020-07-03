@@ -16,12 +16,12 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.api.document.diffraction;
+package uk.ac.diamond.daq.mapping.api.document.scanning;
 
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 
-public class DiffractionConfiguration extends AcquisitionConfigurationBase<ScanningParameters> {
+public class ScanningConfiguration extends AcquisitionConfigurationBase<ScanningParameters> {
 
 
 }

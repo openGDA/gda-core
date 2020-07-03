@@ -21,8 +21,9 @@ package uk.ac.diamond.daq.mapping.api.document.diffraction;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 
 @JsonTypeName("diffractionAcquisition")
-public class DiffractionParameterAcquisition extends AcquisitionBase<DiffractionConfiguration> {
+public class DiffractionParameterAcquisition extends AcquisitionBase<ScanningConfiguration> {
 
 }

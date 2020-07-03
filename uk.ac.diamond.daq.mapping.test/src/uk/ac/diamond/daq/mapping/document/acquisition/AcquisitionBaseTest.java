@@ -27,11 +27,10 @@ import org.junit.Test;
 
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
-import uk.ac.diamond.daq.mapping.api.document.diffraction.DiffractionConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.diffraction.DiffractionParameterAcquisition;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ShapeType;
-import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.tomography.TomographyParameterAcquisition;
 import uk.ac.diamond.daq.mapping.document.DocumentTestBase;
 import uk.ac.gda.api.acquisition.Acquisition;
@@ -50,7 +49,7 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 	@Test
 	public void serializeDiffractionParameterAcquisition() throws GDAException {
 		DiffractionParameterAcquisition acquisition = new DiffractionParameterAcquisition();
-		DiffractionConfiguration acquisitionConfiguration = new DiffractionConfiguration();
+		ScanningConfiguration acquisitionConfiguration = new ScanningConfiguration();
 		acquisition.setAcquisitionConfiguration(acquisitionConfiguration);
 
 		ScanningParameters acquisitionParameters = new ScanningParameters();
@@ -70,7 +69,7 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 	@Test
 	public void serializeTomographyParameterAcquisition() throws GDAException {
 		TomographyParameterAcquisition acquisition = new TomographyParameterAcquisition();
-		TomographyConfiguration acquisitionConfiguration = new TomographyConfiguration();
+		ScanningConfiguration acquisitionConfiguration = new ScanningConfiguration();
 		acquisition.setAcquisitionConfiguration(acquisitionConfiguration);
 
 		ScanningParameters acquisitionParameters = new ScanningParameters();
@@ -85,7 +84,7 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 				DiffractionParameterAcquisition.class);
 
 		assertEquals("SimpleTest", modelDocument.getDescription());
-		assertEquals(DiffractionConfiguration.class, modelDocument.getAcquisitionConfiguration().getClass());
+		assertEquals(ScanningConfiguration.class, modelDocument.getAcquisitionConfiguration().getClass());
 		assertEquals(ScanningParameters.class,
 				modelDocument.getAcquisitionConfiguration().getAcquisitionParameters().getClass());
 		ScanningParameters dp = ScanningParameters.class
@@ -99,7 +98,7 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 				DiffractionParameterAcquisition.class);
 
 		assertEquals("SimpleTest", modelDocument.getDescription());
-		assertEquals(DiffractionConfiguration.class, modelDocument.getAcquisitionConfiguration().getClass());
+		assertEquals(ScanningConfiguration.class, modelDocument.getAcquisitionConfiguration().getClass());
 		assertEquals(ScanningParameters.class,
 				modelDocument.getAcquisitionConfiguration().getAcquisitionParameters().getClass());
 		ScanningParameters dp = ScanningParameters.class
