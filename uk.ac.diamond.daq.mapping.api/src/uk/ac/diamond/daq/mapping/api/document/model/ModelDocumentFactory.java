@@ -36,6 +36,8 @@ public class ModelDocumentFactory {
 	public static final AcquisitionTemplate buildModelDocument(ScanpathDocument scanpathDocument) throws GDAException {
 		Objects.requireNonNull(scanpathDocument);
 		switch (scanpathDocument.getModelDocument()) {
+		case ONE_DIMENSION_LINE:
+			return new AxialStepModelDocument(scanpathDocument);
 		case TWO_DIMENSION_POINT:
 			return new TwoAxisPointSingleModelDocument(scanpathDocument);
 		case TWO_DIMENSION_LINE:

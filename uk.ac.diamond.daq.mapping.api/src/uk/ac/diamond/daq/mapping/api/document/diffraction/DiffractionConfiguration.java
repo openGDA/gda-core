@@ -19,8 +19,9 @@
 package uk.ac.diamond.daq.mapping.api.document.diffraction;
 
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 
-public class DiffractionConfiguration extends AcquisitionConfigurationBase<DiffractionParameters> {
+public class DiffractionConfiguration extends AcquisitionConfigurationBase<ScanningParameters> {
 
 
 }

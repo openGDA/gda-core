@@ -91,14 +91,17 @@ public class AxialStepModelDocument implements AcquisitionTemplate {
 			return pathModel;
 		}
 
-		// Multiplier to adjust the step value direction
-		double sign = scannableTrackDocument.getStop() < scannableTrackDocument.getStart() ? -1 : 1;
+		double step = scannableTrackDocument.getStep();
+		if (step == Double.MIN_VALUE) {
+			step = (scannableTrackDocument.getStop() - scannableTrackDocument.getStart()) / scannableTrackDocument.getPoints();
+		}
 
 		AxialStepModel model = new AxialStepModel(scannableTrackDocument.getScannable(),
 				scannableTrackDocument.getStart(),
-				scannableTrackDocument.getStop(), scannableTrackDocument.getStep() * sign);
+				scannableTrackDocument.getStop(), step);
 		model.setAlternating(getScanpathDocument().getMutators().containsKey(ALTERNATING));
 		model.setContinuous(getScanpathDocument().getMutators().containsKey(CONTINUOUS));
+		model.setName(scannableTrackDocument.getScannable());
 		pathModel = model;
 		return pathModel;
 	};
@@ -113,6 +116,7 @@ public class AxialStepModelDocument implements AcquisitionTemplate {
 
 		// LinearROI defines a line in a 2D space
 		roi = new LinearROI(spt, ept);
+		roi.setName(scannableTrackDocument.getScannable());
 		return roi;
 	};
 
