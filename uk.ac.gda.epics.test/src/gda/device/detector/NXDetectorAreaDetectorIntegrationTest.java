@@ -26,6 +26,21 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+import java.util.concurrent.Callable;
+
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
 import gda.data.nexus.tree.INexusTree;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -38,20 +53,6 @@ import gda.device.detector.nxdetector.NXPlugin;
 import gda.device.detector.nxdetector.NXPluginBase;
 import gda.device.detector.nxdetector.plugin.areadetector.ADArrayPlugin;
 import gda.device.detector.nxdetector.plugin.areadetector.ADBasicStats;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
-import java.util.concurrent.Callable;
-
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 // TODO No tests for array readout!
 
@@ -112,7 +113,7 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 		when(ndArrayBase.getArraySize0_RBV()).thenReturn(2);
 		when(ndArrayBase.getArraySize1_RBV()).thenReturn(3);
 		when(ndArrayBase.getArraySize2_RBV()).thenReturn(0);
-		when(ndArray.getByteArrayData(Matchers.anyInt())).thenReturn(byteArray);
+		when(ndArray.getByteArrayData(ArgumentMatchers.anyInt())).thenReturn(byteArray);
 
 
 		enableAdditionalPlugins(false, false);

@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 import org.apache.commons.lang.ArrayUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -387,7 +387,7 @@ public class ADDetectorTest {
 		when(ndArrayBase.getArraySize0_RBV()).thenReturn(2);
 		when(ndArrayBase.getArraySize1_RBV()).thenReturn(3);
 		when(ndArrayBase.getArraySize2_RBV()).thenReturn(0);
-		when(ndArray.getByteArrayData(Matchers.anyInt())).thenReturn(byteArray);
+		when(ndArray.getByteArrayData(ArgumentMatchers.anyInt())).thenReturn(byteArray);
 
 		NXDetectorData data = (NXDetectorData) det().readout();
 		assertEquals("", data.toString());
