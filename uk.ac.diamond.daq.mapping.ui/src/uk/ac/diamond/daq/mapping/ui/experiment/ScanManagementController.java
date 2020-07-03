@@ -64,7 +64,7 @@ import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IScanBeanSubmitter;
 import uk.ac.diamond.daq.mapping.api.PersistableMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.ScanRequestSavedEvent;
-import uk.ac.diamond.daq.mapping.api.document.diffraction.DiffractionParameterAcquisition;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
@@ -266,7 +266,7 @@ public class ScanManagementController extends AbstractMappingController {
 		submitScan(Optional.empty(), null);
 	}
 
-	public void submitScan(URL acquisitionFile, DiffractionParameterAcquisition acquisitionParameters) {
+	public void submitScan(URL acquisitionFile, ScanningAcquisition acquisitionParameters) {
 		submitScan(Optional.ofNullable(acquisitionFile.getPath()), acquisitionParameters);
 	}
 
@@ -277,7 +277,7 @@ public class ScanManagementController extends AbstractMappingController {
 	 * @param filePath
 	 *            The filepath of the output NeXus file. If {@code null} it is generated through default properties.
 	 */
-	public void submitScan(Optional<String> filePath, DiffractionParameterAcquisition acquisitionParameters) {
+	public void submitScan(Optional<String> filePath, ScanningAcquisition acquisitionParameters) {
 		final IScanBeanSubmitter submitter = getService(IScanBeanSubmitter.class);
 		try {
 			ScanBean scanBean = createScanBean(filePath, acquisitionParameters);
@@ -312,7 +312,7 @@ public class ScanManagementController extends AbstractMappingController {
 	 * @return The resultant {@link ScanBean}
 	 */
 	public ScanBean createScanBean() {
-		return createScanBean(Optional.empty(), new DiffractionParameterAcquisition());
+		return createScanBean(Optional.empty(), new ScanningAcquisition());
 	}
 
 	/**
@@ -334,7 +334,7 @@ public class ScanManagementController extends AbstractMappingController {
 	 *            the acquisition parameters
 	 * @return a scan bean
 	 */
-	public ScanBean createScanBean(Optional<String> filePath, DiffractionParameterAcquisition acquisitionParameters) {
+	public ScanBean createScanBean(Optional<String> filePath, ScanningAcquisition acquisitionParameters) {
 		checkInitialised();
 		final IMappingExperimentBean mappingBean = getMappingBean();
 		if (acquisitionParameters != null) {
@@ -444,7 +444,7 @@ public class ScanManagementController extends AbstractMappingController {
 		return gridModelIndex;
 	}
 
-	private String getSampleName(IMappingExperimentBean mappingBean, DiffractionParameterAcquisition acquisitionParameters) {
+	private String getSampleName(IMappingExperimentBean mappingBean, ScanningAcquisition acquisitionParameters) {
 		String sampleName;
 		if (acquisitionParameters != null) {
 			sampleName = acquisitionParameters.getName();

@@ -1,5 +1,5 @@
 {
-	"type": "diffractionAcquisition",
+	"type": "scanningAcquisition",
 	"uuid": null,
 	"name": "Diffraction Acquisition Test",
 	"description": "SimpleTest",

@@ -16,14 +16,13 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.api.document.tomography;
+package uk.ac.diamond.daq.mapping.api.document.scanning;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
-import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 
-@JsonTypeName("tomographyAcquisition")
-public class TomographyParameterAcquisition extends AcquisitionBase<ScanningConfiguration> {
+@JsonTypeName("scanningAcquisition")
+public class ScanningAcquisition extends AcquisitionBase<ScanningConfiguration> {
 
 }
