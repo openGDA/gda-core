@@ -35,7 +35,7 @@ import java.util.concurrent.Callable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import gda.TestHelpers;
@@ -103,18 +103,18 @@ public class RepeatScanTest {
 		Detector d2det = (Detector)d2;
 		when(d2det.getName()).thenReturn("d2");
 		when(d2det.readout()).thenReturn(1.);
-		Mockito.doCallRealMethod().when(d2).atRepScanStart(Matchers.anyInt());
+		Mockito.doCallRealMethod().when(d2).atRepScanStart(ArgumentMatchers.anyInt());
 		Mockito.doCallRealMethod().when(d2).getNumberOfFrames();
 
 		d3 = mock(DetectorFrameControllerImpl.class, Mockito.withSettings().extraInterfaces(Detector.class, PositionCallableProvider.class));
 		Detector d3det = (Detector)d3;
 		when(d3det.getName()).thenReturn("d3");
 		when(d3det.readout()).thenReturn(1.);
-		Mockito.doCallRealMethod().when(d3).atRepScanStart(Matchers.anyInt());
+		Mockito.doCallRealMethod().when(d3).atRepScanStart(ArgumentMatchers.anyInt());
 		Mockito.doCallRealMethod().when(d3).getNumberOfFrames();
 		PositionCallableProvider d3PositionCallableProvider = (PositionCallableProvider)d3;
 		when(d3det.readout()).thenThrow(new DeviceException("readout should not be called as d3 supports PositionCallableProvider"));
-		Mockito.doCallRealMethod().when(d3).atRepScanStart(Matchers.anyInt());
+		Mockito.doCallRealMethod().when(d3).atRepScanStart(ArgumentMatchers.anyInt());
 		Mockito.doCallRealMethod().when(d3).getNumberOfFrames();
 		when(d3PositionCallableProvider.getPositionCallable()).thenReturn(new CallableImpl(new Double(1.0)));
 

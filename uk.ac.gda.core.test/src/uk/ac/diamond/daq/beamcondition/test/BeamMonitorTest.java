@@ -29,7 +29,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyObject;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -128,7 +127,7 @@ public class BeamMonitorTest extends PowerMockBase {
 		monitor.off();
 
 		PowerMockito.verifyStatic(Async.class, times(1));
-		Async.scheduleWithFixedDelay(anyObject(), eq(1L), eq(1L), eq(TimeUnit.MILLISECONDS));
+		Async.scheduleWithFixedDelay(any(), eq(1L), eq(1L), eq(TimeUnit.MILLISECONDS));
 		PowerMockito.verifyNoMoreInteractions(Async.class);
 	}
 
@@ -138,7 +137,7 @@ public class BeamMonitorTest extends PowerMockBase {
 		monitor.on();
 
 		PowerMockito.verifyStatic(Async.class, times(1));
-		Async.scheduleWithFixedDelay(anyObject(), eq(100L), eq(100L), eq(TimeUnit.MILLISECONDS));
+		Async.scheduleWithFixedDelay(any(), eq(100L), eq(100L), eq(TimeUnit.MILLISECONDS));
 		PowerMockito.verifyNoMoreInteractions(Async.class);
 	}
 

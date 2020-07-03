@@ -27,7 +27,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.ArgumentMatchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -260,8 +260,8 @@ public class RmiProxyFactoryTest {
 		remoteScannable.deleteIObservers();
 
 		// Check the IObservable method calls never made it to the real object on the server side
-		verify(mockScannable, never()).addIObserver(anyObject());
-		verify(mockScannable, never()).deleteIObserver(anyObject());
+		verify(mockScannable, never()).addIObserver(any());
+		verify(mockScannable, never()).deleteIObserver(any());
 		verify(mockScannable, never()).deleteIObservers();
 
 		// Verify mock interactions with mockRemoteObjectProvider

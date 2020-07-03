@@ -22,7 +22,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyObject;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -105,7 +104,7 @@ public class CoordinatedScannableGroupTest {
 	@Test
 	public void testStartMove() throws DeviceException {
 
-		doNothing().when(group).asynchronousMoveTo(anyObject());
+		doNothing().when(group).asynchronousMoveTo(any());
 		group.addChildToMove(a);
 		group.addChildToMove(b);
 		group.addChildToMove(c);
@@ -113,17 +112,17 @@ public class CoordinatedScannableGroupTest {
 		group.setChildTarget(b, 2.);
 		group.setChildTarget(c, 3.);
 
-//		verify(group).asynchronousMoveTo(anyObject());
+//		verify(group).asynchronousMoveTo(any());
 		verify(group).asynchronousMoveTo(new Double[] {1.,2.,3.});
-		verify(rawa, never()).asynchronousMoveTo(anyObject());
-		verify(rawb, never()).asynchronousMoveTo(anyObject());
-		verify(rawc, never()).asynchronousMoveTo(anyObject());
+		verify(rawa, never()).asynchronousMoveTo(any());
+		verify(rawb, never()).asynchronousMoveTo(any());
+		verify(rawc, never()).asynchronousMoveTo(any());
 	}
 
 	@Test
 	public void testStartMovePartial() throws DeviceException {
 
-		doNothing().when(group).asynchronousMoveTo(anyObject());
+		doNothing().when(group).asynchronousMoveTo(any());
 		group.addChildToMove(a);
 		group.addChildToMove(c);
 		group.setChildTarget(a, 1.);

@@ -22,7 +22,7 @@ package gda.jython.authoriser;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyVararg;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -105,7 +105,7 @@ public class LdapAuthoriserTest extends PowerMockBase {
 		SearchResult user = mock(SearchResult.class);
 		Attributes atts = new BasicAttributes("memberOf", group);
 		when(user.getAttributes()).thenReturn(atts);
-		when(mockLdap.searchLdapForUser(eq(username), anyVararg())).thenReturn(results);
+		when(mockLdap.searchLdapForUser(eq(username), any())).thenReturn(results);
 		when(results.hasMore()).thenReturn(true);
 		when(results.next()).thenReturn(user);
 	}

@@ -19,18 +19,20 @@
 package gda.device.scannable;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+
+import org.junit.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
 import gda.device.DeviceException;
 import gda.device.ScannableMotionUnits;
 import gda.factory.FactoryException;
-
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 public class ScannableRotatingGonioTest {
 
@@ -54,7 +56,7 @@ public class ScannableRotatingGonioTest {
 				xVal = (Double) args[0];
 				return null;
 			}
-		}).when(xScannableMotor).asynchronousMoveTo(anyObject());
+		}).when(xScannableMotor).asynchronousMoveTo(any());
 
 		doAnswer(new Answer() {
 			@Override
@@ -75,7 +77,7 @@ public class ScannableRotatingGonioTest {
 				yVal = (Double) args[0];
 				return null;
 			}
-		}).when(yScannableMotor).asynchronousMoveTo(anyObject());
+		}).when(yScannableMotor).asynchronousMoveTo(any());
 		doAnswer(new Answer() {
 			@Override
 			public Object answer(InvocationOnMock invocation) {
@@ -94,7 +96,7 @@ public class ScannableRotatingGonioTest {
 				rotVal = (Double) args[0];
 				return null;
 			}
-		}).when(rotScannableMotor).asynchronousMoveTo(anyObject());
+		}).when(rotScannableMotor).asynchronousMoveTo(any());
 		doAnswer(new Answer() {
 			@Override
 			public Object answer(InvocationOnMock invocation) {

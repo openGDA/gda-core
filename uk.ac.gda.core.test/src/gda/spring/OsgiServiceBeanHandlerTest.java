@@ -32,7 +32,7 @@ import java.util.Dictionary;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.osgi.framework.BundleContext;
@@ -78,7 +78,7 @@ public class OsgiServiceBeanHandlerTest {
 		verify(mockContext).getServiceReferences(Serializable.class, null);
 
 		// Then verify the service is registered
-		verify(mockContext).registerService(eq(Serializable.class.getCanonicalName()), same(service), Matchers.<Dictionary<String,Object>>any());
+		verify(mockContext).registerService(eq(Serializable.class.getCanonicalName()), same(service), ArgumentMatchers.<Dictionary<String,Object>>any());
 		verifyNoMoreInteractions(mockContext);
 	}
 

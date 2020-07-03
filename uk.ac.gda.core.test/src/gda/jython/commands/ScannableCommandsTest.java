@@ -21,7 +21,7 @@ package gda.jython.commands;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.mockito.ArgumentMatchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
@@ -128,7 +128,7 @@ public class ScannableCommandsTest {
 		for (Scannable scn : Arrays.asList(lev4, lev5a, lev5b, lev6)) {
 			verify(scn, times(1)).atLevelStart();
 			verify(scn, times(1)).atLevelMoveStart();
-			verify(scn, times(1)).asynchronousMoveTo(anyObject());
+			verify(scn, times(1)).asynchronousMoveTo(any());
 			verify(scn, times(1)).waitWhileBusy();
 			verify(scn, times(1)).atLevelEnd();
 		}
@@ -173,7 +173,7 @@ public class ScannableCommandsTest {
 
 		inOrder.verify(lev6, never()).atLevelMoveStart();
 		inOrder.verify(lev6, never()).atLevelStart();
-		inOrder.verify(lev6, never()).asynchronousMoveTo(anyObject());
+		inOrder.verify(lev6, never()).asynchronousMoveTo(any());
 		inOrder.verify(lev6, never()).waitWhileBusy();
 		inOrder.verify(lev6, never()).atLevelEnd();
 
@@ -202,7 +202,7 @@ public class ScannableCommandsTest {
 	@Test
 	public void testAtCommandFailureForPosException() throws Exception {
 		Scannable failer = MockFactory.createMockScannable("failer");
-		doThrow(new DeviceException("Planned failure for test")).when(failer).asynchronousMoveTo(anyObject());
+		doThrow(new DeviceException("Planned failure for test")).when(failer).asynchronousMoveTo(any());
 
 
 		try{

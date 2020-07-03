@@ -24,7 +24,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
-import static org.mockito.ArgumentMatchers.anyObject;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -210,8 +209,8 @@ public class ConcurrentScanTest {
 		verify(smoved, times(1)).atScanLineEnd();
 
 		verify(sread, times(11)).getPosition();
-		verify(sread, never()).asynchronousMoveTo(anyObject());
-		verify(sread, never()).asynchronousMoveTo(anyObject());
+		verify(sread, never()).asynchronousMoveTo(any());
+		verify(sread, never()).asynchronousMoveTo(any());
 		verify(sread, times(11)).atPointStart();
 		verify(sread, times(11)).atPointEnd();
 		verify(sread, times(1)).atScanLineStart();
@@ -220,8 +219,8 @@ public class ConcurrentScanTest {
 		verify(sread, times(1)).atScanLineEnd();
 
 		verify(detlev9a, times(11)).readout();
-		verify(detlev9a, never()).asynchronousMoveTo(anyObject());
-		verify(detlev9a, never()).asynchronousMoveTo(anyObject());
+		verify(detlev9a, never()).asynchronousMoveTo(any());
+		verify(detlev9a, never()).asynchronousMoveTo(any());
 		verify(detlev9a, times(11)).atPointStart();
 		verify(detlev9a, times(11)).atPointEnd();
 		verify(detlev9a, times(1)).atScanLineStart();
@@ -863,7 +862,7 @@ public class ConcurrentScanTest {
 		verify(zie, times(2)).atLevelStart();
 		verify(lev4, times(2)).atLevelEnd();
 		verify(zie, times(2)).atLevelEnd();
-		verify(zie, never()).asynchronousMoveTo(anyObject());
+		verify(zie, never()).asynchronousMoveTo(any());
 	}
 
 	@Test
@@ -964,7 +963,7 @@ public class ConcurrentScanTest {
 				"testAtCommandFailureForScanException", true);
 		setLocalProperties();
 		Scannable failer = MockFactory.createMockScannable("failer");
-		doThrow(new DeviceException("Planned failure for test")).when(failer).asynchronousMoveTo(anyObject());
+		doThrow(new DeviceException("Planned failure for test")).when(failer).asynchronousMoveTo(any());
 
 		Object[] args = new Object[] { lev4, 0., 1., 1., lev5a, 1., failer, 2., lev6, 3. };
 		ConcurrentScan scan = new ConcurrentScan(args);
@@ -1083,7 +1082,7 @@ public class ConcurrentScanTest {
 		System.out.print(scan.getDataWriter().getCurrentFileName());
 
 		verify(ct).setCollectionTime(.1);
-		verify(ct, never()).asynchronousMoveTo(anyObject());
+		verify(ct, never()).asynchronousMoveTo(any());
 
 		// ASCII file compare
 		assertEquals(Files.readAllLines(Paths.get("testfiles/gda/scan/ConcurrentScanTest/testCounterTimer_expected.dat")),
@@ -1098,9 +1097,9 @@ public class ConcurrentScanTest {
 		new ConcurrentScan(new Object[] { lev4, 0., 2., 1., detlev9a, detlev9b }).runScan();
 
 		verify(detlev9a, never()).setCollectionTime(anyDouble());
-		verify(detlev9a, never()).asynchronousMoveTo(anyObject());
+		verify(detlev9a, never()).asynchronousMoveTo(any());
 		verify(detlev9b, never()).setCollectionTime(anyDouble());
-		verify(detlev9b, never()).asynchronousMoveTo(anyObject());
+		verify(detlev9b, never()).asynchronousMoveTo(any());
 
 	}
 
@@ -1114,11 +1113,11 @@ public class ConcurrentScanTest {
 		new ConcurrentScan(new Object[] { scn, 0., 2., 1., detlev9a, .1, detlev9b, .2, detlev5 }).runScan();
 
 		verify(detlev9a).setCollectionTime(.1);
-		verify(detlev9a, never()).asynchronousMoveTo(anyObject());
+		verify(detlev9a, never()).asynchronousMoveTo(any());
 		verify(detlev9b).setCollectionTime(.2);
-		verify(detlev9b, never()).asynchronousMoveTo(anyObject());
+		verify(detlev9b, never()).asynchronousMoveTo(any());
 		verify(detlev5, never()).setCollectionTime(anyDouble());
-		verify(detlev5, never()).asynchronousMoveTo(anyObject());
+		verify(detlev5, never()).asynchronousMoveTo(any());
 	}
 
 	@Test
@@ -1132,11 +1131,11 @@ public class ConcurrentScanTest {
 		new ConcurrentScan(new Object[] { lev4, 0., 2., 1., detlev9a, .1, detlev9b, .2, detlev5 }).runScan();
 
 		verify(detlev9a, times(2)).setCollectionTime(.1);
-		verify(detlev9a, never()).asynchronousMoveTo(anyObject());
+		verify(detlev9a, never()).asynchronousMoveTo(any());
 		verify(detlev9b, times(2)).setCollectionTime(.2);
-		verify(detlev9b, never()).asynchronousMoveTo(anyObject());
+		verify(detlev9b, never()).asynchronousMoveTo(any());
 		verify(detlev5, never()).setCollectionTime(anyDouble());
-		verify(detlev5, never()).asynchronousMoveTo(anyObject());
+		verify(detlev5, never()).asynchronousMoveTo(any());
 	}
 
 	private Detector createDetector(String name, int level) throws DeviceException {

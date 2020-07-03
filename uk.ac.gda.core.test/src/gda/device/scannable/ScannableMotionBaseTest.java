@@ -25,7 +25,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -551,7 +551,7 @@ public class ScannableMotionBaseTest extends ScannableBaseTest {
 		when(getSMB().rawGetPosition()).thenReturn(new double[] { 10., 20. });
 		getSM().moveTo(new double[] { 10., 20. });
 		verify(getDelegate(), never()).rawGetPosition();
-		verify(getDelegate(), times(1)).rawAsynchronousMoveTo(anyObject());
+		verify(getDelegate(), times(1)).rawAsynchronousMoveTo(any());
 	}
 
 	@Test

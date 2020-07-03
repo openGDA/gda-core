@@ -23,8 +23,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyObject;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;
@@ -66,7 +66,7 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 		scn.setExtraNames(new String[] { "e1", "e2" });
 		when(scn.getOutputFormat()).thenReturn(new String[] { "%.0f", "%.1f", "%.2f", "%.3f" });
 		doReturn(new Double[] { 0., 1., 2., 3. }).when(scn).rawGetPosition();
-		doNothing().when(scn).rawAsynchronousMoveTo(anyObject());
+		doNothing().when(scn).rawAsynchronousMoveTo(any());
 		i1 = scn.__getattr__("i1");
 		i2 = scn.__getattr__("i2");
 		e1 = scn.__getattr__("e1");
@@ -242,11 +242,11 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 
 	@Test
 	public void testUncoordinatedMove() throws DeviceException {
-		doNothing().when(scn).asynchronousMoveFieldTo(anyInt(), anyObject());
+		doNothing().when(scn).asynchronousMoveFieldTo(anyInt(), any());
 		i1.asynchronousMoveTo(10.);
 		assertFalse(scn.isTargeting());
 		verify(scn).asynchronousMoveFieldTo(0, 10.);
-		verify(scn, never()).asynchronousMoveTo(anyObject());
+		verify(scn, never()).asynchronousMoveTo(any());
 	}
 
 	@Test

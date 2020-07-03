@@ -33,13 +33,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import gda.device.Scannable;
 import gda.device.scannable.ScannableMotor;
 import gda.mscan.ClausesContext;
-import gda.mscan.element.Scanpath;
 import gda.mscan.element.RegionShape;
+import gda.mscan.element.Scanpath;
 
 /**
  * Tests the ScannableElementProcessor and it's abstract base ElementProcessorBase as this
