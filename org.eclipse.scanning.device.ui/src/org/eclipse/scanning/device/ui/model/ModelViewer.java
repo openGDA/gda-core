@@ -62,7 +62,6 @@ import org.eclipse.scanning.api.ui.auto.IModelViewer;
 import org.eclipse.scanning.device.ui.Activator;
 import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.scanning.device.ui.model.ModelPersistAction.PersistType;
-import org.eclipse.scanning.device.ui.points.ScanView;
 import org.eclipse.scanning.device.ui.util.PageUtil;
 import org.eclipse.scanning.device.ui.util.ScanRegions;
 import org.eclipse.scanning.device.ui.util.ViewUtil;
@@ -184,11 +183,6 @@ public class ModelViewer<T> implements IModelViewer<T>, ISelectionListener, ISel
 			ISelection selection = PageUtil.getPage().getSelection();
 			processWorkbenchSelection(selection); // If model view is selected later but something it can process is the page selection...
 
-			if (model==null) { // Go and look for the model on a view
-				final IViewPart part  = PageUtil.getPage().findView(ScanView.ID);
-				final Object    model = part!=null ? part.getAdapter(IScanPathModel.class) : null;
-				processObject(model);
-			}
 		}
 
 		createActions();
