@@ -45,10 +45,6 @@ public class LogbackUtils {
 
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(LogbackUtils.class);
 
-	private static final String DEFAULT_SERVER_CONFIG = "configurations/server-default.xml";
-
-	private static final String DEFAULT_CLIENT_CONFIG = "configurations/client-default.xml";
-
 	public static final String SOURCE_PROPERTY_NAME = "GDA_SOURCE";
 
 	/**
@@ -189,8 +185,7 @@ public class LogbackUtils {
 	 * @param configFilename    the server logging config file to be used
 	 */
 	public static void configureLoggingForServerProcess(String processName, String configFilename) {
-		URL defaultServerConfigFile = LogbackUtils.class.getResource(DEFAULT_SERVER_CONFIG);
-		configureLoggingForProcess(processName, defaultServerConfigFile, configFilename);
+		configureLoggingForProcess(processName, configFilename);
 	}
 
 	/**
@@ -204,7 +199,6 @@ public class LogbackUtils {
 	 * @param processName the name of the process for which logging is being configured
 	 */
 	public static void configureLoggingForClientProcess(String processName) {
-		URL defaultClientConfigFile = LogbackUtils.class.getResource(DEFAULT_CLIENT_CONFIG);
 
 		// Look for the property
 		String configFilename = LocalProperties.get(GDA_CLIENT_LOGGING_XML);
@@ -216,7 +210,7 @@ public class LogbackUtils {
 			return;
 		}
 
-		configureLoggingForProcess(processName, defaultClientConfigFile, configFilename);
+		configureLoggingForProcess(processName, configFilename);
 	}
 
 	/**
@@ -234,14 +228,12 @@ public class LogbackUtils {
 	public static final int GDA_LOGSERVER_OUT_PORT_DEFAULT = 6750;
 
 	/**
-	 * Configures Logback for either a server- or client-side process, using a default configuration file, followed by
-	 * a specified configuration file.
+	 * Configures Logback for either a server- or client-side process, using a specified configuration file.
 	 *
 	 * @param processName           The name of the process for which logging is being configured
-	 * @param defaultConfigFile     The default logging configuration file, which will be applied first
 	 * @param configFilename        The name of the custom logging configuration file to use
 	 */
-	protected static void configureLoggingForProcess(String processName, URL defaultConfigFile, String configFilename) {
+	protected static void configureLoggingForProcess(String processName, String configFilename) {
 
 		LoggerContext context = getLoggerContext();
 
@@ -260,16 +252,6 @@ public class LogbackUtils {
 
 		// Set source property early so that it can be used in the xml config files
 		addSourcePropertyAndListener(context, processName);
-
-		// Configure using the default logging configuration, if it can be found.
-		if (defaultConfigFile != null) {
-			try {
-				configureLogging(context, defaultConfigFile);
-			} catch (JoranException e) {
-				final String msg = String.format("Unable to configure logging using default configuration file %s", defaultConfigFile);
-				throw new RuntimeException(msg, e);
-			}
-		}
 
 		// Capture java.util.logging calls and handle with slf4j
 		SLF4JBridgeHandler.removeHandlersForRootLogger();
