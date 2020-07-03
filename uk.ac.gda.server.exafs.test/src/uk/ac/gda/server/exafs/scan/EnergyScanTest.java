@@ -29,8 +29,8 @@ import java.util.Vector;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -304,7 +304,7 @@ public class EnergyScanTest {
 		Mockito.when(mockScan.getScanPlotSettings()).thenReturn(mockPlotSettings);
 
 		PowerMockito.mockStatic(ScannableCommands.class);
-		PowerMockito.when(ScannableCommands.createConcurrentScan(Matchers.anyVararg())).thenReturn(mockScan);
+		PowerMockito.when(ScannableCommands.createConcurrentScan(ArgumentMatchers.any())).thenReturn(mockScan);
 
 	}
 

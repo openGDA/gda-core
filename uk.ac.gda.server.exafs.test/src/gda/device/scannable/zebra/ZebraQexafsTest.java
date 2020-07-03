@@ -22,8 +22,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import gda.TestHelpers;
@@ -66,7 +66,7 @@ public class ZebraQexafsTest {
 			controller = Mockito.mock(EpicsController.class);
 			currentSpeedChnl = Mockito.mock(Channel.class);
 			setPvFactory(Mockito.mock(CachedLazyPVFactory.class));
-			Mockito.when(getPvFactory().getPVDouble(Matchers.any())).thenReturn(new DummyPV<Double>("dummy", 0.0));
+			Mockito.when(getPvFactory().getPVDouble(ArgumentMatchers.any())).thenReturn(new DummyPV<Double>("dummy", 0.0));
 		}
 
 		public EpicsController getController() {
