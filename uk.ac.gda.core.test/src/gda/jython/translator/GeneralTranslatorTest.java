@@ -18,41 +18,36 @@
 
 package gda.jython.translator;
 
-import static org.junit.Assert.assertArrayEquals;
+import static java.util.stream.Stream.iterate;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Iterator;
+import java.util.stream.Stream;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.google.common.collect.Streams;
+
 import gda.jython.InterfaceProvider;
 import gda.jython.MockJythonServerFacade;
-import gda.util.TestUtils;
 /**
  * Test that the GeneralTranslator produces the expected translation
  */
 public class GeneralTranslatorTest {
 
-	static String testScratchDirectoryName = null;
-	final static String TestFileFolder = "testfiles/gda/jython/translator/GeneralTranslatorTest/";
-	static GeneralTranslator translator;
+	private final static String TEST_FILE_FOLDER = "testfiles/gda/jython/translator/GeneralTranslatorTest/";
+	private GeneralTranslator translator = new GeneralTranslator();
 
 	@BeforeClass
-	public static void createGeneralTranslator() throws Exception {
-		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(GeneralTranslatorTest.class.getCanonicalName());
-		TestUtils.makeScratchDirectory(testScratchDirectoryName);
-
+	public static void prepareInterfaceProvider() throws Exception {
 		MockJythonServerFacade mockJythonServerFacade = new MockJythonServerFacade();
 		InterfaceProvider.setCommandRunnerForTesting(mockJythonServerFacade);
 		InterfaceProvider.setCurrentScanControllerForTesting(mockJythonServerFacade);
@@ -68,32 +63,33 @@ public class GeneralTranslatorTest {
 		InterfaceProvider.setScanDataPointProviderForTesting(mockJythonServerFacade);
 		InterfaceProvider.setBatonStateProviderForTesting(mockJythonServerFacade);
 		InterfaceProvider.setJSFObserverForTesting(mockJythonServerFacade);
-
-		translator = new GeneralTranslator();
-		// set up some aliases, based on gda.jython.GDAJythonInterpreter (though this does not need to match that exactly)
-		translator.translate("alias ls");
-		translator.translate("vararg_alias pos");
-		translator.translate("vararg_alias upos");
-		translator.translate("vararg_alias inc");
-		translator.translate("vararg_alias uinc");
-		translator.translate("alias help");
-		translator.translate("alias list_defaults");
-		translator.translate("alias add_default");
-		translator.translate("alias remove_default");
-		translator.translate("vararg_alias level");
-		translator.translate("alias pause");
-		translator.translate("alias reset_namespace");
-		translator.translate("alias run");
-		translator.translate("vararg_alias scan");
-		translator.translate("vararg_alias pscan");
-		translator.translate("vararg_alias cscan");
-		translator.translate("vararg_alias zacscan");
-		translator.translate("vararg_alias testscan");
-		translator.translate("vararg_alias gscan");
-		translator.translate("vararg_alias tscan");
-		translator.translate("vararg_alias timescan");
-
 		mockJythonServerFacade.setEvaluateCommandResult("['scan']");
+	}
+
+	@AfterClass
+	public static void clearInterfaceProvider() {
+		InterfaceProvider.setCommandRunnerForTesting(null);
+		InterfaceProvider.setCurrentScanControllerForTesting(null);
+		InterfaceProvider.setTerminalPrinterForTesting(null);
+		InterfaceProvider.setScanStatusHolderForTesting(null);
+		InterfaceProvider.setJythonNamespaceForTesting(null);
+		InterfaceProvider.setAuthorisationHolderForTesting(null);
+		InterfaceProvider.setScriptControllerForTesting(null);
+		InterfaceProvider.setPanicStopForTesting(null);
+		InterfaceProvider.setCurrentScanInformationHolderForTesting(null);
+		InterfaceProvider.setJythonServerNotiferForTesting(null);
+		InterfaceProvider.setDefaultScannableProviderForTesting(null);
+		InterfaceProvider.setScanDataPointProviderForTesting(null);
+		InterfaceProvider.setBatonStateProviderForTesting(null);
+		InterfaceProvider.setJSFObserverForTesting(null);
+	}
+
+	private void setAliases(String... aliases) {
+		Stream.of(aliases).forEach(translator::addAliasedCommand);
+	}
+
+	private void setVarargs(String... aliases) {
+		Stream.of(aliases).forEach(translator::addAliasedVarargCommand);
 	}
 
 	@Test
@@ -101,6 +97,7 @@ public class GeneralTranslatorTest {
 	 * translation of a file with mixed tab and space indentation
 	 */
 	public void translateMixed() throws IOException {
+		setVarargs("pos", "inc");
 		translateTestRunner("checkBeamPos100427.txt");
 	}
 
@@ -116,6 +113,8 @@ public class GeneralTranslatorTest {
 	 * translation of a typical GDA script file
 	 */
 	public void translateAdvancedOptions() throws IOException {
+		setAliases("pause");
+		setVarargs("scan");
 		translateTestRunner("AdvancedOptions.txt");
 	}
 
@@ -124,6 +123,7 @@ public class GeneralTranslatorTest {
 	 * translation of a typical diffcalc file (note: the test translator does not include all the aliases)
 	 */
 	public void translateDiffcalc() throws IOException {
+		setVarargs("pos");
 		translateTestRunner("diffcalc_session.txt");
 	}
 
@@ -142,45 +142,32 @@ public class GeneralTranslatorTest {
 
 	@Test
 	public void translatePosCommand() throws IOException {
+		setVarargs("pos");
 		translateTestRunner("poscommand.txt");
 	}
 
 	@Test
 	public void translateSemiColonSplitCommands() throws IOException {
+		setVarargs("pos");
 		translateTestRunner("semicolonSplitCommands.txt");
 	}
 
 
 	public void translateTestRunner(String testFileName) throws IOException {
+		String expectedFilename = TEST_FILE_FOLDER + testFileName + ".translated.expected";
 
-		String translatedFilename = testScratchDirectoryName + testFileName + ".translated";
-		String expectedFilename = TestFileFolder + testFileName + ".translated.expected";
+		try (Stream<String> original = Files.lines(Paths.get(TEST_FILE_FOLDER + testFileName));
+				Stream<String> expected = Files.lines(Paths.get(expectedFilename));) {
 
-		StringBuffer fileBuffer;
-		String fileString = null;
-		String line;
-
-		FileReader fr = new FileReader(TestFileFolder + testFileName);
-		BufferedReader dis = new BufferedReader(fr);
-		fileBuffer = new StringBuffer();
-		while ((line = dis.readLine()) != null) {
-			fileBuffer.append(translator.translate(line) + "\n");
+			Iterator<Integer> lineNo = iterate(1, i -> i+1).iterator();
+			Streams.forEachPair(expected, original.map(translator::translate),
+					(exp, act) -> assertEquals("Difference on line " + lineNo.next(), exp, act));
 		}
-		fr.close();
-		fileString = fileBuffer.toString();
-
-		PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(translatedFilename)));
-		pw.print(fileString);
-		pw.flush();
-		pw.close();
-
-		// Binary compare files
-		assertArrayEquals(Files.readAllBytes(Paths.get(expectedFilename)),
-				Files.readAllBytes(Paths.get(translatedFilename)));
 	}
 
 	@Test
 	public void testSimpleScanCommand(){
+		setVarargs("scan");
 		Assert.assertEquals("scan([a,1.,1.,1.])",translator.translate("scan a 1. 1. 1."));
 
 	}
@@ -205,21 +192,24 @@ public class GeneralTranslatorTest {
 
 	@Test
 	public void test_translate3(){
+		setVarargs("pos");
 		Assert.assertEquals("pos([posname,2,\"string with quote's\",5.0])",
 				translator.translate("pos posname 2 \"string with quote\'s\" 5.0"));
 	}
 
 	@Test
 	public void test_translate5(){
+		setVarargs("pos");
 		Assert.assertEquals("pos([posname,(1.0,1.0)])",
 				translator.translate("pos posname ( 1.0 1.0)"));
 	}
 
 	@Test
-	public void test_translate_GDA_4045(){
+	public void test_translate_GDA_4054(){
+		setVarargs("scan");
+		setAliases("myfunkyalias");
 		Assert.assertEquals("scan([scannablejumpscannable.ScJuSc(\"step\",4,5,x,-.9),0,10,1,x,bsdiode])",
 				translator.translate("scan scannablejumpscannable.ScJuSc(\"step\",4,5,x,-.9) 0 10 1 x bsdiode"));
-		translator.translate("alias myfunkyalias");
 		Assert.assertEquals("myfunkyalias(scannablejumpscannable.ScJuSc(\"step\",4,5,x,-.9),0,10,1,x,bsdiode)",
 				translator.translate("myfunkyalias scannablejumpscannable.ScJuSc(\"step\",4,5,x,-.9) 0 10 1 x bsdiode"));
 	}
@@ -227,6 +217,7 @@ public class GeneralTranslatorTest {
 	@Test
 	@Ignore("2010/10/26 Test ignored since not passing GDA-3703")
 	public void test_translateMultilineComment(){
+		setAliases("pos");
 		String original_command = "print \"\"\"\npos a 1.0\n\"\"\"";
 		Assert.assertEquals(original_command,
 				translator.translate(original_command));
@@ -238,6 +229,7 @@ public class GeneralTranslatorTest {
 
 	@Test
 	public void testSimpleScanCommand2(){
+		setVarargs("pos");
 		Assert.assertEquals("pos([posname,2,\"string with quote's\",5.0])",translator.translate("pos posname 2 \"string with quote's\" 5.0"));
 	}
 
@@ -262,6 +254,7 @@ public class GeneralTranslatorTest {
 
 	@Test
 	public void testRunStatement() {
+		translator.addAliasedCommand("run");
 		final String originalText = "run \"CommentPD\"";
 		final String expectedTranslation = "run(\"CommentPD\")";
 		assertEquals(expectedTranslation, translator.translate(originalText));
@@ -274,5 +267,4 @@ public class GeneralTranslatorTest {
 		final String actualTranslation = translator.translate(originalText);
 		assertTrue(expectedTranslation.equals(actualTranslation));
 	}
-
 }
