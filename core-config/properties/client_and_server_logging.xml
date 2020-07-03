@@ -22,12 +22,24 @@
 
 	<!-- Here we filter specific loggers for everyone -->
 
+	<logger name="org.apache.commons.configuration" level="WARN" />
+
+	<logger name="org.castor" level="WARN" />
+
+	<logger name="org.exolab.castor" level="WARN" />
+
+	<logger name="org.springframework" level="WARN" />
+
+	<logger name="org.apache.sshd" level="WARN" />
+
 	<!-- Jetty is very noisy at DEBUG level, filter those messages out -->
 	<logger name="org.eclipse.jetty" level="INFO" />
 
-	<!-- Also filter noisy GDA packages (NOTE: These could be edited and improved)-->
 	<!-- At DEBUG level activemq logs a message every 10 secs to reassure you it's still working -->
 	<logger name="org.apache.activemq.transport.AbstractInactivityMonitor" level="INFO" />
+
+	<!-- Also filter noisy GDA packages (NOTE: These could be edited and improved)-->
+
 	<!-- Reduce logging from completer -->
 	<logger name="uk.ac.gda.core.scripts.gda_completer.py" level="INFO" />
 
