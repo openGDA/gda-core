@@ -455,6 +455,7 @@ public class GDAJythonInterpreter {
 				// aliasing them -- i.e. reserved words
 				translator.addAliasedCommand("alias");
 				translator.addAliasedCommand("vararg_alias");
+				translator.addAliasedCommand("remove_alias");
 				exec("alias ls");
 				exec("alias ls_names");
 				exec("vararg_alias pos");

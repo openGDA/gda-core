@@ -402,6 +402,16 @@ public final class GeneralCommands {
 		vararg_alias(aliasName(callable));
 	}
 
+	@GdaJythonBuiltin("Remove an alias command")
+	public static void remove_alias(String command) {
+		JythonServerFacade.getInstance().removeAliasedCommand(command);
+	}
+
+	@GdaJythonBuiltin("Remove an aliased command referring to a callable")
+	public static void remove_alias(PyObject callable) throws DeviceException {
+		remove_alias(aliasName(callable));
+	}
+
 	/** Get the name that an object should be aliased as */
 	@SuppressWarnings("unchecked")
 	private static String aliasName(PyObject callable) throws DeviceException {
