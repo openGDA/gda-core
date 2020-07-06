@@ -71,7 +71,7 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
  *
  * @author Maurizio Nagni
  */
-@Component
+@Component(value="tomographyParametersAcquisitionController")
 public class TomographyParametersAcquisitionController implements AcquisitionController<ScanningAcquisition>, ApplicationListener<ApplicationEvent> {
 	private static final Logger logger = LoggerFactory.getLogger(TomographyParametersAcquisitionController.class);
 

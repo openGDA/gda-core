@@ -33,9 +33,9 @@ import uk.ac.gda.api.acquisition.AcquisitionController;
 public class TomographyPerspectiveController {
 
 	@Autowired
-	private AcquisitionController<ScanningAcquisition> scanningAcquisitionController;
+	private AcquisitionController<ScanningAcquisition> tomographyParametersAcquisitionController;
 
 	public AcquisitionController<ScanningAcquisition> getScanningAcquisitionController() {
-		return scanningAcquisitionController;
+		return tomographyParametersAcquisitionController;
 	}
 }
