@@ -453,6 +453,8 @@ public class GDAJythonInterpreter {
 				interactiveConsole.runsource("import scisoftpy as dnp");
 				// inform translator what the built-in commands are by
 				// aliasing them -- i.e. reserved words
+				translator.addAliasedCommand("alias");
+				translator.addAliasedCommand("vararg_alias");
 				exec("alias ls");
 				exec("alias ls_names");
 				exec("vararg_alias pos");
@@ -470,7 +472,6 @@ public class GDAJythonInterpreter {
 				exec("vararg_alias scan");
 				exec("vararg_alias pscan");
 				exec("vararg_alias cscan");
-				exec("vararg_alias zacscan");
 				exec("vararg_alias testscan");
 				exec("vararg_alias gscan");
 				exec("vararg_alias tscan");

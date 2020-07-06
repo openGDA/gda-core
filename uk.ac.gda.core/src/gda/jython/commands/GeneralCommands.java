@@ -18,6 +18,9 @@
 
 package gda.jython.commands;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.StreamSupport.stream;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,7 +29,13 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
 
+import org.python.core.Py;
+import org.python.core.PyObject;
+import org.python.core.PyStringMap;
+import org.python.core.PyTuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -321,7 +330,26 @@ public final class GeneralCommands {
 			+ "    4\n"
 			+ "    >>>")
 	public static void alias(String commandName) {
-		gda.jython.JythonServerFacade.getInstance().addAliasedCommand(commandName);
+		Objects.requireNonNull(commandName, "Aliased command cannot be null");
+		JythonServerFacade.getInstance().addAliasedCommand(commandName);
+	}
+
+	/**
+	 * Add a new aliased command.
+	 *
+	 * @param callable
+	 * @throws DeviceException
+	 */
+	@GdaJythonBuiltin("Add a command as an alias\n"
+			+ "This allows it to be called without the parentheses, eg\n"
+			+ "    >>> def add(a, b): return a + b\n"
+			+ "    ... \n"
+			+ "    >>> alias(add)\n"
+			+ "    >>> add 1 3\n"
+			+ "    4\n"
+			+ "    >>>")
+	public static void alias(PyObject callable) throws DeviceException {
+		alias(aliasName(callable));
 	}
 
 	/**
@@ -334,6 +362,7 @@ public final class GeneralCommands {
 	@GdaJythonBuiltin("This method is deprecated. Please use vararg_alias.")
 	public static void vararg_regex(String commandName) {
 		logger.warn("'vararg_regex' is deprecated and will be removed, replace with 'vararg_alias'");
+		Objects.requireNonNull(commandName, "Aliased command cannot be null");
 		JythonServerFacade.getInstance().addAliasedVarargCommand(commandName);
 	}
 
@@ -351,7 +380,62 @@ public final class GeneralCommands {
 			+ "    15\n"
 			+ "    >>>")
 	public static void vararg_alias(String commandName) {
+		Objects.requireNonNull(commandName, "Aliased command cannot be null");
 		JythonServerFacade.getInstance().addAliasedVarargCommand(commandName);
+	}
+
+	/**
+	 * Add a new vararg aliased command
+	 *
+	 * @param callable
+	 * @throws DeviceException
+	 */
+	@GdaJythonBuiltin("Add a command as an alias\n"
+			+ "This allows it to be called without the parentheses, eg\n"
+			+ "    >>> def add(*a): return sum(a)\n"
+			+ "    ... \n"
+			+ "    >>> alias(add)\n"
+			+ "    >>> add 1 2 3 4 5\n"
+			+ "    15\n"
+			+ "    >>>")
+	public static void vararg_alias(PyObject callable) throws DeviceException {
+		vararg_alias(aliasName(callable));
+	}
+
+	/** Get the name that an object should be aliased as */
+	@SuppressWarnings("unchecked")
+	private static String aliasName(PyObject callable) throws DeviceException {
+		if (callable == null || callable == Py.None) {
+			throw new IllegalArgumentException("Can't alias None");
+		}
+		if (!callable.isCallable()) {
+			throw new IllegalArgumentException(callable + " can't be aliased");
+		}
+		// Get all the names in the global namespace that reference this object
+		List<String> names = JythonServerFacade.getInstance().getAllFromJythonNamespace()
+				.entrySet().stream()
+				.filter(e -> callable == e.getValue())
+				.map(Entry::getKey)
+				.collect(toList());
+		// add builtin functions
+		names.addAll(stream(((Iterable<PyObject>)((PyStringMap)Py.getSystemState()
+						.getBuiltins()).iteritems()).spliterator(), false)
+				.map(PyTuple.class::cast)
+				.filter(t -> t.__getitem__(1) == callable)
+				.map(t -> t.__getitem__(0))
+				.map(PyObject::toString)
+				.filter(name -> !("_".equals(name)))
+				.collect(toList()));
+		switch (names.size()) {
+		case 0:
+			throw new IllegalArgumentException(callable + " does not exist in namespace");
+		case 1:
+			return names.get(0);
+		default:
+			throw new IllegalArgumentException(callable + " is referenced by multiple names ("
+					+ String.join(", ",  names)
+					+ ") - use the required name to create alias");
+		}
 	}
 
 	/**
