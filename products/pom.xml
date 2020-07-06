@@ -98,7 +98,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 					<version>${exec.maven.plugin.version}</version>
 					<executions>
 						<execution>
-							<id>link-rewrite</id>
+							<id>link-script-projects</id>
 							<phase>verify</phase>
 							<goals>
 								<goal>exec</goal>
@@ -174,7 +174,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 						<phase>none</phase>
 					</execution>
 					<execution>
-						<id>link-rewrite</id>
+						<id>link-script-projects</id>
 						<phase>none</phase>
 					</execution>
 				</executions>
