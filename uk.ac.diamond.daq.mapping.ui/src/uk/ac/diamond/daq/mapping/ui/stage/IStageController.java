@@ -16,21 +16,31 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.api.document.base;
+package uk.ac.diamond.daq.mapping.ui.stage;
 
-import uk.ac.diamond.daq.mapping.api.document.scanning.ShapeType;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.gda.api.acquisition.parameters.AcquisitionParameters;
+import java.util.Map;
+import java.util.Set;
+
+import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position;
+import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 
 /**
- *
+ * Defines a minimal set of methods for a stage controller. May change in future.
  *
  * @author Maurizio Nagni
  */
-public interface AcquisitionParametersBase extends AcquisitionParameters {
+public interface IStageController {
 
-	ShapeType getShapeType();
+	Set<DevicePosition<Double>> savePosition(Position position);
 
-	ScanpathDocument getScanpathDocument();
+	Map<String, String> getMetadata();
+
+	CommonStage getStageDescription();
+
+	Map<Position, Set<DevicePosition<Double>>> getMotorsPositions();
+
+	double getMotorPosition(StageDevice device);
+
+	void changeStage(CommonStage stage);
 
 }

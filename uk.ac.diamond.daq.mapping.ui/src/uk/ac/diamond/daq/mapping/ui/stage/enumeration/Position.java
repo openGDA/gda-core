@@ -16,21 +16,13 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.api.document.base;
-
-import uk.ac.diamond.daq.mapping.api.document.scanning.ShapeType;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.gda.api.acquisition.parameters.AcquisitionParameters;
+package uk.ac.diamond.daq.mapping.ui.stage.enumeration;
 
 /**
- *
- *
- * @author Maurizio Nagni
+ * A collection of standard position definitions
  */
-public interface AcquisitionParametersBase extends AcquisitionParameters {
+public enum Position {
 
-	ShapeType getShapeType();
-
-	ScanpathDocument getScanpathDocument();
+	DEFAULT, OUT_OF_BEAM, START, END;
 
 }

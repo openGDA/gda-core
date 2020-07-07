@@ -1,4 +1,4 @@
-package uk.ac.diamond.daq.mapping.api.document.base.configuration;
+package uk.ac.gda.api.acquisition.configuration;
 
 public enum MultipleScansType {
 	/**

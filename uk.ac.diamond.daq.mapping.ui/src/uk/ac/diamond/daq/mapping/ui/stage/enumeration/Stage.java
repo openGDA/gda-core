@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2019 Diamond Light Source Ltd.
+ * Copyright © 2020 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,12 +16,23 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.api.acquisition;
+package uk.ac.diamond.daq.mapping.ui.stage.enumeration;
 
-/*
- * A marker to identify classes defining an acquisition procedure.
- * An acquisition procedure may defines, i.e., an angular range between which acquire a tomography or simply a move a motor.
+/**
+ * Identifies an instrument type, not its implementation.
+ *
+ * @see StageType
+ * @author Maurizio Nagni
  */
-public interface AcquisitionParameters {
+public enum Stage {
+
+	/**
+	 * A General Tomography Stage
+	 */
+	GTS,
+	/**
+	 * A test rig
+	 */
+	TR6;
 
 }

@@ -16,21 +16,29 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.api.document.base;
-
-import uk.ac.diamond.daq.mapping.api.document.scanning.ShapeType;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.gda.api.acquisition.parameters.AcquisitionParameters;
+package uk.ac.diamond.daq.mapping.ui.stage.enumeration;
 
 /**
- *
+ * Defines a set of components each of which may, or may not be part of a stage.
  *
  * @author Maurizio Nagni
  */
-public interface AcquisitionParametersBase extends AcquisitionParameters {
+public enum StageDevice {
 
-	ShapeType getShapeType();
-
-	ScanpathDocument getScanpathDocument();
-
+	/**
+	 * A motor on axis X
+	 */
+	MOTOR_STAGE_X,
+	/**
+	 * A motor on axis Y
+	 */
+	MOTOR_STAGE_Y,
+	/**
+	 * A motor on axis Z
+	 */
+	MOTOR_STAGE_Z,
+	/**
+	 * A motor rotating axis Y
+	 */
+	MOTOR_STAGE_ROT_Y,
 }

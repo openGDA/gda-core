@@ -22,9 +22,14 @@ import java.net.URL;
 import java.time.Period;
 import java.util.UUID;
 
+import uk.ac.gda.api.acquisition.configuration.AcquisitionConfiguration;
+import uk.ac.gda.api.acquisition.parameters.AcquisitionParameters;
+
 
 /**
- * An acquisition is a procedure defined by a configuration and executed by a script aware of the configuration format.
+ * Represents an acquisition workflow.
+ *
+ * An acquisition procedure is a workflow defined by an {@link AcquisitionConfiguration} which is based on a {@link AcquisitionParameters}.
  *
  * @author Maurizio Nagni
  */
@@ -59,16 +64,16 @@ public interface Acquisition<T extends AcquisitionConfiguration<? extends Acquis
 	public Period getExecutionPeriod();
 
 	/**
-	 * The script which executes the acquisition.
+	 * Where this acquisition is, or will be stored. In future may be related to {@link #getUuid()}.
 	 *
-	 * @return the location where find the script
+	 * @return the acquisition URL
 	 */
 	public URL getAcquisitionLocation();
 
 	/**
-	 * The data necessary to execute the acquisition
+	 * The acquisition workflow
 	 *
-	 * @return the acquisition execution parameters
+	 * @return instructions for the acquisition engine
 	 */
 	public T getAcquisitionConfiguration();
 }

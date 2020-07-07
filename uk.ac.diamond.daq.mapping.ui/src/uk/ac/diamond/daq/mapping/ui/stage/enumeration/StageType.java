@@ -16,21 +16,33 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.api.document.base;
+package uk.ac.diamond.daq.mapping.ui.stage.enumeration;
 
-import uk.ac.diamond.daq.mapping.api.document.scanning.ShapeType;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.gda.api.acquisition.parameters.AcquisitionParameters;
+import uk.ac.diamond.daq.mapping.ui.stage.CommonStage;
+import uk.ac.diamond.daq.mapping.ui.stage.GTSStage;
+import uk.ac.diamond.daq.mapping.ui.stage.TR6Stage;
 
 /**
- *
- *
- * @author Maurizio Nagni
+ * Associates a specific implementation to a {@link Stage}
  */
-public interface AcquisitionParametersBase extends AcquisitionParameters {
+public enum StageType {
 
-	ShapeType getShapeType();
+	GTS(Stage.GTS, new GTSStage()),
+	TR6(Stage.TR6, new TR6Stage());
 
-	ScanpathDocument getScanpathDocument();
+	private final CommonStage stageImpl;
+	private final Stage stage;
 
+	StageType(Stage stage, CommonStage stageImpl) {
+		this.stage = stage;
+		this.stageImpl = stageImpl;
+	}
+
+	public Stage getStage() {
+		return stage;
+	}
+
+	public CommonStage getCommonStage() {
+		return stageImpl;
+	}
 }
