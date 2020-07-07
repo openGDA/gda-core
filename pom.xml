@@ -29,7 +29,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 <module>uk.ac.gda.tomography</module>
 <module>uk.ac.gda.tomography.scan</module>
 <module>uk.ac.gda.tomography.scan.editor</module>
-<!--module>uk.ac.gda.tomography.scan.tests</module [all test fail]-->
 <!--module>uk.ac.gda.tomography.test</module-->
 
 </modules>
