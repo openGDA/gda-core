@@ -12,6 +12,7 @@
 	<context:component-scan base-package="uk.ac.diamond.daq.client.gui.camera"></context:component-scan>
 	<context:component-scan base-package="uk.ac.diamond.daq.experiment.structure"></context:component-scan>
 	<context:component-scan base-package="uk.ac.diamond.daq.mapping.api.document"></context:component-scan>
+	<context:component-scan base-package="uk.ac.diamond.daq.mapping.ui.services"></context:component-scan>
 		
 	<context:property-placeholder />
 </beans>
