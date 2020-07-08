@@ -19,6 +19,7 @@
 package uk.ac.gda.client.properties;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Defines the detector properties required by the acquisition configuration GUI
@@ -56,4 +57,12 @@ public interface DetectorProperties {
 	 * @return the bean id
 	 */
 	String getDetectorBean();
+
+	/**
+	 * A collection of {@link CameraProperties#getId()} associated with this detector.
+	 * Typically a detector has one only one camera but in rare cases , i.e. in DIAD BeamSelectorScan, the malcom device may control multiple cameras
+	 *
+	 * @return the camera IDs
+	 */
+	Set<String> getCameras();
 }

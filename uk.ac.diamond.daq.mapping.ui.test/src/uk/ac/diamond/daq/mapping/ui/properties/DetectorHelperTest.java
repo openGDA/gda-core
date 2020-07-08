@@ -39,7 +39,7 @@ public class DetectorHelperTest {
 
 	@Before
 	public void before() {
-		URL resource = DetectorHelperTest.class.getResource("detectors.properties");
+		URL resource = DetectorHelperTest.class.getResource("/resources/detectors.properties");
 		System.setProperty(LocalProperties.GDA_PROPERTIES_FILE, resource.getPath());
 		LocalProperties.reloadAllProperties();
 	}
@@ -61,7 +61,10 @@ public class DetectorHelperTest {
 	@Test
 	public void acquisitionDetectorNotExistsTest() {
 		Optional<List<DetectorProperties>> dp = DetectorHelper.getAcquistionDetector(AcquisitionType.BEAM_SELECTOR);
-		Assert.assertFalse(dp.isPresent());
+		Assert.assertTrue(dp.isPresent());
+
+		// The beam selector detector has one configuration because the second does not exist
+		Assert.assertEquals(1, dp.get().size());
 	}
 
 	/**
@@ -72,5 +75,29 @@ public class DetectorHelperTest {
 		Optional<List<DetectorProperties>> dp = DetectorHelper.getAcquistionDetector(AcquisitionType.TOMOGRAPHY);
 		Assert.assertTrue(dp.isPresent());
 		Assert.assertEquals(2, dp.get().size());
+	}
+
+	/**
+	 * Verifies that {@link AcquisitionType#TOMOGRAPHY} has two associated detectors.
+	 */
+	@Test
+	public void detectorHasCamerasTest() {
+		Optional<List<DetectorProperties>> dp = DetectorHelper.getAcquistionDetector(AcquisitionType.TOMOGRAPHY);
+		Assert.assertTrue(dp.isPresent());
+
+		// The first tomography detector has one camera
+		Assert.assertEquals(1, dp.get().get(0).getCameras().size());
+		// The first tomography detector has no camera
+		Assert.assertEquals(0, dp.get().get(1).getCameras().size());
+	}
+
+	/**
+	 * Verifies that {@link AcquisitionType#BEAM_SELECTOR} has two associated detectors.
+	 */
+	@Test
+	public void detectorHasTwoCamerasTest() {
+		Optional<List<DetectorProperties>> dp = DetectorHelper.getAcquistionDetector(AcquisitionType.BEAM_SELECTOR);
+		// The beam selector detector has two cameras
+		Assert.assertEquals(2, dp.get().get(0).getCameras().size());
 	}
 }

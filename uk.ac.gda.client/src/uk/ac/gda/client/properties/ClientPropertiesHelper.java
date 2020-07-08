@@ -37,26 +37,27 @@ public final class ClientPropertiesHelper {
 
 	/**
 	 * Extracts properties formatted like "PREFIX.INDEX.name"
-	 *
+	 * @param prefix
+	 *            the element PREFIX
 	 * @param index
-	 *            the element index
+	 *            the element INDEX
 	 * @return element name
 	 */
 	public static String getNameProperty(String prefix, int index) {
-		return LocalProperties.get(formatPropertyKey(prefix, index, "name"),
-				ClientMessagesUtility.getMessage(ClientMessages.NOT_AVAILABLE));
+		return getProperty(prefix, index, "name", ClientMessagesUtility.getMessage(ClientMessages.NOT_AVAILABLE));
 	}
 
 	/**
 	 * Extracts properties formatted like "PREFIX.INDEX.id"
 	 *
+	 * @param prefix
+	 *            the element PREFIX
 	 * @param index
-	 *            the element index
+	 *            the element INDEX
 	 * @return the element id
 	 */
 	public static String getId(String prefix, int index) {
-		return LocalProperties.get(formatPropertyKey(prefix, index, "id"),
-				ClientMessagesUtility.getMessage(ClientMessages.NOT_AVAILABLE));
+		return getProperty(prefix, index, "id", ClientMessagesUtility.getMessage(ClientMessages.NOT_AVAILABLE));
 	}
 
 	/**
@@ -80,8 +81,42 @@ public final class ClientPropertiesHelper {
 	 * @param property
 	 *            a subproperty of the prefix
 	 * @return the property key
+	 * @deprecated use {@link #getProperty(String, int, String, String)}
 	 */
+	@Deprecated
 	public static String formatPropertyKey(String prefix, int index, String property) {
 		return String.format(PROPERTY_FORMAT, prefix, index, property);
+	}
+
+	/**
+	 * Returns the value of a property key assembled as "PREFIX.INDEX.PROPERTY"
+	 *
+	 * @param prefix
+	 *            the PREFIX element of the property key
+	 * @param index
+	 *            the INDEX element of the property key
+	 * @param property
+	 *            the PROPERTY element of the property key
+	 * @param defaultValue
+	 *            the default value if the property does not exist
+	 * @return the property value
+	 */
+	public static String getProperty(String prefix, int index, String property, String defaultValue) {
+		return LocalProperties.get(String.format(PROPERTY_FORMAT, prefix, index, property), defaultValue);
+	}
+
+	/**
+	 * Returns an array, from a comma separated value, of a property key assembled as "PREFIX.INDEX.PROPERTY"
+	 *
+	 * @param prefix
+	 *            the PREFIX element of the property key
+	 * @param index
+	 *            the INDEX element of the property key
+	 * @param property
+	 *            the PROPERTY element of the property key
+	 * @return the values as an array
+	 */
+	public static String[] getStringArrayProperty(String prefix, int index, String property) {
+		return LocalProperties.getStringArray(String.format(PROPERTY_FORMAT, prefix, index, property));
 	}
 }

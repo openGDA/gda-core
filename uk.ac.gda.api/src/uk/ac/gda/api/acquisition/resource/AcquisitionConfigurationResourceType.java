@@ -37,7 +37,11 @@ public enum AcquisitionConfigurationResourceType {
 	/**
 	 * Identifies an experiment plan configuration
 	 */
-	PLAN("plan");
+	PLAN("plan"),
+	/**
+	 * Identifies a generic configuration
+	 */
+	DEFAULT("default");
 
 	private final String extension;
 

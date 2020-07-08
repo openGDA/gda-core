@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
@@ -21,6 +20,7 @@ import gda.device.DeviceException;
 import gda.observable.IObserver;
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
+import uk.ac.diamond.daq.client.gui.camera.event.CameraEventUtils;
 import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraControllerEvent;
@@ -140,7 +140,7 @@ public class ExposureDurationComposite implements CompositeFactory {
 		if (exposure > 1000) {
 			strExposure = Double.toString(exposure / 1000.);
 			unit = "s";
-		}		
+		}
 		readOut.setText(String.format("ReadOut: %s %s", strExposure, unit));
 	}
 
@@ -162,9 +162,8 @@ public class ExposureDurationComposite implements CompositeFactory {
 		};
 	}
 
-	private final IObserver cameraControlObserver = (source, arg) -> {
-		if (CameraControllerEvent.class.isInstance(arg)) {
-			Display.getDefault().asyncExec(() -> updateModelToGUI(CameraControllerEvent.class.cast(arg)));
-		}
-	};
+	private Consumer<CameraControllerEvent> consumeExposure = cce -> Display.getDefault()
+			.asyncExec(() -> updateModelToGUI(cce));
+
+	private final IObserver cameraControlObserver = CameraEventUtils.cameraControlEventObserver(consumeExposure);
 }

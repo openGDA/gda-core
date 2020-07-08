@@ -25,6 +25,11 @@ import org.eclipse.swt.widgets.Widget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
+import org.springframework.beans.factory.BeanFactoryUtils;
+import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
@@ -98,8 +103,36 @@ public class SpringApplicationContextProxy implements ApplicationEventPublisherA
 		aem.removeApplicationListener(listener);
 	}
 
-	public static <T> T getBean(Class<T> bean) {
-		return SpringApplicationContextProxy.applicationContext.getBean(bean);
+	/**
+	 * Return the bean instance that uniquely matches the given object type, if any.
+	 * @param requiredType type the bean must match; can be an interface or superclass.
+	 * {@code null} is disallowed.
+	 * <p>This method goes into {@link ListableBeanFactory} by-type lookup territory
+	 * but may also be translated into a conventional by-name lookup based on the name
+	 * of the given type. For more extensive retrieval operations across sets of beans,
+	 * use {@link ListableBeanFactory} and/or {@link BeanFactoryUtils}.
+	 * @return an instance of the single bean matching the required type
+	 * @throws NoSuchBeanDefinitionException if no bean of the given type was found
+	 * @throws NoUniqueBeanDefinitionException if more than one bean of the given type was found
+	 */
+	public static <T> T getBean(Class<T> requiredType) {
+		return SpringApplicationContextProxy.applicationContext.getBean(requiredType);
+	}
+
+	/**
+	 * Return an instance, which may be shared or independent, of the specified bean.
+	 * <p>Allows for specifying explicit constructor arguments / factory method arguments,
+	 * overriding the specified default arguments (if any) in the bean definition.
+	 * @param name the name of the bean to retrieve
+	 * @param args arguments to use if creating a prototype using explicit arguments to a
+	 * static factory method. It is invalid to use a non-null args value in any other case.
+	 * @return an instance of the bean
+	 * @throws NoSuchBeanDefinitionException if there is no such bean definition
+	 * @throws BeanDefinitionStoreException if arguments have been given but
+	 * the affected bean isn't a prototype
+	 */
+	public static Object getBean(String name, Object... args) {
+		return SpringApplicationContextProxy.applicationContext.getBean(name, args);
 	}
 
 	public static <T> Optional<T> getOptionalBean(Class<T> bean) {

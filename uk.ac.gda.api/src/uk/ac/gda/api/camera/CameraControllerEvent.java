@@ -21,9 +21,24 @@ package uk.ac.gda.api.camera;
 import java.io.Serializable;
 
 public class CameraControllerEvent implements Serializable {
+	/**
+	 * The name of the camera controller, typically the bean name
+	 */
+	private String name;
 	private double acquireTime;
 	private BinningFormat binningFormat;
 	private CameraState cameraState;
+
+	/**
+	 * Returns the name of the camera controller, typically the bean name
+	 * @return the controller name
+	 */
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
 
 	public double getAcquireTime() {
 		return acquireTime;

@@ -1,6 +1,7 @@
 package uk.ac.diamond.daq.mapping.ui.properties;
 
 import java.util.Optional;
+import java.util.Set;
 
 import uk.ac.gda.client.properties.DetectorProperties;
 
@@ -13,7 +14,7 @@ import uk.ac.gda.client.properties.DetectorProperties;
  */
 public class DetectorPropertiesBuilder {
 
-	private final DetecorPropertiesImpl detectorProperties = new DetecorPropertiesImpl();
+	private final DetectorPropertiesImpl detectorProperties = new DetectorPropertiesImpl();
 
 	public static DetectorPropertiesBuilder createBuilder() {
 		return new DetectorPropertiesBuilder();
@@ -39,12 +40,17 @@ public class DetectorPropertiesBuilder {
 		detectorProperties.setDetectorBean(detectorBean);
 	}
 
-	private class DetecorPropertiesImpl implements DetectorProperties {
+	public void setCameras(Set<String> cameras) {
+		detectorProperties.setCameras(cameras);
+	}
+
+	public static class DetectorPropertiesImpl implements DetectorProperties {
 
 		private int index;
 		private Optional<String> id;
 		private String name;
 		private String detectorBean;
+		private Set<String> cameras;
 
 		@Override
 		public int getIndex() {
@@ -80,6 +86,15 @@ public class DetectorPropertiesBuilder {
 
 		public void setDetectorBean(String detectorBean) {
 			this.detectorBean = detectorBean;
+		}
+
+		@Override
+		public Set<String> getCameras() {
+			return cameras;
+		}
+
+		public void setCameras(Set<String> cameras) {
+			this.cameras = cameras;
 		}
 	}
 }
