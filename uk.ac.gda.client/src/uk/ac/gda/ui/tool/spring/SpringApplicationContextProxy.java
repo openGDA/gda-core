@@ -18,8 +18,14 @@
 
 package uk.ac.gda.ui.tool.spring;
 
+import java.lang.ref.PhantomReference;
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.WeakHashMap;
 
 import org.eclipse.swt.widgets.Widget;
 import org.slf4j.Logger;
@@ -52,11 +58,13 @@ import uk.ac.gda.client.exception.GDAClientException;
 @Component
 public class SpringApplicationContextProxy implements ApplicationEventPublisherAware, ApplicationContextAware {
 
+	private static final ReferenceQueue<Object> refQueue = new ReferenceQueue<>();
+	private static final WeakHashMap<Reference<?>, List<ApplicationListener<?>>> weakMap = new WeakHashMap<>();
+
 	private static ApplicationEventPublisher applicationPublisher;
 
 	private static final Logger logger = LoggerFactory.getLogger(SpringApplicationContextProxy.class);
 
-	@SuppressWarnings("unused")
 	private static ApplicationContext applicationContext;
 
 	private static ConfigurableApplicationContext configurableApplicationContext;
@@ -80,6 +88,8 @@ public class SpringApplicationContextProxy implements ApplicationEventPublisherA
 			springApplicationDidNotScanClass();
 			return;
 		}
+		// Cleanup phantom references
+		cleanUpListeners();
 		SpringApplicationContextProxy.applicationPublisher.publishEvent(event);
 	}
 
@@ -105,15 +115,18 @@ public class SpringApplicationContextProxy implements ApplicationEventPublisherA
 
 	/**
 	 * Return the bean instance that uniquely matches the given object type, if any.
-	 * @param requiredType type the bean must match; can be an interface or superclass.
-	 * {@code null} is disallowed.
-	 * <p>This method goes into {@link ListableBeanFactory} by-type lookup territory
-	 * but may also be translated into a conventional by-name lookup based on the name
-	 * of the given type. For more extensive retrieval operations across sets of beans,
-	 * use {@link ListableBeanFactory} and/or {@link BeanFactoryUtils}.
+	 *
+	 * @param requiredType
+	 *            type the bean must match; can be an interface or superclass. {@code null} is disallowed.
+	 *            <p>
+	 *            This method goes into {@link ListableBeanFactory} by-type lookup territory but may also be translated
+	 *            into a conventional by-name lookup based on the name of the given type. For more extensive retrieval
+	 *            operations across sets of beans, use {@link ListableBeanFactory} and/or {@link BeanFactoryUtils}.
 	 * @return an instance of the single bean matching the required type
-	 * @throws NoSuchBeanDefinitionException if no bean of the given type was found
-	 * @throws NoUniqueBeanDefinitionException if more than one bean of the given type was found
+	 * @throws NoSuchBeanDefinitionException
+	 *             if no bean of the given type was found
+	 * @throws NoUniqueBeanDefinitionException
+	 *             if more than one bean of the given type was found
 	 */
 	public static <T> T getBean(Class<T> requiredType) {
 		return SpringApplicationContextProxy.applicationContext.getBean(requiredType);
@@ -121,15 +134,20 @@ public class SpringApplicationContextProxy implements ApplicationEventPublisherA
 
 	/**
 	 * Return an instance, which may be shared or independent, of the specified bean.
-	 * <p>Allows for specifying explicit constructor arguments / factory method arguments,
-	 * overriding the specified default arguments (if any) in the bean definition.
-	 * @param name the name of the bean to retrieve
-	 * @param args arguments to use if creating a prototype using explicit arguments to a
-	 * static factory method. It is invalid to use a non-null args value in any other case.
+	 * <p>
+	 * Allows for specifying explicit constructor arguments / factory method arguments, overriding the specified default
+	 * arguments (if any) in the bean definition.
+	 *
+	 * @param name
+	 *            the name of the bean to retrieve
+	 * @param args
+	 *            arguments to use if creating a prototype using explicit arguments to a static factory method. It is
+	 *            invalid to use a non-null args value in any other case.
 	 * @return an instance of the bean
-	 * @throws NoSuchBeanDefinitionException if there is no such bean definition
-	 * @throws BeanDefinitionStoreException if arguments have been given but
-	 * the affected bean isn't a prototype
+	 * @throws NoSuchBeanDefinitionException
+	 *             if there is no such bean definition
+	 * @throws BeanDefinitionStoreException
+	 *             if arguments have been given but the affected bean isn't a prototype
 	 */
 	public static Object getBean(String name, Object... args) {
 		return SpringApplicationContextProxy.applicationContext.getBean(name, args);
@@ -146,11 +164,15 @@ public class SpringApplicationContextProxy implements ApplicationEventPublisherA
 	/**
 	 * Registers a {@code listener} and removes it when the related {@code composite} is disposed.
 	 *
-	 * @param widget the element publishing the dispose event which causes {@code listener} to be removed
-	 * @param listener the application lister to
-	 * @throws GDAClientException if the widget is {@code null} or {@link Widget#isDisposed()} returns {@code true}
+	 * @param widget
+	 *            the element publishing the dispose event which causes {@code listener} to be removed
+	 * @param listener
+	 *            the application lister to
+	 * @throws GDAClientException
+	 *             if the widget is {@code null} or {@link Widget#isDisposed()} returns {@code true}
 	 */
-	public static final void addDisposableApplicationListener(Widget widget, ApplicationListener<?> listener) throws GDAClientException {
+	public static final void addDisposableApplicationListener(Widget widget, ApplicationListener<?> listener)
+			throws GDAClientException {
 		validateWidget(widget);
 		SpringApplicationContextProxy.addApplicationListener(listener);
 		widget.addDisposeListener(disposedEvent -> {
@@ -158,6 +180,19 @@ public class SpringApplicationContextProxy implements ApplicationEventPublisherA
 				SpringApplicationContextProxy.removeApplicationListener(listener);
 			}
 		});
+	}
+
+	/**
+	 * Registers a {@code listener} and removes it when the related {@code object} became a {@link PhantomReference}.
+	 *
+	 * @param object
+	 *            the element publishing the dispose event which causes {@code listener} to be removed
+	 * @param listener
+	 *            the application lister to
+	 */
+	public static final void addDisposableApplicationListener(Object object, ApplicationListener<?> listener) {
+		SpringApplicationContextProxy.addApplicationListener(listener);
+		createPhantomReference(object, listener);
 	}
 
 	private static void validateWidget(Widget widget) throws GDAClientException {
@@ -174,4 +209,33 @@ public class SpringApplicationContextProxy implements ApplicationEventPublisherA
 				"The Spring Application may have not initialized uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy class");
 	}
 
+	/**
+	 * Creates a {@link PhantomReference} with the given {@code object}. The {@code reference} and the {@code listener}
+	 * are stored in {@link #weakMap} for later cleanup
+	 *
+	 * @param object
+	 * @param listener
+	 *
+	 * @see SpringApplicationContextProxy#cleanUpListeners()
+	 */
+	private static void createPhantomReference(Object object, ApplicationListener<?> listener) {
+		Reference<?> pr = new PhantomReference<>(object, refQueue);
+		weakMap.putIfAbsent(pr, new ArrayList<ApplicationListener<?>>());
+		weakMap.get(pr).add(listener);
+	}
+
+	/**
+	 * Removes the {@link ApplicationListener}s associated with the eligible {@link PhantomReference}.
+	 *
+	 */
+	private static void cleanUpListeners() {
+		// Is there any reference in the queue?
+		Optional.ofNullable(refQueue.poll()).ifPresent(r -> {
+			// Has the reference any assocated list of listeners?
+			Optional.ofNullable(weakMap.remove(r))
+					.ifPresent(l -> l.forEach(SpringApplicationContextProxy::removeApplicationListener));
+			// Recurse until queue is empty
+			cleanUpListeners();
+		});
+	}
 }

@@ -145,7 +145,7 @@ public class ExposureDurationComposite implements CompositeFactory {
 	}
 
 	private void updateModelToGUI(CameraControllerEvent e) {
-		updateReadOut((int) (e.getAcquireTime() * 1000));
+		updateGUI((int) (e.getAcquireTime() * 1000));
 	}
 
 	private ApplicationListener<ChangeActiveCameraEvent> getChangeActiveCameraListener(Composite parent) {
@@ -164,6 +164,5 @@ public class ExposureDurationComposite implements CompositeFactory {
 
 	private Consumer<CameraControllerEvent> consumeExposure = cce -> Display.getDefault()
 			.asyncExec(() -> updateModelToGUI(cce));
-
 	private final IObserver cameraControlObserver = CameraEventUtils.cameraControlEventObserver(consumeExposure);
 }

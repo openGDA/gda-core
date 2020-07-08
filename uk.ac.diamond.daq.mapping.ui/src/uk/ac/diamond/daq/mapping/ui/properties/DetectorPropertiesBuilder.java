@@ -45,7 +45,6 @@ public class DetectorPropertiesBuilder {
 	}
 
 	public static class DetectorPropertiesImpl implements DetectorProperties {
-
 		private int index;
 		private Optional<String> id;
 		private String name;
