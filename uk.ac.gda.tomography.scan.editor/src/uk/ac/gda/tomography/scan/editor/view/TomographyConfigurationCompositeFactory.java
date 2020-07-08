@@ -51,8 +51,8 @@ import org.springframework.context.ApplicationListener;
 
 import gda.mscan.element.Mutator;
 import gda.rcp.views.CompositeFactory;
-import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.ui.stage.IStageController;
@@ -493,9 +493,11 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 
 		@Override
 		public void onApplicationEvent(AcquisitionConfigurationResourceLoadEvent event) {
-			bindElements();
-			initialiseElements();
-			composite.layout(true, true);
+			if (getController().equals(event.getSource())) {
+				bindElements();
+				initialiseElements();
+				composite.layout(true, true);
+			}
 		}
 	}
 }
