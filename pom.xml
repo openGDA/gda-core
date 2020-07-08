@@ -47,7 +47,6 @@
 				<module>org.eclipse.scanning.server</module>
 				<module>org.eclipse.scanning.test</module>
 				<module>org.eclipse.scanning.test.utilities</module>
-				<module>org.eclipse.scanning.third.feature</module>
 				<module>org.eclipse.scanning.ui.feature</module>
 			</modules>
 		</profile>
