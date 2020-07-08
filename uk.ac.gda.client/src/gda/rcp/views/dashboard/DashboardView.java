@@ -313,12 +313,12 @@ public final class DashboardView extends ViewPart {
 			data.add(ob);
 		}
 
-		try {
-			DashboardScannables dashboardScannables = Finder.findSingleton(DashboardScannables.class);
+		DashboardScannables dashboardScannables = Finder.find("dashboard_motors");
+		if (dashboardScannables != null) {
 			List<String> scannableNames = dashboardScannables.getDashboardScannableNames();
 			scannableNames.stream()
 						  .forEach(item -> data.add(new ScannableObject(item, new JythonSnapshotProvider())));
-		} catch (IllegalArgumentException e) {
+		} else {
 			logger.info("No dashboard scannables were defined via Spring xml");
 		}
 
