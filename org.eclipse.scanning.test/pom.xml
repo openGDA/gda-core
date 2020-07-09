@@ -44,9 +44,9 @@
 						<exclude>ExampleMalcolmDeviceTest</exclude>
 						<exclude>MalcolmEpicsV4ConnectorTest</exclude>
 						<exclude>PerScanMonitorTest</exclude>
-						<!-- dependencies outside of plugin -->
+						<!-- PsuedoSpringParser to be removed -->
 						<exclude>PseudoSpringParserTest</exclude>
-						<exclude>SpringXmlTest</exclude>
+						<!-- Flaky new-scanning test, currently excluded -->
 						<exclude>PosDetectorScanTest</exclude>
 						<!-- Powermock issues -->
 						<exclude>QueuePersistenceTest</exclude>
