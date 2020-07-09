@@ -38,8 +38,8 @@ import org.eclipse.swt.graphics.RGB;
 public class SwtFrameCaptureTask extends FrameCaptureTask<ImageData> {
 
 	public SwtFrameCaptureTask(String urlSpec, ExecutorService imageDecodingService,
-			BlockingQueue<Future<ImageData>> receivedImages, int readTimeout, boolean acceptReadTimeout) {
-		super(urlSpec, imageDecodingService, receivedImages, readTimeout, acceptReadTimeout);
+			BlockingQueue<Future<ImageData>> receivedImages) {
+		super(urlSpec, imageDecodingService, receivedImages);
 	}
 
 	public ImageData convertByteArrayToImage(byte[] imageData) {
