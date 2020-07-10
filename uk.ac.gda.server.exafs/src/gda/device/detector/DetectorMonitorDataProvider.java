@@ -64,7 +64,7 @@ import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 @ServiceInterface(DetectorMonitorDataProviderInterface.class)
 public class DetectorMonitorDataProvider extends ScannableBase implements DetectorMonitorDataProviderInterface {
 
-	protected static final Logger logger = LoggerFactory.getLogger(DetectorMonitorDataProvider.class);
+	private static final Logger logger = LoggerFactory.getLogger(DetectorMonitorDataProvider.class);
 
 	private volatile boolean collectFrameIsRunning = false;
 	private volatile boolean collectionAllowed = true;

@@ -50,6 +50,8 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.exafs.SampleParameterMotorPosition;
 import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
@@ -74,6 +76,8 @@ import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
 public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
+
+	private static final Logger logger = LoggerFactory.getLogger(B18SampleParametersUIEditor.class);
 
 	private FieldComposite name;
 	private FieldComposite description1;

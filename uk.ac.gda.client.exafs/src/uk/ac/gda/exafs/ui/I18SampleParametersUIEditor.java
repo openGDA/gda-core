@@ -36,6 +36,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -47,6 +49,8 @@ import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.FauxRichBeansEditor;
 
 public class I18SampleParametersUIEditor extends FauxRichBeansEditor<I18SampleParameters> {
+
+	private static final Logger logger = LoggerFactory.getLogger(I18SampleParametersUIEditor.class);
 
 	public I18SampleParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, I18SampleParameters editingBean) {
 		super(path, mappingURL, dirtyContainer, editingBean);

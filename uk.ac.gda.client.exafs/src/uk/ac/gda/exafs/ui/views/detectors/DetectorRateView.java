@@ -58,7 +58,7 @@ import gda.scan.Scan.ScanStatus;
 import gda.scan.ScanEvent;
 
 public class DetectorRateView extends ViewPart implements IPartListener2, IObserver, IScanDataPointObserver {
-	protected static final Logger logger = LoggerFactory.getLogger(DetectorRateView.class);
+	private static final Logger logger = LoggerFactory.getLogger(DetectorRateView.class);
 	public static final String ID = "uk.ac.gda.exafs.ui.views.detectors.DetectorRateView";
 
 	/** View configuration - set by {@link DetectorRateViewFactory} when creating view, or selected by user in GUI */

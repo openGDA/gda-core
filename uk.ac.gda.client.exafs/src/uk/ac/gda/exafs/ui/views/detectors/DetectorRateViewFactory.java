@@ -23,8 +23,6 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.core.runtime.IExecutableExtensionFactory;
 import org.eclipse.ui.part.ViewPart;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.factory.Finder;
 
@@ -42,7 +40,6 @@ import gda.factory.Finder;
  * The view id can then be used in a showView command in usual way.
  */
 public class DetectorRateViewFactory implements IExecutableExtensionFactory, IExecutableExtension {
-	protected static final Logger logger = LoggerFactory.getLogger(DetectorRateViewFactory.class);
 
 	private String viewName = "";
 

@@ -20,8 +20,6 @@ package uk.ac.gda.devices.xspress4;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.factory.Finder;
 import gda.scan.ConcurrentScan;
@@ -30,8 +28,6 @@ import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressParameters;
 
 public class Xspress4DetectorTest extends TestBase {
-
-	private static final Logger logger = LoggerFactory.getLogger(Xspress4DetectorTest.class);
 
 	@Before
 	public void setup() throws Exception {
