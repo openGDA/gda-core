@@ -61,11 +61,13 @@ import org.eclipse.dawnsci.nexus.template.NexusTemplate;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.scanning.api.IScannable;
+import org.eclipse.scanning.api.annotation.scan.ScanStart;
 import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IPausableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.device.models.IDeviceWatchdogModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -95,6 +97,8 @@ import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.sequencer.ServiceHolder;
+import org.eclipse.scanning.sequencer.watchdog.AbstractWatchdog;
+import org.eclipse.scanning.sequencer.watchdog.DeviceWatchdogService;
 import org.eclipse.scanning.server.servlet.ScanProcess;
 import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.ServiceTestHelper;
@@ -696,6 +700,56 @@ public class ScanProcessTest {
 			assertThat(values.get(0), is(equalTo(startPos)));
 			assertThat(values.get(values.size() - 1), is(equalTo(endPos)));
 		}
+	}
+
+	/**
+	 * A very simple watchdog class to test that methods invoked with {@link ScanStart} annotation are called.
+	 * Note: The watchdogs registered with {@link DeviceWatchdogService} are not the template objects added to
+	 * each scan. Instead they are used as templates, with a new instance being created through
+	 * {@link Class#newInstance()} and the template's model set on the new instance. For this reason,
+	 * we can't simply use mockito to verify that that start method is called.
+	 */
+	public static class AnnotatedWatchdog extends AbstractWatchdog<IDeviceWatchdogModel> {
+
+		protected static int numWatchdogsStarted = 0;
+
+		@Override
+		protected String getId() {
+			return getClass().getName();
+		}
+
+		@ScanStart
+		public void start() {
+			numWatchdogsStarted++;
+		}
+
+	}
+
+	@Test
+	public void testWatchdogsStarted() throws Exception {
+		// Arrange
+		final ScanBean scanBean = new ScanBean();
+		final ScanRequest scanRequest = new ScanRequest();
+		scanRequest.setCompoundModel(new CompoundModel(new AxialStepModel("xNex", 0, 9, 1)));
+		scanBean.setScanRequest(scanRequest);
+		final ScanProcess process = new ScanProcess(scanBean, null, true);
+
+		final AnnotatedWatchdog watchdog1 = new AnnotatedWatchdog();
+		watchdog1.setName("watchdog1");
+		watchdog1.activate();
+		final AnnotatedWatchdog watchdog2 = new AnnotatedWatchdog();
+		watchdog2.setName("watchdog2");
+		watchdog2.activate();
+
+		// Act
+		process.execute();
+
+		// Assert
+		assertThat(AnnotatedWatchdog.numWatchdogsStarted, is(2));
+
+		// remove the watchdogs
+		watchdog1.deactivate();
+		watchdog2.deactivate();
 	}
 
 	@Test
