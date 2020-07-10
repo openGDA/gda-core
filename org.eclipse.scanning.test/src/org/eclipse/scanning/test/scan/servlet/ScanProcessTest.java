@@ -17,6 +17,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,10 +36,12 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -68,11 +71,13 @@ import org.eclipse.scanning.api.device.IPausableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.IDeviceWatchdogModel;
+import org.eclipse.scanning.api.device.models.TopupWatchdogModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.Status;
+import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
@@ -95,10 +100,12 @@ import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.example.scannable.MockScannable;
+import org.eclipse.scanning.example.scannable.MockTopupScannable;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.sequencer.watchdog.AbstractWatchdog;
 import org.eclipse.scanning.sequencer.watchdog.DeviceWatchdogService;
+import org.eclipse.scanning.sequencer.watchdog.TopupWatchdog;
 import org.eclipse.scanning.server.servlet.ScanProcess;
 import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.ServiceTestHelper;
@@ -110,6 +117,7 @@ import org.eclipse.scanning.test.utilities.scan.mock.MockWritingMandlebrotModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
+import org.mockito.stubbing.Answer;
 
 public class ScanProcessTest {
 
@@ -703,7 +711,8 @@ public class ScanProcessTest {
 	}
 
 	/**
-	 * A very simple watchdog class to test that methods invoked with {@link ScanStart} annotation are called.
+	 * A very simple watchdog class used by {@link ScanProcessTest#testWatchdogsStarted()}
+	 * to test that methods invoked with {@link ScanStart} annotation are called.
 	 * Note: The watchdogs registered with {@link DeviceWatchdogService} are not the template objects added to
 	 * each scan. Instead they are used as templates, with a new instance being created through
 	 * {@link Class#newInstance()} and the template's model set on the new instance. For this reason,
@@ -750,6 +759,50 @@ public class ScanProcessTest {
 		// remove the watchdogs
 		watchdog1.deactivate();
 		watchdog2.deactivate();
+	}
+
+	@Test
+	public void testTopupWatchdog() throws Exception {
+		// Arrange
+		final ScanBean scanBean = new ScanBean();
+		final ScanRequest scanRequest = new ScanRequest();
+
+		final Map<String, Object> dmodels = new HashMap<String, Object>(3);
+		final MandelbrotModel model = new MandelbrotModel("xNex", "yNex");
+		model.setName("mandelbrot");
+		model.setExposureTime(1.0);
+		dmodels.put("mandelbrot", model);
+		scanRequest.setDetectors(dmodels);
+
+		scanRequest.setCompoundModel(new CompoundModel(new AxialStepModel("xNex", 0, 3, 1)));
+		scanBean.setScanRequest(scanRequest);
+
+		final MockTopupScannable topupScannable = (MockTopupScannable) (IScannable<?>) connector.getScannable("topup");
+		topupScannable.start();
+
+		final TopupWatchdogModel topupModel = new TopupWatchdogModel();
+		topupModel.setCountdownName("topup");
+		topupModel.setCooloff(200);
+		topupModel.setWarmup(200);
+		topupModel.setTopupTime(150);
+		topupModel.setPeriod(5000);
+
+		final TopupWatchdog topupWatchdog = new TopupWatchdog(topupModel);
+		topupWatchdog.activate();
+
+		// A mock publisher to capture the bean at each stage in the scan, used to collect a set of statii
+		final IPublisher<ScanBean> mockPublisher = mock(IPublisher.class);
+		final Set<Status> statii = EnumSet.noneOf(Status.class);
+		final Answer<Void> statusCollectingAnswer = invocation -> {
+			statii.add(((StatusBean) invocation.getArgument(0)).getStatus());
+			return null;
+		};
+		doAnswer(statusCollectingAnswer).when(mockPublisher).broadcast(any(ScanBean.class));
+		final ScanProcess process = new ScanProcess(scanBean, mockPublisher, true);
+
+		process.execute();
+
+		assertThat(statii, containsInAnyOrder(Status.PREPARING, Status.RUNNING, Status.PAUSED, Status.RESUMED, Status.COMPLETE));
 	}
 
 	@Test
