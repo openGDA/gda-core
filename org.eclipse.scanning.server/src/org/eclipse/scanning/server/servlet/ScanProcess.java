@@ -490,7 +490,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 				if (scanModel.getAdditionalScanObjects() != null) {
 					scanObjects.addAll(scanModel.getAdditionalScanObjects());
 				}
-				scanObjects.add(deviceController.getObjects());
+				scanObjects.addAll(deviceController.getObjects());
 				scanModel.setAdditionalScanObjects(scanObjects);
 			}
 
