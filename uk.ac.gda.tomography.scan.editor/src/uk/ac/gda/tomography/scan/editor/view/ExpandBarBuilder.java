@@ -24,8 +24,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ExpandBar;
 import org.eclipse.swt.widgets.ExpandItem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
@@ -43,8 +41,6 @@ public class ExpandBarBuilder {
 	private Composite internalArea;
 	private final ClientMessages title;
 	private boolean built = false;
-
-	private static final Logger logger = LoggerFactory.getLogger(ExpandBarBuilder.class);
 
 	public ExpandBarBuilder(Composite composite, ClientMessages title) {
 		this.bar = new ExpandBar(composite, SWT.NONE);
