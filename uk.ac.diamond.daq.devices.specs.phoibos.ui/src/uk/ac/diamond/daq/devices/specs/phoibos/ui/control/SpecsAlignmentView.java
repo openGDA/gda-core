@@ -38,8 +38,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
@@ -50,8 +48,6 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSpectrumUpdate;
 
 public class SpecsAlignmentView implements IObserver {
-
-	private static final Logger logger = LoggerFactory.getLogger(SpecsAlignmentView.class);
 
 	private ISpecsPhoibosAnalyser analyser;
 

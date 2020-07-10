@@ -27,8 +27,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.jython.InterfaceProvider;
@@ -38,8 +36,6 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceValidatio
 import uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsUiConstants;
 
 public class SaveAsSequenceHandler extends HandlerBase {
-
-	private static final Logger logger = LoggerFactory.getLogger(SaveAsSequenceHandler.class);
 
 	@Execute
 	public void execute(MPart part, @Named(IServiceConstants.ACTIVE_SHELL) Shell shell) throws DeviceException {

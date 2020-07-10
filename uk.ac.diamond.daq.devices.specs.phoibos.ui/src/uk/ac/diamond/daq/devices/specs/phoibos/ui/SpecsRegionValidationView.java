@@ -32,14 +32,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceValidation;
 
 public class SpecsRegionValidationView {
-	private static final Logger logger = LoggerFactory.getLogger(SpecsRegionValidationView.class);
 
 	private final String PART_ID  = "uk.ac.diamond.daq.devices.specs.phoibos.ui.part.regionvalidation";
 	private final String DEFAULT_LABEL = "Region Validation";
