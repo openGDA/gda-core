@@ -46,8 +46,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.IActionBars;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
@@ -104,7 +102,6 @@ public class Plot1DUIAdapter extends AbstractPlotUI {
 	protected String xGridLinePref;
 	protected String yGridLinePref;
 	protected String numAppsPref;
-	protected static final Logger logger = LoggerFactory.getLogger(Plot1DUIAdapter.class);
 
 	protected String[] listPrintScaleText = { ResourceProperties.getResourceString("PRINT_LISTSCALE_0"),
 			ResourceProperties.getResourceString("PRINT_LISTSCALE_1"), ResourceProperties.getResourceString("PRINT_LISTSCALE_2"),
