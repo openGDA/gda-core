@@ -19,19 +19,16 @@
 
 package gda.hrpd.data;
 
-import gda.data.scan.datawriter.DataWriter;
-import gda.device.Detector;
-import gda.device.Scannable;
-import gda.scan.IScanStepId;
-import gda.scan.ScanPlotSettings;
-
 import java.io.File;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Vector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import gda.data.scan.datawriter.DataWriter;
+import gda.device.Detector;
+import gda.device.Scannable;
+import gda.scan.IScanStepId;
+import gda.scan.ScanPlotSettings;
 
 /**
  * This class holds information about the data collected at a single point on a scan. It is to be passed around between
@@ -39,7 +36,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ScanDataFile implements Serializable {
 
-	protected static final Logger logger = LoggerFactory.getLogger(ScanDataFile.class);
 	/**
 	 * The delimiter used in the data file.
 	 */
@@ -72,9 +68,9 @@ public class ScanDataFile implements Serializable {
 	protected enum Formatter {
 		SRS, MAC, PSD
 	}
-	
+
 	protected boolean hasMetadata = false;
-	
+
 	public boolean isHasMetadata() {
 		return hasMetadata;
 	}
@@ -128,11 +124,11 @@ public class ScanDataFile implements Serializable {
 	}
 
 	protected boolean hasHeaders = false;
-	
+
 	protected boolean hasFooters = false;
-	
+
 	protected String metadataStartDelimiter = "&SRS";
-	
+
 	protected String metadataEndDelimiter = "&END";
 
 	/**
@@ -166,24 +162,24 @@ public class ScanDataFile implements Serializable {
 	private File file;
 
 	/**
-	 * 
+	 *
 	 */
 	public ScanDataFile() {
 	}
 
 	/**
-	 * constructor. This constructor is used by GDA server only. 
-	 * 
+	 * constructor. This constructor is used by GDA server only.
+	 *
 	 * @param scanName
 	 * @param _scannables
 	 * @param detectors
 	 * @param currentFilename
-	 * @param numberOfFile 
+	 * @param numberOfFile
 	 */
-	public ScanDataFile(String scanName, Vector<Scannable> _scannables, Vector<Detector> detectors, 
+	public ScanDataFile(String scanName, Vector<Scannable> _scannables, Vector<Detector> detectors,
 			String currentFilename, int numberOfFile) {
 
-		
+
 		// Strip scannables with neither input nor extra fields as these cause problems both when plotting
 		// and writing to Nexus.
 		this.uniqueName = scanName;
@@ -195,8 +191,8 @@ public class ScanDataFile implements Serializable {
 	}
 
 	/**
-	 * constructor. This constructor is used by GDA server only. 
-	 * 
+	 * constructor. This constructor is used by GDA server only.
+	 *
 	 * @param scanName
 	 * @param scannables
 	 * @param detectors
@@ -213,7 +209,7 @@ public class ScanDataFile implements Serializable {
 
 	/**
 	 * Add a detector to the list of detectors this object holds data from.
-	 * 
+	 *
 	 * @param det
 	 */
 	public void addDetector(Detector det) {
@@ -222,7 +218,7 @@ public class ScanDataFile implements Serializable {
 
 	/**
 	 * Add a scannable to the list of scannables this object holds data on.
-	 * 
+	 *
 	 * @param scannable
 	 */
 	public void addScannable(Scannable scannable) {
@@ -258,7 +254,7 @@ public class ScanDataFile implements Serializable {
 
 	/**
 	 * Return the vector of data which this object is a carrier of.
-	 * 
+	 *
 	 * @return Vector<Object>
 	 */
 	public File getCurrentDataFile() {
@@ -267,7 +263,7 @@ public class ScanDataFile implements Serializable {
 
 	/**
 	 * The list of detectors this object refers to.
-	 * 
+	 *
 	 * @return list of detectors this object refers to.
 	 */
 	public Vector<Detector> getDetectors() {
@@ -298,7 +294,7 @@ public class ScanDataFile implements Serializable {
 
 	/**
 	 * The list of scannables this object refers to.
-	 * 
+	 *
 	 * @return list of scannables this object refers to.
 	 */
 	public Vector<Scannable> getScannables() {
@@ -321,7 +317,7 @@ public class ScanDataFile implements Serializable {
 
 	/**
 	 * The unique name of the scan which created this data point.
-	 * 
+	 *
 	 * @return String
 	 */
 	public String getUniqueName() {
@@ -338,7 +334,7 @@ public class ScanDataFile implements Serializable {
 
 	/**
 	 * (For gui panels).The filename that this data is going to be written to.
-	 * 
+	 *
 	 * @param currentFilename
 	 */
 	public void setCurrentFilename(String currentFilename) {
@@ -347,7 +343,7 @@ public class ScanDataFile implements Serializable {
 
 	/**
 	 * Sets the current point number
-	 * 
+	 *
 	 * @param currentPointNumber
 	 *            the current point number
 	 */
@@ -365,7 +361,7 @@ public class ScanDataFile implements Serializable {
 
 	/**
 	 * Set the scan identifier (eg scan number)
-	 * 
+	 *
 	 * @param scanIdentifier
 	 *            the scan identifier
 	 */
@@ -375,7 +371,7 @@ public class ScanDataFile implements Serializable {
 
 	/**
 	 * The ids of the scans involved in generating this point
-	 * 
+	 *
 	 * @param stepIds
 	 */
 	public void setStepIds(List<IScanStepId> stepIds) {
@@ -384,7 +380,7 @@ public class ScanDataFile implements Serializable {
 
 	/**
 	 * Sets the unique identifier of the scan which created this point.
-	 * 
+	 *
 	 * @param uniqueName
 	 */
 	public void setUniqueName(String uniqueName) {
