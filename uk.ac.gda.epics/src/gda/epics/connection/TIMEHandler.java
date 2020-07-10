@@ -18,6 +18,9 @@
 
 package gda.epics.connection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -30,6 +33,9 @@ import gov.aps.jca.dbr.TimeStamp;
  * TIMEHandler Class
  */
 public class TIMEHandler extends STSHandler {
+
+	private static final Logger logger = LoggerFactory.getLogger(TIMEHandler.class);
+
 	TIMEHandler() {
 	}
 

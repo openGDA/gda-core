@@ -18,6 +18,9 @@
 
 package gda.epics.connection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -32,6 +35,9 @@ import gov.aps.jca.dbr.Status;
  *
  */
 public class STSHandler extends CompoundDataTypeHandler {
+
+	private static final Logger logger = LoggerFactory.getLogger(STSHandler.class);
+
 	public STSHandler() {
 	}
 

@@ -18,6 +18,9 @@
 
 package gda.epics.connection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -29,6 +32,9 @@ import gov.aps.jca.dbr.DBRType;
  * CTRLHandler Class
  */
 public class CTRLHandler extends GRHandler {
+
+	private static final Logger logger = LoggerFactory.getLogger(CTRLHandler.class);
+
 	CTRLHandler() {
 	}
 

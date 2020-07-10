@@ -30,14 +30,10 @@ import gov.aps.jca.dbr.INT;
 import gov.aps.jca.dbr.SHORT;
 import gov.aps.jca.dbr.STRING;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * CompoundDataTypeHandler Abstract Class
  */
 public abstract class CompoundDataTypeHandler {
-	protected static final Logger logger = LoggerFactory.getLogger(CompoundDataTypeHandler.class);
 
 	EpicsController con = EpicsController.getInstance();
 

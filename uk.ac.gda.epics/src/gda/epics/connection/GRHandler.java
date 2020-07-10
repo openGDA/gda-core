@@ -18,6 +18,9 @@
 
 package gda.epics.connection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -30,6 +33,9 @@ import gov.aps.jca.dbr.GR;
  * GRHandler Class
  */
 public class GRHandler extends STSHandler {
+
+	private static final Logger logger = LoggerFactory.getLogger(GRHandler.class);
+
 	GRHandler() {
 	}
 
