@@ -35,7 +35,7 @@ import uk.ac.diamond.daq.application.persistence.service.VisitServiceListener;
 public class GDAVisitService implements VisitService {
 	private static final Logger log = LoggerFactory.getLogger(GDAVisitService.class);
 
-	private String currentVisitId = "no-visit";
+	private final static String ERROR_VISIT_ID = "no-visit";
 	private List<VisitServiceListener> listeners = new ArrayList<>();
 
 	@Override
@@ -51,19 +51,22 @@ public class GDAVisitService implements VisitService {
 	@Override
 	public String getCurrentVisitId() {
 		try {
-			currentVisitId = GDAMetadataProvider.getInstance().getMetadataValue("visit");
+			return GDAMetadataProvider.getInstance().getMetadataValue("visit");
 		} catch (DeviceException e) {
 			log.error("Unable to find current visit", e);
+			return ERROR_VISIT_ID;
 		}
-
-		return currentVisitId;
 	}
 
 	@Override
 	public void setCurrentVisitId(String currentVisitId) {
-		this.currentVisitId = currentVisitId;
-		for (VisitServiceListener listener : listeners) {
-			listener.currentVisitUpdated(currentVisitId);
+		try {
+			GDAMetadataProvider.getInstance().setMetadataValue("visit", currentVisitId);
+			for (VisitServiceListener listener : listeners) {
+				listener.currentVisitUpdated(currentVisitId);
+			}
+		} catch (DeviceException e) {
+			log.error("Unable to set current visit", e);
 		}
 	}
 
