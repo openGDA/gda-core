@@ -69,10 +69,13 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 @Scope("prototype")
 public class ScanningAcquisitionController
 		implements AcquisitionController<ScanningAcquisition>, ApplicationListener<ApplicationEvent> {
+
 	private static final Logger logger = LoggerFactory.getLogger(ScanningAcquisitionController.class);
 
+	@SuppressWarnings("unused") // to be used for dark/flat field acquisition in the near future
 	@Autowired
 	private IStageController stageController;
+
 	private ScanningAcquisition acquisition;
 
 	private ScanningAcquisitionFileService fileService;
@@ -86,7 +89,6 @@ public class ScanningAcquisitionController
 
 	@Override
 	public void saveAcquisitionConfiguration() throws AcquisitionControllerException {
-		// StageConfiguration sc = generateStageConfiguration(getAcquisition());
 		String acquisitionDocument;
 		try {
 			acquisitionDocument = DocumentMapper.toJSON(getAcquisition());
@@ -104,13 +106,13 @@ public class ScanningAcquisitionController
 
 	@Override
 	public void loadAcquisitionConfiguration(URL url) throws AcquisitionControllerException {
-		acquisition = parseAcquisitionConfiguration(url).getResource();
-		SpringApplicationContextProxy.publishEvent(new AcquisitionConfigurationResourceLoadEvent(this, url));
+		loadAcquisitionConfiguration(parseAcquisitionConfiguration(url).getResource());
 	}
 
 	@Override
 	public void loadAcquisitionConfiguration(ScanningAcquisition acquisition) throws AcquisitionControllerException {
 		this.acquisition = acquisition;
+		SpringApplicationContextProxy.publishEvent(new AcquisitionConfigurationResourceLoadEvent(this, acquisition.getAcquisitionLocation()));
 	}
 
 	@Override
@@ -131,12 +133,16 @@ public class ScanningAcquisitionController
 	@Override
 	public void deleteAcquisitionConfiguration(URL url) throws AcquisitionControllerException {
 		throw new AcquisitionControllerException("Delete not implemented");
-		// SpringApplicationContextProxy.publishEvent(new AcquisitionConfigurationResourceSaveEvent(url));
 	}
 
 	@Override
 	public void createNewAcquisition() {
-		this.acquisition = getDefaultNewAcquisitionSupplier().get();
+		try {
+			loadAcquisitionConfiguration(getDefaultNewAcquisitionSupplier().get());
+		} catch (AcquisitionControllerException e) {
+			// We do not expect this to happen
+			logger.error("Could not create new acquisition configuration");
+		}
 	}
 
 	@Override
@@ -204,10 +210,7 @@ public class ScanningAcquisitionController
 				&& !sc.getMotorsPositions().containsKey(Position.OUT_OF_BEAM));
 	}
 
-	public ScanningParameters getAcquisitionParameters() {
-		return getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
-	}
-
+	@SuppressWarnings("unused") // to be used in the near future
 	private StageConfiguration generateStageConfiguration(ScanningAcquisition acquisition)
 			throws AcquisitionControllerException {
 		try {
@@ -222,6 +225,10 @@ public class ScanningAcquisitionController
 			throw new AcquisitionControllerException("Acquisition needs a OutOfBeam position to acquire flat images");
 		}
 		return sc;
+	}
+
+	public ScanningParameters getAcquisitionParameters() {
+		return getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
 	}
 
 	protected StageConfiguration parseJsonData(String jsonData) throws AcquisitionControllerException {
