@@ -337,14 +337,13 @@ public class ScanManagementController extends AbstractMappingController {
 	public ScanBean createScanBean(Optional<String> filePath, ScanningAcquisition acquisitionParameters) {
 		checkInitialised();
 		final IMappingExperimentBean mappingBean = getMappingBean();
-		if (acquisitionParameters != null) {
-			mappingBean.getDetectorParameters().stream()
-					.filter(d -> d.getModel().getName().contentEquals(acquisitionParameters.getAcquisitionConfiguration().getAcquisitionParameters().getDetector().getName()))
-					.forEach(d -> d.setIncludeInScan(true));
-		}
+
+		// Ensure the detector named in DiffractionParameters (if any) is activated
+		final Optional<String> detectorName = Optional.ofNullable(acquisitionParameters).map(ScanningAcquisition::getName);
+		detectorName.ifPresent(dName -> ensureDetectorIncludedInScan(dName, mappingBean));
 		addMonitors(mappingBean);
 
-		String sampleName = getSampleName(mappingBean, acquisitionParameters);
+		final String sampleName = getSampleName(mappingBean, acquisitionParameters);
 		final String pathName = mappingBean.getScanDefinition().getMappingScanRegion().getScanPath().getName();
 
 		final ScanBean scanBean = new ScanBean();
@@ -361,6 +360,12 @@ public class ScanManagementController extends AbstractMappingController {
 		}
 		scanBean.setScanRequest(scanRequest);
 		return scanBean;
+	}
+
+	private void ensureDetectorIncludedInScan(String detectorName, IMappingExperimentBean mappingBean) {
+	    mappingBean.getDetectorParameters().stream()
+	    	.filter(d -> d.getModel().getName().contentEquals(detectorName))
+	    	.forEach(d -> d.setIncludeInScan(true));
 	}
 
 	/**
@@ -445,16 +450,9 @@ public class ScanManagementController extends AbstractMappingController {
 	}
 
 	private String getSampleName(IMappingExperimentBean mappingBean, ScanningAcquisition acquisitionParameters) {
-		String sampleName;
-		if (acquisitionParameters != null) {
-			sampleName = acquisitionParameters.getName();
-		} else {
-			sampleName = mappingBean.getSampleMetadata().getSampleName();
-		}
-		if (sampleName == null || sampleName.length() == 0) {
-			return DEFAULT_SAMPLE_NAME;
-		}
-		return sampleName;
+		final Optional<String> acquisitionSampleName = Optional.ofNullable(acquisitionParameters).map(ScanningAcquisition::getName);
+		final String sampleName = acquisitionSampleName.isPresent() ? acquisitionSampleName.get() : mappingBean.getSampleMetadata().getSampleName();
+		return (sampleName == null || sampleName.length() == 0) ? DEFAULT_SAMPLE_NAME : sampleName;
 	}
 
 	/**
