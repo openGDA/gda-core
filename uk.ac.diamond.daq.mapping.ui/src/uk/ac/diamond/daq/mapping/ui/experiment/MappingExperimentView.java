@@ -328,7 +328,20 @@ public class MappingExperimentView implements IAdaptable {
 			return;
 		}
 
-		// Get the scan request and merge it into the mapping bean
+		// If the scan bean contains a valid reference to a stored mapping bean, use this
+		if (LocalProperties.isPersistenceServiceAvailable()) {
+			final ScanManagementController smController = getEclipseContext().get(ScanManagementController.class);
+			final java.util.Optional<IMappingExperimentBean> savedMappingBean = smController.loadScanMappingBean(scanBean.getId());
+			if (savedMappingBean.isPresent()) {
+				mappingBeanProvider.setMappingExperimentBean(savedMappingBean.get());
+				updateControls();
+				return;
+			} else {
+				logger.warn("No saved mapping bean found for scan id {}. Loading view from ScanRequest", scanBean.getId());
+			}
+		}
+
+		// Otherwise, get the scan request and merge it into the mapping bean
 		ScanRequest scanRequest = scanBean.getScanRequest();
 		try {
 			scanRequestConverter.mergeIntoMappingBean(scanRequest, mappingBeanProvider.getMappingExperimentBean());

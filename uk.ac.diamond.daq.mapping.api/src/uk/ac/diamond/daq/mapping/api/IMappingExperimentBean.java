@@ -30,6 +30,8 @@ import org.eclipse.scanning.api.ui.IStageScanConfiguration;
  * This interface should be implemented by any class which can represent a mapping type experiment
  */
 public interface IMappingExperimentBean {
+	public static final long INVALID_ID = -1;
+
 	/**
 	 * @return the id used in the Persistence Service
 	 */

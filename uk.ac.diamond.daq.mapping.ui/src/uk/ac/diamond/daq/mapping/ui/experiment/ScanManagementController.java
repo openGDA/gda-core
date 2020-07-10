@@ -59,6 +59,7 @@ import org.eclipse.ui.IViewReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.application.persistence.service.PersistenceException;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IScanBeanSubmitter;
@@ -189,14 +190,21 @@ public class ScanManagementController extends AbstractMappingController {
 
 	/**
 	 * Saves the current mapping bean to the Persistence Service.
+	 *
+	 * @param id
+	 *            the id under which to save the scan.<br>
+	 *            If a scan with this id already exists, it will be updated; otherwise the scan will be saved under an
+	 *            automatically-generated id
+	 * @return the id under which the scan has been saved
 	 */
-	public void saveScanAs(long id) {
+	public long saveScanAs(long id) {
 		checkInitialised();
 		IMappingExperimentBean mappingBean = getMappingBean();
 		mappingBean.setId(id);
 		PersistableMappingExperimentBean persistableBean = new PersistableMappingExperimentBean();
 		persistableBean.setMappingBean(mappingBean);
 		saveScan(persistableBean);
+		return persistableBean.getId();
 	}
 
 	/**
@@ -204,8 +212,9 @@ public class ScanManagementController extends AbstractMappingController {
 	 *
 	 * @param scanName
 	 *            the display name of the scan
+	 * @return the id under which the scan is saved, or IMappingExperimentBean.INVALID_ID if the save fails
 	 */
-	public void saveScanAs(final String scanName) {
+	public long saveScanAs(final String scanName) {
 		checkInitialised();
 		if (scanName != null) {
 			IMappingExperimentBean mappingBean = getMappingBean();
@@ -213,10 +222,12 @@ public class ScanManagementController extends AbstractMappingController {
 			PersistableMappingExperimentBean persistableBean = new PersistableMappingExperimentBean();
 			persistableBean.setMappingBean(mappingBean);
 			saveScan(persistableBean);
+			return persistableBean.getId();
 		}
+		return IMappingExperimentBean.INVALID_ID;
 	}
 
-	public void saveScan(PersistableMappingExperimentBean persistableBean) {
+	private void saveScan(PersistableMappingExperimentBean persistableBean) {
 		try {
 			captureStageInfoSnapshot();
 			final PersistenceServiceWrapper persistenceService = getService(PersistenceServiceWrapper.class);
@@ -280,7 +291,13 @@ public class ScanManagementController extends AbstractMappingController {
 	public void submitScan(Optional<String> filePath, ScanningAcquisition acquisitionParameters) {
 		final IScanBeanSubmitter submitter = getService(IScanBeanSubmitter.class);
 		try {
-			ScanBean scanBean = createScanBean(filePath, acquisitionParameters);
+			final ScanBean scanBean = createScanBean(filePath, acquisitionParameters);
+			if (LocalProperties.isPersistenceServiceAvailable()) {
+				// Save current status of mapping view and cross-reference in ScanBean
+				getMappingBean().setDisplayName("");
+				final long scanId = saveScanAs(IMappingExperimentBean.INVALID_ID);
+				scanBean.setId(scanId);
+			}
 			submitter.submitScan(scanBean);
 		} catch (Exception e) {
 			logger.error("Scan submission failed", e);

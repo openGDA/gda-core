@@ -21,7 +21,7 @@ import uk.ac.diamond.daq.mapping.api.IScriptFiles;
 
 public class MappingExperimentBean implements IMappingExperimentBean {
 
-	private long id;
+	private long id = INVALID_ID;
 	private String displayName;
 	private SimpleSampleMetadata sampleMetadata;
 	private List<IScanModelWrapper<IDetectorModel>> detectorParameters = null;
@@ -38,7 +38,6 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	private String alternativeDirectory = "";
 
 	public MappingExperimentBean() {
-		id = -1;
 		sampleMetadata = new SimpleSampleMetadata();
 		scanDefinition = new MappingScanDefinition();
 		processingConfigs = new ArrayList<ConfigWrapper>();
