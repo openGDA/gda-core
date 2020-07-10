@@ -22,8 +22,12 @@ import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.DeviceRequest;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 abstract class _AbstractRemoteDevice<M> extends AbstractRemoteService {
+
+	private static final Logger logger = LoggerFactory.getLogger(_AbstractRemoteDevice.class);
 
 	protected String name;
 	protected DeviceInformation<M> info;

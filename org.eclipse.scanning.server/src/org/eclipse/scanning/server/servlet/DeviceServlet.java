@@ -22,9 +22,11 @@ import javax.annotation.PostConstruct;
 import org.eclipse.scanning.api.device.DeviceRequestHandler;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
-import org.eclipse.scanning.api.event.core.IResponseCreator;
 import org.eclipse.scanning.api.event.core.IRequestHandler;
+import org.eclipse.scanning.api.event.core.IResponseCreator;
 import org.eclipse.scanning.api.event.scan.DeviceRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A servlet to get the available devices from the IDeviceService.
@@ -47,6 +49,8 @@ import org.eclipse.scanning.api.event.scan.DeviceRequest;
  *
  */
 public class DeviceServlet extends AbstractResponderServlet<DeviceRequest> {
+
+	private static final Logger logger = LoggerFactory.getLogger(DeviceServlet.class);
 
 	public DeviceServlet() {
 		super(DEVICE_REQUEST_TOPIC, DEVICE_RESPONSE_TOPIC);

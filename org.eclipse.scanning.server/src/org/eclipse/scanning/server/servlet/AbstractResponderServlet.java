@@ -41,7 +41,7 @@ import org.springframework.beans.factory.annotation.Value;
  */
 public abstract class AbstractResponderServlet<B extends IdBean> implements IResponderServlet<B> {
 
-	protected static final Logger logger = LoggerFactory.getLogger(AbstractResponderServlet.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractResponderServlet.class);
 
 	protected IEventService eventService;
 

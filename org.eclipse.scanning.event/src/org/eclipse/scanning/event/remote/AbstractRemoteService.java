@@ -16,8 +16,6 @@ import java.net.URI;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IConnection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -25,8 +23,6 @@ import org.slf4j.LoggerFactory;
  *
  */
 abstract class AbstractRemoteService implements IConnection {
-
-	protected static final Logger logger = LoggerFactory.getLogger(AbstractRemoteService.class);
 
 	protected IEventService eservice;
 	protected URI uri;

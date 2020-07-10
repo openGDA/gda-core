@@ -27,8 +27,12 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.event.IPositioner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class _Positioner extends AbstractRemoteService implements IPositioner {
+
+	private static final Logger logger = LoggerFactory.getLogger(_Positioner.class);
 
 	private IRequester<PositionerRequest> requester;
 
