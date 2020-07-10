@@ -18,6 +18,9 @@
 
 package gda.analysis.io;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 
 /**
@@ -25,6 +28,9 @@ import uk.ac.diamond.scisoft.analysis.io.DataHolder;
  */
 @Deprecated
 public class LoadDataHolder extends DataHolder {
+
+	private static final Logger logger = LoggerFactory.getLogger(LoadDataHolder.class);
+
 	public LoadDataHolder() {
 		super();
 		logger.warn("LoadDataHolder is deprecated, use DataHolder instead");

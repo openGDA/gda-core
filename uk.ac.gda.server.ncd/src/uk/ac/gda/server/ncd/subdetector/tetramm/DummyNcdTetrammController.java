@@ -22,15 +22,12 @@ import java.util.Random;
 
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.PositionIterator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.factory.FindableConfigurableBase;
 
 public class DummyNcdTetrammController extends FindableConfigurableBase implements NcdTetrammController {
 
-	private static final Logger logger = LoggerFactory.getLogger(DummyNcdTetrammController.class);
 	private int numberOfChannels;
 	private int frames;
 	private int points;

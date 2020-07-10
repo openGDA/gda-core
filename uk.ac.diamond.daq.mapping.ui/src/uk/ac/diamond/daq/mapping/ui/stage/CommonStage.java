@@ -67,7 +67,7 @@ public abstract class CommonStage implements StageDescription {
 	private final Map<StageDevice, IScannableMotor> motors = new EnumMap<>(StageDevice.class);
 	private final Map<String, String> metadata = new HashMap<>();
 
-	protected static final Logger logger = LoggerFactory.getLogger(CommonStage.class);
+	private static final Logger logger = LoggerFactory.getLogger(CommonStage.class);
 
 	protected CommonStage(Stage stage) {
 		super();

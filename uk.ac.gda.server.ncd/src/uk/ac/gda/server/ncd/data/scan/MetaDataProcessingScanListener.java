@@ -23,9 +23,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.metadata.MetadataEntry;
 
 public class MetaDataProcessingScanListener extends DataProcessingScanListenerBase {
+
+	private static final Logger logger = LoggerFactory.getLogger(MetaDataProcessingScanListener.class);
+
 	List<MetadataEntry> metadataEntries = new ArrayList<>();
 
 	public void setMetadataEntries(Collection<MetadataEntry> entries) {

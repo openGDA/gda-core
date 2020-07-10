@@ -19,14 +19,10 @@
 package uk.ac.gda.client.live.stream.calibration;
 
 import org.eclipse.january.dataset.IDataset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.device.Scannable;
 
 public abstract class AbstractCalibratedAxesProvider implements CalibratedAxesProvider {
-
-	protected static final Logger logger = LoggerFactory.getLogger(AbstractCalibratedAxesProvider.class);
 
 	/** The scannable for the horizontal axis of the camera */
 	protected Scannable xAxisScannable;

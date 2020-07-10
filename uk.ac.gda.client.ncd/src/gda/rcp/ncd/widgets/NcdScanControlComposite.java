@@ -40,7 +40,7 @@ import uk.ac.diamond.daq.concurrent.Async;
 
 public class NcdScanControlComposite extends Composite {
 
-	protected static final Logger logger = LoggerFactory.getLogger(NcdScanControlComposite.class);
+	private static final Logger logger = LoggerFactory.getLogger(NcdScanControlComposite.class);
 	private Button start;
 	private Button stop;
 

@@ -1,7 +1,5 @@
 package uk.ac.diamond.daq.mapping.ui.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEvent;
 
 import gda.device.DeviceException;
@@ -19,7 +17,6 @@ import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
  * @author Maurizio Nagni
  */
 class ScanningAcquisitionControllerHelper {
-	private static final Logger logger = LoggerFactory.getLogger(ScanningAcquisitionControllerHelper.class);
 
 	private static int activeCamera;
 

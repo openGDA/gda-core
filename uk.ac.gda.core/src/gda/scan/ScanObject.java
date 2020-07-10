@@ -5,10 +5,6 @@
 package gda.scan;
 
 import gda.device.Scannable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.api.scan.IScanObject;
 
 /**
@@ -18,7 +14,6 @@ import uk.ac.gda.api.scan.IScanObject;
  * @author Keith Ralphs
  */
 public abstract class ScanObject implements IScanObject {
-	protected static final Logger logger = LoggerFactory.getLogger(ScanObject.class);
 
 	/**
 	 * The scannable this object operates.

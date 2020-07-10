@@ -18,10 +18,10 @@
 
 package gda.device.scannable;
 
-import gda.device.DeviceException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
 
 /**
  * Class to be derived from to allow quick creation of so called zero input zero extranames scannable
@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class ScanEventHandlerScannable extends ScannableBase {
 
-	protected static final Logger logger = LoggerFactory.getLogger(ScanEventHandlerScannable.class);
+	private static final Logger logger = LoggerFactory.getLogger(ScanEventHandlerScannable.class);
 
 	protected void log(String msg){
 		logger.info(msg);

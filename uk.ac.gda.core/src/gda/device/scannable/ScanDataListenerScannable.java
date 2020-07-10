@@ -18,6 +18,9 @@
 
 package gda.device.scannable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.jython.IScanDataPointObserver;
 import gda.jython.InterfaceProvider;
@@ -30,6 +33,8 @@ import gda.scan.IScanDataPoint;
  * implementation
  */
 public abstract class ScanDataListenerScannable extends ScanEventHandlerScannable implements IScanDataPointObserver {
+
+	private static final Logger logger = LoggerFactory.getLogger(ScanDataListenerScannable.class);
 
 	@Override
 	public void atScanEnd() throws DeviceException {
