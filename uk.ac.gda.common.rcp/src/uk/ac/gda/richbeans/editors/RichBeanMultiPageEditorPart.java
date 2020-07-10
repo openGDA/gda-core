@@ -88,7 +88,7 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 		XMLHelpers.setUrlResolver(EclipseUtils.getUrlResolver());
 	}
 
-	protected static final Logger logger = LoggerFactory.getLogger(RichBeanMultiPageEditorPart.class);
+	private static final Logger logger = LoggerFactory.getLogger(RichBeanMultiPageEditorPart.class);
 
 	/**
 	 * The bean we are currently editing

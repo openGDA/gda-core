@@ -59,7 +59,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  */
 public abstract class RichBeanEditorPart extends EditorPart implements ValueListener, IReusableEditor, IFieldProvider {
 
-	protected static final Logger logger = LoggerFactory.getLogger(RichBeanEditorPart.class);
+	private static final Logger logger = LoggerFactory.getLogger(RichBeanEditorPart.class);
 
 	/**
 	 * The bean used for state
