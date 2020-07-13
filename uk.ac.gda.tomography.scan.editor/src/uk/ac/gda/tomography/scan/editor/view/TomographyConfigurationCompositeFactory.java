@@ -45,8 +45,6 @@ import org.eclipse.swt.widgets.ExpandItem;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
 import gda.mscan.element.Mutator;
@@ -118,8 +116,6 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 	protected final AcquisitionController<ScanningAcquisition> controller;
 	private final IStageController stageController;
 	private TomographyTemplateDataHelper dataHelper;
-
-	private static final Logger logger = LoggerFactory.getLogger(TomographyConfigurationCompositeFactory.class);
 
 	public TomographyConfigurationCompositeFactory(AcquisitionController<ScanningAcquisition> controller, IStageController stageController) {
 		super();
