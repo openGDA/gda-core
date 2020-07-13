@@ -30,9 +30,12 @@ import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.DeviceRequest;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.ILocationListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class _ScannableDeviceService extends AbstractRemoteService implements IScannableDeviceService {
 
+	private static final Logger logger = LoggerFactory.getLogger(_ScannableDeviceService.class);
 	private IRequester<DeviceRequest>  requester;
 	private Map<String, IScannable<?>> scannables;
 	private ISubscriber<ILocationListener> subscriber;
