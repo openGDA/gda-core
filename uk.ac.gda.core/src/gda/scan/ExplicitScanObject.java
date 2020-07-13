@@ -18,10 +18,16 @@
 
 package gda.scan;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 
 public class ExplicitScanObject extends ScanObject {
+
+	private static final Logger logger = LoggerFactory.getLogger(ExplicitScanObject.class);
+
 	ScanPositionProvider points;
 
 	int lastPoint = -1;

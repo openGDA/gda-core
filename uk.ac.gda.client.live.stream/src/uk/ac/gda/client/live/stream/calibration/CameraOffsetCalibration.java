@@ -21,8 +21,6 @@ package uk.ac.gda.client.live.stream.calibration;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -31,8 +29,6 @@ import gda.device.Scannable;
  * Creates axes datasets for a data stream calibrated to x and y scannables given pixel size and camera offset
  */
 public class CameraOffsetCalibration extends AbstractCalibratedAxesProvider {
-
-	protected static final Logger logger = LoggerFactory.getLogger(CameraOffsetCalibration.class);
 
 	/** The position of the camera relative to the x-axis of the sample stage. */
 	protected double xAxisOffset;

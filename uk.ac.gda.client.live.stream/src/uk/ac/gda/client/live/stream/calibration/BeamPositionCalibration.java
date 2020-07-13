@@ -39,7 +39,7 @@ import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 
 public class BeamPositionCalibration extends AbstractCalibratedAxesProvider {
 
-	protected static final Logger logger = LoggerFactory.getLogger(BeamPositionCalibration.class);
+	private static final Logger logger = LoggerFactory.getLogger(BeamPositionCalibration.class);
 
 	private static final String BEAM_POSITION_CONFIG_NAME = "beam_calibration";
 	private static final String CONFIG_X_POSITION_KEY = "beam_position.x";

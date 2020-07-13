@@ -20,9 +20,6 @@ package uk.ac.diamond.daq.mapping.ui.stage.serializer;
 
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -37,8 +34,6 @@ import gda.device.IScannableMotor;
  */
 
 public class IScannableMotorSerializer extends StdSerializer<IScannableMotor> {
-
-	private static final Logger logger = LoggerFactory.getLogger(IScannableMotorSerializer.class);
 
 	public IScannableMotorSerializer() {
 		this(null);

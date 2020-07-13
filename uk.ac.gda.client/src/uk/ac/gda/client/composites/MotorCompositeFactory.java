@@ -40,7 +40,7 @@ public class MotorCompositeFactory implements CompositeFactory {
 
 	private final MotorProperties motorProperties;
 
-	protected static final Logger logger = LoggerFactory.getLogger(MotorCompositeFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(MotorCompositeFactory.class);
 
 	/**
 	 * Creates a component based on text properties delegating to this component to find the motor associated

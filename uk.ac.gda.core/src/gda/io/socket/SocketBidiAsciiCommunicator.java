@@ -18,9 +18,6 @@
 
 package gda.io.socket;
 
-import gda.device.DeviceException;
-import gda.io.BidiAsciiCommunicator;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -33,13 +30,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.StringUtils;
 
+import gda.device.DeviceException;
+import gda.io.BidiAsciiCommunicator;
+
 /**
  * Class to make bidirectional ascii communicator over a socket simplyt create the class, set properties if default is
  * not appropriate, call afterPropertiesSet and use methods send, sendCmdNoReply and closeConnection. The connection is
  * made when it is needed if not already opened.
  */
 public class SocketBidiAsciiCommunicator implements BidiAsciiCommunicator, InitializingBean {
-	protected static final Logger logger = LoggerFactory.getLogger(SocketBidiAsciiCommunicator.class);
+	private static final Logger logger = LoggerFactory.getLogger(SocketBidiAsciiCommunicator.class);
 
 	protected OutputStream writer;
 	protected InputStream reader;

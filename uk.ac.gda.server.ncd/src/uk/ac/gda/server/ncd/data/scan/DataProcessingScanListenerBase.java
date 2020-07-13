@@ -35,7 +35,7 @@ import uk.ac.gda.server.ncd.data.ProcessingRunner;
 
 public abstract class DataProcessingScanListenerBase extends DataWriterExtenderBase implements Findable {
 
-	protected static final Logger logger = LoggerFactory.getLogger(DataProcessingScanListenerBase.class);
+	private static final Logger logger = LoggerFactory.getLogger(DataProcessingScanListenerBase.class);
 	protected Scannable detector;
 	protected ProcessingRunner runner;
 	protected String filepath;

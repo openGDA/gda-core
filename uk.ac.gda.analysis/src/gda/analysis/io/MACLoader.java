@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
@@ -32,6 +34,9 @@ import uk.ac.diamond.scisoft.analysis.io.DataHolder;
  * This class should be used to load MAC (Multi-channel Analyser Crystal) data files into the ScanFileHolder object
  */
 public class MACLoader extends uk.ac.diamond.scisoft.analysis.io.SRSLoader {
+
+	private static final Logger logger = LoggerFactory.getLogger(MACLoader.class);
+
 	private static String[] savedKeys = {
 		"CarouselNo",
 		"SampleID",

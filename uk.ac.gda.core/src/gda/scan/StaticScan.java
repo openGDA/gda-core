@@ -21,15 +21,10 @@ package gda.scan;
 import gda.device.Detector;
 import gda.device.Scannable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Similar to StaticScanNoCollection except that it will call collectData on all the given detectors.
  */
 public class StaticScan extends ScanBase {
-
-	protected static final Logger logger = LoggerFactory.getLogger(StaticScan.class);
 
 	public StaticScan(Scannable[] args) throws IllegalArgumentException {
 		for (Scannable device : args) {

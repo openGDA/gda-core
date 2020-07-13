@@ -27,7 +27,7 @@ import gda.device.Scannable;
 
 public abstract class AbstractCalibratedAxesDatasetUpdater implements CalibratedAxesDatasetUpdater {
 
-	protected static final Logger logger = LoggerFactory.getLogger(AbstractCalibratedAxesDatasetUpdater.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractCalibratedAxesDatasetUpdater.class);
 	protected final Scannable scannable;
 	protected int numberOfPixels;
 	private volatile IDataset dataset;

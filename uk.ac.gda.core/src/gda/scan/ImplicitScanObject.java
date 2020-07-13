@@ -18,15 +18,21 @@
 
 package gda.scan;
 
+import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
 
-import java.util.Vector;
-
 
 public class ImplicitScanObject extends ScanObject {
+
+	private static final Logger logger = LoggerFactory.getLogger(ImplicitScanObject.class);
+
 	private int numberPoints = 0;
 
 	private Object start;
