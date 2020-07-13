@@ -93,6 +93,7 @@ public class EpicsCameraControl extends FindableConfigurableBase implements Came
 	private void notifyObservers () throws DeviceException {
 		if (observableComponent.isBeingObserved()) {
 			CameraControllerEvent event = new CameraControllerEvent();
+			event.setName(getName());
 			event.setBinningFormat(getBinningPixels());
 			event.setCameraState(getAcquireState());
 			event.setAcquireTime(getAcquireTime());
