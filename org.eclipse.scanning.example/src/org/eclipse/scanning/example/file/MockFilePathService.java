@@ -83,13 +83,16 @@ public class MockFilePathService implements IFilePathService {
 	 * @return file
 	 */
 	public static File getUnique(final File dir, final String template, final String ext, int i) {
-		final String extension = ext != null ? (ext.startsWith(".")) ? ext : "." + ext : null;
-		final File file = ext != null ? new File(dir, template + i + extension) : new File(dir, template + i);
-		if (!file.exists()) {
-			return file;
-		}
+		final String extension = ext == null
+				? ""
+				: ext.startsWith(".") ? ext : "." + ext;
+		File file;
+		do {
+			file = new File(dir, template + i++ + extension);
+		} while (file.exists());
 
-		return getUnique(dir, template, ext, ++i);
+		return file;
+
 	}
 
 	@Override
