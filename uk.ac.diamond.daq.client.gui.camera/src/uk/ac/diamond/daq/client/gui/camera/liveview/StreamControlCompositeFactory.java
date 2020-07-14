@@ -10,12 +10,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,48 +41,54 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 	private List<CameraComboItem> comboItems;
 
 	private SmartCombo<StreamType> streamTypeCombo;
-	
+
 	private Button streamActivationButton;
 
 	private final StreamController streamController;
-	
+
 	public StreamControlCompositeFactory(StreamController streamController) {
 		super();
 		this.streamController = streamController;
 	}
 
-
-
-	private static final Logger logger = LoggerFactory.getLogger(LiveViewCompositeFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(StreamControlCompositeFactory.class);
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		Composite streamControlArea = ClientSWTElements.createClientCompositeWithGridLayout(parent, style, 3);
+		Composite container = ClientSWTElements.createClientCompositeWithGridLayout(parent, style, 3);
+		ClientSWTElements.createClientGridDataFactory().grab(true, false).applyTo(container);
 
-		Composite cameraComboArea = ClientSWTElements.createComposite(streamControlArea, SWT.NONE);
-		ClientSWTElements.createLabel(cameraComboArea, SWT.NONE, ClientMessages.CAMERA, new Point(2, 1));
-		cameraCombo = ClientSWTElements.createCombo(cameraComboArea, SWT.READ_ONLY, getCameras(),
-				ClientMessages.STAGE_TP);
-
-		Composite streamComboArea = ClientSWTElements.createComposite(streamControlArea, SWT.NONE);
-		ClientSWTElements.createLabel(streamComboArea, SWT.NONE, ClientMessages.STREAM, new Point(2, 1));
-		streamTypeCombo = new SmartCombo<>(streamComboArea, style, Optional.of(ClientMessages.STAGE_TP),
-				Optional.of(this::changeStreamController));
+		// -- Headers --
+		Label label = ClientSWTElements.createClientLabel(container, SWT.NONE, ClientMessages.CAMERA,
+				Optional.empty());
+		ClientSWTElements.createClientGridDataFactory().indent(5, 2).align(SWT.BEGINNING, SWT.BEGINNING).applyTo(label);
 		
-		Composite activationArea = ClientSWTElements.createClientCompositeWithGridLayout(streamControlArea, SWT.NONE, 1);
-		ClientSWTElements.createLabel(activationArea, SWT.NONE, ClientMessages.EMPTY_MESSAGE, new Point(2, 1));
-		streamActivationButton = ClientSWTElements.createButton(activationArea, SWT.NONE, ClientMessages.START_STREAM,
-				ClientMessages.START_STREAM);
+		label = ClientSWTElements.createClientLabel(container, SWT.NONE, ClientMessages.STREAM, Optional.empty());
+		ClientSWTElements.createClientGridDataFactory().indent(5, 2).align(SWT.BEGINNING, SWT.BEGINNING).span(2, 1).applyTo(label);
+		
+		// -- Controls --
+		cameraCombo = ClientSWTElements.createCombo(container, SWT.READ_ONLY, getCameras(),
+				ClientMessages.STAGE_TP);
+		ClientSWTElements.createClientGridDataFactory().indent(5, 0).applyTo(cameraCombo);
+		
+		streamTypeCombo = new SmartCombo<>(container, style, Optional.of(ClientMessages.STAGE_TP),
+				Optional.of(this::changeStreamController));
+		ClientSWTElements.createClientGridDataFactory().indent(5, 0).applyTo(streamTypeCombo);
+		
+		streamActivationButton = ClientSWTElements.createClientButton(container, SWT.NONE,
+				ClientMessages.START_STREAM, ClientMessages.START_STREAM, Optional.empty());
+		ClientSWTElements.createClientGridDataFactory().indent(5, 0).applyTo(streamActivationButton);
 		streamActivationButton.setData(ClientMessages.START_STREAM);
 		streamActivationButton.addListener(SWT.Selection, this::changeStreamState);
+		// ---------------------------------
 		
 		// initialise composite
 		initialiseComposite(parent);
 
 		// add listeners
-		cameraCombo.addListener(SWT.Selection, this::changeStreamController);		
+		cameraCombo.addListener(SWT.Selection, this::changeStreamController);
 
-		return streamControlArea;
+		return container;
 	}
 
 	private List<ImmutablePair<String, StreamType>> streamTypeItems(int cameraIndex) {
@@ -130,7 +136,7 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 		}
 		updateStreamActivationButton();
 	}
-	
+
 	private void updateStreamActivationButton() {
 		if (ListeningState.class.isInstance(streamController.getState())) {
 			streamActivationButton.setText(ClientMessagesUtility.getMessage(ClientMessages.STOP_STREAM));
@@ -147,8 +153,6 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 		streamTypeCombo.getSelectedItem().ifPresent(st -> streamController
 				.setControlData(new StreamControlData(comboItems.get(cameraCombo.getSelectionIndex()), st.getValue())));
 	}
-
-
 
 	private void handleException(LiveStreamException ex) {
 		try {

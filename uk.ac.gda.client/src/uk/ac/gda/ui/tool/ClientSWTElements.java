@@ -584,6 +584,7 @@ public final class ClientSWTElements {
 	 * @return the {@link UUID} of the parent, eventually {@code Optional.empty()}
 	 */
 	public static Optional<UUID> findParentUUID(Composite composite) {
+		if (composite.isDisposed()) return Optional.empty();
 		Composite old = composite;
 		while (true) {
 			if (UUID.class.isInstance(old.getData(CompositeFactory.COMPOSITE_ROOT))) {
@@ -740,6 +741,22 @@ public final class ClientSWTElements {
 		}
 		glf.applyTo(composite);
 		return composite;
+	}
+
+	/**
+	 * Creates a basic {@link Label} component. This supports the approach
+	 * described in <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 *
+	 * @param parent
+	 *            where materialise the component
+	 * @param style
+	 *            the style to apply to the the label
+	 * @param message
+	 *            the text to display
+	 * @return a new label
+	 */
+	public static final Label createClientLabel(final Composite parent, int style, final ClientMessages message) {
+		return createClientLabel(parent, style, message, Optional.empty());
 	}
 
 	/**

@@ -68,7 +68,6 @@ public class CameraImageComposite extends Composite implements CameraPlotter {
 	 * listening for {@link ListenToConnectionEvent} published through Spring by the
 	 * {@code parent}
 	 * 
-	 * @see LiveViewCompositeFactory
 	 * 
 	 * @param parent               where this Composite will live
 	 * @param style                the composite style

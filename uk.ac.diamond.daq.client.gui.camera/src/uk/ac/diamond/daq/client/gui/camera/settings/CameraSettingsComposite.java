@@ -1,7 +1,11 @@
 package uk.ac.diamond.daq.client.gui.camera.settings;
 
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
 import gda.rcp.views.CompositeFactory;
@@ -25,18 +29,15 @@ public class CameraSettingsComposite implements CompositeFactory {
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		Composite container = ClientSWTElements.createComposite(parent, style);
-
-		GridLayoutFactory.swtDefaults().numColumns(4).equalWidth(false).applyTo(container);
-		GridDataFactory gdf = GridDataFactory.fillDefaults().grab(true, true);
+		Composite container = createClientCompositeWithGridLayout(parent, style, 2);
 
 		// Exposure Component
 		Composite exposureLengthComposite = new ExposureDurationComposite().createComposite(container, style);
-		gdf.applyTo(exposureLengthComposite);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(exposureLengthComposite);
 
 		// Binning Component
 		Composite binningCompositeArea = new BinningCompositeFactory().createComposite(container, style);
-		gdf.applyTo(binningCompositeArea);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(binningCompositeArea);
 
 		return container;
 	}
