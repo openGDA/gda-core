@@ -37,7 +37,6 @@ import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
-import org.eclipse.scanning.api.device.models.ProcessingModel;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
@@ -71,7 +70,6 @@ import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.sequencer.analysis.ClusterProcessingRunnableDevice;
-import org.eclipse.scanning.sequencer.analysis.ProcessingRunnableDevice;
 import org.eclipse.scanning.sequencer.watchdog.DeviceWatchdogService;
 import org.eclipse.scanning.test.event.BillStatusBean;
 import org.eclipse.scanning.test.event.FredStatusBean;
@@ -239,7 +237,6 @@ public final class ServiceTestHelper {
 		runnableDeviceServiceImpl._register(DummyMalcolmModel.class, DummyMalcolmDevice.class);
 		runnableDeviceServiceImpl._register(ConstantVelocityModel.class, ConstantVelocityDevice.class);
 		runnableDeviceServiceImpl._register(DarkImageModel.class, DarkImageDetector.class);
-		runnableDeviceServiceImpl._register(ProcessingModel.class, ProcessingRunnableDevice.class);
 		runnableDeviceServiceImpl._register(ClusterProcessingModel.class, ClusterProcessingRunnableDevice.class);
 		runnableDeviceServiceImpl._register(RandomLineModel.class, RandomLineDevice.class);
 		runnableDeviceServiceImpl._register(PosDetectorModel.class, PosDetector.class);
@@ -280,10 +277,6 @@ public final class ServiceTestHelper {
 		mandelbrotDetector.setDeviceInformation(info);
 		mandelbrotDetector.setName("mandelbrot");
 		runnableDeviceServiceImpl._register("mandelbrot", mandelbrotDetector);
-
-		final ProcessingRunnableDevice processingRunnableDevice = new ProcessingRunnableDevice();
-		processingRunnableDevice.setName("processing");
-		runnableDeviceServiceImpl._register("processing", processingRunnableDevice);
 	}
 
 	private static ActivemqConnectorService createActivemqConnectorService() {
