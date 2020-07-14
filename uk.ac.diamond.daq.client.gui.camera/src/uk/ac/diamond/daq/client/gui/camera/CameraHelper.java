@@ -5,6 +5,7 @@ import static uk.ac.gda.client.properties.ClientPropertiesHelper.formatPropertyK
 import static uk.ac.gda.client.properties.ClientPropertiesHelper.getConfigurationBeanProperty;
 import static uk.ac.gda.client.properties.ClientPropertiesHelper.getId;
 import static uk.ac.gda.client.properties.ClientPropertiesHelper.getNameProperty;
+import static uk.ac.gda.client.properties.ClientPropertiesHelper.getProperty;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -21,8 +21,6 @@ import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import uk.ac.diamond.daq.client.gui.camera.beam.BeamCameraMap;
-import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
-import uk.ac.diamond.daq.client.gui.camera.controller.ImagingCameraConfigurationController;
 import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
 import uk.ac.diamond.daq.client.gui.camera.properties.CameraPropertiesBuilder;
 import uk.ac.diamond.daq.client.gui.camera.properties.MotorPropertiesBuilder;
@@ -106,7 +104,6 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
  */
 public final class CameraHelper {
 
-	private static final Map<Integer, AbstractCameraConfigurationController> cameraControllers = new HashMap<>();
 	private static final List<CameraProperties> cameraProperties = new ArrayList<>();
 	private static final Map<String, CameraProperties> cameraPropertiesByID = new HashMap<>();
 	private static final List<CameraComboItem> cameraComboItems = new ArrayList<>();
@@ -139,23 +136,6 @@ public final class CameraHelper {
 	public static Optional<CameraControl> getCameraControl(int cameraIndex) {
 		return FinderHelper.getFindableDevice(getCameraControlProperty(cameraIndex));
 	}
-
-	/**
-	 * Returns the {@link AbstractCameraConfigurationController} based on a camera
-	 * index
-	 * 
-	 * @param activeCamera the camera index
-	 * @return the camera or <code>null</code> if the camera does not exists
-	 */
-	public static Optional<AbstractCameraConfigurationController> getCameraControlInstance(int activeCamera) {
-		if (activeCamera >= getAllCameraProperties().size()) 
-			return Optional.empty();
-		return Optional
-				.ofNullable(cameraControllers.computeIfAbsent(activeCamera, createCameraConfigurationController));
-	}
-
-	private static Function<Integer, AbstractCameraConfigurationController> createCameraConfigurationController = cameraID -> new ImagingCameraConfigurationController(
-			getAllCameraProperties().get(cameraID).getCameraControl());
 
 	/**
 	 * Returns the available {@link StreamType}s for a specific camera
@@ -273,7 +253,7 @@ public final class CameraHelper {
 	 * @return
 	 */
 	private static String getCameraControlProperty(int index) {
-		return LocalProperties.get(formatPropertyKey(CAMERA_CONFIGURATION_PREFIX, index, "cameraControl"), null);
+		return getProperty(CAMERA_CONFIGURATION_PREFIX, index, "cameraControl", null);
 	}
 
 	/**
@@ -284,8 +264,7 @@ public final class CameraHelper {
 	 * @return
 	 */
 	private static boolean getBeamMappingProperty(int index) {
-		return Boolean.parseBoolean(LocalProperties
-				.get(formatPropertyKey(CAMERA_CONFIGURATION_PREFIX, index, "beam_mapping_active"), "false"));
+		return Boolean.parseBoolean(getProperty(CAMERA_CONFIGURATION_PREFIX, index, "beam_mapping_active", "false"));
 	}
 
 	/**
@@ -296,8 +275,7 @@ public final class CameraHelper {
 	 * @return
 	 */
 	private static boolean getPixelBinningEditableProperty(int index) {
-		return Boolean.parseBoolean(LocalProperties
-				.get(formatPropertyKey(CAMERA_CONFIGURATION_PREFIX, index, "pixelBinningEditable"), "false"));
+		return Boolean.parseBoolean(getProperty(CAMERA_CONFIGURATION_PREFIX, index, "pixelBinningEditable", "false"));
 	}
 
 	// -- motors -- //
