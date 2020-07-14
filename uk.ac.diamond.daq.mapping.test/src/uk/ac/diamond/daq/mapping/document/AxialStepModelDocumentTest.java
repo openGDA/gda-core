@@ -71,7 +71,7 @@ public class AxialStepModelDocumentTest extends DocumentTestBase {
 		String document = serialiseDocument(modelDocument);
 		assertThat(document, containsString("motor_x"));
 		assertThat(document, containsString("\"axis\" : \"x\""));
-		assertThat(document, containsString("\"alternating\" : [ 1, 2 ]"));
+		assertThat(document, containsString("\"ALTERNATING\" : [ 1, 2 ]"));
 	}
 
 	@Test

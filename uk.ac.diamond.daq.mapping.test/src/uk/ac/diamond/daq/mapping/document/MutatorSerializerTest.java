@@ -47,8 +47,8 @@ public class MutatorSerializerTest extends DocumentTestBase {
 		testClass.put(Mutator.ALTERNATING, "One");
 		testClass.put(Mutator.CONTINUOUS, "Two");
 		String document = serialiseDocument(testClass);
-		assertThat(document, containsString("\"alternating\" : \"One\""));
-		assertThat(document, containsString("\"continuous\" : \"Two\""));
+		assertThat(document, containsString("\"ALTERNATING\" : \"One\""));
+		assertThat(document, containsString("\"CONTINUOUS\" : \"Two\""));
 	}
 
 	@Test
