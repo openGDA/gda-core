@@ -24,33 +24,33 @@ import java.util.function.Supplier;
 import gda.mscan.element.Mutator;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 
-public class TomographyTemplateDataHelper extends TemplateHelperBase {
+public class ScanningParametersHelper extends ParametersHelperBase {
 
-	public TomographyTemplateDataHelper(Supplier<ScanningParameters> templateDataSupplier) {
-		super(templateDataSupplier);
+	public ScanningParametersHelper(Supplier<ScanningParameters> scanningParametersSupplier) {
+		super(scanningParametersSupplier);
 	}
 
 	public void addMutators(Mutator mutator, List<Number> value) {
-		updateTemplate(getBuilder().addMutator(mutator, value));
+		updateScanningParameters(getBuilder().addMutator(mutator, value));
 	}
 
 	public void removeMutators(Mutator mutator) {
-		updateTemplate(getBuilder().removeMutator(mutator));
+		updateScanningParameters(getBuilder().removeMutator(mutator));
 	}
 
 	public void updatePoints(int points) {
-		updateTemplate(getBuilder().withScannableTrackDocuments(assembleScannableTracks(getScannableTrackDocumentBuilder(0).withPoints(points))));
+		updateScanningParameters(getBuilder().withScannableTrackDocuments(assembleScannableTracks(getScannableTrackDocumentBuilder(0).withPoints(points))));
 	}
 
 	public void updateStep(double step) {
-		updateTemplate(getBuilder().withScannableTrackDocuments(assembleScannableTracks(getScannableTrackDocumentBuilder(0).withStep(step))));
+		updateScanningParameters(getBuilder().withScannableTrackDocuments(assembleScannableTracks(getScannableTrackDocumentBuilder(0).withStep(step))));
 	}
 
 	public void updateStartAngle(double start) {
-		updateTemplate(getBuilder().withScannableTrackDocuments(assembleScannableTracks(getScannableTrackDocumentBuilder(0).withStart(start))));
+		updateScanningParameters(getBuilder().withScannableTrackDocuments(assembleScannableTracks(getScannableTrackDocumentBuilder(0).withStart(start))));
 	}
 
 	public void updateStopAngle(double stop) {
-		updateTemplate(getBuilder().withScannableTrackDocuments(assembleScannableTracks(getScannableTrackDocumentBuilder(0).withStop(stop))));
+		updateScanningParameters(getBuilder().withScannableTrackDocuments(assembleScannableTracks(getScannableTrackDocumentBuilder(0).withStop(stop))));
 	}
 }
