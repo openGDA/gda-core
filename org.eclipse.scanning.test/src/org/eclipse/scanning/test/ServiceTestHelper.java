@@ -37,7 +37,6 @@ import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
-import org.eclipse.scanning.api.device.models.JythonModel;
 import org.eclipse.scanning.api.device.models.ProcessingModel;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
@@ -72,7 +71,6 @@ import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.sequencer.analysis.ClusterProcessingRunnableDevice;
-import org.eclipse.scanning.sequencer.analysis.JythonDevice;
 import org.eclipse.scanning.sequencer.analysis.ProcessingRunnableDevice;
 import org.eclipse.scanning.sequencer.watchdog.DeviceWatchdogService;
 import org.eclipse.scanning.test.event.BillStatusBean;
@@ -245,7 +243,6 @@ public final class ServiceTestHelper {
 		runnableDeviceServiceImpl._register(ClusterProcessingModel.class, ClusterProcessingRunnableDevice.class);
 		runnableDeviceServiceImpl._register(RandomLineModel.class, RandomLineDevice.class);
 		runnableDeviceServiceImpl._register(PosDetectorModel.class, PosDetector.class);
-		runnableDeviceServiceImpl._register(JythonModel.class, JythonDevice.class);
 		runnableDeviceServiceImpl._register(AnnotatedMockDetectorModel.class, AnnotatedMockWritableDetector.class);
 
 		final MockDetectorModel dmodel = new MockDetectorModel();
