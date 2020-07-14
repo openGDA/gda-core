@@ -79,14 +79,14 @@ public class ScanRequestFactory {
 		return scanRequest;
 	}
 
-	private Map<String, Object> parseDetectors(DetectorDocument[] detectors,
+	private Map<String, IDetectorModel> parseDetectors(DetectorDocument[] detectors,
 			IRunnableDeviceService runnableDeviceService) throws ScanningException {
-		Map<String, Object> ret = new HashMap<>();
+		final Map<String, IDetectorModel> ret = new HashMap<>();
 
 		for (DetectorDocument det : detectors) {
 			IRunnableDevice<?> detector = runnableDeviceService.getRunnableDevice(det.getName());
 
-			double exposure = det.getExposure();
+			final double exposure = det.getExposureTime();
 			IDetectorModel model = (IDetectorModel) detector.getModel();
 			if (model == null) {
 				throw new ScanningException(String.format("Could not get model for detector %s", detector.getName()));

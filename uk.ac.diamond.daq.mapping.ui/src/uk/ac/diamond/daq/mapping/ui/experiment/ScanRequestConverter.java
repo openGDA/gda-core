@@ -479,27 +479,25 @@ public class ScanRequestConverter {
 		// merge in the detectors and processing from the scan request. If there already is
 		// a detector or processor with that name it is enabled and the model is replaced
 		// with the model in the ScanRequest
-		final Map<String, Object> detectorsAndProcessingMap = scanRequest.getDetectors();
+		final Map<String, IDetectorModel> detectorsAndProcessingMap = scanRequest.getDetectors();
 		if (detectorsAndProcessingMap != null) {
 			for (String name : detectorsAndProcessingMap.keySet()) {
-				final Object model = detectorsAndProcessingMap.get(name);
-				if (model instanceof IDetectorModel) {
-					List<IScanModelWrapper<IDetectorModel>> detectorParams = mappingBean.getDetectorParameters();
-					if (detectorParams == null) { // create the list of detector wrapper in the bean if not present
-						detectorParams = new ArrayList<>(4);
-						mappingBean.setDetectorParameters(detectorParams);
-					}
+				final IDetectorModel model = detectorsAndProcessingMap.get(name);
+				List<IScanModelWrapper<IDetectorModel>> detectorParams = mappingBean.getDetectorParameters();
+				if (detectorParams == null) { // create the list of detector wrapper in the bean if not present
+					detectorParams = new ArrayList<>(4);
+					mappingBean.setDetectorParameters(detectorParams);
+				}
 
-					if (detectorModelWrappers.containsKey(name)) {
-						// Get the wrapper for the detector. Set it to be included in the scan
-						// and overwrite the model with the model in the scan request
-						DetectorModelWrapper wrapper = (DetectorModelWrapper) detectorModelWrappers.get(name);
-						wrapper.setIncludeInScan(true);
-						wrapper.setModel((IDetectorModel) model);
-					} else {
-						// The scan includes an unknown detector. This can only occur if the mapping bean has changed in spring
-						throw new IllegalArgumentException("Unknown detector " + name);
-					}
+				if (detectorModelWrappers.containsKey(name)) {
+					// Get the wrapper for the detector. Set it to be included in the scan
+					// and overwrite the model with the model in the scan request
+					final IScanModelWrapper<IDetectorModel> wrapper = detectorModelWrappers.get(name);
+					wrapper.setIncludeInScan(true);
+					wrapper.setModel(model);
+				} else {
+					// The scan includes an unknown detector. This can only occur if the mapping bean has changed in spring
+					throw new IllegalArgumentException("Unknown detector " + name);
 				}
 			}
 		}

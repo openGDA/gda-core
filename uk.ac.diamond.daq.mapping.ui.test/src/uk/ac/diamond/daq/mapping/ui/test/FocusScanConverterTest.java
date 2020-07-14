@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingLine;
@@ -134,7 +135,7 @@ public class FocusScanConverterTest {
 
 
 		// test detectors
-		Map<String, Object> detectors = scanRequest.getDetectors();
+		final Map<String, IDetectorModel> detectors = scanRequest.getDetectors();
 		assertNotNull(detectors);
 		assertEquals(1, detectors.size());
 		assertTrue(detectors.containsKey("mandelbrot"));

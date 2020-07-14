@@ -126,7 +126,7 @@ public class ClausesContext extends ValidationUtils {
 	private final List<Scannable> scannables = new ArrayList<>();
 	private final List<Number> pathParams = new ArrayList<>();
 	private final List<Number> shapeParams = new ArrayList<>();
-	private final Map<String, Object> detectorMap = new HashMap<>();
+	private final Map<String, IDetectorModel> detectorMap = new HashMap<>();
 	private final List<String> monitorsPerPoint = new ArrayList<>();
 	private final List<String> monitorsPerScan = new ArrayList<>();
 	private Set<String> templates = new HashSet<>();
@@ -690,7 +690,7 @@ public class ClausesContext extends ValidationUtils {
 
 	// parsing status flags
 
-	public Map<String, Object> getDetectorMap() {
+	public Map<String, IDetectorModel> getDetectorMap() {
 		return detectorMap;
 	}
 

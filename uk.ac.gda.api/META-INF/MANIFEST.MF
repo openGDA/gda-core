@@ -64,7 +64,8 @@ Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  org.eclipse.core.resources,
  com.google.guava,
  uk.ac.diamond.scisoft.analysis,
- com.fasterxml.jackson.core.jackson-annotations
+ com.fasterxml.jackson.core.jackson-annotations,
+ org.eclipse.scanning.api
 Bundle-ClassPath: .
 Bundle-Vendor: Diamond Light Source
 Bundle-ActivationPolicy: lazy

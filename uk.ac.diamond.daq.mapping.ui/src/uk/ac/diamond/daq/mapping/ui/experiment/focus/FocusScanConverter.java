@@ -65,7 +65,7 @@ public class FocusScanConverter {
 
 		// add detectors
 		final IDetectorModel detectorModel = focusScanBean.getDetector();
-		final Map<String, Object> detectorsMap = new HashMap<>();
+		final Map<String, IDetectorModel> detectorsMap = new HashMap<>();
 		detectorsMap.put(detectorModel.getName(), detectorModel);
 		scanRequest.setDetectors(detectorsMap);
 

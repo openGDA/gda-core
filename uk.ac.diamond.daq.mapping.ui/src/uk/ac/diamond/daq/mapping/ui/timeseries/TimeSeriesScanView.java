@@ -285,7 +285,7 @@ public class TimeSeriesScanView {
 		final String malcolmDeviceName = malcolmModel.getName();
 		final ScanRequest scanRequest = new ScanRequest();
 
-		final Map<String, Object> detectors = new HashMap<>();
+		final Map<String, IDetectorModel> detectors = new HashMap<>();
 		detectors.put(malcolmDeviceName, malcolmModel);
 		scanRequest.setDetectors(detectors);
 
