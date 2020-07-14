@@ -91,7 +91,6 @@ import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.IWritableDetector;
-import org.eclipse.scanning.api.device.models.ProcessingModel;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.AbstractPosition;
@@ -117,7 +116,6 @@ import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
-import org.eclipse.scanning.sequencer.analysis.ProcessingRunnableDevice;
 import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
 import org.eclipse.scanning.test.utilities.scan.mock.MockOperationService;
@@ -180,7 +178,6 @@ public class ScannableNexusWrapperScanTest {
 		impl._register(MandelbrotModel.class, MandelbrotDetector.class);
 		impl._register(ConstantVelocityModel.class, ConstantVelocityDevice.class);
 		impl._register(DarkImageModel.class, DarkImageDetector.class);
-		impl._register(ProcessingModel.class, ProcessingRunnableDevice.class);
 
 		final Services services = new Services();
 		services.setEventService(eservice);
@@ -340,7 +337,7 @@ public class ScannableNexusWrapperScanTest {
 		NexusDataWriter.setLocationmap(locationMap);
 		NexusDataWriter.setMetadatascannables(legacyMetadataScannables);
 
-		final Factory factory = TestHelpers.createTestFactory("testFactory");
+		final Factory factory = TestHelpers.createTestFactory();
 		factory.addFindable(new SampleAngleScannable("salong", false));
 		factory.addFindable(new SampleAngleScannable("saperp", true));
 		factory.addFindable(new DummyScannable("sax", 5.0));
