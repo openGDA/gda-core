@@ -431,7 +431,7 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 	}
 
 	private List<U> getRunning() throws EventException{
-		return getRunningAndCompleted().stream().filter(x -> x.getStatus().isRunning()).collect(Collectors.toList());
+		return getRunningAndCompleted().stream().filter(x -> x.getStatus().isActive()).collect(Collectors.toList());
 	}
 
 	@Override
