@@ -10,6 +10,7 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
+import uk.ac.gda.api.camera.CameraControl;
 
 /**
  * Handles {@link ScanningAcquisitionController} events
@@ -23,7 +24,8 @@ class ScanningAcquisitionControllerHelper {
 	private ScanningAcquisitionControllerHelper() {
 	}
 
-	public static void onApplicationEvent(ApplicationEvent event, AcquisitionController<ScanningAcquisition> controller) {
+	public static void onApplicationEvent(ApplicationEvent event,
+			AcquisitionController<ScanningAcquisition> controller) {
 		if (ExposureChangeEvent.class.isInstance(event)) {
 			onApplicationEvent(ExposureChangeEvent.class.cast(event), controller);
 		} else if (ChangeActiveCameraEvent.class.isInstance(event)) {
@@ -31,11 +33,13 @@ class ScanningAcquisitionControllerHelper {
 		}
 	}
 
-	private static void onApplicationEvent(ExposureChangeEvent event, AcquisitionController<ScanningAcquisition> controller) {
+	private static void onApplicationEvent(ExposureChangeEvent event,
+			AcquisitionController<ScanningAcquisition> controller) {
 		setAcquisitionExposure(event.getExposureTime(), controller);
 	}
 
-	private static void onApplicationEvent(ChangeActiveCameraEvent event, AcquisitionController<ScanningAcquisition> controller) {
+	private static void onApplicationEvent(ChangeActiveCameraEvent event,
+			AcquisitionController<ScanningAcquisition> controller) {
 		activeCamera = event.getActiveCamera().getIndex();
 	}
 
@@ -56,10 +60,9 @@ class ScanningAcquisitionControllerHelper {
 	 * @throws DeviceException
 	 */
 	public static double getExposure() throws DeviceException {
-		if (CameraHelper.getCameraControlInstance(activeCamera).isPresent()) {
-			return CameraHelper.getCameraControlInstance(activeCamera).get().getExposure();
-		}
-		throw new DeviceException("No exposure available");
+		CameraControl cc = CameraHelper.getCameraControl(activeCamera)
+				.orElseThrow(() -> new DeviceException("No exposure available"));
+		return cc.getAcquireTime();
 	}
 
 	private static void setAcquisitionExposure(double exposure, AcquisitionController<ScanningAcquisition> controller) {
