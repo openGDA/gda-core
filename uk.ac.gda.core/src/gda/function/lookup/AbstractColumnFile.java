@@ -115,9 +115,9 @@ public abstract class AbstractColumnFile extends FindableConfigurableBase implem
 	 */
 	protected Stream<String[]> readLines() throws IOException {
 		return Files.lines(Paths.get(getPath()))
+				.map(String::trim)
 				.filter(line -> !line.isEmpty())
 				.filter(line -> !line.startsWith(COMMENT_MARK))
-				.map(String::trim)
 				.map(line -> line.split(COLUMN_DELIMETER));
 	}
 }
