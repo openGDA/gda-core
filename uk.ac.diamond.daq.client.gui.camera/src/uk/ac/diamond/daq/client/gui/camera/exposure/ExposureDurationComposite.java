@@ -1,5 +1,9 @@
 package uk.ac.diamond.daq.client.gui.camera.exposure;
 
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
+
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -72,7 +76,9 @@ public class ExposureDurationComposite implements CompositeFactory {
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		Composite composite = ClientSWTElements.createComposite(parent, style);
+		Composite composite = createClientCompositeWithGridLayout(parent, style, 1);
+		createClientGridDataFactory().applyTo(composite);
+
 		createElements(composite, style);
 		cameraControl = CameraHelper.getCameraControl(CameraHelper.getDefaultCameraProperties().getIndex());
 		cameraControl.ifPresent(cc -> {
@@ -84,13 +90,17 @@ public class ExposureDurationComposite implements CompositeFactory {
 	}
 
 	private void createElements(Composite parent, int style) {
+		Group group = createClientGroup(parent, SWT.NONE, 1, ClientMessages.EXPOSURE);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).indent(5, SWT.DEFAULT).applyTo(group);
+		
+		exposureText = ClientSWTElements.createClientText(group, style, ClientMessages.EMPTY_MESSAGE,
+				Optional.ofNullable(ClientVerifyListener.verifyOnlyIntegerText));
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false)
+				.hint(ClientSWTElements.DEFAULT_TEXT_SIZE).indent(5, SWT.DEFAULT).applyTo(exposureText);
 
-		Group group = ClientSWTElements.createGroup(parent, 1, ClientMessages.EXPOSURE, false);
-		ClientSWTElements.gridDataMinSize(group, 100, 10);
-		exposureText = ClientSWTElements.createText(group, style, ClientVerifyListener.verifyOnlyIntegerText, null,
-				ClientMessages.EMPTY_MESSAGE, GridDataFactory.fillDefaults().grab(true, false));
-		readOut = ClientSWTElements.createLabel(group, SWT.LEFT, ClientMessages.EMPTY_MESSAGE, null,
-				FontDescriptor.createFrom(ClientResourceManager.getInstance().getTextDefaultFont()));
+		readOut = ClientSWTElements.createClientLabel(group, SWT.LEFT, ClientMessages.EMPTY_MESSAGE, Optional
+				.ofNullable(FontDescriptor.createFrom(ClientResourceManager.getInstance().getTextDefaultFont())));
+		createClientGridDataFactory().indent(5, SWT.DEFAULT).applyTo(readOut);
 
 		try {
 			SpringApplicationContextProxy.addDisposableApplicationListener(group, getChangeActiveCameraListener(group));

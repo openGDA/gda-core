@@ -1,5 +1,9 @@
 package uk.ac.diamond.daq.client.gui.camera.binning;
 
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
+
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
@@ -96,7 +100,10 @@ public class BinningCompositeFactory implements CompositeFactory {
 	@Override
 	public Composite createComposite(Composite parent, int style) {
 		cameraIndex = CameraHelper.getDefaultCameraProperties().getIndex();
-		Composite composite = ClientSWTElements.createComposite(parent, style);
+		
+		Composite composite = createClientCompositeWithGridLayout(parent, style, 1);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(composite);
+
 		createElements(composite);
 		radios.forEach(this::bindRadio);
 		CameraHelper.getCameraControl(cameraIndex).ifPresent(cc -> {
@@ -107,10 +114,14 @@ public class BinningCompositeFactory implements CompositeFactory {
 	}
 
 	private void createElements(Composite parent) {
-		Group group = ClientSWTElements.createGroup(parent, 1, ClientMessages.BINNING, false);
+		Group group = createClientGroup(parent, SWT.NONE, 1, ClientMessages.BINNING);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(group);
+
 		Arrays.stream(Binning.values()).forEach(binning -> createRadioButton(group, binning));
-		readOut = ClientSWTElements.createLabel(group, SWT.LEFT, ClientMessages.EMPTY_MESSAGE, null,
-				FontDescriptor.createFrom(ClientResourceManager.getInstance().getTextDefaultFont()));
+		readOut = ClientSWTElements.createClientLabel(group, SWT.LEFT, ClientMessages.EMPTY_MESSAGE, Optional
+				.ofNullable(FontDescriptor.createFrom(ClientResourceManager.getInstance().getTextDefaultFont())));
+		createClientGridDataFactory().indent(5, SWT.DEFAULT).applyTo(readOut);
+		
 		try {
 			SpringApplicationContextProxy.addDisposableApplicationListener(group,
 					getChangeActiveCameraListener(group, this::initialiseElements));
@@ -201,8 +212,7 @@ public class BinningCompositeFactory implements CompositeFactory {
 		button.addSelectionListener(SelectionListener.widgetSelectedAdapter(widgetSelected));
 	}
 
-	private Consumer<SelectionEvent> widgetSelected = 
-			event -> CameraHelper.getCameraControl(cameraIndex)
+	private Consumer<SelectionEvent> widgetSelected = event -> CameraHelper.getCameraControl(cameraIndex)
 			.ifPresent(c -> {
 				try {
 					Binning binning = Binning.class.cast(event.widget.getData());

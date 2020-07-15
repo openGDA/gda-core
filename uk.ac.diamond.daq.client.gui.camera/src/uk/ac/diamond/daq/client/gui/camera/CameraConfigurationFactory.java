@@ -1,9 +1,12 @@
 package uk.ac.diamond.daq.client.gui.camera;
 
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
+
 import java.util.UUID;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 
 import gda.rcp.views.CompositeFactory;
@@ -25,7 +28,6 @@ import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.view.StreamType;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
-import uk.ac.gda.ui.tool.ClientSWTElements;
 
 /**
  * Composes instantiates the Composites for the Camera Configuration
@@ -75,39 +77,35 @@ public class CameraConfigurationFactory implements CompositeFactory {
 	}
 
 	private void configureLayout(Composite parent, int style, UUID uuid) {
-		container = ClientSWTElements.createComposite(parent, style, 100);
-		container.setData(CompositeFactory.COMPOSITE_ROOT, uuid);
-		container.setBackground(container.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
+	    container = createClientCompositeWithGridLayout(parent, SWT.NONE, 100);
+	    createClientGridDataFactory().applyTo(container);
+	    container.setData(CompositeFactory.COMPOSITE_ROOT, uuid);
 
-		menuBar = ClientSWTElements.createGroup(container, 1, ClientMessages.EMPTY_MESSAGE);
-		GridData gridData = new GridData(GridData.FILL, GridData.FILL, true, true, 100, 8);
-		menuBar.setLayoutData(gridData);
+		menuBar = createClientGroup(container, SWT.NONE, 1, ClientMessages.EMPTY_MESSAGE);
+		createClientGridDataFactory().span(100, 1).applyTo(menuBar);
 		CompositeFactory cf = new StreamControlCompositeFactory(streamController);
 		cf.createComposite(menuBar, SWT.HORIZONTAL);
 
-		viewStream = ClientSWTElements.createComposite(container, style);
-		gridData = new GridData(GridData.FILL, GridData.FILL, true, true, 100, 124);
-		viewStream.setLayoutData(gridData);
+		viewStream = createClientCompositeWithGridLayout(container, style, 1);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).span(100, 1).applyTo(viewStream);
 
-		viewStats = ClientSWTElements.createGroup(container, 1, ClientMessages.EMPTY_MESSAGE);
-		gridData = new GridData(GridData.FILL, GridData.FILL, true, true, 100, 8);
-		viewStats.setLayoutData(gridData);
+		viewStats = createClientGroup(container, SWT.NONE, 1, ClientMessages.EMPTY_MESSAGE);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).span(100, 3).applyTo(viewStats);
 
-		viewHisto = ClientSWTElements.createComposite(container, style);
-		gridData = new GridData(GridData.FILL, GridData.FILL, true, true, 30, 50);
-		viewHisto.setLayoutData(gridData);
+		viewHisto = createClientCompositeWithGridLayout(container, style, 1);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).span(40, 30).applyTo(viewHisto);
 
-		tabsContainer = ClientSWTElements.createComposite(container, style);
-		gridData = new GridData(GridData.FILL, GridData.FILL, true, true, 70, 50);
-		tabsContainer.setLayoutData(gridData);
+		tabsContainer = createClientCompositeWithGridLayout(container, style, 1);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).span(60, 30).applyTo(tabsContainer);
 	}
 
 	private void createCameraImageComposite(Composite panel) throws Exception {
 		cameraImageComposite = new CameraImageComposite(panel, SWT.NONE);
 	}
 
-	private void createHistogramComposite(Composite panel) throws Exception {
-		new HistogramComposite(panel, cameraImageComposite.getPlottingSystem(), SWT.NONE);
+	private void createHistogramComposite(Composite parent) throws Exception {
+		new HistogramComposite(cameraImageComposite.getPlottingSystem()).createComposite(parent, SWT.NONE);
+		
 	}
 
 	private CompositeFactory createTabFactory() throws GDAClientException {
