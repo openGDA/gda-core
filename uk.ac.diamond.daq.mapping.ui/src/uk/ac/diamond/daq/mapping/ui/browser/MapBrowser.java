@@ -18,21 +18,10 @@
 
 package uk.ac.diamond.daq.mapping.ui.browser;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.eclipse.jface.action.GroupMarker;
-import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.jface.viewers.TreeSelection;
-import org.eclipse.ui.IWorkbenchActionConstants;
-
 import gda.rcp.views.Browser;
 import gda.rcp.views.TreeViewerBuilder;
-import uk.ac.diamond.daq.mapping.ui.experiment.file.SavedScanMetaData;
-import uk.ac.diamond.daq.mapping.ui.experiment.saver.ScanSaver;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
+import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
@@ -42,75 +31,21 @@ import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
  *
  * @author Maurizio Nagni
  */
-public class MapBrowser extends Browser<SavedScanMetaData> {
+public class MapBrowser extends ScanningAcquisitionBrowserBase {
 
 	private static final int NAME_WIDTH = 250;
 	private static final int SHAPE_WIDTH = 70;
 	private static final int DETAIL_WIDTH = 200;
 
-	private final ScanSaver scanSaver;
-
-	public MapBrowser(ScanSaver scanSaver) {
-		super(AcquisitionConfigurationResourceType.MAP);
-		this.scanSaver = scanSaver;
+	public MapBrowser(AcquisitionController<ScanningAcquisition> controller) {
+		super(AcquisitionConfigurationResourceType.MAP, controller);
 	}
 
 	@Override
-	public TreeViewerBuilder<AcquisitionConfigurationResource<SavedScanMetaData>> getTreeViewBuilder() {
-		return new TreeViewerBuilder<AcquisitionConfigurationResource<SavedScanMetaData>>() {
-			@Override
-			public AcquisitionConfigurationResource<SavedScanMetaData>[] getInputElements(boolean reload) {
-				final List<AcquisitionConfigurationResource<SavedScanMetaData>> ret = new ArrayList<>();
-
-				getAcquisitionConfigurationResources(reload).stream().forEachOrdered(acq -> {
-					ret.add(new AcquisitionConfigurationResource<SavedScanMetaData>(acq.getLocation(),
-							new SavedScanMetaData(getURLLastPathSegment(acq))));
-				});
-				return ret.toArray(new AcquisitionConfigurationResource[0]);
-			}
-		};
+	public void addColumns(TreeViewerBuilder<AcquisitionConfigurationResource<ScanningAcquisition>> builder) {
+		builder.addColumn("Name", NAME_WIDTH, new NameLabelProvider());
+		builder.addColumn("Shape", SHAPE_WIDTH, new ShapeLabelProvider());
+		builder.addColumn("Detail", DETAIL_WIDTH, new DetailsLabelProvider());
 	}
 
-	private String getURLLastPath(Object element) {
-		return Browser.getURLLastPathSegment((AcquisitionConfigurationResource<SavedScanMetaData>) element);
-	}
-
-	@Override
-	public void addColumns(TreeViewerBuilder<AcquisitionConfigurationResource<SavedScanMetaData>> builder) {
-		builder.addColumn("Name", NAME_WIDTH, new NameProvider());
-		builder.addColumn("Shape", SHAPE_WIDTH, new ShapeProvider());
-		builder.addColumn("Detail", DETAIL_WIDTH, new DetailsProvider());
-	}
-
-	@Override
-	public ITreeContentProvider getContentProvider() {
-		return new ContentProvider();
-	}
-
-	@Override
-	public IDoubleClickListener getDoubleClickListener() {
-		return event -> {
-			SavedScanMetaData scan = extractSavedScanMetaData(((TreeSelection) event.getSelection()).getFirstElement());
-			scanSaver.load(scan);
-		};
-	}
-
-	@Override
-	public ISelectionChangedListener getISelectionChangedListener(MenuManager contextMenu) {
-		if (contextMenu != null) {
-			contextMenu.addMenuListener(manager -> {
-				manager.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
-				manager.add(new LoadAcquisitionConfigurationResource(this.getSelected().getResource(), scanSaver));
-				manager.add(new DeleteAcquisitionConfigurationResource(this.getSelected().getResource(), scanSaver));
-			});
-		}
-		return event -> {
-			this.setSelected((AcquisitionConfigurationResource<SavedScanMetaData>) event.getStructuredSelection()
-					.getFirstElement());
-		};
-	}
-
-	static SavedScanMetaData extractSavedScanMetaData(Object element) {
-		return ((AcquisitionConfigurationResource<SavedScanMetaData>) element).getResource();
-	}
 }
