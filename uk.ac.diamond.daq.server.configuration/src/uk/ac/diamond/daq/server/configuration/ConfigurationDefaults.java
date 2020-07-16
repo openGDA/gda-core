@@ -72,7 +72,7 @@ public enum ConfigurationDefaults {
 	GDA_INSTANCE_CONFIG_rel(combine(APP_WORKSPACE_GIT_NAME, LAYOUT_DETAILS.value.split(",")[0])),
 	APP_INSTANCE_CONFIG_rel(getFromConfigPathOverrideWithDefault(getHierarchicalValueWithDefault(GDA_INSTANCE_CONFIG_rel))),
 
-	APP_GROUP_NAME(APP_INSTANCE_CONFIG_rel.value.contains("gda-mt.git") ? "mt-config" : "nogroup"),
+	APP_GROUP_NAME(manageMTMigration(APP_INSTANCE_CONFIG_rel.value)),
 	GDA_GROUP_CONFIG_rel(APP_INSTANCE_CONFIG_rel + "/../" + APP_GROUP_NAME),
 	APP_GROUP_CONFIG_rel(getHierarchicalValueWithDefault(GDA_GROUP_CONFIG_rel)),
 
@@ -265,6 +265,20 @@ public enum ConfigurationDefaults {
 
 	private static final String combine(final String first, final String second){
 		return new StringBuilder(first).append(File.separator).append(second).toString();
+	}
+	
+	private static final String manageMTMigration(final String relativeConfig) {
+		String[] options = {"gda-mt.git", "i06-config", "i06-1-config", "i10-config"};
+		for (String match : options) {
+			if (relativeConfig.contains(match)) {
+				if (!match.startsWith("gda-mt")) {
+					return match.replaceFirst("(-\\d+)?-config", "-shared");
+				} else {
+					return "mt-config";
+				}
+			}
+		}
+		return "nogroup";
 	}
 
 	/**
