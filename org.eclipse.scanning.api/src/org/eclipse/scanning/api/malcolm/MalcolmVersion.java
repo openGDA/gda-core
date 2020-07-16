@@ -24,17 +24,20 @@ import java.util.regex.Pattern;
 public class MalcolmVersion implements Comparable<MalcolmVersion> {
 
 	private static final String MALCOLM_VERSION_STRING_PREFIX = "version:pymalcolm:";
-	private static final Pattern MALCOLM_VERSION_STRING_PATTERN = Pattern.compile(MALCOLM_VERSION_STRING_PREFIX + "(\\d+\\.\\d+).*");
+	private static final Pattern MALCOLM_VERSION_STRING_PATTERN = Pattern.compile(MALCOLM_VERSION_STRING_PREFIX + "(\\d+)\\.(\\d+).*");
 
 	public static final MalcolmVersion VERSION_4_0 = new MalcolmVersion(4, 0);
 	public static final MalcolmVersion VERSION_4_2 = new MalcolmVersion(4, 2);
+
+	// a fallback version number if the version string cannot be parsed for some reason
+	public static final MalcolmVersion FALLBACK_VERSION = new MalcolmVersion(999, 0);
 
 	private int major;
 
 	private int minor;
 
-	private MalcolmVersion() {
-		// private constructor for json (de)serialization
+	public MalcolmVersion() {
+		// public constructor for json (de)serialization
 	}
 
 	public MalcolmVersion(int major, int minor) {
@@ -45,13 +48,12 @@ public class MalcolmVersion implements Comparable<MalcolmVersion> {
 	public static MalcolmVersion fromVersionString(String versionString) {
 		final Matcher matcher = MALCOLM_VERSION_STRING_PATTERN.matcher(versionString);
 		if (!matcher.matches()) {
-			throw new IllegalArgumentException("Malcolm device string does not match expected format: version:pymalcolm:<maj>.<min>-<build>");
+			return FALLBACK_VERSION;
 		}
 
-		final String result = matcher.group(1); // result is of the form n.n, e.g. 4.2
-		final String[] segments = result.split("\\.");
-		final int majorVersion = Integer.parseInt(segments[0]);
-		final int minorVersion = Integer.parseInt(segments[1]);
+		// the two capturing groups correspond to the major and minor version numbers (a NumberFormatException
+		final int majorVersion = Integer.parseInt(matcher.group(1));
+		final int minorVersion = Integer.parseInt(matcher.group(2));
 		return new MalcolmVersion(majorVersion, minorVersion);
 	}
 
