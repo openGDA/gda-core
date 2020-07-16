@@ -104,7 +104,7 @@ public class ClientResourceManager {
 	 * @return the default Font for Label control
 	 */
 	public Font getLabelDefaultFont() {
-		return getFromFontMap(labelFontDescriptor);
+	return getFromFontMap(labelFontDescriptor);
 	}
 
 	/**

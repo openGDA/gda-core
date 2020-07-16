@@ -812,6 +812,24 @@ public final class ClientSWTElements {
 	}
 
 	/**
+	 * Creates a basic {@link Label} component. This supports the approach described in
+	 * <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 *
+	 * @param parent
+	 *            where materialise the component
+	 * @param style
+	 *            the style to apply to the the label
+	 * @param message
+	 *            the text to display
+	 * @return a new label
+	 */
+	public static final Label createClientLabel(final Composite parent, int style, final String message) {
+		Label label = new Label(parent, style);
+		label.setText(message);
+		return label;
+	}
+
+	/**
 	 * Creates a basic {@link Button} component. This supports the approach described in
 	 * <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
 	 *
@@ -824,8 +842,8 @@ public final class ClientSWTElements {
 	 * @param tooltip
 	 *            the tooltip to display
 	 * @param imageCode
-	 *            the button image
-	 * @return a new Button component
+	 *            the button image. May be empty
+	 * @return a new Label component
 	 * @deprecated use {@link #createClientButton(Composite, int, ClientMessages, ClientMessages, ClientImages)}
 	 */
 	@Deprecated
@@ -856,9 +874,11 @@ public final class ClientSWTElements {
 	 * @param tooltip
 	 *            the tooltip to display
 	 * @param imageCode
-	 *            the button image. May be {@code null}
+	 *            the button image
 	 * @return a new Button component
+	 * @deprecated use {@link #createClientButton(Composite, int, ClientMessages, ClientMessages, ClientImages)}
 	 */
+	@Deprecated
 	public static final Button createClientButton(final Composite parent, int style, ClientMessages message,
 			ClientMessages tooltip, final ClientImages imageCode) {
 		Button button = createClientButton(parent, style, message, tooltip);
@@ -882,7 +902,7 @@ public final class ClientSWTElements {
 	 *            the text to display in the button
 	 * @param tooltip
 	 *            the tooltip to display
-	 * @return a new Button component
+	 * @return a new Label component
 	 */
 	public static final Button createClientButton(final Composite parent, int style, ClientMessages message,
 			ClientMessages tooltip) {
