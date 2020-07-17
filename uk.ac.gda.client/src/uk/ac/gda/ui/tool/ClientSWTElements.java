@@ -824,9 +824,11 @@ public final class ClientSWTElements {
 	 * @param tooltip
 	 *            the tooltip to display
 	 * @param imageCode
-	 *            the button image. May be empty
-	 * @return a new Label component
+	 *            the button image
+	 * @return a new Button component
+	 * @deprecated use {@link #createClientButton(Composite, int, ClientMessages, ClientMessages, ClientImages)}
 	 */
+	@Deprecated
 	public static final Button createClientButton(final Composite parent, int style, ClientMessages message,
 			ClientMessages tooltip, final Optional<ClientImages> imageCode) {
 		Button button = new Button(parent, style);
@@ -838,6 +840,56 @@ public final class ClientSWTElements {
 			button.setImage(image);
 			button.setSize(image.getImageData().width, image.getImageData().height);
 		});
+		return button;
+	}
+
+	/**
+	 * Creates a basic {@link Button} component. This supports the approach described in
+	 * <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 *
+	 * @param parent
+	 *            where materialise the component
+	 * @param style
+	 *            the style to apply to the the button (SWP.PUSH, SWT.CHECK, SWT.RADIO, ...)
+	 * @param message
+	 *            the text to display in the button
+	 * @param tooltip
+	 *            the tooltip to display
+	 * @param imageCode
+	 *            the button image. May be {@code null}
+	 * @return a new Button component
+	 */
+	public static final Button createClientButton(final Composite parent, int style, ClientMessages message,
+			ClientMessages tooltip, final ClientImages imageCode) {
+		Button button = createClientButton(parent, style, message, tooltip);
+		Optional.ofNullable(imageCode).ifPresent(i -> {
+			Image image = ClientSWTElements.getImage(i);
+			button.setImage(image);
+			button.setSize(image.getImageData().width, image.getImageData().height);
+		});
+		return button;
+	}
+
+	/**
+	 * Creates a basic {@link Button} component. This supports the approach described in
+	 * <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 *
+	 * @param parent
+	 *            where materialise the component
+	 * @param style
+	 *            the style to apply to the the button (SWP.PUSH, SWT.CHECK, SWT.RADIO, ...)
+	 * @param message
+	 *            the text to display in the button
+	 * @param tooltip
+	 *            the tooltip to display
+	 * @return a new Button component
+	 */
+	public static final Button createClientButton(final Composite parent, int style, ClientMessages message,
+			ClientMessages tooltip) {
+		Button button = new Button(parent, style);
+		button.setFont(ClientResourceManager.getInstance().getButtonDefaultFont());
+		button.setText(ClientMessagesUtility.getMessage(message));
+		button.setToolTipText(ClientMessagesUtility.getMessage(tooltip));
 		return button;
 	}
 
