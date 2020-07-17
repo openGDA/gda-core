@@ -191,60 +191,6 @@
 		</xs:all>
 		<xs:attributeGroup ref="deviceAttributes"/>
 	</xs:complexType>
-	<!-- Template for controlling a firewire camera -->
-	<xs:complexType name="firewireCamType">
-		<xs:all>
-			<xs:element name="DATA">
-				<!-- 1d array of pixel information running left-right in lines, needs height and width to decode -->
-				<xs:complexType>
-					<xs:attribute fixed="array" name="type" type="xs:string" use="required"/>
-					<xs:attribute fixed="true" name="ro" type="xs:boolean" use="required"/>
-					<xs:attributeGroup ref="recordAttributes"/>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="HEIGHT">
-				<!-- height of the image -->
-				<xs:complexType>
-					<xs:attribute fixed="pv" name="type" type="xs:string" use="required"/>
-					<xs:attribute fixed="true" name="ro" type="xs:boolean" use="required"/>
-					<xs:attributeGroup ref="recordAttributes"/>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="WIDTH">
-				<!-- Width of the image -->
-				<xs:complexType>
-					<xs:attribute fixed="pv" name="type" type="xs:string" use="required"/>
-					<xs:attribute fixed="true" name="ro" type="xs:boolean" use="required"/>
-					<xs:attributeGroup ref="recordAttributes"/>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="ON">
-				<!-- write 1 to this to turn the camera on -->
-				<xs:complexType>
-					<xs:attribute fixed="pv" name="type" type="xs:string" use="required"/>
-					<xs:attribute fixed="false" name="ro" type="xs:boolean" use="required"/>
-					<xs:attributeGroup ref="recordAttributes"/>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="TRIG" minOccurs="0">
-				<!-- set the trigger mode to internal to read back images, not needed in new driver -->
-				<xs:complexType>
-					<xs:attribute name="type" type="xs:string" use="required" fixed="mbbinary"/>
-					<xs:attribute name="ro" type="xs:boolean" use="required" fixed="false"/>
-					<xs:attributeGroup ref="recordAttributes"/>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="TRIGRBV" minOccurs="0">
-				<!-- readback for trigger value, not needed in new driver -->
-				<xs:complexType>
-					<xs:attribute name="type" type="xs:string" use="required" fixed="mbbinary"/>
-					<xs:attribute name="ro" type="xs:boolean" use="required" fixed="true"/>
-					<xs:attributeGroup ref="recordAttributes"/>
-				</xs:complexType>
-			</xs:element>					
-		</xs:all>
-		<xs:attributeGroup ref="deviceAttributes"/>
-	</xs:complexType>
 	<!-- Template for controlling pneumatic devices, like vacuum valves and shutters -->
 	<xs:complexType name="pneumaticType">
 		<xs:all>
@@ -397,7 +343,6 @@
 					<xs:element name="simplePv" type="simplePvType"/>
 					<xs:element name="simpleArray" type="simpleArrayType"/>
 					<xs:element name="positioner" type="positionerType"/>
-					<xs:element name="firewireCam" type="firewireCamType"/>
 					<xs:element name="pneumatic" type="pneumaticType"/>
 					<xs:element name="xiaArray" type="xiaArrayType"/>
 				</xs:choice>
