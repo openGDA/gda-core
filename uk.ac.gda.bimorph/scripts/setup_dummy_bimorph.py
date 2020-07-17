@@ -1,4 +1,3 @@
-from gdascripts.scannable.detector.epics.EpicsFirewireCamera import EpicsFirewireCamera
 from gda.configuration.properties import LocalProperties
 from gda.jython.commands.GeneralCommands import run
 from gdascripts.scannable.detector.ProcessingDetectorWrapper import ProcessingDetectorWrapper
@@ -20,11 +19,6 @@ xdp = DummyPD("x")
 xdp.asynchronousMoveTo(430)
 cam1det = CreateImageReadingDummyDetector.create(xdp)
 cam1 = ProcessingDetectorWrapper('cam1', cam1det, [], panel_name='ImageProPlus Plot')
-
-# To use a firewire camera:
-# from gdascripts.scannable.detector.epics.EpicsFirewireCamera import EpicsFirewireCamera
-# cam1det = EpicsFirewireCamera('cam1det', 'BL02I-FW-CAM-01:', datadirstring)   
-# cam1 = ProcessingDetectorWrapper('cam1', cam1det, [], panel_name='ImageProPlus Plot')
 
 print "Creating dummy ScanAborter"
 mon = DummyPD('mon')
