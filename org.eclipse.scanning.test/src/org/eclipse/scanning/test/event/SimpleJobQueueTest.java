@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -321,6 +322,34 @@ public class SimpleJobQueueTest extends AbstractJobQueueTest {
 		List<StatusBean> returnedBeans = jobQueue.getRunningAndCompleted("2");
 		assertEquals("runSecond", returnedBeans.get(0).getName());
 		assertEquals("runThird", returnedBeans.get(1).getName());
+
+	}
+
+	@Test
+	public void testClearingQueueWithPausedActiveScan() throws Exception {
+		// Send 5 beans that 'will run' to the Queue
+		List<StatusBean> completeBeans = createAndSubmitBeans();
+		List<StatusBean> nonCompleteBeans = createAndSubmitBeans("Running", "notRunning");
+		CountDownLatch latch = new CountDownLatch(completeBeans.size() + 10 * nonCompleteBeans.size());
+		// Default time (100ms)
+		setupMockProcesses(completeBeans, latch);
+		setMockProcessTime(10000);
+		// (1s)
+		setupMockProcesses(nonCompleteBeans, latch);
+
+		startJobQueue();
+		// Should be enough that all 100ms beans are done, but 1s beans not
+		latch.await(2, TimeUnit.SECONDS);
+		jobQueue.pauseJob(nonCompleteBeans.get(0));
+
+		// Only get active (but paused) scan
+		List<StatusBean> returnedBeans = jobQueue.getRunningAndCompleted("1");
+		// (Submitted +) Running + Last Complete
+		assertTrue(returnedBeans.get(0).getStatus().isPaused());
+
+		jobQueue.clearRunningAndCompleted(true);
+		returnedBeans = jobQueue.getRunningAndCompleted();
+		assertTrue(returnedBeans.isEmpty());
 
 	}
 

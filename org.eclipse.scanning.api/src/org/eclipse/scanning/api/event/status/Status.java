@@ -47,7 +47,7 @@ public enum Status {
 	}
 
 	public boolean isRunning() {
-		return this==RUNNING || this==RESUMED || this==PREPARING || this==Status.FINISHING;
+		return this==RUNNING || this.isResumed() || this==PREPARING || this==FINISHING;
 	}
 
 	public boolean isRequest() {
