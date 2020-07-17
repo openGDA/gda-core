@@ -198,10 +198,6 @@ public abstract class AbstractPosition implements IPosition, Serializable {
 		if (dimension>=dimensionNames.size())     return null;
 		return dimensionNames.get(dimension);
 	}
-	private List<Collection<String>> getDimensionNames(IPosition pos) {
-		if (pos instanceof AbstractPosition) return ((AbstractPosition)pos).getDimensionNames();
-		return null; // Do not have to support dimension names
-	}
 
 	/**
 	 * This method makes dimensionNames if they are null.
@@ -222,7 +218,7 @@ public abstract class AbstractPosition implements IPosition, Serializable {
 				dimensionNames.add(new ArrayList<>(getNames())); // List adding a collection, we copy the keys here run SerializationTest to see why
 			}
 		}
-		return dimensionNames;
+		return new ArrayList<>(dimensionNames);
 	}
 	public void setDimensionNames(List<Collection<String>> dNames) {
 		this.dimensionNames = dNames;
