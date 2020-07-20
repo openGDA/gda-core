@@ -27,6 +27,7 @@ import gda.rcp.views.Browser;
 import gda.rcp.views.ComparableStyledLabelProvider;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
+import uk.ac.diamond.daq.mapping.ui.browser.ScanningAcquisitionBrowserBase;
 
 /**
  * Formats the tomography range for a {@link Browser} column.
@@ -37,7 +38,7 @@ class RangeProvider extends LabelProvider implements ComparableStyledLabelProvid
 
 	@Override
 	public StyledString getStyledText(Object element) {
-		ScanningParameters parameters = TomoBrowser.getAcquisitionParameters(element);
+		ScanningParameters parameters = ScanningAcquisitionBrowserBase.getAcquisitionParameters(element);
 		ScannableTrackDocument std = parameters.getScanpathDocument().getScannableTrackDocuments().get(0);
 		double start = std.getStart();
 		double end = std.getStop();
