@@ -43,22 +43,20 @@ public class CameraConfigurationProperties {
 
 	private boolean withMonitor;
 
-	private boolean beamMappingActive;
-
 	private double readoutTime;
 
 	private List<ControllerConfiguration> motors;
 
 	private Map<TriggerMode, Short> triggerMode;
 
-	private double[][] cameraToBeam;
+	private CameraToBeamMap cameraToBeamMap;
 
-	public double[][] getCameraToBeam() {
-		return cameraToBeam;
+	public CameraToBeamMap getCameraToBeamMap() {
+		return cameraToBeamMap;
 	}
 
-	public void setCameraToBeam(double[][] cameraToBeam) {
-		this.cameraToBeam = cameraToBeam;
+	public void setCameraToBeamMap(CameraToBeamMap cameraToBeamMap) {
+		this.cameraToBeamMap = cameraToBeamMap;
 	}
 
 	public String getId() {
@@ -107,14 +105,6 @@ public class CameraConfigurationProperties {
 
 	public void setWithMonitor(boolean withMonitor) {
 		this.withMonitor = withMonitor;
-	}
-
-	public boolean isBeamMappingActive() {
-		return beamMappingActive;
-	}
-
-	public void setBeamMappingActive(boolean beamMappingActive) {
-		this.beamMappingActive = beamMappingActive;
 	}
 
 	public double getReadoutTime() {

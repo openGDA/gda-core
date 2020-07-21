@@ -85,7 +85,7 @@ public interface CameraProperties {
 	 *
 	 * @return {@code true} if enabled, {@code false} otherwise
 	 */
-	boolean isBeamMappingActive();
+	//boolean isBeamMappingActive();
 
 	/**
 	 * Indicates if the camera pixels binning are editable

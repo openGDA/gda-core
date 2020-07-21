@@ -18,11 +18,11 @@
 
 package uk.ac.diamond.daq.client.gui.camera.beam;
 
+import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
+
+import java.util.Objects;
 import java.util.Optional;
 
-import org.apache.commons.math3.linear.ArrayRealVector;
-import org.apache.commons.math3.linear.LUDecomposition;
-import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolylineROI;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
@@ -35,51 +35,81 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.IScannableMotor;
-import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
 import uk.ac.diamond.daq.client.gui.camera.liveview.CameraImageComposite;
-import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.FinderHelper;
+import uk.ac.gda.client.exception.GDAClientException;
+import uk.ac.gda.client.properties.camera.CameraToBeamMap;
 import uk.ac.gda.ui.tool.ClientMessages;
 
 /**
- * Draws a {@link BeamCameraMappingEvent} as polygon on top of the
- * {@link IPlottingSystem}
+ * Draws a {@link BeamCameraMappingEvent} as polygon on top of an
+ * {@link IPlottingSystem}. The polygon represents the boundaries inside which
+ * there is a valid mapping between the camera pixels and the beam motors range.
  *
  * @author Maurizio Nagni
+ *
+ * @See {@link BeamCameraCalibrationComposite}
+ * @See {@link BeamMappingSupport}
  */
 public class DrawCameraMappingArea {
 
 	private final IPlottingSystem<Composite> plottingSystem;
-	private final BeamCameraMappingEvent event;
-	private IScannableMotor driverX;
-	private IScannableMotor driverY;
+	private final ICameraConfiguration cameraConfiguration;
 
-	private DrawCameraMappingArea(IPlottingSystem<Composite> plottingSystem, BeamCameraMappingEvent event) {
-		super();
+	private static final String BEAM_BOUNDARIES = "BeamBoundaries";
+
+	private DrawCameraMappingArea(IPlottingSystem<Composite> plottingSystem, ICameraConfiguration cameraConfiguration) {
 		this.plottingSystem = plottingSystem;
-		this.event = event;
+		this.cameraConfiguration = cameraConfiguration;
 	}
 
-	public static void handleEvent(final IPlottingSystem<Composite> plottingSystem,
-			final BeamCameraMappingEvent event) {
-		DrawCameraMappingArea instance = new DrawCameraMappingArea(plottingSystem, event);
-		instance.estimateScaling();
+	/**
+	 * Draws the camera boundaries
+	 *
+	 * @param plottingSystem      where draw the rectangle
+	 * @param cameraConfiguration the camera for which the boundaries have to be
+	 *                            drawn
+	 * @throws GDAClientException if
+	 * <ul>
+	 * <li>
+	 * any of the beam driver are unavailable or throw an exception, or
+	 * </li>
+	 * <li>
+	 * no BeamCameraMap is available for the given {@code cameraConfiguration}, or
+	 * </li>
+	 * <li>
+	 * cannot get the camera frame size
+	 * </li>
+	 * </ul>
+	 */
+	public static void drawBeamBoundaries(IPlottingSystem<Composite> plottingSystem,
+			ICameraConfiguration cameraConfiguration) throws GDAClientException {
+		if (Objects.isNull(cameraConfiguration.getBeamCameraMap())) {
+			throw new GDAClientException("no mapping from camera to beam is available");
+		}
+		DrawCameraMappingArea instance = new DrawCameraMappingArea(plottingSystem, cameraConfiguration);
+		instance.estimateBoundaries();
 	}
 
-	public void estimateScaling() {
-		ICameraConfiguration cameraConfiguraiton = CameraHelper.createICameraConfiguration(event.getCameraIndex());
-		cameraConfiguraiton.getBeamCameraMap().ifPresent(this::estimateBoundaries);
+	/**
+	 * Removes the camera boundaries
+	 *
+	 * @param plottingSystem from where remove the boundaries
+	 */
+	public static void removeBeamBoundaries(IPlottingSystem<Composite> plottingSystem) {
+		Optional.ofNullable(plottingSystem.getRegion(BEAM_BOUNDARIES))
+			.ifPresent(plottingSystem::removeRegion);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(CameraImageComposite.class);
 
 	private void addRegion(double ptx, double pty, double width, double height) {
 		try {
-			Optional.ofNullable(plottingSystem.getRegion("Boundary")).ifPresent(plottingSystem::removeRegion);
-			IRegion boundary = plottingSystem.createRegion("Boundary", RegionType.POLYLINE);
+			removeBeamBoundaries(plottingSystem);
+			IRegion boundary = plottingSystem.createRegion(BEAM_BOUNDARIES, RegionType.POLYLINE);
 			PolylineROI poly = new PolylineROI(ptx, pty);
 			poly.insertPoint(ptx + width, pty);
 			poly.insertPoint(ptx + width, pty + height);
@@ -94,80 +124,87 @@ public class DrawCameraMappingArea {
 		}
 	}
 
-	private void estimateBoundaries(BeamCameraMap beamCameraMap) {
-		FinderHelper.getIScannableMotor(beamCameraMap.getDriverX()).ifPresent(d -> driverX = d);
-		FinderHelper.getIScannableMotor(beamCameraMap.getDriverY()).ifPresent(d -> driverY = d);
-		int[] cameraSize = null;
+	private void estimateBoundaries() throws GDAClientException {
+		int[] cameraSize = new int[2];
 		try {
-			cameraSize = cameraSize(beamCameraMap.getCameraConfiguration().getCameraControl());
-		} catch (DeviceException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		if ((driverX == null && driverY == null) || cameraSize == null) {
-			return;
-		}
-
-		RealVector solutionMin;
-		RealVector solutionMax;
-		RealMatrix transformation = beamCameraMap.getAffineTransformation();
-		LUDecomposition luDecompositionCameraToBeam = new LUDecomposition(transformation);
-		try {
-			RealVector constantsMin = new ArrayRealVector(
-					new double[] { driverX.getLowerInnerLimit(), driverY.getLowerInnerLimit() }, false);
-			RealVector constantsMax = new ArrayRealVector(
-					new double[] { driverX.getUpperInnerLimit(), driverY.getUpperInnerLimit() }, false);
-			solutionMin = luDecompositionCameraToBeam.getSolver().solve(constantsMin);
-			solutionMax = luDecompositionCameraToBeam.getSolver().solve(constantsMax);
+			if (cameraConfiguration.getCameraControl().isPresent()) {
+				cameraSize = cameraConfiguration.getCameraControl().get().getFrameSize();
+			}
 		} catch (DeviceException e) {
-			logger.error("Cannnot estimate minMax solutions", e);
-			return;
+			throw new GDAClientException("Cannot retrieve the camera frame size", e);
 		}
-
-		logger.debug("transformationDet: {} ", luDecompositionCameraToBeam.getDeterminant());
-		double pxMin = 0;
-		double pyMin = 0;
-		double pxMax = 0;
-		double pyMax = 0;
-
-		if (solutionMax.getEntry(0) > 0) {
-			pxMax = solutionMax.getEntry(0) >= cameraSize[0] ? cameraSize[0] : solutionMax.getEntry(0);
-		}
-		if (solutionMax.getEntry(0) < 0) {
-			pxMax = Double.MIN_VALUE;
-		}
-		if (solutionMin.getEntry(0) < 0 && pxMax > 0) {
-			pxMin = 0;
-		}
-		if (solutionMin.getEntry(0) >= 0 && pxMax > 0) {
-			pxMin = solutionMin.getEntry(0);
-		}
-
-		if (solutionMax.getEntry(1) > 0) {
-			pyMax = solutionMax.getEntry(1) >= cameraSize[1] ? cameraSize[1] : solutionMax.getEntry(1);
-		}
-		if (solutionMax.getEntry(1) < 0) {
-			pyMax = Double.MIN_VALUE;
-		}
-		if (solutionMin.getEntry(1) < 0 && pyMax > 0) {
-			pyMin = 0;
-		}
-		if (solutionMin.getEntry(1) >= 0 && pyMax > 0) {
-			pyMin = solutionMin.getEntry(1);
-		}
-
-		double pxMn = pxMin;
-		double pyMn = pyMin;
-
-		double pxMx = pxMax;
-		double pyMx = pyMax;
-
-		Display.getDefault().asyncExec(() -> addRegion(pxMn, pyMn, pxMx - pxMn, pyMx - pyMn));
+		estimateBoundaries(cameraSize, cameraConfiguration.getBeamCameraMap());
 	}
 
-	private int[] cameraSize(Optional<CameraControl> cameraControl) throws DeviceException {
-		return cameraControl.isPresent() ? cameraControl.get().getFrameSize() : null;
+	/**
+	 * Calculates the camera region covered by the actual mapping
+	 *
+	 * @param cameraSize the mapped camera size
+	 * @param beamCameraMap the calculated camera to beam driver mapping
+	 * @throws GDAClientException if
+	 * <ul>
+	 * <li>
+	 * any of the beam driver are unavailable or  throw an exception, or
+	 * </li>
+	 * <li>
+	 * cameraSize is null or its length is not 2
+	 * </li>
+	 * </ul>
+	 *
+	 */
+	private void estimateBoundaries(int[] cameraSize, CameraToBeamMap beamCameraMap) throws GDAClientException {
+		if (cameraSize == null || cameraSize.length != 2) {
+			throw new GDAClientException("Cannot retrieve the camera frame size");
+		}
+
+		IScannableMotor driverX = FinderHelper.getIScannableMotor(beamCameraMap.getDriverX())
+				.orElseThrow(() -> new GDAClientException("Cannot use beam driver X"));
+		IScannableMotor driverY = FinderHelper.getIScannableMotor(beamCameraMap.getDriverY())
+				.orElseThrow(() -> new GDAClientException("Cannot use beam driver Y"));
+
+		Optional<RealVector> solutionMin;
+		Optional<RealVector> solutionMax;
+		try {
+			solutionMin = calculateSolution(driverX.getLowerInnerLimit(), driverY.getLowerInnerLimit());
+			solutionMax = calculateSolution(driverX.getLowerInnerLimit(), driverY.getLowerInnerLimit());
+		} catch (DeviceException e) {
+			throw new GDAClientException("Cannnot estimate minMax solutions", e);
+		}
+
+		double pxMax = solutionMax
+					.map(smax -> getMaxValue(smax.getEntry(0), cameraSize[0]))
+					.orElseGet(() -> 0d);
+
+		double pxMin = solutionMin
+				.map(smin -> getMinValue(smin.getEntry(0), pxMax))
+				.orElseGet(() -> 0d);
+
+		double pyMax = solutionMax
+				.map(smax -> getMaxValue(smax.getEntry(1), cameraSize[1]))
+				.orElseGet(() -> 0d);
+
+		double pyMin = solutionMin
+				.map(smin -> getMinValue(smin.getEntry(1), pyMax))
+				.orElseGet(() -> 0d);
+
+		Display.getDefault().asyncExec(() -> addRegion(pxMin, pyMin, pxMax - pxMin, pyMax - pyMin));
 	}
 
+	private double getMaxValue(double vectorElement, double cameraElement) {
+		if (vectorElement > 0) {
+			return vectorElement >= cameraElement ? cameraElement : vectorElement;
+		}
+		return Double.MIN_VALUE;
+	}
+
+	private double getMinValue(double vectorElement, double axisMax) {
+		if (vectorElement >= 0 && axisMax > 0) {
+			return vectorElement;
+		}
+		return 0;
+	}
+
+	private Optional<RealVector> calculateSolution(double x, double y) {
+		return getBean(BeamCameraMapping.class).beamToPixel(cameraConfiguration, x, y);
+	}
 }

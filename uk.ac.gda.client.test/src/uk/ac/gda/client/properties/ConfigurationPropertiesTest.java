@@ -67,8 +67,11 @@ public class ConfigurationPropertiesTest {
 		Assert.assertEquals("PCO_CAMERA", pco.getId());
 		Assert.assertEquals("Imaging Camera", pco.getName());
 		Assert.assertEquals("imaging_camera_control", pco.getCameraControl());
-		Assert.assertEquals(1.0, pco.getCameraToBeam()[0][0], 0.0);
-		Assert.assertEquals(2.0, pco.getCameraToBeam()[0][1], 0.0);
+		Assert.assertEquals("customDriverX", pco.getCameraToBeamMap().getDriverX());
+		Assert.assertEquals("customDriverY", pco.getCameraToBeamMap().getDriverY());
+		Assert.assertEquals(1.0, pco.getCameraToBeamMap().getMap()[0][0], 0.0);
+		Assert.assertEquals(2.0, pco.getCameraToBeamMap().getMap()[0][1], 0.0);
+		Assert.assertTrue(pco.getCameraToBeamMap().isActive());
 		Assert.assertEquals(2, pco.getMotors().size());
 
 		ControllerConfiguration cameraMotor = pco.getMotors().get(0);
@@ -85,6 +88,7 @@ public class ConfigurationPropertiesTest {
 		Assert.assertEquals("Diffraction Camera", pilatus.getName());
 		Assert.assertEquals("diffraction_camera_control", pilatus.getCameraControl());
 		Assert.assertEquals(2, pilatus.getMotors().size());
+		Assert.assertNull(pilatus.getCameraToBeamMap());
 
 		cameraMotor = pilatus.getMotors().get(0);
 		Assert.assertTrue(cameraMotor.getController().equals("pco_x"));
@@ -98,6 +102,7 @@ public class ConfigurationPropertiesTest {
 		Assert.assertEquals(null, d4.getId());
 		Assert.assertEquals("Diagnostic Camera 4", d4.getName());
 		Assert.assertEquals("d4_camera_control", d4.getCameraControl());
+		Assert.assertFalse(d4.getCameraToBeamMap().isActive());
 	}
 
 }

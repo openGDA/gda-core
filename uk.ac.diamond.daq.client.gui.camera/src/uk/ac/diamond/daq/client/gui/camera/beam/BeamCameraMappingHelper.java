@@ -18,11 +18,12 @@
 
 package uk.ac.diamond.daq.client.gui.camera.beam;
 
+import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
+
 import java.awt.geom.Point2D;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
@@ -34,27 +35,28 @@ import org.eclipse.january.dataset.ILazyDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.DeviceException;
 import gda.device.IScannableMotor;
-import gda.device.scannable.iterator.ScannableIterator;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
+import uk.ac.diamond.daq.client.gui.camera.CameraStreamsManager;
 import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
+import uk.ac.diamond.daq.client.gui.camera.beam.state.BeamMappingStateContext;
+import uk.ac.diamond.daq.client.gui.camera.beam.state.BeamMappingStateContext.Outcome;
 import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
 import uk.ac.diamond.daq.client.gui.camera.liveview.CameraImageComposite;
 import uk.ac.gda.client.UIHelper;
+import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
-import uk.ac.gda.client.live.stream.LiveStreamConnectionBuilder;
-import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
+import uk.ac.gda.client.properties.camera.CameraToBeamMap;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
+import uk.ac.gda.ui.tool.spring.MotorUtils;
 
 /**
  * Implements an automatic procedure to map the position of the motor driving the beam to the camera pixels.
  * <p>
- * The class constructor {@link #BeamCameraMappingHelper(ScannableIterator, ScannableIterator, ICameraConfiguration)}
- * uses two {@code ScannableIterator} to retrieve the two {@link IScannableMotor} controlling the beam position.
+ * Uses two {@code ScannableIterator} to retrieve the two {@link IScannableMotor} controlling the beam position.
  * </p>
  * <p>
  * Executing {@link #calibrate()}, the instance drives the beam and at the same time listen to the stream connected with
@@ -73,104 +75,78 @@ public class BeamCameraMappingHelper {
 	private LiveStreamConnection liveStream;
 	private IDataListener iDataListener;
 
-	private final ICameraConfiguration cameraConfiguration;
+	private final BeamMappingStateContext context;
 	private final ScannableIterator beamX;
 	private final ScannableIterator beamY;
 
 	private MappingStatus sc;
 
-	public BeamCameraMappingHelper(ScannableIterator beamX, ScannableIterator beamY,
-			ICameraConfiguration cameraConfiguration) {
+	/**
+	 * Creates a instance to handle a new beam camera mapping process
+	 * @param context the context for the mapping process
+	 * @param beamX the beam driver for the X axis
+	 * @param beamY the beam driver for the X axis
+	 */
+	public BeamCameraMappingHelper(BeamMappingStateContext context, ScannableIterator beamX, ScannableIterator beamY) {
+		this.context = context;
 		this.beamX = beamX;
 		this.beamY = beamY;
-		this.cameraConfiguration = cameraConfiguration;
 	}
 
 	/**
 	 * Calculates the mapping for the {@code cameraConfiguration}
 	 */
 	public void calibrate() {
-		initialise();
-		// starts the mapping
-		scanForBeam();
-	}
+		if (!context.getCameraConfiguration().isPresent()) {
+			return;
+		}
 
-	private void scanForBeam() {
-		// FIRST STEP: moves the beam to find any beam spot on the array (the beam may
-		// be out of the camera field of view)
-		sc = new MappingStatus();
+		// advance the state to START
+		context.start();
+		context.getCameraConfiguration()
+			.ifPresent(this::initialise);
+		// starts the mapping
 		try {
-			moveMirrors();
-		} catch (DeviceException e) {
-			sc = null;
-			UIHelper.showError("Cannot move motors", e);
-			logger.error("Cannot move motors", e);
+			// The real mapping process
+			scanArea();
+			// Estimates the transformation matrix from the camera space (x,y) pixels to the beam drivers one (kb_x, kb_y)
+			// If the transformation exists, update the related camera configuration to make this available to the rest of the application
+			RealMatrix transformation = sc.estimateMatrix();
+			if (transformation != null) {
+				updateCameraConfiguration(transformation);
+				context.setOutcome(Outcome.SUCCESS);
+			} else {
+				context.setOutcome(Outcome.FAILED);
+			}
+		} catch (GDAClientException e) {
+			UIHelper.showError("Cannot calibrate camera to motors", e, logger);
+		} finally {
+			// Release the resources
+			terminateMapping();
+			// advance the state to STOP
+			context.stop();
 		}
 	}
 
-	private void initialise() {
-		cameraConfiguration.getCameraConfiguration().ifPresent(this::initializeStream);
+	private void initialise(ICameraConfiguration cameraConfiguration) {
+			cameraConfiguration.getCameraConfiguration()
+				.ifPresent(this::initializeStream);
+			sc = new MappingStatus();
 	}
 
 	private void initializeStream(CameraConfiguration cc) {
-		try {
-			liveStream = new LiveStreamConnectionBuilder(cc, StreamType.EPICS_ARRAY).buildAndConnect();
-			// This is essential to make the instance aware of any change in the camera stream
-			iDataListener = getDataListener();
-			liveStream.addDataListenerToStream(iDataListener);
-		} catch (LiveStreamException e) {
-			logger.error("Could not initialize stream", e);
-		}
-	}
-
-	private void scanForBeamInCamera(Point2D newPoint, IDataset dataset) throws DeviceException {
-		sc.addCenteringPoints(dataset, new BeamCameraPoint(newPoint,
-				new Point2D.Double(beamX.getDriverPosition(), beamY.getDriverPosition())));
-
-		if (!sc.isCompleted()) {
-			moveMirrors();
-		} else if (sc.isCompleted()) {
-			sc.estimateMatrix().ifPresent(this::updateCameraConfiguration);
-			terminateMapping();
-		}
-	}
-
-	private void moveMirrors() throws DeviceException {
-		beamX.moveToRandom();
-		// Once a point is found, moving a single axes reduces the searching time
-		if (sc.mappedPoints.size() < 1) {
-			beamY.moveToRandom();
-		}
-		sc.setArmed(true);
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		// Uses the same stream for all the configured cameras
+		liveStream = getBean(CameraStreamsManager.class).getStreamConnection(cc, StreamType.EPICS_ARRAY);
 	}
 
 	private void updateCameraConfiguration(RealMatrix transformation) {
-		CameraHelper.addBeamCameraMap(cameraConfiguration.getCameraIndex(), new BeamCameraMap(transformation,
-				cameraConfiguration, beamX.getScannableName(), beamY.getScannableName()));
-		terminateMapping();
-	}
-
-	// This is central to the whole procedure: Listens to the live stream and
-	// calculate the position pixel of max intensity calculating the momentum around
-	// the pixel.
-	private IDataListener getDataListener() {
-		return evt -> {
-			try {
-				if (sc == null || beamX.isBusy() || beamY.isBusy() || !sc.isArmed()) {
-					return;
-				}
-			} catch (DeviceException e) {
-				logger.error("Device Error", e);
-				return;
-			}
-			analyzeImage();
-		};
+		CameraToBeamMap cameraToBeamMap = new CameraToBeamMap();
+		cameraToBeamMap.setMap(transformation.getData());
+		cameraToBeamMap.setDriverX(beamX.getScannableName());
+		cameraToBeamMap.setDriverY(beamY.getScannableName());
+		cameraToBeamMap.setActive(true);
+		context.getCameraConfiguration()
+			.ifPresent(cc -> CameraHelper.addBeamCameraMap(cc, cameraToBeamMap));
 	}
 
 	private void analyzeImage() {
@@ -183,17 +159,12 @@ public class BeamCameraMappingHelper {
 			// future
 			int threshold = 1;
 			// if lower that threshold means the beam is out of the camera field of view
-			if (dataset.getInt((int) position.getEntry(1), (int) position.getEntry(0)) < threshold) {
-				moveMirrors();
+			if (dataset.getInt((int) position.getEntry(1), (int) position.getEntry(0)) <= threshold) {
 				return;
 			}
-			if (!sc.containCameraPoint(dataset)) {
-				// we have a point let's check it
-				scanForBeamInCamera(newPoint, dataset);
-			} else {
-				moveMirrors();
-			}
-		} catch (DatasetException | DeviceException e) {
+			sc.addCenteringPoints(new BeamCameraPoint(newPoint,
+					new Point2D.Double(beamX.getDriverPosition(), beamY.getDriverPosition())));
+		} catch (DatasetException | GDAClientException e) {
 			abortMapping(e);
 		}
 	}
@@ -202,15 +173,19 @@ public class BeamCameraMappingHelper {
 		long intensity = 0;
 		ArrayRealVector position = new ArrayRealVector(new double[] { 0, 0 });
 		int[] maxPos = ld.getSlice().maxPos();
-		for (int indexY = -5; indexY < 5; indexY++) {
-			for (int indexX = -5; indexX < 5; indexX++) {
+		if (maxPos[1] + maxPos[0] == 0) {
+			return position;
+		}
+		int squareSize = 5;
+		for (int indexY = -1 * squareSize; indexY < squareSize; indexY++) {
+			int tempY = maxPos[0] + indexY;
+			for (int indexX = -1 * squareSize; indexX < squareSize; indexX++) {
 				int tempX = maxPos[1] + indexX;
-				int tempY = maxPos[0] + indexY;
 				if (tempX < 0 || tempY < 0) {
 					continue;
 				}
 				ArrayRealVector tempVector = new ArrayRealVector(new double[] { tempX, tempY });
-				long tempIntensity = ld.getSlice().getInt(tempY, tempX) + 128;
+				long tempIntensity = ld.getSlice().getInt(tempY, tempX);
 				tempVector.mapMultiplyToSelf(tempIntensity);
 				position = position.add(tempVector);
 				intensity = intensity + tempIntensity;
@@ -223,8 +198,7 @@ public class BeamCameraMappingHelper {
 	}
 
 	private void terminateMapping() {
-		sc = null;
-		liveStream.removeDataListenerFromStream(iDataListener);
+		Optional.ofNullable(iDataListener).ifPresent(liveStream::removeDataListenerFromStream);
 	}
 
 	private void abortMapping(Exception e) {
@@ -239,46 +213,30 @@ public class BeamCameraMappingHelper {
 	 * processing and set the next one (see findTargetNew(newPoint))
 	 */
 	private class MappingStatus {
-		private Map<IDataset, BeamCameraPoint> mappedPoints = new HashMap<>();
+		private Set<BeamCameraPoint> mappedPoints = new HashSet<>();
 
-		// When no motor has been moved, this flag allows the data listener
-		// (getDataListener()) to skip the frame
-		private boolean armed = false;
+		private BeamCameraPoint p0;
+		private BeamCameraPoint p1;
+		private double p0p1Distance;
 
 		public MappingStatus() {
 			super();
 		}
 
-		public void addCenteringPoints(IDataset dataset, BeamCameraPoint beamCameraPoint) {
-			if (mappedPoints.containsKey(dataset)) {
-				return;
+		public void addCenteringPoints(BeamCameraPoint beamCameraPoint) {
+			mappedPoints.add(beamCameraPoint);
+			p0 = Optional.ofNullable(p0).orElse(beamCameraPoint);
+			double newDistance = p0.getArrayPosition().distance(beamCameraPoint.getArrayPosition());
+			if (newDistance >= p0p1Distance) {
+				p0p1Distance = newDistance;
+				p1 = beamCameraPoint;
 			}
-			mappedPoints.put(dataset, beamCameraPoint);
 		}
 
-		public boolean containCameraPoint(IDataset dataset) {
-			return mappedPoints.containsKey(dataset);
-		}
-
-		public boolean isCompleted() {
-			return mappedPoints.size() == 2;
-		}
-
-		public boolean isArmed() {
-			return armed;
-		}
-
-		public void setArmed(boolean armed) {
-			this.armed = armed;
-		}
-
-		public Optional<RealMatrix> estimateMatrix() {
-			if (Objects.isNull(mappedPoints) || mappedPoints.size() < 2) {
-				return Optional.empty();
+		public RealMatrix estimateMatrix() {
+			if (mappedPoints.size() != 2) {
+				return null;
 			}
-			BeamCameraPoint[] points = mappedPoints.values().toArray(new BeamCameraPoint[0]);
-			BeamCameraPoint p0 = points[0];
-			BeamCameraPoint p1 = points[1];
 
 			double p0x = p0.getArrayPosition().getX();
 			double p0y = p0.getArrayPosition().getY();
@@ -303,17 +261,76 @@ public class BeamCameraMappingHelper {
 			logger.debug("KB: {} {}", k0x, k0y);
 			logger.debug("kb: {}", kb);
 
-//			kb = transformation.operate(new double[] { 13.0, 284 });
-//			logger.debug("p0: {} {}", 13.0, 284);
-//			logger.debug("KB: {} {}", 0.134717692857, 2.840574094501);
-//			logger.debug("kb: {}", kb);
-//
-//			kb = transformation.operate(new double[] { 245.0, 503.0 });
-//			logger.debug("p0: {} {}", 245.0, 503.0);
-//			logger.debug("KB: {} {}", 2.457312296261, 5.03962307316);
-//			logger.debug("kb: {}", kb);
+			// assures the beam is visible at the end of the calibration moving the beam at the centre of the mapped
+			// allowed area, which, depending on the beam drivers ranges mapping, may be smaller, equal or bigger than the camera array
+			getBean(MotorUtils.class).moveMotorAsynchronously(beamX.getScannableName(), (k0x + k1x) / 2);
+			getBean(MotorUtils.class).moveMotorAsynchronously(beamY.getScannableName(), (k0y + k1y) / 2);
 
-			return Optional.of(new Array2DRowRealMatrix(dmatrix));
+			return new Array2DRowRealMatrix(dmatrix);
 		}
+	}
+
+	private void backwardX() throws GDAClientException {
+		// moves backward through all X
+		while (beamX.hasPrevious()) {
+			isInterrupted();
+			beamX.previous();
+			estimateTimeToComplete();
+			analyzeImage();
+		}
+		if (!beamY.hasNext()) {
+			return;
+		}
+		isInterrupted();
+		// moves to the next Y
+		beamY.next();
+		// There is no need to analyse the image because the beamX.next() will be equal
+		// to the last beamX.previous()
+	}
+
+	private void forwardX() throws GDAClientException {
+		// moves forward through all X
+		while (beamX.hasNext()) {
+			isInterrupted();
+			beamX.next();
+			estimateTimeToComplete();
+			analyzeImage();
+		}
+		if (!beamY.hasNext()) {
+			return;
+		}
+		isInterrupted();
+		// moves to the next Y
+		beamY.next();
+		// There is no need to analyse the image because the beamX.previous() will be
+		// equal to the last beamX.next()
+	}
+
+	private void scanArea() throws GDAClientException {
+		// Moves and analyses the starting point
+		if (beamY.hasNext() && beamX.hasNext()) {
+			isInterrupted();
+			beamX.next();
+			beamY.next();
+			estimateTimeToComplete();
+			analyzeImage();
+		}
+
+		while (beamY.hasNext()) {
+			forwardX();
+			backwardX();
+		}
+	}
+
+	private void isInterrupted() throws GDAClientException {
+		if (Thread.currentThread().isInterrupted()) {
+			throw new GDAClientException("Interrupt mapping");
+		}
+	}
+
+	private void estimateTimeToComplete() {
+		// TBD
+		// SpringApplicationContextProxy.publishEvent(new
+		// BeamMappingEstimateTimeEvent(this, pos));
 	}
 }

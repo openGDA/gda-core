@@ -16,29 +16,34 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 package uk.ac.diamond.daq.mapping.ui;
+
+import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
+
 import java.util.Optional;
 
 import org.dawnsci.mapping.ui.api.IMapFileController;
 import org.dawnsci.mapping.ui.datamodel.LiveStreamMapObject;
+import org.eclipse.january.dataset.IDynamicShape;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.scanning.api.ui.IStageScanConfiguration;
-import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 
 import gda.factory.Finder;
-import uk.ac.gda.client.live.stream.LiveStreamConnection;
-import uk.ac.gda.client.live.stream.LiveStreamConnectionBuilder;
-import uk.ac.gda.client.live.stream.LiveStreamException;
-import uk.ac.gda.client.live.stream.handlers.LiveStreamPlottable;
+import uk.ac.diamond.daq.client.gui.camera.CameraStreamsManager;
+import uk.ac.diamond.daq.mapping.ui.services.MappingRemoteServices;
+import uk.ac.gda.client.live.stream.calibration.PixelCalibration;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
+import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
+
 /**
- * Handles the stream plotting for {@link EnableLiveBackgroundHandler} and {@link EnableMappingLiveBackgroundAction}.
+ * Handles the stream plotting for {@link EnableLiveBackgroundHandler} and {@link LiveStreamBackgroundAction}.
  *
  * @author Maurizio Nagni
  */
-class BackgroundStateHelper {
+public class BackgroundStateHelper {
 	private Optional<LiveStreamMapObject> liveStreamMap = Optional.empty();
+
 	/**
 	 * Sets visible, or not, the livestream view associated with the mapping view and updates the
 	 * {@link IMapFileController}. If necessary initialises the livestream.
@@ -51,60 +56,64 @@ class BackgroundStateHelper {
 			initialiseStream();
 		}
 		liveStreamMap.ifPresent(ls -> ls.setPlotted(plotStream));
-		PlatformUI.getWorkbench().getService(IMapFileController.class).registerUpdates(null);
+		getMappingRemoteServices().getIMapFileController().registerUpdates(null);
 	}
+
 	/**
 	 * @return {@code true} if the stream is plotted, {@code false} if is not plotted or is still not initialised
 	 */
 	public boolean isPlotted() {
-		return liveStreamMap.map(LiveStreamMapObject::isPlotted).orElse(false);
+		return liveStreamMap
+				.map(LiveStreamMapObject::isPlotted)
+				.orElse(false);
 	}
+
 	/**
 	 * Establishes the Live stream connection and links it to the mapping view. If no suitable default connection has
 	 * been defined a dialog is displayed informing the user what should be done to correct this.
 	 */
 	private void initialiseStream() {
-		getDefaultStreamSource().ifPresent(ls -> {
-			liveStreamMap = Optional.ofNullable(ls);
-			IWorkbench workbench = PlatformUI.getWorkbench();
-			IMapFileController mapFileController = workbench.getService(IMapFileController.class);
-			mapFileController.addLiveStream(ls);
-		});
+		liveStreamMap = getDefaultStreamSource();
+		liveStreamMap.ifPresent(ls -> getMappingRemoteServices().getIMapFileController().addLiveStream(ls));
 		if (!liveStreamMap.isPresent()) {
-			MessageDialog.openWarning(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-					"Missing Camera Configuration",
-					"No default Camera Configuration is set,\n"
-							+ "Please add the name of a valid CameraConfiguration bean\n"
-							+ "to the mapping_stage_info bean in your mapping.xml file");
+						MessageDialog.openWarning(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+								"Missing Camera Configuration",
+								"No default Camera Configuration is set,\n"
+										+ "Please add the name of a valid CameraConfiguration bean\n"
+										+ "to the mapping_stage_info bean in your mapping.xml file");
 		}
 	}
+
 	/**
 	 * Obtains the packaged stream source identified as the default for the beamline
 	 *
-	 * @return An {@link Optional} of the mappable version of the default stream source, empty if none has been set.
-	 * @throws LiveStreamException
-	 *             If the connection to the source is unsuccessful
+	 * @return A mappable version of the default stream source, {@code null} otherwise.
 	 */
 	private Optional<LiveStreamMapObject> getDefaultStreamSource() {
-		String defaultConfigName = null;
-		IStageScanConfiguration stageConfig = PlatformUI.getWorkbench().getService(IStageScanConfiguration.class);
-		if (stageConfig != null) {
-			defaultConfigName = stageConfig.getDefaultStreamSourceConfig();
-		}
-		if (defaultConfigName == null) {
-			return Optional.empty();
-		}
-		Optional<CameraConfiguration> config = Finder.findOptional(defaultConfigName);
-		return config.map(this::getLiveStreamObject).orElse(Optional.empty());
+		return Optional.ofNullable(getAssociatedCameraConfiguration())
+				.map(this::getLiveStreamObject)
+				.orElse(Optional.empty());
 	}
 
-	private Optional<LiveStreamMapObject> getLiveStreamObject(CameraConfiguration config) {
-		final StreamType streamType = config.getArrayPv() != null ? StreamType.EPICS_ARRAY : StreamType.MJPEG;
-		try {
-			final LiveStreamConnection connection = new LiveStreamConnectionBuilder(config, streamType).buildAndConnect();
-			return Optional.of(new LiveStreamPlottable(connection));
-		} catch (LiveStreamException e) {
-			return Optional.empty();
-		}
+	public CameraConfiguration getAssociatedCameraConfiguration() {
+		return (CameraConfiguration) Optional
+				.ofNullable(getClientRemoteServices().getIStageScanConfiguration())
+				.map(IStageScanConfiguration::getDefaultStreamSourceConfig).map(Finder::find).orElse(null);
+	}
+
+	private Optional<LiveStreamMapObject> getLiveStreamObject(CameraConfiguration cameraConfig) {
+		final StreamType streamType = cameraConfig.getArrayPv() != null ? StreamType.EPICS_ARRAY : StreamType.MJPEG;
+		CameraStreamsManager manager = getBean(CameraStreamsManager.class);
+		IDynamicShape dataset = manager.getDynamicShape(cameraConfig, streamType);
+		cameraConfig.setCalibratedAxesProvider(new PixelCalibration(dataset::getDataset));
+		return Optional.ofNullable(manager.getLiveStreamPlottable(cameraConfig, streamType));
+	}
+
+	private MappingRemoteServices getMappingRemoteServices() {
+		return getBean(MappingRemoteServices.class);
+	}
+
+	private ClientRemoteServices getClientRemoteServices() {
+		return getBean(ClientRemoteServices.class);
 	}
 }
