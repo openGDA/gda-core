@@ -18,8 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.ptychography;
 
+import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_PTYCHO_PARAMS_JSON;
 import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_SCAN_REQUEST_JSON;
-import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
@@ -28,6 +28,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.scanning.api.points.models.TwoAxisPtychographyModel;
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.swt.SWT;
@@ -39,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.diamond.daq.mapping.api.PtychographyParams;
 import uk.ac.diamond.daq.mapping.ui.SubmitScanToScriptSection;
 import uk.ac.diamond.daq.mapping.ui.experiment.RegionAndPathController;
 import uk.ac.diamond.daq.mapping.ui.experiment.RegionAndPathSection;
@@ -48,24 +50,13 @@ import uk.ac.gda.ui.tool.ClientMessages;
  * Mapping view section to define a ptychography scan and submit the resulting {@link ScanRequest} to a script.<br>
  * It also contains radio buttons to select a low- or high-resolution scan.
  * <p>
- * When the section is shown, it will ensure that the Ptychography Grid scan path is selected and will set the beam
- * overlap depending on the selected resolution.<br>
+ * When the section is shown, it will ensure that the Raster scan path is selected.<br>
  * See comments on individual fields below for an indication of how the view can be configured.
  */
 public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 	private static final Logger logger = LoggerFactory.getLogger(PtychographySubmitScanSection.class);
 
 	private static final int NUM_COLUMNS = 5;
-
-	/**
-	 * Beam overlap to be set for a low resolution scan
-	 */
-	private double lowResolutonOverlap = 0.2;
-
-	/**
-	 * Beam overlap to be set for a high resolution scan
-	 */
-	private double highResolutonOverlap = 0.5;
 
 	/**
 	 * Set to {@code false} to set low resolution when the view is opened or {@code true} to set high resolution
@@ -84,7 +75,7 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 	private Button lowResButton;
 	private Button highResButton;
 
-	private TwoAxisPtychographyModel pointsModel = null;
+	private TwoAxisGridStepModel stepModel = null;
 
 	@Override
 	public void createControls(Composite parent) {
@@ -113,16 +104,15 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 		final Button button = new Button(composite, SWT.RADIO);
 		GridDataFactory.swtDefaults().applyTo(button);
 		button.setText(getMessage(text));
-		button.addSelectionListener(widgetSelectedAdapter(e -> resolutionListener()));
 		return button;
 	}
 
 	@Override
 	protected void onShow() {
-		// Ensure the scan path is set to Pytchography Grid
-		pointsModel = getPtychographyPointsModel();
-		if (pointsModel == null) {
-			logger.error("No Pytchography Grid model is defined");
+		// Ensure the scan path is set to Raster
+		stepModel = getRasterStepModel();
+		if (stepModel == null) {
+			logger.error("No Raster scanning model is defined");
 			return;
 		}
 
@@ -130,31 +120,29 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 		if (defaultToHighResolution) {
 			lowResButton.setSelection(false);
 			highResButton.setSelection(true);
-			setOverlap(highResolutonOverlap);
 		} else {
 			lowResButton.setSelection(true);
 			highResButton.setSelection(false);
-			setOverlap(lowResolutonOverlap);
 		}
 	}
 
 	/**
-	 * Get the {@link TwoAxisPtychographyModel} that is configured for this client.
+	 * Get the {@link TwoAxisGridStepModel} that is configured for this client (for raster scanning).
 	 * <p>
 	 * This may already be set in the mapping bean: if not, we need to obtain it from the controller and redraw the GUI
 	 * accordingly.
 	 *
-	 * @return the ptychography model, or {@code null} in the (unlikely) event that none is configured in the client.
+	 * @return the model, or {@code null} in the (unlikely) event that none is configured in the client.
 	 */
-	private TwoAxisPtychographyModel getPtychographyPointsModel() {
+	private TwoAxisGridStepModel getRasterStepModel() {
 		final IScanPointGeneratorModel scanPath = getMappingBean().getScanDefinition().getMappingScanRegion().getScanPath();
 		if (scanPath instanceof TwoAxisPtychographyModel) {
-			return (TwoAxisPtychographyModel) scanPath;
+			return (TwoAxisGridStepModel) scanPath;
 		}
 
 		final RegionAndPathController controller = getService(RegionAndPathController.class);
-		final TwoAxisPtychographyModel model = (TwoAxisPtychographyModel) controller.getScanPathListAndLinkPath().stream()
-				.filter(TwoAxisPtychographyModel.class::isInstance)
+		final TwoAxisGridStepModel model = (TwoAxisGridStepModel) controller.getScanPathListAndLinkPath().stream()
+				.filter(TwoAxisGridStepModel.class::isInstance)
 				.findFirst()
 				.orElse(null);
 
@@ -166,17 +154,6 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 		return model;
 	}
 
-	private void resolutionListener() {
-		final double overlap = lowResButton.getSelection() ? lowResolutonOverlap : highResolutonOverlap;
-		setOverlap(overlap);
-	}
-
-	private void setOverlap(double overlap) {
-		if (pointsModel != null) {
-			pointsModel.setOverlap(overlap);
-		}
-	}
-
 	@Override
 	protected void submitScan() {
 		final IScriptService scriptService = getService(IScriptService.class);
@@ -184,6 +161,13 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 		try {
 			final IMarshallerService marshallerService = getService(IMarshallerService.class);
 			scriptService.setNamedValue(VAR_NAME_SCAN_REQUEST_JSON, marshallerService.marshal(scanRequest));
+
+			final PtychographyParams ptychographyParams = new PtychographyParams();
+			final PtychographyParams.Resolution resolution = lowResButton.getSelection()
+					? PtychographyParams.Resolution.LOW
+					: PtychographyParams.Resolution.HIGH;
+			ptychographyParams.setResolution(resolution);
+			scriptService.setNamedValue(VAR_NAME_PTYCHO_PARAMS_JSON, marshallerService.marshal(ptychographyParams));
 		} catch (Exception e) {
 			logger.error("Scan submission failed", e);
 			MessageDialog.openError(getShell(), "Error Submitting Scan", "The scan could not be submitted. See the error log for more details.");
@@ -195,14 +179,6 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 
 	public void setDefaultToHighResolution(boolean defaultToHighResolution) {
 		this.defaultToHighResolution = defaultToHighResolution;
-	}
-
-	public void setLowResolutonOverlap(double lowResolutonOverlap) {
-		this.lowResolutonOverlap = lowResolutonOverlap;
-	}
-
-	public void setHighResolutonOverlap(double highResolutonOverlap) {
-		this.highResolutonOverlap = highResolutonOverlap;
 	}
 
 	public void setScriptFilePath(String scriptFilePath) {

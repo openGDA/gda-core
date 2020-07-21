@@ -20,8 +20,3 @@ def getUserOption(key, default):
 		return options.get(key).value
 	else:
 		return default
-
-
-def getAutomaticProcessing():
-	return getUserOption("AutomaticProcessing", True)
-
