@@ -67,7 +67,7 @@ public class ArpesExperimentPerspective implements IPerspectiveFactory {
 		logger.info("Finished building ARPES experiment perspective");
 	}
 
-	private void createExampleArpesFileIfRequired() {
+	protected void createExampleArpesFileIfRequired() {
 
 		// Find the target location for the example .arpes file
 		final String tgtDataRootPath = InterfaceProvider.getPathConstructor().createFromProperty("gda.analyser.sampleConf.dir");

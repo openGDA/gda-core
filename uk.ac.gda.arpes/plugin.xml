@@ -32,13 +32,25 @@
             id="uk.ac.gda.arpes.perspectives.ArpesAlignmentPerspective"
             icon="icons/application_view_gallery.png"
             name="ARPES Alignment">
+      </perspective>
+      <perspective
+            class="uk.ac.gda.arpes.perspectives.ArpesRemoteAlignmentPerspective"
+            id="uk.ac.gda.arpes.perspectives.ArpesRemoteAlignmentPerspective"
+            icon="icons/application_view_gallery.png"
+            name="ARPES Remote Alignment">
       </perspective>     
       <perspective
             class="uk.ac.gda.arpes.perspectives.ArpesExperimentPerspective"
             id="uk.ac.gda.arpes.perspectives.ArpesExperimentPerspective"
             icon="icons/application_view_gallery.png"
             name="ARPES Experiment">
-      </perspective>  
+      </perspective> 
+      <perspective
+            class="uk.ac.gda.arpes.perspectives.ArpesRemoteExperimentPerspective"
+            id="uk.ac.gda.arpes.perspectives.ArpesRemoteExperimentPerspective"
+            icon="icons/application_view_gallery.png"
+            name="ARPES Remote Experiment">
+      </perspective>   
    </extension>
    <extension
          point="org.eclipse.ui.views">
@@ -70,13 +82,36 @@
             name="Detector Sum Plot"
             restorable="true">
       </view>
-
-            <view
+      <view
             category="gda.rcp.arpes"
             class="uk.ac.gda.arpes.ui.views.AnalyserProgressView"
             icon="icons/sample.gif"
             id="uk.ac.gda.arpes.ui.analyserprogress"
             name="Analyser Progress"
+            restorable="true">
+      </view>
+      <view
+      		category="gda.rcp.arpes"
+            class="uk.ac.gda.arpes.ui.views.MonitoringView"
+            icon="icons/sample.gif"
+            id="uk.ac.gda.arpes.ui.analysermonitoring"
+            name="Analyser"
+            restorable="true">
+      </view>
+      <view
+      		category="gda.rcp.arpes"
+            class="uk.ac.gda.arpes.ui.views.UnconfiguredCameraView"
+            icon="icons/sample.gif"
+            id="uk.ac.gda.arpes.ui.unconfiguredcamera"
+            name="Unconfigured Camera"
+            restorable="true">
+      </view>
+      <view
+      		category="gda.rcp.arpes"
+            class="uk.ac.gda.arpes.ui.views.MonitoringPanel"
+            icon="icons/sample.gif"
+            id="uk.ac.gda.arpes.ui.monitoringpanel"
+            name="Monitoring"
             restorable="true">
       </view>
    </extension>
