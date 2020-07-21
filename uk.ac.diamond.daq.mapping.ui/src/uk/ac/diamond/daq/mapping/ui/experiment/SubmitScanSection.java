@@ -191,12 +191,8 @@ public class SubmitScanSection extends AbstractMappingSection {
 				searchDialog.open();
 				if (searchDialog.getReturnCode() == Window.OK) {
 					IMappingExperimentBean mappingBean = getMappingBean();
-					if (searchDialog.getItemId() != SearchResultViewDialog.INVALID_ID) {
-						mappingBean.setId(searchDialog.getItemId());
-					} else if (searchDialog.getNewName() != null) {
-						mappingBean.setId(SearchResultViewDialog.INVALID_ID);
-						mappingBean.setDisplayName(searchDialog.getNewName());
-					}
+					mappingBean.setDisplayName(searchDialog.getNewName());
+					mappingBean.setId(searchDialog.getItemId());
 					smController.saveScanAs(mappingBean.getId());
 				}
 			} else {

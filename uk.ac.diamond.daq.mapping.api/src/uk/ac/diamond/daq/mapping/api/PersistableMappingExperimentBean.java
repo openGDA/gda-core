@@ -34,6 +34,7 @@ import uk.ac.diamond.daq.persistence.manager.serializer.ClassLoaderSerialisation
 @Persistable
 public class PersistableMappingExperimentBean {
 	public static final String SCAN_NAME_TITLE = "Scan Name";
+	private static final String idPrefix = "Scan-";
 
 	@Id
 	@JsonProperty
@@ -42,10 +43,6 @@ public class PersistableMappingExperimentBean {
 	@Version
 	@JsonProperty
 	private long version;
-
-	@Listable(value = SCAN_NAME_TITLE, searchResultOrder = 1)
-	@JsonProperty
-	private String scanName;
 
 	@CustomPersistable(ClassLoaderSerialisationMethod.class)
 	@JsonProperty
@@ -61,20 +58,24 @@ public class PersistableMappingExperimentBean {
 		return version;
 	}
 
-	@JsonIgnore
+	@Listable(value = SCAN_NAME_TITLE, searchResultOrder = 1)
+	@JsonProperty
 	public String getScanName() {
-		return scanName;
+		if (mappingBean == null) return null;
+		if (mappingBean.getDisplayName() == null || mappingBean.getDisplayName().isEmpty()) {
+			mappingBean.setDisplayName(idPrefix + getId());
+		}
+		return mappingBean.getDisplayName();
 	}
 
-	@JsonIgnore
 	public void setScanName(String scanName) {
-		this.scanName = scanName;
+		if (mappingBean == null) return;
+		mappingBean.setDisplayName(scanName);
 	}
 
 	@JsonIgnore
 	public IMappingExperimentBean getMappingBean() {
 		mappingBean.setId(id);
-		mappingBean.setDisplayName(scanName);
 		return mappingBean;
 	}
 
@@ -82,6 +83,5 @@ public class PersistableMappingExperimentBean {
 	public void setMappingBean(IMappingExperimentBean mappingBean) {
 		this.mappingBean = mappingBean;
 		this.id = mappingBean.getId();
-		this.scanName = mappingBean.getDisplayName();
 	}
 }
