@@ -47,10 +47,12 @@ import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
  */
 public final class ScanBean extends StatusBean {
 
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = 8191863784268392626L;
+
+	public static final long INVALID_ID = -1;
+
+	// id of the bean, for cross-referencing with mapping bean
+	private long id = INVALID_ID;
 
 	// Field required to start a scan, may be null.
 	private ScanRequest scanRequest;
@@ -179,7 +181,8 @@ public final class ScanBean extends StatusBean {
 
 	@Override
 	public String toString() {
-		return "ScanBean [deviceName=" + deviceName
+		return "ScanBean [id=" + id
+				+ ", deviceName=" + deviceName
 				+ ", beamline=" + beamline
 				+ ", point=" + point
 				+ ", size=" + size
@@ -332,6 +335,14 @@ public final class ScanBean extends StatusBean {
 
 	public void setDeviceName(String deviceName) {
 		this.deviceName = deviceName;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
 	}
 
 	public String toProgressString() {
