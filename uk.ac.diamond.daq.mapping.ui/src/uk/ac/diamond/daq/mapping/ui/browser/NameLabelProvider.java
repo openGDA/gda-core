@@ -28,8 +28,8 @@ import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 
 import gda.rcp.views.Browser;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.ui.experiment.file.IComparableStyledLabelProvider;
-import uk.ac.diamond.daq.mapping.ui.experiment.file.SavedScanMetaData;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 
 /**
@@ -37,12 +37,11 @@ import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
  *
  * @author Maurizio Nagni
  */
-class NameProvider extends LabelProvider implements IComparableStyledLabelProvider {
+public class NameLabelProvider extends LabelProvider implements IComparableStyledLabelProvider {
 
 	@Override
 	public StyledString getStyledText(Object element) {
-		AcquisitionConfigurationResource<SavedScanMetaData> el = (AcquisitionConfigurationResource<SavedScanMetaData>) element;
-		return new StyledString(splitOnDot(MapBrowser.extractSavedScanMetaData(element))[0]);
+		return new StyledString(getURLLastPath(element));
 	}
 
 	@Override
@@ -50,14 +49,19 @@ class NameProvider extends LabelProvider implements IComparableStyledLabelProvid
 		return new ViewerComparator() {
 			@Override
 			public int compare(Viewer viewer, Object element1, Object element2) {
-				String first = splitOnDot(MapBrowser.extractSavedScanMetaData(element1).toString())[0].toLowerCase();
-				String second = splitOnDot(MapBrowser.extractSavedScanMetaData(element2).toString())[0].toLowerCase();
+				String first = getURLLastPath(element1);
+				String second = getURLLastPath(element2);
 
 				Comparator<String> c = Comparator.comparing(String::toString);
 				int direction = ((TreeViewer) viewer).getTree().getSortDirection() == SWT.UP ? 1 : -1;
 				return direction * c.compare(first, second);
 			}
 		};
+	}
+
+	@SuppressWarnings("unchecked")
+	private String getURLLastPath(Object element) {
+		return Browser.getURLLastPathSegment((AcquisitionConfigurationResource<ScanningAcquisition>) element);
 	}
 
 }

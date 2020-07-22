@@ -18,7 +18,10 @@
 
 package uk.ac.diamond.daq.mapping.ui.browser;
 
-import java.util.Comparator;
+import static uk.ac.diamond.daq.mapping.ui.browser.ScanningAcquisitionBrowserBase.getAcquisitionParameters;
+
+import java.util.EnumMap;
+import java.util.Map;
 
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StyledString;
@@ -29,68 +32,56 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 
 import gda.rcp.views.Browser;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ShapeType;
 import uk.ac.diamond.daq.mapping.ui.experiment.file.IComparableStyledLabelProvider;
-import uk.ac.diamond.daq.mapping.ui.experiment.file.SavedScanMetaData;
-import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.images.ClientImages;
 
 /**
- * Extracts from the SavedScanMetaData a value for the shape for a {@link Browser} column.
+ * Extracts from the {@link ScanningParameters} a value for the shape for a {@link Browser} column.
  *
  * @author Maurizio Nagni
  */
-class ShapeProvider extends LabelProvider implements IComparableStyledLabelProvider {
+class ShapeLabelProvider extends LabelProvider implements IComparableStyledLabelProvider {
 
-	private final ClientImages[] ICONS = { ClientImages.POINT, ClientImages.CENTERED_RECTAGLE, ClientImages.CENTERED_RECTAGLE, ClientImages.LINE };
+	private static final Map<ShapeType, ClientImages> ICONS = new EnumMap<>(ShapeType.class);
+
+	static {
+		ICONS.put(ShapeType.POINT, ClientImages.POINT);
+		ICONS.put(ShapeType.LINE, ClientImages.LINE);
+		ICONS.put(ShapeType.CENTRED_RECTANGLE, ClientImages.CENTERED_RECTAGLE);
+	}
 
 	/**
 	 * Return the standard image representing the region shape of the scan or null if there is no matching icon file
 	 */
 	@Override
 	public Image getImage(Object element) {
-		String[] tokens = splitOnDot(extractSavedScanMetaData(element).toString());
-
-		if (tokens.length > 2 && tokens[tokens.length - 2].matches("^S[0-9].*")) {
-			int i = Integer.valueOf(tokens[1].substring(1, 2));
-			return ClientSWTElements.getImage(ICONS[i]);
-		}
-		return null;
+		ScanningParameters parameters = getAcquisitionParameters(element);
+		return ClientSWTElements.getImage(ICONS.get(parameters.getShapeType()));
 	}
 
 	/**
-	 * Dummy implementation returning and empty object
+	 * No text required for this column
 	 */
 	@Override
 	public StyledString getStyledText(Object element) {
 		return new StyledString();
 	}
 
-	/**
-	 * Compares based on the first two characters of the scan definition description string, which are S followed by
-	 * the shape number and the direction indicated by the viewer column
-	 */
 	@Override
 	public ViewerComparator getComparator() {
 		return new ViewerComparator() {
 			@Override
 			public int compare(Viewer viewer, Object element1, Object element2) {
-				String[] first = splitOnDot(extractSavedScanMetaData(element1));
-				String[] second = splitOnDot(extractSavedScanMetaData(element2));
+				ScanningParameters first = getAcquisitionParameters(element1);
+				ScanningParameters second = getAcquisitionParameters(element2);
 
-				if (first.length < 3 || second.length < 3) {
-					return (first.length < second.length) ? 1 : -1;
-				}
-				Comparator<String> c = Comparator.comparing(String::toString);
 				int direction = ((TreeViewer) viewer).getTree().getSortDirection() == SWT.UP ? 1 : -1;
-				return direction
-						* c.compare(penultimateOf(first).substring(0, 2), penultimateOf(second).substring(0, 2));
+				return direction * (first.getShapeType().ordinal() < second.getShapeType().ordinal() ? 1 : -1);
 			}
 		};
-	}
-
-	private SavedScanMetaData extractSavedScanMetaData(Object element) {
-		return ((AcquisitionConfigurationResource<SavedScanMetaData>) element).getResource();
 	}
 
 }
