@@ -31,9 +31,9 @@ public class EnableMappingLiveBackgroundAction {
 		LiveBackgroundAction liveBackgroundAction = new LiveBackgroundAction();
 		PlatformUI.getWorkbench().getService(IMapFileController.class).addListener(df -> {
 			if (helper.isPlotted()) {
-				liveBackgroundAction.updateAction(ActionMode.SHOW);
-			} else {
 				liveBackgroundAction.updateAction(ActionMode.HIDE);
+			} else {
+				liveBackgroundAction.updateAction(ActionMode.SHOW);
 			}
 		});
 	}
