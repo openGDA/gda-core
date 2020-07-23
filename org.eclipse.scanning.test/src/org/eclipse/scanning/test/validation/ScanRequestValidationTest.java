@@ -19,7 +19,6 @@ import java.util.Map;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
-import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.event.scan.ProcessingRequest;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
@@ -30,7 +29,6 @@ import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
-import org.eclipse.scanning.sequencer.analysis.ClusterProcessingRunnableDevice;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,15 +38,9 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 	private ProcessingRequest processingRequest;
 
 	@Before
-	public void setup() throws Exception {
-		final ClusterProcessingModel cmodel = new ClusterProcessingModel();
-		cmodel.setDetectorName(null); // Intentionally not one
-		cmodel.setName("processing");
-		cmodel.setProcessingFilePath(null);
+	public void setup() {
 		final RunnableDeviceServiceImpl runnableDeviceServiceImpl = (RunnableDeviceServiceImpl) ServiceTestHelper
 				.getRunnableDeviceService();
-		runnableDeviceServiceImpl._register(ClusterProcessingModel.class, ClusterProcessingRunnableDevice.class);
-		runnableDeviceServiceImpl.createRunnableDevice(cmodel);
 
 		for (int i = 1; i <= 3; i++) {
 			final String name = "malcolm" + i;

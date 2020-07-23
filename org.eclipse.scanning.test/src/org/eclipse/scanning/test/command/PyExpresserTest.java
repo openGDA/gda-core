@@ -16,6 +16,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,7 @@ import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PointROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolylineROI;
-import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
+import org.eclipse.scanning.api.event.scan.ProcessingRequest;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
@@ -387,13 +388,13 @@ public class PyExpresserTest {
 	@Test
 	public void testScanRequestWithProcessing() throws Exception {
 
-		BoundingBox bbox = new BoundingBox();
+		final BoundingBox bbox = new BoundingBox();
 		bbox.setxAxisStart(0);
 		bbox.setyAxisStart(1);
 		bbox.setxAxisLength(10);
 		bbox.setyAxisLength(11);
 
-		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
+		final TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
 		gmodel.setxAxisName("p");
 		gmodel.setyAxisName("q");
 		gmodel.setBoundingBox(bbox);
@@ -402,30 +403,26 @@ public class PyExpresserTest {
 		gmodel.setContinuous(false);
 		gmodel.setAlternating(false);
 
-		ScanRequest request = new ScanRequest();
+		final ScanRequest request = new ScanRequest();
 		request.setCompoundModel(new CompoundModel(Arrays.asList(gmodel)));
-		Map<String,Object> detectors = new LinkedHashMap<>();
+		final Map<String,Object> detectors = new LinkedHashMap<>();
 		detectors.put("mandelbrot", new MandelbrotModel("p", "q"));
-		detectors.put("processing", new ClusterProcessingModel("processing", "mandelbrot", "/tmp/something.nxs"));
 		request.setDetectors(detectors);
 
-		String mscan = factory.pyExpress(request, false);
-		String expected = "mscan(grid(('p', 'q'), (0, 1), (10, 12), count=(2, 2), False, False, False), [detector('mandelbrot', 0.1), detector('processing', -1.0)])";
+		// Add ProcessingRequest, but the expresser will ignore it
+		final ProcessingRequest processingRequest = new ProcessingRequest();
+		final Map<String, Collection<Object>> processingData = new HashMap<>();
+		processingData.put("dawn", Arrays.asList("/tmp/something.json"));
+		processingRequest.setRequest(processingData);
+		request.setProcessingRequest(processingRequest);
+
+		final String mscan = factory.pyExpress(request, false);
+		final String expected = "mscan(grid(('p', 'q'), (0, 1), (10, 12), count=(2, 2), False, False, False), detector('mandelbrot', 0.1))";
 		assertEquals(expected, mscan);
 
-		mscan = factory.pyExpress(request, true);
-		expected = "mscan(path=[grid(axes=('p', 'q'), start=(0, 1), stop=(10, 12), count=(2, 2), alternating=False, continuous=False, verticalOrientation=False)], det=[detector('mandelbrot', 0.1, maxIterations=500, escapeRadius=10.0, columns=301, rows=241, points=1000, maxRealCoordinate=1.5, maxImaginaryCoordinate=1.2, realAxisName='p', imaginaryAxisName='q', enableNoise=False, noiseFreeExposureTime=5.0, saveImage=True, saveSpectrum=True, saveValue=True), detector('processing', -1.0, detectorName='mandelbrot', processingFilePath='/tmp/something.nxs', xmx='1024m', timeOut=600000, numberOfCores=1, monitorForOverwrite=False)])";
-		assertEquals(expected, mscan);
-	}
-
-	@Test
-	public void testClusterProcessingModel() throws Exception {
-
-		ClusterProcessingModel cmodel = new ClusterProcessingModel("processing", "mandelbrot", "/tmp/something.nxs");
-
-		String detector = factory.pyExpress(cmodel, true);
-		String expected = "detector('processing', -1.0, detectorName='mandelbrot', processingFilePath='/tmp/something.nxs', xmx='1024m', timeOut=600000, numberOfCores=1, monitorForOverwrite=False)";
-		assertEquals(expected, detector);
+		final String mscanVerbose = factory.pyExpress(request, true);
+		final String expectedVerbose = "mscan(path=[grid(axes=('p', 'q'), start=(0, 1), stop=(10, 12), count=(2, 2), alternating=False, continuous=False, verticalOrientation=False)], det=[detector('mandelbrot', 0.1, maxIterations=500, escapeRadius=10.0, columns=301, rows=241, points=1000, maxRealCoordinate=1.5, maxImaginaryCoordinate=1.2, realAxisName='p', imaginaryAxisName='q', enableNoise=False, noiseFreeExposureTime=5.0, saveImage=True, saveSpectrum=True, saveValue=True)])";
+		assertEquals(expectedVerbose, mscanVerbose);
 	}
 
 	@Test

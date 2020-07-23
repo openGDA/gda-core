@@ -34,7 +34,6 @@ import org.eclipse.scanning.server.servlet.ScanServlet;
 import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.eclipse.scanning.test.scan.nexus.ScanClusterProcessingChecker;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -240,19 +239,6 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 			assertEquals(1, startEvents.size());
 
 			Thread.sleep(100);
-
-			// Do Some checking
-			ScanClusterProcessingChecker checker = new ScanClusterProcessingChecker(fileFactory, pjobQueue);
-			checker.setDetectorName(mainDetectorName);
-			checker.setProcessingName(processingDetectorName);
-			checker.setScannableNames(Arrays.asList("xNex", "yNex"));
-			checker.setFilePath(path);
-
-			// Check the main nexus file
-			checker.checkNexusFile(2, 2);
-
-			// Check the processing bean was submitted successfully
-			checker.checkSubmittedBean(true);
 
 			return beans;
 

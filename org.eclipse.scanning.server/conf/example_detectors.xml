@@ -105,23 +105,4 @@
         <property name="bundle"   value="org.eclipse.scanning.example" /> <!-- Delete for real spring? -->
 	</bean>
 
-	<!--  Processing On Cluster -->
-	<bean id="clusterProcessing" class="org.eclipse.scanning.api.device.models.ClusterProcessingModel">
-		<property name="name"           value="processing"/>
-		<property name="detectorName"   value="mandelbrot"/>
-        <property name="bundle"   value="org.eclipse.scanning.api" /> <!-- Delete for real spring? -->
-    </bean>
-	<bean id="clusterProcessingInfo" class="org.eclipse.scanning.api.event.scan.DeviceInformation">
-		<property name="label"       value="Processing"/>
-		<property name="description" value="A device which submits a job to execute results processing. This is usually done on the cluster."/>
-		<property name="icon"        value="org.eclipse.scanning.sequencer/icons/processing.png"/>
-	</bean>
-	<bean id="clusterProcessingDevice" class="org.eclipse.scanning.sequencer.analysis.ClusterProcessingRunnableDevice" init-method="register">
-		<property name="name"              value="processing"/>
-		<property name="model"             ref="clusterProcessing"/>
-		<property name="deviceInformation" ref="clusterProcessingInfo"/>
-		<property name="activated"         value="false"/> <!-- This means it is activated as the default device to use in a scan -->
-        <property name="bundle"   value="org.eclipse.scanning.sequencer" /> <!-- Delete for real spring? -->
-	</bean>
-
 </beans>

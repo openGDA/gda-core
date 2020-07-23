@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IClassRegistry;
-import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.GenericModel;
 import org.eclipse.scanning.api.event.scan.AcquireRequest;
 import org.eclipse.scanning.api.event.scan.DeviceRequest;
@@ -130,9 +129,6 @@ public class ScanningAPIClassRegistry implements IClassRegistry {
 
 		// scan.event
 		registerClass(tmp, Location.class);
-
-		// device.models
-		registerClass(tmp, ClusterProcessingModel.class);
 
 		// script
 		registerClass(tmp, ScriptLanguage.class);
