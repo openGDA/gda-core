@@ -40,7 +40,6 @@ public class MappingUIClassRegistry implements IClassRegistry {
 		Map<String, Class<?>> tmp = new HashMap<>();
 
 		registerClass(tmp, DetectorModelWrapper.class);
-		registerClass(tmp, ClusterProcessingModelWrapper.class);
 		registerClass(tmp, ScanPathModelWrapper.class);
 		registerClass(tmp, MappingScanDefinition.class);
 		registerClass(tmp, MappingScanRegion.class);

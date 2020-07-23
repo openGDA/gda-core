@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.ui.IStageScanConfiguration;
 
@@ -25,7 +24,6 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	private String displayName;
 	private SimpleSampleMetadata sampleMetadata;
 	private List<IScanModelWrapper<IDetectorModel>> detectorParameters = null;
-	private List<IScanModelWrapper<ClusterProcessingModel>> clusterProcessingConfiguration = null;
 	private Map<String, Object> beamlineConfiguration = null;
 	private IScanDefinition scanDefinition;
 	private IScriptFiles scriptFiles = null;
@@ -213,8 +211,6 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 		int result = 1;
 		result = prime * result + ((alternativeDirectory == null) ? 0 : alternativeDirectory.hashCode());
 		result = prime * result + ((beamlineConfiguration == null) ? 0 : beamlineConfiguration.hashCode());
-		result = prime * result
-				+ ((clusterProcessingConfiguration == null) ? 0 : clusterProcessingConfiguration.hashCode());
 		result = prime * result + ((detectorParameters == null) ? 0 : detectorParameters.hashCode());
 		result = prime * result + ((displayName == null) ? 0 : displayName.hashCode());
 		result = prime * result + (int) (id ^ (id >>> 32));
@@ -248,11 +244,6 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 			if (other.beamlineConfiguration != null)
 				return false;
 		} else if (!beamlineConfiguration.equals(other.beamlineConfiguration))
-			return false;
-		if (clusterProcessingConfiguration == null) {
-			if (other.clusterProcessingConfiguration != null)
-				return false;
-		} else if (!clusterProcessingConfiguration.equals(other.clusterProcessingConfiguration))
 			return false;
 		if (detectorParameters == null) {
 			if (other.detectorParameters != null)
@@ -314,8 +305,7 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	@Override
 	public String toString() {
 		return "MappingExperimentBean [id=" + id + ", displayName=" + displayName + ", sampleMetadata=" + sampleMetadata
-				+ ", detectorParameters=" + detectorParameters + ", clusterProcessingConfiguration="
-				+ clusterProcessingConfiguration + ", beamlineConfiguration=" + beamlineConfiguration
+				+ ", detectorParameters=" + detectorParameters + ", beamlineConfiguration=" + beamlineConfiguration
 				+ ", scanDefinition=" + scanDefinition + ", scriptFiles=" + scriptFiles + ", perScanMonitorNames="
 				+ perScanMonitorNames + ", perPointMonitorNames=" + perPointMonitorNames + ", stageInfoSnapshot="
 				+ stageInfoSnapshot + ", processingConfigs=" + processingConfigs + ", templateFilePaths="

@@ -29,7 +29,6 @@ import java.util.Map;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.json.MarshallerService;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
-import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
@@ -44,7 +43,6 @@ import uk.ac.diamond.daq.mapping.api.ConfigWrapper;
 import uk.ac.diamond.daq.mapping.api.ILineMappingRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IScanDefinition;
-import uk.ac.diamond.daq.mapping.impl.ClusterProcessingModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 import uk.ac.diamond.daq.mapping.impl.MappingScanDefinition;
@@ -124,22 +122,6 @@ public class MappingUISerializationTest {
 		model.setMaxIterations(1);
 		model.setExposureTime(0.0);
 		return model;
-	}
-
-	@Test
-	public void testSerializeClusterProcessingModelWrapper() throws Exception {
-		ClusterProcessingModel model = new ClusterProcessingModel();
-		model.setName("processing");
-		model.setDetectorName("mandelbrot");
-		model.setProcessingFilePath("/path/to/processing.file");
-
-		ClusterProcessingModelWrapper wrapper = new ClusterProcessingModelWrapper(
-				"Cluster Processing", model, true);
-
-		String json = service.marshal(wrapper);
-		ClusterProcessingModelWrapper newWrapper = service.unmarshal(json, ClusterProcessingModelWrapper.class);
-
-		assertEquals(wrapper, newWrapper);
 	}
 
 	@Test
