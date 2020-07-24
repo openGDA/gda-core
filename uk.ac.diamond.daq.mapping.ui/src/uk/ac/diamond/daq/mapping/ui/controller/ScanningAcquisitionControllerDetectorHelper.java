@@ -37,18 +37,18 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.ui.properties.DetectorHelper;
 import uk.ac.diamond.daq.mapping.ui.properties.DetectorHelper.AcquisitionType;
+import uk.ac.diamond.daq.mapping.ui.properties.DetectorPropertiesDocument;
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraControllerEvent;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.properties.CameraProperties;
-import uk.ac.gda.client.properties.DetectorProperties;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
  * Keeps a @{@link ScanningAcquisition}'s {@link DetectorDocument} section, updated with the referred detectors.
  * <p>
- * Each {@link AcquisitionType} refers to a list {@link DetectorProperties} which are enough to
+ * Each {@link AcquisitionType} refers to a list {@link DetectorPropertiesDocument} which are enough to
  * <ul>
  * <li>identify the relative {@link CameraControl}s, add an {@link IObserver} to it and on change publish the
  * {@code ScanninsAcquisition}, in Spring, {@link ScanningAcquisitionEvent}</li>
@@ -72,7 +72,7 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 class ScanningAcquisitionControllerDetectorHelper {
 	private static final Logger logger = LoggerFactory.getLogger(ScanningAcquisitionControllerDetectorHelper.class);
 
-	private final List<DetectorProperties> detectorProperties;
+	private final List<DetectorPropertiesDocument> detectorProperties;
 	private final Supplier<ScanningAcquisition> acquisitionSupplier;
 
 	/**
@@ -101,7 +101,7 @@ class ScanningAcquisitionControllerDetectorHelper {
 		if (detectorProperties.isEmpty())
 			return;
 		int index = 0; // in future may be parametrised
-		DetectorProperties dp = detectorProperties.get(index);
+		DetectorPropertiesDocument dp = detectorProperties.get(index);
 
 		camerasControls = new ArrayList<>();
 		dp.getCameras().stream().map(CameraHelper::getCameraPropertiesByID)

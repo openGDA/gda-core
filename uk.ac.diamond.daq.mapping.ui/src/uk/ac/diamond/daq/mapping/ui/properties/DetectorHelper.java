@@ -20,7 +20,6 @@ import org.springframework.util.StringUtils;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.client.properties.CameraProperties;
-import uk.ac.gda.client.properties.DetectorProperties;
 
 /**
  * Hides the configuration structural design. A typical configuration defining a camera would look like below
@@ -72,10 +71,10 @@ public final class DetectorHelper {
 		DEFAULT
 	}
 
-	private static final List<DetectorProperties> detectorProperties = new ArrayList<>();
-	private static final Map<String, DetectorProperties> detectorPropertiesByID = new HashMap<>();
+	private static final List<DetectorPropertiesDocument> detectorProperties = new ArrayList<>();
+	private static final Map<String, DetectorPropertiesDocument> detectorPropertiesByID = new HashMap<>();
 
-	private static final Map<AcquisitionType, List<DetectorProperties>> acquisitionDetectors = new EnumMap<>(
+	private static final Map<AcquisitionType, List<DetectorPropertiesDocument>> acquisitionDetectors = new EnumMap<>(
 			AcquisitionType.class);
 
 	static {
@@ -92,13 +91,13 @@ public final class DetectorHelper {
 	}
 
 	/**
-	 * Returns the {@link DetectorProperties} associated with this acquisition.
+	 * Returns the {@link DetectorPropertiesDocument} associated with this acquisition.
 	 *
 	 * @param acquisitionType
 	 *            the required acquisition type
 	 * @return an array of dete
 	 */
-	public static Optional<List<DetectorProperties>> getAcquistionDetector(AcquisitionType acquisitionType) {
+	public static Optional<List<DetectorPropertiesDocument>> getAcquistionDetector(AcquisitionType acquisitionType) {
 		if (acquisitionDetectors.get(acquisitionType).isEmpty()) {
 			return Optional.empty();
 		}
@@ -121,25 +120,26 @@ public final class DetectorHelper {
 	}
 
 	private static void parseDetectorProperties(int index) {
-		DetectorPropertiesBuilder builder = new DetectorPropertiesBuilder();
-		builder.setIndex(index);
-		builder.setId(getId(DETECTOR_PREFIX, index));
-		builder.setName(getNameProperty(DETECTOR_PREFIX, index));
-		builder.setDetectorBean(getConfigurationBeanProperty(DETECTOR_PREFIX, index));
+		DetectorPropertiesDocument.Builder builder = new DetectorPropertiesDocument.Builder();
+
+		builder.withIndex(index);
+		builder.withId(getId(DETECTOR_PREFIX, index));
+		builder.withName(getNameProperty(DETECTOR_PREFIX, index));
+		builder.withDetectorBean(getConfigurationBeanProperty(DETECTOR_PREFIX, index));
 
 		HashSet<String> cameras = new HashSet<>();
 		Arrays.asList(getStringArrayProperty(DETECTOR_PREFIX, index, "cameras")).stream().map(String::trim)
 				.filter(s -> !s.isEmpty()).forEach(cameras::add);
-		builder.setCameras(cameras);
+		builder.withCameras(cameras);
 
-		DetectorProperties cp = builder.build();
-		cp.getId().ifPresent(id -> detectorPropertiesByID.putIfAbsent(id, cp));
+		DetectorPropertiesDocument cp = builder.build();
+		Optional.ofNullable(cp.getId()).ifPresent(id -> detectorPropertiesByID.putIfAbsent(id, cp));
 		detectorProperties.add(cp);
 	}
 
 	private static void getAcquisitionDetectors(AcquisitionType acquisitionType) {
 		String acqKey = acquisitionType.name().toLowerCase();
-		List<DetectorProperties> detectorsProperties = new ArrayList<>();
+		List<DetectorPropertiesDocument> detectorsProperties = new ArrayList<>();
 		String[] detectors = LocalProperties
 				.getStringArray(formatAcquisitionDetectorKey("client", acqKey, "detectors"));
 		acquisitionDetectors.put(acquisitionType, detectorsProperties);
