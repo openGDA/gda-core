@@ -77,12 +77,12 @@ public class KnownModelsTest extends ShellTest{
 	}
 
 	@Test
-	public void checkShell() throws Exception {
+	public void checkShell() {
 		assertNotNull(bot.shell("Point Model"));
 	}
 
 	@Test
-	public void testVariousPointsModels() throws Exception {
+	public void testVariousPointsModels() {
 		assertNotNull(bot.shell("Point Model"));
 
 		List<ModelTest> models = createTestPointsModels();
@@ -118,7 +118,7 @@ public class KnownModelsTest extends ShellTest{
 	}
 
 	@Test
-	public void testVariousDetectorModels() throws Exception {
+	public void testVariousDetectorModels() {
 		assertNotNull(bot.shell("Point Model"));
 
 		List<ModelTest> models = createTestDetectorModels();
@@ -127,32 +127,26 @@ public class KnownModelsTest extends ShellTest{
 	}
 
 	private List<ModelTest> createTestDetectorModels() {
-		List<ModelTest> models = new ArrayList<>();
+		final List<ModelTest> models = new ArrayList<>();
 		models.add(new ModelTest(new MandelbrotModel("x", "y"), 17));
-		models.add(new ModelTest(new DarkImageModel(), 4));
+		models.add(new ModelTest(new DarkImageModel(), 6));
 		models.add(new ModelTest(new ConstantVelocityModel(), 9));
 		return models;
 	}
 
 	private class ModelTest {
-		private Object model;
-		private int fieldCount;
+		private final Object model;
+		private final int fieldCount;
+
 		public ModelTest(Object model, int fieldCount) {
-			super();
 			this.model = model;
 			this.fieldCount = fieldCount;
 		}
 		public Object getModel() {
 			return model;
 		}
-		public void setModel(Object model) {
-			this.model = model;
-		}
 		public int getFieldCount() {
 			return fieldCount;
-		}
-		public void setFieldCount(int fieldCount) {
-			this.fieldCount = fieldCount;
 		}
 	}
 

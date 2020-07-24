@@ -70,6 +70,7 @@ import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IPausableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IDeviceWatchdogModel;
 import org.eclipse.scanning.api.device.models.TopupWatchdogModel;
 import org.eclipse.scanning.api.event.EventException;
@@ -200,7 +201,7 @@ public class ScanProcessTest {
 		cmodel.setRegions(Arrays.asList(new ScanRegion(new RectangularROI(0, 0, 3, 3, 0), "xNex", "yNex")));
 		scanRequest.setCompoundModel(cmodel);
 
-		final Map<String, Object> dmodels = new HashMap<String, Object>(3);
+		final Map<String, IDetectorModel> dmodels = new HashMap<>(3);
 		final MandelbrotModel model = new MandelbrotModel("xNex", "yNex");
 		model.setName("mandelbrot");
 		model.setExposureTime(0.001);
@@ -605,7 +606,7 @@ public class ScanProcessTest {
 		cmodel.setRegions(Arrays.asList(new ScanRegion(new RectangularROI(0, 0, 3, 3, 0), "xNex", "yNex")));
 		scanRequest.setCompoundModel(cmodel);
 
-		final Map<String, Object> dmodels = new HashMap<String, Object>(3);
+		final Map<String, IDetectorModel> dmodels = new HashMap<>(3);
 		final MandelbrotModel model = new MandelbrotModel("xNex", "yNex");
 		model.setName("mandelbrot");
 		model.setExposureTime(0.001);
@@ -767,7 +768,7 @@ public class ScanProcessTest {
 		final ScanBean scanBean = new ScanBean();
 		final ScanRequest scanRequest = new ScanRequest();
 
-		final Map<String, Object> dmodels = new HashMap<String, Object>(3);
+		final Map<String, IDetectorModel> dmodels = new HashMap<>(3);
 		final MandelbrotModel model = new MandelbrotModel("xNex", "yNex");
 		model.setName("mandelbrot");
 		model.setExposureTime(1.0);

@@ -73,7 +73,7 @@ public class ScanInformationTest {
 		IPointGenerator<CompoundModel> pointGen = pointGenService.createCompoundGenerator(compoundModel);
 
 		String filePath = "/path/to/nexusFile.nxs";
-		Collection<Object> detModels = createDetectorModels().values();
+		Collection<IDetectorModel> detModels = createDetectorModels().values();
 
 		ScanInformation scanInfo = new ScanInformation(pointGen, detModels, filePath);
 		checkScanInfo(scanInfo);
@@ -91,7 +91,7 @@ public class ScanInformationTest {
 		return compoundModel;
 	}
 
-	private Map<String, Object> createDetectorModels() {
+	private Map<String, IDetectorModel> createDetectorModels() {
 		List<IDetectorModel> detModels = new ArrayList<>();
 		detModels.add(new SimpleDetectorModel("det1", 0.5));
 		detModels.add(new SimpleDetectorModel("det2", 1.5));

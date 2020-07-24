@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
@@ -62,7 +63,7 @@ public class ScanRequest implements Serializable {
 	/**
 	 * Map the names of the detectors used in the scan to their respective models
 	 */
-	private Map<String, Object> detectors = new HashMap<>(); // not emptyMap as we have a put method
+	private Map<String, IDetectorModel> detectors = new HashMap<>(); // not emptyMap as we have a put method
 
 	/**
 	 * The names of monitors in the scan
@@ -311,16 +312,16 @@ public class ScanRequest implements Serializable {
 				+ processingRequest + "]";
 	}
 
-	public Map<String, Object> getDetectors() {
+	public Map<String, IDetectorModel> getDetectors() {
 		if (detectors == null) return Collections.emptyMap();
 		return detectors;
 	}
 
-	public void setDetectors(Map<String, Object> detectors) {
+	public void setDetectors(Map<String, IDetectorModel> detectors) {
 		this.detectors = detectors;
 	}
 
-	public void putDetector(String name, Object dmodel) {
+	public void putDetector(String name, IDetectorModel dmodel) {
 		if (detectors==null) detectors = new HashMap<>(3);
 		detectors.put(name, dmodel);
 	}

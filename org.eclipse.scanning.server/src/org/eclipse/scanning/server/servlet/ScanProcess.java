@@ -38,6 +38,7 @@ import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IPausableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IBeanProcess;
 import org.eclipse.scanning.api.event.core.IPublisher;
@@ -543,7 +544,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		scanModel.setAdditionalScanObjects(getNexusDevices(metadataNamesByIsScannable.get(false)));
 	}
 
-	private void configureDetectors(Map<String, Object> detectorModels, ScanModel model) throws Exception {
+	private void configureDetectors(Map<String, IDetectorModel> detectorModels, ScanModel model) throws Exception {
 		if (detectorModels == null || detectorModels.isEmpty()) {
 			logger.debug("No detectors to configure");
 			return;

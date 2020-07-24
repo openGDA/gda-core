@@ -51,7 +51,7 @@ public class ScanInformation {
 		this(pointGen, scanRequest.getDetectors().values(), scanRequest.getFilePath());
 	}
 
-	public ScanInformation(IPointGenerator<?> pointGen, Collection<Object> detectorModels, String filePath) throws GeneratorException {
+	public ScanInformation(IPointGenerator<?> pointGen, Collection<IDetectorModel> detectorModels, String filePath) throws GeneratorException {
 		boolean isMalcolmScan = detectorModels.stream().anyMatch(IMalcolmModel.class::isInstance);
 		this.scanMode = isMalcolmScan ? ScanMode.HARDWARE : ScanMode.SOFTWARE;
 
@@ -63,8 +63,7 @@ public class ScanInformation {
 
 		// the time per point is the maximum exposure time of a detector
 		this.timePerPoint = detectorModels.stream()
-				.filter(IDetectorModel.class::isInstance)
-				.map(IDetectorModel.class::cast)
+				.filter(m -> m != null)
 				.mapToDouble(IDetectorModel::getExposureTime)
 				.map(e -> e * 1000)
 				.mapToLong(Math::round)

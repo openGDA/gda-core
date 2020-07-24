@@ -19,6 +19,7 @@ import java.util.Map;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ProcessingRequest;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
@@ -34,6 +35,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ScanRequestValidationTest extends AbstractValidationTest {
+
+	private final IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 
 	private ProcessingRequest processingRequest;
 
@@ -133,8 +136,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		ScanRequest req = createScanRequest();
 
-		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
-		req.putDetector("mandelbrot", dservice.getDeviceInformation("mandelbrot").getModel());
+		req.putDetector("mandelbrot", getDetectorModel("mandelbrot"));
 		req.setProcessingRequest(processingRequest);
 
 		validator.validate(req);
@@ -145,9 +147,8 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		final ScanRequest req = createScanRequest();
 
-		final IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
-		req.putDetector("mandelbrot", dservice.getDeviceInformation("mandelbrot").getModel());
-		req.putDetector("dkExmpl", dservice.getDeviceInformation("dkExmpl").getModel());
+		req.putDetector("mandelbrot", getDetectorModel("mandelbrot"));
+		req.putDetector("dkExmpl", getDetectorModel("dkExmpl"));
 		req.setProcessingRequest(processingRequest);
 
 		validator.validate(req);
@@ -158,9 +159,8 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		final ScanRequest req = createScanRequest();
 
-		final IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
-		req.putDetector("mandelbrot", dservice.getDeviceInformation("mandelbrot").getModel());
-		req.putDetector("malcolm",    dservice.getDeviceInformation("malcolm").getModel());
+		req.putDetector("mandelbrot", getDetectorModel("mandelbrot"));
+		req.putDetector("malcolm", getDetectorModel("malcolm"));
 
 		validator.validate(req);
 	}
@@ -170,9 +170,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		final ScanRequest req = createScanRequest();
 
-		final IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
-
-		req.putDetector("malcolm",    dservice.getDeviceInformation("malcolm").getModel());
+		req.putDetector("malcolm", getDetectorModel("malcolm"));
 		req.setProcessingRequest(processingRequest);
 
 		validator.validate(req);
@@ -183,10 +181,8 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		final ScanRequest req = createScanRequest();
 
-		final IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
-
-		req.putDetector("malcolm", dservice.getDeviceInformation("malcolm").getModel());
-		req.putDetector("dummyMalcolmTriggered", dservice.getDeviceInformation("dummyMalcolmTriggered").getModel());
+		req.putDetector("malcolm", getDetectorModel("malcolm"));
+		req.putDetector("dummyMalcolmTriggered", getDetectorModel("dummyMalcolmTriggered"));
 
 		validator.validate(req);
 	}
@@ -196,11 +192,9 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		final ScanRequest req = createScanRequest();
 
-		final IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
-
-		req.putDetector("mandelbrot", dservice.getDeviceInformation("mandelbrot").getModel());
-		req.putDetector("malcolm", dservice.getDeviceInformation("malcolm").getModel());
-		req.putDetector("dummyMalcolmTriggered", dservice.getDeviceInformation("dummyMalcolmTriggered").getModel());
+		req.putDetector("mandelbrot", getDetectorModel("mandelbrot"));
+		req.putDetector("malcolm", getDetectorModel("malcolm"));
+		req.putDetector("dummyMalcolmTriggered", getDetectorModel("dummyMalcolmTriggered"));
 
 		validator.validate(req);
 	}
@@ -210,10 +204,8 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		final ScanRequest req = createScanRequest();
 
-		final IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
-
-		req.putDetector("malcolm", dservice.getDeviceInformation("malcolm").getModel());
-		req.putDetector("dummyMalcolmTriggered", dservice.getDeviceInformation("dummyMalcolmTriggered").getModel());
+		req.putDetector("malcolm", getDetectorModel("malcolm"));
+		req.putDetector("dummyMalcolmTriggered", getDetectorModel("dummyMalcolmTriggered"));
 		req.setProcessingRequest(processingRequest);
 
 		validator.validate(req);
@@ -224,9 +216,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		final ScanRequest req = createScanRequest();
 
-		final IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
-
-		req.putDetector("dummyMalcolmTriggered", dservice.getDeviceInformation("dummyMalcolmTriggered").getModel());
+		req.putDetector("dummyMalcolmTriggered", getDetectorModel("dummyMalcolmTriggered"));
 
 		validator.validate(req);
 	}
@@ -235,8 +225,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 	public void aHardwareOrSoftwareTriggered() throws Exception {
 		final ScanRequest req = createScanRequest();
 
-		final IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
-		req.putDetector("dummyHardwareOrSoftwareTriggered", dservice.getDeviceInformation("dummyMalcolmTriggered").getModel());
+		req.putDetector("dummyHardwareOrSoftwareTriggered", getDetectorModel("dummyMalcolmTriggered"));
 
 		validator.validate(req);
 	}
@@ -246,10 +235,8 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		final ScanRequest req = createScanRequest();
 
-		final IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
-
-		req.putDetector("malcolm", dservice.getDeviceInformation("malcolm").getModel());
-		req.putDetector("dummyHardwareOrSoftwareTriggered", dservice.getDeviceInformation("dummyMalcolmTriggered").getModel());
+		req.putDetector("malcolm", getDetectorModel("malcolm"));
+		req.putDetector("dummyHardwareOrSoftwareTriggered", getDetectorModel("dummyMalcolmTriggered"));
 
 		validator.validate(req);
 	}
@@ -258,9 +245,8 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 	public void twoMalcolms() throws Exception {
 		final ScanRequest req = createScanRequest();
 
-		final IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
-		req.putDetector("malcolm1",    dservice.getDeviceInformation("malcolm").getModel());
-		req.putDetector("malcolm2",    dservice.getDeviceInformation("malcolm").getModel());
+		req.putDetector("malcolm1", getDetectorModel("malcolm"));
+		req.putDetector("malcolm2", getDetectorModel("malcolm"));
 
 		validator.validate(req);
 	}
@@ -270,10 +256,9 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		final ScanRequest req = createScanRequest();
 
-		final IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
-		req.putDetector("malcolm1",    dservice.getDeviceInformation("malcolm").getModel());
-		req.putDetector("malcolm2",    dservice.getDeviceInformation("malcolm").getModel());
-		req.putDetector("malcolm3",    dservice.getDeviceInformation("malcolm").getModel());
+		req.putDetector("malcolm1", getDetectorModel("malcolm"));
+		req.putDetector("malcolm2", getDetectorModel("malcolm"));
+		req.putDetector("malcolm3", getDetectorModel("malcolm"));
 
 		validator.validate(req);
 	}
@@ -285,5 +270,9 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		final ScanRequest req = new ScanRequest();
 		req.setCompoundModel(cmodel);
         return req;
+	}
+
+	private IDetectorModel getDetectorModel(String name) throws Exception {
+		return (IDetectorModel) dservice.getDeviceInformation(name).getModel();
 	}
 }

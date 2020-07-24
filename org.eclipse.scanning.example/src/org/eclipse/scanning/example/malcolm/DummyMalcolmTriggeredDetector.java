@@ -37,6 +37,7 @@ import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.annotation.scan.ScanStart;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.ScanMode;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -114,8 +115,8 @@ public class DummyMalcolmTriggeredDetector<T extends DummyMalcolmTriggeredModel>
 		// We need to get the malcolm device so that we can listen to it as a position listener
 		// this simulates receving hardware triggers, so a real hardware triggered detector doesn't
 		// need to do this.
-		Map<String, Object> detectorMap = scanBean.getScanRequest().getDetectors();
-		for (Entry<String, Object> detectorEntry : detectorMap.entrySet()) {
+		final Map<String, IDetectorModel> detectorMap = scanBean.getScanRequest().getDetectors();
+		for (Entry<String, IDetectorModel> detectorEntry : detectorMap.entrySet()) {
 			if (detectorEntry.getValue() instanceof DummyMalcolmModel) {
 				IRunnableDevice<?> runnableDevice = getRunnableDeviceService().getRunnableDevice(
 						detectorEntry.getKey());

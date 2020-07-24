@@ -26,6 +26,7 @@ import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.DeviceRole;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.device.models.ScanMode;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
@@ -53,7 +54,7 @@ class ScanRequestValidator implements IValidator<ScanRequest> {
 			throw new ModelValidationException("There is no compound model available", req, "compoundModel");
 		}
 		try {
-			Map<String, Object> dmodels = req.getDetectors();
+			final Map<String, IDetectorModel> dmodels = req.getDetectors();
 			if (dmodels!=null && !dmodels.isEmpty()) { // No detectors is allowed.
 				validateMalcolmRules(dmodels);
 				validateDetectors(dmodels);
@@ -65,7 +66,7 @@ class ScanRequestValidator implements IValidator<ScanRequest> {
 		}
 	}
 
-	private void validateAnnotations(Map<String, Object> dmodels) throws ValidationException, ScanningException {
+	private void validateAnnotations(Map<String, IDetectorModel> dmodels) throws ValidationException, ScanningException {
 		for (Object model : dmodels.values()) {
 			// If the model has an annotated field which points at
 			// a detector, that detector must be in the scan.
@@ -89,7 +90,7 @@ class ScanRequestValidator implements IValidator<ScanRequest> {
 		}
 	}
 
-	private void validateMalcolmRules(Map<String, Object> dmodels) throws ValidationException, ScanningException {
+	private void validateMalcolmRules(Map<String, IDetectorModel> dmodels) throws ValidationException, ScanningException {
 		// we can't validate without a validation service
 		IRunnableDeviceService runnableDeviceService = ValidatorService.getRunnableDeviceService();
 		if (runnableDeviceService == null) return;
@@ -100,7 +101,7 @@ class ScanRequestValidator implements IValidator<ScanRequest> {
 
 		// check each detector supports the scan mode and that there is at most one malcolm device
 		int numMalcolmDevices = 0;
-		for (Entry<String, Object> entry : dmodels.entrySet()) {
+		for (Entry<String, IDetectorModel> entry : dmodels.entrySet()) {
 			DeviceRole role = checkDetectorAndGetRole(runnableDeviceService, scanMode, entry.getKey(), entry.getValue());
 			if (role == DeviceRole.MALCOLM) {
 				numMalcolmDevices++;
@@ -133,7 +134,7 @@ class ScanRequestValidator implements IValidator<ScanRequest> {
 		}
 	}
 
-	private void validateDetectors(Map<String, Object> dmodels) throws ValidationException {
+	private void validateDetectors(Map<String, IDetectorModel> dmodels) throws ValidationException {
 		// All the models must validate too
 		for (Object model : dmodels.values()) {
 			IValidator<Object> validator = vservice.getValidator(model);

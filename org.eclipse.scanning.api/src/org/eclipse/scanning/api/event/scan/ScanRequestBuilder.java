@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
@@ -58,7 +59,7 @@ public class ScanRequestBuilder {
 
 	private IScanPointGeneratorModel model;
 
-	private Map<String, Object> detectors = new HashMap<>();
+	private Map<String, IDetectorModel> detectors = new HashMap<>();
 
 	private Collection<String> monitorNamesPerPoint = Collections.emptyList();
 	private Collection<String> monitorNamesPerScan = Collections.emptyList();
@@ -98,7 +99,7 @@ public class ScanRequestBuilder {
 	private void setValue(String field, Object value) {
 		try {
 			if (field.equals(DETECTORS)) {
-				withDetectors((Map<String, Object>) value);
+				withDetectors((Map<String, IDetectorModel>) value);
 			} else if (field.equals(MONITOR_NAMES_PER_POINT)) {
 				withMonitorNamesPerPoint((Collection<String>) value);
 			} else if (field.equals(MONITOR_NAMES_PER_SCAN)) {
@@ -132,7 +133,7 @@ public class ScanRequestBuilder {
 		}
 	}
 
-	public ScanRequestBuilder withDetectors(Map<String, Object> detectors) {
+	public ScanRequestBuilder withDetectors(Map<String, IDetectorModel> detectors) {
 		this.detectors = detectors;
 		return this;
 	}

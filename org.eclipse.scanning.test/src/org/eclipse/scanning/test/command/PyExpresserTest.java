@@ -25,6 +25,7 @@ import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PointROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolylineROI;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ProcessingRequest;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
@@ -405,7 +406,7 @@ public class PyExpresserTest {
 
 		final ScanRequest request = new ScanRequest();
 		request.setCompoundModel(new CompoundModel(Arrays.asList(gmodel)));
-		final Map<String,Object> detectors = new LinkedHashMap<>();
+		final Map<String,IDetectorModel> detectors = new LinkedHashMap<>();
 		detectors.put("mandelbrot", new MandelbrotModel("p", "q"));
 		request.setDetectors(detectors);
 

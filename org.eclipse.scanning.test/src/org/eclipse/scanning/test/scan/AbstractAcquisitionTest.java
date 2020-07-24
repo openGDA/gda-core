@@ -96,20 +96,20 @@ public abstract class AbstractAcquisitionTest {
 		return createTestScanner(monitor, null, null, 2);
 	}
 
-	protected <T> IDeviceController createTestScanner(IScannable<?> monitor, IRunnableDevice<T> device, T dmodel, int dims) throws Exception {
+	protected <T extends IDetectorModel> IDeviceController createTestScanner(IScannable<?> monitor, IRunnableDevice<T> device, T dmodel, int dims) throws Exception {
 		return createTestScanner(monitor, null, device, dmodel, dims, null, null);
 	}
 
-	protected <T> IDeviceController createTestScanner(IRunnableDevice<T> device, double exposureTime, List<String> axisNames, String filePath) throws Exception {
+	protected <T extends IDetectorModel> IDeviceController createTestScanner(IRunnableDevice<T> device, double exposureTime, List<String> axisNames, String filePath) throws Exception {
 
-		if (device.getModel()!=null && device.getModel() instanceof IDetectorModel) {
-			((IDetectorModel)device.getModel()).setExposureTime(exposureTime);
+		if (device.getModel() != null) {
+			device.getModel().setExposureTime(exposureTime);
 		}
 		return createTestScanner(null, null, device, null, 2, axisNames, filePath);
 	}
 
-    protected <T> IDeviceController createTestScanner(IScannable<?>     monitorPerPoint,
-		                                         IScannable<?>     monitorPerScan,
+    protected <T extends IDetectorModel> IDeviceController createTestScanner(IScannable<?> monitorPerPoint,
+		                                         IScannable<?> monitorPerScan,
 		                                         IRunnableDevice<T> device,
 		                                         T detModel,
 		                                         int dims,

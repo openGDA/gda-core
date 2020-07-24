@@ -50,6 +50,7 @@ import org.eclipse.scanning.api.device.IPausableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IScanDevice;
 import org.eclipse.scanning.api.device.models.DeviceRole;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.ScanMode;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
@@ -536,7 +537,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		ScanInformation scanInfo = getModel().getScanInformation();
 		if (scanInfo == null) {
 			try {
-				List<Object> detectorModels = getModel().getDetectors().stream()
+				@SuppressWarnings("unchecked")
+				final List<IDetectorModel> detectorModels = (List<IDetectorModel>) getModel().getDetectors().stream()
 						.map(IRunnableDevice::getModel).collect(toList());
 				scanInfo = new ScanInformation(getModel().getPointGenerator(), detectorModels, getModel().getFilePath());
 			} catch (GeneratorException e) {

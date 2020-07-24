@@ -21,6 +21,7 @@ import org.eclipse.scanning.api.annotation.scan.PostConfigure;
 import org.eclipse.scanning.api.annotation.scan.PreConfigure;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IRequestHandler;
@@ -89,7 +90,7 @@ public class AcquireRequestHandler implements IRequestHandler<AcquireRequest> {
 		}
 
 		final ScanModel scanModel = createScanModel(request, detector);
-		configureDetector(detector, request.getDetectorModel(), scanModel, scanModel.getPointGenerator());
+		configureDetector(detector, (IDetectorModel) request.getDetectorModel(), scanModel, scanModel.getPointGenerator());
 
 		return deviceService.createRunnableDevice(scanModel, null);
 	}
@@ -118,7 +119,7 @@ public class AcquireRequestHandler implements IRequestHandler<AcquireRequest> {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void configureDetector(IRunnableDevice<?> detector, Object detectorModel,
+	private void configureDetector(IRunnableDevice<?> detector, IDetectorModel detectorModel,
 			ScanModel scanModel, IPointGenerator<?> gen) throws ScanningException {
 
 		try {

@@ -62,7 +62,7 @@ public class ScanRequestBuilderTest {
 
 	private IDetectorModel model1;
 	private IDetectorModel model2;
-	private Map<String, Object> detectors;
+	private Map<String, IDetectorModel> detectors;
 
 	private SampleData sampleData;
 	private List<String> monitorNamesPerPoint;
@@ -171,7 +171,7 @@ public class ScanRequestBuilderTest {
 
 	private void verifyValuesSet(ScanRequest scanRequest) {
 		// We expect the builder to pass object data by reference
-		final Map<String, Object> requestDetectors = scanRequest.getDetectors();
+		final Map<String, IDetectorModel> requestDetectors = scanRequest.getDetectors();
 		assertTrue(requestDetectors.get("Detector1") == model1);
 		assertTrue(requestDetectors.get("Detector2") == model2);
 

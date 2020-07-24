@@ -223,7 +223,7 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 		topupInScan(detector, null, size, exposureTime);
 	}
 
-	private <T> void topupInScan(IRunnableDevice<T> device, T detectorModel, int size, double exposureTime) throws Exception {
+	private <T extends IDetectorModel> void topupInScan(IRunnableDevice<T> device, T detectorModel, int size, double exposureTime) throws Exception {
 
 		final IScannable<Number>   topups  = connector.getScannable("topup");
 		final MockTopupScannable   topup   = (MockTopupScannable)topups;
@@ -231,14 +231,14 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
         topup.start();
 
 		// x and y are level 3
-        if (detectorModel!=null && detectorModel instanceof IDetectorModel) {
-		((IDetectorModel)detectorModel).setExposureTime(exposureTime);
-        }
-        if (device!=null && device.getModel()!=null && device.getModel() instanceof IDetectorModel) {
-		((IDetectorModel)device.getModel()).setExposureTime(exposureTime);
-        }
+		if (detectorModel != null) {
+			detectorModel.setExposureTime(exposureTime);
+		}
+		if (device != null && device.getModel() != null) {
+			device.getModel().setExposureTime(exposureTime);
+		}
 		IDeviceController controller = createTestScanner(null, device, detectorModel, size);
-		IRunnableEventDevice<?> scanner = (IRunnableEventDevice<?>)controller.getDevice();
+		IRunnableEventDevice<?> scanner = (IRunnableEventDevice<?>) controller.getDevice();
 
 		Set<DeviceState> states = new HashSet<>();
 		// This run should get paused for beam and restarted.
@@ -311,8 +311,8 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 		topup.setPosition(5000);
 
 		// x and y are level 3
-		if (detector!=null && detector.getModel()!=null && detector.getModel() instanceof IDetectorModel) {
-			((IDetectorModel)detector.getModel()).setExposureTime(0.05);
+		if (detector != null && detector.getModel() != null) {
+			detector.getModel().setExposureTime(0.05);
 		}
 		IDeviceController controller = createTestScanner(null);
 		IRunnableEventDevice<?> scanner = (IRunnableEventDevice<?>)controller.getDevice();
