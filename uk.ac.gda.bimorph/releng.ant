@@ -21,7 +21,7 @@
 			<classpath>
 				<pathelement location="${jythonjar.loc}" />  <!-- put ahead of the version of Jython bundled with pydev -->
 				<pathelement location="${plugin.basedir}/bin" />
-				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/main" />
+				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/jars/*" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.analysis/bin" />
