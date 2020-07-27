@@ -5,8 +5,5 @@
 #
 plugins/uk.ac.gda.core/src/installs/installer/gda-install.xml
 plugins/uk.ac.gda.core/test/gda/device/detector/odccd/TestFiles/CrysalisSimple.xml
-plugins/uk.ac.gda.core/classes/test/gda/device/detector/odccd/TestFiles/CrysalisSimple.xml
 plugins/uk.ac.gda.core/test/gda/px/FluorescenceScan/ParameterFileJUnitTestFiles/ParameterTestInvalid_Empty.xml
-plugins/uk.ac.gda.core/classes/test/gda/px/FluorescenceScan/ParameterFileJUnitTestFiles/ParameterTestInvalid_Empty.xml
 plugins/uk.ac.gda.core/test/gda/px/FluorescenceScan/ParameterFileJUnitTestFiles/ParameterTestInvalid_UnbalancedRoot.xml
-plugins/uk.ac.gda.core/classes/test/gda/px/FluorescenceScan/ParameterFileJUnitTestFiles/ParameterTestInvalid_UnbalancedRoot.xml
