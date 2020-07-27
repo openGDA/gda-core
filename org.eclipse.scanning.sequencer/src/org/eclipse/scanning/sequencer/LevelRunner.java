@@ -80,9 +80,12 @@ abstract class LevelRunner<L extends ILevel> {
 	 */
 	private long timeout = Long.getLong("org.eclipse.scanning.sequencer.default.timeout", 10);
 
+	private boolean cachingEnabled;
+
 	protected LevelRunner(INameable device) {
 		pDelegate = new PositionDelegate(device);
 		threadPool = createThreadPool();
+		cachingEnabled = true;
 	}
 
 	private ForkJoinPool createThreadPool() {
@@ -357,7 +360,7 @@ abstract class LevelRunner<L extends ILevel> {
 
 		doAbort();
 	}
-	
+
 	protected void doAbort() {
 		shutdownThreadPool();
 	}
@@ -404,9 +407,11 @@ abstract class LevelRunner<L extends ILevel> {
 			return devicesByLevel;
 		}
 
-		SortedMap<Integer, List<L>> result = createDevicesByLevelMap();
-		this.devicesByLevel = result;
-		return result;
+		final SortedMap<Integer, List<L>> devicesByLevel = createDevicesByLevelMap();
+		if (cachingEnabled) {
+			this.devicesByLevel = devicesByLevel;
+		}
+		return devicesByLevel;
 	}
 
 	private SortedMap<Integer, List<L>> createDevicesByLevelMap() throws ScanningException {
@@ -415,9 +420,7 @@ abstract class LevelRunner<L extends ILevel> {
 		final SortedMap<Integer, List<L>> result = new TreeMap<>();
 		for (L object : devices) {
 			final int level = object.getLevel();
-			if (!result.containsKey(level)) {
-				result.put(level, new ArrayList<L>());
-			}
+			result.putIfAbsent(level, new ArrayList<L>());
 			result.get(level).add(object);
 		}
 
@@ -443,11 +446,6 @@ abstract class LevelRunner<L extends ILevel> {
 			annotationManagers.get(pos).addDevices(posEntry.getValue());
 		}
 		return annotationManagers;
-	}
-
-	protected void clearCachedLevelObjects() {
-		devicesByLevel = null;
-		annotationManagers = null;
 	}
 
 	public void addPositionListener(IPositionListener listener) {
@@ -523,6 +521,10 @@ abstract class LevelRunner<L extends ILevel> {
 	 */
 	public void setTimeout(long time) {
 		this.timeout = time;
+	}
+
+	public void setCachingEnabled(boolean cachingEnabled) {
+		this.cachingEnabled = cachingEnabled;
 	}
 
 }

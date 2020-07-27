@@ -48,6 +48,7 @@ final class ScannablePositioner extends LevelRunner<IScannable<?>> implements IP
 	ScannablePositioner(IScannableDeviceService service, INameable parent) {
 		super(parent);
 		this.connectorService = service;
+		setCachingEnabled(false);
 
 		// This is setting the default but the actual value of the timeout
 		// is set by implementing ITimeoutable in your IScannable. The devices
@@ -73,10 +74,6 @@ final class ScannablePositioner extends LevelRunner<IScannable<?>> implements IP
 
 	@Override
 	public boolean setPosition(IPosition position) throws ScanningException, InterruptedException {
-		if (scannables != null && !scannables.isEmpty()) {
-			clearCachedLevelObjects();
-		}
-
 		run(position);
 		return true;
 	}

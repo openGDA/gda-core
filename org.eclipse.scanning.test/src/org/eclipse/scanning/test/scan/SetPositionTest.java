@@ -23,7 +23,7 @@ public class SetPositionTest {
 
 	@BeforeClass
 	public static void before() {
-		MockScannableConnector msc = new MockScannableConnector(null);
+		final MockScannableConnector msc = new MockScannableConnector(null);
 		cpsGood = new MockCountingPositionScannable("cpsGood", 10, true);
 		cpsBad  = new MockCountingPositionScannable("cpsBad", 10, false);
 		msc.register(cpsGood);
@@ -43,9 +43,7 @@ public class SetPositionTest {
 
 	@Test
 	public void testMoveNoExtraGetPosition() throws Exception {
-
-		// Something without
-		IPositioner     pos    = dservice.createPositioner("test");
+		final IPositioner pos = dservice.createPositioner("test");
         pos.setPosition(new MapPosition("cpsGood:0:20"));
 
         assertEquals(0, cpsGood.getCount("getPosition"));
@@ -56,9 +54,7 @@ public class SetPositionTest {
 
 	@Test
 	public void testMoveExtraGetPosition() throws Exception {
-
-		// Something without
-		IPositioner     pos    = dservice.createPositioner("test");
+		final IPositioner pos = dservice.createPositioner("test");
         pos.setPosition(new MapPosition("cpsBad:0:20"));
 
         assertEquals(1, cpsBad.getCount("getPosition"));
@@ -70,9 +66,7 @@ public class SetPositionTest {
 
 	@Test
 	public void testMoveTwoThingsTogether() throws Exception {
-
-		// Something without
-		IPositioner     pos    = dservice.createPositioner("test");
+		final IPositioner pos = dservice.createPositioner("test");
         pos.setPosition(new MapPosition("cpsBad:0:20, cpsGood:0:20"));
 
         assertEquals(0, cpsGood.getCount("getPosition"));
@@ -85,5 +79,19 @@ public class SetPositionTest {
         assertEquals(1, cpsBad.getCount("setPosition"));
         assertEquals(2, cpsBad.getCount("getPosition"));
 	}
+
+	@Test
+	public void testMoveMultiplePointsDifferentNames() throws Exception {
+		final IPositioner pos = dservice.createPositioner("test");
+
+		assertEquals(10d, cpsGood.getPosition());
+        pos.setPosition(new MapPosition("cpsGood:0:20"));
+        assertEquals(20d, cpsGood.getPosition());
+
+        assertEquals(10d, cpsBad.getPosition());
+        pos.setPosition(new MapPosition("cpsBad:0:20"));
+        assertEquals(20d, cpsBad.getPosition());
+	}
+
 
 }
