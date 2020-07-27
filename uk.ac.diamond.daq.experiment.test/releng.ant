@@ -27,7 +27,7 @@
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.diamond.daq.experiment.api/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.diamond.daq.experiment.ui/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
-				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/main" />
+				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/bin" />
 				<pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.api/bin" />
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.api/bin" />

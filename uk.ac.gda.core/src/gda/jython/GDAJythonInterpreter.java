@@ -323,19 +323,9 @@ public class GDAJythonInterpreter {
 
 			// Store only the paths for directories corresponding to server plugins from the workspace via isMappedBundle
 			Arrays.stream(pluginDirectories).filter(dir -> classLoader.isMappedBundle(dir.getName()))
-                                            .map(dir-> Paths.get(dir.getAbsolutePath(), getCorrectClassFilesLocation(dir)))
+                                            .map(dir-> Paths.get(dir.getAbsolutePath(), "bin"))
                                             .forEach(classesPath -> PySystemState.add_classdir(classesPath.toString()));
 		}
-	}
-
-	/**
-	 * Deal with the gda.core bin directory anomaly until we can get rid of the gda python script and make it consistent
-	 *
-	 * @param dir		The File object corresponding to a workspace plugin dir
-	 * @return			classes/main for gda.core, "bin" for everything else
-	 */
-	private String getCorrectClassFilesLocation(final File dir) {
-		return dir.getName().equals("uk.ac.gda.core") ? "classes" + File.separatorChar + "main" : "bin";
 	}
 
 	/**
