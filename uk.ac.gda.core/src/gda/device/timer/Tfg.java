@@ -79,7 +79,7 @@ public class Tfg extends DeviceBase implements Timer {
 	protected Vector<FrameSet> timeFrameProfile = new Vector<FrameSet>();
 	protected Thread runner;
 	/** Flag to allow the runner thread to be shutdown */
-	private boolean runnerActive = true;
+	private boolean runnerActive;
 	protected boolean started = false;
 	protected long startTime = 0;
 	protected long totalExptTime;
@@ -112,6 +112,7 @@ public class Tfg extends DeviceBase implements Timer {
 		// if now defined
 		if (daServer != null ) {
 			// FIXME we might end up with more than one runner
+			runnerActive = true;
 			runner = new Thread(this::runTfg, getClass().getName());
 			runner.start();
 			setConfigured(true);
