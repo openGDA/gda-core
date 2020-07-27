@@ -208,14 +208,15 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		// set the scannables on the scan model if not already set
 		setScannables(model);
 
-		positioner = createPositioner(model);
-
 		// Create the manager and populate it
 		if (annotationManager!=null) annotationManager.dispose(); // It is allowed to configure more than once.
 		annotationManager = createAnnotationManager(model);
 
 		// create the location manager
 		location = new LocationManager(getScanBean(), model, annotationManager);
+
+		// create the positioner
+		positioner = createPositioner(model);
 
 		// add the scan information to the context - it is created if not set on the scan model
 		annotationManager.addContext(getScanInformation());
@@ -271,14 +272,18 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	}
 
 	private IPositioner createPositioner(ScanModel model) throws ScanningException {
-		IPositioner poser = runnableDeviceService.createPositioner(this);
+		IPositioner positioner = runnableDeviceService.createPositioner(this);
 
 		// We allow monitors which can block a position until a setpoint is
 		// reached or add an extra record to the NeXus file.
-		poser.setMonitorsPerPoint(model.getMonitorsPerPoint());
-		poser.setScannables(model.getScannables());
+		positioner.setMonitorsPerPoint(model.getMonitorsPerPoint());
 
-		return poser;
+		if (!location.isInterpolatedMultiScan()) {
+			// if the scan is a multi-scan, don't set the scannables. The positioner fetch them at each position
+			positioner.setScannables(model.getScannables());
+		}
+
+		return positioner;
 	}
 
 	private AnnotationManager createAnnotationManager(ScanModel model) {

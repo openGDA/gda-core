@@ -47,6 +47,7 @@ import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.IBoundingLineModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
+import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel;
 import org.eclipse.scanning.api.points.models.JythonGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.StaticModel;
@@ -90,6 +91,7 @@ public class PointGeneratorService implements IPointGeneratorService {
 		gens.put(TwoAxisPtychographyModel.class, TwoAxisPtychographyGenerator.class);
 		gens.put(TwoAxisPointSingleModel.class, TwoAxisPointSingleGenerator.class);
 		gens.put(ConsecutiveMultiModel.class, ConsecutiveMultiGenerator.class);
+		gens.put(InterpolatedMultiScanModel.class, ConsecutiveMultiGenerator.class);
 		gens.put(ConcurrentMultiModel.class, ConcurrentMultiGenerator.class);
 		gens.put(CompoundModel.class, CompoundGenerator.class);
 

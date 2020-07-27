@@ -26,6 +26,7 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.StaticPosition;
 import org.eclipse.scanning.api.points.models.ConsecutiveMultiModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
+import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 
 /**
@@ -34,6 +35,12 @@ import org.eclipse.scanning.jython.JythonObjectFactory;
 public class ConsecutiveMultiGenerator extends AbstractMultiGenerator<ConsecutiveMultiModel> {
 
 	public ConsecutiveMultiGenerator(ConsecutiveMultiModel model, IPointGeneratorService service) {
+		super(model, service);
+	}
+
+	public ConsecutiveMultiGenerator(InterpolatedMultiScanModel model, IPointGeneratorService service) {
+		// this constructor is required for InterpolatedConsecutiveModel due to how the point gen service uses
+		// reflection to invoke the constructor
 		super(model, service);
 	}
 

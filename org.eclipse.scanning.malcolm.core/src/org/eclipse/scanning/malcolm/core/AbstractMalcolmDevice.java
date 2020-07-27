@@ -14,6 +14,7 @@ package org.eclipse.scanning.malcolm.core;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.dawnsci.nexus.IMultipleNexusDevice;
@@ -34,7 +35,10 @@ import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
+import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.slf4j.Logger;
@@ -56,6 +60,7 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 	protected ScanModel scanModel;
 	protected IPointGenerator<? extends IScanPointGeneratorModel> pointGenerator;
 	protected String outputDir;
+	protected boolean isMultiScan = false;
 
 	public AbstractMalcolmDevice(IRunnableDeviceService runnableDeviceService) {
 		super(runnableDeviceService);
@@ -86,6 +91,8 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 		logger.debug("Configuring malcolm device {} for scan", getName());
 		this.scanModel = scanModel;
 		setPointGenerator(scanModel.getPointGenerator());
+		this.isMultiScan = getMultiScanModel(scanModel.getScanPathModel()).isPresent();
+
 		String outputDir = null;
 		if (scanModel.getFilePath() != null) {
 			outputDir = FilenameUtils.removeExtension(scanModel.getFilePath());
@@ -100,6 +107,20 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 	public void setPointGenerator(IPointGenerator<? extends IScanPointGeneratorModel> pointGenerator) {
 		this.pointGenerator = pointGenerator;
 	}
+
+	protected static Optional<InterpolatedMultiScanModel> getMultiScanModel(IScanPathModel scanPathModel) {
+		if (scanPathModel instanceof InterpolatedMultiScanModel) {
+			return Optional.of((InterpolatedMultiScanModel) scanPathModel);
+		} else if (scanPathModel instanceof CompoundModel) {
+			final List<IScanPointGeneratorModel> models = ((CompoundModel) scanPathModel).getModels();
+			final IScanPointGeneratorModel lastModel = models.get(models.size() - 1);
+			if (lastModel instanceof InterpolatedMultiScanModel) {
+				return Optional.of((InterpolatedMultiScanModel) lastModel);
+			}
+		}
+		return Optional.empty();
+	}
+
 
 	@Override
 	public IPointGenerator<? extends IScanPointGeneratorModel> getPointGenerator() {
@@ -132,6 +153,7 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 		this.scanModel = null;
 		this.pointGenerator = null;
 		this.outputDir = null;
+		this.isMultiScan = false;
 	}
 
 	@Override

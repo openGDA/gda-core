@@ -131,6 +131,8 @@ public class MockScannableConnector implements IScannableDeviceService, IConnect
 		register(new MockScannable("benchmark1",  0.0,  -1, false));
 		register(new MockScannable("myScannable",  0.0,  -1, false));
 
+		register(new MockNeXusScannable("theta", 0d, 3, "deg"));
+
 		MockNeXusScannable temp= new MockNeXusScannable("T", 295,  3, "K");
 		temp.setRealisticMove(true);
 		String srate = System.getProperty("org.eclipse.scanning.example.temperatureRate");

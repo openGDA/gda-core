@@ -14,6 +14,7 @@
 package org.eclipse.scanning.example.malcolm;
 
 import static java.util.stream.Collectors.toList;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_DATASETS;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_FILENAME;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_NAME;
@@ -66,7 +67,6 @@ import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
-import org.eclipse.scanning.api.malcolm.MalcolmConstants;
 import org.eclipse.scanning.api.malcolm.MalcolmDetectorInfo;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
@@ -738,7 +738,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 			while (paused) {
 				Thread.sleep(100); // TODO, use Condition/awaitPaused flag, see AcquisitionDevice
 			}
-			final IPosition overallScanPosition = innerScanPosition.compound(outerScanPosition);
+			final IPosition overallScanPosition = calculateOverallScanPosition(outerScanPosition, innerScanPosition);
 			for (IDummyMalcolmControlledDevice device : devices.values()) {
 				try {
 					device.writePosition(overallScanPosition);
@@ -767,6 +767,13 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 
 		health.setValue("OK");
 		setDeviceState(DeviceState.ARMED);
+	}
+
+	private IPosition calculateOverallScanPosition(IPosition outerScanPosition, IPosition innerScanPosition) {
+		if (isMultiScan) {
+			return innerScanPosition;
+		}
+		return innerScanPosition.compound(outerScanPosition);
 	}
 
 	private void createNexusFiles() throws ScanningException {
@@ -874,13 +881,17 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 
 	@Override
 	public List<String> getAvailableAxes() throws ScanningException {
-		final String[] axesArray = getAttributeValue(MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
+		final String[] axesArray = getAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
 		return Arrays.asList(axesArray);
+	}
+
+	public void setAvailableAxes(List<String> availableAxes) {
+		this.availableAxes.setValue(availableAxes.toArray(new String[availableAxes.size()]));
 	}
 
 	@Override
 	public MalcolmTable getDatasets() throws MalcolmDeviceException {
-		return getAttributeValue(MalcolmConstants.ATTRIBUTE_NAME_DATASETS);
+		return getAttributeValue(ATTRIBUTE_NAME_DATASETS);
 	}
 
 	@Override

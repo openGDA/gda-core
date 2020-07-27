@@ -86,7 +86,12 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		malcolmOutputDir = ServiceTestHelper.getFilePathService().createFolderForLinkedFiles(output.getName());
 		final DummyMalcolmModel model = createMalcolmModel();
 
-		malcolmDevice = (DummyMalcolmDevice) (IRunnableDevice<?>) runnableDeviceService.createRunnableDevice(model);
+		malcolmDevice = new DummyMalcolmDevice();
+		malcolmDevice.setAvailableAxes(model.getAxesToMove()); // set the available axes to those of the model
+		malcolmDevice.configure(model);
+		malcolmDevice.setName(model.getName());
+		malcolmDevice.register();
+
 		malcolmDevice.setOutputDir(malcolmOutputDir);
 		assertNotNull(malcolmDevice);
 		((AbstractMalcolmDevice) malcolmDevice).addRunListener(new IRunListener() {

@@ -367,11 +367,11 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		// Create and configure the scanner (AcquisitionDevice) this calls some method on MalcolmDevice which in turn
 		// call methods in the mocked communication layer, so we need to set up replies for those
 		final MalcolmMessage axesToMoveReply = createExpectedMalcolmOkReply(new StringArrayAttribute("stage_x", "stage_y"));
-		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES))).thenReturn(axesToMoveReply);
-		MalcolmMessage expectedGetConfigureMessage = createExpectedMalcolmMessage(id++, Type.GET, MalcolmMethod.CONFIGURE.toString());
+		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES))).thenReturn(axesToMoveReply); // called from AcquisitionDevice.configure via setScannables
+		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES))).thenReturn(axesToMoveReply); // called from AcquisitionDevice.configure via LocationManager and SubscanModerator constructors
+
+		final MalcolmMessage expectedGetConfigureMessage = createExpectedMalcolmMessage(id++, Type.GET, MalcolmMethod.CONFIGURE.toString());
 		when(malcolmConnection.send(malcolmDevice, expectedGetConfigureMessage)).thenReturn(createExpectedMalcolmGetConfigureReply());
-		System.out.println(id);
-		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES))).thenReturn(axesToMoveReply); // This is called at 2 different points
 
 		return runnableDeviceService.createRunnableDevice(scanModel, publisher);
 	}

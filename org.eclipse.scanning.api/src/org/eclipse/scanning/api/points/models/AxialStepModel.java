@@ -47,6 +47,12 @@ public class AxialStepModel extends AbstractPointsModel {
 		this.step = step;
 	}
 
+	public static AxialStepModel createStaticAxialModel(String name, double value, int count) {
+		final AxialStepModel model = new AxialStepModel(name, value, value, 0.0);
+		model.setCount(count);
+		return model;
+	}
+
 	public double getStart() {
 		return start;
 	}

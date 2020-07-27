@@ -28,6 +28,10 @@ public class Scalar<T> extends AbstractPosition {
 	private final int index;
 	private final T value;
 
+	public Scalar(String name, T value) {
+		this(name, -1, value);
+	}
+
 	public Scalar(String name, int index, T value) {
 		this(name, index, value, 0d);
 	}

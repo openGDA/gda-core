@@ -18,6 +18,7 @@
 
 package org.eclipse.scanning.malcolm.core;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
@@ -67,13 +68,17 @@ public final class EpicsMalcolmModel {
 	 */
 	private final MalcolmTable detectors;
 
+	private final int[] breakpoints;
+
 	public EpicsMalcolmModel(String fileDir, String fileTemplate,
-			List<String> axesToMove, IPointGenerator<?> generator, MalcolmTable detectors) {
+			List<String> axesToMove, IPointGenerator<?> generator,
+			MalcolmTable detectors, int[] breakpoints) {
 		this.fileDir = fileDir;
 		this.fileTemplate = fileTemplate;
 		this.axesToMove = axesToMove;
 		this.generator = generator;
 		this.detectors = detectors;
+		this.breakpoints = breakpoints;
 	}
 
 	public String getFileDir() {
@@ -96,6 +101,10 @@ public final class EpicsMalcolmModel {
 		return detectors;
 	}
 
+	public int[] getBreakpoints() {
+		return breakpoints;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -105,6 +114,7 @@ public final class EpicsMalcolmModel {
 		result = prime * result + ((fileTemplate == null) ? 0 : fileTemplate.hashCode());
 		result = prime * result + ((generator == null) ? 0 : generator.hashCode());
 		result = prime * result + ((detectors == null) ? 0 : detectors.hashCode());
+		result = prime * result + Arrays.hashCode(breakpoints);
 		return result;
 	}
 
@@ -140,13 +150,16 @@ public final class EpicsMalcolmModel {
 		if (detectors == null)
 			if (other.detectors != null)
 				return false;
+		if (!Arrays.equals(breakpoints, other.breakpoints))
+			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
 		return "EpicsMalcolmModel [generator=" + generator + ", axesToMove=" + axesToMove + ", fileDir=" + fileDir
-				+ ", fileTemplate=" + fileTemplate + ", detectors=" + detectors + "]";
+				+ ", fileTemplate=" + fileTemplate + ", detectors=" + detectors + ", breakpoints="
+				+ Arrays.toString(breakpoints) + "]";
 	}
 
 }

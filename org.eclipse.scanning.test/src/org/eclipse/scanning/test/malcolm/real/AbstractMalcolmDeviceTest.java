@@ -181,11 +181,15 @@ public abstract class AbstractMalcolmDeviceTest {
 //		verifyNoMoreInteractions(malcolmConnection); // This doesn't work, not sure why
 	}
 
-	protected IPointGenerator<CompoundModel> createPointGenerator() throws Exception {
+	protected CompoundModel createCompoundModel() {
 		final TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel("stage_x", "stage_y", 10, 10);
 		gridModel.setBoundingBox(new BoundingBox(0, 0, 1, 1));
 
-		return pointGenService.createCompoundGenerator(new CompoundModel(gridModel));
+		return new CompoundModel(gridModel);
+	}
+
+	protected IPointGenerator<CompoundModel> createPointGenerator() throws Exception {
+		return pointGenService.createCompoundGenerator(createCompoundModel());
 	}
 
 	protected MalcolmMessage createExpectedMalcolmMessage(long id, Type type, String endpoint) {

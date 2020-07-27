@@ -12,6 +12,7 @@
 package org.eclipse.scanning.api.scan.event;
 
 import java.util.EventListener;
+import java.util.function.Consumer;
 
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.scan.PositionEvent;
@@ -88,5 +89,24 @@ public interface IPositionListener extends EventListener {
 	default void positionMovePerformed(PositionEvent event) throws ScanningException {
 		// default implementation does nothing, subclasses should override as necessary
 	}
+
+	public static IPositionListener postionPerformedListener(Consumer<PositionEvent> consumer) {
+		return new IPositionListener() {
+			@Override
+			public void positionPerformed(PositionEvent e) {
+				consumer.accept(e);
+			}
+		};
+	}
+
+	public static IPositionListener positionMovePerformed(Consumer<PositionEvent> consumer) {
+		return new IPositionListener() {
+			@Override
+			public void positionMovePerformed(PositionEvent e) {
+				consumer.accept(e);
+			}
+		};
+	}
+
 
 }

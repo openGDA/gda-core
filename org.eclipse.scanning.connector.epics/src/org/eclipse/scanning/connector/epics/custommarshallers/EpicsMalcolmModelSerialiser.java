@@ -22,6 +22,7 @@ import org.eclipse.scanning.malcolm.core.EpicsMalcolmModel;
 import org.epics.pvdata.factory.FieldFactory;
 import org.epics.pvdata.pv.FieldBuilder;
 import org.epics.pvdata.pv.FieldCreate;
+import org.epics.pvdata.pv.PVIntArray;
 import org.epics.pvdata.pv.PVStringArray;
 import org.epics.pvdata.pv.PVStructure;
 import org.epics.pvdata.pv.ScalarType;
@@ -40,6 +41,7 @@ public class EpicsMalcolmModelSerialiser implements IPVStructureSerialiser<Epics
 	private static final String FIELD_NAME_FILE_DIR = "fileDir";
 	private static final String FIELD_NAME_FILE_TEMPLATE = "fileTemplate";
 	private static final String FIELD_NAME_DETECTORS = "detectors";
+	private static final String FIELD_NAME_BREAKPOINTS = "breakpoints";
 
 	@Override
 	public Structure buildStructure(Serialiser serialiser, EpicsMalcolmModel model) throws Exception {
@@ -55,6 +57,9 @@ public class EpicsMalcolmModelSerialiser implements IPVStructureSerialiser<Epics
 			final Structure detectorsStructure = serialiser.buildStructure(model.getDetectors());
 			fieldBuilder.add(FIELD_NAME_DETECTORS, detectorsStructure);
 		}
+		if (model.getBreakpoints() != null) {
+			fieldBuilder.addArray(FIELD_NAME_BREAKPOINTS, ScalarType.pvInt);
+		}
 
 		return fieldBuilder.createStructure();
 	}
@@ -69,6 +74,10 @@ public class EpicsMalcolmModelSerialiser implements IPVStructureSerialiser<Epics
 		pvStructure.getStringField(FIELD_NAME_FILE_TEMPLATE).put(model.getFileTemplate());
 		if (model.getDetectors() != null) {
 			serialiser.setFieldWithValue(pvStructure, FIELD_NAME_DETECTORS, model.getDetectors());
+		}
+		if (model.getBreakpoints() != null) {
+			final int[] breakpoints = model.getBreakpoints();
+			pvStructure.getSubField(PVIntArray.class, FIELD_NAME_BREAKPOINTS).put(0, breakpoints.length, breakpoints, 0);
 		}
 	}
 
