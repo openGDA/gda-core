@@ -21,6 +21,11 @@ package uk.ac.gda.exafs.ui.dialogs;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.commons.math3.util.Pair;
+
+import uk.ac.gda.exafs.ui.dialogs.ParameterValuesForBean.ParameterValue;
 
 /**
  * This class contains a full set of parameters for a single scan in a {@code List<ParameterValuesForBean>}.
@@ -49,11 +54,32 @@ public class ParametersForScan {
 	}
 
 	public void setValuesForScanBeans(List<ParameterValuesForBean> overridesForScanFiles) {
-		valuesForBeans = overridesForScanFiles;
+		valuesForBeans = new ArrayList<>(overridesForScanFiles);
 	}
 
 	public List<ParameterValuesForBean> getParameterValuesForScanBeans() {
 		return valuesForBeans;
+	}
+
+	/**
+	 * Loop over all parameters for the scan in order, return indices of bean and value of 'index'th item in the loop.
+	 * @param index which parameter to find the indices of
+	 * @return pair : Bean index, Parameter value index
+	 */
+	public Pair<Integer, Integer> getParameterValueByIndex(int index) {
+		int count = 0;
+		for(int i=0; i<valuesForBeans.size(); i++) {
+			List<ParameterValue> paramsForBean = valuesForBeans.get(i).getParameterValues();
+			if (count++ == index) {
+				return Pair.create(i, null);
+			}
+			for(int j=0; j<paramsForBean.size(); j++) {
+				if (count++ == index) {
+					return Pair.create(i, j);
+				}
+			}
+		}
+		return null;
 	}
 
 	public void clearParameterValuesForScanBeans() {
@@ -82,7 +108,7 @@ public class ParametersForScan {
 			newParamValuesForBean.copyFrom(paramValuesForBean);
 
 			// Set the xml filename to Scan, Sample, Detector etc. (this is used for column label)
-			newParamValuesForBean.setBeanFileName(paramValuesForBean.getBeanTypeNiceName());
+			newParamValuesForBean.setBeanFileName(paramValuesForBean.getBeanTypeNiceName()+" xml");
 
 			paramsForTableColumns.addValuesForScanBean(newParamValuesForBean);
 		}
@@ -100,6 +126,16 @@ public class ParametersForScan {
 			columnText.addAll(paramValuesForBean.getTextForTableColumns());
 		}
 		return columnText;
+	}
+
+	/**
+	 *
+	 * @return List of XML files names containing the scan beans
+	 */
+	public List<String> getFileNames() {
+		return valuesForBeans.stream()
+			.map(ParameterValuesForBean::getBeanFileName)
+			.collect(Collectors.toList());
 	}
 
 	/**
@@ -121,5 +157,33 @@ public class ParametersForScan {
 			scanIndex++;
 		}
 		return warningMessage;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + numberOfRepetitions;
+		result = prime * result + ((valuesForBeans == null) ? 0 : valuesForBeans.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ParametersForScan other = (ParametersForScan) obj;
+		if (numberOfRepetitions != other.numberOfRepetitions)
+			return false;
+		if (valuesForBeans == null) {
+			if (other.valuesForBeans != null)
+				return false;
+		} else if (!valuesForBeans.equals(other.valuesForBeans))
+			return false;
+		return true;
 	}
 }

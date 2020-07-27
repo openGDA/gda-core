@@ -19,18 +19,38 @@
 package uk.ac.gda.exafs.beans;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Test;
 
+import gda.TestHelpers;
+import uk.ac.gda.beans.exafs.DetectorParameters;
+import uk.ac.gda.beans.exafs.IDetectorParameters;
+import uk.ac.gda.beans.exafs.IOutputParameters;
+import uk.ac.gda.beans.exafs.ISampleParameters;
 import uk.ac.gda.beans.exafs.ISampleParametersWithMotorPositions;
+import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.SampleParameterMotorPosition;
 import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
+import uk.ac.gda.exafs.ui.dialogs.ParameterCollection;
 import uk.ac.gda.exafs.ui.dialogs.ParameterValuesForBean;
+import uk.ac.gda.exafs.ui.dialogs.ParameterValuesForBean.ParameterValue;
+import uk.ac.gda.exafs.ui.dialogs.ParametersForScan;
 
 public class SpreadsheetViewTest {
 
+	private String scannableName = "nameOfScannble";
+
 	public B18SampleParameters getSampleParameters() {
-		SampleParameterMotorPosition sampleMotorPosition = new SampleParameterMotorPosition("nameOfScannable", 10.01, true);
+		SampleParameterMotorPosition sampleMotorPosition = new SampleParameterMotorPosition(scannableName, 10.01, true);
 
 		B18SampleParameters sampleParameters = new B18SampleParameters();
 		sampleParameters.setName("sample_name");
@@ -79,8 +99,6 @@ public class SpreadsheetViewTest {
 	@Test
 	public void testUpdateBeanWIthOverrides() {
 		B18SampleParameters sampleParameters = getSampleParameters();
-		SampleParameterMotorPosition sampleMotorPosition = sampleParameters.getSampleParameterMotorPositions().get(0);
-		String scannableName = sampleMotorPosition.getScannableName();
 
 		String newSampleName = "new sample name";
 		double newAxisPosition = 15.7;
@@ -99,5 +117,108 @@ public class SpreadsheetViewTest {
 		assertEquals(newAxisPosition, sampleParameters.getUserStageParameters().getAxis2(), 0.0001);
 		assertEquals(newDemandPosition, sampleParameters.getSampleParameterMotorPosition(scannableName).getDemandPosition(), 0.0001);
 		assertEquals(newDoMove, sampleParameters.getSampleParameterMotorPosition(scannableName).getDoMove());
+	}
+
+	private ParametersForScan getParameters() {
+		ParameterValuesForBean sampleParams = new ParameterValuesForBean();
+		sampleParams.setBeanType(ISampleParameters.class.getName());
+
+		sampleParams.setBeanFileName("sample.xml");
+		sampleParams.addParameterValue("getName", "sample name");
+		sampleParams.addParameterValue("getUserStageParameters.getAxis2", 20.2);
+		sampleParams.addParameterValue("getSampleParameterMotorPosition("+scannableName+").getDemandPosition", 99.9);
+		sampleParams.addParameterValue("getSampleParameterMotorPosition("+scannableName+").getDoMove", true);
+
+		ParameterValuesForBean scanParams = new ParameterValuesForBean();
+		scanParams.setBeanType(IScanParameters.class.getName());
+		scanParams.setBeanFileName("qexafs.xml");
+
+		ParameterValuesForBean outputParams = new ParameterValuesForBean();
+		outputParams.setBeanType(IOutputParameters.class.getName());
+
+		outputParams.setBeanFileName("output.xml");
+
+		ParameterValuesForBean detectorParams = new ParameterValuesForBean();
+		detectorParams.setBeanType(IDetectorParameters.class.getName());
+		detectorParams.setBeanFileName("detector.xml");
+
+		ParametersForScan paramsForScan = new ParametersForScan();
+		paramsForScan.setValuesForScanBeans(Arrays.asList(scanParams, detectorParams, sampleParams, outputParams));
+		return paramsForScan;
+	}
+
+	private ParameterCollection getParamCollection() {
+		ParameterCollection allParams = new ParameterCollection();
+		allParams.addParametersForScan(getParameters());
+		DetectorParameters.class.getPackage().getName();
+		for(int i=0; i<10; i++) {
+			ParametersForScan paramsForScan = getParameters();
+			// change the name of the scan and position of motor
+			ParameterValuesForBean sampleParamBean = paramsForScan.getParameterValuesForScanBeans().get(2);
+			ParameterValue p = sampleParamBean.getParameterValue("getName");
+			p.setNewValue("sample "+i);
+			p = sampleParamBean.getParameterValue("getSampleParameterMotorPosition("+scannableName+").getDemandPosition");
+			p.setNewValue(i + 10.2);
+			paramsForScan.setNumberOfRepetitions(i+1);
+			allParams.addParametersForScan(paramsForScan);
+		}
+		return allParams;
+	}
+
+	@Test
+	public void testWriteReadXml() throws Exception {
+		String testDir = TestHelpers.setUpTest(SpreadsheetViewTest.class, "testWriteReadXml", true);
+		Path xmlFilePath = Paths.get(testDir, "testParams.xml").toAbsolutePath();
+
+		ParameterCollection allParams = new ParameterCollection(Arrays.asList(getParameters()));
+
+		assertNotNull("XML string should not be null", allParams.toXML());
+
+		allParams.saveToFile(xmlFilePath.toString());
+		assertTrue("XML file "+xmlFilePath.toString()+" was not written", Files.exists(xmlFilePath));
+
+		List<ParametersForScan> parametersForScans = ParameterCollection.loadFromFile(xmlFilePath.toString());
+
+		assertEquals(allParams.getParametersForScans().get(0).getParameterValuesForScanBeans(), parametersForScans.get(0).getParameterValuesForScanBeans());
+	}
+
+	@Test
+	public void testXmlSerialization() throws IOException {
+		ParameterCollection allParams = getParamCollection();
+		String xmlParamString = allParams.toXML();
+		assertNotNull("XML string should not be null", xmlParamString);
+		assertEquals(allParams.getParametersForScans(), ParameterCollection.fromXML(xmlParamString));
+	}
+
+	@Test
+	public void testCsvSerialization() throws IOException {
+		ParameterCollection allParams = getParamCollection();
+		String csvParamString = allParams.toCSV();
+		List<ParametersForScan> paramsFromCsv = ParameterCollection.fromCSV(csvParamString);
+		assertEquals(allParams.getParametersForScans(), paramsFromCsv);
+	}
+
+	@Test
+	public void testXmlFileSaveLoad() throws Exception {
+		String testDir = TestHelpers.setUpTest(this.getClass(), "testXmlFileSaving", true);
+		ParameterCollection allParams = getParamCollection();
+		Path fullPath = Paths.get(testDir, "allParams.xml");
+		allParams.saveToFile(fullPath.toString());
+		assertTrue(Files.exists(fullPath));
+
+		List<ParametersForScan> paramsForScans = ParameterCollection.loadFromFile(fullPath.toString());
+		assertEquals(allParams.getParametersForScans(), paramsForScans);
+	}
+
+	@Test
+	public void testCsvFileSaveLoad() throws Exception {
+		String testDir = TestHelpers.setUpTest(this.getClass(), "testCsvFileSaveLoad", true);
+		ParameterCollection allParams = getParamCollection();
+		Path fullPath = Paths.get(testDir, "allParams.csv");
+		allParams.saveCsvToFile(fullPath.toString());
+		assertTrue(Files.exists(fullPath));
+
+		List<ParametersForScan> paramsForScans = ParameterCollection.loadCsvFromFile(fullPath.toString());
+		assertEquals(allParams.getParametersForScans(), paramsForScans);
 	}
 }
