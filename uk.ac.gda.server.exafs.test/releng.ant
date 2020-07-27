@@ -29,7 +29,7 @@
 				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.devices.xspress2/bin/" />
 				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.server.exafs.epics/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
-				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/main" />
+				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/bin" />
 				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
 				<pathelement location="${workspace.git.loc}/gda-diamond.git/uk.ac.gda.dls/bin" />
 				<pathelement location="${workspace.git.loc}/gda-epics.git/uk.ac.gda.epics/bin" />
