@@ -44,14 +44,16 @@ import uk.ac.gda.beans.exafs.DetectorParameters;
 
 
 /**
- * Class containing collection of ParametersForScan - list of full set of parameters for each scan.
- * Also contains methods to serialize to and from xml : toXml, loadFromFile, saveToFile
+ * Class containing collection of {@link ParametersForScan} - i.e. a list of the full set of parameters for several scans.
+ * Also contains methods to serialize to and from XML and CSV format file using {@link #toXML()}, {@link #loadFromFile(String)},
+ * {@link #toCSV()}, {@link #saveToFile(String)}.
  */
 public class ParameterCollection {
 
 	private static final Logger logger = LoggerFactory.getLogger(ParameterCollection.class);
 
 	private List<ParametersForScan> parametersForScans;
+	private String csvCommentString = "";
 
 	public ParameterCollection() {
 		parametersForScans = new ArrayList<>();
@@ -83,10 +85,6 @@ public class ParameterCollection {
 		}
 	}
 
-	private static String toXML(List<ParametersForScan> parameters) {
-		return XmlFileHandling.toXML(parameters);
-	}
-
 	public static  List<ParametersForScan> loadFromFile(String filePath) throws IOException {
 		try(Reader in = new FileReader(filePath)) {
 			return XmlFileHandling.fromXML(in);
@@ -116,7 +114,6 @@ public class ParameterCollection {
 		}
 		return csvString;
 	}
-	private String csvCommentString = "";
 
 	public String getCsvCommentString() {
 		return csvCommentString;
@@ -151,6 +148,9 @@ public class ParameterCollection {
 		}
 	}
 
+	/**
+	 * Static methods to facilitate XML serialization using XStream.
+	 */
 	private static class XmlFileHandling {
 		private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 
@@ -184,9 +184,14 @@ public class ParameterCollection {
 		}
 	}
 
+	/**
+	 * Static methods for serialization using CSV format files.
+	 */
 	private static class CsvFileHandling {
+		/** Name of package containing the bean classes - used to identify column names containing bean types */
 		private static final String BEAN_TYPE_PACKAGE = DetectorParameters.class.getPackage().getName();
 		private static final String REPETITIONS = "Repetitions";
+
 		private CsvFileHandling() {
 		}
 
@@ -204,7 +209,6 @@ public class ParameterCollection {
 			headerString.add(REPETITIONS);
 
 			StringBuilder builder = new StringBuilder();
-// 			try (CSVPrinter csvPrinter = new CSVPrinter(builder, CSVFormat.DEFAULT.withCommentMarker('#').withHeaderComments(commentString.toString()))) {
 			try (CSVPrinter csvPrinter = new CSVPrinter(builder, CSVFormat.DEFAULT)) {
 				csvPrinter.printRecord(headerString); // first record is the header
 				for(ParametersForScan paramsForScan : paramsForScans) {

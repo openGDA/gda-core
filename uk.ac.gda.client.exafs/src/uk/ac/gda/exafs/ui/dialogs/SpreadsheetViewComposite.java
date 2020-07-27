@@ -160,7 +160,7 @@ public class SpreadsheetViewComposite {
 
 		parameterValuesForScanFiles.clear();
 
-		spreadsheetTable.getTableViewer().setInput(parameterValuesForScanFiles);
+		spreadsheetTable.setInput(parameterValuesForScanFiles);
 
 		spreadsheetTable.getTableViewer().getTable().addSelectionListener(new SelectionAdapter() {
 			@Override

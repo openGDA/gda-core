@@ -23,10 +23,14 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.math3.util.Pair;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.bindings.keys.IKeyLookup;
 import org.eclipse.jface.bindings.keys.KeyLookupFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -46,18 +50,24 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TableViewerEditor;
 import org.eclipse.jface.viewers.TableViewerFocusCellManager;
 import org.eclipse.jface.viewers.TextCellEditor;
+import org.eclipse.jface.viewers.ViewerCell;
+import org.eclipse.jface.window.Window;
 import org.eclipse.richbeans.widgets.cell.SpinnerCellEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
@@ -81,6 +91,9 @@ public class SpreadsheetViewTable {
 	private TableViewer viewer;
 	private SpreadsheetViewConfig viewConfig;
 	private String xmlDirectoryName;
+	private Optional<Point> selectedTableIndex = Optional.empty();
+	private List<ParametersForScan> parameterValuesForScanFiles;
+
 
 	public SpreadsheetViewTable(Composite parent, int style) {
 		viewer = new TableViewer(parent, style);
@@ -92,6 +105,127 @@ public class SpreadsheetViewTable {
 		viewer.getTable().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
 		setupForCursorNavigation(viewer);
+		addContextMenu(viewer);
+		viewer.getTable().addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				selectedTableIndex = getSelectedCellIndices(new Point(e.x, e.y));
+			}
+		});
+	}
+
+	/**
+	 * Return index of item in the table that coordinate lies in.
+	 * @param coordinate
+	 * @return
+	 */
+	private Optional<Point> getSelectedCellIndices(Point coordinate) {
+		TableItem selectedItem = viewer.getTable().getItem(coordinate);
+		if (selectedItem == null) {
+			logger.debug("No under mouse click");
+			return Optional.empty();
+		}
+		int numColumns = viewer.getTable().getColumnCount();
+		for(int i=0; i<numColumns; i++) {
+			if (selectedItem.getBounds(i).contains(coordinate)) {
+				Point tableIndex = new Point(i, viewer.getTable().getSelectionIndex());
+				logger.debug("Selected row = {}, selected column = {}", tableIndex.y, tableIndex.x);
+				return Optional.of(tableIndex);
+			}
+		}
+		return Optional.empty();
+	}
+
+	private void addContextMenu(TableViewer tableViewer) {
+		MenuManager contextMenu = new MenuManager("ViewerMenu");
+		contextMenu.setRemoveAllWhenShown(true);
+		contextMenu.addMenuListener(mgr -> {
+			// Only show the context menu if last mouse click was on cell of the table
+			if (!selectedTableIndex.isPresent()) {
+				return;
+			}
+			logger.info("Selected cell index : {}", selectedTableIndex.get());
+			int selectedColumn = selectedTableIndex.get().x;
+			int selectedRow = selectedTableIndex.get().y;
+			if (selectedColumn == 0) {
+				return; // don't show menu for 1st column - it's the row index.
+			}
+			contextMenu.add(new Action("Copy values to rows...") {
+				@Override
+				public void run() {
+					//get value to be edited
+					copySettingsToRows(selectedColumn, selectedRow);
+				}
+			});
+		});
+
+		Menu menu = contextMenu.createContextMenu(tableViewer.getControl());
+		tableViewer.getControl().setMenu(menu);
+	}
+
+	/**
+	 * Copy value from cell in table at specified cell indices across multiple rows (same column)
+	 * @param selectedColumn
+	 * @param selectedRow
+	 */
+	private void copySettingsToRows(int selectedColumn, int selectedRow) {
+		// Get Indices in the model corresponding to selected parameter
+		ParametersForScan scanParams = parameterValuesForScanFiles.get(selectedRow);
+		Pair<Integer, Integer> paramIndices = scanParams.getParameterValueByIndex(selectedColumn-1); // Data start at index=1 due to row index column...
+
+		// Check if selected column is for number of repetitions
+		boolean isRepetitions = selectedColumn == viewer.getTable().getColumnCount()-1;
+
+		if (!isRepetitions && paramIndices == null) {
+			logger.warn("No parameter found for position ({}, {}) in the table", selectedColumn, selectedColumn);
+			return;
+		}
+
+		// Present dialog box for user to select range of rows the value should be copied to
+		ParameterSetterDialog dialog = new ParameterSetterDialog(viewer.getControl().getShell());
+		dialog.setBlockOnOpen(true);
+		dialog.setInitialRow(selectedRow);
+		dialog.setMaxRow(parameterValuesForScanFiles.size()-1);
+		dialog.create();
+
+		if (dialog.open() != Window.OK) {
+			return;
+		}
+
+		if (isRepetitions) {
+			// Set the number of repetitions
+			int newNumReptitions = scanParams.getNumberOfRepetitions();
+			for(int i=dialog.getStartRow(); i<=dialog.getEndRow(); i++) {
+				logger.debug("Applying number of reptitions {} to row {}", newNumReptitions, i);
+				parameterValuesForScanFiles.get(i).setNumberOfRepetitions(newNumReptitions);
+			}
+		} else {
+			Integer paramTypeIndex = paramIndices.getFirst();
+			Integer paramIndex = paramIndices.getSecond();
+
+			// Get the value of parameter to be copied
+			ParameterValuesForBean paramsToCopyFrom = scanParams.getParameterValuesForScanBeans().get(paramTypeIndex);
+			logger.debug("Parameter type : {}", paramsToCopyFrom.getBeanType());
+			Object valueToCopy = null;
+			if (paramIndex != null) {
+				valueToCopy = paramsToCopyFrom.getParameterValue(paramIndex).getNewValue();
+			} else {
+				valueToCopy = paramsToCopyFrom.getBeanFileName();
+			}
+
+			// Apply the value to the selected rows
+			for(int i=dialog.getStartRow(); i<=dialog.getEndRow(); i++) {
+				ParameterValuesForBean valsForBean = parameterValuesForScanFiles.get(i).getParameterValuesForScanBeans().get(paramTypeIndex);
+				if (paramIndex == null) {
+					logger.debug("Applying filename {} to row {}", valueToCopy, i);
+					valsForBean.setBeanFileName((String)valueToCopy);
+				} else {
+					logger.debug("Setting value {} = {} to row {}", valsForBean.getParameterValue(paramIndex).getFullPathToGetter(), valueToCopy, i);
+					valsForBean.getParameterValue(paramIndex).setNewValue(valueToCopy);
+				}
+			}
+		}
+		viewer.refresh();
 	}
 
 	public TableViewer getTableViewer() {
@@ -137,6 +271,20 @@ public class SpreadsheetViewTable {
 		gc.dispose();
 	}
 
+	// Add a column to show the row number
+	private void addRowIndexColumn() {
+		TableColumn rcolumn = new TableColumn(viewer.getTable(), SWT.NONE);
+		rcolumn.setWidth(50);
+		rcolumn.setText("Row index");
+		TableViewerColumn rowColumn = new TableViewerColumn(viewer, rcolumn);
+		rowColumn.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public void update(ViewerCell cell) {
+				cell.setText(viewer.getTable().indexOf((TableItem)cell.getItem())+"");
+			}
+		});
+	}
+
 	/**
 	 * Add columns to table : for each scan file add column with combo box for file selection, followed
 	 * by zero or more columns to contain values of selected parameters modifiers.
@@ -145,6 +293,9 @@ public class SpreadsheetViewTable {
 	public void addColumnsToTable(List<ParameterValuesForBean> parametersForScanBeans) {
 		int typeIndex=0;
 		int minWidth = 75;
+
+		addRowIndexColumn();
+
 		for(ParameterValuesForBean parametersForBean : parametersForScanBeans) {
 
 			TableColumn column = new TableColumn(viewer.getTable(), SWT.NONE);
@@ -815,5 +966,10 @@ public class SpreadsheetViewTable {
 
 	public void setViewConfig(SpreadsheetViewConfig viewConfig) {
 		this.viewConfig = viewConfig;
+	}
+
+	public void setInput(List<ParametersForScan> parameterValuesForScanFiles) {
+		viewer.setInput(parameterValuesForScanFiles);
+		this.parameterValuesForScanFiles = parameterValuesForScanFiles;
 	}
 }
