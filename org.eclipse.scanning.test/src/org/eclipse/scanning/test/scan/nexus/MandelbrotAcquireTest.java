@@ -138,13 +138,13 @@ public class MandelbrotAcquireTest extends NexusTest {
 		}
 	}
 
-	private IRunnableDevice<ScanModel> createAcquireScan(final IRunnableDevice<?> detector, File file) throws Exception {
+	private IRunnableDevice<ScanModel> createAcquireScan(final IRunnableDevice<MandelbrotModel> detector, File file) throws Exception {
 		StaticModel emptyModel = new StaticModel();
 		IPointGenerator<StaticModel> gen = pointGenService.createGenerator(emptyModel);
 
 		// Create the model for an acquire scan
 		ScanModel scanModel = new ScanModel();
-		scanModel.setDetectors(detector);
+		scanModel.setDetector(detector);
 
 		// Create a file to scan into.
 		scanModel.setFilePath(file.getAbsolutePath());

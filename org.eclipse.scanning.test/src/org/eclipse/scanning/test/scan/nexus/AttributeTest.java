@@ -51,6 +51,7 @@ import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -281,7 +282,7 @@ public class AttributeTest extends NexusTest{
 		}
 	}
 
-	private IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<?> detector, int... size) throws Exception {
+	private IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<? extends IDetectorModel> detector, int... size) throws Exception {
 
 		// Create scan points for a grid and make a generator
 		final TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel();
@@ -299,7 +300,7 @@ public class AttributeTest extends NexusTest{
 		// Create the model for a scan.
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setPointGenerator(pointGen);
-		scanModel.setDetectors(detector);
+		scanModel.setDetector(detector);
 		scanModel.setScanPathModel(compoundModel);
 
 		// Create a file to scan into.

@@ -13,11 +13,10 @@ package org.eclipse.scanning.test.scan.nexus;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.io.File;
-
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
@@ -55,10 +54,10 @@ public class ScanWithNoNexusFileTest extends NexusTest {
 	@Test
 	public void test2DNexusScan() throws Exception {
 		int[] shape = { 2, 5 };
-		IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, shape); // Outer scan of another scannable, for instance temp.
+		IRunnableDevice<ScanModel> scanner = createGridScan(detector, shape); // Outer scan of another scannable, for instance temp.
 		scanner.run(null);
 	}
-	private IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<?> detector, File file, int... size) throws Exception {
+	private IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<? extends IDetectorModel> detector, int... size) throws Exception {
 
 		// Create scan points for a grid and make a generator
 		final TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel();
@@ -77,7 +76,7 @@ public class ScanWithNoNexusFileTest extends NexusTest {
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setPointGenerator(pointGen);
 		scanModel.setScanPathModel(compoundModel);
-		scanModel.setDetectors(detector);
+		scanModel.setDetector(detector);
 
 		// Do not create a file to scan into, no nexus file should be written
 		scanModel.setFilePath(null);

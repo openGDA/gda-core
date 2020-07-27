@@ -84,7 +84,7 @@ public class MalcolmStaticScanTest extends AbstractMalcolmScanTest {
 		// Create the model for a scan.
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setPointGenerator(pointGenerator);
-		scanModel.setDetectors(malcolmDevice);
+		scanModel.setDetector(malcolmDevice);
 		scanModel.setScanPathModel(model);
 		// Cannot set the generator from @PreConfigure in this unit test.
 		malcolmDevice.setPointGenerator(pointGenerator);

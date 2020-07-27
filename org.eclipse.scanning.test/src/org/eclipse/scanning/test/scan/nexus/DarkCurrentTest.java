@@ -261,7 +261,7 @@ public class DarkCurrentTest extends NexusTest {
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setPointGenerator(pointGen);
 		scanModel.setScanPathModel(compoundModel);
-		scanModel.setDetectors(detector, dark);
+		scanModel.setDetectors(Arrays.asList(detector, dark));
 
 		// Create a file to scan into.
 		scanModel.setFilePath(output.getAbsolutePath());

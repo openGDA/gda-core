@@ -41,12 +41,12 @@ final class DeviceWriter extends DeviceRunner {
 	 *
 	 * @param detectors
 	 */
-	DeviceWriter(INameable source, Collection<IRunnableDevice<?>> detectors) {
+	DeviceWriter(INameable source, Collection<IRunnableDevice<? extends INameable>> detectors) {
 		super(source, detectors);
 	}
 
 	@Override
-	protected Callable<IPosition> createTask(IRunnableDevice<?> device, IPosition position) {
+	protected Callable<IPosition> createTask(IRunnableDevice<? extends INameable> device, IPosition position) {
 		if (device instanceof IWritableDetector<?>) {
 			return new WriteTask((IWritableDetector<?>)device, position);
 		}

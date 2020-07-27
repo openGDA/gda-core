@@ -22,6 +22,7 @@ import java.util.Set;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
@@ -63,7 +64,7 @@ public class ScanModel {
 	 * and (if they are IReadableDetector) read out during the
 	 * scan.
 	 */
-	private List<IRunnableDevice<?>> detectors;
+	private List<IRunnableDevice<? extends IDetectorModel>> detectors = Collections.emptyList();
 
 	/**
 	 * The bean which was submitted. May be null but if it is not,
@@ -120,11 +121,17 @@ public class ScanModel {
 		// do nothing
 	}
 
-	public ScanModel(IPointGenerator<? extends IScanPointGeneratorModel> positionIterator, IRunnableDevice<?>... detectors) {
-		// this constructor is used by tests for convenience
+	// These constructors are used by tests for convenience
+	public ScanModel(IPointGenerator<? extends IScanPointGeneratorModel> positionIterator) {
 		this.pointGenerator = positionIterator;
 		scanPathModel = positionIterator.getModel();
-		if (detectors!=null && detectors.length>0) this.detectors = Arrays.asList(detectors);
+	}
+
+	public ScanModel(IPointGenerator<? extends IScanPointGeneratorModel> positionIterator, IRunnableDevice<? extends IDetectorModel> detector) {
+		this(positionIterator);
+		if (detector != null) {
+			detectors = Arrays.asList(detector);
+		}
 	}
 
 	public ScanModel(IPointGenerator<? extends IScanPointGeneratorModel> positionIterator, File file) {
@@ -244,19 +251,19 @@ public class ScanModel {
 		this.scannables = scannables;
 	}
 
-	public List<IRunnableDevice<?>> getDetectors() {
+	public List<IRunnableDevice<? extends IDetectorModel>> getDetectors() {
 		if (detectors == null) {
 			return Collections.emptyList();
 		}
 		return detectors;
 	}
 
-	public void setDetectors(List<IRunnableDevice<?>> ds) {
+	public void setDetectors(List<IRunnableDevice<? extends IDetectorModel>> ds) {
 		this.detectors = ds;
 	}
 
-	public void setDetectors(IRunnableDevice<?>... detectors) {
-		this.detectors = Arrays.asList(detectors);
+	public void setDetector(IRunnableDevice<? extends IDetectorModel> detector) {
+		this.detectors = Arrays.asList(detector);
 	}
 
 	public List<IScannable<?>> getMonitorsPerPoint() {

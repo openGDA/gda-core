@@ -13,8 +13,12 @@ package org.eclipse.scanning.test.scan;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
@@ -90,10 +94,9 @@ public class RunnableDeviceServiceConfigureTest {
 
 	private IRunnableDevice<ScanModel> createTestScanner(String... names) throws Exception {
 
-		final IRunnableDevice<?>[] detectors = new IRunnableDevice[names.length];
-		for (int i = 0; i < names.length; i++) {
-			detectors[i] = dservice.getRunnableDevice(names[i]);
-
+		final List<IRunnableDevice<? extends IDetectorModel>> detectors = new ArrayList<>(names.length);
+		for (String name : names) {
+			detectors.add(dservice.getRunnableDevice(name));
 		}
 
 		// If none passed, create scan points for a grid.

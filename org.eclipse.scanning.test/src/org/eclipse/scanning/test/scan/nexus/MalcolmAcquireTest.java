@@ -23,6 +23,7 @@ import java.util.Arrays;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -52,13 +53,13 @@ public class MalcolmAcquireTest extends AbstractMalcolmScanTest {
 		return model;
 	}
 
-	private IRunnableDevice<ScanModel> createAcquireScan(final IRunnableDevice<?> detector, File file) throws Exception {
+	private IRunnableDevice<ScanModel> createAcquireScan(final IRunnableDevice<? extends IDetectorModel> detector, File file) throws Exception {
 		StaticModel staticModel = new StaticModel();
 		IPointGenerator<StaticModel> pointGen = pointGenService.createGenerator(staticModel);
 
 		// Create the model for an acquire scan
 		ScanModel scanModel = new ScanModel();
-		scanModel.setDetectors(detector);
+		scanModel.setDetector(detector);
 
 		// Create a file to scan into
 		scanModel.setFilePath(file.getAbsolutePath());

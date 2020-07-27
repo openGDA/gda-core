@@ -138,7 +138,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 
 	}
 
-	private static IWritableDetector<?> detector;
+	private static IWritableDetector<MandelbrotModel> detector;
 	private static BeamPerScanMonitor beam;
 
 	private static final int[] SCAN_SIZE = { 2, 3 };
@@ -146,7 +146,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		MandelbrotModel model = createMandelbrotModel();
-		detector = (IWritableDetector<?>) runnableDeviceService.createRunnableDevice(model);
+		detector = (IWritableDetector<MandelbrotModel>) runnableDeviceService.createRunnableDevice(model);
 		assertNotNull(detector);
 
 		beam = new BeamPerScanMonitor();
@@ -352,7 +352,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 		if (perScanMonitor != null) {
 			perScanMonitor.setActivated(true);
 		}
-		scanModel.setDetectors(detector);
+		scanModel.setDetector(detector);
 
 		scanModel.setMonitorsPerScan(perScanMonitor);
 

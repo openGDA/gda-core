@@ -573,16 +573,16 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		logger.debug("Configured detectors {}", detectorModels.keySet());
 	}
 
-	private List<IRunnableDevice<?>> getDetectors(Map<String, ?> detectors) throws EventException {
+	private List<IRunnableDevice<? extends IDetectorModel>> getDetectors(Map<String, IDetectorModel> detectors) throws EventException {
 		if (detectors == null) {
 			return null;
 		}
 		try {
-			final List<IRunnableDevice<?>> ret = new ArrayList<>(3);
+			final List<IRunnableDevice<? extends IDetectorModel>> ret = new ArrayList<>(3);
 			final IRunnableDeviceService service = Services.getRunnableDeviceService();
 
-			for (Entry<String, ?> detectorEntry : detectors.entrySet()) {
-				IRunnableDevice<Object> detector = service.getRunnableDevice(detectorEntry.getKey());
+			for (Entry<String, IDetectorModel> detectorEntry : detectors.entrySet()) {
+				IRunnableDevice<IDetectorModel> detector = service.getRunnableDevice(detectorEntry.getKey());
 				if (detector == null) {
 					detector = service.createRunnableDevice(detectorEntry.getValue(), false);
 					detector.setName(detectorEntry.getKey()); // Not sure whether this is ok. For now name must match that in table

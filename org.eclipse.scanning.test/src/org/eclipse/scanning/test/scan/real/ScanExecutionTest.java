@@ -22,6 +22,7 @@ import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.IWritableDetector;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
@@ -84,7 +85,7 @@ public class ScanExecutionTest extends BrokerTest {
 			@Override
 			public void beanChangePerformed(BeanEvent<TestScanBean> evt) {
 				try {
-					executeTestScan(evt.getBean());
+					executeTestScan();
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -93,12 +94,12 @@ public class ScanExecutionTest extends BrokerTest {
 		});
 	}
 
-	protected void executeTestScan(TestScanBean bean) throws Exception {
+	protected void executeTestScan() throws Exception {
 
 		MockDetectorModel dmodel = new MockDetectorModel();
 		dmodel.setExposureTime(0.1);
 		dmodel.setName("swmr");
-		IWritableDetector<?> detector = (IWritableDetector<?>) runnableDeviceService.createRunnableDevice(dmodel);
+		IWritableDetector<MockDetectorModel> detector = (IWritableDetector<MockDetectorModel>) runnableDeviceService.createRunnableDevice(dmodel);
 		assertNotNull(detector);
 
 		detector.addRunListener(new IRunListener() {
@@ -113,7 +114,7 @@ public class ScanExecutionTest extends BrokerTest {
 		System.out.println("done");
 	}
 
-	private IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<?> detector, int... size) throws Exception {
+	private IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<? extends IDetectorModel> detector, int... size) throws Exception {
 
 		// Create scan points for a grid and make a generator
 		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
@@ -135,7 +136,7 @@ public class ScanExecutionTest extends BrokerTest {
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
 		smodel.setPointGenerator(gen);
-		smodel.setDetectors(detector);
+		smodel.setDetector(detector);
 
 		// Create a file to scan into.
 		File output = File.createTempFile("test_mandel_nexus", ".nxs");

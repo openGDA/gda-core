@@ -56,6 +56,7 @@ import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
@@ -124,7 +125,7 @@ public class ScanMetadataTest extends NexusTest {
 		checkNexusFile(scanner, scanMetadata, 2, 2);
 	}
 
-	private IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<?> detector,
+	private IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<? extends IDetectorModel> detector,
 			List<ScanMetadata> scanMetadata, int... size) throws Exception {
 
 		// Create scan points for a grid and make a generator
@@ -144,7 +145,7 @@ public class ScanMetadataTest extends NexusTest {
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setPointGenerator(pointGen);
 		scanModel.setScanPathModel(compoundModel);
-		scanModel.setDetectors(detector);
+		scanModel.setDetector(detector);
 		scanModel.setScanMetadata(scanMetadata);
 
 		// Create a file to scan into.
@@ -154,11 +155,10 @@ public class ScanMetadataTest extends NexusTest {
 		// Create a scan and run it without publishing events
 		final IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(scanModel, null);
 
-		final IPointGenerator<?> fgen = pointGen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
 			@Override
 			public void runWillPerform(RunEvent evt) throws ScanningException {
-				System.out.println("Running acquisition scan of size "+fgen.size());
+				System.out.println("Running acquisition scan of size " + pointGen.size());
 			}
 		});
 

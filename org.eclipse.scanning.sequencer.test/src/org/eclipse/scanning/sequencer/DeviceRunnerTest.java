@@ -129,7 +129,7 @@ public class DeviceRunnerTest {
 	@Test
 	public void testGetDevices() {
 		deviceRunner = new DeviceRunner(scan, asList(detector1, detector2));
-		final Collection<IRunnableDevice<?>> devices = deviceRunner.getDevices();
+		final Collection<IRunnableDevice<? extends INameable>> devices = deviceRunner.getDevices();
 		assertEquals(2, devices.size());
 		assertTrue(devices.contains(detector1));
 		assertTrue(devices.contains(detector2));

@@ -32,6 +32,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
 import org.eclipse.scanning.api.annotation.scan.FileDeclared;
@@ -101,8 +102,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 
 	// Scanning stuff
 	private IPositioner positioner;
-	private LevelRunner<IRunnableDevice<?>> runners;
-	private LevelRunner<IRunnableDevice<?>> writers;
+	private LevelRunner<IRunnableDevice<? extends INameable>> runners;
+	private LevelRunner<IRunnableDevice<? extends INameable>> writers;
 	private AnnotationManager annotationManager;
 	private ExposureTimeManager exposureManager;
 	private Set<IPositionListener> positionListeners = new CopyOnWriteArraySet<>();
@@ -227,9 +228,10 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 			runners = LevelRunner.createEmptyRunner();
 			writers = LevelRunner.createEmptyRunner();
 		} else {
-			runners = new DeviceRunner(this, model.getDetectors());
+			final List<IRunnableDevice<? extends INameable>> detectors = new ArrayList<>(model.getDetectors());
+			runners = new DeviceRunner(this, detectors);
 			if (nexusScanFileManager.isNexusWritingEnabled()) {
-				writers = new DeviceWriter(this, model.getDetectors());
+				writers = new DeviceWriter(this, detectors);
 			} else {
 				writers = LevelRunner.createEmptyRunner();
 			}
@@ -248,7 +250,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		if (scannables == null || scannables.isEmpty()) {
 			final List<String> malcolmControlledAxisNames =
 					malcolmDevice.isPresent() ? malcolmDevice.get().getAvailableAxes() : Collections.emptyList();
-			final List<String> allScannableNames = getScannableNames(model.getPointGenerator());
+			final List<String> allScannableNames = getScannableNames();
 			final List<String> scannableNames = allScannableNames.stream()
 					.filter(axisName -> !malcolmControlledAxisNames.contains(axisName))
 					.collect(toList());
@@ -681,7 +683,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		logger.debug("abort() exiting");
 	}
 
-	private void abortInternal() throws ScanningException, InterruptedException {
+	private void abortInternal() throws ScanningException {
 		aborted = true;
 		setDeviceState(DeviceState.ABORTING);
 		positioner.abort();
@@ -839,7 +841,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		buildAndSendJsonScanMessage(ScanMessage.ScanStatus.UPDATED, model);
 	}
 
-	private List<String> getScannableNames(Iterable<IPosition> gen) {
+	private List<String> getScannableNames() {
 		return model.getPointGenerator().getNames();
 	}
 

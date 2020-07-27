@@ -33,9 +33,9 @@ import org.eclipse.scanning.api.scan.ScanningException;
  * @author Matthew Gerring
  *
  */
-class ExposureTimeManager extends LevelRunner<IRunnableDevice<?>> {
+class ExposureTimeManager extends LevelRunner<IRunnableDevice<? extends IDetectorModel>> {
 
-	private List<IRunnableDevice<?>> devices;
+	private List<IRunnableDevice<? extends IDetectorModel>> devices;
 	private List<Integer>            levels;
 	private double                   tolerance = 0.0001; // 10% of a microsecond
 
@@ -49,19 +49,17 @@ class ExposureTimeManager extends LevelRunner<IRunnableDevice<?>> {
 	 * to the required level set are
 	 * @param toAdd
 	 */
-	public void addDevices(List<IRunnableDevice<?>> toAdd) {
+	public void addDevices(List<IRunnableDevice<? extends IDetectorModel>> toAdd) {
 
-		List<IRunnableDevice<?>> filtered = Optional.of(toAdd).orElse(Collections.emptyList());
+		List<IRunnableDevice<? extends IDetectorModel>> filtered = Optional.of(toAdd).orElse(Collections.emptyList());
 		filtered = filtered.stream().filter(this::isApplicable).collect(Collectors.toList());
 		devices.addAll(filtered);
 	}
 
-	private boolean isApplicable(IRunnableDevice<?> device) {
+	private boolean isApplicable(IRunnableDevice<? extends IDetectorModel> device) {
 
 		// Check model
 		if (device.getModel()==null)
-			return false;
-		if (!(device.getModel() instanceof IDetectorModel))
 			return false;
 
 		// Check levels
@@ -99,13 +97,13 @@ class ExposureTimeManager extends LevelRunner<IRunnableDevice<?>> {
 	}
 
 	@Override
-	protected Collection<IRunnableDevice<?>> getDevices() throws ScanningException {
+	protected Collection<IRunnableDevice<? extends IDetectorModel>> getDevices() throws ScanningException {
 		return devices;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected Callable<IPosition> createTask(IRunnableDevice<?> device, IPosition position) {
+	protected Callable<IPosition> createTask(IRunnableDevice<? extends IDetectorModel> device, IPosition position) {
 		return new ExposureTimeTask((IRunnableDevice<IDetectorModel>)device, position);
 	}
 

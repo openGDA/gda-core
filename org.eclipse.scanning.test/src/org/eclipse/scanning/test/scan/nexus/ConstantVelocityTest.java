@@ -42,6 +42,7 @@ import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
@@ -56,8 +57,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ConstantVelocityTest extends NexusTest {
-
-
 
 	private static IWritableDetector<ConstantVelocityModel> detector;
 
@@ -76,9 +75,7 @@ public class ConstantVelocityTest extends NexusTest {
                 //System.out.println("Ran cv device detector @ "+evt.getPosition());
 			}
 		});
-
 	}
-
 
 	@Test
 	public void test1DOuter() throws Exception {
@@ -184,7 +181,7 @@ public class ConstantVelocityTest extends NexusTest {
 		}
 	}
 
-	private IRunnableDevice<ScanModel> createNestedStepScan(final IRunnableDevice<?> detector, int... size) throws Exception {
+	private IRunnableDevice<ScanModel> createNestedStepScan(final IRunnableDevice<? extends IDetectorModel> detector, int... size) throws Exception {
 
 		// Create scan points for a grid and make a generator
 		AxialStepModel smodel;
@@ -204,7 +201,7 @@ public class ConstantVelocityTest extends NexusTest {
 		final ScanModel  scanModel = new ScanModel();
 		scanModel.setPointGenerator(pointGen);
 		scanModel.setScanPathModel(compoundModel);
-		scanModel.setDetectors(detector);
+		scanModel.setDetector(detector);
 
 		// Create a file to scan into.
 		scanModel.setFilePath(output.getAbsolutePath());
@@ -213,11 +210,10 @@ public class ConstantVelocityTest extends NexusTest {
 		// Create a scan and run it without publishing events
 		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(scanModel, null);
 
-		final IPointGenerator<?> fgen = pointGen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
 			@Override
 			public void runWillPerform(RunEvent evt) throws ScanningException{
-				System.out.println("Running acquisition scan of size "+fgen.size());
+				System.out.println("Running acquisition scan of size " + pointGen.size());
 			}
 		});
 

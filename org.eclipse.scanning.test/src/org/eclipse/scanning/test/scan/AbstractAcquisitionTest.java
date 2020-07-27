@@ -142,7 +142,7 @@ public abstract class AbstractAcquisitionTest {
         scanModel.setFilePath(filePath);
 
 		if (device==null) device = (IRunnableDevice<T>)detector;
-		scanModel.setDetectors(device);
+		scanModel.setDetector(device);
 		scanModel.setMonitorsPerPoint(monitorPerPoint);
 		scanModel.setMonitorsPerScan(monitorPerScan);
 		scanModel.setBean(new ScanBean());

@@ -358,7 +358,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setPointGenerator(gen);
 		scanModel.setScanPathModel(compoundModel);
-		scanModel.setDetectors(malcolmDevice);
+		scanModel.setDetector(malcolmDevice);
 
 		final MalcolmModel malcolmModel = new MalcolmModel();
 		malcolmModel.setName("malcolm");

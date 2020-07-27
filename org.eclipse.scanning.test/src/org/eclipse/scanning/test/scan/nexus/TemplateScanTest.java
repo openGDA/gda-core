@@ -47,7 +47,7 @@ public class TemplateScanTest extends NexusTest {
 
 	private static final String TEMPLATE_FILE_PATH = "testfiles/test-template.yaml";
 
-	private IRunnableDevice<?> detector;
+	private IRunnableDevice<MandelbrotModel> detector;
 
 	@Before
 	public void before() throws Exception {

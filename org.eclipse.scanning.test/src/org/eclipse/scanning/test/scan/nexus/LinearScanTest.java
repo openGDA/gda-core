@@ -213,7 +213,7 @@ public class LinearScanTest extends BrokerTest{
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setPointGenerator(pointGen);
 		scanModel.setScanPathModel(compoundModel);
-		scanModel.setDetectors(detector);
+		scanModel.setDetector(detector);
 
 		scanModel.setFilePath(tmp.getAbsolutePath());
 

@@ -497,7 +497,7 @@ public class ScanTest extends BrokerTest {
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setPointGenerator(gen);
 		scanModel.setScanPathModel(gridPointsModel);
-		scanModel.setDetectors(detector);
+		scanModel.setDetector(detector);
 		scanModel.setBean(bean);
 		if (monitorsPerPoint!=null) scanModel.setMonitorsPerPoint(monitorsPerPoint);
 		if (monitorsPerScan!=null) scanModel.setMonitorsPerScan(monitorsPerScan);

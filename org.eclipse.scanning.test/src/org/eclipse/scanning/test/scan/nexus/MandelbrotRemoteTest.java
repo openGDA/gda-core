@@ -300,7 +300,7 @@ public class MandelbrotRemoteTest extends NexusTest {
 		}
 	}
 
-	private IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<?> detector, int... size) throws Exception {
+	private IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<MandelbrotModel> detector, int... size) throws Exception {
 		// Create scan points for a grid and make a generator
 		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
 		gmodel.setxAxisName("xNex");
@@ -317,7 +317,7 @@ public class MandelbrotRemoteTest extends NexusTest {
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
 		smodel.setPointGenerator(gen);
-		smodel.setDetectors(detector);
+		smodel.setDetector(detector);
 
 		// Create a file to scan into.
 		smodel.setFilePath(output.getAbsolutePath());
@@ -326,11 +326,10 @@ public class MandelbrotRemoteTest extends NexusTest {
 		// Create a scan and run it without publishing events
 		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(smodel, null);
 
-		final IPointGenerator<?> fgen = gen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
 			@Override
 			public void runWillPerform(RunEvent evt) throws ScanningException {
-				System.out.println("Running acquisition scan of size "+fgen.size());
+				System.out.println("Running acquisition scan of size " + gen.size());
 			}
 		});
 

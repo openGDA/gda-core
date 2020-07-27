@@ -299,7 +299,7 @@ public class MonitorTest extends NexusTest {
 	}
 
 
-	private IRunnableDevice<ScanModel> createNestedStepScanWithMonitors(final IRunnableDevice<?> detector, List<String> monitorNamesPerPoint, List<String> monitorNamesPerScan, int... size) throws Exception {
+	private IRunnableDevice<ScanModel> createNestedStepScanWithMonitors(final IRunnableDevice<ConstantVelocityModel> detector, List<String> monitorNamesPerPoint, List<String> monitorNamesPerScan, int... size) throws Exception {
 
 		// Create scan points for a grid and make a generator
 		int ySize = size[size.length-1];
@@ -316,7 +316,7 @@ public class MonitorTest extends NexusTest {
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setPointGenerator(pointGen);
 		scanModel.setScanPathModel(compoundModel);
-		scanModel.setDetectors(detector);
+		scanModel.setDetector(detector);
 		scanModel.setMonitorsPerPoint(createMonitors(monitorNamesPerPoint));
 		scanModel.setMonitorsPerScan(createMonitors(monitorNamesPerScan));
 
@@ -327,11 +327,10 @@ public class MonitorTest extends NexusTest {
 		// Create a scan and run it without publishing events
 		final IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(scanModel, null);
 
-		final IPointGenerator<?> fgen = pointGen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
 			@Override
 			public void runWillPerform(RunEvent evt) throws ScanningException{
-				System.out.println("Running acquisition scan of size "+fgen.size());
+				System.out.println("Running acquisition scan of size " + pointGen.size());
 			}
 		});
 

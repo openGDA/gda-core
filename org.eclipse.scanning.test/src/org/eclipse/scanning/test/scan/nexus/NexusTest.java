@@ -272,7 +272,7 @@ public abstract class NexusTest {
 		return rootNode;
 	}
 
-	protected IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<?> detector, File file, boolean snake, int... size) throws Exception {
+	protected IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<? extends IDetectorModel> detector, File file, boolean snake, int... size) throws Exception {
 
 		ScanModel smodel = createGridScanModel(detector, file, snake, size);
 
@@ -280,7 +280,7 @@ public abstract class NexusTest {
 		return runnableDeviceService.createRunnableDevice(smodel, null);
 	}
 
-	protected IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<?> detector, File file, IROI region, boolean snake, int... size) throws Exception {
+	protected IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<? extends IDetectorModel> detector, File file, IROI region, boolean snake, int... size) throws Exception {
 
 		ScanModel smodel = createGridScanModel(detector, file, region, snake, size);
 
@@ -288,11 +288,11 @@ public abstract class NexusTest {
 		return runnableDeviceService.createRunnableDevice(smodel, null);
 	}
 
-	protected ScanModel createGridScanModel(final IRunnableDevice<?> detector, File file, boolean snake, int... size) throws Exception {
+	protected ScanModel createGridScanModel(final IRunnableDevice<? extends IDetectorModel> detector, File file, boolean snake, int... size) throws Exception {
 		return createGridScanModel(detector, file, null, snake, size);
 	}
 
-	protected ScanModel createGridScanModel(final IRunnableDevice<?> detector, File file, IROI region, boolean snake, int... size) throws Exception {
+	protected ScanModel createGridScanModel(final IRunnableDevice<? extends IDetectorModel> detector, File file, IROI region, boolean snake, int... size) throws Exception {
 		// Create scan points for a grid and make a generator
 		final TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel();
 		gridModel.setxAxisName("xNex");
@@ -311,7 +311,7 @@ public abstract class NexusTest {
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setPointGenerator(pointGen);
 		scanModel.setScanPathModel(compoundModel);
-		scanModel.setDetectors(detector);
+		scanModel.setDetector(detector);
 
 		// Create a file to scan into.
 		scanModel.setFilePath(file.getAbsolutePath());
@@ -320,13 +320,13 @@ public abstract class NexusTest {
 		return scanModel;
 	}
 
-	protected IRunnableDevice<ScanModel> createSpiralScan(final IRunnableDevice<?> detector, File file) throws Exception {
+	protected IRunnableDevice<ScanModel> createSpiralScan(final IRunnableDevice<? extends IDetectorModel> detector, File file) throws Exception {
 		ScanModel smodel = createSpiralScanModel(detector, file);
 		// Create a scan and run it without publishing events
 		return runnableDeviceService.createRunnableDevice(smodel, null);
 	}
 
-	protected ScanModel createSpiralScanModel(final IRunnableDevice<?> detector, File file) throws Exception {
+	protected ScanModel createSpiralScanModel(final IRunnableDevice<? extends IDetectorModel> detector, File file) throws Exception {
 		final TwoAxisSpiralModel spiralModel = new TwoAxisSpiralModel("xNex","yNex");
 		spiralModel.setScale(2.0);
 		spiralModel.setBoundingBox(new BoundingBox(0,0,1,1));
@@ -339,7 +339,7 @@ public abstract class NexusTest {
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setPointGenerator(pointGen);
 		scanModel.setScanPathModel(compoundModel);
-		scanModel.setDetectors(detector);
+		scanModel.setDetector(detector);
 
 		// Create a file to scan into.
 		scanModel.setFilePath(file.getAbsolutePath());

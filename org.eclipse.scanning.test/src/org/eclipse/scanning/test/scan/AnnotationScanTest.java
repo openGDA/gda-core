@@ -33,6 +33,7 @@ import org.eclipse.scanning.api.annotation.scan.WriteComplete;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
@@ -119,7 +120,7 @@ public class AnnotationScanTest extends NexusTest {
 
 	}
 
-	private class InjectionDetector extends AbstractRunnableDevice<Object> implements InjectionDevice {
+	private class InjectionDetector extends AbstractRunnableDevice<IDetectorModel> implements InjectionDevice {
 
 		private final Map<Class<?>, Set<Object>> injectionContexts = new HashMap<>();
 		private List<LevelRole> levelRoles;
@@ -254,7 +255,7 @@ public class AnnotationScanTest extends NexusTest {
 		}
 	}
 
-	private IRunnableDevice<ScanModel> createGridScan(IRunnableDevice<?> detector,
+	private IRunnableDevice<ScanModel> createGridScan(IRunnableDevice<IDetectorModel> detector,
 			IScannable<?> monitorsPerPoint, IScannable<?> monitorsPerScan, int... size) throws Exception {
 		final TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel();
 		gridModel.setxAxisName("xNex");
@@ -273,7 +274,7 @@ public class AnnotationScanTest extends NexusTest {
 		scanModel.setPointGenerator(pointGen);
 		scanModel.setScanPathModel(compoundModel);
 		if (detector != null) {
-			scanModel.setDetectors(detector);
+			scanModel.setDetector(detector);
 		}
 		if (monitorsPerPoint != null) scanModel.setMonitorsPerPoint(monitorsPerPoint);
 		if (monitorsPerScan != null) scanModel.setMonitorsPerScan(monitorsPerScan);

@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.event.scan;
 
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.IdBean;
 import org.eclipse.scanning.api.event.status.Status;
 
@@ -25,7 +26,7 @@ public class AcquireRequest extends IdBean {
 
 	private String detectorName;
 
-	private Object detectorModel;
+	private IDetectorModel detectorModel;
 
 	private String filePath;
 
@@ -41,7 +42,7 @@ public class AcquireRequest extends IdBean {
 		this.filePath = filePath;
 	}
 
-	public AcquireRequest(String filePath, String detectorName, Object detectorModel) {
+	public AcquireRequest(String filePath, String detectorName, IDetectorModel detectorModel) {
 		this(filePath);
 		this.detectorName = detectorName;
 		this.detectorModel = detectorModel;
@@ -55,11 +56,11 @@ public class AcquireRequest extends IdBean {
 		this.detectorName = detectorName;
 	}
 
-	public Object getDetectorModel() {
+	public IDetectorModel getDetectorModel() {
 		return detectorModel;
 	}
 
-	public void setDetectorModel(Object detectorModel) {
+	public void setDetectorModel(IDetectorModel detectorModel) {
 		this.detectorModel = detectorModel;
 	}
 

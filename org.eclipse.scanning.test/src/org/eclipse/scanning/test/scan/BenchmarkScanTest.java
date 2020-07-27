@@ -323,14 +323,14 @@ public class BenchmarkScanTest extends BrokerTest {
 		return time;
 	}
 
-	private ScanModel createTestScanner(IRunnableDevice<?> detector, IScanPointGeneratorModel... models) throws Exception {
+	private ScanModel createTestScanner(IRunnableDevice<? extends IDetectorModel> detector, IScanPointGeneratorModel... models) throws Exception {
 
 		IPointGenerator<CompoundModel> gen = gservice.createCompoundGenerator(new CompoundModel(models));
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
 		smodel.setPointGenerator(gen);
-		smodel.setDetectors(detector);
+		smodel.setDetector(detector);
 
 		// Create a scan and run it without publishing events
 		return smodel;

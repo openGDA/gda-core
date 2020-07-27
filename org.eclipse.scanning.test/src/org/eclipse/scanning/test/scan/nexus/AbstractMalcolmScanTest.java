@@ -337,7 +337,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setScanPathModel(compoundModel);
 		scanModel.setPointGenerator(pointGen);
-		scanModel.setDetectors(malcolmDevice);
+		scanModel.setDetector(malcolmDevice);
 		// Cannot set the generator from @PreConfigure in this unit test.
 		malcolmDevice.setPointGenerator(pointGen);
 

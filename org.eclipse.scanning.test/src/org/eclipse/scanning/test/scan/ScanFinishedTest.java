@@ -122,7 +122,7 @@ public class ScanFinishedTest {
 		ScanModel smodel = createStepModel(8, 5);
 		MandelbrotModel mmodel = new MandelbrotModel("neXusScannable1", "neXusScannable2");
 		mmodel.setExposureTime(0.1);
-		smodel.setDetectors(dservice.createRunnableDevice(mmodel));
+		smodel.setDetector(dservice.createRunnableDevice(mmodel));
 
 		// Create a scan and run it without publishing events
 		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(smodel, null);
@@ -186,7 +186,7 @@ public class ScanFinishedTest {
 
 		ScanModel smodel = createStepModel(2, 2);
 		MandelbrotModel mmodel = new MandelbrotModel("neXusScannable1", "neXusScannable2");
-		smodel.setDetectors(dservice.createRunnableDevice(mmodel));
+		smodel.setDetector(dservice.createRunnableDevice(mmodel));
 
 		// Create a scan and run it without publishing events
 		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(smodel, null);

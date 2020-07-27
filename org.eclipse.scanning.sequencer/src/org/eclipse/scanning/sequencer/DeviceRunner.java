@@ -39,15 +39,15 @@ import org.slf4j.LoggerFactory;
  * @author Matthew Gerring
  *
  */
-class DeviceRunner extends LevelRunner<IRunnableDevice<?>> {
+class DeviceRunner extends LevelRunner<IRunnableDevice<? extends INameable>> {
 
 	private static final Logger logger = LoggerFactory.getLogger(DeviceRunner.class);
 
 	private static final Duration SHUTDOWN_TIMEOUT = Duration.ofSeconds(10);
 
-	private Collection<IRunnableDevice<?>>  devices;
+	private Collection<IRunnableDevice<? extends INameable>>  devices;
 
-	DeviceRunner(INameable source, Collection<IRunnableDevice<?>> devices) {
+	DeviceRunner(INameable source, Collection<IRunnableDevice<? extends INameable>> devices) {
 		super(source);
 		Objects.requireNonNull(devices);
 		this.devices = devices;
@@ -70,9 +70,9 @@ class DeviceRunner extends LevelRunner<IRunnableDevice<?>> {
 	 * @param devices
 	 * @return
 	 */
-	private long calculateTimeout(Collection<IRunnableDevice<?>> devices) {
+	private long calculateTimeout(Collection<IRunnableDevice<? extends INameable>> devices) {
 		long time = Long.MIN_VALUE;
-		for (IRunnableDevice<?> device : devices) {
+		for (IRunnableDevice<? extends INameable> device : devices) {
 			time = Math.max(time, getTimeout(device));
 		}
 		if (time <= 0) {
@@ -95,12 +95,12 @@ class DeviceRunner extends LevelRunner<IRunnableDevice<?>> {
 	}
 
 	@Override
-	protected Callable<IPosition> createTask(IRunnableDevice<?> detector, IPosition position) {
+	protected Callable<IPosition> createTask(IRunnableDevice<? extends INameable> detector, IPosition position) {
 		return new RunTask(detector, position);
 	}
 
 	@Override
-	protected Collection<IRunnableDevice<?>> getDevices() {
+	protected Collection<IRunnableDevice<? extends INameable>> getDevices() {
 		return devices;
 	}
 

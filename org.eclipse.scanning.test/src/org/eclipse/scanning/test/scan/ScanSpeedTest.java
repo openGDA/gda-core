@@ -37,6 +37,7 @@ import org.eclipse.scanning.api.device.IPausableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AxialCollatedStepModel;
@@ -109,7 +110,7 @@ public class ScanSpeedTest extends BrokerTest {
 
 	}
 
-	private void checkNoAnnotations(	int pointCount, int scannableCount, int detectorCount, long pointTime) throws Exception {
+	private void checkNoAnnotations(int pointCount, int scannableCount, int detectorCount, long pointTime) throws Exception {
 
 		final List<IScannable<?>> scannables = new ArrayList<>();
 		MockScannableConnector mc = (MockScannableConnector)connector;
@@ -121,14 +122,14 @@ public class ScanSpeedTest extends BrokerTest {
 			scannables.add(ms);
 		}
 
-		final List<IRunnableDevice<?>> detectors = new ArrayList<>(detectorCount);
+		final List<IRunnableDevice<MockDetectorModel>> detectors = new ArrayList<>(detectorCount);
 		for (int i = 0; i < detectorCount; i++) {
 			MockDetectorModel mod = new MockDetectorModel();
 			mod.setName("detector"+i);
 			mod.setCreateImage(false);  // Would put our times off.
 			mod.setExposureTime(0);
 
-			IRunnableDevice<?> dev = dservice.createRunnableDevice(mod);
+			IRunnableDevice<MockDetectorModel> dev = dservice.createRunnableDevice(mod);
 			dev.setLevel(i%10);
 			detectors.add(dev);
 		}
@@ -143,7 +144,7 @@ public class ScanSpeedTest extends BrokerTest {
 		int pointCount     = 99;   // Gives 100 points because it's a step model
 
 		final List<IScannable<?>>     scannables = createAnnotatedScannables("annotatedScannable", 100, false);
-		final List<IRunnableDevice<?>> detectors = createAnnotatedDetectors("annotatedDetector", 100, false);
+		final List<IRunnableDevice<MockDetectorModel>> detectors = createAnnotatedDetectors("annotatedDetector", 100, false);
 
 		long time = checkTimes(pointCount, scannables, detectors, "all annotations");
 		assertTrue("Time should be less than 30ms and is: "+time, time<60);
@@ -180,9 +181,9 @@ public class ScanSpeedTest extends BrokerTest {
 	public void abortTest() throws Exception {
 
 		final List<IScannable<?>>      scannables = createAnnotatedScannables("annotatedSleepingScannable", 10, true);
-		final List<IRunnableDevice<?>> detectors  = createAnnotatedDetectors("annotatedWritingDetector", 10, true);
+		final List<IRunnableDevice<MockDetectorModel>> detectors  = createAnnotatedDetectors("annotatedWritingDetector", 10, true);
 
-		IRunnableDevice<?> device = createDevice(100, scannables, detectors);
+		IRunnableDevice<ScanModel> device = createDevice(100, scannables, detectors);
 		device.start(null);
 		device.latch(500, TimeUnit.MILLISECONDS);
 		device.abort();
@@ -212,9 +213,9 @@ public class ScanSpeedTest extends BrokerTest {
 	public void pauseTest() throws Exception {
 
 		final List<IScannable<?>>      scannables = createAnnotatedScannables("annotatedSleepingScannable", 10, true);
-		final List<IRunnableDevice<?>> detectors  = createAnnotatedDetectors("annotatedWritingDetector", 10, true);
+		final List<IRunnableDevice<MockDetectorModel>> detectors  = createAnnotatedDetectors("annotatedWritingDetector", 10, true);
 
-		IPausableDevice<?> device = (IPausableDevice<?>)createDevice(10, scannables, detectors);
+		IPausableDevice<ScanModel> device = (IPausableDevice<ScanModel>)createDevice(10, scannables, detectors);
 		device.start(null);
 		Thread.sleep(500);
 		device.pause();
@@ -248,16 +249,16 @@ public class ScanSpeedTest extends BrokerTest {
 	}
 
 
-	private List<IRunnableDevice<?>> createAnnotatedDetectors(String namefrag, int detectorCount, boolean createImage) throws ScanningException {
+	private List<IRunnableDevice<MockDetectorModel>> createAnnotatedDetectors(String namefrag, int detectorCount, boolean createImage) throws ScanningException {
 
-		final List<IRunnableDevice<?>> detectors = new ArrayList<>(detectorCount);
+		final List<IRunnableDevice<MockDetectorModel>> detectors = new ArrayList<>(detectorCount);
 		for (int i = 0; i < detectorCount; i++) {
 			MockDetectorModel mod = new AnnotatedMockDetectorModel();
 			mod.setName(namefrag+i);
 			mod.setCreateImage(createImage);  // Would put our times off.
 			mod.setExposureTime(0);
 
-			IRunnableDevice<?> dev = dservice.createRunnableDevice(mod);
+			IRunnableDevice<MockDetectorModel> dev = dservice.createRunnableDevice(mod);
 			dev.setLevel(i%10);
 			detectors.add(dev);
 		}
@@ -278,7 +279,7 @@ public class ScanSpeedTest extends BrokerTest {
 	}
 
 
-	private long checkTimes(int pointCount, List<IScannable<?>> scannables, List<IRunnableDevice<?>> detectors, String msg) throws Exception {
+	private long checkTimes(int pointCount, List<IScannable<?>> scannables, List<IRunnableDevice<MockDetectorModel>> detectors, String msg) throws Exception {
 
 
 		IRunnableDevice<?> device = createDevice(pointCount, scannables, detectors);
@@ -293,7 +294,7 @@ public class ScanSpeedTest extends BrokerTest {
 
 	}
 
-	private IRunnableDevice<?> createDevice(int pointCount, List<IScannable<?>> scannables, List<IRunnableDevice<?>> detectors) throws Exception {
+	private IRunnableDevice<ScanModel> createDevice(int pointCount, List<IScannable<?>> scannables, List<IRunnableDevice<MockDetectorModel>> detectors) throws Exception {
 
 		final String[] names = new String[scannables.size()];
 		for (int i = 0; i < scannables.size(); i++) {
@@ -308,8 +309,8 @@ public class ScanSpeedTest extends BrokerTest {
 
 		// Create a file to scan into.
 		smodel.setFilePath(null); // Intentionally no nexus writing
-
-	smodel.setDetectors(detectors);
+		final List<IRunnableDevice<? extends IDetectorModel>> dets = new ArrayList<>(detectors);
+		smodel.setDetectors(dets);
 
 		// Create a scan and run it without publishing events
 		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(smodel, null);
