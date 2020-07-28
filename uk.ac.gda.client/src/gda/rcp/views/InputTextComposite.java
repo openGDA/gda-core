@@ -41,7 +41,6 @@ import gda.device.Scannable;
 import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.factory.FactoryException;
 import gda.jython.JythonServerFacade;
-import gda.observable.IObserver;
 
 /**
  * A class which provides a GUI composite to allow easy control of a scannable.
@@ -317,43 +316,44 @@ public class InputTextComposite extends Composite {
 		if (scannable == null) {
 			throw new IllegalStateException("Scannable is not set");
 		}
-
-		// Add an observer to the scannable when an event occurs
-		final IObserver iObserver = (source, arg) -> {
-			Object[] argArray;
-			if (arg instanceof ScannablePositionChangeEvent) {
-				Display.getDefault().asyncExec(
-						() -> positionText.setText(String.format(scannable.getOutputFormat()[0], (Double)((ScannablePositionChangeEvent) arg).newPosition)));
-			} else if (arg.getClass().isArray()) {
-				// EPICS monitor by default always sending array
-				argArray = (Object[]) arg;
-				Display.getDefault().asyncExec(() -> {
-					// only display the 1st value.
-					if (isTextInput()) {
-						positionText.setText(argArray[0].toString());
-					} else {
-						positionText.setText(String.format(scannable.getOutputFormat()[0], argArray[0]));
-					}
-				});
-			} else {
-				Display.getDefault().asyncExec(() -> {
-					// only display the 1st value.
-					if (isTextInput()) {
-						positionText.setText(arg.toString());
-					} else {
-						positionText.setText(String.format(scannable.getOutputFormat()[0], arg));
-					}
-				});
-			}
-		};
-
-		scannable.addIObserver(iObserver);
-		this.addDisposeListener(e -> scannable.deleteIObserver(iObserver));
+		scannable.addIObserver(this::updateValue);
+		this.addDisposeListener(e -> scannable.deleteIObserver(this::updateValue));
 		//The original pulling current position call blocks when GUI is starting - not clear what caused it.
 		try {
 			scannable.reconfigure();
-		} catch (FactoryException e1) {
-			logger.error("reconfigure scannable '{}' failed.", scannable.getName(), e1);
+			updateValue(scannable.getPosition(), null);
+		} catch (FactoryException exception) {
+			logger.error("reconfigure scannable '{}' failed.", scannable.getName(), exception);
+		} catch (DeviceException exception) {
+			logger.error("Unable to get initial position of {}", scannable.getName(), exception);
+		}
+	}
+
+	private void updateValue(Object arg, Object source) {
+		Object[] argArray;
+		if (arg instanceof ScannablePositionChangeEvent) {
+			Display.getDefault().asyncExec(
+					() -> positionText.setText(String.format(scannable.getOutputFormat()[0], (Double)((ScannablePositionChangeEvent) arg).newPosition)));
+		} else if (arg.getClass().isArray()) {
+			// EPICS monitor by default always sending array
+			argArray = (Object[]) arg;
+			Display.getDefault().asyncExec(() -> {
+				// only display the 1st value.
+				if (isTextInput()) {
+					positionText.setText(argArray[0].toString());
+				} else {
+					positionText.setText(String.format(scannable.getOutputFormat()[0], argArray[0]));
+				}
+			});
+		} else {
+			Display.getDefault().asyncExec(() -> {
+				// only display the 1st value.
+				if (isTextInput()) {
+					positionText.setText(arg.toString());
+				} else {
+					positionText.setText(String.format(scannable.getOutputFormat()[0], arg));
+				}
+			});
 		}
 	}
 
