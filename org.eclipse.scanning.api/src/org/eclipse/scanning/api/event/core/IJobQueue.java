@@ -301,15 +301,20 @@ public interface IJobQueue<T> extends IConnection, IBeanClass<T> {
 
 	/**
 	 * If a process for the given bean exists and is running, pauses it. If the bean is still
-	 * in the submission queue, then instead when the consumer thread removes it from queue,
-	 * it will start its process in a paused state.
+	 * in the submission queue, then instead defers the bean, allowing other scans to be run first.
 	 * @param bean bean whose process to pause.
 	 * @throws EventException
 	 */
 	void pauseJob(T bean) throws EventException;
 
 	/**
+	 * Sets the given bean to be deferred, not capable of running until it is undeferred.
+	 */
+	void defer(T bean) throws EventException;
+
+	/**
 	 * If a process for the given bean exists and is paused, resumes it.
+	 * If the given bean is deferred and in the submission queue, undefer the bean.
 	 * @param bean bean whose process to resume.
 	 * @throws EventException
 	 */

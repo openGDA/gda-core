@@ -143,7 +143,11 @@ public class QueueCommandBean  extends IdBean {
 		/**
 		 * A command to force all {@link JobQueueProxy} listening to this {@link JobQueueImpl} to refresh any {@link StatusQueueView} listening to them
 		 */
-		REFRESH_QUEUE_VIEW;
+		REFRESH_QUEUE_VIEW,
+		/**
+		 * A command to defer a currently submitted by unstarted scan until some later time it is Resumed
+		 */
+		DEFER;
 
 	}
 

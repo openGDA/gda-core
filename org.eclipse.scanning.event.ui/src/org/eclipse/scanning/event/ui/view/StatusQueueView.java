@@ -151,6 +151,7 @@ public class StatusQueueView extends EventConnectionView {
 	private Action upAction;
 	private Action downAction;
 	private Action pauseAction;
+	private Action deferAction;
 	private Action stopAction;
 	private Action openAction;
 	private Action detailsAction;
@@ -223,15 +224,13 @@ public class StatusQueueView extends EventConnectionView {
 				.filter(sb -> selectedUniqueIds.contains(sb.getUniqueId()))
 				.collect(Collectors.toList());
 
-		List<StatusBean> activeInRunList = runList.stream()
-				.filter(sb -> sb.getStatus().isActive())
-				.collect(Collectors.toList());
-
+		boolean activeScanSelected = selectedInRunList.stream().anyMatch(sb -> sb.getStatus().isActive());
+		boolean activeScanPaused = selectedInRunList.stream().anyMatch(sb -> sb.getStatus().isPaused());
 		boolean anyFinalSelectedInRunList = selectedInRunList.stream().anyMatch(sb -> sb.getStatus().isFinal());
 		boolean anySelectedInSubmittedList = !selectedInSubmittedList.isEmpty();
-		boolean anyNonFinalSelected = selectedInRunList.stream().anyMatch(sb -> !sb.getStatus().isFinal()) || anySelectedInSubmittedList;
-		boolean allPaused = selectedInSubmittedList.stream().allMatch(sb -> sb.getStatus().isPaused()) &&
-				selectedInRunList.stream().allMatch(sb -> (sb.getStatus().isFinal() || sb.getStatus().isPaused()));
+		boolean anyNonFinalInSubmittedList = selectedInSubmittedList.stream().anyMatch(sb -> !sb.getStatus().isFinal());
+		boolean allSelectedSubmittedDeferred = selectedInSubmittedList.stream().allMatch(
+				sb -> sb.getStatus().isPaused() || sb.getStatus().isFinal());
 
 		removeActionUpdate(selectedInSubmittedList, selectedInRunList);
 		rerunActionUpdate(selection);
@@ -240,7 +239,8 @@ public class StatusQueueView extends EventConnectionView {
 		downActionUpdate(anySelectedInSubmittedList);
 
 		stopActionUpdate(selectedInRunList);
-		pauseActionUpdate(anyNonFinalSelected, allPaused);
+		pauseActionUpdate(activeScanSelected, activeScanPaused);
+		deferActionUpdate(anyNonFinalInSubmittedList, allSelectedSubmittedDeferred);
 
 		openResultsActionUpdate(anyFinalSelectedInRunList);
 		openActionUpdate(selection);
@@ -252,6 +252,7 @@ public class StatusQueueView extends EventConnectionView {
 		warnIfListContainsStatus("null status found in selection:       ", selection,     null);
 		warnIfListContainsStatus("RUNNING status found in submittedList: ", submittedList, org.eclipse.scanning.api.event.status.Status.RUNNING);
 		warnIfListContainsStatus("SUBMITTED status found in runList:       ", runList,       org.eclipse.scanning.api.event.status.Status.SUBMITTED);
+		warnIfListContainsStatus("DEFERRED status found in runList:       ", runList, org.eclipse.scanning.api.event.status.Status.DEFERRED);
 	}
 
 	private void warnIfListContainsStatus(String description, List<StatusBean> list, org.eclipse.scanning.api.event.status.Status status) {
@@ -387,6 +388,9 @@ public class StatusQueueView extends EventConnectionView {
 
 		downAction = downActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, downAction);
+
+		deferAction = deferActionCreate();
+		addActionTo(toolMan, menuMan, dropDown, deferAction);
 
 		pauseAction = pauseActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, pauseAction);
@@ -547,10 +551,10 @@ public class StatusQueueView extends EventConnectionView {
 		pauseQueue.setChecked(jobQueueProxy.isPaused());
 	}
 
-	private void pauseActionUpdate(boolean anySelectedNonFinal, boolean allPaused) {
-		pauseAction.setEnabled(anySelectedNonFinal);
-		pauseAction.setChecked(allPaused);
-		pauseAction.setText(allPaused?"Resume job":"Pause job");
+	private void pauseActionUpdate(boolean activeScanSelected, boolean activeScanPaused) {
+		pauseAction.setEnabled(activeScanSelected);
+		pauseAction.setChecked(activeScanPaused);
+		pauseAction.setText(activeScanPaused ? "Resume job" :"Pause job");
 	}
 
 	private Action pauseActionCreate() {
@@ -569,7 +573,14 @@ public class StatusQueueView extends EventConnectionView {
 	private void pauseActionRun() {
 		pauseAction.setEnabled(false);
 
-		for(StatusBean bean : getSelection()) {
+		List<String> selectedUniqueIds= getSelection().stream().map(StatusBean::getUniqueId).collect(Collectors.toList());
+
+		List<StatusBean> selectedInRunList = runList.stream()
+				.filter(sb -> selectedUniqueIds.contains(sb.getUniqueId()))
+				.collect(Collectors.toList());
+
+
+		for(StatusBean bean : selectedInRunList) {
 
 			if (bean.getStatus().isFinal()) continue;
 
@@ -586,6 +597,52 @@ public class StatusQueueView extends EventConnectionView {
 					new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()));
 			}
 		}
+	}
+
+	private void deferActionUpdate(boolean deferableSelectedInSubmittedList, boolean allSelectedSubmittedDeferred) {
+		deferAction.setEnabled(deferableSelectedInSubmittedList);
+		deferAction.setChecked(allSelectedSubmittedDeferred);
+		deferAction.setText(allSelectedSubmittedDeferred ? "Undefer job(s)" :"Defer job(s)");
+	}
+
+	private Action deferActionCreate() {
+		Action action = new Action("Defer submitted scan(s) until undefered", IAction.AS_CHECK_BOX) {
+			@Override
+			public void run() {
+				deferActionRun();
+			}
+		};
+		action.setImageDescriptor(Activator.getImageDescriptor("icons/alarm-clock-select.png"));
+		action.setEnabled(false);
+		action.setChecked(false);
+		return action;
+	}
+
+	private void deferActionRun() {
+		List<String> selectedUniqueIds= getSelection().stream().map(StatusBean::getUniqueId).collect(Collectors.toList());
+
+		List<StatusBean> selectedInSubmittedList = submittedList.stream()
+				.filter(sb -> selectedUniqueIds.contains(sb.getUniqueId()))
+				.collect(Collectors.toList());
+
+		for(StatusBean bean : selectedInSubmittedList) {
+
+			if (bean.getStatus().isFinal()) continue;
+
+			try {
+				// Invert as JFace bindings toggle state first...
+				if (!deferAction.isChecked()) {
+					jobQueueProxy.resumeJob(bean);
+				} else {
+					jobQueueProxy.pauseJob(bean);
+				}
+			} catch (Exception e) {
+				ErrorDialog.openError(getViewSite().getShell(), "Cannot defer "+bean.getName(),
+					"Cannot defer "+bean.getName()+"\n\nPlease contact your support representative.",
+					new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()));
+			}
+		}
+
 	}
 
 	private void removeActionUpdate(List<StatusBean> selectedInSubmittedList, List<StatusBean> selectedInRunList) {
@@ -1085,6 +1142,8 @@ public class StatusQueueView extends EventConnectionView {
 					updateProgress(jobStartTime, monitor, "Run/running jobs added to view list");
 
 					for (StatusBean bean : submittedList) {
+						if (bean.getStatus().isPaused()) bean.setStatus(org.eclipse.scanning.api.event.status.Status.DEFERRED);
+						if (bean.getStatus().isRequest()) bean.setStatus(org.eclipse.scanning.api.event.status.Status.SUBMITTED);
 						ret.put(bean.getUniqueId(), bean);
 					}
 					updateProgress(jobStartTime, monitor, "Submitted jobs added to view list");
