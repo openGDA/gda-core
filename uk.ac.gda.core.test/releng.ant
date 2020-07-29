@@ -77,7 +77,6 @@
 					<exclude name="**/DummyKeithleyTest.java" />
 					<exclude name="**/KeithleyRemoteTest.java" />
 					<exclude name="**/KeithleyTest.java" />
-					<exclude name="**/ODCCDControllerTest.java" />
 					<exclude name="**/util/LocalPropertiesTest.java" /> <!-- there is also a LocalPropertiesTest in gda/configuration/properties-->
 				</fileset>
 			</batchtest>
