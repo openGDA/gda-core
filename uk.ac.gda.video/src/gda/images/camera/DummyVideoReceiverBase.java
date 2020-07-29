@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,7 +98,7 @@ public abstract class DummyVideoReceiverBase<T> extends ConfigurableBase impleme
 
 		logger.info("Starting");
 
-		createInitialImage();
+		Display.getDefault().syncExec(this::createInitialImage);
 
 		Random r = new Random();
 		circleX = r.nextInt(imageSize.width);
@@ -112,19 +113,23 @@ public abstract class DummyVideoReceiverBase<T> extends ConfigurableBase impleme
 
 	private TimerTask createTimerTask() {
 		return new TimerTask() {
+
 			@Override
 			public void run() {
-				try {
-					T image = updateImage();
-					for (ImageListener<T> listener : listeners) {
-						listener.processImage(image);
+				Display.getDefault().syncExec(() -> {
+					try {
+						T image = updateImage();
+						for (ImageListener<T> listener : listeners) {
+							listener.processImage(image);
+						}
+					} catch (Exception e) {
+						logger.error("Unable to dispatch image", e);
+						if (timer != null) {
+							timer.cancel();
+						}
 					}
-				} catch (Exception e) {
-					logger.error("Unable to dispatch image", e);
-					if (timer != null) {
-						timer.cancel();
-					}
-				}
+
+				});
 			}
 		};
 	}
