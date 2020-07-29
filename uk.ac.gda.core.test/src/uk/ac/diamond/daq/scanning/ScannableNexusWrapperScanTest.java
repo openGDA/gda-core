@@ -91,6 +91,7 @@ import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.IWritableDetector;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.AbstractPosition;
@@ -921,7 +922,7 @@ public class ScannableNexusWrapperScanTest {
 		return parsedSegments;
 	}
 
-	private IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<?> detector,
+	private IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<? extends IDetectorModel> detector,
 			String outerScannableName, int... size) throws Exception {
 		// Create scan points for a grid and make a generator
 		final TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel();
@@ -950,7 +951,7 @@ public class ScannableNexusWrapperScanTest {
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setPointGenerator(pointGen);
 		scanModel.setScanPathModel(compoundModel);
-		scanModel.setDetectors(detector);
+		scanModel.setDetector(detector);
 
 		final IScannable<?> attributeScannable = connector.getScannable("attributes");
 		final IScannable<?> beamSizeScannable = connector.getScannable("beam");

@@ -36,6 +36,7 @@ import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.scanning.api.AbstractScannable;
 import org.eclipse.scanning.api.annotation.scan.PrepareScan;
 import org.eclipse.scanning.api.device.IRunnableDevice;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
@@ -74,7 +75,7 @@ public class CalibrationFrameCollector extends AbstractScannable<Object> impleme
 	private final String nexusFieldName;
 	private final Map<String, String> malcolmDetectorNames;
 
-	private IRunnableDevice<?> detector;
+	private IRunnableDevice<? extends IDetectorModel> detector;
 
 	/** File path of the NeXus file corresponding to the single frame scan  */
 	private String frameFilePath;
