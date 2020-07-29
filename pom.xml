@@ -16,7 +16,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 
 <modules>
 <module>uk.ac.diamond.tomography.reconstruction</module>
-<module>uk.ac.diamond.tomography.reconstruction.dawn</module>
 <module>uk.ac.diamond.tomography.reconstruction.feature</module>
 <module>uk.ac.diamond.tomography.reconstruction.parameters</module>
 <module>uk.ac.diamond.tomography.reconstruction.parameters.edit</module>
