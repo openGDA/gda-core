@@ -31,12 +31,12 @@ class AxialStepGenerator extends AbstractScanPointGenerator<AxialStepModel> {
 	@Override
 	public void validate(AxialStepModel model) {
 		super.validate(model);
-		if (model.getStep() == 0) {
-			throw new ModelValidationException("Model step size must be nonzero!", model, "step");
+		if (model.getStep() == 0 && model.getCount() == 0) {
+			throw new ModelValidationException("Model step size or count must be nonzero!", model, "step");
 		}
-		final int dir = Integer.signum(BigDecimal.valueOf(model.getStop()-model.getStart()).divideToIntegralValue(BigDecimal.valueOf(model.getStep())).intValue());
+		final int dir = model.getCount() != 0 ? model.getCount() : Integer.signum(BigDecimal.valueOf(model.getStop()-model.getStart()).divideToIntegralValue(BigDecimal.valueOf(model.getStep())).intValue() );
 		if (dir < 0) {
-			throw new ModelValidationException("Model step is directed in the wrong direction!", model, "start", "stop", "step");
+			throw new ModelValidationException("Model step is directed in the wrong direction!", model, "start", "stop", "step", "count");
 		}
 	}
 
@@ -60,6 +60,7 @@ class AxialStepGenerator extends AbstractScanPointGenerator<AxialStepModel> {
 	}
 
 	private int size(AxialStepModel model) {
+		if (model.getCount() != 0) return model.getCount();
 		// Includes point if would be within 1% (of step length) of end
 		return 1 + BigDecimal.valueOf(0.01*model.getStep()+model.getStop()-model.getStart()).divideToIntegralValue(BigDecimal.valueOf(model.getStep())).intValue();
 	}

@@ -33,6 +33,8 @@ public class AxialStepModel extends AbstractPointsModel {
 	@FieldDescriptor(label="Step", scannable="name", hint="This is the step during the scan", fieldPosition=3) // The scannable lookup gets the units
 	private double step;
 
+	private int count;
+
 	public AxialStepModel() {
 
 	}
@@ -62,6 +64,13 @@ public class AxialStepModel extends AbstractPointsModel {
 	}
 	public void setStep(double step) {
 		this.step = step;
+		this.count = 0;
+	}
+	public void setCount(int count) {
+		this.count = count;
+	}
+	public int getCount() {
+		return count;
 	}
 
 	@Override
@@ -90,11 +99,11 @@ public class AxialStepModel extends AbstractPointsModel {
 			return false;
 		if (Double.doubleToLongBits(stop) != Double.doubleToLongBits(other.stop))
 			return false;
-		return true;
+		return count == other.count;
 	}
 
 	protected String description() {
-		return "start=" + start + ", stop=" + stop + ", step=" + step
+		return "start=" + start + ", stop=" + stop + (count == 0 ? ", step=" + step : ", count=" + count)
 				+ ", " + super.toString();
 	}
 
