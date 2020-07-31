@@ -70,9 +70,15 @@ public class StagesComposite {
 	/**
 	 */
 	private void buildStageComposite(CommonStage stage) {
-		Group group = ClientSWTElements.createGroup(getParent(), 1, ClientMessages.STAGE);
+		Group group = ClientSWTElements.createClientGroup(getParent(), SWT.NONE, 1, ClientMessages.STAGE);
+		ClientSWTElements.createClientGridDataFactory().grab(true, false).indent(5, SWT.DEFAULT).applyTo(group);
+
 		stagesCombo = ClientSWTElements.createCombo(group, SWT.READ_ONLY, getTypes(), ClientMessages.STAGE_TP);
+		ClientSWTElements.createClientGridDataFactory().grab(true, false).indent(5, SWT.DEFAULT).applyTo(stagesCombo);
+
 		stageComposite = ClientSWTElements.createComposite(group, SWT.NONE, 1);
+		ClientSWTElements.createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false)
+				.indent(5, SWT.DEFAULT).applyTo(stageComposite);
 		setStage(stage);
 
 		comboStageSelectionListener();
@@ -84,7 +90,9 @@ public class StagesComposite {
 			public void widgetSelected(SelectionEvent e) {
 				Combo source = Combo.class.cast(e.getSource());
 				if (source.getSelectionIndex() > -1) {
-					filterPerspectiveLabel(getTypes()[source.getSelectionIndex()]).findFirst().ifPresent(p -> setStage(p.getCommonStage()));
+					filterPerspectiveLabel(getTypes()[source.getSelectionIndex()]).findFirst()
+							.map(StageType::getCommonStage)
+							.ifPresent(s -> setStage(s));
 				}
 			}
 		};
@@ -104,6 +112,7 @@ public class StagesComposite {
 	}
 
 	private String[] getTypes() {
-		return Arrays.stream(StageType.values()).map(StageType::getStage).map(Stage::name).collect(Collectors.toList()).toArray(new String[0]);
+		return Arrays.stream(StageType.values()).map(StageType::getStage).map(Stage::name).collect(Collectors.toList())
+				.toArray(new String[0]);
 	}
 }
