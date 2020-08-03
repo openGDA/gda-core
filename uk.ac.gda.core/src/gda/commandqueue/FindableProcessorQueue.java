@@ -190,6 +190,7 @@ public class FindableProcessorQueue extends FindableBase implements IFindableQue
 	@Override
 	public void stop(long timeout_ms) throws Exception {
 		sendCommandToManagerThread(timeout_ms, COMMAND.STOP);
+		notifyListeners(); // notifies current state. For STOP state becomes WAITING_START
 	}
 
 	@Override

@@ -24,12 +24,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Object to be exchanged whenever there is a change in the list of clients registered with the BatonManager
+ * Object to be exchanged whenever there is a change of Baton holder
  */
 public class BatonChanged implements Serializable{
-	
+
 	private final long timestamp = System.currentTimeMillis();
-	
+
 	@Override
 	public String toString() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS");
