@@ -285,7 +285,16 @@ public class ScanningAcquisitionController
 
 	private void setAcquisition(ScanningAcquisition acquisition) {
 		this.acquisition = acquisition;
-		this.detectorsHelper = new ScanningAcquisitionControllerDetectorHelper(acquisitionType, this::getAcquisition);
+		if (this.detectorsHelper == null) {
+			this.detectorsHelper = new ScanningAcquisitionControllerDetectorHelper(acquisitionType,
+					this::getAcquisition);
+		}
+	}
+
+	@Override
+	public void releaseResources() {
+		Optional.ofNullable(this.detectorsHelper)
+				.ifPresent(ScanningAcquisitionControllerDetectorHelper::releaseResources);
 	}
 
 	// --- temporary solution ---//
