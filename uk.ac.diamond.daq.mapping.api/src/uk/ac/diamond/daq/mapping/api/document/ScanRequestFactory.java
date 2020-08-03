@@ -84,10 +84,10 @@ public class ScanRequestFactory {
 		final Map<String, IDetectorModel> ret = new HashMap<>();
 
 		for (DetectorDocument det : detectors) {
-			IRunnableDevice<?> detector = runnableDeviceService.getRunnableDevice(det.getName());
+			final IRunnableDevice<IDetectorModel> detector = runnableDeviceService.getRunnableDevice(det.getName());
 
-			final double exposure = det.getExposureTime();
-			IDetectorModel model = (IDetectorModel) detector.getModel();
+			final double exposure = det.getExposure();
+			final IDetectorModel model = detector.getModel();
 			if (model == null) {
 				throw new ScanningException(String.format("Could not get model for detector %s", detector.getName()));
 			}

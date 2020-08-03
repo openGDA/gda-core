@@ -18,8 +18,6 @@
 
 package uk.ac.gda.api.acquisition.parameters;
 
-import org.eclipse.scanning.api.device.models.IDetectorModel;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -29,7 +27,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  * @author Maurizio Nagni
  */
 @JsonDeserialize(builder = DetectorDocument.Builder.class)
-public class DetectorDocument implements IDetectorModel {
+public class DetectorDocument {
 	/**
 	 * The detector identifier. The value may be:
 	 * <ul>
@@ -53,27 +51,15 @@ public class DetectorDocument implements IDetectorModel {
 	public DetectorDocument(DetectorDocument detectorDocument) {
 		super();
 		this.name = detectorDocument.getName();
-		this.exposure = detectorDocument.getExposureTime();
+		this.exposure = detectorDocument.getExposure();
 	}
 
-	@Override
 	public String getName() {
 		return name;
 	}
 
-	@Override
-	public void setName(String name) {
-		throw new UnsupportedOperationException("Name cannot be changed");
-	}
-
-	@Override
-	public double getExposureTime() {
+	public double getExposure() {
 		return exposure;
-	}
-
-	@Override
-	public void setExposureTime(double time) {
-		throw new UnsupportedOperationException("Exposure time cannot be changed");
 	}
 
 	@JsonPOJOBuilder
