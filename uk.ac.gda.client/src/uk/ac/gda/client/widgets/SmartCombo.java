@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Combo;
@@ -87,7 +86,7 @@ public class SmartCombo<T> extends Composite {
 	public SmartCombo(Composite parent, int style, Optional<ClientMessages> tooltip, Optional<Listener> listener) {
 		super(parent, style);
 		GridLayoutFactory.fillDefaults().applyTo(this);
-		GridDataFactory.swtDefaults().grab(true, true).align(SWT.LEFT, SWT.TOP).applyTo(this);
+		ClientSWTElements.createClientGridDataFactory().align(SWT.LEFT, SWT.TOP).grab(true, true).applyTo(this);
 		this.listener = listener;
 		this.tooltip = tooltip;
 	}
@@ -119,7 +118,8 @@ public class SmartCombo<T> extends Composite {
 			String uniqueElement = tmpCombo.getItem(0);
 			selectedItem = Optional.ofNullable(getComboImmutablePair(tmpCombo, uniqueElement));
 			cleanContainer();
-			ClientSWTElements.createLabel(this, SWT.NONE, uniqueElement);
+			Label label = ClientSWTElements.createClientLabel(Composite.class.cast(this), SWT.NONE, uniqueElement);
+			ClientSWTElements.createClientGridDataFactory().applyTo(label);
 		} else if (tmpCombo.getItemCount() == 0) {
 			selectedItem = Optional.empty();
 			if (logger.isInfoEnabled()) {
