@@ -22,9 +22,15 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.IDE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,16 +69,15 @@ public class ArpesExperimentPerspective implements IPerspectiveFactory {
 
 	private void createExampleArpesFileIfRequired() {
 
-		// Find the target location for the alignment.arpes file
+		// Find the target location for the example .arpes file
 		final String tgtDataRootPath = InterfaceProvider.getPathConstructor().createFromProperty("gda.analyser.sampleConf.dir");
-		final String exampleFileName = LocalProperties.get("gda.analyser.alignmentConf");
+		final String exampleFileName = LocalProperties.get("gda.analyser.sampleConf");
 		final File targetFile = new File(tgtDataRootPath, exampleFileName);
 		logger.debug("Initial .arpes file target '{}'", targetFile.getAbsolutePath());
 
 		// Find the full path to initialExampleAnalyserConfig.arpes in the config
 		String configDir = LocalProperties.getConfigDir();
-		String sampleFileName = LocalProperties.get("gda.analyser.sampleConf");
-		File exampleFile = new File(configDir, sampleFileName);
+		File exampleFile = new File(configDir, exampleFileName);
 		logger.debug("Initial .arpes file source '{}'", exampleFile.getAbsolutePath());
 
 		// Example file doesn't exist so copy it
@@ -89,6 +94,16 @@ public class ArpesExperimentPerspective implements IPerspectiveFactory {
 		else {
 			logger.debug("Inital .arpes file already present");
 		}
-	}
 
+		// Open the example in the editor
+		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		IFileStore fileStore = EFS.getLocalFileSystem().getStore(targetFile.toURI());
+		try {
+			IDE.openEditorOnFileStore(page, fileStore);
+			logger.debug("Opened sample analyser config file '{}' in editor", targetFile);
+		} catch (PartInitException e) {
+			logger.error("Could not open sample analyser config file '{}' in editor", targetFile, e);
+		}
+
+	}
 }

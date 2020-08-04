@@ -39,7 +39,6 @@ public class ARPESScanBean implements XMLRichBean, Serializable {
 	int iterations = 1;
 	boolean sweptMode = false;
 	boolean configureOnly = false;
-	double centreEnergy;
 
 	public static ARPESScanBean createFromXML(String filename) throws Exception {
 		return XMLHelpers.createFromXML(mappingURL, ARPESScanBean.class, schemaURL, new File(filename));
@@ -120,14 +119,6 @@ public class ARPESScanBean implements XMLRichBean, Serializable {
 	public void setConfigureOnly(boolean configureOnly) {
 		this.configureOnly = configureOnly;
 	}
-	
-	public double getCentreEnergy() {
-		return centreEnergy;
-	}
-	
-	public void setCentreEnergy(double centreEnergy) {
-		this.centreEnergy = centreEnergy;
-	}
 
 	@Override
 	public int hashCode() {
@@ -146,8 +137,6 @@ public class ARPESScanBean implements XMLRichBean, Serializable {
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + (sweptMode ? 1231 : 1237);
 		temp = Double.doubleToLongBits(timePerStep);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(centreEnergy);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
@@ -181,8 +170,6 @@ public class ARPESScanBean implements XMLRichBean, Serializable {
 		if (sweptMode != other.sweptMode)
 			return false;
 		if (Double.doubleToLongBits(timePerStep) != Double.doubleToLongBits(other.timePerStep))
-			return false;
-		if (Double.doubleToLongBits(centreEnergy) != Double.doubleToLongBits(other.centreEnergy))
 			return false;
 		return true;
 	}
