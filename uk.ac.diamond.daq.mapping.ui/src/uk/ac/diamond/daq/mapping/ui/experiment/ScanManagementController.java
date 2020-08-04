@@ -39,21 +39,16 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
-import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsRandomOffsetModel;
-import org.eclipse.scanning.api.scan.IParserService;
 import org.eclipse.scanning.api.scan.models.ScanMetadata;
 import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement.MonitorScanRole;
 import org.eclipse.scanning.device.ui.device.MonitorView;
 import org.eclipse.scanning.device.ui.util.PageUtil;
-import org.eclipse.swt.dnd.Clipboard;
-import org.eclipse.swt.dnd.TextTransfer;
-import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IViewReference;
 import org.slf4j.Logger;
@@ -69,6 +64,9 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
+import uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanConfig;
+import uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanWizard;
+import uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanWizardDialog;
 import uk.ac.diamond.daq.mapping.ui.experiment.file.DescriptiveFilenameFactory;
 import uk.ac.diamond.daq.osgi.OsgiService;
 import uk.ac.diamond.daq.persistence.manager.PersistenceServiceWrapper;
@@ -91,6 +89,12 @@ public class ScanManagementController extends AbstractMappingController {
 	private DescriptiveFilenameFactory filenameFactory = new DescriptiveFilenameFactory();
 
 	private int gridModelIndex = 0;
+
+	/**
+	 * Configuration for the wizard that copies the current scan to the clipboard<br>
+	 * Cached to allow allow the current file save directory to be preserved between calls.
+	 */
+	private CopyScanConfig copyScanConfig;
 
 	public ScanManagementController() {
 		logger.debug("Created ScanManagementController");
@@ -307,23 +311,6 @@ public class ScanManagementController extends AbstractMappingController {
 	}
 
 	/**
-	 * Produces a textual command that could be submitted to perform the scan descvribed by the current mapping bean.
-	 *
-	 * @return The parsed scan command or an error message is parsing fails
-	 */
-	public String createScanCommand() {
-		final ScanBean scanBean = createScanBean();
-		final IParserService parserService = getService(IEclipseContext.class).get(IParserService.class);
-		try {
-			return parserService.getCommand(scanBean.getScanRequest(), true);
-		} catch (Exception e) {
-			final String message = "Error creating scan commmand";
-			logger.error(message, e);
-			return message;
-		}
-	}
-
-	/**
 	 * Transforms the current mapping bean into a {@link ScanBean} which can be submitted.
 	 *
 	 * @return The resultant {@link ScanBean}
@@ -355,9 +342,10 @@ public class ScanManagementController extends AbstractMappingController {
 		checkInitialised();
 		final IMappingExperimentBean mappingBean = getMappingBean();
 
-		// Ensure the detector named in DiffractionParameters (if any) is activated
-		final Optional<String> detectorName = Optional.ofNullable(acquisitionParameters).map(ScanningAcquisition::getName);
-		detectorName.ifPresent(dName -> ensureDetectorIncludedInScan(dName, mappingBean));
+		// Ensure the detector named in ScanningAcquisition (if any) is activated
+		Optional.ofNullable(acquisitionParameters)
+			.map(ScanningAcquisition::getName)
+			.ifPresent(dName -> ensureDetectorIncludedInScan(dName, mappingBean));
 		addMonitors(mappingBean);
 
 		final String sampleName = getSampleName(mappingBean, acquisitionParameters);
@@ -386,20 +374,18 @@ public class ScanManagementController extends AbstractMappingController {
 	}
 
 	/**
-	 * Copies the scan command representation of the current mapping bean to the clipboard
+	 * Open a wizard to copy the ScanRequest representation of the current mapping bean to the clipboard as a Jython
+	 * class
 	 */
 	public void copyScanToClipboard() {
-		try {
-			final String scanCommand = createScanCommand();
-			Clipboard clipboard = new Clipboard(Display.getDefault());
-			clipboard.setContents(new Object[] { scanCommand }, new Transfer[] { TextTransfer.getInstance() });
-			clipboard.dispose();
-			logger.debug("Copied mapping scan command to clipboard: {}", scanCommand);
-		} catch (Exception e) {
-			logger.error("Copy to clipboard failed.", e);
-			MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error Copying Scan Command",
-					"The scan command could not be copied to the clipboard. See the error log for more details.");
+		new CopyScanWizardDialog(Display.getCurrent().getActiveShell(), new CopyScanWizard(this, getCopyScanConfig())).open();
+	}
+
+	private CopyScanConfig getCopyScanConfig() {
+		if (!Optional.ofNullable(copyScanConfig).isPresent()) {
+			copyScanConfig = new CopyScanConfig();
 		}
+		return copyScanConfig;
 	}
 
 	/**
