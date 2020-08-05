@@ -28,7 +28,6 @@ import org.junit.Test;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.ui.properties.DetectorHelper.AcquisitionType;
-import uk.ac.gda.client.properties.DetectorProperties;
 
 /**
  * Tests for the {@link DetectorHelper} based on a detectors.properties file.
@@ -49,7 +48,7 @@ public class DetectorHelperTest {
 	 */
 	@Test
 	public void acquisitionDetectorExistsTest() {
-		Optional<List<DetectorProperties>> dp = DetectorHelper.getAcquistionDetector(AcquisitionType.DIFFRACTION);
+		Optional<List<DetectorPropertiesDocument>> dp = DetectorHelper.getAcquistionDetector(AcquisitionType.DIFFRACTION);
 		Assert.assertTrue(dp.isPresent());
 		Assert.assertEquals(1, dp.get().size());
 	}
@@ -60,7 +59,7 @@ public class DetectorHelperTest {
 	 */
 	@Test
 	public void acquisitionDetectorNotExistsTest() {
-		Optional<List<DetectorProperties>> dp = DetectorHelper.getAcquistionDetector(AcquisitionType.BEAM_SELECTOR);
+		Optional<List<DetectorPropertiesDocument>> dp = DetectorHelper.getAcquistionDetector(AcquisitionType.BEAM_SELECTOR);
 		Assert.assertTrue(dp.isPresent());
 
 		// The beam selector detector has one configuration because the second does not exist
@@ -72,7 +71,7 @@ public class DetectorHelperTest {
 	 */
 	@Test
 	public void multipleDetectorExistsTest() {
-		Optional<List<DetectorProperties>> dp = DetectorHelper.getAcquistionDetector(AcquisitionType.TOMOGRAPHY);
+		Optional<List<DetectorPropertiesDocument>> dp = DetectorHelper.getAcquistionDetector(AcquisitionType.TOMOGRAPHY);
 		Assert.assertTrue(dp.isPresent());
 		Assert.assertEquals(2, dp.get().size());
 	}
@@ -82,7 +81,7 @@ public class DetectorHelperTest {
 	 */
 	@Test
 	public void detectorHasCamerasTest() {
-		Optional<List<DetectorProperties>> dp = DetectorHelper.getAcquistionDetector(AcquisitionType.TOMOGRAPHY);
+		Optional<List<DetectorPropertiesDocument>> dp = DetectorHelper.getAcquistionDetector(AcquisitionType.TOMOGRAPHY);
 		Assert.assertTrue(dp.isPresent());
 
 		// The first tomography detector has one camera
@@ -96,7 +95,7 @@ public class DetectorHelperTest {
 	 */
 	@Test
 	public void detectorHasTwoCamerasTest() {
-		Optional<List<DetectorProperties>> dp = DetectorHelper.getAcquistionDetector(AcquisitionType.BEAM_SELECTOR);
+		Optional<List<DetectorPropertiesDocument>> dp = DetectorHelper.getAcquistionDetector(AcquisitionType.BEAM_SELECTOR);
 		// The beam selector detector has two cameras
 		Assert.assertEquals(2, dp.get().get(0).getCameras().size());
 	}
