@@ -57,9 +57,9 @@ public class CameraConfigurationView extends ViewPart {
 	 * @return a {@link Button} instance
 	 */
 	public static final Button openCameraConfigurationViewButton(Composite parent) {
-		Button cameras = ClientSWTElements.createButton(parent, SWT.None, ClientMessages.CAMERAS,
+		Button cameras = ClientSWTElements.createClientButton(parent, SWT.None, ClientMessages.CAMERAS,
 				ClientMessages.CAMERA_TP, ClientImages.CAMERA);
-
+		ClientSWTElements.createClientGridDataFactory().indent(5, SWT.DEFAULT).applyTo(cameras);
 		cameras.addListener(SWT.Selection, event -> {
 			IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 			try {
