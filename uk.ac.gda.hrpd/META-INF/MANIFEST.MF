@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Hrpd Plug-in
 Bundle-SymbolicName: uk.ac.gda.hrpd
 Bundle-Version: 1.0.0
-Bundle-Activator: uk.ac.gda.hrpd.Activator
 Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.core;bundle-version="1.0.0",
  uk.ac.gda.epics;bundle-version="1.0.0",
