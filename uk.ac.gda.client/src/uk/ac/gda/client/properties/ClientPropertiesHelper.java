@@ -18,13 +18,15 @@
 
 package uk.ac.gda.client.properties;
 
+import java.util.List;
+
 import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 
 /**
  * Utility methods to parse properties as in <code>uk.ac.diamond.daq.client.gui.camera.CameraHelper</code> or
- * <code>uk.ac.diamond.daq.mapping.ui.properties.DetectorHelper</code>
+ * <code>uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper</code>
  *
  * @author Maurizio Nagni
  */
@@ -118,5 +120,14 @@ public final class ClientPropertiesHelper {
 	 */
 	public static String[] getStringArrayProperty(String prefix, int index, String property) {
 		return LocalProperties.getStringArray(String.format(PROPERTY_FORMAT, prefix, index, property));
+	}
+
+	/**
+	 * Extracts properties whose key starts with "PREFIX.number#"
+	 * @param prefix
+	 * @return a list of properties keys
+	 */
+	public static List<String> getConfigurationKeys(String prefix) {
+		return LocalProperties.getKeysByRegexp(prefix + "\\.\\d");
 	}
 }
