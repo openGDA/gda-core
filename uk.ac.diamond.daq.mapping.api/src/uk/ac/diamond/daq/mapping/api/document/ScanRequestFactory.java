@@ -39,7 +39,6 @@ import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
 import uk.ac.diamond.daq.mapping.api.document.model.AcquisitionTemplateFactory;
-import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 import uk.ac.gda.api.exception.GDAException;
 
 /**
@@ -71,32 +70,47 @@ public class ScanRequestFactory {
 			scanRequest.setFilePath(acquisition.getAcquisitionLocation().getPath());
 		}
 		scanRequest.setCompoundModel(scanModel);
-		scanRequest.setDetectors(parseDetectors(new DetectorDocument[] { getAcquisitionParameters().getDetector() },
-				runnableDeviceService));
+
+		if (acquisition.getAcquisitionEngine() != null) {
+			parseAcquisitionEngine(scanRequest, runnableDeviceService);
+		}
+
 		scanRequest.setMonitorNamesPerPoint(parseMonitorNamesPerPoint());
 		scanRequest.setTemplateFilePaths(parseTemplateFilePaths());
 		scanRequest.setProcessingRequest(parseProcessingRequest());
 		return scanRequest;
 	}
 
-	private Map<String, IDetectorModel> parseDetectors(DetectorDocument[] detectors,
-			IRunnableDeviceService runnableDeviceService) throws ScanningException {
+	private void parseAcquisitionEngine(ScanRequest scanRequest, IRunnableDeviceService runnableDeviceService)
+			throws ScanningException {
+		switch (acquisition.getAcquisitionEngine().getType()) {
+		case MALCOLM:
+			prepareMalcolmAcquisitionEngine(scanRequest, runnableDeviceService);
+			break;
+		default:
+
+		}
+	}
+
+	private void prepareMalcolmAcquisitionEngine(ScanRequest scanRequest, IRunnableDeviceService runnableDeviceService)
+			throws ScanningException {
 		final Map<String, IDetectorModel> ret = new HashMap<>();
 
-		for (DetectorDocument det : detectors) {
-			final IRunnableDevice<IDetectorModel> detector = runnableDeviceService.getRunnableDevice(det.getName());
+		IRunnableDevice<IDetectorModel> detector = runnableDeviceService
+				.getRunnableDevice(acquisition.getAcquisitionEngine().getId());
 
-			final double exposure = det.getExposure();
-			final IDetectorModel model = detector.getModel();
-			if (model == null) {
-				throw new ScanningException(String.format("Could not get model for detector %s", detector.getName()));
-			}
-			if (exposure > 0) {
-				model.setExposureTime(exposure);
-			}
-			ret.put(detector.getName(), model);
+		// This Malcolm engine assumes a single detector
+		final double exposure = getAcquisitionParameters().getDetector().getExposure();
+		final IDetectorModel model = detector.getModel();
+		if (model == null) {
+			throw new ScanningException(String.format("Could not get model for detector %s",
+					detector.getName()));
 		}
-		return ret;
+		if (exposure > 0) {
+			model.setExposureTime(exposure);
+		}
+		ret.put(detector.getName(), model);
+		scanRequest.setDetectors(ret);
 	}
 
 	private Collection<String> parseMonitorNamesPerPoint() {
