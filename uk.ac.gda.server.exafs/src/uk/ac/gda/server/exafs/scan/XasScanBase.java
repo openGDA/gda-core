@@ -426,7 +426,8 @@ public abstract class XasScanBase implements XasScan {
 			runScript(scriptNameOrCommand);
 		} else {
 			logger.debug("Running jython command : {}", scriptNameOrCommand);
-			InterfaceProvider.getCommandRunner().evaluateCommand(scriptNameOrCommand);
+			InterfaceProvider.getCommandRunner().runsource(scriptNameOrCommand);
+
 		}
 	}
 
