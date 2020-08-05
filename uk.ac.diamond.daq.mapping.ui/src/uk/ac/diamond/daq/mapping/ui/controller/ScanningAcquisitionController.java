@@ -88,7 +88,7 @@ public class ScanningAcquisitionController
 
 	/**
 	 * Creates a controller based on specific {@link AcquisitionPropertyType} in order to retrieves the associates
-	 * cameras.
+	 * cameras and acquisition engines.
 	 *
 	 * @param acquisitionType
 	 *
@@ -149,12 +149,8 @@ public class ScanningAcquisitionController
 	@Override
 	public void createNewAcquisition() {
 		try {
-			// creates the new acquisition
-			ScanningAcquisition newAcquisition = getDefaultNewAcquisitionSupplier().get();
-			// injects acquisition engine and detector documents
-			getDetectorsHelper().applyAcquisitionPropertiesDocument(newAcquisition);
 			// load the new acquisition in the controller
-			loadAcquisitionConfiguration(newAcquisition);
+			loadAcquisitionConfiguration(getDefaultNewAcquisitionSupplier().get());
 		} catch (AcquisitionControllerException e) {
 			// We do not expect this to happen
 			logger.error("Could not create new acquisition configuration");
@@ -302,14 +298,6 @@ public class ScanningAcquisitionController
 	@Override
 	public void releaseResources() {
 		// DO NOTHING
-	}
-
-	private ScanningAcquisitionControllerDetectorHelper getDetectorsHelper() {
-		if (detectorsHelper == null) {
-			detectorsHelper = new ScanningAcquisitionControllerDetectorHelper(acquisitionType,
-					this::getAcquisition);
-		}
-		return detectorsHelper;
 	}
 
 	// --- temporary solution ---//
