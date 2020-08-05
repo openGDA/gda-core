@@ -4,7 +4,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Exafs Server
 Bundle-SymbolicName: uk.ac.gda.server.exafs;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: uk.ac.gda.server.exafs.Activator
 Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.nexus;bundle-version="1.0.0",
  uk.ac.gda.common;bundle-version="1.0.0",
@@ -37,7 +36,6 @@ Export-Package: gda.device.detector,
  gda.device.detector.countertimer,
  gda.device.scannable,
  gda.jython.scriptcontroller.logging,
- uk.ac.gda.server.exafs,
  uk.ac.gda.server.exafs.scan,
  uk.ac.gda.server.exafs.scan.iterators,
  uk.ac.gda.server.exafs.scan.preparers
