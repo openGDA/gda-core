@@ -199,12 +199,12 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 			if (o != null) {
 				// Check for multiple setting of properties
 				if (o instanceof List<?>) {
-					logger.debug("{} is set multiple times the value used will be the first! This maybe ok if deliberately overridden", key);
+					logger.trace("{} is set multiple times. The first will be the value returned by get", key);
 					// Check for unnecessary overriding of properties
 					List<?> list = (List<?>) o;
 					// If all the values are the same it's definitely unnecessarily overridden
 					if (list.size() > 1 && list.stream().distinct().count() == 1){
-						logger.warn("{} is unnecessarily overridden", key);
+						logger.debug("{} is unnecessarily overridden", key);
 					}
 				}
 				if (o instanceof String) {
