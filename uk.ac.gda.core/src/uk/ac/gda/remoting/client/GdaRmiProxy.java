@@ -28,6 +28,7 @@ import org.springframework.beans.factory.FactoryBeanNotInitializedException;
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.factory.Finder;
+import uk.ac.diamond.daq.msgbus.MsgBus;
 
 /**
  * This is a convenience class for importing remote objects over RMI into the client side Spring context. It works using
@@ -69,13 +70,20 @@ public class GdaRmiProxy implements BeanNameAware, FactoryBean<Object>, Initiali
 
 		// Get the actual proxy object
 		object = Finder.find(name);
-		// If it can't be imported throw
-		Objects.requireNonNull(object,
-				String.format(
-						"Could not import '%s' - are you sure it is exported from the server and ActiveMQ is running?",
-						name));
+		try {
+			// If it can't be imported throw
+			Objects.requireNonNull(object,
+					String.format(
+							"Could not import '%s' - are you sure it is exported from the server and ActiveMQ is running?",
+							name));
 
-		logger.debug("Imported '{}' (Proxy={})", name, object);
+			logger.debug("Imported '{}' (Proxy={})", name, object);
+		} catch (NullPointerException npe) {
+			if (!MsgBus.isActiveMQ()) {
+				throw new NullPointerException("RMI Lookup failed because ActiveMQ cannot be contacted: " + npe.getMessage());
+			}
+			throw npe;
+		}
 	}
 
 	@Override

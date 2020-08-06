@@ -42,7 +42,9 @@ import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.util.logging.LogbackUtils;
+import uk.ac.diamond.daq.api.messaging.MessagingService;
 import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.gda.core.GDACoreActivator;
 
 /**
  * A utility class which creates objects for local or remote access.
@@ -53,6 +55,7 @@ public abstract class ObjectServer {
 	 * The java property which defines where 'initialisation complete' files are to be stored.
 	 */
 	public static final String INITIALISATIONCOMPLETEFOLDER = "gda.objectserver.initialisationCompleteFolder";
+	private static final String NO_ACTIVEMQ = "\n\nNo ActiveMQ Service found\nGDA cannot start\n";
 
 	protected File xmlFile;
 
@@ -111,6 +114,11 @@ public abstract class ObjectServer {
 	 * @throws FactoryException
 	 */
 	public static ObjectServer createServerImpl(String xmlFile) throws FactoryException {
+		// Check for ActiveMQ service first
+		MessagingService service = GDACoreActivator.getService(MessagingService.class)
+				.orElseThrow(() -> new RuntimeException(NO_ACTIVEMQ));
+		logger.info("Connection to ActiveMQ service and Session creation was successful");
+
 		ObjectServer objectServer = createObjectServer(xmlFile, true);
 		objectServer.configure();
 		logger.info("Server initialisation complete. xmlFile = {}", xmlFile);

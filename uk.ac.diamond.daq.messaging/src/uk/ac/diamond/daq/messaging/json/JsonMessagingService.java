@@ -78,11 +78,16 @@ public class JsonMessagingService implements MessagingService {
 	public void activate() {
 		final String jmsBrokerUri = LocalProperties.getActiveMQBrokerURI();
 		final ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(jmsBrokerUri);
+		Connection connection;
 		try {
-			Connection connection = factory.createConnection();
-			session = connection.createSession(false, AUTO_ACKNOWLEDGE);
+			connection = factory.createConnection();
 		} catch (JMSException e) {
 			throw new RuntimeException("Failed to connect to ActiveMQ, is it running?", e);
+		}
+		try {
+			session = connection.createSession(false, AUTO_ACKNOWLEDGE);
+		} catch (JMSException e) {
+			throw new RuntimeException("Unable to create Session on ActiveMQ connection ", e);
 		}
 	}
 
