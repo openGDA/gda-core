@@ -135,4 +135,9 @@ public interface AcquisitionController<T extends Acquisition<? extends Acquisiti
 	 * @throws AcquisitionControllerException
 	 */
 	public void deleteAcquisitionConfiguration(URL url) throws AcquisitionControllerException;
+
+	/**
+	 * Called before destroy the controller to release all the acquired resources or remove the used listeners
+	 */
+	public void releaseResources();
 }

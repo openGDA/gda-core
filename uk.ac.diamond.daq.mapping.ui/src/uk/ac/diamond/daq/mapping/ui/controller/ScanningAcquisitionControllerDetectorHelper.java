@@ -118,6 +118,7 @@ class ScanningAcquisitionControllerDetectorHelper {
 						UIHelper.showError("Cannot read exposure time.", e, logger);
 					}
 				});
+
 	}
 
 	/**
@@ -146,4 +147,9 @@ class ScanningAcquisitionControllerDetectorHelper {
 	private Consumer<CameraControllerEvent> consumeExposure = cce -> Display.getDefault()
 			.asyncExec(() -> updateExposures(cce));
 	private final IObserver cameraControlObserver = CameraEventUtils.cameraControlEventObserver(consumeExposure);
+
+	void releaseResources() {
+		Optional.ofNullable(camerasControls)
+				.ifPresent(cc -> cc.forEach(item -> item.deleteIObserver(cameraControlObserver)));
+	}
 }
