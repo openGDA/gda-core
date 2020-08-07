@@ -36,7 +36,7 @@ import org.junit.Test;
 import gda.MockFactory;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
-import gda.data.scan.datawriter.NexusDataWriter;
+import gda.data.ServiceHolder;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
@@ -63,7 +63,7 @@ public class NXMetaDataProviderTest {
 
 	@Before
 	public void setUp() throws DeviceException, FactoryException {
-		NexusDataWriter.setMetadatascannables(new HashSet<String>());
+		ServiceHolder.getNexusDataWriterConfiguration().setMetadataScannables(new HashSet<>());
 		this.rand = new Random();
 		this.formattingMap = new HashMap<String, String>();
 		this.userSuppliedItems = new Vector<MetaDataUserSuppliedItem>();
@@ -1562,18 +1562,17 @@ public class NXMetaDataProviderTest {
 				0.0);
 		HashSet<String> initial = new HashSet<String>();
 		initial.add(scn1.getName());
-		// FIXME: should not be reaching into NexusDataWriter at all
-		NexusDataWriter.setMetadatascannables(initial);
+		ServiceHolder.getNexusDataWriterConfiguration().setMetadataScannables(initial);
 
 		NXMetaDataProvider provider = new NXMetaDataProvider();
 		provider.add(scn2);
 		HashSet<String> expectedScannables = new HashSet<String>();
 		expectedScannables.add(scn1.getName());
 		expectedScannables.add(scn2.getName());
-		Assert.assertEquals(expectedScannables, NexusDataWriter.getMetadatascannables());
+		Assert.assertEquals(expectedScannables, ServiceHolder.getNexusDataWriterConfiguration().getMetadataScannables());
 
 		provider.clearDynamicScannableMetadata();
 		expectedScannables.remove(scn2.getName());
-		Assert.assertEquals(expectedScannables, NexusDataWriter.getMetadatascannables());
+		Assert.assertEquals(expectedScannables, ServiceHolder.getNexusDataWriterConfiguration().getMetadataScannables());
 	}
 }

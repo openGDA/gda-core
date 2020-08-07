@@ -133,6 +133,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import gda.TestHelpers;
+import gda.data.ServiceHolder;
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
@@ -335,8 +336,8 @@ public class ScannableNexusWrapperScanTest {
 		});
 
 		readLegacySpringConfig(TEST_CONFIG_FILE_PATH);
-		NexusDataWriter.setLocationmap(locationMap);
-		NexusDataWriter.setMetadatascannables(legacyMetadataScannables);
+		ServiceHolder.getNexusDataWriterConfiguration().setLocationMap(locationMap);
+		ServiceHolder.getNexusDataWriterConfiguration().setMetadataScannables(legacyMetadataScannables);
 
 		final Factory factory = TestHelpers.createTestFactory();
 		factory.addFindable(new SampleAngleScannable("salong", false));

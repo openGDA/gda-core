@@ -196,8 +196,6 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 
 	private boolean fileNumberConfigured = false;
 
-	private static NexusDataWriterConfiguration configuration = null;
-
 	/**
 	 * Constructor. This attempts to read the java.property which defines the beamline name.
 	 */
@@ -1022,7 +1020,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	private void applyTemplates() throws NexusException {
 		final NexusTemplateService templateService = ServiceHolder.getNexusTemplateService();
 		if (templateService != null) {
-			for (String templateFilePath : NexusDataWriter.getNexusTemplateFiles()) {
+			for (String templateFilePath : getConfiguration().getNexusTemplateFiles()) {
 				Path filePath = Paths.get(templateFilePath);
 				if (!filePath.isAbsolute()) {
 					// if the file path is relative, resolve it relative to gda.var

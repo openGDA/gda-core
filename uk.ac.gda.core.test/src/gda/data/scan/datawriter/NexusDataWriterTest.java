@@ -375,7 +375,7 @@ public class NexusDataWriterTest {
 
 		// Set the location of the template file
 		final String templateFileAbsolutePath = Paths.get(TEMPLATE_FILE_PATH).toAbsolutePath().toString();
-		NexusDataWriter.setNexusTemplateFiles(Arrays.asList(templateFileAbsolutePath));
+		ServiceHolder.getNexusDataWriterConfiguration().setNexusTemplateFiles(Arrays.asList(templateFileAbsolutePath));
 
 		// Create a nexus appender for each detector and register it with the nexus file appender service
 		for (DetectorType detectorType : DetectorType.values()) {

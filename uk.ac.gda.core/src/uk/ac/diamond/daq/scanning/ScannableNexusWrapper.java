@@ -44,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.ServiceHolder;
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
@@ -286,7 +287,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	public CustomNexusEntryModification getCustomNexusModification() {
 		final String name = getScannable().getName();
 		if (hasLocationMapEntry()) {
-			ScannableWriter writer = NexusDataWriter.getLocationmap().get(name);
+			ScannableWriter writer = ServiceHolder.getNexusDataWriterConfiguration().getLocationMap().get(name);
 			if (writer instanceof SingleScannableWriter) {
 				if (!writer.getClass().equals(SingleScannableWriter.class)) {
 					logger.warn("NexusDataWriter location map entry for device {} is not fully supported: {}",  name, writer.getClass());

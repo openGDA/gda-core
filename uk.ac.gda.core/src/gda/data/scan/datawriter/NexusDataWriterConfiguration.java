@@ -53,7 +53,7 @@ public class NexusDataWriterConfiguration extends FindableBase {
 	private Map<String, String> metadata = new HashMap<>();
 
 	/**
-	 * Returns the configurate metadata scannables. These will be added to the nexus file for all scans on this beamline.
+	 * Returns the names of the configured metadata scannables. These will be added to the nexus file for all scans on this beamline.
 	 * @return metadata scannables
 	 */
 	public Set<String> getMetadataScannables() {

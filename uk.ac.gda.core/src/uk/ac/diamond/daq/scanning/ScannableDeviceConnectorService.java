@@ -37,7 +37,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.scan.datawriter.NexusDataWriter;
+import gda.data.ServiceHolder;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -256,12 +256,12 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 
 	@Override
 	public Set<String> getGlobalPerScanMonitorNames() {
-		return NexusDataWriter.getMetadatascannables();
+		return ServiceHolder.getNexusDataWriterConfiguration().getMetadataScannables();
 	}
 
 	@Override
 	public Set<String> getRequiredPerScanMonitorNames(String scannableName) {
-		ScannableWriter writer = NexusDataWriter.getLocationmap().get(scannableName);
+		ScannableWriter writer = ServiceHolder.getNexusDataWriterConfiguration().getLocationMap().get(scannableName);
 		if (writer != null) {
 			Collection<String> requiredScannables = writer.getPrerequisiteScannableNames();
 			if (requiredScannables != null) {

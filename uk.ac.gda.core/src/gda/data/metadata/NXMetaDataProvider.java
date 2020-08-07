@@ -44,12 +44,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import gda.data.PlottableDetectorData;
+import gda.data.ServiceHolder;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeAppender;
 import gda.data.nexus.tree.NexusTreeNode;
-import gda.data.scan.datawriter.NexusDataWriter;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -145,7 +145,7 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		if (withScannables) {
 			//for (Scannable scn : metaScannables) {
 			List<Scannable> metaScannableList = new Vector<Scannable>();
-			Set<String> metaScannableSet = NexusDataWriter.getMetadatascannables();
+			Set<String> metaScannableSet = ServiceHolder.getNexusDataWriterConfiguration().getMetadataScannables();
 			for (String scannableName : metaScannableSet) {
 				Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
 				if (scannable == null) {
@@ -196,7 +196,7 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	 */
 	public void clearDynamicScannableMetadata() {
 		for (String name : dynamicScannables) {
-			NexusDataWriter.getMetadatascannables().remove(name);
+			ServiceHolder.getNexusDataWriterConfiguration().removeMetadataScannable(name);
 		}
 		dynamicScannables.clear();
 	}
@@ -337,18 +337,14 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	}
 
 	public void setMetaScannables(List<Scannable> metaScannables) {
-		//this.metaScannables.addAll(metaScannables);
 		for (Scannable scn : metaScannables) {
-			// FIXME: why is NXMetaDataProvider is fiddling with NexusDataWriter?
-			NexusDataWriter.getMetadatascannables().add(scn.getName());
+			ServiceHolder.getNexusDataWriterConfiguration().addMetadataScannable(scn.getName());
 		}
 	}
 
 	public List<Scannable> getMetaScannables() {
-		//List<Scannable> outLst = new Vector<Scannable>(this.metaScannables);
-		//return outLst;
-		List<Scannable> metaScannableList = new Vector<Scannable>();
-		Set<String> metaScannableSet = NexusDataWriter.getMetadatascannables();
+		final List<Scannable> metaScannableList = new Vector<Scannable>();
+		final Set<String> metaScannableSet = ServiceHolder.getNexusDataWriterConfiguration().getMetadataScannables();
 		for (String scannableName : metaScannableSet) {
 
 			try {
@@ -535,11 +531,8 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	public void add(Scannable scannable) {
 		logger.debug("add called on scannable = " + scannable.getName());
 		String scannableName = scannable.getName();
-		while (NexusDataWriter.getMetadatascannables().contains(scannableName)) {
-			NexusDataWriter.getMetadatascannables().remove(scannableName);
-		}
 		dynamicScannables.add(scannableName);
-		NexusDataWriter.getMetadatascannables().add(scannableName);
+		ServiceHolder.getNexusDataWriterConfiguration().getMetadataScannables().add(scannableName);
 	}
 
 	public void remove(Object... args) {
@@ -558,7 +551,7 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		String name = scannable.getName();
 		logger.debug("remove called on scannable = " + name);
 		//metaScannables.remove(scannable);
-		NexusDataWriter.getMetadatascannables().remove(name);
+		ServiceHolder.getNexusDataWriterConfiguration().removeMetadataScannable(name);
 		dynamicScannables.remove(name);
 	}
 

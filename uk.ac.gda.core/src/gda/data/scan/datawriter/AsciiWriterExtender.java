@@ -19,14 +19,6 @@
 
 package gda.data.scan.datawriter;
 
-import gda.data.nexus.tree.INexusTree;
-import gda.data.nexus.tree.NexusTreeBuilder;
-import gda.data.nexus.tree.NexusTreeNodeSelection;
-import gda.device.Detector;
-import gda.device.Scannable;
-import gda.factory.Finder;
-import gda.scan.IScanDataPoint;
-
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -34,6 +26,14 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeBuilder;
+import gda.data.nexus.tree.NexusTreeNodeSelection;
+import gda.device.Detector;
+import gda.device.Scannable;
+import gda.factory.Finder;
+import gda.scan.IScanDataPoint;
 
 /**
  * Implementation of DataWriterExtender
