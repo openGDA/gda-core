@@ -70,8 +70,10 @@ import org.eclipse.january.dataset.SliceND;
 import org.eclipse.scanning.api.AbstractScannable;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.api.scan.rank.IScanRankService;
 import org.eclipse.scanning.api.scan.rank.IScanSlice;
@@ -91,7 +93,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Matthew Dickie
  */
-public class SolsticeScanMonitor extends AbstractScannable<Object> implements INexusDevice<NXcollection> {
+public class SolsticeScanMonitor extends AbstractScannable<Object> implements INexusDevice<NXcollection>, IPositionListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(SolsticeScanMonitor.class);
 
@@ -357,6 +359,20 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IN
 		final String estimatedTimeStr = durationInMillisToString(Duration.ofMillis(scanInfo.getEstimatedScanTime()));
 		logger.info("MScan Details: scan file = {}, shape = {}, estimated time = {}, actual time = {}, dead time = {} ({}%)",
 				filePath, shapeStr, estimatedTimeStr, scanDurationStr, scanDeadTimeStr, deadTimePercentStr);
+	}
+
+	@Override
+	public void positionPerformed(PositionEvent event) throws ScanningException {
+		setPosition(null, event.getPosition());
+		pointFinished(event.getPosition());
+	}
+
+	@Override
+	public void positionMovePerformed(PositionEvent event) throws ScanningException {
+		if (writeAfterMovePerformed()) {
+			setPosition(null, event.getPosition());
+		}
+		pointStarted(event.getPosition());
 	}
 
 	@Override

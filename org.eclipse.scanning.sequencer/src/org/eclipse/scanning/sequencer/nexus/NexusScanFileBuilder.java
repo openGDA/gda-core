@@ -62,10 +62,7 @@ import org.eclipse.dawnsci.nexus.template.NexusTemplate;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.device.IScanDevice;
-import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.models.ScanMetadata;
 import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.scan.models.ScanModel;
@@ -76,7 +73,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Responsible for building a nexus file for a given {@link ScanModel}.
  */
-public class NexusScanFileBuilder implements IPositionListener {
+public class NexusScanFileBuilder {
 
 	private static final Logger logger = LoggerFactory.getLogger(NexusScanFileBuilder.class);
 
@@ -89,7 +86,6 @@ public class NexusScanFileBuilder implements IPositionListener {
 		DEFAULT_SCAN_ROLES.put(NexusBaseClass.NX_POSITIONER, ScanRole.SCANNABLE);
 	}
 
-	private final IScanDevice scanDevice;
 	private final NexusScanModel nexusScanModel;
 	private NexusFileBuilder fileBuilder;
 	private NexusScanFile nexusScanFile;
@@ -117,8 +113,7 @@ public class NexusScanFileBuilder implements IPositionListener {
 
 	private final INexusDeviceService nexusDeviceService = ServiceHolder.getNexusDeviceService();
 
-	public NexusScanFileBuilder(IScanDevice scanDevice, ScanModel model, NexusScanModel nexusScanModel) throws ScanningException {
-		this.scanDevice = scanDevice;
+	public NexusScanFileBuilder(NexusScanModel nexusScanModel, SolsticeScanMonitor solsticeScanMonitor) throws ScanningException {
 		this.nexusScanModel = nexusScanModel;
 
 		if (fileBuilder != null) {
@@ -127,7 +122,7 @@ public class NexusScanFileBuilder implements IPositionListener {
 
 		// create the solstice scan monitor which writes unique keys. This is not added as
 		// a monitor to the scan as it part of the scan framework and must always write last
-		solsticeScanMonitor = createSolsticeScanMonitor(model);
+		this.solsticeScanMonitor = solsticeScanMonitor;
 
 		// convert this to a map of nexus object providers for each type
 		nexusObjectProviders = extractNexusProviders();
@@ -168,12 +163,9 @@ public class NexusScanFileBuilder implements IPositionListener {
 
 	/**
 	 * Writes scan finished and closes the wrapped nexus file.
-	 * @throws ScanningException
 	 */
-	public void scanFinished() throws ScanningException {
+	public void scanFinished() {
 		entryFieldBuilder.end();
-		solsticeScanMonitor.scanFinished();
-		scanDevice.removePositionListener(this);
 	}
 
 	private void applyTemplates(Tree tree) throws NexusException {
@@ -193,26 +185,6 @@ public class NexusScanFileBuilder implements IPositionListener {
 
 		final String templateRoot = ServiceHolder.getFilePathService().getPersistenceDir();
 		return Paths.get(templateRoot).resolve(templateFilePath).toString();
-	}
-
-	@Override
-	public void positionPerformed(PositionEvent event) throws ScanningException {
-		solsticeScanMonitor.setPosition(null, event.getPosition());
-		solsticeScanMonitor.pointFinished(event.getPosition());
-	}
-
-	@Override
-	public void positionMovePerformed(PositionEvent event) throws ScanningException {
-		if (solsticeScanMonitor.writeAfterMovePerformed()) {
-			solsticeScanMonitor.setPosition(null, event.getPosition());
-		}
-		solsticeScanMonitor.pointStarted(event.getPosition());
-	}
-
-	protected SolsticeScanMonitor createSolsticeScanMonitor(ScanModel model) {
-		SolsticeScanMonitor solsticeScanMonitor = new SolsticeScanMonitor(model);
-		scanDevice.addPositionListener(this);
-		return solsticeScanMonitor;
 	}
 
 	protected Map<ScanRole, List<NexusObjectProvider<?>>> extractNexusProviders() throws ScanningException {

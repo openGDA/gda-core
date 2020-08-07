@@ -55,6 +55,7 @@ public class NexusScanFileManager {
 	private boolean isWritingNexus;
 	private NexusScanFileBuilder nexusScanFileBuilder = null;
 	private NexusScanFile nexusScanFile;
+	private SolsticeScanMonitor solsticeScanMonitor;
 
 	public NexusScanFileManager(IScanDevice scanDevice) {
 		this.scanDevice = scanDevice;
@@ -73,7 +74,9 @@ public class NexusScanFileManager {
 		addLegacyPerScanMonitors(scanModel);
 		if (isWritingNexus) {
 			final NexusScanModel nexusScanModel = createNexusScanModel(scanModel);
-			nexusScanFileBuilder = new NexusScanFileBuilder(scanDevice, scanModel, nexusScanModel);
+			solsticeScanMonitor = new SolsticeScanMonitor(scanModel);
+			scanDevice.addPositionListener(solsticeScanMonitor);
+			nexusScanFileBuilder = new NexusScanFileBuilder(nexusScanModel, solsticeScanMonitor);
 		}
 	}
 
@@ -245,6 +248,9 @@ public class NexusScanFileManager {
 	 */
 	public void scanFinished() throws ScanningException {
 		if (!isWritingNexus) return;
+
+		solsticeScanMonitor.scanFinished();
+		scanDevice.removePositionListener(solsticeScanMonitor);
 
 		nexusScanFileBuilder.scanFinished(); // need to write some final data into the file
 		try {
