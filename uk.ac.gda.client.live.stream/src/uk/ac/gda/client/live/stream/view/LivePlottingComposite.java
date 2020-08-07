@@ -151,7 +151,9 @@ public class LivePlottingComposite extends Composite {
 			createScriptingConnection(plotName);
 
 			// Fix the aspect ratio as is typically required for visible cameras
-			plottingSystem.setKeepAspect(false);
+			plottingSystem.setKeepAspect(true); // Setting this to false will
+			// result in the toolbar button initially showing the wrong state.
+
 			// Disable auto rescale as the live stream is constantly refreshing
 			plottingSystem.setRescale(false);
 			if (this.liveStreamConnection != null && this.liveStreamConnection.isConnected()) {

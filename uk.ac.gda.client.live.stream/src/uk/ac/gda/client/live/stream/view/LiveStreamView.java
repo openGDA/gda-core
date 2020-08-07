@@ -332,6 +332,7 @@ public class LiveStreamView extends ViewPart {
 				"org.csstudio.swt.xygraph.autoscale",
 				"org.dawb.common.ui.plot.tool",
 				"org.dawb.workbench.plotting.histo",
+				"org.dawb.plotting.system.aspectRatio",
 				"org.dawnsci.plotting.system.preference.export",
 				"org.eclipse.nebula.visualization.xygraph.figures.ZoomType",
 				"org.dawb.workbench.ui.editors.plotting.swtxy.addRegions",
