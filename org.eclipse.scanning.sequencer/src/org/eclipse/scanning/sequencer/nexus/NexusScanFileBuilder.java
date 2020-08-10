@@ -48,6 +48,7 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.builder.CustomNexusEntryModification;
 import org.eclipse.dawnsci.nexus.builder.NexusEntryBuilder;
 import org.eclipse.dawnsci.nexus.builder.NexusFileBuilder;
+import org.eclipse.dawnsci.nexus.builder.NexusMetadataProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusScanFile;
 import org.eclipse.dawnsci.nexus.builder.data.AxisDataDevice;
@@ -55,7 +56,6 @@ import org.eclipse.dawnsci.nexus.builder.data.DataDevice;
 import org.eclipse.dawnsci.nexus.builder.data.DataDeviceBuilder;
 import org.eclipse.dawnsci.nexus.builder.data.NexusDataBuilder;
 import org.eclipse.dawnsci.nexus.builder.data.PrimaryDataDevice;
-import org.eclipse.dawnsci.nexus.builder.impl.MapBasedMetadataProvider;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.device.SimpleNexusDevice;
 import org.eclipse.dawnsci.nexus.template.NexusTemplate;
@@ -63,8 +63,6 @@ import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.api.scan.models.ScanMetadata;
-import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.slf4j.Logger;
@@ -317,7 +315,7 @@ public class NexusScanFileBuilder {
 		final NexusEntryBuilder entryBuilder  = fileBuilder.newEntry();
 		entryBuilder.addDefaultGroups();
 
-		addScanMetadata(entryBuilder, nexusScanModel.getScanMetadata());
+		addScanMetadata(entryBuilder, nexusScanModel.getNexusMetadataProviders());
 
 		entryFieldBuilder = new NXEntryFieldBuilder(entryBuilder.getNXentry());
 		entryFieldBuilder.start();
@@ -345,38 +343,9 @@ public class NexusScanFileBuilder {
 		}
 	}
 
-	private void addScanMetadata(NexusEntryBuilder entryBuilder, List<ScanMetadata> scanMetadataList) throws NexusException {
-		if (scanMetadataList != null) {
-			for (ScanMetadata scanMetadata : scanMetadataList) {
-				// convert the ScanMetadata into a MapBasedMetadataProvider and add to the entry builder
-				NexusBaseClass category = getBaseClassForMetadataType(scanMetadata.getType());
-				MapBasedMetadataProvider metadataProvider = new MapBasedMetadataProvider(category);
-				Map<String, Object> metadataFields = scanMetadata.getFields();
-				for (String metadataFieldName : metadataFields.keySet()) {
-					Object value = scanMetadata.getFieldValue(metadataFieldName);
-					metadataProvider.addMetadataEntry(metadataFieldName, value);
-				}
-
-				entryBuilder.addMetadata(metadataProvider);
-			}
-		}
-	}
-
-	private NexusBaseClass getBaseClassForMetadataType(MetadataType metadataType) {
-		if (metadataType == null) {
-			return null;
-		}
-		switch (metadataType) {
-			case ENTRY:
-				return NexusBaseClass.NX_ENTRY;
-			case INSTRUMENT:
-				return NexusBaseClass.NX_INSTRUMENT;
-			case SAMPLE:
-				return NexusBaseClass.NX_SAMPLE;
-			case USER:
-				return NexusBaseClass.NX_USER;
-			default:
-				throw new IllegalArgumentException("Unknown metadata type : " + metadataType);
+	private void addScanMetadata(NexusEntryBuilder entryBuilder, List<NexusMetadataProvider> nexusMetadataProviders) throws NexusException {
+		for (NexusMetadataProvider nexusMetadataProvider : nexusMetadataProviders) {
+			entryBuilder.addMetadata(nexusMetadataProvider);
 		}
 	}
 

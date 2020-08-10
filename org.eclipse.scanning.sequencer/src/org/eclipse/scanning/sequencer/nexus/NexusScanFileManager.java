@@ -27,10 +27,13 @@ import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.nexus.IMultipleNexusDevice;
 import org.eclipse.dawnsci.nexus.INexusDevice;
+import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
+import org.eclipse.dawnsci.nexus.builder.NexusMetadataProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusScanFile;
+import org.eclipse.dawnsci.nexus.builder.impl.MapBasedMetadataProvider;
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
@@ -38,6 +41,8 @@ import org.eclipse.scanning.api.device.IScanDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.points.AbstractPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.scan.models.ScanMetadata;
+import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.sequencer.SubscanModerator;
@@ -50,6 +55,16 @@ import org.slf4j.LoggerFactory;
 public class NexusScanFileManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(NexusScanFileManager.class);
+
+	private static Map<MetadataType, NexusBaseClass> METADATA_TYPE_TO_NEXUS_CLASS_MAP;
+
+	static {
+		METADATA_TYPE_TO_NEXUS_CLASS_MAP = new EnumMap<>(MetadataType.class);
+		METADATA_TYPE_TO_NEXUS_CLASS_MAP.put(MetadataType.ENTRY, NexusBaseClass.NX_ENTRY);
+		METADATA_TYPE_TO_NEXUS_CLASS_MAP.put(MetadataType.INSTRUMENT, NexusBaseClass.NX_INSTRUMENT);
+		METADATA_TYPE_TO_NEXUS_CLASS_MAP.put(MetadataType.SAMPLE, NexusBaseClass.NX_SAMPLE);
+		METADATA_TYPE_TO_NEXUS_CLASS_MAP.put(MetadataType.USER, NexusBaseClass.NX_USER);
+	}
 
 	private final IScanDevice scanDevice;
 	private boolean isWritingNexus;
@@ -158,9 +173,18 @@ public class NexusScanFileManager {
 		nexusScanModel.setNexusScanInfo(createScanInfo(scanModel));
 		final AbstractPosition firstPosition = (AbstractPosition) scanModel.getPointGenerator().getFirstPoint();
 		nexusScanModel.setDimensionNamesByIndex(firstPosition.getDimensionNames());
-		nexusScanModel.setScanMetadata(scanModel.getScanMetadata());
+		nexusScanModel.setNexusMetadataProviders(scanModel.getScanMetadata().stream().
+				map(this::toNexusMetadataProvider).collect(toList()));
 
 		return nexusScanModel;
+	}
+
+	private NexusMetadataProvider toNexusMetadataProvider(ScanMetadata scanMetadata) {
+		final NexusBaseClass nexusBaseClass = METADATA_TYPE_TO_NEXUS_CLASS_MAP.get(scanMetadata.getType());
+		final MapBasedMetadataProvider metadataProvider = new MapBasedMetadataProvider(nexusBaseClass);
+		scanMetadata.getFields().entrySet().stream().forEach(
+				entry -> metadataProvider.addMetadataEntry(entry.getKey(), entry.getValue()));
+		return metadataProvider;
 	}
 
 	private NexusScanInfo createScanInfo(ScanModel scanModel) throws ScanningException {

@@ -29,7 +29,7 @@ import org.eclipse.dawnsci.nexus.IMultipleNexusDevice;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
-import org.eclipse.scanning.api.scan.models.ScanMetadata;
+import org.eclipse.dawnsci.nexus.builder.NexusMetadataProvider;
 
 public class NexusScanModel {
 
@@ -45,7 +45,7 @@ public class NexusScanModel {
 
 	private List<Collection<String>> dimensionNamesByIndex;
 
-	private List<ScanMetadata> scanMetadata;
+	private List<NexusMetadataProvider> nexusMetadataProviders;
 
 	NexusScanModel(Map<ScanRole, List<INexusDevice<?>>> nexusDevices) {
 		this.nexusDevices = nexusDevices;
@@ -98,15 +98,16 @@ public class NexusScanModel {
 		this.dimensionNamesByIndex = dimensionNamesByIndex;
 	}
 
-	public List<ScanMetadata> getScanMetadata() {
-		if (scanMetadata == null) {
+	public List<NexusMetadataProvider> getNexusMetadataProviders() {
+		if (nexusMetadataProviders == null) {
 			return Collections.emptyList();
 		}
-		return scanMetadata;
+
+		return nexusMetadataProviders;
 	}
 
-	public void setScanMetadata(List<ScanMetadata> scanMetadata) {
-		this.scanMetadata = scanMetadata;
+	public void setNexusMetadataProviders(List<NexusMetadataProvider> nexusMetadataProviders) {
+		this.nexusMetadataProviders = nexusMetadataProviders;
 	}
 
 }
