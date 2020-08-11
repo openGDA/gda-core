@@ -9,7 +9,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: uk.ac.gda.tomography.browser,
  uk.ac.gda.tomography.scan.editor,
  uk.ac.gda.tomography.scan.editor.view,
- uk.ac.gda.tomography.scan.presentation
+ uk.ac.gda.tomography.scan.presentation,
+ uk.ac.gda.tomography.view
 Require-Bundle: uk.ac.gda.core;bundle-version="8.26.0",
  uk.ac.gda.client;bundle-version="1.0.0",
  org.eclipse.ui,
@@ -55,6 +56,7 @@ Import-Package: com.fasterxml.jackson.annotation;version="2.6.2",
  uk.ac.diamond.daq.client.gui.camera,
  uk.ac.diamond.daq.client.gui.camera.controller,
  uk.ac.diamond.daq.client.gui.camera.event,
+ uk.ac.diamond.daq.experiment.api.structure,
  uk.ac.gda.api.camera,
  uk.ac.gda.client.live.stream,
  uk.ac.gda.client.live.stream.view
