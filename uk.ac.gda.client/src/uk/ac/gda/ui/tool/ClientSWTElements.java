@@ -876,9 +876,7 @@ public final class ClientSWTElements {
 	 * @param imageCode
 	 *            the button image
 	 * @return a new Button component
-	 * @deprecated use {@link #createClientButton(Composite, int, ClientMessages, ClientMessages, ClientImages)}
 	 */
-	@Deprecated
 	public static final Button createClientButton(final Composite parent, int style, ClientMessages message,
 			ClientMessages tooltip, final ClientImages imageCode) {
 		Button button = createClientButton(parent, style, message, tooltip);
