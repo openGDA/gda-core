@@ -18,6 +18,9 @@
 
 package gda.images.camera.mjpeg;
 
+import gda.images.camera.FrameStatistics;
+import gda.images.camera.MotionJpegOverHttpReceiverBase;
+
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -34,13 +37,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import javax.imageio.ImageIO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.images.camera.FrameStatistics;
-import gda.images.camera.MotionJpegOverHttpReceiverBase;
+import com.sun.image.codec.jpeg.JPEGCodec;
+import com.sun.image.codec.jpeg.JPEGImageDecoder;
 
 /**
  * Task that captures frames from the MJPEG stream. A task is created to decode each frame, and the frame is added to a
@@ -81,7 +83,7 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 		this(urlSpec, imageDecodingService, receivedImages,0,false);
 	}
 	/**
-	 *
+	 * 
 	 * @param urlSpec
 	 * @param imageDecodingService
 	 * @param receivedImages
@@ -95,9 +97,6 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 		this.receivedImages = receivedImages;
 		this.readTimeout = readTimeout;
 		this.acceptReadTimeout = acceptReadTimeout;
-
-		// Provide some performance increase when reading images
-		ImageIO.setUseCache(false);
 	}
 
 	private volatile boolean keepRunning;
@@ -161,11 +160,11 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 		keepRunning = true;
 		while (keepRunning) {
 			readLine(4, dis);
-
+			
 			if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
 				frameCaptureStatistics.startProcessingFrame();
 			}
-
+			
 			BufferedImage readJPG = readJPG(dis);
 			readLine(1, dis);
 			if( readJPG != null){
@@ -178,20 +177,20 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 				Callable<E> imageDecoderTask = new Callable<E>() {
 					@Override
 					public E call() throws Exception {
-
+						
 						if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
 							frameDecodeStatistics.startProcessingFrame();
 						}
-
+						
 						final E decodedImage = convertImage(bufferedImage);
-
+						
 						if (MotionJpegOverHttpReceiverBase.SHOW_STATS) {
 							frameDecodeStatistics.finishProcessingFrame();
 						}
 
 						//once the frame has been decoded add it to the receivedImages queue
 						//Do it here rather than adding the result of imageDecodingService.submit(imageDecoderTask);
-						//to allow the decode task to be cancelled without the need to clear the associated future on the
+						//to allow the decode task to be cancelled without the need to clear the associated future on the 
 						//receivedImages queue.
 						receivedImages.offer(new Future<E>(){
 
@@ -220,7 +219,7 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 									TimeoutException {
 								return decodedImage;
 							}});
-
+						
 						return decodedImage;
 					}
 				};
@@ -232,7 +231,7 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 
 				}
 			}
-
+			
 		}
 
 		logger.debug("Frame capture stopping");
@@ -252,8 +251,11 @@ public abstract class FrameCaptureTask<E> implements Runnable {
 	public BufferedImage readJPG(DataInputStream dis) { // read the embedded jpeg image
 		BufferedImage image = null;
 		try {
-			image = ImageIO.read(dis);
-		} catch (IOException e) {
+			//ImageIO.read fails to decode all images
+			//causing the capture frame rate to be v. low
+			JPEGImageDecoder decoder = JPEGCodec.createJPEGDecoder(dis);
+			image = decoder.decodeAsBufferedImage();
+		} catch (Throwable e) {
 			logger.error("Problem reading JPG->", e);
 			disconnect(dis);
 			shutdown();
