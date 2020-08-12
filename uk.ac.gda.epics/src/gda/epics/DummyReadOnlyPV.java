@@ -18,17 +18,17 @@
 
 package gda.epics;
 
-import gda.observable.Observer;
-import gda.observable.Predicate;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.event.MonitorListener;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Predicate;
+
+import gda.observable.Observer;
+import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.event.MonitorListener;
 
 public class DummyReadOnlyPV<T> implements ReadOnlyPV<T> {
 

@@ -18,13 +18,13 @@
 
 package gda.epics;
 
-import gda.observable.Observable;
-import gda.observable.Predicate;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.event.MonitorListener;
-
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.util.function.Predicate;
+
+import gda.observable.Observable;
+import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.event.MonitorListener;
 
 // TODO: Explain IOException
 

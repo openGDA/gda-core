@@ -19,6 +19,7 @@
 package gda.device.detector.areadetector.v17.impl;
 
 import java.io.IOException;
+import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,6 @@ import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
 import gda.epics.interfaces.ElementType;
 import gda.factory.FactoryException;
-import gda.observable.Predicate;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
 import gov.aps.jca.event.PutEvent;
@@ -192,7 +192,7 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 		try {
 			pvArmed.waitForValue(new Predicate<Boolean>() {
 				@Override
-				public boolean apply(Boolean b) {
+				public boolean test(Boolean b) {
 					return b;
 				}
 			}, timeoutS);

@@ -31,9 +31,21 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
+
 import gda.epics.PV.PVValues;
 import gda.epics.connection.EpicsController;
-import gda.observable.Predicate;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
@@ -45,17 +57,6 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-
-import java.io.IOException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InOrder;
 
 /**
  * NOTE: Only tests PVs associated with Integers.
@@ -185,7 +186,7 @@ public class LazyPVFactoryTest {
 
 		final Predicate<Integer> greaterThanTen = new Predicate<Integer>() {
 			@Override
-			public boolean apply(Integer integer) {
+			public boolean test(Integer integer) {
 				return integer > 10;
 			}
 		};
@@ -219,7 +220,7 @@ public class LazyPVFactoryTest {
 
 		final Predicate<Integer> neverTrue = new Predicate<Integer>() {
 			@Override
-			public boolean apply(Integer integer) {
+			public boolean test(Integer integer) {
 				return false;
 			}
 		};

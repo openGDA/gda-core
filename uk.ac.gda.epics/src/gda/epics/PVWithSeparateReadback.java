@@ -18,15 +18,15 @@
 
 package gda.epics;
 
-import gda.observable.Observer;
-import gda.observable.Predicate;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.event.MonitorListener;
-import gov.aps.jca.event.PutListener;
-
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Predicate;
+
+import gda.observable.Observer;
+import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.event.MonitorListener;
+import gov.aps.jca.event.PutListener;
 
 /**
  * A {@link PV} representing an Epics Process Variable put/get PPV pair. Put calls are deffered to one PV and get the

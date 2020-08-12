@@ -28,6 +28,7 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,6 @@ import gda.epics.util.EpicsGlobals;
 import gda.observable.Observable;
 import gda.observable.ObservableUtil;
 import gda.observable.Observer;
-import gda.observable.Predicate;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.CAStatusException;
@@ -457,14 +457,14 @@ public class LazyPVFactory {
 
 				if (timeoutS <= 0) {
 					// wait indefinitely
-					while (!predicate.apply(lastMonitoredValue)) {
+					while (!predicate.test(lastMonitoredValue)) {
 						lastMonitoredValueMonitor.wait();
 					}
 				} else {
 					// wait for timeoutS seconds
 					long deadline = System.currentTimeMillis() + ((long) (timeoutS * 1000));
 
-					while (!predicate.apply(lastMonitoredValue)) {
+					while (!predicate.test(lastMonitoredValue)) {
 						long remaining = deadline - System.currentTimeMillis();
 						logger.debug("deadline: " + deadline + " remaining: " + remaining + "\n");
 						if (remaining <= 0) {
@@ -1039,8 +1039,8 @@ public class LazyPVFactory {
 			}
 
 			@Override
-			public boolean apply(N innerObject) {
-				return outerPredicate.apply(innerToOuter(innerObject));
+			public boolean test(N innerObject) {
+				return outerPredicate.test(innerToOuter(innerObject));
 			}
 
 		}

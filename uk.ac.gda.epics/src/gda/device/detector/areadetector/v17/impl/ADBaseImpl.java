@@ -20,6 +20,7 @@ package gda.device.detector.areadetector.v17.impl;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,6 @@ import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
 import gda.epics.connection.EpicsController;
 import gda.observable.Observable;
-import gda.observable.Predicate;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
@@ -2032,7 +2032,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		}
 
 		@Override
-		public boolean apply(Integer object) {
+		public boolean test(Integer object) {
 			return (object >= value);
 		}
 
@@ -2045,7 +2045,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		pvArrayCounter_RBV.setValueMonitoring(true);
 		pvArrayCounter_RBV.waitForValue(new Predicate<Integer>() {
 			@Override
-			public boolean apply(Integer object) {
+			public boolean test(Integer object) {
 				return (object >= exposureNumber);
 			}
 		}, timeoutS);
@@ -2058,7 +2058,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		pvDetectorState_RBV.setValueMonitoring(true);
 		pvDetectorState_RBV.waitForValue(new Predicate<Integer>() {
 			@Override
-			public boolean apply(Integer object) {
+			public boolean test(Integer object) {
 				return (object == 0);
 			}
 		}, timeoutS);

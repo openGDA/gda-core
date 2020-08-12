@@ -1,6 +1,6 @@
 package gda.epics.predicate;
 
-import gda.observable.Predicate;
+import java.util.function.Predicate;
 
 public class GreaterThanOrEqualTo implements Predicate<Integer> {
 
@@ -11,7 +11,7 @@ public class GreaterThanOrEqualTo implements Predicate<Integer> {
 	}
 
 	@Override
-	public boolean apply(Integer object) {
+	public boolean test(Integer object) {
 		return (object >= value);
 	}
 

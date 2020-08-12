@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,6 @@ import gda.epics.ReadOnlyPV;
 import gda.factory.FindableBase;
 import gda.observable.Observable;
 import gda.observable.Observer;
-import gda.observable.Predicate;
 
 
 public class ZebraDummy extends FindableBase implements Zebra, InitializingBean {
