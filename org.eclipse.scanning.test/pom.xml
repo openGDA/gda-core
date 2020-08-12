@@ -40,9 +40,6 @@
 				<version>${tycho.version}</version>
 				<configuration>
 					<excludes>
-						<!-- connects to external service -->
-						<exclude>ExampleMalcolmDeviceTest</exclude>
-						<exclude>MalcolmEpicsV4ConnectorTest</exclude>
 						<!-- PsuedoSpringParser to be removed -->
 						<exclude>PseudoSpringParserTest</exclude>
 						<!-- Powermock issues -->
