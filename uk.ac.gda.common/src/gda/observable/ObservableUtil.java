@@ -22,6 +22,7 @@ package gda.observable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
+import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,7 +127,7 @@ public class ObservableUtil<E> implements Observable<E> {
 				Predicate<E> predicate = observersPredicates.get(observer);
 				if (predicate != null) {
 					// if predicate is configured and it is *not* true then don't send the update.
-					if (!predicate.apply(changeCode)) {
+					if (!predicate.test(changeCode)) {
 						continue;
 					}
 				}

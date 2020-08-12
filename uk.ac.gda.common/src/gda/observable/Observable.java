@@ -18,6 +18,8 @@
 
 package gda.observable;
 
+import java.util.function.Predicate;
+
 /**
  * Interface for an object that supports type observation
  *
