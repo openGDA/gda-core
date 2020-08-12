@@ -18,7 +18,8 @@
 
 package uk.ac.gda.devices.detector.xspress3.controllerimpl;
 
-import gda.observable.Predicate;
+import java.util.function.Predicate;
+
 import uk.ac.gda.devices.detector.xspress3.ReadyForNextRow;
 
 public class ReadyForNextRowPredicate implements Predicate<ReadyForNextRow> {
@@ -30,7 +31,7 @@ public class ReadyForNextRowPredicate implements Predicate<ReadyForNextRow> {
 	}
 
 	@Override
-	public boolean apply(ReadyForNextRow object) {
+	public boolean test(ReadyForNextRow object) {
 		return (object == readyForNextRow);
 	}
 
