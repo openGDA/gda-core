@@ -23,13 +23,14 @@ import static uk.ac.gda.client.UIHelper.showError;
 import static uk.ac.gda.ui.tool.ClientMessages.AUTOFOCUS_CONFIGURE;
 import static uk.ac.gda.ui.tool.ClientMessages.AUTOFOCUS_CONFIGURE_SHELL_TITLE;
 import static uk.ac.gda.ui.tool.ClientMessages.AUTOFOCUS_CONFIGURE_TP;
+import static uk.ac.gda.ui.tool.ClientMessages.AUTOFOCUS_ERROR_CREATING_FOCUS_POINT;
 import static uk.ac.gda.ui.tool.ClientMessages.AUTOFOCUS_ERROR_FFT;
 import static uk.ac.gda.ui.tool.ClientMessages.AUTOFOCUS_ERROR_SNAPSHOT;
 import static uk.ac.gda.ui.tool.ClientMessages.AUTOFOCUS_SHOW_AF_POINTS;
 import static uk.ac.gda.ui.tool.ClientMessages.AUTOFOCUS_SHOW_AF_POINTS_TP;
 import static uk.ac.gda.ui.tool.ClientMessages.AUTOFOCUS_START_TP;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createButton;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientButton;
 import static uk.ac.gda.ui.tool.ClientSWTElements.getImage;
 import static uk.ac.gda.ui.tool.images.ClientImages.TARGET;
 
@@ -69,10 +70,8 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.processing.operations.image.FourierTransformImageOperation;
 import uk.ac.gda.api.camera.CameraControl;
-import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.view.LiveStreamView;
-import uk.ac.gda.ui.tool.ClientMessages;
 
 /**
  * An extension to {@link LiveStreamView} to edit a series of autofocus points on the view and use these to focus the
@@ -131,13 +130,11 @@ public class LiveStreamViewCameraControlsAutofocus implements LiveStreamViewCame
 		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(autofocusComposite);
 
 		// Check box to show/hide autofocus points
-		showAfPointCheck = createButton(autofocusComposite, SWT.CHECK, AUTOFOCUS_SHOW_AF_POINTS, AUTOFOCUS_SHOW_AF_POINTS_TP);
-		GridDataFactory.swtDefaults().applyTo(showAfPointCheck);
+		showAfPointCheck = createClientButton(autofocusComposite, SWT.CHECK, AUTOFOCUS_SHOW_AF_POINTS, AUTOFOCUS_SHOW_AF_POINTS_TP);
 		showAfPointCheck.addSelectionListener(widgetSelectedAdapter(e -> drawAfPoints()));
 
 		// Button to show configuration dialog, allowing user to activate/deactivate AF points
-		final Button configButton = createButton(autofocusComposite, SWT.PUSH, AUTOFOCUS_CONFIGURE, AUTOFOCUS_CONFIGURE_TP);
-		GridDataFactory.swtDefaults().applyTo(configButton);
+		final Button configButton = createClientButton(autofocusComposite, SWT.PUSH, AUTOFOCUS_CONFIGURE, AUTOFOCUS_CONFIGURE_TP);
 		configButton.addSelectionListener(widgetSelectedAdapter(e -> configAutofocus()));
 
 		// Button to start AF procedure
@@ -182,9 +179,8 @@ public class LiveStreamViewCameraControlsAutofocus implements LiveStreamViewCame
 			// add region to plotter
 			plotter.addRegion(plotRegion);
 		} catch (Exception e) {
-			final String message = getMessage(ClientMessages.AUTOFOCUS_ERROR_CREATING_FOCUS_POINT) + " " + point.getName();
-			logger.error(message, e);
-			UIHelper.showError(message, e);
+			final String message = getMessage(AUTOFOCUS_ERROR_CREATING_FOCUS_POINT) + " " + point.getName();
+			showError(message, e, logger);
 		}
 	}
 
@@ -229,8 +225,7 @@ public class LiveStreamViewCameraControlsAutofocus implements LiveStreamViewCame
 			MessageDialog.openInformation(Display.getDefault().getActiveShell(), "FFT values", sb.toString());
 		} catch (LiveStreamException e) {
 			final String message = getMessage(AUTOFOCUS_ERROR_FFT);
-			logger.error(message, e);
-			UIHelper.showError(message, e);
+			showError(message, e, logger);
 		}
 	}
 
