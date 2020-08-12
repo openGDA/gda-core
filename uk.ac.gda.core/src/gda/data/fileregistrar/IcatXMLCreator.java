@@ -89,7 +89,16 @@ public class IcatXMLCreator extends ConfigurableBase implements ArchiveFileCreat
 				visitId = "0-0";
 			}
 			visitId = visitId.toUpperCase();
-			investigationNumber = visitId.substring(0, visitId.indexOf('-'));
+
+			// A visit id not in the format <x>-<y> should really be picked up earlier on in the process.
+			// If it gets as far as here, log an error and use the full id.
+			final int hyphenPos = visitId.indexOf('-');
+			if (hyphenPos < 1) {
+				logger.error("Invalid visit id {}", visitId);
+				investigationNumber = visitId;
+			} else {
+				investigationNumber = visitId.substring(0, hyphenPos);
+			}
 		}
 
 		public String getVisitId() {

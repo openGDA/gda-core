@@ -276,6 +276,36 @@ public class IcatXMLCreatorTest {
 		assertEquals(expected.toString(), normaliseResultString());
 	}
 
+	@Test
+	public void testInvalidVisitFormat() throws Exception {
+		// Test the case where the visit id has no hyphen
+		final StringBuilder expected = new StringBuilder(EXPECTED_HEADER);
+		expected.append(" <inv_number>CM196641</inv_number>\n");
+		expected.append(" <visit_id>CM196641</visit_id>\n");
+		expected.append(" <instrument>ixx</instrument>\n");
+		expected.append(" <title>Test scan</title>\n");
+		expected.append(" <inv_type>experiment</inv_type>\n");
+		expected.append(" <dataset>\n");
+		expected.append("   <name>topdir</name>\n");
+		expected.append("   <dataset_type>EXPERIMENT_RAW</dataset_type>\n");
+		expected.append("   <description>unknown</description>\n");
+		expected.append("   <datafile>\n");
+		expected.append("      <name>ixx-766.nxs</name>\n");
+		expected.append("      <location>/scratch/temp/cm196641/ixx-766.nxs</location>\n");
+		expected.append("      <description>unknown</description>\n");
+		expected.append("      <datafile_version>1.0</datafile_version>\n");
+		expected.append("      <datafile_create_time>created</datafile_create_time>\n");
+		expected.append("      <datafile_modify_time>modified</datafile_modify_time>\n");
+		expected.append("   </datafile>\n");
+		expected.append(" </dataset>\n");
+		expected.append(EXPECTED_FOOTER);
+
+		xmlCreator.setMetadata(createMetadata("ixx", "Test scan", "cm196641"));
+		xmlCreator.registerFiles("scan-766", new String[] { "/scratch/temp/cm196641/ixx-766.nxs" });
+
+		assertEquals(expected.toString(), normaliseResultString());
+	}
+
 	/**
 	 * Get the result string, replacing file times with a defined string
 	 */
