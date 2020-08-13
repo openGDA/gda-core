@@ -91,7 +91,11 @@ public class NexusScanFileManager {
 			final NexusScanModel nexusScanModel = createNexusScanModel(scanModel);
 			solsticeScanMonitor = new SolsticeScanMonitor(scanModel);
 			scanDevice.addPositionListener(solsticeScanMonitor);
-			nexusScanFileBuilder = new NexusScanFileBuilder(nexusScanModel, solsticeScanMonitor);
+			try {
+				nexusScanFileBuilder = new NexusScanFileBuilder(nexusScanModel, solsticeScanMonitor);
+			} catch (NexusException e) {
+				throw new ScanningException("Error creating nexus file: " + e.getMessage(), e);
+			}
 		}
 	}
 
@@ -244,7 +248,11 @@ public class NexusScanFileManager {
 	public String createNexusFile(boolean async) throws ScanningException {
 		if (!isWritingNexus) return null;
 
-		nexusScanFile = nexusScanFileBuilder.createNexusFile(async);
+		try {
+			nexusScanFile = nexusScanFileBuilder.createNexusFile(async);
+		} catch (NexusException e) {
+			throw new ScanningException("Could not create nexus file", e);
+		}
 		return nexusScanFile.getFilePath();
 	}
 

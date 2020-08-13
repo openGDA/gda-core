@@ -60,7 +60,6 @@ import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.device.SimpleNexusDevice;
 import org.eclipse.dawnsci.nexus.template.NexusTemplate;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
-import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,7 +107,7 @@ public class NexusScanFileBuilder {
 
 	private final INexusDeviceService nexusDeviceService = ServiceHolder.getNexusDeviceService();
 
-	public NexusScanFileBuilder(NexusScanModel nexusScanModel, SolsticeScanMonitor solsticeScanMonitor) throws ScanningException {
+	public NexusScanFileBuilder(NexusScanModel nexusScanModel, SolsticeScanMonitor solsticeScanMonitor) throws NexusException {
 		this.nexusScanModel = nexusScanModel;
 
 		if (fileBuilder != null) {
@@ -139,7 +138,7 @@ public class NexusScanFileBuilder {
 		return paths;
 	}
 
-	public NexusScanFile createNexusFile(boolean async) throws ScanningException {
+	public NexusScanFile createNexusFile(boolean async) throws NexusException {
 		// We use the new nexus framework to join everything up into the scan
 		// Create a builder
 		fileBuilder = ServiceHolder.getFactory().newNexusFileBuilder(nexusScanModel.getFilePath());
@@ -152,7 +151,7 @@ public class NexusScanFileBuilder {
 			nexusScanFile.openToWrite();
 			return nexusScanFile;
 		} catch (NexusException e) {
-			throw new ScanningException("Cannot create nexus file", e);
+			throw new NexusException("Cannot create nexus file", e);
 		}
 	}
 
@@ -182,7 +181,7 @@ public class NexusScanFileBuilder {
 		return Paths.get(templateRoot).resolve(templateFilePath).toString();
 	}
 
-	protected Map<ScanRole, List<NexusObjectProvider<?>>> extractNexusProviders() throws ScanningException {
+	protected Map<ScanRole, List<NexusObjectProvider<?>>> extractNexusProviders() throws NexusException {
 		logger.trace("extractNexusProviders() called");
 		final NexusScanInfo scanInfo = nexusScanModel.getNexusScanInfo();
 		final Map<ScanRole, List<INexusDevice<?>>> nexusDevices = getNexusDevices(scanInfo);
@@ -208,7 +207,7 @@ public class NexusScanFileBuilder {
 						logger.warn("Cannot create per-scan monitor {}: {}", nexusDevice.getName(), e.getMessage());
 					} else {
 						// For all other types of device throw an exception
-						throw new ScanningException("Cannot create device: " + nexusDevice.getName(), e);
+						throw new NexusException("Cannot create device: " + nexusDevice.getName(), e);
 					}
 				}
 			}
@@ -219,7 +218,7 @@ public class NexusScanFileBuilder {
 		return nexusObjectProviders;
 	}
 
-	private Map<ScanRole, List<INexusDevice<?>>> getNexusDevices(NexusScanInfo info) throws ScanningException {
+	private Map<ScanRole, List<INexusDevice<?>>> getNexusDevices(NexusScanInfo info) throws NexusException {
 		// expand any IMultipleNexusDevices
 		// TODO: This may be easier if IMultipleNexusDevice returned multiple INexusDevices, but this would be a breaking API change
 		// (although the old method could be kept as deprecated and a default implementation provided
@@ -247,10 +246,10 @@ public class NexusScanFileBuilder {
 
 				newNexusDevices.put(scanRole, newNexusDevicesForScanRole);
 			} catch (Exception e) {
-				if (e instanceof RuntimeException && e.getCause() instanceof ScanningException) {
-					throw (ScanningException) ((RuntimeException) e).getCause();
+				if (e instanceof RuntimeException && e.getCause() instanceof NexusException) {
+					throw (NexusException) ((RuntimeException) e).getCause();
 				}
-				throw new ScanningException("Error getting nexus devices", e);
+				throw new NexusException("Error getting nexus devices", e);
 			}
 		}
 
@@ -262,7 +261,7 @@ public class NexusScanFileBuilder {
 				for (NexusObjectProvider<?> nexusProvider : multipleNexusDevice.getNexusProviders(info)) {
 					final ScanRole scanRole = DEFAULT_SCAN_ROLES.get(nexusProvider.getNexusBaseClass());
 					if (scanRole == null) {
-						throw new ScanningException("Unable to determine scan role for nexus object of type " +
+						throw new NexusException("Unable to determine scan role for nexus object of type " +
 								nexusProvider.getNexusBaseClass());
 					}
 					// create a new SimpleNexusDevice to wrap the NexusObjectProvider and get the decorated
@@ -271,7 +270,7 @@ public class NexusScanFileBuilder {
 					newNexusDevices.get(scanRole).add(decoratedNexusDevice);
 				}
 			} catch (NexusException e) {
-				throw new ScanningException("Could not get nexus object providers for device: " + multipleNexusDevice.getName(), e);
+				throw new NexusException("Could not get nexus object providers for device: " + multipleNexusDevice.getName(), e);
 			}
 		}
 
@@ -293,7 +292,7 @@ public class NexusScanFileBuilder {
 			}
 			return nexusDevices;
 		} catch (NexusException e) {
-			throw new RuntimeException(new ScanningException("Could not get nexus provider for device: " + multiNexusDevice.getName(), e));
+			throw new RuntimeException(new NexusException("Could not get nexus provider for device: " + multiNexusDevice.getName(), e));
 		}
 	}
 
