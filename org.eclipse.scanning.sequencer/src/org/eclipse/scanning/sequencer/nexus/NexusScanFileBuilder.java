@@ -60,7 +60,6 @@ import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.device.SimpleNexusDevice;
 import org.eclipse.dawnsci.nexus.template.NexusTemplate;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
-import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.slf4j.Logger;
@@ -203,14 +202,13 @@ public class NexusScanFileBuilder {
 						nexusObjectProvidersForType.add(nexusProvider);
 					}
 				} catch (NexusException e) {
-					final String deviceName = (nexusDevice instanceof INameable) ? ((INameable) nexusDevice).getName() : "(unknown device)";
 					if (deviceType == ScanRole.MONITOR_PER_SCAN) {
 						// A failure to get a Nexus object for a per-scan monitor is not regarded as fatal,
 						// so just warn the user.
-						logger.warn("Cannot create per-scan monitor {}: {}", deviceName, e.getMessage());
+						logger.warn("Cannot create per-scan monitor {}: {}", nexusDevice.getName(), e.getMessage());
 					} else {
 						// For all other types of device throw an exception
-						throw new ScanningException("Cannot create device: " + deviceName, e);
+						throw new ScanningException("Cannot create device: " + nexusDevice.getName(), e);
 					}
 				}
 			}
