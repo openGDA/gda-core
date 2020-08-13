@@ -271,16 +271,6 @@ public final class ClientSWTElements {
 	}
 
 	/**
-	 * @deprecated use {@link #createEmptyCell(Composite, int)}. This has been done to support a more consistent
-	 *             approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	public static final Label createEmptyCell(final Composite parent, int labelStyle) {
-		return createLabel(parent, labelStyle, "", DEFAULT_SPAN, null);
-	}
-
-	/**
 	 * @deprecated use {@link #createClientText(Composite, int, ClientMessages, Optional)}. This has been done to
 	 *             support a more consistent approach described in
 	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
@@ -521,54 +511,6 @@ public final class ClientSWTElements {
 					.orElseThrow(Exception::new).createImage();
 		} catch (Exception e) {
 			return getImage(ClientImages.NO_IMAGE);
-		}
-	}
-
-	/**
-	 * @deprecated use {@link #createClientGridDataFactory()} to define the layout. This has been done to support a more
-	 *             consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	public static void changeVAlignement(Control control, int vAlignement) {
-		if (GridData.class.isInstance(control.getLayoutData())) {
-			GridData.class.cast(control.getLayoutData()).verticalAlignment = vAlignement;
-		}
-	}
-
-	/**
-	 * @deprecated use {@link #createClientGridDataFactory()} to define the layout. This has been done to support a more
-	 *             consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	public static void changeHAlignment(Control control, int hAlignement) {
-		if (GridData.class.isInstance(control.getLayoutData())) {
-			GridData.class.cast(control.getLayoutData()).horizontalAlignment = hAlignement;
-		}
-	}
-
-	/**
-	 * @deprecated use {@link #createClientGridDataFactory()} to define the layout. This has been done to support a more
-	 *             consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	public static void changeHIndent(Control control, int hIndent) {
-		if (GridData.class.isInstance(control.getLayoutData())) {
-			GridData.class.cast(control.getLayoutData()).horizontalIndent = hIndent;
-		}
-	}
-
-	/**
-	 * @deprecated use {@link #createClientGridDataFactory()} to define the layout. This has been done to support a more
-	 *             consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	public static void changeVerticalAlign(Control control, int vAlignement) {
-		if (GridData.class.isInstance(control.getLayoutData())) {
-			GridData.class.cast(control.getLayoutData()).verticalAlignment = vAlignement;
 		}
 	}
 
