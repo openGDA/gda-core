@@ -40,40 +40,46 @@ public interface Acquisition<T extends AcquisitionConfiguration<? extends Acquis
 	 *
 	 * @return the acquisition identifier
 	 */
-	public UUID getUuid();
+	UUID getUuid();
 
 	/**
 	 * A brief definition of the acquisition.
 	 *
 	 * @return the acquisition name
 	 */
-	public String getName();
+	String getName();
 
 	/**
 	 * A short description of the acquisition.
 	 *
 	 * @return the acquisition abstract
 	 */
-	public String getDescription();
+	String getDescription();
 
 	/**
 	 * The period between which the acquisition has been running
 	 *
 	 * @return the acquisition start and finish dates
 	 */
-	public Period getExecutionPeriod();
+	Period getExecutionPeriod();
 
 	/**
 	 * Where this acquisition is, or will be stored. In future may be related to {@link #getUuid()}.
 	 *
 	 * @return the acquisition URL
 	 */
-	public URL getAcquisitionLocation();
+	URL getAcquisitionLocation();
 
 	/**
 	 * The acquisition workflow
 	 *
 	 * @return instructions for the acquisition engine
 	 */
-	public T getAcquisitionConfiguration();
+	T getAcquisitionConfiguration();
+
+	/**
+	 * The acquisition engine responsible for executing this {@code Acquisition}
+	 * @return the acquisition engine, otherwise {@code null} if the engine selection is delegated to an external controller
+	 */
+	AcquisitionEngineDocument getAcquisitionEngine();
 }

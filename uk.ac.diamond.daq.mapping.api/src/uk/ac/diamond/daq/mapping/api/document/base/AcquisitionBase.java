@@ -26,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 import uk.ac.gda.api.acquisition.Acquisition;
+import uk.ac.gda.api.acquisition.AcquisitionEngineDocument;
 
 /**
  * Describes a specific tomography execution
@@ -42,6 +43,7 @@ public class AcquisitionBase<T extends AcquisitionConfigurationBase<? extends Ac
 	private URL acquisitionLocation;
 
 	private T acquisitionConfiguration;
+	private AcquisitionEngineDocument acquisitionEngine;
 
 	@Override
 	public UUID getUuid() {
@@ -95,5 +97,14 @@ public class AcquisitionBase<T extends AcquisitionConfigurationBase<? extends Ac
 
 	public void setAcquisitionConfiguration(T acquisitionConfiguration) {
 		this.acquisitionConfiguration = acquisitionConfiguration;
+	}
+
+	@Override
+	public AcquisitionEngineDocument getAcquisitionEngine() {
+		return acquisitionEngine;
+	}
+
+	public void setAcquisitionEngine(AcquisitionEngineDocument acquisitionEngine) {
+		this.acquisitionEngine = acquisitionEngine;
 	}
 }

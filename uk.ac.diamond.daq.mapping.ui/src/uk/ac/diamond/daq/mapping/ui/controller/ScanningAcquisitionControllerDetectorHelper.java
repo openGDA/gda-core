@@ -38,6 +38,8 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.ui.properties.DetectorHelper;
 import uk.ac.diamond.daq.mapping.ui.properties.DetectorHelper.AcquisitionType;
 import uk.ac.diamond.daq.mapping.ui.properties.DetectorPropertiesDocument;
+import uk.ac.gda.api.acquisition.AcquisitionEngineDocument;
+import uk.ac.gda.api.acquisition.AcquisitionEngineDocument.AcquisitionEngineType;
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraControllerEvent;
@@ -103,6 +105,11 @@ class ScanningAcquisitionControllerDetectorHelper {
 		int index = 0; // in future may be parametrised
 		DetectorPropertiesDocument dp = detectorProperties.get(index);
 
+		// For the moment assumes only malcolm acquisition engines
+		AcquisitionEngineDocument.Builder engineBuilder = new AcquisitionEngineDocument.Builder();
+		engineBuilder.withId(dp.getDetectorBean());
+		engineBuilder.withType(AcquisitionEngineType.MALCOLM);
+
 		camerasControls = new ArrayList<>();
 		dp.getCameras().stream().map(CameraHelper::getCameraPropertiesByID)
 				.filter(Optional::isPresent).map(Optional::get).map(CameraProperties::getIndex)
@@ -111,9 +118,8 @@ class ScanningAcquisitionControllerDetectorHelper {
 					cc.addIObserver(cameraControlObserver);
 					camerasControls.add(cc);
 					try {
-						DetectorDocument dd = new DetectorDocument(dp.getDetectorBean(),
-								camerasControls.get(0).getAcquireTime());
-						getAcquisitionParameters().setDetector(dd);
+						getAcquisitionParameters().setDetector(new DetectorDocument(cc.getName(),
+								camerasControls.get(0).getAcquireTime()));
 					} catch (DeviceException e) {
 						UIHelper.showError("Cannot read exposure time.", e, logger);
 					}
