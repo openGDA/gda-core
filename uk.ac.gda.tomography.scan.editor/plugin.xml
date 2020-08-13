@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+      		allowMultiple="false"
+      		class="uk.ac.gda.tomography.view.TomographyConfigurationView"
+      		icon="icons/tomography-16.png"
+      		id="uk.ac.gda.tomography.view.TomographyConfigurationView"
+      		name="Tomography Acquisition Configuration"
+      		restorable="true">
+      </view>  
+   </extension>
+
+</plugin>
