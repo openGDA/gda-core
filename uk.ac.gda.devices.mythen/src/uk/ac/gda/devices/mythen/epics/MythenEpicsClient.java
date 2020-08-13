@@ -19,7 +19,6 @@
 package uk.ac.gda.devices.mythen.epics;
 
 import java.io.IOException;
-import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -313,8 +312,7 @@ public class MythenEpicsClient implements MythenClient, InitializingBean {
 		}
 		logger.info("Waiting for the value of PV {} to be equal to {}...", pv.getPvName(), valWaitedFor);
 		try {
-			pv.waitForValue(new EqualTo(valWaitedFor) {
-			}, timeoutSec);
+			pv.waitForValue(i -> i == valWaitedFor, timeoutSec);
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}
@@ -328,8 +326,7 @@ public class MythenEpicsClient implements MythenClient, InitializingBean {
 		}
 		logger.info("Waiting for the value of PV {} to be not equal to {}...", pv.getPvName(), valWaitedFor);
 		try {
-			pv.waitForValue(new NotEqualTo(valWaitedFor) {
-			}, timeoutSec);
+			pv.waitForValue(i -> i != valWaitedFor, timeoutSec);
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}
@@ -346,88 +343,6 @@ public class MythenEpicsClient implements MythenClient, InitializingBean {
 		}
 	}
 
-	public class EqualTo implements Predicate<Integer> {
-
-		private final int value;
-
-		public EqualTo(int value) {
-			this.value = value;
-		}
-
-		@Override
-		public boolean test(Integer object) {
-			return (object == value);
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + value;
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			EqualTo other = (EqualTo) obj;
-			if (value != other.value)
-				return false;
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return "EqualTo(" + value + ")";
-		}
-	}
-
-	public class NotEqualTo implements Predicate<Integer> {
-
-		private final int value;
-
-		public NotEqualTo(int value) {
-			this.value = value;
-		}
-
-		@Override
-		public boolean test(Integer object) {
-			print("apply : " + object.toString());
-			return (object != value);
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + value;
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			EqualTo other = (EqualTo) obj;
-			if (value != other.value)
-				return false;
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return "NotEqualTo(" + value + ")";
-		}
-	}
 	/**
 	 * start acquire data from detector asynchronously.
 	 * Note the MythenClient interface parameter - {@link AcquisitionParameters} is no longer suitable for Mythen 3.

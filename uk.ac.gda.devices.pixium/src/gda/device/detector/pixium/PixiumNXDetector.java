@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -461,8 +460,7 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 		}
 		logger.info("Waiting for the value of PV {} to be equal to {}...", pv.getPvName(), valWaitedFor);
 		try {
-			pv.waitForValue(new EqualTo(valWaitedFor) {
-			}, timeoutSec);
+			pv.waitForValue(i -> i == valWaitedFor, timeoutSec);
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}
@@ -476,8 +474,7 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 		}
 		logger.info("Waiting for the value of PV {} to be not equal to {}...", pv.getPvName(), valWaitedFor);
 		try {
-			pv.waitForValue(new NotEqualTo(valWaitedFor) {
-			}, timeoutSec);
+			pv.waitForValue(i -> i != valWaitedFor, timeoutSec);
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}
@@ -494,8 +491,7 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 		}
 		logger.info("Waiting for shutter {} to close...", shutterPVName);
 		try {
-			shutterPV.waitForValue(new EqualTo(shutterPosWaitedFor) {
-			}, timeoutSec);
+			shutterPV.waitForValue(i -> i == shutterPosWaitedFor, timeoutSec);
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}
@@ -508,89 +504,6 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 	private void print(String msg) {
 		if (InterfaceProvider.getTerminalPrinter() != null) {
 			InterfaceProvider.getTerminalPrinter().print(msg);
-		}
-	}
-
-	private class EqualTo implements Predicate<Integer> {
-
-		private final int value;
-
-		public EqualTo(int value) {
-			this.value = value;
-		}
-
-		@Override
-		public boolean test(Integer object) {
-			return (object == value);
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + value;
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			EqualTo other = (EqualTo) obj;
-			if (value != other.value)
-				return false;
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return "EqualTo(" + value + ")";
-		}
-	}
-
-	private class NotEqualTo implements Predicate<Integer> {
-
-		private final int value;
-
-		public NotEqualTo(int value) {
-			this.value = value;
-		}
-
-		@Override
-		public boolean test(Integer object) {
-			print("apply : " + object.toString());
-			return (object != value);
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + value;
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			EqualTo other = (EqualTo) obj;
-			if (value != other.value)
-				return false;
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return "NotEqualTo(" + value + ")";
 		}
 	}
 
