@@ -316,7 +316,7 @@ public class DiffractionViewerMetadata extends Composite {
 								moveDetectorOrigin(beamMovement.BEAM_UP, arrowMovement);
 						}
 					});
-					upBeam.setImage(AnalysisRCPActivator.getImageDescriptor("/icons/arrow_up.png").createImage());
+					upBeam.setImage(AnalysisRCPActivator.getImage("icons/arrow_up.png"));
 				}
 				new Label(beamCentreControls, SWT.NONE);
 				{
@@ -331,7 +331,7 @@ public class DiffractionViewerMetadata extends Composite {
 								moveDetectorOrigin(beamMovement.BEAM_LEFT, arrowMovement);
 						}
 					});
-					leftBeam.setImage(AnalysisRCPActivator.getImageDescriptor("/icons/arrow_left.png").createImage());
+					leftBeam.setImage(AnalysisRCPActivator.getImage("icons/arrow_left.png"));
 				}
 				{
 					showBeam = new Button(beamCentreControls, SWT.TOGGLE);
@@ -343,8 +343,7 @@ public class DiffractionViewerMetadata extends Composite {
 						}
 					});
 					showBeam.setToolTipText("Show beam centre");
-					showBeam.setImage(AnalysisRCPActivator.getImageDescriptor("icons/asterisk_yellow.png")
-							.createImage());
+					showBeam.setImage(AnalysisRCPActivator.getImage("icons/asterisk_yellow.png"));
 				}
 				{
 					Button rightBeam = new Button(beamCentreControls, SWT.NONE);
@@ -360,7 +359,7 @@ public class DiffractionViewerMetadata extends Composite {
 
 						}
 					});
-					rightBeam.setImage(AnalysisRCPActivator.getImageDescriptor("/icons/arrow_right.png").createImage());
+					rightBeam.setImage(AnalysisRCPActivator.getImage("icons/arrow_right.png"));
 				}
 				new Label(beamCentreControls, SWT.NONE);
 				{
@@ -375,7 +374,7 @@ public class DiffractionViewerMetadata extends Composite {
 								moveDetectorOrigin(beamMovement.BEAM_DOWN, arrowMovement);
 						}
 					});
-					downBeam.setImage(AnalysisRCPActivator.getImageDescriptor("/icons/arrow_down.png").createImage());
+					downBeam.setImage(AnalysisRCPActivator.getImage("icons/arrow_down.png"));
 				}
 				new Label(beamCentreControls, SWT.NONE);
 

@@ -229,8 +229,7 @@ public class Plot1DStackUI extends AbstractPlotUI {
 		};
 		zoomAction.setText("Undo zoom");
 		zoomAction.setToolTipText("Undo a zoom level");
-		zoomAction.setImageDescriptor(AnalysisRCPActivator
-				.getImageDescriptor("icons/minify.png"));
+		zoomAction.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/minify.png"));
 		colourLegend = new Action("", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
@@ -247,8 +246,7 @@ public class Plot1DStackUI extends AbstractPlotUI {
 		colourLegend.setText("Use colours");
 		colourLegend.setToolTipText("Switch between monochrome and colour");
 		colourLegend.setChecked(true);
-		colourLegend.setImageDescriptor(AnalysisRCPActivator
-				.getImageDescriptor("icons/rainbow.png"));
+		colourLegend.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/rainbow.png"));
 
 		changeColour = new Action() {
 			@Override
@@ -265,8 +263,7 @@ public class Plot1DStackUI extends AbstractPlotUI {
 
 		changeColour.setText("Change Plot appearance");
 		changeColour.setToolTipText("Change the appearance of a plot");
-		changeColour.setImageDescriptor(AnalysisRCPActivator
-				.getImageDescriptor("icons/color_wheel.png"));
+		changeColour.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/color_wheel.png"));
 		activateRegionZoom = new Action("", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
@@ -278,8 +275,7 @@ public class Plot1DStackUI extends AbstractPlotUI {
 
 		activateRegionZoom.setText("Region Zoom");
 		activateRegionZoom.setToolTipText("Region zoom mode");
-		activateRegionZoom.setImageDescriptor(AnalysisRCPActivator
-				.getImageDescriptor("icons/magnify.png"));
+		activateRegionZoom.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/magnify.png"));
 		activateAreaZoom = new Action("", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
@@ -291,8 +287,7 @@ public class Plot1DStackUI extends AbstractPlotUI {
 
 		activateAreaZoom.setText("Area Zoom");
 		activateAreaZoom.setToolTipText("Area zoom mode");
-		activateAreaZoom.setImageDescriptor(AnalysisRCPActivator
-				.getImageDescriptor("icons/zoom_in.png"));
+		activateAreaZoom.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/zoom_in.png"));
 
 		tooglePerspectiveAction = new Action("", IAction.AS_CHECK_BOX) {
 			@Override
@@ -300,8 +295,7 @@ public class Plot1DStackUI extends AbstractPlotUI {
 				plotter.setPerspectiveCamera(tooglePerspectiveAction.isChecked(),true);
 			}
 		};
-		tooglePerspectiveAction.setImageDescriptor(AnalysisRCPActivator.
-													getImageDescriptor("icons/camera_add.png"));
+		tooglePerspectiveAction.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/camera_add.png"));
 		tooglePerspectiveAction.setText("Switch Ortho/Persp");
 		tooglePerspectiveAction.setToolTipText("Switch between orthographic and perspective view");
 		tooglePerspectiveAction.setChecked(getCameraPerspectiveChoice() == 1);
@@ -327,7 +321,7 @@ public class Plot1DStackUI extends AbstractPlotUI {
 		};
 		boundingBox.setText("Bounding box on/off");
 		boundingBox.setToolTipText("Bounding box on/off");
-		boundingBox.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/box.png"));				
+		boundingBox.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/box.png"));
 		boundingBox.setChecked(true);
 		//expansionAction = new SliderAction(plotter);
 		manager.add(activateRegionZoom);

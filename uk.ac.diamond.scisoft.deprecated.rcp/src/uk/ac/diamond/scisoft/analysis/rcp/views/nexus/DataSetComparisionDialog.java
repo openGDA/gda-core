@@ -50,9 +50,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
+import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.monitor.ProgressMonitorWrapper;
-
-import com.swtdesigner.SWTResourceManager;
 
 public class DataSetComparisionDialog extends Dialog {
 	
@@ -119,7 +118,7 @@ public class DataSetComparisionDialog extends Dialog {
 		if (isAllDataSets) {
 			CLabel error = new CLabel(container, SWT.WRAP);
 			error.setText("The intersection of the data sets is empty so all data are shown.\nSome nexus files selected do not contain the data and will not be plotted.");
-			error.setImage(SWTResourceManager.getImage(DataSetComparisionDialog.class, "/icons/error.png"));
+			error.setImage(AnalysisRCPActivator.getImage("icons/error.png"));
 		}
 		final Button btnShowAllData = new Button(container, SWT.CHECK);
 		btnShowAllData.setToolTipText("If unchecked, only data common to all nexus files selected are shown");

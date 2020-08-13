@@ -16,8 +16,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
-import gda.observable.IObserver;
-
 import java.io.File;
 import java.util.Collections;
 import java.util.Iterator;
@@ -47,11 +45,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.IActionBars;
 
+import gda.observable.IObserver;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
-
-import com.swtdesigner.ResourceManager;
-
 
 /**
  * Class which can be extended to create custom toolbars.
@@ -165,7 +161,7 @@ public class Plot1DUIAdapter extends AbstractPlotUI {
 				plotter.setUseLegend(isChecked());
 			}
 		};
-		action.setImageDescriptor(ResourceManager.getImageDescriptor(Plot1DUIAdapter.class, "/icons/application_tile_vertical.png"));
+		action.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/application_tile_vertical.png"));
 		return action;
 	}
 

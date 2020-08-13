@@ -75,9 +75,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.LinearROITableViewer;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIDataList;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
-import uk.ac.diamond.scisoft.analysis.rcp.views.plot.StaticScanPlotView;
-
-import com.swtdesigner.SWTResourceManager;
 
 /**
  * Composite to show line profiles of main plotter
@@ -989,8 +986,7 @@ public class LineProfile extends SidePlotProfile {
 			}
 		};
 		pushPlottingDataPlot1.setText("Push line profiles to plot 1");
-		final org.eclipse.swt.graphics.Image icon = SWTResourceManager.getImage(StaticScanPlotView.class,"/icons/chart_curve_add.png");
-		final ImageDescriptor d = ImageDescriptor.createFromImage(icon);
+		final ImageDescriptor d = AnalysisRCPActivator.getImageDescriptor("icons/chart_curve_add.png");
 		pushPlottingDataPlot1.setImageDescriptor(d);
 		pushPlottingDataPlot1.setToolTipText("Push line profiles to plot 1");
 		
