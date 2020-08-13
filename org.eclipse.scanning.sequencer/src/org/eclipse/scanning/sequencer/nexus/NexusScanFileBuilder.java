@@ -181,7 +181,7 @@ public class NexusScanFileBuilder {
 		return Paths.get(templateRoot).resolve(templateFilePath).toString();
 	}
 
-	protected Map<ScanRole, List<NexusObjectProvider<?>>> extractNexusProviders() throws NexusException {
+	private Map<ScanRole, List<NexusObjectProvider<?>>> extractNexusProviders() throws NexusException {
 		logger.trace("extractNexusProviders() called");
 		final NexusScanInfo scanInfo = nexusScanModel.getNexusScanInfo();
 		final Map<ScanRole, List<INexusDevice<?>>> nexusDevices = getNexusDevices(scanInfo);
