@@ -147,7 +147,8 @@ public class QueueCommandBean  extends IdBean {
 		/**
 		 * A command to defer a currently submitted by unstarted scan until some later time it is Resumed
 		 */
-		DEFER;
+		DEFER,
+		UNDEFER;
 
 	}
 

@@ -366,6 +366,7 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 					sendQueueModifiedMessage();
 					break;
 				case DEFER:
+				case UNDEFER:
 				case PAUSE_JOB:
 				case RESUME_JOB:
 				case TERMINATE_JOB:
@@ -630,6 +631,7 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 
 		ProcessManager() {
 			commandToStatusMap = new HashMap<>();
+			commandToStatusMap.put(Command.UNDEFER, Status.SUBMITTED);
 			commandToStatusMap.put(Command.DEFER, Status.DEFERRED);
 			commandToStatusMap.put(Command.PAUSE_JOB, Status.REQUEST_PAUSE);
 			commandToStatusMap.put(Command.RESUME_JOB, Status.REQUEST_RESUME);
@@ -799,6 +801,7 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 				if (peekStatus != null && peekStatus.isPaused()) {
 					if (peekStatus != Status.DEFERRED) {
 						statusChanged = true;
+						peekBean.setStatus(Status.DEFERRED);
 					}
 					queueReordered = true;
 				} else {
@@ -1118,6 +1121,11 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 	@Override
 	public void defer(U bean) throws EventException {
 		processManager.processJobCommand(bean, Command.DEFER);
+	}
+
+	@Override
+	public void undefer(U bean) throws EventException {
+		processManager.processJobCommand(bean, Command.UNDEFER);
 	}
 
 }

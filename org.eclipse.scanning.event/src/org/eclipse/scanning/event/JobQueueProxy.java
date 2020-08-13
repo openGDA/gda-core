@@ -353,4 +353,10 @@ public final class JobQueueProxy<U extends StatusBean> extends AbstractConnectio
 
 	}
 
+	@Override
+	public void undefer(U bean) throws EventException {
+		sendCommand(Command.UNDEFER, bean);
+
+	}
+
 }

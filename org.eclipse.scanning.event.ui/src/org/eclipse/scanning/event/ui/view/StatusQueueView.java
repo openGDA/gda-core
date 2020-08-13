@@ -240,7 +240,7 @@ public class StatusQueueView extends EventConnectionView {
 
 		stopActionUpdate(selectedInRunList);
 		pauseActionUpdate(activeScanSelected, activeScanPaused);
-		deferActionUpdate(anyNonFinalInSubmittedList, allSelectedSubmittedDeferred);
+		deferActionUpdate(anyNonFinalInSubmittedList, anyNonFinalInSubmittedList && allSelectedSubmittedDeferred);
 
 		openResultsActionUpdate(anyFinalSelectedInRunList);
 		openActionUpdate(selection);
@@ -338,7 +338,7 @@ public class StatusQueueView extends EventConnectionView {
 
 				if (queue.containsKey(bean.getUniqueId())) {
 					StatusBean oldBean = queue.get(bean.getUniqueId());
-					if (bean.getStatus().isRunning() && !runList.contains(oldBean)) {
+					if (bean.getStatus().isActive() && !runList.contains(oldBean)) {
 						runList.add(oldBean);
 						submittedList.remove(oldBean);
 					}
@@ -632,9 +632,9 @@ public class StatusQueueView extends EventConnectionView {
 			try {
 				// Invert as JFace bindings toggle state first...
 				if (!deferAction.isChecked()) {
-					jobQueueProxy.resumeJob(bean);
+					jobQueueProxy.undefer(bean);
 				} else {
-					jobQueueProxy.pauseJob(bean);
+					jobQueueProxy.defer(bean);
 				}
 			} catch (Exception e) {
 				ErrorDialog.openError(getViewSite().getShell(), "Cannot defer "+bean.getName(),
