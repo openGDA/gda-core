@@ -62,13 +62,12 @@ import org.eclipse.dawnsci.nexus.template.NexusTemplate;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Responsible for building a nexus file for a given {@link ScanModel}.
+ * An instance of this class knows how to build a {@link NexusScanFile} for a given {@link NexusScanModel}.
  */
 public class NexusScanFileBuilder {
 
