@@ -38,6 +38,8 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.builder.NexusMetadataProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusScanFile;
 import org.eclipse.dawnsci.nexus.builder.impl.MapBasedMetadataProvider;
+import org.eclipse.dawnsci.nexus.scan.NexusScanFileBuilder;
+import org.eclipse.dawnsci.nexus.scan.NexusScanModel;
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;

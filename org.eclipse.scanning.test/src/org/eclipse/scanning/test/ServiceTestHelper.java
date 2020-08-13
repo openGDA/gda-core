@@ -158,6 +158,7 @@ public final class ServiceTestHelper {
 	private static void setupServiceHolders() {
 		setupOESServiceHolder();
 		setupOEDNServiceHolder();
+		setupOEDNSServiceHolder();
 		setupOESEServices();
 		setupOESCServices();
 		setupOESSSServices();
@@ -198,6 +199,13 @@ public final class ServiceTestHelper {
 		serviceHolder.setNexusFileFactory(nexusFileFactory);
 	}
 
+	private static void setupOEDNSServiceHolder() {
+		final org.eclipse.dawnsci.nexus.scan.ServiceHolder serviceHolder = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();
+		serviceHolder.setNexusBuilderFactory(new DefaultNexusBuilderFactory());
+		serviceHolder.setNexusDeviceService(nexusDeviceService);
+		serviceHolder.setTemplateService(templateService);
+	}
+
 	private static void setupOESServiceHolder() {
 		final org.eclipse.scanning.sequencer.ServiceHolder serviceHolder = new org.eclipse.scanning.sequencer.ServiceHolder();
 		serviceHolder.setEventService(eventServiceImpl);
@@ -210,7 +218,6 @@ public final class ServiceTestHelper {
 		serviceHolder.setOperationService(operationService);
 		serviceHolder.setParserService(parserService);
 		serviceHolder.setRunnableDeviceService(runnableDeviceServiceImpl);
-		serviceHolder.setTemplateService(templateService);
 		serviceHolder.setWatchdogService(watchdogService);
 	}
 

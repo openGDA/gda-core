@@ -44,6 +44,7 @@ Require-Bundle:
  org.eclipse.scanning.points,
  org.eclipse.scanning.server,
  org.eclipse.dawnsci.nexus.template,
+ org.eclipse.dawnsci.nexus.scan,
  org.eclipse.dawnsci.nexus,
  org.eclipse.scanning.example,
  org.eclipse.scanning.test.utilities,

@@ -824,7 +824,7 @@ public class ScanProcessTest {
 		ScanProcess process = new ScanProcess(scanBean, null, true);
 
 		NexusTemplateService mockTemplateService = mock(NexusTemplateService.class);
-		new ServiceHolder().setTemplateService(mockTemplateService);
+		new org.eclipse.dawnsci.nexus.scan.ServiceHolder().setTemplateService(mockTemplateService);
 		NexusTemplate[] mockTemplates = new NexusTemplate[templateFilePaths.length];
 		for (int i = 0; i < templateFilePaths.length; i++) {
 			mockTemplates[i] = mock(NexusTemplate.class);

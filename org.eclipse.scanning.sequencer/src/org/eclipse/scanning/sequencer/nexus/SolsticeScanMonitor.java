@@ -51,7 +51,6 @@ import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
-import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
@@ -60,6 +59,7 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.builder.DelegatingNexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
+import org.eclipse.dawnsci.nexus.scan.ScanMetadataWriter;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
@@ -93,7 +93,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Matthew Dickie
  */
-public class SolsticeScanMonitor extends AbstractScannable<Object> implements INexusDevice<NXcollection>, IPositionListener {
+public class SolsticeScanMonitor extends AbstractScannable<Object> implements IPositionListener, ScanMetadataWriter {
 
 	private static final Logger logger = LoggerFactory.getLogger(SolsticeScanMonitor.class);
 
@@ -130,6 +130,7 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IN
 		setName(SCANNABLE_NAME_SOLSTICE_SCAN_MONITOR);
 	}
 
+	@Override
 	public void setNexusObjectProviders(Map<ScanRole, List<NexusObjectProvider<?>>> nexusObjectProviderMap) {
 		EnumSet<ScanRole> deviceTypes = EnumSet.complementOf(EnumSet.of(ScanRole.MONITOR_PER_SCAN));
 		List<NexusObjectProvider<?>> nexusObjectProviderList = nexusObjectProviderMap.entrySet().stream()
