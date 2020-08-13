@@ -36,7 +36,7 @@ public class BSSCSessionBean implements XMLRichBean{
 	static public PlateConfig BSSC_PLATES;
 
 	List<TitrationBean> measurements = new ArrayList<>();
-	private Gson gson = new Gson();
+	private transient Gson gson = new Gson();
 
 	public PlateConfig getPlateSetup() {
 		return BSSC_PLATES;

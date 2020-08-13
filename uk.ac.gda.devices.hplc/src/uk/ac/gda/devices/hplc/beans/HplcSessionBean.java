@@ -35,7 +35,7 @@ public class HplcSessionBean implements XMLRichBean {
 	public static PlateConfig HPLC_PLATES;
 	
 	List<HplcBean> measurements = new ArrayList<>();
-	private Gson gson = new Gson();
+	private transient Gson gson = new Gson();
 
 
 	public static HplcSessionBean createFromXML(String filename) throws Exception {
