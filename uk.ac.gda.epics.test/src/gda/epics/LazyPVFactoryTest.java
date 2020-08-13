@@ -184,12 +184,7 @@ public class LazyPVFactoryTest {
 
 		when(mockIntDBR.getIntValue()).thenReturn(new int[] { 1 });
 
-		final Predicate<Integer> greaterThanTen = new Predicate<Integer>() {
-			@Override
-			public boolean test(Integer integer) {
-				return integer > 10;
-			}
-		};
+		final Predicate<Integer> greaterThanTen = i -> i > 10;
 		FutureTask<Integer> futureTask = new FutureTask<Integer>(new Callable<Integer>() {
 			@Override
 			public Integer call() throws Exception {
@@ -218,12 +213,7 @@ public class LazyPVFactoryTest {
 		when(mockIntDBR.getIntValue()).thenReturn(new int[] { 1 });
 		when(mockEventDBR.getIntValue()).thenReturn(new int[] { 1 });
 
-		final Predicate<Integer> neverTrue = new Predicate<Integer>() {
-			@Override
-			public boolean test(Integer integer) {
-				return false;
-			}
-		};
+		final Predicate<Integer> neverTrue = i -> false;
 		FutureTask<Integer> futureTask = new FutureTask<Integer>(new Callable<Integer>() {
 			@Override
 			public Integer call() throws Exception {

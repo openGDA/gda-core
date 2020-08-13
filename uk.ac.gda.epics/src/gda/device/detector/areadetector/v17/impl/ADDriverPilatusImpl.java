@@ -19,7 +19,6 @@
 package gda.device.detector.areadetector.v17.impl;
 
 import java.io.IOException;
-import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -190,12 +189,7 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 		}
 		logger.info("Waiting for pilatus detector to arm");
 		try {
-			pvArmed.waitForValue(new Predicate<Boolean>() {
-				@Override
-				public boolean test(Boolean b) {
-					return b;
-				}
-			}, timeoutS);
+			pvArmed.waitForValue(armed -> armed, timeoutS);
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}

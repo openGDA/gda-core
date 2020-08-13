@@ -21,6 +21,8 @@ package gda.device.detector.nxdetector.plugin.areadetector;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -53,7 +55,6 @@ import gda.device.detector.nxdetector.roi.RectangularROI;
 import gda.device.detector.nxdetector.roi.RectangularROIProvider;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
-import gda.epics.predicate.GreaterThanOrEqualTo;
 import gda.scan.ScanInformation;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -251,8 +252,7 @@ public class ADTimeSeriesStatsPluginTest {
 		plugin.setEnabledBasicStats(asList(BasicStat.MaxValue));
 		plugin.setEnabledCentroidStats(asList(CentroidStat.CentroidX));
 		testPrepareForLine();
-		when(tsCurrentPointPV.waitForValue(new GreaterThanOrEqualTo(1), -1)).thenReturn(1);
-		when(tsCurrentPointPV.waitForValue(new GreaterThanOrEqualTo(2), -1)).thenReturn(3);
+		when(tsCurrentPointPV.waitForValue(any(), eq(-1.0))).thenReturn(1).thenReturn(3);
 		List<String> names = asList("testRoi_maxvalue", "testRoi_centroidx");
 		NXDetectorDataDoubleAppender appender1 = new NXDetectorDataDoubleAppender(names, asList(0., 10.));
 		NXDetectorDataDoubleAppender appender2 = new NXDetectorDataDoubleAppender(names, asList(1., 11.));
@@ -281,8 +281,7 @@ public class ADTimeSeriesStatsPluginTest {
 		plugin.setEnabledBasicStats(asList(BasicStat.MaxValue));
 		plugin.setEnabledCentroidStats(asList(CentroidStat.CentroidX));
 		testPrepareForLine();
-		when(tsCurrentPointPV.waitForValue(new GreaterThanOrEqualTo(1), -1)).thenReturn(1);
-		when(tsCurrentPointPV.waitForValue(new GreaterThanOrEqualTo(2), -1)).thenReturn(3);
+		when(tsCurrentPointPV.waitForValue(any(), eq(-1.0))).thenReturn(1).thenReturn(3);
 		List<String> names = asList("testRoi_maxvalue", "testRoi_centroidx");
 		final NXDetectorDataDoubleAppender appender1 = new NXDetectorDataDoubleAppender(names, asList(0., 10.));
 		final NXDetectorDataDoubleAppender appender2 = new NXDetectorDataDoubleAppender(names, asList(1., 11.));

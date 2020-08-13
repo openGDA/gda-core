@@ -14,7 +14,6 @@ import gda.device.detector.areadetector.v18.NDStatsPVs.TSReadCommands;
 import gda.device.scannable.PositionInputStream;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
-import gda.epics.predicate.GreaterThanOrEqualTo;
 
 /**
  * Represents a single one-off collection from an Epics time series array, or arrays that hang off the same
@@ -144,7 +143,7 @@ class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double
 
 		int numPointsAvailable;
 		try {
-			numPointsAvailable = tsCurrentPointPV.waitForValue(new GreaterThanOrEqualTo(desiredPoint), -1);
+			numPointsAvailable = tsCurrentPointPV.waitForValue(tsCurrentPoint -> tsCurrentPoint >= desiredPoint, -1);
 		} catch (InterruptedIOException e) {
 			throw new InterruptedException("Interupted while waiting for point: " + desiredPoint);
 		} catch (Exception e) {
