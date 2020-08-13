@@ -46,7 +46,7 @@ import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.diamond.daq.mapping.ui.controller.ScanningAcquisitionController;
 import uk.ac.diamond.daq.mapping.ui.controller.StageController;
-import uk.ac.diamond.daq.mapping.ui.properties.DetectorHelper.AcquisitionType;
+import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
@@ -92,7 +92,7 @@ public class TomographyConfigurationView extends ViewPart {
 	}
 
 	private ScanningAcquisitionController getPerspectiveController() {
-		return (ScanningAcquisitionController)SpringApplicationContextProxy.getBean("scanningAcquisitionController", AcquisitionType.TOMOGRAPHY);
+		return (ScanningAcquisitionController)SpringApplicationContextProxy.getBean("scanningAcquisitionController", AcquisitionsPropertiesHelper.AcquisitionPropertyType.TOMOGRAPHY);
 	}
 
 	private StageController getStageController() {
@@ -220,9 +220,12 @@ public class TomographyConfigurationView extends ViewPart {
 			multipleScanBuilder.withNumberRepetitions(1);
 			multipleScanBuilder.withWaitingTime(0);
 			configuration.setMultipleScans(multipleScanBuilder.build());
-			// *-------------------------------
-
 			newConfiguration.getAcquisitionConfiguration().setAcquisitionParameters(acquisitionParameters);
+
+			// --- NOTE---
+			// The creation of the acquisition engine and the used detectors documents are delegated to the ScanningAcquisitionController
+			// --- NOTE---
+
 			return newConfiguration;
 		};
 	}
