@@ -61,7 +61,6 @@ import org.eclipse.dawnsci.nexus.device.SimpleNexusDevice;
 import org.eclipse.dawnsci.nexus.template.NexusTemplate;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.scanning.api.INameable;
-import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.sequencer.ServiceHolder;
@@ -428,7 +427,7 @@ public class NexusScanFileBuilder {
 	 * @param primaryDevice the primary device (e.g. a detector or monitor)
 	 * @param primaryDeviceType the type of the primary device
 	 * @param monitors the monitors
-	 * @param scannable the scannables
+	 * @param scannedDevice the devices being scanned
 	 * @param dataGroupName the name of the {@link NXdata} group within the parent {@link NXentry}
 	 * @param primaryDataFieldName the name that the primary data field name
 	 *   (i.e. the <code>@signal</code> field) should have within the NXdata group
@@ -438,7 +437,7 @@ public class NexusScanFileBuilder {
 			NexusObjectProvider<?> primaryDevice,
 			ScanRole primaryDeviceType,
 			List<NexusObjectProvider<?>> monitors,
-			List<NexusObjectProvider<?>> scannables,
+			List<NexusObjectProvider<?>> scannedDevices,
 			String dataGroupName,
 			String primaryDataFieldName)
 			throws NexusException {
@@ -449,7 +448,8 @@ public class NexusScanFileBuilder {
 		// create the data builder and add the primary device
 		final NexusDataBuilder dataBuilder = entryBuilder.newData(dataGroupName);
 
-		PrimaryDataDevice<?> primaryDataDevice = createPrimaryDataDevice(
+		// the primary device for the NXdata, e.g. a detector
+		final PrimaryDataDevice<?> primaryDataDevice = createPrimaryDataDevice(
 				primaryDevice, primaryDeviceType, primaryDataFieldName);
 		dataBuilder.setPrimaryDevice(primaryDataDevice);
 
@@ -464,7 +464,7 @@ public class NexusScanFileBuilder {
 		}
 
 		// add the scannables to the data builder
-		Iterator<NexusObjectProvider<?>> scannablesIter = scannables.iterator();
+		Iterator<NexusObjectProvider<?>> scannablesIter = scannedDevices.iterator();
 		while (scannablesIter.hasNext()) {
 			final NexusObjectProvider<?> scannable = scannablesIter.next();
 			final Integer defaultAxisForDimensionIndex =
@@ -531,18 +531,18 @@ public class NexusScanFileBuilder {
 	 * creating it if it doesn't exist.
 	 *
 	 * @param nexusObjectProvider nexus object provider
-	 * @param scannableIndex index in scan for {@link IScannable}s, or <code>null</code>
-	 *    if the scannable is being scanned (i.e. is a monitor or metadata scannable).
+	 * @param scanIndex the index in the scan for the given {@link NexusObjectProvider},
+	 *    or <code>null</code> if the device is not being scanned (i.e. is a monitor)
 	 * @param isPrimaryDevice <code>true</code> if this is the primary device for
 	 *    the scan, <code>false</code> otherwise
 	 * @return the data device
 	 * @throws NexusException
 	 */
 	private AxisDataDevice<?> getAxisDataDevice(NexusObjectProvider<?> nexusObjectProvider,
-			Integer scannableIndex) throws NexusException {
+			Integer scanIndex) throws NexusException {
 		AxisDataDevice<?> dataDevice = dataDevices.get(nexusObjectProvider);
 		if (dataDevice == null) {
-			dataDevice = createAxisDataDevice(nexusObjectProvider, scannableIndex);
+			dataDevice = createAxisDataDevice(nexusObjectProvider, scanIndex);
 			// cache the non-primary devices for any other NXdata groups
 			dataDevices.put(nexusObjectProvider, dataDevice);
 		}
@@ -553,9 +553,8 @@ public class NexusScanFileBuilder {
 	/**
 	 * Creates the {@link DataDevice} for the given {@link NexusObjectProvider},
 	 * @param nexusObjectProvider
-	 * @param scannableIndex if the {@link NexusObjectProvider} represents an
-	 *    {@link IScannable} then the index of that scannable in the list of scannables,
-	 *    otherwise <code>null</code>
+	 * @param scanIndex the index in the scan for the given {@link NexusObjectProvider},
+	 *    or <code>null</code> if the device is not being scanned (i.e. is a monitor)
 	 * @return
 	 * @throws NexusException
 	 */
