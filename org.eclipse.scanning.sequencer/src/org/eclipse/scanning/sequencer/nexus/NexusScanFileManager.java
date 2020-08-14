@@ -14,6 +14,8 @@ package org.eclipse.scanning.sequencer.nexus;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
@@ -173,7 +175,7 @@ public class NexusScanFileManager {
 		final NexusScanModel nexusScanModel = new NexusScanModel(nexusDevices);
 		nexusScanModel.setFilePath(scanModel.getFilePath());
 		nexusScanModel.setMultipleNexusDevice(multiNexusDevice);
-		nexusScanModel.setTemplateFilePaths(scanModel.getTemplateFilePaths());
+		nexusScanModel.setTemplateFilePaths(scanModel.getTemplateFilePaths().stream().map(this::getAbsoluteFilePath).collect(toSet()));
 		nexusScanModel.setNexusScanInfo(createScanInfo(scanModel));
 		final AbstractPosition firstPosition = (AbstractPosition) scanModel.getPointGenerator().getFirstPoint();
 		nexusScanModel.setDimensionNamesByIndex(firstPosition.getDimensionNames());
@@ -181,6 +183,16 @@ public class NexusScanFileManager {
 				map(this::toNexusMetadataProvider).collect(toList()));
 
 		return nexusScanModel;
+	}
+
+	private String getAbsoluteFilePath(String templateFilePath) {
+		final Path filePath = Paths.get(templateFilePath);
+		if (filePath.isAbsolute()) {
+			return templateFilePath;
+		}
+
+		final String templateRoot = ServiceHolder.getFilePathService().getPersistenceDir();
+		return Paths.get(templateRoot).resolve(templateFilePath).toString();
 	}
 
 	private NexusMetadataProvider toNexusMetadataProvider(ScanMetadata scanMetadata) {

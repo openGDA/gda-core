@@ -18,8 +18,6 @@
 
 package org.eclipse.scanning.sequencer.nexus;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -165,20 +163,9 @@ public class NexusScanFileBuilder {
 	private void applyTemplates(Tree tree) throws NexusException {
 		final NexusTemplateService templateService = ServiceHolder.getTemplateService();
 		for (String templateFilePath : nexusScanModel.getTemplateFilePaths()) {
-			final String fullPath = getAbsoluteFilePath(templateFilePath);
-			final NexusTemplate template = templateService.loadTemplate(fullPath);
+			final NexusTemplate template = templateService.loadTemplate(templateFilePath);
 			template.apply(tree);
 		}
-	}
-
-	private String getAbsoluteFilePath(String templateFilePath) {
-		final Path filePath = Paths.get(templateFilePath);
-		if (filePath.isAbsolute()) {
-			return templateFilePath;
-		}
-
-		final String templateRoot = ServiceHolder.getFilePathService().getPersistenceDir();
-		return Paths.get(templateRoot).resolve(templateFilePath).toString();
 	}
 
 	private Map<ScanRole, List<NexusObjectProvider<?>>> extractNexusProviders() throws NexusException {
