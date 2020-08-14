@@ -13,6 +13,7 @@ package org.eclipse.scanning.test.scan.nexus;
 
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertAxes;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertIndices;
+import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertNXentryMetadata;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertScanNotFinished;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertSignal;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertSolsticeScanGroup;
@@ -116,6 +117,7 @@ public class ConstantVelocityTest extends NexusTest {
 		NXinstrument instrument = entry.getInstrument();
 
 		// check that the scan points have been written correctly
+		assertNXentryMetadata(entry);
 		assertSolsticeScanGroup(entry, false, false, sizes);
 
 		String detectorName = scanModel.getDetectors().get(0).getName();

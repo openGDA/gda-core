@@ -82,7 +82,7 @@ public class NexusScanFileBuilder {
 	private NexusFileBuilder fileBuilder;
 	private NexusScanFile nexusScanFile;
 	private SolsticeScanMonitor solsticeScanMonitor;
-	private NXEntryFieldBuilder entryFieldBuilder;
+	private NXEntryScanTimestampsWriter entryFieldBuilder;
 
 	// we need to cache various things as they are used more than once
 	/**
@@ -299,7 +299,7 @@ public class NexusScanFileBuilder {
 
 		addScanMetadata(entryBuilder, nexusScanModel.getNexusMetadataProviders());
 
-		entryFieldBuilder = new NXEntryFieldBuilder(entryBuilder.getNXentry());
+		entryFieldBuilder = new NXEntryScanTimestampsWriter(entryBuilder.getNXentry());
 		entryFieldBuilder.start();
 
 		// add all the devices to the entry. Per-scan monitors are added first.

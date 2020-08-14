@@ -70,6 +70,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
+import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -105,6 +106,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		if (scanBean == null) {
 			scanBean = new ScanBean();
 			scanBean.setHostName(InetAddress.getLocalHost().getHostName());
+			scanBean.setExperimentId(ServiceHolder.getFilePathService().getVisit());
 		}
 
 		scanBean.setStatus(status);

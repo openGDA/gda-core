@@ -60,7 +60,8 @@ public final class ScanBean extends StatusBean {
 	// Field required to start a scan, may be null.
 	private ScanRequest scanRequest;
 
-	private String  beamline;
+	private String beamline;
+	private String experimentId; // written to NXentry.experiment_identifer, in GDA we set this to the visit id
 
 	// Where are we in the scan
 	private int point;
@@ -69,7 +70,7 @@ public final class ScanBean extends StatusBean {
 
 	// Dataset information
 	private String  filePath;
-	private int     scanNumber;
+	private int scanNumber;
 
 	public ScanBean() {
         super();
@@ -144,6 +145,7 @@ public final class ScanBean extends StatusBean {
 		this.beamline = scanBean.beamline;
 		this.point = scanBean.point;
 		this.size = scanBean.size;
+		this.experimentId = scanBean.experimentId;
 		this.position = scanBean.position;
 		this.filePath = scanBean.filePath;
 		this.scanNumber = scanBean.scanNumber;
@@ -174,6 +176,7 @@ public final class ScanBean extends StatusBean {
 	@Override
 	public String toString() {
 		return "ScanBean [mappingBeanId=" + mappingBeanId
+				+ ", experimentId" + experimentId
 				+ ", beamline=" + beamline
 				+ ", point=" + point
 				+ ", size=" + size
@@ -181,6 +184,14 @@ public final class ScanBean extends StatusBean {
 				+ ", filePath=" + filePath
 				+ ", scanNumber=" + scanNumber
 				+ " "+super.toString()+"]";
+	}
+
+	public String getExperimentId() {
+		return experimentId;
+	}
+
+	public void setExperimentId(String experimentId) {
+		this.experimentId = experimentId;
 	}
 
 	public int getPoint() {
@@ -247,61 +258,6 @@ public final class ScanBean extends StatusBean {
 		return previousStatus.isRunning() && status.isFinal();
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((beamline == null) ? 0 : beamline.hashCode());
-		result = prime * result + ((filePath == null) ? 0 : filePath.hashCode());
-		result = prime * result + (int) (mappingBeanId ^ (mappingBeanId >>> 32));
-		result = prime * result + point;
-		result = prime * result + ((position == null) ? 0 : position.hashCode());
-		result = prime * result + scanNumber;
-		result = prime * result + ((scanRequest == null) ? 0 : scanRequest.hashCode());
-		result = prime * result + size;
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ScanBean other = (ScanBean) obj;
-		if (beamline == null) {
-			if (other.beamline != null)
-				return false;
-		} else if (!beamline.equals(other.beamline))
-			return false;
-		if (mappingBeanId != other.mappingBeanId)
-			return false;
-		if (filePath == null) {
-			if (other.filePath != null)
-				return false;
-		} else if (!filePath.equals(other.filePath))
-			return false;
-		if (point != other.point)
-			return false;
-		if (position == null) {
-			if (other.position != null)
-				return false;
-		} else if (!position.equals(other.position))
-			return false;
-		if (scanNumber != other.scanNumber)
-			return false;
-		if (scanRequest == null) {
-			if (other.scanRequest != null)
-				return false;
-		} else if (!scanRequest.equals(other.scanRequest))
-			return false;
-		if (size != other.size)
-			return false;
-		return true;
-	}
-
 	public ScanRequest getScanRequest() {
 		return scanRequest;
 	}
@@ -309,7 +265,6 @@ public final class ScanBean extends StatusBean {
 	public void setScanRequest(ScanRequest scanRequest) {
 		this.scanRequest = scanRequest;
 	}
-
 
 	public long getMappingBeanId() {
 		return mappingBeanId;
@@ -381,5 +336,66 @@ public final class ScanBean extends StatusBean {
 		output += "running (" + percent + " complete)";
 
 		return output;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((beamline == null) ? 0 : beamline.hashCode());
+		result = prime * result + ((filePath == null) ? 0 : filePath.hashCode());
+		result = prime * result + (int) (mappingBeanId ^ (mappingBeanId >>> 32));
+		result = prime * result + ((experimentId == null) ? 0 : experimentId.hashCode());
+		result = prime * result + point;
+		result = prime * result + ((position == null) ? 0 : position.hashCode());
+		result = prime * result + scanNumber;
+		result = prime * result + ((scanRequest == null) ? 0 : scanRequest.hashCode());
+		result = prime * result + size;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ScanBean other = (ScanBean) obj;
+		if (beamline == null) {
+			if (other.beamline != null)
+				return false;
+		} else if (!beamline.equals(other.beamline))
+			return false;
+		if (mappingBeanId != other.mappingBeanId)
+			return false;
+		if (experimentId == null) {
+			if (other.experimentId != null)
+				return false;
+		} else if (!experimentId.equals(other.experimentId))
+			return false;
+		if (filePath == null) {
+			if (other.filePath != null)
+				return false;
+		} else if (!filePath.equals(other.filePath))
+			return false;
+		if (point != other.point)
+			return false;
+		if (position == null) {
+			if (other.position != null)
+				return false;
+		} else if (!position.equals(other.position))
+			return false;
+		if (scanNumber != other.scanNumber)
+			return false;
+		if (scanRequest == null) {
+			if (other.scanRequest != null)
+				return false;
+		} else if (!scanRequest.equals(other.scanRequest))
+			return false;
+		if (size != other.size)
+			return false;
+		return true;
 	}
 }

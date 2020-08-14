@@ -6,6 +6,7 @@ import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.GROUP_NAME_
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertAxes;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertDataNodesEqual;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertIndices;
+import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertNXentryMetadata;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertScanNotFinished;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertSignal;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertSolsticeScanGroup;
@@ -145,30 +146,31 @@ public class PosDetectorScanTest extends NexusTest {
 		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
 		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
 
-		NXroot rootNode = getNexusRoot(scanner);
-		NXentry entry = rootNode.getEntry();
-		NXinstrument instrument = entry.getInstrument();
+		final NXroot rootNode = getNexusRoot(scanner);
+		final NXentry entry = rootNode.getEntry();
+		final NXinstrument instrument = entry.getInstrument();
 
 		// check that the scan points have been written correctly
+		assertNXentryMetadata(entry);
 		assertSolsticeScanGroup(entry, false, false, 8, 5);
 
-		String detectorName = detector.getName();
-		NXdetector nxDetector = instrument.getDetector(detectorName);
+		final String detectorName = detector.getName();
+		final NXdetector nxDetector = instrument.getDetector(detectorName);
 		assertNotNull(nxDetector);
 		assertEquals(((IDetectorModel) scanner.getModel().getDetectors().get(0).getModel()).getExposureTime(),
 				nxDetector.getCount_timeScalar().doubleValue(), 1e-15);
 
 		assertEquals(1, entry.getAllData().size());
-		NXdata dataGroup = entry.getData(detectorName);
+		final NXdata dataGroup = entry.getData(detectorName);
 		assertNotNull(dataGroup);
 
 		assertSignal(dataGroup, NXdetector.NX_DATA);
 
-		DataNode dataNode = nxDetector.getDataNode(NXdetector.NX_DATA);
+		final DataNode dataNode = nxDetector.getDataNode(NXdetector.NX_DATA);
 		assertNotNull(dataNode);
 		assertDataNodesEqual("", dataNode, dataGroup.getDataNode(NXdetector.NX_DATA));
 
-		IDataset dataset = dataNode.getDataset().getSlice();
+		final IDataset dataset = dataNode.getDataset().getSlice();
 		int[] shape = dataset.getShape();
 		for (int i = 0; i < sizes.length; i++) {
 			assertEquals(sizes[i], shape[i]);
@@ -188,7 +190,7 @@ public class PosDetectorScanTest extends NexusTest {
 		assertEquals(sizes.length, scannableNames.size());
 
 		// Append _value_demand to each position name, append "." twice for 2 image dimensions
-		List<String> expectedAxesNames = Stream.concat(scannableNames.stream().map(x -> x + "_value_set"),
+		final List<String> expectedAxesNames = Stream.concat(scannableNames.stream().map(x -> x + "_value_set"),
 				Collections.nCopies(2, ".").stream()).collect(Collectors.toList());
 		assertAxes(dataGroup, expectedAxesNames.toArray(new String[expectedAxesNames.size()]));
 
@@ -196,10 +198,10 @@ public class PosDetectorScanTest extends NexusTest {
 
 		int i = 0;
 		for (String positionerName : scannableNames) {
-			NXpositioner positioner = entry.getInstrument().getPositioner(positionerName);
+			final NXpositioner positioner = entry.getInstrument().getPositioner(positionerName);
 
 			// check value_demand data node
-			String demandFieldName = positionerName + "_" + NXpositioner.NX_VALUE + "_set";
+			final String demandFieldName = positionerName + "_" + NXpositioner.NX_VALUE + "_set";
 			assertSame(dataGroup.getDataNode(demandFieldName),
 					positioner.getDataNode("value_set"));
 			assertIndices(dataGroup, demandFieldName, i);
@@ -207,7 +209,7 @@ public class PosDetectorScanTest extends NexusTest {
 					"/entry/instrument/" + positionerName + "/value_set");
 
 			// check value data node
-			String valueFieldName = positionerName + "_" + NXpositioner.NX_VALUE;
+			final String valueFieldName = positionerName + "_" + NXpositioner.NX_VALUE;
 			assertSame(dataGroup.getDataNode(valueFieldName),
 					positioner.getDataNode(NXpositioner.NX_VALUE));
 			assertIndices(dataGroup, valueFieldName, defaultDimensionMappings);

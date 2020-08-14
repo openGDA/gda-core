@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.sequencer.nexus;
 
+import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.nexus.IMultipleNexusDevice;
 import org.eclipse.dawnsci.nexus.INexusDevice;
+import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
@@ -166,6 +168,36 @@ public class NexusScanFileManager {
 		}
 	}
 
+	private List<NexusMetadataProvider> createScanMetadataProviders(ScanModel scanModel) {
+		final List<NexusMetadataProvider> metadataProviders = scanModel.getScanMetadata().stream().
+				map(this::toNexusMetadataProvider).collect(toCollection(ArrayList::new));
+
+		// add an metadata provider to add 'experiment_identifier' to the NXentry.
+		final MapBasedMetadataProvider entryMetadataProvider = new MapBasedMetadataProvider(NexusBaseClass.NX_ENTRY);
+		entryMetadataProvider.addMetadataEntry(NXentry.NX_EXPERIMENT_IDENTIFIER, scanModel.getBean().getExperimentId());
+		metadataProviders.add(entryMetadataProvider);
+
+		return metadataProviders;
+	}
+
+	private NexusMetadataProvider toNexusMetadataProvider(ScanMetadata scanMetadata) {
+		final NexusBaseClass nexusBaseClass = METADATA_TYPE_TO_NEXUS_CLASS_MAP.get(scanMetadata.getType());
+		final MapBasedMetadataProvider metadataProvider = new MapBasedMetadataProvider(nexusBaseClass);
+		scanMetadata.getFields().entrySet().stream().forEach(
+				entry -> metadataProvider.addMetadataEntry(entry.getKey(), entry.getValue()));
+		return metadataProvider;
+	}
+
+	private String getAbsoluteFilePath(String templateFilePath) {
+		final Path filePath = Paths.get(templateFilePath);
+		if (filePath.isAbsolute()) {
+			return templateFilePath;
+		}
+
+		final String templateRoot = ServiceHolder.getFilePathService().getPersistenceDir();
+		return Paths.get(templateRoot).resolve(templateFilePath).toString();
+	}
+
 	private NexusScanModel createNexusScanModel(ScanModel scanModel) throws ScanningException {
 		final Map<ScanRole, List<INexusDevice<?>>> nexusDevices = extractNexusDevices(scanModel);
 		final Optional<IMultipleNexusDevice> multiNexusDevice = scanModel.getDetectors().stream()
@@ -179,28 +211,9 @@ public class NexusScanFileManager {
 		nexusScanModel.setNexusScanInfo(createScanInfo(scanModel));
 		final AbstractPosition firstPosition = (AbstractPosition) scanModel.getPointGenerator().getFirstPoint();
 		nexusScanModel.setDimensionNamesByIndex(firstPosition.getDimensionNames());
-		nexusScanModel.setNexusMetadataProviders(scanModel.getScanMetadata().stream().
-				map(this::toNexusMetadataProvider).collect(toList()));
+		nexusScanModel.setNexusMetadataProviders(createScanMetadataProviders(scanModel));
 
 		return nexusScanModel;
-	}
-
-	private String getAbsoluteFilePath(String templateFilePath) {
-		final Path filePath = Paths.get(templateFilePath);
-		if (filePath.isAbsolute()) {
-			return templateFilePath;
-		}
-
-		final String templateRoot = ServiceHolder.getFilePathService().getPersistenceDir();
-		return Paths.get(templateRoot).resolve(templateFilePath).toString();
-	}
-
-	private NexusMetadataProvider toNexusMetadataProvider(ScanMetadata scanMetadata) {
-		final NexusBaseClass nexusBaseClass = METADATA_TYPE_TO_NEXUS_CLASS_MAP.get(scanMetadata.getType());
-		final MapBasedMetadataProvider metadataProvider = new MapBasedMetadataProvider(nexusBaseClass);
-		scanMetadata.getFields().entrySet().stream().forEach(
-				entry -> metadataProvider.addMetadataEntry(entry.getKey(), entry.getValue()));
-		return metadataProvider;
 	}
 
 	private NexusScanInfo createScanInfo(ScanModel scanModel) throws ScanningException {

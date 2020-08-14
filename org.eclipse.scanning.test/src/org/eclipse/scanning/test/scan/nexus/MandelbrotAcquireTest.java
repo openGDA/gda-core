@@ -12,6 +12,7 @@
 package org.eclipse.scanning.test.scan.nexus;
 
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertAxes;
+import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertNXentryMetadata;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertSignal;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertSolsticeScanGroup;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertTarget;
@@ -76,13 +77,14 @@ public class MandelbrotAcquireTest extends NexusTest {
 		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
 		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
 
-		NXroot rootNode = getNexusRoot(scanner);
-		NXentry entry = rootNode.getEntry();
-		NXinstrument instrument = entry.getInstrument();
+		final NXroot rootNode = getNexusRoot(scanner);
+		final NXentry entry = rootNode.getEntry();
+		final NXinstrument instrument = entry.getInstrument();
 
+		assertNXentryMetadata(entry);
 		assertSolsticeScanGroup(entry, false, false);
 
-		LinkedHashMap<String, List<String>> signalFieldAxes = new LinkedHashMap<>();
+		final LinkedHashMap<String, List<String>> signalFieldAxes = new LinkedHashMap<>();
 		// axis for additional dimensions of a datafield, e.g. image
 		// note all dataset have additional first dimension of size 1. This is added by the
 		// the jython static generator due to the limitiations of area detector

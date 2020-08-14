@@ -27,60 +27,67 @@ import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.tree.TreeFactory;
 import org.eclipse.dawnsci.nexus.NXentry;
+import org.eclipse.dawnsci.nexus.builder.CustomNexusEntryModification;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.LazyWriteableDataset;
-import org.eclipse.scanning.sequencer.ServiceHolder;
+import org.eclipse.scanning.api.scan.models.ScanMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Populates the simple fields in NXentry
+ * Writes scan start time, end time and duration to the NXentry.
  *
+ * Note: this cannot currently be done with {@link ScanMetadata} or {@link CustomNexusEntryModification}
+ * as we need to use lazy datasets and write data at the end of the scan. TODO find a better way of doing this.
  */
-public class NXEntryFieldBuilder {
+public class NXEntryScanTimestampsWriter {
 
-	private static final Logger logger = LoggerFactory.getLogger(NXEntryFieldBuilder.class);
+	private static final Logger logger = LoggerFactory.getLogger(NXEntryScanTimestampsWriter.class);
 
 	private static final int[] SINGLE_SHAPE = new int[] { 1 };
 
-	private NXentry entry;
-	private LazyWriteableDataset scanEndTimeDataset;
-	private LazyWriteableDataset scanDurationDataset;
+	private static final String ATTRIBUTE_NAME_UNITS = "units";
+	private static final String ATTRIBUTE_VALUE_SECONDS = "s";
+
+	private final NXentry entry;
+	private ILazyWriteableDataset scanEndTimeDataset;
+	private ILazyWriteableDataset scanDurationDataset;
 	private ZonedDateTime scanStartTime;
 
-	public NXEntryFieldBuilder(NXentry entry) {
+	public NXEntryScanTimestampsWriter(NXentry entry) {
 		this.entry = entry;
 	}
 
 	public void start() {
+		// write and cache scan start time
 		scanStartTime = ZonedDateTime.now();
 		entry.setStart_time(DatasetFactory.createFromObject(ISO_OFFSET_DATE_TIME.format(scanStartTime)));
+
+		// create lazy dataset for scan end time
 		scanEndTimeDataset = new LazyWriteableDataset(NXentry.NX_END_TIME, String.class, SINGLE_SHAPE, SINGLE_SHAPE, SINGLE_SHAPE, null);
 		entry.createDataNode(NXentry.NX_END_TIME, scanEndTimeDataset);
+
+		// create lazy dataset for scan duration, with units attribute
 		scanDurationDataset = new LazyWriteableDataset(NXentry.NX_DURATION, Long.class, SINGLE_SHAPE, SINGLE_SHAPE, SINGLE_SHAPE, null);
-		DataNode durationNode = entry.createDataNode(NXentry.NX_DURATION, scanDurationDataset);
-		Attribute attribute = TreeFactory.createAttribute("units");
-		attribute.setValue("s");
-		durationNode.addAttribute(attribute);
-		try {
-			entry.setExperiment_identifierScalar(ServiceHolder.getFilePathService().getVisit());
-		} catch (Exception e) {
-			logger.error("Could not read visit",e);
-		}
+		final DataNode durationDataNode = entry.createDataNode(NXentry.NX_DURATION, scanDurationDataset);
+		final Attribute unitsAttribute = TreeFactory.createAttribute(ATTRIBUTE_NAME_UNITS);
+		unitsAttribute.setValue(ATTRIBUTE_VALUE_SECONDS);
+		durationDataNode.addAttribute(unitsAttribute);
 	}
 
 	public void end() {
-
-		ZonedDateTime scanEndTime = ZonedDateTime.now();
-		Duration scanDuration = Duration.between(scanStartTime, scanEndTime);
-
+		// write scan end time to lazy dataset
+		final ZonedDateTime scanEndTime = ZonedDateTime.now();
 		try {
 			scanEndTimeDataset.setSlice(null, DatasetFactory.createFromObject(ISO_OFFSET_DATE_TIME.format(ZonedDateTime.from(scanEndTime))), null, null, null);
 		} catch (DatasetException e) {
 			logger.error("Could not set scan end",e);
 		}
 
+		// write scan duration to dataset
+		final Duration scanDuration = Duration.between(scanStartTime, scanEndTime);
 		try {
 			scanDurationDataset.setSlice(null, DatasetFactory.createFromObject(scanDuration.getSeconds()), null, null, null);
 		} catch (DatasetException e) {

@@ -66,6 +66,7 @@ import org.eclipse.january.dataset.LongDataset;
 import org.eclipse.january.dataset.PositionIterator;
 import org.eclipse.january.dataset.ShortDataset;
 import org.eclipse.january.dataset.StringDataset;
+import org.eclipse.scanning.example.file.MockFilePathService;
 
 /**
  *
@@ -120,6 +121,18 @@ public class NexusAssert {
 		assertNotNull(nxData.getDataNode(expectedSignalFieldName));
 	}
 
+	public static void assertNXentryMetadata(NXentry entry) {
+		assertEquals(MockFilePathService.MOCK_VISIT_ID, entry.getExperiment_identifierScalar());
+		assertNXentryTimeStamps(entry);
+	}
+
+	public static void assertNXentryTimeStamps(NXentry entry) {
+		final DataNode startTimeNode = entry.getDataNode(NXentry.NX_START_TIME);
+		final DataNode endTimeNode = entry.getDataNode(NXentry.NX_END_TIME);
+		final DataNode durationNode = entry.getDataNode(NXentry.NX_DURATION);
+		assertScanTimeStamps(startTimeNode, endTimeNode, durationNode);
+	}
+
 	public static void assertSolsticeScanGroup(NXentry entry, boolean snake, boolean foldedGrid, int... sizes) {
 		assertSolsticeScanGroup(entry, false, snake, foldedGrid, sizes);
 	}
@@ -152,16 +165,22 @@ public class NexusAssert {
 
 	private static void assertScanTimeStamps(NXcollection solsticeScanCollection) {
 		// check scan start and stop time datasets
-		DataNode startTimeNode = solsticeScanCollection.getDataNode(FIELD_NAME_START_TIME);
-		DataNode endTimeNode = solsticeScanCollection.getDataNode(FIELD_NAME_END_TIME);
+		final DataNode startTimeNode = solsticeScanCollection.getDataNode(FIELD_NAME_START_TIME);
+		final DataNode endTimeNode = solsticeScanCollection.getDataNode(FIELD_NAME_END_TIME);
+		final DataNode durationNode = solsticeScanCollection.getDataNode(FIELD_NAME_SCAN_DURATION);
+		assertScanTimeStamps(startTimeNode, endTimeNode, durationNode);
+	}
 
+	private static void assertScanTimeStamps(final DataNode startTimeNode, final DataNode endTimeNode, final DataNode durationNode) {
 		assertNotNull(startTimeNode);
 		assertNotNull(endTimeNode);
+		assertNotNull(durationNode);
 
-		IDataset startTimeDataset, endTimeDataset;
+		IDataset startTimeDataset, endTimeDataset, durationDataset;
 		try {
 			startTimeDataset = startTimeNode.getDataset().getSlice();
 			endTimeDataset = endTimeNode.getDataset().getSlice();
+			durationDataset = durationNode.getDataset().getSlice();
 		} catch (DatasetException e) {
 			throw new AssertionError("Could not get timestamp data from lazy dataset", e);
 		}
@@ -323,7 +342,7 @@ public class NexusAssert {
 
 	private static void assertScanTimes(NXcollection solsticeScanCollection) {
 		// check the estimated scan duration dataset
-		DataNode estimatedTimeDataNode = solsticeScanCollection.getDataNode(FIELD_NAME_SCAN_ESTIMATED_DURATION);
+		final DataNode estimatedTimeDataNode = solsticeScanCollection.getDataNode(FIELD_NAME_SCAN_ESTIMATED_DURATION);
 		assertNotNull(estimatedTimeDataNode);
 		IDataset estimatedTimeDataset;
 		try {
@@ -335,13 +354,13 @@ public class NexusAssert {
 		assertEquals(String.class, estimatedTimeDataset.getElementClass());
 		assertEquals(0, estimatedTimeDataset.getRank());
 		assertArrayEquals(new int[]{}, estimatedTimeDataset.getShape());
-		String estimatedTimeStr = estimatedTimeDataset.getString();
+		final String estimatedTimeStr = estimatedTimeDataset.getString();
 		assertNotNull(estimatedTimeStr);
-		LocalTime estimatedTimeAsTime = LocalTime.parse(estimatedTimeStr, formatter); // throws exception if not a valid time
+		final LocalTime estimatedTimeAsTime = LocalTime.parse(estimatedTimeStr, formatter); // throws exception if not a valid time
 		long estimateDurationMs = estimatedTimeAsTime.getLong(ChronoField.MILLI_OF_DAY);
 
 		// check the actual scan duration dataset
-		DataNode actualTimeDataNode = solsticeScanCollection.getDataNode(FIELD_NAME_SCAN_DURATION);
+		final DataNode actualTimeDataNode = solsticeScanCollection.getDataNode(FIELD_NAME_SCAN_DURATION);
 		assertNotNull(actualTimeDataNode);
 		IDataset actualTimeDataset;
 		try {
@@ -355,13 +374,13 @@ public class NexusAssert {
 		assertEquals(String.class, actualTimeDataset.getElementClass());
 		assertEquals(1, actualTimeDataset.getRank());
 		assertArrayEquals(new int[]{ 1 }, actualTimeDataset.getShape());
-		String actualTime = actualTimeDataset.getString(0);
+		final String actualTime = actualTimeDataset.getString(0);
 		assertNotNull(actualTime);
-		LocalTime scanDurationAsTime = LocalTime.parse(actualTime, formatter); // throws exception if not a valid time
-		long scanDurationMs = scanDurationAsTime.getLong(ChronoField.MILLI_OF_DAY);
+		final LocalTime scanDurationAsTime = LocalTime.parse(actualTime, formatter); // throws exception if not a valid time
+		final long scanDurationMs = scanDurationAsTime.getLong(ChronoField.MILLI_OF_DAY);
 
 		// check the scan dead time dataset
-		DataNode deadTimeDataNode = solsticeScanCollection.getDataNode(FIELD_NAME_SCAN_DEAD_TIME);
+		final DataNode deadTimeDataNode = solsticeScanCollection.getDataNode(FIELD_NAME_SCAN_DEAD_TIME);
 		assertNotNull(deadTimeDataNode);
 		IDataset deadTimeDataset;
 		try {
@@ -374,16 +393,16 @@ public class NexusAssert {
 		assertEquals(String.class, deadTimeDataset.getElementClass());
 		assertEquals(1, deadTimeDataset.getRank());
 		assertArrayEquals(new int[] { 1 }, deadTimeDataset.getShape());
-		String deadTimeStr = deadTimeDataset.getString(0);
+		final String deadTimeStr = deadTimeDataset.getString(0);
 		assertNotNull(deadTimeStr);
-		LocalTime deadTimeAsTime = LocalTime.parse(deadTimeStr, formatter); // throws exception if not a valid time
-		long deadTimeMs = deadTimeAsTime.getLong(ChronoField.MILLI_OF_DAY);
+		final LocalTime deadTimeAsTime = LocalTime.parse(deadTimeStr, formatter); // throws exception if not a valid time
+		final long deadTimeMs = deadTimeAsTime.getLong(ChronoField.MILLI_OF_DAY);
 
 		// The scan duration should be equal to the estimated time plus the dead time
 		assertEquals(estimateDurationMs + deadTimeMs, scanDurationMs);
 
 		// check the percentage dead time
-		DataNode deadTimePercentDataNode = solsticeScanCollection.getDataNode(FIELD_NAME_SCAN_DEAD_TIME_PERCENT);
+		final DataNode deadTimePercentDataNode = solsticeScanCollection.getDataNode(FIELD_NAME_SCAN_DEAD_TIME_PERCENT);
 		assertNotNull(deadTimePercentDataNode);
 		IDataset deadTimePercentDataset;
 		try {
@@ -395,8 +414,8 @@ public class NexusAssert {
 		assertEquals(String.class, deadTimePercentDataset.getElementClass());
 		assertEquals(1, deadTimePercentDataset.getRank());
 		assertArrayEquals(new int[] { 1 }, deadTimePercentDataset.getShape());
-		String deadTimePercentStr = deadTimePercentDataset.getString(0);
-		double deadTimePercent = Double.parseDouble(deadTimePercentStr);
+		final String deadTimePercentStr = deadTimePercentDataset.getString(0);
+		final double deadTimePercent = Double.parseDouble(deadTimePercentStr);
 
 		assertEquals((double) deadTimeMs / scanDurationMs, deadTimePercent / 100, 0.001);
 	}

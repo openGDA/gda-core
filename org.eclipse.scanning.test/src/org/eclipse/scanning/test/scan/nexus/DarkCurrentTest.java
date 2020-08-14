@@ -13,6 +13,7 @@ package org.eclipse.scanning.test.scan.nexus;
 
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertAxes;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertIndices;
+import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertNXentryMetadata;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertScanNotFinished;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertSignal;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertSolsticeScanGroup;
@@ -98,10 +99,12 @@ public class DarkCurrentTest extends NexusTest {
 		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
 		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
 
-		NXroot rootNode = getNexusRoot(scanner);
+		final NXroot rootNode = getNexusRoot(scanner);
+		final NXentry entry = rootNode.getEntry();
 
 		// check that the scan points have been written correctly
-		assertSolsticeScanGroup(rootNode.getEntry(), false, false, sizes);
+		assertNXentryMetadata(entry);
+		assertSolsticeScanGroup(entry, false, false, sizes);
 
 		Collection<String> positionerNames = scanModel.getPointGenerator().iterator().next().getNames();
 

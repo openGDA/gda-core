@@ -14,6 +14,7 @@ package org.eclipse.scanning.test.scan.nexus;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.SCANNABLE_NAME_SOLSTICE_SCAN_MONITOR;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertAxes;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertIndices;
+import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertNXentryMetadata;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertScanNotFinished;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertSolsticeScanGroup;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertTarget;
@@ -178,11 +179,12 @@ public class PerScanMonitorTest extends NexusTest {
 
 		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
 
-		NXroot rootNode = getNexusRoot(scanner);
-		NXentry entry = rootNode.getEntry();
-		NXinstrument instrument = entry.getInstrument();
+		final NXroot rootNode = getNexusRoot(scanner);
+		final NXentry entry = rootNode.getEntry();
+		final NXinstrument instrument = entry.getInstrument();
 
 		// check the scan points have been written correctly
+		assertNXentryMetadata(entry);
 		assertSolsticeScanGroup(entry, false, false, sizes);
 
 		DataNode dataNode = null;
@@ -200,12 +202,12 @@ public class PerScanMonitorTest extends NexusTest {
 				.collect(Collectors.toList());
         final boolean hasMonitor = perPoint != null && !perPoint.isEmpty();
 
-		String dataGroupName = hasMonitor ? perPoint.get(0).getName() : pos.getNames().get(0);
-		NXdata nxData = entry.getData(dataGroupName);
+		final String dataGroupName = hasMonitor ? perPoint.get(0).getName() : pos.getNames().get(0);
+		final NXdata nxData = entry.getData(dataGroupName);
 		assertNotNull(nxData);
 
 		// Check axes
-		String[] expectedAxesNames = scannableNames.stream().map(x -> x + "_value_set").toArray(String[]::new);
+		final String[] expectedAxesNames = scannableNames.stream().map(x -> x + "_value_set").toArray(String[]::new);
 		assertAxes(nxData, expectedAxesNames);
 
 		int[] defaultDimensionMappings = IntStream.range(0, sizes.length).toArray();

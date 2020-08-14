@@ -17,6 +17,8 @@ import org.eclipse.scanning.api.scan.IFilePathService;
 
 public class MockFilePathService implements IFilePathService {
 
+	public static final String MOCK_VISIT_ID = "test-mock";
+
 	private final File dir;
 	private String mostRecentPath;
 	public MockFilePathService() {
@@ -142,7 +144,7 @@ public class MockFilePathService implements IFilePathService {
 
 	@Override
 	public String getVisit() throws Exception {
-		return "test-mock0";
+		return MOCK_VISIT_ID;
 	}
 
 	@Override
