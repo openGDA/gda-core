@@ -509,9 +509,9 @@ class FocusScanSetupPage extends WizardPage {
 		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(detectorComposite);
 
 		// Combo to choose detector
-		final ComboViewer comboViewer = new ComboViewer(detectorComposite, SWT.READ_ONLY);
-		comboViewer.setContentProvider(ArrayContentProvider.getInstance());
-		comboViewer.setLabelProvider(new LabelProvider() {
+		final ComboViewer detectorCombo = new ComboViewer(detectorComposite, SWT.READ_ONLY);
+		detectorCombo.setContentProvider(ArrayContentProvider.getInstance());
+		detectorCombo.setLabelProvider(new LabelProvider() {
 			@SuppressWarnings("unchecked")
 			@Override
 			public String getText(Object element) {
@@ -520,18 +520,14 @@ class FocusScanSetupPage extends WizardPage {
 		});
 
 		// Get detector wrappers from mapping bean and add as input to combo
-		comboViewer.addSelectionChangedListener(evt -> {
-			final IDetectorModel selectedModel = getDetectorWrapperForSelection(evt.getSelection()).getModel();
-			checkFocusScanAxis(selectedModel);
-			focusScanBean.setDetector(selectedModel);
-		});
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(comboViewer.getControl());
+		detectorCombo.addSelectionChangedListener(evt -> handleDetectorSelectionChange(evt.getSelection()));
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(detectorCombo.getControl());
 
 		final Button configureDetectorButton = new Button(detectorComposite, SWT.PUSH);
 		configureDetectorButton.setImage(Activator.getImage("icons/pencil.png"));
 		configureDetectorButton.setToolTipText("Edit parameters");
 		configureDetectorButton.addListener(SWT.Selection,
-				event -> editDetectorParameters(getDetectorWrapperForSelection(comboViewer.getSelection())));
+				event -> editDetectorParameters(getDetectorWrapperForSelection(detectorCombo.getSelection())));
 
 		final Label exposureTimeLabel = new Label(parent, SWT.NONE);
 		exposureTimeLabel.setText("Exposure Time:");
@@ -540,8 +536,9 @@ class FocusScanSetupPage extends WizardPage {
 		exposureTimeText.setToolTipText("Set the exposure time for this detector");
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(exposureTimeText);
 
-		final IObservableValue exposureTextValue = WidgetProperties.text(SWT.Modify).observe(exposureTimeText);
-		comboViewer.addSelectionChangedListener(event -> {
+		@SuppressWarnings("unchecked")
+		final IObservableValue<String> exposureTextValue = WidgetProperties.text(SWT.Modify).observe(exposureTimeText);
+		detectorCombo.addSelectionChangedListener(event -> {
 			if (exposureTimeBinding != null) {
 				exposureTimeBinding.dispose();
 				bindingContext.removeBinding(exposureTimeBinding);
@@ -551,11 +548,26 @@ class FocusScanSetupPage extends WizardPage {
 			@SuppressWarnings("unchecked")
 			final IDetectorModel model = ((IScanModelWrapper<IDetectorModel>) selected).getModel();
 
-			final IObservableValue exposureTimeValue = PojoProperties.value("exposureTime").observe(model);
+			@SuppressWarnings("unchecked")
+			final IObservableValue<Double> exposureTimeValue = PojoProperties.value("exposureTime").observe(model);
 			exposureTimeBinding = bindingContext.bindValue(exposureTextValue, exposureTimeValue);
 		});
 
-		populateDetectorCombo(comboViewer);
+		populateDetectorCombo(detectorCombo);
+	}
+
+	/**
+	 * Handle a change in the combo box that selects the detector to use.
+	 *
+	 * @param selection
+	 *            the new selection in the combo box
+	 */
+	private void handleDetectorSelectionChange(ISelection selection) {
+		uiSync.asyncExec(() -> {
+			final IDetectorModel selectedModel = getDetectorWrapperForSelection(selection).getModel();
+			checkFocusScanAxis(selectedModel);
+			focusScanBean.setDetector(selectedModel);
+		});
 	}
 
 	private void populateDetectorCombo(ComboViewer comboViewer) {
@@ -633,8 +645,9 @@ class FocusScanSetupPage extends WizardPage {
 	}
 
 	private void bindControlToProperty(Control control, String propertyName, Object bean) {
-		final IObservableValue model = BeanProperties.value(propertyName).observe(bean);
-		final IObservableValue target;
+		@SuppressWarnings("unchecked")
+		final IObservableValue<?> model = BeanProperties.value(propertyName).observe(bean);
+		final IObservableValue<?> target;
 		if (control instanceof NumberAndUnitsComposite) {
 			target = new NumberUnitsWidgetProperty<Length>().observe(control);
 		} else if (control instanceof Text) {
