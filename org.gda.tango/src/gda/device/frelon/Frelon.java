@@ -23,49 +23,49 @@ import gda.device.base.Base;
 
 public interface Frelon extends Base {
 
-	
+
 	short getESPIABoardNumber() throws DevFailed;
-	
+
 	enum ImageMode {
-		FRAME_TRANSFERT, FULL_FRAME
+		FRAME_TRANSFER, FULL_FRAME
 	}
-	
+
 	ImageMode getImageMode() throws DevFailed;
-	
-	void setImageMode(ImageMode imageMode) throws DevFailed;	
-	
+
+	void setImageMode(ImageMode imageMode) throws DevFailed;
+
 	enum InputChannels {
 		I1,I2,I3,I4,I1_2,I3_4,I1_3,I2_4,I1_2_3_4
 	}
-	
+
 	InputChannels getInputChannels() throws DevFailed;
-	
-	void setInputChannels(InputChannels inputChannels) throws DevFailed;	
-	
+
+	void setInputChannels(InputChannels inputChannels) throws DevFailed;
+
 	boolean isE2VCorrectionActive() throws DevFailed;
-	
+
 	void setE2VCorrectionActive(boolean activate) throws DevFailed;
 
 	enum ROIMode {
 		NONE, SLOW, FAST, KINETIC
 	}
-	
+
 	ROIMode getROIMode() throws DevFailed;
-	
-	void setROIMode(ROIMode roiMode) throws DevFailed;	
-	
+
+	void setROIMode(ROIMode roiMode) throws DevFailed;
+
 	int getROIBinOffset() throws DevFailed;
-	
+
 //	void setROIBinOffset(long roiBinOffset) throws DevFailed;
-	
+
 	enum SPB2Config {
 		PRECISION, SPEED
 	}
-	
+
 	SPB2Config getSPB2Config() throws DevFailed;
-	
-	void setSPB2Config(SPB2Config sPB2Config) throws DevFailed;	
-	
+
+	void setSPB2Config(SPB2Config sPB2Config) throws DevFailed;
+
 	int getSeqStatus() throws DevFailed;
 	/**
 	 * send a command through the serial line

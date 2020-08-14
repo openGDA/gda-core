@@ -42,7 +42,7 @@ public class FrelonImpl extends BaseImpl implements Frelon {
 	private static final String ON = "ON";
 	private static final String INPUT_CHANNEL = "input_channel";
 	private static final String FULL_FRAME = "FULL FRAME";
-	private static final String FRAME_TRANSFERT = "FRAME TRANSFERT";//TODO THIS SEEMS INCORRECT
+	private static final String FRAME_TRANSFER = "FRAME TRANSFER";
 	private static final String ATTRIBUTE_ESPIA_DEV_NB = "espia_dev_nb";
 	private static final String ATTRIBUTE_IMAGE_MODE = "image_mode";
 
@@ -54,8 +54,8 @@ public class FrelonImpl extends BaseImpl implements Frelon {
 	@Override
 	public ImageMode getImageMode() throws DevFailed {
 		String val = getTangoDeviceProxy().getAttributeAsString(ATTRIBUTE_IMAGE_MODE);
-		if (val.equals(FRAME_TRANSFERT))
-			return ImageMode.FRAME_TRANSFERT;
+		if (val.equals(FRAME_TRANSFER))
+			return ImageMode.FRAME_TRANSFER;
 		if (val.equals(FULL_FRAME))
 			return ImageMode.FULL_FRAME;
 		throw new DevFailed(new DevError[] { new DevError(getTangoDeviceProxy().toString() + " : "
@@ -66,8 +66,8 @@ public class FrelonImpl extends BaseImpl implements Frelon {
 	public void setImageMode(ImageMode imageMode) throws DevFailed {
 		String val = "";
 		switch (imageMode) {
-		case FRAME_TRANSFERT:
-			val = FRAME_TRANSFERT;
+		case FRAME_TRANSFER:
+			val = FRAME_TRANSFER;
 			break;
 		case FULL_FRAME:
 			val = FULL_FRAME;
@@ -185,7 +185,7 @@ public class FrelonImpl extends BaseImpl implements Frelon {
 
 	@Override
 	public int getROIBinOffset() throws DevFailed {
-		//TODO why .getAttributeAsLong(ROI_BIN_OFFSET) throws org.omg.CORBA.BAD_OPERATION: 
+		//TODO why .getAttributeAsLong(ROI_BIN_OFFSET) throws org.omg.CORBA.BAD_OPERATION:
 		return getTangoDeviceProxy().getAttributeAsInt(ROI_BIN_OFFSET);
 	}
 
@@ -231,11 +231,11 @@ public class FrelonImpl extends BaseImpl implements Frelon {
 		DeviceData argin = new DeviceData();
 		argin.insert(cmd);
 		DeviceData command_inout = getTangoDeviceProxy().command_inout("execSerialCommand", argin);
-		return command_inout.extractStringArray();
+		return command_inout.extractString().replace("\r", "").split("\n");
 	}
 
 	@Override
 	public void resetLink() throws DevFailed {
-		getTangoDeviceProxy().sendSimpleCommand("resetLink");		
+		getTangoDeviceProxy().sendSimpleCommand("resetLink");
 	}
 }
