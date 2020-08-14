@@ -587,14 +587,11 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	protected void setDeviceState(DeviceState newDeviceState) throws ScanningException {
 		try {
 			// The bean must be set in order to change state.
-			ScanBean bean = getScanBean();
-			bean.setDeviceName(getName());
-
 			super.setDeviceState(newDeviceState);
 
 			IPublisher<ScanBean> publisher = getPublisher();
 			if (publisher!=null) {
-				publisher.broadcast(bean);
+				publisher.broadcast(getScanBean());
 			}
 		} catch (ScanningException e) {
 			throw e;

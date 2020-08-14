@@ -87,7 +87,6 @@ public class SerializationTest {
 	public void testSerializeScanBean() throws Exception {
 
 		final ScanBean sent = new ScanBean();
-		sent.setDeviceName("fred");
 		sent.setPosition(new MapPosition("x", 0, 1.0));
 		sent.setUniqueId(UUID.randomUUID().toString());
 		sent.setHostName(InetAddress.getLocalHost().getHostName());
@@ -105,7 +104,6 @@ public class SerializationTest {
 		// ScanBean [deviceName=detector, beamline=null, point=12, size=25, position=[Point: stepIndex=12, yNex(2)=1.5, xNex(2)=1.5], deviceState=RUNNING, previousDeviceState=RUNNING, filePath=null, scanNumber=0, datasetPath=null StatusBean [previousStatus=RUNNING, status=RUNNING, name=null, message=null, percentComplete=52.0, userName=null, hostName=DIAMRL5294, runDirectory=null, submissionTime=0, properties=null, id=1763047e-2f22-4ca1-a5a9-d15b4041578f]]
 		// ScanBean [deviceName=detector, beamline=null, point=12, size=25, position=[Point: stepIndex=12, yNex(2)=1.5, xNex(2)=1.5], deviceState=RUNNING, previousDeviceState=RUNNING, filePath=null, scanNumber=0, datasetPath=null StatusBean [previousStatus=RUNNING, status=RUNNING, name=null, message=null, percentComplete=52.0, userName=null, hostName=DIAMRL5294, runDirectory=null, submissionTime=0, properties=null, id=73a05eeb-f8cc-4a78-8819-2a33a0ae1bd7]]
 		final ScanBean sent = new ScanBean();
-		sent.setDeviceName("detector");
 		sent.setPoint(12);
 		sent.setSize(25);
 		Point pnt = new Point("xNex", 2, 1.5, "yNex", 2, 1.5);

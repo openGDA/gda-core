@@ -60,8 +60,6 @@ public final class ScanBean extends StatusBean {
 	// Field required to start a scan, may be null.
 	private ScanRequest scanRequest;
 
-	// General Information
-	private String  deviceName;
 	private String  beamline;
 
 	// Where are we in the scan
@@ -71,7 +69,6 @@ public final class ScanBean extends StatusBean {
 
 	// Dataset information
 	private String  filePath;
-	private String  datasetPath;
 	private int     scanNumber;
 
 	public ScanBean() {
@@ -143,14 +140,12 @@ public final class ScanBean extends StatusBean {
 		super.merge(with);
 		final ScanBean scanBean = (ScanBean) with;
 		this.scanRequest = scanBean.scanRequest;
-		this.deviceName = scanBean.deviceName;
 		this.mappingBeanId = scanBean.mappingBeanId;
 		this.beamline = scanBean.beamline;
 		this.point = scanBean.point;
 		this.size = scanBean.size;
 		this.position = scanBean.position;
 		this.filePath = scanBean.filePath;
-		this.datasetPath = scanBean.datasetPath;
 		this.scanNumber = scanBean.scanNumber;
 	}
 
@@ -168,13 +163,6 @@ public final class ScanBean extends StatusBean {
 		this.scanNumber = scanNumber;
 	}
 
-	public String getDatasetPath() {
-		return datasetPath;
-	}
-	public void setDatasetPath(String datasetPath) {
-		this.datasetPath = datasetPath;
-	}
-
 	public String getBeamline() {
 		return beamline;
 	}
@@ -186,14 +174,12 @@ public final class ScanBean extends StatusBean {
 	@Override
 	public String toString() {
 		return "ScanBean [mappingBeanId=" + mappingBeanId
-				+ ", deviceName=" + deviceName
 				+ ", beamline=" + beamline
 				+ ", point=" + point
 				+ ", size=" + size
 				+ ", position=" + position
 				+ ", filePath=" + filePath
 				+ ", scanNumber=" + scanNumber
-				+ ", datasetPath=" + datasetPath
 				+ " "+super.toString()+"]";
 	}
 
@@ -266,8 +252,6 @@ public final class ScanBean extends StatusBean {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((beamline == null) ? 0 : beamline.hashCode());
-		result = prime * result + ((datasetPath == null) ? 0 : datasetPath.hashCode());
-		result = prime * result + ((deviceName == null) ? 0 : deviceName.hashCode());
 		result = prime * result + ((filePath == null) ? 0 : filePath.hashCode());
 		result = prime * result + (int) (mappingBeanId ^ (mappingBeanId >>> 32));
 		result = prime * result + point;
@@ -291,16 +275,6 @@ public final class ScanBean extends StatusBean {
 			if (other.beamline != null)
 				return false;
 		} else if (!beamline.equals(other.beamline))
-			return false;
-		if (datasetPath == null) {
-			if (other.datasetPath != null)
-				return false;
-		} else if (!datasetPath.equals(other.datasetPath))
-			return false;
-		if (deviceName == null) {
-			if (other.deviceName != null)
-				return false;
-		} else if (!deviceName.equals(other.deviceName))
 			return false;
 		if (mappingBeanId != other.mappingBeanId)
 			return false;
@@ -336,13 +310,6 @@ public final class ScanBean extends StatusBean {
 		this.scanRequest = scanRequest;
 	}
 
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
-	}
 
 	public long getMappingBeanId() {
 		return mappingBeanId;

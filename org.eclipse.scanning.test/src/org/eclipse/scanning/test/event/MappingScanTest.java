@@ -88,7 +88,6 @@ public class MappingScanTest extends BrokerTest{
 		bean.setPreviousStatus(Status.SUBMITTED);
 		bean.setStatus(Status.PREPARING);
 		bean.setFilePath("/dls/tmp/fred.h5");
-		bean.setDatasetPath("/entry/data");
 		publisher.broadcast(bean);
 
 		// Tell them we started it.

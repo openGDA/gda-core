@@ -107,8 +107,6 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 			scanBean.setHostName(InetAddress.getLocalHost().getHostName());
 		}
 
-		scanBean.setDeviceName("solstice_scan");
-
 		scanBean.setStatus(status);
 		scanBean.setPreviousStatus(previousStatus);
 
@@ -116,8 +114,6 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 	}
 
 	private ScanBean createExpectedCompleteStepsBean(int completedSteps) {
-		scanBean.setDeviceName("solstice_scan");
-
 		scanBean.setStatus(Status.RUNNING);
 		scanBean.setPreviousStatus(Status.RUNNING);
 
