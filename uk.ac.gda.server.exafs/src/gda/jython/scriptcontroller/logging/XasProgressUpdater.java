@@ -18,6 +18,9 @@
 
 package gda.jython.scriptcontroller.logging;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import gda.configuration.properties.LocalProperties;
@@ -29,6 +32,8 @@ import gda.jython.IScanDataPointProvider;
 import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanDataPoint;
+import uk.ac.diamond.daq.api.messaging.MessagingService;
+import uk.ac.gda.core.GDACoreActivator;
 
 /**
  * A zero input, zero extra names Scannable which should be included in XAS scans to send progress messages to the
@@ -36,7 +41,7 @@ import gda.scan.ScanDataPoint;
  */
 public class XasProgressUpdater extends ScannableBase implements IScanDataPointObserver {
 
-	private transient final LoggingScriptController controller;
+	private final LoggingScriptController controller;
 	private volatile boolean atEndCalled = false;
 	private String visitID;
 	private String id;
@@ -46,17 +51,26 @@ public class XasProgressUpdater extends ScannableBase implements IScanDataPointO
 	private String totalScanRepetitions;
 	private String sampleEnvironmentRepetition;
 	private String sampleEnvironmentRepetitions;
-	private String outputFolder;
+	private String fileName;
 	private long timeRepetitionsStarted;
 	private long timeStarted;
-	private String lastPercentComplete = "0%";
+	private long timeOfLastReport = 0;
+	private int lastPercentComplete;
 	private String uniqueName;
 	private String sampleName;
 	private int scanNumber;
+	private List<String> completedScanFileNames = new ArrayList<>();
 
-	public XasProgressUpdater(LoggingScriptController controller, XasLoggingMessage msg, long timeRepetitionsStarted) {
+	public XasProgressUpdater(LoggingScriptController controller, long timeRepetitionsStarted) {
 		this.controller = controller;
 		this.timeRepetitionsStarted = timeRepetitionsStarted;
+		setInputNames(new String[] {});
+		setExtraNames(new String[] {});
+		setOutputFormat(new String[] {});
+		setName("XAS Progress Updater");
+	}
+
+	public void setFromMessage(XasLoggingMessage msg) {
 		visitID = msg.getVisitID();
 		id = msg.getUniqueID();
 		scriptName = msg.getName();
@@ -65,13 +79,9 @@ public class XasProgressUpdater extends ScannableBase implements IScanDataPointO
 		sampleEnvironmentRepetition = msg.getSampleEnvironmentRepetitionNumber();
 		sampleEnvironmentRepetitions = msg.getSampleEnvironmentRepetitions();
 		predictedTotalTime = msg.getPredictedTotalTime();
-		outputFolder = msg.getOutputFolder();
+		fileName = msg.getOutputFolder();
 		sampleName = msg.getSampleName();
 		scanNumber = msg.getScanNumber();
-		setInputNames(new String[] {});
-		setExtraNames(new String[] {});
-		setOutputFormat(new String[] {});
-		setName("XAS Progress Updater");
 	}
 
 	@Override
@@ -90,6 +100,8 @@ public class XasProgressUpdater extends ScannableBase implements IScanDataPointO
 		atEndCalled = false;
 		InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(this);
 		timeStarted = System.currentTimeMillis();
+		XasLoggingMessage msg = getLogMessage("Started", getElapsedTime(), 0);
+		sendMessage(msg);
 	}
 
 	@Override
@@ -99,34 +111,34 @@ public class XasProgressUpdater extends ScannableBase implements IScanDataPointO
 
 		String status = "Repetition complete";
 		IScanDataPoint lastSDP = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint();
-		String percentComplete;
+		int percentComplete;
 		if (lastSDP == null) {
 			status = "Scan Complete";
-			percentComplete = "100%";
+			percentComplete = 100;
 		} else {
-			percentComplete = determinePercentComplete(lastSDP, true) + "%";
+			completedScanFileNames.add(lastSDP.getCurrentFilename());
+			percentComplete = determinePercentComplete(lastSDP, true);
 			if (!sampleEnvironmentRepetition.equals(sampleEnvironmentRepetitions))
 				status = "Sample Env repetition complete";
 			else if (thisScanrepetition.equals(totalScanRepetitions)) {
 				status = "Scan Complete";
-				percentComplete = "100%";
+				percentComplete = 100;
 			}
 		}
-
-		XasLoggingMessage msg = new XasLoggingMessage(visitID, id, scriptName, status, thisScanrepetition,
-				getTotalRepetitions(), sampleEnvironmentRepetitions, sampleEnvironmentRepetitions, percentComplete,
-				getElapsedTime(), getElapsedTotalTime(), predictedTotalTime, outputFolder, sampleName, scanNumber);
-		controller.update(this, msg);
+		XasLoggingMessage msg = getLogMessage(status, getElapsedTime(), percentComplete);
+		sendMessage(msg);
 	}
 
 	@Override
 	public void atCommandFailure() throws DeviceException {
+		// Return if atScanEnd or atCommandFailure have already been run
+		if (atEndCalled) {
+			return;
+		}
 		atEndCalled = true;
 		InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
-		XasLoggingMessage msg = new XasLoggingMessage(visitID, id, scriptName, "Aborted", thisScanrepetition,
-				getTotalRepetitions(), sampleEnvironmentRepetitions, sampleEnvironmentRepetitions, lastPercentComplete,
-				getElapsedTime(), getElapsedTotalTime(), predictedTotalTime, outputFolder, sampleName, scanNumber);
-		controller.update(this, msg);
+		XasLoggingMessage msg = getLogMessage("Aborted", getElapsedTime(), lastPercentComplete);
+		sendMessage(msg);
 	}
 
 	@Override
@@ -144,8 +156,6 @@ public class XasProgressUpdater extends ScannableBase implements IScanDataPointO
 		return false;
 	}
 
-	long timeOfLastReport = 0;
-
 	@Override
 	public void update(Object source, Object arg) {
 		if (source instanceof IScanDataPointProvider && arg instanceof ScanDataPoint && !atEndCalled) {
@@ -156,20 +166,17 @@ public class XasProgressUpdater extends ScannableBase implements IScanDataPointO
 				scanNumber = sdp.getScanIdentifier();
 				long now = System.currentTimeMillis();
 				int percentComplete = determinePercentComplete(sdp, false);
-				lastPercentComplete = percentComplete + "%";
-				outputFolder = sdp.getCurrentFilename();
+				lastPercentComplete = percentComplete;
+				fileName = sdp.getCurrentFilename();
 
 				if (now - timeOfLastReport > 500) {
 					timeOfLastReport = now;
-					String elapsedTime = getElapsedTime();
-					XasLoggingMessage msg = new XasLoggingMessage(visitID, id, scriptName, "In Progress",
-							thisScanrepetition, getTotalRepetitions(), sampleEnvironmentRepetition,
-							sampleEnvironmentRepetitions, percentComplete + "%", elapsedTime, getElapsedTotalTime(),
-							predictedTotalTime, outputFolder, sampleName, scanNumber);
-					controller.update(this, msg);
+					XasLoggingMessage msg = getLogMessage("In Progress", getElapsedTime(), percentComplete);
+					sendMessage(msg);
 				}
-			} else
+			} else {
 				InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
+			}
 		}
 	}
 
@@ -216,14 +223,34 @@ public class XasProgressUpdater extends ScannableBase implements IScanDataPointO
 		return diff;
 	}
 
+	private XasLoggingMessage getLogMessage(String message, String elapsedTime, double percentComplete) {
+		XasLoggingMessage msg = new XasLoggingMessage(visitID, id, scriptName, message,
+				thisScanrepetition, getTotalRepetitions(), sampleEnvironmentRepetition,
+				sampleEnvironmentRepetitions, percentComplete + "%", elapsedTime, getElapsedTotalTime(),
+				predictedTotalTime, fileName, sampleName, scanNumber);
+
+		msg.setCompletedScanFileNames(completedScanFileNames);
+		return msg;
+	}
+
+	public List<String> getCompletedScanFileNames() {
+		return completedScanFileNames;
+	}
+
+	private void sendMessage(XasLoggingMessage msg) {
+		controller.update(this, msg);
+		Optional<MessagingService> optionalJms = GDACoreActivator.getService(MessagingService.class);
+		optionalJms.ifPresent(jms -> jms.sendMessage(msg));
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + (atEndCalled ? 1231 : 1237);
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((lastPercentComplete == null) ? 0 : lastPercentComplete.hashCode());
-		result = prime * result + ((outputFolder == null) ? 0 : outputFolder.hashCode());
+		result = prime * result + lastPercentComplete;
+		result = prime * result + ((fileName == null) ? 0 : fileName.hashCode());
 		result = prime * result + ((predictedTotalTime == null) ? 0 : predictedTotalTime.hashCode());
 		result = prime * result + ((sampleEnvironmentRepetition == null) ? 0 : sampleEnvironmentRepetition.hashCode());
 		result = prime * result
@@ -255,15 +282,13 @@ public class XasProgressUpdater extends ScannableBase implements IScanDataPointO
 				return false;
 		} else if (!id.equals(other.id))
 			return false;
-		if (lastPercentComplete == null) {
-			if (other.lastPercentComplete != null)
-				return false;
-		} else if (!lastPercentComplete.equals(other.lastPercentComplete))
+		if (other.lastPercentComplete != lastPercentComplete) {
 			return false;
-		if (outputFolder == null) {
-			if (other.outputFolder != null)
+		}
+		if (fileName == null) {
+			if (other.fileName != null)
 				return false;
-		} else if (!outputFolder.equals(other.outputFolder))
+		} else if (!fileName.equals(other.fileName))
 			return false;
 		if (predictedTotalTime == null) {
 			if (other.predictedTotalTime != null)

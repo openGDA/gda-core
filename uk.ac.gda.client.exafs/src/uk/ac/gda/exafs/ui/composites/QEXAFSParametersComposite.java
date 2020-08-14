@@ -242,25 +242,19 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 	}
 
 	private void calculate(QEXAFSParameters provider) {
-//		try {
-//			BeanUI.uiToBean(this, provider);
-//		} catch (Exception e1) {
-//			e1.printStackTrace();
-//		}
 		double initialEnergyVal = provider.getInitialEnergy();
 		double finalEnergyVal = provider.getFinalEnergy();
 		double speedVal = provider.getSpeed();
 		double stepSizeVal = provider.getStepSize();
 		double rangeEv = finalEnergyVal - initialEnergyVal;
-		double initialAngle = DSpacing.braggAngleFromDSpacing(DiffractionCrystalEnvironment.calculateWavelength(initialEnergyVal), crystal);
-		double finalAngle = DSpacing.braggAngleFromDSpacing(DiffractionCrystalEnvironment.calculateWavelength(finalEnergyVal), crystal);
+		double initialAngle = DSpacing.braggAngleFromDSpacing(DiffractionCrystalEnvironment.calculateWavelength(initialEnergyVal*1e-3), crystal);
+		double finalAngle = DSpacing.braggAngleFromDSpacing(DiffractionCrystalEnvironment.calculateWavelength(finalEnergyVal*1e-3), crystal);
 
 		double range = initialAngle - finalAngle;
-		double time = (range / speedVal) * 1000;
+		double time = (range / Math.toRadians(speedVal)) * 1000;
 		totalTime.setUnit("s");
 		if (time > 0) {
 			totalTime.setValue(time);
-//			totalTime.setText(formatter.format(time) + " s");
 		}
 		int numberOfPoints = (int) (rangeEv / stepSizeVal);
 		numberPoints.setText(Integer.toString(numberOfPoints));
@@ -268,8 +262,9 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 			numberPoints.setForeground(new Color(null, 255, 0, 0));
 			numberPoints.setText(numberOfPoints
 					+ " (Too many points! Please increase step size or reduce energy range)");
-		} else
+		} else {
 			numberPoints.setForeground(new Color(null, 0, 0, 0));
+		}
 		if (time > 0 && numberOfPoints > 0)
 			avgTimePerPoint.setText(formatter.format((time / numberOfPoints) * 1000) + " ms");
 

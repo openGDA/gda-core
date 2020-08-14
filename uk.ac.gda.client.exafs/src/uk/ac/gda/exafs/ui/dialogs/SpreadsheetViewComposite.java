@@ -22,11 +22,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -158,7 +160,7 @@ public class SpreadsheetViewComposite {
 
 		parameterValuesForScanFiles.clear();
 
-		spreadsheetTable.getTableViewer().setInput(parameterValuesForScanFiles);
+		spreadsheetTable.setInput(parameterValuesForScanFiles);
 
 		spreadsheetTable.getTableViewer().getTable().addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -355,80 +357,96 @@ public class SpreadsheetViewComposite {
 		addClearTableControls(comp);
 
 		// Load save button actions...
-		loadFileButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				Shell shell = parent.getShell();
-				FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-				dialog.setFilterNames(new String[] { "xml files", "All Files (*.*)" });
-				dialog.setFilterExtensions(new String[] { "*.xml", "*.*" });
-				String filename = dialog.open();
-				if (filename != null) {
-					logger.info("Loading table from file {}", filename);
-					try {
-						List<ParametersForScan> newParams = ParameterCollection.loadFromFile(filename);
-						currentTableFilename = filename;
-						parameterValuesForScanFiles.clear();
-						parameterValuesForScanFiles.addAll(newParams);
+		loadFileButton.addListener(SWT.Selection, e -> loadFromFile());
+		saveFileButton.addListener(SWT.Selection, e -> saveToFile());
+	}
 
-						updateXmlDirectoryFromModel();
-						if (xmlFiles.size()==0) {
-							String message = "No xml files were found in directory "+xmlDirectoryName+".\n"+
-									"You will be able to add/remove scans, change the parameter modifiers\n"+
-									"and save the table, but not change the xml files selected for each scan\n"+
-									"or generate the new scan xml files";
-							MessageDialog.openWarning(parent.getShell(), "Warning", message);
-						}
-						spreadsheetTable.removeAllColumnsFromTable();
+	private void loadFromFile() {
+		FileDialog dialog = getFileDialog(parent.getShell(), SWT.OPEN);
+		String filename = dialog.open();
+		if (filename != null) {
+			logger.info("Loading table from file {}", filename);
+			try {
+				String xmlType = SpreadsheetViewHelperClasses.getFirstXmlElementNameFromFile(filename);
+				List<ParametersForScan> newParams;
+				if (xmlType.isEmpty()) {
+					newParams = ParameterCollection.loadCsvFromFile(filename);
+				} else {
+					newParams = ParameterCollection.loadFromFile(filename);
+				}
+				currentTableFilename = filename;
+				parameterValuesForScanFiles.clear();
+				parameterValuesForScanFiles.addAll(newParams);
 
-						updateViewConfig();
+				updateXmlDirectoryFromModel();
+				if (xmlFiles.size()==0) {
+					String message = "No xml files were found in directory "+xmlDirectoryName+".\n"+
+							"You will be able to add/remove scans, change the parameter modifiers\n"+
+							"and save the table, but not change the xml files selected for each scan\n"+
+							"or generate the new scan xml files";
+					MessageDialog.openWarning(parent.getShell(), "Warning", message);
+				}
+				spreadsheetTable.removeAllColumnsFromTable();
 
-						spreadsheetTable.addColumnsToTable(parameterValuesForScanFiles.get(0).getParameterValuesForScanBeans());
-						spreadsheetTable.refresh();
-						spreadsheetTable.adjustColumnWidths();
-					} catch (IOException e1) {
-						logger.error("Problem encountered loading table from XML file", e1);
+				updateViewConfig();
+
+				spreadsheetTable.addColumnsToTable(parameterValuesForScanFiles.get(0).getParameterValuesForScanBeans());
+				spreadsheetTable.refresh();
+				spreadsheetTable.adjustColumnWidths();
+			} catch (IOException e1) {
+				logger.error("Problem encountered loading table from XML file", e1);
+			}
+
+		}
+	}
+
+	private void saveToFile() {
+		FileDialog dialog = getFileDialog(parent.getShell(), SWT.SAVE);
+		dialog.setText("Save to file");
+		// Set filename and directory based on last full path to last loaded table, if available
+		if (!currentTableFilename.isEmpty()) {
+			dialog.setFileName(FilenameUtils.getName(currentTableFilename));
+			dialog.setFilterPath(FilenameUtils.getFullPath(currentTableFilename));
+		}
+		String filename = dialog.open();
+		if (filename != null) {
+			boolean writeFile = true;
+			File file = new File(filename);
+			// confirm to write file if it already exists
+			if (file.exists()) {
+				writeFile = MessageDialog.openQuestion(parent.getShell(), "File already exists!",
+						"File " + filename + " already exists.\nDo you want to overwrite it?");
+			}
+			if (writeFile) {
+				logger.info("Write to file {}", filename);
+				try {
+					ParameterCollection collection = new ParameterCollection(parameterValuesForScanFiles);
+					collection.saveToFile(filename);
+
+					String csvFilename = filename.replace(".xml", ".csv");
+					if (!csvFilename.endsWith(".csv")) {
+						csvFilename += csvFilename+".csv";
 					}
+					// Make string of all the column names from the table (human readable).
+					TableColumn[] columns = spreadsheetTable.getTableViewer().getTable().getColumns();
+					String columnInfo = Arrays.stream(columns)
+							.map(TableColumn::getText)
+							.collect(Collectors.joining(", "));
+					collection.setCsvCommentString(columnInfo);
+					collection.saveCsvToFile(csvFilename);
 
+				} catch (IOException e1) {
+					logger.error("Problem encountered saving table to file", e1);
 				}
 			}
-		});
+		}
+	}
 
-		saveFileButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				Shell shell = parent.getShell();
-				FileDialog dialog = new FileDialog(shell, SWT.SAVE);
-				dialog.setFilterNames(new String[] { "xml files", "All Files (*.*)" });
-				dialog.setFilterExtensions(new String[] { "*.xml", "*.*" });
-				dialog.setText("Save to file");
-				// Set filename and directory based on last full path to last loaded table, if available
-				if (!currentTableFilename.isEmpty()) {
-					dialog.setFileName(FilenameUtils.getName(currentTableFilename));
-					dialog.setFilterPath(FilenameUtils.getFullPath(currentTableFilename));
-				}
-				String filename = dialog.open();
-				if (filename != null) {
-					boolean writeFile = true;
-					File file = new File(filename);
-					// confirm to write file if it already exists
-					if (file.exists()) {
-						writeFile = MessageDialog.openQuestion(shell, "File already exists!",
-								"File " + filename + " already exists.\nDo you want to overwrite it?");
-					}
-					if (writeFile) {
-						logger.info("Write to file {}", filename);
-						System.out.println(ParameterCollection.toXML(parameterValuesForScanFiles));
-						// try and save file
-						try {
-							ParameterCollection.saveToFile(parameterValuesForScanFiles, filename);
-						} catch (IOException e1) {
-							logger.error("Problem encountered saving table to XML file", e1);
-						}
-					}
-				}
-			}
-		});
+	private FileDialog getFileDialog(Shell shell, int type) {
+		FileDialog dialog = new FileDialog(shell, type);
+		dialog.setFilterNames(new String[] { "XML and CSV files", "XML files", "CSV files", "All Files (*.*)" });
+		dialog.setFilterExtensions(new String[] { "*.xml;*.csv", "*.xml", "*.csv", "*.*" });
+		return dialog;
 	}
 
 	private void addGenerateScanControls(final Composite parent) {

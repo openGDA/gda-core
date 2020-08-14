@@ -124,6 +124,7 @@ public abstract class XasScanBase implements XasScan {
 	protected String scriptType;
 	protected String scan_unique_id;
 	protected long timeRepetitionsStarted;
+	protected XasProgressUpdater loggingbean;
 
 	/**
 	 * For convenience when calling from Jython.
@@ -192,6 +193,7 @@ public abstract class XasScanBase implements XasScan {
 		currentRepetition = 0;
 		timeRepetitionsStarted = System.currentTimeMillis();
 		SampleEnvironmentIterator iterator = samplePreparer.createIterator(detectorBean.getExperimentType());
+		loggingbean = new XasProgressUpdater(loggingScriptController, timeRepetitionsStarted);
 		try {
 
 			beamlinePreparer.prepareForExperiment();
@@ -201,7 +203,7 @@ public abstract class XasScanBase implements XasScan {
 				try {
 					doSampleEnvironmentIterator(iterator);
 				} catch (Exception e) {
-					handleScanInterrupt(e);
+					handleScanInterruptAndLogIt(e);
 				}
 				checkForPause();
 				if (checkIfRepetitionsFinished()) {
@@ -236,6 +238,7 @@ public abstract class XasScanBase implements XasScan {
 					Integer.toString(i + 1), Integer.toString(num_sample_repeats), initialPercent, Integer.toString(0),
 					Long.toString(timeSinceRepetitionsStarted), Long.toString(timeSinceRepetitionsStarted),
 					experimentFolderName, sampleName, 0);
+			loggingbean.setFromMessage(logmsg);
 
 			if (num_sample_repeats == 1) {
 				printRepetition();
@@ -245,29 +248,26 @@ public abstract class XasScanBase implements XasScan {
 			if (currentRepetition == 1 && i == 0) {
 				runScriptOrCommand(outputBean.getBeforeFirstRepetition());
 			}
-
-			doSingleScan(sampleName, descriptions, logmsg);
+			doSingleScan(sampleName, descriptions);
 		}
 	}
 
 	// Runs a single energy (XAS/XANES) scan once the beamline and sample environment has been set up
-	private void doSingleScan(String sampleName, List<String> descriptions, XasLoggingMessage logmsg) throws Exception {
+	private void doSingleScan(String sampleName, List<String> descriptions) throws Exception {
 
 		runScriptOrCommand(outputBean.getBeforeScriptName());
 
 		runDetectorAndOutputPreparers();
 
-		createAndRunScan(sampleName, descriptions, logmsg);
+		createAndRunScan(sampleName, descriptions);
 
 		runScriptOrCommand(outputBean.getAfterScriptName());
 	}
 
-	protected void createAndRunScan(String sampleName, List<String> descriptions, XasLoggingMessage logmsg)
-			throws Exception, InterruptedException {
+	protected void createAndRunScan(String sampleName, List<String> descriptions)
+			throws Exception {
 		// this will be the bespoke bit for each scan type
 		Object[] scanArgs = createScanArguments(sampleName, descriptions);
-
-		XasProgressUpdater loggingbean = new XasProgressUpdater(loggingScriptController, logmsg, timeRepetitionsStarted);
 		scanArgs = ArrayUtils.add(scanArgs, loggingbean);
 		Set<Scannable> scannablesToBeAddedAsColumnInDataFile = outputPreparer.getScannablesToBeAddedAsColumnInDataFile();
 		if (!scannablesToBeAddedAsColumnInDataFile.isEmpty()) {
@@ -426,7 +426,8 @@ public abstract class XasScanBase implements XasScan {
 			runScript(scriptNameOrCommand);
 		} else {
 			logger.debug("Running jython command : {}", scriptNameOrCommand);
-			InterfaceProvider.getCommandRunner().evaluateCommand(scriptNameOrCommand);
+			InterfaceProvider.getCommandRunner().runsource(scriptNameOrCommand);
+
 		}
 	}
 
@@ -614,17 +615,13 @@ public abstract class XasScanBase implements XasScan {
 		return ((currentRepetition - 1) / numRepetitions) * 100 + "%";
 	}
 
-	private long calcTimeSinceRepetitionsStarted() {
-		return System.currentTimeMillis() - timeRepetitionsStarted;
-	}
-
-	protected XasLoggingMessage getLogMessage(String sampleName) throws Exception {
-		String initialPercent = calcInitialPercent();
-		long timeSinceRepetitionsStarted = calcTimeSinceRepetitionsStarted();
-		return new XasLoggingMessage(getMyVisitID(), scan_unique_id, scriptType, "Starting " + scriptType + " scan...",
-				Integer.toString(currentRepetition), Integer.toString(numRepetitions), Integer.toString(1),
-				Integer.toString(1), initialPercent, Integer.toString(0), Long.toString(timeSinceRepetitionsStarted),
-				scanBean, experimentFolderName, sampleName, 0);
+	protected void handleScanInterruptAndLogIt(Exception exceptionObject) throws Exception {
+		try {
+			handleScanInterrupt(exceptionObject);
+		} catch(Exception e) {
+			loggingbean.atCommandFailure();
+			throw exceptionObject;
+		}
 	}
 
 	protected void handleScanInterrupt(Exception exceptionObject) throws Exception {

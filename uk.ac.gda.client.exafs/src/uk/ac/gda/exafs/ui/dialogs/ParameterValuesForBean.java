@@ -26,8 +26,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.thoughtworks.xstream.XStream;
@@ -49,7 +51,7 @@ import uk.ac.gda.util.beans.xml.XMLRichBean;
  */
 public class ParameterValuesForBean {
 
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ParameterValuesForBean.class);
+	private static final Logger logger = LoggerFactory.getLogger(ParameterValuesForBean.class);
 
 	/** Full path to XML file containing bean object */
 	private String beanFileName = "";
@@ -114,6 +116,10 @@ public class ParameterValuesForBean {
 	 */
 	public ParameterValue getParameterValue(ParameterValue otherParam) {
 		return getParameterValue(otherParam.getFullPathToGetter());
+	}
+
+	public ParameterValue getParameterValue(int index) {
+		return parameterValues.get(index);
 	}
 
 	public String getBeanFileName() {
@@ -229,14 +235,18 @@ public class ParameterValuesForBean {
 		xstream.addImplicitCollection(ParameterValuesForBean.class, "parameterValues");
 	}
 
-	public static XStream getXStream() {
-		XStream xstream = new XStream();
-		addAliases(xstream);
-		return xstream;
-	}
 
-	public String toXML() {
-		return getXStream().toXML(this);
+	public enum BeanTypeNames {
+		SCAN("Scan"), DETECTOR("Detector"), SAMPLE("Sample"), OUTPUT("Output");
+
+		private final String niceName;
+		private BeanTypeNames(String niceName) {
+			this.niceName = niceName;
+		}
+		@Override
+		public String toString() {
+			return niceName;
+		}
 	}
 
 	public String getBeanTypeNiceName() {
@@ -244,16 +254,33 @@ public class ParameterValuesForBean {
 		Class<XMLRichBean> clazz = getBeanClass();
 		if (clazz != null) {
 			if (ISampleParameters.class.isAssignableFrom(clazz)) {
-				niceName = "Sample xml";
+				niceName = BeanTypeNames.SAMPLE.toString();
 			} else if (IDetectorParameters.class.isAssignableFrom(clazz)) {
-				niceName = "Detector xml";
+				niceName = BeanTypeNames.DETECTOR.toString();
 			} else if (IScanParameters.class.isAssignableFrom(clazz)) {
-				niceName = "Scan xml";
+				niceName = BeanTypeNames.SCAN.toString();
 			} else if (IOutputParameters.class.isAssignableFrom(clazz)) {
-				niceName = "Output xml";
+				niceName = BeanTypeNames.OUTPUT.toString();
 			}
 		}
 		return niceName;
+	}
+
+	public List<String> getCsvColumnNames() {
+		String beanType = getBeanTypeNiceName();
+		return parameterValues.stream()
+				.map(p -> beanType+":"+p.fullPathToGetter)
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 *
+	 * @return List of new values to be set
+	 */
+	public List<Object> getNewValues() {
+		return parameterValues.stream()
+				.map(v -> v.getNewValue())
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -490,6 +517,43 @@ public class ParameterValuesForBean {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((beanFileName == null) ? 0 : beanFileName.hashCode());
+		result = prime * result + ((beanType == null) ? 0 : beanType.hashCode());
+		result = prime * result + ((parameterValues == null) ? 0 : parameterValues.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ParameterValuesForBean other = (ParameterValuesForBean) obj;
+		if (beanFileName == null) {
+			if (other.beanFileName != null)
+				return false;
+		} else if (!beanFileName.equals(other.beanFileName))
+			return false;
+		if (beanType == null) {
+			if (other.beanType != null)
+				return false;
+		} else if (!beanType.equals(other.beanType))
+			return false;
+		if (parameterValues == null) {
+			if (other.parameterValues != null)
+				return false;
+		} else if (!parameterValues.equals(other.parameterValues))
+			return false;
+		return true;
 	}
 
 }
