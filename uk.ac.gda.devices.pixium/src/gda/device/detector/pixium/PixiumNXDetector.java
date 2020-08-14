@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +49,6 @@ import gda.epics.PV;
 import gda.jython.InterfaceProvider;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
-import gda.observable.Predicate;
 import gda.scan.ConcurrentScan;
 import gda.scan.RepeatScan;
 import gda.scan.ScanInformation;
@@ -520,7 +520,7 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 		}
 
 		@Override
-		public boolean apply(Integer object) {
+		public boolean test(Integer object) {
 			return (object == value);
 		}
 
@@ -561,7 +561,7 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 		}
 
 		@Override
-		public boolean apply(Integer object) {
+		public boolean test(Integer object) {
 			print("apply : " + object.toString());
 			return (object != value);
 		}
