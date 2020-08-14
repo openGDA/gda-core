@@ -18,12 +18,6 @@
 
 package gda.example.views;
 
-import gda.device.DeviceException;
-import gda.example.providers.SampleAlignmentViewerContentProvider;
-import gda.example.viewer.ISampleAlignmentViewer;
-import gda.example.viewer.ISampleAlignmentViewerListener;
-import gda.example.viewer.SampleAlignmentViewer;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -31,7 +25,12 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
-import uk.ac.gda.client.device.collection.DeviceCollectionFactory;
+import gda.device.DeviceException;
+import gda.example.providers.SampleAlignmentViewerContentProvider;
+import gda.example.viewer.ISampleAlignmentViewer;
+import gda.example.viewer.ISampleAlignmentViewerListener;
+import gda.example.viewer.SampleAlignmentViewer;
+import gda.factory.Finder;
 import uk.ac.gda.example.device.collection.ISampleAlignmentDeviceCollectionListener;
 import uk.ac.gda.example.device.collection.SampleAlignmentDeviceCollection;
 
@@ -48,7 +47,7 @@ public class SampleAlignmentView extends ViewPart {
 		sampleViewer.addListener(new ViewerListener());
 
 
-		collection = (SampleAlignmentDeviceCollection) DeviceCollectionFactory.INSTANCE.getDeviceCollection(ID);
+		collection = Finder.find(ID);
 		collection.addListener(new SampleAlignmentDeviceCollectionListener());
 		sampleViewer.setContentProvider(new SampleAlignmentViewerContentProvider(collection));
 		sampleViewer.createContents(parent);
