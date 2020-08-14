@@ -40,6 +40,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import javax.jms.JMSException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -104,7 +106,17 @@ public class SpringObjectServer extends ObjectServer {
 		try {
 			applicationContext.refresh();
 		} catch (BeanCreationException e) {
-			logger.error("Unable to create all beans - is ActiveMQ Running?", e);
+			if (e.contains(JMSException.class)) {
+				Throwable t = e;
+				while (t.getClass() != JMSException.class) {
+					t = t.getCause();
+				}
+				String message = String.format("%s:\n\n ActiveMQ error: %s", e.getMessage(), t.getMessage());
+				logger.error(message, e);
+				throw new RuntimeException(message);
+			} else {
+				logger.error("Unable to create all beans", e);
+			}
 			throw e;
 		}
 

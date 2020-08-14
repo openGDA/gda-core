@@ -251,7 +251,7 @@ if [[ "${GDA_MODE}" == "dummy" ]] || [[ "${ssh_tunnel_activated:-}" == true ]] |
             while :
             do                                                 # First check for startup errors
                 if [ -r $OBJECT_SERVER_STARTUP_FILE ]; then
-                    read it < <(cat $OBJECT_SERVER_STARTUP_FILE)
+                    it="$(cat $OBJECT_SERVER_STARTUP_FILE)"
                     (( countdown-- ))
                     if [[ ${#it} > 0 ]]; then
                         gda_zenity --error --width 300 --text="GDA Server failed to start:\n\n$it\n"
