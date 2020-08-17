@@ -299,8 +299,10 @@ public class ScanManagementController extends AbstractMappingController {
 			if (LocalProperties.isPersistenceServiceAvailable()) {
 				// Save current status of mapping view and cross-reference in ScanBean
 				getMappingBean().setDisplayName("");
+				// Force the persistence service to allocate a new ID to the saved version
+				// of the mapping bean
 				final long scanId = saveScanAs(IMappingExperimentBean.INVALID_ID);
-				scanBean.setId(scanId);
+				scanBean.setMappingBeanId(scanId);
 			}
 			submitter.submitScan(scanBean);
 		} catch (Exception e) {
