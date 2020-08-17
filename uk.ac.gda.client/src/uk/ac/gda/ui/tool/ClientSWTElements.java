@@ -577,8 +577,7 @@ public final class ClientSWTElements {
 	 */
 	public static final Label createClientLabel(final Composite parent, int style, final ClientMessages message,
 			FontDescriptor fontDescriptor) {
-		Label label = new Label(parent, style);
-		label.setText(ClientMessagesUtility.getMessage(message));
+		Label label = createClientLabel(parent, style, ClientMessagesUtility.getMessage(message));
 		label.setFont(ClientResourceManager.getInstance().getFont(fontDescriptor));
 		return label;
 	}
@@ -597,6 +596,7 @@ public final class ClientSWTElements {
 	 */
 	public static final Label createClientLabel(final Composite parent, int style, final String message) {
 		Label label = new Label(parent, style);
+		label.setFont(ClientResourceManager.getInstance().getLabelDefaultFont());
 		label.setText(message);
 		return label;
 	}
