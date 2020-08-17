@@ -51,8 +51,11 @@ public final class ScanBean extends StatusBean {
 
 	public static final long INVALID_ID = -1;
 
-	// id of the bean, for cross-referencing with mapping bean
-	private long id = INVALID_ID;
+	/**
+	 * id of the corresponding mapping bean as stored in the persistence service<br>
+	 * This will remain as INVALID_ID if the persistence service is not configured or if saving the mapping bean fails.
+	 */
+	private long mappingBeanId = INVALID_ID;
 
 	// Field required to start a scan, may be null.
 	private ScanRequest scanRequest;
@@ -181,7 +184,7 @@ public final class ScanBean extends StatusBean {
 
 	@Override
 	public String toString() {
-		return "ScanBean [id=" + id
+		return "ScanBean [mappingBeanId=" + mappingBeanId
 				+ ", deviceName=" + deviceName
 				+ ", beamline=" + beamline
 				+ ", point=" + point
@@ -337,12 +340,12 @@ public final class ScanBean extends StatusBean {
 		this.deviceName = deviceName;
 	}
 
-	public long getId() {
-		return id;
+	public long getMappingBeanId() {
+		return mappingBeanId;
 	}
 
-	public void setId(long id) {
-		this.id = id;
+	public void setMappingBeanId(long id) {
+		this.mappingBeanId = id;
 	}
 
 	public String toProgressString() {
