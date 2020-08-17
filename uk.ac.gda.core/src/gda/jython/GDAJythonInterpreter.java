@@ -106,7 +106,7 @@ public class GDAJythonInterpreter {
 	// folders where beamline and user scripts are held
 	private final ScriptPaths jythonScriptPaths;
 
-	private final GDAJythonClassLoader classLoader = new GDAJythonClassLoader();
+	private final GDAJythonClassLoader classLoader = new GDAJythonClassLoader(Py.class.getClassLoader());
 
 	/**
 	 * Static initializer bock to set all the static parameters on the PySystemState class
@@ -186,6 +186,7 @@ public class GDAJythonInterpreter {
 		final PySystemState pss = new PySystemState();
 		try {
 			Py.setSystemState(pss);
+			pss.setClassLoader(classLoader);
 			pss.setdefaultencoding(UTF_8);		// cannot be done before Py.setSystemState
 			Py.defaultSystemState = pss;
 		} catch (Exception e) {

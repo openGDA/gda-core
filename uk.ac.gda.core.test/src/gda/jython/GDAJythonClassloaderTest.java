@@ -45,6 +45,7 @@ import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -68,6 +69,7 @@ import uk.ac.diamond.daq.test.powermock.PowerMockBase;
  * such as instanceof, isAssignableFrom etc., the types would always be different and the tests would always fail. The only reliable
  * way to compare instances of a class loaded by different ClassLoaders is piecemeal using reflection as below.
  */
+@Ignore("DAQ-1032 DAQ-2618 GDAJythonClassloader class doesn't do any class loading itself anymore")
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(LoggerFactory.class)
 public class GDAJythonClassloaderTest extends PowerMockBase {
@@ -148,7 +150,7 @@ public class GDAJythonClassloaderTest extends PowerMockBase {
 		Mockito.<Class<?>>when(bundle3.loadClass(GOOD_CLASS_NAME)).thenReturn(DummyClass.class);
 
 		GDAJythonClassLoader.initialize(bundles, scriptFolders, included);
-		loader = new GDAJythonClassLoader();
+		loader = new GDAJythonClassLoader(this.getClass().getClassLoader());
 		sysPath = mock(PyList.class);
 	}
 
