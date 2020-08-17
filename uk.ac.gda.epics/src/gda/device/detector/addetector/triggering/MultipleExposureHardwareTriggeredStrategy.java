@@ -32,6 +32,8 @@ import gda.scan.ScanInformation;
 public class MultipleExposureHardwareTriggeredStrategy extends SimpleAcquire {
 
 	private double collectionTime = 0.1; // collection time in seconds
+	private double originalAcquireTime;
+	private double originalAcquirePeriod;
 
 	public MultipleExposureHardwareTriggeredStrategy(ADBase adBase, double readoutTime) {
 		super(adBase, readoutTime);
@@ -107,6 +109,10 @@ public class MultipleExposureHardwareTriggeredStrategy extends SimpleAcquire {
 
 	@Override
 	public void configureAcquireAndPeriodTimes(double time) throws Exception {
+		// Save acquire time and period values
+		originalAcquireTime = getAdBase().getAcquireTime();
+		originalAcquirePeriod = getAdBase().getAcquirePeriod();
+
 		getAdBase().setAcquireTime(time);
 		getAdBase().setAcquirePeriod(0);
 	}
@@ -141,6 +147,10 @@ public class MultipleExposureHardwareTriggeredStrategy extends SimpleAcquire {
 		getAdBase().stopAcquiring();
 		// Trigger mode needs to be set back to internal so that live mode can be started correctly from GUI at end of scan
 		getAdBase().setTriggerMode(StandardTriggerMode.INTERNAL.ordinal());
+
+		// Set acquire time and period back to the original values
+		getAdBase().setAcquireTime(originalAcquireTime);
+		getAdBase().setAcquirePeriod(originalAcquirePeriod);
 	}
 
 	public double getCollectionTime() {
