@@ -42,7 +42,7 @@ import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.properties.CameraProperties;
-import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 /**
  * Manages a set of {@link AcquisitionPropertiesDocument} on behalf of a {@link ScanningAcquisitionController}
@@ -98,8 +98,7 @@ class ScanningAcquisitionControllerDetectorHelper {
 		Optional.ofNullable(AcquisitionsPropertiesHelper.getAcquistionPropertiesDocument(acquisitionType))
 				.ifPresent(acquisitionPropertiesDocuments::addAll);
 		camerasControls = setCamerasControls();
-		SpringApplicationContextProxy.addDisposableApplicationListener(this, listenToExposureChange);
-
+		SpringApplicationContextFacade.addDisposableApplicationListener(this, listenToExposureChange);
 		// may happens if the controller still has no acquisition document
 		if (getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters() == null)
 			return;
@@ -130,7 +129,7 @@ class ScanningAcquisitionControllerDetectorHelper {
 				ScanningParameters tp = getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
 				tp.setDetector(new DetectorDocument(cc.getName(), cc.getAcquireTime()));
 			} catch (DeviceException e) {
-				logger.warn("Cannot read exposure time.", e);
+				logger.warn("Cannot read exposure time. {}", e.getMessage());
 			}
 		});
 	}
@@ -202,7 +201,7 @@ class ScanningAcquisitionControllerDetectorHelper {
 			if (!detectorControlName.equals(acquisitionParameters.getDetector().getName()))
 				return;
 			acquisitionParameters.setDetector(new DetectorDocument(acquisitionParameters.getDetector().getName(), acquireTime));
-			SpringApplicationContextProxy.publishEvent(new ScanningAcquisitionEvent(getAcquisition()));
+			SpringApplicationContextFacade.publishEvent(new ScanningAcquisitionEvent(getAcquisition()));
 		}
 	};
 

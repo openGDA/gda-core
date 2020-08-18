@@ -21,6 +21,7 @@ package uk.ac.gda.ui.tool;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.eclipse.jface.fieldassist.ControlDecoration;
@@ -118,5 +119,24 @@ public class WidgetUtilities {
 		};
 		control.addFocusListener(listener);
 		control.addDisposeListener(ev -> control.removeFocusListener(listener));
+	}
+
+	/**
+	 * Utility to cast a {@link Widget#getData(String)} object
+	 * @param widget the widget from where extract the data
+	 * @return the object associated with CameraControlSpringEvent listener, otherwise {@code null}
+	 */
+	/**
+	 * Retrieve and cast data from {@link Widget#getData(String)}
+	 * @param <T>
+	 * @param widget the widget from where require the data
+	 * @param clazz the expected returned object class
+	 * @param dataKey the ket to retrieve the data
+	 * @return the required object if exists, otherwise {@code null}
+	 */
+	public static <T> T getDataObject(Widget widget, Class<T> clazz, String dataKey) {
+		return Optional.ofNullable(widget.getData(dataKey))
+				.map(clazz::cast)
+				.orElseGet(() -> null);
 	}
 }

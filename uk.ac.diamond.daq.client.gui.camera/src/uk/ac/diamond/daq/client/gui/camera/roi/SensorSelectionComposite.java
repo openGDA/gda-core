@@ -109,7 +109,7 @@ public class SensorSelectionComposite implements CompositeFactory {
 		try {
 			uc = cameraConfiguration.getMaximumSizedROI();
 		} catch (GDAClientException e) {
-			logger.error("Camera Error", e);
+			logger.warn("Camera Error {}", e.getMessage());
 			uc = null;
 		}
 		rows.add(new ROIRow(table, ClientMessages.CAMERA_AREA, false, 0, uc, null));

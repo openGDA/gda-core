@@ -107,7 +107,7 @@ public class ExposureDurationComposite implements CompositeFactory {
 			int exposure = (int) (cameraControl.getAcquireTime() * 1000);
 			updateGUI(exposure);
 		} catch (DeviceException e) {
-			UIHelper.showError("Error reading detector exposure", e, logger);
+			logger.warn("Error reading detector exposure {}", e.getMessage());
 		}
 	}
 

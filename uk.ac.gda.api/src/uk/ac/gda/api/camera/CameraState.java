@@ -20,5 +20,6 @@ package uk.ac.gda.api.camera;
 
 public enum CameraState {
 	IDLE,
-	ACQUIRING
+	ACQUIRING,
+	UNAVAILABLE
 }
