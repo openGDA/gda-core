@@ -144,6 +144,7 @@ public final class ScanBean extends StatusBean {
 		final ScanBean scanBean = (ScanBean) with;
 		this.scanRequest = scanBean.scanRequest;
 		this.deviceName = scanBean.deviceName;
+		this.mappingBeanId = scanBean.mappingBeanId;
 		this.beamline = scanBean.beamline;
 		this.point = scanBean.point;
 		this.size = scanBean.size;
@@ -268,6 +269,7 @@ public final class ScanBean extends StatusBean {
 		result = prime * result + ((datasetPath == null) ? 0 : datasetPath.hashCode());
 		result = prime * result + ((deviceName == null) ? 0 : deviceName.hashCode());
 		result = prime * result + ((filePath == null) ? 0 : filePath.hashCode());
+		result = prime * result + (int) (mappingBeanId ^ (mappingBeanId >>> 32));
 		result = prime * result + point;
 		result = prime * result + ((position == null) ? 0 : position.hashCode());
 		result = prime * result + scanNumber;
@@ -299,6 +301,8 @@ public final class ScanBean extends StatusBean {
 			if (other.deviceName != null)
 				return false;
 		} else if (!deviceName.equals(other.deviceName))
+			return false;
+		if (mappingBeanId != other.mappingBeanId)
 			return false;
 		if (filePath == null) {
 			if (other.filePath != null)
