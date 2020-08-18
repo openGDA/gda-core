@@ -42,6 +42,9 @@ public final class CameraEventUtils {
 	public static void addIObserverToCameraControl(CameraControl cameraControl) {
 		cameraControl.addIObserver(cameraControlObserver);
 	}
+	public static void removeIObserverFromCameraControl(CameraControl cameraControl) {
+		cameraControl.deleteIObserver(cameraControlObserver);
+	}
 	private static Consumer<CameraControllerEvent> cameraControlEventConsumer = event -> {
 		SpringApplicationContextProxy.publishEvent(new CameraControlSpringEvent(CameraHelper.class, event));
 		logger.debug("{}", event);			

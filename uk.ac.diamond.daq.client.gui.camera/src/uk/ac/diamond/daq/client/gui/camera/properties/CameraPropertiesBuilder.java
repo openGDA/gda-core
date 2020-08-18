@@ -58,6 +58,9 @@ public class CameraPropertiesBuilder {
 		cameraProperties.setPixelBinningEditable(pixelBinningEditable);
 	}
 	
+	public void setReadoutTime(int readoutTime) {
+		cameraProperties.setReadoutTime(readoutTime);
+	}
 	
 	private class CameraPropertiesImpl implements CameraProperties {
 
@@ -69,6 +72,7 @@ public class CameraPropertiesBuilder {
 		private List<MotorProperties> motorProperties;
 		private boolean beamMappingActive;
 		private boolean pixelBinningEditable;
+		private int readoutTime;
 
 		@Override
 		public int getIndex() {
@@ -140,6 +144,15 @@ public class CameraPropertiesBuilder {
 
 		public void setPixelBinningEditable(boolean pixelBinningEditable) {
 			this.pixelBinningEditable = pixelBinningEditable;
-		}		
+		}
+
+		@Override
+		public int getReadoutTime() {
+			return readoutTime;
+		}
+
+		public void setReadoutTime(int readoutTime) {
+			this.readoutTime = readoutTime;
+		}
 	}
 }

@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
@@ -112,6 +114,10 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
  */
 public final class CameraHelper {
 
+	private static final String READOUT_TIME = "readoutTime";
+	
+	private static final Logger logger = LoggerFactory.getLogger(CameraHelper.class);
+	
 	private static final List<CameraProperties> cameraProperties = new ArrayList<>();
 	private static final Map<String, CameraProperties> cameraPropertiesByID = new HashMap<>();
 	private static final List<CameraComboItem> cameraComboItems = new ArrayList<>();
@@ -119,9 +125,7 @@ public final class CameraHelper {
 	private static final Map<Integer, ICameraConfiguration> cameraConfigurations = new HashMap<>();
 
 	static {
-		parseCameraProperties();
-		observeCameraProperties();
-		createCameraComboItems();
+		loadAllProperties();
 	}
 
 	/**
@@ -234,6 +238,13 @@ public final class CameraHelper {
 			.forEach(cc -> cc.ifPresent(CameraEventUtils::addIObserverToCameraControl));
 	}
 	
+	private static void removeObserverCameraProperties() {
+		cameraProperties.stream()
+			.map(CameraProperties::getIndex)
+			.map(CameraHelper::getCameraControl)
+			.forEach(cc -> cc.ifPresent(CameraEventUtils::removeIObserverFromCameraControl));
+	}
+	
 	private static void parseCameraProperties(int index) {
 		CameraPropertiesBuilder builder = new CameraPropertiesBuilder();
 		builder.setIndex(index);
@@ -243,7 +254,8 @@ public final class CameraHelper {
 		builder.setCameraControl(getCameraControlProperty(index));
 		builder.setBeamMappingActive(getBeamMappingProperty(index));
 		builder.setPixelBinningEditable(getPixelBinningEditableProperty(index));
-
+		builder.setReadoutTime(getReadoutTimeProperty(index));
+		
 		builder.setMotorProperties(getCameraConfigurationMotors(index));
 		CameraProperties cp = builder.build();
 		cp.getId().ifPresent(id -> cameraPropertiesByID.putIfAbsent(id, cp));
@@ -294,6 +306,23 @@ public final class CameraHelper {
 		return Boolean.parseBoolean(getProperty(CAMERA_CONFIGURATION_PREFIX, index, "pixelBinningEditable", "false"));
 	}
 
+	/**
+	 * Extracts properties formatted like
+	 * "client.cameraConfiguration.INDEX.readoutTime"
+	 * 
+	 * @param index the camera index
+	 * @return the camera readout time. Default 0;
+	 */
+	private static int getReadoutTimeProperty(int index) {
+		try {
+			logger.debug("Reading property {}.{}.{}", CAMERA_CONFIGURATION_PREFIX, index, READOUT_TIME);
+			return Integer.parseInt(getProperty(CAMERA_CONFIGURATION_PREFIX, index, READOUT_TIME, "0"));	
+		} catch (NumberFormatException e) {
+			logger.warn("Error reading property {}.{}.{}. Uses default to 0 ", CAMERA_CONFIGURATION_PREFIX, index, READOUT_TIME);
+			return 0;
+		}		
+	}
+	
 	// -- motors -- //
 	/**
 	 * Returns a string like
@@ -376,5 +405,30 @@ public final class CameraHelper {
 		public void setBeamCameraMap(BeamCameraMap beamCameraMap) {
 			this.beamCameraMap = Optional.ofNullable(beamCameraMap);
 		}
+	}
+	
+	/**
+	 * Loads the cameras configurations. 
+	 * <p>
+	 * This method 
+	 * <ul>
+	 * <li>
+	 * is called by the class automatically the first time any method is called
+	 * </li>
+	 * <li>
+	 * can be called multiple time to reload the cameras configurations
+	 * </li>
+	 * </ul>
+	 */
+	public static final void loadAllProperties() {
+		removeObserverCameraProperties();
+		Optional.ofNullable(cameraProperties).ifPresent(List::clear);
+		Optional.ofNullable(cameraPropertiesByID).ifPresent(Map::clear);
+		Optional.ofNullable(cameraConfigurations).ifPresent(Map::clear);
+		Optional.ofNullable(cameraComboItems).ifPresent(List::clear);
+		
+		parseCameraProperties();
+		observeCameraProperties();
+		createCameraComboItems();
 	}
 }
