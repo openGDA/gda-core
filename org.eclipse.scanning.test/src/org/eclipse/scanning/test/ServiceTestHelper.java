@@ -29,6 +29,8 @@ import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
+import org.eclipse.dawnsci.nexus.scan.NexusScanFileService;
+import org.eclipse.dawnsci.nexus.scan.impl.NexusScanFileServiceImpl;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
 import org.eclipse.dawnsci.remotedataset.test.utilities.mock.LoaderServiceMock;
@@ -101,6 +103,7 @@ public final class ServiceTestHelper {
 	private static ActivemqConnectorService activemqConnectorService;
 	private static EventServiceImpl eventServiceImpl;
 	private static IScannableDeviceService scannableDeviceService;
+	private static NexusScanFileService nexusScanFileService;
 	private static INexusDeviceService nexusDeviceService;
 	private static RunnableDeviceServiceImpl runnableDeviceServiceImpl;
 	private static IPointGeneratorService pointGeneratorService;
@@ -137,6 +140,7 @@ public final class ServiceTestHelper {
 		scannableDeviceService = createScannableConnectorService(remote);
 		runnableDeviceServiceImpl = new RunnableDeviceServiceImpl(scannableDeviceService);
 		pointGeneratorService = new PointGeneratorService();
+		nexusScanFileService = new NexusScanFileServiceImpl();
 		nexusDeviceService = new NexusDeviceService();
 		validatorService = createValidatorService();
 		scriptService = new MockScriptService();
@@ -209,7 +213,7 @@ public final class ServiceTestHelper {
 	private static void setupOESServiceHolder() {
 		final org.eclipse.scanning.sequencer.ServiceHolder serviceHolder = new org.eclipse.scanning.sequencer.ServiceHolder();
 		serviceHolder.setEventService(eventServiceImpl);
-		serviceHolder.setFactory(new DefaultNexusBuilderFactory());
+		serviceHolder.setNexusScanFileService(nexusScanFileService);
 		serviceHolder.setNexusDeviceService(nexusDeviceService);
 		serviceHolder.setFilePathService(filePathService);
 		serviceHolder.setGeneratorService(pointGeneratorService);

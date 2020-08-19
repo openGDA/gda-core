@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="Services for Acquisition Device">
    <implementation class="org.eclipse.scanning.sequencer.ServiceHolder"/>
-   <reference bind="setFactory" cardinality="0..1" interface="org.eclipse.dawnsci.nexus.builder.NexusBuilderFactory" name="NexusBuilderFactory" policy="dynamic"/>
+   <reference bind="setNexusScanFileService" cardinality="0..1" interface="org.eclipse.dawnsci.nexus.scan.NexusScanFileService" name="NexusScanFileService" policy="dynamic"/>
    <reference bind="setNexusDeviceService" cardinality="0..1" interface="org.eclipse.dawnsci.nexus.device.INexusDeviceService" name="NexusDeviceService" policy="dynamic"/>
    <reference bind="setOperationService" cardinality="0..1" interface="org.eclipse.dawnsci.analysis.api.processing.IOperationService" name="IOperationService" policy="dynamic"/>
    <reference bind="setPersistenceService" cardinality="0..1" interface="org.eclipse.dawnsci.analysis.api.persistence.IPersistenceService" name="IPersistenceService" policy="dynamic"/>

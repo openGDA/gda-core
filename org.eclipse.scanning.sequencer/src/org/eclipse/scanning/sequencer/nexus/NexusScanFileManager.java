@@ -90,7 +90,7 @@ public class NexusScanFileManager {
 	 * @throws ScanningException
 	 */
 	public void configure(ScanModel scanModel) throws ScanningException {
-		isWritingNexus = scanModel.getFilePath() != null && ServiceHolder.getFactory() != null;
+		isWritingNexus = scanModel.getFilePath() != null && ServiceHolder.getNexusScanFileService() != null;
 
 		addLegacyPerScanMonitors(scanModel);
 		if (isWritingNexus) {
@@ -98,7 +98,7 @@ public class NexusScanFileManager {
 			solsticeScanMonitor = new SolsticeScanMonitor(scanModel);
 			scanDevice.addPositionListener(solsticeScanMonitor);
 			try {
-				nexusScanFileBuilder = new NexusScanFileBuilder(nexusScanModel, solsticeScanMonitor);
+				nexusScanFileBuilder = ServiceHolder.getNexusScanFileService().newNexusScanFileBuilder(nexusScanModel, solsticeScanMonitor);
 			} catch (NexusException e) {
 				throw new ScanningException("Error creating nexus file: " + e.getMessage(), e);
 			}

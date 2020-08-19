@@ -15,8 +15,8 @@ import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.analysis.api.persistence.IPersistenceService;
 import org.eclipse.dawnsci.analysis.api.processing.IOperationService;
-import org.eclipse.dawnsci.nexus.builder.NexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
+import org.eclipse.dawnsci.nexus.scan.NexusScanFileService;
 import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.IEventService;
@@ -29,14 +29,14 @@ import uk.ac.diamond.daq.api.messaging.MessagingService;
 public class ServiceHolder {
 
 	// OSGi stuff
-	private static NexusBuilderFactory factory;
+	private static NexusScanFileService nexusScanFileService;
 
-	public static NexusBuilderFactory getFactory() {
-		return factory;
+	public static NexusScanFileService getNexusScanFileService() {
+		return nexusScanFileService;
 	}
 
-	public void setFactory(NexusBuilderFactory factory) {
-		ServiceHolder.factory = factory;
+	public void setNexusScanFileService(NexusScanFileService nexusScanFileService) {
+		ServiceHolder.nexusScanFileService = nexusScanFileService;
 	}
 
 	private static INexusDeviceService nexusDeviceService;
@@ -166,9 +166,8 @@ public class ServiceHolder {
 	 * Used to provide services when tests running in non-OSGi mode.
 	 */
 	public void setTestServices(ILoaderService ls,
-			NexusBuilderFactory defaultNexusBuilderFactory, IOperationService oservice) {
+			IOperationService oservice) {
 		loaderService = ls;
-		factory = defaultNexusBuilderFactory;
 		operationService = oservice;
 	}
 
@@ -176,10 +175,9 @@ public class ServiceHolder {
 	 * Used to provide services when tests running in non-OSGi mode.
 	 */
 	public void setTestServices(ILoaderService ls,
-			NexusBuilderFactory defaultNexusBuilderFactory, IOperationService oservice,
-			IFilePathService fpservice, IPointGeneratorService gService) {
+			IOperationService oservice, IFilePathService fpservice,
+			IPointGeneratorService gService) {
 		loaderService = ls;
-		factory = defaultNexusBuilderFactory;
 		operationService = oservice;
 		filePathService = fpservice;
 		generatorService = gService;
