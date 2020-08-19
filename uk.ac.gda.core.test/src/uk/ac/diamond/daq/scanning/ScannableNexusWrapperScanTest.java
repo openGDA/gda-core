@@ -114,6 +114,7 @@ import org.eclipse.scanning.example.detector.DarkImageDetector;
 import org.eclipse.scanning.example.detector.DarkImageModel;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
+import org.eclipse.scanning.example.file.MockFilePathService;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
@@ -191,6 +192,7 @@ public class ScannableNexusWrapperScanTest {
 		serviceHolder.setFactory(new DefaultNexusBuilderFactory());
 		serviceHolder.setNexusDeviceService(new NexusDeviceService());
 		serviceHolder.setOperationService(new MockOperationService());
+		serviceHolder.setFilePathService(new MockFilePathService());
 	}
 
 
