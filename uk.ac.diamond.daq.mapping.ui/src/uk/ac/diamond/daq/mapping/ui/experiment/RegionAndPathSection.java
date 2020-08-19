@@ -46,6 +46,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -180,7 +181,19 @@ public class RegionAndPathSection extends AbstractMappingSection {
 			rebuildMappingSection();
 		});
 
+		/*
+		 * We disable mouse wheel events on these combo boxes
+		 * because, being on a scrollable composite,
+		 * users frequently mouse scroll on them by mistake
+		 */
+		regionSelector.getCombo().addListener(SWT.MouseWheel, this::disableEvent);
+		pathSelector.getCombo().addListener(SWT.MouseWheel, this::disableEvent);
+
 		updateControls();
+	}
+
+	private void disableEvent(Event event) {
+		event.doit = false;
 	}
 
 	private void createDefaultRegionAtStagePosition() {
