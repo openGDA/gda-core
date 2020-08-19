@@ -149,7 +149,7 @@ public class RmiAutomatedExporter implements RmiRemoteObjectProvider {
 				return true;
 			} else {
 				logger.debug(
-						"No events support added for '{}' as it's service interface '{}' does not implement IObservable",
+						"No events support added for '{}' as its service interface '{}' does not implement IObservable",
 						name, serviceInterface.getName());
 				return false;
 			}
@@ -165,9 +165,9 @@ public class RmiAutomatedExporter implements RmiRemoteObjectProvider {
 		observer.setObject(observable);
 		try {
 			observer.afterPropertiesSet();
-			logger.debug("Setup events dispatch fo '{}'", name);
+			logger.debug("Setup events dispatch for '{}'", name);
 		} catch (Exception e) {
-			logger.error("Failed to setup event dispatching for '{}' no events will be sent to the client", e);
+			logger.error("Failed to setup event dispatching for '{}' no events will be sent to the client", name, e);
 		}
 	}
 
@@ -224,7 +224,7 @@ public class RmiAutomatedExporter implements RmiRemoteObjectProvider {
 						.map(Entry::getKey) // Just get the names
 						.collect(Collectors.toSet()); // Put into a set
 			} else {
-				throw new IllegalArgumentException("clazz must extend Findable was: " + clazz);
+				throw new IllegalArgumentException("clazz must extend Findable but was: " + clazz);
 			}
 		} catch (ClassNotFoundException e) {
 			logger.warn("'{}' could not be loaded by the server", clazz, e);
