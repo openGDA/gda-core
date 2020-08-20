@@ -293,24 +293,6 @@ public class MeasurementsFieldComposite extends FieldComposite {
 			public void setValue(TitrationBean target, LocationBean value) {
 				target.setRecouperateLocation(value);
 			}
-			@Override
-			public Color bGColor(TitrationBean element) {
-				if (element.getLocation().equals(element.getRecouperateLocation())) {
-					return warning;
-				} else if (getValue(element) != null && !getValue(element).isValid()) {
-					return warning;
-				}
-				return okay;
-			}
-			@Override
-			public String toolTip(TitrationBean element) {
-				if (element.getLocation().equals(element.getRecouperateLocation())) {
-					return "Recoup location can't be the same as sample location";
-				} else if (!getValue(element).isValid()) {
-					return "Chosen cell is not valid";
-				}
-				return null;
-			}
 		});
 		columns.putAll(recoup);
 
