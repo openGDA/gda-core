@@ -36,7 +36,6 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.builder.NexusMetadataProvider;
-import org.eclipse.dawnsci.nexus.builder.NexusBuilderFile;
 import org.eclipse.dawnsci.nexus.builder.impl.MapBasedMetadataProvider;
 import org.eclipse.dawnsci.nexus.scan.NexusScanFileBuilder;
 import org.eclipse.dawnsci.nexus.scan.NexusScanModel;
@@ -75,7 +74,6 @@ public class NexusScanFileManager {
 	private final IScanDevice scanDevice;
 	private boolean isWritingNexus;
 	private NexusScanFileBuilder nexusScanFileBuilder = null;
-	private NexusBuilderFile nexusBuilderFile;
 	private SolsticeScanMonitor solsticeScanMonitor;
 
 	public NexusScanFileManager(IScanDevice scanDevice) {
@@ -276,11 +274,11 @@ public class NexusScanFileManager {
 		if (!isWritingNexus) return null;
 
 		try {
-			nexusBuilderFile = nexusScanFileBuilder.createNexusFile(async);
+			nexusScanFileBuilder.createNexusFile(async);
 		} catch (NexusException e) {
 			throw new ScanningException("Could not create nexus file", e);
 		}
-		return nexusBuilderFile.getFilePath();
+		return nexusScanFileBuilder.getFilePath();
 	}
 
 	/**
@@ -291,7 +289,7 @@ public class NexusScanFileManager {
 		if (!isWritingNexus) return;
 
 		try {
-			int code = nexusBuilderFile.flush();
+			int code = nexusScanFileBuilder.flush();
 			if (code < 0) {
 				logger.warn("Problem flushing nexus file, error code = {}", code);
 			}
@@ -311,9 +309,8 @@ public class NexusScanFileManager {
 		solsticeScanMonitor.scanFinished();
 		scanDevice.removePositionListener(solsticeScanMonitor);
 
-		nexusScanFileBuilder.scanFinished(); // need to write some final data into the file
 		try {
-			nexusBuilderFile.close();
+			nexusScanFileBuilder.scanFinished(); // writes final timestamps into NXentry and closes file
 		} catch (NexusException e) {
 			throw new ScanningException("Could not close nexus file", e);
 		}
