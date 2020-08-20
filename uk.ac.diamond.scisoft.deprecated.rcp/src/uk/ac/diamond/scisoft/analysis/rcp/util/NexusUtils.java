@@ -16,7 +16,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.util;
 
-import gda.data.nexus.Activator;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNodeSelection;
@@ -27,7 +26,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,13 +61,6 @@ public class NexusUtils {
 	public static INexusTree loadTree(final String path, NexusTreeNodeSelection sel, IProgressMonitor monitor) throws Exception {
 	
 		if (sel==null) sel = NexusTreeNodeSelection.GET_ALL;
-	
-		// Need to ensure that neutron.nexus.NexusException is loaded by nexus first.
-		final Activator activator = Activator.getDefault();
-		if (activator!=null) {
-			final Bundle bundle = activator.getBundle();
-			if (bundle!=null) bundle.update();
-		}
 		
 		monitor.worked(1);
 		if (monitor.isCanceled()) return null;
