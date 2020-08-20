@@ -16,23 +16,32 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.ui.tool.spring;
+package uk.ac.gda.core.tool.spring;
+
+import static uk.ac.gda.core.tool.spring.AcquisitionFileContextHelper.getCustomDirectory;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import uk.ac.gda.client.exception.GDAClientException;
+import gda.configuration.properties.LocalProperties;
+import uk.ac.gda.api.exception.GDAException;
 
 /**
- * Encapsulates the client state in a perspective-independent way so can be shared throughout the application.
+ * Encapsulates the application state so can be shared throughout the application.
  *
  * At the moment contains only references to essential URLs. In future will contain reference to the whole beamline
  * configuration (stages, cameras, other)
@@ -40,11 +49,12 @@ import uk.ac.gda.client.exception.GDAClientException;
  * @author Maurizio Nagni
  */
 @Component
-public class ClientContext {
+public class AcquisitionFileContext {
 
-	private static final Logger logger = LoggerFactory.getLogger(ClientContext.class);
+	private static final Logger logger = LoggerFactory.getLogger(AcquisitionFileContext.class);
 
 	public static final String ACQUISITION_CALIBRATION_DIRECTORY_PROPERTY = "acquisition.diffraction.calibration.directory";
+	public static final String ACQUISITION_CALIBRATION_DIRECTORY_PERMISSIONS_PROPERTY =	"acquisition.diffraction.calibration.permissions";
 	public static final String ACQUISITION_CALIBRATION_DIRECTORY_PROPERTY_DEFAULT = "calibration";
 
 	public static final String ACQUISITION_EXPERIMENT_DIRECTORY_PROPERTY = "acquisition.experiment.directory";
@@ -54,15 +64,15 @@ public class ClientContext {
 	public static final String ACQUISITION_CONFIGURATION_DIRECTORY_PROPERTY_DEFAULT = "configuration";
 
 	public enum ContextFile {
-		ACQUISITION_CONFIGURATION_DIRECTORY, DIFFRACTION_CALIBRATION_DIRECTORY, DIFFRACTION_CALIBRATION, ACQUISITION_EXPERIMENT_DIRECTORY
+		ACQUISITION_CONFIGURATION_DIRECTORY,
+		DIFFRACTION_CALIBRATION_DIRECTORY,
+		DIFFRACTION_CALIBRATION,
+		ACQUISITION_EXPERIMENT_DIRECTORY
 	}
 
 	private Map<ContextFile, URL> contextFiles = new EnumMap<>(ContextFile.class);
 
 	private boolean done = false;
-
-	private ClientContext() {
-	}
 
 	/**
 	 * Returns the location associated with the {@code contextFile}.
@@ -79,41 +89,56 @@ public class ClientContext {
 	private void initializeConfigurationDir() {
 		URL url = null;
 		try {
-			url = ClientContextFileHelper.getCustomDirectory(ClientContextFileHelper.getConfigDir(),
+			url = getCustomDirectory(AcquisitionFileContextHelper.getConfigDir(),
 					ACQUISITION_CONFIGURATION_DIRECTORY_PROPERTY, ACQUISITION_CONFIGURATION_DIRECTORY_PROPERTY_DEFAULT);
 			bindContextFile(url, ContextFile.ACQUISITION_CONFIGURATION_DIRECTORY);
-		} catch (GDAClientException e) {
-			logger.error("Cannot initialize the custom directory at {}", safeURL(url), e);
+		} catch (GDAException e) {
+			logger.error("Cannot initialize the configuration directory at {}", safeURL(url));
 		}
 	}
 
 	private void initializeExperimentDir() {
 		URL url = null;
 		try {
-			url = ClientContextFileHelper.getCustomDirectory(ClientContextFileHelper.getProcessingDir(),
+			url = getCustomDirectory(AcquisitionFileContextHelper.getProcessingDir(),
 					ACQUISITION_EXPERIMENT_DIRECTORY_PROPERTY, ACQUISITION_EXPERIMENT_DIRECTORY_PROPERTY_DEFAULT);
 			bindContextFile(url, ContextFile.ACQUISITION_EXPERIMENT_DIRECTORY);
-		} catch (GDAClientException e) {
-			logger.error("Cannot initialize the experiment directory at {}", safeURL(url), e);
+		} catch (GDAException e) {
+			logger.error("Cannot initialize the experiment directory at {}", safeURL(url));
 		}
 	}
 
 	private void initializeDiffractionCalibrationDir() {
-		URL url = null;
 		try {
-			url = ClientContextFileHelper.getCustomDirectory(ClientContextFileHelper.getConfigDir(),
+			URL url = getCustomDirectory(AcquisitionFileContextHelper.getConfigDir(),
 					ACQUISITION_CALIBRATION_DIRECTORY_PROPERTY, ACQUISITION_CALIBRATION_DIRECTORY_PROPERTY_DEFAULT);
 			bindContextFile(url, ContextFile.DIFFRACTION_CALIBRATION_DIRECTORY);
-		} catch (GDAClientException e) {
-			logger.error("Cannot initialize the calibration directory at {}", safeURL(url), e);
+			Optional.ofNullable(LocalProperties.get(ACQUISITION_CALIBRATION_DIRECTORY_PERMISSIONS_PROPERTY, null))
+				.ifPresent(permissions -> changeDirectoryPermissions(permissions, url));
+		} catch (GDAException e) {
+			logger.error("Cannot initialize the calibration directory at {}", safeURL(null));
 		}
 	}
 
-	private void bindContextFile(URL url, ContextFile contextFile) throws GDAClientException {
-		String msg = Optional.ofNullable(url).map(URL::getPath).orElseGet(() -> "null URL");
+	private void bindContextFile(URL url, ContextFile contextFile) throws GDAException {
+		String msg = Optional.ofNullable(url)
+				.map(URL::getPath)
+				.orElseGet(() -> "null URL");
 		logger.info("Binding {} to {}", contextFile, msg);
-		ClientContextFileHelper.createDirectory(url);
+		AcquisitionFileContextHelper.createDirectory(url);
 		contextFiles.putIfAbsent(contextFile, url);
+	}
+
+	static Path changeDirectoryPermissions(String permissions, URL url) {
+		Set<PosixFilePermission> permissionSet = PosixFilePermissions.fromString(permissions);
+		File dir;
+		try {
+			dir = new File(url.toURI());
+			return Files.setPosixFilePermissions(dir.toPath(), permissionSet);
+		} catch (URISyntaxException | IOException e) {
+			logger.error("TODO put description of error here", e);
+		}
+		return null;
 	}
 
 	private void initializeFolderStructure() {

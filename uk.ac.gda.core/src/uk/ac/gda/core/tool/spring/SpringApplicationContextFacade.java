@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.WeakHashMap;
 
+import javax.annotation.PreDestroy;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -65,6 +67,18 @@ public class SpringApplicationContextFacade implements ApplicationEventPublisher
 
 	private static ConfigurableApplicationContext configurableApplicationContext;
 
+	 /**
+	 * There are cases where closing Spring is not enough to make an instance unavailable.
+	 * This class contains as static some properties which are still available after spring, not the JVM, is destroyed.
+	 * This method guarantee to clean up this component when spring is destroyed
+	 */
+	@PreDestroy
+	public static void preDestroy() {
+		configurableApplicationContext = null;
+		applicationContext = null;
+		applicationPublisher = null;
+	}
+
 	@Override
 	public void setApplicationEventPublisher(ApplicationEventPublisher applicationPublisher) {
 		SpringApplicationContextFacade.applicationPublisher = applicationPublisher;
@@ -76,6 +90,20 @@ public class SpringApplicationContextFacade implements ApplicationEventPublisher
 		if (ConfigurableApplicationContext.class.isAssignableFrom(applicationContext.getClass())) {
 			configurableApplicationContext = ConfigurableApplicationContext.class.cast(applicationContext);
 		}
+	}
+
+	/**
+	 * Close the running spring framework.
+	 * <p>
+	 * <b>
+	 * Use carefully!
+	 * </b>
+	 * <p>
+	 */
+	public void closeSpringFramework() {
+		Optional.ofNullable(applicationContext)
+			.map(ConfigurableApplicationContext.class::cast)
+			.ifPresent(ConfigurableApplicationContext::close);
 	}
 
 	public static final void publishEvent(ApplicationEvent event) {
