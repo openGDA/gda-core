@@ -97,6 +97,7 @@ public class NexusScanFileManager {
 			scanDevice.addPositionListener(solsticeScanMonitor);
 			try {
 				nexusScanFile = ServiceHolder.getNexusScanFileService().newNexusScanFile(nexusScanModel, solsticeScanMonitor);
+				solsticeScanMonitor.setNexusObjectProviders(nexusScanFile.getNexusObjectProviders());
 			} catch (NexusException e) {
 				throw new ScanningException("Error creating nexus file: " + e.getMessage(), e);
 			}
