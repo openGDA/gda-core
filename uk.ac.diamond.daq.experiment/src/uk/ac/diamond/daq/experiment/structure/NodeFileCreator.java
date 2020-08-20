@@ -26,7 +26,7 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.NexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.builder.NexusFileBuilder;
-import org.eclipse.dawnsci.nexus.builder.NexusScanFile;
+import org.eclipse.dawnsci.nexus.builder.NexusBuilderFile;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IRequestHandler;
@@ -84,7 +84,7 @@ public class NodeFileCreator implements IRequestHandler<NodeFileCreationRequest>
 			children.forEach(child -> 
 				entry.addExternalLink(getLeafName(child), child.getPath(), "/entry/"));
 			
-			NexusScanFile nodeFile = nxsBuilder.createFile(true);
+			NexusBuilderFile nodeFile = nxsBuilder.createFile(true);
 			nodeFile.close();
 			getBean().setStatus(Status.COMPLETE);
 			
