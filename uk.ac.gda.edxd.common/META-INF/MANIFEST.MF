@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: EDXD Common
 Bundle-SymbolicName: uk.ac.gda.edxd.common
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: uk.ac.gda.edxd.common.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  uk.ac.gda.api
