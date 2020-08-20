@@ -29,6 +29,8 @@ import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Widget;
@@ -84,6 +86,16 @@ public class WidgetUtilities {
 	public static final void addWidgetDisposableListener(Widget widget, int eventType, Listener listener) {
 		widget.addListener(eventType, listener);
 		widget.addDisposeListener(ev -> widget.removeListener(eventType, listener));
+	}
+
+	/**
+	 * Adds a {@link SelectionListener} to a {@link Button} and removes it before the {@code Button} is disposed.
+	 * @param button  the control to which the listener is add
+	 * @param listener the listen to add to the control
+	 */
+	public static final void addWidgetDisposableListener(Button button, SelectionListener listener) {
+		button.addSelectionListener(listener);
+		button.addDisposeListener(ev -> button.removeSelectionListener(listener));
 	}
 
 	/**
