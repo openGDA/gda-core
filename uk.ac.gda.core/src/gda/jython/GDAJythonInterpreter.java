@@ -424,11 +424,11 @@ public class GDAJythonInterpreter {
 				interactiveConsole.runsource("from gda.jython import ScriptBase");
 				interactiveConsole.runsource("from gda.device.monitor import BeamMonitor");
 
-				interactiveConsole.runsource("from gda.factory import Finder");
+				// TODO Remove this alias of Finder
+				interactiveConsole.runsource("from gda.factory import Finder as Finder, Finder as finder");
 				interactiveConsole.runsource("from gda.device.detector import DetectorBase");
 				interactiveConsole.runsource("from gda.device import Scannable");
 				interactiveConsole.runsource("from gda.device.scannable.scannablegroup import IScannableGroup");
-				interactiveConsole.runsource("finder = Finder.getInstance();");
 				interactiveConsole.runsource("from gda.device.scannable import ScannableBase");
 				interactiveConsole.runsource("from gda.device.scannable import DummyScannable");
 				interactiveConsole.runsource("from gda.device.scannable import ContinuouslyScannable");
