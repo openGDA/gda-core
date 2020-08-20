@@ -19,98 +19,38 @@
 package uk.ac.gda.ui.tool.spring;
 
 import java.lang.ref.PhantomReference;
-import java.lang.ref.Reference;
-import java.lang.ref.ReferenceQueue;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.WeakHashMap;
 
 import org.eclipse.swt.widgets.Widget;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.event.ApplicationEventMulticaster;
-import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.stereotype.Component;
 
 import uk.ac.gda.client.exception.GDAClientException;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 /**
- * This class exposes Spring {@link ApplicationEventPublisher} to components as Views or Perspectives which are directly
- * managed by Eclipse and consequently cannot be initialised by Spring
+ * This class uses the {@link SpringApplicationContextFacade} to implements client specific methods.
+ * These methods are not implementable by the {@code SpringApplicationContextFacade} as its package is supposed to not contain client libraries.
  *
  * @author Maurizio Nagni
  */
-@Component
-public class SpringApplicationContextProxy implements ApplicationEventPublisherAware, ApplicationContextAware {
+public class SpringApplicationContextProxy {
 
-	private static final ReferenceQueue<Object> refQueue = new ReferenceQueue<>();
-	private static final WeakHashMap<Reference<?>, List<ApplicationListener<?>>> weakMap = new WeakHashMap<>();
-
-	private static ApplicationEventPublisher applicationPublisher;
-
-	private static final Logger logger = LoggerFactory.getLogger(SpringApplicationContextProxy.class);
-
-	private static ApplicationContext applicationContext;
-
-	private static ConfigurableApplicationContext configurableApplicationContext;
-
-	@Override
-	public void setApplicationEventPublisher(ApplicationEventPublisher applicationPublisher) {
-		SpringApplicationContextProxy.applicationPublisher = applicationPublisher;
-	}
-
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) {
-		SpringApplicationContextProxy.applicationContext = applicationContext;
-		if (ConfigurableApplicationContext.class.isAssignableFrom(applicationContext.getClass())) {
-			configurableApplicationContext = ConfigurableApplicationContext.class.cast(applicationContext);
-		}
-	}
-
-	public static final void publishEvent(ApplicationEvent event) {
-		// This condition is necessary until the client call Spring "component-scan" by default (DAQ-2645)
-		if (SpringApplicationContextProxy.applicationPublisher == null) {
-			springApplicationDidNotScanClass();
-			return;
-		}
-		// Cleanup phantom references
-		cleanUpListeners();
-		SpringApplicationContextProxy.applicationPublisher.publishEvent(event);
-	}
+	private SpringApplicationContextProxy() {}
 
 	/**
-	 * Attached a listener to the application context in order to be notified when new events occur
-	 *
-	 * @param listener
+	 * @param event
+	 * @deprecated use {@link SpringApplicationContextFacade#publishEvent(ApplicationEvent)}
 	 */
-	private static final void addApplicationListener(ApplicationListener<?> listener) {
-		// This condition is necessary until the client call Spring "component-scan" by default (DAQ-2645)
-		if (SpringApplicationContextProxy.configurableApplicationContext == null) {
-			springApplicationDidNotScanClass();
-			return;
-		}
-		SpringApplicationContextProxy.configurableApplicationContext.addApplicationListener(listener);
-	}
-
-	private static final void removeApplicationListener(ApplicationListener<?> listener) {
-		ApplicationEventMulticaster aem = applicationContext.getBean(
-				AbstractApplicationContext.APPLICATION_EVENT_MULTICASTER_BEAN_NAME, ApplicationEventMulticaster.class);
-		aem.removeApplicationListener(listener);
+	@Deprecated
+	public static final void publishEvent(ApplicationEvent event) {
+		SpringApplicationContextFacade.publishEvent(event);
 	}
 
 	/**
@@ -127,9 +67,11 @@ public class SpringApplicationContextProxy implements ApplicationEventPublisherA
 	 *             if no bean of the given type was found
 	 * @throws NoUniqueBeanDefinitionException
 	 *             if more than one bean of the given type was found
+	 * @deprecated use {@link SpringApplicationContextFacade#getBean(Class)}
 	 */
+	@Deprecated
 	public static <T> T getBean(Class<T> requiredType) {
-		return SpringApplicationContextProxy.applicationContext.getBean(requiredType);
+		return SpringApplicationContextFacade.getBean(requiredType);
 	}
 
 	/**
@@ -148,17 +90,22 @@ public class SpringApplicationContextProxy implements ApplicationEventPublisherA
 	 *             if there is no such bean definition
 	 * @throws BeanDefinitionStoreException
 	 *             if arguments have been given but the affected bean isn't a prototype
+	 * @deprecated Use {@link SpringApplicationContextFacade#getBean(String, Object...)}
 	 */
+	@Deprecated
 	public static Object getBean(String name, Object... args) {
-		return SpringApplicationContextProxy.applicationContext.getBean(name, args);
+		return SpringApplicationContextFacade.getBean(name, args);
 	}
 
+
+	/**
+	 * @param bean
+	 * @return an optional instance
+	 * @deprecated Use {@link SpringApplicationContextFacade#getOptionalBean(Class)}
+	 */
+	@Deprecated
 	public static <T> Optional<T> getOptionalBean(Class<T> bean) {
-		try {
-			return Optional.ofNullable(SpringApplicationContextProxy.applicationContext.getBean(bean));
-		} catch (BeansException e) {
-			return Optional.empty();
-		}
+		return SpringApplicationContextFacade.getOptionalBean(bean);
 	}
 
 	/**
@@ -174,10 +121,10 @@ public class SpringApplicationContextProxy implements ApplicationEventPublisherA
 	public static final void addDisposableApplicationListener(Widget widget, ApplicationListener<?> listener)
 			throws GDAClientException {
 		validateWidget(widget);
-		SpringApplicationContextProxy.addApplicationListener(listener);
+		SpringApplicationContextFacade.addApplicationListener(listener);
 		widget.addDisposeListener(disposedEvent -> {
 			if (Objects.equals(disposedEvent.getSource(), widget)) {
-				SpringApplicationContextProxy.removeApplicationListener(listener);
+				SpringApplicationContextFacade.removeApplicationListener(listener);
 			}
 		});
 	}
@@ -189,10 +136,11 @@ public class SpringApplicationContextProxy implements ApplicationEventPublisherA
 	 *            the element publishing the dispose event which causes {@code listener} to be removed
 	 * @param listener
 	 *            the application lister to
+	 * @deprecated use {@link SpringApplicationContextFacade#addDisposableApplicationListener(Object, ApplicationListener)}
 	 */
+	@Deprecated
 	public static final void addDisposableApplicationListener(Object object, ApplicationListener<?> listener) {
-		SpringApplicationContextProxy.addApplicationListener(listener);
-		createPhantomReference(object, listener);
+		SpringApplicationContextFacade.addDisposableApplicationListener(object, listener);
 	}
 
 	private static void validateWidget(Widget widget) throws GDAClientException {
@@ -202,40 +150,5 @@ public class SpringApplicationContextProxy implements ApplicationEventPublisherA
 		if (widget.isDisposed()) {
 			throw new GDAClientException("Cannot listen to a disposed widget");
 		}
-	}
-
-	private static void springApplicationDidNotScanClass() {
-		logger.warn(
-				"The Spring Application may have not initialized uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy class");
-	}
-
-	/**
-	 * Creates a {@link PhantomReference} with the given {@code object}. The {@code reference} and the {@code listener}
-	 * are stored in {@link #weakMap} for later cleanup
-	 *
-	 * @param object
-	 * @param listener
-	 *
-	 * @see SpringApplicationContextProxy#cleanUpListeners()
-	 */
-	private static void createPhantomReference(Object object, ApplicationListener<?> listener) {
-		Reference<?> pr = new PhantomReference<>(object, refQueue);
-		weakMap.putIfAbsent(pr, new ArrayList<ApplicationListener<?>>());
-		weakMap.get(pr).add(listener);
-	}
-
-	/**
-	 * Removes the {@link ApplicationListener}s associated with the eligible {@link PhantomReference}.
-	 *
-	 */
-	private static void cleanUpListeners() {
-		// Is there any reference in the queue?
-		Optional.ofNullable(refQueue.poll()).ifPresent(r -> {
-			// Has the reference any assocated list of listeners?
-			Optional.ofNullable(weakMap.remove(r))
-					.ifPresent(l -> l.forEach(SpringApplicationContextProxy::removeApplicationListener));
-			// Recurse until queue is empty
-			cleanUpListeners();
-		});
 	}
 }
