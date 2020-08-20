@@ -95,22 +95,17 @@ public class ScanRequestFactory {
 	private void prepareMalcolmAcquisitionEngine(ScanRequest scanRequest, IRunnableDeviceService runnableDeviceService)
 			throws ScanningException {
 		final Map<String, IDetectorModel> ret = new HashMap<>();
+		scanRequest.setDetectors(ret);
 
 		IRunnableDevice<IDetectorModel> detector = runnableDeviceService
 				.getRunnableDevice(acquisition.getAcquisitionEngine().getId());
-
-		// This Malcolm engine assumes a single detector
-		final double exposure = getAcquisitionParameters().getDetector().getExposure();
 		final IDetectorModel model = detector.getModel();
+
 		if (model == null) {
 			throw new ScanningException(String.format("Could not get model for detector %s",
 					detector.getName()));
 		}
-		if (exposure > 0) {
-			model.setExposureTime(exposure);
-		}
 		ret.put(detector.getName(), model);
-		scanRequest.setDetectors(ret);
 	}
 
 	private Collection<String> parseMonitorNamesPerPoint() {
@@ -139,9 +134,9 @@ public class ScanRequestFactory {
 	private void setDataToCompoundModel(final CompoundModel scanModel)
 			throws ScanningException {
 		try {
-			AcquisitionTemplate modelDocument = AcquisitionTemplateFactory
-					.buildModelDocument(getAcquisitionParameters().getScanpathDocument());
+			AcquisitionTemplate modelDocument = AcquisitionTemplateFactory.buildModelDocument(getAcquisitionParameters().getScanpathDocument());
 			scanModel.setData(modelDocument.getIScanPointGeneratorModel(), modelDocument.getROI());
+			scanModel.setDuration(getAcquisitionParameters().getDetector().getExposure());
 		} catch (GDAException e) {
 			throw new ScanningException(e.getMessage(), e);
 		}
