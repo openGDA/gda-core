@@ -2,71 +2,62 @@ package uk.ac.diamond.daq.experiment.structure;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static uk.ac.diamond.daq.experiment.structure.NexusExperimentController.DEFAULT_ACQUISITION_PREFIX;
 import static uk.ac.diamond.daq.experiment.structure.NexusExperimentController.DEFAULT_EXPERIMENT_PREFIX;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
-import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.ServiceHolder;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
-import uk.ac.diamond.daq.experiment.api.structure.NodeFileCreationRequest;
+import uk.ac.diamond.daq.experiment.structure.requester.NodeFileRequesterServiceTestConfiguration;
+import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
+import uk.ac.gda.core.tool.spring.AcquisitionFileContextTest;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { NodeFileRequesterServiceTestConfiguration.class })
+@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class NexusExperimentControllerTest {
 
+	@Autowired
 	private ExperimentController controller;
 
-	@Mock
-	private IRequester<NodeFileCreationRequest> jobRequestor;
+	@Autowired
+	private AcquisitionFileContext context;
+
+	private IFilePathService filePathService;
 
 	private static final String EXPERIMENT_NAME = "MyExperiment";
 	private static final String ACQUISITION_NAME = "MyMeasurement";
 
-
-	/**
-	 * This TemporaryFolder ensures that even if ExperimentControllerImpl
-	 * attempts to create directories with the exact same name & timestamp
-	 * for subsequent tests, their base directory will be unique.
-	 *
-	 * Also ensures automatic cleanup.
-	 */
-	@Rule
-	public TemporaryFolder tempFolder = new TemporaryFolder();
-
 	@Before
 	public void before() throws Exception {
-		MockitoAnnotations.initMocks(this);
-		IFilePathService filePathService = mock(IFilePathService.class);
-		Mockito.when(filePathService.getVisitDir()).thenReturn(tempFolder.getRoot().getAbsolutePath());
-		Mockito.when(jobRequestor.post(any())).thenReturn(mock(NodeFileCreationRequest.class));
-		controller = new NexusExperimentController(filePathService, jobRequestor);
+		filePathService = mock(IFilePathService.class);
+
+		LocalProperties.clearProperty(AcquisitionFileContext.ACQUISITION_EXPERIMENT_DIRECTORY_PROPERTY);
+		prepareFilesystem();
 	}
 
 	private String extractBase(URL url) {
@@ -167,42 +158,6 @@ public class NexusExperimentControllerTest {
 		return Paths.get(file.getPath()).getParent();
 	}
 
-	@Test
-	public void multiPartAcquisitionRequestsNodeFileCreation() throws Exception {
-		controller.startExperiment(EXPERIMENT_NAME);
-
-		URL acquisition = controller.startMultipartAcquisition(ACQUISITION_NAME);
-		URL scan1 = controller.prepareAcquisition(ACQUISITION_NAME+1);
-		URL scan2 = controller.prepareAcquisition(ACQUISITION_NAME+2);
-
-		controller.stopMultipartAcquisition();
-
-		ArgumentCaptor<NodeFileCreationRequest> jobCaptor = ArgumentCaptor.forClass(NodeFileCreationRequest.class);
-		verify(jobRequestor).post(jobCaptor.capture());
-
-		NodeFileCreationRequest job = jobCaptor.getValue();
-
-		assertThat(job.getNodeLocation(), is(equalTo(acquisition)));
-
-		Set<URL> scans = new HashSet<>();
-		scans.add(scan1);
-		scans.add(scan2);
-		assertThat(job.getChildren(), is(equalTo(scans)));
-	}
-
-	@Test
-	public void multiPartIsAbleToCloseWithoutChildren() throws Exception {
-		controller.startExperiment(EXPERIMENT_NAME);
-
-		// start multipart acquisition...
-		controller.startMultipartAcquisition(ACQUISITION_NAME);
-
-		// on second thoughts... stop it (without generating acquisitions inside it)
-		controller.stopMultipartAcquisition();
-
-		verifyNoMoreInteractions(jobRequestor);
-	}
-
 	private boolean isFile(URL url) throws Exception {
 		File file = new File(url.getPath());
 		if (!file.exists()) {
@@ -252,75 +207,31 @@ public class NexusExperimentControllerTest {
 
 	@Test
 	public void absoluteRootDirFromProperty() throws Exception {
-		File rootFolder = tempFolder.newFolder("rootfolder");
-		String previousRoot = getAndSetRootProperty(rootFolder.getAbsolutePath());
+		File file = new File("/tmp/nexusTest");
+		if (file.exists()) file.delete();
+		loadProperties("test/resources/gdaContext/nexusExperimentAbsoluteContext.properties");
 		URL experimentUrl = controller.startExperiment(EXPERIMENT_NAME);
-		assertThat(experimentUrl.getPath(), startsWith(rootFolder.getAbsolutePath()));
-		getAndSetRootProperty(previousRoot);
+		assertThat(experimentUrl.getPath(), startsWith("/tmp/nexusTest"));
 	}
 
 	@Test
 	public void relativeRootDirFromProperty() throws Exception {
-		String relativePath = "some/subpath";
-		String previousRoot = getAndSetRootProperty(relativePath);
+		loadProperties("test/resources/gdaContext/nexusExperimentRelativeContext.properties");
 		String experimentPath = controller.startExperiment(EXPERIMENT_NAME).getPath();
-		assertThat(experimentPath, startsWith(tempFolder.getRoot().getAbsolutePath()));
-		assertThat(experimentPath, containsString(relativePath));
-		getAndSetRootProperty(previousRoot);
+		assertThat(experimentPath, startsWith(context.getContextFile(AcquisitionFileContext.ContextFile.ACQUISITION_EXPERIMENT_DIRECTORY).getPath()));
+		assertThat(experimentPath, containsString("some/subpath"));
 	}
 
-	@Test
-	public void stopExperimentCallsIndexFileCreator() throws Exception {
-
-		URL experimentRoot = controller.startExperiment("My experiment!");
-		URL firstUrl = controller.prepareAcquisition(ACQUISITION_NAME + "1");
-		URL secondUrl = controller.prepareAcquisition(ACQUISITION_NAME + "2");
-
-		controller.stopExperiment();
-
-		Set<URL> nxsUrls = new HashSet<>();
-		nxsUrls.add(firstUrl);
-		nxsUrls.add(secondUrl);
-
-		ArgumentCaptor<NodeFileCreationRequest> jobCaptor = ArgumentCaptor.forClass(NodeFileCreationRequest.class);
-		verify(jobRequestor).post(jobCaptor.capture());
-
-		NodeFileCreationRequest job = jobCaptor.getValue();
-
-		assertThat(job.getNodeLocation(), is(equalTo(experimentRoot)));
-		assertThat(job.getChildren(), is(equalTo(nxsUrls)));
+	private void prepareFilesystem() throws IOException {
+		Path experimentDir = Files.createTempDirectory(AcquisitionFileContextTest.class.getName());
+		doReturn(experimentDir.toAbsolutePath().toString()).when(filePathService).getProcessingDir();
+		ServiceHolder sh = new ServiceHolder();
+		sh.setFilePathService(filePathService);
 	}
 
-
-	@Test
-	public void stopExperimentClosesAllOpenMultipartAcquisitions() throws Exception {
-		URL experiment = controller.startExperiment(EXPERIMENT_NAME);
-
-		URL firstLevel = controller.startMultipartAcquisition(ACQUISITION_NAME);
-		URL secondLevel = controller.startMultipartAcquisition(ACQUISITION_NAME);
-		controller.prepareAcquisition(ACQUISITION_NAME); // need a concrete child for the multipart to actually close
-
-		Set<URL> expectedNodeFiles = new HashSet<>();
-		expectedNodeFiles.add(experiment);
-		expectedNodeFiles.add(firstLevel);
-		expectedNodeFiles.add(secondLevel);
-
-		controller.stopExperiment();
-
-		ArgumentCaptor<NodeFileCreationRequest> jobCaptor = ArgumentCaptor.forClass(NodeFileCreationRequest.class);
-
-		verify(jobRequestor, times(3)).post(jobCaptor.capture());
-
-		Set<URL> nodeFiles = jobCaptor.getAllValues().stream()
-								.map(NodeFileCreationRequest::getNodeLocation)
-								.collect(Collectors.toSet());
-
-		assertThat(nodeFiles, is(equalTo(expectedNodeFiles)));
-	}
-
-	private String getAndSetRootProperty(String newProperty) {
-		String old = LocalProperties.get(NexusExperimentController.EXPERIMENT_CONTROLLER_ROOT);
-		LocalProperties.set(NexusExperimentController.EXPERIMENT_CONTROLLER_ROOT, newProperty);
-		return old;
+	private void loadProperties(String resourcePath) {
+		File resource = new File(resourcePath);
+		System.setProperty(LocalProperties.GDA_PROPERTIES_FILE, resource.getPath());
+		LocalProperties.reloadAllProperties();
 	}
 }

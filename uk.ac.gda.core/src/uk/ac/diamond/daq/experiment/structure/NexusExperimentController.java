@@ -19,39 +19,30 @@
 package uk.ac.diamond.daq.experiment.structure;
 
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.status.Status;
-import org.eclipse.scanning.api.scan.IFilePathService;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import gda.configuration.properties.LocalProperties;
-import uk.ac.diamond.daq.experiment.api.Activator;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 import uk.ac.diamond.daq.experiment.api.structure.NodeFileCreationRequest;
+import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 /**
  * Controls the Experiment workflow.
  *
  * <p>
+ * The file structure of an experiment is
+ * <a href="https://confluence.diamond.ac.uk/display/DIAD/File+System#experiments">described in Confluence</a>
+ * </p>
+ * <p>
  * This class uses Spring to load from a property file the following properties
  * <ul>
- * <li><i>experiment.root.directory</i>
- * <ul>
- * <li>Where the Experiments will be stored. If the path starts with a backslash is considered absolute, otherwise it is
- * appended to the {@code visit} directory.</li>
- * <li>Default the {@code visit} directory is used</li>
- * </ul>
  * <li><i>experiment.structure.job.request.topic</i>
  * <ul>
  * <li>Used to configure the request topic of the internal {@code IRequester}.</li>
@@ -70,38 +61,6 @@ import uk.ac.diamond.daq.experiment.api.structure.NodeFileCreationRequest;
 @Component
 public class NexusExperimentController implements ExperimentController {
 
-	/**
-	 * A GDA property to define the experiment root folder. The property value may be either absolute URL
-	 *
-	 * <blockquote>
-	 *
-	 * <pre>
-	 *     file://aPath/subFolder
-	 * </pre>
-	 *
-	 * </blockquote>
-	 *
-	 * or relative to {@link IFilePathService#getVisitDir()}
-	 *
-	 * <blockquote>
-	 *
-	 * <pre>
-	 * aPath / experiment
-	 * </pre>
-	 *
-	 * </blockquote>
-	 *
-	 * All the missing directories are created.
-	 */
-	@Value("${experiment.root.directory:}")
-	private String rootDir;
-
-	@Value("${experiment.structure.job.request.topic:uk.ac.diamond.daq.experiment.structure.job.request.topic}")
-	private String requestTopic;
-
-	@Value("${experiment.structure.job.response.topic:uk.ac.diamond.daq.experiment.structure.job.response.topic}")
-	private String responseTopic;
-
 	public static final String DEFAULT_EXPERIMENT_PREFIX = "UntitledExperiment";
 	public static final String DEFAULT_ACQUISITION_PREFIX = "UntitledAcquisition";
 
@@ -111,14 +70,14 @@ public class NexusExperimentController implements ExperimentController {
 
 	private URLFactory urlFactory = new URLFactory();
 
-	private IFilePathService filePathService;
-	private IRequester<NodeFileCreationRequest> nodeFileRequester;
+	private final NodeFileRequesterService nodeFileRequesterService;
 
 	/**
 	 * Default constructor for Spring
 	 */
-	public NexusExperimentController() {
-		// Nothing else to set up
+	@Autowired
+	public NexusExperimentController(NodeFileRequesterService nodeFileRequesterService) {
+		this.nodeFileRequesterService = nodeFileRequesterService;
 	}
 
 	@Override
@@ -185,7 +144,7 @@ public class NexusExperimentController implements ExperimentController {
 	private ExperimentNode createNode(String name, String defaultName, ExperimentNode parent)
 			throws ExperimentControllerException {
 		try {
-			URL root = parent == null ? getDataDirectory() : urlFactory.getParent(parent.getFileLocation());
+			URL root = parent == null ? getRootDir() : urlFactory.getParent(parent.getFileLocation());
 			URL file = urlFactory.generateUniqueFile(root, name, defaultName, FILE_EXTENSION);
 			return new ExperimentNode(file, parent);
 		} catch (MalformedURLException e) {
@@ -199,84 +158,42 @@ public class NexusExperimentController implements ExperimentController {
 		}
 	}
 
-	private URL getDataDirectory() throws MalformedURLException {
-		URL root = urlFactory.generateUrl(getFilePathService().getVisitDir());
-		return StringUtils.isEmpty(getRootDir()) ? root : assembleDataDirectory(root);
-	}
-
-	private URL assembleDataDirectory(URL root) throws MalformedURLException {
-		if (getRootDir().startsWith("/")) {
-			// property describes an absolute path
-			return urlFactory.generateUrl(getRootDir());
-		} else {
-			// property describes a relative path
-			return urlFactory.generateUrl(root, getRootDir());
-		}
-	}
-
-	private void closeNode(ExperimentNode node) throws ExperimentControllerException {
-
+	private NodeFileCreationRequest closeNode(ExperimentNode node) throws ExperimentControllerException {
+		NodeFileCreationRequest job = null;
 		// no need to create a node file if the node is childless
 		if (!node.hasChildren())
-			return;
+			return job;
 
-		NodeFileCreationRequest job = new NodeFileCreationRequest();
-		job.setNodeLocation(node.getFileLocation());
-		job.setChildren(node.getChildren().stream().map(ExperimentNode::getFileLocation).collect(Collectors.toSet()));
+		job = createNodeFileCreationRequestJob(node);
 
 		try {
-			NodeFileCreationRequest response = getNodeFileRequester().post(job);
-			if (response.getStatus() == Status.FAILED) {
-				throw new ExperimentControllerException(response.getMessage());
+			job = nodeFileRequesterService.getNodeFileCreationRequestResponse(job);
+			if (job.getStatus() == Status.FAILED) {
+				throw new ExperimentControllerException(job.getMessage());
 			}
 		} catch (EventException | InterruptedException e) {
 			throw new ExperimentControllerException(e);
 		}
+		return job;
 	}
 
-	private final IFilePathService getFilePathService() {
-		if (filePathService == null) {
-			filePathService = Activator.getService(IFilePathService.class);
+	private NodeFileCreationRequest createNodeFileCreationRequestJob(ExperimentNode node) {
+		NodeFileCreationRequest job = new NodeFileCreationRequest();
+		job.setNodeLocation(node.getFileLocation());
+		job.setChildren(node.getChildren().stream().map(ExperimentNode::getFileLocation).collect(Collectors.toSet()));
+		return job;
+	}
+
+	private URL getRootDir() throws ExperimentControllerException {
+		AcquisitionFileContext gdaContext = getAcquisitionFileContext();
+		if (gdaContext != null) {
+			return gdaContext.getContextFile(AcquisitionFileContext.ContextFile.ACQUISITION_EXPERIMENT_DIRECTORY);
 		}
-		return filePathService;
+		throw new ExperimentControllerException("GDAContext not available");
+
 	}
 
-	private IRequester<NodeFileCreationRequest> getNodeFileRequester() throws EventException {
-		if (nodeFileRequester == null) {
-			try {
-				URI activemqURL = new URI(LocalProperties.getActiveMQBrokerURI());
-				IEventService eventService = Activator.getService(IEventService.class);
-				nodeFileRequester = eventService.createRequestor(activemqURL, requestTopic, responseTopic);
-				nodeFileRequester.setTimeout(5, TimeUnit.SECONDS);
-			} catch (URISyntaxException e) {
-				throw new EventException("Cannot create submitter", e);
-			}
-		}
-		return nodeFileRequester;
-	}
-
-	// -- ONLY FOR JUNIT PURPOSE --
-	// To be removed when option like @RunWith(SpringJUnit4ClassRunner.class) will be available
-	public static final String EXPERIMENT_CONTROLLER_ROOT = "experiment.root.directory";
-
-	/**
-	 * Ad-hoc constructor for tests.
-	 * <p>
-	 * In a well organized unit environment, you may use @RunWith(SpringJUnit4ClassRunner.class) to start-up a spring
-	 * environment without the need to have a constructor just for the tests. Now is not possible to remove it however,
-	 * that's not the way it should be done: that's because this constructor is marked as Deprecated.
-	 * </p>
-	 */
-	@Deprecated
-	NexusExperimentController(IFilePathService filePathService, IRequester<NodeFileCreationRequest> requester) {
-		this.filePathService = filePathService;
-		this.nodeFileRequester = requester;
-	}
-
-	private String getRootDir() {
-		if (StringUtils.isEmpty(rootDir)) {
-			return LocalProperties.get(NexusExperimentController.EXPERIMENT_CONTROLLER_ROOT);
-		}
-		return rootDir;
+	private AcquisitionFileContext getAcquisitionFileContext() {
+		return SpringApplicationContextFacade.getBean(AcquisitionFileContext.class);
 	}
 }
