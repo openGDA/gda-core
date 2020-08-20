@@ -37,7 +37,7 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.builder.NexusMetadataProvider;
 import org.eclipse.dawnsci.nexus.builder.impl.MapBasedMetadataProvider;
-import org.eclipse.dawnsci.nexus.scan.NexusScanFileBuilder;
+import org.eclipse.dawnsci.nexus.scan.NexusScanFile;
 import org.eclipse.dawnsci.nexus.scan.NexusScanModel;
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IScannable;
@@ -73,7 +73,7 @@ public class NexusScanFileManager {
 
 	private final IScanDevice scanDevice;
 	private boolean isWritingNexus;
-	private NexusScanFileBuilder nexusScanFileBuilder = null;
+	private NexusScanFile nexusScanFile = null;
 	private SolsticeScanMonitor solsticeScanMonitor;
 
 	public NexusScanFileManager(IScanDevice scanDevice) {
@@ -96,7 +96,7 @@ public class NexusScanFileManager {
 			solsticeScanMonitor = new SolsticeScanMonitor(scanModel);
 			scanDevice.addPositionListener(solsticeScanMonitor);
 			try {
-				nexusScanFileBuilder = ServiceHolder.getNexusScanFileService().newNexusScanFileBuilder(nexusScanModel, solsticeScanMonitor);
+				nexusScanFile = ServiceHolder.getNexusScanFileService().newNexusScanFile(nexusScanModel, solsticeScanMonitor);
 			} catch (NexusException e) {
 				throw new ScanningException("Error creating nexus file: " + e.getMessage(), e);
 			}
@@ -274,11 +274,11 @@ public class NexusScanFileManager {
 		if (!isWritingNexus) return null;
 
 		try {
-			nexusScanFileBuilder.createNexusFile(async);
+			nexusScanFile.createNexusFile(async);
 		} catch (NexusException e) {
 			throw new ScanningException("Could not create nexus file", e);
 		}
-		return nexusScanFileBuilder.getFilePath();
+		return nexusScanFile.getFilePath();
 	}
 
 	/**
@@ -289,7 +289,7 @@ public class NexusScanFileManager {
 		if (!isWritingNexus) return;
 
 		try {
-			int code = nexusScanFileBuilder.flush();
+			int code = nexusScanFile.flush();
 			if (code < 0) {
 				logger.warn("Problem flushing nexus file, error code = {}", code);
 			}
@@ -310,7 +310,7 @@ public class NexusScanFileManager {
 		scanDevice.removePositionListener(solsticeScanMonitor);
 
 		try {
-			nexusScanFileBuilder.scanFinished(); // writes final timestamps into NXentry and closes file
+			nexusScanFile.scanFinished(); // writes final timestamps into NXentry and closes file
 		} catch (NexusException e) {
 			throw new ScanningException("Could not close nexus file", e);
 		}
@@ -332,7 +332,7 @@ public class NexusScanFileManager {
 	public Set<String> getExternalFilePaths() {
 		if (!isWritingNexus) return null;
 
-		return nexusScanFileBuilder.getExternalFilePaths();
+		return nexusScanFile.getExternalFilePaths();
 	}
 
 
