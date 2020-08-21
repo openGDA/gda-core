@@ -31,7 +31,7 @@ import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionSaveEvent
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.service.message.ScanningAcquisitionMessage;
-import uk.ac.diamond.daq.mapping.ui.properties.DetectorHelper.AcquisitionType;
+import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper.AcquisitionPropertyType;
 import uk.ac.diamond.daq.mapping.ui.services.ScanningAcquisitionFileService;
 import uk.ac.diamond.daq.mapping.ui.stage.IStageController;
 import uk.ac.diamond.daq.mapping.ui.stage.StageConfiguration;
@@ -77,23 +77,24 @@ public class ScanningAcquisitionController
 
 	private Supplier<ScanningAcquisition> newAcquisitionSupplier;
 
-	private AcquisitionType acquisitionType;
+	private AcquisitionPropertyType acquisitionType;
 
 	private ScanningAcquisitionControllerDetectorHelper detectorsHelper;
 
 	public ScanningAcquisitionController() {
 		super();
-		this.acquisitionType = AcquisitionType.DEFAULT;
+		this.acquisitionType = AcquisitionPropertyType.DEFAULT;
 	}
 
 	/**
-	 * Creates a controller based on specific {@link AcquisitionType} in order to retrieves the associates cameras.
+	 * Creates a controller based on specific {@link AcquisitionPropertyType} in order to retrieves the associates
+	 * cameras.
 	 *
 	 * @param acquisitionType
 	 *
-	 * @see AcquisitionType DetectorHelper
+	 * @see AcquisitionPropertyType DetectorHelper
 	 */
-	public ScanningAcquisitionController(AcquisitionType acquisitionType) {
+	public ScanningAcquisitionController(AcquisitionPropertyType acquisitionType) {
 		super();
 		this.acquisitionType = acquisitionType;
 	}
@@ -148,7 +149,12 @@ public class ScanningAcquisitionController
 	@Override
 	public void createNewAcquisition() {
 		try {
-			loadAcquisitionConfiguration(getDefaultNewAcquisitionSupplier().get());
+			// creates the new acquisition
+			ScanningAcquisition newAcquisition = getDefaultNewAcquisitionSupplier().get();
+			// injects acquisition engine and detector documents
+			getDetectorsHelper().applyAcquisitionPropertiesDocument(newAcquisition);
+			// load the new acquisition in the controller
+			loadAcquisitionConfiguration(newAcquisition);
 		} catch (AcquisitionControllerException e) {
 			// We do not expect this to happen
 			logger.error("Could not create new acquisition configuration");
@@ -181,7 +187,8 @@ public class ScanningAcquisitionController
 			fn = "noNameConfiguration";
 		}
 
-		return String.format("%s_%s", Optional.ofNullable(acquisitionType).orElse(AcquisitionType.DEFAULT).name(), fn);
+		return String.format("%s_%s",
+				Optional.ofNullable(acquisitionType).orElse(AcquisitionPropertyType.DEFAULT).name(), fn);
 	}
 
 	private void save(String fileName, String acquisitionDocument) {
@@ -284,17 +291,26 @@ public class ScanningAcquisitionController
 	}
 
 	private void setAcquisition(ScanningAcquisition acquisition) {
+		// eventually release already acquired resources, eventually
+		releaseResources();
 		this.acquisition = acquisition;
-		if (this.detectorsHelper == null) {
-			this.detectorsHelper = new ScanningAcquisitionControllerDetectorHelper(acquisitionType,
-					this::getAcquisition);
-		}
+		// associate a new helper with the new acquisition
+		this.detectorsHelper = new ScanningAcquisitionControllerDetectorHelper(acquisitionType,
+				this::getAcquisition);
 	}
 
 	@Override
 	public void releaseResources() {
-		Optional.ofNullable(this.detectorsHelper)
+		Optional.ofNullable(getDetectorsHelper())
 				.ifPresent(ScanningAcquisitionControllerDetectorHelper::releaseResources);
+	}
+
+	private ScanningAcquisitionControllerDetectorHelper getDetectorsHelper() {
+		if (detectorsHelper == null) {
+			detectorsHelper = new ScanningAcquisitionControllerDetectorHelper(acquisitionType,
+					this::getAcquisition);
+		}
+		return detectorsHelper;
 	}
 
 	// --- temporary solution ---//
