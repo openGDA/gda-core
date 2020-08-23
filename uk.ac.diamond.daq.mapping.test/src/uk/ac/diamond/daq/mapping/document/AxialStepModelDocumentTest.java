@@ -74,7 +74,7 @@ public class AxialStepModelDocumentTest extends DocumentTestBase {
 
 	@Test
 	public void deserialiseDocumentTest() throws GDAException {
-		ScanpathDocument modelDocument = deserialiseDocument("/resources/AxialStepModelDocument.json",
+		ScanpathDocument modelDocument = deserialiseDocument("test/resources/AxialStepModelDocument.json",
 				ScanpathDocument.class);
 		Assert.assertEquals("motor_x", modelDocument.getScannableTrackDocuments().get(0).getScannable());
 		Assert.assertTrue(modelDocument.getMutators().containsKey(Mutator.ALTERNATING));

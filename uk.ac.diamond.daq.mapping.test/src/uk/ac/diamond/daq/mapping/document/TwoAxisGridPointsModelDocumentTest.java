@@ -79,7 +79,7 @@ public class TwoAxisGridPointsModelDocumentTest extends DocumentTestBase {
 
 	@Test
 	public void deserialiseDocumentTest() throws GDAException {
-		ScanpathDocument modelDocument = deserialiseDocument("/resources/TwoAxisGridPointsModelDocument.json",
+		ScanpathDocument modelDocument = deserialiseDocument("test/resources/TwoAxisGridPointsModelDocument.json",
 				ScanpathDocument.class);
 		Assert.assertEquals("motor_x", modelDocument.getScannableTrackDocuments().get(0).getScannable());
 		Assert.assertEquals(2, modelDocument.getScannableTrackDocuments().size());

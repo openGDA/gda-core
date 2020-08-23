@@ -60,6 +60,10 @@
 					<include name="**/*.properties" />
 					<exclude name="**/*PluginTest.java" />
 				</fileset>
+				<fileset dir="${plugin.basedir}/test">
+					<include name="**/*.properties" />
+					<exclude name="**/*.json" />
+				</fileset>
 			</batchtest>
 		</junit-call>
 	</target>

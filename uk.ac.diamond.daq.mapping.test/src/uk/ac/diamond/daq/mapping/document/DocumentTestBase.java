@@ -18,7 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.document;
 
-import java.net.URL;
+import java.io.File;
+import java.net.MalformedURLException;
 
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.gda.api.exception.GDAException;
@@ -26,8 +27,12 @@ import uk.ac.gda.api.exception.GDAException;
 public class DocumentTestBase {
 
 	protected <T> T deserialiseDocument(String resourcePath, Class<T> clazz) throws GDAException {
-		URL resource = DocumentTestBase.class.getResource(resourcePath);
-		return DocumentMapper.fromJSON(resource, clazz);
+		File resource = new File(resourcePath);
+		try {
+			return DocumentMapper.fromJSON(resource.toURI().toURL(), clazz);
+		} catch (MalformedURLException e) {
+			throw new GDAException(e);
+		}
 	}
 
 	protected String serialiseDocument(Object modelDocument) throws GDAException {

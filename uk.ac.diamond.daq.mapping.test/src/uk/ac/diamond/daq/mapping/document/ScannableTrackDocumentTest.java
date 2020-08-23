@@ -56,7 +56,7 @@ public class ScannableTrackDocumentTest extends DocumentTestBase {
 
 	@Test
 	public void deserialiseDocumentWithStepTest() throws GDAException {
-		ScannableTrackDocument scannableDocument = deserialiseDocument("/resources/ScannableTrackDocumentWithStep.json",
+		ScannableTrackDocument scannableDocument = deserialiseDocument("test/resources/ScannableTrackDocumentWithStep.json",
 				ScannableTrackDocument.class);
 		Assert.assertEquals("motor_y", scannableDocument.getScannable());
 		Assert.assertEquals(0.1, scannableDocument.getStart(), 0.0);
@@ -67,7 +67,7 @@ public class ScannableTrackDocumentTest extends DocumentTestBase {
 
 	@Test
 	public void deserialiseDocumentTestWithPoints() throws GDAException {
-		ScannableTrackDocument scannableDocument = deserialiseDocument("/resources/ScannableTrackDocumentWithPoints.json",
+		ScannableTrackDocument scannableDocument = deserialiseDocument("test/resources/ScannableTrackDocumentWithPoints.json",
 				ScannableTrackDocument.class);
 		Assert.assertEquals("motor_y", scannableDocument.getScannable());
 		Assert.assertEquals(0.1, scannableDocument.getStart(), 0.0);

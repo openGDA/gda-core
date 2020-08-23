@@ -34,8 +34,8 @@ import org.junit.Test;
 import gda.mscan.element.Mutator;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplate;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
-import uk.ac.diamond.daq.mapping.api.document.model.AxialStepModelDocument;
 import uk.ac.diamond.daq.mapping.api.document.model.AcquisitionTemplateFactory;
+import uk.ac.diamond.daq.mapping.api.document.model.AxialStepModelDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.gda.api.exception.GDAException;
@@ -81,7 +81,7 @@ public class TwoAxisPointSingleModelDocumentTest extends DocumentTestBase {
 
 	@Test
 	public void deserialiseDocumentTest() throws GDAException {
-		ScanpathDocument modelDocument = deserialiseDocument("/resources/TwoAxisPointSingleModelDocument.json",
+		ScanpathDocument modelDocument = deserialiseDocument("test/resources/TwoAxisPointSingleModelDocument.json",
 				ScanpathDocument.class);
 
 		ScannableTrackDocument std = modelDocument.getScannableTrackDocuments().get(0);
@@ -99,7 +99,7 @@ public class TwoAxisPointSingleModelDocumentTest extends DocumentTestBase {
 
 	@Test
 	public void validDocumentTest() throws GDAException {
-		ScanpathDocument modelDocument = deserialiseDocument("/resources/TwoAxisPointSingleModelDocument.json",
+		ScanpathDocument modelDocument = deserialiseDocument("test/resources/TwoAxisPointSingleModelDocument.json",
 				ScanpathDocument.class);
 		AcquisitionTemplate acquisitionTemplate = AcquisitionTemplateFactory.buildModelDocument(modelDocument);
 
@@ -108,7 +108,7 @@ public class TwoAxisPointSingleModelDocumentTest extends DocumentTestBase {
 
 	@Test(expected = GDAException.class)
 	public void invalidDocumentTest() throws GDAException {
-		ScanpathDocument modelDocument = deserialiseDocument("/resources/TwoAxisPointSingleModelInvalidDocument.json",
+		ScanpathDocument modelDocument = deserialiseDocument("test/resources/TwoAxisPointSingleModelInvalidDocument.json",
 				ScanpathDocument.class);
 		AcquisitionTemplate acquisitionTemplate = AcquisitionTemplateFactory.buildModelDocument(modelDocument);
 
