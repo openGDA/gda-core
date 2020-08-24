@@ -24,18 +24,14 @@ public final class CameraEventUtils {
 	 * Provides a listener of a handy method to observe and consume an {@link CameraControlEvent}. 
 	 * @param consumer
 	 * @return
-	 * @deprecated K11-846 delegate {@link CameraHelper} to associate a consumer to a CameraControllerEvent. 
-	 * Classes interested to receive notification about {@code CameraControllerEvent} should listen to Spring {@code CameraControlSpringEvent}
 	 */
-	@Deprecated
-	public static final IObserver cameraControlEventObserver(Consumer<CameraControllerEvent> consumer) {
+	private static final IObserver cameraControlEventObserver(Consumer<CameraControllerEvent> consumer) {
 		return (source, arg) -> {
 			if (CameraControllerEvent.class.isInstance(arg)) {
 				consumer.accept(CameraControllerEvent.class.cast(arg));
 			}
 		};
 	}
-	
 	
 	/**
 	 * Attaches an observer to a {@code CameraControl} so to publish a {@code CameraControlSpringEvent} 
