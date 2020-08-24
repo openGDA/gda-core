@@ -349,7 +349,7 @@ public class GDAJythonInterpreter {
 					}
 				});
 		} catch (IOException | UncheckedIOException e) {
-			logger.error("Unable to successfully read target platform artifacts file, import * will not be fully restricted", e);
+			logger.debug("Unable to successfully read target platform artifacts file, import * will not be fully restricted", e);
 		}
 		// Initialise the Jython registry skipping target platform bundles.
 		// The 'from xx import *' syntax will be supported for the remaining bundles
