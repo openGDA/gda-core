@@ -18,12 +18,15 @@
 
 package uk.ac.gda.client.composites;
 
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientButton;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
@@ -31,7 +34,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import gda.rcp.views.CompositeFactory;
 import uk.ac.gda.ui.tool.ClientMessages;
-import uk.ac.gda.ui.tool.ClientSWTElements;
+import uk.ac.gda.ui.tool.WidgetUtilities;
 import uk.ac.gda.ui.tool.images.ClientImages;
 
 /**
@@ -97,8 +100,8 @@ public class ButtonGroupFactoryBuilder {
 
 		@Override
 		public Composite createComposite(Composite parent, int style) {
-			container = ClientSWTElements.createGroup(parent, buttonElements.size(), ClientMessages.EMPTY_MESSAGE, null,
-					GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER));
+			container = createClientGroup(parent, SWT.NONE, buttonElements.size(), ClientMessages.EMPTY_MESSAGE);
+			createClientGridDataFactory().applyTo(container);
 			buttonElements.stream().forEachOrdered(this::createButton);
 			return container;
 		}
@@ -124,7 +127,8 @@ public class ButtonGroupFactoryBuilder {
 		}
 
 		public void buildButton(Composite parent) {
-			ClientSWTElements.createButton(parent, SWT.NONE, message, tooltip, image).addSelectionListener(listener);
+			Button button = createClientButton(parent, SWT.NONE, message, tooltip, image);
+			WidgetUtilities.addWidgetDisposableListener(button, listener);
 		}
 	}
 }
