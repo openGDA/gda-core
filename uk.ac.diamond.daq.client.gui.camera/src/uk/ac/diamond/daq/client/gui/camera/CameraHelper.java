@@ -22,6 +22,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import uk.ac.diamond.daq.client.gui.camera.beam.BeamCameraMap;
 import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
+import uk.ac.diamond.daq.client.gui.camera.event.CameraEventUtils;
 import uk.ac.diamond.daq.client.gui.camera.properties.CameraPropertiesBuilder;
 import uk.ac.diamond.daq.client.gui.camera.properties.MotorPropertiesBuilder;
 import uk.ac.gda.api.camera.CameraControl;
@@ -94,6 +95,13 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
  * </ul>
  * 
  * <p>
+ * As this class is aware of all the available cameras, it easily intercept all {@link CameraControllerEvent} 
+ * from the existing {@link CameraControl}s and republish them in the Spring context as {@link CameraControlSpringEvent} 
+ * so any object interested in a {@code CameraControlEvent} property can use spring to be notified when a new 
+ * {@link CameraControlSpringEvent} is published.
+ * </p>
+ * 
+ * <p>
  * For mor information read in Confluence about the <a href=
  * "https://confluence.diamond.ac.uk/display/DIAD/K11+GDA+Properties">Camera
  * Configuration Properties</a>
@@ -112,6 +120,7 @@ public final class CameraHelper {
 
 	static {
 		parseCameraProperties();
+		observeCameraProperties();
 		createCameraComboItems();
 	}
 
@@ -218,6 +227,13 @@ public final class CameraHelper {
 		cameraProperties.sort((c1, c2) -> Integer.compare(c1.getIndex(), c2.getIndex()));
 	}
 
+	private static void observeCameraProperties() {
+		cameraProperties.stream()
+			.map(CameraProperties::getIndex)
+			.map(CameraHelper::getCameraControl)
+			.forEach(cc -> cc.ifPresent(CameraEventUtils::addIObserverToCameraControl));
+	}
+	
 	private static void parseCameraProperties(int index) {
 		CameraPropertiesBuilder builder = new CameraPropertiesBuilder();
 		builder.setIndex(index);
