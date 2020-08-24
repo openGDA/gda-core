@@ -12,8 +12,8 @@
 package org.eclipse.scanning.example.preprocess;
 
 import org.eclipse.scanning.api.event.scan.ScanRequest;
-import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
+import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.api.scan.process.IPreprocessor;
 import org.eclipse.scanning.api.scan.process.ProcessingException;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
@@ -36,7 +36,7 @@ public class ExamplePreprocessor implements IPreprocessor {
 	}
 
 	@Override
-	public <T> ScanRequest preprocess(ScanRequest req) throws ProcessingException {
+	public ScanRequest preprocess(ScanRequest req) throws ProcessingException {
 
 		for (Object model : req.getCompoundModel().getModels()) {
 			if (model instanceof AxialStepModel) {

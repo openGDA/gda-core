@@ -120,7 +120,7 @@ public class ScanServletTest extends AbstractServletTest {
 		}
 
 		@Override
-		public <T> ScanRequest preprocess(ScanRequest req) throws ProcessingException {
+		public ScanRequest preprocess(ScanRequest req) throws ProcessingException {
 			executed = true;
 			return req;
 		}
