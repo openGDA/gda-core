@@ -18,11 +18,22 @@
 
 package gda.device.detector.nxdetector.plugin.areadetector.filewriter;
 
-@Deprecated // Use gda.device.detector.addetector.filewriter.SingleImagePerFileWriter directly
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * @deprecated Use {@link gda.device.detector.addetector.filewriter.SingleImagePerFileWriter} directly.
+ * <p>
+ * This will be removed in GDA 9.20
+ */
+@Deprecated
 public class SingleImagePerFileWriter extends gda.device.detector.addetector.filewriter.SingleImagePerFileWriter {
+
+	private static final Logger logger = LoggerFactory.getLogger(SingleImagePerFileWriter.class);
 
 	public SingleImagePerFileWriter() {
 		super();
+		logger.warn("Instance of deprecated class: {} created, this will be removed in GDA 9.20", SingleImagePerFileWriter.class);
 	}
 
 	SingleImagePerFileWriter(String detectorName) {

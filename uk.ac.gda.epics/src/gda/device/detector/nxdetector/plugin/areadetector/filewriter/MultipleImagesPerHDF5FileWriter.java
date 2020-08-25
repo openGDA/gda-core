@@ -18,7 +18,20 @@
 
 package gda.device.detector.nxdetector.plugin.areadetector.filewriter;
 
-@Deprecated // Use gda.device.detector.addetector.filewriter.MultipleImagesPerHDF5FileWriter directly.
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * @deprecated Use {@link gda.device.detector.addetector.filewriter.MultipleImagesPerHDF5FileWriter} directly
+ * <p>
+ * This will be removed in GDA 9.20
+ */
+@Deprecated
 public class MultipleImagesPerHDF5FileWriter extends gda.device.detector.addetector.filewriter.MultipleImagesPerHDF5FileWriter {
 
+	private static final Logger logger = LoggerFactory.getLogger(MultipleImagesPerHDF5FileWriter.class);
+
+	public MultipleImagesPerHDF5FileWriter() {
+		logger.warn("Instance of deprecated class: {} created, this will be removed in GDA 9.20", MultipleImagesPerHDF5FileWriter.class);
+	}
 }
