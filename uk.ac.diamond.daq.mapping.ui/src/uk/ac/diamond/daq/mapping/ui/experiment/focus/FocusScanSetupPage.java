@@ -24,6 +24,7 @@ import java.beans.PropertyChangeListener;
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -112,6 +113,11 @@ class FocusScanSetupPage extends WizardPage {
 
 	private static final Logger logger = LoggerFactory.getLogger(FocusScanSetupPage.class);
 
+	private static final String AXES_ALL_MALCOLM = "Malcolm moving all axes";
+	private static final String AXES_ALL_GDA = "GDA moving all axes";
+	private static final String AXES_MALCOLM_GDA = "Malcolm moving mapping axes, GDA moving focus axis";
+	private static final String AXES_GDA_MALCOLM = "GDA moving mapping axes, Malcolm moving focus axis";
+
 	@Inject
 	private IEclipseContext injectionContext;
 
@@ -139,6 +145,11 @@ class FocusScanSetupPage extends WizardPage {
 	 * Instructions for drawing a line over the desired feature
 	 */
 	private CLabel linePathLabel;
+
+	/**
+	 *  Show whether the scan uses GDA or Malcolm scannables, or both
+	 */
+	private Label axesLabel;
 
 	/**
 	 * Text boxes showing the end points of the current line
@@ -378,6 +389,9 @@ class FocusScanSetupPage extends WizardPage {
 		numberFocusStepsSpinner.setMinimum(1);
 		GridDataFactory.fillDefaults().applyTo(numberFocusStepsSpinner);
 		bindControlToProperty(numberFocusStepsSpinner, "numberOfFocusSteps", focusScanBean);
+
+		axesLabel = new Label(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(axesLabel);
 	}
 
 	private void setCurrentFocusPosition() {
@@ -565,7 +579,7 @@ class FocusScanSetupPage extends WizardPage {
 	private void handleDetectorSelectionChange(ISelection selection) {
 		uiSync.asyncExec(() -> {
 			final IDetectorModel selectedModel = getDetectorWrapperForSelection(selection).getModel();
-			checkFocusScanAxis(selectedModel);
+			axesLabel.setText(getAxesMessage(selectedModel));
 			focusScanBean.setDetector(selectedModel);
 		});
 	}
@@ -598,20 +612,33 @@ class FocusScanSetupPage extends WizardPage {
 		comboViewer.setSelection(new StructuredSelection(selection));
 	}
 
-	private void checkFocusScanAxis(IDetectorModel model) {
+	/**
+	 * Return a message indicating whether the axes are moved by Malcolm, GDA or a combination
+	 *
+	 * @param model
+	 *            the model for the detector to be used for the scan. If this is a Malcolm detector, the model will
+	 *            indicate which axes it can move
+	 */
+	private String getAxesMessage(IDetectorModel model) {
+		// Determine which axes (if any) Malcolm can move in this scan
+		List<String> axesToMove = Collections.emptyList();
 		if (model instanceof IMalcolmModel) {
 			try {
-				final List<String> axesToMove = getMalcolmAxes((IMalcolmModel) model);
-				final String focusScannableName = focusScanBean.getFocusScannableName();
-				if (axesToMove == null || axesToMove.isEmpty() || !axesToMove.contains(focusScannableName)) {
-					final String message = String.format("The selected malcolm device does not include the focus scannable '%s' as an axis", focusScannableName);
-					MessageDialog.openWarning(getShell(), "Focus Scan", message);
-				}
+				axesToMove = getMalcolmAxes((IMalcolmModel) model);
 			} catch (ScanningException e) {
-				logger.error("Could not get malcolm axes", e);
+				final String message = "Could not get malcolm axes";
+				logger.error(message, e);
 				MessageDialog.openError(getShell(), "Focus Scan", "Could not get axes for malcolm device. See error log for more details");
+				return message;
 			}
 		}
+		final boolean malcolmMovesMappingAxes = !axesToMove.isEmpty();
+		final boolean malcolmMovesFocusAxis = axesToMove.contains(focusScanBean.getFocusScannableName());
+
+		if (malcolmMovesMappingAxes) {
+			return malcolmMovesFocusAxis ? AXES_ALL_MALCOLM : AXES_MALCOLM_GDA;
+		}
+		return malcolmMovesFocusAxis ? AXES_GDA_MALCOLM : AXES_ALL_GDA;
 	}
 
 	public IRunnableDeviceService getRunnableDeviceService() {

@@ -349,7 +349,7 @@ public class GDAJythonInterpreter {
 					}
 				});
 		} catch (IOException | UncheckedIOException e) {
-			logger.error("Unable to successfully read target platform artifacts file, import * will not be fully restricted", e);
+			logger.debug("Unable to successfully read target platform artifacts file, import * will not be fully restricted", e);
 		}
 		// Initialise the Jython registry skipping target platform bundles.
 		// The 'from xx import *' syntax will be supported for the remaining bundles
@@ -424,11 +424,11 @@ public class GDAJythonInterpreter {
 				interactiveConsole.runsource("from gda.jython import ScriptBase");
 				interactiveConsole.runsource("from gda.device.monitor import BeamMonitor");
 
-				interactiveConsole.runsource("from gda.factory import Finder");
+				// TODO Remove this alias of Finder
+				interactiveConsole.runsource("from gda.factory import Finder as Finder, Finder as finder");
 				interactiveConsole.runsource("from gda.device.detector import DetectorBase");
 				interactiveConsole.runsource("from gda.device import Scannable");
 				interactiveConsole.runsource("from gda.device.scannable.scannablegroup import IScannableGroup");
-				interactiveConsole.runsource("finder = Finder.getInstance();");
 				interactiveConsole.runsource("from gda.device.scannable import ScannableBase");
 				interactiveConsole.runsource("from gda.device.scannable import DummyScannable");
 				interactiveConsole.runsource("from gda.device.scannable import ContinuouslyScannable");

@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.Executors.callable;
 
 import java.io.Serializable;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -36,6 +37,8 @@ public class SingleCommandRunner extends FindableBase implements RemoteCommandRu
 	private String commandFormat;
 	/** The Jython instance to run the commands */
 	private Jython commandRunner;
+	/** The currently running command */
+	private Future<?> process;
 
 	@Override
 	public void runCommand(Serializable... arguments) {
@@ -54,7 +57,7 @@ public class SingleCommandRunner extends FindableBase implements RemoteCommandRu
 	private void run(String command) {
 		try {
 			if (lock.tryLock() && running.compareAndSet(false, true)) {
-				Async.call(callable(() -> commandRunner.exec(command)))
+				process = Async.call(callable(() -> commandRunner.exec(command)))
 						.onSuccess(this::success)
 						.onFailure(this::failure);
 			} else {
@@ -74,6 +77,10 @@ public class SingleCommandRunner extends FindableBase implements RemoteCommandRu
 			} else {
 				logger.error("Command failed", error);
 			}
+			if (process.isCancelled()) {
+				// If command ignores interrupts
+				logger.warn("Command was cancelled but process may still be running");
+			}
 		} finally {
 			complete();
 		}
@@ -89,6 +96,7 @@ public class SingleCommandRunner extends FindableBase implements RemoteCommandRu
 		lock.lock();
 		try {
 			running.set(false);
+			process = null;
 		} finally {
 			if (lock.isHeldByCurrentThread()) {
 				lock.unlock();
@@ -123,5 +131,20 @@ public class SingleCommandRunner extends FindableBase implements RemoteCommandRu
 		requireNonNull(lock, "Lock must be set");
 		requireNonNull(commandRunner, "Command Runner must be set");
 		requireNonNull(commandFormat, "Command must be set");
+	}
+
+	@Override
+	public void stop() {
+		lock.lock();
+		try {
+			if (running.get() && process != null) {
+				logger.info("{} - Stopping running process", getName());
+				process.cancel(true);
+			}
+		} finally {
+			if (lock.isHeldByCurrentThread()) {
+				lock.unlock();
+			}
+		}
 	}
 }
