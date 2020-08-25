@@ -64,7 +64,7 @@ public class Apple2IDDummy extends Apple2IDBase {
 		if (isConfigured()) {
 			return;
 		}
-		gapMotor = new DummyMotor();
+		if (gapMotor == null) setGapMotor(new DummyMotor());
 		topOuterMotor = new DummyMotor();
 		topInnerMotor = new DummyMotor();
 		bottomOuterMotor = new DummyMotor();
@@ -93,6 +93,10 @@ public class Apple2IDDummy extends Apple2IDBase {
 
 		setConfigured(true);
 		logger.info("Motors configured");
+	}
+
+	public void setGapMotorSpeed(double speed) throws MotorException {
+		gapMotor.setSpeed(speed);
 	}
 
 	// Implementations of abstract base class methods
@@ -158,5 +162,9 @@ public class Apple2IDDummy extends Apple2IDBase {
 
 	public void setSpeed(double speed) {
 		this.speed = speed;
+	}
+
+	public void setGapMotor(DummyMotor gapMotor) {
+		this.gapMotor = gapMotor;
 	}
 }
