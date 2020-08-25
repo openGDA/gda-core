@@ -43,5 +43,8 @@
 		<field name="totalDuration" type="double" >
 			<bind-xml name="duration" />
 		</field>
+		<field name="delay" type="double" >
+			<bind-xml name="delay" />
+		</field>
 	</class>
 </mapping>

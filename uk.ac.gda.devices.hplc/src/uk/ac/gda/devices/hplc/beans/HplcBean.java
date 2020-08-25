@@ -24,6 +24,7 @@ public class HplcBean implements XMLRichBean {
 	private String comment = "";
 	private String buffers = "";
 	private String mode = DEFAULT_HPLC_MODE;
+	private double delay = 0;
 	private double totalDuration = 100;
 	private boolean isStaff;
 	private String columnType = "";
@@ -115,5 +116,10 @@ public class HplcBean implements XMLRichBean {
 	public void setColumnType(String value) {
 		columnType = value;
 	}
-
+	public double getDelay() {
+		return delay;
+	}
+	public void setDelay(double delay) {
+		this.delay = delay;
+	}
 }
