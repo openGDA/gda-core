@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.points.MapPosition;
 
 import uk.ac.diamond.daq.osgi.OsgiService;
 
@@ -36,6 +37,18 @@ public class DefaultScanConfiguration {
 	private Set<String> perPointMonitorNames = Collections.emptySet();
 
 	private Set<String> templateFilePaths = Collections.emptySet();
+
+	/**
+	 * The position to which one or more devices should be moved at the start of the scan, or null if there is no start
+	 * position to move to. This setting will apply to every scan.
+	 */
+	private MapPosition startPosition;
+
+	/**
+	 * The position to which one or more devices should be moved at the end of the scan, or null if there is no start
+	 * position to move to. This setting will apply to every scan.
+	 */
+	private MapPosition endPosition;
 
 	public Set<String> getPerScanMonitorNames() {
 		return perScanMonitorNames;
@@ -59,6 +72,22 @@ public class DefaultScanConfiguration {
 
 	public void setTemplateFilePaths(Set<String> templateFilePaths) {
 		this.templateFilePaths = templateFilePaths;
+	}
+
+	public MapPosition getStartPosition() {
+		return startPosition;
+	}
+
+	public void setStartPosition(MapPosition startPosition) {
+		this.startPosition = startPosition;
+	}
+
+	public MapPosition getEndPosition() {
+		return endPosition;
+	}
+
+	public void setEndPosition(MapPosition endPosition) {
+		this.endPosition = endPosition;
 	}
 
 }
