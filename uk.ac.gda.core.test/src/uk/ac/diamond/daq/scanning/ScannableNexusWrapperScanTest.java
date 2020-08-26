@@ -83,6 +83,7 @@ import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
+import org.eclipse.dawnsci.nexus.scan.impl.NexusScanFileServiceImpl;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.InterfaceUtils;
 import org.eclipse.scanning.api.IScannable;
@@ -128,7 +129,6 @@ import org.eclipse.scanning.test.utilities.scan.mock.MockWritingMandlebrotModel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -162,7 +162,6 @@ import gda.jython.InterfaceProvider;
  * Note that we can't extends NexusTest as we use the real ScannableDeviceConnectorService
  * and LoaderServiceImpl instead of mocks.
  */
-@Ignore("DAQ-3089 Temporarily skip due to failures")
 public class ScannableNexusWrapperScanTest {
 
 	@BeforeClass
@@ -195,12 +194,13 @@ public class ScannableNexusWrapperScanTest {
 		new org.eclipse.dawnsci.nexus.ServiceHolder().setNexusFileFactory(fileFactory);
 		org.eclipse.scanning.sequencer.ServiceHolder serviceHolder = new org.eclipse.scanning.sequencer.ServiceHolder();
 		serviceHolder.setNexusDeviceService(nexusDeviceService);
+		serviceHolder.setNexusScanFileService(new NexusScanFileServiceImpl());
 		serviceHolder.setOperationService(new MockOperationService());
 		serviceHolder.setFilePathService(new MockFilePathService());
 
-		final org.eclipse.dawnsci.nexus.scan.ServiceHolder serviceHolder2 = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();
-		serviceHolder2.setNexusDeviceService(nexusDeviceService);
-		serviceHolder2.setNexusBuilderFactory(new DefaultNexusBuilderFactory());
+		final org.eclipse.dawnsci.nexus.scan.ServiceHolder scanServiceHolder = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();
+		scanServiceHolder.setNexusDeviceService(nexusDeviceService);
+		scanServiceHolder.setNexusBuilderFactory(new DefaultNexusBuilderFactory());
 	}
 
 
