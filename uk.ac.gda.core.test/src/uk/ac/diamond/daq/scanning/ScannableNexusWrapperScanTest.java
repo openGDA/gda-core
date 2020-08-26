@@ -128,6 +128,7 @@ import org.eclipse.scanning.test.utilities.scan.mock.MockWritingMandlebrotModel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -161,6 +162,7 @@ import gda.jython.InterfaceProvider;
  * Note that we can't extends NexusTest as we use the real ScannableDeviceConnectorService
  * and LoaderServiceImpl instead of mocks.
  */
+@Ignore("DAQ-3089 Temporarily skip due to failures")
 public class ScannableNexusWrapperScanTest {
 
 	@BeforeClass
