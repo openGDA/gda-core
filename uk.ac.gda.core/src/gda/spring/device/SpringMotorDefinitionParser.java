@@ -18,20 +18,9 @@
 
 package gda.spring.device;
 
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.IntStream.range;
-
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,10 +33,7 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.core.io.Resource;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
 
-import gda.configuration.properties.LocalProperties;
 import gda.device.scannable.ScannableMotor;
 import gda.spring.namespaces.gda.GdaNamespaceHandler;
 
@@ -131,44 +117,44 @@ public class SpringMotorDefinitionParser implements BeanDefinitionParser {
 
 	// Optional mode specific settings
 	/** Optional properties that can be set on the scannable motor */
-	private static final Collection<String> MOTOR_OPTIONS = new ArrayList<>();
+	private static final Collection<String> MOTOR_OPTIONS = Set.of(
+			"userUnits",
+			"configureAtStartup",
+			"hardwareUnitString",
+			"offset",
+			"outputFormat",
+			"scalingFactor",
+			"upperGdaLimits",
+			"lowerGdaLimits",
+			"protectionLevel");
 
 	/** Properties that should be set on both scannable and controller */
-	private static final Collection<String> DUPLICATED_OPTIONS = new ArrayList<>();
+	private static final Collection<String> DUPLICATED_OPTIONS = Set.of("protectionLevel");
+
+	private static final Collection<String> NON_PROPERTIES = Set.of("class", "id");
 
 	/** For the common modes provide fallback classes for when properties aren't set */
-	private static final Map<String, String> FALLBACK_MOTOR_CONTROLLERS = new HashMap<>();
+	private static final Map<String, String> FALLBACK_MOTOR_CONTROLLERS = Map.of(
+			"live", "gda.device.motor.EpicsMotor",
+			"dummy", "gda.device.motor.DummyMotor"
+	);
 
 	/** The Class to use for the top level scannable motor. This is not customisable */
 	private static final Class<?> DEFAULT_MOTOR_CLASS = ScannableMotor.class;
 
-	static {
-		MOTOR_OPTIONS.add("userUnits");
-		MOTOR_OPTIONS.add("configureAtStartup");
-		MOTOR_OPTIONS.add("hardwareUnitString");
-		MOTOR_OPTIONS.add("offset");
-		MOTOR_OPTIONS.add("outputFormat");
-		MOTOR_OPTIONS.add("scalingFactor");
-		MOTOR_OPTIONS.add("upperGdaLimits");
-		MOTOR_OPTIONS.add("lowerGdaLimits");
-		MOTOR_OPTIONS.add("protectionLevel");
-
-		DUPLICATED_OPTIONS.add("protectionLevel"); // needs to be in both lists for now - see DAQ-2750
-
-		FALLBACK_MOTOR_CONTROLLERS.put("live", "gda.device.motor.EpicsMotor");
-		FALLBACK_MOTOR_CONTROLLERS.put("dummy", "gda.device.motor.DummyMotor");
-	}
+	/** Class provider that uses the current mode to determine the class for a bean */
+	private static final BeanClassProvider CLASS_PROVIDER = new BeanClassProvider(DEFAULT_MOTOR_CLASS_PROPERTY_BASE, FALLBACK_MOTOR_CONTROLLERS);
 
 	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
-		Attributes attrs = new Attributes(element);
+		var attrs = BeanAttributes.from(element);
 
 		String motorName = getMotorName(attrs);
 		String modeMotorName = motorName + MODE_MOTOR_EXTENSION;
 
 		logger.debug("Creating motor instances for {}", motorName);
 		BeanDefinitionRegistry registry = parserContext.getRegistry();
-		Resource resource = parserContext.getReaderContext().getResource();
+		var resource = parserContext.getReaderContext().getResource();
 
 		BeanDefinition modeMotor = createController(modeMotorName, attrs, resource);
 		BeanDefinition commonMotor = createScannable(motorName, attrs, resource);
@@ -180,7 +166,7 @@ public class SpringMotorDefinitionParser implements BeanDefinitionParser {
 	}
 
 	/** Check the element has specified an ID (and return it) */
-	private String getMotorName(Attributes attributes) {
+	private String getMotorName(BeanAttributes attributes) {
 		return attributes.get(ID_ATTRIBUTE)
 				.filter(id -> !id.isEmpty())
 				.orElseThrow(() -> new IllegalStateException("No " + ID_ATTRIBUTE + " specified"));
@@ -202,17 +188,16 @@ public class SpringMotorDefinitionParser implements BeanDefinitionParser {
 	 * @param uri of the file being parsed - useful for debugging elsewhere
 	 * @return A bean definition detailing the mode specific motor.
 	 */
-	private BeanDefinition createController(String name, Attributes attributes, Resource uri) {
-		GenericBeanDefinition motor = new GenericBeanDefinition();
-		motor.setBeanClassName(attributes.getClassName());
-		MutablePropertyValues props = new MutablePropertyValues()
+	private BeanDefinition createController(String name, BeanAttributes attributes, Resource uri) {
+		var motor = new GenericBeanDefinition();
+		motor.setBeanClassName(CLASS_PROVIDER.forCurrentMode(attributes));
+		var props = new MutablePropertyValues()
 				.add(NAME_PROPERTY, name);
-		for (Entry<String, String> entry : attributes.modeAttributes().entrySet()) {
-			props.add(entry.getKey(), entry.getValue());
-		}
-		for (String option : DUPLICATED_OPTIONS) {
-			setOptional(props, attributes, option);
-		}
+		attributes.modeProperties()
+				.filter(p -> !MOTOR_OPTIONS.contains(p.getKey()) // don't set the scannable properties
+						|| DUPLICATED_OPTIONS.contains(p.getKey())) // unless they're also controller properties
+				.filter(p -> !NON_PROPERTIES.contains(p.getKey())) // don't set id/class as property
+				.forEach(p -> props.add(p.getKey(), p.getValue()));
 		motor.setPropertyValues(props);
 		if (uri != null) motor.setResource(uri);
 		return motor;
@@ -225,104 +210,17 @@ public class SpringMotorDefinitionParser implements BeanDefinitionParser {
 	 * @param uri of the file being parsed - useful for debugging elsewhere
 	 * @return Definition for scannable motor
 	 */
-	private GenericBeanDefinition createScannable(String name, Attributes attributes, Resource uri) {
-		GenericBeanDefinition commonMotor = new GenericBeanDefinition();
+	private GenericBeanDefinition createScannable(String name, BeanAttributes attributes, Resource uri) {
+		var commonMotor = new GenericBeanDefinition();
 		commonMotor.setBeanClass(DEFAULT_MOTOR_CLASS);
-		MutablePropertyValues props = new MutablePropertyValues()
+		var props = new MutablePropertyValues()
 				.add(NAME_PROPERTY, name);
-
-		for (String option : MOTOR_OPTIONS) {
-			setOptional(props, attributes, option);
-		}
+		attributes.modeProperties()
+				.filter(p -> MOTOR_OPTIONS.contains(p.getKey()))
+				.forEach(p -> props.add(p.getKey(), p.getValue()));
 
 		commonMotor.setPropertyValues(props);
 		if (uri != null) commonMotor.setResource(uri);
 		return commonMotor;
-	}
-
-	/**
-	 * If the given attribute is present in the element, set it as a property.
-	 * Does nothing if the attribute is not present.
-	 * @param props Properties to add this attribute to
-	 * @param element being parsed
-	 * @param att The attribute to look for
-	 */
-	private void setOptional(MutablePropertyValues props, Attributes attributes, String att) {
-		attributes.get(att).ifPresent(value -> props.add(att, value));
-	}
-
-	/**
-	 * Wrapper around an NamedNodeMap of xml attributes to allow calling code to get attributes
-	 * without handling the current mode.
-	 */
-	private class Attributes {
-
-		/** The mode gda is currently using */
-		private final String mode = LocalProperties.get("gda.mode");//, "duumy");
-		/** The prefix used by mode specific keys */
-		private final String prefix = mode + "-";
-		/** The length of the {@link #prefix} */
-		private final int prefixLength = prefix.length();
-		/** Check if a string starts with "mode-" */
-		private final Predicate<Entry<String, String>> hasPrefix = e -> e.getKey().startsWith(prefix);
-		/** Removes "mode-" from the start of an entry's key */
-		private final Function<Entry<String, String>, String> stripKey = e -> e.getKey().substring(prefixLength);
-
-		/** The key-value pairs as taken from the xml element includes values for all modes */
-		private final Map<String, String> rawAttributes;
-
-		/** Wrap an xml element's attributes in a mode specific view */
-		private Attributes(Element element) {
-			NamedNodeMap attributes = element.getAttributes();
-			rawAttributes = range(0, attributes.getLength())
-					.mapToObj(attributes::item)
-					.collect(toMap(Node::getLocalName, Node::getNodeValue));
-		}
-
-		/** Get the value of the given key in the current mode */
-		private Optional<String> get(String key) {
-			if (rawAttributes.containsKey(prefix + key)) {
-				return Optional.of(rawAttributes.get(prefix + key));
-			} else if (rawAttributes.containsKey(key)) {
-				return Optional.of(rawAttributes.get(key));
-			}
-			return Optional.empty();
-		}
-
-		/**
-		 * Get a map of key-value pairs for the current mode - excludes keys in
-		 * {@link SpringMotorDefinitionParser#MOTOR_OPTIONS MOTOR_OPTIONS}
-		 */
-		private Map<String, String> modeAttributes() {
-			return rawAttributes.entrySet().stream()
-					.filter(hasPrefix)
-					.filter(e -> !MOTOR_OPTIONS.contains(stripKey.apply(e)))
-					.collect(toMap(stripKey, Entry::getValue));
-		}
-
-		private String defaultMotorControllerClass(String mode) {
-			return LocalProperties.get(DEFAULT_MOTOR_CLASS_PROPERTY_BASE + mode,
-					FALLBACK_MOTOR_CONTROLLERS.get(mode));
-		}
-
-		private String classNameFor(String mode, Set<String> visited) {
-			String className = rawAttributes.getOrDefault(mode + "Class", defaultMotorControllerClass(mode));
-			if (className == null || className.isEmpty()) {
-				throw new IllegalArgumentException("No class specified for mode: " + mode);
-			}
-			if (className.startsWith("#")) {
-				if (visited.add(mode)) {
-					className = classNameFor(className.substring(1), visited);
-				} else {
-					throw new IllegalStateException("Circular reference in motor class: " +
-						visited.stream().collect(joining(" -> ", "", " -> " + mode)));
-				}
-			}
-			return className;
-		}
-
-		private String getClassName() {
-			return classNameFor(mode, new LinkedHashSet<>());
-		}
 	}
 }

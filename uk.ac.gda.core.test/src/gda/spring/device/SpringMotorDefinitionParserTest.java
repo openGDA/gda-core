@@ -20,7 +20,6 @@ package gda.spring.device;
 
 import static gda.spring.device.SpringMotorDefinitionParser.DEFAULT_MOTOR_CLASS_PROPERTY_BASE;
 import static java.util.Objects.requireNonNull;
-import static java.util.Optional.ofNullable;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -49,7 +48,6 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.mockito.stubbing.Answer;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -158,7 +156,7 @@ public class SpringMotorDefinitionParserTest {
 	public void dummyMotorInLiveMode() {
 		initLive();
 		set("id", "stage");
-		set("liveClass", "#dummy");
+		set("live-class", "#dummy");
 		parse();
 
 		verifyRegisteredBean(0, matchesController("stage_motor", DUMMY_MOTOR));
@@ -171,7 +169,7 @@ public class SpringMotorDefinitionParserTest {
 		set("id", "stage");
 		set("live-pvName", "pvValue");
 		set("dummy-pvName", "dummyPV");
-		set("dummyClass", "#live");
+		set("dummy-class", "#live");
 		parse();
 
 		verifyRegisteredBean(0, matchesController("stage_motor", EPICS_MOTOR)
@@ -254,7 +252,7 @@ public class SpringMotorDefinitionParserTest {
 		set("id", "stage");
 		set("live-pvName", "pvValue");
 		String customClass = "made.up.motor.class";
-		set("dummyClass", customClass);
+		set("dummy-class", customClass);
 		parse();
 
 		verifyRegisteredBean(0, matchesController("stage_motor", customClass));
@@ -267,7 +265,7 @@ public class SpringMotorDefinitionParserTest {
 		set("id", "stage");
 		set("live-pvName", "pvValue");
 		String customClass = "made.up.motor.class";
-		set("liveClass", customClass);
+		set("live-class", customClass);
 		parse();
 
 		verifyRegisteredBean(0, matchesController("stage_motor", customClass)
@@ -302,7 +300,7 @@ public class SpringMotorDefinitionParserTest {
 
 	@Test
 	public void modeOverridesForScannableFields() throws Exception {
-		// Fields for top level scannable can be overridded for certain modes.
+		// Fields for top level scannable can be overridden for certain modes.
 		// These should be set for that mode but not set on the mode specific implementation
 		init(DUMMY, null, null);
 		set("id", "stage");
@@ -325,9 +323,9 @@ public class SpringMotorDefinitionParserTest {
 	public void chainedClassReferences() throws Exception {
 		initDummy();
 		set("id", "stage");
-		set("dummyClass", "#foo");
-		set("fooClass", "#bar");
-		set("barClass", "made.up.motor");
+		set("dummy-class", "#foo");
+		set("foo-class", "#bar");
+		set("bar-class", "made.up.motor");
 		parse();
 
 		verifyRegisteredBean(0, matchesController("stage_motor", "made.up.motor"));
@@ -338,17 +336,17 @@ public class SpringMotorDefinitionParserTest {
 	public void circularClassChainsAreCaught() throws Exception {
 		initDummy();
 		set("id", "stage");
-		set("dummyClass", "#foo");
-		set("fooClass", "#bar");
-		set("barClass", "#dummy");
+		set("dummy-class", "#foo");
+		set("foo-class", "#bar");
+		set("bar-class", "#dummy");
 		parse();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void classNameIsRequired() throws Exception {
-		initDummy();
+		init("foo", null, null);
 		set("id", "stage");
-		set("dummyClass", "");
+		set("foo-class", "");
 		parse();
 	}
 
@@ -401,14 +399,9 @@ public class SpringMotorDefinitionParserTest {
 	private void init(String mode, String live, String dummy) {
 		when(LocalProperties.get(anyString())).thenCallRealMethod();
 		when(LocalProperties.get(eq("gda.mode"))).thenReturn(mode);
-		when(LocalProperties.get(eq(DEFAULT_DUMMY_MOTOR_PROPERTY), anyString())).then(answerProperty(dummy));
-		when(LocalProperties.get(eq(DEFAULT_LIVE_MOTOR_PROPERTY), anyString())).then(answerProperty(live));
+		when(LocalProperties.get(eq(DEFAULT_DUMMY_MOTOR_PROPERTY))).thenReturn(dummy);
+		when(LocalProperties.get(eq(DEFAULT_LIVE_MOTOR_PROPERTY))).thenReturn(live);
 		parser = new SpringMotorDefinitionParser();
-	}
-
-	/** Mock the LocalProperties lookup, if the value is null use the given fallback, else use our value */
-	private Answer<String> answerProperty(String value) {
-		return invocation -> ofNullable(value).orElse(invocation.getArgument(1));
 	}
 
 	private MotorMatcher matchesMotor(String name, String motorName) {
