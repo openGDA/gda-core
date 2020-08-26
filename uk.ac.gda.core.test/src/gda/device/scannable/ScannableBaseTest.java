@@ -41,6 +41,8 @@ import org.python.core.PySlice;
 import org.python.core.PyString;
 
 import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.jython.commands.ScannableCommands;
 
 public class ScannableBaseTest {
 
@@ -384,5 +386,25 @@ public class ScannableBaseTest {
 		Object object1 = new Object();
 		configureOneInputField();
 		assertEquals(object1, getSB().externalToInternal(object1));
+	}
+
+	/**
+	 * This test ensures that getPosition is called exactly once per
+	 * {@link ScannableCommands#pos(Scannable...)} as
+	 * {@code pos} calls {@link Scannable#toFormattedString}.
+	 * <p>
+	 * {@code getPosition} is a potentially expensive operation.
+	 * <p>
+	 * For {@link ScannableBase} verifying {@code rawGetPosition} is equivalent.
+	 * @throws DeviceException
+	 *
+	 */
+	@Test
+	public void testToFormattedStringCallsGetPositionOnce() throws DeviceException {
+		createScannableToTest();
+		getSB().setName("value");
+		when(getSB().getPosition()).thenReturn(8776.7);
+		ScannableCommands.pos(getSB());
+		verify(getDelegate()).rawGetPosition();
 	}
 }
