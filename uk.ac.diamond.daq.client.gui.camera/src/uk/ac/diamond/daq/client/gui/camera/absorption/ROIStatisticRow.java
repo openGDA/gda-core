@@ -1,5 +1,11 @@
 package uk.ac.diamond.daq.client.gui.camera.absorption;
 
+import static org.eclipse.january.dataset.DatasetUtils.convertToDataset;
+import static uk.ac.gda.ui.tool.ClientMessages.EMPTY_MESSAGE;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientButton;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
+import static uk.ac.gda.ui.tool.WidgetUtilities.addWidgetDisposableListener;
+
 import java.util.function.BiConsumer;
 import java.util.function.LongSupplier;
 import java.util.stream.IntStream;
@@ -7,8 +13,8 @@ import java.util.stream.IntStream;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.api.roi.IRectangularROI;
 import org.eclipse.january.dataset.Dataset;
-import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.IDataset;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.widgets.Button;
@@ -18,8 +24,6 @@ import org.eclipse.swt.widgets.TableItem;
 
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
-import uk.ac.gda.ui.tool.ClientSWTElements;
-import uk.ac.gda.ui.tool.WidgetUtilities;
 
 /**
  * Calculates, from a region shape, and displays, as table row, an image
@@ -113,25 +117,32 @@ class ROIStatisticRow {
 		Table table = tableItem.getParent();
 
 		TableEditor editor = new TableEditor(table);
-		lockIntensity = ClientSWTElements.createButton(table, SWT.CHECK, ClientMessages.EMPTY_MESSAGE,
-				ClientMessages.EMPTY_MESSAGE);
+		lockIntensity = createClientButton(table, SWT.CHECK, EMPTY_MESSAGE, EMPTY_MESSAGE);
+		GridDataFactory.fillDefaults().applyTo(lockIntensity);
+		
 		editor.grabHorizontal = true;
 		editor.setEditor(lockIntensity, tableItem, 0);
 
-		WidgetUtilities.addWidgetDisposableListener(lockIntensity, SWT.Selection, event -> updateValue());
+		addWidgetDisposableListener(lockIntensity, SWT.Selection, event -> updateValue());
 
 		editor = new TableEditor(table);
-		Label nameLabel = ClientSWTElements.createLabel(table, SWT.NONE, name);
+		Label nameLabel = createClientLabel(table, SWT.NONE, name);
+		GridDataFactory.fillDefaults().applyTo(nameLabel);
+		
 		editor.grabHorizontal = true;
 		editor.setEditor(nameLabel, tableItem, 1);
 
 		editor = new TableEditor(table);
-		intensityLabel = ClientSWTElements.createLabel(table, SWT.NONE, ClientMessages.EMPTY_MESSAGE);
+		intensityLabel = createClientLabel(table, SWT.NONE, EMPTY_MESSAGE);
+		GridDataFactory.fillDefaults().applyTo(intensityLabel);
+		
 		editor.grabHorizontal = true;
 		editor.setEditor(intensityLabel, tableItem, 2);
 
 		editor = new TableEditor(table);
-		ratioLabel = ClientSWTElements.createLabel(table, SWT.NONE, ClientMessages.EMPTY_MESSAGE);
+		ratioLabel = createClientLabel(table, SWT.NONE, EMPTY_MESSAGE);
+		GridDataFactory.fillDefaults().applyTo(intensityLabel);
+		
 		editor.grabHorizontal = true;
 		editor.setEditor(ratioLabel, tableItem, 3);
 	}
@@ -149,13 +160,13 @@ class ROIStatisticRow {
 		// resets the intensity
 		this.intensity = 0;
 		// crop the image using the bounding box
-		Dataset intDataset = DatasetUtils.convertToDataset(dataset.getSliceView(start, end, step));
+		Dataset intDataset = convertToDataset(dataset.getSliceView(start, end, step));
 
 		// filters the points contained in the roi, sum up their intensities
 		IntStream.range(0, length[1])
 				.forEach(y -> IntStream.range(0, length[0])
-						.filter(x -> roi.containsPoint((double) x + xy[0], (double) y + xy[1]))
-						.forEach(x -> sumIntensities(x, y, intDataset)));
+					.filter(x -> roi.containsPoint((double) x + xy[0], (double) y + xy[1]))
+					.forEach(x -> sumIntensities(x, y, intDataset)));
 		this.intensityLabel.setText(Long.toString(this.intensity));
 
 		processRatio();
