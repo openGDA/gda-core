@@ -245,7 +245,7 @@ public final class ClientSWTElements {
 	}
 
 	/**
-	 * @deprecated use {@link #createClientText(Composite, int, ClientMessages, Optional)}. This has been done to
+	 * @deprecated use {@link #createClientText(Composite, int, ClientMessages, VerifyListener)}. This has been done to
 	 *             support a more consistent approach described in
 	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
 	 */
@@ -255,7 +255,7 @@ public final class ClientSWTElements {
 	}
 
 	/**
-	 * @deprecated use {@link #createClientText(Composite, int, ClientMessages, Optional)}. This has been done to
+	 * @deprecated use {@link #createClientText(Composite, int, ClientMessages, VerifyListener)}. This has been done to
 	 *             support a more consistent approach described in
 	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
 	 */
@@ -266,18 +266,18 @@ public final class ClientSWTElements {
 	}
 
 	/**
-	 * @deprecated use {@link #createClientText(Composite, int, ClientMessages, Optional)}. This has been done to
+	 * @deprecated use {@link #createClientText(Composite, int, ClientMessages, VerifyListener)}. This has been done to
 	 *             support a more consistent approach described in
 	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
 	 */
 	@Deprecated
-	public static final Text createText(final Composite parent, int textStyle, final VerifyListener listener,
+	private static final Text createText(final Composite parent, int textStyle, final VerifyListener listener,
 			final Point span, final ClientMessages tooltip, GridDataFactory gdf) {
 		return createText(parent, textStyle, listener, span, tooltip, null, gdf);
 	}
 
 	/**
-	 * @deprecated use {@link #createClientText(Composite, int, ClientMessages, Optional)}. This has been done to
+	 * @deprecated use {@link #createClientText(Composite, int, ClientMessages, VerifyListener)}. This has been done to
 	 *             support a more consistent approach described in
 	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
 	 */
@@ -288,7 +288,7 @@ public final class ClientSWTElements {
 	}
 
 	/**
-	 * @deprecated use {@link #createClientText(Composite, int, ClientMessages, Optional)}. This has been done to
+	 * @deprecated use {@link #createClientText(Composite, int, ClientMessages, VerifyListener)}. This has been done to
 	 *             support a more consistent approach described in
 	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
 	 */
@@ -696,14 +696,41 @@ public final class ClientSWTElements {
 	 * @param listener
 	 *            a listener to validate the text
 	 * @return a new Text component
+	 * @deprecated Please use {@link #createClientText(Composite, int, ClientMessages, VerifyListener)}
 	 */
+	@Deprecated
 	public static final Text createClientText(final Composite parent, int style, final ClientMessages tooltip,
 			final Optional<VerifyListener> listener) {
+		VerifyListener vl = listener.isPresent() ? listener.get() : null;
+		return createClientText(parent, style, tooltip, vl);
+	}
+
+	/**
+	 * Creates a basic {@link Text} component. This supports the approach described in
+	 * <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 *
+	 * @param parent
+	 *            where materialise the component
+	 * @param style
+	 *            the style to apply to the the button. If SWT.NONE applies SWT.RIGHT | SWT.BORDER.
+	 * @param tooltip
+	 *            the tooltip to display. May be {@code null}
+	 * @param listener
+	 *            a listener to validate the text. May be {@code null}
+	 * @return a new Text component
+	 */
+	public static final Text createClientText(final Composite parent, int style, final ClientMessages tooltip,
+			final VerifyListener listener) {
 		style = style == 0 ? SWT.RIGHT | SWT.BORDER : style;
 		Text text = new Text(parent, style);
 		text.setFont(ClientResourceManager.getInstance().getTextDefaultFont());
-		text.setToolTipText(ClientMessagesUtility.getMessage(tooltip));
-		listener.ifPresent(text::addVerifyListener);
+
+		Optional.ofNullable(tooltip)
+			.map(ClientMessagesUtility::getMessage)
+			.ifPresent(text::setToolTipText);
+
+		Optional.ofNullable(listener)
+			.ifPresent(text::addVerifyListener);
 		return text;
 	}
 
