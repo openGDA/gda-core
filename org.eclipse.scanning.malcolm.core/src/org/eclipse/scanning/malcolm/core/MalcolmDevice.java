@@ -25,7 +25,6 @@ import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_AXES_
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_DETECTORS;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_GENERATOR;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_META;
-import static org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.ERROR_MESSAGE_PREFIX_FAILED_TO_CONNECT;
 
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -57,7 +56,6 @@ import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.malcolm.MalcolmVersion;
 import org.eclipse.scanning.api.malcolm.attributes.ChoiceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
-import org.eclipse.scanning.api.malcolm.attributes.MalcolmAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.NumberAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.StringAttribute;
@@ -842,29 +840,17 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		return state.isTransient(); // Device is not locked but it is doing something.
 	}
 
-	private <T> Optional<IDeviceAttribute<T>> getOptionalAttribute(String attributeName) throws MalcolmDeviceException {
+	private <T> IDeviceAttribute<T> getAttribute(String attributeName) throws MalcolmDeviceException {
 		logger.debug("getAttribute() called with attribute name {}", attributeName);
 		final MalcolmMessage reply = getEndpointReply(attributeName);
-		if (reply.getType() != Type.ERROR && reply.getValue() instanceof MalcolmAttribute) {
+		if (reply.getType() != Type.ERROR) {
 			// found the attribute ok, return it
 			@SuppressWarnings("unchecked") // temp variable to avoid annotation on method
 			IDeviceAttribute<T> result = (IDeviceAttribute<T>) reply.getValue();
-			return Optional.of(result);
+			return result;
 		}
 		// check if the error message is a connection failure, in this case throw an exception
-		if (reply.getType() == Type.ERROR && reply.getMessage().startsWith(ERROR_MESSAGE_PREFIX_FAILED_TO_CONNECT)) {
-			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
-		}
-
-		// otherwise (presumably when there is no such attribute) return an empty optional
-		return Optional.empty();
-	}
-
-	private <T> IDeviceAttribute<T> getAttribute(String attributeName) throws MalcolmDeviceException {
-		@SuppressWarnings("unchecked") // temp variable to avoid annotation on method
-		final IDeviceAttribute<T> attribute = (IDeviceAttribute<T>) getOptionalAttribute(attributeName).
-				orElseThrow(() -> new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + "No such attribute: " + attributeName));
-		return attribute;
+		throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
 	}
 
 	/**
