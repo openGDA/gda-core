@@ -63,8 +63,6 @@
 			          	<exclude>CrysalisRunListTest</exclude>
 			          	<exclude>SimpleHighestExistingFileMonitorTest</exclude>
 			          	<exclude>ElogEntryTest</exclude>
-			          	<!-- Tests Fail due to some hidden setup issue -->
-			          	<exclude>RmiAutomatedExporterTest</exclude>
 			          	<!-- Mockito can't create it in different plugin -->
 			          	<exclude>JythonCompleterTest</exclude>
 			          	<!-- Local Properties file is not found -->
