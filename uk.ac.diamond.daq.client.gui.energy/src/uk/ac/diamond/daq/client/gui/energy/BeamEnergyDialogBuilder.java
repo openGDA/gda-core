@@ -4,14 +4,13 @@ import static uk.ac.gda.ui.tool.ClientMessages.BEAM_ENERGY_CONTROL;
 import static uk.ac.gda.ui.tool.ClientMessages.DIFFRACTION;
 import static uk.ac.gda.ui.tool.ClientMessages.IMAGING;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createComposite;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createLabel;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -25,6 +24,7 @@ import uk.ac.diamond.daq.client.gui.energy.EnergyWorkflowController.EnergySelect
 import uk.ac.gda.client.composites.MotorCompositeFactory;
 import uk.ac.gda.client.properties.MotorProperties;
 import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.ClientSWTElements;
 
 /**
  * Assembles a dialog to configure the energy of one, or more beams. The methods
@@ -142,7 +142,7 @@ public class BeamEnergyDialogBuilder {
 
 		@Override
 		protected Control createDialogArea(Composite parent) {
-
+			Composite container = createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
 			if (createBeamSelectorControl) {
 				MotorProperties beamSelectorProperties = new MotorProperties() {
 
@@ -157,14 +157,14 @@ public class BeamEnergyDialogBuilder {
 					}
 				};
 
-				new MotorCompositeFactory(beamSelectorProperties).createComposite(parent, SWT.HORIZONTAL);
+				new MotorCompositeFactory(beamSelectorProperties).createComposite(container, SWT.HORIZONTAL);
 			}
 
 			Composite base;
 			if (diffractionController != null && imagingController != null) {
-				base = createComposite(parent, SWT.NONE, 3);
+				base = createClientCompositeWithGridLayout(container, SWT.NONE, 3);
 			} else {
-				base = createComposite(parent, SWT.NONE, 1);
+				base = createClientCompositeWithGridLayout(container, SWT.NONE, 1);
 			}
 
 			if (diffractionController != null) {
@@ -180,13 +180,15 @@ public class BeamEnergyDialogBuilder {
 		}
 
 		private void createEnergyControl(ClientMessages title, EnergyWorkflowController controller, Composite parent) {
-			Composite composite = createComposite(parent, SWT.NONE);
-			createLabel(composite, SWT.NONE, title, new Point(5, 1));
+			Composite composite = createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
+			Label labelName = createClientLabel(composite, SWT.NONE, title);
+			createClientGridDataFactory().align(SWT.BEGINNING, SWT.END).applyTo(labelName);
 			new BeamEnergyControl(controller).draw(composite);
 		}
 
 		private void createDivider(Composite parent) {
-			GridDataFactory.fillDefaults().span(1, 2).applyTo(new Label(parent, SWT.SEPARATOR | SWT.VERTICAL));
+			Composite composite = createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
+			ClientSWTElements.createClientGridDataFactory().applyTo(new Label(composite, SWT.SEPARATOR | SWT.VERTICAL));
 		}
 
 		@Override
