@@ -1,5 +1,7 @@
 package uk.ac.diamond.daq.client.gui.camera.roi;
 
+import static uk.ac.gda.ui.tool.ClientSWTElements.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -163,11 +165,11 @@ public class SensorSelectionComposite implements CompositeFactory {
 			Table table = tableItem.getParent();
 			TableEditor editor = new TableEditor(table);
 
-			regionName = ClientSWTElements.createLabel(table, SWT.NONE, name);
+			regionName = createClientLabel(table, SWT.NONE, name);
 			editor.grabHorizontal = true;
 			editor.setEditor(regionName, tableItem, 0);
 
-			xMin = ClientSWTElements.createText(table, SWT.NONE, ClientVerifyListener.verifyOnlyIntegerText);
+			xMin = createClientText(table, SWT.NONE, null, ClientVerifyListener.verifyOnlyIntegerText);
 			xMin.setText(Integer.toString(0));
 			xMin.setEnabled(editable);
 			editor = new TableEditor(table);
@@ -175,7 +177,7 @@ public class SensorSelectionComposite implements CompositeFactory {
 			editor.setEditor(xMin, tableItem, 1);
 			editor.horizontalAlignment = SWT.LEFT;
 
-			yMin = ClientSWTElements.createText(table, SWT.NONE, ClientVerifyListener.verifyOnlyIntegerText);
+			yMin = createClientText(table, SWT.NONE, null, ClientVerifyListener.verifyOnlyIntegerText);
 			yMin.setText(Integer.toString(0));
 			yMin.setEnabled(editable);
 			editor = new TableEditor(table);
@@ -183,7 +185,7 @@ public class SensorSelectionComposite implements CompositeFactory {
 			editor.setEditor(yMin, tableItem, 2);
 			editor.horizontalAlignment = SWT.LEFT;
 
-			width = ClientSWTElements.createText(table, SWT.NONE, ClientVerifyListener.verifyOnlyIntegerText);
+			width = createClientText(table, SWT.NONE, null, ClientVerifyListener.verifyOnlyIntegerText);
 			width.setText(Integer.toString(0));
 			width.setEnabled(editable);
 			editor = new TableEditor(table);
@@ -191,7 +193,7 @@ public class SensorSelectionComposite implements CompositeFactory {
 			editor.setEditor(width, tableItem, 3);
 			editor.horizontalAlignment = SWT.LEFT;
 
-			height = ClientSWTElements.createText(table, SWT.NONE, ClientVerifyListener.verifyOnlyIntegerText);
+			height = createClientText(table, SWT.NONE, null, ClientVerifyListener.verifyOnlyIntegerText);
 			height.setText(Integer.toString(0));
 			height.setEnabled(editable);
 			editor = new TableEditor(table);

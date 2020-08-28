@@ -245,69 +245,6 @@ public final class ClientSWTElements {
 	}
 
 	/**
-	 * @deprecated use {@link #createClientText(Composite, int, ClientMessages, VerifyListener)}. This has been done to
-	 *             support a more consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	public static final Text createText(final Composite parent, int textStyle, final VerifyListener listener) {
-		return createText(parent, textStyle, listener, null);
-	}
-
-	/**
-	 * @deprecated use {@link #createClientText(Composite, int, ClientMessages, VerifyListener)}. This has been done to
-	 *             support a more consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	private static final Text createText(final Composite parent, int textStyle, final VerifyListener listener,
-			final Point span) {
-		return createText(parent, textStyle, listener, span, null, null);
-	}
-
-	/**
-	 * @deprecated use {@link #createClientText(Composite, int, ClientMessages, VerifyListener)}. This has been done to
-	 *             support a more consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	private static final Text createText(final Composite parent, int textStyle, final VerifyListener listener,
-			final Point span, final ClientMessages tooltip, GridDataFactory gdf) {
-		return createText(parent, textStyle, listener, span, tooltip, null, gdf);
-	}
-
-	/**
-	 * @deprecated use {@link #createClientText(Composite, int, ClientMessages, VerifyListener)}. This has been done to
-	 *             support a more consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	private static final Text createText(final Composite parent, int textStyle, final VerifyListener listener,
-			final Point span, final ClientMessages tooltip, Point minSize, GridDataFactory gdf) {
-		return createText(parent, textStyle, listener, span, ClientMessagesUtility.getMessage(tooltip), minSize, gdf);
-	}
-
-	/**
-	 * @deprecated use {@link #createClientText(Composite, int, ClientMessages, VerifyListener)}. This has been done to
-	 *             support a more consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	private static final Text createText(final Composite parent, int textStyle, final VerifyListener listener,
-			final Point span, final String tooltip, final Point minSize, GridDataFactory gdf) {
-		textStyle = textStyle == 0 ? SWT.RIGHT | SWT.BORDER : textStyle;
-		Text text = new Text(parent, textStyle);
-		text.setFont(ClientResourceManager.getInstance().getTextDefaultFont());
-		text.setToolTipText(tooltip);
-		GridDataFactory internalGdf = applySpan(text, Optional.ofNullable(span), Optional.ofNullable(minSize), gdf);
-		internalGdf.applyTo(text);
-		if (listener != null) {
-			text.addVerifyListener(listener);
-		}
-		return text;
-	}
-
-	/**
 	 * @deprecated use {@link #createClientButton(Composite, int, ClientMessages, ClientMessages, Optional)}. This has
 	 *             been done to support a more consistent approach described in
 	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
