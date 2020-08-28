@@ -334,7 +334,6 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		ExpandBar customBar = createExpandBar(parent);
 		Composite container = ClientSWTElements.createClientCompositeWithGridLayout(customBar, SWT.NONE, 5);
 		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).grab(true, true).applyTo(container);
-		// container.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_RED));
 
 		Label label = ClientSWTElements.createClientLabel(container, SWT.NONE, ClientMessages.NUM_REPETITIONS);
 		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(label);
@@ -346,6 +345,7 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 
 		label = ClientSWTElements.createClientLabel(container, SWT.NONE, ClientMessages.WAITING_TIME);
 		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(label);
+		label.setText(label.getText() + " (s)");
 
 		waitingTime = ClientSWTElements.createClientText(container, SWT.NONE, ClientMessages.WAITING_TIME_TOOLTIP, Optional.of(verifyOnlyIntegerText));
 		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(ClientSWTElements.DEFAULT_TEXT_SIZE).applyTo(waitingTime);
