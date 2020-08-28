@@ -53,7 +53,7 @@ public class MutatorSerializerTest extends DocumentTestBase {
 
 	@Test
 	public void deserialiseMutatorTest() throws GDAException {
-		ClassWithMutatorMap testClass = deserialiseDocument("/resources/MutatorTest.json",
+		ClassWithMutatorMap testClass = deserialiseDocument("test/resources/MutatorTest.json",
 				ClassWithMutatorMap.class);
 		Assert.assertEquals("One", testClass.getMutators().get(Mutator.ALTERNATING));
 		Assert.assertEquals("Two", testClass.getMutators().get(Mutator.CONTINUOUS));

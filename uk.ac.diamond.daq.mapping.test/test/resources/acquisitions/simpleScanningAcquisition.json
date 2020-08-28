@@ -1,0 +1,16 @@
+{
+	"type": "scanningAcquisition",
+	"uuid": null,
+	"name": "Diffraction Acquisition Test",
+	"description": "SimpleTest",
+	"executionPeriod": null,
+	"acquisitionLocation": null,
+	"acquisitionConfiguration": {
+		"acquisitionParameters": {
+			"shapeType": "POINT",
+			"detector": null,
+			"scanpathDocument": null
+		},
+		"metadata": null
+	}
+}

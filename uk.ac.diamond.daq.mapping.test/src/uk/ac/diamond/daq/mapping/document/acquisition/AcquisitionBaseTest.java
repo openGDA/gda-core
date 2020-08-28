@@ -59,7 +59,7 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 
 	@Test
 	public void deserializeScanningAcquisition() throws GDAException {
-		Acquisition<?> modelDocument = deserialiseDocument("/resources/acquisitions/simpleScanningAcquisition.json",
+		Acquisition<?> modelDocument = deserialiseDocument("test/resources/acquisitions/simpleScanningAcquisition.json",
 				ScanningAcquisition.class);
 
 		assertEquals("SimpleTest", modelDocument.getDescription());
@@ -73,7 +73,7 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 
 	@Test
 	public void deserializeScanningAcquisition2() throws GDAException {
-		Acquisition<?> modelDocument = deserialiseDocument("/resources/acquisitions/simpleScanningAcquisition2.json",
+		Acquisition<?> modelDocument = deserialiseDocument("test/resources/acquisitions/simpleScanningAcquisition2.json",
 				ScanningAcquisition.class);
 
 		assertEquals("SimpleTest", modelDocument.getDescription());
@@ -87,14 +87,14 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 
 	@Test
 	public void deserializeEmptyAcquisition() throws GDAException {
-		Acquisition<?> modelDocument = deserialiseDocument("/resources/acquisitions/emptyAcquisition.json",
+		Acquisition<?> modelDocument = deserialiseDocument("test/resources/acquisitions/emptyAcquisition.json",
 				AcquisitionBase.class);
 		assertTrue(ScanningAcquisition.class.isInstance(modelDocument));
 	}
 
 	@Test(expected=GDAException.class)
 	public void deserializeUnknownEmptyAcquisition() throws GDAException {
-		deserialiseDocument("/resources/acquisitions/emptyUnknownAcquisition.json",
+		deserialiseDocument("test/resources/acquisitions/emptyUnknownAcquisition.json",
 				AcquisitionBase.class);
 	}
 }
