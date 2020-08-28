@@ -56,8 +56,6 @@
 						<exclude>SpringMotorDefinitionParserTest</exclude>
 						<exclude>BeamConditionBaseTest</exclude>
 						<exclude>CoordinatedScannableElementTest</exclude>
-						<!-- Needs paths to be sorted out -->
-						<exclude>GDAJythonClassloaderTest</exclude>
 			          	<!-- Tests trying to read/write test files -->
 			          	<exclude>XMLIcatTest</exclude>
 			          	<exclude>CrysalisRunListTest</exclude>
