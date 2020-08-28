@@ -84,7 +84,12 @@ public class ScannableCommands {
 		String positions = Stream.of(scannables)
 				.map(Scannable::toFormattedString)
 				.collect(joining("\n"));
-		InterfaceProvider.getTerminalPrinter().print(positions);
+		ITerminalPrinter printer = InterfaceProvider.getTerminalPrinter();
+		if (printer == null) {
+			logger.warn("Could not print positions of scannables: {}", positions);
+		} else {
+			printer.print(positions);
+		}
 	}
 
 	/**
