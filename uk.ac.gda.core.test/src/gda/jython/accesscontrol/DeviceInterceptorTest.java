@@ -167,118 +167,118 @@ public class DeviceInterceptorTest {
 
 		}
 	}
-}
 
-class SimpleDevice extends FindableConfigurableBase implements Device{
+	public static class SimpleDevice extends FindableConfigurableBase implements Device {
 
-	int protectionLevel=1;
-	@Override
-	public void close() throws DeviceException {
-		// TODO Auto-generated method stub
+		int protectionLevel = 1;
 
-	}
+		@Override
+		public void close() throws DeviceException {
+			// TODO Auto-generated method stub
 
-	@Override
-	public Object getAttribute(String attributeName) throws DeviceException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public int getProtectionLevel() throws DeviceException {
-		return protectionLevel;
-	}
-
-	@Override
-	public void setAttribute(String attributeName, Object value) throws DeviceException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setProtectionLevel(int newLevel) throws DeviceException {
-		protectionLevel = newLevel;
-
-	}
-
-	@Override
-	public void addIObserver(IObserver anIObserver) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void deleteIObserver(IObserver anIObserver) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void deleteIObservers() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void reconfigure() throws FactoryException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if( obj == null)
-			return false;
-		if( !(obj instanceof SimpleDevice)){
-			return false;
 		}
-		SimpleDevice other = (SimpleDevice)obj;
-		final String name = getName();
-		if(name == null || other.getName() == null)
-			return false;
-		return name.equals(other.getName());
-	}
 
-	@Override
-	public String toString() {
-		final String name = getName();
-		return name == null ? "unknown" : name.toString();
-	}
-
-	@Override
-	public int hashCode() {
-		final String name = getName();
-		return name == null ? 42 : name.hashCode();
-	}
-
-}
-
-class SimpleDeviceBase extends DeviceBase{
-
-	SimpleDeviceBase(){
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if( obj == null)
-			return false;
-		if( !(obj instanceof SimpleDeviceBase)){
-			return false;
+		@Override
+		public Object getAttribute(String attributeName) throws DeviceException {
+			// TODO Auto-generated method stub
+			return null;
 		}
-		SimpleDeviceBase other = (SimpleDeviceBase)obj;
-		if(getName() == null || other.getName() == null)
-			return false;
-		return getName().equals(other.getName());
+
+		@Override
+		public int getProtectionLevel() throws DeviceException {
+			return protectionLevel;
+		}
+
+		@Override
+		public void setAttribute(String attributeName, Object value) throws DeviceException {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void setProtectionLevel(int newLevel) throws DeviceException {
+			protectionLevel = newLevel;
+
+		}
+
+		@Override
+		public void addIObserver(IObserver anIObserver) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void deleteIObserver(IObserver anIObserver) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void deleteIObservers() {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void reconfigure() throws FactoryException {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == null)
+				return false;
+			if (!(obj instanceof SimpleDevice)) {
+				return false;
+			}
+			SimpleDevice other = (SimpleDevice) obj;
+			final String name = getName();
+			if (name == null || other.getName() == null)
+				return false;
+			return name.equals(other.getName());
+		}
+
+		@Override
+		public String toString() {
+			final String name = getName();
+			return name == null ? "unknown" : name.toString();
+		}
+
+		@Override
+		public int hashCode() {
+			final String name = getName();
+			return name == null ? 42 : name.hashCode();
+		}
+
 	}
 
-	@Override
-	public String toString() {
-		return getName() == null ? "unknown" : getName().toString();
-	}
+	public static class SimpleDeviceBase extends DeviceBase {
 
-	@Override
-	public int hashCode() {
-		return getName() == null ? 42 : getName().hashCode();
+		public SimpleDeviceBase() {
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == null)
+				return false;
+			if (!(obj instanceof SimpleDeviceBase)) {
+				return false;
+			}
+			SimpleDeviceBase other = (SimpleDeviceBase) obj;
+			if (getName() == null || other.getName() == null)
+				return false;
+			return getName().equals(other.getName());
+		}
+
+		@Override
+		public String toString() {
+			return getName() == null ? "unknown" : getName().toString();
+		}
+
+		@Override
+		public int hashCode() {
+			return getName() == null ? 42 : getName().hashCode();
+		}
 	}
 }
-

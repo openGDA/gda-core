@@ -66,8 +66,6 @@
 			          	<!-- Local Properties file is not found -->
 			          	<exclude>LocalPropertiesTest</exclude>
 			          	<exclude>Gda3879Test</exclude>
-			          	<!-- Access by reflections of class in different plugin not allowed by OSGI -->
-			          	<exclude>DeviceInterceptorTest</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
