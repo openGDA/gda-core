@@ -248,6 +248,7 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 
 		customAngle = ClientSWTElements.createClientText(parent, textStyle, ClientMessages.CUSTOM_END_TOOLTIP, Optional.of(verifyOnlyDoubleText));
 		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(ClientSWTElements.DEFAULT_TEXT_SIZE).applyTo(customAngle);
+		customAngle.setEnabled(false);
 	}
 
 	private void projectionsContent(Composite parent, int labelStyle, int textStyle) {
@@ -411,7 +412,7 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 
 			if (!((Button) event.getSource()).getSelection())
 				return;
-
+			customAngle.setEnabled(false);
 			if (event.getSource().equals(currentAngleButton)) {
 				updateCurrentAngularPosition();
 			} else if (event.getSource().equals(fullRotationRangeType)) {
@@ -419,9 +420,9 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 			} else if (event.getSource().equals(halfRotationRangeType)) {
 				dataHelper.updateStopAngle(180.0);
 			} else if (event.getSource().equals(customRotationRangeType)) {
+				customAngle.setEnabled(true);
 				customAngle.setText(Double.toString(getScannableTrackDocument().getStop()));
 			}
-			// configureWhenShown();
 		}
 
 		@Override
@@ -572,7 +573,7 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 	}
 
 	private void customAngleLooseFocus() {
-		FocusListener customAngleListener = FocusListener.focusLostAdapter(c -> updateCurrentAngularPosition());
+		FocusListener customAngleListener = FocusListener.focusLostAdapter(c -> updateAngularStep());
 		customAngle.addFocusListener(customAngleListener);
 	}
 
