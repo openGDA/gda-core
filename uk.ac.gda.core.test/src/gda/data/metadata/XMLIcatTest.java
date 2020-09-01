@@ -40,6 +40,7 @@ import gda.factory.Factory;
 import gda.factory.Finder;
 import gda.jython.Jython;
 import gda.jython.authenticator.UserAuthentication;
+import gda.util.TestUtils;
 
 /**
  *
@@ -53,7 +54,7 @@ public class XMLIcatTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		LocalProperties.set(Icat.URL_PROP,XMLIcatTest.class.getResource("testicat.xml").getFile());
+		LocalProperties.set(Icat.URL_PROP, TestUtils.getResourceAsFile(getClass(), "testicat.xml").getPath());
 		LocalProperties.set(Icat.SHIFT_TOL_PROP,"1440");
 		LocalProperties.set(Icat.ICAT_TYPE_PROP,gda.data.metadata.icat.XMLIcat.class.getName());
 
