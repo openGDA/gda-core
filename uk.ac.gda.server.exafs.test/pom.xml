@@ -50,9 +50,6 @@
 						<exclude>EnergyScanTest</exclude>
 						<!-- Split Package Issue -->
 						<exclude>AsciiDataWriterTest</exclude>
-						<!-- Mockito and reflections in another plugin -->
-						<exclude>ScansSetupUsingXmlTest</exclude>
-						<exclude>OutputPreparerTest</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
