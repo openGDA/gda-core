@@ -78,6 +78,7 @@ public class RmiAutomatedExporterTest {
 
 	@BeforeClass
 	public static void setupClass() throws Exception {
+		LocalProperties.forceActiveMQEmbeddedBroker();
 		// Need to find a free port as this test might be running simultaneously on the same machine
 		portForTesting = SocketUtils.findAvailableTcpPort(1099, 10000);
 		// Set the property this is used by the RmiAutomatedExporter
@@ -109,6 +110,7 @@ public class RmiAutomatedExporterTest {
 	@AfterClass
 	public static void tearDownClass() {
 		LocalProperties.clearProperty(RMI_PORT_PROPERTY);
+		LocalProperties.unsetActiveMQBrokerURI();
 	}
 
 	@Test
