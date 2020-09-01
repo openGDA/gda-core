@@ -82,7 +82,7 @@ public class EpicsMCASimpleTest {
 	/**
 	 * Allow creation of mock quantities converters that can be added to Finder
 	 */
-	private interface FindableConverter<S extends Quantity<S>, T extends Quantity<T>> extends IReloadableQuantitiesConverter<S, T>, Findable {
+	public interface FindableConverter<S extends Quantity<S>, T extends Quantity<T>> extends IReloadableQuantitiesConverter<S, T>, Findable {
 	}
 
 	private FindableConverter<Energy, Dimensionless> channelToEnergyConverter;
