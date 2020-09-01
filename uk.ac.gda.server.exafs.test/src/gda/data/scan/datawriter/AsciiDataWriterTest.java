@@ -48,14 +48,14 @@ public class AsciiDataWriterTest {
 		// build the configuration object
 		ArrayList<AsciiWriterExtenderConfig> columns = new ArrayList<AsciiWriterExtenderConfig>();
 		AsciiWriterExtenderConfig col1 = new AsciiWriterExtenderConfig();
-		col1.expression = "energy";
-		col1.format = "7.2f";
-		col1.label = "energy";
+		col1.setExpression("energy");
+		col1.setFormat("7.2f");
+		col1.setLabel("energy");
 		columns.add(col1);
 		AsciiWriterExtenderConfig col2 = new AsciiWriterExtenderConfig();
-		col2.expression = "counts";
-		col2.format = "10.2f";
-		col2.label = "counts";
+		col2.setExpression("counts");
+		col2.setFormat("10.2f");
+		col2.setLabel("counts");
 		columns.add(col2);
 
 		ArrayList<AsciiMetadataConfig> header = new ArrayList<AsciiMetadataConfig>();
@@ -135,7 +135,7 @@ public class AsciiDataWriterTest {
 
 			// test the file written
 			writer.completeCollection();
-			FileReader file = new FileReader(writer.fileUrl);
+			FileReader file = new FileReader(writer.getCurrentFileName());
 			FileReader cfile = new FileReader("testfiles/gda/data/scan/datawriter/AsciiDataWriterTest/0.dat");
 
 			String contents = "";

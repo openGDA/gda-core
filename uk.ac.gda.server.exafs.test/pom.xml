@@ -48,8 +48,6 @@
 					<excludes>
 						<!-- Powermock -->
 						<exclude>EnergyScanTest</exclude>
-						<!-- Split Package Issue -->
-						<exclude>AsciiDataWriterTest</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
