@@ -18,13 +18,13 @@
 
 package uk.ac.gda.actions;
 
-import gda.jython.JythonServerFacade;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
-public class HaltScanHandler extends AbstractHandler {
+import gda.jython.JythonServerFacade;
+
+public class FinishScanEarlyHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -32,7 +32,7 @@ public class HaltScanHandler extends AbstractHandler {
 			JythonServerFacade.getInstance().requestFinishEarly();
 			return Boolean.TRUE;
 		} catch (Exception ne) {
-			throw new ExecutionException("Error running HaltScan", ne);
+			throw new ExecutionException("Error finishing scan early", ne);
 		}
 	}
 

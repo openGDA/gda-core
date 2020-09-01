@@ -54,7 +54,7 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 	private static final Logger logger = LoggerFactory.getLogger(JythonControlsFactory.class);
 
 	private static ActionContributionItem pauseScan;
-	private static ActionContributionItem fastForwardScan;
+	private static ActionContributionItem finishScanEarly;
 	private static final ActionUpdater actionUpdater = new ActionUpdater();
 
 	public static void enableUIControls() {
@@ -78,7 +78,7 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 		logger.trace("Updating controls, pause enabled: {}, pause checked: {}, fastForward enabled: {}",
 				pauseEnabled, pauseChecked, fastForwardEnabled);
 		updateControl(pauseScan, pauseEnabled, pauseChecked);
-		updateControl(fastForwardScan, fastForwardEnabled, fastForwardChecked);
+		updateControl(finishScanEarly, fastForwardEnabled, fastForwardChecked);
 	}
 
 	private static void updateControl(ActionContributionItem item, boolean enabled, boolean checked) {
@@ -93,8 +93,8 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 
 		additions.addContributionItem(new Separator(), Expression.TRUE);
 
-		fastForwardScan = createHaltAction(serviceLocator, "Fast forward to end of scan", "uk.ac.gda.client.jython.HaltScan", "/control_fastforward_blue.png");
-		additions.addContributionItem(fastForwardScan, Expression.TRUE);
+		finishScanEarly = createFinishEarlyAction(serviceLocator, "Finish scan early", "uk.ac.gda.client.jython.FinishScanEarly", "/control_fastforward_blue.png");
+		additions.addContributionItem(finishScanEarly, Expression.TRUE);
 
 		additions.addContributionItem(new Separator(), Expression.TRUE);
 
@@ -119,8 +119,8 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 		InterfaceProvider.getJSFObserver().addIObserver(actionUpdater);
 	}
 
-	private ActionContributionItem createHaltAction(final IServiceLocator serviceLocator, final String label, final String commandId, final String iconPath) {
-		final ActionContributionItem halt = new ActionContributionItem(new Action(label, SWT.NONE) {
+	private ActionContributionItem createFinishEarlyAction(final IServiceLocator serviceLocator, final String label, final String commandId, final String iconPath) {
+		final ActionContributionItem finishEarly = new ActionContributionItem(new Action(label, SWT.NONE) {
 			@Override
 			public void run() {
 				try {
@@ -130,8 +130,8 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 				}
 			}
 		});
-		halt.getAction().setImageDescriptor(ResourceManager.getImageDescriptor(JythonControlsFactory.class, iconPath));
-		return halt;
+		finishEarly.getAction().setImageDescriptor(ResourceManager.getImageDescriptor(JythonControlsFactory.class, iconPath));
+		return finishEarly;
 	}
 
 	private ActionContributionItem createPauseAction(final IServiceLocator serviceLocator, final String label, final String commandId, final String iconPath) {
