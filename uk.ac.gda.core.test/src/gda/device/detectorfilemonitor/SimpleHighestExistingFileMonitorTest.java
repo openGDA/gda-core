@@ -18,14 +18,14 @@
 
 package gda.device.detectorfilemonitor;
 
-import gda.device.detectorfilemonitor.impl.SimpleHighestExistingFileMonitor;
-import gda.observable.IObserver;
-import gda.util.TestUtils;
-
 import java.io.File;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import gda.device.detectorfilemonitor.impl.SimpleHighestExistingFileMonitor;
+import gda.observable.IObserver;
+import gda.util.TestUtils;
 
 public class SimpleHighestExistingFileMonitorTest {
 
@@ -34,7 +34,7 @@ public class SimpleHighestExistingFileMonitorTest {
 
 	@Test
 	public void testSetRunAfterPropertiesSet() throws Exception{
-		scratchFolder = TestUtils.setUpTest(SimpleHighestExistingFileMonitorTest.class, "testSetRunAfterPropertiesSet", true);		
+		scratchFolder = TestUtils.setUpTest(SimpleHighestExistingFileMonitorTest.class, "testSetRunAfterPropertiesSet", true);
 		SimpleHighestExistingFileMonitor simpleDetectorFileMonitor = new SimpleHighestExistingFileMonitor();
 		int startNumber = 5;
 		String fileTemplate = "/file_%04d.tif";
@@ -49,7 +49,7 @@ public class SimpleHighestExistingFileMonitorTest {
 
 	@Test
 	public void testSetRunBeforePropertiesSet() throws Exception{
-		scratchFolder = TestUtils.setUpTest(SimpleHighestExistingFileMonitorTest.class, "testSetRunBeforePropertiesSet", true);		
+		scratchFolder = TestUtils.setUpTest(SimpleHighestExistingFileMonitorTest.class, "testSetRunBeforePropertiesSet", true);
 		SimpleHighestExistingFileMonitor simpleDetectorFileMonitor = new SimpleHighestExistingFileMonitor();
 		int startNumber = 5;
 		String fileTemplate = "/file_%04d.tif";
@@ -81,14 +81,14 @@ public class SimpleHighestExistingFileMonitorTest {
 		simpleDetectorFileMonitor.addIObserver(new IObserver(){
 			@Override
 			public void update(Object source, Object arg) {
-				foundIndex = ((HighestExistingFileMonitorData)arg).foundIndex;
+				foundIndex = ((HighestExistingFileMonitorData)arg).getFoundIndex();
 			}
 		});
 
 		Assert.assertTrue(simpleDetectorFileMonitor.isRunning());
 
 		Assert.assertNull(foundIndex);
-		Assert.assertNull(simpleDetectorFileMonitor.getHighestExistingFileMonitorData().foundIndex);
+		Assert.assertNull(simpleDetectorFileMonitor.getHighestExistingFileMonitorData().getFoundIndex());
 
 		File f=null;
 		int filenumber=startNumber;
@@ -102,7 +102,7 @@ public class SimpleHighestExistingFileMonitorTest {
 		Thread.sleep(2*delay);
 
 		Assert.assertEquals(new Integer(filenumber-1), foundIndex);
-		Assert.assertEquals(foundIndex, simpleDetectorFileMonitor.getHighestExistingFileMonitorData().foundIndex);
+		Assert.assertEquals(foundIndex, simpleDetectorFileMonitor.getHighestExistingFileMonitorData().getFoundIndex());
 
 		simpleDetectorFileMonitor.setRunning(false);
 		Assert.assertFalse(simpleDetectorFileMonitor.isRunning());
