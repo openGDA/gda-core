@@ -32,8 +32,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 
 import gda.rcp.views.Browser;
+import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.diamond.daq.mapping.api.document.scanning.ShapeType;
 import uk.ac.diamond.daq.mapping.ui.experiment.file.IComparableStyledLabelProvider;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.images.ClientImages;
@@ -45,12 +45,12 @@ import uk.ac.gda.ui.tool.images.ClientImages;
  */
 class ShapeLabelProvider extends LabelProvider implements IComparableStyledLabelProvider {
 
-	private static final Map<ShapeType, ClientImages> ICONS = new EnumMap<>(ShapeType.class);
+	private static final Map<AcquisitionTemplateType, ClientImages> ICONS = new EnumMap<>(AcquisitionTemplateType.class);
 
 	static {
-		ICONS.put(ShapeType.POINT, ClientImages.POINT);
-		ICONS.put(ShapeType.LINE, ClientImages.LINE);
-		ICONS.put(ShapeType.CENTRED_RECTANGLE, ClientImages.CENTERED_RECTAGLE);
+		ICONS.put(AcquisitionTemplateType.TWO_DIMENSION_POINT, ClientImages.POINT);
+		ICONS.put(AcquisitionTemplateType.TWO_DIMENSION_LINE, ClientImages.LINE);
+		ICONS.put(AcquisitionTemplateType.TWO_DIMENSION_GRID, ClientImages.CENTERED_RECTAGLE);
 	}
 
 	/**
@@ -59,7 +59,7 @@ class ShapeLabelProvider extends LabelProvider implements IComparableStyledLabel
 	@Override
 	public Image getImage(Object element) {
 		ScanningParameters parameters = getAcquisitionParameters(element);
-		return ClientSWTElements.getImage(ICONS.get(parameters.getShapeType()));
+		return ClientSWTElements.getImage(ICONS.get(parameters.getScanpathDocument().getModelDocument()));
 	}
 
 	/**
@@ -75,11 +75,11 @@ class ShapeLabelProvider extends LabelProvider implements IComparableStyledLabel
 		return new ViewerComparator() {
 			@Override
 			public int compare(Viewer viewer, Object element1, Object element2) {
-				ScanningParameters first = getAcquisitionParameters(element1);
-				ScanningParameters second = getAcquisitionParameters(element2);
+				AcquisitionTemplateType first = getAcquisitionParameters(element1).getScanpathDocument().getModelDocument();
+				AcquisitionTemplateType second = getAcquisitionParameters(element2).getScanpathDocument().getModelDocument();
 
 				int direction = ((TreeViewer) viewer).getTree().getSortDirection() == SWT.UP ? 1 : -1;
-				return direction * (first.getShapeType().ordinal() < second.getShapeType().ordinal() ? 1 : -1);
+				return direction * (first.ordinal() < second.ordinal() ? 1 : -1);
 			}
 		};
 	}
