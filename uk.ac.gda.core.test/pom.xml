@@ -58,7 +58,6 @@
 						<exclude>CoordinatedScannableElementTest</exclude>
 			          	<!-- Tests trying to read/write test files -->
 			          	<exclude>CrysalisRunListTest</exclude>
-			          	<exclude>Gda3879Test</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
