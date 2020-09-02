@@ -301,8 +301,7 @@ public class ScanningAcquisitionController
 
 	@Override
 	public void releaseResources() {
-		Optional.ofNullable(getDetectorsHelper())
-				.ifPresent(ScanningAcquisitionControllerDetectorHelper::releaseResources);
+		// DO NOTHING
 	}
 
 	private ScanningAcquisitionControllerDetectorHelper getDetectorsHelper() {

@@ -21,17 +21,16 @@ package uk.ac.diamond.daq.mapping.ui.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
-import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationListener;
 
 import gda.device.DeviceException;
-import gda.observable.IObserver;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
-import uk.ac.diamond.daq.client.gui.camera.event.CameraEventUtils;
+import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionEvent;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
@@ -41,7 +40,6 @@ import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper.Acqu
 import uk.ac.gda.api.acquisition.AcquisitionEngineDocument;
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 import uk.ac.gda.api.camera.CameraControl;
-import uk.ac.gda.api.camera.CameraControllerEvent;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.properties.CameraProperties;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
@@ -76,7 +74,7 @@ class ScanningAcquisitionControllerDetectorHelper {
 	 * These are the camera associated with this acquisition controller. Some specific acquisition may use more than one
 	 * camera, as BeamSelector scan in DIAD (K11)
 	 */
-	private final List<CameraControl> camerasControls = new ArrayList<>();
+	private List<CameraControl> camerasControls = new ArrayList<>();
 
 	/**
 	 * Constructs an object to handle detectors for specific {@code AcquisitionType}. See
@@ -93,13 +91,7 @@ class ScanningAcquisitionControllerDetectorHelper {
 		Optional.ofNullable(AcquisitionsPropertiesHelper.getAcquistionPropertiesDocument(acquisitionType))
 				.ifPresent(acquisitionPropertiesDocuments::addAll);
 		setCamerasControls();
-	}
-
-	/**
-	 * Used by the parent {@code ScanningAcquisitionController} to release any resource before being disposed
-	 */
-	void releaseResources() {
-		camerasControls.stream().forEach(item -> item.deleteIObserver(cameraControlObserver));
+		SpringApplicationContextProxy.addDisposableApplicationListener(this, listenToExposureChange);
 	}
 
 	/**
@@ -131,43 +123,16 @@ class ScanningAcquisitionControllerDetectorHelper {
 		if (dp == null)
 			return;
 
-		dp.getCameras().stream()
-				.map(CameraHelper::getCameraPropertiesByID)
-				.filter(Optional::isPresent)
-				.map(Optional::get)
-				.map(CameraProperties::getIndex)
-				.map(CameraHelper::getCameraControl)
-				.filter(Optional::isPresent)
-				.map(Optional::get)
-				.forEach(cc -> {
-					cc.addIObserver(cameraControlObserver);
-					camerasControls.add(cc);
-				});
-
+		camerasControls = dp.getCameras().stream()
+			.map(CameraHelper::getCameraPropertiesByID)
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.map(CameraProperties::getIndex)
+			.map(CameraHelper::getCameraControl)
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.collect(Collectors.toList());
 	}
-
-	/**
-	 * Updates the scanning acquisition detector exposure time an publishes a {@link ScanningAcquisitionEvent}
-	 */
-	private void updateExposures(CameraControllerEvent cce) {
-		ScanningParameters tp = getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
-		// To activate when scanningParameters#getDetector will return an array
-//		camerasControl.stream().filter(c1 -> {
-//			return tp.getDetector().getName().equals(c1.getName());
-//		}).findFirst().ifPresent(cc -> {
-//			tp.setDetector(new DetectorDocument(tp.getDetector().getName(), cce.getAcquireTime()));
-//		});
-		tp.setDetector(new DetectorDocument(tp.getDetector().getName(), cce.getAcquireTime()));
-		SpringApplicationContextProxy.publishEvent(new ScanningAcquisitionEvent(getAcquisition()));
-	}
-
-	private ScanningAcquisition getAcquisition() {
-		return acquisitionSupplier.get();
-	}
-
-	private Consumer<CameraControllerEvent> consumeExposure = cce -> Display.getDefault()
-			.asyncExec(() -> updateExposures(cce));
-	private final IObserver cameraControlObserver = CameraEventUtils.cameraControlEventObserver(consumeExposure);
 
 	private AcquisitionEngineDocument createNewAcquisitionEngineDocument() {
 		AcquisitionPropertiesDocument dp = getAcquisitionPropertiesDocument();
@@ -186,4 +151,30 @@ class ScanningAcquisitionControllerDetectorHelper {
 		int index = 0; // in future may be parametrised
 		return acquisitionPropertiesDocuments.get(index);
 	}
+
+	// At the moment is not possible to use anonymous lambda expression because it
+	// generates a class cast exception
+	private ApplicationListener<CameraControlSpringEvent> listenToExposureChange = new ApplicationListener<CameraControlSpringEvent>() {
+		@Override
+		public void onApplicationEvent(CameraControlSpringEvent event) {
+			camerasControls.stream()
+					.map(CameraControl::getName)
+					.filter(cameraName -> cameraName.equals(event.getName()))
+					.forEach(cameraName -> updateDetector(cameraName, event));
+		}
+
+		private void updateDetector(String cameraName, CameraControlSpringEvent event) {
+			// this section partially anticipates when the ScannningAcquisition will include multiple detectors
+			ScanningParameters scanningParameter = getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
+			String detectorName = scanningParameter.getDetector().getName();
+			if (!cameraName.equals(detectorName))
+				return;
+			scanningParameter.setDetector(new DetectorDocument(detectorName, event.getAcquireTime()));
+			SpringApplicationContextProxy.publishEvent(new ScanningAcquisitionEvent(getAcquisition()));
+		}
+
+		private ScanningAcquisition getAcquisition() {
+			return acquisitionSupplier.get();
+		}
+	};
 }
