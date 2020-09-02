@@ -51,7 +51,6 @@
 				<fileset dir="${plugin.basedir}/src">
 					<include name="**/*Test.java" />
 					<exclude name="**/*PluginTest.java" />
-					<exclude name="**/AreaDetectorIOCIntegrationTest.java" />
 				</fileset>
 			</batchtest>
 		</junit-call>

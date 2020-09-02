@@ -31,6 +31,7 @@ import java.util.concurrent.Callable;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import gda.data.nexus.tree.NexusTreeProvider;
@@ -55,6 +56,7 @@ import gda.jython.ICurrentScanInformationHolder;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 
+@Ignore("Can't run this as a unit test as requires Epics")
 public class AreaDetectorIOCIntegrationTest {
 
 	final String BASE_PV_NAME = "BLRWI-DI-CAM-01:";
