@@ -60,8 +60,6 @@
 			          	<exclude>CrysalisRunListTest</exclude>
 			          	<exclude>SimpleHighestExistingFileMonitorTest</exclude>
 			          	<exclude>ElogEntryTest</exclude>
-			          	<!-- Local Properties file is not found -->
-			          	<exclude>LocalPropertiesTest</exclude>
 			          	<exclude>Gda3879Test</exclude>
 					</excludes>
 				</configuration>
