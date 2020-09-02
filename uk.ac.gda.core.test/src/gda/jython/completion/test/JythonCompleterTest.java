@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
 import org.python.core.PyInteger;
 import org.python.core.PyList;
 import org.python.core.PyMethod;
@@ -48,8 +47,8 @@ public class JythonCompleterTest {
 
 	@Before
 	public void setup() {
-		jy = PowerMockito.mock(JythonServer.class);
-		jyFunc = PowerMockito.mock(PyMethod.class);
+		jy = Mockito.mock(JythonServer.class);
+		jyFunc = Mockito.mock(PyMethod.class);
 		Mockito.when(jy.eval("Completer(globals(), 'auto').complete")).thenReturn(jyFunc);
 		Mockito.when(jyFunc.__call__(new PyString(""))).thenReturn(makeList(makeTuple("abs", 2), makeTuple("pos", 2)));
 

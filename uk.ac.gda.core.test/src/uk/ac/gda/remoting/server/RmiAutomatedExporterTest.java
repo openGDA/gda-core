@@ -18,6 +18,7 @@
 
 package uk.ac.gda.remoting.server;
 
+import static gda.configuration.properties.LocalProperties.GDA_ACCESS_CONTROL_ENABLED;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -78,11 +79,12 @@ public class RmiAutomatedExporterTest {
 
 	@BeforeClass
 	public static void setupClass() throws Exception {
+		LocalProperties.forceActiveMQEmbeddedBroker();
 		// Need to find a free port as this test might be running simultaneously on the same machine
 		portForTesting = SocketUtils.findAvailableTcpPort(1099, 10000);
 		// Set the property this is used by the RmiAutomatedExporter
 		LocalProperties.set(RMI_PORT_PROPERTY, Integer.toString(portForTesting));
-		LocalProperties.set(LocalProperties.GDA_ACCESS_CONTROL_ENABLED, "true");
+		LocalProperties.set(GDA_ACCESS_CONTROL_ENABLED, "true");
 	}
 
 	@Before
@@ -109,6 +111,8 @@ public class RmiAutomatedExporterTest {
 	@AfterClass
 	public static void tearDownClass() {
 		LocalProperties.clearProperty(RMI_PORT_PROPERTY);
+		LocalProperties.clearProperty(GDA_ACCESS_CONTROL_ENABLED);
+		LocalProperties.unsetActiveMQBrokerURI();
 	}
 
 	@Test
@@ -258,7 +262,7 @@ public class RmiAutomatedExporterTest {
 	}
 
 	@ServiceInterface(Scannable.class)
-	private static class TestScannable extends ScannableBase {
+	public static class TestScannable extends ScannableBase {
 		@SuppressWarnings("unused") // Needed by RBAC
 		public TestScannable() {
 			this("testScannable");
@@ -273,7 +277,7 @@ public class RmiAutomatedExporterTest {
 		}
 	}
 
-	private static class TestFindableWithoutServiceInterface extends DeviceBase {
+	public static class TestFindableWithoutServiceInterface extends DeviceBase {
 		@SuppressWarnings("unused") // Needed by RBAC
 		public TestFindableWithoutServiceInterface() {
 			this("testFindable");
