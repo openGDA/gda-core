@@ -128,6 +128,12 @@ public class StatusQueueView extends EventConnectionView {
 					StatusBean.class.getSimpleName(),
 					EventConstants.STATUS_TOPIC,
 					EventConstants.SUBMISSION_QUEUE);
+
+	private static final String SUSPEND_QUEUE = "Suspend queueing of upcoming jobs\nDoes not pause current job";
+	private static final String UNSUSPEND_QUEUE = "Unsuspend queueing of upcoming jobs\nDoes not undefer upcoming job(s)";
+	private static final String SUSPEND_QUEUE_ICON = "icons/switch-queue-on.png";
+	private static final String UNSUSPEND_QUEUE_ICON = "icons/switch-queue-off.png";
+
 	// UI
 	private TableViewer viewer;
 	private DelegatingSelectionProvider selectionProvider;
@@ -156,7 +162,7 @@ public class StatusQueueView extends EventConnectionView {
 	private Action openAction;
 	private Action detailsAction;
 	private Action clearQueueAction;
-	private Action pauseQueueAction;
+	private Action suspendQueueAction;
 
 	private IEventService service;
 
@@ -246,7 +252,7 @@ public class StatusQueueView extends EventConnectionView {
 		openActionUpdate(selection);
 		detailsActionUpdate(selectedInSubmittedList, selectedInRunList);
 
-		pauseQueueAction.setChecked(jobQueueProxy.isPaused());
+		suspendQueueAction.setChecked(jobQueueProxy.isPaused());
 
 		// Some sanity checks
 		warnIfListContainsStatus("null status found in selection:       ", selection,     null);
@@ -398,9 +404,9 @@ public class StatusQueueView extends EventConnectionView {
 		stopAction = stopActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, stopAction);
 
-		pauseQueueAction = pauseQueueActionCreate();
-		addActionTo(toolMan, menuMan, dropDown, pauseQueueAction);
-		jobQueueProxy.addQueueStatusListener(status -> pauseQueueAction.setChecked(status == QueueStatus.PAUSED));
+		suspendQueueAction = suspendQueueActionCreate();
+		addActionTo(toolMan, menuMan, dropDown, suspendQueueAction);
+		jobQueueProxy.addQueueStatusListener(status -> suspendQueueAction.setChecked(status == QueueStatus.PAUSED));
 
 		removeAction = removeActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, removeAction);
@@ -520,25 +526,28 @@ public class StatusQueueView extends EventConnectionView {
 		return action;
 	}
 
-	private Action pauseQueueActionCreate() {
-		Action action = new Action("Pause "+getPartName()+". Does not pause running job.", IAction.AS_CHECK_BOX) {
+	private Action suspendQueueActionCreate() {
+		final boolean isChecked = jobQueueProxy.isPaused();
+		Action action = new Action(isChecked ? UNSUSPEND_QUEUE : SUSPEND_QUEUE, IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
-				pauseQueueActionRun(this);
+				suspendQueueActionRun(this);
 			}
 		};
-		action.setImageDescriptor(Activator.getImageDescriptor("icons/control-pause-red.png"));
-		action.setChecked(jobQueueProxy.isPaused());
+		action.setImageDescriptor(Activator.getImageDescriptor(isChecked ? UNSUSPEND_QUEUE_ICON  : SUSPEND_QUEUE_ICON));
+		action.setChecked(isChecked);
 		return action;
 	}
 
-	private void pauseQueueActionRun(IAction pauseQueue) {
+	private void suspendQueueActionRun(IAction suspendQueue) {
 
 		// The button can get out of sync if two clients are used.
-		final boolean queuePaused = jobQueueProxy.isPaused();
+		final boolean queueSuspended = jobQueueProxy.isPaused();
 		try {
-			pauseQueue.setChecked(!queuePaused); // We are toggling it.
-			if (queuePaused) {
+			suspendQueue.setChecked(!queueSuspended); // We are toggling it.
+			suspendQueue.setText(queueSuspended ? SUSPEND_QUEUE : UNSUSPEND_QUEUE);
+			suspendQueue.setImageDescriptor(Activator.getImageDescriptor(queueSuspended ? SUSPEND_QUEUE_ICON : UNSUSPEND_QUEUE_ICON));
+			if (queueSuspended) {
 				jobQueueProxy.resume();
 			} else {
 				jobQueueProxy.pause();
@@ -548,7 +557,7 @@ public class StatusQueueView extends EventConnectionView {
 				"Cannot pause queue "+getSubmissionQueueName()+"\n\nPlease contact your support representative.",
 				new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()));
 		}
-		pauseQueue.setChecked(jobQueueProxy.isPaused());
+		suspendQueue.setChecked(jobQueueProxy.isPaused());
 	}
 
 	private void pauseActionUpdate(boolean activeScanSelected, boolean activeScanPaused) {
@@ -558,7 +567,7 @@ public class StatusQueueView extends EventConnectionView {
 	}
 
 	private Action pauseActionCreate() {
-		Action action = new Action("Pause job.\nPauses a running job.", IAction.AS_CHECK_BOX) {
+		Action action = new Action("Pause job", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
 				pauseActionRun();
