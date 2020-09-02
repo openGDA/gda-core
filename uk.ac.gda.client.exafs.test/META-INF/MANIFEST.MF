@@ -16,7 +16,6 @@ Import-Package: org.eclipse.dawnsci.plotting.api,
  org.eclipse.ui.actions,
  org.eclipse.ui.ide,
  uk.ac.gda.beans.exafs,
- uk.ac.gda.exafs.ui,
  uk.ac.gda.exafs.ui.composites.detectors.internal,
  uk.ac.gda.richbeans.editors
 Require-Bundle: uk.ac.gda.test.helpers;bundle-version="1.0.0",

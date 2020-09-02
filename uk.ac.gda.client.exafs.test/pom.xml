@@ -40,9 +40,6 @@
 				<version>${tycho.version}</version>
 				<configuration>
 					<excludes>
-						<!-- writes to files -->
-						<exclude>DetectorParametersTest</exclude>
-						<exclude>FluoCompositeDataStoreTest</exclude>
 						<!-- UI elements not initialised -->
 						<exclude>DetectorParametersUIEditorPluginTest</exclude>
 						<exclude>OutputParametersUIEditorPluginTest</exclude>
