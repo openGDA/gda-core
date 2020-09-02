@@ -25,7 +25,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 <module>uk.ac.diamond.daq.detectors.vgscienta.electronanalyser.api</module>
 <module>uk.ac.diamond.daq.devices.specs.phoibos</module>
 <module>uk.ac.diamond.daq.devices.specs.phoibos.api</module>
-<!--module>uk.ac.diamond.daq.devices.specs.phoibos.test</module-->
+<module>uk.ac.diamond.daq.devices.specs.phoibos.test</module>
 <module>uk.ac.diamond.daq.devices.specs.phoibos.ui</module>
 <module>uk.ac.gda.arpes</module>
 <module>uk.ac.gda.arpes.server</module>

@@ -2,13 +2,15 @@ package uk.ac.diamond.daq.devices.specs.phoibos.test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.io.File;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -133,7 +135,7 @@ public class SpecsPhoibosAnalyserTest {
 
 	@Test
 	public void testLoadingSequenceFromAbsolutePath() {
-		String sequencePath = this.getClass().getResource("test_sequence.seq").getFile();
+		String sequencePath = new File("testfiles/test_sequence.seq").getAbsolutePath();
 		analyser.setSequenceFile(sequencePath);
 	}
 
