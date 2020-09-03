@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import gda.mscan.element.Mutator;
+import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 
@@ -67,6 +68,14 @@ public class ScanpathDocumentHelper extends ScanningParametersHelperBase {
 	 */
 	public void removeMutators(Mutator mutator) {
 		updateScanPathDocument(getScanpathDocumentBuilder().removeMutator(mutator));
+	}
+
+	/**
+	 * Updates the {@link AcquisitionTemplateType} associated with this document
+	 * @param modelDocument the new {@link AcquisitionTemplateType}
+	 */
+	public void updateModelDocument(AcquisitionTemplateType modelDocument) {
+		updateScanPathDocument(getScanpathDocumentBuilder().withModelDocument(modelDocument));
 	}
 
 	/**
