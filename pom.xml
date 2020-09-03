@@ -16,7 +16,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 
 <modules>
 <module>uk.ac.gda.devices.bssc</module>
-<!--module>uk.ac.gda.devices.bssc.test</module-->
 <module>uk.ac.gda.devices.bssc.ui</module>
 <module>uk.ac.gda.devices.cirrus</module>
 <module>uk.ac.gda.devices.excalibur</module>
