@@ -56,8 +56,6 @@
 						<exclude>SpringMotorDefinitionParserTest</exclude>
 						<exclude>BeamConditionBaseTest</exclude>
 						<exclude>CoordinatedScannableElementTest</exclude>
-			          	<!-- Tests trying to read/write test files -->
-			          	<exclude>CrysalisRunListTest</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
