@@ -39,7 +39,6 @@ import com.swtdesigner.SWTResourceManager;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannablePositionChangeEvent;
-import gda.factory.FactoryException;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
 
@@ -349,11 +348,30 @@ public class InputTextComposite extends Composite {
 
 		scannable.addIObserver(iObserver);
 		this.addDisposeListener(e -> scannable.deleteIObserver(iObserver));
-		//The original pulling current position call blocks when GUI is starting - not clear what caused it.
+
 		try {
-			scannable.reconfigure();
-		} catch (FactoryException e1) {
-			logger.error("reconfigure scannable '{}' failed.", scannable.getName(), e1);
+			Object newPosition = scannable.getPosition();
+			if (newPosition.getClass().isArray()) {
+				Object[] positionArray = (Object[])newPosition;
+				Display.getDefault().asyncExec(() -> {
+					if (isTextInput()) {
+						positionText.setText(positionArray[0].toString());
+					} else {
+						positionText.setText(String.format(scannable.getOutputFormat()[0], positionArray[0]));
+					}
+				});
+			} else {
+				Display.getDefault().asyncExec(() -> {
+					// only display the 1st value.
+					if (isTextInput()) {
+						positionText.setText(newPosition.toString());
+					} else {
+						positionText.setText(String.format(scannable.getOutputFormat()[0], newPosition));
+					}
+				});
+			}
+		} catch (DeviceException e1) {
+			logger.error("Couldn't get initial position {}", scannable.getName());
 		}
 	}
 
