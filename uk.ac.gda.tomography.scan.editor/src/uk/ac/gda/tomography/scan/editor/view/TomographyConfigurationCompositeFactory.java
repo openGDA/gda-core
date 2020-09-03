@@ -52,6 +52,8 @@ import org.springframework.context.ApplicationListener;
 
 import gda.mscan.element.Mutator;
 import gda.rcp.views.CompositeFactory;
+import uk.ac.diamond.daq.mapping.api.document.helper.MultipleScansHelper;
+import uk.ac.diamond.daq.mapping.api.document.helper.ScanpathDocumentHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
@@ -121,7 +123,8 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 
 	protected final AcquisitionController<ScanningAcquisition> controller;
 	private final IStageController stageController;
-	private ScanningParametersHelper dataHelper;
+	private ScanpathDocumentHelper dataHelper;
+	private MultipleScansHelper configurationHelper;
 
 	private Composite mainComposite;
 	private ScrolledComposite scrolledComposite;
@@ -131,7 +134,8 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		super();
 		this.controller = controller;
 		this.stageController = stageController;
-		this.dataHelper = new ScanningParametersHelper(this::getTemplateData);
+		this.dataHelper = new ScanpathDocumentHelper(this::getAcquisitionParameters);
+		this.configurationHelper = new MultipleScansHelper(this::getAcquisitionConfiguration);
 	}
 
 	@Override
@@ -149,6 +153,7 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		createElements(mainComposite, SWT.NONE, SWT.BORDER);
 		bindElements();
 		initialiseElements();
+		addWidgetsListener();
 		try {
 			SpringApplicationContextProxy.addDisposableApplicationListener(mainComposite, new LoadListener(mainComposite));
 		} catch (GDAClientException e) {
@@ -248,7 +253,6 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 
 		customAngle = ClientSWTElements.createClientText(parent, textStyle, ClientMessages.CUSTOM_END_TOOLTIP, Optional.of(verifyOnlyDoubleText));
 		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(ClientSWTElements.DEFAULT_TEXT_SIZE).applyTo(customAngle);
-		customAngle.setEnabled(false);
 	}
 
 	private void projectionsContent(Composite parent, int labelStyle, int textStyle) {
@@ -309,14 +313,13 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).span(3, 1).applyTo(multipleScansAlternative);
 
 		multipleScansAlternative.addSelectionListener(new SelectionListener() {
-
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (e.widget.equals(multipleScansAlternative)) {
-					new MultipleScanDialog(parent.getShell(), () -> getConfigurationData()).open();
+					new MultipleScanDialog(parent.getShell(), () -> getAcquisitionConfiguration()).open();
 					updateMultipleScan();
-					if (getConfigurationData().getMultipleScans().getNumberRepetitions() > 1 || getConfigurationData().getMultipleScans().getWaitingTime() > 0
-							|| !MultipleScansType.REPEAT_SCAN.equals(getConfigurationData().getMultipleScans().getMultipleScansType())) {
+					if (getAcquisitionConfiguration().getMultipleScans().getNumberRepetitions() > 1 || getAcquisitionConfiguration().getMultipleScans().getWaitingTime() > 0
+							|| !MultipleScansType.REPEAT_SCAN.equals(getAcquisitionConfiguration().getMultipleScans().getMultipleScansType())) {
 						multipleScansAlternative.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_YELLOW));
 					} else {
 						multipleScansAlternative.setBackground(null);
@@ -389,7 +392,7 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 	}
 
 	private void customAngleTextListener(ModifyEvent event) {
-		if (!event.getSource().equals(customAngle))
+		if (!event.getSource().equals(customAngle) || !customRotationRangeType.getSelection())
 			return;
 		double angle = Optional.ofNullable(customAngle.getText()).filter(s -> !s.isEmpty()).map(Double::parseDouble).orElse(0.0);
 		dataHelper.updateStopAngle(angle);
@@ -412,7 +415,6 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 
 			if (!((Button) event.getSource()).getSelection())
 				return;
-			customAngle.setEnabled(false);
 			if (event.getSource().equals(currentAngleButton)) {
 				updateCurrentAngularPosition();
 			} else if (event.getSource().equals(fullRotationRangeType)) {
@@ -429,12 +431,12 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		public void widgetDefaultSelected(SelectionEvent event) {
 			// do nothing
 		}
-	};
 
-	private void updateCurrentAngularPosition() {
-		double currentMotorPostion = stageController.getMotorPosition(StageDevice.MOTOR_STAGE_ROT_Y);
-		startAngleText.setText(Double.toString(currentMotorPostion));
-	}
+		private void updateCurrentAngularPosition() {
+			double currentMotorPostion = stageController.getMotorPosition(StageDevice.MOTOR_STAGE_ROT_Y);
+			startAngleText.setText(Double.toString(currentMotorPostion));
+		}
+	};
 
 	private SelectionListener scanTypeListener = new SelectionListener() {
 		@Override
@@ -457,14 +459,61 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		public void widgetDefaultSelected(SelectionEvent event) {
 			// do nothing
 		}
+
+		private void removeContinuous() {
+			dataHelper.removeMutators(Mutator.CONTINUOUS);
+		}
 	};
 
 	private void addContinuous() {
 		dataHelper.addMutators(Mutator.CONTINUOUS, new ArrayList<>());
 	}
 
-	private void removeContinuous() {
-		dataHelper.removeMutators(Mutator.CONTINUOUS);
+	private void numberRepetitionsListener(ModifyEvent event) {
+		if (!event.getSource().equals(numberRepetitions))
+			return;
+		int repetitions = Optional.ofNullable(numberRepetitions.getText()).filter(s -> !s.isEmpty()).map(Integer::parseInt).orElse(1);
+		configurationHelper.updateMultipleScanRepetitions(repetitions);
+	}
+
+	private void waitingTimeListener(ModifyEvent event) {
+		if (!event.getSource().equals(waitingTime))
+			return;
+		int wTime = Optional.ofNullable(waitingTime.getText()).filter(s -> !s.isEmpty()).map(Integer::parseInt).orElse(1);
+		configurationHelper.updateMultipleScanWaitingTime(wTime);
+	}
+
+	private void switchbackScanTypeListener(SelectionEvent event) {
+		if (!event.getSource().equals(switchbackMultipleScansType))
+			return;
+		if (switchbackMultipleScansType.getSelection())
+			configurationHelper.updateMultipleScanType(MultipleScansType.SWITCHBACK_SCAN);
+	}
+
+	private void repeateMultipleScansType(SelectionEvent event) {
+		if (!event.getSource().equals(repeateMultipleScansType))
+			return;
+		if (repeateMultipleScansType.getSelection())
+			configurationHelper.updateMultipleScanType(MultipleScansType.REPEAT_SCAN);
+	}
+
+	private  void addWidgetsListener() {
+		flyScanType.addSelectionListener(scanTypeListener);
+		stepScanType.addSelectionListener(scanTypeListener);
+
+		startAngleText.addModifyListener(this::startAngleTextListener);
+		customAngle.addModifyListener(this::customAngleTextListener);
+		customAngle.addFocusListener(FocusListener.focusLostAdapter(c -> updateAngularStep()));
+		currentAngleButton.addSelectionListener(predefinedAngleListener);
+
+		endGroupsListeners();
+
+		totalProjections.addModifyListener(this::totalProjectionsListener);
+
+		numberRepetitions.addModifyListener(this::numberRepetitionsListener);
+		waitingTime.addModifyListener(this::waitingTimeListener);
+		switchbackMultipleScansType.addSelectionListener(SelectionListener.widgetSelectedAdapter(this::switchbackScanTypeListener));
+		repeateMultipleScansType.addSelectionListener(SelectionListener.widgetSelectedAdapter(this::repeateMultipleScansType));
 	}
 
 	private void bindElements() {
@@ -472,52 +521,63 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		bindMultipleScanType(dbc);
 		ClientBindingElements.bindText(dbc, name, String.class, "name", getController().getAcquisition());
 
-		flyScanType.addSelectionListener(scanTypeListener);
-		stepScanType.addSelectionListener(scanTypeListener);
-
-		startAngleText.addModifyListener(this::startAngleTextListener);
-		customAngle.addModifyListener(this::customAngleTextListener);
-		currentAngleButton.addSelectionListener(predefinedAngleListener);
-		halfRotationRangeType.addSelectionListener(predefinedAngleListener);
-		fullRotationRangeType.addSelectionListener(predefinedAngleListener);
-		customRotationRangeType.addSelectionListener(predefinedAngleListener);
-		totalProjections.addModifyListener(this::totalProjectionsListener);
-
-		ClientBindingElements.bindCheckBox(dbc, beforeAcquisition, "imageCalibration.beforeAcquisition", getConfigurationData());
-		ClientBindingElements.bindCheckBox(dbc, afterAcquisition, "imageCalibration.afterAcquisition", getConfigurationData());
-		ClientBindingElements.bindText(dbc, numberDark, Integer.class, "imageCalibration.numberDark", getConfigurationData());
-		ClientBindingElements.bindText(dbc, numberFlat, Integer.class, "imageCalibration.numberFlat", getConfigurationData());
-		ClientBindingElements.bindText(dbc, darkExposure, Integer.class, "imageCalibration.darkExposure", getConfigurationData());
-		ClientBindingElements.bindText(dbc, flatExposure, Integer.class, "imageCalibration.flatExposure", getConfigurationData());
+		ClientBindingElements.bindCheckBox(dbc, beforeAcquisition, "imageCalibration.beforeAcquisition", getAcquisitionConfiguration());
+		ClientBindingElements.bindCheckBox(dbc, afterAcquisition, "imageCalibration.afterAcquisition", getAcquisitionConfiguration());
+		ClientBindingElements.bindText(dbc, numberDark, Integer.class, "imageCalibration.numberDark", getAcquisitionConfiguration());
+		ClientBindingElements.bindText(dbc, numberFlat, Integer.class, "imageCalibration.numberFlat", getAcquisitionConfiguration());
+		ClientBindingElements.bindText(dbc, darkExposure, Integer.class, "imageCalibration.darkExposure", getAcquisitionConfiguration());
+		ClientBindingElements.bindText(dbc, flatExposure, Integer.class, "imageCalibration.flatExposure", getAcquisitionConfiguration());
 
 		// ClientBindingElements.bindCheckBox(dbc, multipleScans, "multipleScans.enabled", getConfigurationData());
 		// multipleScans.setSelection(multipleScans.getSelection());
-		ClientBindingElements.bindText(dbc, numberRepetitions, Integer.class, "multipleScans.numberRepetitions", getConfigurationData());
-		ClientBindingElements.bindText(dbc, waitingTime, Integer.class, "multipleScans.waitingTime", getConfigurationData());
+		//ClientBindingElements.bindText(dbc, numberRepetitions, Integer.class, "multipleScans.numberRepetitions", getConfigurationData());
+		//ClientBindingElements.bindText(dbc, waitingTime, Integer.class, "multipleScans.waitingTime", getConfigurationData());
 	}
 
 	private void bindScanType(DataBindingContext dbc) {
 		Map<ScanType, Object> enumRadioMap = new EnumMap<>(ScanType.class);
 		enumRadioMap.put(ScanType.FLY, flyScanType);
 		enumRadioMap.put(ScanType.STEP, stepScanType);
-		ClientBindingElements.bindEnumToRadio(dbc, ScanType.class, "scanType", getTemplateData(), enumRadioMap);
+		ClientBindingElements.bindEnumToRadio(dbc, ScanType.class, "scanType", getAcquisitionParameters(), enumRadioMap);
 	}
 
 	private void bindMultipleScanType(DataBindingContext dbc) {
 		Map<MultipleScansType, Object> enumRadioMap = new EnumMap<>(MultipleScansType.class);
 		enumRadioMap.put(MultipleScansType.REPEAT_SCAN, repeateMultipleScansType);
 		enumRadioMap.put(MultipleScansType.SWITCHBACK_SCAN, switchbackMultipleScansType);
-		ClientBindingElements.bindEnumToRadio(dbc, MultipleScansType.class, "multipleScans.multipleScansType", getConfigurationData(), enumRadioMap);
+		ClientBindingElements.bindEnumToRadio(dbc, MultipleScansType.class, "multipleScans.multipleScansType", getAcquisitionConfiguration(), enumRadioMap);
 	}
 
 	private void initialiseElements() {
+		initializeScanType();
+		initializeStartAngle();
+		initializeEndAngle();
+		updateAngularStep();
+
+		totalProjections.setText(Integer.toString(getScannableTrackDocument().getPoints()));
+		forceFocusOnEmpty(numberDark, Integer.toString(getAcquisitionConfiguration().getImageCalibration().getNumberDark()));
+		forceFocusOnEmpty(numberFlat, Integer.toString(getAcquisitionConfiguration().getImageCalibration().getNumberFlat()));
+		updateMultipleScan();
+	}
+
+	private void initializeScanType() {
 		stepScanType.setSelection(false);
 		flyScanType.setSelection(true);
 		addContinuous();
+	}
 
-		endGroupsListeners();
-		customAngleLooseFocus();
+	private void initializeStartAngle() {
+		currentAngleButton.setSelection(false);
 		startAngleText.setText(Double.toString(getScannableTrackDocument().getStart()));
+	}
+
+	private void initializeEndAngle() {
+		halfRotationRangeType.setSelection(false);
+		fullRotationRangeType.setSelection(false);
+		customAngle.setEnabled(false);
+		customRotationRangeType.setSelection(false);
+		customAngle.setText("");
+
 		if (getScannableTrackDocument().getStop() == 180.0) {
 			halfRotationRangeType.setSelection(true);
 		} else if (getScannableTrackDocument().getStop() == 360.0) {
@@ -528,26 +588,25 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 			event.widget = customRotationRangeType;
 			Arrays.stream(customRotationRangeType.getListeners(SWT.SELECTED)).forEach(l -> l.handleEvent(event));
 			customAngle.setText(Double.toString(getScannableTrackDocument().getStop()));
+			customAngle.setEnabled(true);
 		}
-		// configureWhenShown();
-		totalProjections.setText(Integer.toString(getScannableTrackDocument().getPoints()));
-		forceFocusOnEmpty(numberDark, Integer.toString(getConfigurationData().getImageCalibration().getNumberDark()));
-		forceFocusOnEmpty(numberFlat, Integer.toString(getConfigurationData().getImageCalibration().getNumberFlat()));
-		updateMultipleScan();
 	}
 
 	private void updateMultipleScan() {
 		Arrays.asList(switchbackMultipleScansType, repeateMultipleScansType).stream()
-				.filter(i -> getConfigurationData().getMultipleScans().getMultipleScansType().equals(i.getData())).findFirst()
+				.filter(i -> getAcquisitionConfiguration().getMultipleScans().getMultipleScansType().equals(i.getData())).findFirst()
 				.ifPresent(b -> b.setSelection(true));
 		Arrays.asList(switchbackMultipleScansType, repeateMultipleScansType).stream()
-				.filter(i -> !getConfigurationData().getMultipleScans().getMultipleScansType().equals(i.getData())).findFirst()
+				.filter(i -> !getAcquisitionConfiguration().getMultipleScans().getMultipleScansType().equals(i.getData())).findFirst()
 				.ifPresent(b -> b.setSelection(false));
-		numberRepetitions.setText(Integer.toString(getConfigurationData().getMultipleScans().getNumberRepetitions()));
-		waitingTime.setText(Integer.toString(getConfigurationData().getMultipleScans().getWaitingTime()));
+		numberRepetitions.setText(Integer.toString(getAcquisitionConfiguration().getMultipleScans().getNumberRepetitions()));
+		waitingTime.setText(Integer.toString(getAcquisitionConfiguration().getMultipleScans().getWaitingTime()));
 	}
 
 	private void endGroupsListeners() {
+		halfRotationRangeType.addSelectionListener(predefinedAngleListener);
+		fullRotationRangeType.addSelectionListener(predefinedAngleListener);
+		customRotationRangeType.addSelectionListener(predefinedAngleListener);
 		SelectionListener activateGroupListener = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -570,11 +629,6 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		halfRotationRangeType.addSelectionListener(activateGroupListener);
 		fullRotationRangeType.addSelectionListener(activateGroupListener);
 		customRotationRangeType.addSelectionListener(activateGroupListener);
-	}
-
-	private void customAngleLooseFocus() {
-		FocusListener customAngleListener = FocusListener.focusLostAdapter(c -> updateAngularStep());
-		customAngle.addFocusListener(customAngleListener);
 	}
 
 	private void forceFocusOnEmpty(Text text, String defaultValue) {
@@ -626,12 +680,16 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		return bar;
 	}
 
-	private ScanningConfiguration getConfigurationData() {
-		return getController().getAcquisition().getAcquisitionConfiguration();
+//	private ScanningConfiguration getConfigurationData() {
+//		return getController().getAcquisition().getAcquisitionConfiguration();
+//	}
+
+	private ScanningParameters getAcquisitionParameters() {
+		return getAcquisitionConfiguration().getAcquisitionParameters();
 	}
 
-	private ScanningParameters getTemplateData() {
-		return getController().getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
+	private ScanningConfiguration getAcquisitionConfiguration() {
+		return getController().getAcquisition().getAcquisitionConfiguration();
 	}
 
 	private ScannableTrackDocument getScannableTrackDocument() {
