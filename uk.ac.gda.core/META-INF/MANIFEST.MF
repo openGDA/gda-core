@@ -155,6 +155,7 @@ Export-Package: gda.beamline.beam,
  uk.ac.gda.client.experimentdefinition,
  uk.ac.gda.client.experimentdefinition.ui.handlers,
  uk.ac.gda.core,
+ uk.ac.gda.core.tool.spring,
  uk.ac.gda.core.virtualaxis,
  uk.ac.gda.remoting.client,
  uk.ac.gda.remoting.server
