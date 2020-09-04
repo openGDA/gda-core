@@ -22,7 +22,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 
@@ -49,13 +48,12 @@ public class ElogEntryTest {
 
 	/**
 	 * Determines the absolute path to the test files.
-	 * @throws URISyntaxException
 	 */
 	@BeforeClass
-	public static void setUpBeforeClass() throws URISyntaxException {
-		testfile1 = ElogEntryTest.class.getResource("TestFiles/Elog1.jpeg").toURI().getPath();
-		testfile2 = ElogEntryTest.class.getResource("TestFiles/Elog2.jpeg").toURI().getPath();
-		testfile2wrong = ElogEntryTest.class.getResource("TestFiles/").toURI().getPath() + "Elog2wrong.jpeg";
+	public static void setUpBeforeClass() {
+		testfile1 = new File("testfiles/gda/util/ElogEntryTest/Elog1.jpeg").getPath();
+		testfile2 = new File("testfiles/gda/util/ElogEntryTest/Elog1.jpeg").getPath();
+		testfile2wrong = new File("testfiles/gda/util/ElogEntryTest/").getPath() + "Elog2wrong.jpeg";
 	}
 
 	/**

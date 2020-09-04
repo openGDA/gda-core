@@ -18,18 +18,39 @@
 
 package gda.jython.accesscontrol;
 
+import static gda.configuration.properties.LocalProperties.GDA_ACCESS_CONTROL_ENABLED;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import gda.configuration.properties.LocalProperties;
 import gda.device.motor.DummyMotor;
 import gda.device.scannable.ScannableMotor;
-import junit.framework.TestCase;
 
-public class Gda3879Test extends TestCase {
+public class RbacProxyMotionTest {
 
-	public void testGda3879() throws Exception {
+	@Before
+	public void setup() {
+		LocalProperties.set(GDA_ACCESS_CONTROL_ENABLED, "true");
+	}
+
+	@After
+	public void cleanup() {
+		LocalProperties.clearProperty(GDA_ACCESS_CONTROL_ENABLED);
+	}
+
+	/**
+	 * Set scalingFactor and verify that control via the proxy preserves expected
+	 * scaling
+	 * @throws Exception
+	 */
+	@Test
+	public void testRbacProxyDoesNotOverrideMotionParameters() throws Exception {
 
 		final double DELTA = 0.0001;
-
-		LocalProperties.set(LocalProperties.GDA_ACCESS_CONTROL_ENABLED, "true");
 
 		DummyMotor motor = new DummyMotor();
 		motor.setName("motor");
