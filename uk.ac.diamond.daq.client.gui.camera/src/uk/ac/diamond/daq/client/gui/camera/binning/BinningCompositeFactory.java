@@ -1,14 +1,15 @@
 package uk.ac.diamond.daq.client.gui.camera.binning;
 
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientButton;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
 
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -36,9 +37,8 @@ import uk.ac.gda.api.camera.CameraControllerEvent;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.ui.tool.ClientBindingElements;
-import uk.ac.gda.ui.tool.ClientMessages;
+import static uk.ac.gda.ui.tool.ClientMessages.*;
 import uk.ac.gda.ui.tool.ClientResourceManager;
-import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
@@ -100,7 +100,7 @@ public class BinningCompositeFactory implements CompositeFactory {
 	@Override
 	public Composite createComposite(Composite parent, int style) {
 		cameraIndex = CameraHelper.getDefaultCameraProperties().getIndex();
-		
+
 		Composite composite = createClientCompositeWithGridLayout(parent, style, 1);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(composite);
 
@@ -114,19 +114,19 @@ public class BinningCompositeFactory implements CompositeFactory {
 	}
 
 	private void createElements(Composite parent) {
-		Group group = createClientGroup(parent, SWT.NONE, 1, ClientMessages.BINNING);
+		Group group = createClientGroup(parent, SWT.NONE, 1, BINNING);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(group);
 
 		Arrays.stream(Binning.values()).forEach(binning -> createRadioButton(group, binning));
-		readOut = ClientSWTElements.createClientLabel(group, SWT.LEFT, ClientMessages.EMPTY_MESSAGE, Optional
-				.ofNullable(FontDescriptor.createFrom(ClientResourceManager.getInstance().getTextDefaultFont())));
+		readOut = createClientLabel(group, SWT.LEFT, EMPTY_MESSAGE,
+				FontDescriptor.createFrom(ClientResourceManager.getInstance().getTextDefaultFont()));
 		createClientGridDataFactory().indent(5, SWT.DEFAULT).applyTo(readOut);
-		
+
 		try {
 			SpringApplicationContextProxy.addDisposableApplicationListener(group,
 					getChangeActiveCameraListener(group, this::initialiseElements));
 		} catch (GDAClientException e) {
-			UIHelper.showError(ClientMessages.CANNOT_LISTEN_CAMERA_PUBLISHER, e, logger);
+			UIHelper.showError(CANNOT_LISTEN_CAMERA_PUBLISHER, e, logger);
 		}
 	}
 
@@ -152,7 +152,9 @@ public class BinningCompositeFactory implements CompositeFactory {
 		}
 
 		Predicate<Binning> filterBinning = b -> Objects.equals(b.getPixelSize(), bf.getX());
-		Arrays.stream(Binning.values()).filter(filterBinning).findFirst().ifPresent(configureRadios);
+		Arrays.stream(Binning.values())
+			.filter(filterBinning)
+			.findFirst().ifPresent(configureRadios);
 	}
 
 	/**
@@ -200,8 +202,8 @@ public class BinningCompositeFactory implements CompositeFactory {
 	};
 
 	private void createRadioButton(Composite parent, Binning binning) {
-		Button button = ClientSWTElements.createButton(parent, SWT.RADIO, Integer.toString(binning.pixelSize), "",
-				Optional.empty(), Optional.empty());
+		Button button = createClientButton(parent, SWT.RADIO, EMPTY_MESSAGE, EMPTY_MESSAGE);
+		createClientGridDataFactory().indent(5, SWT.DEFAULT).applyTo(button);
 		// sets the button data (the shape it refers to)
 		button.setData(binning);
 		button.setSelection(false);
