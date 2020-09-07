@@ -183,7 +183,7 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage, Messag
 
 	@Override
 	public String getMsg() {
-		return getOutputFolder() + " - " + getPercentComplete();
+		return getOutputFolder() + " [repetition " + getRepetition() + "] - " + getPercentComplete();
 	}
 
 	public void setVisitID(String visitID) {
