@@ -80,7 +80,7 @@ public class SpringApplicationContextFacade implements ApplicationEventPublisher
 
 	public static final void publishEvent(ApplicationEvent event) {
 		// This condition is necessary until the client call Spring "component-scan" by default (DAQ-2645)
-		if (SpringApplicationContextFacade.applicationPublisher == null) {
+		if (applicationPublisher == null) {
 			springApplicationDidNotScanClass();
 			return;
 		}
@@ -93,9 +93,17 @@ public class SpringApplicationContextFacade implements ApplicationEventPublisher
 	 * Attached a listener to the application context in order to be notified when new events occur.
 	 *
 	 * @param listener
+	 * @return {@code true} if succeed, {@code false} if {@link SpringApplicationContextFacade}
+	 * no access to Spring {@code ConfigurableApplicationContext}
 	 */
-	public static final void addApplicationListener(ApplicationListener<?> listener) {
+	public static final boolean addApplicationListener(ApplicationListener<?> listener) {
+		// This condition is necessary until the client call Spring "component-scan" by default (DAQ-2645)
+		if (configurableApplicationContext == null) {
+			springApplicationDidNotScanClass();
+			return false;
+		}
 		configurableApplicationContext.addApplicationListener(listener);
+		return true;
 	}
 
 
@@ -165,8 +173,9 @@ public class SpringApplicationContextFacade implements ApplicationEventPublisher
 	 *            the application lister to
 	 */
 	public static final void addDisposableApplicationListener(Object object, ApplicationListener<?> listener) {
-		SpringApplicationContextFacade.addApplicationListener(listener);
-		createPhantomReference(object, listener);
+		if (addApplicationListener(listener)) {
+			createPhantomReference(object, listener);
+		}
 	}
 
 	private static void springApplicationDidNotScanClass() {
