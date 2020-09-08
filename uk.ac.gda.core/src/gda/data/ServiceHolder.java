@@ -20,6 +20,7 @@ package gda.data;
 
 import org.eclipse.dawnsci.nexus.appender.INexusFileAppenderService;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
+import org.eclipse.dawnsci.nexus.scan.NexusScanFileService;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.scan.IFilePathService;
@@ -41,8 +42,8 @@ public class ServiceHolder {
 		return runnableDeviceService;
 	}
 
-	public void setRunnableDeviceService(IRunnableDeviceService rs) {
-		runnableDeviceService = rs;
+	public void setRunnableDeviceService(IRunnableDeviceService runnableDeviceService) {
+		ServiceHolder.runnableDeviceService = runnableDeviceService;
 	}
 
     private static IFilePathService filePathService;
@@ -73,6 +74,16 @@ public class ServiceHolder {
 
 	public void setNexusDeviceService(INexusDeviceService nexusDeviceService) {
 		ServiceHolder.nexusDeviceService = nexusDeviceService;
+	}
+
+	private static NexusScanFileService nexusScanFileService;
+
+	public static NexusScanFileService getNexusScanFileService() {
+		return nexusScanFileService;
+	}
+
+	public void setNexusScanFileService(NexusScanFileService nexusScanFileService) {
+		ServiceHolder.nexusScanFileService = nexusScanFileService;
 	}
 
 	private static INexusFileAppenderService nexusFileAppenderService;

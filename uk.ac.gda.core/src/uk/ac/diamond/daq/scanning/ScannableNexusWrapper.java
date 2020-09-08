@@ -219,9 +219,6 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 				logger.debug("Ignoring request to move scannable {} to position {} at {}", scannable.getName(), value, scanPosition);
 			} // setPosition is called with a value==null if it is a monitor in a scan and doesn't need to be moved.
 
-			if (scannableNexusDevice != null) {
-
-			}
 			if (scanPosition != null && getScannableNexusDevice(false) != null) {
 				return getScannableNexusDevice(false).writePosition(value, scanPosition);  // It stops it being read again.
 			}

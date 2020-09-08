@@ -45,8 +45,6 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
-import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.rank.IScanRankService;
 import org.eclipse.scanning.api.scan.rank.IScanSlice;
@@ -62,8 +60,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 
 /**
- * An instance of this type adapts a {@link Scannable} to
- * {@link INexusDevice},
+ * An instance of this type adapts a {@link Scannable} to {@link INexusDevice}.
  *
  * @param <N>
  */
@@ -75,9 +72,7 @@ public class ScannableNexusDevice<N extends NXobject> implements INexusDevice<N>
 	 * The name of the 'scannables' collection. This collection contains all wrapped GDA8
 	 * scannables. The reason for this is that unless otherwise specified the nexus object
 	 * created for all scannables is an {@link NXpositioner}, even for metadata scannables,
-	 * e.g. sample name. This will encourage switching to the proper GDA9 mechanisms, e.g.
-	 * adding scan metadata directly to the {@link ScanRequest} instead of using a
-	 * metadata scannable, and creating implementations of the GDA9 {@link IScannable} interface.
+	 * e.g. sample name.
 	 */
 	public static final String COLLECTION_NAME_SCANNABLES = "scannables";
 
@@ -127,6 +122,12 @@ public class ScannableNexusDevice<N extends NXobject> implements INexusDevice<N>
 	private LinkedHashMap<String, ILazyWriteableDataset> writableDatasets = null;
 
 	/**
+	 * Whether the demand value (i.e. the position the scannable was set to by the scan) should
+	 * be written. Should be set to <code>false</code> if this information is not available in the scan.
+	 */
+	private boolean writeDemandValue = true;
+
+	/**
 	 * The writable dataset for the demand value.
 	 */
 	private ILazyWriteableDataset demandValueDataset = null;
@@ -149,6 +150,10 @@ public class ScannableNexusDevice<N extends NXobject> implements INexusDevice<N>
 
 	public ScannableNexusDevice(Scannable scannable) {
 		this.scannable = scannable;
+	}
+
+	public void setWriteDemandValue(boolean writeDemandValue) {
+		this.writeDemandValue = writeDemandValue;
 	}
 
 	protected void calculateFieldNames() {
@@ -185,9 +190,9 @@ public class ScannableNexusDevice<N extends NXobject> implements INexusDevice<N>
 
 		nexusObject = createNexusObject(info);
 
-		String defaultDataField = outputFieldNames.isEmpty() ? null : outputFieldNames.get(0);
-		NexusObjectWrapper<N> nexusDelegate = new NexusObjectWrapper<>(
-						scannable.getName(), nexusObject, defaultDataField);
+		final String defaultDataFieldName = outputFieldNames.isEmpty() ? null : outputFieldNames.get(0);
+		final NexusObjectWrapper<N> nexusDelegate = new NexusObjectWrapper<>(
+						scannable.getName(), nexusObject, defaultDataFieldName);
 		try {
 			final Object categoryStr = scannable.getScanMetadataAttribute(Scannable.ATTR_NEXUS_CATEGORY);
 			if (categoryStr instanceof String) {
@@ -198,7 +203,7 @@ public class ScannableNexusDevice<N extends NXobject> implements INexusDevice<N>
 		}
 
 		if (info.getScanRole(getName()) == ScanRole.SCANNABLE) {
-			nexusDelegate.setDefaultAxisDataFieldName(FIELD_NAME_VALUE_SET);
+			nexusDelegate.setDefaultAxisDataFieldName(writeDemandValue ? FIELD_NAME_VALUE_SET : defaultDataFieldName);
 		}
 		if (hasLocationMapEntry()) {
 			nexusDelegate.setCollectionName(COLLECTION_NAME_SCANNABLES);
@@ -317,10 +322,10 @@ public class ScannableNexusDevice<N extends NXobject> implements INexusDevice<N>
 		if (nexusRole == NexusRole.PER_POINT) {
 			// cache the lazy writeable datasets we create so we can write to them later
 			writableDatasets = new LinkedHashMap<>();
-			if (scanRole == ScanRole.SCANNABLE) {
-				// create the 'value_demand' dataset (can't use writeableDatasets map as the
-				// order of entries in that map corresponds to elements in getPositionArray, which
-				// does not include the demand value
+			if (scanRole == ScanRole.SCANNABLE && writeDemandValue) {
+				// create the demand value dataset (name 'value_set'). Note dataset is not added to the
+				// writeableDatasets map as the order of entries in that map corresponds to elements in
+				// getPositionArray, which does not include the demand value
 				demandValueDataset = createLazyWritableDataset(nexusObject, FIELD_NAME_VALUE_SET,
 						Double.class, 1, new int[] { 1 });
 				nexusObject.setAttribute(FIELD_NAME_VALUE_SET, ATTR_NAME_LOCAL_NAME,
@@ -467,40 +472,63 @@ public class ScannableNexusDevice<N extends NXobject> implements INexusDevice<N>
 		}
 	}
 
+	// TODO move this method to ScannableNexusWrapper??
 	public Object writePosition(Object demandPosition, IPosition scanPosition) throws Exception {
 		if (writableDatasets == null) return null; // TODO, this should never happen??
 
 		final Object position = scannable.getPosition();
-		write(demandPosition, getPositionArray(position), scanPosition);
+		write(demandPosition, position, scanPosition);
 		return position;
 	}
 
 	/**
 	 * Write the given positions of the {@link Scannable}
-	 * @param demandPosition the demand value of the scannable (assumed to be a single value)
+	 * @param demandPosition the demand value of the scannable
 	 * @param actualPosition the actual position of the scannable
 	 * @param scanPosition the position of the overall scan
 	 * @throws Exception if the position cannot be written for any reason
 	 */
-	private void write(Object demandPosition, Object[] actualPosition, IPosition scanPosition) throws Exception {
-		if (actualPosition.length < writableDatasets.size()) {
+	private void write(Object demandPosition, Object actualPosition, IPosition scanPosition) throws Exception {
+		final SliceND sliceND = getSliceForPosition(scanPosition); // the location in each dataset to write to
+		write(demandPosition, actualPosition, sliceND, scanPosition.getIndex(getName()));
+	}
+
+	/**
+	 * Write the given position at the given slice.
+	 * @param position the position to write
+	 * @param scanSlice the scan slice, i.e. where to write in the datasets
+	 * @throws Exception if the position cannot be written for any reason
+	 */
+	public void write(Object position, SliceND scanSlice) throws Exception {
+		write(null, position, scanSlice, -1);
+	}
+
+	/**
+	 * Write the given {@link SliceND} at the given point.
+	 * @param demandPosition the demand position of the scannable , may be <code>null</code>
+	 * @param actualPosition the actual position of the scannable
+	 * @param scanSlice the scan slice, i.e. where to write in the datasets
+	 * @param index the index of this position of the scannable
+	 * @throws Exception if the position cannot be written for any reason
+	 */
+	public void write(Object demandPosition, Object actualPosition, SliceND scanSlice, int index) throws Exception {
+		final Object[] positionArray = getPositionArray(actualPosition);
+		if (positionArray.length < writableDatasets.size()) {
 			throw new NexusException(MessageFormat.format("getPosition() of scannable ''{0}'' must be an array of length at least: {1}",
 					getName(), writableDatasets.size()));
 		}
 
 		// write the actual position (potentially multi-valued)
 		int fieldIndex = 0;
-		SliceND sliceND = getSliceForPosition(scanPosition); // the location in each dataset to write to
 		for (ILazyWriteableDataset dataset : writableDatasets.values()) {
 			// we rely on predictable iteration order for LinkedHashSet of writable datasets
-			final IDataset value = DatasetFactory.createFromObject(actualPosition[fieldIndex]);
-			dataset.setSlice(null, value, sliceND);
+			final IDataset value = DatasetFactory.createFromObject(positionArray[fieldIndex]);
+			dataset.setSlice(null, value, scanSlice);
 			fieldIndex++;
 		}
 
 		// write the demand position to the demand dataset
 		if (demandPosition != null && demandValueDataset != null) {
-			int index = scanPosition.getIndex(getName());
 			if (index < 0) {
 				throw new NexusException("Incorrect data index for scan for value of '" + getName() + "'. The index is " + index);
 			}

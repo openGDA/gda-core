@@ -5,6 +5,7 @@
    <reference bind="setFilePathService" cardinality="1..1" interface="org.eclipse.scanning.api.scan.IFilePathService" name="IFilePathService" policy="static"/>
    <reference bind="setNexusTemplateService" cardinality="1..1" interface="org.eclipse.dawnsci.nexus.template.NexusTemplateService" name="NexusTemplateService" policy="static"/>
    <reference bind="setNexusDeviceService" cardinality="1..1" interface="org.eclipse.dawnsci.nexus.device.INexusDeviceService" name="INexusDeviceService" policy="static"/>
+   <reference bind="setNexusScanFileService" cardinality="1..1" interface="org.eclipse.dawnsci.nexus.scan.NexusScanFileService" name="NexusScanFileService" policy="static"/>
    <reference bind="setNexusFileAppenderService" cardinality="1..1" interface="org.eclipse.dawnsci.nexus.appender.INexusFileAppenderService" name="INexusFileAppenderService" policy="static"/>
    <reference bind="setNexusDataWriterConfiguration" cardinality="0..1" interface="gda.data.scan.datawriter.NexusDataWriterConfiguration" name="NexusDataWriterConfiguration" policy="static"/>
 </scr:component>
