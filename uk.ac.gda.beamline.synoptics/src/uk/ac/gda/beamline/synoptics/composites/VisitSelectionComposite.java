@@ -50,7 +50,6 @@ import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
 import gda.data.metadata.MetadataEntry;
 import gda.data.metadata.icat.IcatProvider;
-import gda.device.DeviceException;
 import gda.jython.IBatonStateProvider;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
@@ -135,22 +134,12 @@ public class VisitSelectionComposite extends Composite implements IObserver {
 	}
 
 	private String getCurrentVisit() {
-		try {
-			return metadata.getMetadataValue(metaName);
-		} catch (DeviceException e) {
-			logger.error("Could not get visit metadata", e);
-			return UNKNOWN;
-		}
+		return metadata.getMetadataValue(metaName);
 	}
 
 	private boolean setVisit(String firstElement) {
-		try {
-			metadata.setMetadataValue(metaName, firstElement);
-			return true;
-		} catch (DeviceException e) {
-			logger.error("Could not set visit", e);
-			return false;
-		}
+		metadata.setMetadataValue(metaName, firstElement);
+		return true;
 	}
 
 	private Collection<String> getCurrentVisits() {

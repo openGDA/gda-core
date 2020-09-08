@@ -18,10 +18,6 @@
 
 package uk.ac.gda.client.actions;
 
-import gda.data.metadata.GDAMetadataProvider;
-import gda.device.DeviceException;
-import gda.rcp.GDAClientActivator;
-
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.preferences.DefaultScope;
@@ -31,6 +27,9 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.osgi.service.prefs.Preferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.data.metadata.GDAMetadataProvider;
+import gda.rcp.GDAClientActivator;
 
 public class DataDispenserControllerHandler extends DataDispenserAbstractHandler {
 
@@ -48,12 +47,7 @@ public class DataDispenserControllerHandler extends DataDispenserAbstractHandler
 		if (string.equals(DATA_DISPENSER_DEFAULT_PREF)){
 			MessageDialog.openError(shell, "Error Opening Data Dispenser", "No value for the data dispenser controller url has been set (in plugin_customization.ini)");
 		} else {
-			String visit = null;
-			try {
-				visit = GDAMetadataProvider.getInstance().getMetadataValue(VISIT_METADATA);
-			} catch (DeviceException e) {
-				logger.warn("Error getting visit number", e);
-			}
+			String visit = GDAMetadataProvider.getInstance().getMetadataValue(VISIT_METADATA);
 			if (visit != null && !visit.isEmpty()){
 				string = string + "/visit/" + visit;
 			}

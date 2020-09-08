@@ -37,7 +37,6 @@ import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.IMetadataEntry;
 import gda.data.metadata.Metadata;
 import gda.data.metadata.StoredMetadataEntry;
-import gda.device.DeviceException;
 import gda.jython.IJythonServerNotifer;
 import gda.jython.InterfaceProvider;
 
@@ -388,18 +387,14 @@ public class BatonManager implements IBatonManager {
 	}
 
 	private boolean metadataContainsKey(Metadata metadata, String key){
-		try {
-			List<IMetadataEntry> entries  = metadata.getMetadataEntries();
+		List<IMetadataEntry> entries  = metadata.getMetadataEntries();
 
-			for(IMetadataEntry entry : entries){
-				if (entry.getName().equals(key)){
-					return true;
-				}
+		for(IMetadataEntry entry : entries){
+			if (entry.getName().equals(key)){
+				return true;
 			}
-			return false;
-		} catch (DeviceException e) {
-			return false;
 		}
+		return false;
 	}
 
 	@Override

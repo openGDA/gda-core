@@ -28,7 +28,6 @@ import org.eclipse.scanning.api.scan.IFilePathService;
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.metadata.GDAMetadataProvider;
-import gda.device.DeviceException;
 import gda.jython.InterfaceProvider;
 
 /**
@@ -171,12 +170,7 @@ public class FilePathService implements IFilePathService {
 
 	@Override
 	public String getVisit() throws Exception {
-		String visit = null;
-		try {
-			visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
-		} catch (DeviceException ignored) {
-			// We do not mind if this does not work!
-		}
+		String visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
 		if (visit==null) visit = LocalProperties.get(LocalProperties.GDA_DEF_VISIT, "cm0-0");
 		return visit;
 	}

@@ -18,14 +18,6 @@
 
 package gda.rcp.ncd.views;
 
-import gda.data.metadata.GDAMetadataProvider;
-import gda.device.DeviceException;
-import gda.device.Timer;
-import gda.device.TimerStatus;
-import gda.jython.JythonServerFacade;
-import gda.observable.IObserver;
-import gda.rcp.ncd.NcdController;
-
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -42,6 +34,14 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.data.metadata.GDAMetadataProvider;
+import gda.device.DeviceException;
+import gda.device.Timer;
+import gda.device.TimerStatus;
+import gda.jython.JythonServerFacade;
+import gda.observable.IObserver;
+import gda.rcp.ncd.NcdController;
 
 public class NcdRapidButtonView extends ViewPart implements IObserver {
 	public static final String ID = "gda.rcp.ncd.views.NcdRapidButtonView"; //$NON-NLS-1$
@@ -73,7 +73,7 @@ public class NcdRapidButtonView extends ViewPart implements IObserver {
     	shell = parent.getShell();
     	saveDataDialog = new SaveDataDialog(shell);
     	clearDataDialog = new ClearDataDialog(shell);
-    	
+
 		FormLayout parentLayout = new FormLayout();
 		parent.setLayout(parentLayout);
 
@@ -120,7 +120,7 @@ public class NcdRapidButtonView extends ViewPart implements IObserver {
 							MessageDialog.openError(shell, "DeviceException", de.getMessage());
 						}
 					}
-				}	
+				}
 				saved = false;
 
 				try {
@@ -224,12 +224,12 @@ public class NcdRapidButtonView extends ViewPart implements IObserver {
     @Override
 	public void setFocus() {
     }
-    
+
     @Override
 	public void dispose() {
         super.dispose();
     }
-    
+
 	/**
 	 * Disable control panel
 	 */
@@ -284,7 +284,7 @@ public class NcdRapidButtonView extends ViewPart implements IObserver {
 		haltButton.setEnabled(false);
 		restartButton.setEnabled(false);
 	}
-	
+
 	private void outputClick() {
 		String title = null;
 		outputStart();
@@ -296,13 +296,8 @@ public class NcdRapidButtonView extends ViewPart implements IObserver {
 				title = title.replace("'", " ");
 				title = title.replace("\\", " ");
 
-				try {					
-					GDAMetadataProvider.getInstance(true).setMetadataValue("title", title.trim());
-					JythonServerFacade.getInstance().runCommand("gda.scan.StaticScanNoCollection(["+ncdController.getNcdDetectorSystem().getName()+"]).runScan()");
-				} catch (DeviceException de) {
-					logger.error("DeviceException during readout ", de); //$NON-NLS-1$
-					MessageDialog.openError(shell, "DeviceException", de.getMessage());
-				}
+				GDAMetadataProvider.getInstance(true).setMetadataValue("title", title.trim());
+				JythonServerFacade.getInstance().runCommand("gda.scan.StaticScanNoCollection(["+ncdController.getNcdDetectorSystem().getName()+"]).runScan()");
 				saved = true;
 			}
 		}

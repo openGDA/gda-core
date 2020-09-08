@@ -221,17 +221,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 
 		metadata = GDAMetadataProvider.getInstance();
 
-		try {
-			beamline = metadata.getMetadataValue(INSTRUMENT, LocalProperties.GDA_INSTRUMENT, null);
-		} catch (DeviceException e) {
-			logger.error("Error getting instrument metadata", e);
-		}
-
-		// If the beamline name isn't set then default to 'base'.
-		if (beamline == null) {
-			// If the beamline name is not set then use 'base'
-			beamline = "base";
-		}
+		beamline = metadata.getMetadataValue(INSTRUMENT, LocalProperties.GDA_INSTRUMENT, "base"); // 'base' is the default beamline line
 
 		// Check to see if the data directory has been defined.
 		dataDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
@@ -1142,12 +1132,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 			GroupNode g = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), true);
 
 			NexusUtils.writeString(file, g, "scan_command", thisPoint.getCommand());
-			String scanid = "";
-			try {
-				scanid = metadata.getMetadataValue(GDAMetadataProvider.SCAN_IDENTIFIER);
-			} catch (DeviceException e) {
-				// do nothing
-			}
+			String scanid = metadata.getMetadataValue(GDAMetadataProvider.SCAN_IDENTIFIER);
 			NexusUtils.writeString(file, g, "scan_identifier", scanid.isEmpty() ? thisPoint.getUniqueName() : scanid);
 			NexusUtils.writeIntegerArray(file, g, "scan_dimensions", thisPoint.getScanDimensions());
 			if (!g.containsNode("title")) {
@@ -1200,7 +1185,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 				} else {
 					logger.trace("Not writing '{}' as metadata not set", e.getKey());
 				}
-			} catch (DeviceException | NexusException | IllegalArgumentException e1) {
+			} catch (NexusException | IllegalArgumentException e1) {
 				logger.error("Could not write entry for {}", e.getKey(), e1);
 			}
 		});

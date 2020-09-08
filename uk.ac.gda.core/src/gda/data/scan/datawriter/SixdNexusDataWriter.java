@@ -169,10 +169,7 @@ public class SixdNexusDataWriter extends DataWriterBase {
 			return;
 		metadata = GDAMetadataProvider.getInstance();
 
-		try {
-			beamline = metadata.getMetadataValue("instrument", LocalProperties.GDA_INSTRUMENT, null);
-		} catch (DeviceException e1) {
-		}
+		beamline = metadata.getMetadataValue("instrument", LocalProperties.GDA_INSTRUMENT, null);
 
 		// If the beamline name isn't set then default to 'base'.
 		if (beamline == null) {
@@ -626,12 +623,7 @@ public class SixdNexusDataWriter extends DataWriterBase {
 			GroupNode group = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), false);
 
 			NexusUtils.writeString(file, group, "scan_command", thisPoint.getCommand());
-			String scanid = "";
-			try {
-				scanid = metadata.getMetadataValue(GDAMetadataProvider.SCAN_IDENTIFIER);
-			} catch (DeviceException e) {
-				// do nothing
-			}
+			String scanid = metadata.getMetadataValue(GDAMetadataProvider.SCAN_IDENTIFIER);
 			NexusUtils.writeString(file, group, "scan_identifier", scanid.isEmpty() ? thisPoint.getUniqueName() : scanid);
 			NexusUtils.writeIntegerArray(file, group, "scan_dimensions", thisPoint.getScanDimensions());
 			NexusUtils.writeString(file, group, "title", metadata.getMetadataValue("title"));

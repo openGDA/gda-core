@@ -137,14 +137,8 @@ public class DummyImageCreator extends DetectorBase {
 	}
 
 	private void initialiseRunNumber() {
-		String beamline = null;
-
 		Metadata metadata = GDAMetadataProvider.getInstance();
-
-		try {
-			beamline = metadata.getMetadataValue("instrument", LocalProperties.GDA_INSTRUMENT, "base");
-		} catch (DeviceException e1) {
-		}
+		String beamline = metadata.getMetadataValue("instrument", LocalProperties.GDA_INSTRUMENT, "base");
 
 		try {
 			runNumber = new NumTracker(beamline);

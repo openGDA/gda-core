@@ -33,7 +33,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import gda.data.metadata.Metadata;
-import gda.device.DeviceException;
 import gda.factory.FactoryException;
 
 public class IcatXMLCreatorTest {
@@ -79,17 +78,6 @@ public class IcatXMLCreatorTest {
 
 		final String outputFilePath = xmlCreator.getOutputFilePath().toString();
 		assertTrue(outputFilePath.matches("/scratch/temp/cm19664-1/iyy-[0-9]+.xml"));
-	}
-
-	@Test(expected = FactoryException.class)
-	public void testFilePrefixNotSetAndMetadataFails() throws Exception {
-		final Metadata metadata = createMetadata("ixx", "Test scan", "cm19664-1");
-		when(metadata.getMetadataValue(eq("instrument"), nullable(String.class), nullable(String.class)))
-				.thenThrow(new DeviceException("Metadata error"));
-
-		xmlCreator.setDirectory("/scratch/temp/cm19664-1");
-		xmlCreator.setMetadata(metadata);
-		xmlCreator.configure();
 	}
 
 	@Test

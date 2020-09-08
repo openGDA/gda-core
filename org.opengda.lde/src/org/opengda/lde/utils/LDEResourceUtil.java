@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
-import gda.device.DeviceException;
 import gda.jython.InterfaceProvider;
 
 public class LDEResourceUtil {
@@ -60,31 +59,27 @@ public class LDEResourceUtil {
 		String dir = null;
 		String metadataValue = null;
 		Metadata metadata = GDAMetadataProvider.getInstance();
-		try {
-			//must test if 'subdirectory' is set as client can only write to the 'xml' directory under the visit root folder
-			metadataValue = metadata.getMetadataValue("subdirectory");
-			if (metadataValue != null && !metadataValue.isEmpty()) {
-				metadata.setMetadataValue("subdirectory", "");
-			}
-			// A hacky impl here as this class need to run on both server and client. GDA PathConstructor provide different methods for client and server which cannot be distinguished here.
-			String defaultFolder = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
-			String currentVisitFolder=defaultFolder;
-			if (LocalProperties.get(LocalProperties.RCP_APP_VISIT) != null) {
-				currentVisitFolder = defaultFolder.replace(LocalProperties.get(LocalProperties.GDA_DEF_VISIT),LocalProperties.get(LocalProperties.RCP_APP_VISIT));
-			}
-			if (currentVisitFolder != null && currentVisitFolder.isEmpty()) {
-				dir = System.getProperty("user.home") + File.separator;
-			} else {
-				if (!currentVisitFolder.endsWith(File.separator)) {
-					currentVisitFolder += File.separator;
-				}
-				dir = currentVisitFolder + "xml";
-			}
-			// restore the original value back for other processing
-			metadata.setMetadataValue("subdirectory", metadataValue);
-		} catch (DeviceException e) {
-			e.printStackTrace();
+		//must test if 'subdirectory' is set as client can only write to the 'xml' directory under the visit root folder
+		metadataValue = metadata.getMetadataValue("subdirectory");
+		if (metadataValue != null && !metadataValue.isEmpty()) {
+			metadata.setMetadataValue("subdirectory", "");
 		}
+		// A hacky impl here as this class need to run on both server and client. GDA PathConstructor provide different methods for client and server which cannot be distinguished here.
+		String defaultFolder = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
+		String currentVisitFolder=defaultFolder;
+		if (LocalProperties.get(LocalProperties.RCP_APP_VISIT) != null) {
+			currentVisitFolder = defaultFolder.replace(LocalProperties.get(LocalProperties.GDA_DEF_VISIT),LocalProperties.get(LocalProperties.RCP_APP_VISIT));
+		}
+		if (currentVisitFolder != null && currentVisitFolder.isEmpty()) {
+			dir = System.getProperty("user.home") + File.separator;
+		} else {
+			if (!currentVisitFolder.endsWith(File.separator)) {
+				currentVisitFolder += File.separator;
+			}
+			dir = currentVisitFolder + "xml";
+		}
+		// restore the original value back for other processing
+		metadata.setMetadataValue("subdirectory", metadataValue);
 		return dir;
 	}
 

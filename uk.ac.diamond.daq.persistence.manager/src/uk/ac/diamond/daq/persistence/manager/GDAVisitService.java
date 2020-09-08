@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.data.metadata.GDAMetadataProvider;
-import gda.device.DeviceException;
 import uk.ac.diamond.daq.application.persistence.service.VisitService;
 import uk.ac.diamond.daq.application.persistence.service.VisitServiceListener;
 
@@ -35,7 +34,6 @@ import uk.ac.diamond.daq.application.persistence.service.VisitServiceListener;
 public class GDAVisitService implements VisitService {
 	private static final Logger log = LoggerFactory.getLogger(GDAVisitService.class);
 
-	private final static String ERROR_VISIT_ID = "no-visit";
 	private List<VisitServiceListener> listeners = new ArrayList<>();
 
 	@Override
@@ -50,23 +48,14 @@ public class GDAVisitService implements VisitService {
 
 	@Override
 	public String getCurrentVisitId() {
-		try {
-			return GDAMetadataProvider.getInstance().getMetadataValue("visit");
-		} catch (DeviceException e) {
-			log.error("Unable to find current visit", e);
-			return ERROR_VISIT_ID;
-		}
+		return GDAMetadataProvider.getInstance().getMetadataValue("visit");
 	}
 
 	@Override
 	public void setCurrentVisitId(String currentVisitId) {
-		try {
-			GDAMetadataProvider.getInstance().setMetadataValue("visit", currentVisitId);
-			for (VisitServiceListener listener : listeners) {
-				listener.currentVisitUpdated(currentVisitId);
-			}
-		} catch (DeviceException e) {
-			log.error("Unable to set current visit", e);
+		GDAMetadataProvider.getInstance().setMetadataValue("visit", currentVisitId);
+		for (VisitServiceListener listener : listeners) {
+			listener.currentVisitUpdated(currentVisitId);
 		}
 	}
 

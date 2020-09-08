@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.GDAMetadataProvider;
-import gda.device.DeviceException;
 
 /**
  * A class for constructing path names based on a template. The template can be either passed in directly or stored in a
@@ -302,14 +301,10 @@ public class PathConstructor implements IPathConstructor{
 		}
 
 		if (GDAMetadataProvider.getInstance() != null) {
-			try {
-				final Optional<PathToken> token = findToken(s);
-				final String fallbackProperty = token.map(PathToken::getDefaultProperty).orElse("");
-				final String defaultValue = token.map(PathToken::getDefaultValue).orElse("");
-				value = GDAMetadataProvider.getInstance().getMetadataValue(s, fallbackProperty, defaultValue);
-			} catch (DeviceException e) {
-				logger.error("exception received querying for metadata", e);
-			}
+			final Optional<PathToken> token = findToken(s);
+			final String fallbackProperty = token.map(PathToken::getDefaultProperty).orElse("");
+			final String defaultValue = token.map(PathToken::getDefaultValue).orElse("");
+			value = GDAMetadataProvider.getInstance().getMetadataValue(s, fallbackProperty, defaultValue);
 		} else {
 			logger.error("cannot find metadata object");
 		}

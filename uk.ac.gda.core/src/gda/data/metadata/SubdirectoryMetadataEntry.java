@@ -25,7 +25,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 
@@ -46,15 +45,10 @@ public class SubdirectoryMetadataEntry extends PersistantMetadataEntry {
 			return;
 		}
 		super.configure();
-		try {
-			GDAMetadataProvider.getInstance().getMetadataEntries().stream()
-					.filter(entry -> entry.getName().equals("visit"))
-					.findFirst()
-					.ifPresent(entry -> entry.addIObserver(this::update));
-		} catch (DeviceException e) {
-			setConfigured(false);
-			throw new FactoryException("error locating visit", e);
-		}
+		GDAMetadataProvider.getInstance().getMetadataEntries().stream()
+				.filter(entry -> entry.getName().equals("visit"))
+				.findFirst()
+				.ifPresent(entry -> entry.addIObserver(this::update));
 		setConfigured(true);
 	}
 

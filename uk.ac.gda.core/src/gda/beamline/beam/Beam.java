@@ -85,18 +85,10 @@ public class Beam extends FindableConfigurableBase implements BeamInfo {
 		this.wavelength = DiffractionCrystalEnvironment.calculateWavelength(energy);
 		setCalibrated(true);
 		notifyIObservers(this, this.wavelength);
-		try {
-			MetadataEntry energydata = new StoredMetadataEntry("energy", String.valueOf(energy));
-			metadata.addMetadataEntry(energydata);
-		} catch (DeviceException e) {
-			logger.warn("Can not add or set energy value to metadata list");
-		}
-		try {
-			MetadataEntry wavelengthdata = new StoredMetadataEntry("wavelength", String.valueOf(wavelength));
-			metadata.addMetadataEntry(wavelengthdata);
-		} catch (DeviceException e) {
-			logger.warn("Can not add or set wavelength value to metadata list");
-		}
+		MetadataEntry energydata = new StoredMetadataEntry("energy", String.valueOf(energy));
+		metadata.addMetadataEntry(energydata);
+		MetadataEntry wavelengthdata = new StoredMetadataEntry("wavelength", String.valueOf(wavelength));
+		metadata.addMetadataEntry(wavelengthdata);
 	}
 
 	@Override
@@ -112,18 +104,10 @@ public class Beam extends FindableConfigurableBase implements BeamInfo {
 		this.energy = DiffractionCrystalEnvironment.calculateWavelength(wavelength);
 		setCalibrated(true);
 		notifyIObservers(this, this.wavelength);
-		try {
-			MetadataEntry energydata = new StoredMetadataEntry("energy", String.valueOf(energy));
-			metadata.addMetadataEntry(energydata);
-		} catch (DeviceException e) {
-			logger.warn("Can not add or set energy value to metadata list");
-		}
-		try {
-			MetadataEntry wavelengthdata = new StoredMetadataEntry("wavelength", String.valueOf(wavelength));
-			metadata.addMetadataEntry(wavelengthdata);
-		} catch (DeviceException e) {
-			logger.warn("Can not add or set wavelength value to metadata list");
-		}
+		MetadataEntry energydata = new StoredMetadataEntry("energy", String.valueOf(energy));
+		metadata.addMetadataEntry(energydata);
+		MetadataEntry wavelengthdata = new StoredMetadataEntry("wavelength", String.valueOf(wavelength));
+		metadata.addMetadataEntry(wavelengthdata);
 	}
 	/**
 	 * sets the beam energy using Mono's enegy setting.
@@ -143,18 +127,10 @@ public class Beam extends FindableConfigurableBase implements BeamInfo {
 		setCalibrated(false);
 		notifyIObservers(this, this.wavelength);
 
-		try {
-			MetadataEntry energydata = new StoredMetadataEntry("energy", String.valueOf(energy));
-			metadata.addMetadataEntry(energydata);
-		} catch (DeviceException e) {
-			logger.warn("Can not add or set energy value to metadata list");
-		}
-		try {
-			MetadataEntry wavelengthdata = new StoredMetadataEntry("wavelength", String.valueOf(wavelength));
-			metadata.addMetadataEntry(wavelengthdata);
-		} catch (DeviceException e) {
-			logger.warn("Can not add or set wavelength value to metadata list");
-		}
+		MetadataEntry energydata = new StoredMetadataEntry("energy", String.valueOf(energy));
+		metadata.addMetadataEntry(energydata);
+		MetadataEntry wavelengthdata = new StoredMetadataEntry("wavelength", String.valueOf(wavelength));
+		metadata.addMetadataEntry(wavelengthdata);
 	}
 
 	@Override

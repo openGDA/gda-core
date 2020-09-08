@@ -276,16 +276,7 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 	}
 
 	private void setupFilename() throws Exception {
-		String beamline = null;
-		try {
-			beamline = GDAMetadataProvider.getInstance().getMetadataValue("instrument", "gda.instrument", null);
-		} catch (DeviceException e1) {
-		}
-
-		// If the beamline name isn't set then default to 'base'.
-		if (beamline == null) {
-			beamline = "base";
-		}
+		String beamline = GDAMetadataProvider.getInstance().getMetadataValue("instrument", "gda.instrument", "base");
 
 		// Check to see if the data directory has been defined.
 		String dataDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();

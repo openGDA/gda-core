@@ -154,28 +154,22 @@ public class NeXusUtils {
 		GroupNode group = file.getGroup(entryName, false);
 		logger.debug("NeXus: Applying XESraw to NXentry " + entryName);
 
-		try {
-			NexusUtils.writeString(file, group, "title", metadata.getMetadataValue(GDAMetadataProvider.TITLE));
-			NexusUtils.writeString(file, group, "investigation", metadata.getMetadataValue(GDAMetadataProvider.INVESTIGATION));
-			NexusUtils.writeString(file, group, "proposal_identifier", metadata.getMetadataValue(GDAMetadataProvider.PROPOSAL));
-			NexusUtils.writeString(file, group, "experiment_identifier", metadata.getMetadataValue(GDAMetadataProvider.EXPERIMENT_IDENTIFIER));
-			NexusUtils.writeString(file, group, "experiment_description",metadata.getMetadataValue(GDAMetadataProvider.EXPERIMENT_DESCRIPTION));
-			NexusUtils.writeString(file, group, "collection_identifier", metadata.getMetadataValue(GDAMetadataProvider.COLLECTION_IDENTIFIER));
-			NexusUtils.writeString(file, group, "collection_description", metadata.getMetadataValue(GDAMetadataProvider.COLLECTION_DESCRIPTION));
-			NexusUtils.writeString(file, group, "run_cycle", metadata.getMetadataValue(GDAMetadataProvider.FACILITY_RUN_CYCLE));
-			/* to allow unit tests to check for differences in files we need a way of forcing a certain version number */
-			if (LocalProperties.check("gda.data.scan.datawriter.setTime0")){
-				NexusUtils.writeString(file, group, "program_name", "GDA 7.11.0");
-			} else {
-				NexusUtils.writeString(file, group, "program_name", "GDA " + Version.getRelease());
-			}
-
-//			writeGeneralMetaData(file, metadata);
-
-
-		} catch (DeviceException e) {
-			logger.warn("XESraw: Problem reading one or more items of metadata.");
+		NexusUtils.writeString(file, group, "title", metadata.getMetadataValue(GDAMetadataProvider.TITLE));
+		NexusUtils.writeString(file, group, "investigation", metadata.getMetadataValue(GDAMetadataProvider.INVESTIGATION));
+		NexusUtils.writeString(file, group, "proposal_identifier", metadata.getMetadataValue(GDAMetadataProvider.PROPOSAL));
+		NexusUtils.writeString(file, group, "experiment_identifier", metadata.getMetadataValue(GDAMetadataProvider.EXPERIMENT_IDENTIFIER));
+		NexusUtils.writeString(file, group, "experiment_description",metadata.getMetadataValue(GDAMetadataProvider.EXPERIMENT_DESCRIPTION));
+		NexusUtils.writeString(file, group, "collection_identifier", metadata.getMetadataValue(GDAMetadataProvider.COLLECTION_IDENTIFIER));
+		NexusUtils.writeString(file, group, "collection_description", metadata.getMetadataValue(GDAMetadataProvider.COLLECTION_DESCRIPTION));
+		NexusUtils.writeString(file, group, "run_cycle", metadata.getMetadataValue(GDAMetadataProvider.FACILITY_RUN_CYCLE));
+		/* to allow unit tests to check for differences in files we need a way of forcing a certain version number */
+		if (LocalProperties.check("gda.data.scan.datawriter.setTime0")){
+			NexusUtils.writeString(file, group, "program_name", "GDA 7.11.0");
+		} else {
+			NexusUtils.writeString(file, group, "program_name", "GDA " + Version.getRelease());
 		}
+
+//		writeGeneralMetaData(file, metadata);
 
 		// Run Number
 		// writeNexusInteger(file, "entry_identifier", (int) runNumber.getCurrentFileNumber());
@@ -235,11 +229,7 @@ public class NeXusUtils {
 		// TODO At the moment we will use the old implementation. Need to get a list of users from the ICAT.
 		group = file.getGroup(group, "user01", "NXuser", true);
 
-		try {
-			NexusUtils.writeString(file, group, "username", metadata.getMetadataValue("federalid"));
-		} catch (DeviceException e) {
-			logger.warn("NXuser: Problem reading one or more items of metadata.");
-		}
+		NexusUtils.writeString(file, group, "username", metadata.getMetadataValue("federalid"));
 	}
 
 	/**
@@ -252,17 +242,13 @@ public class NeXusUtils {
 		// Make the source if it's not there.
 		group = file.getGroup(group, "source", "NXsource", true);
 
-		try {
-			NexusUtils.writeString(file, group, "name", metadata.getMetadataValue("facility.name", LocalProperties.GDA_FACILITY, "DLS"));
-			NexusUtils.writeString(file, group, "type", metadata.getMetadataValue("facility.type", "gda.facility.type", "Synchrotron X-ray Source"));
-			NexusUtils.writeString(file, group, "probe", metadata.getMetadataValue("facility.probe", "gda.facility.probe", "x-ray"));
-			if (!metadata.getMetadataValue("instrument.source.energy").isEmpty())
-				NexusUtils.writeDouble(file, group, "energy", Double.parseDouble(metadata.getMetadataValue("instrument.source.energy",	null, DEFAULT_NUMBER_VALUE)), "GeV");
-			if (!metadata.getMetadataValue("instrument.source.current").isEmpty())
-				NexusUtils.writeDouble(file, group, "current", Double.parseDouble(metadata.getMetadataValue("instrument.source.current",	null, DEFAULT_NUMBER_VALUE)), "mA");
-		} catch (DeviceException e) {
-			logger.warn("NXsource: Problem reading one or more items of metadata.");
-		}
+		NexusUtils.writeString(file, group, "name", metadata.getMetadataValue("facility.name", LocalProperties.GDA_FACILITY, "DLS"));
+		NexusUtils.writeString(file, group, "type", metadata.getMetadataValue("facility.type", "gda.facility.type", "Synchrotron X-ray Source"));
+		NexusUtils.writeString(file, group, "probe", metadata.getMetadataValue("facility.probe", "gda.facility.probe", "x-ray"));
+		if (!metadata.getMetadataValue("instrument.source.energy").isEmpty())
+			NexusUtils.writeDouble(file, group, "energy", Double.parseDouble(metadata.getMetadataValue("instrument.source.energy",	null, DEFAULT_NUMBER_VALUE)), "GeV");
+		if (!metadata.getMetadataValue("instrument.source.current").isEmpty())
+			NexusUtils.writeDouble(file, group, "current", Double.parseDouble(metadata.getMetadataValue("instrument.source.current",	null, DEFAULT_NUMBER_VALUE)), "mA");
 	}
 
 	/**
@@ -310,22 +296,17 @@ public class NeXusUtils {
 			// Make the source if it's not there.
 			group = file.getGroup(group, "monochromator", "NXmonochromator", true);
 
-			try {
-				String name = metadata.getMetadataValue("instrument.monochromator.name");
-				if (name != null && !name.isEmpty()) {
-					NexusUtils.writeString(file, group, "name", metadata.getMetadataValue("instrument.monochromator.name"));
-				}
-				String energy = metadata.getMetadataValue("instrument.monochromator.energy");
-				if (energy != null && !energy.isEmpty()) {
-					NexusUtils.writeDouble(file, group, "energy", Double.parseDouble(energy), "keV");
-				}
-				String wavelength = metadata.getMetadataValue("instrument.monochromator.wavelength");
-				if (wavelength != null && !wavelength.isEmpty()) {
-					NexusUtils.writeDouble(file, group, "wavelength", Double.parseDouble(wavelength), "Angstrom");
-				}
-
-			} catch (DeviceException e) {
-				logger.warn("NXmonochromator: Problem reading one or more items of metadata.");
+			String name = metadata.getMetadataValue("instrument.monochromator.name");
+			if (name != null && !name.isEmpty()) {
+				NexusUtils.writeString(file, group, "name", metadata.getMetadataValue("instrument.monochromator.name"));
+			}
+			String energy = metadata.getMetadataValue("instrument.monochromator.energy");
+			if (energy != null && !energy.isEmpty()) {
+				NexusUtils.writeDouble(file, group, "energy", Double.parseDouble(energy), "keV");
+			}
+			String wavelength = metadata.getMetadataValue("instrument.monochromator.wavelength");
+			if (wavelength != null && !wavelength.isEmpty()) {
+				NexusUtils.writeDouble(file, group, "wavelength", Double.parseDouble(wavelength), "Angstrom");
 			}
 		}
 	}
@@ -366,13 +347,9 @@ public class NeXusUtils {
 			// Make the group if it's not there.
 			group = file.getGroup(group, "insertion_device", "NXinsertion_device", true);
 
-			try {
-				String gap = metadata.getMetadataValue("instrument.insertion_device.gap");
-				if (gap != null && !gap.isEmpty()) {
-					NexusUtils.writeDouble(file, group, "gap", Double.parseDouble(gap), "mm");
-				}
-			} catch (DeviceException e) {
-				logger.warn("NXinsertion_device: Problem reading one or more items of metadata.");
+			String gap = metadata.getMetadataValue("instrument.insertion_device.gap");
+			if (gap != null && !gap.isEmpty()) {
+				NexusUtils.writeDouble(file, group, "gap", Double.parseDouble(gap), "mm");
 			}
 			// name
 			// type
@@ -424,30 +401,26 @@ public class NeXusUtils {
 			group = file.getGroup(group, "bending_magnet", "NXbending_magnet", true);
 
 			// Lets get the metadata values.
-			try {
-				name = metadata.getMetadataValue("instrument.bending_magnet.name");
-				bending_radius = Double.parseDouble(metadata.getMetadataValue(
-						"instrument.bending_magnet.bending_radius", null, DEFAULT_NUMBER_VALUE));
-				critical_energy = Double.parseDouble(metadata.getMetadataValue(
-						"instrument.bending_magnet.critical_energy", null, DEFAULT_NUMBER_VALUE));
-				String spectrumStr = metadata.getMetadataValue("instrument.bending_magnet.spectrum", null,
-						DEFAULT_NUMBER_VALUE);
-				String[] spectrumArray = spectrumStr.split(" ");
-				spectrum = new double[spectrumArray.length];
-				for (int i = 0; i < spectrumArray.length; i++) {
-					spectrum[i] = Double.parseDouble(spectrumArray[i]);
-				}
-
-				// Now lets write these to the file
-				NexusUtils.writeString(file, group, "name", name);
-				NexusUtils.writeDouble(file, group, "bending_radius", bending_radius);
-				NexusUtils.writeDouble(file, group, "critical_energy", critical_energy);
-
-				group = file.getGroup(group, "spectrum", NexusExtractor.NXDataClassName, true);
-				NexusUtils.writeDoubleArray(file, group, "data", spectrum);
-			} catch (DeviceException e) {
-				logger.warn("NXbending_magnet: Problem reading one or more items of metadata.");
+			name = metadata.getMetadataValue("instrument.bending_magnet.name");
+			bending_radius = Double.parseDouble(metadata.getMetadataValue(
+					"instrument.bending_magnet.bending_radius", null, DEFAULT_NUMBER_VALUE));
+			critical_energy = Double.parseDouble(metadata.getMetadataValue(
+					"instrument.bending_magnet.critical_energy", null, DEFAULT_NUMBER_VALUE));
+			String spectrumStr = metadata.getMetadataValue("instrument.bending_magnet.spectrum", null,
+					DEFAULT_NUMBER_VALUE);
+			String[] spectrumArray = spectrumStr.split(" ");
+			spectrum = new double[spectrumArray.length];
+			for (int i = 0; i < spectrumArray.length; i++) {
+				spectrum[i] = Double.parseDouble(spectrumArray[i]);
 			}
+
+			// Now lets write these to the file
+			NexusUtils.writeString(file, group, "name", name);
+			NexusUtils.writeDouble(file, group, "bending_radius", bending_radius);
+			NexusUtils.writeDouble(file, group, "critical_energy", critical_energy);
+
+			group = file.getGroup(group, "spectrum", NexusExtractor.NXDataClassName, true);
+			NexusUtils.writeDoubleArray(file, group, "data", spectrum);
 		}
 	}
 

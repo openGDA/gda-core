@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
 import gda.device.Device;
-import gda.device.DeviceException;
 import gda.factory.Finder;
 import gda.jython.IJythonServerStatusObserver;
 import gda.jython.IScanDataPointObserver;
@@ -84,11 +83,7 @@ public class MetadataUpdater implements IObserver, IScanDataPointObserver, IJyth
 
 			blaster.addIObserver(this);
 
-			try {
-				widget.setText(metadata.getMetadataValue(metadataName));
-			} catch (DeviceException e1) {
-				widget.setText("");
-			}
+			widget.setText(metadata.getMetadataValue(metadataName));
 		}
 
 		@Override
@@ -109,11 +104,7 @@ public class MetadataUpdater implements IObserver, IScanDataPointObserver, IJyth
 
 		@Override
 		public void focusLost(FocusEvent e) {
-			try {
-				widget.setText(metadata.getMetadataValue(metadataName));
-			} catch (DeviceException e1) {
-				widget.setText("");
-			}
+			widget.setText(metadata.getMetadataValue(metadataName));
 		}
 
 		private void unobserve() {

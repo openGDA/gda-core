@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.scan.datawriter.DataWriterExtenderBase;
 import gda.data.scan.datawriter.IDataWriterExtender;
-import gda.device.DeviceException;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
@@ -147,15 +146,9 @@ public class ScanListDataWriterExtender extends DataWriterExtenderBase implement
 		String date = dateFormat.format(today);
 		String command = StringEscapeUtils.escapeCsv(lastScanDataPoint.getCommand());
 		String scanFile = StringEscapeUtils.escapeCsv(lastScanDataPoint.getCurrentFilename());
-		String title = "";
-		String visit = "";
-		try {
-			title = GDAMetadataProvider.getInstance().getMetadataValue("title");
-			title = StringEscapeUtils.escapeCsv(title);
-			visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
-		} catch (DeviceException e) {
-			logger.error("Could not get title or visit from metadata", e);
-		}
+		String title = GDAMetadataProvider.getInstance().getMetadataValue("title");
+		title = StringEscapeUtils.escapeCsv(title);
+		String visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
 
 		// If the baton was released after the scan/script was started, there's no easy way to know who started it
 		Optional<ClientDetails> cd = Optional.ofNullable(InterfaceProvider.getBatonStateProvider().getBatonHolder());

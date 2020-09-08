@@ -18,38 +18,33 @@
 
 package uk.ac.gda.server.ncd.data;
 
+import java.util.List;
+
 import gda.data.ScanToElogExtender.SDP2ElogInfo;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.scan.datawriter.DataWriterExtenderBase;
 import gda.data.scan.datawriter.IDataWriterExtender;
-import gda.device.DeviceException;
 import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
-
-import java.util.List;
 
 public class ScanInformationTerminalLogger extends DataWriterExtenderBase {
 
 	private List<SDP2ElogInfo> extractorList;
-	
+
 	private IScanDataPoint lastScanDataPoint;
-	
+
 	@Override
 	public void addData(IDataWriterExtender parent, IScanDataPoint dataPoint) throws Exception {
 		lastScanDataPoint = dataPoint;
 		super.addData(parent, dataPoint);
 	}
-	
+
 	@Override
 	public void completeCollection(IDataWriterExtender parent) {
 		if (lastScanDataPoint == null)
 			return;
 		int points = lastScanDataPoint.getCurrentPointNumber() + 1;
-		String title = "";
-		try {
-			title = GDAMetadataProvider.getInstance().getMetadataValue("title");
-		} catch (DeviceException e) {
-		}
+		String title = GDAMetadataProvider.getInstance().getMetadataValue("title");
 
 		StringBuilder body = new StringBuilder();
 
@@ -68,9 +63,9 @@ public class ScanInformationTerminalLogger extends DataWriterExtenderBase {
 						extractor.extractInfo(lastScanDataPoint)
 						);
 		}
-		
+
 		InterfaceProvider.getTerminalPrinter().print(body.toString());
-		
+
 		lastScanDataPoint = null;
 		super.completeCollection(parent);
 	}

@@ -91,12 +91,8 @@ public class NcdButtonPanelView extends ViewPart {
 		public void widgetSelected(SelectionEvent e) {
 			logger.info("Scan start requested from NcdButtonPanelView");
 			if (retainMetadata.getSelection()) {
-				try {
-					thicknessString = thicknessPositionLabel.getText();
-					titleString = GDAMetadataProvider.getInstance().getMetadataValue("title");
-				} catch (DeviceException e1) {
-					logger.error("Could not read metadata", e1);
-				}
+				thicknessString = thicknessPositionLabel.getText();
+				titleString = GDAMetadataProvider.getInstance().getMetadataValue("title");
 			} else {
 				titleString = "";
 			}
@@ -139,14 +135,8 @@ public class NcdButtonPanelView extends ViewPart {
 
 		@Override
 		public void focusLost(FocusEvent e) {
-			try {
-				GDAMetadataProvider.getInstance(true).setMetadataValue("title", titleEntry.getText().trim());
-			} catch (DeviceException e1) {
-				logger.error("Could not set scan title from NcdButtonPanel", e1);
-			}
+			GDAMetadataProvider.getInstance(true).setMetadataValue("title", titleEntry.getText().trim());
 		}
-
-
 	};
 
 	//Stop running script
@@ -276,12 +266,9 @@ public class NcdButtonPanelView extends ViewPart {
 			stopButton.setToolTipText("Stop detectors");
 			stopButton.addSelectionListener(stopListener);
 		}
-		try {
-			titleString = GDAMetadataProvider.getInstance(true).getMetadataValue("title");
-			titleEntry.setText(titleString);
-		} catch (DeviceException e) {
-			logger.error("Could not read title metadata", e);
-		}
+
+		titleString = GDAMetadataProvider.getInstance(true).getMetadataValue("title");
+		titleEntry.setText(titleString);
 
 		new NcdButtonPanelUpdater(this);
 	}
@@ -360,12 +347,7 @@ public class NcdButtonPanelView extends ViewPart {
 		@Override
 		protected void okPressed() {
 			if (title) {
-				try {
-					GDAMetadataProvider.getInstance(true).setMetadataValue("title", titleText.getText().trim());
-				} catch (DeviceException e) {
-					UIHelper.showError("Could not set title metadata", e.getLocalizedMessage());
-					logger.error("Could not set title metadata", e);
-				}
+				GDAMetadataProvider.getInstance(true).setMetadataValue("title", titleText.getText().trim());
 			}
 			if (thickness) {
 				try {

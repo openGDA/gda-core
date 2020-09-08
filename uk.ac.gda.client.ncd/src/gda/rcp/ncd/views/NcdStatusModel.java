@@ -77,20 +77,14 @@ public class NcdStatusModel implements IObserver {
 		}
 	}
 	public String getSampleBackground() {
-		try {
-			return meta.getMetadataValue(BACKGROUND_METADATA);
-		} catch (DeviceException e) {
-			return "";
-		}
+		return meta.getMetadataValue(BACKGROUND_METADATA);
 	}
+
 	public void setSampleBackground(String backgroundPath) {
-		try {
-			if (backgroundPath == null) {
-				backgroundPath = "";
-			}
-			meta.setMetadataValue(BACKGROUND_METADATA, backgroundPath);
-		} catch (DeviceException e) {
+		if (backgroundPath == null) {
+			backgroundPath = "";
 		}
+		meta.setMetadataValue(BACKGROUND_METADATA, backgroundPath);
 	}
 	private NcdMsgFactory saxsCalMsg = new NcdMsgFactory("SAXS", NcdMetaType.CALIBRATION);
 	private NcdMsgFactory waxsCalMsg = new NcdMsgFactory("WAXS", NcdMetaType.CALIBRATION);

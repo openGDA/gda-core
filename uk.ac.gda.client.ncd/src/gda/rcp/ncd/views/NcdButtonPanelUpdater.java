@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
 import gda.device.Device;
-import gda.device.DeviceException;
 import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.factory.Finder;
 import gda.observable.IObserver;
@@ -43,16 +42,12 @@ public class NcdButtonPanelUpdater implements IObserver {
 
 	public NcdButtonPanelUpdater(final NcdButtonPanelView client) {
 		this.client = client;
-		try {
-			metadata = GDAMetadataProvider.getInstance();
-			title = metadata.getMetadataValue("title");
-			blaster = Finder.find("observableScanTitle");
-			blaster.addIObserver(this);
-			client.thicknessScannable.addIObserver(this);
-			update(new Object(), new Object());
-		} catch (DeviceException e) {
-			logger.error("Could not read metadata (scan title)", e);
-		}
+		metadata = GDAMetadataProvider.getInstance();
+		title = metadata.getMetadataValue("title");
+		blaster = Finder.find("observableScanTitle");
+		blaster.addIObserver(this);
+		client.thicknessScannable.addIObserver(this);
+		update(new Object(), new Object());
 	}
 
 	@Override
@@ -95,16 +90,12 @@ public class NcdButtonPanelUpdater implements IObserver {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				try {
-					title = metadata.getMetadataValue("title");
-					if (title.equals("") && client.hasTitleString()) {
-						metadata.setMetadataValue("title", client.getTitleString());
-						client.setTitleString("");
-					} else {
-						client.titleEntry.setText(title);
-					}
-				} catch (DeviceException e) {
-					logger.error("Could not access title metadata", e);
+				title = metadata.getMetadataValue("title");
+				if (title.equals("") && client.hasTitleString()) {
+					metadata.setMetadataValue("title", client.getTitleString());
+					client.setTitleString("");
+				} else {
+					client.titleEntry.setText(title);
 				}
 			}
 		});

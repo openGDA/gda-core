@@ -21,7 +21,6 @@ package gda.data.metadata;
 
 import java.util.List;
 
-import gda.device.DeviceException;
 import gda.factory.Findable;
 import gda.observable.IObservable;
 
@@ -37,17 +36,15 @@ public interface Metadata extends Findable, IObservable {
 	 *
 	 * @param entry
 	 *            MetadataListEntry The entry to be added.
-	 * @throws DeviceException
 	 */
-	void addMetadataEntry(IMetadataEntry entry) throws DeviceException;
+	void addMetadataEntry(IMetadataEntry entry);
 
 	/**
 	 * Fetches all the metadata entries in the list of metadata.
 	 *
 	 * @return ArrayList The list of MetadataEntry objects.
-	 * @throws DeviceException
 	 */
-	List<IMetadataEntry> getMetadataEntries() throws DeviceException;
+	List<IMetadataEntry> getMetadataEntries();
 
 	/**
 	 * Get a metadata entry by name
@@ -67,9 +64,8 @@ public interface Metadata extends Findable, IObservable {
 	 *            The name for which the metadata value is to be changed.
 	 * @param metdataValue
 	 *            The value required for the metadata entry.
-	 * @throws DeviceException
 	 */
-	void setMetadataValue(String name, String metdataValue) throws DeviceException;
+	void setMetadataValue(String name, String metdataValue);
 
 	/**
 	 * Returns the value of a named metadata entry.
@@ -77,9 +73,8 @@ public interface Metadata extends Findable, IObservable {
 	 * @param name
 	 *            The name of the required metadata entry.
 	 * @return The value of the required metadata entry.
-	 * @throws DeviceException
 	 */
-	String getMetadataValue(String name) throws DeviceException;
+	String getMetadataValue(String name);
 
 	/**
 	 * Gets the metadata value.
@@ -91,7 +86,6 @@ public interface Metadata extends Findable, IObservable {
 	 * @param fallbackPropertyName
 	 *            If set the value of this property will be used as a fallback.
 	 * @return The metadata value
-	 * @throws DeviceException
 	 */
-	String getMetadataValue(String name, String fallbackPropertyName, String defaultValue) throws DeviceException;
+	String getMetadataValue(String name, String fallbackPropertyName, String defaultValue);
 }

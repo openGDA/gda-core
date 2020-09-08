@@ -18,18 +18,16 @@
 
 package gda.data;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.metadata.GDAMetadataProvider;
-import gda.data.scan.datawriter.DataWriterExtenderBase;
-import gda.data.scan.datawriter.IDataWriterExtender;
-import gda.device.DeviceException;
-import gda.scan.IScanDataPoint;
-import gda.util.ElogEntry;
-
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.data.metadata.GDAMetadataProvider;
+import gda.data.scan.datawriter.DataWriterExtenderBase;
+import gda.data.scan.datawriter.IDataWriterExtender;
+import gda.scan.IScanDataPoint;
+import gda.util.ElogEntry;
 
 public class ScanToElogExtender extends DataWriterExtenderBase {
 
@@ -59,21 +57,9 @@ public class ScanToElogExtender extends DataWriterExtenderBase {
 		int points = lastScanDataPoint.getCurrentPointNumber() + 1;
 		String command = lastScanDataPoint.getCommand();
 		int scannumber = lastScanDataPoint.getScanIdentifier();
-		String title = "";
-		String visit = LocalProperties.get(LocalProperties.GDA_DEF_VISIT, "cm0-0");
-		String userID = "gda";
-		try {
-			title = GDAMetadataProvider.getInstance().getMetadataValue("title");
-		} catch (DeviceException e) {
-		}
-		try {
-			visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
-		} catch (DeviceException e) {
-		}
-		try {
-			userID = GDAMetadataProvider.getInstance().getMetadataValue("federalid");
-		} catch (DeviceException e) {
-		}
+		String title = GDAMetadataProvider.getInstance().getMetadataValue("title");
+		String visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
+		String userID = GDAMetadataProvider.getInstance().getMetadataValue("federalid");
 
 		String subject = visit + "/" + scannumber + ": " + title + " (" + command + ")";
 
