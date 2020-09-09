@@ -17,9 +17,10 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
@@ -423,8 +424,8 @@ public class GridTest extends AbstractGeneratorTest {
 				new Point(2000, 0.4125, 2000, 15.375),
 				new Point(3100, 1.1325, 3100, 16.425) };
 		for (Point p : points) {
-			ArrayList<Collection<String>> names = new ArrayList<Collection<String>>();
-			names.add(Arrays.asList(new String[] {"x", "y"}));
+			ArrayList<Set<String>> names = new ArrayList<Set<String>>();
+			names.add(new LinkedHashSet<>(Arrays.asList(new String[] {"x", "y"})));
 			p.setDimensionNames(names);
 			p.setStepIndex(p.getIndex(0));
 		}

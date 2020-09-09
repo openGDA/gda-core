@@ -11,9 +11,9 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A position with no value. Can be used in a scan to expose detectors where we do not
@@ -57,7 +57,7 @@ public class StaticPosition extends AbstractPosition {
 
 	@SuppressWarnings("sync-override")
 	@Override
-	public List<Collection<String>> getDimensionNames() {
+	public List<Set<String>> getDimensionNames() {
 		return Collections.emptyList();
 	}
 

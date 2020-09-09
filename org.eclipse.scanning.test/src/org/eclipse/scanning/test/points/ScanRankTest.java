@@ -11,13 +11,14 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.points;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -52,6 +53,8 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(value=Parameterized.class)
 public class ScanRankTest {
 
+	private static final int NUM_POINTS_TO_CHECK = 100;
+
 	private IPointGeneratorService service;
 
 	@Before
@@ -69,15 +72,15 @@ public class ScanRankTest {
 
 	@Test
 	public void testRankLine() throws Exception {
-		LinearROI roi = new LinearROI(new double[]{0,0}, new double[]{3,3});
+		final LinearROI roi = new LinearROI(new double[]{0,0}, new double[]{3,3});
 
-		TwoAxisLinePointsModel model = new TwoAxisLinePointsModel();
+		final TwoAxisLinePointsModel model = new TwoAxisLinePointsModel();
 		model.setPoints(10);
 		model.setxAxisName("x");
 		model.setyAxisName("y");
 
 		// Get the point list
-		CompoundModel cModel = new CompoundModel();
+		final CompoundModel cModel = new CompoundModel();
 
 		for (int i = 0; i < nestCount; i++) {
 			cModel.addModel(new AxialStepModel("T"+(nestCount - 1 - i), 290, 300, 1));
@@ -85,164 +88,106 @@ public class ScanRankTest {
 
 		cModel.addData(model,  Arrays.asList(roi));
 
-		checkOneGenerator(nestCount, service.createCompoundGenerator(cModel));
+		final IPointGenerator<?> generator = service.createCompoundGenerator(cModel);
+		checkGenerator(generator, 10);
 	}
 
 	@Test
 	public void testRankSpiral() throws Exception {
-		BoundingBox box = new BoundingBox();
+		final BoundingBox box = new BoundingBox();
 		box.setxAxisStart(0);
 		box.setyAxisStart(0);
 		box.setxAxisLength(3);
 		box.setyAxisLength(3);
 
-		TwoAxisSpiralModel model = new TwoAxisSpiralModel("x", "y");
+		final TwoAxisSpiralModel model = new TwoAxisSpiralModel("x", "y");
 		model.setBoundingBox(box);
 
 		// Get the point list
-		CompoundModel cModel = new CompoundModel();
+		final CompoundModel cModel = new CompoundModel();
 		for (int i = 0; i < nestCount; i++) {
 			cModel.addModel(new AxialStepModel("T"+(nestCount -1 -i), 290, 300, 1));
 		}
 		cModel.addModel(model);
 
-		checkOneGenerator(nestCount, service.createCompoundGenerator(cModel));
-
-	}
-
-	private void checkOneGenerator(int nestCount, IPointGenerator<?> gen)  throws Exception {
-
-		int expectedScanRank = nestCount+1;
-
-		int count=0;
-        for (IPosition pos : gen) {
-		    assertTrue("The ranks should be "+expectedScanRank+" but was "+pos.getScanRank()+" for "+pos, pos.getScanRank()==expectedScanRank);
-		    for (int i = 0; i < nestCount; i++) {
-			final Collection<String> names = ((AbstractPosition)pos).getDimensionNames(i);
-			final Collection<String> expected = Arrays.asList("T"+(nestCount-1-i));
-				assertTrue("Names are: "+names+" expected was: "+expected, expected.containsAll(names));
-			}
-		    if (nestCount>0) {
-			    assertTrue(Arrays.asList("x", "y").containsAll(((AbstractPosition)pos).getDimensionNames(expectedScanRank-1)));
-		    }
-
-		    ++count;
-		    if (count>100) break; // We just check the first few.
-        }
+		final IPointGenerator<?> gen = service.createCompoundGenerator(cModel);
+		checkGenerator(gen, 15);
 	}
 
 	@Test
 	public void testRankGrid() throws Exception {
-		IPointGenerator<?> gen = createGridGenerator(nestCount, null);
-		final int[] gridShape = new int[] { 20, 20 };
-		final int expectedSize = gridShape[0] * gridShape[1] * (int) Math.pow(11, nestCount);
-		final int expectedScanRank = nestCount + 2;
-		assertEquals(expectedSize, gen.size());
-		assertEquals(expectedScanRank, gen.getRank());
-		int[] expectedShape = Stream.concat(Collections.nCopies(nestCount, 11).stream(),
-				Arrays.stream(gridShape).mapToObj(x -> new Integer(x))).mapToInt(Integer::valueOf).toArray();
-		assertArrayEquals(expectedShape, gen.getShape());
-
-		int count=0;
-		for (IPosition pos : gen) {
-			assertTrue("The ranks should be "+expectedScanRank+" but was "+pos.getScanRank()+" for "+pos, pos.getScanRank()==expectedScanRank);
-			for (int i = 0; i < nestCount; i++) {
-				final Collection<String> names = ((AbstractPosition)pos).getDimensionNames(i);
-				final Collection<String> expected = Arrays.asList("T"+(nestCount-1-i));
-				assertTrue("Names are: "+names+" expected was: "+expected, expected.containsAll(names));
-			}
-			if (nestCount>0) {
-			assertEquals(Arrays.asList("y"), ((AbstractPosition) pos).getDimensionNames(expectedScanRank - 2));
-			assertEquals(Arrays.asList("x"), ((AbstractPosition) pos).getDimensionNames(expectedScanRank - 1));
-			}
-
-			++count;
-			if (count>100) break; // We just check the first few.
-		}
+		final IPointGenerator<?> gen = createGridGenerator(nestCount, null);
+		checkGenerator(gen, 20, 20);
 	}
 
 	@Test
 	public void testRankGridWithCircularRegion() throws Exception {
-		IROI region = new CircularROI(2, 1, 1);
-
-		IPointGenerator<?> gen = createGridGenerator(nestCount, region);
-		final int innerScanSize = 316;
-		final int expectedSize = innerScanSize * (int) Math.pow(11, nestCount);
-		final int expectedScanRank = nestCount+1;
-		assertEquals(expectedSize, gen.size());
-		assertEquals(expectedScanRank, gen.getRank());
-		int[] expectedShape = Stream.concat(Collections.nCopies(nestCount, 11).stream(),
-				Arrays.stream(new int[] { innerScanSize }).mapToObj(x -> new Integer(x)))
-				.mapToInt(Integer::valueOf).toArray();
-		assertArrayEquals(expectedShape, gen.getShape());
-
-		int count=0;
-		for (IPosition pos : gen) {
-			assertTrue("The ranks should be " + expectedScanRank + " but was " + pos.getScanRank() + " for " + pos,
-					pos.getScanRank() == expectedScanRank);
-			for (int i = 0; i < nestCount; i++) {
-				final Collection<String> names = ((AbstractPosition) pos).getDimensionNames(i);
-				final Collection<String> expected = Arrays.asList("T" + (nestCount - 1 - i));
-				assertTrue("Names are: " + names + " expected was: " + expected, expected.containsAll(names));
-			}
-			if (nestCount > 0) {
-				assertEquals(Arrays.asList("y", "x"), ((AbstractPosition) pos).getDimensionNames(expectedScanRank - 1));
-			}
-
-			++count;
-			if (count > 100)
-				break; // We just check the first few.
-		}
+		final IROI region = new CircularROI(2, 1, 1);
+		final IPointGenerator<?> gen = createGridGenerator(nestCount, region);
+		checkGenerator(gen, 316);
 	}
 
 	@Test
 	public void testRankGridWithPolygonRegion() throws Exception {
-		PolygonalROI diamond = new PolygonalROI(new double[] { 1.5, 0 });
+		final PolygonalROI diamond = new PolygonalROI(new double[] { 1.5, 0 });
 		diamond.insertPoint(new double[] { 3, 1.5 });
 		diamond.insertPoint(new double[] { 1.5, 3 });
 		diamond.insertPoint(new double[] { 0, 1.5 });
 
-		IPointGenerator<?> gen = createGridGenerator(nestCount, diamond);
-		final int innerScanSize = 194;
-		final int expectedSize = innerScanSize * (int) Math.pow(11, nestCount);
-		final int expectedScanRank = nestCount+1;
-		assertEquals(expectedSize, gen.size());
-		assertEquals(expectedScanRank, gen.getRank());
-		int[] expectedShape = Stream.concat(Collections.nCopies(nestCount, 11).stream(),
-				Arrays.stream(new int[] { innerScanSize }).mapToObj(x -> new Integer(x)))
-				.mapToInt(Integer::valueOf).toArray();
-		assertArrayEquals(expectedShape, gen.getShape());
+		final IPointGenerator<?> gen = createGridGenerator(nestCount, diamond);
+		checkGenerator(gen, 194);
+	}
 
-		int count=0;
+	private int[] getExpectedShape(int... innerShape) {
+		return Stream.concat(Collections.nCopies(nestCount, 11).stream(),
+				Arrays.stream(innerShape).mapToObj(Integer::new)).
+				mapToInt(Integer::valueOf).toArray();
+	}
+
+	private void checkGenerator(IPointGenerator<?> gen, int... innerShape) {
+		final int innerSize = Arrays.stream(innerShape).reduce(1, (x, y) -> Math.multiplyExact(x, y));
+		final int expectedSize = innerSize * (int) Math.pow(11, nestCount);
+		final int expectedScanRank = nestCount + innerShape.length;
+		final int[] expectedShape = getExpectedShape(innerShape);
+	
+		assertThat(gen.size(), is(expectedSize));
+		assertThat(gen.getRank(), is(expectedScanRank));
+		assertThat(gen.getShape(), is(equalTo(expectedShape)));
+	
+		int count = 0;
 		for (IPosition pos : gen) {
-			assertTrue("The ranks should be "+expectedScanRank+" but was "+pos.getScanRank()+" for "+pos, pos.getScanRank()==expectedScanRank);
+			assertThat("Unexpected scan rank for pos " + pos, pos.getScanRank(), is(expectedScanRank));
 			for (int i = 0; i < nestCount; i++) {
-			final Collection<String> names = ((AbstractPosition)pos).getDimensionNames(i);
-			final Collection<String> expected = Arrays.asList("T"+(nestCount-1-i));
-				assertTrue("Names are: "+names+" expected was: "+expected, expected.containsAll(names));
+				final Set<String> names = ((AbstractPosition) pos).getDimensionNames(i);
+				assertThat(names, contains("T" + (nestCount - 1 - i)));
 			}
-			if (nestCount>0) {
-				assertEquals(Arrays.asList("y", "x"), ((AbstractPosition) pos).getDimensionNames(expectedScanRank - 1));
+			if (nestCount > 0) {
+				if (innerShape.length == 1) {
+					assertThat(((AbstractPosition) pos).getDimensionNames(expectedScanRank - 1), contains("x", "y"));
+				} else {
+					assertThat(((AbstractPosition) pos).getDimensionNames(expectedScanRank - 1), contains("x"));
+					assertThat(((AbstractPosition) pos).getDimensionNames(expectedScanRank - 2), contains("y"));
+				}
 			}
-
-			++count;
-			if (count>100) break; // We just check the first few.
+	
+			count++;
+			if (count > NUM_POINTS_TO_CHECK) break; // we only check the first 100 points
 		}
 	}
 
 	private IPointGenerator<CompoundModel> createGridGenerator(int nestCount, IROI region) throws Exception {
-		BoundingBox box = new BoundingBox();
+		final BoundingBox box = new BoundingBox();
 		box.setxAxisStart(0);
 		box.setyAxisStart(0);
 		box.setxAxisLength(3);
 		box.setyAxisLength(3);
 
-		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel("x", "y");
+		final TwoAxisGridPointsModel model = new TwoAxisGridPointsModel("x", "y");
 		model.setyAxisPoints(20);
 		model.setxAxisPoints(20);
 		model.setBoundingBox(box);
 
-		CompoundModel cModel = new CompoundModel();
+		final CompoundModel cModel = new CompoundModel();
 		for (int i = 0; i < nestCount; i++) {
 			cModel.addModel(new AxialStepModel("T"+(nestCount -1 -i), 290, 300, 1));
 		}

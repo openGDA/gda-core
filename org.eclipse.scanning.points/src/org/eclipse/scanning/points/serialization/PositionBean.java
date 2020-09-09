@@ -11,9 +11,9 @@
  *******************************************************************************/
 package org.eclipse.scanning.points.serialization;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.scanning.api.points.AbstractPosition;
 import org.eclipse.scanning.api.points.IPosition;
@@ -24,7 +24,7 @@ class PositionBean {
 	private Map<String, Object>  values;
 	private Map<String, Integer> indices;
 	private int stepIndex;
-	private List<Collection<String>> dimensionNames; // Dimension->Names@dimension
+	private List<Set<String>> dimensionNames; // Dimension->Names@dimension
 
 	public PositionBean() {
 		// to be used for JSON deserialization only
@@ -37,7 +37,7 @@ class PositionBean {
 		this.dimensionNames = getDimensionNames(pos);
 	}
 
-	private List<Collection<String>> getDimensionNames(IPosition pos) {
+	private List<Set<String>> getDimensionNames(IPosition pos) {
 		if (pos instanceof AbstractPosition) return ((AbstractPosition)pos).getDimensionNames();
 		return null; // Do not have to support dimension names
 	}
@@ -72,11 +72,11 @@ class PositionBean {
 		this.stepIndex = stepIndex;
 	}
 
-	public List<Collection<String>> getDimensionNames() {
+	public List<Set<String>> getDimensionNames() {
 		return dimensionNames;
 	}
 
-	public void setDimensionNames(List<Collection<String>> dimensionNames) {
+	public void setDimensionNames(List<Set<String>> dimensionNames) {
 		this.dimensionNames = dimensionNames;
 	}
 

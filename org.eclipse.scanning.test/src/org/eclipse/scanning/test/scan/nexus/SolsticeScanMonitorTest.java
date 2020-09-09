@@ -38,7 +38,7 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -518,11 +518,11 @@ public class SolsticeScanMonitorTest {
 		int stepIndex = 23;
 		MapPosition position = new MapPosition();
 		position.setStepIndex(stepIndex);
-		List<Collection<String>> names = new ArrayList<>( positionerNames.length);
+		List<Set<String>> names = new ArrayList<>( positionerNames.length);
 		for (int i = 0; i < positionerNames.length; i++) {
 			position.put(positionerNames[i], pos[i]);
 			position.putIndex(positionerNames[i], indices[i]);
-			names.add(Arrays.asList(positionerNames[i]));
+			names.add(new LinkedHashSet<>(Arrays.asList(positionerNames[i])));
 		}
 		position.setDimensionNames(names);
 

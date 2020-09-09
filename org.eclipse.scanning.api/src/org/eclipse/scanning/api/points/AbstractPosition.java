@@ -17,8 +17,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public abstract class AbstractPosition implements IPosition, Serializable {
 
@@ -29,7 +31,7 @@ public abstract class AbstractPosition implements IPosition, Serializable {
 
 	private int stepIndex = -1;
 	private double exposureTime;
-	protected List<Collection<String>> dimensionNames; // Dimension->Names@dimension
+	protected List<Set<String>> dimensionNames; // Dimension->Names@dimension
 
 	@Override
 	public IPosition compound(IPosition parent) {
@@ -42,7 +44,7 @@ public abstract class AbstractPosition implements IPosition, Serializable {
 		ret.setStepIndex(getStepIndex());
 		ret.setExposureTime(getExposureTime());
 
-		List<Collection<String>> dimensionNames = new ArrayList<>();
+		List<Set<String>> dimensionNames = new ArrayList<>();
 		dimensionNames.addAll(((AbstractPosition) parent).getDimensionNames());
 		dimensionNames.addAll(getDimensionNames());
 		ret.setDimensionNames(dimensionNames);
@@ -192,8 +194,8 @@ public abstract class AbstractPosition implements IPosition, Serializable {
 	return buf.toString();
 	}
 
-	public Collection<String> getDimensionNames(int dimension) {
-		if (dimensionNames==null && dimension==0) return getNames();
+	public Set<String> getDimensionNames(int dimension) {
+		if (dimensionNames==null && dimension==0) return new LinkedHashSet<>(getNames());
 		if (dimensionNames==null)                 return null;
 		if (dimension>=dimensionNames.size())     return null;
 		return dimensionNames.get(dimension);
@@ -211,16 +213,17 @@ public abstract class AbstractPosition implements IPosition, Serializable {
 	 *
 	 * @return
 	 */
-	public synchronized List<Collection<String>> getDimensionNames() {
+	public synchronized List<Set<String>> getDimensionNames() {
 		if (dimensionNames==null||dimensionNames.isEmpty())  {
 			dimensionNames = new ArrayList<>();
 			if (!getNames().isEmpty()) {
-				dimensionNames.add(new ArrayList<>(getNames())); // List adding a collection, we copy the keys here run SerializationTest to see why
+				dimensionNames.add(new LinkedHashSet<>(getNames())); // List adding a collection, we copy the keys here run SerializationTest to see why
 			}
 		}
 		return new ArrayList<>(dimensionNames);
 	}
-	public void setDimensionNames(List<Collection<String>> dNames) {
+
+	public void setDimensionNames(List<Set<String>> dNames) {
 		this.dimensionNames = dNames;
 	}
 

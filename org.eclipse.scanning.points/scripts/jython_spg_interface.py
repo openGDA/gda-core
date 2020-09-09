@@ -144,8 +144,8 @@ class GeneratorWrapper(PPointGenerator):
             y_name, x_name = self.names
             return self.pointIterator(x_name, y_name)
         else:
-            names = [d.axes for d in self.generator.dimensions]
-            axes_ordered = sum(names, [])
+            names = [set(d.axes) for d in self.generator.dimensions]
+            axes_ordered = sum([d.axes for d in self.generator.dimensions], [])
             index_locations = {axis: [axis in name for name in names].index(True) for axis in axes_ordered}
             return self.mapIterator(names, axes_ordered, index_locations)
         
