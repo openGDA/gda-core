@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.mapping.ui.browser;
 
 import java.net.URL;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -68,17 +69,59 @@ public abstract class ScanningAcquisitionBrowserBase extends Browser<ScanningAcq
 
 	@Override
 	public TreeViewerBuilder<AcquisitionConfigurationResource<ScanningAcquisition>> getTreeViewBuilder() {
-		return new TreeViewerBuilder<AcquisitionConfigurationResource<ScanningAcquisition>>() {
-			@SuppressWarnings("unchecked")
-			@Override
-			public AcquisitionConfigurationResource<ScanningAcquisition>[] getInputElements(boolean reload) {
-				return getAcquisitionConfigurationResources(reload).stream()
-						.map(AcquisitionConfigurationResource::getLocation)
-						.map(ScanningAcquisitionBrowserBase.this::parseAcquisition)
-						.filter(Objects::nonNull).collect(Collectors.toList())
-						.toArray(new AcquisitionConfigurationResource[0]);
+		return new ScanningAcquisitionTreeBuilder();
+	}
+
+	class ScanningAcquisitionTreeBuilder extends TreeViewerBuilder<AcquisitionConfigurationResource<ScanningAcquisition>> {
+
+		private List<AcquisitionConfigurationResource<ScanningAcquisition>> resources;
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public AcquisitionConfigurationResource<ScanningAcquisition>[] getInputElements(boolean reload) {
+			resources = getAcquisitionConfigurationResources(reload).stream()
+					.map(AcquisitionConfigurationResource::getLocation)
+					.map(ScanningAcquisitionBrowserBase.this::parseAcquisition)
+					.filter(Objects::nonNull).collect(Collectors.toList());
+
+			return resources.toArray(new AcquisitionConfigurationResource[0]);
+		}
+
+		@Override
+		protected void save(URL configuration) {
+			if (configurationIsRelevant(configuration)) {
+				logger.debug("Adding resource at '{}'", configuration);
+				try {
+					resources.add(controller.parseAcquisitionConfiguration(configuration));
+					updateContents();
+				} catch (AcquisitionControllerException e) {
+					logger.error("Could not add new resource to browser list - '{}'", configuration, e);
+				}
 			}
-		};
+		}
+
+		@Override
+		protected void delete(URL configuration) {
+			if (configurationIsRelevant(configuration)) {
+				logger.debug("Removing resource at '{}'", configuration);
+				try {
+					resources.remove(controller.parseAcquisitionConfiguration(configuration));
+					updateContents();
+				} catch (AcquisitionControllerException e) {
+					logger.error("Could not remove resource '{}'", configuration, e);
+				}
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		private void updateContents() {
+			updateContents(resources.toArray(new AcquisitionConfigurationResource[0]));
+		}
+
+		private boolean configurationIsRelevant(URL configuration) {
+			return configuration != null &&
+					configuration.getPath().endsWith(getType().getExtension());
+		}
 	}
 
 	private AcquisitionConfigurationResource<ScanningAcquisition> parseAcquisition(URL resourceLocation) {
