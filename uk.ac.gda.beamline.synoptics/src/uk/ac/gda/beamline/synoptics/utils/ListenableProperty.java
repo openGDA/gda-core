@@ -20,7 +20,12 @@ package uk.ac.gda.beamline.synoptics.utils;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
+import java.util.stream.Collectors;
 
 import gda.configuration.properties.LocalProperties;
 import gda.jython.InterfaceProvider;
@@ -79,12 +84,24 @@ public class ListenableProperty {
         	LocalProperties.set(getPropertyName(), newValue);
         	this.pcs.firePropertyChange(getPropertyName(), oldValue, newValue);
         	//server side property change
-        	InputStream file=getClass().getResourceAsStream("setProperty.py");
-        	String command=JythonServerFacade.slurp(file);
+        	String command = getFileAsString("setProperty.py");
         	command=command+System.getProperty("line.separator")+"setProperty(\""+getPropertyName()+"\",\""+newValue+"\")";
         	JythonServerFacade.getInstance().runCommand(command);
         }
     }
+
+    /**
+     * @param fileName for file located within this class' package
+     */
+	private String getFileAsString(String fileName) {
+		try (InputStream is = getClass().getResourceAsStream(fileName);
+				InputStreamReader isr = new InputStreamReader(is);
+				BufferedReader br = new BufferedReader(isr);) {
+			return br.lines().collect(Collectors.joining(System.lineSeparator()));
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
+	}
 
 	public String getPropertyName() {
 		return propertyName;
