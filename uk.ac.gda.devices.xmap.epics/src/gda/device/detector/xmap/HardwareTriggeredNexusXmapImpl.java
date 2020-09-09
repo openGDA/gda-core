@@ -312,13 +312,7 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 	private void setupFileAttributes() throws Exception {
 
 		// filename prefix
-		String beamline = "base";
-		try {
-			beamline = GDAMetadataProvider.getInstance().getMetadataValue("instrument", "gda.instrument", null);
-		} catch (DeviceException e1) {
-			// don't let an exception stop us here
-			logger.warn("Cannot get instrument or gda.instrument property value");
-		}
+		String beamline = GDAMetadataProvider.getInstance().getMetadataValue("instrument", "gda.instrument", "base");
 		controller.setFilenamePrefix(beamline);
 
 		// scan number
