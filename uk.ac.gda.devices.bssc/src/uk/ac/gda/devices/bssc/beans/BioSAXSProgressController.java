@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.data.metadata.GDAMetadataProvider;
 import gda.device.Device;
-import gda.device.DeviceException;
 import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
@@ -71,8 +70,6 @@ public class BioSAXSProgressController extends ConfigurableBase implements IObse
 			}
 			logger.info("Client logged in with visit: {}", visit);
 			blSessionId = bioSAXSISPyB.getSessionForVisit(visit);
-		} catch (DeviceException e) {
-			logger.error("DeviceException getting visit", e);
 		}
 		catch (SQLException e) {
 			logger.error("SQLEXception getting session id", e);
