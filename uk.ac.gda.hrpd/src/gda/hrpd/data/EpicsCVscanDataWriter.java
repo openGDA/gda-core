@@ -85,17 +85,17 @@ public class EpicsCVscanDataWriter extends FindableConfigurableBase implements D
 	/**
 	 * sample information instance
 	 */
-	private SampleInfo sampaleInfo;
+	private SampleInfo sampleInfo;
 	/**
 	 * Beam information instance
 	 */
 	private Beam beamInfo;
 	public SampleInfo getSampleInfo() {
-		return sampaleInfo;
+		return sampleInfo;
 	}
 
 	public void setSampleInfo(SampleInfo saminfo) {
-		this.sampaleInfo = saminfo;
+		this.sampleInfo = saminfo;
 	}
 
 	public Beam getBeamInfo() {
@@ -169,7 +169,7 @@ public class EpicsCVscanDataWriter extends FindableConfigurableBase implements D
 		if (beamlineInfo == null) {
 			logger.warn("{}: Can not find beamline information object 'beamline'", getName());
 		}
-		if (sampaleInfo == null) {
+		if (sampleInfo == null) {
 			logger.warn("{}: Cannot find sample information data object 'SampleInfo'", getName());
 		}
 		setConfigured(true);
@@ -370,11 +370,11 @@ public class EpicsCVscanDataWriter extends FindableConfigurableBase implements D
 	 */
 	public void writeHeader(FileWriter filewriter) {
 		String SRSWriteAtFileCreation;
-		if (sampaleInfo != null && sampaleInfo.isConfigured() && this.sampleNo != Integer.MIN_VALUE) {
+		if (sampleInfo != null && sampleInfo.isConfigured() && this.sampleNo != Integer.MIN_VALUE) {
 			// load sample information from Excel file for robotscan
-			sampaleInfo.open();
-			sampaleInfo.loadSampleInfo((int)this.sampleNo);
-			sampaleInfo.close();
+			sampleInfo.open();
+			sampleInfo.loadSampleInfo((int)this.sampleNo);
+			sampleInfo.close();
 		}
 		try {
 			// get relevant info and print to 'file'
@@ -391,13 +391,13 @@ public class EpicsCVscanDataWriter extends FindableConfigurableBase implements D
 			date = dateFormatter.format(today);
 			time = timeFormatter.format(today);
 			String header1 = "";
-			if (sampaleInfo != null) { // use robotscan and SampleInfo.xls
-				header1 += "CarouselNo=" + sampaleInfo.getCarouselNo() + "\n";
-				header1 += "SampleID=" + sampaleInfo.getSampleID() + "\n";
-				header1 += "SampleName=" + sampaleInfo.getSampleName() + "\n";
-				header1 += "Description=" + sampaleInfo.getDescription() + "\n";
-				header1 += "Title=" + sampaleInfo.getTitle() + "\n";
-				header1 += "Comment=" + sampaleInfo.getComment() + "\n";
+			if (sampleInfo != null) { // use robotscan and SampleInfo.xls
+				header1 += "CarouselNo=" + sampleInfo.getCarouselNo() + "\n";
+				header1 += "SampleID=" + sampleInfo.getSampleID() + "\n";
+				header1 += "SampleName=" + sampleInfo.getSampleName() + "\n";
+				header1 += "Description=" + sampleInfo.getDescription() + "\n";
+				header1 += "Title=" + sampleInfo.getTitle() + "\n";
+				header1 += "Comment=" + sampleInfo.getComment() + "\n";
 			} else { //
 				header1 += "CarouselNo=" + "Not Set" + "\n";
 				header1 += "SampleID=" + "Not Set" + "\n";
@@ -416,14 +416,10 @@ public class EpicsCVscanDataWriter extends FindableConfigurableBase implements D
 			header1 += "Date=" + date + "\n";
 			header1 += "Time=" + time + "\n";
 			if (metadata != null) {
-				try {
-					header1 += "Beamline=" + metadata.getMetadataValue("instrument", "gda.instrument", "i11") + "\n";
-					header1 += "Project=" + metadata.getMetadataValue("proposal", "gda.data.project", "HRPD") + "\n";
-					header1 += "Experiment=" + metadata.getMetadataValue("investigation", "gda.data.experiment", "MAC")
-							+ "\n";
-				} catch (DeviceException e1) {
-					logger.warn("failed to get metatdata from Metadata repository.");
-				}
+				header1 += "Beamline=" + metadata.getMetadataValue("instrument", "gda.instrument", "i11") + "\n";
+				header1 += "Project=" + metadata.getMetadataValue("proposal", "gda.data.project", "HRPD") + "\n";
+				header1 += "Experiment=" + metadata.getMetadataValue("investigation", "gda.data.experiment", "MAC")
+						+ "\n";
 			}
 			if (beamInfo != null && !((Double) beamInfo.getWavelength()).isNaN()) {
 				header1 += "Wavelength=" + beamInfo.getWavelength() + "\n";
@@ -488,21 +484,17 @@ public class EpicsCVscanDataWriter extends FindableConfigurableBase implements D
 
 			// filewriter.write("\n");
 
-			if (sampaleInfo != null && sampaleInfo.isSaveExperimentSummary()) {
-				sampaleInfo.setRunNumber(String.valueOf(beamlineInfo.getFileNumber()));
-				sampaleInfo.setDate(date);
-				sampaleInfo.setTime(time);
-				try {
-					sampaleInfo.setBeamline(metadata.getMetadataValue("instrument", "gda.instrument", "i11"));
-					sampaleInfo.setProject(metadata.getMetadataValue("proposal", "gda.data.project", "HRPD"));
-					sampaleInfo.setExperiment(metadata.getMetadataValue("investigation", "gda.data.experiment", "MAC"));
-				} catch (DeviceException e) {
-					logger.warn("failed to get metatdata from Metadata repository.");
-				}
-				sampaleInfo.setWavelength(String.valueOf(beamInfo.getWavelength()));
-				sampaleInfo.setTemperature(String.valueOf(this.temp));
+			if (sampleInfo != null && sampleInfo.isSaveExperimentSummary()) {
+				sampleInfo.setRunNumber(String.valueOf(beamlineInfo.getFileNumber()));
+				sampleInfo.setDate(date);
+				sampleInfo.setTime(time);
+				sampleInfo.setBeamline(metadata.getMetadataValue("instrument", "gda.instrument", "i11"));
+				sampleInfo.setProject(metadata.getMetadataValue("proposal", "gda.data.project", "HRPD"));
+				sampleInfo.setExperiment(metadata.getMetadataValue("investigation", "gda.data.experiment", "MAC"));
+				sampleInfo.setWavelength(String.valueOf(beamInfo.getWavelength()));
+				sampleInfo.setTemperature(String.valueOf(this.temp));
 
-				sampaleInfo.saveExperimentInfo((int)sampleNo);
+				sampleInfo.saveExperimentInfo((int)sampleNo);
 			}
 		} catch (IOException ex) {
 			logger.error("Error when writing MAC Data File header: " + ex.getMessage(), ex);

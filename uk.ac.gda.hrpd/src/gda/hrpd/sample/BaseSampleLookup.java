@@ -18,12 +18,10 @@
 
 package gda.hrpd.sample;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
 import gda.data.metadata.GDAMetadataProvider;
-import gda.device.DeviceException;
 import gda.hrpd.sample.api.SampleLookup;
 import gda.hrpd.sample.api.SampleMetadata;
 
@@ -34,12 +32,8 @@ public abstract class BaseSampleLookup implements SampleLookup {
 	private String defaultVisit;
 	protected Collection<SampleMetadata> samples;
 
-	public BaseSampleLookup() throws IOException {
-		try {
-			defaultVisit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
-		} catch (DeviceException de) {
-			throw new IOException("Couldn't read default visit directory");
-		}
+	public BaseSampleLookup() {
+		defaultVisit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
 	}
 	public String getDefaultVisit() {
 		return defaultVisit;

@@ -462,14 +462,10 @@ public class MacDataWriter extends DataWriterBase implements Findable, Configura
 			header1 += "Date=" + date + "\n";
 			header1 += "Time=" + time + "\n";
 			if (metadata != null) {
-				try {
-					header1 += "Beamline=" + metadata.getMetadataValue("instrument", "gda.instrument", "i11") + "\n";
-					header1 += "Project=" + metadata.getMetadataValue("proposal", "gda.data.project", "HRPD") + "\n";
-					header1 += "Experiment=" + metadata.getMetadataValue("investigation", "gda.data.experiment", "MAC")
-							+ "\n";
-				} catch (DeviceException e1) {
-					logger.warn("failed to get metatdata from Metadata repository.");
-				}
+				header1 += "Beamline=" + metadata.getMetadataValue("instrument", "gda.instrument", "i11") + "\n";
+				header1 += "Project=" + metadata.getMetadataValue("proposal", "gda.data.project", "HRPD") + "\n";
+				header1 += "Experiment=" + metadata.getMetadataValue("investigation", "gda.data.experiment", "MAC")
+						+ "\n";
 			}
 			if (beam != null && !((Double) beam.getWavelength()).isNaN()) {
 				header1 += "Wavelength=" + beam.getWavelength() + "\n";
@@ -532,13 +528,9 @@ public class MacDataWriter extends DataWriterBase implements Findable, Configura
 				saminfo.setRunNumber(String.valueOf(bli.getFileNumber()));
 				saminfo.setDate(date);
 				saminfo.setTime(time);
-				try {
-					saminfo.setBeamline(metadata.getMetadataValue("instrument", "gda.instrument", "i11"));
-					saminfo.setProject(metadata.getMetadataValue("proposal", "gda.data.project", "HRPD"));
-					saminfo.setExperiment(metadata.getMetadataValue("investigation", "gda.data.experiment", "MAC"));
-				} catch (DeviceException e) {
-					logger.warn("failed to get metatdata from Metadata repository.");
-				}
+				saminfo.setBeamline(metadata.getMetadataValue("instrument", "gda.instrument", "i11"));
+				saminfo.setProject(metadata.getMetadataValue("proposal", "gda.data.project", "HRPD"));
+				saminfo.setExperiment(metadata.getMetadataValue("investigation", "gda.data.experiment", "MAC"));
 				saminfo.setWavelength(String.valueOf(beam.getWavelength()));
 				saminfo.setTemperature(String.valueOf(this.temp));
 
