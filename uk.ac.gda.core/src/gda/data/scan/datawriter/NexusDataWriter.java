@@ -1773,8 +1773,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 			if (createSrsFile) {
 				error += " or " + srsFile.fileUrl;
 			}
-			error += ")";
-			error += ". Nexus binary library was not found. Inform Data Acquisition.";
+			error += ").";
 			logger.error(error, ex);
 			if (terminalPrinter != null) {
 				terminalPrinter.print(error);
