@@ -170,9 +170,8 @@ class MalcolmNexusObjectBuilder {
 				nexusWrapper.setDefaultAxisDataFieldName(datasetName);
 				break;
 			case POSITION_MIN:
-				break; // do nothing, see DAQ-2613
 			case POSITION_MAX:
-				break; // do nothing, see DAQ-2613
+				break; // do nothing, fields already added to Nexus object & not axis or primary/secondary
 			case UNKNOWN:
 				break; // do nothing (warning already logged)
 		}
