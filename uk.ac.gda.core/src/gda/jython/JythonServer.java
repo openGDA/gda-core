@@ -24,10 +24,11 @@ import static java.text.MessageFormat.format;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -47,6 +48,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 import org.python.core.Py;
 import org.python.core.PyException;
@@ -313,7 +315,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 
 		statusHolder.startRunningCommandSynchronously();
 		try {
-			this.interp.exec(JythonServerFacade.slurp(new File(scriptFullPath)));
+			this.interp.exec(Files.readAllLines(Paths.get(scriptFullPath)).stream().collect(Collectors.joining("\n")));
 		} finally {
 			statusHolder.finishRunningCommandSynchronously();
 		}

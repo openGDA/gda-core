@@ -31,7 +31,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.python.core.PyException;
 import org.python.core.PyObject;
@@ -328,7 +327,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	public CommandThreadEvent runScript(File script) {
 		try {
 			String commands;
-			commands = slurp(script);
+			commands = Files.readAllLines(script.toPath()).stream().collect(Collectors.joining("\n"));
 			logger.debug("Running script {}", script.getAbsolutePath());
 			String scriptName = script.getName();
 			final CommandThreadEvent event = commandServer.runScript(commands, scriptName, name);
@@ -570,22 +569,6 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	 */
 	public String getStartupOutput() {
 		return commandServer.getStartupOutput(name);
-	}
-
-
-	/**
-	 * Places the contents of a file into a string. Careful what you give this method! Named after the Perl command (if
-	 * you're interested).
-	 *
-	 * @param file
-	 *            File
-	 * @return String
-	 * @throws IOException
-	 */
-	public static String slurp(File file) throws IOException {
-		try (Stream<String> stream = Files.lines(file.toPath())) {
-			return stream.collect(Collectors.joining(System.lineSeparator()));
-		}
 	}
 
 	public void addAliasedCommand(String commandName) {
