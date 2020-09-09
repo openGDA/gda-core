@@ -146,10 +146,12 @@ public class TiltController implements ITiltController {
 
 			cameraHandler.setUpForTilt(minY, maxY, minX, maxX);
 			logger.debug("Set the camera minY at:" + minY + " and maxY at:" + maxY);
-			double txOffset = getTxOffset(module);
-			String subDir = getSubDir();
+			final double txOffset = getTxOffset(module);
+			final String subDirectory = GDAMetadataProvider.getInstance().getMetadataValue("subdirectory");
+			logger.debug("Subdirectory is {}", subDirectory);
 			try {
-				changeSubDir("tmp");
+				GDAMetadataProvider.getInstance().setMetadataValue("subdirectory", "temp");
+				logger.debug("Subdirectory set to {}", "temp");
 				// Move tx by offset
 				logger.debug("the tx offset is:{}", txOffset);
 				if (!monitor.isCanceled()) {
@@ -202,7 +204,8 @@ public class TiltController implements ITiltController {
 				}
 			} finally {
 				sampleStageMotorHandler.moveSs1TxBy(progress, -txOffset);
-				changeSubDir(subDir);
+				GDAMetadataProvider.getInstance().setMetadataValue("subdirectory", subDirectory);
+				logger.debug("Subdirectory set to {}", subDirectory);
 			}
 		} finally {
 			// - move the motor back
@@ -214,28 +217,6 @@ public class TiltController implements ITiltController {
 		}
 
 		return getPlottablePoint(firstScanFolder, secondScanFolder);
-	}
-
-	private String getSubDir() throws DeviceException {
-		String sub;
-		try {
-			sub = GDAMetadataProvider.getInstance().getMetadataValue("subdirectory");
-		} catch (DeviceException e) {
-			logger.error("Could not get subdirectory from metadata", e);
-			throw new DeviceException("Error reading subdirectory metadata", e);
-		}
-		logger.debug("Subdir is {}", sub);
-		return sub;
-	}
-
-	private void changeSubDir(final String subdir) throws DeviceException {
-		try {
-			GDAMetadataProvider.getInstance().setMetadataValue("subdirectory", subdir);
-		} catch (DeviceException e) {
-			logger.error("Could not set subdirectory metadata", e);
-			throw new DeviceException("Error setting subdirectory metadata", e);
-		}
-		logger.debug("Subdirectory set to {}", subdir);
 	}
 
 	private void scanThetha(final IProgressMonitor progress, double exposureTime) {
