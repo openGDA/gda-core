@@ -46,6 +46,11 @@ public class ToggleIncrementControlDisplay extends AbstractHandler  {
 		controls.stream().filter(e -> e instanceof ScannablePositionerControl).map(e->(ScannablePositionerControl) e)
 				.forEach(e -> e.toggleIncrementControlDisplay());
 
+		// Toggle positioners in the LiveControlGroups
+		controls.stream().filter(e -> e instanceof LiveControlGroup)
+			.map(e->(LiveControlGroup) e)
+			.forEach(LiveControlGroup::toggleIncrementControlDisplay);
+
 		IWorkbenchPage page = liveControlsView.getViewSite().getPage();
 		page.hideView(liveControlsView);
 		try {
