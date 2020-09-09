@@ -18,6 +18,7 @@
 
 package gda.rcp.views;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +40,8 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceDeleteEvent;
@@ -56,6 +59,8 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 public abstract class TreeViewerBuilder<T> {
 
 	private static final int FOUR_ROWS = 165;
+
+	private static final Logger logger = LoggerFactory.getLogger(TreeViewerBuilder.class);
 
 	private List<IntColumn> columns = new ArrayList<>();
 	private TreeViewer viewer;
@@ -110,9 +115,9 @@ public abstract class TreeViewerBuilder<T> {
 
 		try {
 			SpringApplicationContextProxy.addDisposableApplicationListener(tree, saveResourcesListener);
-			SpringApplicationContextProxy.addDisposableApplicationListener(tree, saveResourcesListener);
+			SpringApplicationContextProxy.addDisposableApplicationListener(tree, deleteResourcesListener);
 		} catch (GDAClientException e) {
-
+			logger.error("Could not add application listener(s)", e);
 		}
 		return viewer;
 	}
@@ -120,20 +125,45 @@ public abstract class TreeViewerBuilder<T> {
 	private ApplicationListener<AcquisitionConfigurationResourceSaveEvent> saveResourcesListener = new ApplicationListener<AcquisitionConfigurationResourceSaveEvent>() {
 		@Override
 		public void onApplicationEvent(AcquisitionConfigurationResourceSaveEvent event) {
-			refreshResources();
+			save(event.getUrl());
 		}
 	};
 
 	private ApplicationListener<AcquisitionConfigurationResourceDeleteEvent> deleteResourcesListener = new ApplicationListener<AcquisitionConfigurationResourceDeleteEvent>() {
 		@Override
 		public void onApplicationEvent(AcquisitionConfigurationResourceDeleteEvent event) {
-			refreshResources();
+			delete(event.getUrl());
 		}
 	};
 
-	private void refreshResources() {
-		viewer.setInput(getInputElements(true));
+	/**
+	 * Default implementation updates viewer input according to {@link #getInputElements(boolean)}
+	 *
+	 * @param configuration URL of saved configuration
+	 */
+	protected void save(@SuppressWarnings("unused") URL configuration) {
+		refreshResources();
+	}
+
+	/**
+	 * Default implementation updates viewer input according to {@link #getInputElements(boolean)}
+	 *
+	 * @param configuration URL of deleted configuration
+	 */
+	protected void delete(@SuppressWarnings("unused") URL configuration) {
+		refreshResources();
+	}
+
+	/**
+	 * Replace the viewer input with the given array and refresh
+	 */
+	protected void updateContents(T[] updated) {
+		viewer.setInput(updated);
 		viewer.refresh();
+	}
+
+	private void refreshResources() {
+		updateContents(getInputElements(true));
 	}
 
 	public abstract T[] getInputElements(boolean reload);
