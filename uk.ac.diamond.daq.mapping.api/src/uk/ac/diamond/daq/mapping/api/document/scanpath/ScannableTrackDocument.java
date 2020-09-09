@@ -134,6 +134,49 @@ public class ScannableTrackDocument {
 				+ step + ", points=" + points + "]";
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + points;
+		result = prime * result + ((scannable == null) ? 0 : scannable.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(start);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(step);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(stop);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ScannableTrackDocument other = (ScannableTrackDocument) obj;
+		if (points != other.points)
+			return false;
+		if (scannable == null) {
+			if (other.scannable != null)
+				return false;
+		} else if (!scannable.equals(other.scannable))
+			return false;
+		if (Double.doubleToLongBits(start) != Double.doubleToLongBits(other.start))
+			return false;
+		if (Double.doubleToLongBits(step) != Double.doubleToLongBits(other.step))
+			return false;
+		if (Double.doubleToLongBits(stop) != Double.doubleToLongBits(other.stop))
+			return false;
+		return true;
+	}
+
+
+
 	@JsonPOJOBuilder
 	public static class Builder {
 		private String scannable;

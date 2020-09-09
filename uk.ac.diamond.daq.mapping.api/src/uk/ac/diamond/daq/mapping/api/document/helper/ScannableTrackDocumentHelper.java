@@ -90,18 +90,18 @@ public class ScannableTrackDocumentHelper extends ScanningParametersHelperBase {
 	 *
 	 * The method silently return without updating the document if
 	 * <p>
-	 * {@code points.length == getScanpathDocument().getScannableTrackDocuments().size()}
+	 * {@code points.length != getScanpathDocument().getScannableTrackDocuments().size()}
 	 * </p>
 	 *
 	 * @param points
 	 *            the the points per each scannableTrackDocument
 	 */
 	public void updateScannableTrackDocumentsPoints(int... points) {
-		if (points.length == getScanningParameters().getScanpathDocument().getScannableTrackDocuments().size()) {
+		if (points.length != getScanningParameters().getScanpathDocument().getScannableTrackDocuments().size()) {
 			return;
 		}
 		List<ScannableTrackDocument> trackDocuments = ScanningParametersHelperBase
-				.assembleScannableTracks(IntStream.of(points.length)
+				.assembleScannableTracks(IntStream.range(0, points.length)
 					.mapToObj(index -> getScannableTrackDocumentBuilder(index).withPoints(points[index]))
 					.toArray(ScannableTrackDocument.Builder[]::new));
 		updateScanPathDocument(getScanpathDocumentBuilder().withScannableTrackDocuments(trackDocuments));
