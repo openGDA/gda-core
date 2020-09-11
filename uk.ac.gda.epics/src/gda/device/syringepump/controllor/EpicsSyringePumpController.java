@@ -67,7 +67,7 @@ public class EpicsSyringePumpController extends DeviceBase implements SyringePum
 
 	private static final String TVOLUME = "TVOLUME";
 
-	String pvPrefix;
+	private String pvPrefix;
 	private EpicsController controller;
 	private EpicsChannelManager channelManager;
 	private double volume;
@@ -378,4 +378,7 @@ public class EpicsSyringePumpController extends DeviceBase implements SyringePum
 		}
 	}
 
+	public void setPvPrefix(String pvPrefix) {
+		this.pvPrefix = pvPrefix;
+	}
 }
