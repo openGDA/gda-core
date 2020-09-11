@@ -32,10 +32,9 @@ import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 import javax.measure.Quantity;
@@ -159,13 +158,14 @@ public class FocusScanResultPage extends WizardPage {
 
 	private IPlottingSystem<Composite> plottingSystem;
 
-	private ScheduledFuture<?> updateMapFuture;
-	private ScheduledExecutorService updateMapExecutor;
+	private Executor updateMapExecutor;
 
 	private IScannable<Double> focusScannable;
 	private Double focusScannableOriginalPosition;
 
 	private MappedDataFile initialMapFile;
+
+	private AtomicReference<Runnable> plotTraceRunnable = new AtomicReference<>();
 
 	public FocusScanResultPage() {
 		super(FocusScanResultPage.class.getSimpleName());
@@ -175,6 +175,8 @@ public class FocusScanResultPage extends WizardPage {
 
 	@Override
 	public void createControl(Composite parent) {
+		updateMapExecutor = Executors.newSingleThreadExecutor();
+
 		try {
 			focusScannable = scannableService.getScannable(focusScanBean.getFocusScannableName());
 			focusScannableOriginalPosition = focusScannable.getPosition();
@@ -276,6 +278,9 @@ public class FocusScanResultPage extends WizardPage {
 		// set the page as incomplete, disables Finish button while scan is running
 		setPageComplete(false);
 
+		plotTraceRunnable.set(null);
+		initialMapFile = null;
+
 		// add a listener for map file events
 		if (mapFileEventListener == null) {
 			mapFileEventListener = this::handleMapEvent;
@@ -347,6 +352,12 @@ public class FocusScanResultPage extends WizardPage {
 	}
 
 	private synchronized void handleMapEvent(MappedDataFile mappedDataFile) {
+		// If it's all made, run it.
+		final Runnable initialMapUpdate = plotTraceRunnable.get();
+		if (initialMapUpdate != null) {
+			updateMapExecutor.execute(initialMapUpdate);
+			return;
+		}
 
 		if (mappedDataFile != null && this.initialMapFile == null) {
 			this.initialMapFile = mappedDataFile;
@@ -354,13 +365,11 @@ public class FocusScanResultPage extends WizardPage {
 
 		if (initialMapFile == null) return;
 
-		if (updateMapFuture != null) return; // update job already running
-
 		MappedDataFile dataFile = mapFileController.getArea().getDataFile(initialMapFile.getPath());
 
 		//might have been loaded lazily, we need the data so force non-lazy load if empty file
 		if (dataFile == null || dataFile.getChildren().length == 0) {
-			logger.debug("Attempting to load {} " + initialMapFile.getPath());
+			logger.debug("Attempting to load {} ", initialMapFile.getPath());
 
 			//TODO test this with mapDataFile == null only
 			mapFileController.loadLiveFile(initialMapFile.getPath(), initialMapFile.getLiveDataBean(), null, false);
@@ -377,11 +386,9 @@ public class FocusScanResultPage extends WizardPage {
 			return;
 		}
 
-		// create a new single-thread executor to update the map at a fixed rate
-		updateMapExecutor = Executors.newScheduledThreadPool(1);
-		final Runnable plotTrace = () -> updateMap(optMapData.get());
-		updateMapFuture = updateMapExecutor.scheduleAtFixedRate(plotTrace, 0l, 2, TimeUnit.SECONDS);
-
+		final Runnable finalMapUpdate = () -> updateMap(optMapData.get());
+		plotTraceRunnable.set(finalMapUpdate);
+		updateMapExecutor.execute(finalMapUpdate);
 	}
 
 	private void updateMap(final AbstractMapData mapData) {
@@ -533,18 +540,6 @@ public class FocusScanResultPage extends WizardPage {
 			updatePageComplete();
 			startScanButton.setEnabled(true);
 			stopScanButton.setEnabled(false);
-
-			// stop the map update thread
-			stopMapUpdateThread();
-		}
-	}
-
-	private synchronized void stopMapUpdateThread() {
-		if (updateMapFuture != null) {
-			updateMapFuture.cancel(false);
-			updateMapFuture = null;
-			updateMapExecutor.shutdown();
-			updateMapExecutor = null;
 		}
 	}
 
@@ -574,9 +569,6 @@ public class FocusScanResultPage extends WizardPage {
 		// remove the listener from the status queue
 		statusTopicSubscriber.removeListener(statusBeanListener);
 		mapFileController.removeListener(mapFileEventListener);
-
-		// stop the map update thread if it's still running
-		stopMapUpdateThread();
 
 		try {
 			statusTopicSubscriber.disconnect();
