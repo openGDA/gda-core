@@ -92,12 +92,11 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.swtdesigner.ResourceManager;
-
 import uk.ac.diamond.scisoft.analysis.deprecated.rcp.Activator;
 import uk.ac.diamond.scisoft.analysis.io.DataSetProvider;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
+import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.monitor.ProgressMonitorWrapper;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.DeprecatedPreferenceConstants;
@@ -419,7 +418,7 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 				setPlotMode(PlotMode.PM1D);
 			}
 		});
-		xyAction.getAction().setImageDescriptor(ResourceManager.getImageDescriptor(getClass(), "/icons/chart_curve.png"));
+		xyAction.getAction().setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/chart_curve.png"));
 		xyAction.getAction().setToolTipText("XY Graph of Data, overlayed for multiple data.");
 		
 		final ActionContributionItem staggeredAction = new ActionContributionItem(new Action("XY Staggered in Z",  SWT.TOGGLE) {
@@ -428,7 +427,7 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 				setPlotMode(PlotMode.PMSTACKED);
 			}
 		});		
-		staggeredAction.getAction().setImageDescriptor(ResourceManager.getImageDescriptor(getClass(), "/icons/chart_curve_staggered.png"));
+		staggeredAction.getAction().setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/chart_curve_staggered.png"));
 		staggeredAction.getAction().setToolTipText("XY Graph of Data, staggered in Z for multiple data.");
 
 		final ActionContributionItem xyzAction = new ActionContributionItem(new Action("XYZ",  SWT.TOGGLE) {
@@ -437,7 +436,7 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 				setPlotMode(PlotMode.PM3D);
 			}
 		});		
-		xyzAction.getAction().setImageDescriptor(ResourceManager.getImageDescriptor(getClass(), "/icons/chart_curve_3D.png"));
+		xyzAction.getAction().setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/chart_curve_3D.png"));
 		xyzAction.getAction().setToolTipText("XYZ, X is the first chosen data and Z the last.");
 
 		manager.add(new Separator());
@@ -450,14 +449,14 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 			manager.add(new CommandContributionItem(new CommandContributionItemParameter(PlatformUI.getWorkbench(), 
 					null, 
 					"uk.ac.diamond.scisoft.analysis.rcp.addExpression", 
-					null, ResourceManager.getImageDescriptor(getClass(), "/icons/calculator_add.png"), null, null, "Add Expression", 
+					null, AnalysisRCPActivator.getImageDescriptor("icons/calculator_add.png"), null, null, "Add Expression", 
 					null, "Adds an expression which can be plotted. Must be function of other data sets.",
 					SWT.PUSH, null, false)));
 			
 			manager.add(new CommandContributionItem(new CommandContributionItemParameter(PlatformUI.getWorkbench(), 
                     null, 
                     "uk.ac.diamond.scisoft.analysis.rcp.deleteExpression", 
-                    null, ResourceManager.getImageDescriptor(getClass(), "/icons/calculator_delete.png"), null, null, "Delete Expression", 
+                    null, AnalysisRCPActivator.getImageDescriptor("icons/calculator_delete.png"), null, null, "Delete Expression", 
                     null, "Deletes an expression.",
                     SWT.PUSH, null, false)));
 		}

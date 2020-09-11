@@ -90,9 +90,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.SectorROITableViewer;
 import uk.ac.diamond.scisoft.analysis.rcp.queue.InteractiveJobAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
-import uk.ac.diamond.scisoft.analysis.rcp.views.plot.StaticScanPlotView;
-
-import com.swtdesigner.SWTResourceManager;
 
 @Deprecated
 public class SectorProfile extends SidePlotProfile {
@@ -1665,8 +1662,7 @@ public class SectorProfile extends SidePlotProfile {
 	private void createPushPlotActions() {
 		final String fullPlotID = "uk.ac.diamond.scisoft.analysis.rcp.plotView";
 		final IWorkbenchPartSite site = EclipseUtils.getPage().getActivePart().getSite();
-		final org.eclipse.swt.graphics.Image icon = SWTResourceManager.getImage(StaticScanPlotView.class,"/icons/chart_curve_add.png");
-		final ImageDescriptor d = ImageDescriptor.createFromImage(icon);
+		final ImageDescriptor d = AnalysisRCPActivator.getImageDescriptor("icons/chart_curve_add.png");
 		pushRadialPlottingDataPlot1 = new Action() {
 			@Override
 			public void run() {

@@ -172,7 +172,7 @@ public class DataEditor extends EditorPart implements IReusableEditor, IPageChan
 				if (pref != null) pref.open();
 			}
 		};
-		format.setImageDescriptor(Activator.getImageDescriptor("icons/application_view_list.png"));
+		format.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/application_view_list.png"));
 		toolMan.add(format);
 	}
 

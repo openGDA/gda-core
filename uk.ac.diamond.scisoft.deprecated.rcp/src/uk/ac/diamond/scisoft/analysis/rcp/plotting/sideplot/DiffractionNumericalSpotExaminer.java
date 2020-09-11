@@ -25,8 +25,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
-
-import com.swtdesigner.SWTResourceManager;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 public class DiffractionNumericalSpotExaminer extends Composite {
 

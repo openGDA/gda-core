@@ -79,9 +79,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.RectangularROITableViewer
 import uk.ac.diamond.scisoft.analysis.rcp.queue.InteractiveJobAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
-import uk.ac.diamond.scisoft.analysis.rcp.views.plot.StaticScanPlotView;
-
-import com.swtdesigner.SWTResourceManager;
 
 @Deprecated
 public class BoxProfile extends SidePlotProfile {
@@ -1138,8 +1135,7 @@ public class BoxProfile extends SidePlotProfile {
 			}
 		};
 		pushMajorPlottingDataPlot1.setText("Push major profiles to plot 1");
-		final org.eclipse.swt.graphics.Image icon = SWTResourceManager.getImage(StaticScanPlotView.class,"/icons/chart_curve_add.png");
-		final ImageDescriptor d = ImageDescriptor.createFromImage(icon);
+		final ImageDescriptor d = AnalysisRCPActivator.getImageDescriptor("icons/chart_curve_add.png");
 		pushMajorPlottingDataPlot1.setImageDescriptor(d);
 		pushMajorPlottingDataPlot1.setToolTipText("Push major profiles to plot 1");
 		

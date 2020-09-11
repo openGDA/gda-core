@@ -62,9 +62,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.AbstractPlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotBean;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotView;
-import uk.ac.diamond.scisoft.analysis.rcp.views.plot.StaticScanPlotView;
-
-import com.swtdesigner.SWTResourceManager;
 
 /**
  * Simple class which simply plots the derivatives of anything plotted in the plotter.
@@ -460,8 +457,7 @@ public class DerivativeViewer extends SidePlot implements Overlay1DConsumer, Plo
 
 		};
 		sendToPlotView.setToolTipText("Send the results of the derivative to a separate plot view");
-		final org.eclipse.swt.graphics.Image icon = SWTResourceManager.getImage(StaticScanPlotView.class,"/icons/chart_curve_add.png");
-		final ImageDescriptor d = ImageDescriptor.createFromImage(icon);
+		final ImageDescriptor d = AnalysisRCPActivator.getImageDescriptor("icons/chart_curve_add.png");
 		sendToPlotView.setImageDescriptor(d);
 		sendToPlotView.setText("Send derivative to Plot 2");
 	}

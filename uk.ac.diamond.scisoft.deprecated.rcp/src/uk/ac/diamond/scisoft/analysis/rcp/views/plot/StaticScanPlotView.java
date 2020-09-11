@@ -15,8 +15,6 @@
  */
 package uk.ac.diamond.scisoft.analysis.rcp.views.plot;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.awt.Color;
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
@@ -45,7 +43,6 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
@@ -54,17 +51,16 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
+import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DUIAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
-
-import com.swtdesigner.SWTResourceManager;
 
 /**
  * A view that clones an AbstractPlotView and shows the data in it. The view saves state so that when the client is
@@ -264,8 +260,7 @@ public class StaticScanPlotView extends ViewPart {
 
 		};
 		action.setToolTipText("Save plot to separate window. Used for comparing and saving plots.");
-		final Image icon = SWTResourceManager.getImage(StaticScanPlotView.class, "/icons/chart_curve_add.png");
-		final ImageDescriptor d = ImageDescriptor.createFromImage(icon);
+		final ImageDescriptor d = AnalysisRCPActivator.getImageDescriptor("icons/chart_curve_add.png");
 		action.setImageDescriptor(d);
 
 		return action;
@@ -276,8 +271,7 @@ public class StaticScanPlotView extends ViewPart {
 	 * @return f
 	 */
 	public static IAction getSavePlotAction(final StaticScanPlotView sv) {
-		return new Action("Save plot", AbstractUIPlugin.imageDescriptorFromPlugin(sv.getSite().getPluginId(),
-				"icons/disk.png")) {
+		return new Action("Save plot", AnalysisRCPActivator.getImageDescriptor("icons/disk.png")) {
 			FileDialog dialog;
 
 			@Override
@@ -317,8 +311,7 @@ public class StaticScanPlotView extends ViewPart {
 	 * @return f
 	 */
 	public static IAction getOpenPlotAction(final StaticScanPlotView sv) {
-		return new Action("Open saved plot", AbstractUIPlugin.imageDescriptorFromPlugin(sv.getSite().getPluginId(),
-				"icons/folder_add.png")) {
+		return new Action("Open saved plot", AnalysisRCPActivator.getImageDescriptor("icons/folder_add.png")) {
 			FileDialog dialog;
 
 			@Override
