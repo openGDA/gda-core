@@ -44,6 +44,7 @@ import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ProcessingRequest;
+import org.eclipse.scanning.api.event.scan.SampleData;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.MapPosition;
@@ -261,6 +262,7 @@ public class ScanRequestConverter {
 				description = "No description provided.";
 			}
 			scanMetadata.addField(FIELD_NAME_SAMPLE_DESCRIPTION, description);
+			scanRequest.setSampleData(new SampleData(sampleName, description));
 		}
 		scanRequest.setScanMetadata(Arrays.asList(scanMetadata));
 	}
