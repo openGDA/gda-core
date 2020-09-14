@@ -16,43 +16,47 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.browser;
+package uk.ac.gda.tomography.browser.provider;
 
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StyledString;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
+import org.eclipse.swt.SWT;
 
-import gda.rcp.views.Browser;
 import gda.rcp.views.ComparableStyledLabelProvider;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.ui.browser.ScanningAcquisitionBrowserBase;
 
 /**
- * Formats the tomography range for a {@link Browser} column.
- *
- * @author Maurizio Nagni
+ * Shows the detector exposure in a resource's {@link ScanningParameters}
  */
-class RangeProvider extends LabelProvider implements ComparableStyledLabelProvider {
+public class ExposureLabelProvider extends LabelProvider implements ComparableStyledLabelProvider {
 
 	@Override
 	public StyledString getStyledText(Object element) {
-		ScanningParameters parameters = ScanningAcquisitionBrowserBase.getAcquisitionParameters(element);
-		ScannableTrackDocument std = parameters.getScanpathDocument().getScannableTrackDocuments().get(0);
-		double start = std.getStart();
-		double end = std.getStop();
-		return new StyledString(String.format("%1$.2f : %2$.2f", start, end));
+		return new StyledString(String.valueOf(getDetectorExposure(element)));
 	}
 
 	@Override
 	public ViewerComparator getComparator() {
 		return new ViewerComparator() {
 			@Override
-			public int compare(Viewer viewer, Object element1, Object element2) {
-				return -1;
+			public int compare(Viewer viewer, Object first, Object second) {
+				double firstExposure = getDetectorExposure(first);
+				double secondExposure = getDetectorExposure(second);
+
+				int direction = ((TreeViewer) viewer).getTree().getSortDirection() == SWT.UP ? 1 : -1;
+
+				return direction * (firstExposure < secondExposure ? 1 : -1);
 			}
 		};
+	}
+
+	private double getDetectorExposure(Object resource) {
+		ScanningParameters parameters = ScanningAcquisitionBrowserBase.getAcquisitionParameters(resource);
+		return parameters.getDetector().getExposure();
 	}
 
 }

@@ -16,27 +16,33 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.browser;
+package uk.ac.gda.tomography.browser.provider;
 
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 
-import gda.mscan.element.Mutator;
 import gda.rcp.views.Browser;
 import gda.rcp.views.ComparableStyledLabelProvider;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
+import uk.ac.diamond.daq.mapping.ui.browser.ScanningAcquisitionBrowserBase;
 
 /**
- * Formats the tomography mutators for a {@link Browser} column.
+ * Formats the tomography range for a {@link Browser} column.
  *
  * @author Maurizio Nagni
  */
-class MutatorsProvider extends LabelProvider implements ComparableStyledLabelProvider {
+public class RangeProvider extends LabelProvider implements ComparableStyledLabelProvider {
 
 	@Override
 	public StyledString getStyledText(Object element) {
-		return new StyledString(reportMutators(element));
+		ScanningParameters parameters = ScanningAcquisitionBrowserBase.getAcquisitionParameters(element);
+		ScannableTrackDocument std = parameters.getScanpathDocument().getScannableTrackDocuments().get(0);
+		double start = std.getStart();
+		double end = std.getStop();
+		return new StyledString(String.format("%1$.2f : %2$.2f", start, end));
 	}
 
 	@Override
@@ -47,11 +53,6 @@ class MutatorsProvider extends LabelProvider implements ComparableStyledLabelPro
 				return -1;
 			}
 		};
-	}
-
-	private String reportMutators(Object element) {
-		return TomoBrowser.getAcquisitionParameters(element).getScanpathDocument().getMutators().keySet().stream().map(Mutator::name).reduce("",
-				(a, b) -> a + ", " + b);
 	}
 
 }
