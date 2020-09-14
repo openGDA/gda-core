@@ -18,14 +18,9 @@
 
 package uk.ac.diamond.daq.mapping.api.document.scanpath;
 
-import java.util.Optional;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
-import gda.device.Scannable;
-import gda.factory.Finder;
 
 /**
  * Describes how an acquisition should move along a {@code Scannable} values.
@@ -121,6 +116,44 @@ public class ScannableTrackDocument {
 		return points;
 	}
 
+	/**
+	 * Calculates the points when {@link #getPoints()} == 0, with the following priorities
+	 * <ul>
+	 * <li>if points > 0 or step = 0 then points = getPoints()</li>
+	 * <li>if step > 0 then points = (stop - start) / step </li>
+	 * </ul>
+	 * @return the steps for this track document
+	 */
+	@JsonIgnore
+	public int calculatedPoints() {
+		if (getPoints() > 0 || getStep() == 0) {
+			return getPoints();
+		}
+		return (int) Math.abs(length() / getStep());
+	}
+
+	/**
+	 * Calculates the {@link #getStep()} when {@link #getStop()} - {@link #getStart()} is not zero and {@link #getStep()} > {@code Double.MIN_VALUE}
+	 * <ul>
+	 * <li>if step > Double.MIN_VALUE then step = getStep()</li>
+	 * <li>if points = 0 then step = 0</li>
+	 * <li>if points = 1 then step = length</li>
+	 * <li>if points > 1 then (stop - start) / step</li>
+	 * </ul>
+	 * @return the steps for this track document
+	 */
+	@JsonIgnore
+	public double calculatedStep() {
+		if (getStep() > Double.MIN_VALUE) {
+			return getStep();
+		}
+		if (getPoints() == 1)
+			return length();
+		if (getPoints() == 0)
+			return 0;
+		return length() / getPoints();
+	}
+
 	@JsonIgnore
 	public boolean hasNegativeValues() {
 		return getStart() < 0 || getStop() < 0;
@@ -129,11 +162,6 @@ public class ScannableTrackDocument {
 	@JsonIgnore
 	public double length() {
 		return getStop() - getStart();
-	}
-
-	@JsonIgnore
-	public Optional<Scannable> getScannableBean() {
-		return Finder.findOptional(getScannable());
 	}
 
 	@Override

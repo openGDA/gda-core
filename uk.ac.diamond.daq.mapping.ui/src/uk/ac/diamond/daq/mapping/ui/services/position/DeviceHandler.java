@@ -21,6 +21,7 @@ package uk.ac.diamond.daq.mapping.ui.services.position;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.Scannable;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.exception.GDAException;
 
@@ -51,7 +52,7 @@ abstract class DeviceHandler {
 	 * @param device The device to analyse
 	 * @return A position document otherwise {@code null} if cannot be handled
 	 */
-	public final DevicePositionDocument handleDevice(Object device) {
+	public final DevicePositionDocument handleDevice(Scannable device) {
 		try {
 			return doHandleDevice(device);
 		} catch (GDAException e) {
@@ -66,9 +67,9 @@ abstract class DeviceHandler {
 	 * @return A position document otherwise {@code null} if cannot handle
 	 * @throws GDAException If the device has the correct type but an error occurred during the analysis
 	 */
-	abstract DevicePositionDocument devicePositionAsDocument(Object device) throws GDAException;
+	abstract DevicePositionDocument devicePositionAsDocument(Scannable device) throws GDAException;
 
-	private DevicePositionDocument doHandleDevice(Object device) throws GDAException {
+	private DevicePositionDocument doHandleDevice(Scannable device) throws GDAException {
 		DevicePositionDocument document = devicePositionAsDocument(device);
 		if (document != null)
 			return document;

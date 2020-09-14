@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
 import uk.ac.gda.api.acquisition.configuration.calibration.DarkCalibrationDocument;
@@ -36,7 +37,7 @@ import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
  */
 public class ImageCalibrationHelper extends ConfigurationHelperBase {
 
-	public ImageCalibrationHelper(Supplier<ScanningConfiguration> scanningConfigurationSupplier) {
+	public ImageCalibrationHelper(Supplier<? extends AcquisitionConfigurationBase<?>> scanningConfigurationSupplier) {
 		super(scanningConfigurationSupplier);
 	}
 

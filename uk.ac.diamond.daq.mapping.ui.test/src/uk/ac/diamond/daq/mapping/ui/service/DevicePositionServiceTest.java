@@ -33,9 +33,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import gda.device.DeviceException;
+import gda.device.EnumPositioner;
 import gda.device.IScannableMotor;
-import gda.device.enumpositioner.EpicsEnumPositioner;
-import gda.factory.Findable;
+import gda.device.Scannable;
 import uk.ac.diamond.daq.mapping.ui.services.position.DevicePositionDocumentService;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
@@ -77,12 +77,12 @@ public class DevicePositionServiceTest {
 	}
 
 	/**
-	 * Verifies the service can handle {@link EpicsEnumPositioner} devices
+	 * Verifies the service can handle {@link EnumPositioner} devices
 	 * @throws DeviceException
 	 */
 	@Test
-	public void selectEpicsEnumPositioner() throws DeviceException {
-		EpicsEnumPositioner positioner = mock(EpicsEnumPositioner.class);
+	public void selectEnumPositioner() throws DeviceException {
+		EnumPositioner positioner = mock(EnumPositioner.class);
 		doReturn("device_two").when(positioner).getName();
 		doReturn("CLOSE").when(positioner).getPosition();
 		doReturn(Optional.of(positioner)).when(finderService).getFindableObject("device_two");
@@ -99,7 +99,7 @@ public class DevicePositionServiceTest {
 	 */
 	@Test
 	public void selectUnknown() {
-		Findable positioner = mock(Findable.class);
+		Scannable positioner = mock(Scannable.class);
 		doReturn("mistery_one").when(positioner).getName();
 
 		doReturn(Optional.of(positioner)).when(finderService).getFindableObject("device_two");
