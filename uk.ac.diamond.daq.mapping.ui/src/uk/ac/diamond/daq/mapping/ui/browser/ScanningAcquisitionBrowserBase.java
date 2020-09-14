@@ -21,6 +21,7 @@ package uk.ac.diamond.daq.mapping.ui.browser;
 import java.net.URL;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.jface.action.Action;
@@ -149,8 +150,18 @@ public abstract class ScanningAcquisitionBrowserBase extends Browser<ScanningAcq
 			});
 		}
 		return event ->
-			setSelected((AcquisitionConfigurationResource<ScanningAcquisition>) event.getStructuredSelection()
-					.getFirstElement());
+			Optional.ofNullable(event.getStructuredSelection().getFirstElement())
+					.map(AcquisitionConfigurationResource.class::cast)
+					.map(AcquisitionConfigurationResource::getLocation)
+					.ifPresent(this::setParseAndSetSelected);
+	}
+
+	private void setParseAndSetSelected(URL url) {
+		try {
+			setSelected(controller.parseAcquisitionConfiguration(url));
+		} catch (AcquisitionControllerException e) {
+			logger.error("Cannot parse acquisition configuration at {}", url);
+		}
 	}
 
 	public static final ScanningParameters getAcquisitionParameters(Object element) {
