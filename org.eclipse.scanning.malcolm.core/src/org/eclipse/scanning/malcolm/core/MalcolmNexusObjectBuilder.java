@@ -135,7 +135,7 @@ class MalcolmNexusObjectBuilder {
 		final String datasetTypeStr = (String) datasetRow.get(DATASETS_TABLE_COLUMN_TYPE);
 		final MalcolmDatasetType datasetType = MalcolmDatasetType.fromString(datasetTypeStr);
 		if (datasetType == MalcolmDatasetType.UNKNOWN) {
-			logger.warn("Unknown dataset type '{}' for malcolm device {}", datasetType, malcolmDevice.getName());
+			logger.warn("Unknown dataset type '{}' for malcolm device {}", datasetTypeStr, malcolmDevice.getName());
 		}
 		return datasetType;
 	}
