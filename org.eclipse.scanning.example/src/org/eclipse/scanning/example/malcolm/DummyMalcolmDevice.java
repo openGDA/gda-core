@@ -23,6 +23,8 @@ import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_C
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_TYPE;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_UNIQUEID;
 import static org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType.MONITOR;
+import static org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType.POSITION_MAX;
+import static org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType.POSITION_MIN;
 import static org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType.POSITION_SET;
 import static org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType.POSITION_VALUE;
 import static org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType.PRIMARY;
@@ -292,11 +294,14 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 
 			// add the positioners to the entry
 			for (String positionerName : model.getPositionerNames()) {
-				// The path to positioner datasets written by malcolm is e.g. /entry/x/x
-				NXpositioner positioner = NexusNodeFactory.createNXpositioner();
-				entry.addGroupNode(positionerName, positioner);
-				addDataset(positionerName, positioner.initializeLazyDataset(
-						positionerName, getScanRank(), Double.class));
+				for (String suffix : new String[] {"", ".min", ".max"}) {
+					NXpositioner positioner = NexusNodeFactory.createNXpositioner();
+					final String nameWithSuffix = positionerName.concat(suffix);
+					// The path to positioner datasets written by malcolm is e.g. /entry/x/x
+					entry.addGroupNode(nameWithSuffix, positioner);
+					addDataset(nameWithSuffix, positioner.initializeLazyDataset(
+							nameWithSuffix, getScanRank(), Double.class));
+				}
 			}
 
 			// add the monitors to the entry
@@ -635,6 +640,12 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 			final String path = String.format("/entry/%s/%s", positionerName, positionerName); // e.g. /entry/j1/j1
 			table.addRow(createDatasetRow(positionerName, "value",
 					"panda" + FILE_EXTENSION_HDF5, POSITION_VALUE, path, scanRank));
+			final String path_min = String.format("/entry/%s.min/%s.min", positionerName, positionerName); // e.g. /entry/j1.min/j1.min
+			table.addRow(createDatasetRow(positionerName, "min",
+					"panda" + FILE_EXTENSION_HDF5, POSITION_MIN, path_min, scanRank));
+			final String path_max = String.format("/entry/%s.max/%s.max", positionerName, positionerName); // e.g. /entry/j1.max/j1.max
+			table.addRow(createDatasetRow(positionerName, "max",
+					"panda" + FILE_EXTENSION_HDF5, POSITION_MAX, path_max, scanRank));
 		}
 
 		// Add rows for the value datasets of each monitor

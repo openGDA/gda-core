@@ -18,6 +18,7 @@
 
 package org.eclipse.scanning.device.ui.device;
 
+import java.text.DecimalFormat;
 import java.util.Optional;
 
 import org.eclipse.core.databinding.DataBindingContext;
@@ -84,7 +85,7 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 		EXPOSURE_TIME("Exposure time", true, true, 110, SWT.CENTER, "The exposure time for this detector for each frame.\nrequested (actual)") {
 			@Override
 			public String getLabel(IMalcolmDetectorModel model) {
-				return String.format("%.3f", model.getExposureTime());
+				return formatTimeForTable(model.getExposureTime());
 			}
 		},
 
@@ -92,7 +93,7 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 			@Override
 			public String getLabel(IMalcolmDetectorModel detectorModel, IMalcolmModel malcolmModel) {
 				// calculated as step-time / frames-per-step
-				return String.format("%.3f", malcolmModel.getExposureTime() / detectorModel.getFramesPerStep());
+				return formatTimeForTable(malcolmModel.getExposureTime() / detectorModel.getFramesPerStep());
 			}
 		},
 
@@ -101,7 +102,7 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 			public String getLabel(IMalcolmDetectorModel detectorModel, IMalcolmModel malcolmModel) {
 				final double frameTime = malcolmModel.getExposureTime() / detectorModel.getFramesPerStep();
 				final double waitTime = frameTime - detectorModel.getExposureTime();
-				return String.format("%.3f", waitTime);
+				return formatTimeForTable(waitTime);
 			}
 		};
 
@@ -111,6 +112,7 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 		public final int columnWidth;
 		public final int alignment;
 		public final String toolTipText;
+		private static final DecimalFormat standardFormFormatter = new DecimalFormat("#.###E0");
 
 		private DetectorTableColumn(String label, boolean editable, boolean showActualValue,
 				int columnWidth, int alignment, String toolTipText) {
@@ -130,6 +132,13 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 		@SuppressWarnings("unused")
 		public String getLabel(IMalcolmDetectorModel detectorModel, IMalcolmModel malcolmModel) {
 			return getLabel(detectorModel);
+		}
+
+		private static String formatTimeForTable(double time) {
+			String formattedString = String.format("%.3f", time);
+			if (time == 0 || Double.parseDouble(formattedString) != 0) return formattedString;
+			// Formatted String == 0 but time != 0, go to standard form
+			return standardFormFormatter.format(time);
 		}
 
 	}
