@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import uk.ac.diamond.daq.mapping.api.MappingRegionUnits;
 import uk.ac.gda.client.NumberAndUnitsComposite;
 
 /**
@@ -126,7 +127,8 @@ public abstract class AbstractRegionPathModelEditor<T> extends AbstractModelEdit
 	 *            name of scannable
 	 *
 	 * @param modelPropertyName
-	 *            if {@link InitialLengthUnits} is configured, initial units for that property are looked up
+	 *            if a {@link MappingRegionUnits} OSGi service is configured, initial units for that property are set
+	 *            from the service
 	 *
 	 * @return a {@link NumberAndUnitsComposite} initialised for the scannable
 	 */

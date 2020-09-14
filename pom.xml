@@ -49,6 +49,7 @@
 		<module>uk.ac.diamond.daq.logback.fragment</module>
 		<module>uk.ac.diamond.daq.mapping</module>
 		<module>uk.ac.diamond.daq.mapping.api</module>
+		<module>uk.ac.diamond.daq.mapping.api.test</module>
 		<module>uk.ac.diamond.daq.mapping.feature</module>
 		<module>uk.ac.diamond.daq.mapping.standards.ui</module>
 		<module>uk.ac.diamond.daq.mapping.test</module>

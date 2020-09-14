@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableSet;
 
 import gda.util.QuantityFactory;
+import uk.ac.diamond.daq.mapping.api.MappingRegionUnits;
 
 /**
  * This class can tell us of a scannable:
@@ -65,7 +66,7 @@ public class UnitsProvider {
 	private static final String DEFAULT_LENGTH_UNITS_STRING = "mm";
 
 	private IScannableDeviceService scannableService;
-	private InitialLengthUnits lengthUnitsService;
+	private MappingRegionUnits lengthUnitsService;
 
 	/**
 	 * Returns the base {@link Unit} of the scannable with the given name
@@ -108,7 +109,7 @@ public class UnitsProvider {
 	 * a length and the unit is overriden by:
 	 * <ul>
 	 * <li>the property LocalProperties.GDA_INITIAL_LENGTH_UNITS, or
-	 * <li>{@link InitialLengthUnits} configured as an OSGi service
+	 * <li>{@link MappingRegionUnits} configured as an OSGi service
 	 * </ul>
 	 */
 	public Unit<? extends Quantity<?>> getInitialUnit(String scannableName, String propertyName) {
@@ -143,11 +144,11 @@ public class UnitsProvider {
 		}
 	}
 
-	private InitialLengthUnits getLengthUnitsService() {
+	private MappingRegionUnits getLengthUnitsService() {
 		if (lengthUnitsService == null) {
-			lengthUnitsService = PlatformUI.getWorkbench().getService(InitialLengthUnits.class);
+			lengthUnitsService = PlatformUI.getWorkbench().getService(MappingRegionUnits.class);
 			if (lengthUnitsService == null) {
-				lengthUnitsService = new InitialLengthUnits(Collections.emptyMap());
+				lengthUnitsService = new MappingRegionUnits(Collections.emptyMap());
 			}
 		}
 		return lengthUnitsService;

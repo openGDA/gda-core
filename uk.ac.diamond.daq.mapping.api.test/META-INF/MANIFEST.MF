@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Mapping API Tests
+Bundle-SymbolicName: uk.ac.diamond.daq.mapping.api.test
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Diamond Light Source
+Fragment-Host: uk.ac.diamond.daq.mapping.api
+Automatic-Module-Name: uk.ac.diamond.daq.mapping.api.test
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: com.google.guava,
+ org.junit

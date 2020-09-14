@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.experiment;
+package uk.ac.diamond.daq.mapping.api;
 
 import static gda.configuration.properties.LocalProperties.GDA_INITIAL_LENGTH_UNITS;
 import static org.junit.Assert.assertEquals;
@@ -28,8 +28,9 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableMap;
 
 import gda.configuration.properties.LocalProperties;
+import uk.ac.diamond.daq.mapping.api.MappingRegionUnits;
 
-public class InitialLengthUnitsTest {
+public class MappingRegionUnitsTest {
 
 	private static final String DEFAULT_VALUE = "mm";
 	private Map<String, String> unitsMap = ImmutableMap.of(
@@ -42,12 +43,12 @@ public class InitialLengthUnitsTest {
 	@SuppressWarnings("unused")
 	@Test(expected = IllegalArgumentException.class)
 	public void testMapCannotBeNull() {
-		new InitialLengthUnits(null);
+		new MappingRegionUnits(null);
 	}
 
 	@Test
 	public void testUnitsSetInMap() {
-		final InitialLengthUnits lengthUnits = new InitialLengthUnits(unitsMap);
+		final MappingRegionUnits lengthUnits = new MappingRegionUnits(unitsMap);
 		assertEquals("μm", lengthUnits.getDefaultUnit("xStart", DEFAULT_VALUE));
 		assertEquals("μm", lengthUnits.getDefaultUnit("yStart", DEFAULT_VALUE));
 		assertEquals("nm", lengthUnits.getDefaultUnit("xAxisStep", DEFAULT_VALUE));
@@ -57,7 +58,7 @@ public class InitialLengthUnitsTest {
 	@Test
 	public void testDefaultToLocalProperty() {
 		LocalProperties.set(GDA_INITIAL_LENGTH_UNITS, "cm");
-		final InitialLengthUnits lengthUnits = new InitialLengthUnits(unitsMap);
+		final MappingRegionUnits lengthUnits = new MappingRegionUnits(unitsMap);
 		assertEquals("μm", lengthUnits.getDefaultUnit("xStart", DEFAULT_VALUE));
 		assertEquals("cm", lengthUnits.getDefaultUnit("zStart", DEFAULT_VALUE));
 		LocalProperties.clearProperty(GDA_INITIAL_LENGTH_UNITS);
@@ -65,7 +66,7 @@ public class InitialLengthUnitsTest {
 
 	@Test
 	public void testDefaultToMillimetres() {
-		final InitialLengthUnits lengthUnits = new InitialLengthUnits(unitsMap);
+		final MappingRegionUnits lengthUnits = new MappingRegionUnits(unitsMap);
 		assertEquals("μm", lengthUnits.getDefaultUnit("xStart", DEFAULT_VALUE));
 		assertEquals("mm", lengthUnits.getDefaultUnit("zStart", DEFAULT_VALUE));
 	}

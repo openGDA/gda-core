@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.experiment;
+package uk.ac.diamond.daq.mapping.api;
 
 import static gda.configuration.properties.LocalProperties.GDA_INITIAL_LENGTH_UNITS;
 
@@ -29,22 +29,25 @@ import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.osgi.OsgiService;
 
 /**
- * This class provides a mapping of path property (e.g. "fastAxisStep", "xCentre") to the initial unit to be displayed
- * in the mapping GUI for the relevant field.
+ * This class provides a mapping of path property (e.g. "xAxisStep", "xCentre", "radius") to the unit to be displayed in the
+ * mapping GUI for the relevant field.
  * <p>
- * If no unit has been configured for a given field, the value returned will default to:
+ * It can be used, for example, to define the initial unit to be shown for each field after a client reset, and also to
+ * save the state of the GUI when submitting a scan.
+ * <p>
+ * If no unit is mapped for a given field, the value returned will default to:
  * <ul>
- * <li>the value set in the uk.ac.gda.client.defaultUnits property</li>
+ * <li>the value set in the uk.ac.gda.client.defaultUnits property, or if this is not set,</li>
  * <li>the default value supplied by the caller</li>
  * </ul>
  */
-@OsgiService(InitialLengthUnits.class)
-public class InitialLengthUnits {
-	private static final Logger logger = LoggerFactory.getLogger(InitialLengthUnits.class);
+@OsgiService(MappingRegionUnits.class)
+public class MappingRegionUnits {
+	private static final Logger logger = LoggerFactory.getLogger(MappingRegionUnits.class);
 
 	private final Map<String, String> units;
 
-	public InitialLengthUnits(Map<String, String> units) {
+	public MappingRegionUnits(Map<String, String> units) {
 		if (units == null) {
 			throw new IllegalArgumentException("Default units map must not be null");
 		}
