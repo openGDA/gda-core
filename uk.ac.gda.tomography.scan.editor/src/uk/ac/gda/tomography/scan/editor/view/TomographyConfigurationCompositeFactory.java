@@ -18,6 +18,14 @@
 
 package uk.ac.gda.tomography.scan.editor.view;
 
+import static uk.ac.gda.ui.tool.ClientSWTElements.DEFAULT_TEXT_SIZE;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientButton;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientEmptyCell;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientText;
 import static uk.ac.gda.ui.tool.ClientVerifyListener.verifyOnlyDoubleText;
 import static uk.ac.gda.ui.tool.ClientVerifyListener.verifyOnlyIntegerText;
 
@@ -36,6 +44,7 @@ import org.eclipse.swt.events.ExpandEvent;
 import org.eclipse.swt.events.ExpandListener;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -68,7 +77,6 @@ import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.ui.tool.ClientBindingElements;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
-import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
@@ -147,7 +155,7 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		GridLayoutFactory.fillDefaults().applyTo(scrolledComposite);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(scrolledComposite);
 
-		mainComposite = ClientSWTElements.createClientCompositeWithGridLayout(scrolledComposite, SWT.NONE, 3);
+		mainComposite = createClientCompositeWithGridLayout(scrolledComposite, SWT.NONE, 3);
 		scrolledComposite.setContent(mainComposite);
 
 		createElements(mainComposite, SWT.NONE, SWT.BORDER);
@@ -177,49 +185,48 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		nameAndScanTypeContent(parent, labelStyle, textStyle);
 
 		// Defines a Group with 3 columns
-		Group group = ClientSWTElements.createClientGroup(parent, SWT.NONE, 3, ClientMessages.START);
+		Group group = createClientGroup(parent, SWT.NONE, 3, ClientMessages.START);
 		// Configure the group to span all the parent 3 columns
-		ClientSWTElements.createClientGridDataFactory().span(3, 1).applyTo(group);
+		createClientGridDataFactory().span(3, 1).applyTo(group);
 		startAngleContent(group, labelStyle, textStyle);
 
 		// Defines a Group with 4 columns
-		group = ClientSWTElements.createClientGroup(parent, SWT.NONE, 4, ClientMessages.END);
+		group = createClientGroup(parent, SWT.NONE, 4, ClientMessages.END);
 		// Configure the group to span all the parent 3 columns
-		ClientSWTElements.createClientGridDataFactory().span(3, 1).applyTo(group);
+		createClientGridDataFactory().span(3, 1).applyTo(group);
 		endAngleContent(group, labelStyle, textStyle);
 
 		// Defines a Group with 3 columns
-		group = ClientSWTElements.createClientGroup(parent, SWT.NONE, 3, ClientMessages.PROJECTIONS);
+		group = createClientGroup(parent, SWT.NONE, 3, ClientMessages.PROJECTIONS);
 		// Configure the group to span all the parent 3 columns
-		ClientSWTElements.createClientGridDataFactory().span(3, 1).applyTo(group);
+		createClientGridDataFactory().span(3, 1).applyTo(group);
 		projectionsContent(group, labelStyle, textStyle);
 
-		group = ClientSWTElements.createClientGroup(parent, SWT.NONE, 6, ClientMessages.IMAGE_CALIBRATION);
-		ClientSWTElements.createClientGridDataFactory().span(3, 1).applyTo(group);
+		group = createClientGroup(parent, SWT.NONE, 6, ClientMessages.IMAGE_CALIBRATION);
+		createClientGridDataFactory().span(3, 1).applyTo(group);
 		imagesCalibrationContent(group, labelStyle, textStyle);
 
 		multipleScansContentAlternative(parent, labelStyle, textStyle);
 
-		multipleGroup = ClientSWTElements.createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
-		// multipleGroup = ClientSWTElements.createClientGroup(parent, SWT.NONE, 1, ClientMessages.MULTIPLE_SCANS);
-		ClientSWTElements.createClientGridDataFactory().span(3, 1).applyTo(multipleGroup);
+		multipleGroup = createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
+		createClientGridDataFactory().span(3, 1).applyTo(multipleGroup);
 		multipleScansContent(multipleGroup, labelStyle, textStyle);
 	}
 
 	private void nameAndScanTypeContent(Composite parent, int labelStyle, int textStyle) {
-		Label labelName = ClientSWTElements.createClientLabel(parent, labelStyle, ClientMessages.NAME);
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.END).applyTo(labelName);
+		Label labelName = createClientLabel(parent, labelStyle, ClientMessages.NAME);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.END).applyTo(labelName);
 
-		this.name = ClientSWTElements.createClientText(parent, textStyle, ClientMessages.NAME_TOOLTIP, Optional.empty());
-		ClientSWTElements.createClientGridDataFactory().span(2, 1).applyTo(this.name);
+		this.name = createClientText(parent, textStyle, ClientMessages.NAME_TOOLTIP, Optional.empty());
+		createClientGridDataFactory().span(2, 1).applyTo(this.name);
 
-		flyScanType = ClientSWTElements.createClientButton(parent, SWT.RADIO, ClientMessages.FLY_SCAN, ClientMessages.FLY_SCAN_TOOLTIP, Optional.empty());
+		flyScanType = createClientButton(parent, SWT.RADIO, ClientMessages.FLY_SCAN, ClientMessages.FLY_SCAN_TOOLTIP);
 		flyScanType.setData(ScanType.FLY);
-		ClientSWTElements.createClientGridDataFactory().applyTo(flyScanType);
+		createClientGridDataFactory().applyTo(flyScanType);
 
-		stepScanType = ClientSWTElements.createClientButton(parent, SWT.RADIO, ClientMessages.STEP_SCAN, ClientMessages.STEP_SCAN_TOOLTIP, Optional.empty());
+		stepScanType = createClientButton(parent, SWT.RADIO, ClientMessages.STEP_SCAN, ClientMessages.STEP_SCAN_TOOLTIP);
 		stepScanType.setData(ScanType.STEP);
-		ClientSWTElements.createClientGridDataFactory().applyTo(stepScanType);
+		createClientGridDataFactory().applyTo(stepScanType);
 	}
 
 	/**
@@ -229,88 +236,88 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 	 * @param textStyle
 	 */
 	private void startAngleContent(Composite parent, int labelStyle, int textStyle) {
-		Label labelStart = ClientSWTElements.createClientLabel(parent, labelStyle, ClientMessages.ANGLE);
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(80, SWT.DEFAULT).indent(5, SWT.DEFAULT).applyTo(labelStart);
+		Label labelStart = createClientLabel(parent, labelStyle, ClientMessages.ANGLE);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(80, SWT.DEFAULT).indent(5, SWT.DEFAULT).applyTo(labelStart);
 
-		startAngleText = ClientSWTElements.createClientText(parent, textStyle, ClientMessages.START_ANGLE_TOOLTIP, Optional.of(verifyOnlyDoubleText));
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(ClientSWTElements.DEFAULT_TEXT_SIZE).indent(5, SWT.DEFAULT)
+		startAngleText = createClientText(parent, textStyle, ClientMessages.START_ANGLE_TOOLTIP, verifyOnlyDoubleText);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(DEFAULT_TEXT_SIZE).indent(5, SWT.DEFAULT)
 				.applyTo(startAngleText);
 
-		currentAngleButton = ClientSWTElements.createClientButton(parent, SWT.CHECK, ClientMessages.CURRENT_ANGLE, ClientMessages.CURRENT_ANGLE_TOOLTIP, Optional.empty());
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(150, SWT.DEFAULT).indent(5, SWT.DEFAULT)
+		currentAngleButton = createClientButton(parent, SWT.CHECK, ClientMessages.CURRENT_ANGLE, ClientMessages.CURRENT_ANGLE_TOOLTIP);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(150, SWT.DEFAULT).indent(5, SWT.DEFAULT)
 				.applyTo(currentAngleButton);
 	}
 
 	private void endAngleContent(Composite parent, int labelStyle, int textStyle) {
-		halfRotationRangeType = ClientSWTElements.createClientButton(parent, SWT.RADIO, ClientMessages.STRAIGHT_ANGLE, ClientMessages.STRAIGHT_ANGLE_TOOLTIP, Optional.empty());
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(halfRotationRangeType);
+		halfRotationRangeType = createClientButton(parent, SWT.RADIO, ClientMessages.STRAIGHT_ANGLE, ClientMessages.STRAIGHT_ANGLE_TOOLTIP);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(halfRotationRangeType);
 
-		fullRotationRangeType = ClientSWTElements.createClientButton(parent, SWT.RADIO, ClientMessages.FULL_ANGLE, ClientMessages.FULL_ANGLE_TOOLTIP, Optional.empty());
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(fullRotationRangeType);
+		fullRotationRangeType = createClientButton(parent, SWT.RADIO, ClientMessages.FULL_ANGLE, ClientMessages.FULL_ANGLE_TOOLTIP);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(fullRotationRangeType);
 
-		customRotationRangeType = ClientSWTElements.createClientButton(parent, SWT.RADIO, ClientMessages.CUSTOM, ClientMessages.CUSTOM_END_TOOLTIP, Optional.empty());
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(customRotationRangeType);
+		customRotationRangeType = createClientButton(parent, SWT.RADIO, ClientMessages.CUSTOM, ClientMessages.CUSTOM_END_TOOLTIP);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(customRotationRangeType);
 
-		customAngle = ClientSWTElements.createClientText(parent, textStyle, ClientMessages.CUSTOM_END_TOOLTIP, Optional.of(verifyOnlyDoubleText));
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(ClientSWTElements.DEFAULT_TEXT_SIZE).applyTo(customAngle);
+		customAngle = createClientText(parent, textStyle, ClientMessages.CUSTOM_END_TOOLTIP, verifyOnlyDoubleText);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(DEFAULT_TEXT_SIZE).applyTo(customAngle);
 	}
 
 	private void projectionsContent(Composite parent, int labelStyle, int textStyle) {
-		Label label = ClientSWTElements.createClientLabel(parent, labelStyle, ClientMessages.TOTAL_PROJECTIONS);
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(label);
+		Label label = createClientLabel(parent, labelStyle, ClientMessages.TOTAL_PROJECTIONS);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(label);
 
-		totalProjections = ClientSWTElements.createClientText(parent, textStyle, ClientMessages.TOTAL_PROJECTIONS_TOOLTIP, Optional.of(verifyOnlyIntegerText));
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(ClientSWTElements.DEFAULT_TEXT_SIZE).span(2, 1)
+		totalProjections = createClientText(parent, textStyle, ClientMessages.TOTAL_PROJECTIONS_TOOLTIP, verifyOnlyIntegerText);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(DEFAULT_TEXT_SIZE).span(2, 1)
 				.applyTo(totalProjections);
 
-		label = ClientSWTElements.createClientLabel(parent, labelStyle, ClientMessages.ANGULAR_STEP);
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(label);
+		label = createClientLabel(parent, labelStyle, ClientMessages.ANGULAR_STEP);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(label);
 
-		angularStep = ClientSWTElements.createClientLabel(parent, labelStyle, ClientMessages.EMPTY_MESSAGE);
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).span(2, 1).applyTo(angularStep);
+		angularStep = createClientLabel(parent, labelStyle, ClientMessages.EMPTY_MESSAGE);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).span(2, 1).applyTo(angularStep);
 	}
 
 	private void imagesCalibrationContent(Composite parent, int labelStyle, int textStyle) {
-		Label label = ClientSWTElements.createClientLabel(parent, labelStyle, ClientMessages.NUM_DARK);
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).indent(5, SWT.DEFAULT).applyTo(label);
+		Label label = createClientLabel(parent, labelStyle, ClientMessages.NUM_DARK);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).indent(5, SWT.DEFAULT).applyTo(label);
 
-		numberDark = ClientSWTElements.createClientText(parent, textStyle, ClientMessages.NUM_DARK_TOOLTIP, Optional.of(verifyOnlyIntegerText));
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(ClientSWTElements.DEFAULT_TEXT_SIZE).applyTo(numberDark);
+		numberDark = createClientText(parent, textStyle, ClientMessages.NUM_DARK_TOOLTIP, verifyOnlyIntegerText);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(DEFAULT_TEXT_SIZE).applyTo(numberDark);
 
-		ClientSWTElements.createClientEmptyCell(parent, new Point(50, 10));
+		createClientEmptyCell(parent, new Point(50, 10));
 
-		label = ClientSWTElements.createClientLabel(parent, labelStyle, ClientMessages.DARK_EXPOSURE);
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).indent(20, SWT.DEFAULT).applyTo(label);
+		label = createClientLabel(parent, labelStyle, ClientMessages.DARK_EXPOSURE);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).indent(20, SWT.DEFAULT).applyTo(label);
 
-		darkExposure = ClientSWTElements.createClientText(parent, textStyle, ClientMessages.DARK_EXPOSURE_TP, Optional.of(verifyOnlyIntegerText));
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(ClientSWTElements.DEFAULT_TEXT_SIZE).span(2, 1)
+		darkExposure = createClientText(parent, textStyle, ClientMessages.DARK_EXPOSURE_TP, verifyOnlyIntegerText);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(DEFAULT_TEXT_SIZE).span(2, 1)
 				.applyTo(darkExposure);
 
-		label = ClientSWTElements.createClientLabel(parent, labelStyle, ClientMessages.NUM_FLAT);
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).indent(5, SWT.DEFAULT).applyTo(label);
+		label = createClientLabel(parent, labelStyle, ClientMessages.NUM_FLAT);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).indent(5, SWT.DEFAULT).applyTo(label);
 
-		numberFlat = ClientSWTElements.createClientText(parent, textStyle, ClientMessages.NUM_FLAT_TOOLTIP, Optional.of(verifyOnlyIntegerText));
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(ClientSWTElements.DEFAULT_TEXT_SIZE).span(2, 1)
+		numberFlat = createClientText(parent, textStyle, ClientMessages.NUM_FLAT_TOOLTIP, verifyOnlyIntegerText);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(DEFAULT_TEXT_SIZE).span(2, 1)
 				.applyTo(numberFlat);
 
-		label = ClientSWTElements.createClientLabel(parent, labelStyle, ClientMessages.FLAT_EXPOSURE);
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).indent(20, SWT.DEFAULT).applyTo(label);
+		label = createClientLabel(parent, labelStyle, ClientMessages.FLAT_EXPOSURE);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).indent(20, SWT.DEFAULT).applyTo(label);
 
-		flatExposure = ClientSWTElements.createClientText(parent, textStyle, ClientMessages.FLAT_EXPOSURE_TP, Optional.of(verifyOnlyIntegerText));
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(ClientSWTElements.DEFAULT_TEXT_SIZE).span(2, 1)
+		flatExposure = createClientText(parent, textStyle, ClientMessages.FLAT_EXPOSURE_TP, verifyOnlyIntegerText);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(DEFAULT_TEXT_SIZE).span(2, 1)
 				.applyTo(flatExposure);
 
-		beforeAcquisition = ClientSWTElements.createClientButton(parent, SWT.CHECK, ClientMessages.AT_START, ClientMessages.AT_START_TOOLTIP, Optional.empty());
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).span(2, 1).applyTo(beforeAcquisition);
+		beforeAcquisition = createClientButton(parent, SWT.CHECK, ClientMessages.AT_START, ClientMessages.AT_START_TOOLTIP);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).span(2, 1).applyTo(beforeAcquisition);
 
-		afterAcquisition = ClientSWTElements.createClientButton(parent, SWT.CHECK, ClientMessages.AT_END, ClientMessages.AT_END_TOOLTIP, Optional.empty());
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).span(2, 1).applyTo(afterAcquisition);
+		afterAcquisition = createClientButton(parent, SWT.CHECK, ClientMessages.AT_END, ClientMessages.AT_END_TOOLTIP);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).span(2, 1).applyTo(afterAcquisition);
 	}
 
 	private void multipleScansContentAlternative(Composite parent, int labelStyle, int textStyle) {
-		final Button multipleScansAlternative = ClientSWTElements.createClientButton(parent, SWT.PUSH, ClientMessages.MULTIPLE_SCANS,
-				ClientMessages.MULTIPLE_SCANS_TOOLTIP, Optional.empty());
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).span(3, 1).applyTo(multipleScansAlternative);
+		final Button multipleScansAlternative = createClientButton(parent, SWT.PUSH, ClientMessages.MULTIPLE_SCANS,
+				ClientMessages.MULTIPLE_SCANS_TOOLTIP);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).span(3, 1).applyTo(multipleScansAlternative);
 
 		multipleScansAlternative.addSelectionListener(new SelectionListener() {
 			@Override
@@ -318,7 +325,8 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 				if (e.widget.equals(multipleScansAlternative)) {
 					new MultipleScanDialog(parent.getShell(), () -> getAcquisitionConfiguration()).open();
 					updateMultipleScan();
-					if (getAcquisitionConfiguration().getMultipleScans().getNumberRepetitions() > 1 || getAcquisitionConfiguration().getMultipleScans().getWaitingTime() > 0
+					if (getAcquisitionConfiguration().getMultipleScans().getNumberRepetitions() > 1
+							|| getAcquisitionConfiguration().getMultipleScans().getWaitingTime() > 0
 							|| !MultipleScansType.REPEAT_SCAN.equals(getAcquisitionConfiguration().getMultipleScans().getMultipleScansType())) {
 						multipleScansAlternative.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_YELLOW));
 					} else {
@@ -336,32 +344,33 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 
 	private void multipleScansContent(Composite parent, int labelStyle, int textStyle) {
 		ExpandBar customBar = createExpandBar(parent);
-		Composite container = ClientSWTElements.createClientCompositeWithGridLayout(customBar, SWT.NONE, 5);
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).grab(true, true).applyTo(container);
+		Composite container = createClientCompositeWithGridLayout(customBar, SWT.NONE, 5);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).grab(true, true).applyTo(container);
 
-		Label label = ClientSWTElements.createClientLabel(container, SWT.NONE, ClientMessages.NUM_REPETITIONS);
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(label);
+		Label label = createClientLabel(container, SWT.NONE, ClientMessages.NUM_REPETITIONS);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(label);
 
-		numberRepetitions = ClientSWTElements.createClientText(container, SWT.NONE, ClientMessages.NUM_REPETITIONS_TOOLTIP, Optional.of(verifyOnlyIntegerText));
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(ClientSWTElements.DEFAULT_TEXT_SIZE).applyTo(numberRepetitions);
+		numberRepetitions = createClientText(container, SWT.NONE, ClientMessages.NUM_REPETITIONS_TOOLTIP, verifyOnlyIntegerText);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(DEFAULT_TEXT_SIZE).applyTo(numberRepetitions);
 
-		ClientSWTElements.createClientEmptyCell(container, new Point(10, 10));
+		createClientEmptyCell(container, new Point(10, 10));
 
-		label = ClientSWTElements.createClientLabel(container, SWT.NONE, ClientMessages.WAITING_TIME);
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(label);
+		label = createClientLabel(container, SWT.NONE, ClientMessages.WAITING_TIME);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(label);
 		label.setText(label.getText() + " (s)");
 
-		waitingTime = ClientSWTElements.createClientText(container, SWT.NONE, ClientMessages.WAITING_TIME_TOOLTIP, Optional.of(verifyOnlyIntegerText));
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(ClientSWTElements.DEFAULT_TEXT_SIZE).applyTo(waitingTime);
+		waitingTime = createClientText(container, SWT.NONE, ClientMessages.WAITING_TIME_TOOLTIP, verifyOnlyIntegerText);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(DEFAULT_TEXT_SIZE).applyTo(waitingTime);
 
-		repeateMultipleScansType = ClientSWTElements.createClientButton(container, SWT.RADIO, ClientMessages.REPEATE_SCAN, ClientMessages.REPEATE_SCAN_TOOLTIP, Optional.empty());
+		repeateMultipleScansType = createClientButton(container, SWT.RADIO, ClientMessages.REPEATE_SCAN,
+				ClientMessages.REPEATE_SCAN_TOOLTIP);
 		repeateMultipleScansType.setData(MultipleScansType.REPEAT_SCAN);
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(repeateMultipleScansType);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(repeateMultipleScansType);
 
-		switchbackMultipleScansType = ClientSWTElements.createClientButton(container, SWT.RADIO, ClientMessages.SWITCHBACK_SCAN,
-				ClientMessages.SWITCHBACK_SCAN_TOOLTIP, Optional.empty());
+		switchbackMultipleScansType = createClientButton(container, SWT.RADIO, ClientMessages.SWITCHBACK_SCAN,
+				ClientMessages.SWITCHBACK_SCAN_TOOLTIP);
 		switchbackMultipleScansType.setData(MultipleScansType.SWITCHBACK_SCAN);
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(switchbackMultipleScansType);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(switchbackMultipleScansType);
 
 		multiplExpandItem = expandBar(customBar, container, multipleScans);
 		multiplExpandItem.setExpanded(true);
@@ -519,7 +528,8 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 	private void bindElements() {
 		bindScanType(dbc);
 		bindMultipleScanType(dbc);
-		ClientBindingElements.bindText(dbc, name, String.class, "name", getController().getAcquisition());
+
+		name.addModifyListener(modifyNameListener);
 
 		ClientBindingElements.bindCheckBox(dbc, beforeAcquisition, "imageCalibration.beforeAcquisition", getAcquisitionConfiguration());
 		ClientBindingElements.bindCheckBox(dbc, afterAcquisition, "imageCalibration.afterAcquisition", getAcquisitionConfiguration());
@@ -527,11 +537,12 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		ClientBindingElements.bindText(dbc, numberFlat, Integer.class, "imageCalibration.numberFlat", getAcquisitionConfiguration());
 		ClientBindingElements.bindText(dbc, darkExposure, Integer.class, "imageCalibration.darkExposure", getAcquisitionConfiguration());
 		ClientBindingElements.bindText(dbc, flatExposure, Integer.class, "imageCalibration.flatExposure", getAcquisitionConfiguration());
+	}
 
-		// ClientBindingElements.bindCheckBox(dbc, multipleScans, "multipleScans.enabled", getConfigurationData());
-		// multipleScans.setSelection(multipleScans.getSelection());
-		//ClientBindingElements.bindText(dbc, numberRepetitions, Integer.class, "multipleScans.numberRepetitions", getConfigurationData());
-		//ClientBindingElements.bindText(dbc, waitingTime, Integer.class, "multipleScans.waitingTime", getConfigurationData());
+	private final ModifyListener modifyNameListener = event -> updateAcquisitionName();
+
+	private void updateAcquisitionName() {
+		getController().getAcquisition().setName(name.getText());
 	}
 
 	private void bindScanType(DataBindingContext dbc) {
@@ -549,6 +560,7 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 	}
 
 	private void initialiseElements() {
+		name.setText(getController().getAcquisition().getName());
 		initializeScanType();
 		initializeStartAngle();
 		initializeEndAngle();
@@ -676,7 +688,7 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 
 	private ExpandBar createExpandBar(Composite parent) {
 		ExpandBar bar = new ExpandBar(parent, SWT.V_SCROLL);
-		ClientSWTElements.createClientGridDataFactory().grab(true, true).applyTo(bar);
+		createClientGridDataFactory().grab(true, true).applyTo(bar);
 		return bar;
 	}
 
