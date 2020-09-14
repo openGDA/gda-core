@@ -103,9 +103,9 @@ public class StageController implements IStageController {
 	}
 
 	public Set<DevicePositionDocument> getPositionDocuments(Position position, Set<String> scannables) {
-		if (scannables == null)
+		if (scannables == null || !devicesPosition.containsKey(position))
 			return new HashSet<>();
-		return devicesPosition.getOrDefault(position, new HashSet<>()).stream()
+		return devicesPosition.get(position).stream()
 				.filter(d -> scannables.contains(d.getDevice()))
 				.collect(Collectors.toSet());
 	}
