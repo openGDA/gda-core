@@ -41,7 +41,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
-import org.omg.CORBA.SystemException;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 import org.slf4j.Logger;
@@ -100,14 +99,9 @@ public class SyringeControlView extends ViewPart implements IObserver {
 					if (stopAction != null) {
 						String command = stopAction;
 						command = command.replace("{syringe}", current.getName());
-						try {
-							JythonServerFacade.getInstance().runCommand(command);
-						} catch (SystemException se) {
-							UIHelper.showError("Error running stop command\n" + command, se.getMessage());
-							logger.error("Error running stop command - {}", se.getMessage());
-						}
+						JythonServerFacade.getInstance().runCommand(command);
 					}
-				} catch (Throwable t) {
+				} catch (Exception t) {
 					logger.error("Error stopping the syringe", t);
 					UIHelper.showError("Error stopping the syringe", t.getMessage());
 				}
