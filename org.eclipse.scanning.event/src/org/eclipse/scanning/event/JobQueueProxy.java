@@ -347,4 +347,16 @@ public final class JobQueueProxy<U extends StatusBean> extends AbstractConnectio
 		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
 	}
 
+	@Override
+	public void defer(U bean) throws EventException {
+		sendCommand(Command.DEFER, bean);
+
+	}
+
+	@Override
+	public void undefer(U bean) throws EventException {
+		sendCommand(Command.UNDEFER, bean);
+
+	}
+
 }

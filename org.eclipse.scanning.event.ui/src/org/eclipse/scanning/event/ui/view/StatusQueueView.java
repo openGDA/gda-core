@@ -151,10 +151,12 @@ public class StatusQueueView extends EventConnectionView {
 	private Action upAction;
 	private Action downAction;
 	private Action pauseAction;
+	private Action deferAction;
 	private Action stopAction;
 	private Action openAction;
 	private Action detailsAction;
 	private Action clearQueueAction;
+	private Action pauseQueueAction;
 
 	private IEventService service;
 
@@ -222,12 +224,13 @@ public class StatusQueueView extends EventConnectionView {
 				.filter(sb -> selectedUniqueIds.contains(sb.getUniqueId()))
 				.collect(Collectors.toList());
 
-		List<StatusBean> activeInRunList = runList.stream()
-				.filter(sb -> sb.getStatus().isActive())
-				.collect(Collectors.toList());
-
+		boolean activeScanSelected = selectedInRunList.stream().anyMatch(sb -> sb.getStatus().isActive());
+		boolean activeScanPaused = selectedInRunList.stream().anyMatch(sb -> sb.getStatus().isPaused());
 		boolean anyFinalSelectedInRunList = selectedInRunList.stream().anyMatch(sb -> sb.getStatus().isFinal());
 		boolean anySelectedInSubmittedList = !selectedInSubmittedList.isEmpty();
+		boolean anyNonFinalInSubmittedList = selectedInSubmittedList.stream().anyMatch(sb -> !sb.getStatus().isFinal());
+		boolean allSelectedSubmittedDeferred = selectedInSubmittedList.stream().allMatch(
+				sb -> sb.getStatus().isPaused() || sb.getStatus().isFinal());
 
 		removeActionUpdate(selectedInSubmittedList, selectedInRunList);
 		rerunActionUpdate(selection);
@@ -235,20 +238,21 @@ public class StatusQueueView extends EventConnectionView {
 		editActionUpdate(anySelectedInSubmittedList);
 		downActionUpdate(anySelectedInSubmittedList);
 
-		boolean anyRunning = queue.values().stream().anyMatch(x -> (x.getStatus().isRunning() || x.getStatus().isResumed()));
-		boolean anyPaused = queue.values().stream().anyMatch(x -> x.getStatus().isPaused() );
-
 		stopActionUpdate(selectedInRunList);
-		pauseActionUpdate(anyRunning, anyPaused, anySelectedInSubmittedList);
+		pauseActionUpdate(activeScanSelected, activeScanPaused);
+		deferActionUpdate(anyNonFinalInSubmittedList, anyNonFinalInSubmittedList && allSelectedSubmittedDeferred);
 
 		openResultsActionUpdate(anyFinalSelectedInRunList);
 		openActionUpdate(selection);
 		detailsActionUpdate(selectedInSubmittedList, selectedInRunList);
 
+		pauseQueueAction.setChecked(jobQueueProxy.isPaused());
+
 		// Some sanity checks
 		warnIfListContainsStatus("null status found in selection:       ", selection,     null);
 		warnIfListContainsStatus("RUNNING status found in submittedList: ", submittedList, org.eclipse.scanning.api.event.status.Status.RUNNING);
 		warnIfListContainsStatus("SUBMITTED status found in runList:       ", runList,       org.eclipse.scanning.api.event.status.Status.SUBMITTED);
+		warnIfListContainsStatus("DEFERRED status found in runList:       ", runList, org.eclipse.scanning.api.event.status.Status.DEFERRED);
 	}
 
 	private void warnIfListContainsStatus(String description, List<StatusBean> list, org.eclipse.scanning.api.event.status.Status status) {
@@ -334,7 +338,7 @@ public class StatusQueueView extends EventConnectionView {
 
 				if (queue.containsKey(bean.getUniqueId())) {
 					StatusBean oldBean = queue.get(bean.getUniqueId());
-					if (bean.getStatus().isRunning() && !runList.contains(oldBean)) {
+					if (bean.getStatus().isActive() && !runList.contains(oldBean)) {
 						runList.add(oldBean);
 						submittedList.remove(oldBean);
 					}
@@ -385,13 +389,16 @@ public class StatusQueueView extends EventConnectionView {
 		downAction = downActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, downAction);
 
+		deferAction = deferActionCreate();
+		addActionTo(toolMan, menuMan, dropDown, deferAction);
+
 		pauseAction = pauseActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, pauseAction);
 
 		stopAction = stopActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, stopAction);
 
-		final Action pauseQueueAction = pauseQueueActionCreate();
+		pauseQueueAction = pauseQueueActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, pauseQueueAction);
 		jobQueueProxy.addQueueStatusListener(status -> pauseQueueAction.setChecked(status == QueueStatus.PAUSED));
 
@@ -544,10 +551,10 @@ public class StatusQueueView extends EventConnectionView {
 		pauseQueue.setChecked(jobQueueProxy.isPaused());
 	}
 
-	private void pauseActionUpdate(boolean anyRunning, boolean anyPaused, boolean anySelectedSubmitted) {
-		pauseAction.setEnabled(anyRunning || anyPaused || anySelectedSubmitted);
-		pauseAction.setChecked(anyPaused);
-		pauseAction.setText(anyPaused?"Resume job":"Pause job");
+	private void pauseActionUpdate(boolean activeScanSelected, boolean activeScanPaused) {
+		pauseAction.setEnabled(activeScanSelected);
+		pauseAction.setChecked(activeScanPaused);
+		pauseAction.setText(activeScanPaused ? "Resume job" :"Pause job");
 	}
 
 	private Action pauseActionCreate() {
@@ -564,18 +571,22 @@ public class StatusQueueView extends EventConnectionView {
 	}
 
 	private void pauseActionRun() {
+		pauseAction.setEnabled(false);
 
-		for(StatusBean bean : getSelection()) {
+		List<String> selectedUniqueIds= getSelection().stream().map(StatusBean::getUniqueId).collect(Collectors.toList());
 
-			if (bean.getStatus().isFinal()) {
-				MessageDialog.openInformation(getViewSite().getShell(), "Run '"+bean.getName()+"' inactive",
-					"Run '"+bean.getName()+"' is inactive and cannot be paused.");
-				continue;
-			}
+		List<StatusBean> selectedInRunList = runList.stream()
+				.filter(sb -> selectedUniqueIds.contains(sb.getUniqueId()))
+				.collect(Collectors.toList());
+
+
+		for(StatusBean bean : selectedInRunList) {
+
+			if (bean.getStatus().isFinal()) continue;
 
 			try {
-				pauseAction.setEnabled(false);
-				if (bean.getStatus().isPaused()) {
+				// Invert as JFace bindings toggle state first...
+				if (!pauseAction.isChecked()) {
 					jobQueueProxy.resumeJob(bean);
 				} else {
 					jobQueueProxy.pauseJob(bean);
@@ -584,10 +595,54 @@ public class StatusQueueView extends EventConnectionView {
 				ErrorDialog.openError(getViewSite().getShell(), "Cannot pause "+bean.getName(),
 					"Cannot pause "+bean.getName()+"\n\nPlease contact your support representative.",
 					new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()));
-			} finally {
-				pauseAction.setEnabled(true);
 			}
 		}
+	}
+
+	private void deferActionUpdate(boolean deferableSelectedInSubmittedList, boolean allSelectedSubmittedDeferred) {
+		deferAction.setEnabled(deferableSelectedInSubmittedList);
+		deferAction.setChecked(allSelectedSubmittedDeferred);
+		deferAction.setText(allSelectedSubmittedDeferred ? "Undefer job(s)" :"Defer job(s)");
+	}
+
+	private Action deferActionCreate() {
+		Action action = new Action("Defer submitted scan(s) until undefered", IAction.AS_CHECK_BOX) {
+			@Override
+			public void run() {
+				deferActionRun();
+			}
+		};
+		action.setImageDescriptor(Activator.getImageDescriptor("icons/alarm-clock-select.png"));
+		action.setEnabled(false);
+		action.setChecked(false);
+		return action;
+	}
+
+	private void deferActionRun() {
+		List<String> selectedUniqueIds= getSelection().stream().map(StatusBean::getUniqueId).collect(Collectors.toList());
+
+		List<StatusBean> selectedInSubmittedList = submittedList.stream()
+				.filter(sb -> selectedUniqueIds.contains(sb.getUniqueId()))
+				.collect(Collectors.toList());
+
+		for(StatusBean bean : selectedInSubmittedList) {
+
+			if (bean.getStatus().isFinal()) continue;
+
+			try {
+				// Invert as JFace bindings toggle state first...
+				if (!deferAction.isChecked()) {
+					jobQueueProxy.undefer(bean);
+				} else {
+					jobQueueProxy.defer(bean);
+				}
+			} catch (Exception e) {
+				ErrorDialog.openError(getViewSite().getShell(), "Cannot defer "+bean.getName(),
+					"Cannot defer "+bean.getName()+"\n\nPlease contact your support representative.",
+					new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()));
+			}
+		}
+
 	}
 
 	private void removeActionUpdate(List<StatusBean> selectedInSubmittedList, List<StatusBean> selectedInRunList) {
@@ -1087,6 +1142,8 @@ public class StatusQueueView extends EventConnectionView {
 					updateProgress(jobStartTime, monitor, "Run/running jobs added to view list");
 
 					for (StatusBean bean : submittedList) {
+						if (bean.getStatus().isPaused()) bean.setStatus(org.eclipse.scanning.api.event.status.Status.DEFERRED);
+						if (bean.getStatus().isRequest()) bean.setStatus(org.eclipse.scanning.api.event.status.Status.SUBMITTED);
 						ret.put(bean.getUniqueId(), bean);
 					}
 					updateProgress(jobStartTime, monitor, "Submitted jobs added to view list");

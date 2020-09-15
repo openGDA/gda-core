@@ -338,15 +338,6 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 				case SUBMIT_JOB:
 					submit((U) commandBean.getJobBean());
 					break;
-				case PAUSE_JOB:
-					processManager.processJobCommand(commandBean);
-					break;
-				case RESUME_JOB:
-					processManager.processJobCommand(commandBean);
-					break;
-				case TERMINATE_JOB:
-					processManager.processJobCommand(commandBean);
-					break;
 				case MOVE_FORWARD:
 					result = findBeanAndPerformAction(commandBean.getJobBean(), this::moveForward);
 					sendQueueModifiedMessage();
@@ -373,6 +364,13 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 					break;
 				case REFRESH_QUEUE_VIEW:
 					sendQueueModifiedMessage();
+					break;
+				case DEFER:
+				case UNDEFER:
+				case PAUSE_JOB:
+				case RESUME_JOB:
+				case TERMINATE_JOB:
+					processManager.processJobCommand(commandBean);
 					break;
 				default:
 					throw new IllegalArgumentException("Unknown command " + commandBean.getCommand());
@@ -633,6 +631,8 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 
 		ProcessManager() {
 			commandToStatusMap = new HashMap<>();
+			commandToStatusMap.put(Command.UNDEFER, Status.SUBMITTED);
+			commandToStatusMap.put(Command.DEFER, Status.DEFERRED);
 			commandToStatusMap.put(Command.PAUSE_JOB, Status.REQUEST_PAUSE);
 			commandToStatusMap.put(Command.RESUME_JOB, Status.REQUEST_RESUME);
 			commandToStatusMap.put(Command.TERMINATE_JOB, Status.REQUEST_TERMINATE);
@@ -791,7 +791,30 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 	}
 
 	private U getNextBean() {
-		return submissionQueue.poll();
+		synchronized(submissionQueue) {
+			boolean queueReordered = false;
+			boolean statusChanged = false;
+			Iterator<U> iter = submissionQueue.iterator();
+			while (iter.hasNext()) {
+				U peekBean = iter.next();
+				Status peekStatus = peekBean.getStatus();
+				if (peekStatus != null && peekStatus.isPaused()) {
+					if (peekStatus != Status.DEFERRED) {
+						statusChanged = true;
+						peekBean.setStatus(Status.DEFERRED);
+					}
+					queueReordered = true;
+				} else {
+					// At least one scan deferred, re-order to move running scan below
+					if (queueReordered) sendQueueModifiedMessage();
+					submissionQueue.remove(peekBean);
+					return peekBean;
+				}
+			}
+		// Only need to modify queue if status changed, order still valid as all deferred
+		if (statusChanged) sendQueueModifiedMessage();
+		return null;
+		}
 	}
 
 	private void init() throws EventException {
@@ -1093,6 +1116,16 @@ public class JobQueueImpl<U extends StatusBean> extends AbstractConnection imple
 	@Override
 	public void setBeanClass(Class<U> beanClass) {
 		this.beanClass = beanClass;
+	}
+
+	@Override
+	public void defer(U bean) throws EventException {
+		processManager.processJobCommand(bean, Command.DEFER);
+	}
+
+	@Override
+	public void undefer(U bean) throws EventException {
+		processManager.processJobCommand(bean, Command.UNDEFER);
 	}
 
 }

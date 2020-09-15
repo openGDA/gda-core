@@ -32,6 +32,7 @@ public enum Status {
 	FINISHING,
 	COMPLETE,
 	UNFINISHED,
+	DEFERRED,
 	NONE;
 
 	/**
@@ -55,7 +56,7 @@ public enum Status {
 	}
 
 	public boolean isPaused() {
-		return this==REQUEST_PAUSE || this==PAUSED;
+		return this==REQUEST_PAUSE || this==PAUSED || this==DEFERRED;
 	}
 
 	public boolean isResumed() {
@@ -67,7 +68,7 @@ public enum Status {
 	 * @return
 	 */
 	public boolean isActive() {
-		return (isRunning() || isPaused()) && !isFinal();
+		return (isRunning() || isPaused()) && !isFinal() && this!=DEFERRED;
 	}
 
 	public boolean isTerminated() {
