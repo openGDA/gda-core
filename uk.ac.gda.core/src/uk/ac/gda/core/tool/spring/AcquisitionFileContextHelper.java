@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.ui.tool.spring;
+package uk.ac.gda.core.tool.spring;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -26,40 +26,50 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.eclipse.scanning.api.scan.IFilePathService;
-import org.eclipse.ui.PlatformUI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.ServiceHolder;
 import uk.ac.diamond.daq.experiment.structure.URLFactory;
-import uk.ac.gda.client.exception.GDAClientException;
+import uk.ac.gda.api.exception.GDAException;
 
 /**
- * Hides the client from the external file service and is primarily dedicated to help the {@link ClientContext}
+ * Hides the application from the external file service and is primarily dedicated to help the {@link AcquisitionFileContext}
  *
  * @author Maurizio Nagni
  */
-public class ClientContextFileHelper {
+class AcquisitionFileContextHelper {
+
+	private static final Logger logger = LoggerFactory.getLogger(AcquisitionFileContextHelper.class);
 
 	private static final URLFactory urlFactory = new URLFactory();
 
-	private ClientContextFileHelper() {
+	private AcquisitionFileContextHelper() {
 	}
 
 	/**
 	 * Generates a URL from a {@code String}
 	 *
 	 * @param path
-	 *            the location to convert
+	 *            the location to convert. Has to be an absolute path.
 	 * @return the converted string to URL, otherwise {@code null}
 	 */
 	private static URL generateURL(String path) {
+		if ((!new File(path).isAbsolute())) {
+			logger.error("Cannot generateURL with not absolute path \"{}\"", path);
+			return null;
+		}
+
 		try {
 			return urlFactory.generateUrl(path);
 		} catch (MalformedURLException e) {
+			logger.error("Cannot generateURL from path {}", path);
 			return null;
 		}
 	}
 
-	static boolean createDirectory(URL url) throws GDAClientException {
+	static boolean createDirectory(URL url) throws GDAException {
 		try {
 			return new File(url.toURI()).mkdirs();
 		} catch (URISyntaxException e) {
@@ -84,29 +94,29 @@ public class ClientContextFileHelper {
 		}
 	}
 
-	static URL getTempDir() throws GDAClientException {
+	static URL getTempDir() throws GDAException {
 		return getFilePathService()
 				.map(IFilePathService::getTempDir)
-				.map(ClientContextFileHelper::generateURL)
+				.map(AcquisitionFileContextHelper::generateURL)
 				.orElseThrow(gdaException("tmp"));
 	}
 
-	static URL getConfigDir() throws GDAClientException {
+	static URL getConfigDir() throws GDAException {
 		return getFilePathService()
 				.map(IFilePathService::getVisitConfigDir)
-				.map(ClientContextFileHelper::generateURL)
+				.map(AcquisitionFileContextHelper::generateURL)
 				.orElseThrow(gdaException("Configuration"));
 	}
 
-	static URL getProcessingDir() throws GDAClientException {
+	static URL getProcessingDir() throws GDAException {
 		return getFilePathService()
 				.map(IFilePathService::getProcessingDir)
-				.map(ClientContextFileHelper::generateURL)
+				.map(AcquisitionFileContextHelper::generateURL)
 				.orElseThrow(gdaException("Processing"));
 	}
 
-	private static Supplier<GDAClientException> gdaException(String dirName) {
-		return () -> new GDAClientException(String.format("Cannot get %s directory", dirName));
+	private static Supplier<GDAException> gdaException(String dirName) {
+		return () -> new GDAException(String.format("Cannot get %s directory", dirName));
 	}
 
 	/**
@@ -134,12 +144,12 @@ public class ClientContextFileHelper {
 	 * @param defaultValue
 	 *            the value if the property is absent
 	 * @return a new URL based on the parameters combination
-	 * @throws GDAClientException
+	 * @throws GDAException
 	 *             if both the parameters are {@code null} or their value is malformed
 	 */
-	static URL getCustomDirectory(URL rootDir, String propertyKey, String defaultValue) throws GDAClientException {
+	static URL getCustomDirectory(URL rootDir, String propertyKey, String defaultValue) throws GDAException {
 		if (rootDir == null && propertyKey == null) {
-			throw new GDAClientException("Cannot getDirectory with null parameters");
+			throw new GDAException("Cannot getDirectory with null parameters");
 		}
 
 		String propertyValue = LocalProperties.get(propertyKey, defaultValue);
@@ -147,7 +157,12 @@ public class ClientContextFileHelper {
 			return rootDir;
 		}
 
-		if (propertyValue.startsWith("/")) {
+		if (propertyValue.isEmpty()) {
+			propertyValue = defaultValue;
+		}
+
+		propertyValue = propertyValue.isEmpty() ? defaultValue : propertyValue;
+		if (new File(propertyValue).isAbsolute()) {
 			// property describes an absolute path
 			return generateURL(propertyValue);
 		} else {
@@ -157,7 +172,6 @@ public class ClientContextFileHelper {
 	}
 
 	private static Optional<IFilePathService> getFilePathService() {
-		return Optional.ofNullable(PlatformUI.getWorkbench().getService(IFilePathService.class));
+		return Optional.ofNullable(ServiceHolder.getFilePathService());
 	}
-
 }
