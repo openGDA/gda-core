@@ -163,12 +163,13 @@ Bundle-ClassPath: .,
  scripts/
 Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: javax.jms,
+Import-Package: javax.activation,
+ javax.jms,
  javax.mail;version="1.5.0",
  javax.mail.internet;version="1.5.0",
  org.apache.commons.collections.map,
- org.apache.commons.logging,
  org.apache.commons.io,
+ org.apache.commons.logging,
  org.eclipse.core.runtime;version="3.4.0",
  org.eclipse.dawnsci.remotedataset.server,
  org.eclipse.osgi.util;version="1.1.0",
