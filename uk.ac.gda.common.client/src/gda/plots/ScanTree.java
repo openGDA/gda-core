@@ -259,7 +259,7 @@ public class ScanTree extends DefaultTreeModel {
 	private void removeNodeFromPlot(TreeNode item) {
 
 		@SuppressWarnings("unchecked")
-		Enumeration<TreeNode> e = item.children();
+		Enumeration<? extends TreeNode> e = item.children();
 		while (e.hasMoreElements()){
 			removeNodeFromPlot( e.nextElement());
 		}
