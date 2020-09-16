@@ -33,6 +33,7 @@
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.diamond.daq.mapping/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.diamond.daq.mapping.api/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.diamond.daq.mapping.ui/bin" />
+				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.diamond.daq.client.gui.camera/bin" />
 				<pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.api/bin" />
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.plotting.api/bin" />
@@ -46,6 +47,7 @@
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.points/bin" />
 				<pathelement location="${workspace.git.loc}/diamond-jython.git/uk.ac.diamond.jython/jython2.7/jython.jar"/>
 				<pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
+				<pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework.spring-test/jars/*" />				
 				<path refid="tp.slf4j.path" />  <!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
 				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->
 				<path refid="tp.hamcrest.path" />  <!-- ensure that latest version appears first in classpath -->

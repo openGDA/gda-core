@@ -1,0 +1,14 @@
+{
+	"flatCalibration": {
+		"detectorDocument": null,
+		"numberExposures": 2,
+		"beforeAcquisition": false,
+		"afterAcquisition": false
+	},
+	"darkCalibration": {
+		"detectorDocument": null,
+		"numberExposures": 1,
+		"beforeAcquisition": true,
+		"afterAcquisition": false
+	}
+}
