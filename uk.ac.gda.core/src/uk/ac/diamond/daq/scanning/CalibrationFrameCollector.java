@@ -55,9 +55,9 @@ import gda.configuration.properties.LocalProperties;
 
 /**
  * A temporary solution to dark/flat field collection within the Solstice framework.
- *
- * When included in a scan, this pseudoscannable will configure the beamline as instructed by the beamlineConfiguration map,
- * take a snapshot of the detector used for the main scan, then restore the beamline to its previous configuration.
+ * <p>
+ * When included in a scan, this pseudoscannable will configure the beamline as instructed by the beamlineConfiguration
+ * map, take a snapshot of the detector used for the main scan, then restore the beamline to its previous configuration.<br>
  * The snapshot is then appended to the overall NeXus file under /entry/instrument/ as an NXdetector.
  */
 public class CalibrationFrameCollector extends AbstractScannable<Object> implements INexusDevice<NXdetector> {
@@ -68,30 +68,43 @@ public class CalibrationFrameCollector extends AbstractScannable<Object> impleme
 
 	private IRequester<AcquireRequest> acquireRequester;
 
-	/**
-	 * Maps scannable names to target positions, applied before taking snapshot
-	 */
+	/** Maps scannable names to target positions, applied before taking snapshot */
 	private final Map<String, Object> beamlineConfiguration;
+
+	/** Name by which the snapshot is linked in the main Nexus file */
 	private final String nexusFieldName;
+
+	/**
+	 * Maps the name of the Malcolm detector used for the snapshot to the key (under /entry/instrument/) under which
+	 * Malcolm will write the snapshot.
+	 */
 	private final Map<String, String> malcolmDetectorNames;
 
+	/**
+	 * Model of the detector to be used for the snapshot.<br>
+	 * If this is not configured explicitly, this class will use the first detector in the "main" scan.
+	 */
 	private IRunnableDevice<? extends IDetectorModel> detector;
 
-	/** File path of the NeXus file corresponding to the single frame scan  */
+	/** File path of the NeXus file corresponding to the single frame scan */
 	private String frameFilePath;
 
 	/** NeXus node path to frame dataset */
 	private String nexusNodePath;
 
+	/** Stores the initial beamline configuration so it can be restored after taking the snapshot */
 	private Map<String, Object> previousConfiguration;
 
 	/**
 	 * @param beamlineConfiguration
-	 * 		A map describing desired scannable positions to move to before acquiring a frame. e.g. "shutter1": "Closed", "sample_y": 5.4.
+	 *            A map describing desired scannable positions to move to before acquiring a frame.<br>
+	 *            e.g. "shutter1": "Closed", "sample_y": 5.4.
 	 * @param nexusFieldName
-	 * 		The collected frame will appear in the main NeXus file under /entry/instrument/nameOfThisScannable/nexusFieldName
+	 *            The collected frame will appear in the main NeXus file under
+	 *            /entry/instrument/nameOfThisScannable/nexusFieldName
 	 * @param malcolmDetectorNames
-	 * 		For every malcolm scan this scannable could be used in, we need the name of the actual detector in order to locate its dataset.
+	 *            For every malcolm scan this scannable could be used in, we need the name of the actual detector in
+	 *            order to locate its dataset.
 	 */
 	public CalibrationFrameCollector(Map<String, Object> beamlineConfiguration,
 										String nexusFieldName,
@@ -106,9 +119,27 @@ public class CalibrationFrameCollector extends AbstractScannable<Object> impleme
 
 	@PrepareScan
 	public void setDetectorAndCollect(ScanModel model) throws ScanningException {
-		if (model.getDetectors().isEmpty()) return;
-		this.detector = model.getDetectors().get(0);
-		acquire();
+		// If no detector is set for the "main" scan, we can't do anything here
+		if (model.getDetectors().isEmpty()) {
+			return;
+		}
+		// At this point in the scan, the detector models directly in the ScanModel are not up-to-date, especially as
+		// regards their exposure time. However, the the models in the ScanRequest are correct, so copy the exposure
+		// time from there.
+		final IRunnableDevice<? extends IDetectorModel> mainScanDetector = model.getDetectors().get(0);
+		final String mainScanDetectorName = mainScanDetector.getName();
+		final IDetectorModel modelFromRequest = model.getBean().getScanRequest().getDetectors().get(mainScanDetectorName);
+		if (modelFromRequest == null) {
+			logger.error("Cannot find detector model for {}", mainScanDetectorName);
+			return;
+		}
+		final double exposureTime = modelFromRequest.getExposureTime();
+
+		// If no detector has been explicitly configured, use the "main scan" detector
+		final IRunnableDevice<? extends IDetectorModel> acquisitionDetector = (detector == null) ? mainScanDetector : detector;
+		logger.debug("Setting exposure time on {} to {}", acquisitionDetector.getName(), exposureTime);
+		acquisitionDetector.getModel().setExposureTime(exposureTime);
+		acquire(acquisitionDetector);
 	}
 
 	@Override
@@ -119,19 +150,19 @@ public class CalibrationFrameCollector extends AbstractScannable<Object> impleme
 			throw new NexusException("Calibration frame collection failed");
 		}
 
-		NXdetector nxDet = NexusNodeFactory.createNXdetector();
+		final NXdetector nxDet = NexusNodeFactory.createNXdetector();
 		nxDet.addExternalLink(nexusFieldName, frameFilePath, nexusNodePath);
 
-		NexusObjectWrapper<NXdetector> prov = new NexusObjectWrapper<>(getName(), nxDet);
+		final NexusObjectWrapper<NXdetector> prov = new NexusObjectWrapper<>(getName(), nxDet);
 		prov.setCategory(NexusBaseClass.NX_INSTRUMENT);
 		return prov;
 	}
 
-	private void acquire() throws ScanningException {
+	private void acquire(IRunnableDevice<? extends IDetectorModel> snapshotDetector) throws ScanningException {
 		try {
 			configureBeamline();
-			frameFilePath = collectFrame();
-			nexusNodePath = generateNodePath();
+			frameFilePath = collectFrame(snapshotDetector);
+			nexusNodePath = generateNodePath(snapshotDetector);
 			restoreBeamline();
 		} catch (EventException e) {
 			throw new ScanningException("Problem taking snapshot", e);
@@ -163,20 +194,19 @@ public class CalibrationFrameCollector extends AbstractScannable<Object> impleme
 	}
 
 	/**
-	 * Performs an acquire request (single-frame scan);
-	 * returns path of resulting NeXus file
+	 * Performs an acquire request (single-frame scan); returns path of resulting NeXus file
 	 */
-	private String collectFrame() throws EventException {
-		if (detector == null) {
+	private String collectFrame(IRunnableDevice<? extends IDetectorModel> snapshotDetector) throws EventException {
+		if (snapshotDetector == null) {
 			logger.warn("Detector not set when getPosition() called");
 			return null;
 		}
 
 		AcquireRequest request = new AcquireRequest();
-		request.setDetectorName(detector.getName());
-		request.setDetectorModel(detector.getModel());
+		request.setDetectorName(snapshotDetector.getName());
+		request.setDetectorModel(snapshotDetector.getModel());
 		try {
-			logger.info("Posting acquire request with detector {}", detector.getName());
+			logger.info("Posting acquire request with detector {}", snapshotDetector.getName());
 			request = getRequester().post(request);
 		} catch (InterruptedException e) {
 			logger.error("Acquisition interrupted!", e);
@@ -192,25 +222,24 @@ public class CalibrationFrameCollector extends AbstractScannable<Object> impleme
 	}
 
 	/**
-	 * Based on the scan's configured detector
-	 * generates the node path to the frame dataset
+	 * Based on the scan's configured detector, generates the node path to the frame dataset
 	 */
-	private String generateNodePath() {
+	private String generateNodePath(IRunnableDevice<? extends IDetectorModel> snapshotDetector) {
 		final String detectorName;
-		if (detector instanceof MalcolmDevice) {
-			detectorName = malcolmDetectorNames.get(detector.getName());
-			Objects.requireNonNull(detectorName, "A detector name entry is required for malcolm scan " + detector.getName());
+		if (snapshotDetector instanceof MalcolmDevice) {
+			detectorName = malcolmDetectorNames.get(snapshotDetector.getName());
+			Objects.requireNonNull(detectorName, "A detector name entry is required for malcolm scan " + snapshotDetector.getName());
 		} else {
-			detectorName = detector.getName();
+			detectorName = snapshotDetector.getName();
 		}
 		return "/entry/instrument/" + detectorName + "/data";
 	}
 
 	private IRequester<AcquireRequest> getRequester() throws EventException {
 		if (acquireRequester == null) {
-			IEventService eventService = ServiceHolder.getEventService();
+			final IEventService eventService = ServiceHolder.getEventService();
 			try {
-				URI uri = new URI(LocalProperties.getActiveMQBrokerURI());
+				final URI uri = new URI(LocalProperties.getActiveMQBrokerURI());
 				acquireRequester = eventService.createRequestor(uri, EventConstants.ACQUIRE_REQUEST_TOPIC, EventConstants.ACQUIRE_RESPONSE_TOPIC);
 				acquireRequester.setTimeout(5, TimeUnit.SECONDS);
 			} catch (URISyntaxException e) {
@@ -234,4 +263,15 @@ public class CalibrationFrameCollector extends AbstractScannable<Object> impleme
 		throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_MESSAGE);
 	}
 
+	public void setDetector(IRunnableDevice<? extends IDetectorModel> detector) {
+		this.detector = detector;
+	}
+
+	@Override
+	public String toString() {
+		return "CalibrationFrameCollector [acquireRequester=" + acquireRequester + ", beamlineConfiguration="
+				+ beamlineConfiguration + ", nexusFieldName=" + nexusFieldName + ", malcolmDetectorNames="
+				+ malcolmDetectorNames + ", detector=" + detector + ", frameFilePath=" + frameFilePath
+				+ ", nexusNodePath=" + nexusNodePath + ", previousConfiguration=" + previousConfiguration + "]";
+	}
 }
