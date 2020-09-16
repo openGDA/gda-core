@@ -70,11 +70,12 @@ public class ImageCalibrationHelperTest {
 	@Test
 	public void useDarkCalibrationBuilderTest() {
 		ScanningConfiguration scanningConfiguraton = new ScanningConfiguration();
-		ImageCalibration imageCalibration = new ImageCalibration();
-		imageCalibration.setDarkCalibration(
-				new DarkCalibrationDocument.Builder()
-				.withNumberExposures(33)
-				.build());
+		ImageCalibration imageCalibration = new ImageCalibration.Builder()
+				.withDarkCalibration(
+						new DarkCalibrationDocument.Builder()
+							.withNumberExposures(33)
+							.build())
+				.build();
 		scanningConfiguraton.setImageCalibration(imageCalibration);
 		ImageCalibrationHelper imageCalibrationHelper = new ImageCalibrationHelper(() -> scanningConfiguraton);
 		imageCalibrationHelper.updateDarkNumberExposures(2);
@@ -88,11 +89,12 @@ public class ImageCalibrationHelperTest {
 	@Test
 	public void useFlatCalibrationBuilderTest() {
 		ScanningConfiguration scanningConfiguraton = new ScanningConfiguration();
-		ImageCalibration imageCalibration = new ImageCalibration();
-		imageCalibration.setFlatCalibration(
-				new FlatCalibrationDocument.Builder()
-				.withNumberExposures(33)
-				.build());
+		ImageCalibration imageCalibration = new ImageCalibration.Builder()
+				.withFlatCalibration(
+						new FlatCalibrationDocument.Builder()
+							.withNumberExposures(33)
+							.build())
+				.build();
 		scanningConfiguraton.setImageCalibration(imageCalibration);
 		ImageCalibrationHelper imageCalibrationHelper = new ImageCalibrationHelper(() -> scanningConfiguraton);
 		imageCalibrationHelper.updateFlatNumberExposures(2);

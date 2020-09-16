@@ -52,20 +52,19 @@ public class ImageCalibrationDocumentTest {
 	public void serialiseImageCalibrations()
 	  throws IOException {
 
-		ImageCalibration imageCalibration = new ImageCalibration();
+		ImageCalibration.Builder imageCalibrationBuilder = new ImageCalibration.Builder();
 
 		DarkCalibrationDocument.Builder builderDark = new DarkCalibrationDocument.Builder();
 		builderDark.withBeforeAcquisition(true);
 		builderDark.withNumberExposures(1);
-		imageCalibration.setDarkCalibration(builderDark.build());
+		imageCalibrationBuilder.withDarkCalibration(builderDark.build());
 
 		FlatCalibrationDocument.Builder builderFlat = new FlatCalibrationDocument.Builder();
 		builderFlat.withBeforeAcquisition(false);
 		builderFlat.withNumberExposures(2);
-		imageCalibration.setFlatCalibration(builderFlat.build());
+		imageCalibrationBuilder.withFlatCalibration(builderFlat.build());
 
-	    String json = new ObjectMapper().writeValueAsString(imageCalibration);
-	    System.out.println(json);
+	    String json = new ObjectMapper().writeValueAsString(imageCalibrationBuilder.build());
 	    assertThat(json, containsString("\"darkCalibration\":{\"detectorDocument\":null,\"numberExposures\":1,\"beforeAcquisition\":true,\"afterAcquisition\":false}"));
 	    assertThat(json, containsString("\"flatCalibration\":{\"detectorDocument\":null,\"numberExposures\":2,\"beforeAcquisition\":false,\"afterAcquisition\":false}"));
 	}

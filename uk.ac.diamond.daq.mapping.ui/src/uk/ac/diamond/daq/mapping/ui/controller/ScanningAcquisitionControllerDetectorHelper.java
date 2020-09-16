@@ -103,6 +103,7 @@ class ScanningAcquisitionControllerDetectorHelper {
 				.ifPresent(acquisitionPropertiesDocuments::addAll);
 		camerasControls = setCamerasControls();
 		SpringApplicationContextFacade.addDisposableApplicationListener(this, listenToExposureChange);
+
 		// may happens if the controller still has no acquisition document
 		if (getAcquisition().getAcquisitionConfiguration() == null) {
 			logger.warn("There is no AcquisitionConfiguration document");
@@ -197,20 +198,20 @@ class ScanningAcquisitionControllerDetectorHelper {
 	}
 
 	private ImageCalibration createNewImageCalibrationDocument() {
-		ImageCalibration imageCalibration = new ImageCalibration();
+		ImageCalibration.Builder imageCalibrationBuilder = new ImageCalibration.Builder();
 
 		DetectorDocument detectorDocument = getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters().getDetector();
 
-		DarkCalibrationDocument.Builder darkBuilder = new DarkCalibrationDocument.Builder()
-				.withNumberExposures(0)
-				.withDetectorDocument(detectorDocument);
-		imageCalibration.setDarkCalibration(darkBuilder.build());
+		DarkCalibrationDocument.Builder builderDark = new DarkCalibrationDocument.Builder()
+			.withNumberExposures(0)
+			.withDetectorDocument(detectorDocument);
+		imageCalibrationBuilder.withDarkCalibration(builderDark.build());
 
-		FlatCalibrationDocument.Builder flatBuilder = new FlatCalibrationDocument.Builder()
+		FlatCalibrationDocument.Builder builderFlat = new FlatCalibrationDocument.Builder()
 				.withNumberExposures(0)
 				.withDetectorDocument(detectorDocument);
-		imageCalibration.setFlatCalibration(flatBuilder.build());
-		return imageCalibration;
+		imageCalibrationBuilder.withFlatCalibration(builderFlat.build());
+		return imageCalibrationBuilder.build();
 	}
 
 	private AcquisitionPropertiesDocument getAcquisitionPropertiesDocument() {
@@ -237,6 +238,7 @@ class ScanningAcquisitionControllerDetectorHelper {
 			// The acquisition configuration may not include this detector
 			if (!detectorControlName.equals(acquisitionParameters.getDetector().getName()))
 				return;
+
 			ImageCalibrationHelper imageCalibrationHelper = new ImageCalibrationHelper(() -> getAcquisition().getAcquisitionConfiguration());
 			DetectorDocument detectorDocument = new DetectorDocument(detectorControlName, acquireTime);
 

@@ -45,6 +45,7 @@
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.example/bin" />
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.server/bin" />
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.points/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.device.ui/bin" />
 				<pathelement location="${workspace.git.loc}/diamond-jython.git/uk.ac.diamond.jython/jython2.7/jython.jar"/>
 				<pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
 				<pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework.spring-test/jars/*" />				
