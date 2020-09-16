@@ -20,13 +20,11 @@ package uk.ac.diamond.daq.mapping.impl;
 
 import org.eclipse.scanning.api.annotation.UiComesAfter;
 import org.eclipse.scanning.api.annotation.UiLarge;
-import org.eclipse.scanning.api.event.scan.SampleData;
 
 import uk.ac.diamond.daq.mapping.api.ISampleMetadata;
 
 /**
  * A simple metadata for sample with a description as well as a name.
- * TODO: could we reuse {@link SampleData} for this?
  */
 public class SimpleSampleMetadata implements ISampleMetadata {
 

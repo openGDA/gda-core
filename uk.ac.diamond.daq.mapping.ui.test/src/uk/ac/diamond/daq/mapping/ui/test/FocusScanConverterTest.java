@@ -144,7 +144,6 @@ public class FocusScanConverterTest {
 		// test that the remaining fields have not been set
 		assertThat(scanRequest.getMonitorNamesPerPoint(), is(empty()));
 		assertThat(scanRequest.getMonitorNamesPerScan(), is(empty()));
-		assertThat(scanRequest.getSampleData(), is(nullValue()));
 		assertThat(scanRequest.getScanMetadata(), is(nullValue()));
 
 		assertThat(scanRequest.getAfterScript(), is(nullValue()));
